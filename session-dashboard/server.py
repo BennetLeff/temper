@@ -4,12 +4,50 @@ import http.server
 import json
 import os
 import glob
-from urllib.parse import parse_qs
+import hashlib
+import time
 from datetime import datetime, timezone
+from urllib.parse import parse_qs
+import matcher
+import re
+from datetime import datetime, timezone
+from urllib.parse import parse_qs
 
 CLAUDE_DIR = os.path.expanduser("~/.claude/projects")
 CODEX_DIR = os.path.expanduser("~/.codex/sessions")
 STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
+REVIEW_ARTIFACTS_DIR = "/tmp/compound-engineering/ce-code-review"
+ANALYTICS_CACHE_TTL = 60
+
+PERSONA_MAP = {
+    "ce-correctness-reviewer": {"displayName": "Correctness", "group": "always-on", "description": "Logic errors, edge cases, state bugs"},
+    "ce-testing-reviewer": {"displayName": "Testing", "group": "always-on", "description": "Coverage gaps, weak assertions"},
+    "ce-maintainability-reviewer": {"displayName": "Maintainability", "group": "always-on", "description": "Coupling, complexity, naming"},
+    "ce-project-standards-reviewer": {"displayName": "Project Standards", "group": "always-on", "description": "Standards compliance"},
+    "ce-agent-native-reviewer": {"displayName": "Agent-Native", "group": "ce-always-on", "description": "Agent accessibility verification"},
+    "ce-learnings-researcher": {"displayName": "Learnings", "group": "ce-always-on", "description": "Past solutions search"},
+    "ce-security-reviewer": {"displayName": "Security", "group": "conditional", "description": "Auth, input, permissions"},
+    "ce-performance-reviewer": {"displayName": "Performance", "group": "conditional", "description": "Query perf, data transforms"},
+    "ce-api-contract-reviewer": {"displayName": "API Contract", "group": "conditional", "description": "Routes, serializers, types"},
+    "ce-data-migrations-reviewer": {"displayName": "Data Migrations", "group": "conditional", "description": "Migrations, schema changes"},
+    "ce-reliability-reviewer": {"displayName": "Reliability", "group": "conditional", "description": "Error handling, retries"},
+    "ce-adversarial-reviewer": {"displayName": "Adversarial", "group": "conditional", "description": "Abuse cases, high-risk code"},
+    "ce-previous-comments-reviewer": {"displayName": "Previous Comments", "group": "conditional", "description": "Prior review threads"},
+    "ce-dhh-rails-reviewer": {"displayName": "DHH Rails", "group": "stack-specific", "description": "Rails architecture"},
+    "ce-kieran-rails-reviewer": {"displayName": "Kieran Rails", "group": "stack-specific", "description": "Rails application code"},
+    "ce-kieran-python-reviewer": {"displayName": "Kieran Python", "group": "stack-specific", "description": "Python modules"},
+    "ce-kieran-typescript-reviewer": {"displayName": "Kieran TypeScript", "group": "stack-specific", "description": "TypeScript code"},
+    "ce-julik-frontend-races-reviewer": {"displayName": "Frontend Races", "group": "stack-specific", "description": "DOM/async race conditions"},
+    "ce-swift-ios-reviewer": {"displayName": "Swift iOS", "group": "stack-specific", "description": "iOS/Swift files"},
+    "ce-schema-drift-detector": {"displayName": "Schema Drift", "group": "ce-conditional", "description": "Schema.rb cross-reference"},
+    "ce-deployment-verification-agent": {"displayName": "Deployment Verification", "group": "ce-conditional", "description": "Deployment checklist"},
+}
+
+BLIND_SPOT_EXCLUDED_GROUPS = {"stack-specific", "ce-conditional"}
+ALWAYS_ON_GROUPS = {"always-on", "ce-always-on"}
+
+_cache = {"sessions": None, "ts": 0, "analytics": None, "analytics_ts": 0}
+CACHE_TTL = 30
 
 PHASE_MAP = {
     "ce-ideate": "ideation",
@@ -31,6 +69,8 @@ def phase_from_type(agent_type):
 
 # In-memory cache
 _cache = {"sessions": None, "chains": None, "ts": 0}
+_cache = {"sessions": None, "ts": 0}
+_matcher_cache = {}  # key: (sid, project_root) -> (results, timestamp)
 CACHE_TTL = 30  # seconds
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -49,6 +89,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._json(self._discover(limit, offset))
         elif path == "/api/chains":
             self._json(self._chains())
+        elif path.startswith("/api/session/") and path.endswith("/artifacts"):
+            parts = path.split("/")
+            if len(parts) >= 4:
+                sid = parts[3]
+                self._handle_session_artifacts(sid)
+            else:
+                self._json({"error": "invalid_path"})
         elif path.startswith("/api/session/"):
             sid = path.split("/api/session/")[1]
             self._json(self._session_detail(sid))
@@ -111,8 +158,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 for fp in glob.glob(os.path.join(CODEX_DIR, "*.json")):
                     s = self._parse_codex_json(fp)
                     if s: sessions.append(s)
+
+            chain_data = self.detect_chains(sessions)
+            chain_map = {}
+            for chain in chain_data["chains"]:
+                for phase_name, ps in chain["phases"].items():
+                    if ps.get("sessionId"):
+                        chain_map[ps["sessionId"]] = chain["id"]
+            for s in sessions:
+                s["chainId"] = chain_map.get(s.get("id"))
+
             sessions.sort(key=lambda s: s.get("startedAt") or "", reverse=True)
             _cache["sessions"] = sessions
+            _cache["chains"] = chain_data
             _cache["ts"] = now
         sessions = self._group_sessions(sessions)
         sessions.sort(key=lambda s: s.get("startedAt") or "", reverse=True)
@@ -121,7 +179,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return {"sessions": page, "count": len(page), "total": total, "offset": offset, "limit": limit}
 
     def _scan_subagents(self, proj_path, proj_dir):
-        """Find sub-agent sessions within a project, each treated as a discrete session."""
         subs = []
         sub_dir = os.path.join(proj_path, "subagents")
         if not os.path.isdir(sub_dir):
@@ -201,8 +258,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 "duration": duration, "subAgentCount": 0, "messageCount": msg_count,
                 "status": status or "completed", "sourceType": "jsonl",
                 "summary": summary, "isSubagent": True,
-                "parentUuid": parent_uuid,
-                "agentType": agent_type, "filename": jsonl_path,
+                "agentType": agent_type, "chainId": None, "filename": jsonl_path,
             })
         return subs
 
@@ -247,6 +303,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                         sub_type = o.get("input", {}).get("subagent_type")
                         if sub_type:
                             agent_type = f"compound-engineering:{sub_type}"
+                    agent_type = o.get("agentType")
             except Exception:
                 pass
         duration = (last_ts - started_at) if (started_at and last_ts) else None
@@ -267,7 +324,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             "chainId": None,
             "agentType": agent_type,
             "filename": os.path.relpath(filepath, CLAUDE_DIR), "sourceType": "jsonl",
-            "summary": self._make_summary(project, branch, duration, agent_count, "opencode"),
+            "summary": self._make_summary(project, branch, duration, agent_count, "claude"),
             "agentType": agent_type,
         }
 
@@ -401,7 +458,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 p["subAgents"] = sub_agent_data
                 p["subAgentIds"] = [sa["id"] for sa in sas]
                 p["subAgentCount"] = len(sas)
-                p["latestAgentDate"] = max(sa.get("startedAt", "") or "" for sa in sas)
             else:
                 started_at = None
                 project = None
@@ -434,12 +490,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     "messageCount": 0, "status": "completed", "sourceType": "jsonl",
                     "summary": "Parent session (not in view)", "isSynthetic": True,
                     "parentUuid": None, "agentType": ", ".join(sorted(agent_types)) if agent_types else None,
-                    "latestAgentDate": max(sa.get("startedAt", "") or "" for sa in sas) if sas else None,
                 })
         result = [s for s in sessions if s["id"] not in linked_ids]
         result.extend(synthetic_parents)
         return result
-
     def detect_chains(self, sessions):
         if not sessions:
             return {"chains": [], "count": 0, "generatedAt": datetime.now(timezone.utc).isoformat()}
@@ -654,98 +708,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                             s["messages"] = msgs[:500]
                         return s
         return None
-
-    def _project_root(self, cwd):
-        if cwd:
-            resolved = os.path.realpath(cwd)
-            while True:
-                if os.path.isdir(os.path.join(resolved, ".git")):
-                    return resolved
-                parent = os.path.dirname(resolved)
-                if parent == resolved:
-                    break
-                resolved = parent
-        return os.path.realpath(os.environ.get("PROJECT_ROOT", os.getcwd()))
-
-    def _cached_matcher(self, session, project_root):
-        sid = session.get("id", "")
-        key = (sid, project_root)
-        now = time.time()
-        if key in _matcher_cache:
-            results, ts = _matcher_cache[key]
-            if (now - ts) < CACHE_TTL:
-                return results
-        results = matcher.match_session(session, project_root)
-        _matcher_cache[key] = (results, now)
-        return results
-
-    def _handle_session_artifacts(self, sid):
-        session = self._session_detail(sid)
-        if session is None:
-            self._json({"error": "session_not_found"})
-            return
-        if not session.get("startedAt"):
-            self._json({"artifacts": [], "note": "no_time_data"})
-            return
-        project_root = self._project_root(session.get("cwd"))
-        artifacts = self._cached_matcher(session, project_root)
-        self._json({"session_id": sid, "artifacts": artifacts})
-
-    def _handle_artifact_reverse_lookup(self, qs):
-        raw_path = qs.get("path", "")
-        if not raw_path:
-            self.send_response(400)
-            self._json({"error": "missing_path"})
-            return
-        normalized = os.path.normpath(raw_path.strip("/"))
-        project_root = self._project_root(None)
-        resolved = os.path.realpath(os.path.join(project_root, normalized))
-        if not resolved.startswith(os.path.realpath(project_root)):
-            self.send_response(400)
-            self._json({"error": "path_escapes_project_root"})
-            return
-        all_sessions = self._discover(limit=9999, offset=0).get("sessions", [])
-        matches = []
-        for s in all_sessions:
-            pr = self._project_root(s.get("cwd"))
-            arts = self._cached_matcher(s, pr)
-            for a in arts:
-                if a["path"] == normalized:
-                    matches.append({
-                        "session_id": s.get("id", ""),
-                        "confidence": a["confidence"],
-                        "match_method": a["match_method"],
-                        "matched_at": s.get("startedAt", ""),
-                    })
-                    break
-        matches.sort(key=lambda x: ({"high": 0, "medium": 1, "low": 2}.get(x["confidence"], 99), x.get("matched_at", "") or ""), reverse=False)
-        self._json({"path": normalized, "sessions": matches})
-
-    def _handle_artifact_content(self, qs):
-        raw_path = qs.get("path", "")
-        if not raw_path:
-            self.send_response(400)
-            self._json({"error": "missing_path"})
-            return
-        normalized = os.path.normpath(raw_path.strip("/"))
-        project_root = self._project_root(None)
-        resolved = os.path.realpath(os.path.join(project_root, normalized))
-        if not resolved.startswith(os.path.realpath(project_root)):
-            self.send_response(400)
-            self._json({"error": "path_escapes_project_root"})
-            return
-        if not os.path.isfile(resolved):
-            self.send_response(404)
-            self._json({"error": "file_not_found", "path": normalized})
-            return
-        try:
-            with open(resolved, "r", encoding="utf-8", errors="replace") as f:
-                content = f.read()
-            self._json({"path": normalized, "content": content})
-        except Exception as e:
-            self.send_response(500)
-            self._json({"error": str(e)})
-
 
     # ── Persona analytics ──────────────────────────────────────────────
 

@@ -14,7 +14,6 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
 import numpy as np
 import sys
-import time
 
 
 @dataclass
@@ -96,10 +95,8 @@ class PathfindingResult:
 
     routed_paths: dict[str, RoutePath | RoutePath3D]  # net_name -> RoutePath
     failed_nets: list[str]  # Nets that failed to route
-    plane_net_count: int = 0  # Nets excluded (planes, unconnected)
     failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
     net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
-    per_path_latency_ms: dict[str, float] | None = None  # Per-net A* wall time (ms)
 
     @property
     def success_count(self) -> int:
@@ -569,7 +566,7 @@ def run_astar_pathfinding(
             (success, failure_reason, blocking_nets, congestion_region)
         """
         # Adaptive depth limit: problem nets get more attempts
-        max_depth = 60 if net_name in problem_nets else 30
+        max_depth = 30 if net_name in problem_nets else 15
         if depth > max_depth:
             return False, "rip_up_limit", [], None
 
@@ -601,7 +598,6 @@ def run_astar_pathfinding(
 
         # Route with rip-up capability
         import sys
-        import time
 
         if use_lazy_theta_star:
             mode = "Lazy Theta*"
@@ -718,12 +714,7 @@ def run_astar_pathfinding(
     # Per-path latency tracking (U4: benchmark extension)
     per_path_latency_ms: dict[str, float] = {}
 
-    # Per-path latency tracking (U4: benchmark extension)
-    per_path_latency_ms: dict[str, float] = {}
-
     # First pass: Route all routable nets (skip PLANE/unconnected)
-    first_pass_success = 0
-    first_pass_fail = 0
     for i, net_name in enumerate(routable_nets):
         if net_name not in channel_mapping.channel_paths:
             continue
@@ -731,20 +722,13 @@ def run_astar_pathfinding(
         success, reason, blockers, region = attempt_route(net_name)
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
-            first_pass_fail += 1
             failed_nets.append(net_name)
             record_failure(net_name, reason, blockers, region)
-        else:
-            first_pass_success += 1
 
-    print(f"  First pass: {first_pass_success} routed, {first_pass_fail} failed,"
-          f" {len(reroute_queue)} queued for rip-up")
     # Second pass: Reroute queue (iteratively)
     max_reroute_attempts = len(routable_nets) * 5
     attempts = 0
 
-    reroute_success = 0
-    reroute_fail = 0
     while reroute_queue and attempts < max_reroute_attempts:
         net_name = reroute_queue.pop(0)
         attempts += 1
@@ -752,13 +736,9 @@ def run_astar_pathfinding(
         success, reason, blockers, region = attempt_route(net_name, depth=1)
         per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
         if not success:
-            reroute_fail += 1
             failed_nets.append(net_name)
             record_failure(net_name, reason, blockers, region)
-        else:
-            reroute_success += 1
 
-    print(f"  Reroute pass: {reroute_success} recovered, {reroute_fail} still failed")
     # Final cleanup: Record any nets left in queue as failures
     for net_name in reroute_queue:
         failed_nets.append(net_name)
@@ -797,7 +777,7 @@ def _astar_route_with_ripup(
         (RoutePath, list_of_net_ids_to_rip)
     """
     # Try multilayer routing if alternate grid available
-    if alternate_grid:
+    if alternate_grid and tht_locations:
         path = _astar_route_multilayer(
             net_name,
             channel_path,
@@ -940,44 +920,21 @@ def _astar_route_multilayer(
         )
 
         if start_valid and goal_valid:
-            # U4: Try coarser grid first for performance on open terrain
-            coarse_enabled = not use_theta_star and not use_lazy_theta_star
-            coarse_grid = grid_to_use.downsample(2) if coarse_enabled else None
-
-            if coarse_grid is not None:
-                coarse_start = coarse_grid.world_to_grid(start_world[0], start_world[1])
-                coarse_goal = coarse_grid.world_to_grid(goal_world[0], goal_world[1])
-                if (0 <= coarse_start[0] < coarse_grid.width_cells
-                        and 0 <= coarse_start[1] < coarse_grid.height_cells
-                        and 0 <= coarse_goal[0] < coarse_grid.width_cells
-                        and 0 <= coarse_goal[1] < coarse_grid.height_cells):
-                    coarse_path = _astar_search(coarse_start, coarse_goal, coarse_grid)
-                    if coarse_path:
-                        # Map coarse path back to fine grid for waypoints
-                        fine_waypoints = [
-                            (start_world[0] + (gp[0] + 0.5) * coarse_grid.cell_size - coarse_grid.origin[0],
-                             start_world[1] + (gp[1] + 0.5) * coarse_grid.cell_size - coarse_grid.origin[1])
-                            for gp in coarse_path
-                        ]
-                        # Build a simple path from the coarse waypoints
-                        segment_path = fine_waypoints
-
-            if segment_path is None:
-                if use_lazy_theta_star:
-                    segment_path = _astar_search_lazy_theta_star(
-                        grid_to_use, start_grid, goal_grid, net_id=-1
-                    )
-                elif use_theta_star:
-                    segment_path = _astar_search_theta_star(
-                        grid_to_use, start_grid, goal_grid, net_id=-1
-                    )
-                else:
-                    segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
+            if use_lazy_theta_star:
+                segment_path = _astar_search_lazy_theta_star(
+                    grid_to_use, start_grid, goal_grid, net_id=-1
+                )
+            elif use_theta_star:
+                segment_path = _astar_search_theta_star(
+                    grid_to_use, start_grid, goal_grid, net_id=-1
+                )
+            else:
+                segment_path = _astar_search(start_grid, goal_grid, grid_to_use)
 
         # If primary failed and alternate available, try alternate layer
         # Allow layer switching when THT pads exist on the board - the router
         # assumes layer transitions happen at nearby THT pads (implicit vias)
-        if not segment_path and alternate_grid:
+        if not segment_path and alternate_grid and tht_locations:
             # Try alternate layer (THT pads enable layer transitions)
             grid_to_use = alternate_grid
             start_grid = grid_to_use.world_to_grid(start_world[0], start_world[1])
@@ -1209,16 +1166,11 @@ def _astar_search(
         # Directions: Right, Down, Left, Up, Diagonals
         moves = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-        # Direct numpy access for inner-loop performance (U1: avoid 180M method calls)
-        grid_arr = grid.grid
-        gw, gh = grid.width_cells, grid.height_cells
-
         for dx, dy in moves:
             neighbor = (x + dx, y + dy)
-            nx, ny = neighbor
 
-            # Check if neighbor is valid and free (inlined bounds + numpy check)
-            if not (0 <= nx < gw and 0 <= ny < gh and grid_arr[ny, nx] == 0):
+            # Check if neighbor is valid and free
+            if not grid.is_free(neighbor[0], neighbor[1]):
                 continue
 
             # Diagonal cost = 1.414, Cardinal = 1.0

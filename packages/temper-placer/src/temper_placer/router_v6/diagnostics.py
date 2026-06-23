@@ -234,7 +234,6 @@ class BoardRoutingReport:
     total_drc_violations: int
     runtime_seconds: float
     per_path_latency_ms: dict | None = None
-    per_path_latency_ms: dict | None = None
 
     def __str__(self) -> str:
         return (f"{self.board_name}: {self.completion_rate*100:.1f}% complete "
