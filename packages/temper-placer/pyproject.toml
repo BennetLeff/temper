@@ -90,6 +90,7 @@ markers = [
     "comparison: marks ground truth comparison tests",
     "ci: marks tests suitable for fast CI validation",
     "robustness: marks tests for optimizer robustness and convergence",
+    "property: marks property-based (Hypothesis) tests",
 ]
 
 [tool.ruff]
