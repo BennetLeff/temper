@@ -28,6 +28,10 @@ _meta:
   total_scripts: 103
 
 scripts:
+  # ==========================================================================
+  # Category: keep — ci-gate
+  # ==========================================================================
+
   - path: import_linter_gate.py
     purpose: "Import boundary enforcement CI gate wrapper"
     owner: pipeline

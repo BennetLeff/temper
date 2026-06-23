@@ -75,8 +75,7 @@ def _build_pipeline_up_to(boundary_name: str, board, netlist):
         ),
         "apply_placements_reapply": lambda: ApplyPlacementsStage(),
         "placement_validation": lambda: PlacementValidationStage(
-            constraints={"placement_proximity": [], "signal_hv_clearances": []},
-            fail_on_hard_violations=False,
+            constraints={"placement_proximity": [], "signal_hv_clearances": []}, fail_on_hard_violations=False,
         ),
     }
 

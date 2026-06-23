@@ -8,13 +8,19 @@ Part of temper-atsd (Stage 3 - Topological Routing)
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from temper_placer.core.netlist import Net
+from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.diff_pair_inference import DiffPair
 from temper_placer.router_v6.stage0_data import DesignRules, ParsedPCB
+from temper_placer.router_v6.stage_validators import (
+    StageDRCFailure,
+    register_validator,
+)
 
 
 @dataclass(kw_only=True)
@@ -353,3 +359,55 @@ class ModelBuilder:
                                         allowed=False
                                     )
                                     self.model.add_constraint(constraint)
+
+
+class ConstraintGenerationStage(Stage):
+    """Stage 3.1: Build constraint model from skeletons and nets."""
+
+    @property
+    def name(self) -> str:
+        return "ConstraintGeneration"
+
+    def run(self, state: BoardState) -> BoardState:
+        pcb: ParsedPCB = state._parsed_pcb
+        skeletons = state.channel_skeletons
+        channel_widths = state.channel_widths
+        model_builder = ModelBuilder(
+            skeletons=skeletons,
+            nets=pcb.nets,
+            channel_widths=channel_widths,
+            design_rules=pcb.design_rules,
+            diff_pairs=[],
+            pcb=pcb,
+        )
+        constraint_model = model_builder.build()
+        return replace(state, constraint_model=constraint_model)
+
+
+@register_validator("ConstraintGeneration")
+def validate_constraint_generation(state: BoardState) -> list[StageDRCFailure]:
+    failures: list[StageDRCFailure] = []
+    cm = state.constraint_model
+    if cm is None:
+        failures.append(StageDRCFailure(
+            field="constraint_model", value=None,
+            reason="Constraint model not generated", stage="ConstraintGeneration",
+        ))
+        return failures
+    if cm.variable_count == 0 and cm.constraint_count == 0:
+        failures.append(StageDRCFailure(
+            field="constraint_model", value=cm.variable_count,
+            reason="Constraint model has zero variables and zero constraints",
+            stage="ConstraintGeneration",
+        ))
+    channel_var_ids = set()
+    for var in cm.variables:
+        if hasattr(var, 'channel_id'):
+            if var.channel_id in channel_var_ids:
+                failures.append(StageDRCFailure(
+                    field="net_channel_vars", value=var.channel_id,
+                    reason=f"Duplicate channel variable name: {var.channel_id}",
+                    stage="ConstraintGeneration",
+                ))
+            channel_var_ids.add(var.channel_id)
+    return failures

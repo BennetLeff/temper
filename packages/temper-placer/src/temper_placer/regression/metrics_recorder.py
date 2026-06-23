@@ -49,6 +49,7 @@ def record_closure_result(
     commit: str = "",
 ) -> PipelineMetricsRecord:
     wall_time_ms = int(result.wall_clock_seconds * 1000)
+
     return PipelineMetricsRecord(
         board=board_id,
         stage="closure",
@@ -64,15 +65,20 @@ def record_closure_result(
     )
 
 
-def record_metrics(record: PipelineMetricsRecord, filepath: Path) -> None:
+def record_metrics(
+    record: PipelineMetricsRecord,
+    filepath: Path,
+) -> None:
     filepath.parent.mkdir(parents=True, exist_ok=True)
+    line = record.to_jsonl()
     with open(filepath, "a") as f:
-        f.write(record.to_jsonl() + "\n")
+        f.write(line + "\n")
 
 
 def load_metrics(filepath: Path) -> list[dict[str, Any]]:
     if not filepath.exists():
         return []
+
     records: list[dict[str, Any]] = []
     with open(filepath) as f:
         for lineno, line in enumerate(f, 1):
@@ -84,6 +90,7 @@ def load_metrics(filepath: Path) -> list[dict[str, Any]]:
             except json.JSONDecodeError:
                 warnings.warn(f"Invalid JSON at line {lineno}, skipping")
                 continue
+
             schema = record.get("schema_version", 0)
             if schema == 0:
                 warnings.warn(
@@ -92,7 +99,9 @@ def load_metrics(filepath: Path) -> list[dict[str, Any]]:
             elif schema > CURRENT_SCHEMA_VERSION:
                 warnings.warn(f"Future schema_version {schema} at line {lineno}, skipping")
                 continue
+
             records.append(record)
+
     return records
 
 

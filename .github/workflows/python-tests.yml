@@ -93,11 +93,36 @@ jobs:
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
 
-      - name: Per-stage timing regression check
-        working-directory: packages/temper-placer
-        run: uv run temper-placer timing check --ci --json
-        env:
-          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+  closure:
+    name: Pipeline Closure Test (Truth-Gated)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Run closure test (truth-gated)
+        run: >
+          uv run python3 scripts/ci_closure_test.py
+          --pcb pcb/temper.kicad_pcb
+          --require-all-stages
+          --output closure-result.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: closure-result
+          path: closure-result.json
 
   regression:
     name: Performance & Quality Regression
