@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/kimi-k2.6",
+  "model": "opencode-go/mimo-v2.5",
   "permission": {
     "bash": {
       "bd *": "allow",
