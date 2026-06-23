@@ -441,6 +441,7 @@ def _partition_to_components(
     source_cells: list[tuple[int, int, int]],
     sink_cells: list[tuple[int, int, int]],
     pad_positions: dict[tuple[int, int, int], tuple[str, tuple[float, float]]],
+    grid: "ClearanceGrid | None" = None,
 ) -> tuple[
     tuple[str, str],
     "PairKind",
@@ -457,6 +458,13 @@ def _partition_to_components(
     ``component_pair`` is a 2-tuple of strings; one or both entries may
     be a free-form description (e.g. ``"board_edge"``) for non-component
     kinds.
+
+    Args:
+        grid: Optional ``ClearanceGrid`` carrying the cell size. When
+            present, cell coordinates are converted to world-space mm
+            using ``grid.cell_size_mm`` (the correct source for any
+            grid resolution). When absent, the function falls back to
+            ``board_state.grid.cell_size_mm`` and finally to 1.0 mm.
     """
     source_label = "source"
     sink_label = "sink"
@@ -478,13 +486,20 @@ def _partition_to_components(
             sink_pos = info[1]
             break
 
+    # Resolve cell size from the actual ``ClearanceGrid`` (which carries
+    # ``cell_size_mm``). Fall back to ``board_state.grid`` and finally
+    # to 1.0 mm for synthetic tests that pass a stub. The ``Board``
+    # itself does NOT carry ``cell_size_mm`` — using it would silently
+    # default to 1.0 mm and produce wrong world-space coordinates.
+    cell_size = _resolve_cell_size_mm(board_state, grid)
+
     # If the source side hits the board edge, classify as component_edge.
     board = getattr(board_state, "board", None)
     if board is not None and board.width > 0 and board.height > 0:
         for cell in reachable:
             layer, row, col = cell
-            x_mm = col * grid_cell_size(board) + grid_cell_size(board) / 2
-            y_mm = row * grid_cell_size(board) + grid_cell_size(board) / 2
+            x_mm = col * cell_size + cell_size / 2
+            y_mm = row * cell_size + cell_size / 2
             if (
                 x_mm <= 0.01
                 or y_mm <= 0.01
@@ -500,8 +515,8 @@ def _partition_to_components(
     keepouts = getattr(board, "keepouts", None) if board is not None else None
     if keepouts:
         for cell in non_reachable:
-            x_mm = cell[2] * grid_cell_size(board) + grid_cell_size(board) / 2
-            y_mm = cell[1] * grid_cell_size(board) + grid_cell_size(board) / 2
+            x_mm = cell[2] * cell_size + cell_size / 2
+            y_mm = cell[1] * cell_size + cell_size / 2
             for (x_min, y_min, x_max, y_max) in keepouts:
                 if x_min <= x_mm <= x_max and y_min <= y_mm <= y_max:
                     sink_label = sink_label or "keepout"
@@ -512,6 +527,33 @@ def _partition_to_components(
                 break
 
     return (source_label, sink_label), pair_kind, (source_pos, sink_pos)
+
+
+def _resolve_cell_size_mm(
+    board_state: "BoardState", grid: "ClearanceGrid | None"
+) -> float:
+    """Return the cell size in mm for the board's clearance grid.
+
+    The ``Board`` dataclass does not carry ``cell_size_mm``; the
+    ``ClearanceGrid`` does. Resolution order:
+    1. ``grid`` argument (preferred — the actual graph source).
+    2. ``board_state.grid`` (legacy fallback for callers that omit
+       the grid argument).
+    3. ``1.0`` mm (synthetic test stubs).
+
+    Args:
+        board_state: ``BoardState`` carrying the optional grid.
+        grid: Explicit ``ClearanceGrid`` to read cell size from.
+
+    Returns:
+        Cell size in mm. Always positive.
+    """
+    if grid is not None and hasattr(grid, "cell_size_mm"):
+        return float(grid.cell_size_mm)
+    state_grid = getattr(board_state, "grid", None)
+    if state_grid is not None and hasattr(state_grid, "cell_size_mm"):
+        return float(state_grid.cell_size_mm)
+    return 1.0
 
 
 def grid_cell_size(board_state_or_grid: "object") -> float:
@@ -738,7 +780,9 @@ def analyze_bottleneck(
                 cut_cells.append(cell)
                 break
 
-    # Classify partition.
+    # Classify partition. Pass the grid so board-edge / keepout
+    # classification uses the correct ``cell_size_mm`` (the
+    # ``Board`` itself does not carry this attribute).
     component_pair, pair_kind, positions_mm = _partition_to_components(
         reachable=set(reachable),
         non_reachable=set(non_reachable),
@@ -746,6 +790,7 @@ def analyze_bottleneck(
         source_cells=source_cells,
         sink_cells=sink_cells,
         pad_positions=pad_positions,
+        grid=grid,
     )
 
     current_gap_mm = _compute_current_gap_mm(positions_mm)

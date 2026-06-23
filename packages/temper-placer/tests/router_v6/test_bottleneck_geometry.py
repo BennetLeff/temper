@@ -308,3 +308,80 @@ class TestBottleneckSynthetic:
         text = str(jaxpr)
         assert "analyze_bottleneck" not in text
         assert "BottleneckGeometry" not in text
+
+    def test_partition_uses_grid_cell_size_not_board_default(self) -> None:
+        """Fix #2: ``_partition_to_components`` must read ``cell_size_mm``
+        from the ``ClearanceGrid`` (which carries the attribute), not
+        from the ``Board`` (which does not). When the grid has a
+        non-default cell size, the board-edge classification must use
+        that cell size for the world-space mm conversion.
+
+        Concretely: a 0.5 mm cell grid + 12×12 mm board has
+        ``cols=rows=24``; the center cell ``(0, 12)`` lives at
+        ``x = 12 * 0.5 + 0.25 = 6.25 mm`` (well inside the board).
+        With the previous default of 1.0 mm the same cell coordinate
+        would have been read as ``12.5 mm`` (still inside) — but on
+        a 0.1 mm cell grid, cell ``(0, 50)`` would have been read as
+        ``50.5 mm`` (outside the 12 mm board) when in reality the
+        world position is ``5.05 mm`` (inside). This regression test
+        exercises the 0.1 mm case end-to-end.
+        """
+        from temper_placer.core.board import Board
+        from temper_placer.router_v6.bottleneck_geometry import (
+            _partition_to_components,
+        )
+
+        # Tiny 12×12 mm board with 0.1 mm cells (120×120 grid).
+        grid = ClearanceGrid(
+            width_mm=12.0,
+            height_mm=12.0,
+            cell_size_mm=0.1,
+            layer_count=1,
+        )
+        board = Board(width=12.0, height=12.0, keepouts=[])
+        netlist = Netlist(components=[], nets=[])
+        state = BoardState(board=board, netlist=netlist, grid=grid, net_order=())
+
+        # Cell (0, 50) on layer 0 → world-space x = 50*0.1 + 0.05 = 5.05 mm.
+        # This cell is well inside the 12 mm board width. With the old
+        # default of 1.0 mm, the same coordinate would be 50.5 mm
+        # (incorrectly classified as "outside" → component_edge).
+        reachable: set[tuple[int, int, int]] = {(0, 5, 50)}
+        non_reachable: set[tuple[int, int, int]] = {(0, 5, 60)}
+
+        (a, b), pair_kind, _positions = _partition_to_components(
+            reachable=reachable,
+            non_reachable=non_reachable,
+            board_state=state,
+            source_cells=[(0, 5, 50)],
+            sink_cells=[(0, 5, 60)],
+            pad_positions={},
+            grid=grid,
+        )
+
+        # With the correct 0.1 mm cell size, the cell is well inside
+        # the board → no component_edge / component_keepout
+        # classification should fire.
+        assert pair_kind == "component_component", (
+            f"expected component_component (cell inside board), got {pair_kind!r}; "
+            f"labels: a={a!r}, b={b!r}"
+        )
+
+    def test_resolve_cell_size_falls_back_to_state_grid(self) -> None:
+        """When no explicit grid is passed, ``_resolve_cell_size_mm``
+        still pulls ``cell_size_mm`` from ``board_state.grid`` (not
+        from ``Board``, which doesn't carry the attribute)."""
+        from temper_placer.core.board import Board
+        from temper_placer.router_v6.bottleneck_geometry import (
+            _resolve_cell_size_mm,
+        )
+
+        grid = ClearanceGrid(
+            width_mm=10.0, height_mm=10.0, cell_size_mm=0.25, layer_count=1
+        )
+        board = Board(width=10.0, height=10.0)
+        state = BoardState(board=board, netlist=None, grid=grid, net_order=())
+
+        # No explicit grid argument — must read from state.grid.
+        size = _resolve_cell_size_mm(state, None)
+        assert size == 0.25
