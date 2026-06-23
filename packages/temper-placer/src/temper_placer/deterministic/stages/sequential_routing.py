@@ -1850,8 +1850,9 @@ class SequentialRoutingStage(Stage):
                     via_cost=2.0,  # Lower via cost on retry to encourage layer changes
                     allowed_layers=allowed_layers,
                     use_adaptive_budget=False,  # perf: Use legacy budget with hard cap for retries
-                    max_iterations=5000,  # perf: Hard iteration cap per segment on retries
-                    max_iterations_cap=5000,  # perf: Enforce cap
+                    max_iterations=1000,  # perf: Tighter cap - GATE nets need ~400 iters, clearance-blocked nets waste time at 5000
+                    max_iterations_cap=1000,  # perf: Enforce cap
+                    min_iterations=1000,  # perf: Override 5000 default floor to allow faster failure
                 )
 
                 # Compute MST and route
