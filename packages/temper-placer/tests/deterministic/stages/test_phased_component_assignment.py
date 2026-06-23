@@ -4,15 +4,17 @@ Tests for PhasedComponentAssignmentStage - priority-based placement.
 Part of temper-g54c.3: Phased placement using placement_priority configuration.
 """
 
+import logging
 from unittest.mock import Mock
 
 import pytest
 
+from temper_placer.deterministic.bottleneck_map import BottleneckMap
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer.io.config_loader import PlacementConstraints, SeedFilterConfig
 
 
 class TestPhasedPlacement:
@@ -376,3 +378,111 @@ class TestPhaseOrdering:
 
         # C placed last (phase3)
         assert "C" in placements
+
+
+class TestObservabilityR6:
+    """Coverage for the R6 observability contract (U5b).
+
+    The seed filter emits one structured INFO log line per call. The
+    line must contain ``event=seed_filter`` plus every required key:
+    ``candidates_total``, ``candidates_accepted``, ``candidates_rejected``,
+    ``avg_bottleneck_score_accepted``, ``threshold``, ``hv_threshold``,
+    ``fallback_used``.
+    """
+
+    def _state_with_map(self, bmap: BottleneckMap) -> BoardState:
+        netlist = Mock()
+        netlist.components = [
+            Mock(ref=f"R{i}", bounds=(2, 2), pins=[]) for i in range(1, 5)
+        ]
+        netlist.nets = []
+        slots = tuple(
+            (i * 2.0 + 0.5, j * 2.0 + 0.5) for i in range(8) for j in range(8)
+        )
+        return BoardState(
+            netlist=netlist,
+            component_zone_map=frozenset(
+                [(f"R{i}", "Signal") for i in range(1, 5)]
+            ),
+            zone_slots=frozenset([("Signal", slots)]),
+            bottleneck_analysis=bmap,
+        )
+
+    def _constraints_with_optimize_phase(self) -> PlacementConstraints:
+        constraints = PlacementConstraints()
+        # Force _place_optimize path (not the simple-greedy fallback).
+        constraints.placement_priority = {
+            "auto": {
+                "method": "auto",
+            }
+        }
+        return constraints
+
+    def test_observability_emits_required_keys(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Happy path: one INFO line with all R6 keys, fallback_used=False."""
+        bmap = BottleneckMap(
+            cell_size_mm=2.0,
+            width=8,
+            height=8,
+            origin_xy=(0.0, 0.0),
+            scores=tuple(0.1 for _ in range(64)),
+        )
+        constraints = self._constraints_with_optimize_phase()
+        # Default seed_filter (enabled=True) takes effect.
+        stage = PhasedComponentAssignmentStage(constraints)
+        state = self._state_with_map(bmap)
+
+        with caplog.at_level(logging.DEBUG):
+            stage.run(state)
+
+        seed_filter_records = [
+            r for r in caplog.records
+            if "event=seed_filter" in r.message
+        ]
+        # At least one record per component placed; assert keys are present
+        # in the first one.
+        assert seed_filter_records, "Expected at least one seed_filter log line"
+        first = seed_filter_records[0].message
+        for key in (
+            "candidates_total",
+            "candidates_accepted",
+            "candidates_rejected",
+            "avg_bottleneck_score_accepted",
+            "threshold",
+            "hv_threshold",
+            "fallback_used",
+        ):
+            assert key in first, f"Missing required key: {key}"
+        assert "event=seed_filter" in first
+        assert "fallback_used=False" in first
+
+    def test_observability_fallback_used_true(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Aggressive threshold triggers fallback_used=True on the INFO line."""
+        bmap = BottleneckMap(
+            cell_size_mm=2.0,
+            width=8,
+            height=8,
+            origin_xy=(0.0, 0.0),
+            scores=tuple(0.9 for _ in range(64)),
+        )
+        constraints = self._constraints_with_optimize_phase()
+        constraints.seed_filter = SeedFilterConfig(
+            enabled=True, threshold=0.01, hv_threshold=0.01
+        )
+        stage = PhasedComponentAssignmentStage(constraints)
+        state = self._state_with_map(bmap)
+
+        with caplog.at_level(logging.DEBUG):
+            stage.run(state)
+
+        seed_filter_records = [
+            r for r in caplog.records
+            if "event=seed_filter" in r.message
+        ]
+        assert seed_filter_records
+        # At least one record should report fallback_used=True.
+        assert any("fallback_used=True" in r.message for r in seed_filter_records)
