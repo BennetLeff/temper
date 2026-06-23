@@ -330,6 +330,10 @@ class HVExclusionZone:
         size: (width, height) in mm
         clearance_mm: Required clearance (creepage distance)
         excluded_nets: List of net names that must avoid this zone
+        component_refdes: Optional parent component refdes. When set, all pads
+            of that component are identified as HV pads and receive the
+            pre-route creepage expansion. When unset, the closest component to
+            the zone center is used.
         description: Human-readable description
     """
 
@@ -338,6 +342,7 @@ class HVExclusionZone:
     size: tuple[float, float]
     clearance_mm: float = 6.0
     excluded_nets: list[str] = field(default_factory=list)
+    component_refdes: str | None = None
     description: str = ""
 
 
