@@ -815,6 +815,7 @@ class ClearanceGridStage(Stage):
 
             # Build net->pads mapping for selective unblocking
             net_pads = {}
+            all_pads_for_expansion = []
             for component in state.netlist.components:
                 pos = placements_dict.get(component.ref, component.initial_position)
                 if pos is None:
@@ -822,7 +823,7 @@ class ClearanceGridStage(Stage):
 
                 for pin in component.pins:
                     pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
-                    
+
                     pad_radius = 0.5
                     pad_width = 1.0
                     pad_height = 1.0
@@ -852,19 +853,19 @@ class ClearanceGridStage(Stage):
                     else:
                         target_layers = list(range(grid.layer_count))
 
-                    net_pads[net].append(
-                        {
-                            "pos": pin_pos,
-                            "size": (pad_width, pad_height), # Store full size
-                            "radius": pad_radius, # Keep radius for circle fallback
-                            "shape": pin.shape, # Store shape
-                            "rotation": getattr(pin, "rotation", 0.0), # Store rotation if available
-                            "layers": target_layers,
-                            "is_pth": pin.is_pth,
-                            "ref": component.ref, # Store ref for lookup
-                            "name": pin.name, # Store pin name for lookup
-                        }
-                    )
+                    pad_dict = {
+                        "pos": pin_pos,
+                        "size": (pad_width, pad_height), # Store full size
+                        "radius": pad_radius, # Keep radius for circle fallback
+                        "shape": pin.shape, # Store shape
+                        "rotation": getattr(pin, "rotation", 0.0), # Store rotation if available
+                        "layers": target_layers,
+                        "is_pth": pin.is_pth,
+                        "ref": component.ref, # Store ref for lookup
+                        "name": pin.name, # Store pin name for lookup
+                    }
+                    net_pads[net].append(pad_dict)
+                    all_pads_for_expansion.append(pad_dict)
 
             # Block all pads with clearance based on the pad's net class.
             for net_name, pads in net_pads.items():
@@ -937,6 +938,72 @@ class ClearanceGridStage(Stage):
                                     layer=layer_idx,
                                     net_name=net_name,
                                 )
+
+            # @req(2026-06-23-005, U2, R1, R2, R3): Pre-route creepage expansion
+            # pass. After the per-net blocking above, walk the HV-pad set
+            # (resolved by U1's `hv_pad_set`) and re-block each HV pad with its
+            # per-layer effective creepage distance applied. Non-HV pads are
+            # left at their current blocking radius.
+            component_positions = {
+                component.ref: positions
+                for positions, component in (
+                    (placements_dict.get(component.ref, component.initial_position), component)
+                    for component in state.netlist.components
+                )
+                if positions is not None
+            }
+            hv_pads = hv_pad_set(all_pads_for_expansion, self.hv_exclusion_zones, component_positions)
+            _EXPANSION_LOG.clear()
+            for pad in all_pads_for_expansion:
+                if (pad["ref"], pad["name"]) not in hv_pads:
+                    continue
+
+                for layer_idx in pad["layers"]:
+                    if layer_idx >= grid.layer_count:
+                        continue
+
+                    layer_name = _layer_index_to_name(layer_idx, grid.layer_count)
+                    eff_creep = effective_creepage(layer_name, 6.0)
+
+                    pre_count = grid.blocked_count_on_layer(layer_idx)
+
+                    pad_key = (pad["ref"], pad["name"])
+                    real_pad = self.pad_sizes.get(pad_key)
+                    use_rect = False
+                    rect_size = (0.0, 0.0)
+                    if real_pad and real_pad.shape in ("rect", "roundrect", "oval"):
+                        rot = int(round(getattr(real_pad, "rotation", 0.0))) % 180
+                        if rot == 0:
+                            rect_size = (real_pad.size.X, real_pad.size.Y)
+                            use_rect = True
+                        elif rot == 90:
+                            rect_size = (real_pad.size.Y, real_pad.size.X)
+                            use_rect = True
+
+                    if use_rect:
+                        # Minkowski sum with a disc: each side grows by eff_creep.
+                        w, h = rect_size
+                        grid.block_rect(
+                            center=pad["pos"],
+                            size=(w + 2.0 * eff_creep, h + 2.0 * eff_creep),
+                            clearance_mm=0.0,
+                            layer=layer_idx,
+                            net_name=None,
+                            is_obstacle=True,
+                        )
+                    else:
+                        # Circular Minkowski sum: radius grows by eff_creep.
+                        grid.block_circle(
+                            pad["pos"],
+                            radius_mm=pad["radius"] + eff_creep,
+                            clearance_mm=0.0,
+                            layer=layer_idx,
+                            net_name=None,
+                            is_pad=False,
+                        )
+
+                    _EXPANSION_LOG.append((pad["ref"], pad["name"], layer_idx,
+                                           grid.blocked_count_on_layer(layer_idx) - pre_count))
 
         # EXP-13: Block HV exclusion zones for specified nets
         # These zones force signals (like GATE_H, PWM_H) to route around HV areas
