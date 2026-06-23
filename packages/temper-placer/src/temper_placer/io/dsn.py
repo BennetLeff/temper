@@ -13,38 +13,34 @@ class DSNExpression:
     comment: str | None = None
 
     def with_comment(self, line: str) -> DSNExpression:
-        """Return a copy with a comment line prepended before the S-expression."""
-        return DSNExpression(name=self.name, args=self.args, comment=line)
+        """Return a new DSNExpression with a comment line prepended."""
+        return DSNExpression(
+            name=self.name,
+            args=tuple(self.args),
+            comment=line,
+        )
 
     def __str__(self) -> str:
         def fmt(v) -> str:
             if isinstance(v, DSNExpression):
                 return str(v)
             if isinstance(v, float):
-                # Format float to remove trailing zeros and ensure decimal point if needed
                 s = f"{v:.6f}".rstrip("0").rstrip(".")
-                if "." not in s and "e" not in s:
-                    # Specctra sometimes needs a decimal point for some fields? 
-                    # Actually standard says it can be integer.
-                    pass
                 return s
             if isinstance(v, str):
                 if not v:
                     return '""'
-                # Check for special characters that require quoting
-                # SPECCTRA is very permissive with identifiers.
-                # Only quote if it has spaces, parens or quotes.
                 special_chars = set(" ()\"")
                 if any(c in special_chars for c in v):
-                    # Escape quotes in string
                     escaped = v.replace('"', '\\"')
                     return f'"{escaped}"'
                 return v
             return str(v)
 
-        body = f"({self.name})" if not self.args else f"({self.name} {' '.join(fmt(arg) for arg in self.args)})"
+        body = f"({self.name})" if not self.args else f"({self.name} {' '.join(fmt(a) for a in self.args)})"
+
         if self.comment:
-            return f"{self.comment}\n{body}"
+            return f";{self.comment}\n{body}"
         return body
 
 

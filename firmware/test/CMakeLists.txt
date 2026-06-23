@@ -147,6 +147,7 @@ target_link_libraries(test_runner m)
 add_executable(test_state_machine_only
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
@@ -391,6 +392,7 @@ target_link_libraries(test_profiles_only m)
 add_executable(test_sil_fault_injection
     ${UNITY_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c

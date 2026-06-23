@@ -1,9 +1,17 @@
-from dataclasses import replace, dataclass
+from dataclasses import replace
 from typing import List, Tuple, Optional, Set
 import numpy as np
 from ..state import BoardState
 from .base import Stage
 from .multilayer_astar import MultiLayerAStar
+from .sequential_routing_dataclasses import DiffPairConfig
+from .sequential_routing_helpers import (
+    LAYER_IDX_TO_NAME,
+    LAYER_NAME_TO_IDX,
+    LAYER_ENUM_TO_IDX,
+    _compute_endpoint_tolerance,
+    _compute_mst,
+)
 from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
 from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
@@ -35,30 +43,6 @@ from ...routing.adaptive_congestion import (
     ComponentBasedCongestionDetector,
     CompositeDetector,
 )
-
-
-@dataclass
-class DiffPairConfig:
-    """Configuration for a differential pair."""
-
-    net_pos: str  # Positive net name (e.g., "USB_D+")
-    net_neg: str  # Negative net name (e.g., "USB_D-")
-    spacing_mm: float = 0.15  # Target spacing between traces
-    coupling_tolerance_mm: float = 0.5  # Max allowed divergence
-    max_skew_mm: float = 0.5  # Max length mismatch
-
-
-# Layer name mappings
-LAYER_IDX_TO_NAME = {0: "F.Cu", 1: "In1.Cu", 2: "In2.Cu", 3: "B.Cu"}
-LAYER_NAME_TO_IDX = {"F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3}
-
-# Layer enum to index mapping
-LAYER_ENUM_TO_IDX = {
-    LayerEnum.L1_TOP: 0,
-    LayerEnum.L2_GND: 1,
-    LayerEnum.L3_PWR: 2,
-    LayerEnum.L4_BOT: 3,
-}
 
 
 class SequentialRoutingStage(Stage):
@@ -204,33 +188,6 @@ class SequentialRoutingStage(Stage):
                 results.append(((pad.center.x, pad.center.y), pad.is_pth, pad.size))
 
         return results
-
-    def _compute_endpoint_tolerance(
-        self,
-        is_pth: bool,
-        pad_size: Optional[Tuple[float, float]],
-        grid_cell_size: float,
-    ) -> float:
-        """Compute endpoint tolerance for A* pathfinding.
-
-        For PTH pads, traces can land anywhere within the pad boundary.
-        For SMD pads, traces must hit closer to center.
-
-        Args:
-            is_pth: True if plated through-hole
-            pad_size: (width, height) of pad or None
-            grid_cell_size: Grid cell size in mm
-
-        Returns:
-            Tolerance in mm - A* accepts endpoints within this radius
-        """
-        if not is_pth or not pad_size:
-            return grid_cell_size  # Default: one grid cell
-
-        # PTH pads: allow landing anywhere within pad
-        # Use half the smaller dimension as tolerance
-        min_dim = min(pad_size[0], pad_size[1])
-        return max(min_dim / 2.0, grid_cell_size)
 
     def _create_via_array(
         self,
@@ -1229,7 +1186,7 @@ class SequentialRoutingStage(Stage):
                 if oracle_results:
                     # Found pads in oracle - use them (could be multiple for one logical pin)
                     for oracle_pos, is_pth, pad_size in oracle_results:
-                        endpoint_tolerance = self._compute_endpoint_tolerance(
+                        endpoint_tolerance = _compute_endpoint_tolerance(
                             is_pth, pad_size, grid.cell_size_mm
                         )
                         
@@ -1531,7 +1488,7 @@ class SequentialRoutingStage(Stage):
             # Get allowed layers for this net (enables inner layer routing for congested nets)
             allowed_layers = self._get_allowed_layers_for_net(net_name, net_class_name, state)
 
-            mst_edges = self._compute_mst(pin_positions)
+            mst_edges = _compute_mst(pin_positions)
 
             # Snap pin positions to grid for A* pathfinding
             snapped_positions = [snap_to_grid(p, grid.cell_size_mm) for p in pin_positions]
@@ -1849,7 +1806,7 @@ class SequentialRoutingStage(Stage):
                     
                     if oracle_results:
                         for oracle_pos, is_pth, pad_size in oracle_results:
-                            endpoint_tolerance = self._compute_endpoint_tolerance(
+                            endpoint_tolerance = _compute_endpoint_tolerance(
                                 is_pth, pad_size, grid.cell_size_mm
                             )
                             escape_layer, final_pos = self._get_escape_via_for_pin(oracle_pos, net_name, state)
@@ -1890,7 +1847,7 @@ class SequentialRoutingStage(Stage):
 
                 # Compute MST and route
                 snapped_positions = [snap_to_grid(p, grid.cell_size_mm) for p in pin_positions]
-                mst_edges = self._compute_mst(pin_positions)
+                mst_edges = _compute_mst(pin_positions)
 
                 retry_success = True
                 retry_paths = []
@@ -2007,40 +1964,3 @@ class SequentialRoutingStage(Stage):
         # ========== END PHASE 2 ==========
 
         return replace(state, routes=frozenset(all_traces), vias=frozenset(all_vias))
-
-    def _compute_mst(self, points: List[Tuple[float, float]]) -> List[Tuple[int, int]]:
-        """Compute Minimum Spanning Tree using Prim's algorithm."""
-        n = len(points)
-        if n < 2:
-            return []
-
-        visited = {0}
-        edges = []
-
-        while len(visited) < n:
-            min_dist_sq = float("inf")
-            u_min, v_min = -1, -1
-
-            # Find shortest edge from visited to unvisited
-            for u in visited:
-                for v in range(n):
-                    if v in visited:
-                        continue
-
-                    # Squared Euclidean distance
-                    dist_sq = (points[u][0] - points[v][0]) ** 2 + (
-                        points[u][1] - points[v][1]
-                    ) ** 2
-
-                    if dist_sq < min_dist_sq:
-                        min_dist_sq = dist_sq
-                        u_min = u
-                        v_min = v
-
-            if u_min != -1 and v_min != -1:
-                visited.add(v_min)
-                edges.append((u_min, v_min))
-            else:
-                break
-
-        return edges

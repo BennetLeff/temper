@@ -26,12 +26,14 @@ class DSNVersionValidator:
 
     @staticmethod
     def validate(dsn_text: str, expected_hash: str) -> None:
+        """Raise DSNVersionMismatchError if the embedded hash doesn't match."""
         received = DSNSchemaHasher.extract_hash(dsn_text)
         if received != expected_hash:
             raise DSNVersionMismatchError(expected_hash, received)
 
     @staticmethod
     def validate_or_warn(dsn_text: str, expected_hash: str) -> bool:
+        """Return False on mismatch (no exception), logging a warning."""
         received = DSNSchemaHasher.extract_hash(dsn_text)
         if received != expected_hash:
             logger.warning(

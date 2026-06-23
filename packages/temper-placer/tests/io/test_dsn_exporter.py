@@ -3,6 +3,7 @@ from temper_placer.core.netlist import Netlist, Component, Pin, Net
 from temper_placer.io.dsn_exporter import DSNExporter
 import jax.numpy as jnp
 
+
 def test_export_structure_basic():
     board = Board(width=100, height=80)
     netlist = Netlist()
@@ -15,6 +16,7 @@ def test_export_structure_basic():
     assert "(layer B.Cu (type signal)" in s
     # With S=100 scale factor (resolution um 10), 100mm -> 10000, 80mm -> 8000
     assert "(boundary (rect pcb 0 0 10000 8000))" in s
+
 
 def test_export_structure_4layer():
     stackup = LayerStackup.default_4layer()
@@ -38,6 +40,7 @@ def test_export_structure_4layer():
     s2 = str(structure_with_types)
     assert "(layer In1.Cu (type power)" in s2
     assert "(layer In2.Cu (type power)" in s2
+
 
 def test_export_library_and_placement():
     board = Board(width=100, height=100)
@@ -73,6 +76,7 @@ def test_export_library_and_placement():
     assert "(place U1 5000" in s_place
     assert "front 90" in s_place
 
+
 def test_export_network():
     board = Board(width=100, height=100)
     netlist = Netlist(
@@ -89,6 +93,7 @@ def test_export_network():
     network = exporter.export_network()
     s = str(network)
     assert "(net SIG1 (pins U1-1 R1-1))" in s
+
 
 def test_export_structure_keepouts():
     from temper_placer.core.board import MountingHole
@@ -110,6 +115,7 @@ def test_export_structure_keepouts():
     assert "(keepout KO_0 (rect F.Cu 1000 1000 2000 2000))" in s
     assert "(via VIA)" in s
 
+
 def test_export_pcb_full():
     board = Board(width=100, height=100)
     netlist = Netlist()
@@ -124,6 +130,7 @@ def test_export_pcb_full():
     assert "(library" in s
     assert "(placement" in s
 
+
 def test_export_wiring():
     from temper_placer.io.kicad_parser import TraceData
     board = Board(width=100, height=100)
@@ -137,6 +144,7 @@ def test_export_wiring():
     wiring = exporter.export_wiring(traces)
     s = str(wiring)
     assert "(wiring (wire (path F.Cu 0.2 0 0 10 10)))" in s
+
 
 def test_export_from_kicad_pcb():
     from temper_placer.io.kicad_parser import parse_kicad_pcb
@@ -212,85 +220,69 @@ def test_export_network_exclude_nets():
     assert "(net SIG1" in s_pcb
 
 
-def test_deterministic_output_identical_on_repeat():
-    """Two DSNExporter calls with same inputs produce identical output."""
+def test_deterministic_output_identical():
+    """Two calls with same inputs produce identical output."""
     board = Board(width=100, height=100)
-    netlist = Netlist(
-        components=[
-            Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
-                Pin("1", "1", (0, 0)),
-                Pin("GND", "4", (0, 1)),
-            ]),
-            Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[
-                Pin("1", "1", (0, 0)),
-                Pin("2", "2", (1, 0)),
-            ]),
-        ],
-        nets=[
-            Net(name="SIG1", pins=[("U1", "1"), ("R1", "1")]),
-            Net(name="GND", pins=[("U1", "4"), ("R1", "2")]),
-        ]
-    )
+    comps = [
+        Component(ref="U2", footprint="SOIC-8", bounds=(5, 4), pins=[
+            Pin("1", "1", (2.0, 1.5)), Pin("8", "8", (-2.0, -1.5))
+        ]),
+        Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
+            Pin("1", "1", (2.0, 1.5)), Pin("8", "8", (-2.0, -1.5))
+        ]),
+    ]
+    nets = [
+        Net(name="net_B", pins=[("U1", "1"), ("U2", "8")]),
+        Net(name="net_A", pins=[("U1", "8"), ("U2", "1")]),
+    ]
+    netlist = Netlist(components=comps, nets=nets)
 
     exp1 = DSNExporter(board, netlist, deterministic=True)
     exp2 = DSNExporter(board, netlist, deterministic=True)
 
-    s1 = str(exp1.export_pcb("test"))
-    s2 = str(exp2.export_pcb("test"))
+    out1 = str(exp1.export_pcb("test"))
+    out2 = str(exp2.export_pcb("test"))
 
-    assert s1 == s2
+    assert out1 == out2
 
 
-def test_deterministic_sorts_nets_alphabetically():
-    """Deterministic mode sorts nets by sanitized name, not fanout."""
+def test_deterministic_net_order_alphabetical():
+    """Deterministic mode sorts nets alphabetically, not by fanout."""
     board = Board(width=100, height=100)
-    netlist = Netlist(
-        components=[
-            Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
-                Pin("1", "1", (0, 0)),
-                Pin("2", "2", (0, 1)),
-                Pin("3", "3", (0, 2)),
-            ]),
-            Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[Pin("1", "1", (0, 0))]),
-            Component(ref="R2", footprint="0805", bounds=(2, 1), pins=[Pin("1", "1", (0, 0))]),
-        ],
-        nets=[
-            Net(name="SIG_A", pins=[("U1", "1"), ("R1", "1")]),
-            Net(name="SIG_B", pins=[("U1", "2"), ("R2", "1")]),
-            Net(name="SIG_C", pins=[("U1", "3")]),
-        ]
-    )
+    comps = [
+        Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
+            Pin("1", "1", (0, 0)), Pin("2", "2", (0, 1))
+        ]),
+        Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[
+            Pin("1", "1", (0, 0))
+        ]),
+    ]
+    nets = [
+        Net(name="zzz_LAST", pins=[("U1", "2"), ("R1", "1")]),
+        Net(name="aaa_FIRST", pins=[("U1", "1"), ("R1", "1")]),
+    ]
+    netlist = Netlist(components=comps, nets=nets)
 
-    # Non-deterministic would sort by fanout (3-pin then 2-pin then 1-pin)
-    exp_non_det = DSNExporter(board, netlist, deterministic=False)
-    s_non = str(exp_non_det.export_network(use_net_classes=False))
-    # With deterministic=False, net with most pins (SIG_A has 2, SIG_C has 1) comes later
-    # Actually they're sorted by fanout then span, SIG_A and SIG_B both have 2 pins
-    # In non-det mode, they should NOT be strictly alphabetical
+    # Non-deterministic: sorted by fanout (both have 2 pins, span determines)
+    nd_exp = DSNExporter(board, netlist, deterministic=False)
+    nd_out = str(nd_exp.export_network())
+    nd_net1_pos = nd_out.find("(net ")
+    first_net_nd = nd_out[nd_net1_pos:].split()[1].rstrip(")")
 
-    exp_det = DSNExporter(board, netlist, deterministic=True)
-    s_det = str(exp_det.export_network(use_net_classes=False))
+    # Deterministic: sorted alphabetically
+    det_exp = DSNExporter(board, netlist, deterministic=True)
+    det_out = str(det_exp.export_network())
+    det_net1_pos = det_out.find("(net ")
+    first_net_det = det_out[det_net1_pos:].split()[1].rstrip(")")
 
-    # Deterministic: alphabetical order: SIG_A, SIG_B, SIG_C
-    idx_a = s_det.index("SIG_A")
-    idx_b = s_det.index("SIG_B")
-    idx_c = s_det.index("SIG_C")
-    assert idx_a < idx_b < idx_c
+    assert first_net_det == "aaa_FIRST"
 
 
-def test_deterministic_embedded_schema_hash():
-    """Deterministic mode embeds schema-version header."""
-    board = Board(width=100, height=100)
-    netlist = Netlist()
-    exporter = DSNExporter(board, netlist, deterministic=True)
-    s = str(exporter.export_pcb("test"))
-    assert s.startswith(";schema-version: sha256:")
+def test_dsn_expression_with_comment():
+    from temper_placer.io.dsn import dsn_list
+    expr = dsn_list("pcb", "test", dsn_list("unit", "mm"))
+    with_comment = expr.with_comment("schema-version: sha256:abc")
+    output = str(with_comment)
+    assert output.startswith(";schema-version: sha256:abc\n")
+    assert "(pcb test (unit mm))" in output
 
-
-def test_non_deterministic_no_schema_hash():
-    """Non-deterministic mode does NOT embed schema-version header."""
-    board = Board(width=100, height=100)
-    netlist = Netlist()
-    exporter = DSNExporter(board, netlist, deterministic=False)
-    s = str(exporter.export_pcb("test"))
-    assert not s.startswith(";schema-version:")

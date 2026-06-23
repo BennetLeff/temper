@@ -29,7 +29,7 @@ class DSNExporter:
         netlist: Netlist,
         positions: Array | None = None,
         rotations: Array | None = None,
-        deterministic: bool = False,
+        deterministic: bool = True,
     ):
         self.board = board
         self.netlist = netlist
@@ -152,12 +152,21 @@ class DSNExporter:
 
         return dsn_list("structure", *layer_exprs, boundary, *keepout_exprs, *via_exprs, rules)
 
+    def _natural_sort_key(self, s: str) -> tuple:
+        """Natural sort key: splits into text and number parts for sorting."""
+        import re
+        parts = re.split(r"(\d+)", s)
+        result = []
+        for p in parts:
+            result.append(int(p) if p.isdigit() else p.lower())
+        return tuple(result)
+
     def export_library(self) -> DSNExpression:
         """Export the library section (footprints and padstacks)."""
         images = []
         padstacks = {}
-        S = 100.0 # Scale factor
-        
+        S = 100.0  # Scale factor
+
         # Determine layers for padstacks
         layer_names = ["F.Cu", "B.Cu"]
         if self.board.layer_stackup:
@@ -229,6 +238,10 @@ class DSNExporter:
                     )
                 )
 
+            # Sort pins by pin number for deterministic output
+            if self.deterministic:
+                pins.sort(key=lambda p: self._natural_sort_key(str(p.args[2])))
+
             # For footprints without pins (like mounting holes), add a small keepout
             # to ensure the router doesn't treat them as empty space.
             if not pins:
@@ -240,14 +253,16 @@ class DSNExporter:
                 pins.sort(key=lambda p: _natural_sort_key(str(p.args[1])) if len(p.args) > 1 else "0")
             images.append(dsn_list("image", fp_id, *pins))
 
-        # Sort images and padstacks for deterministic output
+        # Sort images by fp_id for deterministic output
         if self.deterministic:
-            images.sort(key=lambda img: str(img.args[0]) if img.args else "")
-            sorted_ps = sorted(padstacks.values(), key=lambda ps: str(ps.args[0]) if ps.args else "")
-        else:
-            sorted_ps = list(padstacks.values())
+            images.sort(key=lambda img: str(img.args[0]).lower())
 
-        return dsn_list("library", *images, *sorted_ps)
+        # Sort padstack values by padstack name for deterministic output
+        ps_values = list(padstacks.values())
+        if self.deterministic:
+            ps_values.sort(key=lambda ps: str(ps.args[0]).lower())
+
+        return dsn_list("library", *images, *ps_values)
 
     def export_placement(self) -> DSNExpression:
         """Export the placement section (component instances)."""
@@ -288,12 +303,16 @@ class DSNExporter:
             )
 
         comp_exprs = []
-        fp_ids = components_by_fp.keys()
         if self.deterministic:
-            fp_ids = sorted(fp_ids)
-        for fp_id in fp_ids:
-            instances = components_by_fp[fp_id]
-            comp_exprs.append(dsn_list("component", fp_id, *instances))
+            sorted_fp_ids = sorted(components_by_fp.keys(), key=lambda k: k.lower())
+            for fp_id in sorted_fp_ids:
+                instances = components_by_fp[fp_id]
+                instances.sort(key=lambda inst: str(inst.args[0]).lower())
+                comp_exprs.append(dsn_list("component", fp_id, *instances))
+            comp_exprs.sort(key=lambda c: str(c.args[0]).lower())
+        else:
+            for fp_id, instances in components_by_fp.items():
+                comp_exprs.append(dsn_list("component", fp_id, *instances))
 
         return dsn_list("placement", *comp_exprs)
 
@@ -353,7 +372,9 @@ class DSNExporter:
         import re
         voltage_pattern = re.compile(r"(_PLUS|VCC|VDD)\d+V?\d*$", re.IGNORECASE)
 
-        # Sort nets: deterministic mode sorts alphabetically; otherwise by fanout/span
+        # Sort nets: deterministic mode sorts alphabetically by sanitized name;
+        # non-deterministic sorts by fanout (low first) then span (short first)
+        # for better FreeRouter routing quality.
         if self.deterministic:
             sorted_nets = sorted(
                 self.netlist.nets,
@@ -486,11 +507,11 @@ class DSNExporter:
         if traces:
             sections.append(self.export_wiring(traces))
 
-        result = dsn_list("pcb", pcb_name, *sections)
+        pcb_expr = dsn_list("pcb", pcb_name, *sections)
 
         if self.deterministic:
             from temper_placer.io.dsn_schema import DSNSchemaHasher
             schema_hash = DSNSchemaHasher.compute_schema_hash(self.board, self.netlist)
-            result = result.with_comment(f";schema-version: sha256:{schema_hash}")
+            pcb_expr = pcb_expr.with_comment(f"schema-version: sha256:{schema_hash}")
 
-        return result
+        return pcb_expr

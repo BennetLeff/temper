@@ -422,9 +422,11 @@ class RouterV6Pipeline:
             print("  2.6: Calculating layer capacity...")
         layer_capacities = {}
         for layer_name in occupancy_grids.keys():
+            if layer_name not in channel_widths:
+                continue
             capacity = calculate_layer_capacity(
                 occupancy_grids[layer_name],
-                channel_widths.get(layer_name, 0.0),
+                channel_widths[layer_name],
                 pcb.design_rules.default_trace_width_mm * 1.5,
                 pcb.design_rules.default_clearance_mm,
             )
