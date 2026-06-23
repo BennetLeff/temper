@@ -36,13 +36,17 @@ _FIXTURE_PATH = (
 )
 
 # Default PCB path used when the gate runs without an explicit
-# override.  Relative to the temper-placer package so the test
-# works from any cwd.  The promotion gate may also be pointed at
-# a different PCB via the TEMPER_CLOSURE_PCB env var.
+# override.  The closure test now targets ``pcb/temper.kicad_pcb``
+# (the canonical "temper_canonical" board, 24 nets, 27 THT pads,
+# 5 layers, 33 components) so SM1 reflects the real production
+# target rather than a 4-SMD minimal fixture.  Relative to repo
+# root so the test works from any cwd.  The promotion gate may
+# also be pointed at a different PCB via the TEMPER_CLOSURE_PCB
+# env var (which the test still supports).
 _DEFAULT_PCB = (
-    Path(__file__).resolve().parent.parent
-    / "fixtures"
-    / "minimal_board.kicad_pcb"
+    Path(__file__).resolve().parent.parent.parent.parent.parent
+    / "pcb"
+    / "temper.kicad_pcb"
 )
 
 
