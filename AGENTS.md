@@ -254,6 +254,34 @@ If violations are reported:
 The same check runs in CI. After the soft-launch period (until 2026-07-06), violations block PR merge.
 See `docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md`.
 
+### Script Manifest Convention
+
+Every `scripts/*.py` file must have an entry in `scripts/manifest.yaml`. The
+CI `check_manifest_gate` rejects new scripts without a manifest entry.
+
+**Adding a new script:**
+
+1. Add an entry to `scripts/manifest.yaml`:
+   ```yaml
+   - path: your_script.py
+     purpose: "What the script does"
+     owner: your-name
+     last_run: "2026-06-22"
+     category: keep          # or ticket / delete
+     disposition: utility    # or ci-gate / shell-invoked / temper-scripts-sunset
+     imports: []             # populated by `scripts/trace_invocations.py`
+   ```
+2. Run `uv run python scripts/trace_invocations.py` to refresh the invocation graph
+3. CI will fail on missing entries (`check_manifest_gate`); sunset warnings
+   fire on stale `last_run` dates after 30/60 days (`check_script_sunset`)
+
+**Sunset clock (per plan 2026-06-22-021):**
+- 30 days no invocation → WARNING (keep/ticket)
+- 60 days no invocation → ESCALATE (ticket auto-promotes to delete priority)
+- Sunset never auto-deletes; deletion is always a `git rm` by a human
+
+See `docs/plans/2026-06-22-021-feat-script-triage-sunset-plan.md`.
+
 ### Building and Running Firmware Tests
 
 ```bash

@@ -12,11 +12,17 @@
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "check_manifest_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "check_perf_regression.py": [
     "Makefile"
   ],
   "check_regression.py": [
     "Makefile"
+  ],
+  "check_script_sunset.py": [
+    ".github/workflows/python-tests.yml"
   ],
   "check_traceability.py": [],
   "ci_check_drc.py": [
@@ -87,7 +93,9 @@
   "run_spectral.py": [],
   "sanitize_baseline.py": [],
   "steiner_vs_hpwl_analysis.py": [],
-  "trace_invocations.py": [],
+  "trace_invocations.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "trace_pipeline_debug.py": [],
   "tune_loss_weights.py": [],
   "validate_footprints.py": [

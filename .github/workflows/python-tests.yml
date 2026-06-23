@@ -11,6 +11,11 @@ on:
       - '.github/workflows/python-tests.yml'
       - 'deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
+      - 'scripts/trace_invocations.py'
+      - 'scripts/check_manifest_gate.py'
+      - 'scripts/check_script_sunset.py'
+      - 'scripts/manifest.yaml'
+      - 'scripts/invocation_graph.json'
       - '.importlinter'
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
@@ -30,6 +35,11 @@ on:
       - '.github/workflows/python-tests.yml'
       - 'deadcode-baseline.py'
       - 'scripts/vulture_gate.py'
+      - 'scripts/trace_invocations.py'
+      - 'scripts/check_manifest_gate.py'
+      - 'scripts/check_script_sunset.py'
+      - 'scripts/manifest.yaml'
+      - 'scripts/invocation_graph.json'
       - '.importlinter'
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
@@ -89,6 +99,16 @@ jobs:
 
       - name: Vulture dead-code gate
         run: uv run python scripts/vulture_gate.py
+
+      - name: Rebuild script invocation graph
+        run: uv run python scripts/trace_invocations.py
+
+      - name: Script manifest gate
+        run: uv run python scripts/check_manifest_gate.py
+
+      - name: Script sunset check (warnings only)
+        run: uv run python scripts/check_script_sunset.py
+        continue-on-error: true  # sunset is informational, not blocking
 
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py

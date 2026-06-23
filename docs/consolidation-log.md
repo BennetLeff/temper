@@ -72,3 +72,39 @@ Each entry records: date, files deleted, canonical survivor, migration path, fix
   - Asserts none tracked by `git ls-files`.
   - Asserts no reference exists outside `docs/` (brainstorms, plans, consolidation-log).
   - CI `paths:` filter extended to include `scripts/**` so the guard runs on PRs touching shell scripts.
+
+---
+
+## 2026-06-23 — script triage Phase 1 (plan 2026-06-22-021)
+
+Per `docs/plans/2026-06-22-021-feat-script-triage-sunset-plan.md` (U1-U10).
+
+- **Deleted:** 13 dead experiment/debug/verify scripts (5 `test_*`, 3 `verify_*`, 1 `debug_*`, 4 `diagnose_*`):
+  - `scripts/test_copper_zone_loading.py`
+  - `scripts/test_correlation_analysis.py`
+  - `scripts/test_improved_placer.py`
+  - `scripts/test_zone_aware_integration.py`
+  - `scripts/test_zone_detection.py`
+  - `scripts/verify_copper_zones.py`
+  - `scripts/verify_hypergraph_routing.py`
+  - `scripts/verify_nsga_improvement.py`
+  - `scripts/debug_clearance_grid.py`
+  - `scripts/diagnose_clearance_grid.py`
+  - `scripts/diagnose_failures.py`
+  - `scripts/diagnose_routing_congestion.py`
+  - `scripts/diagnose_start_positions.py`
+  - Pre-shipped in 253dd172 (the pipeline.py simplify commit landed the same deletions in parallel).
+- **Survivors:** 61 scripts in `scripts/`, all with manifest entries.
+- **New infrastructure:**
+  - `scripts/trace_invocations.py` — AST-style invocation tracer, writes `scripts/invocation_graph.json`
+  - `scripts/check_manifest_gate.py` — CI gate: filesystem <-> manifest consistency
+  - `scripts/check_script_sunset.py` — CI warning: 30/60-day sunset clock per plan
+- **Triage:** 20 keep + 41 ticket (no caller, 4+ months old, has `main()`). Ticket entries reference `temper-scripts-sunset` for the 30-day sunset clock.
+- **U6 N/A:** `import-linter-allowlist.yaml` is already empty (commit 2334d647). Scripts aren't in `temper_placer` source packages, so import-linter doesn't scan them. No per-file entries needed.
+- **Migration:** n/a — no callers to update (all deletions had zero callers per `invocation_graph.json`).
+- **Fixtures:** new committed artifact `scripts/invocation_graph.json` (regenerated on every CI run by `trace_invocations.py`).
+- **CI wiring:** python-tests.yml adds 3 steps:
+  1. `Rebuild script invocation graph` (always runs, regenerates `invocation_graph.json`)
+  2. `Script manifest gate` (fails CI on missing manifest entries or delete-marked files)
+  3. `Script sunset check` (warnings only, never blocks)
+- **Rationale:** reduce `scripts/` from 74 to 61 (≈18% reduction, near the 20% plan target), replace blanket import-linter exemption (already done) with manifest + sunset enforcement, and ship the 30-day sunset clock per plan U4/U5.
