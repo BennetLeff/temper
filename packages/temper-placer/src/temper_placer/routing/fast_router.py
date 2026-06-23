@@ -851,6 +851,102 @@ def compute_distance_map_numba(
     return dist_map
 
 
+@njit(cache=True)
+def compute_distance_map_bitmap(
+    target_x: int,
+    target_y: int,
+    target_l: int,
+    grid_w: int,
+    grid_h: int,
+    num_layers: int,
+    occupancy_bitmap: np.ndarray,
+) -> np.ndarray:
+    INF = float("inf")
+    stride = (grid_w + 63) >> 6
+    ZERO64 = np.uint64(0)
+    ONE64 = np.uint64(1)
+
+    dist_map = np.full((grid_w, grid_h, num_layers), INF, dtype=np.float32)
+    dist_map[target_x, target_y, target_l] = 0.0
+
+    visited = np.zeros((grid_h, stride, num_layers), dtype=np.uint64)
+    visited[target_y, target_x >> 6, target_l] |= ONE64 << np.uint64(target_x & 63)
+
+    frontier = np.zeros((grid_h, stride, num_layers), dtype=np.uint64)
+    frontier[target_y, target_x >> 6, target_l] |= ONE64 << np.uint64(target_x & 63)
+
+    d = np.float32(0.0)
+
+    while True:
+        d += np.float32(1.0)
+        any_new = False
+        next_frontier = np.zeros((grid_h, stride, num_layers), dtype=np.uint64)
+
+        for l_idx in range(num_layers):
+            for row in range(grid_h):
+                for w in range(stride):
+                    current = frontier[row, w, l_idx]
+                    if current == ZERO64:
+                        continue
+
+                    if row + 1 < grid_h:
+                        next_frontier[row + 1, w, l_idx] |= current
+                    if row > 0:
+                        next_frontier[row - 1, w, l_idx] |= current
+                    next_frontier[row, w, l_idx] |= (current >> ONE64)
+                    next_frontier[row, w, l_idx] |= (current << ONE64)
+
+            for row in range(grid_h):
+                for w in range(stride):
+                    nf = next_frontier[row, w, l_idx]
+                    if nf == ZERO64:
+                        continue
+                    nf &= ~occupancy_bitmap[row, w, l_idx]
+                    nf &= ~visited[row, w, l_idx]
+                    if nf == ZERO64:
+                        next_frontier[row, w, l_idx] = ZERO64
+                        continue
+                    next_frontier[row, w, l_idx] = nf
+                    visited[row, w, l_idx] |= nf
+                    any_new = True
+
+                    start_col = w << 6
+                    for bit in range(64):
+                        if (nf >> bit) & ONE64:
+                            col = start_col + bit
+                            if col < grid_w:
+                                if d < dist_map[col, row, l_idx]:
+                                    dist_map[col, row, l_idx] = d
+
+            for row in range(grid_h):
+                for w in range(stride):
+                    f_word = frontier[row, w, l_idx]
+                    if f_word == ZERO64:
+                        continue
+                    for next_layer in range(num_layers):
+                        if next_layer == l_idx:
+                            continue
+                        f_word_available = f_word & ~occupancy_bitmap[row, w, next_layer] & ~visited[row, w, next_layer]
+                        if f_word_available != ZERO64:
+                            next_frontier[row, w, next_layer] |= f_word_available
+                            visited[row, w, next_layer] |= f_word_available
+                            any_new = True
+                            start_col = w << 6
+                            for bit in range(64):
+                                if (f_word_available >> bit) & ONE64:
+                                    col = start_col + bit
+                                    if col < grid_w:
+                                        via_dist = d + np.float32(2.0)
+                                        if via_dist < dist_map[col, row, next_layer]:
+                                            dist_map[col, row, next_layer] = via_dist
+
+        frontier = next_frontier
+        if not any_new:
+            break
+
+    return dist_map
+
+
 # WARMUP ROUTINE
 if HAS_NUMBA:
 
