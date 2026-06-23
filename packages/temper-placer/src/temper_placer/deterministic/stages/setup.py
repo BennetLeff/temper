@@ -67,6 +67,7 @@ class DRCOracleSetupStage(Stage):
                         via_drill=rules.via_drill_mm,
                         via_template=rules.via_template,
                         creepage_mm=rules.creepage_mm,
+                        dru_priority=getattr(rules, "dru_priority", 0),
                     )
                     matrix.add_net_class_rules(net_class_rules)
 

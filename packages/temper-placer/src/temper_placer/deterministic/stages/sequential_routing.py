@@ -413,10 +413,8 @@ class SequentialRoutingStage(Stage):
         
         # Check design rules if available
         if self.design_rules:
-            # We don't have net-to-netclass mapping here easily without state,
-            # but we can check if it's a known HV net or similar based on default rules
-            via_d = self.design_rules.via_diameter
-            via_drill = self.design_rules.via_drill
+            via_d = getattr(self.design_rules, "default_via_diameter", 0.6)
+            via_drill = getattr(self.design_rules, "default_via_drill", 0.3)
             
         return {"diameter": via_d, "drill": via_drill}
 
@@ -1445,7 +1443,7 @@ class SequentialRoutingStage(Stage):
                                     start=pad_pos,
                                     end=nearest_via.position,
                                     width=width,
-                                    layer=p_layer_name,
+                                    layer=layer_name,
                                     net=net_name,
                                 )
                             )

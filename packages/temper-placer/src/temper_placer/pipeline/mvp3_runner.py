@@ -350,6 +350,7 @@ class MVP3Runner:
                 clearance=rule.clearance_mm,
                 via_diameter=rule.via_size_mm,
                 via_drill=rule.via_drill_mm,
+                dru_priority=getattr(rule, "dru_priority", 0),
             )
 
         # NEW: Populate net class assignments from config

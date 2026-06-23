@@ -151,6 +151,7 @@ def create_drc_aware_pipeline(
                     via_drill=getattr(rule, "via_drill_mm", 0.3),
                     via_template=getattr(rule, "via_template", None),
                     creepage_mm=getattr(rule, "creepage_mm", 0.0),
+                    dru_priority=getattr(rule, "dru_priority", 0),
                 )
 
             # Get net class assignments from config
@@ -181,6 +182,8 @@ def create_drc_aware_pipeline(
             def __init__(self, pad_size_obj):
                 self.size = type("Size", (), {"X": pad_size_obj.width, "Y": pad_size_obj.height})()
                 self.number = pad_size_obj.pad_number
+                self.shape = getattr(pad_size_obj, "shape", "rect")
+                self.rotation = getattr(pad_size_obj, "rotation", 0.0)
 
         pad_sizes_for_stage[key] = PadInfo(pad_size)
 

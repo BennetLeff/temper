@@ -468,6 +468,7 @@ class DesignRulesParser:
                     clearance=nc.clearance if hasattr(nc, "clearance") else 0.2,
                     via_diameter=nc.viaDia if hasattr(nc, "viaDia") else 0.6,
                     via_drill=nc.viaDrill if hasattr(nc, "viaDrill") else 0.3,
+                    dru_priority=getattr(nc, "druPriority", 0),
                 )
                 matrix.add_net_class_rules(rules)
 
