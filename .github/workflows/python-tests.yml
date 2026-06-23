@@ -83,19 +83,34 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: |
-      (github.event_name == 'push' || github.event_name == 'pull_request') &&
-      contains(github.event.head_commit.message, 'channel') ||
-      contains(github.event.head_commit.message, 'Stage2') ||
-      contains(github.event.head_commit.message, 'stage2') ||
-      contains(github.event.head_commit.message, 'obstacle') ||
-      contains(github.event.head_commit.message, 'routing_space') ||
-      contains(github.event.head_commit.message, 'channel_skeleton') ||
-      contains(github.event.head_commit.message, 'channel_width') ||
-      contains(github.event.head_commit.message, 'occupancy') ||
-      contains(github.event.head_commit.message, 'layer_capacity') ||
-      contains(github.event.head_commit.message, 'routing_demand') ||
-      contains(github.event.head_commit.message, 'bottleneck') ||
-      contains(github.event.head_commit.message, 'decompose-stage2')
+      github.event_name == 'push' && (
+        contains(github.event.head_commit.message, 'channel') ||
+        contains(github.event.head_commit.message, 'Stage2') ||
+        contains(github.event.head_commit.message, 'stage2') ||
+        contains(github.event.head_commit.message, 'obstacle') ||
+        contains(github.event.head_commit.message, 'routing_space') ||
+        contains(github.event.head_commit.message, 'channel_skeleton') ||
+        contains(github.event.head_commit.message, 'channel_width') ||
+        contains(github.event.head_commit.message, 'occupancy') ||
+        contains(github.event.head_commit.message, 'layer_capacity') ||
+        contains(github.event.head_commit.message, 'routing_demand') ||
+        contains(github.event.head_commit.message, 'bottleneck') ||
+        contains(github.event.head_commit.message, 'decompose-stage2')
+      ) ||
+      github.event_name == 'pull_request' && (
+        contains(github.event.pull_request.title, 'channel') ||
+        contains(github.event.pull_request.title, 'Stage2') ||
+        contains(github.event.pull_request.title, 'stage2') ||
+        contains(github.event.pull_request.title, 'obstacle') ||
+        contains(github.event.pull_request.title, 'routing_space') ||
+        contains(github.event.pull_request.title, 'channel_skeleton') ||
+        contains(github.event.pull_request.title, 'channel_width') ||
+        contains(github.event.pull_request.title, 'occupancy') ||
+        contains(github.event.pull_request.title, 'layer_capacity') ||
+        contains(github.event.pull_request.title, 'routing_demand') ||
+        contains(github.event.pull_request.title, 'bottleneck') ||
+        contains(github.event.pull_request.title, 'decompose-stage2')
+      )
 
     steps:
       - uses: actions/checkout@v4
