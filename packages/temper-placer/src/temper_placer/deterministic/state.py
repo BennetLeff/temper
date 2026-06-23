@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Optional, FrozenSet
 
 if TYPE_CHECKING:
@@ -37,6 +37,10 @@ class BoardState:
     layer_assignments: frozenset = frozenset()  # Set of LayerAssignment objects (net_name, layer)
     # EXP-5: Route locking - nets that have been successfully routed and should be preserved
     locked_routes: FrozenSet[str] = field(default_factory=frozenset)
+
+    def copy(self) -> "BoardState":
+        """Return a shallow copy (safe because BoardState is fully immutable)."""
+        return replace(self)
 
     def with_locked_route(self, net_name: str) -> "BoardState":
         """Return new state with the given net marked as locked.
