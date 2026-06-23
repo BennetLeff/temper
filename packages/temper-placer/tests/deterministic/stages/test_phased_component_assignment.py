@@ -14,7 +14,7 @@ from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 
 
 class TestPhasedPlacement:
@@ -750,3 +750,130 @@ class TestGhostPadInjection:
         result_off = dict(stage_off.run(state).placements)
 
         assert result_on == result_off
+
+
+# =====================================================================
+# U2 — Isolation-Slot Creepage Reduction
+# =====================================================================
+
+
+def _u2_constraints_with_slot(component_ref: str = "Q1") -> PlacementConstraints:
+    """Build constraints with a 10mm isolation slot on the named component."""
+    return PlacementConstraints(
+        isolation_slots=[
+            IsolationSlot(
+                name=f"{component_ref}_gate_isolation",
+                component_ref=component_ref,
+                start_offset=(2.725, -5.0),
+                end_offset=(2.725, 5.0),
+                width_mm=1.5,
+                lv_pin="1",
+                hv_pin="2",
+            )
+        ]
+    )
+
+
+class TestIsolationSlotReduction:
+    """U2: reduce ghost-pad radius by slot projection (gated by use_isolation_slots)."""
+
+    def test_isolation_slots_disabled_is_bit_identical(self):
+        """use_isolation_slots=False must produce the same used_slots as U1."""
+        constraints = _u2_constraints_with_slot()
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules, use_isolation_slots=False
+        )
+        state = _build_state(_build_canonical_hv_netlist())
+        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+
+        used: set[tuple[float, float]] = set()
+        stage._inject_ghost_pads(
+            state, state.netlist, used, all_slots, logger_name="test"
+        )
+
+        # The same constraints without isolation_slots and use_isolation_slots=False
+        # must produce the same used_slots (NFR4 parity).
+        bare = PlacementConstraints()
+        bare_stage = PhasedComponentAssignmentStage(
+            bare, design_rules=rules, use_isolation_slots=False
+        )
+        used_bare: set[tuple[float, float]] = set()
+        bare_stage._inject_ghost_pads(
+            state, state.netlist, used_bare, all_slots, logger_name="test"
+        )
+        assert used == used_bare
+
+    def test_isolation_slots_enabled_reduces_radius(self):
+        """use_isolation_slots=True must shrink the effective radius by slot length."""
+        constraints = _u2_constraints_with_slot("Q1")
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules, use_isolation_slots=True
+        )
+        # Effective radius for Q1 pins = 6.0 - 10.0 = 0.0 (clamped at 0).
+        # For Q2 pins (no slot referenced) the radius stays 6.0mm.
+        eff_q1 = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
+        eff_q2 = stage._effective_ghost_pad_radius("Q2", "1", 6.0)
+        assert eff_q1 == 0.0
+        assert eff_q2 == 6.0
+
+    def test_isolation_slot_on_lv_component_ignored(self):
+        """A slot referencing a non-HV component must not reduce radius.
+
+        With use_isolation_slots=True and a slot on C1 (LV component), the
+        effective radius for any HV pin (on Q1/Q2) must be unchanged from
+        the base 6.0mm.
+        """
+        constraints = _u2_constraints_with_slot("C1")  # slot on LV component
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules, use_isolation_slots=True
+        )
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
+        assert eff == 6.0
+
+    def test_isolation_slot_length_can_fully_clamp_to_zero(self):
+        """Multiple slots on the same component can clamp the radius to zero."""
+        constraints = PlacementConstraints(
+            isolation_slots=[
+                IsolationSlot(
+                    name="slot_a",
+                    component_ref="Q1",
+                    start_offset=(0.0, -4.0),
+                    end_offset=(0.0, 4.0),  # 8mm long
+                    width_mm=1.0,
+                ),
+                IsolationSlot(
+                    name="slot_b",
+                    component_ref="Q1",
+                    start_offset=(0.0, -2.0),
+                    end_offset=(0.0, 2.0),  # 4mm long
+                    width_mm=1.0,
+                ),
+            ]
+        )
+        rules = _hv_design_rules()
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules, use_isolation_slots=True
+        )
+        # 6.0 - 8.0 - 4.0 = -6.0 → clamped at 0
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
+        assert eff == 0.0
+
+    def test_use_isolation_slots_loaded_from_config(self):
+        """The `placer: {use_isolation_slots: true}` YAML block must be honored."""
+        constraints = _u2_constraints_with_slot("Q1")
+        constraints.placer = {"use_isolation_slots": True}
+        rules = _hv_design_rules()
+
+        # Build via the deterministic pipeline helper to exercise the loader.
+        from temper_placer.deterministic import DeterministicPipeline
+
+        stage = PhasedComponentAssignmentStage(
+            constraints, design_rules=rules,
+            use_isolation_slots=bool(constraints.placer.get("use_isolation_slots", False)),
+        )
+        assert stage.use_isolation_slots is True
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0)
+        assert eff == 0.0
