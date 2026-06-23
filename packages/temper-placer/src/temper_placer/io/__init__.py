@@ -53,6 +53,14 @@ from temper_placer.io.reference_loader import (
     netlist_to_placement_state,
 )
 
+# DSN/SES universal seam
+from temper_placer.io.dsn_exporter import DSNExporter
+from temper_placer.io.dsn_normalizer import DSNNormalizer
+from temper_placer.io.dsn_schema import DSNSchemaHasher
+from temper_placer.io.dsn_validator import DSNVersionValidator, DSNVersionMismatchError
+from temper_placer.io.boundary_registry import BoundaryRegistry, BoundaryDef
+from temper_placer.io.dsn_boundary import DSNBoundaryExporter
+
 __all__ = [
     # Parser
     "parse_kicad_pcb",
@@ -91,4 +99,13 @@ __all__ = [
     "infer_quality_config",
     "list_reference_designs",
     "ReferenceDesign",
+    # DSN/SES universal seam
+    "DSNExporter",
+    "DSNNormalizer",
+    "DSNSchemaHasher",
+    "DSNVersionValidator",
+    "DSNVersionMismatchError",
+    "BoundaryRegistry",
+    "BoundaryDef",
+    "DSNBoundaryExporter",
 ]
