@@ -71,6 +71,10 @@ class BoardState:
     failed_nets: Optional[list[str]] = None
     failure_reports: Optional[dict[str, Any]] = None
     pathfinding_result: Optional[Any] = None
+    channel_mapping: Any = None
+    escape_vias_map: Optional[dict[str, Any]] = None
+    enable_theta_star: bool = False
+    enable_lazy_theta_star: bool = False
     # Router V6 Stage 3 topological-routing fields
     constraint_model: Optional["ConstraintModel"] = None
     sat_variable_map: Optional[dict[str, Any]] = None

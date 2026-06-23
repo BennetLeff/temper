@@ -30,20 +30,26 @@ class GridPrepStage(Stage):
 
         from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
-        board_width = getattr(pcb, "board_width_mm", 200.0)
-        board_height = getattr(pcb, "board_height_mm", 200.0)
+        width_cells = 2000
+        height_cells = 2000
         grid_res = 0.1
 
         if hasattr(pcb, "design_rules"):
             grid_res = getattr(pcb.design_rules, "grid_resolution_mm", 0.1)
 
+        import numpy as np
+        from temper_placer.router_v6.occupancy_grid import CellState
+
         grids: dict[str, OccupancyGrid] = {}
         for layer in ("F.Cu", "B.Cu"):
+            grid_array = np.zeros((height_cells, width_cells), dtype=np.int8)
             grids[layer] = OccupancyGrid(
-                width=board_width,
-                height=board_height,
-                cell_size=grid_res,
                 layer_name=layer,
+                grid=grid_array,
+                origin=(0.0, 0.0),
+                cell_size=grid_res,
+                width_cells=width_cells,
+                height_cells=height_cells,
             )
 
         return replace(state, parsed_grids=grids)

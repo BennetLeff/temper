@@ -505,7 +505,13 @@ class RouterV6Pipeline:
         from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
 
         orchestrated = Stage4Orchestrator(verbose=self.verbose)
-        state = BoardState(_parsed_pcb=pcb)
+        state = BoardState(
+            _parsed_pcb=pcb,
+            channel_mapping=channel_mapping,
+            escape_vias_map=escape_vias_map,
+            enable_theta_star=self.enable_theta_star,
+            enable_lazy_theta_star=self.enable_lazy_theta_star,
+        )
         state = orchestrated.run(initial_state=state)
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 

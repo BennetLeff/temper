@@ -9,12 +9,25 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import time
+
+import numpy as np
+
 from temper_placer.router_v6.astar_core import RoutePath, RoutePath3D, RouteNode3D
+from temper_placer.router_v6.astar_grid import (
+    _build_tht_pad_locations,
+    _extract_pad_centers_per_net,
+    _find_access_node,
+    _identify_blocking_nets,
+    _is_at_tht_pad,
+    _mark_route_blocked,
+    _restore_net_pads,
+    _unblock_net_pads,
+    _unmark_route_blocked,
+)
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
-import numpy as np
-import sys
 
 
 

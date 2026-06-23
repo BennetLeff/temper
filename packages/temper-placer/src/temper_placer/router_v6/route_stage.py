@@ -35,13 +35,24 @@ class RouteStage(Stage):
         if fcu_grid is None:
             return state
 
+        channel_mapping = getattr(state, "channel_mapping", None)
+        if channel_mapping is None:
+            return state
+
         design_rules = getattr(pcb, "design_rules", None)
+        escape_vias_map = getattr(state, "escape_vias_map", None)
+        use_theta_star = getattr(state, "enable_theta_star", False)
+        use_lazy_theta_star = getattr(state, "enable_lazy_theta_star", False)
+
         result = run_astar_pathfinding(
-            channel_mapping=None,
+            channel_mapping=channel_mapping,
             grid=fcu_grid,
             design_rules=design_rules,
             alternate_grid=grids.get("B.Cu"),
             pcb=pcb,
+            escape_vias_map=escape_vias_map,
+            use_theta_star=use_theta_star,
+            use_lazy_theta_star=use_lazy_theta_star,
         )
 
         return replace(
