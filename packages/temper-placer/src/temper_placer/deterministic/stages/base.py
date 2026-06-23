@@ -11,8 +11,6 @@ if TYPE_CHECKING:
 class Stage(ABC):
     '''Abstract base class for pipeline stages.'''
     
-    alternative: Stage | None = None
-    
     @property
     @abstractmethod
     def name(self) -> str:
