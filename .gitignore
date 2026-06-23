@@ -94,10 +94,6 @@ temper-placer/research/*.svg
 !.beads/metadata.json
 !.beads/README.md
 
-# Experiment artifacts (generated files)
-experiments/temper-a98v/*.kicad_pcb
-experiments/temper-a98v/*.json
-experiments/temper-a98v/*.log
 .hypothesis/
 .worktrees
 firmware/test/build/
