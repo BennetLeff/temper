@@ -514,8 +514,9 @@ losses:
 # Width is derived from NetClassRules.creepage_mm in
 # packages/temper-placer/src/temper_placer/core/design_rules.py:121
 # (the SSOT for creepage values); set width_mm to a positive number to
-# override. width_mm=0 disables the guard geometry and the partition is
-# still applied to the placement filter.
+# override. width_mm=0 disables both the guard geometry and the partition map;
+# to keep the partition without geometry, use a small positive width_mm
+# (e.g. 0.1) or set width_mm=null and disable geometry only via the stage itself.
 hv_lv_guard_strip:
   enabled: true
   width_mm: null  # null = derive from max(creepage_mm) of HV-classified net classes
