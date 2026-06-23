@@ -7,7 +7,6 @@ from .multilayer_astar import MultiLayerAStar
 from .sequential_routing_dataclasses import DiffPairConfig
 from .sequential_routing_helpers import (
     LAYER_IDX_TO_NAME,
-    LAYER_NAME_TO_IDX,
     LAYER_ENUM_TO_IDX,
     _compute_endpoint_tolerance,
     _compute_mst,
@@ -16,8 +15,8 @@ from ...core.board import Trace, Via
 from ...core.design_rules import DesignRules
 from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
 from ...routing.constraints.geometry import Point as OraclePoint
-from ..geometry.via_placement import PadInfo, place_via_with_clearance
-from ..geometry.grid_utils import snap_to_grid, add_endpoint_nudge
+from ..geometry.via_placement import PadInfo
+from ..geometry.grid_utils import snap_to_grid
 from ...routing.layer_assignment import Layer as LayerEnum
 from ...routing.diff_pair_router import DiffPairRouter, DiffPairPath
 
@@ -51,7 +50,6 @@ class SequentialRoutingStage(Stage):
         design_rules: DesignRules | None = None,
         trace_width_mm: float = 0.25,
         clearance_mm: float = 0.2,
-        cost_map_weights: any = None,
         pad_sizes: dict = None,
         net_class_rules: dict = None,
         differential_pairs: List[DiffPairConfig] = None,
@@ -62,7 +60,6 @@ class SequentialRoutingStage(Stage):
             design_rules: DRC rules for trace widths/clearances
             trace_width_mm: Default trace width
             clearance_mm: Default clearance
-            cost_map_weights: Unused legacy parameter
             pad_sizes: Pad size lookup for via placement
             net_class_rules: Dict of net_class_name -> NetClassRule with zone confinement info
             differential_pairs: List of differential pair configs for coupled routing
