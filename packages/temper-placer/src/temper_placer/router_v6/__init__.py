@@ -111,6 +111,9 @@ __all__ = [
     "FlaggedNet",
     "RoutingFailureReport",
     "handle_routing_failures",
+    # Shared data structures
+    "ParsedPCB",
+    "DesignRules",
     "LengthMatchingResult",
     "LengthMatchingResults",
     "apply_length_matching",

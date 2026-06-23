@@ -52,30 +52,10 @@ source_modules =
     temper_placer.validation
     temper_placer.visualization
 forbidden_modules =
-    temper_placer.core.board
-    temper_placer.core.bus_cohort
-    temper_placer.core.community
-    temper_placer.core.decision
-    temper_placer.core.design_rules
-    temper_placer.core.differential_pair
     temper_placer.core.graph
-    temper_placer.core.hypergraph
-    temper_placer.core.ipc2221
-    temper_placer.core.loop
-    temper_placer.core.loop_extractor
-    temper_placer.core.loop_ownership
-    temper_placer.core.manufacturing
-    temper_placer.core.net_graph
-    temper_placer.core.net_types
-    temper_placer.core.netlist
     temper_placer.core.placement_drc
     temper_placer.core.power_topology
-    temper_placer.core.priority
     temper_placer.core.routing_validator
-    temper_placer.core.specification
-    temper_placer.core.state
-    temper_placer.core.topology
-    temper_placer.core.units
 as_packages = False
 ignore_imports =
     temper_placer.core.* -> temper_placer.core.*
@@ -154,7 +134,6 @@ forbidden_modules =
     temper_placer.router_v6.routing_space
     temper_placer.router_v6.safety_pair_inference
     temper_placer.router_v6.sat_model
-    temper_placer.router_v6.stage0_data
     temper_placer.router_v6.teardrop_generation
     temper_placer.router_v6.test_boards
     temper_placer.router_v6.thermal_relief

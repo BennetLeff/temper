@@ -44,6 +44,46 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
 from temper_placer.core.topology import ComponentCluster, TopologicalGraph, TopologicalSolution
 
+# Units
+from temper_placer.core.units import (
+    CellIndex,
+    Degrees,
+    DegreesArray,
+    LayerIndex,
+    Millimeters,
+    NetId,
+    Radians,
+    RadiansArray,
+    mm_to_cell,
+)
+
+# IPC-2221 PCB design standards
+from temper_placer.core.ipc2221 import estimate_current_from_net_class
+
+# Net graph utilities
+from temper_placer.core.net_graph import NetGraph, SubNetEdge
+
+# Hypergraph utilities
+from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
+
+# Net priority classification
+from temper_placer.core.priority import classify_net_priority
+
+# Differential pair constraints
+from temper_placer.core.differential_pair import DifferentialPairConstraint
+
+# Bus cohort routing constraints
+from temper_placer.core.bus_cohort import BusCohortConstraint, BusRegistry
+
+# Physical design specifications
+from temper_placer.core.specification import EMISpec, PcbSpecification, ThermalSpec
+
+# Design rules and net class rules
+from temper_placer.core.design_rules import DesignRules, NetClassRules
+
+# Component community detection
+from temper_placer.core.community import ComponentCommunity
+
 __all__ = [
     # State
     "PlacementState",
@@ -90,4 +130,38 @@ __all__ = [
     "LoopMembership",
     "LoopOwnershipMap",
     "build_ownership_map",
+    # Units
+    "CellIndex",
+    "Degrees",
+    "DegreesArray",
+    "LayerIndex",
+    "Millimeters",
+    "NetId",
+    "Radians",
+    "RadiansArray",
+    "mm_to_cell",
+    # IPC-2221
+    "estimate_current_from_net_class",
+    # Net graph
+    "NetGraph",
+    "SubNetEdge",
+    # Hypergraph
+    "HypergraphIncidence",
+    "PhysicsHypergraph",
+    # Priority
+    "classify_net_priority",
+    # Differential pair
+    "DifferentialPairConstraint",
+    # Bus cohort
+    "BusCohortConstraint",
+    "BusRegistry",
+    # Specifications
+    "EMISpec",
+    "PcbSpecification",
+    "ThermalSpec",
+    # Design rules
+    "DesignRules",
+    "NetClassRules",
+    # Community
+    "ComponentCommunity",
 ]
