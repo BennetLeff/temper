@@ -6,6 +6,8 @@ Part of temper-g54c.3: Phased placement using placement_priority configuration.
 
 from unittest.mock import Mock
 
+import math
+
 import pytest
 
 from temper_placer.core.design_rules import DesignRules, NetClassRules
@@ -490,39 +492,88 @@ def _build_state(
     )
 
 
+def _all_slots(state: BoardState) -> list[tuple[float, float]]:
+    """Flatten the zone_slots frozenset to a single list of (x, y) slots."""
+    return [s for _zone, slots in state.zone_slots for s in slots]
+
+
 class TestGhostPadInjection:
-    """U1: inject 6mm-radius obstacles at every HV pin position."""
+    """U1: placer reserves the creepage ring around every HV pin's absolute position.
+
+    Each test runs the placer end-to-end and inspects ``result.used_slots`` —
+    the production path.  Per-component HV reservation is performed by
+    ``_reserve_slots_with_hv`` at placement time using the placed position
+    + the pin's component-relative offset, which is the only physically
+    correct semantic (pin-relative coordinates would reserve slots at the
+    wrong absolute location).
+    """
 
     def test_hv_pin_yields_ghost_pad(self):
-        """Every slot within 6mm of an HV pin must be reserved."""
+        """Every slot within 6mm of a placed HV pin must be in used_slots.
+
+        Q1 is placed at the template anchor (0, 0); Q1's HV pin 1
+        is component-relative (0, 0) so its absolute position is
+        (0, 0).  Q1's HV pin 2 is component-relative (5, 0) so its
+        absolute position is (5, 0).  All slots within creepage
+        (6mm) of either absolute position must be reserved.
+        """
         constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "power": {
+                "components": ["Q1", "Q2"],
+                "method": "template",
+                "template": "stacked",
+                "anchor": [0.0, 0.0],
+            }
+        }
         rules = _hv_design_rules()
         stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
         state = _build_state(_build_canonical_hv_netlist())
 
-        used_slots: set[tuple[float, float]] = set()
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+        result = stage.run(state)
+        used = set(result.used_slots)
+        placements = dict(result.placements)
 
-        stage._inject_ghost_pads(
-            state, state.netlist, used_slots, all_slots, logger_name="test"
+        # Q1 is placed at the anchor (template places component 0 at
+        # anchor + i*10mm vertical offset).  Q1 HV pins are at
+        # relative (0, 0) and (5, 0) — absolute (0, 0) and (5, 0).
+        assert placements["Q1"] == (0.0, 0.0)
+        q1_pos = placements["Q1"]
+        q1_hv_abs = (
+            (q1_pos[0] + 0.0, q1_pos[1] + 0.0),
+            (q1_pos[0] + 5.0, q1_pos[1] + 0.0),
         )
 
-        # Q1 pin 1 is at (0, 0) — slot (0, 0) and any within 6mm must
-        # be in used_slots.  Slot spacing 5mm means (0,0), (5,0), (0,5)
-        # all qualify (dist <= 6).
-        assert (0.0, 0.0) in used_slots
-        assert (5.0, 0.0) in used_slots
-        assert (0.0, 5.0) in used_slots
-        # (10, 0) is sqrt(100) = 10mm from Q1 pin 1 — outside ring.
-        # Q1 pin 2 is at (5, 0) — also HV — so (10, 0) is 5mm from
-        # pin 2 and STILL within the ring.  Use a more distant slot.
-        # (15, 0) is 15mm from Q1 pin 1 AND 10mm from Q1 pin 2 — outside
-        # the ring for both.
-        assert (15.0, 0.0) not in used_slots
+        # Every slot within 6mm of an HV pin absolute position must be reserved.
+        for slot in _all_slots(state):
+            for px, py in q1_hv_abs:
+                if math.hypot(slot[0] - px, slot[1] - py) <= 6.0:
+                    assert slot in used, (
+                        f"slot {slot} is within creepage of Q1 HV pin "
+                        f"({px}, {py}) but not in used_slots"
+                    )
+
+        # Spot checks: (0,0), (5,0), (0,5) are within 6mm of Q1's HV
+        # pin 1 absolute (0, 0) so must be reserved.
+        assert (0.0, 0.0) in used
+        assert (5.0, 0.0) in used
+        assert (0.0, 5.0) in used
+        # (15, 0) is 15mm from pin 1 and 10mm from pin 2 — outside
+        # the 6mm creepage ring.  It is also outside Q1's footprint
+        # ring (~8mm) and Q2's footprint ring (Q2 is at (0, 10) per
+        # the 10mm template stacking).  Must NOT be reserved.
+        assert (15.0, 0.0) not in used
 
     def test_lv_pin_yields_no_ghost_pad(self):
-        """Board with all safety_category=LV must produce no ghost pads."""
+        """Board with all safety_category=LV must produce no HV creepage rings.
+
+        Only footprint rings are reserved — every reserved slot must be
+        within a placed component's footprint radius.
+        """
         constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "auto": {"method": "auto"},
+        }
         rules = DesignRules(
             net_classes={
                 "Power": NetClassRules(
@@ -536,7 +587,6 @@ class TestGhostPadInjection:
             },
             net_class_assignments={"VCC": "Power"},
         )
-        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
         netlist = Netlist(
             components=[
                 Component(
@@ -549,17 +599,27 @@ class TestGhostPadInjection:
             nets=[Net(name="VCC", pins=[("C1", "1")], net_class="Power")],
         )
         state = _build_state(netlist)
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
 
-        used_slots: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used_slots, all_slots, logger_name="test"
-        )
-        assert used_slots == set()
+        result = stage.run(state)
+        used = set(result.used_slots)
+        placements = dict(result.placements)
+
+        # No HV rings: every reserved slot must be within the placed
+        # component's footprint radius (sqrt(8)/2 + 1 ≈ 2.4mm).
+        placed_pos = placements["C1"]
+        for slot in used:
+            assert math.hypot(slot[0] - placed_pos[0], slot[1] - placed_pos[1]) <= 2.5, (
+                f"slot {slot} is reserved but is not within C1's footprint ring "
+                f"at {placed_pos} (no HV ring expected for LV-only board)"
+            )
 
     def test_none_safety_category_treated_as_lv(self):
-        """A pin whose net resolves to a None safety_category yields no ghost pad."""
+        """A pin whose net resolves to a None safety_category yields no HV ring."""
         constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "auto": {"method": "auto"},
+        }
         rules = DesignRules(
             net_classes={
                 "Default": NetClassRules(
@@ -572,7 +632,6 @@ class TestGhostPadInjection:
             },
             net_class_assignments={"VCC": "Default"},
         )
-        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
         netlist = Netlist(
             components=[
                 Component(
@@ -585,31 +644,34 @@ class TestGhostPadInjection:
             nets=[Net(name="VCC", pins=[("C1", "1")], net_class="Default")],
         )
         state = _build_state(netlist)
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
+        stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
 
-        used_slots: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used_slots, all_slots, logger_name="test"
-        )
-        assert used_slots == set()
+        result = stage.run(state)
+        used = set(result.used_slots)
+        placements = dict(result.placements)
+
+        # safety_category=None must behave like LV: no HV ring, only footprint.
+        placed_pos = placements["C1"]
+        for slot in used:
+            assert math.hypot(slot[0] - placed_pos[0], slot[1] - placed_pos[1]) <= 2.5, (
+                f"slot {slot} is reserved but safety_category=None must not "
+                f"trigger HV ring"
+            )
 
     def test_injection_idempotent(self):
-        """Calling _inject_ghost_pads twice yields identical used_slots."""
+        """Running the placer twice on the same state yields identical used_slots."""
         constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "auto": {"method": "auto"},
+        }
         rules = _hv_design_rules()
         stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
         state = _build_state(_build_canonical_hv_netlist())
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
 
-        used_a: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used_a, all_slots, logger_name="test"
-        )
-        used_b: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used_b, all_slots, logger_name="test"
-        )
-        assert used_a == used_b
+        r1 = stage.run(state)
+        r2 = stage.run(state)
+        assert set(r1.used_slots) == set(r2.used_slots)
+        assert dict(r1.placements) == dict(r2.placements)
 
     def test_no_randomness_seed_unchanged(self):
         """Placing on the same netlist/state at fixed seed yields the same placements."""
@@ -632,11 +694,20 @@ class TestGhostPadInjection:
         edge must still be reserved by the ghost-pad radius.
         """
         constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "power": {
+                "components": ["Q1", "C1"],
+                "method": "template",
+                "template": "stacked",
+                "anchor": [1.0, 1.0],
+            }
+        }
         rules = _hv_design_rules()
         stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
         # Build a netlist whose Q1 sits at (1.0, 1.0) — 1mm in from corner.
-        # With a 5mm slot grid, the nearest slot is (0.0, 0.0) — within
-        # the 6mm creepage ring.
+        # Q1's HV pin 1 is component-relative (0, 0) so its absolute
+        # position is (1.0, 1.0).  With a 5mm slot grid, the nearest
+        # grid slot is (0.0, 0.0) — within the 6mm creepage ring.
         netlist = Netlist(
             components=[
                 Component(
@@ -660,47 +731,79 @@ class TestGhostPadInjection:
                 Net(name="VCC", pins=[("C1", "1")], net_class="Power"),
             ],
         )
-        # Slot grid covering (0,0) to (15,15) with 5mm spacing.
         state = _build_state(
             netlist, slot_grid=(0.0, 0.0, 15.0, 15.0, 5.0)
         )
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
 
-        used_slots: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used_slots, all_slots, logger_name="test"
-        )
-        # Q1 pin 1 is at (0,0) within its component bounds; absolute
-        # position is (1.0, 1.0) per initial_position.  The closest
-        # grid slot is (0.0, 0.0) at distance sqrt(2) ~ 1.41mm < 6mm.
-        assert (0.0, 0.0) in used_slots
+        result = stage.run(state)
+        used = set(result.used_slots)
+
+        # Q1 is at template anchor (1.0, 1.0).  Q1 HV pin 1 absolute
+        # position is (1.0, 1.0).  The closest grid slot is (0.0, 0.0)
+        # at distance sqrt(2) ~ 1.41mm < 6mm creepage.
+        assert (0.0, 0.0) in used
 
     def test_empty_net_classes_yields_no_ghosts(self):
-        """state.design_rules.net_classes == {} → no ghosts, no exception."""
+        """state.design_rules.net_classes == {} → no HV rings, only footprint rings."""
         constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "auto": {"method": "auto"},
+        }
         rules = DesignRules(net_classes={}, net_class_assignments={})
         stage = PhasedComponentAssignmentStage(constraints, design_rules=rules)
         state = _build_state(_build_canonical_hv_netlist())
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
 
-        used_slots: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used_slots, all_slots, logger_name="test"
-        )
-        assert used_slots == set()
+        result = stage.run(state)
+        used = set(result.used_slots)
+        placements = dict(result.placements)
+
+        # No HV rings because no net class has HV/AC safety_category.
+        # Every reserved slot must be within a placed component's footprint ring.
+        comp_by_ref = {c.ref: c for c in state.netlist.components}
+        for slot in used:
+            within_any = False
+            for ref, pos in placements.items():
+                comp = comp_by_ref.get(ref)
+                if comp is None:
+                    continue
+                radius = math.hypot(comp.bounds[0], comp.bounds[1]) / 2 + 1.0
+                if math.hypot(slot[0] - pos[0], slot[1] - pos[1]) <= radius:
+                    within_any = True
+                    break
+            assert within_any, (
+                f"slot {slot} is reserved but not within any footprint ring "
+                f"(empty net_classes must produce no HV ring)"
+            )
 
     def test_no_design_rules_is_noop(self):
-        """design_rules=None → injection is a no-op (legacy pipelines)."""
+        """design_rules=None → no HV ring (legacy pipelines, NFR4 parity)."""
         constraints = PlacementConstraints()
+        constraints.placement_priority = {
+            "auto": {"method": "auto"},
+        }
         stage = PhasedComponentAssignmentStage(constraints, design_rules=None)
         state = _build_state(_build_canonical_hv_netlist())
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
 
-        used_slots: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used_slots, all_slots, logger_name="test"
-        )
-        assert used_slots == set()
+        result = stage.run(state)
+        used = set(result.used_slots)
+        placements = dict(result.placements)
+
+        # design_rules=None: only footprint rings, no HV rings.
+        comp_by_ref = {c.ref: c for c in state.netlist.components}
+        for slot in used:
+            within_any = False
+            for ref, pos in placements.items():
+                comp = comp_by_ref.get(ref)
+                if comp is None:
+                    continue
+                radius = math.hypot(comp.bounds[0], comp.bounds[1]) / 2 + 1.0
+                if math.hypot(slot[0] - pos[0], slot[1] - pos[1]) <= radius:
+                    within_any = True
+                    break
+            assert within_any, (
+                f"slot {slot} is reserved but design_rules=None must not "
+                f"add HV rings"
+            )
 
     def test_lv_only_placement_is_unchanged_parity_anchor(self):
         """NFR4: a board with all-LV nets produces identical placements before/after."""
@@ -778,30 +881,25 @@ class TestIsolationSlotReduction:
     """U2: reduce ghost-pad radius by slot projection (gated by use_isolation_slots)."""
 
     def test_isolation_slots_disabled_is_bit_identical(self):
-        """use_isolation_slots=False must produce the same used_slots as U1."""
+        """use_isolation_slots=False must produce the same used_slots as a bare stage."""
         constraints = _u2_constraints_with_slot()
+        constraints.placement_priority = {"auto": {"method": "auto"}}
         rules = _hv_design_rules()
         stage = PhasedComponentAssignmentStage(
             constraints, design_rules=rules, use_isolation_slots=False
         )
         state = _build_state(_build_canonical_hv_netlist())
-        all_slots = [s for slots in dict(state.zone_slots).values() for s in slots]
 
-        used: set[tuple[float, float]] = set()
-        stage._inject_ghost_pads(
-            state, state.netlist, used, all_slots, logger_name="test"
-        )
+        used = set(stage.run(state).used_slots)
 
         # The same constraints without isolation_slots and use_isolation_slots=False
         # must produce the same used_slots (NFR4 parity).
         bare = PlacementConstraints()
+        bare.placement_priority = {"auto": {"method": "auto"}}
         bare_stage = PhasedComponentAssignmentStage(
             bare, design_rules=rules, use_isolation_slots=False
         )
-        used_bare: set[tuple[float, float]] = set()
-        bare_stage._inject_ghost_pads(
-            state, state.netlist, used_bare, all_slots, logger_name="test"
-        )
+        used_bare = set(bare_stage.run(state).used_slots)
         assert used == used_bare
 
     def test_isolation_slots_enabled_reduces_radius(self):

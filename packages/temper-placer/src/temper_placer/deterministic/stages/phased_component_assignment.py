@@ -598,7 +598,7 @@ class PhasedComponentAssignmentStage(Stage):
         self,
         netlist: Netlist,
     ) -> List[Tuple[float, float, str, str]]:
-        """Collect absolute (x, y) positions for every HV-class pin.
+        """Collect component-relative (x, y) positions for every HV-class pin.
 
         Returns a list of (pin_x, pin_y, component_ref, pin_name) tuples
         for pins whose net class has a non-None ``safety_category`` in
@@ -607,13 +607,14 @@ class PhasedComponentAssignmentStage(Stage):
         tag) are silently skipped — this preserves NFR4 parity on
         LV-only boards.
 
-        Note: pin coordinates returned here are RELATIVE to their
-        component origin, not absolute board positions.  Callers that
-        need absolute positions (U3 validator) must combine with the
-        component's placement.  The placer itself reserves slots around
-        the *current* anchor of every component (which is its initial /
-        fixed position at placement time), so relative coordinates are
-        sufficient for the placer's reservation step.
+        Coordinates are component-RELATIVE (i.e. relative to the
+        component's local origin).  Callers that need absolute board
+        positions must combine them with the component's actual
+        placement.  The placer's per-component hook
+        ``_reserve_slots_with_hv`` does exactly that and is the
+        production path; this helper exists for the post-stage DRC
+        fence validator (U3) and for any future analytic consumer that
+        needs the pin-relative coordinate set.
         """
         if self.design_rules is None or not getattr(self.design_rules, "net_classes", None):
             return []
@@ -680,71 +681,6 @@ class PhasedComponentAssignmentStage(Stage):
             # geometry, not the placer's radius budget.
             base_radius = max(0.0, base_radius - length)
         return base_radius
-
-    def _inject_ghost_pads(
-        self,
-        state: BoardState,
-        netlist: Netlist,
-        used_slots: Set[Tuple[float, float]],
-        all_slots: List[Tuple[float, float]],
-        logger_name: str = __name__,
-    ) -> None:
-        """Inject HV-creepage ghost pads into ``used_slots``.
-
-        For every HV pin, reserves every grid slot within
-        ``creepage_mm`` (max across HV net classes, FR4 SSOT) of the
-        pin's component-relative position.  Inner layers are
-        over-reserved by design (FR2b).  Logs a per-stage summary
-        ``ghost_pads_injected={N} slots_blocked={M}`` at INFO so
-        downstream tooling can correlate.
-        """
-        import logging
-
-        logger = logging.getLogger(logger_name)
-
-        hv_pins = self._collect_hv_pin_positions(netlist)
-        if not hv_pins:
-            logger.debug("No HV pins found; ghost-pad injection is a no-op")
-            return
-
-        # FR4 base radius: max creepage across HV/AC classes.  Using
-        # the max keeps the placer conservative — every HV pin gets at
-        # least its class's required ring, and over-reservation is the
-        # intended failure mode (FR2b).
-        base_radius = 0.0
-        for rules in getattr(self.design_rules, "net_classes", {}).values():
-            safety = getattr(rules, "safety_category", None)
-            if safety in self._HV_SAFETY_CATEGORIES:
-                base_radius = max(base_radius, float(getattr(rules, "creepage_mm", 0.0)))
-        if base_radius <= 0.0:
-            logger.debug("creepage_mm is zero across all HV classes; skipping injection")
-            return
-
-        before = len(used_slots)
-        rejected = 0
-        for pin_x, pin_y, comp_ref, pin_name in hv_pins:
-            radius = self._effective_ghost_pad_radius(comp_ref, pin_name, base_radius)
-            new_slots = [
-                slot
-                for slot in all_slots
-                if math.hypot(slot[0] - pin_x, slot[1] - pin_y) <= radius
-                and slot not in used_slots
-            ]
-            if not new_slots:
-                # FR7: log when an HV pin cannot reserve any slot.
-                logger.debug(
-                    f"Ghost-pad for {comp_ref}.{pin_name} at ({pin_x},{pin_y}) "
-                    f"radius={radius}mm rejected: no slots within radius"
-                )
-                rejected += 1
-                continue
-            used_slots.update(new_slots)
-
-        added = len(used_slots) - before
-        logger.info(
-            f"ghost_pads_injected={len(hv_pins)} slots_blocked={added} "
-            f"rejected={rejected} base_creepage_mm={base_radius}"
-        )
 
     def _build_net_pins(self, netlist: Netlist) -> Dict[str, list]:
         """Build net_name -> [(comp_ref, pin_name), ...] map."""
