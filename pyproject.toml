@@ -64,7 +64,22 @@ ignore = ["E501"]
 
 [tool.coverage.run]
 branch = true
-source = ["temper_placer.core"]
+source = [
+    "temper_placer.core",
+    "temper_placer.router_v6.grid_prep_stage",
+    "temper_placer.router_v6.net_prep_stage",
+    "temper_placer.router_v6.route_stage",
+    "temper_placer.router_v6.result_aggregate_stage",
+    "temper_placer.router_v6.stage4_orchestrator",
+]
 
 [tool.coverage.report]
 show_missing = true
+fail_under = 0  # Per-module gates enforced in CI
+
+[tool.coverage.coverage_gates]
+grid_prep_stage = 90
+net_prep_stage = 90
+route_stage = 90
+result_aggregate_stage = 90
+stage4_orchestrator = 90

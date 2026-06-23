@@ -61,6 +61,20 @@ class BoardState:
     # Bridge fields for Stage2Orchestrator (pending protocol unification)
     _parsed_pcb: Optional[Any] = None
     _escape_vias: Optional[Any] = None
+    # Router V6 Stage 4 A* pathfinding fields
+    parsed_grids: Optional[dict[str, Any]] = None
+    net_route_order: Optional[list[str]] = None
+    per_net_results: Optional[dict[str, Any]] = None
+    tht_locations: frozenset = frozenset()
+    pad_centers_per_net: Optional[dict[str, Any]] = None
+    net_ids: Optional[dict[str, int]] = None
+    failed_nets: Optional[list[str]] = None
+    failure_reports: Optional[dict[str, Any]] = None
+    pathfinding_result: Optional[Any] = None
+    channel_mapping: Any = None
+    escape_vias_map: Optional[dict[str, Any]] = None
+    enable_theta_star: bool = False
+    enable_lazy_theta_star: bool = False
     # Router V6 Stage 3 topological-routing fields
     constraint_model: Optional["ConstraintModel"] = None
     sat_variable_map: Optional[dict[str, Any]] = None
