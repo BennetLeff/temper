@@ -24,10 +24,13 @@ def _make_orchestrator_stage(
 ) -> type:
     """Factory: create a ``PipelineStage`` class for one orchestrator phase."""
 
+    _reqs = requires
+    _provs = provides
+
     class _OrchestratorPhaseStage:
         name: str = f"orchestrator/{phase_value}"
-        requires: list[str] = requires
-        provides: list[str] = provides
+        requires: list[str] = _reqs
+        provides: list[str] = _provs
         contract = None
 
         def run(self, input):

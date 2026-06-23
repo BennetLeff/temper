@@ -137,8 +137,8 @@ class PipelineRunner:
             _check_output_contract(stage, out)
 
             out.contract_satisfied = (
-                stage.contract is not None
-                if hasattr(stage, "contract")
+                True
+                if hasattr(stage, "contract") and stage.contract is not None
                 else None
             )
             self._trace.append((stage.name, dt, out.contract_satisfied))
