@@ -165,11 +165,20 @@ POWER_STAGE_TEMPLATES = {
         "C_BUS2": (5, 8),
     },
     "full_bridge": {
-        "Q1": (-10, 5),   # High-side A
-        "Q2": (-10, -5),  # Low-side A
-        "Q3": (10, 5),    # High-side B
-        "Q4": (10, -5),   # Low-side B
+        "Q1": (-10, 5),    # High-side A
+        "Q2": (-10, -5),   # Low-side A
+        "Q3": (10, 5),     # High-side B
+        "Q4": (10, -5),    # Low-side B
         "C_BUS1": (0, 8),
         "C_BUS2": (0, -8),
     },
 }
+
+
+def classify_net_priority(net_name: str) -> RoutingPriority:
+    """Classify a net name into a routing priority.
+
+    Module-level convenience wrapper around :meth:`PriorityConfig.classify_net`.
+    Re-exported via :mod:`temper_placer.core` for backward compatibility.
+    """
+    return PriorityConfig().classify_net(net_name)

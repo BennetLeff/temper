@@ -471,7 +471,7 @@ hv_exclusion_zones:
 # Physical slots (routed cutouts) between gate pins and HV pins on TO-247 packages.
 # TO-247 geometry: Gate (pin 1) is 5.45mm from collector (pin 2), but IEC requires 6mm.
 # Solution: A 1.5mm wide slot forces creepage path around it, achieving 12-15mm effective.
-# 
+#
 # Slot coordinates are relative to component origin (footprint position).
 # The slot runs perpendicular to the pin row to maximize creepage path extension.
 #
@@ -488,7 +488,7 @@ isolation_slots:
     lv_pin: "1"                   # Gate
     hv_pin: "2"                   # Collector
     description: "IEC 60335-1 creepage isolation for Q1 gate-to-HV"
-    
+
   - name: "q2_gate_isolation"
     component_ref: "Q2"
     start_offset: [2.725, -5.0]
@@ -497,6 +497,14 @@ isolation_slots:
     lv_pin: "1"
     hv_pin: "2"
     description: "IEC 60335-1 creepage isolation for Q2 gate-to-HV"
+
+# U2: Placer-level toggles.  Defaults to off so legacy configs are
+# bit-identical to pre-U2 behavior (NFR4 parity).  When
+# use_isolation_slots is true, PhasedComponentAssignmentStage subtracts
+# the on-axis projection of every isolation_slots entry from each HV
+# pin's effective ghost-pad radius per IEC 62368-1 Annex G.
+placer:
+  use_isolation_slots: false
 
 # Loss function configuration (for gradient optimizer - not used in deterministic pipeline)
 losses:
