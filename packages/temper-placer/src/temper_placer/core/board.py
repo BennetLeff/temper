@@ -169,20 +169,15 @@ class LayerStackup:
     def default_4layer(cls) -> LayerStackup:
         """Create default 4-layer stackup for Temper board.
 
-        Inner layers (In1.Cu, In2.Cu) are marked as "mixed" type - they function
-        as power/ground planes but can also be used for signal routing when
-        the outer layers are congested. The PowerPlaneStage handles plane net
-        connections separately via vias.
+        Inner layers (In1.Cu, In2.Cu) are plane layers (GND and PWR) and
+        are not routable for signal traces. The PowerPlaneStage handles
+        plane net connections separately via vias.
         """
         return cls(
             layers=[
                 Layer("F.Cu", "signal", copper_weight=2.0, is_routable=True),
-                Layer(
-                    "In1.Cu", "mixed", copper_weight=1.0, is_routable=True
-                ),  # GND plane + signal routing
-                Layer(
-                    "In2.Cu", "mixed", copper_weight=1.0, is_routable=True
-                ),  # PWR plane + signal routing
+                Layer("In1.Cu", "plane", copper_weight=1.0, is_routable=False),
+                Layer("In2.Cu", "plane", copper_weight=1.0, is_routable=False),
                 Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
             ],
             thickness=1.6,
