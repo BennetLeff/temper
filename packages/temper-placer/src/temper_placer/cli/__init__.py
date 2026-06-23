@@ -26,11 +26,13 @@ def main() -> None:
 from .pipeline_commands import phase, pipeline
 from .trace_commands import trace
 from .dsn_commands import dsn
+from .golden import golden
 
 main.add_command(pipeline)
 main.add_command(phase)
 main.add_command(trace)
 main.add_command(dsn)
+main.add_command(golden)
 
 
 @main.command("mvp3-route")
@@ -3817,7 +3819,7 @@ def place_deterministic(
         raise click.Abort() from e
 
 
-from ._version import version
+from .version import version
 
 main.add_command(version)
 
