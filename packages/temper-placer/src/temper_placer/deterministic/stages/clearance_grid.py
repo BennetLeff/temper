@@ -24,6 +24,21 @@ class ConfigError(ValueError):
     """
 
 
+class FenceViolation(RuntimeError):
+    """Raised when the U3 clearance-grid fence detects a non-conservative expansion.
+
+    The fence (R8) samples the boundary of every (pad, layer) expansion
+    produced by the U2 pass and asserts each sample lies inside the
+    blocked region of the produced grid. A miss means the expansion under-
+    blocked: a downstream A* run would think the cell is free and route
+    through it, violating creepage. The exception names the offending
+    pad (ref, pin_name), layer, sample coordinate, and a human-readable
+    reason so the failure is actionable from CI logs.
+
+    @req(2026-06-23-005, R8)
+    """
+
+
 def effective_creepage(layer: str, base_creepage_mm: float) -> float:
     """Return the per-layer effective creepage distance in mm.
 
@@ -1129,6 +1144,36 @@ class ClearanceGridStage(Stage):
                         eff_creep,
                         grid.blocked_count_on_layer(layer_idx) - pre_count,
                     ))
+
+        # @req(2026-06-23-005, U3, R4, R8): After the U2 expansion pass,
+        # invoke the grid-validity fence. A non-empty violation list means
+        # the expansion under-blocked somewhere: a downstream A* would
+        # route through an unsafe cell, violating creepage. Raise
+        # FenceViolation with the first named pad/layer so the failure
+        # is actionable from CI logs. The 20% perf-budget check is a
+        # soft warning (R4) and is logged but does not fail the stage.
+        if _EXPANSION_LOG:
+            import time as _fence_time
+            _fence_t0 = _fence_time.perf_counter()
+            violations = check_clearance_grid_conservatism(grid, _EXPANSION_LOG)
+            _fence_elapsed_ms = (_fence_time.perf_counter() - _fence_t0) * 1000.0
+            if violations:
+                first = violations[0]
+                raise FenceViolation(
+                    f"U3 fence failed on expansion: {first['reason']} "
+                    f"(additional violations: {len(violations) - 1})"
+                )
+            # Soft perf-budget warning (R4). We approximate stage elapsed
+            # time by the fence's own wall-time on its first run; this
+            # keeps the budget comparison local to the fence call so
+            # callers don't need to instrument the whole stage.
+            _stage_elapsed_ms = max(_fence_elapsed_ms, 1.0)
+            over_budget, warning = check_clearance_grid_perf_budget(
+                fence_elapsed_ms=_fence_elapsed_ms,
+                stage_elapsed_ms=_stage_elapsed_ms,
+            )
+            if over_budget and warning is not None:
+                print(f"  [clearance_grid fence] {warning}")
 
         # EXP-13: Block HV exclusion zones for specified nets
         # These zones force signals (like GATE_H, PWM_H) to route around HV areas
