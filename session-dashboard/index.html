@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Session Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script>
   <style>
     :root {
       --surface: #0d1117;
@@ -26,13 +25,6 @@
       --gap: 12px;
       --focus-ring: 0 0 0 3px rgba(88,166,255,0.4);
       --transition: 150ms ease;
-      --phase-ideate: #f59e0b;
-      --phase-brainstorm: #a855f7;
-      --phase-plan: #3b82f6;
-      --phase-work: #22c55e;
-      --phase-code-review: #ef4444;
-      --phase-doc-review: #eab308;
-      --phase-other: #6b7280;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { touch-action: manipulation; }
@@ -55,22 +47,6 @@
     }
     .app-header h1 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
     .status-bar { font-size: 0.8125rem; color: var(--text-secondary); }
-
-    .tab-bar {
-      display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px;
-    }
-    .tab-btn {
-      padding: 10px 20px; border: none; background: none; color: var(--text-secondary);
-      cursor: pointer; font-size: 0.875rem; font-weight: 500;
-      border-bottom: 2px solid transparent; transition: all var(--transition);
-      font-family: inherit; outline: none;
-    }
-    .tab-btn:hover { color: var(--text-primary); }
-    .tab-btn:focus-visible { box-shadow: var(--focus-ring); }
-    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
     .toolbar {
       display: flex; gap: 8px; align-items: center; padding: 8px 0; margin-bottom: 16px; flex-wrap: wrap;
     }
@@ -122,174 +98,6 @@
     .tag-project { background: var(--accent-bg); color: var(--accent); }
     .tag-subagent { background: rgba(63,185,80,0.15); color: var(--success); }
     .tag-type { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
-    .tag-type-deemphasized { font-size: 0.6875rem; color: var(--text-tertiary); opacity: 0.7; }
-    .session-card[data-phase="ideate"] { border-left: 3px solid var(--phase-ideate); }
-    .session-card[data-phase="brainstorm"] { border-left: 3px solid var(--phase-brainstorm); }
-    .session-card[data-phase="plan"] { border-left: 3px solid var(--phase-plan); }
-    .session-card[data-phase="work"] { border-left: 3px solid var(--phase-work); }
-    .session-card[data-phase="code-review"] { border-left: 3px solid var(--phase-code-review); }
-    .session-card[data-phase="doc-review"] { border-left: 3px solid var(--phase-doc-review); }
-    .session-card[data-phase="other"] { border-left: 3px solid var(--phase-other); }
-    .tag-phase-ideate { background: rgba(245,158,11,0.15); color: var(--phase-ideate); border-color: var(--phase-ideate); }
-    .tag-phase-brainstorm { background: rgba(168,85,247,0.15); color: var(--phase-brainstorm); border-color: var(--phase-brainstorm); }
-    .tag-phase-plan { background: rgba(59,130,246,0.15); color: var(--phase-plan); border-color: var(--phase-plan); }
-    .tag-phase-work { background: rgba(34,197,94,0.15); color: var(--phase-work); border-color: var(--phase-work); }
-    .tag-phase-code-review { background: rgba(239,68,68,0.15); color: var(--phase-code-review); border-color: var(--phase-code-review); }
-    .tag-phase-doc-review { background: rgba(234,179,8,0.15); color: var(--phase-doc-review); border-color: var(--phase-doc-review); }
-    .tag-phase-other { background: rgba(107,114,128,0.15); color: var(--phase-other); border-color: var(--phase-other); }
-    .phase-filter { display: flex; align-items: center; gap: 8px; padding: 8px 0; margin-bottom: 12px; flex-wrap: wrap; }
-    .phase-filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-    .phase-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 8px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface-raised); color: var(--text-primary); cursor: pointer; font-size: 0.8125rem; font-weight: 500; transition: opacity var(--transition), border-color var(--transition); user-select: none; }
-    .phase-pill:hover { border-color: var(--border-hover); }
-    .phase-pill .pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
-    .phase-pill .pill-count { font-size: 0.6875rem; color: var(--text-tertiary); margin-left: 2px; }
-    .phase-pill.inactive { opacity: 0.5; border-color: var(--border); background: transparent; }
-    .phase-pill.inactive .pill-count { opacity: 0.5; }
-    .phase-filter-clear { font-size: 0.8125rem; }
-    /* Sub-agent rows */
-    .subagent-rows { margin: 8px 0; border-radius: var(--radius-sm); overflow: hidden; }
-    .subagent-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 0.8125rem; cursor: pointer; border-radius: var(--radius-sm); transition: background var(--transition); outline: none; }
-    .subagent-row:hover { background: var(--surface-overlay); }
-    .subagent-row:focus-visible { box-shadow: var(--focus-ring); }
-    .subagent-icon { flex-shrink: 0; color: var(--text-tertiary); }
-    .subagent-desc { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); }
-    .subagent-dur { flex-shrink: 0; color: var(--text-tertiary); font-size: 0.75rem; min-width: 36px; text-align: right; }
-    .pass-badge { flex-shrink: 0; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.6875rem; font-weight: 700; }
-    .pass-badge.passed { background: rgba(63,185,80,0.15); color: var(--success); }
-    .pass-badge.failed { background: rgba(248,81,73,0.15); color: var(--error); }
-    .subagent-count-badge { background: rgba(63,185,80,0.1); padding: 2px 8px; border-radius: 12px; color: var(--success); display: inline-flex; align-items: center; gap: 4px; }
-    .subagent-truncated { width: 100%; justify-content: center; font-size: 0.75rem; color: var(--text-secondary); padding: 6px; min-height: auto; }
-    .card-synthetic { border-style: dashed; border-color: var(--text-tertiary); background: var(--surface-overlay); }
-    .card-synthetic:hover { border-color: var(--warning); }
-    .orphan-tag { background: rgba(210,153,34,0.15); color: var(--warning); }
-    .chain-section {
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .chain-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: var(--surface-raised);
-      cursor: pointer;
-      transition: border-color var(--transition);
-    }
-    .chain-row:hover { border-color: var(--border-hover); }
-    .chain-row.active-filter {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent);
-    }
-    .chain-topic {
-      max-width: 180px;
-      min-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 0.8125rem;
-      color: var(--text-secondary);
-      flex-shrink: 0;
-    }
-    .chain-bar {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      flex: 1;
-    }
-    .phase-dot-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      position: relative;
-    }
-    .phase-dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      background: transparent;
-      transition: background var(--transition), border-color var(--transition);
-      flex-shrink: 0;
-    }
-    .phase-dot.completed { background: var(--success); border-color: var(--success); }
-    .phase-dot.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      animation: pulse 2s infinite;
-    }
-    .phase-dot.skipped { background: transparent; border: 2px dashed var(--text-tertiary); }
-    .phase-dot.pending { background: transparent; border: 2px solid var(--border); }
-    .phase-dot.unknown { background: transparent; border: 2px solid var(--text-tertiary); }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .phase-dot.active { animation: none; background: var(--accent); opacity: 0.8; }
-    }
-    .phase-line {
-      width: 24px;
-      height: 2px;
-      background: var(--border);
-      flex-shrink: 0;
-    }
-    .phase-line.completed-line { background: var(--success); }
-    .phase-label {
-      font-size: 0.625rem;
-      color: var(--text-tertiary);
-      text-align: center;
-      white-space: nowrap;
-    }
-    .health-section {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      margin-left: auto;
-      flex-shrink: 0;
-      max-width: 220px;
-    }
-    .health-stalled { color: var(--warning); font-size: 0.6875rem; }
-    .health-broken { color: var(--error); font-size: 0.6875rem; }
-    .phase-tooltip {
-      position: absolute;
-      bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface-overlay);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 8px 10px;
-      font-size: 0.75rem;
-      color: var(--text-primary);
-      white-space: nowrap;
-      z-index: 100;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
-    .phase-dot-wrapper:hover .phase-tooltip { opacity: 1; }
-    .phase-tooltip::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 6px solid transparent;
-      border-top-color: var(--border);
-    }
-    .phase-tooltip-label { font-weight: 600; margin-bottom: 2px; }
-    .phase-tooltip-meta { color: var(--text-secondary); }
-
-    .tag-reviewer {
-      background: rgba(88,166,255,0.12); color: var(--accent); border: 1px solid rgba(88,166,255,0.2);
-    }
-
     /* Modal */
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88);
@@ -307,57 +115,6 @@
     .msg-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; color: var(--text-tertiary); }
     .msg-content { white-space: pre-wrap; font: inherit; font-size: 0.8125rem; line-height: 1.6; max-height: 360px; overflow-y: auto; margin: 0; }
     .load-more { display: block; margin: 20px auto; min-width: 240px; }
-    /* Artifacts */
-    .artifact-section { margin-top: 12px; }
-    .artifact-section-title { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.03em; }
-    .artifact-group-header { font-size: 0.75rem; color: var(--text-tertiary); margin: 8px 0 4px; }
-    .artifact-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 0.8125rem; cursor: pointer; border-radius: var(--radius-sm); transition: background var(--transition); }
-    .artifact-row:hover { background: var(--surface-overlay); }
-    .artifact-path { color: var(--accent); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .artifact-path:hover { color: var(--accent-hover); text-decoration: underline; }
-    .artifact-deleted { color: var(--error); font-size: 0.6875rem; margin-left: 4px; }
-    .badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 8px; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.01em; }
-    .badge-idea { background: rgba(210,153,34,0.15); color: var(--warning); }
-    .badge-plan { background: rgba(88,166,255,0.15); color: var(--accent); }
-    .badge-req { background: rgba(163,113,247,0.15); color: #a371f7; }
-    .badge-sol { background: rgba(63,185,80,0.15); color: var(--success); }
-    .badge-hw { background: rgba(248,81,73,0.15); color: var(--error); }
-    .badge-doc { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
-    .badge-review { background: rgba(163,113,247,0.15); color: #a371f7; }
-    .badge-fix { background: rgba(248,81,73,0.15); color: var(--error); }
-    .badge-design { background: rgba(210,153,34,0.15); color: var(--warning); }
-    .badge-report { background: rgba(63,185,80,0.15); color: var(--success); }
-    .badge-polish { background: rgba(88,166,255,0.15); color: var(--accent); }
-    .badge-work { background: var(--surface-overlay); color: var(--text-secondary); border: 1px solid var(--border); }
-    .confidence-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .confidence-dot.high { background: var(--success); }
-    .confidence-dot.medium { background: var(--warning); }
-    .confidence-dot.low { border: 1px solid var(--text-tertiary); background: transparent; }
-    .artifact-toggle { font-size: 0.75rem; color: var(--accent); cursor: pointer; padding: 2px 4px; border: none; background: none; }
-    .artifact-toggle:hover { text-decoration: underline; }
-    .no-time-note { font-size: 0.75rem; color: var(--warning); margin-top: 8px; }
-    /* Preview pane */
-    .artifact-preview { margin: 6px 0 6px 16px; border-left: 3px solid var(--accent); background: var(--surface-overlay); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; overflow: hidden; }
-    .preview-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface-raised); border-bottom: 1px solid var(--border); }
-    .preview-header span { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
-    .preview-close { cursor: pointer; border: none; background: none; color: var(--text-secondary); padding: 2px; }
-    .preview-close:hover { color: var(--text-primary); }
-    .preview-body { padding: 12px; font-size: 0.8125rem; line-height: 1.6; color: var(--text-primary); max-height: 400px; overflow-y: auto; }
-    .preview-body h1 { font-size: 1.1rem; margin: 8px 0 4px; }
-    .preview-body h2 { font-size: 1rem; margin: 8px 0 4px; }
-    .preview-body h3 { font-size: 0.925rem; margin: 6px 0 3px; }
-    .preview-body p { margin: 4px 0; }
-    .preview-body pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; overflow-x: auto; margin: 6px 0; }
-    .preview-body code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.75rem; }
-    .preview-body pre code { background: none; padding: 0; }
-    .preview-body :not(pre) > code { background: rgba(88,166,255,0.1); padding: 1px 4px; border-radius: 3px; }
-    .preview-body ul, .preview-body ol { padding-left: 20px; margin: 4px 0; }
-    .preview-body blockquote { border-left: 3px solid var(--border); padding-left: 12px; margin: 6px 0; color: var(--text-secondary); }
-    .preview-body hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
-    .preview-body a { color: var(--accent); }
-    .preview-body a:hover { color: var(--accent-hover); }
-    .preview-loading { padding: 20px; text-align: center; color: var(--text-tertiary); font-size: 0.8125rem; }
-    .preview-error { padding: 12px; color: var(--error); font-size: 0.8125rem; }
     #health-board { margin-bottom: 16px; }
     .health-board { transition: opacity .3s; }
     .health-summary {
@@ -435,114 +192,6 @@
       background: var(--accent-bg); border-radius: var(--radius-sm);
     }
     .filter-indicator strong { font-weight: 600; }
-
-    /* Reviews tab */
-    .reviews-section {
-      margin-bottom: 28px;
-    }
-    .reviews-section h2 {
-      font-size: 0.9375rem; font-weight: 600; margin-bottom: 12px;
-      color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .pivot-table {
-      border-collapse: collapse; font-size: 0.8125rem; width: 100%;
-    }
-    .pivot-table th, .pivot-table td {
-      padding: 6px 10px; border: 1px solid var(--border); text-align: center; white-space: nowrap;
-    }
-    .pivot-table th {
-      background: var(--surface-raised); color: var(--text-secondary); font-weight: 500;
-      position: sticky; top: 0; z-index: 1;
-    }
-    .pivot-table td:first-child {
-      text-align: left; font-weight: 500; color: var(--text-primary); background: var(--surface-raised);
-      position: sticky; left: 0; z-index: 1;
-    }
-    .pivot-table .cell-zero {
-      background: rgba(139,148,158,0.12); color: var(--text-tertiary);
-    }
-    .pivot-table .cell-empty {
-      color: var(--text-tertiary); font-size: 0.75rem;
-    }
-    .pivot-table .cell-highlight {
-      font-weight: 600;
-    }
-    .pivot-wrapper {
-      overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md);
-      max-height: 480px; overflow-y: auto;
-    }
-
-    .cards-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: var(--gap);
-    }
-    .persona-card {
-      background: var(--surface-raised); border: 1px solid var(--border);
-      border-radius: var(--radius-md); padding: 14px;
-    }
-    .persona-card .p-name {
-      font-weight: 600; font-size: 0.875rem; margin-bottom: 6px;
-    }
-    .persona-card .p-stat {
-      font-size: 0.8125rem; color: var(--text-secondary); margin: 2px 0;
-      display: flex; justify-content: space-between;
-    }
-    .persona-card .p-stat .p-val {
-      color: var(--text-primary); font-weight: 500;
-    }
-    .persona-card .p-stat .p-warn {
-      color: var(--warning);
-    }
-    .persona-card .p-stat .p-accepted {
-      color: var(--success);
-    }
-    .persona-card .p-trend-up { color: var(--error); }
-    .persona-card .p-trend-down { color: var(--success); }
-    .persona-card .p-trend-flat { color: var(--text-tertiary); }
-
-    .blind-spot-item {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 12px; background: var(--surface-raised);
-      border: 1px solid var(--border); border-left: 3px solid var(--warning);
-      border-radius: var(--radius-md); margin-bottom: 8px;
-    }
-    .blind-spot-item .bs-icon {
-      flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px;
-      color: var(--warning);
-    }
-    .blind-spot-item .bs-text { font-size: 0.875rem; }
-    .blind-spot-item .bs-text strong { font-weight: 600; }
-    .blind-spot-clear {
-      text-align: center; padding: 24px; color: var(--text-secondary); font-size: 0.875rem;
-    }
-
-    .chart-container {
-      position: relative; height: 300px; margin-bottom: 20px;
-    }
-
-    .reviews-loading {
-      text-align: center; padding: 60px; color: var(--text-secondary);
-    }
-    .reviews-loading .spinner {
-      display: inline-block; width: 24px; height: 24px;
-      border: 2px solid var(--border); border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.8s linear infinite;
-      margin-bottom: 12px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .filter-bar {
-      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-    }
-    .filter-bar input, .filter-bar select {
-      background: var(--surface-raised); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 8px 12px;
-      color: var(--text-primary); font-size: 0.8125rem; font-family: inherit;
-      outline: none; min-height: 44px;
-    }
-    .filter-bar input:focus, .filter-bar select:focus {
-      box-shadow: var(--focus-ring); border-color: var(--border-hover);
-    }
   </style>
 </head>
 <body>
@@ -550,37 +199,14 @@
     <h1>Session Dashboard</h1>
     <div id="status-bar" class="status-bar" aria-live="polite">Starting...</div>
   </header>
-
-  <nav class="tab-bar" role="tablist">
-    <button class="tab-btn active" role="tab" aria-selected="true" data-tab="sessions">Sessions</button>
-    <button class="tab-btn" role="tab" aria-selected="false" data-tab="reviews">Reviews</button>
-  </nav>
-
   <main>
-    <div id="tab-sessions" class="tab-panel active" role="tabpanel">
-      <div class="toolbar">
-        <button class="btn btn-primary" id="refresh-btn" aria-label="Refresh sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Refresh
-        </button>
-        <span style="font-size:0.8125rem;color:var(--text-secondary)" id="page-info" aria-live="polite"></span>
-      </div>
-      <div id="session-list" class="session-list" role="feed" aria-label="Session list"></div>
+    <div class="toolbar">
+      <button class="btn btn-primary" id="refresh-btn" aria-label="Refresh sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+      <span style="font-size:0.8125rem;color:var(--text-secondary)" id="page-info" aria-live="polite"></span>
     </div>
-
-    <div id="tab-reviews" class="tab-panel" role="tabpanel">
-      <div class="toolbar">
-        <button class="btn btn-primary" id="refresh-reviews-btn" aria-label="Refresh reviews">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Refresh
-        </button>
-        <span style="font-size:0.8125rem;color:var(--text-secondary)" id="reviews-info"></span>
-      </div>
-      <div id="reviews-content"></div>
-    </div>
-    <div class="phase-filter" id="phase-filter" role="group" aria-label="Filter by phase">
-      <div class="phase-filter-pills" id="phase-filter-pills"></div>
-      <button class="btn btn-ghost phase-filter-clear" id="phase-filter-clear" style="display:none">Clear filters</button>
     <div id="health-board">
       <div class="health-skeleton">
         <div class="skeleton-summary"></div>
@@ -591,7 +217,6 @@
     </div>
     <div id="session-list" class="session-list" role="feed" aria-label="Session list"></div>
   </main>
-
   <div id="raw-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Raw conversation viewer">
     <div class="modal-content" id="raw-modal-content"></div>
   </div>
@@ -605,7 +230,6 @@
     <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
     <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
     <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
-    <symbol id="icon-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
   </svg>
 
   <script type="module">
@@ -615,155 +239,19 @@
     const modal = document.getElementById('raw-modal');
     const modalContent = document.getElementById('raw-modal-content');
     const healthBoardEl = document.getElementById('health-board');
-    const reviewsContent = document.getElementById('reviews-content');
-    const reviewsInfo = document.getElementById('reviews-info');
     const PAGE_SIZE = 50;
     const STALL_THRESHOLD_MS = 5 * 60 * 1000;
     const POLL_INTERVAL_MS = 30000;
     const FETCH_LIMIT = 200;
     let offset = 0, total = 0, sessions = [];
-    let activePhases = new Set();
-
-    const PHASES = {
-      'ce-ideate':       { id: 'ideate',      color: 'var(--phase-ideate)',       icon: 'lightbulb',      label: 'Ideation' },
-      'ce-brainstorm':   { id: 'brainstorm',  color: 'var(--phase-brainstorm)',   icon: 'message-square', label: 'Brainstorm' },
-      'ce-plan':         { id: 'plan',        color: 'var(--phase-plan)',         icon: 'file-text',      label: 'Plan' },
-      'ce-work':         { id: 'work',        color: 'var(--phase-work)',         icon: 'code',           label: 'Work' },
-      'ce-code-review':  { id: 'code-review', color: 'var(--phase-code-review)',  icon: 'search',         label: 'Code Review' },
-      'ce-doc-review':   { id: 'doc-review',  color: 'var(--phase-doc-review)',   icon: 'clipboard',      label: 'Doc Review' },
-    };
-    const PHASE_OTHER = { id: 'other', color: 'var(--phase-other)', icon: 'help-circle', label: 'Other' };
-
-    function getPhase(agentType) {
-      if (!agentType) return PHASE_OTHER;
-      const raw = String(agentType).trim().toLowerCase().replace(/\s*:\s*/g, ':').replace(/\s*-\s*/g, '-');
-      const match = raw.match(/(?:compound-engineering:)?(ce-\w+)/);
-      if (!match) return PHASE_OTHER;
-      return PHASES[match[1]] || PHASE_OTHER;
-    }
-    let chains = [];
-    let activeChainId = null;
     let healthData = null;
     let currentFilter = null;
     let pollTimer = null;
     let stalenessRaf = null;
     let firstHealthFetchDone = false;
-    let analyticsData = null;
-    let trendChartInstance = null;
 
     function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
     function svgIcon(name) { return `<svg class="icon" aria-hidden="true"><use href="#icon-${name}"/></svg>`; }
-
-    const artifactsCache = new Map();
-    let activePreview = null;
-
-    function typeBadge(path) {
-      if (path.startsWith('docs/plans/')) return 'plan';
-      if (path.startsWith('docs/brainstorms/')) return 'req';
-      if (path.startsWith('docs/ideation/')) return 'idea';
-      if (path.startsWith('docs/solutions/')) return 'sol';
-      if (path.startsWith('docs/hardware/')) return 'hw';
-      if (path.startsWith('docs/reviews/')) return 'review';
-      if (path.startsWith('docs/fixes/')) return 'fix';
-      if (path.startsWith('docs/designs/')) return 'design';
-      if (path.startsWith('docs/reports/')) return 'report';
-      if (path.startsWith('docs/polish/')) return 'polish';
-      if (path.startsWith('docs/work/')) return 'work';
-      return 'doc';
-    }
-
-    function typeLabel(b) {
-      const m = {plan:'plan', req:'req', idea:'idea', sol:'sol', hw:'hw', doc:'doc', review:'review', fix:'fix', design:'design', report:'report', polish:'polish', work:'work'};
-      return m[b] || b;
-    }
-
-    function renderMarkdown(text) {
-      const escaped = esc(text);
-      let html = escaped;
-      // fenced code blocks
-      html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
-        const c = esc(code);
-        return `<pre><code${lang ? ` class="lang-${esc(lang)}"` : ''}>${c}</code></pre>`;
-      });
-      // inline code
-      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-      // headings
-      html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-      html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-      html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-      // blockquote
-      html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
-      // horizontal rules
-      html = html.replace(/^---$/gm, '<hr>');
-      // bold/italic
-      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-      // links
-      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-      // unordered lists
-      html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-      html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
-      // ordered lists
-      html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-      html = html.replace(/(<li>.*<\/li>\n?)+/g, (m) => m.includes('<ul>') ? m : '<ol>' + m + '</ol>');
-      // paragraphs
-      html = html.replace(/\n\n/g, '</p><p>');
-      html = '<p>' + html + '</p>';
-      // clean empty paragraphs
-      html = html.replace(/<p>\s*<\/p>/g, '');
-      return html;
-    }
-
-    async function fetchArtifacts(sessionId) {
-      if (artifactsCache.has(sessionId)) return artifactsCache.get(sessionId);
-      try {
-        const res = await fetch(`/api/session/${sessionId}/artifacts`);
-        if (!res.ok) return [];
-        const data = await res.json();
-        artifactsCache.set(sessionId, data);
-        return data;
-      } catch { return []; }
-    }
-
-    async function previewArtifact(path, rowEl) {
-      if (activePreview && activePreview.row === rowEl && activePreview.path === path) {
-        closePreview(activePreview);
-        return;
-      }
-      if (activePreview) closePreview(activePreview);
-      const existing = rowEl.querySelector('.artifact-preview');
-      if (existing) existing.remove();
-      const preview = document.createElement('div');
-      preview.className = 'artifact-preview';
-      preview.innerHTML = '<div class="preview-loading">Loading...</div>';
-      rowEl.appendChild(preview);
-      activePreview = { row: rowEl, path, el: preview, close: () => closePreview(activePreview) };
-      try {
-        const res = await fetch(`/api/artifact-content?path=${encodeURIComponent(path)}`);
-        if (!res.ok) {
-          preview.innerHTML = `<div class="preview-error">Could not load preview (${res.status})</div>`;
-          return;
-        }
-        const data = await res.json();
-        const rendered = renderMarkdown(data.content || '');
-        preview.innerHTML = `
-          <div class="preview-header">
-            <span>${esc(path.split('/').pop())}</span>
-            <button class="preview-close" aria-label="Close preview">${svgIcon('x')}</button>
-          </div>
-          <div class="preview-body">${rendered}</div>
-        `;
-        preview.querySelector('.preview-close').onclick = (e) => { e.stopPropagation(); closePreview(activePreview); };
-      } catch(e) {
-        preview.innerHTML = `<div class="preview-error">Could not load preview: ${esc(e.message)}</div>`;
-      }
-    }
-
-    function closePreview(pv) {
-      if (!pv) return;
-      if (pv.el && pv.el.parentNode) pv.el.remove();
-      if (activePreview === pv) activePreview = null;
-    }
 
     function fmtDur(ms) {
       if (!ms || ms < 0) return '';
@@ -783,47 +271,6 @@
         return d.toLocaleDateString([], {month:'short',day:'numeric'});
       } catch { return ''; }
     }
-    function fmtDate(ts) {
-      if (!ts) return '';
-      try {
-        const d = new Date(ts);
-        if (isNaN(d.getTime())) return '';
-        return d.toLocaleDateString([], {month:'short',day:'numeric'});
-      } catch { return ''; }
-    }
-
-    // ── Tab switching ────────────────────────────────────────────────
-
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabPanels = {
-      sessions: document.getElementById('tab-sessions'),
-      reviews: document.getElementById('tab-reviews'),
-    };
-    let activeTab = 'sessions';
-    let reviewsLoaded = false;
-
-    function switchTab(tab) {
-      if (tab === activeTab) return;
-      activeTab = tab;
-      for (const btn of tabBtns) {
-        const isActive = btn.dataset.tab === tab;
-        btn.classList.toggle('active', isActive);
-        btn.setAttribute('aria-selected', isActive);
-      }
-      for (const [key, panel] of Object.entries(tabPanels)) {
-        panel.classList.toggle('active', key === tab);
-      }
-      if (tab === 'reviews' && !reviewsLoaded) {
-        reviewsLoaded = true;
-        loadReviews();
-      }
-    }
-
-    for (const btn of tabBtns) {
-      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-    }
-
-    // ── Session list ─────────────────────────────────────────────────
 
     function timeAgo(ts) {
       const diff = Date.now() - ts;
@@ -1127,14 +574,6 @@
     });
 
     function renderList() {
-      let displaySessions = sessions;
-      if (activeChainId) {
-        displaySessions = sessions.filter(s => s.chainId === activeChainId);
-      }
-      if (!displaySessions.length) {
-        listEl.className = 'empty-state';
-        listEl.innerHTML = activeChainId
-          ? '<h2>No sessions in this chain</h2><p>Try loading more sessions or select a different chain.</p>'
       const data = currentFilter ? sessions.filter(s => s.project === currentFilter.project) : sessions;
       if (!data.length) {
         listEl.className = 'empty-state';
@@ -1145,7 +584,6 @@
       }
       listEl.className = 'session-list';
       listEl.innerHTML = '';
-      for (const s of displaySessions) {
       for (const s of data) {
         try {
           const card = renderCard(s);
@@ -1158,7 +596,6 @@
           listEl.appendChild(err);
         }
       }
-      if (!activeChainId && sessions.length < total) {
       if (!currentFilter && data.length < total) {
         const more = document.createElement('button');
         more.className = 'btn btn-primary load-more';
@@ -1166,178 +603,6 @@
         more.setAttribute('aria-label', `Load more sessions. Currently showing ${sessions.length} of ${total}`);
         more.onclick = () => { offset += PAGE_SIZE; fetchPage(false); };
         listEl.appendChild(more);
-      }
-      renderFilterPills();
-      applyFilter();
-    }
-
-    async function fetchChains() {
-      try {
-        const res = await fetch('/api/chains');
-        if (!res.ok) return;
-        const data = await res.json();
-        chains = data.chains || [];
-        renderChains();
-      } catch(e) {
-        // Silently degrade
-      }
-    }
-
-    function renderChains() {
-      const existing = document.querySelector('.chain-section');
-      if (existing) existing.remove();
-      if (!chains.length) return;
-
-      const section = document.createElement('div');
-      section.className = 'chain-section';
-
-      for (const chain of chains) {
-        const row = renderChainRow(chain);
-        section.appendChild(row);
-      }
-
-      const list = document.getElementById('session-list');
-      list.parentNode.insertBefore(section, list);
-    }
-
-    function renderChainRow(chain) {
-      const row = document.createElement('div');
-      row.className = 'chain-row';
-      if (activeChainId === chain.id) row.classList.add('active-filter');
-      row.dataset.chainId = chain.id;
-
-      const topic = document.createElement('div');
-      topic.className = 'chain-topic';
-      topic.textContent = chain.label || chain.project || 'Untitled';
-      topic.title = chain.label || '';
-      row.appendChild(topic);
-
-      const bar = document.createElement('div');
-      bar.className = 'chain-bar';
-
-      const phaseNames = ['ideation', 'brainstorm', 'plan', 'work', 'review'];
-      const phaseLabels = ['Ideation', 'Brainstorm', 'Plan', 'Work', 'Review'];
-      const phases = chain.phases || {};
-
-      for (let i = 0; i < phaseNames.length; i++) {
-        const name = phaseNames[i];
-        const state = phases[name] || { status: 'pending' };
-        const wrapper = renderPhaseDot(state, name, phaseLabels[i]);
-        bar.appendChild(wrapper);
-        if (i < phaseNames.length - 1) {
-          const line = document.createElement('div');
-          line.className = 'phase-line';
-          if (state.status === 'completed' || state.status === 'active') {
-            line.classList.add('completed-line');
-          }
-          bar.appendChild(line);
-        }
-      }
-
-      row.appendChild(bar);
-
-      if (chain.health && chain.health.length) {
-        const healthEl = renderHealth(chain.health);
-        row.appendChild(healthEl);
-      }
-
-      attachFilter(row, chain.id);
-
-      return row;
-    }
-
-    function renderPhaseDot(state, phaseName, displayLabel) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'phase-dot-wrapper';
-
-      const dot = document.createElement('div');
-      dot.className = `phase-dot ${state.status}`;
-      dot.setAttribute('aria-label', `${displayLabel}: ${state.status}`);
-
-      wrapper.appendChild(dot);
-
-      const label = document.createElement('div');
-      label.className = 'phase-label';
-      label.textContent = state.status === 'unknown' ? '?' : displayLabel;
-      wrapper.appendChild(label);
-
-      attachTooltip(wrapper, state, displayLabel);
-
-      return wrapper;
-    }
-
-    function renderHealth(health) {
-      const section = document.createElement('div');
-      section.className = 'health-section';
-      for (const h of health) {
-        const el = document.createElement('div');
-        el.className = h.type === 'broken' ? 'health-broken' : 'health-stalled';
-        el.textContent = `${h.type === 'broken' ? '\u26A0' : '\u26A1'} ${h.message}`;
-        section.appendChild(el);
-      }
-      return section;
-    }
-
-    function attachTooltip(wrapper, state, displayLabel) {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'phase-tooltip';
-
-      let content = '';
-      if (state.sessionId) {
-        const sid = state.sessionId.length > 12 ? state.sessionId.slice(0, 12) + '\u2026' : state.sessionId;
-        const dur = state.duration ? fmtDur(state.duration) : '';
-        const ts = state.startedAt ? fmtTime(state.startedAt) : '';
-        content = `<div class="phase-tooltip-label">${esc(displayLabel)}</div>`;
-        content += `<div class="phase-tooltip-meta">${esc(sid)}</div>`;
-        if (dur) content += `<div class="phase-tooltip-meta">${dur}</div>`;
-        if (ts) content += `<div class="phase-tooltip-meta">${ts}</div>`;
-      } else {
-        content = `<div class="phase-tooltip-label">${esc(displayLabel)}</div><div class="phase-tooltip-meta">No session</div>`;
-      }
-      tooltip.innerHTML = content;
-      wrapper.appendChild(tooltip);
-
-      wrapper.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') tooltip.style.opacity = '0';
-      });
-    }
-
-    function attachFilter(row, chainId) {
-      row.addEventListener('click', () => {
-        if (activeChainId === chainId) {
-          clearFilter();
-        } else {
-          activeChainId = chainId;
-          applyFilter();
-        }
-      });
-    }
-
-    function clearFilter() {
-      activeChainId = null;
-      document.querySelectorAll('.chain-row').forEach(r => r.classList.remove('active-filter'));
-      const clearBtn = document.getElementById('clear-filter-btn');
-      if (clearBtn) clearBtn.remove();
-      renderList();
-    }
-
-    function applyFilter() {
-      document.querySelectorAll('.chain-row').forEach(r => {
-        r.classList.toggle('active-filter', r.dataset.chainId === activeChainId);
-      });
-      let clearBtn = document.getElementById('clear-filter-btn');
-      if (!clearBtn) {
-        clearBtn = document.createElement('button');
-        clearBtn.id = 'clear-filter-btn';
-        clearBtn.className = 'btn btn-ghost';
-        clearBtn.innerHTML = `${svgIcon('x')} Clear filter`;
-        clearBtn.onclick = clearFilter;
-        document.querySelector('.toolbar').appendChild(clearBtn);
-      }
-      renderList();
-      const firstMatch = document.querySelector(`.session-card[data-chain-id="${activeChainId}"]`);
-      if (firstMatch) {
-        setTimeout(() => firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
       }
     }
 
@@ -1386,49 +651,16 @@
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
 
-    function createSubagentRow(sa) {
-      const row = document.createElement('div');
-      row.className = 'subagent-row';
-      row.setAttribute('tabindex', '0');
-      row.setAttribute('role', 'button');
-      row.setAttribute('aria-label', `View sub-agent: ${sa.description || sa.agentType || sa.id}`);
-
-      let statusHtml = '';
-      if (sa.status === 'passed') {
-        statusHtml = '<span class="pass-badge passed">✓</span>';
-      } else if (sa.status === 'failed') {
-        statusHtml = '<span class="pass-badge failed">✗</span>';
-      }
-
-      const desc = sa.description || sa.agentType || 'sub-agent';
-      const dur = fmtDur(sa.duration);
-
-      row.innerHTML = `
-        <span class="subagent-icon">${svgIcon('bot')}</span>
-        <span class="subagent-desc">${esc(desc.substring(0, 80))}</span>
-        <span class="subagent-dur">${dur ? esc(dur) : ''}</span>
-        ${statusHtml}
-      `;
-
-      row.onclick = (e) => { e.stopPropagation(); viewRaw(sa.id); };
-      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); viewRaw(sa.id); } });
-
-      return row;
-    }
-
     function renderCard(s) {
       const summary = s.summary || 'Session';
       const dur = fmtDur(s.duration);
       const ts = fmtTime(s.startedAt);
-      const phase = getPhase(s.agentType);
 
       const card = document.createElement('div');
-      card.className = 'session-card' + (s.isSynthetic ? ' card-synthetic' : '');
-      card.dataset.phase = phase.id;
+      card.className = 'session-card';
       card.setAttribute('role', 'article');
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `${summary}, ${s.project || ''}${s.branch ? ', ' + s.branch : ''}`);
-      card.dataset.chainId = s.chainId || '';
 
       const summaryEl = document.createElement('div');
       summaryEl.className = 'card-summary clamped';
@@ -1437,75 +669,23 @@
       const meta = document.createElement('div');
       meta.className = 'card-meta';
       const items = [
-        `<span class="card-meta-item">${svgIcon(phase.icon)}${esc(phase.label)}</span>`,
         dur ? `<span class="card-meta-item">${svgIcon('clock')}${dur}</span>` : '',
-        s.subAgentCount > 0 ? `<span class="card-meta-item subagent-count-badge">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
+        s.subAgentCount > 0 ? `<span class="card-meta-item">${svgIcon('bot')}${s.subAgentCount}</span>` : '',
         s.branch ? `<span class="card-meta-item">${svgIcon('branch')}${esc(s.branch)}</span>` : '',
         ts ? `<span class="card-meta-item">${svgIcon('calendar')}${ts}</span>` : '',
         s.project ? `<span class="tag tag-project">${esc(s.project)}</span>` : '',
-        s.agentType ? `<span class="tag tag-type tag-type-deemphasized">${esc(s.agentType.split(':').pop())}</span>` : '',
+        s.agentType ? `<span class="tag tag-type">${esc(s.agentType.split(':').pop())}</span>` : '',
         s.isSubagent ? '<span class="tag tag-subagent">sub-agent</span>' : '',
-        s.isSynthetic ? '<span class="tag orphan-tag">orphan</span>' : '',
       ];
       meta.innerHTML = items.filter(Boolean).join('');
 
       const detail = document.createElement('div');
       detail.className = 'card-detail';
-      const detailSummary = document.createElement('div');
-      detailSummary.style.cssText = 'font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px';
-      detailSummary.textContent = summary;
-      detail.appendChild(detailSummary);
-      if (s.agentType) {
-        const atEl = document.createElement('div');
-        atEl.style.cssText = 'font-size:0.75rem;color:var(--text-tertiary);margin:4px 0';
-        atEl.innerHTML = `${svgIcon('folder')} ${esc(s.agentType)}`;
-        detail.appendChild(atEl);
-      }
-      if (s.cwd) {
-        const cwdEl = document.createElement('div');
-        cwdEl.style.cssText = 'font-size:0.75rem;color:var(--text-tertiary);margin:4px 0';
-        cwdEl.innerHTML = `${svgIcon('file')} ${esc(s.cwd)}`;
-        detail.appendChild(cwdEl);
-      }
-      if (s.isSynthetic) {
-        const orphanEl = document.createElement('div');
-        orphanEl.style.cssText = 'font-size:0.75rem;color:var(--warning);margin:4px 0';
-        orphanEl.textContent = '⚠ Orphan sub-agents';
-        detail.appendChild(orphanEl);
-      }
-      const phaseDetail = renderPhaseDetail(s, phase);
-      if (phaseDetail) detail.appendChild(phaseDetail);
-
-      // Sub-agent rows
-      if (s.subAgents && s.subAgents.length > 0) {
-        const rowsContainer = document.createElement('div');
-        rowsContainer.className = 'subagent-rows';
-        const showAll = s.subAgents.length > 20;
-        const visible = showAll ? s.subAgents.slice(0, 20) : s.subAgents;
-        for (const sa of visible) rowsContainer.appendChild(createSubagentRow(sa));
-        if (showAll) {
-          const btn = document.createElement('button');
-          btn.className = 'btn btn-ghost subagent-truncated';
-          btn.textContent = `Show all ${s.subAgents.length} sub-agents`;
-          btn.onclick = (e) => { e.stopPropagation(); btn.remove(); for (const sa of s.subAgents.slice(20)) rowsContainer.appendChild(createSubagentRow(sa)); };
-          rowsContainer.appendChild(btn);
-        }
-        detail.appendChild(rowsContainer);
-      }
-
-      const rawBtn = document.createElement('button');
-      rawBtn.className = 'btn btn-ghost';
-      rawBtn.style.cssText = 'margin-top:8px;font-size:0.8125rem';
-      rawBtn.setAttribute('aria-label', `View raw conversation for ${esc(summary)}`);
-      rawBtn.innerHTML = `${svgIcon('file')} View raw conversation`;
-      detail.appendChild(rawBtn);
-      const detailId = `artifacts-${s.id}`;
       detail.innerHTML = [
         `<div style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px">${esc(summary)}</div>`,
         s.agentType ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('folder')} ${esc(s.agentType)}</div>` : '',
         s.cwd ? `<div style="font-size:0.75rem;color:var(--text-tertiary);margin:4px 0">${svgIcon('file')} ${esc(s.cwd)}</div>` : '',
         `<button class="btn btn-ghost" style="margin-top:8px;font-size:0.8125rem" aria-label="View raw conversation for ${esc(summary)}">${svgIcon('file')} View raw conversation</button>`,
-        `<div id="${esc(detailId)}" class="artifact-section"></div>`,
       ].join('');
 
       card.appendChild(summaryEl);
@@ -1518,10 +698,8 @@
         card.classList.toggle('expanded', expanded);
         summaryEl.classList.toggle('clamped', !expanded);
         summaryEl.classList.toggle('expanded', expanded);
-        if (expanded) renderArtifacts(s);
       };
 
-      rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
       const rawBtn = detail.querySelector('button');
       if (rawBtn) rawBtn.onclick = (e) => { e.stopPropagation(); viewRaw(s.id); };
 
@@ -1530,339 +708,10 @@
 
     window.clearFilter = clearFilter;
     document.getElementById('refresh-btn').onclick = () => fetchPage(true);
-    document.getElementById('phase-filter-clear')?.addEventListener('click', () => {
-      activePhases = new Set();
-      renderFilterPills();
-      applyFilter();
-    });
-    async function renderArtifacts(s) {
-      const container = document.getElementById(`artifacts-${s.id}`);
-      if (!container || container.dataset.loaded) return;
-      container.dataset.loaded = 'true';
-      const data = await fetchArtifacts(s.id);
-      const artifacts = data.artifacts;
-      const note = data.note;
-      if (!artifacts || artifacts.length === 0) {
-        if (note === 'no_time_data') {
-          container.innerHTML = '<div class="no-time-note">No time data — limited matching</div>';
-        }
-        return;
-      }
-      let html = '<div class="artifact-section-title">Produced</div>';
-      const groups = { high: [], medium: [], low: [] };
-      for (const a of artifacts) {
-        groups[a.confidence]?.push(a);
-      }
-      const limit = 5;
-      let total = artifacts.length;
-      for (const level of ['high', 'medium', 'low']) {
-        const items = groups[level] || [];
-        if (!items.length) continue;
-        const label = level.charAt(0).toUpperCase() + level.slice(1);
-        html += `<div class="artifact-group-header">${label} confidence</div>`;
-        items.forEach((a, i) => {
-          const cls = `artifact-row${total > limit && i >= limit ? ' artifact-hidden' : ''}`;
-          const style = total > limit && i >= limit ? ' style="display:none"' : '';
-          const b = typeBadge(a.path);
-          const confClass = a.confidence;
-          const deleted = !a.exists ? '<span class="artifact-deleted">(deleted)</span>' : '';
-          html += `<div class="${cls}" data-path="${esc(a.path)}"${style}>
-            <span class="confidence-dot ${confClass}"></span>
-            <span class="badge badge-${b}">${typeLabel(b)}</span>
-            <span class="artifact-path">${esc(a.path)}</span>${deleted}
-          </div>`;
-        });
-        if (total > limit) break;
-      }
-      // Show hidden ones if > limit
-      if (total > limit) {
-        html += `<button class="artifact-toggle" data-session-id="${esc(s.id)}">Show all ${total} artifacts</button>`;
-      }
-      container.innerHTML = html;
-      // Wire clicks
-      container.querySelectorAll('.artifact-row').forEach(row => {
-        row.onclick = (e) => {
-          e.stopPropagation();
-          const path = row.dataset.path;
-          previewArtifact(path, row);
-        };
-      });
-      const toggle = container.querySelector('.artifact-toggle');
-      if (toggle) {
-        function showAll() {
-          const hidden = container.querySelectorAll('.artifact-row.artifact-hidden');
-          hidden.forEach(el => { el.style.display = ''; el.classList.remove('artifact-hidden'); });
-          toggle.textContent = 'Show fewer';
-          toggle.onclick = showFewer;
-        }
-        function showFewer() {
-          const all = container.querySelectorAll('.artifact-row');
-          all.forEach((el, i) => { if (i >= limit) { el.style.display = 'none'; el.classList.add('artifact-hidden'); } });
-          toggle.textContent = `Show all ${total} artifacts`;
-          toggle.onclick = showAll;
-        }
-        toggle.onclick = (e) => { e.stopPropagation(); showAll(); };
-      }
-    }
-
-    document.getElementById('refresh-btn').onclick = () => { artifactsCache.clear(); fetchPage(true); };
     fetchPage(true);
-
-    // ── Reviews tab ──────────────────────────────────────────────────
-
-    async function loadReviews() {
-      reviewsContent.innerHTML = '<div class="reviews-loading"><div class="spinner"></div><p>Loading analytics...</p></div>';
-      reviewsInfo.textContent = 'Loading...';
-      try {
-        const res = await fetch('/api/analytics/reviewers');
-        if (!res.ok) throw new Error(`Server error (${res.status})`);
-        analyticsData = await res.json();
-        reviewsInfo.textContent = `${analyticsData.personas.length} personas, ${analyticsData.sessions.length} sessions`;
-        renderReviews();
-      } catch(e) {
-        reviewsContent.innerHTML = `<div class="empty-state"><h2>Cannot load analytics</h2><p>${esc(e.message)}</p><p style="margin-top:12px"><button class="btn btn-primary" onclick="loadReviews()">Retry</button></p></div>`;
-        reviewsInfo.textContent = 'Error';
-      }
-    }
-
-    function renderReviews() {
-      if (!analyticsData) return;
-      const data = analyticsData;
-      let html = '';
-
-      // Pivot table
-      html += '<section class="reviews-section"><h2>Findings Heatmap</h2>';
-      html += renderPivotTable(data);
-      html += '</section>';
-
-      // Summary cards
-      html += '<section class="reviews-section"><h2>Persona Summary</h2>';
-      html += renderSummaryCards(data);
-      html += '</section>';
-
-      // Trend chart
-      html += '<section class="reviews-section"><h2>Trend</h2>';
-      html += '<div class="chart-container"><canvas id="trend-chart"></canvas></div>';
-      html += '</section>';
-
-      // Blind spots
-      html += '<section class="reviews-section"><h2>Blind Spots</h2>';
-      html += renderBlindSpots(data);
-      html += '</section>';
-
-      reviewsContent.innerHTML = html;
-
-      if (data.trends && Object.keys(data.trends).length > 0) {
-        renderTrendChart(data);
-      }
-    }
-
-    function renderPivotTable(data) {
-      const personas = data.personas || [];
-      const sessions = data.sessions || [];
-      const matrix = data.matrix || {};
-
-      if (!sessions.length) {
-        return '<div class="empty-state"><p>No review sessions found.</p></div>';
-      }
-
-      const maxCount = Math.max(1, ...Object.values(matrix).flatMap(
-        row => Object.values(row).filter(v => typeof v === 'number' && v >= 0)
-      ));
-
-      const visibleSessions = sessions.slice(0, 30);
-
-      let html = '<div class="pivot-wrapper"><table class="pivot-table"><thead><tr><th>Persona</th>';
-      for (const s of visibleSessions) {
-        html += `<th title="${esc(s.sessionId)}">${esc(fmtDate(s.startedAt))}</th>`;
-      }
-      html += '</tr></thead><tbody>';
-
-      for (const p of personas) {
-        const pk = p.agentType.replace('compound-engineering:', '');
-        const row = matrix[pk] || {};
-        html += `<tr><td><span class="tag tag-reviewer">${esc(p.displayName)}</span></td>`;
-        for (const s of visibleSessions) {
-          const val = row[s.sessionId];
-          if (val === undefined || val === null) {
-            html += `<td class="cell-empty">×</td>`;
-          } else if (val === 0) {
-            html += `<td class="cell-zero">•</td>`;
-          } else {
-            const alpha = 0.15 + 0.70 * (val / maxCount);
-            const bg = `rgba(88,166,255,${alpha.toFixed(3)})`;
-            const fontWeight = val > 0 ? 'font-weight:600' : '';
-            html += `<td style="background:${bg};${fontWeight}" title="${esc(p.displayName)} in ${esc(fmtDate(s.startedAt))}: ${val} findings">${val}</td>`;
-          }
-        }
-        html += '</tr>';
-      }
-
-      html += '</tbody></table></div>';
-      return html;
-    }
-
-    function renderSummaryCards(data) {
-      const personas = data.personas || [];
-      if (!personas.length) {
-        return '<div class="empty-state"><p>No persona data available.</p></div>';
-      }
-
-      let html = '<div class="cards-grid">';
-      for (const p of personas) {
-        const pk = p.agentType.replace('compound-engineering:', '');
-        const trends = (data.trends || {})[pk] || [];
-        const recent = trends.slice(-4);
-        let trendArrow = '→';
-        let trendClass = 'p-trend-flat';
-        if (recent.length >= 4) {
-          const current = recent.slice(-1)[0].findingCount;
-          const priorAvg = (recent.slice(0, -1).reduce((s, t) => s + t.findingCount, 0)) / 3;
-          if (current > priorAvg * 1.10) { trendArrow = '↑'; trendClass = 'p-trend-up'; }
-          else if (current < priorAvg * 0.90) { trendArrow = '↓'; trendClass = 'p-trend-down'; }
-        }
-
-        const acceptRate = p.acceptanceRate !== null && p.acceptanceRate !== undefined
-          ? `${Math.round(p.acceptanceRate * 100)}%`
-          : '—';
-
-        html += `<div class="persona-card">
-          <div class="p-name">${esc(p.displayName)}</div>
-          <div class="p-stat"><span>Total findings</span><span class="p-val">${p.totalFindings}</span></div>
-          <div class="p-stat"><span>High severity</span><span class="p-val p-warn">${p.highSeverityCount}</span></div>
-          <div class="p-stat"><span>Acceptance</span><span class="p-val p-accepted">${acceptRate}</span></div>
-          <div class="p-stat"><span>Trend <span class="${trendClass}">${trendArrow}</span></span><span class="p-val">${recent.length} session${recent.length !== 1 ? 's' : ''}</span></div>
-        </div>`;
-      }
-      html += '</div>';
-      return html;
-    }
-
-    function renderTrendChart(data) {
-      const canvas = document.getElementById('trend-chart');
-      if (!canvas) return;
-
-      if (trendChartInstance) {
-        trendChartInstance.destroy();
-        trendChartInstance = null;
-      }
-
-      const ctx = canvas.getContext('2d');
-      const trends = data.trends || {};
-      const personas = data.personas || [];
-
-      const personaKeys = personas.map(p => p.agentType.replace('compound-engineering:', ''));
-      const allSessionIds = new Set();
-      const sessionDates = {};
-      for (const s of data.sessions || []) {
-        allSessionIds.add(s.sessionId);
-        sessionDates[s.sessionId] = s.startedAt;
-      }
-
-      const chronoSessions = (data.sessions || []).slice().reverse();
-
-      const colors = [
-        '#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff',
-        '#79c0ff', '#56d364', '#e3b341', '#ff7b72', '#d2a8ff',
-        '#1f6feb', '#238636', '#9e6a03', '#da3633', '#8957e5',
-        '#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff',
-        '#79c0ff',
-      ];
-
-      const datasets = [];
-      let colorIdx = 0;
-
-      for (const pk of personaKeys) {
-        const trend = trends[pk] || [];
-        if (!trend.length) continue;
-
-        const trendMap = {};
-        for (const t of trend) {
-          trendMap[t.sessionId] = t.findingCount;
-        }
-
-        const dataPoints = [];
-        for (const s of chronoSessions) {
-          dataPoints.push(trendMap[s.sessionId] !== undefined ? trendMap[s.sessionId] : null);
-        }
-
-        const pinfo = personas.find(p => p.agentType.replace('compound-engineering:', '') === pk);
-        datasets.push({
-          label: pinfo ? pinfo.displayName : pk,
-          data: dataPoints,
-          borderColor: colors[colorIdx % colors.length],
-          backgroundColor: colors[colorIdx % colors.length] + '33',
-          tension: 0.2,
-          pointRadius: 3,
-          spanGaps: false,
-        });
-        colorIdx++;
-      }
-
-      if (!datasets.length) return;
-
-      if (typeof Chart === 'undefined') {
-        canvas.parentElement.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:40px">Chart library unavailable</p>';
-        return;
-      }
-
-      trendChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: { datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { intersect: false, mode: 'index' },
-          scales: {
-            x: {
-              type: 'category',
-              labels: chronoSessions.map(s => fmtDate(s.startedAt)),
-              ticks: { color: '#8b949e', maxTicksLimit: 15 },
-              grid: { color: '#30363d33' },
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { color: '#8b949e', precision: 0 },
-              grid: { color: '#30363d33' },
-            },
-          },
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: { color: '#e6edf3', boxWidth: 12, padding: 16, usePointStyle: true, pointStyle: 'circle' },
-              onClick: function(e, legendItem, legend) {
-                const index = legendItem.datasetIndex;
-                const ci = legend.chart;
-                const meta = ci.getDatasetMeta(index);
-                meta.hidden = !meta.hidden;
-                ci.update();
-              },
-            },
-          },
-        },
-      });
-    }
-
-    function renderBlindSpots(data) {
-      const blindSpots = data.blindSpots || [];
-      if (!blindSpots.length) {
-        return '<div class="blind-spot-clear">No blind spots detected</div>';
-      }
-      let html = '';
-      for (const bs of blindSpots) {
-        html += `<div class="blind-spot-item">
-          <svg class="bs-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <div class="bs-text"><strong>${esc(bs.displayName)}</strong> – ${esc(bs.reason)}</div>
-        </div>`;
-      }
-      return html;
-    }
-
-    document.getElementById('refresh-reviews-btn').onclick = () => {
-      analyticsData = null;
-      if (trendChartInstance) { trendChartInstance.destroy(); trendChartInstance = null; }
-      loadReviews();
-    };
+    renderHealthBoardSkeleton();
+    startPolling();
+    startStalenessTimer();
   </script>
 </body>
 </html>
