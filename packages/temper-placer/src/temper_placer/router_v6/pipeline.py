@@ -267,6 +267,7 @@ class RouterV6Pipeline:
         fence: DRCFence | None = None,
         profiler: object | None = None,
         skip_stage3: bool = False,
+        congestion_weight: float = 0.0,
     ):
         """
         Initialize Router V6 pipeline.
@@ -281,6 +282,10 @@ class RouterV6Pipeline:
             target_nets: List of specific net names to route
             fence: Optional DRCFence for per-stage DRC verification
             profiler: Optional PipelineProfiler for stage timing instrumentation
+            congestion_weight: U7 / R11 PathFinder history-cost
+                weight.  0.0 (default) disables — the closure
+                test does not benefit from the detour behavior
+                on temper.kicad_pcb's hard signal nets.
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
@@ -292,6 +297,7 @@ class RouterV6Pipeline:
         self.fence = fence
         self.profiler = profiler
         self.skip_stage3 = skip_stage3
+        self.congestion_weight = congestion_weight
 
     def run(
         self,
@@ -569,6 +575,7 @@ class RouterV6Pipeline:
             escape_vias_map=escape_vias_map,
             enable_theta_star=self.enable_theta_star,
             enable_lazy_theta_star=self.enable_lazy_theta_star,
+            congestion_weight=self.congestion_weight,
         )
         state = orchestrated.run(initial_state=state)
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)

@@ -92,22 +92,45 @@ def run_mini_baseline(max_iter: int) -> MiniBaseline:
 
     _original_search = _astar_search_numba
 
-    def _capped_search(start, goal, grid, neighbor_tensor=None,
-                       max_iterations=_cap):
-        return _original_search(start, goal, grid,
-                                neighbor_tensor=neighbor_tensor,
-                                max_iterations=max_iterations)
+    def _capped_search(
+        start, goal, grid, neighbor_tensor=None,
+        max_iterations=_cap, congestion_tensor=None,
+    ):
+        # Translate the high-level congestion_tensor kwarg (used by
+        # _dispatch_search) into the low-level congestion_flat,
+        # congestion_weight, max_congestion_cost kwargs the Numba
+        # kernel actually expects.
+        if congestion_tensor is not None:
+            congestion_flat = congestion_tensor.array.reshape(-1)
+            return _original_search(
+                start, goal, grid,
+                neighbor_tensor=neighbor_tensor,
+                max_iterations=max_iterations,
+                congestion_flat=congestion_flat,
+                congestion_weight=congestion_tensor.weight,
+                max_congestion_cost=congestion_tensor.max_cost,
+            )
+        return _original_search(
+            start, goal, grid,
+            neighbor_tensor=neighbor_tensor,
+            max_iterations=max_iterations,
+        )
 
-    # Patch the symbol that the dispatch will look up
+    # Patch the symbol in BOTH the source module and the pathfinding
+    # module's namespace.  The pathfinding module does
+    # ``from .astar_core_numba import _astar_search_numba`` at
+    # module load time, so the imported reference is what gets
+    # called at runtime.
     acn._astar_search_numba = _capped_search
-    # Also patch the inner _kernel call path (the wrapper passes
-    # max_iterations through to the kernel)
     import temper_placer.router_v6.astar_pathfinding as ap
+    ap._astar_search_numba = _capped_search
     _original_dispatch = ap._dispatch_search
 
-    def _capped_dispatch(grid, start, goal, use_theta_star, use_lazy_theta_star):
-        # Use the same capped wrapper
-        return acn._astar_search_numba(start, goal, grid)
+    def _capped_dispatch(grid, start, goal, use_theta_star,
+                        use_lazy_theta_star, congestion_tensor=None):
+        return _capped_search(
+            start, goal, grid, congestion_tensor=congestion_tensor,
+        )
     ap._dispatch_search = _capped_dispatch
 
     pipeline = RouterV6Pipeline(verbose=True, skip_stage3=True)

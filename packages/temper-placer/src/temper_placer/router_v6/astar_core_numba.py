@@ -163,15 +163,27 @@ def _compile_kernel():
         cols: int,
         validity_flat: np.ndarray,  # (rows*cols*8,) uint8
         max_iterations: int,
+        congestion_flat: np.ndarray = None,  # (rows*cols,) float32; null = no congestion
+        congestion_weight: float = 1.0,  # multiplier on per-cell congestion cost
+        max_congestion_cost: float = 100.0,  # cap on per-cell cost
     ) -> tuple:
         """Run A* on the 2D grid.  Returns (path_indices, iterations).
 
         ``path_indices`` is a 1D array of cell indices from start to
         goal inclusive, or an empty array if no path was found.
         ``iterations`` is the number of heap pops performed.
+
+        If ``congestion_flat`` is supplied (U7 / R11), each
+        per-cell expansion adds a per-cell congestion penalty to
+        ``f_score`` so the next net naturally detours around
+        already-routed channels.  Cost formula is
+        ``min(max_congestion_cost, 1 + log(1 + raw))`` at the
+        cell; multiplied by ``congestion_weight``.  Logarithmic
+        growth keeps the cost admissible as a tie-breaker.
         """
         INF = np.float32(1.0e30)
         n_cells = rows * cols
+        use_congestion = congestion_flat is not None
 
         # Work arrays
         g_score = np.full(n_cells, INF, dtype=np.float32)
@@ -265,6 +277,18 @@ def _compile_kernel():
                     step = np.float32(1.0)
                 else:
                     step = np.float32(1.4142135)
+                # U7 / R11: per-cell congestion penalty from the
+                # PathFinder history tensor.  log1p + cap means
+                # cost grows logarithmically; admissible as a
+                # tie-breaker.
+                if use_congestion:
+                    raw = congestion_flat[n_idx]
+                    if raw > np.float32(0.0):
+                        # Inline: 1 + log(1 + raw), capped
+                        cong_cost = np.float32(1.0) + np.log(np.float32(1.0) + raw)
+                        if cong_cost > max_congestion_cost:
+                            cong_cost = max_congestion_cost
+                        step = step + np.float32(congestion_weight) * cong_cost
                 tentative = g_score[cur_i] + step
                 if tentative < g_score[n_idx]:
                     g_score[n_idx] = tentative
@@ -288,12 +312,24 @@ def _astar_search_numba(
     grid,
     neighbor_tensor: np.ndarray | None = None,
     max_iterations: int = 1_000_000,
+    congestion_flat: np.ndarray | None = None,
+    congestion_weight: float = 1.0,
+    max_congestion_cost: float = 100.0,
 ) -> list | None:
     """Numba-jitted A* front-end.  See module docstring.
 
     Falls through to the pure-Python
     :func:`temper_placer.router_v6.astar_core._astar_search` if
     numba is not installed.
+
+    U7 / R11: optional ``congestion_flat`` is a flat
+    ``(rows*cols,)`` float32 array of per-cell usage counts
+    (built by :class:`temper_placer.router_v6.congestion_tensor.CongestionTensor`).
+    When supplied, the per-cell cost is folded into ``f_score``
+    so the next net naturally detours around already-routed
+    channels.  ``congestion_weight`` is a multiplier (1.0 by
+    default); ``max_congestion_cost`` caps the per-cell cost
+    (100.0 by default).
     """
     if not _HAVE_NUMBA:
         # Graceful degrade to the pure-Python path
@@ -321,8 +357,22 @@ def _astar_search_numba(
     start_idx = int(start[1]) * cols + int(start[0])
     goal_idx = int(goal[1]) * cols + int(goal[0])
 
+    # Pass None for the congestion arg when the caller didn't
+    # supply one; the kernel checks for None and skips the
+    # per-expansion congestion-cost read.
+    if congestion_flat is not None:
+        congestion_arg = np.ascontiguousarray(
+            congestion_flat.astype(np.float32)
+        )
+    else:
+        congestion_arg = None
+
     path_flat, _iters = kernel(
-        start_idx, goal_idx, rows, cols, validity_flat, max_iterations
+        start_idx, goal_idx, rows, cols, validity_flat,
+        max_iterations,
+        congestion_arg,
+        np.float32(congestion_weight),
+        np.float32(max_congestion_cost),
     )
 
     if path_flat.shape[0] == 0:
