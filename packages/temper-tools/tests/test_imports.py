@@ -11,10 +11,9 @@ def test_kicad_imports():
 
 def test_eco_imports():
     """Verify ECO tool modules can be imported."""
-    from temper_tools.eco import get_context, sync_beads
+    from temper_tools.eco import get_context
 
     assert get_context
-    assert sync_beads
 
 
 def test_routing_imports():

@@ -61,14 +61,11 @@ bd-done --no-measure "Quick fix"
 **Never end a session without completing these steps:**
 
 ```bash
-# 1. Post reflection to Eco
-python3 tools/gpbm/reflect.py --task temper-xxx --reason "Done"
-
-# 2. Sync and push
+# 1. Sync and push
 bd sync
 git push
 
-# 3. Verify
+# 2. Verify
 git status  # Must show "up to date"
 ```
 
@@ -147,7 +144,7 @@ python3 tools/get_context.py temper-xxx
 
 **After completing work (mandatory):**
 ```bash
-python3 tools/gpbm/reflect.py --task temper-xxx --reason "Done"
+bd sync
 ```
 
 ## Protected Branch Mode
@@ -297,7 +294,7 @@ cmake --build firmware/test/build
 │  START:   bd ready → bd-work <id>                           │
 │  WORK:    git add/commit/push (updates claim)               │
 │  DISCOVER: bd create --deps discovered-from:<parent>        │
-│  END:     bd-done → bd sync → git push → reflect           │
+│  END:     bd-done → bd sync → git push                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
