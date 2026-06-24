@@ -1,54 +1,16 @@
-"""High-performance multi-layer A* pathfinding with Cython acceleration.
+"""Shared types for multi-layer A* pathfinding.
 
-This module provides two implementations:
-- **Cython** (default): 50-100x faster, C-level performance
-- **Python** (fallback): Pure Python for debugging
+This package provides the canonical type definitions (RouteSegment,
+MultiLayerPath) used by both the legacy deterministic routing pipeline
+and the Router V6 pathfinder.
 
-Toggle between implementations using the TEMPER_USE_CYTHON_ASTAR environment variable:
-    TEMPER_USE_CYTHON_ASTAR=1  # Use Cython (default)
-    TEMPER_USE_CYTHON_ASTAR=0  # Use Python (debug mode)
-
-Example:
-    from temper_placer.routing.astar import find_path
-
-    path = find_path(
-        grid=clearance_grid,
-        start_pos=(0, 0, 0),
-        end_pos=(10, 10, 0),
-        net_id=1,
-        config=config
-    )
+The find_path function was removed in June 2026 as part of the
+A* consolidation (8→1 survivor).  The Cython implementation
+(astar_core.pyx) and its Python fallback (python_astar.py)
+were deleted; the active pathfinder lives in
+temper_placer.router_v6.astar_pathfinding.
 """
 
-import os
-import warnings
-
-# Public API
-from .types import RouteSegment, MultiLayerPath
-
-# Determine which implementation to use
-USE_CYTHON = os.getenv("TEMPER_USE_CYTHON_ASTAR", "1") == "1"
+from .types import MultiLayerPath, RouteSegment
 
 __all__ = ["RouteSegment", "MultiLayerPath"]
-
-if USE_CYTHON:
-    try:
-        # Try to import Cython implementation
-        from .astar_core import find_path_cython as find_path
-
-        __all__.append("find_path")
-    except ImportError as e:
-        # Cython not available, fall back to Python
-        warnings.warn(
-            f"Cython A* implementation not available ({e}), falling back to Python. "
-            f"Install with 'pip install -e .' to build Cython extension.",
-            ImportWarning,
-        )
-        from .python_astar import find_path
-
-        __all__.append("find_path")
-else:
-    # User explicitly requested Python implementation
-    from .python_astar import find_path
-
-    __all__.append("find_path")
