@@ -16,10 +16,6 @@ from .base import Stage
 from ...core.board import Via, Trace, PLANE_LAYER_INDICES, is_plane_layer, STANDARD_LAYER_ORDER
 
 
-# Layers that typically have copper pour planes
-# Vias connecting to these layers don't need traces
-PLANE_LAYERS = frozenset(str(idx) for idx in PLANE_LAYER_INDICES)
-
 # Nets that typically use plane connectivity
 PLANE_NET_PATTERNS = frozenset(
     {

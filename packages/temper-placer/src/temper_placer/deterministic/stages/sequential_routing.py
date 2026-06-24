@@ -11,7 +11,7 @@ from .sequential_routing_helpers import (
     _compute_endpoint_tolerance,
     _compute_mst,
 )
-from ...core.board import LAYER_IDX_TO_NAME, LayerIndex, Trace, Via
+from ...core.board import LAYER_IDX_TO_NAME, LayerIndex, Trace, Via, layer_name_to_index
 from ...core.design_rules import DesignRules
 from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
 from ...routing.constraints.geometry import Point as OraclePoint
@@ -1359,7 +1359,7 @@ class SequentialRoutingStage(Stage):
 
                         if stub_valid and stub_end and stub_end != pos:
                             stub_layer_name = "F.Cu" if "F.Cu" in str(pin.layer) or "F.Cu" == layer_name else layer_name
-                            stub_layer_idx = 0 if stub_layer_name == "F.Cu" else LAYER_IDX_TO_NAME.inverse[stub_layer_name] if hasattr(LAYER_IDX_TO_NAME, "inverse") else 0
+                            stub_layer_idx = layer_name_to_index(stub_layer_name).value
                             stub_width = s_width if 's_width' in locals() else self.default_width
                             all_traces.append(
                                 Trace(
