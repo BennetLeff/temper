@@ -72,6 +72,17 @@ class PathfindingResult:
         return len(self.failed_nets)
 
     @property
+    def completion_rate(self) -> float:
+        """success_count / (success_count + failure_count), or 0.0
+        if both are 0.  Used by the ``ResultAggregate`` validator
+        and by the closure runner's ``completion_pct`` metric.
+        """
+        total = self.success_count + self.failure_count
+        if total == 0:
+            return 0.0
+        return self.success_count / total
+
+    @property
     def total_forced_segments(self) -> int:
         """Total number of forced segments across all routes."""
         return sum(path.forced_segment_count for path in self.routed_paths.values())

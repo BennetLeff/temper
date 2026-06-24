@@ -293,12 +293,23 @@ class RouterV6Pipeline:
         self.profiler = profiler
         self.skip_stage3 = skip_stage3
 
-    def run(self, pcb_path: Path) -> RouterV6Result:
+    def run(
+        self,
+        pcb_path: Path,
+        pcb_override=None,
+    ) -> RouterV6Result:
         """
         Run complete Router V6 pipeline on a PCB file.
 
         Args:
-            pcb_path: Path to .kicad_pcb file
+            pcb_path: Path to .kicad_pcb file.  When ``pcb_override``
+                is supplied, the file is still loaded (for legal
+                rule context) but the override replaces the net
+                list in the routing stage.
+            pcb_override: Optional pre-parsed ``ParsedPCB`` to use
+                in place of the one parsed from ``pcb_path``.  Used
+                by sampling profiles that filter to a small subset
+                of nets without re-parsing the board.
 
         Returns:
             RouterV6Result with complete routing solution
@@ -309,6 +320,8 @@ class RouterV6Pipeline:
         if self.verbose:
             print("Stage 0: Loading PCB...")
         pcb = parse_kicad_pcb_v6(pcb_path)
+        if pcb_override is not None:
+            pcb = pcb_override
 
         # Stage 0.5: Legalization
         if self.enable_legalization:

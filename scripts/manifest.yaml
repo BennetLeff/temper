@@ -1387,3 +1387,21 @@ scripts:
       - re
       - subprocess
       - sys
+
+  - path: profile_router_v6_sampling.py
+    purpose: "Profile router_v6 on a small subset of nets for sampling analysis"
+    owner: router-v6-closure-rate
+    last_run: "2026-06-23"
+    category: keep
+    disposition: utility
+    imports:
+      - argparse
+      - cProfile
+      - io
+      - pathlib
+      - pstats
+      - sys
+      - time
+      - temper_placer.io.kicad_parser
+      - temper_placer.router_v6.pipeline
+
