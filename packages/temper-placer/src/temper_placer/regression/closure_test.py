@@ -365,9 +365,13 @@ class ClosureTest:
         drc_warnings = 0
         drc_status: DrcStatus | None = None
         try:
-            from temper_placer.validation.drc_runner import run_drc
+            from temper_placer.validation.drc_runner import FencePosture, run_drc
 
-            drc_result = run_drc(self.pcb_path)
+            # POSTURE=GATE: this is a merge-gate invocation.  A missing
+            # kicad-cli raises DrcRunnerError and the closure test
+            # fails loudly (the pre-U1 false-PASS bug silently recorded
+            # 100% on a missing tool).
+            drc_result = run_drc(self.pcb_path, posture=FencePosture.GATE)
             drc_errors = drc_result.error_count
             drc_warnings = drc_result.warning_count
             drc_status = drc_result.drc_status

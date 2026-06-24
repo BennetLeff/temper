@@ -8,12 +8,15 @@ and parse the results into structured data.
 from __future__ import annotations
 
 import json
+import logging
 import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class DrcRunnerError(Exception):
@@ -36,6 +39,31 @@ class DrcStatus(Enum):
     PASS = "PASS"
     FAIL = "FAIL"
     UNVERIFIED = "UNVERIFIED"
+
+
+class FencePosture(Enum):
+    """Role of the kicad-cli invocation at the call site.
+
+    The posture declares how ``run_drc`` should treat a missing or
+    errored tool:
+
+    - ``GATE`` raises ``DrcRunnerError`` on missing tool — the call site
+      is a merge gate and a missing measurement is a hard failure.
+    - ``FENCE`` returns a ``DrcResult(drc_status=UNVERIFIED, ...)`` and
+      logs a WARNING — the fence role logs the missing measurement but
+      does not break the build.
+    - ``REPORT`` returns a ``DrcResult(drc_status=UNVERIFIED, ...)`` and
+      logs at INFO — the report role includes the missing measurement
+      in its output but does not warn the user.
+
+    A static lint test enforces that every call site of ``run_drc`` in
+    production code carries a ``posture=`` keyword.  Adding a new call
+    site without a posture is a build break by design.
+    """
+
+    GATE = "GATE"
+    FENCE = "FENCE"
+    REPORT = "REPORT"
 
 
 @dataclass
@@ -180,19 +208,39 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
     )
 
 
-def run_drc(pcb_path: Path) -> DrcResult:
+def run_drc(
+    pcb_path: Path,
+    *,
+    posture: FencePosture = FencePosture.GATE,
+) -> DrcResult:
     """
     Run KiCad DRC on a PCB file.
 
     Args:
         pcb_path: Path to .kicad_pcb file.
+        posture: Role of this invocation.  ``FencePosture.GATE``
+            (default) raises ``DrcRunnerError`` on missing tool —
+            the call site is a merge gate and a missing measurement
+            is a hard failure.  ``FencePosture.FENCE`` and
+            ``FencePosture.REPORT`` return a
+            ``DrcResult(drc_status=UNVERIFIED, ...)`` and log at
+            WARNING / INFO respectively.  The static lint test
+            ``test_run_drc_call_sites_have_posture`` enforces that
+            every production call site declares a posture explicitly.
 
     Returns:
-        DrcResult with all errors and warnings.
+        DrcResult with all errors and warnings.  When the tool is
+        missing and the posture is ``FENCE`` or ``REPORT``, the
+        returned result has ``drc_status == DrcStatus.UNVERIFIED``,
+        ``error_count == 0``, and ``warning_count == 0`` — an honest
+        "no measurement" result that downstream gates can distinguish
+        from a real PASS.
 
     Raises:
         FileNotFoundError: If PCB file doesn't exist.
-        DrcRunnerError: If kicad-cli is not available or DRC fails.
+        DrcRunnerError: If kicad-cli is not available and the posture
+            is ``GATE`` (or if the kicad-cli invocation itself fails
+            regardless of posture).
     """
     pcb_path = Path(pcb_path)
 
@@ -200,8 +248,34 @@ def run_drc(pcb_path: Path) -> DrcResult:
         raise FileNotFoundError(f"PCB file not found: {pcb_path}")
 
     if not is_kicad_cli_available():
-        raise DrcRunnerError(
-            "kicad-cli is not available. Install KiCad 8+ and ensure kicad-cli is in PATH."
+        if posture is FencePosture.GATE:
+            raise DrcRunnerError(
+                "kicad-cli is not available. Install KiCad 8+ and "
+                "ensure kicad-cli is in PATH. (POSTURE=GATE)"
+            )
+        # FENCE / REPORT: return an honest UNVERIFIED result.  The
+        # caller's gate / fence / report then handles the missing
+        # measurement per its own semantics.
+        if posture is FencePosture.FENCE:
+            _LOGGER.warning(
+                "DRC: kicad-cli not available; returning "
+                "DrcResult(drc_status=UNVERIFIED) (POSTURE=FENCE) "
+                "for pcb=%s",
+                pcb_path,
+            )
+        else:
+            _LOGGER.info(
+                "DRC: kicad-cli not available; returning "
+                "DrcResult(drc_status=UNVERIFIED) (POSTURE=REPORT) "
+                "for pcb=%s",
+                pcb_path,
+            )
+        return DrcResult(
+            error_count=0,
+            warning_count=0,
+            errors=[],
+            warnings=[],
+            drc_status=DrcStatus.UNVERIFIED,
         )
 
     # Get output path for JSON report

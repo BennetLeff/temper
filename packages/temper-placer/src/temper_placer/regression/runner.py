@@ -131,9 +131,19 @@ class RegressionRunner:
 
             if baseline.drc_available:
                 try:
-                    from temper_placer.validation.drc_runner import run_drc
+                    from temper_placer.validation.drc_runner import (
+                        FencePosture,
+                        run_drc,
+                    )
 
-                    drc_result = run_drc(pcb_path)
+                    # POSTURE=REPORT: the regression runner is a
+                    # measurement, not a gate.  A missing kicad-cli
+                    # returns DrcResult(drc_status=UNVERIFIED) and the
+                    # comparison falls through (error_count=0, which
+                    # is consistent with "no measurement").  The
+                    # surrounding has_regression gate decides whether
+                    # the delta fails the board.
+                    drc_result = run_drc(pcb_path, posture=FencePosture.REPORT)
                     current_drc_errors = drc_result.error_count
                     current_drc_warnings = drc_result.warning_count
                 except Exception:

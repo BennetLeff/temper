@@ -80,9 +80,12 @@ class DrcRatchet:
             )
 
         try:
-            from temper_placer.validation.drc_runner import run_drc
+            from temper_placer.validation.drc_runner import FencePosture, run_drc
 
-            drc_result = run_drc(pcb_path)
+            # POSTURE=GATE: the DRC ratchet is a CI gate — a missing
+            # kicad-cli raises DrcRunnerError and the ratchet fails
+            # rather than silently passing on a missing measurement.
+            drc_result = run_drc(pcb_path, posture=FencePosture.GATE)
         except Exception as e:
             return DrcRatchetResult(
                 passed=False,

@@ -9,6 +9,7 @@ enum that the rest of the fence composes on.
 
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -23,8 +24,10 @@ from temper_placer.validation.drc_runner import (
     DrcRunnerError,
     DrcStatus,
     DrcWarning,
+    FencePosture,
     run_drc,
 )
+from temper_placer.validation.drc_state import DRCC_V1, FenceState
 
 
 class TestDrcStatusEnum:
@@ -334,3 +337,341 @@ class TestFalsePassBugRegression:
             "DrcStatus match statement is the only path that should "
             "produce 100.0, and only for a measured PASS."
         )
+
+
+# ===========================================================================
+# U2: Fence posture contract (R2) + crash-only FenceState (R3)
+# ===========================================================================
+
+
+class TestFencePostureEnum:
+    """The posture enum has three orthogonal roles."""
+
+    def test_three_members(self) -> None:
+        members = {m.name for m in FencePosture}
+        assert members == {"REPORT", "FENCE", "GATE"}
+
+    def test_default_is_gate(self) -> None:
+        """``run_drc`` defaults to GATE so a forgotten keyword fails
+        the merge rather than silently skipping.  Explicit > implicit
+        at the gate.
+        """
+        from temper_placer.validation import drc_runner
+
+        sig = drc_runner.run_drc.__kwdefaults__
+        assert sig is not None
+        assert sig.get("posture") is FencePosture.GATE
+
+
+class TestRunDrcPostureBehavior:
+    """Posture controls how ``run_drc`` handles a missing kicad-cli."""
+
+    @patch(
+        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        return_value=False,
+    )
+    def test_gate_posture_raises(self, mock_avail: MagicMock, tmp_path: Path) -> None:
+        """POSTURE=GATE on missing tool: raises DrcRunnerError.  No
+        DrcResult is produced — the gate fails loudly.
+        """
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        with pytest.raises(DrcRunnerError) as exc_info:
+            run_drc(pcb, posture=FencePosture.GATE)
+        assert "kicad-cli" in str(exc_info.value).lower()
+        assert "POSTURE=GATE" in str(exc_info.value)
+
+    @patch(
+        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        return_value=False,
+    )
+    def test_fence_posture_returns_unverified(
+        self, mock_avail: MagicMock, tmp_path: Path
+    ) -> None:
+        """POSTURE=FENCE on missing tool: returns DrcResult(UNVERIFIED),
+        logs WARNING, does not raise.
+        """
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        result = run_drc(pcb, posture=FencePosture.FENCE)
+        assert result.drc_status == DrcStatus.UNVERIFIED
+        assert result.error_count == 0
+        assert result.warning_count == 0
+        assert result.errors == []
+        assert result.warnings == []
+
+    @patch(
+        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        return_value=False,
+    )
+    def test_report_posture_returns_unverified(
+        self, mock_avail: MagicMock, tmp_path: Path
+    ) -> None:
+        """POSTURE=REPORT on missing tool: returns DrcResult(UNVERIFIED),
+        logs INFO, does not raise.
+        """
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        result = run_drc(pcb, posture=FencePosture.REPORT)
+        assert result.drc_status == DrcStatus.UNVERIFIED
+        assert result.error_count == 0
+
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_gate_with_violations_returns_fail_not_raise(
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """POSTURE=GATE with kicad-cli present and a dirty board:
+        returns DrcResult(FAIL) — POSTURE_GATE only controls missing
+        tool behavior, not the FAIL path.  A measured FAIL is a
+        legitimate result, not a gate error.
+        """
+        from temper_placer.validation import drc_runner
+
+        pcb = tmp_path / "dirty.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        report = tmp_path / "report.json"
+        report.write_text(
+            json.dumps(
+                {
+                    "violations": [
+                        {
+                            "type": "clearance",
+                            "severity": "error",
+                            "description": "Clearance violation",
+                            "pos": {"x": 0.0, "y": 0.0},
+                            "items": [],
+                        }
+                    ],
+                }
+            )
+        )
+        mock_run.return_value = MagicMock(returncode=0)
+        ctx = MagicMock()
+        ctx.name = str(report)
+        ctx.__enter__.return_value = ctx
+        mock_temp_file.return_value = ctx
+
+        with patch.object(drc_runner, "is_kicad_cli_available", return_value=True):
+            result = run_drc(pcb, posture=FencePosture.GATE)
+
+        assert result.drc_status == DrcStatus.FAIL
+        assert result.error_count == 1
+
+    def test_posture_must_be_keyword(self, tmp_path: Path) -> None:
+        """Posture is keyword-only — positional posture would be
+        ambiguous with the pcb_path ordering and the lint test would
+        miss it.  ``run_drc(pcb, FencePosture.GATE)`` is a TypeError.
+        """
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        with pytest.raises(TypeError):
+            run_drc(pcb, FencePosture.GATE)  # type: ignore[misc]
+
+
+class TestFenceStateCrashOnly:
+    """``FenceState.check`` is one mtime comparison + one schema check.
+
+    The crash-only property: ``Fenced`` iff ``mtime(artifact) >
+    mtime(router_output)`` AND ``schema_version == "drcc.v1"``.
+    Anything else is ``NOT_FENCED`` — there is no middle state.
+    """
+
+    def _write_artifact(self, path: Path, mtime: float) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps({"schema_version": DRCC_V1, "drc_status": "PASS"})
+        )
+        import os
+
+        os.utime(path, (mtime, mtime))
+
+    def _write_router(self, path: Path, mtime: float) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("(kicad_pcb)")
+        import os
+
+        os.utime(path, (mtime, mtime))
+
+    def test_fresh_artifact_and_valid_schema_yields_fenced(
+        self, tmp_path: Path
+    ) -> None:
+        """The happy path: artifact is newer than router, schema
+        version matches.  Fence is ``FENCED``.
+        """
+        artifact = tmp_path / "drcc.v1.json"
+        router = tmp_path / "temper.kicad_pcb"
+        self._write_router(router, mtime=100.0)
+        self._write_artifact(artifact, mtime=200.0)
+        assert FenceState.check(artifact, router) is FenceState.FENCED
+
+    def test_stale_artifact_yields_not_fenced(self, tmp_path: Path) -> None:
+        """Artifact is older than router: the board moved and we did
+        not re-measure.  Fence is ``NOT_FENCED``.
+        """
+        artifact = tmp_path / "drcc.v1.json"
+        router = tmp_path / "temper.kicad_pcb"
+        self._write_router(router, mtime=200.0)
+        self._write_artifact(artifact, mtime=100.0)
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+    def test_equal_mtime_yields_not_fenced(self, tmp_path: Path) -> None:
+        """Equal mtime is treated as stale (not strictly greater) —
+        the ``>`` check is deliberate, equality is not fresh.
+        """
+        artifact = tmp_path / "drcc.v1.json"
+        router = tmp_path / "temper.kicad_pcb"
+        self._write_router(router, mtime=100.0)
+        self._write_artifact(artifact, mtime=100.0)
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+    def test_missing_artifact_yields_not_fenced(self, tmp_path: Path) -> None:
+        artifact = tmp_path / "missing_drcc.json"
+        router = tmp_path / "temper.kicad_pcb"
+        self._write_router(router, mtime=100.0)
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+    def test_missing_router_yields_not_fenced(self, tmp_path: Path) -> None:
+        artifact = tmp_path / "drcc.v1.json"
+        router = tmp_path / "missing.kicad_pcb"
+        self._write_artifact(artifact, mtime=200.0)
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+    def test_wrong_schema_version_yields_not_fenced(self, tmp_path: Path) -> None:
+        """The schema-validity check is the second half of crash-only:
+        a fresh artifact with the wrong schema version is still
+        ``NOT_FENCED`` — the gate cannot trust it.
+        """
+        artifact = tmp_path / "drcc.v1.json"
+        router = tmp_path / "temper.kicad_pcb"
+        self._write_router(router, mtime=100.0)
+        self._write_artifact(artifact, mtime=200.0)
+        # Overwrite the schema_version
+        import os
+
+        artifact.write_text(
+            json.dumps({"schema_version": "drc.v1", "drc_status": "PASS"})
+        )
+        os.utime(artifact, (200.0, 200.0))
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+    def test_corrupt_artifact_yields_not_fenced(self, tmp_path: Path) -> None:
+        """A corrupt JSON file (e.g., disk-full truncated write) is
+        treated as ``NOT_FENCED`` — the fence fails loudly rather
+        than raising during the check, so the gate's error handler
+        runs once.
+        """
+        artifact = tmp_path / "drcc.v1.json"
+        router = tmp_path / "temper.kicad_pcb"
+        self._write_router(router, mtime=100.0)
+        artifact.write_text("{not json")
+        import os
+
+        os.utime(artifact, (200.0, 200.0))
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+    def test_non_dict_artifact_yields_not_fenced(self, tmp_path: Path) -> None:
+        """A valid JSON file that is not a dict (e.g., a list) is
+        treated as ``NOT_FENCED`` — the schema check requires a
+        dict-shaped artifact.
+        """
+        artifact = tmp_path / "drcc.v1.json"
+        router = tmp_path / "temper.kicad_pcb"
+        self._write_router(router, mtime=100.0)
+        artifact.write_text(json.dumps([1, 2, 3]))
+        import os
+
+        os.utime(artifact, (200.0, 200.0))
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+    def test_there_is_no_third_state(self) -> None:
+        """Crash-only: FenceState has exactly two members.  Adding a
+        third (e.g., ``STALE``) would re-introduce the mid-state
+        problem.
+        """
+        members = {m.name for m in FenceState}
+        assert members == {"FENCED", "NOT_FENCED"}
+
+
+class TestRunDrcCallSitesHavePosture:
+    """Static lint: every production call to ``run_drc`` carries a posture.
+
+    This test walks the source tree, finds every ``run_drc(...)`` call
+    in production code (under ``src/temper_placer/``), and asserts
+    that each call site has a ``posture=`` keyword.  A new call site
+    without a posture fails the test — and the build.
+
+    Test files (``tests/``) and the function definition itself
+    (``drc_runner.py``) are excluded.
+    """
+
+    # Production directories where kicad-cli is invoked as a real
+    # measurement.  The ``validation`` directory is the runner
+    # itself, so it is excluded — the function is defined there and
+    # does not need a posture keyword for its own definition.
+    _PROD_DIRS = [
+        Path("packages/temper-placer/src/temper_placer/regression"),
+    ]
+
+    # The two patterns we look for: bare ``run_drc(...)`` (after
+    # ``from ... import run_drc``) and qualified
+    # ``drc_runner.run_drc(...)``.  ``validator.run_drc(...)`` etc.
+    # are different functions (instance methods on
+    # ``KiCadDRCValidator``) and are not in scope of the posture
+    # contract.
+    @staticmethod
+    def _is_run_drc_call(node: ast.Call) -> bool:
+        if isinstance(node.func, ast.Name) and node.func.id == "run_drc":
+            return True
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "run_drc"
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "drc_runner"
+        ):
+            return True
+        return False
+
+    @staticmethod
+    def _has_posture_keyword(node: ast.Call) -> bool:
+        return any(kw.arg == "posture" for kw in node.keywords)
+
+    def test_every_production_run_drc_call_has_posture(self) -> None:
+        """Find every ``run_drc(...)`` call in production and assert
+        each carries a ``posture=`` keyword.  No exceptions.
+        """
+        repo_root = Path(__file__).resolve().parent.parent.parent.parent.parent
+        violations: list[str] = []
+        for prod_dir in self._PROD_DIRS:
+            for py_file in (repo_root / prod_dir).rglob("*.py"):
+                try:
+                    tree = ast.parse(py_file.read_text())
+                except SyntaxError:
+                    continue
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Call) and self._is_run_drc_call(node):
+                        if not self._has_posture_keyword(node):
+                            violations.append(
+                                f"{py_file.relative_to(repo_root)}:"
+                                f"{node.lineno}: run_drc() call missing "
+                                f"posture= keyword"
+                            )
+        assert not violations, (
+            "run_drc() call sites must declare a FencePosture "
+            "(GATE / FENCE / REPORT). The posture contract is a "
+            "build-time lint — every call site must make its role "
+            "explicit. Violations:\n  "
+            + "\n  ".join(violations)
+        )
+
+    def test_drc_runner_module_defines_posture(self) -> None:
+        """The posture enum must be exported from the runner module
+        so call sites can ``from ... import FencePosture``.
+        """
+        from temper_placer.validation import drc_runner
+
+        assert hasattr(drc_runner, "FencePosture")
+        assert FencePosture.GATE in drc_runner.FencePosture
