@@ -101,82 +101,54 @@ def path_to_segments(
 ) -> list[TraceSegment]:
     """Convert path to trace segments."""
     segments = []
-    
-    # Extract coordinates and layer mapping from either RoutePath or RoutePath3D
-    if hasattr(path, 'segments') and path.segments:
-        coords = path.segments
-        # RoutePath3D coordinates are already (x, y, layer)
-    elif hasattr(path, 'coordinates') and path.coordinates:
-        coords = path.coordinates
+
+    # Prefer RoutePath.cells (the pathfinding result); fall back to
+    # .segments or .coordinates for compatibility with RoutePath3D and
+    # V6 router paths that have already converted to world coords.
+    coords = []
+    if hasattr(path, "cells") and getattr(path, "cells", None):
+        path_cell_size = getattr(path, "cell_size", cell_size)
+        layer_map = layer_map or DEFAULT_LAYER_MAP
+        simplified = simplify_path(path.cells)
+        for c in simplified:
+            x, y = grid_to_world(c, origin, path_cell_size)
+            layer_name = layer_map.get(c.layer, "F.Cu")
+            coords.append((x, y, layer_name))
+    elif hasattr(path, "segments") and path.segments:
+        coords = list(path.segments)
+    elif hasattr(path, "coordinates") and path.coordinates:
+        coords = list(path.coordinates)
     else:
         return []
 
-    layer_name = getattr(path, 'layer_name', "F.Cu")
-    
-    # Check if coordinates have layer info (3D path)
+    default_layer = getattr(path, "layer_name", "F.Cu")
+    net = getattr(path, "net_name", None) or getattr(path, "net", "unknown")
+
     for i in range(len(coords) - 1):
         p1 = coords[i]
-        p2 = coords[i+1]
-        
-        # Extract position and layer
+        p2 = coords[i + 1]
+
         if len(p1) == 3:
             x1, y1, l1 = p1
         else:
             x1, y1 = p1
-            l1 = layer_name
-            
+            l1 = default_layer
         if len(p2) == 3:
             x2, y2, l2 = p2
         else:
             x2, y2 = p2
-            l2 = layer_name
-        
-        # If layers differ, skip (via will handle it)
+            l2 = default_layer
+
         if l1 != l2:
             continue
-        
+
         segments.append(
             TraceSegment(
-                net=getattr(path, 'net_name', 'unknown'),
+                net=net,
                 start=(x1, y1),
                 end=(x2, y2),
                 width=trace_width,
                 layer=l1,
-            )
-        )
-    return segments
-
-    if not path.success or not hasattr(path, 'cells') or len(path.cells) < 2:
-        return []
-
-    layer_map = layer_map or DEFAULT_LAYER_MAP
-    simplified_cells = simplify_path(path.cells)
-    segments = []
-
-    for i in range(1, len(simplified_cells)):
-        c1, c2 = simplified_cells[i - 1], simplified_cells[i]
-
-        # Layer transition creates a via, not a segment
-        if c1.layer != c2.layer:
-            continue
-
-        # Convert grid to world coordinates
-        # grid_to_world likely already includes origin if initialized with it?
-        # NO: grid_to_world typically uses grid origin.
-        # But here origin arg is PCB OFFSET.
-        # Assuming grid_to_world handles its own mapping, but we might need to add origin if separate.
-        # Let's inspect grid_to_world. Assuming it returns normalized.
-        start = grid_to_world(c1, origin, path.cell_size)
-        end = grid_to_world(c2, origin, path.cell_size)
-        layer_name = layer_map.get(c1.layer, "F.Cu")
-
-        segments.append(
-            TraceSegment(
-                net=path.net,
-                start=start,
-                end=end,
-                width=trace_width,
-                layer=layer_name,
             )
         )
 
@@ -192,71 +164,45 @@ def path_to_vias(
     layer_map: dict[int, str] | None = None,
 ) -> list[TraceVia]:
     """Extract vias from layer transitions in path."""
-    # Support V6 Router Path (coordinates instead of cells)
     vias = []
-    
-    # Extract coordinates from either RoutePath or RoutePath3D
-    if hasattr(path, 'segments') and path.segments:
-        coords = path.segments
-    elif hasattr(path, 'coordinates') and path.coordinates:
-        coords = path.coordinates
+
+    coords = []
+    if hasattr(path, "cells") and getattr(path, "cells", None):
+        path_cell_size = getattr(path, "cell_size", cell_size)
+        layer_map = layer_map or DEFAULT_LAYER_MAP
+        for c in path.cells:
+            x, y = grid_to_world(c, origin, path_cell_size)
+            layer_name = layer_map.get(c.layer, "F.Cu")
+            coords.append((x, y, layer_name))
+    elif hasattr(path, "segments") and path.segments:
+        coords = list(path.segments)
+    elif hasattr(path, "coordinates") and path.coordinates:
+        coords = list(path.coordinates)
     else:
         return []
-        
-    # Only 3D paths with (x, y, layer) can generate implicit vias
-    # RoutePath3D likely has explicit vias list or we infer from coords
-    # V6 pathfinding logic: vias are implicit at layer changes in coords
-    
+
+    net = getattr(path, "net_name", None) or getattr(path, "net", "unknown")
+    default_layer = getattr(path, "layer_name", "F.Cu")
+
     for i in range(1, len(coords)):
-        p1 = coords[i-1]
+        p1 = coords[i - 1]
         p2 = coords[i]
-        
-        if len(p1) == 3 and len(p2) == 3:
-            x1, y1, l1 = p1
-            x2, y2, l2 = p2
-            
-            if l1 != l2:
-                # Via placed at transition point (they share x,y)
-                pos = (x2, y2)
-                
-                # For through-hole via, specify all relevant layers
-                all_layers = ["F.Cu", "B.Cu"] # Default TH
-                if "In1.Cu" in [l1, l2] or "In2.Cu" in [l1, l2]:
-                     all_layers = [str(idx) for idx in STANDARD_LAYER_ORDER]
 
-                vias.append(
-                    TraceVia(
-                        net=getattr(path, 'net_name', 'unknown'),
-                        position=pos,
-                        size=via_size,
-                        drill=via_drill,
-                        layers=all_layers, 
-                    )
-                )
-    return vias
+        if len(p1) >= 3 and len(p2) >= 3:
+            l1 = p1[2]
+            l2 = p2[2]
+        else:
+            l1 = l2 = default_layer
 
-    if not path.success or not hasattr(path, 'cells') or len(path.cells) < 2:
-        return []
-
-    layer_map = layer_map or DEFAULT_LAYER_MAP
-    vias = []
-
-    for i in range(1, len(path.cells)):
-        c1, c2 = path.cells[i - 1], path.cells[i]
-
-        # Detect layer transition
-        if c1.layer != c2.layer:
-            # Via is placed at the location where layer changes
-            # Use the position of the cell AFTER the transition
-            pos = grid_to_world(c2, origin, path.cell_size)
-
-            # For through-hole via, specify all layers
-            # For blind/buried via, would need specific layer pair
-            all_layers = sorted([layer_map.get(c1.layer, "F.Cu"), layer_map.get(c2.layer, "B.Cu")])
+        if l1 != l2:
+            pos = (p2[0], p2[1])
+            # Use just the two layers being joined (partial stack);
+            # through-hole would need ["F.Cu", "B.Cu"] for top↔bottom.
+            all_layers = sorted({l1, l2})
 
             vias.append(
                 TraceVia(
-                    net=path.net,
+                    net=net,
                     position=pos,
                     size=via_size,
                     drill=via_drill,

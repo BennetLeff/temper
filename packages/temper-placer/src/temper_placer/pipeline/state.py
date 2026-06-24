@@ -23,6 +23,15 @@ class PipelinePhase(Enum):
     ROUTING = "routing"
     REFINEMENT = "refinement"
     OUTPUT = "output"
+    # Deterministic sub-phases (BoundaryRegistry boundaries).
+    ZONE_GEOMETRY = "zone_geometry"
+    ZONE_ASSIGNMENT = "zone_assignment"
+    SLOT_GENERATION = "slot_generation"
+    COMPONENT_ASSIGNMENT = "component_assignment"
+    APPLY_PLACEMENTS = "apply_placements"
+    COURTYARD_CHECK = "courtyard_check"
+    APPLY_PLACEMENTS_REAPPLY = "apply_placements_reapply"
+    PLACEMENT_VALIDATION = "placement_validation"
 
 
 class PipelineError(Exception):

@@ -80,7 +80,7 @@ def test_boundary_registry_integration():
         # Map to PipelinePhase
         phase = PipelinePhase(bd.phase_name)
         assert phase is not None
-        assert bd.output_format == "dsn"
+        assert bd.output_format in {"dsn", "json"}
 
 
 def test_schema_hash_changes_pipeline_output_header():
