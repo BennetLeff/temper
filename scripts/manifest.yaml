@@ -1405,3 +1405,25 @@ scripts:
       - temper_placer.io.kicad_parser
       - temper_placer.router_v6.pipeline
 
+  - path: full_pipeline_profile.py
+    purpose: "Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb"
+    owner: router-v6-closure-rate
+    last_run: "2026-06-23"
+    category: keep
+    disposition: utility
+    imports:
+      - argparse
+      - cProfile
+      - io
+      - json
+      - logging
+      - pathlib
+      - pstats
+      - sys
+      - time
+      - temper_placer.io.kicad_parser
+      - temper_placer.regression.closure_test
+      - temper_placer.router_v6.astar_core_numba
+      - temper_placer.router_v6.astar_pathfinding
+      - temper_placer.validation.drc_runner
+

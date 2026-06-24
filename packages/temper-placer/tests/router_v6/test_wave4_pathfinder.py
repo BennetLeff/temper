@@ -152,3 +152,68 @@ def test_tensor_max_cost_is_configurable():
     for _ in range(500):  # 500 > e^4 ≈ 54, so the cap kicks in
         t.increment(0, 0)
     assert t.cost(0, 0) == 5.0
+
+
+def test_kernel_with_weight_zero_matches_no_tensor():
+    """When ``congestion_weight=0`` the kernel should match
+    the no-tensor path in time.  The U7 branch is gated on
+    ``congestion_weight > 0.0`` in
+    ``astar_core_numba._kernel`` so Numba prunes the dead
+    per-neighbor arithmetic; the wall time at high iters must
+    not regress.  This is the regression guard for the
+    2026-06-23 full-pipeline profile that surfaced the
+    1M-cap wall-time blowup.
+    """
+    import time
+    from temper_placer.router_v6.astar_core_numba import (
+        _astar_search_numba,
+    )
+    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+
+    grid = OccupancyGrid(
+        "F.Cu", np.zeros((80, 80), dtype=np.int8), (0, 0), 1.0, 80, 80,
+    )
+    start = (5, 5)
+    goal = (75, 75)
+    flat = np.zeros((80, 80), dtype=np.float32).reshape(-1)
+
+    # Warm-up: one throwaway call so the Numba JIT compile
+    # is paid outside the timed region.  Numba specializes on
+    # arg types so we also warm up both the no-tensor and
+    # weight-zero signatures.
+    _astar_search_numba(start, goal, grid, max_iterations=10_000)
+    _astar_search_numba(
+        start, goal, grid, max_iterations=10_000,
+        congestion_flat=flat, congestion_weight=0.0,
+        max_congestion_cost=100.0,
+    )
+
+    # Average over 3 runs to smooth out scheduler noise.
+    no_tensor_runs = []
+    for _ in range(3):
+        t0 = time.perf_counter()
+        _astar_search_numba(start, goal, grid, max_iterations=200_000)
+        no_tensor_runs.append((time.perf_counter() - t0) * 1000.0)
+
+    weight_zero_runs = []
+    for _ in range(3):
+        t0 = time.perf_counter()
+        _astar_search_numba(
+            start, goal, grid, max_iterations=200_000,
+            congestion_flat=flat, congestion_weight=0.0,
+            max_congestion_cost=100.0,
+        )
+        weight_zero_runs.append((time.perf_counter() - t0) * 1000.0)
+
+    no_tensor_ms = min(no_tensor_runs)
+    weight_zero_ms = min(weight_zero_runs)
+
+    # Tolerance: weight=0 should match no-tensor (the kernel
+    # branch is pruned by Numba).  A 50% slack absorbs the
+    # remaining noise from CPython's GC and OS scheduling.
+    ratio = weight_zero_ms / max(no_tensor_ms, 0.01)
+    assert ratio < 1.50, (
+        f"weight=0 took {weight_zero_ms:.1f}ms vs no-tensor "
+        f"{no_tensor_ms:.1f}ms (ratio={ratio:.2f}); the U7 "
+        f"branch is not pruned when weight=0"
+    )

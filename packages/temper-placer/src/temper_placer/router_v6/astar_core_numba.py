@@ -183,7 +183,20 @@ def _compile_kernel():
         """
         INF = np.float32(1.0e30)
         n_cells = rows * cols
-        use_congestion = congestion_flat is not None
+        # Hoist the U7 / R11 congestion branch decision out of the
+        # inner loop.  When ``congestion_weight`` is zero, the
+        # entire per-neighbor cost fold is mathematically a no-op,
+        # but Numba does not eliminate the dead ``np.log``,
+        # ``np.float32(...)``, and multiply at the call site.
+        # Gating on ``congestion_weight > 0`` lets Numba prune the
+        # branch at JIT time when callers (the closure test, the
+        # smoke runner) pass weight=0.  This is the single biggest
+        # source of the 1M-iter-cap wall-time blowup that the
+        # full-pipeline profile surfaced on 2026-06-23.
+        use_congestion = (
+            congestion_flat is not None
+            and congestion_weight > 0.0
+        )
 
         # Work arrays
         g_score = np.full(n_cells, INF, dtype=np.float32)
