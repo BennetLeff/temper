@@ -465,7 +465,7 @@ class DRCLoss(LossFunction):
 
 
 def create_drc_loss(
-    pcb_template_path: Path | None = None,
+    _pcb_template_path: Path | None = None,
     eval_interval: int = 50,
     severity_weights: dict[str, float] | None = None,
     violation_weights: dict[str, float] | None = None,
@@ -474,7 +474,7 @@ def create_drc_loss(
     Factory function to create a DRCLoss with common settings.
 
     Args:
-        pcb_template_path: Path to template PCB for export.
+        _pcb_template_path: Path to template PCB for export.
         eval_interval: Epochs between DRC evaluations.
         severity_weights: Custom severity weights for penalty.
         violation_weights: Custom violation type weights.

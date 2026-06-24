@@ -157,14 +157,14 @@ class NetRouterOrchestrator:
 def select_strategy_for_net(
     pin_count: int,
     is_critical: bool = False,
-    has_obstacles: bool = False,
+    _has_obstacles: bool = False,
 ) -> str:
     """Select appropriate routing strategy for a net.
 
     Args:
         pin_count: Number of pins in the net
         is_critical: Whether this is a critical net
-        has_obstacles: Whether there are many obstacles
+        _has_obstacles: Whether there are many obstacles
 
     Returns:
         Strategy name to use

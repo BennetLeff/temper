@@ -467,7 +467,7 @@ class ConnectorEdgeSnappingHeuristic(Heuristic):
 def identify_thermal_components(
     netlist: Netlist,
     constraints: PlacementConstraints,
-    power_threshold_w: float = 1.0,
+    _power_threshold_w: float = 1.0,
 ) -> list[Component]:
     """
     Identify high-power/thermal components that need edge placement.
@@ -480,7 +480,7 @@ def identify_thermal_components(
     Args:
         netlist: Netlist with components
         constraints: Placement constraints with thermal info
-        power_threshold_w: Power threshold for auto-detection
+        _power_threshold_w: Power threshold for auto-detection
 
     Returns:
         List of thermal components

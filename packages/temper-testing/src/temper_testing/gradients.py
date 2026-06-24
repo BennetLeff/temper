@@ -234,7 +234,7 @@ def find_discontinuities(
 def gradient_flow_analysis(
     fn: Callable,
     params: Any,
-    param_names: list[str] | None = None,
+    _param_names: list[str] | None = None,
 ) -> dict[str, float]:
     """
     Analyze gradient magnitudes for each parameter group.
@@ -244,7 +244,7 @@ def gradient_flow_analysis(
     Args:
         fn: Loss function.
         params: Parameters (can be pytree).
-        param_names: Optional names for parameter groups.
+        _param_names: Optional names for parameter groups.
 
     Returns:
         Dict mapping param name to gradient L2 norm.

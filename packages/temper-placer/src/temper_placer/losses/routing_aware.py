@@ -46,7 +46,7 @@ def compute_routing_channel_penalty(
     positions: Array,
     bounds: Array,
     min_channel_width: float = 5.0,
-    net_crossing_estimator: Any = None,
+    _net_crossing_estimator: Any = None,
 ) -> Array:
     """Compute penalty for narrow routing corridors.
     
@@ -58,7 +58,7 @@ def compute_routing_channel_penalty(
         positions: (N, 2) component center positions
         bounds: (N, 4) component bounds [width, height, offset_x, offset_y]
         min_channel_width: Minimum acceptable corridor width in mm
-        net_crossing_estimator: Optional callable(i, j) -> int for net count
+        _net_crossing_estimator: Optional callable(i, j) -> int for net count
     
     Returns:
         Scalar penalty value

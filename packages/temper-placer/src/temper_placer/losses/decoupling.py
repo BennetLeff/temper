@@ -128,7 +128,7 @@ def create_decoupling_loss(
 
 def auto_detect_decoupling(
     netlist,  # Type: Netlist
-    default_max_dist: float = 3.0,
+    _default_max_dist: float = 3.0,
 ) -> list[DecouplingRule]:
     """
     Auto-detect decoupling capacitor associations from netlist.

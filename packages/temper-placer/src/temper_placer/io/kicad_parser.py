@@ -175,7 +175,7 @@ def parse_kicad_schematic(sch_path: Path, recursive: bool = True) -> ParseResult
     components: list[Component] = []
     nets_dict: dict[str, list[tuple[str, str]]] = {}
 
-    # Root sheet
+    # Root _sheet
     sch = Schematic.from_file(str(sch_path))
     _parse_schematic_sheet(sch, components, nets_dict, warnings, recursive)
 
@@ -622,7 +622,7 @@ def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadDa
 
 
 def _parse_schematic_sheet(
-    sheet: Schematic,
+    _sheet: Schematic,
     components: list[Component],
     nets_dict: dict[str, list[tuple[str, str]]],
     warnings: list[str],

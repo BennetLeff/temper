@@ -59,7 +59,7 @@ def is_45_degree_angle(
 def generate_trombone_serpentine(
     start_pos: Tuple[float, float],
     direction: Tuple[float, float],  # Unit vector of trace direction
-    required_length_mm: float,
+    _required_length_mm: float,
     width_mm: float = 1.0,
     spacing_mm: float = 0.5,
 ) -> List[Tuple[float, float]]:
@@ -69,7 +69,7 @@ def generate_trombone_serpentine(
     Args:
         start_pos: Starting position (x, y) in mm
         direction: Unit vector indicating trace direction
-        required_length_mm: Additional length needed
+        _required_length_mm: Additional length needed
         width_mm: Width of serpentine bump
         spacing_mm: Spacing between serpentine legs
 

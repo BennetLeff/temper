@@ -520,8 +520,8 @@ def add_silkscreen_labels(
     add_references: bool = True,
     add_values: bool = True,
     add_fab_outlines: bool = True,
-    text_height: float = 1.0,
-    text_thickness: float = 0.15,
+    _text_height: float = 1.0,
+    _text_thickness: float = 0.15,
     outline_width: float = 0.15,
 ) -> dict[str, int]:
     """
@@ -537,8 +537,8 @@ def add_silkscreen_labels(
         add_references: If True, add reference designator text.
         add_values: If True, add component value text.
         add_fab_outlines: If True, add F.Fab layer component outlines.
-        text_height: Height of text in mm.
-        text_thickness: Stroke width of text in mm.
+        _text_height: Height of text in mm.
+        _text_thickness: Stroke width of text in mm.
         outline_width: Stroke width of F.Fab outlines in mm.
 
     Returns:

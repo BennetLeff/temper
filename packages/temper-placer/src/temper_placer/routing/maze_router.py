@@ -4021,7 +4021,7 @@ class MazeRouter:
         clearance_mm: float | None = None,
         via_diameter_mm: float | None = None,
         via_drill_mm: float | None = None,
-        bypass_clearance_generation: bool = False,
+        _bypass_clearance_generation: bool = False,
         custom_heuristic: "Callable | None" = None,
         guide_map: np.ndarray | None = None,
         guide_bias: float = 0.0,

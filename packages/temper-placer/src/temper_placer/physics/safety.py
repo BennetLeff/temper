@@ -27,7 +27,7 @@ def estimate_filter_delay(
 
 
 def estimate_fault_response_time(
-    loop_inductance_nh: float,
+    _loop_inductance_nh: float,
     filter_delay_us: float,
     comparator_delay_ns: float = 150.0,
     mcu_latency_ns: float = 200.0,

@@ -52,7 +52,7 @@ class CreepageReport:
 def verify_creepage(
     routing_results: RoutingResults,
     voltage_ratings: dict[str, float] | None = None,
-    default_creepage: float = 0.5,  # IPC-2221: 0.5mm for 50V
+    _default_creepage: float = 0.5,  # IPC-2221: 0.5mm for 50V
 ) -> CreepageReport:
     """
     Verify creepage distances for high-voltage isolation.
@@ -63,7 +63,7 @@ def verify_creepage(
     Args:
         routing_results: Compiled routing results from Stage 4.9
         voltage_ratings: Optional dict of net_name -> voltage
-        default_creepage: Default minimum creepage distance (mm)
+        _default_creepage: Default minimum creepage distance (mm)
 
     Returns:
         CreepageReport with violations

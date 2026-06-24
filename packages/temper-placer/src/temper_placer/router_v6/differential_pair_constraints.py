@@ -42,7 +42,7 @@ class DifferentialPairConstraints:
 
 def add_differential_pair_constraints(
     pcb: ParsedPCB,
-    default_impedance: float = 100.0,  # USB, PCIe, etc.
+    _default_impedance: float = 100.0,  # USB, PCIe, etc.
     default_max_mismatch: float = 0.5,  # 0.5mm typical
     default_min_coupling: float = 0.7,  # 70% coupling
 ) -> DifferentialPairConstraints:
@@ -51,7 +51,7 @@ def add_differential_pair_constraints(
 
     Args:
         pcb: Parsed PCB with inferred differential pairs
-        default_impedance: Default differential impedance (ohms)
+        _default_impedance: Default differential impedance (ohms)
         default_max_mismatch: Default maximum length mismatch (mm)
         default_min_coupling: Default minimum coupling ratio
 
