@@ -91,12 +91,12 @@ class NetClassRules:
 class DesignRules:
     """KiCad design rules extracted from board setup."""
 
-    net_classes: dict[str, NetClassRules]  # class_name -> rules
-    net_class_assignments: dict[str, str]  # net_name -> class_name
-    default_clearance_mm: float
-    default_trace_width_mm: float
-    default_via_diameter_mm: float
-    default_via_drill_mm: float
+    net_classes: dict[str, NetClassRules] = field(default_factory=dict)  # class_name -> rules
+    net_class_assignments: dict[str, str] = field(default_factory=dict)  # net_name -> class_name
+    default_clearance_mm: float = 0.2
+    default_trace_width_mm: float = 0.2
+    default_via_diameter_mm: float = 0.6
+    default_via_drill_mm: float = 0.3
     min_hole_to_hole_mm: float = 0.25
     min_annular_ring_mm: float = 0.1
 

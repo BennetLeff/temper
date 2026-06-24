@@ -86,8 +86,14 @@ class OccupancyGrid:
 
     @property
     def blocked_cell_count(self) -> int:
-        """Count of blocked cells."""
-        return int(np.sum(self.grid == CellState.BLOCKED.value))
+        """Count of blocked cells (including static obstacles)."""
+        # CellState.BLOCKED (1) covers dynamic obstacles; cells with -1
+        # (the static_mask sentinel for board outline, keepouts, etc.) are
+        # also impassable and should count toward the blocked total so
+        # free + blocked == total_cells.
+        blocked = int(np.sum(self.grid == CellState.BLOCKED.value))
+        static = int(np.sum(self.grid == -1))
+        return blocked + static
 
     @property
     def occupancy_ratio(self) -> float:
@@ -430,7 +436,7 @@ def build_occupancy_grid(
     height_cells = max(1, int(np.ceil(height_mm / cell_size)))
 
     # Initialize grid as all blocked (static obstacle)
-    grid = np.full((height_cells, width_cells), -1, dtype=np.int16)
+    grid = np.full((height_cells, width_cells), -1, dtype=np.int8)
 
     # Use eroded area if inflation requested
     check_area = routing_space.available_area

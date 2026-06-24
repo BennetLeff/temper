@@ -13,7 +13,6 @@ from temper_placer.router_v6.result_aggregate_stage import (
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 
 
-@settings(max_examples=50, deadline=30000)
 def test_result_aggregate_name():
     """ResultAggregateStage has correct name."""
     stage = ResultAggregateStage()

@@ -8,7 +8,6 @@ from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.route_stage import RouteStage, validate_route
 
 
-@settings(max_examples=30, deadline=60000)
 def test_route_name():
     """RouteStage has correct name."""
     stage = RouteStage()

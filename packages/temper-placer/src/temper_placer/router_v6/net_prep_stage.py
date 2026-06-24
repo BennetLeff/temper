@@ -47,10 +47,13 @@ class NetPrepStage(Stage):
 def validate_net_prep(state: BoardState) -> list[StageDRCFailure]:
     """Validate net prep invariants."""
     failures: list[StageDRCFailure] = []
-    if not hasattr(state, "tht_locations") or state.tht_locations is None:
+    tht = getattr(state, "tht_locations", None)
+    if tht is None or (hasattr(tht, "__len__") and len(tht) == 0):
+        # Treat None AND empty container as "no THT pads computed" so
+        # a freshly-constructed BoardState triggers the validator.
         failures.append(StageDRCFailure(
             field="tht_locations",
-            value=None,
+            value=tht,
             reason="THT pad locations not computed",
             stage="NetPrep",
         ))

@@ -123,7 +123,7 @@ class PathfindingResult:
 def run_astar_pathfinding(
     channel_mapping: ChannelMapping,
     grid: OccupancyGrid,
-    design_rules: DesignRules,
+    design_rules: DesignRules | None = None,
     alternate_grid: OccupancyGrid | None = None,
     components: list | None = None,
     pcb=None,  # For accessing pads
@@ -154,6 +154,8 @@ def run_astar_pathfinding(
     Returns:
         PathfindingResult with routed paths and failure reports
     """
+    if design_rules is None:
+        design_rules = DesignRules()
     all_grids: dict[str, OccupancyGrid] = {grid.layer_name: grid}
     if alternate_grid:
         all_grids[alternate_grid.layer_name] = alternate_grid
@@ -565,7 +567,6 @@ def _astar_route(
         net_name=net_name,
         coordinates=detailed_coords,
         layer_name=grid.layer_name,
-        segment_count=len(detailed_coords) - 1,
         path_length=path_length,
         forced_segment_count=forced_segments,
     )
@@ -599,6 +600,22 @@ def _dispatch_search(grid, start, goal, use_theta_star: bool, use_lazy_theta_sta
     if use_theta_star:
         return _astar_search_theta_star(grid, start, goal, net_id=-1)
     return _astar_search(start, goal, grid)
+
+
+def _segment_search(
+    grid: OccupancyGrid,
+    start_world: tuple[float, float],
+    goal_world: tuple[float, float],
+    use_theta_star: bool,
+    use_lazy_theta_star: bool,
+) -> tuple[list | None, OccupancyGrid]:
+    """Run A*/Theta* between two world points, returning (path, grid_used)."""
+    start_grid = grid.world_to_grid(*start_world)
+    goal_grid = grid.world_to_grid(*goal_world)
+    if not (_in_bounds(grid, start_grid) and _in_bounds(grid, goal_grid)):
+        return None, grid
+    path = _dispatch_search(grid, start_grid, goal_grid, use_theta_star, use_lazy_theta_star)
+    return path, grid
 
 
 def _in_bounds(grid: OccupancyGrid, point: tuple[int, int]) -> bool:

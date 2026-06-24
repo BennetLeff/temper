@@ -159,6 +159,12 @@ def _get_board_polygon(pcb: ParsedPCB) -> Polygon:
                 ox, oy = getattr(board, "origin", (0.0, 0.0))
                 return box(ox, oy, ox + board.width, oy + board.height)
 
+    # If PCB has board_geometry (test/mock shim with width/height/bounds)
+    bg = getattr(pcb, "board_geometry", None)
+    if bg is not None and hasattr(bg, "width") and hasattr(bg, "height"):
+        ox, oy = getattr(bg, "origin", (0.0, 0.0))
+        return box(ox, oy, ox + bg.width, oy + bg.height)
+
     # Fallback: compute bounding box from components
     if pcb.components:
         x_coords = []

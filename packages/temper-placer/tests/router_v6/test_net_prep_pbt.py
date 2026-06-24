@@ -9,7 +9,6 @@ from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.net_prep_stage import NetPrepStage, validate_net_prep
 
 
-@settings(max_examples=50, deadline=30000)
 def test_net_prep_name():
     """NetPrepStage has correct name."""
     stage = NetPrepStage()
