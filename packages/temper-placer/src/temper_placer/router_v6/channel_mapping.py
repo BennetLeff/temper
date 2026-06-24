@@ -57,7 +57,7 @@ class ChannelMapping:
 
 
 def map_topology_to_channels(
-    topology: TopologyGraph,
+    topology: TopologyGraph | None,
     skeleton: ChannelSkeleton,
     nets: list[Net] | None = None,
     components: list[Component] | None = None,
@@ -66,7 +66,10 @@ def map_topology_to_channels(
     Map abstract topology graph to concrete routing channels.
 
     Args:
-        topology: Topological routing graph
+        topology: Topological routing graph, or ``None`` when SAT is
+            bypassed (Stage 3 skipped).  When ``None``, every net falls
+            through to the skeleton-path fallback in
+            ``_map_net_to_channels``.
         skeleton: Channel skeleton
         nets: List of nets (optional, for fallback)
         components: List of components (optional, for pin lookup in fallback)
@@ -76,8 +79,14 @@ def map_topology_to_channels(
     """
     channel_paths = {}
 
-    # Use nets list if provided, otherwise infer from topology
-    net_names = [net.name for net in nets] if nets else list(topology.net_topologies.keys())
+    # Use nets list if provided, otherwise infer from topology.  When
+    # topology is None (Stage 3 bypassed), infer from the nets list.
+    if nets:
+        net_names = [net.name for net in nets]
+    elif topology is not None:
+        net_names = list(topology.net_topologies.keys())
+    else:
+        net_names = []
     
     # Map for easy net lookup
     net_map = {net.name: net for net in nets} if nets else {}
@@ -86,7 +95,7 @@ def map_topology_to_channels(
     comp_map = {c.ref: c for c in components} if components else {}
 
     for net_name in net_names:
-        net_topology = topology.get_topology(net_name)
+        net_topology = topology.get_topology(net_name) if topology is not None else None
         net_obj = net_map.get(net_name)
         
         # Map this net's topology (or fallback) to channels

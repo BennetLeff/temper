@@ -107,6 +107,12 @@ class BoardState:
     escape_vias_map: Optional[dict[str, Any]] = None
     enable_theta_star: bool = False
     enable_lazy_theta_star: bool = False
+    # U7 / R11: PathFinder-style history cost.  0.0 disables
+    # (no detour behavior).  Non-zero values push later nets
+    # around already-routed channels.  Empirically 0.0 closes
+    # more nets than 0.1 or 1.0 on temper.kicad_pcb because
+    # the hard signal nets need direct paths.
+    congestion_weight: float = 0.0
     # Router V6 Stage 3 topological-routing fields
     constraint_model: Optional["ConstraintModel"] = None
     sat_variable_map: Optional[dict[str, Any]] = None

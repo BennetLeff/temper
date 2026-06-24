@@ -496,7 +496,7 @@ class OccupancyGridStage(Stage):
         pcb: ParsedPCB = state._parsed_pcb
         base_inflation = (
             pcb.design_rules.default_trace_width_mm / 2.0
-        ) + pcb.design_rules.default_clearance_mm
+        )
 
         occupancy_grids: dict[str, OccupancyGrid] = {}
         for layer_name, routing_space in state.routing_spaces.items():

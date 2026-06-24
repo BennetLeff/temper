@@ -15,6 +15,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+# Side-effect import: registers ``placement_template`` and
+# ``router_v6_full`` strategies with the strategy registry.  Without
+# this, the closure test reports "No stage registered for phase='placement'/
+# 'routing'" — the strategies are implemented but never wired up.
+import temper_placer.adapters.register_strategies  # noqa: F401
+
 _LOGGER = logging.getLogger(__name__)
 
 

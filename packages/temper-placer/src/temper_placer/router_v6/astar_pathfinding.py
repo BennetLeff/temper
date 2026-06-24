@@ -72,6 +72,17 @@ class PathfindingResult:
         return len(self.failed_nets)
 
     @property
+    def completion_rate(self) -> float:
+        """success_count / (success_count + failure_count), or 0.0
+        if both are 0.  Used by the ``ResultAggregate`` validator
+        and by the closure runner's ``completion_pct`` metric.
+        """
+        total = self.success_count + self.failure_count
+        if total == 0:
+            return 0.0
+        return self.success_count / total
+
+    @property
     def total_forced_segments(self) -> int:
         """Total number of forced segments across all routes."""
         return sum(path.forced_segment_count for path in self.routed_paths.values())
@@ -132,6 +143,7 @@ def run_astar_pathfinding(
     max_nets: int | None = None,
     target_nets: list[str] | None = None,
     use_lazy_theta_star: bool = False,
+    congestion_tensor=None,  # U7 / R11: PathFinder history cost
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -186,12 +198,26 @@ def run_astar_pathfinding(
         print(f"  Limiting to first {max_nets} nets for profiling...")
         routable_nets = routable_nets[:max_nets]
 
+    # U7 / R11: build the PathFinder-style congestion tensor
+    # when the caller passed one in.  Size matches the primary
+    # grid; the Numba A* kernel reads it per expansion.
+    if congestion_tensor is not None:
+        from temper_placer.router_v6.congestion_tensor import (
+            CongestionTensor,
+        )
+        if congestion_tensor.array.shape != (grid.height_cells, grid.width_cells):
+            # Caller passed a different-size tensor; build a
+            # fresh one matching the grid.
+            congestion_tensor = CongestionTensor.zeros(
+                grid.height_cells, grid.width_cells
+            )
+
     net_ids = {name: i + 1 for i, name in enumerate(routable_nets)}
     id_to_net = {v: k for k, v in net_ids.items()}
 
     base_inflation = (
         design_rules.default_trace_width_mm / 2.0
-    ) + design_rules.default_clearance_mm
+    )
 
     reroute_queue: deque[str] = deque()
 
@@ -226,6 +252,7 @@ def run_astar_pathfinding(
             all_grids=all_grids,
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
+            congestion_tensor=congestion_tensor,
         )
 
         _restore_net_pads(restoration)
@@ -239,6 +266,23 @@ def run_astar_pathfinding(
             return channel_path.waypoints[len(channel_path.waypoints) // 2]
 
         if route_path:
+            # U7 / R11: bump the congestion tensor along the routed
+            # path so the next net naturally detours around it.
+            # Increments per cell along the path; the Numba kernel
+            # reads this in the next A* call.
+            if congestion_tensor is not None:
+                if hasattr(route_path, "coordinates"):
+                    congestion_tensor.increment_path(
+                        route_path.coordinates, primary_grid
+                    )
+                elif hasattr(route_path, "segments"):
+                    # RoutePath3D: flatten segments
+                    coords = []
+                    for seg in route_path.segments:
+                        coords.append((seg[0], seg[1]))
+                    congestion_tensor.increment_path(
+                        coords, primary_grid
+                    )
             print(f"      ✓ {net_name} routed successfully", flush=True)
 
             for ripped_id in ripped_ids:
@@ -355,26 +399,32 @@ def _astar_route_with_ripup(
     all_grids: dict[str, OccupancyGrid] | None = None,
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
+    congestion_tensor=None,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int]]:
     """
     Route a net, potentially ripping up blocking nets.
 
     If alternate_grid and components are provided, uses multilayer routing
-    with THT pad layer switching.
+    with layer switching at any pad (THT preferred when available).
 
     Returns:
         (RoutePath, list_of_net_ids_to_rip)
     """
-    # Try multilayer routing if alternate grid available
-    if alternate_grid and tht_locations:
+    # Try multilayer routing if alternate grid available.  The
+    # ``tht_locations`` gate is no longer required: layer switching at
+    # SMD pads is enabled when an alternate grid exists.  When THT pads
+    # are present they remain the preferred layer-switch site (handled
+    # inside ``_astar_route_multilayer``).
+    if alternate_grid:
         path = _astar_route_multilayer(
             net_name,
             channel_path,
             grid,
             alternate_grid,
-            tht_locations,
+            tht_locations or [],
             use_theta_star,
             use_lazy_theta_star,
+            congestion_tensor=congestion_tensor,
         )
     else:
         path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star)
@@ -400,6 +450,16 @@ def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
     1. Power/HV/Critical nets (establish main arteries)
     2. Historically problematic nets (route early before congestion)
     3. Shortest paths first (easier to fit)
+
+    Note (Wave 5 / R12 attempt, reverted 2026-06-23): routing
+    high-pin nets first within the signal class was tried and
+    REGRESSED closure from 15/24 to 13/24 on temper.kicad_pcb.
+    The 8-pin I_SENSE still hits the iter cap even with first
+    claim, and routing it first blocks the 2-3 pin nets that
+    were successfully routing under the shortest-first order.
+    The shortest-first heuristic is empirically better on this
+    board.  If a future board needs different ordering, expose
+    this as a tunable rather than changing the default.
     """
     nets = list(channel_mapping.channel_paths)
 
@@ -420,6 +480,7 @@ def _astar_route_multilayer(
     tht_locations: set[tuple[float, float]] | None,
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
+    congestion_tensor=None,
 ) -> RoutePath3D | None:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -452,7 +513,8 @@ def _astar_route_multilayer(
         goal_world = waypoints[i + 1]
 
         segment_path, grid_to_use = _segment_search(
-            primary_grid, start_world, goal_world, use_theta_star, use_lazy_theta_star
+            primary_grid, start_world, goal_world, use_theta_star,
+            use_lazy_theta_star, congestion_tensor=congestion_tensor,
         )
 
         # Allow layer switching when THT pads exist on the board - the router
@@ -462,7 +524,8 @@ def _astar_route_multilayer(
             alt_goal = alternate_grid.world_to_grid(*goal_world)
             if _in_bounds(alternate_grid, alt_start) and _in_bounds(alternate_grid, alt_goal):
                 segment_path = _dispatch_search(
-                    alternate_grid, alt_start, alt_goal, use_theta_star, use_lazy_theta_star
+                    alternate_grid, alt_start, alt_goal, use_theta_star,
+                    use_lazy_theta_star, congestion_tensor=congestion_tensor,
                 )
                 if segment_path:
                     grid_to_use = alternate_grid
@@ -594,12 +657,59 @@ def _astar_route(
 
 
 
-def _dispatch_search(grid, start, goal, use_theta_star: bool, use_lazy_theta_star: bool):
+def _dispatch_search(
+    grid, start, goal,
+    use_theta_star: bool, use_lazy_theta_star: bool,
+    congestion_tensor=None,
+):
     if use_lazy_theta_star:
         return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1)
     if use_theta_star:
         return _astar_search_theta_star(grid, start, goal, net_id=-1)
-    return _astar_search(start, goal, grid)
+    # 2D plain A*.  Delegate to the Numba-jitted kernel when available
+    # and the grid is small enough that the overhead of building the
+    # bit tensor (once per call) is amortized.  Falls through to the
+    # pure-Python _astar_search otherwise.
+    from temper_placer.router_v6.astar_core_numba import (
+        _astar_search_numba,
+    )
+    # U7 / R11: thread the optional congestion tensor through.  The
+    # Numba kernel reads it as a flat float32 array per expansion.
+    if congestion_tensor is not None:
+        return _astar_search_numba(
+            start, goal, grid,
+            congestion_flat=congestion_tensor.array.reshape(-1),
+            congestion_weight=congestion_tensor.weight,
+            max_congestion_cost=congestion_tensor.max_cost,
+        )
+    return _astar_search_numba(start, goal, grid)
+
+
+def _segment_search(
+    grid: OccupancyGrid,
+    start_world: tuple[float, float],
+    goal_world: tuple[float, float],
+    use_theta_star: bool,
+    use_lazy_theta_star: bool,
+    congestion_tensor=None,
+) -> tuple[list | None, OccupancyGrid]:
+    """Run A* between two world-coordinate waypoints on ``grid``.
+
+    Returns ``(path, grid)`` where ``path`` is a list of grid cells or
+    ``None`` if no path was found (or start/goal are out of bounds), and
+    ``grid`` is the grid that was searched.  The caller may retry on
+    ``alternate_grid`` if ``path`` is ``None`` and an alternate grid is
+    available.
+    """
+    start = grid.world_to_grid(*start_world)
+    goal = grid.world_to_grid(*goal_world)
+    if not _in_bounds(grid, start) or not _in_bounds(grid, goal):
+        return None, grid
+    path = _dispatch_search(
+        grid, start, goal, use_theta_star, use_lazy_theta_star,
+        congestion_tensor=congestion_tensor,
+    )
+    return path, grid
 
 
 def _segment_search(

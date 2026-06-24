@@ -258,7 +258,7 @@ class RouterV6Pipeline:
     def __init__(
         self,
         verbose: bool = False,
-        enable_theta_star: bool = False,
+        enable_theta_star: bool = True,
         enable_lazy_theta_star: bool = False,
         enable_smoothing: bool = False,
         enable_legalization: bool = True,
@@ -266,6 +266,8 @@ class RouterV6Pipeline:
         target_nets: list[str] | None = None,
         fence: DRCFence | None = None,
         profiler: object | None = None,
+        skip_stage3: bool = False,
+        congestion_weight: float = 0.0,
     ):
         """
         Initialize Router V6 pipeline.
@@ -280,6 +282,10 @@ class RouterV6Pipeline:
             target_nets: List of specific net names to route
             fence: Optional DRCFence for per-stage DRC verification
             profiler: Optional PipelineProfiler for stage timing instrumentation
+            congestion_weight: U7 / R11 PathFinder history-cost
+                weight.  0.0 (default) disables — the closure
+                test does not benefit from the detour behavior
+                on temper.kicad_pcb's hard signal nets.
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
@@ -290,13 +296,26 @@ class RouterV6Pipeline:
         self.target_nets = target_nets
         self.fence = fence
         self.profiler = profiler
+        self.skip_stage3 = skip_stage3
+        self.congestion_weight = congestion_weight
 
-    def run(self, pcb_path: Path) -> RouterV6Result:
+    def run(
+        self,
+        pcb_path: Path,
+        pcb_override=None,
+    ) -> RouterV6Result:
         """
         Run complete Router V6 pipeline on a PCB file.
 
         Args:
-            pcb_path: Path to .kicad_pcb file
+            pcb_path: Path to .kicad_pcb file.  When ``pcb_override``
+                is supplied, the file is still loaded (for legal
+                rule context) but the override replaces the net
+                list in the routing stage.
+            pcb_override: Optional pre-parsed ``ParsedPCB`` to use
+                in place of the one parsed from ``pcb_path``.  Used
+                by sampling profiles that filter to a small subset
+                of nets without re-parsing the board.
 
         Returns:
             RouterV6Result with complete routing solution
@@ -307,6 +326,8 @@ class RouterV6Pipeline:
         if self.verbose:
             print("Stage 0: Loading PCB...")
         pcb = parse_kicad_pcb_v6(pcb_path)
+        if pcb_override is not None:
+            pcb = pcb_override
 
         # Stage 0.5: Legalization
         if self.enable_legalization:
@@ -374,10 +395,26 @@ class RouterV6Pipeline:
             print("Stage 2: Channel analysis...")
         stage2 = self._run_stage2(pcb, escape_vias)
 
-        # Stage 3: Topological routing
-        if self.verbose:
-            print("Stage 3: Topological routing...")
-        stage3 = self._run_stage3(pcb, stage2)
+        # Stage 3: Topological routing.  When skip_stage3 is True,
+        # bypass the SAT solver entirely and feed Stage 4 an empty
+        # topology graph; Stage 4 falls back to the skeleton-path
+        # resolution in channel_mapping._map_net_to_channels
+        # (which already prefers _find_skeleton_path_for_net over
+        # the SAT topology).  The SAT code stays in place; this is
+        # a guarded bypass, not a removal.
+        if self.skip_stage3:
+            if self.verbose:
+                print("Stage 3: Topological routing... SKIPPED")
+            stage3 = Stage3Output(
+                constraint_model=None,
+                sat_model=None,
+                solution=None,
+                topology_graph=None,
+            )
+        else:
+            if self.verbose:
+                print("Stage 3: Topological routing...")
+            stage3 = self._run_stage3(pcb, stage2)
 
         # Stage 4: Geometric realization
         if self.verbose:
@@ -538,6 +575,7 @@ class RouterV6Pipeline:
             escape_vias_map=escape_vias_map,
             enable_theta_star=self.enable_theta_star,
             enable_lazy_theta_star=self.enable_lazy_theta_star,
+            congestion_weight=self.congestion_weight,
         )
         state = orchestrated.run(initial_state=state)
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)

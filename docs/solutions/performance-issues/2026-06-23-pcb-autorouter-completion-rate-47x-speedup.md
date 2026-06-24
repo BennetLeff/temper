@@ -1,9 +1,10 @@
 ---
 title: "PCB Autorouter Completion Rate: 47× Routing Speedup but 33% Completion Wall"
 date: 2026-06-23
+last_updated: 2026-06-23
 module: "temper-placer"
 category: "performance-issues"
-tags: ["pcb", "autorouter", "jax", "temper", "gnhf", "pipeline", "compounding-agents"]
+tags: ["pcb", "autorouter", "jax", "temper", "gnhf", "pipeline", "compounding-agents", "router-v6"]
 problem_type: "performance_issue"
 symptoms:
   - "Temper pipeline takes 15+ minutes end-to-end on 24-net temper board"
@@ -197,3 +198,4 @@ constraint. Each helps, all stack.
 - `docs/solutions/design-patterns/decomposing-monolithic-stage-micro-stages-2026-06-22.md` — prior pattern
 - `docs/solutions/architecture-patterns/declarative-stage-dag-replaces-orchestrator-2026-06-22.md` — prior pattern
 - `docs/solutions/design-patterns/dsn-universal-seam-eda-pipelines-2026-06-22.md` — prior pattern
+- `docs/solutions/performance-issues/router-v6-full-pipeline-5min-to-23s-2026-06-23.md` — companion doc covering the closure-test path (5min → 23s, 62.5% completion). Different scope: that doc measures `RouterV6Pipeline` end-to-end on `temper.kicad_pcb`; this doc measures the gnhf speedup of the placement+routing pipeline. The companion doc extends the "measure both runtime AND completion rate" prevention rule with JIT warm-up + min-of-N guidance for Numba-based profilers.

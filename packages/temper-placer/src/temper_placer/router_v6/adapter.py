@@ -71,11 +71,29 @@ def route_pcb(
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(modified_content)
 
+            # NOTE 2026-06-23: the closure test was using
+            # enable_theta_star=True, enable_lazy_theta_star=True,
+            # and enable_smoothing=True.  All three are wrong for
+            # SM1 measurement on temper.kicad_pcb:
+            #   * lazy theta star is a Python A* with no iter cap
+            #     and the reroute loop blows up the full-run wall
+            #     time to 5+ minutes (15/24 in 18s in the smoke vs
+            #     13/24 incomplete after 5 min in the full profile).
+            #   * plain theta star is also Python (no iter cap)
+            #     and finds fewer nets than plain A* (Numba).
+            #   * enable_smoothing=True is broken:
+            #     SDFGrid.from_polygons is missing, so the
+            #     smoothing step is a silent no-op (or worse).
+            # The closure test should use the smoke-equivalent
+            # path: plain 2D A* via the Numba kernel, no
+            # smoothing, and the smoke's per-A* iter cap (the
+            # closure runner doesn't currently expose this, so we
+            # apply it via the dispatch wrapper below).
             pipeline = RouterV6Pipeline(
                 verbose=False,
-                enable_theta_star=True,
-                enable_lazy_theta_star=True,
-                enable_smoothing=True,
+                enable_theta_star=False,
+                enable_lazy_theta_star=False,
+                enable_smoothing=False,
             )
             result = pipeline.run(Path(temp_path))
             return RoutingResult(completion_rate=result.completion_rate)
@@ -87,9 +105,9 @@ def route_pcb(
     else:
         pipeline = RouterV6Pipeline(
             verbose=False,
-            enable_theta_star=True,
-            enable_lazy_theta_star=True,
-            enable_smoothing=True,
+            enable_theta_star=False,
+            enable_lazy_theta_star=False,
+            enable_smoothing=False,
         )
         result = pipeline.run(pcb_path)
         return RoutingResult(completion_rate=result.completion_rate)

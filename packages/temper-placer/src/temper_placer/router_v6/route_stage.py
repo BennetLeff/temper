@@ -25,6 +25,7 @@ class RouteStage(Stage):
 
     def run(self, state: BoardState) -> BoardState:
         from temper_placer.router_v6.astar_pathfinding import run_astar_pathfinding
+        from temper_placer.router_v6.congestion_tensor import CongestionTensor
 
         pcb = state._parsed_pcb
         if pcb is None:
@@ -44,6 +45,27 @@ class RouteStage(Stage):
         use_theta_star = getattr(state, "enable_theta_star", False)
         use_lazy_theta_star = getattr(state, "enable_lazy_theta_star", False)
 
+        # U7 / R11: PathFinder history cost.  Build a per-cell
+        # congestion tensor matching the primary grid.  The
+        # pathfinding increments the tensor along each routed
+        # path; subsequent A* calls add the per-cell cost to
+        # f_score so the next net naturally detours around
+        # already-routed channels.
+        #
+        # The default weight is 0.0 (opt-in).  Empirically on
+        # temper.kicad_pcb the hard signal nets (SPI/PWM/AC)
+        # need direct paths, and any non-zero weight pushes
+        # them into blocked detours (10/24 vs 15/24 with
+        # weight=0.1, 13/24 with weight=1.0).  The
+        # implementation is correct and the unit tests pass;
+        # this just defaults to off for the closure test.
+        # Override ``state.congestion_weight`` to enable.
+        cong_weight = getattr(state, "congestion_weight", 0.0)
+        congestion_tensor = CongestionTensor.zeros(
+            fcu_grid.height_cells, fcu_grid.width_cells,
+            weight=cong_weight,
+        )
+
         result = run_astar_pathfinding(
             channel_mapping=channel_mapping,
             grid=fcu_grid,
@@ -53,6 +75,7 @@ class RouteStage(Stage):
             escape_vias_map=escape_vias_map,
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
+            congestion_tensor=congestion_tensor,
         )
 
         return replace(
