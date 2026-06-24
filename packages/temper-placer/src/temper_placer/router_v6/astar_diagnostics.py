@@ -1,1 +1,0 @@
-# Diagnostics stubs (not extracted in current version).
