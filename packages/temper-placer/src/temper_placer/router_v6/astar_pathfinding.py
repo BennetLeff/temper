@@ -448,6 +448,16 @@ def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
     1. Power/HV/Critical nets (establish main arteries)
     2. Historically problematic nets (route early before congestion)
     3. Shortest paths first (easier to fit)
+
+    Note (Wave 5 / R12 attempt, reverted 2026-06-23): routing
+    high-pin nets first within the signal class was tried and
+    REGRESSED closure from 15/24 to 13/24 on temper.kicad_pcb.
+    The 8-pin I_SENSE still hits the iter cap even with first
+    claim, and routing it first blocks the 2-3 pin nets that
+    were successfully routing under the shortest-first order.
+    The shortest-first heuristic is empirically better on this
+    board.  If a future board needs different ordering, expose
+    this as a tunable rather than changing the default.
     """
     nets = list(channel_mapping.channel_paths)
 
