@@ -20,7 +20,7 @@ default_creepage  # unused variable (packages/temper-placer/src/temper_placer/ro
 default_impedance  # unused variable (packages/temper-placer/src/temper_placer/router_v6/differential_pair_constraints.py:45)
 ignore_net  # unused variable (packages/temper-placer/src/temper_placer/router_v6/escape_via_generator.py:162)
 assigned_layer  # unused variable (packages/temper-placer/src/temper_placer/routing/diagnostics.py:204)
-bypass_clearance_generation  # unused variable (packages/temper-placer/src/temper_placer/routing/maze_router.py:4025)
+bypass_clearance_generation  # unused variable (packages/temper-placer/src/temper_placer/routing/maze_router.py:4024)
 has_obstacles  # unused variable (packages/temper-placer/src/temper_placer/routing/orchestrator.py:160)
 placement_data  # unused variable (packages/temper-placer/tests/explainability/test_demo.py:26)
 body_size  # unused variable (packages/temper-placer/tests/fixtures/generate_large_board.py:38)
