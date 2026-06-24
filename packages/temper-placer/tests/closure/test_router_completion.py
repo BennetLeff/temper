@@ -196,6 +196,13 @@ def _measure_candidate_closure() -> CandidateClosure:
     :class:`RuntimeError` rather than silently skipped — the whole
     point of the SM1/SM2/SM6 promotion gate is to block merges
     that haven't actually exercised the pipeline.
+
+    The 3-state DRC fence (U1) changed the contract: when kicad-cli
+    is missing, ``drc_status`` is ``UNVERIFIED`` and
+    ``drc_clearance_pass_pct`` is ``null``. We treat UNVERIFIED as a
+    hard gate failure — the SM2 promotion gate cannot pass on a
+    missing measurement, the prior behavior of silently recording
+    100.0 on a missing tool was the false-PASS bug.
     """
     runner_module = (
         Path(__file__).resolve().parent.parent.parent
@@ -235,9 +242,25 @@ def _measure_candidate_closure() -> CandidateClosure:
             f"closure runner emitted non-JSON output: {e}; "
             f"stdout={proc.stdout!r}"
         ) from e
+    # 3-state DRC fence: a missing measurement is a hard SM2 failure.
+    drc_status = payload.get("drc_status")
+    if drc_status == "UNVERIFIED":
+        raise RuntimeError(
+            "SM2 fail: drc_status is UNVERIFIED — kicad-cli was "
+            "unavailable or errored. The promotion gate cannot pass "
+            "on a missing measurement (this is the U1 false-PASS "
+            "fix; pre-U1 silently recorded 100.0 on a missing tool)."
+        )
+    raw_pct = payload.get("drc_clearance_pass_pct")
+    if raw_pct is None:
+        raise RuntimeError(
+            "SM2 fail: drc_clearance_pass_pct is null — DRC did not "
+            "produce a measurement. Investigate the closure runner "
+            "output (kicad-cli availability) before re-running."
+        )
     return CandidateClosure(
         router_completion_pct=float(payload.get("router_completion_pct", 0.0)),
-        drc_clearance_pass_pct=float(payload.get("drc_clearance_pass_pct", 0.0)),
+        drc_clearance_pass_pct=float(raw_pct),
         wall_clock_seconds=float(payload.get("wall_clock_seconds", 0.0)),
         ghost_pads_injected=int(payload.get("ghost_pads_injected", 0)),
     )

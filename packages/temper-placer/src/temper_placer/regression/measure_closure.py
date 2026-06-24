@@ -75,23 +75,35 @@ def measure_closure(
     )
     result = test.run()
 
-    # DRC clearance pass pct: a heuristic for "fraction of DRC checks
-    # that did not flag an error".  When the DRC step did not run
-    # (kicad-cli unavailable) we default to 100% — this is the
-    # graceful-degradation behavior, and the SM2 gate's "≥ baseline"
-    # check then enforces the floor.
-    if result.stages_exercised >= 4 and result.drc_errors == 0:
-        drc_clearance_pass_pct = 100.0
-    elif result.stages_exercised >= 4:
-        # Defensive: avoid div-by-zero if some check path produces
-        # an unexpected negative; clamp to [0, 100].
-        drc_clearance_pass_pct = max(0.0, 100.0 - 10.0 * result.drc_errors)
-    else:
-        drc_clearance_pass_pct = 0.0
+    # DRC clearance pass pct is a property of the *measurement*, not a
+    # default derived from how many stages ran.  We map the 3-state
+    # ``DrcStatus`` directly to a numeric or null value — the only
+    # place that turns a measurement into a percentage.  An UNVERIFIED
+    # result (kicad-cli missing or invocation errored) emits ``None``,
+    # not 100.0, so a missing measurement cannot be misread as a
+    # measured-clean result.
+    from temper_placer.validation.drc_runner import DrcStatus
+
+    match result.drc_status:
+        case DrcStatus.PASS:
+            drc_clearance_pass_pct: float | None = 100.0
+        case DrcStatus.FAIL:
+            # Defensive: avoid div-by-zero / negative; clamp to [0, 100].
+            drc_clearance_pass_pct = max(0.0, 100.0 - 10.0 * result.drc_errors)
+        case DrcStatus.UNVERIFIED:
+            # The tool wasn't available or errored — the gate gets
+            # ``None`` and the SM2 promotion test fails loudly rather
+            # than silently passing on a missing measurement.
+            drc_clearance_pass_pct = None
+        case _:
+            # ``drc_status is None`` (legacy callers or pre-U1 fixture
+            # paths) — same floor as "DRC stage never ran": 0.0.
+            drc_clearance_pass_pct = 0.0
 
     payload: dict[str, Any] = {
         "router_completion_pct": float(result.router_completion_pct),
-        "drc_clearance_pass_pct": float(drc_clearance_pass_pct),
+        "drc_clearance_pass_pct": drc_clearance_pass_pct,
+        "drc_status": result.drc_status.value if result.drc_status else None,
         "wall_clock_seconds": float(result.wall_clock_seconds),
         "ghost_pads_injected": 0,
         "benders_iterations": int(result.benders_iterations),

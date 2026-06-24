@@ -21,6 +21,8 @@ from typing import Any
 # 'routing'" — the strategies are implemented but never wired up.
 import temper_placer.adapters.register_strategies  # noqa: F401
 
+from temper_placer.validation.drc_runner import DrcStatus
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -165,6 +167,7 @@ class ClosureResult:
     router_completion_pct: float = 0.0
     drc_errors: int = 0
     drc_warnings: int = 0
+    drc_status: DrcStatus | None = None
     wall_clock_seconds: float = 0.0
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -360,12 +363,14 @@ class ClosureTest:
         # Step 4: KiCad DRC
         drc_errors = 0
         drc_warnings = 0
+        drc_status: DrcStatus | None = None
         try:
             from temper_placer.validation.drc_runner import run_drc
 
             drc_result = run_drc(self.pcb_path)
             drc_errors = drc_result.error_count
             drc_warnings = drc_result.warning_count
+            drc_status = drc_result.drc_status
             stages_exercised += 1
         except ImportError:
             msg = "kicad-cli not available; skipping DRC"
@@ -373,12 +378,14 @@ class ClosureTest:
                 errors.append(msg)
             else:
                 warnings.append(msg)
+            drc_status = DrcStatus.UNVERIFIED
         except Exception as e:
             msg = f"DRC failed: {e}"
             if self.require_all_stages:
                 errors.append(msg)
             else:
                 warnings.append(msg)
+            drc_status = DrcStatus.UNVERIFIED
 
         # Step 5: Load DRC ceiling for check
         ceiling_passed = True
@@ -417,6 +424,7 @@ class ClosureTest:
             router_completion_pct=router_completion_pct,
             drc_errors=drc_errors,
             drc_warnings=drc_warnings,
+            drc_status=drc_status,
             wall_clock_seconds=time.perf_counter() - start_time,
             errors=errors,
             warnings=warnings,

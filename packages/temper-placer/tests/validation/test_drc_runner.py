@@ -13,6 +13,7 @@ from temper_placer.validation.drc_runner import (
     DrcError,
     DrcResult,
     DrcRunnerError,
+    DrcStatus,
     DrcWarning,
     is_kicad_cli_available,
     run_drc,
@@ -37,6 +38,7 @@ class TestDrcRunnerBasics:
                 )
             ],
             warnings=[],
+            drc_status=DrcStatus.FAIL,
         )
 
         assert result.error_count == 2
@@ -44,6 +46,17 @@ class TestDrcRunnerBasics:
         assert len(result.errors) == 1
         assert result.errors[0].rule == "clearance"
         assert result.errors[0].location == (10.0, 20.0)
+        assert result.drc_status == DrcStatus.FAIL
+
+    def test_drc_result_default_status_is_unverified(self) -> None:
+        """A DrcResult with no explicit status must default to UNVERIFIED.
+
+        The default must not be PASS — that would let an unmeasured
+        ``DrcResult`` be misread as a measured-clean result, which is
+        the false-PASS bug the 3-state enum exists to prevent.
+        """
+        result = DrcResult(error_count=0, warning_count=0)
+        assert result.drc_status == DrcStatus.UNVERIFIED
 
     def test_drc_error_dataclass(self) -> None:
         """DrcError should hold rule, severity, location, message, components."""

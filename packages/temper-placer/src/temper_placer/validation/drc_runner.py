@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 
 
@@ -19,6 +20,22 @@ class DrcRunnerError(Exception):
     """Error running DRC."""
 
     pass
+
+
+class DrcStatus(Enum):
+    """Three-state status for a DRC measurement.
+
+    ``PASS`` is a measured-clean result; ``FAIL`` is a measured result
+    with violations; ``UNVERIFIED`` means the tool was missing or the
+    invocation errored — no measurement exists, so the value is honest
+    about the unknown. The default for an uninitialized ``DrcResult`` is
+    ``UNVERIFIED`` so callers cannot accidentally read a passing value
+    when no measurement has been recorded.
+    """
+
+    PASS = "PASS"
+    FAIL = "FAIL"
+    UNVERIFIED = "UNVERIFIED"
 
 
 @dataclass
@@ -71,12 +88,16 @@ class DrcResult:
         warning_count: Total number of warnings.
         errors: List of DrcError objects.
         warnings: List of DrcWarning objects.
+        drc_status: Three-state status (PASS / FAIL / UNVERIFIED).
+            Default is ``UNVERIFIED`` so an uninitialized ``DrcResult``
+            cannot be misread as a measured PASS.
     """
 
     error_count: int
     warning_count: int
     errors: list[DrcError] = field(default_factory=list)
     warnings: list[DrcWarning] = field(default_factory=list)
+    drc_status: DrcStatus = DrcStatus.UNVERIFIED
 
 
 def is_kicad_cli_available() -> bool:
@@ -155,6 +176,7 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
         warning_count=len(warnings),
         errors=errors,
         warnings=warnings,
+        drc_status=DrcStatus.PASS if len(errors) == 0 else DrcStatus.FAIL,
     )
 
 
