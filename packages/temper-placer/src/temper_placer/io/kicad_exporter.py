@@ -508,12 +508,11 @@ def export_routed_pcb(
     # OPTION G+H: GENERATE CONNECTOR SEGMENTS
     # Bridge small gaps between route ends and pad centers
     # caused by medial axis approximation or coordinate quirks.
-    if True: # Always run connector generation
-        pad_centers = extract_pad_centers(board)
-        connectors = _generate_connector_segments(all_segments, pad_centers, max_dist=2.0)
-        if connectors:
-            print(f"  INFO: Generated {len(connectors)} connector segments to bridge gaps")
-            all_segments.extend(connectors)
+    pad_centers = extract_pad_centers(board)
+    connectors = _generate_connector_segments(all_segments, pad_centers, max_dist=2.0)
+    if connectors:
+        print(f"  INFO: Generated {len(connectors)} connector segments to bridge gaps")
+        all_segments.extend(connectors)
 
     # Add geometry to board
     segments_added = add_segments_to_board(board, all_segments)

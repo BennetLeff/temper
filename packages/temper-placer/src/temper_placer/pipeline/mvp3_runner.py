@@ -181,10 +181,9 @@ class MVP3Runner:
                     # Try to find CrtYd items
                     if fp.graphicItems:
                         for item in fp.graphicItems:
-                            if True:
-                                print(
-                                    f"DEBUG item: ref={ref} type={type(item)} layer={getattr(item, 'layer', 'N/A')}"
-                                )
+                            print(
+                                f"DEBUG item: ref={ref} type={type(item)} layer={getattr(item, 'layer', 'N/A')}"
+                            )
 
                             if hasattr(item, "layer") and item.layer in ("F.CrtYd", "B.CrtYd"):
                                 # Handle Polygon/Polyline

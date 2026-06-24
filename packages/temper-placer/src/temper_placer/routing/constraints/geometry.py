@@ -235,9 +235,6 @@ def point_to_circle_distance(point: Point, center: Point, radius: float) -> floa
     return point.distance_to(center) - radius
 
 
-    return dist_to_center - radius
-
-
 @dataclass(frozen=True)
 class RotatedRect:
     """A rectangle rotated around its center."""

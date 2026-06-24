@@ -681,8 +681,6 @@ def make_train_step(
 
     return train_step
 
-    return train_step
-
 
 def train(
     netlist: Netlist,
