@@ -146,7 +146,7 @@ Initial seed sensitivity analysis revealed a **23% failure rate** (23/100 seeds)
 - `pyproject.toml`: Added `@pytest.mark.ci` marker
 
 ### Documentation
-- `tests/sensitivity/results/ROBUSTNESS_COMPARISON.md`: Detailed comparison
+- `packages/temper-placer/tests/sensitivity/results/ROBUSTNESS_COMPARISON.md`: Detailed comparison
 - `tests/sensitivity/results/seed_analysis.csv`: Updated with new results
 - `OPTIMIZER_ROBUSTNESS_SUMMARY.md` (this file)
 
