@@ -80,8 +80,7 @@ bd-done "Implemented feature X"
 # 1. Commits final changes
 # 2. Pushes to remote
 # 3. Closes issue in bd
-# 4. Posts reflection to Eco
-# 5. Creates PR if BEADS_AUTO_PR=true
+# 4. Creates PR if BEADS_AUTO_PR=true
 ```
 
 ### 5. End of Session (MANDATORY)
@@ -93,9 +92,6 @@ git status  # Must show "up to date"
 # If you made changes but didn't run bd-done:
 bd-pause
 git push
-
-# Check reflection was posted
-python3 tools/gpbm/reflect.py --task temper-xxx --reason "Done"
 ```
 
 ## Worktree Isolation
@@ -217,8 +213,7 @@ python3 tools/get_context.py temper-xxx
 
 **After completing work:**
 ```bash
-python3 tools/gpbm/reflect.py --task temper-xxx --reason "Done"
-# Posts summary to long-term memory
+bd sync
 ```
 
 **What goes in ECO:**
@@ -293,8 +288,7 @@ temper/
 ├── simulation/         # SPICE simulations
 ├── tools/              # Workflow scripts
 │   ├── bd-worktree-helpers.sh  # Worktree commands
-│   ├── bd-multiagent.sh        # Multi-agent coordination
-│   └── gpbm/             # ECO memory tools
+│   └── bd-multiagent.sh        # Multi-agent coordination
 ├── AGENTS.md            # Quick reference
 └── AGENT_INSTRUCTIONS.md # This file
 ```

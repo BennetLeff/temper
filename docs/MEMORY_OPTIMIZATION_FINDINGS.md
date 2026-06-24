@@ -2,7 +2,7 @@
 
 **Epic:** temper-8k1  
 **Date:** 2025-12-19  
-**Status:** Complete
+**Status:** Complete (historical — gpbm tool was removed on 2026-06-23; see plan 2026-06-23-010)
 
 ## Executive Summary
 

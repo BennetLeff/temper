@@ -22,9 +22,6 @@ dev = [
 ]
 
 [project.scripts]
-temper-gather = "temper_workflow.gpbm.gather:main"
-temper-plan = "temper_workflow.gpbm.plan:main"
-temper-measure = "temper_workflow.gpbm.measure:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/temper_workflow"]

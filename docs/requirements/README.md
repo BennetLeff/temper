@@ -97,16 +97,7 @@ The GPBM workflow uses requirements for:
 
 ### Requirements Parser
 
-```bash
-# Check requirement coverage
-python3 tools/gpbm/requirements_parser.py --status
-
-# Find unlinked requirements
-python3 tools/gpbm/requirements_parser.py --unlinked
-
-# Export requirements as JSON
-python3 tools/gpbm/requirements_parser.py --json > requirements.json
-```
+The `tools/gpbm/requirements_parser.py` script was removed along with the rest of the gpbm tool (see plan 2026-06-23-010). For requirements queries, use the markdown source files directly under `docs/requirements/` (or the root `REQUIREMENTS.md`).
 
 ## Priority Definitions
 
