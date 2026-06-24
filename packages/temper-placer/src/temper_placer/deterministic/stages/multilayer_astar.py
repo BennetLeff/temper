@@ -271,14 +271,17 @@ class MultiLayerAStar:
 
         # A* with 3D state: (row, col, layer)
         # Priority: (f_score, tie_breaker, state)
-        start_state = (start_cell[0], start_cell[1], start_layer)
-        
+        # Calculate valid start cells (uses start_tolerance to allow flexibility at start pin)
+        start_cells = self._get_start_cells(start, start_layer, start_tolerance)
+
         # Calculate valid end cells based on tolerance
         end_cells = self._get_end_cells(end, end_layer, end_tolerance)
 
-        open_set = [(0, self._tie_breaker(start_state), start_state)]
+        open_set = []
+        for s in start_cells:
+            open_set.append((0, self._tie_breaker(s), s))
         came_from = {}
-        g_score = {start_state: 0}
+        g_score = {s: 0 for s in start_cells}
         iterations = 0
 
         while open_set and iterations < adaptive_limit:
@@ -396,6 +399,40 @@ class MultiLayerAStar:
                 return {(center_cell[0], center_cell[1], end_layer)}
                 
         return end_cells
+
+    def _get_start_cells(
+        self,
+        start_mm: Tuple[float, float],
+        start_layer: int,
+        tolerance_mm: float,
+    ) -> Set[Tuple[int, int, int]]:
+        """Get valid start states within tolerance (mirrors _get_end_cells)."""
+        start_cells: Set[Tuple[int, int, int]] = set()
+        center_cell = self.grid._mm_to_cell(*start_mm)
+        tolerance_cells = int(math.ceil(tolerance_mm / self.grid.cell_size_mm))
+
+        if tolerance_cells == 0:
+            return {(center_cell[0], center_cell[1], start_layer)}
+
+        row_min = max(0, center_cell[0] - tolerance_cells)
+        row_max = min(self.grid.rows - 1, center_cell[0] + tolerance_cells)
+        col_min = max(0, center_cell[1] - tolerance_cells)
+        col_max = min(self.grid.cols - 1, center_cell[1] + tolerance_cells)
+        tolerance_sq = tolerance_mm * tolerance_mm
+
+        for r in range(row_min, row_max + 1):
+            for c in range(col_min, col_max + 1):
+                cell_mm = (
+                    c * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                    r * self.grid.cell_size_mm + self.grid.cell_size_mm / 2,
+                )
+                dist_sq = (cell_mm[0] - start_mm[0])**2 + (cell_mm[1] - start_mm[1])**2
+                if dist_sq <= tolerance_sq:
+                    start_cells.add((r, c, start_layer))
+
+        if not start_cells:
+            return {(center_cell[0], center_cell[1], start_layer)}
+        return start_cells
 
     def _is_goal(
         self, state: Tuple[int, int, int], end_cells: Set[Tuple[int, int, int]], end_layer: int

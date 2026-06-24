@@ -5,10 +5,7 @@
 # Each entry below suppresses one dead-code finding.
 # Removing a dead symbol: delete its line here in the same commit.
 
-reduction_ratio  # unused variable (packages/temper-placer/src/temper_placer/algo/coarsening.py:20)
-start_tolerance  # unused variable (packages/temper-placer/src/temper_placer/deterministic/stages/multilayer_astar.py:220)
 ignore_net  # unused variable (packages/temper-placer/src/temper_placer/router_v6/escape_via_generator.py:162)
-assigned_layer  # unused variable (packages/temper-placer/src/temper_placer/routing/diagnostics.py:204)
 placement_data  # unused variable (packages/temper-placer/tests/explainability/test_demo.py:26)
 body_size  # unused variable (packages/temper-placer/tests/fixtures/generate_large_board.py:38)
 # unreachable code after 'return' (packages/temper-placer/tests/heuristics/test_force_directed.py:49)

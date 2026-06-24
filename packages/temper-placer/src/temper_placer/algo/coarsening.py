@@ -90,13 +90,21 @@ def coarsen_hypergraph(
                 affinity[key] += w
                 
     # 2. Heavy Edge Matching (Greedy)
+    # Target coarse-node count: ceil(ratio * n_fine) at minimum to honor
+    # the requested reduction; greedy matching stops once we have enough
+    # matches to reach the target so we don't over-coarsen.
+    target_n_coarse = max(1, int(round(reduction_ratio * n_fine)))
+    target_n_matches = max(0, n_fine - target_n_coarse)
+
     matched = np.zeros(n_fine, dtype=bool)
     matches = [] # List of (u, v) tuples
-    
+
     # Sort pairs by weight descending
     sorted_pairs = sorted(affinity.items(), key=lambda x: x[1], reverse=True)
-    
+
     for (u, v), w in sorted_pairs:
+        if len(matches) >= target_n_matches:
+            break
         if not matched[u] and not matched[v]:
             matched[u] = True
             matched[v] = True

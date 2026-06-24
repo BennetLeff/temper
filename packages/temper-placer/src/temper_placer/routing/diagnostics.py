@@ -216,8 +216,15 @@ def generate_layer_conflict_diagnostic(
     Returns:
         RoutingDiagnostic with LAYER_CONFLICT failure type.
     """
-    layer_name = {1: "L1", 2: "L2", 3: "L3", 4: "L4"}.get(required_layer, f"L{required_layer}")
-    suggested_fix = f"Reassign {net} to layer {layer_name} ({reason})"
+    assigned_layer_name = {1: "L1", 2: "L2", 3: "L3", 4: "L4"}.get(
+        assigned_layer, f"L{assigned_layer}"
+    )
+    required_layer_name = {1: "L1", 2: "L2", 3: "L3", 4: "L4"}.get(
+        required_layer, f"L{required_layer}"
+    )
+    suggested_fix = (
+        f"Reassign {net} from {assigned_layer_name} to {required_layer_name} ({reason})"
+    )
 
     return RoutingDiagnostic(
         net=net,
