@@ -8,7 +8,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy as np
+
 from temper_placer.core.board import STANDARD_LAYER_ORDER
+
+
+# 8-move direction encoding shared with neighbor_validity.DIRS_8.
+# Order: E, SE, S, SW, W, NW, N, NE.
+_DIRS_8: tuple[tuple[int, int], ...] = (
+    (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1),
+)
 
 
 @dataclass
@@ -76,6 +85,7 @@ def _astar_search(
     start: tuple[int, int],
     goal: tuple[int, int],
     grid,
+    neighbor_tensor: np.ndarray | None = None,
 ) -> list[tuple[int, int]] | None:
     """
     A* search algorithm for pathfinding.
@@ -84,11 +94,28 @@ def _astar_search(
         start: Start cell (x, y)
         goal: Goal cell (x, y)
         grid: Occupancy grid
+        neighbor_tensor: Pre-baked (rows, cols, 8) boolean tensor from
+            ``neighbor_validity.build_neighbor_validity_tensor_2d``.
+            When ``None`` (the default for back-compat with existing
+            callers), the inner loop falls back to the inlined
+            bounds + numpy check.  When supplied, the inner loop
+            uses a single bit read per neighbor.
 
     Returns:
         List of cells or None if no path found
     """
     from heapq import heappop, heappush
+
+    # Backward-compat: if no tensor was passed, build one on the
+    # fly.  This is the same cost as the inlined check (one pass
+    # over the grid) but keeps the inner loop on the tensor path.
+    # New callers should build the tensor once at A* pass start
+    # (outside the per-net A* loop) and pass it in.
+    if neighbor_tensor is None:
+        from temper_placer.router_v6.neighbor_validity import (
+            build_neighbor_validity_tensor_2d,
+        )
+        neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
 
     # A* frontier (priority queue)
     frontier = []
@@ -109,26 +136,25 @@ def _astar_search(
                 current = came_from[current]
             return list(reversed(path))
 
-        # Explore neighbors (8-connected)
-        x, y = current
-        # Directions: Right, Down, Left, Up, Diagonals
-        moves = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+        # Explore neighbors (8-connected).  U5: the validity tensor is
+        # pre-baked once at A* pass start so the inner loop is a
+        # single bit read per (cell, direction).  See
+        # neighbor_validity.build_neighbor_validity_tensor_2d.
+        from temper_placer.router_v6.neighbor_validity import (
+            is_valid_2d as _tensor_is_valid,
+        )
+        cx, cy = current  # current is (x, y) tuple; rename for tensor indexing
 
-        # Direct numpy access for inner-loop performance (U1: avoid 180M method calls)
-        grid_arr = grid.grid
-        gw, gh = grid.width_cells, grid.height_cells
-
-        for dx, dy in moves:
-            neighbor = (x + dx, y + dy)
-            nx, ny = neighbor
-
-            # Check if neighbor is valid and free (inlined bounds + numpy check)
-            if not (0 <= nx < gw and 0 <= ny < gh and grid_arr[ny, nx] == 0):
+        for dir_idx in range(8):
+            if not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
                 continue
+            dx, dy = _DIRS_8[dir_idx]
+            nx, ny = cx + dx, cy + dy
 
             # Diagonal cost = 1.414, Cardinal = 1.0
             move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
             new_cost = cost_so_far[current] + move_cost
+            neighbor = (nx, ny)
 
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
                 cost_so_far[neighbor] = new_cost
