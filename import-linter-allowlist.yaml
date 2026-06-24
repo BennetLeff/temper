@@ -217,12 +217,12 @@ allowlist:
     reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
 
   - source: tools/demo_explainability\.py
-    target: temper_placer\..*
+    target: temper_placer.core\..*
     contract: .*
     reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
 
   - source: tools/demo_explainability\.py
-    target: temper_placer.core\..*
+    target: temper_placer\.explainability
     contract: .*
     reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
 
