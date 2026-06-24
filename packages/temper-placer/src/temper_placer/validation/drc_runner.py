@@ -119,6 +119,11 @@ class DrcResult:
         drc_status: Three-state status (PASS / FAIL / UNVERIFIED).
             Default is ``UNVERIFIED`` so an uninitialized ``DrcResult``
             cannot be misread as a measured PASS.
+        cache_hit: ``True`` when the result was served from the
+            regression cache (see :class:`temper_placer.validation.
+            drc_cache.DrcCache`); ``False`` for a fresh measurement.
+            Default is ``False``; the cache layer sets this flag on
+            hits, never the runner itself.
     """
 
     error_count: int
@@ -126,6 +131,7 @@ class DrcResult:
     errors: list[DrcError] = field(default_factory=list)
     warnings: list[DrcWarning] = field(default_factory=list)
     drc_status: DrcStatus = DrcStatus.UNVERIFIED
+    cache_hit: bool = False
 
 
 def is_kicad_cli_available() -> bool:

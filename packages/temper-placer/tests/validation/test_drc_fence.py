@@ -39,6 +39,7 @@ from temper_placer.validation.drc_schema import (
     to_drcc_v1,
 )
 from temper_placer.validation.drc_state import DRCC_V1, FenceState
+from temper_placer.validation.drc_cache import DrcCache, make_cache_key
 
 
 class TestDrcStatusEnum:
@@ -1142,3 +1143,509 @@ class TestFenceStateReadsSchemaVersion:
         artifact.write_text(json.dumps({"schema_version": "drc.v1"}))
         os.utime(artifact, (200.0, 200.0))
         assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
+
+
+# ===========================================================================
+# U4: hash-keyed DRC regression cache (R5)
+# ===========================================================================
+
+
+class TestCacheKey:
+    """``make_cache_key`` is a pure function of the input tuple."""
+
+    def test_key_is_deterministic(self) -> None:
+        a = make_cache_key(
+            router_commit="abc",
+            board_hash="def",
+            kicad_cli_version="9.0.7",
+            design_rule_set_hash="ghi",
+            posture=FencePosture.GATE,
+        )
+        b = make_cache_key(
+            router_commit="abc",
+            board_hash="def",
+            kicad_cli_version="9.0.7",
+            design_rule_set_hash="ghi",
+            posture=FencePosture.GATE,
+        )
+        assert a == b
+
+    def test_key_is_sha256(self) -> None:
+        k = make_cache_key(
+            router_commit="abc",
+            board_hash="def",
+            kicad_cli_version="9.0.7",
+            design_rule_set_hash="ghi",
+            posture=FencePosture.GATE,
+        )
+        assert len(k) == 64
+        import hashlib
+
+        payload = "abc|def|9.0.7|ghi|GATE"
+        assert k == hashlib.sha256(payload.encode()).hexdigest()
+
+    def test_posture_is_part_of_key(self) -> None:
+        """GATE / FENCE / REPORT are different roles; same board on
+        different postures must not share a cache entry.
+        """
+        base = dict(
+            router_commit="abc",
+            board_hash="def",
+            kicad_cli_version="9.0.7",
+            design_rule_set_hash="ghi",
+        )
+        gate = make_cache_key(posture=FencePosture.GATE, **base)
+        fence = make_cache_key(posture=FencePosture.FENCE, **base)
+        report = make_cache_key(posture=FencePosture.REPORT, **base)
+        assert len({gate, fence, report}) == 3
+
+    def test_each_input_changes_key(self) -> None:
+        base = dict(
+            router_commit="abc",
+            board_hash="def",
+            kicad_cli_version="9.0.7",
+            design_rule_set_hash="ghi",
+            posture=FencePosture.GATE,
+        )
+        keys = {
+            make_cache_key(**base),
+            make_cache_key(**{**base, "router_commit": "XYZ"}),
+            make_cache_key(**{**base, "board_hash": "XYZ"}),
+            make_cache_key(**{**base, "kicad_cli_version": "XYZ"}),
+            make_cache_key(**{**base, "design_rule_set_hash": "XYZ"}),
+        }
+        # 5 distinct keys: 4 single-field perturbations + the base.
+        assert len(keys) == 5
+
+
+class TestDrcResultCacheHit:
+    """``DrcResult.cache_hit`` defaults to False; the cache layer sets
+    it to True on hits.
+    """
+
+    def test_default_is_false(self) -> None:
+        r = DrcResult(error_count=0, warning_count=0, drc_status=DrcStatus.PASS)
+        assert r.cache_hit is False
+
+    def test_explicit_true(self) -> None:
+        r = DrcResult(
+            error_count=0, warning_count=0, drc_status=DrcStatus.PASS, cache_hit=True
+        )
+        assert r.cache_hit is True
+
+
+class TestDrcCacheGetOrRun:
+    """The cache wraps ``run_drc`` with hit/miss/invalidation semantics."""
+
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_first_run_is_miss_writes_artifact(
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """First run with a given input tuple: cache miss, kicad-cli
+        runs, the artifact is written, ``cache_hit=False``.
+        """
+        from temper_placer.validation import drc_runner
+
+        cache_dir = tmp_path / "cache"
+        cache = DrcCache(cache_dir=cache_dir)
+
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        report = tmp_path / "report.json"
+        report.write_text(json.dumps({"violations": []}))
+        mock_run.return_value = MagicMock(returncode=0)
+        ctx = MagicMock()
+        ctx.name = str(report)
+        ctx.__enter__.return_value = ctx
+        mock_temp_file.return_value = ctx
+
+        with patch.object(drc_runner, "is_kicad_cli_available", return_value=True):
+            result = cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+
+        assert result.drc_status == DrcStatus.PASS
+        assert result.cache_hit is False
+        # Artifact was written to the cache dir
+        assert cache_dir.exists()
+        written = list(cache_dir.glob("*.json"))
+        assert len(written) == 1
+
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_second_run_is_hit_does_not_invoke_kicad(
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """Second run with the same input tuple: cache hit,
+        kicad-cli does NOT run, ``cache_hit=True``.
+        """
+        from temper_placer.validation import drc_runner
+
+        cache_dir = tmp_path / "cache"
+        cache = DrcCache(cache_dir=cache_dir)
+
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        report = tmp_path / "report.json"
+        report.write_text(json.dumps({"violations": []}))
+        mock_run.return_value = MagicMock(returncode=0)
+        ctx = MagicMock()
+        ctx.name = str(report)
+        ctx.__enter__.return_value = ctx
+        mock_temp_file.return_value = ctx
+
+        with patch.object(drc_runner, "is_kicad_cli_available", return_value=True):
+            first = cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+            assert first.cache_hit is False
+            # Reset the mock to detect the second invocation
+            mock_run.reset_mock()
+            second = cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+            assert second.cache_hit is True
+            # kicad-cli was NOT invoked on the second run
+            mock_run.assert_not_called()
+
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_kicad_cli_version_change_invalidates_cache(
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """A kicad-cli version bump must invalidate the cache: the
+        second run is a miss, kicad-cli runs again.
+        """
+        from temper_placer.validation import drc_runner
+
+        cache = DrcCache(cache_dir=tmp_path / "cache")
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        # Each run_drc invocation deletes the JSON output file in
+        # its ``finally`` block.  Recreate the file before each
+        # call so the second ``run_drc`` finds the file present.
+        def _reset_mocks(report_path: Path) -> None:
+            report_path.write_text(json.dumps({"violations": []}))
+            mock_run.reset_mock()
+            mock_run.return_value = MagicMock(returncode=0)
+            ctx = MagicMock()
+            ctx.name = str(report_path)
+            ctx.__enter__.return_value = ctx
+            mock_temp_file.return_value = ctx
+
+        report = tmp_path / "report.json"
+
+        with patch.object(drc_runner, "is_kicad_cli_available", return_value=True):
+            _reset_mocks(report)
+            cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+            _reset_mocks(report)
+            cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.8",  # version bump
+                design_rule_set_hash="r1",
+            )
+            mock_run.assert_called()
+
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_board_hash_change_invalidates_cache(
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """A board content change must invalidate the cache."""
+        from temper_placer.validation import drc_runner
+
+        cache = DrcCache(cache_dir=tmp_path / "cache")
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        def _reset_mocks(report_path: Path) -> None:
+            report_path.write_text(json.dumps({"violations": []}))
+            mock_run.reset_mock()
+            mock_run.return_value = MagicMock(returncode=0)
+            ctx = MagicMock()
+            ctx.name = str(report_path)
+            ctx.__enter__.return_value = ctx
+            mock_temp_file.return_value = ctx
+
+        report = tmp_path / "report.json"
+
+        with patch.object(drc_runner, "is_kicad_cli_available", return_value=True):
+            _reset_mocks(report)
+            cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+            _reset_mocks(report)
+            cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b2",  # board change
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+            mock_run.assert_called()
+
+    def test_unverified_is_never_cached(self, tmp_path: Path) -> None:
+        """UNVERIFIED is never written to the cache: caching "we
+        don't know" is a memory leak.  The next run with the same
+        inputs is a miss, not a hit on a stale "we don't know".
+        """
+        cache = DrcCache(cache_dir=tmp_path / "cache")
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        with patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available",
+            return_value=False,
+        ):
+            first = cache.get_or_run(
+                pcb,
+                posture=FencePosture.FENCE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="",
+                design_rule_set_hash="",
+            )
+            assert first.drc_status == DrcStatus.UNVERIFIED
+            assert first.cache_hit is False
+            # Nothing was written to cache
+            assert list((tmp_path / "cache").glob("*.json")) == []
+
+    def test_missing_cache_dir_is_non_fatal(self, tmp_path: Path) -> None:
+        """A nonexistent cache directory is created on first write
+        and a missing dir on read is treated as a miss.  The cache
+        is best-effort — a transient filesystem error is not a
+        fence failure.
+        """
+        cache_dir = tmp_path / "does_not_exist_yet" / "drc"
+        assert not cache_dir.exists()
+        cache = DrcCache(cache_dir=cache_dir)
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        with patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available",
+            return_value=False,
+        ):
+            # Missing kicad-cli + FENCE: returns UNVERIFIED, no
+            # cache write (UNVERIFIED never cached).
+            result = cache.get_or_run(
+                pcb,
+                posture=FencePosture.FENCE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="",
+                design_rule_set_hash="",
+            )
+            assert result.drc_status == DrcStatus.UNVERIFIED
+        # No cache directory was created (UNVERIFIED never writes)
+        assert not cache_dir.exists()
+
+    def test_corrupt_cache_entry_triggers_fresh_run(
+        self, tmp_path: Path
+    ) -> None:
+        """A corrupt cache file (e.g., truncated write) is detected,
+        deleted, and the next call runs kicad-cli.  A bad cache is
+        a recoverable failure, not a permanent one.
+        """
+        cache_dir = tmp_path / "cache"
+        cache_dir.mkdir()
+        cache = DrcCache(cache_dir=cache_dir)
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        # Plant a corrupt cache entry under the expected key.
+        from temper_placer.validation.drc_cache import make_cache_key
+
+        key = make_cache_key(
+            router_commit="abc",
+            board_hash="b1",
+            kicad_cli_version="9.0.7",
+            design_rule_set_hash="r1",
+            posture=FencePosture.FENCE,
+        )
+        corrupt = cache_dir / f"{key}.json"
+        corrupt.write_text("{not json")
+
+        # POSTURE=FENCE + missing kicad-cli: cache hit attempt sees
+        # the corrupt file, deletes it, falls through to a fresh
+        # run_drc which returns UNVERIFIED (FENCE doesn't raise).
+        with patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available",
+            return_value=False,
+        ):
+            result = cache.get_or_run(
+                pcb,
+                posture=FencePosture.FENCE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+            # UNVERIFIED never cached, so no second write either.
+            assert result.drc_status == DrcStatus.UNVERIFIED
+            assert result.cache_hit is False
+
+        # The corrupt file was deleted by the cache's recovery path.
+        assert not corrupt.exists()
+
+    def test_clear_removes_all_entries(self, tmp_path: Path) -> None:
+        """``clear()`` removes every ``*.json`` entry and returns
+        the count.  Used by tests and by future rule-set-change
+        invalidation.
+        """
+        cache_dir = tmp_path / "cache"
+        cache_dir.mkdir()
+        # Plant 3 entries
+        for i in range(3):
+            (cache_dir / f"key{i}.json").write_text("{}")
+        assert len(list(cache_dir.glob("*.json"))) == 3
+        cache = DrcCache(cache_dir=cache_dir)
+        n = cache.clear()
+        assert n == 3
+        assert list(cache_dir.glob("*.json")) == []
+
+    def test_clear_on_missing_dir_returns_zero(self, tmp_path: Path) -> None:
+        cache_dir = tmp_path / "nonexistent"
+        cache = DrcCache(cache_dir=cache_dir)
+        assert cache.clear() == 0
+
+
+class TestDrcCachePostureContract:
+    """``get_or_run`` must accept a posture; GATE raises on missing tool."""
+
+    def test_gate_posture_propagates_missing_tool_error(self, tmp_path: Path) -> None:
+        """POSTURE=GATE on missing kicad-cli raises DrcRunnerError
+        through the cache layer — the cache is transparent to
+        posture semantics.
+        """
+        from temper_placer.validation.drc_runner import DrcRunnerError
+
+        cache = DrcCache(cache_dir=tmp_path / "cache")
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        with patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available",
+            return_value=False,
+        ):
+            with pytest.raises(DrcRunnerError):
+                cache.get_or_run(
+                    pcb,
+                    posture=FencePosture.GATE,
+                    router_commit="abc",
+                    board_hash="b1",
+                )
+
+    def test_fence_posture_returns_unverified(self, tmp_path: Path) -> None:
+        cache = DrcCache(cache_dir=tmp_path / "cache")
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+
+        with patch(
+            "temper_placer.validation.drc_runner.is_kicad_cli_available",
+            return_value=False,
+        ):
+            result = cache.get_or_run(
+                pcb,
+                posture=FencePosture.FENCE,
+                router_commit="abc",
+                board_hash="b1",
+            )
+            assert result.drc_status == DrcStatus.UNVERIFIED
+            assert result.cache_hit is False
+
+
+class TestDrcCacheIntegrationWithSchema:
+    """The cache artifact is a ``drcc.v1.json`` file consumable by
+    ``FenceState.check`` — the cache and the fence state must agree
+    on the file format.
+    """
+
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_written_artifact_is_drcc_v1(
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        from temper_placer.validation import drc_runner
+
+        cache = DrcCache(cache_dir=tmp_path / "cache")
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        report = tmp_path / "report.json"
+        report.write_text(json.dumps({"violations": []}))
+        mock_run.return_value = MagicMock(returncode=0)
+        ctx = MagicMock()
+        ctx.name = str(report)
+        ctx.__enter__.return_value = ctx
+        mock_temp_file.return_value = ctx
+
+        with patch.object(drc_runner, "is_kicad_cli_available", return_value=True):
+            cache.get_or_run(
+                pcb,
+                posture=FencePosture.GATE,
+                router_commit="abc",
+                board_hash="b1",
+                kicad_cli_version="9.0.7",
+                design_rule_set_hash="r1",
+            )
+
+        written = list((tmp_path / "cache").glob("*.json"))
+        assert len(written) == 1
+        data = json.loads(written[0].read_text())
+        assert data["schema_version"] == "drcc.v1"
+        assert data["drc_status"] == "PASS"
+        assert data["posture"] == "GATE"
+        # The artifact is parseable by the fence state module
+        import os
+
+        os.utime(written[0], (200.0, 200.0))
+        os.utime(pcb, (100.0, 100.0))
+        assert FenceState.check(written[0], pcb) is FenceState.FENCED
