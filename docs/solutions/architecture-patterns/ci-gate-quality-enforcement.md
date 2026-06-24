@@ -1,6 +1,7 @@
 ---
 title: "Pattern: CI-Gate Quality Enforcement (Baseline + Monotonic Shrink)"
 date: 2026-06-22
+last_updated: 2026-06-23
 category: architecture-patterns
 module: CI
 problem_type: architecture_pattern
@@ -256,3 +257,26 @@ the baseline or any baseline entry Vulture no longer reports.
 - `docs/plans/2026-06-22-006-feat-cli-zoning-loc-cap-plan.md` (N6: LOC cap)
 - `docs/plans/2026-06-22-009-feat-vulture-ruff-deadcode-gate-plan.md` (N9: vulture gate)
 - `CLAUDE.md` — documentation of live gate mechanisms and allowlist conventions
+
+## Follow-on Evidence
+
+The N9 vulture gate has now been exercised at scale. Between 2026-06-22 and
+2026-06-23, **17 entries** were trimmed from `deadcode-baseline.py` (152 → 135):
+
+- 15 real dead-code removals: 3 unused imports (`ListedColormap`,
+  `get_strategy_description`, `Self`), 6 unused function parameters prefixed
+  with `_` (`frame`, `ci_mode`, `highlight_nets`, etc.), 6 `__exit__` exception
+  args (`exc_type` → `_exc_type`, etc.), and 2 stale `kicad_exporter.py`
+  unreachable-code entries that became real deletes when the dead branches
+  were removed.
+- 2 stale line numbers updated after `kicad_exporter.py` was refactored
+  (`565` → `511`).
+
+The pattern held: stale entries surfaced as `STALE BASELINE ENTRIES` in CI,
+forcing the source fix in the same commit as the baseline entry removal. No
+manual triage needed. The monotonic-shrink discipline moved the baseline from
+152 → 135 in 24 hours without bypassing the gate.
+
+See `docs/solutions/test-failures/temper-placer-source-test-drift-2026-06-23.md`
+for the full reconciliation (37 test failures + 17 vulture entries, all
+fixed in source per AGENTS.md "fix source, not test").
