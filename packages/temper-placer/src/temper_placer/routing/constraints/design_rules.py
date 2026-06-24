@@ -513,38 +513,20 @@ class DesignRulesParser:
         Returns:
             Net class name
         """
-        upper = net_name.upper()
+        from temper_placer.routing.net_classification import (
+            is_ground_net,
+            is_power_net,
+        )
 
-        # Ground patterns
-        ground_patterns = ["GND", "GROUND", "VSS", "AGND", "DGND", "PGND"]
-        for pattern in ground_patterns:
-            if pattern in upper:
-                return "GND"
-
-        # Power patterns
-        power_patterns = [
-            "VCC",
-            "VDD",
-            "V+",
-            "V-",
-            "VBAT",
-            "VIN",
-            "VOUT",
-            "+5V",
-            "+3.3V",
-            "+12V",
-            "-12V",
-            "+3V3",
-            "+5V0",
-        ]
-        for pattern in power_patterns:
-            if pattern in upper:
-                return "Power"
+        if is_ground_net(net_name):
+            return "GND"
+        if is_power_net(net_name):
+            return "Power"
 
         # High-speed patterns
         high_speed_patterns = ["CLK", "CLOCK", "SPI_", "I2C_", "USB", "JTAG"]
         for pattern in high_speed_patterns:
-            if pattern in upper:
+            if pattern in net_name.upper():
                 return "HighSpeed"
 
         return "Signal"

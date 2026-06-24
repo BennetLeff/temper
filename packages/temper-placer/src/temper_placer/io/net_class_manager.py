@@ -6,6 +6,11 @@ Part of Phase 2: Design Rule Compliance (temper-1rt5).
 """
 
 from temper_placer.core.netlist import Netlist
+from temper_placer.routing.net_classification import (
+    is_ground_net as _is_ground_net,
+    is_hv_net as _is_hv_net,
+    is_power_net as _is_power_net,
+)
 
 
 POWER_KEYWORDS = ["GND", "VCC", "VDD", "VSS", "VBUS", "+3V3", "+5V", "+12V", "+15V", "VBAT", "AC_L", "AC_N", "DC_BUS", "PGND", "CGND"]
@@ -27,8 +32,11 @@ def is_power_net(net_name: str) -> bool:
         >>> is_power_net("SIG_DATA")
         False
     """
-    net_upper = net_name.upper()
-    return any(keyword in net_upper for keyword in POWER_KEYWORDS)
+    return (
+        _is_ground_net(net_name)
+        or _is_power_net(net_name)
+        or _is_hv_net(net_name)
+    )
 
 
 def is_high_speed_net(net_name: str) -> bool:

@@ -256,38 +256,17 @@ class DesignRules:
 
     def _is_ground_net(self, net_name: str) -> bool:
         """Check if net name matches common ground net patterns."""
-        upper = net_name.upper()
-        ground_patterns = ["GND", "GROUND", "VSS", "AGND", "DGND", "PGND"]
-        for pattern in ground_patterns:
-            if pattern in upper or upper.startswith(pattern):
-                return True
-        return False
+        from temper_placer.routing.net_classification import is_ground_net
+
+        return is_ground_net(net_name)
 
     def _is_power_net(self, net_name: str) -> bool:
         """Check if net name matches common power net patterns (excluding ground)."""
-        upper = net_name.upper()
-        # Exclude ground nets - they are handled separately
+        from temper_placer.routing.net_classification import is_power_net
+
         if self._is_ground_net(net_name):
             return False
-        power_patterns = [
-            "VCC",
-            "VDD",
-            "V+",
-            "V-",
-            "VBAT",
-            "VIN",
-            "VOUT",
-            "+5V",
-            "+3.3V",
-            "+12V",
-            "-12V",
-            "+3V3",
-            "+5V0",
-        ]
-        for pattern in power_patterns:
-            if pattern in upper or upper.startswith(pattern):
-                return True
-        return False
+        return is_power_net(net_name)
 
     def _is_gate_net(self, net_name: str) -> bool:
         """Check if net belongs to Gate Drive circuitry."""

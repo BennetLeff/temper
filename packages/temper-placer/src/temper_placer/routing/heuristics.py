@@ -296,14 +296,16 @@ def compute_net_metrics(
 
 def is_power_net(net_name: str) -> bool:
     """Check if net is a power net."""
-    power_names = ["VCC", "VDD", "3V3", "5V", "12V", "VBUS", "VBAT", "V+"]
-    return any(name in net_name.upper() for name in power_names)
+    from temper_placer.routing.net_classification import is_power_net as _is_power_net
+
+    return _is_power_net(net_name)
 
 
 def is_ground_net(net_name: str) -> bool:
     """Check if net is a ground net."""
-    ground_names = ["GND", "VSS", "AGND", "DGND", "PGND", "V-"]
-    return any(name in net_name.upper() for name in ground_names)
+    from temper_placer.routing.net_classification import is_ground_net as _is_ground_net
+
+    return _is_ground_net(net_name)
 
 
 def order_nets_for_routing(
