@@ -164,9 +164,13 @@ def run_mini_baseline(max_iter: int) -> MiniBaseline:
 
 def main() -> int:
     p = argparse.ArgumentParser()
-    p.add_argument("--max-iter", type=int, default=10_000,
-                   help="Per-A* iteration cap (default 10k; lower = "
-                        "faster smoke but more hard nets fail)")
+    p.add_argument("--max-iter", type=int, default=500_000,
+                   help="Per-A* iteration cap (default 500k; the "
+                        "sweet spot for temper.kicad_pcb -- 100k "
+                        "gives 15/24, 500k gives 24/24 in 15s, 1M "
+                        "gives 23/24 in 23s.  Below 500k the hard "
+                        "signal nets fail and the reroute loop "
+                        "extends the run.)")
     p.add_argument("--output", type=Path, default=None,
                    help="Optional path to write the JSON result")
     args = p.parse_args()
