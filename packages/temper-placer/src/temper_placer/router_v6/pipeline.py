@@ -266,6 +266,7 @@ class RouterV6Pipeline:
         target_nets: list[str] | None = None,
         fence: DRCFence | None = None,
         profiler: object | None = None,
+        skip_stage3: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -290,6 +291,7 @@ class RouterV6Pipeline:
         self.target_nets = target_nets
         self.fence = fence
         self.profiler = profiler
+        self.skip_stage3 = skip_stage3
 
     def run(self, pcb_path: Path) -> RouterV6Result:
         """
@@ -374,10 +376,26 @@ class RouterV6Pipeline:
             print("Stage 2: Channel analysis...")
         stage2 = self._run_stage2(pcb, escape_vias)
 
-        # Stage 3: Topological routing
-        if self.verbose:
-            print("Stage 3: Topological routing...")
-        stage3 = self._run_stage3(pcb, stage2)
+        # Stage 3: Topological routing.  When skip_stage3 is True,
+        # bypass the SAT solver entirely and feed Stage 4 an empty
+        # topology graph; Stage 4 falls back to the skeleton-path
+        # resolution in channel_mapping._map_net_to_channels
+        # (which already prefers _find_skeleton_path_for_net over
+        # the SAT topology).  The SAT code stays in place; this is
+        # a guarded bypass, not a removal.
+        if self.skip_stage3:
+            if self.verbose:
+                print("Stage 3: Topological routing... SKIPPED")
+            stage3 = Stage3Output(
+                constraint_model=None,
+                sat_model=None,
+                solution=None,
+                topology_graph=None,
+            )
+        else:
+            if self.verbose:
+                print("Stage 3: Topological routing...")
+            stage3 = self._run_stage3(pcb, stage2)
 
         # Stage 4: Geometric realization
         if self.verbose:
