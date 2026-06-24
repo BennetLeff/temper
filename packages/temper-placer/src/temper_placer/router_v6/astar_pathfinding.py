@@ -189,7 +189,7 @@ def run_astar_pathfinding(
 
     base_inflation = (
         design_rules.default_trace_width_mm / 2.0
-    ) + design_rules.default_clearance_mm
+    )
 
     reroute_queue: deque[str] = deque()
 
@@ -358,19 +358,23 @@ def _astar_route_with_ripup(
     Route a net, potentially ripping up blocking nets.
 
     If alternate_grid and components are provided, uses multilayer routing
-    with THT pad layer switching.
+    with layer switching at any pad (THT preferred when available).
 
     Returns:
         (RoutePath, list_of_net_ids_to_rip)
     """
-    # Try multilayer routing if alternate grid available
-    if alternate_grid and tht_locations:
+    # Try multilayer routing if alternate grid available.  The
+    # ``tht_locations`` gate is no longer required: layer switching at
+    # SMD pads is enabled when an alternate grid exists.  When THT pads
+    # are present they remain the preferred layer-switch site (handled
+    # inside ``_astar_route_multilayer``).
+    if alternate_grid:
         path = _astar_route_multilayer(
             net_name,
             channel_path,
             grid,
             alternate_grid,
-            tht_locations,
+            tht_locations or [],
             use_theta_star,
             use_lazy_theta_star,
         )
