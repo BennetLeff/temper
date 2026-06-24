@@ -484,3 +484,12 @@ The existing CI already runs `uv sync` and `ruff check` in prior steps; `import-
 5. `uv run python scripts/import_linter_gate.py` completes in under 30 seconds on CI hardware (R17).
 6. During the soft-launch period, violations do not block PRs. After cutover, they do.
 7. Allowlist additions in developer PRs pass CI without separate review (R15 self-serve).
+
+## Cutover Readiness (2026-06-24)
+
+- Allowlist: 12 entries (6 source + 6 per-file), all verified
+- Baseline: empty (all pre-existing violations resolved)
+- Phase-3 scan: 6 imports across 2 files, all allowlisted
+- Gate passes cleanly in both warn and block mode
+- Ready for 2026-07-06 cutover
+
