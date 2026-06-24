@@ -35,6 +35,14 @@ jobs:
       - name: Check header matches manifest
         run: python3 firmware/tools/check_config_matches_manifest.py
 
+      - name: Regenerate fault list and check drift
+        run: |
+          python3 firmware/tools/gen_fault_list.py
+          git diff --exit-code firmware/main/fault_list_generated.h
+
+      - name: Check fault list consistency
+        run: python3 scripts/check_fault_list_consistency.py
+
       - name: Regenerate transition table and check drift
         run: |
           python3 firmware/tools/gen_transition_table.py
@@ -43,8 +51,8 @@ jobs:
       - name: Build and run host tests
         run: |
           cmake -B firmware/test/build firmware/test
-          cmake --build firmware/test/build --target test_state_machine_only
-          ctest --test-dir firmware/test/build -R state_machine --output-on-failure
+          cmake --build firmware/test/build --target test_state_machine_only test_fault_list_only
+          ctest --test-dir firmware/test/build -R "state_machine|fault_list" --output-on-failure
 
       - name: Build and run SIL fault injection tests
         run: |
