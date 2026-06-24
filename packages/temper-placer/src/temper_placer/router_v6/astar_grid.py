@@ -56,7 +56,7 @@ def _extract_pad_centers_per_net(pcb) -> dict[str, list[tuple[float, float, floa
     Returns dictionary mapping net_name -> list of (x, y, radius, layer) coordinates.
     radius is approximated as max(width, height) / 2.
     """
-    import math
+    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_radius
 
     pad_info: dict[str, list[tuple[float, float, float, str]]] = {}
 
@@ -64,35 +64,16 @@ def _extract_pad_centers_per_net(pcb) -> dict[str, list[tuple[float, float, floa
         return pad_info
 
     for comp in pcb.components:
-        # Skip if no position or pins
         if not comp.initial_position or not hasattr(comp, "pins"):
             continue
 
-        # Get component rotation (in degrees, need to convert to radians)
-        rotation_deg = comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
-        rotation_rad = math.radians(rotation_deg)
-        side = (
-            comp.initial_side
-            if hasattr(comp, "initial_side") and comp.initial_side is not None
-            else 0
-        )
-
         for pin in comp.pins:
-            # Get pin's net
             if not pin.net:
                 continue
 
-            # Use Pin.absolute_position() method to get absolute coordinates
-            abs_pos = pin.absolute_position(comp.initial_position, rotation_rad, side)
-
-            # Approximate radius
-            pin_w = pin.width if hasattr(pin, "width") else 0.0
-            pin_h = pin.height if hasattr(pin, "height") else 0.0
-            radius = max(pin_w, pin_h) / 2.0
-            if radius == 0.0:
-                radius = 0.5  # Default fallback
-
-            layer = pin.layer if hasattr(pin, "layer") else "F.Cu"
+            abs_pos = pin_world_position(pin, comp)
+            radius = pin_world_radius(pin) or 0.5
+            layer = pin_world_layer(pin)
 
             if pin.net not in pad_info:
                 pad_info[pin.net] = []

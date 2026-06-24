@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Optional
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Net, Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 
 if TYPE_CHECKING:
     from temper_placer.routing.maze_router import RoutePath
@@ -132,21 +133,19 @@ class PDNRouter:
         for component in netlist.components:
             footprint_upper = component.footprint.upper()
             if any(ps in footprint_upper for ps in power_source_footprints):
-                comp_pos = component.initial_position or (0.0, 0.0)
                 for pin in component.pins:
                     if pin.net == net_name:
                         if any(p in pin.name.upper() for p in output_pin_patterns):
-                            pin_pos = pin.absolute_position(comp_pos, 0.0)
+                            pin_pos = pin_world_position(pin, component)
                             sources.append((component.ref, pin_pos))
                             break
 
         if not sources:
             for component in netlist.components:
-                comp_pos = component.initial_position or (0.0, 0.0)
                 for pin in component.pins:
                     if pin.net == net_name:
                         if self._is_power_source_pin(pin.name):
-                            pin_pos = pin.absolute_position(comp_pos, 0.0)
+                            pin_pos = pin_world_position(pin, component)
                             sources.append((component.ref, pin_pos))
                             break
 
