@@ -258,7 +258,7 @@ class RouterV6Pipeline:
     def __init__(
         self,
         verbose: bool = False,
-        enable_theta_star: bool = False,
+        enable_theta_star: bool = True,
         enable_lazy_theta_star: bool = False,
         enable_smoothing: bool = False,
         enable_legalization: bool = True,
