@@ -14,6 +14,11 @@ import networkx as nx
 from temper_placer.core.netlist import Component, Net
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.routing.net_classification import (
+    is_ground_net,
+    is_hv_net,
+    is_power_net,
+)
 
 
 @dataclass
@@ -31,11 +36,9 @@ def _assign_layer(net_name: str) -> str:
     """
     Assign net to preferred layer based on net class.
 
-    Power nets go to B.Cu (bottom) to free up F.Cu for signals.
+    Power, ground, and HV nets go to B.Cu (bottom) to free up F.Cu for signals.
     """
-    name_upper = net_name.upper()
-    power_keywords = ["GND", "VCC", "VBUS", "+", "PWR", "V+", "V-"]
-    if any(kw in name_upper for kw in power_keywords):
+    if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
         return "B.Cu"
     return "F.Cu"
 

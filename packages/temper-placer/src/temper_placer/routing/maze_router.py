@@ -5012,11 +5012,15 @@ def compute_net_metrics(net_name: str, pin_positions: list[tuple[float, float]])
 
 
 def _is_power_net(n: str) -> bool:
-    return any(x in n.upper() for x in ["VCC", "VDD", "3V3", "5V", "12V", "VBUS", "VBAT", "V+"])
+    from temper_placer.routing.net_classification import is_power_net as _is_power_net
+
+    return _is_power_net(n)
 
 
 def _is_ground_net(n: str) -> bool:
-    return any(x in n.upper() for x in ["GND", "VSS", "AGND", "DGND", "PGND", "V-"])
+    from temper_placer.routing.net_classification import is_ground_net as _is_ground_net
+
+    return _is_ground_net(n)
 
 
 def order_nets_for_routing(

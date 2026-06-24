@@ -27,6 +27,10 @@ from temper_placer.heuristics.base import (
     PlacementContext,
 )
 from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer.routing.net_classification import (
+    is_ground_net,
+    is_power_net,
+)
 
 # =============================================================================
 # Functional Module Clustering Heuristic (ORGANIZATIONAL priority)
@@ -561,9 +565,6 @@ def identify_decoupling_caps(
     """
     cap_to_ic: dict[str, str] = {}
 
-    # Power net patterns
-    power_patterns = ["VCC", "VDD", "VDDIO", "3V3", "5V", "+3V3", "+5V", "+15V"]
-
     # Find caps connected to power nets
     for comp in netlist.components:
         if not comp.ref.startswith("C"):
@@ -579,10 +580,9 @@ def identify_decoupling_caps(
         ground_net = None
 
         for net_name in comp_nets:
-            net_upper = net_name.upper()
-            if any(p in net_upper for p in power_patterns):
+            if is_power_net(net_name):
                 power_net = net_name
-            if "GND" in net_upper:
+            if is_ground_net(net_name):
                 ground_net = net_name
 
         # Must be connected to both power and ground

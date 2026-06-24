@@ -36,6 +36,11 @@ from temper_placer.routing.dithered_router import DitherConfig, DitheredRouter
 from temper_placer.routing.maze_router import MazeRouter, RoutePath
 from temper_placer.routing.post_processing.funnel_smoother import FunnelSmoother
 from temper_placer.routing.post_processing.trace_ballooner import TraceBallooner
+from temper_placer.routing.net_classification import (
+    GROUND_NET_PATTERNS,
+    HV_NET_PATTERNS,
+    POWER_NET_PATTERNS,
+)
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
@@ -63,15 +68,9 @@ class PipelineConfig:
     component_margin: float = 0.5   # Margin around component bounding boxes in mm
 
     power_nets: list[str] = field(
-        default_factory=lambda: [
-            "DC_BUS+",
-            "DC_BUS-",
-            "AC_L",
-            "AC_N",
-            "VCC",
-            "GND",
-            "PGND",
-        ]
+        default_factory=lambda: list(
+            GROUND_NET_PATTERNS | POWER_NET_PATTERNS | HV_NET_PATTERNS
+        )
     )
 
 
