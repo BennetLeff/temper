@@ -1,1429 +1,525 @@
-# Script Manifest — scripts/manifest.yaml
-#
-# Every script in scripts/ must have an entry.
-# Format:
-#   - path: <filename relative to scripts/>
-#     purpose: <one-line description>
-#     owner: <last modifier or responsible party>
-#     last_run: <ISO date of last known invocation, or null>
-#     category: keep | delete | ticket
-#     disposition: for keep: ci-gate | shell-invoked | utility | active-experiment
-#                  for delete: one-line reason
-#                  for ticket: ticket reference (temper-xxx)
-#     imports: <list of top-level import sources>
-#
-# See docs/plans/2026-06-22-021-feat-script-triage-sunset-plan.md
-
 _meta:
-  last_audit_date: "2026-06-22"
-  total_scripts: 63
-  counts: {'keep': 23, 'ticket': 40}
-
+  last_audit_date: '2026-06-24'
+  total_scripts: 25
+  counts:
+    keep: 23
+  ticket_scripts_deleted: 40
 scripts:
-  - path: add_power_planes.py
-    purpose: "Manually add power plane geometry to a KiCad PCB"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: utility
-    imports:
-      - pathlib
-      - re
-      - sys
-      - uuid
-      - pathlib
-      - re
-      - sys
-      - uuid
-  - path: analyze_congestion.py
-    purpose: "Post-mortem analysis of routing congestion patterns"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - collections
-      - kiutils.board
-      - kiutils.items.brditems
-      - math
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.routing.constraints
-      - temper_placer.routing.constraints.geometry
-      - collections
-      - kiutils.board
-      - kiutils.items.brditems
-      - math
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.routing.constraints
-      - temper_placer.routing.constraints.geometry
-  - path: analyze_drc.py
-    purpose: "Analyze DRC violations"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - collections
-      - datetime
-      - json
-      - pathlib
-      - sys
-      - collections
-      - datetime
-      - json
-      - pathlib
-      - sys
-  - path: analyze_drc_json.py
-    purpose: "DRC JSON analysis pipeline"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - collections
-      - kiutils.board
-      - pathlib
-      - sys
-      - temper_placer.core.design_rules
-      - temper_placer.io.kicad_parser
-      - temper_placer.routing.constraints.drc_oracle
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - collections
-      - kiutils.board
-      - pathlib
-      - sys
-      - temper_placer.core.design_rules
-      - temper_placer.io.kicad_parser
-      - temper_placer.routing.constraints.drc_oracle
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-  - path: analyze_star_ground.py
-    purpose: "Analyze star-grounding topology quality"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - jax
-      - jax.numpy
-      - optax
-      - typing
-      - jax
-      - jax.numpy
-      - optax
-      - typing
-  - path: analyze_steiner_correlation.py
-    purpose: "Correlate Steiner tree length with routing quality"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - math
-      - numpy
-      - pathlib
-      - scipy
-      - sys
-      - temper_placer.io.kicad_parser
-      - argparse
-      - dataclasses
-      - math
-      - numpy
-      - pathlib
-      - scipy
-      - sys
-      - temper_placer.io.kicad_parser
-  - path: benchmark_baselines.py
-    purpose: "Benchmark baseline placement configurations"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - jax
-      - jax.numpy
-      - pathlib
-      - rich.console
-      - rich.table
-      - statistics
-      - temper_placer.core.state
-      - temper_placer.heuristics
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses
-      - temper_placer.losses.base
-      - temper_placer.optimizer
-      - temper_placer.optimizer.config
-      - time
-      - argparse
-      - jax
-      - jax.numpy
-      - pathlib
-      - rich.console
-      - rich.table
-      - statistics
-      - temper_placer.core.state
-      - temper_placer.heuristics
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses
-      - temper_placer.losses.base
-      - temper_placer.optimizer
-      - temper_placer.optimizer.config
-      - time
-  - path: benchmark_router.py
-    purpose: "Router performance benchmark"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - jax.numpy
-      - json
-      - math
-      - pathlib
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.extraction.hypergraph_factory
-      - temper_placer.io.kicad_parser
-      - temper_placer.routing.bridge.api
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.strategy
-      - temper_placer.routing.unified_router
-      - time
-      - argparse
-      - dataclasses
-      - jax.numpy
-      - json
-      - math
-      - pathlib
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.extraction.hypergraph_factory
-      - temper_placer.io.kicad_parser
-      - temper_placer.routing.bridge.api
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.strategy
-      - temper_placer.routing.unified_router
-      - time
-  - path: benchmark_routing.py
-    purpose: "End-to-end routing benchmark"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - collections
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - tempfile
-      - time
-      - argparse
-      - collections
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - tempfile
-      - time
-  - path: bless_baselines.py
-    purpose: "Re-extract baseline metrics after intentional quality improvements (requires Ceiling-Approval)"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: utility
-    imports:
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - typing
-      - yaml
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - typing
-      - yaml
-  - path: check_coverage_gate.py
-    purpose: "Coverage gate: fail CI on zero-coverage public functions"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
-      - argparse
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - rich.console
-      - subprocess
-      - sys
-  - path: check_perf_regression.py
-    purpose: "Performance regression check (called by Makefile)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - argparse
-      - jax
-      - json
-      - os
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-      - argparse
-      - jax
-      - json
-      - os
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-  - path: check_regression.py
-    purpose: "Functional regression check (called by Makefile)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - argparse
-      - benchmark_baselines
-      - jax
-      - json
-      - pathlib
-      - rich.console
-      - rich.table
-      - statistics
-      - sys
-      - argparse
-      - benchmark_baselines
-      - jax
-      - json
-      - pathlib
-      - rich.console
-      - rich.table
-      - statistics
-      - sys
-  - path: check_traceability.py
-    purpose: "Verify @req() tags in code match plan requirements"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: utility
-    imports:
-      - __future__
-      - argparse
-      - pathlib
-      - subprocess
-      - sys
-      - __future__
-      - argparse
-      - pathlib
-      - subprocess
-      - sys
-  - path: ci_check_drc.py
-    purpose: "CI entry point: DRC ratchet check"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - pathlib
-      - sys
-      - pathlib
-      - sys
-  - path: ci_closure_test.py
-    purpose: "CI entry point: closure test (Benders -> Router -> DRC)"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - pathlib
-      - sys
-      - argparse
-      - pathlib
-      - sys
-  - path: check_manifest_gate.py
-    purpose: "CI gate: enforce scripts/manifest.yaml <-> filesystem consistency"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - pathlib
-      - re
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - sys
-  - path: check_script_sunset.py
-    purpose: "CI gate: warn on stale scripts per the 30-day sunset clock"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - sys
-      - argparse
-      - datetime
-      - json
-      - pathlib
-      - sys
-  - path: collect_routing_data.py
-    purpose: "Collect routing metrics across boards"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - jax.numpy
-      - json
-      - logging
-      - os
-      - pathlib
-      - temper_placer.io
-      - temper_placer.losses
-      - temper_placer.losses.base
-      - temper_placer.optimizer
-      - temper_placer.routing.routing_analyzer
-      - time
-      - jax.numpy
-      - json
-      - logging
-      - os
-      - pathlib
-      - temper_placer.io
-      - temper_placer.losses
-      - temper_placer.losses.base
-      - temper_placer.optimizer
-      - temper_placer.routing.routing_analyzer
-      - time
-  - path: compare_configs.py
-    purpose: "Compare placement config files"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - csv
-      - dataclasses
-      - jax
-      - jax.numpy
-      - pathlib
-      - rich.console
-      - rich.table
-      - scipy
-      - statistics
-      - sys
-      - temper_placer.core.state
-      - temper_placer.heuristics
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses
-      - temper_placer.losses.base
-      - temper_placer.optimizer
-      - temper_placer.optimizer.config
-      - time
-      - argparse
-      - csv
-      - dataclasses
-      - jax
-      - jax.numpy
-      - pathlib
-      - rich.console
-      - rich.table
-      - scipy
-      - statistics
-      - sys
-      - temper_placer.core.state
-      - temper_placer.heuristics
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses
-      - temper_placer.losses.base
-      - temper_placer.optimizer
-      - temper_placer.optimizer.config
-      - time
-  - path: compare_drc_reports.py
-    purpose: "Compare DRC reports across runs (shell-invoked)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - typing
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - typing
-  - path: correlation_analysis.py
-    purpose: "Cross-loss correlation analysis"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - multiprocessing
-      - numpy
-      - pathlib
-      - scipy
-      - subprocess
-      - sys
-      - temper_placer.io.kicad_parser
-      - temper_placer.routing.verifier
-      - tempfile
-      - typing
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - multiprocessing
-      - numpy
-      - pathlib
-      - scipy
-      - subprocess
-      - sys
-      - temper_placer.io.kicad_parser
-      - temper_placer.routing.verifier
-      - tempfile
-      - typing
-  - path: debug_diff_pair_path.py
-    purpose: "Debug differential pair path (shell-invoked)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-  - path: export_router_v6_pcb.py
-    purpose: "Export Router V6 routed output to KiCad PCB"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - json
-      - kiutils.board
-      - kiutils.items.brditems
-      - kiutils.items.common
-      - math
-      - pathlib
-      - sys
-      - temper_placer.router_v6.pipeline
-      - uuid
-      - argparse
-      - json
-      - kiutils.board
-      - kiutils.items.brditems
-      - kiutils.items.common
-      - math
-      - pathlib
-      - sys
-      - temper_placer.router_v6.pipeline
-      - uuid
-  - path: extract_corpus_baselines.py
-    purpose: "Extract baseline metrics for a single corpus board (subprocess-called by bless_baselines.py)"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: utility
-    imports:
-      - argparse
-      - datetime
-      - jax
-      - json
-      - pathlib
-      - sys
-      - yaml
-      - argparse
-      - datetime
-      - jax
-      - json
-      - pathlib
-      - sys
-      - yaml
-  - path: extract_temper_a98v_full_metrics.py
-    purpose: "Extract full metrics for temper_a98v board"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - json
-      - pathlib
-      - re
-      - statistics
-      - typing
-      - json
-      - pathlib
-      - re
-      - statistics
-      - typing
-  - path: extract_temper_a98v_metrics.py
-    purpose: "Extract metrics for temper_a98v board"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - json
-      - pathlib
-      - re
-      - statistics
-      - typing
-      - json
-      - pathlib
-      - re
-      - statistics
-      - typing
-  - path: fanout_power.py
-    purpose: "Generate power net fanout routing"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - math
-      - pathlib
-      - re
-      - sys
-      - uuid
-      - argparse
-      - dataclasses
-      - math
-      - pathlib
-      - re
-      - sys
-      - uuid
-  - path: fill_zones.py
-    purpose: "Fill zones with copper pour"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - os
-      - pcbnew
-      - sys
-      - wx
-      - os
-      - pcbnew
-      - sys
-      - wx
-  - path: finalize_board.py
-    purpose: "Finalize board for export"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - os
-      - sys
-      - os
-      - sys
-  - path: finalize_pcb.py
-    purpose: "Finalize PCB for fabrication"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - pathlib
-      - shutil
-      - subprocess
-      - sys
-      - argparse
-      - pathlib
-      - shutil
-      - subprocess
-      - sys
-  - path: fix_igbt_pinout.py
-    purpose: "Fix IGBT pinout assignment"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - pathlib
-      - re
-      - sys
-      - pathlib
-      - re
-      - sys
-  - path: force_drill_rule.py
-    purpose: "Force a specific drill rule on the PCB"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - sys
-      - sys
-  - path: generate_golden_baselines.py
-    purpose: "Generate golden baseline fixtures for tests"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: utility
-    imports:
-      - pathlib
-      - sys
-      - pathlib
-      - sys
-  - path: generate_kicad_dru.py
-    purpose: "Generate KiCad design rules from config (used by temper-drc tests)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: utility
-    imports:
-      - pathlib
-      - temper_placer.core.design_rules
-      - pathlib
-      - temper_placer.core.design_rules
-  - path: import_linter_gate.py
-    purpose: "Import boundary enforcement CI gate wrapper"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - datetime
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - datetime
-      - os
-      - pathlib
-      - re
-      - subprocess
-      - sys
-  - path: instrumented_pipeline_with_config.py
-    purpose: "Run pipeline with instrumentation hooks"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - collections
-      - pathlib
-      - sys
-      - collections
-      - pathlib
-      - sys
-  - path: inter_loss_correlation.py
-    purpose: "Inter-loss correlation analysis"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - correlation_analysis
-      - json
-      - numpy
-      - pathlib
-      - sys
-      - argparse
-      - correlation_analysis
-      - json
-      - numpy
-      - pathlib
-      - sys
-  - path: internal_route.py
-    purpose: "Internal route command (Makefile + shell-invoked)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - argparse
-      - jax.numpy
-      - math
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.trace_writer
-      - temper_placer.io.zone_manager
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - temper_placer.routing.fanout
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.maze_router
-      - temper_placer.routing.net_ordering
-      - time
-      - argparse
-      - jax.numpy
-      - math
-      - pathlib
-      - rich.console
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.trace_writer
-      - temper_placer.io.zone_manager
-      - temper_placer.routing.constraints.geometry
-      - temper_placer.routing.constraints.spatial_index
-      - temper_placer.routing.fanout
-      - temper_placer.routing.layer_assignment
-      - temper_placer.routing.maze_router
-      - temper_placer.routing.net_ordering
-      - time
-  - path: measure_structural_placement.py
-    purpose: "Measure structural placement quality"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - jax
-      - jax.numpy
-      - logging
-      - pandas
-      - pathlib
-      - temper_placer.core.board
-      - temper_placer.core.netlist
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.aesthetic
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.wirelength
-      - temper_placer.optimizer.config
-      - temper_placer.optimizer.postprocess
-      - temper_placer.optimizer.train
-      - time
-      - argparse
-      - dataclasses
-      - jax
-      - jax.numpy
-      - logging
-      - pandas
-      - pathlib
-      - temper_placer.core.board
-      - temper_placer.core.netlist
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.aesthetic
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.wirelength
-      - temper_placer.optimizer.config
-      - temper_placer.optimizer.postprocess
-      - temper_placer.optimizer.train
-      - time
-  - path: measure_usb_baseline.py
-    purpose: "Measure USB baseline routing metrics"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - pathlib
-      - re
-      - subprocess
-      - pathlib
-      - re
-      - subprocess
-  - path: patch_pcb_footprint.py
-    purpose: "Patch footprint assignments in a PCB"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - re
-      - sys
-      - re
-      - sys
-  - path: pipeline_metrics.py
-    purpose: "Record pipeline metrics to JSON for trend analysis (CI-invoked)"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - __future__
-      - datetime
-      - json
-      - math
-      - pathlib
-      - sys
-      - __future__
-      - datetime
-      - json
-      - math
-      - pathlib
-      - sys
-  - path: placement_quality_report.py
-    purpose: "Generate placement quality report (tool-helper-invoked)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - __future__
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.io
-      - temper_placer.losses.base
-      - temper_placer.metrics.quality
-      - temper_placer.routing.analysis
-      - tempfile
-      - typing
-      - __future__
-      - argparse
-      - dataclasses
-      - datetime
-      - json
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.core.netlist
-      - temper_placer.core.state
-      - temper_placer.io
-      - temper_placer.losses.base
-      - temper_placer.metrics.quality
-      - temper_placer.routing.analysis
-      - tempfile
-      - typing
-  - path: placement_routing_loop.py
-    purpose: "Iterate placement+routing loop"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - json
-      - pathlib
-      - rich.console
-      - signal
-      - time
-      - argparse
-      - dataclasses
-      - json
-      - pathlib
-      - rich.console
-      - signal
-      - time
-  - path: pre_route_power.py
-    purpose: "Pre-routing setup for power nets"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - pathlib
-      - sys
-      - uuid
-      - pathlib
-      - sys
-      - uuid
-  - path: profile_optimizer.py
-    purpose: "Profile optimizer performance"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - jax
-      - jax.numpy
-      - pathlib
-      - rich.console
-      - rich.table
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-      - argparse
-      - jax
-      - jax.numpy
-      - pathlib
-      - rich.console
-      - rich.table
-      - sys
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.boundary
-      - temper_placer.losses.overlap
-      - temper_placer.losses.regularization
-      - temper_placer.losses.wirelength
-  - path: profile_pipeline.py
-    purpose: "Profile end-to-end pipeline"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.state
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - time
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.state
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - time
-  - path: profile_usb_routing.py
-    purpose: "Profile USB routing specifically"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.deterministic.stages.clearance_grid
-      - temper_placer.routing.diff_pair_router
-      - time
-      - typing
-      - argparse
-      - dataclasses
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.deterministic.stages.clearance_grid
-      - temper_placer.routing.diff_pair_router
-      - time
-      - typing
-  - path: quick_routing_metrics.py
-    purpose: "Quick metrics dump for routing runs"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - pathlib
-      - sys
-      - temper_placer.deterministic.stages.astar
-      - temper_placer.deterministic.stages.clearance_grid
-      - temper_placer.deterministic.stages.multilayer_astar
-      - time
-      - pathlib
-      - sys
-      - temper_placer.deterministic.stages.astar
-      - temper_placer.deterministic.stages.clearance_grid
-      - temper_placer.deterministic.stages.multilayer_astar
-      - time
-  - path: refine_placement.py
-    purpose: "Refine placement after initial optimization"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - kiutils.board
-      - kiutils.items.common
-      - pathlib
-      - sys
-      - kiutils.board
-      - kiutils.items.common
-      - pathlib
-      - sys
-  - path: routing_experiments.py
-    purpose: "Routing algorithm experiment harness"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - temper_placer.deterministic.stages.astar
-      - temper_placer.deterministic.stages.clearance_grid
-      - temper_placer.deterministic.stages.multilayer_astar
-      - time
-      - typing
-      - argparse
-      - dataclasses
-      - json
-      - pathlib
-      - sys
-      - temper_placer.deterministic.stages.astar
-      - temper_placer.deterministic.stages.clearance_grid
-      - temper_placer.deterministic.stages.multilayer_astar
-      - time
-      - typing
-  - path: run_feedback_loop.py
-    purpose: "Run iterative feedback loop (shell-invoked)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - argparse
-      - datetime
-      - json
-      - logging
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.feedback
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.kicad_writer
-      - temper_placer.io.zone_manager
-      - argparse
-      - datetime
-      - json
-      - logging
-      - pathlib
-      - subprocess
-      - sys
-      - temper_placer.deterministic
-      - temper_placer.deterministic.feedback
-      - temper_placer.io.config_loader
-      - temper_placer.io.kicad_metadata
-      - temper_placer.io.kicad_parser
-      - temper_placer.io.kicad_writer
-      - temper_placer.io.zone_manager
-  - path: run_spectral.py
-    purpose: "Run spectral initialization standalone"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - matplotlib.pyplot
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-      - temper_placer.placement.analytical
-      - temper_placer.placement.spectral
-      - matplotlib.pyplot
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.io.kicad_parser
-      - temper_placer.placement.analytical
-      - temper_placer.placement.spectral
-  - path: sanitize_baseline.py
-    purpose: "Sanitize baseline metrics for committed storage"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - dataclasses
-      - kiutils.board
-      - pathlib
-      - rich.console
-      - rich.table
-      - sys
-      - typing
-      - argparse
-      - dataclasses
-      - kiutils.board
-      - pathlib
-      - rich.console
-      - rich.table
-      - sys
-      - typing
-  - path: steiner_vs_hpwl_analysis.py
-    purpose: "Compare Steiner tree vs HPWL metrics"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - __future__
-      - jax
-      - jax.numpy
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.core.netlist
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.wirelength
-      - temper_placer.routing.verifier
-      - time
-      - __future__
-      - jax
-      - jax.numpy
-      - numpy
-      - pathlib
-      - sys
-      - temper_placer.core.loop
-      - temper_placer.core.netlist
-      - temper_placer.io.kicad_parser
-      - temper_placer.losses.base
-      - temper_placer.losses.wirelength
-      - temper_placer.routing.verifier
-      - time
-  - path: trace_invocations.py
-    purpose: "Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/ references"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - sys
-      - ast
-      - json
-      - os
-      - pathlib
-      - re
-      - sys
-  - path: trace_pipeline_debug.py
-    purpose: "Trace pipeline execution for debugging"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - collections
-      - sys
-      - temper_placer.core.board
-      - collections
-      - sys
-      - temper_placer.core.board
-  - path: tune_loss_weights.py
-    purpose: "Tune loss function weights"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - json
-      - pathlib
-      - typing
-      - yaml
-      - argparse
-      - json
-      - pathlib
-      - typing
-      - yaml
-  - path: validate_footprints.py
-    purpose: "Validate footprint assignments (shell-invoked)"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: keep
-    disposition: shell-invoked
-    imports:
-      - argparse
-      - dataclasses
-      - pathlib
-      - re
-      - typing
-      - argparse
-      - dataclasses
-      - pathlib
-      - re
-      - typing
-  - path: validate_input.py
-    purpose: "Validate PCB/config input"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - json
-      - os
-      - pathlib
-      - subprocess
-      - sys
-      - json
-      - os
-      - pathlib
-      - subprocess
-      - sys
-  - path: validate_placement_bounds.py
-    purpose: "Validate placement stays within board bounds"
-    owner: unassigned
-    last_run: "2026-06-22"
-    category: ticket
-    disposition: temper-scripts-sunset
-    imports:
-      - argparse
-      - json
-      - pathlib
-      - sys
-      - typing
-      - argparse
-      - json
-      - pathlib
-      - sys
-      - typing
-  - path: vulture_gate.py
-    purpose: "Vulture dead-code CI gate: diff wrapper with baseline allowlist"
-    owner: pipeline
-    last_run: "2026-06-22"
-    category: keep
-    disposition: ci-gate
-    imports:
-      - argparse
-      - pathlib
-      - re
-      - subprocess
-      - sys
-      - argparse
-      - pathlib
-      - re
-      - subprocess
-      - sys
-
-  - path: profile_router_v6_sampling.py
-    purpose: "Profile router_v6 on a small subset of nets for sampling analysis"
-    owner: router-v6-closure-rate
-    last_run: "2026-06-23"
-    category: keep
-    disposition: utility
-    imports:
-      - argparse
-      - cProfile
-      - io
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - temper_placer.io.kicad_parser
-      - temper_placer.router_v6.pipeline
-
-  - path: full_pipeline_profile.py
-    purpose: "Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb"
-    owner: router-v6-closure-rate
-    last_run: "2026-06-23"
-    category: keep
-    disposition: utility
-    imports:
-      - argparse
-      - cProfile
-      - io
-      - json
-      - logging
-      - pathlib
-      - pstats
-      - sys
-      - time
-      - temper_placer.io.kicad_parser
-      - temper_placer.regression.closure_test
-      - temper_placer.router_v6.astar_core_numba
-      - temper_placer.router_v6.astar_pathfinding
-      - temper_placer.validation.drc_runner
-
+- path: add_power_planes.py
+  purpose: Manually add power plane geometry to a KiCad PCB
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: utility
+  imports:
+  - pathlib
+  - re
+  - sys
+  - uuid
+  - pathlib
+  - re
+  - sys
+  - uuid
+- path: bless_baselines.py
+  purpose: Re-extract baseline metrics after intentional quality improvements (requires
+    Ceiling-Approval)
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - subprocess
+  - sys
+  - typing
+  - yaml
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - subprocess
+  - sys
+  - typing
+  - yaml
+- path: check_coverage_gate.py
+  purpose: 'Coverage gate: fail CI on zero-coverage public functions'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - ast
+  - json
+  - os
+  - pathlib
+  - re
+  - rich.console
+  - subprocess
+  - sys
+  - argparse
+  - ast
+  - json
+  - os
+  - pathlib
+  - re
+  - rich.console
+  - subprocess
+  - sys
+- path: check_perf_regression.py
+  purpose: Performance regression check (called by Makefile)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - argparse
+  - jax
+  - json
+  - os
+  - pathlib
+  - rich.console
+  - sys
+  - temper_placer.io.config_loader
+  - temper_placer.io.kicad_parser
+  - temper_placer.losses.base
+  - temper_placer.losses.boundary
+  - temper_placer.losses.overlap
+  - temper_placer.losses.regularization
+  - temper_placer.losses.wirelength
+  - argparse
+  - jax
+  - json
+  - os
+  - pathlib
+  - rich.console
+  - sys
+  - temper_placer.io.config_loader
+  - temper_placer.io.kicad_parser
+  - temper_placer.losses.base
+  - temper_placer.losses.boundary
+  - temper_placer.losses.overlap
+  - temper_placer.losses.regularization
+  - temper_placer.losses.wirelength
+- path: check_regression.py
+  purpose: Functional regression check (called by Makefile)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - argparse
+  - benchmark_baselines
+  - jax
+  - json
+  - pathlib
+  - rich.console
+  - rich.table
+  - statistics
+  - sys
+  - argparse
+  - benchmark_baselines
+  - jax
+  - json
+  - pathlib
+  - rich.console
+  - rich.table
+  - statistics
+  - sys
+- path: check_traceability.py
+  purpose: Verify @req() tags in code match plan requirements
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: utility
+  imports:
+  - __future__
+  - argparse
+  - pathlib
+  - subprocess
+  - sys
+  - __future__
+  - argparse
+  - pathlib
+  - subprocess
+  - sys
+- path: ci_check_drc.py
+  purpose: 'CI entry point: DRC ratchet check'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - pathlib
+  - sys
+  - pathlib
+  - sys
+- path: ci_closure_test.py
+  purpose: 'CI entry point: closure test (Benders -> Router -> DRC)'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - pathlib
+  - sys
+  - argparse
+  - pathlib
+  - sys
+- path: check_manifest_gate.py
+  purpose: 'CI gate: enforce scripts/manifest.yaml <-> filesystem consistency'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - pathlib
+  - re
+  - sys
+  - argparse
+  - pathlib
+  - re
+  - sys
+- path: check_script_sunset.py
+  purpose: 'CI gate: warn on stale scripts per the 30-day sunset clock'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - sys
+  - argparse
+  - datetime
+  - json
+  - pathlib
+  - sys
+- path: compare_drc_reports.py
+  purpose: Compare DRC reports across runs (shell-invoked)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - dataclasses
+  - json
+  - pathlib
+  - sys
+  - typing
+  - dataclasses
+  - json
+  - pathlib
+  - sys
+  - typing
+- path: debug_diff_pair_path.py
+  purpose: Debug differential pair path (shell-invoked)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - pathlib
+  - sys
+  - temper_placer.io.kicad_parser
+  - pathlib
+  - sys
+  - temper_placer.io.kicad_parser
+- path: extract_corpus_baselines.py
+  purpose: Extract baseline metrics for a single corpus board (subprocess-called by
+    bless_baselines.py)
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - datetime
+  - jax
+  - json
+  - pathlib
+  - sys
+  - yaml
+  - argparse
+  - datetime
+  - jax
+  - json
+  - pathlib
+  - sys
+  - yaml
+- path: generate_golden_baselines.py
+  purpose: Generate golden baseline fixtures for tests
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: utility
+  imports:
+  - pathlib
+  - sys
+  - pathlib
+  - sys
+- path: generate_kicad_dru.py
+  purpose: Generate KiCad design rules from config (used by temper-drc tests)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: utility
+  imports:
+  - pathlib
+  - temper_placer.core.design_rules
+  - pathlib
+  - temper_placer.core.design_rules
+- path: import_linter_gate.py
+  purpose: Import boundary enforcement CI gate wrapper
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - datetime
+  - os
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - argparse
+  - datetime
+  - os
+  - pathlib
+  - re
+  - subprocess
+  - sys
+- path: internal_route.py
+  purpose: Internal route command (Makefile + shell-invoked)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - argparse
+  - jax.numpy
+  - math
+  - pathlib
+  - rich.console
+  - sys
+  - temper_placer.core.loop
+  - temper_placer.io.kicad_parser
+  - temper_placer.io.trace_writer
+  - temper_placer.io.zone_manager
+  - temper_placer.routing.constraints.geometry
+  - temper_placer.routing.constraints.spatial_index
+  - temper_placer.routing.fanout
+  - temper_placer.routing.layer_assignment
+  - temper_placer.routing.maze_router
+  - temper_placer.routing.net_ordering
+  - time
+  - argparse
+  - jax.numpy
+  - math
+  - pathlib
+  - rich.console
+  - sys
+  - temper_placer.core.loop
+  - temper_placer.io.kicad_parser
+  - temper_placer.io.trace_writer
+  - temper_placer.io.zone_manager
+  - temper_placer.routing.constraints.geometry
+  - temper_placer.routing.constraints.spatial_index
+  - temper_placer.routing.fanout
+  - temper_placer.routing.layer_assignment
+  - temper_placer.routing.maze_router
+  - temper_placer.routing.net_ordering
+  - time
+- path: pipeline_metrics.py
+  purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - __future__
+  - datetime
+  - json
+  - math
+  - pathlib
+  - sys
+  - __future__
+  - datetime
+  - json
+  - math
+  - pathlib
+  - sys
+- path: placement_quality_report.py
+  purpose: Generate placement quality report (tool-helper-invoked)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - __future__
+  - argparse
+  - dataclasses
+  - datetime
+  - json
+  - pathlib
+  - subprocess
+  - sys
+  - temper_placer.core.netlist
+  - temper_placer.core.state
+  - temper_placer.io
+  - temper_placer.losses.base
+  - temper_placer.metrics.quality
+  - temper_placer.routing.analysis
+  - tempfile
+  - typing
+  - __future__
+  - argparse
+  - dataclasses
+  - datetime
+  - json
+  - pathlib
+  - subprocess
+  - sys
+  - temper_placer.core.netlist
+  - temper_placer.core.state
+  - temper_placer.io
+  - temper_placer.losses.base
+  - temper_placer.metrics.quality
+  - temper_placer.routing.analysis
+  - tempfile
+  - typing
+- path: run_feedback_loop.py
+  purpose: Run iterative feedback loop (shell-invoked)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - argparse
+  - datetime
+  - json
+  - logging
+  - pathlib
+  - subprocess
+  - sys
+  - temper_placer.deterministic
+  - temper_placer.deterministic.feedback
+  - temper_placer.io.config_loader
+  - temper_placer.io.kicad_metadata
+  - temper_placer.io.kicad_parser
+  - temper_placer.io.kicad_writer
+  - temper_placer.io.zone_manager
+  - argparse
+  - datetime
+  - json
+  - logging
+  - pathlib
+  - subprocess
+  - sys
+  - temper_placer.deterministic
+  - temper_placer.deterministic.feedback
+  - temper_placer.io.config_loader
+  - temper_placer.io.kicad_metadata
+  - temper_placer.io.kicad_parser
+  - temper_placer.io.kicad_writer
+  - temper_placer.io.zone_manager
+- path: trace_invocations.py
+  purpose: Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/
+    references
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - ast
+  - json
+  - os
+  - pathlib
+  - re
+  - sys
+  - ast
+  - json
+  - os
+  - pathlib
+  - re
+  - sys
+- path: validate_footprints.py
+  purpose: Validate footprint assignments (shell-invoked)
+  owner: unassigned
+  last_run: '2026-06-22'
+  category: keep
+  disposition: shell-invoked
+  imports:
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - typing
+  - argparse
+  - dataclasses
+  - pathlib
+  - re
+  - typing
+- path: vulture_gate.py
+  purpose: 'Vulture dead-code CI gate: diff wrapper with baseline allowlist'
+  owner: pipeline
+  last_run: '2026-06-22'
+  category: keep
+  disposition: ci-gate
+  imports:
+  - argparse
+  - pathlib
+  - re
+  - subprocess
+  - sys
+  - argparse
+  - pathlib
+  - re
+  - subprocess
+  - sys
+- path: profile_router_v6_sampling.py
+  purpose: Profile router_v6 on a small subset of nets for sampling analysis
+  owner: router-v6-closure-rate
+  last_run: '2026-06-23'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - cProfile
+  - io
+  - pathlib
+  - pstats
+  - sys
+  - time
+  - temper_placer.io.kicad_parser
+  - temper_placer.router_v6.pipeline
+- path: full_pipeline_profile.py
+  purpose: Full closure-test profile with per-net A* logging; surfaces the actual
+    SM1 baseline on temper.kicad_pcb
+  owner: router-v6-closure-rate
+  last_run: '2026-06-23'
+  category: keep
+  disposition: utility
+  imports:
+  - argparse
+  - cProfile
+  - io
+  - json
+  - logging
+  - pathlib
+  - pstats
+  - sys
+  - time
+  - temper_placer.io.kicad_parser
+  - temper_placer.regression.closure_test
+  - temper_placer.router_v6.astar_core_numba
+  - temper_placer.router_v6.astar_pathfinding
+  - temper_placer.validation.drc_runner
