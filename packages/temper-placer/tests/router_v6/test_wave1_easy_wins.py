@@ -14,23 +14,27 @@ R3: Channel skeleton extraction is restricted to F.Cu and B.Cu
 from __future__ import annotations
 
 from temper_placer.router_v6.pipeline import RouterV6Pipeline
-from temper_placer.router_v6.routing_space import PLANE_NETS
+from temper_placer.routing.net_classification import (
+    is_ground_net,
+    is_power_net,
+)
 
 
 def test_r1_plane_nets_set_includes_ground_and_vcc():
-    """PLANE_NETS contains the canonical ground and power net names.
+    """Canonical net classification recognizes GND and VCC as plane nets.
 
-    Confirms the source-of-truth set the completion_rate derivation
-    reads from. If this set is empty or missing GND/VCC, R1 cannot
-    lift SM1 on the canonical temper board.
+    Confirms the canonical helpers (the source of truth for the
+    completion_rate derivation in pipeline.py) classify the most common
+    ground and power net names correctly. If these helpers regress,
+    R1 cannot lift SM1 on the canonical temper board.
     """
-    assert "GND" in PLANE_NETS, (
-        f"PLANE_NETS missing GND: {PLANE_NETS}. R1 depends on GND/VCC "
-        f"being recognized as plane nets so they count in completion_rate."
+    assert is_ground_net("GND"), (
+        "is_ground_net('GND') must be True. R1 depends on GND being "
+        "recognized as a ground net so it counts in completion_rate."
     )
-    assert "VCC" in PLANE_NETS, (
-        f"PLANE_NETS missing VCC: {PLANE_NETS}. R1 depends on VCC being "
-        f"recognized as a plane net."
+    assert is_power_net("VCC"), (
+        "is_power_net('VCC') must be True. R1 depends on VCC being "
+        "recognized as a power net."
     )
 
 

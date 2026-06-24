@@ -20,22 +20,6 @@ from temper_placer.router_v6.stage_validators import (
     register_validator,
 )
 
-PLANE_NETS: set[str] = {
-    "GND",
-    "VCC",
-    "VBUS",
-    "PGND",
-    "AGND",
-    "CGND",
-    "+3V3",
-    "+5V",
-    "+12V",
-    "+15V",
-    "V+",
-    "V-",
-    "PWR",
-}
-
 
 @dataclass
 class RoutingSpace:

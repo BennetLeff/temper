@@ -14,37 +14,14 @@ from typing import Set, Tuple
 from ..state import BoardState
 from .base import Stage
 from ...core.board import Via, Trace, PLANE_LAYER_INDICES, is_plane_layer, STANDARD_LAYER_ORDER
-
-
-# Nets that typically use plane connectivity
-PLANE_NET_PATTERNS = frozenset(
-    {
-        "GND",
-        "PGND",
-        "CGND",
-        "AGND",
-        "DGND",
-        "VSS",  # Ground nets
-        "+3V3",
-        "+5V",
-        "+12V",
-        "+15V",
-        "VCC",
-        "VDD",
-        "VBUS",  # Power nets
-    }
-)
+from ...routing.net_classification import is_ground_net, is_power_net
 
 
 def _is_plane_net(net_name: str) -> bool:
     """Check if a net typically connects via copper plane."""
     if not net_name:
         return False
-    upper = net_name.upper()
-    for pattern in PLANE_NET_PATTERNS:
-        if pattern in upper:
-            return True
-    return False
+    return is_ground_net(net_name) or is_power_net(net_name)
 
 
 class ViaValidationStage(Stage):

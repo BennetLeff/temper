@@ -51,7 +51,7 @@ def run_corpus(args: argparse.Namespace) -> int:
     from temper_placer.regression.corpus_runner import CorpusRegressionRunner
 
     runner = CorpusRegressionRunner(corpus_root=corpus_root)
-    boards = args.boards if args.boards else None
+    boards = args.board if args.board else None
     return runner.run(boards=boards, json_output=args.json)
 
 

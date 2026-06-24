@@ -1,14 +1,18 @@
 """
-Wave 5 / R12 -- net ordering with high-pin-first
+Wave 5 / R12 -- net ordering (reverted 2026-06-23)
 
-Verifies that the new ``_compute_net_order`` ranks high-pin-count
-nets first within each class (power > problem > high-pin > short).
+Verifies the **current** ``_compute_net_order``:
 
-Pre-Wave-5 behavior routed 2-pin nets before 3-pin before 4-pin
-within the signal class.  Post-Wave-5 inverts that within-class
-order; the 8-pin I_SENSE on temper.kicad_pcb now routes before
-2-pin signal nets so it can claim channel space before short
-nets crowd it.
+1. Power nets first (GND / VCC / HV / AC_ / + / VBUS).
+2. Historically problematic nets next (``astar_pathfinding.PROBLEM_NETS``).
+3. Shortest ``total_length`` first as a tie-breaker within each class.
+
+The "high-pin-first" rule (R12) was tried in commit ``99108893``
+and REGRESSED closure from 15/24 to 13/24 on ``temper.kicad_pcb``
+(deterministic across 3 runs).  Reverted in the same commit; the
+8-pin I_SENSE still hits the iter cap even with first claim, and
+routing it first blocks the 2-3 pin nets that were succeeding
+under the shortest-first order.
 """
 from __future__ import annotations
 
@@ -47,9 +51,13 @@ def test_power_nets_route_first():
     )
 
 
-def test_high_pin_signal_nets_route_before_low_pin():
-    """Wave 5 / R12: 8-pin signal nets must come before 2-pin
-    signal nets within the signal class."""
+def test_shortest_path_routes_first_within_signal_class():
+    """Post-revert: shortest ``total_length`` wins within the signal
+    class.  The earlier "high-pin-first" attempt was reverted because
+    it blocked the 2-3 pin nets that were succeeding.  This test
+    pins the current (correct) behavior; if a future attempt
+    reintroduces high-pin-first, this test will fail.
+    """
     mapping = _make_mapping([
         ("SIG_2PIN_A", 2, 5.0, False),
         ("SIG_2PIN_B", 2, 8.0, False),
@@ -63,11 +71,11 @@ def test_high_pin_signal_nets_route_before_low_pin():
     idx_3 = order.index("SIG_3PIN")
     idx_2a = order.index("SIG_2PIN_A")
     idx_2b = order.index("SIG_2PIN_B")
-    assert idx_8 < idx_4 < idx_3, (
-        f"8-pin should route before 4-pin before 3-pin, got: {order}"
-    )
-    assert idx_8 < idx_2a and idx_8 < idx_2b, (
-        f"8-pin should route before 2-pin nets, got: {order}"
+    # Shortest first: 2-pin (5,8) < 3-pin (15) < 4-pin (25) < 8-pin (80)
+    assert idx_2a < idx_2b < idx_3 < idx_4 < idx_8, (
+        f"Shortest total_length should route first within the signal "
+        f"class; got order {order} (idx_2a={idx_2a}, idx_2b={idx_2b}, "
+        f"idx_3={idx_3}, idx_4={idx_4}, idx_8={idx_8})"
     )
 
 

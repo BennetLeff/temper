@@ -71,9 +71,10 @@ def _run_monolith(pcb, escape_vias):
         channel_widths[layer_name] = compute_channel_widths(
             routing_spaces[layer_name], skeleton
         )
-    base_inflation = (
-        pcb.design_rules.default_trace_width_mm / 2.0
-    ) + pcb.design_rules.default_clearance_mm
+    # R5: base_inflation is trace_width/2 only.  The previous form
+    # included default_clearance_mm, which double-counted clearance:
+    # once by the router (inflating pad obstacles) and once by KiCad DRC.
+    base_inflation = pcb.design_rules.default_trace_width_mm / 2.0
     occupancy_grids = {}
     for layer_name, routing_space in routing_spaces.items():
         occupancy_grids[layer_name] = build_occupancy_grid(
