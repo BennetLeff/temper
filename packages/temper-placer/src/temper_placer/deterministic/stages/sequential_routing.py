@@ -13,6 +13,7 @@ from .sequential_routing_helpers import (
 )
 from ...core.board import LAYER_IDX_TO_NAME, LayerIndex, Trace, Via, layer_name_to_index
 from ...core.design_rules import DesignRules
+from ...core.pin_geometry import pin_world_position
 from ...routing.constraints.spatial_index import Track as OracleTrack, Via as OracleVia
 from ...routing.constraints.geometry import Point as OraclePoint
 from ..geometry.via_placement import PadInfo
@@ -444,7 +445,7 @@ class SequentialRoutingStage(Stage):
         # Gather all pads for via clearance checking
         all_pads_info = []
         for component in state.netlist.components:
-            comp_pos = comp_by_ref[component.ref].initial_position or (0, 0)
+            comp_for_pin = comp_by_ref[component.ref]
             for pin in component.pins:
                 # Approximate pad radius (assuming circular for clearance)
                 pad_r = 0.5
@@ -455,7 +456,7 @@ class SequentialRoutingStage(Stage):
 
                 all_pads_info.append(
                     PadInfo(
-                        position=(comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1]),
+                        position=pin_world_position(pin, comp_for_pin),
                         radius=pad_r,
                         mask_expansion=getattr(pin, "mask_expansion", 0.1),
                     )
@@ -649,13 +650,12 @@ class SequentialRoutingStage(Stage):
                 else:
                     # Fallback to netlist components (old behavior)
                     for comp in state.netlist.components:
-                        comp_pos = comp.initial_position or (0, 0)
                         for pin in comp.pins:
                             # Skip pins belonging to the diff pair nets we're routing
                             if pin.net in (net_pos_name, net_neg_name):
                                 continue
 
-                            pin_pos = (comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1])
+                            pin_pos = pin_world_position(pin, comp)
                             pin_gx = int(pin_pos[0] / grid.cell_size_mm)
                             pin_gy = int(pin_pos[1] / grid.cell_size_mm)
 

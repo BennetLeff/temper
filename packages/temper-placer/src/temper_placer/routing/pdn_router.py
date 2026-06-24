@@ -177,11 +177,10 @@ class PDNRouter:
             if component.ref in exclude:
                 continue
 
-            comp_pos = component.initial_position or (0.0, 0.0)
             for pin in component.pins:
                 if pin.net == net_name:
                     if self._is_power_load_pin(pin.name):
-                        pin_pos = pin.absolute_position(comp_pos, 0.0)
+                        pin_pos = pin_world_position(pin, component)
                         loads.append((component.ref, pin_pos, pin.name))
                         break
 
@@ -481,11 +480,9 @@ class PDNRouter:
             max_x, max_y = float("-inf"), float("-inf")
 
             for component in netlist.components:
-                comp_pos = component.initial_position or (0.0, 0.0)
                 for pin in component.pins:
                     if pin.net == ground_net:
-                        pin_x = comp_pos[0] + pin.position[0]
-                        pin_y = comp_pos[1] + pin.position[1]
+                        pin_x, pin_y = pin_world_position(pin, component)
                         min_x = min(min_x, pin_x)
                         min_y = min(min_y, pin_y)
                         max_x = max(max_x, pin_x)
