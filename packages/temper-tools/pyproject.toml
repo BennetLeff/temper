@@ -25,7 +25,6 @@ dev = [
 [project.scripts]
 temper-fix-kicad = "temper_tools.kicad.fix_schematics:main"
 temper-ato-diff = "temper_tools.ato.diff:main"
-temper-context = "temper_tools.eco.get_context:main"
 temper-route = "temper_tools.routing.route:main"
 
 [tool.hatch.build.targets.wheel]

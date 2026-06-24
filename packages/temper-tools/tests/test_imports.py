@@ -9,13 +9,6 @@ def test_kicad_imports():
     assert fix_schematics
 
 
-def test_eco_imports():
-    """Verify ECO tool modules can be imported."""
-    from temper_tools.eco import get_context
-
-    assert get_context
-
-
 def test_routing_imports():
     """Verify routing tool modules can be imported."""
     from temper_tools.routing import route
