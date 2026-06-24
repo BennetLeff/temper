@@ -1,0 +1,15 @@
+# Fault codes without SIL fault-injection scenarios.
+# New fault codes should be added to manifest.json with SIL scenarios,
+# not to this file. This file exists only for the 5 legacy entries
+# that predate the SIL manifest.
+entries:
+  - name: FAULT_NONE
+    label: "NO FAULT"
+  - name: FAULT_RUNAWAY_BOUNDARY
+    label: "RUNAWAY BOUNDARY"
+  - name: FAULT_SELF_TEST_FAILED
+    label: "SELF TEST FAIL"
+  - name: FAULT_WATCHDOG_RESET
+    label: "WATCHDOG RESET"
+  - name: FAULT_PAN_DETECT_HW
+    label: "PAN DETECT HW"

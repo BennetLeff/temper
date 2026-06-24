@@ -53,25 +53,16 @@ static const state_name_entry_t state_name_table[] = {
 #undef EXPAND_STATE_NAME
 
 /**
- * @brief Fault codes — single-source list (X-macro)
+ * @brief Fault codes — generated from firmware/test/traces/manifest.json
+ *        and firmware/tools/fault_list_supplemental.yaml.
  *
- * Add a fault: add one X(FAULT_NAME, "STRING") line.
- * The enum, FAULT_COUNT sentinel, and string-name table
- * all expand from this list automatically.
+ * To add a fault:
+ *   - With SIL scenario: add to firmware/test/traces/manifest.json
+ *   - Without SIL scenario: add to firmware/tools/fault_list_supplemental.yaml
+ *
+ * Regenerate: python3 firmware/tools/gen_fault_list.py
  */
-#define FAULT_LIST(X) \
-    X(FAULT_NONE,             "NO FAULT") \
-    X(FAULT_OVER_TEMP,        "OVER TEMP") \
-    X(FAULT_OVER_CURRENT,       "OVER CURRENT") \
-    X(FAULT_RUNAWAY_BOUNDARY,    "RUNAWAY BOUNDARY") \
-    X(FAULT_FAN_FAILURE,        "FAN FAILED") \
-    X(FAULT_PROBE_OPEN,       "PROBE OPEN") \
-    X(FAULT_PROBE_SHORT,      "PROBE SHORT") \
-    X(FAULT_THERMAL_RUNAWAY,  "THERMAL RUNAWAY") \
-    X(FAULT_SELF_TEST_FAILED, "SELF TEST FAIL") \
-    X(FAULT_WATCHDOG_RESET,   "WATCHDOG RESET") \
-    X(FAULT_COOLDOWN_OVERHEAT,"COOLDOWN FAULT") \
-    X(FAULT_PAN_DETECT_HW,    "PAN DETECT HW")
+#include "fault_list_generated.h"
 
 #define EXPAND_FAULT_ENUM(sym, str)  sym,
 typedef enum {

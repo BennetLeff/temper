@@ -20,6 +20,7 @@ from jinja2 import Environment, FileSystemLoader
 
 def parse_state_machine_header(header_path):
     """Extract STATE_*, EVENT_*, and FAULT_* members from state_machine.h."""
+    header_path = Path(header_path)
     with open(header_path, 'r') as f:
         content = f.read()
 
@@ -43,10 +44,19 @@ def parse_state_machine_header(header_path):
         for sym, name in re.findall(r'X\((\w+),\s*"([^"]+)"\)', m.group(1)):
             event_names.append((sym, name))
 
-    # Parse FAULT_LIST X-macro entries
-    m = re.search(
-        r'#define\s+FAULT_LIST\(X\)(.*?)(?:#define\s+EXPAND_FAULT_ENUM|\Z)',
-        content, re.DOTALL)
+    # Parse FAULT_LIST X-macro entries from generated file
+    fault_list_path = header_path.parent / "fault_list_generated.h"
+    if fault_list_path.exists():
+        with open(fault_list_path, 'r') as ff:
+            fault_content = ff.read()
+        m = re.search(
+            r'#define\s+FAULT_LIST\(X\)(.*?)(?:/\*|\Z)',
+            fault_content, re.DOTALL)
+    else:
+        # Fallback: parse from state_machine.h for backward compatibility
+        m = re.search(
+            r'#define\s+FAULT_LIST\(X\)(.*?)(?:#define\s+EXPAND_FAULT_ENUM|\Z)',
+            content, re.DOTALL)
     if m:
         for sym, _ in re.findall(r'X\((\w+),\s*"([^"]+)"\)', m.group(1)):
             fault_names.add(sym)

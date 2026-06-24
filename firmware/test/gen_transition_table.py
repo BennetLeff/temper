@@ -9,6 +9,7 @@ Usage:
 import re
 import sys
 import os
+from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # Transition Table (the spec)
@@ -151,6 +152,7 @@ ACTIVE_STATES = [
 def parse_state_machine_header(header_path):
     """Extract STATE_* and FAULT_* members from state_machine.h.
     Handles X-macro pattern: STATE_LIST(X) / FAULT_LIST(X)."""
+    header_path = Path(header_path)
     with open(header_path, 'r') as f:
         content = f.read()
 
@@ -172,7 +174,14 @@ def parse_state_machine_header(header_path):
             state_members.add('STATE_COUNT')
 
     # Extract from FAULT_LIST X-macro body: X(FAULT_NAME, "str")
-    fault_block = re.search(r'#define\s+FAULT_LIST\(X\)\s*\\(.*?)(?=\n\s*$|\n#define|\n#if|\n#endif|\Z)', content, re.DOTALL)
+    # Read from generated file first; fall back to state_machine.h inline
+    fault_list_path = header_path.parent / "fault_list_generated.h"
+    if fault_list_path.exists():
+        with open(fault_list_path, 'r') as ff:
+            fault_content = ff.read()
+        fault_block = re.search(r'#define\s+FAULT_LIST\(X\)\s*\\(.*?)(?=/\*|\Z)', fault_content, re.DOTALL)
+    else:
+        fault_block = re.search(r'#define\s+FAULT_LIST\(X\)\s*\\(.*?)(?=\n\s*$|\n#define|\n#if|\n#endif|\Z)', content, re.DOTALL)
     if fault_block:
         for name in re.findall(r'X\(\s*(FAULT_\w+)\s*,', fault_block.group(1)):
             fault_members.add(name)

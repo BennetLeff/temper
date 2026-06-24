@@ -109,6 +109,22 @@ add_custom_command(
 add_custom_target(gen_config DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../config.h)
 
 # ============================================================================
+# Codegen: regenerate firmware/main/fault_list_generated.h from
+#          firmware/test/traces/manifest.json + fault_list_supplemental.yaml
+# ============================================================================
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/../main/fault_list_generated.h
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/traces/manifest.json
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/fault_list_supplemental.yaml
+    COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/../tools/gen_fault_list.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+    COMMENT "Regenerating firmware/main/fault_list_generated.h from manifest.json"
+    VERBATIM
+)
+add_custom_target(gen_fault_list DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../main/fault_list_generated.h)
+
+# ============================================================================
 # Codegen: regenerate firmware/main/transition_table.h from transition_table.yaml
 # ============================================================================
 
@@ -159,7 +175,16 @@ add_executable(test_state_machine_only
 )
 target_include_directories(test_state_machine_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_state_machine_only m)
-add_dependencies(test_state_machine_only gen_config gen_transition_table)
+add_dependencies(test_state_machine_only gen_config gen_fault_list gen_transition_table)
+
+# Fault list codegen verification tests
+add_executable(test_fault_list_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_fault_list_generated.c
+)
+target_include_directories(test_fault_list_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_fault_list_only m)
+add_dependencies(test_fault_list_only gen_fault_list)
 
 # PID controller tests only
 add_executable(test_pid_only

@@ -1,1 +1,0 @@
-/usr/bin/cc -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/test_fan_guard_only.dir/unity/unity.c.o CMakeFiles/test_fan_guard_only.dir/test_main_fan_guard.c.o CMakeFiles/test_fan_guard_only.dir/test_fan_guard.c.o CMakeFiles/test_fan_guard_only.dir/Users/bennet/Desktop/temper/firmware/components/safety/fan_guard.c.o -o test_fan_guard_only

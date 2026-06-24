@@ -1,1 +1,0 @@
-/usr/bin/cc -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/test_pwm_guard_only.dir/unity/unity.c.o CMakeFiles/test_pwm_guard_only.dir/test_main_pwm_guard.c.o CMakeFiles/test_pwm_guard_only.dir/test_pwm_guard.c.o CMakeFiles/test_pwm_guard_only.dir/Users/bennet/Desktop/temper/firmware/components/safety/pwm_guard.c.o -o test_pwm_guard_only
