@@ -27,6 +27,17 @@ from temper_placer.validation.drc_runner import (
     FencePosture,
     run_drc,
 )
+from temper_placer.validation.drc_schema import (
+    DRCC_V1_SCHEMA_VERSION,
+    EMPTY_SHA256,
+    compute_board_hash,
+    compute_design_rule_set_hash,
+    compute_kicad_cli_version,
+    compute_provenance,
+    compute_router_commit,
+    from_drcc_v1,
+    to_drcc_v1,
+)
 from temper_placer.validation.drc_state import DRCC_V1, FenceState
 
 
@@ -675,3 +686,459 @@ class TestRunDrcCallSitesHavePosture:
 
         assert hasattr(drc_runner, "FencePosture")
         assert FencePosture.GATE in drc_runner.FencePosture
+
+
+# ===========================================================================
+# U3: drcc.v1.json schema (R4)
+# ===========================================================================
+
+
+class TestDrccV1SchemaVersion:
+    """The schema version is the contract; ``drcc.v1`` is the
+    wrapper's namespace, distinct from kicad-cli's ``drc.v1``.
+    """
+
+    def test_version_constant(self) -> None:
+        """The exported constant must be ``drcc.v1`` (with two c's
+        in the wrapper name — KiCad uses ``drc.v1``).
+        """
+        assert DRCC_V1_SCHEMA_VERSION == "drcc.v1"
+
+    def test_fence_state_uses_same_constant(self) -> None:
+        """The fence's schema-version check must use the same
+        constant as the schema serializer — a typo here would
+        silently make every artifact fail the FenceState check.
+        """
+        assert DRCC_V1 == DRCC_V1_SCHEMA_VERSION
+
+
+class TestToDrccV1RequiredFields:
+    """The schema must always include all required fields."""
+
+    def _clean_result(self) -> DrcResult:
+        return DrcResult(
+            error_count=0,
+            warning_count=0,
+            drc_status=DrcStatus.PASS,
+        )
+
+    def test_all_required_fields_present(self) -> None:
+        d = to_drcc_v1(
+            result=self._clean_result(),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+            provenance={
+                "board_hash": "abc",
+                "router_commit": "def",
+                "kicad_cli_version": "9.0.7",
+                "design_rule_set_hash": EMPTY_SHA256,
+            },
+        )
+        for required in (
+            "schema_version",
+            "fence_state",
+            "drc_status",
+            "posture",
+            "board_hash",
+            "router_commit",
+            "kicad_cli_version",
+            "design_rule_set_hash",
+            "summary",
+            "violations",
+            "cache_hit",
+        ):
+            assert required in d, f"missing required field: {required!r}"
+
+    def test_schema_version_is_drcc_v1(self) -> None:
+        d = to_drcc_v1(
+            result=self._clean_result(),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        assert d["schema_version"] == "drcc.v1"
+
+    def test_default_provenance_keys_present(self) -> None:
+        """When provenance is missing, the keys must still be present
+        (empty strings), not absent.  Cache invalidation depends on
+        key presence, not just values.
+        """
+        d = to_drcc_v1(
+            result=self._clean_result(),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        for key in (
+            "board_hash",
+            "router_commit",
+            "kicad_cli_version",
+            "design_rule_set_hash",
+        ):
+            assert key in d
+            assert d[key] == ""
+
+    def test_status_values_are_stringly_distinct(self) -> None:
+        """The schema serializes the enums by ``.value``, so the
+        wire format is the same as the enum's value (PASS/FAIL/
+        UNVERIFIED for status, FENCED/NOT_FENCED for fence_state,
+        REPORT/FENCE/GATE for posture).
+        """
+        for status in DrcStatus:
+            d = to_drcc_v1(
+                result=DrcResult(error_count=0, warning_count=0, drc_status=status),
+                fence_state=FenceState.FENCED,
+                posture=FencePosture.GATE,
+            )
+            assert d["drc_status"] == status.value
+
+        for state in FenceState:
+            d = to_drcc_v1(
+                result=self._clean_result(),
+                fence_state=state,
+                posture=FencePosture.GATE,
+            )
+            assert d["fence_state"] == state.value
+
+        for posture in FencePosture:
+            d = to_drcc_v1(
+                result=self._clean_result(),
+                fence_state=FenceState.FENCED,
+                posture=posture,
+            )
+            assert d["posture"] == posture.value
+
+
+class TestToDrccV1Summary:
+    """The summary block: error/warning counts + drc_clearance_pass_pct."""
+
+    def test_pass_yields_100(self) -> None:
+        d = to_drcc_v1(
+            result=DrcResult(error_count=0, warning_count=0, drc_status=DrcStatus.PASS),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        assert d["summary"]["error_count"] == 0
+        assert d["summary"]["warning_count"] == 0
+        assert d["summary"]["drc_clearance_pass_pct"] == 100.0
+
+    def test_fail_yields_penalty(self) -> None:
+        d = to_drcc_v1(
+            result=DrcResult(error_count=3, warning_count=0, drc_status=DrcStatus.FAIL),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        assert d["summary"]["error_count"] == 3
+        assert d["summary"]["drc_clearance_pass_pct"] == 70.0
+
+    def test_unverified_yields_null_pct(self) -> None:
+        """The schema's UNVERIFIED summary emits ``None`` for the
+        percentage — consistent with the U1 false-PASS fix in
+        ``measure_closure``.  A missing measurement is a hole, not
+        a 100%.
+        """
+        d = to_drcc_v1(
+            result=DrcResult(
+                error_count=0, warning_count=0, drc_status=DrcStatus.UNVERIFIED
+            ),
+            fence_state=FenceState.NOT_FENCED,
+            posture=FencePosture.FENCE,
+        )
+        assert d["summary"]["drc_clearance_pass_pct"] is None
+        assert d["drc_status"] == "UNVERIFIED"
+
+    def test_summary_override_is_respected(self) -> None:
+        """The caller can override the summary block (e.g., the
+        closure report may merge in sm1/sm6 from its own run).  The
+        override is taken verbatim.
+        """
+        override = {"error_count": 5, "warning_count": 2, "drc_clearance_pass_pct": 50.0}
+        d = to_drcc_v1(
+            result=DrcResult(error_count=0, warning_count=0, drc_status=DrcStatus.PASS),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+            summary=override,
+        )
+        assert d["summary"] == override
+
+
+class TestToDrccV1Violations:
+    """Violations are serialized as dicts; round-trip preserves them."""
+
+    def test_no_violations_yields_empty_list(self) -> None:
+        d = to_drcc_v1(
+            result=DrcResult(error_count=0, warning_count=0, drc_status=DrcStatus.PASS),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        assert d["violations"] == []
+
+    def test_errors_and_warnings_both_serialized(self) -> None:
+        result = DrcResult(
+            error_count=1,
+            warning_count=1,
+            errors=[
+                DrcError(
+                    rule="clearance",
+                    severity="error",
+                    location=(10.0, 20.0),
+                    message="Clearance violation",
+                    components=["U1", "U2"],
+                )
+            ],
+            warnings=[
+                DrcWarning(
+                    rule="silk_over_pads",
+                    severity="warning",
+                    location=(5.0, 6.0),
+                    message="Silkscreen over pad",
+                    components=["R1"],
+                )
+            ],
+            drc_status=DrcStatus.FAIL,
+        )
+        d = to_drcc_v1(
+            result=result,
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        assert len(d["violations"]) == 2
+        clearance = next(v for v in d["violations"] if v["type"] == "clearance")
+        assert clearance["severity"] == "error"
+        assert clearance["message"] == "Clearance violation"
+        assert clearance["location"] == [10.0, 20.0]
+        assert clearance["components"] == ["U1", "U2"]
+
+
+class TestToDrccV1CacheHit:
+    """The ``cache_hit`` flag distinguishes fresh measurements from
+    cached ones.  Downstream consumers may want to log cache hits.
+    """
+
+    def test_default_cache_hit_is_false(self) -> None:
+        d = to_drcc_v1(
+            result=DrcResult(error_count=0, warning_count=0, drc_status=DrcStatus.PASS),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        assert d["cache_hit"] is False
+
+    def test_cache_hit_propagates(self) -> None:
+        d = to_drcc_v1(
+            result=DrcResult(error_count=0, warning_count=0, drc_status=DrcStatus.PASS),
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+            cache_hit=True,
+        )
+        assert d["cache_hit"] is True
+
+
+class TestFromDrccV1:
+    """The inverse parser must reject unsupported schema versions."""
+
+    def test_rejects_wrong_schema_version(self) -> None:
+        with pytest.raises(ValueError, match="unsupported schema_version"):
+            from_drcc_v1(
+                {
+                    "schema_version": "drc.v1",
+                    "drc_status": "PASS",
+                    "fence_state": "fenced",
+                    "posture": "GATE",
+                    "violations": [],
+                }
+            )
+
+    def test_rejects_missing_required_field(self) -> None:
+        with pytest.raises(ValueError, match="missing required field"):
+            from_drcc_v1(
+                {
+                    "schema_version": "drcc.v1",
+                    "drc_status": "PASS",
+                    "fence_state": "fenced",
+                    # posture missing
+                    "violations": [],
+                }
+            )
+
+    def test_rejects_unknown_status_value(self) -> None:
+        with pytest.raises(ValueError):
+            from_drcc_v1(
+                {
+                    "schema_version": "drcc.v1",
+                    "drc_status": "MAYBE",
+                    "fence_state": "fenced",
+                    "posture": "GATE",
+                    "violations": [],
+                }
+            )
+
+
+class TestSchemaRoundTrip:
+    """to_drcc_v1 -> json.dumps -> json.loads -> from_drcc_v1 must
+    produce a DrcResult equivalent to the input.  This is the
+    load-bearing test: the schema is the contract surface, and a
+    round-trip mismatch is a contract bug.
+    """
+
+    def test_clean_result_round_trips(self) -> None:
+        original = DrcResult(
+            error_count=0, warning_count=0, drc_status=DrcStatus.PASS
+        )
+        d = to_drcc_v1(
+            result=original,
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        parsed, fence_state, posture = from_drcc_v1(json.loads(json.dumps(d)))
+        assert parsed.drc_status == DrcStatus.PASS
+        assert parsed.error_count == 0
+        assert parsed.warning_count == 0
+        assert fence_state is FenceState.FENCED
+        assert posture is FencePosture.GATE
+
+    def test_unverified_round_trips(self) -> None:
+        """A result with no measurement is honest: it serializes,
+        deserializes, and reads as UNVERIFIED.  The schema does not
+        pretend UNVERIFIED is a 100% pass.
+        """
+        original = DrcResult(
+            error_count=0,
+            warning_count=0,
+            drc_status=DrcStatus.UNVERIFIED,
+        )
+        d = to_drcc_v1(
+            result=original,
+            fence_state=FenceState.NOT_FENCED,
+            posture=FencePosture.FENCE,
+        )
+        assert d["violations"] == []
+        assert d["summary"]["drc_clearance_pass_pct"] is None
+        parsed, fence_state, posture = from_drcc_v1(json.loads(json.dumps(d)))
+        assert parsed.drc_status == DrcStatus.UNVERIFIED
+        assert fence_state is FenceState.NOT_FENCED
+        assert posture is FencePosture.FENCE
+
+    def test_dirty_result_round_trips(self) -> None:
+        original = DrcResult(
+            error_count=2,
+            warning_count=1,
+            errors=[
+                DrcError(
+                    rule="clearance",
+                    severity="error",
+                    location=(10.0, 20.0),
+                    message="Clearance violation",
+                    components=["U1", "U2"],
+                ),
+                DrcError(
+                    rule="courtyard_overlap",
+                    severity="error",
+                    location=(50.0, 60.0),
+                    message="Courtyard overlap",
+                    components=["R1", "C1"],
+                ),
+            ],
+            warnings=[
+                DrcWarning(
+                    rule="silk_over_pads",
+                    severity="warning",
+                    location=(5.0, 6.0),
+                    message="Silkscreen over pad",
+                    components=["R1"],
+                )
+            ],
+            drc_status=DrcStatus.FAIL,
+        )
+        d = to_drcc_v1(
+            result=original,
+            fence_state=FenceState.FENCED,
+            posture=FencePosture.GATE,
+        )
+        parsed, _, _ = from_drcc_v1(json.loads(json.dumps(d)))
+        assert parsed.drc_status == DrcStatus.FAIL
+        assert parsed.error_count == 2
+        assert parsed.warning_count == 1
+        assert parsed.errors[0].rule == "clearance"
+        assert parsed.errors[0].location == (10.0, 20.0)
+        assert parsed.warnings[0].rule == "silk_over_pads"
+
+
+class TestProvenanceHelpers:
+    """The provenance helpers compute the cache-key inputs."""
+
+    def test_board_hash_is_sha256(self, tmp_path: Path) -> None:
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        h = compute_board_hash(pcb)
+        import hashlib
+
+        assert h == hashlib.sha256(b"(kicad_pcb)").hexdigest()
+        assert len(h) == 64
+
+    def test_design_rule_set_hash_for_missing_dru(self, tmp_path: Path) -> None:
+        """No companion ``.kicad_dru`` → ``EMPTY_SHA256``."""
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        assert compute_design_rule_set_hash(pcb) == EMPTY_SHA256
+
+    def test_design_rule_set_hash_for_existing_dru(self, tmp_path: Path) -> None:
+        pcb = tmp_path / "board.kicad_pcb"
+        dru = tmp_path / "board.kicad_dru"
+        pcb.write_text("(kicad_pcb)")
+        dru.write_text("(kicad_dru contents)")
+        import hashlib
+
+        assert compute_design_rule_set_hash(pcb) == hashlib.sha256(
+            b"(kicad_dru contents)"
+        ).hexdigest()
+
+    def test_kicad_cli_version_present(self) -> None:
+        """When kicad-cli is installed, the helper returns a non-empty
+        string.  When missing, empty string.  Either way, no exception.
+        """
+        v = compute_kicad_cli_version()
+        import shutil
+
+        if shutil.which("kicad-cli"):
+            assert v
+        else:
+            assert v == ""
+
+    def test_compute_provenance_has_all_keys(self, tmp_path: Path) -> None:
+        pcb = tmp_path / "board.kicad_pcb"
+        pcb.write_text("(kicad_pcb)")
+        prov = compute_provenance(pcb)
+        assert "board_hash" in prov
+        assert "router_commit" in prov
+        assert "kicad_cli_version" in prov
+        assert "design_rule_set_hash" in prov
+        # board_hash is computed from the file content; the others may
+        # be empty if git / kicad-cli is unavailable in the test env.
+        assert prov["board_hash"] != ""
+
+
+class TestFenceStateReadsSchemaVersion:
+    """The fence and the schema must agree on the version constant.
+
+    A typo in either place would silently make every artifact fail
+    the FenceState check.  This test is a guard against that drift.
+    """
+
+    def test_fence_state_uses_drcc_v1(self, tmp_path: Path) -> None:
+        """An artifact with ``schema_version='drcc.v1'`` and a fresh
+        mtime is FENCED.  An artifact with any other version is
+        NOT_FENCED.  The fence does not silently accept other
+        versions.
+        """
+        router = tmp_path / "temper.kicad_pcb"
+        router.write_text("(kicad_pcb)")
+        import os
+
+        os.utime(router, (100.0, 100.0))
+
+        artifact = tmp_path / "drcc.v1.json"
+        artifact.write_text(json.dumps({"schema_version": "drcc.v1"}))
+        os.utime(artifact, (200.0, 200.0))
+        assert FenceState.check(artifact, router) is FenceState.FENCED
+
+        artifact.write_text(json.dumps({"schema_version": "drc.v1"}))
+        os.utime(artifact, (200.0, 200.0))
+        assert FenceState.check(artifact, router) is FenceState.NOT_FENCED
