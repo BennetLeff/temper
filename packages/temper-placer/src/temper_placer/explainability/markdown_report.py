@@ -374,7 +374,7 @@ def render_markdown_report(
     trace: DecisionTrace,
     include_config: bool = True,
     include_positions: bool = True,
-    max_decisions_per_component: int = 10,
+    _max_decisions_per_component: int = 10,
 ) -> str:
     """Generate a complete markdown report from a decision trace.
 

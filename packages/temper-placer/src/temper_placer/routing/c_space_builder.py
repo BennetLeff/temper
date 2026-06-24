@@ -10,11 +10,10 @@ except ImportError:
     cv2 = None  # type: ignore
 
 try:
-    import shapely
+    import shapely  # noqa: F401  # side-effect import; HAS_SHAPELY read by tests
     HAS_SHAPELY = True
 except ImportError:
     HAS_SHAPELY = False
-    shapely = None  # type: ignore
 
 import numpy as np
 

@@ -214,7 +214,7 @@ class TracedLossContext:
         self._token = _active_traced_ctx.set(self)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, _exc_type, _exc_val, _exc_tb):
         if self._token:
             _active_traced_ctx.reset(self._token)
 

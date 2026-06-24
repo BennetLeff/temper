@@ -5,7 +5,6 @@ from enum import Enum
 import subprocess
 import re
 import time
-from typing import Self
 
 __all__ = [
     "ViolationSeverity",

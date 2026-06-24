@@ -264,7 +264,7 @@ def timing_check(
     margin: float,
     floor_ms: float,
     json_output: bool,
-    ci_mode: bool,
+    _ci_mode: bool,
 ) -> None:
     """Compare current pipeline timing against committed baselines."""
     from temper_placer.profiling.timing_gate import (

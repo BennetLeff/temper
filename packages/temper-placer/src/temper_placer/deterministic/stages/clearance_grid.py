@@ -700,7 +700,7 @@ class ClearanceGrid:
         output_path: str,
         layer: int = 0,
         component_positions: dict = None,
-        highlight_nets: list = None,
+        _highlight_nets: list = None,
     ):
         """Export clearance grid as a PNG visualization.
 
@@ -713,7 +713,6 @@ class ClearanceGrid:
         try:
             import matplotlib.pyplot as plt
             import matplotlib.patches as mpatches
-            from matplotlib.colors import ListedColormap
         except ImportError:
             print("WARNING: matplotlib not available, skipping visualization")
             return

@@ -33,7 +33,6 @@ from temper_placer.routing.fanout import FanoutConfig
 from temper_placer.routing.current_capacity_strategy import (
     CurrentCapacityStrategy,
     select_current_capacity_strategy,
-    get_strategy_description,
 )
 
 
@@ -265,7 +264,7 @@ class UnifiedRouter:
         end_pos: tuple[float, float],
         assignment: "LayerAssignment",
         trace_width: float = 0.2,
-        trace_clearance: float = 0.2,
+        _trace_clearance: float = 0.2,
     ) -> tuple[list[ps.Segment], int, str | None]:
         """
         Route between two pins using push-shove pathfinding.
@@ -276,7 +275,7 @@ class UnifiedRouter:
             end_pos: End position in world coordinates
             assignment: Layer assignment
             trace_width: Trace width in mm
-            trace_clearance: Trace clearance in mm
+            _trace_clearance: Trace clearance in mm
 
         Returns:
             (segments, via_count, failure_reason)

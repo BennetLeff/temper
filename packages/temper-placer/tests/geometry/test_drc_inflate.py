@@ -13,7 +13,7 @@ from temper_placer.geometry.drc_inflate import (
 
 def _has_shapely():
     try:
-        import shapely
+        import shapely  # noqa: F401  # side-effect import for availability check
         return True
     except ImportError:
         return False

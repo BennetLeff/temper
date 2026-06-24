@@ -11,7 +11,7 @@ class InterruptGuard:
         return self
     def __exit__(self, *args):
         self.restore()
-    def _handler(self, sig, frame):
+    def _handler(self, sig, _frame):
         self.interrupted = True
     def restore(self):
         if self._original is not None:
