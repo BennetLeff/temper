@@ -613,7 +613,14 @@ def _dispatch_search(grid, start, goal, use_theta_star: bool, use_lazy_theta_sta
         return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1)
     if use_theta_star:
         return _astar_search_theta_star(grid, start, goal, net_id=-1)
-    return _astar_search(start, goal, grid)
+    # 2D plain A*.  Delegate to the Numba-jitted kernel when available
+    # and the grid is small enough that the overhead of building the
+    # bit tensor (once per call) is amortized.  Falls through to the
+    # pure-Python _astar_search otherwise.
+    from temper_placer.router_v6.astar_core_numba import (
+        _astar_search_numba,
+    )
+    return _astar_search_numba(start, goal, grid)
 
 
 def _segment_search(
