@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ideation: Temper Next Steps</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #555;
+  --accent: #2563eb;
+  --accent-soft: #eef2ff;
+  --accent-text: #1d4ed8;
+  --border: #e5e7eb;
+  --warn: #d97706;
+  --warn-soft: #fff7ed;
+  --good: #059669;
+  --good-soft: #ecfdf5;
+  --muted: #6b7280;
+  --radius: 6px;
+  --measure: 72ch;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px; line-height: 1.6; color: var(--text);
+  background: var(--bg);
+  padding: 2rem 1rem;
+}
+.page {
+  max-width: 920px; margin: 0 auto;
+}
+h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+h2 { font-size: 1.25rem; font-weight: 600; margin: 2.5rem 0 1rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 1.2rem 0 0.5rem; }
+p, li { max-width: var(--measure); }
+p { margin-bottom: 0.75rem; }
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85em; background: var(--accent-soft); padding: 0.1em 0.35em;
+  border-radius: 3px; color: var(--accent-text);
+}
+strong { color: inherit; }
+
+/* Metadata header */
+.meta {
+  margin-bottom: 2rem; padding: 1rem 1.25rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.meta dl { display: flex; flex-wrap: wrap; gap: 0.3rem 2rem; }
+.meta dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 500; }
+.meta dd { font-weight: 500; }
+
+/* Axis strip */
+.axis-strip { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0 1.25rem; }
+.axis-chip {
+  display: inline-block; font-size: 0.78rem; font-weight: 500;
+  padding: 0.2em 0.7em; border-radius: 20px;
+  background: var(--accent-soft); color: var(--accent-text);
+  border: 1px solid var(--accent);
+}
+
+/* Jump list */
+.jump-list { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0 1.5rem; }
+.jump-list a { font-size: 0.85rem; font-weight: 500; color: var(--accent); text-decoration: none; }
+.jump-list a:hover { text-decoration: underline; }
+
+/* Idea cards */
+article.idea {
+  margin-bottom: 1.5rem; padding: 1.25rem 1.5rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+}
+article.idea h3 { margin-top: 0; font-size: 1.1rem; }
+.idea-eyebrow {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600; color: var(--accent); margin-bottom: 0.25rem;
+}
+.idea-meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0; }
+.chip {
+  display: inline-block; font-size: 0.75rem; font-weight: 500;
+  padding: 0.15em 0.6em; border-radius: 14px; border: 1px solid var(--border);
+}
+.chip-axis { background: var(--accent-soft); color: var(--accent-text); border-color: var(--accent); }
+.chip-conf-high { background: var(--good-soft); color: var(--good); border-color: var(--good); }
+.chip-conf-med { background: var(--warn-soft); color: var(--warn); border-color: var(--warn); }
+.chip-cx { background: #f3f4f6; color: var(--text-secondary); }
+
+.idea-field { margin-bottom: 0.5rem; }
+.idea-field dt { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 0.15rem; }
+.idea-field dd { max-width: var(--measure); }
+
+.basis-tag {
+  display: inline-block; font-size: 0.72rem; font-weight: 600; margin-right: 0.3rem;
+  padding: 0.1em 0.5em; border-radius: 3px; text-transform: uppercase;
+}
+.basis-direct { background: #dcfce7; color: #166534; }
+.basis-external { background: #dbeafe; color: #1e40af; }
+.basis-reasoned { background: #fef3c7; color: #92400e; }
+
+/* Rejection table */
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+th { text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; padding: 0.5rem 0.75rem; border-bottom: 2px solid var(--border); }
+td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) td { background: #f9fafb; }
+
+/* Footer */
+footer.composition-signal {
+  margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  font-size: 0.78rem; color: var(--muted);
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Metadata -->
+<section class="meta">
+  <h1>Ideation: Temper Next Steps</h1>
+  <dl>
+    <dt>Date</dt><dd>2026-06-24</dd>
+    <dt>Topic</dt><dd>temper-next-steps</dd>
+    <dt>Focus</dt><dd>Next steps grounded in recent solution docs and project state</dd>
+    <dt>Mode</dt><dd>repo-grounded</dd>
+  </dl>
+</section>
+
+<!-- Grounding Context -->
+<h2>Grounding Context</h2>
+<p><strong>Codebase Context — Temper:</strong> high-power induction cooker with automated PCB design pipeline. Multi-language: C (ESP32-S3 firmware, 8-state machine), Python/JAX (placement optimizer temper-placer), KiCad (schematics/PCB). Multi-package monorepo under <code>packages/</code>. CI-gated with coverage gate (monotonic-shrink allowlist), import-linter (hard-launch 2026-07-06), script manifest + sunset clock, and deadcode gate.</p>
+
+<p><strong>Key findings from 18 solution docs (2026-06-22 to 2026-06-24):</strong></p>
+<ul>
+  <li><strong>Router V6 closure: DONE at 100% SM1.</strong> After iter-cap change, temper.kicad_pcb routes all 24 nets in 15s. Three Wave 5 workstreams deferred (not needed for current board).</li>
+  <li><strong>Completion Rate Wall: 33%.</strong> Despite 47× speedup (19s pipeline), only 8/24 nets route — 10 stuck nets blocked by 6mm HV creepage clearances.</li>
+  <li><strong>7 placement-awareness features</strong> implemented in worktrees but unmerged. All share "wired in unit tests but not in production" failure pattern.</li>
+  <li><strong>SSOT consolidation: 2/4 complete.</strong> LayerIndex IntEnum done; Pin World Position partial (4 rotation-blind call sites deferred); Net Classification and A* Primitives not started.</li>
+  <li><strong>8 A* implementations</strong> (~9,250 lines) with duplicated heuristics. Code says "Always use MultiLayerAStar" but 7 other copies still exist.</li>
+  <li><strong>2 missing fault codes:</strong> FAULT_IGBT_SHORT and FAULT_ADC_STUCK in SIL manifest and test runner but absent from state_machine.h X-macro.</li>
+  <li><strong>Import-linter deadline: July 6, 2026</strong> (~2 weeks). 238-line allowlist. 193 coverage-allowlist entries.</li>
+  <li><strong>Repo clutter:</strong> 70 root artifact files, 7 stale worktrees (137-141 commits behind), dead 602MB temper-placer/ directory.</li>
+</ul>
+
+<!-- Topic Axes -->
+<h2>Topic Axes</h2>
+<div class="axis-strip">
+  <span class="axis-chip">1. Placer completion rate</span>
+  <span class="axis-chip">2. SSOT consolidation</span>
+  <span class="axis-chip">3. Firmware safety hardening</span>
+  <span class="axis-chip">4. CI/process hardening</span>
+  <span class="axis-chip">5. Repo hygiene &amp; process</span>
+</div>
+
+<!-- Ranked Ideas -->
+<h2>Ranked Ideas</h2>
+<p>7 survivors from 47 raw candidates across 5 ideation frames, verified and adversarially filtered. Full per-idea detail below.</p>
+
+<nav class="jump-list">
+  <a href="#i1">1. Manifest-Driven Fault Enum Codegen</a>
+  <a href="#i2">2. SSOT Coordinate Decommissioning</a>
+  <a href="#i3">3. Consolidate 8 A* to 1 Survivor</a>
+  <a href="#i4">4. Hardest-First Net Ordering</a>
+  <a href="#i5">5. Import-Linter Allowlist Freeze</a>
+  <a href="#i6">6. Sidecar-as-Contract Feedback Loop</a>
+  <a href="#i7">7. Gitignore Root-Anchor + Worktree Cleanup</a>
+</nav>
+
+<!-- Idea 1 -->
+<article class="idea" id="i1">
+  <div class="idea-eyebrow">TOP PICK</div>
+  <h3>1. Manifest-Driven Fault Enum Codegen</h3>
+  <div class="idea-meta">
+    <span class="chip chip-axis">Firmware safety hardening</span>
+    <span class="chip chip-conf-high">Confidence 85%</span>
+    <span class="chip chip-cx">Complexity Low</span>
+  </div>
+  <dl class="idea-field">
+    <dt>Description</dt>
+    <dd>Generate <code>FAULT_LIST</code> X-macro and fault-name string table from <code>firmware/test/traces/manifest.json</code> at build time. FAULT_IGBT_SHORT and FAULT_ADC_STUCK exist in the SIL fault-injection manifest (10 scenarios, ≤2-tick and ≤52-tick latency targets) and in the test runner (<code>test_sm_fault_on_igbt_short</code>, <code>test_sm_fault_on_adc_stuck</code>), but are absent from <code>state_machine.h</code>'s FAULT_LIST X-macro. The manifest is already the de facto SSOT for fault existence — the tests depend on it. Extend the existing codegen pipeline (already generates <code>config.h</code> from YAML and <code>transition_table.h</code> from YAML) to read manifest.json and produce the enum, string table, and injection harness entries. Adding a fault to the manifest automatically adds it everywhere.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Basis</dt>
+    <dd><span class="basis-tag basis-direct">direct</span> evidence-firmware-hardening.md:31 — "FAULT_IGBT_SHORT and FAULT_ADC_STUCK absent from FAULT_LIST. grep across firmware/main/ returns zero matches."</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Rationale</dt>
+    <dd>Two safety-critical fault conditions (IGBT short = catastrophic silicon failure; ADC stuck = loss of temperature sensing) have no production code path. The tests give false confidence — they reference enum values that don't compile. Codegen closes the gap permanently and prevents recurrence: the manifest already owns fault definitions; the X-macro is a stale copy. Let the machine maintain the copy.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Downsides</dt>
+    <dd>Requires build-system integration with the codegen step. Adds a dependency from the C build to a Python script reading JSON.</dd>
+  </dl>
+</article>
+
+<!-- Idea 2 -->
+<article class="idea" id="i2">
+  <h3>2. SSOT Coordinate Decommissioning — Delete <code>pin.absolute_position()</code></h3>
+  <div class="idea-meta">
+    <span class="chip chip-axis">SSOT consolidation</span>
+    <span class="chip chip-conf-high">Confidence 90%</span>
+    <span class="chip chip-cx">Complexity Medium</span>
+  </div>
+  <dl class="idea-field">
+    <dt>Description</dt>
+    <dd>Delete <code>pin.absolute_position()</code> from the Pin type. Force all ~20 call sites through <code>pin_world_position(pin, comp)</code>, which correctly applies rotation and side-mirror transforms. Four rotation-blind call sites (<code>fine_pitch_escape.py:135,212</code>, <code>drc_sweep.py:194</code>, <code>via_validation.py:200</code>, <code>unified_router.py:630</code>) compute <code>comp_pos + pin.position</code> without accounting for rotation or bottom-side mounting — producing <em>geometrically wrong</em> world coordinates for rotated and bottom-side components. Add a CI gate (grep for <code>comp.position + pin.position</code> in temper-placer source) to prevent regression.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Basis</dt>
+    <dd><span class="basis-tag basis-direct">direct</span> evidence-ssot-consolidation.md:19-36 — Part 2 of 4-part SSOT plan: "Pin World Position — PARTIAL (4+1 deferred call sites)." The 4 rotation-blind sites compute comp_pos + pin.position without rotation. pin_world_position(pin, comp) applies rotation &amp; side-mirror.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Rationale</dt>
+    <dd>This is a geometric correctness issue, not a code-quality cleanup. Every DRC violation report and routing failure diagnosis that passed through <code>via_validation.py:200</code> or <code>drc_sweep.py:194</code> may have operated on wrong world coordinates. Fixing the 4 rotation-blind sites is a correctness fix mislabeled as consolidation. Decommissioning the wrong path (not just deprecating it) is the proven SSOT pattern already demonstrated by LayerIndex.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Downsides</dt>
+    <dd>~20 call sites need migration. The 4 rotation-blind sites were deferred because they need a <code>pin_world_position_at(pin, comp, position_override)</code> variant — that surface must be designed first.</dd>
+  </dl>
+</article>
+
+<!-- Idea 3 -->
+<article class="idea" id="i3">
+  <h3>3. Consolidate 8 A* Implementations to 1 Survivor</h3>
+  <div class="idea-meta">
+    <span class="chip chip-axis">SSOT consolidation</span>
+    <span class="chip chip-conf-high">Confidence 85%</span>
+    <span class="chip chip-cx">Complexity Medium</span>
+  </div>
+  <dl class="idea-field">
+    <dt>Description</dt>
+    <dd>Delete 7 of 8 A* pathfinding implementations (~8,500 lines across DeterministicAStar, MultiLayerAStar, BidirectionalAStar, astar_core, astar_pathfinding, fast_router, python_astar, maze_router inline). Declare <code>router_v6/astar_pathfinding.py</code> (733 lines, the Router V6 production pathfinder) as the canonical survivor. The code itself says "Always use MultiLayerAStar (has Cython support) — removed old Python-only DeterministicAStar" at <code>sequential_routing.py:1543</code> — yet DeterministicAStar still exists. SSOT consolidation Part 4 (A* primitives) is stalled — deletion is cheaper than refactoring and achieves the same goal. Run a regression matrix first: benchmark all 8 against temper.kicad_pcb with same iter caps to confirm behavioral equivalence, surfacing which are safe to delete.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Basis</dt>
+    <dd><span class="basis-tag basis-direct">direct</span> evidence-ssot-consolidation.md:61-82 — 8 files, ~9,250 lines, duplicated heuristics, neighbor expansion, and path reconstruction. sequential_routing.py:1543: "Always use MultiLayerAStar."</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Rationale</dt>
+    <dd>Every new routing feature (via infrastructure, escape routing, multi-layer) currently has 8 places it could be implemented. One survivor eliminates the "which A* do I modify?" question and frees ~8,500 lines of maintenance burden. The regression matrix converts "we think these are dead" into "we know these produce identical output" — the measurement prerequisite the SSOT track needs.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Downsides</dt>
+    <dd>The regression matrix must be built and run. Numba fast_router and Cython MultiLayerAStar serve different performance profiles — the survivor may need both code paths under one roof.</dd>
+  </dl>
+</article>
+
+<!-- Idea 4 -->
+<article class="idea" id="i4">
+  <h3>4. Hardest-First Net Ordering (Medical Triage)</h3>
+  <div class="idea-meta">
+    <span class="chip chip-axis">Placer completion rate</span>
+    <span class="chip chip-conf-med">Confidence 70%</span>
+    <span class="chip chip-cx">Complexity Low</span>
+  </div>
+  <dl class="idea-field">
+    <dt>Description</dt>
+    <dd>Route the most-constrained nets first instead of sequentially. The 33% completion wall exists because nets with many degrees of freedom (SPI, PWM) consume scarce routing channels before the 6mm-constrained nets (GATE_H, GATE_L, I_SENSE) have a chance. Triage nets by <em>degrees of routing freedom</em> — how many viable paths exist given clearance constraints — and route the hardest nets first. The netclass data already tells you which nets have HV clearance requirements; no new infrastructure needed. If routing GATE_H first bumps completion from 33% to 50%, that's a 17-point gain from a sort comparator.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Basis</dt>
+    <dd><span class="basis-tag basis-direct">direct</span> exp11_gate_internal_routing/REPORT.md:9-10 — IEC 60335 6mm clearance as root cause for GATE_H, GATE_L, PWM_H, PWM_L, I_SENSE failures.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Rationale</dt>
+    <dd>This is the cheapest possible completion-rate improvement — no new data, no new algorithm, just reorder the routing queue. The retry caps and 120s budget in the router are defensive code that exists <em>because</em> the router spends budget on nets that were never going to succeed. Hardest-first ordering removes the need for those caps: the hard nets get first claim on contested channels.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Downsides</dt>
+    <dd>Degrees-of-freedom estimation from netclass data is approximate — an HV net between adjacent pads may have more routing freedom than an LV net across the board. The triage score may need refinement.</dd>
+  </dl>
+</article>
+
+<!-- Idea 5 -->
+<article class="idea" id="i5">
+  <h3>5. Import-Linter Allowlist Freeze at July 6 Hard-Launch</h3>
+  <div class="idea-meta">
+    <span class="chip chip-axis">CI/process hardening</span>
+    <span class="chip chip-conf-high">Confidence 90%</span>
+    <span class="chip chip-cx">Complexity Low</span>
+  </div>
+  <dl class="idea-field">
+    <dt>Description</dt>
+    <dd>Freeze the 238-line import-linter allowlist at the July 6 hard-launch. After cutover: no new allowlist entries except via explicit PR approval with a referenced ticket. Auto-escalate any new import that happens to match an existing allowlist regex as a distinct violation — preventing new coupling from hiding behind old waivers. Add a shrinkage-rate metric published as a CI artifact so decomposition velocity is visible. This converts the allowlist from a catch-all into a ratchet that shrinks monotonically, consistent with the CI-gate meta-pattern proven across 9 sprints.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Basis</dt>
+    <dd><span class="basis-tag basis-direct">direct</span> evidence-ci-hardening.md:5-9 — CUTOVER_DATE = datetime.date(2026, 7, 6), soft-launch until then. import-linter-boundary-enforcement-ratchet doc: 238-line allowlist with regex patterns.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Rationale</dt>
+    <dd>Without a freeze rule, the 238 waived entries create a shadow baseline that enables new violations to hide behind existing regex patterns. The strangler-fig decomposition stalls because new coupling can always be waived. The freeze is the natural policy — the soft-launch period was for resolving existing violations, not accumulating new waivers.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Downsides</dt>
+    <dd>Legitimate new architectural exceptions (e.g., a new package that needs to cross a boundary) must go through explicit approval. The approval process adds friction but the friction is the point.</dd>
+  </dl>
+</article>
+
+<!-- Idea 6 -->
+<article class="idea" id="i6">
+  <h3>6. Sidecar-as-Contract Place-Route Feedback Loop</h3>
+  <div class="idea-meta">
+    <span class="chip chip-axis">Placer completion rate</span>
+    <span class="chip chip-conf-med">Confidence 75%</span>
+    <span class="chip chip-cx">Complexity Medium</span>
+  </div>
+  <dl class="idea-field">
+    <dt>Description</dt>
+    <dd>Formalize <code>placement.channels.json</code> as a required Stage contract (not optional enrichment). After routing, the router MUST produce a <code>bottleneck_report.json</code> sidecar; the placer MUST consume it on the next iteration. The iterative place-route loop skeleton already exists (<code>pipeline/iterative_placer.py</code>, <code>pipeline/iterator.py</code>, <code>pipeline/orchestrator.py</code> with <code>max_iterations=5</code>, <code>routability_threshold=0.85</code>) but has unresolved TODOs at <code>pipeline/feedback.py:129,132</code>. The Stage protocol pattern (declared writes/reads fields) is the exact mechanism to enforce "router writes bottleneck_report, placer reads bottleneck_report." This makes the 7 placement features compound: each feature ships into a system that iterates rather than being a one-shot dead-end optimization.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Basis</dt>
+    <dd><span class="basis-tag basis-direct">direct</span> dsn-universal-seam-eda-pipelines doc lines 79-91 — sidecar pattern documented as optional. evidence-placer-completion.md:128-132 — "Stage-2 channel analysis output is a measurement surface for placement optimization."</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Rationale</dt>
+    <dd>This is the compound-interest move for the placer axis. The 7 placement features are currently dead-end optimizations — you run once and stop. With the sidecar contract, ghost-pad creates room → router reports remaining bottlenecks → channel-aware scoring consumes that report → next placement is better. The feedback loop multiplies the value of every placement feature shipped into it.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Downsides</dt>
+    <dd>The feedback loop adds latency (multiple route-place cycles). The closure test would need to measure convergence rate, not just final completion. If the router's bottleneck report is noisy, the loop may oscillate.</dd>
+  </dl>
+</article>
+
+<!-- Idea 7 -->
+<article class="idea" id="i7">
+  <h3>7. Gitignore Root-Anchor + Stale Worktree Cleanup</h3>
+  <div class="idea-meta">
+    <span class="chip chip-axis">Repo hygiene &amp; process</span>
+    <span class="chip chip-conf-high">Confidence 95%</span>
+    <span class="chip chip-cx">Complexity Low</span>
+  </div>
+  <dl class="idea-field">
+    <dt>Description</dt>
+    <dd>Three concrete hygiene moves: (1) Anchor <code>*.log</code>, <code>*.txt</code>, <code>*.bak</code> to root (<code>/*.log</code>, <code>/*.txt</code>, <code>/*.bak</code>) so they only match root-level artifacts — preventing recursive data loss where a legitimate <code>packages/foo/debug.log</code> would be silently gitignored. (2) Create a worktree deaccessioning policy: for each of the 7 stale worktrees (137-141 commits behind main, last committed June 23), audit whether the code was extracted to main — if yes, remove; if no, extract then remove. (3) Extract useful boards and routing snapshots from the dead 602MB <code>temper-placer/</code> into <code>tests/fixtures/</code> as a curated test corpus, then delete the rest. All three are one-time passes with lasting benefit.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Basis</dt>
+    <dd><span class="basis-tag basis-direct">direct</span> evidence-repo-hygiene.md:26-28 — recursive *.log/*.txt/*.bak patterns miss root-anchoring. Lines 36-47 — 7 feature worktrees 137-141 commits behind. Lines 57-68 — dead 602MB temper-placer/ directory.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Rationale</dt>
+    <dd>The recursive gitignore patterns are a data-loss risk — a developer adds a debug.log to a package, commits, and git silently ignores it. Root-anchoring forces intent to be explicit. The worktree audit answers the question blocking the placer axis: "what did we already build, and what's still worth extracting?" The fixture extraction gives the closure test a richer corpus so it catches the 33% completion wall before it ships.</dd>
+  </dl>
+  <dl class="idea-field">
+    <dt>Downsides</dt>
+    <dd>Root-anchoring means intentional per-package .gitignore files must declare their own ignores — but that's the explicit-intent goal. Fixture extraction from the dead temper-placer/ requires judgment about which artifacts are representative.</dd>
+  </dl>
+</article>
+
+<!-- Rejection Summary -->
+<h2>Rejection Summary</h2>
+<p>40 ideas cut from 47 raw candidates. Reasons below.</p>
+<table>
+<thead>
+<tr><th>#</th><th>Idea</th><th>Reason Rejected</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Production-Wiring CI Gate</td><td>Mechanism (callgraph profiling with provable zero production reachability) is research-grade, not a shippable CI gate. Strong diagnosis, weak prescription.</td></tr>
+<tr><td>2</td><td>Route All Nets Simultaneously (PathFinder negotiation)</td><td>Duplicates Idea #6 (Sidecar-as-Contract) — the feedback loop with measured bottleneck reports achieves the same convergence without requiring a new negotiation algorithm.</td></tr>
+<tr><td>3</td><td>Inline Router V6 as JAX-Differentiable Congestion Loss</td><td>Ambitious but the congestion tensor as a differentiable loss requires plumbing that doesn't exist. The Sidecar contract (Idea #6) achieves the same feedback with existing infrastructure.</td></tr>
+<tr><td>4</td><td>Pre-Compute Congestion Before Placement (Route-First)</td><td>Major architectural inversion with thin evidence. Router V6 just hit 100% with the current flow. Weaker than Idea #4 (Hardest-First Ordering) which achieves measurable gain with no architectural change.</td></tr>
+<tr><td>5</td><td>HV Clearance Zones as LV Routing Corridors</td><td>Clever but unverified. Requires the router to understand clearance zone ownership — new infrastructure. Deferred behind Idea #4 which requires no new router capability.</td></tr>
+<tr><td>6</td><td>Multi-Board Placer Generalization</td><td>Sound direction but high effort. Deferred: ship the 7 placement features to main first, then generalize.</td></tr>
+<tr><td>7</td><td>Unified Routability Oracle (merge 7 features)</td><td>Sound consolidation but depends on first merging the 7 features. Deferred as the step after feature integration, not before it.</td></tr>
+<tr><td>8</td><td>Net Classification from Schematic Topology</td><td>Strong idea but high effort (KiCad schematic parsing, netlist graph walking). Deferred behind the coordinate decommissioning which is higher-urgency correctness work.</td></tr>
+<tr><td>9</td><td>Reframe Firmware as 2-State Safety Architecture</td><td>Major refactoring. The safety gap it fixes (FAULT/COOLDOWN skipping interlock checks) is real but lower urgency than the missing fault codes (Idea #1).</td></tr>
+<tr><td>10</td><td>Implementation-Driven Safety Documentation</td><td>Valuable but lower urgency than fixing the two missing fault codes. Generated docs are downstream of the codegen fix in Idea #1.</td></tr>
+<tr><td>11</td><td>Activate Traceability (Opt-Out)</td><td>Low confidence — verifier couldn't confirm traceability infrastructure exists on disk. The 60 @req annotations may not be real.</td></tr>
+<tr><td>12</td><td>CI Gate Coverage Matrix (SOX 404)</td><td>Useful audit but not actionable before July 6. The allowlist freeze (Idea #5) is the higher-urgency CI move.</td></tr>
+<tr><td>13</td><td>DSN Boundary Registration Cascaded with Feature Wiring</td><td>Process improvement that depends on feature wiring happening. Deferred until the 7 features ship.</td></tr>
+<tr><td>14</td><td>temper-placer/ Tombstone → Test-Fixture Corpus</td><td>Folded into Idea #7 (Repo Hygiene) as part of the combined cleanup pass.</td></tr>
+<tr><td>15</td><td>KiCad Plugin Instead of Batch Pipeline</td><td>Scope overrun — complete delivery-model change. The entire pipeline architecture assumes batch operation. Subject replacement.</td></tr>
+<tr><td>16</td><td>Deterministic Script Archive</td><td>Lower urgency than the import-linter deadline. Deferred to post-July-6 cleanup sprint.</td></tr>
+<tr><td>17</td><td>Dead-Code Confidence Scoring</td><td>Folded into existing Vulture baseline process — the confidence tier is an enhancement, not a standalone next step.</td></tr>
+<tr><td>18</td><td>Spatial LOD Obstacle Maps (Game Engine Frustum Culling)</td><td>Intriguing cross-domain analogy but requires significant router refactoring. Deferred behind the cheaper Idea #4 and Idea #6.</td></tr>
+<tr><td>19</td><td>Submarine Distributed Voting → Sensor Fault Completeness</td><td>Folded into Idea #1 — the codegen fix that adds missing fault codes achieves the same sensor-fault completeness.</td></tr>
+<tr><td>20</td><td>Museum Deaccessioning → Worktree Lifecycle</td><td>Folded into Idea #7 as the worktree audit component.</td></tr>
+<tr><td>21</td><td>Immune Thymic Selection → Negative-Selection Test Gate</td><td>Duplicates Idea #1 (Production-Wiring CI Gate) — same mechanism, same research-grade concern.</td></tr>
+<tr><td>22</td><td>Medical Triage → Hardest-First Net Ordering</td><td>This IS Idea #4 — cross-domain analogy that survived as a ranked pick.</td></tr>
+<tr><td>23</td><td>Survey Control Network → Coordinate SSOT by Removal</td><td>This IS Idea #2 — cross-domain analogy that survived as a ranked pick.</td></tr>
+<tr><td>24</td><td>ATC Slot Allocation → Pre-placement Capacity Reservation</td><td>Duplicates the Route-First approach — same architectural inversion, same thin-evidence concern.</td></tr>
+<tr><td>25</td><td>X-Macro as SSOT for Transition Table Gen</td><td>Folded into Idea #1 — manifest-driven codegen is the cleaner SSOT direction.</td></tr>
+<tr><td>26</td><td>Opt-Out Traceability</td><td>See #11 above.</td></tr>
+<tr><td>27</td><td>Fault-Code Manifest Cross-Check CI Gate</td><td>Folded into Idea #1 — codegen eliminates the divergence instead of just detecting it.</td></tr>
+<tr><td>28</td><td>Router Regression Matrix (8 A* benchmark)</td><td>Folded into Idea #3 as the prerequisite measurement step before deletion.</td></tr>
+<tr><td>29–40</td><td>Remaining 12 candidates</td><td>Below ambition floor after deduplication: too vague, not actionable, duplicates stronger survivors, or too expensive relative to likely value. Specifics: 9-state→2-state reframing (duplicates #9), Zero-State Firmware (below floor), SIL-3 ATTiny Co-Processor (below floor — hardware change), 100-Board Meta-Optimizer (below floor — research project), Budget=$0 Open-Source Toolchain (scope overrun — KiCad removal), Team=1 Simplification (below floor — not a next step), Delete CI Gates Without Bug Catch (below floor — destructive without measurement surface), Safety-Sufficient Autorouting (duplicates #4 — same reframing of the 33% wall), No-HV-Clearance Experiment (below floor — thought experiment, not a shipped feature), Script Sunset→Import-Linter Cascade (folded into #5 as the shrinkage-rate metric), Vulture Entrypoint Gating (duplicates #1), Auto-Delete Stale Worktrees via CI Gate (folded into #7).</td></tr>
+</tbody>
+</table>
+
+<footer class="composition-signal">
+  Composed 2026-06-24 by ce-ideate from Temper project state and 18 solution docs (2026-06-22 to 2026-06-24).
+</footer>
+
+</div>
+</body>
+</html>
