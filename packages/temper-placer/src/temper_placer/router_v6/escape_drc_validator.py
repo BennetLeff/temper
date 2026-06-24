@@ -11,6 +11,7 @@ import math
 from dataclasses import dataclass
 
 from temper_placer.core.netlist import Component
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.router_v6.escape_via_generator import EscapeVia
 from temper_placer.router_v6.stage0_data import DesignRules
 
@@ -150,7 +151,7 @@ def _check_via_pad_spacing(
             angle = float(comp.initial_rotation) * math.pi / 2.0
 
         for pin in comp.pins:
-            pin_pos = pin.absolute_position((comp_x, comp_y), angle)
+            pin_pos = pin_world_position(pin, comp)
             # Conservative radius for pad
             pin_radius = max(pin.width, pin.height) / 2.0
 

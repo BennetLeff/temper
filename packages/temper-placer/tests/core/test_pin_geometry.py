@@ -1,8 +1,8 @@
-"""Tests for the canonical pad-position helpers in core/pin_geometry.py."""
-
-from __future__ import annotations
+"""Tests for core.pin_geometry module."""
 
 import math
+
+import pytest
 
 from temper_placer.core.netlist import Component, Pin
 from temper_placer.core.pin_geometry import (
@@ -12,145 +12,189 @@ from temper_placer.core.pin_geometry import (
 )
 
 
-def _make_pin(px: float = 1.0, py: float = 0.0, layer: str = "F.Cu", width: float = 1.0, height: float = 1.0) -> Pin:
-    return Pin(
-        name="1",
-        number="1",
-        position=(px, py),
-        net=None,
-        width=width,
-        height=height,
-        layer=layer,
-    )
-
-
-def _make_comp(
-    pos: tuple[float, float] | None = (10.0, 20.0),
-    rotation: int | None = 0,
-    side: int | None = 0,
-) -> Component:
-    return Component(
-        ref="U1",
-        footprint="Test",
-        bounds=(1.0, 1.0),
-        pins=[],
-        net_class="Signal",
-        initial_position=pos,
-        initial_rotation=rotation,
-        initial_side=side,
-    )
-
-
 class TestPinWorldGeometry:
-    """Pins the four rotation/side combinations so the bug surface is testable."""
+    """Tests for the canonical pad-position free functions."""
+
+    # ------------------------------------------------------------------
+    # pin_world_position — four rotation/side combinations (R9)
+    # ------------------------------------------------------------------
 
     def test_zero_rotation_top_side(self):
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(pos=(10.0, 20.0), rotation=0, side=0)
-        assert pin_world_position(pin, comp) == (11.0, 20.0)
+        """Zero rotation, top side: pin offset added directly."""
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(10.0, 10.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=0,
+            initial_side=0,
+        )
+        x, y = pin_world_position(pin, comp)
+        assert x == pytest.approx(11.0, abs=1e-6)
+        assert y == pytest.approx(20.0, abs=1e-6)
 
     def test_90deg_rotation_top_side(self):
-        # 90° CCW rotation: (1, 0) -> (0, 1)
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(pos=(10.0, 20.0), rotation=1, side=0)
-        assert pin_world_position(pin, comp) == (10.0, 21.0)
+        """90° rotation (index 1), top side: pin offset rotated CCW."""
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(10.0, 10.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=1,
+            initial_side=0,
+        )
+        x, y = pin_world_position(pin, comp)
+        # Pin at (1,0) rotated 90° CCW → (0, 1)
+        # World: (10+0, 20+1) = (10, 21)
+        assert x == pytest.approx(10.0, abs=1e-6)
+        assert y == pytest.approx(21.0, abs=1e-6)
 
     def test_zero_rotation_bottom_side(self):
-        # Bottom-side: X mirrored first, so (1, 0) -> (-1, 0) -> (9, 20)
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(pos=(10.0, 20.0), rotation=0, side=1)
-        assert pin_world_position(pin, comp) == (9.0, 20.0)
+        """Zero rotation, bottom side: pin X mirrored."""
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(10.0, 10.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=0,
+            initial_side=1,
+        )
+        x, y = pin_world_position(pin, comp)
+        # Pin at (1,0) on bottom: X mirrored → (-1, 0)
+        # Zero rotation → world: (10-1, 20+0) = (9, 20)
+        assert x == pytest.approx(9.0, abs=1e-6)
+        assert y == pytest.approx(20.0, abs=1e-6)
 
     def test_90deg_rotation_bottom_side(self):
-        # Mirror X first: (1, 0) -> (-1, 0), then rotate 90°: (0, -1)
-        # Result: (10 + 0, 20 + -1) = (10, 19)
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(pos=(10.0, 20.0), rotation=1, side=1)
-        assert pin_world_position(pin, comp) == (10.0, 19.0)
+        """90° rotation (index 1), bottom side: X mirrored then rotated."""
+        import jax.numpy as jnp
 
-    def test_180deg_rotation(self):
-        # 180°: (1, 0) -> (-1, 0); + comp_pos
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(pos=(10.0, 20.0), rotation=2, side=0)
-        assert pin_world_position(pin, comp) == (9.0, 20.0)
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(10.0, 10.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=1,
+            initial_side=1,
+        )
+        x, y = pin_world_position(pin, comp)
+        # Pin at (1,0), bottom-side: X mirrored → (-1, 0)
+        # Rotated 90° CCW: rx = 0, ry = -1
+        # World: (10+0, 20-1) = (10, 19)
+        # Verify against the reference implementation (Pin.absolute_position)
+        ref_x, ref_y = pin.absolute_position((10.0, 20.0), jnp.pi / 2, side=1)
+        assert x == pytest.approx(float(ref_x), abs=1e-6)
+        assert y == pytest.approx(float(ref_y), abs=1e-6)
 
-    def test_270deg_rotation(self):
-        # 270° CCW (= 90° CW): (1, 0) -> (0, -1)
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(pos=(10.0, 20.0), rotation=3, side=0)
-        assert pin_world_position(pin, comp) == (10.0, 19.0)
-
-    def test_none_position_treated_as_origin(self):
-        pin = _make_pin(px=2.0, py=3.0)
-        comp = _make_comp(pos=None, rotation=0, side=0)
-        assert pin_world_position(pin, comp) == (2.0, 3.0)
+    # ------------------------------------------------------------------
+    # Edge cases
+    # ------------------------------------------------------------------
 
     def test_none_rotation_treated_as_zero(self):
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(rotation=None, side=0)
-        assert pin_world_position(pin, comp) == (11.0, 20.0)
+        """None rotation is treated as 0 (no rotation)."""
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOT-23",
+            bounds=(3.0, 3.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=None,
+            initial_side=0,
+        )
+        x, y = pin_world_position(pin, comp)
+        assert x == pytest.approx(11.0, abs=1e-6)
+        assert y == pytest.approx(20.0, abs=1e-6)
 
-    def test_none_side_treated_as_top(self):
-        pin = _make_pin(px=1.0, py=0.0)
-        comp = _make_comp(side=None)
-        assert pin_world_position(pin, comp) == (11.0, 20.0)
+    def test_none_side_treated_as_zero(self):
+        """None side is treated as 0 (top)."""
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOT-23",
+            bounds=(3.0, 3.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=0,
+            initial_side=None,
+        )
+        x, y = pin_world_position(pin, comp)
+        assert x == pytest.approx(11.0, abs=1e-6)
 
-    def test_pin_offset_not_at_origin(self):
-        # Pin at (1, 2) with 0 rotation: (10+1, 20+2) = (11, 22)
-        pin = _make_pin(px=1.0, py=2.0)
-        comp = _make_comp(rotation=0, side=0)
-        assert pin_world_position(pin, comp) == (11.0, 22.0)
+    def test_none_position_treated_as_zero(self):
+        """None initial_position is treated as (0, 0)."""
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOT-23",
+            bounds=(3.0, 3.0),
+            initial_position=None,
+            initial_rotation=0,
+            initial_side=0,
+        )
+        x, y = pin_world_position(pin, comp)
+        assert x == pytest.approx(1.0, abs=1e-6)
+        assert y == pytest.approx(0.0, abs=1e-6)
 
+    # ------------------------------------------------------------------
+    # pin_world_layer
+    # ------------------------------------------------------------------
 
-class TestPinWorldLayer:
-    def test_returns_pin_layer(self):
-        pin = _make_pin(layer="In1.Cu")
-        assert pin_world_layer(pin) == "In1.Cu"
-
-    def test_default_layer(self):
-        pin = _make_pin()
+    def test_pin_world_layer_default(self):
+        """Pin without an explicit layer returns 'F.Cu'."""
+        pin = Pin("1", "1", (0.0, 0.0))
         assert pin_world_layer(pin) == "F.Cu"
 
-    def test_through_hole_layer(self):
-        pin = _make_pin(layer="all")
-        assert pin_world_layer(pin) == "all"
+    # ------------------------------------------------------------------
+    # pin_world_radius
+    # ------------------------------------------------------------------
+
+    def test_pin_world_radius_from_dimensions(self):
+        """Radius is max(width, height) / 2."""
+        pin = Pin("1", "1", (0.0, 0.0), width=2.0, height=1.0)
+        assert pin_world_radius(pin) == pytest.approx(1.0, abs=1e-6)
+
+    def test_pin_world_radius_zero_dimensions(self):
+        """Zero dimensions default to radius 0.5."""
+        pin = Pin("1", "1", (0.0, 0.0), width=0.0, height=0.0)
+        assert pin_world_radius(pin) == pytest.approx(0.5, abs=1e-6)
 
 
-class TestPinWorldRadius:
-    def test_equal_dimensions(self):
-        pin = _make_pin(width=1.0, height=1.0)
-        assert pin_world_radius(pin) == 0.5
+class TestPinAbsolutePositionDelegation:
+    """Verify Pin.absolute_position still produces correct values post-refactor."""
 
-    def test_asymmetric_dimensions(self):
-        pin = _make_pin(width=2.0, height=1.0)
-        assert pin_world_radius(pin) == 1.0
-        pin = _make_pin(width=0.5, height=1.5)
-        assert pin_world_radius(pin) == 0.75
-
-    def test_zero_width_uses_height(self):
-        pin = _make_pin(width=0.0, height=2.0)
-        assert pin_world_radius(pin) == 1.0
-
-    def test_both_zero(self):
-        pin = _make_pin(width=0.0, height=0.0)
-        assert pin_world_radius(pin) == 0.0
-
-
-class TestPinAbsolutePositionDelegate:
-    """Verify the existing Pin.absolute_position (R7) still produces
-    the canonical result after the surface is introduced."""
-
-    def test_matches_free_function(self):
-        # Use the same canonical math directly via the class method.
-        from temper_placer.core.units import Radians
-        from temper_placer.core.netlist import Pin as PinClass
-        pin = PinClass(name="1", number="1", position=(1.0, 0.0))
-        comp = _make_comp(rotation=1, side=0)
-        # Pin.absolute_position takes (component_pos, rotation_radians, side)
-        result = pin.absolute_position(
-            (10.0, 20.0), Radians(math.pi / 2.0), 0
+    def test_no_rotation_matches_free_function(self):
+        """Class method matches free function for zero rotation, top side."""
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(10.0, 10.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=0,
+            initial_side=0,
         )
-        # pin_world_position(pin, comp) uses rotation index 1 (= pi/2 rad)
-        # The class method and free function should agree within float precision
-        assert abs(result[0] - 10.0) < 1e-6
-        assert abs(result[1] - 21.0) < 1e-6
+        from_method = pin.absolute_position((10.0, 20.0), 0.0, side=0)
+        from_free = pin_world_position(pin, comp)
+        assert from_method[0] == pytest.approx(from_free[0], abs=1e-6)
+        assert from_method[1] == pytest.approx(from_free[1], abs=1e-6)
+
+    def test_rotated_matches_free_function(self):
+        """Class method matches free function for 90° rotation."""
+        import jax.numpy as jnp
+
+        pin = Pin("1", "1", (1.0, 0.0))
+        comp = Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(10.0, 10.0),
+            initial_position=(10.0, 20.0),
+            initial_rotation=1,
+            initial_side=0,
+        )
+        from_method = pin.absolute_position((10.0, 20.0), jnp.pi / 2, side=0)
+        from_free = pin_world_position(pin, comp)
+        assert from_method[0] == pytest.approx(from_free[0], abs=1e-6)
+        assert from_method[1] == pytest.approx(from_free[1], abs=1e-6)

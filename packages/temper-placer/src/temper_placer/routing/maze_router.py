@@ -28,6 +28,7 @@ from jax import Array
 
 from temper_placer.core.board import Board, Zone, Trace
 from temper_placer.core.netlist import Component, Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.io.kicad_parser import TraceData, ViaData
 from temper_placer.routing.fast_router import (
     HAS_NUMBA,
@@ -1650,7 +1651,7 @@ class MazeRouter:
             rot_rad = rot_idx * (math.pi / 2)
 
             for pin in comp.pins:
-                px, py = pin.absolute_position((cx, cy), rot_rad, side_idx)
+                px, py = pin_world_position(pin, comp)
 
                 # Get pad size (default to 1mm if not specified)
                 pad_w = getattr(pin, "width", 1.0)
@@ -1829,7 +1830,7 @@ class MazeRouter:
         self, comp: Component, cx: float, cy: float, escape_length: int | None = None
     ) -> None:
         for pin in comp.pins:
-            px, py = cx + pin.position[0], cy + pin.position[1]
+            px, py = pin_world_position(pin, comp)
             elen = (
                 escape_length
                 if escape_length is not None
@@ -3017,7 +3018,7 @@ class MazeRouter:
 
                 for pin in comp.pins:
                     if pin.name == pin_name or pin.number == pin_name:
-                        px, py = pin.absolute_position((cx, cy), rot_rad, side_idx)
+                        px, py = pin_world_position(pin, comp)
 
                         # Generate keys
                         keys = [
@@ -3291,11 +3292,7 @@ class MazeRouter:
                         if pin.name == pin_name or pin.number == pin_name:
                             side = comp.initial_side or 0
                             pin_positions.append(
-                                pin.absolute_position(
-                                    tuple(positions[comp_idx]),
-                                    math.radians((comp.initial_rotation or 0) * 90),
-                                    side=side,
-                                )
+                                pin_world_position(pin, comp)
                             )
                             pin_sides.append(side)
                             break
@@ -4923,7 +4920,7 @@ class MazeRouter:
             side = comp.initial_side or 0
 
             for pin in comp.pins:
-                abs_pos = pin.absolute_position(tuple(pos), rot, side=side)
+                abs_pos = pin_world_position(pin, comp)
                 # Map layer string/name to index
                 l_idx = 0
                 if pin.layer == "B.Cu":

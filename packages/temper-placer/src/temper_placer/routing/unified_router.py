@@ -26,6 +26,7 @@ from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.routing import push_shove as ps
 from temper_placer.routing.maze_router import MazeRouter
 from temper_placer.routing.escape_router import EscapeRouter
@@ -626,10 +627,7 @@ class UnifiedRouter:
                 comp_idx = netlist.components.index(comp)
                 comp_pos = positions[comp_idx]
 
-                pin_world = (
-                    float(comp_pos[0]) + pin.position[0],
-                    float(comp_pos[1]) + pin.position[1],
-                )
+                pin_world = pin_world_position(pin, comp)
                 pin_positions.append(pin_world)
 
             if len(pin_positions) < 2:
@@ -769,11 +767,7 @@ class UnifiedRouter:
                         comp = netlist.components[comp_idx]
                         pin = comp.get_pin(pin_name)
                         if pin:
-                            pos = pin.absolute_position(
-                                tuple(positions[comp_idx]),
-                                math.radians((comp.initial_rotation or 0) * 90),
-                                side=comp.initial_side or 0
-                            )
+                            pos = pin_world_position(pin, comp)
                             pos_pins.append(pos)
             elif net.name == net_neg:
                 for comp_ref, pin_name in net.pins:
@@ -782,11 +776,7 @@ class UnifiedRouter:
                         comp = netlist.components[comp_idx]
                         pin = comp.get_pin(pin_name)
                         if pin:
-                            pos = pin.absolute_position(
-                                tuple(positions[comp_idx]),
-                                math.radians((comp.initial_rotation or 0) * 90),
-                                side=comp.initial_side or 0
-                            )
+                            pos = pin_world_position(pin, comp)
                             neg_pins.append(pos)
         
         if len(pos_pins) < 2 or len(neg_pins) < 2:

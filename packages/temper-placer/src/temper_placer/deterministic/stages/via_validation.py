@@ -14,6 +14,7 @@ from typing import Set, Tuple
 from ..state import BoardState
 from .base import Stage
 from ...core.board import Via, Trace, PLANE_LAYER_INDICES, is_plane_layer, STANDARD_LAYER_ORDER
+from ...core.pin_geometry import pin_world_position
 from ...routing.net_classification import is_ground_net, is_power_net
 
 
@@ -174,7 +175,7 @@ class ViaValidationStage(Stage):
             comp_pos = comp_positions.get(comp.ref, comp.initial_position or (0, 0))
 
             for pin in comp.pins:
-                pin_pos = (comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1])
+                pin_pos = pin_world_position(pin, comp)
 
                 if pin.is_pth:
                     # PTH pins are on all layers

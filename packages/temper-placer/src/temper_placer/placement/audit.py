@@ -11,6 +11,7 @@ from typing import List, Tuple
 from shapely.geometry import Polygon, box
 from shapely.affinity import rotate, translate
 from temper_placer.router_v6.stage0_data import ParsedPCB
+from temper_placer.core.pin_geometry import pin_world_position
 import math
 
 
@@ -51,8 +52,7 @@ class PlacementAuditor:
                     # Use Pin.absolute_position if available
                     if hasattr(pin, "absolute_position"):
                         # side=0 (Top) assumed for now as initial_side might be None
-                        side = comp.initial_side if comp.initial_side is not None else 0
-                        abs_pos = pin.absolute_position((x, y), rot_rad, side)
+                        abs_pos = pin_world_position(pin, comp)
                         points.append(abs_pos)
                     else:
                         # Fallback if pin is just a struct without methods

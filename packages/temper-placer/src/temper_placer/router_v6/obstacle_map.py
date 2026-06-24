@@ -17,6 +17,7 @@ from shapely.geometry import MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 
 from temper_placer.core.netlist import Pin
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.escape_via_generator import EscapeVia
@@ -60,7 +61,7 @@ def build_obstacle_map(pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> dict[str
 
         for pin in comp.pins:
             # Get absolute position
-            px, py = pin.absolute_position((comp_x, comp_y), angle)
+            px, py = pin_world_position(pin, comp)
 
             # Create pad geometry
             # Approximate as bounding box for Rect, or buffered point for Circle

@@ -12,6 +12,7 @@ from dataclasses import dataclass
 import networkx as nx
 
 from temper_placer.core.netlist import Component, Net
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
 from temper_placer.routing.net_classification import (
@@ -341,7 +342,7 @@ def _find_skeleton_path_for_net(
                 comp_x, comp_y = comp.initial_position or (0.0, 0.0)
                 angle = float(comp.initial_rotation or 0) * math.pi / 2.0
                 side = comp.initial_side if hasattr(comp, 'initial_side') and comp.initial_side is not None else 0
-                pos = pin.absolute_position((comp_x, comp_y), angle, side)
+                pos = pin_world_position(pin, comp)
                 pin_positions.append(pos)
     
     if len(pin_positions) < 2:

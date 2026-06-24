@@ -11,6 +11,7 @@ from temper_placer.core.board import (
     STANDARD_LAYER_ORDER,
 )
 from temper_placer.routing.constraints.drc_oracle import INTERNAL_LAYER_CREEPAGE_FACTOR
+from temper_placer.core.pin_geometry import pin_world_position
 
 
 # @req(2026-06-23-005, R2): Layer-aware creepage factor.
@@ -963,7 +964,7 @@ class ClearanceGridStage(Stage):
                     continue
 
                 for pin in component.pins:
-                    pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
+                    pin_pos = pin_world_position(pin, component)
 
                     pad_radius = 0.5
                     pad_width = 1.0

@@ -11,6 +11,7 @@ import math
 from dataclasses import dataclass
 
 from temper_placer.core.netlist import Component
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.router_v6.dense_package_detection import DensePackage
 from temper_placer.router_v6.stage0_data import DesignRules
 
@@ -79,7 +80,7 @@ def generate_escape_vias(
         # Determine via position
         if strategy == "via-in-pad":
             # Via in center of pad
-            abs_pos = pin.absolute_position((comp_x, comp_y), angle)
+            abs_pos = pin_world_position(pin, component)
 
             escape_vias.append(EscapeVia(
                 position=abs_pos,
@@ -91,7 +92,7 @@ def generate_escape_vias(
             ))
 
         elif strategy == "dog-bone":
-            pin_abs_pos = pin.absolute_position((comp_x, comp_y), angle)
+            pin_abs_pos = pin_world_position(pin, component)
 
             # Valid candidates for BGA/Grid dogbone (relative to pin in component space)
             # We try 4 diagonals: (+half_pitch, +half_pitch), etc.
@@ -187,7 +188,7 @@ def _is_position_valid(
         # BUT, standard BGA pitch might barely fit.
         # Let's check pure geometric overlap.
 
-        p_pos = pin.absolute_position(comp_pos, comp_angle)
+        p_pos = pin_world_position(pin, component)
 
         # Approximate pin as circle with radius = max(width, height)/2
         # This is conservative for rectangular pads.

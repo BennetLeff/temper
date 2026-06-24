@@ -11,6 +11,7 @@ from ...core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
 from ..state import BoardState
 from .base import Stage
 from ...core.board import Trace, Via
+from ...core.pin_geometry import pin_world_position
 
 
 class DRCSweepStage(Stage):
@@ -191,7 +192,7 @@ class ShortCircuitDetectionStage(Stage):
         for comp in state.netlist.components:
             comp_pos = comp_positions.get(comp.ref, comp.initial_position or (0, 0))
             for pin in comp.pins:
-                pin_pos = (comp_pos[0] + pin.position[0], comp_pos[1] + pin.position[1])
+                pin_pos = pin_world_position(pin, comp)
                 # Find net for this pin
                 for net in state.netlist.nets:
                     if (comp.ref, pin.name) in net.pins or (comp.ref, pin.number) in net.pins:

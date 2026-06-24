@@ -18,6 +18,7 @@ from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.overlap import (
     compute_pairwise_distances,
@@ -392,10 +393,7 @@ def _compute_wirelength_metrics(
                 angle = rotation_angles[rot_idx]
 
                 # Compute absolute pin position
-                abs_pos = pin.absolute_position(
-                    (float(comp_pos[0]), float(comp_pos[1])),
-                    angle,
-                )
+                abs_pos = pin_world_position(pin, comp)
                 pin_positions.append(abs_pos)
             except (KeyError, IndexError):
                 continue

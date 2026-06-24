@@ -4,6 +4,7 @@ import math
 
 from ..state import BoardState
 from .base import Stage
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.routing.constraints.drc_oracle import DRCOracle
 from temper_placer.routing.constraints.design_rules import ClearanceMatrix, DesignRulesParser
 from temper_placer.routing.constraints.spatial_index import Pad
@@ -165,9 +166,8 @@ class DRCOracleSetupStage(Stage):
                 rotation = rot_idx * 90.0
 
                 for pin in component.pins:
-                    # Pad position is relative to component center, must be rotated
-                    rel_pos = self._rotate_point(pin.position, rotation)
-                    pin_pos = (pos[0] + rel_pos[0], pos[1] + rel_pos[1])
+                    # Pad position with rotation and side awareness
+                    pin_pos = pin_world_position(pin, component)
 
                     # Map layer name to index
                     layer_idx = 0

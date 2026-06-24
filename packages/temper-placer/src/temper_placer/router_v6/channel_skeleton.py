@@ -14,6 +14,7 @@ from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Pol
 from shapely.ops import voronoi_diagram
 
 from temper_placer.deterministic.state import BoardState
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.stage0_data import ParsedPCB
@@ -132,7 +133,7 @@ def extract_channel_skeleton(
             
             for pin in comp.pins:
                 if pin.net:
-                    abs_pos = pin.absolute_position(comp.initial_position, rotation_rad, side)
+                    abs_pos = pin_world_position(pin, comp)
                     pad_positions.append(abs_pos)
         
         # Add pads as anchor nodes, connected to nearest skeleton node

@@ -3,6 +3,7 @@ from typing import Any
 
 # Partial imports to avoid circular deps if possible, or use types
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 
 
 @dataclass
@@ -119,8 +120,8 @@ class RoutingValidator:
                     pin = comp.get_pin(pin_name)
                     c_pos = comp_pos_map[comp_ref]
 
-                    # Assume rotation 0 for now as per loop assumptions
-                    px, py = pin.absolute_position(c_pos, 0.0)
+                    # Use world position from canonical helper
+                    px, py = pin_world_position(pin, comp)
                     
                     # Use world-to-path_cell_size mapping if we want to check path_set
                     # But path_set is also grid-based.

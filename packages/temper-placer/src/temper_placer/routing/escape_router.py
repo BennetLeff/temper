@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, List, Tuple, Dict, Optional
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.routing.fanout import FanoutGenerator, FanoutConfig
 from temper_placer.io.kicad_parser import TraceData, ViaData
 
@@ -96,8 +97,7 @@ class EscapeRouter:
             if not pin: continue
             
             cx, cy = comp.initial_position
-            px = cx + pin.position[0]
-            py = cy + pin.position[1]
+            px, py = pin_world_position(pin, comp)
             original_positions.append((px, py))
 
         # Generate fanouts

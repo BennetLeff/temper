@@ -27,6 +27,7 @@ from functools import total_ordering
 
 from temper_placer.core.loop import LoopCollection, LoopPriority
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 
 
 class NetClass(IntEnum):
@@ -210,8 +211,7 @@ def compute_hpwl(net_name: str, netlist: Netlist) -> float:
 
         for pin in component.pins:
             if pin.net == net_name:
-                pin_x = comp_x + pin.position[0]
-                pin_y = comp_y + pin.position[1]
+                pin_x, pin_y = pin_world_position(pin, component)
                 pin_positions.append((pin_x, pin_y))
 
     if len(pin_positions) < 2:
@@ -257,8 +257,7 @@ def compute_bbox_area(net_name: str, netlist: Netlist) -> float:
         for pin in component.pins:
             if pin.net == net_name:
                 # Pin position is component position + pin position offset
-                pin_x = comp_x + pin.position[0]
-                pin_y = comp_y + pin.position[1]
+                pin_x, pin_y = pin_world_position(pin, component)
                 pin_positions.append((pin_x, pin_y))
 
     # Need at least 2 pins to have a bounding box

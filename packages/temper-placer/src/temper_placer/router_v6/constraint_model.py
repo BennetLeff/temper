@@ -11,6 +11,7 @@ import math
 from dataclasses import dataclass, field, replace
 
 from temper_placer.core.netlist import Net
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
@@ -324,7 +325,7 @@ class ModelBuilder:
                     continue
 
                 net_idx = self.net_to_idx[pin.net]
-                pin_pos = pin.absolute_position((comp_x, comp_y), angle)
+                pin_pos = pin_world_position(pin, comp)
 
                 # SMD pins are restricted to one layer
                 if not pin.is_pth:

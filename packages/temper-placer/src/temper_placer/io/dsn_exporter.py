@@ -6,6 +6,7 @@ import jax.numpy as jnp
 from typing import TYPE_CHECKING, Sequence, Union
 
 from temper_placer.io.dsn import dsn_list
+from temper_placer.core.pin_geometry import pin_world_position
 
 if TYPE_CHECKING:
     from jax import Array
@@ -339,8 +340,9 @@ class DSNExporter:
                         else:
                             pos = comp.initial_position or (0.0, 0.0)
                             base_x, base_y = pos
-                        xs.append(base_x + pin.position[0])
-                        ys.append(base_y + pin.position[1])
+                        wx, wy = pin_world_position(pin, comp)
+                        xs.append(wx)
+                        ys.append(wy)
                         break
             except (KeyError, IndexError):
                 continue

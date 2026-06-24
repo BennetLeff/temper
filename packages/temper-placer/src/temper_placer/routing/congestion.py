@@ -30,6 +30,7 @@ from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 
 if TYPE_CHECKING:
     from temper_placer.routing.layer_assignment import LayerAssignment
@@ -333,8 +334,7 @@ def _get_pin_positions(
         # Find pin and get its position
         for pin in comp.pins:
             if pin.name == pin_name or pin.number == pin_name:
-                pin_x = comp_x + pin.position[0]
-                pin_y = comp_y + pin.position[1]
+                pin_x, pin_y = pin_world_position(pin, comp)
                 pin_positions.append((pin_x, pin_y))
                 break
 

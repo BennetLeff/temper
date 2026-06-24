@@ -25,6 +25,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 from jax import Array
 
 
@@ -335,7 +336,7 @@ def _get_net_dominant_direction(net: "Net", netlist: Netlist, positions: Array) 
         pin = comp.get_pin(pin_name)
         if pin:
             cx, cy = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
-            px, py = cx + pin.position[0], cy + pin.position[1]
+            px, py = pin_world_position(pin, comp)
 
             min_x = min(min_x, px)
             max_x = max(max_x, px)

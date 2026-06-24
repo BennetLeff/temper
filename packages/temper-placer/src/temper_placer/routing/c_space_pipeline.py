@@ -24,6 +24,7 @@ import numpy as np
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.routing.c_space_builder import (
     CSpaceCache,
     CSpaceConfig,
@@ -151,7 +152,7 @@ class CSpaceRoutingPipeline:
 
             for pin in comp.pins:
                 # Absolute position using Pin helper
-                abs_pos = pin.absolute_position(pos, angle_rad)
+                abs_pos = pin_world_position(pin, comp)
 
                 # Create spatial index Pad
                 p = CPad(
@@ -450,9 +451,6 @@ class CSpaceRoutingPipeline:
                 comp = comp_map[comp_ref]
                 pin = next((p for p in comp.pins if p.name == pin_name or p.number == pin_name), None)
                 if pin:
-                    pos = pin.absolute_position(
-                        comp.initial_position,
-                        comp.initial_rotation * (np.pi / 2) if hasattr(comp, 'initial_rotation') else 0.0
-                    )
+                    pos = pin_world_position(pin, comp)
                     positions.append(pos)
         return positions

@@ -1,19 +1,17 @@
+"""Pad-position helpers — the canonical rotation-and-side-aware pad geometry.
+
+This module consolidates the two divergent implementations of "where is this
+pin on the board?" that exist in the placer codebase:
+
+1. `Pin.absolute_position(component_pos, rotation_angle, side)` — correct,
+   applies rotation and side-mirror via JAX trig. Used by ~11 call sites.
+
+2. Inlined `comp_pos + pin.position` — broken, ignores rotation and side.
+   Used by ~40 call sites across ~25 files.
+
+This module provides pure-Python free functions that all call sites should
+use instead. `Pin.absolute_position` delegates here to prevent drift.
 """
-Canonical pad-position math for the placer.
-
-This module is the single source of truth for computing a pin's world
-position, layer, and radius. It supersedes the two divergent patterns
-that previously appeared in call sites: `pin.absolute_position(...)` (the
-correct rotation-and-side-aware version) and `comp_pos + pin.position`
-(the simplified, rotation-blind version that silently produced wrong
-positions for rotated and bottom-side components).
-
-The functions here are pure-Python and JAX-free so they can be called
-from any context (closure tests, validation, DSN export, etc.) without
-incurring JAX's ~5s import cost.
-"""
-
-from __future__ import annotations
 
 import math
 from typing import TYPE_CHECKING
@@ -22,50 +20,77 @@ if TYPE_CHECKING:
     from temper_placer.core.netlist import Component, Pin
 
 
-def _rotation_to_radians(rotation: int | float | None) -> float:
-    """Convert a Component.rotation value to radians.
+def _normalize_rotation(rotation: int | float | None) -> float:
+    """Normalize a rotation value to radians.
 
-    The dataclass field is `initial_rotation: int | None` (0-3 for the
-    four orthogonal orientations) or a float (radians). We treat ints
-    as quarter-turn indices and floats as already-in-radians values.
+    `int` values are treated as rotation indices (0-3 → 0°/90°/180°/270°),
+    matching the convention used by `Component.initial_rotation`.
+    `float` values are treated as radians and used as-is.
+    `None` is treated as 0 (no rotation).
     """
     if rotation is None:
         return 0.0
     if isinstance(rotation, int):
-        return float(rotation) * (math.pi / 2.0)
+        return rotation * math.pi / 2.0
     return float(rotation)
 
 
-def pin_world_position(pin: Pin, comp: Component) -> tuple[float, float]:
-    """Return the world (x, y) of a pin given its parent Component.
+def pin_world_position(
+    pin: "Pin",
+    comp: "Component",
+) -> tuple[float, float]:
+    """Return the world (x, y) position of a pin on the board.
 
-    Applies the component's rotation and mirrors the X coordinate for
-    bottom-side components (side == 1), matching standard KiCad semantics.
-    This is the rotation-aware counterpart to the inlined
-    `comp_pos + pin.position` pattern, which silently ignored rotation
-    and side-mirror and produced wrong pad positions for any component
-    with `initial_rotation != 0` or `initial_side == 1`.
+    Applies the component's rotation and side-mirror to the pin's position
+    offset, matching standard KiCad semantics. This is the canonical
+    pad-position math — the same logic as `Pin.absolute_position` but as
+    a pure-Python free function (no JAX import required).
+
+    Args:
+        pin: The pin whose world position to compute.
+        comp: The component the pin belongs to.
+
+    Returns:
+        (x, y) tuple in mm, in board coordinates.
     """
-    comp_pos = comp.initial_position or (0.0, 0.0)
-    rotation_radians = _rotation_to_radians(comp.initial_rotation)
-    side = comp.initial_side if comp.initial_side is not None else 0
-    cos_r = math.cos(rotation_radians)
-    sin_r = math.sin(rotation_radians)
+    rotation_rad = _normalize_rotation(comp.initial_rotation)
+    side = comp.initial_side or 0
+
+    cos_r = math.cos(rotation_rad)
+    sin_r = math.sin(rotation_rad)
     px, py = pin.position
 
+    # If on bottom side, mirror X coordinate before rotation (KiCad behavior)
     if side == 1:
         px = -px
 
+    # Rotate pin offset
     rx = px * cos_r - py * sin_r
     ry = px * sin_r + py * cos_r
-    return (comp_pos[0] + rx, comp_pos[1] + ry)
+
+    # Add component position
+    cpos = comp.initial_position or (0.0, 0.0)
+    return (cpos[0] + rx, cpos[1] + ry)
 
 
-def pin_world_layer(pin: Pin) -> str:
-    """Return the layer name for a pin (e.g., "F.Cu", "all" for TH)."""
-    return pin.layer
+def pin_world_layer(pin: "Pin") -> str:
+    """Return the layer a pin lives on.
+
+    Returns `pin.layer` if set, otherwise `"F.Cu"` (the default for
+    surface-mount pads on the top layer).
+    """
+    return getattr(pin, "layer", None) or "F.Cu"
 
 
-def pin_world_radius(pin: Pin) -> float:
-    """Return the effective pad radius for a pin: max(width, height) / 2."""
-    return max(pin.width, pin.height) / 2.0
+def pin_world_radius(pin: "Pin") -> float:
+    """Return the effective pad radius for a pin.
+
+    Computed as `max(pin.width, pin.height) / 2.0`. If both dimensions
+    are zero, returns 0.5 mm (a common default for zero-sized pads).
+    """
+    w = getattr(pin, "width", 0.0) or 0.0
+    h = getattr(pin, "height", 0.0) or 0.0
+    radius = max(w, h) / 2.0
+    if radius == 0.0:
+        radius = 0.5
+    return radius

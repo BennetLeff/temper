@@ -26,6 +26,8 @@ if TYPE_CHECKING:
     from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
     from temper_placer.router_v6.diagnostics import NetRoutingReport
 
+from temper_placer.core.pin_geometry import pin_world_position
+
 
 logger = logging.getLogger(__name__)
 
@@ -579,8 +581,7 @@ def _resolve_pad_cells(
             if pin is None:
                 continue
             pos = comp.initial_position or (0.0, 0.0)
-            x_mm = pos[0] + pin.position[0]
-            y_mm = pos[1] + pin.position[1]
+            x_mm, y_mm = pin_world_position(pin, comp)
             row, col = _mm_to_cell(grid, x_mm, y_mm)
             cells_for_pad = _layers_for_pin(pin, grid.layer_count)
             if not cells_for_pad:
@@ -909,8 +910,7 @@ def analyze_bottleneck(
             if pin is None:
                 continue
             pos = comp.initial_position or (0.0, 0.0)
-            x_mm = pos[0] + pin.position[0]
-            y_mm = pos[1] + pin.position[1]
+            x_mm, y_mm = pin_world_position(pin, comp)
             row, col = _mm_to_cell(grid, x_mm, y_mm)
             for layer in _layers_for_pin(pin, grid.layer_count):
                 pad_positions[(layer, row, col)] = (comp_ref, (x_mm, y_mm))

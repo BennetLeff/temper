@@ -544,7 +544,7 @@ class SequentialRoutingStage(Stage):
                         if not pin:
                             continue
                         pos = comp.initial_position or (0, 0)
-                        positions.append((pos[0] + pin.position[0], pos[1] + pin.position[1]))
+                        positions.append(pin_world_position(pin, comp))
                     return positions
 
                 pos_pins = get_pin_positions_from_oracle(
@@ -1212,7 +1212,7 @@ class SequentialRoutingStage(Stage):
                 else:
                     # Fallback to netlist position (may be wrong after placement optimizer)
                     pos = comp.initial_position or (0, 0)
-                    pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
+                    pin_pos = pin_world_position(pin, comp)
                     endpoint_tolerance = grid.cell_size_mm
                     is_pth = getattr(pin, "is_pth", False)
                     pad_size = None
@@ -1897,7 +1897,7 @@ class SequentialRoutingStage(Stage):
                     else:
                         endpoint_tolerance = grid.cell_size_mm
                         pos = comp.initial_position or (0, 0)
-                        pin_pos = (pos[0] + pin.position[0], pos[1] + pin.position[1])
+                        pin_pos = pin_world_position(pin, comp)
                         is_pth = getattr(pin, "is_pth", False)
 
                         escape_layer, final_pos = self._get_escape_via_for_pin(pin_pos, net_name, state)
