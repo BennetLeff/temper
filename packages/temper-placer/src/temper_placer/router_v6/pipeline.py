@@ -38,7 +38,12 @@ from temper_placer.router_v6.layer_capacity import LayerCapacity
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
-from temper_placer.router_v6.routing_space import PLANE_NETS, RoutingSpace
+from temper_placer.router_v6.routing_space import RoutingSpace
+from temper_placer.routing.net_classification import (
+    is_ground_net,
+    is_hv_net,
+    is_power_net,
+)
 from temper_placer.router_v6.sat_model import (
     SATModel,
     build_sat_model,
@@ -268,6 +273,7 @@ class RouterV6Pipeline:
         profiler: object | None = None,
         skip_stage3: bool = False,
         congestion_weight: float = 0.0,
+        max_iter: int = 1_000_000,
     ):
         """
         Initialize Router V6 pipeline.
@@ -286,6 +292,14 @@ class RouterV6Pipeline:
                 weight.  0.0 (default) disables — the closure
                 test does not benefit from the detour behavior
                 on temper.kicad_pcb's hard signal nets.
+            max_iter: Per-A* iteration cap.  Default 1M (kernel
+                default).  On temper.kicad_pcb the path-quality
+                sweet spot is 500k -- 1M hits a different
+                tie-break for SPI_MOSI and fails it (95.83% vs
+                100.0%).  Closure-test adapter should pass
+                500_000 to match the SM1 measurement table
+                recorded in
+                docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md.
         """
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
@@ -298,6 +312,7 @@ class RouterV6Pipeline:
         self.profiler = profiler
         self.skip_stage3 = skip_stage3
         self.congestion_weight = congestion_weight
+        self.max_iter = max_iter
 
     def run(
         self,
@@ -599,6 +614,7 @@ class RouterV6Pipeline:
                 use_lazy_theta_star=self.enable_lazy_theta_star,
                 max_nets=self.max_nets,
                 target_nets=self.target_nets,
+                max_iter=self.max_iter,
             )
 
         return self._run_stage5(pcb, stage2, pathfinding_result)
@@ -637,7 +653,11 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  4.9: Compiling routing results...")
         plane_net_names = [
-            net.name for net in pcb.nets if net.name.upper() in {n.upper() for n in PLANE_NETS}
+            net.name
+            for net in pcb.nets
+            if is_power_net(net.name)
+            or is_ground_net(net.name)
+            or is_hv_net(net.name)
         ]
         routing_results = compile_routing_results(
             pathfinding_result,

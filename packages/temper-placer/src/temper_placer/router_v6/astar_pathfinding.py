@@ -30,14 +30,18 @@ from temper_placer.router_v6.astar_grid import (
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-from temper_placer.router_v6.routing_space import PLANE_NETS
 from temper_placer.router_v6.stage0_data import DesignRules
+from temper_placer.routing.net_classification import (
+    is_ground_net,
+    is_hv_net,
+    is_power_net,
+)
 
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
 _MAX_RIPUP_DEPTH_PROBLEM = 30
 _MAX_REROUTE_ATTEMPTS_PER_NET = 5
-_PLANE_NETS_UPPER = frozenset(n.upper() for n in PLANE_NETS)
+
 _SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
 @dataclass
@@ -144,6 +148,7 @@ def run_astar_pathfinding(
     target_nets: list[str] | None = None,
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,  # U7 / R11: PathFinder history cost
+    max_iter: int = 1_000_000,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -253,6 +258,7 @@ def run_astar_pathfinding(
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
+            max_iter=max_iter,
         )
 
         _restore_net_pads(restoration)
@@ -382,7 +388,7 @@ def run_astar_pathfinding(
 
 
 def _should_route(net_name: str) -> bool:
-    if net_name.upper() in _PLANE_NETS_UPPER:
+    if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
         return False
     return not any(net_name.startswith(p) for p in _SKIP_NET_PREFIXES)
 
@@ -400,6 +406,7 @@ def _astar_route_with_ripup(
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
+    max_iter: int = 1_000_000,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int]]:
     """
     Route a net, potentially ripping up blocking nets.
@@ -425,6 +432,7 @@ def _astar_route_with_ripup(
             use_theta_star,
             use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
+            max_iter=max_iter,
         )
     else:
         path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star)
@@ -481,6 +489,7 @@ def _astar_route_multilayer(
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
+    max_iter: int = 1_000_000,
 ) -> RoutePath3D | None:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -515,6 +524,7 @@ def _astar_route_multilayer(
         segment_path, grid_to_use = _segment_search(
             primary_grid, start_world, goal_world, use_theta_star,
             use_lazy_theta_star, congestion_tensor=congestion_tensor,
+            max_iter=max_iter,
         )
 
         # Allow layer switching when THT pads exist on the board - the router
@@ -526,6 +536,7 @@ def _astar_route_multilayer(
                 segment_path = _dispatch_search(
                     alternate_grid, alt_start, alt_goal, use_theta_star,
                     use_lazy_theta_star, congestion_tensor=congestion_tensor,
+                    max_iter=max_iter,
                 )
                 if segment_path:
                     grid_to_use = alternate_grid
@@ -661,6 +672,7 @@ def _dispatch_search(
     grid, start, goal,
     use_theta_star: bool, use_lazy_theta_star: bool,
     congestion_tensor=None,
+    max_iter: int = 1_000_000,
 ):
     if use_lazy_theta_star:
         return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1)
@@ -692,6 +704,7 @@ def _segment_search(
     use_theta_star: bool,
     use_lazy_theta_star: bool,
     congestion_tensor=None,
+    max_iter: int = 1_000_000,
 ) -> tuple[list | None, OccupancyGrid]:
     """Run A* between two world-coordinate waypoints on ``grid``.
 
@@ -709,22 +722,6 @@ def _segment_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor,
     )
-    return path, grid
-
-
-def _segment_search(
-    grid: OccupancyGrid,
-    start_world: tuple[float, float],
-    goal_world: tuple[float, float],
-    use_theta_star: bool,
-    use_lazy_theta_star: bool,
-) -> tuple[list | None, OccupancyGrid]:
-    """Run A*/Theta* between two world points, returning (path, grid_used)."""
-    start_grid = grid.world_to_grid(*start_world)
-    goal_grid = grid.world_to_grid(*goal_world)
-    if not (_in_bounds(grid, start_grid) and _in_bounds(grid, goal_grid)):
-        return None, grid
-    path = _dispatch_search(grid, start_grid, goal_grid, use_theta_star, use_lazy_theta_star)
     return path, grid
 
 

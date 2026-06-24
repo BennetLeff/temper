@@ -56,7 +56,11 @@ def _extract_pad_centers_per_net(pcb) -> dict[str, list[tuple[float, float, floa
     Returns dictionary mapping net_name -> list of (x, y, radius, layer) coordinates.
     radius is approximated as max(width, height) / 2.
     """
-    from temper_placer.core.pin_geometry import pin_world_layer, pin_world_radius
+    from temper_placer.core.pin_geometry import (
+        pin_world_layer,
+        pin_world_position,
+        pin_world_radius,
+    )
 
     pad_info: dict[str, list[tuple[float, float, float, str]]] = {}
 

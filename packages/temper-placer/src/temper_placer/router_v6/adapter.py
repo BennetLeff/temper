@@ -86,14 +86,22 @@ def route_pcb(
             #     smoothing step is a silent no-op (or worse).
             # The closure test should use the smoke-equivalent
             # path: plain 2D A* via the Numba kernel, no
-            # smoothing, and the smoke's per-A* iter cap (the
-            # closure runner doesn't currently expose this, so we
-            # apply it via the dispatch wrapper below).
+            # smoothing.
+            #
+            # NOTE 2026-06-24: ``max_iter=500_000`` is the
+            # path-quality sweet spot on temper.kicad_pcb.  The
+            # kernel default of 1M explores further but lands
+            # SPI_MOSI on a different tie-break path and the
+            # reroute loop can't recover it (95.83% vs 100.0% at
+            # 500k).  See
+            # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
+            # for the iter-cap sweet-spot table.
             pipeline = RouterV6Pipeline(
                 verbose=False,
                 enable_theta_star=False,
                 enable_lazy_theta_star=False,
                 enable_smoothing=False,
+                max_iter=500_000,
             )
             result = pipeline.run(Path(temp_path))
             return RoutingResult(completion_rate=result.completion_rate)
@@ -108,6 +116,7 @@ def route_pcb(
             enable_theta_star=False,
             enable_lazy_theta_star=False,
             enable_smoothing=False,
+            max_iter=500_000,
         )
         result = pipeline.run(pcb_path)
         return RoutingResult(completion_rate=result.completion_rate)
