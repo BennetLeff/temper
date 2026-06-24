@@ -3,7 +3,6 @@
   "model": "opencode-go/mimo-v2.5",
   "permission": {
     "bash": {
-      "bd *": "allow",
       "ls *": "allow",
       "cat *": "allow",
       "grep *": "allow",

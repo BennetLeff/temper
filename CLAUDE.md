@@ -33,10 +33,8 @@ After completing a task or ending a session, you MUST post a reflection:
 - This ensures other agents (Claude, OpenCode) can benefit from your findings.
 
 ### Issue Tracking & Management
-We use **beads (`bd`)** for all task tracking. **Do not use markdown TODOs.**
 
 *   **Granularity is Critical**: Bias towards small, iterative tasks.
-*   **Dependency-First Planning**: Use `bd dep add` to manage task ordering.
 
 ### Landing the Plane (Session Completion)
 The session is **not** over until the plane has landed. You must execute this protocol before stopping:
@@ -47,7 +45,6 @@ The session is **not** over until the plane has landed. You must execute this pr
 4.  **Sync & Push (MANDATORY)**:
     ```bash
     git pull --rebase
-    bd sync
     git push
     git status  # Must show "up to date with origin"
     ```
@@ -76,7 +73,7 @@ Every `NetClassRules` instance in `TEMPER_NET_CLASSES` must set:
 
 ## 6. Operational Rules
 
-*   **No "Ready when you are"**: You must push your changes (`bd sync && git push`).
+*   **No "Ready when you are"**: You must push your changes (`git push`).
 *   **Sandboxing**: Recommend enabling sandboxing for shell execution.
 *   **Context**: Read `AGENTS.md` for deep dives into specific subsystems.
 

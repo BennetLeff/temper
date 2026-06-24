@@ -34,14 +34,11 @@ After completing a task or ending a session, you MUST post a reflection:
 - This ensures other agents (Claude, OpenCode) can benefit from your findings.
 
 ### Issue Tracking & Management
-We use **beads (`bd`)** for all task tracking. **Do not use markdown TODOs.**
 
 *   **Granularity is Critical**: Bias towards small, iterative tasks.
     *   **Epics**: Large features should be broken into 5-15 subtasks.
     *   **Tasks**: Each task should be completable in 30-60 minutes. If it takes longer, split it.
-*   **Dependency-First Planning**:
-    *   Use `bd dep add <dependent> <prerequisite>` (X needs Y).
-*   **Discovery**: Link new findings immediately with `discovered-from` dependencies.
+*   **Discovery**: Link new findings immediately.
 
 ### Agentic Workflows (Tiered Delegation)
 We use a multi-agent system where a **Master Agent** delegates to specialized **Worker Agents**.
@@ -60,7 +57,6 @@ The session is **not** over until the plane has landed. You must execute this pr
 5.  **Sync & Push (MANDATORY)**:
     ```bash
     git pull --rebase
-    bd sync
     git push
     git status  # Must show "up to date with origin"
     ```
@@ -94,6 +90,6 @@ The session is **not** over until the plane has landed. You must execute this pr
 
 ## 7. Operational Rules
 
-*   **No "Ready when you are"**: You must push your changes (`bd sync && git push`).
+*   **No "Ready when you are"**: You must push your changes (`git push`).
 *   **Sandboxing**: Recommend enabling sandboxing for shell execution.
 *   **Context**: Read `AGENTS.md` for deep dives into specific subsystems.
