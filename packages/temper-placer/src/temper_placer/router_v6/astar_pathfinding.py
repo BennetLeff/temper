@@ -435,7 +435,8 @@ def _astar_route_with_ripup(
             max_iter=max_iter,
         )
     else:
-        path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star)
+        path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star,
+                            max_iter=max_iter)
 
     if path and path.forced_segment_count == 0:
         return path, []
@@ -585,6 +586,7 @@ def _astar_route(
     grid: OccupancyGrid,
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
+    max_iter: int = 1_000_000,
 ) -> RoutePath | None:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -610,7 +612,8 @@ def _astar_route(
         goal_world = waypoints[i + 1]
 
         grid_path, _ = _segment_search(
-            grid, start_world, goal_world, use_theta_star, use_lazy_theta_star
+            grid, start_world, goal_world, use_theta_star, use_lazy_theta_star,
+            max_iter=max_iter,
         )
 
         if grid_path:
@@ -690,11 +693,12 @@ def _dispatch_search(
     if congestion_tensor is not None:
         return _astar_search_numba(
             start, goal, grid,
+            max_iterations=max_iter,
             congestion_flat=congestion_tensor.array.reshape(-1),
             congestion_weight=congestion_tensor.weight,
             max_congestion_cost=congestion_tensor.max_cost,
         )
-    return _astar_search_numba(start, goal, grid)
+    return _astar_search_numba(start, goal, grid, max_iterations=max_iter)
 
 
 def _segment_search(
@@ -720,7 +724,7 @@ def _segment_search(
         return None, grid
     path = _dispatch_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
-        congestion_tensor=congestion_tensor,
+        congestion_tensor=congestion_tensor, max_iter=max_iter,
     )
     return path, grid
 

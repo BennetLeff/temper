@@ -62,6 +62,14 @@ def route_pcb(
         raise ValueError("ParsedPCB has no source_path attribute")
     pcb_path = Path(pcb_path)
 
+    pipeline = RouterV6Pipeline(
+        verbose=False,
+        enable_theta_star=False,
+        enable_lazy_theta_star=False,
+        enable_smoothing=False,
+        max_iter=500_000,
+    )
+
     if placements:
         raw_content = pcb_path.read_text(encoding="utf-8")
         modified_content = _apply_placements_to_pcb(raw_content, placements)
@@ -96,13 +104,6 @@ def route_pcb(
             # 500k).  See
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
-            pipeline = RouterV6Pipeline(
-                verbose=False,
-                enable_theta_star=False,
-                enable_lazy_theta_star=False,
-                enable_smoothing=False,
-                max_iter=500_000,
-            )
             result = pipeline.run(Path(temp_path))
             return RoutingResult(completion_rate=result.completion_rate)
         finally:
@@ -111,13 +112,6 @@ def route_pcb(
             except OSError:
                 pass
     else:
-        pipeline = RouterV6Pipeline(
-            verbose=False,
-            enable_theta_star=False,
-            enable_lazy_theta_star=False,
-            enable_smoothing=False,
-            max_iter=500_000,
-        )
         result = pipeline.run(pcb_path)
         return RoutingResult(completion_rate=result.completion_rate)
 
