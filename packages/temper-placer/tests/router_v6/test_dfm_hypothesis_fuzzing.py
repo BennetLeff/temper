@@ -22,8 +22,6 @@ Tests that reveal known limitations are marked ``pytest.mark.xfail``.
 
 from __future__ import annotations
 
-import copy
-import math
 from typing import Callable
 
 import pytest
@@ -64,166 +62,17 @@ from temper_placer.router_v6.thermal_relief import (
     add_thermal_relief,
 )
 from temper_placer.router_v6.via_placement import Via
-
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
-
-_BOARD_DIMS: tuple[float, float] = (200.0, 150.0)  # (width, height) mm
-_BOARD_W, _BOARD_H = _BOARD_DIMS
-
-_LAYERS: tuple[str, ...] = ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu")
-
-# Net name vocabulary — a mix of regular signal nets and power / HV nets
-# so that DFM modules exercising HV / power classification see a realistic
-# spread.
-_NET_NAME_VOCAB: tuple[str, ...] = (
-    # Signal-style
-    "SIG1", "SIG2", "DATA0", "CLK", "RST", "ENABLE",
-    "TX+", "RX-", "LED1", "NC1",
-    # Power / ground (matched by thermal_relief, copper_balance plane nets)
-    "GND", "PGND", "AGND", "DGND", "VCC", "VDD", "VEE",
-    "+15V", "+3V3", "+5V",
-    # HV patterns (matched by creepage / clearance HV-detection)
-    "AC_L", "AC_N", "HV_BUS", "L1", "LINE", "VBUS",
-    # Mixed
-    "DC_BUS+", "DC_BUS-", "SW_NODE", "PE",
-    "VDD_CORE", "VREF", "VBAT",
+from tests.router_v6.dfm_property_strategies import (
+    BOARD_DIMS as _BOARD_DIMS,
+    BOARD_W as _BOARD_W,
+    BOARD_H as _BOARD_H,
+    LAYERS as _LAYERS,
+    NET_NAME_VOCAB as _NET_NAME_VOCAB,
+    VIA_TYPES as _VIA_TYPES,
+    realistic_paths,
+    realistic_routing_results,
+    realistic_vias,
 )
-
-# Via type vocabulary
-_VIA_TYPES: tuple[str | None, ...] = (None, "microvia")
-
-# ---------------------------------------------------------------------------
-# Strategy: realistic_paths
-# ---------------------------------------------------------------------------
-
-
-@st.composite
-def realistic_paths(
-    draw: st.DrawFn,
-    min_points: int = 2,
-    max_points: int = 50,
-) -> RoutePath:
-    """Generate a realistic ``RoutePath`` with 2-50 points inside the
-    board boundary.
-
-    Coordinates are chosen uniformly within the board rectangle.  The
-    resulting path does **not** enforce a no-self-intersection constraint
-    (real routed paths can have complex geometry, and the DFM modules
-    should handle any coordinate list gracefully).
-    """
-    n_points = draw(st.integers(min_value=min_points, max_value=max_points))
-    layer = draw(st.sampled_from(_LAYERS))
-
-    coords: list[tuple[float, float]] = []
-    for _ in range(n_points):
-        x = draw(st.floats(min_value=0.0, max_value=_BOARD_W))
-        y = draw(st.floats(min_value=0.0, max_value=_BOARD_H))
-        coords.append((x, y))
-
-    # Compute path length (Euclidean distance between consecutive points)
-    path_len = 0.0
-    for i in range(len(coords) - 1):
-        path_len += math.hypot(
-            coords[i + 1][0] - coords[i][0],
-            coords[i + 1][1] - coords[i][1],
-        )
-
-    return RoutePath(
-        net_name="",  # filled in by the routing-results strategy
-        coordinates=coords,
-        layer_name=layer,
-        path_length=path_len,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Strategy: realistic_via
-# ---------------------------------------------------------------------------
-
-
-@st.composite
-def realistic_vias(
-    draw: st.DrawFn,
-    net_name: str = "NET",
-    max_vias: int = 10,
-) -> list[Via]:
-    """Generate 0-*max_vias* realistic ``Via`` objects for a given net."""
-    n = draw(st.integers(min_value=0, max_value=max_vias))
-    vias: list[Via] = []
-    for _ in range(n):
-        x = draw(st.floats(min_value=0.0, max_value=_BOARD_W))
-        y = draw(st.floats(min_value=0.0, max_value=_BOARD_H))
-        frm = draw(st.sampled_from(_LAYERS))
-        to = draw(st.sampled_from(_LAYERS))
-        dia = draw(st.floats(min_value=0.1, max_value=5.0))
-        drill = draw(st.floats(min_value=0.05, max_value=dia * 0.9))
-        via_type = draw(st.sampled_from(_VIA_TYPES))
-        via = Via(
-            position=(x, y),
-            from_layer=frm,
-            to_layer=to,
-            diameter=dia,
-            drill=drill,
-            net_name=net_name,
-        )
-        # Attach via_type as an extra attribute (some DFM modules check it)
-        if via_type is not None:
-            via.via_type = via_type  # type: ignore[attr-defined]
-        vias.append(via)
-    return vias
-
-
-# ---------------------------------------------------------------------------
-# Strategy: realistic_routing_results
-# ---------------------------------------------------------------------------
-
-
-@st.composite
-def realistic_routing_results(
-    draw: st.DrawFn,
-    min_routes: int = 1,
-    max_routes: int = 20,
-) -> RoutingResults:
-    """Generate 1-20 compiled routes with realistic paths, widths, vias,
-    and net names from a vocabulary that includes HV/power patterns.
-    """
-    n = draw(st.integers(min_value=min_routes, max_value=max_routes))
-    net_names = draw(
-        st.lists(
-            st.sampled_from(_NET_NAME_VOCAB),
-            min_size=n,
-            max_size=n,
-            unique=True,
-        )
-    )
-
-    compiled: dict[str, CompiledRoute] = {}
-    failed: list[str] = []
-
-    for net_name in net_names:
-        path = draw(realistic_paths())
-        # Patch the net name into the path
-        path.net_name = net_name
-
-        width = draw(st.floats(min_value=0.1, max_value=5.0))
-        vias = draw(realistic_vias(net_name=net_name, max_vias=10))
-
-        compiled[net_name] = CompiledRoute(
-            net_name=net_name,
-            path=path,
-            width_mm=width,
-            vias=vias,
-            matched_length_mm=None,
-        )
-
-    # Optionally add some failed nets
-    extra_fails = draw(st.integers(min_value=0, max_value=3))
-    for i in range(extra_fails):
-        failed.append(f"FAIL{i}")
-
-    return RoutingResults(compiled_routes=compiled, failed_nets=failed)
 
 
 # ---------------------------------------------------------------------------
