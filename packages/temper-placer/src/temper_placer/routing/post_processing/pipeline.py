@@ -4,7 +4,7 @@ Post-Processing Pipeline for Routing Optimization
 This module provides a unified pipeline for post-processing routing output:
 1. Via Optimization - Consolidate and optimize via placement
 2. Trace Nudging - Fix minor clearance violations via force-directed optimization
-3. Trace Ballooning - Widen power traces for current capacity (future)
+3. Trace Ballooning - Widen power traces for current capacity
 
 Usage:
     from temper_placer.routing.post_processing.pipeline import PostProcessingPipeline, PostProcessConfig
@@ -25,6 +25,7 @@ from temper_placer.routing.maze_router import RoutePath
 from temper_placer.routing.constraints.drc_oracle import DRCOracle
 from temper_placer.routing.post_processing.via_optimizer import ViaOptimizer, ViaOptimizationStats
 from temper_placer.routing.post_processing.nudger import GeometricNudger
+from temper_placer.routing.post_processing.trace_ballooner import TraceBallooner
 from temper_placer.routing.constraints.spatial_index import PCBGeometry, Track, Via, Pad
 
 
@@ -52,10 +53,14 @@ class TraceNudgingConfig:
 
 @dataclass
 class TraceBallooningConfig:
-    """Configuration for trace ballooning stage (future)."""
+    """Configuration for trace ballooning stage."""
     enabled: bool = False
     power_nets_only: bool = True
-    min_width_multiplier: float = 1.5  # Widen power traces by this factor
+    max_width: float = 6.0  # mm - max trace width for manufacturability
+    safety_margin: float = 0.2  # mm - clearance margin to maintain
+    default_current_a: float = 10.0  # A - default current for IPC-2221 width calc
+    copper_thickness_oz: float = 1.0  # oz
+    temp_rise_c: float = 10.0  # °C
 
 
 @dataclass
@@ -81,6 +86,7 @@ class StageMetrics:
     vias_eliminated: int = 0
     nodes_nudged: int = 0
     convergence_iterations: int = 0
+    segments_ballooned: int = 0
 
 
 @dataclass
@@ -119,6 +125,8 @@ class PostProcessingResult:
                 print(f"  Nodes Nudged: {metrics.nodes_nudged}")
             if metrics.convergence_iterations > 0:
                 print(f"  Iterations: {metrics.convergence_iterations}")
+            if metrics.segments_ballooned > 0:
+                print(f"  Segments Ballooned: {metrics.segments_ballooned}")
         
         print(f"\nTOTAL: {self.total_violations_fixed} violations fixed in {self.total_execution_time_ms:.1f}ms")
         print("=" * 60 + "\n")
@@ -131,7 +139,7 @@ class PostProcessingPipeline:
     Orchestrates multiple optimization stages in sequence:
     1. Via Optimization - Merge nearby vias, reposition to fix violations
     2. Trace Nudging - Force-directed optimization to fix clearance violations
-    3. Trace Ballooning - Widen power traces (future)
+    3. Trace Ballooning - Widen power traces for current capacity
     
     Each stage can be independently enabled/disabled via configuration.
     """
@@ -184,9 +192,11 @@ class PostProcessingPipeline:
             metrics['Trace Nudging'] = stage_metrics
             total_violations_fixed += stage_metrics.violations_fixed
         
-        # Stage 3: Trace Ballooning (future)
+        # Stage 3: Trace Ballooning
         if self.config.trace_ballooning.enabled:
-            logger.warning("Trace ballooning not yet implemented")
+            stage_metrics, geometry = self._run_trace_ballooning(geometry)
+            metrics['Trace Ballooning'] = stage_metrics
+            total_violations_fixed += stage_metrics.violations_fixed
         
         total_time_ms = (time.perf_counter() - pipeline_start) * 1000.0
         
@@ -257,3 +267,150 @@ class PostProcessingPipeline:
             nodes_nudged=0,  # Could track this in GeometricNudger
             convergence_iterations=0,  # Could track this in GeometricNudger
         ), optimized_geometry
+
+    def _run_trace_ballooning(self, geometry: PCBGeometry) -> tuple[StageMetrics, PCBGeometry]:
+        """Run trace ballooning stage.
+
+        For each power-net track segment:
+        1. Compute IPC-2221 required width for target current
+        2. Attempt incremental ballooning via TraceBallooner
+        3. Validate each expansion against DRCOracle
+        4. Revert expansions that cause DRC violations
+        """
+        stage_start = time.perf_counter()
+
+        # Count violations before
+        violations_before = len(self.oracle.validate_all())
+
+        # Compute IPC-2221 minimum width for power nets
+        ipc2221_target_width = _ipc2221_width_for_current(
+            current_a=self.config.trace_ballooning.default_current_a,
+            thickness_oz=self.config.trace_ballooning.copper_thickness_oz,
+            temp_rise_c=self.config.trace_ballooning.temp_rise_c,
+        )
+        logger.info(
+            "IPC-2221 target width for %.1fA: %.2f mm",
+            self.config.trace_ballooning.default_current_a,
+            ipc2221_target_width,
+        )
+
+        # Create ballooner with config
+        ballooner = TraceBallooner(
+            geometry=geometry,
+            max_width=self.config.trace_ballooning.max_width,
+            safety_margin=self.config.trace_ballooning.safety_margin,
+        )
+
+        # Build a mapping from track id -> original width for revert-on-failure
+        original_widths: dict[str, float] = {}
+        for track in geometry.tracks:
+            original_widths[track.id] = track.width
+
+        # Expand power net tracks: target at least IPC-2221 width,
+        # up to max_width or available clearance
+        max_expansion = max(0.0, ipc2221_target_width)
+        result = ballooner.balloon_traces(
+            list(geometry.tracks),
+            max_expansion=max_expansion,
+        )
+
+        segments_expanded = result.segments_expanded
+        segments_reverted = 0
+
+        # Validate each expanded track against DRC oracle
+        validated_tracks: list[Track] = []
+        for track in result.tracks:
+            orig_width = original_widths.get(track.id, track.width)
+            if track.width > orig_width + 0.001:
+                # This track was expanded — validate
+                valid, reason = self.oracle.can_place_track_segment(
+                    start=(track.start.x, track.start.y),
+                    end=(track.end.x, track.end.y),
+                    layer=track.layer,
+                    net=track.net,
+                    width=track.width,
+                )
+                if not valid:
+                    logger.debug("Balloon reverted for %s: %s", track.id, reason)
+                    # Revert to original width
+                    track = Track(
+                        start=track.start,
+                        end=track.end,
+                        width=orig_width,
+                        layer=track.layer,
+                        net=track.net,
+                        id=track.id,
+                    )
+                    segments_reverted += 1
+            validated_tracks.append(track)
+
+        # Build new geometry with validated tracks
+        optimized_geometry = PCBGeometry()
+        for track in validated_tracks:
+            optimized_geometry.add_track(track)
+        for via in geometry.vias:
+            optimized_geometry.add_via(via)
+        for pad in geometry.pads:
+            optimized_geometry.add_pad(pad)
+        optimized_geometry.rebuild_index()
+
+        # Update the oracle's geometry reference for violation counting
+        self.oracle.geometry = optimized_geometry
+
+        # Count violations after
+        violations_after = len(self.oracle.validate_all())
+
+        execution_time_ms = (time.perf_counter() - stage_start) * 1000.0
+
+        logger.info(
+            "Trace ballooning: %d segments expanded, %d reverted by DRC, "
+            "%d violations before -> %d after",
+            segments_expanded,
+            segments_reverted,
+            violations_before,
+            violations_after,
+        )
+
+        return StageMetrics(
+            stage_name="Trace Ballooning",
+            enabled=True,
+            violations_before=violations_before,
+            violations_after=violations_after,
+            violations_fixed=violations_before - violations_after,
+            execution_time_ms=execution_time_ms,
+            segments_ballooned=segments_expanded - segments_reverted,
+        ), optimized_geometry
+
+
+def _ipc2221_width_for_current(
+    current_a: float,
+    thickness_oz: float = 1.0,
+    temp_rise_c: float = 10.0,
+    internal_layer: bool = True,
+) -> float:
+    """Compute minimum trace width (mm) for a target current using IPC-2221.
+
+    Inverse of the IPC-2221 formula:
+        I = k * ΔT^0.44 * (width_mils * thickness_mils)^0.725
+
+    Args:
+        current_a: Target current in Amperes
+        thickness_oz: Copper thickness in oz (1 oz = 1.37 mils)
+        temp_rise_c: Allowable temperature rise in °C
+        internal_layer: True for internal layers (conservative)
+
+    Returns:
+        Minimum trace width in mm
+    """
+    if current_a <= 0:
+        return 0.0
+
+    k = 0.024 if internal_layer else 0.048
+    thickness_mils = thickness_oz * 1.37
+
+    # Invert: A = (I / (k * ΔT^0.44))^(1/0.725)
+    area_mils2 = (current_a / (k * (temp_rise_c ** 0.44))) ** (1.0 / 0.725)
+    width_mils = area_mils2 / thickness_mils
+    width_mm = width_mils / 39.3701
+
+    return max(0.0, width_mm)

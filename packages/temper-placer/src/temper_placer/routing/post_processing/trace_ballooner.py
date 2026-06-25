@@ -82,7 +82,7 @@ class TraceBallooner:
         tracks: list[Track],
         target_nets: list[str] | None = None,
         max_expansion: float = 1.0,
-    ) -> list[Track]:
+    ) -> BalloonResult:
         """Expand power traces to fill available clearance.
 
         Args:

@@ -81,9 +81,10 @@ class TestTraceBallooning:
             Track(Point(5, 5), Point(15, 5), width=0.3, net="SIG2", layer=0),
         ]
         result = ballooner.balloon_traces(tracks)
-        assert len(result) == 2
-        assert result[0].width == 0.2
-        assert result[1].width == 0.3
+        assert len(result.tracks) == 2
+        assert result.tracks[0].width == 0.2
+        assert result.tracks[1].width == 0.3
+        assert result.segments_expanded == 0
 
     def test_power_track_expansion(self, geometry, ballooner):
         """Power tracks should be expanded when space allows."""
@@ -93,8 +94,8 @@ class TestTraceBallooning:
         tracks = [power_track]
         result = ballooner.balloon_traces(tracks)
 
-        assert len(result) == 1
-        assert result[0].width >= 2.0
+        assert len(result.tracks) == 1
+        assert result.tracks[0].width >= 2.0
 
     def test_max_width_limit(self, geometry, ballooner):
         """Traces should not exceed max_width limit."""
@@ -104,7 +105,7 @@ class TestTraceBallooning:
         tracks = [power_track]
         result = ballooner.balloon_traces(tracks)
 
-        assert result[0].width <= 4.0
+        assert result.tracks[0].width <= 4.0
 
     def test_no_expansion_in_confined_space(self, geometry, ballooner):
         """Traces near obstacles should not expand beyond clearance."""
@@ -118,12 +119,13 @@ class TestTraceBallooning:
         tracks = [power_track]
         result = ballooner.balloon_traces(tracks)
 
-        assert result[0].width <= 4.0
+        assert result.tracks[0].width <= 4.0
 
     def test_empty_tracks_list(self, ballooner):
-        """Empty track list should return empty list."""
+        """Empty track list should return empty result."""
         result = ballooner.balloon_traces([])
-        assert result == []
+        assert result.tracks == []
+        assert result.segments_expanded == 0
 
     def test_multiple_power_tracks(self, geometry, ballooner):
         """Multiple power tracks should all be ballooned."""
@@ -135,8 +137,8 @@ class TestTraceBallooning:
         ]
         result = ballooner.balloon_traces(tracks)
 
-        assert len(result) == 2
-        for track in result:
+        assert len(result.tracks) == 2
+        for track in result.tracks:
             assert track.net in ["DC_BUS", "+15V"]
 
 
@@ -210,7 +212,7 @@ class TestIntegration:
         tracks = [power_track]
         result = ballooner.balloon_traces(tracks)
 
-        assert result[0].width >= 2.0
+        assert result.tracks[0].width >= 2.0
 
     def test_with_pads_as_obstacles(self):
         """Pads should be treated as obstacles."""
@@ -231,4 +233,4 @@ class TestIntegration:
         tracks = [power_track]
         result = ballooner.balloon_traces(tracks)
 
-        assert result[0].width >= 2.0
+        assert result.tracks[0].width >= 2.0
