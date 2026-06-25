@@ -620,9 +620,11 @@ def test_hv_escalation_both_hv():
         voltage_ratings={"HV_BUS": 100.0, "AC_L": 400.0},
     )
     assert report.total_checks == 1
-    # 400V → 8.0 mm creepage; max(0.127, 8.0) = 8.0
+    # 400V → most-conservative across all standards (IEC 60950-1, 60335-1,
+    # 60664-1, 62368-1, IPC-2221) = 14.0 mm.  The old IPC-2221-only value
+    # was 8.0; the unified engine is correctly more conservative.
     if report.violation_count > 0:
-        assert report.violations[0].required_clearance == pytest.approx(8.0)
+        assert report.violations[0].required_clearance == pytest.approx(14.0)
 
 
 # ============================================================================
