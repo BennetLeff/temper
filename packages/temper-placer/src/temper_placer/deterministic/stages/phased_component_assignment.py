@@ -1248,13 +1248,13 @@ class PhasedComponentAssignmentStage(Stage):
     def _check_critical_bottlenecks(
         self, placements: Dict[str, Tuple[float, float]]
     ) -> list[dict]:
-        """Run the invariant check; WARNING-only in soft-launch mode.
+        """Run the invariant check; blocking by default.
 
-        When :func:`is_drc_fence_fail_enabled` returns True, the first
-        violation raises :class:`PhasedComponentAssignmentError` with the
-        offending ref and severity in the message. The U6 follow-up
-        bd issue ``Flip DRC fence invariant to hard-fail`` owns the
-        2-week timeline for flipping the env var by default.
+        When :func:`is_drc_fence_fail_enabled` returns True (the default),
+        the first violation raises :class:`PhasedComponentAssignmentError`
+        with the offending ref and severity in the message. Opt out by
+        setting :envvar:`TEMPER_DRC_FENCE_FAIL` to ``"0"``, ``"false"``,
+        ``"no"``, or ``"off"``.
         """
         violations = self.find_critical_bottleneck_violations(placements)
         for v in violations:
