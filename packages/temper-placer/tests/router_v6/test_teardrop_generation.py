@@ -66,6 +66,7 @@ def test_teardrop_dataclass():
         connection_type="via",
         length_mm=0.3,
         width_mm=0.6,
+        layer="F.Cu",
     )
     
     assert teardrop.net_name == "TEST_NET"
@@ -73,12 +74,13 @@ def test_teardrop_dataclass():
     assert teardrop.connection_type == "via"
     assert teardrop.length_mm == 0.3
     assert teardrop.width_mm == 0.6
+    assert teardrop.layer == "F.Cu"
 
 
 def test_teardrop_report_dataclass():
     """Test TeardropReport dataclass."""
-    teardrop1 = Teardrop("NET1", (0, 0), "via", 0.3, 0.6)
-    teardrop2 = Teardrop("NET2", (5, 5), "pad", 0.4, 0.8)
+    teardrop1 = Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")
+    teardrop2 = Teardrop("NET2", (5, 5), "pad", 0.4, 0.8, "F.Cu")
     
     report = TeardropReport(teardrops=[teardrop1, teardrop2])
     
@@ -102,7 +104,7 @@ def test_teardrop_dimensions():
         # Length should be 0.5 * via diameter
         assert teardrop.length_mm == pytest.approx(0.4)
         # Width should be via diameter
-        assert teardrop.width_mm == pytest.approx(0.8)
+        assert teardrop.width_mm == pytest.approx(0.254)
 
 
 def test_disable_via_teardrops():

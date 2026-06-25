@@ -24,9 +24,13 @@ def test_generate_empty_report():
     """Test generating report with no violations."""
     acid = AcidTrapReport(acid_traps=[])
     annular = AnnularRingReport(violations=[], total_vias_checked=0)
-    teardrops = TeardropReport(teardrops=[])
-    thermal = ThermalReliefReport(thermal_reliefs=[])
-    copper = CopperBalanceReport(layer_balances=[])
+    teardrops = TeardropReport(teardrops=[
+        Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")
+    ])
+    thermal = ThermalReliefReport(thermal_reliefs=[
+        ThermalRelief("GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[])
+    ])
+    copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
     
@@ -46,9 +50,13 @@ def test_generate_report_with_violations():
     annular = AnnularRingReport(violations=[
         AnnularRingViolation("NET1", (5, 5), 0.4, 0.35, 0.025, 0.1)
     ], total_vias_checked=1)
-    teardrops = TeardropReport(teardrops=[])
-    thermal = ThermalReliefReport(thermal_reliefs=[])
-    copper = CopperBalanceReport(layer_balances=[])
+    teardrops = TeardropReport(teardrops=[
+        Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")
+    ])
+    thermal = ThermalReliefReport(thermal_reliefs=[
+        ThermalRelief("GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[])
+    ])
+    copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
     
@@ -56,7 +64,8 @@ def test_generate_report_with_violations():
         acid, annular, teardrops, thermal, copper, creepage, clearance
     )
     
-    assert report.total_violations > 0
+    # 1 acid trap + 1 annular ring = 2 total violations (teardrops/thermal present)
+    assert report.total_violations == 2
     assert not report.is_manufacturability_ok
 
 
@@ -65,12 +74,12 @@ def test_manufacturing_report_dataclass():
     acid = AcidTrapReport(acid_traps=[])
     annular = AnnularRingReport(violations=[], total_vias_checked=5)
     teardrops = TeardropReport(teardrops=[
-        Teardrop("NET1", (5, 5), "via", 0.3, 0.6)
+        Teardrop("NET1", (5, 5), "via", 0.3, 0.6, "F.Cu")
     ])
     thermal = ThermalReliefReport(thermal_reliefs=[
         ThermalRelief("GND", (10, 10), 4, 0.254, 0.254)
     ])
-    copper = CopperBalanceReport(layer_balances=[])
+    copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
     
@@ -98,9 +107,13 @@ def test_critical_violations():
     annular = AnnularRingReport(violations=[
         AnnularRingViolation("NET1", (5, 5), 0.4, 0.35, 0.025, 0.1)
     ], total_vias_checked=1)
-    teardrops = TeardropReport(teardrops=[])
-    thermal = ThermalReliefReport(thermal_reliefs=[])
-    copper = CopperBalanceReport(layer_balances=[])
+    teardrops = TeardropReport(teardrops=[
+        Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")
+    ])
+    thermal = ThermalReliefReport(thermal_reliefs=[
+        ThermalRelief("GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[])
+    ])
+    copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
     
@@ -116,9 +129,13 @@ def test_format_report():
     """Test report formatting."""
     acid = AcidTrapReport(acid_traps=[])
     annular = AnnularRingReport(violations=[], total_vias_checked=10)
-    teardrops = TeardropReport(teardrops=[])
-    thermal = ThermalReliefReport(thermal_reliefs=[])
-    copper = CopperBalanceReport(layer_balances=[])
+    teardrops = TeardropReport(teardrops=[
+        Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")
+    ])
+    thermal = ThermalReliefReport(thermal_reliefs=[
+        ThermalRelief("GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[])
+    ])
+    copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=5)
     clearance = ClearanceReport(violations=[], total_checks=20)
     
@@ -137,14 +154,18 @@ def test_copper_balance_violations():
     """Test copper balance violations in report."""
     acid = AcidTrapReport(acid_traps=[])
     annular = AnnularRingReport(violations=[], total_vias_checked=0)
-    teardrops = TeardropReport(teardrops=[])
-    thermal = ThermalReliefReport(thermal_reliefs=[])
+    teardrops = TeardropReport(teardrops=[
+        Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")
+    ])
+    thermal = ThermalReliefReport(thermal_reliefs=[
+        ThermalRelief("GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[])
+    ])
     
     # Unbalanced layers
     copper = CopperBalanceReport(layer_balances=[
-        LayerCopperBalance("F.Cu", 10000, 1000, 10, False),
-        LayerCopperBalance("B.Cu", 10000, 8000, 80, False),
-    ])
+        LayerCopperBalance("F.Cu", 1000, 10, False),
+        LayerCopperBalance("B.Cu", 8000, 80, False),
+    ], total_area_mm2=0.0)
     
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
@@ -153,6 +174,7 @@ def test_copper_balance_violations():
         acid, annular, teardrops, thermal, copper, creepage, clearance
     )
     
-    # 2 unbalanced layers count as violations
+    # 2 unbalanced layers count as violations (teardrops/thermal present, so no partial failures)
     assert report.total_violations == 2
+    assert report.critical_violations == 2
     assert not report.is_manufacturability_ok

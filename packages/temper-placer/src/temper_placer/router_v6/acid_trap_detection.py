@@ -8,6 +8,7 @@ Part of temper-vm3g (Stage 5 - Manufacturing DRC)
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -39,6 +40,16 @@ class AcidTrapReport:
         """Number of critical acid traps (< 45°)."""
         return sum(1 for trap in self.acid_traps if trap.severity == "high")
 
+    @property
+    def medium_count(self) -> int:
+        """Number of medium-severity acid traps (45°–60°)."""
+        return sum(1 for trap in self.acid_traps if trap.severity == "medium")
+
+    @property
+    def low_count(self) -> int:
+        """Number of low-severity acid traps (60°–90°)."""
+        return sum(1 for trap in self.acid_traps if trap.severity == "low")
+
 
 def detect_acid_traps(
     routing_results: RoutingResults,
@@ -52,7 +63,9 @@ def detect_acid_traps(
 
     Args:
         routing_results: Compiled routing results from Stage 4.9
-        min_angle_threshold: Minimum acceptable angle (degrees)
+        min_angle_threshold: Minimum acceptable angle (degrees).
+            Values above 90° are clamped to 90° with a warning
+            (acid traps are defined as angles < 90°).
 
     Returns:
         AcidTrapReport with all detected acid traps
@@ -64,32 +77,99 @@ def detect_acid_traps(
         >>> report.trap_count >= 0
         True
     """
+    # ---- Clamp threshold ---------------------------------------------------
+    if min_angle_threshold > 90.0:
+        warnings.warn(
+            f"min_angle_threshold={min_angle_threshold}° exceeds 90° — "
+            f"clamping to 90°. The acid-trap detector identifies acute "
+            f"angles (< 90°), not obtuse bends.",
+            stacklevel=2,
+        )
+        min_angle_threshold = 90.0
+
     acid_traps = []
 
     for net_name, compiled_route in routing_results.compiled_routes.items():
         # Analyze path for acute angles
         path_coords = compiled_route.path.coordinates
 
+        # ---- Filter duplicate consecutive points ---------------------------
+        filtered: list[tuple[float, float]] = []
+        for pt in path_coords:
+            if not filtered or pt != filtered[-1]:
+                filtered.append(pt)
+        path_coords = filtered
+
         if len(path_coords) < 3:
             # Need at least 3 points to form an angle
             continue
 
-        # Check angles at each vertex
+        # ---- Build via-position set for this route -------------------------
+        via_positions: set[tuple[float, float]] = set()
+        if compiled_route.vias:
+            for via in compiled_route.vias:
+                via_positions.add(via.position)
+
+        trace_width_mm = compiled_route.width_mm
+
+        # ---- Interior vertices (indices 1 .. n-2) --------------------------
         for i in range(1, len(path_coords) - 1):
-            prev_point = path_coords[i - 1]
             curr_point = path_coords[i]
+
+            # Skip via-transition vertices — those are layer changes,
+            # not trace bends that could trap etchant.
+            if curr_point in via_positions:
+                continue
+
+            prev_point = path_coords[i - 1]
             next_point = path_coords[i + 1]
 
             angle = _calculate_angle(prev_point, curr_point, next_point)
 
+            # Guard against NaN (floating-point edge cases)
+            if math.isnan(angle):
+                continue
+
             if angle < min_angle_threshold:
-                # This is an acid trap
-                severity = _classify_severity(angle)
+                severity = _classify_severity(angle, trace_width_mm)
 
                 acid_traps.append(AcidTrap(
                     net_name=net_name,
                     position=curr_point,
                     angle_degrees=angle,
+                    severity=severity,
+                ))
+
+        # ---- Endpoint approach angles (if pin locations available) ----------
+        # Check the angle where the first/last trace segment meets a pad.
+        if (
+            hasattr(compiled_route, 'start_pin_location')
+            and hasattr(compiled_route, 'end_pin_location')
+        ):
+            start_pin = compiled_route.start_pin_location  # type: ignore[attr-defined]
+            end_pin = compiled_route.end_pin_location      # type: ignore[attr-defined]
+
+            # Start approach: angle at path_coords[0] formed by
+            #   (start_pin_location, path_coords[0], path_coords[1])
+            angle_start = _calculate_angle(start_pin, path_coords[0], path_coords[1])
+            if not math.isnan(angle_start) and angle_start < min_angle_threshold:
+                severity = _classify_severity(angle_start, trace_width_mm)
+                acid_traps.append(AcidTrap(
+                    net_name=net_name,
+                    position=path_coords[0],
+                    angle_degrees=angle_start,
+                    severity=severity,
+                ))
+
+            # End approach: angle at path_coords[-1] formed by
+            #   (path_coords[-2], path_coords[-1], end_pin_location)
+            angle_end = _calculate_angle(path_coords[-2], path_coords[-1], end_pin)
+            if not math.isnan(angle_end) and angle_end < min_angle_threshold:
+                severity = _classify_severity(angle_end, trace_width_mm)
+                acid_traps.append(AcidTrap(
+                    net_name=net_name,
+                    position=path_coords[-1],
+                    angle_degrees=angle_end,
                     severity=severity,
                 ))
 
@@ -129,24 +209,43 @@ def _calculate_angle(
     cos_angle = max(-1.0, min(1.0, cos_angle))  # Clamp to [-1, 1]
 
     angle_rad = math.acos(cos_angle)
+
+    # Floating-point edge case: acos may still produce NaN
+    if math.isnan(angle_rad):
+        return 180.0
+
     angle_deg = math.degrees(angle_rad)
 
     return angle_deg
 
 
-def _classify_severity(angle: float) -> str:
+def _classify_severity(angle: float, trace_width_mm: float = 0.2) -> str:
     """
-    Classify acid trap severity based on angle.
+    Classify acid trap severity based on angle and trace width.
+
+    Narrow traces (< 0.2 mm) are less likely to trap etchant, so their
+    severity is demoted by one level.
 
     Args:
         angle: Angle in degrees
+        trace_width_mm: Trace width in mm (default 0.2)
 
     Returns:
         Severity: "low", "medium", or "high"
     """
     if angle < 45:
-        return "high"  # Very acute - critical
+        base = "high"      # Very acute - critical
     elif angle < 60:
-        return "medium"  # Moderate concern
+        base = "medium"    # Moderate concern
     else:
-        return "low"  # Minor issue
+        base = "low"       # Minor issue
+
+    # Narrow traces are less susceptible to etchant trapping
+    if trace_width_mm < 0.2:
+        if base == "high":
+            return "medium"
+        elif base == "medium":
+            return "low"
+        # "low" stays "low"
+
+    return base
