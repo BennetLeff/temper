@@ -58,12 +58,12 @@ from tests.router_v6.dfm_boundary_constants import (
 # ---------------------------------------------------------------------------
 # Mock helpers (duck-typed stubs) — reused from test_dfm_correctness
 # ---------------------------------------------------------------------------
-from tests.router_v6.test_dfm_correctness import (
-    _Path,
-    _Route,
-    _Results,
-    _Via,
-    _make_results,
+from tests.router_v6.dfm_boundary_constants import (
+    Path as _Path,
+    Route as _Route,
+    Results as _Results,
+    Via as _Via,
+    make_results as _make_results,
 )
 
 # ===========================================================================

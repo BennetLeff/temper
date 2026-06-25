@@ -106,3 +106,57 @@ def just_above(value: float, delta: float = 1e-6) -> float:
 def exactly_at(value: float) -> float:
     """Value exactly at the threshold."""
     return value
+
+
+# ---------------------------------------------------------------------------
+# Shared test helpers (Path / Via / Route / Results stubs)
+# ---------------------------------------------------------------------------
+
+import math as _math
+
+
+class Path:
+    """Minimal RoutePath stub for boundary tests."""
+
+    def __init__(self, coords, layer="F.Cu"):
+        self.coordinates = list(coords)
+        self.layer_name = layer
+        self.total_length_mm = sum(
+            _math.hypot(
+                coords[i + 1][0] - coords[i][0],
+                coords[i + 1][1] - coords[i][1],
+            )
+            for i in range(len(coords) - 1)
+        ) if len(coords) > 1 else 0.0
+        self.path_length = self.total_length_mm
+
+
+class Via:
+    """Minimal Via stub for boundary tests."""
+
+    def __init__(self, x, y, frm, to, dia, drill, net, via_type=None):
+        self.position = (x, y)
+        self.from_layer = frm
+        self.to_layer = to
+        self.diameter = dia
+        self.drill = drill
+        self.net_name = net
+        self.via_type = via_type
+
+
+class Route:
+    def __init__(self, name, path, width, vias):
+        self.net_name = name
+        self.path = path
+        self.width_mm = width
+        self.vias = list(vias)
+
+
+class Results:
+    def __init__(self, **routes):
+        self.compiled_routes = routes
+        self.failed_nets = []
+
+
+def make_results(**kwargs) -> Results:
+    return Results(**kwargs)
