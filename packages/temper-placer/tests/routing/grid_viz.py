@@ -88,7 +88,7 @@ def render_grid(
                 row += "P"
             elif components and (x, y) in components:
                 row += "C"
-            elif int(router.occupancy[x, y, layer]) == 1:
+            elif int(router.occupancy[x, y, layer]) == -1:
                 row += "#"
             else:
                 row += "."
@@ -236,7 +236,7 @@ def render_path_comparison(
                 row += "A"
             elif (x, y) in expected_coords:
                 row += "E"
-            elif int(router.occupancy[x, y, 0]) == 1:
+            elif int(router.occupancy[x, y, 0]) == -1:
                 row += "#"
             else:
                 row += "."

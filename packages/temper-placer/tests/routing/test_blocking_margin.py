@@ -48,8 +48,8 @@ class TestBlockingMargin:
         # Component is 10x10mm centered at (50, 50)
         # With 0.5mm margin: 11x11mm total
         # Grid cells: (50-5.5)/1.0 to (50+5.5)/1.0 = 44.5 to 55.5 = cells 44-55 (12 cells)
-        assert int(router.occupancy[44, 50, 0]) == 1, "Left edge should be blocked"
-        assert int(router.occupancy[55, 50, 0]) == 1, "Right edge should be blocked"
+        assert int(router.occupancy[44, 50, 0]) == -1, "Left edge should be blocked"
+        assert int(router.occupancy[55, 50, 0]) == -1, "Right edge should be blocked"
         assert int(router.occupancy[43, 50, 0]) == 0, "Outside margin should be free"
 
     def test_custom_margin_01mm(self, router, simple_component):
@@ -61,7 +61,7 @@ class TestBlockingMargin:
         # With 0.1mm margin: 10.2x10.2mm total
         # Grid cells: (50-5.1)/1.0 to (50+5.1)/1.0 = 44.9 to 55.1 = cells 44-55 (12 cells)
         # But with proper rounding: cells 45-54 (10 cells)
-        blocked_count = jnp.sum(router.occupancy[:, 50, 0] == 1)
+        blocked_count = jnp.sum(router.occupancy[:, 50, 0] == -1)
         assert 10 <= blocked_count <= 12, f"Expected 10-12 blocked cells, got {blocked_count}"
 
     def test_zero_margin(self, router, simple_component):
@@ -71,8 +71,8 @@ class TestBlockingMargin:
 
         # Component is 10x10mm centered at (50, 50)
         # Grid cells: (50-5)/1.0 to (50+5)/1.0 = 45 to 55 = cells 45-54 (10 cells)
-        assert int(router.occupancy[45, 50, 0]) == 1, "Component edge should be blocked"
-        assert int(router.occupancy[54, 50, 0]) == 1, "Component edge should be blocked"
+        assert int(router.occupancy[45, 50, 0]) == -1, "Component edge should be blocked"
+        assert int(router.occupancy[54, 50, 0]) == -1, "Component edge should be blocked"
         assert int(router.occupancy[44, 50, 0]) == 0, "Outside component should be free"
 
     def test_large_margin_2mm(self, router, simple_component):
@@ -83,8 +83,8 @@ class TestBlockingMargin:
         # Component is 10x10mm centered at (50, 50)
         # With 2mm margin: 14x14mm total
         # Grid cells: (50-7)/1.0 to (50+7)/1.0 = 43 to 57 = cells 43-56 (14 cells)
-        assert int(router.occupancy[43, 50, 0]) == 1, "Extended margin should be blocked"
-        assert int(router.occupancy[56, 50, 0]) == 1, "Extended margin should be blocked"
+        assert int(router.occupancy[43, 50, 0]) == -1, "Extended margin should be blocked"
+        assert int(router.occupancy[56, 50, 0]) == -1, "Extended margin should be blocked"
         assert int(router.occupancy[42, 50, 0]) == 0, "Outside margin should be free"
 
     def test_margin_affects_all_components(self, router):
@@ -97,8 +97,8 @@ class TestBlockingMargin:
 
         # Both components should have 0.2mm margin applied
         # Verify by checking blocked cell counts are proportional to component size + margin
-        blocked_1 = jnp.sum(router.occupancy[25:35, 25:35, 0] == 1)
-        blocked_2 = jnp.sum(router.occupancy[65:75, 65:75, 0] == 1)
+        blocked_1 = jnp.sum(router.occupancy[25:35, 25:35, 0] == -1)
+        blocked_2 = jnp.sum(router.occupancy[65:75, 65:75, 0] == -1)
 
         assert blocked_1 > 0, "First component should block cells"
         assert blocked_2 > 0, "Second component should block cells"
@@ -123,7 +123,7 @@ class TestMarginEdgeCases:
         router.block_components([tiny_comp], positions, margin=5.0)
 
         # Should block large area around tiny component
-        blocked_count = jnp.sum(router.occupancy[:, :, 0] == 1)
+        blocked_count = jnp.sum(router.occupancy[:, :, 0] == -1)
         assert blocked_count > 100, "Large margin should block many cells"
 
     def test_margin_with_board_edge_components(self, router, simple_component):

@@ -61,11 +61,11 @@ class TestBlockingMetamorphicProperties:
 
         router1 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router1.block_components([component], positions, margin=margin1)
-        blocked1 = jnp.sum(router1.occupancy == 1)
+        blocked1 = jnp.sum(router1.occupancy == -1)
 
         router2 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router2.block_components([component], positions, margin=margin2)
-        blocked2 = jnp.sum(router2.occupancy == 1)
+        blocked2 = jnp.sum(router2.occupancy == -1)
 
         assert blocked2 >= blocked1, \
             f"Larger margin {margin2} should block >= cells than {margin1}"
@@ -88,11 +88,11 @@ class TestBlockingMetamorphicProperties:
 
         router1 = MazeRouter.from_board(board, cell_size_mm=cell_size1, num_layers=2)
         router1.block_components([component], positions, margin=0.5)
-        blocked1 = jnp.sum(router1.occupancy == 1)
+        blocked1 = jnp.sum(router1.occupancy == -1)
 
         router2 = MazeRouter.from_board(board, cell_size_mm=cell_size2, num_layers=2)
         router2.block_components([component], positions, margin=0.5)
-        blocked2 = jnp.sum(router2.occupancy == 1)
+        blocked2 = jnp.sum(router2.occupancy == -1)
 
         # Finer grid should have more cells blocked (approximately proportional to area ratio)
         ratio = (cell_size1 / cell_size2) ** 2
@@ -121,7 +121,7 @@ class TestBlockingMetamorphicProperties:
         ])
 
         router.block_components(components, positions, margin=0.1)
-        blocked = jnp.sum(router.occupancy == 1)
+        blocked = jnp.sum(router.occupancy == -1)
 
         # Should be roughly proportional to number of components
         # Each component blocks ~(5+0.2)^2 / 1.0^2 = ~27 cells
@@ -145,11 +145,11 @@ class TestBlockingMetamorphicProperties:
 
         router1 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router1.block_components([component], positions, margin=0.1, escape_length=3)
-        blocked1 = jnp.sum(router1.occupancy == 1)
+        blocked1 = jnp.sum(router1.occupancy == -1)
 
         router2 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         router2.block_components([component], positions, margin=0.1, escape_length=escape_length)
-        blocked2 = jnp.sum(router2.occupancy == 1)
+        blocked2 = jnp.sum(router2.occupancy == -1)
 
         # Longer escape routes should free more cells (or at least not block more)
         assert blocked2 <= blocked1, \
@@ -186,7 +186,7 @@ class TestBlockingContractInvariants:
             for y in jnp.arange(cy - half_h, cy + half_h, 0.5):
                 gx, gy = router._world_to_grid(float(x), float(y))
                 if 0 <= gx < router.grid_size[0] and 0 <= gy < router.grid_size[1]:
-                    assert int(router.occupancy[gx, gy, 0]) == 1, \
+                    assert int(router.occupancy[gx, gy, 0]) == -1, \
                         f"Cell ({gx}, {gy}) within component+margin should be blocked"
 
     @given(
@@ -243,12 +243,12 @@ class TestBlockingContractInvariants:
 
         if layer_specific:
             # Should only block component's layer
-            assert int(router.occupancy[gx, gy, 0]) == 1, "Component layer should be blocked"
+            assert int(router.occupancy[gx, gy, 0]) == -1, "Component layer should be blocked"
             assert int(router.occupancy[gx, gy, 1]) == 0, "Other layer should be free"
         else:
             # Should block all layers
-            assert int(router.occupancy[gx, gy, 0]) == 1, "Layer 0 should be blocked"
-            assert int(router.occupancy[gx, gy, 1]) == 1, "Layer 1 should be blocked"
+            assert int(router.occupancy[gx, gy, 0]) == -1, "Layer 0 should be blocked"
+            assert int(router.occupancy[gx, gy, 1]) == -1, "Layer 1 should be blocked"
 
     @given(
         num_calls=st.integers(min_value=1, max_value=3),
@@ -269,12 +269,12 @@ class TestBlockingContractInvariants:
         for _ in range(num_calls):
             router.block_components([component], positions, margin=0.1)
 
-        blocked = jnp.sum(router.occupancy == 1)
+        blocked = jnp.sum(router.occupancy == -1)
 
         # Create fresh router and block once
         router_fresh = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         router_fresh.block_components([component], positions, margin=0.1)
-        blocked_fresh = jnp.sum(router_fresh.occupancy == 1)
+        blocked_fresh = jnp.sum(router_fresh.occupancy == -1)
 
         assert blocked == blocked_fresh, \
             "Multiple blocking calls should be idempotent"
@@ -300,7 +300,7 @@ class TestBlockingSymmetryProperties:
         positions = jnp.array([[50.0, 50.0]])
 
         router.block_components([component], positions, margin=0.1)
-        blocked = jnp.sum(router.occupancy == 1)
+        blocked = jnp.sum(router.occupancy == -1)
 
         # Should block same number of cells regardless of rotation
         # (for square component)
@@ -329,7 +329,7 @@ class TestBlockingSymmetryProperties:
         router1 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         positions1 = jnp.array([[50.0, 50.0]])
         router1.block_components([component], positions1, margin=0.1, escape_length=5)
-        blocked1 = jnp.sum(router1.occupancy == 1)
+        blocked1 = jnp.sum(router1.occupancy == -1)
 
         # Mirror component (swap pin positions)
         if mirror:
@@ -347,7 +347,7 @@ class TestBlockingSymmetryProperties:
         router2 = MazeRouter.from_board(board, cell_size_mm=0.5, num_layers=2)
         positions2 = jnp.array([[50.0, 50.0]])
         router2.block_components([component_mirror], positions2, margin=0.1, escape_length=5)
-        blocked2 = jnp.sum(router2.occupancy == 1)
+        blocked2 = jnp.sum(router2.occupancy == -1)
 
         assert blocked1 == blocked2, \
             "Symmetric component should block same cells when mirrored"
@@ -406,7 +406,7 @@ class TestBlockingBoundaryConditions:
         # Should handle without error
         router.block_components([component], positions, margin=0.1)
 
-        blocked = jnp.sum(router.occupancy == 1)
+        blocked = jnp.sum(router.occupancy == -1)
 
         # Sanity check: blocked cells should be reasonable
         max_possible = router.grid_size[0] * router.grid_size[1]

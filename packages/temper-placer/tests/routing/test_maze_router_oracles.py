@@ -229,7 +229,7 @@ def test_pin_escapes_perpendicular():
 
     # Check that a cell deep inside component is still blocked
 
-    assert int(router.occupancy[5, 5, 0]) == 1
+    assert int(router.occupancy[5, 5, 0]) == -1
 
 
 

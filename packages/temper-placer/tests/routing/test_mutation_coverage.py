@@ -74,14 +74,14 @@ class TestMutationCoverage:
 
         # Correct implementation
         router.block_components([component], positions, margin=0.5)
-        correct_blocked = jnp.sum(router.occupancy == 1)
+        correct_blocked = jnp.sum(router.occupancy == -1)
 
         # Simulate mutation: margin subtraction instead of addition
         router_mutated = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=2)
         # This would be: half_w = component.bounds[0] / 2 - margin (WRONG)
         # We verify our tests would catch this by checking blocked area is different
         router_mutated.block_components([component], positions, margin=-0.5)  # Simulated mutation
-        mutated_blocked = jnp.sum(router_mutated.occupancy == 1)
+        mutated_blocked = jnp.sum(router_mutated.occupancy == -1)
 
         assert correct_blocked != mutated_blocked, \
             "Tests must detect arithmetic mutations (+ to -)"
@@ -133,8 +133,8 @@ class TestMutationCoverage:
         # Component is 10x10 centered at (50, 50)
         # Should block cells from 45 to 54 (inclusive)
 
-        assert int(router.occupancy[45, 50, 0]) == 1, "Left edge should be blocked"
-        assert int(router.occupancy[54, 50, 0]) == 1, "Right edge should be blocked"
+        assert int(router.occupancy[45, 50, 0]) == -1, "Left edge should be blocked"
+        assert int(router.occupancy[54, 50, 0]) == -1, "Right edge should be blocked"
         assert int(router.occupancy[44, 50, 0]) == 0, "One cell left should be free"
         assert int(router.occupancy[55, 50, 0]) == 0, "One cell right should be free"
 
@@ -209,7 +209,7 @@ class TestInvariantViolationDetection:
             for y in jnp.arange(cy - half_h + 0.25, cy + half_h, 0.5):
                 gx, gy = router._world_to_grid(float(x), float(y))
                 if 0 <= gx < router.grid_size[0] and 0 <= gy < router.grid_size[1]:
-                    assert int(router.occupancy[gx, gy, 0]) == 1, \
+                    assert int(router.occupancy[gx, gy, 0]) == -1, \
                         f"Completeness invariant violated: cell ({gx}, {gy}) at ({x}, {y}) should be blocked"
 
 
@@ -236,7 +236,7 @@ class TestRegressionDetection:
 
         # Snapshot values (verified correct)
         expected_blocked = 121  # (10 + 2*0.5)^2 / 1.0^2 = 121 cells
-        actual_blocked = int(jnp.sum(router.occupancy == 1))
+        actual_blocked = int(jnp.sum(router.occupancy == -1))
 
         assert actual_blocked == expected_blocked, \
             f"Regression detected: expected {expected_blocked} blocked cells, got {actual_blocked}"
@@ -308,7 +308,7 @@ class TestPerformanceRegression:
         result = benchmark(block_all)
 
         # Verify correctness
-        blocked = jnp.sum(result.occupancy == 1)
+        blocked = jnp.sum(result.occupancy == -1)
         assert blocked > 0, "Should block cells"
 
     def test_pathfinding_performance_long_path(self, benchmark):

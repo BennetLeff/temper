@@ -236,7 +236,7 @@ class TestChaosEngineering:
         # Should handle without memory issues
         router.block_components([component], positions, margin=0.1)
 
-        assert jnp.sum(router.occupancy == 1) > 0, "Should block cells"
+        assert jnp.sum(router.occupancy == -1) > 0, "Should block cells"
 
     def test_chaos_extremely_coarse_grid(self):
         """Chaos: Extremely coarse grid (10mm cells)."""
@@ -254,7 +254,7 @@ class TestChaosEngineering:
         router.block_components([component], positions, margin=0.5)
 
         # Component smaller than cell size - should still block at least 1 cell
-        assert jnp.sum(router.occupancy == 1) >= 1, "Should block at least one cell"
+        assert jnp.sum(router.occupancy == -1) >= 1, "Should block at least one cell"
 
     def test_chaos_component_larger_than_board(self):
         """Chaos: Component larger than board."""
@@ -272,7 +272,7 @@ class TestChaosEngineering:
 
         # Should block entire board
         total_cells = router.grid_size[0] * router.grid_size[1]
-        blocked = jnp.sum(router.occupancy[:, :, 0] == 1)
+        blocked = jnp.sum(router.occupancy[:, :, 0] == -1)
 
         assert blocked >= total_cells * 0.9, "Should block most/all of board"
 
@@ -290,7 +290,7 @@ class TestChaosEngineering:
 
         router.block_components([component], positions, margin=0.5)
 
-        assert jnp.sum(router.occupancy == 1) > 0, "Should handle negative origins"
+        assert jnp.sum(router.occupancy == -1) > 0, "Should handle negative origins"
 
     def test_chaos_floating_point_precision(self):
         """Chaos: Floating point precision edge cases."""
