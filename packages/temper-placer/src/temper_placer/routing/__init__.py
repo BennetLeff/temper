@@ -56,11 +56,6 @@ from temper_placer.routing.net_ordering import (
     NetPriority,
     order_nets,
 )
-from temper_placer.routing.dithered_router import (
-    DitheredRouter,
-    DitherConfig,
-    DitherAttempt,
-)
 from temper_placer.routing.c_space_builder import (
     CSpaceBuilder,
     CSpaceConfig,
@@ -68,39 +63,12 @@ from temper_placer.routing.c_space_builder import (
     CSpaceCache,
     SoftCSpaceBuilder,
     CacheStats,
-)
-from temper_placer.routing.c_space_pipeline import (
-    CSpaceRoutingPipeline,
-    PipelineConfig,
-    RoutingResult,
-    FunnelSmoother,
-    TraceBallooner,
 )
 from temper_placer.routing.routing_analyzer import (
     RoutingAnalyzer,
     RoutingAnalyzerConfig,
     RoutingAnalysisResult,
     analyze_routability,
-)
-from temper_placer.routing.c_space_builder import (
-    CSpaceBuilder,
-    CSpaceConfig,
-    CSpaceGrid,
-    CSpaceCache,
-    SoftCSpaceBuilder,
-    CacheStats,
-)
-from temper_placer.routing.c_space_pipeline import (
-    CSpaceRoutingPipeline,
-    PipelineConfig,
-    RoutingResult,
-    FunnelSmoother,
-    TraceBallooner,
-)
-from temper_placer.routing.dithered_router import (
-    DitheredRouter,
-    DitherConfig,
-    DitherAttempt,
 )
 from temper_placer.routing.escape_router import (
     EscapeRouter,
@@ -122,6 +90,7 @@ from temper_placer.routing.verifier import (
 from temper_placer.routing.post_processing import (
     FunnelSmoother,
     Point,
+    TraceBallooner,
 )
 from temper_placer.routing.grid import GridConverter
 from temper_placer.routing.difficulty import (
@@ -170,33 +139,6 @@ from temper_placer.routing.cost import (
     extract_cells_from_paths,
     get_strategy_multiplier,
 )
-from temper_placer.routing.critical_net_detector import (
-    CriticalNet,
-    CriticalNetCategory,
-    CriticalNetDetectionResult,
-    CriticalNetDetector,
-)
-from temper_placer.routing.pdn_router import (
-    PDNRouteResult,
-    PDNRouter,
-    PowerTraceWidth,
-)
-from temper_placer.routing.cost import (
-    BLOCKED_COST,
-    check_blocked,
-    check_net_isolation,
-    compute_base_cost,
-    compute_congestion_cost,
-    compute_congestion_multiplier,
-    compute_layer_balance_cost,
-    compute_path_cost,
-    compute_sharing_penalty,
-    compute_total_move_cost,
-    compute_via_cost,
-    count_vias,
-    extract_cells_from_paths,
-    get_strategy_multiplier,
-)
 
 __all__ = [
     # Verifier (main entry point)
@@ -217,10 +159,6 @@ __all__ = [
     "MazeRouter",
     "RoutePath",
     "compute_completion_rate",
-    # Dithered Router
-    "DitheredRouter",
-    "DitherConfig",
-    "DitherAttempt",
     # C-Space Builder
     "CSpaceBuilder",
     "CSpaceConfig",
@@ -228,12 +166,6 @@ __all__ = [
     "CSpaceCache",
     "SoftCSpaceBuilder",
     "CacheStats",
-    # C-Space Pipeline
-    "CSpaceRoutingPipeline",
-    "PipelineConfig",
-    "RoutingResult",
-    "FunnelSmoother",
-    "TraceBallooner",
     # Layer assignment
     "Layer",
     "LayerAssignment",
@@ -262,16 +194,8 @@ __all__ = [
     "UnifiedRouter",
     "EscapeRouter",
     "EscapeResult",
-    # Critical Net Detection (temper-cjxg)
-    "CriticalNet",
-    "CriticalNetCategory",
-    "CriticalNetDetectionResult",
-    "CriticalNetDetector",
-    # PDN Router (temper-cjxg)
-    "PDNRouteResult",
-    "PDNRouter",
-    "PowerTraceWidth",
     # Path smoothing
     "FunnelSmoother",
     "Point",
+    "TraceBallooner",
 ]

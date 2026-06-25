@@ -301,9 +301,7 @@ class CSpaceBuilder:
 
             # Check if this is a zone that should NOT block this class
             if pad.net.startswith("ZONE_"):
-                # My Zone Bleeding fix logic: If net_name (class) is in zone's allowed classes, don't block.
-                # Wait, I need to know the zone's allowed classes here.
-                # Actually, in c_space_pipeline.py, I already added zones as obstacles ONLY if they don't match the class.
+                # Zone membership filtering is handled by the caller via the obstacle set.
                 pass
 
             inflation_mm = clearance + (trace_width / 2.0)
