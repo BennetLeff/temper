@@ -96,31 +96,19 @@ def _call_safely(
         # Zero / negative — guarded by via.diameter <= 0
         pytest.param(0.0, False, True, id="via_diameter_zero"),
         pytest.param(-0.1, False, True, id="via_diameter_negative"),
-        # NaN — guard is via.diameter <= 0, which is False for NaN,
-        # so the guard is silently skipped.  A correct guard would catch NaN
-        # and emit a warning.
+        # NaN — guarded by math.isnan()
         pytest.param(
             float("nan"),
             False,
-            True,  # <-- correct behaviour: warn + skip
+            True,
             id="via_diameter_nan",
-            marks=pytest.mark.xfail(
-                reason="NaN bypasses the <= 0 guard (NaN <= 0 is False); "
-                "no warning is emitted."
-            ),
         ),
-        # +inf — guard via.diameter <= 0 is False, and the final check
-        # inf >= trace*1.2 is True, producing a teardrop with infinite
-        # length.  A correct guard would reject +inf with a warning.
+        # +inf — guarded by math.isfinite()
         pytest.param(
             float("inf"),
             False,
-            True,  # <-- correct behaviour: warn + skip
+            True,
             id="via_diameter_inf",
-            marks=pytest.mark.xfail(
-                reason="inf diameter passes all guards and yields a "
-                "teardrop with infinite length_mm; should be rejected."
-            ),
         ),
         # -inf — guard via.diameter <= 0 is True, correctly skipped.
         pytest.param(-float("inf"), False, True, id="via_diameter_neg_inf"),
@@ -154,29 +142,14 @@ def test_via_diameter_boundary(diameter, expect_teardrop, expect_warning):
         # 0.0 width — threshold via.diameter >= 0.0 is True,
         # teardrop_width = min(0.36, 0.0) = 0.0.  Degenerate but no crash.
         pytest.param(0.0, True, id="trace_width_zero"),
-        # Negative width — teardrop_width becomes negative.
-        pytest.param(
-            -0.1,
-            True,
-            id="trace_width_negative",
-            marks=pytest.mark.xfail(
-                reason="trace_width=-0.1 yields teardrop_width_mm < 0."
-            ),
-        ),
+        # Negative width — clamped to >= 0 via max(0.0, ...)
+        pytest.param(-0.1, True, id="trace_width_negative"),
         # NaN — threshold NaN >= anything is False, no teardrop.
         pytest.param(float("nan"), False, id="trace_width_nan"),
         # +inf — threshold 0.6 >= inf is False, no teardrop.
         pytest.param(float("inf"), False, id="trace_width_inf"),
-        # -inf — threshold 0.6 >= -inf is True, teardrop_width =
-        # min(0.36, -inf) = -inf.
-        pytest.param(
-            -float("inf"),
-            True,
-            id="trace_width_neg_inf",
-            marks=pytest.mark.xfail(
-                reason="trace_width=-inf yields teardrop_width_mm = -inf."
-            ),
-        ),
+        # -inf — clamped to >= 0 via max(0.0, ...)
+        pytest.param(-float("inf"), True, id="trace_width_neg_inf"),
     ],
 )
 def test_trace_width_boundary(trace_width, expect_teardrop):
@@ -211,18 +184,12 @@ def test_trace_width_boundary(trace_width, expect_teardrop):
         pytest.param(1.0, False, 1.0, id="ratio_at_max"),
         # Above max — clamped to 1.0 with warning
         pytest.param(2.0, True, 1.0, id="ratio_above_max"),
-        # NaN — neither < 0.1 nor > 1.0 is True for NaN,
-        # so clamping is skipped and teardrop_length becomes NaN.
+        # NaN — clamped to 0.1 (math.isnan guard)
         pytest.param(
             float("nan"),
             True,
-            0.1,  # expected clamped — but NaN won't be clamped
+            0.1,
             id="ratio_nan",
-            marks=pytest.mark.xfail(
-                reason="NaN teardrop_length_ratio bypasses the clamping "
-                "guard (NaN < 0.1 is False, NaN > 1.0 is False) and "
-                "produces NaN teardrop_length."
-            ),
         ),
     ],
 )

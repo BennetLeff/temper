@@ -83,12 +83,13 @@ def insert_teardrops(
         True
     """
     # Clamp teardrop_length_ratio to sensible range
-    if teardrop_length_ratio < 0.1 or teardrop_length_ratio > 1.0:
+    if math.isnan(teardrop_length_ratio) or not (0.1 <= teardrop_length_ratio <= 1.0):
+        clamped = 0.1 if math.isnan(teardrop_length_ratio) else max(0.1, min(teardrop_length_ratio, 1.0))
         warnings.warn(
             f"teardrop_length_ratio={teardrop_length_ratio} is outside [0.1, 1.0]; "
-            f"clamping to [{max(0.1, min(teardrop_length_ratio, 1.0))}]."
+            f"clamping to [{clamped}]."
         )
-        teardrop_length_ratio = max(0.1, min(teardrop_length_ratio, 1.0))
+        teardrop_length_ratio = clamped
 
     teardrops = []
 
@@ -138,11 +139,11 @@ def _generate_via_teardrop(
     Returns:
         Teardrop or None if not needed
     """
-    # Guard: skip vias with non-positive diameter
-    if via.diameter <= 0:
+    # Guard: skip vias with NaN, infinite, or non-positive diameter
+    if math.isnan(via.diameter) or not math.isfinite(via.diameter) or via.diameter <= 0:
         warnings.warn(
             f"Via at {via.position} for net '{net_name}' has diameter "
-            f"{via.diameter} <= 0; skipping teardrop."
+            f"{via.diameter}; skipping teardrop."
         )
         return None
 
@@ -191,7 +192,11 @@ def _generate_via_teardrop(
     )
 
     # Calculate teardrop dimensions
-    trace_width = compiled_route.width_mm
+    # Guard against NaN / +inf trace width; clamp -inf / negative to 0
+    raw_trace_width = compiled_route.width_mm
+    if math.isnan(raw_trace_width) or raw_trace_width == float("inf"):
+        return None  # cannot compute sane dimensions
+    trace_width = max(0.0, raw_trace_width)
     teardrop_length = via.diameter * length_ratio
     teardrop_width = min(via.diameter * 0.6, trace_width * 2.0)
 
