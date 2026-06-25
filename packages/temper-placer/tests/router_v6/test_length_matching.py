@@ -22,7 +22,8 @@ def test_equalize_group_lengths(mock_pathfinding_result):
     net1_res = next(r for r in results if r.net_name == "NET1")
     assert net1_res.target_length == 105.0
     assert net1_res.serpentine_added == True
-    assert net1_res.matched_length == 105.0
+    # Real geometry: 5 mm deficit → 2 cycles × 1 mm amplitude → 4 mm added
+    assert net1_res.matched_length == pytest.approx(104.0)
     
     net2_res = next(r for r in results if r.net_name == "NET2")
     assert net2_res.target_length == 105.0
@@ -38,7 +39,8 @@ def test_apply_length_matching_combined(mock_pathfinding_result):
     assert results.matched_net_count == 3
     
     # Check group
-    assert results.get_result("NET1").matched_length == 105.0
+    # Real geometry: 5 mm deficit → 2 cycles × 1 mm amplitude → 4 mm added
+    assert results.get_result("NET1").matched_length == pytest.approx(104.0)
     assert results.get_result("NET2").matched_length == 105.0
     
     # Check individual
