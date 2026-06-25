@@ -64,12 +64,6 @@ from temper_placer.routing.c_space_builder import (
     SoftCSpaceBuilder,
     CacheStats,
 )
-from temper_placer.routing.routing_analyzer import (
-    RoutingAnalyzer,
-    RoutingAnalyzerConfig,
-    RoutingAnalysisResult,
-    analyze_routability,
-)
 from temper_placer.routing.escape_router import (
     EscapeRouter,
     EscapeResult,
@@ -182,11 +176,6 @@ __all__ = [
     "CongestionGrid",
     "CongestionResult",
     "analyze_congestion",
-    # Routing Analyzer
-    "RoutingAnalyzer",
-    "RoutingAnalyzerConfig",
-    "RoutingAnalysisResult",
-    "analyze_routability",
     # Unified Router
     "RoutingConfig",
     "RoutingStrategy",
