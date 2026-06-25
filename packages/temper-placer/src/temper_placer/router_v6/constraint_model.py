@@ -16,7 +16,7 @@ from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
-from temper_placer.router_v6.diff_pair_inference import DiffPair
+from temper_placer.router_v6.diff_pair_inference import DiffPair, infer_differential_pairs
 from temper_placer.router_v6.stage0_data import DesignRules, ParsedPCB
 from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
@@ -373,12 +373,13 @@ class ConstraintGenerationStage(Stage):
         pcb: ParsedPCB = state._parsed_pcb
         skeletons = state.channel_skeletons
         channel_widths = state.channel_widths
+        diff_pairs = infer_differential_pairs([net.name for net in pcb.nets])
         model_builder = ModelBuilder(
             skeletons=skeletons,
             nets=pcb.nets,
             channel_widths=channel_widths,
             design_rules=pcb.design_rules,
-            diff_pairs=[],
+            diff_pairs=diff_pairs,
             pcb=pcb,
         )
         constraint_model = model_builder.build()

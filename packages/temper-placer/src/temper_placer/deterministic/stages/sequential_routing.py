@@ -31,23 +31,10 @@ from ...router_v6 import (
 
 logger = logging.getLogger(__name__)
 
-# EXP-6: Import coupled diff pair router for USB pairs
-# The experiments folder is at package root, not in src/
-import sys
-from pathlib import Path
-
-_package_root = Path(
-    __file__
-).parent.parent.parent.parent.parent  # src/temper_placer/deterministic/stages -> temper-placer
-if str(_package_root) not in sys.path:
-    sys.path.insert(0, str(_package_root))
-try:
-    from experiments.diff_pair.coupled_router import CoupledDiffPairRouter, CoupledRouterResult
-
-    COUPLED_ROUTER_AVAILABLE = True
-except ImportError as e:
-    COUPLED_ROUTER_AVAILABLE = False
-    _coupled_router_import_error = str(e)
+from temper_placer.routing.coupled_diff_pair_router import (
+    CoupledDiffPairRouter,
+    CoupledRouterResult,
+)
 from ...routing.adaptive_congestion import (
     GridBasedCongestionDetector,
     ComponentBasedCongestionDetector,
@@ -698,66 +685,66 @@ class SequentialRoutingStage(Stage):
                     f"  [DiffPair] Built {len(obstacles)} obstacles with {effective_obstacle_clearance:.2f}mm clearance"
                 )
 
-                # EXP-6: Use CoupledDiffPairRouter for USB differential pairs
+                # Use CoupledDiffPairRouter for all differential pairs.
                 # The coupled router routes P and N simultaneously, checking DRC at each step,
                 # which prevents the post-processing offset problem that causes violations.
-                is_usb_pair = "USB" in net_pos_name.upper() or "USB" in net_neg_name.upper()
-                use_coupled_router = COUPLED_ROUTER_AVAILABLE and is_usb_pair
+                # Falls back to legacy DiffPairRouter if coupled routing fails.
 
-                if use_coupled_router:
-                    # CoupledDiffPairRouter: routes both traces together with DRC validation
-                    coupled_router = CoupledDiffPairRouter(
-                        grid_resolution_mm=0.1,  # Fine grid for diff pairs
-                        trace_width_mm=width,
-                        target_spacing_mm=dp_config.spacing_mm,
-                        max_divergence_mm=dp_config.coupling_tolerance_mm,
-                        max_skew_mm=dp_config.max_skew_mm,
-                        drc_oracle=state.drc_oracle,  # Pass DRC oracle for live validation
-                    )
+                use_coupled_router = True
 
+                # CoupledDiffPairRouter: routes both traces together with DRC validation
+                coupled_router = CoupledDiffPairRouter(
+                    grid_resolution_mm=0.1,  # Fine grid for diff pairs
+                    trace_width_mm=width,
+                    target_spacing_mm=dp_config.spacing_mm,
+                    max_divergence_mm=dp_config.coupling_tolerance_mm,
+                    max_skew_mm=dp_config.max_skew_mm,
+                    drc_oracle=state.drc_oracle,  # Pass DRC oracle for live validation
+                )
+
+                print(
+                    f"  [DiffPair] Using CoupledDiffPairRouter for {net_pos_name}/{net_neg_name}..."
+                )
+                dp_start = time.time()
+
+                # Use hierarchical routing (coarse A* + fine segments)
+                # IMPORTANT: Pass the grid cell size so obstacle coordinates are correctly converted
+                coupled_result = coupled_router.route_hierarchical(
+                    start_pins=start_pins,
+                    goal_pins=goal_pins,
+                    obstacles=obstacles,
+                    board_size=(
+                        grid.cols * grid.cell_size_mm,
+                        grid.rows * grid.cell_size_mm,
+                        grid.layer_count,
+                    ),
+                    net_pos=net_pos_name,
+                    net_neg=net_neg_name,
+                    obstacle_grid_resolution_mm=grid.cell_size_mm,  # FIX: Pass grid cell size
+                )
+
+                dp_elapsed = time.time() - dp_start
+
+                if not coupled_result.success:
                     print(
-                        f"  [DiffPair] Using CoupledDiffPairRouter for {net_pos_name}/{net_neg_name}..."
+                        f"  [DiffPair] CoupledRouter FAILED: {net_pos_name}/{net_neg_name} - {coupled_result.error_message}"
                     )
-                    dp_start = time.time()
-
-                    # Use hierarchical routing (coarse A* + fine segments)
-                    # IMPORTANT: Pass the grid cell size so obstacle coordinates are correctly converted
-                    coupled_result = coupled_router.route_hierarchical(
-                        start_pins=start_pins,
-                        goal_pins=goal_pins,
-                        obstacles=obstacles,
-                        board_size=(
-                            grid.cols * grid.cell_size_mm,
-                            grid.rows * grid.cell_size_mm,
-                            grid.layer_count,
-                        ),
-                        net_pos=net_pos_name,
-                        net_neg=net_neg_name,
-                        obstacle_grid_resolution_mm=grid.cell_size_mm,  # FIX: Pass grid cell size
+                    print(f"  [DiffPair] Falling back to legacy router...")
+                    use_coupled_router = False  # Fall back to legacy
+                else:
+                    print(
+                        f"  [DiffPair] CoupledRouter SUCCESS: {net_pos_name}/{net_neg_name} in {dp_elapsed:.2f}s "
+                        f"(coupling={coupled_result.coupling_ratio:.1f}%, skew={coupled_result.max_skew_mm:.3f}mm)"
                     )
+                    # Paths are already in mm - no post-processing needed!
+                    pos_path_mm = coupled_result.pos_path
+                    neg_path_mm = coupled_result.neg_path
 
-                    dp_elapsed = time.time() - dp_start
+                    # Mark nets as routed
+                    diff_pair_nets.add(net_pos_name)
+                    diff_pair_nets.add(net_neg_name)
 
-                    if not coupled_result.success:
-                        print(
-                            f"  [DiffPair] CoupledRouter FAILED: {net_pos_name}/{net_neg_name} - {coupled_result.error_message}"
-                        )
-                        print(f"  [DiffPair] Falling back to legacy router...")
-                        use_coupled_router = False  # Fall back to legacy
-                    else:
-                        print(
-                            f"  [DiffPair] CoupledRouter SUCCESS: {net_pos_name}/{net_neg_name} in {dp_elapsed:.2f}s "
-                            f"(coupling={coupled_result.coupling_ratio:.1f}%, skew={coupled_result.max_skew_mm:.3f}mm)"
-                        )
-                        # Paths are already in mm - no post-processing needed!
-                        pos_path_mm = coupled_result.pos_path
-                        neg_path_mm = coupled_result.neg_path
-
-                        # Mark nets as routed
-                        diff_pair_nets.add(net_pos_name)
-                        diff_pair_nets.add(net_neg_name)
-
-                # Legacy router path (for non-USB pairs or as fallback)
+                # Legacy router path (as fallback when coupled router fails)
                 if not use_coupled_router:
                     # Create diff pair router
                     dp_router = DiffPairRouter(
