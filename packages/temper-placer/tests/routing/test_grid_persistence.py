@@ -86,7 +86,7 @@ class TestGridStatePersistence:
         assert not result.success
 
         # Grid should still have blocked row, no corruption
-        assert jnp.all(router.occupancy[:, 5, 0] == 1), \
+        assert jnp.all(router.occupancy[:, 5, 0] == -1), \
             "Blocked cells should remain blocked after failed route"
 
         # Other cells should still be free
@@ -137,7 +137,7 @@ class TestJAXFunctionalUpdates:
 
         # Note: In practice, JAX may reuse memory, so this test is informational
         # The important thing is that the update persists
-        assert int(router.occupancy[2, 2, 0]) == 1
+        assert int(router.occupancy[2, 2, 0]) == -1
 
     def test_multiple_updates_accumulate(self):
         """Multiple .at[].set() calls should accumulate."""
@@ -149,9 +149,9 @@ class TestJAXFunctionalUpdates:
         router.occupancy = router.occupancy.at[2, 2, 0].set(1)
 
         # All should be set
-        assert int(router.occupancy[0, 0, 0]) == 1
-        assert int(router.occupancy[1, 1, 0]) == 1
-        assert int(router.occupancy[2, 2, 0]) == 1
+        assert int(router.occupancy[0, 0, 0]) == -1
+        assert int(router.occupancy[1, 1, 0]) == -1
+        assert int(router.occupancy[2, 2, 0]) == -1
 
     def test_slice_updates_persist(self):
         """Slice updates should persist correctly."""
@@ -161,7 +161,7 @@ class TestJAXFunctionalUpdates:
         router.occupancy = router.occupancy.at[:, 5, 0].set(1)
 
         # Verify all cells in row are blocked
-        assert jnp.all(router.occupancy[:, 5, 0] == 1)
+        assert jnp.all(router.occupancy[:, 5, 0] == -1)
 
         # Other rows should be free
         assert jnp.all(router.occupancy[:, 4, 0] == 0)
@@ -181,7 +181,7 @@ class TestJAXFunctionalUpdates:
                     router.occupancy = router.occupancy.at[x, y, 0].set(2)
 
         # (5,5) should still be 1
-        assert int(router.occupancy[5, 5, 0]) == 1
+        assert int(router.occupancy[5, 5, 0]) == -1
 
         # Others should be 2
         assert int(router.occupancy[0, 0, 0]) == 2

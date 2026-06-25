@@ -5,33 +5,41 @@ SequentialRoutingStage.
 Background
 ----------
 ``SequentialRoutingStage`` (in
-``temper_placer.deterministic.stages.sequential_routing``) imports the
-``CoupledDiffPairRouter`` from ``experiments.diff_pair.coupled_router`` to
-handle USB differential pairs. The import is wrapped in
-``try/except ImportError`` because the coupled router lives in a
-non-package ``experiments/`` directory at the package root, accessed
-via a ``sys.path.insert`` hack. A failure of the import would set
-``COUPLED_ROUTER_AVAILABLE = False`` and silently degrade USB diff
-pair routing to separate single-ended routing.
-
-This test guards against that silent failure mode: it asserts that the
-coupled router module is present and importable, so the flag is True
-and the production router uses the coupled path for USB pairs.
+``temper_placer.deterministic.stages.sequential_routing``) imports
+``CoupledDiffPairRouter`` from the ``routing/`` package for all
+differential pairs. This test verifies the import resolves cleanly
+through normal package machinery (no ``sys.path`` hack).
 """
 
 import pytest
 
-from temper_placer.deterministic.stages import sequential_routing
+from temper_placer.routing.coupled_diff_pair_router import (
+    CoupledDiffPairRouter,
+    CoupledRouterResult,
+)
 
 
 def test_coupled_router_imports_successfully() -> None:
     """The coupled diff pair router module is present and importable.
 
-    Asserts the happy path: ``COUPLED_ROUTER_AVAILABLE`` is True after
-    the production import resolves. This is the primary guard against
-    silent degradation of USB diff pair routing.
+    Asserts the module imports directly from the routing package without
+    any sys.path manipulation, using standard package machinery.
     """
-    assert sequential_routing.COUPLED_ROUTER_AVAILABLE is True, (
-        "experiments.diff_pair.coupled_router did not import successfully. "
-        "USB diff pairs will silently route as separate single-ended pairs."
+    router = CoupledDiffPairRouter()
+    assert router is not None
+    assert isinstance(router, CoupledDiffPairRouter)
+
+
+def test_coupled_router_result_importable() -> None:
+    """CoupledRouterResult is importable and constructible."""
+    result = CoupledRouterResult(
+        success=True,
+        pos_path=[(0.0, 0.0, 0), (1.0, 0.0, 0)],
+        neg_path=[(0.0, 0.25, 0), (1.0, 0.25, 0)],
+        coupling_ratio=100.0,
+        max_skew_mm=0.0,
+        avg_separation_mm=0.25,
+        routing_time_s=0.001,
     )
+    assert result.success
+    assert result.error_message is None

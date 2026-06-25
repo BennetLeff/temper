@@ -117,6 +117,10 @@ from temper_placer.routing.orchestrator import (
     RoutingSummary,
     RoutingStatistics,
 )
+from temper_placer.routing.coupled_diff_pair_router import (
+    CoupledDiffPairRouter,
+    CoupledRouterResult,
+)
 from temper_placer.routing.cost import (
     BLOCKED_COST,
     check_blocked,
@@ -183,6 +187,9 @@ __all__ = [
     "UnifiedRouter",
     "EscapeRouter",
     "EscapeResult",
+    # Coupled diff pair router
+    "CoupledDiffPairRouter",
+    "CoupledRouterResult",
     # Path smoothing
     "FunnelSmoother",
     "Point",

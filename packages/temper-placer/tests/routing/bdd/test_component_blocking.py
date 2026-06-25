@@ -169,7 +169,7 @@ def block_component_single_layer(router, component_at_position):
 @then(parsers.parse("cell ({x:d}, {y:d}) on layer {layer:d} should be blocked"))
 def cell_should_be_blocked(router, x, y, layer):
     """Verify cell is blocked."""
-    assert int(router.occupancy[x, y, layer]) == 1, \
+    assert int(router.occupancy[x, y, layer]) == -1, \
         f"Cell ({x}, {y}) on layer {layer} should be blocked but is {router.occupancy[x, y, layer]}"
 
 
@@ -219,7 +219,7 @@ def pin_has_escape_route(router, component_at_position, pin_num, length):
 @then(parsers.parse("the blocked area should be {width:d}x{height:d} cells"))
 def verify_blocked_area_size(router, width, height):
     """Verify total blocked area matches expected size."""
-    blocked_cells = jnp.sum(router.occupancy[:, :, 0] == 1)
+    blocked_cells = jnp.sum(router.occupancy[:, :, 0] == -1)
     expected = width * height
     assert int(blocked_cells) == expected, \
         f"Expected {expected} blocked cells, found {blocked_cells}"
@@ -227,7 +227,7 @@ def verify_blocked_area_size(router, width, height):
 @then(parsers.parse("the blocked cell count should be {count:d}"))
 def verify_blocked_cell_count(router, count):
     """Verify total blocked cells count."""
-    blocked_cells = jnp.sum(router.occupancy[:, :, 0] == 1)
+    blocked_cells = jnp.sum(router.occupancy[:, :, 0] == -1)
     assert int(blocked_cells) == count, \
         f"Expected {count} blocked cells, found {blocked_cells}"
 

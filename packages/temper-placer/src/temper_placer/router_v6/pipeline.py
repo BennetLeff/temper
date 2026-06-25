@@ -33,6 +33,7 @@ from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.constraint_model import ConstraintModel, ModelBuilder
 from temper_placer.router_v6.dense_package_detection import identify_dense_packages
+from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
 from temper_placer.router_v6.escape_via_generator import EscapeVia, generate_escape_vias
 from temper_placer.router_v6.layer_capacity import LayerCapacity
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
@@ -522,6 +523,7 @@ class RouterV6Pipeline:
         """Run Stage 3: Topological Routing."""
 
         net_names = [net.name for net in pcb.nets]
+        diff_pairs = infer_differential_pairs(net_names)
 
         # 3.1-3.6: Build constraint model
         if self.verbose:
@@ -531,7 +533,7 @@ class RouterV6Pipeline:
             nets=pcb.nets,
             channel_widths=stage2.channel_widths,
             design_rules=pcb.design_rules,
-            diff_pairs=[],  # TODO: Add diff pair inference
+            diff_pairs=diff_pairs,
             pcb=pcb,
         )
         constraint_model = model_builder.build()

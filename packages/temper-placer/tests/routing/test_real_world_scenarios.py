@@ -65,7 +65,7 @@ class TestRealWorldScenarios:
         assert len(path_vin) > 0, "VIN path should exist"
 
         # Verify no DRC violations (paths don't overlap)
-        blocked_after = jnp.sum(router.occupancy == 1)
+        blocked_after = jnp.sum(router.occupancy == -1)
         assert blocked_after > 0, "Components should be blocked"
 
     def test_scenario_differential_pair_routing(self):

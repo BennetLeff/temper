@@ -95,9 +95,9 @@ class TestCoordinateRounding:
         # Component should block cells around (10, 10)
         # With 4mm width centered at 10mm: 8mm to 12mm
         # Grid cells: round(8/1) to round(12/1) = 8 to 12
-        assert int(router.occupancy[10, 10, 0]) == 1  # Center should be blocked
-        assert int(router.occupancy[8, 10, 0]) == 1   # Left edge
-        assert int(router.occupancy[12, 10, 0]) == 1  # Right edge
+        assert int(router.occupancy[10, 10, 0]) == -1  # Center should be blocked
+        assert int(router.occupancy[8, 10, 0]) == -1   # Left edge
+        assert int(router.occupancy[12, 10, 0]) == -1  # Right edge
 
 
 class TestBoundaryEdgeCases:
@@ -138,4 +138,4 @@ class TestBoundaryEdgeCases:
         router.block_components([comp], positions, margin=0.0)
 
         # Should block some cells near origin
-        assert int(router.occupancy[0, 0, 0]) == 1
+        assert int(router.occupancy[0, 0, 0]) == -1

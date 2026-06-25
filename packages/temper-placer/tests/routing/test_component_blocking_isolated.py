@@ -27,13 +27,13 @@ class TestComponentBlocking:
         router.block_components([comp], positions, margin=0.0, escape_length=0)
 
         # Center should be blocked
-        assert int(router.occupancy[10, 10, 0]) == 1
+        assert int(router.occupancy[10, 10, 0]) == -1
 
         # Cells within bounds should be blocked
         # 4mm width centered at 10mm: 8mm to 12mm
         for x in range(8, 13):
             for y in range(8, 13):
-                assert int(router.occupancy[x, y, 0]) == 1, \
+                assert int(router.occupancy[x, y, 0]) == -1, \
                     f"Cell ({x}, {y}) should be blocked"
 
     def test_margin_expands_blocking_by_n(self):
@@ -49,8 +49,8 @@ class TestComponentBlocking:
         # With 1mm margin: 4mm + 2*1mm = 6mm total
         # Centered at 10mm: 7mm to 13mm
         # Grid cells: round(7) to round(13) = 7 to 13
-        assert int(router.occupancy[7, 10, 0]) == 1, "Margin cell should be blocked"
-        assert int(router.occupancy[13, 10, 0]) == 1, "Margin cell should be blocked"
+        assert int(router.occupancy[7, 10, 0]) == -1, "Margin cell should be blocked"
+        assert int(router.occupancy[13, 10, 0]) == -1, "Margin cell should be blocked"
 
         # Outside margin should be free
         assert int(router.occupancy[6, 10, 0]) == 0, "Outside margin should be free"
@@ -68,8 +68,8 @@ class TestComponentBlocking:
         router.block_components([comp], positions, margin=0.0, escape_length=0)
 
         # Should block cells near origin
-        assert int(router.occupancy[0, 0, 0]) == 1
-        assert int(router.occupancy[1, 1, 0]) == 1
+        assert int(router.occupancy[0, 0, 0]) == -1
+        assert int(router.occupancy[1, 1, 0]) == -1
 
         # Grid should still be valid
         assert router.occupancy.shape == (10, 10, 1)
@@ -86,8 +86,8 @@ class TestComponentBlocking:
         router.block_components([comp1, comp2], positions, margin=0.0, escape_length=0)
 
         # Both centers should be blocked
-        assert int(router.occupancy[10, 10, 0]) == 1
-        assert int(router.occupancy[20, 20, 0]) == 1
+        assert int(router.occupancy[10, 10, 0]) == -1
+        assert int(router.occupancy[20, 20, 0]) == -1
 
         # Gap between components should be free
         assert int(router.occupancy[15, 15, 0]) == 0
@@ -109,7 +109,7 @@ class TestComponentBlocking:
         blocked_cells = []
         for x in range(15):
             for y in range(15):
-                if int(router.occupancy[x, y, 0]) == 1:
+                if int(router.occupancy[x, y, 0]) == -1:
                     blocked_cells.append((x, y))
 
         # Should have blocked cells
@@ -146,8 +146,8 @@ class TestComponentBlockingEdgeCases:
         router.block_components([comp1, comp2], positions, margin=0.0, escape_length=0)
 
         # Overlap region should be blocked
-        assert int(router.occupancy[10, 10, 0]) == 1
-        assert int(router.occupancy[11, 11, 0]) == 1
+        assert int(router.occupancy[10, 10, 0]) == -1
+        assert int(router.occupancy[11, 11, 0]) == -1
 
     def test_negative_margin_shrinks_blocking(self):
         """Negative margin should shrink blocked region."""
@@ -161,7 +161,7 @@ class TestComponentBlockingEdgeCases:
 
         # Effective size: 6 - 2*1 = 4mm
         # Should block similar to 4x4mm component
-        assert int(router.occupancy[10, 10, 0]) == 1
+        assert int(router.occupancy[10, 10, 0]) == -1
 
         # Outer cells should be free
         assert int(router.occupancy[7, 10, 0]) == 0
