@@ -123,6 +123,10 @@ class Stage4Output:
 
 
 @dataclass
+class ManufacturingDRCViolationError(RuntimeError):
+    """Raised when manufacturing DRC violations exceed the configured threshold."""
+
+
 class RouterV6Result:
     """Complete Router V6 pipeline result."""
 
@@ -131,6 +135,7 @@ class RouterV6Result:
     stage2: Stage2Output
     stage3: Stage3Output
     stage4: Stage4Output
+    manufacturing_report: "ManufacturingReport | None" = None
 
     runtime_seconds: float
 
@@ -274,6 +279,8 @@ class RouterV6Pipeline:
         skip_stage3: bool = False,
         congestion_weight: float = 0.0,
         max_iter: int = 1_000_000,
+        enable_manufacturing_drc: bool = False,
+        dfm_fail_on: str = "critical",
     ):
         """
         Initialize Router V6 pipeline.
@@ -300,7 +307,18 @@ class RouterV6Pipeline:
                 500_000 to match the SM1 measurement table
                 recorded in
                 docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md.
+            enable_manufacturing_drc: Run DFM checks after routing
+                (teardrops, acid traps, annular rings, thermal
+                relief, copper balance, creepage, clearance).
+            dfm_fail_on: Gate threshold -- "none" (never block),
+                "critical" (block on critical violations), or
+                "all" (block on any violation).  Default "critical".
         """
+        if dfm_fail_on not in ("none", "critical", "all"):
+            raise ValueError(
+                f"dfm_fail_on must be 'none', 'critical', or 'all', "
+                f"got {dfm_fail_on!r}"
+            )
         self.verbose = verbose
         self.enable_theta_star = enable_theta_star
         self.enable_lazy_theta_star = enable_lazy_theta_star
@@ -313,6 +331,8 @@ class RouterV6Pipeline:
         self.skip_stage3 = skip_stage3
         self.congestion_weight = congestion_weight
         self.max_iter = max_iter
+        self.enable_manufacturing_drc = enable_manufacturing_drc
+        self.dfm_fail_on = dfm_fail_on
 
     def run(
         self,
@@ -436,6 +456,26 @@ class RouterV6Pipeline:
             print("Stage 4: Geometric realization...")
         stage4 = self._run_stage4(pcb, stage2, stage3, escape_vias)
 
+        # Stage 5: Manufacturing DRC (opt-in)
+        manufacturing_report = None
+        if self.enable_manufacturing_drc:
+            manufacturing_report = self._run_manufacturing_drc(
+                pcb, stage4.routing_results
+            )
+            if self.dfm_fail_on != "none":
+                should_fail = (
+                    manufacturing_report.critical_violations > 0
+                    if self.dfm_fail_on == "critical"
+                    else manufacturing_report.total_violations > 0
+                )
+                if should_fail:
+                    raise ManufacturingDRCViolationError(
+                        f"Manufacturing DRC: "
+                        f"{manufacturing_report.total_violations} violations "
+                        f"({manufacturing_report.critical_violations} critical). "
+                        f"Fail mode: {self.dfm_fail_on}."
+                    )
+
         # NOTE: No Stage 4 fence. Same reason as Stage 1 -- the DRC input
         # model cannot represent routed traces or vias, so clearance and
         # overlap checks on geometric realization output would be no-ops.
@@ -457,6 +497,7 @@ class RouterV6Pipeline:
             stage2=stage2,
             stage3=stage3,
             stage4=stage4,
+            manufacturing_report=manufacturing_report,
             runtime_seconds=runtime,
         )
 
@@ -672,6 +713,103 @@ class RouterV6Pipeline:
             via_placement=via_placement,
             width_assignment=width_assignment,
             routing_results=routing_results,
+        )
+
+    def _run_manufacturing_drc(
+        self,
+        pcb: "ParsedPCB",
+        routing_results: "RoutingResults",
+    ) -> "ManufacturingReport":
+        """Run all 8 DFM checks and compile the manufacturing report.
+
+        Each DFM module is called in isolation -- a failure in one
+        module does not prevent the remaining checks from running.
+        """
+        import logging
+
+        from temper_placer.router_v6.acid_trap_detection import (
+            AcidTrapReport,
+            detect_acid_traps,
+        )
+        from temper_placer.router_v6.annular_ring_check import (
+            AnnularRingReport,
+            check_annular_rings,
+        )
+        from temper_placer.router_v6.clearance_check import (
+            ClearanceReport,
+            verify_clearance,
+        )
+        from temper_placer.router_v6.copper_balance import (
+            CopperBalanceReport,
+            analyze_copper_balance,
+        )
+        from temper_placer.router_v6.creepage_check import (
+            CreepageReport,
+            verify_creepage,
+        )
+        from temper_placer.router_v6.manufacturing_report import (
+            generate_manufacturing_report,
+        )
+        from temper_placer.router_v6.teardrop_generation import (
+            TeardropReport,
+            insert_teardrops,
+        )
+        from temper_placer.router_v6.thermal_relief import (
+            ThermalReliefReport,
+            add_thermal_relief,
+        )
+
+        _logger = logging.getLogger(__name__)
+
+        if self.verbose:
+            print("Stage 5: Manufacturing DRC...")
+
+        def _run_one(name, fn, *args, **kwargs):
+            try:
+                return fn(*args, **kwargs)
+            except Exception:
+                _logger.warning(
+                    "Manufacturing DRC: %s check failed, continuing", name,
+                    exc_info=True,
+                )
+                return None
+
+        acid_traps = _run_one(
+            "acid_trap", detect_acid_traps, routing_results,
+        ) or AcidTrapReport(acid_traps=[])
+        annular_rings = _run_one(
+            "annular_ring", check_annular_rings, routing_results,
+        ) or AnnularRingReport(violations=[], total_vias_checked=0)
+        teardrops = _run_one(
+            "teardrop", insert_teardrops, routing_results,
+        ) or TeardropReport(teardrops=[])
+        thermal_reliefs = _run_one(
+            "thermal_relief", add_thermal_relief, routing_results,
+            board=pcb.board,
+        ) or ThermalReliefReport(thermal_reliefs=[])
+
+        copper_balance = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
+        if pcb.board is not None:
+            copper_balance = _run_one(
+                "copper_balance", analyze_copper_balance, routing_results,
+                board_width=pcb.board.width,
+                board_height=pcb.board.height,
+            ) or copper_balance
+        else:
+            _logger.warning(
+                "Manufacturing DRC: skipping copper balance -- no board geometry"
+            )
+
+        creepage = _run_one(
+            "creepage", verify_creepage, routing_results,
+        ) or CreepageReport(violations=[], total_checks=0)
+        clearance = _run_one(
+            "clearance", verify_clearance, routing_results,
+        ) or ClearanceReport(violations=[], total_checks=0)
+
+        return generate_manufacturing_report(
+            acid_traps, annular_rings, teardrops, thermal_reliefs,
+            copper_balance, creepage, clearance,
         )
 
     def _apply_smoothing(
