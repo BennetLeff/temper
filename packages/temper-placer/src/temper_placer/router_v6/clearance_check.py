@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from temper_placer.router_v6.creepage_check import _calculate_required_creepage
 from temper_placer.router_v6.routing_results import RoutingResults
 
 
@@ -19,7 +20,7 @@ class ClearanceViolation:
     net1: str
     net2: str
     location: tuple[float, float]  # Violation location
-    actual_clearance: float  # Actual spacing (mm)
+    actual_clearance: float  # Actual spacing (mm); negative = overlap
     required_clearance: float  # Required minimum (mm)
     layer: str  # Layer where violation occurs
 
@@ -53,6 +54,7 @@ class ClearanceReport:
 def verify_clearance(
     routing_results: RoutingResults,
     min_clearance: float = 0.127,  # 5mil standard
+    voltage_ratings: dict[str, float] | None = None,
 ) -> ClearanceReport:
     """
     Verify clearance distances between all conductors.
@@ -63,6 +65,8 @@ def verify_clearance(
     Args:
         routing_results: Compiled routing results from Stage 4.9
         min_clearance: Minimum clearance distance (mm)
+        voltage_ratings: Optional dict of net_name -> voltage (V).
+            Used to determine voltage-dependent HV clearance.
 
     Returns:
         ClearanceReport with violations
@@ -76,6 +80,9 @@ def verify_clearance(
     """
     violations = []
     total_checks = 0
+
+    if voltage_ratings is None:
+        voltage_ratings = {}
 
     # Get all route pairs to check
     routes = list(routing_results.compiled_routes.items())
@@ -99,7 +106,9 @@ def verify_clearance(
             )
 
             # Determine required clearance
-            required = _get_required_clearance(net1, net2, min_clearance)
+            required = _get_required_clearance(
+                net1, net2, min_clearance, voltage_ratings,
+            )
 
             if min_dist < required:
                 violations.append(ClearanceViolation(
@@ -122,94 +131,303 @@ def _calculate_minimum_clearance(
     route2,
 ) -> tuple[float, tuple[float, float], str]:
     """
-    Calculate minimum clearance between two routes.
+    Calculate minimum edge-to-edge clearance between two routes.
+
+    Uses analytical segment-to-segment closest-point computation
+    (clamped projection) — no sampling.  Reports the actual closest-
+    approach point and allows negative clearance for overlaps.
+
+    Also checks via footprints against nearby traces for RoutePath3D
+    cross-layer segments and explicit Via objects.
     """
     min_dist = float('inf')
     closest_point = (0.0, 0.0)
     violation_layer = "unknown"
 
-    # Account for trace widths
-    width1 = route1.width_mm
-    width2 = route2.width_mm
+    # Account for trace widths (with hasattr guard)
+    width1 = getattr(route1, 'width_mm', 0.0)
+    width2 = getattr(route2, 'width_mm', 0.0)
 
-    # Extract segments (x1, y1, x2, y2, layer) from routes
+    # Default via diameter (used when no explicit Via object is available)
+    via_diameter_default = max(width1, 0.6)
+
+    # Extract same-layer segments (x1, y1, x2, y2, layer) from routes
     def get_segments(route):
         segs = []
         path = route.path
-        if hasattr(path, 'segments'): # RoutePath3D
+        if hasattr(path, 'segments'):  # RoutePath3D
             for i in range(len(path.segments) - 1):
-                p1, p2 = path.segments[i], path.segments[i+1]
-                if p1[2] == p2[2]: # Same layer segment
+                p1, p2 = path.segments[i], path.segments[i + 1]
+                if p1[2] == p2[2]:  # Same layer segment
                     segs.append((p1[0], p1[1], p2[0], p2[1], p1[2]))
-        elif hasattr(path, 'coordinates'): # RoutePath
+        elif hasattr(path, 'coordinates'):  # RoutePath
             layer = getattr(path, 'layer_name', "F.Cu")
             for i in range(len(path.coordinates) - 1):
-                p1, p2 = path.coordinates[i], path.coordinates[i+1]
+                p1, p2 = path.coordinates[i], path.coordinates[i + 1]
                 segs.append((p1[0], p1[1], p2[0], p2[1], layer))
         return segs
+
+    # Extract cross-layer (via) points: (x, y, from_layer, to_layer)
+    def get_via_points_from_path(route):
+        """Yield (x, y, layer1, layer2) for each layer-changing segment."""
+        points = []
+        path = route.path
+        if hasattr(path, 'segments'):
+            for i in range(len(path.segments) - 1):
+                p1, p2 = path.segments[i], path.segments[i + 1]
+                if p1[2] != p2[2]:  # Layer change = via
+                    points.append((p1[0], p1[1], p1[2], p2[2]))
+        return points
 
     segs1 = get_segments(route1)
     segs2 = get_segments(route2)
 
+    # --- Same-layer segment-to-segment checks ---
     for s1 in segs1:
         for s2 in segs2:
             # ONLY check clearance if on the same layer
             if s1[4] != s2[4]:
                 continue
-            
-            # Distance between segments (accurate segment-to-segment)
-            dist = _segment_to_segment_dist(
+
+            # Analytical segment-to-segment distance with closest points
+            seg_dist, cp1, cp2 = _segment_to_segment_dist(
                 (s1[0], s1[1]), (s1[2], s1[3]),
-                (s2[0], s2[1]), (s2[2], s2[3])
+                (s2[0], s2[1]), (s2[2], s2[3]),
             )
-            
-            # Edge-to-edge distance
-            edge_dist = dist - (width1 / 2) - (width2 / 2)
+
+            # Edge-to-edge distance (allows negative = overlap)
+            edge_dist = seg_dist - (width1 / 2) - (width2 / 2)
 
             if edge_dist < min_dist:
                 min_dist = edge_dist
-                closest_point = ((s1[0] + s2[0]) / 2, (s1[1] + s2[1]) / 2)
+                # Midpoint of the two closest-approach points
+                closest_point = (
+                    (cp1[0] + cp2[0]) / 2,
+                    (cp1[1] + cp2[1]) / 2,
+                )
                 violation_layer = s1[4]
 
-    return max(0.0, min_dist), closest_point, violation_layer
+    # --- Via-to-trace checks ---
+    # Check explicit Via objects from each route against the other route's
+    # segments on the layers the via touches.
+
+    def _check_via_against_segs(via, other_segs, other_width,
+                                my_width_guard):
+        """Update min_dist / closest_point / violation_layer if a closer
+        approach is found between a via and a set of segments."""
+        nonlocal min_dist, closest_point, violation_layer
+
+        # via is a Via object with position, from_layer, to_layer, diameter
+        via_x, via_y = via.position
+        via_radius = via.diameter / 2.0
+        # Layers spanned by this via (simplified: from_layer and to_layer)
+        via_layers = {via.from_layer, via.to_layer}
+
+        for seg in other_segs:
+            if seg[4] not in via_layers:
+                continue
+            # Point-to-segment distance from via centre to segment
+            pt_dist, _cp_on_seg, _ = _point_to_segment_dist(
+                (via_x, via_y),
+                (seg[0], seg[1]), (seg[2], seg[3]),
+            )
+            edge_dist = pt_dist - via_radius - (other_width / 2)
+            if edge_dist < min_dist:
+                min_dist = edge_dist
+                closest_point = (via_x, via_y)
+                violation_layer = seg[4]
+
+    # Route1 vias vs route2 segments
+    for via in getattr(route1, 'vias', []):
+        _check_via_against_segs(via, segs2, width2, width1)
+
+    # Route2 vias vs route1 segments
+    for via in getattr(route2, 'vias', []):
+        _check_via_against_segs(via, segs1, width1, width2)
+
+    # --- Cross-layer segment via points (RoutePath3D fallback) ---
+    # For paths that have layer-changing segments but no explicit Via
+    # objects, treat the segment endpoint as a via pad.
+    def _check_via_point_against_segs(vx, vy, via_diam,
+                                       layers, other_segs, other_width):
+        nonlocal min_dist, closest_point, violation_layer
+        via_radius = via_diam / 2.0
+        for seg in other_segs:
+            if seg[4] not in layers:
+                continue
+            pt_dist, _cp_on_seg, _ = _point_to_segment_dist(
+                (vx, vy),
+                (seg[0], seg[1]), (seg[2], seg[3]),
+            )
+            edge_dist = pt_dist - via_radius - (other_width / 2)
+            if edge_dist < min_dist:
+                min_dist = edge_dist
+                closest_point = (vx, vy)
+                violation_layer = seg[4]
+
+    # Cross-layer points from route1 vs route2 segments
+    for vx, vy, l1, l2 in get_via_points_from_path(route1):
+        _check_via_point_against_segs(
+            vx, vy, via_diameter_default, {l1, l2}, segs2, width2)
+
+    # Cross-layer points from route2 vs route1 segments
+    for vx, vy, l1, l2 in get_via_points_from_path(route2):
+        _check_via_point_against_segs(
+            vx, vy, via_diameter_default, {l1, l2}, segs1, width1)
+
+    # Return actual edge_dist (may be negative for overlaps) — do NOT
+    # clamp to 0.0 so that overlap severity is visible.
+    return min_dist, closest_point, violation_layer
 
 
-def _segment_to_segment_dist(p1, p2, p3, p4):
-    """Accurate distance between two line segments p1-p2 and p3-p4."""
-    # Simplified version using sampling for now, but better than just point-to-point
-    # We sample 10 points along each segment
-    steps = 5
-    min_d = float('inf')
-    for i in range(steps + 1):
-        t1 = i / steps
-        v1 = (p1[0] + t1*(p2[0]-p1[0]), p1[1] + t1*(p2[1]-p1[1]))
-        for j in range(steps + 1):
-            t2 = j / steps
-            v2 = (p3[0] + t2*(p4[0]-p3[0]), p3[1] + t2*(p4[1]-p3[1]))
-            d = ((v1[0]-v2[0])**2 + (v1[1]-v2[1])**2)**0.5
-            if d < min_d:
-                min_d = d
-    return min_d
+def _point_to_segment_dist(p, a, b):
+    """Closest distance from point p to segment a-b.
+
+    Returns (distance, closest_point_on_segment, point_p).
+    The third element is p itself for interface compatibility with
+    ``_segment_to_segment_dist``.
+    """
+    ab = (b[0] - a[0], b[1] - a[1])
+    ap = (p[0] - a[0], p[1] - a[1])
+    len2 = ab[0] * ab[0] + ab[1] * ab[1]
+
+    if len2 < 1e-12:
+        # Degenerate segment: a and b coincide
+        dx = p[0] - a[0]
+        dy = p[1] - a[1]
+        return (dx * dx + dy * dy) ** 0.5, a, p
+
+    t = (ap[0] * ab[0] + ap[1] * ab[1]) / len2
+    t = max(0.0, min(1.0, t))
+    cp = (a[0] + t * ab[0], a[1] + t * ab[1])
+    dx = p[0] - cp[0]
+    dy = p[1] - cp[1]
+    return (dx * dx + dy * dy) ** 0.5, cp, p
+
+
+def _segment_to_segment_dist(a, b, c, d):
+    """Analytical closest distance between two line segments AB and CD.
+
+    Uses clamped-projection (the standard algorithm from
+    Real-Time Collision Detection, Ericson 2005, §5.1.9).
+    No sampling — exact result up to floating-point precision.
+
+    Returns:
+        (min_distance, closest_point_on_AB, closest_point_on_CD)
+    """
+    # Direction vectors
+    ab = (b[0] - a[0], b[1] - a[1])
+    cd = (d[0] - c[0], d[1] - c[1])
+    # Vector from A to C
+    ac = (c[0] - a[0], c[1] - a[1])
+
+    a_len2 = ab[0] * ab[0] + ab[1] * ab[1]   # |AB|^2
+    c_len2 = cd[0] * cd[0] + cd[1] * cd[1]   # |CD|^2
+    eps = 1e-12
+
+    # --- Degenerate cases: one or both segments are points ---
+    if a_len2 < eps and c_len2 < eps:
+        dx = ac[0]
+        dy = ac[1]
+        return (dx * dx + dy * dy) ** 0.5, a, c
+
+    if a_len2 < eps:
+        # AB is a point; distance from A to segment CD
+        d_pt, cp, _ = _point_to_segment_dist(a, c, d)
+        return d_pt, a, cp
+
+    if c_len2 < eps:
+        # CD is a point; distance from C to segment AB
+        d_pt, cp, _ = _point_to_segment_dist(c, a, b)
+        return d_pt, cp, c
+
+    # --- General case: two non-degenerate segments ---
+    ab_dot_cd = ab[0] * cd[0] + ab[1] * cd[1]
+    ac_dot_ab = ac[0] * ab[0] + ac[1] * ab[1]
+    ac_dot_cd = ac[0] * cd[0] + ac[1] * cd[1]
+
+    # Solve the 2×2 linear system for the unconstrained minimum of
+    #   f(s,t) = |(A + s*AB) - (C + t*CD)|^2
+    #         = |(A-C) + s*AB - t*CD|^2
+    #
+    # ∂f/∂s = 2 AB·(A-C) + 2s|AB|² - 2t(AB·CD) = 0
+    # ∂f/∂t = -2 CD·(A-C) - 2s(AB·CD) + 2t|CD|² = 0
+    #
+    #   |AB|² · s  +  (-AB·CD) · t  =  -AB·(A-C)  =  AB·(C-A)  =  ac_dot_ab
+    #   (-AB·CD) · s  +  |CD|² · t  =  CD·(A-C)   =  -CD·(C-A) =  -ac_dot_cd
+    det = a_len2 * c_len2 - ab_dot_cd * ab_dot_cd
+
+    if det > eps:
+        s = (ac_dot_ab * c_len2 + ab_dot_cd * (-ac_dot_cd)) / det
+        t = (a_len2 * (-ac_dot_cd) + ab_dot_cd * ac_dot_ab) / det
+
+        if 0.0 <= s <= 1.0 and 0.0 <= t <= 1.0:
+            # Interior minimum
+            cp1 = (a[0] + s * ab[0], a[1] + s * ab[1])
+            cp2 = (c[0] + t * cd[0], c[1] + t * cd[1])
+            dx = cp1[0] - cp2[0]
+            dy = cp1[1] - cp2[1]
+            return (dx * dx + dy * dy) ** 0.5, cp1, cp2
+
+    # Minimum is on the boundary of the parameter square [0,1]×[0,1].
+    # Check all four edges (point-to-segment); corner cases are covered
+    # because _point_to_segment_dist clamps its parameter.
+    best_dist = float('inf')
+    best_cp1 = a
+    best_cp2 = c
+
+    def _update(dist, p1, p2):
+        nonlocal best_dist, best_cp1, best_cp2
+        if dist < best_dist:
+            best_dist = dist
+            best_cp1 = p1
+            best_cp2 = p2
+
+    # s = 0: point A to segment CD
+    d0, _, cp = _point_to_segment_dist(a, c, d)
+    _update(d0, a, cp)
+
+    # s = 1: point B to segment CD
+    d1, _, cp = _point_to_segment_dist(b, c, d)
+    _update(d1, b, cp)
+
+    # t = 0: point C to segment AB
+    d2, cp, _ = _point_to_segment_dist(c, a, b)
+    _update(d2, cp, c)
+
+    # t = 1: point D to segment AB
+    d3, cp, _ = _point_to_segment_dist(d, a, b)
+    _update(d3, cp, d)
+
+    return best_dist, best_cp1, best_cp2
 
 
 def _get_required_clearance(
     net1: str,
     net2: str,
     default_clearance: float,
+    voltage_ratings: dict[str, float] | None = None,
 ) -> float:
     """
     Get required clearance between two nets.
 
+    For high-voltage nets the clearance is voltage-dependent following
+    the same table used for creepage (IPC-2221).  Non-HV nets use the
+    caller-supplied default.
+
     Args:
         net1: First net name
         net2: Second net name
-        default_clearance: Default clearance
+        default_clearance: Default clearance (mm) for non-HV nets
+        voltage_ratings: Optional dict of net_name -> voltage (V)
 
     Returns:
         Required clearance (mm)
     """
-    # HV nets require larger clearance
-    hv_keywords = ['AC_', 'HV_', 'HIGH_VOLTAGE']
+    if voltage_ratings is None:
+        voltage_ratings = {}
+
+    hv_keywords = ['AC_', 'HV_', 'HIGH_VOLTAGE', 'MAINS']
 
     net1_upper = net1.upper()
     net2_upper = net2.upper()
@@ -218,7 +436,14 @@ def _get_required_clearance(
     is_hv2 = any(kw in net2_upper for kw in hv_keywords)
 
     if is_hv1 or is_hv2:
-        # HV requires 0.5mm minimum
-        return max(default_clearance, 0.5)
+        # Determine the governing voltage: pick the HV net's voltage
+        # (if both are HV, take the higher voltage).
+        voltage = 0.0
+        if is_hv1:
+            voltage = max(voltage, voltage_ratings.get(net1, 230.0))
+        if is_hv2:
+            voltage = max(voltage, voltage_ratings.get(net2, 230.0))
+        hv_required = _calculate_required_creepage(voltage)
+        return max(default_clearance, hv_required)
 
     return default_clearance

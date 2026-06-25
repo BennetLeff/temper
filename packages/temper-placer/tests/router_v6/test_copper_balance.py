@@ -32,7 +32,6 @@ def test_layer_copper_balance_dataclass():
     """Test LayerCopperBalance dataclass."""
     balance = LayerCopperBalance(
         layer_name="F.Cu",
-        total_area_mm2=10000.0,
         copper_area_mm2=4500.0,
         copper_percentage=45.0,
         is_balanced=True,
@@ -46,10 +45,10 @@ def test_layer_copper_balance_dataclass():
 
 def test_copper_balance_report_dataclass():
     """Test CopperBalanceReport dataclass."""
-    balance1 = LayerCopperBalance("F.Cu", 10000, 4500, 45, True)
-    balance2 = LayerCopperBalance("B.Cu", 10000, 8000, 80, False)
+    balance1 = LayerCopperBalance("F.Cu", 4500, 45, True)
+    balance2 = LayerCopperBalance("B.Cu", 8000, 80, False)
     
-    report = CopperBalanceReport(layer_balances=[balance1, balance2])
+    report = CopperBalanceReport(layer_balances=[balance1, balance2], total_area_mm2=0.0)
     
     assert report.balanced_layer_count == 1
     assert report.unbalanced_layer_count == 1

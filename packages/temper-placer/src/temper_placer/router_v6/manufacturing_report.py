@@ -30,15 +30,37 @@ class ManufacturingReport:
     creepage: CreepageReport
     clearance: ClearanceReport
 
+    def __post_init__(self) -> None:
+        """Validate that no sub-report is None."""
+        field_names = [
+            "acid_traps",
+            "annular_rings",
+            "teardrops",
+            "thermal_reliefs",
+            "copper_balance",
+            "creepage",
+            "clearance",
+        ]
+        for name in field_names:
+            if getattr(self, name) is None:
+                raise TypeError(
+                    f"ManufacturingReport field '{name}' cannot be None; "
+                    f"a valid {name.replace('_', ' ').title()} sub-report is required."
+                )
+
     @property
     def total_violations(self) -> int:
-        """Total number of violations across all checks."""
+        """Total number of violations across all checks, including partial failures."""
+        teardrop_failure = 1 if self.teardrops.teardrop_count == 0 else 0
+        thermal_failure = 1 if self.thermal_reliefs.relief_count == 0 else 0
         return (
             self.acid_traps.trap_count +
             self.annular_rings.violation_count +
             self.creepage.violation_count +
             self.clearance.violation_count +
-            self.copper_balance.unbalanced_layer_count
+            self.copper_balance.unbalanced_layer_count +
+            teardrop_failure +
+            thermal_failure
         )
 
     @property
@@ -53,7 +75,8 @@ class ManufacturingReport:
             self.acid_traps.critical_count +
             self.annular_rings.violation_count +
             self.creepage.violation_count +
-            self.clearance.violation_count
+            self.clearance.violation_count +
+            self.copper_balance.unbalanced_layer_count
         )
 
 
@@ -87,15 +110,15 @@ def generate_manufacturing_report(
     Example:
         >>> from temper_placer.router_v6.acid_trap_detection import AcidTrapReport
         >>> from temper_placer.router_v6.annular_ring_check import AnnularRingReport
-        >>> from temper_placer.router_v6.teardrop_generation import TeardropReport
-        >>> from temper_placer.router_v6.thermal_relief import ThermalReliefReport
+        >>> from temper_placer.router_v6.teardrop_generation import Teardrop, TeardropReport
+        >>> from temper_placer.router_v6.thermal_relief import ThermalRelief, ThermalReliefReport
         >>> from temper_placer.router_v6.copper_balance import CopperBalanceReport
         >>> from temper_placer.router_v6.creepage_check import CreepageReport
         >>> from temper_placer.router_v6.clearance_check import ClearanceReport
         >>> acid = AcidTrapReport(acid_traps=[])
         >>> annular = AnnularRingReport(violations=[], total_vias_checked=0)
-        >>> teardrops = TeardropReport(teardrops=[])
-        >>> thermal = ThermalReliefReport(thermal_reliefs=[])
+        >>> teardrops = TeardropReport(teardrops=[Teardrop("NET1", (0, 0), "via", 0.3, 0.6, "F.Cu")])
+        >>> thermal = ThermalReliefReport(thermal_reliefs=[ThermalRelief("GND", (0, 0), 4, 0.254, 0.254)])
         >>> copper = CopperBalanceReport(layer_balances=[])
         >>> creepage = CreepageReport(violations=[], total_checks=0)
         >>> clearance = ClearanceReport(violations=[], total_checks=0)
@@ -145,7 +168,10 @@ def format_manufacturing_report(report: ManufacturingReport) -> str:
     # Annular Rings
     lines.append(f"Annular Rings: {report.annular_rings.violation_count} violations")
     lines.append(f"  - Total vias checked: {report.annular_rings.total_vias_checked}")
-    lines.append(f"  - Pass rate: {report.annular_rings.pass_rate:.1f}%")
+    if report.annular_rings.total_vias_checked == 0:
+        lines.append("  - Pass rate: N/A")
+    else:
+        lines.append(f"  - Pass rate: {report.annular_rings.pass_rate:.1f}%")
     lines.append("")
 
     # Teardrops
@@ -167,13 +193,19 @@ def format_manufacturing_report(report: ManufacturingReport) -> str:
     # Creepage
     lines.append(f"Creepage: {report.creepage.violation_count} violations")
     lines.append(f"  - Total checks: {report.creepage.total_checks}")
-    lines.append(f"  - Pass rate: {report.creepage.pass_rate:.1f}%")
+    if report.creepage.total_checks == 0:
+        lines.append("  - Pass rate: N/A")
+    else:
+        lines.append(f"  - Pass rate: {report.creepage.pass_rate:.1f}%")
     lines.append("")
 
     # Clearance
     lines.append(f"Clearance: {report.clearance.violation_count} violations")
     lines.append(f"  - Total checks: {report.clearance.total_checks}")
-    lines.append(f"  - Pass rate: {report.clearance.pass_rate:.1f}%")
+    if report.clearance.total_checks == 0:
+        lines.append("  - Pass rate: N/A")
+    else:
+        lines.append(f"  - Pass rate: {report.clearance.pass_rate:.1f}%")
     lines.append("")
 
     lines.append("=" * 60)
