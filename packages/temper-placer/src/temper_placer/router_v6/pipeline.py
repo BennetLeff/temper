@@ -122,7 +122,6 @@ class Stage4Output:
         }
 
 
-@dataclass
 class ManufacturingDRCViolationError(RuntimeError):
     """Raised when manufacturing DRC violations exceed the configured threshold."""
 
