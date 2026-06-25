@@ -347,16 +347,7 @@ def test_zero_threshold_detects_no_traps(threshold: float):
     [
         # Exactly at severity boundaries
         (45.0, "medium", True),         # 45 < 45 is False → medium
-        pytest.param(
-            60.0, "low", True,
-            marks=pytest.mark.xfail(
-                reason=(
-                    "Floating-point rounding makes exactly-60° compute as "
-                    "~59.99999999999999°, which is < 60 → classified 'medium' "
-                    "instead of 'low' (temper-xxx)"
-                ),
-            ),
-        ),
+        (60.0, "low", True),
         # Just below severity boundaries
         (just_below(45.0), "high", True),
         (just_below(60.0), "medium", True),

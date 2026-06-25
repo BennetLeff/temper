@@ -83,9 +83,11 @@ def _make_route(
 class TestVoltageBoundaries:
     """``_calculate_required_creepage`` with boundary voltage values."""
 
-    @pytest.mark.parametrize("voltage", VOLTAGE_BOUNDARY)
+    _FINITE_VOLTAGES = [v for v in VOLTAGE_BOUNDARY if math.isfinite(v)]
+
+    @pytest.mark.parametrize("voltage", _FINITE_VOLTAGES)
     def test_does_not_crash(self, voltage: float):
-        """Calling the lookup with any boundary voltage must not raise."""
+        """Calling the lookup with any finite boundary voltage must not raise."""
         _calculate_required_creepage(voltage)  # no exception = pass
 
     @pytest.mark.parametrize("voltage", VOLTAGE_ZERO + VOLTAGE_EXTREME)
@@ -107,27 +109,18 @@ class TestVoltageBoundaries:
         assert result == pytest.approx(0.13)
 
     @pytest.mark.parametrize("voltage", VOLTAGE_NAN)
-    @pytest.mark.xfail(
-        reason="NaN silently falls through all comparisons to 12.0 mm",
-    )
     def test_nan_voltage_should_be_rejected(self, voltage: float):
-        """NaN voltage should not silently return a distance."""
+        """NaN voltage should raise ValueError."""
         assert math.isnan(voltage)
-        # Expect either a raised exception or NaN result
-        result = _calculate_required_creepage(voltage)
-        # Current behaviour: returns 12.0 (the 'else' fallback)
-        assert math.isnan(result) or isinstance(result, float)  # probe
+        with pytest.raises(ValueError, match="finite"):
+            _calculate_required_creepage(voltage)
 
     @pytest.mark.parametrize("voltage", VOLTAGE_INF)
-    @pytest.mark.xfail(
-        reason="inf silently falls through all comparisons to 12.0 mm",
-    )
     def test_inf_voltage_should_be_rejected(self, voltage: float):
-        """Infinite voltage should not silently return a distance."""
+        """Infinite voltage should raise ValueError."""
         assert math.isinf(voltage)
-        result = _calculate_required_creepage(voltage)
-        # Current behaviour: returns 12.0
-        assert False, f"inf voltage returned {result}"
+        with pytest.raises(ValueError, match="finite"):
+            _calculate_required_creepage(voltage)
 
 
 # ===================================================================
@@ -164,26 +157,19 @@ class TestDefaultCreepageBoundaries:
     # -- NaN -----------------------------------------------------------
 
     @pytest.mark.parametrize("dc", THRESHOLD_NAN)
-    @pytest.mark.xfail(
-        reason="NaN required distance makes all comparisons False; "
-        "should probably raise or treat as error",
-    )
     def test_default_nan(self, dc: float):
-        """NaN default creepage should not silently pass all checks."""
+        """NaN default creepage should raise ValueError."""
         assert math.isnan(dc)
-        report = verify_creepage(self.results, default_creepage=dc)
-        # Current: 0 violations because ``dist < NaN`` is always False
-        assert report.violation_count > 0 or report.total_checks == 0  # probe
+        with pytest.raises(ValueError, match="finite"):
+            verify_creepage(self.results, default_creepage=dc)
 
     # -- inf -----------------------------------------------------------
 
     @pytest.mark.parametrize("dc", THRESHOLD_INF)
-    def test_default_inf_flags_all(self, dc: float):
-        """Infinite required distance makes every segment pair a violation."""
-        report = verify_creepage(self.results, default_creepage=dc)
-        # Every check between AC_L and SIG1 should violate
-        assert report.violation_count > 0
-        assert report.violation_count <= report.total_checks
+    def test_default_inf_rejected(self, dc: float):
+        """Infinite default_creepage should raise ValueError."""
+        with pytest.raises(ValueError, match="finite"):
+            verify_creepage(self.results, default_creepage=dc)
 
 
 # ===================================================================
@@ -303,21 +289,17 @@ class TestCoordinateBoundaries:
 
     @pytest.mark.parametrize("coord", COORD_NAN)
     def test_extract_segments_nan_coords(self, coord: tuple[float, float]):
-        """NaN coordinates propagate into segments without crashing."""
+        """NaN coordinates are silently skipped (no segments extracted)."""
         route = _make_route("NET", [(0.0, 0.0), coord])
         segs = _extract_segments(route)
-        assert len(segs) == 1
-        _, _, x2, y2, _ = segs[0]
-        assert math.isnan(x2) or math.isnan(y2)
+        assert len(segs) == 0
 
     @pytest.mark.parametrize("coord", COORD_INF)
     def test_extract_segments_inf_coords(self, coord: tuple[float, float]):
-        """Infinite coordinates propagate into segments without crashing."""
+        """Infinite coordinates are silently skipped (no segments extracted)."""
         route = _make_route("NET", [(0.0, 0.0), coord])
         segs = _extract_segments(route)
-        assert len(segs) == 1
-        _, _, x2, y2, _ = segs[0]
-        assert math.isinf(x2) or math.isinf(y2)
+        assert len(segs) == 0
 
     # -- point_to_segment_distance -------------------------------------
 

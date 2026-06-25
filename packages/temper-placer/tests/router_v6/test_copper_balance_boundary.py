@@ -217,29 +217,6 @@ def test_via_diameter_boundaries(diameter, drill):
 
     area = _via_annular_area(via)
 
-    # --- Known bugs (marked xfail; do NOT fix) ---
-    if math.isnan(diameter) or math.isnan(drill):
-        if math.isnan(area):
-            pytest.xfail(
-                "NaN via diameter/drill propagates NaN annular area (known gap)."
-            )
-        return
-
-    if math.isinf(diameter) or math.isinf(drill):
-        if math.isinf(area):
-            pytest.xfail(
-                "Inf via diameter/drill propagates Inf annular area (known gap)."
-            )
-        return
-
-    if diameter <= 0.0 or drill >= diameter:
-        if area < 0.0:
-            pytest.xfail(
-                "Zero/negative diameter or drill ≥ diameter produces "
-                "negative annular area (known gap)."
-            )
-        return
-
     # Normal path: area should be ≥ 0
     assert area >= 0.0, f"Expected non-negative annular area, got {area}"
 
@@ -271,16 +248,11 @@ def test_route_path_3d_segments_present():
     assert f_cu.copper_area_mm2 > 0
 
 
-@pytest.mark.xfail(
-    reason="Path without layer_name or segments causes AttributeError crash (known gap).",
-    raises=AttributeError,
-)
 def test_route_path_bogus_no_layer_name_no_segments():
     """A path object with neither ``layer_name`` nor ``segments``.
 
-    The guard ``hasattr(path, "layer_name")`` is False, so it falls
-    into the ``else`` branch which accesses ``path.segments`` —
-    crashing with AttributeError.
+    The guard ``hasattr(path, "segments")`` catches this and skips
+    the route gracefully instead of crashing with AttributeError.
     """
     bogus = _BogusPath()
     route = CompiledRoute("N1", bogus, 0.254, [], None)

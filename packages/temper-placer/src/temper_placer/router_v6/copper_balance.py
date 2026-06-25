@@ -120,8 +120,16 @@ def analyze_copper_balance(
         >>> report.balanced_layer_count >= 0
         True
     """
-    # Compute board-level constant once
-    total_area = board_width * board_height
+    # Compute board-level constant once — guard degenerate dimensions
+    if (
+        math.isnan(board_width)
+        or math.isnan(board_height)
+        or math.isinf(board_width)
+        or math.isinf(board_height)
+    ):
+        total_area = 0.0
+    else:
+        total_area = board_width * board_height
 
     layer_balances: list[LayerCopperBalance] = []
     layers_to_check = [str(idx) for idx in STANDARD_LAYER_ORDER]
@@ -193,6 +201,8 @@ def _calculate_layer_copper_area(
         else:
             # --- RoutePath3D (multi-layer segments) ---
             # segments: list of (x, y, layer) tuples
+            if not hasattr(compiled_route.path, "segments"):
+                continue
             segments = compiled_route.path.segments
             for i in range(len(segments) - 1):
                 x1, y1, seg_layer = segments[i]
@@ -225,8 +235,23 @@ def _via_annular_area(via: object) -> float:
 
     When *drill* is ``None`` or zero the hole term is omitted.
     """
-    r_pad = via.diameter / 2.0
+    diameter = via.diameter
     drill = getattr(via, "drill", 0.0) or 0.0
+
+    # Guard: NaN / inf diameter or drill → 0.0
+    if (
+        math.isnan(diameter)
+        or math.isnan(drill)
+        or math.isinf(diameter)
+        or math.isinf(drill)
+    ):
+        return 0.0
+
+    # Guard: non-positive diameter or drill >= diameter → 0.0
+    if diameter <= 0.0 or drill >= diameter:
+        return 0.0
+
+    r_pad = diameter / 2.0
     r_hole = drill / 2.0 if drill > 0.0 else 0.0
     return math.pi * (r_pad * r_pad - r_hole * r_hole)
 

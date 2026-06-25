@@ -77,7 +77,28 @@ def detect_acid_traps(
         >>> report.trap_count >= 0
         True
     """
-    # ---- Clamp threshold ---------------------------------------------------
+    # ---- Validate and clamp threshold --------------------------------------
+    if math.isnan(min_angle_threshold):
+        # NaN threshold makes every ``angle < NaN`` False → zero traps.
+        # Return early with an explicit warning rather than relying on the
+        # implicit behaviour of NaN comparisons.
+        warnings.warn(
+            f"min_angle_threshold is NaN — no angles can be below NaN. "
+            f"Returning empty report.",
+            stacklevel=2,
+        )
+        return AcidTrapReport(acid_traps=[])
+
+    if not math.isfinite(min_angle_threshold):
+        # +inf falls through to the > 90 clamp; -inf is non-sensical.
+        if min_angle_threshold < 0:
+            warnings.warn(
+                f"min_angle_threshold={min_angle_threshold}° is negative — "
+                f"all angles are ≥ 0°, returning empty report.",
+                stacklevel=2,
+            )
+            return AcidTrapReport(acid_traps=[])
+
     if min_angle_threshold > 90.0:
         warnings.warn(
             f"min_angle_threshold={min_angle_threshold}° exceeds 90° — "
@@ -216,6 +237,11 @@ def _calculate_angle(
 
     angle_deg = math.degrees(angle_rad)
 
+    # Round to eliminate floating-point noise (e.g. acos may return
+    # 59.99999999999999° for a mathematically exact 60° angle, which
+    # would shift the severity classification at the boundary).
+    angle_deg = round(angle_deg, 9)
+
     return angle_deg
 
 
@@ -240,7 +266,12 @@ def _classify_severity(angle: float, trace_width_mm: float = 0.2) -> str:
     else:
         base = "low"       # Minor issue
 
-    # Narrow traces are less susceptible to etchant trapping
+    # Narrow traces are less susceptible to etchant trapping.
+    # Non-finite / negative widths are physically meaningless — treat as
+    # if no demotion applies (the angle-based classification stands).
+    if not math.isfinite(trace_width_mm) or trace_width_mm < 0:
+        return base
+
     if trace_width_mm < 0.2:
         if base == "high":
             return "medium"

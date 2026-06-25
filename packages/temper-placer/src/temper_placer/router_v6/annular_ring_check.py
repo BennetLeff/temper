@@ -8,6 +8,7 @@ Part of temper-j2xd (Stage 5 - Manufacturing DRC)
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass
 
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -83,8 +84,12 @@ def _check_via(
     Returns:
         An ``AnnularRingViolation`` if the via fails, or ``None``.
     """
-    # ---- guard: zero / negative drill produces invalid ring widths ----
-    if via.drill <= 0.0:  # type: ignore[attr-defined]
+    # ---- guard: NaN / zero / negative drill produces invalid ring widths ----
+    if (
+        math.isnan(via.drill)  # type: ignore[attr-defined]
+        or math.isnan(via.diameter)  # type: ignore[attr-defined]
+        or via.drill <= 0.0  # type: ignore[attr-defined]
+    ):
         logger.warning(
             "Via at %s on net %s has non-positive drill %.4f mm; skipping.",
             getattr(via, "position", "?"),
@@ -112,8 +117,19 @@ def _check_via(
     if via_type == "microvia":
         threshold = microvia_ring_mm
 
-    # ---- violation check (<= so boundary values are caught) ----
-    if ring_width <= threshold:
+    # ---- guard: NaN threshold produces meaningless comparisons ----
+    if math.isnan(threshold):
+        logger.warning(
+            "Via at %s on net %s has NaN threshold; skipping.",
+            getattr(via, "position", "?"),
+            net_name,
+        )
+        return None
+
+    # ---- violation check (<= so boundary values are caught; ----
+    # ---- small epsilon tolerates IEEE-754 rounding error)     ----
+    _FP_EPSILON = 1e-12
+    if ring_width <= threshold + _FP_EPSILON:
         return AnnularRingViolation(
             net_name=net_name,
             via_position=via.position,  # type: ignore[attr-defined]
@@ -169,7 +185,7 @@ def check_annular_rings(
         True
     """
     # ---- validate input ----
-    if min_annular_ring <= 0.0:
+    if math.isnan(min_annular_ring) or min_annular_ring <= 0.0:
         raise ValueError(
             f"min_annular_ring must be > 0, got {min_annular_ring}"
         )

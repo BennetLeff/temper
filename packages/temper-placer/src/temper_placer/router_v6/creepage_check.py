@@ -109,6 +109,13 @@ def verify_creepage(
     if voltage_ratings is None:
         voltage_ratings = {}
 
+    if default_creepage is not None and (
+        math.isnan(default_creepage) or not math.isfinite(default_creepage)
+    ):
+        raise ValueError(
+            f"default_creepage must be a finite number, got {default_creepage!r}"
+        )
+
     # Identify every HV net
     hv_nets = [net for net in routing_results.compiled_routes
                if _is_high_voltage_net(net)]
@@ -195,10 +202,17 @@ def _extract_segments(
     Handles both ``RoutePath`` (single-layer) and ``RoutePath3D``
     (per-segment layers).
 
+    Segments that contain NaN or infinite coordinates are silently
+    skipped so they cannot poison downstream distance calculations.
+
     Returns:
         List of ``(x1, y1, x2, y2, layer)`` tuples.
     """
     segments: list[tuple[float, float, float, float, str]] = []
+
+    def _ok(*values: float) -> bool:
+        """True when all values are finite (no NaN, no inf)."""
+        return all(math.isfinite(v) for v in values)
 
     if hasattr(route.path, 'segments'):
         # RoutePath3D  – (x, y, layer) triples
@@ -206,7 +220,7 @@ def _extract_segments(
         for i in range(len(pts) - 1):
             x1, y1, layer1 = pts[i]
             x2, y2, layer2 = pts[i + 1]
-            if layer1 == layer2:               # ignore via jumps
+            if layer1 == layer2 and _ok(x1, y1, x2, y2):
                 segments.append((x1, y1, x2, y2, layer1))
     else:
         # RoutePath – flat coordinates + single layer name
@@ -215,7 +229,8 @@ def _extract_segments(
         for i in range(len(coords) - 1):
             x1, y1 = coords[i]
             x2, y2 = coords[i + 1]
-            segments.append((x1, y1, x2, y2, layer))
+            if _ok(x1, y1, x2, y2):
+                segments.append((x1, y1, x2, y2, layer))
 
     return segments
 
@@ -228,10 +243,11 @@ def _point_to_segment_distance(
     """Minimum distance from point *(px, py)* to segment *(x1,y1)-(x2,y2)*."""
     dx = x2 - x1
     dy = y2 - y1
-    if dx == 0.0 and dy == 0.0:
+    denom = dx * dx + dy * dy
+    if denom == 0.0 or not math.isfinite(denom):
         return math.hypot(px - x1, py - y1)
     # Clamped projection parameter t ∈ [0, 1]
-    t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)
+    t = ((px - x1) * dx + (py - y1) * dy) / denom
     t = max(0.0, min(1.0, t))
     proj_x = x1 + t * dx
     proj_y = y1 + t * dy
@@ -246,9 +262,10 @@ def _closest_point_on_segment(
     """Closest point on segment *(x1,y1)-(x2,y2)* to point *(px, py)*."""
     dx = x2 - x1
     dy = y2 - y1
-    if dx == 0.0 and dy == 0.0:
+    denom = dx * dx + dy * dy
+    if denom == 0.0 or not math.isfinite(denom):
         return (x1, y1)
-    t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)
+    t = ((px - x1) * dx + (py - y1) * dy) / denom
     t = max(0.0, min(1.0, t))
     return (x1 + t * dx, y1 + t * dy)
 
@@ -402,7 +419,14 @@ def _calculate_required_creepage(voltage: float) -> float:
 
     Returns:
         Required creepage distance (mm).
+
+    Raises:
+        ValueError: If *voltage* is NaN or not finite.
     """
+    if math.isnan(voltage) or not math.isfinite(voltage):
+        raise ValueError(
+            f"Voltage must be a finite number, got {voltage!r}"
+        )
     if voltage <= 15:
         return 0.13
     elif voltage <= 30:

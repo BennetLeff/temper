@@ -124,37 +124,22 @@ def _make_results(
         # drill <= 0 => skipped
         pytest.param(-0.1, -0.1, False, True, id="both_negative"),
         # ---- NaN diameter ----
-        # drill > 0, ring = (NaN - drill)/2 = NaN; NaN <= threshold is False
-        # => silently returns None (bug: should be caught by a guard or raise)
+        # drill > 0, but NaN diameter => skip (NaN guard catches it)
         pytest.param(
-            float("nan"), 0.3, False, False,
+            float("nan"), 0.3, False, True,
             id="diameter_nan",
-            marks=pytest.mark.xfail(
-                reason="NaN diameter: drill guard passes (0.3 > 0), "
-                "ring_width = NaN, NaN <= threshold is False; "
-                "the via silently passes instead of being skipped or rejected."
-            ),
         ),
         # ---- NaN drill ----
-        # drill <= 0? NaN <= 0 is False => guard skipped.
-        # ring = (0.6 - NaN)/2 = NaN, NaN <= threshold False => silently passes.
+        # NaN drill => skip (NaN guard catches it)
         pytest.param(
-            0.6, float("nan"), False, False,
+            0.6, float("nan"), False, True,
             id="drill_nan",
-            marks=pytest.mark.xfail(
-                reason="NaN drill: guard NaN <= 0 is False, so skip is missed; "
-                "ring_width = NaN, NaN <= threshold is False; "
-                "the via silently passes."
-            ),
         ),
         # ---- both NaN ----
+        # NaN drill => skip (NaN guard catches it)
         pytest.param(
-            float("nan"), float("nan"), False, False,
+            float("nan"), float("nan"), False, True,
             id="both_nan",
-            marks=pytest.mark.xfail(
-                reason="NaN drill + diameter: all comparisons with NaN "
-                "are False; the via silently passes."
-            ),
         ),
         # ---- +inf diameter, normal drill ----
         # ring = (inf - 0.3)/2 = inf; inf <= 0.05 is False => passes.
@@ -238,16 +223,10 @@ def test_via_geometry_boundaries(
         # +inf — +inf <= 0 is False so validation passes.
         # All finite ring widths <= +inf => every via fails.
         pytest.param(float("inf"), False, id="threshold_inf"),
-        # NaN — NaN <= 0 is False so validation passes.
-        # Then NaN threshold makes every ring_width <= NaN False => zero violations.
+        # NaN — now rejected at validation time
         pytest.param(
-            float("nan"), False,
+            float("nan"), True,
             id="threshold_nan",
-            marks=pytest.mark.xfail(
-                reason="NaN passes the <= 0 validation guard (NaN <= 0 is False); "
-                "then ring_width <= NaN is always False, so all vias silently "
-                "pass.  NaN should be rejected at validation time."
-            ),
         ),
     ],
 )
@@ -283,14 +262,11 @@ def test_check_annular_rings_threshold_validation(
         pytest.param(float("inf"), True, id="check_via_threshold_inf"),
         # threshold = -inf: 0.15 <= -inf False => passes
         pytest.param(-float("inf"), False, id="check_via_threshold_neg_inf"),
-        # threshold = NaN: 0.15 <= NaN False => passes (silently)
+        # threshold = NaN: 0.15 <= NaN is always False, but NaN threshold
+        # is now guarded in _check_via (logged + skipped, returns None).
         pytest.param(
             float("nan"), False,
             id="check_via_threshold_nan",
-            marks=pytest.mark.xfail(
-                reason="NaN threshold: ring_width <= NaN is always False, "
-                "so vias that should fail are silently passed."
-            ),
         ),
     ],
 )
@@ -343,27 +319,17 @@ def test_tiny_ring_caught_with_normal_threshold() -> None:
         # ring = (0.5 - 0.4)/2 ≈ 0.04999999999999999 < 0.05  => violation
         pytest.param(0.5, 0.4, True, 0.05, id="ring_below_005"),
 
-        # ---- nominal ring = 0.05, but FP ring slightly above 0.05 ----
+        # ---- nominal ring = 0.05, FP ring slightly above 0.05 ----
         # d=0.4 drill=0.3: computed ring ≈ 0.050000000000000017 > 0.05
-        # The <= check was *intended* to catch this boundary case, but
-        # floating-point representation pushes it just over the threshold.
+        # The <= check with FP epsilon now catches this boundary case.
         pytest.param(
             0.4, 0.3, True, 0.05,
             id="ring_exactly_at_005_nominal",
-            marks=pytest.mark.xfail(
-                reason="d=0.4 drill=0.3 yields FP ring ≈ 0.050000000000000017 "
-                "which is > 0.05, so the <= check misses the boundary case. "
-                "A tolerance-based comparison (e.g. ring <= threshold + ε) "
-                "would catch this."
-            ),
         ),
 
         # ---- ring clearly above 0.05 ----
-        # d=0.6 drill=0.5: ring ≈ 0.04999999999999999 < 0.05  => violation
-        # (need a pair that actually yields ring > 0.05)
-        # d=0.4000000000000001 drill=0.3:
-        #   ring ≈ 0.050000000000000044 > 0.05 => passes
-        pytest.param(0.4000000000000001, 0.3, False, 0.05, id="ring_above_005"),
+        # d=0.41 drill=0.3: ring = (0.41 - 0.3)/2 = 0.055 > 0.05 => passes
+        pytest.param(0.41, 0.3, False, 0.05, id="ring_above_005"),
 
         # ---- ring clearly below 0.10 (d=0.6 drill=0.4) ----
         # ring = (0.6 - 0.4)/2 ≈ 0.09999999999999999 < 0.10 => violation
@@ -502,16 +468,11 @@ def test_layer_aware_thresholds(
 
         # ---- ring ≈ 0.05, min_ring=0.05 ----
         # d=0.4 drill=0.3: FP ring ≈ 0.050000000000000017 > 0.05
-        # external: passes (xfail — intended to be caught by <=)
+        # external: now caught by FP epsilon in <= check
         # internal: 0.050... <= 0.025 => passes (correct, ring > 0.025)
         pytest.param(
             0.4, 0.3, 0.05, True, False,
             id="ring_005_minring_005",
-            marks=pytest.mark.xfail(
-                reason="d=0.4 drill=0.3 yields FP ring ≈ 0.050000000000000017 "
-                "which is > 0.05; the <= check misses the boundary case "
-                "for the external layer."
-            ),
         ),
 
         # ---- ring clearly above 0.05, min_ring=0.05 ----
@@ -524,15 +485,10 @@ def test_layer_aware_thresholds(
         # external threshold=0.1, internal threshold=0.05
         # d=0.4 drill=0.3: FP ring ≈ 0.050000000000000017
         # external: 0.050... <= 0.1 => violation
-        # internal: 0.050... <= 0.05 => passes (xfail: ring > 0.05 in FP)
+        # internal: now caught by FP epsilon (0.050... <= 0.05 + ε)
         pytest.param(
             0.4, 0.3, 0.1, True, True,
             id="ring_005_minring_010",
-            marks=pytest.mark.xfail(
-                reason="d=0.4 drill=0.3 yields FP ring ≈ 0.050000000000000017 "
-                "which is > 0.05 (internal threshold for min_ring=0.1); "
-                "the <= check misses the internal-layer boundary case."
-            ),
         ),
 
         # ---- ring ≈ 0.051, min_ring=0.1 ----

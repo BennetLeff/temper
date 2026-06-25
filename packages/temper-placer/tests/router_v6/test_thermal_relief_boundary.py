@@ -111,10 +111,6 @@ class TestSpokeCountBoundaries:
         with pytest.raises(ValueError, match="spoke_count"):
             add_thermal_relief(results, spoke_count=spoke_count)
 
-    @pytest.mark.xfail(
-        reason="NaN passes spoke_count < 2 guard (NaN < 2 is False), "
-        "then range(NaN) raises TypeError instead of ValueError"
-    )
     def test_spoke_count_nan_should_raise_valueerror(self) -> None:
         results = _make_results()
         with pytest.raises(ValueError):
@@ -143,10 +139,6 @@ class TestSpokeWidthBoundaries:
             for i, v in enumerate(THRESHOLD_NAN)
         ],
     )
-    @pytest.mark.xfail(
-        reason="NaN passes spoke_width <= 0 guard (NaN <= 0 is False); "
-        "geometry silently becomes NaN"
-    )
     def test_spoke_width_nan_should_raise(self, spoke_width: float) -> None:
         results = _make_results()
         with pytest.raises(ValueError):
@@ -158,10 +150,6 @@ class TestSpokeWidthBoundaries:
             pytest.param(v, id=f"spoke_width_inf_{i}")
             for i, v in enumerate(THRESHOLD_INF)
         ],
-    )
-    @pytest.mark.xfail(
-        reason="inf passes spoke_width <= 0 guard; spoke_length becomes inf, "
-        "geometry contains infinite coordinates"
     )
     def test_spoke_width_inf_should_raise(self, spoke_width: float) -> None:
         results = _make_results()
@@ -192,10 +180,6 @@ class TestClearanceGapBoundaries:
             pytest.param(v, id=f"clearance_gap_nan_{i}")
             for i, v in enumerate(THRESHOLD_NAN)
         ],
-    )
-    @pytest.mark.xfail(
-        reason="NaN passes clearance_gap <= 0 guard (NaN <= 0 is False); "
-        "geometry silently becomes NaN"
     )
     def test_clearance_gap_nan_should_raise(self, clearance_gap: float) -> None:
         results = _make_results()
@@ -387,10 +371,6 @@ class TestViaDiameterBoundaries:
             for i, d in enumerate(VIA_DIAMETERS_NAN)
         ],
     )
-    @pytest.mark.xfail(
-        reason="NaN via diameter propagates into pad_radius=NaN, "
-        "producing spoke geometry with NaN coordinates"
-    )
     def test_via_diameter_nan_should_be_handled(self, diameter: float) -> None:
         """NaN via diameter silently produces NaN geometry — should be rejected."""
         results = _make_results(via_diameter=diameter)
@@ -445,10 +425,6 @@ class TestBoardBoundaries:
             pytest.param(w, h, id=f"board_nan_{i}")
             for i, (w, h) in enumerate(BOARD_DIMS_NAN)
         ],
-    )
-    @pytest.mark.xfail(
-        reason="NaN board dimensions produce NaN in clamped coordinates; "
-        "should be rejected or handled gracefully"
     )
     def test_board_nan_dimensions_should_be_handled(
         self, width: float, height: float
@@ -552,9 +528,10 @@ class TestCombinedBoundaries:
     """Tests where multiple boundary values interact."""
 
     def test_zero_spoke_count_and_nan_width(self) -> None:
-        """spoke_count=0 raises before spoke_width=NaN is evaluated."""
+        """NaN spoke_width raises before spoke_count=0 is evaluated
+        (NaN guard fires first)."""
         results = _make_results()
-        with pytest.raises(ValueError, match="spoke_count"):
+        with pytest.raises(ValueError, match="spoke_width"):
             add_thermal_relief(
                 results,
                 spoke_count=0,

@@ -126,19 +126,19 @@ def test_clearance_threshold_boundary(min_clearance, desc):
     """``verify_clearance`` with boundary ``min_clearance`` values.
 
     The function should not crash; it may return 0 or all violations
-    depending on the threshold semantics.
+    depending on the threshold semantics.  NaN / inf thresholds raise
+    ``ValueError``.
     """
     r1 = _make_route("NET1", [(0.0, 0.0), (10.0, 0.0)])
     r2 = _make_route("NET2", [(0.0, 0.5), (10.0, 0.5)])
     results = _make_results({"NET1": r1, "NET2": r2})
 
-    try:
-        report = verify_clearance(results, min_clearance=min_clearance)
-    except Exception:
-        if math.isnan(min_clearance) or math.isinf(min_clearance):
-            pytest.xfail("NaN/inf min_clearance causes crash (expected edge-case)")
-        raise
+    if math.isnan(min_clearance) or math.isinf(min_clearance):
+        with pytest.raises(ValueError, match="finite"):
+            verify_clearance(results, min_clearance=min_clearance)
+        return
 
+    report = verify_clearance(results, min_clearance=min_clearance)
     assert isinstance(report, ClearanceReport)
     assert report.total_checks == 1
 
@@ -252,20 +252,14 @@ def test_voltage_boundary_values(voltage, desc):
     """``_get_required_clearance`` with boundary voltage values in the
     ratings dict.
 
-    The function should not crash; NaN/inf voltages may produce
-    unexpected required-clearance values.
+    The function should not crash; NaN/inf voltages fall back to the
+    230 V default.
     """
-    try:
-        req = _get_required_clearance(
-            "HV_BUS", "SIG1",
-            default_clearance=0.127,
-            voltage_ratings={"HV_BUS": voltage},
-        )
-    except Exception:
-        if math.isnan(voltage) or math.isinf(voltage):
-            pytest.xfail("NaN/inf voltage causes crash (expected edge-case)")
-        raise
-
+    req = _get_required_clearance(
+        "HV_BUS", "SIG1",
+        default_clearance=0.127,
+        voltage_ratings={"HV_BUS": voltage},
+    )
     assert isinstance(req, float)
 
 
@@ -289,6 +283,7 @@ def test_coordinate_boundary_single_point_path(coords, desc):
 
     A single-point path has no segments — the clearance code must
     handle this gracefully (zero segments to check, no crash).
+    NaN / inf coordinates produce zero segments.
     """
     x, y = coords
     # Single-point path
@@ -296,13 +291,7 @@ def test_coordinate_boundary_single_point_path(coords, desc):
     r2 = _make_route("NET2", [(0.0, 0.0), (10.0, 0.0)])
     results = _make_results({"NET1": r1, "NET2": r2})
 
-    try:
-        report = verify_clearance(results, min_clearance=0.127)
-    except Exception:
-        if math.isnan(x) or math.isinf(x) or math.isnan(y) or math.isinf(y):
-            pytest.xfail("NaN/inf coords in single-point path causes crash")
-        raise
-
+    report = verify_clearance(results, min_clearance=0.127)
     assert isinstance(report, ClearanceReport)
 
 

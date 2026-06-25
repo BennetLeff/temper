@@ -123,11 +123,11 @@ def add_thermal_relief(
         True
     """
     # ── input validation ──────────────────────────────────────────────
-    if spoke_width <= 0:
-        raise ValueError(f"spoke_width must be > 0, got {spoke_width}")
-    if clearance_gap <= 0:
-        raise ValueError(f"clearance_gap must be > 0, got {clearance_gap}")
-    if spoke_count < 2:
+    if math.isnan(spoke_width) or math.isinf(spoke_width) or spoke_width <= 0:
+        raise ValueError(f"spoke_width must be > 0 and finite, got {spoke_width}")
+    if math.isnan(clearance_gap) or math.isinf(clearance_gap) or clearance_gap <= 0:
+        raise ValueError(f"clearance_gap must be > 0 and finite, got {clearance_gap}")
+    if (isinstance(spoke_count, float) and math.isnan(spoke_count)) or spoke_count < 2:
         raise ValueError(f"spoke_count must be >= 2, got {spoke_count}")
 
     # ── resolve plane_layers ──────────────────────────────────────────
@@ -156,6 +156,8 @@ def add_thermal_relief(
             # Analyze route to identify power plane connections
             # For each via connecting to power plane, add thermal relief
             for via in compiled_route.vias:
+                if math.isnan(via.diameter) or via.diameter <= 0:
+                    continue
                 if _connects_to_power_plane(
                     via,
                     net_name,
@@ -348,6 +350,11 @@ def _clamp_to_board_outline(
     # Rectangular board ─ fast path
     if not board.has_polygon_outline:
         ox, oy = board.origin
+        # Guard against NaN/inf board dimensions
+        if not (math.isfinite(board.width) and math.isfinite(board.height)):
+            return (x, y)
+        if not (math.isfinite(ox) and math.isfinite(oy)):
+            return (x, y)
         x_min, y_min = ox, oy
         x_max, y_max = ox + board.width, oy + board.height
         return (max(x_min, min(x, x_max)), max(y_min, min(y, y_max)))
