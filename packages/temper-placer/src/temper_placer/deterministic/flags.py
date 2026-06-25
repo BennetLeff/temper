@@ -28,13 +28,15 @@ def is_drc_fence_fail_enabled() -> bool:
     """Return True when the DRC fence should hard-fail on violations.
 
     Reads the :envvar:`TEMPER_DRC_FENCE_FAIL` env var on every call so a
-    test can flip the flag mid-process by setting the variable. Values
-    ``"1"``, ``"true"``, ``"yes"`` (case-insensitive) are truthy; any
-    other value is falsy. The default (env var unset) is False - soft
-    launch.
+    test can flip the flag mid-process by setting the variable. The
+    default (env var unset) is **True** — the fence is blocking. Set the
+    env var to ``"0"``, ``"false"``, ``"no"``, or ``"off"``
+    (case-insensitive) to opt out and return to WARNING-only mode.
     """
     raw = os.environ.get(_ENV_VAR, "").strip().lower()
-    return raw in ("1", "true", "yes", "on")
+    if raw in ("0", "false", "no", "off"):
+        return False
+    return True
 
 
 # Module-level constant for callers that want to read the snapshot once

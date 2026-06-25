@@ -1,9 +1,10 @@
 """
-Tests for U6: Soft-launch flip (WARNING -> hard-fail) for the
+Tests for U6: DRC fence blocking behavior for the
 no_component_center_in_critical_bottleneck invariant.
 
 Covers:
-- WARNING-only behavior when DRC_FENCE_FAIL_ENABLED is False
+- Blocking (hard-fail) by default when TEMPER_DRC_FENCE_FAIL is unset
+- WARNING-only behavior when TEMPER_DRC_FENCE_FAIL is explicitly "0"/"false"
 - Hard-fail raises PhasedComponentAssignmentError when flag is True
 - Env var TEMPER_DRC_FENCE_FAIL flips behavior at runtime
 - MEDIUM/HIGH bottlenecks do not trigger the fence in either state
@@ -64,21 +65,41 @@ def _stage(cmap: ChannelMap) -> PhasedComponentAssignmentStage:
 
 @pytest.fixture
 def fence_env(monkeypatch):
-    """Default: clear TEMPER_DRC_FENCE_FAIL for the test duration."""
+    """Clear TEMPER_DRC_FENCE_FAIL for the test duration (opt into default blocking)."""
     monkeypatch.delenv("TEMPER_DRC_FENCE_FAIL", raising=False)
     yield monkeypatch
 
 
+@pytest.fixture
+def fence_env_disabled(monkeypatch):
+    """Explicitly disable the DRC fence (WARNING-only mode)."""
+    monkeypatch.setenv("TEMPER_DRC_FENCE_FAIL", "0")
+    yield monkeypatch
+
+
+class TestFenceBlockingDefault:
+    def test_fence_hard_fails_by_default(self, fence_env, caplog):
+        """With env var unset, fence is blocking (hard-fail)."""
+        assert is_drc_fence_fail_enabled() is True
+        stage = _stage(_cmap_with_critical())
+        placements = {"U1": (1.5, 1.5)}
+        with pytest.raises(PhasedComponentAssignmentError) as exc:
+            stage._check_critical_bottlenecks(placements)
+        msg = str(exc.value)
+        assert "U1" in msg
+        assert "CRITICAL" in msg
+
+
 class TestFenceWarningOnly:
-    def test_fence_warning_only_when_disabled(self, fence_env, caplog):
+    def test_fence_warning_only_when_explicitly_disabled(self, fence_env_disabled, caplog):
+        """When TEMPER_DRC_FENCE_FAIL=0, fence is WARNING-only."""
+        assert is_drc_fence_fail_enabled() is False
         stage = _stage(_cmap_with_critical())
         placements = {"U1": (1.5, 1.5)}
         with caplog.at_level(logging.WARNING):
             violations = stage._check_critical_bottlenecks(placements)
         assert len(violations) == 1
         assert any("CRITICAL" in r.message for r in caplog.records)
-        # The default (env var unset) is False.
-        assert is_drc_fence_fail_enabled() is False
 
 
 class TestFenceHardFail:
@@ -96,23 +117,31 @@ class TestFenceHardFail:
 
 class TestFenceEnvVarOverrides:
     def test_fence_env_var_overrides_default(self, fence_env, caplog):
-        # Default is False.
-        assert is_drc_fence_fail_enabled() is False
-        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "true")
+        # Default (env var unset) is True — blocking.
         assert is_drc_fence_fail_enabled() is True
-        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "FALSE")
-        assert is_drc_fence_fail_enabled() is False
         fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "0")
         assert is_drc_fence_fail_enabled() is False
+        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "false")
+        assert is_drc_fence_fail_enabled() is False
+        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "no")
+        assert is_drc_fence_fail_enabled() is False
+        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "off")
+        assert is_drc_fence_fail_enabled() is False
+        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "1")
+        assert is_drc_fence_fail_enabled() is True
+        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "true")
+        assert is_drc_fence_fail_enabled() is True
         fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "yes")
         assert is_drc_fence_fail_enabled() is True
-        # Unknown values are falsy.
+        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "on")
+        assert is_drc_fence_fail_enabled() is True
+        # Unknown values (not in the opt-out set) default to blocking.
         fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "garbage")
-        assert is_drc_fence_fail_enabled() is False
+        assert is_drc_fence_fail_enabled() is True
 
 
 class TestFenceNonCriticalUnaffected:
-    def test_fence_non_critical_violations_unaffected_disabled(self, fence_env, caplog):
+    def test_fence_non_critical_violations_unaffected_disabled(self, fence_env_disabled, caplog):
         """MEDIUM/HIGH do not trigger the fence when disabled."""
         stage = _stage(_cmap_with_medium_high())
         placements = {
@@ -126,8 +155,7 @@ class TestFenceNonCriticalUnaffected:
         assert not any("DRC fence violation" in r.message for r in caplog.records)
 
     def test_fence_non_critical_violations_unaffected_enabled(self, fence_env, caplog):
-        """MEDIUM/HIGH do not trigger the fence when enabled either."""
-        fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "1")
+        """MEDIUM/HIGH do not trigger the fence when enabled (default)."""
         stage = _stage(_cmap_with_medium_high())
         placements = {
             "U1": (0.5, 0.5),  # MEDIUM
