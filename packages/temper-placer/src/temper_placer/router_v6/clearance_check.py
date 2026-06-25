@@ -7,6 +7,7 @@ Part of temper-8vjm (Stage 5 - Manufacturing DRC)
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from temper_placer.router_v6.clearance_engine import get_clearance
@@ -84,6 +85,11 @@ def verify_clearance(
     if voltage_ratings is None:
         voltage_ratings = {}
 
+    if math.isnan(min_clearance) or not math.isfinite(min_clearance):
+        raise ValueError(
+            f"min_clearance must be a finite number, got {min_clearance!r}"
+        )
+
     # Get all route pairs to check
     routes = list(routing_results.compiled_routes.items())
 
@@ -148,6 +154,11 @@ def _calculate_minimum_clearance(
     # Account for trace widths (with hasattr guard)
     width1 = getattr(route1, 'width_mm', 0.0)
     width2 = getattr(route2, 'width_mm', 0.0)
+    # Guard against NaN / infinite widths
+    if not math.isfinite(width1):
+        width1 = 0.0
+    if not math.isfinite(width2):
+        width2 = 0.0
 
     # Default via diameter (used when no explicit Via object is available)
     via_diameter_default = max(width1, 0.6)
@@ -160,12 +171,16 @@ def _calculate_minimum_clearance(
             for i in range(len(path.segments) - 1):
                 p1, p2 = path.segments[i], path.segments[i + 1]
                 if p1[2] == p2[2]:  # Same layer segment
-                    segs.append((p1[0], p1[1], p2[0], p2[1], p1[2]))
+                    x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
+                    if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
+                        segs.append((x1, y1, x2, y2, p1[2]))
         elif hasattr(path, 'coordinates'):  # RoutePath
             layer = getattr(path, 'layer_name', "F.Cu")
             for i in range(len(path.coordinates) - 1):
                 p1, p2 = path.coordinates[i], path.coordinates[i + 1]
-                segs.append((p1[0], p1[1], p2[0], p2[1], layer))
+                x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
+                if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
+                    segs.append((x1, y1, x2, y2, layer))
         return segs
 
     # Extract cross-layer (via) points: (x, y, from_layer, to_layer)
@@ -292,8 +307,8 @@ def _point_to_segment_dist(p, a, b):
     ap = (p[0] - a[0], p[1] - a[1])
     len2 = ab[0] * ab[0] + ab[1] * ab[1]
 
-    if len2 < 1e-12:
-        # Degenerate segment: a and b coincide
+    if len2 < 1e-12 or not math.isfinite(len2):
+        # Degenerate segment: a and b coincide, or NaN/inf endpoints
         dx = p[0] - a[0]
         dy = p[1] - a[1]
         return (dx * dx + dy * dy) ** 0.5, a, p
@@ -385,11 +400,11 @@ def _segment_to_segment_dist(a, b, c, d):
             best_cp2 = p2
 
     # s = 0: point A to segment CD
-    d0, _, cp = _point_to_segment_dist(a, c, d)
+    d0, cp, _ = _point_to_segment_dist(a, c, d)
     _update(d0, a, cp)
 
     # s = 1: point B to segment CD
-    d1, _, cp = _point_to_segment_dist(b, c, d)
+    d1, cp, _ = _point_to_segment_dist(b, c, d)
     _update(d1, b, cp)
 
     # t = 0: point C to segment AB
@@ -445,9 +460,17 @@ def _get_required_clearance(
         # (if both are HV, take the higher voltage).
         voltage = 0.0
         if is_hv1:
-            voltage = max(voltage, voltage_ratings.get(net1, 230.0))
+            v1 = voltage_ratings.get(net1, 230.0)
+            if math.isfinite(v1):
+                voltage = max(voltage, v1)
+            else:
+                voltage = max(voltage, 230.0)
         if is_hv2:
-            voltage = max(voltage, voltage_ratings.get(net2, 230.0))
+            v2 = voltage_ratings.get(net2, 230.0)
+            if math.isfinite(v2):
+                voltage = max(voltage, v2)
+            else:
+                voltage = max(voltage, 230.0)
 
         # Classify each net for the unified engine
         class_a = _classify_net_class(net1)
