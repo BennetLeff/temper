@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from temper_placer.router_v6.creepage_check import _calculate_required_creepage
+from temper_placer.router_v6.clearance_engine import get_clearance
 from temper_placer.router_v6.routing_results import RoutingResults
 
 
@@ -105,9 +105,10 @@ def verify_clearance(
                 route2,
             )
 
-            # Determine required clearance
+            # Determine required clearance (unified multi-standard engine)
             required = _get_required_clearance(
                 net1, net2, min_clearance, voltage_ratings,
+                layer=layer,
             )
 
             if min_dist < required:
@@ -407,19 +408,23 @@ def _get_required_clearance(
     net2: str,
     default_clearance: float,
     voltage_ratings: dict[str, float] | None = None,
+    *,
+    layer: str = "F.Cu",
 ) -> float:
     """
     Get required clearance between two nets.
 
-    For high-voltage nets the clearance is voltage-dependent following
-    the same table used for creepage (IPC-2221).  Non-HV nets use the
-    caller-supplied default.
+    For high-voltage nets the clearance is determined by the unified
+    multi-standard clearance engine (IEC 60950-1, 60335-1, 60664-1,
+    62368-1, IPC-2221).  Non-HV nets use the caller-supplied default.
 
     Args:
         net1: First net name
         net2: Second net name
         default_clearance: Default clearance (mm) for non-HV nets
         voltage_ratings: Optional dict of net_name -> voltage (V)
+        layer: Layer name (e.g. "F.Cu", "In1.Cu") for
+            internal-layer creepage reduction per IEC 60664-1.
 
     Returns:
         Required clearance (mm)
@@ -443,7 +448,37 @@ def _get_required_clearance(
             voltage = max(voltage, voltage_ratings.get(net1, 230.0))
         if is_hv2:
             voltage = max(voltage, voltage_ratings.get(net2, 230.0))
-        hv_required = _calculate_required_creepage(voltage)
+
+        # Classify each net for the unified engine
+        class_a = _classify_net_class(net1)
+        class_b = _classify_net_class(net2)
+
+        layer_type = "internal" if _is_internal_layer(layer) else "external"
+
+        hv_required = get_clearance(
+            class_a, class_b,
+            voltage=voltage,
+            layer_type=layer_type,
+        )
         return max(default_clearance, hv_required)
 
     return default_clearance
+
+
+def _classify_net_class(net_name: str) -> str:
+    """Map a net name to a net-class label for the clearance engine."""
+    upper = net_name.upper()
+    hv_keywords = ['AC_', 'HV_', 'HIGH_VOLTAGE', 'MAINS', 'LINE', 'NEUTRAL',
+                   'PRIMARY', 'HOT', 'L1', 'L2', 'L3', 'PHASE', 'VBUS', 'B+']
+    if any(kw in upper for kw in hv_keywords):
+        return "HV"
+    if any(kw in upper for kw in ('GND', 'VSS', 'PGND', 'CGND', 'AGND')):
+        return "GND"
+    if any(kw in upper for kw in ('VCC', 'VDD', '+3V3', '+5V', '+12V', '+15V', 'POWER')):
+        return "POWER"
+    return "SIGNAL"
+
+
+def _is_internal_layer(layer_name: str) -> bool:
+    """Return True if *layer_name* designates an internal copper layer."""
+    return layer_name.startswith("In") or "In" in layer_name
