@@ -154,8 +154,14 @@ def _apply_length_matching_to_path(
 
     if length_diff > tolerance:  # Need to add length
         # Add serpentine to increase length
-        matched_length = original_length + _calculate_serpentine_length(length_diff)
-        serpentine_added = True
+        added = _calculate_serpentine_length(length_diff)
+        if added > 0:
+            matched_length = original_length + added
+            serpentine_added = True
+        else:
+            # Insufficient space for serpentine — cannot match
+            matched_length = original_length
+            serpentine_added = False
     elif length_diff < -tolerance:  # Path is too long
         # Cannot easily shorten paths in Stage 4.8 realization
         # (should have been addressed in Stage 3 topology)
@@ -175,11 +181,48 @@ def _apply_length_matching_to_path(
     )
 
 
-def _calculate_serpentine_length(required_length: float) -> float:
+def _calculate_serpentine_length(
+    required_length: float,
+    available_space_mm: float = 5.0,
+    cell_size_mm: float = 0.1,
+) -> float:
     """
-    Calculate serpentine trace length to add.
+    Calculate achievable serpentine trace length using real geometry.
+
+    Uses serpentine parameter calculation to determine whether the
+    required additional length is physically realisable given the
+    available perpendicular routing space.
+
+    Args:
+        required_length: How much additional length is needed (mm)
+        available_space_mm: Perpendicular space available for meanders
+        cell_size_mm: Grid cell size for discretisation
+
+    Returns:
+        Achievable additional length (mm), or 0.0 if serpentine is
+        infeasible (insufficient space, deficit too small, etc.).
     """
-    # Heuristic: assume we can add exactly what is required
-    # if it's within physical constraints.
-    # Stage 4.8 focuses on the intent and result metrics.
-    return required_length
+    if required_length <= 0:
+        return 0.0
+
+    from temper_placer.routing.serpentine import calculate_serpentine_params
+
+    amplitude_mm, _frequency_check = calculate_serpentine_params(
+        required_length,
+        available_space_mm=available_space_mm,
+        cell_size_mm=cell_size_mm,
+    )
+
+    # ``calculate_serpentine_params`` returns (0.0, 0) when there is
+    # not enough space for even a single-amplitude meander.
+    if amplitude_mm < cell_size_mm:
+        return 0.0
+
+    # Each serpentine cycle adds 2 × amplitude (out + back) of
+    # Manhattan length.  Compute the frequency required to meet (or
+    # approximate) the deficit, clamped to avoid excessive zigzagging.
+    frequency = max(1, int(required_length / (2.0 * amplitude_mm)))
+    frequency = min(frequency, 10)
+
+    achievable = 2.0 * amplitude_mm * frequency
+    return achievable
