@@ -162,15 +162,10 @@ class TestBlindVia:
             (0.6, 0.3, 0.05, False),
             # ring = (0.4-0.3)/2 ≈ 0.05000000000000002 > 0.05 in FP
             # (in IEEE 754, 0.4 - 0.3 = 0.10000000000000003, /2 = 0.05000000000000002)
-            # The <= check was intended to catch this boundary, but FP
-            # representation pushes it just over the threshold.
+            # The <= check with FP epsilon now catches this boundary case.
             pytest.param(
                 0.4, 0.3, 0.05, True,
                 id="d=0.4-drill=0.3-at-threshold",
-                marks=pytest.mark.xfail(
-                    reason="FP: (0.4-0.3)/2 u2248 0.05000000000000002 > 0.05, "
-                    "so <= check misses the boundary case."
-                ),
             ),
             # ring = (0.32-0.3)/2 = 0.01 < 0.05 => violation
             (0.32, 0.3, 0.05, True),

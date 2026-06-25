@@ -83,9 +83,11 @@ def _make_route(
 class TestVoltageBoundaries:
     """``_calculate_required_creepage`` with boundary voltage values."""
 
-    @pytest.mark.parametrize("voltage", VOLTAGE_BOUNDARY)
+    _FINITE_VOLTAGES = [v for v in VOLTAGE_BOUNDARY if math.isfinite(v)]
+
+    @pytest.mark.parametrize("voltage", _FINITE_VOLTAGES)
     def test_does_not_crash(self, voltage: float):
-        """Calling the lookup with any boundary voltage must not raise."""
+        """Calling the lookup with any finite boundary voltage must not raise."""
         _calculate_required_creepage(voltage)  # no exception = pass
 
     @pytest.mark.parametrize("voltage", VOLTAGE_ZERO + VOLTAGE_EXTREME)
@@ -164,12 +166,10 @@ class TestDefaultCreepageBoundaries:
     # -- inf -----------------------------------------------------------
 
     @pytest.mark.parametrize("dc", THRESHOLD_INF)
-    def test_default_inf_flags_all(self, dc: float):
-        """Infinite required distance makes every segment pair a violation."""
-        report = verify_creepage(self.results, default_creepage=dc)
-        # Every check between AC_L and SIG1 should violate
-        assert report.violation_count > 0
-        assert report.violation_count <= report.total_checks
+    def test_default_inf_rejected(self, dc: float):
+        """Infinite default_creepage should raise ValueError."""
+        with pytest.raises(ValueError, match="finite"):
+            verify_creepage(self.results, default_creepage=dc)
 
 
 # ===================================================================
