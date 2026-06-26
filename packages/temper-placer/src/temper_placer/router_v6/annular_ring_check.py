@@ -12,6 +12,7 @@ import math
 from dataclasses import dataclass
 
 from temper_placer.router_v6.routing_results import RoutingResults
+from temper_placer.router_v6._check_report_base import BaseCheckReport
 
 logger = logging.getLogger(__name__)
 
@@ -45,24 +46,13 @@ class AnnularRingViolation:
 
 
 @dataclass
-class AnnularRingReport:
+class AnnularRingReport(BaseCheckReport):
     """Report of annular ring violations."""
+
+    _denominator_field = "total_vias_checked"
 
     violations: list[AnnularRingViolation]
     total_vias_checked: int
-
-    @property
-    def violation_count(self) -> int:
-        """Number of vias with violations."""
-        return len(self.violations)
-
-    @property
-    def pass_rate(self) -> float:
-        """Percentage of vias that pass."""
-        if self.total_vias_checked == 0:
-            return 100.0
-        return ((self.total_vias_checked - self.violation_count) /
-                self.total_vias_checked * 100.0)
 
 
 def _check_via(

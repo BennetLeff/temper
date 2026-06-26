@@ -42,7 +42,6 @@ from temper_placer.io.export_types import TraceVia
 from temper_placer.routing.via_array import calculate_via_array, should_use_via_array
 from temper_placer.routing.safety_distances import (
     calculate_safety_distances,
-    calculate_safety_distances,
     get_hv_lv_separation,
     is_high_voltage,
 )
@@ -405,31 +404,6 @@ class MazeRouter:
         self.occupancy_bitmap = np.zeros(
             (self.grid_size[1], self._bitmap_stride, self.num_layers), dtype=np.uint64
         )
-
-    def _set_bitmap_bit(self, x: int, y: int, layer: int, blocked: bool) -> None:
-        if not (0 <= x < self.grid_size[0] and 0 <= y < self.grid_size[1] and 0 <= layer < self.num_layers):
-            return
-        word = x // 64
-        bit = x % 64
-        if blocked:
-            self.occupancy_bitmap[y, word, layer] |= np.uint64(1) << np.uint64(bit)
-        else:
-            self.occupancy_bitmap[y, word, layer] &= ~(np.uint64(1) << np.uint64(bit))
-
-    def _sync_bitmap_from_occupancy(self, net_id: int = 0) -> None:
-        cols = self.grid_size[0]
-        rows = self.grid_size[1]
-        for layer in range(self.num_layers):
-            for row in range(rows):
-                for word in range(self._bitmap_stride):
-                    start_col = word * 64
-                    end_col = min(start_col + 64, cols)
-                    word_val = np.uint64(0)
-                    for col in range(start_col, end_col):
-                        val = int(self.occupancy[col, row, layer])
-                        if val != 0 and val != net_id:
-                            word_val |= np.uint64(1) << np.uint64(col - start_col)
-                    self.occupancy_bitmap[row, word, layer] = word_val
 
     def _get_net_id(self, net_name: str) -> int:
         """Get or create a unique integer ID for a net."""
@@ -979,18 +953,6 @@ class MazeRouter:
         # Keep base at 1.0
         np.maximum(self.history_cost, 1.0, out=self.history_cost)
 
-    def generate_cost_map(self, strategy: "RoutingStrategy") -> Array:
-        from temper_placer.routing.bridge.types import RoutingStrategy
-
-        if strategy == RoutingStrategy.EDGE_HUG:
-            x, y = jnp.arange(self.grid_size[0]), jnp.arange(self.grid_size[1])
-            X, Y = jnp.meshgrid(x, y, indexing="ij")
-            dist_edge = jnp.minimum(
-                jnp.minimum(X, self.grid_size[0] - 1 - X), jnp.minimum(Y, self.grid_size[1] - 1 - Y)
-            )
-            return 1.0 + dist_edge * 10.0
-        return jnp.ones(self.grid_size, dtype=jnp.float32)
-
     def block_rect(self, x: int, y: int, width: int, height: int, layer: int = 0) -> None:
         xs, ys = max(0, x), max(0, y)
         xe, ye = min(x + width, self.grid_size[0]), min(y + height, self.grid_size[1])
@@ -1443,17 +1405,6 @@ class MazeRouter:
                                         if key not in self.net_occupancy:
                                             self.net_occupancy[key] = set()
                                         self.net_occupancy[key].add(net_name)
-
-    def block_route_path(self, path: RoutePath, net_class: str | None = None) -> None:
-        """Block grid cells occupied by a route path with clearance inflation.
-
-        This converts the logical RoutePath (points) into physical traces and blocks
-        them on the grid to enforce clearance for subsequent routes.
-
-        Args:
-            path: The successful RoutePath to block
-            net_class: Net class for clearance inflation
-        """
 
     def block_route_path(self, path: RoutePath, net_class: str | None = None) -> None:
         """Block grid cells occupied by a route path with clearance inflation.
@@ -4718,11 +4669,11 @@ class MazeRouter:
             if clearance_mask is not None:
                 start_blocked_by_mask = clearance_mask[start[0], start[1], layer] != 0
                 end_blocked_by_mask = clearance_mask[end[0], end[1], target_layer] != 0
-                print(
-                    f"DEBUG_ASTAR: Clearance mask: start_blocked={start_blocked_by_mask}, end_blocked={end_blocked_by_mask}"
+                logger.debug(
+                    f"Clearance mask: start_blocked={start_blocked_by_mask}, end_blocked={end_blocked_by_mask}"
                 )
 
-            print(f"DEBUG_ASTAR: Searching for path from {start_cell} to {end_cell}")
+            logger.debug(f"Searching for path from {start_cell} to {end_cell}")
 
             open_set: list[tuple[float, int, GridCell, float]] = [(0.0, 0, start_cell, 0.0)]
             counter = 0
@@ -4745,16 +4696,16 @@ class MazeRouter:
                     and current.layer == end_cell.layer
                 ):
                     if current != end_cell:
-                        print(
-                            f"DEBUG_ASTAR: EQUALITY BUG! current={current} matches coords but != end_cell={end_cell}"
+                        logger.debug(
+                            f"EQUALITY BUG! current={current} matches coords but != end_cell={end_cell}"
                         )
-                    print(f"DEBUG_ASTAR: Reached goal at {current}, visits={visit_count}")
+                    logger.debug(f"Reached goal at {current}, visits={visit_count}")
 
                 if current == end_cell:
                     dt = (time.perf_counter() - t_python) * 1000.0
                     self.stats.profile.python_time_ms += dt
                     self.stats.profile.astar_total_ms += dt
-                    print(f"DEBUG_ASTAR: Path found after visiting {visit_count} cells")
+                    logger.debug(f"Path found after visiting {visit_count} cells")
                     path = [current]
                     while current in came_from:
                         current = came_from[current]
@@ -4796,10 +4747,10 @@ class MazeRouter:
             self.stats.profile.python_time_ms += dt
             self.stats.profile.astar_total_ms += dt
             if visit_count >= max_visits:
-                print(f"DEBUG_ASTAR: Hit visit limit ({max_visits}) without finding path")
+                logger.debug(f"Hit visit limit ({max_visits}) without finding path")
             else:
-                print(
-                    f"DEBUG_ASTAR: Exhausted open_set after {visit_count} visits without finding path"
+                logger.debug(
+                    f"Exhausted open_set after {visit_count} visits without finding path"
                 )
             return None
         finally:
