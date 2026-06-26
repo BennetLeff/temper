@@ -1286,6 +1286,21 @@ def validate(
         check_zones_fit_on_board,
     )
 
+    def _print_issue(issue) -> None:
+        """Print a preflight issue with appropriate formatting."""
+        from temper_placer.validation.preflight import PreflightSeverity
+
+        if issue.severity == PreflightSeverity.INFO:
+            console.print(f"  [dim]ℹ {issue.message}[/]")
+        elif issue.severity == PreflightSeverity.WARNING:
+            console.print(f"  [yellow]⚠ {issue.message}[/]")
+            if issue.suggestion:
+                console.print(f"    [dim]{issue.suggestion}[/]")
+        elif issue.severity == PreflightSeverity.ERROR:
+            console.print(f"  [red]✗ {issue.message}[/]")
+            if issue.suggestion:
+                console.print(f"    [dim]{issue.suggestion}[/]")
+
     if not json_output:
         console.print(f"[bold blue]Validating:[/] {input_pcb}")
 
@@ -1418,21 +1433,6 @@ def validate(
     else:
         sys.exit(0 if result.passed else 1)
 
-
-def _print_issue(issue) -> None:
-    """Print a preflight issue with appropriate formatting."""
-    from temper_placer.validation.preflight import PreflightSeverity
-
-    if issue.severity == PreflightSeverity.INFO:
-        console.print(f"  [dim]ℹ {issue.message}[/]")
-    elif issue.severity == PreflightSeverity.WARNING:
-        console.print(f"  [yellow]⚠ {issue.message}[/]")
-        if issue.suggestion:
-            console.print(f"    [dim]{issue.suggestion}[/]")
-    elif issue.severity == PreflightSeverity.ERROR:
-        console.print(f"  [red]✗ {issue.message}[/]")
-        if issue.suggestion:
-            console.print(f"    [dim]{issue.suggestion}[/]")
 
 
 @main.command()
@@ -2499,7 +2499,7 @@ def run(
     console.print("\n[bold green]Ablation study complete![/]")
 
 
-@ablate.command()
+@ablate.command("report")
 @click.argument("results_dir", type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--name",
@@ -2507,7 +2507,7 @@ def run(
     default="Ablation Analysis",
     help="Name for the study in the report.",
 )
-def report(
+def ablate_report(
     results_dir: Path,
     name: str,
 ) -> None:
@@ -3451,141 +3451,6 @@ def pipeline(
     except Exception as e:
         console.print(f"[red]Error:[/] {e}")
         sys.exit(1)
-
-
-@main.group()
-def phase() -> None:
-    """Run individual pipeline phases.
-
-    Available phases: semantic, topological, geometric, routing
-    """
-    pass
-
-
-@phase.command()
-@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "-l",
-    "--loops",
-    type=click.Path(exists=True, path_type=Path),
-    help="Loop definitions YAML file.",
-)
-@click.option(
-    "-o",
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output JSON file for semantic data.",
-)
-def semantic(input_pcb: Path, loops: Path | None, output: Path | None) -> None:
-    """Run semantic extraction phase.
-
-    Extracts loop definitions and component ownership from the design.
-    """
-    console.print(f"[blue]→[/] Running semantic extraction on {input_pcb.name}...")
-
-    # TODO: Implement semantic phase runner
-    # For now, stub implementation
-    console.print("[yellow]Note:[/] Semantic phase runner not yet implemented")
-    console.print("[green]✓[/] Semantic extraction complete")
-
-
-@phase.command()
-@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "-c",
-    "--constraints",
-    type=click.Path(exists=True, path_type=Path),
-    help="PCL constraints YAML file.",
-)
-@click.option(
-    "-o",
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output JSON file for topological data.",
-)
-def topological(input_pcb: Path, constraints: Path | None, output: Path | None) -> None:
-    """Run topological placement phase.
-
-    Reasons about adjacency and separation constraints.
-    """
-    console.print(f"[blue]→[/] Running topological placement on {input_pcb.name}...")
-
-    # TODO: Implement topological phase runner
-    console.print("[yellow]Note:[/] Topological phase runner not yet implemented")
-    console.print("[green]✓[/] Topological placement complete")
-
-
-@phase.command()
-@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--epochs",
-    "-n",
-    type=int,
-    default=8000,
-    help="Number of optimization epochs (default: 8000).",
-)
-@click.option(
-    "--seed",
-    type=int,
-    default=42,
-    help="Random seed for reproducibility (default: 42).",
-)
-@click.option(
-    "--visualize",
-    is_flag=True,
-    default=False,
-    help="Enable live visualization.",
-)
-@click.option(
-    "-o",
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output .kicad_pcb file.",
-)
-def geometric(
-    input_pcb: Path,
-    epochs: int,
-    seed: int,
-    visualize: bool,
-    output: Path | None,
-) -> None:
-    """Run geometric optimization phase.
-
-    Uses JAX gradient descent to optimize component placement.
-    """
-    console.print(f"[blue]→[/] Running geometric optimization on {input_pcb.name}...")
-    console.print(f"  Epochs: {epochs}, Seed: {seed}")
-
-    # TODO: Implement geometric phase runner (could reuse optimize logic)
-    console.print("[yellow]Note:[/] Geometric phase runner not yet implemented")
-    console.print("[green]✓[/] Geometric optimization complete")
-
-
-@phase.command()
-@click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--level",
-    type=int,
-    default=2,
-    help="Verification level (1-3, default: 2).",
-)
-@click.option(
-    "-o",
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output JSON file for routing report.",
-)
-def routing(input_pcb: Path, level: int, output: Path | None) -> None:
-    """Run routing verification phase.
-
-    Verifies that the placement is routable.
-    """
-    console.print(f"[blue]→[/] Running routing verification on {input_pcb.name}...")
-    console.print(f"  Level: {level}")
-
-    # TODO: Implement routing phase runner
-    console.print("[yellow]Note:[/] Routing phase runner not yet implemented")
-    console.print("[green]✓[/] Routing verification complete")
 
 
 @main.command("place-deterministic")

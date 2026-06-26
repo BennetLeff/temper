@@ -23,6 +23,7 @@ import re
 from dataclasses import dataclass
 
 from temper_placer.router_v6.routing_results import RoutingResults
+from temper_placer.router_v6._check_report_base import BaseCheckReport
 
 
 # ---------------------------------------------------------------------------
@@ -46,24 +47,11 @@ class CreepageViolation:
 
 
 @dataclass
-class CreepageReport:
+class CreepageReport(BaseCheckReport):
     """Report of clearance / creepage distance violations."""
 
     violations: list[CreepageViolation]
     total_checks: int
-
-    @property
-    def violation_count(self) -> int:
-        """Number of creepage violations."""
-        return len(self.violations)
-
-    @property
-    def pass_rate(self) -> float:
-        """Percentage of checks that pass."""
-        if self.total_checks == 0:
-            return 100.0
-        return ((self.total_checks - self.violation_count)
-                / self.total_checks * 100.0)
 
 
 # ---------------------------------------------------------------------------

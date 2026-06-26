@@ -12,6 +12,7 @@ from dataclasses import dataclass
 
 from temper_placer.router_v6.clearance_engine import get_clearance
 from temper_placer.router_v6.routing_results import RoutingResults
+from temper_placer.router_v6._check_report_base import BaseCheckReport
 
 
 @dataclass
@@ -32,24 +33,11 @@ class ClearanceViolation:
 
 
 @dataclass
-class ClearanceReport:
+class ClearanceReport(BaseCheckReport):
     """Report of clearance violations."""
 
     violations: list[ClearanceViolation]
     total_checks: int
-
-    @property
-    def violation_count(self) -> int:
-        """Number of clearance violations."""
-        return len(self.violations)
-
-    @property
-    def pass_rate(self) -> float:
-        """Percentage of checks that pass."""
-        if self.total_checks == 0:
-            return 100.0
-        return ((self.total_checks - self.violation_count) /
-                self.total_checks * 100.0)
 
 
 def verify_clearance(
