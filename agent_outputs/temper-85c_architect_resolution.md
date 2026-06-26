@@ -1,1 +1,0 @@
-# Manual Resolution - temper-85c & temper-3mg\n\nResearch performed manually due to Pro model quota limits.\n\n- Defined SMT/THT spacing rules.\n- Established 1mm Global Fiducial strategy.\n- Documented test point accessibility for 10 critical nets.\n- Created docs/PCB_DFM_GUIDELINES.md.
