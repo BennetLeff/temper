@@ -2,7 +2,7 @@
 date: 2026-06-28
 type: feat
 origin: docs/brainstorms/2026-06-28-repo-health-dashboard-requirements.md
-status: active
+status: completed
 ---
 
 # feat: Add Repo Health Dashboard (Badge Matrix + Weekly Digest)
