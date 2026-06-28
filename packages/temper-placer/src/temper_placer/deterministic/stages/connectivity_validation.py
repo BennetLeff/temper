@@ -4,8 +4,8 @@ from typing import List, Tuple, Set, Dict, Any
 
 from ..state import BoardState
 from .base import Stage
-from ...routing.constraints.geometry import Point
-from ...routing.constraints.spatial_index import Track, Via, Pad
+from temper_placer.router_v6.constraints_geometry import Point
+from temper_placer.router_v6.constraints_spatial_index import Track, Via, Pad
 from temper_placer.core.topology import UnionFind
 
 logger = logging.getLogger(__name__)
@@ -232,14 +232,14 @@ class ConnectivityValidationStage(Stage):
     def _track_touches_pad(self, t: Track, p: Pad) -> bool:
         if t.layer != p.layer: return False
         # Check if either endpoint is inside the pad
-        from ...routing.constraints.geometry import point_to_rotated_rect_distance
+        from temper_placer.router_v6.constraints_geometry import point_to_rotated_rect_distance
         return (point_to_rotated_rect_distance(t.start, p.rot_rect) <= 1e-4 or 
                 point_to_rotated_rect_distance(t.end, p.rot_rect) <= 1e-4)
 
     def _via_touches_pad(self, v: Via, p: Pad) -> bool:
         # Pad is on a specific layer, Via connects layers. 
         # Typically vias connect all layers or a range.
-        from ...routing.constraints.geometry import point_to_rotated_rect_distance
+        from temper_placer.router_v6.constraints_geometry import point_to_rotated_rect_distance
         return point_to_rotated_rect_distance(v.center, p.rot_rect) <= 1e-4
 
     def _point_touches_item(self, pt: Point, item: Any, exclude_track: Track = None) -> bool:
@@ -250,7 +250,7 @@ class ConnectivityValidationStage(Stage):
             return pt == item.center
         if isinstance(item, Pad):
             if exclude_track and item.layer != exclude_track.layer: return False
-            from ...routing.constraints.geometry import point_to_rotated_rect_distance
+            from temper_placer.router_v6.constraints_geometry import point_to_rotated_rect_distance
             return point_to_rotated_rect_distance(pt, item.rot_rect) <= 1e-4
         return False
 
