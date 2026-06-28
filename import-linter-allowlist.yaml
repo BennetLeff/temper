@@ -57,7 +57,6 @@ allowlist:
   - source: temper_placer.pipeline
     target: temper_placer.router_v6.adapter
     contract: router-v6-public-interface-only
-  - source: temper_placer.routing
     target: temper_placer.router_v6.adapter
     contract: router-v6-public-interface-only
   - source: temper_placer.io
@@ -247,7 +246,6 @@ allowlist:
     reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
 
   - source: tools/benchmark_router\.py
-    target: temper_placer.routing\..*
     contract: .*
     reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
 
@@ -267,7 +265,6 @@ allowlist:
     reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
 
   - source: tools/demo_explainability\.py
-    target: temper_placer.routing\..*
     contract: .*
     reason: 'Phase 3 per-file allowlist (plan 021 U6); see docs/plans/2026-06-22-014'
 
