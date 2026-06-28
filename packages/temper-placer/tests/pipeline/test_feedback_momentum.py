@@ -86,3 +86,12 @@ class TestMomentumDampedLoss:
         assert loss_fn.iteration == 0
         loss_fn.blend(self._make_heatmap(np.ones((10, 10))), iteration=3)
         assert loss_fn.iteration == 3
+
+    def test_single_pass_backward_compatible(self):
+        """Existing RoutingFeedbackLoss is preserved for single-pass use."""
+        from temper_placer.pipeline.feedback import RoutingFeedbackLoss
+
+        heatmap = self._make_heatmap(np.ones((10, 10), dtype=np.float64))
+        loss_fn = RoutingFeedbackLoss(heatmap, sigma=0.0)
+        assert loss_fn.name == "routing_feedback"
+        assert not loss_fn.supports_virtual_nodes

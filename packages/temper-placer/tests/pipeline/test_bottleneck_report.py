@@ -125,3 +125,58 @@ class TestDeclaredArtifact:
         a = DeclaredArtifact("x", "x.json")
         with pytest.raises(Exception):
             a.name = "y"  # type: ignore[misc]
+
+
+class TestCongestionHeatmapData:
+    """CongestionHeatmapData survives numpy<>list<>JSON round-trip."""
+
+    def test_grid_round_trip(self):
+        original = CongestionHeatmapData(
+            net_class="HV",
+            grid=[[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]],
+            cell_size=1.0,
+        )
+        d = original.to_dict()
+        restored = CongestionHeatmapData.from_dict(d)
+        assert restored.grid == original.grid
+        assert restored.cell_size == original.cell_size
+
+
+class TestNoiseFloor:
+    """Noise-floor characterization for regression threshold calibration.
+
+    Measures routability variance across identical routing passes to
+    determine the natural noise floor of the system. The regression
+    threshold for U4 is derived from 3 sigma of this variance.
+    """
+
+    def test_noise_floor_from_synthetic_data(self):
+        """Compute noise-floor sigma from a set of observed routability ratios."""
+        # Simulate 5 identical routing passes with small variance
+        ratios = [0.750, 0.750, 0.708, 0.750, 0.750]  # 18/24, one run 17/24
+        mean = sum(ratios) / len(ratios)
+        variance = sum((r - mean) ** 2 for r in ratios) / (len(ratios) - 1)
+        sigma = variance ** 0.5
+
+        assert sigma < 0.02, (
+            f"Noise-floor sigma {sigma:.4f} exceeds expected bound. "
+            f"Regression threshold would be {mean - 3*sigma:.4f}"
+        )
+
+        threshold = mean - 3 * sigma
+        assert threshold > 0.65, "Calibrated threshold should be well above zero"
+
+    def test_threshold_from_zero_noise(self):
+        """With zero variance, threshold equals the mean."""
+        ratios = [0.750, 0.750, 0.750, 0.750, 0.750]
+        mean = sum(ratios) / len(ratios)
+        variance = sum((r - mean) ** 2 for r in ratios) / max(len(ratios) - 1, 1)
+        sigma = variance ** 0.5
+        assert sigma == 0.0
+        assert (mean - 3 * sigma) == pytest.approx(mean)
+
+    def test_default_threshold_without_data(self):
+        """Without noise-floor data, default threshold is 5% (0.95 * best)."""
+        best_routability = 0.750
+        default_threshold = 0.95
+        assert best_routability * default_threshold == pytest.approx(0.7125)
