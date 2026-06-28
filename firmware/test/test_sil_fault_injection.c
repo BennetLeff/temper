@@ -507,6 +507,99 @@ static void sm_boilerplate_to_heating(bool self_test_pass) {
 }
 
 /* ---------------------------------------------------------------------------
+ * Trace invariant checker — validates CSV traces against safety thresholds
+ * before replay.  Each check is a base case; composing all checks is the
+ * induction step that guarantees the trace won't trigger a spurious fault
+ * during the boilerplate-to-perturbation window.
+ * --------------------------------------------------------------------------- */
+
+/* Safety thresholds (must stay in sync with state_machine.c and config.h) */
+#define INV_MAX_ABSOLUTE_TEMP_C    300.0f
+#define INV_MAX_TEMP_RISE_RATE     15.0f   /* C/s */
+#define INV_MAX_DC_CURRENT_35A     35.0f
+#define INV_MAX_DC_CURRENT_50A     50.0f
+#define INV_MAX_HEATSINK_TEMP      100.0f
+#define INV_MAX_RTD_OPEN           10000.0f
+#define INV_MAX_RTD_SHORT          10.0f
+#define INV_DT_MS                  100     /* DT_MS from SIL test */
+
+static int check_trace_invariants(const csvrow_t *rows, int row_count,
+                                   const manifest_entry_t *entry) {
+    int violations = 0;
+
+    for (int t = 0; t < row_count && t < entry->perturbation_at_tick; t++) {
+        float pan  = rows[t][2];
+        float hs   = rows[t][1];
+        float curr = rows[t][3];
+        float rtd  = rows[t][4];
+        bool  fan  = (rows[t][6] > 0.5f);
+
+        /* Base case 1: absolute temperature */
+        if (pan > INV_MAX_ABSOLUTE_TEMP_C) {
+            printf("  [INV] tick %d: pan_temp %.1f > %.1f (abs)\n",
+                   t, pan, INV_MAX_ABSOLUTE_TEMP_C);
+            violations++;
+        }
+
+        /* Base case 2: rate-of-rise (skip t==0 — no prior reading) */
+        if (t > 0) {
+            float prev = rows[t-1][2];
+            float dt_s = INV_DT_MS / 1000.0f;
+            float rate = (pan - prev) / dt_s;
+            if (rate > INV_MAX_TEMP_RISE_RATE) {
+                printf("  [INV] tick %d: rate %.1f C/s > %.1f (%.1f->%.1f over %d ms)\n",
+                       t, rate, INV_MAX_TEMP_RISE_RATE, prev, pan, INV_DT_MS);
+                violations++;
+            }
+        }
+
+        /* Base case 3: over-current (>50A = IGBT short, >35A = over-current) */
+        if (curr > INV_MAX_DC_CURRENT_50A) {
+            printf("  [INV] tick %d: current %.1f > %.1f (IGBT short)\n",
+                   t, curr, INV_MAX_DC_CURRENT_50A);
+            violations++;
+        }
+        if (curr > INV_MAX_DC_CURRENT_35A) {
+            printf("  [INV] tick %d: current %.1f > %.1f (over-current)\n",
+                   t, curr, INV_MAX_DC_CURRENT_35A);
+            violations++;
+        }
+
+        /* Base case 4: heatsink over-temp */
+        if (hs > INV_MAX_HEATSINK_TEMP) {
+            printf("  [INV] tick %d: hs_temp %.1f > %.1f\n",
+                   t, hs, INV_MAX_HEATSINK_TEMP);
+            violations++;
+        }
+
+        /* Base case 5: RTD probe open/short */
+        if (rtd > INV_MAX_RTD_OPEN) {
+            printf("  [INV] tick %d: rtd %.1f > %.1f (open)\n",
+                   t, rtd, INV_MAX_RTD_OPEN);
+            violations++;
+        }
+        if (rtd < INV_MAX_RTD_SHORT) {
+            printf("  [INV] tick %d: rtd %.1f < %.1f (short)\n",
+                   t, rtd, INV_MAX_RTD_SHORT);
+            violations++;
+        }
+
+        /* Base case 6: fan failure */
+        if (!fan) {
+            printf("  [INV] tick %d: fan not running\n", t);
+            violations++;
+        }
+    }
+
+    if (violations > 0) {
+        printf("  [INV] %s: %d pre-perturbation violations found "
+               "(trace may need regeneration)\n",
+               entry->trace_file, violations);
+    }
+    return violations;
+}
+
+/* ---------------------------------------------------------------------------
  * Run a single fault-injection test
  * --------------------------------------------------------------------------- */
 
@@ -526,6 +619,13 @@ static void run_sil_test(const manifest_entry_t *entry) {
         TEST_FAIL_MESSAGE("Failed to load trace file");
         return;
     }
+
+    /* Pre-flight: validate trace invariants before replay.
+     * Catches traces that would trigger safety faults before the
+     * injected perturbation — a common failure mode when safety
+     * thresholds change.  Violations are logged but don't block
+     * execution; the replay itself is the ground truth. */
+    check_trace_invariants(rows, row_count, entry);
 
     /* Reset and initialize */
     mock_sm_reset();
