@@ -160,7 +160,8 @@ class ModelBuilder:
         channel_widths: dict[str, ChannelWidths] | None = None,
         design_rules: DesignRules | None = None,
         diff_pairs: list[DiffPair] | None = None,
-        pcb: ParsedPCB | None = None
+        pcb: ParsedPCB | None = None,
+        target_net_names: list[str] | None = None,
     ):
         self.skeletons = skeletons
         self.nets = nets
@@ -169,6 +170,7 @@ class ModelBuilder:
         self.diff_pairs = diff_pairs or []
         self.pcb = pcb
         self.model = ConstraintModel()
+        self.target_set: set[str] | None = set(target_net_names) if target_net_names else None
 
         # Build net name to index mapping for fast lookup
         self.net_to_idx = {net.name: i for i, net in enumerate(self.nets)}
@@ -187,16 +189,12 @@ class ModelBuilder:
     def _create_channel_vars(self):
         """Create variables for net-channel assignment."""
         for net_idx, net in enumerate(self.nets):
-            # For each layer skeleton
+            if self.target_set and net.name not in self.target_set:
+                continue
             for layer_name, skeleton in self.skeletons.items():
-                # For each edge in the skeleton
-                # We need a stable ID for edges.
-                # nx edges are (u, v). We can sort nodes to canonicalize.
                 for i, (u, v) in enumerate(skeleton.graph.edges):
-                    # Sort nodes by coordinate to ensure stable ID
                     n1, n2 = sorted([u, v])
                     edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
-
                     var = NetChannelVar(
                         name=f"uses_N{net_idx}_{edge_id}",
                         net_idx=net_idx,
@@ -216,6 +214,8 @@ class ModelBuilder:
         sorted_nodes = sorted(list(all_nodes))
 
         for net_idx, net in enumerate(self.nets):
+            if self.target_set and net.name not in self.target_set:
+                continue
             for i, node in enumerate(sorted_nodes):
                 node_id = f"VIA_N{i}_{node[0]:.2f}_{node[1]:.2f}"
 
