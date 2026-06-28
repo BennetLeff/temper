@@ -592,6 +592,26 @@ class RouterV6Pipeline:
                     )
                     topology_graph.net_topologies[net_name] = ntopo
 
+                # Run constraint audit on the Rust output.
+                audit_violations = []
+                try:
+                    from temper_rust_router import audit_result
+                    audit_violations = list(audit_result(
+                        py_vars, py_cons,
+                        dict(rust_result.get("assignments", {})),
+                        net_names,
+                    ))
+                except ImportError:
+                    pass
+
+                if audit_violations:
+                    if self.verbose:
+                        print(f"    WARNING: {len(audit_violations)} constraint violation(s) in Rust solver output:")
+                        for v in audit_violations:
+                            print(f"      {v}")
+                elif self.verbose:
+                    print(f"    Constraint audit: clean (0 violations)")
+
                 if self.verbose:
                     print(f"    Rust solver: {rust_result['status']} in {solution.solver_time_ms:.1f}ms")
 

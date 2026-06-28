@@ -2,6 +2,7 @@
 //
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
+pub mod audit;
 mod encoding;
 mod extraction;
 mod solver;
@@ -35,12 +36,11 @@ fn solve_topology_rust(
     let model: InternalConstraintModel =
         types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
 
-    // Encode to CNF.
-    let (cnf, var_names, _cardinality_constraints) =
-        encoding::encode_to_cnf(&model);
+    // Encode to CNF (cardinality constraints encoded as CNF clauses).
+    let (cnf, var_names) = encoding::encode_to_cnf(&model);
 
     // Solve with splr.
-    let result: TopologyResult = solver::solve_with_splr(&cnf, &var_names, &model);
+    let result: TopologyResult = solver::solve_with_splr(&cnf, &var_names);
 
     // Extract topology if satisfiable.
     let topology = if result.status == SolverStatus::Satisfiable {
@@ -93,6 +93,93 @@ fn solve_topology_rust(
     Ok(d.into())
 }
 
+/// Audit solver output against the constraint model itself.
+///
+/// Validates that every CapacityConstraint, DiffPairConstraint, and
+/// LayerConstraint in the input model is satisfied by the solver's
+/// assignments.  Returns a list of violation dicts (empty = clean).
+#[pyfunction]
+fn audit_result(
+    variables: &Bound<'_, PyList>,
+    constraints: &Bound<'_, PyList>,
+    assignments: &Bound<'_, PyDict>,
+    net_names: Vec<String>,
+) -> PyResult<PyObject> {
+    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
+    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
+
+    let model = types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
+
+    // Build var_names from model
+    let var_names: Vec<String> = model.variables.iter().map(|v| match v {
+        types::InternalVariable::NetChannel { name, .. } => name.clone(),
+        types::InternalVariable::NetLayer { name, .. } => name.clone(),
+        types::InternalVariable::Via { name, .. } => name.clone(),
+        types::InternalVariable::Ordering { name, .. } => name.clone(),
+    }).collect();
+
+    let name_to_idx: std::collections::HashMap<String, usize> = var_names
+        .iter().enumerate().map(|(i, n)| (n.clone(), i)).collect();
+
+    // Build assignments hashmap from Python dict
+    let mut assignment_map: std::collections::HashMap<usize, bool> = std::collections::HashMap::new();
+    for (py_name, py_val) in assignments.iter() {
+        let name: String = py_name.extract()?;
+        let val: bool = py_val.extract()?;
+        if let Some(&idx) = name_to_idx.get(&name) {
+            assignment_map.insert(idx, val);
+        }
+    }
+
+    let result = types::TopologyResult {
+        status: types::SolverStatus::Satisfiable,
+        assignments: assignment_map,
+        unsat_core: Vec::new(),
+        solver_time_ms: 0.0,
+    };
+
+    let violations = audit::audit_constraints(&model, &result, &var_names);
+
+    Python::with_gil(|py| {
+        let py_list = PyList::empty(py);
+        for v in &violations {
+            let d = PyDict::new(py);
+            match v {
+                audit::AuditViolation::Capacity { channel_id, max_nets, actual_count, violating_vars } => {
+                    d.set_item("type", "capacity")?;
+                    d.set_item("channel_id", channel_id.clone())?;
+                    d.set_item("max_nets", *max_nets)?;
+                    d.set_item("actual_count", *actual_count)?;
+                    d.set_item("violating_vars", violating_vars.clone())?;
+                }
+                audit::AuditViolation::DiffPairMismatch { channel_id, p_var, n_var, p_value, n_value } => {
+                    d.set_item("type", "diff_pair")?;
+                    d.set_item("channel_id", channel_id.clone())?;
+                    d.set_item("p_var", p_var.clone())?;
+                    d.set_item("n_var", n_var.clone())?;
+                    d.set_item("p_value", *p_value)?;
+                    d.set_item("n_value", *n_value)?;
+                }
+                audit::AuditViolation::LayerViolation { var_name, expected, actual } => {
+                    d.set_item("type", "layer")?;
+                    d.set_item("var_name", var_name.clone())?;
+                    d.set_item("expected", *expected)?;
+                    d.set_item("actual", *actual)?;
+                }
+                audit::AuditViolation::UnexplainedUnsat => {
+                    d.set_item("type", "unexplained_unsat")?;
+                }
+                audit::AuditViolation::NoAssignmentForVar(vname) => {
+                    d.set_item("type", "no_assignment")?;
+                    d.set_item("var_name", vname.clone())?;
+                }
+            }
+            py_list.append(d)?;
+        }
+        Ok(py_list.into())
+    })
+}
+
 /// Python module entry point.
 #[pymodule]
 fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -107,7 +194,8 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<types::DiffPairConstraint>()?;
     m.add_class::<types::LayerConstraint>()?;
 
-    // Register the solver entry point.
+    // Register the solver entry point and constraint auditor.
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(audit_result, m)?)?;
     Ok(())
 }

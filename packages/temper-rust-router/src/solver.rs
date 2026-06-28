@@ -10,7 +10,8 @@ use splr::{
     Certificate, Config, SolveIF,
 };
 
-use crate::types::{InternalConstraintModel, SolverStatus, TopologyResult};
+use crate::types::SolverStatus;
+use crate::TopologyResult;
 
 use super::encoding::CnfFormula;
 
@@ -18,7 +19,6 @@ use super::encoding::CnfFormula;
 pub fn solve_with_splr(
     cnf: &CnfFormula,
     _var_names: &[String],
-    _model: &InternalConstraintModel,
 ) -> TopologyResult {
     let start = Instant::now();
     let config = Config::default();
@@ -34,10 +34,11 @@ pub fn solve_with_splr(
 
     let mut solver = Solver::instantiate(&config, &CNFDescription::default());
 
-    // Add variables and clauses.
+    // Add variables.
     for _ in 0..cnf.num_vars {
         solver.add_var();
     }
+    // Add clauses (cardinality constraints are already encoded as CNF).
     for clause in &cnf.clauses {
         let lits: Vec<i32> = clause.iter().copied().collect();
         if solver.add_clause(&lits).is_err() {
