@@ -9,7 +9,7 @@ Provides different heuristic functions for maze routing:
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Final
 
 import jax.numpy as jnp
 import numpy as np
@@ -17,6 +17,24 @@ from jax import Array
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Component
+
+
+OCTILE_DIAG: Final[float] = math.sqrt(2.0) - 1.0
+
+_SAME_LAYER_DELTAS: tuple[tuple[int, int], ...] = (
+    (0, 1), (1, 0), (0, -1), (-1, 0),
+    (1, 1), (1, -1), (-1, 1), (-1, -1),
+)
+
+
+def octile_distance(a: tuple[int, int], b: tuple[int, int]) -> float:
+    dx = abs(a[0] - b[0])
+    dy = abs(a[1] - b[1])
+    return max(dx, dy) + OCTILE_DIAG * min(dx, dy)
+
+
+def in_bounds(x: int, y: int, width_cells: int, height_cells: int) -> bool:
+    return 0 <= x < width_cells and 0 <= y < height_cells
 
 
 HeuristicFunc = Callable[["GridCell", "GridCell"], float]

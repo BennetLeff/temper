@@ -11,6 +11,11 @@ from dataclasses import dataclass
 import numpy as np
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
+from temper_placer.routing.heuristics import (
+    _SAME_LAYER_DELTAS,
+    in_bounds,
+    octile_distance,
+)
 
 
 # 8-move direction encoding shared with neighbor_validity.DIRS_8.
@@ -166,12 +171,8 @@ def _astar_search(
 
 
 def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
-    """Manhattan/Octile distance heuristic."""
-    dx = abs(a[0] - b[0])
-    dy = abs(a[1] - b[1])
-    # Octile distance for 8-connected grid
-    # Cost = max(dx, dy) + (sqrt(2)-1)*min(dx, dy) = max + 0.414*min
-    return max(dx, dy) + 0.414 * min(dx, dy)
+    """Octile distance heuristic for 8-connected grid search."""
+    return octile_distance(a, b)
 
 
 def _line_of_sight(
@@ -204,7 +205,7 @@ def _line_of_sight(
 
     while True:
         # Check if current cell is blocked
-        if not (0 <= x < grid.width_cells and 0 <= y < grid.height_cells):
+        if not in_bounds(x, y, grid.width_cells, grid.height_cells):
             return False
 
         cell_value = grid.grid[y, x]
@@ -302,16 +303,7 @@ def _astar_search_lazy_theta_star(
 
                 # Check 8-connected neighbors
                 cx, cy = current
-                for dx, dy in [
-                    (0, 1),
-                    (1, 0),
-                    (0, -1),
-                    (-1, 0),
-                    (1, 1),
-                    (1, -1),
-                    (-1, 1),
-                    (-1, -1),
-                ]:
+                for dx, dy in _SAME_LAYER_DELTAS:
                     nx, ny = cx + dx, cy + dy
                     neighbor = (nx, ny)
 
@@ -339,9 +331,9 @@ def _astar_search_lazy_theta_star(
         # Get 8-connected neighbors
         cx, cy = current
         neighbors = []
-        for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+        for dx, dy in _SAME_LAYER_DELTAS:
             nx, ny = cx + dx, cy + dy
-            if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:
+            if in_bounds(nx, ny, grid.width_cells, grid.height_cells):
                 cell_value = grid.grid[ny, nx]
                 if cell_value == 0 or cell_value == net_id:
                     neighbors.append((nx, ny))
@@ -450,18 +442,9 @@ def _astar_search_theta_star(
         # Get 8-connected neighbors
         cx, cy = current
         neighbors = []
-        for dx, dy in [
-            (0, 1),
-            (1, 0),
-            (0, -1),
-            (-1, 0),  # Cardinal
-            (1, 1),
-            (1, -1),
-            (-1, 1),
-            (-1, -1),  # Diagonal
-        ]:
+        for dx, dy in _SAME_LAYER_DELTAS:
             nx, ny = cx + dx, cy + dy
-            if 0 <= nx < grid.width_cells and 0 <= ny < grid.height_cells:
+            if in_bounds(nx, ny, grid.width_cells, grid.height_cells):
                 cell_value = grid.grid[ny, nx]
                 if cell_value == 0 or cell_value == net_id:
                     neighbors.append((nx, ny))
@@ -587,7 +570,7 @@ def _astar_search_3d(
         moves = []
 
         # Same-layer moves (8-connected)
-        for dx, dy in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+        for dx, dy in _SAME_LAYER_DELTAS:
             nx, ny = x + dx, y + dy
             if grid.is_free(nx, ny):
                 move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
@@ -659,9 +642,9 @@ def _route_segment_3d(
 
     # Bounds check
     for layer, grid in grids.items():
-        if not (0 <= start_grid[0] < grid.width_cells and 0 <= start_grid[1] < grid.height_cells):
+        if not in_bounds(start_grid[0], start_grid[1], grid.width_cells, grid.height_cells):
             continue
-        if not (0 <= goal_grid[0] < grid.width_cells and 0 <= goal_grid[1] < grid.height_cells):
+        if not in_bounds(goal_grid[0], goal_grid[1], grid.width_cells, grid.height_cells):
             continue
 
     start_node = RouteNode3D(start_grid[0], start_grid[1], start_layer)

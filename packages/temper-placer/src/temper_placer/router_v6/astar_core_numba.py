@@ -45,7 +45,11 @@ Implementation notes
 """
 from __future__ import annotations
 
+import math
+
 import numpy as np
+
+_HEURISTIC_OCTILE_DIAG: float = math.sqrt(2.0) - 1.0
 
 try:
     from numba import njit
@@ -218,7 +222,7 @@ def _compile_kernel():
         gc = goal_idx - gr * cols
         dx0 = abs(sc - gc)
         dy0 = abs(sr - gr)
-        heuristic_start = np.float32(max(dx0, dy0) + 0.414 * min(dx0, dy0))
+        heuristic_start = np.float32(max(dx0, dy0) + _HEURISTIC_OCTILE_DIAG * min(dx0, dy0))
 
         heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
             heap_pri, heap_idx, heap_size, heap_cap,
@@ -308,7 +312,7 @@ def _compile_kernel():
                     came_from[n_idx] = cur_i
                     gdx = abs(ndc - gc)
                     gdy = abs(ndr - gr)
-                    h = np.float32(max(gdx, gdy) + 0.414 * min(gdx, gdy))
+                    h = np.float32(max(gdx, gdy) + _HEURISTIC_OCTILE_DIAG * min(gdx, gdy))
                     heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
                         heap_pri, heap_idx, heap_size, heap_cap,
                         tentative + h, np.int32(n_idx),
