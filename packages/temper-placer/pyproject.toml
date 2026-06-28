@@ -42,6 +42,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "opencv-python>=4.11.0.86",
     "shapely>=2.1.2",
+    "pandas>=2.0.0",
     "pydantic>=2.13.4",
 ]
 
