@@ -436,3 +436,17 @@ sm_context_t sm_ctx;
 bool run_self_test(void) {
     return true;  /* stub: all self-tests pass */
 }
+
+void check_safety_interlocks(void) {
+    /* stub: no safety violations in test */
+}
+
+bool fault_cleared(void) {
+    return true;  /* stub: faults clear immediately in test */
+}
+
+void show_message_then_transition(const char *msg, system_state_t next_state) {
+    (void)msg;
+    (void)next_state;
+    /* stub: no display in test */
+}
