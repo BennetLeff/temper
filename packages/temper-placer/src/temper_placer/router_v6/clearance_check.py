@@ -215,8 +215,7 @@ def _calculate_minimum_clearance(
     # Check explicit Via objects from each route against the other route's
     # segments on the layers the via touches.
 
-    def _check_via_against_segs(via, other_segs, other_width,
-                                my_width_guard):
+    def _check_via_against_segs(via, other_segs, other_width):
         """Update min_dist / closest_point / violation_layer if a closer
         approach is found between a via and a set of segments."""
         nonlocal min_dist, closest_point, violation_layer
@@ -243,11 +242,11 @@ def _calculate_minimum_clearance(
 
     # Route1 vias vs route2 segments
     for via in getattr(route1, 'vias', []):
-        _check_via_against_segs(via, segs2, width2, width1)
+        _check_via_against_segs(via, segs2, width2)
 
     # Route2 vias vs route1 segments
     for via in getattr(route2, 'vias', []):
-        _check_via_against_segs(via, segs1, width1, width2)
+        _check_via_against_segs(via, segs1, width1)
 
     # --- Cross-layer segment via points (RoutePath3D fallback) ---
     # For paths that have layer-changing segments but no explicit Via
