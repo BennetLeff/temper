@@ -92,6 +92,11 @@ markers = [
     "ci: marks tests suitable for fast CI validation",
     "robustness: marks tests for optimizer robustness and convergence",
     "property: marks property-based (Hypothesis) tests",
+    "l0_unit: Level 0 - unit properties (CI: every commit)",
+    "l1_exhaustive: Level 1 - exhaustive 2x2 (CI: every commit)",
+    "l2_exhaustive: Level 2 - exhaustive 3x3 (CI: every commit)",
+    "l3_pbt: Level 3 - PBT on arbitrary grids (CI: PR only)",
+    "l4_regression: Level 4 - real-world regression (CI: PR only)",
 ]
 
 [tool.ruff]
