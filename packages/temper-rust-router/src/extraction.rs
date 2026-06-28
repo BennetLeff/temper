@@ -4,7 +4,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::types::{InternalConstraintModel, InternalVariable, NetTopology, TopologyGraph};
+use crate::types::{InternalConstraintModel, NetTopology, TopologyGraph};
 
 /// Convert solver variable assignments into a TopologyGraph of channel paths.
 ///

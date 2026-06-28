@@ -6,7 +6,7 @@
 //
 // Origin: U2 (replaced) of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::types::{InternalConstraint, InternalConstraintModel, TopologyResult, SolverStatus};
 
@@ -318,31 +318,30 @@ mod tests {
             );
         }
     }
-}
+    /// Build a small constraint model for self-testing the audit logic.
+    fn make_self_test_model() -> (InternalConstraintModel, Vec<String>) {
+        // 4 nets, channel CH1, capacity 2
+        let var_names: Vec<String> = (0..4).map(|i| format!("net{}_CH1", i)).collect();
 
-/// Build a small constraint model for self-testing the audit logic.
-fn make_self_test_model() -> (InternalConstraintModel, Vec<String>) {
-    // 4 nets, channel CH1, capacity 2
-    let var_names: Vec<String> = (0..4).map(|i| format!("net{}_CH1", i)).collect();
+        let vars: Vec<crate::types::InternalVariable> = var_names
+            .iter()
+            .enumerate()
+            .map(|(i, name)| crate::types::InternalVariable::NetChannel {
+                name: name.clone(),
+                net_idx: i,
+                channel_id: "CH1".into(),
+            })
+            .collect();
 
-    let vars: Vec<crate::types::InternalVariable> = var_names
-        .iter()
-        .enumerate()
-        .map(|(i, name)| crate::types::InternalVariable::NetChannel {
-            name: name.clone(),
-            net_idx: i,
-            channel_id: "CH1".into(),
-        })
-        .collect();
+        let constraints = vec![
+            InternalConstraint::Capacity {
+                channel_id: "CH1".into(),
+                capacity: 2.0,
+                slack_factor: 1.0,
+                terms: var_names.iter().map(|n| (n.clone(), 1.0)).collect(),
+            },
+        ];
 
-    let constraints = vec![
-        InternalConstraint::Capacity {
-            channel_id: "CH1".into(),
-            capacity: 2.0,
-            slack_factor: 1.0,
-            terms: var_names.iter().map(|n| (n.clone(), 1.0)).collect(),
-        },
-    ];
-
-    (InternalConstraintModel { variables: vars, constraints }, var_names)
+        (InternalConstraintModel { variables: vars, constraints }, var_names)
+    }
 }

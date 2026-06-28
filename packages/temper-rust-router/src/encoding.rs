@@ -9,6 +9,7 @@ use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable
 pub struct CnfFormula {
     pub num_vars: usize,
     pub clauses: Vec<Vec<i32>>,
+    #[allow(dead_code)]
     pub var_names: Vec<String>,
 }
 
@@ -46,10 +47,10 @@ fn encode_at_most_k(
     }
 
     let r = |i: usize, j: usize| -> i32 {
-        ((r_start + i * k + j + 1) as i32)
+        (r_start + i * k + j + 1) as i32
     };
 
-    let v = |i: usize| -> i32 { ((vars[i] + 1) as i32) };
+    let v = |i: usize| -> i32 { (vars[i] + 1) as i32 };
 
     // Position 0.
     clauses.push(vec![-v(0), r(0, 0)]);
@@ -79,7 +80,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
     let mut name_to_idx: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
     let mut clauses: Vec<Vec<i32>> = Vec::new();
 
-    let mut add_var = |vm: &mut Vec<SatVariable>, nm: &mut std::collections::HashMap<String, usize>, name: &str| -> usize {
+    let add_var = |vm: &mut Vec<SatVariable>, nm: &mut std::collections::HashMap<String, usize>, name: &str| -> usize {
         if let Some(&idx) = nm.get(name) {
             idx
         } else {
@@ -90,7 +91,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
         }
     };
 
-    let mut encode_lit = |idx: usize, pos: bool| -> i32 {
+    let encode_lit = |idx: usize, pos: bool| -> i32 {
         if pos { (idx + 1) as i32 } else { -((idx + 1) as i32) }
     };
 
