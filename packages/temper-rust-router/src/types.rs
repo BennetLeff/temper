@@ -347,9 +347,9 @@ pub enum SolverStatus {
 #[derive(Clone, Debug)]
 pub struct TopologyResult {
     pub status: SolverStatus,
-    /// variable_index → truth value
+    pub num_vars: usize,
+    pub num_clauses: usize,
     pub assignments: HashMap<usize, bool>,
-    /// For unsatisfiable: the constraint indices that make it unsat
     pub unsat_core: Vec<usize>,
     pub solver_time_ms: f64,
 }
