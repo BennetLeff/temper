@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.routing.verifier import VerificationResult
+    from temper_placer.router_v6.verifier import VerificationResult
     from temper_placer.validation.drc_runner import DrcResult
 
 

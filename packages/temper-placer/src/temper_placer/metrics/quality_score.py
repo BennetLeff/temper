@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from temper_placer.routing.verifier import VerificationResult
+from temper_placer.router_v6.verifier import VerificationResult
 from temper_placer.validation.drc_runner import DrcResult
 from temper_placer.validation.metrics import PlacementMetrics
 from temper_placer.metrics.routing_quality import evaluate_routing_quality, RoutingQualityScore

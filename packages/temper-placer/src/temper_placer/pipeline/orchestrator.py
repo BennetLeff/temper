@@ -486,7 +486,7 @@ class PipelineOrchestrator:
     def _run_routing(self, state: PipelineState) -> PipelineState:  # pragma: no cover
         """Run routing verification (deprecated — use RoutingStage)."""
         warnings.warn("_run_routing is deprecated. Use RoutingStage.", DeprecationWarning, stacklevel=2)
-        from temper_placer.routing.congestion import analyze_congestion
+        from temper_placer.router_v6.congestion import analyze_congestion
         import jax.numpy as jnp
         print("Running routing verification...")
         positions = state.placement_state.positions if state.placement_state else jnp.array(state.deterministic_result.positions)
@@ -502,7 +502,7 @@ class PipelineOrchestrator:
         warnings.warn("_run_refinement is deprecated. Use RefinementStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.pipeline.iterator import PlaceRouteIterator
         from temper_placer.router_v6.adapter import V6RouterAdapter
-        from temper_placer.routing.congestion_heatmap import CongestionHeatmap
+        from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
         from temper_placer.optimizer.legalization import resolve_overlaps_priority
         from temper_placer.pipeline.iterative_placer import simple_congestion_repel
         import numpy as np
@@ -532,7 +532,7 @@ class PipelineOrchestrator:
                 # Simple routing for all nets
                 success_count = 0
                 for net in self.state.netlist.nets:
-                    from temper_placer.routing.congestion import _get_pin_positions
+                    from temper_placer.router_v6.congestion import _get_pin_positions
                     pins = _get_pin_positions(self.state.netlist, net.name, pos)
                     if len(pins) < 2: continue
                     res = router.route_net_adaptive(net.name, pins, None) # Simplification

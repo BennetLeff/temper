@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
-    from temper_placer.routing.congestion import CongestionResult
+    from temper_placer.router_v6.congestion import CongestionResult
 
 
 def adjust_for_congestion(
