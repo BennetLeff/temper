@@ -338,9 +338,10 @@ class CorpusRegressionRunner:
                     minval=oy + margin,
                     maxval=oy + board.height - margin,
                 )
-                pos = jnp.stack([px, py], axis=-1)
-                initial_state = initial_state._replace(
-                    positions=pos,
+                from dataclasses import replace as dc_replace
+                initial_state = dc_replace(
+                    initial_state,
+                    positions=jnp.stack([px, py], axis=-1),
                     rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
                 )
 
