@@ -314,12 +314,12 @@ scripts:
   - temper_placer.io.kicad_parser
   - temper_placer.io.trace_writer
   - temper_placer.io.zone_manager
-  - temper_placer.routing.constraints.geometry
-  - temper_placer.routing.constraints.spatial_index
-  - temper_placer.routing.fanout
-  - temper_placer.routing.layer_assignment
-  - temper_placer.routing.maze_router
-  - temper_placer.routing.net_ordering
+  - temper_placer.router_v6.constraints_geometry
+  - temper_placer.router_v6.constraints_spatial_index
+  - temper_placer.router_v6.fanout
+  - temper_placer.router_v6.layer_assignment
+  - temper_placer.router_v6.adapter
+  - temper_placer.router_v6.net_ordering
   - time
   - argparse
   - jax.numpy
@@ -331,12 +331,12 @@ scripts:
   - temper_placer.io.kicad_parser
   - temper_placer.io.trace_writer
   - temper_placer.io.zone_manager
-  - temper_placer.routing.constraints.geometry
-  - temper_placer.routing.constraints.spatial_index
-  - temper_placer.routing.fanout
-  - temper_placer.routing.layer_assignment
-  - temper_placer.routing.maze_router
-  - temper_placer.routing.net_ordering
+  - temper_placer.router_v6.constraints_geometry
+  - temper_placer.router_v6.constraints_spatial_index
+  - temper_placer.router_v6.fanout
+  - temper_placer.router_v6.layer_assignment
+  - temper_placer.router_v6.adapter
+  - temper_placer.router_v6.net_ordering
   - time
 - path: pipeline_metrics.py
   purpose: Record pipeline metrics to JSON for trend analysis (CI-invoked)
@@ -377,7 +377,7 @@ scripts:
   - temper_placer.io
   - temper_placer.losses.base
   - temper_placer.metrics.quality
-  - temper_placer.routing.analysis
+  - 
   - tempfile
   - typing
   - __future__
@@ -393,7 +393,7 @@ scripts:
   - temper_placer.io
   - temper_placer.losses.base
   - temper_placer.metrics.quality
-  - temper_placer.routing.analysis
+  - 
   - tempfile
   - typing
 - path: run_feedback_loop.py
