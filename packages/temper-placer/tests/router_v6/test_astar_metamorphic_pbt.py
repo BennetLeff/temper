@@ -117,6 +117,16 @@ def test_mr1_rotation_invariance(gsp, rotation):
         f"Rotation {rotation}: completeness mismatch"
     )
 
+    # Oracle pairing for completeness and cost (all grids <=30x30 here)
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        d_path, d_cost = dijkstra_shortest_path(start, goal, grid)
+        assert (path_orig is None) == (d_path is None), (
+            f"Oracle: rotation {rotation} completeness mismatch"
+        )
+        if path_orig is not None and d_path is not None:
+            assert abs(_path_cost_octile(path_orig) - d_cost) < _TOL
+
     if path_orig is not None and path_rot is not None:
         cost_orig = _path_cost_octile(path_orig)
         cost_rot = _path_cost_octile(path_rot)
@@ -177,6 +187,14 @@ def test_mr2_symmetry(gsp):
 
     assert (path_fwd is None) == (path_rev is None), "Completeness mismatch"
 
+    # Oracle pairing (grids <=30x30)
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        d_path, d_cost = dijkstra_shortest_path(start, goal, grid)
+        assert (path_fwd is None) == (d_path is None), "Oracle completeness mismatch"
+        if path_fwd is not None and d_path is not None:
+            assert abs(_path_cost_octile(path_fwd) - d_cost) < _TOL, "Oracle cost mismatch"
+
     if path_fwd is not None and path_rev is not None:
         cost_fwd = _path_cost_octile(path_fwd)
         cost_rev = _path_cost_octile(path_rev)
@@ -222,15 +240,20 @@ def test_mr3_obstacle_addition(gsp):
     grid, start, goal = gsp
     path_orig = _astar_search(start, goal, grid)
 
-    # Generate perturbed grid by adding an obstacle
+    # Oracle pairing
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        d_path, d_cost = dijkstra_shortest_path(start, goal, grid)
+        assert (path_orig is None) == (d_path is None), "Oracle completeness mismatch"
+
     perturbed = _add_random_obstacle(grid, start, goal)
     if perturbed is None:
-        return  # No free cell to block (skip this sample)
+        return
 
     path_new = _astar_search(start, goal, perturbed)
 
     if path_orig is None:
-        return  # Original unreachable, nothing to assert
+        return
 
     if path_new is not None:
         cost_orig = _path_cost_octile(path_orig)
@@ -238,6 +261,13 @@ def test_mr3_obstacle_addition(gsp):
         assert cost_new >= cost_orig - _TOL, (
             f"Obstacle addition reduced cost: {cost_orig} -> {cost_new}"
         )
+
+    # Oracle on perturbed grid
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        pd_path, pd_cost = dijkstra_shortest_path(start, goal, perturbed)
+        assert (path_new is None) == (pd_path is None), "Oracle completeness on perturbed"
+        if path_new is not None and pd_path is not None:
+            assert abs(_path_cost_octile(path_new) - pd_cost) < _TOL
     # else: path_new is None, which satisfies ">= or None"
 
 
@@ -313,6 +343,12 @@ def test_mr4_obstacle_removal(gsp):
     grid, start, goal = gsp
     path_orig = _astar_search(start, goal, grid)
 
+    # Oracle pairing
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        d_path, d_cost = dijkstra_shortest_path(start, goal, grid)
+        assert (path_orig is None) == (d_path is None), "Oracle completeness mismatch"
+
     perturbed = _remove_random_obstacle(grid, start, goal)
     if perturbed is None:
         return
@@ -325,7 +361,13 @@ def test_mr4_obstacle_removal(gsp):
         assert cost_new <= cost_orig + _TOL, (
             f"Obstacle removal increased cost: {cost_orig} -> {cost_new}"
         )
-    # If original was unreachable and new is reachable, that's valid
+
+    # Oracle on perturbed grid
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        pd_path, pd_cost = dijkstra_shortest_path(start, goal, perturbed)
+        assert (path_new is None) == (pd_path is None), "Oracle completeness on perturbed"
+        if path_new is not None and pd_path is not None:
+            assert abs(_path_cost_octile(path_new) - pd_cost) < _TOL
 
 
 def _remove_random_obstacle(grid: OccupancyGrid, start, goal) -> OccupancyGrid | None:
@@ -396,12 +438,16 @@ def test_mr5_edge_weight_scaling(gsp, k):
     if path_orig is None:
         return
 
+    # Oracle pairing
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        d_path, d_cost = dijkstra_shortest_path(start, goal, grid)
+        assert path_orig is not None and d_path is not None
+        assert abs(_path_cost_octile(path_orig) - d_cost) < _TOL
+
     cost_grid = _path_cost_octile(path_orig)
     cost_physical_orig = cost_grid * grid.cell_size
 
-    # Create grid with scaled cell_size. A* uses fixed grid costs (1.0/sqrt2)
-    # independent of cell_size, so grid_cost should be the same.
-    # Physical cost = grid_cost * cell_size, scales linearly with cell_size.
     scaled_cell = grid.cell_size * k
     scaled_grid = OccupancyGrid(
         grid.layer_name,
@@ -418,12 +464,10 @@ def test_mr5_edge_weight_scaling(gsp, k):
     cost_grid_scaled = _path_cost_octile(path_scaled)
     cost_physical_scaled = cost_grid_scaled * scaled_cell
 
-    # Grid costs should match (same occupancy, A* independent of cell_size)
     assert abs(cost_grid - cost_grid_scaled) < _TOL, (
         f"Grid cost differs after cell_size scaling k={k}: {cost_grid} vs {cost_grid_scaled}"
     )
 
-    # Physical costs should scale by k
     expected_physical = cost_physical_orig * k
     assert abs(cost_physical_scaled - expected_physical) < max(_TOL, abs(expected_physical) * _TOL), (
         f"Physical cost scaling k={k}: {cost_physical_orig} * {k} = {expected_physical}, "
@@ -476,6 +520,14 @@ def test_mr7_translation_invariance(gsp):
     path_orig = _astar_search(start, goal, grid)
     path_trans = _astar_search(t_start, t_goal, t_grid)
 
+    # Oracle pairing for original grid
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        d_path, d_cost = dijkstra_shortest_path(start, goal, grid)
+        assert (path_orig is None) == (d_path is None), "Oracle completeness mismatch"
+        if path_orig is not None and d_path is not None:
+            assert abs(_path_cost_octile(path_orig) - d_cost) < _TOL
+
     assert (path_orig is None) == (path_trans is None), "Translation completeness mismatch"
 
     if path_orig is not None and path_trans is not None:
@@ -484,7 +536,6 @@ def test_mr7_translation_invariance(gsp):
         assert abs(cost_orig - cost_trans) < _TOL, (
             f"Translation ({dx},{dy}): {cost_orig} vs {cost_trans}"
         )
-        # Path cells should be shifted
         assert len(path_orig) == len(path_trans), (
             f"Path length mismatch after translation"
         )
