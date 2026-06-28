@@ -181,7 +181,7 @@ The convergence risk is multiply determined: (1) a single-iteration heatmap snap
 
 **Requirements**: R4
 
-**Dependencies**: U1, U2
+**Dependencies**: U1, U2, U3
 
 **Files**:
 - **Modify**: `packages/temper-placer/src/temper_placer/pipeline/convergence.py` — add regression-aware termination
@@ -189,25 +189,30 @@ The convergence risk is multiply determined: (1) a single-iteration heatmap snap
 
 **Approach**:
 - Extend `ConvergenceCriteria` with:
+  - `best_routed_nets: frozenset[str] | None` — net names routed at the best iteration (not just the count)
   - `best_routability: float | None` — best routability ratio seen so far
-  - `stall_count: int` — consecutive iterations with no improvement
-  - `regression_detected: bool` — current routability dropped below best
-- New method `check_regression(current_routability: float) -> ConvergenceDecision`:
-  - If `best_routability is None`: record as best, continue
-  - If `current_routability >= best_routability`: update best, reset stall_count, continue
-  - If `current_routability < best_routability * 0.95`: `REGRESSION` — halt immediately with diagnostic
-  - If `current_routability == best_routability`: increment `stall_count`. If `stall_count >= 2`: `CONVERGED` — halt with success
-  - Otherwise (minor improvement but below best): continue
-- The existing `iteration >= max_iterations` check remains as a safety cap, but the regression check takes priority.
-- The `run_feedback_loop` in `feedback.py:147` calls `check_regression` after each iteration and terminates early when indicated.
+  - `stall_count: int` — consecutive iterations with identical routed/failed net sets
+  - `regression_detected: bool` — a previously-routed net stopped routing
+- The regression threshold is derived from the noise-floor characterization (U1 test): `threshold = best_routability * (1 - 3*sigma/mean)` where sigma and mean come from 5 identical single-pass routes on `temper.kicad_pcb`. If the noise-floor test is not yet run, default to 0.95 (5%).
+- New method `check_regression(routed_nets: frozenset[str], total_nets: int) -> ConvergenceDecision`:
+  - Compute `current_ratio = len(routed_nets) / total_nets`
+  - If `best_routability is None`: record best, continue
+  - If the new set of routed nets is a superset of `best_routed_nets` (all previous nets still route, possibly more): update best, reset stall_count, continue
+  - If any net in `best_routed_nets` is NOT in the current routed set: `REGRESSION` — halt immediately with diagnostic naming the lost nets
+  - If the routed net set is identical to the previous iteration's set: increment `stall_count`. If `stall_count >= 2`: `CONVERGED` — halt with success
+  - If current_ratio is below the noise-floor-calibrated threshold (even without net loss): `REGRESSION`
+  - Otherwise (different nets route but count is stable): continue (the loop is exploring, not converged or regressed)
+- The existing `iteration >= max_iterations` check remains as a safety cap (default 10), but regression and convergence checks take priority.
+- The `run_feedback_loop` in `feedback.py:147` calls `check_regression` after each routing pass and terminates early when indicated.
 
 **Patterns to follow**: `ConvergenceCriteria` at `convergence.py:38-55`. The early-stopping pattern mirrors ML training loop validation-loss plateau detection.
 
 **Test scenarios**:
-- Routability improves monotonically (0.5 → 0.6 → 0.7): loop continues until converged or cap
-- Routability regresses (0.6 → 0.55, below 95% of best): loop halts with `REGRESSION` diagnostic
-- Routability stalls at best (0.6, 0.6, 0.6): loop halts after 2 stall iterations with `CONVERGED`
-- Routability improves then stalls (0.5 → 0.7 → 0.7 → 0.7): halts on second stall
+- Routability improves monotonically (0.5 → 0.6 → 0.7), same nets route each time: loop continues until converged or cap
+- A previously-routed net stops routing: loop halts with `REGRESSION` naming the lost net
+- Routability stalls with identical net sets (0.6, 0.6, 0.6): loop halts after 2 stall iterations with `CONVERGED`
+- Routability is constant but different nets route each iteration (set {A,B,C} → {D,E,F} → {A,B,C}): loop continues — this is oscillation, not convergence
+- Routability improves then stalls with identical sets (0.5 → 0.7 → 0.7 → 0.7): halts on second stall
 - Fixed max_iterations cap still applies as safety net (e.g., never exceed 10 iterations)
 
 **Verification**: `pytest packages/temper-placer/tests/pipeline/test_convergence_regression.py -v` passes.
@@ -220,7 +225,9 @@ The convergence risk is multiply determined: (1) a single-iteration heatmap snap
 |------|-----------|--------|------------|
 | BottleneckReport serialization is too slow for CI | Low | Low | JSON with numpy→list conversion is O(grid cells). For typical 200×200×4 grids, this is negligible. |
 | Momentum damping over-smooths real congestion shifts | Low | Medium | The `alpha >= 0.1` floor ensures the loop never ignores new data completely. The floor is tunable via configuration. |
-| Regression threshold (5%) is too sensitive for small boards | Low | Low | The threshold is configurable; 5% captures real regressions on 24-net boards without false positives on noise. |
+| Regression threshold is uncalibrated without noise-floor data | Medium | Medium | U1 includes a noise-floor characterization test. The threshold defaults to 5% but is replaced by 3σ from measured variance once the test runs. |
+| Contract validates existence but not freshness across iterations | Low | Low | Within a single pipeline run, artifacts are produced and consumed in-order. Freshness is a concern only if the same artifact is read and re-written in the same iteration — not the case for the bottleneck report. |
+| Conditional/skipped stages break contract validation | Low | Medium | The `is_active` flag on Stage ABC handles this — disabled stages skip contract checks entirely. |
 | `TEMPER_FEEDBACK_ENABLED` conflicts with `TEMPER_DRC_FENCE_FAIL` | Low | Low | Both are independent env vars read at runtime; no interaction. |
 
 ## Dependencies
@@ -233,13 +240,17 @@ The convergence risk is multiply determined: (1) a single-iteration heatmap snap
 
 ## Verification Checklist
 
-- [ ] `BottleneckReport` round-trips through JSON without loss
+- [ ] `BottleneckReport` round-trips through JSON without loss (including `routed_nets` list)
+- [ ] Noise-floor characterization: 5 identical routes on `temper.kicad_pcb`, routability σ measured
 - [ ] Stage contract validation raises errors on missing declared writes/reads
+- [ ] Disabled stage (`is_active=False`) skips contract checks entirely
 - [ ] Contract is a no-op when `TEMPER_FEEDBACK_ENABLED=false`
+- [ ] `DeclaredArtifact.output_path` resolved relative to pipeline output directory
+- [ ] EWMA `blend()` update separated from `compute_loss()` — blend called once per iteration
 - [ ] EWMA blended_grid converges to constant under repeated identical inputs
 - [ ] EWMA does not oscillate under alternating inputs
-- [ ] Convergence halt fires on 5% routability regression
-- [ ] Convergence halt fires on 2 consecutive stall iterations
+- [ ] Convergence halt fires when a previously-routed net stops routing
+- [ ] Convergence halt fires when routed net set is identical for 2 consecutive iterations
+- [ ] Convergence continues (does not halt) when ratio is stable but different nets route
 - [ ] Fixed `max_iterations` safety cap still applies
-- [ ] All existing pipeline tests continue to pass (backward compatible)
-- [ ] Import-linter gate passes
+- [ ] Loop with feedback enabled on `temper.kicad_pcb` produces routability ≥ single-pass baseline (R6)
