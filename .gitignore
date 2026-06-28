@@ -43,7 +43,7 @@ venv.bak/
 
 # KiCad
 *.lck
-*.bak
+/*.bak
 *.kicad_prl
 *_autosave.kicad_sch
 *_autosave.kicad_pcb
@@ -51,12 +51,11 @@ fp-info-cache
 
 # Simulations
 *.raw
-*.log
-*.txt
+/*.log
+/*.txt
 !*.pyc
 !.loc-allowlist.txt
 !*results.txt
-!.loc-allowlist.txt
 
 # IDEs
 .vscode/
