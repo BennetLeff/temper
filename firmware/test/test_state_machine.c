@@ -1320,7 +1320,7 @@ void test_sm_runaway_no_breach_normal_operation(void) {
     state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
-    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
 
     /* Raise by 1°C over 100ms = 10°C/s, below 15°C/s threshold */
     mock_sm_set_pan_temperature(101.0f);
@@ -1328,7 +1328,7 @@ void test_sm_runaway_no_breach_normal_operation(void) {
     mock_sm_advance_time(100);
     state_machine_update();
 
-    TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(STATE_HEATING, state_machine_get_state());
 }
 
 /**
