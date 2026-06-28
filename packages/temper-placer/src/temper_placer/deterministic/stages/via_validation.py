@@ -15,7 +15,7 @@ from ..state import BoardState
 from .base import Stage
 from ...core.board import Via, Trace, PLANE_LAYER_INDICES, is_plane_layer, STANDARD_LAYER_ORDER
 from ...core.pin_geometry import pin_world_position
-from ...routing.net_classification import is_ground_net, is_power_net
+from temper_placer.core.net_classification import is_ground_net, is_power_net
 
 
 def _is_plane_net(net_name: str) -> bool:

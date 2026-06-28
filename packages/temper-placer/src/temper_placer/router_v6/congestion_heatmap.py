@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    from temper_placer.routing.maze_router import MazeRouter
+    pass  # MazeRouter was deleted; congestion_heatmap uses duck-typed router objects
 
 
 @dataclass

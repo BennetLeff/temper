@@ -2,7 +2,7 @@ from dataclasses import replace
 from typing import Dict, Optional
 from ..state import BoardState
 from .base import Stage
-from ...routing.net_ordering import order_nets
+from temper_placer.router_v6.net_ordering import order_nets
 from ...core.loop import LoopCollection
 
 
