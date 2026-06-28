@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist, Component
-from temper_placer.router_v6._routing_shim.congestion import CongestionResult, CongestionGrid, Bottleneck
+from temper_placer.router_v6.congestion import CongestionResult, CongestionGrid, Bottleneck
 from temper_placer.placer.adjustment import adjust_for_congestion
 
 def test_adjust_for_congestion():

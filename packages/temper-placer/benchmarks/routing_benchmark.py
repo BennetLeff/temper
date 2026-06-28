@@ -19,8 +19,8 @@ from pathlib import Path
 import jax.numpy as jnp
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.router_v6._routing_shim.layer_assignment import Layer, LayerAssignment
-from temper_placer.router_v6._routing_shim.maze_router import MazeRouter
+from temper_placer.router_v6.layer_assignment import Layer, LayerAssignment
+from temper_placer.router_v6.adapter import MazeRouter
 
 
 @dataclass

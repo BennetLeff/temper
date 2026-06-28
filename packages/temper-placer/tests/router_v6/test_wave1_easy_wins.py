@@ -14,7 +14,7 @@ R3: Channel skeleton extraction is restricted to F.Cu and B.Cu
 from __future__ import annotations
 
 from temper_placer.router_v6.pipeline import RouterV6Pipeline
-from temper_placer.router_v6._routing_shim.net_classification import (
+from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_power_net,
 )

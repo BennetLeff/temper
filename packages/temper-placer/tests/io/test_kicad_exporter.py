@@ -17,7 +17,7 @@ from temper_placer.io.kicad_exporter import (
     TraceSegment,
     TraceVia,
 )
-from temper_placer.router_v6._routing_shim.maze_router import GridCell, RoutePath
+from temper_placer.router_v6.adapter import GridCell, RoutePath
 
 
 class TestPathToSegments:
