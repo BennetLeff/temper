@@ -23,8 +23,8 @@ from temper_placer.io.config_loader import (
     IsolationSlot,
     load_constraints,
 )
-from temper_placer.router_v6._routing_shim.constraints.design_rules import DesignRulesParser
-from temper_placer.router_v6._routing_shim.constraints.drc_oracle import DRCOracle
+from temper_placer.router_v6.constraints_design_rules import DesignRulesParser
+from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
 
 
 # Path to the production config used by every test in this module.
@@ -171,8 +171,8 @@ class TestOracleAcceptsCreditedClearance:
         # the DRC oracle, so we don't need to actually run the stage —
         # we just need a representative reclaim dict, which the stage
         # would produce if Q1/Q2 had initial_position values.
-        from temper_placer.router_v6._routing_shim.constraints.geometry import Point
-        from temper_placer.router_v6._routing_shim.constraints.spatial_index import Pad
+        from temper_placer.router_v6.constraints_geometry import Point
+        from temper_placer.router_v6.constraints_spatial_index import Pad
 
         # Apply the K4 formula directly with default constants: for
         # width=1.5, the reclaim is 0.8mm and effective requirement

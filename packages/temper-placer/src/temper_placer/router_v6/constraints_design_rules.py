@@ -513,7 +513,7 @@ class DesignRulesParser:
         Returns:
             Net class name
         """
-        from temper_placer.routing.net_classification import (
+        from temper_placer.core.net_classification import (
             is_ground_net,
             is_power_net,
         )

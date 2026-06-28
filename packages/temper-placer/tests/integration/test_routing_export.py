@@ -13,9 +13,9 @@ import pytest
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.kicad_exporter import export_routed_pcb
-from temper_placer.router_v6._routing_shim.layer_assignment import assign_layers
-from temper_placer.router_v6._routing_shim.maze_router import MazeRouter
-from temper_placer.router_v6._routing_shim.net_ordering import order_nets
+from temper_placer.router_v6.layer_assignment import assign_layers
+from temper_placer.router_v6.adapter import MazeRouter
+from temper_placer.router_v6.net_ordering import order_nets
 from temper_placer.core.loop import LoopCollection
 
 

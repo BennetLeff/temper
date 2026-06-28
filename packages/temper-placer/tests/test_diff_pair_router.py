@@ -11,7 +11,7 @@ from typing import Tuple, Set
 # Standalone implementations for testing
 def test_diff_pair_state_hashing():
     """Test that DiffPairState hashes correctly for use in sets/dicts."""
-    from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairState
+    from temper_placer.router_v6.diff_pair_router import DiffPairState
 
     state1 = DiffPairState(
         pos_x=10, pos_y=20, pos_layer=0, neg_x=10, neg_y=18, neg_layer=0, separation_mm=0.2
@@ -31,7 +31,7 @@ def test_diff_pair_state_hashing():
 
 def test_in_bounds():
     """Test boundary checking."""
-    from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter
+    from temper_placer.router_v6.diff_pair_router import DiffPairRouter
 
     router = DiffPairRouter(
         grid_size=(100, 100, 2),
@@ -47,7 +47,7 @@ def test_in_bounds():
 
 def test_calculate_separation():
     """Test separation calculation."""
-    from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter
+    from temper_placer.router_v6.diff_pair_router import DiffPairRouter
 
     router = DiffPairRouter(
         grid_size=(100, 100, 2),
@@ -66,7 +66,7 @@ def test_calculate_separation():
 
 def test_heuristic_admissible():
     """Test that heuristic never overestimates."""
-    from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter, DiffPairState
+    from temper_placer.router_v6.diff_pair_router import DiffPairRouter, DiffPairState
 
     router = DiffPairRouter(
         grid_size=(100, 100, 2),
@@ -91,7 +91,7 @@ def test_heuristic_admissible():
 
 def test_serpentine_measure_path_length():
     """Test path length measurement."""
-    from temper_placer.router_v6._routing_shim.serpentine import measure_path_length
+    from temper_placer.router_v6.serpentine import measure_path_length
 
     # Straight horizontal path (5 cells)
     cells = [(0, 0, 0), (1, 0, 0), (2, 0, 0), (3, 0, 0), (4, 0, 0)]
@@ -106,7 +106,7 @@ def test_serpentine_measure_path_length():
 
 def test_serpentine_calculate_params():
     """Test serpentine parameter calculation."""
-    from temper_placer.router_v6._routing_shim.serpentine import calculate_serpentine_params
+    from temper_placer.router_v6.serpentine import calculate_serpentine_params
 
     # Need 2mm of extra length
     amplitude, frequency = calculate_serpentine_params(
@@ -135,7 +135,7 @@ def test_serpentine_calculate_params():
 
 def test_neighbor_generation_count():
     """Test that neighbor generation produces expected number of neighbors."""
-    from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter, DiffPairState
+    from temper_placer.router_v6.diff_pair_router import DiffPairRouter, DiffPairState
 
     router = DiffPairRouter(
         grid_size=(100, 100, 2),
@@ -174,7 +174,7 @@ class TestOffsetTransition:
         - Start: P and N vertically aligned (offset = (0, -1) in grid)
         - Goal: P and N horizontally aligned (offset = (-1, 0) in grid)
         """
-        from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter
+        from temper_placer.router_v6.diff_pair_router import DiffPairRouter
 
         router = DiffPairRouter(
             grid_size=(400, 600, 4),
@@ -199,7 +199,7 @@ class TestOffsetTransition:
 
     def test_horizontal_to_vertical_offset(self):
         """Test routing from horizontal P-N alignment to vertical alignment."""
-        from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter
+        from temper_placer.router_v6.diff_pair_router import DiffPairRouter
 
         router = DiffPairRouter(
             grid_size=(400, 600, 4),
@@ -221,7 +221,7 @@ class TestOffsetTransition:
 
     def test_same_vertical_alignment(self):
         """Test routing when start and goal have same vertical alignment."""
-        from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter
+        from temper_placer.router_v6.diff_pair_router import DiffPairRouter
 
         router = DiffPairRouter(
             grid_size=(400, 400, 4),
@@ -242,7 +242,7 @@ class TestOffsetTransition:
 
     def test_same_horizontal_alignment(self):
         """Test routing when start and goal have same horizontal alignment."""
-        from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter
+        from temper_placer.router_v6.diff_pair_router import DiffPairRouter
 
         router = DiffPairRouter(
             grid_size=(400, 400, 4),
@@ -266,7 +266,7 @@ class TestOffsetTransition:
 
         This is a harder case requiring both position movement and offset transition.
         """
-        from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter
+        from temper_placer.router_v6.diff_pair_router import DiffPairRouter
 
         router = DiffPairRouter(
             grid_size=(400, 400, 4),
@@ -291,7 +291,7 @@ class TestHeuristicOffsetMismatch:
 
     def test_heuristic_penalizes_offset_mismatch(self):
         """Test that heuristic adds penalty for P-N offset mismatch."""
-        from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter, DiffPairState
+        from temper_placer.router_v6.diff_pair_router import DiffPairRouter, DiffPairState
 
         router = DiffPairRouter(
             grid_size=(100, 100, 2),
@@ -317,7 +317,7 @@ class TestHeuristicOffsetMismatch:
 
     def test_heuristic_remains_admissible(self):
         """Test that heuristic with offset penalty is still admissible."""
-        from temper_placer.router_v6._routing_shim.diff_pair_router import DiffPairRouter, DiffPairState
+        from temper_placer.router_v6.diff_pair_router import DiffPairRouter, DiffPairState
 
         router = DiffPairRouter(
             grid_size=(100, 100, 2),
