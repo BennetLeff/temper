@@ -347,9 +347,16 @@ class CorpusRegressionRunner:
 
             # Compute final individual loss values from breakdown
             composite = make_loss(weights)
+            # Softmax the rotation logits to get rotation probabilities.
+            # Passing raw logits to loss functions (which expect soft one-hot
+            # rotations from Gumbel-Softmax) causes massively inflated rotated
+            # bounds and boundary loss values (observed: 250M vs actual ~0).
+            rotations = __import__("jax").nn.softmax(
+                result.final_state.rotation_logits, axis=-1
+            )
             loss_result = composite(
                 result.final_state.positions,
-                result.final_state.rotation_logits,
+                rotations,
                 context,
             )
             breakdown = loss_result.breakdown if loss_result.breakdown else {}
