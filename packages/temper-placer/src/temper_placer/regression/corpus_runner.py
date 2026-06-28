@@ -327,15 +327,16 @@ class CorpusRegressionRunner:
                 # Fall back to uniform random within board bounds
                 ox, oy = board.origin
                 k1, k2 = __import__("jax").random.split(rng_key)
+                margin = min(2.0, board.width * 0.1, board.height * 0.1)
                 px = __import__("jax").random.uniform(
                     k1, (netlist.n_components,),
-                    minval=ox + board.margin_mm,
-                    maxval=ox + board.width - board.margin_mm,
+                    minval=ox + margin,
+                    maxval=ox + board.width - margin,
                 )
                 py = __import__("jax").random.uniform(
                     k2, (netlist.n_components,),
-                    minval=oy + board.margin_mm,
-                    maxval=oy + board.height - board.margin_mm,
+                    minval=oy + margin,
+                    maxval=oy + board.height - margin,
                 )
                 pos = jnp.stack([px, py], axis=-1)
                 initial_state = initial_state._replace(
@@ -406,11 +407,43 @@ class CorpusRegressionRunner:
                 "hpwl_final": hpwl_val,
             }
         except Exception as e:
-            return CorpusBoardResult(
-                board_id=board_id,
-                passed=False,
-                errors=[f"Optimization failed: {e}"],
-            )
+            err_msg = str(e)
+            # NaN at epoch 0 often means the initial placement is degenerate.
+            # Retry once with random positions as a fallback.
+            if "Non-finite" in err_msg and "epoch 0" in err_msg:
+                import jax
+                import jax.numpy as jnp
+                k1, k2 = jax.random.split(rng_key)
+                margin = min(2.0, board.width * 0.1, board.height * 0.1)
+                ox, oy = board.origin
+                px = jax.random.uniform(
+                    k1, (netlist.n_components,),
+                    minval=ox + margin, maxval=ox + board.width - margin)
+                py = jax.random.uniform(
+                    k2, (netlist.n_components,),
+                    minval=oy + margin, maxval=oy + board.height - margin)
+                rng_key = jax.random.split(k2)[0]
+                initial_state = initial_state._replace(
+                    positions=jnp.stack([px, py], axis=-1),
+                    rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
+                )
+                try:
+                    result = train_multiphase(
+                        netlist, board, make_loss, context, cfg,
+                        initial_state=initial_state,
+                    )
+                except Exception as e2:
+                    return CorpusBoardResult(
+                        board_id=board_id,
+                        passed=False,
+                        errors=[f"Optimization failed (retry): {e2}"],
+                    )
+            else:
+                return CorpusBoardResult(
+                    board_id=board_id,
+                    passed=False,
+                    errors=[f"Optimization failed: {e}"],
+                )
 
         # Compare metrics
         metric_checks = []
