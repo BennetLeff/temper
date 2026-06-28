@@ -53,14 +53,7 @@ pub fn solve_with_splr(
 
     let result = match result {
         Ok(r) => r,
-        Err(_) => {
-            return TopologyResult {
-                status: SolverStatus::Unknown,
-                assignments: std::collections::HashMap::new(),
-                unsat_core: Vec::new(),
-                solver_time_ms: elapsed,
-            };
-        }
+        Err(_) => return empty_result(SolverStatus::Unknown, elapsed),
     };
 
     match result {
@@ -75,35 +68,33 @@ pub fn solve_with_splr(
                     }
                 }
                 Certificate::UNSAT => {
-                    return TopologyResult {
-                        status: SolverStatus::Unsatisfiable,
-                        assignments,
-                        unsat_core: Vec::new(),
-                        solver_time_ms: elapsed,
-                    };
+                    return empty_result(SolverStatus::Unsatisfiable, elapsed);
                 }
             }
             TopologyResult {
                 status: SolverStatus::Satisfiable,
+                num_vars: 0,
+                num_clauses: 0,
                 assignments,
                 unsat_core: Vec::new(),
                 solver_time_ms: elapsed,
             }
         }
-        Err(_) => TopologyResult {
-            status: SolverStatus::Unsatisfiable,
-            assignments: std::collections::HashMap::new(),
-            unsat_core: Vec::new(),
-            solver_time_ms: elapsed,
-        },
+        Err(_) => empty_result(SolverStatus::Unsatisfiable, elapsed),
+    }
+}
+
+fn empty_result(status: SolverStatus, elapsed: f64) -> TopologyResult {
+    TopologyResult {
+        status,
+        num_vars: 0,
+        num_clauses: 0,
+        assignments: std::collections::HashMap::new(),
+        unsat_core: Vec::new(),
+        solver_time_ms: elapsed,
     }
 }
 
 fn fail(start: Instant, status: SolverStatus) -> TopologyResult {
-    TopologyResult {
-        status,
-        assignments: std::collections::HashMap::new(),
-        unsat_core: Vec::new(),
-        solver_time_ms: start.elapsed().as_secs_f64() * 1000.0,
-    }
+    empty_result(status, start.elapsed().as_secs_f64() * 1000.0)
 }

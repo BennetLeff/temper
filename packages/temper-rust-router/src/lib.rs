@@ -38,9 +38,13 @@ fn solve_topology_rust(
 
     // Encode to CNF (cardinality constraints encoded as CNF clauses).
     let (cnf, var_names) = encoding::encode_to_cnf(&model);
+    let num_vars = cnf.num_vars;
+    let num_clauses = cnf.clauses.len();
 
     // Solve with splr.
-    let result: TopologyResult = solver::solve_with_splr(&cnf, &var_names);
+    let mut result: TopologyResult = solver::solve_with_splr(&cnf, &var_names);
+    result.num_vars = num_vars;
+    result.num_clauses = num_clauses;
 
     // Extract topology if satisfiable.
     let topology = if result.status == SolverStatus::Satisfiable {
@@ -84,6 +88,8 @@ fn solve_topology_rust(
     d.set_item("topology_graph", py_topology)?;
 
     d.set_item("solver_time_ms", result.solver_time_ms)?;
+    d.set_item("num_vars", result.num_vars)?;
+    d.set_item("num_clauses", result.num_clauses)?;
 
     // Unsat core
     let py_core = PyList::empty(py);
@@ -135,6 +141,8 @@ fn audit_result(
 
     let result = types::TopologyResult {
         status: types::SolverStatus::Satisfiable,
+        num_vars: 0,
+        num_clauses: 0,
         assignments: assignment_map,
         unsat_core: Vec::new(),
         solver_time_ms: 0.0,
