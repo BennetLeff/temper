@@ -23,11 +23,13 @@ use types::{
 /// matching the Python `ConstraintModel` shape, and returns a dict with
 /// solver status, variable assignments, and topology graph.
 #[pyfunction]
+#[pyo3(signature = (variables, constraints, net_names, use_totalizer = false))]
 fn solve_topology_rust(
     py: Python<'_>,
     variables: &Bound<'_, PyList>,
     constraints: &Bound<'_, PyList>,
     net_names: Vec<String>,
+    use_totalizer: bool,
 ) -> PyResult<PyObject> {
     // Convert Python objects to internal model.
     let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
@@ -37,7 +39,7 @@ fn solve_topology_rust(
         types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
 
     // Encode to CNF (cardinality constraints encoded as CNF clauses).
-    let (cnf, var_names) = encoding::encode_to_cnf(&model);
+    let (cnf, var_names) = encoding::encode_to_cnf_with(&model, use_totalizer);
     let num_vars = cnf.num_vars;
     let num_clauses = cnf.clauses.len();
 

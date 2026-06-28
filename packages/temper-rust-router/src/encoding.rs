@@ -73,8 +73,114 @@ fn encode_at_most_k(
     }
 }
 
+/// Encode AtMostK via binary-tree totalizer (Sinz 2005, §4).
+///
+/// Builds a complete binary tree over the input variables. Each node stores
+/// bits for j=1..min(subtree_size, k) where bit j means "at least j of my
+/// leaves are true." Leaf nodes have only bit 1. Internal nodes merge their
+/// children via cardinality addition gates. The root is constrained to forbid
+/// "at least k+1 true" — the at-most-k bound.
+fn encode_at_most_k_totalizer(
+    clauses: &mut Vec<Vec<i32>>,
+    var_map: &mut Vec<SatVariable>,
+    vars: &[usize],
+    k: usize,
+) {
+    let n = vars.len();
+    if k >= n { return; }
+    if k == 0 {
+        for &vi in vars { clauses.push(vec![-((vi + 1) as i32)]); }
+        return;
+    }
+    if n <= 1 { return; }
+
+    let leaf_count = n.next_power_of_two();
+    let levels = (leaf_count as f64).log2() as usize + 1;
+
+    // Allocate variables: each node at height h stores min(2^h, k) bits.
+    let base = var_map.len();
+    let mut total = 0usize;
+    let mut sz = leaf_count;
+    for h in 0..levels {
+        let bits = (1usize << h).min(k);
+        total += sz * bits;
+        sz /= 2;
+    }
+    for i in 0..total {
+        var_map.push(SatVariable::new(format!("tz_{i}"), ""));
+    }
+
+    // Offset into flat array for node at (level, pos).
+    let off = |level: usize, pos: usize| -> usize {
+        let mut o = 0usize;
+        let mut s = leaf_count;
+        for h in 0..level {
+            let b = (1usize << h).min(k);
+            o += s * b;
+            s /= 2;
+        }
+        o + pos * (1usize << level).min(k)
+    };
+
+    // bit_lit(level, pos, j) where j is 1-indexed (j=1 means "at least 1 true").
+    let bit = |level: usize, pos: usize, j: usize| -> i32 {
+        ((base + off(level, pos) + j - 1 + 1) as i32)
+    };
+
+    let v = |i: usize| -> i32 { ((vars[i] + 1) as i32) };
+
+    // Level 0 — leaves.
+    for i in 0..n {
+        clauses.push(vec![-v(i), bit(0, i, 1)]);
+    }
+    for i in n..leaf_count {
+        clauses.push(vec![-bit(0, i, 1)]);
+    }
+
+    // Merge bottom-up.
+    let mut cur_sz = leaf_count;
+    for level in 0..(levels - 1) {
+        let nxt_sz = cur_sz / 2;
+        let cur_bits = (1usize << level).min(k);
+        let nxt_bits = (1usize << (level + 1)).min(k);
+        for pos in 0..nxt_sz {
+            let l = 2 * pos;
+            let r = 2 * pos + 1;
+            // Propagation from single child.
+            for j in 1..=cur_bits {
+                clauses.push(vec![-bit(level, l, j), bit(level + 1, pos, j)]);
+                clauses.push(vec![-bit(level, r, j), bit(level + 1, pos, j)]);
+            }
+            // Merge: L[a] ∧ R[b] → P[min(a+b, nxt_bits)].
+            for a in 1..=cur_bits {
+                for b in 1..=cur_bits {
+                    let sum = a + b;
+                    if sum > nxt_bits {
+                        clauses.push(vec![-bit(level, l, a), -bit(level, r, b)]);
+                    } else {
+                        clauses.push(vec![-bit(level, l, a), -bit(level, r, b), bit(level + 1, pos, sum)]);
+                    }
+                }
+            }
+        }
+        cur_sz = nxt_sz;
+    }
+
+    // Root constraint: forbid "at least k+1 true".
+    let root_bits = (1usize << (levels - 1)).min(k);
+    if k + 1 <= root_bits {
+        clauses.push(vec![-bit(levels - 1, 0, k + 1)]);
+    }
+}
+
 /// Convert the internal constraint model to CNF.
 pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String>) {
+    encode_to_cnf_with(model, false)
+}
+
+/// Convert the internal constraint model to CNF, optionally using the
+/// totalizer encoding instead of the sequential counter.
+pub fn encode_to_cnf_with(model: &InternalConstraintModel, use_totalizer: bool) -> (CnfFormula, Vec<String>) {
     let mut var_map: Vec<SatVariable> = Vec::new();
     let mut name_to_idx: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
     let mut clauses: Vec<Vec<i32>> = Vec::new();
@@ -125,12 +231,11 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
                 }
 
                 if !var_indices.is_empty() && max_nets < var_indices.len() {
-                    // Encode AtMostK as CNF via sequential counter (Sinz 2005),
-                    // since splr 0.13 does not expose a native add_atmostk API.
-                    let aux_start = var_map.len();
-                    encode_at_most_k(&mut clauses, &mut var_map, &var_indices, max_nets);
-                    // Track that cardinality was encoded (for solver awareness).
-                    let _ = aux_start; // auxiliary vars added to var_map inline
+                    if use_totalizer {
+                        encode_at_most_k_totalizer(&mut clauses, &mut var_map, &var_indices, max_nets);
+                    } else {
+                        encode_at_most_k(&mut clauses, &mut var_map, &var_indices, max_nets);
+                    }
                 }
             }
             InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
