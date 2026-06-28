@@ -61,15 +61,16 @@ from temper_placer.losses.boundary import (
     compute_boundary_penalty,
 )
 
+# Channel capacity loss (routing bottleneck prevention)
+from temper_placer.losses.channel_capacity import (
+    ChannelCapacityLoss,
+    compute_channel_capacity,
+)
+
 # Clearance loss (HV-LV)
 from temper_placer.losses.clearance import (
     ClearanceLoss,
     compute_clearance_penalty,
-)
-
-# Component spacing loss (specific component pairs)
-from temper_placer.losses.component_spacing import (
-    ComponentSpacingLoss,
 )
 
 # Coil requirement loss
@@ -85,12 +86,6 @@ from temper_placer.losses.congestion import (
     compute_congestion_penalty,
     compute_routing_demand,
     visualize_congestion,
-)
-
-# Channel capacity loss (routing bottleneck prevention)
-from temper_placer.losses.channel_capacity import (
-    ChannelCapacityLoss,
-    compute_channel_capacity,
 )
 
 # Critical path length loss
@@ -174,21 +169,11 @@ from temper_placer.losses.mechanical import (
     create_mechanical_loss,
 )
 
-# Net centroid attraction loss
-from temper_placer.losses.net_centroid import (
-    NetCentroidAttractionLoss,
-)
-
 # Net class separation loss
 from temper_placer.losses.net_class import (
     NetClassRule,
     NetClassSeparationLoss,
     create_net_class_loss,
-)
-
-# Noise isolation loss
-from temper_placer.losses.noise_isolation import (
-    NoiseSensitiveIsolationLoss,
 )
 
 # Overlap loss
@@ -197,14 +182,14 @@ from temper_placer.losses.overlap import (
     compute_overlap_penalty,
 )
 
-# Planarity loss
-from temper_placer.losses.planarity import (
-    EdgeCrossingLoss,
-)
-
 # Pin Accessibility loss
 from temper_placer.losses.pin_accessibility import (
     PinAccessibilityLoss,
+)
+
+# Planarity loss
+from temper_placer.losses.planarity import (
+    EdgeCrossingLoss,
 )
 
 # Power path loss (Parasitic Inductance)
@@ -235,6 +220,14 @@ from temper_placer.losses.return_path import (
 # Routability loss
 from temper_placer.losses.routability import (
     RoutabilityLoss,
+)
+
+# Routing-aware placement losses
+from temper_placer.losses.routing_aware import (
+    BusAlignmentLoss,
+    MCUClusteringLoss,
+    RoutingChannelLoss,
+    compute_routing_channel_penalty,
 )
 
 # Thermal loss
@@ -273,22 +266,6 @@ from temper_placer.losses.zone import (
     create_temper_zone_assignments,
 )
 
-# Zone avoidance loss (temper-3b1l)
-from temper_placer.losses.zone_avoidance import (
-    ZoneAvoidanceLoss,
-    compute_zone_avoidance_penalty,
-    signed_distance_to_polygon,
-    signed_distance_to_rectangle,
-)
-
-# Routing-aware placement losses
-from temper_placer.losses.routing_aware import (
-    BusAlignmentLoss,
-    MCUClusteringLoss,
-    RoutingChannelLoss,
-    compute_routing_channel_penalty,
-)
-
 __all__ = [
     # Base classes
     "LossFunction",
@@ -311,7 +288,6 @@ __all__ = [
     "BoundaryLoss",
     "GridAlignmentLoss",
     "ClearanceLoss",
-    "ComponentSpacingLoss",
     "LoopAreaLoss",
     # Design rule losses
     "ThermalLoss",
@@ -320,7 +296,6 @@ __all__ = [
     "EdgePreferenceLoss",
     "ThermalComponentConfig",
     "ZoneMembershipLoss",
-    "ZoneAvoidanceLoss",
     "GroundCrossingLoss",
     "CongestionLoss",
     "RoutabilityLoss",
@@ -337,7 +312,6 @@ __all__ = [
     "NetClassSeparationLoss",
     "create_net_class_loss",
     "NetClassRule",
-    "NetCentroidAttractionLoss",
     "AlignmentLoss",
     "MirrorSymmetryLoss",
     "VisualGroupingLoss",
@@ -347,7 +321,6 @@ __all__ = [
     "ManufacturingMarginLoss",
     "EdgeCrossingLoss",
     "SteinerTreeLoss",
-    "NoiseSensitiveIsolationLoss",
     "CrystalPlacementLoss",
     "create_crystal_loss",
     "CrystalRule",
@@ -381,9 +354,6 @@ __all__ = [
     "compute_edge_distance",
     "compute_zone_distance",
     "compute_zone_membership_penalty",
-    "compute_zone_avoidance_penalty",
-    "signed_distance_to_polygon",
-    "signed_distance_to_rectangle",
     "compute_ground_crossing_penalty",
     "detect_ground_domain_violations",
     "compute_congestion_penalty",
