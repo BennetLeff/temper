@@ -97,6 +97,7 @@ markers = [
     "l2_exhaustive: Level 2 - exhaustive 3x3 (CI: every commit)",
     "l3_pbt: Level 3 - PBT on arbitrary grids (CI: PR only)",
     "l4_regression: Level 4 - real-world regression (CI: PR only)",
+    "dependency: marks tests for pytest-dependency lattice ordering (NFR7)",
 ]
 
 [tool.ruff]
@@ -139,5 +140,6 @@ dev = [
     "hypothesis>=6.148.7",
     "pytest>=9.0.2",
     "pytest-bdd>=8.1.0",
+    "python-sat>=1.8.dev14",
 ]
 
