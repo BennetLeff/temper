@@ -40,7 +40,7 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
 from temper_placer.router_v6.routing_space import RoutingSpace
-from temper_placer.routing.net_classification import (
+from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_hv_net,
     is_power_net,
@@ -57,8 +57,6 @@ from temper_placer.router_v6.topology_extraction import TopologyGraph, extract_t
 from temper_placer.router_v6.topology_solver import TopologicalSolution, solve_topology
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
-from temper_placer.routing.exact_geometry.path_simplifier import PathSimplifier
-from temper_placer.routing.geometry_fields.sdf_builder import SDFGrid
 
 
 @dataclass
@@ -671,9 +669,6 @@ class RouterV6Pipeline:
         if self.verbose:
             print("Stage 5: Post-processing...")
 
-        # 4.2.5: Smoothing
-        pathfinding_result = self._apply_smoothing(pcb, stage2, pathfinding_result)
-
         # 4.3: Place vias
         if self.verbose:
             print("  4.3: Placing vias...")
@@ -811,85 +806,6 @@ class RouterV6Pipeline:
             acid_traps, annular_rings, teardrops, thermal_reliefs,
             copper_balance, creepage, clearance,
         )
-
-    def _apply_smoothing(
-        self,
-        pcb: ParsedPCB,
-        stage2: Stage2Output,
-        pathfinding_result: PathfindingResult,
-    ) -> PathfindingResult:
-        """Apply optional force-directed smoothing to routed paths."""
-        if not self.enable_smoothing:
-            return pathfinding_result
-
-        if self.verbose:
-            print("  4.2.5: Applying Variational Smoothing (Snakes)...")
-
-        # TODO: SDFGrid.from_polygons does not exist (only from_occupancy_grid
-        # is defined in sdf_builder.py). The smoothing path is currently broken
-        # whenever enable_smoothing=True; either add a from_polygons factory
-        # or rasterize polygons into an OccupancyGrid and use the existing one.
-        sdf_grids: dict[str, SDFGrid] = {}
-        clearance_mm = pcb.design_rules.default_clearance_mm
-
-        if hasattr(pcb, "board") and pcb.board:
-            bounds_array = pcb.board.get_bounds_array()
-            bounds = tuple(bounds_array)
-        else:
-            all_x = []
-            all_y = []
-            for comp in pcb.components:
-                x, y = comp.initial_position
-                all_x.append(x)
-                all_y.append(y)
-            if all_x:
-                bounds = (min(all_x) - 5, min(all_y) - 5, max(all_x) + 5, max(all_y) + 5)
-            else:
-                bounds = (0, 0, 100, 100)
-
-        bounds = (bounds[0] - 1, bounds[1] - 1, bounds[2] + 1, bounds[3] + 1)
-
-        for layer_name, routing_space in stage2.routing_spaces.items():
-            if self.verbose:
-                print(f"    Building Exact SDF for {layer_name}...")
-
-            obstacles = routing_space.obstacles
-            if not obstacles:
-                polygon_list = []
-            elif hasattr(obstacles, "geoms"):
-                polygon_list = list(obstacles.geoms)
-            else:
-                polygon_list = [obstacles]
-
-            # Latent bug: SDFGrid.from_polygons was missing until this pass.
-            sdf_grids[layer_name] = SDFGrid.from_polygons(
-                polygons=polygon_list, bounds=bounds, resolution_mm=0.05
-            )
-
-        simplifier = PathSimplifier(
-            sdf_grids=sdf_grids,
-            step_size_mm=0.1,
-            min_clearance_margin=0.0,
-            occupancy_grids=stage2.occupancy_grids,
-        )
-
-        smoothed_paths: dict[str, Any] = {}
-        for net_name, path in pathfinding_result.routed_paths.items():
-            rule = pcb.design_rules.get_rules_for_net(net_name)
-            net_width = getattr(rule, "trace_width_mm", pcb.design_rules.default_trace_width_mm)
-            required_margin = (net_width / 2.0) + clearance_mm + 0.05
-            net_id = pathfinding_result.net_ids.get(net_name, -1)
-            opt_path = simplifier.simplify_path(
-                path, required_clearance_override=required_margin, net_id=net_id
-            )
-            smoothed_paths[net_name] = opt_path
-
-        pathfinding_result.routed_paths = smoothed_paths
-
-        if self.verbose:
-            print(f"    Smoothed {len(smoothed_paths)} paths")
-
-        return pathfinding_result
 
     def _run_fence(
         self,

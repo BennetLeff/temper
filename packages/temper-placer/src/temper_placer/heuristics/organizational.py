@@ -27,7 +27,7 @@ from temper_placer.heuristics.base import (
     PlacementContext,
 )
 from temper_placer.io.config_loader import PlacementConstraints
-from temper_placer.routing.net_classification import (
+from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_power_net,
 )

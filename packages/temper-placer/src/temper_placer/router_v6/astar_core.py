@@ -6,16 +6,31 @@ Part of temper-N6-U6 decomposition.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
+from typing import Final
 
 import numpy as np
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
-from temper_placer.routing.heuristics import (
-    _SAME_LAYER_DELTAS,
-    in_bounds,
-    octile_distance,
+
+# A* search primitives (formerly in routing/heuristics.py)
+OCTILE_DIAG: Final[float] = math.sqrt(2.0) - 1.0
+
+_SAME_LAYER_DELTAS: tuple[tuple[int, int], ...] = (
+    (0, 1), (1, 0), (0, -1), (-1, 0),
+    (1, 1), (1, -1), (-1, 1), (-1, -1),
 )
+
+
+def octile_distance(a: tuple[int, int], b: tuple[int, int]) -> float:
+    dx = abs(a[0] - b[0])
+    dy = abs(a[1] - b[1])
+    return max(dx, dy) + OCTILE_DIAG * min(dx, dy)
+
+
+def in_bounds(x: int, y: int, width_cells: int, height_cells: int) -> bool:
+    return 0 <= x < width_cells and 0 <= y < height_cells
 
 
 # 8-move direction encoding shared with neighbor_validity.DIRS_8.

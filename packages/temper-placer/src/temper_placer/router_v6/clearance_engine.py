@@ -43,18 +43,66 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 
 # IEC 60950-1
-from temper_placer.routing.safety_distances import calculate_safety_distances
+def calculate_safety_distances(
+    voltage_v: float,
+    pollution_degree: int = 2,
+    material_group: str = "IIIa",
+    overvoltage_category: int = 2,
+):
+    """Calculate required creepage and clearance per IEC 60950-1.
 
-# IEC 60335-1
-from temper_placer.core.net_types import VoltageClass
+    Based on Table 2K (clearance) and Table 2N (creepage) from IEC 60950-1.
+    Conservative values for PCB routing.
 
-# IEC 60664-1
-from temper_placer.routing.constraints.drc_oracle import (
-    INTERNAL_LAYER_CREEPAGE_FACTOR,
-)
+    Returns:
+        SafetyDistances dataclass with clearance_mm, creepage_mm, voltage_v.
+    """
+    from dataclasses import dataclass
+
+    @dataclass
+    class SafetyDistances:
+        clearance_mm: float
+        creepage_mm: float
+        voltage_v: float
+
+    clearance_table = [
+        (50, 0.2), (150, 1.0), (300, 2.0), (600, 2.5),
+        (1000, 4.0), (float("inf"), 5.0),
+    ]
+    creepage_table = [
+        (50, 0.4), (150, 2.0), (300, 2.5), (600, 3.0),
+        (1000, 5.0), (float("inf"), 8.0),
+    ]
+    clearance_mm = 0.2
+    for vl, d in clearance_table:
+        if voltage_v <= vl:
+            clearance_mm = d
+            break
+    creepage_mm = 0.4
+    for vl, d in creepage_table:
+        if voltage_v <= vl:
+            creepage_mm = d
+            break
+    if overvoltage_category >= 3:
+        clearance_mm *= 1.25
+        creepage_mm *= 1.25
+    if pollution_degree >= 3:
+        creepage_mm *= 2.0
+    return SafetyDistances(
+        clearance_mm=clearance_mm,
+        creepage_mm=creepage_mm,
+        voltage_v=voltage_v,
+    )
+
+
+# IEC 60664-1 legacy constant (was in routing/constraints/drc_oracle.py)
+INTERNAL_LAYER_CREEPAGE_FACTOR: float = 0.30
 
 # IPC-2221
 from temper_placer.router_v6.creepage_check import _calculate_required_creepage
+
+# IEC 60335-1
+from temper_placer.core.net_types import VoltageClass
 
 
 # ---------------------------------------------------------------------------

@@ -15,7 +15,7 @@ from temper_placer.core.netlist import Component, Net
 from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
-from temper_placer.routing.net_classification import (
+from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_hv_net,
     is_power_net,

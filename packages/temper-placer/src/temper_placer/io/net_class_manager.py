@@ -11,7 +11,7 @@ from __future__ import annotations
 import math
 
 from temper_placer.core.netlist import Netlist
-from temper_placer.routing.net_classification import (
+from temper_placer.router_v6.net_classification import (
     is_ground_net as _is_ground_net,
     is_hv_net as _is_hv_net,
     is_power_net as _is_power_net,
