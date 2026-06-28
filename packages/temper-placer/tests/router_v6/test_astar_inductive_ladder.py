@@ -270,19 +270,6 @@ def test_l2_3x3_exhaustive():
 # =============================================================================
 
 
-# @req(2026-06-28-001, R21): heuristic admissibility proof-by-PBT
-@pytest.mark.l3_pbt
-@given(grid=grids(2, 100, p_obstacle=0.0))
-@settings(max_examples=100, deadline=30000)
-def test_l3_pbt_octile_admissible(grid: OccupancyGrid):
-    """On empty grids (2..100), octile_distance(s,g) <= dijkstra_cost_only."""
-    from astar_property_strategies import grid_and_pair
-
-    # Use a sub-strategy to get free pairs on the empty grid
-    # Since grid is empty, any pair is valid -- but we use data() for reliability
-    pass  # Handled via explicit pair sampling below
-
-
 @pytest.mark.l3_pbt
 @given(gsp=grid_and_pair(st.integers(2, 100), st.integers(2, 100), st.floats(0.0, 0.0)))
 @settings(max_examples=100, deadline=30000)

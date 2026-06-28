@@ -575,7 +575,7 @@ def test_mr8_path_cells_free(gsp):
 
     for x, y in path:
         val = grid.grid[y, x]
-        assert val == 0 or val == 0, (  # net_id=0 for testing; start/goal may be >0
+        assert val == 0, (  # net_id=0 for testing; cells with val==0 are free
             f"Path cell ({x},{y}) has value {val}, grid {grid.width_cells}x{grid.height_cells}"
         )
 
@@ -696,7 +696,7 @@ def test_thetastar_path_cells_free(gsp):
 
     for x, y in path:
         val = grid.grid[y, x]
-        assert val == 0 or val == 0, f"Theta* path cell ({x},{y}) blocked: {val}"
+        assert val == 0, f"Theta* path cell ({x},{y}) blocked: {val}"
 
 
 # @req(2026-06-28-001, R19a): MR9 for Theta* — no redundant nodes
@@ -758,7 +758,7 @@ def test_lazy_thetastar_path_cells_free(gsp):
 
     for x, y in path:
         val = grid.grid[y, x]
-        assert val == 0 or val == 0, f"Lazy Theta* path cell ({x},{y}) blocked: {val}"
+        assert val == 0, f"Lazy Theta* path cell ({x},{y}) blocked: {val}"
 
 
 # @req(2026-06-28-001, R19b): MR9 for Lazy Theta*

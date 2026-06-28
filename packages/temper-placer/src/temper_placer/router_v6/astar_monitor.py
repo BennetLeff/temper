@@ -16,12 +16,9 @@ when the context manager exits.
 
 from __future__ import annotations
 
-import math
 import threading
 from dataclasses import dataclass
 from typing import Any
-
-SQRT2 = math.sqrt(2.0)
 
 # Thread-safe monitor activation flag (R11: context-manager, no signature changes)
 _local = threading.local()
