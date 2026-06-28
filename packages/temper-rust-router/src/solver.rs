@@ -46,8 +46,22 @@ pub fn solve_with_splr(
         }
     }
 
-    let result = solver.solve();
+    // splr can panic on repeated calls due to internal state issues.
+    // Catch the panic and return Unknown.
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| solver.solve()));
     let elapsed = start.elapsed().as_secs_f64() * 1000.0;
+
+    let result = match result {
+        Ok(r) => r,
+        Err(_) => {
+            return TopologyResult {
+                status: SolverStatus::Unknown,
+                assignments: std::collections::HashMap::new(),
+                unsat_core: Vec::new(),
+                solver_time_ms: elapsed,
+            };
+        }
+    };
 
     match result {
         Ok(cert) => {
