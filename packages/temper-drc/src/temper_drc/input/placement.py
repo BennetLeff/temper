@@ -5,9 +5,13 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
+
+if TYPE_CHECKING:
+    from temper_drc.types import TracePlacement as _TracePlacement
+    from temper_drc.types import ViaPlacement as _ViaPlacement
 
 
 @dataclass
@@ -131,6 +135,8 @@ class Placement:
     board_height: float = 100.0
     net_classes: dict[str, str] = field(default_factory=dict)
     voltage_domains: dict[str, str] = field(default_factory=dict)
+    via_placement: Any = None
+    trace_placement: Any = None
 
     def get_component(self, ref: str) -> ComponentPlacement | None:
         """Get a component by reference."""

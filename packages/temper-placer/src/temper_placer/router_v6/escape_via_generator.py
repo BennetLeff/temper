@@ -28,6 +28,8 @@ class EscapeVia:
         diameter: Via diameter in mm.
         drill: Via drill diameter in mm.
         via_type: "dog-bone" or "via-in-pad".
+        layer: KiCad layer name resolved from the component's side
+            (e.g. "F.Cu" or "B.Cu").
     """
 
     position: tuple[float, float]
@@ -36,6 +38,7 @@ class EscapeVia:
     diameter: float
     drill: float
     via_type: str
+    layer: str = "F.Cu"
 
 
 def generate_escape_vias(
@@ -56,6 +59,11 @@ def generate_escape_vias(
     """
     escape_vias = []
     component = dense_pkg.component
+
+    # Resolve layer from component side
+    from temper_placer.core.board import side_to_layer_name
+    side = getattr(component, "side", 0) or 0
+    layer = side_to_layer_name(side)
 
     # Get component absolute position
     comp_x, comp_y = 0.0, 0.0
@@ -88,7 +96,8 @@ def generate_escape_vias(
                 pin_number=pin.number,
                 diameter=via_diameter,
                 drill=via_drill,
-                via_type="via-in-pad"
+                via_type="via-in-pad",
+                layer=layer,
             ))
 
         elif strategy == "dog-bone":
@@ -142,7 +151,8 @@ def generate_escape_vias(
                     pin_number=pin.number,
                     diameter=via_diameter,
                     drill=via_drill,
-                    via_type="dog-bone"
+                    via_type="dog-bone",
+                    layer=layer,
                 ))
             else:
                 # Could not find valid dog-bone position.
