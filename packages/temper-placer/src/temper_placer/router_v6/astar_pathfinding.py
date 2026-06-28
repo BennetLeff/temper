@@ -21,7 +21,6 @@ from temper_placer.router_v6.astar_core import (
 from temper_placer.router_v6.astar_grid import (
     _build_tht_pad_locations,
     _extract_pad_centers_per_net,
-    _find_access_node,
     _identify_blocking_nets,
     _mark_route_blocked,
     _restore_net_pads,
