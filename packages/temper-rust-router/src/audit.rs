@@ -220,6 +220,104 @@ mod tests {
         assert_eq!(v.len(), 1);
         match &v[0] { AuditViolation::UnexplainedUnsat => {} _ => panic!() }
     }
+
+    /// Brute-force constraint checker for a single assignment.
+    fn brute_force_check(model: &InternalConstraintModel, assign: &HashMap<usize, bool>) -> Vec<String> {
+        let mut violations = Vec::new();
+        for c in &model.constraints {
+            match c {
+                InternalConstraint::Capacity { channel_id, capacity, slack_factor, terms } => {
+                    if terms.is_empty() { continue; }
+                    let min_w = terms.iter().map(|(_, w)| *w).fold(f64::INFINITY, f64::min);
+                    let max_nets = ((capacity * slack_factor) / min_w).floor() as usize;
+                    let mut true_count = 0;
+                    for (vname, _) in terms {
+                        // Find index by searching model variables
+                        if let Some(pos) = model.variables.iter().position(|v| match v {
+                            InternalVariable::NetChannel { name, .. } => name == vname,
+                            InternalVariable::NetLayer { name, .. } => name == vname,
+                            InternalVariable::Via { name, .. } => name == vname,
+                            InternalVariable::Ordering { name, .. } => name == vname,
+                        }) {
+                            if assign.get(&pos).copied().unwrap_or(false) { true_count += 1; }
+                        }
+                    }
+                    if true_count > max_nets {
+                        violations.push(format!("capacity:{channel_id}:{true_count}>{max_nets}"));
+                    }
+                }
+                InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
+                    let p_pos = model.variables.iter().position(|v| match v {
+                        InternalVariable::NetChannel { name, .. } => name == p_var_name, _ => false,
+                    });
+                    let n_pos = model.variables.iter().position(|v| match v {
+                        InternalVariable::NetChannel { name, .. } => name == n_var_name, _ => false,
+                    });
+                    if let (Some(p), Some(n)) = (p_pos, n_pos) {
+                        let pv = assign.get(&p).copied().unwrap_or(false);
+                        let nv = assign.get(&n).copied().unwrap_or(false);
+                        if pv != nv { violations.push(format!("diffpair:{p_var_name}!={n_var_name}")); }
+                    }
+                }
+                InternalConstraint::LayerRestriction { var_name, allowed } => {
+                    if let Some(pos) = model.variables.iter().position(|v| match v {
+                        InternalVariable::NetChannel { name, .. } => name == var_name, _ => false,
+                    }) {
+                        let val = assign.get(&pos).copied().unwrap_or(false);
+                        if val != *allowed { violations.push(format!("layer:{var_name}:{val}!={allowed}")); }
+                    }
+                }
+            }
+        }
+        violations
+    }
+
+    #[test]
+    fn audit_completeness_all_n4_combos() {
+        // Build a model with 4 vars and all 3 constraint types, then verify
+        // the audit matches brute-force for all 2^4 = 16 assignments.
+        let vn: Vec<String> = (0..4).map(|i| format!("v{i}")).collect();
+        let model = InternalConstraintModel {
+            variables: vn.iter().enumerate().map(|(i, n)| InternalVariable::NetChannel {
+                name: n.clone(), net_idx: i, channel_id: "CH1".into(),
+            }).collect(),
+            constraints: vec![
+                InternalConstraint::Capacity {
+                    channel_id: "CH1".into(), capacity: 2.0, slack_factor: 1.0,
+                    terms: vn.iter().map(|n| (n.clone(), 1.0)).collect(),
+                },
+                InternalConstraint::DiffPair {
+                    channel_id: "CH1".into(),
+                    p_var_name: "v0".into(), n_var_name: "v1".into(),
+                },
+                InternalConstraint::LayerRestriction {
+                    var_name: "v3".into(), allowed: false,
+                },
+            ],
+        };
+
+        for bits in 0..16u32 {
+            let mut assign = HashMap::new();
+            for i in 0..4 { assign.insert(i, (bits >> i) & 1 == 1); }
+
+            let result = TopologyResult {
+                status: SolverStatus::Satisfiable,
+                assignments: assign.clone(),
+                unsat_core: vec![],
+                solver_time_ms: 0.0,
+            };
+
+            let audit_violations = audit_constraints(&model, &result, &vn);
+            let brute_violations = brute_force_check(&model, &assign);
+
+            let audit_has = !audit_violations.is_empty();
+            let brute_has = !brute_violations.is_empty();
+
+            assert_eq!(audit_has, brute_has,
+                "Mismatch for assignment {bits:04b}: audit={audit_has} brute={brute_has} audit_v={audit_violations:?} brute_v={brute_violations:?}"
+            );
+        }
+    }
 }
 
 /// Build a small constraint model for self-testing the audit logic.
