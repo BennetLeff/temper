@@ -105,12 +105,17 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
             temperature_override=0.5,
         ),
         # Phase 5: Refinement (87.5-100%)
-        # Goal: Fine-tune positions and orientations.
+        # Goal: Fine-tune positions and orientations while maintaining feasibility.
+        # Boundary and overlap are HARD constraints — they must never be
+        # relaxed to zero, even during refinement.  Weighting them at 50%
+        # of their peak values keeps components in-bounds and non-overlapping
+        # while allowing wirelength/loop-area optimization to dominate.
         CurriculumPhase(
             name="refinement",
             start_epoch=int(7000 * scale),
             end_epoch=int(8000 * scale),
             loss_weights={
+                "boundary": 50.0,   # HALVED but never zero (feasibility constraint)
                 "overlap": 250.0,
                 "loop_area": 150.0,
                 "power_path": 80.0,

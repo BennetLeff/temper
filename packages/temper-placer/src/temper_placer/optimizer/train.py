@@ -979,6 +979,11 @@ def train(
 
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
                 state.positions = state.positions + jiggle
+                # Re-clamp after jiggle to maintain feasibility invariants
+                board_bounds = context.board.get_relative_bounds_array()
+                state.positions = jnp.clip(
+                    state.positions, min=board_bounds[:2], max=board_bounds[2:]
+                )
                 # We don't reset EMA to 1.0 anymore (temper-p11g.9)
                 logger.debug(f"Epoch {epoch}: Jiggle triggered")
 
@@ -1507,6 +1512,11 @@ def train_multiphase(
                 jiggle = jnp.where(context.fixed_mask[:, None], 0.0, jiggle)
 
                 state.positions = state.positions + jiggle
+                # Re-clamp after jiggle to maintain feasibility invariants
+                board_bounds = context.board.get_relative_bounds_array()
+                state.positions = jnp.clip(
+                    state.positions, min=board_bounds[:2], max=board_bounds[2:]
+                )
                 # We don't reset EMA to 1.0 anymore (temper-p11g.9)
                 logger.debug(f"Epoch {epoch}: Jiggle triggered")
 
