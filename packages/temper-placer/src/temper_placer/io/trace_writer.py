@@ -9,7 +9,7 @@ from pathlib import Path
 
 from temper_placer.io.kicad_exporter import export_routed_pcb
 from temper_placer.io.net_class_manager import create_trace_width_map
-from temper_placer.routing.maze_router import RoutePath
+from temper_placer.router_v6.adapter import _AdapterRoutePath as RoutePath
 
 
 def write_traces_to_pcb(
