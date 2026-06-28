@@ -134,9 +134,9 @@ class RouterV6Result:
     stage2: Stage2Output
     stage3: Stage3Output
     stage4: Stage4Output
-    manufacturing_report: "ManufacturingReport | None" = None
 
     runtime_seconds: float
+    manufacturing_report: "ManufacturingReport | None" = None
 
     @property
     def success_count(self) -> int:
