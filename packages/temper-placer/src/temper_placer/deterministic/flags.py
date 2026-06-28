@@ -43,3 +43,19 @@ def is_drc_fence_fail_enabled() -> bool:
 # at import time. Tests that need runtime re-evaluation should call
 # :func:`is_drc_fence_fail_enabled` instead.
 DRC_FENCE_FAIL_ENABLED: bool = is_drc_fence_fail_enabled()
+
+_FEEDBACK_ENV_VAR: str = "TEMPER_FEEDBACK_ENABLED"
+
+
+def is_feedback_enabled() -> bool:
+    """Return True when the sidecar contract and feedback loop are active.
+
+    Reads the :envvar:`TEMPER_FEEDBACK_ENABLED` env var on every call.
+    The default (env var unset) is **True** — the sidecar contract is
+    enforced. Set to ``"0"``, ``"false"``, ``"no"``, or ``"off"``
+    (case-insensitive) to disable the contract and fall back to single-pass.
+    """
+    raw = os.environ.get(_FEEDBACK_ENV_VAR, "").strip().lower()
+    if raw in ("0", "false", "no", "off"):
+        return False
+    return True

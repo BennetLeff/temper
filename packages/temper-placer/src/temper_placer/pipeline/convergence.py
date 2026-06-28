@@ -28,6 +28,8 @@ class TerminationReason(Enum):
     INFEASIBLE = "infeasible"
     NO_PROGRESS = "no_progress"
     USER_ABORT = "user_abort"
+    ROUTABILITY_REGRESSION = "routability_regression"
+    ROUTABILITY_CONVERGED = "routability_converged"
 
 
 @dataclass
@@ -291,6 +293,78 @@ class ConvergenceChecker:
         self.state.terminated = True
         self.state.termination_reason = TerminationReason.USER_ABORT
         self.state.failure_message = "User aborted pipeline"
+
+    def check_routability_regression(
+        self,
+        routed_nets: frozenset[str],
+        total_nets: int,
+        previous_routed_nets: frozenset[str] | None = None,
+        regression_threshold: float = 0.95,
+        stall_limit: int = 2,
+    ) -> bool:
+        """Check for routability regression or convergence.
+
+        Uses net-set identity (not aggregate count) to detect:
+        - REGRESSION: a previously-routed net stopped routing
+        - CONVERGED: identical routed nets for stall_limit consecutive iterations
+
+        Args:
+            routed_nets: Nets that routed in the current iteration.
+            total_nets: Total number of nets to route.
+            previous_routed_nets: Nets that routed in the previous iteration.
+            regression_threshold: Routability ratio below best-so-far that
+                triggers REGRESSION (default 0.95 = 5% drop).
+            stall_limit: Consecutive identical-net-set iterations to declare
+                CONVERGED (default 2).
+
+        Returns:
+            True if the loop should terminate (regression or convergence).
+        """
+        current_ratio = len(routed_nets) / max(total_nets, 1)
+
+        if self.state.best_loss == float("inf"):
+            best_routed = getattr(self.state, "_best_routed_nets", None)
+            if best_routed is None:
+                self.state._best_routed_nets = routed_nets  # type: ignore[attr-defined]
+                self.state._best_routability = current_ratio  # type: ignore[attr-defined]
+                self.state._stall_count = 0  # type: ignore[attr-defined]
+                return False
+
+        best_routed = self.state._best_routed_nets  # type: ignore[attr-defined]
+        best_ratio = self.state._best_routability  # type: ignore[attr-defined]
+
+        # Regression: routability ratio dropped below threshold
+        if current_ratio < best_ratio * regression_threshold:
+            lost_nets = best_routed - routed_nets
+            self.state.terminated = True
+            self.state.termination_reason = TerminationReason.ROUTABILITY_REGRESSION
+            self.state.failure_message = (
+                f"Routability regressed: {current_ratio:.3f} < "
+                f"{best_ratio * regression_threshold:.3f} (threshold). "
+                + (f"Lost nets: {sorted(lost_nets)}" if lost_nets else "")
+            )
+            return True
+
+        # Convergence: identical net set for stall_limit consecutive iterations
+        if previous_routed_nets is not None and routed_nets == previous_routed_nets:
+            self.state._stall_count += 1  # type: ignore[attr-defined]
+            if self.state._stall_count >= stall_limit:  # type: ignore[attr-defined]
+                self.state.terminated = True
+                self.state.termination_reason = TerminationReason.ROUTABILITY_CONVERGED
+                self.state.failure_message = (
+                    f"Routability converged: {len(routed_nets)}/{total_nets} nets "
+                    f"routed with identical net set for {stall_limit} iterations"
+                )
+                return True
+        else:
+            self.state._stall_count = 0  # type: ignore[attr-defined]
+
+        # Improvement: update best
+        if current_ratio > best_ratio:
+            self.state._best_routed_nets = routed_nets  # type: ignore[attr-defined]
+            self.state._best_routability = current_ratio  # type: ignore[attr-defined]
+
+        return False
 
 
 def is_converged(current_results: dict, previous_results: dict | None) -> bool:

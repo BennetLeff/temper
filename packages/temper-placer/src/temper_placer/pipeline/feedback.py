@@ -88,6 +88,70 @@ class RoutingFeedbackLoss(LossFunction):
             breakdown={"routing_congestion": total_loss}
         )
 
+
+class MomentumDampedRoutingFeedbackLoss:
+    """Loss function with EWMA-damped congestion across feedback iterations.
+
+    Separates blend (update) from compute (loss evaluation) so the loop
+    orchestrator calls blend() once per iteration before the placer runs,
+    and the JAX optimizer calls compute_loss() during gradient descent.
+    """
+
+    def __init__(self, initial_heatmap: "CongestionHeatmap", sigma: float = 2.0):
+        from scipy.ndimage import gaussian_filter
+
+        self.origin = jnp.array(initial_heatmap.origin)
+        self.cell_size = initial_heatmap.cell_size
+        blurred = gaussian_filter(initial_heatmap.grid, sigma=sigma)
+        self.blended_grid = jnp.array(blurred)
+        self._iteration = 0
+
+    def blend(
+        self,
+        new_heatmap: "CongestionHeatmap",
+        iteration: int,
+        sigma: float = 2.0,
+    ) -> None:
+        """Blend a new routing heatmap into the EWMA state.
+
+        Called by the loop orchestrator once per iteration, before the
+        placer step. The separation from compute_loss ensures the blend
+        happens exactly once per iteration.
+        """
+        from scipy.ndimage import gaussian_filter
+
+        alpha = max(0.1, 1.0 / (iteration + 1))
+        new_grid = jnp.array(gaussian_filter(new_heatmap.grid, sigma=sigma))
+        self.blended_grid = alpha * new_grid + (1.0 - alpha) * self.blended_grid
+        self._iteration = iteration
+
+    def compute_loss(
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: "LossContext",
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: jnp.ndarray | None = None,
+    ) -> "LossResult":
+        """Compute congestion loss from the EWMA-blended grid."""
+        from jax.scipy.ndimage import map_coordinates
+        from temper_placer.losses.base import LossResult
+
+        gx = (positions[:, 0] - self.origin[0]) / self.cell_size
+        gy = (positions[:, 1] - self.origin[1]) / self.cell_size
+        coords = jnp.stack([gx, gy], axis=0)
+        congestion_values = map_coordinates(self.blended_grid, coords, order=1, mode="nearest")
+        total_loss = jnp.sum(congestion_values)
+        return LossResult(
+            value=total_loss,
+            breakdown={"routing_congestion": total_loss},
+        )
+
+    @property
+    def iteration(self) -> int:
+        return self._iteration
+
 @dataclass
 class FeedbackAdjustment:
     """A suggested adjustment to the design."""
