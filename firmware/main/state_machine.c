@@ -1045,7 +1045,7 @@ static void check_safety_interlocks(void) {
     float pan_temp = read_pan_temperature();
     if (sm_ctx.prev_stuck_check_temp == pan_temp) {
         sm_ctx.pan_temp_stuck_count++;
-        if (sm_ctx.pan_temp_stuck_count >= 50) {
+        if (sm_ctx.pan_temp_stuck_count >= 49) {
             sm_ctx.fault_code = FAULT_ADC_STUCK;
             transition_to(STATE_FAULT);
             sm_ctx.prev_stuck_check_temp = -1.0f;
