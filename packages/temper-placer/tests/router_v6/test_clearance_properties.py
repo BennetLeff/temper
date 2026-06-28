@@ -351,7 +351,6 @@ def test_sc3b_boundary_biased_completeness(results: RoutingResults) -> None:
     matching actual_clearance within floating-point epsilon).
     """
     import math
-    import warnings
 
     from temper_placer.router_v6.clearance_oracle import oracle_clearance_violations
 
@@ -361,7 +360,9 @@ def test_sc3b_boundary_biased_completeness(results: RoutingResults) -> None:
     production = {(v.net1, v.net2, v.layer): v.actual_clearance for v in report.violations}
 
     oracle_raw = oracle_clearance_violations(results, min_clearance=min_clearance)
-    oracle = {(n1, n2, layer): actual for n1, n2, layer, actual in oracle_raw}
+    oracle: dict[tuple[str, str, str], float] = {}
+    for n1, n2, layer, actual in oracle_raw:
+        oracle[(n1, n2, layer)] = min(oracle.get((n1, n2, layer), float('inf')), actual)
 
     # Canonicalize pair ordering
     def _canonicalize(d: dict) -> dict:
@@ -380,45 +381,32 @@ def test_sc3b_boundary_biased_completeness(results: RoutingResults) -> None:
     extra_oracle = oracle_keys - prod_keys  # production false-negatives
     extra_prod = prod_keys - oracle_keys    # production false-positives
 
-    # SC3b: report discrepancies without hard CI failure (investigative phase)
-    # The test will emit warnings if gaps are found; these are actionable findings
-    # that should be filed as tickets.
-    any_gap = False
-
     if extra_oracle:
-        any_gap = True
         detail_lines = [
             f"  {k[0]} vs {k[1]} on {k[2]}: oracle_actual={oracle_canon[k]:.6f}"
             for k in sorted(extra_oracle)[:20]
         ]
-        warnings.warn(
-            f"SC3b: production false-negative(s): oracle found {len(extra_oracle)} "
-            f"violation(s) production missed.\n" + "\n".join(detail_lines)
+        detail = "\n".join(detail_lines)
+        assert False, (
+            f"production false-negative(s): oracle found {len(extra_oracle)} "
+            f"violation(s) production missed.\n{detail}"
         )
 
     if extra_prod:
-        any_gap = True
         detail_lines = [
             f"  {k[0]} vs {k[1]} on {k[2]}: prod_actual={prod_canon[k]:.6f}"
             for k in sorted(extra_prod)[:20]
         ]
-        warnings.warn(
-            f"SC3b: production false-positive(s): production found {len(extra_prod)} "
-            f"violation(s) oracle did not.\n" + "\n".join(detail_lines)
+        detail = "\n".join(detail_lines)
+        assert False, (
+            f"production false-positive(s): production found {len(extra_prod)} "
+            f"violation(s) oracle did not.\n{detail}"
         )
 
     for key in prod_keys & oracle_keys:
         p_val = prod_canon[key]
         o_val = oracle_canon[key]
-        if not math.isclose(p_val, o_val, rel_tol=1e-9, abs_tol=1e-9):
-            any_gap = True
-            warnings.warn(
-                f"SC3b: actual_clearance mismatch for {key}: "
-                f"prod={p_val:.12f}, oracle={o_val:.12f}"
-            )
-
-    if any_gap:
-        warnings.warn(
-            f"SC3b: completeness gap detected in boundary-biased fuzzing. "
-            f"These gaps should be filed as bug tickets."
+        assert math.isclose(p_val, o_val, rel_tol=1e-9, abs_tol=1e-9), (
+            f"actual_clearance mismatch for {key}: "
+            f"prod={p_val:.12f}, oracle={o_val:.12f}"
         )

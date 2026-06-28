@@ -93,27 +93,29 @@ def verify_clearance(
 
             total_checks += 1
 
-            # Check clearance between routes
-            min_dist, location, layer = _calculate_minimum_clearance(
+            # Check clearance between routes — per-layer so violations
+            # on multiple layers are independently reported.
+            per_layer = _calculate_minimum_clearance_by_layer(
                 route1,
                 route2,
             )
 
-            # Determine required clearance (unified multi-standard engine)
-            required = _get_required_clearance(
-                net1, net2, min_clearance, voltage_ratings,
-                layer=layer,
-            )
-
-            if min_dist < required:
-                violations.append(ClearanceViolation(
-                    net1=net1,
-                    net2=net2,
-                    location=location,
-                    actual_clearance=min_dist,
-                    required_clearance=required,
+            for layer, (min_dist, location) in per_layer.items():
+                # Determine required clearance (unified multi-standard engine)
+                required = _get_required_clearance(
+                    net1, net2, min_clearance, voltage_ratings,
                     layer=layer,
-                ))
+                )
+
+                if min_dist < required:
+                    violations.append(ClearanceViolation(
+                        net1=net1,
+                        net2=net2,
+                        location=location,
+                        actual_clearance=min_dist,
+                        required_clearance=required,
+                        layer=layer,
+                    ))
 
     return ClearanceReport(
         violations=violations,
@@ -121,23 +123,21 @@ def verify_clearance(
     )
 
 
-def _calculate_minimum_clearance(
+def _calculate_minimum_clearance_by_layer(
     route1,
     route2,
-) -> tuple[float, tuple[float, float], str]:
-    """
-    Calculate minimum edge-to-edge clearance between two routes.
+) -> dict[str, tuple[float, tuple[float, float]]]:
+    """Calculate minimum edge-to-edge clearance between two routes, per layer.
 
-    Uses analytical segment-to-segment closest-point computation
-    (clamped projection) — no sampling.  Reports the actual closest-
-    approach point and allows negative clearance for overlaps.
-
-    Also checks via footprints against nearby traces for RoutePath3D
-    cross-layer segments and explicit Via objects.
+    Returns ``{layer: (edge_dist, closest_point)}`` for every layer where
+    the two routes have geometry.  Allows negative clearance for overlaps
+    and reports per-layer independently so violations on multiple layers
+    are never silently dropped.
     """
-    min_dist = float('inf')
-    closest_point = (0.0, 0.0)
-    violation_layer = "unknown"
+    from collections import defaultdict
+
+    layer_info: dict[str, tuple[float, tuple[float, float]]] = {}
+    # lazy-init: layer -> [min_dist, closest_point]
 
     # Account for trace widths (with hasattr guard)
     width1 = getattr(route1, 'width_mm', 0.0)
@@ -150,6 +150,10 @@ def _calculate_minimum_clearance(
 
     # Default via diameter (used when no explicit Via object is available)
     via_diameter_default = max(width1, 0.6)
+
+    def _update_layer(layer: str, edge_dist: float, point: tuple[float, float]):
+        if layer not in layer_info or edge_dist < layer_info[layer][0]:
+            layer_info[layer] = (edge_dist, point)
 
     # Extract same-layer segments (x1, y1, x2, y2, layer) from routes
     def get_segments(route):
@@ -189,11 +193,9 @@ def _calculate_minimum_clearance(
     # --- Same-layer segment-to-segment checks ---
     for s1 in segs1:
         for s2 in segs2:
-            # ONLY check clearance if on the same layer
             if s1[4] != s2[4]:
                 continue
 
-            # Analytical segment-to-segment distance with closest points
             seg_dist, cp1, cp2 = _segment_to_segment_dist(
                 (s1[0], s1[1]), (s1[2], s1[3]),
                 (s2[0], s2[1]), (s2[2], s2[3]),
@@ -201,59 +203,37 @@ def _calculate_minimum_clearance(
 
             # Edge-to-edge distance (allows negative = overlap)
             edge_dist = seg_dist - (width1 / 2) - (width2 / 2)
-
-            if edge_dist < min_dist:
-                min_dist = edge_dist
-                # Midpoint of the two closest-approach points
-                closest_point = (
-                    (cp1[0] + cp2[0]) / 2,
-                    (cp1[1] + cp2[1]) / 2,
-                )
-                violation_layer = s1[4]
+            point = (
+                (cp1[0] + cp2[0]) / 2,
+                (cp1[1] + cp2[1]) / 2,
+            )
+            _update_layer(s1[4], edge_dist, point)
 
     # --- Via-to-trace checks ---
-    # Check explicit Via objects from each route against the other route's
-    # segments on the layers the via touches.
-
     def _check_via_against_segs(via, other_segs, other_width):
-        """Update min_dist / closest_point / violation_layer if a closer
-        approach is found between a via and a set of segments."""
-        nonlocal min_dist, closest_point, violation_layer
-
-        # via is a Via object with position, from_layer, to_layer, diameter
         via_x, via_y = via.position
         via_radius = via.diameter / 2.0
-        # Layers spanned by this via (simplified: from_layer and to_layer)
         via_layers = {via.from_layer, via.to_layer}
 
         for seg in other_segs:
             if seg[4] not in via_layers:
                 continue
-            # Point-to-segment distance from via centre to segment
             pt_dist, _cp_on_seg, _ = _point_to_segment_dist(
                 (via_x, via_y),
                 (seg[0], seg[1]), (seg[2], seg[3]),
             )
             edge_dist = pt_dist - via_radius - (other_width / 2)
-            if edge_dist < min_dist:
-                min_dist = edge_dist
-                closest_point = (via_x, via_y)
-                violation_layer = seg[4]
+            _update_layer(seg[4], edge_dist, (via_x, via_y))
 
-    # Route1 vias vs route2 segments
     for via in getattr(route1, 'vias', []):
         _check_via_against_segs(via, segs2, width2)
 
-    # Route2 vias vs route1 segments
     for via in getattr(route2, 'vias', []):
         _check_via_against_segs(via, segs1, width1)
 
     # --- Cross-layer segment via points (RoutePath3D fallback) ---
-    # For paths that have layer-changing segments but no explicit Via
-    # objects, treat the segment endpoint as a via pad.
     def _check_via_point_against_segs(vx, vy, via_diam,
                                        layers, other_segs, other_width):
-        nonlocal min_dist, closest_point, violation_layer
         via_radius = via_diam / 2.0
         for seg in other_segs:
             if seg[4] not in layers:
@@ -263,24 +243,36 @@ def _calculate_minimum_clearance(
                 (seg[0], seg[1]), (seg[2], seg[3]),
             )
             edge_dist = pt_dist - via_radius - (other_width / 2)
-            if edge_dist < min_dist:
-                min_dist = edge_dist
-                closest_point = (vx, vy)
-                violation_layer = seg[4]
+            _update_layer(seg[4], edge_dist, (vx, vy))
 
-    # Cross-layer points from route1 vs route2 segments
     for vx, vy, l1, l2 in get_via_points_from_path(route1):
         _check_via_point_against_segs(
             vx, vy, via_diameter_default, {l1, l2}, segs2, width2)
 
-    # Cross-layer points from route2 vs route1 segments
     for vx, vy, l1, l2 in get_via_points_from_path(route2):
         _check_via_point_against_segs(
             vx, vy, via_diameter_default, {l1, l2}, segs1, width1)
 
-    # Return actual edge_dist (may be negative for overlaps) — do NOT
-    # clamp to 0.0 so that overlap severity is visible.
-    return min_dist, closest_point, violation_layer
+    return layer_info
+
+
+def _calculate_minimum_clearance(
+    route1,
+    route2,
+) -> tuple[float, tuple[float, float], str]:
+    """Backward-compatible wrapper returning the global minimum.
+
+    Prefer ``_calculate_minimum_clearance_by_layer`` for per-layer
+    reporting; this wrapper collapses all layers and returns only the
+    single closest approach.
+    """
+    per_layer = _calculate_minimum_clearance_by_layer(route1, route2)
+    if not per_layer:
+        return float('inf'), (0.0, 0.0), "unknown"
+    # Pick the layer with the smallest edge distance
+    best_layer = min(per_layer, key=lambda k: per_layer[k][0])
+    min_dist, location = per_layer[best_layer]
+    return min_dist, location, best_layer
 
 
 def _point_to_segment_dist(p, a, b):
