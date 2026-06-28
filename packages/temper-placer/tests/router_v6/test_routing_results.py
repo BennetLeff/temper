@@ -4,10 +4,8 @@ Tests for Router V6 Stage 4.9: Compile Routing Results
 Part of temper-xnsk
 """
 
-import pytest
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
-from temper_placer.router_v6.length_matching import LengthMatchingResult, LengthMatchingResults
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults, compile_routing_results
 from temper_placer.router_v6.trace_width_assignment import TraceWidth, TraceWidthAssignment
 from temper_placer.router_v6.via_placement import Via, ViaPlacement
@@ -62,27 +60,6 @@ def test_compile_with_vias():
     assert route is not None
     assert len(route.vias) == 1
     assert route.vias[0].position == (5, 5)
-
-
-def test_compile_with_length_matching():
-    """Test compiling route with length matching."""
-    path = RoutePath("NET1", [(0, 0), (10, 10)], "F.Cu", 14.14)
-    pathfinding = PathfindingResult(routed_paths={"NET1": path}, failed_nets=[])
-    
-    widths = TraceWidthAssignment(assignments={
-        "NET1": TraceWidth("NET1", 0.127, "Signal")
-    })
-    
-    vias = ViaPlacement(vias=[])
-    
-    match_result = LengthMatchingResult("NET1", 14.14, 15.0, 15.1, True)
-    length_matching = LengthMatchingResults(results={"NET1": match_result})
-    
-    compiled = compile_routing_results(pathfinding, widths, vias, length_matching)
-    
-    route = compiled.get_route("NET1")
-    assert route is not None
-    assert route.matched_length_mm == pytest.approx(15.1)
 
 
 def test_compiled_route_dataclass():

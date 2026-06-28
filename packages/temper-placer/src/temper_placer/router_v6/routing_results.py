@@ -11,7 +11,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
-from temper_placer.router_v6.length_matching import LengthMatchingResults
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
 from temper_placer.router_v6.via_placement import ViaPlacement
 
@@ -67,21 +66,19 @@ def compile_routing_results(
     pathfinding_result: PathfindingResult,
     width_assignment: TraceWidthAssignment,
     via_placement: ViaPlacement,
-    length_matching: LengthMatchingResults | None = None,
     plane_net_names: list[str] | None = None,
     net_reports: list["NetRoutingReport"] | None = None,
 ) -> RoutingResults:
     """
     Compile all routing results into final output.
 
-    Aggregates paths, widths, vias, and length matching into a
-    complete routing solution ready for export.
+    Aggregates paths, widths, and vias into a complete routing solution
+    ready for export.
 
     Args:
         pathfinding_result: Routed paths from Stage 4.2
         width_assignment: Trace widths from Stage 4.4
         via_placement: Placed vias from Stage 4.3
-        length_matching: Optional length matching from Stage 4.5
         plane_net_names: Optional list of plane net names counted as
             routed-by-plane successes (e.g., GND, VCC, PGND)
         net_reports: Optional per-net ``NetRoutingReport`` list, used to
@@ -114,20 +111,13 @@ def compile_routing_results(
         # Get vias for this net
         net_vias = via_placement.get_vias_for_net(net_name)
 
-        # Get matched length if available
-        matched_length = None
-        if length_matching:
-            match_result = length_matching.get_result(net_name)
-            if match_result:
-                matched_length = match_result.matched_length
-
         # Compile route
         compiled_routes[net_name] = CompiledRoute(
             net_name=net_name,
             path=route_path,
             width_mm=width,
             vias=net_vias,
-            matched_length_mm=matched_length,
+            matched_length_mm=None,
         )
 
     # Count plane nets as routed-by-plane successes

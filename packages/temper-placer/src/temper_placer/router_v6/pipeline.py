@@ -705,7 +705,6 @@ class RouterV6Pipeline:
             pathfinding_result,
             width_assignment,
             via_placement,
-            length_matching=None,
             plane_net_names=plane_net_names,
         )
 
