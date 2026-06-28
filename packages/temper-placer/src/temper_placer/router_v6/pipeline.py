@@ -194,6 +194,8 @@ def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
 
 def _parsed_pcb_to_drc_input(
     pcb: ParsedPCB,
+    escape_vias: list[EscapeVia] | None = None,
+    routing_results: "RoutingResults | None" = None,
 ) -> tuple:
     """Convert ParsedPCB to temper_drc Placement and ConstraintSet.
 
@@ -201,8 +203,10 @@ def _parsed_pcb_to_drc_input(
     DRC check input format. Extracts component positions, net assignments,
     and board dimensions.
 
-    Initial implementation handles component overlap and clearance checks;
-    expanded as additional checks require more data fields.
+    When escape_vias or routing_results are provided, they are converted
+    to temper_drc ViaPlacement / TracePlacement types and attached to the
+    Placement model for DRC checks that operate on geometry beyond
+    component footprint overlap.
     """
     from temper_drc.input.constraints import ClearanceRule, ConstraintSet
     from temper_drc.input.placement import ComponentPlacement as DRCCompPlacement
@@ -250,6 +254,46 @@ def _parsed_pcb_to_drc_input(
         board_width=board_width,
         board_height=board_height,
     )
+
+    # Populate via/trace data when available
+    if escape_vias:
+        from temper_drc.types import Via as DRCVia, ViaPlacement as DRCViaPlacement
+        drc_vias = [
+            DRCVia(
+                position=ev.position,
+                from_layer=ev.layer,
+                to_layer="B.Cu" if ev.layer == "F.Cu" else "F.Cu",
+                diameter=ev.diameter,
+                drill=ev.drill,
+                net_name=ev.net_name,
+            )
+            for ev in escape_vias
+        ]
+        placement.via_placement = DRCViaPlacement(vias=drc_vias)
+
+    if routing_results is not None:
+        from temper_drc.types import TraceSegment, TracePlacement as DRCTracePlacement
+        segments: list[TraceSegment] = []
+        for net_name, net_result in getattr(routing_results, "results", {}).items():
+            if not getattr(net_result, "success", False):
+                continue
+            route = getattr(net_result, "route", None)
+            if route is None:
+                continue
+            coords = getattr(route, "coordinates", [])
+            layer = getattr(route, "layer_name", "F.Cu")
+            width = getattr(net_result, "width", 0.2)
+            for i in range(len(coords) - 1):
+                segments.append(
+                    TraceSegment(
+                        net_name=net_name,
+                        layer=layer,
+                        width=width,
+                        start=coords[i],
+                        end=coords[i + 1],
+                    )
+                )
+        placement.trace_placement = DRCTracePlacement(segments=segments)
 
     default_clearance = getattr(pcb.design_rules, "default_clearance_mm", 0.3)
     constraints = ConstraintSet(
@@ -861,18 +905,20 @@ class RouterV6Pipeline:
         stage_name: str,
         invariants: tuple,
         pcb: ParsedPCB,
+        escape_vias: list[EscapeVia] | None = None,
+        routing_results: "RoutingResults | None" = None,
     ):
         """Run fence checks for a Router V6 stage.
 
         Creates DRC inputs from the PCB data and invokes the fence.
-
-        NOTE: Currently only Stage 0.5 (legalization) is fenced.
-        The temper_drc Placement model only carries component-level data
-        (positions, nets, zones).  Stage 1 (escape vias) and Stage 4
-        (routed traces) produce geometry that the DRC input model cannot
-        represent yet, so those stages are not fenced.
+        When escape_vias or routing_results are provided, they are
+        converted to temper_drc ViaPlacement / TracePlacement types
+        and attached to the Placement model for geometry-level DRC
+        checks (via spacing, trace clearance).
         """
-        placement, constraints = _parsed_pcb_to_drc_input(pcb)
+        placement, constraints = _parsed_pcb_to_drc_input(
+            pcb, escape_vias=escape_vias, routing_results=routing_results,
+        )
         self.fence.check(
             stage_name=stage_name,
             invariants=invariants,
