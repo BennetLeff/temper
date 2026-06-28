@@ -89,8 +89,12 @@ def sat_clause(
         variables = draw(sat_variable_set(min_size=n_vars, max_size=n_vars))
 
     n_lits = min(len(variables), draw(st.integers(min_value=min_literals, max_value=max_literals)))
-    chosen = draw(st.lists(st.sampled_from(variables), min_size=n_lits, max_size=n_lits, unique=True))
-    literals = [(var, draw(st.booleans())) for var in chosen]
+    # Use indices to avoid hashability issues with SATVariable
+    indices = draw(st.lists(
+        st.integers(min_value=0, max_value=len(variables) - 1),
+        min_size=n_lits, max_size=n_lits, unique=True,
+    ))
+    literals = [(variables[idx], draw(st.booleans())) for idx in indices]
     desc = f"Clause: {' OR '.join(('' if pol else 'NOT ') + str(v) for v, pol in literals)}"
     return SATClause(literals=literals, description=desc)
 
