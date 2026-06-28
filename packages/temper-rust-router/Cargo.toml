@@ -1,0 +1,15 @@
+[package]
+name = "temper-rust-router"
+version = "0.1.0"
+edition = "2024"
+description = "Router V6 topology stage in Rust — constraint model, SAT encoding, CDCL solving, topology extraction"
+
+[lib]
+name = "temper_rust_router"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
+splr = "0.13"
+
+[dev-dependencies]
