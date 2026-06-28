@@ -5,8 +5,19 @@ Functions for measuring path lengths and generating serpentine patterns
 to equalize differential pair trace lengths.
 """
 
+from dataclasses import dataclass, field
 from typing import List, Tuple
 import math
+
+
+@dataclass
+class DiffPairPath:
+    """Minimal differential pair path for length matching."""
+    pos_cells: list[tuple[int, int, int]] = field(default_factory=list)
+    neg_cells: list[tuple[int, int, int]] = field(default_factory=list)
+    pos_length: float = 0.0
+    neg_length: float = 0.0
+    skew_mm: float = 0.0
 
 
 def measure_path_length(cells: List[Tuple[int, int, int]], cell_size_mm: float) -> float:
@@ -219,7 +230,6 @@ def apply_length_matching(
     new_skew = abs(new_pos_length - new_neg_length)
     
     # Return updated path
-    from temper_placer.routing.diff_pair_router import DiffPairPath
     return DiffPairPath(
         pos_cells=new_pos_cells,
         neg_cells=new_neg_cells,
