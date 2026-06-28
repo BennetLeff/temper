@@ -53,8 +53,8 @@ from temper_placer.router_v6.sat_model import (
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
 from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
-from temper_placer.router_v6.topology_extraction import TopologyGraph, extract_topology_solution
-from temper_placer.router_v6.topology_solver import TopologicalSolution, solve_topology
+from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
 
@@ -548,21 +548,60 @@ class RouterV6Pipeline:
                 f"    SAT model: {sat_model.variable_count} vars, {sat_model.clause_count} clauses"
             )
 
-        # 3.8: Solve topology
+        # 3.8: Solve topology (Rust CDCL solver — the only backend).
         if self.verbose:
-            print("  3.8: Solving topology...")
-        solution = solve_topology(sat_model, timeout_ms=5000.0)
+            print("  3.8: Solving topology (Rust)...")
+
+        from temper_rust_router import solve_topology_rust
+
+        py_vars = list(constraint_model.variables)
+        py_cons = list(constraint_model.constraints)
+        rust_result = solve_topology_rust(py_vars, py_cons, net_names)
+
+        if rust_result["status"] == "sat":
+            status = SolverStatus.SATISFIABLE
+        elif rust_result["status"] == "unsat":
+            status = SolverStatus.UNSATISFIABLE
+        else:
+            status = SolverStatus.UNKNOWN
+
+        solution = TopologicalSolution(
+            status=status,
+            assignment=dict(rust_result["assignments"]),
+            solver_time_ms=float(rust_result.get("solver_time_ms", 0)),
+        )
+
+        # Build topology graph from Rust output.
+        topology_graph = TopologyGraph(net_topologies={})
+        for net_name, topo_data in rust_result.get("topology_graph", {}).items():
+            ntopo = NetTopology(
+                net_name=net_name,
+                path_graph=None,
+                uses_channels=list(topo_data.get("uses_channels", [])),
+                total_length_estimate=float(topo_data.get("total_length_estimate", 0)),
+            )
+            topology_graph.net_topologies[net_name] = ntopo
+
+        # Constraint audit.
+        from temper_rust_router import audit_result
+        audit_violations = list(audit_result(
+            py_vars, py_cons,
+            dict(rust_result.get("assignments", {})),
+            net_names,
+        ))
+        if audit_violations:
+            msg = f"Rust solver produced {len(audit_violations)} constraint violation(s): {audit_violations}"
+            if self.verbose:
+                print(f"    WARNING: {msg}")
+            raise RuntimeError(msg)
+        elif self.verbose:
+            print(f"    Constraint audit: clean (0 violations)")
 
         if self.verbose:
             if solution.is_satisfiable:
-                print("    Solution found (SAT)")
+                print(f"    Solution found (SAT) in {solution.solver_time_ms:.1f}ms")
             else:
-                print("    No solution found (UNSAT)")
-
-        # 3.9: Extract topology
-        if self.verbose:
-            print("  3.9: Extracting topology graph...")
-        topology_graph = extract_topology_solution(solution, net_names)
+                print(f"    No solution found (UNSAT) in {solution.solver_time_ms:.1f}ms")
 
         return Stage3Output(
             constraint_model=constraint_model,

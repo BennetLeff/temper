@@ -21,8 +21,7 @@ scripts:
   - sys
   - uuid
 - path: bless_baselines.py
-  purpose: Re-extract baseline metrics after intentional quality improvements (requires
-    Ceiling-Approval)
+  purpose: Re-extract baseline metrics after intentional quality improvements (requires Ceiling-Approval)
   owner: pipeline
   last_run: '2026-06-22'
   category: keep
@@ -233,8 +232,7 @@ scripts:
   - sys
   - temper_placer.io.kicad_parser
 - path: extract_corpus_baselines.py
-  purpose: Extract baseline metrics for a single corpus board (subprocess-called by
-    bless_baselines.py)
+  purpose: Extract baseline metrics for a single corpus board (subprocess-called by bless_baselines.py)
   owner: pipeline
   last_run: '2026-06-22'
   category: keep
@@ -432,8 +430,7 @@ scripts:
   - temper_placer.io.kicad_writer
   - temper_placer.io.zone_manager
 - path: trace_invocations.py
-  purpose: Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/
-    references
+  purpose: Build scripts/invocation_graph.json from CI/shell/Makefile/top-level .py/packages/ references
   owner: pipeline
   last_run: '2026-06-22'
   category: keep
@@ -502,8 +499,7 @@ scripts:
   - temper_placer.io.kicad_parser
   - temper_placer.router_v6.pipeline
 - path: full_pipeline_profile.py
-  purpose: Full closure-test profile with per-net A* logging; surfaces the actual
-    SM1 baseline on temper.kicad_pcb
+  purpose: Full closure-test profile with per-net A* logging; surfaces the actual SM1 baseline on temper.kicad_pcb
   owner: router-v6-closure-rate
   last_run: '2026-06-23'
   category: keep
@@ -523,3 +519,10 @@ scripts:
   - temper_placer.router_v6.astar_core_numba
   - temper_placer.router_v6.astar_pathfinding
   - temper_placer.validation.drc_runner
+- path: profile_rust_topology.py
+  purpose: Compare Rust vs Python SAT solver backend performance on closure test
+  owner: unassigned
+  last_run: '2026-06-28'
+  category: keep
+  disposition: utility
+  imports: []
