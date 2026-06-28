@@ -216,6 +216,15 @@ const char* state_machine_get_fault_string(fault_code_t code);
 const char* state_machine_get_state_string(system_state_t state);
 
 /**
+ * @brief Reset temperature tracking for runaway boundary check.
+ *
+ * Stores the current pan temperature reading as the baseline for
+ * the rate-of-rise check. Call after mock temperature changes
+ * during testing to prevent spurious runaway triggers.
+ */
+void state_machine_reset_temp_baseline(void);
+
+/**
  * @brief Enable/disable cooking timer
  * 
  * @param enabled Timer enable flag

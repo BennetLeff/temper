@@ -1076,6 +1076,11 @@ trigger_runaway:
     transition_to(STATE_RUNAWAY_FAULT);
 }
 
+void state_machine_reset_temp_baseline(void) {
+    sm_ctx.last_pan_temp_c = read_pan_temperature();
+    sm_ctx.last_pan_temp_time_ms = get_time_ms();
+}
+
 static bool fault_cleared(void) {
     float rtd_resistance;
     

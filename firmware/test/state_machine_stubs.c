@@ -151,12 +151,9 @@ void mock_sm_set_time(uint32_t ms) {
 
 void mock_sm_set_pan_temperature(float temp_c) {
     mock_sm_state.pan_temperature = temp_c;
-    /* Reset runaway rate tracking so abrupt test-level temperature
-     * changes don't trigger spurious rate-of-rise boundary checks.
-     * In real hardware temperature changes are gradual; tests set
-     * values instantaneously. */
-    sm_ctx.last_pan_temp_c = temp_c;
-    sm_ctx.last_pan_temp_time_ms = mock_sm_state.current_time_ms;
+    /* Reset runaway rate-of-rise tracking so abrupt test-level
+     * temperature changes don't trigger spurious boundary checks. */
+    state_machine_reset_temp_baseline();
 }
 
 void mock_sm_set_heatsink_temperature(float temp_c) {
