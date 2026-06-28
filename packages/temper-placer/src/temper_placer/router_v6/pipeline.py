@@ -324,6 +324,7 @@ class RouterV6Pipeline:
         max_iter: int = 1_000_000,
         enable_manufacturing_drc: bool = False,
         dfm_fail_on: str = "critical",
+        max_sat_nets: int | None = None,
     ):
         """
         Initialize Router V6 pipeline.
@@ -376,6 +377,7 @@ class RouterV6Pipeline:
         self.max_iter = max_iter
         self.enable_manufacturing_drc = enable_manufacturing_drc
         self.dfm_fail_on = dfm_fail_on
+        self.max_sat_nets = max_sat_nets
 
     def run(
         self,
@@ -561,6 +563,40 @@ class RouterV6Pipeline:
 
         return stage2
 
+
+    def _filter_constraint_model(self, cm, pcb, stage2, max_nets):
+        """Filter constraint model to only the top max_nets nets by pin count."""
+        from collections import defaultdict
+        net_names = [net.name for net in pcb.nets]
+        pin_counts = {net.name: len(net.pins) for net in pcb.nets}
+        scored = sorted(net_names, key=lambda n: pin_counts.get(n, 0))
+        top_n = set(scored[:max_nets])
+        if self.verbose:
+            print(f"    Selective SAT: top {max_nets} nets = {sorted(top_n)}")
+
+        keep_vars = []
+        for v in cm.variables:
+            if not hasattr(v, 'net_idx'):
+                keep_vars.append(v)
+            elif v.net_idx < len(net_names) and net_names[v.net_idx] in top_n:
+                keep_vars.append(v)
+
+        keep_cons = []
+        for c in cm.constraints:
+            if hasattr(c, 'terms'):
+                c_nets = set()
+                for t in c.terms:
+                    v = t[0]
+                    if hasattr(v, 'net_idx') and v.net_idx < len(net_names):
+                        c_nets.add(net_names[v.net_idx])
+                if c_nets & top_n:
+                    keep_cons.append(c)
+            else:
+                keep_cons.append(c)
+
+        from dataclasses import replace
+        return replace(cm, variables=keep_vars, constraints=keep_cons)
+
     def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         """Run Stage 3: Topological Routing."""
 
@@ -580,16 +616,17 @@ class RouterV6Pipeline:
         )
         constraint_model = model_builder.build()
 
-        # 3.7: Build SAT model
+        # 3.6b: Selective SAT — route only the hardest N nets via SAT.
+        if self.max_sat_nets is not None and self.max_sat_nets < len(pcb.nets):
+            constraint_model = self._filter_constraint_model(
+                constraint_model, pcb, stage2, self.max_sat_nets
+            )
+
+        # 3.7: Build SAT model (Rust-only path — skipped when max_sat_nets is set
+        # since the Python sequential counter is O(n*k) and hangs on large models).
+        # The Rust solver encodes directly from the constraint model.
         if self.verbose:
             print("  3.7: Building SAT model...")
-        sat_model = build_sat_model()
-        populate_sat_from_constraints(sat_model, constraint_model, net_names)
-
-        if self.verbose:
-            print(
-                f"    SAT model: {sat_model.variable_count} vars, {sat_model.clause_count} clauses"
-            )
 
         # 3.8: Solve topology (Rust CDCL solver — the only backend).
         if self.verbose:
@@ -600,6 +637,12 @@ class RouterV6Pipeline:
         py_vars = list(constraint_model.variables)
         py_cons = list(constraint_model.constraints)
         rust_result = solve_topology_rust(py_vars, py_cons, net_names)
+
+        if self.verbose:
+            print(
+                f"    SAT model: {rust_result.get('num_vars', 0)} vars, "
+                f"{rust_result.get('num_clauses', 0)} clauses"
+            )
 
         if rust_result["status"] == "sat":
             status = SolverStatus.SATISFIABLE
