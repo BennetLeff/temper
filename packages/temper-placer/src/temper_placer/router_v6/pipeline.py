@@ -599,7 +599,6 @@ class RouterV6Pipeline:
             design_rules=pcb.design_rules,
             diff_pairs=diff_pairs,
             pcb=pcb,
-            target_net_names=target_names,
         )
         constraint_model = model_builder.build()
 
