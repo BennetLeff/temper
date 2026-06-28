@@ -555,7 +555,6 @@ class TestCrossConstraintComposition:
         cm = ConstraintModel()
         channel_id = "F.Cu_E0_0_1"
 
-        # Create 3 net-channel vars
         for net_idx in range(3):
             var = NetChannelVar(
                 name=f"uses_N{net_idx}_{channel_id}",
@@ -564,11 +563,11 @@ class TestCrossConstraintComposition:
             )
             cm.add_variable(var)
 
-        # Add capacity constraint: max 2 nets on this channel
+        capacity_ref = 0.3  # narrow: int(0.3/0.127) = 2 < 3 nets
         capacity_constraint = CapacityConstraint(
             name=f"cap_{channel_id}",
             channel_id=channel_id,
-            capacity=2.0,
+            capacity=capacity_ref,
             slack_factor=1.0,
             terms=[
                 (cm.net_channel_vars[(0, channel_id)], 0.127),
@@ -581,16 +580,11 @@ class TestCrossConstraintComposition:
         sat = SATModel(variables=[], clauses=[])
         populate_sat_from_constraints(sat, cm, net_names=["N0", "N1", "N2"])
 
-        # Expected:
-        # - 3 connectivity clauses (one per net)
-        # - Capacity: max_nets = int(2.0 * 1.0 / 0.127) = 15, which is >= 3 so no AtMostK
-        # Hmm, that won't trigger. Let me recalculate.
-        # max_nets = int(capacity * slack_factor / min_width)
-        # capacity = 2.0, slack = 1.0, min_width = 0.127
-        # max_nets = int(2.0 / 0.127) = int(15.748) = 15
-        # 15 >= 3, so no AtMostK clause added.
-        # We need a narrower capacity. Let me adjust.
-        pass
+        # Expected: 3 connectivity + AtMostK(3, 2) auxiliary clauses
+        total = len(sat.clauses)
+        assert total > 3, (
+            f"Expected >3 clauses (3 connectivity + AtMostK auxiliary), got {total}"
+        )
 
     def test_fr5_grid_capacity_atmostk(self, _pysat_solver):
         """3 nets, 2 channels, 1 layer: tight capacity triggers AtMostK on one channel.

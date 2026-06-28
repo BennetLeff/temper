@@ -100,11 +100,11 @@ def test_monitor_no_overhead_when_inactive():
             _astar_search((0, 0), (19, 19), grid)
     t_monitored = time.perf_counter() - t1
 
-    # Monitor overhead should be reasonable (<50% baseline)
-    # (the plan specifies <10% but we allow some tolerance for CI variance)
+    # Monitor overhead should stay under 25% of baseline
+    # (the plan specifies <10%; 25% is a generous CI safety margin)
     overhead_ratio = (t_monitored - t_baseline) / t_baseline if t_baseline > 0 else 0
-    assert overhead_ratio < 0.5, (
-        f"Monitor overhead {overhead_ratio:.1%} exceeds 50% threshold. "
+    assert overhead_ratio < 0.25, (
+        f"Monitor overhead {overhead_ratio:.1%} exceeds 25% threshold. "
         f"Baseline: {t_baseline:.4f}s, Monitored: {t_monitored:.4f}s"
     )
 

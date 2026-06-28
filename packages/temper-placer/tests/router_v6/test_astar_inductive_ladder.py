@@ -116,19 +116,6 @@ def _assert_oracle_parity(
     return float("inf")
 
 
-@dataclass
-class LadderFailure:
-    """Structured failure report for the inductive ladder (R2)."""
-    level: int
-    invariant: str
-    grid_shape: tuple[int, int]
-    start: tuple[int, int] | None
-    goal: tuple[int, int] | None
-    expected: Any
-    actual: Any
-    levels_passed: list[int]
-
-
 # =============================================================================
 # Level 0 — Unit Properties (l0_unit)
 # =============================================================================

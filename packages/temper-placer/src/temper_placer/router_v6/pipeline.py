@@ -258,6 +258,8 @@ def _parsed_pcb_to_drc_input(
     # Populate via/trace data when available
     if escape_vias:
         from temper_drc.types import Via as DRCVia, ViaPlacement as DRCViaPlacement
+        # NOTE: Assumes all vias are through-hole (F.Cu <-> B.Cu).
+        # Blind/buried via support requires per-via layer resolution.
         drc_vias = [
             DRCVia(
                 position=ev.position,
@@ -572,49 +574,13 @@ class RouterV6Pipeline:
         return stage2
 
 
-    def _filter_constraint_model(self, cm, pcb, stage2, max_nets):
-        """Filter constraint model to only the top max_nets nets by pin count."""
-        from collections import defaultdict
-        net_names = [net.name for net in pcb.nets]
+    def _select_sat_nets(self, pcb: ParsedPCB) -> list[str] | None:
+        """Select top N nets by ascending pin count for selective SAT routing."""
+        if self.max_sat_nets is None or self.max_sat_nets >= len(pcb.nets):
+            return None
         pin_counts = {net.name: len(net.pins) for net in pcb.nets}
-        scored = sorted(net_names, key=lambda n: pin_counts.get(n, 0))
-        top_n = set(scored[:max_nets])
-        if self.verbose:
-            print(f"    Selective SAT: top {max_nets} nets = {sorted(top_n)}")
-
-        keep_vars = []
-        for v in cm.variables:
-            if not hasattr(v, 'net_idx'):
-                keep_vars.append(v)
-            elif v.net_idx < len(net_names) and net_names[v.net_idx] in top_n:
-                keep_vars.append(v)
-
-        keep_cons = []
-        for c in cm.constraints:
-            if hasattr(c, 'terms'):
-                c_nets = set()
-                for t in c.terms:
-                    v = t[0]
-                    if hasattr(v, 'net_idx') and v.net_idx < len(net_names):
-                        c_nets.add(net_names[v.net_idx])
-                if c_nets & top_n:
-                    keep_cons.append(c)
-            elif hasattr(c, 'p_var'):
-                # DiffPairConstraint: keep only if both nets are in top_n.
-                p_idx = c.p_net_idx
-                n_idx = c.n_net_idx
-                if (p_idx < len(net_names) and net_names[p_idx] in top_n and
-                    n_idx < len(net_names) and net_names[n_idx] in top_n):
-                    keep_cons.append(c)
-            elif hasattr(c, 'net_idx'):
-                # LayerConstraint: keep only if the net is in top_n.
-                if c.net_idx < len(net_names) and net_names[c.net_idx] in top_n:
-                    keep_cons.append(c)
-            else:
-                keep_cons.append(c)
-
-        from dataclasses import replace
-        return replace(cm, variables=keep_vars, constraints=keep_cons)
+        scored = sorted(pin_counts, key=lambda n: pin_counts.get(n, 0))
+        return scored[:self.max_sat_nets]
 
     def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         """Run Stage 3: Topological Routing."""
@@ -625,6 +591,7 @@ class RouterV6Pipeline:
         # 3.1-3.6: Build constraint model
         if self.verbose:
             print("  3.1-3.6: Building constraint model...")
+        target_names = self._select_sat_nets(pcb) if self.max_sat_nets else None
         model_builder = ModelBuilder(
             skeletons=stage2.skeletons,
             nets=pcb.nets,
@@ -632,14 +599,12 @@ class RouterV6Pipeline:
             design_rules=pcb.design_rules,
             diff_pairs=diff_pairs,
             pcb=pcb,
+            target_net_names=target_names,
         )
         constraint_model = model_builder.build()
 
-        # 3.6b: Selective SAT — route only the hardest N nets via SAT.
-        if self.max_sat_nets is not None and self.max_sat_nets < len(pcb.nets):
-            constraint_model = self._filter_constraint_model(
-                constraint_model, pcb, stage2, self.max_sat_nets
-            )
+        if self.verbose and target_names:
+            print(f"    Selective SAT: top {len(target_names)} nets = {sorted(target_names)}")
 
         # 3.7: Build SAT model (Rust-only path — skipped when max_sat_nets is set
         # since the Python sequential counter is O(n*k) and hangs on large models).

@@ -252,49 +252,60 @@ def test_lattice_fr5_fails_with_omitted_layer(monkeypatch) -> None:
 
 @pytest.mark.dependency(name="lattice-conn-bug")
 def test_lattice_connectivity_clause_bug_affects_higher_levels() -> None:
-    """SC6 TS3: If single-clause SAT (FR1) fails, the lattice blocks execution
-    of higher-level tests (FR2-FR6).
+    """SC6 TS3: Verify the lattice dependency chain is structurally correct.
 
-    This is a structural test: we verify that the pytest-dependency lattice
-    is correctly configured. If FR1 fails, dependent tests are skipped.
+    Checks that sat-l1 through sat-l5 markers exist on actual test
+    functions with the correct pytest.dependency decorators, and that
+    each higher level depends on the correct lower level.
     """
-    # This test cannot fail in isolation — it documents the lattice structure.
-    # The actual lattice skipping behavior is enforced by pytest-dependency
-    # markers on the real test functions in test_sat_solve_pbt.py.
-    #
-    # To manually verify: temporarily make test_fr1_single_clause_sat always
-    # fail, then observe that test_fr2_multi_clause_conjunction and all
-    # higher levels are SKIPPED with "depends on sat-l1 which did not pass".
-    pass
+    import inspect
+
+    from tests.router_v6 import test_sat_solve_pbt
+
+    lattice_chain: list[tuple[str, str, list[str]]] = [
+        ("sat-l1", "test_fr1_single_clause_sat", []),
+        ("sat-l2", "test_fr2_multi_clause_conjunction", ["sat-l1"]),
+        ("sat-l3", "test_fr3_cdcl_incremental", ["sat-l2"]),
+        ("sat-atmostk", "TestAtMostKEncoding", ["sat-l1"]),
+        ("sat-l4", "TestCrossConstraintComposition", ["sat-l3"]),
+        ("sat-l5", "TestParsimonyInvariant", ["sat-l4"]),
+    ]
+
+    for marker_name, test_name, depends_on in lattice_chain:
+        # resolve the test object (function or class)
+        obj = getattr(test_sat_solve_pbt, test_name, None)
+        assert obj is not None, f"'{test_name}' not found"
+
+        # extract the pytest.mark.dependency marker
+        def _find_dep_mark(o):
+            for m in getattr(o, "pytestmark", []):
+                if m.name == "dependency":
+                    return m
+            return None
+
+        if inspect.isclass(obj):
+            dep = _find_dep_mark(obj)
+            assert dep is not None, f"{test_name}: missing @pytest.mark.dependency on class"
+            assert dep.kwargs.get("name") == marker_name, \
+                f"{test_name}: expected dep name '{marker_name}'"
+        else:
+            dep = _find_dep_mark(obj)
+            assert dep is not None, f"'{test_name}' missing @pytest.mark.dependency"
+            assert dep.kwargs.get("name") == marker_name, \
+                f"'{test_name}' dep name: expected '{marker_name}'"
+
+        if depends_on:
+            dep = _find_dep_mark(obj)
+            if dep is not None:
+                actual_deps = dep.kwargs.get("depends") or []
+                for d in depends_on:
+                    assert d in actual_deps, \
+                        f"'{test_name}' should depend on '{d}', but depends={actual_deps}"
 
 
 # ---------------------------------------------------------------------------
 # Verify lattice markers exist on all required tests
 # ---------------------------------------------------------------------------
 
-
-def test_lattice_markers_registered() -> None:
-    """Verify that all required lattice markers are available in the test suite."""
-    import inspect
-
-    from tests.router_v6 import test_sat_solve_pbt
-
-    module = test_sat_solve_pbt
-
-    required_markers = {
-        "sat-l1": "test_fr1_single_clause_sat",
-        "sat-l2": "test_fr2_multi_clause_conjunction",
-        "sat-l3": "test_fr3_cdcl_incremental",
-        "sat-atmostk": "TestAtMostKEncoding",
-        "sat-l4": "TestCrossConstraintComposition",
-        "sat-l5": "TestParsimonyInvariant",
-    }
-
-    for marker_name, test_name in required_markers.items():
-        if test_name.startswith("Test"):
-            obj = getattr(module, test_name, None)
-        else:
-            obj = getattr(module, test_name, None)
-        assert obj is not None, (
-            f"Test '{test_name}' not found in test_sat_solve_pbt module"
-        )
+# Covered by test_lattice_connectivity_clause_bug_affects_higher_levels
+# which verifies markers AND dependency chains.

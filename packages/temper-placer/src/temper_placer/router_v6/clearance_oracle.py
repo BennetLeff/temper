@@ -6,8 +6,6 @@ with **zero** code-path overlap with ``clearance_check.py`` or
 the production engine finds **all** violations (not just that all
 reported violations are genuine).
 
-Gated by ``if __debug__:`` to exclude from production deployments (NFR3).
-
 Usage (test only)::
 
     from temper_placer.router_v6.clearance_oracle import oracle_clearance_violations
@@ -17,6 +15,7 @@ Usage (test only)::
 from __future__ import annotations
 
 import math
+import os
 
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 
@@ -36,9 +35,6 @@ def oracle_clearance_violations(
     """
     violations: list[tuple[str, str, str, float]] = []
     routes = list(routing_results.compiled_routes.items())
-
-    if not __debug__:
-        return violations
 
     for i in range(len(routes)):
         net1, route1 = routes[i]

@@ -14,6 +14,9 @@ import numpy as np
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER
 
+# Lazy-import at module level so the A* inner loop doesn't pay import cost
+from temper_placer.router_v6.astar_monitor import get_monitor_state  # noqa: E402
+
 # A* search primitives (formerly in routing/heuristics.py)
 OCTILE_DIAG: Final[float] = math.sqrt(2.0) - 1.0
 
@@ -149,7 +152,6 @@ def _astar_search(
         current_f, current = heappop(frontier)
 
         # Runtime monitor: record f-cost monotonicity and single-expansion
-        from temper_placer.router_v6.astar_monitor import get_monitor_state
         _mon = get_monitor_state()
         if _mon is not None:
             _mon.record_pop(current, float(current_f))
