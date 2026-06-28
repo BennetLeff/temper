@@ -16,11 +16,10 @@ import sys
 import time
 from pathlib import Path
 
-from temper_placer.deterministic.pipeline import DeterministicPipeline
+from temper_placer.deterministic import DeterministicPipeline
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGridStage
 from temper_placer.deterministic.stages.layer_assignment import LayerAssignmentStage
 from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
-from temper_placer.deterministic.stages.sequential_routing import SequentialRoutingStage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.router_v6.diagnostics import (
@@ -76,7 +75,6 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
         ClearanceGridStage(cell_size_mm=0.25, layer_count=2),
         LayerAssignmentStage(),
         NetOrderingStage(),
-        SequentialRoutingStage(),
     ])
 
     # Route

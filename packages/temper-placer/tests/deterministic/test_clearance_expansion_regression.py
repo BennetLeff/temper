@@ -7,8 +7,6 @@ exercise the expansion on the deterministic pipeline that *is* working
 in this worktree.
 
 Tests in this module:
-- test_pipeline_routes_with_expansion: a 5-net deterministic pipeline still
-  routes 5/5 nets when HV exclusion zones are declared (no regression).
 - test_expansion_increases_blocked_cells: with HV zones enabled, the grid
   blocks more cells than without (the expansion actually expands).
 - test_fence_passes_on_built_grid: U3's fence passes on a grid built by U1-U3.
@@ -40,8 +38,6 @@ from temper_placer.deterministic.stages.clearance_grid import (
     _EXPANSION_LOG,
     check_clearance_grid_conservatism,
 )
-from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
-from temper_placer.deterministic.stages.sequential_routing import SequentialRoutingStage
 from temper_placer.io.config_loader import HVExclusionZone
 
 
@@ -81,31 +77,6 @@ def _temper_like_state_with_hv_zones():
     return BoardState(board=board, netlist=netlist)
 
 
-def test_pipeline_routes_with_expansion():
-    """A 5-net pipeline still routes 5/5 nets when HV zones are declared.
-    This is the no-regression check: U1-U3 must not break the existing
-    routing path."""
-    state = _temper_like_state_with_hv_zones()
-    hv_zone = HVExclusionZone(
-        name="q1_zone", center=(25.0, 15.0), size=(10.0, 10.0),
-        clearance_mm=6.0, component_refdes="U0",
-    )
-    pipeline = [
-        ClearanceGridStage(
-            cell_size_mm=0.5, max_clearance_mm=0.2,
-            net_class_clearances={"Signal": 0.2},
-            hv_exclusion_zones=[hv_zone],
-        ),
-        NetOrderingStage(),
-        SequentialRoutingStage(trace_width_mm=0.25, clearance_mm=0.2),
-    ]
-    from temper_placer.deterministic.pipeline import DeterministicPipeline
-    final = DeterministicPipeline(stages=pipeline).run(state)
-    assert final.grid is not None
-    routed_nets = {t.net for t in final.routes}
-    assert len(routed_nets) == 5
-
-
 def test_expansion_increases_blocked_cells():
     """With HV zones enabled, the grid blocks more cells than without
     (the expansion actually adds blocking)."""
@@ -127,7 +98,7 @@ def test_expansion_increases_blocked_cells():
         ],
     )
 
-    from temper_placer.deterministic.pipeline import DeterministicPipeline
+    from temper_placer.deterministic import DeterministicPipeline
 
     pre = DeterministicPipeline(stages=[stage_no_hv]).run(state_no_hv).grid
     post = DeterministicPipeline(stages=[stage_with_hv]).run(state_with_hv).grid
@@ -154,7 +125,7 @@ def test_fence_passes_on_built_grid():
             ),
         ],
     )
-    from temper_placer.deterministic.pipeline import DeterministicPipeline
+    from temper_placer.deterministic import DeterministicPipeline
     final = DeterministicPipeline(stages=[stage]).run(state)
     grid = final.grid
     violations = check_clearance_grid_conservatism(grid)
@@ -184,7 +155,7 @@ def test_placement_hpwl_unchanged_by_expansion():
             ),
         ],
     )
-    from temper_placer.deterministic.pipeline import DeterministicPipeline
+    from temper_placer.deterministic import DeterministicPipeline
 
     # The deterministic pipeline doesn't compute HPWL directly, but the
     # `placements` set is preserved across stages that don't touch it.

@@ -19,7 +19,6 @@ def test_full_pipeline_includes_all_drc_stages():
     stage_names = [s.name for s in pipeline.stages]
     
     assert 'drc_oracle_setup' in stage_names
-    assert 'sequential_routing' in stage_names
     assert 'drc_validation' in stage_names
     assert 'connectivity_validation' in stage_names
 

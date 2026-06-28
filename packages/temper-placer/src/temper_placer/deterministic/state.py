@@ -175,7 +175,7 @@ class BoardState:
     def with_config(self, config: "Mapping[str, Any] | None") -> "BoardState":
         """Return new state with ``config`` populated for stage-local config lookups.
 
-        Used by ``create_drc_aware_pipeline`` (and the feedback orchestrator)
+        Used by the pipeline factory (and the feedback orchestrator)
         to attach the parsed configuration to a state so stages such as
         ``HvLvPartitionStage`` can read their own block from
         ``state.config``. Preserves every other field; safe to call before

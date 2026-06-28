@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from temper_placer.deterministic.feedback import AutomatedZeroDRC, DRCViolation
-from temper_placer.deterministic.pipeline import DeterministicPipeline
+from temper_placer.deterministic import DeterministicPipeline
 from temper_placer.deterministic.state import BoardState
 
 @pytest.fixture

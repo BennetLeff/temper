@@ -1,6 +1,6 @@
 import logging
 from typing import List, Dict, Any, Optional, Callable, TYPE_CHECKING
-from ..pipeline import DeterministicPipeline
+from .. import DeterministicPipeline
 from ..state import BoardState
 from .violation_mapper import ViolationComponentMapper, DRCViolation
 from .zone_adjuster import ZoneAdjuster, ZoneAdjustment, AdjustmentResult

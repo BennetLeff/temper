@@ -5,12 +5,7 @@ See docs/architecture/ROUTER_V6_TOPOLOGICAL_ARCHITECTURE.md
 """
 
 # PEP 562 lazy attribute lookup — must be defined BEFORE any submodule
-# imports below, because some submodules (e.g. ``constraint_model``)
-# transitively load ``deterministic.stages.sequential_routing``,
-# which in turn does ``from .router_v6 import ...``. Importing the
-# referenced modules eagerly here would deadlock. The set of lazily
-# resolved names matches the symbols re-exported for downstream
-# consumers (see __all__).
+# imports below to avoid circular import deadlocks.
 _LAZY_NAMES = {
     # Diagnostics (U1)
     "BlockingObstacle",

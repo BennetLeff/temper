@@ -51,8 +51,8 @@ class TestPhasedPlacementIntegration:
         initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
         state = initial_state
 
-        # Run until after placements are applied (first 5-6 stages)
-        for stage in pipeline.stages[:6]:
+        # Run until after placements are applied (first 8 stages: through ApplyPlacements)
+        for stage in pipeline.stages[:8]:
             state = stage.run(state)
 
         # Should have placements
@@ -126,7 +126,7 @@ class TestConstraintAwarePlacement:
         # Run placement stages
         initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
         state = initial_state
-        for stage in pipeline.stages[:6]:
+        for stage in pipeline.stages[:8]:
             state = stage.run(state)
 
         # Verify constraints are satisfied

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import logging
+import time
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
-from .pipeline import DeterministicPipeline
 from .state import BoardState
 from .stages.hv_lv_partition import HvLvPartitionStage, PartitionError
+from .stages.base import Stage
 from .channels import (
     ALLOWED_SCHEMA_HASHES,
     ALLOWED_SEVERITIES,
@@ -18,7 +19,7 @@ from .channels import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from temper_drc.core.fence import DRCFence
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -70,6 +71,133 @@ def load_channel_map_from_sidecar(
             f"refusing to consume a misaligned grid"
         )
     return cmap
+
+
+def _board_state_to_drc_input(
+    state: BoardState,
+) -> tuple:
+    """Convert BoardState to temper_drc Placement and ConstraintSet.
+
+    Bridges the deterministic pipeline's BoardState representation to the
+    DRC check input format. Extracts component positions, net assignments,
+    and board dimensions from the immutable state.
+    """
+    from temper_drc.input.placement import Placement as DRCPlacement, ComponentPlacement as DRCCompPlacement
+    from temper_drc.input.constraints import ConstraintSet, ClearanceRule
+    from ..core.board import side_to_layer_name
+
+    board_width = state.board.width if state.board else 100.0
+    board_height = state.board.height if state.board else 100.0
+
+    # Build component ref -> Component lookup from netlist
+    comp_map = {}
+    netlist = state.netlist
+    if netlist and hasattr(netlist, 'components'):
+        for comp in netlist.components:
+            comp_map[comp.ref] = comp
+
+    # Extract placed positions from placements frozenset
+    components = {}
+    for item in state.placements:
+        if isinstance(item, tuple) and len(item) == 2:
+            ref, placement = item
+            comp = comp_map.get(ref)
+            if comp:
+                width, height = comp.bounds
+                footprint = comp.footprint
+                net_class = comp.net_class
+            else:
+                width, height = 1.0, 1.0
+                footprint = ""
+                net_class = "Signal"
+
+            pos = getattr(placement, 'position', (0.0, 0.0))
+            if not isinstance(pos, (tuple, list)):
+                pos = (0.0, 0.0)
+            rot = getattr(placement, 'rotation', 0)
+            if not isinstance(rot, (int, float)):
+                rot = 0
+
+            side = getattr(comp, 'initial_side', 0) if comp else 0
+            layer = side_to_layer_name(side)
+
+            components[ref] = DRCCompPlacement(
+                ref=ref,
+                footprint=footprint,
+                x=float(pos[0]),
+                y=float(pos[1]),
+                rotation=float(rot),
+                layer=layer,
+                width=width,
+                height=height,
+                net_class=net_class,
+            )
+
+    # Build nets from netlist
+    nets = {}
+    if netlist and hasattr(netlist, 'nets'):
+        for net in netlist.nets:
+            if hasattr(net, 'pins'):
+                nets[net.name] = [pin[0] for pin in net.pins]
+
+    # Build zones from board
+    zones = {}
+    if state.board:
+        for zone in state.board.zones:
+            zones[zone.name] = zone.bounds
+
+    placement = DRCPlacement(
+        components=components,
+        nets=nets,
+        zones=zones,
+        board_width=board_width,
+        board_height=board_height,
+    )
+
+    constraints = ConstraintSet(
+        clearances=[ClearanceRule(from_class="*", to_class="*", min_mm=0.3)],
+        board_width=board_width,
+        board_height=board_height,
+    )
+
+    return placement, constraints
+
+
+class DeterministicPipeline:
+    """Simple pipeline that runs stages sequentially with optional DRC fence."""
+
+    def __init__(self, stages: List[Stage] = None, fence: "DRCFence | None" = None):
+        self.stages = stages or []
+        self.fence = fence
+
+    def run(self, initial_state: BoardState = None) -> BoardState:
+        from temper_drc.core.fence import _issue_fingerprint
+
+        state = initial_state or BoardState()
+        previous_violations: frozenset[str] | None = None
+        for stage in self.stages:
+            t0 = time.time()
+            state = stage.run(state)
+            stage_time = (time.time() - t0) * 1000
+
+            if self.fence and stage.invariants:
+                invariants = stage.invariants
+                modified_regions = stage.last_modified_regions
+                placement, constraints = _board_state_to_drc_input(state)
+
+                result = self.fence.check(
+                    stage_name=stage.name,
+                    invariants=invariants,
+                    placement=placement,
+                    constraints=constraints,
+                    modified_regions=modified_regions,
+                    previous_violations=previous_violations,
+                    stage_wall_time_ms=stage_time,
+                )
+                previous_violations = frozenset(
+                    _issue_fingerprint(v.issue) for v in result.violations
+                )
+        return state
 
 
 class SidecarAwarePipeline(DeterministicPipeline):
@@ -162,7 +290,6 @@ def create_drc_aware_pipeline(
         LayerAssignmentStage,
         PowerPlaneStage,
         FinePitchEscapeStage,
-        SequentialRoutingStage,
         DRCValidationStage,
         ConnectivityValidationStage,
         ViaValidationStage,
@@ -172,7 +299,6 @@ def create_drc_aware_pipeline(
         PlacementValidationStage,
     )
     from .stages.config_attach import ConfigAttachStage
-    from .stages.sequential_routing import DiffPairConfig
 
     # Build zone config from YAML config if available
     zone_config = None
@@ -183,7 +309,6 @@ def create_drc_aware_pipeline(
     yaml_copper_zones = []
     yaml_isolation_slots = []  # @req(2026-06-23-007, R1)
     config_rules = None  # @req(2026-06-23-007, R2)
-    differential_pairs = []
     net_priority = {}  # EXP-6: Explicit net routing priority
     placement_constraints = {}  # EXP-12: Placement validation constraints
     hv_exclusion_zones = []  # EXP-13: HV zones that signals must route around
@@ -220,32 +345,6 @@ def create_drc_aware_pipeline(
         if net_class_clearances:
             max_clearance = max(net_class_clearances.values()) + 0.3  # Add margin for trace width
 
-        # Extract differential pairs from config
-        config_diff_pairs = getattr(config, "differential_pairs", None)
-        if config_diff_pairs:
-            for dp in config_diff_pairs:
-                if isinstance(dp, dict):
-                    differential_pairs.append(
-                        DiffPairConfig(
-                            net_pos=dp.get("net_pos", ""),
-                            net_neg=dp.get("net_neg", ""),
-                            spacing_mm=dp.get("spacing_mm", 0.15),
-                            coupling_tolerance_mm=dp.get("coupling_tolerance_mm", 0.5),
-                            max_skew_mm=dp.get("max_skew_mm", 0.5),
-                        )
-                    )
-                elif hasattr(dp, "net_pos"):
-                    # Already a config object
-                    differential_pairs.append(
-                        DiffPairConfig(
-                            net_pos=getattr(dp, "net_pos", ""),
-                            net_neg=getattr(dp, "net_neg", ""),
-                            spacing_mm=getattr(dp, "spacing_mm", 0.15),
-                            coupling_tolerance_mm=getattr(dp, "coupling_tolerance_mm", 0.5),
-                            max_skew_mm=getattr(dp, "max_skew_mm", 0.5),
-                        )
-                    )
-
         # EXP-6: Extract net priority from config
         config_net_priority = getattr(config, "net_priority", None)
         if config_net_priority:
@@ -267,7 +366,6 @@ def create_drc_aware_pipeline(
         hv_exclusion_zones = getattr(config, "hv_exclusion_zones", [])
 
         # Create DesignRules from config if not explicitly provided
-        # This ensures SequentialRoutingStage gets proper trace widths from net class rules
         if design_rules is None and config_rules:
             from temper_placer.core.design_rules import DesignRules, NetClassRules
 
@@ -410,11 +508,6 @@ def create_drc_aware_pipeline(
                 pin_pitch_threshold_mm=0.65,
                 escape_layer=1,
             ),  # Place escape vias for fine-pitch ICs before main routing
-            SequentialRoutingStage(
-                design_rules=design_rules,
-                differential_pairs=differential_pairs,
-                pad_sizes=pad_sizes_for_stage,  # Inject pad sizes for terminal identification
-            ),
             # Post-routing cleanup (order matters!)
             TrackDeduplicationStage(),  # Remove duplicate tracks first
             ShortCircuitDetectionStage(),  # Remove tracks that short
@@ -452,7 +545,6 @@ def create_legacy_pipeline():
         ClearanceGridStage,
         NetOrderingStage,
         LayerAssignmentStage,
-        SequentialRoutingStage,
         DRCValidationStage,
         ConnectivityValidationStage,
         ViaValidationStage,
@@ -475,7 +567,6 @@ def create_legacy_pipeline():
             ClearanceGridStage(cell_size_mm=0.25, layer_count=4),
             NetOrderingStage(),
             LayerAssignmentStage(),
-            SequentialRoutingStage(),  # Use defaults
             # Post-routing cleanup
             TrackDeduplicationStage(),
             ViaDeduplicationStage(),

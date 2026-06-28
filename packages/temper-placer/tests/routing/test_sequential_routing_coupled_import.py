@@ -1,13 +1,11 @@
 """
-Smoke test for the coupled diff pair router import in
-SequentialRoutingStage.
+Smoke test for the coupled diff pair router import.
 
 Background
 ----------
-``SequentialRoutingStage`` (in
-``temper_placer.deterministic.stages.sequential_routing``) imports
-``CoupledDiffPairRouter`` from the ``routing/`` package for all
-differential pairs. This test verifies the import resolves cleanly
+The coupled diff pair router (``CoupledDiffPairRouter`` in
+``temper_placer.routing.coupled_diff_pair_router``) handles routing for
+all differential pairs. This test verifies the import resolves cleanly
 through normal package machinery (no ``sys.path`` hack).
 """
 

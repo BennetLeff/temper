@@ -28,7 +28,7 @@ class InstrumentedStage:
     Wrapper around a pipeline stage that logs route counts before/after execution.
 
     Usage:
-        original_stage = SequentialRoutingStage(...)
+        original_stage = ClearanceGridStage(...)
         instrumented = InstrumentedStage(original_stage, track_nets=['USB_D+', 'USB_D-'])
         state = instrumented.run(state)
     """

@@ -9,7 +9,6 @@ def test_can_import_stages():
     from temper_placer.deterministic.stages import (
         ZoneAssignmentStage,
         ClearanceGridStage,
-        SequentialRoutingStage,
     )
     # Should not raise ImportError
 
