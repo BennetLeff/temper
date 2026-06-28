@@ -16,13 +16,11 @@ SC1: >= 200 Hypothesis iterations, 5000ms deadline.
 from __future__ import annotations
 
 import math
-import re
 
 import pytest
-from hypothesis import HealthCheck, assume, given, settings, strategies as st
+from hypothesis import HealthCheck, assume, given, settings
 
 from tests.router_v6.sat_property_strategies import (
-    constraint_model_grid,
     sat_clause_set,
     sat_variable_set,
 )

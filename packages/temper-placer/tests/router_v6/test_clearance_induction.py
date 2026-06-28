@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import copy
-
 import pytest
 
 from temper_placer.router_v6.astar_pathfinding import RoutePath

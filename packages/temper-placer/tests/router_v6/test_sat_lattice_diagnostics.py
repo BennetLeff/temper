@@ -51,8 +51,6 @@ def test_lattice_fr4_fails_with_bug(monkeypatch) -> None:
 
     from pysat.solvers import Solver
 
-    original = _encode_at_most_k
-
     def _buggy_encode_at_most_k(
         sat_model: SATModel,
         variables: list[SATVariable],
