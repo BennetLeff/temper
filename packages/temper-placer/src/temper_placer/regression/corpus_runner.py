@@ -318,6 +318,31 @@ class CorpusRegressionRunner:
             preset = pipeline.run(board, netlist, constraints, rng_key)
             initial_state = preset.state
 
+            # Guard against degenerate initial placements (NaN positions,
+            # extreme rotations) that cause NaN gradients at epoch 0.
+            # Small boards with few components are especially prone.
+            pos = initial_state.positions
+            if not __import__("jax").numpy.all(__import__("jax").numpy.isfinite(pos)):
+                import jax.numpy as jnp
+                # Fall back to uniform random within board bounds
+                ox, oy = board.origin
+                k1, k2 = __import__("jax").random.split(rng_key)
+                px = __import__("jax").random.uniform(
+                    k1, (netlist.n_components,),
+                    minval=ox + board.margin_mm,
+                    maxval=ox + board.width - board.margin_mm,
+                )
+                py = __import__("jax").random.uniform(
+                    k2, (netlist.n_components,),
+                    minval=oy + board.margin_mm,
+                    maxval=oy + board.height - board.margin_mm,
+                )
+                pos = jnp.stack([px, py], axis=-1)
+                initial_state = initial_state._replace(
+                    positions=pos,
+                    rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
+                )
+
             phases = create_default_phases(entry.epochs)
             cfg = OptimizerConfig(
                 epochs=entry.epochs,
