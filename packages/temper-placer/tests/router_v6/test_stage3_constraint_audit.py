@@ -1,28 +1,16 @@
 """Constraint audit tests for Stage 3 — validate solver output directly against
-the constraint model, not against Python-generated golden fixtures.
+the constraint model.
 
-These tests require a CDCL-capable solver (the Rust backend with splr).
-The Python greedy solver cannot propagate the sequential-counter encoding
-that makes AtMostK constraints correct — it does round-robin assignment
-with no clause learning or watched literals.
+The Rust CDCL solver (splr) is the only solver backend.  These tests
+validate that the solver correctly enforces capacity, diff-pair, and
+layer constraints, and that the constraint audit catches violations.
 
-Tests that exercise the sequential counter directly (without requiring
-CDCL) live in test_sat_model.py and validate via exhaustive search.
+Tests are skipped if temper-rust-router is not installed.
 
 Origin: U2 (replaced) of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 """
 
-import os
-import sys
-
 import pytest
-
-# All tests in this file require the Rust backend for CDCL solving.
-pytestmark = pytest.mark.skipif(
-    os.environ.get("TEMPER_SAT_BACKEND") != "rust",
-    reason="Requires CDCL solver (TEMPER_SAT_BACKEND=rust and temper-rust-router installed). "
-           "The Python greedy solver cannot correctly handle sequential-counter AtMostK encoding.",
-)
 
 _HAS_RUST = False
 try:
@@ -31,29 +19,24 @@ try:
 except ImportError:
     pass
 
-
-def _requires_rust(f):
-    """Decorator: skip test if the Rust crate is not importable."""
-    return pytest.mark.skipif(not _HAS_RUST, reason="temper-rust-router not installed")(f)
+pytestmark = pytest.mark.skipif(not _HAS_RUST, reason="temper-rust-router not installed")
 
 
 class TestCapacityAudit:
-    """Validate capacity enforcement — requires CDCL solver."""
+    """Validate capacity enforcement."""
 
-    @_requires_rust
     def test_audit_api_imports(self):
         """The audit_result function is importable from the Rust crate."""
         from temper_rust_router import audit_result
         assert callable(audit_result)
 
-    @_requires_rust
     def test_empty_model_clean(self):
         """Audit on an empty model returns zero violations."""
         from temper_rust_router import audit_result
         violations = audit_result([], [], {}, [])
         assert len(violations) == 0
 
-    @_requires_rust
+
     def test_4_nets_k2_rust_solver_clean(self):
         """4 nets sharing CH1, capacity 2 — Rust solver produces clean output."""
         from temper_rust_router import solve_topology_rust, audit_result
@@ -88,7 +71,7 @@ class TestCapacityAudit:
 class TestDiffPairAudit:
     """Validate diff-pair enforcement — requires CDCL solver."""
 
-    @_requires_rust
+
     def test_diff_pair_rust_solver_clean(self):
         """Diff pair must have matching truth values."""
         from temper_rust_router import solve_topology_rust, audit_result
@@ -120,7 +103,7 @@ class TestDiffPairAudit:
 class TestLayerAudit:
     """Validate layer-restriction enforcement — requires CDCL solver."""
 
-    @_requires_rust
+
     def test_layer_restriction_rust_solver(self):
         """Net restricted to false on a channel must be false."""
         from temper_rust_router import solve_topology_rust, audit_result
@@ -152,3 +135,48 @@ class TestLayerAudit:
 
         violations = audit_result(py_vars, py_cons, dict(result["assignments"]), ["net0"])
         assert len(violations) == 0
+
+
+class TestPysatCrossValidation:
+    """Cross-validate Rust solver against pysat (Glucose CDCL solver)."""
+
+    def test_rust_vs_pysat_capacity_agreement(self):
+        """Rust and pysat agree on SAT/UNSAT for capacity-constrained models."""
+        from itertools import combinations
+        from pysat.solvers import Glucose3
+        from temper_rust_router import solve_topology_rust, audit_result
+        from temper_placer.router_v6.constraint_model import (
+            CapacityConstraint, ConstraintModel, NetChannelVar,
+        )
+
+        # 4 nets, capacity 2.
+        cm = ConstraintModel()
+        vars_ = []
+        for i in range(4):
+            v = NetChannelVar(name=f"v{i}", net_idx=i, channel_id="CH1")
+            cm.add_variable(v)
+            vars_.append(v)
+        cm.add_constraint(CapacityConstraint(
+            name="cap", channel_id="CH1", capacity=2.0, slack_factor=1.0,
+            terms=[(v, 1.0) for v in vars_],
+        ))
+
+        py_vars = list(cm.variables)
+        py_cons = list(cm.constraints)
+        nets = [f"n{i}" for i in range(4)]
+
+        rust = solve_topology_rust(py_vars, py_cons, nets)
+        assert rust["status"] == "sat"
+
+        violations = audit_result(py_vars, py_cons, dict(rust["assignments"]), nets)
+        assert len(violations) == 0, f"Audit violations: {violations}"
+
+        # pysat: at most 2 of 4 via pairwise encoding of AtMostK(4,2).
+        s = Glucose3()
+        for combo in combinations(range(1, 5), 3):
+            s.add_clause([-lit for lit in combo])
+        assert s.solve(), "pysat expected SAT"
+        model = s.get_model()
+        assert model is not None
+        true_count = sum(1 for lit in model if lit > 0 and lit <= 4)
+        assert true_count <= 2, f"pysat capacity violation: {true_count} > 2"
