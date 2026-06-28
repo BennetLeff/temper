@@ -462,11 +462,10 @@ class RouterV6Pipeline:
         if self.verbose:
             print(f"  Generated {len(escape_vias)} escape vias")
 
-        # NOTE: No Stage 1 fence. The temper_drc Placement model only
-        # carries component-level data (no via positions or trace geometry).
-        # The drc_clearance and drc_component_overlap checks operate on
-        # component pairs only; a fence check at this stage would be a no-op.
-        # Revisit when the DRC input model supports via/trace primitives.
+        # NOTE: Stage 1 fence not yet wired. The temper_drc Placement model
+        # now supports via/trace geometry (via_spacing, trace_clearance)
+        # but _run_fence is not called here yet for escape vias.
+        # TODO: Add Stage 1 fence with drc_via_spacing invariant.
 
         # Stage 2: Channel analysis
         if self.verbose:
@@ -519,10 +518,10 @@ class RouterV6Pipeline:
                         f"Fail mode: {self.dfm_fail_on}."
                     )
 
-        # NOTE: No Stage 4 fence. Same reason as Stage 1 -- the DRC input
-        # model cannot represent routed traces or vias, so clearance and
-        # overlap checks on geometric realization output would be no-ops.
-        # Revisit when the DRC input model supports trace/via primitives.
+        # NOTE: Stage 4 fence not yet wired. The temper_drc Placement model
+        # now supports trace/via geometry (via_spacing, trace_clearance)
+        # but _run_fence is not called here yet for routing results.
+        # TODO: Add Stage 4 fence with drc_trace_clearance invariant.
 
         runtime = time.time() - start_time
 

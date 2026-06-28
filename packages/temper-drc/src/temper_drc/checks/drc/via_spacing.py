@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue, Location, Severity
 from temper_drc.input.constraints import ConstraintSet
@@ -40,8 +42,6 @@ class ViaSpacingCheck(Check):
         vias = getattr(via_placement, "vias", [])
         if not vias:
             return CheckResult(check_name=self.name, passed=True)
-
-        import math
 
         min_spacing = getattr(
             constraints, "default_via_spacing_mm", 0.6

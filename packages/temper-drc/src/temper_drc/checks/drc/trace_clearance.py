@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue, Location, Severity
 from temper_drc.input.constraints import ConstraintSet
@@ -40,8 +42,6 @@ class TraceClearanceCheck(Check):
         segments = getattr(trace_placement, "segments", [])
         if not segments:
             return CheckResult(check_name=self.name, passed=True)
-
-        import math
 
         min_clearance = getattr(
             constraints, "default_trace_clearance_mm", 0.2
@@ -92,7 +92,6 @@ def _segment_to_segment_distance(
     b_end: tuple[float, float],
 ) -> float:
     """Minimum distance between two line segments in 2D."""
-    import math
 
     def _point_segment_dist(
         px: float, py: float, sx: float, sy: float, ex: float, ey: float
