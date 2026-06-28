@@ -11,7 +11,11 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - pathlib
+      - re
+      - sys
+      - uuid
   - pathlib
   - re
   - sys
@@ -26,7 +30,15 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - argparse
+      - datetime
+      - json
+      - pathlib
+      - subprocess
+      - sys
+      - typing
+      - yaml
   - argparse
   - datetime
   - json
@@ -49,7 +61,16 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - argparse
+      - ast
+      - json
+      - os
+      - pathlib
+      - re
+      - rich.console
+      - subprocess
+      - sys
   - argparse
   - ast
   - json
@@ -74,7 +95,21 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - argparse
+      - jax
+      - json
+      - os
+      - pathlib
+      - rich.console
+      - sys
+      - temper_placer.io.config_loader
+      - temper_placer.io.kicad_parser
+      - temper_placer.losses.base
+      - temper_placer.losses.boundary
+      - temper_placer.losses.overlap
+      - temper_placer.losses.regularization
+      - temper_placer.losses.wirelength
   - argparse
   - jax
   - json
@@ -109,7 +144,8 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - sys
   - argparse
   - benchmark_baselines
   - jax
@@ -134,7 +170,12 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - __future__
+      - argparse
+      - pathlib
+      - subprocess
+      - sys
   - __future__
   - argparse
   - pathlib
@@ -151,7 +192,9 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - pathlib
+      - sys
   - pathlib
   - sys
   - pathlib
@@ -162,7 +205,10 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - argparse
+      - pathlib
+      - sys
   - argparse
   - pathlib
   - sys
@@ -175,7 +221,11 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - argparse
+      - pathlib
+      - re
+      - sys
   - argparse
   - pathlib
   - re
@@ -190,7 +240,12 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - argparse
+      - datetime
+      - json
+      - pathlib
+      - sys
   - argparse
   - datetime
   - json
@@ -207,7 +262,12 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - dataclasses
+      - json
+      - pathlib
+      - sys
+      - typing
   - dataclasses
   - json
   - pathlib
@@ -224,7 +284,10 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - pathlib
+      - sys
+      - temper_placer.io.kicad_parser
   - pathlib
   - sys
   - temper_placer.io.kicad_parser
@@ -237,7 +300,14 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - argparse
+      - datetime
+      - jax
+      - json
+      - pathlib
+      - sys
+      - yaml
   - argparse
   - datetime
   - jax
@@ -258,7 +328,9 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - pathlib
+      - sys
   - pathlib
   - sys
   - pathlib
@@ -269,7 +341,9 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - pathlib
+      - temper_placer.core.design_rules
   - pathlib
   - temper_placer.core.design_rules
   - pathlib
@@ -280,7 +354,14 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - argparse
+      - datetime
+      - os
+      - pathlib
+      - re
+      - subprocess
+      - sys
   - argparse
   - datetime
   - os
@@ -301,7 +382,24 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - argparse
+      - jax.numpy
+      - math
+      - pathlib
+      - rich.console
+      - sys
+      - temper_placer.core.loop
+      - temper_placer.io.kicad_parser
+      - temper_placer.io.trace_writer
+      - temper_placer.io.zone_manager
+      - temper_placer.router_v6.adapter
+      - temper_placer.routing.constraints.geometry
+      - temper_placer.routing.constraints.spatial_index
+      - temper_placer.routing.fanout
+      - temper_placer.routing.layer_assignment
+      - temper_placer.routing.net_ordering
+      - time
   - argparse
   - jax.numpy
   - math
@@ -342,7 +440,13 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - __future__
+      - datetime
+      - json
+      - math
+      - pathlib
+      - sys
   - __future__
   - datetime
   - json
@@ -361,7 +465,23 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - __future__
+      - argparse
+      - dataclasses
+      - datetime
+      - json
+      - pathlib
+      - subprocess
+      - sys
+      - temper_placer.core.netlist
+      - temper_placer.core.state
+      - temper_placer.io
+      - temper_placer.losses.base
+      - temper_placer.metrics.quality
+      - temper_placer.routing.analysis
+      - tempfile
+      - typing
   - __future__
   - argparse
   - dataclasses
@@ -400,7 +520,21 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - argparse
+      - datetime
+      - json
+      - logging
+      - pathlib
+      - subprocess
+      - sys
+      - temper_placer.deterministic
+      - temper_placer.deterministic.feedback
+      - temper_placer.io.config_loader
+      - temper_placer.io.kicad_metadata
+      - temper_placer.io.kicad_parser
+      - temper_placer.io.kicad_writer
+      - temper_placer.io.zone_manager
   - argparse
   - datetime
   - json
@@ -435,7 +569,13 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - ast
+      - json
+      - os
+      - pathlib
+      - re
+      - sys
   - ast
   - json
   - os
@@ -454,7 +594,12 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: shell-invoked
-  imports:
+    imports:
+      - argparse
+      - dataclasses
+      - pathlib
+      - re
+      - typing
   - argparse
   - dataclasses
   - pathlib
@@ -471,7 +616,12 @@ scripts:
   last_run: '2026-06-22'
   category: keep
   disposition: ci-gate
-  imports:
+    imports:
+      - argparse
+      - pathlib
+      - re
+      - subprocess
+      - sys
   - argparse
   - pathlib
   - re
@@ -488,7 +638,15 @@ scripts:
   last_run: '2026-06-23'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - __future__
+      - argparse
+      - cProfile
+      - io
+      - pathlib
+      - pstats
+      - sys
+      - time
   - argparse
   - cProfile
   - io
@@ -504,7 +662,19 @@ scripts:
   last_run: '2026-06-23'
   category: keep
   disposition: utility
-  imports:
+    imports:
+      - __future__
+      - argparse
+      - cProfile
+      - io
+      - json
+      - logging
+      - os
+      - pathlib
+      - pstats
+      - sys
+      - time
+      - typing
   - argparse
   - cProfile
   - io
@@ -525,4 +695,11 @@ scripts:
   last_run: '2026-06-28'
   category: keep
   disposition: utility
-  imports: []
+    imports:
+      - __future__
+      - json
+      - os
+      - pathlib
+      - subprocess
+      - sys
+      - time
