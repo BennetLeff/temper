@@ -84,7 +84,7 @@ jobs:
         id: drift
         run: |
           DRIFT_REPORT=$(uv run python scripts/pipeline_metrics.py trend \
-            --board temper --stage all --window 7d --json 2>&1) || true
+            --board temper --stage closure --window 7d --json 2>&1) || true
           echo "report<<EOF" >> "$GITHUB_OUTPUT"
           echo "$DRIFT_REPORT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
