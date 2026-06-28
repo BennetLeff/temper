@@ -1,0 +1,219 @@
+name: Health Digest
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+jobs:
+  digest:
+    name: Weekly Health Digest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Collect CI workflow status
+        id: ci-status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflows = [
+              "python-tests.yml", "firmware-tests.yml", "placer-regression.yml",
+              "golden-check.yml", "regression.yml", "metrics-record.yml",
+              "metrics-trend-check.yml"
+            ];
+            const results = [];
+            for (const wf of workflows) {
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner, repo: context.repo.repo,
+                workflow_id: wf, branch: "main", per_page: 1
+              });
+              const latest = runs.data.workflow_runs[0];
+              results.push({
+                workflow: wf,
+                status: latest ? latest.conclusion : "unknown",
+                url: latest ? latest.html_url : ""
+              });
+            }
+            const fs = require("fs");
+            fs.writeFileSync("ci-status.json", JSON.stringify(results, null, 2));
+
+      - name: Coverage gate status
+        id: coverage
+        run: |
+          COUNT=$(grep -c '^temper_placer' .coverage-allowlist || echo "0")
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Coverage allowlist: $COUNT entries"
+
+      - name: Golden fixture parity
+        id: golden
+        run: |
+          GOLDEN_FAILURES=""
+          for boundary in semantic topological placement routing validation; do
+            if uv run temper dsn check \
+              --boundary "$boundary" \
+              --input pcb/temper.kicad_pcb \
+              --config pcb/temper_config.yaml \
+              --golden-dir power_pcb_dataset/goldens/temper 2>&1; then
+              echo "  $boundary: passed"
+            else
+              echo "  $boundary: FAILED"
+              GOLDEN_FAILURES="$GOLDEN_FAILURES $boundary"
+            fi
+          done
+          if [ -n "$GOLDEN_FAILURES" ]; then
+            echo "golden_failures=$GOLDEN_FAILURES" >> "$GITHUB_OUTPUT"
+          else
+            echo "golden_failures=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pipeline metrics drift
+        id: drift
+        run: |
+          DRIFT_REPORT=$(uv run python scripts/pipeline_metrics.py trend \
+            --board temper --stage all --window 7d --json 2>&1) || true
+          echo "report<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$DRIFT_REPORT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Script sunset warnings
+        id: sunset
+        run: |
+          SUNSET_OUTPUT=$(uv run python scripts/check_script_sunset.py 2>&1 || true)
+          WARNINGS=$(echo "$SUNSET_OUTPUT" | grep -c "WARNING" || echo "0")
+          ESCALATES=$(echo "$SUNSET_OUTPUT" | grep -c "ESCALATE" || echo "0")
+          echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
+          echo "escalates=$ESCALATES" >> "$GITHUB_OUTPUT"
+          echo "Script sunset: $WARNINGS warning(s), $ESCALATES escalate(s)"
+
+      - name: Import-linter status
+        id: import-linter
+        run: |
+          BASELINE=$(uv run python -c \
+            "import yaml; print(len(yaml.safe_load(open('import-linter-baseline.yaml'))['violations']))" 2>/dev/null || echo "0")
+          ALLOWLIST=$(uv run python -c \
+            "import yaml; print(len(yaml.safe_load(open('import-linter-allowlist.yaml'))['allowlist']))" 2>/dev/null || echo "0")
+          echo "baseline=$BASELINE" >> "$GITHUB_OUTPUT"
+          echo "allowlist=$ALLOWLIST" >> "$GITHUB_OUTPUT"
+          echo "Import boundaries: $BASELINE baseline violation(s), $ALLOWLIST allowlist exemption(s)"
+
+      - name: Publish health digest issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const ciStatus = JSON.parse(fs.readFileSync("ci-status.json", "utf8"));
+
+            const coverageCount = "${{ steps.coverage.outputs.count }}";
+            const goldenFailures = "${{ steps.golden.outputs.golden_failures }}".trim();
+            const driftReport = `${{ steps.drift.outputs.report }}`;
+            const sunsetWarnings = "${{ steps.sunset.outputs.warnings }}";
+            const sunsetEscalates = "${{ steps.sunset.outputs.escalates }}";
+            const importBaseline = "${{ steps.import-linter.outputs.baseline }}";
+            const importAllowlist = "${{ steps.import-linter.outputs.allowlist }}";
+
+            // Build CI status section
+            let ciSection = "";
+            const passCount = ciStatus.filter(r => r.status === "success").length;
+            const failCount = ciStatus.filter(r => r.status === "failure").length;
+            const otherCount = ciStatus.length - passCount - failCount;
+
+            if (failCount === 0 && otherCount === 0) {
+              ciSection = "All 7 CI workflows passing.";
+            } else {
+              ciSection = `${passCount} passing, ${failCount} failing`;
+              if (otherCount > 0) ciSection += `, ${otherCount} other`;
+              ciSection += ".\n";
+              for (const r of ciStatus) {
+                if (r.status !== "success") {
+                  ciSection += `- ${r.workflow}: ${r.status} ([run](${r.url}))\n`;
+                }
+              }
+            }
+
+            // Build golden fixture section
+            let goldenSection = "";
+            if (goldenFailures) {
+              goldenSection = `Golden fixture failures: ${goldenFailures}`;
+            } else {
+              goldenSection = "All 5 golden fixture boundaries passing.";
+            }
+
+            // Build drift section
+            let driftSection = "";
+            if (driftReport && driftReport.trim()) {
+              driftSection = "Drift detected:\n```\n" + driftReport + "\n```";
+            } else {
+              driftSection = "No pipeline metrics drift detected (7-day window).";
+            }
+
+            // Build sunset section
+            let sunsetSection = `${sunsetWarnings} script(s) at WARNING (30d no invocation), ${sunsetEscalates} at ESCALATE (60d).`;
+
+            // Build import-linter section
+            let importSection = `${importBaseline} baseline violations, ${importAllowlist} allowlist exemptions.`;
+
+            // Determine preamble
+            const allClear = failCount === 0 && otherCount === 0 && !goldenFailures &&
+                             !driftReport.trim() && sunsetEscalates === "0";
+            const preamble = allClear
+              ? "All clear — no drift, no fixture failures, no new sunset warnings."
+              : "Regressions detected this week — see sections below.";
+
+            const today = new Date().toISOString().split("T")[0];
+            const title = "Weekly Health Digest";
+            const body = [
+              "## Temper Health Digest — " + today,
+              "",
+              preamble,
+              "",
+              "### CI Workflows",
+              ciSection,
+              "",
+              "### Coverage Gate",
+              "Coverage allowlist: " + coverageCount + " entries.",
+              "",
+              "### Golden Fixture Parity",
+              goldenSection,
+              "",
+              "### Pipeline Metrics Drift",
+              driftSection,
+              "",
+              "### Script Sunset",
+              sunsetSection,
+              "",
+              "### Import-Linter Boundaries",
+              importSection
+            ].join("\n");
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: "open", labels: ["health-digest"]
+            });
+
+            if (issues.length > 0) {
+              await github.rest.issues.update({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: issues[0].number, body
+              });
+              console.log(`Updated existing health-digest issue #${issues[0].number}`);
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ["health-digest"]
+              });
+              console.log("Created new health-digest issue");
+            }
