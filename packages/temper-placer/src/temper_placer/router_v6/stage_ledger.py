@@ -161,6 +161,16 @@ def _snapshot(state_or_pcb: Any) -> _CardinalitySnapshot:
                 if hasattr(v, "channels"):
                     snap.channel_count += len(v.channels)
 
+    # Segment count from routing results
+    results = getattr(state_or_pcb, "routing_results", None)
+    if results is not None and hasattr(results, "compiled_routes"):
+        for route in results.compiled_routes.values():
+            path = getattr(route, "path", None)
+            if hasattr(path, "segments"):
+                snap.segment_count += len(path.segments)
+            elif hasattr(path, "coordinates"):
+                snap.segment_count += max(0, len(path.coordinates) - 1)
+
     return snap
 
 

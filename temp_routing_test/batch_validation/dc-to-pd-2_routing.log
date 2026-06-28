@@ -1,0 +1,1166 @@
+DEBUG: Loading design_rules.py
+Loading PCB: temp_routing_test/batch_validation/dc-to-pd-2_unrouted.kicad_pcb
+Loaded 95 components, 55 nets.
+Initializing ExactGeometryRouter...
+    [INIT] Starting ExactGeometryRouter.__init__...
+    [INIT] Basic attributes set
+    [INIT] Getting board polygon...
+    [INIT] Board polygon created: (0.0, 0.0, 100.0, 33.0)
+    [DEBUG] Creating ViaPlanner...
+    [DEBUG] Building base obstacles...
+      [OBS] Setting up layers...
+      [OBS] Using 4 copper layers: ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
+      [OBS] Building component lookup...
+      [OBS] Reading KiCad pad positions...
+      [OBS] Read 0 pad positions from KiCad
+      [OBS] Processing 55 nets...
+      [OBS] Net pads built: 55 nets
+      [OBS] Adding pad obstacles...
+      [OBS] Added 264 pad obstacles from nets
+      [OBS] Adding unconnected pad obstacles...
+      [OBS] Added 62 unconnected pad obstacles
+      [OBS] Total obstacles: 1304
+      [OBS] Building spatial indices...
+    [DEBUG] Creating ViaPlanner with layers: ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
+    [DEBUG] Registering pad positions for hole clearance...
+      [VIA] Registered 262 pads for hole clearance
+    [DEBUG] Base obstacles built: ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
+    [DEBUG] Router initialization complete
+Starting Routing...
+[ROUTE_ALL] Starting route_all()
+[PLANARITY] Running topological analysis...
+  [PLANARITY] Built demand graph for 55 nets with 95 component positions.
+  [PLANARITY] Logic result: NON-PLANAR
+  [PLANARITY] Found 0 non-planar kernels.
+  [PLANARITY] Tagged 0 nets as CROSSING_DEPENDENT.
+  [LAYER] Assigned 0 nets to layers via 2-coloring.
+    F.Cu: 0, B.Cu: 0
+  Prioritizing complex nets: ['GND', 'V_SRC', 'Net-(Dboost1-Pad2)', '/VIN_PROTECTED', 'Net-(RV1-Pad2)', '/FB', '/CS', '/HS', '/GATE_-', '/VIN_FUSED', 'POWER_EN_L', '/VBUS_OUT', 'Net-(Cvaux1-Pad1)', '+5V', 'Net-(IC2-Pad22)', 'Net-(C1-Pad1)', '/VIN_CONN']
+[ROUTE_ALL] Identifying differential pairs from 55 nets...
+  Found 0 differential pairs (0 skipped - zone nets)
+  Skipping GND: Connected via copper zone
+  Skipping V_SRC: Connected via copper zone
+  Skipping Net-(Dboost1-Pad2): Connected via copper zone
+  Skipping /VIN_PROTECTED: Connected via copper zone
+  [DEBUG] Routing Net-(RV1-Pad2) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=67.26mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 274 -> 274
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 274 → 10 obstacles
+    [HOMOTOPY] Clustered obstacles: 274 -> 10
+    [DEBUG] Starting homotopy enumeration (10 obstacles)...
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 1024 to 10
+    [HOMOTOPY] Base Class (1/10): -Cinbulk1_merged(2) -Cluster(C10_merged(2, C12_merged(2, C13_merged(2... +3...... -Cluster(C11_merged(2, Dbuck1_merged(2, NC_Dbuck1_... +1..... -Cluster(C4_merged(2, C5_merged(2, C6_merged(2... +1... +1... -Cluster(Cinbulk2_merged(2), Cinbulk3_merged(2)) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(D1_merged(2, D2_merged(2, D3_merged(2... +3... +1... -L1_merged(2) -NC_H2_1 -NC_J2_S1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_H2_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_H2_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+L1_merged(2)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+L1_merged(2), +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+L1_merged(2), +NC_H2_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+L1_merged(2), +NC_H2_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(D1_merged(2, D2_merged(2, D3_merged(2... +3... +1...]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(D1_merged(2, D2_merged(2, D3_merged(2... +3... +1..., +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (264 points)
+    [MAZE] Seeded homotopy class: -Cinbulk1_merged(2) +Cluster(C10_merged(2, C12_merged(2, C13_merged(2... +3...... +Cluster(C11_merged(2, Dbuck1_merged(2, NC_Dbuck1_... +1..... +Cluster(C4_merged(2, C5_merged(2, C6_merged(2... +1... +1... +Cluster(Cinbulk2_merged(2), Cinbulk3_merged(2)) +Cluster(Cout1_merged(2), Cout2_merged(2)) +Cluster(D1_merged(2, D2_merged(2, D3_merged(2... +3... +1... +L1_merged(2) +NC_H2_1 +NC_J2_S1
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+    [DEBUG] _route_pad_pair: dist=3.59mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 274 -> 32
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 32 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1] -> Cluster_2 (Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1)
+    [HOMOTOPY] Merging [Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)] -> Cluster_4 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2))
+    [HOMOTOPY] Clustered obstacles: 32 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -C9-1 -Cluster(Cinbulk2_merged(2, Cinbulk3_merged(2) -Cluster_2 (Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1) -Cluster(J1_merged(2, NC_J1_2, NC_Q4_... +1) -Cluster_4 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)) -NC_H2_1 -NC_J1_1 -RV1-1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+RV1-1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J1_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J1_1, +RV1-1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H2_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H2_1, +RV1-1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H2_1, +NC_J1_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H2_1, +NC_J1_1, +RV1-1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster_4 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2))]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster_4 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)), +RV1-1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (13 points)
+    [MAZE] Seeded homotopy class: +C9-1 +Cluster(Cinbulk2_merged(2, Cinbulk3_merged(2) +Cluster(J1_merged(2, NC_J1_2, NC_Q4_... +1) +Cluster_2 (Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1) +Cluster_4 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)) +NC_H2_1 +NC_J1_1 +RV1-1
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+    [DEBUG] _route_pad_pair: dist=6.25mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 274 -> 31
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 31 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1] -> Cluster_1 (Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1)
+    [HOMOTOPY] Merging [Cluster(J1_merged(2, NC_J1_2, Q4_merged(3), NC_Q4_] -> Cluster_2 (Cluster(J1_merged(2, NC_J1_2, Q4_merged(3), NC_Q4_)
+    [HOMOTOPY] Merging [Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)] -> Cluster_3 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2))
+    [HOMOTOPY] Clustered obstacles: 31 -> 7
+    [DEBUG] Starting homotopy enumeration (7 obstacles)...
+  [HOMOTOPY] Generated 128 raw homotopy classes.
+  [HOMOTOPY] Enumerated 128 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 128 raw homotopy classes.
+  [HOMOTOPY] Enumerated 128 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 128 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster(Cinbulk2_merged(2, Cinbulk3_merged(2) -Cluster_1 (Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1) -Cluster_2 (Cluster(J1_merged(2, NC_J1_2, Q4_merged(3), NC_Q4_) -Cluster_3 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)) -NC_H2_1 -NC_J1_1 -RV1-1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+RV1-1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J1_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J1_1, +RV1-1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H2_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H2_1, +RV1-1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H2_1, +NC_J1_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H2_1, +NC_J1_1, +RV1-1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster_3 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2))]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster_3 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)), +RV1-1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (37 points)
+    [MAZE] Seeded homotopy class: -Cluster(Cinbulk2_merged(2, Cinbulk3_merged(2) +Cluster_1 (Cluster(IC3_merged(8, Ruv2_merged(2), Ruv1-1) -Cluster_2 (Cluster(J1_merged(2, NC_J1_2, Q4_merged(3), NC_Q4_) -Cluster_3 (Cluster(NC_Q2_, Q2_merged(3), D3_merged(2)) -NC_H2_1 +NC_J1_1 -RV1-1
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ Net-(RV1-Pad2): 23 segments, 65.02mm
+  Skipping /FB: Connected via copper zone
+  Skipping /CS: Connected via copper zone
+  Skipping /HS: Connected via copper zone
+  Skipping /GATE_-: Connected via copper zone
+  Skipping /VIN_FUSED: Connected via copper zone
+  Skipping POWER_EN_L: Connected via copper zone
+  Skipping /VBUS_OUT: Connected via copper zone
+  Skipping Net-(Cvaux1-Pad1): Connected via copper zone
+  Skipping +5V: Connected via copper zone
+  Skipping Net-(IC2-Pad22): Connected via copper zone
+  Skipping Net-(C1-Pad1): Connected via copper zone
+  Skipping /VIN_CONN: Connected via copper zone
+  [DEBUG] Routing /CC2 on F.Cu...
+    [DEBUG] _route_pad_pair: dist=5.70mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 298 -> 164
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 164 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2)] -> Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 164 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2)) -Cluster(Ccomp1_merged(2, NC_U1_, NC_U1_11... +2) -Cluster(Cout1-2, Cout2_merged(2) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4-1... +2) -Crx2-2 -NC_H4_1 -NC_J2_S1 -R7_merged(2) -SEG_Net_merged(23)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+SEG_Net_merged(23)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+R7_merged(2), +SEG_Net_merged(23)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_J2_S1, +SEG_Net_merged(23)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_J2_S1, +R7_merged(2), +SEG_Net_merged(23)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_H4_1, +SEG_Net_merged(23)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 0->1. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ /CC2: No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing Net-(Rt1-Pad1) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=5.42mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 298 -> 139
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 139 → 10 obstacles
+    [HOMOTOPY] Clustered obstacles: 139 -> 10
+    [DEBUG] Starting homotopy enumeration (10 obstacles)...
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 1024 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster(C3-1, NC_J2_S1) -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Css1_merged(2..... -Cluster(Cf1_merged(2, Cslew1_merged(2, Cvaux1-1... +3... +1) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -Cluster(Rramp1_merged(2), Cramp1-1) -L1-2 -NC_H3_1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+L1-2]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster(Rramp1_merged(2), Cramp1-1)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster(Rramp1_merged(2), Cramp1-1), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster(Rramp1_merged(2), Cramp1-1), +L1-2]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster(Rramp1_merged(2), Cramp1-1), +L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2)]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (4 points)
+    [MAZE] Seeded homotopy class: +C10_merged(2) -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) +Cluster(C3-1, NC_J2_S1) +Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Css1_merged(2..... +Cluster(Cf1_merged(2, Cslew1_merged(2, Cvaux1-1... +3... +1) -Cluster(Cout1_merged(2), Cout2_merged(2)) +Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) +Cluster(Rramp1_merged(2), Cramp1-1) -L1-2 +NC_H3_1
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ Net-(Rt1-Pad1): 1 segments, 0.60mm
+  [DEBUG] Routing Net-(R10-Pad2) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=7.49mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 300 -> 154
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 154 → 10 obstacles
+    [HOMOTOPY] Clustered obstacles: 154 -> 10
+    [DEBUG] Starting homotopy enumeration (10 obstacles)...
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 1024 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -C14_merged(2) -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster(C2_merged(2, Cvpwr1-1, Q5_merged(3... +1) -Cluster(C3-1, Cf1_merged(2, Cslew1_merged(2... +3... +1) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -L1-2 -NC_H3_1 -NC_J2_S1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+L1-2]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+L1-2, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+L1-2, +NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2)]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(R10-Pad2): No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing Net-(Cramp1-Pad1) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=6.71mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 299 -> 146
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 146 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(10, NC_J2_... +3... +1), R5_merged(2)] -> Cluster_2 (Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(10, NC_J2_... +3... +1), R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 146 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster_2 (Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(10, NC_J2_... +3... +1), R5_merged(2)) -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Cramp1-2... +3) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -L1-2 -NC_H3_1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+L1-2]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +L1-2]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(Cout1_merged(2), Cout2_merged(2))]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(Cout1_merged(2), Cout2_merged(2)), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 0->1. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(Cramp1-Pad1): No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing Net-(Css1-Pad1) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=3.73mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 300 -> 160
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 160 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(10, NC_J2_... +1... +2......, R5_merged(2)] -> Cluster_3 (Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(10, NC_J2_... +1... +2......, R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 160 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster(C2_merged(2, Q5-1, R1-2) -Cluster_3 (Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(10, NC_J2_... +1... +2......, R5_merged(2)) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -L1-2 -NC_H3_1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+L1-2]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +L1-2]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(Cout1_merged(2), Cout2_merged(2))]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(Cout1_merged(2), Cout2_merged(2)), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(Css1-Pad1): No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing Net-(Ccomp1-Pad2) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=2.05mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 299 -> 171
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 171 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +2....., R5_merged(2)] -> Cluster_3 (Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +2....., R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 171 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -C14-2 -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster_3 (Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +2....., R5_merged(2)) -Cluster(Ccomp1-1, Ccomp2_merged(2, R10_merged(2... +1) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -L1-2 -NC_H3_1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+L1-2]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +L1-2]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +L1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(Cout1_merged(2), Cout2_merged(2))]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(Cout1_merged(2), Cout2_merged(2)), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 0->2. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(Ccomp1-Pad2): No path from pad 0 to 2 (multi-layer also failed)
+  [DEBUG] Routing /CSG on F.Cu...
+    [DEBUG] _route_pad_pair: dist=47.64mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 300 -> 274
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 274 → 10 obstacles
+    [HOMOTOPY] Clustered obstacles: 274 -> 10
+    [DEBUG] Starting homotopy enumeration (10 obstacles)...
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 1024 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster(C10_merged(2, C11_merged(2, C12_merged(2... +3...... -Cluster(C4_merged(2, C5_merged(2, C6_merged(2... +1... +1) -Cluster(C9_merged(2, NC_Qbuck1_, Qbuck1_merged(3... +1) -Cluster(Cinbulk2_merged(2), Cinbulk3_merged(2)) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(D3-2, J1-2, NC_J1_2... +3) -L1_merged(2) -NC_Dboost1_2 -NC_H3_1 -NC_J2_S1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_Dboost1_2]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_Dboost1_2, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_Dboost1_2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_Dboost1_2, +NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+L1_merged(2)]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+L1_merged(2), +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+  All homotopy classes exhausted for (114.97, 35.625) -> (67.3625, 37.375)
+  Generated 10 Benders cuts
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ /CSG: No path from pad 0 to 1 (multi-layer also failed)
+  Skipping /boost_gate: Connected via copper zone
+  [DEBUG] Routing Net-(Cvcc1-Pad1) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=1.93mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 299 -> 154
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 154 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C3_merged(2, Cdvdd1_merged(2, Cf1_merged(2... +3), R5_merged(2)] -> Cluster_2 (Cluster(C3_merged(2, Cdvdd1_merged(2, Cf1_merged(2... +3), R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 154 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster_2 (Cluster(C3_merged(2, Cdvdd1_merged(2, Cf1_merged(2... +3), R5_merged(2)) -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Cramp1_merged(2... -Cluster(Cout1-2, Cout2-2) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -Cluster(Cvcc1-2, Rfbl1_merged(2, Rfbl2_merged(2... +1) -NC_H3_1 -NC_J2_S1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster(Cvcc1-2, Rfbl1_merged(2, Rfbl2_merged(2... +1)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster(Cvcc1-2, Rfbl1_merged(2, Rfbl2_merged(2... +1), +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster(Cvcc1-2, Rfbl1_merged(2, Rfbl2_merged(2... +1), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster(Cvcc1-2, Rfbl1_merged(2, Rfbl2_merged(2... +1), +NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2)]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2), +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 0->2. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(Cvcc1-Pad1): No path from pad 0 to 2 (multi-layer also failed)
+  [DEBUG] Routing Net-(C10-Pad2) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=4.39mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 300 -> 140
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 140 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(15, NC_J2_... +1... +1), R5_merged(2)] -> Cluster_2 (Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(15, NC_J2_... +1... +1), R5_merged(2))
+    [HOMOTOPY] Merging [Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), Cluster(D4_merged(2, R9_merged(2)] -> Cluster_3 (Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), Cluster(D4_merged(2, R9_merged(2))
+    [HOMOTOPY] Clustered obstacles: 140 -> 7
+    [DEBUG] Starting homotopy enumeration (7 obstacles)...
+  [HOMOTOPY] Generated 128 raw homotopy classes.
+  [HOMOTOPY] Enumerated 128 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 128 raw homotopy classes.
+  [HOMOTOPY] Enumerated 128 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 128 to 10
+    [HOMOTOPY] Base Class (1/10): -C10-1 -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster_2 (Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(15, NC_J2_... +1... +1), R5_merged(2)) -Cluster_3 (Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), Cluster(D4_merged(2, R9_merged(2)) -Cout1-2 -NC_H3_1 -NC_J2_S1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cout1-2]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cout1-2, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cout1-2, +NC_H3_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cout1-2, +NC_H3_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster_3 (Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), Cluster(D4_merged(2, R9_merged(2))]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster_3 (Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), Cluster(D4_merged(2, R9_merged(2)), +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (7 points)
+    [MAZE] Seeded homotopy class: -C10-1 +Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster_2 (Cluster(C3_merged(2, Cslew1_merged(2, Cvaux1_merged(2... ..., Cluster(Cf1_merged(2, J2_merged(15, NC_J2_... +1... +1), R5_merged(2)) -Cluster_3 (Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), Cluster(D4_merged(2, R9_merged(2)) +Cout1-2 -NC_H3_1 -NC_J2_S1
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ Net-(C10-Pad2): 1 segments, 1.20mm
+  Skipping /buck_gate: Connected via copper zone
+  [DEBUG] Routing /GATE_A+ on F.Cu...
+    [DEBUG] _route_pad_pair: dist=15.00mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 301 -> 67
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 67 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(D3_merged(2, F1_merged(2), Cluster(NC_Q2_, Q2_merged(3)] -> Cluster_2 (Cluster(D3_merged(2, F1_merged(2), Cluster(NC_Q2_, Q2_merged(3))
+    [HOMOTOPY] Clustered obstacles: 67 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster(Cinbulk1-1, D1_merged(2, D2_merged(2... +1) -Cluster(Cinbulk2_merged(2, Cinbulk3_merged(2) -Cluster_2 (Cluster(D3_merged(2, F1_merged(2), Cluster(NC_Q2_, Q2_merged(3)) -Cluster(IC3_merged(7, RV1_merged(3, Ruv1_merged(2... +1) -Cluster(NC_J1_2, NC_Q4_, Q4_merged(2) -H1-1 -J1_merged(2) -NC_H2_1 -NC_J1_1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_J1_1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_H2_1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_H2_1, +NC_J1_1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+J1_merged(2)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+J1_merged(2), +NC_J1_1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+J1_merged(2), +NC_H2_1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+J1_merged(2), +NC_H2_1, +NC_J1_1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+H1-1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+H1-1, +NC_J1_1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+  All homotopy classes exhausted for (46.45, 45.72) -> (40.39, 59.44)
+  Generated 10 Benders cuts
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ /GATE_A+: No path from pad 0 to 1 (multi-layer also failed)
+  Skipping /GATE_B_+: Connected via copper zone
+  [DEBUG] Routing Net-(IC2-Pad12) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=2.42mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 301 -> 150
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 150 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C12-2, C13-2, C14-2... +1... +1), Cluster(Cf1_merged(2, J2_merged(15, NC_J2_... +1... +1), R5_merged(2)] -> Cluster_0 (Cluster(C12-2, C13-2, C14-2... +1... +1), Cluster(Cf1_merged(2, J2_merged(15, NC_J2_... +1... +1), R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 150 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (Cluster(C12-2, C13-2, C14-2... +1... +1), Cluster(Cf1_merged(2, J2_merged(15, NC_J2_... +1... +1), R5_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -NC_H4_1 -NC_J2_S1 -NC_U1_11 -R7_merged(2) -Rsel1-2 -SEG_Net_merged(25)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+SEG_Net_merged(25)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+Rsel1-2]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+Rsel1-2, +SEG_Net_merged(25)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+R7_merged(2), +SEG_Net_merged(25)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+R7_merged(2), +Rsel1-2]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+R7_merged(2), +Rsel1-2, +SEG_Net_merged(25)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_U1_11]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_U1_11, +SEG_Net_merged(25)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(IC2-Pad12): No path from pad 0 to 1 (multi-layer also failed)
+  Skipping Net-(Q1-Pad1): Connected via copper zone
+  Skipping Net-(IC2-Pad23): Connected via copper zone
+  [DEBUG] Routing Net-(Ccomp2-Pad2) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=0.10mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 301 -> 147
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 147 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C2_merged(2, C3-1, Cslew1_merged(2... +3), Cluster(Cf1_merged(2, J2_merged(3, NC_Q3_... +1... +1), R5_merged(2)] -> Cluster_3 (Cluster(C2_merged(2, C3-1, Cslew1_merged(2... +3), Cluster(Cf1_merged(2, J2_merged(3, NC_Q3_... +1... +1), R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 147 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -C14_merged(2) -Cluster(C15_merged(2, C16_merged(2, C17_merged(2... +1) -Cluster_3 (Cluster(C2_merged(2, C3-1, Cslew1_merged(2... +3), Cluster(Cf1_merged(2, J2_merged(3, NC_Q3_... +1... +1), R5_merged(2)) -Cluster(Ccomp2-1, R10_merged(2)) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +... -L1-2
+    [HOMOTOPY] ✓ Class 1 SUCCESS
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ Net-(Ccomp2-Pad2): 1 segments, 0.10mm
+  [DEBUG] Routing Net-(Cvtx1-Pad1) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=5.28mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 302 -> 182
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 182 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1), Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +1....., R5_merged(2)] -> Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1), Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +1....., R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 182 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1), Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +1....., R5_merged(2)) -Cluster(Ccomp1_merged(2, Ccomp2-2, Cvcc1_merged(2... +3) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4-1... +2) -NC_Dboost1_ -NC_H4_1 -NC_J2_S1 -R7_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H4_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H4_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H4_1, +NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_Dboost1_]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_Dboost1_, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(Cvtx1-Pad1): No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing /CC1 on F.Cu...
+    [DEBUG] _route_pad_pair: dist=5.70mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 301 -> 173
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 173 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, Cluster(Cf1_merged(2, J2_merged(14, NC_J2_... +1... +1), R5_merged(2)] -> Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, Cluster(Cf1_merged(2, J2_merged(14, NC_J2_... +1... +1), R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 173 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, Cluster(Cf1_merged(2, J2_merged(14, NC_J2_... +1... +1), R5_merged(2)) -Cluster(Ccomp1_merged(2, Ccomp2-2, Cvcc1_merged(2... +3) -Cluster(Cout1-2, Cout2_merged(2) -Cluster(Crx1-2, Crx2_merged(2) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4-1... +2) -NC_H4_1 -NC_J2_S1 -R7_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H4_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H4_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H4_1, +NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4-1... +2)]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster(Csll1_merged(2, Cslu1_merged(2, D4-1... +2), +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 0->1. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ /CC1: No path from pad 0 to 1 (multi-layer also failed)
+  Skipping Net-(Cdvdd1-Pad1): Connected via copper zone
+  [DEBUG] Routing CTL1 on F.Cu...
+    [DEBUG] _route_pad_pair: dist=22.93mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 302 -> 209
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 209 → 10 obstacles
+    [HOMOTOPY] Clustered obstacles: 209 -> 10
+    [DEBUG] Starting homotopy enumeration (10 obstacles)...
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 1024 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -C15-2 -Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1...... -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Cinx1_merged(2.... -Cluster(Cout1-2, Cout2_merged(2) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -NC_H3_1 -NC_H4_1 -NC_J2_S1 -R7_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H4_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H4_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H4_1, +NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_H3_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ CTL1: No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing CTL2 on F.Cu...
+    [DEBUG] _route_pad_pair: dist=23.81mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 302 -> 207
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 207 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2)] -> Cluster_1 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 207 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster_1 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2)) -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Cinx1_merged(2.... -Cluster(Cout1-2, Cout2-2) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -NC_H3_1 -NC_H4_1 -NC_J2_S1 -R7_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H4_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H4_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H4_1, +NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_H3_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ CTL2: No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing CTL3 on F.Cu...
+    [DEBUG] _route_pad_pair: dist=24.08mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 302 -> 202
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 202 → 10 obstacles
+    [HOMOTOPY] Clustered obstacles: 202 -> 10
+    [DEBUG] Starting homotopy enumeration (10 obstacles)...
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 1024 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cinx1-2 -Cluster(C12-2, C13-2, C14-2... +1... +1... +3... +1) -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Cramp1_merged(2... -Cluster(Cout1-2, Cout2-2) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -NC_H3_1 -NC_H4_1 -NC_J2_S1 -R7_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H4_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H4_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H4_1, +NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_H3_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ CTL3: No path from pad 0 to 1 (multi-layer also failed)
+  Skipping Net-(Cf1-Pad1): Connected via copper zone
+  [DEBUG] Routing Net-(IC2-Pad24) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=9.74mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 302 -> 199
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 199 → 10 obstacles
+    [HOMOTOPY] Clustered obstacles: 199 -> 10
+    [DEBUG] Starting homotopy enumeration (10 obstacles)...
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 1024 raw homotopy classes.
+  [HOMOTOPY] Enumerated 1024 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 1024 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster(C12-2, C13_merged(2, C14_merged(2... +1... +1... +3) -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, Css1_merged(2..... -Cluster(Cout1-2, Cout2_merged(2) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4_merged(2... +2) -Cluster(J2_merged(15, NC_J2_, NC_J2_A8... +1... +1) -NC_H3_1 -NC_H4_1 -NC_J2_S1 -R7_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+R7_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_H4_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_H4_1, +NC_J2_S1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_H4_1, +NC_J2_S1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_H3_1, +R7_merged(2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(IC2-Pad24): No path from pad 0 to 1 (multi-layer also failed)
+  Skipping Net-(D2-Pad1): Connected via copper zone
+  Skipping Net-(Qbuck1-Pad1): Connected via copper zone
+  [DEBUG] Routing Net-(IC3-Pad8) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=11.02mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 301 -> 168
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 168 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2)] -> Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 168 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (Cluster(C12_merged(2, C13_merged(2, C14_merged(2... +1......, R5_merged(2)) -Cluster(Ccomp1_merged(2, Ccomp2_merged(2, NC_U1_11... +2) -Cluster(Cout1_merged(2), Cout2_merged(2)) -Cluster(Csll1-1, Rfbt1_merged(2), Cslu1_merged(2)) -Cluster(Dboost1-1, NC_Dboost1_) -NC_H4_1 -NC_J2_S1 -R7-2 -R9_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+R9_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+R7-2]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+R7-2, +R9_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_J2_S1, +R9_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_J2_S1, +R7-2]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_J2_S1, +R7-2, +R9_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_H4_1, +R9_merged(2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 0->1. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(IC3-Pad8): No path from pad 0 to 1 (multi-layer also failed)
+  Skipping Net-(D3-Pad1): Connected via copper zone
+  Skipping Net-(Cslew1-Pad1): Connected via copper zone
+  Skipping Net-(Q3-Pad1): Connected via copper zone
+  [DEBUG] Routing Net-(RV1-Pad1) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=9.76mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 302 -> 63
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 63 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(D3_merged(2, F1-2), Cluster(NC_Q2_, Q2_merged(3)] -> Cluster_3 (Cluster(D3_merged(2, F1-2), Cluster(NC_Q2_, Q2_merged(3))
+    [HOMOTOPY] Merging [Cluster(J1_merged(2, NC_J1_2, Q4_merged(3), NC_Q4_] -> Cluster_5 (Cluster(J1_merged(2, NC_J1_2, Q4_merged(3), NC_Q4_)
+    [HOMOTOPY] Clustered obstacles: 63 -> 8
+    [DEBUG] Starting homotopy enumeration (8 obstacles)...
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 256 raw homotopy classes.
+  [HOMOTOPY] Enumerated 256 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 256 to 10
+    [HOMOTOPY] Base Class (1/10): -C9-1 -Cluster(Cinbulk2_merged(2, Cinbulk3_merged(2) -Cluster(D1-1, R4_merged(2, SEG_Net_merged(26) -Cluster_3 (Cluster(D3_merged(2, F1-2), Cluster(NC_Q2_, Q2_merged(3)) -Cluster(IC3_merged(8, RV1_merged(2, Ruv1_merged(2... +1) -Cluster_5 (Cluster(J1_merged(2, NC_J1_2, Q4_merged(3), NC_Q4_) -NC_H2_1 -NC_J1_1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_J1_1]
+    [HOMOTOPY] ✓ Class 2 SUCCESS
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ Net-(RV1-Pad1): 2 segments, 10.40mm
+  [DEBUG] Routing Net-(D4-Pad2) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=21.83mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 304 -> 177
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 177 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +1....., R5_merged(2)] -> Cluster_1 (Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +1....., R5_merged(2))
+    [HOMOTOPY] Clustered obstacles: 177 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster_1 (Cluster(C2_merged(2, C3_merged(2, Cdvdd1_merged(2... +1....., R5_merged(2)) -Cluster(Csll1_merged(2, Cslu1_merged(2, D4-1... +2) -Cluster(Cvcc1_merged(2, NC_U1_, NC_U1_11... +3) -NC_H3_1 -NC_H4_1 -NC_J2_S1 -R7-1 -SEG_Net_merged(28)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+SEG_Net_merged(28)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+R7-1]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+R7-1, +SEG_Net_merged(28)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+NC_J2_S1]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+NC_J2_S1, +SEG_Net_merged(28)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+NC_J2_S1, +R7-1]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+NC_J2_S1, +R7-1, +SEG_Net_merged(28)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+NC_H4_1]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+NC_H4_1, +SEG_Net_merged(28)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] ✓ Exact route SUCCESS via maze seeding
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ Net-(D4-Pad2): 6 segments, 27.21mm
+  [DEBUG] Routing Net-(C11-Pad2) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=1.55mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 310 -> 68
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 68 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C11-1, Cinbulk1_merged(2, Dbuck1_merged(2... +2....., D1-2] -> Cluster_5 (Cluster(C11-1, Cinbulk1_merged(2, Dbuck1_merged(2... +2....., D1-2)
+    [HOMOTOPY] Clustered obstacles: 68 -> 9
+    [DEBUG] Starting homotopy enumeration (9 obstacles)...
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 512 raw homotopy classes.
+  [HOMOTOPY] Enumerated 512 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 512 to 10
+    [HOMOTOPY] Base Class (1/10): -C4_merged(2) -C5_merged(2) -C6_merged(2) -C7_merged(2) -C8_merged(2) -Cluster_5 (Cluster(C11-1, Cinbulk1_merged(2, Dbuck1_merged(2... +2....., D1-2) -Cluster(Cinbulk2-2, Cinbulk3-2) -L1_merged(2) -NC_Q2_
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_Q2_]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+L1_merged(2)]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+L1_merged(2), +NC_Q2_]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster(Cinbulk2-2, Cinbulk3-2)]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster(Cinbulk2-2, Cinbulk3-2), +NC_Q2_]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster(Cinbulk2-2, Cinbulk3-2), +L1_merged(2)]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster(Cinbulk2-2, Cinbulk3-2), +L1_merged(2), +NC_Q2_]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster_5 (Cluster(C11-1, Cinbulk1_merged(2, Dbuck1_merged(2... +2....., D1-2)]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster_5 (Cluster(C11-1, Cinbulk1_merged(2, Dbuck1_merged(2... +2....., D1-2), +NC_Q2_]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (9 points)
+    [MAZE] Seeded homotopy class: +C4_merged(2) +C5_merged(2) +C6_merged(2) +C7_merged(2) +C8_merged(2) +Cluster(Cinbulk2-2, Cinbulk3-2) +Cluster_5 (Cluster(C11-1, Cinbulk1_merged(2, Dbuck1_merged(2... +2....., D1-2) +L1_merged(2) +NC_Q2_
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ Net-(C11-Pad2): 1 segments, 1.60mm
+  Skipping Net-(J2-PadA7): Connected via copper zone
+  [DEBUG] Routing Net-(J2-PadA6) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=4.00mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 310 -> 173
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 173 → 10 obstacles
+    [HOMOTOPY] Merging [C3_merged(2), Cluster(Cdvdd1_merged(2, Cslew1_merged(2, Cvaux1_merged(2..., Cluster(Crx1_merged(2, Crx2_merged(2, Cvtx1_merged(2), NC_Q1_] -> Cluster_1 (C3_merged(2), Cluster(Cdvdd1_merged(2, Cslew1_merged(2, Cvaux1_merged(2..., Cluster(Crx1_merged(2, Crx2_merged(2, Cvtx1_merged(2)...(+1))
+    [HOMOTOPY] Merging [Cluster(Ccomp1_merged(2, Cf1_merged(2, Css1_merged(2... +2), Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), R5_merged(2), R9-1] -> Cluster_2 (Cluster(Ccomp1_merged(2, Cf1_merged(2, Css1_merged(2... +2), Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), R5_merged(2)...(+1))
+    [HOMOTOPY] Clustered obstacles: 173 -> 4
+    [DEBUG] Starting homotopy enumeration (4 obstacles)...
+03:17:38 PM: Debug: Adding duplicate image handler for 'PNG file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'JPEG file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'TIFF file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'GIF file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'PNM file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'PCX file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'IFF file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'Windows icon file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'Windows cursor file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'TGA file'
+03:17:38 PM: Debug: Adding duplicate image handler for 'XPM file'
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/temp_routing_test/batch_validation/_zone_fill_temp.py", line 22, in <module>
+    zones = list(board.Zones())
+AttributeError: 'NoneType' object has no attribute 'Zones'
+WARNING: Could not fill zones. KiCad Python not found.
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 16 to 10
+    [HOMOTOPY] Base Class (1/10): -C10_merged(2) -Cluster_1 (C3_merged(2), Cluster(Cdvdd1_merged(2, Cslew1_merged(2, Cvaux1_merged(2..., Cluster(Crx1_merged(2, Crx2_merged(2, Cvtx1_merged(2)...(+1)) -Cluster_2 (Cluster(Ccomp1_merged(2, Cf1_merged(2, Css1_merged(2... +2), Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), R5_merged(2)...(+1)) -NC_H3_1
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+NC_H3_1]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+Cluster_2 (Cluster(Ccomp1_merged(2, Cf1_merged(2, Css1_merged(2... +2), Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), R5_merged(2)...(+1))]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+Cluster_2 (Cluster(Ccomp1_merged(2, Cf1_merged(2, Css1_merged(2... +2), Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), R5_merged(2)...(+1)), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster_1 (C3_merged(2), Cluster(Cdvdd1_merged(2, Cslew1_merged(2, Cvaux1_merged(2..., Cluster(Crx1_merged(2, Crx2_merged(2, Cvtx1_merged(2)...(+1))]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster_1 (C3_merged(2), Cluster(Cdvdd1_merged(2, Cslew1_merged(2, Cvaux1_merged(2..., Cluster(Crx1_merged(2, Crx2_merged(2, Cvtx1_merged(2)...(+1)), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster_1 (C3_merged(2), Cluster(Cdvdd1_merged(2, Cslew1_merged(2, Cvaux1_merged(2..., Cluster(Crx1_merged(2, Crx2_merged(2, Cvtx1_merged(2)...(+1)), +Cluster_2 (Cluster(Ccomp1_merged(2, Cf1_merged(2, Css1_merged(2... +2), Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), R5_merged(2)...(+1))]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster_1 (C3_merged(2), Cluster(Cdvdd1_merged(2, Cslew1_merged(2, Cvaux1_merged(2..., Cluster(Crx1_merged(2, Crx2_merged(2, Cvtx1_merged(2)...(+1)), +Cluster_2 (Cluster(Ccomp1_merged(2, Cf1_merged(2, Css1_merged(2... +2), Cluster(Csll1_merged(2, Cslu1_merged(2, R13_merged(2... +1), R5_merged(2)...(+1)), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+C10_merged(2)]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+C10_merged(2), +NC_H3_1]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 0->1. Trying multi-layer...
+    [VIA] Trying bypass on In1.Cu...
+  ✗ Net-(J2-PadA6): No path from pad 0 to 1 (multi-layer also failed)
+  Skipping Net-(Q3-Pad2): Connected via copper zone
+  Skipping Net-(Qboost1-Pad1): Connected via copper zone
+
+Exact Geometry Routing Complete:
+  Routed: 7
+  Zone nets (skipped): 31 - ['GND', 'V_SRC', 'Net-(Dboost1-Pad2)', '/VIN_PROTECTED', '/FB', '/CS', '/HS', '/GATE_-', '/VIN_FUSED', 'POWER_EN_L', '/VBUS_OUT', 'Net-(Cvaux1-Pad1)', '+5V', 'Net-(IC2-Pad22)', 'Net-(C1-Pad1)', '/VIN_CONN', '/boost_gate', '/buck_gate', '/GATE_B_+', 'Net-(Q1-Pad1)', 'Net-(IC2-Pad23)', 'Net-(Cdvdd1-Pad1)', 'Net-(Cf1-Pad1)', 'Net-(D2-Pad1)', 'Net-(Qbuck1-Pad1)', 'Net-(D3-Pad1)', 'Net-(Cslew1-Pad1)', 'Net-(Q3-Pad1)', 'Net-(J2-PadA7)', 'Net-(Q3-Pad2)', 'Net-(Qboost1-Pad1)']
+  Failed: 17
+  Failed nets: ['/CC2', 'Net-(R10-Pad2)', 'Net-(Cramp1-Pad1)', 'Net-(Css1-Pad1)', 'Net-(Ccomp1-Pad2)', '/CSG', 'Net-(Cvcc1-Pad1)', '/GATE_A+', 'Net-(IC2-Pad12)', 'Net-(Cvtx1-Pad1)', '/CC1', 'CTL1', 'CTL2', 'CTL3', 'Net-(IC2-Pad24)', 'Net-(IC3-Pad8)', 'Net-(J2-PadA6)']
+Routing completed in 4487.82s
+Routed 7 nets.
+Writing results to temp_routing_test/batch_validation/dc-to-pd-2_routed_v6.kicad_pcb...
+Exported 35 items.
+\n=== Zone Filling ===
+PCB: dc-to-pd-2_routed_v6.kicad_pcb
+Using KiCad Python: /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
+Zones filled.

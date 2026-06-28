@@ -1,0 +1,14 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: Current Sensing Circuit (H8 Fix)
+
+Netlist line no. 51:
+Undefined parameter [v]
+Netlist line no. 51:
+ Expression err: v(burden_out)*i(r_burden)} from=150u to=200u
+Netlist line no. 51:
+Cannot compute substitute
+
+ERROR: fatal error in ngspice, exit(1)

@@ -1,0 +1,59 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: H3 Gate Driver with Negative Bias (Final Test)
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+emitter                                      0
+pwm                                          0
+vdda                                      20.1
+neg_rail                                    -8
+vssa                                  0.676167
+driver_out                            0.676167
+gate                                  0.676019
+b_driver#branch                   -6.76019e-05
+v_neg#branch                        0.00173523
+v_boot#branch                      -0.00388477
+v_pwm#branch                                 0
+v_gnd#branch                        0.00214953
+
+
+No. of Data Rows : 8044
+v_gs_off            =  6.760177e-01 from=  2.500000e-05 to=  3.500645e-05
+v_gs_on             =  2.009558e+01 from=  1.000000e-05 to=  1.800511e-05
+vssa_avg            =  6.761665e-01 from=  2.500000e-05 to=  3.500645e-05
+vdda_avg            =  2.010000e+01 from=  2.500000e-05 to=  3.500645e-05
+v_bootstrap         =  1.942383e+01 from=  2.500000e-05 to=  3.500645e-05
+
+================================================================
+                 H3 FINAL VERIFICATION TEST                     
+================================================================
+
+Measurements:
+v_gs_off = 6.760177e-01
+v_gs_on = 2.009558e+01
+vssa_avg = 6.761665e-01
+vdda_avg = 2.010000e+01
+v_bootstrap = 1.942383e+01
+
+Specifications:
+  V_GS(OFF): -5.1V ± 0.2V
+  V_GS(ON):  +15V ± 1V (relaxed for this test)
+  VSSA:      -5.1V ± 0.2V
+
+❌ FAIL: V_GS(OFF) =  v_gs_off  V (out of spec)
+❌ FAIL: VSSA =  vssa_avg  V (out of spec)
+
+⚠️  OVERALL: FAIL - Circuit needs correction
+
+================================================================
+ngspice-45.2 done

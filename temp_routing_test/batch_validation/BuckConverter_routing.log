@@ -1,0 +1,239 @@
+DEBUG: Loading design_rules.py
+Loading PCB: temp_routing_test/batch_validation/BuckConverter_unrouted.kicad_pcb
+Loaded 12 components, 7 nets.
+Initializing ExactGeometryRouter...
+    [INIT] Starting ExactGeometryRouter.__init__...
+    [INIT] Basic attributes set
+    [INIT] Getting board polygon...
+    [INIT] Board polygon created: (0.0, 0.0, 22.860000000000014, 15.239999999999995)
+    [DEBUG] Creating ViaPlanner...
+    [DEBUG] Building base obstacles...
+      [OBS] Setting up layers...
+      [OBS] Using 2 copper layers: ['F.Cu', 'B.Cu']
+      [OBS] Building component lookup...
+      [OBS] Reading KiCad pad positions...
+      [OBS] Read 0 pad positions from KiCad
+      [OBS] Processing 7 nets...
+      [OBS] Net pads built: 7 nets
+      [OBS] Adding pad obstacles...
+      [OBS] Added 28 pad obstacles from nets
+      [OBS] Adding unconnected pad obstacles...
+      [OBS] Added 0 unconnected pad obstacles
+      [OBS] Total obstacles: 56
+      [OBS] Building spatial indices...
+    [DEBUG] Creating ViaPlanner with layers: ['F.Cu', 'B.Cu']
+    [DEBUG] Registering pad positions for hole clearance...
+      [VIA] Registered 26 pads for hole clearance
+    [DEBUG] Base obstacles built: ['F.Cu', 'B.Cu']
+    [DEBUG] Router initialization complete
+Starting Routing...
+[ROUTE_ALL] Starting route_all()
+[PLANARITY] Running topological analysis...
+  [PLANARITY] Built demand graph for 7 nets with 12 component positions.
+  [PLANARITY] Logic result: PLANAR
+  Prioritizing complex nets: ['GND', '+3.3V', '/BUCK_VIN']
+[ROUTE_ALL] Identifying differential pairs from 7 nets...
+  Found 0 differential pairs (0 skipped - zone nets)
+  Skipping GND: Connected via copper zone
+  Skipping +3.3V: Connected via copper zone
+  [DEBUG] Routing /BUCK_VIN on F.Cu...
+    [DEBUG] _route_pad_pair: dist=6.17mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 24 -> 24
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 24 → 10 obstacles
+    [HOMOTOPY] Merging [C1-2, J1-2] -> Cluster_0 (C1-2, J1-2)
+    [HOMOTOPY] Merging [C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2), R2_merged(2)] -> Cluster_1 (C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2)...(+1))
+    [HOMOTOPY] Merging [D1_merged(2), R1_merged(2), R3_merged(2)] -> Cluster_2 (D1_merged(2), R1_merged(2), R3_merged(2))
+    [HOMOTOPY] Clustered obstacles: 24 -> 4
+    [DEBUG] Starting homotopy enumeration (4 obstacles)...
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 16 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (C1-2, J1-2) -Cluster_1 (C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2)...(+1)) -Cluster_2 (D1_merged(2), R1_merged(2), R3_merged(2)) -L1_merged(2)
+    [HOMOTOPY] ✓ Class 1 SUCCESS
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+    [DEBUG] _route_pad_pair: dist=1.36mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 24 -> 24
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 24 → 10 obstacles
+    [HOMOTOPY] Merging [C1-2, J1-2] -> Cluster_0 (C1-2, J1-2)
+    [HOMOTOPY] Merging [C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2), R2_merged(2)] -> Cluster_1 (C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2)...(+1))
+    [HOMOTOPY] Merging [D1_merged(2), R1_merged(2), R3_merged(2)] -> Cluster_2 (D1_merged(2), R1_merged(2), R3_merged(2))
+    [HOMOTOPY] Clustered obstacles: 24 -> 4
+    [DEBUG] Starting homotopy enumeration (4 obstacles)...
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 16 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (C1-2, J1-2) -Cluster_1 (C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2)...(+1)) -Cluster_2 (D1_merged(2), R1_merged(2), R3_merged(2)) -L1_merged(2)
+    [HOMOTOPY] ✓ Class 1 SUCCESS
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+    [DEBUG] _route_pad_pair: dist=0.95mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 24 -> 24
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 24 → 10 obstacles
+    [HOMOTOPY] Merging [C1-2, J1-2] -> Cluster_0 (C1-2, J1-2)
+    [HOMOTOPY] Merging [C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2), R2_merged(2)] -> Cluster_1 (C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2)...(+1))
+    [HOMOTOPY] Merging [D1_merged(2), R1_merged(2), R3_merged(2)] -> Cluster_2 (D1_merged(2), R1_merged(2), R3_merged(2))
+    [HOMOTOPY] Clustered obstacles: 24 -> 4
+    [DEBUG] Starting homotopy enumeration (4 obstacles)...
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 16 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (C1-2, J1-2) -Cluster_1 (C4_merged(2), Cluster(C2_merged(2, C3_merged(2, U1_merged(4), J2_merged(2)...(+1)) -Cluster_2 (D1_merged(2), R1_merged(2), R3_merged(2)) -L1_merged(2)
+    [HOMOTOPY] ✓ Class 1 SUCCESS
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ /BUCK_VIN: 3 segments, 8.48mm
+  [DEBUG] Routing Net-(D1-A) on F.Cu...
+    [DEBUG] _route_pad_pair: dist=2.68mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 29 -> 29
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 29 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1), J1_merged(2), J2_merged(2), R2_merged(2), SEG_/BUCK_VIN_4517904144, SEG_/BUCK_VIN_4518158352] -> Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1), J1_merged(2), J2_merged(2)...(+3))
+    [HOMOTOPY] Merging [D1-1, R1_merged(2), R3-1] -> Cluster_1 (D1-1, R1_merged(2), R3-1)
+    [HOMOTOPY] Clustered obstacles: 29 -> 3
+    [DEBUG] Starting homotopy enumeration (3 obstacles)...
+  [HOMOTOPY] Generated 8 raw homotopy classes.
+  [HOMOTOPY] Enumerated 8 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 8 raw homotopy classes.
+  [HOMOTOPY] Enumerated 8 possible classes after geometric pruning.
+    [HOMOTOPY] Base Class (1/8): -Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1), J1_merged(2), J2_merged(2)...(+3)) -Cluster_1 (D1-1, R1_merged(2), R3-1) -L1_merged(2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/8: diff=[+L1_merged(2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/8: diff=[+Cluster_1 (D1-1, R1_merged(2), R3-1)]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/8: diff=[+Cluster_1 (D1-1, R1_merged(2), R3-1), +L1_merged(2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/8: diff=[+Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1), J1_merged(2), J2_merged(2)...(+3))]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/8: diff=[+Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1), J1_merged(2), J2_merged(2)...(+3)), +L1_merged(2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/8: diff=[+Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1), J1_merged(2), J2_merged(2)...(+3)), +Cluster_1 (D1-1, R1_merged(2), R3-1)]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/8: diff=[+Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1), J1_merged(2), J2_merged(2)...(+3)), +Cluster_1 (D1-1, R1_merged(2), R3-1), +L1_merged(2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for 2-pad net. Trying multi-layer...
+    [VIA] Trying bypass on B.Cu...
+  ✗ Net-(D1-A): No path from pad 0 to 1 (multi-layer also failed)
+  [DEBUG] Routing /BUCK_BST on F.Cu...
+    [DEBUG] _route_pad_pair: dist=1.92mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 29 -> 29
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 29 → 10 obstacles
+    [HOMOTOPY] Merging [C3_merged(2), C4_merged(2), Cluster(C1_merged(2, C2-2, J1_merged(2... +1... +1), J2_merged(2), R2_merged(2), SEG_/BUCK_VIN_4518158352] -> Cluster_0 (C3_merged(2), C4_merged(2), Cluster(C1_merged(2, C2-2, J1_merged(2... +1... +1)...(+3))
+    [HOMOTOPY] Merging [D1_merged(2), R1_merged(2), R3_merged(2)] -> Cluster_1 (D1_merged(2), R1_merged(2), R3_merged(2))
+    [HOMOTOPY] Clustered obstacles: 29 -> 3
+    [DEBUG] Starting homotopy enumeration (3 obstacles)...
+  [HOMOTOPY] Generated 8 raw homotopy classes.
+  [HOMOTOPY] Enumerated 8 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 8 raw homotopy classes.
+  [HOMOTOPY] Enumerated 8 possible classes after geometric pruning.
+    [HOMOTOPY] Base Class (1/8): -Cluster_0 (C3_merged(2), C4_merged(2), Cluster(C1_merged(2, C2-2, J1_merged(2... +1... +1)...(+3)) -Cluster_1 (D1_merged(2), R1_merged(2), R3_merged(2)) -L1_merged(2)
+    [HOMOTOPY] ✓ Class 1 SUCCESS
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+  ✓ /BUCK_BST: 1 segments, 1.92mm
+  Skipping /BUCK_SW: Connected via copper zone
+  [DEBUG] Routing /BUCK_FB on F.Cu...
+    [DEBUG] _route_pad_pair: dist=2.28mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 29 -> 29
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 29 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656, SEG_/BUCK_VIN_4517904144, SEG_/BUCK_VIN_4518158352] -> Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656...(+2))
+    [HOMOTOPY] Merging [D1_merged(2), R3_merged(2)] -> Cluster_1 (D1_merged(2), R3_merged(2))
+    [HOMOTOPY] Merging [R1-1, R2-2] -> Cluster_3 (R1-1, R2-2)
+    [HOMOTOPY] Clustered obstacles: 29 -> 4
+    [DEBUG] Starting homotopy enumeration (4 obstacles)...
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 16 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656...(+2)) -Cluster_1 (D1_merged(2), R3_merged(2)) -L1_merged(2) -Cluster_3 (R1-1, R2-2)
+    [HOMOTOPY] ✓ Class 1 SUCCESS
+    [HOMOTOPY] ✓ Success via homotopy enumeration
+    [DEBUG] _route_pad_pair: dist=3.50mm
+    [DEBUG] Creating search region...
+    [DEBUG] Filtering obstacles...
+    [HOMOTOPY] Filtered obstacles: 29 -> 29
+    [DEBUG] Clustering obstacles...
+    [SMART_CLUSTER] Reduced 29 → 10 obstacles
+    [HOMOTOPY] Merging [Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656, SEG_/BUCK_VIN_4517904144, SEG_/BUCK_VIN_4518158352] -> Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656...(+2))
+    [HOMOTOPY] Merging [D1_merged(2), R3_merged(2)] -> Cluster_1 (D1_merged(2), R3_merged(2))
+    [HOMOTOPY] Merging [R1-1, R2-2] -> Cluster_3 (R1-1, R2-2)
+    [HOMOTOPY] Clustered obstacles: 29 -> 4
+    [DEBUG] Starting homotopy enumeration (4 obstacles)...
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 16 raw homotopy classes.
+  [HOMOTOPY] Enumerated 16 possible classes after geometric pruning.
+    [HOMOTOPY] Limiting classes from 16 to 10
+    [HOMOTOPY] Base Class (1/10): -Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656...(+2)) -Cluster_1 (D1_merged(2), R3_merged(2)) -L1_merged(2) -Cluster_3 (R1-1, R2-2)
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Class 2/10: diff=[+Cluster_3 (R1-1, R2-2)]
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Class 3/10: diff=[+L1_merged(2)]
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Class 4/10: diff=[+L1_merged(2), +Cluster_3 (R1-1, R2-2)]
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Class 5/10: diff=[+Cluster_1 (D1_merged(2), R3_merged(2))]
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Class 6/10: diff=[+Cluster_1 (D1_merged(2), R3_merged(2)), +Cluster_3 (R1-1, R2-2)]
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Class 7/10: diff=[+Cluster_1 (D1_merged(2), R3_merged(2)), +L1_merged(2)]
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Class 8/10: diff=[+Cluster_1 (D1_merged(2), R3_merged(2)), +L1_merged(2), +Cluster_3 (R1-1, R2-2)]
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Class 9/10: diff=[+Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656...(+2))]
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Class 10/10: diff=[+Cluster_0 (Cluster(C1_merged(2, C2_merged(2, C3_merged(2... +1... +1..., J2_merged(2), SEG_/BUCK_BST_4518048656...(+2)), +Cluster_3 (R1-1, R2-2)]
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [MAZE] All top homotopy classes failed. Attempting Maze seeding...
+    [MAZE] ✓ Found maze seed path (1 points)
+    [MAZE] Seeded homotopy class: ∅
+    [MAZE] Refinement failed. Using simplified grid path as direct fallback...
+    [HOMOTOPY] Error: IllegalArgumentException: point array must contain 0 or >1 elements
+
+    [VIA] Single-layer failed for pad 2->1. Trying multi-layer...
+    [VIA] Trying bypass on B.Cu...
+  ✗ /BUCK_FB: No path from pad 2 to 1 (multi-layer also failed)
+
+Exact Geometry Routing Complete:
+  Routed: 2
+  Zone nets (skipped): 3 - ['GND', '+3.3V', '/BUCK_SW']
+  Failed: 2
+  Failed nets: ['Net-(D1-A)', '/BUCK_FB']
+Routing completed in 4.68s
+Routed 2 nets.
+Writing results to temp_routing_test/batch_validation/BuckConverter_routed_v6.kicad_pcb...
+Exported 4 items.
+\n=== Zone Filling ===
+PCB: BuckConverter_routed_v6.kicad_pcb
+Using KiCad Python: /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
+Filling 6 zones...
+✓ Successfully filled zones
+=== Zone Filling Complete (Script) ===\n
+Zones filled.

@@ -123,6 +123,12 @@ def _oracle_get_segments(route: CompiledRoute) -> list[tuple[float, float, float
             x2, y2 = p2[0], p2[1]
             if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
                 segs.append((x1, y1, x2, y2, layer))
+    else:
+        raise TypeError(
+            f"Unknown path type {type(path).__name__} for route "
+            f"'{route.net_name}': cannot extract segments. "
+            f"Expected RoutePath or RoutePath3D."
+        )
     return segs
 
 

@@ -1,0 +1,45 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: Gate Drive Negative Bias Circuit (H3 Fix)
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdda                                        15
+emitter                                      0
+driver_out                                  15
+vssa                               1.44246e-16
+gate                                    14.985
+v_driver#branch                    -0.00681137
+v_emitter#branch                    0.00696137
+v_bootstrap#branch                    -0.00015
+
+
+No. of Data Rows : 5166
+
+  Measurements for Transient Analysis
+
+
+Error: measure  v_gs_low  avg(TRIG) : no such vector as 'v(gate,emitter)'
+ .meas tran v_gs_low avg v(gate,emitter) from=6u to=9u failed!
+
+
+Error: measure  v_gs_high  avg(TRIG) : no such vector as 'v(gate,emitter)'
+ .meas tran v_gs_high avg v(gate,emitter) from=1u to=4u failed!
+
+
+Error: measure  i_zener_avg  avg(TRIG) : no such vector as 'i(d_zener)'
+ .meas tran i_zener_avg avg i(d_zener) from=6u to=9u failed!
+
+vssa_avg            =  3.763238e-14 from=  6.000000e-06 to=  9.005965e-06
+
+Warning from checkvalid: vector v_gs_low is not available or has zero length.
+ngspice-45.2 done

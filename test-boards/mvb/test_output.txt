@@ -1,0 +1,22 @@
+DEBUG: Loading design_rules.py
+============================================================
+ZONE-AWARE ROUTING VALIDATION TEST
+============================================================
+
+1. Parsing MVB Level 3 board...
+   ✓ Board: 15 x 10mm
+   ✓ Zones: 1
+   ✓ Nets: 2
+
+2. Parsing ClearanceMatrix from KiCad board...
+   ✗ Failed to parse ClearanceMatrix: 'ParseResult' object has no attribute 'kicad_pcb'
+   → Using default matrix instead
+
+3. Creating MazeRouter with zone support...
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/test-boards/mvb/test_zone_aware_routing.py", line 122, in <module>
+    test_zone_aware_routing()
+  File "/Users/bennet/Desktop/temper/test-boards/mvb/test_zone_aware_routing.py", line 54, in test_zone_aware_routing
+    router = MazeRouter.from_board(
+             ^^^^^^^^^^^^^^^^^^^^^^
+TypeError: MazeRouter.from_board() got an unexpected keyword argument 'netlist'

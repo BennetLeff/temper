@@ -18,7 +18,7 @@ from __future__ import annotations
 import math
 
 import pytest
-from hypothesis import HealthCheck, assume, given, settings
+from hypothesis import HealthCheck, assume, given, settings, strategies as st
 
 from tests.router_v6.sat_property_strategies import (
     sat_clause_set,
@@ -54,24 +54,27 @@ _SETTINGS = settings(
 
 
 @pytest.mark.dependency(name="sat-l1")
-def test_fr1_single_clause_sat(_pysat_solver):
+@given(
+    variables=sat_variable_set(min_size=2, max_size=10),
+    data=st.data(),
+)
+@_SETTINGS
+def test_fr1_single_clause_sat(_pysat_solver, variables, data):
     """FR1: A single SAT clause is satisfiable iff the clause itself is.
 
     Uses Hypothesis to generate variables + clause; pysat is the
     ground-truth oracle.  Exhaustive cross-validation for <= 8 vars.
+    Runs 200 examples per SC1.
     """
-    from hypothesis import find
+    assume(len(variables) >= 2)
     from tests.router_v6.sat_property_strategies import sat_clause as _sat_clause
-    from tests.router_v6.sat_property_strategies import sat_variable_set as _vars_strat
 
-    # Generate a variable set and a clause over it via Hypothesis find
-    variables = find(_vars_strat(min_size=2, max_size=10), lambda vs: len(vs) >= 2)
     n_vars = len(variables)
 
-    clause = find(
-        _sat_clause(variables=variables, min_literals=1, max_literals=min(n_vars, 5)),
-        lambda c: len(c.literals) >= 1,
+    clause = data.draw(
+        _sat_clause(variables=variables, min_literals=1, max_literals=min(n_vars, 5))
     )
+    assume(len(clause.literals) >= 1)
 
     # Encode in pysat: variable 1..n (positive literal -> var, negative -> -var)
     solver = _pysat_solver(bootstrap_with=[])

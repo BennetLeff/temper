@@ -1,0 +1,399 @@
+================================================================================
+Router V6 - Temper Board Baseline Run
+================================================================================
+Input: pcb/temper.kicad_pcb
+Output: pcb/debug_ac_l.kicad_pcb
+Experiment P2: Placement Legalization ENABLED (Mode: physics)
+Profiling Mode: Targeting 1 nets: AC_L
+
+Stage 0: Loading PCB...
+  0.1: Loading authoritative design rules...
+DEBUG: Loading design_rules.py
+    Loaded 9 net classes and 8 assignments
+Applying 3 placement constraints from placement_constraints.json...
+  LOCKED U_GATE at (25.8, 30.7)
+  PLACED C_BOOT at (19.2, 33.0)
+  PLACED C_VCC at (19.2, 27.0)
+Stage 0.5: Placement Optimization (Mode: physics)...
+  Found 2 initial collisions
+  Physics Legalization successful (0 overlaps)
+Stage 1: Detecting dense packages in 33 components...
+  Found 1 dense packages
+    Falling back to via-in-pad for U_GATE
+  Generated 16 escape vias
+Stage 2: Channel analysis...
+  2.1-2.2: Computing routing space...
+    Computed routing spaces for 4 layers
+  2.3: Extracting channel skeleton...
+  Extracted 2 skeleton lines
+  Extracted 2611 skeleton lines
+  Extracted 99 skeleton lines
+  Extracted 81 skeleton lines
+DEBUG: Skeleton has 8 disconnected islands, bridging...
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.07mm
+DEBUG: Added bridge: 0.26mm
+DEBUG: Added bridge: 0.40mm
+DEBUG: Warning: Cannot bridge islands (min distance: 27.0mm > 10.0mm)
+  Added 100 pad anchor nodes to skeleton
+    F.Cu: 2430 nodes, 2898 edges
+  Extracted 5871 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 134 skeleton lines
+  Extracted 145 skeleton lines
+  Extracted 505 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 23 skeleton lines
+DEBUG: Skeleton has 13 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.05mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.13mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.30mm
+DEBUG: Added bridge: 0.85mm
+  Added 83 pad anchor nodes to skeleton
+    In1.Cu: 5786 nodes, 6784 edges
+  Extracted 7145 skeleton lines
+  Added 85 pad anchor nodes to skeleton
+    In2.Cu: 5790 nodes, 7230 edges
+  Extracted 8532 skeleton lines
+  Extracted 49 skeleton lines
+  Extracted 62 skeleton lines
+  Extracted 25 skeleton lines
+  Extracted 104 skeleton lines
+  Extracted 11 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 166 skeleton lines
+  Extracted 1 skeleton lines
+  Extracted 5 skeleton lines
+  Extracted 97 skeleton lines
+DEBUG: Skeleton has 27 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.08mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.14mm
+DEBUG: Added bridge: 0.15mm
+DEBUG: Added bridge: 0.16mm
+DEBUG: Added bridge: 0.17mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.22mm
+DEBUG: Added bridge: 0.27mm
+DEBUG: Added bridge: 0.49mm
+DEBUG: Added bridge: 0.50mm
+DEBUG: Added bridge: 0.57mm
+DEBUG: Added bridge: 0.64mm
+  Added 88 pad anchor nodes to skeleton
+    B.Cu: 6255 nodes, 9177 edges
+  2.4: Computing channel widths...
+  2.5: Building occupancy grid...
+    Using max clearance: 2.0mm for C-Space inflation
+    Building specialized HV grids with inflation: 7.5mm
+  2.6: Calculating layer capacity...
+  2.7: Estimating routing demand...
+  2.8: Identifying bottlenecks...
+    Warning: 4 bottlenecks identified
+Stage 3: Topological routing...
+  3.1-3.6: Building constraint model...
+  3.7: Building SAT model...
+    SAT model: 626136 vars, 262 clauses
+  3.8: Solving topology...
+    Solution found (SAT)
+  3.9: Extracting topology graph...
+Stage 4: Geometric realization...
+  4.1: Setting up channel mapping...
+  4.2: Running Routing (Sequential A*)...
+    Running Exact Geometry Router (Stage 4b)...
+    [INIT] Starting ExactGeometryRouter.__init__...
+    [INIT] Basic attributes set
+    [INIT] Getting board polygon...
+    [INIT] Board polygon created: (0.0, 0.0, 120.0, 170.0)
+    [DEBUG] Creating ViaPlanner...
+    [DEBUG] Building base obstacles...
+      [OBS] Setting up layers...
+      [OBS] Using 4 copper layers: ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
+      [OBS] Building component lookup...
+      [OBS] Reading KiCad pad positions...
+      [OBS] Read 0 pad positions from KiCad
+      [OBS] Processing 24 nets...
+      [OBS] Net pads built: 24 nets
+      [OBS] Adding pad obstacles...
+      [OBS] Added 108 pad obstacles from nets
+      [OBS] Adding unconnected pad obstacles...
+      [OBS] Added 5 unconnected pad obstacles
+      [OBS] Total obstacles: 452
+    [DEBUG] Creating ViaPlanner with layers: ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
+    [DEBUG] Registering pad positions for hole clearance...
+      [VIA] No KiCad file - skipping pad registration
+    [DEBUG] Base obstacles built: ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
+    [DEBUG] Router initialization complete
+[ROUTE_ALL] Starting route_all()
+  Prioritizing complex nets: ['GND', 'PGND', 'GATE_H', 'SW_NODE', 'GATE_L', '+15V', 'CGND', '+5V', '+3V3', 'I_SENSE']
+[ROUTE_ALL] Identifying differential pairs from 24 nets...
+  Found 2 differential pairs
+  Routing differential pair: USB_D+ / USB_D-
+  ⚠ Diff pair: Pad spacing (0.40mm) < min (0.55mm)
+    Routing on different layers: USB_D+ on F.Cu, USB_D- on B.Cu
+    [HOMOTOPY] Filtered obstacles: 111 -> 27
+    [HOMOTOPY] Merging [C_MCU_1-1, C_MCU_1-2] -> Cluster_0 (C_MCU_1-1, C_MCU_1-2)
+    [HOMOTOPY] Merging [C_MCU_2-1, C_MCU_2-2, C_MCU_4-1, C_MCU_4-2, U_MCU-13, U_MCU-14, U_MCU-15, U_MCU-20, U_MCU-21, U_MCU-22, U_MCU-23] -> Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8))
+    [HOMOTOPY] Merging [C_MCU_3-1, C_MCU_3-2] -> Cluster_2 (C_MCU_3-1, C_MCU_3-2)
+    [HOMOTOPY] Merging [J_USB-A12, J_USB-B6] -> Cluster_6 (J_USB-A12, J_USB-B6)
+    [HOMOTOPY] Merging [U_MCU-1, U_MCU-2] -> Cluster_10 (U_MCU-1, U_MCU-2)
+    [HOMOTOPY] Clustered obstacles: 27 -> 13
+  [HOMOTOPY] Generated 8192 raw homotopy classes.
+  [HOMOTOPY] Enumerated 8192 possible classes after geometric pruning.
+  [HOMOTOPY] Generated 8192 raw homotopy classes.
+  [HOMOTOPY] Enumerated 8192 possible classes after geometric pruning.
+    [HOMOTOPY] Trying class 1/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 1 FAILED
+    [HOMOTOPY] Trying class 2/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 2 FAILED
+    [HOMOTOPY] Trying class 3/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 3 FAILED
+    [HOMOTOPY] Trying class 4/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 4 FAILED
+    [HOMOTOPY] Trying class 5/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 5 FAILED
+    [HOMOTOPY] Trying class 6/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 6 FAILED
+    [HOMOTOPY] Trying class 7/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 7 FAILED
+    [HOMOTOPY] Trying class 8/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 8 FAILED
+    [HOMOTOPY] Trying class 9/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 9 FAILED
+    [HOMOTOPY] Trying class 10/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 10 FAILED
+    [HOMOTOPY] Trying class 11/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 11 FAILED
+    [HOMOTOPY] Trying class 12/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 12 FAILED
+    [HOMOTOPY] Trying class 13/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 13 FAILED
+    [HOMOTOPY] Trying class 14/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 14 FAILED
+    [HOMOTOPY] Trying class 15/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 15 FAILED
+    [HOMOTOPY] Trying class 16/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 16 FAILED
+    [HOMOTOPY] Trying class 17/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 17 FAILED
+    [HOMOTOPY] Trying class 18/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 18 FAILED
+    [HOMOTOPY] Trying class 19/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 19 FAILED
+    [HOMOTOPY] Trying class 20/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 20 FAILED
+    [HOMOTOPY] Trying class 21/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 21 FAILED
+    [HOMOTOPY] Trying class 22/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 22 FAILED
+    [HOMOTOPY] Trying class 23/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 23 FAILED
+    [HOMOTOPY] Trying class 24/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 24 FAILED
+    [HOMOTOPY] Trying class 25/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 25 FAILED
+    [HOMOTOPY] Trying class 26/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 26 FAILED
+    [HOMOTOPY] Trying class 27/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 27 FAILED
+    [HOMOTOPY] Trying class 28/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 28 FAILED
+    [HOMOTOPY] Trying class 29/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 29 FAILED
+    [HOMOTOPY] Trying class 30/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 30 FAILED
+    [HOMOTOPY] Trying class 31/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 31 FAILED
+    [HOMOTOPY] Trying class 32/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 32 FAILED
+    [HOMOTOPY] Trying class 33/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 33 FAILED
+    [HOMOTOPY] Trying class 34/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 34 FAILED
+    [HOMOTOPY] Trying class 35/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 35 FAILED
+    [HOMOTOPY] Trying class 36/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 36 FAILED
+    [HOMOTOPY] Trying class 37/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 37 FAILED
+    [HOMOTOPY] Trying class 38/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 38 FAILED
+    [HOMOTOPY] Trying class 39/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 39 FAILED
+    [HOMOTOPY] Trying class 40/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 40 FAILED
+    [HOMOTOPY] Trying class 41/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 41 FAILED
+    [HOMOTOPY] Trying class 42/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 42 FAILED
+    [HOMOTOPY] Trying class 43/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 43 FAILED
+    [HOMOTOPY] Trying class 44/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 44 FAILED
+    [HOMOTOPY] Trying class 45/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 45 FAILED
+    [HOMOTOPY] Trying class 46/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 46 FAILED
+    [HOMOTOPY] Trying class 47/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 47 FAILED
+    [HOMOTOPY] Trying class 48/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 48 FAILED
+    [HOMOTOPY] Trying class 49/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 49 FAILED
+    [HOMOTOPY] Trying class 50/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 50 FAILED
+    [HOMOTOPY] Trying class 51/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 51 FAILED
+    [HOMOTOPY] Trying class 52/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 52 FAILED
+    [HOMOTOPY] Trying class 53/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 53 FAILED
+    [HOMOTOPY] Trying class 54/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 54 FAILED
+    [HOMOTOPY] Trying class 55/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 55 FAILED
+    [HOMOTOPY] Trying class 56/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 56 FAILED
+    [HOMOTOPY] Trying class 57/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 57 FAILED
+    [HOMOTOPY] Trying class 58/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 58 FAILED
+    [HOMOTOPY] Trying class 59/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 59 FAILED
+    [HOMOTOPY] Trying class 60/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 60 FAILED
+    [HOMOTOPY] Trying class 61/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 61 FAILED
+    [HOMOTOPY] Trying class 62/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 62 FAILED
+    [HOMOTOPY] Trying class 63/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 63 FAILED
+    [HOMOTOPY] Trying class 64/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 -Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 64 FAILED
+    [HOMOTOPY] Trying class 65/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 65 FAILED
+    [HOMOTOPY] Trying class 66/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 66 FAILED
+    [HOMOTOPY] Trying class 67/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 67 FAILED
+    [HOMOTOPY] Trying class 68/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 68 FAILED
+    [HOMOTOPY] Trying class 69/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 69 FAILED
+    [HOMOTOPY] Trying class 70/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 70 FAILED
+    [HOMOTOPY] Trying class 71/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 71 FAILED
+    [HOMOTOPY] Trying class 72/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 72 FAILED
+    [HOMOTOPY] Trying class 73/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 73 FAILED
+    [HOMOTOPY] Trying class 74/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 74 FAILED
+    [HOMOTOPY] Trying class 75/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 75 FAILED
+    [HOMOTOPY] Trying class 76/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 76 FAILED
+    [HOMOTOPY] Trying class 77/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 77 FAILED
+    [HOMOTOPY] Trying class 78/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 78 FAILED
+    [HOMOTOPY] Trying class 79/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 79 FAILED
+    [HOMOTOPY] Trying class 80/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 80 FAILED
+    [HOMOTOPY] Trying class 81/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 81 FAILED
+    [HOMOTOPY] Trying class 82/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 82 FAILED
+    [HOMOTOPY] Trying class 83/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 83 FAILED
+    [HOMOTOPY] Trying class 84/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 84 FAILED
+    [HOMOTOPY] Trying class 85/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 85 FAILED
+    [HOMOTOPY] Trying class 86/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 86 FAILED
+    [HOMOTOPY] Trying class 87/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 87 FAILED
+    [HOMOTOPY] Trying class 88/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 88 FAILED
+    [HOMOTOPY] Trying class 89/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 89 FAILED
+    [HOMOTOPY] Trying class 90/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 90 FAILED
+    [HOMOTOPY] Trying class 91/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 91 FAILED
+    [HOMOTOPY] Trying class 92/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 92 FAILED
+    [HOMOTOPY] Trying class 93/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 93 FAILED
+    [HOMOTOPY] Trying class 94/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 94 FAILED
+    [HOMOTOPY] Trying class 95/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 95 FAILED
+    [HOMOTOPY] Trying class 96/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) -NC_J_DEBUG_3 +NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 96 FAILED
+    [HOMOTOPY] Trying class 97/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 97 FAILED
+    [HOMOTOPY] Trying class 98/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 98 FAILED
+    [HOMOTOPY] Trying class 99/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 99 FAILED
+    [HOMOTOPY] Trying class 100/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 100 FAILED
+    [HOMOTOPY] Trying class 101/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 101 FAILED
+    [HOMOTOPY] Trying class 102/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 102 FAILED
+    [HOMOTOPY] Trying class 103/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 103 FAILED
+    [HOMOTOPY] Trying class 104/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 104 FAILED
+    [HOMOTOPY] Trying class 105/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 105 FAILED
+    [HOMOTOPY] Trying class 106/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 106 FAILED
+    [HOMOTOPY] Trying class 107/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 107 FAILED
+    [HOMOTOPY] Trying class 108/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 108 FAILED
+    [HOMOTOPY] Trying class 109/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 109 FAILED
+    [HOMOTOPY] Trying class 110/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 110 FAILED
+    [HOMOTOPY] Trying class 111/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 111 FAILED
+    [HOMOTOPY] Trying class 112/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 -NC_J_DEBUG_4 +NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 112 FAILED
+    [HOMOTOPY] Trying class 113/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 113 FAILED
+    [HOMOTOPY] Trying class 114/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 114 FAILED
+    [HOMOTOPY] Trying class 115/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 -U_MCU-57
+    [HOMOTOPY] ✗ Class 115 FAILED
+    [HOMOTOPY] Trying class 116/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 -Cluster_10 (U_MCU-1, U_MCU-2) +U_MCU-41 +U_MCU-57
+    [HOMOTOPY] ✗ Class 116 FAILED
+    [HOMOTOPY] Trying class 117/8192: -Cluster_0 (C_MCU_1-1, C_MCU_1-2) -Cluster_1 (C_MCU_2-1, C_MCU_2-2, C_MCU_4-1...(+8)) -Cluster_2 (C_MCU_3-1, C_MCU_3-2) -J_DEBUG-1 -J_DEBUG-2 -J_USB-A1 +Cluster_6 (J_USB-A12, J_USB-B6) +NC_J_DEBUG_3 +NC_J_DEBUG_4 -NC_J_DEBUG_5 +Cluster_10 (U_MCU-1, U_MCU-2) -U_MCU-41 -U_MCU-57

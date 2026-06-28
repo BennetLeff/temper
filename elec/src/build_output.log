@@ -1,0 +1,743 @@
+[22:06:03] INFO     Using project    common.py:72
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c                            
+           INFO     Building default  build.py:38
+[22:06:10] WARNING  Implicit         errors.py:81
+                    Declaration                  
+                    Future                       
+                    Deprecation                  
+                    Warning                      
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/modules.at             
+                    o:1110:4                     
+                        Field                    
+                    'inductance' not             
+                    declared for                 
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/main.ato🔝             
+                    :emi.cm_choke.               
+                    Declaring                    
+                    implicitly for               
+                    now, but in the              
+                    future this may              
+                    become an                    
+                    error...                     
+           WARNING  Implicit         errors.py:81
+                    Declaration                  
+                    Future                       
+                    Deprecation                  
+                    Warning                      
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/modules.at             
+                    o:1111:4                     
+                        Field                    
+                    'current_rating'             
+                    not declared for             
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/main.ato🔝             
+                    :emi.cm_choke.               
+                    Declaring                    
+                    implicitly for               
+                    now, but in the              
+                    future this may              
+                    become an                    
+                    error...                     
+           WARNING  Implicit         errors.py:81
+                    Declaration                  
+                    Future                       
+                    Deprecation                  
+                    Warning                      
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/modules.at             
+                    o:1112:4                     
+                        Field 'mpn'              
+                    not declared for             
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/main.ato🔝             
+                    :emi.cm_choke.               
+                    Declaring                    
+                    implicitly for               
+                    now, but in the              
+                    future this may              
+                    become an                    
+                    error...                     
+           WARNING  Implicit         errors.py:81
+                    Declaration                  
+                    Future                       
+                    Deprecation                  
+                    Warning                      
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/modules.at             
+                    o:1113:4                     
+                        Field                    
+                    'manufacturer'               
+                    not declared for             
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/main.ato🔝             
+                    :emi.cm_choke.               
+                    Declaring                    
+                    implicitly for               
+                    now, but in the              
+                    future this may              
+                    become an                    
+                    error...                     
+           WARNING  ... forgoing    errors.py:209
+                    more "Implicit               
+                    Declaration                  
+                    Future                       
+                    Deprecation                  
+                    Warning" errors              
+                    of                           
+           INFO     No          assertions.py:252
+                    variables                    
+                    in                           
+                    assertions                   
+                    to solve                     
+           INFO     Writing outputs   build.py:78
+                    to                           
+                    /Users/bennet/Des            
+                    ktop/temper/elec/            
+                    build                        
+           INFO     Building         build.py:100
+                    'assertions-repo             
+                    rt' for                      
+                    'default' config             
+           ERROR    AssertionFailed  errors.py:81
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/modules.at             
+                    o:1031:4                     
+                        address:                 
+                    main.ato🔝:mcu               
+                        assertion:               
+                    assert t_boot_rc             
+                    within 9ms to                
+                    11ms                         
+                        numeric: 7.2             
+                    to 13.2 ms                   
+                    within 9 to 11               
+                    ms                           
+           ERROR    AssertionFailed  errors.py:81
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/modules.at             
+                    o:1033:4                     
+                        address:                 
+                    main.ato🔝:mcu               
+                        assertion:               
+                    assert                       
+                    t_boot_delay                 
+                    within 13ms to               
+                    15ms                         
+                        numeric:                 
+                    10.08 to 18.48               
+                    ms within 13 to              
+                    15 ms                        
+                   Assertions                    
+┏━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┓
+┃ Status ┃ Assertion         ┃ Numeric          ┃
+┡━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━┩
+│ PASSED │ assert            │ 15A >= 15A       │
+│        │ fuse.current_rat… │                  │
+│        │ >= 15A            │                  │
+│ PASSED │ assert            │ 250V >= 135V     │
+│        │ fuse.voltage_rat… │                  │
+│        │ >= 135V           │                  │
+│ PASSED │ assert            │ 250V >= 212.5V   │
+│        │ r_bleed1.voltage… │                  │
+│        │ >= v_bus_half *   │                  │
+│        │ 1.25              │                  │
+│ PASSED │ assert            │ 250V >= 212.5V   │
+│        │ r_bleed2.voltage… │                  │
+│        │ >= v_bus_half *   │                  │
+│        │ 1.25              │                  │
+│ PASSED │ assert            │ 1W >= 433.5mW    │
+│        │ r_bleed1.power_r… │                  │
+│        │ >= p_bleed_actual │                  │
+│        │ * 1.5             │                  │
+│ PASSED │ assert            │ 1W >= 433.5mW    │
+│        │ r_bleed2.power_r… │                  │
+│        │ >= p_bleed_actual │                  │
+│        │ * 1.5             │                  │
+│ PASSED │ assert            │ 250V >= 212.5V   │
+│        │ c_bus1.voltage_r… │                  │
+│        │ >= v_bus_half *   │                  │
+│        │ 1.25              │                  │
+│ PASSED │ assert            │ 250V >= 212.5V   │
+│        │ c_bus2.voltage_r… │                  │
+│        │ >= v_bus_half *   │                  │
+│        │ 1.25              │                  │
+│ PASSED │ assert            │ 15V within 14.25 │
+│        │ power_15v.v_nomi… │ to 15.75 V       │
+│        │ within 15V +/- 5% │                  │
+│ PASSED │ assert            │ 3.3V within 3.13 │
+│        │ power_out.v_nomi… │ to 3.46 V        │
+│        │ within 3.3V +/-   │                  │
+│        │ 5%                │                  │
+│ PASSED │ assert            │ 10V >= 6.6V      │
+│        │ c_out.voltage_ra… │                  │
+│        │ >= v_out_ldo *    │                  │
+│        │ 2.0               │                  │
+│ PASSED │ assert            │ 1.2kV >= 400V    │
+│        │ q_high.voltage_r… │                  │
+│        │ >= 400V           │                  │
+│ PASSED │ assert            │ 40A >= 25A       │
+│        │ q_high.current_r… │                  │
+│        │ >= 25A            │                  │
+│ PASSED │ assert            │ 1.2kV >= 400V    │
+│        │ q_low.voltage_ra… │                  │
+│        │ >= 400V           │                  │
+│ PASSED │ assert            │ 40A >= 25A       │
+│        │ q_low.current_ra… │                  │
+│        │ >= 25A            │                  │
+│ PASSED │ assert            │ 500mW >= 375mW   │
+│        │ rg_on.power_rati… │                  │
+│        │ >= p_rg_avg * 1.5 │                  │
+│ PASSED │ assert            │ 4A >= 4A         │
+│        │ driver.i_source_… │                  │
+│        │ >= 4A             │                  │
+│ PASSED │ assert            │ 500mW >= 375mW   │
+│        │ rg_on.power_rati… │                  │
+│        │ >= p_rg_avg * 1.5 │                  │
+│ PASSED │ assert            │ 25ns within 20   │
+│        │ t_dead_time       │ to 30 ns         │
+│        │ within 20ns to    │                  │
+│        │ 30ns              │                  │
+│ PASSED │ assert            │ 1.6kV >= 572V    │
+│        │ c_tank1.voltage_… │                  │
+│        │ >= v_tank_peak *  │                  │
+│        │ 1.43              │                  │
+│ PASSED │ assert            │ 1.6kV >= 572V    │
+│        │ c_tank2.voltage_… │                  │
+│        │ >= v_tank_peak *  │                  │
+│        │ 1.43              │                  │
+│ PASSED │ assert            │ 3.29 to 3.36 V   │
+│        │ v_burden_max      │ within 3 to 3.5  │
+│        │ within 3.0V to    │ V                │
+│        │ 3.5V              │                  │
+│ PASSED │ assert            │ 3.3V within 2.97 │
+│        │ power.v_nominal   │ to 3.63 V        │
+│        │ within 3.3V +/-   │                  │
+│        │ 10%               │                  │
+│ PASSED │ assert            │ 3.3V within 3.13 │
+│        │ power.v_nominal   │ to 3.46 V        │
+│        │ within 3.3V +/-   │                  │
+│        │ 5%                │                  │
+│ FAILED │ assert t_boot_rc  │ 7.2 to 13.2 ms   │
+│        │ within 9ms to     │ within 9 to 11   │
+│        │ 11ms              │ ms               │
+│ FAILED │ assert            │ 10.08 to 18.48   │
+│        │ t_boot_delay      │ ms within 13 to  │
+│        │ within 13ms to    │ 15 ms            │
+│        │ 15ms              │                  │
+│ PASSED │ assert            │ 120V within 100  │
+│        │ v_ac_nominal      │ to 130 V         │
+│        │ within 100V to    │                  │
+│        │ 130V              │                  │
+│ PASSED │ assert v_bus_max  │ 340V <= 400V     │
+│        │ <= v_max_hv       │                  │
+│ PASSED │ assert i_peak_max │ 25A <= 25A       │
+│        │ <= i_max_hv       │                  │
+│ PASSED │ assert f_line     │ 60Hz within 59   │
+│        │ within 59Hz to    │ to 61 Hz         │
+│        │ 61Hz              │                  │
+│ PASSED │ assert            │ 340V within 280  │
+│        │ v_bus_nominal     │ to 380 V         │
+│        │ within 280V to    │                  │
+│        │ 380V              │                  │
+│ PASSED │ assert            │ 20V < 34V        │
+│        │ v_bus_ripple_max  │                  │
+│        │ < v_bus_nominal * │                  │
+│        │ 0.1               │                  │
+│ PASSED │ assert            │ 35kHz within 20  │
+│        │ f_switching       │ to 100 kHz       │
+│        │ within 20kHz to   │                  │
+│        │ 100kHz            │                  │
+│ PASSED │ assert            │ 25kHz within 20  │
+│        │ f_resonant_nomin… │ to 35 kHz        │
+│        │ within 20kHz to   │                  │
+│        │ 35kHz             │                  │
+│ PASSED │ assert            │ 323.15kelvin     │
+│        │ t_ambient_max     │ within 313.15 to │
+│        │ within 313.15K to │ 333.15 kelvin    │
+│        │ 333.15K           │                  │
+│ PASSED │ assert            │ 1.8kW within 1.5 │
+│        │ p_output_max      │ to 1.8 kW        │
+│        │ within 1500W to   │                  │
+│        │ 1800W             │                  │
+│ PASSED │ assert            │ 1W < 5W          │
+│        │ p_standby_max <   │                  │
+│        │ 5W                │                  │
+│ PASSED │ assert eta_min >= │ 0.9 >= 0.85      │
+│        │ 0.85              │                  │
+│ PASSED │ assert            │ 1.2kV >= 510V    │
+│        │ hb.power_loop.q_… │                  │
+│        │ >= v_bus_max *    │                  │
+│        │ 1.5               │                  │
+│ PASSED │ assert            │ 1.2kV >= 510V    │
+│        │ hb.power_loop.q_… │                  │
+│        │ >= v_bus_max *    │                  │
+│        │ 1.5               │                  │
+│ PASSED │ assert            │ 40A >= 37.5A     │
+│        │ hb.power_loop.q_… │                  │
+│        │ >= i_peak_max *   │                  │
+│        │ 1.5               │                  │
+│ PASSED │ assert            │ 40A >= 37.5A     │
+│        │ hb.power_loop.q_… │                  │
+│        │ >= i_peak_max *   │                  │
+│        │ 1.5               │                  │
+│ PASSED │ assert            │ 1.2kV >= 340V    │
+│        │ hb.gate_hs.boot_… │                  │
+│        │ >= v_bus_max      │                  │
+│ PASSED │ assert            │ 1.6kV >= 1kV     │
+│        │ tank.c_tank1.vol… │                  │
+│        │ >= 1000V          │                  │
+│ PASSED │ assert            │ 1.6kV >= 1kV     │
+│        │ tank.c_tank2.vol… │                  │
+│        │ >= 1000V          │                  │
+│ PASSED │ assert            │ 250V >= 238V     │
+│        │ power_in.c_bus1.… │                  │
+│        │ >= v_bus_max *    │                  │
+│        │ 0.7               │                  │
+│ PASSED │ assert            │ 250V >= 238V     │
+│        │ power_in.c_bus2.… │                  │
+│        │ >= v_bus_max *    │                  │
+│        │ 0.7               │                  │
+│ PASSED │ assert            │ 600V >= 510V     │
+│        │ power_in.d1.volt… │                  │
+│        │ >= v_bus_max *    │                  │
+│        │ 1.5               │                  │
+│ PASSED │ assert            │ 600V >= 510V     │
+│        │ power_in.d2.volt… │                  │
+│        │ >= v_bus_max *    │                  │
+│        │ 1.5               │                  │
+│ PASSED │ assert v_bus_max  │ 340V <= 400V     │
+│        │ <= 400V           │                  │
+│ PASSED │ assert i_ocp_trip │ 37.6A < 60A      │
+│        │ <                 │                  │
+│        │ i_igbt_soa_limit  │                  │
+│ PASSED │ assert i_ocp_trip │ 37.6A < 40A      │
+│        │ <                 │                  │
+│        │ hb.power_loop.q_… │                  │
+│ PASSED │ assert v_ovp_trip │ 400V < 500V      │
+│        │ < v_cap_max       │                  │
+│ PASSED │ assert v_ovp_trip │ 400V > 340V      │
+│        │ > v_bus_max       │                  │
+│ PASSED │ assert            │ 358.15kelvin <   │
+│        │ t_thermal_trip <  │ 398.15kelvin     │
+│        │ t_derate_igbt     │                  │
+│ PASSED │ assert            │ 1.6s < 2s        │
+│        │ t_wdt_timeout <   │                  │
+│        │ 2.0s              │                  │
+│ PASSED │ assert t_mcu_boot │ 14ms < 500ms     │
+│        │ <                 │                  │
+│        │ t_soft_start_del… │                  │
+│ PASSED │ assert t_dt_sw >  │ 300ns > 295ns    │
+│        │ t_igbt_off + 50ns │                  │
+└────────┴───────────────────┴──────────────────┘
+           INFO     Building 'bom'   build.py:100
+                    for 'default'                
+                    config                       
+           WARNING  No MPN           errors.py:81
+                        main.ato🔝:p             
+                    an_detect.r_div_             
+                    top has no MPN               
+           WARNING  No MPN           errors.py:81
+                        main.ato🔝:p             
+                    an_detect.r_div_             
+                    bot has no MPN               
+           WARNING  No MPN           errors.py:81
+                        main.ato🔝:h             
+                    eatsink_temp.ntc             
+                     has no MPN                  
+┏━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┓
+┃ Comment ┃ Design… ┃ Footpr… ┃ LCSC    ┃ Price ┃
+┡━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━┩
+│ 744826… │ U1      │ Filter… │ 744826… │ 0.00  │
+│ S20K275 │ U2      │ Varist… │ S20K275 │ 0.00  │
+│ 0034.3… │ U3      │ Fuse:F… │ 0034.3… │ 0.00  │
+│ SL32    │ U4      │ Resist… │ SL32    │ 0.00  │
+│ 10015   │         │         │ 10015   │       │
+│ G4A-1A… │ U5      │ Relay_… │ G4A-1A… │ 0.00  │
+│ DC12    │         │         │ DC12    │       │
+│ MUR156… │ U6,U7   │ Packag… │ MUR156… │ 0.00  │
+│ EKZE25… │ U8,U9   │ Capaci… │ EKZE25… │ 0.00  │
+│ CRGP25… │ U10,U11 │ Resist… │ CRGP25… │ 0.00  │
+│ MEV1S0… │ U12     │ Conver… │ MEV1S0… │ 0.00  │
+│ XC6220… │ U13     │ Packag… │ XC6220… │ 0.00  │
+│ GRM188… │ U14     │ Capaci… │ GRM188… │ 0.00  │
+│ GRM188… │ U15,U90 │ Capaci… │ GRM188… │ 0.00  │
+│ RC1206… │ U16,U17 │ Resist… │ RC1206… │ 0.00  │
+│ RC0603… │ U18,U3… │ Resist… │ RC0603… │ 0.00  │
+│ TLV320… │ U19,U2… │ Packag… │ TLV320… │ 0.00  │
+│ 2N7002K │ U20     │ Packag… │ 2N7002K │ 0.00  │
+│ RC0603… │ U21,U38 │ Resist… │ RC0603… │ 0.00  │
+│ RC0603… │ U22,U42 │ Resist… │ RC0603… │ 0.00  │
+│ 1N4148… │ U23     │ Diode_… │ 1N4148… │ 0.00  │
+│ ?       │ U25,U2… │ Resist… │ ?       │ 0.00  │
+│ RC0805… │ U28     │ Resist… │ RC0805… │ 0.00  │
+│ GRM188… │ U29,U4… │ Capaci… │ GRM188… │ 0.00  │
+│ RC0603… │ U31     │ Resist… │ RC0603… │ 0.00  │
+│ RC1206… │ U34,U3… │ Resist… │ RC1206… │ 0.00  │
+│ TPS382… │ U43     │ Packag… │ TPS382… │ 0.00  │
+│ SN74HC… │ U45     │ Packag… │ SN74HC… │ 0.00  │
+│ SN74HC… │ U46     │ Packag… │ SN74HC… │ 0.00  │
+│ GENERI… │ U47,U48 │ TestPo… │ GENERI… │ 0.00  │
+│ 150080… │ U49,U5… │ LED_SM… │ 150080… │ 0.00  │
+│ RC0603… │ U50,U5… │ Resist… │ RC0603… │ 0.00  │
+│ IKW40N… │ U57,U58 │ Packag… │ IKW40N… │ 0.00  │
+│ UCC215… │ U59     │ SOIC16… │ UCC215… │ 0.00  │
+│ RC1206… │ U60,U69 │ Resist… │ RC1206… │ 0.00  │
+│ RC0603… │ U61,U70 │ Resist… │ RC0603… │ 0.00  │
+│ UJ3D12… │ U62     │ Packag… │ UJ3D12… │ 0.00  │
+│ GRM32E… │ U63     │ Capaci… │ GRM32E… │ 0.00  │
+│ BZT52C… │ U64     │ Diode_… │ BZT52C… │ 0.00  │
+│ RC0402… │ U65,U67 │ Resist… │ RC0402… │ 0.00  │
+│ GRM155… │ U66,U68 │ Capaci… │ GRM155… │ 0.00  │
+│ GRM188… │ U71     │ Capaci… │ GRM188… │ 0.00  │
+│ FKP1U0… │ U72,U73 │ Capaci… │ FKP1U0… │ 0.00  │
+│ CUSTOM… │ U74     │ TestPo… │ CUSTOM… │ 0.00  │
+│ CST-10… │ U75     │ CST100… │ CST-10… │ 0.00  │
+│ RC0805… │ U76     │ Resist… │ RC0805… │ 0.00  │
+│ GRM188… │ U77     │ Capaci… │ GRM188… │ 0.00  │
+│ MAX318… │ U78     │ Packag… │ MAX318… │ 0.00  │
+│ ERA-6A… │ U79     │ Resist… │ ERA-6A… │ 0.00  │
+│ RC0402… │ U81,U8… │ Resist… │ RC0402… │ 0.00  │
+│ BLM18A… │ U85     │ Induct… │ BLM18A… │ 0.00  │
+│ ESP32-… │ U86     │ ESP32-… │ ESP32-… │ 0.00  │
+│ GRM21B… │ U88     │ Capaci… │ GRM21B… │ 0.00  │
+└─────────┴─────────┴─────────┴─────────┴───────┘
+           INFO     Building         build.py:100
+                    'clone-footprint             
+                    s' for 'default'             
+                    config                       
+           INFO     Building         build.py:100
+                    'variable-report             
+                    ' for 'default'              
+                    config                       
+                 Variable Values                 
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Address          ┃ Value            ┃ Comment ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ pe_in.required   │ Symbol(key='/Us… │         │
+│ emi.pe_in.requi… │ Symbol(key='/Us… │         │
+│ emi.ac_l_out.re… │ Symbol(key='/Us… │         │
+│ emi.ac_n_out.re… │ Symbol(key='/Us… │         │
+│ emi.cm_choke.p2… │ Symbol(key='/Us… │         │
+│ emi.cm_choke.2.… │ Symbol(key='/Us… │         │
+│ emi.cm_choke.p4… │ Symbol(key='/Us… │         │
+│ emi.cm_choke.4.… │ Symbol(key='/Us… │         │
+│ power_in.ac_l.r… │ Symbol(key='/Us… │         │
+│ power_in.ac_n.r… │ Symbol(key='/Us… │         │
+│ power_in.pe.req… │ Symbol(key='/Us… │         │
+│ power_in.fuse.p… │ Symbol(key='/Us… │         │
+│ power_in.fuse.1… │ Symbol(key='/Us… │         │
+│ power_in.d2.A.r… │ Symbol(key='/Us… │         │
+│ power_in.d2.2.r… │ Symbol(key='/Us… │         │
+│ zcd.ac_sense_in… │ Symbol(key='/Us… │         │
+│ zcd.r_hv1.p1.re… │ Symbol(key='/Us… │         │
+│ zcd.r_hv1.1.req… │ Symbol(key='/Us… │         │
+│ safety.ocp.faul… │ Symbol(key='/Us… │         │
+│ safety.ocp.comp… │ Symbol(key='/Us… │         │
+│ safety.ocp.comp… │ Symbol(key='/Us… │         │
+│ safety.ovp.faul… │ Symbol(key='/Us… │         │
+│ safety.ovp.comp… │ Symbol(key='/Us… │         │
+│ safety.ovp.comp… │ Symbol(key='/Us… │         │
+│ safety.thermal.… │ Symbol(key='/Us… │         │
+│ safety.thermal.… │ Symbol(key='/Us… │         │
+│ safety.thermal.… │ Symbol(key='/Us… │         │
+│ safety.thermal.… │ Symbol(key='/Us… │         │
+│ safety.thermal.… │ Symbol(key='/Us… │         │
+│ safety.wdt.wdi.… │ Symbol(key='/Us… │         │
+│ safety.wdt.rese… │ Symbol(key='/Us… │         │
+│ safety.wdt.wdt.… │ Symbol(key='/Us… │         │
+│ safety.wdt.wdt.… │ Symbol(key='/Us… │         │
+│ safety.wdt.wdt.… │ Symbol(key='/Us… │         │
+│ safety.wdt.wdt.… │ Symbol(key='/Us… │         │
+│ safety.fault_or… │ Symbol(key='/Us… │         │
+│ safety.fault_or… │ Symbol(key='/Us… │         │
+│ safety.fault_or… │ Symbol(key='/Us… │         │
+│ safety.fault_or… │ Symbol(key='/Us… │         │
+│ safety.fault_or… │ Symbol(key='/Us… │         │
+│ safety.fault_or… │ Symbol(key='/Us… │         │
+│ safety.tp_shutd… │ Symbol(key='/Us… │         │
+│ safety.tp_fault… │ Symbol(key='/Us… │         │
+│ hb.pwm_h.requir… │ Symbol(key='/Us… │         │
+│ hb.pwm_l.requir… │ Symbol(key='/Us… │         │
+│ hb.dc_bus.v_max  │ Symbol(key='/Us… │         │
+│ hb.gate_hs.r_fi… │ Symbol(key='/Us… │         │
+│ hb.gate_hs.r_fi… │ Symbol(key='/Us… │         │
+│ hb.gate_hs.r_fi… │ Symbol(key='/Us… │         │
+│ hb.gate_hs.r_fi… │ Symbol(key='/Us… │         │
+│ hb.gate_hs.pwm_… │ Symbol(key='/Us… │         │
+│ hb.gate_hs.pwm_… │ Symbol(key='/Us… │         │
+│ ct_sense.primar… │ Symbol(key='/Us… │         │
+│ ct_sense.v_burd… │ 3.33V ± 33.25mV  │         │
+│ rtd_pan.rtd_for… │ Symbol(key='/Us… │         │
+│ rtd_pan.rtd_for… │ Symbol(key='/Us… │         │
+│ rtd_pan.rtd_sen… │ Symbol(key='/Us… │         │
+│ rtd_pan.rtd_sen… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.REF… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.5.r… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.FOR… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.8.r… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.RTD… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.10.… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.RTD… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.11.… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.FOR… │ Symbol(key='/Us… │         │
+│ rtd_pan.adc.12.… │ Symbol(key='/Us… │         │
+│ mcu.pwm_h.requi… │ Symbol(key='/Us… │         │
+│ mcu.pwm_l.requi… │ Symbol(key='/Us… │         │
+│ mcu.mcu.4.requi… │ Symbol(key='/Us… │         │
+│ mcu.mcu.5.requi… │ Symbol(key='/Us… │         │
+│ mcu.mcu.IO4.req… │ Symbol(key='/Us… │         │
+│ mcu.mcu.IO5.req… │ Symbol(key='/Us… │         │
+│ mcu.t_boot_rc    │ 7.2 to 13.2 ms   │         │
+│ mcu.t_boot_delay │ 10.08 to 18.48   │         │
+│                  │ ms               │         │
+└──────────────────┴──────────────────┴─────────┘
+           INFO     Building         build.py:100
+                    'copy-3dmodels'              
+                    for 'default'                
+                    config                       
+           INFO     Building         build.py:100
+                    'layout-module-m             
+                    ap' for                      
+                    'default' config             
+           INFO     Building         build.py:100
+                    'designator-map'             
+                    for 'default'                
+                    config                       
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Designator ↓ ┃ Name                      ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│           U1 │ emi.cm_choke              │
+│           U2 │ emi.mov                   │
+│           U3 │ power_in.fuse             │
+│           U4 │ power_in.ntc              │
+│           U5 │ power_in.bypass_relay     │
+│           U6 │ power_in.d1               │
+│           U7 │ power_in.d2               │
+│           U8 │ power_in.c_bus1           │
+│           U9 │ power_in.c_bus2           │
+│          U10 │ power_in.r_bleed1         │
+│          U11 │ power_in.r_bleed2         │
+│          U12 │ aux_psu.dcdc              │
+│          U13 │ ldo_3v3.ldo               │
+│          U14 │ ldo_3v3.c_in              │
+│          U15 │ ldo_3v3.c_out             │
+│          U16 │ zcd.r_hv1                 │
+│          U17 │ zcd.r_hv2                 │
+│          U18 │ zcd.r_lv                  │
+│          U19 │ zcd.comp                  │
+│          U20 │ relay_driver.q_drive      │
+│          U21 │ relay_driver.r_gate       │
+│          U22 │ relay_driver.r_pulldown   │
+│          U23 │ relay_driver.d_flyback    │
+│          U24 │ pan_detect.comp           │
+│          U25 │ pan_detect.r_div_top      │
+│          U26 │ pan_detect.r_div_bot      │
+│          U27 │ heatsink_temp.ntc         │
+│          U28 │ heatsink_temp.r_pullup    │
+│          U29 │ heatsink_temp.c_filter    │
+│          U30 │ safety.ocp.comp           │
+│          U31 │ safety.ocp.r_ref_top      │
+│          U32 │ safety.ocp.r_ref_bot      │
+│          U33 │ safety.ovp.comp           │
+│          U34 │ safety.ovp.r_div_top1     │
+│          U35 │ safety.ovp.r_div_top2     │
+│          U36 │ safety.ovp.r_div_top3     │
+│          U37 │ safety.ovp.r_div_bot      │
+│          U38 │ safety.ovp.r_ref_top      │
+│          U39 │ safety.ovp.r_ref_bot      │
+│          U40 │ safety.thermal.comp       │
+│          U41 │ safety.thermal.r_ref      │
+│          U42 │ safety.thermal.r_hyst     │
+│          U43 │ safety.wdt.wdt            │
+│          U44 │ safety.wdt.c_bypass       │
+│          U45 │ safety.fault_or           │
+│          U46 │ safety.latch              │
+│          U47 │ safety.tp_shutdown        │
+│          U48 │ safety.tp_fault           │
+│          U49 │ led_ocp.led               │
+│          U50 │ led_ocp.r_limit           │
+│          U51 │ led_ovp.led               │
+│          U52 │ led_ovp.r_limit           │
+│          U53 │ led_thermal.led           │
+│          U54 │ led_thermal.r_limit       │
+│          U55 │ led_wdt.led               │
+│          U56 │ led_wdt.r_limit           │
+│          U57 │ hb.power_loop.q_high      │
+│          U58 │ hb.power_loop.q_low       │
+│          U59 │ hb.gate_hs.driver         │
+│          U60 │ hb.gate_hs.rg_on          │
+│          U61 │ hb.gate_hs.rgs            │
+│          U62 │ hb.gate_hs.boot_diode     │
+│          U63 │ hb.gate_hs.boot_cap       │
+│          U64 │ hb.gate_hs.neg_bias_zener │
+│          U65 │ hb.gate_hs.r_filt_a       │
+│          U66 │ hb.gate_hs.c_filt_a       │
+│          U67 │ hb.gate_hs.r_filt_b       │
+│          U68 │ hb.gate_hs.c_filt_b       │
+│          U69 │ hb.gate_ls.rg_on          │
+│          U70 │ hb.gate_ls.rgs            │
+│          U71 │ hb.dt_cap                 │
+│          U72 │ tank.c_tank1              │
+│          U73 │ tank.c_tank2              │
+│          U74 │ tank.inductor_conn        │
+│          U75 │ ct_sense.ct               │
+│          U76 │ ct_sense.r_burden         │
+│          U77 │ ct_sense.c_filter         │
+│          U78 │ rtd_pan.adc               │
+│          U79 │ rtd_pan.r_ref             │
+│          U80 │ rtd_pan.c_vdd             │
+│          U81 │ rtd_pan.r_sclk            │
+│          U82 │ rtd_pan.r_mosi            │
+│          U83 │ rtd_pan.r_cs              │
+│          U84 │ rtd_pan.r_miso            │
+│          U85 │ rtd_pan.fb_power          │
+│          U86 │ mcu.mcu                   │
+│          U87 │ mcu.c_vcc1                │
+│          U88 │ mcu.c_vcc2                │
+│          U89 │ mcu.r_en                  │
+│          U90 │ mcu.c_en                  │
+└──────────────┴───────────────────────────┘
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Name ↓                    ┃ Designator ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ aux_psu.dcdc              │ U12        │
+│ ct_sense.c_filter         │ U77        │
+│ ct_sense.ct               │ U75        │
+│ ct_sense.r_burden         │ U76        │
+│ emi.cm_choke              │ U1         │
+│ emi.mov                   │ U2         │
+│ hb.dt_cap                 │ U71        │
+│ hb.gate_hs.boot_cap       │ U63        │
+│ hb.gate_hs.boot_diode     │ U62        │
+│ hb.gate_hs.c_filt_a       │ U66        │
+│ hb.gate_hs.c_filt_b       │ U68        │
+│ hb.gate_hs.driver         │ U59        │
+│ hb.gate_hs.neg_bias_zener │ U64        │
+│ hb.gate_hs.r_filt_a       │ U65        │
+│ hb.gate_hs.r_filt_b       │ U67        │
+│ hb.gate_hs.rg_on          │ U60        │
+│ hb.gate_hs.rgs            │ U61        │
+│ hb.gate_ls.rg_on          │ U69        │
+│ hb.gate_ls.rgs            │ U70        │
+│ hb.power_loop.q_high      │ U57        │
+│ hb.power_loop.q_low       │ U58        │
+│ heatsink_temp.c_filter    │ U29        │
+│ heatsink_temp.ntc         │ U27        │
+│ heatsink_temp.r_pullup    │ U28        │
+│ ldo_3v3.c_in              │ U14        │
+│ ldo_3v3.c_out             │ U15        │
+│ ldo_3v3.ldo               │ U13        │
+│ led_ocp.led               │ U49        │
+│ led_ocp.r_limit           │ U50        │
+│ led_ovp.led               │ U51        │
+│ led_ovp.r_limit           │ U52        │
+│ led_thermal.led           │ U53        │
+│ led_thermal.r_limit       │ U54        │
+│ led_wdt.led               │ U55        │
+│ led_wdt.r_limit           │ U56        │
+│ mcu.c_en                  │ U90        │
+│ mcu.c_vcc1                │ U87        │
+│ mcu.c_vcc2                │ U88        │
+│ mcu.mcu                   │ U86        │
+│ mcu.r_en                  │ U89        │
+│ pan_detect.comp           │ U24        │
+│ pan_detect.r_div_bot      │ U26        │
+│ pan_detect.r_div_top      │ U25        │
+│ power_in.bypass_relay     │ U5         │
+│ power_in.c_bus1           │ U8         │
+│ power_in.c_bus2           │ U9         │
+│ power_in.d1               │ U6         │
+│ power_in.d2               │ U7         │
+│ power_in.fuse             │ U3         │
+│ power_in.ntc              │ U4         │
+│ power_in.r_bleed1         │ U10        │
+│ power_in.r_bleed2         │ U11        │
+│ relay_driver.d_flyback    │ U23        │
+│ relay_driver.q_drive      │ U20        │
+│ relay_driver.r_gate       │ U21        │
+│ relay_driver.r_pulldown   │ U22        │
+│ rtd_pan.adc               │ U78        │
+│ rtd_pan.c_vdd             │ U80        │
+│ rtd_pan.fb_power          │ U85        │
+│ rtd_pan.r_cs              │ U83        │
+│ rtd_pan.r_miso            │ U84        │
+│ rtd_pan.r_mosi            │ U82        │
+│ rtd_pan.r_ref             │ U79        │
+│ rtd_pan.r_sclk            │ U81        │
+│ safety.fault_or           │ U45        │
+│ safety.latch              │ U46        │
+│ safety.ocp.comp           │ U30        │
+│ safety.ocp.r_ref_bot      │ U32        │
+│ safety.ocp.r_ref_top      │ U31        │
+│ safety.ovp.comp           │ U33        │
+│ safety.ovp.r_div_bot      │ U37        │
+│ safety.ovp.r_div_top1     │ U34        │
+│ safety.ovp.r_div_top2     │ U35        │
+│ safety.ovp.r_div_top3     │ U36        │
+│ safety.ovp.r_ref_bot      │ U39        │
+│ safety.ovp.r_ref_top      │ U38        │
+│ safety.thermal.comp       │ U40        │
+│ safety.thermal.r_hyst     │ U42        │
+│ safety.thermal.r_ref      │ U41        │
+│ safety.tp_fault           │ U48        │
+│ safety.tp_shutdown        │ U47        │
+│ safety.wdt.c_bypass       │ U44        │
+│ safety.wdt.wdt            │ U43        │
+│ tank.c_tank1              │ U72        │
+│ tank.c_tank2              │ U73        │
+│ tank.inductor_conn        │ U74        │
+│ zcd.comp                  │ U19        │
+│ zcd.r_hv1                 │ U16        │
+│ zcd.r_hv2                 │ U17        │
+│ zcd.r_lv                  │ U18        │
+└───────────────────────────┴────────────┘
+           INFO     Building         build.py:100
+                    'netlist' for                
+                    'default' config             
+           WARNING  No MPN           errors.py:81
+                        main.ato🔝:h             
+                    eatsink_temp.ntc             
+                     has no MPN                  
+           ERROR    TypeError        errors.py:81
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/main.ato:3             
+                    93:4                         
+                        Cannot                   
+                    connect an                   
+                    interface to a               
+                    non-interface:               
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/main.ato🔝             
+                    :safety.shutdown             
+                    _n ~                         
+                    /Users/bennet/De             
+                    sktop/temper/ele             
+                    c/src/main.ato🔝             
+                    :hb.gate_hs.driv             
+                    er.DIS                       
+           INFO     Building         build.py:100
+                    'copy-footprints             
+                    ' for 'default'              
+                    config                       
+
+
+Unfortunately errors ^^^ stopped the build. If 
+you need a hand jump on Discord! 
+https://discord.gg/mjtxARsr9V 👋

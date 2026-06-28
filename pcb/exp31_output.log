@@ -1,0 +1,302 @@
+================================================================================
+EXP-31: FAILED NET ISOLATION TEST
+================================================================================
+
+Testing 4 nets that failed in E2E run:
+AC_L, AC_N, PWM_L, PWM_H
+
+Using Exact Geometry Router (enable_homotopy flag)
+
+[1/2] Baseline: Exact Geometry Router, no homotopy
+
+================================================================================
+EXPERIMENT: Baseline_ExactGeo
+================================================================================
+Homotopy: False, Exact Geometry: True
+Stage 0: Loading PCB...
+  0.1: Loading authoritative design rules...
+DEBUG: Loading design_rules.py
+    Loaded 9 net classes and 8 assignments
+Applying 3 placement constraints from placement_constraints.json...
+  LOCKED U_GATE at (25.8, 30.7)
+  PLACED C_BOOT at (19.2, 33.0)
+  PLACED C_VCC at (19.2, 27.0)
+Stage 1: Detecting dense packages in 33 components...
+  Found 1 dense packages
+    Falling back to via-in-pad for U_GATE
+  Generated 16 escape vias
+Stage 2: Channel analysis...
+  2.1-2.2: Computing routing space...
+    Computed routing spaces for 4 layers
+  2.3: Extracting channel skeleton...
+  Extracted 2 skeleton lines
+  Extracted 2611 skeleton lines
+  Extracted 90 skeleton lines
+DEBUG: Skeleton has 4 disconnected islands, bridging...
+DEBUG: Added bridge: 0.50mm
+DEBUG: Warning: Cannot bridge islands (min distance: 28.0mm > 10.0mm)
+  Added 101 pad anchor nodes to skeleton
+    F.Cu: 2346 nodes, 2805 edges
+  Extracted 5871 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 134 skeleton lines
+  Extracted 145 skeleton lines
+  Extracted 505 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 23 skeleton lines
+DEBUG: Skeleton has 13 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.05mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.13mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.30mm
+DEBUG: Added bridge: 0.85mm
+  Added 81 pad anchor nodes to skeleton
+    In1.Cu: 5784 nodes, 6782 edges
+  Extracted 7145 skeleton lines
+  Added 87 pad anchor nodes to skeleton
+    In2.Cu: 5792 nodes, 7232 edges
+  Extracted 8532 skeleton lines
+  Extracted 49 skeleton lines
+  Extracted 62 skeleton lines
+  Extracted 25 skeleton lines
+  Extracted 104 skeleton lines
+  Extracted 11 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 166 skeleton lines
+  Extracted 1 skeleton lines
+  Extracted 5 skeleton lines
+  Extracted 97 skeleton lines
+DEBUG: Skeleton has 27 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.08mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.14mm
+DEBUG: Added bridge: 0.15mm
+DEBUG: Added bridge: 0.16mm
+DEBUG: Added bridge: 0.17mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.22mm
+DEBUG: Added bridge: 0.27mm
+DEBUG: Added bridge: 0.49mm
+DEBUG: Added bridge: 0.50mm
+DEBUG: Added bridge: 0.57mm
+DEBUG: Added bridge: 0.64mm
+  Added 88 pad anchor nodes to skeleton
+    B.Cu: 6255 nodes, 9177 edges
+  2.4: Computing channel widths...
+  2.5: Building occupancy grid...
+    Using max clearance: 2.0mm for C-Space inflation
+    Building specialized HV grids with inflation: 7.5mm
+  2.6: Calculating layer capacity...
+  2.7: Estimating routing demand...
+  2.8: Identifying bottlenecks...
+    Warning: 4 bottlenecks identified
+Stage 3: Topological routing...
+  3.1-3.6: Building constraint model...
+  3.7: Building SAT model...
+    SAT model: 623904 vars, 265 clauses
+  3.8: Solving topology...
+    Solution found (SAT)
+  3.9: Extracting topology graph...
+Stage 4: Geometric realization...
+  4.1: Setting up channel mapping...
+  4.2: Running Routing (Sequential A*)...
+    Running Exact Geometry Router (Stage 4b)...
+    [INIT] Starting ExactGeometryRouter.__init__...
+    [INIT] Basic attributes set
+    [INIT] Getting board polygon...
+    [INIT] Using component bounding box for board polygon...
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/router-experiments/exp_31_failed_net_isolation.py", line 63, in run_experiment
+    result = pipeline.run(pcb_path)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/pipeline.py", line 387, in run
+    stage4 = self._run_stage4(pcb, stage2, stage3, escape_vias)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/pipeline.py", line 789, in _run_stage4
+    exact_paths = run_exact_geometry_routing(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/exact_geometry_router.py", line 2623, in run_exact_geometry_routing
+    router = ExactGeometryRouter(pcb, design_rules, verbose=verbose)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/exact_geometry_router.py", line 361, in __init__
+    for comp in self.pcb.components:
+                ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DesignRules' object has no attribute 'components'
+✗ Experiment failed: 'DesignRules' object has no attribute 'components'
+
+[2/2] Homotopy: Topological class enumeration enabled
+
+================================================================================
+EXPERIMENT: Homotopy_Enabled
+================================================================================
+Homotopy: True, Exact Geometry: True
+Stage 0: Loading PCB...
+  0.1: Loading authoritative design rules...
+    Loaded 9 net classes and 8 assignments
+Applying 3 placement constraints from placement_constraints.json...
+  LOCKED U_GATE at (25.8, 30.7)
+  PLACED C_BOOT at (19.2, 33.0)
+  PLACED C_VCC at (19.2, 27.0)
+Stage 1: Detecting dense packages in 33 components...
+  Found 1 dense packages
+    Falling back to via-in-pad for U_GATE
+  Generated 16 escape vias
+Stage 2: Channel analysis...
+  2.1-2.2: Computing routing space...
+    Computed routing spaces for 4 layers
+  2.3: Extracting channel skeleton...
+  Extracted 2 skeleton lines
+  Extracted 2611 skeleton lines
+  Extracted 90 skeleton lines
+DEBUG: Skeleton has 4 disconnected islands, bridging...
+DEBUG: Added bridge: 0.50mm
+DEBUG: Warning: Cannot bridge islands (min distance: 28.0mm > 10.0mm)
+  Added 101 pad anchor nodes to skeleton
+    F.Cu: 2346 nodes, 2805 edges
+  Extracted 5871 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 134 skeleton lines
+  Extracted 145 skeleton lines
+  Extracted 505 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 23 skeleton lines
+DEBUG: Skeleton has 13 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.05mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.13mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.30mm
+DEBUG: Added bridge: 0.85mm
+  Added 81 pad anchor nodes to skeleton
+    In1.Cu: 5784 nodes, 6782 edges
+  Extracted 7145 skeleton lines
+  Added 87 pad anchor nodes to skeleton
+    In2.Cu: 5792 nodes, 7232 edges
+  Extracted 8532 skeleton lines
+  Extracted 49 skeleton lines
+  Extracted 62 skeleton lines
+  Extracted 25 skeleton lines
+  Extracted 104 skeleton lines
+  Extracted 11 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 166 skeleton lines
+  Extracted 1 skeleton lines
+  Extracted 5 skeleton lines
+  Extracted 97 skeleton lines
+DEBUG: Skeleton has 27 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.08mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.14mm
+DEBUG: Added bridge: 0.15mm
+DEBUG: Added bridge: 0.16mm
+DEBUG: Added bridge: 0.17mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.22mm
+DEBUG: Added bridge: 0.27mm
+DEBUG: Added bridge: 0.49mm
+DEBUG: Added bridge: 0.50mm
+DEBUG: Added bridge: 0.57mm
+DEBUG: Added bridge: 0.64mm
+  Added 88 pad anchor nodes to skeleton
+    B.Cu: 6255 nodes, 9177 edges
+  2.4: Computing channel widths...
+  2.5: Building occupancy grid...
+    Using max clearance: 2.0mm for C-Space inflation
+    Building specialized HV grids with inflation: 7.5mm
+  2.6: Calculating layer capacity...
+  2.7: Estimating routing demand...
+  2.8: Identifying bottlenecks...
+    Warning: 4 bottlenecks identified
+Stage 3: Topological routing...
+  3.1-3.6: Building constraint model...
+  3.7: Building SAT model...
+    SAT model: 623904 vars, 265 clauses
+  3.8: Solving topology...
+    Solution found (SAT)
+  3.9: Extracting topology graph...
+Stage 4: Geometric realization...
+  4.1: Setting up channel mapping...
+  4.2: Running Routing (Sequential A*)...
+    Running Exact Geometry Router (Stage 4b)...
+    [INIT] Starting ExactGeometryRouter.__init__...
+    [INIT] Basic attributes set
+    [INIT] Getting board polygon...
+    [INIT] Using component bounding box for board polygon...
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/router-experiments/exp_31_failed_net_isolation.py", line 63, in run_experiment
+    result = pipeline.run(pcb_path)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/pipeline.py", line 387, in run
+    stage4 = self._run_stage4(pcb, stage2, stage3, escape_vias)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/pipeline.py", line 789, in _run_stage4
+    exact_paths = run_exact_geometry_routing(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/exact_geometry_router.py", line 2623, in run_exact_geometry_routing
+    router = ExactGeometryRouter(pcb, design_rules, verbose=verbose)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/router_v6/exact_geometry_router.py", line 361, in __init__
+    for comp in self.pcb.components:
+                ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DesignRules' object has no attribute 'components'
+✗ Experiment failed: 'DesignRules' object has no attribute 'components'
+
+================================================================================
+EXPERIMENT SUMMARY
+================================================================================
+Experiment                | Success    | Time     | Failed Nets                   
+--------------------------------------------------------------------------------
+Baseline_ExactGeo         | 0/4        | 28.9s    | AC_L, AC_N, PWM_L...          
+Homotopy_Enabled          | 0/4        | 28.8s    | AC_L, AC_N, PWM_L...          
+================================================================================
+
+ANALYSIS:
+⚠️  Homotopy routing did not improve success rate.
+   Root cause is likely obstacle congestion or placement issues.
+
+NEXT STEPS:
+1. Analyze obstacle clustering around failed net endpoints
+2. Check if placement constraints are creating impossible routing scenarios
+3. Consider relaxing clearance requirements for these specific nets
+4. Visualize the routing attempts to identify bottlenecks

@@ -464,10 +464,14 @@ class RouterV6Pipeline:
         if self.verbose:
             print(f"  Generated {len(escape_vias)} escape vias")
 
-        # NOTE: Stage 1 fence not yet wired. The temper_drc Placement model
-        # now supports via/trace geometry (via_spacing, trace_clearance)
-        # but _run_fence is not called here yet for escape vias.
-        # TODO: Add Stage 1 fence with drc_via_spacing invariant.
+        # Stage 1 fence: verify escape via placement correctness
+        if self.fence and escape_vias:
+            self._run_fence(
+                stage_name="router_v6.escape_vias",
+                invariants=_stage_1_invariants(),
+                pcb=pcb,
+                escape_vias=escape_vias,
+            )
 
         # Stage 2: Channel analysis
         if self.verbose:
@@ -520,10 +524,14 @@ class RouterV6Pipeline:
                         f"Fail mode: {self.dfm_fail_on}."
                     )
 
-        # NOTE: Stage 4 fence not yet wired. The temper_drc Placement model
-        # now supports trace/via geometry (via_spacing, trace_clearance)
-        # but _run_fence is not called here yet for routing results.
-        # TODO: Add Stage 4 fence with drc_trace_clearance invariant.
+        # Stage 4 fence: verify routed trace and via clearance
+        if self.fence and stage4.routing_results:
+            self._run_fence(
+                stage_name="router_v6.geometric",
+                invariants=_stage_4_invariants(),
+                pcb=pcb,
+                routing_results=stage4.routing_results,
+            )
 
         runtime = time.time() - start_time
 
@@ -590,6 +598,17 @@ class RouterV6Pipeline:
                     if hasattr(v, 'net_idx') and v.net_idx < len(net_names):
                         c_nets.add(net_names[v.net_idx])
                 if c_nets & top_n:
+                    keep_cons.append(c)
+            elif hasattr(c, 'p_var'):
+                # DiffPairConstraint: keep only if both nets are in top_n.
+                p_idx = c.p_net_idx
+                n_idx = c.n_net_idx
+                if (p_idx < len(net_names) and net_names[p_idx] in top_n and
+                    n_idx < len(net_names) and net_names[n_idx] in top_n):
+                    keep_cons.append(c)
+            elif hasattr(c, 'net_idx'):
+                # LayerConstraint: keep only if the net is in top_n.
+                if c.net_idx < len(net_names) and net_names[c.net_idx] in top_n:
                     keep_cons.append(c)
             else:
                 keep_cons.append(c)
@@ -972,6 +991,16 @@ class RouterV6Pipeline:
 def _stage_0_5_invariants() -> tuple:
     """Invariants for Stage 0.5 legalization."""
     return (InvariantSpec("drc_component_overlap", "No component overlaps after legalization"),)
+
+
+def _stage_1_invariants() -> tuple:
+    """Invariants for Stage 1 escape via placement."""
+    return (InvariantSpec("drc_via_spacing", "Escape vias satisfy minimum spacing"),)
+
+
+def _stage_4_invariants() -> tuple:
+    """Invariants for Stage 4 geometric routing."""
+    return (InvariantSpec("drc_trace_clearance", "Routed traces satisfy minimum clearance"),)
 
 
 def _net_pad_positions(net, comp_by_ref: dict[str, Any]) -> list[tuple[float, float]]:

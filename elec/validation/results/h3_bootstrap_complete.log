@@ -1,0 +1,54 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: H3 Complete Bootstrap Gate Driver Verification
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 3602
+v_gs_off1           =  1.195649e+01 from=  6.000000e-06 to=  9.001593e-06
+v_gs_off2           =  1.198909e+01 from=  1.600000e-05 to=  1.900159e-05
+v_gs_on1            =  1.214830e+01 from=  2.000000e-06 to=  4.000475e-06
+v_gs_on2            =  1.251702e+01 from=  1.200000e-05 to=  1.400130e-05
+vssa_voltage        =  1.141226e+01 from=  6.000000e-06 to=  9.001593e-06
+vdda_voltage        =  1.305346e+01 from=  6.000000e-06 to=  9.001593e-06
+v_boot_avg          =  1.641200e+00 from=  6.000000e-06 to=  9.001593e-06
+
+================================================================
+              H3 FIX VERIFICATION - COMPLETE TEST               
+================================================================
+
+Test: Bootstrap Gate Driver with Negative Bias Zener
+Circuit: UCC21550 with 10uF bootstrap cap and 5.1V zener
+Fix: Zener cathode → emitter, anode → VSSA (CORRECT POLARITY)
+
+Measured Values:
+----------------
+v_gs_off_avg = 1.197279e+01
+v_gs_on_avg = 1.233266e+01
+vssa_voltage = 1.141226e+01
+vdda_voltage = 1.305346e+01
+v_boot_avg = 1.641200e+00
+
+Target Specifications:
+  V_GS(OFF): -5.1V ± 0.2V (range: -5.3V to -4.9V)
+  V_GS(ON):  +15V ± 0.5V  (range: 14.5V to 15.5V)
+  VSSA:      -5.1V ± 0.2V
+  Bootstrap: ~15V (VDDA - VSSA)
+
+❌ FAIL: V_GS(OFF) =  v_gs_off_avg  V (out of spec)
+         ⚠️  SHOOT-THROUGH RISK!
+❌ FAIL: V_GS(ON) =  v_gs_on_avg  V (out of spec)
+❌ FAIL: VSSA =  vssa_voltage  V (zener not regulating)
+
+⚠️  OVERALL: FAIL
+
+   Circuit requires correction before fabrication
+
+================================================================
+ngspice-45.2 done

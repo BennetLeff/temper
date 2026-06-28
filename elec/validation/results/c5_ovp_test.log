@@ -1,0 +1,26 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: OVP Comparator Circuit (C5 Fix)
+
+Reducing trtol to 1 for xspice 'A' devices
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 141
+
+  Measurements for DC Analysis
+
+v_trip_bus          =   3.90487e+02
+v_out_at_340v       =  0.000000e+00
+v_out_at_390v       =  8.250000e-02
+v_div_at_trip       =  3.003748e+00
+
+Warning from checkvalid: vector v_trip_bus is not available or has zero length.
+
+Warning: command 'plot' is not available during batch simulation, ignored!
+    You may use Gnuplot instead.
+
+ngspice-45.2 done

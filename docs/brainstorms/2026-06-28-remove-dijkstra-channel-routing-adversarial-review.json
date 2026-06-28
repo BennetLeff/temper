@@ -1,0 +1,86 @@
+{
+  "reviewer": "adversarial",
+  "findings": [
+    {
+      "title": "Success criteria validate completion rate, not the four routing-quality harms that justify the change",
+      "severity": "P1",
+      "section": "Success Criteria",
+      "why_it_matters": "The document's entire justification for removing Dijkstra rests on four specific harms: (1) doesn't respect channel capacity, (2) doesn't enforce diff-pair constraints, (3) ignores layer restrictions, (4) overrides SAT solver output. Yet none of the three success criteria measure whether these harms are actually resolved. SC1 measures completion rate regression (did nets route? — yes/no), not routing quality. SC2 acknowledges channel capacity violations are 'already zero with the Rust solver.' SC3 measures code line count. The consequence: the change could be implemented, all success criteria could pass, and routes could still violate diff-pair constraints or layer restrictions — because those were never measured. The document has no falsifiable claim about the four harms it uses as justification.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "suggested_fix": "Add at least one success criterion that directly validates a routing-quality claim from the problem frame. For example: 'SC4: diff-pair nets taking independent paths in Dijkstra-assisted runs now take paired paths — measurable by comparing the route endpoint proximity of paired nets before and after removal.' Or: 'SC4: no net routes on a layer it's restricted from — measurable by auditing the assigned layer of each ChannelPath against net_classification layer constraints.' Without a quality metric, the requirement risks being a code-cleanliness change with unvalidated correctness claims.",
+      "confidence": 75,
+      "evidence": [
+        "Problem Frame lines 20-23: 'Dijkstra is actively harmful: It doesn't respect channel capacity — shortest-path routes two nets through the same narrow channel; It doesn't enforce diff-pair constraints — paired nets take independent paths; It ignores layer restrictions — a net restricted to L1 gets routed on L2; It overrides the SAT solver's output entirely'",
+        "SC1 line 54: 'The closure test completion rate does not regress' — measures success/failure count, not whether the four harms are resolved",
+        "SC2 line 55: 'Channel capacity violations (measured by post-solve audit) remain at zero — as they already are with the Rust solver' — self-contradicts the premise that Dijkstra causes capacity violations, since violations are already zero with Dijkstra in the code"
+      ]
+    },
+    {
+      "title": "R4's `path_graph` extraction is a greenfield Rust feature with no mitigation plan if delayed or buggy",
+      "severity": "P1",
+      "section": "Requirements / R4",
+      "why_it_matters": "R4 requires the Rust `extract_topology` to produce `path_graph` — an ordered channel edge sequence — so that Stage 4 doesn't need to reconstruct paths from the unordered `uses_channels` list. The current Rust `NetTopology` struct (types.rs:363-369) has NO `path_graph` field. Pipeline.py:579 already sets `path_graph=None` on the Python side. If R4 is deferred or has bugs, the post-Dijkstra code path in `_map_net_to_channels` falls through: `uses_channels` provides an unordered list, the `path_graph` extraction at line 147-154 finds None/empty, and `_extract_waypoints` relies on coordinate-parsing heuristics (regex, hash-modulo skeleton lookup at line 309) to reconstruct waypoints from unordered channel IDs. This can silently produce geometrically invalid waypoints that cause A* routing failures downstream — indistinguishable from a simple 'net unroutable' report with no diagnostic surfacing the root cause.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "suggested_fix": "Either (a) make R4 a hard prerequisite — the Dijkstra removal gate only passes when Rust `path_graph` is confirmed working with an acceptance test, or (b) add a Python-side fallback that walks the skeleton graph to order `uses_channels` when `path_graph` is None, avoiding the coordinate-parsing heuristic path. The Python-side walk is lower-risk since it reuses the existing skeleton graph connectivity that Dijkstra already validates. Also add an acceptance example: 'Given the Rust solver produces `uses_channels=[\"CH3\", \"CH1\", \"CH5\"]` without `path_graph`, Stage 4 reconstructs the correct ordered walk through the skeleton.'",
+      "confidence": 75,
+      "evidence": [
+        "R4 lines 39-40: 'The Rust `extract_topology` produces `path_graph` (ordered channel edge sequence) so Stage 4 doesn't need to reconstruct it from `uses_channels`'",
+        "packages/temper-rust-router/src/types.rs lines 362-369: Rust `NetTopology` struct has only `net_name`, `uses_channels`, `total_length_estimate` — no `path_graph` field",
+        "packages/temper-rust-router/src/extraction.rs lines 66-88: `extract_topology` builds `NetTopology` without any `path_graph` — only `uses_channels` and `total_length_estimate`",
+        "packages/temper-placer/src/temper_placer/router_v6/pipeline.py line 579: `path_graph=None` — confirms Python side does not expect path_graph from Rust currently",
+        "packages/temper-placer/src/temper_placer/router_v6/channel_mapping.py lines 147-154: when `uses_channels` is empty and `path_graph` has no edges, falls through with empty channel_sequence; if uses_channels IS populated but unordered, _extract_waypoints at line 161 gets an unordered list and relies on coordinate-parsing heuristics (line 218-309)"
+      ]
+    },
+    {
+      "title": "`skip_stage3` bypass path silently degrades from skeleton-guided routing to direct A* with no channel guidance",
+      "severity": "P2",
+      "section": "Scope Boundaries",
+      "why_it_matters": "The `RouterV6Pipeline(skip_stage3=True)` parameter is an intentionally preserved bypass path (not a removal — per pipeline.py:438: 'The SAT code stays in place; this is a guarded bypass, not a removal'). Its documented behavior depends on `_map_net_to_channels` falling through to `_find_skeleton_path_for_net` (Dijkstra) when `topology=None`. The test suite at `test_wave3_skip_sat.py` documents R7/R8 which explicitly rely on 'skeleton-path resolution.' After Dijkstra removal, `skip_stage3=True` produces `topology=None`, all nets get `net_topology=None` in `_map_net_to_channels`, Dijkstra doesn't run, and every net returns None. The pipeline-level fallback at pipeline.py:643-660 catches these and creates ChannelPaths with only pin positions as waypoints — no channel sequence, no skeleton guidance. The consequence: `skip_stage3` still works (doesn't crash) but produces fundamentally different routing behavior — direct A* without channel guidance instead of skeleton-guided A*. This breaks the debugging/testing contract documented in R7/R8.",
+      "finding_type": "omission",
+      "autofix_class": "gated_auto",
+      "suggested_fix": "Acknowledge `skip_stage3` as a dependency in the requirements doc. Options: (a) Accept the degradation and update R7/R8 documentation to reflect the new 'direct A*' fallback behavior, or (b) Keep `_find_skeleton_path_for_net` available but only invoked when `skip_stage3=True` (guard it with the flag, not delete it). The latter preserves the debugging contract while still preventing Dijkstra from overriding SAT in normal operation.",
+      "confidence": 50,
+      "evidence": [
+        "packages/temper-placer/src/temper_placer/router_v6/pipeline.py lines 432-447: 'When skip_stage3 is True, bypass the SAT solver entirely ... Stage 4 falls back to the skeleton-path resolution in channel_mapping._map_net_to_channels (which already prefers _find_skeleton_path_for_net over the SAT topology)'",
+        "packages/temper-placer/tests/router_v6/test_wave3_skip_sat.py lines 7-15: 'R7: RouterV6Pipeline(skip_stage3=True) bypasses Stage 3 ... Stage 4 falls back to skeleton-path resolution in _map_net_to_channels. The SAT code stays in place; this is a guarded bypass, not a removal.'",
+        "packages/temper-placer/src/temper_placer/router_v6/channel_mapping.py lines 139-140: Dijkstra code path that skip_stage3 currently relies on",
+        "packages/temper-placer/src/temper_placer/router_v6/pipeline.py lines 643-660: direct A* fallback creates ChannelPath with only pin positions, no channel_sequence — this becomes the ONLY path for skip_stage3 after Dijkstra removal"
+      ]
+    },
+    {
+      "title": "Single-board closure test cannot validate SAT behavior diversity; regression on other boards goes undetected",
+      "severity": "P2",
+      "section": "Success Criteria / Dependencies",
+      "why_it_matters": "SC1 and the Dependencies section both pin regression validation on the closure test running against `temper.kicad_pcb` (a single board). SAT solver assignments are board-geometry-dependent: different net counts, channel layouts, obstacle densities, and diff-pair topologies produce different SAT variable assignments. Dijkstra currently serves as a safety net when SAT produces assignments that don't map to valid skeleton paths — a condition that may not manifest on the one board in the regression test but could appear on other boards. The consequence: the change passes CI (closure test green on temper.kicad_pcb) and gets merged, but a board with different geometry silently experiences completion-rate regression or routing-quality degradation that only surfaces when that board is first routed post-merge.",
+      "finding_type": "omission",
+      "autofix_class": "manual",
+      "suggested_fix": "Either (a) add at least one additional board to the regression gate with different characteristics (e.g., higher net count, different channel density, more diff pairs), or (b) add a property-based test that generates synthetic board topologies with varying channel counts and verifies that SAT-assigned channels map to valid skeleton paths. The latter would catch the class of 'SAT says CH1→CH5 but they're not connected in the skeleton' failures without needing full routing on real boards.",
+      "confidence": 50,
+      "evidence": [
+        "SC1 line 54: 'The closure test completion rate does not regress' — gates on one board's completion rate",
+        "Dependencies lines 78-79: 'The closure test (ci_closure_test.py) is the regression gate — any completion rate drop from Dijkstra removal is caught in CI'",
+        "scripts/ci_closure_test.py lines 58-65: instantiates ClosureTest with a single pcb_path argument — one board",
+        "packages/temper-placer/src/temper_placer/regression/closure_test.py lines 332-333: router is run with strategies=['router_v6_full'] on the single parsed PCB — no multi-board regression capability"
+      ]
+    }
+  ],
+  "residual_risks": [
+    {
+      "risk": "SAT solver produces a valid Boolean assignment whose channel sequence doesn't correspond to a connected path in the skeleton graph — Dijkstra currently papers over this class of bug. After removal, these nets silently fail routing via A*.",
+      "severity": "Medium",
+      "mitigation": "The post-solve constraint audit (pipeline.py:586-598) catches SAT constraint violations but does NOT validate skeleton-graph connectivity of assigned channels. This gap exists regardless of Dijkstra removal but becomes more impactful when Dijkstra can no longer compensate."
+    },
+    {
+      "risk": "The 'Rust solver only' assumption (Dependencies line 78) is fragile: if `temper_rust_router` has an import failure at runtime, the Python-side `extract_topology_solution` in topology_extraction.py is the Python fallback — but it produces `path_graph` from variable-name parsing that may not match the ordered walk expected by R4.",
+      "severity": "Low",
+      "mitigation": "The unconditional import on pipeline.py:555 would raise at construction time, preventing silent fallback. However, if someone adds a try/except import guard later, the Python extractor could activate without notice."
+    }
+  ],
+  "deferred_questions": [
+    "What is the actual completion rate delta when Dijkstra is removed? The document frames Dijkstra as harmful but provides no before/after measurement of the four specific harms. If the change is correctness-motivated, what observable routing failures does Dijkstra cause today that disappear after removal?",
+    "Is the `path_graph` (R4) implementation scoped to the same PR as the Dijkstra removal, or is it a follow-on? If follow-on, what is the expected behavior during the gap — unordered `uses_channels` with coordinate-parsing heuristics?",
+    "Are there any boards in the power_pcb_dataset that exercise different SAT behaviors (e.g., UNSAT results, high channel contention, many diff pairs)? If so, should they be added to the regression gate?"
+  ]
+}

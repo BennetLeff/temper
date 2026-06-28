@@ -1,0 +1,24 @@
+DEBUG: Loading design_rules.py
+================================================================================
+Testing BoostConverter Completion with Safety Margin Fix (0.20mm -> 0.05mm)
+================================================================================
+Input: temp_routing_test/BoostConverter_unrouted.kicad_pcb
+
+Loading PCB...
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/test_boost_completion.py", line 64, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/Users/bennet/Desktop/temper/test_boost_completion.py", line 22, in main
+    parsed_pcb = parse_kicad_pcb_v6(pcb_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Desktop/temper/packages/temper-placer/temper_placer/io/kicad_parser.py", line 918, in parse_kicad_pcb_v6
+    ki_board = KiBoard.from_file(str(pcb_path))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Miniforge3/lib/python3.12/site-packages/kiutils/board.py", line 169, in from_file
+    item = cls.from_sexpr(sexpr.parse_sexp(infile.read()))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bennet/Miniforge3/lib/python3.12/site-packages/kiutils/utils/sexpr.py", line 29, in parse_sexp
+    assert stack, "Trouble with nesting of brackets"
+           ^^^^^
+AssertionError: Trouble with nesting of brackets

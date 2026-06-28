@@ -1,0 +1,7 @@
+DEBUG: Loading design_rules.py
+Traceback (most recent call last):
+  File "/Users/bennet/Desktop/temper/test-boards/mvb/test_mvb_progression.py", line 17, in <module>
+    OUTPUT_DIR.mkdir(exist_ok=True)
+  File "/Users/bennet/.local/share/uv/python/cpython-3.11.14-macos-aarch64-none/lib/python3.11/pathlib.py", line 1116, in mkdir
+    os.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: 'test-boards/mvb/results'

@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-06-28T20:59:18.055887+00:00",
+  "boards": [
+    {
+      "board_id": "temper",
+      "passed": true,
+      "skipped": false,
+      "skip_reason": null,
+      "elapsed_seconds": 12.00938892364502,
+      "metrics": {
+        "overlap_loss_final": 0.1546592116355896,
+        "wirelength_final": 581.6547241210938,
+        "boundary_loss_final": 0.0,
+        "final_loss": 5895.8173828125,
+        "hpwl_final": 0.0
+      },
+      "metric_checks": [
+        {
+          "name": "overlap_loss_final",
+          "passed": true,
+          "actual": 0.1546592116355896,
+          "baseline": 0.0,
+          "limit": 10.0,
+          "delta": 0.1546592116355896,
+          "allowed_delta": 10.0
+        },
+        {
+          "name": "wirelength_final",
+          "passed": true,
+          "actual": 581.6547241210938,
+          "baseline": 0.0,
+          "limit": 2000.0,
+          "delta": 581.6547241210938,
+          "allowed_delta": 2000.0
+        },
+        {
+          "name": "boundary_loss_final",
+          "passed": true,
+          "actual": 0.0,
+          "baseline": 0.0,
+          "limit": 20.0,
+          "delta": 0.0,
+          "allowed_delta": 20.0
+        },
+        {
+          "name": "final_loss",
+          "passed": true,
+          "actual": 5895.8173828125,
+          "baseline": 6000.0,
+          "limit": 11000.0,
+          "delta": -104.1826171875,
+          "allowed_delta": 5000.0
+        },
+        {
+          "name": "hpwl_final",
+          "passed": true,
+          "actual": 0.0,
+          "baseline": 0.0,
+          "limit": 2000.0,
+          "delta": 0.0,
+          "allowed_delta": 2000.0
+        }
+      ],
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

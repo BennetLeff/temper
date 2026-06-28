@@ -1,0 +1,270 @@
+================================================================================
+Router V6 - Temper Board Baseline Run
+================================================================================
+Input: pcb/temper.kicad_pcb
+Output: pcb/temper_fixed_test.kicad_pcb
+Experiment P2: Placement Legalization ENABLED (Mode: physics)
+Profiling Mode: Limiting to first 10 nets
+
+Stage 0: Loading PCB...
+  0.1: Loading authoritative design rules...
+DEBUG: Loading design_rules.py
+    Loaded 9 net classes and 8 assignments
+Applying 3 placement constraints from placement_constraints.json...
+  LOCKED U_GATE at (25.8, 30.7)
+  PLACED C_BOOT at (19.2, 33.0)
+  PLACED C_VCC at (19.2, 27.0)
+Stage 0.5: Placement Optimization (Mode: physics)...
+  Found 2 initial collisions
+  Physics Legalization successful (0 overlaps)
+Stage 1: Detecting dense packages in 33 components...
+  Found 1 dense packages
+    Falling back to via-in-pad for U_GATE
+  Generated 16 escape vias
+Stage 2: Channel analysis...
+  2.1-2.2: Computing routing space...
+    Computed routing spaces for 4 layers
+  2.3: Extracting channel skeleton...
+  Extracted 2 skeleton lines
+  Extracted 2611 skeleton lines
+  Extracted 99 skeleton lines
+  Extracted 81 skeleton lines
+DEBUG: Skeleton has 8 disconnected islands, bridging...
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.07mm
+DEBUG: Added bridge: 0.26mm
+DEBUG: Added bridge: 0.40mm
+DEBUG: Warning: Cannot bridge islands (min distance: 27.0mm > 10.0mm)
+  Added 100 pad anchor nodes to skeleton
+    F.Cu: 2430 nodes, 2898 edges
+  Extracted 5871 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 134 skeleton lines
+  Extracted 145 skeleton lines
+  Extracted 505 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 23 skeleton lines
+DEBUG: Skeleton has 13 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.05mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.11mm
+DEBUG: Added bridge: 0.13mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.30mm
+DEBUG: Added bridge: 0.85mm
+  Added 83 pad anchor nodes to skeleton
+    In1.Cu: 5786 nodes, 6784 edges
+  Extracted 7145 skeleton lines
+  Added 85 pad anchor nodes to skeleton
+    In2.Cu: 5790 nodes, 7230 edges
+  Extracted 8532 skeleton lines
+  Extracted 49 skeleton lines
+  Extracted 62 skeleton lines
+  Extracted 25 skeleton lines
+  Extracted 104 skeleton lines
+  Extracted 11 skeleton lines
+  Extracted 9 skeleton lines
+  Extracted 2 skeleton lines
+  Extracted 166 skeleton lines
+  Extracted 1 skeleton lines
+  Extracted 5 skeleton lines
+  Extracted 97 skeleton lines
+DEBUG: Skeleton has 27 disconnected islands, bridging...
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.00mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.01mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.03mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.06mm
+DEBUG: Added bridge: 0.08mm
+DEBUG: Added bridge: 0.09mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.10mm
+DEBUG: Added bridge: 0.14mm
+DEBUG: Added bridge: 0.15mm
+DEBUG: Added bridge: 0.16mm
+DEBUG: Added bridge: 0.17mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.19mm
+DEBUG: Added bridge: 0.20mm
+DEBUG: Added bridge: 0.22mm
+DEBUG: Added bridge: 0.27mm
+DEBUG: Added bridge: 0.49mm
+DEBUG: Added bridge: 0.50mm
+DEBUG: Added bridge: 0.57mm
+DEBUG: Added bridge: 0.64mm
+  Added 88 pad anchor nodes to skeleton
+    B.Cu: 6255 nodes, 9177 edges
+  2.4: Computing channel widths...
+  2.5: Building occupancy grid...
+    Using max clearance: 2.0mm for C-Space inflation
+    Building specialized HV grids with inflation: 7.5mm
+  2.6: Calculating layer capacity...
+  2.7: Estimating routing demand...
+  2.8: Identifying bottlenecks...
+    Warning: 4 bottlenecks identified
+Stage 3: Topological routing...
+  3.1-3.6: Building constraint model...
+  3.7: Building SAT model...
+    SAT model: 626136 vars, 262 clauses
+  3.8: Solving topology...
+    Solution found (SAT)
+  3.9: Extracting topology graph...
+Stage 4: Geometric realization...
+  4.1: Setting up channel mapping...
+  4.2: Running Routing (Sequential A*)...
+  4.2: Running A* Pathfinding (Stage 4)...
+  Found 27 THT pads for layer switching
+  Profiling Mode: Routing only 24 specific nets
+    Routing AC_L using A*...
+      ✗ AC_L FAILED: no path found
+    Routing AC_N using A*...
+      ✗ AC_N FAILED: no path found
+    Routing USB_D+ using A*...
+      ✓ USB_D+ routed successfully
+    Routing VCC_BOOT using A*...
+      ✓ VCC_BOOT routed successfully
+    Routing DC_BUS+ using A*...
+      ✓ DC_BUS+ routed successfully
+    Routing PWM_L using A*...
+      ✗ PWM_L FAILED: no path found
+    Routing SPI_MOSI using A*...
+      ✓ SPI_MOSI routed successfully
+    Routing SPI_MISO using A*...
+      ✓ SPI_MISO routed successfully
+    Routing I_SENSE using A*...
+      ✓ I_SENSE routed successfully
+    Routing PWM_H using A*...
+      ✗ PWM_H FAILED: no path found
+    Routing USB_D- using A*...
+      ✓ USB_D- routed successfully
+    Routing TEMP_SENSE using A*...
+      ✓ TEMP_SENSE routed successfully
+    Routing GATE_H using A*...
+      ✓ GATE_H routed successfully
+    Routing GATE_L using A*...
+      ✓ GATE_L routed successfully
+    Routing SPI_CS_TEMP using A*...
+      ✓ SPI_CS_TEMP routed successfully
+    Routing DC_BUS- using A*...
+      ✓ DC_BUS- routed successfully
+    Routing SPI_CLK using A*...
+      ✓ SPI_CLK routed successfully
+    Routing SW_NODE using A*...
+      ✓ SW_NODE routed successfully
+    Routing SPI_MOSI using A*...
+      ✓ SPI_MOSI routed successfully
+    Routing SPI_MISO using A*...
+      ✓ SPI_MISO routed successfully
+    Routing USB_D+ using A*...
+      ✓ USB_D+ routed successfully
+    Routing DC_BUS+ using A*...
+      ✓ DC_BUS+ routed successfully
+    Routing GATE_L using A*...
+      ✓ GATE_L routed successfully
+    Routing GATE_H using A*...
+      ✓ GATE_H routed successfully
+    Routing SPI_CS_TEMP using A*...
+      ✓ SPI_CS_TEMP routed successfully
+    Routing DC_BUS- using A*...
+      ✓ DC_BUS- routed successfully
+    Routing VCC_BOOT using A*...
+      ✓ VCC_BOOT routed successfully
+    Routing SPI_CLK using A*...
+      ✓ SPI_CLK routed successfully
+    Routing SPI_MOSI using A*...
+      ✓ SPI_MOSI routed successfully
+    Routing SW_NODE using A*...
+      ✓ SW_NODE routed successfully
+    Routing DC_BUS+ using A*...
+      ✓ DC_BUS+ routed successfully
+    Routing SPI_MISO using A*...
+      ✓ SPI_MISO routed successfully
+    Routing GATE_L using A*...
+      ✓ GATE_L routed successfully
+    Routing GATE_H using A*...
+      ✓ GATE_H routed successfully
+    Routing SPI_CS_TEMP using A*...
+      ✓ SPI_CS_TEMP routed successfully
+    Routing SPI_CLK using A*...
+      ✓ SPI_CLK routed successfully
+    Routing DC_BUS- using A*...
+      ✓ DC_BUS- routed successfully
+    Routing VCC_BOOT using A*...
+      ✓ VCC_BOOT routed successfully
+    Routing SW_NODE using A*...
+      ✓ SW_NODE routed successfully
+    Routing SPI_MISO using A*...
+      ✓ SPI_MISO routed successfully
+    Routing DC_BUS+ using A*...
+      ✓ DC_BUS+ routed successfully
+    Routing GATE_L using A*...
+      ✓ GATE_L routed successfully
+    Routing SPI_CLK using A*...
+      ✓ SPI_CLK routed successfully
+    Routing DC_BUS- using A*...
+      ✓ DC_BUS- routed successfully
+    Routing SW_NODE using A*...
+      ✓ SW_NODE routed successfully
+
+⚠️  Detected 10 competing nets that need negotiated routing:
+   DC_BUS+, DC_BUS-, GATE_H, GATE_L, SPI_CLK, SPI_CS_TEMP, SPI_MISO, SPI_MOSI, SW_NODE, VCC_BOOT
+  Sequential routing complete: 14 routed, 4 failed
+  Checking for competing nets...
+
+  ℹ️  Detected 10 competing nets (oscillation detected)
+     DC_BUS+, DC_BUS-, GATE_H, GATE_L, SPI_CLK, SPI_CS_TEMP, SPI_MISO, SPI_MOSI, SW_NODE, VCC_BOOT
+     (NegotiatedRouter disabled - using graceful degradation)
+  4.3: Placing vias...
+  4.4: Assigning trace widths...
+  4.9: Compiling routing results...
+  4.10: Generating Power Planes...
+    Generating GND Plane for GND on B.Cu...
+
+Router V6 complete in 75.6s
+  Routed: 14 nets
+  Failed: 4 nets
+  Completion: 77.8%
+
+================================================================================
+RESULTS
+================================================================================
+Runtime: 75.6s
+Success: 14/18 nets
+Completion: 77.8%
+
+
+============================================================
+ROUTING FAILURE ANALYSIS (4 failures)
+============================================================
+
+1. FAILURE REASONS:
+   no_path: 4 nets
+
+2. TOP BLOCKING NETS (most frequently blocking others):
+
+3. INDIVIDUAL FAILURES:
+   AC_L (1 pins): no_path
+      Region: (18.2, 27.0), Ripups: 0
+   AC_N (1 pins): no_path
+      Region: (21.3, 31.3), Ripups: 0
+   PWM_L (1 pins): no_path
+      Region: (21.3, 28.8), Ripups: 0
+   PWM_H (1 pins): no_path
+      Region: (21.3, 27.5), Ripups: 0
+
+Metrics written to: pcb/temper_fixed_metrics.json
+
+Exporting to pcb/temper_fixed_test.kicad_pcb...
+Exported 121 segments and 0 vias.
+Exporting 1 Power Planes...
+Copied temper.kicad_pro to temper_fixed_test.kicad_pro

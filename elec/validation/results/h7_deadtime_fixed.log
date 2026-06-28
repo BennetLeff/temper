@@ -1,0 +1,82 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: Dead-Time Circuit (H7 Fix - Corrected)
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vcc                                         15
+in_a                                         0
+in_b                                       3.3
+delay_a_raw                                  0
+delay_a                                      0
+out_a                                        0
+delay_b_raw                                3.3
+delay_b                                    3.3
+out_b                                      3.3
+b_delay_b#branch                  -8.98587e-19
+b_delay_a#branch                             0
+e_out_b#branch                               0
+e_out_a#branch                               0
+v_in_b#branch                                0
+v_in_a#branch                                0
+v_cc#branch                                  0
+
+
+No. of Data Rows : 100026
+t_a_fall            =  4.004966e-05
+t_b_rise            =  4.004966e-05
+	measure 't_dead1'  failed
+Error: measure  t_dead1  :
+	no such function as 'param=t_b_rise - t_a_fall'
+ meas tran t_dead1 param=t_b_rise - t_a_fall failed!
+
+t_b_fall            =  1.003966e-05
+t_a_rise            =  9.003966e-05
+	measure 't_dead2'  failed
+Error: measure  t_dead2  :
+	no such function as 'param=t_a_rise - t_b_fall'
+ meas tran t_dead2 param=t_a_rise - t_b_fall failed!
+
+Warning from checkvalid: vector t_dead1 is not available or has zero length.
+Error: RHS "(t_dead1 + t_dead2) / 2" invalid
+Warning from checkvalid: vector t_dead_avg is not available or has zero length.
+Error: RHS "t_dead_avg * 1e9" invalid
+Warning from checkvalid: vector t_dead_ns is not available or has zero length.
+Error: RHS "t_sw + t_dead_ns - t_igbt" invalid
+
+================================================================
+          H7 FIX VERIFICATION - Dead-Time Circuit               
+================================================================
+
+Design Parameters:
+  C_DT = 10nF (was 5nF before fix)
+  Target: t_DT = 50ns ± 5ns
+
+Measured Results:
+Warning from checkvalid: vector t_dead_ns is not available or has zero length.
+
+System Timing:
+  Software dead-time:  300ns
+  Hardware dead-time:   t_dead_ns  ns
+  IGBT turn-off time:  245ns
+  Total margin:         t_margin_ns  ns (target: >100ns)
+
+Warning from checkvalid: vector t_dead_ns is not available or has zero length.
+❌ FAIL: Hardware dead-time =  t_dead_ns  ns (out of spec)
+Warning from checkvalid: vector t_margin_ns is not available or has zero length.
+❌ FAIL: Total margin =  t_margin_ns  ns (insufficient)
+
+Warning from checkvalid: vector t_dead_ns is not available or has zero length.
+⚠️  OVERALL: FAIL - Circuit needs correction
+
+================================================================
+ngspice-45.2 done

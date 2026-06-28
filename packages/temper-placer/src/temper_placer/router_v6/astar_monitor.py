@@ -182,11 +182,17 @@ class astar_monitor:
         _current_monitor_state = None
 
         if state is not None and state.violations:
-            violations = state.violations
-            lines = [f"- {v}" for v in violations]
+            import logging
+            import os
+
+            lines = [f"- {v}" for v in state.violations]
             msg = "A* invariant violations detected:\n" + "\n".join(lines)
 
-            import logging
+            # CI mode: hard-fail via pytest so regressions block PRs
+            if os.environ.get("PYTEST_CURRENT_TEST"):
+                import pytest  # noqa: F811
+                pytest.fail(msg)
+
             logging.getLogger(__name__).warning(msg)
 
         return False  # Don't suppress exceptions

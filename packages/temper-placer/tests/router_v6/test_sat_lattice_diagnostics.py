@@ -19,7 +19,6 @@ from temper_placer.router_v6.sat_model import (
     SATModel,
     SATVariable,
     _encode_at_most_k,
-    populate_sat_from_constraints,
 )
 
 
@@ -194,21 +193,28 @@ def test_lattice_fr5_fails_with_omitted_layer(monkeypatch) -> None:
         ConstraintModel, NetChannelVar, LayerConstraint,
     )
 
-    original = populate_sat_from_constraints
+    import temper_placer.router_v6.sat_model as sm
+
+    _original_populate = sm.populate_sat_from_constraints
 
     def _omit_layer_constraints(
         sat_model: SATModel,
         constraint_model: "ConstraintModel",
         net_names: list[str] | None = None,
     ) -> None:
-        """Call original but skip LayerConstraint handling."""
-        # Import the actual module to access the original
-        from importlib import import_module
-        module = import_module("temper_placer.router_v6.sat_model")
-        # We can't easily skip just LayerConstraint, so verify the original works
-        original(sat_model, constraint_model, net_names)
+        """Remove LayerConstraint entries before calling the original,
+        simulating an encoding bug where layer permissions are dropped."""
+        saved = []
+        for constr in list(constraint_model.constraints):
+            if isinstance(constr, LayerConstraint):
+                saved.append(constr)
+                constraint_model.constraints.remove(constr)
+        try:
+            _original_populate(sat_model, constraint_model, net_names)
+        finally:
+            constraint_model.constraints.extend(saved)
 
-    # Verify the original function produces correct clauses
+    # Build a constraint model with a layer constraint
     cm = ConstraintModel()
     cm.add_variable(NetChannelVar(
         name="uses_N0_F.Cu_E0_0_1", net_idx=0, channel_id="F.Cu_E0_0_1",
@@ -217,30 +223,25 @@ def test_lattice_fr5_fails_with_omitted_layer(monkeypatch) -> None:
         name="layer_N0", net_idx=0, channel_id="F.Cu_E0_0_1", allowed=True,
     ))
 
+    # With buggy function: layer constraint omitted -> no layer clause
     sat = SATModel(variables=[], clauses=[])
-    populate_sat_from_constraints(sat, cm, net_names=["N0"])
+    monkeypatch.setattr(
+        sm, "populate_sat_from_constraints", _omit_layer_constraints
+    )
+    sm.populate_sat_from_constraints(sat, cm, net_names=["N0"])
 
-    # Should have: 1 connectivity + 1 layer clause
+    # The buggy function drops the layer clause, so only connectivity remains
     layer_clauses = [
         c for c in sat.clauses if "Layer:" in c.description
     ]
-    assert len(layer_clauses) >= 1, (
-        f"Expected at least 1 layer clause, got {len(layer_clauses)}"
+    assert len(layer_clauses) == 0, (
+        f"Expected 0 layer clauses (bug omits them), got {len(layer_clauses)}"
     )
-
-    # Verify FR1-FR4 still pass (they use separate functions, not affected)
-    # This is a structural verification: sat-l1 through sat-l4 pass,
-    # and this test asserts that if layer constraints were omitted,
-    # the clause set would be incomplete and FR5 would detect it.
-
-    # Here we simply verify the original produces the expected clauses.
-    # The "deliberately wrong" check is in the test_sat_solve_pbt FR5 test
-    # which compares produced clause sets against expected sets.
     connectivity_clauses = [
         c for c in sat.clauses if "Connectivity:" in c.description
     ]
     assert len(connectivity_clauses) >= 1, (
-        f"Expected at least 1 connectivity clause, got {len(connectivity_clauses)}"
+        f"Expected at least 1 connectivity clause (unaffected), got {len(connectivity_clauses)}"
     )
 
 
