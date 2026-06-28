@@ -12,7 +12,6 @@
 - `packages/temper-placer/` - JAX-based PCB placement optimizer
 - `pcb/` - KiCad schematics
 - `docs/solutions/` - documented fixes for past problems (bugs, patterns, tooling decisions), organized by category with YAML frontmatter — search before implementing or debugging in a known area
-- `docs/solutions/` - documented solutions to past bugs, best practices, and architecture patterns (YAML frontmatter, organized by category)
 
 ## Firmware Config Codegen
 
