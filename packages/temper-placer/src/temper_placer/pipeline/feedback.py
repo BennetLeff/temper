@@ -24,7 +24,7 @@ class AdjustmentType(Enum):
     SPECIFICATION = "specification"
 
 
-from temper_placer.routing.congestion_heatmap import CongestionHeatmap
+from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 from temper_placer.losses.base import LossFunction, LossResult, LossContext
 import jax.numpy as jnp
 

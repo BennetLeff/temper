@@ -235,7 +235,7 @@ def measure_routability(
     """
     Measure routability indicators (post-placement estimation).
     """
-    from temper_placer.routing.congestion import analyze_congestion
+    from temper_placer.router_v6.congestion import analyze_congestion
     import jax.numpy as jnp
     
     metrics = RoutabilityMetrics()

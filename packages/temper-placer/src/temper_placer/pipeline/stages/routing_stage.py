@@ -13,7 +13,7 @@ from temper_placer.pipeline.dag_types import DataContext, StageResult
 class RoutingStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start = time.time()
-        from temper_placer.routing.congestion import analyze_congestion
+        from temper_placer.router_v6.congestion import analyze_congestion
 
         print("Running routing verification...")
 

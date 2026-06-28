@@ -16,7 +16,7 @@ class RefinementStage:
         start_time = time.time()
         from temper_placer.pipeline.iterator import PlaceRouteIterator
         from temper_placer.router_v6.adapter import V6RouterAdapter
-        from temper_placer.routing.congestion_heatmap import CongestionHeatmap
+        from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
         from temper_placer.optimizer.legalization import resolve_overlaps_priority
         from temper_placer.core.state import PlacementState
 
@@ -54,7 +54,7 @@ class RefinementStage:
 
                 success_count = 0
                 for net in netlist.nets:
-                    from temper_placer.routing.congestion import _get_pin_positions
+                    from temper_placer.router_v6.congestion import _get_pin_positions
                     pins = _get_pin_positions(netlist, net.name, pos)
                     if len(pins) < 2:
                         continue
