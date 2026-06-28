@@ -5,7 +5,7 @@ Removes redundant waypoints from grid paths by eliminating collinear points.
 This reduces the number of trace segments in the exported PCB.
 """
 
-from temper_placer.routing.heuristics import GridCell
+from temper_placer.router_v6.grid_converter import GridCell
 
 
 def is_collinear(p1: GridCell, p2: GridCell, p3: GridCell) -> bool:

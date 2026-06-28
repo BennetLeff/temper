@@ -4,7 +4,16 @@ Grid coordinate conversion utilities for router export.
 Converts internal routing grid cells to PCB world coordinates (mm).
 """
 
-from temper_placer.routing.heuristics import GridCell
+from dataclasses import dataclass
+
+
+@dataclass
+class GridCell:
+    """Grid cell coordinates (x, y, layer)."""
+
+    x: int
+    y: int
+    layer: int = 0
 
 
 def grid_to_world(

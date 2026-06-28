@@ -1,7 +1,6 @@
 # Temper LOC cap allowlist -- shrinks monotonically (R3).
 # Format: <repo-relative-path> <baseline_lines> <ticket-id> # <description>
 packages/temper-placer/src/temper_placer/cli/__init__.py 3946 temper-N6-U3 # CLI god-object, Phase 2 decomposition
-packages/temper-placer/src/temper_placer/routing/maze_router.py 5018 temper-N7-maze # maze router god-object, follow-up
 packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py 1797 temper-N6-U6 # router, Phase 3
 packages/temper-placer/src/temper_placer/optimizer/train.py 1652 temper-N7-10 # follow-up
 packages/temper-placer/src/temper_placer/io/config_loader.py 1608 temper-N7-9 # follow-up (grew from 1549)
@@ -13,7 +12,6 @@ packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_a
 packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 1232 temper-N7-cap2 # new over-cap file
 packages/temper-placer/src/temper_placer/losses/aesthetic.py 1148 temper-N7-aesthetic # follow-up
 firmware/main/state_machine.c 1116 temper-N6-U8 # firmware, Phase 4 (grew from 1035)
-packages/temper-placer/src/temper_placer/routing/fast_router.py 1078 temper-N7-cap3 # new over-cap file
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1059 temper-N7-cap4 # new over-cap file
 packages/temper-placer/src/temper_placer/optimizer/convergence_analytics.py 1023 temper-N7-1 # follow-up
 packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1008 temper-N7-board # follow-up

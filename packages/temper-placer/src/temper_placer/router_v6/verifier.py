@@ -29,18 +29,17 @@ from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
-from temper_placer.routing.congestion import analyze_congestion
+from temper_placer.router_v6.congestion import analyze_congestion
 
 if TYPE_CHECKING:
-    from temper_placer.routing.diagnostics import (
+    from temper_placer.router_v6.diagnostics import (
         PlacementAdjustment,
         RoutingDiagnostic,
         RoutingReport,
     )
-from temper_placer.routing.heuristics import compute_completion_rate
-from temper_placer.routing.layer_assignment import LayerAssignment, assign_layers
-from temper_placer.routing.maze_router import MazeRouter
-from temper_placer.routing.net_ordering import order_nets
+from temper_placer.router_v6.heuristics import compute_completion_rate  # noqa: E402
+from temper_placer.router_v6.layer_assignment import LayerAssignment, assign_layers  # noqa: E402
+from temper_placer.router_v6.net_ordering import order_nets  # noqa: E402
 
 
 class VerificationLevel(Enum):
