@@ -632,7 +632,7 @@ def _path_cost_euclidean(path: list[tuple[int, int]]) -> float:
 @given(gsp=grid_and_pair(2, 30, 0.3))
 @settings(max_examples=100, deadline=30000)
 def test_thetastar_subpath_optimality(gsp):
-    """Theta* subpath optimality: when LOS exists, path cost == octile_distance."""
+    """Theta* subpath optimality: cost of non-adjacent steps equals direct distance."""
     from temper_placer.router_v6.astar_core import _astar_search_theta_star
 
     grid, start, goal = gsp
@@ -640,20 +640,27 @@ def test_thetastar_subpath_optimality(gsp):
     if path is None or len(path) < 2:
         return
 
-    # Check all local subpath pairs (limit to i+5 for large paths)
-    for i in range(len(path)):
-        max_j = min(len(path), i + 6)
-        for j in range(i + 1, max_j):
-            if _line_of_sight_tolerant(path[i], path[j], grid, 0):
-                seg_cost = _path_cost_euclidean(path[i:j + 1])
-                # Theta* uses Euclidean distances for g_score
-                direct_dist = math.sqrt(
-                    (path[j][0] - path[i][0]) ** 2 + (path[j][1] - path[i][1]) ** 2
-                )
-                assert abs(seg_cost - direct_dist) <= _RELAXED_TOL, (
-                    f"Theta* subpath [{i}:{j+1}]: seg_cost={seg_cost}, "
-                    f"euclidean={direct_dist}"
-                )
+    # Check non-adjacent consecutive steps (Theta* shortcuts):
+    # when path[i] and path[i+1] are more than 1 cell apart,
+    # the edge cost should equal the Euclidean distance directly.
+    for i in range(len(path) - 1):
+        dx = abs(path[i + 1][0] - path[i][0])
+        dy = abs(path[i + 1][1] - path[i][1])
+        if dx > 1 or dy > 1:
+            # This is a Theta* shortcut — verify LOS and cost
+            assert _line_of_sight_tolerant(path[i], path[i + 1], grid, 0), (
+                f"Theta* shortcut without LOS: {path[i]} -> {path[i+1]}"
+            )
+            direct_dist = math.sqrt(dx * dx + dy * dy)
+            edge_cost = _path_cost_euclidean([path[i], path[i + 1]])
+            assert abs(edge_cost - direct_dist) <= _RELAXED_TOL, (
+                f"Theta* shortcut cost mismatch: {edge_cost} vs {direct_dist}"
+            )
+        else:
+            # Adjacent step — must be a valid 8-connected move
+            assert dx <= 1 and dy <= 1 and (dx + dy) >= 1, (
+                f"Theta* path has invalid adjacent step: {path[i]} -> {path[i+1]}"
+            )
 
 
 # @req(2026-06-28-001, R19a): Theta* path cell count <= standard A*

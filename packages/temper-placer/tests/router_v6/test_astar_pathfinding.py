@@ -16,6 +16,7 @@ from temper_placer.router_v6.channel_mapping import ChannelMapping, ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 
+@pytest.mark.l4_regression
 def test_run_empty_pathfinding():
     """Test pathfinding with no nets."""
     mapping = ChannelMapping(channel_paths={})
@@ -27,6 +28,7 @@ def test_run_empty_pathfinding():
     assert result.failure_count == 0
 
 
+@pytest.mark.l4_regression
 def test_run_simple_pathfinding():
     """Test pathfinding with simple channel path."""
     channel_path = ChannelPath(
@@ -50,6 +52,7 @@ def test_run_simple_pathfinding():
     assert len(path.coordinates) > 0
 
 
+@pytest.mark.l4_regression
 def test_route_path_dataclass():
     """Test RoutePath dataclass."""
     path = RoutePath(
@@ -65,6 +68,7 @@ def test_route_path_dataclass():
     assert path.layer_name == "F.Cu"
 
 
+@pytest.mark.l4_regression
 def test_pathfinding_result_dataclass():
     """Test PathfindingResult dataclass."""
     path1 = RoutePath("NET1", [(0, 0), (10, 10)], "F.Cu", 14.14)
@@ -82,6 +86,7 @@ def test_pathfinding_result_dataclass():
     assert result.get_path("NET3") is None
 
 
+@pytest.mark.l4_regression
 def test_pathfinding_with_multiple_nets():
     """Test pathfinding with multiple nets."""
     path1 = ChannelPath("NET1", ["CH1"], [(0, 0), (5, 5)], 7.07)
