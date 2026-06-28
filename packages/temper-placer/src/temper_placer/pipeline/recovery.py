@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.router_v6.adapter import _AdapterRoutePath
+from temper_placer.router_v6 import _AdapterRoutePath as RoutePath
 
 def all_routed(results: dict[str, RoutePath]) -> bool:
     """Check if all nets were successfully routed."""

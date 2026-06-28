@@ -125,6 +125,7 @@ class ManufacturingDRCViolationError(RuntimeError):
     """Raised when manufacturing DRC violations exceed the configured threshold."""
 
 
+@dataclass
 class RouterV6Result:
     """Complete Router V6 pipeline result."""
 

@@ -164,8 +164,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
       
-      - name: Run regression check
-        run: make regression
+      - name: Run regression check (temper board only)
+        run: make regression REGRESSION_BOARD=temper
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
       

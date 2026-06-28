@@ -501,7 +501,7 @@ class PipelineOrchestrator:
         """Run placement-routing refinement loop (deprecated — use RefinementStage)."""
         warnings.warn("_run_refinement is deprecated. Use RefinementStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.pipeline.iterator import PlaceRouteIterator
-        from temper_placer.router_v6.adapter import V6RouterAdapter
+        from temper_placer.router_v6 import V6RouterAdapter
         from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
         from temper_placer.optimizer.legalization import resolve_overlaps_priority
         from temper_placer.pipeline.iterative_placer import simple_congestion_repel

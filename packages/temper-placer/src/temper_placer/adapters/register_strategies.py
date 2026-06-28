@@ -79,7 +79,7 @@ class RoutingStage(PipelineStage):
             self.provides = []
 
     def run(self, input: StageInput) -> StageOutput:
-        from temper_placer.router_v6.adapter import route_pcb
+        from temper_placer.router_v6 import route_pcb
 
         parsed = input.data
         seed = getattr(input.meta, "seed", 42) if input.meta else 42
