@@ -1,7 +1,11 @@
 # Import-linter allowlist — monotonically shrinking
 # All entries have been resolved or absorbed into the baseline.
-# New violations should be added to the baseline or the allowlist as needed.
 # See docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md
+#
+# FREEZE (effective 2026-07-06): No new allowlist entries without an
+# explicit ticket reference in the justification comment. The allowlist
+# must shrink monotonically — every PR touching this file should decrease
+# total entries, never increase without a validated exception.
 
 allowlist:
   # U3: SequentialRoutingStage in deterministic/ imports
