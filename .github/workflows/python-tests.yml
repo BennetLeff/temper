@@ -79,8 +79,7 @@ jobs:
         run: |
           pip install maturin
           cd packages/temper-rust-router
-          maturin build --release
-          pip install "$(ls target/wheels/*manylinux*.whl | head -1)"
+          maturin develop --release
           cd ../..
 
       - name: Run temper-placer tests (core only for CI speed)
@@ -90,6 +89,24 @@ jobs:
       - name: Coverage gate (temper-placer/core)
         working-directory: packages/temper-placer
         run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage.json --allowlist ../../.coverage-allowlist
+
+      - name: Cover invariant tests (router_v6, io, deterministic, losses)
+        working-directory: packages/temper-placer
+        run: |
+          uv run pytest tests/router_v6/ tests/io/ tests/deterministic/ tests/losses/ \
+            -v --tb=short -p no:cacheprovider --maxfail=10 \
+            --cov=temper_placer.router_v6 --cov=temper_placer.deterministic \
+            --cov=temper_placer.io --cov=temper_placer.losses \
+            --cov-report=json:coverage-invariants.json --cov-report=term \
+            -m "not slow"
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
+          JAX_PLATFORM_NAME: cpu
+
+      - name: Coverage gate (temper-placer invariants)
+        working-directory: packages/temper-placer
+        run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage-invariants.json --allowlist ../../.coverage-allowlist
+        continue-on-error: true
       
       - name: Run temper-workflow tests
         working-directory: packages/temper-workflow
