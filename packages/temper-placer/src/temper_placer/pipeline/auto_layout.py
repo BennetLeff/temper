@@ -151,7 +151,7 @@ def auto_layout_pcb(
     else:
         from temper_placer.core.design_rules import create_temper_design_rules
         design_rules = create_temper_design_rules()
-    router = MazeRouter.from_board(
+    router = V6RouterAdapter.from_board(
         board, 
         cell_size_mm=cell_size_mm, 
         num_layers=num_layers,
