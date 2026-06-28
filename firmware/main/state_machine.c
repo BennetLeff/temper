@@ -70,6 +70,8 @@ static struct {
     bool runaway_latched;
     float last_pan_temp_c;
     uint32_t last_pan_temp_time_ms;
+    uint8_t pan_temp_stuck_count;
+    uint8_t heatsink_temp_stuck_count;
 
 } sm_ctx = {
     .current_state = STATE_INIT,
@@ -999,7 +1001,12 @@ static void check_safety_interlocks(void) {
         return;
     }
 
-    /* Over-current check */
+    /* Over-current check — IGBT short (>50A) takes priority over over-current */
+    if (read_dc_bus_current() > 50.0f) {
+        sm_ctx.fault_code = FAULT_IGBT_SHORT;
+        transition_to(STATE_FAULT);
+        return;
+    }
     if (read_dc_bus_current() > 35.0f) {
         sm_ctx.fault_code = FAULT_OVER_CURRENT;
         transition_to(STATE_FAULT);
@@ -1024,6 +1031,25 @@ static void check_safety_interlocks(void) {
         sm_ctx.fault_code = FAULT_PROBE_SHORT;
         transition_to(STATE_FAULT);
         return;
+    }
+
+    /* ADC stuck check — identical pan temperature across consecutive reads
+     * indicates a frozen sensor. Uses its own tracking separate from the
+     * runaway rate-of-rise tracker (which updates every pass). */
+    static float prev_stuck_check_temp = -1.0f;
+    float pan_temp = read_pan_temperature();
+    if (prev_stuck_check_temp == pan_temp) {
+        sm_ctx.pan_temp_stuck_count++;
+        if (sm_ctx.pan_temp_stuck_count >= 50) {
+            sm_ctx.fault_code = FAULT_ADC_STUCK;
+            transition_to(STATE_FAULT);
+            prev_stuck_check_temp = -1.0f;
+            sm_ctx.pan_temp_stuck_count = 0;
+            return;
+        }
+    } else {
+        sm_ctx.pan_temp_stuck_count = 0;
+        prev_stuck_check_temp = pan_temp;
     }
 }
 
