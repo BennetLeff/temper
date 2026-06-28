@@ -112,16 +112,7 @@ from temper_placer.losses.drc_loss import (
 )
 
 # DRC oracle loss (temper-drc composable check integration)
-from temper_placer.losses.drc_oracle_loss import (
-    DRCCompositeLoss,
-    create_drc_composite_loss,
-)
-
 # DRC proxy loss (differentiable width-inflated clearance)
-from temper_placer.losses.drc_proxy import (
-    DRCProxyLoss,
-)
-
 # Grid alignment loss
 from temper_placer.losses.grid import (
     GridAlignmentLoss,
@@ -370,7 +361,6 @@ __all__ = [
     "create_edge_preference_loss",
     "create_temper_thermal_losses",
     "create_drc_loss",
-    "create_manufacturing_losses",
     # DRC loss (non-differentiable, cached)
     "DRCLoss",
     "DRCCacheEntry",
@@ -393,8 +383,5 @@ __all__ = [
     "BusAlignmentLoss",
     "compute_routing_channel_penalty",
     # DRC proxy loss (differentiable width-inflated clearance)
-    "DRCProxyLoss",
     # DRC oracle loss (temper-drc composable check integration)
-    "DRCCompositeLoss",
-    "create_drc_composite_loss",
 ]
