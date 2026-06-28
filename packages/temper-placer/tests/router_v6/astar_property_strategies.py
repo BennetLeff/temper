@@ -167,7 +167,7 @@ def grid_translations(
 
     new_rows = rows + max_dy + 1
     new_cols = cols + max_dx + 1
-    new_arr = np.zeros((new_rows, new_cols), dtype=grid.grid.dtype)
+    new_arr = np.ones((new_rows, new_cols), dtype=grid.grid.dtype)
     new_arr[dy : dy + rows, dx : dx + cols] = grid.grid
 
     t_grid = OccupancyGrid(grid.layer_name, new_arr, grid.origin, grid.cell_size, new_cols, new_rows)
