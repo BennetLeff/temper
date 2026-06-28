@@ -129,16 +129,20 @@ jobs:
             let ciSection = "";
             const passCount = ciStatus.filter(r => r.status === "success").length;
             const failCount = ciStatus.filter(r => r.status === "failure").length;
-            const otherCount = ciStatus.length - passCount - failCount;
+            const nullCount = ciStatus.filter(r => r.status === "null" || r.status === "unknown" || !r.status).length;
+            const otherCount = ciStatus.length - passCount - failCount - nullCount;
 
             if (failCount === 0 && otherCount === 0) {
-              ciSection = "All 7 CI workflows passing.";
+              ciSection = `All 7 CI workflows passing.`;
+              if (nullCount > 0) ciSection += ` (${nullCount} workflow(s) have no main-branch runs yet)`;
+              ciSection += ".";
             } else {
               ciSection = `${passCount} passing, ${failCount} failing`;
+              if (nullCount > 0) ciSection += `, ${nullCount} no runs`;
               if (otherCount > 0) ciSection += `, ${otherCount} other`;
               ciSection += ".\n";
               for (const r of ciStatus) {
-                if (r.status !== "success") {
+                if (r.status !== "success" && r.status !== "null" && r.status !== "unknown") {
                   ciSection += `- ${r.workflow}: ${r.status} ([run](${r.url}))\n`;
                 }
               }
@@ -154,10 +158,21 @@ jobs:
 
             // Build drift section
             let driftSection = "";
+            let hasRegression = false;
             if (driftReport && driftReport.trim()) {
-              driftSection = "Drift detected:\n```\n" + driftReport + "\n```";
+              try {
+                const drift = JSON.parse(driftReport.replace(/^DEBUG:.*\n/gm, ""));
+                hasRegression = drift.has_regression === true;
+                if (hasRegression) {
+                  driftSection = "Drift detected:\n```\n" + driftReport + "\n```";
+                } else {
+                  driftSection = "No pipeline metrics drift detected (7-day window, " + (drift.data_points || "?") + " data points).";
+                }
+              } catch (e) {
+                driftSection = "Could not parse drift report: " + e.message;
+              }
             } else {
-              driftSection = "No pipeline metrics drift detected (7-day window).";
+              driftSection = "No pipeline metrics data available for the 7-day window.";
             }
 
             // Build sunset section
@@ -167,8 +182,8 @@ jobs:
             let importSection = `${importBaseline} baseline violations, ${importAllowlist} allowlist exemptions.`;
 
             // Determine preamble
-            const allClear = failCount === 0 && otherCount === 0 && !goldenFailures &&
-                             !driftReport.trim() && sunsetEscalates === "0";
+            const allClear = failCount === 0 && nullCount === 0 && !goldenFailures &&
+                             !hasRegression && sunsetEscalates === "0";
             const preamble = allClear
               ? "All clear — no drift, no fixture failures, no new sunset warnings."
               : "Regressions detected this week — see sections below.";
