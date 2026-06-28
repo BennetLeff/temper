@@ -1110,6 +1110,11 @@ trigger_runaway:
 void state_machine_reset_temp_baseline(void) {
     sm_ctx.last_pan_temp_c = read_pan_temperature();
     sm_ctx.last_pan_temp_time_ms = get_time_ms();
+    /* Also reset stuck-sensor tracking: an intentional baseline
+     * change (test mock, trace start) means the new temperature
+     * isn't evidence of a stuck sensor. */
+    sm_ctx.prev_stuck_check_temp = read_pan_temperature();
+    sm_ctx.pan_temp_stuck_count = 0;
 }
 
 static bool fault_cleared(void) {
