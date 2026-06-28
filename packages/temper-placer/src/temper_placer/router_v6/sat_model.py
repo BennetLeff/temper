@@ -195,36 +195,111 @@ def populate_sat_from_constraints(
                 )
 
         elif isinstance(constraint, CapacityConstraint):
-            # Capacity: sum(uses[n, c] * width[n]) <= capacity
-            # For SAT (boolean), we can't directly encode this
-            # Simplification: At most K nets can use this channel
-            # where K = floor(capacity / min_width)
-            
-            # Calculate max nets from capacity
             if constraint.terms:
                 min_width = min(width for _, width in constraint.terms)
                 max_nets = int(constraint.capacity * constraint.slack_factor / min_width)
-                
-                # If we have more terms than capacity allows, add pairwise exclusion
-                # For simplicity, we'll use a basic approach: at least one must be false
-                if len(constraint.terms) > max_nets > 0:
-                    # For each subset of size (max_nets + 1), at least one must be false
-                    # This is a cardinality constraint
-                    # Simplified: Add clause that prevents ALL from being true
-                    sat_vars = []
-                    for var, _ in constraint.terms:
-                        sat_var = var_map.get(var.name)
-                        if sat_var:
-                            sat_vars.append(sat_var)
-                    
-                    # At least one must be false
-                    if len(sat_vars) > max_nets:
-                        sat_model.add_clause(
-                            [(v, False) for v in sat_vars[max_nets:]],
-                            f"Capacity: {constraint.channel_id} max {max_nets} nets"
-                        )
+
+                sat_vars = []
+                for var, _ in constraint.terms:
+                    sat_var = var_map.get(var.name)
+                    if sat_var:
+                        sat_vars.append(sat_var)
+
+                if sat_vars and max_nets < len(sat_vars):
+                    _encode_at_most_k(
+                        sat_model, sat_vars, max_nets,
+                        description_prefix=f"cap_{constraint.channel_id}",
+                    )
 
 
+
+
+def _encode_at_most_k(
+    sat_model: SATModel,
+    variables: list[SATVariable],
+    k: int,
+    description_prefix: str = "",
+) -> None:
+    """Encode AtMostK cardinality constraint via sequential counter (Sinz 2005).
+
+    Adds O(n·k) auxiliary variables and clauses enforcing that at most *k*
+    of the given *variables* are true.  The encoding is correct for all
+    n ≥ 1, 0 ≤ k < n.
+
+    Args:
+        sat_model: The SAT model to populate.
+        variables: List of SATVariable instances representing the primary
+            Boolean variables constrained by AtMostK.
+        k: The maximum number of variables allowed to be true.
+        description_prefix: A short label included in variable names and
+            clause descriptions for debuggability.
+    """
+    n = len(variables)
+    if k >= n:
+        return  # Trivially satisfied.
+
+    if k == 0:
+        for v in variables:
+            sat_model.add_clause(
+                [(v, False)], f"{description_prefix}: all-false (k=0)"
+            )
+        return
+
+    # Register variables r[i][j] for i=0..n-2, j=0..k-1.
+    # r[i][j] is true iff at least j+1 of variables[0..i] are true.
+    r: list[list[SATVariable]] = []
+    for i in range(n - 1):
+        row: list[SATVariable] = []
+        for j in range(k):
+            aux = sat_model.add_variable(
+                f"sc_{description_prefix}_r{i}_{j}",
+                f"Seq-counter r{i}.{j} for {description_prefix}",
+            )
+            row.append(aux)
+        r.append(row)
+
+    # ---- Position 0 ----
+    sat_model.add_clause(
+        [(variables[0], False), (r[0][0], True)],
+        f"{description_prefix}: x0 -> r0.0",
+    )
+    for j in range(1, k):
+        sat_model.add_clause(
+            [(r[0][j], False)],
+            f"{description_prefix}: not r0.{j}",
+        )
+
+    # ---- Positions 1 .. n-2 ----
+    for i in range(1, n - 1):
+        sat_model.add_clause(
+            [(variables[i], False), (r[i][0], True)],
+            f"{description_prefix}: x{i} -> r{i}.0",
+        )
+        sat_model.add_clause(
+            [(r[i - 1][0], False), (r[i][0], True)],
+            f"{description_prefix}: r{i-1}.0 -> r{i}.0",
+        )
+        for j in range(1, k):
+            sat_model.add_clause(
+                [
+                    (variables[i], False),
+                    (r[i - 1][j - 1], False),
+                    (r[i][j], True),
+                ],
+                f"{description_prefix}: x{i} ∧ r{i-1}.{j-1} -> r{i}.{j}",
+            )
+            sat_model.add_clause(
+                [(r[i - 1][j], False), (r[i][j], True)],
+                f"{description_prefix}: r{i-1}.{j} -> r{i}.{j}",
+            )
+
+    # ---- Exclusion: if count already reaches k, no further variable may be true.
+    # For i in k .. n-1: (¬variables[i] ∨ ¬r[i-1][k-1])
+    for i in range(k, n):
+        sat_model.add_clause(
+            [(variables[i], False), (r[i - 1][k - 1], False)],
+            f"{description_prefix}: exclusion x{i} ∨ ¬r{i-1}.{k-1}",
+        )
 
 
 def add_connectivity_to_sat(
