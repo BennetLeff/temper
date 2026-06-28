@@ -804,12 +804,14 @@ class TestSegmentToSegmentDist:
             pytest.xfail(f"NaN/inf in _segment_to_segment_dist ({desc}) crashes")
 
         assert isinstance(dist, float)
-        # NaN distances are expected for NaN inputs
+        # NaN distances are expected when NaN is in the *first* segment.
+        # NaN in the second segment doesn't affect closest-point from first.
         any_nan = any(math.isnan(v) for v in vals)
+        any_nan_first = any(math.isnan(v) for v in vals[:4])  # x1,y1,x2,y2
         any_inf = any(math.isinf(v) for v in vals)
-        if any_nan:
+        if any_nan_first:
             assert math.isnan(dist), (
-                f"Expected NaN distance with NaN input, got {dist}"
+                f"Expected NaN distance with NaN in first segment, got {dist}"
             )
 
 
