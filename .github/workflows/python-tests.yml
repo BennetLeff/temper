@@ -80,7 +80,7 @@ jobs:
           pip install maturin
           cd packages/temper-rust-router
           maturin build --release
-          pip install target/wheels/*.whl
+          pip install "$(ls target/wheels/*manylinux*.whl | head -1)"
           cd ../..
 
       - name: Run temper-placer tests (core only for CI speed)
