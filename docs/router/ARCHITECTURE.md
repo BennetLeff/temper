@@ -214,7 +214,7 @@ Future specialized routers:
 
 ### Primary Entry Point
 ```python
-from temper_placer.routing.unified_router import UnifiedRouter
+from temper_placer.router_v6.unified_router import UnifiedRouter
 
 router = UnifiedRouter(board, config, design_rules)
 result = router.route_net(
@@ -233,7 +233,7 @@ result.length       # Traced length (0 for planes)
 
 ### Direct Router Access (Testing)
 ```python
-from temper_placer.routing.plane_connection import PlaneConnectionRouter
+from temper_placer.router_v6.plane_connection import PlaneConnectionRouter
 
 plane_router = PlaneConnectionRouter(design_rules)
 connections = plane_router.route_net_to_plane(

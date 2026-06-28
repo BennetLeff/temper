@@ -48,7 +48,7 @@ For `Temper`'s high-density regions:
 3.  **Strict Layer Partitioning** is mandatory for the dense core (L1=Row, L4=Col).
 
 ## Implications
-1.  **Fanout is Crucial**: It solved the local "Pin Trap" problem. This utility `temper_placer.routing.fanout` is now a permanent tool in our arsenal.
+1.  **Fanout is Crucial**: It solved the local "Pin Trap" problem. This utility `temper_placer.router_v6.fanout` is now a permanent tool in our arsenal.
 2.  **Topology Limits**: We proved that a 2-layer dense weave has limited routability for non-orthogonal nets. This validates the need for 4-layer routing (Inner Layers) for complex nets in `Temper`.
 3.  **Grid Resolution**: Router cell size must be <= Clearance/2 for reliable results in dense areas.
 4.  **Layer Discipline**: High-density routing requires strict layer constraints to preserve channel capacity. "Flexible" routing often leads to divergence in congested areas.

@@ -319,7 +319,7 @@ Placement → DRC-Aware Routing → 0 violations
 
 ### Basic DRC-Aware Routing
 ```python
-from temper_placer.routing.constraints import DRCOracle, DesignRulesParser
+from temper_placer.router_v6.constraints import DRCOracle, DesignRulesParser
 
 oracle = DRCOracle(DesignRulesParser.create_default())
 router = MazeRouter.from_board(board, drc_oracle=oracle, strict_mode=True)
@@ -339,7 +339,7 @@ result = iterative_place_and_route(
 
 ### Power Net Topology Analysis
 ```python
-from temper_placer.routing.topology import analyze_power_net_topology
+from temper_placer.router_v6.topology import analyze_power_net_topology
 
 islands, vias = analyze_power_net_topology(gnd_pads, plane_layer=1, drc_oracle=oracle)
 print(f"GND has {len(islands)} islands, needs {len(vias)} stitching vias")
