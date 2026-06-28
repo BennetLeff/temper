@@ -13,7 +13,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "temper-placer" / "src"))
 
 from temper_placer.io.reference_loader import load_reference_pcb
-from temper_placer.routing.maze_router import MazeRouter, order_nets_for_routing
+from temper_placer.router_v6._routing_shim.maze_router import MazeRouter, order_nets_for_routing
 
 
 def benchmark_router(pcb_path: Path, net_ordering: str = "shortest_first"):
@@ -120,7 +120,7 @@ def benchmark_router(pcb_path: Path, net_ordering: str = "shortest_first"):
             
             # Try to route
             try:
-                from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+                from temper_placer.router_v6._routing_shim.layer_assignment import LayerAssignment, Layer
                 assignment = LayerAssignment(
                     net=net_name,
                     primary_layer=Layer.L1_TOP,

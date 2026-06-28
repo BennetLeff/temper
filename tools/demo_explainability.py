@@ -9,7 +9,7 @@ This script demonstrates what the system produces when running on different desi
 from temper_placer.explainability import Trace
 from temper_placer.explainability.pipeline import TracedPipeline
 from temper_placer.core.board import LayerStackup
-from temper_placer.routing.maze_router import MazeRouter
+from temper_placer.router_v6._routing_shim.maze_router import MazeRouter
 import jax.numpy as jnp
 
 def run_design_scenario(name, components, net_configs):
