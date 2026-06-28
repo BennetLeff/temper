@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/mimo-v2.5",
+  "model": "deepseek/deepseek-v4-pro",
   "permission": {
     "bash": {
       "ls *": "allow",
@@ -40,6 +40,15 @@
     }
   },
   "provider": {
+    "deepseek": {
+      "models": {
+        "deepseek-v4-pro": {
+          "options": {
+            "reasoningEffort": "high"
+          }
+        }
+      }
+    },
     "openrouter": {
       "models": {
         "qwen/qwen3-235b-a22b-2507": {

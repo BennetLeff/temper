@@ -206,8 +206,8 @@ class TestSafetyConstantAuthority:
         expected = {
             ("ACMains", "clearance", 6.0),
             ("ACMains", "creepage_mm", 6.0),
-            ("HighVoltage", "clearance", 2.0),
-            ("HighVoltage", "creepage_mm", 2.0),
+            ("HighVoltage", "clearance", 6.0),
+            ("HighVoltage", "creepage_mm", 6.0),
         }
         assert set(SAFETY_CONSTANT_AUTHORITY) == expected
 

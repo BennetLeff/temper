@@ -34,6 +34,7 @@ zones:
     bounds: [0, 115, 20, 140]  # Left edge - adjusted for connector pin extents
     # J_AC_IN has 20mm extent, so center max Y = 150 - 10 - margin = 138mm
     description: "Connectors and interfaces - adjusted bounds for pin extents"
+    net_classes: ["ACMains"]  # required for >10A AC input traces
 
 # ==============================================================================
 # COMPONENT FUNCTIONAL GROUPS
