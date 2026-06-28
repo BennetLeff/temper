@@ -82,11 +82,6 @@ from temper_placer.router_v6.length_group_inference import (
     LengthGroup,
     infer_length_groups,
 )
-from temper_placer.router_v6.length_matching import (
-    LengthMatchingResult,
-    LengthMatchingResults,
-    apply_length_matching,
-)
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.pad_escape_classification import (
     ClassifiedPad,
@@ -160,9 +155,6 @@ __all__ = [
     # Shared data structures
     "ParsedPCB",
     "DesignRules",
-    "LengthMatchingResult",
-    "LengthMatchingResults",
-    "apply_length_matching",
     # Diagnostics (U1)
     "NetRoutingReport",
     "BoardRoutingReport",
