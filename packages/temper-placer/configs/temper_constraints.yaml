@@ -271,6 +271,9 @@ net_classes:
   +340V_BUS: "HighVoltage"
   DC_BUS_RTN: "HighVoltage"
   SW_NODE: "HighVoltage"
+  AC_L: "ACMains"
+  AC_N: "ACMains"
+  PE: "ACMains"
   GATE_HS: "GateDrive"
   GATE_LS: "GateDrive"
   GND: "Ground"
@@ -330,14 +333,26 @@ net_class_rules:
     
   HighVoltage:
     trace_width_mm: 0.3
-    clearance_mm: 3.0     # Router V5: IEC 60950-1 clearance
-    creepage_mm: 3.0      # Router V5: IEC 60950-1 creepage (was 5.0)
+    clearance_mm: 6.0     # IEC 60335-1 clearance for 340V DC vs 240V AC
+    creepage_mm: 6.0      # IEC 60335-1 creepage for 340V DC vs 240V AC
     via_size_mm: 0.8
     via_drill_mm: 0.4
     via_template: "Via2x2"
     max_current_rating: 1.0  # 1A - but high voltage
     voltage_v: 340.0  # Router V5: DC bus voltage (340V)
     routing_strategy: "standard"
+    
+  ACMains:
+    trace_width_mm: 1.5
+    clearance_mm: 6.0
+    creepage_mm: 6.0
+    via_size_mm: 1.0
+    via_drill_mm: 0.5
+    via_template: "Via3x3"
+    max_current_rating: 16.0  # 16A - AC input
+    voltage_v: 240.0
+    routing_strategy: "plane_required"
+    description: "240V AC mains input — requires IEC 60335-1 creepage"
     
   HighCurrent:
     trace_width_mm: 3.0
@@ -561,8 +576,8 @@ via_array_overrides:
 hv_lv_separation:
   hv_threshold_v: 60.0     # Voltage above which HV rules apply
   lv_reference_v: 3.3      # Typical LV reference (MCU)
-  creepage_mm: 3.0         # 340V → 3.3V creepage (IEC 60950-1)
-  clearance_mm: 2.5        # 340V → 3.3V clearance (IEC 60950-1)
+  creepage_mm: 6.0         # 340V DC & 240V AC → 3.3V (IEC 60335-1 Table 17)
+  clearance_mm: 6.0        # 340V DC & 240V AC → 3.3V (IEC 60335-1 Table 17)
 
 # Critical Net Routing Order
 # Router should process these nets first to ensure optimal paths
