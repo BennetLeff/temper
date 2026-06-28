@@ -429,7 +429,12 @@ void eeprom_log_fault(fault_code_t code, uint32_t timestamp) {
  * Global State Stubs (required by state_machine.c and state_handlers.c)
  * ============================================================================ */
 
-config_t g_config;
+config_t g_config = {
+    .temperatures = TEMP_LIMITS_DEFAULT,
+    .timeouts = TIMEOUTS_DEFAULT,
+    .thresholds = THRESHOLDS_DEFAULT,
+    .runaway = RUNAWAY_DEFAULT,
+};
 
 sm_context_t sm_ctx;
 
