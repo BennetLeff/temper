@@ -225,6 +225,15 @@ const char* state_machine_get_state_string(system_state_t state);
 void state_machine_reset_temp_baseline(void);
 
 /**
+ * @brief Reset stuck-sensor tracking counters.
+ *
+ * Clears the consecutive-identical-reading counter used by the
+ * ADC stuck detector.  Call at the start of a test trace that
+ * holds a constant temperature for many ticks.
+ */
+void state_machine_reset_stuck_tracking(void);
+
+/**
  * @brief Enable/disable cooking timer
  * 
  * @param enabled Timer enable flag

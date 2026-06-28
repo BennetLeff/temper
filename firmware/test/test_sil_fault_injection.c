@@ -671,6 +671,7 @@ static void run_sil_test(const manifest_entry_t *entry) {
          * spurious RUNAWAY_FAULT before the injected fault fires. */
         if (t == 0) {
             state_machine_reset_temp_baseline();
+            state_machine_reset_stuck_tracking();
         }
 
         /* Derive pan status from pan_impedance */

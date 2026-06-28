@@ -763,10 +763,12 @@ void test_sm_fault_on_adc_stuck(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Inject same pan temperature across 50 consecutive updates */
+    /* Inject same pan temperature across 50 consecutive updates.
+     * No baseline reset needed — temperature is constant, so
+     * rate-of-rise won't trigger.  This lets the stuck counter
+     * accumulate to test FAULT_ADC_STUCK detection. */
     for (int i = 0; i < 50; i++) {
         mock_sm_set_pan_temperature(92.0f);
-    state_machine_reset_temp_baseline();
         mock_sm_advance_time(100);
         state_machine_update();
     }
