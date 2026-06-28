@@ -63,7 +63,7 @@ jobs:
         run: |
           GOLDEN_FAILURES=""
           for boundary in semantic topological placement routing validation; do
-            if uv run temper dsn check \
+            if uv run temper-placer dsn check \
               --boundary "$boundary" \
               --input pcb/temper.kicad_pcb \
               --config pcb/temper_config.yaml \
@@ -93,8 +93,8 @@ jobs:
         id: sunset
         run: |
           SUNSET_OUTPUT=$(uv run python scripts/check_script_sunset.py 2>&1 || true)
-          WARNINGS=$(echo "$SUNSET_OUTPUT" | grep -c "WARNING" || echo "0")
-          ESCALATES=$(echo "$SUNSET_OUTPUT" | grep -c "ESCALATE" || echo "0")
+          WARNINGS=$(echo "$SUNSET_OUTPUT" | grep "WARNING" | wc -l | tr -d ' ')
+          ESCALATES=$(echo "$SUNSET_OUTPUT" | grep "ESCALATE" | wc -l | tr -d ' ')
           echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
           echo "escalates=$ESCALATES" >> "$GITHUB_OUTPUT"
           echo "Script sunset: $WARNINGS warning(s), $ESCALATES escalate(s)"
