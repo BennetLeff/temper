@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 import math
 from ..state import BoardState
 from .base import Stage
-from ...core.pin_geometry import pin_world_position
+from ...core.pin_geometry import pin_world_position_at
 
 
 @dataclass
@@ -133,7 +133,7 @@ class FinePitchEscapeStage(Stage):
                     continue
 
                 # Calculate absolute pin position
-                pin_x, pin_y = pin_world_position(pin, component)
+                pin_x, pin_y = pin_world_position_at(pin, component, comp_pos)
 
                 # Skip if we already have a via at this position
                 pos_key = (round(pin_x, 3), round(pin_y, 3))
@@ -209,7 +209,7 @@ class FinePitchEscapeStage(Stage):
                         continue  # Skip NC pins
 
                     # Calculate absolute pin position
-                    pin_x, pin_y = pin_world_position(pin, component)
+                    pin_x, pin_y = pin_world_position_at(pin, component, comp_pos)
 
                     # Check if escape via exists within tolerance
                     pos_key = (round(pin_x, 3), round(pin_y, 3))
