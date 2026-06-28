@@ -313,13 +313,15 @@ def known_compliant_route(
     )
 
     # Compliant vias: pad >= drill + 2 * min_annular_ring (0.05mm)
+    # Ensure generous margin: drill <= diameter - 0.15 (ring >= 0.075 > 0.05)
     n_vias = draw(st.integers(min_value=0, max_value=2))
     vias: list[Via] = []
     for _ in range(n_vias):
-        vx = draw(st.floats(min_value=0.0, max_value=BOARD_W))
-        vy = draw(st.floats(min_value=0.0, max_value=BOARD_H))
-        dia = draw(st.floats(min_value=0.6, max_value=2.0))
-        drill = draw(st.floats(min_value=0.1, max_value=dia - 0.1))
+        vx = draw(st.floats(min_value=10.0, max_value=BOARD_W - 10.0))
+        vy = draw(st.floats(min_value=10.0, max_value=BOARD_H - 10.0))
+        dia = draw(st.floats(min_value=1.0, max_value=2.0))
+        drill_max = dia - 0.15  # Ensure annular ring > 0.05
+        drill = draw(st.floats(min_value=0.1, max_value=drill_max))
         frm = layer
         to = draw(st.sampled_from([l for l in LAYERS if l != frm]))
         vias.append(Via(
@@ -344,20 +346,70 @@ def known_compliant_route(
 def known_compliant_routing_results(
     draw: st.DrawFn,
     min_routes: int = 2,
-    max_routes: int = 10,
+    max_routes: int = 4,
 ) -> RoutingResults:
     """Generate ``RoutingResults`` containing only known-compliant routes.
 
-    Each route is generated via ``known_compliant_route`` and placed
-    on a layer far from others to avoid cross-route violations.
+    Routes are placed on distinct layers with well-separated coordinates
+    to avoid cross-route clearance violations.
     """
-    n = draw(st.integers(min_value=min_routes, max_value=max_routes))
+    n = draw(st.integers(min_value=min_routes, max_value=min(max_routes, len(LAYERS))))
     compiled: dict[str, CompiledRoute] = {}
+    used_layers = set()
+    # Offset each route's coordinates to avoid overlap
+    y_offsets = [10.0, 60.0, 110.0, 160.0]
+
     for i in range(n):
-        layer = LAYERS[i % len(LAYERS)]
-        route = draw(known_compliant_route(layer=layer))
-        # Ensure unique name
-        while route.net_name in compiled:
-            route.net_name = route.net_name + "_X"
-        compiled[route.net_name] = route
+        layer = LAYERS[i]
+        used_layers.add(layer)
+
+        # Generate a route with known-safe coordinates
+        net_name = f"COMPLIANT_{i}"
+        width = draw(st.floats(min_value=0.2, max_value=1.0))
+
+        y = y_offsets[i]
+        coords = [
+            (10.0, y),
+            (50.0, y),
+            (100.0, y + 30.0),
+        ]
+        path_len = 0.0
+        for k in range(len(coords) - 1):
+            path_len += math.hypot(
+                coords[k + 1][0] - coords[k][0],
+                coords[k + 1][1] - coords[k][1],
+            )
+
+        path = RoutePath(
+            net_name=net_name,
+            coordinates=coords,
+            layer_name=layer,
+            path_length=path_len,
+        )
+
+        # No vias on simple routes to avoid via-to-trace clearance issues
+        n_vias = draw(st.integers(min_value=0, max_value=1))
+        vias: list[Via] = []
+        for _ in range(n_vias):
+            dia = draw(st.floats(min_value=1.0, max_value=2.0))
+            drill_max = dia - 0.15
+            drill = draw(st.floats(min_value=0.1, max_value=drill_max))
+            lv = draw(st.sampled_from([l for l in LAYERS if l != layer]))
+            vias.append(Via(
+                position=(50.0, y),
+                from_layer=layer,
+                to_layer=lv,
+                diameter=dia,
+                drill=drill,
+                net_name=net_name,
+            ))
+
+        compiled[net_name] = CompiledRoute(
+            net_name=net_name,
+            path=path,
+            width_mm=width,
+            vias=vias,
+            matched_length_mm=None,
+        )
+
     return RoutingResults(compiled_routes=compiled, failed_nets=[])
