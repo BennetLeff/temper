@@ -564,6 +564,15 @@ static void run_sil_test(const manifest_entry_t *entry) {
         mock_sm_set_dc_bus_current(rows[t][3]);
         mock_sm_set_rtd_resistance(rows[t][4]);
 
+        /* At tick 0: establish the trace's starting temperature as the
+         * runaway rate-of-rise baseline.  The boilerplate phase ran at
+         * the mock default (25 C); the CSV typically starts at ~92 C.
+         * Without this reset, the apparent 67 C/s jump triggers a
+         * spurious RUNAWAY_FAULT before the injected fault fires. */
+        if (t == 0) {
+            state_machine_reset_temp_baseline();
+        }
+
         /* Derive pan status from pan_impedance */
         if (rows[t][5] < PAN_ABSENT_THRESHOLD) {
             mock_sm_set_pan_status(MOCK_PAN_ABSENT);
