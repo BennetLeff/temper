@@ -20,23 +20,6 @@ class MockPin:
         self.height = height
         self.shape = shape
 
-    def absolute_position(self, comp_pos, rotation_angle, side):
-        import math
-
-        rot_rad = rotation_angle
-        cx, cy = comp_pos
-        px, py = self.position
-
-        cos_r, sin_r = math.cos(rot_rad), math.sin(rot_rad)
-        rx = px * cos_r - py * sin_r
-        ry = px * sin_r + py * cos_r
-
-        if side == 1:
-            rx = -rx
-            ry = -ry
-
-        return (cx + rx, cy + ry)
-
 
 class TestVectorizedBlocking:
     def test_block_components_vectorized_equals_loop(self):

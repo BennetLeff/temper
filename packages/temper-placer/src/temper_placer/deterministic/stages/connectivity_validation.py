@@ -6,10 +6,40 @@ from ..state import BoardState
 from .base import Stage
 from ...routing.constraints.geometry import Point
 from ...routing.constraints.spatial_index import Track, Via, Pad
-from ...routing.topology import UnionFind
+
+
+
+class UnionFind:
+    """Minimal UnionFind (disjoint-set) for connectivity tracking."""
+
+    def __init__(self):
+        self._parent = {}
+        self._rank = {}
+
+    def find(self, x):
+        if x not in self._parent:
+            self._parent[x] = x
+            self._rank[x] = 0
+            return x
+        if self._parent[x] != x:
+            self._parent[x] = self.find(self._parent[x])
+        return self._parent[x]
+
+    def union(self, a, b):
+        ra = self.find(a)
+        rb = self.find(b)
+        if ra == rb:
+            return
+        if self._rank[ra] < self._rank[rb]:
+            self._parent[ra] = rb
+        elif self._rank[ra] > self._rank[rb]:
+            self._parent[rb] = ra
+        else:
+            self._parent[rb] = ra
+            self._rank[ra] += 1
+
 
 logger = logging.getLogger(__name__)
-
 @dataclass
 class ConnectivityViolation:
     """Represents a connectivity error on the PCB."""

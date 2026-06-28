@@ -46,28 +46,10 @@ class PlacementAuditor:
 
             # Let's compute hull of pins.
             points = []
-            if hasattr(comp, "pins"):
-                rot_rad = math.radians(rot_deg)
-                for pin in comp.pins:
-                    # Use Pin.absolute_position if available
-                    if hasattr(pin, "absolute_position"):
-                        # side=0 (Top) assumed for now as initial_side might be None
-                        abs_pos = pin_world_position(pin, comp)
-                        points.append(abs_pos)
-                    else:
-                        # Fallback if pin is just a struct without methods
-                        # Pin has (x, y) relative to component.
-                        px = pin.position[0]
-                        py = pin.position[1]
-
-                        # Rotate
-                        rx = px * math.cos(rot_rad) - py * math.sin(rot_rad)
-                        ry = px * math.sin(rot_rad) + py * math.cos(rot_rad)
-
-                        # Translate
-                        ax = x + rx
-                        ay = y + ry
-                        points.append((ax, ay))
+        if hasattr(comp, "pins"):
+            for pin in comp.pins:
+                abs_pos = pin_world_position(pin, comp)
+                points.append(abs_pos)
 
             if not points:
                 # Fallback: 5x5mm box

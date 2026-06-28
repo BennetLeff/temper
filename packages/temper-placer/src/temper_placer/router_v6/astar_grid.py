@@ -26,25 +26,19 @@ def _build_tht_pad_locations(pcb) -> set[tuple[float, float]]:
     """
     import math
 
+    from temper_placer.core.pin_geometry import pin_world_position
+
     tht_locations = set()
 
     if not hasattr(pcb, "components"):
         return tht_locations
 
     for comp in pcb.components:
-        # Get component position and rotation
-        comp_x, comp_y = comp.initial_position or (0.0, 0.0)
-        angle = float(comp.initial_rotation or 0) * math.pi / 2.0
-
         for pin in comp.pins:
-            # Check if pin is PTH (through-hole)
             if getattr(pin, "is_pth", False):
-                # Call absolute_position() as a method to get world coordinates
-                abs_pos = pin.absolute_position((comp_x, comp_y), angle)
-                if abs_pos:
-                    # Round to 0.1mm for matching tolerance
-                    pos = (round(abs_pos[0], 1), round(abs_pos[1], 1))
-                    tht_locations.add(pos)
+                abs_pos = pin_world_position(pin, comp)
+                pos = (round(abs_pos[0], 1), round(abs_pos[1], 1))
+                tht_locations.add(pos)
 
     return tht_locations
 

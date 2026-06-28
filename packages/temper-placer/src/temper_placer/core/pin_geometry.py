@@ -1,16 +1,12 @@
-"""Pad-position helpers — the canonical rotation-and-side-aware pad geometry.
+"""
+Pad-position helpers - the canonical rotation-and-side-aware pad geometry.
 
-This module consolidates the two divergent implementations of "where is this
-pin on the board?" that exist in the placer codebase:
+This module provides pure-Python free functions for computing pin world
+positions on the board, applying component rotation and side-mirror
+transforms matching standard KiCad semantics.
 
-1. `Pin.absolute_position(component_pos, rotation_angle, side)` — correct,
-   applies rotation and side-mirror via JAX trig. Used by ~11 call sites.
-
-2. Inlined `comp_pos + pin.position` — broken, ignores rotation and side.
-   Used by ~40 call sites across ~25 files.
-
-This module provides pure-Python free functions that all call sites should
-use instead. `Pin.absolute_position` delegates here to prevent drift.
+Use pin_world_position(pin, comp) as the single source of truth
+for all pad-position computation.
 """
 
 import math
@@ -23,10 +19,10 @@ if TYPE_CHECKING:
 def _normalize_rotation(rotation: int | float | None) -> float:
     """Normalize a rotation value to radians.
 
-    `int` values are treated as rotation indices (0-3 → 0°/90°/180°/270°),
-    matching the convention used by `Component.initial_rotation`.
-    `float` values are treated as radians and used as-is.
-    `None` is treated as 0 (no rotation).
+    int values are treated as rotation indices (0-3 -> 0/90/180/270 deg),
+    matching the convention used by Component.initial_rotation.
+    float values are treated as radians and used as-is.
+    None is treated as 0 (no rotation).
     """
     if rotation is None:
         return 0.0
@@ -43,8 +39,7 @@ def pin_world_position(
 
     Applies the component's rotation and side-mirror to the pin's position
     offset, matching standard KiCad semantics. This is the canonical
-    pad-position math — the same logic as `Pin.absolute_position` but as
-    a pure-Python free function (no JAX import required).
+    pad-position math function.
 
     Args:
         pin: The pin whose world position to compute.

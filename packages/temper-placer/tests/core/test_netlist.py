@@ -1,6 +1,5 @@
 """Tests for core.netlist module."""
 
-import pytest
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
@@ -20,25 +19,6 @@ class TestPin:
         """Test pin with no net connection."""
         pin = Pin("NC", "99", (0.0, 0.0))
         assert pin.net is None
-
-    def test_absolute_position(self):
-        """Test calculating absolute pin position."""
-        pin = Pin("1", "1", (1.0, 0.0))
-
-        # No rotation
-        abs_pos = pin.absolute_position((10.0, 20.0), 0.0)
-        assert abs_pos == pytest.approx((11.0, 20.0), abs=1e-6)
-
-    def test_absolute_position_rotated(self):
-        """Test absolute position with rotation."""
-        import jax.numpy as jnp
-
-        pin = Pin("1", "1", (1.0, 0.0))
-
-        # 90° rotation
-        abs_pos = pin.absolute_position((10.0, 20.0), jnp.pi / 2)
-        assert abs_pos[0] == pytest.approx(10.0, abs=1e-6)
-        assert abs_pos[1] == pytest.approx(21.0, abs=1e-6)
 
 
 class TestComponent:

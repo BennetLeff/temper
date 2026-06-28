@@ -3,6 +3,7 @@ import jax.numpy as jnp
 import pytest
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist, Component, Pin, Net
+from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.io.config_loader import PlacementConstraints, NetClassRule, constraints_to_design_rules
 from temper_placer.routing.maze_router import MazeRouter
 
@@ -106,7 +107,7 @@ def test_mixed_signal_integration():
         for p in pins:
             for c in components:
                 if p in c.pins:
-                    px, py = p.absolute_position(c.initial_position, 0.0, 0)
+                    px, py = pin_world_position(p, c)
                     pts.append((px, py))
                     break
         
