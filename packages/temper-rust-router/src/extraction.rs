@@ -65,27 +65,47 @@ pub fn extract_topology(
 
     for net_name in net_names {
         let channels = net_channels.remove(net_name.as_str()).unwrap_or_default();
+        let path_graph = build_path_graph(net_name, &channels);
         net_topologies.insert(
             net_name.clone(),
             NetTopology {
                 net_name: net_name.clone(),
                 uses_channels: channels.clone(),
-                total_length_estimate: channels.len() as f64 * 10.0, // rough 10mm per channel
+                path_graph,
+                total_length_estimate: channels.len() as f64 * 10.0,
             },
         );
     }
 
-    // Any remaining entries (nets not in the original net_names list).
     for (net_name, channels) in net_channels {
+        let path_graph = build_path_graph(&net_name, &channels);
         net_topologies.insert(
             net_name.clone(),
             NetTopology {
                 net_name,
                 uses_channels: channels.clone(),
+                path_graph,
                 total_length_estimate: channels.len() as f64 * 10.0,
             },
         );
     }
 
     TopologyGraph { net_topologies }
+}
+
+/// Build an ordered edge walk from a list of channel IDs.
+///
+/// For single-channel: [(net_name, channel_id)].
+/// For multi-channel: [(ch0, ch1), (ch1, ch2), ...].
+fn build_path_graph(net_name: &str, channels: &[String]) -> Vec<(String, String)> {
+    if channels.is_empty() {
+        return Vec::new();
+    }
+    if channels.len() == 1 {
+        return vec![(net_name.to_string(), channels[0].clone())];
+    }
+    channels
+        .windows(2)
+        .map(|w| (w[0].clone(), w[1].clone()))
+        .collect()
 }
