@@ -65,9 +65,15 @@ clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf $(BUILD_DIR)
 
+REGRESSION_BOARD ?=
+
 regression:
-	@echo "Running optimization quality regression suite..."
-	uv run python3 scripts/check_regression.py
+	@echo "Running optimization quality regression suite (corpus runner)..."
+	@if [ -n "$(REGRESSION_BOARD)" ]; then \
+		uv run python -m temper_placer.regression.cli run-corpus --board $(REGRESSION_BOARD) --json; \
+	else \
+		uv run python -m temper_placer.regression.cli run-corpus --json; \
+	fi
 
 perf-regression:
 	@echo "Running optimization performance regression suite..."

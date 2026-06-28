@@ -99,6 +99,8 @@ from temper_placer.router_v6.safety_pair_inference import (
 )
 from temper_placer.router_v6.adapter import (
     RoutingResult,
+    V6RouterAdapter,
+    _AdapterRoutePath,
     route_pcb,
 )
 from temper_placer.router_v6.stage0_data import (
@@ -113,6 +115,8 @@ __all__ = [
     # Adapter
     "route_pcb",
     "RoutingResult",
+    "V6RouterAdapter",
+    "_AdapterRoutePath",
     # Stage 0: Design Intent
     "ParsedPCB",
     "DesignRules",

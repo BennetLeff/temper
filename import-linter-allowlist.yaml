@@ -36,6 +36,37 @@ allowlist:
     target: temper_placer.router_v6.obstacle_map
     contract: router-v6-public-interface-only
 
+  # R2 regression from ea682415: core/design_rules.py lazily imports
+  # is_ground_net / is_power_net from router_v6.net_classification.
+  # Ticket: temper-N7-core-isolation
+  - source: temper_placer.core
+    target: temper_placer.router_v6
+    contract: core-isolated-from-router-v6
+
+  # Transitive `router-v6-public-interface-only` violations: grimp traces
+  # through router_v6.__init__ lazy imports to internal submodules,
+  # flagging all external packages that depend on router_v6.  These
+  # packages all go through the public interface; the transitive trace
+  # is a known limitation.  Ticket: temper-N7-lazy-transitive
+  - source: temper_placer.io
+    target: temper_placer.router_v6.adapter
+    contract: router-v6-public-interface-only
+  - source: temper_placer.metrics
+    target: temper_placer.router_v6.adapter
+    contract: router-v6-public-interface-only
+  - source: temper_placer.pipeline
+    target: temper_placer.router_v6.adapter
+    contract: router-v6-public-interface-only
+  - source: temper_placer.routing
+    target: temper_placer.router_v6.adapter
+    contract: router-v6-public-interface-only
+  - source: temper_placer.io
+    target: temper_placer.router_v6.obstacle_map
+    contract: router-v6-public-interface-only
+  - source: temper_placer.io
+    target: temper_placer.router_v6.routing_space
+    contract: router-v6-public-interface-only
+
   # === Phase 3 per-file allowlist (plan 2026-06-22-014, plan 021 U6) ===
   # Auto-generated from current imports in tools/, simulation/.
   # Each file gets per-file entries listing the temper_placer.*

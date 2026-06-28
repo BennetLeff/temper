@@ -17,18 +17,16 @@ jobs:
         with:
           lfs: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
 
       - name: Install dependencies
-        run: |
-          cd packages/temper-placer
-          uv sync
+        run: uv sync --all-packages
 
       - name: Install KiCad (for DRC)
         run: |
@@ -38,17 +36,17 @@ jobs:
         continue-on-error: true
 
       - name: Regression Suite
-        run: python -m temper-placer regression
+        run: uv run python -m temper_placer.regression.cli run-corpus --json
         continue-on-error: false
 
       - name: DRC Ratchet
-        run: python scripts/ci_check_drc.py
+        run: uv run python scripts/ci_check_drc.py
         continue-on-error: true
         env:
           SKIP_DRC_IF_NO_KICAD: 'true'
 
       - name: Closure Test
-        run: python scripts/ci_closure_test.py --pcb pcb/temper_placed.kicad_pcb
+        run: uv run python3 scripts/ci_closure_test.py --pcb pcb/temper_placed.kicad_pcb
         continue-on-error: true
 
       - name: Summary
