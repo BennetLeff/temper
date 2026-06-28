@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.router_v6.adapter import V6RouterAdapter, _AdapterRoutePath as RoutePath
-from temper_placer.routing.net_ordering import order_nets
-from temper_placer.routing.layer_assignment import assign_layers
+from temper_placer.router_v6.net_ordering import order_nets
+from temper_placer.router_v6.layer_assignment import assign_layers
 from temper_placer.core.loop import LoopCollection
 from temper_placer.losses.base import LossContext
 from temper_placer.losses import (

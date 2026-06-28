@@ -205,7 +205,7 @@ def _calculate_serpentine_length(
     if required_length <= 0:
         return 0.0
 
-    from temper_placer.routing.serpentine import calculate_serpentine_params
+    from temper_placer.router_v6.serpentine import calculate_serpentine_params
 
     amplitude_mm, _frequency_check = calculate_serpentine_params(
         required_length,
