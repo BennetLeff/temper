@@ -40,19 +40,19 @@ A Rust CDCL solver with proper `AtMostK` totalizer encoding for capacity, clause
   - **Outcome:** Correct channel assignments with capacity, diff pair, and layer constraints all enforced
   - **Covered by:** R1, R2, R3, R7, R8, R9
 
-- F2. **Graceful degradation when Rust binary unavailable**
-  - **Trigger:** `import` of the Rust crate fails (binary not built, wrong platform)
+- F2. **Rust crate is a required dependency**
+  - **Trigger:** `import temper_rust_router` fails
   - **Actors:** A1
-  - **Steps:** Python detects missing Rust backend → logs a warning stating the Rust backend is unavailable and the Python fallback solver has known capacity-enforcement limitations → dispatches to the existing Python greedy solver → pipeline continues with no change in behavior beyond the warning
-  - **Outcome:** Pipeline runs identically to the pre-Rust state; no crash, no missing import error
+  - **Steps:** Pipeline raises `ImportError` with a message directing the developer to install `temper-rust-router` (no silent fallback)
+  - **Outcome:** Clear failure — the pipeline does not silently produce incorrect routing assignments
   - **Covered by:** R4
 
-- F3. **A/B testing backends via feature flag**
-  - **Trigger:** Developer or CI sets `TEMPER_SAT_BACKEND=rust` vs `TEMPER_SAT_BACKEND=python`
+- F3. **Profiling the Rust solver**
+  - **Trigger:** Developer runs profiling script
   - **Actors:** A2, A3
-  - **Steps:** Environment variable is read at solver dispatch → Rust backend is selected if `rust` and available → Python backend is selected if `python` or Rust unavailable → profiling and correctness data collected per backend
-  - **Outcome:** Side-by-side comparison of solver correctness, wall time, and iteration count between backends
-  - **Covered by:** R5, R6, R12
+  - **Steps:** Script runs the full closure test with warm-up + measured pass → captures wall time, completion rate, DRC pass rate → writes JSON summary
+  - **Outcome:** Quantified solver performance baseline for regression detection
+  - **Covered by:** R6
 
 ---
 
@@ -64,13 +64,12 @@ A Rust CDCL solver with proper `AtMostK` totalizer encoding for capacity, clause
 - R10. When the solver determines a problem is unsatisfiable, it must extract a minimal unsat-core — the subset of constraints that make the problem unsolvable — and return it alongside the `UNSATISFIABLE` status.
 
 **Interface preservation**
-- R3. The existing Python `SATModel`, `SATVariable`, and `SATClause` dataclasses in `packages/temper-placer/src/temper_placer/router_v6/sat_model.py` must remain as the public API for building and inspecting SAT models. The Rust crate must accept and return data in a form compatible with these types.
-- R4. If the Rust crate is not installed or fails to load, the system must dispatch to the existing Python greedy solver (`topology_solver.py`) without raising an exception, logging a warning that the Rust backend is unavailable.
+- R3. The existing Python `SATModel`, `SATVariable`, and `SATClause` dataclasses in `packages/temper-placer/src/temper_placer/router_v6/sat_model.py` remain as the public API for building and inspecting SAT models. The Rust crate accepts and returns data compatible with these types.
+- R4. The Rust crate is a required dependency — if not installed, the pipeline fails with a clear `ImportError` (no silent fallback to the known-broken Python solver).
 
 **Testing and validation**
-- R5. The Rust solver must pass all existing Router V6 golden-parity tests in `packages/temper-placer/tests/router_v6/` — producing identical results to the Python solver for all cases where the Python solver is correct, and strictly better results for capacity-constrained cases that the Python solver handles unsoundly.
-- R6. A `TEMPER_SAT_BACKEND` environment variable must control solver dispatch (`rust` or `python`; default `python`), with a runtime warning when the requested backend is unavailable.
-- R12. A profiling comparison script must exist that runs the full closure test with both backends and reports: completion rate, DRC pass rate, wall time, per-net routing latency distribution (p50/p95/p99), solver iteration count, and memory peak.
+- R5. The Rust solver output is validated by a constraint audit that checks every capacity, diff-pair, and layer constraint against the solver's assignments — producing zero violations for valid models.
+- R6. A profiling script runs the full closure test with the Rust backend and reports completion rate, DRC pass rate, wall time, per-net routing latency distribution (p50/p95/p99), solver iteration count, and memory peak.
 
 **Full topology pipeline in Rust**
 - R7. Constraint model building — creating `NetChannelVar`, `ViaVar`, `CapacityConstraint`, `DiffPairConstraint`, and `LayerConstraint` instances from skeletons and nets — must execute in Rust, consuming parsed PCB data from Python.
@@ -86,7 +85,7 @@ A Rust CDCL solver with proper `AtMostK` totalizer encoding for capacity, clause
 
 - AE1. **Covers R1, R2, R5.** Given a constraint model with 4 nets sharing a channel rated for 2 nets, when the Rust CDCL solver runs, it produces an assignment where at most 2 nets use the channel — the remaining 2 are assigned to different channels or the problem is correctly reported as unsatisfiable.
 - AE2. **Covers R4.** Given the Rust crate is not installed (no `.so`/`.dylib` found), when `RouterV6Pipeline` invokes the topology stage, it logs "Rust SAT solver not available, falling back to Python solver" and routes with the existing greedy solver, producing the same completion rate as the pre-Rust baseline.
-- AE3. **Covers R6, R12.** Given `TEMPER_SAT_BACKEND=rust` and the Rust crate installed, when the closure test runs on `pcb/temper.kicad_pcb`, the profiling script reports completion rate, wall time, p50/p95/p99 latency, and solver iterations — and all metrics are at parity with or better than the Python backend.
+- AE3. **Covers R6.** Given `temper-rust-router` installed, when the closure test runs on `pcb/temper.kicad_pcb`, the profiling script reports completion rate, wall time, p50/p95/p99 latency, and solver iterations.
 - AE4. **Covers R10.** Given a constraint model where two critical nets share a narrow channel that cannot fit both, when the solver returns UNSATISFIABLE, the unsat-core identifies the specific capacity constraint and the two nets involved, rather than reporting a generic failure.
 
 ---

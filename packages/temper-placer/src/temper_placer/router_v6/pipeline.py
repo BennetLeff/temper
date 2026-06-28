@@ -13,7 +13,6 @@ Part of Phase 1.5: Integration & Validation
 
 from __future__ import annotations
 
-import os
 import time
 from collections import defaultdict
 from contextlib import nullcontext
@@ -54,8 +53,8 @@ from temper_placer.router_v6.sat_model import (
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
 from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
-from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph, extract_topology_solution
-from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution, solve_topology
+from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
+from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
 

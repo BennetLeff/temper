@@ -519,7 +519,7 @@ scripts:
   - temper_placer.router_v6.astar_core_numba
   - temper_placer.router_v6.astar_pathfinding
   - temper_placer.validation.drc_runner
-- path: profile_rust_vs_python_topology.py
+- path: profile_rust_topology.py
   purpose: Compare Rust vs Python SAT solver backend performance on closure test
   owner: unassigned
   last_run: '2026-06-28'
