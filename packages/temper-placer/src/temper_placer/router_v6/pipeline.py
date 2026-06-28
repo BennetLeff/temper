@@ -13,6 +13,7 @@ Part of Phase 1.5: Integration & Validation
 
 from __future__ import annotations
 
+import os
 import time
 from collections import defaultdict
 from contextlib import nullcontext
@@ -53,8 +54,8 @@ from temper_placer.router_v6.sat_model import (
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
 from temper_placer.router_v6.stage4_orchestrator import Stage4Orchestrator
-from temper_placer.router_v6.topology_extraction import TopologyGraph, extract_topology_solution
-from temper_placer.router_v6.topology_solver import TopologicalSolution, solve_topology
+from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph, extract_topology_solution
+from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution, solve_topology
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
 
@@ -551,7 +552,61 @@ class RouterV6Pipeline:
         # 3.8: Solve topology
         if self.verbose:
             print("  3.8: Solving topology...")
-        solution = solve_topology(sat_model, timeout_ms=5000.0)
+
+        backend = os.environ.get("TEMPER_SAT_BACKEND", "python")
+
+        if backend == "rust":
+            try:
+                from temper_rust_router import solve_topology_rust
+
+                # Serialize constraint model variables and constraints as
+                # plain Python objects the Rust bridge can read via getattr.
+                py_vars = list(constraint_model.variables)
+                py_cons = list(constraint_model.constraints)
+
+                rust_result = solve_topology_rust(py_vars, py_cons, net_names)
+
+                # Reconstruct TopologicalSolution and TopologyGraph from
+                # the Rust result dict.
+                if rust_result["status"] == "sat":
+                    status = SolverStatus.SATISFIABLE
+                elif rust_result["status"] == "unsat":
+                    status = SolverStatus.UNSATISFIABLE
+                else:
+                    status = SolverStatus.UNKNOWN
+
+                solution = TopologicalSolution(
+                    status=status,
+                    assignment=dict(rust_result["assignments"]),
+                    solver_time_ms=float(rust_result.get("solver_time_ms", 0)),
+                )
+
+                # Build a minimal TopologyGraph from the Rust output.
+                topology_graph = TopologyGraph(net_topologies={})
+                for net_name, topo_data in rust_result.get("topology_graph", {}).items():
+                    ntopo = NetTopology(
+                        net_name=net_name,
+                        path_graph=None,  # splr extraction produces channel lists, not path graphs
+                        uses_channels=list(topo_data.get("uses_channels", [])),
+                        total_length_estimate=float(topo_data.get("total_length_estimate", 0)),
+                    )
+                    topology_graph.net_topologies[net_name] = ntopo
+
+                if self.verbose:
+                    print(f"    Rust solver: {rust_result['status']} in {solution.solver_time_ms:.1f}ms")
+
+            except ImportError:
+                if self.verbose:
+                    import warnings as _warnings
+                    _warnings.warn(
+                        "TEMPER_SAT_BACKEND=rust but temper-rust-router is not installed. "
+                        "Falling back to Python solver. WARNING: The Python fallback solver "
+                        "has known capacity-enforcement limitations.",
+                        stacklevel=2,
+                    )
+                solution = solve_topology(sat_model, timeout_ms=5000.0)
+        else:
+            solution = solve_topology(sat_model, timeout_ms=5000.0)
 
         if self.verbose:
             if solution.is_satisfiable:
@@ -562,7 +617,11 @@ class RouterV6Pipeline:
         # 3.9: Extract topology
         if self.verbose:
             print("  3.9: Extracting topology graph...")
-        topology_graph = extract_topology_solution(solution, net_names)
+        if backend == "rust" and solution.is_satisfiable:
+            # topology_graph already populated from Rust output above.
+            pass
+        else:
+            topology_graph = extract_topology_solution(solution, net_names)
 
         return Stage3Output(
             constraint_model=constraint_model,
