@@ -196,6 +196,7 @@ static void trigger_fault_entry(fault_code_t code) {
        before check_safety_interlocks() in PREHEAT. */
     mock_sm_set_pan_status(MOCK_PAN_PRESENT);
     mock_sm_set_pan_temperature(25.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_set_fan_running(true);
     mock_sm_set_dc_bus_current(0.0f);
     mock_sm_set_rtd_resistance(100.0f);
@@ -227,6 +228,7 @@ static void apply_preconditions(const transition_row_t *row) {
     case STATE_HEATING:
         mock_sm_set_pan_status(MOCK_PAN_PRESENT);
         mock_sm_set_pan_temperature(92.0f);
+        state_machine_reset_temp_baseline();
         break;
     case STATE_NO_PAN:
         mock_sm_set_pan_status(MOCK_PAN_ABSENT);
