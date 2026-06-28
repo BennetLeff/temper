@@ -16,6 +16,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include "../main/state_machine.h"
+#include "../main/state_handlers.h"
+#include "../config.h"
 
 /* Pan detection result type (matches state_machine.c local typedef) */
 typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
@@ -421,4 +423,16 @@ void eeprom_log_fault(fault_code_t code, uint32_t timestamp) {
     mock_sm_state.eeprom_log_fault_calls++;
     mock_sm_state.last_logged_fault = code;
     (void)timestamp;
+}
+
+/* ============================================================================
+ * Global State Stubs (required by state_machine.c and state_handlers.c)
+ * ============================================================================ */
+
+config_t g_config;
+
+sm_context_t sm_ctx;
+
+bool run_self_test(void) {
+    return true;  /* stub: all self-tests pass */
 }
