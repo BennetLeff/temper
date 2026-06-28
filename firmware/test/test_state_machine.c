@@ -23,6 +23,7 @@ extern void mock_sm_reset(void);
 extern void mock_sm_advance_time(uint32_t ms);
 extern void mock_sm_set_time(uint32_t ms);
 extern void mock_sm_set_pan_temperature(float temp_c);
+extern void state_machine_reset_temp_baseline(void);
 extern void mock_sm_set_heatsink_temperature(float temp_c);
 extern void mock_sm_set_dc_bus_current(float amps);
 extern void mock_sm_set_rtd_resistance(float ohms);
@@ -314,6 +315,7 @@ void test_sm_preheat_to_heating_near_target(void) {
     
     /* Set temperature close to target (within 10°C triggers transition) */
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -344,6 +346,7 @@ void test_sm_heating_to_no_pan_on_removal(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -385,6 +388,7 @@ void test_sm_heating_to_cooldown_on_stop(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -416,6 +420,7 @@ void test_sm_cooldown_disables_power_and_pll(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -451,6 +456,7 @@ void test_sm_cooldown_to_idle_when_cool(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -491,6 +497,7 @@ void test_sm_fault_on_over_temperature(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -523,6 +530,7 @@ void test_sm_fault_on_over_current(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -554,6 +562,7 @@ void test_sm_fault_on_igbt_short(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -585,6 +594,7 @@ void test_sm_fault_on_igbt_short_is_distinct(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -617,6 +627,7 @@ void test_sm_fault_on_fan_failure(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -649,6 +660,7 @@ void test_sm_fault_on_probe_open(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -681,6 +693,7 @@ void test_sm_fault_on_probe_short(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -713,11 +726,13 @@ void test_sm_fault_on_thermal_runaway(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
     /* Trigger thermal runaway (temp > target + 10°C) */
     mock_sm_set_pan_temperature(115.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -744,12 +759,14 @@ void test_sm_fault_on_adc_stuck(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
     /* Inject same pan temperature across 50 consecutive updates */
     for (int i = 0; i < 50; i++) {
         mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
         mock_sm_advance_time(100);
         state_machine_update();
     }
@@ -781,6 +798,7 @@ void test_sm_fault_entry_logs_to_eeprom(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -813,6 +831,7 @@ void test_sm_fault_keeps_power_off(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -848,6 +867,7 @@ void test_sm_reset_rejected_while_fault_active(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -883,6 +903,7 @@ void test_sm_reset_accepted_when_fault_cleared(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -977,6 +998,7 @@ void test_sm_timer_completion_to_cooldown(void) {
     }
     
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
@@ -1092,6 +1114,7 @@ void test_sm_intensity_clamping_preheat(void) {
     /* In PREHEAT with high temp error, requested power is 100.
      * With intensity level 2, it should be clamped to 20. */
     mock_sm_set_pan_temperature(25.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
     
@@ -1122,11 +1145,13 @@ void test_sm_intensity_clamping_heating(void) {
     
     /* Near target to enter HEATING */
     mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
     /* In HEATING, force low temperature so PID wants high power */
     mock_sm_set_pan_temperature(25.0f);
+    state_machine_reset_temp_baseline();
     state_machine_update();
     
     /* Power should be exactly 50 (Level 5) */
@@ -1154,6 +1179,7 @@ void test_sm_intensity_change_during_heating(void) {
     
     /* In PREHEAT, high temp error */
     mock_sm_set_pan_temperature(25.0f);
+    state_machine_reset_temp_baseline();
     state_machine_update();
     
     /* Default intensity 10: power should be 100 */
@@ -1225,6 +1251,7 @@ void test_sm_runaway_absolute_temp(void) {
 
     /* Set pan temp above 300°C threshold */
     mock_sm_set_pan_temperature(310.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
 
@@ -1254,6 +1281,7 @@ void test_sm_runaway_rate_of_rise(void) {
 
     /* Establish baseline: first update stores temp reading, rate check skipped */
     mock_sm_set_pan_temperature(30.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
     TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
@@ -1289,12 +1317,14 @@ void test_sm_runaway_no_breach_normal_operation(void) {
 
     /* Set pan temp to 100°C - well below 300°C threshold */
     mock_sm_set_pan_temperature(100.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
     TEST_ASSERT_EQUAL(STATE_PREHEAT, state_machine_get_state());
 
     /* Raise by 1°C over 100ms = 10°C/s, below 15°C/s threshold */
     mock_sm_set_pan_temperature(101.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
 
@@ -1323,6 +1353,7 @@ void test_sm_runaway_latch_blocks_transition(void) {
 
     /* Trigger runaway */
     mock_sm_set_pan_temperature(310.0f);
+    state_machine_reset_temp_baseline();
     mock_sm_advance_time(100);
     state_machine_update();
     TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
