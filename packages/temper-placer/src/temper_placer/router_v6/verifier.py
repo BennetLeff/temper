@@ -37,7 +37,7 @@ if TYPE_CHECKING:
         RoutingDiagnostic,
         RoutingReport,
     )
-from temper_placer.router_v6.heuristics import compute_completion_rate  # noqa: E402
+from temper_placer.router_v6.routing_results import RoutingResults  # noqa: E402
 from temper_placer.router_v6.layer_assignment import LayerAssignment, assign_layers  # noqa: E402
 from temper_placer.router_v6.net_ordering import order_nets  # noqa: E402
 
@@ -206,7 +206,8 @@ class RoutingVerifier:
         )
 
         # Compute metrics
-        completion_rate = compute_completion_rate(routing_results)
+        total = routing_results.success_count + routing_results.failure_count
+        completion_rate = routing_results.success_count / total if total > 0 else 0.0
         result.completion_rate = completion_rate
         result.feasible = completion_rate >= 1.0
 
