@@ -2,24 +2,50 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
-from .state import BoardState
-from .stages.hv_lv_partition import HvLvPartitionStage, PartitionError
-from .stages.base import Stage
+from temper_drc.input.constraints import ClearanceRule as _DRCClearanceRule
+from temper_drc.input.constraints import ConstraintSet as _DRCConstraintSet
+from temper_drc.input.placement import ComponentPlacement as _DRCCompPlacement
+from temper_drc.input.placement import Placement as _DRCPlacement
+
 from .channels import (
-    ALLOWED_SCHEMA_HASHES,
-    ALLOWED_SEVERITIES,
-    SEVERITY_WEIGHTS,
-    Bottleneck,
-    ChannelMap,
-    ChannelSidecarError,
-    routability_penalty,
+    ALLOWED_SCHEMA_HASHES as ALLOWED_SCHEMA_HASHES,
 )
+from .channels import (
+    ALLOWED_SEVERITIES as ALLOWED_SEVERITIES,
+)
+from .channels import (
+    SEVERITY_WEIGHTS as SEVERITY_WEIGHTS,
+)
+from .channels import (
+    Bottleneck as Bottleneck,
+)
+from .channels import (
+    ChannelMap as ChannelMap,
+)
+from .channels import (
+    ChannelSidecarError as ChannelSidecarError,
+)
+from .channels import (
+    routability_penalty as routability_penalty,
+)
+from .stages.base import Stage
+from .stages.hv_lv_partition import HvLvPartitionStage as HvLvPartitionStage
+from .stages.hv_lv_partition import PartitionError as PartitionError
+from .state import BoardState
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from temper_drc.core.fence import DRCFence
+
+    from .io.kicad_metadata import KiCadMetadata
+
+_SIDE_TO_LAYER: dict[int, str] = {0: "F.Cu", 1: "B.Cu"}
+_DEFAULT_CLEARANCES = [_DRCClearanceRule(from_class="*", to_class="*", min_mm=0.3)]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,29 +101,18 @@ def load_channel_map_from_sidecar(
 
 def _board_state_to_drc_input(
     state: BoardState,
-) -> tuple:
-    """Convert BoardState to temper_drc Placement and ConstraintSet.
-
-    Bridges the deterministic pipeline's BoardState representation to the
-    DRC check input format. Extracts component positions, net assignments,
-    and board dimensions from the immutable state.
-    """
-    from temper_drc.input.placement import Placement as DRCPlacement, ComponentPlacement as DRCCompPlacement
-    from temper_drc.input.constraints import ConstraintSet, ClearanceRule
-    from ..core.board import side_to_layer_name
-
+) -> tuple[_DRCPlacement, _DRCConstraintSet]:
+    """Convert BoardState to temper_drc Placement and ConstraintSet."""
     board_width = state.board.width if state.board else 100.0
     board_height = state.board.height if state.board else 100.0
 
-    # Build component ref -> Component lookup from netlist
-    comp_map = {}
     netlist = state.netlist
-    if netlist and hasattr(netlist, 'components'):
-        for comp in netlist.components:
-            comp_map[comp.ref] = comp
+    comp_map = {
+        comp.ref: comp
+        for comp in (netlist.components if netlist else ())
+    }
 
-    # Extract placed positions from placements frozenset
-    components = {}
+    components: dict[str, _DRCCompPlacement] = {}
     for item in state.placements:
         if isinstance(item, tuple) and len(item) == 2:
             ref, placement = item
@@ -119,9 +134,9 @@ def _board_state_to_drc_input(
                 rot = 0
 
             side = getattr(comp, 'initial_side', 0) if comp else 0
-            layer = side_to_layer_name(side)
+            layer = _SIDE_TO_LAYER.get(side, "F.Cu")
 
-            components[ref] = DRCCompPlacement(
+            components[ref] = _DRCCompPlacement(
                 ref=ref,
                 footprint=footprint,
                 x=float(pos[0]),
@@ -133,20 +148,18 @@ def _board_state_to_drc_input(
                 net_class=net_class,
             )
 
-    # Build nets from netlist
-    nets = {}
-    if netlist and hasattr(netlist, 'nets'):
+    nets: dict[str, list[str]] = {}
+    if netlist:
         for net in netlist.nets:
-            if hasattr(net, 'pins'):
+            if net.pins:
                 nets[net.name] = [pin[0] for pin in net.pins]
 
-    # Build zones from board
-    zones = {}
+    zones: dict[str, tuple] = {}
     if state.board:
         for zone in state.board.zones:
             zones[zone.name] = zone.bounds
 
-    placement = DRCPlacement(
+    placement = _DRCPlacement(
         components=components,
         nets=nets,
         zones=zones,
@@ -154,8 +167,8 @@ def _board_state_to_drc_input(
         board_height=board_height,
     )
 
-    constraints = ConstraintSet(
-        clearances=[ClearanceRule(from_class="*", to_class="*", min_mm=0.3)],
+    constraints = _DRCConstraintSet(
+        clearances=_DEFAULT_CLEARANCES,
         board_width=board_width,
         board_height=board_height,
     )
@@ -164,33 +177,29 @@ def _board_state_to_drc_input(
 
 
 class DeterministicPipeline:
-    """Simple pipeline that runs stages sequentially with optional DRC fence."""
-
-    def __init__(self, stages: List[Stage] = None, fence: "DRCFence | None" = None):
-        self.stages = stages or []
+    def __init__(self, stages: Sequence[Stage] | None = None, fence: DRCFence | None = None):
+        self.stages: list[Stage] = list(stages) if stages else []
         self.fence = fence
 
-    def run(self, initial_state: BoardState = None) -> BoardState:
-        from temper_drc.core.fence import _issue_fingerprint
+    def run(self, initial_state: BoardState | None = None) -> BoardState:
+        from temper_drc.core import _issue_fingerprint
 
         state = initial_state or BoardState()
         previous_violations: frozenset[str] | None = None
         for stage in self.stages:
             t0 = time.time()
             state = stage.run(state)
-            stage_time = (time.time() - t0) * 1000
 
             if self.fence and stage.invariants:
-                invariants = stage.invariants
-                modified_regions = stage.last_modified_regions
+                stage_time = (time.time() - t0) * 1000
                 placement, constraints = _board_state_to_drc_input(state)
 
                 result = self.fence.check(
                     stage_name=stage.name,
-                    invariants=invariants,
+                    invariants=stage.invariants,
                     placement=placement,
                     constraints=constraints,
-                    modified_regions=modified_regions,
+                    modified_regions=stage.last_modified_regions,
                     previous_violations=previous_violations,
                     stage_wall_time_ms=stage_time,
                 )
@@ -224,7 +233,7 @@ class SidecarAwarePipeline(DeterministicPipeline):
 def create_drc_aware_pipeline(
     design_rules=None,
     config=None,
-    metadata: "KiCadMetadata | None" = None,
+    metadata: KiCadMetadata | None = None,
     zone_aware=True,
     parsed_pads=None,
     output_dir: Path | str | None = None,
@@ -274,29 +283,28 @@ def create_drc_aware_pipeline(
             output_dir = Path(source_path).parent
 
     from .stages import (
-        ZoneGeometryStage,
-        ZoneAssignmentStage,
-        SlotGenerationStage,
-        ZoneAwareSlotGenerationStage,
-        ComponentAssignmentStage,
-        PhasedComponentAssignmentStage,
-        HvLvPartitionStage,
         ApplyPlacementsStage,
-        CourtyardCheckStage,
-        NetClassSetupStage,
-        DRCOracleSetupStage,
         ClearanceGridStage,
-        NetOrderingStage,
-        LayerAssignmentStage,
-        PowerPlaneStage,
-        FinePitchEscapeStage,
-        DRCValidationStage,
+        ComponentAssignmentStage,
         ConnectivityValidationStage,
-        ViaValidationStage,
-        ViaDeduplicationStage,
-        TrackDeduplicationStage,
-        ShortCircuitDetectionStage,
+        CourtyardCheckStage,
+        DRCOracleSetupStage,
+        DRCValidationStage,
+        FinePitchEscapeStage,
+        LayerAssignmentStage,
+        NetClassSetupStage,
+        NetOrderingStage,
+        PhasedComponentAssignmentStage,
         PlacementValidationStage,
+        PowerPlaneStage,
+        ShortCircuitDetectionStage,
+        SlotGenerationStage,
+        TrackDeduplicationStage,
+        ViaDeduplicationStage,
+        ViaValidationStage,
+        ZoneAssignmentStage,
+        ZoneAwareSlotGenerationStage,
+        ZoneGeometryStage,
     )
     from .stages.config_attach import ConfigAttachStage
 
@@ -448,10 +456,8 @@ def create_drc_aware_pipeline(
     # R4a/R4c/R4d: Look for placement.channels.json in the run output dir.
     # Load once per pipeline run; record the count on the wrapper.
     channel_map: ChannelMap | None = load_channel_map_from_sidecar(output_dir)
-    if channel_map.has_grid():
-        # Sidecar loaded successfully -> thread it into the placement stage.
-        if isinstance(component_stage, PhasedComponentAssignmentStage):
-            component_stage.channel_map = channel_map
+    if channel_map.has_grid() and isinstance(component_stage, PhasedComponentAssignmentStage):
+        component_stage.channel_map = channel_map
 
     pipeline = DeterministicPipeline(
         stages=[
@@ -536,20 +542,19 @@ def create_drc_aware_pipeline(
 def create_legacy_pipeline():
     """Create legacy pipeline without DRC oracle integration."""
     from .stages import (
-        ZoneGeometryStage,
-        ZoneAssignmentStage,
-        SlotGenerationStage,
-        ComponentAssignmentStage,
-        HvLvPartitionStage,
         ApplyPlacementsStage,
         ClearanceGridStage,
-        NetOrderingStage,
-        LayerAssignmentStage,
-        DRCValidationStage,
+        ComponentAssignmentStage,
         ConnectivityValidationStage,
-        ViaValidationStage,
-        ViaDeduplicationStage,
+        DRCValidationStage,
+        LayerAssignmentStage,
+        NetOrderingStage,
+        SlotGenerationStage,
         TrackDeduplicationStage,
+        ViaDeduplicationStage,
+        ViaValidationStage,
+        ZoneAssignmentStage,
+        ZoneGeometryStage,
     )
 
     return DeterministicPipeline(
