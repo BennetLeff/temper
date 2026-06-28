@@ -26,7 +26,7 @@ from kiutils.board import Board
 # Add src to path for local development
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from temper_placer.routing.constraints import (
+from temper_placer.router_v6._routing_shim.constraints import (
     ClearanceMatrix,
     DesignRulesParser,
     DRCOracle,

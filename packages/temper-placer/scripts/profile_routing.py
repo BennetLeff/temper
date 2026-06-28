@@ -10,9 +10,9 @@ import jax.numpy as jnp
 
 from temper_placer.core.loop import LoopCollection
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.routing.layer_assignment import assign_layers
-from temper_placer.routing.maze_router import MazeRouter
-from temper_placer.routing.net_ordering import order_nets
+from temper_placer.router_v6._routing_shim.layer_assignment import assign_layers
+from temper_placer.router_v6._routing_shim.maze_router import MazeRouter
+from temper_placer.router_v6._routing_shim.net_ordering import order_nets
 
 
 def main():

@@ -4,10 +4,10 @@ import pytest
 
 from temper_placer.deterministic.stages.drc_validation import DRCValidationError, DRCValidationStage
 from temper_placer.deterministic.state import BoardState
-from temper_placer.routing.constraints.design_rules import ClearanceMatrix
-from temper_placer.routing.constraints.drc_oracle import DRCOracle
-from temper_placer.routing.constraints.geometry import Point
-from temper_placer.routing.constraints.spatial_index import Pad, Track, Via
+from temper_placer.router_v6._routing_shim.constraints.design_rules import ClearanceMatrix
+from temper_placer.router_v6._routing_shim.constraints.drc_oracle import DRCOracle
+from temper_placer.router_v6._routing_shim.constraints.geometry import Point
+from temper_placer.router_v6._routing_shim.constraints.spatial_index import Pad, Track, Via
 
 
 def test_validation_stage_returns_violations():

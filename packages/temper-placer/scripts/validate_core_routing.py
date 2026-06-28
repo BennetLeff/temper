@@ -16,8 +16,8 @@ sys.path.insert(0, str(project_root / "packages/temper-placer/src"))
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist, Component, Pin, Net
-from temper_placer.routing.maze_router import MazeRouter
-from temper_placer.routing.layer_assignment import LayerAssignment, Layer
+from temper_placer.router_v6._routing_shim.maze_router import MazeRouter
+from temper_placer.router_v6._routing_shim.layer_assignment import LayerAssignment, Layer
 from temper_placer.io.trace_writer import write_traces_to_pcb
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 
