@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.routing.maze_router import MazeRouter, RoutePath
+from temper_placer.router_v6.adapter import V6RouterAdapter, _AdapterRoutePath as RoutePath
 from temper_placer.routing.net_ordering import order_nets
 from temper_placer.routing.layer_assignment import assign_layers
 from temper_placer.core.loop import LoopCollection
@@ -96,7 +96,7 @@ def auto_layout_pcb(
             from temper_placer.core.design_rules import create_temper_design_rules
             design_rules = create_temper_design_rules()
         
-        router = MazeRouter.from_board(
+        router = V6RouterAdapter.from_board(
             board, 
             cell_size_mm=cell_size_mm, 
             num_layers=num_layers,
@@ -151,7 +151,7 @@ def auto_layout_pcb(
     else:
         from temper_placer.core.design_rules import create_temper_design_rules
         design_rules = create_temper_design_rules()
-    router = MazeRouter.from_board(
+    router = V6RouterAdapter.from_board(
         board, 
         cell_size_mm=cell_size_mm, 
         num_layers=num_layers,

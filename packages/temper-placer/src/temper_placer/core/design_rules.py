@@ -256,13 +256,13 @@ class DesignRules:
 
     def _is_ground_net(self, net_name: str) -> bool:
         """Check if net name matches common ground net patterns."""
-        from temper_placer.routing.net_classification import is_ground_net
+        from temper_placer.router_v6.net_classification import is_ground_net
 
         return is_ground_net(net_name)
 
     def _is_power_net(self, net_name: str) -> bool:
         """Check if net name matches common power net patterns (excluding ground)."""
-        from temper_placer.routing.net_classification import is_power_net
+        from temper_placer.router_v6.net_classification import is_power_net
 
         if self._is_ground_net(net_name):
             return False
