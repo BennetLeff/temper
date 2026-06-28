@@ -146,7 +146,13 @@ def _astar_search(
     cost_so_far = {start: 0}
 
     while frontier:
-        _, current = heappop(frontier)
+        current_f, current = heappop(frontier)
+
+        # Runtime monitor: record f-cost monotonicity and single-expansion
+        from temper_placer.router_v6.astar_monitor import get_monitor_state
+        _mon = get_monitor_state()
+        if _mon is not None:
+            _mon.record_pop(current, float(current_f))
 
         if current == goal:
             # Reconstruct path
@@ -154,7 +160,14 @@ def _astar_search(
             while current is not None:
                 path.append(current)
                 current = came_from[current]
-            return list(reversed(path))
+            path = list(reversed(path))
+
+            # Runtime monitor: validate cost lower bound and path completeness
+            if _mon is not None:
+                _mon.validate_cost_lower_bound(path, cost_so_far, came_from)
+                _mon.validate_path_completeness(path, start, goal)
+
+            return path
 
         # Explore neighbors (8-connected).  U5: the validity tensor is
         # pre-baked once at A* pass start so the inner loop is a
