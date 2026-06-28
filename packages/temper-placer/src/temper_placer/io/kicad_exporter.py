@@ -536,7 +536,7 @@ def export_routed_pcb(
         warnings=warnings,
     )
 
-from temper_placer.routing.constraints.spatial_index import Track as GeoTrack, Via as GeoVia
+from temper_placer.router_v6.constraints_spatial_index import Track as GeoTrack, Via as GeoVia
 
 def export_board_state(
     template_pcb: Path,

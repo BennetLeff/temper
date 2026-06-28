@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.loop import LoopCollection
     from temper_placer.core.netlist import Netlist
-    from temper_placer.routing.constraints.drc_oracle import DRCOracle, Violation
+    from temper_placer.router_v6.constraints_drc_oracle import DRCOracle, Violation
     from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
     from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
     from temper_placer.router_v6.channel_widths import ChannelWidths

@@ -5,10 +5,10 @@ import math
 from ..state import BoardState
 from .base import Stage
 from temper_placer.core.pin_geometry import pin_world_position
-from temper_placer.routing.constraints.drc_oracle import DRCOracle
-from temper_placer.routing.constraints.design_rules import ClearanceMatrix, DesignRulesParser
-from temper_placer.routing.constraints.spatial_index import Pad
-from temper_placer.routing.constraints.geometry import Point
+from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
+from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser
+from temper_placer.router_v6.constraints_spatial_index import Pad
+from temper_placer.router_v6.constraints_geometry import Point
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
