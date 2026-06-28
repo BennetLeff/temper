@@ -14,7 +14,7 @@ from kiutils.items.common import Position
 
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.routing.grid_converter import grid_to_world
-from temper_placer.routing.maze_router import RoutePath
+from temper_placer.router_v6.adapter import _AdapterRoutePath as RoutePath
 from temper_placer.routing.path_simplify import simplify_path
 from temper_placer.core.board import STANDARD_LAYER_ORDER
 from temper_placer.io.via_dedup import deduplicate_vias

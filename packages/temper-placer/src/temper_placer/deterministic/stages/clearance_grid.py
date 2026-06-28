@@ -10,7 +10,7 @@ from temper_placer.core.board import (
     PLANE_LAYER_INDICES,
     STANDARD_LAYER_ORDER,
 )
-from temper_placer.routing.constraints.drc_oracle import INTERNAL_LAYER_CREEPAGE_FACTOR
+from temper_placer.router_v6.clearance_engine import INTERNAL_LAYER_CREEPAGE_FACTOR
 from temper_placer.core.pin_geometry import pin_world_position
 
 

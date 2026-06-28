@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from jax import Array
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
-    from temper_placer.routing.maze_router import MazeRouter, RoutePath
+    from temper_placer.router_v6.adapter import V6RouterAdapter, _AdapterRoutePath
 
 
 @dataclass

@@ -15,7 +15,7 @@ class RefinementStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start_time = time.time()
         from temper_placer.pipeline.iterator import PlaceRouteIterator
-        from temper_placer.routing.maze_router import MazeRouter
+        from temper_placer.router_v6.adapter import V6RouterAdapter
         from temper_placer.routing.congestion_heatmap import CongestionHeatmap
         from temper_placer.optimizer.legalization import resolve_overlaps_priority
         from temper_placer.core.state import PlacementState
