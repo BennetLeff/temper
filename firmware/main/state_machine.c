@@ -72,6 +72,7 @@ static struct {
     uint32_t last_pan_temp_time_ms;
     uint8_t pan_temp_stuck_count;
     uint8_t heatsink_temp_stuck_count;
+    float prev_stuck_check_temp;
 
 } sm_ctx = {
     .current_state = STATE_INIT,
@@ -207,7 +208,12 @@ void state_machine_init(void) {
     
     /* Reset runaway interlock latch */
     sm_ctx.runaway_latched = false;
-    
+
+    /* Reset stuck-sensor counters */
+    sm_ctx.pan_temp_stuck_count = 0;
+    sm_ctx.heatsink_temp_stuck_count = 0;
+    sm_ctx.prev_stuck_check_temp = -1.0f;
+
     transition_to(STATE_INIT);
 }
 
@@ -1036,20 +1042,19 @@ static void check_safety_interlocks(void) {
     /* ADC stuck check — identical pan temperature across consecutive reads
      * indicates a frozen sensor. Uses its own tracking separate from the
      * runaway rate-of-rise tracker (which updates every pass). */
-    static float prev_stuck_check_temp = -1.0f;
     float pan_temp = read_pan_temperature();
-    if (prev_stuck_check_temp == pan_temp) {
+    if (sm_ctx.prev_stuck_check_temp == pan_temp) {
         sm_ctx.pan_temp_stuck_count++;
         if (sm_ctx.pan_temp_stuck_count >= 50) {
             sm_ctx.fault_code = FAULT_ADC_STUCK;
             transition_to(STATE_FAULT);
-            prev_stuck_check_temp = -1.0f;
+            sm_ctx.prev_stuck_check_temp = -1.0f;
             sm_ctx.pan_temp_stuck_count = 0;
             return;
         }
     } else {
         sm_ctx.pan_temp_stuck_count = 0;
-        prev_stuck_check_temp = pan_temp;
+        sm_ctx.prev_stuck_check_temp = pan_temp;
     }
 }
 
