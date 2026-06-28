@@ -85,6 +85,9 @@ jobs:
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
         run: uv run pytest tests/core/ -v --tb=short --cov=temper_placer.core --cov-report=json --cov-report=term -p no:cacheprovider --maxfail=10
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
+          JAX_PLATFORM_NAME: cpu
       
       - name: Coverage gate (temper-placer/core)
         working-directory: packages/temper-placer
