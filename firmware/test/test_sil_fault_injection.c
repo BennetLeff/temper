@@ -74,6 +74,7 @@ static system_state_t parse_state(const char *str) {
     if (!strcmp(str, "PREHEAT")) return STATE_PREHEAT;
     if (!strcmp(str, "COOLDOWN")) return STATE_COOLDOWN;
     if (!strcmp(str, "PAN_DET")) return STATE_PAN_DET;
+    if (!strcmp(str, "RUNAWAY_FAULT")) return STATE_RUNAWAY_FAULT;
     return STATE_INIT;
 }
 
@@ -86,10 +87,12 @@ static fault_code_t parse_fault_code(const char *str) {
     if (!strcmp(str, "FAULT_FAN_FAILURE"))             return FAULT_FAN_FAILURE;
     if (!strcmp(str, "FAULT_PROBE_OPEN"))              return FAULT_PROBE_OPEN;
     if (!strcmp(str, "FAULT_PROBE_SHORT"))             return FAULT_PROBE_SHORT;
+    if (!strcmp(str, "FAULT_IGBT_SHORT"))              return FAULT_IGBT_SHORT;
     if (!strcmp(str, "FAULT_THERMAL_RUNAWAY"))         return FAULT_THERMAL_RUNAWAY;
+    if (!strcmp(str, "FAULT_ADC_STUCK"))               return FAULT_ADC_STUCK;
+    if (!strcmp(str, "FAULT_COOLDOWN_OVERHEAT"))       return FAULT_COOLDOWN_OVERHEAT;
     if (!strcmp(str, "FAULT_SELF_TEST_FAILED"))        return FAULT_SELF_TEST_FAILED;
     if (!strcmp(str, "FAULT_WATCHDOG_RESET"))          return FAULT_WATCHDOG_RESET;
-    if (!strcmp(str, "FAULT_COOLDOWN_OVERHEAT"))       return FAULT_COOLDOWN_OVERHEAT;
     if (!strcmp(str, "FAULT_PAN_DETECT_HW"))           return FAULT_PAN_DETECT_HW;
     return FAULT_NONE;
 }
@@ -500,6 +503,7 @@ static void sm_boilerplate_to_heating(bool self_test_pass) {
         /* PREHEAT -> HEATING (pan near target) */
         if (state_machine_get_state() == STATE_PREHEAT) {
             mock_sm_set_pan_temperature(92.0f);
+            state_machine_reset_temp_baseline();
             mock_sm_advance_time(DT_MS);
             state_machine_update();
         }
@@ -672,6 +676,15 @@ static void run_sil_test(const manifest_entry_t *entry) {
         if (t == 0) {
             state_machine_reset_temp_baseline();
             state_machine_reset_stuck_tracking();
+        }
+
+        /* At perturbation start: reset the runaway baseline so the
+         * injected sensor change (e.g., pan 92->115 C for thermal
+         * runaway) doesn't trigger a spurious rate-of-rise before
+         * the fault handler runs.  The perturbation itself is the
+         * fault, not a real temperature ramp. */
+        if (t == entry->perturbation_at_tick) {
+            state_machine_reset_temp_baseline();
         }
 
         /* Derive pan status from pan_impedance */

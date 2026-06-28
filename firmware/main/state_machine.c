@@ -1113,7 +1113,7 @@ void state_machine_reset_temp_baseline(void) {
 }
 
 void state_machine_reset_stuck_tracking(void) {
-    sm_ctx.prev_stuck_check_temp = read_pan_temperature();
+    sm_ctx.prev_stuck_check_temp = -1.0f;
     sm_ctx.pan_temp_stuck_count = 0;
 }
 
