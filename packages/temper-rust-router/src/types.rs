@@ -364,6 +364,9 @@ pub struct NetTopology {
     pub net_name: String,
     /// List of channel IDs the net is assigned to.
     pub uses_channels: Vec<String>,
+    /// Ordered edge walk: (src_channel_id, dst_channel_id) for each hop.
+    /// For single-channel nets: [(net_name, channel_id)].
+    pub path_graph: Vec<(String, String)>,
     /// Estimated total length in mm.
     pub total_length_estimate: f64,
 }

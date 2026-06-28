@@ -63,47 +63,35 @@ class ChannelMapping:
 def map_topology_to_channels(
     topology: TopologyGraph | None,
     skeleton: ChannelSkeleton,
-    nets: list[Net] | None = None,
-    components: list[Component] | None = None,
 ) -> ChannelMapping:
     """
     Map abstract topology graph to concrete routing channels.
 
+    Uses the SAT solver's output as the primary routing path.  A* on
+    the occupancy grid is the fallback for nets the solver didn't assign
+    (handled by the pipeline, not this function).
+
     Args:
         topology: Topological routing graph, or ``None`` when SAT is
-            bypassed (Stage 3 skipped).  When ``None``, every net falls
-            through to the skeleton-path fallback in
-            ``_map_net_to_channels``.
+            bypassed (Stage 3 skipped).
         skeleton: Channel skeleton
-        nets: List of nets (optional, for fallback)
-        components: List of components (optional, for pin lookup in fallback)
 
     Returns:
         ChannelMapping
     """
     channel_paths = {}
 
-    # Use nets list if provided, otherwise infer from topology.  When
-    # topology is None (Stage 3 bypassed), infer from the nets list.
-    if nets:
-        net_names = [net.name for net in nets]
-    elif topology is not None:
+    # Infer net names from topology.  When topology is None
+    # (Stage 3 bypassed), the caller's A* fallback handles routing.
+    if topology is not None:
         net_names = list(topology.net_topologies.keys())
     else:
         net_names = []
-    
-    # Map for easy net lookup
-    net_map = {net.name: net for net in nets} if nets else {}
-
-    # Component lookup
-    comp_map = {c.ref: c for c in components} if components else {}
 
     for net_name in net_names:
         net_topology = topology.get_topology(net_name) if topology is not None else None
-        net_obj = net_map.get(net_name)
         
-        # Map this net's topology (or fallback) to channels
-        channel_path = _map_net_to_channels(net_name, net_topology, skeleton, net_obj, comp_map)
+        channel_path = _map_net_to_channels(net_name, net_topology, skeleton)
         if channel_path:
             channel_paths[net_name] = channel_path
 
@@ -114,37 +102,30 @@ def _map_net_to_channels(
     net_name: str,
     net_topology: NetTopology | None,
     skeleton: ChannelSkeleton,
-    net_obj: Net | None = None,
-    comp_map: dict[str, Component] | None = None,
 ) -> ChannelPath | None:
     """
     Map a single net's topology to channel sequence.
+
+    Uses the SAT solver's output as the primary routing path.  The
+    Dijkstra-based skeleton pathfinder was removed (2026-06-28) — the
+    SAT solver now produces correct, capacity-constrained channel
+    assignments, and Dijkstra was a workaround for the old mock solver.
 
     Args:
         net_name: Net name
         net_topology: Net's topological routing (can be None)
         skeleton: Channel skeleton graph
-        net_obj: Net object for fallback (optional)
-        comp_map: Component lookup map (optional)
 
     Returns:
         ChannelPath or None if mapping fails
     """
-    channel_sequence = []
+    channel_sequence: list[str] = []
 
-    # 1. Prefer Geometric Routing (Fallback) if available
-    # The topological solver (Stage 3) is currently a mock that returns random edges.
-    # To ensure connectivity, we bypass it and use Dijkstra on the skeleton directly.
-    # This works well in conjunction with Rip-up and Reroute (Stage 4).
-    if net_obj and comp_map and skeleton.graph.number_of_nodes() > 0:
-        channel_sequence = _find_skeleton_path_for_net(net_obj, comp_map, skeleton)
+    # 1. Use SAT solver topology as primary routing path.
+    if net_topology:
+        channel_sequence = list(net_topology.uses_channels)
 
-    # 2. Use Topology as backup (if net_obj not provided or fallback failed)
-    if not channel_sequence and net_topology:
-        channel_sequence = net_topology.uses_channels
-
-        if not channel_sequence:
-            # Try to extract from path graph
+        if not channel_sequence and net_topology.path_graph is not None:
             if net_topology.path_graph.number_of_edges() > 0:
                 try:
                     nodes = list(net_topology.path_graph.nodes())

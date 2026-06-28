@@ -431,11 +431,11 @@ class RouterV6Pipeline:
 
         # Stage 3: Topological routing.  When skip_stage3 is True,
         # bypass the SAT solver entirely and feed Stage 4 an empty
-        # topology graph; Stage 4 falls back to the skeleton-path
-        # resolution in channel_mapping._map_net_to_channels
-        # (which already prefers _find_skeleton_path_for_net over
-        # the SAT topology).  The SAT code stays in place; this is
-        # a guarded bypass, not a removal.
+        # topology graph.  After Dijkstra removal (2026-06-28),
+        # skip_stage3 routes nets via direct A* on the occupancy
+        # grid without skeleton guidance (previously used Dijkstra).
+        # The SAT code stays in place; this is a guarded bypass,
+        # not a removal.
         if self.skip_stage3:
             if self.verbose:
                 print("Stage 3: Topological routing... SKIPPED")
@@ -572,11 +572,21 @@ class RouterV6Pipeline:
         )
 
         # Build topology graph from Rust output.
+        import networkx as nx
+
         topology_graph = TopologyGraph(net_topologies={})
         for net_name, topo_data in rust_result.get("topology_graph", {}).items():
+            # Build path_graph DiGraph from Rust's ordered edge list.
+            path_edges = list(topo_data.get("path_graph", []))
+            if path_edges:
+                pg = nx.DiGraph()
+                pg.add_edges_from(path_edges)
+            else:
+                pg = None
+
             ntopo = NetTopology(
                 net_name=net_name,
-                path_graph=None,
+                path_graph=pg,
                 uses_channels=list(topo_data.get("uses_channels", [])),
                 total_length_estimate=float(topo_data.get("total_length_estimate", 0)),
             )
@@ -636,8 +646,6 @@ class RouterV6Pipeline:
         channel_mapping = map_topology_to_channels(
             stage3.topology_graph,
             fcu_skeleton,
-            nets=pcb.nets,
-            components=pcb.components,
         )
 
         # Fallback: nets without SAT channel assignment get direct A* attempt

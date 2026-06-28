@@ -71,11 +71,13 @@ fn solve_topology_rust(
     }
     d.set_item("assignments", py_assignments)?;
 
-    // Topology graph: net_name → [channel_ids]
+    // Topology graph: net_name → {uses_channels, path_graph, total_length_estimate}
     let py_topology = PyDict::new(py);
     for (net_name, net_topo) in &topology.net_topologies {
         let entry = PyDict::new(py);
         entry.set_item("uses_channels", net_topo.uses_channels.clone())?;
+        let py_path: Vec<(String, String)> = net_topo.path_graph.clone();
+        entry.set_item("path_graph", py_path)?;
         entry.set_item("total_length_estimate", net_topo.total_length_estimate)?;
         py_topology.set_item(net_name, entry)?;
     }
