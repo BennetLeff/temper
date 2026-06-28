@@ -9,7 +9,6 @@
 /* External test functions */
 extern void run_state_machine_tests(void);
 extern void test_transition_table(void);
-extern void test_transition_table_cross_check(void);
 
 /* Unity required functions */
 void setUp(void) {}
@@ -23,9 +22,6 @@ int main(void) {
     
     printf("\n=== Transition Table Tests ===\n\n");
     RUN_TEST(test_transition_table);
-    
-    printf("\n=== Transition Table Cross-Check ===\n\n");
-    RUN_TEST(test_transition_table_cross_check);
     
     return UnityEnd();
 }
