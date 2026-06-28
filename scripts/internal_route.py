@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Internal PCB router script.
-Routes a placed PCB using the internal MazeRouter and exports traces.
+Routes a placed PCB using Router V6 and exports traces.
 """
 
 import argparse
@@ -31,7 +31,7 @@ from temper_placer.routing.constraints.spatial_index import (
 )
 from temper_placer.routing.fanout import fanout_power_nets
 from temper_placer.routing.layer_assignment import assign_layers
-from temper_placer.routing.maze_router import MazeRouter
+from temper_placer.router_v6.adapter import V6RouterAdapter
 from temper_placer.routing.net_ordering import order_nets
 
 
@@ -462,7 +462,7 @@ def main():
         populate_oracle_from_board(drc_oracle, temp_ki_board)
         console.print("  [bold magenta]DRC Oracle loaded for Post-Processing[/]")
 
-    router = MazeRouter.from_board(
+    router = V6RouterAdapter.from_board(
         board,
         cell_size_mm=args.cell_size,
         num_layers=args.layers,
