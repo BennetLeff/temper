@@ -32,7 +32,7 @@ jobs:
 
       - name: Run golden check (${{ matrix.boundary }})
         run: |
-          temper dsn check \
+          temper-placer dsn check \
             --boundary ${{ matrix.boundary }} \
             --input pcb/temper.kicad_pcb \
             --config pcb/temper_config.yaml \
