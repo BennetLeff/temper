@@ -506,3 +506,60 @@ packages/temper-rust-router/
 - **Closure test methodology:** `docs/solutions/performance-issues/router-v6-full-pipeline-5min-to-23s-2026-06-23.md`
 - Related code: `packages/temper-placer/src/temper_placer/router_v6/sat_model.py`, `constraint_model.py`, `topology_solver.py`, `topology_extraction.py`, `pipeline.py`
 - External: splr crate, maturin, PyO3
+
+---
+
+## Amendment — Post-Implementation (2026-06-28)
+
+The plan was executed on `feat/router-v6-rust-topology`. Three decisions made
+during implementation materially changed the plan's approach:
+
+### 1. Golden fixtures → constraint audit
+
+**Planned:** Generate Python golden fixtures for Stage 3, validate Rust solver
+against them (U2, U8).
+
+**Implemented:** Golden fixtures validate the solver against a *buggy reference*
+(the Python solver has known correctness gaps beyond AtMostK). Instead, a
+constraint audit module (`audit.rs`) validates the Rust solver's output directly
+against the constraint model — checking every `CapacityConstraint`,
+`DiffPairConstraint`, and `LayerConstraint`. This is stronger than golden
+fixtures because it validates against the constraints themselves, not against
+another solver's output.
+
+The golden fixture files (`generate_stage3_goldens.py`,
+`test_stage3_golden_parity.py`) were deleted and replaced with
+`test_stage3_constraint_audit.py` which exercises the Rust solver end-to-end
+with inline constraint auditing. pysat cross-validation confirms the Rust
+solver agrees with Glucose3 on the same CNF.
+
+### 2. Python fallback removed
+
+**Planned:** `TEMPER_SAT_BACKEND` env var with graceful Python fallback (U7).
+
+**Implemented:** The Python greedy solver cannot handle the sequential-counter
+AtMostK encoding — it returns UNSAT on models that splr solves in <1ms. Keeping
+it as a fallback would silently produce wrong answers. The Rust crate is now a
+required dependency (`ImportError` if not installed, no silent degradation).
+The `TEMPER_SAT_BACKEND` env var was removed entirely.
+
+### 3. splr cardinality constraints via CNF encoding
+
+**Planned:** splr's native `add_atmostk` API for `AtMostK` constraints (U5).
+
+**Implemented:** splr 0.13 does not expose `add_atmostk`. The Sinz (2005)
+sequential counter encoding was ported from Python to Rust
+(`encoding.rs:encode_at_most_k`) and the cardinality constraints are encoded as
+additional CNF clauses fed to splr. This is functionally equivalent but adds
+O(n·k) auxiliary variables and clauses to the CNF formula.
+
+### Updated U2 replacement
+
+| File | Status |
+|------|--------|
+| `packages/temper-rust-router/src/audit.rs` | Constraint audit module |
+| `packages/temper-rust-router/src/encoding.rs` | Sinz sequential counter + CNF encoding |
+| `packages/temper-placer/tests/router_v6/test_stage3_constraint_audit.py` | End-to-end audit tests |
+| `scripts/profile_rust_topology.py` | Single-backend profiling (renamed) |
+| `packages/temper-placer/tests/router_v6/generate_stage3_goldens.py` | Deleted |
+| `packages/temper-placer/tests/router_v6/test_stage3_golden_parity.py` | Deleted |
