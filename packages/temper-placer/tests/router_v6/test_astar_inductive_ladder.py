@@ -33,7 +33,7 @@ from temper_placer.router_v6.astar_core import (
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 # U1 oracle imports (test utility)
-from astar_oracle_utils import (
+from tests.router_v6.astar_oracle_utils import (
     SQRT2,
     DIJKSTRA_MAX_CELLS,
     dijkstra_shortest_path,
@@ -41,7 +41,7 @@ from astar_oracle_utils import (
 )
 
 # U2 strategy imports (test utility)
-from astar_property_strategies import grid_and_pair, grids, start_goal_pairs
+from tests.router_v6.astar_property_strategies import grid_and_pair, grids, start_goal_pairs
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -30,12 +30,12 @@ from hypothesis import strategies as st
 from temper_placer.router_v6.astar_core import _astar_search, octile_distance
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
-from astar_oracle_utils import (
+from tests.router_v6.astar_oracle_utils import (
     SQRT2,
     DIJKSTRA_MAX_CELLS,
     dijkstra_shortest_path,
 )
-from astar_property_strategies import (
+from tests.router_v6.astar_property_strategies import (
     grid_and_pair,
     grids,
     obstacle_perturbations,
