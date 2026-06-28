@@ -101,7 +101,7 @@ static void state_runaway_fault_entry(void);
 static void state_runaway_fault_update(void);
 
 /* Forward declarations - helpers */
-static void transition_to(system_state_t new_state);
+void transition_to(system_state_t new_state);
 static bool run_self_test(void);
 static void check_safety_interlocks(void);
 static void check_runaway_boundary(void);
@@ -947,7 +947,7 @@ static void state_runaway_fault_update(void) {
  * Helper Functions
  * ============================================================================ */
 
-static void transition_to(system_state_t new_state) {
+void transition_to(system_state_t new_state) {
     /* Runaway interlock: block all transitions once latched */
     if (sm_ctx.runaway_latched && new_state != STATE_RUNAWAY_FAULT) {
         return;
