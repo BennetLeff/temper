@@ -604,3 +604,245 @@ def test_mr9_no_redundant_nodes(gsp):
     assert len(path) <= max_cells, (
         f"Path length {len(path)} exceeds grid cells {max_cells}"
     )
+
+
+# =============================================================================
+# Theta* Variant Tests (U7 — R19a)
+# =============================================================================
+
+
+def _line_of_sight_tolerant(p1, p2, grid, net_id=0):
+    """Check LOS using the production _line_of_sight function."""
+    from temper_placer.router_v6.astar_core import _line_of_sight as los
+    return los(p1, p2, grid, net_id)
+
+
+def _path_cost_euclidean(path: list[tuple[int, int]]) -> float:
+    """Compute Euclidean cost of a Theta* path (may have non-adjacent steps)."""
+    cost = 0.0
+    for i in range(len(path) - 1):
+        dx = path[i + 1][0] - path[i][0]
+        dy = path[i + 1][1] - path[i][1]
+        cost += math.sqrt(dx * dx + dy * dy)
+    return cost
+
+
+# @req(2026-06-28-001, R19a): Theta* subpath optimality (Theta*-only MR7)
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 30, 0.3))
+@settings(max_examples=100, deadline=30000)
+def test_thetastar_subpath_optimality(gsp):
+    """Theta* subpath optimality: when LOS exists, path cost == octile_distance."""
+    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+
+    grid, start, goal = gsp
+    path = _astar_search_theta_star(grid, start, goal, net_id=0)
+    if path is None or len(path) < 2:
+        return
+
+    # Check all local subpath pairs (limit to i+5 for large paths)
+    for i in range(len(path)):
+        max_j = min(len(path), i + 6)
+        for j in range(i + 1, max_j):
+            if _line_of_sight_tolerant(path[i], path[j], grid, 0):
+                seg_cost = _path_cost_euclidean(path[i:j + 1])
+                # Theta* uses Euclidean distances for g_score
+                direct_dist = math.sqrt(
+                    (path[j][0] - path[i][0]) ** 2 + (path[j][1] - path[i][1]) ** 2
+                )
+                assert abs(seg_cost - direct_dist) <= _RELAXED_TOL, (
+                    f"Theta* subpath [{i}:{j+1}]: seg_cost={seg_cost}, "
+                    f"euclidean={direct_dist}"
+                )
+
+
+# @req(2026-06-28-001, R19a): Theta* path cell count <= standard A*
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 30, 0.3))
+@settings(max_examples=100, deadline=30000)
+def test_thetastar_cell_count_le_astar(gsp):
+    """Theta* produces any-angle shortcuts -> cell count <= standard A*."""
+    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+
+    grid, start, goal = gsp
+    theta_path = _astar_search_theta_star(grid, start, goal, net_id=0)
+    astar_path = _astar_search(start, goal, grid)
+
+    if theta_path is not None and astar_path is not None:
+        assert len(theta_path) <= len(astar_path), (
+            f"Theta* path length {len(theta_path)} > A* {len(astar_path)}"
+        )
+
+
+# @req(2026-06-28-001, R19a): MR8 for Theta* — path cells free
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 100, st.floats(0.0, 0.4)))
+@settings(max_examples=100, deadline=30000)
+def test_thetastar_path_cells_free(gsp):
+    """Theta* MR8: every cell in path is free."""
+    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+
+    grid, start, goal = gsp
+    path = _astar_search_theta_star(grid, start, goal, net_id=0)
+    if path is None:
+        return
+
+    for x, y in path:
+        val = grid.grid[y, x]
+        assert val == 0 or val == 0, f"Theta* path cell ({x},{y}) blocked: {val}"
+
+
+# @req(2026-06-28-001, R19a): MR9 for Theta* — no redundant nodes
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 100, st.floats(0.0, 0.4)))
+@settings(max_examples=100, deadline=30000)
+def test_thetastar_no_redundant_nodes(gsp):
+    """Theta* MR9: no consecutive duplicate cells."""
+    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+
+    grid, start, goal = gsp
+    path = _astar_search_theta_star(grid, start, goal, net_id=0)
+    if path is None:
+        return
+
+    for i in range(len(path) - 1):
+        assert path[i] != path[i + 1], "Theta* consecutive duplicate"
+    assert len(path) <= grid.width_cells * grid.height_cells
+
+
+# =============================================================================
+# Lazy Theta* Variant Tests (U7 — R19b)
+# =============================================================================
+
+
+# @req(2026-06-28-001, R19b): Lazy Theta* reachability parity with Theta*
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 30, 0.3))
+@settings(max_examples=100, deadline=30000)
+def test_lazy_thetastar_reachability_parity(gsp):
+    """If Theta* finds a path, Lazy Theta* must also find a path."""
+    from temper_placer.router_v6.astar_core import (
+        _astar_search_theta_star,
+        _astar_search_lazy_theta_star,
+    )
+
+    grid, start, goal = gsp
+    theta_result = _astar_search_theta_star(grid, start, goal, net_id=0)
+    lazy_result = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
+
+    if theta_result is not None:
+        assert lazy_result is not None, (
+            f"Theta* found path but Lazy Theta* did not: {start}->{goal}"
+        )
+
+
+# @req(2026-06-28-001, R19b): MR8 for Lazy Theta*
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 100, st.floats(0.0, 0.4)))
+@settings(max_examples=100, deadline=30000)
+def test_lazy_thetastar_path_cells_free(gsp):
+    """Lazy Theta* MR8: every cell in path is free."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    grid, start, goal = gsp
+    path = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
+    if path is None:
+        return
+
+    for x, y in path:
+        val = grid.grid[y, x]
+        assert val == 0 or val == 0, f"Lazy Theta* path cell ({x},{y}) blocked: {val}"
+
+
+# @req(2026-06-28-001, R19b): MR9 for Lazy Theta*
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 100, st.floats(0.0, 0.4)))
+@settings(max_examples=100, deadline=30000)
+def test_lazy_thetastar_no_redundant_nodes(gsp):
+    """Lazy Theta* MR9: no consecutive duplicate cells."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    grid, start, goal = gsp
+    path = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
+    if path is None:
+        return
+
+    for i in range(len(path) - 1):
+        assert path[i] != path[i + 1], "Lazy Theta* consecutive duplicate"
+    assert len(path) <= grid.width_cells * grid.height_cells
+
+
+# =============================================================================
+# 3D A* Variant Tests (U7 — R19c, R20)
+# =============================================================================
+
+
+def _make_multi_layer_grid(
+    width: int, height: int, layer_names: tuple[str, ...]
+) -> dict[str, OccupancyGrid]:
+    """Create simple multi-layer grids for 3D A* testing."""
+    grids = {}
+    for name in layer_names:
+        arr = np.zeros((height, width), dtype=np.int8)
+        grids[name] = OccupancyGrid(name, arr, (0.0, 0.0), 1.0, width, height)
+    return grids
+
+
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(3, 10, st.floats(0.0, 0.3)))
+@settings(max_examples=50, deadline=30000)
+def test_3d_path_cells_free(gsp):
+    """3D MR8: every cell in 3D path is free on its layer."""
+    from temper_placer.router_v6.astar_core import RouteNode3D, _astar_search_3d
+
+    grid_2d, start_2d, goal_2d = gsp
+    layers = ("F.Cu", "B.Cu")
+    grids = {}
+    for name in layers:
+        grids[name] = OccupancyGrid(name, np.copy(grid_2d.grid), (0.0, 0.0), 1.0,
+                                     grid_2d.width_cells, grid_2d.height_cells)
+
+    start = RouteNode3D(start_2d[0], start_2d[1], "F.Cu")
+    goal = RouteNode3D(goal_2d[0], goal_2d[1], "B.Cu")
+
+    result = _astar_search_3d(start, goal, grids, net_id=0)
+    if result is None:
+        return
+
+    path_nodes, via_positions = result
+    for node in path_nodes:
+        g = grids[node.layer]
+        val = g.grid[node.y, node.x]
+        assert val == 0, (
+            f"3D path cell ({node.x},{node.y},{node.layer}) blocked: {val}"
+        )
+
+
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(3, 10, st.floats(0.0, 0.3)))
+@settings(max_examples=50, deadline=30000)
+def test_3d_no_redundant_same_layer_nodes(gsp):
+    """3D MR9: consecutive cells on same layer must not be identical."""
+    from temper_placer.router_v6.astar_core import RouteNode3D, _astar_search_3d
+
+    grid_2d, start_2d, goal_2d = gsp
+    layers = ("F.Cu", "B.Cu")
+    grids = {}
+    for name in layers:
+        grids[name] = OccupancyGrid(name, np.copy(grid_2d.grid), (0.0, 0.0), 1.0,
+                                     grid_2d.width_cells, grid_2d.height_cells)
+
+    start = RouteNode3D(start_2d[0], start_2d[1], "F.Cu")
+    goal = RouteNode3D(goal_2d[0], goal_2d[1], "B.Cu")
+
+    result = _astar_search_3d(start, goal, grids, net_id=0)
+    if result is None:
+        return
+
+    path_nodes, _ = result
+    for i in range(len(path_nodes) - 1):
+        a, b = path_nodes[i], path_nodes[i + 1]
+        if a.layer == b.layer:
+            assert not (a.x == b.x and a.y == b.y), (
+                f"3D duplicate same-layer node at ({a.x},{a.y},{a.layer})"
+            )
