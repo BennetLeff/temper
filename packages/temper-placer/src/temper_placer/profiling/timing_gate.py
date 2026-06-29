@@ -7,18 +7,14 @@ TimingReport dataclasses consumed by the CLI baseline/check commands.
 
 from __future__ import annotations
 
-import time
 import subprocess
-import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-if sys.version_info >= (3, 11):
-    from datetime import UTC, datetime
-else:
-    from datetime import datetime, timezone
-
-    UTC = timezone.utc
+if TYPE_CHECKING:
+    from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
 
 
 def _repo_root() -> Path:
@@ -51,7 +47,7 @@ def _resolve_board_path(board_id: str) -> Path:
     manifest_path = root / "power_pcb_dataset" / "golden_manifest.yaml"
     if not manifest_path.exists():
         raise FileNotFoundError(
-            "golden_manifest.yaml not found at {}".format(manifest_path)
+            f"golden_manifest.yaml not found at {manifest_path}"
         )
 
     manifest = GoldenManifest.load(manifest_path)
@@ -65,7 +61,7 @@ def _resolve_board_path(board_id: str) -> Path:
     pcb_path = board_entry.resolve_path(root)
     if not pcb_path.exists():
         raise FileNotFoundError(
-            "Board '{}' PCB not found at {}".format(board_id, pcb_path)
+            f"Board '{board_id}' PCB not found at {pcb_path}"
         )
     return pcb_path
 
@@ -81,7 +77,7 @@ class TimingResult:
     n_runs: int
     individual_ms: list[float]
 
-    def to_pipeline_metrics_record(self) -> "PipelineMetricsRecord":
+    def to_pipeline_metrics_record(self) -> PipelineMetricsRecord:
         """Map this timing result to a PipelineMetricsRecord for JSONL storage.
 
         Uses module='pipeline-timing' so per-stage timings participate in
@@ -117,7 +113,7 @@ class StageTimingEntry:
     threshold_ms: float
     passed: bool
 
-    def to_pipeline_metrics_record(self) -> "PipelineMetricsRecord":
+    def to_pipeline_metrics_record(self) -> PipelineMetricsRecord:
         """Map this check result to a PipelineMetricsRecord for JSONL trend storage."""
         from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
 
@@ -197,9 +193,7 @@ def measure_stage_timing(
         if result.stage_name == stage_name:
             return result
     raise ValueError(
-        "Stage '{}' not found in pipeline '{}' on board '{}'".format(
-            stage_name, pipeline, board_id
-        )
+        f"Stage '{stage_name}' not found in pipeline '{pipeline}' on board '{board_id}'"
     )
 
 
@@ -220,15 +214,13 @@ def measure_all_stages(
     """
     if pipeline != "DeterministicPipeline":
         raise ValueError(
-            "Unsupported pipeline '{}'. Only 'DeterministicPipeline' is supported.".format(
-                pipeline
-            )
+            f"Unsupported pipeline '{pipeline}'. Only 'DeterministicPipeline' is supported."
         )
 
     pcb_path = _resolve_board_path(board_id)
 
-    from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.deterministic import BoardState, create_legacy_pipeline
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     parse_result = parse_kicad_pcb(pcb_path)
     netlist = parse_result.netlist

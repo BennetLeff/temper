@@ -22,11 +22,11 @@ from .pipeline_metrics import (
     profile_router_benchmark,
 )
 from .timing_gate import (
+    StageTimingEntry,
     TimingReport,
     TimingResult,
-    StageTimingEntry,
-    measure_stage_timing,
     measure_all_stages,
+    measure_stage_timing,
 )
 
 __all__ = [
