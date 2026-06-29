@@ -42,7 +42,7 @@ def create_test_netlist(n_components: int = 17) -> Netlist:
 
     spec = importlib.util.spec_from_file_location("synthetic_netlist", fixtures_path)
     synthetic_netlist = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(synthetic_netlist)
+    spec.loader.exec_module(synthetic_netlist)  # type: ignore[union-attr]
 
     return synthetic_netlist.generate_netlist(n_components=n_components, seed=12345)
 

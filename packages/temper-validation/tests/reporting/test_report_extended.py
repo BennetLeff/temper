@@ -46,7 +46,7 @@ def test_custom_report_config():
         verdict="PASS",
     )
 
-    from temper_validation.reporting.report import ReportConfig
+    from temper_validation.reporting.report import ReportConfig, generate_markdown_report
 
     config = ReportConfig(
         title="Custom Validation Report", author="Validation System", show_timestamp=False
@@ -237,7 +237,7 @@ def test_markdown_report_all_verdict_fail():
 
         # Count FAIL occurrences
         fail_count = content.count("**FAIL**")
-        pass_count = content.count("**PASS**")
+        content.count("**PASS**")
 
         assert fail_count >= 4, f"Should have 4+ FAIL verdicts, got {fail_count}"
 
@@ -320,7 +320,7 @@ def test_score_calculation_with_extreme_ratios():
         score=100.0, max_score=100.0, critical_violations=0, warning_violations=0, verdict="PASS"
     )
 
-    routing_result = RoutingFeasibilityResult(
+    RoutingFeasibilityResult(
         total_nets=10,
         routed_nets=10,
         failed_nets=0,

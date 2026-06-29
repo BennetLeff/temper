@@ -233,10 +233,10 @@ class ConflictResolver:
         if abs(dx) > abs(dy):
             # Nudge horizontally
             nudge_x = nudge_distance if dx > 0 else -nudge_distance
-            nudge_y = 0
+            nudge_y = 0.0
         else:
             # Nudge vertically
-            nudge_x = 0
+            nudge_x = 0.0
             nudge_y = nudge_distance if dy > 0 else -nudge_distance
 
         new_x = x + nudge_x
@@ -268,10 +268,10 @@ class ConflictResolver:
 
         # Nudge failed, try other directions
         for nudge_x, nudge_y in [
-            (nudge_distance, 0),
-            (-nudge_distance, 0),
-            (0, nudge_distance),
-            (0, -nudge_distance),
+            (nudge_distance, 0.0),
+            (-nudge_distance, 0.0),
+            (0.0, nudge_distance),
+            (0.0, -nudge_distance),
         ]:
             new_x = x + nudge_x
             new_y = y + nudge_y

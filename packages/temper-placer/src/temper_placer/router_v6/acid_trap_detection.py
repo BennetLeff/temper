@@ -110,7 +110,7 @@ def detect_acid_traps(
 
     for net_name, compiled_route in routing_results.compiled_routes.items():
         # Analyze path for acute angles
-        path_coords = compiled_route.path.coordinates
+        path_coords = compiled_route.path.coordinates  # type: ignore[union-attr]
 
         # ---- Filter duplicate consecutive points ---------------------------
         filtered: list[tuple[float, float]] = []

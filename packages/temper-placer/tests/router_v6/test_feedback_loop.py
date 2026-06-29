@@ -14,7 +14,7 @@ from temper_placer.router_v6.feedback_loop import (
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 
 
-def mock_routing_function_success(positions):
+def mock_routing_function_success(_positions):
     """Mock routing function with high success rate."""
     # Simulate successful routing
     routes = {}
@@ -25,7 +25,7 @@ def mock_routing_function_success(positions):
     return RoutingResults(compiled_routes=routes, failed_nets=["NET19"])
 
 
-def mock_routing_function_failure(positions):
+def mock_routing_function_failure(_positions):
     """Mock routing function with low success rate."""
     # Simulate failed routing
     path = RoutePath("NET1", [(0, 0), (10, 10)], "F.Cu", 14.14)

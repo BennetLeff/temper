@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.constraint_model import ConstraintModel
-    from temper_placer.router_v6.sat_model import SATModel, SATVariable
+    from temper_placer.router_v6.sat_model import SATModel
 
 DEFAULT_BMC_BOUND = 10
 
@@ -50,7 +50,7 @@ def _extract_primary_vars(
         if isinstance(var, NetChannelVar):
             constraint_var_names.add(var.name)
 
-    sat_var_name_to_sat_var: dict[str, SATVariable] = {
+    {
         sv.name: sv for sv in sat_model.variables
     }
     primary_names: list[str] = []

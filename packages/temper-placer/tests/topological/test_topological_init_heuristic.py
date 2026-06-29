@@ -275,7 +275,7 @@ class TestPositionValidity:
         for ref, placement in result.placements.items():
             x, y = placement.position
             comp = simple_context.netlist.get_component(ref)
-            w, h = comp.width, comp.height
+            w, _h = comp.width, comp.height
 
             # Component bounding box should be within margin
             assert x - w / 2 >= margin or x - w / 2 >= 0, f"{ref} too close to left"

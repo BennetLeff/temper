@@ -234,7 +234,7 @@ class LoopAreaLoss(LossFunction):
         trace = Trace.empty()
 
         for loop in context.loop_constraints:
-            area = result.breakdown.get(loop.name, 0.0)
+            area = result.breakdown.get(loop.name, 0.0)  # type: ignore[union-attr]
             penalty = float(loop.weight * jnp.maximum(0, area - loop.max_area)**2 * self.area_penalty_scale)
 
             if penalty > 1e-4:

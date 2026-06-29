@@ -12,8 +12,10 @@ def test_netlist_to_graph():
     c2 = Component(ref="U1", footprint="SOIC-8", bounds=(5, 4)) # 8 pins
 
     # Add pins
-    for i in range(2): c1.pins.append(None)
-    for i in range(8): c2.pins.append(None)
+    for _i in range(2):
+        c1.pins.append(None)
+    for _i in range(8):
+        c2.pins.append(None)
 
     nets = [Net(name="N1", pins=[("R1", "1"), ("U1", "1")])]
     netlist = Netlist(components=[c1, c2], nets=nets)

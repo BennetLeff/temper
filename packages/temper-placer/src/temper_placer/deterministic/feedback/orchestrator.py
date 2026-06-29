@@ -102,7 +102,7 @@ class AutomatedZeroDRC:
                 zone_dict[z.name] = {
                     "bounds": ((z.bounds[0], z.bounds[1]), (z.bounds[2], z.bounds[3])),
                     "max_size": z.max_size
-                    or (self.config.board_width_mm, self.config.board_height_mm),
+                    or (self.config.board_width_mm, self.config.board_height_mm),  # type: ignore[union-attr]
                     "can_expand": z.can_expand,
                 }
         else:

@@ -78,7 +78,7 @@ class WirelengthLoss(LossFunction):
         self.net_weight_scale = net_weight_scale
         self.net_weights = net_weights or {}
 
-    def _get_alpha(self, epoch: int, total_epochs: int) -> float:
+    def _get_alpha(self, epoch: int, total_epochs: int) -> float | Array:
         """
         Compute alpha based on current epoch for annealing.
 
@@ -213,7 +213,7 @@ class WirelengthLoss(LossFunction):
         pin_positions: Array,
         mask: Array,
         weights: Array,
-        alpha: float,
+        alpha: float | Array,
         return_sum: bool = True,
     ) -> Array:
         """
@@ -258,7 +258,7 @@ class WirelengthLoss(LossFunction):
             return jnp.sum(weighted_hpwl)
         return weighted_hpwl
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
         """
         Wirelength is active from the start but with lower weight initially.
 
@@ -360,7 +360,7 @@ class SteinerTreeLoss(WirelengthLoss):
         pin_positions: Array,
         mask: Array,
         weights: Array,
-        alpha: float,
+        alpha: float | Array,
         return_sum: bool = True,
     ) -> Array:
         """

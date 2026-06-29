@@ -8,8 +8,7 @@ import socket
 import threading
 import time
 from dataclasses import dataclass, field
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from pathlib import Path
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
@@ -241,5 +240,5 @@ class _SSEClient:
         self._wfile = wfile
 
     def write(self, data: str) -> None:
-        self._wfile.write(f"data: {data}\n\n".encode("utf-8"))
+        self._wfile.write(f"data: {data}\n\n".encode())
         self._wfile.flush()

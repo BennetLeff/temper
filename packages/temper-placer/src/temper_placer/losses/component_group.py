@@ -72,7 +72,7 @@ class ComponentGroupLoss(LossFunction):
         Returns:
             LossResult with total group spread penalty
         """
-        total_penalty = 0.0
+        total_penalty = jnp.array(0.0)
 
         for group in self.groups:
             # Get indices of components in this group

@@ -61,7 +61,7 @@ class PinAccessibilityLoss(LossFunction):
         offsets = context.netlist_data.net_pin_offsets
         mask = context.netlist_data.net_pin_mask
 
-        if indices.shape[0] == 0:
+        if indices.shape[0] == 0:  # type: ignore[union-attr]
             return LossResult(value=jnp.array(0.0))
 
         # Get rotation matrices for all components: (N, 2, 2)
@@ -79,9 +79,9 @@ class PinAccessibilityLoss(LossFunction):
         pin_positions = positions[indices] + rotated_offsets
 
         # Flatten pins: (M*P, 2)
-        flat_pins = pin_positions.reshape(-1, 2)
-        flat_mask = mask.reshape(-1)
-        flat_comp_indices = indices.reshape(-1) # component index for each pin
+        flat_pins = pin_positions.reshape(-1, 2)  # type: ignore[union-attr]
+        flat_mask = mask.reshape(-1)  # type: ignore[union-attr]
+        flat_comp_indices = indices.reshape(-1)  # type: ignore[union-attr]
 
         n_pins = flat_pins.shape[0]
         n_comps = positions.shape[0]
@@ -114,7 +114,7 @@ class PinAccessibilityLoss(LossFunction):
         dist = jnp.sqrt(dist_sq + 1e-9)
 
         # Only penalize if from different nets.
-        net_indices = jnp.arange(indices.shape[0])
+        net_indices = jnp.arange(indices.shape[0])  # type: ignore[union-attr]
         pin_net_indices = jnp.repeat(net_indices, context.netlist_data.max_pins_per_net)
 
         # net_mask_pp: (N_pins, N_pins) True if pins are on different nets

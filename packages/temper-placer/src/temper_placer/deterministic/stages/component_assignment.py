@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class ComponentAssignmentStage(Stage):
     """Assign components to slots with multi-slot reservation for large footprints."""
 
-    def __init__(self, slot_spacing: float = 12.0, fixed_placements: dict[str, dict] = None):
+    def __init__(self, slot_spacing: float = 12.0, fixed_placements: dict[str, dict] | None = None):
         """Initialize with slot spacing and optional fixed placements.
 
         Args:

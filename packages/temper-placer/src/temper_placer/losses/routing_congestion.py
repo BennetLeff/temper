@@ -53,7 +53,7 @@ class RoutingCongestionLoss(LossFunction):
 
         # 2. Add batch dimension for N components if needed?
         # grid_pos is (N, 2). map_coordinates expects coords as (rank, N)
-        coords = grid_pos.T  # (2, N)
+        coords = (grid_pos[:, 0], grid_pos[:, 1])  # (rank, N) as Sequence
 
         # 3. Sample heatmap
         congestion_values = map_coordinates(self.heatmap, coords, order=1, mode='nearest')

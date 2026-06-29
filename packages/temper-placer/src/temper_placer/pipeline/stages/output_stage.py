@@ -39,7 +39,7 @@ class OutputStage:
         ps = state.placement_state
         if ps is None:
             deterministic_result = context.get("deterministic_result")
-            ps = PlacementState.from_positions(jnp.array(deterministic_result.positions))
+            ps = PlacementState.from_positions(jnp.array(deterministic_result.positions))  # type: ignore[union-attr]
 
         try:
             write_result = export_placements(input_pcb_path, output_pcb_path, ps,

@@ -16,7 +16,7 @@ from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
 
 if TYPE_CHECKING:
-    from temper_placer.core.state import BoardState
+    from temper_placer.deterministic.state import BoardState
 
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias

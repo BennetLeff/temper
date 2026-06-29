@@ -20,7 +20,7 @@ from temper_placer.io.config_loader import HVExclusionZone
 
 def test_empty_grid_all_available():
     grid = ClearanceGrid(width_mm=50, height_mm=50, cell_size_mm=0.5)
-    assert grid.is_available(25, 25) == True
+    assert grid.is_available(25, 25)
     assert grid.blocked_count == 0
 
 def test_block_pad_with_clearance():
@@ -30,16 +30,16 @@ def test_block_pad_with_clearance():
     grid.block_circle(center=(25, 25), radius_mm=0.5, clearance_mm=0.3)
 
     # Center should be blocked
-    assert grid.is_available(25, 25) == False
+    assert not grid.is_available(25, 25)
 
     # 0.5mm away (within pad) should be blocked
-    assert grid.is_available(25.4, 25) == False
+    assert not grid.is_available(25.4, 25)
 
     # 0.9mm away (within clearance) should be blocked
-    assert grid.is_available(25.7, 25) == False
+    assert not grid.is_available(25.7, 25)
 
     # 1.0mm away (outside clearance) should be available
-    assert grid.is_available(26.0, 25) == True
+    assert grid.is_available(26.0, 25)
 
 def test_grid_is_deterministic():
     '''Same input produces same blocked cells.'''
@@ -61,17 +61,17 @@ def test_block_trace():
     grid.block_trace(path, width_mm=1.0, clearance_mm=0.0)
 
     # Points along the line should be blocked
-    assert grid.is_available(20, 25) == False
-    assert grid.is_available(25, 25) == False
-    assert grid.is_available(30, 25) == False
+    assert not grid.is_available(20, 25)
+    assert not grid.is_available(25, 25)
+    assert not grid.is_available(30, 25)
 
     # Points just outside width should be available
-    assert grid.is_available(25, 25.6) == True
-    assert grid.is_available(25, 24.4) == True
+    assert grid.is_available(25, 25.6)
+    assert grid.is_available(25, 24.4)
 
     # Points at ends should be blocked within radius
-    assert grid.is_available(19.6, 25) == False
-    assert grid.is_available(19.4, 25) == True
+    assert not grid.is_available(19.6, 25)
+    assert grid.is_available(19.4, 25)
 
 
 # =============================================================================
@@ -289,7 +289,7 @@ def test_expansion_circular_pad_grows_radius():
     within one cell, not conservatively over-blocked."""
     cell = 0.5
     pos = (25.0, 25.0)
-    eff = 6.0
+    _eff = 6.0
     pad_w = 2.0  # -> pad_radius = 1.0
 
     pin = Pin(name="1", number="1", position=(0.0, 0.0), net="HV",
@@ -333,7 +333,7 @@ def test_expansion_rect_pad_grows_each_side():
     """A rect HV pad on F.Cu is blocked at corners offset by (eff, eff) from
     the rect bbox, not blocked just outside."""
     cell = 0.5
-    eff = 6.0
+    _eff = 6.0
     pos = (25.0, 25.0)
     pad_w, pad_h = 2.0, 1.0
 
@@ -377,9 +377,9 @@ def test_expansion_rect_pad_grows_each_side():
 def test_expansion_inner_layer_uses_reduced_factor():
     """On In1.Cu, the blocked radius is pad_r + 1.8, not pad_r + 6.0."""
     cell = 0.5
-    pad_r = 1.0
+    _pad_r = 1.0
     pos = (25.0, 25.0)
-    eff_inner = 6.0 * 0.30  # 1.8
+    _eff_inner = 6.0 * 0.30  # 1.8
 
     pin = Pin(name="1", number="1", position=(0.0, 0.0), net="HV",
               shape="circle", layer="In1.Cu", width=2.0, height=2.0)
@@ -704,7 +704,7 @@ def test_fence_pipeline_halts_on_violation():
     assert _EXPANSION_LOG, "expansion log should have an entry from first run"
     entry = _EXPANSION_LOG[0]
     (_ref, _pin, layer_idx, pos, _shape, _radius, _size, _eff, _cells) = entry
-    cell = grid.cell_size_mm
+    _cell = grid.cell_size_mm
 
     # Build a fresh state and run a fresh stage; the stage will rebuild
     # the grid from scratch but reusing the module-level _EXPANSION_LOG

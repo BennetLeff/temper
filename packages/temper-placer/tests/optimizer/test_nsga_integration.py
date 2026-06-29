@@ -53,8 +53,8 @@ def test_nsga_optimization_tradeoff():
     obj_vals = result.objectives[jnp.array(result.best_indices)]
 
     # Find min wirelength solution
-    min_wl_idx = jnp.argmin(obj_vals[:, 0])
-    max_wl_idx = jnp.argmax(obj_vals[:, 0])
+    jnp.argmin(obj_vals[:, 0])
+    jnp.argmax(obj_vals[:, 0])
 
 
 def test_nsga_fixed_components_never_move():
@@ -145,7 +145,7 @@ def test_pipeline_with_nsga():
     opt_config = OptimizerConfig.fast_test()
     context = LossContext.from_netlist_and_board(netlist, board)
 
-    def loss_factory(weights):
+    def loss_factory(_weights):
         return CompositeLoss([WeightedLoss(WirelengthLoss(), weight=1.0)])
 
     pipeline = OptimizationPipeline(

@@ -419,7 +419,7 @@ class ChannelSkeletonStage(Stage):
         pcb: ParsedPCB = state._parsed_pcb
         routing_spaces = state.routing_spaces
         skeletons: dict[str, ChannelSkeleton] = {}
-        outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}
+        outer_layers = {k: v for k, v in routing_spaces.items() if k in ("F.Cu", "B.Cu")}  # type: ignore[union-attr]
         for layer_name, routing_space in outer_layers.items():
             skeleton = extract_channel_skeleton(routing_space, pcb=pcb)
             skeletons[layer_name] = skeleton

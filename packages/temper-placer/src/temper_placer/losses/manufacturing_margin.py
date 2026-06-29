@@ -298,7 +298,7 @@ class ManufacturingMarginLoss(LossFunction):
 
         return LossResult(value=weighted_loss, breakdown=breakdown)
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
         """Manufacturing margin is introduced after initial placement.
 
         Starts at 50% weight, reaches full weight at 30% of training.

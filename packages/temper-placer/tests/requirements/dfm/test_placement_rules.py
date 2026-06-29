@@ -118,19 +118,19 @@ except ImportError:
         else:
             return "QFN"
 
-    def check_component_spacing(*args, **kwargs):
+    def check_component_spacing(*_args, **_kwargs):
         return PlacementResult(passed=True, violations=[])
 
-    def check_component_orientation(*args, **kwargs):
+    def check_component_orientation(*_args, **_kwargs):
         return PlacementResult(passed=True, violations=[])
 
-    def check_fiducial_placement(*args, **kwargs):
+    def check_fiducial_placement(*_args, **_kwargs):
         return PlacementResult(passed=True, violations=[])
 
-    def check_antenna_keepout(*args, **kwargs):
+    def check_antenna_keepout(*_args, **_kwargs):
         return PlacementResult(passed=True, violations=[])
 
-    def check_pick_and_place_compliance(*args, **kwargs):
+    def check_pick_and_place_compliance(*_args, **_kwargs):
         return PlacementResult(passed=True, violations=[])
 
     def get_spacing_requirements():
@@ -369,7 +369,7 @@ class TestSpacingRequirements:
         assert package_requirements["recommended_mm"] == expected_recommended
 
 
-def test_esp32_module_has_most_restrictive_requirements(self):
+def test_esp32_module_has_most_restrictive_requirements(_self):
     """Test that ESP32 module has the most restrictive spacing requirements."""
     requirements = get_spacing_requirements()
     esp32_req = requirements["ESP32_MODULE"]
@@ -636,7 +636,7 @@ class TestFiducialPlacement:
 class TestESP32AntennaKeepout:
     """Tests for ESP32-S3-WROOM antenna keepout requirements."""
 
-    def test_adequate_antenna_keepout_passes(self, esp32_placement):
+    def test_adequate_antenna_keepout_passes(self, _esp32_placement):
         """Placement with adequate antenna keepout should pass."""
         board_dims = (100, 100)
         esp32_pos = (50, 50)
@@ -647,7 +647,7 @@ class TestESP32AntennaKeepout:
         assert result.passed
         assert result.error_count == 0
 
-    def test_copper_in_antenna_keepout_fails(self, esp32_antenna_violation):
+    def test_copper_in_antenna_keepout_fails(self, _esp32_antenna_violation):
         """Placement with copper in antenna keepout should fail."""
         board_dims = (100, 100)
         esp32_pos = (10, 10)
@@ -684,7 +684,7 @@ class TestESP32AntennaKeepout:
         # Should pass if no copper in keepout zone
         assert result.passed or not result.passed  # Depends on implementation
 
-    def test_antenna_keepout_violation_details(self, esp32_antenna_violation):
+    def test_antenna_keepout_violation_details(self, _esp32_antenna_violation):
         """Test that antenna keepout violations include required details."""
         board_dims = (100, 100)
         esp32_pos = (10, 10)
@@ -762,7 +762,7 @@ class TestPickAndPlaceCompliance:
         result = check_pick_and_place_compliance(esp32_placement, good_fiducials, board_dims)
 
         # Should include antenna keepout check
-        antenna_violations = [v for v in result.violations if v.violation_type == "antenna"]
+        _antenna_violations = [v for v in result.violations if v.violation_type == "antenna"]
         # May or may not have violations depending on placement
 
     def test_validation_result_aggregation(self):
@@ -788,7 +788,7 @@ class TestPickAndPlaceCompliance:
     def test_all_requirement_types_checked(self):
         """Test that all requirement types from REQ-DFM-01 are checked."""
         # This test verifies the integration function checks all required aspects
-        requirements = get_spacing_requirements()
+        _requirements = get_spacing_requirements()
 
         # The compliance function should check all these aspects
         expected_checks = ["spacing", "orientation", "fiducial", "antenna"]

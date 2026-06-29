@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 def calculate_actual_trace_length(board: Board, net_name: str) -> float:
     """Calculate total routed length of a specific net."""
     length = 0.0
-    for trace in board.traces:
+    for trace in board.traces:  # type: ignore[attr-defined]
         if trace.net == net_name:
             dx = trace.end[0] - trace.start[0]
             dy = trace.end[1] - trace.start[1]
@@ -35,7 +35,7 @@ def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
     """
     # 1. Collect all trace endpoints
     points = []
-    for trace in board.traces:
+    for trace in board.traces:  # type: ignore[attr-defined]
         if trace.net in net_names:
             points.append(trace.start)
             points.append(trace.end)
@@ -62,8 +62,8 @@ def calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]) -> 
     """
     Calculate minimum physical distance between any HV trace and any LV trace.
     """
-    hv_traces = [t for t in board.traces if net_classes.get(t.net) == "HighVoltage"]
-    lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]
+    hv_traces = [t for t in board.traces if net_classes.get(t.net) == "HighVoltage"]  # type: ignore[attr-defined]
+    lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]  # type: ignore[attr-defined]
 
     if not hv_traces or not lv_traces:
         return float('inf')

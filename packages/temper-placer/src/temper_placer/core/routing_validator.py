@@ -23,7 +23,7 @@ class RoutingValidator:
         self.master_resolution = 0.05 # 50 micron granularity for "is-occupied" checking
 
     def _grid_to_world(self, gx: int, gy: int) -> tuple[float, float]:
-        return (str(gx * self.cell_size), str(gy * self.cell_size)) # Approximation for reporting
+        return (str(gx * self.default_cell_size), str(gy * self.default_cell_size)) # Approximation for reporting
 
     def validate(self,
                  routed_paths: dict[str, Any], # dict[net_name, list[GridCell]]

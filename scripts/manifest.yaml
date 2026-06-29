@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-06-24'
-  total_scripts: 25
+  total_scripts: 26
   counts:
-    keep: 23
+    keep: 24
   ticket_scripts_deleted: 40
 scripts:
 - path: add_power_planes.py
@@ -587,6 +587,28 @@ scripts:
   - os
   - pathlib
   - re
+  - sys
+- path: update_regression_cache.py
+  purpose: Update .regression-cache.json from regression reports for incremental corpus regression
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+    imports:
+      - argparse
+      - json
+      - pathlib
+      - subprocess
+      - sys
+  - argparse
+  - json
+  - pathlib
+  - subprocess
+  - sys
+  - argparse
+  - json
+  - pathlib
+  - subprocess
   - sys
 - path: validate_footprints.py
   purpose: Validate footprint assignments (shell-invoked)

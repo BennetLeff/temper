@@ -33,7 +33,7 @@ def andon(input_pcb: str, loops: str | None, constraints: str | None,
     if dry_run:
         config_kwargs["dry_run"] = True
 
-    orchestrator = PipelineOrchestrator.from_config(**config_kwargs)
+    orchestrator = PipelineOrchestrator.from_config(**config_kwargs)  # type: ignore[attr-defined]
 
     pipeline_kwargs: dict = {"input_pcb": Path(input_pcb)}
     if loops:

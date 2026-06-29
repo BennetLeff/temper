@@ -162,7 +162,7 @@ def test_force_directed_large_board():
     larger boards. The fix uses actual board dimensions.
     """
     # Create a large 300x250mm board
-    board = Board(width=300.0, height=250.0, origin=(0.0, 0.0))
+    Board(width=300.0, height=250.0, origin=(0.0, 0.0))
 
     # Use a fixed component to test bounds at edge of board
     components = [
@@ -213,7 +213,7 @@ def test_force_directed_small_board():
     On boards smaller than 200mm, components should stay within actual bounds.
     """
     # Create a small 50x50mm board
-    board = Board(width=50.0, height=50.0, origin=(0.0, 0.0))
+    Board(width=50.0, height=50.0, origin=(0.0, 0.0))
 
     components = [
         Component(ref="U1", footprint="0603", bounds=(2.0, 1.0)),
@@ -252,7 +252,7 @@ def test_force_directed_nonzero_origin():
     boards with arbitrary origins.
     """
     # Board with origin at (10, 20)
-    board = Board(width=100.0, height=100.0, origin=(10.0, 20.0))
+    Board(width=100.0, height=100.0, origin=(10.0, 20.0))
 
     components = [
         Component(ref="U1", footprint="QFP", bounds=(5.0, 5.0)),
@@ -313,7 +313,7 @@ def test_force_directed_unfolding_uses_board_dimensions():
     assert result.success
 
     # Verify placements respect large board bounds
-    for ref, placement in result.placements.items():
+    for _ref, placement in result.placements.items():
         x, y = placement.position
         assert x >= 0.0 and x <= 300.0, f"X={x} out of bounds for 300mm board"
         assert y >= 0.0 and y <= 250.0, f"Y={y} out of bounds for 250mm board"

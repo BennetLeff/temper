@@ -33,11 +33,7 @@ from temper_placer.router_v6.adapter import MazeRouter
 from temper_placer.router_v6.congestion import analyze_congestion
 
 if TYPE_CHECKING:
-    from temper_placer.router_v6.diagnostics import (
-        PlacementAdjustment,
-        RoutingDiagnostic,
-        RoutingReport,
-    )
+    pass
 from temper_placer.router_v6.layer_assignment import LayerAssignment, assign_layers  # noqa: E402
 from temper_placer.router_v6.net_ordering import order_nets  # noqa: E402
 
@@ -198,7 +194,7 @@ class RoutingVerifier:
         router.block_components(netlist.components, positions)
 
         # Route all nets
-        routing_results = router.route_all_nets(
+        routing_results = router.rrr_route_all_nets(
             netlist,
             positions,
             net_ordering,
@@ -206,8 +202,8 @@ class RoutingVerifier:
         )
 
         # Compute metrics
-        total = routing_results.success_count + routing_results.failure_count
-        completion_rate = routing_results.success_count / total if total > 0 else 0.0
+        total = routing_results.success_count + routing_results.failure_count  # type: ignore[attr-defined]
+        completion_rate = routing_results.success_count / total if total > 0 else 0.0  # type: ignore[attr-defined]
         result.completion_rate = completion_rate
         result.feasible = completion_rate >= 1.0
 

@@ -138,7 +138,7 @@ class ConstraintCompiler:
                     other = rule.component_b if component == rule.component_a else rule.component_a
                     if other in placements:
                         dist = self._distance(slot, placements[other])
-                        if dist > rule.max_distance_mm:
+                        if dist > rule.max_distance_mm:  # type: ignore[attr-defined]
                             return False  # Too far - reject
 
             # 3. Escape clearance (hard mode)
@@ -240,9 +240,9 @@ class ConstraintCompiler:
                 other = rule.component_b if component == rule.component_a else rule.component_a
                 if other in placements:
                     dist = self._distance(slot, placements[other])
-                    if dist < rule.min_separation_mm:
+                    if dist < rule.min_separation_mm:  # type: ignore[attr-defined]
                         # Weight acts as penalty multiplier
-                        score += (rule.min_separation_mm - dist) * rule.weight
+                        score += (rule.min_separation_mm - dist) * rule.weight  # type: ignore[attr-defined]
 
             # 5. Escape clearance (soft mode) - prefer not blocking escapes
             for ec in self.constraints.escape_clearances:

@@ -64,7 +64,7 @@ def compute_routing_channel_penalty(
         Scalar penalty value
     """
     n = positions.shape[0]
-    total_penalty = 0.0
+    total_penalty = jnp.array(0.0)
 
     # Extract half-widths and half-heights
     half_widths = bounds[:, 0] / 2
@@ -224,7 +224,7 @@ class MCUClusteringLoss(LossFunction):
             LossResult with clustering penalty
         """
         mcu_pos = positions[self.mcu_index]
-        total_penalty = 0.0
+        total_penalty = jnp.array(0.0)
 
         for idx in self.peripheral_indices:
             dist = jnp.sqrt(
@@ -352,7 +352,7 @@ class BusAlignmentLoss(LossFunction):
         Returns:
             LossResult with alignment penalty
         """
-        total_penalty = 0.0
+        total_penalty = jnp.array(0.0)
 
         for group in self.bus_groups:
             if len(group) < 2:

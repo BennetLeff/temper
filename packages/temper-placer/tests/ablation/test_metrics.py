@@ -15,7 +15,7 @@ class TestAggregatedMetrics:
 
     def test_aggregated_metrics_creation(self):
         """Should create AggregatedMetrics with all fields."""
-        now = datetime.now()
+        datetime.now()
 
         metrics = AggregatedMetrics(
             experiment_name="baseline",
@@ -128,7 +128,7 @@ class TestMetricAggregator:
         results = aggregator.aggregate(runs)
 
         assert len(results) == 2
-        assert set(r.experiment_name for r in results) == {"exp1", "exp2"}
+        assert {r.experiment_name for r in results} == {"exp1", "exp2"}
 
     def test_aggregate_multiple_test_cases(self):
         """Should aggregate multiple test cases separately."""
@@ -158,7 +158,7 @@ class TestMetricAggregator:
         results = aggregator.aggregate(runs)
 
         assert len(results) == 2
-        assert set(r.test_case for r in results) == {"test1.kicad_pcb", "test2.kicad_pcb"}
+        assert {r.test_case for r in results} == {"test1.kicad_pcb", "test2.kicad_pcb"}
 
     def test_compute_mean_std(self, sample_runs):
         """Should correctly compute mean and standard deviation."""

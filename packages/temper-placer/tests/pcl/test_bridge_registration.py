@@ -1,14 +1,13 @@
 """TS4: CI gate — bridge registration completeness."""
 
-import pytest
 
 from temper_placer.pcl.constraints import (
     BaseConstraint,
     CompilationTarget,
     ConstraintType,
 )
-from temper_placer.pcl.sat_bridge import TYPE_HANDLERS as SAT_TYPE_HANDLERS
 from temper_placer.pcl.drc_bridge import TYPE_HANDLERS as DRC_TYPE_HANDLERS
+from temper_placer.pcl.sat_bridge import TYPE_HANDLERS as SAT_TYPE_HANDLERS
 
 
 class TestBridgeRegistrationCompleteness:
@@ -18,9 +17,8 @@ class TestBridgeRegistrationCompleteness:
         """Each type with SAT in supported_targets has a SAT handler."""
         missing = []
         for ct in ConstraintType:
-            if CompilationTarget.SAT in ct.supported_targets:
-                if ct not in SAT_TYPE_HANDLERS:
-                    missing.append(ct)
+            if CompilationTarget.SAT in ct.supported_targets and ct not in SAT_TYPE_HANDLERS:
+                missing.append(ct)
         assert not missing, (
             f"ConstraintType(s) with SAT support but no handler: {missing}"
         )
@@ -29,9 +27,8 @@ class TestBridgeRegistrationCompleteness:
         """Each type with DRC in supported_targets has a DRC handler."""
         missing = []
         for ct in ConstraintType:
-            if CompilationTarget.DRC in ct.supported_targets:
-                if ct not in DRC_TYPE_HANDLERS:
-                    missing.append(ct)
+            if CompilationTarget.DRC in ct.supported_targets and ct not in DRC_TYPE_HANDLERS:
+                missing.append(ct)
         assert not missing, (
             f"ConstraintType(s) with DRC support but no handler: {missing}"
         )

@@ -27,7 +27,7 @@ def _make_constraints(priority: dict | None = None) -> PlacementConstraints:
 
 
 def _make_state(
-    constraints: PlacementConstraints,
+    _constraints: PlacementConstraints,
     *,
     component_domain_map: frozenset = frozenset(),
     domain_regions: tuple = (),

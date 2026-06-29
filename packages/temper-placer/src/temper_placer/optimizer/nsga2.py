@@ -1414,15 +1414,15 @@ def select_knee_point(
     else:
         # Multi-objective (M > 2): use hyperplane distance or L2 norm
         # Find extreme point for each objective
-        extreme_points = []
+        extreme_points: list[Array] = []
         for obj_idx in range(n_objectives):
             min_idx = int(jnp.argmin(normalized[:, obj_idx]))
             extreme_points.append(normalized[min_idx])
 
-        extreme_points = jnp.array(extreme_points)
+        extreme_points_arr = jnp.array(extreme_points)
 
         # Compute centroid of extreme points
-        centroid = jnp.mean(extreme_points, axis=0)
+        centroid = jnp.mean(extreme_points_arr, axis=0)
 
         # Compute normal vector to the hyperplane (approximate)
         # Use the direction from centroid towards the ideal point (origin)

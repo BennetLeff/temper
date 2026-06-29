@@ -1,7 +1,7 @@
 """Unit tests for RoutabilityAggregator."""
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
 from temper_placer.router_v6.routability_aggregator import RoutabilityAggregator
 

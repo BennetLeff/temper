@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 from unittest.mock import patch
 
@@ -17,10 +18,9 @@ from temper_placer.pipeline.metrics_observer import (
     CrossValidationError,
     MetricsObserver,
 )
-from temper_placer.regression.schema_validator import SchemaValidationError, SchemaValidator
 from temper_placer.pipeline.state import PipelineConfig, PipelineState
 from temper_placer.regression.metrics_recorder import load_metrics
-
+from temper_placer.regression.schema_validator import SchemaValidationError, SchemaValidator
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -213,10 +213,8 @@ class TestCrossValidationError:
         execution_log.stage_timings["bad_stage"] = 0.0
         observer = MetricsObserver(tmp_path / "metrics", execution_log)
 
-        try:
+        with contextlib.suppress(CrossValidationError):
             observer.on_stage_complete("bad_stage", 5.234, {})
-        except CrossValidationError:
-            pass
 
         metrics_path = tmp_path / "metrics" / "pipeline_metrics.jsonl"
         records = load_metrics(metrics_path)

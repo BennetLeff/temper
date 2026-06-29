@@ -77,7 +77,7 @@ def test_sequential_counter_exhaustive_n1_to_n8():
 
     # Sanity: we checked the expected number of assignments
     # sum_{n=1..8} sum_{k=0..n-1} (2^n) = sum_{n=1..8} n * 2^n
-    expected_total = sum(n * (1 << n) for n in range(1, 9))
+    sum(n * (1 << n) for n in range(1, 9))
     # We can't easily track a global counter in pytest, but this is
     # covered by the assertion messages above.
 
@@ -247,7 +247,7 @@ def test_inductive_extension_capacity():
 
 
 def _check_encoding(
-    sat_model, n: int, k: int, vars_list: list
+    sat_model, n: int, k: int, _vars_list: list
 ) -> list[str]:
     """Check all 2^n assignments for (n, k) — returns failure messages."""
 

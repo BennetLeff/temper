@@ -7,6 +7,7 @@ quality metrics against version-controlled baselines.
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -171,10 +172,45 @@ class CorpusManifest:
 class CorpusRegressionRunner:
     """Runs optimizer-based regression on corpus boards."""
 
-    def __init__(self, corpus_root: Path):
+    def __init__(
+        self,
+        corpus_root: Path,
+        repo_root: Path | None = None,
+        skip_unchanged: bool = False,
+    ):
         self.corpus_root = corpus_root
         manifest_path = corpus_root / "manifest.yaml"
         self.manifest = CorpusManifest.load(manifest_path)
+        self.skip_unchanged = skip_unchanged
+        self._repo_root = repo_root or self._find_repo_root()
+        self._source_fingerprint: str | None = None
+        self._cache: dict | None = None
+
+        if skip_unchanged:
+            from temper_placer.regression.fingerprint import (
+                compute_source_fingerprint,
+                load_cache,
+            )
+            self._source_fingerprint = compute_source_fingerprint(self._repo_root)
+            self._cache = load_cache(corpus_root)
+
+    @staticmethod
+    def _find_repo_root() -> Path:
+        p = Path.cwd()
+        while not (p / ".git").exists() and p != p.parent:
+            p = p.parent
+        return p
+
+    @staticmethod
+    def _get_git_sha() -> str:
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                capture_output=True, text=True, timeout=5,
+            )
+            return result.stdout.strip()
+        except Exception:
+            return ""
 
     def run(
         self,
@@ -190,6 +226,16 @@ class CorpusRegressionRunner:
         for entry in self.manifest.boards:
             if boards and entry.id not in boards:
                 continue
+
+            if self._should_skip_board(entry):
+                results.append(CorpusBoardResult(
+                    board_id=entry.id,
+                    passed=True,
+                    skipped=True,
+                    skip_reason="Inputs unchanged since last green run",
+                ))
+                continue
+
             result = self._run_board(entry)
             results.append(result)
 
@@ -199,6 +245,27 @@ class CorpusRegressionRunner:
         self._print_summary(results)
 
         return 1 if any(r.failed for r in results) else 0
+
+    def _should_skip_board(self, entry: CorpusEntry) -> bool:
+        if not self.skip_unchanged or self._cache is None:
+            return False
+        from temper_placer.regression.fingerprint import (
+            compute_input_fingerprint,
+            should_skip,
+        )
+        input_fp = compute_input_fingerprint(
+            entry.pcb_path(self.corpus_root),
+            entry.constraints_path(self.corpus_root),
+            entry.baseline_path(self.corpus_root),
+            manifest_seed=entry.seed,
+            manifest_epochs=entry.epochs,
+        )
+        return should_skip(
+            entry.id,
+            input_fp,
+            self._source_fingerprint or "",
+            self._cache,
+        )
 
     def _run_board(self, entry: CorpusEntry) -> CorpusBoardResult:
         board_id = entry.id
@@ -398,8 +465,8 @@ class CorpusRegressionRunner:
 
             hpwl_val = 0.0
             try:
-                from temper_placer.losses.wirelength import compute_hpwl
-                hpwl_val = float(compute_hpwl(result.final_state, netlist))
+                from temper_placer.losses.wirelength import compute_total_hpwl
+                hpwl_val = float(compute_total_hpwl(result.final_state, netlist))
             except Exception:
                 pass
 
@@ -415,9 +482,10 @@ class CorpusRegressionRunner:
             # NaN at epoch 0 often means the initial placement is degenerate.
             # Retry once with random positions as a fallback.
             if "Non-finite" in err_msg:
+                from dataclasses import replace as dc_replace
+
                 import jax
                 import jax.numpy as jnp
-                from dataclasses import replace as dc_replace
                 k1, k2 = jax.random.split(rng_key)
                 margin = min(2.0, board.width * 0.1, board.height * 0.1)
                 ox, oy = board.origin

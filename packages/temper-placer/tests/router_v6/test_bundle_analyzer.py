@@ -9,13 +9,9 @@ import math
 
 import networkx as nx
 import pytest
-from shapely.geometry import Point, Polygon
 
 from temper_placer.router_v6.bundle_analyzer import (
     BundleAnalyzer,
-    BundleClass,
-    BundleManifest,
-    TypeSignature,
 )
 
 
@@ -107,7 +103,7 @@ class MockSkeleton:
         self.graph = graph or nx.Graph()
 
 
-def make_line_skeleton(layer_name: str, points: list[tuple[float, float]]) -> MockSkeleton:
+def make_line_skeleton(_layer_name: str, points: list[tuple[float, float]]) -> MockSkeleton:
     """Create a skeleton graph as a simple path through points."""
     G = nx.Graph()
     for i in range(len(points)):
@@ -121,7 +117,7 @@ def make_line_skeleton(layer_name: str, points: list[tuple[float, float]]) -> Mo
 
 
 def make_grid_skeleton(
-    layer_name: str, x_range: tuple[float, float], y_range: tuple[float, float],
+    _layer_name: str, x_range: tuple[float, float], y_range: tuple[float, float],
     spacing: float = 10.0,
 ) -> MockSkeleton:
     """Create a grid skeleton graph with regular spacing."""

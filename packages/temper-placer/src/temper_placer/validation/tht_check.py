@@ -30,7 +30,7 @@ def validate_hole_clearance(
     # Extract all holes with their absolute positions
     for i, comp in enumerate(netlist.components):
         pos = positions[i]
-        for pad in comp.pads:
+        for pad in comp.pads:  # type: ignore[attr-defined]
             if pad.drill > 0:
                 # Calculate absolute position (assuming 0 rotation for now)
                 # TODO: Support rotation

@@ -174,7 +174,7 @@ class ChannelCapacityLoss(LossFunction):
         Returns:
             (N, N) matrix of estimated trace demand.
         """
-        n = context.bounds.shape[0]
+        n = context.bounds.shape[0]  # type: ignore[union-attr]
 
         # Use pre-computed net pin indices from context
         # net_pin_indices: (M, P) where M=num_nets, P=max_pins_per_net

@@ -144,7 +144,7 @@ def auto_layout_pcb(
             conflicts,
             grid_size=router.grid_size,
             cell_size_mm=cell_size_mm,
-            origin=board.origin
+        origin=jnp.array(board.origin)
         )
         prev_results = results
 
@@ -193,7 +193,7 @@ def optimize_placement_with_feedback(
         congestion_heatmap,
         weight=1.0,
         cell_size_mm=cell_size_mm,
-        origin=board.origin
+        origin=jnp.array(board.origin)
     )
 
     def combined_loss(pos):

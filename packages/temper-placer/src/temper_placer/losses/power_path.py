@@ -233,7 +233,7 @@ def create_power_path_loss(
 
     for config in loop_configs:
         idxs = []
-        for d in config.components:
+        for d in config.components:  # type: ignore[attr-defined]
             if d in comp_name_to_idx:
                 idxs.append(comp_name_to_idx[d])
             else:

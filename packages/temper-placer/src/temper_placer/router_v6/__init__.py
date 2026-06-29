@@ -50,6 +50,12 @@ def __getattr__(name: str):  # noqa: D401 — module-level dunder
     raise AttributeError(f"module 'temper_placer.router_v6' has no attribute {name!r}")
 
 
+from temper_placer.router_v6.adapter import (
+    RoutingResult,
+    V6RouterAdapter,
+    _AdapterRoutePath,
+    route_pcb,
+)
 from temper_placer.router_v6.constraint_model import (
     ESL_REGISTRY,
     CapacityConstraint,
@@ -97,12 +103,6 @@ from temper_placer.router_v6.routing_failure_handler import (
 from temper_placer.router_v6.safety_pair_inference import (
     SafetyPair,
     infer_safety_pairs,
-)
-from temper_placer.router_v6.adapter import (
-    RoutingResult,
-    V6RouterAdapter,
-    _AdapterRoutePath,
-    route_pcb,
 )
 from temper_placer.router_v6.stage0_data import (
     DesignRules,

@@ -13,7 +13,6 @@ from temper_placer.profiling.timing_gate import (
     detect_tightenable_stages,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -401,7 +400,7 @@ class TestTightenCLI:
         assert "--threshold" in result.output
         assert "--ci" in result.output
 
-    def test_no_manifest(self, runner, tmp_repo):
+    def test_no_manifest(self, runner, _tmp_repo):
         result = runner.invoke(timing, ["tighten", "--dry-run"])
         assert result.exit_code == 0
         assert "No timing baselines" in result.output

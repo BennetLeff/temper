@@ -109,16 +109,16 @@ def profile_optimizer_memory(
         from temper_placer.fixtures.synthetic import generate_200_component_netlist
         netlist = generate_200_component_netlist(seed=seed)
         # Filter to n_components
-        if len(netlist.components) > n_components:
-            netlist.components = netlist.components[:n_components]
+        if len(netlist.components) > n_components:  # type: ignore[attr-defined]
+            netlist.components = netlist.components[:n_components]  # type: ignore[attr-defined]
 
     # Always filter/fix nets to match components
     # (in case netlist was passed with pre-sliced components)
-    kept_refs = {c.ref for c in netlist.components}
+    kept_refs = {c.ref for c in netlist.components}  # type: ignore[union-attr]
 
     # Filter nets to only include those that connect kept components
     filtered_nets = []
-    for net in netlist.nets:
+    for net in netlist.nets:  # type: ignore[union-attr]
         filtered_pins = [(ref, pin) for ref, pin in net.pins if ref in kept_refs]
         if len(filtered_pins) >= 2:  # Only keep nets with at least 2 pins
             from temper_placer.core.netlist import Net
@@ -131,7 +131,7 @@ def profile_optimizer_memory(
 
     # Create new netlist with filtered components and nets
     from temper_placer.core.netlist import Netlist
-    netlist = Netlist(components=netlist.components, nets=filtered_nets)
+    netlist = Netlist(components=netlist.components, nets=filtered_nets)  # type: ignore[union-attr]
 
     # Create board if not provided
     if board is None:

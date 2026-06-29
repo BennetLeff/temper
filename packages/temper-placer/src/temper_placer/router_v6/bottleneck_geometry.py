@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import NetClassRules
@@ -244,9 +244,8 @@ def _compute_cell_capacity(
     if current_net_class and isinstance(net_class_rules, dict):
         rule = net_class_rules.get(current_net_class)
         if rule is not None:
-            current_category = _SAFETY_RANK.get(
-                getattr(rule, "safety_category", None), 0
-            )
+            safety_cat: str | None = getattr(rule, "safety_category", None)
+            current_category = _SAFETY_RANK.get(safety_cat, 0) if isinstance(safety_cat, str) else 0
 
     pad_classes = pad_net_classes or {}
     for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
@@ -286,7 +285,7 @@ _SAFETY_RANK: dict[str, int] = {
 def _should_discount_for_neighbor(
     neighbor_cell: tuple[int, int, int],
     pad_classes: dict[tuple[int, int, int], str],
-    net_class_rules: dict[str, NetClassRules] | None,
+    net_class_rules: dict[str, NetClassRules] | NetClassRules | None,
     current_category: int | None,
 ) -> bool:
     """Return True when the neighbour pad should discount capacity.
@@ -314,7 +313,8 @@ def _should_discount_for_neighbor(
     rule = net_class_rules.get(neighbor_class)
     if rule is None:
         return True
-    neighbor_category = _SAFETY_RANK.get(getattr(rule, "safety_category", None), 0)
+    neighbor_safety_cat: str | None = getattr(rule, "safety_category", None)
+    neighbor_category = _SAFETY_RANK.get(neighbor_safety_cat, 0) if isinstance(neighbor_safety_cat, str) else 0
     return neighbor_category > current_category
 
 
@@ -381,7 +381,7 @@ def _build_capacitated_graph(
     deadline: float | None = None,
     pad_net_classes: dict[tuple[int, int, int], str] | None = None,
     current_net_class: str | None = None,
-) -> object:  # networkx.DiGraph (avoids hard import in fast path)
+) -> Any:  # networkx.DiGraph (avoids hard import in fast path)
     """Build a directed capacitated graph for s-t min-cut.
 
     Nodes are ``(layer, row, col)`` triples whose capacity is > 0 and
@@ -931,8 +931,9 @@ def analyze_bottleneck(
     # ``design_rules.net_class_assignments`` first, then fall back to
     # ``Net.net_class``.
     current_net_class: str | None = None
-    if isinstance(pin_net_class_assignments, dict) and getattr(net, "name", None):
-        current_net_class = pin_net_class_assignments.get(net.name)
+    net_name: str | None = getattr(net, "name", None)  # type: ignore[attr-defined]
+    if isinstance(pin_net_class_assignments, dict) and net_name:
+        current_net_class = pin_net_class_assignments.get(net_name)
     if current_net_class is None:
         current_net_class = getattr(net, "net_class", None)
 
@@ -1010,7 +1011,7 @@ def analyze_bottleneck(
     # reported as (layer, row, col) triples.
     cut_cells: list[tuple[int, int, int]] = []
     for cell in sorted(reachable):
-        for neighbor in sorted(g.successors(cell)):
+        for neighbor in sorted(g.successors(cell)):  # type: ignore[attr-defined]
             if neighbor in non_reachable:
                 cut_cells.append(cell)
                 break

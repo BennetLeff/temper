@@ -62,9 +62,9 @@ class CoilRequirementLoss(LossFunction):
         total_epochs: int = 1,
         net_virtual_nodes: Array | None = None,
     ) -> LossResult:
-        total_centering_loss = 0.0
-        total_keepout_loss = 0.0
-        total_symmetry_loss = 0.0
+        total_centering_loss = jnp.array(0.0)
+        total_keepout_loss = jnp.array(0.0)
+        total_symmetry_loss = jnp.array(0.0)
 
         for rule in self.rules:
             # 1. Centering

@@ -108,7 +108,7 @@ def simple_board():
 
 
 @pytest.fixture
-def valid_placement(simple_netlist, simple_board):
+def valid_placement(_simple_netlist, _simple_board):
     """Create a valid placement with no violations."""
     # Place components well-separated
     positions = jnp.array(
@@ -124,7 +124,7 @@ def valid_placement(simple_netlist, simple_board):
 
 
 @pytest.fixture
-def overlapping_placement(simple_netlist):
+def overlapping_placement(_simple_netlist):
     """Create a placement with overlapping components."""
     positions = jnp.array(
         [
@@ -139,7 +139,7 @@ def overlapping_placement(simple_netlist):
 
 
 @pytest.fixture
-def boundary_violating_placement(simple_netlist, simple_board):
+def boundary_violating_placement(_simple_netlist, _simple_board):
     """Create a placement with boundary violations."""
     positions = jnp.array(
         [
@@ -505,7 +505,7 @@ class TestCompositeValidator:
         # Should have merged results
         assert "+GeometricValidator" in result.validator_name
 
-    def test_availability_check(self, valid_placement, simple_netlist, simple_board):
+    def test_availability_check(self, _valid_placement, _simple_netlist, _simple_board):
         """Test is_available check."""
         composite = CompositeValidator([GeometricValidator()])
         assert composite.is_available()

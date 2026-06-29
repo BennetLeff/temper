@@ -38,9 +38,10 @@ Example usage:
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -245,7 +246,7 @@ class BaseConstraint(ABC):
 # Each key maps a CompilationTarget.value string to a callable
 # (constraint, context) -> backend_output.
 # Populated by bridge modules at import time (lazy registration).
-BaseConstraint.backends: dict[str, Callable] = {"jax": None}
+BaseConstraint.backends: dict[str, Callable] = {"jax": None}  # type: ignore[attr-defined]
 
 
 class AdjacentConstraint(BaseConstraint):

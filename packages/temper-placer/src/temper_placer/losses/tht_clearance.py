@@ -43,7 +43,7 @@ class THTPadClearanceLoss(LossFunction):
 
     def _extract_tht_pads(self, netlist: Netlist) -> list[tuple[int, float, float, float]]:
         pads = []
-        comp_pads = getattr(netlist.components[0], 'pads', None) if netlist.components else None  # type: ignore[union-attr]
+        getattr(netlist.components[0], 'pads', None) if netlist.components else None  # type: ignore[union-attr]
         for i, comp in enumerate(netlist.components):
             for pad in getattr(comp, 'pads', getattr(comp, 'pins', [])):  # type: ignore[union-attr]
                 # Check if pad is through-hole

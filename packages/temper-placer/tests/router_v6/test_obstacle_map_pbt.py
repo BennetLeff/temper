@@ -76,7 +76,7 @@ def test_obstacle_map_layer_coverage(num_pads, seed):
         LayerInfo(0, "F.Cu", "signal", 35.0),
         LayerInfo(1, "B.Cu", "signal", 35.0),
     ]
-    declared = {l.name for l in layers if l.layer_type in ("signal", "mixed")}
+    declared = {ln.name for ln in layers if ln.layer_type in ("signal", "mixed")}
 
     pins = []
     for i in range(num_pads):

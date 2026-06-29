@@ -56,7 +56,7 @@ class RaisingStage:
     provides: list[str] = []
     contract = None
 
-    def run(self, inp):
+    def run(self, _inp):
         raise RuntimeError("deliberate failure")
 
 
@@ -230,7 +230,7 @@ class BadStage:
     provides: list[str] = []
     contract = None
 
-    def run(self, inp):
+    def run(self, _inp):
         raise RuntimeError("bad strategy")
 
 

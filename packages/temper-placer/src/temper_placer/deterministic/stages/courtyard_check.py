@@ -118,7 +118,7 @@ class CourtyardCheckStage(Stage):
         # Update state
         from dataclasses import replace
 
-        return replace(state, placements=tuple(placements.items()))
+        return replace(state, placements=frozenset(placements.items()))
 
     def _find_collisions(self, placements: dict[str, tuple[float, float]]) -> list[tuple[str, str]]:
         """Find courtyard collisions using spatial indexing for O(n log n) performance.

@@ -235,7 +235,7 @@ def _via_annular_area(via: object) -> float:
 
     When *drill* is ``None`` or zero the hole term is omitted.
     """
-    diameter = via.diameter
+    diameter = via.diameter  # type: ignore[attr-defined]
     drill = getattr(via, "drill", 0.0) or 0.0
 
     # Guard: NaN / inf diameter or drill → 0.0

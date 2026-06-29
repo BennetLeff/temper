@@ -11,10 +11,10 @@ Requirements: R1, R2, R2.1
 
 from __future__ import annotations
 
-import math
+import contextlib
 from dataclasses import dataclass, field
+from typing import Any
 
-import networkx as nx
 from shapely.geometry import MultiPoint, Point, Polygon
 
 
@@ -78,10 +78,10 @@ class BundleAnalyzer:
     def __init__(
         self,
         nets: list,
-        skeletons: dict[str, any],
-        design_rules: any | None = None,
+        skeletons: dict[str, Any],
+        design_rules: Any | None = None,
         diff_pairs: list | None = None,
-        pcb: any | None = None,
+        pcb: Any | None = None,
         jaccard_threshold: float = 0.5,
     ):
         self.nets = nets
@@ -104,7 +104,7 @@ class BundleAnalyzer:
     def _compute_median_edge_length(self) -> float:
         lengths = []
         for skeleton in self.skeletons.values():
-            for _u, _v, data in skeleton.graph.edges(data=True):
+            for _u, _v, data in skeleton.graph.edges(data=True):  # type: ignore[attr-defined]
                 w = data.get("weight", 1.0)
                 lengths.append(w)
         if not lengths:
@@ -159,7 +159,7 @@ class BundleAnalyzer:
         if len(positions) == 2:
             # Two pads: create a rectangular envelope
             (x1, y1), (x2, y2) = positions
-            dx, dy = abs(x2 - x1), abs(y2 - y1)
+            _dx, _dy = abs(x2 - x1), abs(y2 - y1)
             margin = self._median_edge_length
             minx = min(x1, x2) - margin
             maxx = max(x1, x2) + margin
@@ -179,7 +179,7 @@ class BundleAnalyzer:
         """Compute the set of skeleton edge IDs whose midpoints lie within the footprint."""
         edges: set[str] = set()
         for layer_name, skeleton in self.skeletons.items():
-            for i, (_u, _v) in enumerate(skeleton.graph.edges):
+            for i, (_u, _v) in enumerate(skeleton.graph.edges):  # type: ignore[attr-defined]
                 n1, n2 = sorted([_u, _v])
                 edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
                 # Check if edge midpoint is within footprint
@@ -212,19 +212,19 @@ class BundleAnalyzer:
         width = 0.2
         clearance = 0.2
         if self.design_rules:
-            rule = self.design_rules.get_rules_for_net(net.name)
+            rule = self.design_rules.get_rules_for_net(net.name)  # type: ignore[attr-defined]
             width = rule.trace_width_mm
             clearance = rule.clearance_mm
 
         # Pin layer set from component pin lookups
         pin_layers: set[str] = set()
         if self.pcb:
-            comp_by_ref = {comp.ref: comp for comp in self.pcb.components}
+            comp_by_ref = {comp.ref: comp for comp in self.pcb.components}  # type: ignore[attr-defined]
             for comp_ref, pin_name in getattr(net, "pins", []):
                 comp = comp_by_ref.get(comp_ref)
                 if comp is None:
                     continue
-                pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
+                pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None  # type: ignore[attr-defined]
                 if pin and not getattr(pin, "is_pth", True):
                     pin_layers.add(getattr(pin, "layer", "F.Cu"))
                 else:
@@ -317,10 +317,8 @@ class BundleAnalyzer:
                 sorted_nets = sorted([p_idx, n_idx])
                 # Use combined footprint
                 combined = net_footprints[p_idx]
-                try:
+                with contextlib.suppress(Exception):
                     combined = combined.union(net_footprints[n_idx])
-                except Exception:
-                    pass
                 if isinstance(combined, MultiPoint):
                     combined = combined.convex_hull
 
@@ -384,10 +382,8 @@ class BundleAnalyzer:
                         if combined_fp is None:
                             combined_fp = fp
                         else:
-                            try:
+                            with contextlib.suppress(Exception):
                                 combined_fp = combined_fp.union(fp)
-                            except Exception:
-                                pass
                     if combined_fp is None or not isinstance(combined_fp, Polygon):
                         combined_fp = Polygon()
 

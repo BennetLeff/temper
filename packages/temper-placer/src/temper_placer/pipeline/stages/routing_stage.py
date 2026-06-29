@@ -25,7 +25,7 @@ class RoutingStage:
             positions = placement_state.positions
         else:
             deterministic_result = context.get("deterministic_result")
-            positions = jnp.array(deterministic_result.positions)
+            positions = jnp.array(deterministic_result.positions)  # type: ignore[union-attr]
 
         result = analyze_congestion(netlist, board, positions=positions)
         print(f"Max congestion: {result.max_utilization:.2f}, Total overflow: {result.total_overflow:.2f}")

@@ -5,11 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from temper_placer.pipeline.dag_observability import PipelineExecutionLog
 from temper_placer.pipeline.metrics_observer import MetricsObserver
-from temper_placer.regression.closure_test import ClosureResult, ClosureTest
+from temper_placer.regression.closure_test import ClosureTest
 from temper_placer.regression.metrics_recorder import load_metrics
 
 

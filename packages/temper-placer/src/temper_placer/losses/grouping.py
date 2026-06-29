@@ -158,7 +158,7 @@ class GroupClusterLoss(LossFunction):
             }
         )
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
         """
         Anneal grouping loss so it starts after initial spread.
         """

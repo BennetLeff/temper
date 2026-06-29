@@ -80,8 +80,8 @@ class RoutabilityGradientLoss(StatefulLossFunction):
         # EWMA blending (FR4.5) — blend_count counts calls, not iteration index.
         if self._ema_scores is None:
             self._ema_scores = raw_scores
-            if self._best_scores is None:
-                self._best_scores = raw_scores
+        if self._best_scores is None:
+            self._best_scores = raw_scores
         else:
             alpha = max(self._alpha_floor, 1.0 / self._blend_count)
             self._ema_scores = (
@@ -92,7 +92,10 @@ class RoutabilityGradientLoss(StatefulLossFunction):
         self._score_history.append(score_mean)
 
         # Monotonic best tracking (FR5.3)
-        current_best_mean = float(jnp.mean(self._best_scores))
+        if self._best_scores is not None:
+            current_best_mean = float(jnp.mean(self._best_scores))
+        else:
+            current_best_mean = float("inf")
         if score_mean < current_best_mean:
             self._best_scores = self._ema_scores
 
@@ -165,14 +168,7 @@ class RoutabilityGradientLoss(StatefulLossFunction):
             scores = scores[:N]
 
         # JIT-safe: blend() precomputes whether best scores should be used.
-        if self._frozen and self._best_scores is not None:
-            best = self._best_scores
-            if best.shape[0] < N:
-                padded = jnp.zeros(N)
-                padded = padded.at[: best.shape[0]].set(best)
-                best = padded
-            scores = best
-        elif self._use_best and self._best_scores is not None:
+        if self._frozen and self._best_scores is not None or self._use_best and self._best_scores is not None:
             best = self._best_scores
             if best.shape[0] < N:
                 padded = jnp.zeros(N)
@@ -233,6 +229,8 @@ def _compute_net_wirelengths(
 
     if net_pin_indices is None or net_pin_indices.shape[0] == 0:
         return jnp.zeros(N)
+    if net_pin_offsets is None or net_pin_mask is None:
+        return jnp.zeros(N)
 
     # Get pin positions per net: (M, P, 2)
     pin_comp_positions = positions[net_pin_indices]
@@ -258,8 +256,8 @@ def _compute_net_wirelengths(
     # Vectorized aggregation to components.
     # Each pin has a component index; we average HPWL across all pins of a net
     # and add the share to each component that the net touches.
-    M = hpwl_per_net.shape[0]
-    P = net_pin_indices.shape[1]
+    hpwl_per_net.shape[0]
+    net_pin_indices.shape[1]
 
     # Count valid pins per net: (M,)
     pin_counts = jnp.sum(mask, axis=1).astype(jnp.float32)

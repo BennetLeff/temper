@@ -714,7 +714,7 @@ def finalize_placement(
     loss_fn: Callable[[PlacementState], float],
     grid_size: float = DEFAULT_GRID_SIZE,
     fixed_components: list[int] | None = None,
-) -> tuple[Array, Array, float]:
+) -> tuple[Array, Array, float | None]:
     """
     Convenience function to get final positions and rotation indices.
 

@@ -110,7 +110,7 @@ class BoundaryLoss(LossFunction):
             bounds = bounds * multiplier
 
         # Compute dynamic margin
-        current_margin = self.edge_margin
+        current_margin = jnp.array(self.edge_margin)
         if self.margin_ramp > 0:
             progress = jnp.clip(epoch / jnp.maximum(self.margin_ramp * total_epochs, 1.0), 0.0, 1.0)
             current_margin = self.edge_margin * progress
@@ -152,7 +152,7 @@ class BoundaryLoss(LossFunction):
         widths: Array,
         heights: Array,
         board,
-        margin: float,
+        margin: float | Array,
         centrality: Array | None = None,
     ) -> Array:
         """
@@ -246,7 +246,7 @@ class BoundaryLoss(LossFunction):
 
         return total_violations
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
         """
         Boundary is a hard constraint - full weight throughout training.
         We ramp up weight in the final 25% of training to ensure convergence.

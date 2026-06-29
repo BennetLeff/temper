@@ -56,8 +56,8 @@ from temper_placer.pcl.constraints import (
 )
 
 if TYPE_CHECKING:
-    from temper_placer.core.netlist import Netlist
     from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
 
 
 class PCLParseError(Exception):
@@ -81,11 +81,7 @@ def _is_resolved(constraint: BaseConstraint, context: CompilationContext) -> boo
     from temper_placer.pcl.loss_bridge import _resolve_to_indices
 
     try:
-        if isinstance(constraint, AdjacentConstraint):
-            a_ok = bool(_resolve_to_indices(constraint.a, context.netlist, context.board) or constraint.a.isupper())
-            b_ok = bool(_resolve_to_indices(constraint.b, context.netlist, context.board) or constraint.b.isupper())
-            return a_ok and b_ok
-        elif isinstance(constraint, SeparatedConstraint):
+        if isinstance(constraint, (AdjacentConstraint, SeparatedConstraint)):
             a_ok = bool(_resolve_to_indices(constraint.a, context.netlist, context.board) or constraint.a.isupper())
             b_ok = bool(_resolve_to_indices(constraint.b, context.netlist, context.board) or constraint.b.isupper())
             return a_ok and b_ok
@@ -194,11 +190,11 @@ class ConstraintCollection:
         Raises:
             ValueError: If no backend is registered for the target.
         """
-        backend_fn = BaseConstraint.backends.get(target.value)
+        backend_fn = BaseConstraint.backends.get(target.value)  # type: ignore[attr-defined]
         if backend_fn is None:
             raise ValueError(
                 f"No backend registered for target '{target.value}'. "
-                f"Available: {sorted(BaseConstraint.backends.keys())}"
+                f"Available: {sorted(BaseConstraint.backends.keys())}"  # type: ignore[attr-defined]
             )
         results = []
         for constraint in self.constraints:
@@ -207,7 +203,7 @@ class ConstraintCollection:
             if not _is_resolved(constraint, context):
                 warnings.warn(
                     f"Constraint '{constraint.id}' references unresolved "
-                    f"components, skipping"
+                    f"components, skipping", stacklevel=2
                 )
                 continue
             try:
@@ -215,7 +211,7 @@ class ConstraintCollection:
             except Exception as e:
                 warnings.warn(
                     f"Constraint '{constraint.id}' failed to compile to "
-                    f"'{target.value}': {e}, skipping"
+                    f"'{target.value}': {e}, skipping", stacklevel=2
                 )
         return results
 

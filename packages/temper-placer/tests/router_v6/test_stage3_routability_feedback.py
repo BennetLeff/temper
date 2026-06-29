@@ -3,14 +3,13 @@
 Verifies end-to-end flow: SAT solver -> stats -> scores -> loss -> gradient.
 """
 
-import pytest
 import jax.numpy as jnp
-import numpy as np
+import pytest
 
-from temper_placer.router_v6.routability_aggregator import RoutabilityAggregator
+from temper_placer.losses.base import LossContext, StatefulLossFunction
 from temper_placer.losses.routability_gradient import RoutabilityGradientLoss
-from temper_placer.losses.base import StatefulLossFunction, LossContext
 from temper_placer.losses.types import NetlistContext
+from temper_placer.router_v6.routability_aggregator import RoutabilityAggregator
 
 
 class TestEndToEndRoutabilityFlow:
@@ -115,7 +114,7 @@ class TestEndToEndRoutabilityFlow:
         loss = RoutabilityGradientLoss()
         loss.blend({"routability_scores": jnp.array([1.0, 0.0, 0.0]), "iteration": 1})
         loss.blend({"routability_scores": jnp.array([0.5, 0.5, 0.0]), "iteration": 2})
-        
+
         assert loss._ema_scores is not None
         assert loss._blend_count == 2
         mean = float(jnp.mean(loss._ema_scores))

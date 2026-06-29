@@ -49,7 +49,7 @@ _SETTINGS = settings(max_examples=100, deadline=30000)
 # HV-detection helpers (mirrors _is_high_voltage_net for invariant checks)
 # ---------------------------------------------------------------------------
 
-import re as _re
+import re as _re  # noqa: E402
 
 
 def _is_hv(net_name: str) -> bool:
@@ -63,9 +63,7 @@ def _is_hv(net_name: str) -> bool:
         return True
     if _re.search(r"(?:^|_)AC(?:$|[\d_])", name_upper):
         return True
-    if _re.search(r"(?:^|_)HV(?:$|[\d_])", name_upper):
-        return True
-    return False
+    return bool(_re.search(r"(?:^|_)HV(?:$|[\d_])", name_upper))
 
 
 # ===================================================================
@@ -265,10 +263,10 @@ def test_no_crash_creepage(rr: RoutingResults) -> None:
 
 # Minimal stubs so generate_manufacturing_report can be called with only
 # the three DRC reports populated (other modules get zero-violation stubs).
-from temper_placer.router_v6.acid_trap_detection import AcidTrapReport
-from temper_placer.router_v6.copper_balance import CopperBalanceReport
-from temper_placer.router_v6.teardrop_generation import TeardropReport
-from temper_placer.router_v6.thermal_relief import ThermalReliefReport
+from temper_placer.router_v6.acid_trap_detection import AcidTrapReport  # noqa: E402
+from temper_placer.router_v6.copper_balance import CopperBalanceReport  # noqa: E402
+from temper_placer.router_v6.teardrop_generation import TeardropReport  # noqa: E402
+from temper_placer.router_v6.thermal_relief import ThermalReliefReport  # noqa: E402
 
 
 @pytest.mark.property

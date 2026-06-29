@@ -12,7 +12,6 @@ from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResult
 @pytest.mark.dependency(depends=["induction-base"])
 def test_creepage_add_compliant_route() -> None:
     """FR13: Adding a compliant route on same layer does not cause creepage violations."""
-    min_clearance = 0.127
     rr = RoutingResults(compiled_routes={
         "SIG1": CompiledRoute(net_name="SIG1", path=RoutePath(net_name="SIG1", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.2, vias=[], matched_length_mm=None),
     }, failed_nets=[])

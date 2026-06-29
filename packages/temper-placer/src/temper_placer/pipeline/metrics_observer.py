@@ -12,9 +12,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from temper_placer.pipeline.dag_observability import PipelineExecutionLog, ProgressObserver
+from temper_placer.pipeline.dag_observability import PipelineExecutionLog
 from temper_placer.regression.metrics_recorder import PipelineMetricsRecord, record_metrics
-from temper_placer.regression.schema_validator import SchemaValidator, SchemaValidationError
+from temper_placer.regression.schema_validator import SchemaValidator
 
 _LOGGER = logging.getLogger(__name__)
 

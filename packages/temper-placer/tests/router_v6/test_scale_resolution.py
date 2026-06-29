@@ -497,7 +497,7 @@ class TestCumulativeFPError:
 
         # The minimum clearance should be the same (± a tiny epsilon)
         # Edge-to-edge: OFFSET - width (since width/2 + width/2 = width)
-        expected_edge = self.OFFSET - width
+        self.OFFSET - width
 
         # We may get violations if OFFSET < min_clearance, but the
         # actual_clearance values should agree between coarse and fine.

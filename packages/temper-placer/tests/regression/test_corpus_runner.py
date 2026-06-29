@@ -125,7 +125,7 @@ boards:
         assert manifest.boards[0].seed == 42
         assert manifest.boards[0].epochs == 8000
 
-    def test_get_board(self, tmp_path: Path):
+    def test_get_board(self, _tmp_path: Path):
         entry = CorpusEntry(id="b1", pcb="b1/pcb.kicad_pcb", constraints="b1/c.yaml",
                             baseline="b1/b.json", seed=1, epochs=100)
         manifest = CorpusManifest(version=1, boards=[entry])

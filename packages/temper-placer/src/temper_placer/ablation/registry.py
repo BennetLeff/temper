@@ -127,7 +127,7 @@ def _get_losses():
 class HeuristicRegistry:
     """Registry mapping heuristic toggles to classes."""
 
-    _heuristics = None
+    _heuristics: dict[str, Any] | None = None
     _heuristic_kwargs: dict[str, dict[str, Any]] = {
         "spectral_init": {"confidence": 0.1},
         "force_directed": {"iterations": 50, "confidence": 0.2},
@@ -143,10 +143,12 @@ class HeuristicRegistry:
     }
 
     @classmethod
-    def _init_heuristics(cls):
+    def _init_heuristics(cls) -> dict[str, Any]:
         """Lazy-initialize heuristics."""
         if cls._heuristics is None:
             cls._heuristics = _get_heuristics()
+        assert cls._heuristics is not None
+        return cls._heuristics
 
     @classmethod
     def create_pipeline(
@@ -156,14 +158,14 @@ class HeuristicRegistry:
         **override_kwargs: Any
     ) -> Any:
         """Create pipeline with only enabled heuristics."""
-        cls._init_heuristics()
+        heuristics = cls._init_heuristics()
 
         # Import HeuristicPipeline here to avoid circular imports
         try:
             from temper_placer.heuristics.pipeline import HeuristicPipeline
         except ImportError:
             # Mock for testing
-            class HeuristicPipeline:
+            class HeuristicPipeline:  # type: ignore[no-redef]
                 def __init__(self):
                     self.heuristics = []
                 def register(self, h):
@@ -171,7 +173,7 @@ class HeuristicRegistry:
 
         pipeline = HeuristicPipeline()
 
-        for name, heuristic_cls in cls._heuristics.items():
+        for name, heuristic_cls in heuristics.items():
             if getattr(toggle, name, False):
                 kwargs = cls._heuristic_kwargs.get(name, {}).copy()
 
@@ -195,14 +197,14 @@ class HeuristicRegistry:
     @classmethod
     def list_heuristics(cls) -> list[str]:
         """Return all registered heuristic names."""
-        cls._init_heuristics()
-        return list(cls._heuristics.keys())
+        heuristics = cls._init_heuristics()
+        return list(heuristics.keys())
 
     @classmethod
     def get_heuristic_info(cls, name: str) -> dict[str, Any]:
         """Return metadata about a heuristic."""
-        cls._init_heuristics()
-        heuristic_cls = cls._heuristics[name]
+        heuristics = cls._init_heuristics()
+        heuristic_cls = heuristics[name]
         return {
             "name": name,
             "class": heuristic_cls.__name__,
@@ -214,7 +216,7 @@ class HeuristicRegistry:
 class LossRegistry:
     """Registry mapping loss toggles to factory functions."""
 
-    _losses = None
+    _losses: dict[str, Any] | None = None
     _default_weights: dict[str, float] = {
         "overlap": 100.0,
         "boundary": 50.0,
@@ -243,10 +245,12 @@ class LossRegistry:
     }
 
     @classmethod
-    def _init_losses(cls):
+    def _init_losses(cls) -> dict[str, Any]:
         """Lazy-initialize losses."""
         if cls._losses is None:
             cls._losses = _get_losses()
+        assert cls._losses is not None
+        return cls._losses
 
     @classmethod
     def create_composite_loss(
@@ -256,7 +260,7 @@ class LossRegistry:
         **_override_kwargs: Any
     ) -> Any:
         """Create composite loss with only enabled losses."""
-        cls._init_losses()
+        all_losses = cls._init_losses()
 
         weights = weights or cls._default_weights
         losses = []
@@ -266,16 +270,16 @@ class LossRegistry:
             from temper_placer.losses.base import CompositeLoss, WeightedLoss
         except ImportError:
             # Mock for testing
-            class WeightedLoss:
+            class WeightedLoss:  # type: ignore[no-redef]
                 def __init__(self, loss, weight=1.0):
                     self.loss = loss
                     self.weight = weight
 
-            class CompositeLoss:
+            class CompositeLoss:  # type: ignore[no-redef]
                 def __init__(self, losses):
                     self.losses = losses
 
-        for name, factory in cls._losses.items():
+        for name, factory in all_losses.items():
             if getattr(toggle, name, False):
                 weight = weights.get(name, 1.0)
 
@@ -297,8 +301,8 @@ class LossRegistry:
     @classmethod
     def list_losses(cls) -> list[str]:
         """Return all registered loss names."""
-        cls._init_losses()
-        return list(cls._losses.keys())
+        all_losses = cls._init_losses()
+        return list(all_losses.keys())
 
 
 class TechniqueApplicator:

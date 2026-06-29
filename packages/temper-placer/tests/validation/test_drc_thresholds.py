@@ -22,11 +22,11 @@ import yaml
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
 
-from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
-from temper_placer.losses import LossContext
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb  # noqa: E402
+from temper_placer.losses import LossContext  # noqa: E402
 
 # Import DRC infrastructure from correlation tests (same directory)
-from .test_drc_correlation import (
+from .test_drc_correlation import (  # noqa: E402
     RESULTS_DIR,
     create_perfect_placement,
     evaluate_placement,
@@ -394,7 +394,7 @@ class TestMultipleSeedValidation:
         # Now verify each passes DRC
         drc_failures = []
 
-        for seed, state, overlap, boundary in passing_placements[:10]:
+        for seed, state, _overlap, _boundary in passing_placements[:10]:
             with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", delete=False) as f:
                 temp_path = Path(f.name)
 

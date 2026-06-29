@@ -166,10 +166,10 @@ def _snapshot(state_or_pcb: Any) -> _CardinalitySnapshot:
     if results is not None and hasattr(results, "compiled_routes"):
         for route in results.compiled_routes.values():
             path = getattr(route, "path", None)
-            if hasattr(path, "segments"):
-                snap.segment_count += len(path.segments)
-            elif hasattr(path, "coordinates"):
-                snap.segment_count += max(0, len(path.coordinates) - 1)
+            if hasattr(path, "segments"):  # type: ignore[union-attr]
+                snap.segment_count += len(path.segments)  # type: ignore[union-attr]
+            elif hasattr(path, "coordinates"):  # type: ignore[union-attr]
+                snap.segment_count += max(0, len(path.coordinates) - 1)  # type: ignore[union-attr]
 
     return snap
 

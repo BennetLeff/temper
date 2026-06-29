@@ -41,6 +41,8 @@ from temper_placer.router_v6.test_boards import get_available_boards  # noqa: E4
 
 BOARDS = get_available_boards()
 
+from temper_placer.deterministic.state import BoardState  # noqa: E402, F821
+
 _pcb_cache: dict[str, tuple] = {}
 _state_cache: dict[str, BoardState] = {}
 

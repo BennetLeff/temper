@@ -13,7 +13,8 @@ Design:
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
@@ -30,11 +31,9 @@ from temper_placer.pcl.constraints import (
     SeparatedConstraint,
 )
 from temper_placer.router_v6.constraint_model import (
-    CapacityConstraint,
     ChannelSeparationConstraint,
     Constraint,
     LayerConstraint,
-    NetChannelVar,
     OrderVar,
 )
 
@@ -151,13 +150,13 @@ def _adjacent_to_sat(
         idx_a = ctx.component_indices(constraint.a)
         idx_b = ctx.component_indices(constraint.b)
     except (ValueError, KeyError):
-        warnings.warn(f"Adjacent constraint '{constraint.id}': cannot resolve components, skipping")
+        warnings.warn(f"Adjacent constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
         return results
 
     if not idx_a or not idx_b:
         return results
 
-    for layer_name, edge_id in ctx.channels:
+    for _layer_name, edge_id in ctx.channels:
         for ni_a in idx_a:
             for ni_b in idx_b:
                 if ni_a == ni_b:
@@ -187,7 +186,7 @@ def _separated_to_sat(
         indices_a = ctx.component_indices(constraint.a)
         indices_b = ctx.component_indices(constraint.b)
     except (ValueError, KeyError):
-        warnings.warn(f"Separated constraint '{constraint.id}': cannot resolve components, skipping")
+        warnings.warn(f"Separated constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
         return results
 
     if not indices_a or not indices_b:
@@ -202,7 +201,7 @@ def _separated_to_sat(
                 min_slots = max(1, int(constraint.min_distance_mm / spacing))
                 break
 
-    for layer_name, edge_id in ctx.channels:
+    for _layer_name, edge_id in ctx.channels:
         c = ChannelSeparationConstraint(
             name=f"chan_sep_{constraint.id}_{edge_id}",
             description=f"PCL: {constraint.because}",
@@ -229,13 +228,13 @@ def _enclosing_to_sat(
         for ref in constraint.inner:
             inner_indices.extend(ctx.component_indices(ref))
     except (ValueError, KeyError):
-        warnings.warn(f"Enclosing constraint '{constraint.id}': cannot resolve components, skipping")
+        warnings.warn(f"Enclosing constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
         return results
 
     if not inner_indices:
         return results
 
-    for layer_name, edge_id in ctx.channels:
+    for _layer_name, edge_id in ctx.channels:
         for ni in inner_indices:
             c = LayerConstraint(
                 name=f"enc_{constraint.id}_{edge_id}_N{ni}",
@@ -272,13 +271,13 @@ def _onside_to_sat(
         for ref in constraint.components:
             component_indices.extend(ctx.component_indices(ref))
     except (ValueError, KeyError):
-        warnings.warn(f"OnSide constraint '{constraint.id}': cannot resolve components, skipping")
+        warnings.warn(f"OnSide constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
         return results
 
     if not component_indices:
         return results
 
-    for layer_name, edge_id in ctx.channels:
+    for _layer_name, edge_id in ctx.channels:
         for ni in component_indices:
             c = LayerConstraint(
                 name=f"onside_{constraint.id}_{edge_id}_N{ni}",
@@ -302,7 +301,7 @@ def _anchored_to_sat(
     try:
         indices = ctx.component_indices(constraint.component)
     except (ValueError, KeyError):
-        warnings.warn(f"Anchored constraint '{constraint.id}': cannot resolve component, skipping")
+        warnings.warn(f"Anchored constraint '{constraint.id}': cannot resolve component, skipping", stacklevel=2)
         return results
 
     if not indices:
@@ -313,11 +312,11 @@ def _anchored_to_sat(
         tx, ty = constraint.position
     elif constraint.region is not None:
         x_min, y_min, x_max, y_max = constraint.region
-        tx, ty = (x_min + x_max) / 2, (y_min + y_max) / 2
+        _tx, _ty = (x_min + x_max) / 2, (y_min + y_max) / 2
     else:
         return results
 
-    for layer_name, edge_id in ctx.channels:
+    for _layer_name, edge_id in ctx.channels:
         for ni in indices:
             c = LayerConstraint(
                 name=f"anchor_{constraint.id}_{edge_id}_N{ni}",
@@ -347,7 +346,7 @@ def _loop_area_to_sat(
 
     max_shared = 2  # Conservative: at most 2 nets share a channel in the loop
 
-    for layer_name, edge_id in ctx.channels:
+    for _layer_name, edge_id in ctx.channels:
         if not loop_nets:
             continue
         c = ChannelSeparationConstraint(
@@ -487,4 +486,4 @@ def _backend_adapter(
 
 
 # Register the SAT backend (R5).
-BaseConstraint.backends["sat"] = _backend_adapter
+BaseConstraint.backends["sat"] = _backend_adapter  # type: ignore[attr-defined]

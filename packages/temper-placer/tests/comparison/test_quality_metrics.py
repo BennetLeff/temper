@@ -18,12 +18,12 @@ import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
+import jax.numpy as jnp  # noqa: E402
 
-from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist
-from temper_placer.core.state import PlacementState
-from temper_placer.losses import LossContext
+from temper_placer.core.board import Board, Zone  # noqa: E402
+from temper_placer.core.netlist import Component, Net, Netlist  # noqa: E402
+from temper_placer.core.state import PlacementState  # noqa: E402
+from temper_placer.losses import LossContext  # noqa: E402
 
 # Test fixtures directory
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -304,7 +304,7 @@ class TestHVLVClearanceScore:
         """Create board."""
         return Board(width=100.0, height=80.0, origin=(50.0, 40.0))
 
-    def test_clearance_sufficient(self, hv_lv_netlist: Netlist, board: Board):
+    def test_clearance_sufficient(self, hv_lv_netlist: Netlist, _board: Board):
         """Components with >8mm clearance should score well."""
         from temper_placer.metrics.quality import hv_lv_clearance_score
 
@@ -332,7 +332,7 @@ class TestHVLVClearanceScore:
         # Should score well (clearance is sufficient)
         assert score > 0.8
 
-    def test_clearance_violated(self, hv_lv_netlist: Netlist, board: Board):
+    def test_clearance_violated(self, hv_lv_netlist: Netlist, _board: Board):
         """Components with <8mm clearance should score poorly."""
         from temper_placer.metrics.quality import hv_lv_clearance_score
 

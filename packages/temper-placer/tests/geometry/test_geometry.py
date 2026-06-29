@@ -298,7 +298,7 @@ class TestGumbelSoftmax:
 
         # Sample many times and count
         counts = jnp.zeros(4)
-        for i in range(100):
+        for _i in range(100):
             key, subkey = jax.random.split(key)
             sample = sample_rotation(logits, subkey, temperature=1.0)
             counts = counts + sample
@@ -417,7 +417,7 @@ class TestSDF:
 
     def test_sdf_union(self):
         """Test SDF union (min of two SDFs)."""
-        center = jnp.array([0.0, 0.0])
+        jnp.array([0.0, 0.0])
         # Point between two circles
         point = jnp.array([1.5, 0.0])
         d1 = sdf_circle(point, jnp.array([0.0, 0.0]), 1.0)
@@ -427,7 +427,7 @@ class TestSDF:
 
     def test_sdf_intersection(self):
         """Test SDF intersection (max of two SDFs)."""
-        center = jnp.array([0.0, 0.0])
+        jnp.array([0.0, 0.0])
         point = jnp.array([0.0, 0.0])
         d1 = sdf_circle(point, jnp.array([-0.5, 0.0]), 1.0)
         d2 = sdf_circle(point, jnp.array([0.5, 0.0]), 1.0)

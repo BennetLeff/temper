@@ -57,7 +57,7 @@ def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None
     if skip_routing:
         config_kwargs["skip_routing"] = True
 
-    orchestrator = PipelineOrchestrator.from_config(**config_kwargs)
+    orchestrator = PipelineOrchestrator.from_config(**config_kwargs)  # type: ignore[attr-defined]
 
     pipeline_kwargs: dict = {"input_pcb": input_pcb}
     if loops:

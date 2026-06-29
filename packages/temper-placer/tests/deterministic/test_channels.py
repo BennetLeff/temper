@@ -89,7 +89,7 @@ class TestLoadValidSidecar:
 
 class TestLoadFailures:
     def test_load_missing_file(self, tmp_path):
-        cmap = ChannelMap.empty()
+        ChannelMap.empty()
         # ChannelMap.load_from_sidecar raises on missing; the pipeline wrapper
         # is responsible for catching and degrading. Verify the raise here.
         with pytest.raises(ChannelSidecarError) as exc:

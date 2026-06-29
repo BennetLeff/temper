@@ -68,11 +68,11 @@ class TestTracedPipelineExample:
         """GIVEN placement and routing functions
         WHEN running pipeline
         THEN composes traces from both phases"""
-        def placement_fn(data):
+        def placement_fn(_data):
             trace = Trace.empty().add("Q1", (10, 20), "Placed")
             return "positions", trace
 
-        def routing_fn(positions, data):
+        def routing_fn(_positions, _data):
             trace = Trace.empty().add("VCC", "path", "Routed")
             return "routes", trace
 
@@ -88,10 +88,10 @@ class TestTracedPipelineExample:
         """GIVEN pipeline functions
         WHEN running
         THEN returns results from both phases"""
-        def placement_fn(data):
+        def placement_fn(_data):
             return "positions", Trace.empty()
 
-        def routing_fn(positions, data):
+        def routing_fn(_positions, _data):
             return "routes", Trace.empty()
 
         result, trace = traced_pipeline_example(
@@ -247,7 +247,7 @@ class TestIntegration:
             return {"positions": "mock"}, trace
 
         # Define traced routing
-        def routing(placement_result):
+        def routing(_placement_result):
             trace = Trace.empty()
             trace = trace.add("VCC", ["L1", "L4"], "Power net on signal layers")
             trace = trace.add("GND", ["L1", "L4"], "Ground net on signal layers")

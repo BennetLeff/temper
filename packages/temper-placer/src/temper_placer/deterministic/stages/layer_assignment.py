@@ -74,7 +74,7 @@ class LayerAssignmentStage(Stage):
             )
 
         # Store assignments in BoardState
-        return replace(state, layer_assignments=tuple(assignments))
+        return replace(state, layer_assignments=frozenset(assignments))
 
     def _assign_layer_by_net_class(self, net_class: str) -> tuple[int, bool]:
         """Determine preferred layer and plane status based on net class.

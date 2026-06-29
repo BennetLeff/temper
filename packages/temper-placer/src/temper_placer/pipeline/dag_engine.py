@@ -167,7 +167,7 @@ class StageDAGEngine:
                     except Exception:
                         retry_attempts = attempt + 1
                         if attempt < max_attempts:
-                            time.sleep(stage_def.retry.backoff_s)
+                            time.sleep(stage_def.retry.backoff_s)  # type: ignore[union-attr]
                             continue
                         raise
             except StageTimeoutError:

@@ -70,7 +70,7 @@ def test_via_density_crossing():
         crossing_weight=1.0,
     )
 
-    positions = jnp.array(
+    jnp.array(
         [
             [0.0, 10.0],  # C0
             [20.0, 10.0],  # C1

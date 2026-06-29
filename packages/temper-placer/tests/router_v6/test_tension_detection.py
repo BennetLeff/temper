@@ -158,7 +158,7 @@ class TestDiffPairCapacityConflict:
 
         # DiffPair forces both same; capacity 1 forces at most 1 true.
         # But solver can set both false → SAT. The tension should flag.
-        conflicts = result.get("conflicts")
+        result.get("conflicts")
         tensions = result.get("tensions", [])
         hard_conflicts = [t for t in tensions if t["severity"] == "hard_conflict"]
         assert len(hard_conflicts) >= 1, (

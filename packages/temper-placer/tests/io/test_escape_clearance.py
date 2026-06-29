@@ -96,7 +96,7 @@ escape_clearances:
     priority_sides: ["bottom", "right"]
     tier: "soft"
     description: "MCU escape routing clearance"
-  
+
   - component: "U_USB"
     clearance_mm: 6.0
     tier: "hard"
@@ -141,7 +141,7 @@ routing_corridors:
     nets: ["USB_D+", "USB_D-"]
     tier: "soft"
     description: "USB differential pair routing corridor"
-  
+
   - name: "spi_bus"
     from_component: "U_MCU"
     to_component: "U_FLASH"

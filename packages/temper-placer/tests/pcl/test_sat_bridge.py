@@ -6,36 +6,23 @@ from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
-    AnchoredConstraint,
     CompilationContext,
     CompilationTarget,
     ConstraintTier,
     ConstraintType,
-    EnclosingConstraint,
-    LoopAreaConstraint,
-    OnSideConstraint,
     SeparatedConstraint,
 )
 from temper_placer.pcl.parser import ConstraintCollection
 from temper_placer.pcl.sat_bridge import (
     CAPABILITY_HANDLERS,
+    TYPE_HANDLERS,
     ConstraintOrigin,
     SATBridgeContext,
-    TYPE_HANDLERS,
     _adjacent_to_sat,
     _aligned_to_sat,
-    _anchored_to_sat,
-    _enclosing_to_sat,
-    _loop_area_to_sat,
-    _onside_to_sat,
     _separated_to_sat,
     constraint_to_clauses,
     register_handler,
-)
-from temper_placer.router_v6.constraint_model import (
-    ChannelSeparationConstraint,
-    Constraint,
-    LayerConstraint,
 )
 
 
@@ -176,7 +163,7 @@ class TestRegisterHandler:
         netlist = _make_netlist(["Q1", "Q2"])
         called = []
 
-        def custom_handler(constraint, ctx):
+        def custom_handler(constraint, _ctx):
             called.append(constraint)
             return []
 

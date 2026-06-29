@@ -31,7 +31,7 @@ def test_hv_component_assigned_to_hv_zone():
     result_state = stage.run(initial_state)
 
     # Verify
-    zone_map = {ref: zone for ref, zone in result_state.component_zone_map}
+    zone_map = dict(result_state.component_zone_map)
     assert "Q1" in zone_map
     assert zone_map["Q1"] == "HV"
 
@@ -57,7 +57,7 @@ def test_power_component_assigned_to_power_zone():
     result_state = stage.run(initial_state)
 
     # Verify
-    zone_map = {ref: zone for ref, zone in result_state.component_zone_map}
+    zone_map = dict(result_state.component_zone_map)
     assert "C1" in zone_map
     assert zone_map["C1"] == "Power"
 
@@ -83,7 +83,7 @@ def test_mcu_component_assigned_to_mcu_zone():
     result_state = stage.run(initial_state)
 
     # Verify
-    zone_map = {ref: zone for ref, zone in result_state.component_zone_map}
+    zone_map = dict(result_state.component_zone_map)
     assert "U_MCU1" in zone_map
     assert zone_map["U_MCU1"] == "MCU"
 
@@ -109,7 +109,7 @@ def test_signal_component_default_zone():
     result_state = stage.run(initial_state)
 
     # Verify
-    zone_map = {ref: zone for ref, zone in result_state.component_zone_map}
+    zone_map = dict(result_state.component_zone_map)
     assert "R1" in zone_map
     assert zone_map["R1"] == "Signal"
 
@@ -135,7 +135,7 @@ def test_spi_component_assigned_to_mcu_zone():
     result_state = stage.run(initial_state)
 
     # Verify
-    zone_map = {ref: zone for ref, zone in result_state.component_zone_map}
+    zone_map = dict(result_state.component_zone_map)
     assert "U1" in zone_map
     assert zone_map["U1"] == "MCU"
 
@@ -168,7 +168,7 @@ def test_multiple_components_different_zones():
     result_state = stage.run(initial_state)
 
     # Verify
-    zone_map = {ref: zone for ref, zone in result_state.component_zone_map}
+    zone_map = dict(result_state.component_zone_map)
     assert zone_map["Q1"] == "HV"
     assert zone_map["C1"] == "Power"
     assert zone_map["U_MCU1"] == "MCU"

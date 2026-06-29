@@ -12,7 +12,6 @@ import contextvars
 import logging
 from typing import Any
 
-
 # @req(2026-06-28-011-feat-pipeline-observability, R4): Structured logging
 # context bound via contextvars so that log lines from any stack depth
 # inherit {board, git_commit, stage, run_id} during a run.

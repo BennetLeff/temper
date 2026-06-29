@@ -188,7 +188,7 @@ class TestBoundaryLossInvariants:
 
     @given(positions=st.data())
     @settings(suppress_health_check=[HealthCheck.data_too_large], deadline=None)
-    def test_boundary_loss_zero_when_all_components_in_bounds(self, positions):
+    def test_boundary_loss_zero_when_all_components_in_bounds(self, _positions):
         """II.1: If all components are within bounds, boundary loss = 0."""
         board = Board(width=100, height=100)
         netlist = _make_minimal_netlist(n_components=4, bounds=(10, 10))
@@ -214,7 +214,7 @@ class TestBoundaryLossInvariants:
 
     @given(positions=st.data())
     @settings(suppress_health_check=[HealthCheck.data_too_large], deadline=None)
-    def test_boundary_loss_positive_when_component_out_of_bounds(self, positions):
+    def test_boundary_loss_positive_when_component_out_of_bounds(self, _positions):
         """II.2: If any component is outside bounds, boundary loss > 0."""
         board = Board(width=100, height=100)
         netlist = _make_minimal_netlist(n_components=2, bounds=(10, 10))
@@ -321,7 +321,7 @@ class TestPlacementBoundednessInvariant:
         suppress_health_check=[HealthCheck.data_too_large],
         deadline=None,
     )
-    def test_clamping_preserves_invariant_for_in_bounds_positions(self, board, positions):
+    def test_clamping_preserves_invariant_for_in_bounds_positions(self, board, _positions):
         """III.2: If positions are in bounds, clamping is a no-op."""
         margin = 5.0
         n = 10
@@ -343,7 +343,7 @@ class TestPlacementBoundednessInvariant:
         suppress_health_check=[HealthCheck.data_too_large],
         deadline=None,
     )
-    def test_clamping_brings_out_of_bounds_positions_into_bounds(self, board, positions):
+    def test_clamping_brings_out_of_bounds_positions_into_bounds(self, board, _positions):
         """III.3: Clamping any positions produces in-bounds positions."""
         n = 10
         # Generate wild positions (some in, some far out)
@@ -498,7 +498,7 @@ class TestPipelineEndToEndInvariants:
     def test_boundary_loss_upper_bound_is_computable(self):
         """V.3: The worst-case boundary loss can be computed analytically
         given component dimensions and board extents."""
-        board = Board(width=100, height=100)
+        Board(width=100, height=100)
         comp_w, comp_h = 10.0, 8.0
 
         # Max distance a corner can be outside when center is at (0,0):
@@ -700,7 +700,7 @@ class TestJITTrainStepClampingIsActive:
         not a parameter problem."""
         board = Board(width=150, height=100)
         netlist = _make_minimal_netlist(n_components=33, bounds=(30, 20))
-        context = _make_context(board, netlist)
+        _make_context(board, netlist)
 
         # Compute max possible boundary loss with clamped centers
         # Center at any point in [0,150]×[0,100], component 30×20mm

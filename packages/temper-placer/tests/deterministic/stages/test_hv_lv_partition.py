@@ -391,7 +391,7 @@ def test_stage_insufficient_area_falls_back_with_warning(caplog):
     assert any("insufficient" in rec.message for rec in caplog.records)
 
 
-def test_stage_insufficient_area_raises_when_fallback_disabled(caplog):
+def test_stage_insufficient_area_raises_when_fallback_disabled(_caplog):
     components = [
         Component(
             ref="Q_BIG",

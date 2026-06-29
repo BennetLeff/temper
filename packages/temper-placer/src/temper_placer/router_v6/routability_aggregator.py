@@ -126,9 +126,9 @@ class RoutabilityAggregator:
         For each net n:
           r_n = clamp(w_b * b_n/Bmax + w_a * a_n/Amax + w_d * d_n/Dmax + w_c * c_n/Cmax, 0, 1)
         """
-        conflicts = stats.get("conflicts", 0)
-        decisions = stats.get("decisions", 0)
-        propagations = stats.get("propagations", 0)
+        stats.get("conflicts", 0)
+        stats.get("decisions", 0)
+        stats.get("propagations", 0)
         histogram = stats.get("decision_level_histogram", [0] * 10)
 
         # Per-net variables count (proxy for net complexity)

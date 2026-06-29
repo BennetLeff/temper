@@ -51,7 +51,7 @@ class SchemaValidator:
 
         Raises ``SchemaValidationError`` on the first violation.
         """
-        schema_metric_names = set(self._fields.keys())
+        set(self._fields.keys())
 
         for field_name, value in metrics.items():
             if field_name not in self._fields:
@@ -72,4 +72,4 @@ class SchemaValidator:
 
             # zero_is_valid check
             if not zero_is_valid and value == 0:
-                raise SchemaValidationError(field_name, f"value is 0 but zero_is_valid is false")
+                raise SchemaValidationError(field_name, "value is 0 but zero_is_valid is false")

@@ -1,6 +1,5 @@
 """Tests for AndonObserver live pipeline dashboard."""
 
-import pytest
 
 
 class TestAndonObserverState:

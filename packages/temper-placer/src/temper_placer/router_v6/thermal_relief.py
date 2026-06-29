@@ -433,7 +433,7 @@ def _add_smd_thermal_reliefs(
     (typically outer layers with vias to inner planes).
     """
     try:
-        netlist = board.netlist  # may be None
+        netlist = board.netlist  # type: ignore[attr-defined]
     except AttributeError:
         return
 

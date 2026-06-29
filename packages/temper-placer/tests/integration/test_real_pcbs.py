@@ -388,10 +388,10 @@ class TestExternalFixtureSummary:
 
 # Skip all optimization tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
+import jax.numpy as jnp  # noqa: E402
 
-from temper_placer.core.state import PlacementState
-from temper_placer.losses import (
+from temper_placer.core.state import PlacementState  # noqa: E402
+from temper_placer.losses import (  # noqa: E402
     BoundaryLoss,
     CompositeLoss,
     LossContext,
@@ -400,8 +400,8 @@ from temper_placer.losses import (
     WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.optimizer import OptimizerConfig, train
-from temper_placer.optimizer.config import LearningRateSchedule
+from temper_placer.optimizer import OptimizerConfig, train  # noqa: E402
+from temper_placer.optimizer.config import LearningRateSchedule  # noqa: E402
 
 # Smaller project for quick optimization tests (fewer components = faster)
 SMALL_PROJECTS = ["piantor_left", "piantor_right", "rp2040_designguide"]
@@ -587,9 +587,9 @@ class TestRealPCBOptimization:
 # Export/Roundtrip Tests
 # =============================================================================
 
-import tempfile
+import tempfile  # noqa: E402
 
-from temper_placer.io.kicad_writer import (
+from temper_placer.io.kicad_writer import (  # noqa: E402
     PlacementUpdate,
     export_placements,
     write_placements_to_pcb,

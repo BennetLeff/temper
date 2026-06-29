@@ -84,7 +84,7 @@ def _check_via(
             "Via at %s on net %s has non-positive drill %.4f mm; skipping.",
             getattr(via, "position", "?"),
             net_name,
-            via.drill,
+            via.drill,  # type: ignore[attr-defined]
         )
         return None
 

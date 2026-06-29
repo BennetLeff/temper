@@ -698,10 +698,10 @@ def timing_tighten(
     runs where per-stage wall-clock has dropped consistently below the current
     baseline, then lowers the baseline to the median of those runs.
     """
+    from rich.table import Table as RT
+
     from temper_placer.profiling.timing_gate import detect_tightenable_stages
     from temper_placer.regression.metrics_recorder import find_metrics_file
-
-    from rich.table import Table as RT
 
     # 1. Load manifest --------------------------------------------------------
     manifest = _load_manifest()
@@ -766,13 +766,12 @@ def timing_tighten(
         return
 
     # 6. Confirmation (skip in CI mode) ---------------------------------------
-    if not ci_mode:
-        if not click.confirm(
-            "\nApply these baseline changes?",
-            default=False,
-        ):
-            console.print("Aborted.")
-            return
+    if not ci_mode and not click.confirm(
+        "\nApply these baseline changes?",
+        default=False,
+    ):
+        console.print("Aborted.")
+        return
 
     # 7. Apply changes --------------------------------------------------------
     now_ts = datetime.now(UTC).isoformat()
@@ -823,7 +822,7 @@ def timing_tighten(
 
     console.print(f"\nTightening {tightened_count} stage(s):")
     for result in results:
-        delta = result.baseline_ms - result.proposed_ms
+        result.baseline_ms - result.proposed_ms
         console.print(
             "  {stage:.<40s} {old:.1f} ms {arrow} {new:.1f} ms   "
             "(-{pct:.1f}%, {streak}-run streak)".format(

@@ -465,7 +465,6 @@ def _backend_adapter(constraint: BaseConstraint, context) -> LossFunction:
     Registered as BaseConstraint.backends["jax"] so ConstraintCollection.compile()
     can dispatch JAX compilation through the standard backend interface.
     """
-    from temper_placer.pcl.constraints import CompilationContext
     return constraint_to_loss(
         constraint,
         netlist=context.netlist,
@@ -478,4 +477,5 @@ def _backend_adapter(constraint: BaseConstraint, context) -> LossFunction:
 # Register the JAX backend (R5, R21).
 # Import-time registration: the loss bridge claims the "jax" key.
 from temper_placer.pcl.constraints import BaseConstraint as _BaseConstraint
-_BaseConstraint.backends["jax"] = _backend_adapter
+
+_BaseConstraint.backends["jax"] = _backend_adapter  # type: ignore[attr-defined]

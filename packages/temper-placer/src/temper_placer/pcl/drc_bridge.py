@@ -8,8 +8,8 @@ constraint `id` and `because` for traceable violation reports.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable
 
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
@@ -218,4 +218,4 @@ def _backend_adapter(
 
 
 # Register the DRC backend (R5, R11).
-BaseConstraint.backends["drc"] = _backend_adapter
+BaseConstraint.backends["drc"] = _backend_adapter  # type: ignore[attr-defined]

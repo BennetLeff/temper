@@ -4,11 +4,14 @@ Run:  uv run python packages/temper-placer/src/temper_placer/experiments/routabi
 """
 
 from __future__ import annotations
-import argparse, json, sys, warnings
+
+import argparse
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+
 import numpy as np
+
 
 @dataclass
 class ComponentOutcome:
@@ -102,11 +105,12 @@ def _fisher_z(rs, ns):
 def run_single_board(pcb_path, repo_root, score_threshold=0.5, proximity_mm=5.0):
     bid = pcb_path.stem
     try:
-        from temper_placer.router_v6.pipeline import RouterV6Pipeline
+        from temper_rust_router import solve_topology_rust
+
         from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
         from temper_placer.router_v6.constraint_model import ModelBuilder
         from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
-        from temper_rust_router import solve_topology_rust
+        from temper_placer.router_v6.pipeline import RouterV6Pipeline
     except Exception as e:
         return BoardResult(board_id=bid, n_components=0, notes=[f"Import: {e}"])
     try:

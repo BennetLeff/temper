@@ -1,6 +1,5 @@
 """Tests for TerminalDashboardObserver live pipeline visualization."""
 
-import pytest
 
 
 class TestTerminalDashboardObserver:

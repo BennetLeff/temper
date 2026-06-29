@@ -195,11 +195,9 @@ R1 in out
 
         # The simple RC circuit should converge
         # Check we can read measurements (format varies by ngspice version)
-        if result.success and result.measurements:
-            # Check v_out measurement exists
-            if "v_out" in result.measurements:
-                meas = result.measurements["v_out"]
-                assert isinstance(meas.value, float)
+        if result.success and result.measurements and "v_out" in result.measurements:
+            meas = result.measurements["v_out"]
+            assert isinstance(meas.value, float)
 
     def test_run_netlist_string(self, validator):
         """Test running netlist from string."""
