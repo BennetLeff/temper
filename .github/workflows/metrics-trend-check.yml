@@ -69,11 +69,11 @@ jobs:
         with:
           script: |
             const title = "Metrics drift detected across modules";
-            const body = `Pipeline quality metrics have drifted beyond threshold.
+            const report = `${{ steps.trend.outputs.report }}`;
+            const body = "Pipeline quality metrics have drifted beyond threshold.\n\n"
+              + report + "\n\n"
+              + "Use uv run python scripts/pipeline_metrics.py trend to investigate.";
 
-          ${{ steps.trend.outputs.report }}
-
-          Use \`uv run python scripts/pipeline_metrics.py trend --board <board> --stage <stage> --module <module>\` to investigate.`;
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
               state: "open", labels: ["metrics-drift"] });
