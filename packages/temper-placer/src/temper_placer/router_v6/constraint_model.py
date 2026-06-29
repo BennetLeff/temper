@@ -77,9 +77,27 @@ class OrderVar(Variable):
     var_type: str = "bool"
 
 
+ESL_REGISTRY: dict[str, type] = {}
+"""Registry mapping constraint type names to their classes with ``esl()`` methods.
+
+# @req(2026-06-28-006, FR-LANG2): Each constraint type has exactly one esl() method
+# @req(2026-06-28-006, FR-ADOPT1): New constraint types register here
+
+Used by the CI adoption gate to verify every ``Constraint`` subclass has an
+ESL declaration.  Populated by each constraint class at import time.
+"""
+
+
 @dataclass(kw_only=True)
 class Constraint:
-    """Base class for routing constraints."""
+    """Base class for routing constraints.
+
+    Each subclass MUST implement:
+    - esl() -> Callable[[dict[str, bool]], bool]: ESL predicate for BMC verification
+    - Registration in ESL_REGISTRY dict
+
+    # @req(2026-06-28-006, FR-ADOPT1): Contribute exactly one encoding branch
+    """
     name: str
     description: str = ""
 
@@ -94,6 +112,22 @@ class CapacityConstraint(Constraint):
     slack_factor: float
     terms: list[tuple[NetChannelVar, float]]  # (variable, coefficient/width)
 
+    def esl(self):
+        """Return an ESL predicate for this capacity constraint.
+
+        # @req(2026-06-28-006, FR-LANG2): Constraint ESL declaration
+
+        The predicate is True iff at most *max_nets* of the term variables
+        are True in the assignment, where *max_nets* = capacity * slack / min_width.
+        """
+        min_width = min(width for _, width in self.terms)
+        max_nets = int(self.capacity * self.slack_factor / min_width)
+        var_names = [var.name for var, _ in self.terms]
+        return lambda ass: sum(1 for v in var_names if ass.get(v, False)) <= max_nets
+
+
+ESL_REGISTRY["CapacityConstraint"] = CapacityConstraint
+
 
 @dataclass(kw_only=True)
 class DiffPairConstraint(Constraint):
@@ -107,6 +141,18 @@ class DiffPairConstraint(Constraint):
     p_var: NetChannelVar
     n_var: NetChannelVar
 
+    def esl(self):
+        """Return an ESL predicate: p_var iff n_var (both True or both False).
+
+        # @req(2026-06-28-006, FR-LANG2): Constraint ESL declaration
+        """
+        p_name = self.p_var.name
+        n_name = self.n_var.name
+        return lambda ass: ass.get(p_name, False) == ass.get(n_name, False)
+
+
+ESL_REGISTRY["DiffPairConstraint"] = DiffPairConstraint
+
 
 @dataclass(kw_only=True)
 class LayerConstraint(Constraint):
@@ -117,6 +163,17 @@ class LayerConstraint(Constraint):
     net_idx: int
     channel_id: str
     allowed: bool
+
+    def esl(self):
+        """Return an ESL predicate: var == allowed.
+
+        # @req(2026-06-28-006, FR-LANG2): Constraint ESL declaration
+        """
+        var_name = f"uses_N{self.net_idx}_{self.channel_id}"
+        return lambda ass: ass.get(var_name, False) == self.allowed
+
+
+ESL_REGISTRY["LayerConstraint"] = LayerConstraint
 
 
 @dataclass

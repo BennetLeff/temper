@@ -51,6 +51,7 @@ def __getattr__(name: str):  # noqa: D401 — module-level dunder
 
 
 from temper_placer.router_v6.constraint_model import (
+    ESL_REGISTRY,
     CapacityConstraint,
     Constraint,
     ConstraintModel,
@@ -152,6 +153,7 @@ __all__ = [
     "CapacityConstraint",
     "DiffPairConstraint",
     "LayerConstraint",
+    "ESL_REGISTRY",
     # Stage 4: Geometric Realization
     "FlaggedNet",
     "RoutingFailureReport",
