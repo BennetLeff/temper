@@ -42,18 +42,20 @@ Every record is appended to a single JSONL file (`power_pcb_dataset/metrics/pipe
 
 ### The Adapter Pattern
 
-Each profiling system implements a `to_pipeline_metrics_record()` method:
+Each profiling system implements a `to_pipeline_metrics_record()` method — or, alternatively, pushes records directly through an observer:
 
 ```
-Profiling System              Adapter                                    Canonical Store
-─────────────────            ─────────                                  ────────────────
-PipelineProfiler       →  ProfileReport.to_pipeline_metrics_record()  ┐
-TimingResult           →  TimingResult.to_pipeline_metrics_record()   ├→ pipeline_metrics.jsonl
-AutoprofReport         →  AutoprofReport.to_pipeline_metrics_record() ┘
-StageTimingEntry       →  StageTimingEntry.to_pipeline_metrics_record()
+Profiling System              Adapter / Observer                         Canonical Store
+─────────────────            ───────────────────────                    ────────────────
+MetricsObserver          →  Push-based (on_stage_complete             ┐
+                            creates PipelineMetricsRecord directly)   │
+PipelineProfiler         →  ProfileReport.to_pipeline_metrics_record()├→ pipeline_metrics.jsonl
+TimingResult             →  TimingResult.to_pipeline_metrics_record() ┤
+AutoprofReport           →  AutoprofReport.to_pipeline_metrics_record()┘
+StageTimingEntry         →  StageTimingEntry.to_pipeline_metrics_record()
 ```
 
-**No system writes its own format.** Every system adapts to the canonical contract.
+`MetricsObserver` implements ProgressObserver and writes per-stage records (wall_time, success, drc_delta) directly into the canonical store during pipeline execution — no adapter needed. This is the primary write path for pipeline observability; the `--from-stdin` path serves profiling subsystems that run independently.
 
 ### The `--from-stdin` Pipeline
 
