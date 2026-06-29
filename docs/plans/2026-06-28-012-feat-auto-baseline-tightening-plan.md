@@ -1,7 +1,7 @@
 ---
 title: "feat: Auto-Baseline Tightening — Self-Lowering Timing Baselines from JSONL Trends"
 type: feat
-status: planned
+status: completed
 date: 2026-06-28
 depends_on:
   - docs/plans/2026-06-28-010-feat-ci-profiling-regression-platform-plan.md   (completed; provides PipelineMetricsRecord and JSONL time-series store)
