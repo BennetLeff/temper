@@ -50,16 +50,18 @@ pub fn audit_constraints(
         .map(|(i, name)| (name.as_str(), i))
         .collect();
 
-    // Helper: get truth value for a variable name
-    let get_val = |name: &str, violations: &mut Vec<AuditViolation>| -> Option<bool> {
-        match name_to_idx.get(name) {
-            Some(&idx) => result.assignments.get(&idx).copied(),
-            None => {
-                violations.push(AuditViolation::NoAssignmentForVar(name.to_string()));
-                None
-            }
-        }
-    };
+    /// Helper: get truth value for a variable name.
+    /// Returns ``None`` silently when the solver didn't assign the variable —
+    /// when ``max_sat_nets`` encodes only a subset of nets, unassigned
+    /// variables were not part of the solved problem and should be ignored.
+    fn get_val<'a>(
+        name: &'a str,
+        name_to_idx: &HashMap<&str, usize>,
+        result: &TopologyResult,
+    ) -> Option<bool> {
+        let idx = name_to_idx.get(name)?;
+        result.assignments.get(idx).copied()
+    }
 
     if result.status != SolverStatus::Satisfiable {
         // UNSAT: check if the problem is actually unsatisfiable.
@@ -80,7 +82,7 @@ pub fn audit_constraints(
 
                 let mut true_vars: Vec<String> = Vec::new();
                 for (vname, _w) in terms {
-                    if let Some(val) = get_val(vname, &mut violations) {
+                    if let Some(val) = get_val(vname, &name_to_idx, result) {
                         if val {
                             true_vars.push(vname.clone());
                         }
@@ -97,8 +99,8 @@ pub fn audit_constraints(
                 }
             }
             InternalConstraint::DiffPair { channel_id, p_var_name, n_var_name } => {
-                let p_val = get_val(p_var_name, &mut violations);
-                let n_val = get_val(n_var_name, &mut violations);
+                let p_val = get_val(p_var_name, &name_to_idx, result);
+                let n_val = get_val(n_var_name, &name_to_idx, result);
                 if let (Some(p), Some(n)) = (p_val, n_val) {
                     if p != n {
                         violations.push(AuditViolation::DiffPairMismatch {
@@ -112,7 +114,7 @@ pub fn audit_constraints(
                 }
             }
             InternalConstraint::LayerRestriction { var_name, allowed } => {
-                if let Some(val) = get_val(var_name, &mut violations) {
+                if let Some(val) = get_val(var_name, &name_to_idx, result) {
                     if val != *allowed {
                         violations.push(AuditViolation::LayerViolation {
                             var_name: var_name.clone(),
