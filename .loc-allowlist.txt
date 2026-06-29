@@ -3,7 +3,7 @@
 packages/temper-placer/src/temper_placer/cli/__init__.py 3946 temper-N6-U3 # CLI god-object, Phase 2 decomposition
 packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py 1797 temper-N6-U6 # router, Phase 3
 packages/temper-placer/src/temper_placer/optimizer/train.py 1663 temper-N7-10 # follow-up (grew from 1652)
-packages/temper-placer/src/temper_placer/io/config_loader.py 1608 temper-N7-9 # follow-up (grew from 1549)
+packages/temper-placer/src/temper_placer/io/config_loader.py 1610 temper-N7-9 # follow-up (grew from 1549)
 packages/temper-placer/src/temper_placer/optimizer/nsga2.py 1521 temper-N7-8 # follow-up
 packages/temper-placer/src/temper_placer/losses/base.py 1382 temper-N7-2 # follow-up
 packages/temper-placer/src/temper_placer/io/kicad_parser.py 1328 temper-N7-6 # follow-up (grew from 1312)
