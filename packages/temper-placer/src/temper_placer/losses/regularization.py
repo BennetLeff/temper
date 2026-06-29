@@ -321,6 +321,7 @@ class RotationEntropyLoss(LossFunction):
         _context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute rotation entropy loss.

@@ -1154,9 +1154,6 @@ static bool fault_cleared(void) {
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
 
-        case FAULT_NONE:
-            return true;   /* No active fault */
-
         default:
             return false;  /* Most faults require power cycle */
     }
