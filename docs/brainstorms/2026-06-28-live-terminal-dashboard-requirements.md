@@ -37,9 +37,9 @@ PCB pipeline runs take 3–15 minutes with silent gaps between 8 variable-depth 
 
 **Description:** `TerminalDashboardObserver` implements `ProgressObserver` and owns a `rich.Live` context. Translates all 6 lifecycle events into `Live.update()` calls on per-stage panels. `temper watch` CLI registers the observer on `StageDAGEngine`.
 
-**Pros:** ~200 lines new code. Event-driven, no polling. Already partially proven in `pipeline_commands.py`. Replay from `PipelineExecutionLog` is trivial.
+**Pros:** ~500 lines new code (TerminalDashboardObserver ~200 lines + CLI subcommand ~60 lines + layout rendering ~80 lines + replay mode ~50 lines + tests ~150 lines). Event-driven, no polling. Already partially proven in `pipeline_commands.py`. Replay from `PipelineExecutionLog` is trivial.
 
-**Cons / Risks:** Epoch-level events not in `ProgressObserver` — need bridge from geometric stage. `RichDashboard` expects `PipelinePhase` enums, not raw string stage names.
+**Cons / Risks:** `RichDashboard` implements `ProgressCallback` (phase-level with `PipelinePhase` enums), not `ProgressObserver` (stage-level with string names) — observer is new code, reuses only layout primitives. Epoch sparkline requires extending `ProgressObserver` with `on_epoch(stage_name, epoch, loss)`. Terminal layout for 8 stages in 80 columns is the largest unresolved design decision.
 
 ## Approach 2: Async Sidecar + PipelineExecutionLog Tail
 
@@ -63,7 +63,7 @@ PCB pipeline runs take 3–15 minutes with silent gaps between 8 variable-depth 
 
 ## Scope Boundaries
 
-**In scope for v1:** `TerminalDashboardObserver` class, `temper-placer watch` subcommand, live timers + status + DAG header, `--replay` mode, epoch sparkline in geometric stage, feedback retrigger indicator, skip/error rendering
+**In scope for v1:** `TerminalDashboardObserver` class (implements `ProgressObserver`, reuses `RichDashboard` layout primitives), extend `ProgressObserver` with `on_epoch(stage_name, epoch, loss)`, `temper-placer watch` subcommand, live timers + status + DAG header, `--replay` mode, epoch sparkline in geometric stage, feedback retrigger indicator, skip/error rendering
 
 **Deferred:** Standalone `temper` CLI binary, remote CI tailing, TUI interactivity (pause/resume, drill-down), multi-DAG support
 

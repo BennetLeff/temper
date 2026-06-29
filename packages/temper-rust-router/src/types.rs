@@ -397,6 +397,44 @@ pub struct TopologyGraph {
 }
 
 // ---------------------------------------------------------------------------
+// Bundle manifest types (U1 / U4)
+// ---------------------------------------------------------------------------
+
+/// A single bundle equivalence class.
+#[derive(Clone, Debug)]
+pub struct BundleClass {
+    pub bundle_id: usize,
+    pub net_indices: Vec<usize>,
+    pub constraint_types: Vec<String>,
+    pub is_diff_pair: bool,
+}
+
+/// Manifest bridging Python BundleManifest → Rust.
+#[derive(Clone, Debug)]
+pub struct InternalBundleManifest {
+    pub bundles: Vec<BundleClass>,
+    pub bundle_id_for_net: HashMap<usize, usize>,
+    pub unbundled_net_indices: Vec<usize>,
+}
+
+// ---------------------------------------------------------------------------
+// Extended solver result with lazy grounding metadata
+// ---------------------------------------------------------------------------
+
+#[derive(Clone, Debug)]
+pub struct BundledSolverResult {
+    pub status: SolverStatus,
+    pub assignments: HashMap<usize, bool>,
+    pub var_names: Vec<String>,
+    pub num_vars: usize,
+    pub num_clauses: usize,
+    pub solver_time_ms: f64,
+    pub cegar_iterations: usize,
+    pub budget_used: usize,
+    pub degraded_nets: Vec<String>,
+}
+
+// ---------------------------------------------------------------------------
 // Conversion from Python objects
 // ---------------------------------------------------------------------------
 

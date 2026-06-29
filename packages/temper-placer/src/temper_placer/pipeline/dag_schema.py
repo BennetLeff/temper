@@ -11,7 +11,7 @@ import warnings
 from pathlib import Path
 from typing import Any, Literal
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 from pydantic import BaseModel, Field, model_validator
 
 from temper_placer.pipeline.dag_expr import parse_skip_expr

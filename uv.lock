@@ -22,6 +22,7 @@ resolution-markers = [
 [manifest]
 members = [
     "temper-autoprof",
+    "temper-constraint-compiler",
     "temper-drc",
     "temper-placer",
     "temper-rust-router",
@@ -2164,6 +2165,11 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'" },
 ]
 provides-extras = ["dev"]
+
+[[package]]
+name = "temper-constraint-compiler"
+version = "0.1.0"
+source = { editable = "packages/temper-constraint-compiler" }
 
 [[package]]
 name = "temper-drc"

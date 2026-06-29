@@ -65,7 +65,9 @@
 
 ## Scope Boundaries
 
-**In scope for v1:** Add `compute_percentiles()` to `pipeline_metrics.py`. Extend Plan 011 U7 report to annotate stage bars with watermark labels. Extend PR scorecard with delta columns. Add tooltip baselines to dashboard. Cold-start behavior (<5 runs → "baseline building").
+**In scope for v1:** Add `compute_percentiles()` to `pipeline_metrics.py` (skip zero-valued records with `wall_time_ms == 0`). Extend Plan 011 U7 report to annotate stage bars with watermark labels. Extend PR scorecard with delta columns. Add tooltip baselines to dashboard. Cold-start behavior (<5 runs → "baseline building").
+
+**Prerequisite:** v1 blocked until `pipeline_metrics.jsonl` contains >=5 runs per stage with non-zero `wall_time_ms`. The `MetricsObserver` (Plan 011 R1) must land and populate at least one golden corpus board's metrics before percentile computation is meaningful.
 
 **Deferred:** Client-side sparklines, SVG sparklines, natural-language annotation text ("16% slower than median"), SLO threshold sparklines
 

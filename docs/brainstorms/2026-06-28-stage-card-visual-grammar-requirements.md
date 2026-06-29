@@ -12,7 +12,7 @@
 
 - **RichDashboard** (`visualization.py`): Uses Rich `Panel`/`Layout`/`Table`. No card concept. `ProgressCallback` has 4 events — misses skip/error/feedback present in `ProgressObserver`
 - **ProgressObserver** (`dag_observability.py`): 6 events. `StageEvent` carries name, kind, iteration, duration_s, reason, outputs, error. `PipelineExecutionLog` collects events but `to_dict()` excludes them
-- **Session-dashboard card pattern:** `.session-card` CSS class, dark theme tokens, badge row, clamped summary, expandable detail. Renders from `renderCard(session)` function
+- **Session-dashboard card pattern:** `.session-card` CSS class, dark theme tokens, badge row, clamped summary, expandable detail. Renders from `renderCard(session)` function. StageCard and SessionCard serve distinct objects (pipeline stages vs agent sessions) — they share CSS custom properties but remain separate concerns. HtmlCardRenderer generates pipeline stage cards; session-card remains for agent session data
 - **ClosureResult:** `passed`, `board_id`, `benders_*`, `router_completion_pct`, `drc_errors`, `drc_warnings`, `wall_clock_seconds`, `errors`, `warnings`, `stages_exercised`
 - **CI dashboard:** Purely Chart.js time-series; no card concept
 - **Rendering libraries:** `rich>=13.0.0`, `plotly>=5.18.0`. No HTML template engine

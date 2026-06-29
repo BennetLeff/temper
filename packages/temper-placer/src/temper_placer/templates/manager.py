@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 
 class TemplateManager:
@@ -26,7 +26,7 @@ class TemplateManager:
 
     def compose(self, names: list[str]) -> dict[str, Any]:
         """Compose multiple templates into a single design specification."""
-        composed = {
+        composed: dict[str, Any] = {
             "components": {},
             "loops": {},
             "constraints": [],

@@ -134,8 +134,8 @@ def populate_sat_from_constraints(
     )
 
     # 1. Create SAT variables from constraint model variables
-    var_map = {}  # constraint var name -> SAT var
-    net_channel_vars = {}  # net_idx -> list of SAT vars for that net
+    var_map: dict[str, Any] = {}  # constraint var name -> SAT var
+    net_channel_vars: dict[int, list[Any]] = {}  # net_idx -> list of SAT vars for that net
 
     for var in constraint_model.variables:
         if isinstance(var, NetChannelVar):

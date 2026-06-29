@@ -21,7 +21,7 @@ Example usage:
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from temper_placer.core.loop import (
     Loop,

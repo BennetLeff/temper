@@ -199,6 +199,11 @@ fn filter_constraint_vars(
                 None
             }
         }
+        InternalConstraint::ChannelSeparation { .. } => {
+            // ChannelSeparation uses net indices, not variable names —
+            // passes through the variable filter unchanged.
+            Some(c)
+        }
     }
 }
 

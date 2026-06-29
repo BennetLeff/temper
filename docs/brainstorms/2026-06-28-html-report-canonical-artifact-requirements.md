@@ -36,21 +36,21 @@
 4. **CI artifact integration:** Report uploaded on every push to main; accessible from GH Actions run page
 5. **Cold-start graceful:** First run renders with "baseline building" indicator
 
-## Approach 1: Inline Canvas Renderer with Chart.js Bundled — RECOMMENDED
+## Approach 1: CSS-Only Single-File Report — RECOMMENDED (IMPLEMENTED)
 
-**Description:** Single `.html` with all CSS/JS inlined. Timeline as horizontal `<div>` bars with duration-proportional width. HPWL convergence on Chart.js (bundled inline, ~70KB). DAG as CSS grid. URL fragment navigation (~30 lines JS). Data embedded as `<script>window.__PIPELINE_DATA__</script>`.
+**Description:** Single `.html` with all CSS inlined, zero JS dependencies. Timeline as horizontal `<div>` bars with duration-proportional width. DAG as CSS grid. Data embedded as `<script type="application/json">`. Fully static, zero CDN, opens via `file://`. Currently implemented at `scripts/pipeline_report.py` (331 lines) and deployed in CI via `metrics-record.yml`.
 
-**Pros:** Fully self-contained. Matches Plan 011 design intent. Reuses Chart.js expertise. ~400 lines Python + ~250 lines HTML/CSS/JS.
+**Pros:** Already shipped and working. Fully self-contained. Matches Plan 011 design intent. ~400 lines Python + ~250 lines HTML/CSS.
 
-**Cons / Risks:** Chart.js ~70KB blob. No Mermaid DAG (CSS grid is linear/waterfall, confirmed appropriate for linear pipeline).
+**Cons / Risks:** No interactive charting for HPWL convergence curves (requires `PipelineProfiler` wiring — deferred). CSS-only timeline bars are effective for the linear 8-stage pipeline but would need rework for non-linear DAG.
 
-## Approach 2: Python-Generated SVG + Pure Canvas
+## Approach 2: Chart.js Enhanced (Deferred Enhancement)
 
-**Description:** Same structure but hand-roll a ~100-line canvas line-plotter instead of bundling Chart.js. SVG sparklines generated server-side.
+**Description:** Extend the CSS-only report with Chart.js (bundled inline, ~70KB) for interactive HPWL convergence curves, DRC trend charts, and per-stage duration comparisons. Builds on the deployed Approach 1 base.
 
-**Pros:** Truly zero external dependency. Even smaller file size.
+**Pros:** Interactive charts with tooltips, zoom, and responsive resize. Reuses existing Chart.js dark-theme configuration from `dashboard/js/charts.js`.
 
-**Cons / Risks:** Canvas line-plotters tedious to debug. Duplicates what Chart.js already provides well.
+**Cons / Risks:** Requires `PipelineProfiler` HPWL wiring (deferred). ~70KB inline blob. Adds JS dependency to currently JS-free report.
 
 ## Approach 3: Two-Layer Architecture (Report-as-API, Inversion)
 
@@ -62,7 +62,7 @@
 
 ## Recommendation
 
-**Approach 1** — single `.html` with Chart.js bundled inline. Satisfies R7. Reuses existing Chart.js dark-theme configuration from `dashboard/js/charts.js`. DAG stays CSS grid (pipeline is linear). URL fragments are trivial. Approach 3 is the right long-term direction if the team revisits the "static over live" decision.
+**Approach 1 (CSS-Only)** — already implemented and deployed. Chart.js enhancement (Approach 2) deferred until `PipelineProfiler` HPWL wiring is complete. URL fragment navigation and digest-hashed filenames remain as v1 scope additions to the existing implementation.
 
 ## Scope Boundaries
 

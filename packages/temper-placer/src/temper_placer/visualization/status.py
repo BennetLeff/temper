@@ -561,7 +561,7 @@ def get_affected_component_refs(status: ConstraintStatus) -> list[str]:
     Returns:
         List of unique component reference designators.
     """
-    refs = set()
+    refs: set[str] = set()
     for violation in status.violations:
         refs.update(violation.component_refs)
     return sorted(refs)

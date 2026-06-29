@@ -224,7 +224,7 @@ Level 3 (Root cause): "Placement iteration 47 placed U2 at (12.7, 3.4).
 
 **Key unknowns:**
 - Whether `StageEvent.outputs` dicts are detailed enough for Layer 2 reconstruction (current outputs are dicts with values like `PlacementState` objects — serialization detail matters)
-- Optimal format for `upstream_ref` on `StageDRCFailure` — should it be a free-form dict or a constrained schema?
+- Resolved: `upstream_ref` format — constrained schema `{stage: str, iteration: int, component: str | None, position: tuple[float,float] | None, constraint: str | None}` with optional extension fields for validator-specific data
 
 **Best suited when:** Delivering the full three-level hierarchy from Plan 011 with progressive depth — Layer 1+2 ship in v1, Layer 3 annotations accumulate over time.
 

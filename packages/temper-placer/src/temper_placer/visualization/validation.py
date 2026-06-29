@@ -428,7 +428,7 @@ def check_trace_connectivity(
     Returns:
         List of (trace_ref, endpoint, min_distance) for disconnected traces.
     """
-    disconnected = []
+    disconnected: list[tuple[str, tuple[float, float], float]] = []
 
     if not board_view.pads:
         return disconnected
