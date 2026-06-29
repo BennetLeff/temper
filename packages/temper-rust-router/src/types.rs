@@ -15,7 +15,7 @@ use pyo3::prelude::*;
 // ---------------------------------------------------------------------------
 
 /// Role of a clause in the constraint encoding.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
 pub enum ClauseRole {
     ConstraintLiteral = 0,
