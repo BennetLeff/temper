@@ -39,7 +39,11 @@ PCB pipeline runs take 3–15 minutes with silent gaps between 8 variable-depth 
 
 **Pros:** ~500 lines new code (TerminalDashboardObserver ~200 lines + CLI subcommand ~60 lines + layout rendering ~80 lines + replay mode ~50 lines + tests ~150 lines). Event-driven, no polling. Already partially proven in `pipeline_commands.py`. Replay from `PipelineExecutionLog` is trivial.
 
+<<<<<<< Updated upstream
 **Cons / Risks:** `RichDashboard` implements `ProgressCallback` (phase-level with `PipelinePhase` enums), not `ProgressObserver` (stage-level with string names) — observer is new code, reuses only layout primitives. Epoch sparkline requires extending `ProgressObserver` with `on_epoch(stage_name, epoch, loss)`. Terminal layout for 8 stages in 80 columns is the largest unresolved design decision.
+=======
+**Cons / Risks:** `RichDashboard` implements `ProgressCallback` (phase-level with `PipelinePhase` enums), not `ProgressObserver` (stage-level with string names) — the observer is new code, not a wire. TerminalDashboardObserver reuses only layout methods (`create_layout()`, `update_header()`, panel structure), not callback handlers. Epoch-level events not in `ProgressObserver` — need bridge from geometric stage (see design decision below).
+>>>>>>> Stashed changes
 
 ## Approach 2: Async Sidecar + PipelineExecutionLog Tail
 
