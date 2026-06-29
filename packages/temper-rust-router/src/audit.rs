@@ -135,7 +135,7 @@ mod tests {
     use std::collections::HashMap;
 
     fn make_result(status: SolverStatus, assignments: HashMap<usize, bool>) -> TopologyResult {
-        TopologyResult { status, assignments, unsat_core: vec![], solver_time_ms: 0.0 }
+        TopologyResult { status, num_vars: 0, num_clauses: 0, assignments, unsat_core: vec![], solver_time_ms: 0.0 }
     }
 
     #[test]
@@ -302,6 +302,8 @@ mod tests {
 
             let result = TopologyResult {
                 status: SolverStatus::Satisfiable,
+                num_vars: 0,
+                num_clauses: 0,
                 assignments: assign.clone(),
                 unsat_core: vec![],
                 solver_time_ms: 0.0,
