@@ -113,9 +113,9 @@ class ComponentSpacingRule:
 @dataclass(frozen=True)
 class GeometryContext:
     """Pre-computed geometric data and board bounds."""
-    bounds: Array = None  # (N, 2) component bounds
-    fixed_mask: Array = None  # (N,) boolean mask
-    origin: Array = None  # (2,) board origin (ox, oy)
+    bounds: Array | None = None  # (N, 2) component bounds
+    fixed_mask: Array | None = None  # (N,) boolean mask
+    origin: Array | None = None  # (2,) board origin (ox, oy)
     width: float = 0.0
     height: float = 0.0
     board_margin: float = 0.0
@@ -134,15 +134,15 @@ class GeometryContext:
 @dataclass(frozen=True)
 class NetlistContext:
     """Pre-computed netlist and connectivity data."""
-    net_pin_indices: Array = None  # (M, P) indices of components in pins
-    net_pin_offsets: Array = None  # (M, P, 2) pin offsets from center
-    net_pin_mask: Array = None  # (M, P) valid pin mask
-    net_weights: Array = None  # (M,) net priority weights
-    net_layer_counts: Array = None  # (M,) required layers
-    centrality: Array = None  # (N,) node centrality
-    hv_indices: Array = None  # Indices of high-voltage components
-    lv_indices: Array = None  # Indices of low-voltage components
-    fiducial_indices: Array = None  # Indices of fiducials
+    net_pin_indices: Array | None = None  # (M, P) indices of components in pins
+    net_pin_offsets: Array | None = None  # (M, P, 2) pin offsets from center
+    net_pin_mask: Array | None = None  # (M, P) valid pin mask
+    net_weights: Array | None = None  # (M,) net priority weights
+    net_layer_counts: Array | None = None  # (M,) required layers
+    centrality: Array | None = None  # (N,) node centrality
+    hv_indices: Array | None = None  # Indices of high-voltage components
+    lv_indices: Array | None = None  # Indices of low-voltage components
+    fiducial_indices: Array | None = None  # Indices of fiducials
     max_pins_per_net: int = 0
 
     def tree_flatten(self):
@@ -170,32 +170,32 @@ class NetlistContext:
 class ConstraintContext:
     """Pre-computed constraint data (loops, thermal, stars)."""
     # Loop constraints
-    loop_pin_indices: Array = None  # (L, P)
-    loop_pin_offsets: Array = None  # (L, P, 2)
-    loop_pin_mask: Array = None  # (L, P)
-    loop_max_areas: Array = None  # (L,)
-    loop_weights: Array = None  # (L,)
+    loop_pin_indices: Array | None = None  # (L, P)
+    loop_pin_offsets: Array | None = None  # (L, P, 2)
+    loop_pin_mask: Array | None = None  # (L, P)
+    loop_max_areas: Array | None = None  # (L,)
+    loop_weights: Array | None = None  # (L,)
 
     # Critical Paths
-    path_pin_indices: Array = None  # (K, 2)
-    path_pin_offsets: Array = None  # (K, 2, 2)
-    path_max_lengths: Array = None  # (K,)
-    path_weights: Array = None  # (K,)
+    path_pin_indices: Array | None = None  # (K, 2)
+    path_pin_offsets: Array | None = None  # (K, 2, 2)
+    path_max_lengths: Array | None = None  # (K,)
+    path_weights: Array | None = None  # (K,)
 
     # Star Grounds
-    star_net_indices: Array = None  # (S,)
-    star_weights: Array = None  # (S,)
-    star_anchor_pos: Array = None  # (S, 2)
-    star_has_anchor: Array = None  # (S,)
+    star_net_indices: Array | None = None  # (S,)
+    star_weights: Array | None = None  # (S,)
+    star_anchor_pos: Array | None = None  # (S, 2)
+    star_has_anchor: Array | None = None  # (S,)
 
     # Ground Domains
-    domain_bounds: Array = None  # (D, 4)
-    domain_star_points: Array = None  # (D, 2)
-    domain_has_star: Array = None  # (D,)
-    is_star_net: Array = None  # (M,)
+    domain_bounds: Array | None = None  # (D, 4)
+    domain_star_points: Array | None = None  # (D, 2)
+    domain_has_star: Array | None = None  # (D,)
+    is_star_net: Array | None = None  # (M,)
 
     # Spatial Feedback (from routing failures)
-    spatial_penalties: Array = None  # (K, 3) -> [x, y, magnitude]
+    spatial_penalties: Array | None = None  # (K, 3) -> [x, y, magnitude]
 
     def tree_flatten(self):
         children = (
@@ -238,8 +238,8 @@ class LossContext:
     # (e.g., self-contained tests on position arrays).
     netlist: Any = None  # Netlist object
     board: Any = None    # Board object
-    bounds: Array = None  # (N, 2) component bounds
-    fixed_mask: Array = None  # (N,) boolean mask
+    bounds: Array | None = None  # (N, 2) component bounds
+    fixed_mask: Array | None = None  # (N,) boolean mask
 
     # New sub-contexts (Always populated)
     geometry: GeometryContext = field(default_factory=GeometryContext)
