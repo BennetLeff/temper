@@ -3,7 +3,9 @@
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
 pub mod audit;
+pub mod bmc;
 mod encoding;
+pub mod esl;
 mod extraction;
 mod solver;
 pub mod types;
@@ -190,6 +192,86 @@ fn audit_result(
     })
 }
 
+/// Python-callable ESL verification — audit assignment against constraints.
+///
+/// Fast O(constraints) check using Rust constraint evaluation.
+/// Returns a list of violation strings (empty = clean).
+#[pyfunction]
+fn esl_verify(
+    variables: &Bound<'_, PyList>,
+    constraints: &Bound<'_, PyList>,
+    assignments: &Bound<'_, PyDict>,
+    net_names: Vec<String>,
+) -> PyResult<PyObject> {
+    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
+    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
+
+    let model = types_py_bridge::model_from_python(net_names, py_vars, py_cons)?;
+
+    // Build assignment map from Python dict.
+    let mut assignment_map: HashMap<String, bool> = HashMap::new();
+    for (py_name, py_val) in assignments.iter() {
+        let name: String = py_name.extract()?;
+        let val: bool = py_val.extract()?;
+        assignment_map.insert(name, val);
+    }
+
+    let violations = esl::audit(&model.constraints, &assignment_map);
+
+    Python::with_gil(|py| {
+        let py_list = PyList::empty(py);
+        for v in &violations {
+            let msg = match v {
+                esl::Violation::Capacity { channel_id, max_nets, true_count, .. } => {
+                    format!(
+                        "Capacity {}: {} true > {} max",
+                        channel_id, true_count, max_nets
+                    )
+                }
+                esl::Violation::DiffPair { p_val, n_val, .. } => {
+                    format!("DiffPair: p={} != n={}", p_val, n_val)
+                }
+                esl::Violation::Layer { var_name, expected, actual, .. } => {
+                    format!(
+                        "Layer {}: got {}, expected {}",
+                        var_name, actual, expected
+                    )
+                }
+            };
+            py_list.append(msg)?;
+        }
+        Ok(py_list.into())
+    })
+}
+
+/// Python-callable BMC sub-model diagnostic.
+///
+/// Samples the most-constrained channels within the BMC bound and
+/// returns a dict with passed/counterexamples/sampled_vars/message.
+#[pyfunction]
+fn diagnose_submodel(
+    variables: &Bound<'_, PyList>,
+    constraints: &Bound<'_, PyList>,
+    net_names: Vec<String>,
+    max_primary_vars: usize,
+) -> PyResult<PyObject> {
+    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
+    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
+
+    let model = types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
+
+    let diagnostic = bmc::diagnose_submodel(&model, &net_names, max_primary_vars);
+
+    Python::with_gil(|py| {
+        let d = PyDict::new(py);
+        d.set_item("passed", diagnostic.passed)?;
+        d.set_item("counterexamples", diagnostic.counterexample_count)?;
+        d.set_item("sampled_vars", diagnostic.sampled_vars)?;
+        d.set_item("message", diagnostic.message)?;
+        Ok(d.into())
+    })
+}
+
 /// Python module entry point.
 #[pymodule]
 fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -207,5 +289,7 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Register the solver entry point and constraint auditor.
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
     m.add_function(wrap_pyfunction!(audit_result, m)?)?;
+    m.add_function(wrap_pyfunction!(esl_verify, m)?)?;
+    m.add_function(wrap_pyfunction!(diagnose_submodel, m)?)?;
     Ok(())
 }

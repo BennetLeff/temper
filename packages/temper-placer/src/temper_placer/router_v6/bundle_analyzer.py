@@ -198,7 +198,7 @@ class BundleAnalyzer:
         net = self.nets[net_idx]
         if self.pcb is None:
             return layers
-        comp_by_ref = {c.reference: c for c in getattr(self.pcb, "components", [])}
+        comp_by_ref = {c.ref: c for c in getattr(self.pcb, "components", [])}
         for comp_ref, pin_name in getattr(net, "pins", []):
             comp = comp_by_ref.get(comp_ref)
             if comp is None:
@@ -238,7 +238,7 @@ class BundleAnalyzer:
         net = self.nets[net_idx]
         if self.pcb is None:
             return points
-        comp_by_ref = {c.reference: c for c in getattr(self.pcb, "components", [])}
+        comp_by_ref = {c.ref: c for c in getattr(self.pcb, "components", [])}
         for comp_ref, pin_name in getattr(net, "pins", []):
             comp = comp_by_ref.get(comp_ref)
             if comp is None:

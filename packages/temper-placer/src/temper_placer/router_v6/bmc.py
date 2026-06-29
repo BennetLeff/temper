@@ -268,20 +268,25 @@ def esl_verify(
     constraint_model,
     assignment: dict[str, bool],
 ) -> list[str]:
-    """Fast ESL-based constraint audit — O(constraints) time.
+    """Fast ESL-based constraint audit — delegates to Rust when available.
 
     Returns a list of violation messages.  Empty list = assignment
-    satisfies all constraints.  This is a lightweight alternative to
-    the Rust audit_result for debugging assignments without running
-    the full solver.
-
-    Args:
-        constraint_model: The ConstraintModel with esl() methods.
-        assignment: Dict mapping variable names to booleans.
-
-    Returns:
-        List of violation strings (empty if valid).
+    satisfies all constraints.
     """
+    # Prefer Rust implementation for speed and type safety.
+    try:
+        from temper_rust_router import esl_verify as rust_esl_verify
+        net_names = _derive_net_names(constraint_model)
+        return list(rust_esl_verify(
+            list(constraint_model.variables),
+            list(constraint_model.constraints),
+            assignment,
+            net_names,
+        ))
+    except (ImportError, Exception):
+        pass
+
+    # Fallback: pure Python implementation.
     from temper_placer.router_v6.constraint_model import (
         CapacityConstraint,
         DiffPairConstraint,
@@ -318,23 +323,37 @@ def esl_verify(
     return violations
 
 
+def _derive_net_names(constraint_model) -> list[str]:
+    """Derive net name list from constraint model variables."""
+    max_net = -1
+    for v in constraint_model.variables:
+        if hasattr(v, 'net_idx') and v.net_idx > max_net:
+            max_net = v.net_idx
+    return [f"N{i}" for i in range(max_net + 1)]
+
+
 def diagnose_submodel(
     constraint_model,
     max_primary_vars: int = 10,
 ) -> dict:
-    """Sample a constrained sub-model and run BMC diagnostic.
+    """Sample a constrained sub-model and run BMC diagnostic — delegates to Rust.
 
-    Picks the most-constrained channels (those with capacity
-    constraints and the most terms) to stay within the BMC bound,
-    then runs bmc_check_with_diagnostics on the sub-model.
-
-    Args:
-        constraint_model: The full ConstraintModel.
-        max_primary_vars: Maximum primary variables for BMC (default 10).
-
-    Returns:
-        Dict with keys: passed, counterexamples, sampled_vars, message.
+    Returns a dict with passed, counterexamples, sampled_vars, message.
     """
+    # Prefer Rust implementation for reliability.
+    try:
+        from temper_rust_router import diagnose_submodel as rust_diagnose
+        net_names = _derive_net_names(constraint_model)
+        return rust_diagnose(
+            list(constraint_model.variables),
+            list(constraint_model.constraints),
+            net_names,
+            max_primary_vars,
+        )
+    except (ImportError, Exception):
+        pass
+
+    # Fallback: pure Python implementation.
     from temper_placer.router_v6.constraint_model import (
         CapacityConstraint,
         ConstraintModel,
@@ -342,7 +361,6 @@ def diagnose_submodel(
     )
     from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
-    # Find capacity constraints sorted by term count (most constrained first)
     cap_constraints = sorted(
         [c for c in constraint_model.constraints if isinstance(c, CapacityConstraint)],
         key=lambda c: len(c.terms),
@@ -357,7 +375,6 @@ def diagnose_submodel(
             "message": "No capacity constraints to sample",
         }
 
-    # Collect variables from capacity constraints until we hit the bound
     sub_model = ConstraintModel()
     var_count = 0
     sampled_channel_ids: list[str] = []
@@ -387,12 +404,8 @@ def diagnose_submodel(
 
     try:
         sat = SATModel(variables=[], clauses=[])
-        net_names = [f"N{i}" for i in range(max(
-            (v.net_idx for v in sub_model.variables if isinstance(v, NetChannelVar)),
-            default=-1,
-        ) + 1)]
+        net_names = _derive_net_names(sub_model)
         populate_sat_from_constraints(sat, sub_model, net_names=net_names, skip_connectivity=True)
-
         ces = bmc_check_with_diagnostics(sub_model, sat)
         return {
             "passed": len(ces) == 0,

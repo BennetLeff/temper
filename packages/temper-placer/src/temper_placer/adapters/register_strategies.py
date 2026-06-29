@@ -86,7 +86,7 @@ class RoutingStage(PipelineStage):
         if input.meta and input.meta.trace_context:
             placements = input.meta.trace_context.get("placements", {}) or {}
 
-        result = route_pcb(parsed, placements=placements, seed=seed)
+        result = route_pcb(parsed, placements=placements, _seed=seed)
         return StageOutput(
             data=result,
             meta=input.meta,
