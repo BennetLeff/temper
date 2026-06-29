@@ -111,7 +111,7 @@ class ComponentGroupLoss(LossFunction):
 
             total_penalty += penalty
 
-        return LossResult(value=total_penalty * self.weight)
+        return LossResult(value=jnp.array(total_penalty * self.weight))
 
     def weight_schedule(self, epoch: int, total_epochs: int) -> float:
         """

@@ -57,7 +57,7 @@ class THTPadClearanceLoss(LossFunction):
         net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         if not self._tht_pads_info:
-            return LossResult(value=0.0, name=self.name, weight=self.weight)
+            return LossResult(value=jnp.array(0.0), name=self.name, weight=self.weight)
 
         loss = 0.0
 
@@ -89,7 +89,7 @@ class THTPadClearanceLoss(LossFunction):
             pad_radii.append(radius)
 
         if not pad_abs_pos:
-            return LossResult(value=0.0, name=self.name, weight=self.weight)
+            return LossResult(value=jnp.array(0.0), name=self.name, weight=self.weight)
 
         pad_pos_array = jnp.array(pad_abs_pos)
         pad_radii_array = jnp.array(pad_radii)
@@ -113,4 +113,4 @@ class THTPadClearanceLoss(LossFunction):
 
         loss = jnp.sum(violation * mask)
 
-        return LossResult(value=loss * self.weight, name=self.name, weight=self.weight)
+        return LossResult(value=jnp.array(loss * self.weight), name=self.name, weight=self.weight)

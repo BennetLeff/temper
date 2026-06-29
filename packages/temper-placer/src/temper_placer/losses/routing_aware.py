@@ -163,8 +163,8 @@ class RoutingChannelLoss(LossFunction):
         )
 
         return LossResult(
-            value=self.weight * penalty,
-            breakdown={"routing_channel": self.weight * penalty},
+            value=jnp.array(self.weight * penalty),
+            breakdown={"routing_channel": jnp.array(self.weight * penalty)},
         )
 
 
@@ -235,7 +235,7 @@ class MCUClusteringLoss(LossFunction):
             total_penalty = total_penalty + excess ** 2
 
         return LossResult(
-            value=self.weight * total_penalty,
+            value=jnp.array(self.weight * total_penalty),
             breakdown={},  # Can't materialize during tracing
         )
 
@@ -382,7 +382,7 @@ class BusAlignmentLoss(LossFunction):
             total_penalty = total_penalty + penalty
 
         return LossResult(
-            value=self.weight * total_penalty,
+            value=jnp.array(self.weight * total_penalty),
             breakdown={},  # Can't materialize during tracing
         )
 

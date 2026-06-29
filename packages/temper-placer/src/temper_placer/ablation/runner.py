@@ -445,7 +445,7 @@ class ExperimentRunner:
         try:
             # Try to import and run DRC if available
             from temper_placer.io.kicad_writer import export_placements
-            from temper_placer.validation.drc import run_kicad_drc
+            from temper_placer.validation.drc import KiCadDRCValidator
 
             with tempfile.NamedTemporaryFile(
                 suffix=".kicad_pcb", delete=False
@@ -461,7 +461,8 @@ class ExperimentRunner:
                     state=state,
                     component_refs=component_refs
                 )
-                drc_result = run_kicad_drc(temp_pcb)
+                validator = KiCadDRCValidator()
+                drc_result = validator.run_drc(temp_pcb)
                 return (drc_result.error_count, drc_result.warning_count)
             finally:
                 temp_pcb.unlink(missing_ok=True)
@@ -504,6 +505,8 @@ class ExperimentRunner:
             parse_result = parse_kicad_pcb(test_case)
             netlist = parse_result.netlist
             board = parse_result.board
+            if board is None:
+                raise ValueError(f"No board geometry found in {test_case}")
 
             # Load constraints if available
             from temper_placer.io.config_loader import PlacementConstraints, load_constraints
@@ -596,6 +599,9 @@ class ExperimentRunner:
                 except Exception:
                     context = None
 
+            if context is None:
+                raise RuntimeError("Failed to create LossContext")
+
             # ========================
             # 6. RUN TRAINING
             # ========================
@@ -640,9 +646,11 @@ class ExperimentRunner:
             try:
                 from temper_placer.metrics.quality import compute_quality_report
 
-                quality_metrics = compute_quality_report(
-                    training_result.best_state, netlist, board, context
-                )
+                best_state = training_result.best_state
+                if best_state is not None:
+                    quality_metrics = compute_quality_report(
+                        best_state, netlist, board, context, {}
+                    )
             except Exception as e:
                 self.logger.warning(f"Quality metrics computation failed: {e}")
 

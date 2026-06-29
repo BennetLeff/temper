@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
 from temper_placer.core.differential_pair import DifferentialPairConstraint
@@ -822,13 +822,13 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "clearances" in config:
         for rule_cfg in config["clearances"]:
-            rule = ClearanceRule(
+            cl_rule = ClearanceRule(
                 from_class=rule_cfg["from"],
                 to_class=rule_cfg["to"],
                 clearance_mm=rule_cfg["clearance_mm"],
                 description=rule_cfg.get("description", ""),
             )
-            constraints.clearances.append(rule)
+            constraints.clearances.append(cl_rule)
 
     if "hv_clearance_mm" in config:
         constraints.hv_clearance_mm = config["hv_clearance_mm"]
@@ -866,22 +866,22 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "matched_length_groups" in config:
         for name, group_cfg in config["matched_length_groups"].items():
-            group = MatchedLengthGroup(
+            ml_group = MatchedLengthGroup(
                 name=name,
                 tolerance_mm=group_cfg.get("tolerance_mm", 5.0),
             )
-            constraints.matched_length_groups.append(group)
+            constraints.matched_length_groups.append(ml_group)
 
     if "noise_isolation" in config:
         for name, rule_cfg in config["noise_isolation"].items():
-            rule = NoiseIsolationRule(
+            ni_rule = NoiseIsolationRule(
                 name=name,
                 sensitive_components=rule_cfg["sensitive_components"],
                 noise_sources=rule_cfg["noise_sources"],
                 min_distance_mm=rule_cfg.get("min_distance_mm", 10.0),
                 weight=rule_cfg.get("weight", 1.0),
             )
-            constraints.noise_isolation.append(rule)
+            constraints.noise_isolation.append(ni_rule)
 
     if "star_grounds" in config:
         for sg_cfg in config["star_grounds"]:
@@ -936,10 +936,12 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     if isinstance(prox_cfg, dict):
                         pair = prox_cfg.get("pair", prox_cfg.get("components", []))
                         max_dist = prox_cfg.get("max_distance_mm", 10.0)
-                    else:
+                    elif isinstance(prox_cfg, (list, tuple)):
                         pair = prox_cfg[0] if len(prox_cfg) > 0 else []
                         max_dist = prox_cfg[1] if len(prox_cfg) > 1 else 10.0
-                    if len(pair) >= 2:
+                    else:
+                        continue
+                    if isinstance(pair, (list, tuple)) and len(pair) >= 2:
                         tier = (
                             prox_cfg.get("tier", "soft") if isinstance(prox_cfg, dict) else "soft"
                         )
@@ -952,7 +954,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                             )
                         )
 
-            group = ComponentGroup(
+            comp_group = ComponentGroup(
                 name=group_cfg["name"],
                 components=group_cfg["components"],
                 max_spread_mm=group_cfg.get("max_spread_mm", 30.0),
@@ -964,7 +966,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 primary_pin=group_cfg.get("primary_pin"),
                 stacked_layout=group_cfg.get("stacked_layout", False),
             )
-            constraints.component_groups.append(group)
+            constraints.component_groups.append(comp_group)
 
     if "component_groups" in config:
         for group_cfg in config["component_groups"]:
@@ -975,7 +977,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 components.append(leader)
             components.extend(followers)
             if components:
-                group = ComponentGroup(
+                cg_group = ComponentGroup(
                     name=group_cfg["name"],
                     components=components,
                     max_spread_mm=group_cfg.get("max_distance", 30.0),
@@ -984,7 +986,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     weight=group_cfg.get("weight", 1.0),
                     description=group_cfg.get("description", ""),
                 )
-                constraints.component_groups.append(group)
+                constraints.component_groups.append(cg_group)
 
     if "group_separation" in config:
         for sep_cfg in config["group_separation"]:
@@ -1002,7 +1004,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
         for spacing_cfg in config["minimum_spacing"]:
             components = spacing_cfg.get("components", [])
             if len(components) >= 2:
-                rule = ComponentSpacingRule(
+                cs_rule = ComponentSpacingRule(
                     component_a=components[0],
                     component_b=components[1],
                     min_separation_mm=spacing_cfg.get("min_separation_mm", 2.0),
@@ -1010,7 +1012,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                     weight=spacing_cfg.get("weight", 1.0),
                     tier=spacing_cfg.get("tier", "soft"),
                 )
-                constraints.component_spacing_rules.append(rule)
+                constraints.component_spacing_rules.append(cs_rule)
 
     if "manufacturing_constraints" in config:
         for mfg_cfg in config["manufacturing_constraints"]:
@@ -1042,7 +1044,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     if "net_class_rules" in config:
         for name, rule_cfg in config["net_class_rules"].items():
-            rule = NetClassRule(
+            nc_rule = NetClassRule(
                 name=name,
                 trace_width_mm=rule_cfg.get("trace_width_mm", 0.2),
                 clearance_mm=rule_cfg.get("clearance_mm", 0.2),
@@ -1058,7 +1060,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 target_impedance=rule_cfg.get("target_impedance"),
                 voltage_v=rule_cfg.get("voltage_v", 0.0),  # Newly added field
             )
-            constraints.net_class_rules[name] = rule
+            constraints.net_class_rules[name] = nc_rule
 
     # EXP-6: Load explicit net routing priority
     # Lower numbers route first (1=highest priority)
