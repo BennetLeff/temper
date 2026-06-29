@@ -9,6 +9,7 @@ use crate::types::{ClauseOrigin, ClauseRole, InternalConstraint, InternalConstra
 pub struct CnfFormula {
     pub num_vars: usize,
     pub clauses: Vec<Vec<i32>>,
+    #[allow(dead_code)] // consumed in U5 provenance reverse-mapping
     pub provenance: Vec<ClauseOrigin>,
     #[allow(dead_code)]
     pub var_names: Vec<String>,
@@ -23,6 +24,10 @@ fn encode_at_most_k(
     var_map: &mut Vec<SatVariable>,
     vars: &[usize],
     k: usize,
+    constraint_idx: usize,
+    constraint_label: &str,
+    provenance: &mut Vec<ClauseOrigin>,
+    aux_block_id: u8,
 ) {
     let n = vars.len();
     if k >= n {
@@ -31,6 +36,7 @@ fn encode_at_most_k(
     if k == 0 {
         for &vi in vars {
             clauses.push(vec![-((vi + 1) as i32)]);
+            provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityCounter, aux_block_id));
         }
         return;
     }
@@ -42,7 +48,7 @@ fn encode_at_most_k(
         for j in 0..k {
             var_map.push(SatVariable::new(
                 format!("sc_r{i}_{j}"),
-                format!("seq-counter r{i}.{j}"),
+                format!("seq-counter for {constraint_label} r{i}.{j}"),
             ));
         }
     }
@@ -53,25 +59,32 @@ fn encode_at_most_k(
 
     let v = |i: usize| -> i32 { (vars[i] + 1) as i32 };
 
-    // Position 0.
+    // Position 0 — cardinality counter clauses.
     clauses.push(vec![-v(0), r(0, 0)]);
+    provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityCounter, aux_block_id));
     for j in 1..k {
         clauses.push(vec![-r(0, j)]);
+        provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityCounter, aux_block_id));
     }
 
-    // Positions 1..n-2.
+    // Positions 1..n-2 — cardinality counter clauses.
     for i in 1..(n - 1) {
         clauses.push(vec![-v(i), r(i, 0)]);
+        provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityCounter, aux_block_id));
         clauses.push(vec![-r(i - 1, 0), r(i, 0)]);
+        provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityCounter, aux_block_id));
         for j in 1..k {
             clauses.push(vec![-v(i), -r(i - 1, j - 1), r(i, j)]);
+            provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityCounter, aux_block_id));
             clauses.push(vec![-r(i - 1, j), r(i, j)]);
+            provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityCounter, aux_block_id));
         }
     }
 
     // Exclusion: if count already reaches k, no further variable may be true.
     for i in k..n {
         clauses.push(vec![-v(i), -r(i - 1, k - 1)]);
+        provenance.push(ClauseOrigin::new(constraint_idx, ClauseRole::CardinalityExclusion, aux_block_id));
     }
 }
 
@@ -80,6 +93,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
     let mut var_map: Vec<SatVariable> = Vec::new();
     let mut name_to_idx: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
     let mut clauses: Vec<Vec<i32>> = Vec::new();
+    let mut provenance: Vec<ClauseOrigin> = Vec::new();
 
     let add_var = |vm: &mut Vec<SatVariable>, nm: &mut std::collections::HashMap<String, usize>, name: &str| -> usize {
         if let Some(&idx) = nm.get(name) {
@@ -109,7 +123,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
     }
 
     // Encode constraints.
-    for c in &model.constraints {
+    for (ci, c) in model.constraints.iter().enumerate() {
         match c {
             InternalConstraint::Capacity { channel_id: _ch, capacity: _cap, slack_factor: _sf, terms } => {
                 if terms.is_empty() {
@@ -127,25 +141,24 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
                 }
 
                 if !var_indices.is_empty() && max_nets < var_indices.len() {
-                    // Encode AtMostK as CNF via sequential counter (Sinz 2005),
-                    // since splr 0.13 does not expose a native add_atmostk API.
-                    let aux_start = var_map.len();
-                    encode_at_most_k(&mut clauses, &mut var_map, &var_indices, max_nets);
-                    // Track that cardinality was encoded (for solver awareness).
-                    let _ = aux_start; // auxiliary vars added to var_map inline
+                    let label = format!("Capacity[{ci}] {_ch}");
+                    encode_at_most_k(&mut clauses, &mut var_map, &var_indices, max_nets, ci, &label, &mut provenance, 0);
                 }
             }
             InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
                 if let (Some(&p), Some(&n)) = (name_to_idx.get(p_var_name), name_to_idx.get(n_var_name)) {
                     // p ↔ n: (¬p ∨ n) ∧ (p ∨ ¬n)
                     clauses.push(vec![encode_lit(p, false), encode_lit(n, true)]);
+                    provenance.push(ClauseOrigin::new(ci, ClauseRole::ConstraintLiteral, 255));
                     clauses.push(vec![encode_lit(p, true), encode_lit(n, false)]);
+                    provenance.push(ClauseOrigin::new(ci, ClauseRole::ConstraintLiteral, 255));
                 }
             }
             InternalConstraint::LayerRestriction { var_name, allowed } => {
                 if let Some(&idx) = name_to_idx.get(var_name) {
                     // Unit clause: var = allowed
                     clauses.push(vec![encode_lit(idx, *allowed)]);
+                    provenance.push(ClauseOrigin::new(ci, ClauseRole::Unit, 255));
                 }
             }
         }
@@ -157,7 +170,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
         CnfFormula {
             num_vars: var_map.len(),
             clauses,
-            provenance: Vec::new(),
+            provenance,
             var_names: var_names.clone(),
         },
         var_names,
@@ -275,7 +288,7 @@ mod tests {
                 let var_indices: Vec<usize> = (0..(n as usize)).collect();
                 let mut clauses: Vec<Vec<i32>> = Vec::new();
 
-                encode_at_most_k(&mut clauses, &mut var_map, &var_indices, k as usize);
+                encode_at_most_k(&mut clauses, &mut var_map, &var_indices, k as usize, 0, "test", &mut vec![], 0);
 
                 let total_vars = var_map.len();
 
