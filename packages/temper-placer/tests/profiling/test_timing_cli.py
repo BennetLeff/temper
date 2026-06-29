@@ -310,10 +310,14 @@ class TestTimingCheckCLI:
         assert "FAIL" in result.output
 
     def test_check_json_output(self, runner, mock_measure_all_stages, temp_baseline_yaml):
+        import sys as _sys
         import yaml, json
 
+        current_python = _sys.version.split()[0]
         baseline = {
             "format_version": 1,
+            "captured_python": current_python,
+            "captured_platform": _sys.platform,
             "stages": [
                 {
                     "board": "temper_placed",
@@ -323,7 +327,7 @@ class TestTimingCheckCLI:
                     "wall_ms_p95": 13.0,
                     "n_runs": 3,
                     "individual_ms": [12.1, 12.5, 12.9],
-                    "git_hash": "abc123",
+                    "git_hash": "",
                     "captured_at": "2026-01-01T00:00:00",
                 },
             ],
