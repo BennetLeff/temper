@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
 
@@ -36,6 +37,7 @@ class ViaDensityLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         # 1. Get positions of all pins for all nets
         # indices: (M, P), offsets: (M, P, 2)
