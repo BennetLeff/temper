@@ -1,0 +1,94 @@
+name: Metrics Reconcile
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Metrics Record"]
+    types: [completed]
+
+concurrency:
+  group: metrics-reconcile
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    name: Reconcile Pipeline Metrics
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Download pipeline metrics artifacts
+        run: |
+          set -e
+          mkdir -p /tmp/artifacts
+          echo "Fetching pipeline-metrics-* artifacts via gh api..."
+          ARTIFACTS=$(gh api "/repos/$GITHUB_REPOSITORY/actions/artifacts" --paginate \
+            --jq '.artifacts[] | select(.name | startswith("pipeline-metrics-")) | {id: .id, name: .name}')
+
+          if [ -z "$ARTIFACTS" ]; then
+            echo "No pipeline-metrics-* artifacts found"
+            echo "artifact_count=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "$ARTIFACTS" | jq -c '.' | while read -r artifact; do
+            ARTIFACT_ID=$(echo "$artifact" | jq -r '.id')
+            ARTIFACT_NAME=$(echo "$artifact" | jq -r '.name')
+            echo "Downloading $ARTIFACT_NAME (id=$ARTIFACT_ID)..."
+            gh api "/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" \
+              > "/tmp/artifacts/$ARTIFACT_NAME.zip"
+            unzip -o "/tmp/artifacts/$ARTIFACT_NAME.zip" -d /tmp/artifacts/
+            rm "/tmp/artifacts/$ARTIFACT_NAME.zip"
+          done
+
+          ARTIFACT_COUNT=$(find /tmp/artifacts -name "*.ndjson" | wc -l)
+          echo "Downloaded $ARTIFACT_COUNT .ndjson files"
+          echo "artifact_count=$ARTIFACT_COUNT" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Reconcile metrics
+        id: reconcile
+        run: |
+          uv run python scripts/reconcile_metrics.py \
+            --existing-path power_pcb_dataset/metrics/pipeline_metrics.jsonl \
+            --artifact-dir /tmp/artifacts \
+            --output-path /tmp/reconciled.jsonl
+          RECORD_COUNT=$(wc -l < /tmp/reconciled.jsonl)
+          echo "Reconciled $RECORD_COUNT records"
+          echo "record_count=$RECORD_COUNT" >> "$GITHUB_OUTPUT"
+
+          # Copy reconciled file back to repo path
+          cp /tmp/reconciled.jsonl power_pcb_dataset/metrics/pipeline_metrics.jsonl
+
+      - name: Commit and push reconciled metrics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add power_pcb_dataset/metrics/pipeline_metrics.jsonl
+          if git diff --cached --quiet; then
+            echo "No changes to commit"; exit 0
+          fi
+          git commit -m "chore(metrics): reconcile pipeline metrics"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && break
+            echo "Push attempt $i failed, retrying..."; sleep 5
+          done
