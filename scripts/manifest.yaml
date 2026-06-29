@@ -67,6 +67,19 @@ scripts:
       - json
       - os
       - pathlib
+- path: check_typecheck_gate.py
+  purpose: 'Type-check gate: monotonic-shrink mypy error counts per file'
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+    imports:
+      - argparse
+      - collections
+      - pathlib
+      - re
+      - subprocess
+      - sys
       - re
       - rich.console
       - subprocess
