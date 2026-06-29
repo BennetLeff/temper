@@ -287,3 +287,61 @@ fn build_path_graph(net_name: &str, channels: &[String]) -> Vec<(String, String)
         .collect()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::{
+        BundleClass, InternalBundleManifest,
+    };
+
+    fn make_test_manifest() -> InternalBundleManifest {
+        InternalBundleManifest {
+            bundles: vec![
+                BundleClass {
+                    bundle_id: 0,
+                    net_indices: vec![0, 1],
+                    constraint_types: vec!["safety".to_string(), "performance".to_string()],
+                    is_diff_pair: false,
+                },
+            ],
+            bundle_id_for_net: {
+                let mut m = HashMap::new();
+                m.insert(0, 0);
+                m.insert(1, 0);
+                m
+            },
+            unbundled_net_indices: vec![],
+        }
+    }
+
+    #[test]
+    fn test_expand_assignments_singleton_bundle() {
+        let manifest = make_test_manifest();
+        let var_names = vec![
+            "uses_B0_CH1".to_string(),
+            "uses_B0_CH2".to_string(),
+        ];
+        let mut assignments = HashMap::new();
+        assignments.insert(0, true); // uses_B0_CH1
+
+        let expanded = expand_assignments(&assignments, &var_names, &manifest);
+
+        assert!(expanded.get(&0).copied().unwrap_or(false));
+    }
+
+    #[test]
+    fn test_expand_assignments_false_class_var() {
+        let manifest = make_test_manifest();
+        let var_names = vec![
+            "uses_B0_CH1".to_string(),
+        ];
+        let mut assignments = HashMap::new();
+        assignments.insert(0, false);
+
+        let expanded = expand_assignments(&assignments, &var_names, &manifest);
+        // Only the original false assignment should be present
+        assert_eq!(expanded.len(), 1);
+        assert!(!expanded.get(&0).copied().unwrap_or(true));
+    }
+}
+

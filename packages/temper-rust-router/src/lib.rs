@@ -4,7 +4,7 @@
 
 pub mod audit;
 mod encoding;
-mod extraction;
+pub mod extraction;
 mod solver;
 pub mod types;
 mod types_py_bridge;
