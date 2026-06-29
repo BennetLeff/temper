@@ -16,7 +16,7 @@ from __future__ import annotations
 import time
 from collections import defaultdict
 from contextlib import nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -93,6 +93,10 @@ class Stage3Output:
     sat_model: SATModel
     solution: TopologicalSolution
     topology_graph: TopologyGraph
+    aesthetic_preferences: list = field(default_factory=list)
+    degraded_nets: list[str] = field(default_factory=list)
+    cegar_iterations: int = 0
+    budget_used: int = 0
 
     def to_snapshot_dict(self) -> dict[str, Any]:
         return {
@@ -327,6 +331,7 @@ class RouterV6Pipeline:
         enable_manufacturing_drc: bool = False,
         dfm_fail_on: str = "critical",
         max_sat_nets: int | None = None,
+        enable_bundling: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -359,6 +364,11 @@ class RouterV6Pipeline:
             dfm_fail_on: Gate threshold -- "none" (never block),
                 "critical" (block on critical violations), or
                 "all" (block on any violation).  Default "critical".
+            enable_bundling: Enable net bundling with type-gated lazy
+                grounding (R9). When True, nets are partitioned into
+                bundle equivalence classes and only Safety constraints
+                are encoded eagerly; Performance constraints are lazily
+                grounded via CEGAR loop. Deprecated max_sat_nets if set.
         """
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
@@ -380,6 +390,16 @@ class RouterV6Pipeline:
         self.enable_manufacturing_drc = enable_manufacturing_drc
         self.dfm_fail_on = dfm_fail_on
         self.max_sat_nets = max_sat_nets
+        self.enable_bundling = enable_bundling
+
+        # Warn if both max_sat_nets and enable_bundling are set
+        if enable_bundling and max_sat_nets is not None:
+            import warnings
+            warnings.warn(
+                "enable_bundling=True supersedes max_sat_nets; "
+                "max_sat_nets will be ignored.",
+                stacklevel=2,
+            )
 
         # Stage ledger: tracks object cardinality across stage boundaries.
         # `fail_on_imbalance` is False by default — ledger violations are
@@ -601,16 +621,47 @@ class RouterV6Pipeline:
         # 3.1-3.6: Build constraint model
         if self.verbose:
             print("  3.1-3.6: Building constraint model...")
-        target_names = self._select_sat_nets(pcb) if self.max_sat_nets else None
-        model_builder = ModelBuilder(
-            skeletons=stage2.skeletons,
-            nets=pcb.nets,
-            channel_widths=stage2.channel_widths,
-            design_rules=pcb.design_rules,
-            diff_pairs=diff_pairs,
-            pcb=pcb,
-        )
-        constraint_model = model_builder.build()
+        target_names = self._select_sat_nets(pcb) if self.max_sat_nets and not self.enable_bundling else None
+
+        if self.enable_bundling:
+            # U1: Run bundle analyzer before model building.
+            from temper_placer.router_v6.bundle_analyzer import BundleAnalyzer
+
+            bundle_analyzer = BundleAnalyzer(
+                nets=pcb.nets,
+                skeletons=stage2.skeletons,
+                design_rules=pcb.design_rules,
+                diff_pairs=diff_pairs,
+                pcb=pcb,
+            )
+            bundle_manifest = bundle_analyzer.analyze()
+
+            if self.verbose:
+                print(f"    Bundle analysis: {bundle_manifest.bundle_count} bundle classes "
+                      f"for {len(pcb.nets)} nets")
+
+            model_builder = ModelBuilder(
+                skeletons=stage2.skeletons,
+                nets=pcb.nets,
+                channel_widths=stage2.channel_widths,
+                design_rules=pcb.design_rules,
+                diff_pairs=diff_pairs,
+                pcb=pcb,
+                enable_bundling=True,
+                bundle_manifest=bundle_manifest,
+            )
+            constraint_model = model_builder.build()
+        else:
+            model_builder = ModelBuilder(
+                skeletons=stage2.skeletons,
+                nets=pcb.nets,
+                channel_widths=stage2.channel_widths,
+                design_rules=pcb.design_rules,
+                diff_pairs=diff_pairs,
+                pcb=pcb,
+            )
+            constraint_model = model_builder.build()
+            bundle_manifest = None
 
         if self.verbose and target_names:
             print(f"    Selective SAT: top {len(target_names)} nets = {sorted(target_names)}")
@@ -626,11 +677,41 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  3.8: Solving topology (Rust)...")
 
-        from temper_rust_router import solve_topology_rust
-
         py_vars = list(constraint_model.variables)
         py_cons = list(constraint_model.constraints)
-        rust_result = solve_topology_rust(py_vars, py_cons, net_names)
+
+        if self.enable_bundling and bundle_manifest is not None:
+            from temper_rust_router import solve_topology_rust_bundled
+
+            # Serialize BundleManifest to Python dict for PyO3.
+            manifest_dict = {
+                "bundles": [
+                    {
+                        "bundle_id": b.bundle_id,
+                        "net_indices": b.net_indices,
+                        "constraint_types": list(b.constraint_types),
+                        "is_diff_pair": b.is_diff_pair,
+                    }
+                    for b in bundle_manifest.bundles.values()
+                ],
+                "bundle_id_for_net": dict(bundle_manifest.bundle_id_for_net),
+                "unbundled_net_indices": bundle_manifest.unbundled_net_indices,
+            }
+            rust_result = solve_topology_rust_bundled(
+                py_vars, py_cons, manifest_dict, net_names
+            )
+            cegar_iterations = int(rust_result.get("cegar_iterations", 0))
+            budget_used = int(rust_result.get("budget_used", 0))
+            degraded_nets = list(rust_result.get("degraded_nets", []))
+            aesthetic_preferences: list = []
+        else:
+            from temper_rust_router import solve_topology_rust
+
+            rust_result = solve_topology_rust(py_vars, py_cons, net_names)
+            cegar_iterations = 0
+            budget_used = 0
+            degraded_nets = []
+            aesthetic_preferences = []
 
         if self.verbose:
             print(
@@ -698,6 +779,10 @@ class RouterV6Pipeline:
             sat_model=sat_model,
             solution=solution,
             topology_graph=topology_graph,
+            aesthetic_preferences=aesthetic_preferences,
+            degraded_nets=degraded_nets,
+            cegar_iterations=cegar_iterations,
+            budget_used=budget_used,
         )
 
     def _run_stage4(

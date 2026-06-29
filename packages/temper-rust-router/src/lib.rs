@@ -255,7 +255,7 @@ fn solve_topology_rust_bundled(
         solver,
         var_names.clone(),
         class_var_count,
-        manifest,
+        manifest.clone(),
         &net_names,
     );
     let result = wd.solve(&net_names);
@@ -275,12 +275,12 @@ fn solve_topology_rust_bundled(
         net_topologies: HashMap::new(),
     };
     if result.status == SolverStatus::Satisfiable {
-        // Use bundle-aware extraction (U5) — for now, fall back to standard extraction.
-        topology = extraction::extract_topology(
+        topology = extraction::extract_bundled(
             &model,
             &result.assignments,
             &result.var_names,
             &net_names,
+            &manifest,
         );
     }
 
