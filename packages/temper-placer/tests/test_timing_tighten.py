@@ -1,9 +1,7 @@
 """Tests for auto-baseline tightening — detection logic (U1) and CLI (U2)."""
 
 import json
-import statistics
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 import yaml
@@ -11,7 +9,6 @@ from click.testing import CliRunner
 
 from temper_placer.cli.timing import timing
 from temper_placer.profiling.timing_gate import (
-    TightenResult,
     _extract_wall_ms,
     detect_tightenable_stages,
 )
