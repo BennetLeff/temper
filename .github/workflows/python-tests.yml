@@ -138,7 +138,6 @@ jobs:
 
       - name: Per-stage timing regression check
         run: uv run temper timing check --ci --json
-        continue-on-error: true  # temper CLI may not be installed; temper-N6-U8
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
 
