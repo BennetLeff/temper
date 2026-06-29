@@ -632,6 +632,19 @@ class RouterV6Pipeline:
         py_cons = list(constraint_model.constraints)
         rust_result = solve_topology_rust(py_vars, py_cons, net_names)
 
+        # Surface pre-solve tension diagnostics.
+        tensions = rust_result.get("tensions", [])
+        for t in tensions:
+            sev = t.get("severity", "unknown")
+            expl = t.get("explanation", "")
+            ch = t.get("channel_id", "")
+            if sev == "hard_conflict":
+                if self.verbose:
+                    print(f"    PRE-SOLVE HARD CONFLICT on channel {ch}: {expl}")
+            elif sev == "capacity_warning":
+                if self.verbose:
+                    print(f"    PRE-SOLVE CAPACITY WARNING on channel {ch}: {expl}")
+
         if self.verbose:
             print(
                 f"    SAT model: {rust_result.get('num_vars', 0)} vars, "
@@ -672,26 +685,60 @@ class RouterV6Pipeline:
             )
             topology_graph.net_topologies[net_name] = ntopo
 
-        # Constraint audit.
-        from temper_rust_router import audit_result
-        audit_violations = list(audit_result(
-            py_vars, py_cons,
-            dict(rust_result.get("assignments", {})),
-            net_names,
-        ))
-        if audit_violations:
-            msg = f"Rust solver produced {len(audit_violations)} constraint violation(s): {audit_violations}"
+        # Surface UNSAT conflict diagnostics.
+        if rust_result["status"] == "unsat":
+            conflict = rust_result.get("conflicts")
+            if conflict:
+                import logging as _log_unsat
+                _logger_unsat = _log_unsat.getLogger(__name__)
+                _logger_unsat.info(
+                    "UNSAT CONFLICT: %s", conflict.get("explanation", "")
+                )
+                _logger_unsat.info(
+                    "  Constraints: %s", conflict.get("conflicting_constraints", [])
+                )
+                _logger_unsat.info(
+                    "  Channels: %s", conflict.get("channels_involved", [])
+                )
+                _logger_unsat.info(
+                    "  Core clauses: %d", conflict.get("core_clause_count", 0)
+                )
+                if self.verbose:
+                    print(
+                        f"    UNSAT CONFLICT: {conflict.get('explanation', '')}\n"
+                        f"      Constraints: {conflict.get('conflicting_constraints', [])}\n"
+                        f"      Channels: {conflict.get('channels_involved', [])}\n"
+                        f"      Core clauses: {conflict.get('core_clause_count', 0)}"
+                    )
+            elif self.verbose:
+                print("    UNSAT: No conflict report available (core extraction failed)")
+
+        # Constraint audit — skip for UNSAT (conflict report replaces audit).
+        if rust_result["status"] == "sat":
+            from temper_rust_router import audit_result
+            audit_violations = list(audit_result(
+                py_vars, py_cons,
+                dict(rust_result.get("assignments", {})),
+                net_names,
+            ))
+            if audit_violations:
+                msg = f"Rust solver produced {len(audit_violations)} constraint violation(s): {audit_violations}"
+                if self.verbose:
+                    print(f"    WARNING: {msg}")
+                raise RuntimeError(msg)
+            elif self.verbose:
+                print(f"    Constraint audit: clean (0 violations)")
+        elif rust_result["status"] == "unknown":
             if self.verbose:
-                print(f"    WARNING: {msg}")
-            raise RuntimeError(msg)
-        elif self.verbose:
-            print(f"    Constraint audit: clean (0 violations)")
+                print("    Solver status: UNKNOWN (timeout/internal error)")
 
         if self.verbose:
             if solution.is_satisfiable:
                 print(f"    Solution found (SAT) in {solution.solver_time_ms:.1f}ms")
-            else:
+            elif rust_result["status"] == "unsat":
                 print(f"    No solution found (UNSAT) in {solution.solver_time_ms:.1f}ms")
+            elif rust_result["status"] == "unknown":
+                print(f"    Solver result: UNKNOWN in {solution.solver_time_ms:.1f}ms")
 
         return Stage3Output(
             constraint_model=constraint_model,
