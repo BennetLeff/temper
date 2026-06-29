@@ -263,3 +263,154 @@ def render_counterexample(ce: dict) -> str:
     assert len(counterexamples) == 1
     assert counterexamples[0]["failure_type"] == "{failure_type}"
 '''
+
+
+def esl_verify(
+    constraint_model,
+    assignment: dict[str, bool],
+) -> list[str]:
+    """Fast ESL-based constraint audit — O(constraints) time.
+
+    Returns a list of violation messages.  Empty list = assignment
+    satisfies all constraints.  This is a lightweight alternative to
+    the Rust audit_result for debugging assignments without running
+    the full solver.
+
+    Args:
+        constraint_model: The ConstraintModel with esl() methods.
+        assignment: Dict mapping variable names to booleans.
+
+    Returns:
+        List of violation strings (empty if valid).
+    """
+    from temper_placer.router_v6.constraint_model import (
+        CapacityConstraint,
+        DiffPairConstraint,
+        LayerConstraint,
+    )
+
+    violations: list[str] = []
+    for c in constraint_model.constraints:
+        esl_pred = c.esl()
+        if not esl_pred(assignment):
+            if isinstance(c, CapacityConstraint):
+                k = int(c.capacity * c.slack_factor / min(w for _, w in c.terms))
+                true_count = sum(1 for v, _ in c.terms if assignment.get(v.name, False))
+                violations.append(
+                    f"Capacity {c.name}: {true_count} true > {k} max "
+                    f"(capacity={c.capacity}, slack={c.slack_factor})"
+                )
+            elif isinstance(c, DiffPairConstraint):
+                p_val = assignment.get(c.p_var.name, False)
+                n_val = assignment.get(c.n_var.name, False)
+                violations.append(
+                    f"DiffPair {c.name}: p={p_val} != n={n_val}"
+                )
+            elif isinstance(c, LayerConstraint):
+                actual = assignment.get(
+                    f"uses_N{c.net_idx}_{c.channel_id}", False
+                )
+                violations.append(
+                    f"Layer {c.name}: got {actual}, expected {c.allowed}"
+                )
+            else:
+                violations.append(f"Constraint {c.name} violated")
+
+    return violations
+
+
+def diagnose_submodel(
+    constraint_model,
+    max_primary_vars: int = 10,
+) -> dict:
+    """Sample a constrained sub-model and run BMC diagnostic.
+
+    Picks the most-constrained channels (those with capacity
+    constraints and the most terms) to stay within the BMC bound,
+    then runs bmc_check_with_diagnostics on the sub-model.
+
+    Args:
+        constraint_model: The full ConstraintModel.
+        max_primary_vars: Maximum primary variables for BMC (default 10).
+
+    Returns:
+        Dict with keys: passed, counterexamples, sampled_vars, message.
+    """
+    from temper_placer.router_v6.constraint_model import (
+        CapacityConstraint,
+        ConstraintModel,
+        NetChannelVar,
+    )
+    from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
+
+    # Find capacity constraints sorted by term count (most constrained first)
+    cap_constraints = sorted(
+        [c for c in constraint_model.constraints if isinstance(c, CapacityConstraint)],
+        key=lambda c: len(c.terms),
+        reverse=True,
+    )
+
+    if not cap_constraints:
+        return {
+            "passed": True,
+            "counterexamples": 0,
+            "sampled_vars": [],
+            "message": "No capacity constraints to sample",
+        }
+
+    # Collect variables from capacity constraints until we hit the bound
+    sub_model = ConstraintModel()
+    var_count = 0
+    sampled_channel_ids: list[str] = []
+
+    for cap in cap_constraints:
+        new_vars = [v for v, _ in cap.terms if v.name not in {
+            sv.name for sv in sub_model.variables
+        }]
+        if var_count + len(new_vars) > max_primary_vars:
+            break
+        for v, _ in cap.terms:
+            if not any(sv.name == v.name for sv in sub_model.variables):
+                sub_model.add_variable(NetChannelVar(
+                    name=v.name, net_idx=v.net_idx, channel_id=v.channel_id,
+                ))
+                var_count += 1
+        sub_model.add_constraint(cap)
+        sampled_channel_ids.append(cap.channel_id)
+
+    if var_count == 0:
+        return {
+            "passed": True,
+            "counterexamples": 0,
+            "sampled_vars": [],
+            "message": "No variables in sampled constraints",
+        }
+
+    try:
+        sat = SATModel(variables=[], clauses=[])
+        net_names = [f"N{i}" for i in range(max(
+            (v.net_idx for v in sub_model.variables if isinstance(v, NetChannelVar)),
+            default=-1,
+        ) + 1)]
+        populate_sat_from_constraints(sat, sub_model, net_names=net_names, skip_connectivity=True)
+
+        ces = bmc_check_with_diagnostics(sub_model, sat)
+        return {
+            "passed": len(ces) == 0,
+            "counterexamples": len(ces),
+            "sampled_vars": [v.name for v in sub_model.variables],
+            "sampled_channels": sampled_channel_ids,
+            "counterexample_details": ces[:3] if ces else [],
+            "message": (
+                f"BMC passed on {var_count}-var sub-model ({len(sampled_channel_ids)} channels)"
+                if len(ces) == 0
+                else f"BMC found {len(ces)} counterexamples in {var_count}-var sub-model"
+            ),
+        }
+    except BmcBoundExceeded as e:
+        return {
+            "passed": None,
+            "counterexamples": 0,
+            "sampled_vars": [],
+            "message": f"BMC bound exceeded: {e}",
+        }
