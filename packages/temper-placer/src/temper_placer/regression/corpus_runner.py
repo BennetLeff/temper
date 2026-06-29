@@ -414,9 +414,10 @@ class CorpusRegressionRunner:
             err_msg = str(e)
             # NaN at epoch 0 often means the initial placement is degenerate.
             # Retry once with random positions as a fallback.
-            if "Non-finite" in err_msg and "epoch 0" in err_msg:
+            if "Non-finite" in err_msg:
                 import jax
                 import jax.numpy as jnp
+                from dataclasses import replace as dc_replace
                 k1, k2 = jax.random.split(rng_key)
                 margin = min(2.0, board.width * 0.1, board.height * 0.1)
                 ox, oy = board.origin
@@ -427,7 +428,8 @@ class CorpusRegressionRunner:
                     k2, (netlist.n_components,),
                     minval=oy + margin, maxval=oy + board.height - margin)
                 rng_key = jax.random.split(k2)[0]
-                initial_state = initial_state._replace(
+                initial_state = dc_replace(
+                    initial_state,
                     positions=jnp.stack([px, py], axis=-1),
                     rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
                 )
