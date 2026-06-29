@@ -1,7 +1,8 @@
 """Shared Hypothesis strategies for SAT property tests.
 
 Provides reusable strategies for SAT lattice tests (U1-U4), DRC
-completeness tests (U6-U7), and induction tests (U9-U12).
+completeness tests (U6-U7), induction tests (U9-U12), and BMC encoding
+verification (U3).
 
 Strategies
 ----------
@@ -9,6 +10,10 @@ Strategies
 * ``sat_clause`` — random ``SATClause`` over a variable set
 * ``sat_clause_set`` — list of clauses over shared variables
 * ``constraint_model_grid`` — ``ConstraintModel`` for a < =4x4 grid
+* ``constraint_model_with_all_types`` — ``ConstraintModel`` with all constraint
+  types and net_names for BMC verification
+* ``exhaustive_topologies`` — all (n_nets, n_channels, n_layers) triples
+  within the BMC bound
 * ``boundary_biased_routing_results`` — ``RoutingResults`` biased toward
   spatial-index cell boundaries
 * ``known_compliant_route`` — ``CompiledRoute`` known to satisfy all
@@ -173,6 +178,133 @@ def constraint_model_grid(
                 model.add_constraint(constraint)
 
     return model
+
+
+# ---------------------------------------------------------------------------
+# BMC constraint model strategies (U3)
+# ---------------------------------------------------------------------------
+
+
+@st.composite
+def constraint_model_with_all_types(
+    draw: st.DrawFn,
+    max_primary_vars: int = 10,
+) -> tuple[ConstraintModel, list[str]]:
+    """Generate a ConstraintModel with all constraint types and net names.
+
+    # @req(2026-06-28-006, FR-ENUM1): Hypothesis composite strategy
+
+    Guarantees at least one of each applicable constraint type is included:
+    - LayerConstraint if layers > 1
+    - DiffPairConstraint if nets >= 2
+    - CapacityConstraint if nets >= 3
+
+    Returns (ConstraintModel, net_names) tuple for direct use in BMC tests.
+    """
+    n_nets: int = draw(st.integers(1, max_primary_vars))
+    n_channels: int = draw(st.integers(1, max_primary_vars))
+    n_layers: int = draw(st.integers(1, 2))
+
+    while n_nets * n_channels * n_layers > max_primary_vars:
+        if n_layers > 1:
+            n_layers -= 1
+        elif n_channels > 1:
+            n_channels -= 1
+        else:
+            n_nets -= 1
+
+    layer_names = [f"L{i}" for i in range(n_layers)]
+    net_names = [f"N{i}" for i in range(n_nets)]
+
+    model = ConstraintModel()
+
+    for net_idx in range(n_nets):
+        for layer_name in layer_names:
+            for cell_idx in range(n_channels):
+                channel_id = f"{layer_name}_E{cell_idx}"
+                name = f"uses_N{net_idx}_{channel_id}"
+                var = NetChannelVar(
+                    name=name,
+                    net_idx=net_idx,
+                    channel_id=channel_id,
+                )
+                model.add_variable(var)
+
+    use_layer = draw(st.booleans())
+    use_diff_pair = draw(st.booleans())
+    use_capacity = draw(st.booleans())
+
+    if not (use_layer or use_diff_pair or use_capacity):
+        use_layer = True
+
+    if use_layer and n_layers > 1 and n_nets > 0:
+        channel_id = f"{layer_names[0]}_E0"
+        if (0, channel_id) in model.net_channel_vars:
+            allowed = draw(st.booleans())
+            model.add_constraint(LayerConstraint(
+                name=f"layer_N0_{channel_id}",
+                net_idx=0,
+                channel_id=channel_id,
+                allowed=allowed,
+            ))
+
+    if use_diff_pair and n_nets >= 2:
+        n_diff_pairs = draw(st.integers(1, min(3, n_nets // 2)))
+        for pair_idx in range(n_diff_pairs):
+            p_idx = pair_idx * 2
+            n_idx = pair_idx * 2 + 1
+            if n_idx < n_nets:
+                channel_id = f"{layer_names[0]}_E0"
+                p_key = (p_idx, channel_id)
+                n_key = (n_idx, channel_id)
+                if p_key in model.net_channel_vars and n_key in model.net_channel_vars:
+                    model.add_constraint(DiffPairConstraint(
+                        name=f"diff_N{p_idx}_N{n_idx}_{channel_id}",
+                        channel_id=channel_id,
+                        p_net_idx=p_idx,
+                        n_net_idx=n_idx,
+                        p_var=model.net_channel_vars[p_key],
+                        n_var=model.net_channel_vars[n_key],
+                    ))
+
+    if use_capacity and n_nets >= 2:
+        channel_id = f"{layer_names[0]}_E0"
+        terms = []
+        for net_idx in range(n_nets):
+            key = (net_idx, channel_id)
+            if key in model.net_channel_vars:
+                terms.append((model.net_channel_vars[key], 0.127))
+        if len(terms) >= 2:
+            k = draw(st.integers(0, len(terms) - 1))
+            model.add_constraint(CapacityConstraint(
+                name=f"cap_{channel_id}",
+                channel_id=channel_id,
+                capacity=(k + 0.5) * 0.127,
+                slack_factor=1.0,
+                terms=terms,
+            ))
+
+    return model, net_names
+
+
+def exhaustive_topologies(
+    max_primary_vars: int = 10,
+    max_layers: int = 2,
+) -> list[tuple[int, int, int]]:
+    """Return all (n_nets, n_channels, n_layers) triples within BMC bound.
+
+    # @req(2026-06-28-006, FR-ENUM3): Exhaustive base-case enumeration
+
+    Enumerates all topologies where n_nets * n_channels * n_layers <= max_primary_vars.
+    Each triple generates canonical ConstraintModel instances for BMC batch testing.
+    """
+    topologies: list[tuple[int, int, int]] = []
+    for n_nets in range(1, max_primary_vars + 1):
+        for n_channels in range(1, max_primary_vars + 1):
+            for n_layers in range(1, max_layers + 1):
+                if n_nets * n_channels * n_layers <= max_primary_vars:
+                    topologies.append((n_nets, n_channels, n_layers))
+    return topologies
 
 
 # ---------------------------------------------------------------------------
