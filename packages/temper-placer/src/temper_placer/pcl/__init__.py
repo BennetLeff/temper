@@ -72,6 +72,8 @@ from .constraints import (
     # Base class
     BaseConstraint,
     BoardSide,
+    CompilationContext,
+    CompilationTarget,
     # Enums
     ConstraintTier,
     ConstraintType,
@@ -80,6 +82,7 @@ from .constraints import (
     EnclosingConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
+    SemanticTag,
     SeparatedConstraint,
 )
 from .parser import (
@@ -115,12 +118,16 @@ __all__ = [
     "AnchoredConstraint",
     "LoopAreaConstraint",
     # Enums
+    "CompilationTarget",
+    "SemanticTag",
     "ConstraintTier",
     "ConstraintType",
     "DistanceMetric",
     "Axis",
     "BoardSide",
     "EdgeType",
+    # Context
+    "CompilationContext",
     # Parser functions
     "parse_pcl_file",
     "parse_constraint_dict",

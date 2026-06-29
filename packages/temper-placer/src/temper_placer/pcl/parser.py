@@ -22,9 +22,10 @@ Example usage:
 from __future__ import annotations
 
 import json
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
 from jsonschema import ValidationError, validate
@@ -36,6 +37,8 @@ from temper_placer.pcl.constraints import (
     Axis,
     BaseConstraint,
     BoardSide,
+    CompilationContext,
+    CompilationTarget,
     ConstraintTier,
     ConstraintType,
     DistanceMetric,
@@ -45,6 +48,10 @@ from temper_placer.pcl.constraints import (
     OnSideConstraint,
     SeparatedConstraint,
 )
+
+if TYPE_CHECKING:
+    from temper_placer.core.netlist import Netlist
+    from temper_placer.core.board import Board
 
 
 class PCLParseError(Exception):
@@ -57,6 +64,45 @@ class PCLValidationError(Exception):
     """Error validating constraint references."""
 
     pass
+
+
+def _is_resolved(constraint: BaseConstraint, context: CompilationContext) -> bool:
+    """Check if a constraint's component references can be resolved.
+
+    Returns True if all referenced components/zones exist in the context.
+    Returns False if any reference is unresolvable (R10: skip, not error).
+    """
+    from temper_placer.pcl.loss_bridge import _resolve_to_indices
+
+    try:
+        if isinstance(constraint, AdjacentConstraint):
+            a_ok = bool(_resolve_to_indices(constraint.a, context.netlist, context.board) or constraint.a.isupper())
+            b_ok = bool(_resolve_to_indices(constraint.b, context.netlist, context.board) or constraint.b.isupper())
+            return a_ok and b_ok
+        elif isinstance(constraint, SeparatedConstraint):
+            a_ok = bool(_resolve_to_indices(constraint.a, context.netlist, context.board) or constraint.a.isupper())
+            b_ok = bool(_resolve_to_indices(constraint.b, context.netlist, context.board) or constraint.b.isupper())
+            return a_ok and b_ok
+        elif isinstance(constraint, EnclosingConstraint):
+            outer_ok = bool(constraint.outer.isupper() or _resolve_to_indices(constraint.outer, context.netlist, context.board))
+            inner_ok = all(
+                _resolve_to_indices(ref, context.netlist, context.board) or ref.isupper()
+                for ref in constraint.inner
+            )
+            return outer_ok and inner_ok
+        elif isinstance(constraint, AnchoredConstraint):
+            return bool(_resolve_to_indices(constraint.component, context.netlist, context.board) or constraint.component.isupper())
+        elif isinstance(constraint, (AlignedConstraint, OnSideConstraint)):
+            return all(
+                _resolve_to_indices(ref, context.netlist, context.board) or ref.isupper()
+                for ref in constraint.components
+            )
+        elif isinstance(constraint, LoopAreaConstraint):
+            return True
+        else:
+            return True
+    except Exception:
+        return False
 
 
 def load_pcl_schema() -> dict[str, Any]:
@@ -127,6 +173,45 @@ class ConstraintCollection:
     def add(self, constraint: BaseConstraint) -> None:
         """Add a constraint to the collection."""
         self.constraints.append(constraint)
+
+    def compile(self, target: CompilationTarget, context: CompilationContext) -> list:
+        """Dispatch all constraints to the target backend.
+
+        Args:
+            target: Compilation target (JAX, SAT, or DRC).
+            context: CompilationContext with netlist, board, etc.
+
+        Returns:
+            List of backend-specific outputs (one entry per constraint
+            that targets this backend).
+
+        Raises:
+            ValueError: If no backend is registered for the target.
+        """
+        backend_fn = BaseConstraint.backends.get(target.value)
+        if backend_fn is None:
+            raise ValueError(
+                f"No backend registered for target '{target.value}'. "
+                f"Available: {sorted(BaseConstraint.backends.keys())}"
+            )
+        results = []
+        for constraint in self.constraints:
+            if target.value not in constraint.targets:
+                continue
+            if not _is_resolved(constraint, context):
+                warnings.warn(
+                    f"Constraint '{constraint.id}' references unresolved "
+                    f"components, skipping"
+                )
+                continue
+            try:
+                results.append(backend_fn(constraint, context))
+            except Exception as e:
+                warnings.warn(
+                    f"Constraint '{constraint.id}' failed to compile to "
+                    f"'{target.value}': {e}, skipping"
+                )
+        return results
 
     def by_type(self, constraint_type: ConstraintType) -> list[BaseConstraint]:
         """Filter constraints by type."""

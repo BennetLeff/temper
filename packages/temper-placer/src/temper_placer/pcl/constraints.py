@@ -38,8 +38,39 @@ Example usage:
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING, Callable
+
+if TYPE_CHECKING:
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
+    from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
+    from temper_placer.router_v6.channel_widths import ChannelWidths
+    from temper_placer.router_v6.stage0_data import DesignRules
+
+
+class CompilationTarget(Enum):
+    """Backend targets for constraint compilation."""
+
+    JAX = "jax"
+    SAT = "sat"
+    DRC = "drc"
+
+
+class SemanticTag(Enum):
+    """Semantic capabilities of constraint types.
+
+    Used by downstream compilers to select grounding strategies
+    without type-specific dispatch. New constraint types auto-gain
+    SAT/DRC grounding via these tags.
+    """
+
+    SEPARATION = "separation"
+    PROXIMITY = "proximity"
+    ORDERING = "ordering"
+    ZONING = "zoning"
+    ALIGNMENT = "alignment"
 
 
 class ConstraintTier(Enum):
@@ -58,15 +89,57 @@ class ConstraintTier(Enum):
 
 
 class ConstraintType(Enum):
-    """Types of topological constraints supported by PCL."""
+    """Types of topological constraints supported by PCL.
 
-    ADJACENT = "adjacent"  # Keep components close
-    SEPARATED = "separated"  # Keep components apart
-    ENCLOSING = "enclosing"  # Component inside zone
-    ALIGNED = "aligned"  # Align components on axis
-    ON_SIDE = "on_side"  # Component on board edge
-    ANCHORED = "anchored"  # Component at specific position
-    LOOP_AREA = "loop_area"  # Limit current loop area
+    Each member carries (value, capabilities, supported_targets) as a 3-tuple.
+    Use .value for the string form, .capabilities and .supported_targets
+    for semantic dispatch.
+    """
+
+    ADJACENT = ("adjacent", frozenset({SemanticTag.PROXIMITY}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+    SEPARATED = ("separated", frozenset({SemanticTag.SEPARATION, SemanticTag.ORDERING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+    ENCLOSING = ("enclosing", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+    ALIGNED = ("aligned", frozenset({SemanticTag.ALIGNMENT}), frozenset({CompilationTarget.JAX, CompilationTarget.DRC}))
+    ON_SIDE = ("on_side", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+    ANCHORED = ("anchored", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+    LOOP_AREA = ("loop_area", frozenset({SemanticTag.PROXIMITY, SemanticTag.ORDERING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+
+    @property
+    def label(self) -> str:
+        """Return the string label (backward-compatible with old .value)."""
+        return self.value[0]
+
+    @property
+    def value(self) -> str:
+        """Return the string label for serialization. Overrides Enum.value."""
+        return self._value_[0]
+
+    @property
+    def capabilities(self) -> frozenset[SemanticTag]:
+        """Semantic tags for capability-based dispatch."""
+        return self._value_[1]
+
+    @property
+    def supported_targets(self) -> frozenset[CompilationTarget]:
+        """Compilation targets this type supports."""
+        return self._value_[2]
+
+
+@dataclass
+class CompilationContext:
+    """Context passed to backend compilation functions.
+
+    Each backend callable receives (constraint, context) and returns
+    backend-specific output (e.g., LossFunction, list[Constraint],
+    list[DRCAssertion]).
+    """
+
+    netlist: "Netlist"
+    board: "Board | None" = None
+    skeletons: "dict[str, ChannelSkeleton] | None" = None
+    channel_widths: "dict[str, ChannelWidths] | None" = None
+    design_rules: "DesignRules | None" = None
+    extra: dict = field(default_factory=dict)
 
 
 class DistanceMetric(Enum):
@@ -112,6 +185,7 @@ class BaseConstraint(ABC):
     - tier: Priority level (HARD/STRONG/SOFT)
     - because: Mandatory rationale (≥10 characters)
     - id: Optional unique identifier for debugging
+    - targets: Compilation targets (default ["jax"])
 
     Subclasses implement specific constraint logic.
     """
@@ -120,6 +194,7 @@ class BaseConstraint(ABC):
     tier: ConstraintTier
     because: str
     id: str = ""
+    targets: list[str] = field(default_factory=lambda: ["jax"])
 
     def __post_init__(self):
         """Validate constraint fields."""
@@ -127,6 +202,14 @@ class BaseConstraint(ABC):
             raise ValueError(
                 f"Rationale 'because' must be ≥10 chars, got {len(self.because)}: '{self.because}'"
             )
+
+        # Validate targets against CompilationTarget values
+        valid_targets = {t.value for t in CompilationTarget}
+        for t in self.targets:
+            if t not in valid_targets:
+                raise ValueError(
+                    f"Invalid compilation target '{t}'. Must be one of {sorted(valid_targets)}"
+                )
 
         # Auto-generate ID if not provided
         if not self.id:
@@ -149,13 +232,20 @@ class BaseConstraint(ABC):
 
     def escalate(self) -> None:
         """Escalate the constraint to the next tier.
-        
+
         SOFT -> STRONG -> HARD
         """
         if self.tier == ConstraintTier.SOFT:
             self.tier = ConstraintTier.STRONG
         elif self.tier == ConstraintTier.STRONG:
             self.tier = ConstraintTier.HARD
+
+
+# Class-level backend registry shared across all constraint instances.
+# Each key maps a CompilationTarget.value string to a callable
+# (constraint, context) -> backend_output.
+# Populated by bridge modules at import time (lazy registration).
+BaseConstraint.backends: dict[str, Callable] = {"jax": None}
 
 
 class AdjacentConstraint(BaseConstraint):
