@@ -79,7 +79,7 @@ def calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]) -> 
 
             for p1 in pts_hv:
                 for p2 in pts_lv:
-                    dist = np.linalg.norm(p1 - p2)
+                    dist = float(np.linalg.norm(p1 - p2))
                     min_dist = min(min_dist, dist)
 
     return float(min_dist)

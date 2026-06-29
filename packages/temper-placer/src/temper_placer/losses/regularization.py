@@ -287,6 +287,7 @@ class SpreadLoss(LossFunction):
             LossResult with total spread penalty.
         """
         board_bounds = context.board.get_relative_bounds_array()
+        assert context.bounds is not None, "Bounds must be set in LossContext"
         penalty = compute_spread_penalty(positions, context.bounds, board_bounds, self.min_distance)
         return LossResult(value=penalty)
 

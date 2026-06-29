@@ -170,7 +170,7 @@ class AutomatedZeroDRC:
                         self.config["zones"][next_idx]["bounds_ratio"][0] += dr
                         self.config["zones"][next_idx]["bounds_ratio"][2] += dr
 
-    def run(self, initial_state: BoardState | None = None) -> BoardState:
+    def run(self, initial_state: BoardState | None = None) -> BoardState | None:
         """
         Execute the feedback loop.
 

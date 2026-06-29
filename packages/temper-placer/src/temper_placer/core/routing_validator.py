@@ -22,7 +22,7 @@ class RoutingValidator:
         self.violations: list[RoutingViolation] = []
         self.master_resolution = 0.05 # 50 micron granularity for "is-occupied" checking
 
-    def _grid_to_world(self, gx: int, gy: int) -> tuple[float, float]:
+    def _grid_to_world(self, gx: int, gy: int) -> tuple[str, str]:
         return (str(gx * self.default_cell_size), str(gy * self.default_cell_size)) # Approximation for reporting
 
     def validate(self,
@@ -118,6 +118,8 @@ class RoutingValidator:
                 for comp_ref, pin_name in net.pins:
                     comp = netlist.get_component(comp_ref)
                     pin = comp.get_pin(pin_name)
+                    if pin is None:
+                        continue
                     comp_pos_map[comp_ref]
 
                     # Use world position from canonical helper

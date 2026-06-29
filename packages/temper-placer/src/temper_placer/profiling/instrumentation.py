@@ -30,7 +30,7 @@ class StageTiming:
     sub_steps: dict[str, StageTiming] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        result = {
+        result: dict[str, Any] = {
             "wall_time_ms": round(self.wall_time_ms, 3),
             "cpu_time_ms": round(self.cpu_time_ms, 3),
             "iterations": self.iterations,

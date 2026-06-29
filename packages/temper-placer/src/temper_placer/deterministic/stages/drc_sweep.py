@@ -223,10 +223,10 @@ class ShortCircuitDetectionStage(Stage):
             # Check if endpoints connect to wrong net
             for point in [trace.start, trace.end]:
                 px, py = round(point[0], 2), round(point[1], 2)
-                for (key_x, key_y, key_layer), net in pin_net_map.items():
+                for (key_x, key_y, key_layer), pin_net in pin_net_map.items():
                     if key_layer != trace.layer:
                         continue
-                    if abs(px - key_x) <= tol and abs(py - key_y) <= tol and net != track_net and track_net:
+                    if abs(px - key_x) <= tol and abs(py - key_y) <= tol and pin_net != track_net and track_net:
                             print(
                                 f"  SHORT: {trace.net} track near {net} pin at ({px:.1f}, {py:.1f})"
                             )

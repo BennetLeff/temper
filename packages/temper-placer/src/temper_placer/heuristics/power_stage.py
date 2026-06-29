@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from temper_placer.core.priority import POWER_STAGE_TEMPLATES, PlacementPhaseConfig
+from temper_placer.core.priority import POWER_STAGE_TEMPLATES, PlacementPhaseConfig, PlacementPriority
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,
@@ -130,7 +130,7 @@ class PowerStageTemplateHeuristic(Heuristic):
                 anchor = power_cfg.get('anchor')
                 return PlacementPhaseConfig(
                     name="power",
-                    priority=1,
+                    priority=PlacementPriority.POWER,
                     components=power_cfg.get('components', []),
                     method=power_cfg.get('method', 'template'),
                     template=power_cfg.get('template', 'half_bridge_vertical'),
@@ -248,7 +248,7 @@ class DriverProximityHeuristic(Heuristic):
             if driver_cfg:
                 return PlacementPhaseConfig(
                     name="driver",
-                    priority=2,
+                    priority=PlacementPriority.DRIVER,
                     components=driver_cfg.get('components', []),
                     method=driver_cfg.get('method', 'proximity'),
                     reference=driver_cfg.get('reference'),

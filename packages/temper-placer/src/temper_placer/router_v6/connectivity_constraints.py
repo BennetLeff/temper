@@ -62,7 +62,7 @@ def add_connectivity_constraints(
     """
     constraints = []
 
-    for net in pcb.nets:  # type: ignore[attr-defined] — pcb.nets is list[Net], not dict
+    for net in pcb.nets:  # type: ignore[attr-defined]
         net_name = net.name
         # Count pins in this net
         pin_count = sum(

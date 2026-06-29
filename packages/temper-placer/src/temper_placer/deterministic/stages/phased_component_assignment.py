@@ -202,6 +202,7 @@ class PhasedComponentAssignmentStage(Stage):
 
         domain_for_ref, domain_regions = self._domain_lookups(state)
 
+        assert state.netlist is not None, "Netlist must be set in BoardState"
         placements, used_slots = self._phased_placement(
             state,
             state.netlist,
@@ -1233,15 +1234,15 @@ class PhasedComponentAssignmentStage(Stage):
             gy = int(math.floor((float(y_mm) * 1000.0) / cell_um))
             if gx < 0 or gx >= width or gy < 0 or gy >= height:
                 continue
-            bn: Bottleneck | None = critical_by_cell.get((gx, gy))
-            if bn is None:
+            cell_bn: Bottleneck | None = critical_by_cell.get((gx, gy))
+            if cell_bn is None:
                 continue
             violations.append(
                 {
                     "ref": ref,
                     "x": gx,
                     "y": gy,
-                    "layer": bn.layer,
+                    "layer": cell_bn.layer,
                     "severity": bn.severity,
                 }
             )

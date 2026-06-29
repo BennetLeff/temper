@@ -254,7 +254,7 @@ def classify_role(component: Component, _loop: Loop) -> str:
     if classification.category == "power_switch":
         return "switch"
     elif classification.category == "capacitor":
-        return classification.subcategory + "_capacitor"
+        return (classification.subcategory or "unknown") + "_capacitor"
     elif classification.category == "gate_driver":
         return "driver"
     elif classification.category == "resistor":

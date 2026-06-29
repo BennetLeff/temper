@@ -110,12 +110,12 @@ def identify_functional_modules(
     # Auto-detect by high connectivity
     # Components sharing multiple nets with each other form a module
     connectivity_groups = _find_highly_connected_groups(netlist, assigned_refs)
-    for i, refs in enumerate(connectivity_groups):
-        if len(refs) >= 2:
+    for i, group_refs in enumerate(connectivity_groups):
+        if len(group_refs) >= 2:
             modules.append(
                 FunctionalModule(
                     name=f"connected_group_{i}",
-                    components=list(refs),
+                    components=list(group_refs),
                 )
             )
 
@@ -297,7 +297,8 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
                 offset_x = radius * jnp.cos(angle)
                 offset_y = radius * jnp.sin(angle)
             else:
-                offset_x, offset_y = 0.0, 0.0
+                offset_x: float | Array = 0.0
+                offset_y: float | Array = 0.0
 
             pos_x = cx + float(offset_x)
             pos_y = cy + float(offset_y)

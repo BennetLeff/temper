@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 import jax.numpy as jnp
 
@@ -392,5 +393,5 @@ def list_reference_designs(directory: Path | str) -> list[dict]:
             continue
 
     # Sort by component count
-    designs.sort(key=lambda d: d["estimated_components"])
+    designs.sort(key=lambda d: int(d["estimated_components"]))  # type: ignore[arg-type]
     return designs

@@ -418,7 +418,7 @@ def _measure_pipeline_orchestrator(
         config = PipelineConfig(input_pcb=pcb_path, skip_routing=False, dry_run=False)
         orchestrator = PipelineOrchestrator(config)
         observer = _TimingObserver()
-        orchestrator._engine.add_observer(observer)
+        orchestrator._engine.add_observer(observer)  # type: ignore[arg-type]
 
         with contextlib.suppress(Exception):
             orchestrator.run()
@@ -441,6 +441,9 @@ def _measure_pipeline_orchestrator(
                 individual_ms=individual_ms,
             )
         )
+
+    return results
+
 
 @dataclass
 class TightenResult:

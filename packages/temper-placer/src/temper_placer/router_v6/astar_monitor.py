@@ -174,7 +174,7 @@ class astar_monitor:
         _current_monitor_state.check_single_expansion = self._check_single_expansion
         return _current_monitor_state
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         global _current_monitor_state
         state = _current_monitor_state
         _set_monitor_active(False)

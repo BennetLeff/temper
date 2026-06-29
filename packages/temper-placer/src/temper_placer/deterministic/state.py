@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid
     from temper_placer.router_v6.routing_demand import RoutingDemand
     from temper_placer.router_v6.routing_space import RoutingSpace
+    from temper_placer.router_v6.stage0_data import ParsedPCB
     from temper_placer.router_v6.topology_extraction import TopologyGraph
     from temper_placer.router_v6.topology_solver import TopologicalSolution
 
@@ -91,7 +92,7 @@ class BoardState:
     routing_demand: RoutingDemand | None = None
     bottleneck_analysis: BottleneckAnalysis | None = None
     # Bridge fields for Stage2Orchestrator (pending protocol unification)
-    _parsed_pcb: Any | None = None
+    _parsed_pcb: ParsedPCB | None = None
     _escape_vias: Any | None = None
     # Router V6 Stage 4 A* pathfinding fields
     parsed_grids: dict[str, Any] | None = None
@@ -119,10 +120,6 @@ class BoardState:
     topological_solution: TopologicalSolution | None = None
     assignment_valid: bool | None = None
     topology_graph: TopologyGraph | None = None
-    # Router V6 Stage 4 A* pathfinding fields
-    parsed_grids: dict[str, Any] | None = None
-    net_route_order: list[str] | None = None
-    per_net_results: dict[str, Any] | None = None
     # @req(2026-06-23-007, R2): Per-(component, lv_pin, hv_pin) clearance
     # reclaim (mm) emitted by ZoneAwareSlotGenerationStage when an isolation
     # cutout is present. The DRC oracle (U3) reads this dict to apply a

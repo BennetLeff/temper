@@ -37,7 +37,7 @@ def check_worst_case_drc(
     _fab: FabPreset
 ) -> ManufacturingReport:
     """Run worst-case DRC checks and compute margins."""
-    margins: list[float] = []
+    margins: list[MarginReport] = []
 
     # 1. Check component clearances (Level 1: Simple inflation)
     # TODO: Implement full geometric clearance checks with inflation

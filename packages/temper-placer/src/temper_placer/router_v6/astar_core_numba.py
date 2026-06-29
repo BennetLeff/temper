@@ -198,7 +198,7 @@ def _compile_kernel():
         cols: int,
         validity_flat: np.ndarray,  # (rows*cols*8,) uint8
         max_iterations: int,
-        congestion_flat: np.ndarray = None,  # (rows*cols,) float32; null = no congestion
+        congestion_flat: np.ndarray | None = None,  # (rows*cols,) float32; null = no congestion
         congestion_weight: float = 1.0,  # multiplier on per-cell congestion cost
         max_congestion_cost: float = 100.0,  # cap on per-cell cost
     ) -> tuple:

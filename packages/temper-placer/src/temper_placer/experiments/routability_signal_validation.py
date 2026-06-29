@@ -314,7 +314,7 @@ def cli_main():
     if args.corpus:
         m = repo / "power_pcb_dataset" / "manifest.yaml"
         if m.exists():
-            import yaml
+            import yaml  # type: ignore[import-untyped]
             with open(m) as f:
                 data = yaml.safe_load(f) or {}
             for e in data.get("entries", data.get("boards", [])):
@@ -322,7 +322,7 @@ def cli_main():
     if args.golden:
         gm = repo / "power_pcb_dataset" / "golden_manifest.yaml"
         if gm.exists():
-            import yaml
+            import yaml  # type: ignore[import-untyped]
             with open(gm) as f:
                 data = yaml.safe_load(f) or {}
             for e in data.get("boards", []):

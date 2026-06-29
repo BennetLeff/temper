@@ -211,7 +211,7 @@ class PipelineOrchestrator:
 
         self._engine = StageDAGEngine(manifest_path)
         self._dag_observer = DAGToLegacyObserver(self)
-        self._engine.add_observer(self._dag_observer)
+        self._engine.add_observer(self._dag_observer)  # type: ignore[arg-type]
 
         self.phases: dict[PipelinePhase, Callable[[PipelineState], PipelineState]] = {
             PipelinePhase.INPUT: self._run_input,

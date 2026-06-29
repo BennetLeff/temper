@@ -404,7 +404,7 @@ class LiveServer:
 
     def _create_message(self, msg_type: MessageType, data: dict[str, Any] | None = None) -> str:
         """Create a JSON message."""
-        message = {"type": msg_type.value}
+        message: dict[str, Any] = {"type": msg_type.value}
         if data is not None:
             message["data"] = data
         return json.dumps(message)

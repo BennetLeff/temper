@@ -169,7 +169,7 @@ def _adjacent_to_sat(
                     net2_idx=n2,
                     channel_id=edge_id,
                 )
-                results.append(order_var)
+                results.append(order_var)  # type: ignore[arg-type]
     return results
 
 

@@ -305,7 +305,7 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
         # Build a {ref -> (x, y)} lookup from the netlist. If the netlist
         # is missing, we cannot localize slots, so the filter is a no-op.
-        comp_pos: dict[str, tuple[float, float]] = {}
+        comp_pos: dict[str, tuple[float, ...]] = {}
         comp_by_ref: dict[str, object] = {}
         if state.netlist is not None:
             for comp in state.netlist.components:

@@ -133,13 +133,13 @@ def score_config(results: list[PCBResult]) -> float:
 
     # Tertiary: Mean quality score (only for passing boards)
     if passing_results:
-        mean_quality = np.mean([r.quality_score for r in passing_results])
-        quality_normalized = mean_quality / 100.0  # Assume quality scores are 0-100
+        mean_quality = float(np.mean([r.quality_score for r in passing_results]))
+        quality_normalized = mean_quality / 100.0
     else:
         quality_normalized = 0.0
 
     # Weighted combination: DRC is 10x more important than wirelength
-    total_score = 10.0 * drc_pass_rate + wl_score + 0.5 * quality_normalized
+    total_score = float(10.0 * drc_pass_rate + wl_score + 0.5 * quality_normalized)
 
     return float(total_score)
 

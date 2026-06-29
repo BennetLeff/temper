@@ -150,7 +150,7 @@ def path_to_segments(
 
         segments.append(
             TraceSegment(
-                net=net,
+                net=net or "unknown",
                 start=(x1, y1),
                 end=(x2, y2),
                 width=trace_width,
@@ -208,7 +208,7 @@ def path_to_vias(
 
             vias.append(
                 TraceVia(
-                    net=net,
+                    net=net or "unknown",
                     position=pos,
                     size=via_size,
                     drill=via_drill,

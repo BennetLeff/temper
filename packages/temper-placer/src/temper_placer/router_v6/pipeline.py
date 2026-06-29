@@ -763,7 +763,7 @@ class RouterV6Pipeline:
         target_names = self._select_sat_nets(pcb) if self.max_sat_nets and not self.enable_bundling else None
 
         if self.enable_bundling:
-            # U1: Run bundle analyzer before model building.
+            assert stage2.skeletons is not None, "Stage 2 skeletons required for bundling"
             from temper_placer.router_v6.bundle_analyzer import BundleAnalyzer
 
             bundle_analyzer = BundleAnalyzer(
@@ -1006,6 +1006,7 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  4.1: Setting up channel mapping...")
 
+        assert stage2.skeletons is not None, "Stage 2 skeletons required for Stage 4"
         fcu_skeleton = stage2.skeletons.get("F.Cu") or next(iter(stage2.skeletons.values()), None)  # type: ignore[union-attr]
         stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)  # type: ignore[union-attr]
 

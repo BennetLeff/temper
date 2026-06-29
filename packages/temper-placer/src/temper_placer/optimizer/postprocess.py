@@ -173,9 +173,9 @@ def snap_to_grid_with_overlap_check(
             final_positions.append(pos)
             overlaps_introduced += 1
 
-    final_positions = jnp.stack(final_positions)
+    stacked: Array = jnp.stack(final_positions)
     return PlacementState(
-        positions=final_positions,
+        positions=stacked,
         rotation_logits=state.rotation_logits,
     ), overlaps_introduced
 

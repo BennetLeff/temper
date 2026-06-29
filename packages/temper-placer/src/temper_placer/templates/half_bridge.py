@@ -126,7 +126,7 @@ class HalfBridgeTemplate:
 
             loop = Loop(
                 name=loop_def.name,
-                loop_type=loop_def.type,
+                loop_type=LoopType(loop_def.type),
                 description=loop_def.name,
                 # This is a simplification
                 priority=LoopPriority[loop_def.priority] if isinstance(loop_def.priority, str) else loop_def.priority,  # type: ignore[index]

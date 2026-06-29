@@ -56,7 +56,8 @@ class InputStage:
         else:
             class MockConstraints:
                 constraints: list = []
-            constraints = MockConstraints()
+            mock_constraints = MockConstraints()
+            constraints = mock_constraints  # type: ignore[assignment]
 
         state.constraints = constraints
         state.loops = loops

@@ -744,3 +744,66 @@ scripts:
   - os
   - pathlib
   - sys
+- path: check_fault_list_consistency.py
+  purpose: "CI cross-check: verify manifest.json fault codes are a subset of generated FAULT_LIST"
+  owner: firmware
+  last_run: "2026-06-29"
+  category: keep
+  disposition: ci-gate
+  imports: []
+- path: check_typecheck_gate.py
+  purpose: "Type-check gate with per-file monotonic-shrink allowlist baseline"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: ci-gate
+  imports: []
+- path: pipeline_report.py
+  purpose: "Generate self-contained static HTML pipeline report (R7, R8)"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: utility
+  imports: []
+- path: pr_perf_compare.py
+  purpose: "Compare PR performance metrics against main-branch JSONL baseline"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: ci-gate
+  imports: []
+- path: pr_scorecard.py
+  purpose: "PR pipeline scorecard: compare pipeline_metrics.jsonl files, produce markdown delta table"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: ci-gate
+  imports: []
+- path: reconcile_metrics.py
+  purpose: "Reconcile pipeline metrics across multiple runs"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: utility
+  imports: []
+- path: slo_evaluator.py
+  purpose: "SLO definition schema and evaluation engine"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: utility
+  imports: []
+- path: spc_rules.py
+  purpose: "Western Electric SPC rules — pure Python, no external stats dependency"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: utility
+  imports: []
+- path: verify_proofs.py
+  purpose: "Verify PROOFS.toml completeness — CI gate"
+  owner: pipeline
+  last_run: "2026-06-29"
+  category: keep
+  disposition: ci-gate
+  imports: []

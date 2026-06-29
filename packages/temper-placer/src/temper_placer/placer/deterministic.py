@@ -194,6 +194,14 @@ def place_by_proximity(
             unplaced_refs=unplaced_refs,
         )
 
+    # If no zone_name provided, return empty result
+    return PlacementResult(
+        positions=positions,
+        rotations=rotations,
+        placed_refs=[],
+        unplaced_refs=list(refs_to_place),
+    )
+
 
 def place_in_zone_center(
     netlist: Netlist,

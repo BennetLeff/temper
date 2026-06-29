@@ -198,7 +198,7 @@ class PowerPathLoss(LossFunction):
 def create_power_path_loss(
     netlist: Netlist,
     path_configs: list[HighCurrentPathConfig],
-    loop_configs: list[SwitchingLoopConfig] = None,
+    loop_configs: list[SwitchingLoopConfig] | None = None,
     alpha: float = 10.0,
 ) -> PowerPathLoss:
     """
@@ -231,9 +231,9 @@ def create_power_path_loss(
     # Ensure at least 1 to avoid empty shape errors
     max_loop_len = max(max_loop_len, 1)
 
-    for config in loop_configs:
+    for loop_cfg in loop_configs:
         idxs = []
-        for d in config.components:  # type: ignore[attr-defined]
+        for d in loop_cfg.components:  # type: ignore[attr-defined]
             if d in comp_name_to_idx:
                 idxs.append(comp_name_to_idx[d])
             else:

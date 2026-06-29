@@ -149,7 +149,7 @@ class AnalyticalLegalizer:
             bounds.append((min_val + w, max_val - w))
         # u_i bounds (0, inf)
         for _i in range(n):
-            bounds.append((0, None))
+            bounds.append((0.0, None))  # type: ignore[arg-type]
 
         # Solve
         res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method="highs")

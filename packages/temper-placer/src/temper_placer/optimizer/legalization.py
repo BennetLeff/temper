@@ -921,7 +921,7 @@ def project_to_drc_feasible(
         positions=positions,
         netlist=context.netlist,
         board=context.board,
-        fixed_mask=context.fixed_mask,
+        fixed_mask=context.fixed_mask,  # type: ignore[arg-type]
         max_iterations=max_iterations,
         min_separation=margin_mm,
     )

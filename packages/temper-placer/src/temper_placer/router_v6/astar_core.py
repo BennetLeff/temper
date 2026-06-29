@@ -58,6 +58,11 @@ class RoutePath:
         """Number of segments in path."""
         return max(0, len(self.coordinates) - 1)
 
+    @property
+    def success(self) -> bool:
+        """Whether the route was successfully found."""
+        return len(self.coordinates) >= 2
+
 
 @dataclass
 class RouteNode3D:
@@ -192,7 +197,7 @@ def _astar_search(
             neighbor = (nx, ny)
 
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                cost_so_far[neighbor] = new_cost
+                cost_so_far[neighbor] = float(new_cost)  # type: ignore[assignment]
                 priority = new_cost + _heuristic(neighbor, goal)
                 heappush(frontier, (priority, neighbor))
                 came_from[neighbor] = current

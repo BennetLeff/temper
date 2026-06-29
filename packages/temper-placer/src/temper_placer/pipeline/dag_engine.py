@@ -307,7 +307,7 @@ class StageDAGEngine:
             raise
 
         if deadline is not None and time.time() > deadline:
-            raise StageTimeoutError(stage_def.name, stage_def.timeout_s)
+            raise StageTimeoutError(stage_def.name, stage_def.timeout_s)  # type: ignore[arg-type]
 
         return result
 

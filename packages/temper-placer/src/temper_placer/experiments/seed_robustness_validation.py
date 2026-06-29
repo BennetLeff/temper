@@ -41,6 +41,7 @@ def create_test_netlist(n_components: int = 17) -> Netlist:
     fixtures_path = root_dir / "tests" / "fixtures" / "generators" / "synthetic_netlist.py"
 
     spec = importlib.util.spec_from_file_location("synthetic_netlist", fixtures_path)
+    assert spec is not None, f"Could not find synthetic_netlist at {fixtures_path}"
     synthetic_netlist = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(synthetic_netlist)  # type: ignore[union-attr]
 

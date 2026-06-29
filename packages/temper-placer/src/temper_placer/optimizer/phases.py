@@ -286,7 +286,7 @@ class OptimizationPipeline:
             objectives = [w.loss_fn for w in composite.losses]
 
             nsga_res = self.nsga_phase.run(
-                self.netlist, self.board, objectives, self.context, current_state
+                self.netlist, self.board, objectives, self.context, current_state  # type: ignore[arg-type]
             )
             phases.append(nsga_res)
 
@@ -296,6 +296,7 @@ class OptimizationPipeline:
             current_state = nsga_res.state
 
         # 2. Geometric Phase
+        assert current_state is not None, "Initial state required for geometric phase"
         geo_res = self.geometric_phase.run(
             self.netlist,
             self.board,
@@ -317,7 +318,8 @@ class OptimizationPipeline:
 
         # If no Pareto result, just return the single final state
         if not final_states:
-            final_states = [geo_res.state]
+            if geo_res.state is not None:
+                final_states = [geo_res.state]
 
         return PipelineResult(
             success=True,

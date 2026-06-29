@@ -355,6 +355,8 @@ class ValidationCallback:
                 from temper_placer.core.netlist import build_adjacency_matrix
                 from temper_placer.ml.routing_predictor import RoutingDifficultyGNN
 
+                if self.config.ml_routing_model_path is None:
+                    return
                 model_path = Path(self.config.ml_routing_model_path)
                 if model_path.exists():
                     with open(model_path, "rb") as f:
@@ -377,7 +379,7 @@ class ValidationCallback:
                     edge_features = jnp.ones((edges.shape[0], 1))
 
                     model = RoutingDifficultyGNN()
-                    ml_routing_score = float(model.apply({'params': params}, nodes, edges, edge_features))
+                    ml_routing_score = float(model.apply({'params': params}, nodes, edges, edge_features))  # type: ignore[arg-type]
 
                     if self.config.log_validation:
                         logger.info(f"[Epoch {epoch}] ML Routing Score: {ml_routing_score:.4f}")

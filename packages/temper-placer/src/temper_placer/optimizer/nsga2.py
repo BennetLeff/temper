@@ -1257,7 +1257,8 @@ class NSGAOptimizer:
                         next_indices = [
                             idx if idx != worst_idx else fixed_child_idx for idx in next_indices
                         ]
-                        next_indices = jnp.array(next_indices)
+                        next_indices_jnp: list[int] | Array = jnp.array(next_indices)
+                        next_indices = next_indices_jnp  # type: ignore[assignment]
 
             pop_pos = combined_pos[jnp.array(next_indices)]
             pop_rot = combined_rot[jnp.array(next_indices)]

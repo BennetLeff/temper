@@ -52,7 +52,7 @@ class Checkpoint:
     best_loss: float
     best_positions: Array | None = None
     best_rotation_logits: Array | None = None
-    validation_history: list[ValidationResult] = None
+    validation_history: list[ValidationResult] | None = None
     config_hash: str | None = None
 
     def __post_init__(self):
@@ -211,7 +211,7 @@ class CheckpointManager:
         if checkpoint.config_hash:
             save_dict["config_hash"] = np.array(checkpoint.config_hash)
 
-        np.savez_compressed(path, **save_dict)
+        np.savez_compressed(path, **save_dict)  # type: ignore[arg-type]
 
     def _cleanup_old_checkpoints(self):
         """Remove old checkpoints, keeping only the last N."""

@@ -539,8 +539,8 @@ def create_board_view_from_state(
     """
     n = len(component_refs)
     # Use explicit typing to handle None list - cast to satisfy type checker
-    fp_list: list[str | None] = cast(
-        list[str | None], footprints if footprints else [None] * n
+    fp_list: list[str | None] = list(
+        footprints if footprints else [None] * n
     )
     status_list = statuses if statuses else [ComponentStatus.OK] * n
 

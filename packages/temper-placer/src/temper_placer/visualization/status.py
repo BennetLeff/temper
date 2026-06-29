@@ -364,6 +364,7 @@ def render_constraint_status(
         return fig
 
     # Create subplots
+    specs: list[list[dict[str, Any] | None]]
     if n_panels == 1:
         specs = [[{"type": "xy" if show_summary else "table"}]]
         rows, cols = 1, 1

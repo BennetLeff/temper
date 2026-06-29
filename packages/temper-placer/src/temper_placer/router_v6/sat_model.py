@@ -199,7 +199,7 @@ def populate_sat_from_constraints(
             # If allowed = False, add clause (¬uses[n, c])
             # If allowed = True, add clause (uses[n, c])
             var_name = f"uses_N{constraint.net_idx}_{constraint.channel_id}"
-            sat_var = var_map.get(var_name)
+            sat_var: SATVariable | None = var_map.get(var_name)
 
             if sat_var is not None:
                 sat_model.add_clause(
@@ -212,9 +212,9 @@ def populate_sat_from_constraints(
                 min_width = min(width for _, width in constraint.terms)
                 max_nets = int(constraint.capacity * constraint.slack_factor / min_width)
 
-                sat_vars = []
+                sat_vars: list[SATVariable] = []
                 for var, _ in constraint.terms:
-                    sat_var = var_map.get(var.name)
+                    sat_var: SATVariable | None = var_map.get(var.name)
                     if sat_var is not None:
                         sat_vars.append(sat_var)
 

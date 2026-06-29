@@ -107,7 +107,7 @@ def profile_optimizer_memory(
     # Generate netlist if not provided
     if netlist is None:
         from temper_placer.fixtures.synthetic import generate_200_component_netlist
-        netlist = generate_200_component_netlist(seed=seed)
+        netlist = generate_200_component_netlist(seed=seed)  # type: ignore[assignment]
         # Filter to n_components
         if len(netlist.components) > n_components:  # type: ignore[attr-defined]
             netlist.components = netlist.components[:n_components]  # type: ignore[attr-defined]

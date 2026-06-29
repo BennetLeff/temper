@@ -254,6 +254,7 @@ class NgspiceValidator(Validator):
         start_time = time.time()
 
         # Build command
+        assert self.ngspice_path is not None, "ngspice_path must be set"
         cmd = [self.ngspice_path, "-b", str(netlist_path)]
 
         # Set up environment with include paths
@@ -598,7 +599,7 @@ class PlacementSpiceResult:
             lines.append("Threshold checks:")
             for name, result in self.threshold_results.items():
                 status = "✓" if result.get("passed") else "✗"
-                value = result.get("value")
+                value: float | None = result.get("value")
                 if value is not None:
                     lines.append(f"  {status} {name}: {value:.4e}")
                 else:
