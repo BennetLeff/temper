@@ -93,7 +93,7 @@ def optimize_board(
     from temper_placer.optimizer.config import OptimizerConfig
     from temper_placer.optimizer.curriculum import create_default_phases
     from temper_placer.optimizer.train import train_multiphase
-    from temper_placer.heuristics import create_default_pipeline
+    from temper_placer.heuristics.pipeline import create_default_pipeline
 
     pipeline = create_default_pipeline()
     rng = jax.random.PRNGKey(seed)

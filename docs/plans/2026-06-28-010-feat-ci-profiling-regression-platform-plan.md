@@ -1,7 +1,7 @@
 ---
 title: "feat: CI Profiling Regression Platform — Time-Series Storage, Dashboard, and PR-Level Perf Gates"
 type: feat
-status: active
+status: completed
 date: 2026-06-28
 ---
 

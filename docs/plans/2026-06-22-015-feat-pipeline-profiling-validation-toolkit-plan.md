@@ -63,7 +63,7 @@ packages/temper-placer/tests/
 **Dependencies:** None
 
 **Files:**
-- Create: `packages/temper-placer/src/temper_placer/profiling/__init__.py`
+- Modify: `packages/temper-placer/src/temper_placer/profiling/__init__.py` (add PipelineProfiler/ProfileReport exports)
 - Create: `packages/temper-placer/src/temper_placer/profiling/instrumentation.py`
 - Modify: `packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py` (fix broken double-perf_counter at lines ~730-757)
 - Modify: `packages/temper-placer/src/temper_placer/routing/maze_router.py` (expose ProfileStats via get_profile_stats())
@@ -75,7 +75,7 @@ packages/temper-placer/tests/
 - Wire into pipeline entry points: `PipelineOrchestrator`, `RouterV6Pipeline`, `DeterministicPipeline` — the profiler is passed via constructor injection or a `profiler=` parameter on the `run()` method. Each pipeline's injection pattern is documented in the profiler module docstring
 - Fix the broken `perf_counter()` duplicates in `astar_pathfinding.py` — replace doubled timing block with single block, add `per_path_latency_ms` to `ProfileReport`
 - Expose MazeRouter `ProfileStats` fields (numba_time_ms, python_time_ms, dist_map_ms) via `get_profile_stats()` method; `PipelineProfiler` merges these into the report
-- Output: `measurements.jsonl` append (reusing GPBM format) or standalone JSON
+- Output: Emit `PipelineMetricsRecord` records to the canonical `pipeline_metrics.jsonl` (Plan 010 K2) or standalone JSON via `ProfileReport.to_json()`
 
 **Patterns to follow:** `losses/base.py:record_timings()` for JAX-aware timing with `block_until_ready()`; `maze_router.py:ProfileStats` dataclass
 

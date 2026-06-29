@@ -1,7 +1,7 @@
 {
   "board_id": "bitaxe_ultra",
-  "extracted_at": "2026-06-22T00:00:00",
-  "git_hash": "unknown",
+  "extracted_at": "2026-06-29T02:20:59.319316+00:00",
+  "git_hash": "ce604b59",
   "config": {
     "seed": 45,
     "epochs": 8000,
@@ -11,29 +11,29 @@
   },
   "metrics": {
     "wirelength_final": {
-      "mean": 0.0,
-      "margin_rel": 0.20,
-      "margin_abs": 3000.0
+      "mean": 20379.267578125,
+      "margin_rel": 0.1,
+      "margin_abs": 100.0
     },
     "overlap_loss_final": {
       "mean": 0.0,
-      "margin_rel": 0.20,
-      "margin_abs": 10.0
+      "margin_rel": 0.1,
+      "margin_abs": 2.0
     },
     "boundary_loss_final": {
       "mean": 0.0,
-      "margin_rel": 0.20,
-      "margin_abs": 20.0
+      "margin_rel": 0.1,
+      "margin_abs": 5.0
     },
     "final_loss": {
-      "mean": 0.0,
-      "margin_rel": 0.20,
-      "margin_abs": 500.0
+      "mean": 20379.267578125,
+      "margin_rel": 0.05,
+      "margin_abs": 20.0
     },
     "hpwl_final": {
       "mean": 0.0,
-      "margin_rel": 0.20,
-      "margin_abs": 3000.0
+      "margin_rel": 0.05,
+      "margin_abs": 100.0
     }
   }
 }
