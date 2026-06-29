@@ -139,7 +139,7 @@ def generate_escape_vias(
                     (comp_x, comp_y),
                     angle,
                     clearance,
-                    ignore_net=pin.net # Ignore clearance to same net
+                    _ignore_net=pin.net  # Ignore clearance to same net
                 ):
                     chosen_pos = (cand_x, cand_y)
                     break

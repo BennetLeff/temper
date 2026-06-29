@@ -81,7 +81,7 @@ def main() -> int:
         execution_log,
         board=pcb_path.stem,
     )
-    result = test.run(observer=observer)
+    result = test.run(_observer=observer)
     observer.on_pipeline_complete(
         success=result.passed,
         total_duration_s=result.wall_clock_seconds,
