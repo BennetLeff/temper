@@ -952,6 +952,9 @@ static void state_runaway_fault_update(void) {
      * re-initialization. */
     watchdog_feed();
 
+    /* Re-evaluate safety interlocks to detect new fault conditions */
+    check_safety_interlocks();
+
     /* Check for user reset attempt */
     if (button_is_pressed(BUTTON_RESET)) {
         if (fault_cleared()) {
@@ -1153,6 +1156,9 @@ static bool fault_cleared(void) {
 
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
+
+        case FAULT_NONE:
+            return true;   /* No active fault */
 
         default:
             return false;  /* Most faults require power cycle */
