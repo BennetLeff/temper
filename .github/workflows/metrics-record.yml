@@ -67,7 +67,7 @@ jobs:
         run: >
           uv run python scripts/pipeline_report.py
           --metrics-file power_pcb_dataset/metrics/pipeline_metrics.jsonl
-          --execution-log pipeline_execution.json
+          --execution-log packages/temper-placer/pipeline_execution.json
           --output pipeline_report.html
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
