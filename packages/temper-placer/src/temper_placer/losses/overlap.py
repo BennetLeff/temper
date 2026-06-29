@@ -94,7 +94,7 @@ class OverlapLoss(LossFunction):
         ramp_end = self.inflation_ramp * total_epochs
         progress = jnp.clip(epoch / jnp.maximum(ramp_end, 1.0), 0.0, 1.0)
         multiplier = 0.05 + 0.95 * progress
-        
+
         # Only apply multiplier if ramp is enabled
         bounds = jnp.where(self.inflation_ramp > 0, bounds * multiplier, bounds)
 
@@ -106,10 +106,10 @@ class OverlapLoss(LossFunction):
         def handle_rotated_bounds_wrapper(_):
             def handle_rotated(_):
                 return batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
-            
+
             def handle_raw(_):
                 return bounds[:, 0], bounds[:, 1]
-            
+
             return jax.lax.cond(self.use_rotated_bounds, handle_rotated, handle_raw, None)
 
         widths, heights = jax.lax.cond(
@@ -298,13 +298,10 @@ def _compute_pairwise_overlaps_optimized(
     For small N (< 50): Uses full vectorized approach
     For large N (>= 50): Uses chunked approach for memory efficiency
     """
-    n = positions.shape[0]
+    positions.shape[0]
 
     # Ensure we use a float dtype even if positions are integers
-    if jnp.issubdtype(positions.dtype, jnp.integer):
-        dtype = jnp.float32
-    else:
-        dtype = positions.dtype
+    dtype = jnp.float32 if jnp.issubdtype(positions.dtype, jnp.integer) else positions.dtype
 
     return _compute_pairwise_overlaps_vectorized(
         positions.astype(dtype),

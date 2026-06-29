@@ -13,8 +13,6 @@ avoiding Python loops that would cause recompilation on every call.
 
 from __future__ import annotations
 
-from typing import Any
-
 import jax
 import jax.numpy as jnp
 from jax import Array
@@ -101,9 +99,9 @@ class WirelengthLoss(LossFunction):
         anneal_duration = jnp.maximum((1 - self.alpha_warmup) * total_epochs, 1.0)
         progress = (epoch - warmup_end) / anneal_duration
         progress = jnp.clip(progress, 0.0, 1.0)
-        
+
         annealed_alpha = self.alpha_start + progress * (self.alpha_end - self.alpha_start)
-        
+
         # Use jnp.where for JAX tracing compatibility (not Python if)
         return jnp.where(epoch < warmup_end, self.alpha_start, annealed_alpha)
 

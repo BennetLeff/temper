@@ -238,7 +238,7 @@ def aligned_to_alignment_loss(
     # AlignmentLoss expects prefix_groups as (G, M) array where:
     # G = number of groups, M = max group size, padded with -1
     # For PCL, we have one group with the aligned components
-    max_size = len(indices)
+    len(indices)
     prefix_groups_array = jnp.array(indices, dtype=jnp.int32).reshape(1, -1)
 
     return AlignmentLoss(prefix_groups=prefix_groups_array)
@@ -317,6 +317,7 @@ def anchored_to_positional_loss(
                 context: LossContext,
                 epoch: int = 0,
                 total_epochs: int = 1,
+                net_virtual_nodes: Array | None = None,
             ) -> LossResult:
                 delta = positions[idx] - target_pos
                 distance = jnp.linalg.norm(delta)
@@ -341,6 +342,7 @@ def anchored_to_positional_loss(
                 context: LossContext,
                 epoch: int = 0,
                 total_epochs: int = 1,
+                net_virtual_nodes: Array | None = None,
             ) -> LossResult:
                 pos = positions[idx]
                 x, y = pos[0], pos[1]

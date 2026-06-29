@@ -47,8 +47,8 @@ class CurrentReturnPathLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
-        # Placeholder, use factory to get Resolved version
         return LossResult(value=jnp.array(0.0))
 
 
@@ -68,6 +68,7 @@ class ResolvedCurrentReturnPathLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         total_loss = jnp.array(0.0)
 

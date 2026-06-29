@@ -230,7 +230,7 @@ class RotationConsistencyLoss(LossFunction):
             type_entropy_sum = jnp.array(0.0)
             count = 0.0
 
-            for type_name, indices in context.component_type_indices.items():
+            for _type_name, indices in context.component_type_indices.items():
                 if len(indices) < 2:
                     continue
 
@@ -245,10 +245,7 @@ class RotationConsistencyLoss(LossFunction):
 
             # If we have types, mix type entropy with global entropy
             # Weight type entropy more heavily as it is more specific
-            if count > 0:
-                total_entropy = type_entropy_sum / count
-            else:
-                total_entropy = global_entropy
+            total_entropy = type_entropy_sum / count if count > 0 else global_entropy
         else:
             total_entropy = global_entropy
 
@@ -742,7 +739,7 @@ def get_template_groups(netlist: Netlist, constraints: PlacementConstraints) -> 
     # Create padded array (G, K, M)
     result = jnp.full((g_count, k_max, m_max), -1, dtype=jnp.int32)
 
-    for g_idx, (name, instances) in enumerate(template_map.items()):
+    for g_idx, (_name, instances) in enumerate(template_map.items()):
         for k_idx, indices in enumerate(instances):
             for m_idx, comp_idx in enumerate(indices):
                 result = result.at[g_idx, k_idx, m_idx].set(comp_idx)
@@ -823,7 +820,6 @@ def get_port_facing_data(
         g_indices_list.append(g_comp_indices)
 
         # Find primary pin component and offset
-        pin_comp_ref = None
         pin_name = group.primary_pin
 
         # Check if primary_pin is "Ref:Pin" or just "Pin" (implying unique in group?)

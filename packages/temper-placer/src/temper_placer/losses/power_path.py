@@ -198,12 +198,14 @@ class PowerPathLoss(LossFunction):
 def create_power_path_loss(
     netlist: Netlist,
     path_configs: list[HighCurrentPathConfig],
-    loop_configs: list[SwitchingLoopConfig] = [],
+    loop_configs: list[SwitchingLoopConfig] = None,
     alpha: float = 10.0,
 ) -> PowerPathLoss:
     """
     Factory to create PowerPathLoss from netlist and configs.
     """
+    if loop_configs is None:
+        loop_configs = []
     net_name_to_idx = {net.name: i for i, net in enumerate(netlist.nets)}
     comp_name_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
 

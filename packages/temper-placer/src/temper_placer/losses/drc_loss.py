@@ -12,6 +12,7 @@ value. It's designed for periodic evaluation during optimization.
 
 from __future__ import annotations
 
+import contextlib
 import tempfile
 import time
 from collections.abc import Callable
@@ -328,10 +329,8 @@ class DRCLoss(LossFunction):
 
             # Clean up temp file if needed
             if pcb_path.exists() and pcb_path.parent == Path(tempfile.gettempdir()):
-                try:
+                with contextlib.suppress(Exception):
                     pcb_path.unlink()
-                except Exception:
-                    pass
 
             return entry
 
@@ -351,6 +350,7 @@ class DRCLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         """

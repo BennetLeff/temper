@@ -167,6 +167,7 @@ class RoutingLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         penalty = self._cache.penalty if self._cache else self._base_penalty
 

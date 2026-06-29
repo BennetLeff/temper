@@ -3,16 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any
 
 import jax
 import jax.numpy as jnp
 from jax import Array
 
 if TYPE_CHECKING:
-    from temper_placer.core.board import Board
-    from temper_placer.core.netlist import Netlist
-    from temper_placer.io.config_loader import PlacementConstraints
     from temper_placer.core.hypergraph import PhysicsHypergraph
 
 
@@ -190,13 +187,13 @@ class ConstraintContext:
     star_weights: Array = None  # (S,)
     star_anchor_pos: Array = None  # (S, 2)
     star_has_anchor: Array = None  # (S,)
-    
+
     # Ground Domains
     domain_bounds: Array = None  # (D, 4)
     domain_star_points: Array = None  # (D, 2)
     domain_has_star: Array = None  # (D,)
     is_star_net: Array = None  # (M,)
-    
+
     # Spatial Feedback (from routing failures)
     spatial_penalties: Array = None  # (K, 3) -> [x, y, magnitude]
 
@@ -243,23 +240,23 @@ class LossContext:
     board: Any = None    # Board object
     bounds: Array = None  # (N, 2) component bounds
     fixed_mask: Array = None  # (N,) boolean mask
-    
+
     # New sub-contexts (Always populated)
     geometry: GeometryContext = field(default_factory=GeometryContext)
     netlist_data: NetlistContext = field(default_factory=NetlistContext)
     constraints_data: ConstraintContext = field(default_factory=ConstraintContext)
-    
-    # Hypergraph (Optional for backward compatibility, but preferred for new losses)
-    hypergraph: Optional["PhysicsHypergraph"] = None
 
-    constraints_config: Optional[Any] = None  # PlacementConstraints (aux_data)
+    # Hypergraph (Optional for backward compatibility, but preferred for new losses)
+    hypergraph: PhysicsHypergraph | None = None
+
+    constraints_config: Any | None = None  # PlacementConstraints (aux_data)
     thermal_constraints: list[Any] = field(default_factory=list)
     loop_constraints: list[Any] = field(default_factory=list)
     matched_groups: list[Any] = field(default_factory=list)
     clearance_rules: list[Any] = field(default_factory=list)
     star_ground_constraints: list[Any] = field(default_factory=list)
     component_spacing_rules: list[Any] = field(default_factory=list)  # ComponentSpacingRule list
-    
+
     # Missing auxiliary data for aesthetic and other losses
     component_type_indices: dict[str, Array] = field(default_factory=dict)
     net_class_indices: dict[str, Array] = field(default_factory=dict)
@@ -267,20 +264,20 @@ class LossContext:
     port_facing_groups: list[Any] = field(default_factory=list)
 
     # --- Delegated Properties for Backward Compatibility ---
-    
+
     # Geometry related
     @property
     def origin(self) -> Array:
         return self.geometry.origin if self.geometry.origin is not None else jnp.zeros((2,))
-    
+
     @property
     def width(self) -> float:
         return self.geometry.width
-    
+
     @property
     def height(self) -> float:
         return self.geometry.height
-    
+
     @property
     def board_margin(self) -> float:
         return self.geometry.board_margin
@@ -289,35 +286,35 @@ class LossContext:
     @property
     def centrality(self) -> Array:
         return self.netlist_data.centrality if self.netlist_data.centrality is not None else jnp.ones((0,))
-    
+
     @property
     def net_pin_indices(self) -> Array:
         return self.netlist_data.net_pin_indices if self.netlist_data.net_pin_indices is not None else jnp.zeros((0, 0), dtype=jnp.int32)
-    
+
     @property
     def net_pin_offsets(self) -> Array:
         return self.netlist_data.net_pin_offsets if self.netlist_data.net_pin_offsets is not None else jnp.zeros((0, 0, 2))
-    
+
     @property
     def net_pin_mask(self) -> Array:
         return self.netlist_data.net_pin_mask if self.netlist_data.net_pin_mask is not None else jnp.zeros((0, 0), dtype=jnp.bool_)
-    
+
     @property
     def net_weights(self) -> Array:
         return self.netlist_data.net_weights if self.netlist_data.net_weights is not None else jnp.ones((0,))
-    
+
     @property
     def net_layer_counts(self) -> Array:
         return self.netlist_data.net_layer_counts if self.netlist_data.net_layer_counts is not None else jnp.ones((0,), dtype=jnp.int32)
-    
+
     @property
     def hv_indices(self) -> Array:
         return self.netlist_data.hv_indices if self.netlist_data.hv_indices is not None else jnp.zeros((0,), dtype=jnp.int32)
-    
+
     @property
     def lv_indices(self) -> Array:
         return self.netlist_data.lv_indices if self.netlist_data.lv_indices is not None else jnp.zeros((0,), dtype=jnp.int32)
-    
+
     @property
     def fiducial_indices(self) -> Array:
         return self.netlist_data.fiducial_indices if self.netlist_data.fiducial_indices is not None else jnp.zeros((0,), dtype=jnp.int32)
@@ -326,31 +323,31 @@ class LossContext:
     @property
     def star_net_indices(self) -> Array:
         return self.constraints_data.star_net_indices if self.constraints_data.star_net_indices is not None else jnp.zeros((0,), dtype=jnp.int32)
-    
+
     @property
     def star_weights(self) -> Array:
         return self.constraints_data.star_weights if self.constraints_data.star_weights is not None else jnp.zeros((0,))
-    
+
     @property
     def star_anchor_pos(self) -> Array:
         return self.constraints_data.star_anchor_pos if self.constraints_data.star_anchor_pos is not None else jnp.zeros((0, 2))
-    
+
     @property
     def star_has_anchor(self) -> Array:
         return self.constraints_data.star_has_anchor if self.constraints_data.star_has_anchor is not None else jnp.zeros((0,), dtype=jnp.bool_)
-    
+
     @property
     def domain_bounds(self) -> Array:
         return self.constraints_data.domain_bounds if self.constraints_data.domain_bounds is not None else jnp.zeros((0, 4))
-    
+
     @property
     def domain_star_points(self) -> Array:
         return self.constraints_data.domain_star_points if self.constraints_data.domain_star_points is not None else jnp.zeros((0, 2))
-    
+
     @property
     def domain_has_star(self) -> Array:
         return self.constraints_data.domain_has_star if self.constraints_data.domain_has_star is not None else jnp.zeros((0,), dtype=jnp.bool_)
-    
+
     @property
     def is_star_net(self) -> Array:
         return self.constraints_data.is_star_net if self.constraints_data.is_star_net is not None else jnp.zeros((0,), dtype=jnp.bool_)
@@ -362,19 +359,19 @@ class LossContext:
     @property
     def loop_pin_indices(self) -> Array:
         return self.constraints_data.loop_pin_indices if self.constraints_data.loop_pin_indices is not None else jnp.zeros((0, 0), dtype=jnp.int32)
-    
+
     @property
     def loop_pin_offsets(self) -> Array:
         return self.constraints_data.loop_pin_offsets if self.constraints_data.loop_pin_offsets is not None else jnp.zeros((0, 0, 2))
-    
+
     @property
     def loop_pin_mask(self) -> Array:
         return self.constraints_data.loop_pin_mask if self.constraints_data.loop_pin_mask is not None else jnp.zeros((0, 0), dtype=jnp.bool_)
-    
+
     @property
     def loop_max_areas(self) -> Array:
         return self.constraints_data.loop_max_areas if self.constraints_data.loop_max_areas is not None else jnp.zeros((0,))
-    
+
     @property
     def loop_weights(self) -> Array:
         return self.constraints_data.loop_weights if self.constraints_data.loop_weights is not None else jnp.zeros((0,))
@@ -382,15 +379,15 @@ class LossContext:
     @property
     def path_pin_indices(self) -> Array:
         return self.constraints_data.path_pin_indices if self.constraints_data.path_pin_indices is not None else jnp.zeros((0, 0), dtype=jnp.int32)
-    
+
     @property
     def path_pin_offsets(self) -> Array:
         return self.constraints_data.path_pin_offsets if self.constraints_data.path_pin_offsets is not None else jnp.zeros((0, 0, 2))
-    
+
     @property
     def path_max_lengths(self) -> Array:
         return self.constraints_data.path_max_lengths if self.constraints_data.path_max_lengths is not None else jnp.zeros((0,))
-    
+
     @property
     def path_weights(self) -> Array:
         return self.constraints_data.path_weights if self.constraints_data.path_weights is not None else jnp.zeros((0,))
@@ -448,4 +445,4 @@ class LossContext:
 class LossResult:
     """Result from a loss function evaluation."""
     value: Array
-    breakdown: Optional[dict[str, Array]] = field(default_factory=dict)
+    breakdown: dict[str, Array] | None = field(default_factory=dict)

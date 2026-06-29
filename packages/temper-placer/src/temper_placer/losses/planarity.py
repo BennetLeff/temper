@@ -2,7 +2,7 @@
 Planarity and edge crossing loss functions.
 
 This module implements loss functions that penalize intersecting net segments,
-encouraging planar or near-planar placements that are easier to route with 
+encouraging planar or near-planar placements that are easier to route with
 fewer vias.
 """
 
@@ -20,7 +20,7 @@ class EdgeCrossingLoss(LossFunction):
     Penalize intersecting net segments.
 
     Uses a differentiable cross-product based proxy to detect intersections
-    between 2-pin net segments. 
+    between 2-pin net segments.
 
     Attributes:
         margin: Distance margin for 'near-miss' crossings.
@@ -65,7 +65,7 @@ class EdgeCrossingLoss(LossFunction):
 
         # We compute crossing penalty for ALL nets, then mask out non-2-pin nets
         # This avoids dynamic shapes (TracerBoolConversionError) in JIT
-        
+
         # Get pin positions for ALL nets: (M, 2, 2)
         # We take the first two pins of every net
         indices_all = context.net_pin_indices[:, :2] # (M, 2)
@@ -153,14 +153,14 @@ class EdgeCrossingLoss(LossFunction):
         penalty_matrix = penalty_matrix / (norm**2 + 1e-6)
 
         # Remove self-intersection and double counting
-        eye_mask = jnp.eye(penalty_matrix.shape[0], dtype=bool)
+        jnp.eye(penalty_matrix.shape[0], dtype=bool)
         tri_mask = jnp.triu(jnp.ones_like(penalty_matrix, dtype=bool), k=1)
-        
+
         # Mask out non-2-pin nets
         # Only count crossings where BOTH nets are 2-pin
         is_2pin = jnp.sum(mask, axis=1) == 2
         valid_net_mask = is_2pin[:, None] & is_2pin[None, :]
-        
+
         # Combine masks
         final_mask = tri_mask & valid_net_mask
 

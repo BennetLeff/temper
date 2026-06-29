@@ -1,8 +1,8 @@
 """
 Grid alignment loss function for manufacturing-friendly placement.
 
-This loss penalizes components that are not aligned to a regular 
-manufacturing grid (e.g., 0.5mm or 1.0mm). 
+This loss penalizes components that are not aligned to a regular
+manufacturing grid (e.g., 0.5mm or 1.0mm).
 """
 
 from __future__ import annotations
@@ -43,6 +43,7 @@ class GridAlignmentLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         """

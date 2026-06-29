@@ -30,8 +30,8 @@ class CoilRule:
     coil_ref: str
     target_position: tuple[float, float]
     keepout_radius: float = 50.0  # mm
-    sensitive_refs: tuple[str, ...] = tuple()
-    tank_capacitor_refs: tuple[str, ...] = tuple()
+    sensitive_refs: tuple[str, ...] = ()
+    tank_capacitor_refs: tuple[str, ...] = ()
     weight_centering: float = 1.0
     weight_keepout: float = 1.0
     weight_symmetry: float = 1.0
@@ -60,6 +60,7 @@ class CoilRequirementLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         total_centering_loss = 0.0
         total_keepout_loss = 0.0

@@ -89,6 +89,7 @@ class GroupClusterLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         """
@@ -247,6 +248,7 @@ class ProximityLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         """
@@ -325,6 +327,7 @@ class GroupSeparationLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         """
@@ -446,6 +449,7 @@ class SymmetryLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         if self._a1.shape[0] == 0:
@@ -465,7 +469,7 @@ class SymmetryLoss(LossFunction):
 def find_isomorphic_pairs(netlist: Netlist) -> list[tuple[int, int, int, int]]:
     """
     Identify pairs of connections that are topologically identical.
-    
+
     Used to populate SymmetryLoss.
     """
     # 1. Get isomorphic component groups

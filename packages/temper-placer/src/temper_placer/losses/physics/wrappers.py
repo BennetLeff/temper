@@ -6,17 +6,17 @@ from __future__ import annotations
 
 from jax import Array
 
-from temper_placer.losses.base import LossFunction, LossContext, LossResult
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
 from temper_placer.losses.physics.hypergraph_losses import (
-    hypergraph_wirelength_loss,
     high_voltage_repulsion_loss,
+    hypergraph_wirelength_loss,
 )
 
 
 class HypergraphWirelengthLoss(LossFunction):
     """
     Computes HPWL using sparse hypergraph incidence matrix.
-    
+
     Replaces the traditional net-iterative approach with a vectorized
     H.T @ P operation.
     """
@@ -37,7 +37,7 @@ class HypergraphWirelengthLoss(LossFunction):
             # Fallback or error? For now, assume it's there as we added it to factory.
             # If optimizing without hypergraph, this loss shouldn't be used.
             return LossResult(value=0.0)
-            
+
         value = hypergraph_wirelength_loss(positions, context.hypergraph)
         return LossResult(value=value)
 
@@ -64,10 +64,10 @@ class HighVoltageRepulsionLoss(LossFunction):
     ) -> LossResult:
         if context.hypergraph is None:
             return LossResult(value=0.0)
-            
+
         value = high_voltage_repulsion_loss(
-            positions, 
-            context.hypergraph, 
+            positions,
+            context.hypergraph,
             min_clearance=self.min_clearance
         )
         return LossResult(value=value)

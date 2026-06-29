@@ -108,7 +108,7 @@ def compute_zone_membership_penalty(
         for comp in context.netlist.components:
             if comp.zone:
                 zone_assignments[comp.ref] = comp.zone
-        
+
         # 2. Check board zones for mandatory component lists
         for zone in context.board.zones:
             for comp_ref in zone.components:
@@ -174,6 +174,7 @@ class ZoneMembershipLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute zone membership loss.

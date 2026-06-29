@@ -1,8 +1,8 @@
 """
 Routability-aware congestion loss.
 
-This module implements a routability loss function that uses the board's 
-LayerStackup to determine cell capacity, improving the correlation 
+This module implements a routability loss function that uses the board's
+LayerStackup to determine cell capacity, improving the correlation
 between placement and routing feasibility.
 """
 
@@ -47,6 +47,7 @@ class RoutabilityLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute routability loss using layer-aware capacity.

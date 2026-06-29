@@ -33,19 +33,19 @@ from temper_placer.extraction.hypergraph_factory import netlist_to_hypergraph
 from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.losses.types import (
     ClearanceRule,
+    ConstraintContext,
     CriticalPathConstraint,
+    GeometryContext,
     LoopConstraint,
     LossResult,
     MatchedLengthConstraint,
     MountingRule,
+    NetlistContext,
     NoiseIsolationConstraint,
     StarGroundConstraint,
     ThermalConstraint,
 )
 from temper_placer.losses.types import (
-    GeometryContext,
-    NetlistContext,
-    ConstraintContext,
     LossContext as BaseLossContext,
 )
 
@@ -101,7 +101,7 @@ class LossContext(BaseLossContext):
         fixed_mask = netlist.get_fixed_mask()
 
         # Build net class map from components
-        net_class_map = {c.ref: c.net_class for c in netlist.components}
+        {c.ref: c.net_class for c in netlist.components}
 
         # Compute HV and LV indices
         hv_indices = []
@@ -249,7 +249,7 @@ class LossContext(BaseLossContext):
             # Map critical loops (PowerSynth: key for switching noise minimization)
             for loop_cfg in constraints.critical_loops:
                 loop_constraints = loop_constraints or []
-                
+
                 # Convert list of lists to tuple of tuples for JAX compatibility
                 if loop_cfg.pins:
                     pins = tuple(tuple(p) for p in loop_cfg.pins)
@@ -258,7 +258,7 @@ class LossContext(BaseLossContext):
                     # LoopAreaLoss requires pins, so we might need discovery logic here
                     # For now, we assume pins are provided for PowerSynth strategy
                     continue
-                
+
                 loop_constraints.append(LoopConstraint(
                     name=loop_cfg.name,
                     pins=pins,
@@ -354,8 +354,8 @@ class LossContext(BaseLossContext):
         # 4. Build PhysicsHypergraph
         # We use default settings for now (filtering global nets > 50 pins)
         hypergraph = netlist_to_hypergraph(
-            netlist, 
-            ignore_global_nets=True, 
+            netlist,
+            ignore_global_nets=True,
             global_net_threshold=50
         )
 
@@ -1035,10 +1035,10 @@ class CompositeLoss(LossFunction):
     ) -> tuple[Array, Trace]:
         """
         Evaluate all losses and collect a natural language trace.
-        
+
         This is a non-differentiable method intended for use after optimization
         to generate an explanation of the final result.
-        
+
         Args:
             positions: (N, 2) component positions.
             rotations: (N, 4) soft rotations.
@@ -1046,7 +1046,7 @@ class CompositeLoss(LossFunction):
             epoch: Final epoch.
             total_epochs: Total epochs.
             net_virtual_nodes: Optional (M, 2) virtual nodes.
-            
+
         Returns:
             (total_loss, combined_trace)
         """
@@ -1115,7 +1115,7 @@ class CompositeLoss(LossFunction):
     ) -> dict[str, float]:
         """
         Record wall-clock execution time for each sub-loss.
-        
+
         Note: This executes sub-losses synchronously with block_until_ready()
         to ensure accurate timing for JAX async dispatch.
         """

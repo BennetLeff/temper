@@ -14,12 +14,12 @@ if TYPE_CHECKING:
 class StarPointLoss(LossFunction):
     """
     Penalizes deviation from a star-ground topology.
-    
+
     This loss has two components:
     1. Pin Attraction: Pulls all pins of a star net towards the net's virtual node.
     2. Anchor Attraction: Pulls the net's virtual node towards a fixed anchor (if defined).
-    
-    The virtual node (optimizable variable) naturally settles at the centroid 
+
+    The virtual node (optimizable variable) naturally settles at the centroid
     of the pins if unanchored, or somewhere between the centroid and the anchor
     if anchored (depending on weights).
     """
@@ -175,7 +175,7 @@ class StarPointLoss(LossFunction):
         # Since we don't have per-net breakdown in the LossResult easy to parse here,
         # we'll use the combined value but structured by net name.
 
-        for i, constraint in enumerate(context.star_ground_constraints):
+        for _i, constraint in enumerate(context.star_ground_constraints):
             # Map back to virtual node index
             # This is a bit tricky without a proper mapping, but let's assume
             # they are in the same order as in context.star_net_indices

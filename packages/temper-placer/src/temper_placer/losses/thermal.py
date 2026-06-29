@@ -151,6 +151,7 @@ class ThermalLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute thermal placement loss.
@@ -280,6 +281,7 @@ class ThermalSpreadLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute thermal spreading penalty.
@@ -376,6 +378,7 @@ class HeatSensitiveDistanceLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute heat-sensitive distance penalty.
@@ -477,6 +480,7 @@ class EdgePreferenceLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute edge preference penalty.

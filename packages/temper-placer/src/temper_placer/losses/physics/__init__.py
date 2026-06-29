@@ -1,6 +1,6 @@
 from temper_placer.losses.physics.wrappers import (
-    HypergraphWirelengthLoss,
     HighVoltageRepulsionLoss,
+    HypergraphWirelengthLoss,
 )
 
 __all__ = [

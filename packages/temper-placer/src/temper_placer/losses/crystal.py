@@ -46,8 +46,8 @@ class CrystalPlacementLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
-        # Placeholder for unresolved version
         return LossResult(value=jnp.array(0.0))
 
 

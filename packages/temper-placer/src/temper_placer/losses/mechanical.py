@@ -48,7 +48,13 @@ class MechanicalMountingLoss(LossFunction):
         return "mechanical_mounting"
 
     def __call__(
-        self, positions: jnp.ndarray, rotations: jnp.ndarray, context: LossContext
+        self,
+        positions: jnp.ndarray,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         total_loss = jnp.array(0.0)
         board = context.board

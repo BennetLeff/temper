@@ -1,12 +1,14 @@
-from typing import Any
-import jax.numpy as jnp
-from jax.scipy.ndimage import map_coordinates
-from flax import struct
 from dataclasses import dataclass
-import numpy as np
+from typing import Any
 
-from temper_placer.losses.base import LossFunction, LossContext
+import jax.numpy as jnp
+import numpy as np
+from flax import struct
+from jax.scipy.ndimage import map_coordinates
+
+from temper_placer.losses.base import LossContext, LossFunction
 from temper_placer.losses.types import LossResult
+
 
 @struct.dataclass
 class RoutingCongestionLoss(LossFunction):
@@ -48,18 +50,18 @@ class RoutingCongestionLoss(LossFunction):
         """
         # 1. Transform positions to grid coordinates
         grid_pos = (positions - self.origin) / self.cell_size
-        
-        # 2. Add batch dimension for N components if needed? 
+
+        # 2. Add batch dimension for N components if needed?
         # grid_pos is (N, 2). map_coordinates expects coords as (rank, N)
         coords = grid_pos.T  # (2, N)
-        
+
         # 3. Sample heatmap
         congestion_values = map_coordinates(self.heatmap, coords, order=1, mode='nearest')
-        
+
         # 4. Compute loss
         mean_congestion = jnp.mean(congestion_values)
         loss_val = mean_congestion * self.weight
-        
+
         return LossResult(
             value=loss_val,
             breakdown={"max_congestion": jnp.max(congestion_values), "mean_congestion": mean_congestion}
@@ -81,14 +83,14 @@ def compute_congestion_heatmap(
     """Compute congestion heatmap from conflict locations."""
     width, height = grid_size
     heatmap = np.zeros((width, height), dtype=np.float32)
-    
+
     for c in conflicts:
         if 0 <= c.x < width and 0 <= c.y < height:
             heatmap[c.x, c.y] += 1.0
-            
+
     # Normalize
     max_val = np.max(heatmap)
     if max_val > 0:
         heatmap = heatmap / max_val
-        
+
     return jnp.array(heatmap)

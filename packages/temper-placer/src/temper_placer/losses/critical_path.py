@@ -14,7 +14,7 @@ approximation for PCB routing since traces typically follow rectilinear paths.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 
 import jax.numpy as jnp
 from jax import Array
@@ -77,7 +77,7 @@ class CriticalPathLengthLoss(LossFunction):
         >>> result = loss(positions, rotations, context)
     """
 
-    def __init__(self, critical_paths: Optional[list[CriticalPath]] = None):
+    def __init__(self, critical_paths: list[CriticalPath] | None = None):
         """
         Initialize CriticalPathLengthLoss.
 
@@ -98,6 +98,7 @@ class CriticalPathLengthLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute total penalty for critical paths exceeding max length.
