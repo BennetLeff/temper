@@ -66,6 +66,10 @@ TRANSITIONS = [
     ("STATE_FAULT", "FAULT_RESET_CLEARED", "STATE_INIT", None, True),
     ("STATE_FAULT", "FAULT_RESET_PERSISTS", "STATE_FAULT", None, True),
 
+    # RUNAWAY_FAULT transitions (require fault_setup = True)
+    ("STATE_RUNAWAY_FAULT", "FAULT_RESET_CLEARED", "STATE_INIT", None, True),
+    ("STATE_RUNAWAY_FAULT", "FAULT_RESET_PERSISTS", "STATE_RUNAWAY_FAULT", None, True),
+
     # Wildcard transitions: runaway boundary interlock fires regardless of state
     ("*", "RUNAWAY_ABSOLUTE_TEMP", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),
     ("*", "RUNAWAY_RISE_RATE", "STATE_RUNAWAY_FAULT", "FAULT_RUNAWAY_BOUNDARY", False),

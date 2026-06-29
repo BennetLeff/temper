@@ -298,7 +298,6 @@ def _compute_pairwise_overlaps_optimized(
     For large N (>= 50): Uses chunked approach for memory efficiency
     """
     n = positions.shape[0]
-    print(f"DEBUG overlap compile-time: n={n}, type(n)={type(n)}")
 
     # Ensure we use a float dtype even if positions are integers
     if jnp.issubdtype(positions.dtype, jnp.integer):
