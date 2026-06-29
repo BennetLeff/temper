@@ -1,0 +1,53 @@
+name: Feature Request
+description: Propose a new capability or improvement
+labels: [enhancement, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests that don't follow this template will be closed.
+        If this is more of a discussion (an open-ended idea rather than a
+        concrete proposal), please use GitHub Discussions instead.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight Checklist
+      options:
+        - label: I searched existing issues and confirmed this hasn't been requested
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this solve? Describe the gap, limitation, or friction.
+      placeholder: "When I try to ..., I can't because ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: How would you solve it? Be concrete — interfaces, APIs, workflows.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches did you think about and discard?
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Affected Components
+      description: Which subsystems would this touch?
+      placeholder: |
+        - [ ] firmware/
+        - [ ] packages/temper-placer/
+        - [ ] pcb/
+        - [ ] CI / workflows
+        - [ ] docs/
