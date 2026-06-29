@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
 from temper_placer.core.differential_pair import DifferentialPairConstraint

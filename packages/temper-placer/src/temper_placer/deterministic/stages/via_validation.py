@@ -246,7 +246,7 @@ class ViaDeduplicationStage(Stage):
             return state
 
         unique_vias = []
-        seen_positions = []  # List of (x, y) already added
+        seen_positions: list[tuple[float, float]] = []  # List of (x, y) already added
         tol_sq = self.tolerance_mm**2
         duplicates = 0
 

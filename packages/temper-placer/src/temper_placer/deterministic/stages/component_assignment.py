@@ -150,7 +150,7 @@ class ComponentAssignmentStage(Stage):
             net_pins[net.name] = list(net.pins)
 
         # Build flat list of all slots for reservation checks
-        all_slots = []
+        all_slots: list[Slot] = []
         for _zone_name, slots in zone_slots.items():
             all_slots.extend(slots)
 

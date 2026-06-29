@@ -295,7 +295,7 @@ class PhasedComponentAssignmentStage(Stage):
             return self._simple_greedy_placement(netlist, component_zone_map, zone_slots)
 
         # Track which components have been placed
-        placed_refs = set()
+        placed_refs: set[str] = set()
 
         # Execute each phase in order
         for phase_name, phase_config in phases.items():
@@ -471,7 +471,7 @@ class PhasedComponentAssignmentStage(Stage):
             component = comp_by_ref[ref]
 
             # Filter slots within max_distance of reference
-            all_zone_slots = []
+            all_zone_slots: list[Slot] = []
             for slots in zone_slots.values():
                 all_zone_slots.extend(slots)
 

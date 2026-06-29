@@ -873,7 +873,7 @@ def extract_net_classes(content: str) -> dict:
         name = name_match.group(1)
 
         # Extract params
-        rules = {"nets": []}
+        rules: dict[str, Any] = {"nets": []}
 
         # Helper to extract float
         def get_float(pattern, _block=block):

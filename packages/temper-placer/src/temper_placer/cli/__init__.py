@@ -28,6 +28,7 @@ from .pipeline_commands import phase, pipeline
 from .timing import timing
 from .trace_commands import trace
 from .version import version
+from .watch_commands import watch
 
 
 @click.group()
@@ -43,6 +44,7 @@ main.add_command(trace)
 main.add_command(dsn)
 main.add_command(timing)
 main.add_command(profile)
+main.add_command(watch)
 
 @main.command()
 @click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
