@@ -8,7 +8,10 @@
 
 use std::collections::HashMap;
 
-use crate::types::{InternalConstraint, InternalConstraintModel, TopologyResult, SolverStatus};
+use crate::types::{
+    InternalBundleManifest, InternalConstraint, InternalConstraintModel, SolverStatus,
+    TopologyResult,
+};
 
 /// Result of auditing a single constraint.
 #[derive(Debug, PartialEq)]
@@ -129,6 +132,46 @@ pub fn audit_constraints(
     }
 
     violations
+}
+
+/// Audit bundled solver results by expanding class-variable assignments to
+/// per-net assignments before checking constraints (U7 / R9.1).
+///
+/// When `bundle_manifest` is Some, class-level `uses_B` assignments are
+/// expanded via the homomorphism to per-net `uses_N` assignments before
+/// constraint checking. When None, falls back to standard audit.
+pub fn audit_constraints_bundled(
+    model: &InternalConstraintModel,
+    result: &TopologyResult,
+    var_names: &[String],
+    bundle_manifest: Option<&InternalBundleManifest>,
+) -> Vec<AuditViolation> {
+    if bundle_manifest.is_none() {
+        return audit_constraints(model, result, var_names);
+    }
+
+    let manifest = bundle_manifest.unwrap();
+
+    // Expand class-variable assignments to per-net assignments.
+    let expanded = super::extraction::expand_assignments(
+        &result.assignments,
+        var_names,
+        manifest,
+    );
+
+    // Build a synthetic result with expanded assignments.
+    let expanded_result = TopologyResult {
+        status: result.status.clone(),
+        num_vars: var_names.len(),
+        num_clauses: result.num_clauses,
+        assignments: expanded,
+        unsat_core: result.unsat_core.clone(),
+        solver_time_ms: result.solver_time_ms,
+    };
+
+    // Build expanded var_names (same as original — assignments map includes
+    // both class and per-net indices).
+    audit_constraints(model, &expanded_result, var_names)
 }
 
 #[cfg(test)]

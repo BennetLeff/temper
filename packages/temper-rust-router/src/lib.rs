@@ -3,18 +3,18 @@
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
 pub mod audit;
-pub mod bmc;
 mod encoding;
-pub mod esl;
-mod extraction;
+pub mod extraction;
 mod solver;
 pub mod types;
 mod types_py_bridge;
+mod watchdog;
 
 use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use rustsat::solvers::Solve;
 use types::{
     InternalConstraintModel, SolverStatus, TopologyResult,
 };
@@ -192,84 +192,129 @@ fn audit_result(
     })
 }
 
-/// Python-callable ESL verification — audit assignment against constraints.
+/// Python-callable entry point: bundled topology solve with CEGAR watchdog.
 ///
-/// Fast O(constraints) check using Rust constraint evaluation.
-/// Returns a list of violation strings (empty = clean).
+/// Accepts pre-bundled constraint model variables, constraints, bundle manifest
+/// dict, and net names. Runs the CEGAR loop via Watchdog and returns the
+/// expanded topology result.
 #[pyfunction]
-fn esl_verify(
+fn solve_topology_rust_bundled(
+    py: Python<'_>,
     variables: &Bound<'_, PyList>,
     constraints: &Bound<'_, PyList>,
-    assignments: &Bound<'_, PyDict>,
+    bundle_manifest: &Bound<'_, PyDict>,
     net_names: Vec<String>,
 ) -> PyResult<PyObject> {
+    // Convert Python objects to internal model.
     let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
     let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
 
-    let model = types_py_bridge::model_from_python(net_names, py_vars, py_cons)?;
+    let model: InternalConstraintModel =
+        types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
 
-    // Build assignment map from Python dict.
-    let mut assignment_map: HashMap<String, bool> = HashMap::new();
-    for (py_name, py_val) in assignments.iter() {
-        let name: String = py_name.extract()?;
-        let val: bool = py_val.extract()?;
-        assignment_map.insert(name, val);
+    let start_total = std::time::Instant::now();
+
+    // Encode safety-only CNF from class-level constraint model.
+    let (cnf, var_names) = encoding::encode_to_cnf(&model);
+    let class_var_count = cnf.num_vars;
+
+    // Initialize CaDiCaL with safety CNF.
+    let mut solver = rustsat_cadical::CaDiCaL::default();
+    for clause in &cnf.clauses {
+        let mut lits: Vec<rustsat::types::Lit> = Vec::with_capacity(clause.len());
+        for &lit in clause {
+            let var_idx = (lit.unsigned_abs() - 1) as u32;
+            let lit_obj = if lit > 0 {
+                rustsat::types::Lit::positive(var_idx)
+            } else {
+                rustsat::types::Lit::negative(var_idx)
+            };
+            lits.push(lit_obj);
+        }
+        if solver.add_clause(rustsat::types::Clause::from(&lits[..])).is_err() {
+            let d = PyDict::new(py);
+            d.set_item("status", "unsat")?;
+            d.set_item("assignments", PyDict::new(py))?;
+            d.set_item("topology_graph", PyDict::new(py))?;
+            d.set_item("solver_time_ms", 0.0)?;
+            d.set_item("num_vars", class_var_count)?;
+            d.set_item("num_clauses", cnf.clauses.len())?;
+            d.set_item("cegar_iterations", 0)?;
+            d.set_item("budget_used", 0)?;
+            d.set_item("degraded_nets", Vec::<String>::new())?;
+            d.set_item("unsat_core", PyList::empty(py))?;
+            return Ok(d.into());
+        }
     }
 
-    let violations = esl::audit(&model.constraints, &assignment_map);
+    // Bridge bundle manifest.
+    let manifest = types_py_bridge::bridge_bundle_manifest(bundle_manifest)?;
 
-    Python::with_gil(|py| {
-        let py_list = PyList::empty(py);
-        for v in &violations {
-            let msg = match v {
-                esl::Violation::Capacity { channel_id, max_nets, true_count, .. } => {
-                    format!(
-                        "Capacity {}: {} true > {} max",
-                        channel_id, true_count, max_nets
-                    )
-                }
-                esl::Violation::DiffPair { p_val, n_val, .. } => {
-                    format!("DiffPair: p={} != n={}", p_val, n_val)
-                }
-                esl::Violation::Layer { var_name, expected, actual, .. } => {
-                    format!(
-                        "Layer {}: got {}, expected {}",
-                        var_name, actual, expected
-                    )
-                }
-            };
-            py_list.append(msg)?;
+    // Run CEGAR watchdog.
+    let mut wd = watchdog::Watchdog::new(
+        solver,
+        var_names.clone(),
+        class_var_count,
+        manifest.clone(),
+        &net_names,
+    );
+    let result = wd.solve(&net_names);
+
+    let solver_time_ms = start_total.elapsed().as_secs_f64() * 1000.0;
+
+    // Build assignments Python dict.
+    let py_assignments = PyDict::new(py);
+    for (idx, val) in &result.assignments {
+        if *idx < result.var_names.len() {
+            py_assignments.set_item(&result.var_names[*idx], *val)?;
         }
-        Ok(py_list.into())
-    })
-}
+    }
 
-/// Python-callable BMC sub-model diagnostic.
-///
-/// Samples the most-constrained channels within the BMC bound and
-/// returns a dict with passed/counterexamples/sampled_vars/message.
-#[pyfunction]
-fn diagnose_submodel(
-    variables: &Bound<'_, PyList>,
-    constraints: &Bound<'_, PyList>,
-    net_names: Vec<String>,
-    max_primary_vars: usize,
-) -> PyResult<PyObject> {
-    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
-    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
+    // Extract topology if SAT.
+    let mut topology = types::TopologyGraph {
+        net_topologies: HashMap::new(),
+    };
+    if result.status == SolverStatus::Satisfiable {
+        topology = extraction::extract_bundled(
+            &model,
+            &result.assignments,
+            &result.var_names,
+            &net_names,
+            &manifest,
+        );
+    }
 
-    let model = types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
+    let py_topology = PyDict::new(py);
+    for (net_name, net_topo) in &topology.net_topologies {
+        let entry = PyDict::new(py);
+        entry.set_item("uses_channels", net_topo.uses_channels.clone())?;
+        let py_path: Vec<(String, String)> = net_topo.path_graph.clone();
+        entry.set_item("path_graph", py_path)?;
+        entry.set_item("total_length_estimate", net_topo.total_length_estimate)?;
+        py_topology.set_item(net_name, entry)?;
+    }
 
-    let diagnostic = bmc::diagnose_submodel(&model, &net_names, max_primary_vars);
+    let d = PyDict::new(py);
+    d.set_item(
+        "status",
+        match result.status {
+            SolverStatus::Satisfiable => "sat",
+            SolverStatus::Unsatisfiable => "unsat",
+            SolverStatus::Unknown => "unknown",
+        },
+    )?;
+    d.set_item("assignments", py_assignments)?;
+    d.set_item("topology_graph", py_topology)?;
+    d.set_item("solver_time_ms", solver_time_ms)?;
+    d.set_item("num_vars", result.num_vars)?;
+    d.set_item("num_clauses", result.num_clauses)?;
+    d.set_item("cegar_iterations", result.cegar_iterations)?;
+    d.set_item("budget_used", result.budget_used)?;
+    d.set_item("degraded_nets", result.degraded_nets)?;
+    let py_core = PyList::empty(py);
+    d.set_item("unsat_core", py_core)?;
 
-    Python::with_gil(|py| {
-        let d = PyDict::new(py);
-        d.set_item("passed", diagnostic.passed)?;
-        d.set_item("counterexamples", diagnostic.counterexample_count)?;
-        d.set_item("sampled_vars", diagnostic.sampled_vars)?;
-        d.set_item("message", diagnostic.message)?;
-        Ok(d.into())
-    })
+    Ok(d.into())
 }
 
 /// Python module entry point.
@@ -288,8 +333,7 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Register the solver entry point and constraint auditor.
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(solve_topology_rust_bundled, m)?)?;
     m.add_function(wrap_pyfunction!(audit_result, m)?)?;
-    m.add_function(wrap_pyfunction!(esl_verify, m)?)?;
-    m.add_function(wrap_pyfunction!(diagnose_submodel, m)?)?;
     Ok(())
 }

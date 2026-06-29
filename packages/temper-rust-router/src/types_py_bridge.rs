@@ -3,7 +3,10 @@ use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
-use crate::types::{BundleClass, InternalBundleManifest, InternalConstraint, InternalConstraintModel, InternalVariable};
+use crate::types::{
+    BundleClass, InternalBundleManifest, InternalConstraint, InternalConstraintModel,
+    InternalVariable,
+};
 
 pub fn model_from_python(
     _net_ids: Vec<String>,
@@ -81,13 +84,6 @@ pub fn model_from_python(
                 cons.push(InternalConstraint::LayerRestriction {
                     var_name: format!("uses_N{}_{}", net_idx, channel_id),
                     allowed,
-                });
-            } else if obj.getattr("group_a").is_ok() && obj.getattr("group_b").is_ok() {
-                cons.push(InternalConstraint::ChannelSeparation {
-                    group_a: obj.getattr("group_a")?.extract()?,
-                    group_b: obj.getattr("group_b")?.extract()?,
-                    min_slots: obj.getattr("min_slots")?.extract()?,
-                    channel_id: obj.getattr("channel_id")?.extract()?,
                 });
             }
         }

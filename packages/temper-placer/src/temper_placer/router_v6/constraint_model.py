@@ -12,8 +12,8 @@ from dataclasses import dataclass, field, replace
 
 from temper_placer.core.netlist import Net
 from temper_placer.core.pin_geometry import pin_world_position
-from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
+from temper_placer.deterministic.stages.base import Stage
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.diff_pair_inference import DiffPair, infer_differential_pairs
@@ -94,17 +94,6 @@ class CapacityConstraint(Constraint):
     slack_factor: float
     terms: list[tuple[NetChannelVar, float]]  # (variable, coefficient/width)
 
-    def esl(self):
-        """Return an ESL predicate for this capacity constraint.
-
-        The predicate is True iff at most *max_nets* of the term variables
-        are True in the assignment, where *max_nets* = capacity * slack / min_width.
-        """
-        min_width = min(width for _, width in self.terms)
-        max_nets = int(self.capacity * self.slack_factor / min_width)
-        var_names = [var.name for var, _ in self.terms]
-        return lambda ass: sum(1 for v in var_names if ass.get(v, False)) <= max_nets
-
 
 @dataclass(kw_only=True)
 class DiffPairConstraint(Constraint):
@@ -118,12 +107,6 @@ class DiffPairConstraint(Constraint):
     p_var: NetChannelVar
     n_var: NetChannelVar
 
-    def esl(self):
-        """Return an ESL predicate: p_var iff n_var (both True or both False)."""
-        p_name = self.p_var.name
-        n_name = self.n_var.name
-        return lambda ass: ass.get(p_name, False) == ass.get(n_name, False)
-
 
 @dataclass(kw_only=True)
 class LayerConstraint(Constraint):
@@ -135,17 +118,12 @@ class LayerConstraint(Constraint):
     channel_id: str
     allowed: bool
 
-    def esl(self):
-        """Return an ESL predicate: var == allowed."""
-        var_name = f"uses_N{self.net_idx}_{self.channel_id}"
-        return lambda ass: ass.get(var_name, False) == self.allowed
-
 
 @dataclass
 class ConstraintModel:
     """
     SAT/SMT Constraint Model for Topological Routing.
-
+    
     Holds all variables and constraints (in abstract form).
     """
     variables: list[Variable] = field(default_factory=list)
@@ -173,7 +151,12 @@ class ConstraintModel:
 
 
 class ModelBuilder:
-    """Builder for generating the constraint model from skeletons and nets."""
+    """Builder for generating the constraint model from skeletons and nets.
+
+    When ``enable_bundling=True``, a :class:`BundleManifest` must be provided.
+    Channel variables are created at class-level granularity (prefix ``uses_B``)
+    per KD7, and only Safety-typed constraints are encoded eagerly.
+    """
 
     def __init__(
         self,
@@ -211,15 +194,57 @@ class ModelBuilder:
         if self.enable_bundling and self.bundle_manifest is not None:
             self._create_bundled_capacity_constraints()
             self._create_bundled_layer_constraints()
+            # Diff-pair constraints are Performance → deferred to watchdog (R4, KD6).
         else:
             self._create_capacity_constraints()
             self._create_diff_pair_constraints()
             self._create_layer_constraints()
         return self.model
 
+    def _create_class_channel_vars(self):
+        """Create class-level channel variables for bundled nets (R3).
+
+        One `uses_B{bundle_id}_{channel_id}` per (bundle × skeleton edge).
+        Non-bundled nets (singletons) get per-net vars as usual.
+        """
+        manifest = self.bundle_manifest
+        bundle_id_for_net = getattr(manifest, "bundle_id_for_net", {})
+        unbundled = set(getattr(manifest, "unbundled_net_indices", []))
+
+        bundled_net_indices = set(bundle_id_for_net.keys())
+
+        for layer_name, skeleton in self.skeletons.items():
+            for i, (u, v) in enumerate(skeleton.graph.edges):
+                n1, n2 = sorted([u, v])
+                edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+
+                # Bundled nets — one class var per bundle per edge
+                seen_bundles: set[int] = set()
+                for net_idx in sorted(bundled_net_indices):
+                    bid = bundle_id_for_net.get(net_idx)
+                    if bid is None or bid in seen_bundles:
+                        continue
+                    seen_bundles.add(bid)
+                    var = NetChannelVar(
+                        name=f"uses_B{bid}_{edge_id}",
+                        net_idx=bid,  # repurposed as bundle_id
+                        channel_id=edge_id,
+                    )
+                    var.var_type = "bundle"  # type: ignore[attr-defined]
+                    self.model.add_variable(var)
+
+                # Non-bundled nets — per-net vars as usual
+                for net_idx in sorted(unbundled):
+                    var = NetChannelVar(
+                        name=f"uses_N{net_idx}_{edge_id}",
+                        net_idx=net_idx,
+                        channel_id=edge_id,
+                    )
+                    self.model.add_variable(var)
+
     def _create_channel_vars(self):
         """Create variables for net-channel assignment."""
-        for net_idx, _net in enumerate(self.nets):
+        for net_idx, net in enumerate(self.nets):
             # For each layer skeleton
             for layer_name, skeleton in self.skeletons.items():
                 # For each edge in the skeleton
@@ -237,50 +262,12 @@ class ModelBuilder:
                     )
                     self.model.add_variable(var)
 
-    def _create_class_channel_vars(self):
-        """Create class-level channel variables for bundled nets.
-
-        One `uses_B{bundle_id}_{channel_id}` per (bundle x skeleton edge).
-        Non-bundled nets (singletons) get per-net vars as usual.
-        """
-        manifest = self.bundle_manifest
-        bundle_id_for_net = getattr(manifest, "bundle_id_for_net", {})
-        unbundled = set(getattr(manifest, "unbundled_net_indices", []))
-
-        bundled_net_indices = set(bundle_id_for_net.keys())
-
-        for layer_name, skeleton in self.skeletons.items():
-            for i, (u, v) in enumerate(skeleton.graph.edges):
-                n1, n2 = sorted([u, v])
-                edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
-
-                seen_bundles: set[int] = set()
-                for net_idx in sorted(bundled_net_indices):
-                    bid = bundle_id_for_net.get(net_idx)
-                    if bid is None or bid in seen_bundles:
-                        continue
-                    seen_bundles.add(bid)
-                    var = NetChannelVar(
-                        name=f"uses_B{bid}_{edge_id}",
-                        net_idx=bid,
-                        channel_id=edge_id,
-                    )
-                    var.var_type = "bundle"  # type: ignore[attr-defined]
-                    self.model.add_variable(var)
-
-                for net_idx in sorted(unbundled):
-                    var = NetChannelVar(
-                        name=f"uses_N{net_idx}_{edge_id}",
-                        net_idx=net_idx,
-                        channel_id=edge_id,
-                    )
-                    self.model.add_variable(var)
-
     def _create_bundled_capacity_constraints(self):
-        """Create capacity constraints using class-level bundle variables.
+        """Create capacity constraints using class-level bundle variables (R3).
 
         Safety-typed capacity constraints are encoded eagerly.  AtMostK
-        bound uses the minimum width across all nets in the bundle.
+        bound uses the minimum width across all nets in the bundle
+        (pessimistic but safe).
         """
         if not self.channel_widths or not self.design_rules:
             return
@@ -290,6 +277,7 @@ class ModelBuilder:
         bundle_id_for_net = getattr(manifest, "bundle_id_for_net", {})
         unbundled = set(getattr(manifest, "unbundled_net_indices", []))
 
+        # Gather all bundles into a bid → [net_indices] map
         bid_to_nets: dict[int, list[int]] = {}
         for ni, bid in bundle_id_for_net.items():
             bid_to_nets.setdefault(bid, []).append(ni)
@@ -311,9 +299,11 @@ class ModelBuilder:
 
                 terms: list[tuple[NetChannelVar, float]] = []
 
+                # Bundled nets — use class variables
                 for bid, net_indices in sorted(bid_to_nets.items()):
                     var_key = (bid, edge_id)
                     if var_key in self.model.net_channel_vars:
+                        # Pessimistic: use min width across all bundle members
                         min_width = float("inf")
                         for ni in net_indices:
                             rule = self.design_rules.get_rules_for_net(self.nets[ni].name)
@@ -323,6 +313,7 @@ class ModelBuilder:
                         var = self.model.net_channel_vars[var_key]
                         terms.append((var, min_width))
 
+                # Non-bundled nets — per-net variables
                 for net_idx in sorted(unbundled):
                     var_key = (net_idx, edge_id)
                     if var_key in self.model.net_channel_vars:
@@ -342,7 +333,7 @@ class ModelBuilder:
                     self.model.add_constraint(constraint)
 
     def _create_bundled_layer_constraints(self):
-        """Create layer constraints for bundled nets.
+        """Create layer constraints for bundled nets (R3 — Safety, eager).
 
         SMD pin layer restrictions are always Safety constraints and must
         be encoded before the solver begins.
@@ -383,6 +374,7 @@ class ModelBuilder:
 
                                 bid = bundle_id_for_net.get(net_idx)
                                 if bid is not None:
+                                    # Use class variable
                                     key = (bid, edge_id)
                                 else:
                                     key = (net_idx, edge_id)
@@ -406,9 +398,9 @@ class ModelBuilder:
                 all_nodes.add(node) # node is (x, y) tuple
 
         # Sort for stability
-        sorted_nodes = sorted(all_nodes)
+        sorted_nodes = sorted(list(all_nodes))
 
-        for net_idx, _net in enumerate(self.nets):
+        for net_idx, net in enumerate(self.nets):
             for i, node in enumerate(sorted_nodes):
                 node_id = f"VIA_N{i}_{node[0]:.2f}_{node[1]:.2f}"
 
@@ -511,7 +503,7 @@ class ModelBuilder:
 
         for comp in self.pcb.components:
             comp_x, comp_y = comp.initial_position or (0.0, 0.0)
-            float(comp.initial_rotation or 0) * math.pi / 2.0
+            angle = float(comp.initial_rotation or 0) * math.pi / 2.0
 
             for pin in comp.pins:
                 if not pin.net or pin.net not in self.net_to_idx:
@@ -545,7 +537,7 @@ class ModelBuilder:
                                 edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
 
                                 if (net_idx, edge_id) in self.model.net_channel_vars:
-                                    self.model.net_channel_vars[(net_idx, edge_id)]
+                                    var = self.model.net_channel_vars[(net_idx, edge_id)]
                                     constraint = LayerConstraint(
                                         name=f"layer_restr_N{net_idx}_{edge_id}",
                                         net_idx=net_idx,
@@ -553,6 +545,21 @@ class ModelBuilder:
                                         allowed=False
                                     )
                                     self.model.add_constraint(constraint)
+
+
+class BundledConstraintModel:
+    """Wrapper for a constraint model paired with its bundle manifest (R2).
+
+    Serialised alongside the model when enable_bundling=True so the Rust
+    watchdog and homomorphism can reconstruct per-net assignments.
+    """
+
+    model: ConstraintModel
+    manifest: object  # BundleManifest (avoid cyclic import)
+
+    def __init__(self, model: ConstraintModel, manifest: object):
+        self.model = model
+        self.manifest = manifest
 
 
 class ConstraintGenerationStage(Stage):
