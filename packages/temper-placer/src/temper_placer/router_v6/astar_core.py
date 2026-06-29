@@ -555,7 +555,7 @@ def _astar_search_3d(
             available_layers.append(layer)
 
     # A* frontier: (priority, node)
-    frontier = []
+    frontier: list = []
     heappush(frontier, (0, (start.x, start.y, start.layer)))
 
     # Tracking

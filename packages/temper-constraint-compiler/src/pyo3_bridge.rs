@@ -407,6 +407,18 @@ pub fn internal_constraint_to_py_dict(
             d.set_item("var_name", var_name)?;
             d.set_item("allowed", allowed)?;
         }
+        temper_rust_router::types::InternalConstraint::ChannelSeparation {
+            group_a,
+            group_b,
+            min_slots,
+            channel_id,
+        } => {
+            d.set_item("type", "channel_separation")?;
+            d.set_item("group_a", group_a.clone())?;
+            d.set_item("group_b", group_b.clone())?;
+            d.set_item("min_slots", *min_slots as i64)?;
+            d.set_item("channel_id", channel_id)?;
+        }
     }
     Ok(d.into())
 }

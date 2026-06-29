@@ -126,7 +126,7 @@ class CourtyardCheckStage(Stage):
         Optimization: Use R-tree spatial index to avoid O(n²) pairwise checks.
         Also cache transformed polygons to avoid repeated Shapely operations.
         """
-        collisions = []
+        collisions: list[tuple[str, str]] = []
         refs = list(placements.keys())
 
         # Cache transformed polygons (major optimization - avoids 1M+ Shapely calls)

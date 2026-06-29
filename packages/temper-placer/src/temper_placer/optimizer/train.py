@@ -341,7 +341,7 @@ def initialize_training_state(
         elif config.initialization.method == "learned":
             from temper_placer.optimizer.initialization import LearnedInitializer
 
-            initializer = LearnedInitializer(model_path=config.initialization.learned_model_path)
+            initializer = LearnedInitializer(model_path=config.initialization.learned_model_path)  # type: ignore[assignment]
             positions = initializer.initialize(netlist, board)
             net_virtual_nodes = None
         else:
@@ -620,14 +620,14 @@ def make_train_step(
 
         # Ensure fixed components don't move (temper-p11g.6)
         if loss_context is not None:
-            new_positions = jnp.where(loss_context.fixed_mask[:, None], positions, new_positions)
+            new_positions = jnp.where(loss_context.fixed_mask[:, None], positions, new_positions)  # type: ignore[index]
 
             # Zero out optimizer state for fixed components to prevent drift (temper-p11g.6)
             # Adam optimizer maintains momentum (mu) and variance (nu) which can accumulate
             if hasattr(next_opt_state_pos, "mu"):
                 next_opt_state_pos = next_opt_state_pos._replace(
-                    mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.mu),
-                    nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.nu),
+                    mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.mu),  # type: ignore[index]
+                    nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_pos.nu),  # type: ignore[index]
                 )
 
         updates_rot, next_opt_state_rot = opt_rot.update(
@@ -638,14 +638,14 @@ def make_train_step(
         # Fixed components don't rotate either
         if loss_context is not None:
             new_rotation_logits = jnp.where(
-                loss_context.fixed_mask[:, None], rotation_logits, new_rotation_logits
+                loss_context.fixed_mask[:, None], rotation_logits, new_rotation_logits  # type: ignore[index]
             )
 
             # Zero out optimizer state for fixed components (temper-p11g.6)
             if hasattr(next_opt_state_rot, "mu"):
                 next_opt_state_rot = next_opt_state_rot._replace(
-                    mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.mu),
-                    nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.nu),
+                    mu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.mu),  # type: ignore[index]
+                    nu=jnp.where(loss_context.fixed_mask[:, None], 0.0, next_opt_state_rot.nu),  # type: ignore[index]
                 )
 
         updates_vn, next_opt_state_vn = opt_vn.update(grad_vn, new_opt_state_vn, net_virtual_nodes)
@@ -924,6 +924,7 @@ def train(
             # Adaptive Overlap Weighting
             ao_cfg = config.adaptive_overlap
             if ao_cfg.enabled and epoch % ao_cfg.update_interval == 0:
+                assert state.overlap_weights is not None
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 per_comp_boundary = loss_breakdown_arrays.get("boundary_per_component")
                 per_comp_group = loss_breakdown_arrays.get("group_cluster_per_component")
@@ -1311,7 +1312,7 @@ def train_multiphase(
             else:
                 # No zone assignment - use board bounds
                 zone_bounds_list.append(
-                    (board_bounds[0], board_bounds[1], board_bounds[2], board_bounds[3])
+                    (float(board_bounds[0]), float(board_bounds[1]), float(board_bounds[2]), float(board_bounds[3]))
                 )
         zone_bounds = jnp.array(zone_bounds_list, dtype=jnp.float32)
 
@@ -1479,6 +1480,7 @@ def train_multiphase(
             # Adaptive Overlap Weighting
             ao_cfg = config.adaptive_overlap
             if ao_cfg.enabled and epoch % ao_cfg.update_interval == 0:
+                assert state.overlap_weights is not None
                 per_comp_overlap = loss_breakdown_arrays.get("overlap_per_component")
                 if per_comp_overlap is not None:
                     collision_mask = per_comp_overlap > ao_cfg.collision_threshold
@@ -1509,7 +1511,7 @@ def train_multiphase(
                 jiggle = jax.random.normal(jiggle_key, state.positions.shape) * noise_scale
 
                 # Apply mask to jiggle
-                jiggle = jnp.where(context.fixed_mask[:, None], 0.0, jiggle)
+                jiggle = jnp.where(context.fixed_mask[:, None], 0.0, jiggle)  # type: ignore[index]
 
                 state.positions = state.positions + jiggle
                 # Re-clamp after jiggle to maintain feasibility invariants
@@ -1635,6 +1637,7 @@ def train_multiphase(
 
     elapsed = time.time() - start_time
 
+    assert composite_loss is not None
     return TrainingResult(
         final_state=final_state,
         final_loss=float(loss),

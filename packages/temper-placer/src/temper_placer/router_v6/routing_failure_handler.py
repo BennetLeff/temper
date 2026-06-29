@@ -78,7 +78,7 @@ def _diagnose_failure(
     # Placeholder diagnostics
     failure_point = (0.0, 0.0)
     blocking_nets: list[str] = []
-    blocking_obstacles = []
+    blocking_obstacles: list = []
     suggestions = [
         "Increase channel width",
         "Move component to reduce congestion",

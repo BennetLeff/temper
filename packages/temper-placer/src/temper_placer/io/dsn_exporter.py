@@ -268,7 +268,7 @@ class DSNExporter:
 
     def export_placement(self) -> DSNExpression:
         """Export the placement section (component instances)."""
-        components_by_fp = {}
+        components_by_fp: dict[str, list] = {}
         S = 100.0  # Scale factor
 
         for i, comp in enumerate(self.netlist.components):

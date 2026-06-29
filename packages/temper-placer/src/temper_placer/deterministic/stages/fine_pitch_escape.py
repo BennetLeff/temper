@@ -227,7 +227,7 @@ class FinePitchEscapeStage(Stage):
                 print(f"\n  [EscapeValidation] Found {len(missing_escapes)} fine-pitch pins missing escape vias")
 
                 # Group by net for clearer output
-                by_net = {}
+                by_net: dict[str, list[dict]] = {}
                 for m in missing_escapes:
                     net = m["net"]
                     if net not in by_net:

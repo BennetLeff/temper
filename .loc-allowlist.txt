@@ -5,7 +5,7 @@ packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py 1797 tem
 packages/temper-placer/src/temper_placer/optimizer/train.py 1660 temper-N7-10 # follow-up (grew from 1652)
 packages/temper-placer/src/temper_placer/io/config_loader.py 1608 temper-N7-9 # follow-up (grew from 1549)
 packages/temper-placer/src/temper_placer/optimizer/nsga2.py 1521 temper-N7-8 # follow-up
-packages/temper-placer/src/temper_placer/losses/base.py 1321 temper-N7-2 # follow-up
+packages/temper-placer/src/temper_placer/losses/base.py 1382 temper-N7-2 # follow-up
 packages/temper-placer/src/temper_placer/io/kicad_parser.py 1328 temper-N7-6 # follow-up (grew from 1312)
 packages/temper-placer/src/temper_placer/io/kicad_writer.py 1304 temper-N7-7 # follow-up
 packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py 1276 temper-N7-cap1 # new over-cap file
@@ -15,4 +15,4 @@ firmware/main/state_machine.c 1181 temper-N6-U8 # firmware, Phase 4 (grew from 1
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1059 temper-N7-cap4 # new over-cap file
 packages/temper-placer/src/temper_placer/optimizer/convergence_analytics.py 1023 temper-N7-1 # follow-up
 packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1008 temper-N7-board # follow-up
-packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1049 temper-N6-U8 # grew from sat_model=None fix
+packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1343 temper-N6-U8 # grew from sat_model=None fix

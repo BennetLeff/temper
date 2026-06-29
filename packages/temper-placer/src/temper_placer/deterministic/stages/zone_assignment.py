@@ -35,7 +35,7 @@ class ZoneAssignmentStage(Stage):
             net_class_map[net.name] = net_class
 
         # Build component-to-nets mapping
-        comp_nets = {}
+        comp_nets: dict[str, list[tuple[str, str]]] = {}
         for net in netlist.nets:
             for comp_ref, _ in net.pins:
                 if comp_ref not in comp_nets:

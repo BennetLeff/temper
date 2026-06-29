@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 from numba import njit
@@ -792,9 +793,9 @@ class ClearanceGrid:
         plt.close()
         print(f"Saved clearance grid visualization to {output_path}")
 
-    def export_stats(self) -> dict:
+    def export_stats(self) -> dict[str, Any]:
         """Export statistics about the clearance grid."""
-        stats = {
+        stats: dict[str, Any] = {
             "dimensions": {
                 "width_mm": self.width_mm,
                 "height_mm": self.height_mm,
@@ -834,8 +835,8 @@ class ClearanceGridStage(Stage):
         layer_count: int = 2,
         pad_sizes: dict | None = None,
         max_clearance_mm: float = 2.5,
-        net_class_clearances: dict[str, float] = None,
-        net_classes: dict[str, str] = None,
+        net_class_clearances: dict[str, float] | None = None,
+        net_classes: dict[str, str] | None = None,
         pth_mask_expansion_mm: float = 0.15,
         smd_mask_expansion_mm: float = 0.10,
         inner_layer_clearance_mm: float = 0.5,
@@ -946,7 +947,7 @@ class ClearanceGridStage(Stage):
             placements_dict = dict(state.placements) if state.placements else {}
 
             # Build net->pads mapping for selective unblocking
-            net_pads = {}
+            net_pads: dict[str, list[dict[str, Any]]] = {}
             all_pads_for_expansion = []
             for component in state.netlist.components:
                 pos = placements_dict.get(component.ref, component.initial_position)
