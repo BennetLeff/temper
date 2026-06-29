@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 import math
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Set, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Set, Tuple
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints

@@ -14,7 +14,7 @@ approximation for PCB routing since traces typically follow rectilinear paths.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Optional
 
 import jax.numpy as jnp
 from jax import Array

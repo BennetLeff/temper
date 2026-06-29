@@ -7,7 +7,7 @@ prediction and learned initialization.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, List
 
 import jax.numpy as jnp
 from jax import Array
