@@ -234,7 +234,7 @@ class ClosureTest:
         self.strategy = strategy
         self.require_all_stages = require_all_stages
 
-    def run(self) -> ClosureResult:
+    def run(self, _observer: object | None = None) -> ClosureResult:
         start_time = time.perf_counter()
         board_id = self.pcb_path.stem
         errors: list[str] = []
