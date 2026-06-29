@@ -94,6 +94,17 @@ class CapacityConstraint(Constraint):
     slack_factor: float
     terms: list[tuple[NetChannelVar, float]]  # (variable, coefficient/width)
 
+    def esl(self):
+        """Return an ESL predicate for this capacity constraint.
+
+        The predicate is True iff at most *max_nets* of the term variables
+        are True in the assignment, where *max_nets* = capacity * slack / min_width.
+        """
+        min_width = min(width for _, width in self.terms)
+        max_nets = int(self.capacity * self.slack_factor / min_width)
+        var_names = [var.name for var, _ in self.terms]
+        return lambda ass: sum(1 for v in var_names if ass.get(v, False)) <= max_nets
+
 
 @dataclass(kw_only=True)
 class DiffPairConstraint(Constraint):
@@ -107,6 +118,12 @@ class DiffPairConstraint(Constraint):
     p_var: NetChannelVar
     n_var: NetChannelVar
 
+    def esl(self):
+        """Return an ESL predicate: p_var iff n_var (both True or both False)."""
+        p_name = self.p_var.name
+        n_name = self.n_var.name
+        return lambda ass: ass.get(p_name, False) == ass.get(n_name, False)
+
 
 @dataclass(kw_only=True)
 class LayerConstraint(Constraint):
@@ -117,6 +134,11 @@ class LayerConstraint(Constraint):
     net_idx: int
     channel_id: str
     allowed: bool
+
+    def esl(self):
+        """Return an ESL predicate: var == allowed."""
+        var_name = f"uses_N{self.net_idx}_{self.channel_id}"
+        return lambda ass: ass.get(var_name, False) == self.allowed
 
 
 @dataclass
