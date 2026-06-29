@@ -1,5 +1,5 @@
 ---
-title: "SAT model explosion — 130K variables unsolvable by splr, fixed with selective net construction"
+title: "SAT model explosion — 130K variables unsolvable by splr (now CaDiCaL; solution remains general), fixed with selective net construction"
 date: "2026-06-28"
 category: performance-issues/
 module: temper-rust-router
@@ -7,14 +7,14 @@ problem_type: performance_issue
 component: tooling
 severity: high
 symptoms:
-  - "Full Temper PCB constraint model: 228,597 variables, splr 0.13 cannot solve within any timeout"
+  - "Full Temper PCB constraint model: 228,597 variables, the solver cannot solve within any timeout"
   - "Stage 2 produces ~6,000 skeleton edges × 23 nets = ~138K NetChannelVars, plus ~85K ViaVars from escape via generation"
-  - "Even for 3 nets, the full model has 29K variables (splr can solve ~31K with encoding overhead but M=6+ panics)"
+  - "Even for 3 nets, the full model has 29K variables (splr could only solve ~31K with encoding overhead but M=6+ panics)"
 root_cause: config_error
 resolution_type: code_fix
 tags:
   - sat-solver
-  - splr
+  - cadical
   - constraint-model
   - selective-routing
   - model-decomposition
@@ -22,11 +22,11 @@ tags:
   - escape-vias
 ---
 
-# SAT Model Explosion — Selective Net Construction Fixes splr Scale Limit
+# SAT Model Explosion — Selective Net Construction Generic Scale Limit Fix
 
 ## Problem
 
-The Temper PCB constraint model (23 nets, 2 signal layers, ~6,000 skeleton edges) produces 228,597 variables — 143K NetChannelVars + 85K ViaVars. splr 0.13 cannot solve this within any timeout. The sequential counter encoding adds O(n·k) auxiliary variables per channel, making each additional net's cost compound across all channels.
+The Temper PCB constraint model (23 nets, 2 signal layers, ~6,000 skeleton edges) produces 228,597 variables — 143K NetChannelVars + 85K ViaVars. the solver cannot solve this within any timeout. The sequential counter encoding adds O(n·k) auxiliary variables per channel, making each additional net's cost compound across all channels.
 
 ## Symptoms
 

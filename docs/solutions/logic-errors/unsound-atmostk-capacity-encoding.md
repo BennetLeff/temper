@@ -18,7 +18,7 @@ tags:
   - atmostk-encoding
   - sequential-counter
   - cdcl
-  - splr
+  - cadical
   - pyo3
   - pcb-router
   - constraint-audit
@@ -74,12 +74,12 @@ fn encode_at_most_k(
 }
 ```
 
-### Layer 2 — CDCL solver (splr via PyO3)
+### Layer 2 — CDCL solver (rustsat-cadical via PyO3)
 
-Created `packages/temper-rust-router/` as a maturin-based PyO3 crate. splr 0.13 provides CDCL with clause learning, watched literals, and restarts. The sequential counter is encoded as CNF clauses (splr 0.13 lacks a native `add_atmostk` API).
+Created `packages/temper-rust-router/` as a maturin-based PyO3 crate. rustsat-cadical 0.7.5 provides CDCL (migrated from splr 0.13, 2026-06-29) with clause learning, watched literals, and restarts. The sequential counter is encoded as CNF clauses (CaDiCaL lacks a native `add_atmostk` API).
 
 ```rust
-// splr integration with catch_unwind (splr panics on repeated instantiation)
+// CaDiCaL via rustsat traits — trait-generic, solver-swappable
 let result = std::panic::catch_unwind(
     std::panic::AssertUnwindSafe(|| solver.solve())
 );
@@ -106,7 +106,7 @@ if audit_violations:
 
 ## Why This Works
 
-The sequential counter introduces auxiliary variables `s[i][j]` that form a transitive closure of partial sums, ensuring `sum(vars) ≤ K` by induction. The CDCL solver (splr) can propagate through these auxiliary variables — the Python greedy solver could not, which is why the Python solver was removed rather than kept as fallback.
+The sequential counter introduces auxiliary variables `s[i][j]` that form a transitive closure of partial sums, ensuring `sum(vars) ≤ K` by induction. The CDCL solver (CaDiCaL, migrated from splr) can propagate through these auxiliary variables — the Python greedy solver could not, which is why the Python solver was removed rather than kept as fallback.
 
 The constraint audit is the backstop: even if the CDCL implementation regresses, violations cannot pass silently because every output is validated against the input model.
 
@@ -116,7 +116,7 @@ The constraint audit is the backstop: even if the CDCL implementation regresses,
 - Hypothesis property-based tests cross-validate the Rust solver against pysat (Glucose3 CDCL) on random models — runs as `@pytest.mark.slow` in CI
 - Exhaustive sequential counter verification (n ≤ 8) in Rust unit tests — any encoding change must pass all 3,286 checks
 - Python AtMostK encoding also fixed (U1) for cases where the sequential counter is exercised without CDCL — validated via exhaustive search in `test_sat_model.py`
-- `splr::Solver` panic on repeated calls mitigated with `std::panic::catch_unwind` — solver returns `Unknown` status rather than crashing the Python process
+- `rustsat CaDiCaL` panic on repeated calls mitigated with `std::panic::catch_unwind` — solver returns `Unknown` status rather than crashing the Python process
 
 ### ESL + BMC verification infrastructure (2026-06-28)
 
