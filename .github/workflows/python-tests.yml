@@ -49,6 +49,8 @@ on:
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
+  schedule:
+    - cron: '0 3 * * *'  # nightly at 3am UTC
 
 jobs:
   test:
@@ -267,3 +269,37 @@ jobs:
       - name: Type check temper-tools
         run: uv run mypy packages/temper-tools/src --ignore-missing-imports
         continue-on-error: true
+
+  astar-nightly:
+    name: A* 4x4 Exhaustive Verification (Nightly)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event_name == 'schedule'
+    env:
+      RUN_NIGHTLY: 1
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
+      JAX_PLATFORM_NAME: cpu
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: 4x4 exhaustive A*+Dijkstra verification
+        working-directory: packages/temper-placer
+        run: >
+          uv run pytest tests/router_v6/test_astar_inductive_ladder.py::test_l2b_4x4_exhaustive
+          -v --tb=short -m nightly
+          -p no:cacheprovider
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
+          JAX_PLATFORM_NAME: cpu
+          RUN_NIGHTLY: 1
