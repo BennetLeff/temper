@@ -703,3 +703,22 @@ scripts:
       - subprocess
       - sys
       - time
+- path: bmc_adoption_gate.py
+  purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
+  owner: pipeline
+  last_run: '2026-06-29'
+  category: keep
+  disposition: ci-gate
+    imports:
+      - ast
+      - os
+      - pathlib
+      - sys
+  - ast
+  - os
+  - pathlib
+  - sys
+  - ast
+  - os
+  - pathlib
+  - sys
