@@ -1,12 +1,11 @@
 # Type-check allowlist — monotonic-shrink baseline
-# 593 total errors across 160 files
+# 588 total errors across 159 files
 # <filepath> <max-allowed-error-count>
 # Do not increase these numbers. Fix the errors.
 
 packages/temper-placer/src/temper_placer/ablation/registry.py 8
 packages/temper-placer/src/temper_placer/ablation/runner.py 11
 packages/temper-placer/src/temper_placer/ablation/visualization.py 1
-packages/temper-placer/src/temper_placer/algo/coarsening.py 2
 packages/temper-placer/src/temper_placer/cli/andon_commands.py 1
 packages/temper-placer/src/temper_placer/cli/dsn_commands.py 1
 packages/temper-placer/src/temper_placer/cli/pipeline_commands.py 22
@@ -21,9 +20,9 @@ packages/temper-placer/src/temper_placer/deterministic/feedback/orchestrator.py 
 packages/temper-placer/src/temper_placer/deterministic/feedback/zone_adjuster.py 1
 packages/temper-placer/src/temper_placer/deterministic/stages/apply_placements.py 1
 packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 31
-packages/temper-placer/src/temper_placer/deterministic/stages/component_assignment.py 2
+packages/temper-placer/src/temper_placer/deterministic/stages/component_assignment.py 1
 packages/temper-placer/src/temper_placer/deterministic/stages/connectivity_validation.py 4
-packages/temper-placer/src/temper_placer/deterministic/stages/courtyard_check.py 2
+packages/temper-placer/src/temper_placer/deterministic/stages/courtyard_check.py 1
 packages/temper-placer/src/temper_placer/deterministic/stages/drc_sweep.py 2
 packages/temper-placer/src/temper_placer/deterministic/stages/fine_pitch_escape.py 7
 packages/temper-placer/src/temper_placer/deterministic/stages/layer_assignment.py 1
@@ -103,7 +102,7 @@ packages/temper-placer/src/temper_placer/pipeline/explainability.py 3
 packages/temper-placer/src/temper_placer/pipeline/feedback.py 2
 packages/temper-placer/src/temper_placer/pipeline/iterative_placer.py 3
 packages/temper-placer/src/temper_placer/pipeline/orchestrator.py 1
-packages/temper-placer/src/temper_placer/pipeline/stages/input_stage.py 2
+packages/temper-placer/src/temper_placer/pipeline/stages/input_stage.py 1
 packages/temper-placer/src/temper_placer/pipeline/stages/output_stage.py 1
 packages/temper-placer/src/temper_placer/pipeline/stages/routing_stage.py 1
 packages/temper-placer/src/temper_placer/placement/analytical.py 1
