@@ -7,6 +7,7 @@ TimingReport dataclasses consumed by the CLI baseline/check commands.
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -288,16 +289,21 @@ def _measure_router_v6(
     pcb_path = _resolve_board_path(board_id)
 
     from temper_placer.profiling.instrumentation import PipelineProfiler
+    from temper_placer.router_v6.pipeline import RouterV6Pipeline
+
+    _STAGES = ["stage1", "stage2", "stage3", "stage4", "stage5"]
+    _SUB_STEPS = [
+        "obstacle_map", "routing_space", "channel_skeleton",
+        "channel_widths", "occupancy_grid", "layer_capacity",
+        "routing_demand", "bottleneck_analysis",
+    ]
 
     # Warmup run (no profiler)
-    from temper_placer.router_v6.pipeline import RouterV6Pipeline
     warmup = RouterV6Pipeline(verbose=False, enable_smoothing=False, enable_legalization=False)
     warmup.run(pcb_path)
 
-    results: list[TimingResult] = []
     per_run_timings: list[dict[str, float]] = []
-
-    _ROUTER_V6_STAGES = ["stage1", "stage2", "stage3", "stage4", "stage5"]
+    per_sub_step_runs: list[dict[str, float]] = []
 
     for _ in range(n_runs):
         profiler = PipelineProfiler()
@@ -312,12 +318,26 @@ def _measure_router_v6(
         profiler.stop()
 
         run_timings: dict[str, float] = {}
-        for stage_name in _ROUTER_V6_STAGES:
+        for stage_name in _STAGES:
             timing = profiler.report.stage_timings.get(stage_name)
             run_timings[stage_name] = timing.wall_time_ms if timing else 0.0
         per_run_timings.append(run_timings)
 
-    for stage_name in _ROUTER_V6_STAGES:
+        if sub_steps:
+            stage2_timing = profiler.report.stage_timings.get("stage2")
+            sub_run: dict[str, float] = {}
+            if stage2_timing and stage2_timing.sub_steps:
+                for ssn in _SUB_STEPS:
+                    ss = stage2_timing.sub_steps.get(ssn)
+                    sub_run[ssn] = ss.wall_time_ms if ss else 0.0
+            else:
+                for ssn in _SUB_STEPS:
+                    sub_run[ssn] = 0.0
+            per_sub_step_runs.append(sub_run)
+
+    results: list[TimingResult] = []
+
+    for stage_name in _STAGES:
         individual_ms = [run.get(stage_name, 0.0) for run in per_run_timings]
         mean_ms = sum(individual_ms) / len(individual_ms)
         results.append(
@@ -332,37 +352,7 @@ def _measure_router_v6(
         )
 
     if sub_steps:
-        sub_step_names = [
-            "obstacle_map", "routing_space", "channel_skeleton",
-            "channel_widths", "occupancy_grid", "layer_capacity",
-            "routing_demand", "bottleneck_analysis",
-        ]
-        per_sub_step_runs: list[dict[str, float]] = []
-
-        for _ in range(n_runs):
-            profiler = PipelineProfiler()
-            pipeline_obj = RouterV6Pipeline(
-                verbose=False,
-                enable_smoothing=False,
-                enable_legalization=False,
-                profiler=profiler,
-            )
-            profiler.start()
-            pipeline_obj.run(pcb_path)
-            profiler.stop()
-
-            stage2_timing = profiler.report.stage_timings.get("stage2")
-            sub_run: dict[str, float] = {}
-            if stage2_timing and stage2_timing.sub_steps:
-                for ssn in sub_step_names:
-                    ss = stage2_timing.sub_steps.get(ssn)
-                    sub_run[ssn] = ss.wall_time_ms if ss else 0.0
-            else:
-                for ssn in sub_step_names:
-                    sub_run[ssn] = 0.0
-            per_sub_step_runs.append(sub_run)
-
-        for ssn in sub_step_names:
+        for ssn in _SUB_STEPS:
             individual_ms = [run.get(ssn, 0.0) for run in per_sub_step_runs]
             mean_ms = sum(individual_ms) / len(individual_ms) if individual_ms else 0.0
             results.append(
@@ -395,10 +385,8 @@ def _measure_pipeline_orchestrator(
     # Warmup run (JAX JIT compilation etc.)
     config = PipelineConfig(input_pcb=pcb_path, skip_routing=False, dry_run=False)
     orchestrator = PipelineOrchestrator(config)
-    try:
+    with contextlib.suppress(Exception):
         orchestrator.run()
-    except Exception:
-        pass
 
     results: list[TimingResult] = []
     per_run_timings: list[dict[str, float]] = []
@@ -410,7 +398,7 @@ def _measure_pipeline_orchestrator(
         def on_stage_start(self, *args, **kwargs) -> None:
             pass
 
-        def on_stage_complete(self, stage_name, duration_s, outputs) -> None:
+        def on_stage_complete(self, stage_name, duration_s, _outputs) -> None:
             self.stage_timings[stage_name] = duration_s * 1000.0
 
         def on_stage_skip(self, *args, **kwargs) -> None:
@@ -431,10 +419,8 @@ def _measure_pipeline_orchestrator(
         observer = _TimingObserver()
         orchestrator._engine.add_observer(observer)
 
-        try:
+        with contextlib.suppress(Exception):
             orchestrator.run()
-        except Exception:
-            pass
 
         run_timings: dict[str, float] = {}
         for phase_name in phase_names:
