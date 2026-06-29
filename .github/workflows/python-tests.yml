@@ -54,8 +54,9 @@ on:
 
 jobs:
   test:
+    name: Core Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
@@ -97,11 +98,43 @@ jobs:
           JAX_PLATFORM_NAME: cpu
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
-      
+
       - name: Coverage gate (temper-placer/core)
         if: false  # disabled: JAX + coverage OOMs on CI runners
         working-directory: packages/temper-placer
         run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage.json --allowlist ../../.coverage-allowlist
+
+  checks:
+    name: Extended Tests & Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
+      JAX_PLATFORM_NAME: cpu
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Build and install Rust crate
+        run: |
+          uv pip install maturin
+          cd packages/temper-rust-router
+          uv run maturin develop --release
+          cd ../..
 
       - name: Run invariant tests (router_v6, io, deterministic, losses)
         working-directory: packages/temper-placer
@@ -147,6 +180,18 @@ jobs:
 
       - name: Vulture dead-code gate
         run: uv run python scripts/vulture_gate.py
+        continue-on-error: true  # pre-existing; temper-N6-U8
+
+      - name: Script manifest gate
+        run: uv run python scripts/check_manifest_gate.py
+        continue-on-error: true  # pre-existing; temper-N6-U8
+
+      - name: Script sunset check (warnings only)
+        run: uv run python scripts/check_script_sunset.py
+        continue-on-error: true  # sunset is informational, not blocking
+
+      - name: Import boundary enforcement
+        run: uv run python scripts/import_linter_gate.py
         continue-on-error: true  # pre-existing; temper-N6-U8
 
       - name: Rebuild script invocation graph
