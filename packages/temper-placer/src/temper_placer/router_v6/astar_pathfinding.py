@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
-    _astar_search,
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
 )
@@ -349,11 +348,14 @@ def run_astar_pathfinding(
 
     per_path_latency_ms: dict[str, float] = {}
 
+    def _add_latency(net_name: str, elapsed: float) -> None:
+        per_path_latency_ms[net_name] = per_path_latency_ms.get(net_name, 0.0) + elapsed
+
     # First pass: Route all routable nets
     for net_name in routable_nets:
         t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name)
-        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
+        _add_latency(net_name, (time.perf_counter() - t0) * 1000.0)
         if not success:
             failed_nets_set.add(net_name)
             record_failure(net_name, reason, blockers, region)
@@ -367,7 +369,7 @@ def run_astar_pathfinding(
         attempts += 1
         t0 = time.perf_counter()
         success, reason, blockers, region = attempt_route(net_name)
-        per_path_latency_ms[net_name] = (time.perf_counter() - t0) * 1000.0
+        _add_latency(net_name, (time.perf_counter() - t0) * 1000.0)
         if not success:
             failed_nets_set.add(net_name)
             record_failure(net_name, reason, blockers, region)

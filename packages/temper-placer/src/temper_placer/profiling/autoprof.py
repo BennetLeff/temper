@@ -15,10 +15,13 @@ Usage:
 from __future__ import annotations
 
 import json
-import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
 
 
 @dataclass
@@ -30,7 +33,7 @@ class DeltaRow:
     direction: str  # "faster", "slower", "same"
 
     @classmethod
-    def from_timings(cls, name: str, before: float, after: float, threshold: float = 5.0) -> "DeltaRow":
+    def from_timings(cls, name: str, before: float, after: float, threshold: float = 5.0) -> DeltaRow:  # noqa: ARG003
         if before <= 0:
             before = 0.001
         delta_pct = ((after - before) / before) * 100.0
@@ -76,6 +79,27 @@ class AutoprofReport:
                 for r in self.delta_table
             ],
         }
+
+    def to_pipeline_metrics_record(
+        self, board: str = "all", module: str = "autoprof"
+    ) -> PipelineMetricsRecord:
+        from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
+
+        metrics: dict[str, float] = {}
+        for row in self.delta_table:
+            metrics[f"{row.stage_name}_before_p95_ms"] = row.before_p95_ms
+            metrics[f"{row.stage_name}_after_p95_ms"] = row.after_p95_ms
+            metrics[f"{row.stage_name}_delta_pct"] = row.delta_pct
+        metrics["total_before_ms"] = self.total_before_ms
+        metrics["total_after_ms"] = self.total_after_ms
+        metrics["boards_tested"] = float(self.boards_tested)
+
+        return PipelineMetricsRecord(
+            board=board,
+            stage=self.bottleneck_stage,
+            module=module,
+            metrics=metrics,
+        )
 
     def to_markdown(self) -> str:
         lines = ["## Autoprof Experiment Results\n"]
@@ -149,10 +173,25 @@ class AutoprofExperiment:
             json.dump(self._current_profile, f, indent=2)
 
     def append_to_measurements(self, path: str | Path) -> None:
-        import json as _json
+        from temper_placer.regression.metrics_recorder import (
+            PipelineMetricsRecord,
+            record_metrics,
+        )
 
         report = self.compare()
-        record = report.to_dict()
-        record["timestamp"] = time.time()
-        with open(path, "a") as f:
-            f.write(_json.dumps(record) + "\n")
+        metrics: dict[str, float] = {}
+        for row in report.delta_table:
+            metrics[f"{row.stage_name}_before_p95_ms"] = row.before_p95_ms
+            metrics[f"{row.stage_name}_after_p95_ms"] = row.after_p95_ms
+            metrics[f"{row.stage_name}_delta_pct"] = row.delta_pct
+        metrics["total_before_ms"] = report.total_before_ms
+        metrics["total_after_ms"] = report.total_after_ms
+        metrics["boards_tested"] = float(report.boards_tested)
+
+        rec = PipelineMetricsRecord(
+            board="all",
+            stage=report.bottleneck_stage,
+            module="autoprof",
+            metrics=metrics,
+        )
+        record_metrics(rec, Path(path))

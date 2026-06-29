@@ -31,7 +31,7 @@ class Stage2Orchestrator:
 
     _stages: list[Stage]
 
-    def __init__(self, verbose: bool = False):
+    def __init__(self, verbose: bool = False, profiler: object | None = None):
         self._stages = [
             ObstacleMapStage(),
             RoutingSpaceStage(),
@@ -43,6 +43,7 @@ class Stage2Orchestrator:
             BottleneckAnalysisStage(),
         ]
         self.verbose = verbose
+        self._profiler = profiler
 
     def run(
         self,
@@ -65,7 +66,12 @@ class Stage2Orchestrator:
             if self.verbose:
                 idx = self._stages.index(stage) + 1
                 print(f"  2.{idx}: {stage.name}...")
-            state = stage.run(state)
+
+            if self._profiler is not None:
+                with self._profiler.sub_step("stage2", stage.name):
+                    state = stage.run(state)
+            else:
+                state = stage.run(state)
 
             drc_failures = run_validators(stage.name, state)
             if drc_failures and self.verbose:
