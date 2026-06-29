@@ -21,17 +21,14 @@ pub fn solve_with_splr(
     _var_names: &[String],
 ) -> TopologyResult {
     let start = Instant::now();
-    let config = Config::default();
 
-    // Build DIMACS CNF string for splr's string-based constructor.
-    let mut dimacs = format!("p cnf {} {}\n", cnf.num_vars, cnf.clauses.len());
-    for clause in &cnf.clauses {
-        for &lit in clause {
-            dimacs.push_str(&format!("{} ", lit));
-        }
-        dimacs.push_str("0\n");
+    // Guard: splr panics if num_vars is zero and clauses reference
+    // high-numbered variables. Return Unsatisfiable for empty problems.
+    if cnf.num_vars == 0 || cnf.clauses.is_empty() {
+        return empty_result(SolverStatus::Unsatisfiable, 0.0);
     }
 
+    let config = Config::default();
     let mut solver = Solver::instantiate(&config, &CNFDescription::default());
 
     // Add variables.
