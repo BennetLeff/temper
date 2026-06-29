@@ -26,6 +26,7 @@ def main() -> None:
 from .pipeline_commands import phase, pipeline
 from .trace_commands import trace
 from .dsn_commands import dsn
+from temper_placer.profiling.cli import profile
 from .timing import timing
 
 main.add_command(pipeline)
@@ -33,6 +34,7 @@ main.add_command(phase)
 main.add_command(trace)
 main.add_command(dsn)
 main.add_command(timing)
+main.add_command(profile)
 
 @main.command()
 @click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))

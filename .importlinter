@@ -45,6 +45,7 @@ source_modules =
     temper_placer.pipeline
     temper_placer.placement
     temper_placer.placer
+    temper_placer.profiling
     temper_placer.regression
     temper_placer.router_v6
     temper_placer.scale
@@ -86,6 +87,7 @@ source_modules =
     temper_placer.pipeline
     temper_placer.placement
     temper_placer.placer
+    temper_placer.profiling
     temper_placer.regression
     temper_placer.routing
     temper_placer.scale

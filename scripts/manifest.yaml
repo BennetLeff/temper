@@ -703,3 +703,10 @@ scripts:
       - subprocess
       - sys
       - time
+- path: pr_perf_compare.py
+  purpose: Compare PR performance metrics against main-branch JSONL baseline and produce delta table for PR comments
+  owner: unassigned
+  last_run: '2026-06-28'
+  category: keep
+  disposition: ci-gate
+  imports: []

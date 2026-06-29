@@ -1,28 +1,22 @@
-"""Pipeline profiling and validation toolkit.
+"""CI profiling harness — per-module performance profiling for time-series metrics.
 
-Provides:
-- PipelineProfiler: context manager for auto-instrumenting pipeline stages
-- ProfileReport: structured profiling output dataclass
-- Validation layers: Hypothesis PBT and golden fixture tests
-- Autoprof: GPBM experiment loop for bottleneck identification
-- Timing gate: per-stage timing measurement and regression check
+Public API:
+    profile_pipeline(board_id, commit) -> list[PipelineMetricsRecord]
+    profile_loss_functions(board_id, commit) -> list[PipelineMetricsRecord]
+    profile_router_benchmark(commit) -> list[PipelineMetricsRecord]
+
+All functions emit PipelineMetricsRecord-compatible dataclasses with
+module, board, stage, and metrics fields for direct JSONL recording.
 """
 
-from temper_placer.profiling.instrumentation import PipelineProfiler, ProfileReport
-from temper_placer.profiling.timing_gate import (
-    TimingResult,
-    TimingReport,
-    StageTimingEntry,
-    measure_stage_timing,
-    measure_all_stages,
+from .pipeline_metrics import (
+    profile_loss_functions,
+    profile_pipeline,
+    profile_router_benchmark,
 )
 
 __all__ = [
-    "PipelineProfiler",
-    "ProfileReport",
-    "TimingResult",
-    "TimingReport",
-    "StageTimingEntry",
-    "measure_stage_timing",
-    "measure_all_stages",
+    "profile_pipeline",
+    "profile_loss_functions",
+    "profile_router_benchmark",
 ]

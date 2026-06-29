@@ -32,10 +32,27 @@ jobs:
           --require-all-stages
           --output closure-result.json
           || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
-      - name: Record metrics
+      - name: Record pipeline metrics
         run: |
           uv run python scripts/pipeline_metrics.py record \
-            --board temper --commit "${{ github.sha }}"
+            --board temper --commit "${{ github.sha }}" \
+            --closure-json closure-result.json
+      - name: Profile loss functions
+        continue-on-error: true
+        run: |
+          uv run temper profile run \
+            --module loss-fn --board temper \
+            --commit "${{ github.sha }}" --json \
+            | uv run python scripts/pipeline_metrics.py record \
+              --board temper --commit "${{ github.sha }}" --from-stdin
+      - name: Profile router benchmarks
+        continue-on-error: true
+        run: |
+          uv run temper profile run \
+            --module router-bench \
+            --commit "${{ github.sha }}" --json \
+            | uv run python scripts/pipeline_metrics.py record \
+              --board temper --commit "${{ github.sha }}" --from-stdin
           cat power_pcb_dataset/metrics/pipeline_metrics.jsonl
       - name: Commit and push metrics
         run: |

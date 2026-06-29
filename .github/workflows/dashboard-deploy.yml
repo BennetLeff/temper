@@ -1,0 +1,34 @@
+name: Dashboard Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard/**'
+      - 'power_pcb_dataset/metrics/pipeline_metrics.jsonl'
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy JSONL into dashboard
+        run: |
+          if [ -f power_pcb_dataset/metrics/pipeline_metrics.jsonl ]; then
+            cp power_pcb_dataset/metrics/pipeline_metrics.jsonl dashboard/
+          else
+            echo '{"schema_version":1,"timestamp":"","git_commit":"","board":"","stage":"","module":"","metrics":{}}' > dashboard/pipeline_metrics.jsonl
+          fi
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dashboard
+          publish_branch: gh-pages
+          commit_message: 'chore(dashboard): deploy ${{ github.sha }}'

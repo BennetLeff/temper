@@ -44,22 +44,22 @@ jobs:
           WINDOW="${{ inputs.window || '30d' }}"
           DRIFT_FOUND=false
           REPORT=""
-          while IFS=, read -r board stage; do
+          while IFS=, read -r board stage module; do
             [ -z "$board" ] && continue
             result=$(uv run python scripts/pipeline_metrics.py trend \
-              --board "$board" --stage "$stage" \
+              --board "$board" --stage "$stage" --module "$module" \
               --window "$WINDOW" --sigma-multiple "$SIGMA" --json 2>&1) || true
             exit_code=$?
             if [ "$exit_code" = "1" ]; then
               DRIFT_FOUND=true
-              REPORT="${REPORT}\n## $board / $stage\n\n\`\`\`json\n$result\n\`\`\`"
+              REPORT="${REPORT}\n## $module / $board / $stage\n\n\`\`\`json\n$result\n\`\`\`"
             fi
           done < <(uv run python -c "
           import json
           with open('boards.json') as f:
               data = json.load(f)
           for b in data:
-              print(f\"{b['board']},{b['stage']}\")
+              print(f\"{b['board']},{b['stage']},{b.get('module','pipeline')}\")
           ")
           echo "drift_found=$DRIFT_FOUND" >> "$GITHUB_OUTPUT"
           { echo "report<<EOF"; echo "$REPORT"; echo "EOF"; } >> "$GITHUB_OUTPUT"
@@ -68,12 +68,12 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const title = "Metrics drift detected";
+            const title = "Metrics drift detected across modules";
             const body = `Pipeline quality metrics have drifted beyond threshold.
 
           ${{ steps.trend.outputs.report }}
 
-          Use \`uv run python scripts/pipeline_metrics.py trend --board <board> --stage <stage>\` to investigate.`;
+          Use \`uv run python scripts/pipeline_metrics.py trend --board <board> --stage <stage> --module <module>\` to investigate.`;
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
               state: "open", labels: ["metrics-drift"] });

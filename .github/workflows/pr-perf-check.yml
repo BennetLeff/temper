@@ -1,0 +1,83 @@
+name: PR Performance Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'packages/**'
+
+jobs:
+  perf-check:
+    name: PR Performance Comparison
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: time uv sync --all-packages
+
+      - name: Profile PR branch
+        id: profile
+        run: |
+          uv run temper profile run \
+            --module all --board temper \
+            --commit "${{ github.event.pull_request.head.sha }}" \
+            --json > pr-metrics.jsonl
+          cat pr-metrics.jsonl
+
+      - name: Fetch main-branch JSONL
+        run: |
+          git fetch origin main --depth=100
+          git show origin/main:power_pcb_dataset/metrics/pipeline_metrics.jsonl \
+            > main-pipeline_metrics.jsonl 2>/dev/null || echo "" > main-pipeline_metrics.jsonl
+
+      - name: Compare and comment
+        run: |
+          REPORT=$(uv run python scripts/pr_perf_compare.py \
+            --pr-metrics pr-metrics.jsonl \
+            --main-jsonl main-pipeline_metrics.jsonl)
+          echo "PR_PERF_REPORT<<EOF" >> "$GITHUB_ENV"
+          echo "$REPORT" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
+
+      - name: Post PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = process.env.PR_PERF_REPORT || "Performance comparison failed.";
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c =>
+              c.body.startsWith("## Performance Comparison"));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
