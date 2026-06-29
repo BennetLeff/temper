@@ -81,6 +81,27 @@ class TimingResult:
     n_runs: int
     individual_ms: list[float]
 
+    def to_pipeline_metrics_record(self) -> "PipelineMetricsRecord":
+        """Map this timing result to a PipelineMetricsRecord for JSONL storage.
+
+        Uses module='pipeline-timing' so per-stage timings participate in
+        Plan 010's time-series store, PR comparison, and dashboard.
+        """
+        from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
+
+        return PipelineMetricsRecord(
+            board=self.board_id,
+            stage=self.stage_name,
+            module="pipeline-timing",
+            git_commit=_current_git_hash(),
+            metrics={
+                "wall_ms_mean": self.wall_ms,
+                "n_runs": self.n_runs,
+                "wall_ms_min": min(self.individual_ms),
+                "wall_ms_max": max(self.individual_ms),
+            },
+        )
+
 
 @dataclass
 class StageTimingEntry:
@@ -95,6 +116,24 @@ class StageTimingEntry:
     delta_pct: float
     threshold_ms: float
     passed: bool
+
+    def to_pipeline_metrics_record(self) -> "PipelineMetricsRecord":
+        """Map this check result to a PipelineMetricsRecord for JSONL trend storage."""
+        from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
+
+        return PipelineMetricsRecord(
+            board=self.board,
+            stage=self.stage,
+            module="pipeline-timing",
+            metrics={
+                "current_ms": round(self.current_ms, 3),
+                "baseline_ms": round(self.baseline_ms, 3),
+                "delta_ms": round(self.delta_ms, 3),
+                "delta_pct": round(self.delta_pct, 1),
+                "threshold_ms": round(self.threshold_ms, 3),
+                "passed": 1.0 if self.passed else 0.0,
+            },
+        )
 
 
 @dataclass
