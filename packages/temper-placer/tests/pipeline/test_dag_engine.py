@@ -36,14 +36,14 @@ class MockStage:
 class FailingStage:
     """Stage that always raises an exception."""
 
-    def __call__(self, _state, _context):
+    def __call__(self, state, context):
         raise RuntimeError("Intentional failure for testing")
 
 
 class SlowStage:
     """Stage that sleeps for a configurable duration, checking deadline."""
 
-    def __call__(self, _state, _context):
+    def __call__(self, state, context):
         time.sleep(2.0)
         return StageResult(outputs={}, duration_s=2.0)
 

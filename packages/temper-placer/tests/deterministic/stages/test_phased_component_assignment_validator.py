@@ -212,7 +212,7 @@ class TestPhasedComponentAssignmentValidator:
         # component/ring covers it — this is a synthetic test for
         # the over-claim check, so we directly build a used_slots
         # situation via the placement tuple.
-        _run_placer(state)
+        result = _run_placer(state)
         # Pick a slot far from FAR's placement (which is some grid
         # slot near (50, 50) since the grid is 0..95, 5mm spacing).
         far_slot = (0.0, 0.0)  # definitely far from (50, 50)

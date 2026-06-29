@@ -170,7 +170,7 @@ class TestCreateTemperDesignRules:
 
     def test_rules_are_independent(self):
         """Test that factory creates independent instances."""
-        create_temper_design_rules()
+        rules1 = create_temper_design_rules()
         rules2 = create_temper_design_rules()
         assert rules2.net_classes["Power"].trace_width == 0.5
 

@@ -101,7 +101,7 @@ def test_all_nets_assigned():
     # All should be assigned to layer 0 (Signal class default)
     for la in result_state.layer_assignments:
         assert la.layer == 0
-        assert la.allow_layer_change
+        assert la.allow_layer_change == True
 
 
 def test_layer_assignment_empty_netlist():

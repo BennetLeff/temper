@@ -65,7 +65,10 @@ def _path_cost_octile(path: list[tuple[int, int]]) -> float:
 
 def _path_cells_free(path: list[tuple[int, int]], grid: OccupancyGrid) -> bool:
     """Check every cell in path is free (0) or owned by net."""
-    return all(grid.grid[y, x] == 0 for x, y in path)
+    for x, y in path:
+        if grid.grid[y, x] != 0:
+            return False
+    return True
 
 
 def _no_redundant_nodes(path: list[tuple[int, int]]) -> bool:
@@ -205,7 +208,7 @@ def test_l1_2x2_exhaustive():
                 path = _astar_search(s, g, grid)
 
                 msg = f"2x2 cfg={occ_bits}"
-                _assert_oracle_parity(path, s, g, grid, msg)
+                cost = _assert_oracle_parity(path, s, g, grid, msg)
 
                 if path is not None:
                     assert _path_cells_free(path, grid), f"Path cell not free: {msg}"
@@ -238,7 +241,7 @@ def test_l2_3x3_exhaustive():
                 path = _astar_search(s, g, grid)
 
                 msg = f"3x3 cfg={occ_bits}"
-                _assert_oracle_parity(path, s, g, grid, msg)
+                cost = _assert_oracle_parity(path, s, g, grid, msg)
 
                 if path is not None:
                     assert _path_cells_free(path, grid), f"Path cell not free: {msg}"
@@ -279,7 +282,7 @@ def test_l2b_4x4_exhaustive():
                 path = _astar_search(s, g, grid)
 
                 msg = f"4x4 cfg={occ_bits}"
-                _assert_oracle_parity(path, s, g, grid, msg)
+                cost = _assert_oracle_parity(path, s, g, grid, msg)
 
                 if path is not None:
                     assert _path_cells_free(path, grid), f"Path cell not free: {msg}"

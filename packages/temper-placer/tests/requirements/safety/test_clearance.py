@@ -71,15 +71,15 @@ except ImportError:
         def value(self):
             return self
 
-    def check_domain_clearance(*_args, **_kwargs):
+    def check_domain_clearance(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return ClearanceResult(passed=True, violations=[])
 
-    def check_creepage_path(*_args, **_kwargs):
+    def check_creepage_path(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return ClearanceResult(passed=True, violations=[])
 
-    def verify_iec60335_compliance(*_args, **_kwargs):
+    def verify_iec60335_compliance(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return ClearanceResult(passed=True, violations=[])
 

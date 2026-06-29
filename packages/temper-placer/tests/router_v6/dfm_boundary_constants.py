@@ -6,8 +6,6 @@ duplicating edge-case value lists.
 
 from __future__ import annotations
 
-import math as _math
-
 # ---------------------------------------------------------------------------
 # Trace widths (mm)
 # ---------------------------------------------------------------------------
@@ -111,6 +109,8 @@ def exactly_at(value: float) -> float:
 # ---------------------------------------------------------------------------
 # Shared test helpers (Path / Via / Route / Results stubs)
 # ---------------------------------------------------------------------------
+
+import math as _math
 
 
 class Path:

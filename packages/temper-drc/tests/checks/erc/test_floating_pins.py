@@ -19,10 +19,10 @@ def test_floating_pins_pass():
     # but the check should focus on components listed in 'components'.
     placement.components["U1"] = ComponentPlacement(ref="U1", footprint="IC", x=5, y=5, rotation=0, layer="F.Cu", width=2, height=2)
     placement.components["MCU"] = ComponentPlacement(ref="MCU", footprint="QFP", x=10, y=10, rotation=0, layer="F.Cu", width=5, height=5)
-
+    
     check = FloatingPinsCheck()
     result = check.run(placement, ConstraintSet())
-
+    
     assert result.passed
     assert len(result.issues) == 0
 
@@ -39,10 +39,10 @@ def test_floating_pins_fail():
         }
     )
     # FL is in components but NOT in any net.
-
+    
     check = FloatingPinsCheck()
     result = check.run(placement, ConstraintSet())
-
+    
     assert not result.passed
     assert len(result.issues) == 1
     assert result.issues[0].affected_items == ["FL"]

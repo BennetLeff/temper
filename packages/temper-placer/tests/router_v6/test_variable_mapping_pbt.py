@@ -18,5 +18,4 @@ def test_clause_vars(lits, mv):
 @given(names=st.lists(st.text('abcdefghijklmnopqrstuvwxyz_', min_size=1, max_size=16), min_size=0, max_size=30))
 @settings(max_examples=100, deadline=30000)
 def test_no_empty_names(names):
-    for n in names:
-        assert len(n) > 0
+    for n in names: assert len(n) > 0

@@ -353,7 +353,7 @@ def check_layer_stack(board, spec: LayerStackSpecification) -> LayoutReviewResul
     )
 
 
-def check_critical_loop_areas(_placement, loops) -> LayoutReviewResult:
+def check_critical_loop_areas(placement, loops) -> LayoutReviewResult:
     """
     Check critical loop areas per REQ-ELEC-06.
 
@@ -497,15 +497,16 @@ def check_ground_plane_integrity(ground_plane) -> LayoutReviewResult:
                 )
 
     # Check star ground point implementation
-    if spec.star_ground_required and not ground_plane.get("has_star_ground", False):
-        violations.append(
-            LayoutViolation(
-                code="GND-003",
-                message="Star ground point not implemented",
-                violation_type=LayoutViolationType.GROUND_PLANE,
-                severity="warning",
+    if spec.star_ground_required:
+        if not ground_plane.get("has_star_ground", False):
+            violations.append(
+                LayoutViolation(
+                    code="GND-003",
+                    message="Star ground point not implemented",
+                    violation_type=LayoutViolationType.GROUND_PLANE,
+                    severity="warning",
+                )
             )
-        )
 
     # Check via stitching at boundaries
     if "boundary_vias" in ground_plane:
@@ -534,15 +535,16 @@ def check_ground_plane_integrity(ground_plane) -> LayoutReviewResult:
                 )
 
     # Check ground plane separation (PGND/CGND/ISOGND)
-    if spec.ground_separation_required and not ground_plane.get("has_proper_separation", False):
-        violations.append(
-            LayoutViolation(
-                code="GND-006",
-                message="Ground plane separation (PGND/CGND/ISOGND) not properly implemented",
-                violation_type=LayoutViolationType.GROUND_PLANE,
-                severity="error",
+    if spec.ground_separation_required:
+        if not ground_plane.get("has_proper_separation", False):
+            violations.append(
+                LayoutViolation(
+                    code="GND-006",
+                    message="Ground plane separation (PGND/CGND/ISOGND) not properly implemented",
+                    violation_type=LayoutViolationType.GROUND_PLANE,
+                    severity="error",
+                )
             )
-        )
 
     return LayoutReviewResult(
         passed=len([v for v in violations if v.severity == "error"]) == 0, violations=violations
@@ -597,7 +599,8 @@ def check_clearance_and_creepage(board, spec: ClearanceSpecification) -> LayoutR
                     )
 
     # Check isolation slots
-    if spec.isolation_slots_required and (not hasattr(board, "isolation_slots") or len(board.isolation_slots) == 0):
+    if spec.isolation_slots_required:
+        if not hasattr(board, "isolation_slots") or len(board.isolation_slots) == 0:
             violations.append(
                 LayoutViolation(
                     code="CLEAR-003",

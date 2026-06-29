@@ -84,6 +84,14 @@ def validate_design_files_complete(project_dir: str | Path) -> ValidationResult:
     project_path = Path(project_dir)
 
     # Required design files
+    required_files = {
+        "schematic_pdf": "*.pdf",  # Final schematic exported
+        "layout_pdf": "*layout*.pdf",  # Final layout exported
+        "gerber_files": "*.g*",  # Gerber files (.gbr, .gm1, .gm2, etc.)
+        "drill_files": "*.drl",  # Drill files (.drl, .drd)
+        "pick_place": "*pick*place*.csv",  # Pick-and-place file
+        "bom": "*BOM*.csv",  # Bill of Materials
+    }
 
     # Check for schematic PDF
     schematic_pdfs = list(project_path.glob("**/*schematic*.pdf")) + list(
@@ -212,7 +220,7 @@ def validate_gerber_alignment(gerber_dir: str | Path) -> ValidationResult:
     found_layers = {}
 
     # Scan for Gerber files
-    for ext, _description in expected_layers.items():
+    for ext, description in expected_layers.items():
         files = list(gerber_path.glob(f"**/*{ext}"))
         if files:
             found_layers[ext] = files[0]  # Take first match
@@ -243,7 +251,7 @@ def validate_gerber_alignment(gerber_dir: str | Path) -> ValidationResult:
         )
 
     # Validate file naming conventions
-    for _ext, file_path in found_layers.items():
+    for ext, file_path in found_layers.items():
         filename = file_path.name
 
         # Check for common naming patterns
@@ -295,7 +303,7 @@ def validate_gerber_alignment(gerber_dir: str | Path) -> ValidationResult:
 
 
 def validate_drill_file(
-    drill_file: str | Path, _pad_locations: list[tuple[float, float]] | None = None
+    drill_file: str | Path, pad_locations: list[tuple[float, float]] | None = None
 ) -> ValidationResult:
     """
     Validate drill file format and content.
@@ -349,7 +357,9 @@ def validate_drill_file(
                         str(drill_path),
                     )
                 )
-        elif drill_path.suffix.lower() == ".drd" and not content.strip().startswith("<?xml"):
+        elif drill_path.suffix.lower() == ".drd":
+            # KiCad format
+            if not content.strip().startswith("<?xml"):
                 issues.append(
                     ValidationIssue(
                         ValidationSeverity.WARNING,

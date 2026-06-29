@@ -340,7 +340,7 @@ class TestInductionCookerTemplates:
         critical = collection.get_critical_loops()
 
         assert len(critical) == 3
-        names = {ln.name for ln in critical}
+        names = {l.name for l in critical}
         assert "commutation" in names
         assert "gate_drive_high" in names
         assert "gate_drive_low" in names

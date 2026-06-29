@@ -43,7 +43,7 @@ def run_comparison(
             force_directed=replace(opt_config.initialization.force_directed, enabled=True, iterations=100, learning_rate=fd_lr)
         )
 
-    PostProcessConfig(
+    post_config = PostProcessConfig(
         rotation_refinement_enabled=True,
         rotation_search_type="greedy"
     )
@@ -62,7 +62,7 @@ def run_comparison(
     board = create_board_from_constraints(constraints)
     context = LossContext.from_netlist_and_board(netlist, board)
 
-    def loss_factory(_weights: dict) -> CompositeLoss:
+    def loss_factory(weights: dict) -> CompositeLoss:
         losses = []
         # Standard losses
         losses.append(WeightedLoss(OverlapLoss(rotation_invariant=True), weight=100.0))

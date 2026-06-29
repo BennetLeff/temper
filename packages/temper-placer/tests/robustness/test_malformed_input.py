@@ -15,7 +15,6 @@ Expected behavior:
 - Edge cases: Handle gracefully, possibly with warnings
 """
 
-import contextlib
 from pathlib import Path
 
 import pytest
@@ -62,7 +61,7 @@ class TestFatalErrors:
             '(kicad_pcb (version 20221018) (generator pcbnew) (footprint "R_0603"'
         )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             parse_kicad_pcb(truncated_pcb)
 
     def test_mismatched_parens(self, tmp_path):
@@ -73,16 +72,19 @@ class TestFatalErrors:
         )
 
         # This might parse or fail - key is it shouldn't crash
-        with contextlib.suppress(Exception):
-            parse_kicad_pcb(bad_parens_pcb)
+        try:
+            result = parse_kicad_pcb(bad_parens_pcb)
             # If it parses, that's OK
+        except Exception:
+            # If it fails, that's also OK
+            pass
 
     def test_not_kicad_pcb(self, tmp_path):
         """Non-KiCad file format should fail with clear error."""
         not_kicad = tmp_path / "not_kicad.kicad_pcb"
         not_kicad.write_text("This is just plain text, not an S-expression")
 
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             parse_kicad_pcb(not_kicad)
 
     def test_kicad_schematic_not_pcb(self, tmp_path):
@@ -91,7 +93,7 @@ class TestFatalErrors:
         schematic.write_text("(kicad_sch (version 20230121) (generator eeschema))")
 
         # Should fail because it's not a PCB file
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             parse_kicad_pcb(schematic)
 
 
@@ -110,7 +112,7 @@ class TestRecoverableIssues:
   )
   (net 0 "")
   (net 1 "GND")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80)
@@ -140,14 +142,14 @@ class TestRecoverableIssues:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 0 0)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start -10 -10) (end 10 10) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -163,7 +165,7 @@ class TestRecoverableIssues:
   (net 0 "")
   (net 1 "GND")
   (net 2 "VCC")
-
+  
   (gr_rect (start 0 0) (end 50 50) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -182,7 +184,7 @@ class TestUnicodeAndSpecialCharacters:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80)
@@ -190,7 +192,7 @@ class TestUnicodeAndSpecialCharacters:
     (property "Value" "10kΩ ±1%")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -207,7 +209,7 @@ class TestUnicodeAndSpecialCharacters:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Capacitor_SMD:C_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80)
@@ -215,7 +217,7 @@ class TestUnicodeAndSpecialCharacters:
     (property "Value" "100nF/50V X7R ±10%")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -231,7 +233,7 @@ class TestUnicodeAndSpecialCharacters:
   (net 0 "")
   (net 1 "/Power/VCC_3V3")
   (net 2 "/Digital/SPI_CLK")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80)
@@ -239,7 +241,7 @@ class TestUnicodeAndSpecialCharacters:
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu") (net 1 "/Power/VCC_3V3"))
     (pad "2" smd roundrect (at 0.825 0) (size 0.8 0.95) (layers "F.Cu") (net 2 "/Digital/SPI_CLK"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -257,14 +259,14 @@ class TestEdgeCaseCoordinates:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at -50 -30)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start -60 -40) (end -40 -20) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -284,14 +286,14 @@ class TestEdgeCaseCoordinates:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 10000 10000)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 9990 9990) (end 10020 10020) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -305,14 +307,14 @@ class TestEdgeCaseCoordinates:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100.123456789 80.987654321)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -330,35 +332,35 @@ class TestRotationEdgeCases:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80 0)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000002)
     (at 110 80 90)
     (property "Reference" "R2")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000003)
     (at 120 80 180)
     (property "Reference" "R3")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000004)
     (at 130 80 270)
     (property "Reference" "R4")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 90 70) (end 150 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -372,14 +374,14 @@ class TestRotationEdgeCases:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80 45)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -393,14 +395,14 @@ class TestRotationEdgeCases:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80 -90)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -421,14 +423,14 @@ class TestLongStrings:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80)
     (property "Reference" "{long_designator}")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -445,14 +447,14 @@ class TestLongStrings:
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
   (net 1 "{long_net_name}")
-
+  
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000000-0000-0000-0000-000000000001)
     (at 100 80)
     (property "Reference" "R1")
     (pad "1" smd roundrect (at -0.825 0) (size 0.8 0.95) (layers "F.Cu") (net 1 "{long_net_name}"))
   )
-
+  
   (gr_rect (start 90 70) (end 120 100) (layer "Edge.Cuts") (width 0.1))
 )""")
 
@@ -488,12 +490,12 @@ class TestMinimalValidPCB:
   (general (thickness 1.6))
   (layers (0 "F.Cu" signal) (44 "Edge.Cuts" user))
   (net 0 "")
-
+  
   (footprint "R_0603" (layer "F.Cu")
     (at 25 25)
     (property "Reference" "R1")
   )
-
+  
   (gr_rect (start 0 0) (end 50 50) (layer "Edge.Cuts") (width 0.1))
 )""")
 

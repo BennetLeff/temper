@@ -54,7 +54,7 @@ class MockHeuristic(Heuristic):
     def priority(self):
         return self._priority
 
-    def apply(self, _context: PlacementContext) -> HeuristicResult:
+    def apply(self, context: PlacementContext) -> HeuristicResult:
         if self._record_execution is not None:
             self._record_execution.append(self._name)
 

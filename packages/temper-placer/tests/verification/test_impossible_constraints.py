@@ -181,7 +181,7 @@ class TestZoneBoundsInfeasible:
 
         zone_loss = ZoneMembershipLoss()
         zone_result = zone_loss(result.best_state.positions, rotations, context)
-        float(zone_result.value)
+        zone_penalty = float(zone_result.value)
 
         # Zone penalty should be non-zero (component center can be in zone but edges overflow)
         # This is actually OK - component center can be in zone

@@ -144,7 +144,7 @@ class TestTimingBaselineCLI:
         assert len(content["stages"]) == 2
 
     def test_baseline_skips_existing_without_overwrite(
-        self, runner, _mock_measure_all_stages, temp_baseline_yaml, tmp_path
+        self, runner, mock_measure_all_stages, temp_baseline_yaml, tmp_path
     ):
         import yaml
 
@@ -176,7 +176,7 @@ class TestTimingBaselineCLI:
         assert "SKIP" in result.output
 
     def test_baseline_overwrite_replaces(
-        self, runner, _mock_measure_all_stages, temp_baseline_yaml, tmp_path
+        self, runner, mock_measure_all_stages, temp_baseline_yaml, tmp_path
     ):
         import yaml
 
@@ -210,7 +210,7 @@ class TestTimingBaselineCLI:
         content = yaml.safe_load(temp_baseline_yaml.read_text())
         assert content["stages"][0]["wall_ms_mean"] == 12.5
 
-    def test_baseline_unknown_board_fails(self, runner, _temp_baseline_yaml, tmp_path):
+    def test_baseline_unknown_board_fails(self, runner, temp_baseline_yaml, tmp_path):
         self._setup_golden_manifest(tmp_path)
         result = runner.invoke(timing, ["baseline", "--board", "nonexistent"])
         assert result.exit_code == 1
@@ -218,12 +218,12 @@ class TestTimingBaselineCLI:
 
 
 class TestTimingCheckCLI:
-    def test_check_empty_manifest(self, runner, _temp_baseline_yaml):
+    def test_check_empty_manifest(self, runner, temp_baseline_yaml):
         result = runner.invoke(timing, ["check"])
         assert result.exit_code == 0
         assert "No timing baselines" in result.output
 
-    def test_check_json_empty_manifest(self, runner, _temp_baseline_yaml):
+    def test_check_json_empty_manifest(self, runner, temp_baseline_yaml):
         import json
 
         result = runner.invoke(timing, ["check", "--json"])
@@ -232,7 +232,7 @@ class TestTimingCheckCLI:
         assert data["passed"] is True
 
     def test_check_all_pass(
-        self, runner, _mock_measure_all_stages, temp_baseline_yaml, _tmp_path
+        self, runner, mock_measure_all_stages, temp_baseline_yaml, tmp_path
     ):
         import yaml
 
@@ -261,7 +261,7 @@ class TestTimingCheckCLI:
         assert "PASS" in result.output
 
     def test_check_failure_with_increased_timing(
-        self, runner, temp_baseline_yaml, _tmp_path
+        self, runner, temp_baseline_yaml, tmp_path
     ):
         import yaml
 
@@ -307,7 +307,7 @@ class TestTimingCheckCLI:
         assert result.exit_code == 1
         assert "FAIL" in result.output
 
-    def test_check_json_output(self, runner, _mock_measure_all_stages, temp_baseline_yaml):
+    def test_check_json_output(self, runner, mock_measure_all_stages, temp_baseline_yaml):
         import json
         import sys as _sys
 
@@ -345,7 +345,7 @@ class TestTimingCheckCLI:
 
 class TestTimingRegenerateCLI:
     def test_regenerate_prompts_without_force(
-        self, runner, _mock_measure_stage_timing, temp_baseline_yaml
+        self, runner, mock_measure_stage_timing, temp_baseline_yaml
     ):
         import yaml
 
@@ -376,7 +376,7 @@ class TestTimingRegenerateCLI:
         assert "Aborted" in result.output
 
     def test_regenerate_with_force(
-        self, runner, _mock_measure_stage_timing, _temp_baseline_yaml
+        self, runner, mock_measure_stage_timing, temp_baseline_yaml
     ):
         result = runner.invoke(
             timing,

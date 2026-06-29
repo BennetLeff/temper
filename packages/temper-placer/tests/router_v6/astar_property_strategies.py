@@ -63,7 +63,10 @@ def grids(
     cell_size=1.0.
     """
     r = draw(_default_rows(rows))
-    c = draw(_default_cols(rows)) if cols is None else draw(_default_cols(cols))
+    if cols is None:
+        c = draw(_default_cols(rows))
+    else:
+        c = draw(_default_cols(cols))
     p = draw(_default_density(p_obstacle))
 
     seed = draw(st.integers(0, 2**31 - 1))

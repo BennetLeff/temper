@@ -151,9 +151,9 @@ class TestExternalToolChecks:
 
     def test_check_external_tools_combines_results(self):
         """Test combined tool check."""
-        with patch("temper_placer.validation.preflight.find_kicad_cli", return_value=None), \
-             patch("shutil.which", return_value="/opt/homebrew/bin/ngspice"):
-            result = check_external_tools()
+        with patch("temper_placer.validation.preflight.find_kicad_cli", return_value=None):
+            with patch("shutil.which", return_value="/opt/homebrew/bin/ngspice"):
+                result = check_external_tools()
 
         assert result.passed is True
         assert result.warning_count == 1  # kicad-cli warning

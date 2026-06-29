@@ -95,7 +95,7 @@ class TestBmcDiagnostics:
 
     def test_empty_counterexample_list_no_crash(self):
         """Empty counterexample list produces clean output."""
-        render_counterexample({
+        render = render_counterexample({
             "assignment": {},
             "esl_result": True,
             "cnf_result": "SAT",

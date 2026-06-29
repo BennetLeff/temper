@@ -55,7 +55,7 @@ class GoldenEncoder(json.JSONEncoder):
         return val
 
 
-def generate_goldens(_regenerate: bool = False):
+def generate_goldens(regenerate: bool = False):
     """Generate golden fixtures by running the benchmark on each test board."""
 
     GOLDEN_DIR.mkdir(parents=True, exist_ok=True)

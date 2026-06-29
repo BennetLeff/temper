@@ -117,7 +117,7 @@ def test_multiple_rules():
     # A-D: 10mm
     # A-P: 20mm
 
-    [NetClassRule("Analog", "Digital", 10.0), NetClassRule("Analog", "Power", 20.0)]
+    rules = [NetClassRule("Analog", "Digital", 10.0), NetClassRule("Analog", "Power", 20.0)]
 
     # U1(A), U2(D), U3(P)
     loss_fn = ResolvedNetClassSeparationLoss(

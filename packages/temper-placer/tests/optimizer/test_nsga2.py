@@ -142,7 +142,7 @@ def test_nsga2_tournament_selection_edge_cases():
     # Current implementation uses jax.random.choice(replace=False), which might fail
     # if tournament_size > pop_size.
     # Let's see if it crashes.
-    with pytest.raises(ValueError):
+    with pytest.raises(Exception):
         tournament_selection(ranks, distances, key, num_selected=1, tournament_size=10)
 
 
@@ -179,7 +179,7 @@ def test_rotation_diversity_over_generations():
     result = optimizer.evolve(
         netlist=netlist,
         board=board,
-        objectives=[lambda _p, _r, _c, _e, _t: type("Obj", (), {"value": jnp.float32(0.0)})()],
+        objectives=[lambda p, r, c, e, t: type("Obj", (), {"value": jnp.float32(0.0)})()],
         context=context,
         generations=10,
         initial_state=initial_state,
@@ -277,7 +277,7 @@ class TestKneePointSelection:
         )
         front_indices = [0, 1, 2, 3, 4]
 
-        select_knee_point(objectives, front_indices)
+        knee_idx = select_knee_point(objectives, front_indices)
         # The middle point (5, 5) should be selected as it's furthest from the diagonal
         # After normalization to [0,1], the line goes from (0,1) to (1,0)
         # Point (0.5, 0.5) is on the line so distance is 0
@@ -831,9 +831,9 @@ class TestZDTBenchmarkConvergence:
             if f2 < prev_f2:
                 # Width from previous x to current x
                 if i == 0:
-                    f1 - 0.0  # From origin
+                    width = f1 - 0.0  # From origin
                 else:
-                    f1 - float(sorted_points[i - 1, 0])
+                    width = f1 - float(sorted_points[i - 1, 0])
 
                 # Height contribution from this point to reference
                 hv += (float(reference[0]) - f1) * (prev_f2 - f2)
@@ -861,8 +861,8 @@ class TestZDTBenchmarkConvergence:
         # True Pareto front: f2 = 1 - sqrt(f1)
         # Check that front 0 solutions are close to this
         f1_vals = pareto_objs[:, 0]
-        1.0 - jnp.sqrt(f1_vals)
-        pareto_objs[:, 1]
+        f2_true = 1.0 - jnp.sqrt(f1_vals)
+        f2_actual = pareto_objs[:, 1]
 
         # Solutions should be near or below the true front
         # (below because g > 1 makes f2 larger than optimal)

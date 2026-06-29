@@ -5,9 +5,6 @@ These tests are for planned manufacturing constraint features that are not yet i
 The AssemblySide, ManufacturingConstraint types, and ManufacturingOrientationLoss do not exist.
 Skip the entire module until these features are added.
 """
-
-# ruff: noqa: F821  # Manufacturing constraint feature not yet implemented
-
 import pytest
 
 pytestmark = pytest.mark.skip(

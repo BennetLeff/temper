@@ -320,7 +320,7 @@ def run_nsga_on_zdt(
     # Evaluate initial population
     objectives = jax.vmap(problem_fn)(population)
 
-    for _gen in range(generations):
+    for gen in range(generations):
         # Non-dominated sorting
         fronts = fast_non_dominated_sort(objectives)
 
@@ -505,7 +505,7 @@ def plot_pareto_comparison(
             name: 'True Pareto Front',
             line: {{color: 'blue', width: 2}}
         }};
-
+        
         var foundTrace = {{
             x: {json.dumps(found_f1)},
             y: {json.dumps(found_f2)},
@@ -514,14 +514,14 @@ def plot_pareto_comparison(
             name: 'Found Solutions',
             marker: {{color: 'red', size: 8}}
         }};
-
+        
         var layout = {{
             title: '{title}',
             xaxis: {{title: 'f1'}},
             yaxis: {{title: 'f2'}},
             showlegend: true
         }};
-
+        
         Plotly.newPlot('plot', [trueTrace, foundTrace], layout);
     </script>
 </body>

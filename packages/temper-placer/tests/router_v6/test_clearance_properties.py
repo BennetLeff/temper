@@ -223,7 +223,7 @@ def _build_seeded_violation_rr(clearance_gap_mm: float) -> RoutingResults:
 
 def test_sc3a_oracle_detects_seeded_violation() -> None:
     """SC3a: The brute-force oracle detects a known clearance violation.
-
+    
     Two parallel traces placed so edge-to-edge = min_clearance - 0.01 mm.
     The oracle MUST find the violation (this validates the oracle itself).
     """
@@ -243,7 +243,7 @@ def test_sc3a_oracle_detects_seeded_violation() -> None:
 
 def test_sc3a_production_vs_oracle_gate() -> None:
     """SC3a: Compare production engine against oracle on seeded violation.
-
+    
     If production misses violations found by oracle, the completeness gap
     is non-zero and SC3b fuzzing should proceed. If production catches
     everything, zero false-negatives on the seeded fixture.
@@ -271,7 +271,7 @@ def test_sc3a_production_vs_oracle_gate() -> None:
                 details.append(f"  {n1} vs {n2} on {layer}: actual={actual:.6f}, required={min_clearance}")
         warnings.warn(
             f"SC3a: completeness gap detected — production missed {len(missed)} "
-            f"violation(s) found by oracle:\n" + "\n".join(details), stacklevel=2
+            f"violation(s) found by oracle:\n" + "\n".join(details)
         )
     else:
         assert len(prod_pairs) >= 1, (
@@ -281,7 +281,7 @@ def test_sc3a_production_vs_oracle_gate() -> None:
     if extra:
         warnings.warn(
             f"SC3a: production reported {len(extra)} violation(s) not found by "
-            f"oracle (possible oracle false-negative or production false-positive)", stacklevel=2
+            f"oracle (possible oracle false-negative or production false-positive)"
         )
 
 
@@ -326,7 +326,7 @@ def test_sc3a_cell_boundary_crossing() -> None:
     if missed:
         warnings.warn(
             f"SC3a cell-boundary: production missed {len(missed)} violation(s) "
-            f"at spatial-index cell boundary", stacklevel=2
+            f"at spatial-index cell boundary"
         )
 
 
@@ -386,7 +386,10 @@ def test_sc3b_boundary_biased_completeness(results: RoutingResults) -> None:
             for k in sorted(extra_oracle)[:20]
         ]
         detail = "\n".join(detail_lines)
-        raise AssertionError(f"production false-negative(s): oracle found {len(extra_oracle)} " f"violation(s) production missed.\n{detail}")
+        assert False, (
+            f"production false-negative(s): oracle found {len(extra_oracle)} "
+            f"violation(s) production missed.\n{detail}"
+        )
 
     if extra_prod:
         detail_lines = [
@@ -394,7 +397,10 @@ def test_sc3b_boundary_biased_completeness(results: RoutingResults) -> None:
             for k in sorted(extra_prod)[:20]
         ]
         detail = "\n".join(detail_lines)
-        raise AssertionError(f"production false-positive(s): production found {len(extra_prod)} " f"violation(s) oracle did not.\n{detail}")
+        assert False, (
+            f"production false-positive(s): production found {len(extra_prod)} "
+            f"violation(s) oracle did not.\n{detail}"
+        )
 
     for key in prod_keys & oracle_keys:
         p_val = prod_canon[key]

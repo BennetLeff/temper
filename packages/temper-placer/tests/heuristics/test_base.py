@@ -284,7 +284,7 @@ class TestHeuristicAbstractClass:
             def description(self):
                 return "A good test heuristic"
 
-            def apply(self, _context):
+            def apply(self, context):
                 return HeuristicResult(success=True, message="Applied successfully")
 
         h = GoodHeuristic()
@@ -304,7 +304,7 @@ class TestHeuristicAbstractClass:
             def priority(self):
                 return HeuristicPriority.FILL
 
-            def apply(self, _context):
+            def apply(self, context):
                 return HeuristicResult()
 
         h = MinimalHeuristic()
@@ -322,7 +322,7 @@ class TestHeuristicAbstractClass:
             def priority(self):
                 return HeuristicPriority.FILL
 
-            def apply(self, _context):
+            def apply(self, context):
                 return HeuristicResult()
 
         constraints = PlacementConstraints()

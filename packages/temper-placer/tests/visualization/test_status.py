@@ -1,7 +1,5 @@
 """Tests for visualization/status.py - constraint status panel rendering."""
 
-# Check if Plotly is available
-import importlib.util
 import json
 
 import pytest
@@ -13,7 +11,13 @@ from temper_placer.visualization.model import (
     ViolationType,
 )
 
-PLOTLY_AVAILABLE = importlib.util.find_spec("plotly") is not None
+# Check if Plotly is available
+try:
+    import plotly
+
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
 
 
 # ============================================================================

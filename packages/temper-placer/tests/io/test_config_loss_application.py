@@ -102,7 +102,7 @@ groups: []
         breakdown = final_epoch["breakdown"]
         loss_names = [
             k
-            for k in breakdown
+            for k in breakdown.keys()
             if not k.endswith("_normalized") and not k.endswith("_weighted")
         ]
 
@@ -202,7 +202,7 @@ groups: []
         breakdown = final_epoch["breakdown"]
         loss_names = {
             k
-            for k in breakdown
+            for k in breakdown.keys()
             if not k.endswith("_normalized") and not k.endswith("_weighted")
         }
 
@@ -310,7 +310,7 @@ groups: []
         breakdown = final_epoch["breakdown"]
         loss_names = {
             k
-            for k in breakdown
+            for k in breakdown.keys()
             if not k.endswith("_normalized") and not k.endswith("_weighted")
         }
 

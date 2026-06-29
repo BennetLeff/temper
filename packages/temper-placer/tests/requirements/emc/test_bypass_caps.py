@@ -12,6 +12,7 @@ import pytest
 try:
     from tests.requirements.validators.bypass_caps import (
         BypassCapResult,
+        BypassCapViolation,
         check_bypass_loop_area,
         check_component_specific_requirements,
         check_decoupling_distance,

@@ -19,7 +19,7 @@ from temper_placer.optimizer.train import make_train_step
 def test_ema_decay_on_stall():
     """Test Case 1: Verify EMA correctly decays when positions are stationary."""
     # Create a mock value_and_grad_fn that returns zero gradients
-    def mock_vg(pos, rot, _epoch, _total):
+    def mock_vg(pos, rot, epoch, total):
         loss = 100.0
         breakdown = {"total": 100.0}
         grad_pos = jnp.zeros_like(pos)
@@ -30,11 +30,11 @@ def test_ema_decay_on_stall():
 
     # Setup
     opt = optax.adam(0.1)
-    make_train_step(mock_vg, opt, opt, opt, total_epochs=1000)
+    train_step = make_train_step(mock_vg, opt, opt, opt, total_epochs=1000)
 
     pos = jnp.array([[10.0, 10.0], [20.0, 20.0]])
-    jnp.zeros((2, 4))
-    jnp.eye(4)[jnp.zeros(2, dtype=jnp.int32)]
+    rot_logits = jnp.zeros((2, 4))
+    rotations = jnp.eye(4)[jnp.zeros(2, dtype=jnp.int32)]
 
     # Mock opt_state with hyperparams
     from collections import namedtuple
@@ -43,8 +43,8 @@ def test_ema_decay_on_stall():
         return self._replace(**kwargs)
     MockState._replace = mock_replace
 
-    opt.init(pos)
-    MockState(hyperparams={"learning_rate": 0.1})
+    inner_opt_state = opt.init(pos)
+    opt_state = MockState(hyperparams={"learning_rate": 0.1})
     # We need to make it look like what optax.inject_hyperparams returns
     # but we'll just mock the minimum needed for the test_step
 

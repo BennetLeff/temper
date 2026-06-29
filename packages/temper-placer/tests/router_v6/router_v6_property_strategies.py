@@ -64,7 +64,7 @@ def design_rules(draw: st.DrawFn) -> DesignRules:
     net_classes: dict[str, NetClassRules] = {}
     net_class_assignments: dict[str, str] = {}
 
-    for _i in range(n_classes):
+    for i in range(n_classes):
         class_name = draw(st.sampled_from(["Signal", "Power", "HighVoltage", "ACMains"]))
         if class_name in net_classes:
             continue
@@ -285,7 +285,7 @@ def realistic_vias(
         y = draw(st.floats(min_value=0.0, max_value=board_height))
         diameter = draw(st.floats(min_value=0.3, max_value=1.5))
         drill = draw(st.floats(min_value=0.1, max_value=diameter))
-        draw(st.sampled_from(VIA_TYPES))
+        via_type = draw(st.sampled_from(VIA_TYPES))
         vias.append(
             Via(
                 position=(x, y),

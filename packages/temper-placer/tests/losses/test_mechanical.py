@@ -1,4 +1,3 @@
-import contextlib
 from dataclasses import dataclass
 
 import jax.numpy as jnp
@@ -30,11 +29,14 @@ class MockNetlist:
 
 
 # Import real classes if possible
-with contextlib.suppress(ImportError):
+try:
     from temper_placer.losses.mechanical import (
         MechanicalMountingLoss,
+        ResolvedMountingRule,
         create_mechanical_loss,
     )
+except ImportError:
+    pass
 
 
 def test_mechanical_loss_initialization():

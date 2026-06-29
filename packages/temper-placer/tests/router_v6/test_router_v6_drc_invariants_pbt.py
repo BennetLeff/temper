@@ -13,12 +13,9 @@ Each property runs 100 iterations with a 30 s deadline.
 
 from __future__ import annotations
 
-import re as _re
-
 import pytest
 from hypothesis import given, settings
 
-from temper_placer.router_v6.acid_trap_detection import AcidTrapReport
 from temper_placer.router_v6.annular_ring_check import (
     AnnularRingReport,
     AnnularRingViolation,
@@ -29,7 +26,6 @@ from temper_placer.router_v6.clearance_check import (
     ClearanceViolation,
     verify_clearance,
 )
-from temper_placer.router_v6.copper_balance import CopperBalanceReport
 from temper_placer.router_v6.creepage_check import (
     CreepageReport,
     CreepageViolation,
@@ -40,8 +36,6 @@ from temper_placer.router_v6.manufacturing_report import (
     generate_manufacturing_report,
 )
 from temper_placer.router_v6.routing_results import RoutingResults
-from temper_placer.router_v6.teardrop_generation import TeardropReport
-from temper_placer.router_v6.thermal_relief import ThermalReliefReport
 from tests.router_v6.dfm_property_strategies import realistic_routing_results
 
 # ---------------------------------------------------------------------------
@@ -55,6 +49,8 @@ _SETTINGS = settings(max_examples=100, deadline=30000)
 # HV-detection helpers (mirrors _is_high_voltage_net for invariant checks)
 # ---------------------------------------------------------------------------
 
+import re as _re
+
 
 def _is_hv(net_name: str) -> bool:
     """Check whether *net_name* matches known high-voltage patterns."""
@@ -67,7 +63,9 @@ def _is_hv(net_name: str) -> bool:
         return True
     if _re.search(r"(?:^|_)AC(?:$|[\d_])", name_upper):
         return True
-    return bool(_re.search(r"(?:^|_)HV(?:$|[\d_])", name_upper))
+    if _re.search(r"(?:^|_)HV(?:$|[\d_])", name_upper):
+        return True
+    return False
 
 
 # ===================================================================
@@ -267,6 +265,10 @@ def test_no_crash_creepage(rr: RoutingResults) -> None:
 
 # Minimal stubs so generate_manufacturing_report can be called with only
 # the three DRC reports populated (other modules get zero-violation stubs).
+from temper_placer.router_v6.acid_trap_detection import AcidTrapReport
+from temper_placer.router_v6.copper_balance import CopperBalanceReport
+from temper_placer.router_v6.teardrop_generation import TeardropReport
+from temper_placer.router_v6.thermal_relief import ThermalReliefReport
 
 
 @pytest.mark.property

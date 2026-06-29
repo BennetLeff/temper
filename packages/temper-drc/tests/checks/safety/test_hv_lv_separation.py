@@ -7,7 +7,7 @@ from temper_drc.input.placement import ComponentPlacement, Placement
 def test_hv_lv_separation_pass():
     """Test passes when HV and LV components are sufficiently separated."""
     constraints = ConstraintSet(hv_clearance_mm=10.0)
-
+    
     # Q1 (HV) at 0, C1 (LV) at 20 -> Dist 19.0 > 10.0
     placement = Placement(
         components={

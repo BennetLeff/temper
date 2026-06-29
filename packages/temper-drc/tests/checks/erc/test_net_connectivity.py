@@ -14,10 +14,10 @@ def test_net_connectivity_pass():
             "Net1": ["C1", "C2"]
         }
     )
-
+    
     check = NetConnectivityCheck()
     result = check.run(placement, ConstraintSet())
-
+    
     assert result.passed
     assert len(result.issues) == 0
 
@@ -32,10 +32,10 @@ def test_net_connectivity_fail_single_pin():
             "Alone": ["C1"]
         }
     )
-
+    
     check = NetConnectivityCheck()
     result = check.run(placement, ConstraintSet())
-
+    
     assert not result.passed
     assert len(result.issues) == 1
     issue = result.issues[0]
@@ -51,10 +51,10 @@ def test_net_connectivity_fail_empty_net():
             "Empty": []
         }
     )
-
+    
     check = NetConnectivityCheck()
     result = check.run(placement, ConstraintSet())
-
+    
     assert not result.passed
     assert len(result.issues) == 1
     assert "Empty" in result.issues[0].message

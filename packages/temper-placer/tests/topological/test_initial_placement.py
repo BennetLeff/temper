@@ -450,7 +450,7 @@ class TestIdentifyClusters:
 
         assert len(clusters) == 3
         # Each in its own cluster
-        cluster_sets = list(clusters)
+        cluster_sets = [c for c in clusters]
         assert {"C1"} in cluster_sets
         assert {"C2"} in cluster_sets
         assert {"C3"} in cluster_sets
@@ -755,7 +755,7 @@ class TestGenerateInitialPlacement:
 
     def test_no_zones_uses_board_bounds(self, simple_sizes, simple_graph):
         """No zones falls back to board bounds."""
-        ZoneAssignment(
+        assignment = ZoneAssignment(
             assignments={},  # No zone assignments
             unassigned=["C1", "C2"],  # All unassigned
             conflicts=[],

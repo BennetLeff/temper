@@ -139,7 +139,7 @@ def test_property_no_lv_pin_produces_ghost_pad(rules):
         design_rules=rules,
     )
     result = _run_placer(state)
-    set(result.used_slots)
+    used = set(result.used_slots)
     # With no HV rings, the only used slots are footprint rings
     # around placed components — the placer may or may not place
     # C1.  Verify the placer produced at least one placement.
@@ -233,7 +233,7 @@ def test_property_used_slots_symmetric(state_rules):
 )
 @settings(max_examples=100, deadline=None)
 def test_property_perpendicular_slot_reduces_zero(
-    slot_angle, slot_length, _pin_to_hv_angle, base_radius
+    slot_angle, slot_length, pin_to_hv_angle, base_radius
 ):
     """U2: a slot perpendicular to the pin-to-other-HV direction reclaims 0 creepage.
 

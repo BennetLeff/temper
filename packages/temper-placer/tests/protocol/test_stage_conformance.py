@@ -233,7 +233,10 @@ def test_stage_field_provenance(stage_cls):
         for field_name in field_names:
             in_val = getattr(state, field_name)
             out_val = getattr(output, field_name)
-            if not _fields_equal(in_val, out_val) and declared_outputs:
+            if not _fields_equal(in_val, out_val):
+                # Field changed — it should be in the declared output set
+                # (if declared_outputs is empty, we only warn but don't fail)
+                if declared_outputs:
                     assert field_name in declared_outputs, (
                         f"{stage_cls.__name__} modified undeclared field "
                         f"'{field_name}' (declared: {declared_outputs})"

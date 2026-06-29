@@ -94,19 +94,19 @@ except ImportError:
         def warning_count(self):
             return sum(1 for v in self.violations if v.severity == "warning")
 
-    def check_test_point_coverage(*_args, **_kwargs):
+    def check_test_point_coverage(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return TestPointResult(passed=True, violations=[])
 
-    def check_test_point_accessibility(*_args, **_kwargs):
+    def check_test_point_accessibility(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return TestPointResult(passed=True, violations=[])
 
-    def check_programming_header(*_args, **_kwargs):
+    def check_programming_header(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return TestPointResult(passed=True, violations=[])
 
-    def check_test_point_spacing(*_args, **_kwargs):
+    def check_test_point_spacing(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return TestPointResult(passed=True, violations=[])
 

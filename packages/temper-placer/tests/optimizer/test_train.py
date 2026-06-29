@@ -308,7 +308,7 @@ class TestCurriculumState:
         """Test that state tracks current phase."""
         phases = create_fast_phases(100)
         state = CurriculumState(phases)
-        state.update(50)
+        changed = state.update(50)
         assert state.current_phase_name == "feasibility"
 
     def test_phase_change_detected(self):
@@ -444,10 +444,10 @@ class TestTrainingIntegration:
 
         callback_count = [0]
 
-        def callback(_metrics):
+        def callback(metrics):
             callback_count[0] += 1
 
-        train(netlist, board, composite, context, config, callback=callback)
+        result = train(netlist, board, composite, context, config, callback=callback)
 
         assert callback_count[0] > 0
 
@@ -478,7 +478,7 @@ class TestTrainingIntegration:
         lrs = [m.learning_rate for m in result.history]
         # Check if LR ever dropped below initial (0.1)
         # Note: warmup might keep it low initially, so we check after epoch 5
-        any(lr < 0.05 for lr in lrs[10:])
+        dropped = any(lr < 0.05 for lr in lrs[10:])
         # We don't assert strictly because plateau depends on random init,
         # but we verify the code path executes.
         assert result.total_epochs == 20
@@ -537,7 +537,7 @@ class TestValidationCallbackIntegration:
         call_epochs = []
 
         class MockValidationCallback(ValidationCallback):
-            def __call__(self, epoch, _positions, _rotations, _context):
+            def __call__(self, epoch, positions, rotations, context):
                 # Record every call
                 if self.should_validate(epoch):
                     call_epochs.append(epoch)
@@ -551,7 +551,7 @@ class TestValidationCallbackIntegration:
         )
         mock_callback = MockValidationCallback(config=validation_config)
 
-        train(
+        result = train(
             netlist,
             board,
             composite,
@@ -585,7 +585,7 @@ class TestValidationCallbackIntegration:
 
         # Create callback that returns results
         class SimpleValidationCallback(ValidationCallback):
-            def __call__(self, epoch, _positions, _rotations, _context):
+            def __call__(self, epoch, positions, rotations, context):
                 if self.should_validate(epoch):
                     return ValidationResult(
                         epoch=epoch,
@@ -636,7 +636,7 @@ class TestValidationCallbackIntegration:
 
         # Create callback that fails at epoch 25
         class FailingValidationCallback(ValidationCallback):
-            def __call__(self, epoch, _positions, _rotations, _context):
+            def __call__(self, epoch, positions, rotations, context):
                 if self.should_validate(epoch):
                     passed = epoch < 25  # Fail at epoch 25
                     return ValidationResult(
@@ -722,7 +722,7 @@ class TestGradientClipping:
         else:
             transforms.append(optax.sgd(learning_rate=config.learning_rate.initial))
 
-        optax.chain(*transforms)
+        optimizer = optax.chain(*transforms)
 
         # Verify we have 2 transforms (clip + adam)
         assert len(transforms) == 2

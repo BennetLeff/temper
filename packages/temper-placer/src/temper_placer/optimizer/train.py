@@ -420,7 +420,7 @@ def make_train_step(
     centrality: Array | None = None,
     priority_scale: float = 1.0,
     use_grad_norm: bool = False,
-    _grad_norm_alpha: float = 1.5,
+    grad_norm_alpha: float = 1.5,  # noqa: ARG001 (used as kwarg by callers)
     grad_norm_lr: float = 0.025,
     composite_loss: CompositeLoss | None = None,
     loss_context: LossContext | None = None,

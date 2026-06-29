@@ -119,7 +119,7 @@ def test_end_to_end_routing_and_export(simple_test_board, simple_test_netlist):
         assert "(segment" in content  # Has trace segments
 
 
-def _create_minimal_kicad_pcb(path: Path, _netlist: Netlist):
+def _create_minimal_kicad_pcb(path: Path, netlist: Netlist):
     """Create a minimal KiCad PCB file for testing."""
     # This is a minimal PCB file structure
     # In production, we'd use kiutils to generate this properly

@@ -182,7 +182,7 @@ def test_zero_compiled_routes_every_module_returns_valid_report(module_name):
     """An empty compiled_routes dict must produce a valid report — no crashes."""
     results = RoutingResults(compiled_routes={}, failed_nets=[])
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -195,7 +195,7 @@ def test_zero_compiled_routes_report_has_zero_violations(module_name):
     """An empty compiled_routes dict should yield zero violations/checks."""
     results = RoutingResults(compiled_routes={}, failed_nets=[])
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -236,7 +236,7 @@ def test_zero_vias_on_route_returns_empty_report(module_name):
     route = _make_route(vias=[], path=path)
     results = _make_results(compiled_routes={"NET1": route})
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -273,7 +273,7 @@ def test_single_coordinate_path_returns_valid_report(module_name):
     route = _make_route(path=path)
     results = _make_results(compiled_routes={"NET1": route})
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -287,7 +287,7 @@ def test_empty_coordinates_path_returns_valid_report(module_name):
     route = _make_route(path=path)
     results = _make_results(compiled_routes={"NET1": route})
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -307,7 +307,7 @@ def test_all_nets_failed_compiled_routes_empty(module_name):
         failed_nets=["N1", "N2", "N3", "N4", "N5"],
     )
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -367,7 +367,7 @@ def test_creepage_with_none_voltage_ratings():
     """verify_creepage must handle voltage_ratings=None gracefully."""
     results = _make_results()
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = verify_creepage(results, voltage_ratings=None)
 
@@ -379,7 +379,7 @@ def test_clearance_with_none_voltage_ratings():
     """verify_clearance must handle voltage_ratings=None gracefully."""
     results = _make_results()
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = verify_clearance(results, voltage_ratings=None)
 
@@ -396,7 +396,7 @@ def test_copper_balance_does_not_require_board():
     """analyze_copper_balance never receives a board arg — no issue."""
     results = _make_results()
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = analyze_copper_balance(results, _BOARD_W, _BOARD_H)
 
@@ -407,7 +407,7 @@ def test_thermal_relief_with_board_none():
     """add_thermal_relief must handle board=None (uses fallback plane layers)."""
     results = _make_results()
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = add_thermal_relief(results, board=None)
 
@@ -419,7 +419,7 @@ def test_thermal_relief_with_board_none_and_no_routes():
     """add_thermal_relief with board=None and empty routes must still succeed."""
     results = RoutingResults(compiled_routes={}, failed_nets=[])
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = add_thermal_relief(results, board=None)
 
@@ -481,7 +481,7 @@ def test_route_without_layer_name_on_path(module_name):
         failed_nets=[],
     )
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -518,7 +518,7 @@ def test_route_without_width_mm(module_name):
     # Missing width_mm will likely cause AttributeError — mark as xfail.
     # But some modules may not access width_mm at all.
     try:
-        with warnings.catch_warnings(record=True):
+        with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             report = _invoke_module(module_name, results)
         # If it succeeds, the report must be valid
@@ -545,7 +545,7 @@ def test_path_without_coordinates(module_name):
     )
 
     try:
-        with warnings.catch_warnings(record=True):
+        with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             report = _invoke_module(module_name, results)
         assert report is not None
@@ -577,7 +577,7 @@ def test_route_without_path(module_name):
     )
 
     try:
-        with warnings.catch_warnings(record=True):
+        with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             report = _invoke_module(module_name, results)
         assert report is not None
@@ -599,7 +599,7 @@ def test_empty_string_net_name(module_name):
     route = _make_route(net_name="", path=path)
     results = _make_results(compiled_routes={"": route})
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -615,7 +615,7 @@ def test_whitespace_only_net_name(module_name):
     route = _make_route(net_name="   ", path=path)
     results = _make_results(compiled_routes={"   ": route})
 
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
@@ -656,7 +656,7 @@ def test_large_input_1000_routes_no_crash(module_name):
     )
 
     start = time.perf_counter()
-    with warnings.catch_warnings(record=True):
+    with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
     elapsed = time.perf_counter() - start

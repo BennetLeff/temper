@@ -34,6 +34,7 @@ from temper_placer.core.design_rules import (  # noqa: E402
     SAFETY_CONSTANT_AUTHORITY_NET_CLASSES,
 )
 
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -151,9 +152,10 @@ def _dru_findings() -> list[dict]:
         # Find first matching authority entry
         matched = None
         for key in auth_key_candidates:
-            if key in auth and abs(auth[key] - val) < 0.005:
-                matched = key
-                break
+            if key in auth:
+                if abs(auth[key] - val) < 0.005:
+                    matched = key
+                    break
 
         if matched:
             continue  # matches authority
@@ -275,6 +277,7 @@ def _load_overrides() -> list[dict]:
 def _apply_overrides(findings: list[dict], overrides: list[dict]) -> list[dict]:
     result: list[dict] = []
     for finding in findings:
+        matched = False
         for ov in overrides:
             if (
                 ov.get("site") == finding["site"]
@@ -284,6 +287,7 @@ def _apply_overrides(findings: list[dict], overrides: list[dict]) -> list[dict]:
                 finding["severity"] = "OVERRIDE"
                 finding["override_reason"] = ov["reason"]
                 finding["override_ticket"] = ov.get("ticket", "")
+                matched = True
                 break
         result.append(finding)
     return result

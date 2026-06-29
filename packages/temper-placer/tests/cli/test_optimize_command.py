@@ -21,7 +21,7 @@ from click.testing import CliRunner
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
 
-from temper_placer.cli import main  # noqa: E402
+from temper_placer.cli import main
 
 # Test fixtures paths
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"

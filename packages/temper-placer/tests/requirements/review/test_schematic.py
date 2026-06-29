@@ -183,13 +183,13 @@ def test_check_power_supply_voltages_correct(
     nets = [power_net_3v3, power_net_15v, ground_net]
 
     with pytest.raises(NotImplementedError):
-        check_power_supply_voltages(components, nets)
+        result = check_power_supply_voltages(components, nets)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
 
 
-def test_check_power_supply_voltages_wrong_voltage(_esp32_component, power_net_15v, ground_net):
+def test_check_power_supply_voltages_wrong_voltage(esp32_component, power_net_15v, ground_net):
     """Test that wrong supply voltage is detected."""
     # ESP32 connected to 15V instead of 3.3V
     esp32_wrong = ComponentSpec(
@@ -205,7 +205,7 @@ def test_check_power_supply_voltages_wrong_voltage(_esp32_component, power_net_1
     nets = [power_net_15v, ground_net]
 
     with pytest.raises(NotImplementedError):
-        check_power_supply_voltages(components, nets)
+        result = check_power_supply_voltages(components, nets)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -221,7 +221,7 @@ def test_check_decoupling_present_all_present(
     ics = ["U1"]
 
     with pytest.raises(NotImplementedError):
-        check_decoupling_present(components, nets, ics)
+        result = check_decoupling_present(components, nets, ics)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -234,7 +234,7 @@ def test_check_decoupling_present_missing(esp32_component, power_net_3v3, ground
     ics = ["U1"]
 
     with pytest.raises(NotImplementedError):
-        check_decoupling_present(components, nets, ics)
+        result = check_decoupling_present(components, nets, ics)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -248,7 +248,7 @@ def test_check_bulk_capacitors_present(bulk_cap, power_net_3v3, ground_net):
     power_entry_nets = ["+3V3"]
 
     with pytest.raises(NotImplementedError):
-        check_bulk_capacitors(components, nets, power_entry_nets)
+        result = check_bulk_capacitors(components, nets, power_entry_nets)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -261,7 +261,7 @@ def test_check_bulk_capacitors_missing(power_net_3v3, ground_net):
     power_entry_nets = ["+3V3"]
 
     with pytest.raises(NotImplementedError):
-        check_bulk_capacitors(components, nets, power_entry_nets)
+        result = check_bulk_capacitors(components, nets, power_entry_nets)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -273,7 +273,7 @@ def test_check_current_voltage_ratings_adequate(igbt_component):
     components = [igbt_component]
 
     with pytest.raises(NotImplementedError):
-        check_current_voltage_ratings(components)
+        result = check_current_voltage_ratings(components)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -293,7 +293,7 @@ def test_check_current_voltage_ratings_insufficient():
     components = [igbt_weak]
 
     with pytest.raises(NotImplementedError):
-        check_current_voltage_ratings(components, safety_margin_voltage=0.20)
+        result = check_current_voltage_ratings(components, safety_margin_voltage=0.20)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -309,7 +309,7 @@ def test_check_component_part_numbers_valid(esp32_component):
     components = [esp32_component]
 
     with pytest.raises(NotImplementedError):
-        check_component_part_numbers(components)
+        result = check_component_part_numbers(components)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -327,7 +327,7 @@ def test_check_component_part_numbers_missing():
     components = [component_no_pn]
 
     with pytest.raises(NotImplementedError):
-        check_component_part_numbers(components)
+        result = check_component_part_numbers(components)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -345,7 +345,7 @@ def test_check_component_part_numbers_placeholder():
     components = [component_tbd]
 
     with pytest.raises(NotImplementedError):
-        check_component_part_numbers(components)
+        result = check_component_part_numbers(components)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -356,7 +356,7 @@ def test_check_footprints_assigned_valid(esp32_component):
     components = [esp32_component]
 
     with pytest.raises(NotImplementedError):
-        check_footprints_assigned(components)
+        result = check_footprints_assigned(components)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -374,7 +374,7 @@ def test_check_footprints_assigned_missing():
     components = [component_no_fp]
 
     with pytest.raises(NotImplementedError):
-        check_footprints_assigned(components)
+        result = check_footprints_assigned(components)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -385,7 +385,7 @@ def test_check_temperature_ratings_adequate(esp32_component, gate_driver_compone
     components = [esp32_component, gate_driver_component]
 
     with pytest.raises(NotImplementedError):
-        check_temperature_ratings(components)
+        result = check_temperature_ratings(components)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -403,7 +403,7 @@ def test_check_temperature_ratings_insufficient():
     components = [gate_driver_weak]
 
     with pytest.raises(NotImplementedError):
-        check_temperature_ratings(components, min_power_temp=125)
+        result = check_temperature_ratings(components, min_power_temp=125)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -419,7 +419,7 @@ def test_check_net_naming_convention_valid(power_net_3v3, power_net_15v, ground_
     nets = [power_net_3v3, power_net_15v, ground_net, signal_net]
 
     with pytest.raises(NotImplementedError):
-        check_net_naming_convention(nets)
+        result = check_net_naming_convention(nets)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -435,7 +435,7 @@ def test_check_net_naming_convention_generic():
     nets = [generic_net]
 
     with pytest.raises(NotImplementedError):
-        check_net_naming_convention(nets)
+        result = check_net_naming_convention(nets)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -453,7 +453,7 @@ def test_check_net_naming_convention_power_inconsistent():
     nets = [bad_power_net]
 
     with pytest.raises(NotImplementedError):
-        check_net_naming_convention(nets, power_net_patterns=["+3V3", "+5V", "+15V"])
+        result = check_net_naming_convention(nets, power_net_patterns=["+3V3", "+5V", "+15V"])
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -464,7 +464,7 @@ def test_check_duplicate_net_names_no_duplicates(power_net_3v3, ground_net, sign
     nets = [power_net_3v3, ground_net, signal_net]
 
     with pytest.raises(NotImplementedError):
-        check_duplicate_net_names(nets)
+        result = check_duplicate_net_names(nets)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -478,7 +478,7 @@ def test_check_duplicate_net_names_has_duplicates():
     nets = [net1, net2]
 
     with pytest.raises(NotImplementedError):
-        check_duplicate_net_names(nets)
+        result = check_duplicate_net_names(nets)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -519,7 +519,7 @@ def test_check_ocp_circuit_correct():
     ]
 
     with pytest.raises(NotImplementedError):
-        check_ocp_circuit(components, nets, threshold_amps=35.0)
+        result = check_ocp_circuit(components, nets, threshold_amps=35.0)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -539,7 +539,7 @@ def test_check_ocp_circuit_wrong_threshold():
     nets = [NetInfo("DC_BUS+", [("R1", "1")])]
 
     with pytest.raises(NotImplementedError):
-        check_ocp_circuit(components, nets, threshold_amps=35.0, tolerance=0.10)
+        result = check_ocp_circuit(components, nets, threshold_amps=35.0, tolerance=0.10)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -563,7 +563,7 @@ def test_check_watchdog_timer_present():
     ]
 
     with pytest.raises(NotImplementedError):
-        check_watchdog_timer(components, nets)
+        result = check_watchdog_timer(components, nets)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -575,7 +575,7 @@ def test_check_watchdog_timer_missing():
     nets = []
 
     with pytest.raises(NotImplementedError):
-        check_watchdog_timer(components, nets)
+        result = check_watchdog_timer(components, nets)
         # When implemented:
         # assert not result.passed
         # assert result.error_count > 0
@@ -592,7 +592,7 @@ def test_check_gate_driver_enable_correct(gate_driver_component):
     ]
 
     with pytest.raises(NotImplementedError):
-        check_gate_driver_enable(components, nets)
+        result = check_gate_driver_enable(components, nets)
         # When implemented:
         # assert result.passed
         # assert result.error_count == 0
@@ -626,7 +626,7 @@ def test_full_schematic_review_pass(
 
     # Run all checks
     with pytest.raises(NotImplementedError):
-        [
+        results = [
             check_power_supply_voltages(components, nets),
             check_decoupling_present(components, nets, ["U1", "U2"]),
             check_component_part_numbers(components),
@@ -662,7 +662,7 @@ def test_full_schematic_review_multiple_violations():
     nets = [bad_net]
 
     with pytest.raises(NotImplementedError):
-        [
+        results = [
             check_power_supply_voltages(components, nets),
             check_component_part_numbers(components),
             check_footprints_assigned(components),

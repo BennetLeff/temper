@@ -20,23 +20,23 @@ import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp  # noqa: E402
+import jax.numpy as jnp
 
-from temper_placer.core.board import Board  # noqa: E402
-from temper_placer.core.netlist import Component, Net, Netlist, Pin  # noqa: E402
-from temper_placer.core.state import PlacementState  # noqa: E402
-from temper_placer.losses import (  # noqa: E402
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.state import PlacementState
+from temper_placer.losses import (
     BoundaryLoss,
     CompositeLoss,
     OverlapLoss,
     WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.losses.base import LossContext  # noqa: E402
-from temper_placer.losses.boundary import compute_boundary_penalty  # noqa: E402
-from temper_placer.losses.overlap import compute_overlap_penalty  # noqa: E402
-from temper_placer.optimizer import OptimizerConfig, train, train_multiphase  # noqa: E402
-from temper_placer.optimizer.curriculum import create_fast_phases  # noqa: E402
+from temper_placer.losses.base import LossContext
+from temper_placer.losses.boundary import compute_boundary_penalty
+from temper_placer.losses.overlap import compute_overlap_penalty
+from temper_placer.optimizer import OptimizerConfig, train, train_multiphase
+from temper_placer.optimizer.curriculum import create_fast_phases
 
 # Test fixtures
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -378,7 +378,7 @@ class TestRotations:
         _, rotations = result.best_state.to_discrete()
 
         # Each rotation should be in [0, 1, 2, 3]
-        jnp.array([0, 1, 2, 3])
+        valid_rotations = jnp.array([0, 1, 2, 3])
         for i, rot in enumerate(rotations):
             assert int(rot) in [0, 1, 2, 3], f"Invalid rotation {int(rot)} for component {i}"
 

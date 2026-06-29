@@ -23,13 +23,13 @@ def test_equalize_group_lengths(mock_pathfinding_result):
     # Target should be 105.0 (max of 100 and 105)
     net1_res = next(r for r in results if r.net_name == "NET1")
     assert net1_res.target_length == 105.0
-    assert net1_res.serpentine_added
+    assert net1_res.serpentine_added == True
     # Real geometry: 5 mm deficit → 2 cycles × 1 mm amplitude → 4 mm added
     assert net1_res.matched_length == pytest.approx(104.0)
 
     net2_res = next(r for r in results if r.net_name == "NET2")
     assert net2_res.target_length == 105.0
-    assert not net2_res.serpentine_added
+    assert net2_res.serpentine_added == False
     assert net2_res.matched_length == 105.0
 
 def test_apply_length_matching_combined(mock_pathfinding_result):
@@ -47,7 +47,7 @@ def test_apply_length_matching_combined(mock_pathfinding_result):
 
     # Check individual
     assert results.get_result("NET3").target_length == 60.0
-    assert results.get_result("NET3").serpentine_added
+    assert results.get_result("NET3").serpentine_added == True
     assert results.get_result("NET3").matched_length == 60.0
 
 def test_length_matching_tolerance(mock_pathfinding_result):
@@ -56,5 +56,5 @@ def test_length_matching_tolerance(mock_pathfinding_result):
     results = equalize_group_lengths(group, mock_pathfinding_result)
 
     net1_res = next(r for r in results if r.net_name == "NET1")
-    assert not net1_res.serpentine_added # 105 - 100 = 5 < 10
+    assert net1_res.serpentine_added == False # 105 - 100 = 5 < 10
     assert net1_res.matched_length == 100.0

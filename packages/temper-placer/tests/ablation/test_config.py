@@ -419,7 +419,7 @@ class TestAblationStudyConfig:
         assert filtered.experiments[0].name == "ablate_test"
         assert filtered.experiments[1].name == "combo_test"
 
-    def test_save_and_load(self, _tmp_path):
+    def test_save_and_load(self, tmp_path):
         """Should save and load configuration."""
         import tempfile
 

@@ -24,7 +24,7 @@ def test_slots_generated_for_all_zones():
     result_state = slot_stage.run(state_with_zones)
 
     # Verify
-    zone_slots = dict(result_state.zone_slots)
+    zone_slots = {zone_name: slots for zone_name, slots in result_state.zone_slots}
     assert len(zone_slots) == 4
     assert "HV" in zone_slots
     assert "Power" in zone_slots
@@ -49,7 +49,7 @@ def test_slots_within_zone_bounds():
 
     # Get zones by name
     zones_by_name = {z.name: z for z in result_state.zones}
-    zone_slots = dict(result_state.zone_slots)
+    zone_slots = {zone_name: slots for zone_name, slots in result_state.zone_slots}
 
     for zone_name, slots in zone_slots.items():
         zone = zones_by_name[zone_name]
@@ -72,7 +72,7 @@ def test_slot_spacing_is_uniform():
     slot_stage = SlotGenerationStage(slot_spacing_mm=slot_spacing)
     result_state = slot_stage.run(state_with_zones)
 
-    zone_slots = dict(result_state.zone_slots)
+    zone_slots = {zone_name: slots for zone_name, slots in result_state.zone_slots}
 
     # Check spacing for HV zone (sample)
     hv_slots = sorted(zone_slots["HV"])
@@ -101,7 +101,7 @@ def test_sufficient_slots_for_components():
     slot_stage = SlotGenerationStage(slot_spacing_mm=5.0)
     result_state = slot_stage.run(state_with_zones)
 
-    zone_slots = dict(result_state.zone_slots)
+    zone_slots = {zone_name: slots for zone_name, slots in result_state.zone_slots}
 
     # Count total slots
     total_slots = sum(len(slots) for slots in zone_slots.values())
@@ -128,13 +128,13 @@ def test_different_spacing_values():
     # Test with 10mm spacing
     slot_stage_10mm = SlotGenerationStage(slot_spacing_mm=10.0)
     result_10mm = slot_stage_10mm.run(state_with_zones)
-    zone_slots_10mm = dict(result_10mm.zone_slots)
+    zone_slots_10mm = {zone_name: slots for zone_name, slots in result_10mm.zone_slots}
     total_10mm = sum(len(slots) for slots in zone_slots_10mm.values())
 
     # Test with 5mm spacing
     slot_stage_5mm = SlotGenerationStage(slot_spacing_mm=5.0)
     result_5mm = slot_stage_5mm.run(state_with_zones)
-    zone_slots_5mm = dict(result_5mm.zone_slots)
+    zone_slots_5mm = {zone_name: slots for zone_name, slots in result_5mm.zone_slots}
     total_5mm = sum(len(slots) for slots in zone_slots_5mm.values())
 
     # Smaller spacing should produce more slots (approximately 4x for 2x denser grid)

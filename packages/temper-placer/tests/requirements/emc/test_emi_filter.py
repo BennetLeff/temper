@@ -11,6 +11,7 @@ import pytest
 try:
     from tests.requirements.validators.emi_filter import (
         EMIFilterResult,
+        EMIFilterViolation,
         FilterComponent,
         check_cm_choke_placement,
         check_filter_component_order,
@@ -381,7 +382,7 @@ class TestEMIFilterIntegration:
         """Temper board EMI filter should meet all REQ-EMC-03 requirements."""
         pytest.skip("Temper board fixture not yet available")
 
-    def test_complete_filter_validation(self, _correct_filter_layout):
+    def test_complete_filter_validation(self, correct_filter_layout):
         """Complete EMI filter should pass all checks."""
         # TODO: Run all validation functions
         # TODO: Aggregate results

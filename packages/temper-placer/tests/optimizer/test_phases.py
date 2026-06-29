@@ -28,7 +28,7 @@ def basic_setup():
     opt_config = OptimizerConfig.fast_test()
     context = LossContext.from_netlist_and_board(netlist, board)
 
-    def loss_factory(_weights):
+    def loss_factory(weights):
         return CompositeLoss([WeightedLoss(WirelengthLoss(), weight=1.0)])
 
     return netlist, board, constraints, opt_config, loss_factory, context

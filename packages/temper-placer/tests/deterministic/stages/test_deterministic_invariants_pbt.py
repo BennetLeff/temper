@@ -91,7 +91,7 @@ _RUNNABLE_STAGES: list[type] = [
 ]
 
 
-def _make_config_for_test(_netlist) -> object:
+def _make_config_for_test(netlist) -> object:
     """Create a minimal config object for ConfigAttachStage."""
     from types import SimpleNamespace
     return SimpleNamespace(net_classes={})

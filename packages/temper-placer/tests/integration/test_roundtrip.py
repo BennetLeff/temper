@@ -20,9 +20,9 @@ import pytest
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
 
-from temper_placer.core.state import PlacementState  # noqa: E402
-from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb  # noqa: E402
-from temper_placer.io.kicad_writer import (  # noqa: E402
+from temper_placer.core.state import PlacementState
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
+from temper_placer.io.kicad_writer import (
     PlacementUpdate,
     export_placements,
     write_placements_to_pcb,
@@ -306,7 +306,7 @@ class TestDataPreservation:
     def test_component_refs_preserved(self):
         """Component reference designators should be preserved."""
         original_result = parse_kicad_pcb(MINIMAL_PCB)
-        original_refs = {c.ref for c in original_result.netlist.components}
+        original_refs = set(c.ref for c in original_result.netlist.components)
 
         # Export with new positions
         placements = {}
@@ -329,7 +329,7 @@ class TestDataPreservation:
             )
 
             reparsed = parse_kicad_pcb(temp_path)
-            reparsed_refs = {c.ref for c in reparsed.netlist.components}
+            reparsed_refs = set(c.ref for c in reparsed.netlist.components)
 
             assert original_refs == reparsed_refs, (
                 f"Component refs changed: {original_refs} -> {reparsed_refs}"

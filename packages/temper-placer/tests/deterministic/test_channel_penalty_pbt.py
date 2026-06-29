@@ -246,7 +246,7 @@ def test_pbt_out_of_grid_zero(cell_um, w, h):
 def test_pbt_catches_injected_violation(monkeypatch):
     from temper_placer.deterministic import channels as _channels
 
-    def buggy_penalty(_slot, _channel_map):
+    def buggy_penalty(slot, channel_map):
         return 1.5  # Out of contract: must be in [0.0, 1.0]
 
     monkeypatch.setattr(_channels, "routability_penalty", buggy_penalty)

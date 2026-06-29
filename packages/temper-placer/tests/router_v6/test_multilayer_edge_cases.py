@@ -215,7 +215,7 @@ class TestBlindVia:
         via = _make_via(from_layer=via_from, to_layer=via_to)
         results = _make_results(vias=[via], path=path)
 
-        with warnings.catch_warnings(record=True):
+        with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             report = insert_teardrops(results)
 
@@ -981,7 +981,7 @@ class TestCombinedInteractions:
         path = _make_path(layer=from_layer)
         results = _make_results(vias=[via], path=path)
 
-        analyze_copper_balance(results, 100, 100)
+        report = analyze_copper_balance(results, 100, 100)
 
         # Count how many inner layers have via copper from the
         # intermediate-layer (barrel) contribution ONLY.

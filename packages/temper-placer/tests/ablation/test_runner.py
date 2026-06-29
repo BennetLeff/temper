@@ -88,7 +88,7 @@ class TestExperimentRun:
 class TestExperimentCheckpoint:
     """Tests for ExperimentCheckpoint dataclass."""
 
-    def test_checkpoint_creation(self, _tmp_path):
+    def test_checkpoint_creation(self, tmp_path):
         """Should create checkpoint with all fields."""
         from temper_placer.ablation.runner import ExperimentCheckpoint
 
@@ -361,7 +361,7 @@ class TestExperimentRunner:
 
     def test_experiment_run_with_curriculum_disabled(self):
         """Should use train() instead of train_multiphase() when curriculum disabled."""
-        ExperimentRunner(
+        runner = ExperimentRunner(
             AblationStudyConfig(
                 study_name="test",
                 experiments=[],
@@ -375,7 +375,7 @@ class TestExperimentRunner:
 
     def test_experiment_run_with_all_losses_disabled(self):
         """Should handle all losses disabled."""
-        ExperimentRunner(
+        runner = ExperimentRunner(
             AblationStudyConfig(
                 study_name="test",
                 experiments=[],

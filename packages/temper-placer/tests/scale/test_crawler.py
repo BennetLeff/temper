@@ -30,14 +30,14 @@ def test_crawler_extract_data(tmp_path, monkeypatch):
     pcb_path.write_text("(kicad_pcb ...)")
 
     # Mock parser
-    def mock_parse(_path):
+    def mock_parse(path):
         return ParseResult(netlist=Netlist(components=[], nets=[]), board=None, warnings=[])
     monkeypatch.setattr("temper_placer.scale.crawler.parse_kicad_pcb", mock_parse)
 
     # Mock DRC
     class MockValidator:
         def is_available(self): return True
-        def run_drc(self, _path): return DRCResult(success=True, violations=[], error_count=0, warning_count=0)
+        def run_drc(self, path): return DRCResult(success=True, violations=[], error_count=0, warning_count=0)
     monkeypatch.setattr("temper_placer.scale.crawler.KiCadDRCValidator", MockValidator)
 
     crawler = PcbCrawler(dataset_dir=tmp_path / "dataset")

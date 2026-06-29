@@ -19,7 +19,7 @@ import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp  # noqa: E402
+import jax.numpy as jnp
 
 # Test data paths
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "kicad-tutorials-a"
@@ -366,7 +366,7 @@ class TestEndToEnd:
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "optimized.kicad_pcb"
 
-            export_placements(
+            write_result = export_placements(
                 template_pcb=MOSFET_DRIVER_PCB,
                 output_pcb=output_path,
                 state=result.best_state,

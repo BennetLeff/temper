@@ -3,8 +3,8 @@
 from temper_drc.core.check import Check, CompositeCheck
 from temper_drc.core.result import CheckResult, Issue
 from temper_drc.core.severity import Severity
-from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
+from temper_drc.input.constraints import ConstraintSet
 
 
 class DummyPassingCheck(Check):
@@ -22,7 +22,7 @@ class DummyPassingCheck(Check):
     def description(self) -> str:
         return "A dummy check that always passes"
 
-    def run(self, _placement: Placement, _constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
 
@@ -41,7 +41,7 @@ class DummyFailingCheck(Check):
     def description(self) -> str:
         return "A dummy check that always fails"
 
-    def run(self, _placement: Placement, _constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         return CheckResult(
             check_name=self.name,
             passed=False,
@@ -72,7 +72,7 @@ class DummyWarningCheck(Check):
     def description(self) -> str:
         return "A dummy check that returns warnings"
 
-    def run(self, _placement: Placement, _constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         return CheckResult(
             check_name=self.name,
             passed=True,  # Warnings don't fail

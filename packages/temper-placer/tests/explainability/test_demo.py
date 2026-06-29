@@ -17,13 +17,13 @@ def test_demo_explainability_scenarios():
 
         stackup = LayerStackup.default_4layer()
 
-        def placement_stage(_data):
+        def placement_stage(data):
             trace = Trace.empty()
             for comp, reason in components.items():
                 trace = trace.add(comp, (50.0, 50.0), reason)
             return {"positions": "optimized_data"}, trace
 
-        def routing_stage(_placement_data):
+        def routing_stage(placement_data):
             trace = Trace.empty()
             for net_name, config in net_configs.items():
                 net_class = config['class']

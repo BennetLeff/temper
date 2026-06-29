@@ -449,7 +449,7 @@ class TestBoardBoundaries:
         report = add_thermal_relief(results, board=board)
         assert report.relief_count >= 0
         for relief in report.thermal_reliefs:
-            for (_x1, _y1), (x2, y2) in relief.spoke_segments:
+            for (x1, y1), (x2, y2) in relief.spoke_segments:
                 # Spoke endpoints clamped to board outline
                 assert 0.0 <= x2 <= board.width + 1e-9, f"x2={x2} out of bounds"
                 assert 0.0 <= y2 <= board.height + 1e-9, f"y2={y2} out of bounds"

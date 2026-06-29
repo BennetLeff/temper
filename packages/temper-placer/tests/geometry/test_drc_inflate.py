@@ -106,6 +106,7 @@ class TestComputeDRCProxyScore:
 
     def test_overlapping_components(self):
         """Overlapping inflated components produce positive score."""
+        n = 2
         hw = jnp.array([5.0, 5.0], dtype=jnp.float32)
         hh = jnp.array([5.0, 5.0], dtype=jnp.float32)
         positions = jnp.array([

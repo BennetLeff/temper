@@ -141,7 +141,7 @@ def get_package_type(footprint: str) -> PackageType:
 
 
 def check_component_spacing(
-    _placement: dict[str, Any],
+    placement: dict[str, Any],
     package_rules: dict[PackageType, dict[str, float]] | None = None,
 ) -> PlacementResult:
     """
@@ -157,6 +157,7 @@ def check_component_spacing(
     if package_rules is None:
         package_rules = SPACING_REQUIREMENTS
 
+    violations = []
 
     # TODO: Implement actual spacing validation
     # - Extract component positions and footprints
@@ -184,6 +185,7 @@ def check_component_orientation(
     Returns:
         PlacementResult with orientation violations
     """
+    violations = []
 
     # TODO: Implement orientation validation
     # - Identify ICs vs passives vs polarized components
@@ -214,6 +216,7 @@ def check_fiducial_placement(
     Returns:
         PlacementResult with fiducial violations
     """
+    violations = []
 
     # TODO: Implement fiducial validation
     # - Check minimum quantity (3)
@@ -246,6 +249,7 @@ def check_antenna_keepout(
     Returns:
         PlacementResult with antenna keepout violations
     """
+    violations = []
 
     # TODO: Implement antenna keepout validation
     # - Determine antenna direction (towards nearest board edge)

@@ -12,7 +12,6 @@ import time
 import numpy as np
 import pytest
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.bottleneck_analysis import identify_bottlenecks
 from temper_placer.router_v6.channel_skeleton import extract_channel_skeleton
 from temper_placer.router_v6.channel_widths import compute_channel_widths

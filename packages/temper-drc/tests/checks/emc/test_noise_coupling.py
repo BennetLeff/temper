@@ -1,7 +1,6 @@
 from temper_drc.checks.emc.noise_coupling import NoiseCouplingCheck
-from temper_drc.input.constraints import ClearanceRule, ConstraintSet
+from temper_drc.input.constraints import ConstraintSet, ClearanceRule
 from temper_drc.input.placement import ComponentPlacement, Placement
-
 
 def test_noise_coupling_pass():
     """Test passes when aggressor and victim are separated."""

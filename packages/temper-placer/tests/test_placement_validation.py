@@ -30,7 +30,7 @@ def compute_overlaps(positions: dict, netlist) -> list[tuple[str, str, float]]:
             try:
                 comp1 = netlist.get_component(ref1)
                 comp2 = netlist.get_component(ref2)
-            except (KeyError, ValueError, IndexError):
+            except:
                 continue
 
             # Check AABB overlap

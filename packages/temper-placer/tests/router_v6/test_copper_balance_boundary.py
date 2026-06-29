@@ -334,7 +334,7 @@ _THRESHOLD_CASES = [
     _THRESHOLD_CASES,
     ids=[c[0] for c in _THRESHOLD_CASES],
 )
-def test_at_threshold_balance(_label, target_pct, expected_balanced):
+def test_at_threshold_balance(label, target_pct, expected_balanced):
     """Copper percentage exactly at, just below, and just above 30 % / 70 %.
 
     Uses a single trace on F.Cu to achieve the exact target area;

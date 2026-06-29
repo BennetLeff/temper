@@ -77,7 +77,7 @@ def test_thermal_edge_distance_oracles(simple_netlist, simple_board):
 # temper-83gx.4: GroupingLoss: Diameter calculation oracles
 # =============================================================================
 
-def test_grouping_diameter_oracles(_simple_netlist, _simple_board):
+def test_grouping_diameter_oracles(simple_netlist, simple_board):
     """Verify pairwise diameter calculations for component groups."""
     from temper_placer.losses.grouping import GroupConfig, GroupSeparationLoss
 

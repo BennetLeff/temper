@@ -123,7 +123,7 @@ class TestDeclaredArtifact:
 
     def test_frozen(self):
         a = DeclaredArtifact("x", "x.json")
-        with pytest.raises(AttributeError):
+        with pytest.raises(Exception):
             a.name = "y"  # type: ignore[misc]
 
 

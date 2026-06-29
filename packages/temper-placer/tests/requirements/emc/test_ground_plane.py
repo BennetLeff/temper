@@ -49,19 +49,19 @@ except ImportError:
         def warning_count(self):
             return sum(1 for v in self.violations if v.severity == "warning")
 
-    def check_slot_lengths(*_args, **_kwargs):
+    def check_slot_lengths(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return GroundPlaneResult(passed=True, violations=[])
 
-    def check_signal_ground_reference(*_args, **_kwargs):
+    def check_signal_ground_reference(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return GroundPlaneResult(passed=True, violations=[])
 
-    def check_star_ground_point(*_args, **_kwargs):
+    def check_star_ground_point(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return GroundPlaneResult(passed=True, violations=[])
 
-    def check_via_stitching(*_args, **_kwargs):
+    def check_via_stitching(*args, **kwargs):
         # Return empty result for TDD - tests will be skipped anyway
         return GroundPlaneResult(passed=True, violations=[])
 

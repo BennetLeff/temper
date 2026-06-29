@@ -79,11 +79,11 @@ def test_nsga_phase_returns_pareto_front(basic_setup):
     netlist, board, _, _, _, context = basic_setup
 
     # Mock objectives that create a trade-off
-    def obj1(pos, _rot, _ctx, _e, _te):
+    def obj1(pos, rot, ctx, e, te):
         # penalize X
         return MagicMock(value=jnp.mean(pos[:, 0]))
 
-    def obj2(pos, _rot, _ctx, _e, _te):
+    def obj2(pos, rot, ctx, e, te):
         # penalize Y
         return MagicMock(value=jnp.mean(pos[:, 1]))
 
@@ -109,8 +109,8 @@ def test_nsga_phase_non_dominated(basic_setup):
     """Test that all solutions in returned front are non-dominated."""
     netlist, board, _, _, _, context = basic_setup
 
-    def obj1(pos, _rot, _ctx, _e, _te): return MagicMock(value=jnp.sum(pos**2))
-    def obj2(pos, _rot, _ctx, _e, _te): return MagicMock(value=jnp.sum((pos-10)**2))
+    def obj1(pos, rot, ctx, e, te): return MagicMock(value=jnp.sum(pos**2))
+    def obj2(pos, rot, ctx, e, te): return MagicMock(value=jnp.sum((pos-10)**2))
 
     phase = NsgaPhase(generations=20, pop_size=40)
 
@@ -128,8 +128,7 @@ def test_nsga_phase_non_dominated(basic_setup):
     # Verify non-domination within the returned front
     for i in range(n):
         for j in range(n):
-            if i == j:
-                continue
+            if i == j: continue
             # idx i should NOT be dominated by idx j
             diff = objs[j] - objs[i]
             j_dominates_i = jnp.all(diff <= 0) and jnp.any(diff < 0)

@@ -13,8 +13,6 @@ component density, not from a constant that trivially improves.
 
 from __future__ import annotations
 
-import math
-
 from temper_placer.deterministic.bottleneck_map import BottleneckMap
 from temper_placer.deterministic.seed_filter import filter_seed
 from temper_placer.deterministic.stages.phased_component_assignment import (
@@ -31,7 +29,7 @@ from tests.integration._seed_filter_synthetic_routing import (
 )
 
 
-def _spread_placement(refs, cell_size, _board):
+def _spread_placement(refs, cell_size, board):
     """Generate a placement that spreads components across the board."""
     cols = max(1, int(math.sqrt(len(refs))))
     result = {}
@@ -42,6 +40,9 @@ def _spread_placement(refs, cell_size, _board):
         y = (row + 0.5) * cell_size
         result[ref] = (x, y)
     return result
+
+
+import math
 
 
 class TestRoutingStubContract:
@@ -116,12 +117,12 @@ class TestRetriggers:
         as the filter rejects low-density candidates), so more candidates
         meet the threshold on each iteration.
         """
-        self._build_state()
+        state = self._build_state()
         constraints = PlacementConstraints()
         constraints.seed_filter = SeedFilterConfig(
             enabled=True, threshold=0.5, hv_threshold=0.3
         )
-        PhasedComponentAssignmentStage(constraints)
+        stage = PhasedComponentAssignmentStage(constraints)
         stub = SyntheticRoutingStub(
             cell_size_mm=2.0,
             width_cells=8,
@@ -138,7 +139,8 @@ class TestRetriggers:
         hv_refs: frozenset[str] = frozenset()
 
         rejection_fractions: list[float] = []
-        for _iteration in range(3):
+        prev_bmap = None
+        for iteration in range(3):
             # Stub returns a placement that progressively clusters
             # components in the same cell, which drives up the map's
             # per-cell scores.
@@ -152,6 +154,7 @@ class TestRetriggers:
                 if not filter_seed(seed, bmap, 0.5, 0.3, hv_refs):
                     rejected += 1
             rejection_fractions.append(rejected / len(pool))
+            prev_bmap = bmap
 
         # The stub's scores increase with clustering; if the stub is
         # wired correctly, rejection fraction must be non-decreasing.
@@ -167,7 +170,7 @@ class TestRetriggers:
         board. A run with the seed filter enabled must reach the
         threshold; the unfiltered path is allowed to lag behind.
         """
-        self._build_state()
+        state = self._build_state()
         stub = SyntheticRoutingStub(
             cell_size_mm=2.0,
             width_cells=8,

@@ -26,13 +26,13 @@ import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp  # noqa: E402
+import jax.numpy as jnp
 
-from temper_placer.core.board import Board  # noqa: E402
-from temper_placer.core.netlist import Netlist  # noqa: E402
-from temper_placer.core.state import PlacementState  # noqa: E402
-from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb  # noqa: E402
-from temper_placer.losses import (  # noqa: E402
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Netlist
+from temper_placer.core.state import PlacementState
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
+from temper_placer.losses import (
     BoundaryLoss,
     CompositeLoss,
     LossContext,
@@ -40,8 +40,8 @@ from temper_placer.losses import (  # noqa: E402
     WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.optimizer import OptimizerConfig, train  # noqa: E402
-from temper_placer.optimizer.config import (  # noqa: E402
+from temper_placer.optimizer import OptimizerConfig, train
+from temper_placer.optimizer.config import (
     CheckpointConfig,
     EarlyStoppingConfig,
     LearningRateSchedule,
@@ -49,7 +49,7 @@ from temper_placer.optimizer.config import (  # noqa: E402
 )
 
 # Import DRC infrastructure (use relative import within tests package)
-from .test_drc_correlation import (  # noqa: E402
+from .test_drc_correlation import (
     create_perfect_placement,
     export_placement_to_pcb,
     random_init_absolute,

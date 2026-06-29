@@ -207,7 +207,7 @@ class TestThresholdChecking:
 
         results = check_thresholds("gate_drive", measurements)
 
-        for _meas_name, result in results.items():
+        for meas_name, result in results.items():
             assert not result["passed"]
             assert result["value"] is None
             assert "error" in result
@@ -303,7 +303,7 @@ class TestTemplateSimulation:
         return NgspiceValidator()
 
     @pytest.fixture
-    def has_ngspice(self, _validator):
+    def has_ngspice(self, validator):
         """Check if ngspice is available."""
         import shutil
 

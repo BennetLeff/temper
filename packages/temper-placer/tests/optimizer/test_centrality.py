@@ -22,7 +22,7 @@ from temper_placer.core.netlist import (
 def mcu_star_netlist():
     """
     Create a star topology with an MCU hub and several passives.
-
+    
     Topology:
         R1 -- [N1] -- MCU
         R2 -- [N2] -- MCU

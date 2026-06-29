@@ -110,7 +110,10 @@ def test_classify_severity_matches_contract(angle: float, width: float) -> None:
 
     if width < 0.2:
         # Narrow trace — severity is demoted by one level.
-        expected = "medium" if angle < 45 else "low"
+        if angle < 45:
+            expected = "medium"
+        else:
+            expected = "low"
     else:
         # Normal / wide trace — no demotion.
         if angle < 45:

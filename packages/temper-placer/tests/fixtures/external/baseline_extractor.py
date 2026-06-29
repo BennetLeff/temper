@@ -223,7 +223,7 @@ def extract_baseline_metrics(
             "hv_components": set(),
             "lv_components": set(),
             "zone_assignments": constraints.zone_assignments,
-            "loop_components": [list(loop.nets) for loop in constraints.critical_loops],
+            "loop_components": [[n for n in loop.nets] for loop in constraints.critical_loops],
             "min_hv_lv_clearance": constraints.hv_clearance_mm,
         }
 

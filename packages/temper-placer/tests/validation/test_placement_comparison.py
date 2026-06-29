@@ -39,10 +39,10 @@ import yaml
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
 
-import jax.numpy as jnp  # noqa: E402
+import jax.numpy as jnp
 
-from temper_placer.core.state import PlacementState  # noqa: E402
-from temper_placer.losses import (  # noqa: E402
+from temper_placer.core.state import PlacementState
+from temper_placer.losses import (
     BoundaryLoss,
     CompositeLoss,
     OverlapLoss,
@@ -50,9 +50,9 @@ from temper_placer.losses import (  # noqa: E402
     WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.losses.base import LossContext  # noqa: E402
-from temper_placer.losses.wirelength import compute_total_hpwl  # noqa: E402
-from temper_placer.optimizer.config import (  # noqa: E402
+from temper_placer.losses.base import LossContext
+from temper_placer.losses.wirelength import compute_total_hpwl
+from temper_placer.optimizer.config import (
     LearningRateSchedule,
     OptimizerConfig,
     TemperatureSchedule,

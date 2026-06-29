@@ -36,7 +36,7 @@ class TestValidatorRegistry:
 
     def test_register_and_discover(self):
         @register_validator("TestStage")
-        def dummy_validator(_state):
+        def dummy_validator(state):
             return [StageDRCFailure(field="x", value=1, reason="test", stage="TestStage")]
 
         assert "TestStage" in VALIDATOR_REGISTRY
@@ -45,11 +45,11 @@ class TestValidatorRegistry:
 
     def test_run_validators(self):
         @register_validator("S1")
-        def v1(_state):
+        def v1(state):
             return [StageDRCFailure(field="a", value=1, reason="r1", stage="S1")]
 
         @register_validator("S1")
-        def v2(_state):
+        def v2(state):
             return [StageDRCFailure(field="b", value=2, reason="r2", stage="S1")]
 
         state = BoardState()
@@ -65,7 +65,7 @@ class TestValidatorRegistry:
 
     def test_clear_validators(self):
         @register_validator("C1")
-        def v1(_state):
+        def v1(state):
             return []
 
         assert "C1" in VALIDATOR_REGISTRY
@@ -74,11 +74,11 @@ class TestValidatorRegistry:
 
     def test_multiple_registrations_same_name(self):
         @register_validator("Multi")
-        def v1(_state):
+        def v1(state):
             return []
 
         @register_validator("Multi")
-        def v2(_state):
+        def v2(state):
             return []
 
         assert len(VALIDATOR_REGISTRY["Multi"]) == 2

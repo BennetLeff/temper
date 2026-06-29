@@ -118,6 +118,7 @@ class TestWeightRationale:
         - This is the strongest predictor of routing success
         """
         # Document the rationale - actual weight is in config
+        expected_min_weight = 500
         rationale = (
             "Overlap has the strongest negative correlation with routing completion. "
             "High weight prioritizes reducing component overlaps, which directly "

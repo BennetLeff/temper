@@ -128,7 +128,7 @@ class TestGoldenParity:
         state = _get_board_state(board_name)
         if not state.occupancy_grids:
             pytest.skip("No occupancy grids")
-        for _layer_name, grid in state.occupancy_grids.items():
+        for layer_name, grid in state.occupancy_grids.items():
             assert grid.width_cells > 0
             assert grid.height_cells > 0
             assert grid.cell_size > 0
@@ -141,7 +141,7 @@ class TestGoldenParity:
         state = _get_board_state(board_name)
         if not state.layer_capacities:
             pytest.skip("No layer capacities")
-        for _layer_name, lc in state.layer_capacities.items():
+        for layer_name, lc in state.layer_capacities.items():
             assert lc.estimated_traces >= 0
             assert lc.free_cells <= lc.total_cells
             assert np.isfinite(float(lc.estimated_traces))

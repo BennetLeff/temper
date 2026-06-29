@@ -5,8 +5,8 @@ from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue
 from temper_drc.core.runner import CheckRunner
 from temper_drc.core.severity import Severity
-from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
+from temper_drc.input.constraints import ConstraintSet
 
 
 class PassCheck(Check):
@@ -28,7 +28,7 @@ class PassCheck(Check):
     def description(self) -> str:
         return "A passing check"
 
-    def run(self, _placement: Placement, _constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
 
@@ -51,7 +51,7 @@ class FailCheck(Check):
     def description(self) -> str:
         return "A failing check"
 
-    def run(self, _placement: Placement, _constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         return CheckResult(
             check_name=self.name,
             passed=False,
@@ -82,7 +82,7 @@ class CriticalCheck(Check):
     def description(self) -> str:
         return "A safety-critical check"
 
-    def run(self, _placement: Placement, _constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         return CheckResult(
             check_name=self.name,
             passed=False,

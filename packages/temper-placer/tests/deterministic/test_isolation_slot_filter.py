@@ -159,7 +159,7 @@ class TestSlotFilterByIsolation:
         )
 
         result = stage.run(state)
-        _emitted_slots(result)
+        emitted = _emitted_slots(result)
         # The Signal zone lives at x∈[60, 90]; a slot there is well clear of
         # Q1's cutout (which sits at x≈22).
         signal_zone_slots = [

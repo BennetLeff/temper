@@ -304,7 +304,7 @@ class TestParseKicadPcb:
         """Test parsing a non-existent file raises an error."""
         fake_path = tmp_path / "nonexistent.kicad_pcb"
 
-        with pytest.raises(Exception):  # noqa: B017  # kiutils raises various exceptions
+        with pytest.raises(Exception):  # kiutils raises various exceptions
             parse_kicad_pcb(fake_path)
 
     def test_net_filtering(self, minimal_pcb_path: Path):

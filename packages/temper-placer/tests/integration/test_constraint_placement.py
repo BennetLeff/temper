@@ -79,7 +79,7 @@ class TestConstraintCompiler:
 class TestConstraintReporting:
     """Test constraint satisfaction reporting."""
 
-    def test_reporter_with_sample_placements(self, temper_constraints, _temper_board):
+    def test_reporter_with_sample_placements(self, temper_constraints, temper_board):
         """Reporter should generate report for sample placements.
 
         Note: The Temper config has conflicting constraints (Q1-Q2 >= 15mm spacing,
@@ -113,7 +113,7 @@ class TestConstraintReporting:
         assert hasattr(report, "violations")
         assert isinstance(report.violations, list)
 
-    def test_reporter_catches_spacing_violation(self, temper_constraints, _temper_board):
+    def test_reporter_catches_spacing_violation(self, temper_constraints, temper_board):
         """Reporter should catch Q1-Q2 spacing violations."""
         reporter = ConstraintReporter(temper_constraints)
 
@@ -142,7 +142,7 @@ class TestConstraintReporting:
 
         assert len(spacing_violations) > 0, "Reporter should catch Q1-Q2 spacing violation"
 
-    def test_reporter_catches_proximity_violation(self, temper_constraints, _temper_board):
+    def test_reporter_catches_proximity_violation(self, temper_constraints, temper_board):
         """Reporter should catch U_GATE proximity violations."""
         reporter = ConstraintReporter(temper_constraints)
 
@@ -157,7 +157,7 @@ class TestConstraintReporting:
         report = reporter.check(placements)
 
         # Should catch proximity violation
-        [
+        proximity_violations = [
             v
             for v in report.violations
             if "proximity" in v.message.lower() or "distance" in v.message.lower()
@@ -227,7 +227,7 @@ class TestEndToEnd:
 
         # Should have both hard and soft tiers
         has_hard = any(r.tier == "hard" for r in spacing_rules)
-        any(r.tier == "soft" for r in spacing_rules)
+        has_soft = any(r.tier == "soft" for r in spacing_rules)
 
         print("\nSpacing rules:")
         for r in spacing_rules:
@@ -258,8 +258,8 @@ class TestPerformance:
         """Test that constraint compilation is fast."""
         start = time.perf_counter()
         compiler = ConstraintCompiler(temper_constraints)
-        compiler.compile_to_slot_filter()
-        compiler.compile_to_slot_scorer()
+        filter_fn = compiler.compile_to_slot_filter()
+        scorer_fn = compiler.compile_to_slot_scorer()
         elapsed_ms = (time.perf_counter() - start) * 1000
 
         print(f"\nConstraint compilation: {elapsed_ms:.1f}ms")
@@ -267,7 +267,7 @@ class TestPerformance:
         # Compilation should be essentially instantaneous
         assert elapsed_ms < 10, f"Compilation took {elapsed_ms:.1f}ms, expected < 10ms"
 
-    def test_reporter_performance(self, temper_constraints, _temper_board):
+    def test_reporter_performance(self, temper_constraints, temper_board):
         """Test that constraint checking is fast."""
         reporter = ConstraintReporter(temper_constraints)
 

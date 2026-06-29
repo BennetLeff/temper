@@ -108,7 +108,7 @@ def test_automated_drc_feedback_on_temper_board(tmp_path):
     # HV Zone is index 0
     hv_zone_before = constraints.zones[0].bounds[2]
 
-    orchestrator.run(initial_state)
+    final_state = orchestrator.run(initial_state)
 
     # 5. Verify
     hv_zone_after = constraints.zones[0].bounds[2]

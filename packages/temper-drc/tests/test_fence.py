@@ -5,13 +5,13 @@ import time
 
 import pytest
 
-from temper_drc.core.check import Check
 from temper_drc.core.fence import (
     DRCFence,
     FenceViolationError,
     InvariantSpec,
     _issue_fingerprint,
 )
+from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult, Issue
 from temper_drc.core.runner import CheckRunner
 from temper_drc.core.severity import Severity
@@ -34,7 +34,7 @@ class PassCheck(Check):
     def category(self) -> str:
         return self._category
 
-    def run(self, _placement, _constraints, _modified_regions=None):
+    def run(self, placement, constraints, modified_regions=None):
         return CheckResult(check_name=self.name, passed=True)
 
 
@@ -53,7 +53,7 @@ class FailCheck(Check):
     def category(self) -> str:
         return self._category
 
-    def run(self, _placement, _constraints, _modified_regions=None):
+    def run(self, placement, constraints, modified_regions=None):
         return CheckResult(
             check_name=self.name,
             passed=False,
@@ -90,7 +90,7 @@ class IncrementalCheck(Check):
     def supports_incremental(self) -> bool:
         return True
 
-    def run(self, _placement, _constraints, modified_regions=None):
+    def run(self, placement, constraints, modified_regions=None):
         self.last_modified_regions = modified_regions
         return CheckResult(check_name=self.name, passed=True)
 
@@ -111,7 +111,7 @@ class SlowCheck(Check):
     def category(self) -> str:
         return self._category
 
-    def run(self, _placement, _constraints, _modified_regions=None):
+    def run(self, placement, constraints, modified_regions=None):
         if self.delay_ms:
             time.sleep(self.delay_ms / 1000.0)
         return CheckResult(check_name=self.name, passed=True)

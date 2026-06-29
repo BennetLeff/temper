@@ -36,11 +36,11 @@ def test_in_bounds():
         cell_size_mm=0.2,
     )
 
-    assert router._in_bounds((50, 50, 0))
-    assert router._in_bounds((99, 99, 1))
-    assert not router._in_bounds((-1, 50, 0))
-    assert not router._in_bounds((100, 50, 0))
-    assert not router._in_bounds((50, 50, 2))
+    assert router._in_bounds((50, 50, 0)) == True
+    assert router._in_bounds((99, 99, 1)) == True
+    assert router._in_bounds((-1, 50, 0)) == False
+    assert router._in_bounds((100, 50, 0)) == False
+    assert router._in_bounds((50, 50, 2)) == False
 
 
 def test_calculate_separation():
