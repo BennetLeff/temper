@@ -2,13 +2,14 @@
 //
 // Origin: U5 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
-use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable, SatVariable};
+use crate::types::{ClauseOrigin, ClauseRole, InternalConstraint, InternalConstraintModel, InternalVariable, SatVariable};
 
 /// A CNF formula: list of clauses (each clause is a list of signed variable indices).
 /// Positive index = true literal, negative index = false literal.
 pub struct CnfFormula {
     pub num_vars: usize,
     pub clauses: Vec<Vec<i32>>,
+    pub provenance: Vec<ClauseOrigin>,
     #[allow(dead_code)]
     pub var_names: Vec<String>,
 }
@@ -156,6 +157,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
         CnfFormula {
             num_vars: var_map.len(),
             clauses,
+            provenance: Vec::new(),
             var_names: var_names.clone(),
         },
         var_names,

@@ -86,6 +86,8 @@ pub fn solve_with_cadical(
                     assignments,
                     unsat_core: Vec::new(),
                     solver_time_ms: elapsed,
+                    tensions: Vec::new(),
+                    conflict: None,
                 }
             }
             SolverResult::Unsat => {
@@ -107,6 +109,8 @@ fn empty_result(status: SolverStatus, elapsed: f64) -> TopologyResult {
         assignments: std::collections::HashMap::new(),
         unsat_core: Vec::new(),
         solver_time_ms: elapsed,
+        tensions: Vec::new(),
+        conflict: None,
     }
 }
 

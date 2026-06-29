@@ -146,6 +146,8 @@ fn audit_result(
         assignments: assignment_map,
         unsat_core: Vec::new(),
         solver_time_ms: 0.0,
+        tensions: Vec::new(),
+        conflict: None,
     };
 
     let violations = audit::audit_constraints(&model, &result, &var_names);
