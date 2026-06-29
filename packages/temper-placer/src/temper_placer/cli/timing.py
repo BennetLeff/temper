@@ -235,6 +235,39 @@ def timing_baseline(
     )
 
 
+def _record_metrics(report_entries: list) -> None:
+    """Record per-stage timing check results to pipeline_metrics.jsonl."""
+    from temper_placer.regression.metrics_recorder import (
+        PipelineMetricsRecord,
+        find_metrics_file,
+        record_metrics,
+    )
+
+    if not report_entries:
+        return
+
+    metrics_path = find_metrics_file(_repo_root())
+    for entry in report_entries:
+        record = entry.to_pipeline_metrics_record()
+        try:
+            record_metrics(record, metrics_path)
+        except OSError:
+            pass
+
+
+def _check_git_ancestry(baseline_git_hash: str) -> bool:
+    """Return True if baseline_git_hash is an ancestor of HEAD."""
+    try:
+        result = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", baseline_git_hash, "HEAD"],
+            capture_output=True,
+            text=True,
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
+
+
 @timing.command("check")
 @click.option(
     "--board", "-b", default=None, help="Check only this board"
@@ -264,7 +297,7 @@ def timing_check(
     margin: float,
     floor_ms: float,
     json_output: bool,
-    _ci_mode: bool,
+    ci_mode: bool,
 ) -> None:
     """Compare current pipeline timing against committed baselines."""
     from temper_placer.profiling.timing_gate import (
@@ -298,6 +331,62 @@ def timing_check(
                 "[dim]No matching baselines to check.[/]"
             )
         sys.exit(0)
+
+    # Platform/Python version mismatch check
+    baseline_python = manifest.get("captured_python", "unknown")
+    baseline_platform = manifest.get("captured_platform", "unknown")
+    current_python = sys.version.split()[0]
+    current_platform = sys.platform
+
+    platform_mismatch = baseline_platform != current_platform
+    python_mismatch = baseline_python != current_python
+
+    if platform_mismatch or python_mismatch:
+        msg = "Platform/Python version mismatch: baseline={}/{} current={}/{}".format(
+            baseline_python, baseline_platform, current_python, current_platform
+        )
+        if ci_mode:
+            if json_output:
+                print(
+                    json.dumps(
+                        {"passed": False, "error": "Platform/Python mismatch: {}".format(msg)}
+                    )
+                )
+            else:
+                console.print("[red]ERROR: {}[/]".format(msg))
+            sys.exit(1)
+        else:
+            if json_output:
+                print(json.dumps({"warning": msg}), file=sys.stderr)
+            else:
+                console.print("[yellow]WARN: {}[/]".format(msg))
+
+    # Git ancestry check (R11) — always check, fail only in --ci mode
+    orphan_entries: list[str] = []
+    for entry in entries:
+        baseline_hash = entry.get("git_hash", "")
+        if baseline_hash and not _check_git_ancestry(baseline_hash):
+            orphan_entries.append(
+                "{}/{}/{} (baseline at {})".format(
+                    entry["board"], entry["pipeline"], entry["stage"], baseline_hash
+                )
+            )
+
+    if orphan_entries:
+        msg = "ORPHAN_BASELINE: timing baseline(s) captured at commit(s) not ancestors of HEAD:\n"
+        msg += "\n".join("  - {}".format(e) for e in orphan_entries)
+        msg += "\nRegenerate baselines in this branch."
+        if ci_mode:
+            if json_output:
+                print(json.dumps({"passed": False, "error": msg}))
+            else:
+                console.print("[red]{}[/]".format(msg))
+            sys.exit(1)
+        else:
+            if json_output:
+                print(json.dumps({"warning": msg}), file=sys.stderr)
+            else:
+                console.print("[yellow]WARN: {}[/]".format(msg))
 
     # Group by (board, pipeline) for measurement
     measurement_groups: dict[tuple[str, str], list[dict]] = {}
@@ -379,6 +468,10 @@ def timing_check(
         total_stages=len(report_entries),
         failed_stages=fail_count,
     )
+
+    # Record per-stage timing results to pipeline_metrics.jsonl for trend
+    # detection and dashboard (Plan 010 integration)
+    _record_metrics(report_entries)
 
     if json_output:
         print(json.dumps(report.to_dict(), indent=2))
