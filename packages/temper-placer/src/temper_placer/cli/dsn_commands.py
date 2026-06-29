@@ -63,7 +63,7 @@ def check(
 
     if not golden_path.exists():
         click.echo(f"PASS (no golden for {boundary})", err=True)
-        raise click.Abort()
+        return  # no golden to compare; not a failure
 
     golden_text = DSNNormalizer.normalize(golden_path.read_text())
     current = DSNNormalizer.normalize(DSNBoundaryExporter.export_at_boundary(boundary, input_pcb, config))
