@@ -180,8 +180,16 @@ ESL_REGISTRY["LayerConstraint"] = LayerConstraint
 class ConstraintModel:
     """
     SAT/SMT Constraint Model for Topological Routing.
-    
+
+    # @req(2026-06-28-006, FR-LANG2): Constraints contribute ESL predicates
+    # @req(2026-06-28-006, FR-BMC1): BMC verifies ESL vs CNF agreement
+
     Holds all variables and constraints (in abstract form).
+    Each constraint exposes an ``esl()`` method returning a declarative
+    predicate that is verified against the CNF encoding by the BMC layer.
+
+    The ``eval_esl(model, assignment)`` function in ``esl.py`` evaluates
+    all constraint ESL predicates against a primary-variable assignment.
     """
     variables: list[Variable] = field(default_factory=list)
     constraints: list[Constraint] = field(default_factory=list)
