@@ -104,7 +104,7 @@ class TestMeasureStageTiming:
             measure_stage_timing("nonexistent_stage", "temper_placed")
 
     def test_unknown_board_raises_valueerror(self):
-        with pytest.raises(ValueError, match="unknown board"):
+        with pytest.raises(ValueError, match="Unknown board"):
             measure_stage_timing("zone_geometry", "nonexistent_board")
 
     def test_apply_placements_positive_wall_ms(self):

@@ -1,10 +1,11 @@
 ---
 title: "feat: Per-Stage Timing Regression Gate — Block Slowdowns at Pipeline Boundaries"
 type: feat
-status: active
+status: completed
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
 depends_on:
+  - docs/plans/2026-06-28-010-feat-ci-profiling-regression-platform-plan.md  (completed; provides PipelineMetricsRecord contract and profiling harness)
   - docs/plans/2026-06-22-015-feat-pipeline-profiling-validation-toolkit-plan.md  (UnifiedPipelineProfiler, ProfileReport)
   - docs/plans/2026-06-22-009-feat-golden-fixture-ladder-plan.md                   (Pattern: manifest + CLI + CI gate)
 ---

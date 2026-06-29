@@ -9,9 +9,9 @@ Commands:
 from __future__ import annotations
 
 import json
-import sys
 import subprocess
-from datetime import datetime, timezone
+import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import click
@@ -19,7 +19,7 @@ import yaml
 
 from ._io import console
 
-UTC = timezone.utc
+UTC = UTC
 
 
 def _repo_root() -> Path:
@@ -149,7 +149,7 @@ def timing_baseline(
                 )
                 stages_to_measure = [r.stage_name for r in all_results]
             except Exception as e:
-                console.print("[red]ERROR: {}[/]".format(e))
+                console.print(f"[red]ERROR: {e}[/]")
                 sys.exit(1)
 
         for stage_name in stages_to_measure:
@@ -165,9 +165,7 @@ def timing_baseline(
 
             if existing_idx is not None and not overwrite:
                 console.print(
-                    "SKIP {}/{}/{} (exists, use --overwrite)".format(
-                        board_id, pipeline, stage_name
-                    )
+                    f"SKIP {board_id}/{pipeline}/{stage_name} (exists, use --overwrite)"
                 )
                 skipped += 1
                 continue
@@ -181,9 +179,7 @@ def timing_baseline(
                 )
             except Exception as e:
                 console.print(
-                    "[red]FAIL {}/{}/{}: {}[/]".format(
-                        board_id, pipeline, stage_name, e
-                    )
+                    f"[red]FAIL {board_id}/{pipeline}/{stage_name}: {e}[/]"
                 )
                 continue
 
@@ -211,14 +207,7 @@ def timing_baseline(
 
             delta_str = "UPDATED" if existing_idx is not None else "NEW"
             console.print(
-                "{} {}/{}/{}: {:.1f} ms ({} runs)".format(
-                    delta_str,
-                    result.board_id,
-                    result.pipeline,
-                    result.stage_name,
-                    result.wall_ms,
-                    result.n_runs,
-                )
+                f"{delta_str} {result.board_id}/{result.pipeline}/{result.stage_name}: {result.wall_ms:.1f} ms ({result.n_runs} runs)"
             )
 
     manifest["captured_at"] = datetime.now(UTC).isoformat()
@@ -229,10 +218,40 @@ def timing_baseline(
     total = new_entries + overwritten
     console.print(
         "\nBaseline written to power_pcb_dataset/timing_baselines.yaml "
-        "({} stages: {} new, {} updated, {} skipped)".format(
-            total, new_entries, overwritten, skipped
-        )
+        f"({total} stages: {new_entries} new, {overwritten} updated, {skipped} skipped)"
     )
+
+
+def _record_metrics(report_entries: list) -> None:
+    """Record per-stage timing check results to pipeline_metrics.jsonl."""
+    from temper_placer.regression.metrics_recorder import (
+        find_metrics_file,
+        record_metrics,
+    )
+
+    if not report_entries:
+        return
+
+    import contextlib
+
+    metrics_path = find_metrics_file(_repo_root())
+    for entry in report_entries:
+        record = entry.to_pipeline_metrics_record()
+        with contextlib.suppress(OSError):
+            record_metrics(record, metrics_path)
+
+
+def _check_git_ancestry(baseline_git_hash: str) -> bool:
+    """Return True if baseline_git_hash is an ancestor of HEAD."""
+    try:
+        result = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", baseline_git_hash, "HEAD"],
+            capture_output=True,
+            text=True,
+        )
+        return result.returncode == 0
+    except Exception:
+        return False
 
 
 @timing.command("check")
@@ -264,12 +283,12 @@ def timing_check(
     margin: float,
     floor_ms: float,
     json_output: bool,
-    _ci_mode: bool,
+    ci_mode: bool,
 ) -> None:
     """Compare current pipeline timing against committed baselines."""
     from temper_placer.profiling.timing_gate import (
-        TimingReport,
         StageTimingEntry,
+        TimingReport,
         measure_all_stages,
     )
 
@@ -299,6 +318,60 @@ def timing_check(
             )
         sys.exit(0)
 
+    # Platform/Python version mismatch check
+    baseline_python = manifest.get("captured_python", "unknown")
+    baseline_platform = manifest.get("captured_platform", "unknown")
+    current_python = sys.version.split()[0]
+    current_platform = sys.platform
+
+    platform_mismatch = baseline_platform != current_platform
+    python_mismatch = baseline_python != current_python
+
+    if platform_mismatch or python_mismatch:
+        msg = f"Platform/Python version mismatch: baseline={baseline_python}/{baseline_platform} current={current_python}/{current_platform}"
+        if ci_mode:
+            if json_output:
+                print(
+                    json.dumps(
+                        {"passed": False, "error": f"Platform/Python mismatch: {msg}"}
+                    )
+                )
+            else:
+                console.print(f"[red]ERROR: {msg}[/]")
+            sys.exit(1)
+        else:
+            if json_output:
+                print(json.dumps({"warning": msg}), file=sys.stderr)
+            else:
+                console.print(f"[yellow]WARN: {msg}[/]")
+
+    # Git ancestry check (R11) — always check, fail only in --ci mode
+    orphan_entries: list[str] = []
+    for entry in entries:
+        baseline_hash = entry.get("git_hash", "")
+        if baseline_hash and not _check_git_ancestry(baseline_hash):
+            orphan_entries.append(
+                "{}/{}/{} (baseline at {})".format(
+                    entry["board"], entry["pipeline"], entry["stage"], baseline_hash
+                )
+            )
+
+    if orphan_entries:
+        msg = "ORPHAN_BASELINE: timing baseline(s) captured at commit(s) not ancestors of HEAD:\n"
+        msg += "\n".join(f"  - {e}" for e in orphan_entries)
+        msg += "\nRegenerate baselines in this branch."
+        if ci_mode:
+            if json_output:
+                print(json.dumps({"passed": False, "error": msg}))
+            else:
+                console.print(f"[red]{msg}[/]")
+            sys.exit(1)
+        else:
+            if json_output:
+                print(json.dumps({"warning": msg}), file=sys.stderr)
+            else:
+                console.print(f"[yellow]WARN: {msg}[/]")
+
     # Group by (board, pipeline) for measurement
     measurement_groups: dict[tuple[str, str], list[dict]] = {}
     for entry in entries:
@@ -320,17 +393,13 @@ def timing_check(
                     json.dumps(
                         {
                             "passed": False,
-                            "error": "Measurement failed for {}/{}: {}".format(
-                                board_id, pipeline_name, e
-                            ),
+                            "error": f"Measurement failed for {board_id}/{pipeline_name}: {e}",
                         }
                     )
                 )
             else:
                 console.print(
-                    "[red]ERROR: measurement failed for {}/{}: {}[/]".format(
-                        board_id, pipeline_name, e
-                    )
+                    f"[red]ERROR: measurement failed for {board_id}/{pipeline_name}: {e}[/]"
                 )
             sys.exit(1)
 
@@ -340,9 +409,7 @@ def timing_check(
             current = current_map.get(stage_name)
             if current is None:
                 console.print(
-                    "[yellow]WARN: no baseline for stage '{}' on {}/{}[/]".format(
-                        stage_name, board_id, pipeline_name
-                    )
+                    f"[yellow]WARN: no baseline for stage '{stage_name}' on {board_id}/{pipeline_name}[/]"
                 )
                 continue
 
@@ -380,6 +447,10 @@ def timing_check(
         failed_stages=fail_count,
     )
 
+    # Record per-stage timing results to pipeline_metrics.jsonl for trend
+    # detection and dashboard (Plan 010 integration)
+    _record_metrics(report_entries)
+
     if json_output:
         print(json.dumps(report.to_dict(), indent=2))
     else:
@@ -387,29 +458,18 @@ def timing_check(
             status = "[green]PASS[/]" if entry.passed else "[red]FAIL[/]"
             sign = "+" if entry.delta_ms >= 0 else ""
             console.print(
-                "{}: {:.<40s} {:>8.1f} ms  "
-                "(baseline: {:.1f} ms, {}{:.1f}%)".format(
-                    status,
-                    entry.stage,
-                    entry.current_ms,
-                    entry.baseline_ms,
-                    sign,
-                    entry.delta_pct,
-                )
+                f"{status}: {entry.stage:.<40s} {entry.current_ms:>8.1f} ms  "
+                f"(baseline: {entry.baseline_ms:.1f} ms, {sign}{entry.delta_pct:.1f}%)"
             )
 
         if fail_count > 0:
             console.print("\n---")
             console.print(
-                "[red]{} of {} stages failed. Timing regression gate: FAIL[/]".format(
-                    fail_count, len(report_entries)
-                )
+                f"[red]{fail_count} of {len(report_entries)} stages failed. Timing regression gate: FAIL[/]"
             )
         else:
             console.print(
-                "\n[green]All {} stages passed. Timing regression gate: PASS[/]".format(
-                    len(report_entries)
-                )
+                f"\n[green]All {len(report_entries)} stages passed. Timing regression gate: PASS[/]"
             )
 
     sys.exit(0 if passed_all else 1)
@@ -454,7 +514,7 @@ def timing_regenerate(
                 "Regenerate timing baselines for board '{}', pipeline '{}'{}?".format(
                     board,
                     pipeline,
-                    ", stage '{}'".format(stage) if stage else " (all stages)",
+                    f", stage '{stage}'" if stage else " (all stages)",
                 )
             )
             for e in matching:
@@ -469,7 +529,7 @@ def timing_regenerate(
 
     if stage:
         console.print(
-            "Regenerating baseline for {}/{}/{}".format(board, pipeline, stage)
+            f"Regenerating baseline for {board}/{pipeline}/{stage}"
         )
         from temper_placer.profiling.timing_gate import measure_stage_timing
 
@@ -521,7 +581,7 @@ def timing_regenerate(
         _save_manifest(manifest)
         if current_ms is not None:
             console.print(
-                "[green]Regenerated: {:.1f} ms[/]".format(current_ms)
+                f"[green]Regenerated: {current_ms:.1f} ms[/]"
             )
     else:
         from temper_placer.profiling.timing_gate import measure_all_stages
@@ -570,12 +630,10 @@ def timing_regenerate(
             if not found:
                 manifest["stages"].append(new_entry)
             console.print(
-                "  {}:{:.1f} ms".format(result.stage_name, result.wall_ms)
+                f"  {result.stage_name}:{result.wall_ms:.1f} ms"
             )
 
         _save_manifest(manifest)
         console.print(
-            "[green]Regenerated {} stages for board '{}'[/]".format(
-                len(results), board
-            )
+            f"[green]Regenerated {len(results)} stages for board '{board}'[/]"
         )
