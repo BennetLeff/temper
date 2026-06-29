@@ -381,6 +381,11 @@ class RouterV6Pipeline:
         self.dfm_fail_on = dfm_fail_on
         self.max_sat_nets = max_sat_nets
 
+        # Stage ledger: tracks object cardinality across stage boundaries.
+        # When a fence is provided, the ledger is enabled by default.
+        from temper_placer.router_v6.stage_ledger import StageLedger
+        self.ledger = StageLedger(fail_on_imbalance=fence is not None)
+
     def run(
         self,
         pcb_path: Path,
@@ -443,6 +448,7 @@ class RouterV6Pipeline:
                 invariants=_stage_0_5_invariants(),
                 pcb=pcb,
             )
+        self.ledger.checkin(pcb)
 
         # Stage 1: Generate escape vias
         if self.verbose:
@@ -474,6 +480,7 @@ class RouterV6Pipeline:
                 pcb=pcb,
                 escape_vias=escape_vias,
             )
+        self.ledger.checkout("escape_vias", pcb)
 
         # Stage 2: Channel analysis
         if self.verbose:
@@ -545,7 +552,7 @@ class RouterV6Pipeline:
                 f"  Completion: {100 * stage4.routing_results.success_count / max(1, stage4.routing_results.success_count + stage4.routing_results.failure_count):.1f}%"
             )
 
-        return RouterV6Result(
+        result = RouterV6Result(
             pcb=pcb,
             escape_vias=escape_vias,
             stage2=stage2,
@@ -554,6 +561,8 @@ class RouterV6Pipeline:
             manufacturing_report=manufacturing_report,
             runtime_seconds=runtime,
         )
+        self.ledger.checkout("routing_complete", result)
+        return result
 
     def _run_stage2(self, pcb: ParsedPCB, escape_vias: list[EscapeVia]) -> Stage2Output:
         """Run Stage 2: Channel Analysis (delegated to Stage2Orchestrator)."""
@@ -944,6 +953,9 @@ class RouterV6Pipeline:
         placement, constraints = _parsed_pcb_to_drc_input(
             pcb, escape_vias=escape_vias, routing_results=routing_results,
         )
+        # Auto-register any checks referenced by invariants that aren't
+        # yet in the runner (e.g. drc_via_spacing, drc_trace_clearance).
+        _ensure_checks_loaded(self.fence, invariants)
         self.fence.check(
             stage_name=stage_name,
             invariants=invariants,
@@ -955,6 +967,23 @@ class RouterV6Pipeline:
 def _stage_0_5_invariants() -> tuple:
     """Invariants for Stage 0.5 legalization."""
     return (InvariantSpec("drc_component_overlap", "No component overlaps after legalization"),)
+
+
+def _ensure_checks_loaded(fence, invariants: tuple) -> None:
+    """Auto-register any checks referenced by invariants that are not yet
+    in the fence's runner.  Without this, referencing ``drc_via_spacing``
+    or ``drc_trace_clearance`` would silently produce zero violations."""
+    needed = {inv.check_name for inv in invariants}
+    existing = {c.name for c in fence._runner.checks}
+    missing = needed - existing
+    if not missing:
+        return
+    from temper_drc.checks.drc.trace_clearance import TraceClearanceCheck  # noqa: E402
+    from temper_drc.checks.drc.via_spacing import ViaSpacingCheck          # noqa: E402
+    if "drc_via_spacing" in missing:
+        fence._runner.checks.append(ViaSpacingCheck())
+    if "drc_trace_clearance" in missing:
+        fence._runner.checks.append(TraceClearanceCheck())
 
 
 def _stage_1_invariants() -> tuple:

@@ -316,6 +316,11 @@ def _astar_search_lazy_theta_star(
 
         # LAZY CHECK: Validate LOS only when expanding
         parent = came_from.get(current)
+
+        # Runtime monitor: f-cost monotonicity for Lazy Theta*
+        _mon_lazy = get_monitor_state()
+        if _mon_lazy is not None:
+            _mon_lazy.record_pop(current, float(f_cost))
         if parent:
             if not _line_of_sight(parent, current, grid, net_id):
                 # LOS Failed.
@@ -566,6 +571,11 @@ def _astar_search_3d(
         _, current_key = heappop(frontier)
         x, y, layer = current_key
 
+        # Runtime monitor: f-cost monotonicity
+        _mon_theta = get_monitor_state()
+        if _mon_theta is not None:
+            _mon_theta.record_pop((x, y), float(cost_so_far[current_key]))
+
         if current_key == goal_key:
             # Reconstruct path and find via positions
             path = []
@@ -591,6 +601,14 @@ def _astar_search_3d(
                     via_wx, via_wy = sample_grid.grid_to_world(via_gx, via_gy)
                     for layer_grid in grids.values():
                         layer_grid.mark_via_blocked(via_wx, via_wy, via_diameter, clearance, net_id)
+
+            # Runtime monitor: validate path integrity
+            if _mon_theta is not None:
+                path_2d = [(node.x, node.y) for node in path]
+                start_2d = (start.x, start.y)
+                goal_2d = (goal.x, goal.y)
+                # Check path adjacency and endpoint correctness
+                _mon_theta.validate_path_completeness(path_2d, start_2d, goal_2d)
 
             return list(reversed(path)), vias
 
