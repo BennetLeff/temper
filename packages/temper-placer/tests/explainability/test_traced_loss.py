@@ -50,7 +50,7 @@ class TestTracedLoss:
         """GIVEN a loss function with negligible loss
         WHEN calling traced function
         THEN does not create trace entry"""
-        def zero_loss(x):
+        def zero_loss(_x):
             return 0.0
 
         traced_fn = traced_loss(zero_loss, "Q1", "Reason")
@@ -133,7 +133,7 @@ class TestConstraintToTracedLoss:
         THEN uses 'a' as subject"""
         constraint = MockConstraint(a="Q1", because="Test reason")
 
-        def loss_fn(c, x):
+        def loss_fn(_c, x):
             return x ** 2
 
         traced_fn = constraint_to_traced_loss(constraint, loss_fn)
@@ -153,7 +153,7 @@ class TestConstraintToTracedLoss:
             because="Minimize commutation loop for half-bridge"
         )
 
-        def loss_fn(c, x):
+        def loss_fn(_c, _x):
             return 10.0
 
         traced_fn = constraint_to_traced_loss(constraint, loss_fn)
@@ -223,13 +223,13 @@ class TestIntegrationExample:
         ]
 
         # Define loss functions
-        def adjacency_loss(c, positions):
+        def adjacency_loss(_c, _positions):
             return 5.0  # Mock loss
 
-        def thermal_loss(c, positions):
+        def thermal_loss(_c, _positions):
             return 3.0  # Mock loss
 
-        def isolation_loss(c, positions):
+        def isolation_loss(_c, _positions):
             return 2.0  # Mock loss
 
         loss_fns = [adjacency_loss, thermal_loss, isolation_loss]

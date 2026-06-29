@@ -46,14 +46,18 @@ class WhitespaceLoss(LossFunction):
     grid_shape: tuple[int, int] = (10, 10)
     target_density: float | None = None
 
+    @property
+    def name(self) -> str:
+        return "whitespace"
+
     def __call__(
         self,
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         # Get component bounds
@@ -138,14 +142,18 @@ class AlignmentLoss(LossFunction):
 
     prefix_groups: Array  # (G, M) array of indices, padded with -1
 
+    @property
+    def name(self) -> str:
+        return "alignment"
+
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -203,14 +211,18 @@ class RotationConsistencyLoss(LossFunction):
     pushing the design toward a single dominant orientation (or two).
     """
 
+    @property
+    def name(self) -> str:
+        return "rotation_consistency"
+
     def __call__(
         self,
-        positions: Array,
+        positions: Array,  # noqa: ARG002
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -270,14 +282,18 @@ class MirrorSymmetryLoss(LossFunction):
     axis: int = 0
     center: float = 0.0
 
+    @property
+    def name(self) -> str:
+        return "mirror_symmetry"
+
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.pairs.shape[0] < 1:
@@ -321,14 +337,18 @@ class VisualGroupingLoss(LossFunction):
     min_gap: float = 10.0
     intra_weight: float = 1.0
 
+    @property
+    def name(self) -> str:
+        return "visual_grouping"
+
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] < 1:
@@ -368,7 +388,7 @@ class VisualGroupingLoss(LossFunction):
         # Inter-group separation
         # Penalize if group_bbs are closer than min_gap
         n_groups = self.group_indices.shape[0]
-        total_inter = 0.0
+        total_inter: Array = jnp.array(0.0)
 
         if n_groups > 1:
             # Pairwise group distance
@@ -423,14 +443,18 @@ class ConsensusLayoutLoss(LossFunction):
 
     template_groups: Array  # (G, K, M)
 
+    @property
+    def name(self) -> str:
+        return "consensus_layout"
+
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.template_groups.shape[0] == 0:
@@ -493,14 +517,18 @@ class StackedRowLoss(LossFunction):
     col_pitch: float
     net_crossing_weight: float = 0.5
 
+    @property
+    def name(self) -> str:
+        return "stacked_row"
+
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.component_indices.shape[0] < 2:
@@ -576,14 +604,18 @@ class PinGridAlignmentLoss(LossFunction):
 
     grid_size: float = 0.5
 
+    @property
+    def name(self) -> str:
+        return "pin_grid_alignment"
+
     def __call__(
         self,
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         # 1. Compute absolute pin positions
@@ -633,14 +665,18 @@ class PortFacingRotationLoss(LossFunction):
     primary_pin_offsets: Array  # (G, 2)
     target_indices: Array  # (G, K)
 
+    @property
+    def name(self) -> str:
+        return "port_facing_rotation"
+
     def __call__(
         self,
         positions: Array,
         rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] == 0:
@@ -830,12 +866,12 @@ def get_port_facing_data(
         target_comp = None
         target_pin_obj = None
 
-        if ":" in pin_name:
+        if pin_name is not None and ":" in pin_name:
             ref, pin = pin_name.split(":")
             if ref in group.components:
                 target_comp = netlist.get_component(ref)
                 target_pin_obj = target_comp.get_pin(pin)
-        else:
+        elif pin_name is not None:
             # Search all components in group for this pin
             for ref in group.components:
                 comp = netlist.get_component(ref)
@@ -1060,8 +1096,8 @@ def create_aesthetic_losses(
         # Prepare group indices
         g_indices = []
         for group in constraints.component_groups:
-            indices = [netlist.get_component_index(ref) for ref in group.components]
-            g_indices.append(indices)
+            g_comp_indices = [netlist.get_component_index(ref) for ref in group.components]
+            g_indices.append(g_comp_indices)
 
         # Pad
         max_len = max(len(g) for g in g_indices)
@@ -1101,7 +1137,7 @@ def create_aesthetic_losses(
                 board_bounds = jnp.array(
                     [0.0, 0.0, constraints.board_width_mm, constraints.board_height_mm]
                 )
-                center_x = (board_bounds[0] + board_bounds[2]) / 2.0
+                center_x = float((board_bounds[0] + board_bounds[2]) / 2.0)
 
                 losses.append(
                     WeightedLoss(

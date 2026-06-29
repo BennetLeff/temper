@@ -268,11 +268,11 @@ class SpreadLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -287,6 +287,7 @@ class SpreadLoss(LossFunction):
             LossResult with total spread penalty.
         """
         board_bounds = context.board.get_relative_bounds_array()
+        assert context.bounds is not None, "Bounds must be set in LossContext"
         penalty = compute_spread_penalty(positions, context.bounds, board_bounds, self.min_distance)
         return LossResult(value=penalty)
 
@@ -319,10 +320,10 @@ class RotationEntropyLoss(LossFunction):
         self,
         _positions: Array,
         rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         """
         Compute rotation entropy loss.
@@ -384,11 +385,11 @@ class CenterOfMassLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -449,11 +450,11 @@ class EdgeAvoidanceLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -474,8 +475,8 @@ class EdgeAvoidanceLoss(LossFunction):
         bounds = context.bounds  # (N, 2)
 
         # Component half-widths and half-heights
-        half_w = bounds[:, 0] / 2.0  # (N,)
-        half_h = bounds[:, 1] / 2.0  # (N,)
+        half_w = bounds[:, 0] / 2.0  # type: ignore[index]  # (N,)
+        half_h = bounds[:, 1] / 2.0  # type: ignore[index]  # (N,)
 
         # Board boundaries
         x_min = 0.0

@@ -400,7 +400,7 @@ class TestLoopCollection:
     def test_get_loops_for_component(self, sample_collection):
         """Should find all loops containing a component."""
         q1_loops = sample_collection.get_loops_for_component("Q1")
-        names = {l.name for l in q1_loops}
+        names = {ln.name for ln in q1_loops}
         assert names == {"gate_drive_high", "commutation"}
 
     def test_get_loops_for_component_not_found(self, sample_collection):
@@ -423,7 +423,7 @@ class TestLoopCollection:
     def test_get_loops_by_priority(self, sample_collection):
         """Should filter loops by priority."""
         critical = sample_collection.get_loops_by_priority(LoopPriority.CRITICAL)
-        names = {l.name for l in critical}
+        names = {ln.name for ln in critical}
         assert names == {"gate_drive_high", "commutation"}
 
     def test_get_critical_loops(self, sample_collection):

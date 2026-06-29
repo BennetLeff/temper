@@ -210,9 +210,9 @@ class ManufacturingMarginLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """Compute manufacturing margin loss.
@@ -229,7 +229,7 @@ class ManufacturingMarginLoss(LossFunction):
         """
         # Get rotation-aware bounds
         bounds = context.bounds  # (N, 2)
-        widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+        widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)  # type: ignore[index]
 
         # Compute all pairwise clearances
         clearances, idx_i, idx_j = compute_pairwise_clearances(positions, widths, heights)
@@ -298,7 +298,7 @@ class ManufacturingMarginLoss(LossFunction):
 
         return LossResult(value=weighted_loss, breakdown=breakdown)
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:  # type: ignore[override]
         """Manufacturing margin is introduced after initial placement.
 
         Starts at 50% weight, reaches full weight at 30% of training.

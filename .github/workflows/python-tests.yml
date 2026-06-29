@@ -68,6 +68,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -77,6 +78,14 @@ jobs:
       
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
         run: |
@@ -119,6 +128,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -128,6 +138,14 @@ jobs:
       
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
         run: |
@@ -167,30 +185,24 @@ jobs:
       - name: Run temper-tools tests
         working-directory: packages/temper-tools
         run: uv run pytest tests/ -v --tb=short
-        continue-on-error: true  # pre-existing import errors; temper-N6-U8
        
       - name: Run temper-drc tests
         working-directory: packages/temper-drc
         run: uv run pytest tests/ -v --tb=short
-        continue-on-error: true  # pre-existing test issues; temper-N6-U8
-      
+       
       - name: Regenerate transition-table test and check drift
         run: |
           python3 firmware/test/gen_transition_table.py --generate
           git diff --exit-code firmware/test/test_transition_table_generated.c
-        continue-on-error: true  # pre-existing drift; temper-N6-U8
 
       - name: Lint with ruff
         run: uv run ruff check packages/
-        continue-on-error: true  # 6421 pre-existing errors; temper-N6-U8
 
       - name: Vulture dead-code gate
         run: uv run python scripts/vulture_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
 
       - name: Script manifest gate
         run: uv run python scripts/check_manifest_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
 
       - name: Script sunset check (warnings only)
         run: uv run python scripts/check_script_sunset.py
@@ -198,23 +210,9 @@ jobs:
 
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
-
-      - name: Script manifest gate
-        run: uv run python scripts/check_manifest_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
-
-      - name: Script sunset check (warnings only)
-        run: uv run python scripts/check_script_sunset.py
-        continue-on-error: true  # sunset is informational, not blocking
-
-      - name: Import boundary enforcement
-        run: uv run python scripts/import_linter_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
 
   closure:
     name: Pipeline Closure Test (Truth-Gated)
@@ -227,6 +225,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
 
       - name: Set up Python
         run: uv python install 3.12
@@ -260,6 +259,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -287,7 +287,7 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-        with: { version: "latest" }
+        with: { version: "latest", enable-cache: true }
       - name: Set up Python
         run: uv python install 3.12
       - name: LOC cap gate
@@ -304,6 +304,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -313,15 +314,12 @@ jobs:
       
       - name: Type check temper-placer
         run: uv run mypy packages/temper-placer/src --ignore-missing-imports
-        continue-on-error: true  # Don't fail on type errors for now
       
       - name: Type check temper-workflow
         run: uv run mypy packages/temper-workflow/src --ignore-missing-imports
-        continue-on-error: true
       
       - name: Type check temper-tools
         run: uv run mypy packages/temper-tools/src --ignore-missing-imports
-        continue-on-error: true
 
   astar-nightly:
     name: A* 4x4 Exhaustive Verification (Nightly)
@@ -339,6 +337,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
 
       - name: Set up Python
         run: uv python install 3.12

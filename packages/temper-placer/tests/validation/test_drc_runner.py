@@ -86,13 +86,13 @@ class TestKicadCliAvailability:
     def test_is_available_when_in_path(self, mock_which: MagicMock) -> None:
         """Should return True when kicad-cli is in PATH."""
         mock_which.return_value = "/usr/local/bin/kicad-cli"
-        assert is_kicad_cli_available() == True
+        assert is_kicad_cli_available()
 
     @patch("shutil.which")
     def test_not_available_when_not_in_path(self, mock_which: MagicMock) -> None:
         """Should return False when kicad-cli is not found."""
         mock_which.return_value = None
-        assert is_kicad_cli_available() == False
+        assert not is_kicad_cli_available()
 
 
 class TestDrcRunner:
@@ -247,7 +247,7 @@ class TestDrcRunner:
             run_drc(pcb_file)
 
     @patch("temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=False)
-    def test_drc_without_kicad_cli(self, mock_available: MagicMock, tmp_path: Path) -> None:
+    def test_drc_without_kicad_cli(self, _mock_available: MagicMock, tmp_path: Path) -> None:
         """Running DRC without kicad-cli should raise DrcRunnerError."""
         pcb_file = tmp_path / "board.kicad_pcb"
         pcb_file.write_text("(kicad_pcb)")

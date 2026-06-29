@@ -485,7 +485,7 @@ def create_netclass_config(netlist: Netlist) -> dict[str, dict]:
         elif is_high_speed_net(net.name):
             netclasses["HighSpeed"]["nets"].append(net.name)
         elif any(_is_fine_pitch_component(c) for c in netlist.components
-                 if any(conn[0] == c.ref for conn in net.connections)):
+                 if any(pin[0] == c.ref for pin in net.pins)):  # type: ignore[attr-defined]
             netclasses["FinePitch"]["nets"].append(net.name)
         else:
             netclasses["Default"]["nets"].append(net.name)

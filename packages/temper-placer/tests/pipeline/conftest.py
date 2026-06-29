@@ -101,10 +101,10 @@ def mock_observer():
         def __init__(self):
             self.events = []
 
-        def on_stage_start(self, stage_name, iteration, context):
+        def on_stage_start(self, stage_name, iteration, _context):
             self.events.append(("start", stage_name, iteration))
 
-        def on_stage_complete(self, stage_name, duration_s, outputs):
+        def on_stage_complete(self, stage_name, duration_s, _outputs):
             self.events.append(("complete", stage_name, duration_s))
 
         def on_stage_skip(self, stage_name, reason):
@@ -116,7 +116,7 @@ def mock_observer():
         def on_feedback_triggered(self, contract_name, from_stage, to_stage, attempt):
             self.events.append(("feedback", contract_name, from_stage, to_stage, attempt))
 
-        def on_pipeline_complete(self, success, total_duration_s, stage_timings):
+        def on_pipeline_complete(self, success, total_duration_s, _stage_timings):
             self.events.append(("pipeline_complete", success, total_duration_s))
 
     return MockObserver()
@@ -154,6 +154,6 @@ class PassthroughStage:
     def __init__(self, outputs=None):
         self._outputs = outputs or {}
 
-    def __call__(self, state, context):
+    def __call__(self, _state, _context):
         from temper_placer.pipeline.dag_types import StageResult
         return StageResult(outputs=self._outputs, duration_s=0.0)

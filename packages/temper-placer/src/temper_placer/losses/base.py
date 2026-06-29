@@ -252,7 +252,7 @@ class LossContext(BaseLossContext):
 
                 # Convert list of lists to tuple of tuples for JAX compatibility
                 if loop_cfg.pins:
-                    pins = tuple(tuple(p) for p in loop_cfg.pins)
+                    pins = tuple(loop_cfg.pins)
                 else:
                     # Fallback to nets if pins not specified (less precise)
                     # LoopAreaLoss requires pins, so we might need discovery logic here
@@ -460,7 +460,7 @@ class LossContext(BaseLossContext):
             masks.append(net_mask)
 
             # Compute effective net weight
-            weight = net.weight
+            weight: float | Array = net.weight
             if centrality is not None and centrality.shape[0] > 0:
                 # Boost net weight by max centrality of connected components
                 # Scale by N to keep average weight consistent (avg centrality is 1/N)
@@ -558,7 +558,7 @@ class LossContext(BaseLossContext):
             max_areas.append(loop.max_area)
 
             # Compute effective loop weight
-            weight = loop.weight
+            weight: float | Array = loop.weight
             if centrality is not None and centrality.shape[0] > 0 and loop_comp_indices:
                 # Boost loop weight by max centrality of involved components
                 max_c = jnp.max(centrality[jnp.array(loop_comp_indices)])
@@ -625,7 +625,7 @@ class LossContext(BaseLossContext):
                 max_lengths.append(path.max_length)
 
                 # Weight
-                weight = path.weight
+                weight: float | Array = path.weight
                 if centrality is not None and centrality.shape[0] > 0:
                     max_c = jnp.max(centrality[jnp.array([from_idx, to_idx])])
                     weight = weight * (max_c * n_components)
@@ -809,7 +809,7 @@ class LossFunction(ABC):
         """
         ...
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float:  # noqa: ARG002, ARG002
         """
         Get the weight multiplier for this loss at a given epoch.
 
@@ -931,7 +931,7 @@ class WeightedLoss:
     schedule_end: float = 0.0  # Full weight from epoch 0
     normalize_by: str | float | None = None
 
-    def get_weight(self, epoch: int, total_epochs: int) -> float:
+    def get_weight(self, epoch: int, total_epochs: int) -> float | Array:
         """Get effective weight at given epoch."""
         # Apply schedule from loss function
         fn_weight = self.loss_fn.weight_schedule(epoch, total_epochs)
@@ -939,7 +939,7 @@ class WeightedLoss:
         # Apply curriculum schedule
         if self.schedule_end > self.schedule_start:
             progress = jnp.array(epoch / max(total_epochs, 1))
-            curriculum = smooth_step(progress, self.schedule_start, self.schedule_end)
+            curriculum: float | Array = smooth_step(progress, self.schedule_start, self.schedule_end)
         else:
             curriculum = 1.0
 
@@ -1040,7 +1040,7 @@ class CompositeLoss(LossFunction):
 
         for i, wloss in enumerate(self.losses):
             if weight_overrides is not None:
-                weight = weight_overrides[i]
+                weight: float | Array = weight_overrides[i]
             else:
                 weight = wloss.get_weight(epoch, total_epochs)
 
@@ -1281,8 +1281,8 @@ def create_value_and_grad_fn(
         # Zero out gradients for fixed components
         if apply_fixed_mask:
             # fixed_mask is (N,), expand to (N, 2) for positions and (N, 4) for rotations
-            grad_pos = jnp.where(fixed_mask[:, None], 0.0, grad_pos)
-            grad_rot = jnp.where(fixed_mask[:, None], 0.0, grad_rot)
+            grad_pos = jnp.where(fixed_mask[:, None], 0.0, grad_pos)  # type: ignore[index]
+            grad_rot = jnp.where(fixed_mask[:, None], 0.0, grad_rot)  # type: ignore[index]
 
         return loss, (cast(Array, grad_pos), cast(Array, grad_rot))
 
@@ -1350,8 +1350,8 @@ def create_value_and_grad_fn_with_breakdown(
 
         # Zero out gradients for fixed components
         if apply_fixed_mask:
-            grad_pos = jnp.where(fixed_mask[:, None], 0.0, grad_pos)
-            grad_rot = jnp.where(fixed_mask[:, None], 0.0, grad_rot)
+            grad_pos = jnp.where(fixed_mask[:, None], 0.0, grad_pos)  # type: ignore[index]
+            grad_rot = jnp.where(fixed_mask[:, None], 0.0, grad_rot)  # type: ignore[index]
 
         return (loss, breakdown), (cast(Array, grad_pos), cast(Array, grad_rot), cast(Array, grad_vn))
 

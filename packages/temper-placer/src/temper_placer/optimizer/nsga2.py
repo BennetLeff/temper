@@ -156,7 +156,7 @@ def fast_non_dominated_sort(objectives: Array) -> list[list[int]]:
         dominated_indices = jnp.where(dominates[i, :])[0].tolist()
         dominated_set.append(dominated_indices)
 
-    fronts = [[]]
+    fronts: list[list[int]] = [[]]
 
     # First front: individuals with domination_count == 0
     first_front = jnp.where(domination_count == 0)[0].tolist()
@@ -1257,7 +1257,8 @@ class NSGAOptimizer:
                         next_indices = [
                             idx if idx != worst_idx else fixed_child_idx for idx in next_indices
                         ]
-                        next_indices = jnp.array(next_indices)
+                        next_indices_jnp: list[int] | Array = jnp.array(next_indices)
+                        next_indices = next_indices_jnp  # type: ignore[assignment]
 
             pop_pos = combined_pos[jnp.array(next_indices)]
             pop_rot = combined_rot[jnp.array(next_indices)]
@@ -1414,15 +1415,15 @@ def select_knee_point(
     else:
         # Multi-objective (M > 2): use hyperplane distance or L2 norm
         # Find extreme point for each objective
-        extreme_points = []
+        extreme_points: list[Array] = []
         for obj_idx in range(n_objectives):
             min_idx = int(jnp.argmin(normalized[:, obj_idx]))
             extreme_points.append(normalized[min_idx])
 
-        extreme_points = jnp.array(extreme_points)
+        extreme_points_arr = jnp.array(extreme_points)
 
         # Compute centroid of extreme points
-        centroid = jnp.mean(extreme_points, axis=0)
+        centroid = jnp.mean(extreme_points_arr, axis=0)
 
         # Compute normal vector to the hyperplane (approximate)
         # Use the direction from centroid towards the ideal point (origin)

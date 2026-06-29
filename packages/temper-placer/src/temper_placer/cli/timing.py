@@ -4,6 +4,7 @@ Commands:
     temper timing baseline   Capture timing baselines for canonical boards.
     temper timing check      Compare current timing against baselines.
     temper timing regenerate Update baselines after intentional changes.
+    temper timing tighten    Auto-lower stale baselines from JSONL trends.
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import click
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from ._io import console
 
@@ -644,3 +645,195 @@ def timing_regenerate(
         console.print(
             f"[green]Regenerated {len(results)} stages for board '{board}'[/]"
         )
+
+
+@timing.command("tighten")
+@click.option("--board", "-b", default=None, help="Tighten only this board")
+@click.option("--stage", "-s", default=None, help="Tighten only this stage")
+@click.option(
+    "--pipeline", "-p", default="DeterministicPipeline", help="Pipeline to check"
+)
+@click.option(
+    "--n-runs", type=int, default=7, help="Consecutive runs required (default: 7)"
+)
+@click.option(
+    "--threshold",
+    "-t",
+    type=float,
+    default=0.50,
+    help="Below-baseline ratio (default: 0.50 = 50%%)",
+)
+@click.option(
+    "--noise-floor",
+    type=float,
+    default=10.0,
+    help="Min baseline ms to consider (default: 10ms)",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Print proposed changes without writing",
+)
+@click.option(
+    "--ci",
+    "ci_mode",
+    is_flag=True,
+    default=False,
+    help="CI mode: no prompts, exit 0 on success",
+)
+def timing_tighten(
+    board: str | None,
+    stage: str | None,
+    pipeline: str,
+    n_runs: int,
+    threshold: float,
+    noise_floor: float,
+    dry_run: bool,
+    ci_mode: bool,
+) -> None:
+    """Auto-lower stale timing baselines from pipeline_metrics.jsonl trends.  # R4,R5,R6
+
+    Queries the committed JSONL time-series store for consecutive main-push
+    runs where per-stage wall-clock has dropped consistently below the current
+    baseline, then lowers the baseline to the median of those runs.
+    """
+    from rich.table import Table as RT
+
+    from temper_placer.profiling.timing_gate import detect_tightenable_stages
+    from temper_placer.regression.metrics_recorder import find_metrics_file
+
+    # 1. Load manifest --------------------------------------------------------
+    manifest = _load_manifest()
+    if manifest is None or not manifest.get("stages"):
+        if dry_run or ci_mode:
+            console.print("[dim]No timing baselines to tighten.[/]")
+            return
+        console.print("[dim]No timing baselines to tighten.[/]")
+        return
+
+    # 2. Resolve JSONL path ---------------------------------------------------
+    metrics_path = find_metrics_file(_repo_root())
+    if not metrics_path.exists():
+        if dry_run or ci_mode:
+            console.print("[dim]No metrics data to analyze.[/]")
+            return
+        console.print("[dim]No metrics data to analyze.[/]")
+        return
+
+    # 3. Detect eligible stages -----------------------------------------------
+    results = detect_tightenable_stages(
+        jsonl_path=metrics_path,
+        manifest=manifest,
+        n_runs=n_runs,
+        threshold=threshold,
+        noise_floor=noise_floor,
+        board_filter=board,
+        stage_filter=stage,
+        pipeline_filter=pipeline,
+    )
+
+    if not results:
+        console.print("No stages eligible for tightening.")
+        return
+
+    # 4. Pretty-print results --------------------------------------------------
+    pct_str = f"{threshold * 100:.0f}%"
+    console.print(
+        f"\nEligible stages for auto-tightening (threshold: {pct_str}, N={n_runs}):"
+    )
+    table = RT(show_header=True, header_style="bold")
+    table.add_column("Board")
+    table.add_column("Stage")
+    table.add_column("Baseline", justify="right")
+    table.add_column("Proposed", justify="right")
+    table.add_column("Drop %", justify="right")
+    table.add_column("Streak", justify="right")
+    for r in results:
+        table.add_row(
+            r.board,
+            r.stage,
+            f"{r.baseline_ms:.1f} ms",
+            f"{r.proposed_ms:.1f} ms",
+            f"{r.drop_pct:.1f}%",
+            str(r.streak_count),
+        )
+    console.print(table)
+
+    # 5. Dry-run mode ---------------------------------------------------------
+    if dry_run:
+        console.print("[dim]Dry run — no changes written. Remove --dry-run to apply.[/]")
+        return
+
+    # 6. Confirmation (skip in CI mode) ---------------------------------------
+    if not ci_mode and not click.confirm(
+        "\nApply these baseline changes?",
+        default=False,
+    ):
+        console.print("Aborted.")
+        return
+
+    # 7. Apply changes --------------------------------------------------------
+    now_ts = datetime.now(UTC).isoformat()
+    git_hash = _current_git_hash()
+    tightened_count = 0
+
+    for result in results:
+        for i, entry in enumerate(manifest["stages"]):
+            if (
+                entry["board"] == result.board
+                and entry.get("pipeline", pipeline) == result.pipeline
+                and entry["stage"] == result.stage
+            ):
+                # Compute p95 of qualifying runs  # R5
+                p95_ms = round(
+                    sorted(result.qualifying_runs)[
+                        int(len(result.qualifying_runs) * 0.95)
+                    ],
+                    3,
+                ) if result.qualifying_runs else 0.0
+
+                manifest["stages"][i] = {
+                    "board": result.board,
+                    "pipeline": result.pipeline,
+                    "stage": result.stage,
+                    "wall_ms_mean": round(result.proposed_ms, 3),
+                    "wall_ms_p95": p95_ms,
+                    "n_runs": n_runs,
+                    "individual_ms": [round(x, 3) for x in result.qualifying_runs],
+                    "git_hash": git_hash,
+                    "captured_at": now_ts,
+                    "tightened_from_ms": round(result.baseline_ms, 3),
+                    "tightened_at": now_ts,
+                    "tightened_n_runs": len(result.qualifying_runs),
+                    "tightened_trigger_pct": round(threshold, 3),
+                }
+                tightened_count += 1
+                break
+
+    if tightened_count == 0:
+        console.print("[dim]No manifest entries were updated.[/]")
+        return
+
+    manifest["captured_at"] = now_ts
+    manifest["captured_python"] = sys.version.split()[0]
+    manifest["captured_platform"] = sys.platform
+    _save_manifest(manifest)
+
+    console.print(f"\nTightening {tightened_count} stage(s):")
+    for result in results:
+        result.baseline_ms - result.proposed_ms
+        console.print(
+            "  {stage:.<40s} {old:.1f} ms {arrow} {new:.1f} ms   "
+            "(-{pct:.1f}%, {streak}-run streak)".format(
+                stage=result.stage,
+                old=result.baseline_ms,
+                arrow="→",
+                new=result.proposed_ms,
+                pct=result.drop_pct,
+                streak=result.streak_count,
+            )
+        )
+    console.print(
+        "Baselines written to power_pcb_dataset/timing_baselines.yaml"
+    )

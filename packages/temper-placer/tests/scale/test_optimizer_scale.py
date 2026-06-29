@@ -293,7 +293,7 @@ class TestConvergenceTimeBenchmarks:
         )
 
         start_time = time.perf_counter()
-        result = train(netlist, board, composite, context, config)
+        train(netlist, board, composite, context, config)
         elapsed = time.perf_counter() - start_time
 
         time_per_epoch = elapsed / 20

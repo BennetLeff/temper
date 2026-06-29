@@ -56,7 +56,7 @@ def measure_displacement(pcb_path: Path, config_path: Path, seed: int = 42):
     # 4. Analytical (Quadratic) Initialization
     # We need some fixed components for quadratic.
     # Use mounting holes or if none, fix the first few components randomly for the study
-    fixed_indices = jnp.where(context.fixed_mask)[0]
+    fixed_indices = jnp.where(context.fixed_mask)[0]  # type: ignore[arg-type]
     if fixed_indices.shape[0] == 0:
         # For study purposes, fix component 0 at board center if nothing is fixed
         fixed_indices = jnp.array([0])

@@ -11,3 +11,4 @@ dependencies = []
 [tool.maturin]
 features = ["pyo3/extension-module"]
 module-name = "temper_constraint_compiler"
+

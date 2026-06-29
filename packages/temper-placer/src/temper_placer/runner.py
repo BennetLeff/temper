@@ -118,14 +118,14 @@ class PipelineRunner:
         from temper_placer.protocol import StageOutput
 
         initial_input.meta.timestamp = time.time()
-        inp = initial_input
+        inp: StageInput | StageOutput = initial_input
         self._trace = []
 
         for stage in self._stages:
-            _check_input_contract(stage, inp)
+            _check_input_contract(stage, inp)  # type: ignore[arg-type]
 
             t0 = time.perf_counter()
-            out = stage.run(inp)
+            out = stage.run(inp)  # type: ignore[arg-type]
             dt = time.perf_counter() - t0
 
             out.meta.timings[stage.name] = dt

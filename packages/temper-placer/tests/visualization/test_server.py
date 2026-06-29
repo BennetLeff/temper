@@ -525,7 +525,7 @@ class TestLiveServerIntegration:
 
             assert server.client_count == 0
 
-            async with websockets.connect(server.ws_url) as ws:
+            async with websockets.connect(server.ws_url):
                 await asyncio.sleep(0.1)
                 assert server.client_count == 1
 

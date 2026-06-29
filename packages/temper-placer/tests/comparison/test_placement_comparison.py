@@ -22,12 +22,12 @@ import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
+import jax.numpy as jnp  # noqa: E402
 
-from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist
-from temper_placer.core.state import PlacementState
-from temper_placer.losses import (
+from temper_placer.core.board import Board, Zone  # noqa: E402
+from temper_placer.core.netlist import Component, Net, Netlist  # noqa: E402
+from temper_placer.core.state import PlacementState  # noqa: E402
+from temper_placer.losses import (  # noqa: E402
     BoundaryLoss,
     CompositeLoss,
     LossContext,
@@ -35,7 +35,7 @@ from temper_placer.losses import (
     WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.metrics import compute_quality_report
+from temper_placer.metrics import compute_quality_report  # noqa: E402
 
 # Test fixtures and results directories
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -193,7 +193,7 @@ class PlacementFactory:
     def heuristic_placement(
         netlist: Netlist,
         board: Board,
-        config: dict,
+        _config: dict,
     ) -> PlacementState:
         """
         Create a reasonable heuristic placement (simulates hand-placed).
@@ -208,8 +208,8 @@ class PlacementFactory:
         ox, oy = board.origin
         positions = []
 
-        # Build reference name -> index mapping
-        ref_to_idx = {c.ref: i for i, c in enumerate(netlist.components)}
+        # Build reference name -> index mapping (kept for future use)
+        _ref_to_idx = {c.ref: i for i, c in enumerate(netlist.components)}
 
         # Define target positions for key components
         # Board top edge is at oy + board.height
@@ -751,7 +751,7 @@ class TestComparisonReport:
         assert len(comparison["metrics"]) == 6
 
         # Each metric should have comparison data
-        for metric, data in comparison["metrics"].items():
+        for _metric, data in comparison["metrics"].items():
             assert "heuristic" in data
             assert "random" in data
             assert "heuristic_better" in data

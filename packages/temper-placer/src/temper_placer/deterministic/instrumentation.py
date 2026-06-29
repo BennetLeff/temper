@@ -46,7 +46,7 @@ class InstrumentedStage:
 
     def _count_routes(self, state: BoardState) -> dict[str, int]:
         """Count routes by net name."""
-        counts = {}
+        counts: dict[str, int] = {}
         for route in state.routes:
             # Route objects should have a net_name attribute
             net_name = getattr(route, "net_name", None)
@@ -128,7 +128,7 @@ def run_with_trace_log(
         stage_name = stage.__class__.__name__
 
         # Count before
-        counts_before = {}
+        counts_before: dict[str, int] = {}
         for route in current_state.routes:
             net_name = getattr(route, "net_name", None)
             if net_name and (track_nets is None or net_name in track_nets):
@@ -138,7 +138,7 @@ def run_with_trace_log(
         current_state = stage.run(current_state)
 
         # Count after
-        counts_after = {}
+        counts_after: dict[str, int] = {}
         for route in current_state.routes:
             net_name = getattr(route, "net_name", None)
             if net_name and (track_nets is None or net_name in track_nets):

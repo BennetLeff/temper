@@ -99,6 +99,5 @@ def test_nsga2_determinism(simple_netlist, simple_board):
     assert res1.fronts == res2.fronts
 
 @pytest.mark.skip(reason="MazeRouter implementation might not be fully deterministic or ready for this test")
-def test_maze_router_determinism(simple_netlist, simple_board):
-    """Maze router with fixed netlist should produce identical paths."""
+def test_maze_router_determinism_duplicate(simple_netlist, simple_board):
     pass

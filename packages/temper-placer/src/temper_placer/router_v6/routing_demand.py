@@ -130,6 +130,7 @@ class RoutingDemandStage(Stage):
         return "RoutingDemand"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         routing_demand = estimate_routing_demand(pcb)
         return replace(state, routing_demand=routing_demand)

@@ -110,14 +110,15 @@ class LayerCapacityStage(Stage):
         return "LayerCapacity"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         layer_capacities: dict[str, LayerCapacity] = {}
-        for layer_name in state.occupancy_grids:
-            widths = state.channel_widths.get(layer_name)
+        for layer_name in state.occupancy_grids:  # type: ignore[union-attr]
+            widths = state.channel_widths.get(layer_name)  # type: ignore[union-attr]
             if widths is None:
                 continue
             capacity = calculate_layer_capacity(
-                state.occupancy_grids[layer_name],
+                state.occupancy_grids[layer_name],  # type: ignore[index]
                 widths,
                 pcb.design_rules.default_trace_width_mm * 1.5,
                 pcb.design_rules.default_clearance_mm,

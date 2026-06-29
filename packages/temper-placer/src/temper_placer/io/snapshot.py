@@ -91,8 +91,8 @@ def save_svg_snapshot(
     netlist: Netlist = state.netlist
 
     # Determine placements
-    positions = []
-    rotations = []
+    positions: Any = None
+    rotations: Any = None
 
     if state.placement_state:
         positions = np.array(state.placement_state.positions)
@@ -106,13 +106,17 @@ def save_svg_snapshot(
         rotations = state.deterministic_result.rotations
     else:
         # Try initial positions from netlist
+<<<<<<< HEAD
         positions: list[tuple[float, float]] = []
+=======
+        pos_list: list[tuple[float, float]] = []
+>>>>>>> main
         for c in netlist.components:
             if c.initial_position:
-                positions.append(c.initial_position)
+                pos_list.append(c.initial_position)
             else:
-                positions.append((0.0, 0.0))
-        positions = np.array(positions)
+                pos_list.append((0.0, 0.0))
+        positions = np.array(pos_list)
         rotations = np.zeros(len(positions))
 
     if len(positions) != netlist.n_components:

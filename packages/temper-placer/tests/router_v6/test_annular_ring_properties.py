@@ -126,10 +126,7 @@ def test_ring_width_formula_matches(via: Via) -> None:
 
     expected_ring = (via.diameter - via.drill) / 2.0
 
-    if isinstance(result, AnnularRingViolation):
-        actual = result.actual_ring_width
-    else:
-        actual = expected_ring
+    actual = result.actual_ring_width if isinstance(result, AnnularRingViolation) else expected_ring
 
     assert actual == pytest.approx(expected_ring, abs=1e-9), (
         f"actual_ring_width={actual} != expected={expected_ring} "

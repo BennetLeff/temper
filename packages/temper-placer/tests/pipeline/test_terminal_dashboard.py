@@ -1,6 +1,9 @@
 """Tests for TerminalDashboardObserver live pipeline visualization."""
 
+<<<<<<< HEAD
 import pytest
+=======
+>>>>>>> main
 
 
 class TestTerminalDashboardObserver:
@@ -101,7 +104,10 @@ class TestProgressObserverProtocol:
         assert 'on_epoch' in ProgressObserver.__dict__
 
     def test_metrics_observer_still_works_without_on_epoch(self):
+<<<<<<< HEAD
         """MetricsObserver doesn't implement on_epoch — should still work."""
+=======
+>>>>>>> main
         from temper_placer.pipeline.metrics_observer import MetricsObserver
         assert MetricsObserver is not None
 

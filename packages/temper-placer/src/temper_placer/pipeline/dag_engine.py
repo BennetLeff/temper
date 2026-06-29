@@ -167,7 +167,7 @@ class StageDAGEngine:
                     except Exception:
                         retry_attempts = attempt + 1
                         if attempt < max_attempts:
-                            time.sleep(stage_def.retry.backoff_s)
+                            time.sleep(stage_def.retry.backoff_s)  # type: ignore[union-attr]
                             continue
                         raise
             except StageTimeoutError:
@@ -276,6 +276,12 @@ class StageDAGEngine:
                 if key not in context:
                     context[key] = None
 
+        if self.observers:
+            engine = self
+            def _on_epoch(stage_name: str, epoch: int, loss: float) -> None:
+                engine._emit_epoch(stage_name, epoch, loss)
+            context["on_epoch"] = _on_epoch
+
         return context
 
     def _evaluate_skip(self, expr_src: str, config: Any, state: Any, context: dict[str, Any]) -> bool:
@@ -301,7 +307,7 @@ class StageDAGEngine:
             raise
 
         if deadline is not None and time.time() > deadline:
-            raise StageTimeoutError(stage_def.name, stage_def.timeout_s)
+            raise StageTimeoutError(stage_def.name, stage_def.timeout_s)  # type: ignore[arg-type]
 
         return result
 

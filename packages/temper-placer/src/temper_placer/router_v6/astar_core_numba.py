@@ -198,7 +198,7 @@ def _compile_kernel():
         cols: int,
         validity_flat: np.ndarray,  # (rows*cols*8,) uint8
         max_iterations: int,
-        congestion_flat: np.ndarray = None,  # (rows*cols,) float32; null = no congestion
+        congestion_flat: np.ndarray | None = None,  # (rows*cols,) float32; null = no congestion
         congestion_weight: float = 1.0,  # multiplier on per-cell congestion cost
         max_congestion_cost: float = 100.0,  # cap on per-cell cost
     ) -> tuple:
@@ -329,7 +329,7 @@ def _compile_kernel():
                 # PathFinder history tensor.  log1p + cap means
                 # cost grows logarithmically; admissible as a
                 # tie-breaker.
-                if use_congestion:
+                if use_congestion and congestion_flat is not None:
                     raw = congestion_flat[n_idx]
                     if raw > np.float32(0.0):
                         # Inline: 1 + log(1 + raw), capped

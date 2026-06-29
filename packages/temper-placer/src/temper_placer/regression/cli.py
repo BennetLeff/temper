@@ -50,7 +50,11 @@ def run_corpus(args: argparse.Namespace) -> int:
 
     from temper_placer.regression.corpus_runner import CorpusRegressionRunner
 
-    runner = CorpusRegressionRunner(corpus_root=corpus_root)
+    runner = CorpusRegressionRunner(
+        corpus_root=corpus_root,
+        repo_root=repo_root,
+        skip_unchanged=args.skip_unchanged,
+    )
     boards = args.board if args.board else None
     return runner.run(boards=boards, json_output=args.json)
 
@@ -83,6 +87,11 @@ def main() -> None:
     )
     corpus_parser.add_argument(
         "--json", action="store_true", help="Write JSON report to regression-report.json"
+    )
+    corpus_parser.add_argument(
+        "--skip-unchanged",
+        action="store_true",
+        help="Skip boards whose inputs and source haven't changed since last green run",
     )
 
     args = parser.parse_args()

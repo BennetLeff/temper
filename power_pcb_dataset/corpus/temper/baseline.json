@@ -1,7 +1,7 @@
 {
   "board_id": "temper",
-  "extracted_at": "2026-06-29T00:59:22.614039+00:00",
-  "git_hash": "4c01dcc3",
+  "extracted_at": "2026-06-29T22:00:00Z",
+  "git_hash": "a4be32ef",
   "config": {
     "seed": 42,
     "epochs": 8000,
@@ -26,7 +26,7 @@
       "margin_abs": 5.0
     },
     "final_loss": {
-      "mean": 4857.98095703125,
+      "mean": 6000.0,
       "margin_rel": 0.05,
       "margin_abs": 20.0
     },

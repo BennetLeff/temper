@@ -207,7 +207,7 @@ class TestConflictResolver:
             assert conflict is not None
             assert "rejected" in conflict.resolution
 
-    def test_add_multiple_placements(self, context):
+    def test_add_multiple_placements(self, _context):
         """Can add multiple placements and check against all."""
         resolver = ConflictResolver()
 
@@ -239,7 +239,7 @@ class TestConflictResolver:
         conflicts = resolver.get_all_conflicts()
         assert len(conflicts) >= 2
 
-    def test_clear_resets_state(self, context):
+    def test_clear_resets_state(self, _context):
         """Clear removes all placements and conflicts."""
         resolver = ConflictResolver()
 

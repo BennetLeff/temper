@@ -11,12 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 import networkx as nx
-import pytest
 
-from temper_placer.router_v6.bundle_analyzer import BundleAnalyzer, BundleManifest
 from temper_placer.router_v6.constraint_model import ModelBuilder, NetChannelVar
-from temper_placer.router_v6.type_gating import TypeGating
-
 
 # ---------------------------------------------------------------------------
 # Test fixtures

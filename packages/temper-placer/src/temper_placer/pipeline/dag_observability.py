@@ -78,19 +78,19 @@ class DAGToLegacyObserver:
         if self.orchestrator.on_phase_start:
             from temper_placer.pipeline.state import PipelinePhase
             try:
-                phase = PipelinePhase(stage_name)
+                phase: PipelinePhase | str = PipelinePhase(stage_name)
             except ValueError:
                 phase = stage_name
-            self.orchestrator.on_phase_start(phase, self.orchestrator.state)
+            self.orchestrator.on_phase_start(phase, self.orchestrator.state)  # type: ignore[arg-type]
 
     def on_stage_complete(self, stage_name: str, _duration_s: float, _outputs: dict[str, Any]) -> None:
         if self.orchestrator.on_phase_complete:
             from temper_placer.pipeline.state import PipelinePhase
             try:
-                phase = PipelinePhase(stage_name)
+                phase: PipelinePhase | str = PipelinePhase(stage_name)
             except ValueError:
                 phase = stage_name
-            self.orchestrator.on_phase_complete(phase, self.orchestrator.state)
+            self.orchestrator.on_phase_complete(phase, self.orchestrator.state)  # type: ignore[arg-type]
         self._save_snapshot(stage_name)
 
     def _save_snapshot(self, stage_name: str) -> None:

@@ -24,7 +24,7 @@ def _make_mapping(net_specs: list[tuple[str, int, float, bool]]) -> ChannelMappi
     """Build a ChannelMapping from a list of
     (name, pin_count, total_length, is_problem) tuples."""
     paths = {}
-    for name, pin_count, total_length, is_problem in net_specs:
+    for name, pin_count, total_length, _is_problem in net_specs:
         paths[name] = ChannelPath(
             net_name=name,
             channel_sequence=[f"CH{i}" for i in range(pin_count)],

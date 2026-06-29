@@ -9,13 +9,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 import networkx as nx
-import pytest
 
 from temper_placer.router_v6.constraint_model import (
     ModelBuilder,
     NetChannelVar,
 )
-
 
 # ---------------------------------------------------------------------------
 # Test fixtures
@@ -164,7 +162,7 @@ def test_variable_count_reduction():
     nets = [_make_net(f"SIG_{i}") for i in range(10)]
     edges = [((0.0, 0.0), (10.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
-    manifest = _make_manifest({i: 0 for i in range(10)})
+    manifest = _make_manifest(dict.fromkeys(range(10), 0))
 
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets,

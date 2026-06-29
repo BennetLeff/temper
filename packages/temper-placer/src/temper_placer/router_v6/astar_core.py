@@ -58,6 +58,11 @@ class RoutePath:
         """Number of segments in path."""
         return max(0, len(self.coordinates) - 1)
 
+    @property
+    def success(self) -> bool:
+        """Whether the route was successfully found."""
+        return len(self.coordinates) >= 2
+
 
 @dataclass
 class RouteNode3D:
@@ -141,7 +146,7 @@ def _astar_search(
         neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
 
     # A* frontier (priority queue)
-    frontier = []
+    frontier: list = []
     heappush(frontier, (0, start))
 
     # Came from and cost tracking
@@ -192,7 +197,7 @@ def _astar_search(
             neighbor = (nx, ny)
 
             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                cost_so_far[neighbor] = new_cost
+                cost_so_far[neighbor] = float(new_cost)  # type: ignore[assignment]
                 priority = new_cost + _heuristic(neighbor, goal)
                 heappush(frontier, (priority, neighbor))
                 came_from[neighbor] = current
@@ -287,7 +292,7 @@ def _astar_search_lazy_theta_star(
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
-    open_set = []
+    open_set: list = []
     heappush(open_set, (0.0, counter, start_grid))
 
     came_from = came_from_init.copy() if came_from_init else {}
@@ -444,7 +449,7 @@ def _astar_search_theta_star(
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
-    open_set = []
+    open_set: list = []
     heappush(open_set, (0.0, counter, start_grid))
 
     came_from = came_from_init.copy() if came_from_init else {}
@@ -555,7 +560,7 @@ def _astar_search_3d(
             available_layers.append(layer)
 
     # A* frontier: (priority, node)
-    frontier = []
+    frontier: list = []
     heappush(frontier, (0, (start.x, start.y, start.layer)))
 
     # Tracking

@@ -6,7 +6,7 @@ chainable, fluent interface.
 """
 
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from temper_placer.io.config_loader import (
     ComponentGroup,

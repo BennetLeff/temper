@@ -19,7 +19,11 @@ on:
 jobs:
   regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        board: [temper, minimal, rp2040_designguide, bitaxe_ultra, piantor_right]
     env:
       JAX_PLATFORM_NAME: cpu
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.5
@@ -33,6 +37,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
 
       - name: Set up Python
         run: uv python install 3.12
@@ -52,14 +57,14 @@ jobs:
             echo "Baseline-Approval found in commit message."
           fi
 
-      - name: Run corpus regression
-        run: uv run python -m temper_placer.regression.cli run-corpus --json
+      - name: Run corpus regression (${{ matrix.board }})
+        run: uv run python -m temper_placer.regression.cli run-corpus --board ${{ matrix.board }} --json --skip-unchanged
 
       - name: Generate summary table
         if: always()
         run: |
           {
-            echo "## Placer Regression Results"
+            echo "## Placer Regression Results (${{ matrix.board }})"
             echo ""
             if [ -f regression-report.json ]; then
               echo "| Board ID | Status | Skipped | Elapsed (s) |"
@@ -75,17 +80,15 @@ jobs:
           if failed:
               print()
               print('> [!CAUTION]')
-              print(f'> Regression detected in: {\", \".join(b[\"board_id\"] for b in failed)}')
+              print(f'> Regression detected')
+          elif any(b['skipped'] for b in report['boards']):
+              print()
+              print('> [!NOTE]')
+              print('> Board skipped (no baseline, unchanged inputs, or missing files)')
           else:
-              skipped = [b for b in report['boards'] if b['skipped']]
-              if skipped:
-                  print()
-                  print('> [!WARNING]')
-                  print(f'> Skipped: {\", \".join(b[\"board_id\"] for b in skipped)}')
-              else:
-                  print()
-                  print('> [!IMPORTANT]')
-                  print('> All corpus boards passed regression checks.')
+              print()
+              print('> [!IMPORTANT]')
+              print('> Regression check passed.')
               "
             else
               echo "No regression report generated."
@@ -96,5 +99,51 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: regression-report
+          name: regression-report-${{ matrix.board }}
           path: regression-report.json
+
+  update-cache:
+    name: Update Regression Cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: regression
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Download regression reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: regression-report-*
+          path: ./reports
+          merge-multiple: true
+
+      - name: Update regression cache
+        run: uv run python scripts/update_regression_cache.py --reports-dir ./reports
+
+      - name: Commit and push cache
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add power_pcb_dataset/corpus/.regression-cache.json
+          if git diff --cached --quiet; then
+            echo "No cache changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: update regression cache [skip ci]"
+          git pull --rebase origin main
+          git push origin main

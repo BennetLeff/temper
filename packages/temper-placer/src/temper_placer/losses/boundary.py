@@ -69,7 +69,7 @@ class BoundaryLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -99,6 +99,9 @@ class BoundaryLoss(LossFunction):
         rotations = jnp.nan_to_num(rotations, nan=0.25, posinf=0.25, neginf=0.25)
 
         bounds = context.bounds  # (N, 2)
+        if bounds is None:
+            return LossResult(value=jnp.array(0.0))
+
         board = context.board
         centrality = context.centrality if hasattr(context, "centrality") else None
 
@@ -110,17 +113,17 @@ class BoundaryLoss(LossFunction):
             bounds = bounds * multiplier
 
         # Compute dynamic margin
-        current_margin = self.edge_margin
+        current_margin = jnp.array(self.edge_margin)
         if self.margin_ramp > 0:
             progress = jnp.clip(epoch / jnp.maximum(self.margin_ramp * total_epochs, 1.0), 0.0, 1.0)
             current_margin = self.edge_margin * progress
 
         # Get effective bounds after rotation
         if self.use_rotated_bounds:
-            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)  # type: ignore[index]
         else:
-            widths = bounds[:, 0]
-            heights = bounds[:, 1]
+            widths = bounds[:, 0]  # type: ignore[index]
+            heights = bounds[:, 1]  # type: ignore[index]
 
         # Compute edge violations
         edge_violations = self._compute_edge_violations(
@@ -152,7 +155,7 @@ class BoundaryLoss(LossFunction):
         widths: Array,
         heights: Array,
         board,
-        margin: float,
+        margin: float | Array,
         centrality: Array | None = None,
     ) -> Array:
         """
@@ -246,7 +249,7 @@ class BoundaryLoss(LossFunction):
 
         return total_violations
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> Array:  # type: ignore[override]
         """
         Boundary is a hard constraint - full weight throughout training.
         We ramp up weight in the final 25% of training to ensure convergence.

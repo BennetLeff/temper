@@ -28,7 +28,7 @@ class BaseCheckReport:
       (default ``"total_checks"``)
     """
 
-    violations: list  # type: ignore[annotation-unchecked]  -- set by subclasses
+    violations: list  # type: ignore[assignment]
     _denominator_field: str = "total_checks"
 
     @property

@@ -67,7 +67,7 @@ def coarsen_hypergraph(
     # This is O(N_pins^2) in worst case (massive net), but we filtered global nets already.
 
     from collections import defaultdict
-    affinity = defaultdict(float)
+    affinity: dict[tuple[int, int], float] = defaultdict(float)
 
     # Group nodes by edge
     edge_to_nodes = defaultdict(list)
@@ -96,7 +96,7 @@ def coarsen_hypergraph(
     target_n_matches = max(0, n_fine - target_n_coarse)
 
     matched = np.zeros(n_fine, dtype=bool)
-    matches = [] # List of (u, v) tuples
+    matches: list[tuple[int, int]] = [] # List of (u, v) tuples
 
     # Sort pairs by weight descending
     sorted_pairs = sorted(affinity.items(), key=lambda x: x[1], reverse=True)

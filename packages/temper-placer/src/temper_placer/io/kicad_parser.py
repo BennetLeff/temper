@@ -12,7 +12,7 @@ import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
@@ -245,7 +245,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
             )
 
     # 3. Extract Zones
-    zones = []
+    zones: list = []
     for ki_zone in ki_board.zones:
         # Kiutils zone boundary is a list of points
         if ki_zone.polygons:
@@ -339,7 +339,7 @@ def _extract_components_from_pcb(
         # Extract pins and calculate bounding box center offset
         # Note: In kiutils, pad.position is in footprint-local coordinates (relative to origin)
         # But our internal representation expects pin positions relative to BOUNDING BOX CENTER
-        raw_pins = []
+        raw_pins: list[dict[str, Any]] = []
         for pad in fp.pads:
             local_x = pad.position.X
             local_y = pad.position.Y
@@ -553,8 +553,7 @@ def _extract_vias_from_pcb(
     if net_map is None:
         net_map = {}
 
-    vias = []
-    vias = []
+    vias: list = []
     for track in ki_board.traceItems:
         # Check if it's a Via object (has position but no start/end)
         if hasattr(track, "position") and not hasattr(track, "start"):

@@ -517,7 +517,7 @@ class TestAddIsolationSlotsToPcb:
 class TestComputeTO247IsolationSlots:
     """Tests for compute_to247_isolation_slots helper function."""
 
-    def test_single_component(self, tmp_path):
+    def test_single_component(self, _tmp_path):
         """Test computing slot for a single TO-247 component."""
         from temper_placer.io.kicad_writer import compute_to247_isolation_slots
 

@@ -14,8 +14,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import jax.numpy as jnp
+
+if TYPE_CHECKING:
+    from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -110,12 +114,12 @@ def identify_functional_modules(
     # Auto-detect by high connectivity
     # Components sharing multiple nets with each other form a module
     connectivity_groups = _find_highly_connected_groups(netlist, assigned_refs)
-    for i, refs in enumerate(connectivity_groups):
-        if len(refs) >= 2:
+    for i, group_refs in enumerate(connectivity_groups):
+        if len(group_refs) >= 2:
             modules.append(
                 FunctionalModule(
                     name=f"connected_group_{i}",
-                    components=list(refs),
+                    components=list(group_refs),
                 )
             )
 
@@ -292,12 +296,15 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
         for i, ref in enumerate(to_place):
             comp = context.netlist.get_component(ref)
 
+            offset_x: Array | float
+            offset_y: Array | float
             if n > 1:
                 angle = 2 * 3.14159 * i / n
                 offset_x = radius * jnp.cos(angle)
                 offset_y = radius * jnp.sin(angle)
             else:
-                offset_x, offset_y = 0.0, 0.0
+                offset_x = 0.0
+                offset_y = 0.0
 
             pos_x = cx + float(offset_x)
             pos_y = cy + float(offset_y)

@@ -54,7 +54,7 @@ COMPARISON_PROJECTS = [
 ]
 
 
-def get_kicad_version(project_name: str) -> int:
+def get_kicad_version(_project_name: str) -> int:
     """Helper to get KiCad version (mock/simplified for now)."""
     # In a real scenario, read from manifest or config
     return 6

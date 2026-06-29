@@ -16,7 +16,7 @@ from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
 
 if TYPE_CHECKING:
-    from temper_placer.core.state import BoardState
+    from temper_placer.deterministic.state import BoardState
 
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias
@@ -150,7 +150,7 @@ def path_to_segments(
 
         segments.append(
             TraceSegment(
-                net=net,
+                net=net or "unknown",
                 start=(x1, y1),
                 end=(x2, y2),
                 width=trace_width,
@@ -208,7 +208,7 @@ def path_to_vias(
 
             vias.append(
                 TraceVia(
-                    net=net,
+                    net=net or "unknown",
                     position=pos,
                     size=via_size,
                     drill=via_drill,
@@ -242,7 +242,7 @@ def _generate_connector_segments(
     connectors = []
 
     # Organize segments by net for faster lookup
-    segs_by_net = {}
+    segs_by_net: dict[str, list] = {}
     for seg in segments:
         if seg.net not in segs_by_net:
             segs_by_net[seg.net] = []

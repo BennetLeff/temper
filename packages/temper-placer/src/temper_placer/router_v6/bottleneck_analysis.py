@@ -73,8 +73,8 @@ class BottleneckAnalysis:
 
 
 def identify_bottlenecks(
-    layer_capacities: dict[str, LayerCapacity],
-    demand: RoutingDemand,
+    layer_capacities: dict[str, LayerCapacity] | None,
+    demand: RoutingDemand | None,
 ) -> BottleneckAnalysis:
     """
     Identify routing bottlenecks by comparing capacity vs demand.
@@ -91,6 +91,13 @@ def identify_bottlenecks(
         >>> analysis.has_critical_bottlenecks
         False
     """
+    if layer_capacities is None or demand is None:
+        return BottleneckAnalysis(
+            bottlenecks=[],
+            total_capacity=0,
+            total_demand=0,
+        )
+
     bottlenecks = []
     total_capacity = 0
 

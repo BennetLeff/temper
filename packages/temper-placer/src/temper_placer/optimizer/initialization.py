@@ -394,9 +394,9 @@ class SpectralInitializer:
 
         # Reconstruct positions in original component order
         positions = np.zeros((n, 2))
-        for subgraph, coords in zip(sorted_subgraphs, packed_positions):
+        for subgraph, coords in zip(sorted_subgraphs, packed_positions):  # type: ignore[assignment]
             for idx, comp_idx in enumerate(subgraph):
-                positions[comp_idx] = coords[idx]
+                positions[comp_idx] = np.asarray(coords[idx])  # type: ignore[assignment]
 
         # Apply separation for coincident components within each subgraph
         positions_jax = jnp.array(positions)
@@ -627,7 +627,7 @@ class LearnedInitializer:
 
         # 3. Run Inference
         model = LearnedInitializerGNN()
-        norm_positions = model.apply({"params": params}, nodes, edges)
+        norm_positions: Array = model.apply({"params": params}, nodes, edges)  # type: ignore[assignment]
 
         # 4. Scale to board
         positions = scale_to_board(norm_positions, board, margin_fraction=0.1)

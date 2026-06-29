@@ -175,7 +175,7 @@ def compute_loss_and_gradients_with_gradnorm(
         initial_grad_norms,
         epoch,
         learning_rate=grad_norm_lr,
-        alpha=grad_norm_alpha,
+        _alpha=grad_norm_alpha,
     )
 
     # Compute total loss and gradients with current weights

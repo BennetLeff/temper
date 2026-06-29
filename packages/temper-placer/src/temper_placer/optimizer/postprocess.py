@@ -173,9 +173,9 @@ def snap_to_grid_with_overlap_check(
             final_positions.append(pos)
             overlaps_introduced += 1
 
-    final_positions = jnp.stack(final_positions)
+    stacked: Array = jnp.stack(final_positions)
     return PlacementState(
-        positions=final_positions,
+        positions=stacked,
         rotation_logits=state.rotation_logits,
     ), overlaps_introduced
 
@@ -272,7 +272,7 @@ def discrete_rotation_refinement_greedy(
 
             if test_loss < best_loss:
                 best_loss = test_loss
-                best_rotation = rot_idx
+                best_rotation = rot_idx  # type: ignore[assignment]
 
         # Apply best rotation
         if best_rotation != get_rotation_index(current_state.rotation_logits)[comp_idx]:
@@ -714,7 +714,7 @@ def finalize_placement(
     loss_fn: Callable[[PlacementState], float],
     grid_size: float = DEFAULT_GRID_SIZE,
     fixed_components: list[int] | None = None,
-) -> tuple[Array, Array, float]:
+) -> tuple[Array, Array, float | None]:
     """
     Convenience function to get final positions and rotation indices.
 

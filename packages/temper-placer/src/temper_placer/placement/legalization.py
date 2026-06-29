@@ -85,6 +85,8 @@ class Legalizer:
             for comp in self.pcb.components:
                 disp = displacements.get(comp.ref, (0.0, 0.0))
                 if abs(disp[0]) > 0.001 or abs(disp[1]) > 0.001:
+                    if comp.initial_position is None:
+                        continue
                     cx, cy = comp.initial_position
                     comp.initial_position = (cx + disp[0], cy + disp[1])
                     moved = True

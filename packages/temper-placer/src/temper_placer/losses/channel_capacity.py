@@ -62,11 +62,11 @@ class ChannelCapacityLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """Compute channel capacity penalty.
@@ -132,8 +132,8 @@ class ChannelCapacityLoss(LossFunction):
         n = positions.shape[0]
 
         # Get dimensions from bounds array (N, 2)
-        half_w = context.bounds[:, 0] / 2  # (N,)
-        half_h = context.bounds[:, 1] / 2  # (N,)
+        half_w = context.bounds[:, 0] / 2  # type: ignore[index]  # (N,)
+        half_h = context.bounds[:, 1] / 2  # type: ignore[index]  # (N,)
 
         # Compute bounding box edges
         # left[i] = positions[i, 0] - half_w[i]
@@ -174,7 +174,7 @@ class ChannelCapacityLoss(LossFunction):
         Returns:
             (N, N) matrix of estimated trace demand.
         """
-        n = context.bounds.shape[0]
+        n = context.bounds.shape[0]  # type: ignore[union-attr]
 
         # Use pre-computed net pin indices from context
         # net_pin_indices: (M, P) where M=num_nets, P=max_pins_per_net
@@ -230,7 +230,7 @@ class ChannelCapacityLoss(LossFunction):
 
         return demand
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> Array:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> Array:  # type: ignore[override]
         """Channel capacity is important from early in training.
 
         Returns 1.0 after brief warmup to avoid harsh gradients initially.

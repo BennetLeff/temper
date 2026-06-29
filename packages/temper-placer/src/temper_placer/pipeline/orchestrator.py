@@ -211,7 +211,7 @@ class PipelineOrchestrator:
 
         self._engine = StageDAGEngine(manifest_path)
         self._dag_observer = DAGToLegacyObserver(self)
-        self._engine.add_observer(self._dag_observer)
+        self._engine.add_observer(self._dag_observer)  # type: ignore[arg-type]
 
         self.phases: dict[PipelinePhase, Callable[[PipelineState], PipelineState]] = {
             PipelinePhase.INPUT: self._run_input,
@@ -347,8 +347,13 @@ class PipelineOrchestrator:
                 raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
         else:
             class MockConstraints:
+<<<<<<< HEAD
                 constraints = []
                 constraints: list[Any] = []
+=======
+                constraints: list = []
+            state.constraints = MockConstraints()
+>>>>>>> main
 
         # Load physical specification
         from temper_placer.core.specification import PcbSpecification

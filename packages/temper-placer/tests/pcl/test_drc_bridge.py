@@ -1,6 +1,5 @@
 """TS1: Unit tests for PCL->DRC assertion bridge."""
 
-import pytest
 
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.pcl.constraints import (
@@ -8,14 +7,14 @@ from temper_placer.pcl.constraints import (
     AlignedConstraint,
     AnchoredConstraint,
     Axis,
+    BoardSide,
     CompilationContext,
     ConstraintTier,
+    EdgeType,
     EnclosingConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
-    BoardSide,
-    EdgeType,
 )
 from temper_placer.pcl.drc_bridge import (
     DRCAssertion,

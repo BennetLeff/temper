@@ -51,7 +51,7 @@ class ZoneAdjuster:
             AdjustmentResult object.
         """
         # 1. Count violations per zone
-        zone_counts = {}
+        zone_counts: dict[str, int] = {}
         for v in violations:
             if v.zone:
                 zone_counts[v.zone] = zone_counts.get(v.zone, 0) + 1

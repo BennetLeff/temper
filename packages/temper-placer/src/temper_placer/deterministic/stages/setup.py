@@ -73,13 +73,13 @@ class DRCOracleSetupStage(Stage):
 
                 # net_classes is {net_name: class_name}
                 for net, class_name in self.design_rules.net_classes.items():
-                    matrix.set_net_class(net, class_name)
+                    matrix.set_net_class(net, class_name.name)
             else:
                 # This is a DesignRules object
                 for _name, rules in self.design_rules.net_classes.items():
                     matrix.add_net_class_rules(rules)
-                for net, class_name in self.design_rules.net_class_assignments.items():
-                    matrix.set_net_class(net, class_name)
+                for net_name, net_class_name in self.design_rules.net_class_assignments.items():
+                    matrix.set_net_class(net_name, net_class_name)  # type: ignore[arg-type]
 
             # Register differential pairs with their configured spacing
             # This allows the DRC system to use relaxed clearance for diff pairs

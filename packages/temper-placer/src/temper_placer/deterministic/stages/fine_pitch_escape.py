@@ -227,12 +227,16 @@ class FinePitchEscapeStage(Stage):
                 print(f"\n  [EscapeValidation] Found {len(missing_escapes)} fine-pitch pins missing escape vias")
 
                 # Group by net for clearer output
+<<<<<<< HEAD
                 by_net: dict[str, list[dict[str, Any]]] = {}
+=======
+                by_net: dict[str, list[dict]] = {}
+>>>>>>> main
                 for m in missing_escapes:
                     net = m["net"]
                     if net not in by_net:
-                        by_net[net] = []
-                    by_net[net].append(m)
+                        by_net[net] = []  # type: ignore[index]
+                    by_net[net].append(m)  # type: ignore[index]
 
                 for net, pins_list in sorted(by_net.items(), key=lambda x: -len(x[1]))[:10]:
                     pin_list = ", ".join(f"{p['ref']}.{p['pin']}" for p in pins_list[:3])
@@ -249,19 +253,19 @@ class FinePitchEscapeStage(Stage):
                     net_name = m["net"]
 
                     # Skip if position already has a via (shouldn't happen but safety check)
-                    pos_key = (round(pin_pos[0], 3), round(pin_pos[1], 3))
+                    pos_key = (round(pin_pos[0], 3), round(pin_pos[1], 3))  # type: ignore[call-overload]
                     if pos_key in current_via_positions:
                         continue
 
                     # Determine escape layer
-                    escape_layer_num, escape_layer_name = self._get_escape_layer_for_net(net_name)
+                    escape_layer_num, escape_layer_name = self._get_escape_layer_for_net(net_name)  # type: ignore[arg-type]
 
                     via = Via(
-                        position=pin_pos,
+                        position=pin_pos,  # type: ignore[arg-type]
                         drill=self.via_drill_mm,
                         width=self.via_diameter_mm,
                         layers=("F.Cu", escape_layer_name),
-                        net=net_name,
+                        net=net_name,  # type: ignore[arg-type]
                     )
                     vias.append(via)
                     current_via_positions.add(pos_key)
@@ -281,7 +285,7 @@ class FinePitchEscapeStage(Stage):
 
         # ========== END PHASE 5 ==========
 
-        return replace(state, vias=vias)
+        return replace(state, vias=frozenset(vias))
 
     def _calculate_min_pin_pitch(self, component):
         """Calculate minimum pin-to-pin distance for a component.

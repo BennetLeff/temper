@@ -129,9 +129,9 @@ jobs:
             const title = "SPC violation detected";
             const body = `Western Electric SPC rules have detected a violation.
 
-          ${violations}
+            ${violations}
 
-          Use \`uv run python scripts/pipeline_metrics.py spc --board temper --window 20\` to investigate.`;
+            Use \`uv run python scripts/pipeline_metrics.py spc --board temper --window 20\` to investigate.`;
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
               state: "open", labels: ["metrics-drift"] });
@@ -155,9 +155,9 @@ jobs:
             const title = "SLO block violation detected";
             const body = `Pipeline SLO block violation detected.
 
-          ${blockViolations}
+            ${blockViolations}
 
-          Use \`uv run python scripts/pipeline_metrics.py slo --slo-file power_pcb_dataset/metrics/slo_definitions.yaml\` to investigate.`;
+            Use \`uv run python scripts/pipeline_metrics.py slo --slo-file power_pcb_dataset/metrics/slo_definitions.yaml\` to investigate.`;
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
               state: "open", labels: ["metrics-drift"] });

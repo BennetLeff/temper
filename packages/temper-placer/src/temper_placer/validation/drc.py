@@ -383,7 +383,7 @@ class KiCadDRCValidator(Validator):
             output_path = Path(tmp.name).absolute()
 
         try:
-            # Build command with absolute paths
+            assert self.kicad_cli_path is not None, "kicad_cli_path must be set"
             cmd = [
                 self.kicad_cli_path,
                 "pcb",

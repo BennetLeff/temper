@@ -12,9 +12,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-from temper_placer.pipeline.dag_observability import PipelineExecutionLog, ProgressObserver
+from temper_placer.pipeline.dag_observability import PipelineExecutionLog
 from temper_placer.regression.metrics_recorder import PipelineMetricsRecord, record_metrics
-from temper_placer.regression.schema_validator import SchemaValidator, SchemaValidationError
+from temper_placer.regression.schema_validator import SchemaValidator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class MetricsObserver:
 
     # -- ProgressObserver protocol ----------------------------------------
 
-    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:
+    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:  # noqa: ARG002, ARG002
         self._stage_start_times[stage_name] = time.monotonic()
 
     def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:

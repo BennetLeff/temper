@@ -64,7 +64,7 @@ def compute_routing_channel_penalty(
         Scalar penalty value
     """
     n = positions.shape[0]
-    total_penalty = 0.0
+    total_penalty = jnp.array(0.0)
 
     # Extract half-widths and half-heights
     half_widths = bounds[:, 0] / 2
@@ -139,11 +139,11 @@ class RoutingChannelLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """Compute routing channel penalty.
@@ -156,15 +156,22 @@ class RoutingChannelLoss(LossFunction):
         Returns:
             LossResult with corridor width penalty
         """
+        bounds = context.bounds
+        if bounds is None:
+            return LossResult(
+                value=jnp.array(0.0),
+                breakdown={"routing_channel": jnp.array(0.0)},
+            )
+
         penalty = compute_routing_channel_penalty(
             positions,
-            context.bounds,
+            bounds,
             self.min_channel_width,
         )
 
         return LossResult(
-            value=self.weight * penalty,
-            breakdown={"routing_channel": self.weight * penalty},
+            value=jnp.array(self.weight * penalty),
+            breakdown={"routing_channel": jnp.array(self.weight * penalty)},
         )
 
 
@@ -208,11 +215,11 @@ class MCUClusteringLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """Penalizes peripherals that are too far from the MCU.
@@ -224,7 +231,7 @@ class MCUClusteringLoss(LossFunction):
             LossResult with clustering penalty
         """
         mcu_pos = positions[self.mcu_index]
-        total_penalty = 0.0
+        total_penalty = jnp.array(0.0)
 
         for idx in self.peripheral_indices:
             dist = jnp.sqrt(
@@ -235,7 +242,7 @@ class MCUClusteringLoss(LossFunction):
             total_penalty = total_penalty + excess ** 2
 
         return LossResult(
-            value=self.weight * total_penalty,
+            value=jnp.array(self.weight * total_penalty),
             breakdown={},  # Can't materialize during tracing
         )
 
@@ -272,10 +279,10 @@ class MCUClusteringLoss(LossFunction):
             # Fallback: find component with highest fanout
             max_nets = 0
             for i, comp in enumerate(netlist.components):
-                comp_nets = sum(1 for net in netlist.nets
-                               if any(pin[0] == comp.ref for pin in net.pins))
-                if comp_nets > max_nets:
-                    max_nets = comp_nets
+                net_count = sum(1 for net in netlist.nets
+                                if any(pin[0] == comp.ref for pin in net.pins))
+                if net_count > max_nets:
+                    max_nets = net_count
                     mcu_index = i
 
         # Find peripherals: components sharing ≥1 net with MCU
@@ -297,6 +304,7 @@ class MCUClusteringLoss(LossFunction):
             if len(shared) >= 1:
                 peripheral_indices.append(i)
 
+        assert mcu_index is not None  # guaranteed by fallback above
         return cls(
             weight=weight,
             mcu_index=mcu_index,
@@ -336,11 +344,11 @@ class BusAlignmentLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """For each bus group, computes deviation from best-fit line
@@ -352,7 +360,7 @@ class BusAlignmentLoss(LossFunction):
         Returns:
             LossResult with alignment penalty
         """
-        total_penalty = 0.0
+        total_penalty = jnp.array(0.0)
 
         for group in self.bus_groups:
             if len(group) < 2:
@@ -382,7 +390,7 @@ class BusAlignmentLoss(LossFunction):
             total_penalty = total_penalty + penalty
 
         return LossResult(
-            value=self.weight * total_penalty,
+            value=jnp.array(self.weight * total_penalty),
             breakdown={},  # Can't materialize during tracing
         )
 

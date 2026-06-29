@@ -55,7 +55,7 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
 
     # Filter out zone nets (nets with copper pours)
     zone_nets = set()
-    for zone in result.board.zones:
+    for zone in result.board.zones:  # type: ignore[union-attr]
         for net_name in zone.net_classes:
             if net_name and net_name != "Signal":
                 zone_nets.add(net_name)

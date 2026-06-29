@@ -1,6 +1,7 @@
 {
   "add_power_planes.py": [],
   "bless_baselines.py": [],
+  "bmc_adoption_gate.py": [],
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -20,6 +21,7 @@
     ".github/workflows/python-tests.yml"
   ],
   "check_traceability.py": [],
+  "check_typecheck_gate.py": [],
   "ci_check_drc.py": [
     ".github/workflows/regression.yml"
   ],
@@ -81,9 +83,13 @@
   "trace_invocations.py": [
     ".github/workflows/python-tests.yml"
   ],
+  "update_regression_cache.py": [
+    ".github/workflows/placer-regression.yml"
+  ],
   "validate_footprints.py": [
     "scripts/sprint1_validation.sh"
   ],
+  "verify_proofs.py": [],
   "vulture_gate.py": [
     ".github/workflows/python-tests.yml"
   ]

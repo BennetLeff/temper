@@ -1,6 +1,5 @@
 """TS4: ConstraintType capabilities and supported targets tests."""
 
-import pytest
 
 from temper_placer.pcl.constraints import (
     CompilationTarget,

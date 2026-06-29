@@ -136,7 +136,7 @@ def _synthesize_constraint(
             b = part
 
     # Derive bottleneck distance from channel widths if available.
-    min_distance_mm = 6.0  # Default: conservative 6mm separation.
+    min_distance_mm = 6.0  # allow-safety-constant: SMT default separation; # Default: conservative 6mm separation.
     if context.channel_widths:
         for widths in context.channel_widths.values():
             spacing = getattr(widths, 'spacing_mm', 0.0)

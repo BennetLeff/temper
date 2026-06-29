@@ -93,7 +93,7 @@ class TestPlaceRouteIterator:
         mock_router.route.side_effect = [res_fail1, res_fail2, res_success]
 
         # Mock placement update to just return the same positions for simplicity
-        mock_updater = MagicMock(side_effect=lambda pos, feedback: pos)
+        mock_updater = MagicMock(side_effect=lambda pos, _feedback: pos)
 
         iterator = PlaceRouteIterator(
             netlist=mock_netlist,
@@ -130,7 +130,7 @@ class TestPlaceRouteIterator:
         res2.completion_rate = 0.5001 # 0.0001 improvement
 
         mock_router.route.side_effect = [res1, res2]
-        mock_updater = MagicMock(side_effect=lambda pos, feedback: pos)
+        mock_updater = MagicMock(side_effect=lambda pos, _feedback: pos)
 
         iterator = PlaceRouteIterator(
             netlist=mock_netlist,
@@ -158,7 +158,7 @@ class TestPlaceRouteIterator:
         initial_pos = jnp.zeros((2, 2))
 
         # Mock router to always fail but with improvement
-        def route_fn(pos):
+        def route_fn(_pos):
             res = MagicMock()
             res.is_feasible.return_value = False
             # Some improvement to avoid stagnation
@@ -168,7 +168,7 @@ class TestPlaceRouteIterator:
         route_fn.call_count = 0
         mock_router.route.side_effect = route_fn
 
-        mock_updater = MagicMock(side_effect=lambda pos, feedback: pos)
+        mock_updater = MagicMock(side_effect=lambda pos, _feedback: pos)
 
         iterator = PlaceRouteIterator(
             netlist=mock_netlist,

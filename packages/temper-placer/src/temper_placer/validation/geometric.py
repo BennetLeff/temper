@@ -275,8 +275,8 @@ class GeometricValidator(Validator):
             boundary_violation = compute_boundary_violation(
                 position_x=float(pos[0]),
                 position_y=float(pos[1]),
-                component_half_width=half_w,
-                component_half_height=half_h,
+                component_half_width=float(half_w),
+                component_half_height=float(half_h),
                 board_x_min=board_x_min,
                 board_y_min=board_y_min,
                 board_x_max=board_x_max,
@@ -546,7 +546,7 @@ class GeometricValidator(Validator):
                                 "required_distance": min_dist,
                             },
                             violation_type=ViolationType.MOUNTING_HOLE,
-                            required_clearance=min_dist,
+                            required_clearance=float(min_dist),
                             actual_distance=dist_to_hole,
                         )
                     )

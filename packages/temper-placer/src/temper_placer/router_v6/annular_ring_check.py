@@ -84,7 +84,7 @@ def _check_via(
             "Via at %s on net %s has non-positive drill %.4f mm; skipping.",
             getattr(via, "position", "?"),
             net_name,
-            via.drill,
+            via.drill,  # type: ignore[attr-defined]
         )
         return None
 
@@ -195,8 +195,8 @@ def check_annular_rings(
     if extra_vias:
         for via in extra_vias:
             total_vias += 1
-            net_name: str = getattr(via, "net_name", "(extra)")
-            violation = _check_via(via, net_name, min_annular_ring, microvia_ring_mm)
+            extra_net_name: str = getattr(via, "net_name", "(extra)")
+            violation = _check_via(via, extra_net_name, min_annular_ring, microvia_ring_mm)
             if violation is not None:
                 violations.append(violation)
 

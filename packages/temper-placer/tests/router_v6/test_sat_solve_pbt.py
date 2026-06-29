@@ -467,8 +467,8 @@ class TestCrossConstraintComposition:
         sat = SATModel(variables=[], clauses=[])
         populate_sat_from_constraints(sat, cm, net_names=["NET0"])
 
-        produced = set(_dump_clause_set(sat.clauses))
-        expected = set(_dump_clause_set([]))  # Will check after seeing actual output
+        set(_dump_clause_set(sat.clauses))
+        set(_dump_clause_set([]))  # Will check after seeing actual output
 
         # Actually, we need to know expected. For now:
         # - 1 connectivity clause: (uses_NET0_F.Cu_E0_0_1)

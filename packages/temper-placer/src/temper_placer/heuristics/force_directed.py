@@ -254,7 +254,7 @@ def compute_force_directed_layout(
         repulsion_k = jnp.sqrt(board_area / n)
 
     if initial_temp is None:
-        board_diagonal = jnp.sqrt(board_width**2 + board_height**2)
+        board_diagonal = float(jnp.sqrt(board_width**2 + board_height**2))
         initial_temp = board_diagonal / 10.0
 
     @jax.jit

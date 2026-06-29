@@ -68,7 +68,7 @@ def test_layer_constraints_smd_top(mock_pcb, mock_skeletons):
     # Find constraint for B.Cu edge
     restr = [c for c in layer_constraints if "B.Cu" in c.channel_id]
     assert len(restr) == 1
-    assert restr[0].allowed == False
+    assert not restr[0].allowed
     assert restr[0].net_idx == 0
 
 def test_layer_constraints_pth(mock_pcb, mock_skeletons):

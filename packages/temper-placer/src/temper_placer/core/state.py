@@ -130,7 +130,7 @@ class PlacementState:
         board_height: float,
         key: Array,
         margin: float = 10.0,
-        _origin: tuple[float, float] = (0.0, 0.0),
+        origin: tuple[float, float] = (0.0, 0.0),  # noqa: ARG003
         n_nets: int = 0,
     ) -> PlacementState:
         """

@@ -189,8 +189,8 @@ def add_thermal_relief(
     if board is not None:
         _add_smd_thermal_reliefs(
             board=board,
-            routing_results=routing_results,
-            resolved_plane_layers=resolved_plane_layers,
+            _routing_results=routing_results,
+            _resolved_plane_layers=resolved_plane_layers,
             resolved_plane_nets=resolved_plane_nets,
             spoke_count=spoke_count,
             spoke_width=spoke_width,
@@ -433,7 +433,7 @@ def _add_smd_thermal_reliefs(
     (typically outer layers with vias to inner planes).
     """
     try:
-        netlist = board.netlist  # may be None
+        netlist = board.netlist  # type: ignore[attr-defined]
     except AttributeError:
         return
 

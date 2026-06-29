@@ -1,0 +1,76 @@
+name: Bug Report
+description: Report a defect in firmware, software, or hardware design
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill out all
+        fields — incomplete reports will be closed.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Pre-flight Checklist
+      options:
+        - label: I searched existing issues and confirmed this is not a duplicate
+          required: true
+        - label: I am on the latest commit of `main`
+          required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Component
+      options:
+        - firmware (ESP32-S3 state machine)
+        - placer (temper-placer JAX optimizer)
+        - pcb (KiCad design)
+        - CI / workflows
+        - documentation
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current Behavior
+      description: What actually happens — include logs, stack traces, and exact error messages
+      placeholder: |
+        ```
+        Error: ...
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Exact commands or actions to trigger the issue
+      placeholder: |
+        1. `cmake --build firmware/test/build`
+        2. `./firmware/test/build/test_state_machine_only`
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Platform, commit hash, tool versions
+      placeholder: |
+        - OS: macOS 15 / Ubuntu 24.04
+        - Commit: `git rev-parse HEAD`
+        - Python: `python --version`
+        - ESP-IDF: `idf.py --version`

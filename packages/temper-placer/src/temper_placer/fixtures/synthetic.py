@@ -230,17 +230,17 @@ def generate_200_component_netlist(
     for net_name, target_fanout in power_nets_config:
         # Select random components for this power net
         selected_comps = rng.sample(components, min(target_fanout, len(components)))
-        pins = []
+        net_pins: list[tuple[str, str]] = []  # noqa: F841
         for comp in selected_comps:
             if len(comp.pins) > 0:
                 # Use first available pin
                 pin = comp.pins[0]
                 pin.net = net_name
-                pins.append((comp.ref, pin.name))
+                net_pins.append((comp.ref, pin.name))
 
         nets.append(Net(
             name=net_name,
-            pins=pins,
+            pins=net_pins,
             net_class="Power",
             weight=2.0,
         ))
@@ -255,19 +255,19 @@ def generate_200_component_netlist(
             continue
 
         selected_comps = rng.sample(available_comps, fanout)
-        pins = []
+        signal_pins: list[tuple[str, str]] = []
         for comp in selected_comps:
             # Find first unassigned pin
             unassigned_pins = [p for p in comp.pins if p.net is None]
             if unassigned_pins:
                 pin = unassigned_pins[0]
                 pin.net = f"SIG_{i}"
-                pins.append((comp.ref, pin.name))
+                signal_pins.append((comp.ref, pin.name))
 
-        if len(pins) >= 2:
+        if len(signal_pins) >= 2:
             nets.append(Net(
                 name=f"SIG_{i}",
-                pins=pins,
+                pins=signal_pins,
                 net_class="Signal",
                 weight=1.0,
             ))
@@ -288,18 +288,18 @@ def generate_200_component_netlist(
             fanout = len(available_comps)
 
         selected_comps = rng.sample(available_comps, min(fanout, len(available_comps)))
-        pins = []
+        bus_pins: list[tuple[str, str]] = []
         for comp in selected_comps:
             unassigned_pins = [p for p in comp.pins if p.net is None]
             if unassigned_pins:
                 pin = unassigned_pins[0]
                 pin.net = net_name
-                pins.append((comp.ref, pin.name))
+                bus_pins.append((comp.ref, pin.name))
 
-        if len(pins) >= 2:
+        if len(bus_pins) >= 2:
             nets.append(Net(
                 name=net_name,
-                pins=pins,
+                pins=bus_pins,
                 net_class="Signal",
                 weight=1.5,
             ))

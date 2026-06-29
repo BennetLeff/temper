@@ -1,3 +1,4 @@
+# ruff: noqa: F821  # type-only references to PlacementConstraint, CopperZone, etc.
 from __future__ import annotations
 
 import logging
@@ -40,7 +41,11 @@ from .state import BoardState
 if TYPE_CHECKING:
     from typing import Any
 
+    from shapely.geometry import Polygon
+
     from temper_drc.core.fence import DRCFence
+    from temper_placer.core.board import Zone as CopperZone
+    from temper_placer.io.config_loader import IsolationSlot
 
     from .io.kicad_metadata import KiCadMetadata
 
@@ -313,6 +318,7 @@ def create_drc_aware_pipeline(
     slot_spacing = 10.0  # Default: larger spacing to avoid overlaps
     max_clearance = 2.5  # Default: conservative for HV boards
     net_class_clearances = {}
+<<<<<<< HEAD
     fixed_placements: dict[str, Any] = {}
     yaml_copper_zones: list[Any] = []
     yaml_isolation_slots: list[Any] = []  # @req(2026-06-23-007, R1)
@@ -320,6 +326,15 @@ def create_drc_aware_pipeline(
     net_priority = {}  # EXP-6: Explicit net routing priority
     placement_constraints = {}  # EXP-12: Placement validation constraints
     hv_exclusion_zones: list[Any] = []  # EXP-13: HV zones that signals must route around
+=======
+    fixed_placements: dict[str, dict] = {}
+    yaml_copper_zones: list[CopperZone] = []
+    yaml_isolation_slots: list[IsolationSlot] = []  # @req(2026-06-23-007, R1)
+    config_rules = None  # @req(2026-06-23-007, R2)
+    net_priority = {}  # EXP-6: Explicit net routing priority
+    placement_constraints = {}  # EXP-12: Placement validation constraints
+    hv_exclusion_zones: list[Polygon] = []  # EXP-13: HV zones that signals must route around
+>>>>>>> main
 
     # Extract net class clearances from design_rules if available
     if design_rules and hasattr(design_rules, "net_classes"):
@@ -400,6 +415,7 @@ def create_drc_aware_pipeline(
             )
 
     # Select slot generation stage based on zone_aware flag
+    slot_stage: SlotGenerationStage | ZoneAwareSlotGenerationStage
     if zone_aware:
         slot_stage = ZoneAwareSlotGenerationStage(
             slot_spacing_mm=slot_spacing,
@@ -434,6 +450,7 @@ def create_drc_aware_pipeline(
         or getattr(config, "component_groups", None)
     )
 
+    component_stage: ComponentAssignmentStage | PhasedComponentAssignmentStage
     if use_phased_placement:
         # U1: pass design_rules so PhasedComponentAssignmentStage can inject
         # 6mm ghost-pad reservations around HV pins before the placement
@@ -456,7 +473,7 @@ def create_drc_aware_pipeline(
     # R4a/R4c/R4d: Look for placement.channels.json in the run output dir.
     # Load once per pipeline run; record the count on the wrapper.
     channel_map: ChannelMap | None = load_channel_map_from_sidecar(output_dir)
-    if channel_map.has_grid() and isinstance(component_stage, PhasedComponentAssignmentStage):
+    if channel_map is not None and channel_map.has_grid() and isinstance(component_stage, PhasedComponentAssignmentStage):
         component_stage.channel_map = channel_map
 
     pipeline = DeterministicPipeline(
@@ -488,7 +505,7 @@ def create_drc_aware_pipeline(
             ApplyPlacementsStage(),
             # EXP-12: Validate placement constraints before routing
             PlacementValidationStage(
-                constraints=placement_constraints,
+                constraints=placement_constraints,  # type: ignore[arg-type]
                 fail_on_hard_violations=False,  # Log warnings, don't abort
                 parsed_pads=parsed_pads,
             ),
@@ -531,9 +548,9 @@ def create_drc_aware_pipeline(
     wrapper = SidecarAwarePipeline(
         stages=pipeline.stages,
         fence=pipeline.fence,
-        channel_map=channel_map if channel_map.has_grid() else None,
+        channel_map=channel_map if (channel_map is not None and channel_map.has_grid()) else None,
     )
-    if channel_map.has_grid():
+    if channel_map is not None and channel_map.has_grid():
         # Bump the counter exactly once per successful load.
         wrapper.record_sidecar_load()
     return wrapper

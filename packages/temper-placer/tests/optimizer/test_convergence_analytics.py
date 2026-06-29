@@ -113,7 +113,7 @@ class TestLossImprovementTracker:
         # Add 10 data points with constant -2 delta
         losses = [100, 98, 96, 94, 92, 90, 88, 86, 84, 82]
         for loss in losses:
-            metrics = tracker.update(loss)
+            tracker.update(loss)
 
         # With window=5, last 5 deltas are all -2
         # Check that window 5 is used (we need to check delta buffer)
@@ -295,7 +295,7 @@ class TestConvergenceAnalyzer:
         # Smooth, significant improvement that stabilizes
         losses = []
         loss = 100.0
-        for i in range(50):
+        for _i in range(50):
             loss *= 0.95  # Smooth 5% improvement
             losses.append(loss)
         # Then stable
@@ -580,7 +580,7 @@ class TestIntegration:
             # Exponential decay with noise
             decay = 0.98 if epoch < 50 else 0.995
             loss = loss * decay + (epoch % 3) * 0.1  # Small noise
-            metrics = tracker.update(loss)
+            tracker.update(loss)
 
         # Check final state
         summary = tracker.get_summary()

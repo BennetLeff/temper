@@ -266,7 +266,7 @@ def test_deterministic_net_order_alphabetical():
     nd_exp = DSNExporter(board, netlist, deterministic=False)
     nd_out = str(nd_exp.export_network())
     nd_net1_pos = nd_out.find("(net ")
-    first_net_nd = nd_out[nd_net1_pos:].split()[1].rstrip(")")
+    nd_out[nd_net1_pos:].split()[1].rstrip(")")
 
     # Deterministic: sorted alphabetically
     det_exp = DSNExporter(board, netlist, deterministic=True)

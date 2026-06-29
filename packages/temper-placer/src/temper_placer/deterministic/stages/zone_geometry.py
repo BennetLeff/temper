@@ -38,7 +38,7 @@ class ZoneGeometryStage(Stage):
         but our local Zone uses bounds: ((x_min, y_min), (x_max, y_max))
         """
         zones = []
-        for z in self.zone_config:
+        for z in self.zone_config:  # type: ignore[union-attr]
             # Check if z is already a Zone object (from core/board.py)
             if hasattr(z, 'name') and hasattr(z, 'bounds'):
                 # Convert from (x_min, y_min, x_max, y_max) to ((x_min, y_min), (x_max, y_max))

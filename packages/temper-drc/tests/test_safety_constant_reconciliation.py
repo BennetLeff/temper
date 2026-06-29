@@ -277,7 +277,6 @@ def _load_overrides() -> list[dict]:
 def _apply_overrides(findings: list[dict], overrides: list[dict]) -> list[dict]:
     result: list[dict] = []
     for finding in findings:
-        matched = False
         for ov in overrides:
             if (
                 ov.get("site") == finding["site"]
@@ -287,7 +286,6 @@ def _apply_overrides(findings: list[dict], overrides: list[dict]) -> list[dict]:
                 finding["severity"] = "OVERRIDE"
                 finding["override_reason"] = ov["reason"]
                 finding["override_ticket"] = ov.get("ticket", "")
-                matched = True
                 break
         result.append(finding)
     return result

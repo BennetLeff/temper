@@ -8,8 +8,8 @@ constraint `id` and `because` for traceable violation reports.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable
 
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
@@ -55,7 +55,7 @@ class DRCAssertion:
 
 
 def _adjacent_to_drc(
-    constraint: AdjacentConstraint, ctx: CompilationContext,
+    constraint: AdjacentConstraint, ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -72,7 +72,7 @@ def _adjacent_to_drc(
 
 
 def _separated_to_drc(
-    constraint: SeparatedConstraint, ctx: CompilationContext,
+    constraint: SeparatedConstraint, ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -88,7 +88,7 @@ def _separated_to_drc(
 
 
 def _enclosing_to_drc(
-    constraint: EnclosingConstraint, ctx: CompilationContext,
+    constraint: EnclosingConstraint, ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     assertions = []
     for comp_ref in constraint.inner:
@@ -107,7 +107,7 @@ def _enclosing_to_drc(
 
 
 def _aligned_to_drc(
-    constraint: AlignedConstraint, ctx: CompilationContext,
+    constraint: AlignedConstraint, ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -123,7 +123,7 @@ def _aligned_to_drc(
 
 
 def _onside_to_drc(
-    constraint: OnSideConstraint, ctx: CompilationContext,
+    constraint: OnSideConstraint, ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     overhang_note = " (overhang permitted)" if constraint.edge.value == "overhang" else ""
     return [
@@ -140,7 +140,7 @@ def _onside_to_drc(
 
 
 def _anchored_to_drc(
-    constraint: AnchoredConstraint, ctx: CompilationContext,
+    constraint: AnchoredConstraint, ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     if constraint.position is not None:
         threshold = 0.0
@@ -165,7 +165,7 @@ def _anchored_to_drc(
 
 
 def _loop_area_to_drc(
-    constraint: LoopAreaConstraint, ctx: CompilationContext,
+    constraint: LoopAreaConstraint, ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -218,4 +218,4 @@ def _backend_adapter(
 
 
 # Register the DRC backend (R5, R11).
-BaseConstraint.backends["drc"] = _backend_adapter
+BaseConstraint.backends["drc"] = _backend_adapter  # type: ignore[attr-defined]

@@ -128,7 +128,7 @@ def generate(
     """Generate/update golden DSN fixtures."""
     import subprocess
 
-    import yaml
+    import yaml  # type: ignore[import-untyped]
 
     from temper_placer.io.dsn_boundary import DSNBoundaryExporter
 

@@ -116,7 +116,7 @@ def auto_layout_pcb(
             positions,
             net_order,
             assignments,
-            max_iterations=5 # Inner RRR iterations
+            _max_iterations=5 # Inner RRR iterations
         )
 
         # 2c. Check convergence
@@ -143,8 +143,8 @@ def auto_layout_pcb(
         congestion_heatmap = compute_congestion_heatmap(
             conflicts,
             grid_size=router.grid_size,
-            cell_size_mm=cell_size_mm,
-            origin=board.origin
+            _cell_size_mm=cell_size_mm,
+        _origin=board.origin
         )
         prev_results = results
 
@@ -168,7 +168,7 @@ def auto_layout_pcb(
         best_positions,
         net_order,
         assignments,
-        max_iterations=50
+        _max_iterations=50
     )
 
     return best_positions, final_results
@@ -192,8 +192,9 @@ def optimize_placement_with_feedback(
     congestion_loss = RoutingCongestionLoss(
         congestion_heatmap,
         weight=1.0,
-        cell_size_mm=cell_size_mm,
-        origin=board.origin
+        cell_size=cell_size_mm,
+        origin=jnp.array(board.origin),
+        grid_size=jnp.array(congestion_heatmap.shape),
     )
 
     def combined_loss(pos):

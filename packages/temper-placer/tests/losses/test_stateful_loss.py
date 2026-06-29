@@ -1,7 +1,7 @@
 """Unit tests for StatefulLossFunction ABC."""
 
-import pytest
 import jax.numpy as jnp
+import pytest
 
 from temper_placer.losses.base import LossContext, LossResult, StatefulLossFunction
 
@@ -17,7 +17,7 @@ class _ConcreteStateful(StatefulLossFunction):
     def blend(self, state: dict) -> None:
         self._scores = jnp.asarray(state["scores"])
 
-    def compute_loss(self, positions, rotations, context, epoch=0, total_epochs=1, net_virtual_nodes=None):
+    def compute_loss(self, _positions, _rotations, _context, _epoch=0, _total_epochs=1, _net_virtual_nodes=None):
         return LossResult(value=jnp.sum(self._scores))
 
 

@@ -311,7 +311,7 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
             for comp in state.netlist.components:
                 comp_by_ref[comp.ref] = comp
                 if comp.initial_position is not None:
-                    comp_pos[comp.ref] = tuple(comp.initial_position)
+                    comp_pos[comp.ref] = (comp.initial_position[0], comp.initial_position[1])
 
         perp_budget, original_req = self._hv_clearance_overrides(state)
 

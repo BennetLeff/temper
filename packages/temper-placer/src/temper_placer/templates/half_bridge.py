@@ -7,8 +7,9 @@ from typing import TYPE_CHECKING
 
 import yaml  # type: ignore[import-untyped]
 
+from temper_placer.core.loop import Loop, LoopPriority, LoopType
+
 if TYPE_CHECKING:
-    from temper_placer.core.loop import Loop
     from temper_placer.core.netlist import Netlist
 
 @dataclass
@@ -126,8 +127,8 @@ class HalfBridgeTemplate:
 
             loop = Loop(
                 name=loop_def.name,
-                type=loop_def.type,
-                # Note: Loop implementation might need more parsing
+                loop_type=LoopType(loop_def.type),
+                description=loop_def.name,
                 # This is a simplification
                 priority=LoopPriority[loop_def.priority] if isinstance(loop_def.priority, str) else loop_def.priority,  # type: ignore[index]
                 max_area_mm2=loop_def.max_area_mm2

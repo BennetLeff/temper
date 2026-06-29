@@ -55,8 +55,9 @@ class InputStage:
                 raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
         else:
             class MockConstraints:
-                constraints = []
-            constraints = MockConstraints()
+                constraints: list = []
+            mock_constraints = MockConstraints()
+            constraints = mock_constraints  # type: ignore[assignment]
 
         state.constraints = constraints
         state.loops = loops

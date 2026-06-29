@@ -1,15 +1,14 @@
 """Unit tests for RoutabilityGradientLoss with STE."""
 
-import pytest
 import jax
 import jax.numpy as jnp
-from jax import Array
+import pytest
 
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.routability_gradient import RoutabilityGradientLoss
 
 
-def _make_context(N: int = 3) -> LossContext:
+def _make_context(_N: int = 3) -> LossContext:
     """Build a minimal LossContext for testing."""
     return LossContext()
 

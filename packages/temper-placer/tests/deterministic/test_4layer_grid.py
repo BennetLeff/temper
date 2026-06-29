@@ -53,10 +53,10 @@ def test_layer_specific_blocking():
     assert grid.blocked_count_on_layer(3) == 0
 
     # Center should be blocked on L0, available on others
-    assert grid.is_available(50, 50, layer=0) == False
-    assert grid.is_available(50, 50, layer=1) == True
-    assert grid.is_available(50, 50, layer=2) == True
-    assert grid.is_available(50, 50, layer=3) == True
+    assert not grid.is_available(50, 50, layer=0)
+    assert grid.is_available(50, 50, layer=1)
+    assert grid.is_available(50, 50, layer=2)
+    assert grid.is_available(50, 50, layer=3)
 
 
 def test_multi_layer_blocking():
@@ -73,12 +73,12 @@ def test_multi_layer_blocking():
     grid.block_circle(center=(50, 50), radius_mm=3.0, clearance_mm=0.5, layer=2)
 
     # Layers 0 and 2 should be blocked
-    assert grid.is_available(50, 50, layer=0) == False
-    assert grid.is_available(50, 50, layer=2) == False
+    assert not grid.is_available(50, 50, layer=0)
+    assert not grid.is_available(50, 50, layer=2)
 
     # Layers 1 and 3 should be available
-    assert grid.is_available(50, 50, layer=1) == True
-    assert grid.is_available(50, 50, layer=3) == True
+    assert grid.is_available(50, 50, layer=1)
+    assert grid.is_available(50, 50, layer=3)
 
 
 def test_trace_blocking_per_layer():
@@ -95,12 +95,12 @@ def test_trace_blocking_per_layer():
     grid.block_trace(path, width_mm=0.5, clearance_mm=0.2, layer=1)
 
     # Midpoint should be blocked on L1
-    assert grid.is_available(20, 50, layer=1) == False
+    assert not grid.is_available(20, 50, layer=1)
 
     # But available on other layers
-    assert grid.is_available(20, 50, layer=0) == True
-    assert grid.is_available(20, 50, layer=2) == True
-    assert grid.is_available(20, 50, layer=3) == True
+    assert grid.is_available(20, 50, layer=0)
+    assert grid.is_available(20, 50, layer=2)
+    assert grid.is_available(20, 50, layer=3)
 
 
 def test_unblock_per_layer():
@@ -118,18 +118,18 @@ def test_unblock_per_layer():
 
     # All should be blocked
     for layer in range(4):
-        assert grid.is_available(50, 50, layer=layer) == False
+        assert not grid.is_available(50, 50, layer=layer)
 
     # Unblock on layer 2 only
     grid.unblock_circle(center=(50, 50), radius_mm=5.0, layer=2)
 
     # Layer 2 should now be available
-    assert grid.is_available(50, 50, layer=2) == True
+    assert grid.is_available(50, 50, layer=2)
 
     # Others still blocked
-    assert grid.is_available(50, 50, layer=0) == False
-    assert grid.is_available(50, 50, layer=1) == False
-    assert grid.is_available(50, 50, layer=3) == False
+    assert not grid.is_available(50, 50, layer=0)
+    assert not grid.is_available(50, 50, layer=1)
+    assert not grid.is_available(50, 50, layer=3)
 
 
 def test_invalid_layer_access():
@@ -142,11 +142,11 @@ def test_invalid_layer_access():
     )
 
     # Negative layer
-    assert grid.is_available(50, 50, layer=-1) == False
+    assert not grid.is_available(50, 50, layer=-1)
 
     # Out of range layer
-    assert grid.is_available(50, 50, layer=4) == False
-    assert grid.is_available(50, 50, layer=100) == False
+    assert not grid.is_available(50, 50, layer=4)
+    assert not grid.is_available(50, 50, layer=100)
 
     # Blocking on invalid layer should be silently ignored
     grid.block_circle(center=(50, 50), radius_mm=5.0, clearance_mm=0, layer=-1)
@@ -154,7 +154,7 @@ def test_invalid_layer_access():
 
     # Position should still be available on valid layers
     for layer in range(4):
-        assert grid.is_available(50, 50, layer=layer) == True
+        assert grid.is_available(50, 50, layer=layer)
 
 
 def test_backward_compatibility():
@@ -170,11 +170,11 @@ def test_backward_compatibility():
     grid.block_circle(center=(50, 50), radius_mm=5.0, clearance_mm=1.0)
 
     # Should be blocked on layer 0
-    assert grid.is_available(50, 50, layer=0) == False
-    assert grid.is_available(50, 50) == False  # Default layer=0
+    assert not grid.is_available(50, 50, layer=0)
+    assert not grid.is_available(50, 50)  # Default layer=0
 
     # Should be available on layer 1
-    assert grid.is_available(50, 50, layer=1) == True
+    assert grid.is_available(50, 50, layer=1)
 
 
 def test_blocked_cells_per_layer():
@@ -203,7 +203,7 @@ def test_blocked_cells_per_layer():
     assert len(total_blocked) == len(blocked_l1)
 
     # All blocked cells should be on layer 1
-    for r, c, layer in total_blocked:
+    for _r, _c, layer in total_blocked:
         assert layer == 1
 
 

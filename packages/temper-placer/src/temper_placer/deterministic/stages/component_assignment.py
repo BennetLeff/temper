@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class ComponentAssignmentStage(Stage):
     """Assign components to slots with multi-slot reservation for large footprints."""
 
-    def __init__(self, slot_spacing: float = 12.0, fixed_placements: dict[str, dict] = None):
+    def __init__(self, slot_spacing: float = 12.0, fixed_placements: dict[str, dict] | None = None):
         """Initialize with slot spacing and optional fixed placements.
 
         Args:
@@ -150,7 +150,11 @@ class ComponentAssignmentStage(Stage):
             net_pins[net.name] = list(net.pins)
 
         # Build flat list of all slots for reservation checks
+<<<<<<< HEAD
         all_slots: list[Slot] = []
+=======
+        all_slots: list[tuple[float, float]] = []
+>>>>>>> main
         for _zone_name, slots in zone_slots.items():
             all_slots.extend(slots)
 

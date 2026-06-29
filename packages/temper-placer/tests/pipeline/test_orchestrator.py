@@ -553,7 +553,7 @@ class TestCallbacks:
 
         started_phases = []
 
-        def on_start(phase, state):
+        def on_start(phase, _state):
             started_phases.append(phase)
 
         orchestrator.on_phase_start = on_start
@@ -574,7 +574,7 @@ class TestCallbacks:
 
         completed_phases = []
 
-        def on_complete(phase, state):
+        def on_complete(phase, _state):
             completed_phases.append(phase)
 
         orchestrator.on_phase_complete = on_complete
@@ -616,7 +616,7 @@ class TestCallbacks:
 
         iterations_seen = []
 
-        def on_iter(iteration, state):
+        def on_iter(iteration, _state):
             iterations_seen.append(iteration)
 
         orchestrator.on_iteration = on_iter

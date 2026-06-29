@@ -13,7 +13,6 @@ from temper_placer.pcl.sat_bridge import ConstraintOrigin
 from temper_placer.pcl.unsat_compiler import (
     InfeasibleConstraintSet,
     _deduplicate_constraints,
-    _synthesize_constraint,
     compile_unsat_to_pcl,
     reset_escalation_counts,
 )
@@ -171,7 +170,7 @@ class TestDeduplication:
     """Multiple constraints with identical pairs get merged."""
 
     def test_dedup_identical_pairs(self):
-        netlist = _make_netlist(["Q1", "Q2"])
+        _make_netlist(["Q1", "Q2"])
         c1 = SeparatedConstraint(
             a="Q1", b="Q2",
             min_distance_mm=5.0,

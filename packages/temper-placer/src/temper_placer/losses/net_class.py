@@ -36,11 +36,11 @@ class NetClassSeparationLoss(LossFunction):
     def __call__(
         self,
         _positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: jnp.ndarray,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         # Placeholder for unresolved version
         return LossResult(value=jnp.array(0.0))
@@ -62,11 +62,11 @@ class ResolvedNetClassSeparationLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: jnp.ndarray,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         total_loss = jnp.array(0.0)
 
@@ -134,7 +134,7 @@ def create_net_class_loss(
     # OR we implement the heuristic here.
 
     # Let's group components by class
-    class_groups = {}
+    class_groups: dict[str, list[int]] = {}
     for idx, cls in comp_class_map.items():
         if cls not in class_groups:
             class_groups[cls] = []

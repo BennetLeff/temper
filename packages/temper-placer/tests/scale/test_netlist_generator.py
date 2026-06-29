@@ -178,8 +178,8 @@ class TestSyntheticNetlistGenerator:
         netlist2 = generate_netlist(n_components=50, seed=2)
 
         # Should have different components (at least some)
-        refs1 = [c.ref for c in netlist1.components]
-        refs2 = [c.ref for c in netlist2.components]
+        [c.ref for c in netlist1.components]
+        [c.ref for c in netlist2.components]
 
         # Refs are generated deterministically, so check nets differ
         net_pins1 = {frozenset(n.pins) for n in netlist1.nets}

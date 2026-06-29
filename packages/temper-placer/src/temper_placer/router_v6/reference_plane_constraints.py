@@ -80,7 +80,8 @@ def add_reference_plane_constraints(
             plane_layers[layer_info.name] = layer_info.plane_net
 
     # For each signal net, determine required reference plane
-    for net_name, net in pcb.nets.items():
+    for net in pcb.nets:  # type: ignore[attr-defined]
+        net_name = net.name
         # Skip power/ground nets themselves
         if _is_power_or_ground_net(net_name):
             continue

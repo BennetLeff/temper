@@ -19,6 +19,11 @@ from temper_placer.pipeline.feedback import (
     FeedbackLoopResult,
     run_feedback_loop,
 )
+from temper_placer.pipeline.metrics_observer import (
+    CanaryCheckError,
+    CrossValidationError,
+    MetricsObserver,
+)
 from temper_placer.pipeline.orchestrator import (
     PipelineOrchestrator,
 )
@@ -39,11 +44,6 @@ from temper_placer.pipeline.visualization import (
     RichDashboard,
     TerminalProgress,
     create_progress_display,
-)
-from temper_placer.pipeline.metrics_observer import (
-    CanaryCheckError,
-    CrossValidationError,
-    MetricsObserver,
 )
 
 __all__ = [

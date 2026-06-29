@@ -28,7 +28,8 @@ class THTPadClearanceLoss(LossFunction):
         min_clearance: float = 0.5,  # mm between hole edges
         name: str = "tht_clearance_loss",
     ):
-        super().__init__(weight, name)
+        self._weight = weight
+        self._name = name
         self.netlist = netlist
         self.min_clearance = min_clearance
 
@@ -37,29 +38,33 @@ class THTPadClearanceLoss(LossFunction):
         # Format: list of (component_index, relative_x, relative_y, drill_radius)
         self._tht_pads_info = self._extract_tht_pads(netlist)
 
+    @property
+    def name(self) -> str:
+        return self._name
+
     def _extract_tht_pads(self, netlist: Netlist) -> list[tuple[int, float, float, float]]:
         pads = []
         for i, comp in enumerate(netlist.components):
-            for pad in comp.pads:
-                # Check if pad is through-hole
+            for pin in comp.pins:
+                # Check if pin is through-hole
                 # Heuristic: drill > 0
-                if pad.drill > 0:
-                    pads.append((i, pad.position[0], pad.position[1], pad.drill / 2.0))
+                if pin.drill > 0:
+                    pads.append((i, pin.position[0], pin.position[1], pin.drill / 2.0))
         return pads
 
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         if not self._tht_pads_info:
-            return LossResult(value=0.0, name=self.name, weight=self.weight)
+            return LossResult(value=jnp.array(0.0))
 
-        loss = 0.0
+        loss = jnp.array(0.0)
 
         # Calculate absolute positions of all THT pads
         # This is a bit slow if done in loop, but number of THT pads is usually small
@@ -89,7 +94,7 @@ class THTPadClearanceLoss(LossFunction):
             pad_radii.append(radius)
 
         if not pad_abs_pos:
-            return LossResult(value=0.0, name=self.name, weight=self.weight)
+            return LossResult(value=jnp.array(0.0))
 
         pad_pos_array = jnp.array(pad_abs_pos)
         pad_radii_array = jnp.array(pad_radii)
@@ -113,4 +118,4 @@ class THTPadClearanceLoss(LossFunction):
 
         loss = jnp.sum(violation * mask)
 
-        return LossResult(value=loss * self.weight, name=self.name, weight=self.weight)
+        return LossResult(value=loss * self._weight)

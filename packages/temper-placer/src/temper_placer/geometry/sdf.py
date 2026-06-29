@@ -197,7 +197,7 @@ def sdf_polygon(point: Array, vertices: Array) -> Array:
 
     # Compute distance to each edge
     min_dist_sq = jnp.inf
-    sign = 1.0  # Will be set by winding number
+    sign = jnp.array(1.0)  # Will be set by winding number
 
     # Check each edge
     def edge_distance(carry, idx):

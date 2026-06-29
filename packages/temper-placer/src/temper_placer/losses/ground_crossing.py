@@ -110,7 +110,7 @@ def compute_ground_crossing_penalty(
 
 def detect_ground_domain_violations(
     _positions: Array,
-    context: LossContext,
+    context: LossContext,  # noqa: ARG001
 ) -> list[dict]:
     """Detect and report all ground domain violations for debugging."""
     return []
@@ -131,10 +131,10 @@ class GroundCrossingLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
         net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """Compute ground crossing loss."""
@@ -144,11 +144,11 @@ class GroundCrossingLoss(LossFunction):
     def compute_gradients(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
         net_virtual_nodes: Array | None = None,
     ) -> Array:
         """Compute gradients of the ground crossing loss w.r.t. positions."""
-        return jax.grad(lambda pos: self.__call__(pos, _rotations, context, _epoch, _total_epochs, net_virtual_nodes).value)(positions)
+        return jax.grad(lambda pos: self.__call__(pos, rotations, context, epoch, total_epochs, net_virtual_nodes).value)(positions)

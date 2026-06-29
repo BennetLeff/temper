@@ -4,6 +4,7 @@ Routing Congestion loss functions.
 
 from __future__ import annotations
 
+import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction
@@ -30,7 +31,7 @@ class ElectrostaticCongestionLoss(LossFunction):
         _net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         if context.hypergraph is None:
-            return LossResult(value=0.0)
+            return LossResult(value=jnp.array(0.0))
 
         loss = electrostatic_congestion_loss(
             positions,
@@ -40,4 +41,4 @@ class ElectrostaticCongestionLoss(LossFunction):
             grid_size=32 # Fixed small grid for performance
         )
 
-        return LossResult(value=loss)
+        return LossResult(value=jnp.array(loss))

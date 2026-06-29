@@ -933,7 +933,7 @@ class TestEmptyResultsAllModules:
     report type without crashing."""
 
     def test_empty_routing_results_returns_valid_report(
-        self, module_name, module_fn, expected_report_type, extra_kwargs
+        self, module_name, module_fn, expected_report_type, _extra_kwargs
     ):
         empty = _make_results()
         with warnings.catch_warnings():

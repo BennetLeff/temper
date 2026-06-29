@@ -169,4 +169,4 @@ class PowerPlaneStage(Stage):
                     )
                 )
 
-        return replace(state, layer_assignments=tuple(new_assignments))
+        return replace(state, layer_assignments=frozenset(new_assignments))

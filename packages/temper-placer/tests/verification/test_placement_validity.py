@@ -20,30 +20,33 @@ import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
-from jax import Array
+import jax.numpy as jnp  # noqa: E402
+from jax import Array  # noqa: E402
 
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io.placement_exporter import cleanup_temp_pcb, export_positions_to_temp_pcb
-from temper_placer.losses import (
+from temper_placer.core.board import Board  # noqa: E402
+from temper_placer.core.netlist import Component, Net, Netlist, Pin  # noqa: E402
+from temper_placer.io.placement_exporter import (  # noqa: E402
+    cleanup_temp_pcb,
+    export_positions_to_temp_pcb,
+)
+from temper_placer.losses import (  # noqa: E402
     BoundaryLoss,
     CompositeLoss,
     OverlapLoss,
     WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.losses.base import (
+from temper_placer.losses.base import (  # noqa: E402
     ClearanceRule,
     LossContext,
     ThermalConstraint,
 )
-from temper_placer.losses.boundary import compute_boundary_penalty
-from temper_placer.losses.clearance import ClearanceLoss
-from temper_placer.losses.overlap import compute_overlap_penalty
-from temper_placer.losses.thermal import ThermalLoss, compute_thermal_penalty
-from temper_placer.optimizer import OptimizerConfig, train
-from temper_placer.validation.drc import DRCResult, KiCadDRCValidator, find_kicad_cli
+from temper_placer.losses.boundary import compute_boundary_penalty  # noqa: E402
+from temper_placer.losses.clearance import ClearanceLoss  # noqa: E402
+from temper_placer.losses.overlap import compute_overlap_penalty  # noqa: E402
+from temper_placer.losses.thermal import ThermalLoss, compute_thermal_penalty  # noqa: E402
+from temper_placer.optimizer import OptimizerConfig, train  # noqa: E402
+from temper_placer.validation.drc import DRCResult, KiCadDRCValidator, find_kicad_cli  # noqa: E402
 
 # Test fixtures
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
@@ -980,7 +983,6 @@ class TestCombinedValidation:
         assert result.best_state is not None
 
         positions = result.best_state.positions
-        rotations = get_rotations_from_logits(result.best_state.rotation_logits)
 
         # Get component dimensions
         widths = context.bounds[:, 0]
@@ -1501,12 +1503,6 @@ class TestTemperEndToEnd:
         u_gate_idx = next(i for i, c in enumerate(netlist.components) if c.ref == "U_GATE")
         r_gate_h_idx = next(i for i, c in enumerate(netlist.components) if c.ref == "R_GATE_H")
         u_mcu_idx = next(i for i, c in enumerate(netlist.components) if c.ref == "U_MCU")
-
-        # Compute distances
-        gate_to_resistor = float(
-            jnp.sqrt(jnp.sum((positions[u_gate_idx] - positions[r_gate_h_idx]) ** 2))
-        )
-        gate_to_mcu = float(jnp.sqrt(jnp.sum((positions[u_gate_idx] - positions[u_mcu_idx]) ** 2)))
 
         # Gate driver and gate resistor are connected via GATE_H net
         # They should tend to be closer than unconnected components (gate to MCU)

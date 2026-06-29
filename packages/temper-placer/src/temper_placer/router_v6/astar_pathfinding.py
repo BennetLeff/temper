@@ -89,7 +89,7 @@ class PathfindingResult:
         """Total number of forced segments across all routes."""
         return sum(path.forced_segment_count for path in self.routed_paths.values())
 
-    def get_path(self, net_name: str) -> RoutePath | None:
+    def get_path(self, net_name: str) -> RoutePath | RoutePath3D | None:
         """Get routed path for a specific net."""
         return self.routed_paths.get(net_name)
 
@@ -175,7 +175,7 @@ def run_astar_pathfinding(
     if alternate_grid:
         all_grids[alternate_grid.layer_name] = alternate_grid
 
-    routed_paths: dict[str, RoutePath] = {}
+    routed_paths: dict[str, RoutePath | RoutePath3D] = {}
     failed_nets_set: set[str] = set()
     failure_reports: dict[str, RoutingFailureReport] = {}
     ripup_counts: dict[str, int] = {}
@@ -397,7 +397,7 @@ def _astar_route_with_ripup(
     net_name: str,
     channel_path,
     grid: OccupancyGrid,
-    _routed_paths: dict[str, RoutePath],
+    _routed_paths: dict[str, RoutePath | RoutePath3D],
     _design_rules: DesignRules,
     _net_ids: dict[str, int],
     alternate_grid: OccupancyGrid | None = None,
@@ -423,13 +423,14 @@ def _astar_route_with_ripup(
     # SMD pads is enabled when an alternate grid exists.  When THT pads
     # are present they remain the preferred layer-switch site (handled
     # inside ``_astar_route_multilayer``).
+    path: RoutePath | RoutePath3D | None
     if alternate_grid:
         path = _astar_route_multilayer(
             net_name,
             channel_path,
             grid,
             alternate_grid,
-            tht_locations or [],
+            tht_locations,
             use_theta_star,
             use_lazy_theta_star,
             congestion_tensor=congestion_tensor,

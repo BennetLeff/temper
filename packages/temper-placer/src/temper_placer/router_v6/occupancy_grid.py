@@ -493,13 +493,14 @@ class OccupancyGridStage(Stage):
         return "OccupancyGrid"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         base_inflation = (
             pcb.design_rules.default_trace_width_mm / 2.0
         )
 
         occupancy_grids: dict[str, OccupancyGrid] = {}
-        for layer_name, routing_space in state.routing_spaces.items():
+        for layer_name, routing_space in state.routing_spaces.items():  # type: ignore[union-attr]
             grid = build_occupancy_grid(routing_space, inflation_mm=base_inflation)
             occupancy_grids[layer_name] = grid
         return replace(state, occupancy_grids=occupancy_grids)

@@ -15,7 +15,7 @@ from connectivity directives, which are not part of constraint semantics.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.constraint_model import (
@@ -199,11 +199,11 @@ def populate_sat_from_constraints(
             # If allowed = False, add clause (¬uses[n, c])
             # If allowed = True, add clause (uses[n, c])
             var_name = f"uses_N{constraint.net_idx}_{constraint.channel_id}"
-            sat_var = var_map.get(var_name)
+            sat_variable: SATVariable | None = var_map.get(var_name)
 
-            if sat_var:
+            if sat_variable is not None:
                 sat_model.add_clause(
-                    [(sat_var, constraint.allowed)],
+                    [(sat_variable, constraint.allowed)],
                     f"Layer: {var_name} = {constraint.allowed}"
                 )
 
@@ -212,11 +212,11 @@ def populate_sat_from_constraints(
                 min_width = min(width for _, width in constraint.terms)
                 max_nets = int(constraint.capacity * constraint.slack_factor / min_width)
 
-                sat_vars = []
+                sat_vars: list[SATVariable] = []
                 for var, _ in constraint.terms:
-                    sat_var = var_map.get(var.name)
-                    if sat_var:
-                        sat_vars.append(sat_var)
+                    sv: SATVariable | None = var_map.get(var.name)
+                    if sv is not None:
+                        sat_vars.append(sv)
 
                 if sat_vars and max_nets < len(sat_vars):
                     _encode_at_most_k(

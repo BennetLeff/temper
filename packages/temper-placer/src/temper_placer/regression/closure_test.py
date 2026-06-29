@@ -49,7 +49,7 @@ def _run_channel_analysis(*, output_dir: Path, stages_exercised: int) -> int:
         from temper_placer.router_v6.stage0_data import ParsedPCB
 
         try:
-            pcb = ParsedPCB()
+            pcb = ParsedPCB()  # type: ignore[call-arg]
         except TypeError:
             # Cannot construct a default ParsedPCB (it requires 7 args).
             # Skip channel analysis; the placer will run without a sidecar.

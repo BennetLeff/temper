@@ -78,7 +78,7 @@ class OverlapLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -89,6 +89,7 @@ class OverlapLoss(LossFunction):
         rotations = jnp.nan_to_num(rotations, nan=0.0, posinf=0.0, neginf=0.0)
 
         bounds = context.bounds  # (N, 2) - (width, height)
+        assert bounds is not None, "LossContext.bounds must not be None"
 
         # Apply soft-body inflation ramp (JAX-safe)
         ramp_end = self.inflation_ramp * total_epochs
@@ -96,7 +97,8 @@ class OverlapLoss(LossFunction):
         multiplier = 0.05 + 0.95 * progress
 
         # Only apply multiplier if ramp is enabled
-        bounds = jnp.where(self.inflation_ramp > 0, bounds * multiplier, bounds)
+        inflated_bounds: Array = jnp.where(self.inflation_ramp > 0, bounds * multiplier, bounds)  # type: ignore[assignment]
+        bounds = inflated_bounds
 
         # Get effective bounds - pure JAX branching
         def handle_rotation_invariant(_):
@@ -129,7 +131,7 @@ class OverlapLoss(LossFunction):
 
         return LossResult(value=total_overlap, breakdown={"per_component": per_component_overlap})
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float:  # noqa: ARG002, ARG002
         """
         Overlap is a hard constraint - full weight from early in training.
 

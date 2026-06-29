@@ -129,16 +129,16 @@ class ConstraintCompiler:
                 if component not in group.components:
                     continue
 
-                for rule in group.proximity_rules:
-                    if rule.tier != "hard":
+                for prox_rule in group.proximity_rules:
+                    if prox_rule.tier != "hard":
                         continue
-                    if component not in (rule.component_a, rule.component_b):
+                    if component not in (prox_rule.component_a, prox_rule.component_b):
                         continue
 
-                    other = rule.component_b if component == rule.component_a else rule.component_a
+                    other = prox_rule.component_b if component == prox_rule.component_a else prox_rule.component_a
                     if other in placements:
                         dist = self._distance(slot, placements[other])
-                        if dist > rule.max_distance_mm:
+                        if dist > prox_rule.max_distance_mm:
                             return False  # Too far - reject
 
             # 3. Escape clearance (hard mode)
@@ -194,19 +194,19 @@ class ConstraintCompiler:
                 if component not in group.components:
                     continue
 
-                for rule in group.proximity_rules:
+                for prox_rule in group.proximity_rules:
                     # Only apply soft tier rules in scorer
-                    if rule.tier != "soft":
+                    if prox_rule.tier != "soft":
                         continue
-                    if component not in (rule.component_a, rule.component_b):
+                    if component not in (prox_rule.component_a, prox_rule.component_b):
                         continue
 
-                    other = rule.component_b if component == rule.component_a else rule.component_a
+                    other = prox_rule.component_b if component == prox_rule.component_a else prox_rule.component_a
                     if other in placements:
                         dist = self._distance(slot, placements[other])
-                        if dist > rule.max_distance_mm:
+                        if dist > prox_rule.max_distance_mm:
                             # Penalty scales with violation
-                            score += (dist - rule.max_distance_mm) * 10.0
+                            score += (dist - prox_rule.max_distance_mm) * 10.0
 
             # 2. Thermal edge preference
             for thermal in self.constraints.thermal_constraints:
@@ -240,9 +240,9 @@ class ConstraintCompiler:
                 other = rule.component_b if component == rule.component_a else rule.component_a
                 if other in placements:
                     dist = self._distance(slot, placements[other])
-                    if dist < rule.min_separation_mm:
+                    if dist < rule.min_separation_mm:  # type: ignore[attr-defined]
                         # Weight acts as penalty multiplier
-                        score += (rule.min_separation_mm - dist) * rule.weight
+                        score += (rule.min_separation_mm - dist) * rule.weight  # type: ignore[attr-defined]
 
             # 5. Escape clearance (soft mode) - prefer not blocking escapes
             for ec in self.constraints.escape_clearances:

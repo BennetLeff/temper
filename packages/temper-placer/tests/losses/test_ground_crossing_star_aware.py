@@ -49,7 +49,7 @@ def star_aware_context():
     netlist = Netlist(components=components, nets=nets)
 
     # Define star ground constraint for NET2
-    constraints = [
+    [
         StarGroundConstraint(net_name="NET2", weight=1.0)
     ]
 

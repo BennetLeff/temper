@@ -18,7 +18,7 @@ from temper_placer.core.hypergraph import PhysicsHypergraph
 def hypergraph_wirelength_loss(
     positions: Array,
     hg: PhysicsHypergraph
-) -> float:
+) -> float | Array:
     """
     Compute total HPWL (Half-Perimeter Wire Length) approximation using
     sparse matrix operations.
@@ -66,7 +66,7 @@ def high_voltage_repulsion_loss(
     positions: Array,
     hg: PhysicsHypergraph,
     min_clearance: float = 10.0
-) -> float:
+) -> float | Array:
     """
     Repulsion force to maintain HV clearance.
     """
@@ -101,7 +101,7 @@ def current_weighted_spacing_loss(
     hg: PhysicsHypergraph,
     base_spacing: float = 0.5,
     current_factor: float = 0.5  # mm per Amp
-) -> float:
+) -> float | Array:
     """
     Enforce spacing proportional to current.
 
@@ -142,7 +142,7 @@ def electrostatic_congestion_loss(
     board_width: float,
     board_height: float,
     grid_size: int = 32
-) -> float:
+) -> float | Array:
     """
     Penalize areas with high routing density (electrostatic analogy).
 

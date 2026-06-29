@@ -186,7 +186,7 @@ class TestCorpusParity:
         pipeline_result = pipeline.run(board, netlist, constraints, rng)
 
         pos = pipeline_result.state.positions
-        n = len(netlist.components)
+        len(netlist.components)
         rotations = jax.nn.softmax(
             pipeline_result.state.rotation_logits, axis=-1
         )
@@ -247,7 +247,7 @@ class TestCorpusParity:
         n = len(netlist.components)
         final_pos = training_result.final_state.positions
         # Sample rotations from final logits
-        key = jax.random.PRNGKey(99)
+        jax.random.PRNGKey(99)
         rotations = jax.nn.softmax(
             training_result.final_state.rotation_logits, axis=-1
         )
@@ -306,7 +306,7 @@ class TestCorpusParity:
             config=config, initial_state=initial_state,
         )
 
-        n = len(netlist.components)
+        len(netlist.components)
         final_pos = result.final_state.positions
         rotations = jax.nn.softmax(
             result.final_state.rotation_logits, axis=-1

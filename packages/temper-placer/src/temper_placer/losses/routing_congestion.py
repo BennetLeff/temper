@@ -40,11 +40,11 @@ class RoutingCongestionLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: jnp.ndarray | None = None, **_kwargs: Any) -> LossResult:
+        rotations: jnp.ndarray,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: jnp.ndarray | None = None, **_kwargs: Any) -> LossResult:  # noqa: ARG002
         """
         Calculate congestion penalty.
         """
@@ -53,7 +53,7 @@ class RoutingCongestionLoss(LossFunction):
 
         # 2. Add batch dimension for N components if needed?
         # grid_pos is (N, 2). map_coordinates expects coords as (rank, N)
-        coords = grid_pos.T  # (2, N)
+        coords = (grid_pos[:, 0], grid_pos[:, 1])  # (rank, N) as Sequence
 
         # 3. Sample heatmap
         congestion_values = map_coordinates(self.heatmap, coords, order=1, mode='nearest')

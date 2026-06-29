@@ -75,7 +75,7 @@ class RoutingFeedbackLoss(LossFunction):
         gy = (positions[:, 1] - self.origin[1]) / self.cell_size
 
         # map_coordinates requires (ndim, n_samples)
-        coords = jnp.stack([gx, gy], axis=0)
+        coords = (gx, gy)
 
         # Bi-linear interpolation for smooth gradients
         from jax.scipy.ndimage import map_coordinates
@@ -142,7 +142,7 @@ class MomentumDampedRoutingFeedbackLoss:
 
         gx = (positions[:, 0] - self.origin[0]) / self.cell_size
         gy = (positions[:, 1] - self.origin[1]) / self.cell_size
-        coords = jnp.stack([gx, gy], axis=0)
+        coords = (gx, gy)
         congestion_values = map_coordinates(self.blended_grid, coords, order=1, mode="nearest")
         total_loss = jnp.sum(congestion_values)
         return LossResult(

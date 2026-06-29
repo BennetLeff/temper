@@ -41,7 +41,7 @@ class DSNExporter:
         # Convert rotations to indices (0-3) if provided as logits/one-hot
         if rotations is not None:
             if rotations.ndim == 2:
-                self.rotation_indices = jnp.argmax(rotations, axis=1)
+                self.rotation_indices: Array | None = jnp.argmax(rotations, axis=1)
             else:
                 self.rotation_indices = rotations
         else:
@@ -268,7 +268,7 @@ class DSNExporter:
 
     def export_placement(self) -> DSNExpression:
         """Export the placement section (component instances)."""
-        components_by_fp = {}
+        components_by_fp: dict[str, list] = {}
         S = 100.0  # Scale factor
 
         for i, comp in enumerate(self.netlist.components):
@@ -449,8 +449,8 @@ class DSNExporter:
                 # We include all layers to ensure routability.
                 all_layers = outer_layers + inner_layers
                 if all_layers:
-                    power_class_items.append(dsn_list("use_layer", *all_layers))
-                class_exprs.append(dsn_list(*power_class_items))
+                    power_class_items.append(dsn_list("use_layer", *all_layers))  # type: ignore[arg-type]
+                class_exprs.append(dsn_list(*power_class_items))  # type: ignore[arg-type]
 
             # Signal net class - prefer outer layers, standard traces
             if signal_nets:
@@ -463,8 +463,8 @@ class DSNExporter:
                 ]
                 # Add layer preference for outer (signal) layers if available
                 if outer_layers:
-                    signal_class_items.append(dsn_list("use_layer", *outer_layers))
-                class_exprs.append(dsn_list(*signal_class_items))
+                    signal_class_items.append(dsn_list("use_layer", *outer_layers))  # type: ignore[arg-type]
+                class_exprs.append(dsn_list(*signal_class_items))  # type: ignore[arg-type]
 
             return dsn_list("network", *net_exprs, *class_exprs)
 

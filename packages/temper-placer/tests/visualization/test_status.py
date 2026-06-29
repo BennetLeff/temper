@@ -13,7 +13,7 @@ from temper_placer.visualization.model import (
 
 # Check if Plotly is available
 try:
-    import plotly
+    import plotly  # noqa: F401
 
     PLOTLY_AVAILABLE = True
 except ImportError:

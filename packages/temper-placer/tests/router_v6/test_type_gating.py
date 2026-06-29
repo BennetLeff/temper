@@ -8,12 +8,10 @@ from __future__ import annotations
 
 from temper_placer.router_v6.type_gating import (
     ConstraintKind,
-    ConstraintType,
     Rule,
     TypeGating,
     classify_constraint,
 )
-
 
 # ---------------------------------------------------------------------------
 # T-U2-1: LayerConstraint → safety (default)

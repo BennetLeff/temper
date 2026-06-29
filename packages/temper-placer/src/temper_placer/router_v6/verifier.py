@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from jax import Array
 
@@ -33,11 +33,7 @@ from temper_placer.router_v6.adapter import MazeRouter
 from temper_placer.router_v6.congestion import analyze_congestion
 
 if TYPE_CHECKING:
-    from temper_placer.router_v6.diagnostics import (
-        PlacementAdjustment,
-        RoutingDiagnostic,
-        RoutingReport,
-    )
+    pass
 from temper_placer.router_v6.layer_assignment import LayerAssignment, assign_layers  # noqa: E402
 from temper_placer.router_v6.net_ordering import order_nets  # noqa: E402
 
@@ -98,7 +94,7 @@ class VerificationResult:
     net_ordering: list[str]
     layer_assignments: dict[str, LayerAssignment]
     congestion_map: Array | None = None
-    diagnostics: list[RoutingDiagnostic] = field(default_factory=list)
+    diagnostics: Any = field(default_factory=list)
     routed_nets: list[str] = field(default_factory=list)
     failed_nets: list[str] = field(default_factory=list)
     total_wirelength: float = 0.0
@@ -198,7 +194,7 @@ class RoutingVerifier:
         router.block_components(netlist.components, positions)
 
         # Route all nets
-        routing_results = router.route_all_nets(
+        routing_results = router.rrr_route_all_nets(
             netlist,
             positions,
             net_ordering,
@@ -206,8 +202,8 @@ class RoutingVerifier:
         )
 
         # Compute metrics
-        total = routing_results.success_count + routing_results.failure_count
-        completion_rate = routing_results.success_count / total if total > 0 else 0.0
+        total = routing_results.success_count + routing_results.failure_count  # type: ignore[attr-defined]
+        completion_rate = routing_results.success_count / total if total > 0 else 0.0  # type: ignore[attr-defined]
         result.completion_rate = completion_rate
         result.feasible = completion_rate >= 1.0
 
@@ -232,8 +228,8 @@ class RoutingVerifier:
 
     def to_placement_feedback(
         self,
-        report: RoutingReport,
-    ) -> list[PlacementAdjustment]:
+        report: Any,
+    ) -> list[Any]:
         """Convert routing report to placement adjustment hints.
 
         Extracts placement hints from diagnostics and sorts them by priority.
@@ -245,7 +241,7 @@ class RoutingVerifier:
             List of PlacementAdjustment sorted by priority (highest first)
         """
         # Lazy import to avoid circular dependency
-        adjustments: list[PlacementAdjustment] = []
+        adjustments: list[Any] = []
 
         for diag in report.diagnostics:
             if diag.placement_hint is not None:

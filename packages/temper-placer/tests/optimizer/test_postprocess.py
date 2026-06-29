@@ -361,8 +361,8 @@ class TestDetailedLocalSearch:
         def loss_fn(s):
             # Penalize R1 (index 0) if not at 0,0
             # Penalize R2 (index 1) if not at 10,0
-            l = jnp.sum(s.positions[0]**2) + jnp.sum((s.positions[1] - jnp.array([10.0, 0.0]))**2)
-            return float(l)
+            loss_val = jnp.sum(s.positions[0]**2) + jnp.sum((s.positions[1] - jnp.array([10.0, 0.0]))**2)
+            return float(loss_val)
 
         from temper_placer.optimizer.postprocess import detailed_local_search
         # Enable swaps
@@ -400,7 +400,7 @@ class TestPostprocess:
         positions = jnp.array([[1.3, 2.7]])
         state = PlacementState.from_positions(positions)
 
-        def loss_fn(s):
+        def loss_fn(_s):
             return 0.0
 
         config = PostProcessConfig(
@@ -419,7 +419,7 @@ class TestPostprocess:
         positions = jnp.array([[1.3, 2.7]])
         state = PlacementState.from_positions(positions)
 
-        def loss_fn(s):
+        def loss_fn(_s):
             return 0.0
 
         config = PostProcessConfig(grid_size=1.0)
@@ -437,7 +437,7 @@ class TestFinalizePos:
         positions = jnp.array([[1.3, 2.7], [5.0, 5.0]])
         state = PlacementState.from_positions(positions)
 
-        def loss_fn(s):
+        def loss_fn(_s):
             return 0.0
 
         final_positions, rotation_indices, final_loss = finalize_placement(state, loss_fn)
@@ -455,7 +455,7 @@ class TestFinalizePos:
         positions = jnp.array([[1.3, 2.7]])
         state = PlacementState.from_positions(positions)
 
-        def loss_fn(s):
+        def loss_fn(_s):
             return 0.0
 
         final_positions, _, _ = finalize_placement(state, loss_fn, grid_size=1.0)

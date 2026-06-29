@@ -8,6 +8,7 @@ TimingReport dataclasses consumed by the CLI baseline/check commands.
 from __future__ import annotations
 
 import contextlib
+import statistics
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -417,7 +418,7 @@ def _measure_pipeline_orchestrator(
         config = PipelineConfig(input_pcb=pcb_path, skip_routing=False, dry_run=False)
         orchestrator = PipelineOrchestrator(config)
         observer = _TimingObserver()
-        orchestrator._engine.add_observer(observer)
+        orchestrator._engine.add_observer(observer)  # type: ignore[arg-type]
 
         with contextlib.suppress(Exception):
             orchestrator.run()
@@ -441,4 +442,152 @@ def _measure_pipeline_orchestrator(
             )
         )
 
+    return results
+
+
+@dataclass
+class TightenResult:
+    """Eligible stage for auto-baseline tightening.
+
+    Captures the detection outcome: current committed baseline, the
+    proposed lower baseline (median of qualifying runs), drop percentage,
+    streak count, and the wall_ms values that triggered the detection.
+    """
+
+    board: str
+    pipeline: str
+    stage: str
+    baseline_ms: float
+    proposed_ms: float
+    drop_pct: float
+    streak_count: int
+    qualifying_runs: list[float]
+
+
+def _extract_wall_ms(record: dict) -> float | None:
+    """Extract wall-clock ms from a pipeline-timing JSONL record's metrics.
+
+    Checks ``wall_ms_mean`` (from TimingResult records) first, falls back to
+    ``current_ms`` (from StageTimingEntry records emitted by timing check).
+    """
+    metrics = record.get("metrics", {})
+    if "wall_ms_mean" in metrics:
+        return float(metrics["wall_ms_mean"])
+    if "current_ms" in metrics:
+        return float(metrics["current_ms"])
+    return None
+
+
+def detect_tightenable_stages(
+    jsonl_path: Path,
+    manifest: dict,
+    n_runs: int = 7,
+    threshold: float = 0.50,
+    noise_floor: float = 10.0,
+    board_filter: str | None = None,
+    stage_filter: str | None = None,
+    pipeline_filter: str = "DeterministicPipeline",
+) -> list[TightenResult]:
+    """Detect stages eligible for auto-baseline tightening.  # R1,R2,R3
+
+    Queries ``pipeline_metrics.jsonl`` for ``module="pipeline-timing"``
+    records, groups by (board, stage), and detects consecutive-run streaks
+    where every run's wall-clock is at or below ``baseline_ms * threshold``.
+    Returns a list of :class:`TightenResult` sorted by drop percentage
+    descending (largest drop first).
+
+    Args:
+        jsonl_path: Path to ``pipeline_metrics.jsonl``.
+        manifest: Loaded ``timing_baselines.yaml`` dict (see
+            ``_load_manifest()``).
+        n_runs: Consecutive qualifying runs required (default 7).
+        threshold: Below-baseline ratio that triggers eligibility
+            (default 0.50 = 50%).
+        noise_floor: Minimum baseline ms to consider (default 10ms).
+            Stages with ``wall_ms_mean`` below this are skipped.
+        board_filter: If set, only consider this board.
+        stage_filter: If set, only consider this stage.
+        pipeline_filter: Pipeline name to match against manifest entries.
+
+    Returns:
+        List of eligible stages, sorted by drop percentage (largest first).
+        Empty list when no stages qualify.
+    """
+    from temper_placer.regression.metrics_recorder import load_metrics
+
+    # --- Load and filter ----------------------------------------------------
+    records = load_metrics(jsonl_path)
+    if not records:
+        return []
+
+    timing_records = [r for r in records if r.get("module") == "pipeline-timing"]
+    if not timing_records:
+        return []
+
+    if board_filter:
+        timing_records = [r for r in timing_records if r.get("board") == board_filter]
+    if stage_filter:
+        timing_records = [r for r in timing_records if r.get("stage") == stage_filter]
+
+    # --- Group by (board, stage) ---------------------------------------------
+    groups: dict[tuple[str, str], list[dict]] = {}
+    for r in timing_records:
+        key = (r["board"], r["stage"])
+        groups.setdefault(key, []).append(r)
+
+    # --- Match against manifest entries --------------------------------------
+    manifest_stages = manifest.get("stages", [])
+    results: list[TightenResult] = []
+
+    for (board, stage), recs in groups.items():
+        manifest_entry = None
+        for e in manifest_stages:
+            if (
+                e["board"] == board
+                and e.get("pipeline", pipeline_filter) == pipeline_filter
+                and e["stage"] == stage
+            ):
+                manifest_entry = e
+                break
+
+        if manifest_entry is None:
+            continue
+
+        baseline_ms = manifest_entry["wall_ms_mean"]
+        if baseline_ms < noise_floor:  # R11
+            continue
+
+        # Sort by timestamp descending (most recent first)
+        recs.sort(key=lambda r: r.get("timestamp", ""), reverse=True)
+
+        # Build consecutive streak
+        streak: list[float] = []
+        for r in recs:
+            wall_ms = _extract_wall_ms(r)
+            if wall_ms is None:
+                continue
+            if wall_ms <= baseline_ms * threshold:  # R2
+                streak.append(wall_ms)
+            else:
+                break  # R3: streak must be consecutive
+
+        if len(streak) >= n_runs:
+            window = streak[:n_runs]  # most recent N of the streak
+            proposed_ms = statistics.median(window)  # R3
+            drop_pct = (baseline_ms - proposed_ms) / baseline_ms * 100.0
+
+            results.append(
+                TightenResult(
+                    board=board,
+                    pipeline=manifest_entry.get("pipeline", pipeline_filter),
+                    stage=stage,
+                    baseline_ms=baseline_ms,
+                    proposed_ms=proposed_ms,
+                    drop_pct=drop_pct,
+                    streak_count=len(streak),
+                    qualifying_runs=window,
+                )
+            )
+
+    results.sort(key=lambda r: r.drop_pct, reverse=True)
     return results

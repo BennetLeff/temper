@@ -65,9 +65,9 @@ class ClearanceLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         """
         Compute total clearance violation penalty.
@@ -83,10 +83,10 @@ class ClearanceLoss(LossFunction):
         # Get rotation-aware bounds if enabled
         bounds = context.bounds  # (N, 2)
         if self.use_rotated_bounds:
-            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)  # type: ignore[index]
         else:
-            widths = bounds[:, 0]
-            heights = bounds[:, 1]
+            widths = bounds[:, 0]  # type: ignore[index]
+            heights = bounds[:, 1]  # type: ignore[index]
 
         total_penalty = jnp.array(0.0)
         breakdown = {}

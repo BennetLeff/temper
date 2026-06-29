@@ -125,21 +125,21 @@ def score_config(results: list[PCBResult]) -> float:
     # Secondary: Mean wirelength ratio (only for passing boards)
     passing_results = [r for r in results if r.drc_errors == 0]
     if passing_results:
-        mean_wl_ratio = np.mean([r.wirelength_ratio for r in passing_results])
+        mean_wl_ratio = float(np.mean([r.wirelength_ratio for r in passing_results]))
         # Convert to score: 1.0 is perfect, higher ratios get lower score
-        wl_score = max(0.0, 2.0 - mean_wl_ratio)
+        wl_score = float(max(0.0, 2.0 - mean_wl_ratio))
     else:
         wl_score = 0.0
 
     # Tertiary: Mean quality score (only for passing boards)
     if passing_results:
-        mean_quality = np.mean([r.quality_score for r in passing_results])
-        quality_normalized = mean_quality / 100.0  # Assume quality scores are 0-100
+        mean_quality = float(np.mean([r.quality_score for r in passing_results]))
+        quality_normalized = mean_quality / 100.0
     else:
         quality_normalized = 0.0
 
     # Weighted combination: DRC is 10x more important than wirelength
-    total_score = 10.0 * drc_pass_rate + wl_score + 0.5 * quality_normalized
+    total_score = float(10.0 * drc_pass_rate + wl_score + 0.5 * quality_normalized)
 
     return float(total_score)
 

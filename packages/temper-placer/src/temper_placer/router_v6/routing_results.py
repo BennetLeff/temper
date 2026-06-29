@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
 from temper_placer.router_v6.via_placement import ViaPlacement
@@ -23,7 +24,7 @@ class CompiledRoute:
     """Compiled routing information for a single net."""
 
     net_name: str
-    path: RoutePath
+    path: RoutePath | RoutePath3D
     width_mm: float
     vias: list  # List of Via objects
     matched_length_mm: float | None  # Length after matching (if applicable)

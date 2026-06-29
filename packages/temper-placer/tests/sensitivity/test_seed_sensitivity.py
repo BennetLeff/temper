@@ -85,7 +85,7 @@ def run_optimization_with_seed(
     board: Board,
     seed: int,
     epochs: int = 400,
-    verbose: bool = False,
+    _verbose: bool = False,
 ) -> SeedRunResult:
     """
     Run optimization with a specific seed and return results.
@@ -260,7 +260,7 @@ class TestSeedSensitivity:
 
     @pytest.mark.slow
     @pytest.mark.monte_carlo
-    def test_loss_variance_acceptable(self, netlist_and_board):
+    def test_loss_variance_acceptable(self, _netlist_and_board):
         """
         Test that coefficient of variation for final loss is < 0.35.
 
@@ -286,7 +286,7 @@ class TestSeedSensitivity:
 
     @pytest.mark.slow
     @pytest.mark.monte_carlo
-    def test_all_seeds_converge(self, netlist_and_board):
+    def test_all_seeds_converge(self, _netlist_and_board):
         """
         Test that at least 95% of seeds find a valid placement.
 
@@ -327,7 +327,7 @@ class TestSeedSensitivity:
 
     @pytest.mark.slow
     @pytest.mark.monte_carlo
-    def test_quality_metrics_stable(self, netlist_and_board):
+    def test_quality_metrics_stable(self, _netlist_and_board):
         """
         Test that individual quality metrics meet acceptable thresholds.
 

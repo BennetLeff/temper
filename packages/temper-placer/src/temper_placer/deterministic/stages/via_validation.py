@@ -124,7 +124,7 @@ class ViaValidationStage(Stage):
 
     def _build_trace_endpoint_index(self, routes: frozenset) -> dict:
         """Build index of trace endpoints by layer for fast lookup."""
-        index = {}
+        index: dict[str, set[tuple[float, float]]] = {}
 
         for trace in routes:
             if not isinstance(trace, Trace):
@@ -155,7 +155,7 @@ class ViaValidationStage(Stage):
 
     def _build_pin_position_index(self, state: BoardState) -> dict:
         """Build index of pin positions by layer."""
-        index = {}
+        index: dict[str, set[tuple[float, float]]] = {}
 
         if not state.netlist:
             return index

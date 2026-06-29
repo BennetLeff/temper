@@ -253,9 +253,9 @@ class ChannelWidthsStage(Stage):
 
     def run(self, state: BoardState) -> BoardState:
         channel_widths: dict[str, ChannelWidths] = {}
-        for layer_name, skeleton in state.channel_skeletons.items():
+        for layer_name, skeleton in state.channel_skeletons.items():  # type: ignore[union-attr]
             widths = compute_channel_widths(
-                state.routing_spaces[layer_name],
+                state.routing_spaces[layer_name],  # type: ignore[index]
                 skeleton,
             )
             channel_widths[layer_name] = widths

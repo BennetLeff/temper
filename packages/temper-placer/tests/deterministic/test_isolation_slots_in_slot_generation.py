@@ -61,7 +61,7 @@ def _make_minimal_metadata():
     )
 
 
-def _run_slot_stage(constraints, netlist=None):
+def _run_slot_stage(_constraints, netlist=None):
     """Build the pipeline and run ZoneGeometry + ZoneAwareSlotGeneration."""
     from temper_placer.core.board import Board
     from temper_placer.deterministic.state import BoardState
@@ -160,7 +160,7 @@ class TestOracleAcceptsCreditedClearance:
         assert constraints.isolation_slots
 
         # Build the stage directly with the production slot list.
-        stage = ZoneAwareSlotGenerationStage(
+        ZoneAwareSlotGenerationStage(
             slot_spacing_mm=5.0,
             yaml_isolation_slots=list(constraints.isolation_slots),
         )
@@ -237,7 +237,7 @@ class TestClosureCompletionReachesThreshold:
     (8 baseline + 9 Q1/Q2-attributable stuck nets; D1↔D2 net deferred).
     """
 
-    def test_closure_completion_reaches_23_of_24(self, tmp_path):
+    def test_closure_completion_reaches_23_of_24(self, _tmp_path):
         # Look for closure seeds at the plan's referenced path; if absent,
         # skip rather than fail.
         seeds_path = Path(__file__).parents[4] / "docs" / "test-boards" / "closure-seeds.txt"

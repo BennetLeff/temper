@@ -35,7 +35,7 @@ class Component:
     rotation: float = 0
 
 
-def generate_qfp_pins(pin_count: int, body_size: float, pitch: float) -> list[tuple[str, float]]:
+def generate_qfp_pins(pin_count: int, _body_size: float, pitch: float) -> list[tuple[str, float]]:
     """Generate pin positions for QFP packages."""
     pins_per_side = pin_count // 4
     edge_offset = 4.65  # Distance from center to pad

@@ -180,7 +180,7 @@ class MetricsTracker:
         overlaps = [r.overlap_loss for r in self.runs]
         boundaries = [r.boundary_loss for r in self.runs]
         hpwls = [r.hpwl_mm for r in self.runs]
-        convergences = [r.convergence_epoch for r in self.runs]
+        convergences = [float(r.convergence_epoch) for r in self.runs]
         final_losses = [r.final_loss for r in self.runs]
 
         # Count failures

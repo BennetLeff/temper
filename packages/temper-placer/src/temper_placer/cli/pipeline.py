@@ -7,12 +7,17 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
+from rich.panel import Panel
 
-from ._io import Panel, console
+from ._io import console
 
 if TYPE_CHECKING:
-    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator
-    from temper_placer.pipeline.state import PipelinePhase, PipelineState
+    from temper_placer.pipeline.orchestrator import (
+        PipelineConfig,
+        PipelineOrchestrator,
+        PipelinePhase,
+        PipelineState,
+    )
     from temper_placer.pipeline.visualization import RichDashboard
 
 @click.command()

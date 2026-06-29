@@ -110,7 +110,7 @@ def exactly_at(value: float) -> float:
 # Shared test helpers (Path / Via / Route / Results stubs)
 # ---------------------------------------------------------------------------
 
-import math as _math
+import math as _math  # noqa: E402
 
 
 class Path:

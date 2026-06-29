@@ -13,8 +13,10 @@ from __future__ import annotations
 import pytest
 from hypothesis import given
 
-from tests.router_v6.sat_property_strategies import constraint_model_with_all_types
-
+from temper_placer.router_v6.bmc import (
+    bmc_check,
+    bmc_check_with_diagnostics,
+)
 from temper_placer.router_v6.constraint_model import (
     CapacityConstraint,
     ConstraintModel,
@@ -26,10 +28,7 @@ from temper_placer.router_v6.sat_model import (
     SATModel,
     populate_sat_from_constraints,
 )
-from temper_placer.router_v6.bmc import (
-    bmc_check,
-    bmc_check_with_diagnostics,
-)
+from tests.router_v6.sat_property_strategies import constraint_model_with_all_types
 
 LAYER_NAMES = ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu")
 

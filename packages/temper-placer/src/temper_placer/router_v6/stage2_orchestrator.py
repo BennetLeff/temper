@@ -65,7 +65,7 @@ class Stage2Orchestrator:
                 print(f"  2.{idx}: {stage.name}...")
 
             if self._profiler is not None:
-                with self._profiler.sub_step("stage2", stage.name):
+                with self._profiler.sub_step("stage2", stage.name):  # type: ignore[attr-defined]
                     state = stage.run(state)
             else:
                 state = stage.run(state)

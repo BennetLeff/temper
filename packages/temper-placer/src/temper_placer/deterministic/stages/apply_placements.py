@@ -28,6 +28,6 @@ class ApplyPlacementsStage(Stage):
                 updated_components.append(component)
 
         # Create new netlist with updated components
-        new_netlist = replace(state.netlist, components=tuple(updated_components))
+        new_netlist = replace(state.netlist, components=list(updated_components))
 
         return replace(state, netlist=new_netlist)

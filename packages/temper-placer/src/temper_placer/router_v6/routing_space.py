@@ -182,6 +182,7 @@ class RoutingSpaceStage(Stage):
         return "RoutingSpace"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         escape_vias = list(state._escape_vias) if state._escape_vias else []
         obstacle_maps = state.obstacle_maps

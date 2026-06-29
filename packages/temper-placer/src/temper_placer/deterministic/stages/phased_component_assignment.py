@@ -93,7 +93,7 @@ class PhasedComponentAssignmentStage(Stage):
         self,
         constraints: PlacementConstraints,
         slot_spacing: float = 12.0,
-        fixed_placements: dict[str, dict] = None,
+        fixed_placements: dict[str, dict] | None = None,
         channel_map: ChannelMap | None = None,
         w_r: float = 0.05,
         design_rules=None,
@@ -181,6 +181,9 @@ class PhasedComponentAssignmentStage(Stage):
         """Execute phased placement."""
         if not state.netlist or not state.component_zone_map or not state.zone_slots:
             return state
+        assert state.netlist is not None
+        assert state.component_zone_map is not None
+        assert state.zone_slots is not None
         import logging
         logger = logging.getLogger(__name__)
 
@@ -199,6 +202,7 @@ class PhasedComponentAssignmentStage(Stage):
 
         domain_for_ref, domain_regions = self._domain_lookups(state)
 
+        assert state.netlist is not None, "Netlist must be set in BoardState"
         placements, used_slots = self._phased_placement(
             state,
             state.netlist,
@@ -258,13 +262,13 @@ class PhasedComponentAssignmentStage(Stage):
         zone_slots: dict[str, tuple],
         domain_for_ref: Mapping[str, str] | None = None,
         domain_regions: Mapping[str, Polygon] | None = None,
-    ) -> dict[str, tuple[float, float]]:
+    ) -> tuple[dict[str, tuple[float, float]], set[tuple[float, float]]]:
         """Execute placement in priority-defined phases.
 
         Returns:
-            Dict of component_ref -> (x, y) positions
+            Tuple of (placements dict, used_slots set)
         """
-        placements = {}
+        placements: dict[str, tuple[float, float]] = {}
         used_slots: set[tuple[float, float]] = set()
 
         # Build lookup structures
@@ -462,7 +466,7 @@ class PhasedComponentAssignmentStage(Stage):
             )
 
         reference_pos = current_placements[reference_ref]
-        placements = {}
+        placements: dict[str, tuple[float, float]] = {}
 
         for ref in components:
             if ref not in comp_by_ref:
@@ -471,7 +475,11 @@ class PhasedComponentAssignmentStage(Stage):
             component = comp_by_ref[ref]
 
             # Filter slots within max_distance of reference
+<<<<<<< HEAD
             all_zone_slots: list[Slot] = []
+=======
+            all_zone_slots: list[tuple[float, float]] = []
+>>>>>>> main
             for slots in zone_slots.values():
                 all_zone_slots.extend(slots)
 
@@ -538,7 +546,7 @@ class PhasedComponentAssignmentStage(Stage):
         Returns:
             Dict of ref -> (x, y) for this phase
         """
-        placements = {}
+        placements: dict[str, tuple[float, float]] = {}
 
         # Sort by footprint size (largest first)
         def get_size(ref: str) -> float:
@@ -709,7 +717,7 @@ class PhasedComponentAssignmentStage(Stage):
         fallback (NFR4 parity — the fallback predates U1 and is only
         used when ``placement_priority`` is empty).
         """
-        placements = {}
+        placements: dict[str, tuple[float, float]] = {}
         used_slots: set[tuple[float, float]] = set()
 
         net_pins = self._build_net_pins(netlist)
@@ -876,7 +884,7 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _flatten_slots(self, zone_slots: dict[str, tuple]) -> list[tuple[float, float]]:
         """Flatten zone_slots to single list of all slots."""
-        all_slots = []
+        all_slots: list[tuple[float, float]] = []
         for slots in zone_slots.values():
             all_slots.extend(slots)
         return all_slots
@@ -1230,15 +1238,15 @@ class PhasedComponentAssignmentStage(Stage):
             gy = int(math.floor((float(y_mm) * 1000.0) / cell_um))
             if gx < 0 or gx >= width or gy < 0 or gy >= height:
                 continue
-            bn = critical_by_cell.get((gx, gy))
-            if bn is None:
+            cell_bn: Bottleneck | None = critical_by_cell.get((gx, gy))
+            if cell_bn is None:
                 continue
             violations.append(
                 {
                     "ref": ref,
                     "x": gx,
                     "y": gy,
-                    "layer": bn.layer,
+                    "layer": cell_bn.layer,
                     "severity": bn.severity,
                 }
             )

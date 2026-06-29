@@ -322,12 +322,10 @@ def check_dnp_consistency(
 
     # Check for DNP components that still have placement coordinates
     for entry in cpl:
-        if entry.designator in bom_dnp and bom_dnp[entry.designator]:
-            # DNP component should ideally not have precise coordinates
-            if abs(entry.mid_x) > 0.001 or abs(entry.mid_y) > 0.001:
-                warnings.append(
-                    f"DNP component {entry.designator} has non-zero placement coordinates"
-                )
+        if entry.designator in bom_dnp and bom_dnp[entry.designator] and (abs(entry.mid_x) > 0.001 or abs(entry.mid_y) > 0.001):
+            warnings.append(
+                f"DNP component {entry.designator} has non-zero placement coordinates"
+            )
 
     valid = len(errors) == 0
     return DocumentationValidationResult(

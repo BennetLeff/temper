@@ -153,7 +153,7 @@ class DRCOracle:
             RunResult with per-check results and aggregate metrics.
         """
         placement = build_placement_from_netlist(positions, context)
-        return self.runner.run(placement, self.constraints, categories=categories)
+        return self.runner.run(placement, self.constraints, categories=categories)  # type: ignore[attr-defined]
 
     def evaluate_placement(
         self,
@@ -169,7 +169,7 @@ class DRCOracle:
         Returns:
             RunResult with per-check results and aggregate metrics.
         """
-        return self.runner.run(placement, self.constraints, categories=categories)
+        return self.runner.run(placement, self.constraints, categories=categories)  # type: ignore[attr-defined]
 
 
 def create_standard_drc_oracle(context: LossContext) -> DRCOracle:

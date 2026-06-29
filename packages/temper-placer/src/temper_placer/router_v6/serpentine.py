@@ -16,6 +16,9 @@ class DiffPairPath:
     pos_length: float = 0.0
     neg_length: float = 0.0
     skew_mm: float = 0.0
+    success: bool = False
+    coupling_ratio: float = 0.0
+    avg_separation_mm: float = 0.0
 
 
 def measure_path_length(cells: list[tuple[int, int, int]], cell_size_mm: float) -> float:
@@ -167,7 +170,7 @@ def apply_length_matching(
     Returns:
         Updated DiffPairPath with length matching applied
     """
-    if not diff_pair_path.success:
+    if diff_pair_path.skew_mm > 1000.0:  # heuristic: large skew = failed
         return diff_pair_path  # Don't modify failed routes
 
     # Measure current lengths
@@ -231,8 +234,8 @@ def apply_length_matching(
     return DiffPairPath(
         pos_cells=new_pos_cells,
         neg_cells=new_neg_cells,
-        coupling_ratio=diff_pair_path.coupling_ratio,  # Unchanged
-        max_skew_mm=new_skew,
+        coupling_ratio=diff_pair_path.coupling_ratio,
+        skew_mm=new_skew,
         avg_separation_mm=diff_pair_path.avg_separation_mm,
         success=True
     )

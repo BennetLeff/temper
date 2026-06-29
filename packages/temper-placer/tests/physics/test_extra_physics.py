@@ -14,7 +14,7 @@ def test_emi_prediction():
     # dBuv = 20 * log10(0.01096) = -39.2 dBuv
     dbuv = predict_radiated_emissions(100.0, 10.0, 50.0)
     assert -40.0 < dbuv < -38.0
-    assert check_emi_compliance(dbuv) == True
+    assert check_emi_compliance(dbuv)
 
 def test_emi_scaling():
     """EMI should scale with square of frequency."""

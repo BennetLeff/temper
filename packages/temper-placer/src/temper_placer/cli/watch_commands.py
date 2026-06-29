@@ -9,7 +9,11 @@ from pathlib import Path
 import click
 
 from temper_placer.pipeline.dag_observability import StageEvent
+<<<<<<< HEAD
 from temper_placer.pipeline.terminal_dashboard import create_terminal_dashboard
+=======
+from temper_placer.pipeline.terminal_dashboard import TerminalDashboardObserver
+>>>>>>> main
 
 
 @click.command()
@@ -57,7 +61,11 @@ def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None
     if skip_routing:
         config_kwargs["skip_routing"] = True
 
+<<<<<<< HEAD
     orchestrator = PipelineOrchestrator.from_config(**config_kwargs)
+=======
+    orchestrator = PipelineOrchestrator.from_config(**config_kwargs)  # type: ignore[attr-defined]
+>>>>>>> main
 
     pipeline_kwargs: dict = {"input_pcb": input_pcb}
     if loops:
@@ -81,7 +89,11 @@ def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None
             "geometric", "routing", "refinement", "output",
         ]
 
+<<<<<<< HEAD
     dashboard = create_terminal_dashboard(stage_order=stage_order,
+=======
+    dashboard = TerminalDashboardObserver(stage_order=stage_order,
+>>>>>>> main
                                            refresh_per_second=refresh)
     orchestrator.dag_engine.add_observer(dashboard)
 
@@ -103,12 +115,19 @@ def _watch_replay(replay_path: Path) -> None:
     events: list[StageEvent] = []
     for e in events_raw:
         events.append(StageEvent(
+<<<<<<< HEAD
             name=e.get("name", ""),
             kind=e.get("kind", ""),
             iteration=e.get("iteration", 0),
             duration_s=e.get("duration_s", 0.0),
             reason=e.get("reason", ""),
             error=e.get("error"),
+=======
+            name=e.get("name", ""), kind=e.get("kind", ""),
+            iteration=e.get("iteration", 0),
+            duration_s=e.get("duration_s", 0.0),
+            reason=e.get("reason", ""), error=e.get("error"),
+>>>>>>> main
             feedback_contract=e.get("feedback_contract"),
             feedback_attempt=e.get("feedback_attempt"),
             timestamp=e.get("timestamp", time.time()),
@@ -118,7 +137,11 @@ def _watch_replay(replay_path: Path) -> None:
         click.echo("No events found in replay file.")
         return
 
+<<<<<<< HEAD
     dashboard = create_terminal_dashboard(stage_order=stage_order, refresh_per_second=8.0)
+=======
+    dashboard = TerminalDashboardObserver(stage_order=stage_order, refresh_per_second=8.0)
+>>>>>>> main
 
     with dashboard:
         prev_ts = events[0].timestamp
@@ -131,13 +154,18 @@ def _watch_replay(replay_path: Path) -> None:
             if event.kind == "start":
                 dashboard.on_stage_start(event.name, event.iteration, {})
             elif event.kind == "complete":
+<<<<<<< HEAD
                 dashboard.on_stage_complete(event.name, event.duration_s,
                                             event.outputs or {})
+=======
+                dashboard.on_stage_complete(event.name, event.duration_s, event.outputs or {})
+>>>>>>> main
             elif event.kind == "skip":
                 dashboard.on_stage_skip(event.name, event.reason)
             elif event.kind == "error":
                 dashboard.on_stage_error(event.name, Exception(event.error or ""))
             elif event.kind == "feedback_triggered":
+<<<<<<< HEAD
                 dashboard.on_feedback_triggered(
                     event.feedback_contract or "",
                     event.name,
@@ -145,6 +173,10 @@ def _watch_replay(replay_path: Path) -> None:
                     event.feedback_attempt or 0,
                 )
 
+=======
+                dashboard.on_feedback_triggered(event.feedback_contract or "", event.name, "",
+                                                event.feedback_attempt or 0)
+>>>>>>> main
             dashboard.update()
 
         success = data.get("success", True)

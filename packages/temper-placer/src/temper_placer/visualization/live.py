@@ -322,8 +322,8 @@ class LiveVisualizer:
                 board_width=board_width,
                 board_height=board_height,
                 zones=zones,
-                component_types=component_types,
-                component_groups=component_groups,
+                _component_types=component_types,
+                _component_groups=component_groups,
             )
 
             # Add to loss history
@@ -338,11 +338,11 @@ class LiveVisualizer:
 
             # Detect constraint violations
             constraints = self._detect_violations(
-                positions=positions,
-                widths=widths,
-                heights=heights,
-                board_width=board_width,
-                board_height=board_height,
+                _positions=positions,
+                _widths=widths,
+                _heights=heights,
+                _board_width=board_width,
+                _board_height=board_height,
                 losses=losses,
             )
 

@@ -35,7 +35,7 @@ def test_known_compliant_routes_pass_all_validators(results: RoutingResults) -> 
     copper = analyze_copper_balance(results, board_width=200.0, board_height=150.0)
     teardrops = insert_teardrops(results)
 
-    report = generate_manufacturing_report(
+    generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance,
     )
 
@@ -71,7 +71,7 @@ def test_strategy_bootstrap_empty() -> None:
     thermal = add_thermal_relief(rr)
     copper = analyze_copper_balance(rr, board_width=200.0, board_height=150.0)
     teardrops = insert_teardrops(rr)
-    report = generate_manufacturing_report(
+    generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance,
     )
 

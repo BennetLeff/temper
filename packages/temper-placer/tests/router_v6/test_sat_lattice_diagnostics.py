@@ -18,6 +18,7 @@ import pytest
 from temper_placer.router_v6.sat_model import (
     SATModel,
     SATVariable,
+    _encode_at_most_k,
 )
 
 # ---------------------------------------------------------------------------
@@ -258,8 +259,7 @@ def test_lattice_connectivity_clause_bug_affects_higher_levels() -> None:
     """
     import inspect
 
-    from tests.router_v6 import test_sat_solve_pbt
-    from tests.router_v6 import test_bmc_encoding
+    from tests.router_v6 import test_bmc_encoding, test_sat_solve_pbt
 
     lattice_chain: list[tuple[str, str, list[str], object]] = [
         ("bmc-l0", "TestBmcEncodingL0", [], test_bmc_encoding),
@@ -332,12 +332,12 @@ def test_bmc_catches_atmostk_polarity_bug(monkeypatch) -> None:
     Uses BMC engine directly (not pysat enumeration) to verify that
     the BMC layer detects the bug documented in test_lattice_fr4_fails_with_bug.
     """
+    from temper_placer.router_v6.bmc import bmc_check
     from temper_placer.router_v6.constraint_model import (
         CapacityConstraint,
         ConstraintModel,
         NetChannelVar,
     )
-    from temper_placer.router_v6.bmc import bmc_check
 
     n, k = 3, 2
 
@@ -407,7 +407,8 @@ def test_bmc_catches_atmostk_polarity_bug(monkeypatch) -> None:
         _buggy_encode,
     )
 
-    from temper_placer.router_v6.sat_model import SATModel as SM, populate_sat_from_constraints
+    from temper_placer.router_v6.sat_model import SATModel as SM
+    from temper_placer.router_v6.sat_model import populate_sat_from_constraints
     sat = SM(variables=[], clauses=[])
     populate_sat_from_constraints(sat, cm, net_names=["N0", "N1", "N2"], skip_connectivity=True)
 
@@ -425,10 +426,12 @@ def test_bmc_catches_atmostk_polarity_bug(monkeypatch) -> None:
 @pytest.mark.dependency(depends=["bmc-l0"])
 def test_bmc_catches_layer_omission_bug(monkeypatch) -> None:
     """SC2: BMC catches a layer constraint omission bug."""
-    from temper_placer.router_v6.constraint_model import (
-        ConstraintModel, NetChannelVar, LayerConstraint,
-    )
     from temper_placer.router_v6.bmc import bmc_check
+    from temper_placer.router_v6.constraint_model import (
+        ConstraintModel,
+        LayerConstraint,
+        NetChannelVar,
+    )
 
     cm = ConstraintModel()
     cm.add_variable(NetChannelVar(name="uses_N0_ch1", net_idx=0, channel_id="ch1"))
@@ -466,12 +469,13 @@ def test_bmc_catches_layer_omission_bug(monkeypatch) -> None:
 @pytest.mark.dependency(depends=["bmc-l0"])
 def test_bmc_catches_diffpair_polarity_bug(monkeypatch) -> None:
     """SC2: BMC catches a diff-pair polarity swap bug."""
-    from temper_placer.router_v6.constraint_model import (
-        ConstraintModel, NetChannelVar, DiffPairConstraint,
-    )
-    from temper_placer.router_v6.bmc import bmc_check
-
     import temper_placer.router_v6.sat_model as sm
+    from temper_placer.router_v6.bmc import bmc_check
+    from temper_placer.router_v6.constraint_model import (
+        ConstraintModel,
+        DiffPairConstraint,
+        NetChannelVar,
+    )
 
     cm = ConstraintModel()
     p_var = NetChannelVar(name="uses_N0_ch1", net_idx=0, channel_id="ch1")
@@ -520,6 +524,7 @@ def test_bmc_zero_false_positives_on_correct_encoding() -> None:
     Builds a 2x2 topology with all constraint types and verifies bmc_check
     returns zero counterexamples against the unmodified encoding.
     """
+    from temper_placer.router_v6.bmc import bmc_check
     from temper_placer.router_v6.constraint_model import (
         CapacityConstraint,
         ConstraintModel,
@@ -529,9 +534,10 @@ def test_bmc_zero_false_positives_on_correct_encoding() -> None:
     )
     from temper_placer.router_v6.sat_model import (
         SATModel as SM,
+    )
+    from temper_placer.router_v6.sat_model import (
         populate_sat_from_constraints,
     )
-    from temper_placer.router_v6.bmc import bmc_check
 
     layer_names = ["F.Cu", "B.Cu"]
     net_names = ["N0", "N1"]

@@ -3,8 +3,13 @@ name: Metrics Record
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - 'power_pcb_dataset/metrics/pipeline_metrics.jsonl'
+    paths:
+      - 'packages/**'
+      - 'pcb/**'
+      - 'scripts/ci_closure_test.py'
+      - 'scripts/pipeline_metrics.py'
+      - '.github/workflows/metrics-record.yml'
+      - 'power_pcb_dataset/timing_baselines.yaml'
   workflow_dispatch:
 
 jobs:
@@ -19,6 +24,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       - name: Set up Python
         run: uv python install 3.12
       - name: Install dependencies
@@ -59,9 +65,9 @@ jobs:
           cat "$NDJSON_FILE"
       - name: Generate HTML report
         run: >
-          python scripts/pipeline_report.py
+          uv run python scripts/pipeline_report.py
           --metrics-file power_pcb_dataset/metrics/pipeline_metrics.jsonl
-          --execution-log pipeline_execution.json
+          --execution-log packages/temper-placer/pipeline_execution.json
           --output pipeline_report.html
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
@@ -73,3 +79,28 @@ jobs:
         with:
           name: pipeline-metrics-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ env.NDJSON_FILE }}
+      - name: Auto-tighten timing baselines
+        if: env.FEATURE_AUTO_BASELINE_TIGHTEN == 'true'
+        continue-on-error: true
+        run: |
+          echo "Checking for eligible baseline tightening..."
+          uv run temper timing tighten --ci \
+            --n-runs "${AUTO_TIGHTEN_N:-7}" \
+            --threshold "${AUTO_TIGHTEN_THRESHOLD:-0.50}"
+          if git diff --quiet power_pcb_dataset/timing_baselines.yaml; then
+            echo "No baselines tightened."
+          else
+            echo "Baselines tightened — committing directly."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add power_pcb_dataset/timing_baselines.yaml
+            git commit -m "chore(timing): auto-tighten baselines for ${{ github.sha }}"
+            for i in 1 2 3; do
+              git pull --rebase origin main && git push origin main && break
+              echo "Push attempt $i failed, retrying..."; sleep 5
+            done
+          fi
+        env:
+          FEATURE_AUTO_BASELINE_TIGHTEN: ${{ vars.FEATURE_AUTO_BASELINE_TIGHTEN || 'false' }}
+          AUTO_TIGHTEN_N: ${{ vars.AUTO_TIGHTEN_N || '7' }}
+          AUTO_TIGHTEN_THRESHOLD: ${{ vars.AUTO_TIGHTEN_THRESHOLD || '0.50' }}

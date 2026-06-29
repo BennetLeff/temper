@@ -24,8 +24,8 @@ class DecisionLogger:
         value: Any,
         reason: str,
         phase: str = "geometric",
-        constraints: list[str] = None,
-        alternatives: list[Alternative] = None
+        constraints: list[str] | None = None,
+        alternatives: list[Alternative] | None = None
     ) -> None:
         """Log a component placement decision."""
         decision = Decision(
@@ -46,7 +46,7 @@ class DecisionLogger:
         value: Any,
         reason: str,
         phase: str = "routing",
-        constraints: list[str] = None
+        constraints: list[str] | None = None
     ) -> None:
         """Log a routing decision."""
         decision = Decision(

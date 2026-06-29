@@ -83,7 +83,7 @@ class TestPipelineStageProtocol:
         """A class without 'name' does NOT satisfy the Protocol."""
 
         class NoName:
-            def run(self, inp):
+            def run(self, _inp):
                 return StageOutput()
 
         assert not isinstance(NoName(), PipelineStage)
@@ -102,7 +102,7 @@ class TestPipelineStageProtocol:
             requires = ["a"]
             provides = ["b"]
 
-            def run(self, inp):
+            def run(self, _inp):
                 return StageOutput()
 
         stage = Minimal()

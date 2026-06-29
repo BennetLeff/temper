@@ -150,9 +150,9 @@ class LoopAreaLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         """
         Compute total loop area penalty using vectorized operations.
@@ -234,7 +234,7 @@ class LoopAreaLoss(LossFunction):
         trace = Trace.empty()
 
         for loop in context.loop_constraints:
-            area = result.breakdown.get(loop.name, 0.0)
+            area = result.breakdown.get(loop.name, 0.0)  # type: ignore[union-attr]
             penalty = float(loop.weight * jnp.maximum(0, area - loop.max_area)**2 * self.area_penalty_scale)
 
             if penalty > 1e-4:

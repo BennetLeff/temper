@@ -181,11 +181,10 @@ class TestDRCLoss:
     def mock_exporter(self):
         """Create a mock PCB exporter."""
 
-        def exporter(positions, rotations, context):
+        def exporter(_positions, _rotations, _context):
             # Create a temp file
-            tmp = tempfile.NamedTemporaryFile(suffix=".kicad_pcb", delete=False)
-            tmp.close()
-            return Path(tmp.name)
+            with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", delete=False) as tmp:
+                return Path(tmp.name)
 
         return exporter
 
@@ -353,15 +352,15 @@ class TestDRCLoss:
         rotations = jnp.zeros((2, 4))
 
         # First call should evaluate
-        result1 = loss.compute_with_epoch(positions, rotations, sample_context, epoch=0)
+        _result1 = loss.compute_with_epoch(positions, rotations, sample_context, epoch=0)
         assert mock_validator.run_drc.call_count == 1
 
         # Within interval - should use cache
-        result2 = loss.compute_with_epoch(positions, rotations, sample_context, epoch=5)
+        _result2 = loss.compute_with_epoch(positions, rotations, sample_context, epoch=5)
         assert mock_validator.run_drc.call_count == 1  # No new call
 
         # At interval - should evaluate again
-        result3 = loss.compute_with_epoch(positions, rotations, sample_context, epoch=10)
+        _result3 = loss.compute_with_epoch(positions, rotations, sample_context, epoch=10)
         assert mock_validator.run_drc.call_count == 2
 
     def test_get_violations_empty(self):
@@ -412,7 +411,7 @@ class TestDRCLoss:
 
         assert d["name"] == "drc_loss"
         assert d["eval_interval"] == 25
-        assert d["is_available"] == True
+        assert d["is_available"] is True
         assert d["cached_penalty"] == 8.0
         assert d["last_eval_epoch"] == 50
         assert d["history"]["total_evaluations"] == 1
@@ -523,7 +522,7 @@ class TestDRCLossIntegration:
 # =============================================================================
 
 
-def _make_drc_composite_context(n_components: int = 3) -> "LossContext":
+def _make_drc_composite_context(n_components: int = 3) -> "LossContext":  # noqa: F821
     """Build a minimal LossContext for DRCCompositeLoss tests."""
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Component, Netlist, Pin

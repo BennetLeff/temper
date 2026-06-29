@@ -8,16 +8,14 @@ from unittest.mock import patch
 import pytest
 import yaml
 
+from temper_placer.pipeline.dag_observability import PipelineExecutionLog
 from temper_placer.pipeline.metrics_observer import (
-    CrossValidationError,
     MetricsObserver,
 )
-from temper_placer.pipeline.dag_observability import PipelineExecutionLog
 from temper_placer.regression.schema_validator import (
     SchemaValidationError,
     SchemaValidator,
 )
-
 
 # ---------------------------------------------------------------------------
 # fixtures
@@ -124,7 +122,7 @@ class TestSchemaValidatorIntegration:
 
         cross_called = False
 
-        def _tracked_cross_validate(*, start_t, stage_name, caller_duration_s) -> None:
+        def _tracked_cross_validate(*, start_t, stage_name, caller_duration_s) -> None:  # noqa: ARG001
             nonlocal cross_called
             cross_called = True
             raise AssertionError("cross-validation should not be reached")
@@ -153,7 +151,7 @@ class TestSchemaValidatorIntegration:
 
         cross_called = False
 
-        def _tracked_cross_validate(*, start_t, stage_name, caller_duration_s) -> None:
+        def _tracked_cross_validate(*, start_t, stage_name, caller_duration_s) -> None:  # noqa: ARG001
             nonlocal cross_called
             cross_called = True
 

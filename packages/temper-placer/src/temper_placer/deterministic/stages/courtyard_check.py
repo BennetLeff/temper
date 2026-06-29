@@ -118,7 +118,7 @@ class CourtyardCheckStage(Stage):
         # Update state
         from dataclasses import replace
 
-        return replace(state, placements=tuple(placements.items()))
+        return replace(state, placements=frozenset(placements.items()))
 
     def _find_collisions(self, placements: dict[str, tuple[float, float]]) -> list[tuple[str, str]]:
         """Find courtyard collisions using spatial indexing for O(n log n) performance.
@@ -126,7 +126,7 @@ class CourtyardCheckStage(Stage):
         Optimization: Use R-tree spatial index to avoid O(n²) pairwise checks.
         Also cache transformed polygons to avoid repeated Shapely operations.
         """
-        collisions = []
+        collisions: list[tuple[str, str]] = []
         refs = list(placements.keys())
 
         # Cache transformed polygons (major optimization - avoids 1M+ Shapely calls)

@@ -11,7 +11,7 @@ import warnings
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from temper_placer.regression.closure_test import ClosureResult
 
@@ -34,7 +34,7 @@ class PipelineMetricsRecord:
     git_commit: str = ""
     schema_version: int = CURRENT_SCHEMA_VERSION
     stage_name: str = "closure"
-    drc_delta: Optional[int] = None
+    drc_delta: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         result: dict[str, Any] = {

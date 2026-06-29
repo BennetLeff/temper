@@ -19,7 +19,7 @@ def measure_copper_length(pcb_path: Path) -> dict:
     """Parse a routed PCB and sum up trace lengths per net."""
     result = parse_kicad_pcb(pcb_path)
 
-    net_lengths = {}
+    net_lengths: dict[str, float] = {}
     total_length = 0.0
 
     for trace in result.traces:

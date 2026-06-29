@@ -57,7 +57,7 @@ class UnifiedGroupingLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -66,17 +66,17 @@ class UnifiedGroupingLoss(LossFunction):
         if self.cluster_loss:
             res = self.cluster_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"cluster_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"cluster_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.proximity_loss:
             res = self.proximity_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"proximity_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"proximity_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.separation_loss:
             res = self.separation_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"separation_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"separation_{k}": v for k, v in (res.breakdown or {}).items()})
 
         return LossResult(value=total_val, breakdown=breakdown)
 
@@ -111,7 +111,7 @@ class UnifiedThermalLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -120,17 +120,17 @@ class UnifiedThermalLoss(LossFunction):
         if self.spread_loss:
             res = self.spread_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"spread_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"spread_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.edge_loss:
             res = self.edge_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"edge_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"edge_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.power_path_loss:
             res = self.power_path_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"power_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"power_{k}": v for k, v in (res.breakdown or {}).items()})
 
         return LossResult(value=total_val, breakdown=breakdown)
 
@@ -165,7 +165,7 @@ class UnifiedAestheticLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -174,17 +174,17 @@ class UnifiedAestheticLoss(LossFunction):
         if self.aesthetic_loss:
             res = self.aesthetic_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"aes_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"aes_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.grid_loss:
             res = self.grid_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"grid_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"grid_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.planarity_loss:
             res = self.planarity_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"planarity_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"planarity_{k}": v for k, v in (res.breakdown or {}).items()})
 
         return LossResult(value=total_val, breakdown=breakdown)
 
@@ -216,7 +216,7 @@ class UnifiedLoopLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -225,12 +225,12 @@ class UnifiedLoopLoss(LossFunction):
         if self.loop_area_loss:
             res = self.loop_area_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"loop_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"loop_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.return_path_loss:
             res = self.return_path_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"return_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"return_{k}": v for k, v in (res.breakdown or {}).items()})
 
         return LossResult(value=total_val, breakdown=breakdown)
 
@@ -266,7 +266,7 @@ class UnifiedStarPointLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -275,11 +275,11 @@ class UnifiedStarPointLoss(LossFunction):
         if self.star_point_loss:
             res = self.star_point_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"star_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"star_{k}": v for k, v in (res.breakdown or {}).items()})
 
         if self.crossing_loss:
             res = self.crossing_loss(positions, rotations, context, epoch, total_epochs, **kwargs)
             total_val += res.value
-            breakdown.update({f"crossing_{k}": v for k, v in res.breakdown.items()})
+            breakdown.update({f"crossing_{k}": v for k, v in (res.breakdown or {}).items()})
 
         return LossResult(value=total_val, breakdown=breakdown)
