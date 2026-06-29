@@ -8,11 +8,13 @@ mod extraction;
 mod solver;
 pub mod types;
 mod types_py_bridge;
+mod watchdog;
 
 use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use rustsat::solvers::Solve;
 use types::{
     InternalConstraintModel, SolverStatus, TopologyResult,
 };
@@ -190,6 +192,131 @@ fn audit_result(
     })
 }
 
+/// Python-callable entry point: bundled topology solve with CEGAR watchdog.
+///
+/// Accepts pre-bundled constraint model variables, constraints, bundle manifest
+/// dict, and net names. Runs the CEGAR loop via Watchdog and returns the
+/// expanded topology result.
+#[pyfunction]
+fn solve_topology_rust_bundled(
+    py: Python<'_>,
+    variables: &Bound<'_, PyList>,
+    constraints: &Bound<'_, PyList>,
+    bundle_manifest: &Bound<'_, PyDict>,
+    net_names: Vec<String>,
+) -> PyResult<PyObject> {
+    // Convert Python objects to internal model.
+    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
+    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
+
+    let model: InternalConstraintModel =
+        types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
+
+    let start_total = std::time::Instant::now();
+
+    // Encode safety-only CNF from class-level constraint model.
+    let (cnf, var_names) = encoding::encode_to_cnf(&model);
+    let class_var_count = cnf.num_vars;
+
+    // Initialize CaDiCaL with safety CNF.
+    let mut solver = rustsat_cadical::CaDiCaL::default();
+    for clause in &cnf.clauses {
+        let mut lits: Vec<rustsat::types::Lit> = Vec::with_capacity(clause.len());
+        for &lit in clause {
+            let var_idx = (lit.unsigned_abs() - 1) as u32;
+            let lit_obj = if lit > 0 {
+                rustsat::types::Lit::positive(var_idx)
+            } else {
+                rustsat::types::Lit::negative(var_idx)
+            };
+            lits.push(lit_obj);
+        }
+        if solver.add_clause(rustsat::types::Clause::from(&lits[..])).is_err() {
+            let d = PyDict::new(py);
+            d.set_item("status", "unsat")?;
+            d.set_item("assignments", PyDict::new(py))?;
+            d.set_item("topology_graph", PyDict::new(py))?;
+            d.set_item("solver_time_ms", 0.0)?;
+            d.set_item("num_vars", class_var_count)?;
+            d.set_item("num_clauses", cnf.clauses.len())?;
+            d.set_item("cegar_iterations", 0)?;
+            d.set_item("budget_used", 0)?;
+            d.set_item("degraded_nets", Vec::<String>::new())?;
+            d.set_item("unsat_core", PyList::empty(py))?;
+            return Ok(d.into());
+        }
+    }
+
+    // Bridge bundle manifest.
+    let manifest = types_py_bridge::bridge_bundle_manifest(bundle_manifest)?;
+
+    // Run CEGAR watchdog.
+    let mut wd = watchdog::Watchdog::new(
+        solver,
+        var_names.clone(),
+        class_var_count,
+        manifest,
+        &net_names,
+    );
+    let result = wd.solve(&net_names);
+
+    let solver_time_ms = start_total.elapsed().as_secs_f64() * 1000.0;
+
+    // Build assignments Python dict.
+    let py_assignments = PyDict::new(py);
+    for (idx, val) in &result.assignments {
+        if *idx < result.var_names.len() {
+            py_assignments.set_item(&result.var_names[*idx], *val)?;
+        }
+    }
+
+    // Extract topology if SAT.
+    let mut topology = types::TopologyGraph {
+        net_topologies: HashMap::new(),
+    };
+    if result.status == SolverStatus::Satisfiable {
+        // Use bundle-aware extraction (U5) — for now, fall back to standard extraction.
+        topology = extraction::extract_topology(
+            &model,
+            &result.assignments,
+            &result.var_names,
+            &net_names,
+        );
+    }
+
+    let py_topology = PyDict::new(py);
+    for (net_name, net_topo) in &topology.net_topologies {
+        let entry = PyDict::new(py);
+        entry.set_item("uses_channels", net_topo.uses_channels.clone())?;
+        let py_path: Vec<(String, String)> = net_topo.path_graph.clone();
+        entry.set_item("path_graph", py_path)?;
+        entry.set_item("total_length_estimate", net_topo.total_length_estimate)?;
+        py_topology.set_item(net_name, entry)?;
+    }
+
+    let d = PyDict::new(py);
+    d.set_item(
+        "status",
+        match result.status {
+            SolverStatus::Satisfiable => "sat",
+            SolverStatus::Unsatisfiable => "unsat",
+            SolverStatus::Unknown => "unknown",
+        },
+    )?;
+    d.set_item("assignments", py_assignments)?;
+    d.set_item("topology_graph", py_topology)?;
+    d.set_item("solver_time_ms", solver_time_ms)?;
+    d.set_item("num_vars", result.num_vars)?;
+    d.set_item("num_clauses", result.num_clauses)?;
+    d.set_item("cegar_iterations", result.cegar_iterations)?;
+    d.set_item("budget_used", result.budget_used)?;
+    d.set_item("degraded_nets", result.degraded_nets)?;
+    let py_core = PyList::empty(py);
+    d.set_item("unsat_core", py_core)?;
+
+    Ok(d.into())
+}
+
 /// Python module entry point.
 #[pymodule]
 fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -206,6 +333,7 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Register the solver entry point and constraint auditor.
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(solve_topology_rust_bundled, m)?)?;
     m.add_function(wrap_pyfunction!(audit_result, m)?)?;
     Ok(())
 }
