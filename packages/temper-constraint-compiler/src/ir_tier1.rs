@@ -1,4 +1,5 @@
-use crate::ir_tier0::{Axis, BoardEdge, ConstraintTier, Point, Rect};
+use crate::ir_tier0::{Axis, BoardEdge, ConstraintTier, Point};
+pub use crate::ir_tier0::Rect;
 use crate::type_lattice::NetClassMetadata;
 use std::collections::HashMap;
 use std::fmt;
