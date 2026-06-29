@@ -106,7 +106,7 @@ def save_svg_snapshot(
         rotations = state.deterministic_result.rotations
     else:
         # Try initial positions from netlist
-        positions = []
+        positions: list = []
         for c in netlist.components:
             if c.initial_position:
                 positions.append(c.initial_position)
