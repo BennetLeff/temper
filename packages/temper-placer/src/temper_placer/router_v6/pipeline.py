@@ -13,6 +13,7 @@ Part of Phase 1.5: Integration & Validation
 
 from __future__ import annotations
 
+import os
 import time
 from collections import defaultdict
 from contextlib import nullcontext
@@ -592,6 +593,136 @@ class RouterV6Pipeline:
         scored = sorted(pin_counts, key=lambda n: pin_counts.get(n, 0))
         return scored[:self.max_sat_nets]
 
+    def _augment_with_pcl_constraints(
+        self,
+        constraint_model: ConstraintModel,
+        net_names: list[str],
+        pcb: ParsedPCB,
+        stage2: "Stage2Output",
+    ) -> ConstraintModel:
+        """Augment the constraint model with lowered PCL constraints.
+
+        Loads PCL constraint data from the PCB (if available), builds
+        net-class metadata from design rules, resolves component-to-net
+        indices, and invokes the Rust compiler to lower PCL constraints
+        into InternalConstraint instances.
+
+        The augmented model preserves all existing constraints; PCL
+        constraints are additive.
+        """
+        try:
+            from temper_constraint_compiler import compile_pcl_constraints  # type: ignore[import-untyped]
+        except ImportError:
+            if self.verbose:
+                print("    [PCL] temper_constraint_compiler not available; skipping")
+            return constraint_model
+
+        design_rules = getattr(pcb, "design_rules", None)
+        net_classes = getattr(design_rules, "net_classes", {}) if design_rules else {}
+
+        pcl_constraints_dicts: list[dict[str, Any]] = []
+        zone_map: dict[str, dict[str, float]] = {}
+
+        component_map: dict[str, int] = {}
+        for i, net in enumerate(pcb.nets):
+            if net.name in net_names:
+                component_map[net.name] = i
+
+        net_class_dicts: list[dict[str, Any]] = []
+        seen_classes: set[str] = set()
+        for cls_name, rules in net_classes.items():
+            if cls_name in seen_classes:
+                continue
+            seen_classes.add(cls_name)
+            entry = {
+                "name": cls_name,
+                "safety_category": getattr(rules, "safety_category", None),
+                "clearance": getattr(rules, "clearance", 0.0),
+                "creepage_mm": getattr(rules, "creepage_mm", 0.0),
+                "required_layer": getattr(rules, "required_layer", None),
+                "dru_priority": getattr(rules, "dru_priority", 0),
+            }
+            net_class_dicts.append(entry)
+
+        skeletons_list: list[dict[str, Any]] = []
+        for skeleton in stage2.skeletons or []:
+            for edge in getattr(skeleton, "edges", []):
+                skeletons_list.append({
+                    "net_a": str(edge[0]),
+                    "net_b": str(edge[1]),
+                    "channel_id": getattr(edge, "channel_id", str(edge[2])) if len(edge) > 2 else "?",
+                    "channel": getattr(edge, "channel_id", str(edge[2])) if len(edge) > 2 else "?",
+                })
+
+        channel_widths_dict: dict[str, float] = {}
+        for ch_id, width in (stage2.channel_widths or {}).items():
+            channel_widths_dict[str(ch_id)] = float(width) if width else 2.0
+
+        if self.verbose:
+            print(f"    [PCL] Compiling {len(pcl_constraints_dicts)} PCL constraints...")
+
+        result = compile_pcl_constraints(
+            pcl_constraints_dicts,
+            net_class_dicts,
+            component_map,
+            zone_map,
+            skeletons_list,
+            channel_widths_dict,
+            [],  # existing_vars (unused by pipeline)
+            [],  # existing_cons (unused by pipeline)
+            net_names,
+        )
+
+        num_lowered = result.get("num_lowered", 0)
+        conflicts = result.get("conflicts", [])
+        warnings_list = result.get("warnings", [])
+
+        if self.verbose:
+            print(f"    [PCL] Lowered {num_lowered} constraints")
+            for w in warnings_list:
+                print(f"    [PCL] Warning: {w}")
+            for c in conflicts:
+                print(f"    [PCL] Conflict: {c}")
+
+        for lowered in result.get("constraints", []):
+            ctype = lowered.get("type", "unknown")
+            if ctype == "capacity":
+                from temper_placer.router_v6.constraint_model import CapacityConstraint  # type: ignore[assignment]
+                constraint_model.add_constraint(
+                    CapacityConstraint(
+                        name=lowered.get("channel_id", "pcl_cap"),
+                        channel_id=lowered.get("channel_id", ""),
+                        capacity=lowered.get("capacity", 0.0),
+                        slack_factor=lowered.get("slack_factor", 0.8),
+                        terms=lowered.get("terms", []),
+                    )
+                )
+            elif ctype == "diff_pair":
+                from temper_placer.router_v6.constraint_model import DiffPairConstraint  # type: ignore[assignment]
+                constraint_model.add_constraint(
+                    DiffPairConstraint(
+                        name=lowered.get("channel_id", "pcl_diffpair"),
+                        channel_id=lowered.get("channel_id", ""),
+                        p_net_idx=0,
+                        n_net_idx=0,
+                        p_var_name=lowered.get("p_var_name", ""),
+                        n_var_name=lowered.get("n_var_name", ""),
+                    )
+                )
+            elif ctype == "layer_restriction":
+                from temper_placer.router_v6.constraint_model import LayerConstraint  # type: ignore[assignment]
+                constraint_model.add_constraint(
+                    LayerConstraint(
+                        name=lowered.get("var_name", "pcl_layer"),
+                        net_idx=0,
+                        channel_id="",
+                        allowed=lowered.get("allowed", True),
+                        var_name=lowered.get("var_name", ""),
+                    )
+                )
+
+        return constraint_model
+
     def _run_stage3(self, pcb: ParsedPCB, stage2: Stage2Output) -> Stage3Output:
         """Run Stage 3: Topological Routing."""
 
@@ -611,6 +742,11 @@ class RouterV6Pipeline:
             pcb=pcb,
         )
         constraint_model = model_builder.build()
+
+        if os.environ.get("TEMPER_PCL_CONSTRAINTS"):
+            constraint_model = self._augment_with_pcl_constraints(
+                constraint_model, net_names, pcb, stage2
+            )
 
         if self.verbose and target_names:
             print(f"    Selective SAT: top {len(target_names)} nets = {sorted(target_names)}")
