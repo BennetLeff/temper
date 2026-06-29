@@ -5,7 +5,9 @@ Integration tests for trace and via export to KiCad PCB files.
 """
 
 import tempfile
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -17,7 +19,21 @@ from temper_placer.io.kicad_exporter import (
     TraceSegment,
     TraceVia,
 )
-from temper_placer.router_v6.adapter import GridCell, RoutePath
+from temper_placer.router_v6.grid_converter import GridCell
+
+
+@dataclass
+class RoutePath:
+    """Minimal RoutePath stub with the duck-typed interface consumed by
+    ``path_to_segments`` and ``path_to_vias`` (kicad_exporter.py)."""
+    net: str
+    cells: list[Any] = field(default_factory=list)
+    length: float = 0.0
+    via_count: int = 0
+    success: bool = False
+    failure_reason: str | None = None
+    cell_size: float = 0.2
+    layer_name: str = "F.Cu"
 
 
 class TestPathToSegments:

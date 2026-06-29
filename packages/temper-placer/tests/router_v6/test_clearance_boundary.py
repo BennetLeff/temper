@@ -28,7 +28,7 @@ from temper_placer.router_v6.clearance_check import (
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 
-from dfm_boundary_constants import (
+from tests.router_v6.dfm_boundary_constants import (
     just_below,
     just_above,
     exactly_at,

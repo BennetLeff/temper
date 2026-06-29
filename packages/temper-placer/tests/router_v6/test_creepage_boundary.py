@@ -24,7 +24,7 @@ from temper_placer.router_v6.creepage_check import (
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 
-from dfm_boundary_constants import (
+from tests.router_v6.dfm_boundary_constants import (
     COORD_INF,
     COORD_NAN,
     COORD_NEGATIVE,
@@ -465,14 +465,14 @@ class TestBracketThresholds:
 
     def test_15v_is_lowest_bracket(self):
         """15 V is still the 0.13 mm bracket."""
-        from dfm_boundary_constants import exactly_at, just_above
+        from tests.router_v6.dfm_boundary_constants import exactly_at, just_above
 
         assert _calculate_required_creepage(exactly_at(15.0)) == pytest.approx(0.13)
         assert _calculate_required_creepage(just_above(15.0)) == pytest.approx(0.25)
 
     def test_600v_is_8mm_not_12mm(self):
         """600 V is the 8.0 mm bracket, 601 V is 12.0 mm."""
-        from dfm_boundary_constants import exactly_at, just_above
+        from tests.router_v6.dfm_boundary_constants import exactly_at, just_above
 
         assert _calculate_required_creepage(exactly_at(600.0)) == pytest.approx(8.0)
         assert _calculate_required_creepage(just_above(600.0)) == pytest.approx(12.0)

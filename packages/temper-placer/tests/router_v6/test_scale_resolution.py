@@ -41,7 +41,7 @@ from temper_placer.router_v6.creepage_check import (
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
 
-from dfm_boundary_constants import (
+from tests.router_v6.dfm_boundary_constants import (
     COORD_EXTREME,
 )
 
