@@ -30,6 +30,7 @@ class TopologicalSolution:
     solver_time_ms: float  # Time taken to solve
     solver_stats: dict | None = None  # CDCL statistics from Rust solver
     var_to_net: list[int] | None = None  # Variable index -> net index mapping
+    unsat_core: list[str] | None = None  # UNSAT core constraint names
 
     @property
     def is_satisfiable(self) -> bool:

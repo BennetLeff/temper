@@ -780,7 +780,7 @@ class RouterV6Pipeline:
                 pcb=pcb,
                 enable_bundling=True,
                 bundle_manifest=bundle_manifest,
-            )
+            )  # type: ignore[call-arg]
             constraint_model = model_builder.build()
         else:
             model_builder = ModelBuilder(
@@ -1003,10 +1003,15 @@ class RouterV6Pipeline:
         bcu_skeleton = stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)
 
         # Map all nets with layer assignment (waypoints are layer-agnostic)
-        channel_mapping = map_topology_to_channels(
-            stage3.topology_graph,
-            fcu_skeleton,
-        )
+        if fcu_skeleton is not None:
+            channel_mapping = map_topology_to_channels(
+                stage3.topology_graph,
+                fcu_skeleton,
+            )
+        else:
+            # No skeleton available — create empty mapping
+            from temper_placer.router_v6.channel_mapping import ChannelMapping
+            channel_mapping = ChannelMapping(channel_paths={})
 
         # Fallback: nets without SAT channel assignment get direct A* attempt
         from temper_placer.router_v6.channel_mapping import ChannelPath
@@ -1050,6 +1055,8 @@ class RouterV6Pipeline:
             bcu_grid = stage2.occupancy_grids.get("B.Cu") or next(
                 (g for n, g in stage2.occupancy_grids.items() if n != "F.Cu"), None
             )
+            if fcu_grid is None:
+                raise ValueError("No occupancy grid available for A* pathfinding")
 
             pathfinding_result = run_astar_pathfinding(
                 channel_mapping,
@@ -1232,6 +1239,7 @@ class RouterV6Pipeline:
         and attached to the Placement model for geometry-level DRC
         checks (via spacing, trace clearance).
         """
+        assert self.fence is not None, "_run_fence called with no fence configured"
         placement, constraints = _parsed_pcb_to_drc_input(
             pcb, escape_vias=escape_vias, routing_results=routing_results,
         )
@@ -1283,26 +1291,6 @@ def _stage_4_invariants() -> tuple:
     """Invariants for Stage 4 geometric routing."""
     return (InvariantSpec("drc_trace_clearance", "Routed traces satisfy minimum clearance"),)
 
-
-def _net_pad_positions(net, comp_by_ref: dict[str, Any]) -> list[tuple[float, float]]:
-    """Resolve a net's pin positions via its (component_ref, pin_name) tuples."""
-    positions: list[tuple[float, float]] = []
-    for comp_ref, pin_name in net.pins:
-        comp = comp_by_ref.get(comp_ref)
-        if comp is None:
-            continue
-        pin = next(
-            (p for p in comp.pins if p.name == pin_name or p.number == pin_name),
-            None,
-        )
-        if pin is None:
-            continue
-        cx, cy = comp.initial_position or (0.0, 0.0)
-        px, py = pin.position
-        positions.append((cx + px, cy + py))
-    return positions
-
-
 def _last_skeleton(skeletons: dict[str, Any]) -> Any:
     """Return the last inserted skeleton (insertion-ordered dict since 3.7)."""
     return next(reversed(skeletons.values()), None)
@@ -1331,7 +1319,7 @@ def _build_clause_origin(model: ConstraintModel) -> list[str]:
             clause_count = max(1, n * 3)
         elif hasattr(c, 'group_a_indices') and c.group_a_indices:
             # ChannelSeparationConstraint: O(|A|*|B| + |AUB|*k)
-            n = len(c.group_a_indices) + len(c.group_b_indices)
+            n = len(c.group_a_indices) + len(c.group_b_indices)  # type: ignore[attr-defined]
             clause_count = max(1, n * 3)
         elif hasattr(c, 'p_var') and hasattr(c, 'n_var'):
             # DiffPairConstraint: 2 clauses (↔ encoding)
