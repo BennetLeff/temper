@@ -139,6 +139,12 @@ New PCL type registered (e.g., "Creepage" constraint)
 - **R4.** PCL `ConstraintCollection` gains `compile(target: CompilationTarget, context)`
   that iterates all constraints, dispatches to the registered backend function, and returns
   the appropriate output type (`list[LossFunction]`, `ConstraintModel`, `DRCAssertionList`).
+  `compile()` SHALL pass a `Context` object containing: `constraint` (`BaseConstraint`),
+  `netlist` (`Netlist`), `board` (`Board | None`), `skeletons`
+  (`dict[str, ChannelSkeleton]`), `channel_widths` (`dict[str, ChannelWidths]`),
+  `design_rules` (`DesignRules`). Each backend callable accepts
+  `(constraint: BaseConstraint, context: Context)` and returns backend-specific
+  output.
 
 - **R5.** The existing `pcl/loss_bridge.py` `constraint_to_loss` dispatcher is registered
   as the JAX backend without changing its interface. All seven types remain supported.
@@ -158,6 +164,13 @@ New PCL type registered (e.g., "Creepage" constraint)
   | `AnchoredConstraint` | Pin net-channel variables on channels that include the anchored position |
   | `LoopAreaConstraint` | Encode loop-area bound as combined ordering + proximity constraints on nets in the loop |
 
+  Each semantic constraint SHALL desugar into instances of the EXISTING
+  `Constraint` subclasses (`CapacityConstraint`, `DiffPairConstraint`,
+  `LayerConstraint`) plus one new `ChannelSeparationConstraint` (defined in
+  this feature). `AtMostK` is encoded via the existing `CapacityConstraint` +
+  the Sinz sequential counter; "combined ordering + proximity" desugars to
+  `CapacityConstraint` with conjunction of `OrderVar` and `LayerConstraint`.
+
 - **R7.** `SeparatedConstraint` with `min_distance_mm` produces a `ChannelSeparationConstraint`:
   for any channel shared by nets from both groups A and B, enforce that the channel's net ordering
   places at least `ceil(min_distance_mm / channel_spacing)` empty slots between them.
@@ -167,6 +180,14 @@ New PCL type registered (e.g., "Creepage" constraint)
   - `STRONG` → weighted clause with high penalty (soft but expensive to violate)
   - `SOFT` → weighted clause with low penalty
 
+  STRONG and SOFT constraints SHALL be encoded using the indicator-variable
+  approach: each soft constraint gets a fresh relaxation literal, and an
+  `AtMostK` cardinality constraint limits how many relaxation literals can be
+  true (K = 0 for STRONG, K = floor(n_constraints * 0.3) for SOFT). In the
+  MVP, STRONG and SOFT both SHALL be encoded as hard clauses (no relaxation).
+  Full indicator-variable support is deferred until splr gains weighted-clause
+  or MaxSAT capability.
+
 - **R9.** The SAT bridge accepts the same `Netlist` and `Board` context objects used by the
   JAX bridge, plus the `ChannelSkeleton` and `ChannelWidths` from Stage 2 of the routing
   pipeline.
@@ -174,6 +195,9 @@ New PCL type registered (e.g., "Creepage" constraint)
 - **R10.** PCL constraints whose referenced components/zones cannot be resolved in the current
   netlist/board produce a warning and are skipped (not an error) — this handles components
   that exist in the PCL YAML but are not yet populated in a particular board variant.
+  This check runs BEFORE per-type mapping (R6, R7); skipped constraints produce no SAT
+  clauses and no DRC assertions. If a constraint references unresolved components, none
+  of its bridges fire.
 
 ### Downward Compilation: PCL → DRC
 
@@ -187,6 +211,8 @@ New PCL type registered (e.g., "Creepage" constraint)
   | `EnclosingConstraint` | All component centroids within zone polygon |
   | `AlignedConstraint` | Maximum deviation from alignment axis ≤ `tolerance_mm` |
   | `LoopAreaConstraint` | Loop polygon area ≤ `max_area_mm2` |
+  | `OnSideConstraint` | Component center is within `max_distance_mm` of the specified board edge; component bounding box does not overhang the board (unless `edge=OVERHANG`) |
+  | `AnchoredConstraint` | Component center matches the specified position (if given) or lies within the specified region rectangle |
 
 - **R12.** DRC assertions include the source PCL constraint `id` and `because` string so
   violation reports are traceable to designer intent.
@@ -326,9 +352,21 @@ class CreepageConstraint(BaseConstraint):
 ### AE4: Backward compatibility
 
 ```python
-# Existing PCL YAML loads unchanged
-collection = parse_pcl_file("configs/half_bridge_constraints.yaml")
-assert len(collection) == 12
+# Fixture: half-bridge board with 12 PCL constraints
+collection = ConstraintCollection()
+collection.add(AdjacentConstraint(a="Q1", b="Q2", max_distance_mm=10.0))
+collection.add(SeparatedConstraint(a="HV_ZONE", b="LV_ZONE", min_distance_mm=6.0))
+collection.add(EnclosingConstraint(zone="HV_ZONE", items=["Q1", "Q2", "D1"]))
+collection.add(AlignedConstraint(items=["R1", "R2"], axis=AlignmentAxis.HORIZONTAL))
+collection.add(OnSideConstraint(items=["J1"], edge=BoardEdge.TOP))
+collection.add(AnchoredConstraint(items=["U1"], position=(50.0, 30.0)))
+collection.add(LoopAreaConstraint(nets=["HV_OUT", "HV_RTN"], max_area_mm2=100.0))
+collection.add(AdjacentConstraint(a="C1", b="C2", max_distance_mm=5.0))
+collection.add(SeparatedConstraint(a="Q3", b="Q4", min_distance_mm=8.0))
+collection.add(EnclosingConstraint(zone="PWR_ZONE", items=["L1", "C3"]))
+collection.add(AlignedConstraint(items=["D2", "D3"], axis=AlignmentAxis.VERTICAL))
+collection.add(AnchoredConstraint(items=["J2"], region=Region(0, 0, 100, 50)))
+
 for c in collection:
     assert "jax" in c.targets  # default preserved
 
@@ -366,6 +404,32 @@ losses = [constraint_to_loss(c, netlist, board) for c in collection]
 
 ---
 
+## Testing Strategy
+
+- **TS1. Unit tests per bridge module.** `pcl/sat_bridge.py`, `pcl/drc_bridge.py`,
+  and `pcl/unsat_compiler.py` each have a `test/` module covering all supported
+  PCL constraint types with at least one positive and one edge-case test.
+
+- **TS2. Integration tests for round-trip PCL → SAT → UNSAT → PCL.** A
+  deterministic end-to-end test constructs a known-UNSAT constraint set, runs
+  it through `compile(SAT)` → solver → `compile_unsat_to_pcl()`, and asserts
+  the output diff contains the expected escalated or synthesized constraints.
+
+- **TS3. Property-based tests for constraint equivalence.** For each PCL
+  constraint type, `hypothesis`-style tests verify that a PCL constraint
+  compiles to SAT clauses that admit exactly the routing solutions the
+  placement constraint was designed to permit — no false positives (clauses too
+  permissive) and no false negatives (clauses too restrictive).
+
+- **TS4. CI gate for bridge registration completeness.** A CI test enumerates
+  all `ConstraintType` members and asserts that each has a registered handler
+  in the SAT bridge, a DRC bridge handler (where `DRC` is in the type's
+  `supported_targets`), and that the combined set covers all 7 PCL constraint
+  types. This gate prevents regressions when new constraint types are added
+  without bridge registration.
+
+---
+
 ## Scope Boundaries
 
 ### In scope
@@ -381,8 +445,8 @@ losses = [constraint_to_loss(c, netlist, board) for c in collection]
 
 ### Out of scope
 
-- Changing the Rust SAT solver internals — the Python side provides constraints;
-  the Rust side solves them
+- Rewriting the splr CDCL algorithm or the core SAT encoding in `solver.rs`.
+  Exposing existing UNSAT-core data through the PyO3 FFI IS in scope.
 - Reimplementing the JAX loss bridge (existing `loss_bridge.py` is registered, not rewritten)
 - Full constraint at-most-one (AMO) encoding for all PCL→SAT mappings — MVP encodes
   ordering and separation; advanced cardinality is future work
@@ -432,6 +496,10 @@ losses = [constraint_to_loss(c, netlist, board) for c in collection]
   this feature
 - **D7.** `temper_rust_router` (Rust crate) — `solve_topology_rust` must return UNSAT
   core data in the result dict
+- **D8.** Cross-document dependency: If the constraint combinator library
+  (`2026-06-28-constraint-combinator-library-requirements.md`) adds new
+  `InternalConstraint` variants, the SAT bridge in this document MUST be updated
+  to emit those variants for the corresponding PCL constraint types.
 
 ### Assumptions
 

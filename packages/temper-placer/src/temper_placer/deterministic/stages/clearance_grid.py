@@ -1105,7 +1105,7 @@ class ClearanceGridStage(Stage):
                         continue
 
                     layer_name = _layer_index_to_name(layer_idx, grid.layer_count)
-                    eff_creep = effective_creepage(layer_name, 6.0)
+                    eff_creep = effective_creepage(layer_name, 6.0)  # allow-safety-constant: HV clearance default
 
                     pre_count = grid.blocked_count_on_layer(layer_idx)
 

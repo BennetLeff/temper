@@ -46,14 +46,14 @@ A constraint encoding qualifies as a primitive if:
 
 ### The six primitives
 
-| Primitive | Semantics | CNF Encoding | Maps from (existing) | Proof |
-|-----------|-----------|-------------|---------------------|-------|
-| **P1. MutualExclusion** | `x ↔ y` (equality) or `x ↔ ¬y` (exclusive) over Boolean variables | 2 clauses per pair | `DiffPairConstraint`, `LayerConstraint` (when applied as per-net equality) | Trivial: (¬x ∨ y) ∧ (x ∨ ¬y) for equality; (¬x ∨ ¬y) ∧ (x ∨ y) for exclusion |
-| **P2. CardinalityBound** | `∑vars ≤ K` over a set of Boolean variables | Sequential counter, O(n·K) aux vars, O(n·K) clauses | `CapacityConstraint` | Sinz (2005) — proven by induction, base cases exhaustively verified for n ≤ 8 in `encoding.rs:264-305` |
-| **P3. SpatialOrder** | `order[a,b,channel] → ¬order[b,a,channel]` with transitivity: `order[a,b] ∧ order[b,c] → order[a,c]` over a channel | 3 clauses per triplet per channel | Reserved in types (`OrderVar` in `types.rs:101-130`, `InternalVariable::Ordering` in `types.rs:281-287`) but currently **unencoded** in `encoding.rs` | Anti-symmetry + transitivity clauses; same structural proof as partial-order SAT encoding (standard) |
-| **P4. LayerAssignment** | `uses[n,c] = v` (unit clause) over a Boolean variable | 1 clause | `LayerConstraint` (currently encoded as unit clause, `encoding.rs:144-149`) | Trivial: (x) if v=true, (¬x) if v=false |
-| **P5. AdjacencyPair** | `uses[a,c] → ∨_{b ∈ neighbors(a)} uses[b,c]` — if net `a` uses channel `c`, at least one of its required-neighbor nets must also use `c` | 1 clause: (¬uses[a,c] ∨ neighbor₁ ∨ ... ∨ neighborₖ). No aux vars. | No existing constraint uses this. Required for thermal coupling pairs, differential pair physical proximity (beyond logical equality) | Direct: the clause is SAT iff `uses[a,c]→(neighbor₁∨...∨neighborₖ)`. No induction needed. |
-| **P6. SeparationDistance** | `uses[a,c] ∧ uses[b,c] → (layer[a] ≠ layer[b] ∨ clearance(c) ≥ min_sep(a,b))`. If channel `c` cannot accommodate the separation, at least one net must not use `c`. | Encoded as `(¬uses[a,c] ∨ ¬uses[b,c])` when channel width < min_sep. Otherwise no clause (separation is geometric, not logical, for that channel). | Not yet encoded. The capacity slack factor (`ConstraintModel._create_capacity_constraints` at `constraint_model.py:237` uses fixed `0.8` slack) is a blunt proxy for this. | For non-CNF channels: correctness reduces to a unit clause per violating channel pair. For CNF: equivalence to mutual exclusion on that channel. |
+| Primitive | Semantics | CNF Encoding | Maps from (existing) | Status | Proof |
+|-----------|-----------|-------------|---------------------|--------|-------|
+| **P1. MutualExclusion** | `x ↔ y` (equality) or `x ↔ ¬y` (exclusive) over Boolean variables | 2 clauses per pair | `DiffPairConstraint`, `LayerConstraint` (when applied as per-net equality) | Active (maps to `DiffPairConstraint`) | Trivial: (¬x ∨ y) ∧ (x ∨ ¬y) for equality; (¬x ∨ ¬y) ∧ (x ∨ y) for exclusion |
+| **P2. CardinalityBound** | `∑vars ≤ K` over a set of Boolean variables | Sequential counter, O(n·K) aux vars, O(n·K) clauses | `CapacityConstraint` | Active (maps to `CapacityConstraint`) | Sinz (2005) — proven by induction, base cases exhaustively verified for n ≤ 8 in `encoding.rs:264-305` |
+| **P3. SpatialOrder** | `order[a,b,channel] → ¬order[b,a,channel]` with transitivity: `order[a,b] ∧ order[b,c] → order[a,c]` over a channel | 3 clauses per triplet per channel | Reserved in types (`OrderVar` in `types.rs:101-130`, `InternalVariable::Ordering` in `types.rs:281-287`) but currently **unencoded** in `encoding.rs` | Deferred (`OrderVar` not used by `ModelBuilder`) | Anti-symmetry + transitivity clauses; same structural proof as partial-order SAT encoding (standard) |
+| **P4. LayerAssignment** | `uses[n,c] = v` (unit clause) over a Boolean variable | 1 clause | `LayerConstraint` (currently encoded as unit clause, `encoding.rs:144-149`) | Active (maps to `LayerConstraint`) | Trivial: (x) if v=true, (¬x) if v=false |
+| **P5. AdjacencyPair** | `uses[a,c] → ∨_{b ∈ neighbors(a)} uses[b,c]` — if net `a` uses channel `c`, at least one of its required-neighbor nets must also use `c` | 1 clause: (¬uses[a,c] ∨ neighbor₁ ∨ ... ∨ neighborₖ). No aux vars. | No existing constraint uses this. Required for thermal coupling pairs, differential pair physical proximity (beyond logical equality) | Deferred (no `InternalConstraint` variant yet) | Direct: the clause is SAT iff `uses[a,c]→(neighbor₁∨...∨neighborₖ)`. No induction needed. |
+| **P6. SeparationDistance** | `uses[a,c] ∧ uses[b,c] → (layer[a] ≠ layer[b] ∨ clearance(c) ≥ min_sep(a,b))`. If channel `c` cannot accommodate the separation, at least one net must not use `c`. | Encoded as `(¬uses[a,c] ∨ ¬uses[b,c])` when channel width < min_sep. Otherwise no clause (separation is geometric, not logical, for that channel). | Not yet encoded. The capacity slack factor (`ConstraintModel._create_capacity_constraints` at `constraint_model.py:237` uses fixed `0.8` slack) is a blunt proxy for this. | Deferred (requires `ChannelSeparationConstraint` from companion doc #4) | For non-CNF channels: correctness reduces to a unit clause per violating channel pair. For CNF: equivalence to mutual exclusion on that channel. |
 
 ### Sufficiency argument
 
@@ -62,7 +62,7 @@ Every existing constraint in the pipeline maps deterministically to at least one
 - `CapacityConstraint` → **P2 (CardinalityBound)** with max_nets derived from capacity·slack/min_width
 - `DiffPairConstraint` → **P1 (MutualExclusion, equality mode)** for the p/n variable pair
 - `LayerConstraint` → **P4 (LayerAssignment)** as a unit clause
-- `OrderVar` (reserved, unencoded) → **P3 (SpatialOrder)** with anti-symmetry + transitivity clauses
+- `OrderVar` (reserved, NOT CURRENTLY CONSUMED by `ModelBuilder`) → **P3 (SpatialOrder)** [DEFERRED — P3 is a future primitive with no current consumer]
 - Future therma/impedance constraints → **P5 (AdjacencyPair)**
 - Future clearance/creepage constraints → **P6 (SeparationDistance)**
 
@@ -106,22 +106,68 @@ When two primitives of the same type apply to overlapping variable sets, they ar
 - **P4+P4 on the same variable**: If both assign `x = true` → one unit clause (idempotent). If `x = true` and `x = false` → UNSAT (detected pre-solve).
 - **P4+P2 overlap**: If `LayerAssignment(uses[n,c]=true)` and channel has `CardinalityBound(...) → AtMostK`, the variable `uses[n,c]` is removed from the AtMostK variable set (its value is determined by the unit clause) and K is decremented by 1. This is the **unit-propagation elimination** rewrite.
 
+The rewrite rules RW1–RW7 below are the operational encoding of the merge rules described above. The merge rules section is the specification in primitive space; the rewrite rules section is the implementation in `InternalConstraint` space. They describe the same transformations.
+
+## Type Hierarchy
+
+The constraint system uses three distinct type layers that compose hierarchically:
+
+```
+Composition Operators  (Conjoin, Conditional, RestrictDomain)
+        │
+        ▼  lower_composed()
+Primitive Types        (P1–P6: MutualExclusion, CardinalityBound, SpatialOrder,
+                        LayerAssignment, AdjacencyPair, SeparationDistance)
+        │
+        ▼  model_from_python / direct encoding
+InternalConstraint      (Capacity, DiffPair, LayerRestriction)
+        │
+        ▼  encode_to_cnf()
+CNF Clauses             (flat clause set fed to splr)
+```
+
+**Composition-to-primitive mapping:**
+- `Conjoin(P2, P2)` → two CardinalityBound primitives (merged via P2+P2 merge rules)
+- `Conjoin(P4, P2)` → LayerAssignment + CardinalityBound (resolved via P4+P2 unit-propagation merge)
+- `Conditional(A → P1)` → MutualExclusion guarded by antecedent assignments (encoded as implication clause)
+- `RestrictDomain(P2, vars)` → CardinalityBound with variable set intersected against `vars`
+
+**Primitive-to-InternalConstraint mapping:**
+| Primitive | InternalConstraint variant |
+|-----------|---------------------------|
+| P1 (MutualExclusion) | `DiffPair` (equality mode) |
+| P2 (CardinalityBound) | `Capacity` |
+| P3 (SpatialOrder) | *(no variant yet — deferred)* |
+| P4 (LayerAssignment) | `LayerRestriction` (unit clause) |
+| P5 (AdjacencyPair) | *(no variant yet — deferred)* |
+| P6 (SeparationDistance) | *(no variant yet — deferred)* |
+
 ---
 
 ## Rewrite / Optimization Engine
 
 ### Pipeline position
 
-The rewrite engine runs **after** constraint model construction (`ModelBuilder.build()` in `constraint_model.py:176`) and **before** CNF encoding (`encoding.rs:encode_to_cnf`). It operates on the `InternalConstraintModel` (Rust-side types, `types.rs:308-312`).
+The rewrite engine runs **after** constraint model construction and composition but **before** lowering to `InternalConstraintModel`. It operates on the composition tree — an intermediate representation with composition operators (`Conjoin`, `Conditional`, `RestrictDomain`) whose leaves are primitives P1–P6.
 
 ```
-ModelBuilder.build()
-    → InternalConstraintModel (via types_py_bridge.rs:model_from_python)
-    → [REWRITE ENGINE]  ← NEW
+composition tree (primitives + operators)
+    → [REWRITE ENGINE]        ← runs on composition tree
+    → lower_composed()        ← expands compositions into InternalConstraint instances
     → encode_to_cnf()
     → solve_with_splr()
     → audit_constraints()
 ```
+
+### Lowering Specification
+
+`lower_composed` transforms a Composition tree into an `InternalConstraintModel`. It is defined as:
+
+- **Conjoin(A, B)** → `A.lower_composed()` ∪ `B.lower_composed()` — the internal instances of both children are merged into one model.
+- **Conditional(A → C)** → add the clause `(¬A_var₁ ∨ ... ∨ ¬A_varₙ ∨ C_var₁ ∨ ... ∨ C_varₘ)` to the model (implication-as-clause encoding, structurally identical to P1/P4 composition), then lower C normally. The antecedent A is a set of variable assignments treated as unit literals.
+- **RestrictDomain(A, vars)** → lower A, then intersect every `InternalConstraint`'s variable set against `vars`, dropping any constraint whose variable set becomes empty.
+
+The output of `lower_composed()` is a flat `InternalConstraintModel` whose constraints are only `InternalConstraint` variants (Capacity, DiffPair, LayerRestriction) — the composition operators are fully expanded before CNF encoding.
 
 ### Rewrite rules
 
@@ -134,8 +180,19 @@ ModelBuilder.build()
 | **RW5. DiffPairDedup** | `DiffPair(CH, p, n)` duplicated | Single `DiffPair(CH, p, n)` | Idempotent — equality clauses are identical |
 | **RW6. LayerDedup** | `LayerRestriction(var=v, ...)` duplicated with same `allowed` | Single instance | Idempotent |
 | **RW7. LayerConflict** | `LayerRestriction(var=v, allowed=true)` and `LayerRestriction(var=v, allowed=false)` | Raise `UnsatPreSolve` error | Structural contradiction — no need to invoke SAT solver |
+
+After RW3/RW4, if K becomes 0 and the remaining variable set V is non-empty, re-fire RW2: a non-empty V with K=0 forces all remaining variables to false (add unit clauses (¬v) for each v ∈ V and remove the Capacity constraint).
+
+### Future rewrite rules (deferred until InternalConstraint gains corresponding variants)
+
+These rules reference primitive types (MutualExclusion, AdjacencyPair) that do not yet have `InternalConstraint` variants (`types.rs:290-306` has only Capacity, DiffPair, LayerRestriction). They are deferred until the type system is extended:
+
+| Rule ID | Input Pattern | Output Pattern | Effect |
+|---------|--------------|----------------|--------|
 | **RW8. DiffPairConflict** | `DiffPair(CH, p, n)` + `MutualExclusion(CH, p, n, exclusive=true)` | Raise `UnsatPreSolve` error | Equality and exclusive can't both hold |
 | **RW9. AdjacencySubsume** | `AdjacencyPair(net=a, channel=c, neighbors=N₁)` and `AdjacencyPair(a, c, N₂)` with N₁ ⊆ N₂ | `AdjacencyPair(a, c, N₁)` | Tighter neighbor set subsumes looser (fewer neighbors = stronger constraint) |
+
+Note: P1+P1 merge (equivalent to RW8 functionality) is already handled by RW5 (DiffPairDedup) for the `DiffPair` variant; the `MutualExclusion`-specific rule RW8 becomes relevant only when MutualExclusion gains its own `InternalConstraint` variant.
 
 ### Rewrite engine properties
 
@@ -215,11 +272,9 @@ lib.rs:45: solver::solve_with_splr(&cnf, &var_names)
 Becomes:
 
 ```
-lib.rs:36: types_py_bridge::model_from_python(net_names, py_vars, py_cons)?
-    → InternalConstraintModel
-
-[NEW] combinator::rewrite(&mut model)       ← rewrite engine
-[NEW] combinator::lower_composed(&model)     ← expand compositions into InternalConstraints
+composition tree (from ModelBuilder + constraint lowering compiler)
+    → combinator::rewrite(&tree)              ← rewrite on composition tree
+    → combinator::lower_composed(&tree)        ← expand to InternalConstraintModel
 
 lib.rs:40: encoding::encode_to_cnf(&model)
     → CnfFormula
@@ -230,7 +285,7 @@ lib.rs:45: solver::solve_with_splr(&cnf, &var_names)
 
 ### What ModelBuilder emits vs. what Combinator receives
 
-`ModelBuilder` (`constraint_model.py:153`) continues to emit `CapacityConstraint`, `DiffPairConstraint`, `LayerConstraint` for structural routing needs. The combinator receives these as `InternalConstraint` instances and treats them as pre-encoded primitives (P2, P1, P4 respectively). The rewrite engine applies RW1–RW9 to the entire constraint set, including both ModelBuilder-originated and compiler-originated constraints.
+`ModelBuilder` (`constraint_model.py:153`) continues to emit `CapacityConstraint`, `DiffPairConstraint`, `LayerConstraint` for structural routing needs. The combinator receives these as `InternalConstraint` instances and treats them as pre-encoded primitives (P2, P1, P4 respectively). The rewrite engine applies RW1–RW7 to the entire constraint set, including both ModelBuilder-originated and compiler-originated constraints.
 
 ### Relationship to the Constraint Lowering Compiler
 
@@ -240,6 +295,8 @@ The existing requirements doc `2026-06-28-constraint-lowering-compiler-requireme
 - **Combinator Library** defines the primitives whose CNF encodings are proven sound, provides the rewrite engine that simplifies the `InternalConstraintModel` before encoding, and ensures that any new encoding added (via the compiler or directly) carries a correctness proof
 
 They are complementary: the compiler bridges designer intent to constraints; the combinator ensures those constraints are sound and non-redundant at the CNF level.
+
+**Cross-document note:** The constraint lowering compiler (`2026-06-28-constraint-lowering-compiler-requirements.md`, R5) currently restricts output to the 3 existing `InternalConstraint` variants. If this document adds new variants (P3/P5/P6), the compiler doc's R5 must be amended to permit emitting them. Until then, P3/P5/P6 are for direct-authoring only.
 
 ---
 
@@ -298,10 +355,10 @@ This is a pure composition (no new primitive). The constraint author writes a `c
 
 | Test | What it proves |
 |------|---------------|
-| Pre/post rewrite equivalence | For every rewrite rule RW1–RW9, the rewritten model is satisfiability-equivalent to the original (same SAT/UNSAT outcome for the same primary variables) — proven exhaustively for small-n models (n ≤ 6) and via Hypothesis PBT for random larger models |
+| Pre/post rewrite equivalence | For every rewrite rule RW1–RW7, the rewritten model is satisfiability-equivalent to the original (same SAT/UNSAT outcome for the same primary variables) — proven exhaustively for small-n models (n ≤ 6) and via Hypothesis PBT for random larger models |
 | Fixpoint convergence | The rewrite engine reaches a fixpoint in ≤ N steps where N ≤ initial constraint count — proven by termination measure (constraint count + aux-var count strictly decreases or stays same with no cycles) |
 | Confluence (QCheck/Rust) | Applying rewrite rules in any order yields the same final constraint set — tested via random rule-ordering on random input models using `proptest` |
-| No false UNSAT | When RW7/RW8 detects a structural contradiction (pre-SAT), a DPLL solver confirms UNSAT independently — the contradiction is real, not a rewrite artifact |
+| No false UNSAT | When RW7 detects a structural contradiction (pre-SAT), a DPLL solver confirms UNSAT independently — the contradiction is real, not a rewrite artifact |
 
 ### Tier 4: Integration tests
 
@@ -329,7 +386,7 @@ The rewrite engine MUST NOT increase clause count or variable count for any mode
 
 ## Acceptance Examples
 
-- **AE1. Merged capacity bounds (covers RW1, RW2).** A channel `L1_E5` receives two `Capacity` constraints: `Capacity(L1_E5, K=3, nets=[A,B,C])` and `Capacity(L1_E5, K=6, nets=[A,B,C,D,E,F])`. The rewrite engine merges them to `Capacity(L1_E5, K=3, [A,B,C])` and `Capacity(L1_E5, K=6, [D,E,F])` — the first bound subsumes the second for the shared nets. The second bound for the non-shared nets is unchanged because K=6 ≥ 3 and |{D,E,F}|=3. Elimination check: K=6 ≥ 3, so the second constraint would not be eliminated in this case. But K₂ is now effectively `min(6, 3+3)` = 6, unchanged. The net effect is the shared variables respect K=3, the full set respects K=6 (already implicit from K=3 on the subset + K=6 on the rest).
+- **AE1. Merged capacity bounds (covers RW1, RW2).** A channel `L1_E5` receives two `Capacity` constraints: `Capacity(L1_E5, K=3, nets=[A,B,C])` and `Capacity(L1_E5, K=6, nets=[A,B,C,D,E,F])`. RW1 applies: V₁={A,B,C} ⊆ V₂={A,B,C,D,E,F} and K₁=3 ≤ K₂=6, so the second constraint becomes `Capacity(L1_E5, K=min(6, 3+|{D,E,F}|)=6, [A,B,C,D,E,F])` — the full variable set is kept, K is unchanged. Then RW2 fires: K=6 and |V| = |{A,B,C,D,E,F}| = 6, so K ≥ |V| and the constraint is eliminated entirely (at most 6 of 6 variables is trivially satisfied). The net result is a single remaining constraint: `Capacity(L1_E5, K=3, [A,B,C])`.
 
 - **AE2. Layer unit propagation reduces cardinality (covers RW3).** A channel has `Capacity(L1_E5, K=4, nets=[A,B,C,D,E])` and `LayerRestriction(uses[A,L1_E5]=true)`. The rewrite engine removes A from the capacity variable set and sets K'=3 for nets=[B,C,D,E]. The unit clause is kept. Net result: AtMostK is encoded for 4 variables with K=3 instead of 5 variables with K=4 — saving O(k) auxiliary variables and O(k) clauses.
 
@@ -403,7 +460,7 @@ The rewrite engine MUST NOT increase clause count or variable count for any mode
 
 ### Resolve Before Planning
 
-- **[Affects SC5]** What is the actual clause-count reduction from RW1–RW9 on the Temper PCB model? The 10% criterion is a hypothesis. If the current model has minimal overlapping constraints (each channel gets exactly one Capacity, each diff-pair appears once, each layer restriction is a single unit clause), the rewrite engine may be a no-op. A measurement spike (run ModelBuilder, dump constraint stats, count overlaps) is needed to calibrate SC5.
+- **[Affects SC5]** What is the actual clause-count reduction from RW1–RW7 on the Temper PCB model? The 10% criterion is a hypothesis. If the current model has minimal overlapping constraints (each channel gets exactly one Capacity, each diff-pair appears once, each layer restriction is a single unit clause), the rewrite engine may be a no-op. A measurement spike (run ModelBuilder, dump constraint stats, count overlaps) is needed to calibrate SC5.
 
 - **[Affects P3]** Does `SpatialOrder` (P3) have a concrete use in the current pipeline, or is it reserved for future multi-net ordering within channels? `OrderVar` is defined in types but never populated by `ModelBuilder`. If P3 has no near-term consumer, it could be deferred to a later primitive batch rather than implemented in the initial combinator release.
 

@@ -45,7 +45,7 @@ def main():
             "usb_path",
             "J_USB",
             "U_MCU",
-            width_mm=6.0,
+            width_mm=6.0,  # allow-safety-constant: demo clearance
             keep_clear=True,
             nets=["USB_D+", "USB_D-"],
             tier="hard",

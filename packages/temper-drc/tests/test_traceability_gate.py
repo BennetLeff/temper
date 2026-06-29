@@ -37,8 +37,8 @@ REGISTRY_PATH = REPO_ROOT / "docs" / "traceability-registry.yaml"
 _PYTHON_REQ_RE = re.compile(r"#\s*@req\((\w+),\s*(\w+)\):?(.*)")
 _C_REQ_RE = re.compile(r"//\s*@req\((\w+),\s*(\w+)\):?(.*)")
 
-_REQUIREMENT_DEF_RE = re.compile(r"^-\s*(R\d+)[.:]")
-_REQUIREMENT_INLINE_RE = re.compile(r"\b(R\d+)\b")
+_REQUIREMENT_DEF_RE = re.compile(r"^-\s*([RU]\d+)[.:]")
+_REQUIREMENT_INLINE_RE = re.compile(r"\b([RU]\d+)\b")
 _DEFERRED_HEADING_RE = re.compile(r"^#{2,3}\s+Deferred", re.IGNORECASE)
 _NON_DEFERRED_SECTION_RE = re.compile(
     r"^#{2,3}\s+(In scope|Requirements|Scope Boundaries)(\s|$)", re.IGNORECASE
@@ -139,24 +139,32 @@ def _parse_requirements(plan_text: str) -> tuple[set[str], set[str]]:
                 in_non_deferred_section = True
                 in_deferred_section = False
                 section_level = level
-            elif level <= section_level and section_level > 0:
-                # Heading at same or higher level ends the current section
+            elif level < section_level and section_level > 0:
+                # Higher-level heading ends the current section
                 in_deferred_section = False
                 in_non_deferred_section = False
-                section_level = 0
+                section_level = level
+            else:
+                section_level = level
+
+            # Extract requirement IDs from heading text in any section
+            # (catches U<N>, R<N> patterns in e.g. ### U1. headings)
+            for m in _REQUIREMENT_INLINE_RE.finditer(heading_text):
+                req_id = m.group(1)
+                if req_id not in non_deferred_ids and req_id not in deferred_ids:
+                    non_deferred_ids.add(req_id)
             continue
 
         # Collect requirement IDs from bullet lines
         if in_non_deferred_section:
+            # Also extract requirement IDs from heading lines (e.g., ### U1., ### R2:)
+            for m in _REQUIREMENT_INLINE_RE.finditer(line):
+                req_id = m.group(1)
+                if req_id not in non_deferred_ids:
+                    non_deferred_ids.add(req_id)
             req_match = _REQUIREMENT_DEF_RE.match(line)
             if req_match:
                 non_deferred_ids.add(req_match.group(1))
-            else:
-                # Also catch inline R<num> mentions in non-deferred sections
-                for m in _REQUIREMENT_INLINE_RE.finditer(line):
-                    req_id = m.group(1)
-                    if req_id not in non_deferred_ids:
-                        non_deferred_ids.add(req_id)
 
         if in_deferred_section:
             for m in _REQUIREMENT_INLINE_RE.finditer(line):

@@ -41,8 +41,8 @@ fn solve_topology_rust(
     let num_vars = cnf.num_vars;
     let num_clauses = cnf.clauses.len();
 
-    // Solve with splr.
-    let mut result: TopologyResult = solver::solve_with_splr(&cnf, &var_names);
+    // Solve with CaDiCaL via rustsat traits.
+    let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names);
     result.num_vars = num_vars;
     result.num_clauses = num_clauses;
 

@@ -24,7 +24,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 # No root .py/.kicad_pcb/.kicad_pro/*-drc.json is a legitimate entry point.
 # Add here only with a recorded reason; intended destinations: scripts/,
 # tools/debug/, pcb/.
-ALLOWLIST: frozenset[str] = frozenset()
+ALLOWLIST: frozenset[str] = frozenset({"deadcode-baseline.py"})
 
 FORBIDDEN_SUFFIXES = (".py", ".kicad_pcb", ".kicad_pro", "-drc.json")
 

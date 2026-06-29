@@ -446,3 +446,6 @@ def _apply_placements_to_pcb(
 
     result_parts.append(raw_content[prev_end:])
     return "".join(result_parts)
+
+
+MazeRouter = V6RouterAdapter

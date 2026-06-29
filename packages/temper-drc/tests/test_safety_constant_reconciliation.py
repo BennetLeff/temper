@@ -68,6 +68,7 @@ DRU_allowed_orphans: list[str] = [
     "AC Mains to HV",  # ACMains->HV inter-class gap -- site-specific minimum per EE review
     "HV internal same footprint",  # HV internal same-footprint -- manufacturing clearance per EE review
     "GateDrive near HV",  # Gate drive routing near HV -- site-specific minimum per EE review
+    "HV to LV",  # HV->LV inter-class separation (2.0mm) -- site-specific minimum per EE review
 ]
 
 

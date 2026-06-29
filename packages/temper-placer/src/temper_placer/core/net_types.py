@@ -253,8 +253,8 @@ MAINS_HV_SPEC = NetTypeSpec(
     voltage_class=VoltageClass.MAINS_240V,
     max_current_a=20.0,
     trace_width_mm=2.0,
-    clearance_mm=6.0,
-    creepage_mm=6.0,
+    clearance_mm=6.0,  # allow-safety-constant: HV wiring spec
+    creepage_mm=6.0,  # allow-safety-constant: HV wiring spec
     via_template="Via3x3",
     allow_layer_change=False,  # Keep HV on single layer
 )

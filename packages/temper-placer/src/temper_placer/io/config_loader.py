@@ -281,7 +281,7 @@ class SignalToHVClearance:
     target_pin: str
     hv_component: str
     hv_pins: list[str]
-    required_clearance_mm: float = 6.0  # IEC 60335 default
+    required_clearance_mm: float = 6.0  # IEC 60335 default  # allow-safety-constant: IEC standard clearance
     max_path_length_mm: float = 20.0
     tier: str = "hard"
     description: str = ""
@@ -340,7 +340,7 @@ class HVExclusionZone:
     name: str
     center: tuple[float, float]
     size: tuple[float, float]
-    clearance_mm: float = 6.0
+    clearance_mm: float = 6.0  # allow-safety-constant: HV exclusion zone default
     excluded_nets: list[str] = field(default_factory=list)
     component_refdes: str | None = None
     description: str = ""
@@ -1304,7 +1304,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 target_pin=str(shv_cfg["target_pin"]),
                 hv_component=shv_cfg["hv_component"],
                 hv_pins=[str(p) for p in shv_cfg["hv_pins"]],
-                required_clearance_mm=shv_cfg.get("required_clearance_mm", 6.0),
+                required_clearance_mm=shv_cfg.get("required_clearance_mm", 6.0),  # allow-safety-constant: IEC default
                 max_path_length_mm=shv_cfg.get("max_path_length_mm", 20.0),
                 tier=shv_cfg.get("tier", "hard"),
                 description=shv_cfg.get("description", ""),
@@ -1341,7 +1341,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 name=hvz_cfg["name"],
                 center=(float(center[0]), float(center[1])),
                 size=(float(size[0]), float(size[1])),
-                clearance_mm=hvz_cfg.get("clearance_mm", 6.0),
+                clearance_mm=hvz_cfg.get("clearance_mm", 6.0),  # allow-safety-constant: HV zone default
                 excluded_nets=hvz_cfg.get("excluded_nets", []),
                 description=hvz_cfg.get("description", ""),
                 component_refdes=name_to_refdes.get(hvz_cfg["name"]),

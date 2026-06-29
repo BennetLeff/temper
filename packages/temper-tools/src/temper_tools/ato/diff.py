@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 
 
-def load_bom(bom_path: Path):
-    components = {}
+def load_bom(bom_path: Path) -> dict[str, dict[str, str]]:
+    components: dict[str, dict[str, str]] = {}
     if not bom_path or not bom_path.exists():
         return components
     with open(bom_path, encoding='utf-8') as f:

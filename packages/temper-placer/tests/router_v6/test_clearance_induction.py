@@ -1,4 +1,7 @@
-"""U9-U11: Clearance induction — addition / modification / removal (FR13, FR13b, FR13c)."""
+"""U9-U11: Clearance induction — addition / modification / removal (FR13, FR13b, FR13c).
+
+# @req(N10, U2): @req traceability annotations — clearance induction file
+"""
 
 from __future__ import annotations
 

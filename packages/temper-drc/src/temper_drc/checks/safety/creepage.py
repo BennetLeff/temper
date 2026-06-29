@@ -17,7 +17,7 @@ class CreepageCheck(Check):
     isolation barrier.
     """
     
-    def __init__(self, min_iso_width_mm: float = 6.0):
+    def __init__(self, min_iso_width_mm: float = 6.0):  # allow-safety-constant: HV isolation default
         """
         Initialize check.
         

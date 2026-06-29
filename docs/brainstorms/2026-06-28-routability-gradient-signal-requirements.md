@@ -33,14 +33,14 @@ Extract solver-internal CDCL statistics (backtrack count per net-type, clause-le
 ### FR1: Solver Statistics Exposure (Rust Side)
 
 **FR1.1 — Backtrack Count by Net-Type.**
-The `TopologyResult` struct (`types.rs:348`) shall be extended with:
+The `TopologyResult` struct (`types.rs:348`) shall be extended with, if available from splr's public API:
 - `backtrack_count: u64` — total number of conflict-driven backtracks during CDCL solving.
 - `backtrack_by_net_type: HashMap<NetType, u64>` where `NetType` is an enum (`HV`, `Power`, `Signal`, `LV`) derived from the constraint model variable classification.
 
 This requires exposing internal CDCL counters that splr already maintains internally. If splr 0.13's public API does not expose these, the `solve_with_splr` function shall be restructured to use splr's `Solver` struct directly (the `SatSolverIF` trait or lower-level API) rather than the black-box `solve()` call.
 
 **FR1.2 — Clause-Learning Activity by Constraint Family.**
-The result shall include `clause_activity: HashMap<ConstraintFamily, f64>` where `ConstraintFamily` is one of:
+The result shall include, if available from splr's public API, `clause_activity: HashMap<ConstraintFamily, f64>` where `ConstraintFamily` is one of:
 - `Capacity` — AtMostK cardinality constraints on channel capacity.
 - `DiffPair` — equality constraints for differential pairs.
 - `LayerRestriction` — unit clauses fixing net layer assignments.
@@ -49,16 +49,24 @@ The result shall include `clause_activity: HashMap<ConstraintFamily, f64>` where
 Activity is the VSIDS (Variable State Independent Decaying Sum) or similar learnt-clause activity score, summed per constraint family. This identifies which constraint type is driving the most conflict.
 
 **FR1.3 — Decision-Level Distribution.**
-The result shall include `decision_level_histogram: [u64; 10]` — a 10-bin histogram of the maximum decision level reached during each conflict. Bins are quantiles (0–10%, 10–20%, ..., 90–100%) of the total variable count. High decision-level conflicts indicate deep contradictions (hard problems).
+The result shall include, if available from splr's public API, `decision_level_histogram: [u64; 10]` — a 10-bin histogram of the maximum decision level reached during each conflict. Bins are quantiles (0–10%, 10–20%, ..., 90–100%) of the total variable count. High decision-level conflicts indicate deep contradictions (hard problems).
 
 **FR1.4 — UNSAT Core Size.**
-When the solver returns `SolverStatus::Unsatisfiable`, the `unsat_core` field (already declared as `Vec<usize>` in `TopologyResult`) shall be populated with the indices of clauses in the UNSAT core. The size of this core shall be separately reported as `unsat_core_size: usize`.
+When the solver returns `SolverStatus::Unsatisfiable`, the `unsat_core` field (already declared as `Vec<usize>` in `TopologyResult`) shall be populated with the indices of clauses in the UNSAT core, if available from splr's public API. The size of this core shall be separately reported as `unsat_core_size: usize`.
 
 **FR1.5 — Statistics Passthrough to Python.**
 The `solve_topology_rust` PyO3 function (`lib.rs:26`) shall be updated to include the new statistics fields in the returned Python dict under a `"solver_stats"` sub-dict. The `TopologicalSolution` Python dataclass (`topology_solver.py:25`) shall be extended with an optional `solver_stats: dict | None` field.
 
 **FR1.6 — Statistics When SAT.**
 When the solver returns SAT, statistics are still collected and returned. SAT statistics represent the _difficulty_ of solving—higher backtrack counts for a SAT instance mean the solver had to work harder, which correlates with a placement that is _marginally_ routable (close to the UNSAT boundary).
+
+**FR1.7 — Coarse Statistics Fallback.**
+When fine-grained CDCL statistics (FR1.1-FR1.4) are not available from the solver, the routability signal SHALL fall back to:
+- `solver_time_ms` — higher solve time indicates a less routable placement.
+- `variable_count * clause_count / solver_time_ms` — a throughput proxy (lower throughput = harder instance).
+- `clause_count / variable_count` — clause-to-variable ratio (higher ratio typically correlates with harder instances).
+
+The coarse signal is computed even on SAT results (where solve time reflects difficulty of finding a satisfying assignment).
 
 ### FR2: Per-Net Routability Score Aggregation
 
@@ -87,7 +95,11 @@ The per-net routability scores $\{r_n\}$ are mapped back to components: each com
 ### FR3: JAX Loss Function with Straight-Through Estimator
 
 **FR3.1 — New Loss Class.**
-A new class `RoutabilityGradientLoss(LossFunction)` shall be created in `losses/routability_gradient.py`, following the existing patterns from `RoutingFeedbackLoss` (`feedback.py:31`) and `SpatialFeedbackLoss` (`spatial_feedback.py:23`).
+A new abstract base class `StatefulLossFunction` shall be defined in `losses/base.py`, extending `LossFunction` with two additional abstract methods:
+- `blend(state: dict) -> None` — called once per outer refinement iteration before the JAX inner loop, to blend aggregated feedback state (e.g., EWMA congestion or routability scores).
+- `compute_loss(positions: Array, rotations: Array, context: LossContext) -> LossResult` — called during JAX optimization, with the blended state baked in.
+
+A new class `RoutabilityGradientLoss(StatefulLossFunction)` shall be created in `losses/routability_gradient.py`, following the existing patterns from `RoutingFeedbackLoss` (`feedback.py:31`) and `SpatialFeedbackLoss` (`spatial_feedback.py:23`). The orchestrator's refinement loop SHALL call `blend()` before each placer invocation.
 
 **FR3.2 — Input Requirements.**
 The loss function accepts:
@@ -105,7 +117,7 @@ The `routability_scores` vector is produced by a non-differentiable process (SAT
 # For routability: the "hard" signal is the actual solver score.
 # The "soft" proxy is the wirelength approximation, which is differentiable.
 soft_proxy = compute_net_wirelengths(positions, context)  # differentiable
-ste_signal = routability_scores + jax.lax.stop_gradient(soft_proxy - routability_scores)
+ste_signal = soft_proxy + jax.lax.stop_gradient(routability_scores - soft_proxy)
 ```
 
 See FR3.5 for `compute_net_wirelengths`.
@@ -149,10 +161,7 @@ Before each iteration of the refinement loop, the SAT solver must be invoked to 
 The SAT topology solver operates on a different abstraction (channel graph) than the maze router (grid graph). Both must be invoked each refinement iteration: the maze router for congestion heatmap (existing), the SAT solver for routability gradient (new). The SAT solver may be called with reduced timeout during refinement iterations (e.g., 500 ms vs. 5 s for the final pass).
 
 **FR4.4 — Weight Scheduling.**
-The `RoutabilityGradientLoss` weight shall be scheduled using the existing `WeightedLoss.schedule_start`/`schedule_end` mechanism:
-- Iteration 0: weight = 0 (no routability signal yet—first placement is the baseline).
-- Iteration 1+: weight ramps from 0 to full weight over 2 iterations (allows the heatmap-based feedback to take effect first).
-- If routing success exceeds `routability_threshold` (0.85), routability weight is scaled down by factor 0.3.
+The routability gradient weight SHALL be managed by the orchestrator per outer refinement iteration, not by `WeightedLoss.schedule_start`/`schedule_end` (which operate on inner-loop epoch progress within a single training run). The orchestrator SHALL set `RoutabilityGradientLoss.weight` to 0.0 on iteration 0 (no routability signal yet—first placement is the baseline) and ramp to `target_weight` over the first 2 iterations, then hold constant. If routing success exceeds `routability_threshold` (0.85), the orchestrator shall scale the routability weight down by factor 0.3. Weight management occurs at the outer-loop level, outside of JAX compilation boundaries.
 
 **FR4.5 — Compatibility with MomentumDampedRoutingFeedbackLoss.**
 The `MomentumDampedRoutingFeedbackLoss` (`feedback.py:92`) blends congestion across iterations via EWMA. The `RoutabilityGradientLoss` shall maintain independent EWMA state with a similar `blend()`/`compute_loss()` separation pattern, ensuring only one blend per iteration.
@@ -160,13 +169,13 @@ The `MomentumDampedRoutingFeedbackLoss` (`feedback.py:92`) blends congestion acr
 ### FR5: Convergence Guarantees
 
 **FR5.1 — Weight Decay on Convergence.**
-If `routability_score` (mean across nets) decreases for 2 consecutive iterations AND routing completion is above `routability_threshold`, the `RoutabilityGradientLoss` weight is multiplied by 0.5. This prevents the routability term from dominating once the placement is already good.
+If `routability_score_mean` (mean across nets) decreases for 2 consecutive iterations AND routing completion is above `routability_threshold`, the `RoutabilityGradientLoss` weight is multiplied by 0.5. This prevents the routability term from dominating once the placement is already good.
 
 **FR5.2 — Oscillation Detection.**
-If `routability_score` increases (worsens) for 2 consecutive iterations, log a warning and freeze the routability scores at their best-observed values. This mirrors the oscillation-avoidance pattern proposed in `docs/ideation/2026-06-28-sidecar-feedback-convergence-ideation.md` (#2).
+If `routability_score_mean` increases (worsens) for 2 consecutive iterations, log a warning and freeze the routability scores at their best-observed values. This mirrors the oscillation-avoidance pattern proposed in `docs/ideation/2026-06-28-sidecar-feedback-convergence-ideation.md` (#2).
 
 **FR5.3 — Monotonic Improvement Tracking.**
-The refinement loop already tracks `best_completion` (`iterative_placer.py:82`). Extend this to also track `best_routability_score`. If the current iteration's score is worse than best, use best scores for the loss computation (pessimistic guard against regression).
+The refinement loop already tracks `best_completion` (`iterative_placer.py:82`). Extend this to also track `best_routability_score_mean`. If the current iteration's mean is worse than best, use best scores for the loss computation (pessimistic guard against regression).
 
 **FR5.4 — Maximum Gradient Norm.**
 The STE gradient produced by `RoutabilityGradientLoss` shall be clipped to a maximum L2 norm of `max_grad_norm = 1.0` mm per component per iteration, enforced via `jnp.clip` on the position update. This prevents a single bad routability signal from catastrophically displacing components.
@@ -184,6 +193,12 @@ When the solver returns UNSAT, the `max_movement_mm` for the subsequent JAX step
 
 **FR6.4 — UNSAT Persistence Escape.**
 If UNSAT persists for 3 consecutive iterations, fall back to the existing `simple_congestion_repel` heuristic (`iterative_placer.py:164`) and log a diagnostic indicating that the SAT solver could not guide convergence within the budget. This prevents infinite loops where gradient-based feedback cannot escape an unsolvable topology.
+
+**FR6.5 — UNSAT Without Core Fallback.**
+When the solver returns UNSAT but the UNSAT core is empty (no clause indices available from splr), the routability signal SHALL fall back to a heuristic penalty:
+- Identify nets involved in violated constraints via the existing `audit_result` path (`audit.rs:39-129`).
+- Assign $r_n = 1.0$ to all such nets (direct violation penalty).
+- Assign $r_n = 0.5$ to all other nets in the same channel skeleton as detected-violation nets (propagation penalty — nets sharing a channel are likely also affected).
 
 ## 3. Non-Functional Requirements
 
@@ -278,7 +293,7 @@ splr 0.13's public API (the `SolveIF` trait and `Certificate` enum) may not expo
 
 The straight-through estimator replaces the true gradient $\frac{\partial L}{\partial r} \cdot \frac{\partial r}{\partial \text{positions}}$ with $\frac{\partial L}{\partial \text{proxy}}$ where proxy is HPWL. If HPWL correlates poorly with routability difficulty in some regions, the STE gradient may point in a useless direction.
 
-**Mitigation:** The existing `SpatialFeedbackLoss` and `RoutingFeedbackLoss` provide orthogonal gradient signals (congestion-based). The routability gradient is additive, not a replacement. The combined multi-term loss provides gradient redundancy.
+**Mitigation:** The existing `RoutingFeedbackLoss` (maze-router congestion, `feedback.py:31`) provides a complementary gradient signal. The routability gradient is additive, not a replacement. `SpatialFeedbackLoss` (`spatial_feedback.py:23`) exists but is not currently wired into the refinement loop—it could be added as future work. The combined multi-term loss provides gradient redundancy.
 
 ### Risk 3: UNSAT Core Accuracy
 
@@ -297,6 +312,10 @@ Should the SAT solver be invoked on a per-net basis (one SAT call per net) or gl
 Should the differentiable proxy be HPWL (simple, already implemented) or a learned proxy (e.g., a small neural network predicting routability from positions)? The existing `WirelengthLoss` (`losses/wirelength.py`) provides HPWL. A learned proxy would require training data that does not currently exist.
 
 **Recommendation:** Start with HPWL. A learned proxy is deferred and tracked as a separate feature request.
+
+### Open Question 3: splr Statistics API (Deferred to Planning)
+
+Which splr internal statistics are actually extractable through the public API without source patches? This must be determined via a spike before FR1.1-FR1.4 can be finalized. The coarse-statistics fallback (FR1.7) provides a workable path regardless of the outcome, but the fine-grained signal quality depends on API access.
 
 ## 6. Acceptance Criteria
 

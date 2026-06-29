@@ -11,10 +11,10 @@ status: draft
 Define an Encoder Specification Language (ESL) that declaratively states what each
 constraint type means in terms of SAT primary-variable assignments. Then
 bounded-model-check the actual CNF output from `populate_sat_from_constraints`
-(sat_model.py:98) and `encode_to_cnf` (encoding.rs:78) against the ESL
-specification for all reachable topologies up to a combinatorial bound (e.g.,
-all configurations with ≤4 nets, ≤4 channels, and ≤2 non-exclusion constraint
-types). Every ESL/CNF disagreement is a counterexample — a concrete routing
+in `sat_model.py:98` against the ESL specification for all configurations whose
+primary-variable count is ≤10 (which covers all topologies where n_nets ×
+n_channels ≤ 10, e.g., up to 3×3, 4×2, or 2×4). Extending BMC to the Rust
+`encode_to_cnf` (`encoding.rs:78`) is deferred. Every ESL/CNF disagreement is a counterexample — a concrete routing
 configuration the encoder gets wrong. Reuse the existing Hypothesis PBT
 infrastructure for exhaustive base-case enumeration and strategy generation.
 This mirrors the railway-interlocking pattern: declare safe routes, then prove
@@ -43,6 +43,15 @@ Boolean function as the constraint semantics.** The CDCL lattice tests *what the
 solver does with the clauses*, not *whether the clauses mean the right thing.*
 A polarity bug in `_encode_at_most_k` produces a CNF that is still satisfiable
 — just satisfiable by assignments that violate the cardinality bound.
+
+**Recurring bug class evidence**: The AtMostK polarity bug is the most recent
+instance of a recurring class of encoding-soundness issues. The 3-layer
+correctness architecture (formal proof + CDCL + audit) was introduced because
+earlier single-layer approaches failed to catch encoding bugs. BMC adds a 4th
+layer that catches encoding bugs BEFORE any solve runs, reducing the cost of
+discovery from "found in production audit" to "found at CI time." The investment
+is justified by the safety-critical nature of PCB routing constraints (HV
+clearance violations are hardware safety hazards), not by the bug count.
 
 **What BMC adds (L0)**: Before the solver ever runs, verify that for every
 primary-variable assignment, the ESL specification and the CNF encoding agree on
@@ -191,6 +200,7 @@ energizes an unsafe combination.
   - DiffPair constraints only
   - Layer + Capacity (cross-constraint)
   - Layer + DiffPair (cross-constraint)
+  - CapacityConstraint + DiffPairConstraint (cross-constraint interaction)
   - All three simultaneously
 
 - **FR-ENUM3.** The exhaustive base-case batch shall cover all `(n_nets,
@@ -262,6 +272,19 @@ energizes an unsafe combination.
 - **FR-CI4.** A BMC failure shall block PR merge (non-negotiable — an encoding
   bug in any constraint type invalidates every downstream routing decision).
 
+- **FR-CI5.** A CI gate script (analogous to `scripts/import_linter_gate.py`)
+  shall scan `constraint_model.py` for `Constraint` subclasses and verify each
+  has: (a) an `esl()` method returning an ESL predicate, (b) a
+  `populate_sat_from_constraints` encoding path, and (c) at least one BMC test
+  case in `tests/router_v6/`. Missing any → CI failure with a diagnostic listing
+  the unmet requirements.
+
+- **FR-CI5.1.** The BMC CI gate SHALL use a retry-with-seed mechanism: if a
+  Hypothesis fuzz test fails, re-run with the reported seed. If the re-run
+  passes, the failure is attributed to test flakiness and does not block merge.
+  If it fails again, it is a genuine encoding bug and blocks merge.
+  Exhaustive-batch tests SHALL NOT use retry — they are deterministic.
+
 ### New-Encoding Adoption Protocol
 
 - **FR-ADOPT1.** Adding a new constraint type `FooConstraint` to
@@ -315,10 +338,10 @@ energizes an unsafe combination.
   CNF=SAT`. This is the exact bug that the post-solve audit previously had to
   catch.
 
-- **AE3. Covers FR-ENUM3.** The exhaustive batch runs 36 canonical topologies
-  (all `(n_nets × n_channels)` pairs ≤10) with all constraint-type
-  combinations, totaling ~200 BMC instances, completing in <30s on CI hardware.
-  All pass.
+- **AE3. Covers FR-ENUM3.** The exhaustive batch runs 26 canonical topologies
+  (all (n_nets, n_channels) pairs where n_nets ≤ 4, n_channels ≤ 4, n_nets ×
+  n_channels ≤ 10, times 2 layer options) with all constraint-type combinations,
+  totaling ~200 BMC instances, completing in <30s on CI hardware. All pass.
 
 - **AE4. Covers FR-ADOPT1.** A PR adding a new `MinSpacingConstraint` type
   includes: (a) an `esl()` method returning `at_most_k(vars, k)` with a
@@ -397,6 +420,11 @@ energizes an unsafe combination.
   builder. Builder bugs (wrong constraint counts, missing variables) are
   already covered by `test_stage3_constraint_audit.py` and validator tests.
 
+- **ESL specifications are Python methods** because: (a) constraints are
+  defined in Python (`constraint_model.py`), (b) BMC runs at CI time in Python
+  via pytest. Extending to Rust would require a separate ESL representation
+  (not a Python method) — this is future work.
+
 ### Deferred for Later
 
 - **Extending BMC to the Rust `encode_to_cnf`**: After the Python BMC layer
@@ -461,7 +489,7 @@ energizes an unsafe combination.
   close to what BMC needs — it just needs tighter parameter bounds and
   constraint-type coverage.
 
-- **Adoption gate as CI check, not code review convention.** FR-CI6 mandates a
+- **Adoption gate as CI check, not code review convention.** SC6 mandates a
   scriptable adoption gate (analogous to `import_linter_gate.py`) that checks
   every `Constraint` subclass has a corresponding ESL declaration and BMC test.
   Human reviewers shouldn't need to manually verify this.
@@ -482,9 +510,10 @@ energizes an unsafe combination.
 - The `ConstraintModel` types (constraint_model.py) are stable enough that
   adding `esl()` methods doesn't break other stages — ESL methods are pure
   functions with no side effects.
-- The existing `pytest-dependency` framework supports ordering BMC before
-  CDCL lattice — the `depends` mechanism in test_sat_solve_pbt.py:56 already
-  demonstrates this pattern.
+- The pytest-dependency infrastructure exists in the test suite (e.g.,
+  test_sat_solve_pbt.py:56 uses @pytest.mark.dependency). Adding a bmc-l0
+  dependency to the existing sat-l1/l2/l3/l4/l5 chain requires extending the
+  dependency specification.
 - The combinatorial enumeration bound (N ≤ 10 primary variables) is sufficient
   to catch encoding bugs — the AtMostK polarity bug is caught at n=3, k=2 (3
   primaries), well within the bound. Constraint-type composition bugs (e.g.,

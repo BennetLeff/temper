@@ -1,50 +1,54 @@
-// splr CDCL solver integration with cardinality constraints.
+// CaDiCaL CDCL solver integration via rustsat traits.
 //
+// Migrated from splr 0.13 (2026-06-28).
 // Origin: U5 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
 use std::time::Instant;
 
-use splr::{
-    solver::{SatSolverIF, Solver},
-    types::{CNFDescription, Instantiate},
-    Certificate, Config, SolveIF,
+use rustsat::{
+    solvers::{Solve, SolverResult},
+    types::{Clause, Lit, TernaryVal, Var},
 };
+use rustsat_cadical::CaDiCaL;
 
 use crate::types::SolverStatus;
 use crate::TopologyResult;
 
 use super::encoding::CnfFormula;
 
-/// Solve the CNF formula using splr, with native AtMostK cardinality constraints.
-pub fn solve_with_splr(
+/// Solve the CNF formula using CaDiCaL via the rustsat trait interface.
+pub fn solve_with_cadical(
     cnf: &CnfFormula,
     _var_names: &[String],
 ) -> TopologyResult {
     let start = Instant::now();
 
-    // Guard: splr panics if num_vars is zero and clauses reference
-    // high-numbered variables. Return Unsatisfiable for empty problems.
+    // Guard: empty problems are trivially unsatisfiable.
     if cnf.num_vars == 0 || cnf.clauses.is_empty() {
         return empty_result(SolverStatus::Unsatisfiable, 0.0);
     }
 
-    let config = Config::default();
-    let mut solver = Solver::instantiate(&config, &CNFDescription::default());
+    let mut solver = CaDiCaL::default();
 
-    // Add variables.
-    for _ in 0..cnf.num_vars {
-        solver.add_var();
-    }
-    // Add clauses (cardinality constraints are already encoded as CNF).
+    // Add clauses. Variables are created implicitly from clause literals.
     for clause in &cnf.clauses {
-        let lits: Vec<i32> = clause.iter().copied().collect();
-        if solver.add_clause(&lits).is_err() {
+        let mut lits: Vec<Lit> = Vec::with_capacity(clause.len());
+        for &lit in clause {
+            let var_idx = (lit.unsigned_abs() - 1) as u32;
+            let lit_obj = if lit > 0 {
+                Lit::positive(var_idx)
+            } else {
+                Lit::negative(var_idx)
+            };
+            lits.push(lit_obj);
+        }
+        if solver.add_clause(Clause::from(&lits[..])).is_err() {
             return fail(start, SolverStatus::Unsatisfiable);
         }
     }
 
-    // splr can panic on repeated calls due to internal state issues.
-    // Catch the panic and return Unknown.
+    // CaDiCaL C++ backend can throw on internal errors.
+    // Catch panics and return Unknown.
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| solver.solve()));
     let elapsed = start.elapsed().as_secs_f64() * 1000.0;
 
@@ -54,29 +58,43 @@ pub fn solve_with_splr(
     };
 
     match result {
-        Ok(cert) => {
-            let mut assignments = std::collections::HashMap::new();
-            match cert {
-                Certificate::SAT(model) => {
-                    for (i, &lit) in model.iter().enumerate() {
-                        if i < cnf.num_vars {
-                            assignments.insert(i, lit > 0);
+        Ok(solver_result) => match solver_result {
+            SolverResult::Sat => {
+                let sol = match solver.full_solution() {
+                    Ok(s) => s,
+                    Err(_) => return empty_result(SolverStatus::Unknown, elapsed),
+                };
+                let mut assignments = std::collections::HashMap::new();
+                for i in 0..cnf.num_vars {
+                    let val = sol[Var::new(i as u32)];
+                    match val {
+                        TernaryVal::True => {
+                            assignments.insert(i, true);
+                        }
+                        TernaryVal::False => {
+                            assignments.insert(i, false);
+                        }
+                        TernaryVal::DontCare => {
+                            // Don't insert — treat as unassigned.
                         }
                     }
                 }
-                Certificate::UNSAT => {
-                    return empty_result(SolverStatus::Unsatisfiable, elapsed);
+                TopologyResult {
+                    status: SolverStatus::Satisfiable,
+                    num_vars: 0,
+                    num_clauses: 0,
+                    assignments,
+                    unsat_core: Vec::new(),
+                    solver_time_ms: elapsed,
                 }
             }
-            TopologyResult {
-                status: SolverStatus::Satisfiable,
-                num_vars: 0,
-                num_clauses: 0,
-                assignments,
-                unsat_core: Vec::new(),
-                solver_time_ms: elapsed,
+            SolverResult::Unsat => {
+                empty_result(SolverStatus::Unsatisfiable, elapsed)
             }
-        }
+            SolverResult::Interrupted => {
+                empty_result(SolverStatus::Unknown, elapsed)
+            }
+        },
         Err(_) => empty_result(SolverStatus::Unsatisfiable, elapsed),
     }
 }

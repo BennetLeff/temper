@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.router_v6.adapter import MazeRouter
+from temper_placer.router_v6.adapter import V6RouterAdapter
 
 
 def measure_copper_length(pcb_path: Path) -> dict:

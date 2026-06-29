@@ -6,18 +6,18 @@ topic: constraint-lowering-compiler
 # Constraint Lattice & Multi-Tier Lowering Compiler
 
 ## Summary
-Build a standalone Rust crate that compiles designer-level PCL constraints (using NetClassRules safety categories as types) through successive desugaring passes into the existing low-level SAT constraint types (Capacity, DiffPair, Layer). A Hindley-Milner-style type lattice infers minimum clearances, layer restrictions, and adjacency requirements from pairwise net-type interactions before any SAT clause is generated.
+Build a standalone Rust crate that compiles designer-level PCL constraints (using NetClassRules safety categories as types) through successive desugaring passes into the existing low-level SAT constraint types (Capacity, DiffPair, LayerRestriction). A Hindley-Milner-style type lattice infers minimum clearances, layer restrictions, and adjacency requirements from pairwise net-type interactions before any SAT clause is generated.
 
 ---
 
 ## Problem Frame
-The routing SAT model (`packages/temper-rust-router/src/types.rs`) knows only 3 low-level constraint types: Capacity, DiffPair, Layer. PCL (`packages/temper-placer/src/temper_placer/pcl/constraints.py`) defines 7 constraint types (Adjacent, Separated, Enclosing, Aligned, OnSide, Anchored, LoopArea) with HARD/STRONG/SOFT tiers. These two systems are completely separate — PCL constraints drive JAX placement but have zero representation in the SAT routing stage. `NetClassRules.safety_category` (Literal["HV","LV","AC","iso"]) exists on the 9 net classes in `TEMPER_NET_CLASSES` (`design_rules.py:324-431`) but never reaches the SAT encoder. The 228K-variable blowup case proved that selective net construction is essential, but the current approach gives no semantic type-awareness to the selection — it only uses pin count (`max_sat_nets`). Adding a new PCL constraint type today requires modifying the SAT variable schema, the CNF encoder, and every downstream consumer. This compiler eliminates that coupling by defining a lowering pipeline where new constraint types only need desugaring rules at their natural tier.
+The routing SAT model (`packages/temper-rust-router/src/types.rs`) knows only 3 low-level constraint types: Capacity, DiffPair, LayerRestriction. PCL (`packages/temper-placer/src/temper_placer/pcl/constraints.py`) defines 7 constraint types (Adjacent, Separated, Enclosing, Aligned, OnSide, Anchored, LoopArea) with HARD/STRONG/SOFT tiers. These two systems are completely separate — PCL constraints drive JAX placement but have zero representation in the SAT routing stage. `NetClassRules.safety_category` (Literal["HV","LV","AC","iso"]) exists on the 9 net classes in `TEMPER_NET_CLASSES` (`design_rules.py:324-431`) but never reaches the SAT encoder. The 228K-variable blowup case proved that selective net construction is essential, but the current approach gives no semantic type-awareness to the selection — it only uses pin count (`max_sat_nets`). Adding a new PCL constraint type today requires modifying the SAT variable schema, the CNF encoder, and every downstream consumer. This compiler eliminates that coupling by defining a lowering pipeline where new constraint types only need desugaring rules at their natural tier.
 
 ---
 
 ## Actors
 - A1. **PCB Designer**: Defines semantic constraints (isolation, thermal, impedance) in PCL, expressed in terms of component references and `NetClassRules` safety categories
-- A2. **SAT Solver (splr)**: Consumes CNF clauses built from the 3 existing constraint types (Capacity, DiffPair, Layer) via the existing Sinz-2005 sequential-counter encoding in `encoding.rs`; never sees designer-level concepts
+- A2. **SAT Solver (splr)**: Consumes CNF clauses built from the 3 existing constraint types (Capacity, DiffPair, LayerRestriction) via the existing Sinz-2005 sequential-counter encoding in `encoding.rs`; never sees designer-level concepts
 - A3. **Pipeline Orchestrator**: Invokes compilation between the existing `ConstraintGeneration` stage (Stage 3.1 in `constraint_model.py:365`) and the `solve_topology_rust` entry point (`lib.rs:26`), augmenting the constraint model with lowered PCL constraints before the SAT solve
 
 ---
@@ -53,27 +53,28 @@ The routing SAT model (`packages/temper-rust-router/src/types.rs`) knows only 3 
 
 ### Package structure
 - **R1.** The compiler SHALL be a standalone Rust crate `temper-constraint-compiler` in `packages/temper-constraint-compiler/` with its own `Cargo.toml`, depending on `temper-rust-router` (via path dependency) for access to `InternalConstraint`, `InternalConstraintModel`, and related types
-- **R2.** The compiler SHALL expose PyO3 bindings so the Python pipeline can invoke compilation from Stage 3.1–3.6 (between `ConstraintGeneration` and the SAT solve). The binding receives PCL constraint data as Python dicts and returns an augmented constraint model in the same dict-list format that `solve_topology_rust` already consumes
+- **R2.** The compiler SHALL expose PyO3 bindings so the Python pipeline can invoke compilation from Stage 3.1–3.6 (between `ConstraintGeneration` and the SAT solve). The binding receives PCL constraint data as Python dicts and returns an augmented constraint model as Python object-list format matching the ConstraintModel shape (dataclass instances or PyO3 pyclasses with .name, .net_idx, .channel_id etc. attributes)
 
 ### Type lattice
-- **R3.** The compiler SHALL define a safety-type lattice over `NetClass` values — the four concrete types from `NetClassRules.safety_category`: `HV`, `LV`, `AC`, `iso` — with meet/join operations that determine the minimum required clearance, layer restrictions, and adjacency requirements for any pair of net types. The lattice MUST encode the real clearance values: HV-HV = 3mm (safe within same domain), HV-LV = 6mm (IEC 60335-1 reinforced), HV-AC = 6mm, LV-LV = 0.25mm (standard signal), iso-isolates both sides. The join of two types is the most restrictive interaction category; the meet is the most permissive
-- **R4.** The lattice SHALL propagate type judgments through the net topology graph: for each pair of nets that share at least one channel edge in the routing skeleton, the lattice computes the inferred constraint set (`InferredConstraint`) containing the clearance floor, layer restriction, and whether separation is required. The inference is mechanical — no heuristic choices, no tuning knobs — given the net types and a clearance table, the output is deterministic
+- **R3.** The compiler SHALL define a safety-type lattice over `NetClass` values — the four concrete types from `NetClassRules.safety_category`: `HV`, `LV`, `AC`, `iso` — with meet/join operations that determine the minimum required clearance, layer restrictions, and adjacency requirements for any pair of net types. The lattice SHALL load clearance values from NetClassRules fields (clearance, creepage_mm) at invocation time. The lattice is a function of (net_type_pair, DesignRules) → InferredConstraintSet, not a hardcoded table. `iso` is a synthetic category produced by lattice join (HV∨LV = iso, HV∨AC = iso, AC∨LV = iso) and never appears as a source safety_category in TEMPER_NET_CLASSES. When join produces iso, the resultant clearance SHALL be the maximum of the two source categories' clearances. The join of two types is the most restrictive interaction category; the meet is the most permissive
+- **R4.** The lattice SHALL propagate type judgments through the net topology graph: for each pair of nets that share at least one channel edge in the routing skeleton, the lattice computes the inferred constraint set (`InferredConstraint`) containing the clearance floor, layer restriction, and whether separation is required. The inference is deterministic for HV/LV/AC net pairs; `iso` semantics are defined in R3. Lattice-inferred constraints SHALL be filtered to include only net-pairs where both nets have variables present in the existing InternalConstraintModel (respecting the selective SAT construction from max_sat_nets)
 
 ### Desugaring pipeline
-- **R5.** The compiler SHALL implement a multi-tier desugaring pipeline where each tier transforms a richer constraint IR into a simpler one. The final tier MUST produce only `InternalConstraint` instances of the 3 existing variants (Capacity, DiffPair, Layer) — no new SAT variable types are created
+- **R5.** The compiler SHALL implement a multi-tier desugaring pipeline where each tier transforms a richer constraint IR into a simpler one. The final tier MUST produce only `InternalConstraint` instances of the 3 existing variants (Capacity, DiffPair, LayerRestriction) — no new SAT variable types are created
 - **R6.** The pipeline SHALL support at minimum 3 desugaring tiers:
   - **Tier 0 (PCL Constraint IR)**: The raw PCL constraint types (Adjacent, Separated, Enclosing, Aligned, OnSide, Anchored, LoopArea) PLUS the lattice-inferred constraints for each net-pair. This tier understands component references and zone names
   - **Tier 1 (Net-Class-Aware Geometric IR)**: Constraints resolved to net indices and geometric parameters (min/max distance in mm, layer preference, region bounds). Component references and zone names are fully resolved. Separation values are concrete floats, not type-category lookups. This tier is the desugaring target for Tier 0 rules
-  - **Tier 2 (Constraint ISA)**: Pure `InternalConstraint` instances (Capacity, DiffPair, Layer), parameterized by channel IDs, variable names, and net indices. This is the "machine code" the existing SAT encoder in `encoding.rs` consumes. Each Tier 1 constraint may expand into one or more Tier 2 constraints across multiple channels
+  - **Tier 2 (Constraint ISA)**: Pure `InternalConstraint` instances (Capacity, DiffPair, LayerRestriction), parameterized by channel IDs, variable names, and net indices. This is the "machine code" the existing SAT encoder in `encoding.rs` consumes. Each Tier 1 constraint may expand into one or more Tier 2 constraints across multiple channels
 - **R7.** Each desugaring rule SHALL be registered in a rule table (per-tier). Adding a new constraint type (e.g., a future `ImpedanceMatched` constraint) SHALL require only adding its desugaring rules at the appropriate tier(s) — no changes to the SAT variable schema (`InternalVariable`), the constraint ISA (`InternalConstraint`), or the CNF encoder (`encoding.rs`)
 
 ### Correctness
-- **R8.** Each desugaring tier SHALL carry its own property-test suite (Rust `proptest`) proving that the tier's output is semantically equivalent to its input for all small-n topologies (up to exhaustion limits, e.g., all 4-net topologies on all 3-channel skeletons). Each tier's property test encodes "the lowered constraints admit exactly the same routing solutions as the original constraints, modulo the geometric abstractions gained/lost at each tier"
-- **R9.** The compiler SHALL preserve provenance metadata through the desugaring pipeline. Every `InternalConstraint` emitted at Tier 2 carries a back-reference chain (PCL constraint ID → desugaring rule applied) so that when the SAT solver returns UNSAT, the compiler can reverse-map the conflicting clause IDs back to the originating PCL constraints and their rationales
+- **R8.** Each desugaring tier SHALL carry its own property-test suite (Rust `proptest`). For Tier 0→Tier 1 (where no geometric information is lost), the lowered constraints admit exactly the same routing solutions. For Tier 1→Tier 2 (where continuous-to-discrete mapping occurs), property tests SHALL verify that all solutions to the Tier 2 constraints are valid Tier 1 solutions (conservative approximation holds), and for exhaustive small-n topologies, verify no false UNSAT is introduced.
+- **R9.** The compiler SHALL preserve provenance metadata through the desugaring pipeline. Every `InternalConstraint` emitted at Tier 2 carries a back-reference chain (PCL constraint ID → desugaring rule applied) so that when the SAT solver returns UNSAT, the compiler can reverse-map the conflicting clause IDs back to the originating PCL constraints and their rationales [DEPENDENCY: Requires splr unsat-core extraction to be added to solver.rs. The current solver returns empty unsat_core for all UNSAT results (solver.rs:67-69). Until this dependency is resolved, F2 step 1 is non-functional.]
 
 ### Integration
 - **R10.** The compiler SHALL integrate with the existing `solve_topology_rust` entry point without modification to that function's signature. After compilation, the augmented `InternalConstraintModel` is passed to the existing `encoding::encode_to_cnf` + `solver::solve_with_splr` pipeline unchanged. The compiler emits to the same `InternalConstraint` types the encoder already handles
 - **R11.** The compiler SHALL support incremental recompilation: when only a subset of nets change placement (identified by `net_idx`), only lattice inferences and desugaring rules involving affected net-pairs SHALL be re-evaluated. Unaffected net-pair constraints are retained from the previous compilation pass. The incremental API is exposed via PyO3 as a stateful compiler object that accepts delta net indices
+- **R12.** The compiler SHALL raise a structured error (surfaced through PyO3) when a net lacks a safety_category value, a PCL constraint references an unresolved component, or the Tier 2 desugaring cannot map a geometric constraint to any reachable channel. A net with safety_category=None SHALL be treated as 'unclassified' and excluded from type-lattice inference with a warning.
 
 ---
 
@@ -81,12 +82,12 @@ The routing SAT model (`packages/temper-rust-router/src/types.rs`) knows only 3 
 - **AE1. Covers R3–R6.** Given a board with 2 HV nets (Q1, D1) and 3 LV nets (MCU, SENSOR, DEBUG) sharing channels in the routing skeleton:
   - The lattice infers: (a) HV-HV pairs require ≥3mm clearance (lattice join of HV∨HV = HV with 3mm floor), (b) HV-LV pairs require ≥6mm clearance (lattice join of HV∨LV = `isolated` with 6mm floor), (c) LV-LV pairs require ≥0.25mm clearance (join of LV∨LV = LV with 0.25mm floor)
   - Tier 1 desugaring produces geometric separation constraints (min_distance_mm = 6.0) for each HV-LV pair sharing a channel
-  - Tier 2 desugaring expands each geometric separation into LayerConstraint instances (forbidding shared channels that cannot accommodate 6mm) and CapacityConstraint refinements (reserving width budget for creepage)
+  - Tier 2 desugaring expands each geometric separation into LayerRestriction instances (forbidding shared channels that cannot accommodate 6mm) and CapacityConstraint refinements (reserving width budget for creepage)
   - The resulting model augments — but does not replace — the existing capacity limits from `ModelBuilder._create_capacity_constraints`
 
 - **AE2. Covers R9.** Given a board where HV clearance (6mm) conflicts with a thermal adjacency requirement (3mm max distance in `AdjacentConstraint`):
   - Tier 0 identifies the conflict: `SeparatedConstraint("iso_main_hv_lv", min_distance_mm=6.0)` from lattice inference contradicts `AdjacentConstraint("therm_q1_q2", max_distance_mm=3.0)` for the same net-pair
-  - The conflict is detected at Tier 0 (pre-SAT) if it is structurally impossible (both constraints involve the same pair and the distance bounds overlap). If channel geometry allows a partial routing that drives UNSAT, the conflict surfaces post-solve via provenance
+  - The conflict surfaces post-solve via provenance
   - The provenance system reports: "Constraint conflict: HV isolation (PCL constraint 'iso_main_hv_lv') requires ≥6mm separation between Q1_HV and Q2_HV, but thermal coupling (PCL constraint 'therm_q1_q2') requires ≤3mm adjacency between Q1 and Q2"
 
 ---
@@ -99,7 +100,7 @@ The routing SAT model (`packages/temper-rust-router/src/types.rs`) knows only 3 
 ---
 
 ## Scope Boundaries
-- The compiler lowers TO the existing constraint types (Capacity, DiffPair, Layer) — it does NOT create new SAT variable types or new `InternalConstraint` variants
+- The compiler lowers TO the existing constraint types (Capacity, DiffPair, LayerRestriction) — it does NOT create new SAT variable types or new `InternalConstraint` variants
 - The compiler does NOT modify the `splr` solver, the CNF encoding logic in `encoding.rs`, or the Sinz sequential counter
 - The compiler does NOT handle runtime constraint modification during CDCL search (lazy grounding is a separate idea #2 from the ideation doc)
 - Post-solve audit of constraint satisfaction remains the responsibility of the existing `audit.rs` / DRC fence module
@@ -128,8 +129,6 @@ The routing SAT model (`packages/temper-rust-router/src/types.rs`) knows only 3 
 
 ### Resolve Before Planning
 - **[Affects R9]** Should UNSAT provenance be emitted as a Python object (rich diagnostics consumable by the Stage 3 pipeline) or logged as structured text in the Rust crate? The existing `audit.rs` returns violations as Python dicts through PyO3 — a similar pattern is likely correct
-- **[Affects R3]** What are the exact clearance values for each safety-type pair in the type lattice? The current codebase has: HV-HV → implicitly 3mm (same safety domain, only intra-class clearance applies from `NetClassRules.clearance`), HV-LV → 6mm (`creepage_mm` from the HV class), AC-LV → 6mm (`creepage_mm` from ACMains). Are these configurable per-board (loaded from the active `DesignRules` at invocation time) or hard-coded in the compiler? The former matches the SSOT principle (N2) but adds a config surface; the latter is simpler but duplicates the values
-- **[Affects R4]** Does the lattice need a concept of `iso` as a full category, or is `iso` semantically "neither HV nor LV" (a barrier)? The `iso` value is declared in the `safety_category` Literal but no net class currently uses it in `TEMPER_NET_CLASSES`. How does `iso` participate in meet/join?
 
 ### Deferred to Planning
 - **[Technical, affects R5]** How many desugaring tiers, and what intermediate IR structures between them? The requirement says "at minimum 3" but the exact number and the IR data structures are design decisions for the planning phase

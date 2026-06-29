@@ -112,8 +112,8 @@ def polygon_centroid(vertices: Array, eps: float = 1e-10) -> Array:
     area = jnp.sum(cross) / 2.0
 
     # Centroid coordinates (standard formula)
-    cx_standard = jnp.sum((vertices[:, 0] + vertices_next[:, 0]) * cross) / (6.0 * area)
-    cy_standard = jnp.sum((vertices[:, 1] + vertices_next[:, 1]) * cross) / (6.0 * area)
+    cx_standard = jnp.sum((vertices[:, 0] + vertices_next[:, 0]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
+    cy_standard = jnp.sum((vertices[:, 1] + vertices_next[:, 1]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
 
     # Fallback: mean of vertices (for degenerate polygons)
     mean_centroid = jnp.mean(vertices, axis=0)

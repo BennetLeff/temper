@@ -14,7 +14,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    pass  # MazeRouter was deleted; congestion_heatmap uses duck-typed router objects
+    from typing import Any
+else:
+    Any = object
 
 
 @dataclass
@@ -31,7 +33,7 @@ class CongestionHeatmap:
     origin: tuple[float, float]  # world coordinates of grid origin
     
     @classmethod
-    def from_router(cls, router: "MazeRouter") -> "CongestionHeatmap":
+    def from_router(cls, router: Any) -> "CongestionHeatmap":
         """Build heatmap from router's congestion data.
         
         Combines:

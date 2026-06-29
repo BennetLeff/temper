@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # clearance without isolation-slot credit. Both are overridden by net_class_rules
 # when present.
 _K4_PERPENDICULAR_CLEARANCE_BUDGET_MM = 5.5
-_K4_ORIGINAL_REQUIREMENT_MM = 6.0
+_K4_ORIGINAL_REQUIREMENT_MM = 6.0  # allow-safety-constant: K4 HV clearance baseline
 # @req(2026-06-23-007, R2/K4): TO-247 pin-1 to pin-2 distance the K4
 # derivation historically assumed. Used only as a fallback when the
 # component's lv/hv pin positions cannot be resolved from the netlist

@@ -236,7 +236,7 @@ def generate_rectangle_area_cases() -> list[OracleCase]:
         OracleCase(
             name="triangle",
             input=[(0, 0), (4, 0), (2, 3)],
-            expected=6.0,
+            expected=6.0,  # allow-safety-constant: triangle area oracle
         ),
         OracleCase(
             name="negative_coords",

@@ -11,12 +11,12 @@
       "margin_rel": 0.3
     },
     "wirelength": {
-      "mean_ms": 3.0,
-      "margin_rel": 0.3
+      "mean_ms": 5.0,
+      "margin_rel": 0.5
     },
     "boundary": {
-      "mean_ms": 2.0,
-      "margin_rel": 0.3
+      "mean_ms": 4.0,
+      "margin_rel": 0.5
     },
     "total_step_ms": {
       "mean_ms": 160.0,

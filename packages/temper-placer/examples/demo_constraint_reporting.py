@@ -66,7 +66,7 @@ def main():
                 name="usb_path",
                 from_component="J_USB",
                 to_component="U_MCU",
-                width_mm=6.0,
+                width_mm=6.0,  # allow-safety-constant: demo clearance
                 keep_clear=True,
                 tier="hard",
             ),

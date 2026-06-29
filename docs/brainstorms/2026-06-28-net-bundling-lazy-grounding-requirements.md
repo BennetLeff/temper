@@ -38,7 +38,7 @@ The root cause is that the current encoding treats every net as an independent v
 - **Trigger:** `ModelBuilder.build()` is called with nets and skeletons.
 - **Actors:** A4 (Bundle Analyzer), A1 (ModelBuilder)
 - **Steps:**
-  1. For each net, compute a *constraint-type signature*: a tuple of (net_class, trace_width, clearance, has_diff_pair, pin_layer_set). Net class is resolved via `net_classification.py:75-87` (ground / power / hv / signal).
+  1. For each net, compute a *constraint-type signature*: a tuple of (net_class, trace_width, clearance, has_diff_pair, pin_layer_set). Net class is resolved via `net_classification.py:75-87` (ground / power / hv / signal). **Mapping:** Until `safety_category` is added to `stage0_data.py`'s `NetClassRules`, the fallback mapping from the net-name-based classification to Safety/Performance/Aesthetic tiers is: `hv` → Safety, `power` → Performance, `ground` → Safety, `signal` → Performance.
   2. For each net, compute a *geometric footprint*: the convex hull of its pin positions plus a margin equal to the channel graph's median edge length.
   3. Partition nets into equivalence classes where two nets are in the same class iff they share the same type signature AND their geometric footprints overlap sufficiently (Jaccard index > 0.5 on the set of skeleton edges covered).
   4. For each class, identify which constraint types apply: Safety (HV/LV isolation, layer restrictions), Performance (diff-pair skew), Aesthetic (length-matching guidance).
@@ -58,20 +58,20 @@ The root cause is that the current encoding treats every net as an independent v
 - **Outcome:** The solver starts with a safety-grounded CNF containing b·|E| variables (class-level) instead of n·|E| variables (net-level). This is the O(b·|E|) term in the complexity bound.
 - **Covered by:** R3, R4, R5
 
-### F3. Lazy Performance Constraint Grounding During CDCL Search
+### F3. Lazy Performance Constraint Grounding via CEGAR Loop
 
-- **Trigger:** The solver's partial assignment makes a performance-constraint violation concretely possible (e.g., both members of a diff pair are assigned to different channels).
+- **Trigger:** The safety CNF returns SAT; the resulting full assignment contains a Performance constraint violation.
 - **Actors:** A2 (SAT Solver), A5 (Lazy-Clause Provider)
 - **Steps:**
-  1. The solver runs CDCL search on the safety-grounded CNF (class variables only).
-  2. A *watchdog* (Python-side or via splr's configurable event hooks) observes partial assignments.
-  3. When the partial assignment assigns a class variable to true for a channel, the watchdog checks: does this assignment, combined with the bundle-to-net homomorphism, create a concrete violation possibility for any Performance constraint?
-  4. If yes: instantiate per-net variables for the affected nets and add the Performance clauses lazily via `add_var()` + `add_clause()`.
-  5. The solver continues CDCL search with the newly added variables and clauses.
-- **Outcome:** Performance constraints are only grounded when their violation is concretely possible — not eagerly for all nets × all channels. This is the O(n) term in the complexity bound: per-net variables are only created for nets that are "activated" by the partial assignment.
+  1. Solve the safety-grounded CNF (class variables only) via `solve()`.
+  2. Inspect the full solution for Performance constraint violations (e.g., both members of a diff pair assigned to different channels, capacity overrun on a signal-only channel).
+  3. If a violation is found: instantiate per-net variables for the affected nets and add the violated Performance clauses as blocking clauses via `add_var()` + `add_clause()`.
+  4. Re-solve (new `solve()` invocation) with the additional clauses.
+  5. Iterate until either a violation-free solution is found (SAT) or the safety CNF itself becomes UNSAT under the accumulated blocking clauses.
+- **Outcome:** Performance constraints are only grounded when a concrete violation is found in a full solution — not eagerly for all nets × all channels. This is the O(n) term in the complexity bound: per-net variables are only created for nets that appear in actual violations.
 - **Covered by:** R6, R7, R8, R9
 
-**Note:** splr 0.13's `add_clause()` is only callable before `solve()`. The lazy grounding in F3 requires either: (a) multiple incremental solve calls (add safety clauses → partial solve → add performance clauses → resume solve), (b) a splr API extension exposing `add_clause` mid-search via a callback, or (c) replacing splr with a solver that supports incremental clause addition during search (e.g., CaDiCaL via its IPASIR interface). This is tracked as OQ-R1.
+**Note:** KD4: The watchdog runs between `solve()` calls, not during CDCL search. This is CEGAR (counterexample-guided abstraction refinement), not fine-grained lazy clause generation.
 
 ### F4. Aesthetic Constraints (Never Grounded)
 
@@ -111,11 +111,13 @@ The root cause is that the current encoding treats every net as an independent v
 
 - **R7 (Violation-concrete trigger):** The lazy grounding watchdog shall add Performance clauses when — and only when — a partial assignment to class-level variables, when mapped through the bundle-to-net homomorphism, makes it concretely possible that at least one Performance constraint is violated. "Concretely possible" means: the current partial assignment is compatible with a violation (i.e., the constraint's guard condition is met in the partial assignment).
 
-- **R7.1 (Early termination guard):** The lazy grounding watchdog shall impose a budget limit on per-net variable instantiation. If instantiating per-net variables for all nets in a bundle would exceed the budget, the watchdog shall instead eagerly add a cardinality constraint bounding the maximum number of nets that can use the contested channel. Budget = 10 * (number of nets in the bundle) variables per bundle class per solve invocation.
+- **R7.1 (Early termination guard):** The lazy grounding watchdog SHALL impose a budget limit on per-net variable instantiation per CEGAR iteration. The budget formula SHALL be M × |bundle_nets| where M is an empirically calibrated multiplier (initial value: 10, recalibrated in the first integration sprint).
+
+- **R7.2 (Budget exhaustion degradation):** When the watchdog's instantiation budget is exhausted before all Performance constraints are grounded, nets with ungrounded Performance constraints SHALL be routed via the existing A* fallback (same degradation path as nets excluded by `max_sat_nets`).
 
 ### Homomorphism Instantiation
 
-- **R8 (Homomorphism correctness):** For every bundle class B, the homomorphism mapping class-variable `uses[B, channel_id]` to per-net-variable `uses[net_i, channel_id]` shall preserve constraint semantics: every satisfying assignment of the per-net encoding, when projected through the homomorphism, shall satisfy the class-level encoding; and every satisfying assignment of the class-level encoding shall be extendable (by assigning per-net variables) to a satisfying assignment of the full encoding.
+- **R8 (Homomorphism correctness):** For non-diff-pair bundles, the homomorphism mapping class-variable `uses[B, channel_id]` to per-net-variable `uses[net_i, channel_id]` shall preserve constraint semantics: every satisfying assignment of the per-net encoding, when projected through the homomorphism, shall satisfy the class-level encoding; and every satisfying assignment of the class-level encoding shall be extendable (by assigning per-net variables) to a satisfying assignment of the full encoding. For diff-pair bundles, the homomorphism SHALL be extended to handle paired-variable instantiation (both members of a diff pair are instantiated together). Until OQ-D3 is resolved, diff-pair nets SHALL be placed in their own dedicated 2-net bundle classes.
 
 - **R8.1 (Inverse mapping for extraction):** After SAT solving, the topology extractor (`extraction.rs:9-94`) shall use the inverse homomorphism to map class-variable assignments back to per-net channel assignments for all nets in the bundle.
 
@@ -123,7 +125,7 @@ The root cause is that the current encoding treats every net as an independent v
 
 - **R9 (Backward compatibility):** The `ModelBuilder.build()` API shall be unchanged. An optional `enable_bundling: bool = False` parameter shall gate the new bundle path. When `False`, the current eager-all-variables behavior is preserved unmodified. The existing `target_net_names` parameter shall continue to work regardless of bundling mode.
 
-- **R9.1 (Constraint audit integration):** The existing constraint audit (`audit.rs:39-129`) shall validate bundled SAT results against the expanded (fully grounded) constraint set. Audit violations shall report in terms of per-net variable names even when the solver operated on class-level variables.
+- **R9.1 (Constraint audit integration):** The existing constraint audit (`audit.rs:39-129`) shall validate bundled SAT results against the expanded (fully grounded) constraint set. Audit violations shall report in terms of per-net variable names even when the solver operated on class-level variables. The audit SHALL be provided with both the original bundled model AND the fully-grounded expanded model (expansion performed by the bundle analyzer before solver invocation).
 
 ### Correctness Guarantees
 
@@ -167,7 +169,7 @@ The root cause is that the current encoding treats every net as an independent v
 
 - **SC1 (Variable count reduction):** On a 200-net board with 12 bundle classes, the bundling pass produces ≤ 10% of the eager variable count for the Safety constraints (i.e., ≥90% reduction vs unbundled encoding). Measured at the point immediately after F2 (eager safety encoding complete, before any lazy grounding).
 
-- **SC2 (Lazy grounding correctness):** For any constraint set where all Performance constraints are lazily grounded and all Safety constraints are eagerly grounded, the solver's SAT/UNSAT result is bit-identical to the result when the same constraint set is fully eagerly grounded (all constraints encoded before solve). Verified via property-based test across random constraint sets on ≤8 nets, ≤4 channels.
+- **SC2 (Lazy grounding correctness):** For any constraint set where all Performance constraints are lazily grounded and all Safety constraints are eagerly grounded, the solver's SAT/UNSAT result is EQUIVALENT to the result when the same constraint set is fully eagerly grounded (same sat/unsat answer, same net-to-channel assignments, disregarding variable-name differences from homomorphism projection). Verified via property-based test across random constraint sets on ≤8 nets, ≤4 channels.
 
 - **SC3 (Safety constraint guarantee):** Safety constraints are never deferred to lazy grounding. Every Safety constraint is present as a clause in the CNF before `solve()` is called. Verified by assertion in the bundle analysis pass.
 
@@ -212,7 +214,7 @@ The root cause is that the current encoding treats every net as an independent v
 
 - **KD4:** The watchdog for lazy grounding runs *between* incremental `solve()` calls, not *during* CDCL search. splr 0.13 does not expose a mid-search callback. The flow is: solve safety CNF partially → inspect assignment → add Performance clauses → resume solve. This may require splr to support `add_clause` between `solve()` calls (the current `add_assignment` API at `SatSolverIF` line 48 suggests partial-assignment injection is supported, but post-solve clause addition is untested).
 
-- **KD5:** The bundle analyzer is a new module in `temper-placer` (`packages/temper-placer/src/temper_placer/router_v6/bundle_analyzer.py`), not in `temper-rust-router`. The Rust crate receives a pre-bundled constraint model where class variables are already resolved. This keeps the Rust→Python boundary unchanged and simplifies the Rust code.
+- **KD5:** The bundle analyzer is a new module in `temper-placer` (`packages/temper-placer/src/temper_placer/router_v6/bundle_analyzer.py`), not in `temper-rust-router`. The Rust crate receives a pre-bundled constraint model where class variables are already resolved. This keeps the Rust→Python boundary unchanged and simplifies the Rust code. The lazy grounding watchdog is a new Rust module in `temper-rust-router` (alongside `solver.rs`). It receives the pre-bundled constraint model from Python via a new PyO3 binding and drives the incremental solve loop internally.
 
 ---
 
@@ -220,13 +222,15 @@ The root cause is that the current encoding treats every net as an independent v
 
 1. **splr 0.13 supports `add_var()`/`add_clause()` between incremental `solve()` calls** (not just before the first solve). This is assumed based on `SatSolverIF` supporting `add_assignment` at line 48 of `build.rs` which can inject unit assignments — but the full incremental clause-addition workflow needs verification. If splr does not support this, either a splr patch or a solver migration is required.
 
-2. **Net class resolution is fast and available at bundle-analysis time.** The current `net_classification.py` functions (`is_hv_net`, `is_power_net`, etc.) operate on net names and are O(1) per net. This is sufficient; no changes needed.
+2. **Dependency:** Enable splr's `incremental_solver` feature in `temper-rust-router/Cargo.toml` and verify the `add_clause` → second `solve()` workflow with property-based tests on small CNF instances (≤8 vars) before implementing lazy grounding.
 
-3. **`NetClassRules.safety_category` field exists or is added.** This is out of scope but is a prerequisite: the Safety/Performance/Aesthetic classification needs a per-rule safety category. Currently `NetClassRules` (`stage0_data.py:77-88`) has no such field. Without it, the gating policy falls back to net-name-based heuristics from `net_classification.py`.
+3. **Net class resolution is fast and available at bundle-analysis time.** The current `net_classification.py` functions (`is_hv_net`, `is_power_net`, etc.) operate on net names and are O(1) per net. This is sufficient; no changes needed.
 
-4. **The channel skeleton graph is available at bundle-analysis time.** Confirmed: `ChannelSkeleton.graph` is a `networkx.Graph` with node positions as (x, y) tuples (`channel_skeleton.py:27-32`). The bundle analyzer can traverse it to compute geometric footprints.
+4. **`NetClassRules.safety_category` field exists or is added.** This is out of scope but is a prerequisite: the Safety/Performance/Aesthetic classification needs a per-rule safety category. Currently `NetClassRules` (`stage0_data.py:77-88`) has no such field. Without it, the gating policy falls back to net-name-based heuristics from `net_classification.py`.
 
-5. **Constraint audit (`audit.rs`) can validate bundled results.** The audit operates on `InternalConstraintModel` variables and checks constraints directly (`audit.rs:72-126`). After bundling, the constraint model's per-net variable names differ (they carry class-variable names pre-homomorphism). The audit must be adapted to expand class variables to per-net variables before checking, or the audit must operate on the post-homomorphism model.
+5. **The channel skeleton graph is available at bundle-analysis time.** Confirmed: `ChannelSkeleton.graph` is a `networkx.Graph` with node positions as (x, y) tuples (`channel_skeleton.py:27-32`). The bundle analyzer can traverse it to compute geometric footprints.
+
+6. **Constraint audit (`audit.rs`) can validate bundled results.** The audit operates on `InternalConstraintModel` variables and checks constraints directly (`audit.rs:72-126`). After bundling, the constraint model's per-net variable names differ (they carry class-variable names pre-homomorphism). The audit must be adapted to expand class variables to per-net variables before checking, or the audit must operate on the post-homomorphism model.
 
 ---
 
@@ -250,6 +254,6 @@ The root cause is that the current encoding treats every net as an independent v
 
 - **OQ-D3 (Diff pair homomorphism detail):** For diff pairs, the homomorphism must handle the case where USB_DP and USB_DN are in the same bundle class. The equivalence clause `uses[USB_DP, c] == uses[USB_DN, c]` is inherently per-pair, not per-class. The homomorphism must handle paired-variable instantiation (always create both members of a diff pair together). Design TBD.
 
-- **OQ-D4 (Test strategy for homomorphism correctness):** R8 requires that the homomorphism preserves constraint semantics. The inductive proof strategy (similar to the Sinz encoding proof at `encoding.rs:165-181`) should be drafted during planning. Exhaustive verification for small-n (n ≤ 6 nets, ≤4 channels) should cover the base cases.
+- **OQ-D4 (Test strategy for homomorphism correctness):** R8 requires that the homomorphism preserves constraint semantics. The inductive proof strategy (see the inductive proof at `encoding.rs:167-181` in the Rust source, or Sinz 2005 "Towards an Optimal CNF Encoding of Boolean Cardinality Constraints" for the full paper) should be drafted during planning. Exhaustive verification for small-n (n ≤ 6 nets, ≤4 channels) should cover the base cases.
 
 - **OQ-D5 (Channel width awareness in bundling):** Nets with different trace widths cannot share a bundle class because the AtMostK capacity formula depends on width. The current type signature includes `(trace_width, clearance)` from `NetClassRules`. Should widths within ±10% tolerance be considered equivalent for bundling purposes? This would increase bundle class membership (more compression) at the cost of mildly pessimistic capacity estimates.

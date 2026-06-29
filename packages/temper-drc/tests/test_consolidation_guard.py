@@ -27,6 +27,7 @@ EXEMPT_DIRS = {
     "docs/consolidation-log.md",
     "packages/temper-drc/tests/test_consolidation_guard.py",
     "packages/temper-placer/tests/test_strip_routing_consolidation.py",
+    "power_pcb_dataset/validation_reports/",
 }
 
 

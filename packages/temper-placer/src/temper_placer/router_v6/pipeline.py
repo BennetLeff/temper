@@ -619,6 +619,7 @@ class RouterV6Pipeline:
         # The Rust solver encodes directly from the constraint model.
         if self.verbose:
             print("  3.7: Building SAT model...")
+        sat_model = None  # Rust path encodes directly; no Python-side SATModel
 
         # 3.8: Solve topology (Rust CDCL solver — the only backend).
         if self.verbose:
