@@ -11,7 +11,9 @@ using strategies from sat_property_strategies.py.
 from __future__ import annotations
 
 import pytest
-from hypothesis import given, settings
+from hypothesis import given
+
+from tests.router_v6.sat_property_strategies import constraint_model_with_all_types
 
 from temper_placer.router_v6.constraint_model import (
     CapacityConstraint,
@@ -169,18 +171,9 @@ class TestBmcEncodingL0:
 
 
 @pytest.mark.bmc_l0_encoding
-@settings.load_profile("CI-fast")
 @given(data=__import__('hypothesis').strategies.data())
 def test_bmc_hypothesis_random(data):
-    """Hypothesis-driven BMC: random ConstraintModel instances within bound.
-
-    Uses constraint_model_with_all_types strategy to generate random
-    (ConstraintModel, net_names) tuples with N <= 10 primaries.
-    Verify ESL vs CNF equivalence for each generated instance.
-    """
-    from hypothesis import strategies as st
-    from tests.router_v6.sat_property_strategies import constraint_model_with_all_types
-
+    """Hypothesis-driven BMC: random ConstraintModel instances within bound."""
     model, net_names = data.draw(constraint_model_with_all_types(max_primary_vars=10))
     sat = SATModel(variables=[], clauses=[])
     populate_sat_from_constraints(sat, model, net_names=net_names, skip_connectivity=True)
