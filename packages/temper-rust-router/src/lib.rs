@@ -37,6 +37,11 @@ fn solve_topology_rust(
     let model: InternalConstraintModel =
         types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
 
+    // Apply combinator rewrite engine (RW1-RW7) to simplify the model
+    // before CNF encoding.  Detects structural contradictions (RW7) pre-solve.
+    let model = combinator::rewrite::rewrite(&model)
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{:?}", e)))?;
+
     // Encode to CNF (cardinality constraints encoded as CNF clauses).
     let (cnf, var_names) = encoding::encode_to_cnf(&model);
     let num_vars = cnf.num_vars;

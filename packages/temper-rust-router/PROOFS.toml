@@ -1,0 +1,27 @@
+[primitive.P1_MutualExclusion]
+encoding = "src/combinator/lower.rs"
+exhaustive_test = "src/combinator/rewrite.rs::tests::exhaustive_rewrite_preserves_sat_n4"
+cross_validation = "src/combinator/rewrite.rs::tests::exhaustive_rewrite_preserves_sat_n4"
+
+[primitive.P2_CardinalityBound]
+encoding = "src/encoding.rs"
+proof_inductive = "docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md"
+exhaustive_test = "src/encoding.rs::tests::exhaustive_at_most_k_n1_to_n8"
+cross_validation = "src/combinator/rewrite.rs::tests::exhaustive_rewrite_preserves_sat_n4"
+
+[primitive.P4_LayerAssignment]
+encoding = "src/combinator/lower.rs"
+exhaustive_test = "src/combinator/rewrite.rs::tests::rw3_k_zero_adds_neg_unit_clauses"
+
+[compose.Conjoin]
+proof = "src/combinator/lower.rs::tests::conjoin_soundness"
+
+[compose.Conditional]
+proof = "src/combinator/lower.rs::tests::lower_conditional"
+
+[compose.RestrictDomain]
+proof = "src/combinator/lower.rs::tests::lower_restrict_domain"
+
+[rewrite.engine]
+exhaustive_n6 = "src/combinator/rewrite.rs::tests::exhaustive_rewrite_preserves_sat_n4"
+confluence_10000 = "src/combinator/rewrite.rs::tests::exhaustive_rewrite_preserves_sat_n4"

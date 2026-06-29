@@ -51,8 +51,17 @@ pub mod proofs;
 pub mod rewrite;
 pub mod types;
 
+#[cfg(test)]
+mod integration;
+
+// Public API re-exports — these are the canonical entry points for the
+// combinator module.  Currently consumed internally via `crate::combinator::*`
+// and `lib.rs`, and will be exposed to Python in a future integration.
+#[allow(unused_imports)]
 pub use lower::lower_composed;
+#[allow(unused_imports)]
 pub use rewrite::{rewrite, RewriteError};
+#[allow(unused_imports)]
 pub use types::{
     cardinality_bound_new, compose_conjoin, compose_conditional, compose_restrict_domain,
     layer_assignment_new, mutual_exclusion_equality, ComposedConstraint, PrimitiveConstraint,
