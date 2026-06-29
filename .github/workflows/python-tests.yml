@@ -136,6 +136,11 @@ jobs:
           uv run maturin develop --release
           cd ../..
 
+      - name: Per-stage timing regression check
+        run: uv run temper timing check --ci --json
+        env:
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+
       - name: Run invariant tests (router_v6, io, deterministic, losses)
         working-directory: packages/temper-placer
         run: |
