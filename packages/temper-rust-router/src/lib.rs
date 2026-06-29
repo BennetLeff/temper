@@ -1,11 +1,14 @@
 // Router V6 topology stage — PyO3 entry point.
 //
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
+// Extended: U5 of docs/plans/2026-06-28-003-feat-unsat-provenance-tension-detection-plan.md
 
 pub mod audit;
 mod encoding;
 mod extraction;
+pub mod provenance;
 mod solver;
+pub mod tension;
 pub mod types;
 mod types_py_bridge;
 
@@ -36,15 +39,30 @@ fn solve_topology_rust(
     let model: InternalConstraintModel =
         types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
 
+    // U3: Run pre-solve tension detection before encoding/solving.
+    let tensions = tension::detect_tensions(&model);
+
     // Encode to CNF (cardinality constraints encoded as CNF clauses).
     let (cnf, var_names) = encoding::encode_to_cnf(&model);
     let num_vars = cnf.num_vars;
     let num_clauses = cnf.clauses.len();
 
-    // Solve with CaDiCaL via rustsat traits.
-    let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names);
+    // Solve with CaDiCaL via rustsat traits — core extraction via selector-
+    // literal assumptions.
+    let mut result: TopologyResult = solver::solve_with_cadical_cores(&cnf, &var_names);
     result.num_vars = num_vars;
     result.num_clauses = num_clauses;
+    result.tensions = tensions;
+
+    // U4: On UNSAT, build structured conflict report from core indices.
+    if result.status == SolverStatus::Unsatisfiable && !result.unsat_core.is_empty() {
+        result.conflict = Some(provenance::build_conflict_report(
+            &result.unsat_core,
+            &cnf.provenance,
+            &model,
+            &var_map_from_model(&model),
+        ));
+    }
 
     // Extract topology if satisfiable.
     let topology = if result.status == SolverStatus::Satisfiable {
@@ -91,14 +109,64 @@ fn solve_topology_rust(
     d.set_item("num_vars", result.num_vars)?;
     d.set_item("num_clauses", result.num_clauses)?;
 
-    // Unsat core
+    // Unsat core — raw clause indices for backward compatibility.
     let py_core = PyList::empty(py);
     for idx in &result.unsat_core {
         py_core.append(idx)?;
     }
     d.set_item("unsat_core", py_core)?;
 
+    // Tensions: list of dicts with severity, channel_id, explanation, constraint_pair.
+    let py_tensions = PyList::empty(py);
+    for t in &result.tensions {
+        let td = PyDict::new(py);
+        td.set_item(
+            "severity",
+            match t.severity {
+                types::TensionSeverity::HardConflict => "hard_conflict",
+                types::TensionSeverity::CapacityWarning => "capacity_warning",
+            },
+        )?;
+        td.set_item("channel_id", t.channel_id.clone())?;
+        td.set_item("explanation", t.explanation.clone())?;
+        let pair: Vec<usize> = vec![t.constraint_pair.0, t.constraint_pair.1];
+        td.set_item("constraint_pair", pair)?;
+        py_tensions.append(td)?;
+    }
+    d.set_item("tensions", py_tensions)?;
+
+    // Conflicts: on UNSAT with successful core extraction, struct with
+    // conflicting_constraints, channels_involved, explanation, core_clause_count.
+    match &result.conflict {
+        Some(conflict) => {
+            let cd = PyDict::new(py);
+            cd.set_item("conflicting_constraints", conflict.conflicting_constraints.clone())?;
+            cd.set_item("channels_involved", conflict.channels_involved.clone())?;
+            cd.set_item("explanation", conflict.explanation.clone())?;
+            cd.set_item("core_clause_count", conflict.core_clause_count)?;
+            d.set_item("conflicts", cd)?;
+        }
+        None => {
+            d.set_item("conflicts", py.None())?;
+        }
+    };
+
     Ok(d.into())
+}
+
+/// Build a var_map Vec<SatVariable> from the InternalConstraintModel for
+/// provenance reverse-mapping.
+fn var_map_from_model(model: &InternalConstraintModel) -> Vec<types::SatVariable> {
+    model
+        .variables
+        .iter()
+        .map(|v| match v {
+            types::InternalVariable::NetChannel { name, .. } => types::SatVariable::new(name, ""),
+            types::InternalVariable::NetLayer { name, .. } => types::SatVariable::new(name, ""),
+            types::InternalVariable::Via { name, .. } => types::SatVariable::new(name, ""),
+            types::InternalVariable::Ordering { name, .. } => types::SatVariable::new(name, ""),
+        })
+        .collect()
 }
 
 /// Audit solver output against the constraint model itself.
