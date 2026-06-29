@@ -11,6 +11,7 @@ pub struct CnfFormula {
     pub clauses: Vec<Vec<i32>>,
     #[allow(dead_code)]
     pub var_names: Vec<String>,
+    pub var_to_net: Vec<usize>,
 }
 
 /// Encode AtMostK cardinality constraint via Sinz (2005) sequential counter.
@@ -77,15 +78,25 @@ fn encode_at_most_k(
 /// Convert the internal constraint model to CNF.
 pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String>) {
     let mut var_map: Vec<SatVariable> = Vec::new();
+    let mut var_to_net: Vec<usize> = Vec::new();
     let mut name_to_idx: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
     let mut clauses: Vec<Vec<i32>> = Vec::new();
 
-    let add_var = |vm: &mut Vec<SatVariable>, nm: &mut std::collections::HashMap<String, usize>, name: &str| -> usize {
+    // Sentinel value for auxiliary variables that don't map to a specific net.
+    const NO_NET: usize = usize::MAX;
+
+    let add_var_with_net = |vm: &mut Vec<SatVariable>,
+                            vn: &mut Vec<usize>,
+                            nm: &mut std::collections::HashMap<String, usize>,
+                            name: &str,
+                            net_idx: usize|
+     -> usize {
         if let Some(&idx) = nm.get(name) {
             idx
         } else {
             let idx = vm.len();
             vm.push(SatVariable::new(name, ""));
+            vn.push(net_idx);
             nm.insert(name.to_string(), idx);
             idx
         }
@@ -95,14 +106,20 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
         if pos { (idx + 1) as i32 } else { -((idx + 1) as i32) }
     };
 
-    // Map all internal variables to SAT variable indices.
+    // Map all internal variables to SAT variable indices with net tracking.
     for v in &model.variables {
         match v {
-            InternalVariable::NetChannel { name, .. } |
-            InternalVariable::NetLayer { name, .. } |
-            InternalVariable::Via { name, .. } |
-            InternalVariable::Ordering { name, .. } => {
-                add_var(&mut var_map, &mut name_to_idx, name);
+            InternalVariable::NetChannel { name, net_idx, .. } => {
+                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net_idx);
+            }
+            InternalVariable::NetLayer { name, net_idx, .. } => {
+                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net_idx);
+            }
+            InternalVariable::Via { name, net_idx, .. } => {
+                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net_idx);
+            }
+            InternalVariable::Ordering { name, net1_idx, .. } => {
+                add_var_with_net(&mut var_map, &mut var_to_net, &mut name_to_idx, name, *net1_idx);
             }
         }
     }
@@ -127,11 +144,12 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
 
                 if !var_indices.is_empty() && max_nets < var_indices.len() {
                     // Encode AtMostK as CNF via sequential counter (Sinz 2005),
-                    // since splr 0.13 does not expose a native add_atmostk API.
                     let aux_start = var_map.len();
                     encode_at_most_k(&mut clauses, &mut var_map, &var_indices, max_nets);
-                    // Track that cardinality was encoded (for solver awareness).
-                    let _ = aux_start; // auxiliary vars added to var_map inline
+                    // Auxiliary variables don't map to a specific net.
+                    for _i in aux_start..var_map.len() {
+                        var_to_net.push(NO_NET);
+                    }
                 }
             }
             InternalConstraint::DiffPair { p_var_name, n_var_name, .. } => {
@@ -157,6 +175,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
             num_vars: var_map.len(),
             clauses,
             var_names: var_names.clone(),
+            var_to_net,
         },
         var_names,
     )

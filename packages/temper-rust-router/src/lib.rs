@@ -9,12 +9,15 @@ mod solver;
 pub mod types;
 mod types_py_bridge;
 
+pub use types::SolverStats;
+pub use types::TopologyResult;
+
 use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 use types::{
-    InternalConstraintModel, SolverStatus, TopologyResult,
+    InternalConstraintModel, SolverStatus,
 };
 
 /// Python-callable entry point: solve the topology stage in Rust.
@@ -98,6 +101,36 @@ fn solve_topology_rust(
     }
     d.set_item("unsat_core", py_core)?;
 
+    // Solver statistics.
+    if let Some(ref stats) = result.solver_stats {
+        let py_stats = PyDict::new(py);
+        py_stats.set_item("conflicts", stats.conflicts)?;
+        py_stats.set_item("decisions", stats.decisions)?;
+        py_stats.set_item("propagations", stats.propagations)?;
+        py_stats.set_item("decision_level_histogram",
+            stats.decision_level_histogram.to_vec())?;
+        py_stats.set_item("unsat_core_size", stats.unsat_core_size)?;
+        py_stats.set_item("variable_count", stats.variable_count)?;
+        py_stats.set_item("clause_count", stats.clause_count)?;
+        py_stats.set_item("cpu_solve_time_ms", stats.cpu_solve_time_ms)?;
+        let clause_to_var_ratio = if stats.variable_count > 0 {
+            stats.clause_count as f64 / stats.variable_count as f64
+        } else {
+            0.0
+        };
+        py_stats.set_item("clause_to_var_ratio", clause_to_var_ratio)?;
+        let solve_throughput = if stats.cpu_solve_time_ms > 0.001 {
+            (stats.variable_count * stats.clause_count) as f64 / stats.cpu_solve_time_ms
+        } else {
+            0.0
+        };
+        py_stats.set_item("solve_throughput", solve_throughput)?;
+        d.set_item("solver_stats", py_stats)?;
+    }
+
+    // Var-to-net mapping.
+    d.set_item("var_to_net", cnf.var_to_net.clone())?;
+
     Ok(d.into())
 }
 
@@ -146,6 +179,7 @@ fn audit_result(
         assignments: assignment_map,
         unsat_core: Vec::new(),
         solver_time_ms: 0.0,
+        solver_stats: None,
     };
 
     let violations = audit::audit_constraints(&model, &result, &var_names);
