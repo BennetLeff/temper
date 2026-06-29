@@ -26,6 +26,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+if TYPE_CHECKING:
+    from temper_placer.core.state import PlacementState
+
 
 class PipelinePhase(Enum):
     """Enumeration of pipeline phases in execution order."""

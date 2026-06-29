@@ -13,6 +13,13 @@ Part of Phase 1.5: Integration & Validation
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from temper_placer.router_v6.manufacturing_report import ManufacturingReport
+    from temper_placer.router_v6.stage0_data import ParsedPCB
+    from temper_placer.router_v6.routing_results import RoutingResults
+
 import time
 from collections import defaultdict
 from contextlib import nullcontext

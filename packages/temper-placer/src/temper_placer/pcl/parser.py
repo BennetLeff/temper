@@ -21,6 +21,12 @@ Example usage:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from temper_placer.core.netlist import Netlist
+    from temper_placer.core.board import Board
+
 import json
 from dataclasses import dataclass
 from pathlib import Path

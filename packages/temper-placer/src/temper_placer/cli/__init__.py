@@ -2604,7 +2604,7 @@ def pcl_validate(
 
     from temper_placer.pcl import PCLParseError, PCLValidationError, parse_pcl_file
 
-    results = {
+    results: dict = {
         "file": str(pcl_file),
         "passed": True,
         "errors": [],

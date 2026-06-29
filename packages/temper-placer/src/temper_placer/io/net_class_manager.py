@@ -440,13 +440,13 @@ def create_netclass_config(netlist: Netlist) -> dict[str, dict]:
         >>> config["FinePitch"]["trace_width"]
         0.15
     """
-    netclasses = {
+    netclasses: dict[str, dict] = {
         "Default": {
             "description": "Default net class",
-            "clearance": 0.2,  # mm
-            "trace_width": 0.25,  # mm
-            "via_diameter": 0.8,  # mm
-            "via_drill": 0.4,  # mm
+            "clearance": 0.2,
+            "trace_width": 0.2,
+            "via_diameter": 0.6,
+            "via_drill": 0.3,
             "nets": [],
         },
         "Power": {
