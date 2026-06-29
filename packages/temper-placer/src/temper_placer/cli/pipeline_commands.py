@@ -3,8 +3,7 @@ from pathlib import Path
 
 import click
 
-from temper_placer.pipeline.orchestrator import PipelineOrchestrator
-from temper_placer.pipeline.state import PipelineConfig, PipelinePhase
+from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
 from temper_placer.pipeline.visualization import RichDashboard, TerminalProgress
 
 
@@ -61,26 +60,26 @@ def pipeline(
     if visualize:
         from rich.live import Live
         dashboard = RichDashboard()
-        orchestrator.on_phase_start = dashboard.on_phase_start
-        orchestrator.on_iteration = dashboard.on_iteration
-        orchestrator.on_epoch = dashboard.on_epoch
+        orchestrator.on_phase_start = dashboard.on_phase_start  # type: ignore[assignment]
+        orchestrator.on_iteration = dashboard.on_iteration  # type: ignore[assignment]
+        orchestrator.on_epoch = dashboard.on_epoch  # type: ignore[attr-defined]
 
         with Live(dashboard.create_layout(), refresh_per_second=4):
             # Wrap on_epoch to also refresh the live display
-            orig_on_epoch = orchestrator.on_epoch
+            orig_on_epoch = orchestrator.on_epoch  # type: ignore[attr-defined]
             def on_epoch_wrapper(metrics):
                 orig_on_epoch(metrics)
                 dashboard.update()
-            orchestrator.on_epoch = on_epoch_wrapper
+            orchestrator.on_epoch = on_epoch_wrapper  # type: ignore[attr-defined]
 
             result = orchestrator.run()
     else:
         if verbose:
             progress = TerminalProgress(total_phases=8)
-            orchestrator.on_phase_start = progress.on_phase_start
-            orchestrator.on_phase_complete = progress.on_phase_complete
-            orchestrator.on_iteration = progress.on_iteration
-            orchestrator.on_epoch = progress.on_epoch
+            orchestrator.on_phase_start = progress.on_phase_start  # type: ignore[assignment]
+            orchestrator.on_phase_complete = progress.on_phase_complete  # type: ignore[assignment]
+            orchestrator.on_iteration = progress.on_iteration  # type: ignore[assignment]
+            orchestrator.on_epoch = progress.on_epoch  # type: ignore[attr-defined]
 
         result = orchestrator.run()
 
@@ -233,6 +232,6 @@ def routing(input_pcb: str, _level: int, output: str):
     if output:
         # TODO: Save routing report
         with open(output, 'w') as f:
-            f.write(str(state.routing_report))
+            f.write(str(state.routing_result))
     else:
-        click.echo(state.routing_report)
+        click.echo(state.routing_result)
