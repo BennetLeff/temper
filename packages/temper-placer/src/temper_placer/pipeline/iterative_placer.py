@@ -15,6 +15,10 @@ import numpy as np
 
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
+from temper_placer.router_v6.adapter import MazeRouter
+
+from temper_placer.router_v6.adapter import MazeRouter, _AdapterRoutePath
+
 if TYPE_CHECKING:
     from jax import Array
     from temper_placer.core.board import Board
