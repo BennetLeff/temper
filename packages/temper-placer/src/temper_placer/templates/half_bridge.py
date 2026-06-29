@@ -129,7 +129,7 @@ class HalfBridgeTemplate:
                 type=loop_def.type,
                 # Note: Loop implementation might need more parsing
                 # This is a simplification
-                priority=loop_def.priority,
+                priority=LoopPriority[loop_def.priority] if isinstance(loop_def.priority, str) else loop_def.priority,  # type: ignore[index]
                 max_area_mm2=loop_def.max_area_mm2
             )
             result.append(loop)
