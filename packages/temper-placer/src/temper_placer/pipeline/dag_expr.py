@@ -12,6 +12,15 @@ Grammar:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from temper_placer.core.state import State
+    from temper_placer.core.netlist import Netlist
+    from temper_placer.core.board import Board
+    from temper_placer.pcl.parser import ConstraintCollection
+    from temper_placer.router_v6.stage0_data import ParsedPCB
+
 import ast
 import re
 from typing import Any

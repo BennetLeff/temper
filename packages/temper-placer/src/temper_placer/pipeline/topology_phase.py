@@ -10,6 +10,9 @@ from temper_placer.pcl.constraints import (
 )
 
 if TYPE_CHECKING:
+    from temper_placer.core.state import PlacementState
+
+if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.pcl.parser import ConstraintCollection

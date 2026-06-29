@@ -4,13 +4,21 @@ KiCad PCB route exporter (temper-wnyn).
 Exports router RoutePath objects to KiCad PCB files with trace segments and vias.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
+
 import uuid
+
+from typing import TYPE_CHECKING
 
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
+
+if TYPE_CHECKING:
+    from temper_placer.core.state import BoardState
 
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.router_v6.grid_converter import grid_to_world

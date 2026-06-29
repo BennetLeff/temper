@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.losses.base import LossContext, LossFunction, LossResult
+
+if TYPE_CHECKING:
+    from temper_placer.explainability.trace import Trace
 
 
 class StarPointLoss(LossFunction):

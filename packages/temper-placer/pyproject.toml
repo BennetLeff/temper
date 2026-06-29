@@ -137,6 +137,10 @@ disallow_incomplete_defs = true
 check_untyped_defs = true
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "yaml"
+follow_imports = "skip"
+
 [dependency-groups]
 dev = [
     "hypothesis>=6.148.7",
@@ -144,4 +148,3 @@ dev = [
     "pytest-bdd>=8.1.0",
     "python-sat>=1.8.dev14",
 ]
-

@@ -14,9 +14,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import jax
+
+if TYPE_CHECKING:
+    from temper_placer.explainability.trace import Trace
 import jax.numpy as jnp
 from jax import Array
 

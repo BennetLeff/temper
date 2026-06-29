@@ -11,6 +11,8 @@ This module builds a graph representation that enables:
 3. Constraint propagation (derive implicit relationships)
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any
 

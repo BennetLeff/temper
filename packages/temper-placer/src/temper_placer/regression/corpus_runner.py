@@ -493,7 +493,7 @@ class CorpusRegressionRunner:
 
     def _print_json_report(self, results: list[CorpusBoardResult]) -> None:
         report_path = Path("regression-report.json")
-        report = {
+        report: dict = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "boards": [],
         }

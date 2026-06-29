@@ -20,10 +20,15 @@ Example usage:
     ...     print(f"{net_name}: {assignment.primary_layer.name}")
 """
 
-import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from temper_placer.core.netlist import Netlist
+
 from dataclasses import dataclass, field
 from enum import Enum
 
+import re
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position
 from jax import Array
