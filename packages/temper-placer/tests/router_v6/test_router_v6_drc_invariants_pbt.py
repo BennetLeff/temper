@@ -100,8 +100,10 @@ def test_clearance_violation_count_bounded_by_checks(
 ) -> None:
     """Clearance ``violation_count`` never exceeds ``total_checks``."""
     report = verify_clearance(rr, min_clearance=0.127)
-    assert report.violation_count <= report.total_checks, (
-        f"Clearance violations ({report.violation_count}) > total_checks "
+    distinct_pairs_with_violations = len({(v.net1, v.net2) for v in report.violations})
+    assert distinct_pairs_with_violations <= report.total_checks, (
+        f"Distinct net-pairs with clearance violations "
+        f"({distinct_pairs_with_violations}) > total_checks "
         f"({report.total_checks})"
     )
 

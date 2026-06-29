@@ -758,15 +758,6 @@ class TestSegmentToSegmentDist:
         )
         assert dist == pytest.approx(3.0)
 
-    @pytest.mark.xfail(
-        reason=(
-            "_segment_to_segment_dist reports wrong closest-point on the "
-            "second segment for collinear non-overlapping inputs.  The "
-            "third element of _point_to_segment_dist return is the query "
-            "point p, not the closest point on the target segment, but "
-            "the caller uses it as if it were the closest point."
-        ),
-    )
     def test_collinear_non_overlapping(self):
         """Collinear, non-overlapping segments."""
         dist, cp1, cp2 = _segment_to_segment_dist(

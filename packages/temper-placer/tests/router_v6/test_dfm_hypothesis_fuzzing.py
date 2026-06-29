@@ -334,13 +334,6 @@ def test_teardrop_idempotent(results: RoutingResults) -> None:
 
 @given(results=realistic_routing_results())
 @_SETTINGS
-@pytest.mark.xfail(
-    reason=(
-        "thermal_relief may produce non-deterministic spoke geometry "
-        "when board clamping or SMD pad enumeration is involved"
-    ),
-    strict=False,
-)
 def test_thermal_relief_idempotent(results: RoutingResults) -> None:
     """Running ``add_thermal_relief`` twice produces identical reports."""
     r1 = add_thermal_relief(results)
@@ -559,7 +552,7 @@ def test_clearance_layer_independence_different_net(results: RoutingResults) -> 
                 net_name=route.net_name,
                 path=new_path,
                 width_mm=route.width_mm,
-                vias=list(route.vias),
+                vias=[],  # strip vias to test pure same-layer independence
                 matched_length_mm=route.matched_length_mm,
             )
         return RoutingResults(

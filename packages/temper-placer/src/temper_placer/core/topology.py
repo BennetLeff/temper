@@ -108,3 +108,13 @@ class UnionFind:
         if ra != rb:
             self._parent[ra] = rb
 
+    def get_components(self) -> dict[int, list[int]]:
+        """Return disjoint sets grouped by root, keyed by root."""
+        components: dict[int, list[int]] = {}
+        for elem in self._parent:
+            root = self.find(elem)
+            if root not in components:
+                components[root] = []
+            components[root].append(elem)
+        return components
+
