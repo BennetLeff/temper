@@ -241,6 +241,14 @@ naming convention (`{idx}_{phase}_{iter}.json`).
 stage order, per-stage timings, retry counts, and feedback activation history
 as a structured `pipeline_execution.json` written on pipeline completion.
 
+**MetricsObserver** (`metrics_observer.py`) is a `ProgressObserver` implementation
+that records per-stage metrics (wall_time, success, drc_delta) into the project's
+canonical `pipeline_metrics.jsonl` time-series store during pipeline execution.
+It includes double-entry cross-validation against the observer's own
+`time.monotonic()` clock, YAML schema validation per metric, and canary
+integrity checks to detect recording-path corruption. This observer is the
+primary metrics write path for pipeline observability.
+
 **Backward compatibility**: The `PipelineOrchestrator` class
 (`orchestrator.py:169-207`) remains as a thin adapter. Its constructor creates a
 `StageDAGEngine` from the default manifest (or a custom path) and attaches a
