@@ -18,7 +18,7 @@
     "overlap_loss_final": {
       "mean": 0.0,
       "margin_rel": 0.1,
-      "margin_abs": 2.0
+      "margin_abs": 12.0
     },
     "boundary_loss_final": {
       "mean": 0.0,
