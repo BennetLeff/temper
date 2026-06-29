@@ -276,6 +276,12 @@ class StageDAGEngine:
                 if key not in context:
                     context[key] = None
 
+        if self.observers:
+            engine = self
+            def _on_epoch(stage_name: str, epoch: int, loss: float) -> None:
+                engine._emit_epoch(stage_name, epoch, loss)
+            context["on_epoch"] = _on_epoch
+
         return context
 
     def _evaluate_skip(self, expr_src: str, config: Any, state: Any, context: dict[str, Any]) -> bool:
@@ -411,3 +417,8 @@ class StageDAGEngine:
         for obs in self.observers:
             with contextlib.suppress(Exception):
                 obs.on_pipeline_complete(success, total_duration_s, stage_timings)
+
+    def _emit_epoch(self, stage_name: str, epoch: int, loss: float) -> None:
+        for obs in self.observers:
+            with contextlib.suppress(Exception):
+                obs.on_epoch(stage_name, epoch, loss)

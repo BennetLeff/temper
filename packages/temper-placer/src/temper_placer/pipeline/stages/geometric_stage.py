@@ -50,6 +50,7 @@ class GeometricStage:
         epochs = context.get("epochs", 8000)
         max_movement_mm = context.get("max_movement_mm", 2.0)
         deadline = context.get("deadline", None)
+        on_epoch = context.get("on_epoch")
         print(f"Running refinement for {epochs} epochs (max {max_movement_mm}mm movement)...")
 
         optimizer = optax.adam(learning_rate=0.1)
@@ -80,6 +81,11 @@ class GeometricStage:
                                          board)
                 pos_np = clamp_to_zones(pos_np, netlist, board)
                 params["positions"] = jnp.array(pos_np)
+                if on_epoch is not None:
+                    loss_val = loss_fn(params["positions"],
+                                       jnp.zeros((n, 4)).at[:, 0].set(1.0),
+                                       loss_context).value
+                    on_epoch("geometric", epoch, float(loss_val))
 
         final_pos = resolve_overlaps_priority(np.array(params["positions"]), netlist, board,
                                                min_separation=0.5, enforce_zones=True)

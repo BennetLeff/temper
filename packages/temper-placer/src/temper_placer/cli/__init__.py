@@ -28,6 +28,7 @@ from .pipeline_commands import phase, pipeline
 from .timing import timing
 from .trace_commands import trace
 from .version import version
+from .watch_commands import watch
 
 
 @click.group()
@@ -43,6 +44,7 @@ main.add_command(trace)
 main.add_command(dsn)
 main.add_command(timing)
 main.add_command(profile)
+main.add_command(watch)
 
 @main.command()
 @click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
@@ -629,7 +631,7 @@ def optimize(
             # Force minimum spacing between heat-generating components
             losses.append(
                 WeightedLoss(
-                    ThermalSpreadLoss(min_spacing_mm=12.0), weight=weights["thermal_spread"]
+                    ThermalSpreadLoss(min_separation_mm=12.0), weight=weights["thermal_spread"]
                 )
             )
 
@@ -970,16 +972,16 @@ def optimize(
             console.print("  [dim]Applying zone legalization...[/]")
             # Get positions from best state and apply zone clamping
             legalized_positions = clamp_to_zones(
-                np.array(result.best_state.positions),
+                np.array(result.best_state.positions),  # type: ignore[union-attr]
                 netlist,
                 board,
-                fixed_mask=np.array(context.fixed_mask),
+                fixed_mask=np.array(context.fixed_mask),  # type: ignore[arg-type]
             )
             # Update best_state with legalized positions
             result.best_state = PlacementState.from_positions(
-                positions=legalized_positions,
-                rotation_logits=result.best_state.rotation_logits,
-                net_virtual_nodes=result.best_state.net_virtual_nodes,
+                positions=legalized_positions,  # type: ignore[arg-type]
+                rotation_logits=result.best_state.rotation_logits,  # type: ignore[union-attr]
+                net_virtual_nodes=result.best_state.net_virtual_nodes,  # type: ignore[union-attr]
             )
             console.print("  [green]✓[/] Applied zone legalization for perfect compliance")
         except Exception as e:
@@ -1003,7 +1005,7 @@ def optimize(
 
             # First try Abacus (optimal 1D legalization per row)
             legalized_state = legalize_abacus(
-                result.best_state,
+                result.best_state,  # type: ignore[arg-type]
                 context,
                 n_rows=20,  # More rows for finer control
                 spacing=0.5,
@@ -1015,7 +1017,7 @@ def optimize(
                 np.array(legalized_state.positions),
                 netlist,
                 board,
-                fixed_mask=np.array(context.fixed_mask),
+                fixed_mask=np.array(context.fixed_mask),  # type: ignore[arg-type]
                 max_iterations=1000,  # Increased for stubborn overlaps
                 min_separation=2.0,  # Increased for better visual spacing
                 damping=0.95,  # Reduced damping for more aggressive separation
@@ -1023,9 +1025,9 @@ def optimize(
 
             # Update best_state with overlap-free positions
             result.best_state = PlacementState.from_positions(
-                positions=overlap_free_positions,
-                rotation_logits=result.best_state.rotation_logits,
-                net_virtual_nodes=result.best_state.net_virtual_nodes,
+                positions=overlap_free_positions,  # type: ignore[arg-type]
+                rotation_logits=result.best_state.rotation_logits,  # type: ignore[union-attr]
+                net_virtual_nodes=result.best_state.net_virtual_nodes,  # type: ignore[union-attr]
             )
             console.print("  [green]✓[/] Applied Abacus + priority overlap resolution")
         except Exception as e:
