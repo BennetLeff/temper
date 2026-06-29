@@ -35,12 +35,12 @@
     "output"
   ],
   "stage_timings": {
-    "input": 5.9604644775390625e-06
+    "input": 8.821487426757812e-06
   },
   "retry_counts": {},
   "feedback_activations": [],
   "success": true,
-  "total_duration_s": 2.7894973754882812e-05,
+  "total_duration_s": 3.719329833984375e-05,
   "events": [
     {
       "name": "input",
@@ -48,16 +48,16 @@
       "iteration": 0,
       "duration_s": 0.0,
       "reason": "",
-      "timestamp": 1782762121.230485
+      "timestamp": 1782762416.1285162
     },
     {
       "name": "input",
       "kind": "complete",
       "iteration": 0,
-      "duration_s": 5.9604644775390625e-06,
+      "duration_s": 8.821487426757812e-06,
       "reason": "",
       "outputs": {},
-      "timestamp": 1782762121.230499
+      "timestamp": 1782762416.1285372
     },
     {
       "name": "geometric",
@@ -65,7 +65,7 @@
       "iteration": 0,
       "duration_s": 0.0,
       "reason": "dry_run is set",
-      "timestamp": 1782762121.2305028
+      "timestamp": 1782762416.1285398
     },
     {
       "name": "output",
@@ -73,7 +73,7 @@
       "iteration": 0,
       "duration_s": 0.0,
       "reason": "dry_run is set",
-      "timestamp": 1782762121.230505
+      "timestamp": 1782762416.128544
     }
   ]
 }

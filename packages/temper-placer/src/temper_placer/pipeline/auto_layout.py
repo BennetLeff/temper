@@ -116,7 +116,7 @@ def auto_layout_pcb(
             positions,
             net_order,
             assignments,
-            max_iterations=5 # Inner RRR iterations
+            _max_iterations=5 # Inner RRR iterations
         )
 
         # 2c. Check convergence
@@ -143,7 +143,7 @@ def auto_layout_pcb(
         congestion_heatmap = compute_congestion_heatmap(
             conflicts,
             grid_size=router.grid_size,
-            cell_size_mm=cell_size_mm,
+            _cell_size_mm=cell_size_mm,
         origin=jnp.array(board.origin)
         )
         prev_results = results

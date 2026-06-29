@@ -181,8 +181,9 @@ class PhasedComponentAssignmentStage(Stage):
         """Execute phased placement."""
         if not state.netlist or not state.component_zone_map or not state.zone_slots:
             return state
-        netlist = state.netlist
-        assert netlist is not None
+        assert state.netlist is not None
+        assert state.component_zone_map is not None
+        assert state.zone_slots is not None
         import logging
         logger = logging.getLogger(__name__)
 
@@ -203,7 +204,7 @@ class PhasedComponentAssignmentStage(Stage):
 
         placements, used_slots = self._phased_placement(
             state,
-            netlist,
+            state.netlist,
             dict(state.component_zone_map),
             dict(state.zone_slots),
             domain_for_ref,
@@ -1232,16 +1233,16 @@ class PhasedComponentAssignmentStage(Stage):
             gy = int(math.floor((float(y_mm) * 1000.0) / cell_um))
             if gx < 0 or gx >= width or gy < 0 or gy >= height:
                 continue
-            cell_bn: Bottleneck | None = critical_by_cell.get((gx, gy))
-            if cell_bn is None:
+            bn: Bottleneck | None = critical_by_cell.get((gx, gy))
+            if bn is None:
                 continue
             violations.append(
                 {
                     "ref": ref,
                     "x": gx,
                     "y": gy,
-                    "layer": cell_bn.layer,
-                    "severity": cell_bn.severity,
+                    "layer": bn.layer,
+                    "severity": bn.severity,
                 }
             )
         return violations

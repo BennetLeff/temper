@@ -99,6 +99,9 @@ class BoundaryLoss(LossFunction):
         rotations = jnp.nan_to_num(rotations, nan=0.25, posinf=0.25, neginf=0.25)
 
         bounds = context.bounds  # (N, 2)
+        if bounds is None:
+            return LossResult(value=jnp.array(0.0))
+
         board = context.board
         centrality = context.centrality if hasattr(context, "centrality") else None
 
@@ -246,7 +249,7 @@ class BoundaryLoss(LossFunction):
 
         return total_violations
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> Array:  # type: ignore[override]
         """
         Boundary is a hard constraint - full weight throughout training.
         We ramp up weight in the final 25% of training to ensure convergence.

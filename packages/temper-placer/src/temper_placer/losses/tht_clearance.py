@@ -26,11 +26,12 @@ class THTPadClearanceLoss(LossFunction):
         netlist: Netlist,
         weight: float = 1.0,
         min_clearance: float = 0.5,  # mm between hole edges
+        name: str = "tht_clearance_loss",
     ):
-        super().__init__()
+        self._weight = weight
+        self._name = name
         self.netlist = netlist
         self.min_clearance = min_clearance
-        self._weight = weight
 
         # Extract THT pad information once
         # We need relative positions of THT pads for each component
@@ -39,17 +40,16 @@ class THTPadClearanceLoss(LossFunction):
 
     @property
     def name(self) -> str:
-        return "tht_clearance_loss"
+        return self._name
 
     def _extract_tht_pads(self, netlist: Netlist) -> list[tuple[int, float, float, float]]:
         pads = []
-        getattr(netlist.components[0], 'pads', None) if netlist.components else None  # type: ignore[union-attr]
         for i, comp in enumerate(netlist.components):
-            for pad in getattr(comp, 'pads', getattr(comp, 'pins', [])):  # type: ignore[union-attr]
-                # Check if pad is through-hole
+            for pin in comp.pins:
+                # Check if pin is through-hole
                 # Heuristic: drill > 0
-                if getattr(pad, 'drill', 0) > 0:
-                    pads.append((i, pad.position[0], pad.position[1], getattr(pad, 'drill', 0) / 2.0))
+                if pin.drill > 0:
+                    pads.append((i, pin.position[0], pin.position[1], pin.drill / 2.0))
         return pads
 
     def __call__(
@@ -63,6 +63,8 @@ class THTPadClearanceLoss(LossFunction):
     ) -> LossResult:
         if not self._tht_pads_info:
             return LossResult(value=jnp.array(0.0))
+
+        loss = jnp.array(0.0)
 
         # Calculate absolute positions of all THT pads
         # This is a bit slow if done in loop, but number of THT pads is usually small
@@ -114,6 +116,6 @@ class THTPadClearanceLoss(LossFunction):
         # and lower triangle to avoid double counting
         mask = jnp.triu(jnp.ones_like(dist), k=1)
 
-        loss_val = jnp.sum(violation * mask)
+        loss = jnp.sum(violation * mask)
 
-        return LossResult(value=jnp.array(loss_val * self._weight))
+        return LossResult(value=loss * self._weight)
