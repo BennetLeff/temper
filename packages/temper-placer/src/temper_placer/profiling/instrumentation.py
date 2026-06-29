@@ -16,7 +16,10 @@ import json
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
 
 
 @dataclass
@@ -24,7 +27,7 @@ class StageTiming:
     wall_time_ms: float = 0.0
     cpu_time_ms: float = 0.0
     iterations: int = 0
-    sub_steps: dict[str, "StageTiming"] = field(default_factory=dict)
+    sub_steps: dict[str, StageTiming] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         result = {
@@ -71,6 +74,32 @@ class ProfileReport:
         self.python_time_ms = getattr(stats, "python_time_ms", 0.0)
         self.astar_total_ms = getattr(stats, "astar_total_ms", 0.0)
         self.dist_map_ms = getattr(stats, "dist_map_ms", 0.0)
+
+    def to_pipeline_metrics_record(
+        self, board: str, stage: str, module: str = "profiler"
+    ) -> PipelineMetricsRecord:
+        from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
+
+        metrics: dict[str, float] = {}
+        for name, timing in self.stage_timings.items():
+            metrics[f"{name}_wall_ms"] = round(timing.wall_time_ms, 3)
+            metrics[f"{name}_cpu_ms"] = round(timing.cpu_time_ms, 3)
+            for sub_name, sub in timing.sub_steps.items():
+                metrics[f"{name}_{sub_name}_ms"] = round(sub.wall_time_ms, 3)
+        metrics["maze_router_numba_ms"] = round(self.numba_time_ms, 3)
+        metrics["maze_router_python_ms"] = round(self.python_time_ms, 3)
+        metrics["maze_router_astar_total_ms"] = round(self.astar_total_ms, 3)
+        metrics["maze_router_dist_map_ms"] = round(self.dist_map_ms, 3)
+        metrics["total_wall_ms"] = round(self.total_wall_time_ms, 3)
+        for net, lat in self.per_path_latency_ms.items():
+            metrics[f"per_path_latency_{net}_ms"] = round(lat, 3)
+
+        return PipelineMetricsRecord(
+            board=board,
+            stage=stage,
+            module=module,
+            metrics=metrics,
+        )
 
 
 class PipelineProfiler:

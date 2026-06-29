@@ -9,6 +9,11 @@ Public API (Plan 022 — per-stage timing regression gate):
     TimingResult, TimingReport, StageTimingEntry,
     measure_stage_timing, measure_all_stages
 
+Pipeline instrumentation (Plan 015):
+    PipelineProfiler — context-manager profiler for auto-instrumenting pipeline stages
+    ProfileReport — hierarchical timing report with JSON output and PipelineMetricsRecord adapter
+    StageTiming — per-stage wall/cpu timing with optional sub-step breakdown
+
 All functions emit PipelineMetricsRecord-compatible dataclasses with
 module, board, stage, and metrics fields for direct JSONL recording.
 
@@ -16,6 +21,7 @@ Plan 015 (PipelineProfiler, ProfileReport) lives in .instrumentation;
 Plan 022 (timing gate) lives in .timing_gate.
 """
 
+from .instrumentation import PipelineProfiler, ProfileReport, StageTiming
 from .pipeline_metrics import (
     profile_loss_functions,
     profile_pipeline,
@@ -30,6 +36,9 @@ from .timing_gate import (
 )
 
 __all__ = [
+    "PipelineProfiler",
+    "ProfileReport",
+    "StageTiming",
     "profile_pipeline",
     "profile_loss_functions",
     "profile_router_benchmark",

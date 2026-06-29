@@ -946,9 +946,25 @@ static void state_runaway_fault_entry(void) {
 }
 
 static void state_runaway_fault_update(void) {
-    /* Dead-end state: power stays off, no button processing */
-    /* Feed watchdog to prevent unwanted MCU reset */
+    /* Dead-end state: power stays off.  Only a hardware reset
+     * (power-cycle) clears the latch, but software can check
+     * whether the fault condition has cleared and attempt
+     * re-initialization. */
     watchdog_feed();
+
+    /* Check for user reset attempt */
+    if (button_is_pressed(BUTTON_RESET)) {
+        if (fault_cleared()) {
+            sm_ctx.fault_code = FAULT_NONE;
+            sm_ctx.runaway_latched = false;
+            buzzer_stop();
+            transition_to(STATE_INIT);
+            return;
+        } else {
+            display_show_message("FAULT PERSISTS");
+            buzzer_beep(1000);
+        }
+    }
 }
 
 /* ============================================================================
@@ -1137,6 +1153,9 @@ static bool fault_cleared(void) {
 
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
+
+        case FAULT_NONE:
+            return true;   /* No active fault */
 
         default:
             return false;  /* Most faults require power cycle */

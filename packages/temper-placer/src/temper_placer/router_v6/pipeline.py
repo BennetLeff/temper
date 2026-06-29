@@ -579,7 +579,7 @@ class RouterV6Pipeline:
 
         ctx = self.profiler.stage("stage2") if self.profiler else nullcontext()
         with ctx:
-            orchestrator = Stage2Orchestrator(verbose=self.verbose)
+            orchestrator = Stage2Orchestrator(verbose=self.verbose, profiler=self.profiler)
             state = orchestrator.run(pcb, escape_vias)
             stage2 = Stage2Orchestrator.assemble_stage2_output(state)
 
@@ -679,7 +679,7 @@ class RouterV6Pipeline:
             )
             topology_graph.net_topologies[net_name] = ntopo
 
-        # Constraint audit.
+        # Constraint audit (Rust).
         from temper_rust_router import audit_result
         audit_violations = list(audit_result(
             py_vars, py_cons,
@@ -693,6 +693,18 @@ class RouterV6Pipeline:
             raise RuntimeError(msg)
         elif self.verbose:
             print(f"    Constraint audit: clean (0 violations)")
+
+        # ESL secondary check — fast Python-side ground-truth verification.
+        if self.verbose and solution.is_satisfiable:
+            from temper_placer.router_v6.bmc import esl_verify
+            esl_violations = esl_verify(
+                constraint_model,
+                dict(rust_result.get("assignments", {})),
+            )
+            if esl_violations:
+                print(f"    ESL verify: {len(esl_violations)} violation(s): {esl_violations[:5]}")
+            else:
+                print(f"    ESL verify: clean (agrees with Rust audit)")
 
         if self.verbose:
             if solution.is_satisfiable:

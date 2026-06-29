@@ -413,3 +413,117 @@ def known_compliant_routing_results(
         )
 
     return RoutingResults(compiled_routes=compiled, failed_nets=[])
+
+
+# ---------------------------------------------------------------------------
+# BMC constraint model strategy (for test_bmc_property.py)
+# ---------------------------------------------------------------------------
+
+
+@st.composite
+def constraint_models(
+    draw,
+    max_nets: int = 6,
+    max_channels: int = 4,
+    max_layers: int = 2,
+    max_primary_vars: int = 10,
+) -> tuple:
+    """Generate random (ConstraintModel, net_names, primary_var_names) tuples.
+
+    The primary-variable count is capped at *max_primary_vars* so BMC
+    enumeration remains feasible (2^10 = 1024 assignments).
+    """
+    from temper_placer.router_v6.constraint_model import (
+        CapacityConstraint,
+        ConstraintModel,
+        DiffPairConstraint,
+        LayerConstraint,
+        NetChannelVar,
+    )
+
+    n_nets: int = draw(st.integers(1, max_nets))
+    n_channels: int = draw(st.integers(1, max_channels))
+    n_layers: int = draw(st.integers(1, max_layers))
+
+    while n_nets * n_channels * n_layers > max_primary_vars:
+        if n_layers > 1:
+            n_layers = 1
+        elif n_channels > 1:
+            n_channels -= 1
+        else:
+            n_nets -= 1
+
+    layer_names = [f"L{i}" for i in range(n_layers)]
+    net_names = [f"N{i}" for i in range(n_nets)]
+
+    model = ConstraintModel()
+    primary_var_names: list[str] = []
+
+    for net_idx in range(n_nets):
+        for layer_name in layer_names:
+            for cell_idx in range(n_channels):
+                channel_id = f"{layer_name}_E{cell_idx}"
+                name = f"uses_N{net_idx}_{channel_id}"
+                var = NetChannelVar(
+                    name=name,
+                    net_idx=net_idx,
+                    channel_id=channel_id,
+                )
+                model.add_variable(var)
+                primary_var_names.append(name)
+
+    use_layer = draw(st.booleans())
+    use_diff_pair = draw(st.booleans())
+    use_capacity = draw(st.booleans())
+
+    if not (use_layer or use_diff_pair or use_capacity):
+        use_layer = True
+
+    if use_layer and n_layers > 1 and n_nets > 0:
+        channel_id = f"{layer_names[0]}_E0"
+        if (0, channel_id) in model.net_channel_vars:
+            allowed = draw(st.booleans())
+            model.add_constraint(LayerConstraint(
+                name=f"layer_N0_{channel_id}",
+                net_idx=0,
+                channel_id=channel_id,
+                allowed=allowed,
+            ))
+
+    if use_diff_pair and n_nets >= 2:
+        n_diff_pairs = draw(st.integers(1, min(3, n_nets // 2)))
+        for pair_idx in range(n_diff_pairs):
+            p_idx = pair_idx * 2
+            n_idx = pair_idx * 2 + 1
+            if n_idx < n_nets:
+                channel_id = f"{layer_names[0]}_E0"
+                p_key = (p_idx, channel_id)
+                n_key = (n_idx, channel_id)
+                if p_key in model.net_channel_vars and n_key in model.net_channel_vars:
+                    model.add_constraint(DiffPairConstraint(
+                        name=f"diff_N{p_idx}_N{n_idx}_{channel_id}",
+                        channel_id=channel_id,
+                        p_net_idx=p_idx,
+                        n_net_idx=n_idx,
+                        p_var=model.net_channel_vars[p_key],
+                        n_var=model.net_channel_vars[n_key],
+                    ))
+
+    if use_capacity and n_nets >= 2:
+        channel_id = f"{layer_names[0]}_E0"
+        terms = []
+        for net_idx in range(n_nets):
+            key = (net_idx, channel_id)
+            if key in model.net_channel_vars:
+                terms.append((model.net_channel_vars[key], 0.127))
+        if len(terms) >= 2:
+            k = draw(st.integers(0, len(terms) - 1))
+            model.add_constraint(CapacityConstraint(
+                name=f"cap_{channel_id}",
+                channel_id=channel_id,
+                capacity=(k + 0.5) * 0.127,
+                slack_factor=1.0,
+                terms=terms,
+            ))
+
+    return model, net_names, primary_var_names
