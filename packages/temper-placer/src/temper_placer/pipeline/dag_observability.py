@@ -22,6 +22,8 @@ class ProgressObserver(Protocol):
     def on_pipeline_complete(self, success: bool, total_duration_s: float,
                               stage_timings: dict[str, float]) -> None: ...
 
+    def on_epoch(self, stage_name: str, epoch: int, loss: float) -> None: ...
+
 
 @dataclass
 class StageEvent:

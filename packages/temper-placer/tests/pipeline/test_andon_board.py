@@ -74,7 +74,6 @@ class TestAndonObserverState:
         assert "epoch 42" in stages[0]["metric"]
 
     def test_html_page_served(self):
-        """Verify the embedded HTML template is valid — server test done in isolation."""
         from temper_placer.pipeline.andon_observer import _ANDON_HTML
         assert "Andon Board" in _ANDON_HTML
         assert "EventSource" in _ANDON_HTML

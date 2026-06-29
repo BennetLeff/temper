@@ -1,10 +1,7 @@
-# Type-check allowlist
-# 510 total errors across 153 files
-
+# Type-check allowlist - 507 errors
 packages/temper-placer/src/temper_placer/ablation/registry.py 8
 packages/temper-placer/src/temper_placer/ablation/runner.py 11
 packages/temper-placer/src/temper_placer/ablation/visualization.py 1
-packages/temper-placer/src/temper_placer/algo/coarsening.py 2
 packages/temper-placer/src/temper_placer/cli/andon_commands.py 1
 packages/temper-placer/src/temper_placer/cli/dsn_commands.py 1
 packages/temper-placer/src/temper_placer/cli/pipeline.py 4
@@ -78,7 +75,7 @@ packages/temper-placer/src/temper_placer/optimizer/checkpoint.py 2
 packages/temper-placer/src/temper_placer/optimizer/gradnorm.py 1
 packages/temper-placer/src/temper_placer/optimizer/initialization.py 2
 packages/temper-placer/src/temper_placer/optimizer/legalization.py 2
-packages/temper-placer/src/temper_placer/optimizer/nsga2.py 4
+packages/temper-placer/src/temper_placer/optimizer/nsga2.py 3
 packages/temper-placer/src/temper_placer/optimizer/phases.py 3
 packages/temper-placer/src/temper_placer/optimizer/postprocess.py 4
 packages/temper-placer/src/temper_placer/optimizer/validation_callback.py 2
@@ -101,12 +98,13 @@ packages/temper-placer/src/temper_placer/placement/analytical.py 1
 packages/temper-placer/src/temper_placer/placement/legalization.py 1
 packages/temper-placer/src/temper_placer/placer/deterministic.py 1
 packages/temper-placer/src/temper_placer/profiling/instrumentation.py 1
+packages/temper-placer/src/temper_placer/profiling/timing_gate.py 1
 packages/temper-placer/src/temper_placer/regression/closure_test.py 1
 packages/temper-placer/src/temper_placer/regression/corpus_runner.py 2
 packages/temper-placer/src/temper_placer/router_v6/_check_report_base.py 1
 packages/temper-placer/src/temper_placer/router_v6/annular_ring_check.py 2
 packages/temper-placer/src/temper_placer/router_v6/astar_core_numba.py 1
-packages/temper-placer/src/temper_placer/router_v6/astar_core.py 4
+packages/temper-placer/src/temper_placer/router_v6/astar_core.py 3
 packages/temper-placer/src/temper_placer/router_v6/astar_monitor.py 1
 packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py 5
 packages/temper-placer/src/temper_placer/router_v6/benchmark.py 1
