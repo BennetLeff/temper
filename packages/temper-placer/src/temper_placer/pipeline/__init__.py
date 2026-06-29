@@ -40,6 +40,11 @@ from temper_placer.pipeline.visualization import (
     TerminalProgress,
     create_progress_display,
 )
+from temper_placer.pipeline.metrics_observer import (
+    CanaryCheckError,
+    CrossValidationError,
+    MetricsObserver,
+)
 
 __all__ = [
     # Orchestrator
@@ -71,4 +76,8 @@ __all__ = [
     "TerminalProgress",
     "RichDashboard",
     "create_progress_display",
+    # Metrics observer
+    "CanaryCheckError",
+    "CrossValidationError",
+    "MetricsObserver",
 ]

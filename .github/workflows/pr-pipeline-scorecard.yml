@@ -1,0 +1,165 @@
+name: PR Pipeline Scorecard
+
+on:
+  pull_request:
+    paths:
+      - 'packages/**'
+
+jobs:
+  baseline:
+    name: Baseline (merge-base)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      has_metrics: ${{ steps.check.outputs.has_metrics }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Run closure test on baseline
+        continue-on-error: true
+        run: >
+          uv run python3 scripts/ci_closure_test.py
+          --pcb pcb/temper.kicad_pcb
+          --require-all-stages
+          --metrics-dir ./baseline-metrics
+          || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
+      - name: Check metrics exist
+        id: check
+        run: |
+          if [ -f baseline-metrics/pipeline_metrics.jsonl ]; then
+            echo "has_metrics=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_metrics=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Upload baseline metrics
+        if: steps.check.outputs.has_metrics == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-metrics
+          path: baseline-metrics/pipeline_metrics.jsonl
+          retention-days: 1
+
+  current:
+    name: Current (PR head)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: baseline
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Run closure test on PR head
+        continue-on-error: true
+        run: >
+          uv run python3 scripts/ci_closure_test.py
+          --pcb pcb/temper.kicad_pcb
+          --require-all-stages
+          --metrics-dir ./current-metrics
+          || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
+      - name: Upload current metrics
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: current-metrics
+          path: current-metrics/pipeline_metrics.jsonl
+          retention-days: 1
+
+  scorecard:
+    name: Generate Scorecard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [baseline, current]
+    if: always() && needs.baseline.result != 'skipped'
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Download baseline metrics
+        uses: actions/download-artifact@v4
+        with:
+          name: baseline-metrics
+          path: baseline-metrics
+        continue-on-error: true
+
+      - name: Download current metrics
+        uses: actions/download-artifact@v4
+        with:
+          name: current-metrics
+          path: current-metrics
+        continue-on-error: true
+
+      - name: Generate scorecard
+        id: scorecard
+        run: |
+          MISSING=false
+          if [ ! -f baseline-metrics/pipeline_metrics.jsonl ]; then
+            echo "WARNING: baseline metrics not available" >> "$GITHUB_STEP_SUMMARY"
+            MISSING=true
+          fi
+          if [ ! -f current-metrics/pipeline_metrics.jsonl ]; then
+            echo "WARNING: current metrics not available" >> "$GITHUB_STEP_SUMMARY"
+            MISSING=true
+          fi
+          if [ "$MISSING" = true ]; then
+            {
+              echo "## Pipeline Scorecard"
+              echo ""
+              echo ":warning: Metrics unavailable for comparison."
+              echo ""
+              echo "| Artifact | Status |"
+              echo "|----------|--------|"
+              if [ -f baseline-metrics/pipeline_metrics.jsonl ]; then
+                echo "| Baseline (merge-base) | :white_check_mark: Available |"
+              else
+                echo "| Baseline (merge-base) | :x: Missing |"
+              fi
+              if [ -f current-metrics/pipeline_metrics.jsonl ]; then
+                echo "| Current (PR) | :white_check_mark: Available |"
+              else
+                echo "| Current (PR) | :x: Missing |"
+              fi
+            } > scorecard.md
+          else
+            uv run python scripts/pr_scorecard.py \
+              --baseline baseline-metrics/pipeline_metrics.jsonl \
+              --current current-metrics/pipeline_metrics.jsonl \
+              > scorecard.md
+          fi
+          echo "## Raw Output" >> "$GITHUB_STEP_SUMMARY"
+          cat scorecard.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post scorecard comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pipeline-scorecard
+          path: scorecard.md

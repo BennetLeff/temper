@@ -63,6 +63,22 @@ jobs:
           ")
           echo "drift_found=$DRIFT_FOUND" >> "$GITHUB_OUTPUT"
           { echo "report<<EOF"; echo "$REPORT"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+      - name: Run SPC check
+        id: spc
+        run: |
+          SPC_OUTPUT=$(uv run python scripts/pipeline_metrics.py spc \
+            --board temper --window 20 --json 2>&1) || SPC_EXIT=$?
+          echo "$SPC_OUTPUT" | tee spc-result.json
+          SPC_VIOLATION=$(uv run python -c "
+          import json, sys
+          with open('spc-result.json') as f:
+              data = json.load(f)
+          violation = data.get('any_violation', False)
+          print('true' if violation else 'false')
+          ")
+          echo "spc_violation=$SPC_VIOLATION" >> "$GITHUB_OUTPUT"
+          echo "spc_exit=${SPC_EXIT:-0}" >> "$GITHUB_OUTPUT"
+
       - name: Create drift issue
         if: steps.trend.outputs.drift_found == 'true'
         uses: actions/github-script@v7
@@ -74,6 +90,74 @@ jobs:
               + report + "\n\n"
               + "Use uv run python scripts/pipeline_metrics.py trend to investigate.";
 
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: "open", labels: ["metrics-drift"] });
+            if (!issues.data.some(i => i.title === title)) {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ["metrics-drift"] });
+            }
+
+      - name: Run SLO check
+        id: slo
+        run: |
+          SLO_OUTPUT=$(uv run python scripts/pipeline_metrics.py slo \
+            --slo-file power_pcb_dataset/metrics/slo_definitions.yaml --json 2>&1) || SLO_EXIT=$?
+          echo "$SLO_OUTPUT" | tee slo-result.json
+          SLO_ANY_BLOCK=$(uv run python -c "
+          import json, sys
+          with open('slo-result.json') as f:
+              data = json.load(f)
+          any_block = data.get('any_block', False)
+          print('true' if any_block else 'false')
+          ")
+          echo "slo_any_block=$SLO_ANY_BLOCK" >> "$GITHUB_OUTPUT"
+          echo "slo_exit=${SLO_EXIT:-0}" >> "$GITHUB_OUTPUT"
+
+      - name: Create SPC violation issue
+        if: steps.spc.outputs.spc_violation == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const spcResult = JSON.parse(fs.readFileSync("spc-result.json", "utf8"));
+            const violations = spcResult.results
+              .filter(r => r.violations.length > 0)
+              .map(r => `- ${r.stage}/${r.metric}: ${r.violations.join(", ")} (n=${r.data_points})`)
+              .join("\n");
+            const title = "SPC violation detected";
+            const body = `Western Electric SPC rules have detected a violation.
+
+          ${violations}
+
+          Use \`uv run python scripts/pipeline_metrics.py spc --board temper --window 20\` to investigate.`;
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: "open", labels: ["metrics-drift"] });
+            if (!issues.data.some(i => i.title === title)) {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ["metrics-drift"] });
+            }
+
+      - name: Create SLO violation issue
+        if: steps.slo.outputs.slo_any_block == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const sloResult = JSON.parse(fs.readFileSync("slo-result.json", "utf8"));
+            const blockViolations = sloResult.results
+              .filter(r => r.violated && r.severity === "block")
+              .map(r => `- ${r.stage}/${r.metric}: observed=${r.observed} threshold=${r.threshold} (n=${r.data_points})`)
+              .join("\n");
+            const title = "SLO block violation detected";
+            const body = `Pipeline SLO block violation detected.
+
+          ${blockViolations}
+
+          Use \`uv run python scripts/pipeline_metrics.py slo --slo-file power_pcb_dataset/metrics/slo_definitions.yaml\` to investigate.`;
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner, repo: context.repo.repo,
               state: "open", labels: ["metrics-drift"] });

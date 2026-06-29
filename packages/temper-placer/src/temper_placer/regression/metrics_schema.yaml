@@ -1,0 +1,51 @@
+# @req(2026-06-28-011-feat-pipeline-observability-plan, R5): metric schema YAML with per-field valid ranges and zero_is_valid flags
+schema_version: 1
+metrics:
+  wall_time_ms:
+    unit: "milliseconds"
+    min: 0
+    max: 3600000
+    zero_is_valid: true
+    introduced: "2026-06-28"
+  completion_pct:
+    unit: "percent"
+    min: 0.0
+    max: 100.0
+    zero_is_valid: true
+    introduced: "2026-06-22"
+  drc_errors:
+    unit: "count"
+    min: 0
+    max: 100000
+    zero_is_valid: true
+    introduced: "2026-06-22"
+  drc_warnings:
+    unit: "count"
+    min: 0
+    max: 100000
+    zero_is_valid: true
+    introduced: "2026-06-22"
+  drc_delta:
+    unit: "count"
+    min: -100000
+    max: 100000
+    zero_is_valid: true
+    introduced: "2026-06-28"
+  benders_iterations:
+    unit: "count"
+    min: 0
+    max: 100000
+    zero_is_valid: true
+    introduced: "2026-06-22"
+  benders_cuts:
+    unit: "count"
+    min: 0
+    max: 100000
+    zero_is_valid: true
+    introduced: "2026-06-22"
+  __pipeline_liveness__:
+    unit: "scalar"
+    min: 42.0
+    max: 42.0
+    zero_is_valid: false
+    introduced: "2026-06-28"

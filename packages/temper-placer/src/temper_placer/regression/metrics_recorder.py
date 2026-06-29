@@ -11,16 +11,20 @@ import warnings
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from temper_placer.regression.closure_test import ClosureResult
 
-CURRENT_SCHEMA_VERSION = 1
+CURRENT_SCHEMA_VERSION = 2
 
 
 @dataclass
 class PipelineMetricsRecord:
-    """A single pipeline metrics data point for JSONL storage."""
+    """A single pipeline metrics data point for JSONL storage.
+
+    v2 extends v1 with ``stage_name`` and ``drc_delta`` for per-stage
+    observability.  Fields maintain backward-compatible defaults.
+    """
 
     board: str
     stage: str
@@ -29,9 +33,11 @@ class PipelineMetricsRecord:
     timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     git_commit: str = ""
     schema_version: int = CURRENT_SCHEMA_VERSION
+    stage_name: str = "closure"
+    drc_delta: Optional[int] = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result: dict[str, Any] = {
             "schema_version": self.schema_version,
             "timestamp": self.timestamp,
             "git_commit": self.git_commit,
@@ -39,7 +45,11 @@ class PipelineMetricsRecord:
             "stage": self.stage,
             "module": self.module,
             "metrics": self.metrics,
+            "stage_name": self.stage_name,
         }
+        if self.drc_delta is not None:
+            result["drc_delta"] = self.drc_delta
+        return result
 
     def to_jsonl(self) -> str:
         return json.dumps(self.to_dict())
