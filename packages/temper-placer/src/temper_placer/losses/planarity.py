@@ -168,7 +168,7 @@ class EdgeCrossingLoss(LossFunction):
 
         return LossResult(value=total_penalty)
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:  # type: ignore[override]
         """
         Ramp up planarity constraints in later training.
         """

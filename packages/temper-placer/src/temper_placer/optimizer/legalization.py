@@ -857,7 +857,7 @@ def legalize_abacus(
     # 1. Assign components to rows based on Y coordinate
     row_assignments: list[list[int]] = [[] for _ in range(n_rows)]
     for i in range(n):
-        if context.fixed_mask[i]:
+        if context.fixed_mask[i]:  # type: ignore[index]
             continue
         row_idx = int(np.clip((positions[i, 1] - origin_y) / row_height, 0, n_rows - 1))
         row_assignments[row_idx].append(i)

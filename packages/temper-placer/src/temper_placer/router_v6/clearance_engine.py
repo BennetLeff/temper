@@ -182,7 +182,7 @@ def get_clearance(
         iec60950 = calculate_safety_distances(
             voltage_v=voltage,
             pollution_degree=pollution_degree,
-            material_group=material_group,
+            _material_group=material_group,
             overvoltage_category=overvoltage_category,
         )
         candidates.append(iec60950.clearance_mm)

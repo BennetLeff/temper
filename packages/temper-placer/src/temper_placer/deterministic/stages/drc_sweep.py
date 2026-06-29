@@ -61,7 +61,6 @@ class DRCSweepStage(Stage):
                 layer=layer_idx,
                 net=trace.net or "",
                 width=trace.width,
-                check_existing=False,  # Don't check against already-placed (self)
             )
 
             # Also check for shorts to other nets

@@ -83,10 +83,10 @@ class ClearanceLoss(LossFunction):
         # Get rotation-aware bounds if enabled
         bounds = context.bounds  # (N, 2)
         if self.use_rotated_bounds:
-            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)  # type: ignore[index]
         else:
-            widths = bounds[:, 0]
-            heights = bounds[:, 1]
+            widths = bounds[:, 0]  # type: ignore[index]
+            heights = bounds[:, 1]  # type: ignore[index]
 
         total_penalty = jnp.array(0.0)
         breakdown = {}

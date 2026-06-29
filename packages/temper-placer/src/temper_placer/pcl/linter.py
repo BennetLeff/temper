@@ -191,17 +191,17 @@ def _check_contradictions(
     for constraint in constraints:
         if isinstance(constraint, AdjacentConstraint):
             key = tuple(sorted([constraint.a, constraint.b]))
-            if key not in adjacency_map or constraint.max_distance_mm < adjacency_map[key][0]:
-                adjacency_map[key] = (constraint.max_distance_mm, constraint.id)
+            if key not in adjacency_map or constraint.max_distance_mm < adjacency_map[key][0]:  # type: ignore[index]
+                adjacency_map[key] = (constraint.max_distance_mm, constraint.id)  # type: ignore[index]
 
         elif isinstance(constraint, SeparatedConstraint):
             # Handle pairwise separation
             key = tuple(sorted([constraint.a, constraint.b]))
             if (
                 key not in separation_map
-                or constraint.min_distance_mm > separation_map[key][0]
+                or constraint.min_distance_mm > separation_map[key][0]  # type: ignore[index]
             ):
-                separation_map[key] = (constraint.min_distance_mm, constraint.id)
+                separation_map[key] = (constraint.min_distance_mm, constraint.id)  # type: ignore[index]
 
     # Check for contradictions
     for key, (max_distance, adj_id) in adjacency_map.items():

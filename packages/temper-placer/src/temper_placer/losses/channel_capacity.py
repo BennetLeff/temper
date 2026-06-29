@@ -132,8 +132,8 @@ class ChannelCapacityLoss(LossFunction):
         n = positions.shape[0]
 
         # Get dimensions from bounds array (N, 2)
-        half_w = context.bounds[:, 0] / 2  # (N,)
-        half_h = context.bounds[:, 1] / 2  # (N,)
+        half_w = context.bounds[:, 0] / 2  # type: ignore[index]  # (N,)
+        half_h = context.bounds[:, 1] / 2  # type: ignore[index]  # (N,)
 
         # Compute bounding box edges
         # left[i] = positions[i, 0] - half_w[i]
@@ -230,7 +230,7 @@ class ChannelCapacityLoss(LossFunction):
 
         return demand
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> Array:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> Array:  # type: ignore[override]
         """Channel capacity is important from early in training.
 
         Returns 1.0 after brief warmup to avoid harsh gradients initially.

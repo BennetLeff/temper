@@ -128,7 +128,7 @@ def _extract_pad_sizes(raw_board: KiBoard) -> dict[tuple[str, str], PadSize]:
     Returns:
         Map from (component_ref, pad_number) to PadSize
     """
-    pad_sizes: dict[tuple[str, int], PadSize] = {}
+    pad_sizes: dict[tuple[str, str], PadSize] = {}
 
     if not raw_board.footprints:
         logger.warning("No footprints found in board")

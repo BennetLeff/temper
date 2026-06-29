@@ -120,10 +120,10 @@ class BoundaryLoss(LossFunction):
 
         # Get effective bounds after rotation
         if self.use_rotated_bounds:
-            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+            widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)  # type: ignore[index]
         else:
-            widths = bounds[:, 0]
-            heights = bounds[:, 1]
+            widths = bounds[:, 0]  # type: ignore[index]
+            heights = bounds[:, 1]  # type: ignore[index]
 
         # Compute edge violations
         edge_violations = self._compute_edge_violations(

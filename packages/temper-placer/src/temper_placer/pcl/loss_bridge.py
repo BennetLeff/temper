@@ -469,7 +469,7 @@ def _backend_adapter(constraint: BaseConstraint, context) -> LossFunction:
         constraint,
         netlist=context.netlist,
         board=context.board,
-        zones=context.extra.get("zones"),
+        _zones=context.extra.get("zones"),
         loops=context.extra.get("loops"),
     )
 

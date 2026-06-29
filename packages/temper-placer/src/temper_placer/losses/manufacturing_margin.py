@@ -229,7 +229,7 @@ class ManufacturingMarginLoss(LossFunction):
         """
         # Get rotation-aware bounds
         bounds = context.bounds  # (N, 2)
-        widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)
+        widths, heights = batch_get_rotated_bounds(bounds[:, 0], bounds[:, 1], rotations)  # type: ignore[index]
 
         # Compute all pairwise clearances
         clearances, idx_i, idx_j = compute_pairwise_clearances(positions, widths, heights)
@@ -298,7 +298,7 @@ class ManufacturingMarginLoss(LossFunction):
 
         return LossResult(value=weighted_loss, breakdown=breakdown)
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:  # type: ignore[override]
         """Manufacturing margin is introduced after initial placement.
 
         Starts at 50% weight, reaches full weight at 30% of training.

@@ -258,7 +258,7 @@ class WirelengthLoss(LossFunction):
             return jnp.sum(weighted_hpwl)
         return weighted_hpwl
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:  # noqa: ARG002, ARG002
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:  # type: ignore[override]  # noqa: ARG002, ARG002
         """
         Wirelength is active from the start but with lower weight initially.
 

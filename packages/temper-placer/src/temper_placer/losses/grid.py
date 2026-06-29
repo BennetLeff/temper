@@ -79,7 +79,7 @@ class GridAlignmentLoss(LossFunction):
             },
         )
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:  # type: ignore[override]
         """
         Ramp up grid alignment penalty in late training.
 

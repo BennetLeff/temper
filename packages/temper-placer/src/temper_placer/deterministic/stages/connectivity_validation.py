@@ -250,7 +250,7 @@ class ConnectivityValidationStage(Stage):
         from temper_placer.router_v6.constraints_geometry import point_to_rotated_rect_distance
         return point_to_rotated_rect_distance(v.center, p.rot_rect) <= 1e-4
 
-    def _point_touches_item(self, pt: Point, item: Any, exclude_track: Track = None) -> bool:
+    def _point_touches_item(self, pt: Point, item: Any, exclude_track: Track | None = None) -> bool:
         if isinstance(item, Track):
             if exclude_track and item.layer != exclude_track.layer:
                 return False
@@ -276,7 +276,7 @@ class ConnectivityValidationStage(Stage):
             logger.info("Connectivity validation passed: 0 violations")
             return
 
-        by_type: dict[str, list[ConnectivityViolation]] = {}
+        by_type: dict[str, int] = {}
         for v in violations:
             by_type[v.type] = by_type.get(v.type, 0) + 1
 

@@ -474,8 +474,8 @@ class EdgeAvoidanceLoss(LossFunction):
         bounds = context.bounds  # (N, 2)
 
         # Component half-widths and half-heights
-        half_w = bounds[:, 0] / 2.0  # (N,)
-        half_h = bounds[:, 1] / 2.0  # (N,)
+        half_w = bounds[:, 0] / 2.0  # type: ignore[index]  # (N,)
+        half_h = bounds[:, 1] / 2.0  # type: ignore[index]  # (N,)
 
         # Board boundaries
         x_min = 0.0

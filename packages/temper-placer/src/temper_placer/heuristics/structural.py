@@ -721,7 +721,7 @@ class CriticalLoopHeuristic(Heuristic):
 
         for loop in critical_loops:
             loop_placements = self._place_loop_components(
-                loop_name=loop.name,
+                _loop_name=loop.name,
                 loop_nets=loop.nets,
                 netlist=context.netlist,
                 board=context.board,

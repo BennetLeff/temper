@@ -111,7 +111,7 @@ class ConstraintType(Enum):
         return self._value_[0]
 
     @property
-    def value(self) -> str:
+    def value(self) -> str:  # type: ignore[override]
         """Return the string label for serialization. Overrides Enum.value."""
         return self._value_[0]
 
@@ -246,7 +246,7 @@ class BaseConstraint(ABC):
 # Each key maps a CompilationTarget.value string to a callable
 # (constraint, context) -> backend_output.
 # Populated by bridge modules at import time (lazy registration).
-BaseConstraint.backends: dict[str, Callable] = {"jax": None}  # type: ignore[attr-defined]
+BaseConstraint.backends: dict[str, Callable] = {"jax": None}  # type: ignore[attr-defined, misc]
 
 
 class AdjacentConstraint(BaseConstraint):
@@ -673,9 +673,9 @@ class AnchoredConstraint(BaseConstraint):
         """Check if constraint involves the component."""
         return component == self.component
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, object]:
         """Convert to dictionary."""
-        d = {
+        d: dict[str, object] = {
             "type": self.constraint_type.value,
             "component": self.component,
             "tier": self.tier.value,

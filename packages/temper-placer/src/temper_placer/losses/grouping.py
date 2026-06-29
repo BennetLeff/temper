@@ -158,7 +158,7 @@ class GroupClusterLoss(LossFunction):
             }
         )
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float | Array:  # type: ignore[override]
         """
         Anneal grouping loss so it starts after initial spread.
         """
@@ -500,8 +500,8 @@ def find_isomorphic_pairs(netlist: Netlist) -> list[tuple[int, int, int, int]]:
     for gi, gj, i, j in edges:
         key = tuple(sorted((gi, gj)))
         if key not in edge_types:
-            edge_types[key] = []
-        edge_types[key].append((i, j))
+            edge_types[key] = []  # type: ignore[index]
+        edge_types[key].append((i, j))  # type: ignore[index]
 
     # 4. Create isomorphic pairs from identical edge types
     isomorphic_pairs = []

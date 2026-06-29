@@ -88,7 +88,7 @@ class PinAccessibilityLoss(LossFunction):
 
         # 2. Pin-to-Body clearance
         # Get rotated component bounds
-        widths, heights = batch_get_rotated_bounds(context.bounds[:, 0], context.bounds[:, 1], rotations)
+        widths, heights = batch_get_rotated_bounds(context.bounds[:, 0], context.bounds[:, 1], rotations)  # type: ignore[index]
         half_dims = jnp.stack([widths, heights], axis=-1) / 2.0
 
         # SDF of pin P w.r.t component C:
