@@ -20,6 +20,30 @@ def pytest_configure(config: pytest.Config) -> None:
         "markers",
         "pbt_low_priority: PBT tests that can be skipped under CI-fast to meet time budget",
     )
+    config.addinivalue_line(
+        "markers",
+        "nightly: tests that run only in scheduled nightly CI "
+        "(too heavy for per-commit; opt-in with -m nightly)",
+    )
+
+
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Skip nightly-marked tests unless explicitly selected or running in
+    a nightly CI context (RUN_NIGHTLY env var or -m nightly flag)."""
+    import os
+
+    run_nightly = (
+        config.getoption("-m", default="") == "nightly"
+        or "nightly" in (config.getoption("-m", default="") or "")
+        or os.environ.get("RUN_NIGHTLY") == "1"
+    )
+    if not run_nightly:
+        skip_nightly = pytest.mark.skip(reason="nightly test — use -m nightly or RUN_NIGHTLY=1")
+        for item in items:
+            if "nightly" in item.keywords:
+                item.add_marker(skip_nightly)
 
 
 def _register_profiles() -> None:

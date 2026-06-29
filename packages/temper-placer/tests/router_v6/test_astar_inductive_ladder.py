@@ -253,6 +253,47 @@ def test_l2_3x3_exhaustive():
 
 
 # =============================================================================
+# Level 2b — Exhaustive 4x4 (nightly only — GitHub scheduled CI)
+# =============================================================================
+#  2^16 = 65,536 obstacle configs × ~240 start/goal pairs ≈ 15.7M
+#  A*+Dijkstra runs.  ~20-30 min wall-clock; run only in the nightly
+#  scheduled CI workflow, never on per-commit or PR CI.
+#
+#  To run locally:  pytest -m nightly tests/router_v6/test_astar_inductive_ladder.py
+#
+#  CI gate (nightly workflow):  pytest -m "nightly"
+
+
+@pytest.mark.nightly
+def test_l2b_4x4_exhaustive():
+    """Every 4x4 occupancy config x every unordered start/goal pair.
+
+    2^16 = 65,536 grids x ~240 pairs ≈ 15.7M A*+Dijkstra pairs.
+    ~20-30 min wall-clock. Nightly only — not per-commit.
+    """
+    for occ_bits in range(65536):
+        blocked: set[tuple[int, int]] = set()
+        for r in range(4):
+            for c in range(4):
+                if occ_bits & (1 << (r * 4 + c)):
+                    blocked.add((r, c))
+        grid = _make_grid(4, 4, blocked)
+        free_cells = [(c, r) for r in range(4) for c in range(4) if grid.grid[r, c] == 0]
+
+        for i in range(len(free_cells)):
+            for j in range(i + 1, len(free_cells)):
+                s, g = free_cells[i], free_cells[j]
+                path = _astar_search(s, g, grid)
+
+                msg = f"4x4 cfg={occ_bits}"
+                cost = _assert_oracle_parity(path, s, g, grid, msg)
+
+                if path is not None:
+                    assert _path_cells_free(path, grid), f"Path cell not free: {msg}"
+                    assert _no_redundant_nodes(path), f"Redundant nodes: {msg}"
+
+
+# =============================================================================
 # Level 3 — PBT on Arbitrary Grids (l3_pbt)
 # =============================================================================
 

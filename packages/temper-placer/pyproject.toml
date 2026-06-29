@@ -99,6 +99,7 @@ markers = [
     "l4_regression: Level 4 - real-world regression (CI: PR only)",
     "dependency: marks tests for pytest-dependency lattice ordering (NFR7)",
     "pbt_low_priority: marks PBT tests that can be skipped under CI-fast to meet time budget",
+    "nightly: marks tests that run only in scheduled nightly CI (too heavy for per-commit)",
 ]
 
 [tool.ruff]
