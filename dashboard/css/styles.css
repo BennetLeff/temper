@@ -1,0 +1,144 @@
+/* Temper CI Profiling Dashboard Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #0d1117;
+  color: #c9d1d9;
+  min-height: 100vh;
+}
+
+header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f0f6fc;
+}
+
+#module-nav {
+  display: flex;
+  gap: 0;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#module-nav button {
+  background: none;
+  border: none;
+  color: #8b949e;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-right: 1px solid #30363d;
+  transition: background 0.15s, color 0.15s;
+}
+
+#module-nav button:last-child {
+  border-right: none;
+}
+
+#module-nav button.active {
+  background: #388bfd;
+  color: #fff;
+}
+
+#module-nav button:hover:not(.active) {
+  background: #1c2128;
+  color: #f0f6fc;
+}
+
+#time-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #8b949e;
+}
+
+#time-controls select {
+  background: #161b22;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+}
+
+main {
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 1.5rem;
+}
+
+.chart-container {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.chart-container h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #f0f6fc;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  max-height: 320px;
+}
+
+#loading, #error, #no-data {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: #8b949e;
+}
+
+#error button {
+  margin-top: 0.5rem;
+  background: #30363d;
+  border: 1px solid #484f58;
+  color: #c9d1d9;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.regression-highlight {
+  color: #f85149;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  #time-controls {
+    margin-left: 0;
+  }
+  main {
+    padding: 1rem;
+    grid-template-columns: 1fr;
+  }
+}

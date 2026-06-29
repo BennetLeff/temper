@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temper CI Profiling Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Temper CI Profiling</h1>
+    <nav id="module-nav">
+      <button data-module="pipeline" class="active">Pipeline</button>
+      <button data-module="loss-fn">Loss Functions</button>
+      <button data-module="router-bench">Router Benchmarks</button>
+    </nav>
+    <div id="time-controls">
+      <label>Window:</label>
+      <select id="time-window">
+        <option value="7">7 days</option>
+        <option value="30" selected>30 days</option>
+        <option value="90">90 days</option>
+        <option value="0">All time</option>
+      </select>
+      <span id="last-updated"></span>
+    </div>
+  </header>
+
+  <main id="dashboard">
+    <div id="loading">Loading metrics data...</div>
+    <div id="error" style="display:none">Could not load metrics data.
+      <button onclick="location.reload()">Retry</button>
+    </div>
+    <div id="no-data" style="display:none">No data recorded yet. Metrics will
+      appear here after the first main push with profiling enabled.</div>
+  </main>
+
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

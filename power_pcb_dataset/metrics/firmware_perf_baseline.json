@@ -1,0 +1,47 @@
+{
+  "_description": "Firmware performance metric baseline — schema-only placeholder. All values are zero until on-target ESP32 profiling hardware is provisioned.",
+  "schema_version": 1,
+  "module": "firmware",
+  "metrics": {
+    "sm_cycle_us": {
+      "description": "State machine main loop cycle time (microseconds)",
+      "baseline_us": 0
+    },
+    "pid_compute_us": {
+      "description": "PID computation time (microseconds)",
+      "baseline_us": 0
+    },
+    "adc_guard_us": {
+      "description": "ADC guard check latency (microseconds)",
+      "baseline_us": 0
+    },
+    "pwm_guard_us": {
+      "description": "PWM guard check latency (microseconds)",
+      "baseline_us": 0
+    },
+    "ntc_guard_us": {
+      "description": "NTC guard check latency (microseconds)",
+      "baseline_us": 0
+    },
+    "fan_guard_us": {
+      "description": "Fan guard check latency (microseconds)",
+      "baseline_us": 0
+    },
+    "coil_guard_us": {
+      "description": "Coil guard check latency (microseconds)",
+      "baseline_us": 0
+    },
+    "probe_detect_us": {
+      "description": "Probe detection latency (microseconds)",
+      "baseline_us": 0
+    },
+    "task_free_stack": {
+      "description": "FreeRTOS task stack headroom (bytes)",
+      "baseline_bytes": 0
+    },
+    "heap_free": {
+      "description": "Free heap bytes",
+      "baseline_bytes": 0
+    }
+  }
+}

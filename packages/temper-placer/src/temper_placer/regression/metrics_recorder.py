@@ -24,7 +24,8 @@ class PipelineMetricsRecord:
 
     board: str
     stage: str
-    metrics: dict[str, float]
+    module: str = "pipeline"
+    metrics: dict[str, float] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     git_commit: str = ""
     schema_version: int = CURRENT_SCHEMA_VERSION
@@ -36,6 +37,7 @@ class PipelineMetricsRecord:
             "git_commit": self.git_commit,
             "board": self.board,
             "stage": self.stage,
+            "module": self.module,
             "metrics": self.metrics,
         }
 
@@ -53,6 +55,7 @@ def record_closure_result(
     return PipelineMetricsRecord(
         board=board_id,
         stage="closure",
+        module="pipeline",
         git_commit=commit,
         metrics={
             "completion_pct": round(result.router_completion_pct, 1),
@@ -62,6 +65,23 @@ def record_closure_result(
             "benders_iterations": result.benders_iterations,
             "benders_cuts": result.benders_cuts,
         },
+    )
+
+
+def record_metrics_for_stage(
+    board: str,
+    stage: str,
+    module: str,
+    metrics: dict[str, float],
+    commit: str = "",
+) -> PipelineMetricsRecord:
+    """Generic entry point for recording metrics for any module/stage."""
+    return PipelineMetricsRecord(
+        board=board,
+        stage=stage,
+        module=module,
+        git_commit=commit,
+        metrics=metrics,
     )
 
 
@@ -97,6 +117,9 @@ def load_metrics(filepath: Path) -> list[dict[str, Any]]:
             elif schema > CURRENT_SCHEMA_VERSION:
                 warnings.warn(f"Future schema_version {schema} at line {lineno}, skipping")
                 continue
+
+            if "module" not in record:
+                record["module"] = "pipeline"
 
             records.append(record)
 
