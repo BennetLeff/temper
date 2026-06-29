@@ -8,10 +8,7 @@
 
 use std::collections::HashMap;
 
-use crate::types::{
-    InternalBundleManifest, InternalConstraint, InternalConstraintModel, SolverStatus,
-    TopologyResult,
-};
+use crate::types::{InternalConstraint, InternalConstraintModel, TopologyResult, SolverStatus};
 
 /// Result of auditing a single constraint.
 #[derive(Debug, PartialEq)]
@@ -53,18 +50,16 @@ pub fn audit_constraints(
         .map(|(i, name)| (name.as_str(), i))
         .collect();
 
-    /// Helper: get truth value for a variable name.
-    /// Returns ``None`` silently when the solver didn't assign the variable —
-    /// when ``max_sat_nets`` encodes only a subset of nets, unassigned
-    /// variables were not part of the solved problem and should be ignored.
-    fn get_val<'a>(
-        name: &'a str,
-        name_to_idx: &HashMap<&str, usize>,
-        result: &TopologyResult,
-    ) -> Option<bool> {
-        let idx = name_to_idx.get(name)?;
-        result.assignments.get(idx).copied()
-    }
+    // Helper: get truth value for a variable name
+    let get_val = |name: &str, violations: &mut Vec<AuditViolation>| -> Option<bool> {
+        match name_to_idx.get(name) {
+            Some(&idx) => result.assignments.get(&idx).copied(),
+            None => {
+                violations.push(AuditViolation::NoAssignmentForVar(name.to_string()));
+                None
+            }
+        }
+    };
 
     if result.status != SolverStatus::Satisfiable {
         // UNSAT: check if the problem is actually unsatisfiable.
@@ -85,7 +80,7 @@ pub fn audit_constraints(
 
                 let mut true_vars: Vec<String> = Vec::new();
                 for (vname, _w) in terms {
-                    if let Some(val) = get_val(vname, &name_to_idx, result) {
+                    if let Some(val) = get_val(vname, &mut violations) {
                         if val {
                             true_vars.push(vname.clone());
                         }
@@ -102,8 +97,8 @@ pub fn audit_constraints(
                 }
             }
             InternalConstraint::DiffPair { channel_id, p_var_name, n_var_name } => {
-                let p_val = get_val(p_var_name, &name_to_idx, result);
-                let n_val = get_val(n_var_name, &name_to_idx, result);
+                let p_val = get_val(p_var_name, &mut violations);
+                let n_val = get_val(n_var_name, &mut violations);
                 if let (Some(p), Some(n)) = (p_val, n_val) {
                     if p != n {
                         violations.push(AuditViolation::DiffPairMismatch {
@@ -117,7 +112,7 @@ pub fn audit_constraints(
                 }
             }
             InternalConstraint::LayerRestriction { var_name, allowed } => {
-                if let Some(val) = get_val(var_name, &name_to_idx, result) {
+                if let Some(val) = get_val(var_name, &mut violations) {
                     if val != *allowed {
                         violations.push(AuditViolation::LayerViolation {
                             var_name: var_name.clone(),
@@ -127,51 +122,19 @@ pub fn audit_constraints(
                     }
                 }
             }
-            &InternalConstraint::ChannelSeparation { .. } => { /* decomposed into sub-constraints */ }
+            InternalConstraint::ChannelSeparation { min_slots, .. } => {
+                // ChannelSeparation is encoded as AtMostK + ordering clauses.
+                // The audit for Capacity constraints already catches AtMostK
+                // violations. Ordering clause violations are encoded as hard
+                // unit clauses, so if they're violated the SAT solver would
+                // have returned UNSAT. When the solver returns SAT, order
+                // constraints are satisfied by construction.
+                let _ = min_slots;
+            }
         }
     }
 
     violations
-}
-
-/// Audit bundled solver results by expanding class-variable assignments to
-/// per-net assignments before checking constraints (U7 / R9.1).
-///
-/// When `bundle_manifest` is Some, class-level `uses_B` assignments are
-/// expanded via the homomorphism to per-net `uses_N` assignments before
-/// constraint checking. When None, falls back to standard audit.
-pub fn audit_constraints_bundled(
-    model: &InternalConstraintModel,
-    result: &TopologyResult,
-    var_names: &[String],
-    bundle_manifest: Option<&InternalBundleManifest>,
-) -> Vec<AuditViolation> {
-    if bundle_manifest.is_none() {
-        return audit_constraints(model, result, var_names);
-    }
-
-    let manifest = bundle_manifest.unwrap();
-
-    // Expand class-variable assignments to per-net assignments.
-    let expanded = super::extraction::expand_assignments(
-        &result.assignments,
-        var_names,
-        manifest,
-    );
-
-    // Build a synthetic result with expanded assignments.
-    let expanded_result = TopologyResult {
-        status: result.status.clone(),
-        num_vars: var_names.len(),
-        num_clauses: result.num_clauses,
-        assignments: expanded,
-        unsat_core: result.unsat_core.clone(),
-        solver_time_ms: result.solver_time_ms,
-    };
-
-    // Build expanded var_names (same as original — assignments map includes
-    // both class and per-net indices).
-    audit_constraints(model, &expanded_result, var_names)
 }
 
 #[cfg(test)]
@@ -181,7 +144,7 @@ mod tests {
     use std::collections::HashMap;
 
     fn make_result(status: SolverStatus, assignments: HashMap<usize, bool>) -> TopologyResult {
-        TopologyResult { status, num_vars: 0, num_clauses: 0, assignments, unsat_core: vec![], solver_time_ms: 0.0, tensions: vec![], conflict: None }
+        TopologyResult { status, num_vars: 0, num_clauses: 0, assignments, unsat_core: vec![], solver_time_ms: 0.0 }
     }
 
     #[test]
@@ -313,7 +276,9 @@ mod tests {
                         if val != *allowed { violations.push(format!("layer:{var_name}:{val}!={allowed}")); }
                     }
                 }
-                &InternalConstraint::ChannelSeparation { .. } => { /* decomposed into sub-constraints */ }
+                InternalConstraint::ChannelSeparation { .. } => {
+                    // Encoded as AtMostK — capacity checks above cover it.
+                }
             }
         }
         violations
@@ -354,8 +319,6 @@ mod tests {
                 assignments: assign.clone(),
                 unsat_core: vec![],
                 solver_time_ms: 0.0,
-                tensions: vec![],
-                conflict: None,
             };
 
             let audit_violations = audit_constraints(&model, &result, &vn);
