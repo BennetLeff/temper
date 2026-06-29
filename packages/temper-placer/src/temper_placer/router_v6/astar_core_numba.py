@@ -46,6 +46,8 @@ Implementation notes
 from __future__ import annotations
 
 import math
+import time
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -57,6 +59,35 @@ try:
     _HAVE_NUMBA = True
 except ImportError:  # pragma: no cover
     _HAVE_NUMBA = False
+
+
+@dataclass
+class RouteProfileStats:
+    """Aggregate timing stats collected across A* search calls."""
+
+    numba_time_ms: float = 0.0
+    python_time_ms: float = 0.0
+    astar_total_ms: float = 0.0
+    dist_map_ms: float = 0.0
+
+    def reset(self) -> None:
+        self.numba_time_ms = 0.0
+        self.python_time_ms = 0.0
+        self.astar_total_ms = 0.0
+        self.dist_map_ms = 0.0
+
+
+_route_profile_stats = RouteProfileStats()
+
+
+def get_route_profile_stats() -> RouteProfileStats:
+    """Return the module-level aggregate A* timing stats."""
+    return _route_profile_stats
+
+
+def reset_route_profile_stats() -> None:
+    """Reset the module-level aggregate A* timing stats."""
+    _route_profile_stats.reset()
 
 
 _NUMBA_KERNEL = None
@@ -348,17 +379,27 @@ def _astar_search_numba(
     default); ``max_congestion_cost`` caps the per-cell cost
     (100.0 by default).
     """
+    t0_total = time.perf_counter()
+
     if not _HAVE_NUMBA:
-        # Graceful degrade to the pure-Python path
+        t0 = time.perf_counter()
         from temper_placer.router_v6.astar_core import _astar_search
-        return _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
+        result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
+        _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
+        _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
+        return result
 
     kernel = _get_kernel()
     if kernel is None:
+        t0 = time.perf_counter()
         from temper_placer.router_v6.astar_core import _astar_search
-        return _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
+        result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
+        _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
+        _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
+        return result
 
     # Build (or reuse) the validity tensor
+    t0_dist = time.perf_counter()
     if neighbor_tensor is None:
         from temper_placer.router_v6.neighbor_validity import (
             build_neighbor_validity_tensor_2d,
@@ -370,6 +411,7 @@ def _astar_search_numba(
     validity_flat = np.ascontiguousarray(
         neighbor_tensor.astype(np.uint8).reshape(-1)
     )
+    _route_profile_stats.dist_map_ms += (time.perf_counter() - t0_dist) * 1000.0
 
     start_idx = int(start[1]) * cols + int(start[0])
     goal_idx = int(goal[1]) * cols + int(goal[0])
@@ -384,6 +426,7 @@ def _astar_search_numba(
     else:
         congestion_arg = None
 
+    t0_numba = time.perf_counter()
     path_flat, _iters = kernel(
         start_idx, goal_idx, rows, cols, validity_flat,
         max_iterations,
@@ -391,6 +434,8 @@ def _astar_search_numba(
         np.float32(congestion_weight),
         np.float32(max_congestion_cost),
     )
+    _route_profile_stats.numba_time_ms += (time.perf_counter() - t0_numba) * 1000.0
+    _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
 
     if path_flat.shape[0] == 0:
         return None

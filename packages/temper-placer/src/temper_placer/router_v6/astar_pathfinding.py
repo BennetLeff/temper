@@ -18,6 +18,10 @@ from temper_placer.router_v6.astar_core import (
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
 )
+from temper_placer.router_v6.astar_core_numba import (
+    get_route_profile_stats,
+    reset_route_profile_stats,
+)
 from temper_placer.router_v6.astar_grid import (
     _build_tht_pad_locations,
     _extract_pad_centers_per_net,

@@ -579,7 +579,7 @@ class RouterV6Pipeline:
 
         ctx = self.profiler.stage("stage2") if self.profiler else nullcontext()
         with ctx:
-            orchestrator = Stage2Orchestrator(verbose=self.verbose)
+            orchestrator = Stage2Orchestrator(verbose=self.verbose, profiler=self.profiler)
             state = orchestrator.run(pcb, escape_vias)
             stage2 = Stage2Orchestrator.assemble_stage2_output(state)
 
