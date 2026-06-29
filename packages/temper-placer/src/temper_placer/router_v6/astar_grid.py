@@ -27,7 +27,7 @@ def _build_tht_pad_locations(pcb) -> set[tuple[float, float]]:
 
     from temper_placer.core.pin_geometry import pin_world_position
 
-    tht_locations = set()
+    tht_locations: set[tuple[float, float]] = set()
 
     if not hasattr(pcb, "components"):
         return tht_locations

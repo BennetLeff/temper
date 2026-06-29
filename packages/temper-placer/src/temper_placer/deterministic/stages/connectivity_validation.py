@@ -276,7 +276,7 @@ class ConnectivityValidationStage(Stage):
             logger.info("Connectivity validation passed: 0 violations")
             return
 
-        by_type = {}
+        by_type: dict[str, list[ConnectivityViolation]] = {}
         for v in violations:
             by_type[v.type] = by_type.get(v.type, 0) + 1
 

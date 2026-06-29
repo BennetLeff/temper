@@ -19,7 +19,7 @@ class PcbDataset:
 
     def __init__(self, dataset_dir: Path):
         self.dataset_dir = dataset_dir
-        self.samples = []
+        self.samples: list = []
         self._load_dataset()
 
     def _load_dataset(self):

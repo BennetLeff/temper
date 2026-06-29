@@ -946,7 +946,7 @@ class ClearanceGridStage(Stage):
             placements_dict = dict(state.placements) if state.placements else {}
 
             # Build net->pads mapping for selective unblocking
-            net_pads = {}
+            net_pads: dict[str, list[tuple[float, float]]] = {}
             all_pads_for_expansion = []
             for component in state.netlist.components:
                 pos = placements_dict.get(component.ref, component.initial_position)
