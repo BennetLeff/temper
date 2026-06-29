@@ -99,16 +99,23 @@ def populate_sat_from_constraints(
     sat_model: SATModel,
     constraint_model: ConstraintModel,
     net_names: list[str] | None = None,
+    *,
+    skip_connectivity: bool = False,
 ) -> None:
     """
     Populate SAT model with constraints from constraint model.
 
     Translates high-level routing constraints into SAT clauses.
 
+    # @req(2026-06-28-006, FR-REL2): skip_connectivity for BMC constraint-only CNF
+
     Args:
         sat_model: SAT model to populate
         constraint_model: Constraint model with variables and constraints
         net_names: Optional list of net names (indexed by net_idx)
+        skip_connectivity: If True, skip the connectivity clauses
+            (at-least-one-per-net) to keep primary-variable count
+            manageable for BMC verification.
 
     Example:
         >>> sat = build_sat_model()
@@ -149,16 +156,19 @@ def populate_sat_from_constraints(
                 net_channel_vars[var.net_idx] = []
             net_channel_vars[var.net_idx].append(sat_var)
 
-    # 1.5: Add basic connectivity constraints - each net must use at least one channel
-    for net_idx, vars_list in net_channel_vars.items():
-        if vars_list:
-            # At least one of these variables must be True
-            # This is a clause: (var1 ∨ var2 ∨ ... ∨ varN)
-            net_name_str = net_names[net_idx] if net_names and net_idx < len(net_names) else f"N{net_idx}"
-            sat_model.add_clause(
-                [(var, True) for var in vars_list],
-                f"Connectivity: {net_name_str} must use at least one channel"
-            )
+    # 1.5: Add basic connectivity constraints - each net must use at least one channel.
+    # Skip when BMC-verifying constraint encoding in isolation
+    # (connectivity clauses inflate primary-variable count past viable bound).
+    if not skip_connectivity:
+        for net_idx, vars_list in net_channel_vars.items():
+            if vars_list:
+                # At least one of these variables must be True
+                # This is a clause: (var1 ∨ var2 ∨ ... ∨ varN)
+                net_name_str = net_names[net_idx] if net_names and net_idx < len(net_names) else f"N{net_idx}"
+                sat_model.add_clause(
+                    [(var, True) for var in vars_list],
+                    f"Connectivity: {net_name_str} must use at least one channel"
+                )
 
     # 2. Translate constraints to SAT clauses
     for constraint in constraint_model.constraints:
