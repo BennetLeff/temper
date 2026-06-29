@@ -823,6 +823,67 @@ class LossFunction(ABC):
         return 1.0
 
 
+class StatefulLossFunction(LossFunction, ABC):
+    """
+    A loss function that maintains mutable state updated once per refinement
+    iteration, outside the JAX inner loop.
+
+    The blend() / compute_loss() separation ensures stateful blending
+    happens exactly once per iteration, while compute_loss() is pure
+    and JAX-jittable.
+
+    Subclasses must implement blend() and compute_loss().
+    """
+
+    @abstractmethod
+    def blend(self, state: dict) -> None:
+        """
+        Blend new feedback data into internal state.
+
+        Called by the orchestrator once per outer refinement iteration,
+        BEFORE the JAX inner optimization loop.
+
+        Args:
+            state: Dict with iteration-specific data (e.g. routability scores,
+                   heatmaps, solver stats).
+        """
+        ...
+
+    @abstractmethod
+    def compute_loss(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
+    ) -> LossResult:
+        """
+        Compute loss from the blended internal state.
+
+        Called during JAX gradient descent. Must be pure and jittable.
+
+        Returns:
+            LossResult with scalar value and breakdown.
+        """
+        ...
+
+    def __call__(
+        self,
+        positions: Array,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
+    ) -> LossResult:
+        """Convenience: delegates to compute_loss()."""
+        return self.compute_loss(
+            positions, rotations, context, epoch, total_epochs, net_virtual_nodes
+        )
+
+
 def smooth_step(x: Array, edge0: float = 0.0, edge1: float = 1.0) -> Array:
     """
     Smooth step function (Hermite interpolation) for curriculum learning.

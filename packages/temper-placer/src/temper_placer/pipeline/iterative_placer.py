@@ -8,7 +8,7 @@ Part of temper-gzur.2
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
@@ -36,6 +36,9 @@ class IterationResult:
     total_congestion: float
     hotspot_count: int
     placement_changed: bool
+    routability_score_mean: float = 0.0
+    unsat_core_size: int = 0
+    solver_status: str = "unknown"
 
 
 @dataclass 
@@ -48,6 +51,7 @@ class PlaceRouteResult:
     routing_results: dict[str, "RoutePath"]
     heatmap: CongestionHeatmap | None
     iteration_history: list[IterationResult]
+    routability_history: list[float] = field(default_factory=list)
 
 
 def iterative_place_and_route(

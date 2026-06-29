@@ -46,6 +46,7 @@ from temper_placer.losses.base import (
     LossFunction,
     LossResult,
     MountingRule,
+    StatefulLossFunction,
     ThermalConstraint,
     WeightedLoss,
     apply_fixed_mask_to_gradients,
@@ -213,6 +214,11 @@ from temper_placer.losses.routability import (
     RoutabilityLoss,
 )
 
+# Routability gradient loss (STE-based, stateful)
+from temper_placer.losses.routability_gradient import (
+    RoutabilityGradientLoss,
+)
+
 # Routing-aware placement losses
 from temper_placer.losses.routing_aware import (
     BusAlignmentLoss,
@@ -262,6 +268,7 @@ __all__ = [
     "LossFunction",
     "LossResult",
     "LossContext",
+    "StatefulLossFunction",
     "CompositeLoss",
     "WeightedLoss",
     "smooth_step",

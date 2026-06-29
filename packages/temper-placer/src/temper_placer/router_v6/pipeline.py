@@ -649,6 +649,8 @@ class RouterV6Pipeline:
             status=status,
             assignment=dict(rust_result["assignments"]),
             solver_time_ms=float(rust_result.get("solver_time_ms", 0)),
+            solver_stats=rust_result.get("solver_stats"),
+            var_to_net=rust_result.get("var_to_net"),
         )
 
         # Build topology graph from Rust output.

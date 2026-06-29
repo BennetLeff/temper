@@ -113,6 +113,13 @@ class PipelineConfig:
     routability_threshold: float = 0.85
     convergence_threshold: float = 0.01
 
+    # Routability gradient (new)
+    routability_gradient_weight: float = 50.0  # FR4.1 base weight
+    routability_gradient_max_grad_norm: float = 1.0  # FR5.4 max L2 norm (mm)
+    routability_gradient_unsat_movement_multiplier: float = 2.0  # FR6.3
+    routability_gradient_sat_timeout_ms: float = 500.0  # FR4.3 SAT timeout
+    routability_gradient_unsat_escape_iterations: int = 3  # FR6.4
+
     # Manufacturing
     fab_preset: str = "jlcpcb_standard"
 
