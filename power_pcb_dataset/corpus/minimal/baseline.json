@@ -1,7 +1,7 @@
 {
   "board_id": "minimal",
-  "extracted_at": "2026-06-22T00:00:00",
-  "git_hash": "unknown",
+  "extracted_at": "2026-06-29T00:59:39.020183+00:00",
+  "git_hash": "4c01dcc3",
   "config": {
     "seed": 43,
     "epochs": 2000,
@@ -11,29 +11,29 @@
   },
   "metrics": {
     "wirelength_final": {
-      "mean": 0.0,
-      "margin_rel": 0.15,
-      "margin_abs": 500.0
+      "mean": 279.83709716796875,
+      "margin_rel": 0.1,
+      "margin_abs": 100.0
     },
     "overlap_loss_final": {
       "mean": 0.0,
-      "margin_rel": 0.20,
-      "margin_abs": 5.0
+      "margin_rel": 0.1,
+      "margin_abs": 2.0
     },
     "boundary_loss_final": {
       "mean": 0.0,
-      "margin_rel": 0.20,
-      "margin_abs": 10.0
+      "margin_rel": 0.1,
+      "margin_abs": 5.0
     },
     "final_loss": {
-      "mean": 0.0,
-      "margin_rel": 0.15,
-      "margin_abs": 100.0
+      "mean": 279.83709716796875,
+      "margin_rel": 0.05,
+      "margin_abs": 20.0
     },
     "hpwl_final": {
       "mean": 0.0,
-      "margin_rel": 0.15,
-      "margin_abs": 500.0
+      "margin_rel": 0.05,
+      "margin_abs": 100.0
     }
   }
 }
