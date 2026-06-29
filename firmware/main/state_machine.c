@@ -1135,6 +1135,11 @@ void state_machine_reset_stuck_tracking(void) {
 
 static bool fault_cleared(void) {
     float rtd_resistance;
+
+    /* RUNAWAY_FAULT is hardware-latched; never software-clearable */
+    if (sm_ctx.current_state == STATE_RUNAWAY_FAULT) {
+        return false;
+    }
     
     switch (sm_ctx.fault_code) {
         case FAULT_OVER_TEMP:
