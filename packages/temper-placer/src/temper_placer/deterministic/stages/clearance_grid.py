@@ -439,7 +439,7 @@ class ClearanceGrid:
         return (row, col)
 
     def is_available(
-        self, x_mm: float, y_mm: float, layer: int = 0, net_name: str = None, net_id: int = None
+        self, x_mm: float, y_mm: float, layer: int = 0, net_name: str | None = None, net_id: int | None = None
     ) -> bool:
         """Check if a position is available for routing on specified layer."""
         if layer < 0 or layer >= self.layer_count:
@@ -465,7 +465,7 @@ class ClearanceGrid:
         radius_mm: float,
         clearance_mm: float,
         layer: int = 0,
-        net_name: str = None,
+        net_name: str | None = None,
         is_pad: bool = True,
     ):
         """Block cells within radius + clearance of center on specified layer."""
@@ -505,7 +505,7 @@ class ClearanceGrid:
         width_mm: float,
         clearance_mm: float,
         layer: int = 0,
-        net_name: str = None,
+        net_name: str | None = None,
     ):
         """Block cells along a trace path with given width and clearance on specified layer."""
         if not path:
@@ -531,7 +531,7 @@ class ClearanceGrid:
         width_mm: float,
         clearance_mm: float,
         layer: int = 0,
-        net_name: str = None,
+        net_name: str | None = None,
     ):
         """Block cells along a straight segment on specified layer."""
         if layer < 0 or layer >= self.layer_count:
@@ -586,7 +586,7 @@ class ClearanceGrid:
         size: tuple[float, float],
         clearance_mm: float,
         layer: int = 0,
-        net_name: str = None,
+        net_name: str | None = None,
         is_obstacle: bool = True,
     ):
         """Block a rectangular region on specified layer.
@@ -692,8 +692,8 @@ class ClearanceGrid:
         self,
         output_path: str,
         layer: int = 0,
-        component_positions: dict = None,
-        _highlight_nets: list = None,
+        component_positions: dict | None = None,
+        _highlight_nets: list | None = None,
     ):
         """Export clearance grid as a PNG visualization.
 
@@ -832,14 +832,14 @@ class ClearanceGridStage(Stage):
         self,
         cell_size_mm: float = 0.5,
         layer_count: int = 2,
-        pad_sizes: dict = None,
+        pad_sizes: dict | None = None,
         max_clearance_mm: float = 2.5,
         net_class_clearances: dict[str, float] = None,
         net_classes: dict[str, str] = None,
         pth_mask_expansion_mm: float = 0.15,
         smd_mask_expansion_mm: float = 0.10,
         inner_layer_clearance_mm: float = 0.5,
-        hv_exclusion_zones: list = None,
+        hv_exclusion_zones: list | None = None,
         default_trace_width_mm: float = 0.25,
     ):
         """Initialize clearance grid stage.

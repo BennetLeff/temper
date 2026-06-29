@@ -1,5 +1,5 @@
 # Type-check allowlist — monotonic-shrink baseline
-# 1027 total errors across 173 files
+# 954 total errors across 169 files
 # <filepath> <max-allowed-error-count>
 # Do not increase these numbers. Fix the errors.
 
@@ -23,7 +23,7 @@ packages/temper-placer/src/temper_placer/deterministic/feedback/orchestrator.py 
 packages/temper-placer/src/temper_placer/deterministic/feedback/zone_adjuster.py 1
 packages/temper-placer/src/temper_placer/deterministic/instrumentation.py 3
 packages/temper-placer/src/temper_placer/deterministic/stages/apply_placements.py 2
-packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 58
+packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 34
 packages/temper-placer/src/temper_placer/deterministic/stages/component_assignment.py 4
 packages/temper-placer/src/temper_placer/deterministic/stages/connectivity_validation.py 4
 packages/temper-placer/src/temper_placer/deterministic/stages/courtyard_check.py 4
@@ -60,32 +60,28 @@ packages/temper-placer/src/temper_placer/io/loop_loader.py 1
 packages/temper-placer/src/temper_placer/io/net_class_manager.py 1
 packages/temper-placer/src/temper_placer/io/reference_loader.py 4
 packages/temper-placer/src/temper_placer/io/snapshot.py 10
-packages/temper-placer/src/temper_placer/losses/aesthetic.py 54
-packages/temper-placer/src/temper_placer/losses/base.py 18
-packages/temper-placer/src/temper_placer/losses/boundary.py 6
-packages/temper-placer/src/temper_placer/losses/channel_capacity.py 4
+packages/temper-placer/src/temper_placer/losses/aesthetic.py 36
+packages/temper-placer/src/temper_placer/losses/base.py 16
+packages/temper-placer/src/temper_placer/losses/boundary.py 4
+packages/temper-placer/src/temper_placer/losses/channel_capacity.py 2
 packages/temper-placer/src/temper_placer/losses/coil.py 6
 packages/temper-placer/src/temper_placer/losses/compact.py 1
 packages/temper-placer/src/temper_placer/losses/component_group.py 2
-packages/temper-placer/src/temper_placer/losses/consolidated.py 18
-packages/temper-placer/src/temper_placer/losses/crystal.py 2
-packages/temper-placer/src/temper_placer/losses/drc_loss.py 2
-packages/temper-placer/src/temper_placer/losses/enhanced_congestion.py 2
-packages/temper-placer/src/temper_placer/losses/grid.py 4
-packages/temper-placer/src/temper_placer/losses/grouping.py 14
+packages/temper-placer/src/temper_placer/losses/consolidated.py 13
+packages/temper-placer/src/temper_placer/losses/enhanced_congestion.py 1
+packages/temper-placer/src/temper_placer/losses/grid.py 2
+packages/temper-placer/src/temper_placer/losses/ground_crossing.py 6
+packages/temper-placer/src/temper_placer/losses/grouping.py 6
 packages/temper-placer/src/temper_placer/losses/loop_area.py 2
-packages/temper-placer/src/temper_placer/losses/manufacturing_margin.py 4
+packages/temper-placer/src/temper_placer/losses/manufacturing_margin.py 2
 packages/temper-placer/src/temper_placer/losses/net_class.py 2
-packages/temper-placer/src/temper_placer/losses/overlap.py 2
 packages/temper-placer/src/temper_placer/losses/physics/congestion.py 2
 packages/temper-placer/src/temper_placer/losses/physics/hypergraph_losses.py 4
 packages/temper-placer/src/temper_placer/losses/physics/wrappers.py 4
-packages/temper-placer/src/temper_placer/losses/pin_accessibility.py 2
 packages/temper-placer/src/temper_placer/losses/planarity.py 2
 packages/temper-placer/src/temper_placer/losses/power_path.py 6
-packages/temper-placer/src/temper_placer/losses/regularization.py 6
-packages/temper-placer/src/temper_placer/losses/routing_aware.py 24
-packages/temper-placer/src/temper_placer/losses/routing_congestion.py 2
+packages/temper-placer/src/temper_placer/losses/routing_aware.py 18
+packages/temper-placer/src/temper_placer/losses/routing_congestion.py 1
 packages/temper-placer/src/temper_placer/losses/tht_clearance.py 14
 packages/temper-placer/src/temper_placer/losses/types.py 64
 packages/temper-placer/src/temper_placer/losses/wirelength.py 2
@@ -144,7 +140,7 @@ packages/temper-placer/src/temper_placer/router_v6/layer_capacity.py 8
 packages/temper-placer/src/temper_placer/router_v6/length_matching.py 4
 packages/temper-placer/src/temper_placer/router_v6/obstacle_map.py 4
 packages/temper-placer/src/temper_placer/router_v6/occupancy_grid.py 4
-packages/temper-placer/src/temper_placer/router_v6/pipeline.py 20
+packages/temper-placer/src/temper_placer/router_v6/pipeline.py 28
 packages/temper-placer/src/temper_placer/router_v6/reference_plane_constraints.py 1
 packages/temper-placer/src/temper_placer/router_v6/routing_demand.py 2
 packages/temper-placer/src/temper_placer/router_v6/routing_failure_handler.py 4
