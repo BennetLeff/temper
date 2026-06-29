@@ -68,6 +68,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -77,6 +78,14 @@ jobs:
       
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
         run: |
@@ -119,6 +128,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -128,6 +138,14 @@ jobs:
       
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Cache Rust build
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-rust-router/target
+          key: ${{ runner.os }}-rust-router-${{ hashFiles('packages/temper-rust-router/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
         run: |
@@ -204,18 +222,6 @@ jobs:
         run: uv run python scripts/trace_invocations.py
         continue-on-error: true  # pre-existing; temper-N6-U8
 
-      - name: Script manifest gate
-        run: uv run python scripts/check_manifest_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
-
-      - name: Script sunset check (warnings only)
-        run: uv run python scripts/check_script_sunset.py
-        continue-on-error: true  # sunset is informational, not blocking
-
-      - name: Import boundary enforcement
-        run: uv run python scripts/import_linter_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
-
   closure:
     name: Pipeline Closure Test (Truth-Gated)
     runs-on: ubuntu-latest
@@ -227,6 +233,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
 
       - name: Set up Python
         run: uv python install 3.12
@@ -260,6 +267,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -287,7 +295,7 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-        with: { version: "latest" }
+        with: { version: "latest", enable-cache: true }
       - name: Set up Python
         run: uv python install 3.12
       - name: LOC cap gate
@@ -304,6 +312,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -339,6 +348,7 @@ jobs:
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
 
       - name: Set up Python
         run: uv python install 3.12

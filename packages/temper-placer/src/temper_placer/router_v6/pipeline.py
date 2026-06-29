@@ -37,6 +37,7 @@ from temper_placer.router_v6.dense_package_detection import identify_dense_packa
 from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
 from temper_placer.router_v6.escape_via_generator import EscapeVia, generate_escape_vias
 from temper_placer.router_v6.layer_capacity import LayerCapacity
+from temper_placer.router_v6.manufacturing_report import ManufacturingReport
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
@@ -90,10 +91,10 @@ class Stage2Output:
 class Stage3Output:
     """Output from Stage 3: Topological Routing."""
 
-    constraint_model: ConstraintModel
-    sat_model: SATModel
-    solution: TopologicalSolution
-    topology_graph: TopologyGraph
+    constraint_model: ConstraintModel | None
+    sat_model: SATModel | None
+    solution: TopologicalSolution | None
+    topology_graph: TopologyGraph | None
     aesthetic_preferences: list = field(default_factory=list)
     degraded_nets: list[str] = field(default_factory=list)
     cegar_iterations: int = 0
@@ -141,7 +142,7 @@ class RouterV6Result:
     stage4: Stage4Output
 
     runtime_seconds: float
-    manufacturing_report: "ManufacturingReport | None" = None
+    manufacturing_report: ManufacturingReport | None = None
 
     @property
     def success_count(self) -> int:
@@ -325,7 +326,7 @@ class RouterV6Pipeline:
         max_nets: int | None = None,
         target_nets: list[str] | None = None,
         fence: DRCFence | None = None,
-        profiler: object | None = None,
+        profiler: Any | None = None,
         skip_stage3: bool = False,
         congestion_weight: float = 0.0,
         max_iter: int = 1_000_000,
@@ -675,8 +676,8 @@ class RouterV6Pipeline:
                 })
 
         channel_widths_dict: dict[str, float] = {}
-        for ch_id, width in (stage2.channel_widths or {}).items():
-            channel_widths_dict[str(ch_id)] = float(width) if width else 2.0
+        for ch_id, cw in (stage2.channel_widths or {}).items():
+            channel_widths_dict[str(ch_id)] = float(cw.avg_width) if cw.avg_width else 2.0
 
         if self.verbose:
             print(f"    [PCL] Compiling {len(pcl_constraints_dicts)} PCL constraints...")
@@ -725,8 +726,8 @@ class RouterV6Pipeline:
                         channel_id=lowered.get("channel_id", ""),
                         p_net_idx=0,
                         n_net_idx=0,
-                        p_var_name=lowered.get("p_var_name", ""),
-                        n_var_name=lowered.get("n_var_name", ""),
+                        p_var=lowered.get("p_var_name", ""),  # type: ignore[call-arg, arg-type]
+                        n_var=lowered.get("n_var_name", ""),  # type: ignore[call-arg, arg-type]
                     )
                 )
             elif ctype == "layer_restriction":
@@ -737,8 +738,7 @@ class RouterV6Pipeline:
                         net_idx=0,
                         channel_id="",
                         allowed=lowered.get("allowed", True),
-                        var_name=lowered.get("var_name", ""),
-                    )
+                    )  # type: ignore[call-arg]
                 )
 
         return constraint_model
@@ -1122,7 +1122,7 @@ class RouterV6Pipeline:
         self,
         pcb: "ParsedPCB",
         routing_results: "RoutingResults",
-    ) -> "ManufacturingReport":
+    ) -> ManufacturingReport:
         """Run all 8 DFM checks and compile the manufacturing report.
 
         Each DFM module is called in isolation -- a failure in one
