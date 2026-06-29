@@ -72,22 +72,29 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Restore venv cache
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-py312-${{ hashFiles('uv.lock') }}
+      
+      - name: Install dependencies
+        run: time uv sync --all-packages
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       
-      - name: Install dependencies
-        run: uv sync --all-packages
-
       - name: Build and install Rust crate
         run: |
-          uv pip install maturin
+          time uv pip install maturin
           cd packages/temper-rust-router
-          uv run maturin develop --release
+          time uv run maturin develop --release
           cd ../..
 
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
-        run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10
+        run: time uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
@@ -181,6 +188,13 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Restore venv cache
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-py312-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
 
@@ -212,6 +226,13 @@ jobs:
       
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Restore venv cache
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-py312-${{ hashFiles('uv.lock') }}
       
       - name: Install dependencies
         run: uv sync --all-packages
@@ -254,6 +275,13 @@ jobs:
       
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Restore venv cache
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-py312-${{ hashFiles('uv.lock') }}
       
       - name: Install dependencies
         run: uv sync --all-packages
@@ -289,6 +317,13 @@ jobs:
 
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Restore venv cache
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-py312-${{ hashFiles('uv.lock') }}
 
       - name: Install dependencies
         run: uv sync --all-packages
