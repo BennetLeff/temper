@@ -11,8 +11,10 @@ using strategies from sat_property_strategies.py.
 from __future__ import annotations
 
 import pytest
+from hypothesis import given
 
-from temper_placer.router_v6.bmc import bmc_check, bmc_check_with_diagnostics
+from tests.router_v6.sat_property_strategies import constraint_model_with_all_types
+
 from temper_placer.router_v6.constraint_model import (
     CapacityConstraint,
     ConstraintModel,
@@ -23,6 +25,10 @@ from temper_placer.router_v6.constraint_model import (
 from temper_placer.router_v6.sat_model import (
     SATModel,
     populate_sat_from_constraints,
+)
+from temper_placer.router_v6.bmc import (
+    bmc_check,
+    bmc_check_with_diagnostics,
 )
 
 LAYER_NAMES = ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu")
@@ -165,12 +171,16 @@ class TestBmcEncodingL0:
 
 
 @pytest.mark.bmc_l0_encoding
-def test_bmc_hypothesis_all_types_dummy():
-    """Placeholder for Hypothesis-driven BMC test using strategy injection.
-
-    The actual strategy is constraint_model_with_all_types from
-    sat_property_strategies.py.  This test is a manual verification
-    placeholder — exhaustive parametrized tests provide full coverage
-    for N <= 10.
-    """
-    pass
+@given(data=__import__('hypothesis').strategies.data())
+def test_bmc_hypothesis_random(data):
+    """Hypothesis-driven BMC: random ConstraintModel instances within bound."""
+    model, net_names = data.draw(constraint_model_with_all_types(max_primary_vars=10))
+    sat = SATModel(variables=[], clauses=[])
+    populate_sat_from_constraints(sat, model, net_names=net_names, skip_connectivity=True)
+    ces = bmc_check(model, sat)
+    assert len(ces) == 0, (
+        f"Found {len(ces)} counterexamples in hypothesis-generated model:\n"
+        f"  nets={len(net_names)}, vars={model.variable_count}, "
+        f"constraints={model.constraint_count}\n"
+        f"  First: {ces[0]['failure_type'] if ces else 'N/A'}"
+    )

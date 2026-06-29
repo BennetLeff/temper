@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.constraint_model import ConstraintModel
-    from temper_placer.router_v6.sat_model import SATModel
+    from temper_placer.router_v6.sat_model import SATModel, SATVariable
 
 DEFAULT_BMC_BOUND = 10
 
@@ -45,52 +45,39 @@ def _extract_primary_vars(
     """
     from temper_placer.router_v6.constraint_model import NetChannelVar
 
-    # Collect constraint-model variable names that map to SAT variables
     constraint_var_names: set[str] = set()
     for var in constraint_model.variables:
         if isinstance(var, NetChannelVar):
             constraint_var_names.add(var.name)
 
-    # Find matching SAT variable names, excluding Sinz aux vars
-    {
+    sat_var_name_to_sat_var: dict[str, SATVariable] = {
         sv.name: sv for sv in sat_model.variables
     }
     primary_names: list[str] = []
     for sv in sat_model.variables:
         if sv.name.startswith("sc_"):
             continue
-        # Match constraint-model variables by looking up original names
-        # The SAT variable name may differ (e.g., uses_NET0_... vs uses_N0_...)
-        # We accept any SAT var not starting with sc_ that maps to a constraint var
         for cname in constraint_var_names:
-            # Check if the SAT var was derived from this constraint var
-            # The mapping is fuzzy: uses_{net_name}_{channel_id} vs uses_N{net_idx}_{channel_id}
             if cname in sv.name or sv.name in cname:
                 primary_names.append(sv.name)
                 break
-            # Also match by the original constraint-variable name from the
-            # populate_sat_from_constraints var_map
             if sv.name == cname:
                 primary_names.append(sv.name)
                 break
 
-    # If we didn't match anything via name heuristics, fall back to all
-    # non-sc_ SAT variables that match NetChannelVar names
     if not primary_names:
         for sv in sat_model.variables:
             if sv.name.startswith("sc_"):
                 continue
             for cname in constraint_var_names:
-                # Try matching the constraint var name (e.g. uses_N0_F.Cu_E0_0_1)
-                # against the SAT var name (e.g. uses_NET0_F.Cu_E0_0_1)
-                # Strip the net prefix and compare channel IDs
-                c_parts = cname.split("_", 2)  # ['uses', 'N0', 'F.Cu_E0_0_1']
+                c_parts = cname.split("_", 2)
                 s_parts = sv.name.split("_", 2)
-                if len(c_parts) >= 3 and len(s_parts) >= 3 and c_parts[2] == s_parts[2]:
-                    primary_names.append(sv.name)
-                    break
+                if len(c_parts) >= 3 and len(s_parts) >= 3:
+                    if c_parts[2] == s_parts[2]:
+                        primary_names.append(sv.name)
+                        break
 
-    return list(dict.fromkeys(primary_names))  # dedup preserving order
+    return list(dict.fromkeys(primary_names))
 
 
 def _make_assignment(
@@ -111,20 +98,18 @@ def _check_cnf_sat(
     """Check whether the CNF is satisfiable under the given primary assignment.
 
     Primary variables are fixed via unit clauses; auxiliary (Sinz) variables
-    are free.  Uses pysat Glucose3 as the oracle.
+    are free.  Uses pysat as the oracle.
     """
     from pysat.solvers import Solver
 
     solver = Solver(bootstrap_with=[])
 
-    # Map SAT variable names to 1-indexed pysat literals
     var_to_idx: dict[str, int] = {}
     idx = 1
     for sv in sat_model.variables:
         var_to_idx[sv.name] = idx
         idx += 1
 
-    # Add all CNF clauses
     for clause in sat_model.clauses:
         lits = [
             var_to_idx[v.name] if pol else -var_to_idx[v.name]
@@ -132,11 +117,9 @@ def _check_cnf_sat(
         ]
         solver.add_clause(lits)
 
-    # Fix primary variables as unit clauses
     for name, value in assignment.items():
         if name not in var_to_idx:
             solver.delete()
-            # Variable not in SAT model — treat as sat (no clause constrains it)
             return True
         lit = var_to_idx[name] if value else -var_to_idx[name]
         solver.add_clause([lit])
@@ -153,6 +136,8 @@ def bmc_check(
     bound: int = DEFAULT_BMC_BOUND,
 ) -> list[dict]:
     """Enumerate all primary assignments and check ESL vs CNF agreement.
+
+    # @req(2026-06-28-006, FR-BMC1): BMC enumeration + pysat check
 
     Args:
         constraint_model: The constraint model with ESL definitions.
@@ -262,167 +247,3 @@ def render_counterexample(ce: dict) -> str:
     assert len(counterexamples) == 1
     assert counterexamples[0]["failure_type"] == "{failure_type}"
 '''
-
-
-def esl_verify(
-    constraint_model,
-    assignment: dict[str, bool],
-) -> list[str]:
-    """Fast ESL-based constraint audit — delegates to Rust when available.
-
-    Returns a list of violation messages.  Empty list = assignment
-    satisfies all constraints.
-    """
-    # Prefer Rust implementation for speed and type safety.
-    try:
-        from temper_rust_router import esl_verify as rust_esl_verify
-        net_names = _derive_net_names(constraint_model)
-        return list(rust_esl_verify(
-            list(constraint_model.variables),
-            list(constraint_model.constraints),
-            assignment,
-            net_names,
-        ))
-    except (ImportError, Exception):
-        pass
-
-    # Fallback: pure Python implementation.
-    from temper_placer.router_v6.constraint_model import (
-        CapacityConstraint,
-        DiffPairConstraint,
-        LayerConstraint,
-    )
-
-    violations: list[str] = []
-    for c in constraint_model.constraints:
-        esl_pred = c.esl()
-        if not esl_pred(assignment):
-            if isinstance(c, CapacityConstraint):
-                k = int(c.capacity * c.slack_factor / min(w for _, w in c.terms))
-                true_count = sum(1 for v, _ in c.terms if assignment.get(v.name, False))
-                violations.append(
-                    f"Capacity {c.name}: {true_count} true > {k} max "
-                    f"(capacity={c.capacity}, slack={c.slack_factor})"
-                )
-            elif isinstance(c, DiffPairConstraint):
-                p_val = assignment.get(c.p_var.name, False)
-                n_val = assignment.get(c.n_var.name, False)
-                violations.append(
-                    f"DiffPair {c.name}: p={p_val} != n={n_val}"
-                )
-            elif isinstance(c, LayerConstraint):
-                actual = assignment.get(
-                    f"uses_N{c.net_idx}_{c.channel_id}", False
-                )
-                violations.append(
-                    f"Layer {c.name}: got {actual}, expected {c.allowed}"
-                )
-            else:
-                violations.append(f"Constraint {c.name} violated")
-
-    return violations
-
-
-def _derive_net_names(constraint_model) -> list[str]:
-    """Derive net name list from constraint model variables."""
-    max_net = -1
-    for v in constraint_model.variables:
-        if hasattr(v, 'net_idx') and v.net_idx > max_net:
-            max_net = v.net_idx
-    return [f"N{i}" for i in range(max_net + 1)]
-
-
-def diagnose_submodel(
-    constraint_model,
-    max_primary_vars: int = 10,
-) -> dict:
-    """Sample a constrained sub-model and run BMC diagnostic — delegates to Rust.
-
-    Returns a dict with passed, counterexamples, sampled_vars, message.
-    """
-    # Prefer Rust implementation for reliability.
-    try:
-        from temper_rust_router import diagnose_submodel as rust_diagnose
-        net_names = _derive_net_names(constraint_model)
-        return rust_diagnose(
-            list(constraint_model.variables),
-            list(constraint_model.constraints),
-            net_names,
-            max_primary_vars,
-        )
-    except (ImportError, Exception):
-        pass
-
-    # Fallback: pure Python implementation.
-    from temper_placer.router_v6.constraint_model import (
-        CapacityConstraint,
-        ConstraintModel,
-        NetChannelVar,
-    )
-    from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
-
-    cap_constraints = sorted(
-        [c for c in constraint_model.constraints if isinstance(c, CapacityConstraint)],
-        key=lambda c: len(c.terms),
-        reverse=True,
-    )
-
-    if not cap_constraints:
-        return {
-            "passed": True,
-            "counterexamples": 0,
-            "sampled_vars": [],
-            "message": "No capacity constraints to sample",
-        }
-
-    sub_model = ConstraintModel()
-    var_count = 0
-    sampled_channel_ids: list[str] = []
-
-    for cap in cap_constraints:
-        new_vars = [v for v, _ in cap.terms if v.name not in {
-            sv.name for sv in sub_model.variables
-        }]
-        if var_count + len(new_vars) > max_primary_vars:
-            break
-        for v, _ in cap.terms:
-            if not any(sv.name == v.name for sv in sub_model.variables):
-                sub_model.add_variable(NetChannelVar(
-                    name=v.name, net_idx=v.net_idx, channel_id=v.channel_id,
-                ))
-                var_count += 1
-        sub_model.add_constraint(cap)
-        sampled_channel_ids.append(cap.channel_id)
-
-    if var_count == 0:
-        return {
-            "passed": True,
-            "counterexamples": 0,
-            "sampled_vars": [],
-            "message": "No variables in sampled constraints",
-        }
-
-    try:
-        sat = SATModel(variables=[], clauses=[])
-        net_names = _derive_net_names(sub_model)
-        populate_sat_from_constraints(sat, sub_model, net_names=net_names, skip_connectivity=True)
-        ces = bmc_check_with_diagnostics(sub_model, sat)
-        return {
-            "passed": len(ces) == 0,
-            "counterexamples": len(ces),
-            "sampled_vars": [v.name for v in sub_model.variables],
-            "sampled_channels": sampled_channel_ids,
-            "counterexample_details": ces[:3] if ces else [],
-            "message": (
-                f"BMC passed on {var_count}-var sub-model ({len(sampled_channel_ids)} channels)"
-                if len(ces) == 0
-                else f"BMC found {len(ces)} counterexamples in {var_count}-var sub-model"
-            ),
-        }
-    except BmcBoundExceeded as e:
-        return {
-            "passed": None,
-            "counterexamples": 0,
-            "sampled_vars": [],
-            "message": f"BMC bound exceeded: {e}",
-        }

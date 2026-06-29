@@ -703,15 +703,22 @@ scripts:
       - subprocess
       - sys
       - time
-- path: verify_proofs.py
-  purpose: CI gate -- validate PROOFS.toml completeness (encoding files, test functions, dependencies)
-  owner: unassigned
-  last_run: '2026-06-28'
+- path: bmc_adoption_gate.py
+  purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
+  owner: pipeline
+  last_run: '2026-06-29'
   category: keep
   disposition: ci-gate
-  imports:
-    - os
-    - re
-    - sys
-    - pathlib
-    - tomllib
+    imports:
+      - ast
+      - os
+      - pathlib
+      - sys
+  - ast
+  - os
+  - pathlib
+  - sys
+  - ast
+  - os
+  - pathlib
+  - sys

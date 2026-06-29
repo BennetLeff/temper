@@ -50,13 +50,8 @@ def __getattr__(name: str):  # noqa: D401 — module-level dunder
     raise AttributeError(f"module 'temper_placer.router_v6' has no attribute {name!r}")
 
 
-from temper_placer.router_v6.adapter import (  # noqa: E402
-    RoutingResult,
-    V6RouterAdapter,
-    _AdapterRoutePath,
-    route_pcb,
-)
-from temper_placer.router_v6.constraint_model import (  # noqa: E402
+from temper_placer.router_v6.constraint_model import (
+    ESL_REGISTRY,
     CapacityConstraint,
     Constraint,
     ConstraintModel,
@@ -68,42 +63,48 @@ from temper_placer.router_v6.constraint_model import (  # noqa: E402
     OrderVar,
     ViaVar,
 )
-from temper_placer.router_v6.dense_package_detection import (  # noqa: E402
+from temper_placer.router_v6.dense_package_detection import (
     DensePackage,
     identify_dense_packages,
 )
-from temper_placer.router_v6.diff_pair_inference import (  # noqa: E402
+from temper_placer.router_v6.diff_pair_inference import (
     DiffPair,
     infer_differential_pairs,
 )
-from temper_placer.router_v6.escape_drc_validator import (  # noqa: E402
+from temper_placer.router_v6.escape_drc_validator import (
     DRCViolation,
     validate_escape_plan,
 )
-from temper_placer.router_v6.escape_via_generator import (  # noqa: E402
+from temper_placer.router_v6.escape_via_generator import (
     EscapeVia,
     generate_escape_vias,
 )
-from temper_placer.router_v6.length_group_inference import (  # noqa: E402
+from temper_placer.router_v6.length_group_inference import (
     LengthGroup,
     infer_length_groups,
 )
-from temper_placer.router_v6.obstacle_map import build_obstacle_map  # noqa: E402
-from temper_placer.router_v6.pad_escape_classification import (  # noqa: E402
+from temper_placer.router_v6.obstacle_map import build_obstacle_map
+from temper_placer.router_v6.pad_escape_classification import (
     ClassifiedPad,
     EscapeClass,
     classify_pads_by_escape_need,
 )
-from temper_placer.router_v6.routing_failure_handler import (  # noqa: E402
+from temper_placer.router_v6.routing_failure_handler import (
     FlaggedNet,
     RoutingFailureReport,
     handle_routing_failures,
 )
-from temper_placer.router_v6.safety_pair_inference import (  # noqa: E402
+from temper_placer.router_v6.safety_pair_inference import (
     SafetyPair,
     infer_safety_pairs,
 )
-from temper_placer.router_v6.stage0_data import (  # noqa: E402
+from temper_placer.router_v6.adapter import (
+    RoutingResult,
+    V6RouterAdapter,
+    _AdapterRoutePath,
+    route_pcb,
+)
+from temper_placer.router_v6.stage0_data import (
     DesignRules,
     LayerInfo,
     NetClassRules,
@@ -152,6 +153,7 @@ __all__ = [
     "CapacityConstraint",
     "DiffPairConstraint",
     "LayerConstraint",
+    "ESL_REGISTRY",
     # Stage 4: Geometric Realization
     "FlaggedNet",
     "RoutingFailureReport",

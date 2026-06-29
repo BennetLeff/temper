@@ -1,8 +1,15 @@
 """
 Router V6 Stage 3.7: Build SAT Model
 
+# @req(2026-06-28-006, FR-BMC2): pysat used as CNF oracle for BMC verification
+# @req(2026-06-28-006, FR-REL2): skip_connectivity isolates constraint CNF for BMC
+
 Builds a SAT/SMT model for topological routing constraints.
 Part of temper-5eh3 (Stage 3 - Topological Routing)
+
+The ``skip_connectivity`` parameter on ``populate_sat_from_constraints``
+allows the BMC verification layer to isolate constraint-encoding clauses
+from connectivity directives, which are not part of constraint semantics.
 """
 
 from __future__ import annotations
@@ -102,6 +109,8 @@ def populate_sat_from_constraints(
     Populate SAT model with constraints from constraint model.
 
     Translates high-level routing constraints into SAT clauses.
+
+    # @req(2026-06-28-006, FR-REL2): skip_connectivity for BMC constraint-only CNF
 
     Args:
         sat_model: SAT model to populate

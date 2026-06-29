@@ -9,21 +9,25 @@ classify false-SAT vs false-UNSAT failures.
 
 from __future__ import annotations
 
+import pytest
+
+from temper_placer.router_v6.constraint_model import (
+    CapacityConstraint,
+    ConstraintModel,
+    DiffPairConstraint,
+    LayerConstraint,
+    NetChannelVar,
+)
+from temper_placer.router_v6.sat_model import (
+    SATModel,
+    populate_sat_from_constraints,
+)
 from temper_placer.router_v6.bmc import (
     bmc_check,
     bmc_check_with_diagnostics,
     render_counterexample,
 )
-from temper_placer.router_v6.constraint_model import (
-    ConstraintModel,
-    LayerConstraint,
-    NetChannelVar,
-)
 from temper_placer.router_v6.esl import eval_esl
-from temper_placer.router_v6.sat_model import (
-    SATModel,
-    populate_sat_from_constraints,
-)
 
 
 class TestBmcDiagnostics:
@@ -43,11 +47,9 @@ class TestBmcDiagnostics:
 
     def test_false_sat_classification_priority(self):
         """FR-CEX2: false-SAT counterexamples are higher-priority diagnostic."""
-        # Build a model where a deliberate bug causes false-SAT
         cm = ConstraintModel()
         var = NetChannelVar(name="uses_N0_ch1", net_idx=0, channel_id="ch1")
         cm.add_variable(var)
-        # LayerConstraint says var must be False
         cm.add_constraint(LayerConstraint(
             name="test", net_idx=0, channel_id="ch1", allowed=False,
         ))
@@ -55,7 +57,6 @@ class TestBmcDiagnostics:
         sat = SATModel(variables=[], clauses=[])
         populate_sat_from_constraints(sat, cm, net_names=["N0"], skip_connectivity=True)
 
-        # ESL says only {var: False} is valid
         assert eval_esl(cm, {"uses_N0_ch1": False}) is True
         assert eval_esl(cm, {"uses_N0_ch1": True}) is False
 
@@ -94,11 +95,11 @@ class TestBmcDiagnostics:
         assert ce_unsat["failure_type"] == "false_unsat"
 
     def test_empty_counterexample_list_no_crash(self):
-        """Empty counterexample list produces clean output."""
-        render = render_counterexample({
-            "assignment": {},
-            "esl_result": True,
-            "cnf_result": "SAT",
-            "failure_type": "none",
-            "primary_vars": [],
-        }) if False else ""  # Smoke: no crash
+        """Empty counterexample list produces clean output (no crash)."""
+        cm = ConstraintModel()
+        cm.add_variable(NetChannelVar(name="x0", net_idx=0, channel_id="ch0"))
+        sat = SATModel(variables=[], clauses=[])
+        populate_sat_from_constraints(sat, cm, net_names=["N0"], skip_connectivity=True)
+
+        ces = bmc_check_with_diagnostics(cm, sat)
+        assert len(ces) == 0

@@ -1,12 +1,12 @@
 """
 Encoder Specification Language (ESL) for SAT constraint verification.
 
+# @req(2026-06-28-006, FR-LANG1): ESL predicate primitives
+# @req(2026-06-28-006, FR-LANG3): eval_esl as executable ground truth
+
 Provides predicate primitives and composition operators that declaratively
 state what each constraint type means in terms of SAT primary-variable
 assignments.  Each predicate is a callable ``(dict[str, bool]) -> bool``.
-
-# @req(2026-06-28-006, FR-LANG1): ESL predicate primitives
-# @req(2026-06-28-006, FR-LANG3): eval_esl as executable ground truth
 
 Predicate primitives
 --------------------
@@ -37,8 +37,7 @@ method is verified by the BMC layer against the CNF encoding produced by
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.constraint_model import ConstraintModel
@@ -111,7 +110,7 @@ def exactly_one_of(vars: list[str]) -> Predicate:
 
 
 def implies(a: str, b: str) -> Predicate:
-    """Return a predicate that is True iff *a* implies *b* (¬a ∨ b).
+    """Return a predicate that is True iff *a* implies *b* (not a or b).
 
     Example:
         >>> p = implies("x0", "x1")
@@ -124,7 +123,7 @@ def implies(a: str, b: str) -> Predicate:
 
 
 def iff(a: str, b: str) -> Predicate:
-    """Return a predicate that is True iff *a* iff *b* (a ↔ b).
+    """Return a predicate that is True iff *a* iff *b* (a <-> b).
 
     Example:
         >>> p = iff("x0", "x1")
@@ -166,26 +165,6 @@ def or_(*predicates: Predicate) -> Predicate:
 
 
 # ---------------------------------------------------------------------------
-# All-false convenience (negation of any_true)
-# ---------------------------------------------------------------------------
-
-
-def all_false(vars: list[str]) -> Predicate:
-    """Return a predicate that is True iff all *vars* are False.
-
-    Equivalent to ``at_most_k(vars, 0)``.
-
-    Example:
-        >>> p = all_false(["x0", "x1"])
-        >>> p({"x0": False, "x1": False})
-        True
-        >>> p({"x0": True, "x1": False})
-        False
-    """
-    return at_most_k(vars, 0)
-
-
-# ---------------------------------------------------------------------------
 # Top-level evaluation
 # ---------------------------------------------------------------------------
 
@@ -196,10 +175,10 @@ def eval_esl(
 ) -> bool:
     """Evaluate all constraints in *model* against *assignment*.
 
+    # @req(2026-06-28-006, FR-LANG3): eval_esl as executable ground truth
+
     Returns True iff the assignment satisfies every constraint in the model.
     Empty models (no constraints) are vacuously True.
-
-    # @req(2026-06-28-006, FR-LANG3): eval_esl as executable ground truth
 
     This is the ground truth against which the CNF encoding is checked:
     for every assignment, eval_esl(model, assignment) must agree with
