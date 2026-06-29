@@ -651,6 +651,16 @@ class RouterV6Pipeline:
             solver_time_ms=float(rust_result.get("solver_time_ms", 0)),
         )
 
+        # Wire UNSAT core: map clause indices to constraint names.
+        clause_origin = _build_clause_origin(constraint_model)
+        if rust_result["status"] == "unsat":
+            core_indices = rust_result.get("unsat_core", [])
+            unsat_core_names = []
+            for idx in core_indices:
+                if 0 <= idx < len(clause_origin):
+                    unsat_core_names.append(clause_origin[idx])
+            solution.unsat_core = unsat_core_names
+
         # Build topology graph from Rust output.
         import networkx as nx
 
@@ -1026,3 +1036,38 @@ def _net_pad_positions(net, comp_by_ref: dict[str, Any]) -> list[tuple[float, fl
 def _last_skeleton(skeletons: dict[str, Any]) -> Any:
     """Return the last inserted skeleton (insertion-ordered dict since 3.7)."""
     return next(reversed(skeletons.values()), None)
+
+
+def _build_clause_origin(model: ConstraintModel) -> list[str]:
+    """Build a clause-origin registry mapping CNF clause indices to constraint names.
+
+    Each constraint in the model may produce multiple CNF clauses
+    (e.g., AtMostK produces O(n·k) clauses). This function estimates
+    the owner constraint for each clause position so that UNSAT core
+    clause indices can be mapped back to constraint names.
+
+    Returns:
+        List where `clause_origin[i]` is the constraint name for clause i.
+    """
+    origins: list[str] = []
+    if model is None:
+        return origins
+    for c in model.constraints:
+        # Estimate clause count for each constraint type.
+        if hasattr(c, 'terms') and c.terms:
+            # CapacityConstraint produces ~n clauses for n variables
+            # via AtMostK sequential counter: O(n*k) clauses.
+            n = len(c.terms)
+            clause_count = max(1, n * 3)
+        elif hasattr(c, 'group_a_indices') and c.group_a_indices:
+            # ChannelSeparationConstraint: O(|A|*|B| + |AUB|*k)
+            n = len(c.group_a_indices) + len(c.group_b_indices)
+            clause_count = max(1, n * 3)
+        elif hasattr(c, 'p_var') and hasattr(c, 'n_var'):
+            # DiffPairConstraint: 2 clauses (↔ encoding)
+            clause_count = 2
+        else:
+            # LayerConstraint, OrderVar: 1 unit clause each
+            clause_count = 1
+        origins.extend([c.name] * clause_count)
+    return origins

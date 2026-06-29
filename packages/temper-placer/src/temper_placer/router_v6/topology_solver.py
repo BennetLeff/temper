@@ -7,7 +7,7 @@ Part of temper-wd32 (Stage 3 - Topological Routing)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from temper_placer.router_v6.sat_model import SATModel
@@ -28,6 +28,7 @@ class TopologicalSolution:
     status: SolverStatus
     assignment: dict[str, bool]  # Variable name -> value
     solver_time_ms: float  # Time taken to solve
+    unsat_core: list[str] = field(default_factory=list)  # Constraint names in UNSAT core
 
     @property
     def is_satisfiable(self) -> bool:
