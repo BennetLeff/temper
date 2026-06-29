@@ -7,6 +7,10 @@ name: Firmware Performance Record
 # When active, triggers on push to main with firmware/** path filter.
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'firmware/**'
   workflow_dispatch:
     inputs:
       board:
