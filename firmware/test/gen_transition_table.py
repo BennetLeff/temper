@@ -288,6 +288,7 @@ def _c_preconditions():
     lines.append("    case STATE_HEATING:")
     lines.append("        mock_sm_set_pan_status(MOCK_PAN_PRESENT);")
     lines.append("        mock_sm_set_pan_temperature(92.0f);")
+    lines.append("        state_machine_reset_temp_baseline();")
     lines.append("        break;")
 
     # NO_PAN: set pan status absent so the state logic sees no pan
