@@ -3,6 +3,8 @@ name: Metrics Record
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'power_pcb_dataset/metrics/pipeline_metrics.jsonl'
   workflow_dispatch:
 
 jobs:
@@ -10,13 +12,10 @@ jobs:
     name: Record Pipeline Metrics
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: write
+    env:
+      NDJSON_FILE: /tmp/pipeline-metrics-${{ github.run_id }}.ndjson
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
@@ -36,7 +35,8 @@ jobs:
         run: |
           uv run python scripts/pipeline_metrics.py record \
             --board temper --commit "${{ github.sha }}" \
-            --closure-json closure-result.json
+            --closure-json closure-result.json \
+            --metrics-file "$NDJSON_FILE"
       - name: Profile loss functions
         continue-on-error: true
         run: |
@@ -44,7 +44,8 @@ jobs:
             --module loss-fn --board temper \
             --commit "${{ github.sha }}" --json \
             | uv run python scripts/pipeline_metrics.py record \
-              --board temper --commit "${{ github.sha }}" --from-stdin
+              --board temper --commit "${{ github.sha }}" \
+              --from-stdin --metrics-file "$NDJSON_FILE"
       - name: Profile router benchmarks
         continue-on-error: true
         run: |
@@ -52,8 +53,10 @@ jobs:
             --module router-bench \
             --commit "${{ github.sha }}" --json \
             | uv run python scripts/pipeline_metrics.py record \
-              --board temper --commit "${{ github.sha }}" --from-stdin
-          cat power_pcb_dataset/metrics/pipeline_metrics.jsonl
+              --board temper --commit "${{ github.sha }}" \
+              --from-stdin --metrics-file "$NDJSON_FILE"
+          echo "=== NDJSON contents ==="
+          cat "$NDJSON_FILE"
       - name: Generate HTML report
         run: >
           python scripts/pipeline_report.py
@@ -65,16 +68,8 @@ jobs:
         with:
           name: pipeline-report
           path: pipeline_report.html
-      - name: Commit and push metrics
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add power_pcb_dataset/metrics/pipeline_metrics.jsonl
-          if git diff --cached --quiet; then
-            echo "No metrics changes to commit"; exit 0
-          fi
-          git commit -m "chore(metrics): record pipeline metrics for ${{ github.sha }}"
-          for i in 1 2 3; do
-            git pull --rebase origin main && git push origin main && break
-            echo "Push attempt $i failed, retrying..."; sleep 5
-          done
+      - name: Upload metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-metrics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.NDJSON_FILE }}

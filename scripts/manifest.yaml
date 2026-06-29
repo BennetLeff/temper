@@ -16,6 +16,10 @@ scripts:
       - re
       - sys
       - uuid
+      - pathlib
+      - re
+      - sys
+      - uuid
   - pathlib
   - re
   - sys
@@ -31,6 +35,14 @@ scripts:
   category: keep
   disposition: utility
     imports:
+      - argparse
+      - datetime
+      - json
+      - pathlib
+      - subprocess
+      - sys
+      - typing
+      - yaml
       - argparse
       - datetime
       - json
@@ -84,6 +96,15 @@ scripts:
       - rich.console
       - subprocess
       - sys
+      - argparse
+      - ast
+      - json
+      - os
+      - pathlib
+      - re
+      - rich.console
+      - subprocess
+      - sys
   - argparse
   - ast
   - json
@@ -109,6 +130,20 @@ scripts:
   category: keep
   disposition: shell-invoked
     imports:
+      - argparse
+      - jax
+      - json
+      - os
+      - pathlib
+      - rich.console
+      - sys
+      - temper_placer.io.config_loader
+      - temper_placer.io.kicad_parser
+      - temper_placer.losses.base
+      - temper_placer.losses.boundary
+      - temper_placer.losses.overlap
+      - temper_placer.losses.regularization
+      - temper_placer.losses.wirelength
       - argparse
       - jax
       - json
@@ -159,6 +194,7 @@ scripts:
   disposition: shell-invoked
     imports:
       - sys
+      - sys
   - argparse
   - benchmark_baselines
   - jax
@@ -189,6 +225,11 @@ scripts:
       - pathlib
       - subprocess
       - sys
+      - __future__
+      - argparse
+      - pathlib
+      - subprocess
+      - sys
   - __future__
   - argparse
   - pathlib
@@ -208,6 +249,8 @@ scripts:
     imports:
       - pathlib
       - sys
+      - pathlib
+      - sys
   - pathlib
   - sys
   - pathlib
@@ -219,6 +262,10 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - os
+      - pathlib
+      - sys
       - argparse
       - pathlib
       - sys
@@ -239,6 +286,10 @@ scripts:
       - pathlib
       - re
       - sys
+      - argparse
+      - pathlib
+      - re
+      - sys
   - argparse
   - pathlib
   - re
@@ -254,6 +305,11 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - datetime
+      - json
+      - pathlib
+      - sys
       - argparse
       - datetime
       - json
@@ -281,6 +337,11 @@ scripts:
       - pathlib
       - sys
       - typing
+      - dataclasses
+      - json
+      - pathlib
+      - sys
+      - typing
   - dataclasses
   - json
   - pathlib
@@ -301,6 +362,9 @@ scripts:
       - pathlib
       - sys
       - temper_placer.io.kicad_parser
+      - pathlib
+      - sys
+      - temper_placer.io.kicad_parser
   - pathlib
   - sys
   - temper_placer.io.kicad_parser
@@ -314,6 +378,13 @@ scripts:
   category: keep
   disposition: utility
     imports:
+      - argparse
+      - datetime
+      - jax
+      - json
+      - pathlib
+      - sys
+      - yaml
       - argparse
       - datetime
       - jax
@@ -344,6 +415,8 @@ scripts:
     imports:
       - pathlib
       - sys
+      - pathlib
+      - sys
   - pathlib
   - sys
   - pathlib
@@ -357,6 +430,8 @@ scripts:
     imports:
       - pathlib
       - temper_placer.core.design_rules
+      - pathlib
+      - temper_placer.core.design_rules
   - pathlib
   - temper_placer.core.design_rules
   - pathlib
@@ -368,6 +443,13 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - datetime
+      - os
+      - pathlib
+      - re
+      - subprocess
+      - sys
       - argparse
       - datetime
       - os
@@ -396,6 +478,23 @@ scripts:
   category: keep
   disposition: shell-invoked
     imports:
+      - argparse
+      - jax.numpy
+      - math
+      - pathlib
+      - rich.console
+      - sys
+      - temper_placer.core.loop
+      - temper_placer.io.kicad_parser
+      - temper_placer.io.trace_writer
+      - temper_placer.io.zone_manager
+      - temper_placer.router_v6.adapter
+      - temper_placer.routing.constraints.geometry
+      - temper_placer.routing.constraints.spatial_index
+      - temper_placer.routing.fanout
+      - temper_placer.routing.layer_assignment
+      - temper_placer.routing.net_ordering
+      - time
       - argparse
       - jax.numpy
       - math
@@ -460,6 +559,12 @@ scripts:
       - math
       - pathlib
       - sys
+      - __future__
+      - datetime
+      - json
+      - math
+      - pathlib
+      - sys
   - __future__
   - datetime
   - json
@@ -479,6 +584,22 @@ scripts:
   category: keep
   disposition: shell-invoked
     imports:
+      - __future__
+      - argparse
+      - dataclasses
+      - datetime
+      - json
+      - pathlib
+      - subprocess
+      - sys
+      - temper_placer.core.netlist
+      - temper_placer.core.state
+      - temper_placer.io
+      - temper_placer.losses.base
+      - temper_placer.metrics.quality
+      - temper_placer.routing.analysis
+      - tempfile
+      - typing
       - __future__
       - argparse
       - dataclasses
@@ -548,6 +669,20 @@ scripts:
       - temper_placer.io.kicad_parser
       - temper_placer.io.kicad_writer
       - temper_placer.io.zone_manager
+      - argparse
+      - datetime
+      - json
+      - logging
+      - pathlib
+      - subprocess
+      - sys
+      - temper_placer.deterministic
+      - temper_placer.deterministic.feedback
+      - temper_placer.io.config_loader
+      - temper_placer.io.kicad_metadata
+      - temper_placer.io.kicad_parser
+      - temper_placer.io.kicad_writer
+      - temper_placer.io.zone_manager
   - argparse
   - datetime
   - json
@@ -589,6 +724,12 @@ scripts:
       - pathlib
       - re
       - sys
+      - ast
+      - json
+      - os
+      - pathlib
+      - re
+      - sys
   - ast
   - json
   - os
@@ -613,6 +754,11 @@ scripts:
       - pathlib
       - re
       - typing
+      - argparse
+      - dataclasses
+      - pathlib
+      - re
+      - typing
   - argparse
   - dataclasses
   - pathlib
@@ -630,6 +776,11 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - pathlib
+      - re
+      - subprocess
+      - sys
       - argparse
       - pathlib
       - re
@@ -660,6 +811,14 @@ scripts:
       - pstats
       - sys
       - time
+      - __future__
+      - argparse
+      - cProfile
+      - io
+      - pathlib
+      - pstats
+      - sys
+      - time
   - argparse
   - cProfile
   - io
@@ -676,6 +835,18 @@ scripts:
   category: keep
   disposition: utility
     imports:
+      - __future__
+      - argparse
+      - cProfile
+      - io
+      - json
+      - logging
+      - os
+      - pathlib
+      - pstats
+      - sys
+      - time
+      - typing
       - __future__
       - argparse
       - cProfile
@@ -716,10 +887,34 @@ scripts:
       - subprocess
       - sys
       - time
+      - __future__
+      - json
+      - os
+      - pathlib
+      - subprocess
+      - sys
+      - time
 - path: pr_perf_compare.py
   purpose: Compare PR performance metrics against main-branch JSONL baseline and produce delta table for PR comments
   owner: unassigned
   last_run: '2026-06-28'
   category: keep
   disposition: ci-gate
-  imports: []
+    imports:
+      - __future__
+      - argparse
+      - json
+      - pathlib
+      - statistics
+      - sys
+      - typing
+- path: reconcile_metrics.py
+  purpose: Merge artifact-uploaded pipeline metrics NDJSON with committed JSONL, deduplicate, and sort
+  owner: bennet
+  last_run: '2026-06-28'
+  category: keep
+  disposition: ci-gate
+    imports:
+      - json
+      - pathlib
+      - sys
