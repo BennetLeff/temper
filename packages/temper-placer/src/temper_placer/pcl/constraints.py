@@ -107,7 +107,7 @@ class ConstraintType(Enum):
     @property
     def label(self) -> str:
         """Return the string label (backward-compatible with old .value)."""
-        return self.value[0]
+        return self._value_[0]
 
     @property
     def value(self) -> str:
