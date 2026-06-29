@@ -211,7 +211,8 @@ def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
 
 
 def _line_of_sight(
-    p1: tuple[int, int], p2: tuple[int, int], grid, net_id: int
+    p1: tuple[int, int], p2: tuple[int, int], grid, net_id: int,
+    cache: dict | None = None,
 ) -> bool:
     """
     Check if there's an unobstructed diagonal line between two grid points.
@@ -223,10 +224,17 @@ def _line_of_sight(
         p2: End grid position (x, y)
         grid: Occupancy grid
         net_id: Net ID (cells with this ID are allowed)
+        cache: Optional dict for memoizing results within a single search
 
     Returns:
         True if line is clear
     """
+    if cache is not None:
+        key = (p1, p2) if p1 < p2 else (p2, p1)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+
     x0, y0 = p1
     x1, y1 = p2
 
@@ -237,19 +245,21 @@ def _line_of_sight(
     err = dx - dy
 
     x, y = x0, y0
+    result = False
 
     while True:
         # Check if current cell is blocked
         if not in_bounds(x, y, grid.width_cells, grid.height_cells):
-            return False
+            break
 
         cell_value = grid.grid[y, x]
         # Allow: free (0) or own net (net_id)
         if cell_value != 0 and cell_value != net_id:
-            return False
+            break
 
         # Reached goal
         if x == x1 and y == y1:
+            result = True
             break
 
         # Bresenham step
@@ -261,7 +271,9 @@ def _line_of_sight(
             err += dx
             y += sy
 
-    return True
+    if cache is not None:
+        cache[key] = result
+    return result
 
 
 def _astar_search_lazy_theta_star(
@@ -298,6 +310,7 @@ def _astar_search_lazy_theta_star(
     came_from = came_from_init.copy() if came_from_init else {}
     g_score = {start_grid: 0.0}
     closed_set = set()
+    _los_cache: dict = {}
 
     def euclidean_dist(p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
@@ -326,7 +339,7 @@ def _astar_search_lazy_theta_star(
         _mon_lazy = get_monitor_state()
         if _mon_lazy is not None:
             _mon_lazy.record_pop(current, float(f_cost))
-        if parent and not _line_of_sight(parent, current, grid, net_id):
+        if parent and not _line_of_sight(parent, current, grid, net_id, _los_cache):
             # LOS Failed.
             # Standard Lazy Theta* strategy: find a valid parent from closed neighbors
             # This is "Vertex A adjustment" from the paper.
@@ -455,6 +468,7 @@ def _astar_search_theta_star(
     came_from = came_from_init.copy() if came_from_init else {}
     g_score = {start_grid: 0.0}
     closed_set = set()
+    _los_cache: dict = {}
 
     def euclidean_dist(p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
@@ -494,7 +508,7 @@ def _astar_search_theta_star(
 
             # THETA* OPTIMIZATION: Check line-of-sight from parent
             parent = came_from.get(current)
-            if parent and _line_of_sight(parent, neighbor, grid, net_id):
+            if parent and _line_of_sight(parent, neighbor, grid, net_id, _los_cache):
                 # Path 2: parent -> neighbor (shortcut)
                 tentative_g = g_score[parent] + euclidean_dist(parent, neighbor)
                 path_source = parent

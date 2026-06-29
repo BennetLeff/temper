@@ -42,8 +42,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     from shapely.geometry import Polygon
-
     from temper_drc.core.fence import DRCFence
+
     from temper_placer.core.board import Zone as CopperZone
     from temper_placer.io.config_loader import IsolationSlot
 
@@ -318,15 +318,6 @@ def create_drc_aware_pipeline(
     slot_spacing = 10.0  # Default: larger spacing to avoid overlaps
     max_clearance = 2.5  # Default: conservative for HV boards
     net_class_clearances = {}
-<<<<<<< HEAD
-    fixed_placements: dict[str, Any] = {}
-    yaml_copper_zones: list[Any] = []
-    yaml_isolation_slots: list[Any] = []  # @req(2026-06-23-007, R1)
-    config_rules = None  # @req(2026-06-23-007, R2)
-    net_priority = {}  # EXP-6: Explicit net routing priority
-    placement_constraints = {}  # EXP-12: Placement validation constraints
-    hv_exclusion_zones: list[Any] = []  # EXP-13: HV zones that signals must route around
-=======
     fixed_placements: dict[str, dict] = {}
     yaml_copper_zones: list[CopperZone] = []
     yaml_isolation_slots: list[IsolationSlot] = []  # @req(2026-06-23-007, R1)
@@ -334,7 +325,6 @@ def create_drc_aware_pipeline(
     net_priority = {}  # EXP-6: Explicit net routing priority
     placement_constraints = {}  # EXP-12: Placement validation constraints
     hv_exclusion_zones: list[Polygon] = []  # EXP-13: HV zones that signals must route around
->>>>>>> main
 
     # Extract net class clearances from design_rules if available
     if design_rules and hasattr(design_rules, "net_classes"):

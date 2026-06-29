@@ -475,11 +475,7 @@ class PhasedComponentAssignmentStage(Stage):
             component = comp_by_ref[ref]
 
             # Filter slots within max_distance of reference
-<<<<<<< HEAD
-            all_zone_slots: list[Slot] = []
-=======
             all_zone_slots: list[tuple[float, float]] = []
->>>>>>> main
             for slots in zone_slots.values():
                 all_zone_slots.extend(slots)
 

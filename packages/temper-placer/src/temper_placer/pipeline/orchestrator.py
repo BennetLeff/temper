@@ -347,13 +347,8 @@ class PipelineOrchestrator:
                 raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
         else:
             class MockConstraints:
-<<<<<<< HEAD
-                constraints = []
-                constraints: list[Any] = []
-=======
                 constraints: list = []
             state.constraints = MockConstraints()
->>>>>>> main
 
         # Load physical specification
         from temper_placer.core.specification import PcbSpecification
