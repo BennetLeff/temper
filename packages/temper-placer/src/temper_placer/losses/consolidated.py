@@ -57,7 +57,7 @@ class UnifiedGroupingLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -111,7 +111,7 @@ class UnifiedThermalLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -165,7 +165,7 @@ class UnifiedAestheticLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -216,7 +216,7 @@ class UnifiedLoopLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)
@@ -266,7 +266,7 @@ class UnifiedStarPointLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         total_val = jnp.array(0.0)

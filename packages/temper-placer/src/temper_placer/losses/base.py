@@ -809,7 +809,7 @@ class LossFunction(ABC):
         """
         ...
 
-    def weight_schedule(self, _epoch: int, _total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
         """
         Get the weight multiplier for this loss at a given epoch.
 
@@ -949,7 +949,7 @@ class CompositeLoss(LossFunction):
         """Name of the composite loss."""
         return "composite"
 
-    def __call__(
+    def __call__(  # type: ignore[override]
         self,
         positions: Array,
         rotations: Array,

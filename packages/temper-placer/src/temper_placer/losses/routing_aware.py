@@ -139,11 +139,11 @@ class RoutingChannelLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
+        rotations: Array,
         context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """Compute routing channel penalty.
@@ -208,11 +208,11 @@ class MCUClusteringLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
-        _context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """Penalizes peripherals that are too far from the MCU.
@@ -336,11 +336,11 @@ class BusAlignmentLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
-        _context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """For each bus group, computes deviation from best-fit line

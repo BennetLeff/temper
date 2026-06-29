@@ -38,9 +38,9 @@ class EdgeCrossingLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute total edge crossing penalty.

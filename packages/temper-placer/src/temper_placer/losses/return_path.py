@@ -44,11 +44,11 @@ class CurrentReturnPathLoss(LossFunction):
     def __call__(
         self,
         _positions: jnp.ndarray,
-        _rotations: jnp.ndarray,
-        _context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         return LossResult(value=jnp.array(0.0))
 
@@ -65,11 +65,11 @@ class ResolvedCurrentReturnPathLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        _rotations: jnp.ndarray,
-        _context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         total_loss = jnp.array(0.0)
 

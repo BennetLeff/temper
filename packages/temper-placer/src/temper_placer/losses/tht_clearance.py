@@ -50,11 +50,11 @@ class THTPadClearanceLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
-        _context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        rotations: Array,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         if not self._tht_pads_info:
             return LossResult(value=0.0, name=self.name, weight=self.weight)

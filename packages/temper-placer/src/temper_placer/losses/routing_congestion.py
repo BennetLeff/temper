@@ -40,11 +40,11 @@ class RoutingCongestionLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        _rotations: jnp.ndarray,
-        _context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: jnp.ndarray | None = None, **_kwargs: Any) -> LossResult:
+        rotations: jnp.ndarray,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: jnp.ndarray | None = None, **_kwargs: Any) -> LossResult:
         """
         Calculate congestion penalty.
         """

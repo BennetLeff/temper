@@ -110,7 +110,7 @@ def compute_ground_crossing_penalty(
 
 def detect_ground_domain_violations(
     _positions: Array,
-    _context: LossContext,
+    context: LossContext,
 ) -> list[dict]:
     """Detect and report all ground domain violations for debugging."""
     return []
@@ -131,10 +131,10 @@ class GroundCrossingLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
+        rotations: Array,
         context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
+        epoch: int = 0,
+        total_epochs: int = 1,
         net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """Compute ground crossing loss."""
@@ -144,10 +144,10 @@ class GroundCrossingLoss(LossFunction):
     def compute_gradients(
         self,
         positions: Array,
-        _rotations: Array,
+        rotations: Array,
         context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
+        epoch: int = 0,
+        total_epochs: int = 1,
         net_virtual_nodes: Array | None = None,
     ) -> Array:
         """Compute gradients of the ground crossing loss w.r.t. positions."""
