@@ -3,6 +3,7 @@
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
 pub mod audit;
+mod combinator;
 mod encoding;
 mod extraction;
 mod solver;
