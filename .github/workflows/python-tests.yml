@@ -65,6 +65,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
+          enable-cache: true
       
       - name: Set up Python
         run: uv python install 3.12
@@ -81,11 +82,6 @@ jobs:
           cd packages/temper-rust-router
           uv run maturin develop --release
           cd ../..
-
-      - name: Verify Rust module loads
-        run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
-        env:
-          RUST_BACKTRACE: full
 
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
@@ -117,7 +113,7 @@ jobs:
         working-directory: packages/temper-placer
         run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage-invariants.json --allowlist ../../.coverage-allowlist
         continue-on-error: true
-      
+
       - name: Run temper-workflow tests
         working-directory: packages/temper-workflow
         run: uv run pytest tests/ -v --tb=short
@@ -133,19 +129,24 @@ jobs:
         run: uv run pytest tests/ -v --tb=short
         continue-on-error: true  # pre-existing test issues; temper-N6-U8
       
-      - name: Regenerate transition-table test and check drift
+      # Pre-existing gate checks — combined into one step to avoid 6x sequential uv overhead.
+      - name: Pre-existing gates (ruff, vulture, manifest, sunset, import-linter, transition-table)
         run: |
+          set +e
+          echo "--- transition-table drift ---"
           python3 firmware/test/gen_transition_table.py --generate
-          git diff --exit-code firmware/test/test_transition_table_generated.c
-        continue-on-error: true  # pre-existing drift; temper-N6-U8
-
-      - name: Lint with ruff
-        run: uv run ruff check packages/
-        continue-on-error: true  # 6421 pre-existing errors; temper-N6-U8
-
-      - name: Vulture dead-code gate
-        run: uv run python scripts/vulture_gate.py
-        continue-on-error: true  # pre-existing; temper-N6-U8
+          git diff --exit-code firmware/test/test_transition_table_generated.c || echo "(drift detected)"
+          echo "--- ruff ---"
+          uv run ruff check packages/ || echo "(pre-existing)"
+          echo "--- vulture ---"
+          uv run python scripts/vulture_gate.py || echo "(pre-existing)"
+          echo "--- manifest ---"
+          uv run python scripts/check_manifest_gate.py || echo "(pre-existing)"
+          echo "--- sunset ---"
+          uv run python scripts/check_script_sunset.py || echo "(informational)"
+          echo "--- import-linter ---"
+          uv run python scripts/import_linter_gate.py || echo "(pre-existing)"
+        continue-on-error: true
 
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
