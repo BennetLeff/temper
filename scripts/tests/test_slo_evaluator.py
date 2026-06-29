@@ -210,3 +210,33 @@ def test_evaluate_all_metric_not_in_records():
     assert len(results) == 1
     assert results[0]["status"] == "insufficient_data"
     assert results[0]["data_points"] == 0
+
+
+def test_load_slo_definitions_rejects_window_zero(tmp_path):
+    slo_file = tmp_path / "slo.yaml"
+    slo_file.write_text("""slo_version: 1
+stages:
+  closure:
+    - metric: wall_time_ms
+      type: max
+      threshold: 1000
+      window: 0
+      severity: warn
+""")
+    with pytest.raises(ValueError, match="window must be > 0"):
+        load_slo_definitions(str(slo_file))
+
+
+def test_load_slo_definitions_rejects_negative_window(tmp_path):
+    slo_file = tmp_path / "slo.yaml"
+    slo_file.write_text("""slo_version: 1
+stages:
+  closure:
+    - metric: wall_time_ms
+      type: max
+      threshold: 1000
+      window: -1
+      severity: warn
+""")
+    with pytest.raises(ValueError, match="window must be > 0"):
+        load_slo_definitions(str(slo_file))

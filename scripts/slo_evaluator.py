@@ -26,11 +26,16 @@ def load_slo_definitions(path: str) -> dict[str, list[SloDefinition]]:
     for stage_name, defs in data.get("stages", {}).items():
         result[stage_name] = []
         for d in defs:
+            window = int(d["window"])
+            if window <= 0:
+                raise ValueError(
+                    f"SLO {stage_name}/{d['metric']}: window must be > 0, got {window}"
+                )
             result[stage_name].append(SloDefinition(
                 metric=d["metric"],
                 type=d["type"],
                 threshold=float(d["threshold"]),
-                window=int(d["window"]),
+                window=window,
                 severity=d["severity"],
             ))
     return result

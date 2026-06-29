@@ -10,9 +10,12 @@ U8 from the pipeline observability plan.
 from __future__ import annotations
 
 import json
+import logging
 import sys
 from pathlib import Path
 from typing import Any
+
+_LOGGER = logging.getLogger(__name__)
 
 
 # @req(2026-06-28-011, U8-1): Load metrics files in same JSONL format as pipeline_metrics.py
@@ -21,6 +24,7 @@ def load_metrics(filepath: Path) -> list[dict[str, Any]]:
     if not filepath.exists():
         return []
     records: list[dict[str, Any]] = []
+    parse_errors = 0
     with open(filepath) as f:
         for line in f:
             line = line.strip()
@@ -29,7 +33,12 @@ def load_metrics(filepath: Path) -> list[dict[str, Any]]:
             try:
                 records.append(json.loads(line))
             except json.JSONDecodeError:
-                continue
+                parse_errors += 1
+    if parse_errors:
+        _LOGGER.warning(
+            "Skipped %d unparseable lines in %s (corrupted JSONL)",
+            parse_errors, filepath,
+        )
     return records
 
 

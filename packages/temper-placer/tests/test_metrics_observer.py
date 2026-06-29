@@ -339,6 +339,32 @@ class TestCanaryIntegrity:
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Test 8.5 — Cross-validation: Path A (start_t is not None) mismatch
+# ---------------------------------------------------------------------------
+
+
+class TestCrossValidationPathA:
+    def test_on_stage_start_then_complete_with_zero_calltime_raises(
+        self, execution_log, tmp_path: Path
+    ):
+        """Path A: when start_t is not None, observer's own elapsed time
+        differs from caller_duration_s=0.0 by >10ms -> CrossValidationError.
+        """
+        import time as _time
+
+        observer = MetricsObserver(tmp_path / "metrics", execution_log)
+        observer.on_stage_start("s", 0, {})
+        _time.sleep(0.02)
+        with pytest.raises(CrossValidationError, match="Timing mismatch"):
+            observer.on_stage_complete("s", 0.0, {})
+
+
+# ---------------------------------------------------------------------------
+# Test 9 — Integration: observer registered with DAG engine
+# ---------------------------------------------------------------------------
+
+
 class TestIntegration:
     def test_observer_fires_on_stage_transitions(
         self, passthrough_manifest: Path, sample_config, tmp_path: Path
