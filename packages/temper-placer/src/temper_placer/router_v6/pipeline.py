@@ -459,36 +459,35 @@ class RouterV6Pipeline:
         self.ledger.checkin(pcb)
 
         # Stage 1: Generate escape vias
-        if self.verbose:
-            print(f"Stage 1: Detecting dense packages in {len(pcb.components)} components...")
-        dense_packages = identify_dense_packages(pcb.components)
-        if self.verbose:
-            print(f"  Found {len(dense_packages)} dense packages")
+        ctx = self.profiler.stage("stage1") if self.profiler else nullcontext()
+        with ctx:
+            if self.verbose:
+                print(f"Stage 1: Detecting dense packages in {len(pcb.components)} components...")
+            dense_packages = identify_dense_packages(pcb.components)
+            if self.verbose:
+                print(f"  Found {len(dense_packages)} dense packages")
 
-        escape_vias = []
-        for dense_pkg in dense_packages:
-            # Try dog-bone first
-            vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="dog-bone")
+            escape_vias = []
+            for dense_pkg in dense_packages:
+                vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="dog-bone")
 
-            # If that fails (tight pitch), try via-in-pad
-            if not vias:
-                if self.verbose:
-                    print(f"    Falling back to via-in-pad for {dense_pkg.component.ref}")
-                vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="via-in-pad")
+                if not vias:
+                    if self.verbose:
+                        print(f"    Falling back to via-in-pad for {dense_pkg.component.ref}")
+                    vias = generate_escape_vias(dense_pkg, pcb.design_rules, strategy="via-in-pad")
 
-            escape_vias.extend(vias)
-        if self.verbose:
-            print(f"  Generated {len(escape_vias)} escape vias")
+                escape_vias.extend(vias)
+            if self.verbose:
+                print(f"  Generated {len(escape_vias)} escape vias")
 
-        # Stage 1 fence: verify escape via placement correctness
-        if self.fence and escape_vias:
-            self._run_fence(
-                stage_name="router_v6.escape_vias",
-                invariants=_stage_1_invariants(),
-                pcb=pcb,
-                escape_vias=escape_vias,
-            )
-        self.ledger.checkout("escape_vias", pcb)
+            if self.fence and escape_vias:
+                self._run_fence(
+                    stage_name="router_v6.escape_vias",
+                    invariants=_stage_1_invariants(),
+                    pcb=pcb,
+                    escape_vias=escape_vias,
+                )
+            self.ledger.checkout("escape_vias", pcb)
 
         # Stage 2: Channel analysis
         if self.verbose:
@@ -502,23 +501,23 @@ class RouterV6Pipeline:
         # grid without skeleton guidance (previously used Dijkstra).
         # The SAT code stays in place; this is a guarded bypass,
         # not a removal.
-        if self.skip_stage3:
-            if self.verbose:
-                print("Stage 3: Topological routing... SKIPPED")
-            stage3 = Stage3Output(
-                constraint_model=None,
-                sat_model=None,
-                solution=None,
-                topology_graph=None,
-            )
-        else:
-            if self.verbose:
-                print("Stage 3: Topological routing...")
-            stage3 = self._run_stage3(pcb, stage2)
+        ctx = self.profiler.stage("stage3") if self.profiler else nullcontext()
+        with ctx:
+            if self.skip_stage3:
+                if self.verbose:
+                    print("Stage 3: Topological routing... SKIPPED")
+                stage3 = Stage3Output(
+                    constraint_model=None,
+                    sat_model=None,
+                    solution=None,
+                    topology_graph=None,
+                )
+            else:
+                if self.verbose:
+                    print("Stage 3: Topological routing...")
+                stage3 = self._run_stage3(pcb, stage2)
 
         # Stage 4: Geometric realization
-        if self.verbose:
-            print("Stage 4: Geometric realization...")
         stage4 = self._run_stage4(pcb, stage2, stage3, escape_vias)
 
         # Stage 5: Manufacturing DRC (opt-in)
@@ -729,81 +728,85 @@ class RouterV6Pipeline:
         """Run Stage 4: Geometric Realization with multi-layer support."""
         from temper_placer.router_v6.astar_pathfinding import run_astar_pathfinding
 
-        # Convert escape_vias list to map for A*
-        escape_vias_map: dict[str, list[tuple[float, float, float]]] = defaultdict(list)
-        for v in escape_vias or ():
-            escape_vias_map[v.net_name].append((v.position[0], v.position[1], v.diameter))
+        ctx = self.profiler.stage("stage4") if self.profiler else nullcontext()
+        with ctx:
+            # Convert escape_vias list to map for A*
+            escape_vias_map: dict[str, list[tuple[float, float, float]]] = defaultdict(list)
+            for v in escape_vias or ():
+                escape_vias_map[v.net_name].append((v.position[0], v.position[1], v.diameter))
 
-        # 4.1: Setup channel mapping (from topology solution)
-        if self.verbose:
-            print("  4.1: Setting up channel mapping...")
+            # 4.1: Setup channel mapping (from topology solution)
+            if self.verbose:
+                print("  4.1: Setting up channel mapping...")
 
-        fcu_skeleton = stage2.skeletons.get("F.Cu") or next(iter(stage2.skeletons.values()), None)
-        stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)
+            fcu_skeleton = stage2.skeletons.get("F.Cu") or next(iter(stage2.skeletons.values()), None)
+            stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)
 
-        # Map all nets with layer assignment (waypoints are layer-agnostic)
-        channel_mapping = map_topology_to_channels(
-            stage3.topology_graph,
-            fcu_skeleton,
-        )
-
-        # Fallback: nets without SAT channel assignment get direct A* attempt
-        comp_by_ref = {c.ref: c for c in pcb.components}
-        routed_nets = {cp.net_name for cp in channel_mapping.channel_paths.values()}
-        for net in pcb.nets:
-            if net.name in routed_nets:
-                continue
-            pads = _net_pad_positions(net, comp_by_ref)
-            if len(pads) < 2:
-                continue
-            fallback_cp = ChannelPath(
-                net_name=net.name,
-                channel_sequence=[],
-                waypoints=[pads[0], pads[-1]],
-                total_length=0.0,
-                preferred_layer="F.Cu",
-            )
-            channel_mapping.channel_paths[net.name] = fallback_cp
-
-        # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
-        if self.verbose:
-            print("  4.2: Running A* pathfinding (orchestrated)...")
-
-        orchestrated = Stage4Orchestrator(verbose=self.verbose)
-        state = BoardState(
-            _parsed_pcb=pcb,
-            channel_mapping=channel_mapping,
-            escape_vias_map=escape_vias_map,
-            enable_theta_star=self.enable_theta_star,
-            enable_lazy_theta_star=self.enable_lazy_theta_star,
-            congestion_weight=self.congestion_weight,
-        )
-        state = orchestrated.run(initial_state=state)
-        pathfinding_result = orchestrated.assemble_pathfinding_result(state)
-
-        if pathfinding_result is None:
-            fcu_grid = stage2.occupancy_grids.get("F.Cu") or next(
-                iter(stage2.occupancy_grids.values()), None
-            )
-            bcu_grid = stage2.occupancy_grids.get("B.Cu") or next(
-                (g for n, g in stage2.occupancy_grids.items() if n != "F.Cu"), None
+            # Map all nets with layer assignment (waypoints are layer-agnostic)
+            channel_mapping = map_topology_to_channels(
+                stage3.topology_graph,
+                fcu_skeleton,
             )
 
-            pathfinding_result = run_astar_pathfinding(
-                channel_mapping,
-                fcu_grid,
-                pcb.design_rules,
-                alternate_grid=bcu_grid,
-                pcb=pcb,
+            # Fallback: nets without SAT channel assignment get direct A* attempt
+            comp_by_ref = {c.ref: c for c in pcb.components}
+            routed_nets = {cp.net_name for cp in channel_mapping.channel_paths.values()}
+            for net in pcb.nets:
+                if net.name in routed_nets:
+                    continue
+                pads = _net_pad_positions(net, comp_by_ref)
+                if len(pads) < 2:
+                    continue
+                fallback_cp = ChannelPath(
+                    net_name=net.name,
+                    channel_sequence=[],
+                    waypoints=[pads[0], pads[-1]],
+                    total_length=0.0,
+                    preferred_layer="F.Cu",
+                )
+                channel_mapping.channel_paths[net.name] = fallback_cp
+
+            # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
+            if self.verbose:
+                print("  4.2: Running A* pathfinding (orchestrated)...")
+
+            orchestrated = Stage4Orchestrator(verbose=self.verbose)
+            state = BoardState(
+                _parsed_pcb=pcb,
+                channel_mapping=channel_mapping,
                 escape_vias_map=escape_vias_map,
-                use_theta_star=self.enable_theta_star,
-                use_lazy_theta_star=self.enable_lazy_theta_star,
-                max_nets=self.max_nets,
-                target_nets=self.target_nets,
-                max_iter=self.max_iter,
+                enable_theta_star=self.enable_theta_star,
+                enable_lazy_theta_star=self.enable_lazy_theta_star,
+                congestion_weight=self.congestion_weight,
             )
+            state = orchestrated.run(initial_state=state)
+            pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
-        return self._run_stage5(pcb, stage2, pathfinding_result)
+            if pathfinding_result is None:
+                fcu_grid = stage2.occupancy_grids.get("F.Cu") or next(
+                    iter(stage2.occupancy_grids.values()), None
+                )
+                bcu_grid = stage2.occupancy_grids.get("B.Cu") or next(
+                    (g for n, g in stage2.occupancy_grids.items() if n != "F.Cu"), None
+                )
+
+                pathfinding_result = run_astar_pathfinding(
+                    channel_mapping,
+                    fcu_grid,
+                    pcb.design_rules,
+                    alternate_grid=bcu_grid,
+                    pcb=pcb,
+                    escape_vias_map=escape_vias_map,
+                    use_theta_star=self.enable_theta_star,
+                    use_lazy_theta_star=self.enable_lazy_theta_star,
+                    max_nets=self.max_nets,
+                    target_nets=self.target_nets,
+                    max_iter=self.max_iter,
+                )
+
+        ctx = self.profiler.stage("stage5") if self.profiler else nullcontext()
+        with ctx:
+            return self._run_stage5(pcb, stage2, pathfinding_result)
 
     def _run_stage5(
         self,

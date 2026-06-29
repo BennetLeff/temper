@@ -102,6 +102,10 @@ def timing() -> None:
     "--runs", type=int, default=3,
     help="Number of measurement runs per stage",
 )
+@click.option(
+    "--sub-steps", is_flag=True, default=False,
+    help="Capture sub-step timings for stages that support them (e.g., RouterV6Pipeline stage2)",
+)
 def timing_baseline(
     board: str,
     pipeline: str,
@@ -109,6 +113,7 @@ def timing_baseline(
     all_boards: bool,
     overwrite: bool,
     runs: int,
+    sub_steps: bool,
 ) -> None:
     """Capture timing baselines for per-stage regression detection."""
     from temper_placer.profiling.timing_gate import (
@@ -145,7 +150,8 @@ def timing_baseline(
         else:
             try:
                 all_results = measure_all_stages(
-                    board_id=board_id, pipeline=pipeline, n_runs=runs
+                    board_id=board_id, pipeline=pipeline, n_runs=runs,
+                    sub_steps=sub_steps,
                 )
                 stages_to_measure = [r.stage_name for r in all_results]
             except Exception as e:
@@ -176,6 +182,7 @@ def timing_baseline(
                     board_id=board_id,
                     pipeline=pipeline,
                     n_runs=runs,
+                    sub_steps=sub_steps,
                 )
             except Exception as e:
                 console.print(

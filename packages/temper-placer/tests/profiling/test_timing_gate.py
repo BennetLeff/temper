@@ -124,4 +124,4 @@ class TestMeasureStageTiming:
 
     def test_unsupported_pipeline(self):
         with pytest.raises(ValueError, match="Unsupported pipeline"):
-            measure_stage_timing("zone_geometry", "temper_placed", pipeline="RouterV6Pipeline")
+            measure_stage_timing("zone_geometry", "temper_placed", pipeline="NonExistentPipeline")
