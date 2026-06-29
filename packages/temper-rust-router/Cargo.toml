@@ -18,3 +18,4 @@ rustsat-cadical = "0.7.5"
 panic = "unwind"
 
 [dev-dependencies]
+proptest = "1"

@@ -286,7 +286,7 @@ pub enum InternalVariable {
     },
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum InternalConstraint {
     Capacity {
         channel_id: String,
