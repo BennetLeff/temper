@@ -134,7 +134,7 @@ def create_net_class_loss(
     # OR we implement the heuristic here.
 
     # Let's group components by class
-    class_groups = {}
+    class_groups: dict[str, list[int]] = {}
     for idx, cls in comp_class_map.items():
         if cls not in class_groups:
             class_groups[cls] = []

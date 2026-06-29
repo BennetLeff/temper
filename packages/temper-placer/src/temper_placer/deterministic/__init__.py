@@ -313,13 +313,13 @@ def create_drc_aware_pipeline(
     slot_spacing = 10.0  # Default: larger spacing to avoid overlaps
     max_clearance = 2.5  # Default: conservative for HV boards
     net_class_clearances = {}
-    fixed_placements = {}
-    yaml_copper_zones = []
-    yaml_isolation_slots = []  # @req(2026-06-23-007, R1)
+    fixed_placements: dict[str, PlacementConstraint] = {}
+    yaml_copper_zones: list[CopperZone] = []
+    yaml_isolation_slots: list[IsolationSlot] = []  # @req(2026-06-23-007, R1)
     config_rules = None  # @req(2026-06-23-007, R2)
     net_priority = {}  # EXP-6: Explicit net routing priority
     placement_constraints = {}  # EXP-12: Placement validation constraints
-    hv_exclusion_zones = []  # EXP-13: HV zones that signals must route around
+    hv_exclusion_zones: list[Polygon] = []  # EXP-13: HV zones that signals must route around
 
     # Extract net class clearances from design_rules if available
     if design_rules and hasattr(design_rules, "net_classes"):

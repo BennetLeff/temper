@@ -419,7 +419,7 @@ def legalize_with_backtracking(
     order = fixed_indices + area_order
 
     current_positions = positions.copy()
-    placed_boxes = []
+    placed_boxes: list[tuple[float, float, float, float]] = []
 
     def is_valid(idx, pos):
         hw, hh = widths[idx] / 2, heights[idx] / 2
@@ -855,7 +855,7 @@ def legalize_abacus(
     origin_x, origin_y = board.origin
 
     # 1. Assign components to rows based on Y coordinate
-    row_assignments = [[] for _ in range(n_rows)]
+    row_assignments: list[list[int]] = [[] for _ in range(n_rows)]
     for i in range(n):
         if context.fixed_mask[i]:
             continue

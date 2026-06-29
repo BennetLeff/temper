@@ -245,7 +245,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
             )
 
     # 3. Extract Zones
-    zones = []
+    zones: list = []
     for ki_zone in ki_board.zones:
         # Kiutils zone boundary is a list of points
         if ki_zone.polygons:
@@ -553,8 +553,7 @@ def _extract_vias_from_pcb(
     if net_map is None:
         net_map = {}
 
-    vias = []
-    vias = []
+    vias: list = []
     for track in ki_board.traceItems:
         # Check if it's a Via object (has position but no start/end)
         if hasattr(track, "position") and not hasattr(track, "start"):
@@ -873,7 +872,7 @@ def extract_net_classes(content: str) -> dict:
         name = name_match.group(1)
 
         # Extract params
-        rules = {"nets": []}
+        rules: dict[str, Any] = {"nets": []}
 
         # Helper to extract float
         def get_float(pattern, _block=block):

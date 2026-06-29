@@ -106,7 +106,7 @@ def infer_net_criticality(netlist: Any) -> dict[str, float]:
     Returns:
         Map from net name to criticality weight
     """
-    criticality = {}
+    criticality: dict[str, float] = {}
 
     # Define patterns and weights
     patterns = [

@@ -242,7 +242,7 @@ def _generate_connector_segments(
     connectors = []
 
     # Organize segments by net for faster lookup
-    segs_by_net = {}
+    segs_by_net: dict[str, list] = {}
     for seg in segments:
         if seg.net not in segs_by_net:
             segs_by_net[seg.net] = []

@@ -347,7 +347,7 @@ class PipelineOrchestrator:
                 raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
         else:
             class MockConstraints:
-                constraints = []
+                constraints: list = []
             state.constraints = MockConstraints()
 
         # Load physical specification

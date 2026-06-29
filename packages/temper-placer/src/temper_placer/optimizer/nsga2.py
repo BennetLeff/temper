@@ -156,7 +156,7 @@ def fast_non_dominated_sort(objectives: Array) -> list[list[int]]:
         dominated_indices = jnp.where(dominates[i, :])[0].tolist()
         dominated_set.append(dominated_indices)
 
-    fronts = [[]]
+    fronts: list[list[int]] = [[]]
 
     # First front: individuals with domination_count == 0
     first_front = jnp.where(domination_count == 0)[0].tolist()

@@ -141,7 +141,7 @@ def _astar_search(
         neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
 
     # A* frontier (priority queue)
-    frontier = []
+    frontier: list = []
     heappush(frontier, (0, start))
 
     # Came from and cost tracking
@@ -287,7 +287,7 @@ def _astar_search_lazy_theta_star(
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
-    open_set = []
+    open_set: list = []
     heappush(open_set, (0.0, counter, start_grid))
 
     came_from = came_from_init.copy() if came_from_init else {}
@@ -444,7 +444,7 @@ def _astar_search_theta_star(
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
-    open_set = []
+    open_set: list = []
     heappush(open_set, (0.0, counter, start_grid))
 
     came_from = came_from_init.copy() if came_from_init else {}

@@ -91,7 +91,7 @@ def save_svg_snapshot(
     netlist: Netlist = state.netlist
 
     # Determine placements
-    positions = []
+    positions: list = []
     rotations = []
 
     if state.placement_state:
