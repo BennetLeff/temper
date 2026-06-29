@@ -67,10 +67,7 @@ def build_weighted_adjacency_matrix(
         base_weight *= class_multiplier
 
         n_pins = net.pin_count
-        if n_pins > 2:
-            edge_weight = base_weight / np.sqrt(n_pins - 1)
-        else:
-            edge_weight = base_weight
+        edge_weight = base_weight / np.sqrt(n_pins - 1) if n_pins > 2 else base_weight
 
         comp_refs = net.get_component_refs()
         comp_indices = [netlist.get_component_index(ref) for ref in comp_refs]
@@ -244,10 +241,7 @@ def compute_force_directed_layout(
     """
     n = len(initial_positions)
 
-    if weighted_adj is None:
-        adj = build_adjacency_matrix(netlist)
-    else:
-        adj = weighted_adj
+    adj = build_adjacency_matrix(netlist) if weighted_adj is None else weighted_adj
 
     fixed_mask = netlist.get_fixed_mask()
 

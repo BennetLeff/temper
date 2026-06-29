@@ -16,7 +16,6 @@ from temper_placer.router_v6.manufacturing_report import generate_manufacturing_
 from temper_placer.router_v6.routing_results import RoutingResults
 from temper_placer.router_v6.teardrop_generation import insert_teardrops
 from temper_placer.router_v6.thermal_relief import add_thermal_relief
-
 from tests.router_v6.dfm_property_strategies import (
     BOARD_H,
     BOARD_W,

@@ -1,8 +1,9 @@
 import pytest
+
 from temper_placer.io.boundary_registry import (
-    BoundaryRegistry,
-    BoundaryDef,
     BOUNDARY_NAMES,
+    BoundaryDef,
+    BoundaryRegistry,
 )
 
 

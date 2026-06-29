@@ -149,7 +149,7 @@ class BaseConstraint(ABC):
 
     def escalate(self) -> None:
         """Escalate the constraint to the next tier.
-        
+
         SOFT -> STRONG -> HARD
         """
         if self.tier == ConstraintTier.SOFT:
@@ -645,7 +645,7 @@ class LoopAreaConstraint(BaseConstraint):
         """Generate ID like 'loop_commutation'."""
         return f"loop_{self.loop_name}"
 
-    def involves_component(self, component: str) -> bool:
+    def involves_component(self, _component: str) -> bool:
         """Loop constraints don't directly involve components."""
         return False
 

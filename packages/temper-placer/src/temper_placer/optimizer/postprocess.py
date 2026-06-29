@@ -334,7 +334,7 @@ def discrete_rotation_refinement_beam(
         candidates.sort(key=lambda x: x[1])
         beam = candidates[:beam_width]
 
-        logger.debug(f"Component {comp_idx}: beam losses = {[f'{l:.4f}' for _, l in beam]}")
+        logger.debug(f"Component {comp_idx}: beam losses = {[f'{loss_val:.4f}' for _, loss_val in beam]}")
 
     # Return best candidate
     best_state, best_loss = min(beam, key=lambda x: x[1])
@@ -613,7 +613,7 @@ def postprocess(
     component_sizes: Array | None = None,  # noqa: ARG001
     fixed_components: list[int] | None = None,
     context: LossContext | None = None,
-    netlist: "Netlist | None" = None,
+    netlist: Netlist | None = None,
 ) -> PostProcessResult:
     """
     Run full post-processing pipeline on optimized placement.

@@ -120,7 +120,7 @@ class EscalationConfig:
 
 
 def calculate_penalty(
-    constraint: BaseConstraint,
+    _constraint: BaseConstraint,
     status: ConstraintStatus,
     violation: float,
 ) -> float:

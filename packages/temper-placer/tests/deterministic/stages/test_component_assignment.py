@@ -4,14 +4,13 @@ Unit tests for ComponentAssignmentStage.
 Tests greedy wirelength-based assignment of components to slots.
 """
 
-import pytest
-from temper_placer.deterministic.stages.component_assignment import ComponentAssignmentStage
-from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
-from temper_placer.deterministic.stages.zone_assignment import ZoneAssignmentStage
-from temper_placer.deterministic.stages.slot_generation import SlotGenerationStage
-from temper_placer.deterministic.state import BoardState
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist, Component, Net, Pin
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.deterministic.stages.component_assignment import ComponentAssignmentStage
+from temper_placer.deterministic.stages.slot_generation import SlotGenerationStage
+from temper_placer.deterministic.stages.zone_assignment import ZoneAssignmentStage
+from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
+from temper_placer.deterministic.state import BoardState
 
 
 def test_all_components_assigned():
@@ -23,16 +22,16 @@ def test_all_components_assigned():
                    pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(60, 60))
     nets = [Net("N1", [("R1", "1"), ("R2", "1")], net_class="Signal")]
     netlist = Netlist(components=[c1, c2], nets=nets)
-    
+
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
-    
+
     # Pipeline: zones -> assignment -> slots -> component assignment
     state = ZoneGeometryStage().run(initial_state)
     state = ZoneAssignmentStage().run(state)
     state = SlotGenerationStage(slot_spacing_mm=5.0).run(state)
     state = ComponentAssignmentStage().run(state)
-    
+
     # Verify
     placements = dict(state.placements)
     assert "R1" in placements
@@ -55,16 +54,16 @@ def test_no_overlapping_assignments():
         Net("N2", [("R3", "1")], net_class="Signal")
     ]
     netlist = Netlist(components=[c1, c2, c3], nets=nets)
-    
+
     board = Board(width=100, height=100)
     initial_state = BoardState(board=board, netlist=netlist)
-    
+
     # Pipeline
     state = ZoneGeometryStage().run(initial_state)
     state = ZoneAssignmentStage().run(state)
     state = SlotGenerationStage(slot_spacing_mm=5.0).run(state)
     state = ComponentAssignmentStage().run(state)
-    
+
     # Verify no duplicates
     placements = dict(state.placements)
     positions = list(placements.values())
@@ -79,9 +78,9 @@ def test_assignment_is_deterministic():
                    pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(60, 60))
     nets = [Net("N1", [("R1", "1"), ("R2", "1")], net_class="Signal")]
     netlist = Netlist(components=[c1, c2], nets=nets)
-    
+
     board = Board(width=100, height=100)
-    
+
     # Run twice
     def run_pipeline():
         state = BoardState(board=board, netlist=netlist)
@@ -90,8 +89,8 @@ def test_assignment_is_deterministic():
         state = SlotGenerationStage(slot_spacing_mm=5.0).run(state)
         state = ComponentAssignmentStage().run(state)
         return dict(state.placements)
-    
+
     placements1 = run_pipeline()
     placements2 = run_pipeline()
-    
+
     assert placements1 == placements2

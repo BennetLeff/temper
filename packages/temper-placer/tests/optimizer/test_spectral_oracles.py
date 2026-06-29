@@ -14,7 +14,7 @@ def test_laplacian_eigenvalues_non_negative():
         [0, 1, 0]
     ], dtype=jnp.float32)
 
-    n = adj.shape[0]
+    adj.shape[0]
     degrees = jnp.sum(adj, axis=1)
     D = jnp.diag(degrees)
     L = D - adj

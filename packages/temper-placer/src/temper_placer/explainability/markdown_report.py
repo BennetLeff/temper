@@ -123,7 +123,7 @@ def _render_header(trace: DecisionTrace) -> list[str]:
         lines.append(f"**Duration**: {duration:.1f} seconds")
 
     # Counts
-    subjects = set(d.subject for d in trace.decisions)
+    subjects = {d.subject for d in trace.decisions}
     lines.append(f"**Components**: {len(subjects)}")
     lines.append(f"**Total Decisions**: {len(trace.decisions)}")
     lines.append("")
@@ -305,7 +305,7 @@ def _render_component_decisions(trace: DecisionTrace) -> list[str]:
     Returns:
         List of markdown lines
     """
-    subjects = sorted(set(d.subject for d in trace.decisions))
+    subjects = sorted({d.subject for d in trace.decisions})
     if not subjects:
         return []
 

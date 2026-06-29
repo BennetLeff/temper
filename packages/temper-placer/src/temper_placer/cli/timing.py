@@ -65,7 +65,7 @@ def _load_golden_boards() -> list[str]:
     manifest_path = _repo_root() / "power_pcb_dataset" / "golden_manifest.yaml"
     if not manifest_path.exists():
         return []
-    data = yaml.safe_load(open(manifest_path))
+    data = yaml.safe_load(manifest_path.read_text())
     if not data:
         return []
     return [b["id"] for b in data.get("boards", [])]

@@ -222,7 +222,7 @@ class ConstraintContext:
         return (children, aux_data)
 
     @classmethod
-    def tree_unflatten(cls, aux_data, children):
+    def tree_unflatten(cls, _aux_data, children):
         return cls(*children)
 
 

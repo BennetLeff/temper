@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import ParsedPCB
@@ -112,7 +112,7 @@ class LayerCapacityStage(Stage):
     def run(self, state: BoardState) -> BoardState:
         pcb: ParsedPCB = state._parsed_pcb
         layer_capacities: dict[str, LayerCapacity] = {}
-        for layer_name in state.occupancy_grids.keys():
+        for layer_name in state.occupancy_grids:
             widths = state.channel_widths.get(layer_name)
             if widths is None:
                 continue

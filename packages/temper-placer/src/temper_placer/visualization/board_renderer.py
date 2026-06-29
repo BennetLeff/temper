@@ -541,7 +541,7 @@ def _add_legend_traces(
     # Trace layer legend (if showing traces)
     if show_traces and board.traces:
         # Only show legend for layers actually present
-        layers_present = set(t.layer for t in board.traces)
+        layers_present = {t.layer for t in board.traces}
         for layer, color in LAYER_COLORS.items():
             if layer in layers_present:
                 layer_name = {

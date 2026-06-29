@@ -16,11 +16,11 @@ from .gnn_predictor import GNNBlock
 class LearnedInitializerGNN(nn.Module):
     """
     Predicts initial component positions [X, Y].
-    
+
     Inputs:
         - Node features: [Area, PinCount, Fixed, Centrality]
         - Edge indices: (E, 2)
-    
+
     Output:
         - Positions: (N, 2) in normalized [0, 1] range.
     """

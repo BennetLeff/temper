@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import warnings
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +26,7 @@ class PipelineMetricsRecord:
     stage: str
     module: str = "pipeline"
     metrics: dict[str, float] = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     git_commit: str = ""
     schema_version: int = CURRENT_SCHEMA_VERSION
 
@@ -108,14 +108,14 @@ def load_metrics(filepath: Path) -> list[dict[str, Any]]:
             try:
                 record = json.loads(line)
             except json.JSONDecodeError:
-                warnings.warn(f"Invalid JSON at line {lineno}, skipping")
+                warnings.warn(f"Invalid JSON at line {lineno}, skipping", stacklevel=2)
                 continue
 
             schema = record.get("schema_version", 0)
             if schema == 0:
-                warnings.warn(f"No schema_version at line {lineno}, treating as v{CURRENT_SCHEMA_VERSION}")
+                warnings.warn(f"No schema_version at line {lineno}, treating as v{CURRENT_SCHEMA_VERSION}", stacklevel=2)
             elif schema > CURRENT_SCHEMA_VERSION:
-                warnings.warn(f"Future schema_version {schema} at line {lineno}, skipping")
+                warnings.warn(f"Future schema_version {schema} at line {lineno}, skipping", stacklevel=2)
                 continue
 
             if "module" not in record:

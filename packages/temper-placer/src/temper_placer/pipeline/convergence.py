@@ -265,10 +265,7 @@ class ConvergenceChecker:
             return True
         if self.check_timeout():
             return True
-        if self.check_stagnation():
-            return True
-
-        return False
+        return bool(self.check_stagnation())
 
     def increment_iteration(self) -> None:
         """Increment the iteration count."""
@@ -369,31 +366,28 @@ class ConvergenceChecker:
 
 def is_converged(current_results: dict, previous_results: dict | None) -> bool:
     """Check if routing results have converged.
-    
+
     Converged if:
     1. Perfect routing achieved.
     2. Results are identical to previous iteration (stagnation).
     """
     if not current_results:
         return False
-        
+
     # 1. Look for perfect routing
     all_success = all(r.success for r in current_results.values())
     if all_success:
         return True
-        
+
     if previous_results is None:
         return False
-        
+
     # 2. Check for stagnation (identical success rate and total length)
     # Using length as proxy for path change
     curr_len = sum(r.length for r in current_results.values())
     prev_len = sum(r.length for r in previous_results.values())
-    
+
     curr_succ = sum(1 for r in current_results.values() if r.success)
     prev_succ = sum(1 for r in previous_results.values() if r.success)
-    
-    if curr_succ == prev_succ and abs(curr_len - prev_len) < 1e-6:
-        return True
-        
-    return False
+
+    return bool(curr_succ == prev_succ and abs(curr_len - prev_len) < 1e-06)

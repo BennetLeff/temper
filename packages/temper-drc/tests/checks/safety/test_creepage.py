@@ -1,5 +1,4 @@
 from temper_drc.checks.safety.creepage import CreepageCheck
-from temper_drc.core.result import Severity
 from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import ComponentPlacement, Placement
 

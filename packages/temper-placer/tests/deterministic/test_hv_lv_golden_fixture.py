@@ -10,19 +10,15 @@ a snapshot baked into the test. Snapshot regeneration is one-shot via
 
 from __future__ import annotations
 
-import copy
 import os
 from types import SimpleNamespace
 from typing import Any
 
-import pytest
-from shapely.geometry import Polygon
-
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.hv_lv_partition import HvLvPartitionStage
+from temper_placer.deterministic.state import BoardState
 
 
 def _make_temper_like_state(*, enabled: bool) -> BoardState:

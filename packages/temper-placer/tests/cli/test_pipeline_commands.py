@@ -196,7 +196,7 @@ class TestPipelineCommandExecution:
 
             mock_orch_class.side_effect = capture_config
 
-            result = runner.invoke(
+            runner.invoke(
                 main,
                 [
                     "pipeline",
@@ -229,7 +229,7 @@ class TestPipelineCommandExecution:
 class TestPipelineDryRun:
     """Test pipeline --dry-run mode."""
 
-    def test_dry_run_sets_config_flag(self, runner, temp_dir):
+    def test_dry_run_sets_config_flag(self, runner, _temp_dir):
         """Test that --dry-run sets dry_run=True in config."""
         captured_config = None
 
@@ -244,7 +244,7 @@ class TestPipelineDryRun:
 
             mock_orch_class.side_effect = capture_config
 
-            result = runner.invoke(
+            runner.invoke(
                 main,
                 [
                     "pipeline",

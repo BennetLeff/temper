@@ -13,8 +13,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 if TYPE_CHECKING:
-    from temper_placer.core.board import Board, Trace
-    from temper_placer.core.netlist import Netlist
+    from temper_placer.core.board import Board
 
 
 def calculate_actual_trace_length(board: Board, net_name: str) -> float:
@@ -31,7 +30,7 @@ def calculate_actual_trace_length(board: Board, net_name: str) -> float:
 def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
     """
     Calculate polygon area formed by traces of multiple nets.
-    
+
     Used for differential pairs or switching loops (e.g. SW and GND).
     """
     # 1. Collect all trace endpoints
@@ -40,15 +39,15 @@ def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
         if trace.net in net_names:
             points.append(trace.start)
             points.append(trace.end)
-            
+
     if len(points) < 3:
         return 0.0
-        
+
     # 2. Convert to convex hull or ordered path?
     # For a simple area estimate, we can use the bounding box or convex hull
     # or try to trace the path if it's a simple loop.
     # Simple bounding box area as proxy if not enough points.
-    
+
     # Better: use actual points and shoelace if they form a closed loop.
     # For validation, we'll use convex hull area as a conservative upper bound.
     from scipy.spatial import ConvexHull
@@ -65,24 +64,24 @@ def calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]) -> 
     """
     hv_traces = [t for t in board.traces if net_classes.get(t.net) == "HighVoltage"]
     lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]
-    
+
     if not hv_traces or not lv_traces:
         return float('inf')
-        
+
     min_dist = float('inf')
-    
+
     for hv in hv_traces:
         for lv in lv_traces:
             # Shortest distance between two line segments
             # Simplified: check endpoints for now
             pts_hv = [np.array(hv.start), np.array(hv.end)]
             pts_lv = [np.array(lv.start), np.array(lv.end)]
-            
+
             for p1 in pts_hv:
                 for p2 in pts_lv:
                     dist = np.linalg.norm(p1 - p2)
                     min_dist = min(min_dist, dist)
-                    
+
     return float(min_dist)
 
 
@@ -94,11 +93,11 @@ def validate_signal_integrity(board: Board, spec: Any) -> dict[str, float]:
         results[f"{net_name}_length"] = actual_len
         if actual_len > max_len:
             print(f"Warning: Net {net_name} exceeds max length ({actual_len:.1f} > {max_len}mm)")
-            
+
     return results
 
 
-def validate_emi_traces(board: Board, spec: Any) -> dict[str, float]:
+def validate_emi_traces(_board: Board, _spec: Any) -> dict[str, float]:
     """Validate loop areas from actual traces."""
     # This is complex because we need to know which nets form the loop
     # TODO: Implement proper loop net identification

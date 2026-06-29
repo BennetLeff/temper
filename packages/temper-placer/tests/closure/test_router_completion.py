@@ -20,11 +20,9 @@ import os
 import shutil
 import subprocess
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
-import pytest
 
 # ---------------------------------------------------------------------------
 # Fixtures and constants
@@ -258,9 +256,9 @@ class TestPostChangePromotionGate:
         candidate = _measure_candidate_closure()
         target = 90.0
         assert candidate.router_completion_pct > 0.0, (
-            f"SM1: candidate router_completion_pct is 0.0 — the closure "
-            f"runner either failed or produced no routing results.  "
-            f"Investigate the runner output before re-running."
+            "SM1: candidate router_completion_pct is 0.0 — the closure "
+            "runner either failed or produced no routing results.  "
+            "Investigate the runner output before re-running."
         )
         assert candidate.router_completion_pct >= target, (
             f"SM1 fail: candidate {candidate.router_completion_pct:.1f}% "
@@ -277,9 +275,9 @@ class TestPostChangePromotionGate:
         candidate = _measure_candidate_closure()
         target = 96.7
         assert candidate.drc_clearance_pass_pct > 0.0, (
-            f"SM2: candidate drc_clearance_pass_pct is 0.0 — the closure "
-            f"runner did not exercise the DRC step.  Investigate the "
-            f"runner output (kicad-cli availability) before re-running."
+            "SM2: candidate drc_clearance_pass_pct is 0.0 — the closure "
+            "runner did not exercise the DRC step.  Investigate the "
+            "runner output (kicad-cli availability) before re-running."
         )
         assert candidate.drc_clearance_pass_pct >= target, (
             f"SM2 fail: candidate {candidate.drc_clearance_pass_pct:.1f}% "
@@ -296,9 +294,9 @@ class TestPostChangePromotionGate:
         candidate = _measure_candidate_closure()
         ceiling = baseline["wall_clock_seconds"] * 1.05
         assert candidate.wall_clock_seconds > 0.0, (
-            f"SM6: candidate wall_clock_seconds is 0.0 — the closure "
-            f"runner did not measure wall time.  Investigate the "
-            f"runner output before re-running."
+            "SM6: candidate wall_clock_seconds is 0.0 — the closure "
+            "runner did not measure wall time.  Investigate the "
+            "runner output before re-running."
         )
         assert candidate.wall_clock_seconds <= ceiling, (
             f"SM6 fail: candidate {candidate.wall_clock_seconds:.2f}s "

@@ -11,9 +11,23 @@ from rich.panel import Panel
 from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
 from rich.table import Table
 
-from ._io import console, _print_placement_summary
-from ._signal import InterruptGuard
 from temper_placer import __version__
+from temper_placer.pipeline import (
+    PipelineConfig,
+    PipelineOrchestrator,
+    PipelinePhase,
+    PipelineState,
+    RichDashboard,
+)
+from temper_placer.profiling.cli import profile
+
+from ._io import _print_placement_summary, console
+from ._signal import InterruptGuard
+from .dsn_commands import dsn
+from .pipeline_commands import phase, pipeline
+from .timing import timing
+from .trace_commands import trace
+from .version import version
 
 
 @click.group()
@@ -22,12 +36,6 @@ def main() -> None:
     """temper-placer: JAX-based PCB placement optimizer."""
     pass
 
-
-from .pipeline_commands import phase, pipeline
-from .trace_commands import trace
-from .dsn_commands import dsn
-from temper_placer.profiling.cli import profile
-from .timing import timing
 
 main.add_command(pipeline)
 main.add_command(phase)
@@ -264,7 +272,7 @@ def optimize(
 
         from temper_placer.core.community import detect_communities
         from temper_placer.core.state import PlacementState
-        from temper_placer.heuristics import PlacementContext, create_default_pipeline
+        from temper_placer.heuristics import create_default_pipeline
         from temper_placer.io.config_loader import (
             apply_fixed_components_to_netlist,
             apply_zones_to_netlist,
@@ -292,7 +300,7 @@ def optimize(
         from temper_placer.losses.base import LossContext
         from temper_placer.losses.compact import create_compact_loss_set
         from temper_placer.optimizer import OptimizerConfig, train, train_multiphase
-        from temper_placer.optimizer.curriculum import create_default_phases, create_fast_phases
+        from temper_placer.optimizer.curriculum import create_default_phases
     except ImportError as e:
         console.print(f"[red]Failed to import required modules: {e}[/]")
         console.print("Please ensure JAX and all dependencies are installed:")
@@ -431,7 +439,7 @@ def optimize(
                     weight=weights["overlap"],
                 )
             )
-        
+
         # Pin accessibility loss (fine-grained clearance)
         if "pin_accessibility" in weights:
             from temper_placer.losses.pin_accessibility import PinAccessibilityLoss
@@ -927,9 +935,8 @@ def optimize(
     if track_metrics:
         try:
             from temper_placer.experiments import (
-                setup_metrics_tracking,
                 create_run_metrics,
-                record_training_run,
+                setup_metrics_tracking,
             )
 
             tracker = setup_metrics_tracking(track_metrics, input_pcb.stem)
@@ -956,8 +963,9 @@ def optimize(
     # Apply zone legalization for perfect zone compliance
     if board.zones:
         try:
-            from temper_placer.optimizer.legalization import clamp_to_zones
             import numpy as np
+
+            from temper_placer.optimizer.legalization import clamp_to_zones
 
             console.print("  [dim]Applying zone legalization...[/]")
             # Get positions from best state and apply zone clamping
@@ -1002,7 +1010,6 @@ def optimize(
             )
 
             # Then apply priority-based overlap resolution for any remaining 2D overlaps
-            from temper_placer.optimizer.legalization import resolve_overlaps_priority
 
             overlap_free_positions = resolve_overlaps_priority(
                 np.array(legalized_state.positions),
@@ -1115,7 +1122,7 @@ def optimize(
         console.print("\n[bold cyan]Step 6/5 (Optional):[/] Running SPICE electrical validation...")
         try:
             from temper_placer.validation.spice_pipeline import SpiceValidationPipeline
-            
+
             # Load default component names for Temper if not specified in config
             # (In a real scenario, these would come from PCL or auto-discovery)
             spice_config = {
@@ -1123,15 +1130,15 @@ def optimize(
                 "bootstrap_loop_components": ["U_GATE", "D_BOOT1", "C_BOOT1"],
                 "dc_bus_components": ["C_BUS1", "Q1", "Q2"]
             }
-            
+
             pipeline = SpiceValidationPipeline(config=spice_config)
             spice_results = pipeline.validate_placement(result.best_state, netlist, board)
-            
+
             if spice_results:
                 pipeline.print_report(spice_results)
             else:
                 console.print("  [yellow]⚠[/] No SPICE results generated (check if ngspice is installed)")
-                
+
         except Exception as e:
             console.print(f"  [red]✗[/] SPICE validation failed: {e}")
 
@@ -1957,8 +1964,8 @@ def visualize(
     if constraints:
         try:
             from temper_placer.io.config_loader import (
-                load_constraints,
                 create_board_from_constraints,
+                load_constraints,
             )
 
             constraints_obj = load_constraints(constraints)
@@ -2088,7 +2095,7 @@ def visualize(
     if export_coords:
         from temper_placer.visualization.validation import export_coordinates_csv
 
-        csv_content = export_coordinates_csv(
+        export_coordinates_csv(
             board_view,
             origin=(origin_x, origin_y),
             output_path=export_coords,
@@ -2361,7 +2368,7 @@ def report(
     )
 
     try:
-        report_html = generate_report(
+        generate_report(
             board_view=board_view,
             loss_history=loss_hist,
             validation=validation_results,
@@ -2466,7 +2473,7 @@ def run(
         ) as progress:
             total_task = progress.add_task("Total Progress", total=study_cfg.get_total_runs())
 
-            def update_progress(completed, total):
+            def update_progress(completed, _total):
                 progress.update(total_task, completed=completed)
 
             results = runner.run_all(
@@ -2604,7 +2611,7 @@ def pcl_validate(
     """
     import json as json_module
 
-    from temper_placer.pcl import PCLParseError, PCLValidationError, parse_pcl_file
+    from temper_placer.pcl import PCLParseError, parse_pcl_file
 
     results: dict = {
         "file": str(pcl_file),
@@ -2930,7 +2937,7 @@ def pcl_show(
 @click.option("--json", "output_json", is_flag=True, help="Output as JSON")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
 def why(
-    component: str, trace: Path | None, history: bool, output_json: bool, verbose: bool
+    component: str, trace: Path | None, history: bool, output_json: bool, _verbose: bool
 ) -> None:
     """Explain why a component is at its current position.
 
@@ -2957,10 +2964,7 @@ def why(
         sys.exit(1)
 
     # Get explanation
-    if history:
-        explanation = decision_trace.history(component)
-    else:
-        explanation = decision_trace.why(component)
+    explanation = decision_trace.history(component) if history else decision_trace.why(component)
 
     if output_json:
         # Get decisions for component
@@ -2993,7 +2997,7 @@ def why(
 @click.option("--json", "output_json", is_flag=True, help="Output as JSON")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
 def why_not(
-    component: str, position: str, trace: Path | None, output_json: bool, verbose: bool
+    component: str, position: str, trace: Path | None, output_json: bool, _verbose: bool
 ) -> None:
     """Explain why a particular position was rejected.
 
@@ -3238,7 +3242,6 @@ def trace_export(trace: Path, format: str, output: Path | None) -> None:
         temper-placer trace-export --trace decisions.json --format markdown
     """
     from temper_placer.explainability import (
-        generate_html_report,
         load_trace,
         render_markdown_report,
         save_html_report,
@@ -3286,16 +3289,6 @@ def trace_export(trace: Path, format: str, output: Path | None) -> None:
 # =============================================================================
 # Pipeline Commands
 # =============================================================================
-
-from temper_placer.pipeline import (
-    PipelineConfig,
-    PipelineOrchestrator,
-    PipelinePhase,
-    PipelineState,
-    RichDashboard,
-    TerminalProgress,
-    create_progress_display,
-)
 
 
 @main.command()
@@ -3456,8 +3449,6 @@ def pipeline(
 
 
 
-
-from .version import version
 
 main.add_command(version)
 

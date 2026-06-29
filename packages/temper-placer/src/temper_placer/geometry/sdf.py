@@ -16,6 +16,7 @@ All functions are JAX-compatible for automatic differentiation.
 """
 
 
+import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -301,8 +302,7 @@ def sdf_convex_polygon(point: Array, vertices: Array) -> Array:
     return jnp.max(signed_dists)
 
 
-# Need to import jax.vmap for the convex polygon function
-import jax
+
 
 # =============================================================================
 # SDF Combination Operations
@@ -482,7 +482,7 @@ def sdf_to_penalty(sdf_value: Array, beta: float = 10.0) -> Array:
     return jnp.logaddexp(0.0, -beta * sdf_value) / beta
 
 
-def sdf_gradient(sdf_func, point: Array, epsilon: float = 1e-4) -> Array:
+def sdf_gradient(sdf_func, point: Array, _epsilon: float = 1e-4) -> Array:
     """
     Compute gradient of an SDF at a point.
 

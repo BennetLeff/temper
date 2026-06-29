@@ -7,10 +7,12 @@ Critical for reproducibility and debugging.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Callable, Any, TypeVar
 import hashlib
 import pickle
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any, TypeVar
+
 import numpy as np
 
 T = TypeVar("T")
@@ -65,7 +67,7 @@ def verify(
         compare = _default_compare
 
     results = []
-    for i in range(runs):
+    for _i in range(runs):
         result = fn(*args, **kwargs)
         results.append(result)
 
@@ -126,7 +128,7 @@ def verify_with_seed(
         compare = _default_compare
 
     results = []
-    for i in range(runs):
+    for _i in range(runs):
         if HAS_JAX:
             key = jax.random.PRNGKey(seed)
             result = fn(key, *args, **kwargs)
@@ -180,9 +182,8 @@ def hash_output(value: Any) -> str:
 
 def _default_compare(a: Any, b: Any) -> bool:
     """Default comparison for determinism checking."""
-    if HAS_JAX:
-        if hasattr(a, "device") and hasattr(b, "device"):
-            return bool(jnp.allclose(a, b, rtol=0, atol=0))
+    if HAS_JAX and hasattr(a, "device") and hasattr(b, "device"):
+        return bool(jnp.allclose(a, b, rtol=0, atol=0))
 
     if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
         return np.array_equal(a, b)
@@ -198,22 +199,21 @@ def _default_compare(a: Any, b: Any) -> bool:
     if isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
         if len(a) != len(b):
             return False
-        return all(_default_compare(ai, bi) for ai, bi in zip(a, b))
+        return all(_default_compare(ai, bi) for ai, bi in zip(a, b, strict=False))
 
     return a == b
 
 
 def _describe_divergence(a: Any, b: Any) -> str:
     """Describe how two values differ."""
-    if HAS_JAX:
-        if hasattr(a, "device") and hasattr(b, "device"):
-            diff = jnp.abs(a - b)
-            return (
-                f"JAX array divergence:\n"
-                f"  Max diff: {float(jnp.max(diff))}\n"
-                f"  Num diffs: {int(jnp.sum(diff > 0))}\n"
-                f"  Shape: {a.shape}"
-            )
+    if HAS_JAX and hasattr(a, "device") and hasattr(b, "device"):
+        diff = jnp.abs(a - b)
+        return (
+            f"JAX array divergence:\n"
+            f"  Max diff: {float(jnp.max(diff))}\n"
+            f"  Num diffs: {int(jnp.sum(diff > 0))}\n"
+            f"  Shape: {a.shape}"
+        )
 
     if isinstance(a, np.ndarray) and isinstance(b, np.ndarray):
         diff = np.abs(a - b)

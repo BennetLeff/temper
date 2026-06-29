@@ -3,8 +3,9 @@
 TDD: These tests verify that the KiCad parser extracts component positions from footprints.
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 
 class TestFootprintPositionExtraction:
@@ -29,7 +30,7 @@ class TestFootprintPositionExtraction:
             c for c in result.netlist.components
             if c.initial_position and c.initial_position != (0, 0)
         ]
-        
+
         assert len(components_with_positions) == 36, (
             f"Expected 36 components with non-zero positions, got {len(components_with_positions)}. "
             f"Parser should extract (at x y) from footprint sections."
@@ -52,7 +53,7 @@ class TestFootprintPositionExtraction:
         # Check position is set and within reasonable board bounds (139x90mm board)
         pos = k25.initial_position
         assert pos is not None, "K25 should have initial_position"
-        
+
         x, y = pos[0], pos[1]
         # After origin normalization, positions should be within [0, board_width/height]
         assert 0 <= x <= 200, f"K25 X ({x}) should be within reasonable bounds"
@@ -73,7 +74,7 @@ class TestFootprintPositionExtraction:
             c for c in result.netlist.components
             if hasattr(c, 'initial_rotation') and c.initial_rotation is not None
         ]
-        
+
         # All components should have rotation (even if 0)
         assert len(components_with_rotation) == 36, (
             f"Expected all 36 components to have initial_rotation, got {len(components_with_rotation)}"

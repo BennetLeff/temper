@@ -4,7 +4,6 @@ Tests for Router V6 Stage 2.8: Identify Bottlenecks
 Part of temper-pox8
 """
 
-import pytest
 
 from temper_placer.router_v6.bottleneck_analysis import (
     Bottleneck,
@@ -29,7 +28,7 @@ def test_identify_bottlenecks_no_congestion():
             estimated_traces=100,
         ),
     }
-    
+
     demand = RoutingDemand(
         total_nets=50,
         routable_nets=40,
@@ -40,9 +39,9 @@ def test_identify_bottlenecks_no_congestion():
         avg_pins_per_net=5.0,
         max_pins_per_net=10,
     )
-    
+
     analysis = identify_bottlenecks(capacities, demand)
-    
+
     assert len(analysis.bottlenecks) == 1
     assert not analysis.has_critical_bottlenecks
 
@@ -60,7 +59,7 @@ def test_identify_bottlenecks_critical():
             estimated_traces=10,  # Very low capacity
         ),
     }
-    
+
     demand = RoutingDemand(
         total_nets=200,
         routable_nets=180,
@@ -71,9 +70,9 @@ def test_identify_bottlenecks_critical():
         avg_pins_per_net=5.0,
         max_pins_per_net=20,
     )
-    
+
     analysis = identify_bottlenecks(capacities, demand)
-    
+
     # Should detect critical bottleneck
     assert analysis.has_critical_bottlenecks
     assert analysis.worst_bottleneck is not None
@@ -95,7 +94,7 @@ def test_bottleneck_severity_classification():
     )
     assert not bottleneck_none.is_critical
     assert bottleneck_none.margin == 80
-    
+
     # Critical bottleneck (capacity << demand)
     bottleneck_critical = Bottleneck(
         layer_name="B.Cu",
@@ -114,16 +113,16 @@ def test_bottleneck_analysis_dataclass():
         Bottleneck("F.Cu", BottleneckSeverity.LOW, 100, 50, 0.5),
         Bottleneck("B.Cu", BottleneckSeverity.HIGH, 20, 30, 1.5),
     ]
-    
+
     analysis = BottleneckAnalysis(
         bottlenecks=bottlenecks,
         total_capacity=120,
         total_demand=80,
     )
-    
+
     assert len(analysis.bottlenecks) == 2
     assert not analysis.has_critical_bottlenecks
-    
+
     # Worst bottleneck should be B.Cu (highest utilization)
     worst = analysis.worst_bottleneck
     assert worst is not None
@@ -143,7 +142,7 @@ def test_identify_bottlenecks_multiple_layers():
             "B.Cu", 10000, 7000, 3000, 1.0, 4.0, 60
         ),
     }
-    
+
     demand = RoutingDemand(
         total_nets=150,
         routable_nets=120,
@@ -154,9 +153,9 @@ def test_identify_bottlenecks_multiple_layers():
         avg_pins_per_net=5.0,
         max_pins_per_net=15,
     )
-    
+
     analysis = identify_bottlenecks(capacities, demand)
-    
+
     assert len(analysis.bottlenecks) == 3
     assert analysis.total_capacity == 240
 
@@ -173,7 +172,7 @@ def test_bottleneck_empty_design():
         avg_pins_per_net=0.0,
         max_pins_per_net=0,
     ))
-    
+
     assert len(analysis.bottlenecks) == 0
     assert not analysis.has_critical_bottlenecks
     assert analysis.worst_bottleneck is None

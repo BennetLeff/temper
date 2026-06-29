@@ -14,10 +14,9 @@ Import side effect:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 from temper_placer.protocol import PipelineStage, StageInput, StageOutput
-from temper_placer.strategy_registry import register, register_composite
+from temper_placer.strategy_registry import register
 
 
 @dataclass
@@ -46,7 +45,6 @@ class PlacementStage(PipelineStage):
         seed = getattr(input.meta, "seed", 42) if input.meta else 42
         strategy = "template"
 
-        placements: dict[str, tuple[float, float]] = {}
         if input.meta and input.meta.trace_context:
             tc_strategy = input.meta.trace_context.get("strategy")
             if tc_strategy:

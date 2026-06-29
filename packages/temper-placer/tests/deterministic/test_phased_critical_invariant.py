@@ -11,16 +11,12 @@ Covers:
 from __future__ import annotations
 
 import logging
-from unittest.mock import Mock
-
-import pytest
 
 from temper_placer.deterministic.channels import ChannelMap
 from temper_placer.deterministic.stages.phased_component_assignment import (
     CRITICAL_BOTTLENECK_INVARIANT,
     PhasedComponentAssignmentStage,
 )
-from temper_placer.deterministic.state import BoardState
 from temper_placer.io.config_loader import PlacementConstraints
 
 

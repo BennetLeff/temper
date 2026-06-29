@@ -100,16 +100,16 @@ from temper_placer.optimizer.train import (
     train,
     train_multiphase,
 )
-from temper_placer.optimizer.zone_aware_init import (
-    ZoneAwareSpectralInitializer,
-    create_zone_cost_field,
-    adjust_positions_for_zones,
-)
 from temper_placer.optimizer.validation_callback import (
     ValidationCallback,
     ValidationConfig,
     ValidationResult,
     create_validation_callback,
+)
+from temper_placer.optimizer.zone_aware_init import (
+    ZoneAwareSpectralInitializer,
+    adjust_positions_for_zones,
+    create_zone_cost_field,
 )
 
 __all__ = [

@@ -22,17 +22,17 @@ from temper_placer.pipeline.feedback import (
 from temper_placer.pipeline.orchestrator import (
     PipelineOrchestrator,
 )
-from temper_placer.pipeline.state import (
-    PipelineConfig,
-    PipelineError,
-    PipelinePhase,
-    PipelineState,
-)
 from temper_placer.pipeline.preflight import (
     PreflightCheck,
     PreflightChecker,
     PreflightReport,
     PreflightResult,
+)
+from temper_placer.pipeline.state import (
+    PipelineConfig,
+    PipelineError,
+    PipelinePhase,
+    PipelineState,
 )
 from temper_placer.pipeline.visualization import (
     ProgressCallback,

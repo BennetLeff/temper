@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import yaml
 
@@ -49,11 +48,11 @@ class PcbSpecification:
         """Load specification from YAML file."""
         with open(path) as f:
             data = yaml.safe_load(f)
-            
+
         thermal = ThermalSpec(**data.get("thermal", {}))
         emi = EMISpec(**data.get("emi", {}))
         si = SignalIntegritySpec(**data.get("signal_integrity", {}))
-        
+
         return cls(
             name=data.get("name", path.stem),
             thermal=thermal,

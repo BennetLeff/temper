@@ -340,7 +340,7 @@ class HeuristicPipeline:
             elif comp.initial_position is not None:
                 # Use initial position from netlist (non-fixed components)
                 positions = positions.at[idx].set(jnp.array(comp.initial_position))
-                
+
                 if comp.initial_rotation is not None:
                     rot_idx = comp.initial_rotation
                     logits = jnp.array([-10.0, -10.0, -10.0, -10.0])
@@ -402,13 +402,13 @@ def create_priority_pipeline(
 ) -> HeuristicPipeline:
     """
     Create a pipeline with priority-based heuristics.
-    
+
     This implements the professional PCB design workflow:
     1. Place power stage first (template)
     2. Place gate driver (proximity to power)
     3. Place high-speed/MCU (zone-constrained)
     4. Auto-place everything else
-    
+
     Order matters! Power stage is placed first and marked fixed,
     so subsequent heuristics work around it.
     """
@@ -427,11 +427,11 @@ def create_priority_pipeline(
     # Phase 1: Power stage template (HIGHEST PRIORITY)
     # Places Q1, Q2, bus caps in correct topology
     pipeline.register(PowerStageTemplateHeuristic())
-    
+
     # Phase 2: Driver proximity
     # Places gate driver near power stage
     pipeline.register(DriverProximityHeuristic())
-    
+
     # Phase 3-4: Standard heuristics for rest
     pipeline.register(ForceDirectedUnfoldingHeuristic(iterations=200))
     pipeline.register(SpectralPlacementHeuristic(confidence=0.1))

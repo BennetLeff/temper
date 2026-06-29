@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+
+from ..geometry.courtyard import Courtyard
 from ..state import BoardState
 from .base import Stage
-from ..geometry.courtyard import Courtyard, check_overlap
 
 
 @dataclass
@@ -19,7 +19,7 @@ class CourtyardCheckStage(Stage):
     overlap resolution, which would cause via_dangling DRC violations.
     """
 
-    courtyards: Dict[str, Courtyard]
+    courtyards: dict[str, Courtyard]
     board_width: float = 100.0  # Board width in mm
     board_height: float = 150.0  # Board height in mm
     margin: float = 5.0  # Keep components this far from board edges
@@ -30,7 +30,7 @@ class CourtyardCheckStage(Stage):
     def name(self) -> str:
         return "courtyard_check"
 
-    def _clamp_position(self, pos: Tuple[float, float]) -> Tuple[float, float]:
+    def _clamp_position(self, pos: tuple[float, float]) -> tuple[float, float]:
         """Clamp position to valid board area within margins.
 
         Args:
@@ -52,7 +52,7 @@ class CourtyardCheckStage(Stage):
 
         # Convert placements to mutable dict
         placements = dict(state.placements)
-        component_refs = list(placements.keys())
+        list(placements.keys())
 
         # Iterative resolution
         for _ in range(self.max_iterations):
@@ -61,7 +61,7 @@ class CourtyardCheckStage(Stage):
             # Apply repulsive force
             import logging
 
-            logger = logging.getLogger(__name__)
+            logging.getLogger(__name__)
             if len(collisions) > 0:
                 print(
                     f"DEBUG: CourtyardCheck Iteration {_}: Found {len(collisions)} overlapping pairs"
@@ -120,7 +120,7 @@ class CourtyardCheckStage(Stage):
 
         return replace(state, placements=tuple(placements.items()))
 
-    def _find_collisions(self, placements: Dict[str, Tuple[float, float]]) -> List[Tuple[str, str]]:
+    def _find_collisions(self, placements: dict[str, tuple[float, float]]) -> list[tuple[str, str]]:
         """Find courtyard collisions using spatial indexing for O(n log n) performance.
 
         Optimization: Use R-tree spatial index to avoid O(n²) pairwise checks.

@@ -21,8 +21,8 @@ import time
 import numpy as np
 import pytest
 
-from temper_placer.router_v6.astar_core_numba import _HAVE_NUMBA
 from temper_placer.router_v6.astar_core import _astar_search as _python_astar
+from temper_placer.router_v6.astar_core_numba import _HAVE_NUMBA
 from temper_placer.router_v6.neighbor_validity import build_neighbor_validity_tensor_2d
 
 

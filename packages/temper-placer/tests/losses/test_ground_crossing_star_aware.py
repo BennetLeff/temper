@@ -2,11 +2,12 @@
 Tests for Star Ground Crossing Awareness in GroundCrossingLoss.
 """
 
+from dataclasses import replace
+
 import jax
 import jax.numpy as jnp
 import pytest
 
-from dataclasses import replace
 from temper_placer.core.board import Board, GroundDomain
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.losses.base import LossContext
@@ -48,7 +49,7 @@ def star_aware_context():
     netlist = Netlist(components=components, nets=nets)
 
     # Define star ground constraint for NET2
-    constraints = [
+    [
         StarGroundConstraint(net_name="NET2", weight=1.0)
     ]
 

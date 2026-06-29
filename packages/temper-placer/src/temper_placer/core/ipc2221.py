@@ -5,7 +5,6 @@ Implements industry-standard formulas for estimating maximum current capacity
 of PCB traces based on width, copper thickness, and allowable temperature rise.
 """
 
-import math
 
 
 def estimate_trace_current(
@@ -16,53 +15,50 @@ def estimate_trace_current(
 ) -> float:
     """
     Calculate maximum current capacity using IPC-2221 formula.
-    
+
     Args:
         width_mm: Trace width in millimeters
         thickness_oz: Copper thickness in oz (1 oz = 1.37 mils = 35 μm)
         temp_rise_c: Allowable temperature rise in Celsius (default 10°C)
         internal_layer: True for internal layers, False for external (better cooling)
-    
+
     Returns:
         Maximum current in Amperes
-        
+
     Formula:
         I = (ΔT / (0.024 * A^0.44))^(1/0.725)  [internal layers]
         I = (ΔT / (0.048 * A^0.44))^(1/0.725)  [external layers]
-    
+
     Where:
         I = Current in Amps
         ΔT = Temperature rise in °C
         A = Cross-sectional area in mils²
-    
+
     References:
         - IPC-2221A: Generic Standard on Printed Board Design
         - IPC-2152: Standard for Determining Current Carrying Capacity in PCB
-    
+
     Examples:
         >>> estimate_trace_current(0.25, 1.0, 10.0, internal_layer=True)
         1.2  # 0.25mm trace on internal layer: ~1.2A
-        
+
         >>> estimate_trace_current(3.0, 2.0, 10.0, internal_layer=False)
         12.5  # 3.0mm trace, 2oz copper on external layer: ~12.5A
     """
     # Convert to mils (thousandths of an inch)
     width_mils = width_mm * 39.3701  # 1mm = 39.3701 mils
     thickness_mils = thickness_oz * 1.37  # 1 oz = 1.37 mils
-    
+
     # Calculate cross-sectional area
     area_mils2 = width_mils * thickness_mils
-    
+
     # IPC-2221 constants (from curve fitting)
-    if internal_layer:
-        k = 0.024  # Internal layer constant
-    else:
-        k = 0.048  # External layer constant (better cooling)
-    
+    k = 0.024 if internal_layer else 0.048
+
     # IPC-2221 formula (CORRECTED): I = k × ΔT^0.44 × A^0.725
     # FIXED: Previous formula was inverted!
     current_a = k * (temp_rise_c ** 0.44) * (area_mils2 ** 0.725)
-    
+
     return current_a
 
 
@@ -73,17 +69,17 @@ def estimate_current_from_net_class(
 ) -> float:
     """
     Estimate current capacity for a net class based on trace width.
-    
+
     Uses conservative internal layer calculation (worst case).
-    
+
     Args:
         trace_width_mm: Trace width in millimeters
         thickness_oz: Copper thickness in oz (default 1.0)
         temp_rise_c: Temperature rise above ambient (default 10°C per IPC-2221)
-        
+
     Returns:
         Maximum current in Amperes
-        
+
     Examples:
         >>> estimate_current_from_net_class(0.25, 1.0, 10.0)
         1.2  # 0.25mm trace, 1oz copper, 10C rise (internal): ~1.2A

@@ -1,6 +1,6 @@
 
-import pytest
 from temper_placer.io.kicad_parser import extract_net_classes
+
 
 def test_extract_net_classes_basic():
     content = """
@@ -26,7 +26,7 @@ def test_extract_net_classes_basic():
 )
 """
     classes = extract_net_classes(content)
-    
+
     assert "Default" in classes
     assert classes["Default"]["clearance"] == 0.2
     assert classes["Default"]["trace_width"] == 0.25

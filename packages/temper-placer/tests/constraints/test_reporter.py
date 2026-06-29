@@ -1,20 +1,19 @@
 """Tests for constraint satisfaction reporting."""
 
-import pytest
 from temper_placer.constraints.reporter import (
-    ConstraintReporter,
     ConstraintReport,
+    ConstraintReporter,
     ConstraintResult,
     ConstraintStatus,
 )
 from temper_placer.io.config_loader import (
-    PlacementConstraints,
-    ComponentSpacingRule,
-    ProximityRule,
-    ThermalConstraint,
     ComponentGroup,
+    ComponentSpacingRule,
     EscapeClearance,
+    PlacementConstraints,
+    ProximityRule,
     RoutingCorridor,
+    ThermalConstraint,
 )
 
 

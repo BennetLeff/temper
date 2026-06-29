@@ -120,7 +120,7 @@ class GeometricValidator(Validator):
 
         # Extract component data
         positions = state.positions
-        n_components = positions.shape[0]
+        positions.shape[0]
 
         # Get rotation one-hot vectors (use argmax for discrete)
         rotation_indices = jnp.argmax(state.rotation_logits, axis=-1)
@@ -351,10 +351,7 @@ class GeometricValidator(Validator):
                     comp_i.net_class == "HighVoltage" and comp_j.net_class != "HighVoltage"
                 ) or (comp_j.net_class == "HighVoltage" and comp_i.net_class != "HighVoltage")
 
-                if is_hv_lv_pair:
-                    required_clearance = self.hv_lv_clearance
-                else:
-                    required_clearance = self.min_clearance
+                required_clearance = self.hv_lv_clearance if is_hv_lv_pair else self.min_clearance
 
                 dist = float(distances[i, j])
 

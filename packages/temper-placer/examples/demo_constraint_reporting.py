@@ -7,11 +7,11 @@ and generate human-readable reports.
 
 from temper_placer.constraints import ConstraintReporter
 from temper_placer.io.config_loader import (
-    PlacementConstraints,
-    ComponentSpacingRule,
-    ProximityRule,
     ComponentGroup,
+    ComponentSpacingRule,
     EscapeClearance,
+    PlacementConstraints,
+    ProximityRule,
     RoutingCorridor,
 )
 

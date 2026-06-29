@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -267,7 +267,10 @@ class CorpusRegressionRunner:
 
         try:
             # Load constraints and board
-            from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
+            from temper_placer.io.config_loader import (
+                create_board_from_constraints,
+                load_constraints,
+            )
             constraints = load_constraints(constraints_path)
             board = create_board_from_constraints(constraints)
         except Exception as e:
@@ -279,11 +282,11 @@ class CorpusRegressionRunner:
 
         try:
             # Build loss function
-            from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
+            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
             from temper_placer.losses.boundary import BoundaryLoss
+            from temper_placer.losses.overlap import OverlapLoss
             from temper_placer.losses.regularization import SpreadLoss
+            from temper_placer.losses.wirelength import WirelengthLoss
 
             weights = {
                 "overlap": 200.0,
@@ -308,10 +311,10 @@ class CorpusRegressionRunner:
             context = LossContext.from_netlist_and_board(netlist, board)
 
             # Build optimizer config
+            from temper_placer.heuristics import create_default_pipeline
             from temper_placer.optimizer.config import OptimizerConfig
             from temper_placer.optimizer.curriculum import create_default_phases
             from temper_placer.optimizer.train import train_multiphase
-            from temper_placer.heuristics import create_default_pipeline
 
             pipeline = create_default_pipeline()
             rng_key = __import__("jax").random.PRNGKey(entry.seed)
@@ -471,7 +474,7 @@ class CorpusRegressionRunner:
         failed = sum(1 for r in results if r.failed)
         skipped = sum(1 for r in results if r.skipped)
 
-        print(f"\n=== Corpus Regression Results ===")
+        print("\n=== Corpus Regression Results ===")
         print(f"Total: {len(results)}, Passed: {passed}, Failed: {failed}, Skipped: {skipped}\n")
 
         for result in results:
@@ -494,7 +497,7 @@ class CorpusRegressionRunner:
     def _print_json_report(self, results: list[CorpusBoardResult]) -> None:
         report_path = Path("regression-report.json")
         report: dict = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "boards": [],
         }
         for result in results:

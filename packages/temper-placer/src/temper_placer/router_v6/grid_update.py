@@ -35,7 +35,7 @@ def update_occupancy_grid(
         >>> result = PathfindingResult(routed_paths={}, failed_nets=[])
         >>> update_occupancy_grid(grid, result)
     """
-    for net_name, route_path in pathfinding_result.routed_paths.items():
+    for _net_name, route_path in pathfinding_result.routed_paths.items():
         # Mark all cells along the route as occupied
         _mark_path_occupied(grid, route_path, clearance_cells)
 
@@ -58,10 +58,9 @@ def _mark_path_occupied(
     if hasattr(route_path, 'segments'):
         # Filter for this grid's layer
         coords = [c[:2] for c in route_path.segments if c[2] == grid.layer_name]
-    elif hasattr(route_path, 'coordinates'):
-        if getattr(route_path, 'layer_name', '') == grid.layer_name:
-            coords = route_path.coordinates
-    
+    elif hasattr(route_path, 'coordinates') and getattr(route_path, 'layer_name', '') == grid.layer_name:
+        coords = route_path.coordinates
+
     for coord in coords:
         x_mm, y_mm = coord
         x_cell, y_cell = grid.world_to_grid(x_mm, y_mm)

@@ -48,7 +48,7 @@ def generate_html_report(trace: DecisionTrace, title: str | None = None) -> str:
 
     # Collect component subjects
     subjects = sorted(
-        set(
+        {
             d.subject
             for d in trace.decisions
             if d.decision_type
@@ -57,7 +57,7 @@ def generate_html_report(trace: DecisionTrace, title: str | None = None) -> str:
                 DecisionType.POSITION_UPDATE,
                 DecisionType.ROTATION,
             )
-        )
+        }
     )
 
     # Generate HTML sections
@@ -340,8 +340,8 @@ def generate_html_report(trace: DecisionTrace, title: str | None = None) -> str:
     <header>
         <h1>{html.escape(title)}</h1>
         <div class="subtitle">
-            Run ID: {html.escape(trace.run_id)} | 
-            Decisions: {len(trace.decisions)} | 
+            Run ID: {html.escape(trace.run_id)} |
+            Decisions: {len(trace.decisions)} |
             Components: {len(subjects)}
         </div>
     </header>
@@ -356,7 +356,7 @@ def generate_html_report(trace: DecisionTrace, title: str | None = None) -> str:
 
         <article>
             {metrics_html}
-            
+
             <section id="timeline">
                 <h2>Decision Timeline</h2>
                 {timeline_html if trace.decisions else '<div class="empty-state">No decisions recorded</div>'}
@@ -463,7 +463,7 @@ def render_decision_timeline(decisions: list[Decision]) -> str:
             else ""
         )
 
-        value_str = _format_value(decision.value)
+        _format_value(decision.value)
 
         html_parts.append(f'''
         <div class="decision" data-phase="{decision.phase.value}" data-type="{decision.decision_type.value}" data-decision-id="{html.escape(decision.id)}">
@@ -507,7 +507,7 @@ def render_component_card(component: str, decisions: list[Decision]) -> str:
 
     # Build history
     history_html = "<div><strong>Decision History:</strong><ol>"
-    for i, dec in enumerate(decisions, 1):
+    for _i, dec in enumerate(decisions, 1):
         history_html += f"<li>{html.escape(dec.reason)}"
         if dec.epoch is not None:
             history_html += f' <span class="badge badge-epoch">Epoch {dec.epoch}</span>'
@@ -615,8 +615,8 @@ def render_search_panel(trace: DecisionTrace) -> str:
         HTML string for search panel
     """
     # Collect unique phases and types
-    phases = sorted(set(d.phase.value for d in trace.decisions))
-    types = sorted(set(d.decision_type.value for d in trace.decisions))
+    phases = sorted({d.phase.value for d in trace.decisions})
+    types = sorted({d.decision_type.value for d in trace.decisions})
 
     phase_options = '<option value="all">All Phases</option>'
     for phase in phases:
@@ -628,7 +628,7 @@ def render_search_panel(trace: DecisionTrace) -> str:
 
     return f"""
     <input type="text" id="search-input" class="search-box" placeholder="Search decisions...">
-    
+
     <div class="filter-group">
         <label for="phase-filter">Filter by Phase</label>
         <select id="phase-filter">

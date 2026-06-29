@@ -7,9 +7,8 @@ that can be instantiated and placed deterministically.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
 
 import yaml
 
@@ -17,7 +16,7 @@ import yaml
 @dataclass
 class ComponentPosition:
     """Relative position of a component within a template."""
-    
+
     ref: str  # Component reference (e.g., "Q1", "C_BUS1")
     x: float  # X position relative to template anchor (mm)
     y: float  # Y position relative to template anchor (mm)
@@ -27,7 +26,7 @@ class ComponentPosition:
 @dataclass
 class ParametricComponentPosition:
     """Relative position of a component within a parametric template."""
-    
+
     ref: str
     x_ratio: float  # X position ratio [0, 1] within template width
     y_ratio: float  # Y position ratio [0, 1] within template height
@@ -38,19 +37,19 @@ class ParametricComponentPosition:
 class ParametricTemplate:
     """
     A template that scales based on target dimensions.
-    
+
     Attributes:
         name: Template identifier
         components: List of parametric component positions
         anchor_ref: Reference of anchor component
         description: Human-readable description
     """
-    
+
     name: str
     components: list[ParametricComponentPosition]
     anchor_ref: str
     description: str = ""
-    
+
     def apply(
         self,
         anchor_x: float,
@@ -63,7 +62,7 @@ class ParametricTemplate:
         Apply parametric template at absolute position with target scaling.
         """
         import math
-        
+
         # Find anchor ratio
         anchor = next((c for c in self.components if c.ref == self.anchor_ref), None)
         if anchor is None:
@@ -73,28 +72,28 @@ class ParametricTemplate:
         else:
              anchor_off_x = anchor.x_ratio * target_width
              anchor_off_y = anchor.y_ratio * target_height
-        
+
         placements = {}
         rot_rad = math.radians(rotation)
-        
+
         for comp in self.components:
             # Scale to target dimensions
             rel_x = comp.x_ratio * target_width - anchor_off_x
             rel_y = comp.y_ratio * target_height - anchor_off_y
-            
+
             # Rotate around anchor
             if rotation != 0:
                 rotated_x = rel_x * math.cos(rot_rad) - rel_y * math.sin(rot_rad)
                 rotated_y = rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
             else:
                 rotated_x, rotated_y = rel_x, rel_y
-                
+
             abs_x = anchor_x + rotated_x
             abs_y = anchor_y + rotated_y
             abs_rotation = (rotation + comp.rotation) % 360
-            
+
             placements[comp.ref] = (abs_x, abs_y, abs_rotation)
-            
+
         return placements
 
     @classmethod
@@ -133,10 +132,10 @@ class ParametricTemplate:
 class ComponentTemplate:
     """
     A template defining relative positions of related components.
-    
+
     Templates provide known-good layouts for common patterns that can be
     instantiated at different absolute positions on the board.
-    
+
     Attributes:
         name: Template identifier
         components: List of component positions relative to anchor
@@ -145,26 +144,26 @@ class ComponentTemplate:
         height: Template bounding box height (mm)
         description: Human-readable description
     """
-    
+
     name: str
     components: list[ComponentPosition]
     anchor_point: str | None = None  # Reference of anchor component
     width: float = 0.0
     height: float = 0.0
     description: str = ""
-    
+
     def __post_init__(self):
         """Set anchor to first component if not specified."""
         if self.anchor_point is None and self.components:
             self.anchor_point = self.components[0].ref
-    
+
     def get_anchor_position(self) -> ComponentPosition | None:
         """Get the anchor component position."""
         for comp in self.components:
             if comp.ref == self.anchor_point:
                 return comp
         return None
-    
+
     def apply(
         self,
         anchor_x: float,
@@ -173,49 +172,49 @@ class ComponentTemplate:
     ) -> dict[str, tuple[float, float, int]]:
         """
         Apply template at absolute position.
-        
+
         Args:
             anchor_x: Absolute X coordinate for anchor point
             anchor_y: Absolute Y coordinate for anchor point
             rotation: Template rotation (0, 90, 180, 270)
-        
+
         Returns:
             Dict mapping ref -> (x, y, rotation) in absolute coordinates
         """
         import math
-        
+
         anchor = self.get_anchor_position()
         if anchor is None:
             raise ValueError(f"Anchor point {self.anchor_point} not found in template")
-        
+
         # Anchor offset in template coordinates
         anchor_offset_x = anchor.x
         anchor_offset_y = anchor.y
-        
+
         placements = {}
         rot_rad = math.radians(rotation)
-        
+
         for comp in self.components:
             # Position relative to anchor
             rel_x = comp.x - anchor_offset_x
             rel_y = comp.y - anchor_offset_y
-            
+
             # Rotate around anchor
             if rotation != 0:
                 rotated_x = rel_x * math.cos(rot_rad) - rel_y * math.sin(rot_rad)
                 rotated_y = rel_x * math.sin(rot_rad) + rel_y * math.cos(rot_rad)
             else:
                 rotated_x, rotated_y = rel_x, rel_y
-            
+
             # Absolute position
             abs_x = anchor_x + rotated_x
             abs_y = anchor_y + rotated_y
-            
+
             # Component rotation (template rotation + component rotation)
             abs_rotation = (rotation + comp.rotation) % 360
-            
+
             placements[comp.ref] = (abs_x, abs_y, abs_rotation)
-        
+
         return placements
 
 
@@ -223,20 +222,20 @@ class ComponentTemplate:
 class HalfBridgeTemplate(ComponentTemplate):
     """
     Half-bridge power stage template.
-    
+
     Standard vertical layout:
     - Q1 (high-side IGBT) at top
     - Q2 (low-side IGBT) below Q1
     - D1 (high-side diode) adjacent to Q1
     - D2 (low-side diode) adjacent to Q2
     - C_BUS1, C_BUS2 (DC bus caps) flanking switches
-    
+
     Optimized for:
     - Low commutation loop inductance
     - Symmetric current paths
     - Thermal management (vertical heatsink)
     """
-    
+
     @classmethod
     def create_vertical(
         cls,
@@ -252,7 +251,7 @@ class HalfBridgeTemplate(ComponentTemplate):
     ) -> HalfBridgeTemplate:
         """
         Create a vertical half-bridge template.
-        
+
         Layout (top view, Y increases upward):
         ```
                           C_BUS2
@@ -261,13 +260,13 @@ class HalfBridgeTemplate(ComponentTemplate):
         Q2 ---- D2          |
                           C_BUS1
         ```
-        
+
         Default spacing for TO-247 IGBTs:
         - TO-247 package: ~16mm x 21mm
         - switch_spacing: 25mm (center-to-center, allows 4mm clearance)
         - diode_offset: 18mm (side-by-side with 2mm gap)
         - cap_offset: 28mm (centered between Q1/Q2 with margin)
-        
+
         Args:
             q1_ref: High-side switch reference
             q2_ref: Low-side switch reference
@@ -278,30 +277,30 @@ class HalfBridgeTemplate(ComponentTemplate):
             switch_spacing: Vertical spacing between Q1 and Q2 (mm)
             diode_offset: Horizontal offset for diodes from switches (mm)
             cap_offset: Horizontal offset for bus caps from center (mm)
-        
+
         Returns:
             Configured HalfBridgeTemplate
         """
         components = [
             # Q1 at origin (anchor) - high side switch
             ComponentPosition(q1_ref, x=0.0, y=0.0, rotation=0),
-            
+
             # Q2 below Q1 - low side switch
             ComponentPosition(q2_ref, x=0.0, y=-switch_spacing, rotation=0),
-            
+
             # D1 right of Q1 - high side diode
             ComponentPosition(d1_ref, x=diode_offset, y=0.0, rotation=0),
-            
+
             # D2 right of Q2 - low side diode
             ComponentPosition(d2_ref, x=diode_offset, y=-switch_spacing, rotation=0),
-            
+
             # C_BUS1 right of power stage, between Q1 and Q2
             ComponentPosition(c_bus1_ref, x=cap_offset, y=-switch_spacing * 0.25, rotation=0),
-            
+
             # C_BUS2 right of power stage, between Q1 and Q2
             ComponentPosition(c_bus2_ref, x=cap_offset, y=-switch_spacing * 0.75, rotation=0),
         ]
-        
+
         return cls(
             name="half_bridge_vertical",
             components=components,
@@ -315,7 +314,7 @@ class HalfBridgeTemplate(ComponentTemplate):
 def load_template_from_yaml(path: Path) -> ComponentTemplate:
     """
     Load a component template from YAML file.
-    
+
     YAML format:
     ```yaml
     name: half_bridge_vertical
@@ -331,16 +330,16 @@ def load_template_from_yaml(path: Path) -> ComponentTemplate:
         y: -15.0
         rotation: 0
     ```
-    
+
     Args:
         path: Path to YAML template file
-    
+
     Returns:
         ComponentTemplate instance
     """
     with open(path) as f:
         data = yaml.safe_load(f)
-    
+
     components = [
         ComponentPosition(
             ref=c["ref"],
@@ -350,7 +349,7 @@ def load_template_from_yaml(path: Path) -> ComponentTemplate:
         )
         for c in data["components"]
     ]
-    
+
     return ComponentTemplate(
         name=data["name"],
         components=components,

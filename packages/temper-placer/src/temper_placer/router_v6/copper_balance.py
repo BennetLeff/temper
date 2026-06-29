@@ -22,7 +22,7 @@ from temper_placer.core.board import STANDARD_LAYER_ORDER
 from temper_placer.router_v6.routing_results import RoutingResults
 
 if TYPE_CHECKING:
-    from temper_placer.router_v6.astar_core import RoutePath3D
+    pass
 
 # ---------------------------------------------------------------------------
 # Plane-net → layer mapping
@@ -220,8 +220,8 @@ def _calculate_layer_copper_area(
                 copper_area += _via_annular_area(via)
 
             # --- Intermediate layers (through-hole barrel) ---
-            if layer_name != via.from_layer and layer_name != via.to_layer:
-                if _layer_is_between(via.from_layer, via.to_layer, layer_name):
+            if (layer_name != via.from_layer and layer_name != via.to_layer
+                    and _layer_is_between(via.from_layer, via.to_layer, layer_name)):
                     copper_area += _via_annular_area(via)
 
     return copper_area

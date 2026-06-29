@@ -6,7 +6,6 @@ holes_co_located violations.
 """
 
 from dataclasses import dataclass
-from typing import List
 
 from temper_placer.io.export_types import TraceVia
 
@@ -26,7 +25,7 @@ class ViaKey:
         )
 
 
-def deduplicate_vias(vias: List[TraceVia], tolerance_mm: float = 0.001) -> List[TraceVia]:
+def deduplicate_vias(vias: list[TraceVia], tolerance_mm: float = 0.001) -> list[TraceVia]:
     """Remove duplicate vias at same (x, y) location.
 
     Strategy: Keep first via for each position, discard duplicates.

@@ -59,10 +59,9 @@ def discover_packages() -> list[str]:
     if os.path.exists(packages_dir):
         for item in os.listdir(packages_dir):
             item_path = os.path.join(packages_dir, item)
-            if os.path.isdir(item_path):
-                # Check if it's a Python package
-                if os.path.exists(os.path.join(item_path, "pyproject.toml")):
-                    packages.append(item_path)
+            # Check if it's a Python package
+            if os.path.isdir(item_path) and os.path.exists(os.path.join(item_path, "pyproject.toml")):
+                packages.append(item_path)
 
     return packages
 
@@ -71,8 +70,8 @@ def run_profiling(
     target: str | None,
     output_dir: str,
     profile_type: str = "all",
-    include_dependencies: bool = False,
-    config_file: str | None = None,
+    _include_dependencies: bool = False,
+    _config_file: str | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Run automated profiling on target package(s)."""
 

@@ -9,14 +9,12 @@ emits a per-(component, lv_pin, hv_pin) clearance reclaim dict that the
 DRC oracle consumes (plan 2026-06-23-007, U2 / R2).
 """
 
-from dataclasses import replace
-from typing import List, Tuple, Optional, Dict
 import logging
+from dataclasses import replace
 
-from ..state import BoardState
-from .base import Stage
-from .slot_generation import SlotGenerationStage
 from ...io.isolation_slot_geometry import isolation_slot_aabb
+from ..state import BoardState
+from .slot_generation import SlotGenerationStage
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +64,7 @@ POWER_NET_NAMES = {
 }
 
 
-def _point_in_polygon(x: float, y: float, polygon: List[Tuple[float, float]]) -> bool:
+def _point_in_polygon(x: float, y: float, polygon: list[tuple[float, float]]) -> bool:
     """
     Check if point (x, y) is inside polygon using ray casting algorithm.
 
@@ -86,21 +84,16 @@ def _point_in_polygon(x: float, y: float, polygon: List[Tuple[float, float]]) ->
     p1x, p1y = polygon[0]
     for i in range(1, n + 1):
         p2x, p2y = polygon[i % n]
-        if y > min(p1y, p2y):
-            if y <= max(p1y, p2y):
-                if x <= max(p1x, p2x):
-                    if p1y != p2y:
-                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    else:
-                        xinters = x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
+        if y > min(p1y, p2y) and y <= max(p1y, p2y) and x <= max(p1x, p2x):
+            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x if p1y != p2y else x
+            if p1x == p2x or x <= xinters:
+                inside = not inside
         p1x, p1y = p2x, p2y
 
     return inside
 
 
-def _get_copper_zones(board, yaml_zones: Optional[List] = None) -> List:
+def _get_copper_zones(board, yaml_zones: list | None = None) -> list:
     """
     Extract copper zones from board and/or YAML configuration.
 
@@ -146,13 +139,12 @@ def _get_copper_zones(board, yaml_zones: Optional[List] = None) -> List:
                         )
                         break
             # Fallback: check for polygon attribute (copper zones have fill polygons)
-            elif hasattr(zone, "polygon") and zone.polygon:
-                # Only add if not already added
-                if zone not in copper_zones:
-                    copper_zones.append(zone)
-                    logger.debug(
-                        f"Found copper zone with polygon: {zone.name if hasattr(zone, 'name') else 'unnamed'}"
-                    )
+            elif (hasattr(zone, "polygon") and zone.polygon
+                  and zone not in copper_zones):
+                copper_zones.append(zone)
+                logger.debug(
+                    f"Found copper zone with polygon: {zone.name if hasattr(zone, 'name') else 'unnamed'}"
+                )
 
     return copper_zones
 
@@ -175,9 +167,9 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
         slot_spacing_mm: float = 5.0,
         copper_zone_margin: float = 2.0,
         min_routing_channel: float = 3.0,
-        yaml_copper_zones: Optional[List] = None,
-        yaml_isolation_slots: Optional[List] = None,  # @req(2026-06-23-007, R1)
-        net_class_rules: Optional[Dict] = None,  # @req(2026-06-23-007, R2)
+        yaml_copper_zones: list | None = None,
+        yaml_isolation_slots: list | None = None,  # @req(2026-06-23-007, R1)
+        net_class_rules: dict | None = None,  # @req(2026-06-23-007, R2)
     ):
         super().__init__(slot_spacing_mm=slot_spacing_mm)
         self.copper_zone_margin = copper_zone_margin
@@ -300,7 +292,7 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
     def _isolation_filter(
         self, state: BoardState
-    ) -> Tuple[List[Tuple[Tuple[float, float], Tuple[float, float]]], Dict[Tuple[str, str, str], float]]:
+    ) -> tuple[list[tuple[tuple[float, float], tuple[float, float]]], dict[tuple[str, str, str], float]]:
         """Compute isolation-slot AABBs (board coords) and the reclaim dict.
 
         Returns (iso_aabbs, reclaim_by_pin_pair). AABBs are axis-aligned and
@@ -313,8 +305,8 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
         # Build a {ref -> (x, y)} lookup from the netlist. If the netlist
         # is missing, we cannot localize slots, so the filter is a no-op.
-        comp_pos: Dict[str, Tuple[float, float]] = {}
-        comp_by_ref: Dict[str, object] = {}
+        comp_pos: dict[str, tuple[float, float]] = {}
+        comp_by_ref: dict[str, object] = {}
         if state.netlist is not None:
             for comp in state.netlist.components:
                 comp_by_ref[comp.ref] = comp
@@ -323,8 +315,8 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
         perp_budget, original_req = self._hv_clearance_overrides(state)
 
-        aabbs: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
-        reclaim: Dict[Tuple[str, str, str], float] = {}
+        aabbs: list[tuple[tuple[float, float], tuple[float, float]]] = []
+        reclaim: dict[tuple[str, str, str], float] = {}
         for slot in self.yaml_isolation_slots:
             comp_xy = comp_pos.get(slot.component_ref)
             if comp_xy is None:
@@ -374,7 +366,7 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
         hx, hy = hv.position
         return ((hx - lx) ** 2 + (hy - ly) ** 2) ** 0.5
 
-    def _hv_clearance_overrides(self, state: BoardState) -> Tuple[float, float]:
+    def _hv_clearance_overrides(self, _state: BoardState) -> tuple[float, float]:
         """Return (perpendicular_clearance_budget, original_requirement) from net_class_rules.
 
         Falls back to the hard-coded K4 defaults when no HV net class is
@@ -403,8 +395,8 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
     @staticmethod
     def _slot_intersects_iso(
-        slot: Tuple[float, float],
-        iso_aabbs: List[Tuple[Tuple[float, float], Tuple[float, float]]],
+        slot: tuple[float, float],
+        iso_aabbs: list[tuple[tuple[float, float], tuple[float, float]]],
     ) -> bool:
         """AABB-vs-AABB test: a slot is blocked by a cutout that overlaps its footprint."""
         sx, sy = slot
@@ -415,8 +407,8 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
     def _is_slot_in_copper_zone(
         self,
-        slot: Tuple[float, float],
-        copper_zones: List,
+        slot: tuple[float, float],
+        copper_zones: list,
         placement_layer: str = "F.Cu",
     ) -> bool:
         """
@@ -501,8 +493,8 @@ class RoutingChannelAwareSlotStage(ZoneAwareSlotGenerationStage):
 
     def _compute_slot_routing_cost(
         self,
-        slot: Tuple[float, float],
-        copper_zones: List,
+        slot: tuple[float, float],
+        copper_zones: list,
         board_width: float,
         board_height: float,
     ) -> float:
@@ -549,7 +541,7 @@ class RoutingChannelAwareSlotStage(ZoneAwareSlotGenerationStage):
         self,
         x: float,
         y: float,
-        polygon: List[Tuple[float, float]],
+        polygon: list[tuple[float, float]],
     ) -> float:
         """Compute minimum distance from point to polygon boundary."""
         if len(polygon) < 2:
@@ -572,8 +564,8 @@ class RoutingChannelAwareSlotStage(ZoneAwareSlotGenerationStage):
         self,
         px: float,
         py: float,
-        p1: Tuple[float, float],
-        p2: Tuple[float, float],
+        p1: tuple[float, float],
+        p2: tuple[float, float],
     ) -> float:
         """Compute distance from point (px, py) to line segment p1-p2."""
         x1, y1 = p1

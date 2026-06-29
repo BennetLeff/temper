@@ -9,8 +9,10 @@ Compare autodiff gradients against numerical approximation to find:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Any
+from typing import Any
+
 import numpy as np
 
 try:
@@ -39,7 +41,7 @@ def check_gradient(
     epsilon: float = 1e-5,
     rtol: float = 1e-3,
     atol: float = 1e-6,
-    seed: int | None = None,
+    _seed: int | None = None,
 ) -> GradientCheckResult:
     """
     Compare autodiff gradient against numerical approximation.
@@ -188,11 +190,12 @@ def find_discontinuities(
     else:
         np.random.seed(seed)
         flat_params = params.flatten()
-        unflatten = lambda x: x.reshape(params.shape)
+        def unflatten(x):
+            return x.reshape(params.shape)
 
     discontinuities = []
 
-    for i in range(num_samples):
+    for _i in range(num_samples):
         # Random direction
         if HAS_JAX:
             key, subkey = jax.random.split(key)
@@ -270,7 +273,7 @@ def check_gradient_at_boundary(
     fn: Callable,
     params: Any,
     boundary_params: Any,
-    epsilon: float = 1e-5,
+    _epsilon: float = 1e-5,
 ) -> dict[str, Any]:
     """
     Check gradient behavior at boundary conditions.

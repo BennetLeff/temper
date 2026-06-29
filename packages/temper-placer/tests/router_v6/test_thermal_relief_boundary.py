@@ -21,13 +21,11 @@ import pytest
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.thermal_relief import (
-    ThermalRelief,
     ThermalReliefReport,
     _is_power_net,
     add_thermal_relief,
 )
 from temper_placer.router_v6.via_placement import Via
-
 from tests.router_v6.dfm_boundary_constants import (
     BOARD_DIMS_NAN,
     BOARD_DIMS_ZERO,
@@ -39,7 +37,6 @@ from tests.router_v6.dfm_boundary_constants import (
     VIA_DIAMETERS_NEGATIVE,
     VIA_DIAMETERS_ZERO,
 )
-
 
 # ============================================================================
 # Helper factories
@@ -395,7 +392,6 @@ class TestBoardBoundaries:
 
     def test_board_none_uses_no_clamping(self) -> None:
         """board=None should work — spoke endpoints are not clamped."""
-        from temper_placer.core.board import Board as BoardCls
 
         results = _make_results()
         report = add_thermal_relief(results, board=None)
@@ -453,7 +449,7 @@ class TestBoardBoundaries:
         report = add_thermal_relief(results, board=board)
         assert report.relief_count >= 0
         for relief in report.thermal_reliefs:
-            for (x1, y1), (x2, y2) in relief.spoke_segments:
+            for (_x1, _y1), (x2, y2) in relief.spoke_segments:
                 # Spoke endpoints clamped to board outline
                 assert 0.0 <= x2 <= board.width + 1e-9, f"x2={x2} out of bounds"
                 assert 0.0 <= y2 <= board.height + 1e-9, f"y2={y2} out of bounds"

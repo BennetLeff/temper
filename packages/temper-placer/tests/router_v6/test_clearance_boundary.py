@@ -14,6 +14,7 @@ characterise its current behaviour.
 from __future__ import annotations
 
 import math
+
 import pytest
 
 from temper_placer.router_v6.astar_pathfinding import RoutePath
@@ -27,34 +28,29 @@ from temper_placer.router_v6.clearance_check import (
     verify_clearance,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
-
 from tests.router_v6.dfm_boundary_constants import (
-    just_below,
-    just_above,
-    exactly_at,
-    THRESHOLD_ZERO,
-    THRESHOLD_NEGATIVE,
-    THRESHOLD_NAN,
-    THRESHOLD_INF,
-    THRESHOLD_NORMAL,
-    VOLTAGE_ZERO,
-    VOLTAGE_NEGATIVE,
-    VOLTAGE_NAN,
-    VOLTAGE_INF,
-    VOLTAGE_EXTREME,
-    VOLTAGE_NORMAL,
-    COORD_ZERO,
-    COORD_NEGATIVE,
-    COORD_NAN,
-    COORD_INF,
     COORD_EXTREME,
-    TRACE_WIDTHS_ZERO,
-    TRACE_WIDTHS_NEGATIVE,
-    TRACE_WIDTHS_NAN,
+    COORD_INF,
+    COORD_NAN,
+    COORD_NEGATIVE,
+    COORD_ZERO,
+    THRESHOLD_INF,
+    THRESHOLD_NAN,
+    THRESHOLD_NEGATIVE,
+    THRESHOLD_ZERO,
     TRACE_WIDTHS_INF,
-    TRACE_WIDTHS_NORMAL,
+    TRACE_WIDTHS_NAN,
+    TRACE_WIDTHS_NEGATIVE,
+    TRACE_WIDTHS_ZERO,
+    VOLTAGE_EXTREME,
+    VOLTAGE_INF,
+    VOLTAGE_NAN,
+    VOLTAGE_NEGATIVE,
+    VOLTAGE_ZERO,
+    exactly_at,
+    just_above,
+    just_below,
 )
-
 
 # ============================================================================
 # helpers
@@ -122,7 +118,7 @@ def _make_results(
         *[(v, f"inf_{i}") for i, v in enumerate(THRESHOLD_INF)],
     ],
 )
-def test_clearance_threshold_boundary(min_clearance, desc):
+def test_clearance_threshold_boundary(min_clearance, _desc):
     """``verify_clearance`` with boundary ``min_clearance`` values.
 
     The function should not crash; it may return 0 or all violations
@@ -248,7 +244,7 @@ def test_voltage_bracket_transitions(voltage, expected_creepage):
         *[(v, f"extreme_{i}") for i, v in enumerate(VOLTAGE_EXTREME)],
     ],
 )
-def test_voltage_boundary_values(voltage, desc):
+def test_voltage_boundary_values(voltage, _desc):
     """``_get_required_clearance`` with boundary voltage values in the
     ratings dict.
 
@@ -278,7 +274,7 @@ def test_voltage_boundary_values(voltage, desc):
         *[(c, f"extreme_{i}") for i, c in enumerate(COORD_EXTREME)],
     ],
 )
-def test_coordinate_boundary_single_point_path(coords, desc):
+def test_coordinate_boundary_single_point_path(coords, _desc):
     """Single-point paths with boundary coordinate values.
 
     A single-point path has no segments — the clearance code must
@@ -302,7 +298,7 @@ def test_coordinate_boundary_single_point_path(coords, desc):
         *[(c, f"inf_{i}") for i, c in enumerate(COORD_INF)],
     ],
 )
-def test_coordinate_boundary_two_point_path(coords, desc):
+def test_coordinate_boundary_two_point_path(coords, _desc):
     """Two-point paths (one segment) with NaN/inf coordinates.
 
     The segment-to-segment distance calculation should not crash,
@@ -331,7 +327,7 @@ def test_coordinate_boundary_two_point_path(coords, desc):
         *[(c, f"negative_{i}") for i, c in enumerate(COORD_NEGATIVE)],
     ],
 )
-def test_coordinate_boundary_normal_segments(coords, desc):
+def test_coordinate_boundary_normal_segments(coords, _desc):
     """Normal multi-point paths with finite boundary coordinates.
 
     Should behave identically to any other finite-coordinate path.
@@ -360,7 +356,7 @@ def test_coordinate_boundary_normal_segments(coords, desc):
         *[(w, f"inf_{i}") for i, w in enumerate(TRACE_WIDTHS_INF)],
     ],
 )
-def test_trace_width_boundary(width, desc):
+def test_trace_width_boundary(width, _desc):
     """Edge-to-edge clearance with boundary trace widths.
 
     The ``_calculate_minimum_clearance`` function subtracts
@@ -556,7 +552,7 @@ def test_degenerate_segment_zero_length():
         *[(v, f"extreme_{i}") for i, v in enumerate(VOLTAGE_EXTREME)],
     ],
 )
-def test_hv_escalation_boundary_voltage(voltage, desc):
+def test_hv_escalation_boundary_voltage(voltage, _desc):
     """HV net with boundary voltage values — does clearance escalate?
 
     The ``verify_clearance`` function should consult the voltage
@@ -797,9 +793,9 @@ class TestSegmentToSegmentDist:
         assert isinstance(dist, float)
         # NaN distances are expected when NaN is in the *first* segment.
         # NaN in the second segment doesn't affect closest-point from first.
-        any_nan = any(math.isnan(v) for v in vals)
+        any(math.isnan(v) for v in vals)
         any_nan_first = any(math.isnan(v) for v in vals[:4])  # x1,y1,x2,y2
-        any_inf = any(math.isinf(v) for v in vals)
+        any(math.isinf(v) for v in vals)
         if any_nan_first:
             assert math.isnan(dist), (
                 f"Expected NaN distance with NaN in first segment, got {dist}"

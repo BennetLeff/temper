@@ -14,8 +14,6 @@ import json
 import math
 import re
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Optional
 
 
 @dataclass
@@ -27,8 +25,8 @@ class DiffEntry:
     field: str     # e.g., "X coordinate" or "pin count"
     golden_value: str
     candidate_value: str
-    delta: Optional[float] = None
-    tolerance: Optional[float] = None
+    delta: float | None = None
+    tolerance: float | None = None
 
 
 @dataclass
@@ -262,7 +260,7 @@ def _diff_json(board, stage, golden, candidate, tolerance):
 
 
 def _json_diff_recursive(golden_val, candidate_val, tolerance, board, stage, path, entries):
-    if type(golden_val) != type(candidate_val):
+    if type(golden_val) != type(candidate_val):  # noqa: E721
         entries.append(DiffEntry(board=board, stage=stage, category='BINARY',
                                  entity=path or 'root', field='type',
                                  golden_value=str(type(golden_val).__name__),

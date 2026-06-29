@@ -199,13 +199,11 @@ def component_factory(footprint_library):
         spec = footprint_library[footprint]
 
         # Override bounds with library value
-        if "bounds" in kwargs:
-            # Warn if bounds differ
-            if kwargs["bounds"] != spec.bounds:
+        if "bounds" in kwargs and kwargs["bounds"] != spec.bounds:
                 import warnings
                 warnings.warn(
                     f"Component {ref} has hardcoded bounds {kwargs['bounds']} "
-                    f"but library specifies {spec.bounds}. Using library value."
+                    f"but library specifies {spec.bounds}. Using library value.", stacklevel=2
                 )
 
         kwargs["bounds"] = spec.bounds

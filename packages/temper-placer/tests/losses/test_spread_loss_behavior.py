@@ -270,20 +270,20 @@ class TestSpreadLossCorrelationHypothesis:
 
         interpretation = """
         FINDING: The spread loss implementation is CORRECT.
-        
+
         SpreadLoss penalizes clustering (high when clustered, low when spread).
-        
+
         The negative correlation (spread_loss ↑ = routing ↑) means:
         - Placements with MORE clustering → BETTER routing
         - This is OPPOSITE to what we expected!
-        
+
         HYPOTHESIS FOR NEGATIVE CORRELATION:
         The optimizer minimizes spread loss, which spreads components.
         But spreading to the board edges may:
         1. Create routing congestion at edges
         2. Increase average wirelength
         3. Push components away from optimal routing channels
-        
+
         RECOMMENDATION:
         - Consider REDUCING spread loss weight
         - Or investigate if spread pushes components to edge keepout zones

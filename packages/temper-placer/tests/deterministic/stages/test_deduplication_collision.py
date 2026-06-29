@@ -1,8 +1,7 @@
 """Tests for deduplication key collision issues."""
 
-import pytest
-from temper_placer.deterministic.stages.drc_sweep import TrackDeduplicationStage
 from temper_placer.core.board import Trace
+from temper_placer.deterministic.stages.drc_sweep import TrackDeduplicationStage
 from temper_placer.deterministic.state import BoardState
 
 

@@ -330,7 +330,7 @@ class PowerFlowNode:
 
 def classify_power_topology(
     netlist: Netlist,
-    constraints: PlacementConstraints,
+    _constraints: PlacementConstraints,
 ) -> list[PowerFlowNode]:
     """
     Classify components into power flow roles.
@@ -496,10 +496,7 @@ class PowerFlowTopologyHeuristic(Heuristic):
 
                 for i, ref in enumerate(refs):
                     comp = context.netlist.get_component(ref)
-                    if len(refs) > 1:
-                        t = i / (len(refs) - 1)
-                    else:
-                        t = 0.5
+                    t = i / (len(refs) - 1) if len(refs) > 1 else 0.5
 
                     pos_x = x_center
                     pos_y = oy + margin + t * y_range
@@ -524,10 +521,7 @@ class PowerFlowTopologyHeuristic(Heuristic):
 
                 for i, ref in enumerate(refs):
                     comp = context.netlist.get_component(ref)
-                    if len(refs) > 1:
-                        t = i / (len(refs) - 1)
-                    else:
-                        t = 0.5
+                    t = i / (len(refs) - 1) if len(refs) > 1 else 0.5
 
                     pos_x = ox + margin + t * x_range
                     pos_y = y_center
@@ -586,10 +580,8 @@ def identify_decoupling_caps(
                 ground_net = net_name
 
         # Must be connected to both power and ground
-        if not (power_net and ground_net):
-            # Small value caps on power rails are likely decoupling
-            if not is_decoupling:
-                continue
+        if not (power_net and ground_net) and not is_decoupling:
+            continue
 
         # Find the IC this cap decouples (shares power net with)
         if power_net:
@@ -692,16 +684,15 @@ class DecouplingCapHeuristic(Heuristic):
             ]
 
             for pos_x, pos_y in positions_to_try:
-                if context.is_position_valid(pos_x, pos_y, cap_comp.width, cap_comp.height):
-                    if not context.check_overlap(pos_x, pos_y, cap_comp.width, cap_comp.height):
-                        placements[cap_ref] = ComponentPlacement(
-                            ref=cap_ref,
-                            position=(pos_x, pos_y),
-                            rotation=0,
-                            confidence=0.8,
-                            placed_by=self.name,
-                        )
-                        break
+                if context.is_position_valid(pos_x, pos_y, cap_comp.width, cap_comp.height) and not context.check_overlap(pos_x, pos_y, cap_comp.width, cap_comp.height):
+                    placements[cap_ref] = ComponentPlacement(
+                        ref=cap_ref,
+                        position=(pos_x, pos_y),
+                        rotation=0,
+                        confidence=0.8,
+                        placed_by=self.name,
+                    )
+                    break
 
         return placements
 
@@ -713,7 +704,7 @@ class DecouplingCapHeuristic(Heuristic):
 
 def classify_signal_domains(
     netlist: Netlist,
-    constraints: PlacementConstraints,
+    _constraints: PlacementConstraints,
 ) -> dict[str, str]:
     """
     Classify components by signal domain.

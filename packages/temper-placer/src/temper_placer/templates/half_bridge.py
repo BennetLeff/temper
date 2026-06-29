@@ -111,7 +111,7 @@ class HalfBridgeTemplate:
         """Generate Loop objects with actual component refs."""
         from temper_placer.core.loop import Loop
         result = []
-        for name, loop_def in self.loops.items():
+        for _name, loop_def in self.loops.items():
             # Substitute component references in path
             path = []
             for step in loop_def.path:

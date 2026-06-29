@@ -1,6 +1,5 @@
 """Tests for dag_types: DataContext, StageResult, error types."""
 
-import pytest
 
 from temper_placer.pipeline.dag_types import (
     DAGCycleError,

@@ -3,8 +3,6 @@
 import os
 from pathlib import Path
 
-import pytest
-
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.pipeline.bottleneck_report import DeclaredArtifact
@@ -155,8 +153,9 @@ class TestFeedbackFlag:
         assert is_feedback_enabled() is True
 
     def test_feedback_disabled_by_env(self):
-        from temper_placer.deterministic import flags
         import importlib
+
+        from temper_placer.deterministic import flags
         importlib.reload(flags)
 
         os.environ["TEMPER_FEEDBACK_ENABLED"] = "false"

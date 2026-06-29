@@ -5,20 +5,18 @@ developers to programmatically construct placement constraints with a
 chainable, fluent interface.
 """
 
-from typing import Optional, List
-from dataclasses import asdict
+
 import yaml
 
 from temper_placer.io.config_loader import (
-    PlacementConstraints,
-    ComponentSpacingRule,
-    ProximityRule,
-    ThermalConstraint,
     ComponentGroup,
+    ComponentSpacingRule,
     EscapeClearance,
+    PlacementConstraints,
+    ProximityRule,
     RoutingCorridor,
+    ThermalConstraint,
 )
-from temper_placer.constraints.compiler import ConstraintCompiler
 
 
 class ConstraintBuilder:
@@ -33,7 +31,7 @@ class ConstraintBuilder:
         ...     .build())
     """
 
-    def __init__(self, base: Optional[PlacementConstraints] = None):
+    def __init__(self, base: PlacementConstraints | None = None):
         """Initialize builder.
 
         Args:
@@ -84,7 +82,7 @@ class ConstraintBuilder:
         max_mm: float,
         tier: str = "soft",
         description: str = "",
-        group_name: Optional[str] = None,
+        group_name: str | None = None,
     ) -> "ConstraintBuilder":
         """Add a proximity constraint between two components.
 
@@ -125,8 +123,8 @@ class ConstraintBuilder:
     def add_escape_clearance(
         self,
         component: str,
-        clearance_mm: Optional[float] = None,
-        priority_sides: Optional[List[str]] = None,
+        clearance_mm: float | None = None,
+        priority_sides: list[str] | None = None,
         tier: str = "soft",
         description: str = "",
     ) -> "ConstraintBuilder":
@@ -159,7 +157,7 @@ class ConstraintBuilder:
         to_component: str,
         width_mm: float,
         keep_clear: bool = True,
-        nets: Optional[List[str]] = None,
+        nets: list[str] | None = None,
         tier: str = "hard",
     ) -> "ConstraintBuilder":
         """Add a routing corridor constraint.
@@ -190,7 +188,7 @@ class ConstraintBuilder:
 
     def add_thermal_constraint(
         self,
-        components: List[str],
+        components: list[str],
         prefer_edge: bool = True,
         max_distance_from_edge_mm: float = 20.0,
         min_spacing_mm: float = 5.0,
@@ -221,9 +219,9 @@ class ConstraintBuilder:
     def add_group(
         self,
         name: str,
-        components: List[str],
+        components: list[str],
         max_spread_mm: float = 30.0,
-        zone: Optional[str] = None,
+        zone: str | None = None,
         weight: float = 1.0,
         description: str = "",
     ) -> "ConstraintBuilder":
@@ -262,11 +260,11 @@ class ConstraintBuilder:
 
     def validate(
         self,
-        board_width: float,
-        board_height: float,
-        available_components: List[str],
-        available_zones: Optional[List[str]] = None,
-    ) -> List[str]:
+        _board_width: float,
+        _board_height: float,
+        available_components: list[str],
+        available_zones: list[str] | None = None,
+    ) -> list[str]:
         """Validate constraints and return error messages.
 
         This is a simplified validation that checks for common errors
@@ -415,7 +413,7 @@ class ConstraintBuilder:
 
         return yaml.dump(data, default_flow_style=False, sort_keys=False)
 
-    def _find_or_create_group(self, name: str, components: List[str]) -> ComponentGroup:
+    def _find_or_create_group(self, name: str, components: list[str]) -> ComponentGroup:
         """Find existing group by name or create new one.
 
         Args:

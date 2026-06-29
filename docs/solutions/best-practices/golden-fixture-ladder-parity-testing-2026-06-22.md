@@ -283,6 +283,7 @@ The workflow is a separate CI job (not embedded in `python-tests.yml`) because g
 - `docs/brainstorms/2026-06-22-dsn-universal-seam-requirements.md` — Ideation #1: DSN/SES serialization layer (foundation for golden serializers)
 - `docs/brainstorms/2026-06-22-unified-stage-protocol-requirements.md` — Ideation #3: typed StageInput/StageOutput (drives serializer signatures)
 - `packages/temper-placer/src/temper_placer/io/golden_serializers.py` — deterministic DSN, SES, JSON serialization functions
+- `docs/solutions/architecture-patterns/ci-profiling-platform-canonical-metrics-contract-2026-06-28.md` — the golden check lives alongside profiling in CI; the profiling platform provides the time-series store, PR comparison, and dashboard that golden fixtures benefit from
 - `packages/temper-placer/src/temper_placer/testing/golden_diff.py` — geometric diff engine with coordinate tolerance thresholds
 - `packages/temper-placer/src/temper_placer/io/boundary_registry.py` — registered stage boundaries with per-boundary tolerance
 - `packages/temper-placer/src/temper_placer/testing/ladder_growth.py` — incremental ladder growth validation (non-breaking additions)

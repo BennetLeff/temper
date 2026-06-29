@@ -140,3 +140,4 @@ had been skipped.
 - `docs/solutions/architecture-patterns/declarative-stage-dag-replaces-orchestrator-2026-06-22.md` — Stage contract pattern
 - `docs/ideation/2026-06-24-router-v6-feature-completeness-ideation.html` — the ideation doc this pattern was tested against (4/7 ideas already done)
 - `docs/audits/2026-06-28-serpentine-necessity-audit.md` — example of a necessity audit
+- `docs/solutions/architecture-patterns/ci-profiling-platform-canonical-metrics-contract-2026-06-28.md` — the `temper profile run --all` CLI (shipped 2026-06-28) replaces the ad-hoc profiling scripts this audit workflow was designed to hunt

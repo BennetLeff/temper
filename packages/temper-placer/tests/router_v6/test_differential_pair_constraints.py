@@ -4,14 +4,12 @@ Tests for Router V6 Stage 3.4: Add Differential Pair Constraints
 Part of temper-42yx
 """
 
-import pytest
 
+from temper_placer.router_v6.diff_pair_inference import DiffPair
 from temper_placer.router_v6.differential_pair_constraints import (
     DifferentialPairConstraint,
-    DifferentialPairConstraints,
     add_differential_pair_constraints,
 )
-from temper_placer.router_v6.diff_pair_inference import DiffPair
 from temper_placer.router_v6.stage0_data import ParsedPCB, StackupInfo
 
 
@@ -26,13 +24,13 @@ def _create_pcb_with_diff_pairs() -> ParsedPCB:
         board=None,
         source_path=None,
     )
-    
+
     # Add differential pairs
     pcb.differential_pairs = [
         DiffPair(base_name="USB_D", p_net="USB_DP", n_net="USB_DN"),
         DiffPair(base_name="PCIE_TX0", p_net="PCIE_TX0_P", n_net="PCIE_TX0_N"),
     ]
-    
+
     return pcb
 
 

@@ -1,7 +1,7 @@
 import jax.numpy as jnp
 import pytest
 
-from temper_placer.core.board import Board, LayerStackup, Layer
+from temper_placer.core.board import Board, Layer, LayerStackup
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.wirelength import WirelengthLoss

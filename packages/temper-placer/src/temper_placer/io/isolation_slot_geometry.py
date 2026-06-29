@@ -11,16 +11,16 @@ relying on this helper.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.io.config_loader import IsolationSlot
 
 
 def isolation_slot_aabb(
-    slot: "IsolationSlot",
-    component_xy: Tuple[float, float],
-) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+    slot: IsolationSlot,
+    component_xy: tuple[float, float],
+) -> tuple[tuple[float, float], tuple[float, float]]:
     """Return board-coords ((x_min, y_min), (x_max, y_max)) of the cutout footprint.
 
     The cutout's `width_mm` is the dimension perpendicular to the slot's

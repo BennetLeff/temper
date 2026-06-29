@@ -14,7 +14,7 @@ import jax.numpy as jnp
 import pytest
 
 # Import core types for fixtures
-from temper_placer.core.board import Board, LayerStackup, Layer
+from temper_placer.core.board import Board, Layer, LayerStackup
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 # Import loss functions

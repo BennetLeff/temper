@@ -9,16 +9,16 @@ import jax.numpy as jnp
 import numpy as np
 
 from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.router_v6.adapter import MazeRouter
 
 
 class RefinementStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start_time = time.time()
-        from temper_placer.pipeline.iterator import PlaceRouteIterator
-        from temper_placer.router_v6 import V6RouterAdapter
-        from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
-        from temper_placer.optimizer.legalization import resolve_overlaps_priority
         from temper_placer.core.state import PlacementState
+        from temper_placer.optimizer.legalization import resolve_overlaps_priority
+        from temper_placer.pipeline.iterator import PlaceRouteIterator
+        from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
         board = context["board"]
         netlist = context["netlist"]
@@ -75,13 +75,14 @@ class RefinementStage:
             if deadline is not None and time.time() > deadline:
                 return jnp.array(pos)
             print("    Refining placement using JAX optimization with routing feedback loss...")
-            from temper_placer.pipeline.feedback import RoutingFeedbackLoss
-            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-            import optax
             import jax
+            import optax
+
+            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+            from temper_placer.losses.overlap import OverlapLoss
+            from temper_placer.losses.wirelength import WirelengthLoss
+            from temper_placer.pipeline.feedback import RoutingFeedbackLoss
 
             heatmap = CongestionHeatmap.from_router(routing_res.router)
 

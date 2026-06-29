@@ -8,16 +8,16 @@ This package contains:
 - Correlation studies between loss functions and DRC
 """
 
-from temper_placer.experiments.metrics_tracker import (
-    MetricsTracker,
-    RunMetrics,
-    create_run_id,
-)
 from temper_placer.experiments.metrics_integration import (
     MetricsTrackingCallback,
     create_run_metrics,
     record_training_run,
     setup_metrics_tracking,
+)
+from temper_placer.experiments.metrics_tracker import (
+    MetricsTracker,
+    RunMetrics,
+    create_run_id,
 )
 from temper_placer.experiments.proxy_correlation import (
     CorrelationResult,
@@ -26,12 +26,11 @@ from temper_placer.experiments.proxy_correlation import (
     track_proxy_actual,
 )
 from temper_placer.experiments.routing_correlation import (
-    RoutingCorrelationStudy,
     PlacementRun,
-    CorrelationResult as RoutingCorrelationResult,
-    run_pilot_study,
-    run_full_study,
+    RoutingCorrelationStudy,
     analyze_results,
+    run_full_study,
+    run_pilot_study,
 )
 
 __all__ = [

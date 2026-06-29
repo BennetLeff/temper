@@ -16,11 +16,10 @@ from typing import Any
 import hypothesis.strategies as st
 import numpy as np
 import pytest
-from hypothesis import HealthCheck, assume, settings
+from hypothesis import HealthCheck, settings
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
-
+from temper_placer.deterministic.state import BoardState
 
 # ---------------------------------------------------------------------------
 # Helper — discover concrete Stage subclasses
@@ -234,10 +233,7 @@ def test_stage_field_provenance(stage_cls):
         for field_name in field_names:
             in_val = getattr(state, field_name)
             out_val = getattr(output, field_name)
-            if not _fields_equal(in_val, out_val):
-                # Field changed — it should be in the declared output set
-                # (if declared_outputs is empty, we only warn but don't fail)
-                if declared_outputs:
+            if not _fields_equal(in_val, out_val) and declared_outputs:
                     assert field_name in declared_outputs, (
                         f"{stage_cls.__name__} modified undeclared field "
                         f"'{field_name}' (declared: {declared_outputs})"

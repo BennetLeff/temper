@@ -12,7 +12,25 @@ All position arrays use jax.Array for differentiability.
 """
 
 from temper_placer.core.board import Board, LayerStackup, Zone
+
+# Bus cohort routing constraints
+from temper_placer.core.bus_cohort import BusCohortConstraint, BusRegistry
+
+# Component community detection
+from temper_placer.core.community import Community, detect_communities
 from temper_placer.core.decision import Alternative, Decision, DecisionTrace
+
+# Design rules and net class rules
+from temper_placer.core.design_rules import DesignRules, NetClassRules
+
+# Differential pair constraints
+from temper_placer.core.differential_pair import DifferentialPairConstraint
+
+# Hypergraph utilities
+from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
+
+# IPC-2221 PCB design standards
+from temper_placer.core.ipc2221 import estimate_current_from_net_class
 from temper_placer.core.loop import (
     Loop,
     LoopCollection,
@@ -33,6 +51,9 @@ from temper_placer.core.loop_ownership import (
     build_ownership_map,
 )
 from temper_placer.core.manufacturing import FabPreset, inflated_clearance, inflated_width
+
+# Net graph utilities
+from temper_placer.core.net_graph import NetGraph, SubNetEdge
 from temper_placer.core.net_types import (
     ConnectivityStrategy,
     NetClassification,
@@ -41,6 +62,12 @@ from temper_placer.core.net_types import (
     VoltageClass,
 )
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
+
+# Net priority classification
+from temper_placer.core.priority import PlacementPriority, PriorityConfig, RoutingPriority
+
+# Physical design specifications
+from temper_placer.core.specification import EMISpec, PcbSpecification, ThermalSpec
 from temper_placer.core.state import PlacementState
 from temper_placer.core.topology import ComponentCluster, TopologicalGraph, TopologicalSolution
 
@@ -56,33 +83,6 @@ from temper_placer.core.units import (
     RadiansArray,
     mm_to_cell,
 )
-
-# IPC-2221 PCB design standards
-from temper_placer.core.ipc2221 import estimate_current_from_net_class
-
-# Net graph utilities
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
-
-# Hypergraph utilities
-from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
-
-# Net priority classification
-from temper_placer.core.priority import PlacementPriority, PriorityConfig, RoutingPriority
-
-# Differential pair constraints
-from temper_placer.core.differential_pair import DifferentialPairConstraint
-
-# Bus cohort routing constraints
-from temper_placer.core.bus_cohort import BusCohortConstraint, BusRegistry
-
-# Physical design specifications
-from temper_placer.core.specification import EMISpec, PcbSpecification, ThermalSpec
-
-# Design rules and net class rules
-from temper_placer.core.design_rules import DesignRules, NetClassRules
-
-# Component community detection
-from temper_placer.core.community import Community, detect_communities
 
 __all__ = [
     # State

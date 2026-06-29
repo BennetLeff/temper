@@ -4,7 +4,6 @@ Tests for Router V6 Stage 2.7: Estimate Routing Demand
 Part of temper-eccz
 """
 
-import pytest
 
 from temper_placer.core.netlist import Component, Net, Pin
 from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand

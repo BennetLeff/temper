@@ -14,11 +14,12 @@ across Layer 1 (In1.Cu) and Layer 2 (In2.Cu) based on net assignments to
 reduce layer congestion.
 """
 
-from dataclasses import dataclass, field
 import math
+from dataclasses import dataclass, field
+
+from ...core.pin_geometry import pin_world_position_at
 from ..state import BoardState
 from .base import Stage
-from ...core.pin_geometry import pin_world_position_at
 
 
 @dataclass
@@ -87,6 +88,7 @@ class FinePitchEscapeStage(Stage):
             return state
 
         from dataclasses import replace
+
         from ...core.board import Via
 
         placements = dict(state.placements) if state.placements else {}
@@ -192,9 +194,9 @@ class FinePitchEscapeStage(Stage):
 
         if fine_pitch_refs:
             missing_escapes = []
-            current_via_positions = set(
+            current_via_positions = {
                 (round(v.position[0], 3), round(v.position[1], 3)) for v in vias
-            )
+            }
 
             for component in state.netlist.components:
                 if component.ref not in fine_pitch_refs:

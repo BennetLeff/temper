@@ -151,9 +151,8 @@ class PlacementContext:
             if (
                 0 <= mask_x < self.keep_out_mask.shape[1]
                 and 0 <= mask_y < self.keep_out_mask.shape[0]
-            ):
-                if not self.keep_out_mask[mask_y, mask_x]:
-                    return False
+            ) and not self.keep_out_mask[mask_y, mask_x]:
+                return False
 
         return True
 

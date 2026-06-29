@@ -75,7 +75,6 @@ def main():
 
     # Analyze Hub Stability
     # Find hub components (highest centrality)
-    adj = ctx_cent.centrality # wait, centrality is in LossContext
     centrality = res_cent.final_state.positions # No, centrality is in context
 
     centrality = ctx_cent.centrality

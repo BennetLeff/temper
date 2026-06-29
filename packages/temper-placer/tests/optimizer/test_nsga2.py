@@ -142,17 +142,17 @@ def test_nsga2_tournament_selection_edge_cases():
     # Current implementation uses jax.random.choice(replace=False), which might fail
     # if tournament_size > pop_size.
     # Let's see if it crashes.
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         tournament_selection(ranks, distances, key, num_selected=1, tournament_size=10)
 
 
 def test_rotation_diversity_over_generations():
     """Rotation diversity should increase over generations."""
-    from temper_placer.optimizer.nsga2 import NSGAOptimizer
     from temper_placer.core.board import Board, LayerStackup
-    from temper_placer.core.netlist import Component, Net, Netlist
+    from temper_placer.core.netlist import Component, Netlist
     from temper_placer.core.state import PlacementState
     from temper_placer.losses.base import LossContext
+    from temper_placer.optimizer.nsga2 import NSGAOptimizer
 
     board = Board(
         width=100,
@@ -179,7 +179,7 @@ def test_rotation_diversity_over_generations():
     result = optimizer.evolve(
         netlist=netlist,
         board=board,
-        objectives=[lambda p, r, c, e, t: type("Obj", (), {"value": jnp.float32(0.0)})()],
+        objectives=[lambda _p, _r, _c, _e, _t: type("Obj", (), {"value": jnp.float32(0.0)})()],
         context=context,
         generations=10,
         initial_state=initial_state,
@@ -277,7 +277,7 @@ class TestKneePointSelection:
         )
         front_indices = [0, 1, 2, 3, 4]
 
-        knee_idx = select_knee_point(objectives, front_indices)
+        select_knee_point(objectives, front_indices)
         # The middle point (5, 5) should be selected as it's furthest from the diagonal
         # After normalization to [0,1], the line goes from (0,1) to (1,0)
         # Point (0.5, 0.5) is on the line so distance is 0
@@ -831,9 +831,9 @@ class TestZDTBenchmarkConvergence:
             if f2 < prev_f2:
                 # Width from previous x to current x
                 if i == 0:
-                    width = f1 - 0.0  # From origin
+                    f1 - 0.0  # From origin
                 else:
-                    width = f1 - float(sorted_points[i - 1, 0])
+                    f1 - float(sorted_points[i - 1, 0])
 
                 # Height contribution from this point to reference
                 hv += (float(reference[0]) - f1) * (prev_f2 - f2)
@@ -861,8 +861,8 @@ class TestZDTBenchmarkConvergence:
         # True Pareto front: f2 = 1 - sqrt(f1)
         # Check that front 0 solutions are close to this
         f1_vals = pareto_objs[:, 0]
-        f2_true = 1.0 - jnp.sqrt(f1_vals)
-        f2_actual = pareto_objs[:, 1]
+        1.0 - jnp.sqrt(f1_vals)
+        pareto_objs[:, 1]
 
         # Solutions should be near or below the true front
         # (below because g > 1 makes f2 larger than optimal)
@@ -874,8 +874,8 @@ class TestZDTBenchmarkConvergence:
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Component, Net, Netlist
         from temper_placer.losses.base import LossContext
-        from temper_placer.losses.wirelength import WirelengthLoss
         from temper_placer.losses.thermal import EdgePreferenceLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
         from temper_placer.optimizer.nsga2 import NSGAOptimizer
 
         board = Board(width=100, height=100)

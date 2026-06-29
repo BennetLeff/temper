@@ -146,9 +146,8 @@ def _check_via_pad_spacing(
         if comp.initial_position:
             comp_x, comp_y = comp.initial_position
 
-        angle = 0.0
         if comp.initial_rotation is not None:
-            angle = float(comp.initial_rotation) * math.pi / 2.0
+            float(comp.initial_rotation) * math.pi / 2.0
 
         for pin in comp.pins:
             pin_pos = pin_world_position(pin, comp)

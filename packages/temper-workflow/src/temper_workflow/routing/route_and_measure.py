@@ -9,13 +9,10 @@ and measures the actual copper length per net using the internal maze router.
 import argparse
 import json
 import math
-import os
 import sys
-import time
 from pathlib import Path
 
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.router_v6.adapter import V6RouterAdapter
 
 
 def measure_copper_length(pcb_path: Path) -> dict:
@@ -66,7 +63,7 @@ def main():
     if not routed_pcb.exists():
         print("Error: Routed PCB not found. Run internal_route.py first.")
         sys.exit(1)
-    
+
     elapsed = 0.0 # Placeholder
 
     # Now measure the real copper
@@ -77,7 +74,7 @@ def main():
         "input_file": str(args.input_pcb),
         "routing_time_s": elapsed,
         "total_wirelength_mm": measurement["total_wirelength_mm"],
-        "via_count": metrics.via_count,  # Use metrics from wrapper if available
+        "via_count": measurement["via_count"],
         "net_lengths": measurement["net_lengths_mm"],
     }
 
@@ -88,10 +85,9 @@ def main():
     else:
         print(json.dumps(report, indent=2))
 
-    if not args.keep:
-        if routed_pcb.exists():
-            routed_pcb.unlink()
-            print(f"Deleted temporary routed PCB: {routed_pcb}")
+    if not args.keep and routed_pcb.exists():
+        routed_pcb.unlink()
+        print(f"Deleted temporary routed PCB: {routed_pcb}")
 
 
 if __name__ == "__main__":

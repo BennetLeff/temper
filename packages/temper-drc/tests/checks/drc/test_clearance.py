@@ -102,7 +102,7 @@ def test_clearance_ignore_diff_layers():
     """Test that check accounts for layers (only check usually on same layer, or all? Clearance usually 3D but standard DRC component clearance acts on same layer)."""
     # Assuming standard component clearance checks only apply to same layer for now, 
     # unless specific 3D clearance is requested. Standard KiCad Courtyard/Clearance is same layer.
-    
+
     constraints = ConstraintSet(
         clearances=[
             ClearanceRule(from_class="Signal", to_class="Signal", min_mm=1.0)

@@ -151,7 +151,7 @@ def extract_baseline_metrics(
         rotation_logits=rotation_logits,
     )
 
-    context = LossContext.from_netlist_and_board(netlist, board)
+    LossContext.from_netlist_and_board(netlist, board)
 
     validator = KiCadDRCValidator()
     drc_available = validator.is_available()

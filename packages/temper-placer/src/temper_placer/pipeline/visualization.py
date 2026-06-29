@@ -99,17 +99,17 @@ class TerminalProgress(ProgressCallback):
     current_iteration: int = 0
     epoch_interval: int = 100
 
-    def on_phase_start(self, phase: str, state: Any) -> None:
+    def on_phase_start(self, phase: str, _state: Any) -> None:
         """Called when a pipeline phase starts."""
         self.current_phase += 1
         bar = self._make_bar(self.current_phase, self.total_phases)
         print(f"{bar} Phase {self.current_phase}/{self.total_phases}: {phase}", end="", flush=True)
 
-    def on_phase_complete(self, phase: str, state: Any) -> None:
+    def on_phase_complete(self, _phase: str, _state: Any) -> None:
         """Called when a pipeline phase completes."""
         print(" [DONE]", flush=True)
 
-    def on_iteration(self, iteration: int, state: Any) -> None:
+    def on_iteration(self, iteration: int, _state: Any) -> None:
         """Called when a refinement iteration starts."""
         self.current_iteration = iteration
         print(f"  Iteration {iteration}", flush=True)
@@ -248,16 +248,16 @@ class RichDashboard(ProgressCallback):
 
         return f"Loss: {self.losses[-1]:.4f}\n{line}"
 
-    def on_phase_start(self, phase: str, state: Any) -> None:
+    def on_phase_start(self, phase: str, _state: Any) -> None:
         """Called when a pipeline phase starts."""
         self.current_phase = phase
         self.console.print(f"[blue]→[/] Starting {phase}...")
 
-    def on_phase_complete(self, phase: str, state: Any) -> None:
+    def on_phase_complete(self, phase: str, _state: Any) -> None:
         """Called when a pipeline phase completes."""
         self.console.print(f"[green]✓[/] Completed {phase}")
 
-    def on_iteration(self, iteration: int, state: Any) -> None:
+    def on_iteration(self, iteration: int, _state: Any) -> None:
         """Called when a refinement iteration starts."""
         self.iteration = iteration
         self.console.print(f"[yellow]⟳[/] Iteration {iteration}")

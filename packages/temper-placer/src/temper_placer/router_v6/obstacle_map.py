@@ -18,8 +18,8 @@ from shapely.ops import unary_union
 
 from temper_placer.core.netlist import Pin
 from temper_placer.core.pin_geometry import pin_world_position
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.escape_via_generator import EscapeVia
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage_validators import (
@@ -235,9 +235,9 @@ def validate_obstacle_map(state: BoardState) -> list[StageDRCFailure]:
         return failures
 
     pcb: ParsedPCB = state._parsed_pcb
-    declared_layers = {l.name for l in pcb.stackup.layers if l.layer_type in ("signal", "mixed")}
+    declared_layers = {ly.name for ly in pcb.stackup.layers if ly.layer_type in ("signal", "mixed")}
 
-    for layer_name, obstacles in state.obstacle_maps.items():
+    for layer_name, _obstacles in state.obstacle_maps.items():
         if layer_name not in declared_layers:
             failures.append(StageDRCFailure(
                 field="obstacle_maps",

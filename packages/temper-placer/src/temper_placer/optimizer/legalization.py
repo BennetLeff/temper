@@ -400,16 +400,16 @@ def legalize_with_backtracking(
 ) -> np.ndarray:
     """
     Legalize placement using a backtracking search for difficult constraints.
-    
+
     Sorts components by area and places them one-by-one. If a component
     cannot be placed without violating its zone or overlapping, it backtracks.
     """
     n = len(netlist.components)
     widths = np.array([c.bounds[0] for c in netlist.components])
     heights = np.array([c.bounds[1] for c in netlist.components])
-    
+
     # Order: Fixed first, then by area
-    comp_indices = list(range(n))
+    list(range(n))
     area_order = sorted(
         [i for i in range(n) if fixed_mask is None or not fixed_mask[i]],
         key=lambda i: widths[i] * heights[i],
@@ -417,10 +417,10 @@ def legalize_with_backtracking(
     )
     fixed_indices = [i for i in range(n) if fixed_mask is not None and fixed_mask[i]]
     order = fixed_indices + area_order
-    
+
     current_positions = positions.copy()
     placed_boxes = []
-    
+
     def is_valid(idx, pos):
         hw, hh = widths[idx] / 2, heights[idx] / 2
         box = (
@@ -429,12 +429,12 @@ def legalize_with_backtracking(
             pos[0] + hw + min_separation/2,
             pos[1] + hh + min_separation/2
         )
-        
+
         # 1. Board bounds
         if (pos[0] - hw < board.origin[0] or pos[0] + hw > board.origin[0] + board.width or
             pos[1] - hh < board.origin[1] or pos[1] + hh > board.origin[1] + board.height):
             return False
-            
+
         # 2. Zone bounds
         comp = netlist.components[idx]
         if comp.zone:
@@ -444,7 +444,7 @@ def legalize_with_backtracking(
                         pos[1] - hh < z.bounds[1] or pos[1] + hh > z.bounds[3]):
                         return False
                     break
-                    
+
         # 3. Overlaps
         for pb in placed_boxes:
             if not (box[2] < pb[0] or box[0] > pb[2] or
@@ -455,7 +455,7 @@ def legalize_with_backtracking(
     def solve(order_idx):
         if order_idx == len(order):
             return True
-            
+
         idx = order[order_idx]
         if fixed_mask is not None and fixed_mask[idx]:
             # Fixed components are already "placed"
@@ -471,20 +471,20 @@ def legalize_with_backtracking(
             return False
 
         orig_pos = current_positions[idx]
-        
+
         # Try a few candidate positions using spiral search
         candidates = [orig_pos]
         for step in range(1, 50): # Limit search breadth for backtracking efficiency
             angle = step * 0.5
             radius = step * 2.0
             candidates.append(orig_pos + [radius * np.cos(angle), radius * np.sin(angle)])
-            
+
         for cand in candidates:
             # Quick clip to board for candidate
             hw, hh = widths[idx]/2, heights[idx]/2
             cand[0] = np.clip(cand[0], board.origin[0] + hw, board.origin[0] + board.width - hw)
             cand[1] = np.clip(cand[1], board.origin[1] + hh, board.origin[1] + board.height - hh)
-            
+
             if is_valid(idx, cand):
                 current_positions[idx] = cand
                 placed_boxes.append((
@@ -496,7 +496,7 @@ def legalize_with_backtracking(
                 if solve(order_idx + 1):
                     return True
                 placed_boxes.pop()
-                
+
         return False
 
     if solve(0):

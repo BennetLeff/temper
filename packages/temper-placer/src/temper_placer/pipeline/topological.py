@@ -7,12 +7,13 @@ initial overlap-free layout.
 
 from __future__ import annotations
 
-import numpy as np
 from typing import TYPE_CHECKING
 
+import numpy as np
+
+from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
 from temper_placer.optimizer.legalization import legalize_zone_aware
 from temper_placer.placer.deterministic import PlacementResult
-from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
 
 if TYPE_CHECKING:
     from temper_placer.pipeline.state import PipelineState
@@ -31,7 +32,7 @@ def run_topological_phase(state: PipelineState) -> PipelineState:
             mcu_result = mcu_heuristic.apply(state.netlist, state.board, zone_name="MCU_ZONE")
         except ValueError:
             mcu_result = mcu_heuristic.apply(state.netlist, state.board)
-    
+
     positions = np.array(mcu_result.positions)
     rotations = np.array(mcu_result.rotations)
 
@@ -54,7 +55,7 @@ def run_topological_phase(state: PipelineState) -> PipelineState:
     print("Running zone-aware legalization...")
     fixed_mask = np.array([c.fixed for c in state.netlist.components], dtype=bool)
     legalized_pos, success = legalize_zone_aware(positions, state.netlist, state.board, fixed_mask=fixed_mask)
-    
+
     if not success:
         print("Warning: Legalization could not fully resolve overlaps.")
 

@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 def build_topological_graph(
     netlist: Netlist,
-    board: Board,
+    _board: Board,
     constraints: ConstraintCollection
 ) -> TopologicalGraph:
     """Build a topological graph from netlist, board, and PCL constraints."""
@@ -47,7 +47,7 @@ def run_topological_phase(
     constraints: ConstraintCollection
 ) -> TopologicalSolution:
     """Run the topological placement phase.
-    
+
     Identifies clusters and checks for fundamental unsatisfiability.
     """
     graph = build_topological_graph(netlist, board, constraints)
@@ -116,7 +116,6 @@ def generate_initial_placement(
     zone_bounds = {z.name: z.bounds for z in board.zones}
 
     # Track placed components
-    placed_refs = {}
 
     key = jax.random.PRNGKey(42)
 

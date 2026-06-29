@@ -5,7 +5,6 @@ Provides diverse test cases for incremental router validation.
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Set, Optional
 
 
 @dataclass
@@ -30,23 +29,23 @@ class TestFixture:
 
     name: str
     description: str
-    start_pins: Tuple[Tuple[float, float], Tuple[float, float]]
-    goal_pins: Tuple[Tuple[float, float], Tuple[float, float]]
-    obstacles: Set[Tuple[int, int, int]]
-    board_size: Tuple[float, float, int]
+    start_pins: tuple[tuple[float, float], tuple[float, float]]
+    goal_pins: tuple[tuple[float, float], tuple[float, float]]
+    obstacles: set[tuple[int, int, int]]
+    board_size: tuple[float, float, int]
     grid_resolution_mm: float = 0.1
     trace_width_mm: float = 0.127
     spacing_mm: float = 0.25
     expected_success: bool = True
     expected_violations: int = 0
-    tags: Optional[List[str]] = None
+    tags: list[str] | None = None
 
     def __post_init__(self):
         if self.tags is None:
             self.tags = []
 
 
-def create_test_fixtures() -> List[TestFixture]:
+def create_test_fixtures() -> list[TestFixture]:
     """
     Create diverse test fixtures for differential pair routing experiments.
 
@@ -145,7 +144,6 @@ def create_test_fixtures() -> List[TestFixture]:
     # =========================================================================
     # Create corridor walls (top and bottom)
     obstacles_corridor = set()
-    corridor_width_mm = 1.0  # 1mm wide corridor
     corridor_start_mm = 3.0
     corridor_end_mm = 7.0
 
@@ -244,7 +242,7 @@ def create_test_fixtures() -> List[TestFixture]:
     return fixtures
 
 
-def get_fixture_by_name(name: str) -> Optional[TestFixture]:
+def get_fixture_by_name(name: str) -> TestFixture | None:
     """Get a specific test fixture by name."""
     fixtures = create_test_fixtures()
     for fixture in fixtures:
@@ -253,7 +251,7 @@ def get_fixture_by_name(name: str) -> Optional[TestFixture]:
     return None
 
 
-def get_fixtures_by_tag(tag: str) -> List[TestFixture]:
+def get_fixtures_by_tag(tag: str) -> list[TestFixture]:
     """Get all test fixtures with a specific tag."""
     fixtures = create_test_fixtures()
     return [f for f in fixtures if f.tags and tag in f.tags]

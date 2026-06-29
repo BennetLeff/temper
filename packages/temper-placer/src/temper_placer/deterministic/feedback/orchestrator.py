@@ -1,10 +1,12 @@
 import logging
-from typing import List, Dict, Any, Optional, Callable, TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
+
 from .. import DeterministicPipeline
 from ..state import BoardState
-from .violation_mapper import ViolationComponentMapper, DRCViolation
-from .zone_adjuster import ZoneAdjuster, ZoneAdjustment, AdjustmentResult
 from .drc_parser import parse_kicad_drc
+from .violation_mapper import ViolationComponentMapper
+from .zone_adjuster import AdjustmentResult, ZoneAdjuster
 
 if TYPE_CHECKING:
     from temper_placer.io.config_loader import PlacementConstraints
@@ -21,9 +23,9 @@ class AutomatedZeroDRC:
         self,
         pipeline: DeterministicPipeline,
         netlist: Any,
-        initial_config: "Dict[str, Any] | PlacementConstraints",
+        initial_config: "dict[str, Any] | PlacementConstraints",
         drc_runner: Callable[[], str],  # Returns path to DRC JSON report
-        max_iterations: Optional[int] = None,
+        max_iterations: int | None = None,
     ):
         """
         Initialize the orchestrator.
@@ -90,7 +92,7 @@ class AutomatedZeroDRC:
             if stage.name == "zone_geometry" and hasattr(stage, "zone_config"):
                 stage.zone_config = zones
 
-    def _get_zone_config(self) -> Dict[str, Any]:
+    def _get_zone_config(self) -> dict[str, Any]:
         """Convert config to dict for mapper/adjuster."""
         zone_dict = {}
 
@@ -168,7 +170,7 @@ class AutomatedZeroDRC:
                         self.config["zones"][next_idx]["bounds_ratio"][0] += dr
                         self.config["zones"][next_idx]["bounds_ratio"][2] += dr
 
-    def run(self, initial_state: Optional[BoardState] = None) -> BoardState:
+    def run(self, initial_state: BoardState | None = None) -> BoardState:
         """
         Execute the feedback loop.
 

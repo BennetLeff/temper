@@ -33,7 +33,7 @@ class BottleneckNetEntry:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "BottleneckNetEntry":
+    def from_dict(cls, d: dict[str, Any]) -> BottleneckNetEntry:
         return cls(
             net_name=d["net_name"],
             net_class=d["net_class"],
@@ -62,7 +62,7 @@ class BottleneckRegion:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "BottleneckRegion":
+    def from_dict(cls, d: dict[str, Any]) -> BottleneckRegion:
         return cls(
             x_min=d["x_min"],
             y_min=d["y_min"],
@@ -88,7 +88,7 @@ class CongestionHeatmapData:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "CongestionHeatmapData":
+    def from_dict(cls, d: dict[str, Any]) -> CongestionHeatmapData:
         return cls(
             net_class=d["net_class"],
             grid=d["grid"],
@@ -140,12 +140,12 @@ class BottleneckReport:
         path.write_text(self.to_json())
 
     @classmethod
-    def from_json(cls, json_str: str) -> "BottleneckReport":
+    def from_json(cls, json_str: str) -> BottleneckReport:
         d = json.loads(json_str)
         return cls.from_dict(d)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "BottleneckReport":
+    def from_dict(cls, d: dict[str, Any]) -> BottleneckReport:
         schema = d.get("schema_version", "1.0.0")
         return cls(
             schema_version=schema,
@@ -163,7 +163,7 @@ class BottleneckReport:
         )
 
     @classmethod
-    def read(cls, path: Path) -> "BottleneckReport":
+    def read(cls, path: Path) -> BottleneckReport:
         return cls.from_json(path.read_text())
 
 

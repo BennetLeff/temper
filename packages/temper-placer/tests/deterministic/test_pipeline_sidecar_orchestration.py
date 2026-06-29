@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import json
 import logging
-from unittest.mock import patch
 
 import pytest
 
@@ -79,7 +78,7 @@ class TestPipelineLoadsSidecar:
         from temper_placer.deterministic.stages.phased_component_assignment import (
             PhasedComponentAssignmentStage,
         )
-        stages_with_map = [
+        [
             s for s in pipeline.stages if isinstance(s, PhasedComponentAssignmentStage)
         ]
         # create_drc_aware_pipeline may use ComponentAssignmentStage if
@@ -182,7 +181,7 @@ class TestClosureTestChannelAnalysisOrdering:
 
         call_order: list[str] = []
 
-        def fake_parse(pcb_path):
+        def fake_parse(_pcb_path):
             call_order.append("parse")
             return fake_parsed
 
@@ -192,7 +191,7 @@ class TestClosureTestChannelAnalysisOrdering:
             _write_sidecar(output_dir / SIDECAR_FILENAME)
             return stages_exercised + 1
 
-        def fake_benders(input):
+        def fake_benders(_input):
             from dataclasses import dataclass
             @dataclass
             class R:
@@ -204,11 +203,11 @@ class TestClosureTestChannelAnalysisOrdering:
             r.placements = {}
             return type("Res", (), {"data": r})()
 
-        def fake_router_full(input):
+        def fake_router_full(_input):
             call_order.append("router_full")
             return type("Res", (), {"data": type("D", (), {"completion_rate": 1.0})()})()
 
-        def fake_drc(pcb_path):
+        def fake_drc(_pcb_path):
             call_order.append("drc")
             from dataclasses import dataclass
             @dataclass
@@ -228,7 +227,7 @@ class TestClosureTestChannelAnalysisOrdering:
             fake_channel_analysis,
         )
 
-        def fake_resolve_and_run(*, phase, strategies, input, fallback=None):
+        def fake_resolve_and_run(*, phase, _strategies, input, _fallback=None):
             if phase == "placement":
                 return fake_benders(input)
             if phase == "routing":
@@ -243,7 +242,7 @@ class TestClosureTestChannelAnalysisOrdering:
         )
 
         ct = closure_test.ClosureTest(pcb_path, repo_root=tmp_path)
-        result = ct.run()
+        ct.run()
 
         # The relative order of parse / stage2 / benders is what we assert.
         assert "parse" in call_order
@@ -262,10 +261,10 @@ class TestClosureTestChannelAnalysisOrdering:
         pcb_path = tmp_path / "board.kicad_pcb"
         pcb_path.write_text("(kicad_pcb (version 20240101) )")
 
-        def fake_parse(path):
+        def fake_parse(_path):
             return object()
 
-        def fake_channel_analysis(*, output_dir, stages_exercised):
+        def fake_channel_analysis(*, _output_dir, _stages_exercised):
             # Simulate the helper's behavior when Router V6 is unimportable.
             raise ImportError("mocked router unavailable")
 
@@ -276,7 +275,7 @@ class TestClosureTestChannelAnalysisOrdering:
             fake_channel_analysis,
         )
 
-        def fake_resolve_and_run(*, phase, strategies, input, fallback=None):
+        def fake_resolve_and_run(*, phase, _strategies, _input, _fallback=None):
             from dataclasses import dataclass
             if phase == "placement":
                 @dataclass
@@ -299,7 +298,7 @@ class TestClosureTestChannelAnalysisOrdering:
         )
         monkeypatch.setattr(
             "temper_placer.regression.closure_test.run_drc",
-            lambda p: type("D", (), {"error_count": 0, "warning_count": 0})(),
+            lambda _p: type("D", (), {"error_count": 0, "warning_count": 0})(),
             raising=False,
         )
 
@@ -321,10 +320,10 @@ class TestClosureTestChannelAnalysisOrdering:
         pcb_path = tmp_path / "board.kicad_pcb"
         pcb_path.write_text("(kicad_pcb (version 20240101) )")
 
-        def fake_parse(path):
+        def fake_parse(_path):
             return object()
 
-        def fake_channel_analysis(*, output_dir, stages_exercised):
+        def fake_channel_analysis(*, _output_dir, _stages_exercised):
             # Simulate a non-ImportError failure (e.g. a corrupt stage 2
             # input, a missing dep, an internal assertion). The closure
             # test must catch this and not propagate.
@@ -337,7 +336,7 @@ class TestClosureTestChannelAnalysisOrdering:
             fake_channel_analysis,
         )
 
-        def fake_resolve_and_run(*, phase, strategies, input, fallback=None):
+        def fake_resolve_and_run(*, phase, _strategies, _input, _fallback=None):
             from dataclasses import dataclass
             if phase == "placement":
                 @dataclass
@@ -360,7 +359,7 @@ class TestClosureTestChannelAnalysisOrdering:
         )
         monkeypatch.setattr(
             "temper_placer.regression.closure_test.run_drc",
-            lambda p: type("D", (), {"error_count": 0, "warning_count": 0})(),
+            lambda _p: type("D", (), {"error_count": 0, "warning_count": 0})(),
             raising=False,
         )
 
@@ -376,7 +375,6 @@ class TestClosureTestChannelAnalysisOrdering:
 
     def test_closure_test_sidecar_grid_matches_placer_grid(self, tmp_path):
         """A sidecar with mismatched cell_size_um causes a hard error."""
-        from temper_placer.regression import closure_test
         from temper_placer.deterministic import (
             PLACER_CELL_SIZE_UM,
             SIDECAR_FILENAME,
@@ -471,7 +469,7 @@ class TestSidecarE2EWiringFromParsedPCB:
         assert pipeline.channel_map is not None
         assert pipeline.channel_map.has_grid()
 
-    def test_parsed_pcb_without_source_path_falls_back_to_none(self, tmp_path):
+    def test_parsed_pcb_without_source_path_falls_back_to_none(self, _tmp_path):
         """A parsed_pcb without source_path is treated as if not provided."""
         from types import SimpleNamespace
 

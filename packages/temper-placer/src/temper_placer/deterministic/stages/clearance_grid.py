@@ -1,18 +1,19 @@
-import numpy as np
 from dataclasses import dataclass
+
+import numpy as np
 from numba import njit
-from ..state import BoardState
-from .base import Stage
 
 from temper_placer.core.board import (
     LAYER_IDX_TO_NAME,
-    LayerIndex,
     PLANE_LAYER_INDICES,
     STANDARD_LAYER_ORDER,
+    LayerIndex,
 )
-from temper_placer.router_v6.clearance_engine import INTERNAL_LAYER_CREEPAGE_FACTOR
 from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.router_v6.clearance_engine import INTERNAL_LAYER_CREEPAGE_FACTOR
 
+from ..state import BoardState
+from .base import Stage
 
 # @req(2026-06-23-005, R2): Layer-aware creepage factor.
 # Outer copper layers (F.Cu, B.Cu) carry the full creepage distance; inner
@@ -68,7 +69,7 @@ def effective_creepage(layer: str, base_creepage_mm: float) -> float:
     return base_creepage_mm * INTERNAL_LAYER_CREEPAGE_FACTOR
 
 
-def _layer_index_to_name(layer_idx: int, layer_count: int) -> str:
+def _layer_index_to_name(layer_idx: int, _layer_count: int) -> str:
     """Map a 0-based layer index to its KiCad layer name.
 
     Used to translate grid layer indices into the names `effective_creepage`
@@ -455,10 +456,7 @@ class ClearanceGrid:
 
             # Check pads
             p_id = self._pad_net_ids[layer][row, col]
-            if p_id != 0 and p_id != net_id:
-                return False
-
-            return True
+            return not (p_id != 0 and p_id != net_id)
         return False  # Out of bounds = blocked
 
     def block_circle(
@@ -482,10 +480,7 @@ class ClearanceGrid:
         min_row = max(0, int((cy - total_radius) / self.cell_size_mm))
         max_row = min(self.rows, int((cy + total_radius) / self.cell_size_mm) + 1)
 
-        if net_name:
-            net_id = self.get_net_id(net_name)
-        else:
-            net_id = -2  # Generic obstacle
+        net_id = self.get_net_id(net_name) if net_name else -2
 
         target_grid = self._pad_net_ids[layer] if is_pad else self._trace_net_ids[layer]
 
@@ -564,10 +559,7 @@ class ClearanceGrid:
         if L2 == 0:
             return
 
-        if net_name:
-            net_id = self.get_net_id(net_name)
-        else:
-            net_id = -2
+        net_id = self.get_net_id(net_name) if net_name else -2
 
         target_grid = self._trace_net_ids[layer]
 
@@ -667,9 +659,9 @@ class ClearanceGrid:
     def blocked_count(self) -> int:
         """Total blocked cells across all layers."""
         count = 0
-        for l in range(self.layer_count):
-            count += np.sum(self._trace_net_ids[l] != 0)
-            count += np.sum(self._pad_net_ids[l] != 0)
+        for layer in range(self.layer_count):
+            count += np.sum(self._trace_net_ids[layer] != 0)
+            count += np.sum(self._pad_net_ids[layer] != 0)
         return int(count)
 
     def blocked_count_on_layer(self, layer: int) -> int:
@@ -712,8 +704,8 @@ class ClearanceGrid:
             highlight_nets: Optional list of net names to highlight
         """
         try:
-            import matplotlib.pyplot as plt
             import matplotlib.patches as mpatches
+            import matplotlib.pyplot as plt
         except ImportError:
             print("WARNING: matplotlib not available, skipping visualization")
             return
@@ -734,8 +726,6 @@ class ClearanceGrid:
         n_nets = len([i for i in unique_ids if i > 0])
 
         # Build colormap
-        colors = ["white"]  # 0 = free
-        color_labels = ["Free"]
 
         # Generate distinct colors for nets
         if n_nets > 0:
@@ -762,7 +752,7 @@ class ClearanceGrid:
                     display[row, col] = 3 + list(net_colors.keys()).index(val)
 
         # Plot
-        im = ax.imshow(
+        ax.imshow(
             display, origin="lower", aspect="equal", extent=[0, self.width_mm, 0, self.height_mm]
         )
 
@@ -780,7 +770,7 @@ class ClearanceGrid:
         ]
 
         # Add net labels (first 10)
-        for i, (net_id, color) in enumerate(list(net_colors.items())[:10]):
+        for _i, (net_id, color) in enumerate(list(net_colors.items())[:10]):
             net_name = self._id_to_net.get(net_id, f"Net_{net_id}")
             legend_patches.append(mpatches.Patch(color=color, label=net_name))
 
@@ -1016,21 +1006,21 @@ class ClearanceGridStage(Stage):
                     mask_expansion = (
                         self.pth_mask_expansion_mm if pad["is_pth"] else self.smd_mask_expansion_mm
                     )
-                    
+
                     # Try to get precise geometry from pad_sizes
                     pad_key = (pad["ref"], pad["name"])
                     real_pad = self.pad_sizes.get(pad_key)
-                    
+
                     use_rect_blocking = False
                     rect_size = (0.0, 0.0)
-                    
+
                     if real_pad:
                         # Use shape and rotation from real pad data
                         shape = real_pad.shape
                         rotation = getattr(real_pad, "rotation", 0.0)
                         size_x = real_pad.size.X
                         size_y = real_pad.size.Y
-                        
+
                         if shape in ["rect", "roundrect", "oval"]:
                             # Handle 0/90/180/270 rotations
                             norm_rot = int(round(rotation)) % 180
@@ -1041,7 +1031,7 @@ class ClearanceGridStage(Stage):
                                 rect_size = (size_y, size_x)
                                 use_rect_blocking = True
                             # For arbitrary rotations, we fall back to circle for now
-                    
+
                     # Fallback to netlist-derived data if pad_sizes missing (shouldn't happen with full parser)
                     if not use_rect_blocking and pad.get("shape") in ["rect", "roundrect", "oval"]:
                          # Assuming axis-aligned if we don't know rotation
@@ -1054,12 +1044,12 @@ class ClearanceGridStage(Stage):
                             net_clearance = self._get_clearance_for_net(
                                 net_name, state, layer=layer_idx
                             )
-                            
+
                             # EXP-24: Mechanical pads (no net) use zero clearance to avoid self-blocking
                             # but still block routing through the physical hole/pad.
                             current_mask = mask_expansion if net_name else 0.0
                             current_clearance = net_clearance if net_name else 0.0
-                            
+
                             # Add trace radius to obstacle clearance (Minkowski sum)
                             total_clearance = current_clearance + current_mask + (self.default_trace_width_mm / 2.0)
 

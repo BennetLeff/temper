@@ -11,8 +11,8 @@ from dataclasses import dataclass, replace
 
 from shapely.geometry import MultiPolygon, Polygon, box
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.obstacle_map import build_obstacle_map
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage_validators import (

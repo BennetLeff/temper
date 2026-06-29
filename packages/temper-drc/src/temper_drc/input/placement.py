@@ -10,8 +10,7 @@ from typing import TYPE_CHECKING, Any
 import yaml
 
 if TYPE_CHECKING:
-    from temper_drc.types import TracePlacement as _TracePlacement
-    from temper_drc.types import ViaPlacement as _ViaPlacement
+    pass
 
 
 @dataclass

@@ -33,10 +33,10 @@ Usage
 Only the engine and ONE consumer are built in this commit; full migration
 of all consumers is deferred (see ``feat/unified-clearance-engine``).
 """
-
 from __future__ import annotations
 
-from typing import Optional
+from temper_placer.core.net_types import VoltageClass
+from temper_placer.router_v6.creepage_check import _calculate_required_creepage
 
 # ---------------------------------------------------------------------------
 # Per-standard imports
@@ -46,7 +46,7 @@ from typing import Optional
 def calculate_safety_distances(
     voltage_v: float,
     pollution_degree: int = 2,
-    material_group: str = "IIIa",
+    _material_group: str = "IIIa",
     overvoltage_category: int = 2,
 ):
     """Calculate required creepage and clearance per IEC 60950-1.
@@ -98,13 +98,6 @@ def calculate_safety_distances(
 # IEC 60664-1 legacy constant (was in routing/constraints/drc_oracle.py)
 INTERNAL_LAYER_CREEPAGE_FACTOR: float = 0.30
 
-# IPC-2221
-from temper_placer.router_v6.creepage_check import _calculate_required_creepage
-
-# IEC 60335-1
-from temper_placer.core.net_types import VoltageClass
-
-
 # ---------------------------------------------------------------------------
 # Net-class → VoltageClass mapping (IEC 60335-1)
 # ---------------------------------------------------------------------------
@@ -149,7 +142,7 @@ def get_clearance(
     material_group: str = "IIIa",
     overvoltage_category: int = 2,
     *,
-    design_rule_creepage: Optional[float] = None,
+    design_rule_creepage: float | None = None,
 ) -> float:
     """Return the most-conservative clearance (mm) across all applicable standards.
 
@@ -227,12 +220,7 @@ def get_clearance(
     result = max(candidates)
 
     # ---- IEC 60664-1 internal-layer reduction -------------------------
-    if layer_type == "internal":
-        # Internal layers under a ground/power plane benefit from the
-        # shielding effect of the PCB substrate.  This reduction is
-        # only meaningful for creepage (>0.5 mm); basic clearance
-        # (<0.5 mm) is left untouched.
-        if result > 0.5:
+    if layer_type == "internal" and result > 0.5:
             result = result * INTERNAL_LAYER_CREEPAGE_FACTOR
 
     return result

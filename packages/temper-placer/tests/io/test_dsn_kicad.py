@@ -11,13 +11,13 @@ from pathlib import Path
 import pytest
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist, Component, Pin, Net
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.dsn_exporter import DSNExporter
 
 
 def _export_deterministic_dsn() -> str:
     """Export a deterministic DSN for a simple test board."""
-    from temper_placer.core.board import LayerStackup, Layer
+    from temper_placer.core.board import Layer, LayerStackup
     stackup = LayerStackup(layers=[
         Layer(name="F.Cu", layer_type="signal"),
         Layer(name="GND.Cu", layer_type="plane"),

@@ -543,7 +543,7 @@ class TestSuccessThresholds:
         }
 
         # Should not crash, but cannot confirm success without all metrics
-        result = checker.check_success(metrics)
+        checker.check_success(metrics)
         # Behavior depends on implementation - missing metrics could be failure or skip
 
 

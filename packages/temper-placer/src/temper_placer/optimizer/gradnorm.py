@@ -11,7 +11,7 @@ dominating the optimization.
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -77,7 +77,7 @@ def update_gradnorm_weights(
     initial_grad_norms: Array,
     epoch: int,
     learning_rate: float = 0.025,
-    alpha: float = 1.5,
+    _alpha: float = 1.5,
 ) -> tuple[Array, Array]:
     """
     Update loss weights using GradNorm algorithm.

@@ -13,7 +13,6 @@ Covers:
 from __future__ import annotations
 
 import logging
-import os
 
 import pytest
 
@@ -78,7 +77,7 @@ def fence_env_disabled(monkeypatch):
 
 
 class TestFenceBlockingDefault:
-    def test_fence_hard_fails_by_default(self, fence_env, caplog):
+    def test_fence_hard_fails_by_default(self, _fence_env, _caplog):
         """With env var unset, fence is blocking (hard-fail)."""
         assert is_drc_fence_fail_enabled() is True
         stage = _stage(_cmap_with_critical())
@@ -91,7 +90,7 @@ class TestFenceBlockingDefault:
 
 
 class TestFenceWarningOnly:
-    def test_fence_warning_only_when_explicitly_disabled(self, fence_env_disabled, caplog):
+    def test_fence_warning_only_when_explicitly_disabled(self, _fence_env_disabled, caplog):
         """When TEMPER_DRC_FENCE_FAIL=0, fence is WARNING-only."""
         assert is_drc_fence_fail_enabled() is False
         stage = _stage(_cmap_with_critical())
@@ -103,7 +102,7 @@ class TestFenceWarningOnly:
 
 
 class TestFenceHardFail:
-    def test_fence_hard_fails_when_enabled(self, fence_env, caplog):
+    def test_fence_hard_fails_when_enabled(self, fence_env, _caplog):
         fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "1")
         assert is_drc_fence_fail_enabled() is True
         stage = _stage(_cmap_with_critical())
@@ -116,7 +115,7 @@ class TestFenceHardFail:
 
 
 class TestFenceEnvVarOverrides:
-    def test_fence_env_var_overrides_default(self, fence_env, caplog):
+    def test_fence_env_var_overrides_default(self, fence_env, _caplog):
         # Default (env var unset) is True — blocking.
         assert is_drc_fence_fail_enabled() is True
         fence_env.setenv("TEMPER_DRC_FENCE_FAIL", "0")
@@ -141,7 +140,7 @@ class TestFenceEnvVarOverrides:
 
 
 class TestFenceNonCriticalUnaffected:
-    def test_fence_non_critical_violations_unaffected_disabled(self, fence_env_disabled, caplog):
+    def test_fence_non_critical_violations_unaffected_disabled(self, _fence_env_disabled, caplog):
         """MEDIUM/HIGH do not trigger the fence when disabled."""
         stage = _stage(_cmap_with_medium_high())
         placements = {
@@ -154,7 +153,7 @@ class TestFenceNonCriticalUnaffected:
         # No fence-fail WARNINGs logged
         assert not any("DRC fence violation" in r.message for r in caplog.records)
 
-    def test_fence_non_critical_violations_unaffected_enabled(self, fence_env, caplog):
+    def test_fence_non_critical_violations_unaffected_enabled(self, _fence_env, _caplog):
         """MEDIUM/HIGH do not trigger the fence when enabled (default)."""
         stage = _stage(_cmap_with_medium_high())
         placements = {

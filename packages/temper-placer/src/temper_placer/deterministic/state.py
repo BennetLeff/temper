@@ -1,20 +1,20 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Mapping, Optional, FrozenSet
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from shapely.geometry import Polygon
 
     from temper_placer.core.board import Board
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.loop import LoopCollection
     from temper_placer.core.netlist import Netlist
-    from temper_placer.router_v6.constraints_drc_oracle import DRCOracle, Violation
     from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
     from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
     from temper_placer.router_v6.channel_widths import ChannelWidths
     from temper_placer.router_v6.constraint_model import ConstraintModel
+    from temper_placer.router_v6.constraints_drc_oracle import DRCOracle, Violation
     from temper_placer.router_v6.layer_capacity import LayerCapacity
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid
     from temper_placer.router_v6.routing_demand import RoutingDemand
@@ -31,19 +31,19 @@ if TYPE_CHECKING:
 class BoardState:
     """Immutable snapshot of board at any pipeline stage."""
 
-    board: Optional["Board"] = None
-    netlist: Optional["Netlist"] = None
-    loops: Optional["LoopCollection"] = None
-    grid: Optional["ClearanceGrid"] = None
-    drc_oracle: Optional["DRCOracle"] = None
-    drc_violations: tuple["Violation", ...] | None = None
+    board: Board | None = None
+    netlist: Netlist | None = None
+    loops: LoopCollection | None = None
+    grid: ClearanceGrid | None = None
+    drc_oracle: DRCOracle | None = None
+    drc_violations: tuple[Violation, ...] | None = None
     # U3: optional design rules.  Set by PhasedComponentAssignmentStage so
     # stage validators can check creepage / HV invariants without the
     # pipeline having to thread the SSOT through every hook point.
     # Default None preserves the existing schema for older stages.
-    design_rules: Optional["DesignRules"] = None
-    connectivity_violations: tuple["ConnectivityViolation", ...] | None = None
-    placement_violations: tuple["PlacementViolation", ...] | None = None
+    design_rules: DesignRules | None = None
+    connectivity_violations: tuple[ConnectivityViolation, ...] | None = None
+    placement_violations: tuple[PlacementViolation, ...] | None = None
     placements: frozenset = frozenset()
     # U3: set of grid slots reserved by the placer (footprint + HV rings).
     # Set by PhasedComponentAssignmentStage so the post-stage DRC fence
@@ -80,31 +80,31 @@ class BoardState:
     )  # Set of (zone_name, tuple_of_slots) - each zone maps to tuple of (x,y) positions
     layer_assignments: frozenset = frozenset()  # Set of LayerAssignment objects (net_name, layer)
     # EXP-5: Route locking - nets that have been successfully routed and should be preserved
-    locked_routes: FrozenSet[str] = field(default_factory=frozenset)
+    locked_routes: frozenset[str] = field(default_factory=frozenset)
     # Router V6 Stage 2 channel-analysis fields
-    obstacle_maps: Optional[dict[str, Any]] = None
-    routing_spaces: Optional[dict[str, "RoutingSpace"]] = None
-    channel_skeletons: Optional[dict[str, "ChannelSkeleton"]] = None
-    channel_widths: Optional[dict[str, "ChannelWidths"]] = None
-    occupancy_grids: Optional[dict[str, "OccupancyGrid"]] = None
-    layer_capacities: Optional[dict[str, "LayerCapacity"]] = None
-    routing_demand: Optional["RoutingDemand"] = None
-    bottleneck_analysis: Optional["BottleneckAnalysis"] = None
+    obstacle_maps: dict[str, Any] | None = None
+    routing_spaces: dict[str, RoutingSpace] | None = None
+    channel_skeletons: dict[str, ChannelSkeleton] | None = None
+    channel_widths: dict[str, ChannelWidths] | None = None
+    occupancy_grids: dict[str, OccupancyGrid] | None = None
+    layer_capacities: dict[str, LayerCapacity] | None = None
+    routing_demand: RoutingDemand | None = None
+    bottleneck_analysis: BottleneckAnalysis | None = None
     # Bridge fields for Stage2Orchestrator (pending protocol unification)
-    _parsed_pcb: Optional[Any] = None
-    _escape_vias: Optional[Any] = None
+    _parsed_pcb: Any | None = None
+    _escape_vias: Any | None = None
     # Router V6 Stage 4 A* pathfinding fields
-    parsed_grids: Optional[dict[str, Any]] = None
-    net_route_order: Optional[list[str]] = None
-    per_net_results: Optional[dict[str, Any]] = None
+    parsed_grids: dict[str, Any] | None = None
+    net_route_order: list[str] | None = None
+    per_net_results: dict[str, Any] | None = None
     tht_locations: frozenset = frozenset()
-    pad_centers_per_net: Optional[dict[str, Any]] = None
-    net_ids: Optional[dict[str, int]] = None
-    failed_nets: Optional[list[str]] = None
-    failure_reports: Optional[dict[str, Any]] = None
-    pathfinding_result: Optional[Any] = None
+    pad_centers_per_net: dict[str, Any] | None = None
+    net_ids: dict[str, int] | None = None
+    failed_nets: list[str] | None = None
+    failure_reports: dict[str, Any] | None = None
+    pathfinding_result: Any | None = None
     channel_mapping: Any = None
-    escape_vias_map: Optional[dict[str, Any]] = None
+    escape_vias_map: dict[str, Any] | None = None
     enable_theta_star: bool = False
     enable_lazy_theta_star: bool = False
     # U7 / R11: PathFinder-style history cost.  0.0 disables
@@ -114,23 +114,23 @@ class BoardState:
     # the hard signal nets need direct paths.
     congestion_weight: float = 0.0
     # Router V6 Stage 3 topological-routing fields
-    constraint_model: Optional["ConstraintModel"] = None
-    sat_variable_map: Optional[dict[str, Any]] = None
-    topological_solution: Optional["TopologicalSolution"] = None
-    assignment_valid: Optional[bool] = None
-    topology_graph: Optional["TopologyGraph"] = None
+    constraint_model: ConstraintModel | None = None
+    sat_variable_map: dict[str, Any] | None = None
+    topological_solution: TopologicalSolution | None = None
+    assignment_valid: bool | None = None
+    topology_graph: TopologyGraph | None = None
     # Router V6 Stage 4 A* pathfinding fields
-    parsed_grids: Optional[dict[str, Any]] = None
-    net_route_order: Optional[list[str]] = None
-    per_net_results: Optional[dict[str, Any]] = None
+    parsed_grids: dict[str, Any] | None = None
+    net_route_order: list[str] | None = None
+    per_net_results: dict[str, Any] | None = None
     # @req(2026-06-23-007, R2): Per-(component, lv_pin, hv_pin) clearance
     # reclaim (mm) emitted by ZoneAwareSlotGenerationStage when an isolation
     # cutout is present. The DRC oracle (U3) reads this dict to apply a
     # reduced clearance inside the slot's reclaimed band. Optional so older
     # pipelines that don't run the zone-aware stage still type-check.
-    reclaim_by_pin_pair: Optional[dict[tuple[str, str, str], float]] = None
+    reclaim_by_pin_pair: dict[tuple[str, str, str], float] | None = None
 
-    def with_locked_route(self, net_name: str) -> "BoardState":
+    def with_locked_route(self, net_name: str) -> BoardState:
         """Return new state with the given net marked as locked.
 
         Locked routes are preserved across feedback iterations and not re-routed.
@@ -147,7 +147,7 @@ class BoardState:
         new_locked = frozenset(self.locked_routes | {net_name})
         return replace(self, locked_routes=new_locked)
 
-    def with_locked_routes(self, net_names: set) -> "BoardState":
+    def with_locked_routes(self, net_names: set) -> BoardState:
         """Return new state with multiple nets marked as locked.
 
         Args:
@@ -172,7 +172,7 @@ class BoardState:
         """
         return net_name in self.locked_routes
 
-    def with_config(self, config: "Mapping[str, Any] | None") -> "BoardState":
+    def with_config(self, config: Mapping[str, Any] | None) -> BoardState:
         """Return new state with ``config`` populated for stage-local config lookups.
 
         Used by the pipeline factory (and the feedback orchestrator)

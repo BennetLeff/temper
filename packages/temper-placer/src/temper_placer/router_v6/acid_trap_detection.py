@@ -83,15 +83,13 @@ def detect_acid_traps(
         # Return early with an explicit warning rather than relying on the
         # implicit behaviour of NaN comparisons.
         warnings.warn(
-            f"min_angle_threshold is NaN — no angles can be below NaN. "
-            f"Returning empty report.",
+            "min_angle_threshold is NaN — no angles can be below NaN. "
+            "Returning empty report.",
             stacklevel=2,
         )
         return AcidTrapReport(acid_traps=[])
 
-    if not math.isfinite(min_angle_threshold):
-        # +inf falls through to the > 90 clamp; -inf is non-sensical.
-        if min_angle_threshold < 0:
+    if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:
             warnings.warn(
                 f"min_angle_threshold={min_angle_threshold}° is negative — "
                 f"all angles are ≥ 0°, returning empty report.",

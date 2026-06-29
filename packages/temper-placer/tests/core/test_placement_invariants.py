@@ -29,7 +29,6 @@ from temper_placer.losses.base import LossContext
 from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.losses.types import LossResult
 
-
 # =========================================================================
 # Hypothesis strategies for generative invariant testing
 # =========================================================================
@@ -189,7 +188,7 @@ class TestBoundaryLossInvariants:
 
     @given(positions=st.data())
     @settings(suppress_health_check=[HealthCheck.data_too_large], deadline=None)
-    def test_boundary_loss_zero_when_all_components_in_bounds(self, positions):
+    def test_boundary_loss_zero_when_all_components_in_bounds(self, _positions):
         """II.1: If all components are within bounds, boundary loss = 0."""
         board = Board(width=100, height=100)
         netlist = _make_minimal_netlist(n_components=4, bounds=(10, 10))
@@ -215,7 +214,7 @@ class TestBoundaryLossInvariants:
 
     @given(positions=st.data())
     @settings(suppress_health_check=[HealthCheck.data_too_large], deadline=None)
-    def test_boundary_loss_positive_when_component_out_of_bounds(self, positions):
+    def test_boundary_loss_positive_when_component_out_of_bounds(self, _positions):
         """II.2: If any component is outside bounds, boundary loss > 0."""
         board = Board(width=100, height=100)
         netlist = _make_minimal_netlist(n_components=2, bounds=(10, 10))
@@ -322,7 +321,7 @@ class TestPlacementBoundednessInvariant:
         suppress_health_check=[HealthCheck.data_too_large],
         deadline=None,
     )
-    def test_clamping_preserves_invariant_for_in_bounds_positions(self, board, positions):
+    def test_clamping_preserves_invariant_for_in_bounds_positions(self, board, _positions):
         """III.2: If positions are in bounds, clamping is a no-op."""
         margin = 5.0
         n = 10
@@ -335,7 +334,7 @@ class TestPlacementBoundednessInvariant:
 
         # Identity: clamping in-bounds positions should not change them
         assert jnp.allclose(pos, clamped, atol=1e-6), (
-            f"Clamping changed in-bounds positions"
+            "Clamping changed in-bounds positions"
         )
 
     @given(board=board_strategy(), positions=st.data())
@@ -344,7 +343,7 @@ class TestPlacementBoundednessInvariant:
         suppress_health_check=[HealthCheck.data_too_large],
         deadline=None,
     )
-    def test_clamping_brings_out_of_bounds_positions_into_bounds(self, board, positions):
+    def test_clamping_brings_out_of_bounds_positions_into_bounds(self, board, _positions):
         """III.3: Clamping any positions produces in-bounds positions."""
         n = 10
         # Generate wild positions (some in, some far out)
@@ -392,7 +391,7 @@ class TestLossContextFidelity:
 
         expected = netlist.get_bounds_array()
         assert jnp.allclose(context.bounds, expected), (
-            f"LossContext bounds do not match netlist bounds"
+            "LossContext bounds do not match netlist bounds"
         )
 
     def test_context_board_dimensions_match(self):
@@ -436,11 +435,12 @@ class TestPipelineEndToEndInvariants:
 
     def test_corpus_runner_configuration_is_consistent(self):
         """V.1: Temper board + its constraints produce a valid LossContext."""
+        from pathlib import Path
+
         from temper_placer.io.config_loader import (
             create_board_from_constraints,
             load_constraints,
         )
-        from pathlib import Path
 
         repo_root = Path(__file__).resolve().parent.parent.parent.parent.parent
 
@@ -498,7 +498,7 @@ class TestPipelineEndToEndInvariants:
     def test_boundary_loss_upper_bound_is_computable(self):
         """V.3: The worst-case boundary loss can be computed analytically
         given component dimensions and board extents."""
-        board = Board(width=100, height=100)
+        Board(width=100, height=100)
         comp_w, comp_h = 10.0, 8.0
 
         # Max distance a corner can be outside when center is at (0,0):
@@ -544,8 +544,9 @@ class TestCoordinateScalingInvariant:
 
     def test_parsed_pcb_positions_match_board_dimensions(self):
         """VI.1: All parsed KiCad positions are within board bounds."""
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
         from pathlib import Path
+
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
 
         repo_root = Path(__file__).resolve().parent.parent.parent.parent.parent
         pcb_path = repo_root / "pcb" / "temper.kicad_pcb"
@@ -589,8 +590,8 @@ class TestCoordinateScalingInvariant:
         )
         # And at least one position should be within board bounds
         has_in_bounds = np.any(
-            (0 <= pos[:, 0]) & (pos[:, 0] <= board.width)
-            & (0 <= pos[:, 1]) & (pos[:, 1] <= board.height)
+            (pos[:, 0] >= 0) & (pos[:, 0] <= board.width)
+            & (pos[:, 1] >= 0) & (pos[:, 1] <= board.height)
         )
         assert has_in_bounds, "No positions are within board bounds"
 
@@ -679,6 +680,7 @@ class TestJITTrainStepClampingIsActive:
         We verify by source inspection: the clamping block at line 606-609
         must exist and must use loss_context.board.get_relative_bounds_array()."""
         import inspect
+
         from temper_placer.optimizer.train import make_train_step
 
         source = inspect.getsource(make_train_step)
@@ -698,7 +700,7 @@ class TestJITTrainStepClampingIsActive:
         not a parameter problem."""
         board = Board(width=150, height=100)
         netlist = _make_minimal_netlist(n_components=33, bounds=(30, 20))
-        context = _make_context(board, netlist)
+        _make_context(board, netlist)
 
         # Compute max possible boundary loss with clamped centers
         # Center at any point in [0,150]×[0,100], component 30×20mm
@@ -761,6 +763,7 @@ class TestJiggleReclamping:
     def test_jiggle_reclamp_is_present_in_train_multiphase(self):
         """VIII.5: The jiggle application site has re-clamp code."""
         import inspect
+
         from temper_placer.optimizer.train import train as train_fn
 
         source = inspect.getsource(train_fn)
@@ -807,6 +810,7 @@ class TestRuntimeClampingIsActive:
         We verify via the behavioral reproduction in IX.2.
         Source inspection in VIII.1 confirms the code exists."""
         import inspect
+
         from temper_placer.optimizer.train import make_train_step
 
         source = inspect.getsource(make_train_step)
@@ -889,7 +893,6 @@ class TestRuntimeClampingIsActive:
         from temper_placer.losses.base import (
             CompositeLoss,
             WeightedLoss,
-            create_value_and_grad_fn_with_breakdown,
         )
         from temper_placer.losses.boundary import BoundaryLoss
         from temper_placer.optimizer.config import OptimizerConfig

@@ -4,12 +4,12 @@ Simple unit test for PhasedComponentAssignmentStage integration.
 Tests that the stage can be instantiated and used in a pipeline context.
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from temper_placer.deterministic.stages import PhasedComponentAssignmentStage
 from temper_placer.io.config_loader import load_constraints
-
 
 TEMPER_CONFIG_PATH = Path(__file__).parents[4] / "configs" / "temper_deterministic_config.yaml"
 
@@ -34,7 +34,7 @@ class TestPhasedStageInstantiation:
         assert stage.constraints == constraints
         assert stage.slot_spacing == 12.0
 
-        print(f"\n  Created PhasedComponentAssignmentStage")
+        print("\n  Created PhasedComponentAssignmentStage")
         print(f"  Spacing rules: {len(constraints.component_spacing_rules)}")
         print(f"  Groups: {len(constraints.component_groups)}")
 
@@ -53,7 +53,7 @@ class TestPhasedStageInstantiation:
         assert stage.slot_filter is not None
         assert stage.slot_scorer is not None
 
-        print(f"\n  Stage ready with constraint compiler")
+        print("\n  Stage ready with constraint compiler")
 
 
 class TestPhasedStageInPipeline:
@@ -70,7 +70,7 @@ class TestPhasedStageInPipeline:
             assert create_drc_aware_pipeline is not None
             assert PhasedComponentAssignmentStage is not None
 
-            print(f"\n  All imports successful")
+            print("\n  All imports successful")
 
         except ImportError as e:
             pytest.fail(f"Import failed: {e}")
@@ -107,6 +107,6 @@ class TestPhasedStageInPipeline:
                 f"Expected PhasedComponentAssignmentStage with constraints: {stage_names}"
             )
 
-            print(f"\n  PhasedComponentAssignmentStage correctly selected")
+            print("\n  PhasedComponentAssignmentStage correctly selected")
         else:
             pytest.skip("Config has no constraint rules")

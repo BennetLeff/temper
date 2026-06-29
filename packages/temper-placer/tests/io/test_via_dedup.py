@@ -1,4 +1,3 @@
-import pytest
 from temper_placer.io.kicad_exporter import TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias
 

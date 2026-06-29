@@ -4,12 +4,10 @@ Tests for Router V6 Stage 3.3: Add Connectivity Constraints
 Part of temper-v02b
 """
 
-import pytest
 
 from temper_placer.core.netlist import Component, Net, Pin
 from temper_placer.router_v6.connectivity_constraints import (
     ConnectivityConstraint,
-    ConnectivityConstraints,
     add_connectivity_constraints,
 )
 from temper_placer.router_v6.stage0_data import ParsedPCB, StackupInfo

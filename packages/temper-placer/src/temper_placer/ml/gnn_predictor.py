@@ -49,11 +49,11 @@ class GNNBlock(nn.Module):
 class PlacementQualityGNN(nn.Module):
     """
     Predicts quality scores for a proposed placement.
-    
+
     Inputs:
         - Node features: [Area, PinCount, Fixed, PosX, PosY]
         - Edge indices: (E, 2)
-    
+
     Output:
         - Quality score (0-1)
     """

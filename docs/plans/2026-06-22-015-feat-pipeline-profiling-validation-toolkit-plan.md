@@ -2,7 +2,7 @@
 date: 2026-06-22
 type: feat
 origin: docs/ideation/2026-06-22-pipeline-profiling-correctness-speed-ideation.md
-status: active
+status: completed
 ---
 
 # Plan: Pipeline Profiling & Validation Toolkit

@@ -6,7 +6,7 @@ from jax import grad, jit, vmap
 # --- Models to Evaluate ---
 
 
-def model_manhattan(p1, p2, width_mm=1.0):
+def model_manhattan(p1, p2, _width_mm=1.0):
     """
     Simple Manhattan distance model.
     L ~ length (approx 1 nH/mm for typical PCB traces)
@@ -16,7 +16,7 @@ def model_manhattan(p1, p2, width_mm=1.0):
     return dist * 1.0
 
 
-def model_euclidean(p1, p2, width_mm=1.0):
+def model_euclidean(p1, p2, _width_mm=1.0):
     """
     Straight-line Euclidean distance model.
     L ~ length
@@ -40,15 +40,15 @@ def model_wheeler_microstrip(p1, p2, width_mm=1.0):
     Let's use: L (nH) ≈ 2 * l(mm) * (ln(2*l/w) + 0.5)
     (Valid for l >> w)
     """
-    l = jnp.linalg.norm(p1 - p2)
+    track_len = jnp.linalg.norm(p1 - p2)
     w = width_mm
 
     # Avoid log(0) and division by zero
-    l = jnp.maximum(l, 1e-6)
+    track_len = jnp.maximum(track_len, 1e-6)
 
     # Term 1: 2 * l
     # Term 2: ln(2*l/w) + 0.5
-    inductance = 2.0 * l * (jnp.log((2.0 * l) / w) + 0.5)
+    inductance = 2.0 * track_len * (jnp.log((2.0 * track_len) / w) + 0.5)
     return inductance
 
 
@@ -85,7 +85,7 @@ def evaluate_model(model_func, name, p1, p2, iterations=1000):
     print(f"JIT Compilation Time: {jit_time:.4f} s")
 
     # 2. Execution Speed
-    start_run = time.time()
+    time.time()
     # Use scan or simple loop for timing (vmap is better for batching)
     # vmapping to simulate batch evaluation
     batch_p1 = jnp.tile(p1, (iterations, 1))

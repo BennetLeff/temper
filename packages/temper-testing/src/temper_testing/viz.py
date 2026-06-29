@@ -6,17 +6,14 @@ Render ASCII art of grids, paths, and placements for easy debugging.
 
 from __future__ import annotations
 
+import importlib.util
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Any
+
 import numpy as np
 
-try:
-    from rich.console import Console
-    from rich.table import Table
-    from rich.panel import Panel
-    HAS_RICH = True
-except ImportError:
-    HAS_RICH = False
+HAS_RICH = importlib.util.find_spec("rich") is not None
 
 
 # Unicode box-drawing characters for prettier output
@@ -57,8 +54,8 @@ class GridCell:
 
 def render_grid(
     occupancy: np.ndarray,
-    components: Sequence[Any] | None = None,
-    positions: np.ndarray | None = None,
+    _components: Sequence[Any] | None = None,
+    _positions: np.ndarray | None = None,
     path: Sequence[tuple[int, int, int]] | None = None,
     pins: Sequence[tuple[int, int]] | None = None,
     start: tuple[int, int] | None = None,
@@ -104,10 +101,7 @@ def render_grid(
         · · · · · · · · · ·
     """
     # Handle 3D grid
-    if occupancy.ndim == 3:
-        grid = occupancy[layer]
-    else:
-        grid = occupancy
+    grid = occupancy[layer] if occupancy.ndim == 3 else occupancy
 
     height, width = grid.shape
 
@@ -196,7 +190,7 @@ def render_placement(
     board_height: float,
     components: Sequence[Any],
     positions: np.ndarray,
-    rotations: np.ndarray | None = None,
+    _rotations: np.ndarray | None = None,
     cell_size: float = 2.0,
     title: str | None = None,
 ) -> str:
@@ -316,10 +310,7 @@ def render_loss_landscape(
     valid = ~np.isnan(values)
     if np.any(valid):
         vmin, vmax = np.nanmin(values), np.nanmax(values)
-        if vmax > vmin:
-            normalized = (values - vmin) / (vmax - vmin) * 9
-        else:
-            normalized = np.zeros_like(values)
+        normalized = (values - vmin) / (vmax - vmin) * 9 if vmax > vmin else np.zeros_like(values)
     else:
         normalized = np.zeros_like(values)
 
@@ -349,7 +340,7 @@ def render_loss_landscape(
 
 # Pytest integration
 def pytest_assertion_grid(
-    grid: np.ndarray,
+    _grid: np.ndarray,
     expected: np.ndarray,
     actual: np.ndarray | None = None,
 ) -> str:

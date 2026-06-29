@@ -30,7 +30,8 @@ def compute_clustering_coefficient(positions: jnp.ndarray) -> float:
     Higher = more clustered.
     """
     n = positions.shape[0]
-    if n < 2: return 0.0
+    if n < 2:
+        return 0.0
 
     # Compute pairwise distances
     diff = positions[:, None, :] - positions[None, :, :]

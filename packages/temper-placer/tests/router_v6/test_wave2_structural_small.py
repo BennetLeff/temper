@@ -19,8 +19,6 @@ from __future__ import annotations
 
 import inspect
 
-import pytest
-
 from temper_placer.router_v6.occupancy_grid import OccupancyGridStage
 
 

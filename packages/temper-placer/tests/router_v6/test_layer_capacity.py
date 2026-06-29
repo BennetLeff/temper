@@ -27,7 +27,7 @@ def test_calculate_capacity_basic():
     grid = build_occupancy_grid(routing_space, cell_size=1.0)
     skeleton = extract_channel_skeleton(routing_space)
     widths = compute_channel_widths(routing_space, skeleton)
-    
+
     capacity = calculate_layer_capacity(grid, widths)
 
     assert capacity.layer_name == "F.Cu"
@@ -48,7 +48,7 @@ def test_capacity_ratios():
     grid = build_occupancy_grid(routing_space, cell_size=1.0)
     skeleton = extract_channel_skeleton(routing_space)
     widths = compute_channel_widths(routing_space, skeleton)
-    
+
     capacity = calculate_layer_capacity(grid, widths)
 
     # Ratios should sum to ~1.0
@@ -70,7 +70,7 @@ def test_capacity_trace_estimation():
     grid = build_occupancy_grid(routing_space, cell_size=0.5)
     skeleton = extract_channel_skeleton(routing_space)
     widths = compute_channel_widths(routing_space, skeleton)
-    
+
     capacity = calculate_layer_capacity(grid, widths)
 
     # Should estimate some trace capacity
@@ -106,13 +106,13 @@ def test_capacity_with_constraints():
     grid = build_occupancy_grid(routing_space, cell_size=1.0)
     skeleton = extract_channel_skeleton(routing_space)
     widths = compute_channel_widths(routing_space, skeleton)
-    
+
     # Wide traces/clearance
     capacity_wide = calculate_layer_capacity(
         grid, widths, min_trace_width=0.5, min_clearance=0.5
     )
-    
-    # Narrow traces/clearance  
+
+    # Narrow traces/clearance
     capacity_narrow = calculate_layer_capacity(
         grid, widths, min_trace_width=0.1, min_clearance=0.1
     )

@@ -264,8 +264,8 @@ def apply_force_refinement(
             refined = _force_refine_numpy(
                 pos_array, adjacencies, separations, zone_bounds, iterations, learning_rate
             )
-        except ImportError:
-            raise ImportError("JAX not available")
+        except ImportError as e:
+            raise ImportError("JAX not available") from e
     else:
         refined = _force_refine_numpy(
             pos_array, adjacencies, separations, zone_bounds, iterations, learning_rate

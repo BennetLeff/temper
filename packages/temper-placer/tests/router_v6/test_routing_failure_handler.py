@@ -1,6 +1,6 @@
-import pytest
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
-from temper_placer.router_v6.routing_failure_handler import handle_routing_failures, FlaggedNet
+from temper_placer.router_v6.routing_failure_handler import FlaggedNet, handle_routing_failures
+
 
 def test_handle_routing_failures():
     # Mock a pathfinding result with one success and one failure
@@ -8,12 +8,12 @@ def test_handle_routing_failures():
         routed_paths={"NET1": None}, # Value doesn't matter for this test
         failed_nets=["NET2"]
     )
-    
+
     report = handle_routing_failures(result)
-    
+
     assert report.failure_count == 1
     assert "NET2" in report.flagged_nets
-    
+
     flagged = report.flagged_nets["NET2"]
     assert isinstance(flagged, FlaggedNet)
     assert flagged.net_name == "NET2"
@@ -26,6 +26,6 @@ def test_no_failures():
         routed_paths={"NET1": None},
         failed_nets=[]
     )
-    
+
     report = handle_routing_failures(result)
     assert report.failure_count == 0

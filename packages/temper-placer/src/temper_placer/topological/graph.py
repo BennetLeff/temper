@@ -14,9 +14,12 @@ This module builds a graph representation that enables:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import networkx as nx
+
+if TYPE_CHECKING:
+    from temper_placer.pcl.parser import ConstraintCollection
 
 
 @dataclass
@@ -242,7 +245,7 @@ class TopologicalGraph:
         return conflicts
 
     @staticmethod
-    def from_pcl(pcl: "ConstraintCollection") -> "TopologicalGraph":
+    def from_pcl(pcl: ConstraintCollection) -> TopologicalGraph:
         """Build topological graph from PCL constraints.
 
         Extracts all component references and creates appropriate edges
@@ -309,7 +312,7 @@ class TopologicalGraph:
 
 
 def build_topological_graph(
-    pcl: "ConstraintCollection",
+    pcl: ConstraintCollection,
 ) -> TopologicalGraph:
     """Build topological graph from PCL constraints.
 

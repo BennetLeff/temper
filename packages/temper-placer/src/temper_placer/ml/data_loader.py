@@ -45,7 +45,7 @@ class PcbDataset:
     def get_sample(self, index: int) -> tuple[NetlistGraph, Array, Array]:
         """
         Load a single sample.
-        
+
         Returns:
             - graph: NetlistGraph (nodes, edges, weights)
             - positions: (N, 2) component positions

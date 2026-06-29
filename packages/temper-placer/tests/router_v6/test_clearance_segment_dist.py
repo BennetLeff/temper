@@ -12,8 +12,8 @@ from __future__ import annotations
 import math
 
 import pytest
-from temper_placer.router_v6.clearance_check import _segment_to_segment_dist
 
+from temper_placer.router_v6.clearance_check import _segment_to_segment_dist
 
 # --- Both zero-length ---
 

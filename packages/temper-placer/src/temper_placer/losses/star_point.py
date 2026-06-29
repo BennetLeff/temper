@@ -41,8 +41,8 @@ class StarPointLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
         net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         # If no virtual nodes or constraints, return zero

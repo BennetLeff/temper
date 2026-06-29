@@ -282,8 +282,8 @@ def _astar_search_lazy_theta_star(
     Returns:
         Path as list of (x, y) grid cells, or None if no path
     """
-    from heapq import heappush, heappop
     import math
+    from heapq import heappop, heappush
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
@@ -309,7 +309,7 @@ def _astar_search_lazy_theta_star(
         return path
 
     while open_set:
-        _, _, current = heappop(open_set)
+        f_cost, _, current = heappop(open_set)
 
         if current in closed_set:
             continue
@@ -321,42 +321,41 @@ def _astar_search_lazy_theta_star(
         _mon_lazy = get_monitor_state()
         if _mon_lazy is not None:
             _mon_lazy.record_pop(current, float(f_cost))
-        if parent:
-            if not _line_of_sight(parent, current, grid, net_id):
-                # LOS Failed.
-                # Standard Lazy Theta* strategy: find a valid parent from closed neighbors
-                # This is "Vertex A adjustment" from the paper.
-                # However, since we populate using optimistic parents, the 'current'
-                # node might not have a valid parent in the closed set that reaches it
-                # directly via LOS.
-                # Simplified strategy: If LOS from parent fails, treat it as an A* node
-                # (but we didn't store the A* parent).
-                # Re-evaluate parent from neighbors in closed set.
+        if parent and not _line_of_sight(parent, current, grid, net_id):
+            # LOS Failed.
+            # Standard Lazy Theta* strategy: find a valid parent from closed neighbors
+            # This is "Vertex A adjustment" from the paper.
+            # However, since we populate using optimistic parents, the 'current'
+            # node might not have a valid parent in the closed set that reaches it
+            # directly via LOS.
+            # Simplified strategy: If LOS from parent fails, treat it as an A* node
+            # (but we didn't store the A* parent).
+            # Re-evaluate parent from neighbors in closed set.
 
-                best_parent = None
-                best_g = float("inf")
+            best_parent = None
+            best_g = float("inf")
 
-                # Check 8-connected neighbors
-                cx, cy = current
-                for dx, dy in _SAME_LAYER_DELTAS:
-                    nx, ny = cx + dx, cy + dy
-                    neighbor = (nx, ny)
+            # Check 8-connected neighbors
+            cx, cy = current
+            for dx, dy in _SAME_LAYER_DELTAS:
+                nx, ny = cx + dx, cy + dy
+                neighbor = (nx, ny)
 
-                    if neighbor in closed_set and neighbor in g_score:
-                        # Cost is just distance (1 or 1.414)
-                        step_cost = euclidean_dist(neighbor, current)
-                        new_g = g_score[neighbor] + step_cost
-                        if new_g < best_g:
-                            best_g = new_g
-                            best_parent = neighbor
+                if neighbor in closed_set and neighbor in g_score:
+                    # Cost is just distance (1 or 1.414)
+                    step_cost = euclidean_dist(neighbor, current)
+                    new_g = g_score[neighbor] + step_cost
+                    if new_g < best_g:
+                        best_g = new_g
+                        best_parent = neighbor
 
-                if best_parent:
-                    came_from[current] = best_parent
-                    g_score[current] = best_g
-                    # Continue expansion with corrected parent
-                else:
-                    # Should not happen if we reached 'current'
-                    continue
+            if best_parent:
+                came_from[current] = best_parent
+                g_score[current] = best_g
+                # Continue expansion with corrected parent
+            else:
+                # Should not happen if we reached 'current'
+                continue
 
         if current == goal_grid:
             return reconstruct_path(current)
@@ -440,8 +439,8 @@ def _astar_search_theta_star(
     Returns:
         Path as list of (x, y) grid cells, or None if no path
     """
-    from heapq import heappush, heappop
     import math
+    from heapq import heappop, heappush
 
     # Priority queue: (f_score, counter, current_pos)
     counter = 0
@@ -549,9 +548,9 @@ def _astar_search_3d(
     # Available layers for transitions (dynamic from grids)
     # Prefer standard PCB layer order if possible
     standard_order = [str(idx) for idx in STANDARD_LAYER_ORDER]
-    available_layers = [l for l in standard_order if l in grids]
+    available_layers = [layer for layer in standard_order if layer in grids]
     # Add any non-standard layers from grids
-    for layer in grids.keys():
+    for layer in grids:
         if layer not in available_layers:
             available_layers.append(layer)
 
@@ -689,7 +688,7 @@ def _route_segment_3d(
     goal_grid = sample_grid.world_to_grid(goal_world[0], goal_world[1])
 
     # Bounds check
-    for layer, grid in grids.items():
+    for _layer, grid in grids.items():
         if not in_bounds(start_grid[0], start_grid[1], grid.width_cells, grid.height_cells):
             continue
         if not in_bounds(goal_grid[0], goal_grid[1], grid.width_cells, grid.height_cells):

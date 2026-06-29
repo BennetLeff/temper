@@ -10,10 +10,10 @@ Part of temper-lueu.1
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List, Set, Tuple, Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
-from shapely.geometry import Polygon, Point, MultiPoint
+from shapely.geometry import MultiPoint, Point, Polygon
 from shapely.strtree import STRtree
 
 from temper_placer.core.design_rules import (
@@ -38,10 +38,10 @@ class RoutingZone:
     """
 
     name: str
-    polygon: List[Tuple[float, float]]
+    polygon: list[tuple[float, float]]
     clearance_mm: float
-    allowed_net_classes: Set[str]
-    layer_restrictions: Optional[List[str]] = None
+    allowed_net_classes: set[str]
+    layer_restrictions: list[str] | None = None
 
 
 class ZoneManager:
@@ -50,12 +50,12 @@ class ZoneManager:
     Uses an R-tree (via shapely STRtree) for O(log n) point-in-zone queries.
     """
 
-    def __init__(self, zones: List[RoutingZone]):
+    def __init__(self, zones: list[RoutingZone]):
         self.zones = zones
         self._polygons = [Polygon(z.polygon) for z in zones]
         self._tree = STRtree(self._polygons)
 
-    def get_zone_at(self, x: float, y: float) -> Optional[RoutingZone]:
+    def get_zone_at(self, x: float, y: float) -> RoutingZone | None:
         """Return the zone containing this point, or None if unzoned.
 
         Args:
@@ -362,7 +362,7 @@ class ClearanceMatrix:
         self._clearances[(class_b, class_a)] = clearance
 
     @classmethod
-    def parse(cls, board) -> "ClearanceMatrix":
+    def parse(cls, board) -> ClearanceMatrix:
         """Parse ClearanceMatrix from a KiCad board or Board object.
 
         This is the primary entry point for creating a ClearanceMatrix from
@@ -532,7 +532,7 @@ class DesignRulesParser:
         return "Signal"
 
     @staticmethod
-    def infer_zones(pcb: Board, matrix: ClearanceMatrix) -> List[RoutingZone]:
+    def infer_zones(pcb: Board, matrix: ClearanceMatrix) -> list[RoutingZone]:
         """Infer routing zones from board components and net classes.
 
         Args:

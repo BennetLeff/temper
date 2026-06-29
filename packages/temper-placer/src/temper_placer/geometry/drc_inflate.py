@@ -13,11 +13,11 @@ Design Decision: Precompute at import, check at evaluation.
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
+import jax.numpy as jnp
 import numpy as np
 from jax import Array
-import jax.numpy as jnp
 
 
 def inflate_pad_polygon(
@@ -39,11 +39,11 @@ def inflate_pad_polygon(
     """
     try:
         from shapely.geometry import Polygon as ShapelyPolygon
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "Shapely is required for DRC inflation. "
             "Install with: pip install shapely"
-        )
+        ) from e
 
     poly = ShapelyPolygon(pad_vertices)
     radius = trace_width_mm / 2.0
@@ -106,11 +106,6 @@ def precompute_from_pad_polygons(
     Returns:
         np.ndarray of shape (N, 2) with (inflated_width, inflated_height).
     """
-    try:
-        from shapely.geometry import Polygon as ShapelyPolygon
-    except ImportError:
-        raise ImportError("Shapely is required for DRC inflation.")
-
     dims = []
     for poly in pad_polygons:
         if poly.is_empty:

@@ -44,7 +44,6 @@ from dataclasses import dataclass
 
 import numpy as np
 
-
 # Defaults per the closure-rate plan's tunable table.
 MAX_COST = 100.0
 DECAY_FACTOR = 0.95  # Used by the optional global-iteration loop
@@ -72,7 +71,7 @@ class CongestionTensor:
     def zeros(
         cls, rows: int, cols: int,
         max_cost: float = MAX_COST, weight: float = 1.0,
-    ) -> "CongestionTensor":
+    ) -> CongestionTensor:
         return cls(
             array=np.zeros((rows, cols), dtype=np.float32),
             max_cost=max_cost, weight=weight,

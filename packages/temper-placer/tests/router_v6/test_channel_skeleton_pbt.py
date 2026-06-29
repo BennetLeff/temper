@@ -1,7 +1,8 @@
 """Property-based tests for ChannelSkeleton invariants."""
 
 import networkx as nx
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 
@@ -15,7 +16,7 @@ from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 def test_channel_skeleton_node_edge_counts(num_nodes, num_edges, seed):
     """node_count and edge_count match graph properties."""
     import random
-    rng = random.Random(seed)
+    random.Random(seed)
     G = nx.Graph()
     for i in range(num_nodes):
         G.add_node((float(i), float(i)), pos=(float(i), float(i)))
@@ -38,7 +39,7 @@ def test_channel_skeleton_node_edge_counts(num_nodes, num_edges, seed):
 def test_channel_skeleton_empty_graph(num_nodes, seed):
     """Empty graph gives node_count=0 and is_connected=True."""
     import random
-    rng = random.Random(seed)
+    random.Random(seed)
 
     # Create a connected path
     G = nx.Graph()

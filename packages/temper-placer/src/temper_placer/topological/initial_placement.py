@@ -211,7 +211,7 @@ def place_cluster(
 
     x_min, y_min, x_max, y_max = zone.bounds
     zone_width = x_max - x_min
-    zone_height = y_max - y_min
+    y_max - y_min
 
     # Calculate sub-region for this cluster
     if total_clusters == 1:
@@ -243,11 +243,10 @@ def place_cluster(
     # Find maximum adjacency distance constraint for this cluster
     max_adjacency_dist = 15.0  # Default
     for u, v, data in graph.graph.edges(data=True):
-        if data.get("edge_type") == "adjacent":
-            if u in cluster and v in cluster:
-                dist = data.get("distance", 15.0)
-                if dist < max_adjacency_dist:
-                    max_adjacency_dist = dist
+        if data.get("edge_type") == "adjacent" and u in cluster and v in cluster:
+            dist = data.get("distance", 15.0)
+            if dist < max_adjacency_dist:
+                max_adjacency_dist = dist
 
     # Calculate appropriate radius based on adjacency constraint
     n = len(components)
@@ -257,13 +256,7 @@ def place_cluster(
     # Components on circle with radius r are at most 2*r apart (opposite sides)
     # For n components evenly spaced, adjacent ones are ~2*r*sin(pi/n) apart
     # We want adjacent distance <= max_adjacency_dist
-    if n == 2:
-        # Two components: place them max_adjacency_dist apart
-        radius = max_adjacency_dist / 2
-    else:
-        # n components in circle: adjacent spacing = 2*r*sin(pi/n)
-        # Solve: 2*r*sin(pi/n) = max_adjacency_dist
-        radius = max_adjacency_dist / (2 * math.sin(math.pi / n))
+    radius = max_adjacency_dist / 2 if n == 2 else max_adjacency_dist / (2 * math.sin(math.pi / n))
 
     # Ensure radius is at least component size
     radius = max(radius, max_size)

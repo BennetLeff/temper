@@ -112,15 +112,15 @@ def generate_goldens(regenerate: bool = False):
 
         board_golden_dir = GOLDEN_DIR / board.name
         if not regenerate and board_golden_dir.exists():
-            print(f"  Skipping (fixtures exist, use --regenerate to force)")
+            print("  Skipping (fixtures exist, use --regenerate to force)")
             continue
 
         board_golden_dir.mkdir(parents=True, exist_ok=True)
 
-        print(f"  Loading PCB...")
+        print("  Loading PCB...")
         pcb = parse_kicad_pcb_v6(str(board.path))
 
-        print(f"  Generating escape vias...")
+        print("  Generating escape vias...")
         dense_packages = identify_dense_packages(pcb.components)
         escape_vias = []
         for dp in dense_packages:
@@ -129,7 +129,7 @@ def generate_goldens(regenerate: bool = False):
                 vias = generate_escape_vias(dp, pcb.design_rules, strategy="via-in-pad")
             escape_vias.extend(vias)
 
-        print(f"  Running Stage2Orchestrator...")
+        print("  Running Stage2Orchestrator...")
         orch = Stage2Orchestrator(verbose=False)
         state = orch.run(pcb, escape_vias)
 

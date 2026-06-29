@@ -3,13 +3,11 @@ Tests for DRCOracle: data conversion and batch placement evaluation.
 """
 
 import jax.numpy as jnp
-import pytest
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist, Pin
 from temper_placer.losses.base import LossContext
 from temper_placer.validation.drc_oracle import (
-    DRCOracle,
     build_constraint_set,
     build_placement_from_netlist,
     create_standard_drc_oracle,

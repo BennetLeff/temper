@@ -102,7 +102,7 @@ def profile_optimizer_memory(
 
     # Get process for memory tracking
     process = psutil.Process()
-    rss_start = process.memory_info().rss / (1024 * 1024)  # MB
+    process.memory_info().rss / (1024 * 1024)  # MB
 
     # Generate netlist if not provided
     if netlist is None:
@@ -162,7 +162,7 @@ def profile_optimizer_memory(
     rss_samples.append(process.memory_info().rss / (1024 * 1024))
 
     # Run training
-    result = train(netlist, board, composite_loss, context, config)
+    train(netlist, board, composite_loss, context, config)
 
     # Mid-run memory (sample at 25%, 50%, 75%)
     sample_points = [epochs // 4, epochs // 2, 3 * epochs // 4]
@@ -250,16 +250,15 @@ def check_memory_thresholds(
         }
 
     # Check peak RSS
-    if "peak_rss_mb" in thresholds:
-        if profile.peak_rss_mb > thresholds["peak_rss_mb"]:
-            violations.append(
-                f"peak_rss_mb {profile.peak_rss_mb:.1f} MB exceeds "
-                f"threshold {thresholds['peak_rss_mb']:.1f} MB"
-            )
+    if "peak_rss_mb" in thresholds and profile.peak_rss_mb > thresholds["peak_rss_mb"]:
+        violations.append(
+            f"peak_rss_mb {profile.peak_rss_mb:.1f} MB exceeds "
+            f"threshold {thresholds['peak_rss_mb']:.1f} MB"
+        )
 
     # Check memory growth (leak detection)
-    if "memory_growth_mb_per_100_epochs" in thresholds:
-        if profile.memory_growth_mb_per_100_epochs > thresholds["memory_growth_mb_per_100_epochs"]:
+    if ("memory_growth_mb_per_100_epochs" in thresholds
+            and profile.memory_growth_mb_per_100_epochs > thresholds["memory_growth_mb_per_100_epochs"]):
             violations.append(
                 f"memory_growth {profile.memory_growth_mb_per_100_epochs:.2f} MB/100 epochs "
                 f"exceeds threshold {thresholds['memory_growth_mb_per_100_epochs']:.2f} MB/100 epochs "

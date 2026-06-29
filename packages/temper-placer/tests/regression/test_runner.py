@@ -1,9 +1,6 @@
 """Tests for regression runner."""
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 from temper_placer.regression.manifest import GoldenBoard, GoldenManifest
 from temper_placer.regression.reporter import BoardResult, MetricDelta, RegressionReporter

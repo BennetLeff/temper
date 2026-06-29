@@ -15,9 +15,6 @@ Level 4 — Real-World Regression (CI: PR only, ``@pytest.mark.l4_regression``)
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
-from itertools import combinations
-from typing import Any
 
 import numpy as np
 import pytest
@@ -27,21 +24,20 @@ from hypothesis import strategies as st
 from temper_placer.router_v6.astar_core import (
     OCTILE_DIAG,
     _astar_search,
-    _heuristic,
     octile_distance,
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 # U1 oracle imports (test utility)
 from tests.router_v6.astar_oracle_utils import (
-    SQRT2,
     DIJKSTRA_MAX_CELLS,
-    dijkstra_shortest_path,
+    SQRT2,
     dijkstra_cost_only,
+    dijkstra_shortest_path,
 )
 
 # U2 strategy imports (test utility)
-from tests.router_v6.astar_property_strategies import grid_and_pair, grids, start_goal_pairs
+from tests.router_v6.astar_property_strategies import grid_and_pair
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -69,10 +65,7 @@ def _path_cost_octile(path: list[tuple[int, int]]) -> float:
 
 def _path_cells_free(path: list[tuple[int, int]], grid: OccupancyGrid) -> bool:
     """Check every cell in path is free (0) or owned by net."""
-    for x, y in path:
-        if grid.grid[y, x] != 0:
-            return False
-    return True
+    return all(grid.grid[y, x] == 0 for x, y in path)
 
 
 def _no_redundant_nodes(path: list[tuple[int, int]]) -> bool:
@@ -212,7 +205,7 @@ def test_l1_2x2_exhaustive():
                 path = _astar_search(s, g, grid)
 
                 msg = f"2x2 cfg={occ_bits}"
-                cost = _assert_oracle_parity(path, s, g, grid, msg)
+                _assert_oracle_parity(path, s, g, grid, msg)
 
                 if path is not None:
                     assert _path_cells_free(path, grid), f"Path cell not free: {msg}"
@@ -245,7 +238,7 @@ def test_l2_3x3_exhaustive():
                 path = _astar_search(s, g, grid)
 
                 msg = f"3x3 cfg={occ_bits}"
-                cost = _assert_oracle_parity(path, s, g, grid, msg)
+                _assert_oracle_parity(path, s, g, grid, msg)
 
                 if path is not None:
                     assert _path_cells_free(path, grid), f"Path cell not free: {msg}"
@@ -286,7 +279,7 @@ def test_l2b_4x4_exhaustive():
                 path = _astar_search(s, g, grid)
 
                 msg = f"4x4 cfg={occ_bits}"
-                cost = _assert_oracle_parity(path, s, g, grid, msg)
+                _assert_oracle_parity(path, s, g, grid, msg)
 
                 if path is not None:
                     assert _path_cells_free(path, grid), f"Path cell not free: {msg}"

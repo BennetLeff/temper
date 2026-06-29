@@ -11,17 +11,17 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
-from temper_placer.router_v6.escape_via_generator import EscapeVia
-from temper_placer.router_v6.obstacle_map import ObstacleMapStage
-from temper_placer.router_v6.routing_space import RoutingSpaceStage
+from temper_placer.deterministic.state import BoardState
+from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysisStage
 from temper_placer.router_v6.channel_skeleton import ChannelSkeletonStage
 from temper_placer.router_v6.channel_widths import ChannelWidthsStage
-from temper_placer.router_v6.occupancy_grid import OccupancyGridStage
+from temper_placer.router_v6.escape_via_generator import EscapeVia
 from temper_placer.router_v6.layer_capacity import LayerCapacityStage
+from temper_placer.router_v6.obstacle_map import ObstacleMapStage
+from temper_placer.router_v6.occupancy_grid import OccupancyGridStage
 from temper_placer.router_v6.routing_demand import RoutingDemandStage
-from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysisStage
+from temper_placer.router_v6.routing_space import RoutingSpaceStage
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage_validators import run_validators
 
@@ -52,10 +52,7 @@ class Stage2Orchestrator:
         initial_state: BoardState | None = None,
     ) -> BoardState:
         """Run all 8 micro-stages in dependency order."""
-        if initial_state is None:
-            state = BoardState()
-        else:
-            state = initial_state
+        state = BoardState() if initial_state is None else initial_state
 
         state = replace(state, _parsed_pcb=pcb, _escape_vias=tuple(escape_vias))
 

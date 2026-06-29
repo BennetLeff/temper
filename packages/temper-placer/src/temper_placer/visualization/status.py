@@ -141,7 +141,7 @@ def render_status_indicator(
         x=0.5,
         y=0.6,
         text=symbol,
-        font=dict(size=72, color=color),
+        font={"size": 72, "color": color},
         showarrow=False,
         xref="paper",
         yref="paper",
@@ -152,7 +152,7 @@ def render_status_indicator(
         x=0.5,
         y=0.2,
         text=label,
-        font=dict(size=24, color=color, family="Arial Black"),
+        font={"size": 24, "color": color, "family": "Arial Black"},
         showarrow=False,
         xref="paper",
         yref="paper",
@@ -162,11 +162,11 @@ def render_status_indicator(
     fig.update_layout(
         width=width,
         height=height,
-        margin=dict(l=10, r=10, t=10, b=10),
+        margin={"l": 10, "r": 10, "t": 10, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(visible=False),
-        yaxis=dict(visible=False),
+        xaxis={"visible": False},
+        yaxis={"visible": False},
     )
 
     return fig
@@ -223,12 +223,12 @@ def render_violation_summary_bar(
     )
 
     fig.update_layout(
-        title=dict(text=title, x=0.5),
+        title={"text": title, "x": 0.5},
         width=width,
         height=height,
-        margin=dict(l=40, r=20, t=50, b=40),
-        yaxis=dict(title="Count", rangemode="tozero"),
-        xaxis=dict(title=""),
+        margin={"l": 40, "r": 20, "t": 50, "b": 40},
+        yaxis={"title": "Count", "rangemode": "tozero"},
+        xaxis={"title": ""},
         showlegend=False,
     )
 
@@ -287,24 +287,24 @@ def render_violation_list(
 
     fig.add_trace(
         go.Table(
-            header=dict(
-                values=["Type", "Components", "Message", "Severity"],
-                fill_color="#2c3e50",
-                font=dict(color="white", size=12),
-                align="left",
-            ),
-            cells=dict(
-                values=[types, components, messages, severities],
-                fill_color=[
+            header={
+                "values": ["Type", "Components", "Message", "Severity"],
+                "fill_color": "#2c3e50",
+                "font": {"color": "white", "size": 12},
+                "align": "left",
+            },
+            cells={
+                "values": [types, components, messages, severities],
+                "fill_color": [
                     ["white"] * len(types),  # Type column
                     ["white"] * len(types),  # Components column
                     ["white"] * len(types),  # Message column
                     colors,  # Severity column with colors
                 ],
-                font=dict(color="black", size=11),
-                align="left",
-                height=25,
-            ),
+                "font": {"color": "black", "size": 11},
+                "align": "left",
+                "height": 25,
+            },
         )
     )
 
@@ -314,10 +314,10 @@ def render_violation_list(
         subtitle = f"<br><sub>(showing {max_items} of {len(violations)} violations)</sub>"
 
     fig.update_layout(
-        title=dict(text=f"{title}{subtitle}", x=0.5),
+        title={"text": f"{title}{subtitle}", "x": 0.5},
         width=width,
         height=height,
-        margin=dict(l=10, r=10, t=50, b=10),
+        margin={"l": 10, "r": 10, "t": 50, "b": 10},
     )
 
     return fig
@@ -424,7 +424,7 @@ def render_constraint_status(
             x=0.5,
             y=0.7,
             text=f"<b style='font-size:48px'>{symbol}</b>",
-            font=dict(size=48, color=color),
+            font={"size": 48, "color": color},
             showarrow=False,
             xref=xref,
             yref=yref,
@@ -433,7 +433,7 @@ def render_constraint_status(
             x=0.5,
             y=0.3,
             text=f"<b>{label}</b>",
-            font=dict(size=20, color=color),
+            font={"size": 20, "color": color},
             showarrow=False,
             xref=xref,
             yref=yref,
@@ -509,24 +509,24 @@ def render_constraint_status(
 
         fig.add_trace(
             go.Table(
-                header=dict(
-                    values=["Type", "Components", "Message", "Severity"],
-                    fill_color="#2c3e50",
-                    font=dict(color="white", size=11),
-                    align="left",
-                ),
-                cells=dict(
-                    values=[types, components, messages, sev_strs],
-                    fill_color=[
+                header={
+                    "values": ["Type", "Components", "Message", "Severity"],
+                    "fill_color": "#2c3e50",
+                    "font": {"color": "white", "size": 11},
+                    "align": "left",
+                },
+                cells={
+                    "values": [types, components, messages, sev_strs],
+                    "fill_color": [
                         ["white"] * len(types),
                         ["white"] * len(types),
                         ["white"] * len(types),
                         sev_colors,
                     ],
-                    font=dict(color="black", size=10),
-                    align="left",
-                    height=22,
-                ),
+                    "font": {"color": "black", "size": 10},
+                    "align": "left",
+                    "height": 22,
+                },
             ),
             row=current_row,
             col=1,
@@ -534,10 +534,10 @@ def render_constraint_status(
 
     # Configure layout
     fig.update_layout(
-        title=dict(text=title, x=0.5, font=dict(size=16)),
+        title={"text": title, "x": 0.5, "font": {"size": 16}},
         width=width,
         height=height,
-        margin=dict(l=20, r=20, t=60, b=20),
+        margin={"l": 20, "r": 20, "t": 60, "b": 20},
         showlegend=False,
     )
 

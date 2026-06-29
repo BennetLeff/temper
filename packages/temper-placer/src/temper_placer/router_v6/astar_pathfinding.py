@@ -27,13 +27,13 @@ from temper_placer.router_v6.astar_grid import (
     _unmark_route_blocked,
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping
-from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-from temper_placer.router_v6.stage0_data import DesignRules
 from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_hv_net,
     is_power_net,
 )
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.stage0_data import DesignRules
 
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
@@ -138,7 +138,7 @@ def run_astar_pathfinding(
     grid: OccupancyGrid,
     design_rules: DesignRules | None = None,
     alternate_grid: OccupancyGrid | None = None,
-    components: list | None = None,
+    _components: list | None = None,
     pcb=None,  # For accessing pads
     escape_vias_map: dict[str, list[tuple[float, float, float]]] | None = None,
     use_theta_star: bool = False,
@@ -229,7 +229,7 @@ def run_astar_pathfinding(
         net_id = net_ids[net_name]
 
         primary_grid = all_grids.get(channel_path.preferred_layer, grid)
-        alt_layer = next((l for l in all_grids if l != channel_path.preferred_layer), None)
+        alt_layer = next((layer for layer in all_grids if layer != channel_path.preferred_layer), None)
         active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
 
         # Surgery is inflation-aware: unblock pads so A* can connect
@@ -329,7 +329,7 @@ def run_astar_pathfinding(
             return False, "no_path", [], congestion_region()
 
     def record_failure(
-        net_name: str, reason: str, blockers: list[str], region: tuple[float, float] | None
+        net_name: str, reason: str, _blockers: list[str], region: tuple[float, float] | None
     ) -> None:
         """Record a failure with all accumulated data."""
         channel_path = channel_mapping.channel_paths.get(net_name)
@@ -397,12 +397,12 @@ def _astar_route_with_ripup(
     net_name: str,
     channel_path,
     grid: OccupancyGrid,
-    routed_paths: dict[str, RoutePath],
-    design_rules: DesignRules,
-    net_ids: dict[str, int],
+    _routed_paths: dict[str, RoutePath],
+    _design_rules: DesignRules,
+    _net_ids: dict[str, int],
     alternate_grid: OccupancyGrid | None = None,
     tht_locations: set[tuple[float, float]] | None = None,
-    pad_centers: dict[str, list[tuple[float, float, float, str]]] | None = None,
+    _pad_centers: dict[str, list[tuple[float, float, float, str]]] | None = None,
     all_grids: dict[str, OccupancyGrid] | None = None,
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,

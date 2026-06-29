@@ -57,7 +57,7 @@ class NetlistLike(Protocol):
 
 
 class PreflightChecker:
-    def run(self, board: BoardLike, netlist: NetlistLike, constraints: Any, fab_preset: Any) -> PreflightReport:
+    def run(self, board: BoardLike, netlist: NetlistLike, constraints: Any, _fab_preset: Any) -> PreflightReport:
         start_time = time.time()
         results = []
         results.append(self._check_component_area(board, netlist))
@@ -69,9 +69,12 @@ class PreflightChecker:
         results.append(self._check_layer_assignment(netlist, constraints))
         results.append(self._check_routing_channels(board, netlist))
 
-        if any(r.result == PreflightResult.FAIL for r in results): overall = PreflightResult.FAIL
-        elif any(r.result == PreflightResult.WARN for r in results): overall = PreflightResult.WARN
-        else: overall = PreflightResult.PASS
+        if any(r.result == PreflightResult.FAIL for r in results):
+            overall = PreflightResult.FAIL
+        elif any(r.result == PreflightResult.WARN for r in results):
+            overall = PreflightResult.WARN
+        else:
+            overall = PreflightResult.PASS
 
         return PreflightReport(results, overall, (time.time() - start_time) * 1000)
 
@@ -91,13 +94,15 @@ class PreflightChecker:
         comp_map = {c.ref: c for c in netlist.components}
         rules = []
         if hasattr(constraints, "component_groups"):
-            for g in constraints.component_groups: rules.extend(g.proximity_rules)
+            for g in constraints.component_groups:
+                rules.extend(g.proximity_rules)
         for c in rules:
             a, b = getattr(c, "component_a", ""), getattr(c, "component_b", "")
             max_d = getattr(c, "max_distance_mm", float("inf"))
             if a in comp_map and b in comp_map:
                 min_d = min((comp_map[a].width+comp_map[b].width)/2, (comp_map[a].height+comp_map[b].height)/2)
-                if max_d < min_d: impossible.append(f"{a}-{b}: max {max_d}mm < min {min_d:.1f}mm")
+                if max_d < min_d:
+                    impossible.append(f"{a}-{b}: max {max_d}mm < min {min_d:.1f}mm")
         result = PreflightResult.FAIL if impossible else PreflightResult.PASS
         if impossible:
             for issue in impossible:
@@ -106,16 +111,18 @@ class PreflightChecker:
 
     def _check_zone_capacity(self, board: BoardLike, netlist: NetlistLike) -> PreflightCheck:
         start = time.time()
-        if not hasattr(board, "zones") or not board.zones: return PreflightCheck("Zone Capacity", PreflightResult.PASS, "No zones")
+        if not hasattr(board, "zones") or not board.zones:
+            return PreflightCheck("Zone Capacity", PreflightResult.PASS, "No zones")
         violations = []
         for zone in board.zones:
             cap = zone.width * zone.height
             content = sum(c.width * c.height for c in netlist.components if getattr(c, "zone", "") == zone.name)
-            if content > cap * 0.9: violations.append(f"Zone {zone.name} over cap")
+            if content > cap * 0.9:
+                violations.append(f"Zone {zone.name} over cap")
         result = PreflightResult.FAIL if violations else PreflightResult.PASS
         return PreflightCheck("Zone Capacity", result, violations[0] if violations else "OK", time_ms=(time.time()-start)*1000)
 
-    def _check_clearance_feasibility(self, board: BoardLike, netlist: NetlistLike, constraints: Any) -> PreflightCheck:
+    def _check_clearance_feasibility(self, _board: BoardLike, _netlist: NetlistLike, _constraints: Any) -> PreflightCheck:
         return PreflightCheck("Clearance Feasibility", PreflightResult.PASS, "Achievable")
 
     def _check_loop_area_feasibility(self, netlist: NetlistLike, constraints: Any) -> PreflightCheck:
@@ -123,31 +130,35 @@ class PreflightChecker:
         comp_map = {c.ref: c for c in netlist.components}
         violations = []
         loops = getattr(constraints, "critical_loops", [])
-        for l in loops:
-            max_a = getattr(l, "max_area_mm2", float("inf"))
+        for loop in loops:
+            max_a = getattr(loop, "max_area_mm2", float("inf"))
             refs = []
-            if hasattr(l, "pins") and l.pins: refs = [p[0] for p in l.pins]
-            elif hasattr(l, "nets") and l.nets: continue # Need pin info for area
-            
-            if not refs: continue
+            if hasattr(loop, "pins") and loop.pins:
+                refs = [p[0] for p in loop.pins]
+            elif hasattr(loop, "nets") and loop.nets:
+                continue  # Need pin info for area
+
+            if not refs:
+                continue
             total_a = sum(comp_map[r].width * comp_map[r].height for r in refs if r in comp_map)
-            if max_a and max_a < total_a * 0.5: violations.append(f"Loop {getattr(l, 'name', 'unknown')} too small")
+            if max_a and max_a < total_a * 0.5:
+                violations.append(f"Loop {getattr(loop, 'name', 'unknown')} too small")
         result = PreflightResult.WARN if violations else PreflightResult.PASS
         return PreflightCheck("Loop Area Feasibility", result, violations[0] if violations else "OK", time_ms=(time.time()-start)*1000)
 
-    def _check_isolation_feasibility(self, board: BoardLike, netlist: NetlistLike, constraints: Any) -> PreflightCheck:
+    def _check_isolation_feasibility(self, board: BoardLike, _netlist: NetlistLike, _constraints: Any) -> PreflightCheck:
         start = time.time()
         iso = 6.5
-        hv = sum(1 for c in netlist.components if getattr(c, "net_class", "") == "HighVoltage")
+        hv = sum(1 for c in _netlist.components if getattr(c, "net_class", "") == "HighVoltage")
         if hv > 0:
             barrier_a = min(board.width, board.height) * iso
-            total_a = sum(c.width * c.height for c in netlist.components)
+            total_a = sum(c.width * c.height for c in _netlist.components)
             if total_a + barrier_a > board.width * board.height * 0.95:
                 return PreflightCheck("Isolation Feasibility", PreflightResult.FAIL, "Barrier too large", time_ms=(time.time()-start)*1000)
         return PreflightCheck("Isolation Feasibility", PreflightResult.PASS, "Feasible", time_ms=(time.time()-start)*1000)
 
-    def _check_layer_assignment(self, netlist: NetlistLike, constraints: Any) -> PreflightCheck:
+    def _check_layer_assignment(self, _netlist: NetlistLike, _constraints: Any) -> PreflightCheck:
         return PreflightCheck("Layer Assignment", PreflightResult.PASS, "Feasible")
 
-    def _check_routing_channels(self, board: BoardLike, netlist: NetlistLike) -> PreflightCheck:
+    def _check_routing_channels(self, _board: BoardLike, _netlist: NetlistLike) -> PreflightCheck:
         return PreflightCheck("Routing Channels", PreflightResult.PASS, "Available")

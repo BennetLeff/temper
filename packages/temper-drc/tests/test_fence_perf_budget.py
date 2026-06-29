@@ -5,12 +5,12 @@ from datetime import datetime
 
 import pytest
 
+from temper_drc.core.check import Check
 from temper_drc.core.fence import (
     DRCFence,
     FenceBudgetError,
     InvariantSpec,
 )
-from temper_drc.core.check import Check
 from temper_drc.core.result import CheckResult
 from temper_drc.core.runner import CheckRunner
 from temper_drc.input.constraints import ConstraintSet
@@ -33,7 +33,7 @@ class TimedCheck(Check):
     def category(self) -> str:
         return self._category
 
-    def run(self, placement, constraints, modified_regions=None):
+    def run(self, _placement, _constraints, _modified_regions=None):
         if self.delay_ms:
             time.sleep(self.delay_ms / 1000.0)
         return CheckResult(check_name=self.name, passed=True)

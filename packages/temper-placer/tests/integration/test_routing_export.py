@@ -11,12 +11,12 @@ import jax.numpy as jnp
 import pytest
 
 from temper_placer.core.board import Board
+from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.kicad_exporter import export_routed_pcb
-from temper_placer.router_v6.layer_assignment import assign_layers
 from temper_placer.router_v6.adapter import MazeRouter
+from temper_placer.router_v6.layer_assignment import assign_layers
 from temper_placer.router_v6.net_ordering import order_nets
-from temper_placer.core.loop import LoopCollection
 
 
 @pytest.fixture
@@ -119,11 +119,11 @@ def test_end_to_end_routing_and_export(simple_test_board, simple_test_netlist):
         assert "(segment" in content  # Has trace segments
 
 
-def _create_minimal_kicad_pcb(path: Path, netlist: Netlist):
+def _create_minimal_kicad_pcb(path: Path, _netlist: Netlist):
     """Create a minimal KiCad PCB file for testing."""
     # This is a minimal PCB file structure
     # In production, we'd use kiutils to generate this properly
-    pcb_content = f"""(kicad_pcb (version 20221018) (generator pcbnew)
+    pcb_content = """(kicad_pcb (version 20221018) (generator pcbnew)
 
   (general
     (thickness 1.6)

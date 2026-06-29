@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 import jax.numpy as jnp
-from typing import TYPE_CHECKING, Sequence, Union
 
-from temper_placer.io.dsn import dsn_list
 from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.io.dsn import dsn_list
 
 if TYPE_CHECKING:
     from jax import Array
+
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.dsn import DSNExpression
@@ -140,7 +141,7 @@ class DSNExporter:
             )
         if self.deterministic:
             keepout_exprs.sort(key=lambda k: str(k.args[0]) if k.args else "")
-        
+
         # Vias
         via_exprs = [dsn_list("via", "VIA")]
 
@@ -171,7 +172,7 @@ class DSNExporter:
         # Determine layers for padstacks
         layer_names = ["F.Cu", "B.Cu"]
         if self.board.layer_stackup:
-            layer_names = [l.name for l in self.board.layer_stackup.layers]
+            layer_names = [ly.name for ly in self.board.layer_stackup.layers]
 
         # Add VIA padstack (0.6mm diameter) on all layers
         via_shapes = [dsn_list("shape", dsn_list("circle", ln, 0.6 * S)) for ln in layer_names]
@@ -292,7 +293,7 @@ class DSNExporter:
                 rot = int(self.rotation_indices[i]) * 90
             else:
                 rot = (comp.initial_rotation or 0) * 90
-            
+
             # Determine side from first pin
             side = "front"
             if comp.pins and comp.pins[0].layer == "B.Cu":
@@ -391,7 +392,7 @@ class DSNExporter:
         for net in sorted_nets:
             # Sanitize net names for SPECCTRA compatibility
             clean_name = net.name.replace("+", "_PLUS").replace("-", "_MINUS")
-            
+
             # Skip nets that are connected via power planes
             # Check both original name and sanitized name for exclusion
             if exclude_nets and (net.name in exclude_nets or clean_name in exclude_nets):
@@ -422,16 +423,15 @@ class DSNExporter:
 
             # Determine layer names for routing preferences
             # layer_type is "signal", "plane", or "mixed" in the board model
-            layer_names = ["F.Cu", "B.Cu"]
             inner_layers = []  # power/plane layers
             outer_layers = []  # signal layers
             if self.board.layer_stackup:
-                layer_names = [l.name for l in self.board.layer_stackup.layers]
-                for l in self.board.layer_stackup.layers:
-                    if l.layer_type in ("plane", "mixed"):
-                        inner_layers.append(l.name)
+                [ly.name for ly in self.board.layer_stackup.layers]
+                for ly in self.board.layer_stackup.layers:
+                    if ly.layer_type in ("plane", "mixed"):
+                        inner_layers.append(ly.name)
                     else:
-                        outer_layers.append(l.name)
+                        outer_layers.append(ly.name)
             else:
                 outer_layers = ["F.Cu", "B.Cu"]
 

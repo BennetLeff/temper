@@ -92,7 +92,6 @@ def generate_200_component_netlist(
 
     # Generate components
     components = []
-    component_id = 0
 
     # Resistors (80 total)
     resistor_footprints = ["0603"] * 60 + ["0805"] * 15 + ["2512"] * 5

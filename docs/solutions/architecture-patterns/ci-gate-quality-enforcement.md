@@ -1,7 +1,7 @@
 ---
 title: "Pattern: CI-Gate Quality Enforcement (Baseline + Monotonic Shrink)"
 date: 2026-06-22
-last_updated: 2026-06-23
+last_updated: 2026-06-28
 category: architecture-patterns
 module: CI
 problem_type: architecture_pattern
@@ -257,6 +257,7 @@ the baseline or any baseline entry Vulture no longer reports.
 - `docs/plans/2026-06-22-006-feat-cli-zoning-loc-cap-plan.md` (N6: LOC cap)
 - `docs/plans/2026-06-22-009-feat-vulture-ruff-deadcode-gate-plan.md` (N9: vulture gate)
 - `CLAUDE.md` — documentation of live gate mechanisms and allowlist conventions
+- `docs/solutions/architecture-patterns/ci-profiling-platform-canonical-metrics-contract-2026-06-28.md` — evolved profiling-based CI gate pattern (metric-driven drift detection + PR comparison vs. allowlist-driven gates)
 
 ## Follow-on Evidence
 

@@ -13,9 +13,9 @@ import networkx as nx
 from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
 from shapely.ops import voronoi_diagram
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage_validators import (
@@ -55,7 +55,7 @@ def extract_channel_skeleton(
 ) -> ChannelSkeleton:
     """
     Extract routing channel skeleton using medial axis approximation.
-    
+
     If pcb is provided, adds component pad positions as anchor nodes
     connected to nearest skeleton nodes. This ensures routes connect
     to actual pad centers, not approximated skeleton positions.
@@ -113,38 +113,38 @@ def extract_channel_skeleton(
             G.add_edge(p1, p2, weight=length)
             G.add_edge(p1, p2, weight=length)
             total_length += length
-            
+
     # Ensure connectivity by bridging islands
     G = _ensure_skeleton_connectivity(G, max_bridge_distance=10.0)
-    
+
     # **OPTION F FIX**: Add component pad positions as anchor nodes
     if pcb and hasattr(pcb, 'components') and G.number_of_nodes() > 0:
         import math
-        
+
         # Extract all pad positions
         pad_positions = []
         for comp in pcb.components:
             if not comp.initial_position or not hasattr(comp, 'pins'):
                 continue
-            
+
             rotation_deg = comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
-            rotation_rad = math.radians(rotation_deg)
-            side = comp.initial_side if hasattr(comp, 'initial_side') and comp.initial_side is not None else 0
-            
+            math.radians(rotation_deg)
+            comp.initial_side if hasattr(comp, 'initial_side') and comp.initial_side is not None else 0
+
             for pin in comp.pins:
                 if pin.net:
                     abs_pos = pin_world_position(pin, comp)
                     pad_positions.append(abs_pos)
-        
+
         # Add pads as anchor nodes, connected to nearest skeleton node
         skeleton_nodes = list(G.nodes())
         pads_added = 0
-        
+
         for pad_pos in pad_positions:
             # Skip if pad already exists in skeleton (within 0.1mm)
             if any(abs(pad_pos[0] - n[0]) < 0.1 and abs(pad_pos[1] - n[1]) < 0.1 for n in skeleton_nodes):
                 continue
-            
+
             # Find nearest skeleton node
             nearest_node = None
             min_dist = float('inf')
@@ -153,14 +153,14 @@ def extract_channel_skeleton(
                 if dist < min_dist:
                     min_dist = dist
                     nearest_node = node
-            
+
             # Add pad as new node with edge to nearest skeleton node
             if nearest_node and min_dist < 50.0:  # Only connect if within 50mm
                 G.add_node(pad_pos, pos=pad_pos)
                 G.add_edge(pad_pos, nearest_node, weight=min_dist)
                 total_length += min_dist
                 pads_added += 1
-        
+
         if pads_added > 0:
             print(f"  Added {pads_added} pad anchor nodes to skeleton")
 
@@ -190,7 +190,7 @@ def _extract_medial_axis(
     # Handle MultiPolygon
     if isinstance(polygon_or_multipolygon, MultiPolygon):
         all_lines = []
-        
+
         if hasattr(polygon_or_multipolygon, 'geoms'):
             polys = list(polygon_or_multipolygon.geoms)
         else:
@@ -231,16 +231,11 @@ def _extract_medial_axis_single(
     # Create points along the boundary for Voronoi
     # Sample points every ~1mm
     points = []
-    
+
     # Check for multi-part geometry first (hasattr(coords) returns True but raises error)
     # Collect geometry parts
     parts = []
-    if hasattr(boundary, 'geoms'):
-        # MultiLineString boundary (polygon with holes)
-        parts = list(boundary.geoms)
-    else:
-        # Simple LineString or other
-        parts = [boundary]
+    parts = list(boundary.geoms) if hasattr(boundary, 'geoms') else [boundary]
 
     # Sample points along the boundary of each part
     for part in parts:
@@ -248,7 +243,7 @@ def _extract_medial_axis_single(
             coords = list(part.coords)
         except (NotImplementedError, AttributeError):
             continue
-            
+
         for i in range(len(coords) - 1):
             p1 = coords[i]
             p2 = coords[i + 1]
@@ -265,7 +260,7 @@ def _extract_medial_axis_single(
                 x = p1[0] + t * dx
                 y = p1[1] + t * dy
                 points.append(Point(x, y))
-    
+
     if len(points) < 3:
         # Not enough points for Voronoi
         # Return simplified centerline
@@ -278,7 +273,7 @@ def _extract_medial_axis_single(
             MultiPoint(points),
             edges=True
         )
-             
+
         # Flatten geometry collection
         raw_lines = []
         if hasattr(voronoi, 'geoms'):
@@ -291,7 +286,7 @@ def _extract_medial_axis_single(
              raw_lines.extend(list(voronoi.geoms))
         elif isinstance(voronoi, LineString):
              raw_lines.append(voronoi)
-        
+
         # Filter Voronoi edges that are inside the polygon
         skeleton_lines = []
 
@@ -324,7 +319,7 @@ def _extract_medial_axis_single(
         if skeleton_lines:
             return skeleton_lines
 
-    except Exception as e:
+    except Exception:
         # Voronoi failed, use fallback
         pass
 
@@ -375,7 +370,7 @@ def _ensure_skeleton_connectivity(G: nx.Graph, max_bridge_distance: float = 5.0)
     # Build bridges between components
     # We iteratively merge components until only one remains or we can't bridge any more
     current_components = components
-    
+
     while len(current_components) > 1:
         best_bridge = None
         best_distance = float('inf')
@@ -392,7 +387,7 @@ def _ensure_skeleton_connectivity(G: nx.Graph, max_bridge_distance: float = 5.0)
                         # Nodes are (x, y) tuples
                         dist = ((node_a[0] - node_b[0])**2 +
                                (node_a[1] - node_b[1])**2)**0.5
-                        
+
                         if dist < best_distance:
                             best_distance = dist
                             best_bridge = (node_a, node_b, i, j)

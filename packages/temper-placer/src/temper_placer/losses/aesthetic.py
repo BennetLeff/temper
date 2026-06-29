@@ -51,10 +51,10 @@ class WhitespaceLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         # Get component bounds
         bounds = context.netlist.get_bounds_array()
@@ -141,12 +141,12 @@ class AlignmentLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _rotations: Array,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         """
         Compute alignment penalty for each prefix group.
@@ -205,13 +205,13 @@ class RotationConsistencyLoss(LossFunction):
 
     def __call__(
         self,
-        positions: Array,
+        _positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         """
         Compute entropy of the rotation distribution, optionally grouped by type.
@@ -273,12 +273,12 @@ class MirrorSymmetryLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _rotations: Array,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         if self.pairs.shape[0] < 1:
             return LossResult(value=jnp.array(0.0))
@@ -324,12 +324,12 @@ class VisualGroupingLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _rotations: Array,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] < 1:
             return LossResult(value=jnp.array(0.0))
@@ -426,12 +426,12 @@ class ConsensusLayoutLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _rotations: Array,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         if self.template_groups.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))
@@ -496,12 +496,12 @@ class StackedRowLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         if self.component_indices.shape[0] < 2:
             return LossResult(value=jnp.array(0.0))
@@ -581,10 +581,10 @@ class PinGridAlignmentLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         # 1. Compute absolute pin positions
         # Use existing logic from HPWL/Wirelength
@@ -637,11 +637,11 @@ class PortFacingRotationLoss(LossFunction):
         self,
         positions: Array,
         rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] == 0:
             return LossResult(value=jnp.array(0.0))

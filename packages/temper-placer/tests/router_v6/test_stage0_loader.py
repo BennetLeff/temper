@@ -6,10 +6,6 @@ Part of temper-y7j2
 
 from pathlib import Path
 
-import pytest
-
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-
 
 def test_parse_kicad_pcb_v6_basic():
     """Test basic PCB loading and validation."""
@@ -19,9 +15,15 @@ def test_parse_kicad_pcb_v6_basic():
 
 def test_parsed_pcb_validation():
     """Test ParsedPCB validation checks."""
-    from temper_placer.router_v6.stage0_data import ParsedPCB, DesignRules, StackupInfo, NetClassRules, LayerInfo
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Component, Net, Pin
+    from temper_placer.router_v6.stage0_data import (
+        DesignRules,
+        LayerInfo,
+        NetClassRules,
+        ParsedPCB,
+        StackupInfo,
+    )
 
     # Create a valid PCB
     component = Component(
@@ -71,9 +73,12 @@ def test_parsed_pcb_validation():
 
 def test_parsed_pcb_validation_failures():
     """Test that validation catches invalid PCBs."""
-    from temper_placer.router_v6.stage0_data import ParsedPCB, DesignRules, StackupInfo, NetClassRules, LayerInfo
     from temper_placer.core.board import Board
-    from temper_placer.core.netlist import Component
+    from temper_placer.router_v6.stage0_data import (
+        DesignRules,
+        ParsedPCB,
+        StackupInfo,
+    )
 
     # PCB with no components
     empty_pcb = ParsedPCB(
@@ -101,7 +106,7 @@ def test_parsed_pcb_validation_failures():
 
 def test_stackup_helper_methods():
     """Test StackupInfo helper methods."""
-    from temper_placer.router_v6.stage0_data import StackupInfo, LayerInfo
+    from temper_placer.router_v6.stage0_data import LayerInfo, StackupInfo
 
     # 4-layer board with planes
     stackup = StackupInfo(

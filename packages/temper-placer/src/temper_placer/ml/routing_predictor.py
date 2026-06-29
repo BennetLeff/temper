@@ -15,12 +15,12 @@ from jax import Array
 class RoutingDifficultyGNN(nn.Module):
     """
     Predicts a routing difficulty score (0-1).
-    
+
     Inputs:
         - Node features: [Area, PinCount, Density, CenterDist]
         - Edge indices: (E, 2)
         - Edge features: [Wirelength, CrossingsApprox]
-    
+
     Output:
         - Difficulty score (0-1): Higher means more congested/difficult.
     """

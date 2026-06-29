@@ -95,9 +95,9 @@ def create_compact_loss_set(
 
     if thermal_losses:
         unified_thermal = UnifiedThermalLoss(
-            spread_loss=next((l for l in thermal_losses if isinstance(l, ThermalSpreadLoss)), None),
-            edge_loss=next((l for l in thermal_losses if isinstance(l, ThermalLoss)), None),
-            power_path_loss=next((l for l in thermal_losses if isinstance(l, PowerPathLoss)), None),
+            spread_loss=next((loss for loss in thermal_losses if isinstance(loss, ThermalSpreadLoss)), None),
+            edge_loss=next((loss for loss in thermal_losses if isinstance(loss, ThermalLoss)), None),
+            power_path_loss=next((loss for loss in thermal_losses if isinstance(loss, PowerPathLoss)), None),
         )
         loss_list.append(WeightedLoss(unified_thermal, thermal_weight))
 

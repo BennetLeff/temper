@@ -25,7 +25,6 @@ class DSNBoundaryExporter:
             PipelineConfig,
             PipelineOrchestrator,
             PipelinePhase,
-            PipelineState,
         )
 
         boundary_def = BoundaryRegistry.get_boundary(boundary_name)
@@ -76,7 +75,6 @@ class DSNBoundaryExporter:
             PipelineConfig,
             PipelineOrchestrator,
             PipelinePhase,
-            PipelineState,
         )
 
         pipeline_config = PipelineConfig(

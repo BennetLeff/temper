@@ -6,7 +6,6 @@ pass all DFM validators — proving the strategy is not vacuously compliant.
 
 from __future__ import annotations
 
-import pytest
 from hypothesis import HealthCheck, given, settings
 
 from temper_placer.router_v6.acid_trap_detection import detect_acid_traps
@@ -36,7 +35,7 @@ def test_known_compliant_routes_pass_all_validators(results: RoutingResults) -> 
     copper = analyze_copper_balance(results, board_width=200.0, board_height=150.0)
     teardrops = insert_teardrops(results)
 
-    report = generate_manufacturing_report(
+    generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance,
     )
 
@@ -54,10 +53,10 @@ def test_known_compliant_routes_pass_all_validators(results: RoutingResults) -> 
         f"Annular ring: expected 0 violations, got {annular.violation_count}"
     )
     assert teardrops.teardrop_count >= 0, (
-        f"Teardrops: teardrop_count should be >= 0"
+        "Teardrops: teardrop_count should be >= 0"
     )
     assert thermal.relief_count >= 0, (
-        f"Thermal relief: relief_count should be >= 0"
+        "Thermal relief: relief_count should be >= 0"
     )
 
 
@@ -72,7 +71,7 @@ def test_strategy_bootstrap_empty() -> None:
     thermal = add_thermal_relief(rr)
     copper = analyze_copper_balance(rr, board_width=200.0, board_height=150.0)
     teardrops = insert_teardrops(rr)
-    report = generate_manufacturing_report(
+    generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance,
     )
 

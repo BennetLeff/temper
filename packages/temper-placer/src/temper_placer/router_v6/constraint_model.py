@@ -12,8 +12,8 @@ from dataclasses import dataclass, field, replace
 
 from temper_placer.core.netlist import Net
 from temper_placer.core.pin_geometry import pin_world_position
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.diff_pair_inference import DiffPair, infer_differential_pairs
@@ -145,7 +145,7 @@ class LayerConstraint(Constraint):
 class ConstraintModel:
     """
     SAT/SMT Constraint Model for Topological Routing.
-    
+
     Holds all variables and constraints (in abstract form).
     """
     variables: list[Variable] = field(default_factory=list)
@@ -208,7 +208,7 @@ class ModelBuilder:
 
     def _create_channel_vars(self):
         """Create variables for net-channel assignment."""
-        for net_idx, net in enumerate(self.nets):
+        for net_idx, _net in enumerate(self.nets):
             # For each layer skeleton
             for layer_name, skeleton in self.skeletons.items():
                 # For each edge in the skeleton
@@ -235,9 +235,9 @@ class ModelBuilder:
                 all_nodes.add(node) # node is (x, y) tuple
 
         # Sort for stability
-        sorted_nodes = sorted(list(all_nodes))
+        sorted_nodes = sorted(all_nodes)
 
-        for net_idx, net in enumerate(self.nets):
+        for net_idx, _net in enumerate(self.nets):
             for i, node in enumerate(sorted_nodes):
                 node_id = f"VIA_N{i}_{node[0]:.2f}_{node[1]:.2f}"
 
@@ -340,7 +340,7 @@ class ModelBuilder:
 
         for comp in self.pcb.components:
             comp_x, comp_y = comp.initial_position or (0.0, 0.0)
-            angle = float(comp.initial_rotation or 0) * math.pi / 2.0
+            float(comp.initial_rotation or 0) * math.pi / 2.0
 
             for pin in comp.pins:
                 if not pin.net or pin.net not in self.net_to_idx:
@@ -374,7 +374,7 @@ class ModelBuilder:
                                 edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
 
                                 if (net_idx, edge_id) in self.model.net_channel_vars:
-                                    var = self.model.net_channel_vars[(net_idx, edge_id)]
+                                    self.model.net_channel_vars[(net_idx, edge_id)]
                                     constraint = LayerConstraint(
                                         name=f"layer_restr_N{net_idx}_{edge_id}",
                                         net_idx=net_idx,

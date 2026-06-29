@@ -23,12 +23,11 @@ import pytest
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.copper_balance import (
-    analyze_copper_balance,
     _via_annular_area,
+    analyze_copper_balance,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
-
 from tests.router_v6.dfm_boundary_constants import (
     BOARD_DIMS_EXTREME,
     BOARD_DIMS_INF,
@@ -335,7 +334,7 @@ _THRESHOLD_CASES = [
     _THRESHOLD_CASES,
     ids=[c[0] for c in _THRESHOLD_CASES],
 )
-def test_at_threshold_balance(label, target_pct, expected_balanced):
+def test_at_threshold_balance(_label, target_pct, expected_balanced):
     """Copper percentage exactly at, just below, and just above 30 % / 70 %.
 
     Uses a single trace on F.Cu to achieve the exact target area;

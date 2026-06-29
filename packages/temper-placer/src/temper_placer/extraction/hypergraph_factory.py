@@ -21,7 +21,7 @@ class HypergraphFactory:
     """
 
     def __init__(
-        self, 
+        self,
         netlist: Netlist,
         ignore_global_nets: bool = False,
         global_net_threshold: int = 50
@@ -36,7 +36,7 @@ class HypergraphFactory:
         """
         n_nodes = self.netlist.n_components
         node_ref_to_idx = {c.ref: i for i, c in enumerate(self.netlist.components)}
-        
+
         # 1. Collect valid edges (Nets)
         valid_nets = []
         for net in self.netlist.nets:
@@ -45,25 +45,25 @@ class HypergraphFactory:
             # Only include nets with >= 2 pins (single-pin nets don't constrain placement)
             if len(net.pins) >= 2:
                 valid_nets.append(net)
-        
+
         n_edges = len(valid_nets)
-        
+
         # 2. Build COO Data
         rows = []
         cols = []
         data = []
-        
+
         edge_voltages = []
-        edge_currents = [] 
-        edge_widths = []   
-        
+        edge_currents = []
+        edge_widths = []
+
         for net_idx, net in enumerate(valid_nets):
             # Physics extraction from Netlist
             # voltage_class can be "LV" or "HV"
             is_hv = 1.0 if net.voltage_class == "HV" or net.net_class == "HighVoltage" else 0.0
             edge_voltages.append(is_hv)
             edge_currents.append(net.max_current)
-            
+
             # Default width based on net class or current
             if net.net_class == "HighVoltage":
                 width = 1.0
@@ -71,19 +71,19 @@ class HypergraphFactory:
                 width = 0.5
             else:
                 width = 0.2
-            edge_widths.append(width)   
-            
+            edge_widths.append(width)
+
             # Connections
             connected_indices = set()
             for comp_ref, _ in net.pins:
                 if comp_ref in node_ref_to_idx:
                     connected_indices.add(node_ref_to_idx[comp_ref])
-            
+
             for node_idx in connected_indices:
                 rows.append(node_idx)
                 cols.append(net_idx)
                 data.append(net.weight)
-                
+
         # 3. Create JAX Arrays
         if n_edges > 0:
             indices = jnp.array([rows, cols]).T # (N_entries, 2)
@@ -91,22 +91,22 @@ class HypergraphFactory:
         else:
             indices = jnp.empty((0, 2), dtype=jnp.int32)
             values = jnp.empty((0,), dtype=jnp.float32)
-        
+
         shape = (n_nodes, n_edges)
         bcoo_matrix = sparse.BCOO((values, indices), shape=shape)
-        
+
         # 4. Node Weights (Area based)
         node_weights = jnp.array(
             [c.width * c.height for c in self.netlist.components],
             dtype=jnp.float32
         )
-        
+
         # 5. Hyperedge Weights (Base importance)
         hyperedge_weights = jnp.array(
             [n.weight for n in valid_nets],
             dtype=jnp.float32
         )
-        
+
         return PhysicsHypergraph(
             incidence=HypergraphIncidence(
                 matrix=bcoo_matrix,
@@ -128,7 +128,7 @@ def netlist_to_hypergraph(
 ) -> PhysicsHypergraph:
     """Convenience wrapper for HypergraphFactory."""
     return HypergraphFactory(
-        netlist, 
-        ignore_global_nets=ignore_global_nets, 
+        netlist,
+        ignore_global_nets=ignore_global_nets,
         global_net_threshold=global_net_threshold
     ).build()

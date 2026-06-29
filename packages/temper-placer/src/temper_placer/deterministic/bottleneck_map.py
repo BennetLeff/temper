@@ -135,7 +135,7 @@ def _from_sidecar_payload(payload: dict[str, Any]) -> BottleneckMap | None:
 
 
 def load_bottleneck_map(
-    board_state: "BoardState",
+    board_state: BoardState,
     sidecar_path: str | Path | None = None,
 ) -> BottleneckMap | None:
     """Load the bottleneck map for ``board_state``.

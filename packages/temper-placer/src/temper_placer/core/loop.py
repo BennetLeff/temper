@@ -302,10 +302,7 @@ class Loop:
         if net_name in self.nets:
             return True
         # Check pins
-        for pin in self.pins:
-            if pin.net_name == net_name:
-                return True
-        return False
+        return any(pin.net_name == net_name for pin in self.pins)
 
     def set_current_area(self, area_mm2: float) -> None:
         """Set the computed current loop area.
@@ -397,7 +394,7 @@ class LoopCollection:
         Raises:
             ValueError: If a loop with the same name already exists.
         """
-        if any(l.name == loop.name for l in self.loops):
+        if any(ln.name == loop.name for ln in self.loops):
             raise ValueError(f"Loop with name '{loop.name}' already exists")
         self.loops.append(loop)
 
@@ -531,9 +528,9 @@ class LoopCollection:
         Returns:
             Dictionary with counts and compliance info.
         """
-        compliant = [l for l in self.loops if l.is_area_compliant() is True]
-        non_compliant = [l for l in self.loops if l.is_area_compliant() is False]
-        unknown = [l for l in self.loops if l.is_area_compliant() is None]
+        compliant = [ln for ln in self.loops if ln.is_area_compliant() is True]
+        non_compliant = [ln for ln in self.loops if ln.is_area_compliant() is False]
+        unknown = [ln for ln in self.loops if ln.is_area_compliant() is None]
 
         return {
             "total_loops": len(self.loops),

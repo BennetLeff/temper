@@ -126,8 +126,11 @@ def generate(
     golden_dir: Path,
 ) -> None:
     """Generate/update golden DSN fixtures."""
+    import subprocess
+
+    import yaml
+
     from temper_placer.io.dsn_boundary import DSNBoundaryExporter
-    import yaml, subprocess
 
     boundaries = [boundary] if boundary else BoundaryRegistry.list_boundaries()
     golden_dir.mkdir(parents=True, exist_ok=True)

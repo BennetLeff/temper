@@ -1,7 +1,10 @@
 import pytest
+
 from temper_placer.deterministic.feedback import (
-    ZoneAdjuster, MappedViolation, ZoneAdjustment, DRCViolation
+    MappedViolation,
+    ZoneAdjuster,
 )
+
 
 @pytest.fixture
 def zone_config():

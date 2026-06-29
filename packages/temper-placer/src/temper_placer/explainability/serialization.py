@@ -17,6 +17,7 @@ Example:
 
 from __future__ import annotations
 
+import contextlib
 import json
 from datetime import datetime
 from pathlib import Path
@@ -226,10 +227,8 @@ def deserialize_trace(data: dict[str, Any]) -> DecisionTrace:
     end_time = None
     end_time_str = data.get("end_time")
     if end_time_str:
-        try:
+        with contextlib.suppress(ValueError):
             end_time = datetime.fromisoformat(end_time_str)
-        except ValueError:
-            pass
 
     # Parse final positions (convert lists to tuples)
     final_positions: dict[str, tuple[float, float]] = {}

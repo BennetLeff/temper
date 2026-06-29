@@ -1,4 +1,5 @@
-from temper_placer.io.dsn import DSNExpression, dsn_list, DSNRect, DSNCircle, DSNPath
+from temper_placer.io.dsn import DSNCircle, DSNPath, DSNRect, dsn_list
+
 
 def test_dsn_expression_serialization():
     expr = dsn_list("pcb", "sample", dsn_list("unit", "mm"))

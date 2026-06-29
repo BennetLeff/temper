@@ -242,10 +242,7 @@ class MetricsTracker:
             cohens_d = (exp_mean - base_mean) / pooled_std if pooled_std > 0 else 0.0
 
             # Determine direction
-            if higher_is_better:
-                improvement = exp_mean > base_mean
-            else:
-                improvement = exp_mean < base_mean
+            improvement = exp_mean > base_mean if higher_is_better else exp_mean < base_mean
 
             return {
                 "experiment_mean": round(exp_mean, 4),

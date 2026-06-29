@@ -15,13 +15,13 @@ output correctness.
 from __future__ import annotations
 
 import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.stage_validators import (
     run_validators,
 )
-
 
 # The 8 micro-stages (feat/decompose-stage2) and their registered
 # validator names that the inductive ladder exercises.
@@ -118,17 +118,17 @@ class TestInductiveLadderStructure:
 
     def test_validator_names_are_registered(self):
         """All 8 STAGE2_VALIDATOR_NAMES must be registered after imports."""
-        from temper_placer.router_v6.stage_validators import get_registered_stages
+        import temper_placer.router_v6.bottleneck_analysis  # noqa: F401
+        import temper_placer.router_v6.channel_skeleton  # noqa: F401
+        import temper_placer.router_v6.channel_widths  # noqa: F401
+        import temper_placer.router_v6.layer_capacity  # noqa: F401
 
         # Trigger module imports that register validators
         import temper_placer.router_v6.obstacle_map  # noqa: F401
-        import temper_placer.router_v6.routing_space  # noqa: F401
-        import temper_placer.router_v6.channel_skeleton  # noqa: F401
-        import temper_placer.router_v6.channel_widths  # noqa: F401
         import temper_placer.router_v6.occupancy_grid  # noqa: F401
-        import temper_placer.router_v6.layer_capacity  # noqa: F401
         import temper_placer.router_v6.routing_demand  # noqa: F401
-        import temper_placer.router_v6.bottleneck_analysis  # noqa: F401
+        import temper_placer.router_v6.routing_space  # noqa: F401
+        from temper_placer.router_v6.stage_validators import get_registered_stages
 
         registered = set(get_registered_stages())
         for name in STAGE2_VALIDATOR_NAMES:
@@ -307,6 +307,7 @@ class TestInductiveLadderPBT:
     def test_channel_skeleton_invariant(self, node_count):
         """Channel skeleton with valid graph handles arbitrary node counts."""
         import networkx as nx
+
         from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 
         g = nx.Graph()

@@ -9,8 +9,7 @@ Classes:
     BusRegistry: Registry for managing bus cohorts with automatic inference.
 """
 
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 
 @dataclass
@@ -74,7 +73,7 @@ class BusRegistry:
         for net in bus.nets:
             self._net_to_bus[net] = bus.name
 
-    def get_bus_for_net(self, net: str) -> Optional[BusCohortConstraint]:
+    def get_bus_for_net(self, net: str) -> BusCohortConstraint | None:
         """Return the bus this net belongs to, if any.
 
         Args:
@@ -138,16 +137,10 @@ class BusRegistry:
                 jtag_nets.append(net)
 
             # Differential pair detection: *_P, *_N or *_DP, *_DN
-            if upper_net.endswith("_DP"):
+            if upper_net.endswith("_DP") or upper_net.endswith("_DN"):
                 base = net[:-3]
                 diff_pairs[base].append(net)
-            elif upper_net.endswith("_DN"):
-                base = net[:-3]
-                diff_pairs[base].append(net)
-            elif upper_net.endswith("_P") and not upper_net.endswith("_DP"):
-                base = net[:-2]
-                diff_pairs[base].append(net)
-            elif upper_net.endswith("_N") and not upper_net.endswith("_DN"):
+            elif upper_net.endswith("_P") and not upper_net.endswith("_DP") or upper_net.endswith("_N") and not upper_net.endswith("_DN"):
                 base = net[:-2]
                 diff_pairs[base].append(net)
 

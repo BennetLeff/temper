@@ -5,17 +5,17 @@ import click
 
 # Placeholder for run_profiling - will implement later
 def run_profiling(
-    target: str | None,
-    output_dir: str,
-    profile_type: str,
-    include_dependencies: bool,
-    config_file: str | None,
+    _target: str | None,
+    _output_dir: str,
+    _profile_type: str,
+    _include_dependencies: bool,
+    _config_file: str | None,
 ) -> dict[str, dict[str, Any]]:
     """Placeholder for profiling function."""
     return {"example": {"metric": "value"}}
 
 
-def validate_target(ctx, param, value):  # type: (click.Context, click.Parameter, str) -> Optional[str]
+def validate_target(_ctx, _param, value):  # type: (click.Context, click.Parameter, str) -> Optional[str]
     """Validate that target is a valid package directory."""
     if value is None:
         return None
@@ -37,7 +37,7 @@ def validate_target(ctx, param, value):  # type: (click.Context, click.Parameter
     return value
 
 
-def validate_output(ctx, param, value):  # type: (click.Context, click.Parameter, str) -> str
+def validate_output(_ctx, _param, value):  # type: (click.Context, click.Parameter, str) -> str
     """Validate output directory."""
     import os
 

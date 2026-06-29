@@ -1,6 +1,8 @@
 """Signal handling utilities for the CLI (interrupt guard)."""
 from __future__ import annotations
+
 import signal
+
 
 class InterruptGuard:
     def __init__(self):
@@ -11,7 +13,7 @@ class InterruptGuard:
         return self
     def __exit__(self, *args):
         self.restore()
-    def _handler(self, sig, _frame):
+    def _handler(self, _sig, _frame):
         self.interrupted = True
     def restore(self):
         if self._original is not None:

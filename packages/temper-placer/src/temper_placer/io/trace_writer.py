@@ -18,7 +18,7 @@ def write_traces_to_pcb(
     routing_results: dict[str, RoutePath],
     cell_size: float,
     origin: tuple[float, float] = (0.0, 0.0),
-    clear_existing: bool = True,
+    _clear_existing: bool = True,
     trace_widths: dict[str, float] | None = None,
     default_trace_width: float = 0.25,
     via_size: float = 0.8,
@@ -84,7 +84,8 @@ def write_traces_to_pcb(
             print(f"❌ BLOCKING EXPORT: Found {len(shorts)} SHORT circuits!")
             for v in shorts[:5]:
                 print(f"  - {v.message}")
-            if len(shorts) > 5: print(f"  ...and {len(shorts)-5} more.")
+            if len(shorts) > 5:
+                print(f"  ...and {len(shorts)-5} more.")
             # raise RuntimeError(f"Export blocked due to {len(shorts)} short circuits.")
             print("⚠️  WARNING: Exporting with SHORT circuits for debug purposes.")
 

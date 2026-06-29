@@ -20,22 +20,18 @@ from temper_placer.router_v6.acid_trap_detection import (
 )
 from temper_placer.router_v6.annular_ring_check import (
     AnnularRingReport,
-    AnnularRingViolation,
     check_annular_rings,
 )
 from temper_placer.router_v6.clearance_check import (
     ClearanceReport,
-    ClearanceViolation,
     verify_clearance,
 )
 from temper_placer.router_v6.copper_balance import (
     CopperBalanceReport,
-    LayerCopperBalance,
     analyze_copper_balance,
 )
 from temper_placer.router_v6.creepage_check import (
     CreepageReport,
-    CreepageViolation,
     verify_creepage,
 )
 from temper_placer.router_v6.manufacturing_report import (
@@ -57,7 +53,6 @@ from temper_placer.router_v6.thermal_relief import (
     ThermalReliefReport,
     add_thermal_relief,
 )
-
 
 # ---------------------------------------------------------------------------
 # Shared test helpers

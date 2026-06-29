@@ -14,6 +14,14 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 from jax import Array
 
+from temper_placer.core.board import Board, Layer, LayerStackup
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.losses.base import LossContext
+from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.overlap import OverlapLoss
+from temper_placer.losses.regularization import SpreadLoss
+from temper_placer.losses.wirelength import WirelengthLoss
+
 from ..invariants.assertions import (
     assert_empty_is_zero,
     assert_idempotent,
@@ -22,14 +30,6 @@ from ..invariants.assertions import (
     assert_zero_when_no_violation,
 )
 from ..invariants.jax_helpers import assert_gradient_finite
-
-from temper_placer.core.board import Board, Layer, LayerStackup
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.losses.base import LossContext
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.regularization import SpreadLoss
-from temper_placer.losses.wirelength import WirelengthLoss
 
 
 def _make_netlist(n_components: int, bounds: tuple[float, float] = (10.0, 10.0)) -> Netlist:

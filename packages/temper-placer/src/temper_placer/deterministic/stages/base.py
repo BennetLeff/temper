@@ -7,6 +7,7 @@ from ..state import BoardState
 
 if TYPE_CHECKING:
     from temper_drc.core.fence import InvariantSpec
+
     from temper_placer.pipeline.bottleneck_report import DeclaredArtifact
 
 class Stage(ABC):

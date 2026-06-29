@@ -18,7 +18,8 @@ from __future__ import annotations
 import math
 
 import pytest
-from hypothesis import HealthCheck, assume, given, settings, strategies as st
+from hypothesis import HealthCheck, assume, given, settings
+from hypothesis import strategies as st
 
 from tests.router_v6.sat_property_strategies import (
     sat_clause_set,
@@ -314,8 +315,7 @@ class TestAtMostKEncoding:
 
     def _verify_at_most_k(self, n, k, _pysat_solver):
         """Verify at-most-k encoding for given n, k."""
-        from temper_placer.router_v6.sat_model import SATModel, SATVariable
-        from temper_placer.router_v6.sat_model import _encode_at_most_k
+        from temper_placer.router_v6.sat_model import SATModel, SATVariable, _encode_at_most_k
 
         model = SATModel(variables=[], clauses=[])
         variables = [
@@ -448,8 +448,8 @@ class TestCrossConstraintComposition:
 
     def test_fr5_small_grid_clause_set_match(self, _pysat_solver):
         """2x2 grid, 1 net, 1 layer: verify clause set matches expected."""
-        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
         from temper_placer.router_v6.constraint_model import ConstraintModel, NetChannelVar
+        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         # Build a minimal ConstraintModel manually (NFR4-safe)
         cm = ConstraintModel()
@@ -467,8 +467,8 @@ class TestCrossConstraintComposition:
         sat = SATModel(variables=[], clauses=[])
         populate_sat_from_constraints(sat, cm, net_names=["NET0"])
 
-        produced = set(_dump_clause_set(sat.clauses))
-        expected = set(_dump_clause_set([]))  # Will check after seeing actual output
+        set(_dump_clause_set(sat.clauses))
+        set(_dump_clause_set([]))  # Will check after seeing actual output
 
         # Actually, we need to know expected. For now:
         # - 1 connectivity clause: (uses_NET0_F.Cu_E0_0_1)
@@ -486,10 +486,12 @@ class TestCrossConstraintComposition:
     def test_fr5_grid_connectivity_layer(self, _pysat_solver):
         """2x2 grid, 1 net, 1 layer with explicit layer restriction: verify
         clause-set matches expected and assignments satisfy constraints."""
-        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
         from temper_placer.router_v6.constraint_model import (
-            ConstraintModel, NetChannelVar, LayerConstraint,
+            ConstraintModel,
+            LayerConstraint,
+            NetChannelVar,
         )
+        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         cm = ConstraintModel()
         net_idx = 0
@@ -547,10 +549,12 @@ class TestCrossConstraintComposition:
     def test_fr5_grid_with_capacity(self, _pysat_solver):
         """3x3 grid, 3 nets, 1 layer with capacity constraint: verify
         clause-set production including auxiliary Sinz variables."""
-        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
         from temper_placer.router_v6.constraint_model import (
-            ConstraintModel, NetChannelVar, CapacityConstraint,
+            CapacityConstraint,
+            ConstraintModel,
+            NetChannelVar,
         )
+        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         cm = ConstraintModel()
         channel_id = "F.Cu_E0_0_1"
@@ -592,10 +596,12 @@ class TestCrossConstraintComposition:
         Each net has 2 channel options; AtMostK limits one channel to <= 2 nets.
         Connectivity still is satisfiable because nets can use the other channel.
         """
-        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
         from temper_placer.router_v6.constraint_model import (
-            ConstraintModel, NetChannelVar, CapacityConstraint,
+            CapacityConstraint,
+            ConstraintModel,
+            NetChannelVar,
         )
+        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         cm = ConstraintModel()
         channel_ids = ["F.Cu_E0_0_1", "F.Cu_E1_1_2"]
@@ -698,8 +704,8 @@ class TestParsimonyInvariant:
 
     def test_parsimony_empty_model(self):
         """Empty constraint model produces zero variables and clauses."""
-        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
         from temper_placer.router_v6.constraint_model import ConstraintModel
+        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         cm = ConstraintModel()
         sat = SATModel(variables=[], clauses=[])
@@ -714,8 +720,8 @@ class TestParsimonyInvariant:
 
     def test_parsimony_small_model(self):
         """10-cell, 3-net, 2-layer model: counts << 100*C*N*L."""
-        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
         from temper_placer.router_v6.constraint_model import ConstraintModel, NetChannelVar
+        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         C = 10  # cells
         N = 3   # nets
@@ -757,8 +763,8 @@ class TestParsimonyInvariant:
 
     def test_parsimony_bounds_non_trivial(self):
         """20-cell, 5-net, 3-layer model: bounds are non-trivial."""
-        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
         from temper_placer.router_v6.constraint_model import ConstraintModel, NetChannelVar
+        from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         C = 20
         N = 5

@@ -11,11 +11,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import jax
-import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from temper_placer.core.board import Board
 from temper_placer.core.state import PlacementState
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.io.config_loader import (
@@ -94,7 +92,7 @@ class TestCorpusParity:
                         f"outside [{0},{board.width}]×[{0},{board.height}]"
                     )
         assert not out_of_bounds, (
-            f"Components outside board bounds:\n" + "\n".join(out_of_bounds)
+            "Components outside board bounds:\n" + "\n".join(out_of_bounds)
         )
 
     def test_heuristic_pipeline_positions_in_bounds(self):
@@ -133,7 +131,7 @@ class TestCorpusParity:
                     f"{comp.ref}: ({x:.1f}, {y:.1f})"
                 )
         assert not out_of_bounds, (
-            f"Heuristic pipeline placed components outside board:\n"
+            "Heuristic pipeline placed components outside board:\n"
             + "\n".join(out_of_bounds[:10])
         )
 
@@ -188,7 +186,7 @@ class TestCorpusParity:
         pipeline_result = pipeline.run(board, netlist, constraints, rng)
 
         pos = pipeline_result.state.positions
-        n = len(netlist.components)
+        len(netlist.components)
         rotations = jax.nn.softmax(
             pipeline_result.state.rotation_logits, axis=-1
         )
@@ -249,7 +247,7 @@ class TestCorpusParity:
         n = len(netlist.components)
         final_pos = training_result.final_state.positions
         # Sample rotations from final logits
-        key = jax.random.PRNGKey(99)
+        jax.random.PRNGKey(99)
         rotations = jax.nn.softmax(
             training_result.final_state.rotation_logits, axis=-1
         )
@@ -308,7 +306,7 @@ class TestCorpusParity:
             config=config, initial_state=initial_state,
         )
 
-        n = len(netlist.components)
+        len(netlist.components)
         final_pos = result.final_state.positions
         rotations = jax.nn.softmax(
             result.final_state.rotation_logits, axis=-1

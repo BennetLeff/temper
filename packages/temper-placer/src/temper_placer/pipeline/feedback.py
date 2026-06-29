@@ -11,11 +11,16 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
+import jax.numpy as jnp
+
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.state import PlacementState
     from temper_placer.pipeline.orchestrator import PipelineState
+
+from temper_placer.losses.base import LossContext, LossFunction, LossResult
+from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
 
 class AdjustmentType(Enum):
@@ -24,33 +29,29 @@ class AdjustmentType(Enum):
     SPECIFICATION = "specification"
 
 
-from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
-from temper_placer.losses.base import LossFunction, LossResult, LossContext
-import jax.numpy as jnp
-
 class RoutingFeedbackLoss(LossFunction):
     """Loss function that penalizes placement in congested areas.
-    
+
     Uses a pre-computed CongestionHeatmap to create a cost field
     that repels components from routing bottlenecks.
     """
-    
+
     def __init__(self, heatmap: CongestionHeatmap, sigma: float = 2.0):
         self.heatmap = heatmap
-        
+
         # Apply Gaussian blur to create a smooth cost field for gradients
         from scipy.ndimage import gaussian_filter
         blurred_grid = gaussian_filter(heatmap.grid, sigma=sigma)
-        
+
         # Pre-process grid for JAX
         self.grid = jnp.array(blurred_grid)
         self.origin = jnp.array(heatmap.origin)
         self.cell_size = heatmap.cell_size
-        
+
     @property
     def name(self) -> str:
         return "routing_feedback"
-        
+
     @property
     def supports_virtual_nodes(self) -> bool:
         return False
@@ -58,31 +59,31 @@ class RoutingFeedbackLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: jnp.ndarray | None = None,
+        _rotations: jnp.ndarray,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: jnp.ndarray | None = None,
     ) -> LossResult:
         """Compute congestion loss for all components."""
         # Convert world positions to grid indices
         # grid_pos = (positions - origin) / cell_size
         # map_coordinates expects (y, x) order for (row, col) grid
-        
+
         # Grid index coordinates
         gx = (positions[:, 0] - self.origin[0]) / self.cell_size
         gy = (positions[:, 1] - self.origin[1]) / self.cell_size
-        
+
         # map_coordinates requires (ndim, n_samples)
         coords = jnp.stack([gx, gy], axis=0)
-        
+
         # Bi-linear interpolation for smooth gradients
         from jax.scipy.ndimage import map_coordinates
         congestion_values = map_coordinates(self.grid, coords, order=1, mode='nearest')
-        
+
         # Total loss is sum of congestion at all component centers
         total_loss = jnp.sum(congestion_values)
-        
+
         return LossResult(
             value=total_loss,
             breakdown={"routing_congestion": total_loss}
@@ -97,7 +98,7 @@ class MomentumDampedRoutingFeedbackLoss:
     and the JAX optimizer calls compute_loss() during gradient descent.
     """
 
-    def __init__(self, initial_heatmap: "CongestionHeatmap", sigma: float = 2.0):
+    def __init__(self, initial_heatmap: CongestionHeatmap, sigma: float = 2.0):
         from scipy.ndimage import gaussian_filter
 
         self.origin = jnp.array(initial_heatmap.origin)
@@ -108,7 +109,7 @@ class MomentumDampedRoutingFeedbackLoss:
 
     def blend(
         self,
-        new_heatmap: "CongestionHeatmap",
+        new_heatmap: CongestionHeatmap,
         iteration: int,
         sigma: float = 2.0,
     ) -> None:
@@ -128,14 +129,15 @@ class MomentumDampedRoutingFeedbackLoss:
     def compute_loss(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: "LossContext",
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: jnp.ndarray | None = None,
-    ) -> "LossResult":
+        _rotations: jnp.ndarray,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: jnp.ndarray | None = None,
+    ) -> LossResult:
         """Compute congestion loss from the EWMA-blended grid."""
         from jax.scipy.ndimage import map_coordinates
+
         from temper_placer.losses.base import LossResult
 
         gx = (positions[:, 0] - self.origin[0]) / self.cell_size
@@ -212,37 +214,35 @@ def run_feedback_loop(state: PipelineState, config: FeedbackLoopConfig) -> Feedb
     """Run the validation-adjustment feedback loop."""
     iteration = 0
     success = False
-    
+
     while iteration < config.max_iterations:
         print(f"Feedback Loop Iteration {iteration + 1}/{config.max_iterations}")
-        
+
         # 1. Validation (Simulated for now)
         # In a real run, this would be populated by ROUTING/POST-ROUTING phases
         failures = []
-        if state.physics_report:
-            # Convert report to failures
-            if state.physics_report.emi.power_loop_area_mm2 > 80.0:
+        if state.physics_report and state.physics_report.emi.power_loop_area_mm2 > 80.0:
                 failures.append(ValidationFailure(
                     spec_name="loop_area_power",
                     actual_value=state.physics_report.emi.power_loop_area_mm2,
                     limit_value=80.0,
                     margin=80.0 - state.physics_report.emi.power_loop_area_mm2
                 ))
-        
+
         if not failures:
             success = True
             break
-            
+
         # 2. Generate Adjustments
         generator = FeedbackGenerator(state.placement_state, state.netlist, state.board)
         adjustments = generator.generate(failures)
-        
+
         # 3. Apply Adjustments
         applier = AdjustmentApplier()
         state = applier.apply(state, adjustments)
-        
+
         iteration += 1
-        
+
     return FeedbackLoopResult(success=success, iterations=iteration)
 
 
@@ -263,11 +263,11 @@ class ValidationFailure:
     actual_value: float
     limit_value: float
     margin: float  # Negative = violation
-    
+
     # Root cause breakdown
     placement_contribution: float = 0.0  # % due to component positions
     routing_contribution: float = 0.0    # % due to trace path
-    
+
     # Actionable fixes
     fixes: list[SuggestedFix] = field(default_factory=list)
 
@@ -317,7 +317,7 @@ def compute_min_loop_area(
 ) -> float:
     """Compute minimum possible loop area from placement (pin-to-pin direct)."""
     import numpy as np
-    
+
     positions = []
     for ref in loop_refs:
         try:
@@ -325,10 +325,10 @@ def compute_min_loop_area(
             positions.append(state.positions[idx])
         except KeyError:
             continue
-            
+
     if len(positions) < 3:
         return 0.0
-        
+
     v = np.array(positions)
     # Shoelace formula for polygon area
     area = 0.5 * np.abs(np.dot(v[:, 0], np.roll(v[:, 1], 1)) - np.dot(v[:, 1], np.roll(v[:, 0], 1)))
@@ -339,29 +339,29 @@ def analyze_loop_failure(
     failure: ValidationFailure,
     state: PlacementState,
     netlist: Netlist,
-    board: Board,
+    _board: Board,
 ) -> RootCauseAnalysis:
     """Analyze EMI/Loop Area failure with attribution."""
     # Try to identify loop components from name
     # Format: "loop_area_<name>" or similar
     loop_name = failure.spec_name.replace("loop_area_", "")
-    
+
     # Mock loop lookup for now
     # TODO: Get actual loop components from state/netlist
     loop_refs = ["Q1", "Q2", "C_BUS1"] if "power" in loop_name else ["U_MCU", "C_MCU_1"]
-    
+
     min_placement_area = compute_min_loop_area(state, netlist, loop_refs)
     actual_area = failure.actual_value
-    
+
     # Attribution
     # placement_contribution: what % of actual area is accounted for by the ideal placement?
     # High % means components are just too far apart.
     # Low % means routing detours are the main problem.
     placement_contrib = min(100.0, (min_placement_area / actual_area * 100.0)) if actual_area > 0 else 0.0
     routing_contrib = 100.0 - placement_contrib
-    
+
     fixes = []
-    
+
     # If placement is major contributor (>= 50%)
     if placement_contrib >= 50:
         fixes.append(SuggestedFix(
@@ -371,7 +371,7 @@ def analyze_loop_failure(
             feasibility='moderate',
             side_effects=["May increase thermal coupling"]
         ))
-    
+
     # If routing is major contributor (> 30%)
     if routing_contrib > 30:
         fixes.append(SuggestedFix(
@@ -381,7 +381,7 @@ def analyze_loop_failure(
             feasibility='moderate',
             side_effects=["May require more vias"]
         ))
-    
+
     # Specification relaxation if best achievable is still above limit
     best_achievable = min_placement_area * 1.1 # 10% routing overhead
     if best_achievable > failure.limit_value:
@@ -392,7 +392,7 @@ def analyze_loop_failure(
             feasibility='difficult',
             side_effects=["Verify against regulatory limits"]
         ))
-    
+
     return RootCauseAnalysis(
         failure=failure,
         placement_contribution=placement_contrib,
@@ -403,16 +403,16 @@ def analyze_loop_failure(
 
 def analyze_thermal_failure(
     failure: ValidationFailure,
-    state: PlacementState,
-    netlist: Netlist,
-    board: Board,
+    _state: PlacementState,
+    _netlist: Netlist,
+    _board: Board,
 ) -> RootCauseAnalysis:
     """Analyze thermal violation."""
     placement_contrib = 90.0
     routing_contrib = 10.0
-    
+
     fixes = []
-    
+
     fixes.append(SuggestedFix(
         target='placement',
         action="Move high-power components closer to board edge",
@@ -420,7 +420,7 @@ def analyze_thermal_failure(
         feasibility='easy',
         side_effects=["May increase wirelength"]
     ))
-    
+
     fixes.append(SuggestedFix(
         target='routing',
         action="Increase trace width for high-current paths",
@@ -428,7 +428,7 @@ def analyze_thermal_failure(
         feasibility='moderate',
         side_effects=["Reduces routing channel capacity"]
     ))
-    
+
     return RootCauseAnalysis(
         failure=failure,
         placement_contribution=placement_contrib,

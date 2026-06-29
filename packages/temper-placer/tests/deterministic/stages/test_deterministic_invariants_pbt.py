@@ -12,9 +12,14 @@ from __future__ import annotations
 import inspect
 
 import pytest
-from hypothesis import HealthCheck, given, seed as hseed, settings, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import seed as hseed
+from hypothesis import strategies as st
+from tests.deterministic.deterministic_property_strategies import (
+    board_state,
+    board_state_with_zones,
+)
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages import (
     ApplyPlacementsStage,
     LayerAssignmentStage,
@@ -25,12 +30,7 @@ from temper_placer.deterministic.stages import (
     ZoneGeometryStage,
 )
 from temper_placer.deterministic.stages.config_attach import ConfigAttachStage
-
-from tests.deterministic.deterministic_property_strategies import (
-    board_state,
-    board_state_with_zones,
-)
-
+from temper_placer.deterministic.state import BoardState
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -44,7 +44,6 @@ def _get_all_stage_classes():
     like ``ConnectivityViolation``, ``PlacementViolation``, etc.).
     """
     import temper_placer.deterministic.stages as stages_mod
-
     from temper_placer.deterministic.stages.base import Stage
 
     classes: list[tuple[str, type[Stage]]] = []
@@ -92,7 +91,7 @@ _RUNNABLE_STAGES: list[type] = [
 ]
 
 
-def _make_config_for_test(netlist) -> object:
+def _make_config_for_test(_netlist) -> object:
     """Create a minimal config object for ConfigAttachStage."""
     from types import SimpleNamespace
     return SimpleNamespace(net_classes={})
@@ -118,7 +117,7 @@ def test_all_registered_stages_importable() -> None:
     for name, cls in stage_classes:
         # Verify the class has a ``run`` method
         assert hasattr(cls, "run"), f"{name}.run missing"
-        assert callable(getattr(cls, "run")), f"{name}.run not callable"
+        assert callable(cls.run), f"{name}.run not callable"
 
         if name in _STAGES_NEEDING_SPECIAL_ARGS:
             continue
@@ -142,7 +141,6 @@ def test_all_registered_stages_run_returns_boardstate() -> None:
     Uses a fixture-derived BoardState for stages that can be constructed
     with default args.
     """
-    from temper_placer.deterministic.stages.base import Stage
 
     stage_classes = _get_all_stage_classes()
 

@@ -195,20 +195,20 @@ class NsgaPhase:
             )
 
             from temper_placer.optimizer.nsga2 import select_knee_point
-            
+
             # Extract the Pareto front
             front_indices = jnp.array(result.best_indices)
             front_objectives = result.objectives[front_indices]
-            
+
             # Use knee-point selection to pick the "best" representative state
             knee_idx_in_front = select_knee_point(front_objectives)
             knee_idx = int(front_indices[knee_idx_in_front])
-            
+
             representative_state = PlacementState(
                 positions=result.population_positions[knee_idx],
                 rotation_logits=result.population_rotations[knee_idx]
             )
-            
+
             all_front_states = [
                 PlacementState(
                     positions=result.population_positions[idx],
@@ -314,7 +314,7 @@ class OptimizationPipeline:
             if isinstance(res, ParetoFrontResult):
                 final_states = res.states
                 break
-        
+
         # If no Pareto result, just return the single final state
         if not final_states:
             final_states = [geo_res.state]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence, Union
 
 
 @dataclass(frozen=True)
@@ -9,7 +9,7 @@ class DSNExpression:
     """A SPECCTRA DSN S-expression primitive."""
 
     name: str
-    args: Sequence[Union[str, float, int, DSNExpression]] = field(default_factory=list)
+    args: Sequence[str | float | int | DSNExpression] = field(default_factory=list)
     comment: str | None = None
 
     def with_comment(self, line: str) -> DSNExpression:

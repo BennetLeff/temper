@@ -1,6 +1,7 @@
 """terative version checker (stub — full implementation in future PR)."""
 
 import click
+
 from ._io import console
 
 

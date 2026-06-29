@@ -18,13 +18,13 @@ class GeometricStage:
         start_time = time.time()
         from temper_placer.core.state import PlacementState
         from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
         from temper_placer.optimizer.legalization import (
             project_to_trust_region,
             resolve_overlaps_priority,
         )
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.losses.overlap import OverlapLoss
-        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
 
         print("Initializing local refinement (Step 3)...")
         deterministic_result = context.get("deterministic_result")

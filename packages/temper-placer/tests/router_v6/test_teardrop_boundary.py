@@ -17,7 +17,6 @@ import pytest
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.teardrop_generation import (
-    Teardrop,
     insert_teardrops,
 )
 from temper_placer.router_v6.via_placement import Via
@@ -26,7 +25,6 @@ from tests.router_v6.dfm_boundary_constants import (
     just_above,
     just_below,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helper factories

@@ -293,9 +293,9 @@ class KiCadDRCValidator(Validator):
 
     def validate(
         self,
-        state: PlacementState,
-        netlist: Netlist,
-        board: Board,
+        _state: PlacementState,
+        _netlist: Netlist,
+        _board: Board,
     ) -> ValidationResult:
         """
         Run DRC validation.

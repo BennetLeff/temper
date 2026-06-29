@@ -172,13 +172,13 @@ def _compile_kernel():
             heap_idx[0] = heap_idx[heap_size]
             i = 0
             while True:
-                l = 2 * i + 1
-                r = 2 * i + 2
+                left = 2 * i + 1
+                right = 2 * i + 2
                 smallest = i
-                if l < heap_size and heap_pri[l] < heap_pri[smallest]:
-                    smallest = l
-                if r < heap_size and heap_pri[r] < heap_pri[smallest]:
-                    smallest = r
+                if left < heap_size and heap_pri[left] < heap_pri[smallest]:
+                    smallest = left
+                if right < heap_size and heap_pri[right] < heap_pri[smallest]:
+                    smallest = right
                 if smallest == i:
                     break
                 tmp_p = heap_pri[i]

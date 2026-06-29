@@ -4,20 +4,19 @@ This module provides functionality to check whether placement constraints
 are satisfied and generate reports. Reporting only - no optimization.
 """
 
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Dict, List, Tuple, Optional
 import json
 import math
+from dataclasses import dataclass, field
+from enum import Enum
 
 from temper_placer.io.config_loader import (
-    PlacementConstraints,
-    ComponentSpacingRule,
-    ProximityRule,
-    ThermalConstraint,
     ComponentGroup,
+    ComponentSpacingRule,
     EscapeClearance,
+    PlacementConstraints,
+    ProximityRule,
     RoutingCorridor,
+    ThermalConstraint,
 )
 
 
@@ -37,11 +36,11 @@ class ConstraintResult:
     constraint_type: str  # e.g., "ComponentSpacing", "Proximity"
     status: ConstraintStatus
     tier: str  # "hard" or "soft"
-    components: List[str]  # Components involved
+    components: list[str]  # Components involved
     message: str  # Human-readable description
-    actual_value: Optional[float] = None  # Actual measured value
-    expected_value: Optional[float] = None  # Expected/threshold value
-    details: Dict = field(default_factory=dict)  # Additional info
+    actual_value: float | None = None  # Actual measured value
+    expected_value: float | None = None  # Expected/threshold value
+    details: dict = field(default_factory=dict)  # Additional info
 
     def is_violation(self) -> bool:
         """True if this is a hard constraint violation."""
@@ -56,30 +55,30 @@ class ConstraintResult:
 class ConstraintReport:
     """Aggregated report of all constraint checks."""
 
-    results: List[ConstraintResult] = field(default_factory=list)
+    results: list[ConstraintResult] = field(default_factory=list)
 
     @property
-    def violations(self) -> List[ConstraintResult]:
+    def violations(self) -> list[ConstraintResult]:
         """Hard constraint violations."""
         return [r for r in self.results if r.is_violation()]
 
     @property
-    def warnings(self) -> List[ConstraintResult]:
+    def warnings(self) -> list[ConstraintResult]:
         """Soft constraint warnings."""
         return [r for r in self.results if r.is_warning()]
 
     @property
-    def satisfied(self) -> List[ConstraintResult]:
+    def satisfied(self) -> list[ConstraintResult]:
         """Satisfied constraints."""
         return [r for r in self.results if r.status == ConstraintStatus.SATISFIED]
 
     @property
-    def hard_results(self) -> List[ConstraintResult]:
+    def hard_results(self) -> list[ConstraintResult]:
         """All hard constraint results."""
         return [r for r in self.results if r.tier == "hard"]
 
     @property
-    def soft_results(self) -> List[ConstraintResult]:
+    def soft_results(self) -> list[ConstraintResult]:
         """All soft constraint results."""
         return [r for r in self.results if r.tier == "soft"]
 
@@ -189,7 +188,7 @@ class ConstraintReporter:
     def __init__(
         self,
         constraints: PlacementConstraints,
-        board_bounds: Optional[Tuple[float, float, float, float]] = None,
+        board_bounds: tuple[float, float, float, float] | None = None,
     ):
         """Initialize reporter.
 
@@ -200,7 +199,7 @@ class ConstraintReporter:
         self.constraints = constraints
         self.board_bounds = board_bounds
 
-    def check(self, placements: Dict[str, Tuple[float, float]]) -> ConstraintReport:
+    def check(self, placements: dict[str, tuple[float, float]]) -> ConstraintReport:
         """Check all constraints against placements.
 
         Args:
@@ -244,7 +243,7 @@ class ConstraintReporter:
 
         return report
 
-    def _check_spacing(self, rule: ComponentSpacingRule, placements: Dict) -> ConstraintResult:
+    def _check_spacing(self, rule: ComponentSpacingRule, placements: dict) -> ConstraintResult:
         """Check ComponentSpacingRule."""
         comp_a, comp_b = rule.component_a, rule.component_b
 
@@ -279,7 +278,7 @@ class ConstraintReporter:
             expected_value=rule.min_separation_mm,
         )
 
-    def _check_proximity(self, rule: ProximityRule, placements: Dict) -> ConstraintResult:
+    def _check_proximity(self, rule: ProximityRule, placements: dict) -> ConstraintResult:
         """Check ProximityRule."""
         comp_a, comp_b = rule.component_a, rule.component_b
 
@@ -314,7 +313,7 @@ class ConstraintReporter:
             expected_value=rule.max_distance_mm,
         )
 
-    def _check_thermal(self, thermal: ThermalConstraint, placements: Dict) -> ConstraintResult:
+    def _check_thermal(self, thermal: ThermalConstraint, placements: dict) -> ConstraintResult:
         """Check ThermalConstraint edge preference.
 
         Note: ThermalConstraint.components is a list, but we check each component individually.
@@ -364,7 +363,7 @@ class ConstraintReporter:
             expected_value=threshold,
         )
 
-    def _check_group_spread(self, group: ComponentGroup, placements: Dict) -> ConstraintResult:
+    def _check_group_spread(self, group: ComponentGroup, placements: dict) -> ConstraintResult:
         """Check ComponentGroup max_spread_mm."""
         # Get placed components in group
         placed_comps = [c for c in group.components if c in placements]
@@ -404,8 +403,8 @@ class ConstraintReporter:
         )
 
     def _check_escape_clearance(
-        self, escape: EscapeClearance, placements: Dict
-    ) -> List[ConstraintResult]:
+        self, escape: EscapeClearance, placements: dict
+    ) -> list[ConstraintResult]:
         """Check EscapeClearance - no other components in clearance zone."""
         results = []
         comp = escape.component
@@ -476,8 +475,8 @@ class ConstraintReporter:
         return results
 
     def _check_routing_corridor(
-        self, corridor: RoutingCorridor, placements: Dict
-    ) -> List[ConstraintResult]:
+        self, corridor: RoutingCorridor, placements: dict
+    ) -> list[ConstraintResult]:
         """Check RoutingCorridor - no components blocking path."""
         results = []
         from_comp = corridor.from_component
@@ -551,13 +550,13 @@ class ConstraintReporter:
         return results
 
     @staticmethod
-    def _distance(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
+    def _distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
         """Euclidean distance between two points."""
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
     @staticmethod
     def _min_edge_distance(
-        pos: Tuple[float, float], bounds: Tuple[float, float, float, float]
+        pos: tuple[float, float], bounds: tuple[float, float, float, float]
     ) -> float:
         """Minimum distance from point to any board edge."""
         x, y = pos
@@ -574,7 +573,7 @@ class ConstraintReporter:
 
     @staticmethod
     def _point_to_segment_distance(
-        point: Tuple[float, float], seg_start: Tuple[float, float], seg_end: Tuple[float, float]
+        point: tuple[float, float], seg_start: tuple[float, float], seg_end: tuple[float, float]
     ) -> float:
         """Minimum distance from point to line segment."""
         px, py = point

@@ -12,11 +12,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.constraint_model import (
-        CapacityConstraint,
         ConstraintModel,
-        DiffPairConstraint,
-        LayerConstraint,
-        NetChannelVar,
     )
 
 
@@ -131,7 +127,7 @@ def populate_sat_from_constraints(
     # 1. Create SAT variables from constraint model variables
     var_map = {}  # constraint var name -> SAT var
     net_channel_vars = {}  # net_idx -> list of SAT vars for that net
-    
+
     for var in constraint_model.variables:
         if isinstance(var, NetChannelVar):
             # Create human-readable variable name with net name if available
@@ -145,10 +141,10 @@ def populate_sat_from_constraints(
             else:
                 var_name = var.name
                 description = f"Net {var.net_idx} uses channel {var.channel_id}"
-            
+
             sat_var = sat_model.add_variable(var_name, description)
             var_map[var.name] = sat_var
-            
+
             # Track variables for each net
             if var.net_idx not in net_channel_vars:
                 net_channel_vars[var.net_idx] = []
@@ -176,14 +172,14 @@ def populate_sat_from_constraints(
            # Which means: p implies n, and n implies p
             p_sat = var_map.get(constraint.p_var.name)
             n_sat = var_map.get(constraint.n_var.name)
-            
+
             if p_sat and n_sat:
                 # If p_net uses channel, then n_net must use channel
                 sat_model.add_clause(
                     [(p_sat, False), (n_sat, True)],
                     f"DiffPair: {constraint.p_var.name} → {constraint.n_var.name}"
                 )
-                # If n_net uses channel, then p_net must use channel  
+                # If n_net uses channel, then p_net must use channel
                 sat_model.add_clause(
                     [(n_sat, False), (p_sat, True)],
                     f"DiffPair: {constraint.n_var.name} → {constraint.p_var.name}"
@@ -195,7 +191,7 @@ def populate_sat_from_constraints(
             # If allowed = True, add clause (uses[n, c])
             var_name = f"uses_N{constraint.net_idx}_{constraint.channel_id}"
             sat_var = var_map.get(var_name)
-            
+
             if sat_var:
                 sat_model.add_clause(
                     [(sat_var, constraint.allowed)],

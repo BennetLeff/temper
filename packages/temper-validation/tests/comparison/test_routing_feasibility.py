@@ -1,11 +1,11 @@
 """Tests for routing feasibility detection module."""
 
-import pytest
 from dataclasses import dataclass
-from typing import NamedTuple
+
+import pytest
 
 # Import real data structures from implementation
-from temper_validation.comparison.routing_feasibility import RoutingResult, RoutingFeasibilityResult
+from temper_validation.comparison.routing_feasibility import RoutingResult
 
 
 @dataclass

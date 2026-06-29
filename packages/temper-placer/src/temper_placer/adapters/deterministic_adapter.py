@@ -19,7 +19,7 @@ class _WrappedDeterministicStage:
 
     def __init__(
         self,
-        stage: "Stage",
+        stage: Stage,
         requires: list[str] | None = None,
         provides: list[str] | None = None,
     ) -> None:
@@ -29,7 +29,7 @@ class _WrappedDeterministicStage:
         self.provides: list[str] = provides or []
         self.contract = None
 
-    def run(self, input: "StageInput") -> "StageOutput":
+    def run(self, input: StageInput) -> StageOutput:
         from temper_placer.protocol import StageOutput
 
         state = input.data
@@ -38,11 +38,11 @@ class _WrappedDeterministicStage:
 
 
 def wrap_deterministic_stage(
-    stage: "Stage",
+    stage: Stage,
     *,
     requires: list[str] | None = None,
     provides: list[str] | None = None,
-) -> "PipelineStage":
+) -> PipelineStage:
     """Wrap a deterministic ``Stage`` so it satisfies ``PipelineStage``.
 
     Args:

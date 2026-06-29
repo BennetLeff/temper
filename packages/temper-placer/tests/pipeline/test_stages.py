@@ -67,7 +67,7 @@ class TestOutputStage:
 class TestGeometricStage:
     def test_requires_context_keys(self):
         from temper_placer.pipeline.stages.geometric_stage import GeometricStage
-        from temper_placer.pipeline.state import PipelineConfig, PipelineState
+        from temper_placer.pipeline.state import PipelineConfig
 
         stage = GeometricStage()
         config = PipelineConfig(input_pcb=__import__("pathlib").Path("/tmp/test.kicad_pcb"))

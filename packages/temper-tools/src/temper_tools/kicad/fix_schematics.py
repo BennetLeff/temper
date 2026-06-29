@@ -197,8 +197,7 @@ class KiCadSchematicFixer:
 
         i = 0
         while i < len(content):
-            if content[i : i + 8] == "(symbol ":
-                if depth == 1:  # Top-level symbol in library
+            if content[i : i + 8] == "(symbol " and depth == 1:  # Top-level symbol in library
                     in_symbol = True
                     symbol_start = i
                     # Extract symbol name
@@ -301,10 +300,7 @@ class KiCadSchematicFixer:
         lib_symbols_match = re.search(
             r"\(lib_symbols\s*((?:\(symbol[^)]*\)|\s)*)\)", content, re.DOTALL
         )
-        if lib_symbols_match:
-            lib_symbols_content = lib_symbols_match.group(1)
-        else:
-            lib_symbols_content = ""
+        lib_symbols_content = lib_symbols_match.group(1) if lib_symbols_match else ""
 
         for lib_id in referenced_libs:
             # Skip standard libraries (Device, power, 74xx, etc.)

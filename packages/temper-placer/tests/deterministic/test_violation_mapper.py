@@ -1,6 +1,8 @@
 import pytest
-from temper_placer.deterministic.feedback import ViolationComponentMapper, DRCViolation
-from temper_placer.core.netlist import Netlist, Component, Pin
+
+from temper_placer.core.netlist import Component, Netlist, Pin
+from temper_placer.deterministic.feedback import DRCViolation, ViolationComponentMapper
+
 
 @pytest.fixture
 def sample_netlist():

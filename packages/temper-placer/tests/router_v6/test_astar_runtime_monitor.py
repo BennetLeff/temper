@@ -13,7 +13,7 @@ import time
 import numpy as np
 import pytest
 
-from temper_placer.router_v6.astar_core import _astar_search, _heuristic
+from temper_placer.router_v6.astar_core import _astar_search
 from temper_placer.router_v6.astar_monitor import astar_monitor, get_monitor_state
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
@@ -67,14 +67,13 @@ def test_monitor_detects_broken_heuristic():
     # An inconsistent heuristic: alternates between 0 and 50 based on
     # parity of coordinates. This causes f-cost to oscillate, breaking
     # monotonicity.
-    def _broken_heuristic(a, b):
+    def _broken_heuristic(a, _b):
         return 50.0 if (a[0] + a[1]) % 2 == 0 else 0.0
 
     try:
         ac._heuristic = _broken_heuristic
-        with pytest.raises(pytest.fail.Exception, match=r"f_cost_monotonicity"):
-            with astar_monitor():
-                _astar_search((0, 0), (9, 9), grid)
+        with pytest.raises(pytest.fail.Exception, match=r"f_cost_monotonicity"), astar_monitor():
+            _astar_search((0, 0), (9, 9), grid)
     finally:
         ac._heuristic = _original_heuristic
 

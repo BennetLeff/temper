@@ -265,10 +265,8 @@ def check_zones_fit_on_board(
     margin = constraints.board_margin_mm
 
     # Effective board bounds with margin
-    min_x = margin
-    min_y = margin
-    max_x = board_w - margin
-    max_y = board_h - margin
+    board_w - margin
+    board_h - margin
 
     zones_outside = []
 
@@ -335,10 +333,7 @@ def _zones_overlap(zone1: Zone, zone2: Zone) -> bool:
     # No overlap if one is completely to the left/right/above/below
     if x1_max <= x2_min or x2_max <= x1_min:
         return False
-    if y1_max <= y2_min or y2_max <= y1_min:
-        return False
-
-    return True
+    return not (y1_max <= y2_min or y2_max <= y1_min)
 
 
 # =============================================================================

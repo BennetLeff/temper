@@ -1,9 +1,12 @@
-import pytest
 from pathlib import Path
-from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
-from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+import pytest
+
+from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
+from temper_placer.io.config_loader import constraints_to_design_rules, load_constraints
 from temper_placer.io.kicad_metadata import extract_kicad_metadata
-from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+
 
 def test_full_pipeline_includes_all_drc_stages():
     '''Pipeline should include oracle setup, routing, DRC, and connectivity.'''
@@ -17,7 +20,7 @@ def test_full_pipeline_includes_all_drc_stages():
     )
     pipeline = create_drc_aware_pipeline(metadata=metadata)
     stage_names = [s.name for s in pipeline.stages]
-    
+
     assert 'drc_oracle_setup' in stage_names
     assert 'drc_validation' in stage_names
     assert 'connectivity_validation' in stage_names
@@ -27,7 +30,7 @@ def test_temper_board_routes_successfully():
     '''Temper board should route with the deterministic pipeline.'''
     pcb_path = Path('pcb/temper.kicad_pcb')
     config_path = Path('configs/temper_deterministic_config.yaml')
-    
+
     # We use a relative path from the project root
     # If running from packages/temper-placer, we need to go up
     if not pcb_path.exists():
@@ -36,26 +39,26 @@ def test_temper_board_routes_successfully():
 
     if not pcb_path.exists() or not config_path.exists():
         pytest.skip(f"Temper board or config not found at {pcb_path}")
-        
+
     # Load data
     parse_result = parse_kicad_pcb(pcb_path)
     constraints = load_constraints(config_path)
     design_rules = constraints_to_design_rules(constraints)
     metadata = extract_kicad_metadata(pcb_path)
-    
+
     # Run pipeline
     pipeline = create_drc_aware_pipeline(design_rules=design_rules, config=constraints, metadata=metadata)
     initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
     result = pipeline.run(initial_state)
-    
+
     # Check that we have some routes
     assert len(result.routes) > 0
-    
+
     # Check internal DRC results
     assert result.drc_violations is not None
     # Target: reasonable number of violations for a complex board
     assert len(result.drc_violations) < 100
-    
+
     # Check connectivity
     assert result.connectivity_violations is not None
     # Unconnected pads should be reasonable

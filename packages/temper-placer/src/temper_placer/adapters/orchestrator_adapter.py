@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.pipeline.orchestrator import PipelineState, PipelineConfig  # noqa: F401
+    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineState  # noqa: F401
     from temper_placer.protocol import PipelineStage, StageInput, StageOutput  # noqa: F401
 
 
@@ -35,14 +35,14 @@ def _make_orchestrator_stage(
 
         def run(self, input):
             from temper_placer.pipeline.orchestrator import (
-                PipelineOrchestrator,
-                PipelineState,
                 PipelineConfig,
+                PipelineOrchestrator,
                 PipelinePhase,
+                PipelineState,
             )
             from temper_placer.protocol import StageOutput
 
-            phase = PipelinePhase(phase_value)
+            PipelinePhase(phase_value)
             data = input.data
 
             if isinstance(data, PipelineConfig):

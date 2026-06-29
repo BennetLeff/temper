@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.manufacturing_report import ManufacturingReport
-    from temper_placer.router_v6.stage0_data import ParsedPCB
     from temper_placer.router_v6.routing_results import RoutingResults
+    from temper_placer.router_v6.stage0_data import ParsedPCB
 
 import time
 from collections import defaultdict
@@ -29,10 +29,10 @@ from typing import Any
 
 from temper_drc.core.fence import DRCFence, InvariantSpec
 
+from temper_placer.core.board import side_to_layer_name
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.placement.legalization import Legalizer
-from temper_placer.core.board import side_to_layer_name
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
 from temper_placer.router_v6.channel_mapping import ChannelPath, map_topology_to_channels
@@ -43,19 +43,17 @@ from temper_placer.router_v6.dense_package_detection import identify_dense_packa
 from temper_placer.router_v6.diff_pair_inference import infer_differential_pairs
 from temper_placer.router_v6.escape_via_generator import EscapeVia, generate_escape_vias
 from temper_placer.router_v6.layer_capacity import LayerCapacity
-from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-from temper_placer.router_v6.routing_demand import RoutingDemand
-from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
-from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_hv_net,
     is_power_net,
 )
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.routing_demand import RoutingDemand
+from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
+from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.sat_model import (
     SATModel,
-    build_sat_model,
-    populate_sat_from_constraints,
 )
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage2_orchestrator import Stage2Orchestrator
@@ -143,7 +141,7 @@ class RouterV6Result:
     stage4: Stage4Output
 
     runtime_seconds: float
-    manufacturing_report: "ManufacturingReport | None" = None
+    manufacturing_report: ManufacturingReport | None = None
 
     @property
     def success_count(self) -> int:
@@ -202,7 +200,7 @@ def _net_pad_positions(net, comp_by_ref: dict) -> list[tuple[float, float]]:
 def _parsed_pcb_to_drc_input(
     pcb: ParsedPCB,
     escape_vias: list[EscapeVia] | None = None,
-    routing_results: "RoutingResults | None" = None,
+    routing_results: RoutingResults | None = None,
 ) -> tuple:
     """Convert ParsedPCB to temper_drc Placement and ConstraintSet.
 
@@ -264,7 +262,8 @@ def _parsed_pcb_to_drc_input(
 
     # Populate via/trace data when available
     if escape_vias:
-        from temper_drc.types import Via as DRCVia, ViaPlacement as DRCViaPlacement
+        from temper_drc.types import Via as DRCVia
+        from temper_drc.types import ViaPlacement as DRCViaPlacement
         # NOTE: Assumes all vias are through-hole (F.Cu <-> B.Cu).
         # Blind/buried via support requires per-via layer resolution.
         drc_vias = [
@@ -281,7 +280,8 @@ def _parsed_pcb_to_drc_input(
         placement.via_placement = DRCViaPlacement(vias=drc_vias)
 
     if routing_results is not None:
-        from temper_drc.types import TraceSegment, TracePlacement as DRCTracePlacement
+        from temper_drc.types import TracePlacement as DRCTracePlacement
+        from temper_drc.types import TraceSegment
         segments: list[TraceSegment] = []
         for net_name, net_result in getattr(routing_results, "results", {}).items():
             if not getattr(net_result, "success", False):
@@ -692,7 +692,7 @@ class RouterV6Pipeline:
                 print(f"    WARNING: {msg}")
             raise RuntimeError(msg)
         elif self.verbose:
-            print(f"    Constraint audit: clean (0 violations)")
+            print("    Constraint audit: clean (0 violations)")
 
         # ESL secondary check — fast Python-side ground-truth verification.
         if self.verbose and solution.is_satisfiable:
@@ -704,7 +704,7 @@ class RouterV6Pipeline:
             if esl_violations:
                 print(f"    ESL verify: {len(esl_violations)} violation(s): {esl_violations[:5]}")
             else:
-                print(f"    ESL verify: clean (agrees with Rust audit)")
+                print("    ESL verify: clean (agrees with Rust audit)")
 
         if self.verbose:
             if solution.is_satisfiable:
@@ -739,7 +739,7 @@ class RouterV6Pipeline:
             print("  4.1: Setting up channel mapping...")
 
         fcu_skeleton = stage2.skeletons.get("F.Cu") or next(iter(stage2.skeletons.values()), None)
-        bcu_skeleton = stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)
+        stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)
 
         # Map all nets with layer assignment (waypoints are layer-agnostic)
         channel_mapping = map_topology_to_channels(
@@ -748,7 +748,6 @@ class RouterV6Pipeline:
         )
 
         # Fallback: nets without SAT channel assignment get direct A* attempt
-        from temper_placer.router_v6.channel_mapping import ChannelPath
         comp_by_ref = {c.ref: c for c in pcb.components}
         routed_nets = {cp.net_name for cp in channel_mapping.channel_paths.values()}
         for net in pcb.nets:
@@ -809,7 +808,7 @@ class RouterV6Pipeline:
     def _run_stage5(
         self,
         pcb: ParsedPCB,
-        stage2: Stage2Output,
+        _stage2: Stage2Output,
         pathfinding_result: PathfindingResult,
     ) -> Stage4Output:
         """Run Stage 5: Post-processing (smoothing, via placement, width, results)."""
@@ -859,9 +858,9 @@ class RouterV6Pipeline:
 
     def _run_manufacturing_drc(
         self,
-        pcb: "ParsedPCB",
-        routing_results: "RoutingResults",
-    ) -> "ManufacturingReport":
+        pcb: ParsedPCB,
+        routing_results: RoutingResults,
+    ) -> ManufacturingReport:
         """Run all 8 DFM checks and compile the manufacturing report.
 
         Each DFM module is called in isolation -- a failure in one
@@ -961,7 +960,7 @@ class RouterV6Pipeline:
         invariants: tuple,
         pcb: ParsedPCB,
         escape_vias: list[EscapeVia] | None = None,
-        routing_results: "RoutingResults | None" = None,
+        routing_results: RoutingResults | None = None,
     ):
         """Run fence checks for a Router V6 stage.
 
@@ -1004,7 +1003,7 @@ def _ensure_checks_loaded(fence, invariants: tuple) -> None:
         return
     try:
         from temper_drc.checks.drc.trace_clearance import TraceClearanceCheck  # noqa: E402
-        from temper_drc.checks.drc.via_spacing import ViaSpacingCheck          # noqa: E402
+        from temper_drc.checks.drc.via_spacing import ViaSpacingCheck  # noqa: E402
     except ImportError:
         return  # temper_drc not available, skip
     if "drc_via_spacing" in missing:

@@ -329,7 +329,7 @@ def _get_pin_positions(
         elif comp.initial_position is not None:
             comp_x, comp_y = comp.initial_position
         else:
-            comp_x, comp_y = 0.0, 0.0
+            _comp_x, _comp_y = 0.0, 0.0
 
         # Find pin and get its position
         for pin in comp.pins:

@@ -317,10 +317,7 @@ def render_loss_heatmap(
         term_values = history.get_term_history(term)
         # Normalize to [0, 1] for better visualization
         max_val = max(term_values) if term_values else 1.0
-        if max_val > 0:
-            normalized = [v / max_val for v in term_values]
-        else:
-            normalized = term_values
+        normalized = [v / max_val for v in term_values] if max_val > 0 else term_values
         z_data.append(normalized)
 
     fig.add_trace(
@@ -461,10 +458,7 @@ def render_training_dashboard(
         for term in history.loss_terms:
             term_values = history.get_term_history(term)
             max_val = max(term_values) if term_values else 1.0
-            if max_val > 0:
-                normalized = [v / max_val for v in term_values]
-            else:
-                normalized = term_values
+            normalized = [v / max_val for v in term_values] if max_val > 0 else term_values
             z_data.append(normalized)
 
         fig.add_trace(

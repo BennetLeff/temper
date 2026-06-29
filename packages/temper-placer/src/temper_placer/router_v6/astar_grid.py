@@ -24,7 +24,6 @@ def _build_tht_pad_locations(pcb) -> set[tuple[float, float]]:
     Returns:
         Set of (x, y) positions where THT pads exist (absolute coordinates)
     """
-    import math
 
     from temper_placer.core.pin_geometry import pin_world_position
 

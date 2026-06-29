@@ -10,10 +10,8 @@ import pytest
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.clearance_check import verify_clearance
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
-from tests.router_v6.test_induction_base import make_empty_rr
 from tests.router_v6.sat_property_strategies import known_compliant_route
-
-
+from tests.router_v6.test_induction_base import make_empty_rr
 
 
 @pytest.mark.dependency(depends=["induction-base"], name="clearance-add")

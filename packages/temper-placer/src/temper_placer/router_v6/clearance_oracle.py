@@ -15,7 +15,6 @@ Usage (test only)::
 from __future__ import annotations
 
 import math
-import os
 
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 

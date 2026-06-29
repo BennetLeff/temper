@@ -4,8 +4,6 @@ Thermal junction temperature estimation for PCB components.
 
 from __future__ import annotations
 
-import numpy as np
-
 
 def estimate_junction_temp(
     power_W: float,

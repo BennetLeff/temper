@@ -56,7 +56,7 @@ def test_infer_diff_pairs_case_insensitive():
     assert len(pairs) == 2
     # Original case should be preserved
     pair_dict = {p.base_name: p for p in pairs}
-    
+
     assert "usb" in pair_dict or "USB" in pair_dict
     assert "Clk" in pair_dict or "CLK" in pair_dict
 
@@ -117,7 +117,7 @@ def test_complex_naming():
 
     assert len(pairs) == 3
     pair_dict = {p.base_name: p for p in pairs}
-    
+
     # All three pairs should be found
     assert "PCIE_TX0" in pair_dict
     assert "PCIE_TX1" in pair_dict

@@ -6,12 +6,11 @@ from being exported.
 """
 
 from dataclasses import replace
-from typing import Set, Tuple, List
-from ...core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER
+
+from ...core.board import LAYER_NAME_TO_IDX, STANDARD_LAYER_ORDER, Trace, Via
+from ...core.pin_geometry import pin_world_position_at
 from ..state import BoardState
 from .base import Stage
-from ...core.board import Trace, Via
-from ...core.pin_geometry import pin_world_position_at
 
 
 class DRCSweepStage(Stage):
@@ -228,8 +227,7 @@ class ShortCircuitDetectionStage(Stage):
                 for (key_x, key_y, key_layer), net in pin_net_map.items():
                     if key_layer != trace.layer:
                         continue
-                    if abs(px - key_x) <= tol and abs(py - key_y) <= tol:
-                        if net != track_net and track_net:
+                    if abs(px - key_x) <= tol and abs(py - key_y) <= tol and net != track_net and track_net:
                             print(
                                 f"  SHORT: {trace.net} track near {net} pin at ({px:.1f}, {py:.1f})"
                             )

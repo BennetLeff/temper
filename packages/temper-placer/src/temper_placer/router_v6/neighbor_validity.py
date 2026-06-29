@@ -44,7 +44,7 @@ DIRS_8: tuple[tuple[int, int], ...] = (
 
 
 def build_neighbor_validity_tensor_2d(
-    grid: "OccupancyGrid",
+    grid: OccupancyGrid,
 ) -> np.ndarray:
     """Build a ``(rows, cols, 8)`` boolean tensor for a 2D grid.
 

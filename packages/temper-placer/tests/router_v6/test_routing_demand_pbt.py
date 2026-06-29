@@ -3,9 +3,10 @@
 Tests invariants: signal_nets + power_nets <= total_nets, all counts non-negative.
 """
 
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
-from temper_placer.router_v6.routing_demand import RoutingDemand, estimate_routing_demand
+from temper_placer.router_v6.routing_demand import RoutingDemand
 
 
 @given(

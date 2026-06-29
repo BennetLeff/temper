@@ -1,15 +1,14 @@
 """Tests for report generator module."""
 
-import pytest
-from dataclasses import dataclass
-from pathlib import Path
-import tempfile
 import os
+import tempfile
+from pathlib import Path
+
+from temper_validation.comparison.drc_compliance import DRCComplianceResult
+from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 
 # Import real data structures from implementation
 from temper_validation.comparison.wirelength import WirelengthResult
-from temper_validation.comparison.drc_compliance import DRCComplianceResult
-from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 from temper_validation.metrics.quality_score import AggregateScoreResult
 
 
@@ -60,7 +59,7 @@ def test_markdown_report_structure():
         )
 
         # Read generated report
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Check required sections
@@ -126,7 +125,7 @@ def test_markdown_report_includes_verdict():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Should have overall verdict from aggregate score
@@ -183,7 +182,7 @@ def test_markdown_report_includes_score_breakdown():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Check score values are present
@@ -244,7 +243,7 @@ def test_html_report_structure():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Check HTML structure
@@ -308,7 +307,7 @@ def test_html_report_pass_fail_styling():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Check for color coding (green for PASS, red for FAIL)
@@ -355,7 +354,7 @@ def test_report_includes_file_paths():
         verdict="PASS",
     )
 
-    from temper_validation.reporting.report import generate_markdown_report, generate_html_report
+    from temper_validation.reporting.report import generate_html_report, generate_markdown_report
 
     # Test Markdown report
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".md") as f:
@@ -370,7 +369,7 @@ def test_report_includes_file_paths():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         assert "test_optimized.kicad_pcb" in content, "Report should include optimized path"
@@ -392,7 +391,7 @@ def test_report_includes_file_paths():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         assert "test_optimized.kicad_pcb" in content, "HTML report should include optimized path"
@@ -448,7 +447,7 @@ def test_report_timestamp():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Should contain date

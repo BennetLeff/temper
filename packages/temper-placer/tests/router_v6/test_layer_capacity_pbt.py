@@ -1,6 +1,7 @@
 """Property-based tests for LayerCapacity invariants."""
 
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.layer_capacity import LayerCapacity
 

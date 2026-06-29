@@ -10,7 +10,6 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic import create_legacy_pipeline
 from temper_placer.deterministic.state import BoardState
 
-
 FIXTURE_DIR = Path(__file__).parent.parent / "src" / "temper_placer" / "profiling" / "validation" / "fixtures"
 
 

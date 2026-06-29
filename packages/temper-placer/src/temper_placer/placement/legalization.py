@@ -7,10 +7,9 @@ Resolves component overlaps using force-directed displacement.
 from __future__ import annotations
 
 import math
-from typing import List, Tuple
-from shapely.geometry import Polygon, Point
-from temper_placer.router_v6.stage0_data import ParsedPCB
+
 from temper_placer.placement.audit import PlacementAuditor
+from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
 class Legalizer:
@@ -24,7 +23,7 @@ class Legalizer:
         """
         Run legalization loop. Returns True if converged (no overlaps).
         """
-        for i in range(self.max_iterations):
+        for _i in range(self.max_iterations):
             # 1. Check collisions
             # Re-build courtyards every step because positions change
             self.auditor.courtyards = self.auditor._build_courtyards()

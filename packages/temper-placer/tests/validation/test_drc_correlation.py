@@ -30,16 +30,16 @@ import pytest
 
 # Skip all tests if JAX not available
 jax = pytest.importorskip("jax")
-import jax.numpy as jnp
+import jax.numpy as jnp  # noqa: E402
 
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
-from temper_placer.core.state import PlacementState
-from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
-from temper_placer.io.kicad_writer import (
+from temper_placer.core.board import Board  # noqa: E402
+from temper_placer.core.netlist import Netlist  # noqa: E402
+from temper_placer.core.state import PlacementState  # noqa: E402
+from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb  # noqa: E402
+from temper_placer.io.kicad_writer import (  # noqa: E402
     export_placements,
 )
-from temper_placer.losses import (
+from temper_placer.losses import (  # noqa: E402
     BoundaryLoss,
     CompositeLoss,
     LossContext,
@@ -47,8 +47,8 @@ from temper_placer.losses import (
     WeightedLoss,
     WirelengthLoss,
 )
-from temper_placer.optimizer import OptimizerConfig, train
-from temper_placer.optimizer.config import (
+from temper_placer.optimizer import OptimizerConfig, train  # noqa: E402
+from temper_placer.optimizer.config import (  # noqa: E402
     CheckpointConfig,
     EarlyStoppingConfig,
     LearningRateSchedule,
@@ -1333,9 +1333,9 @@ class TestDRCCorrelationAnalysis:
 
         # Find threshold candidates
         # Sort by overlap and find where DRC starts failing
-        sorted_by_overlap = sorted(data_points, key=lambda x: x["overlap_loss"])
-        sorted_by_boundary = sorted(data_points, key=lambda x: x["boundary_loss"])
-        sorted_by_total = sorted(data_points, key=lambda x: x["total_loss"])
+        sorted(data_points, key=lambda x: x["overlap_loss"])
+        sorted(data_points, key=lambda x: x["boundary_loss"])
+        sorted(data_points, key=lambda x: x["total_loss"])
 
         # Find thresholds (highest passing value + margin)
         passing_overlaps = [p["overlap_loss"] for p in data_points if p["drc_pass"]]

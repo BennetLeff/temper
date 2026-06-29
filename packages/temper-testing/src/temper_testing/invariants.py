@@ -11,9 +11,11 @@ Usage:
 
 from __future__ import annotations
 
-import os
 import functools
-from typing import Callable, Any, TypeVar
+import os
+from collections.abc import Callable
+from typing import Any, TypeVar
+
 import numpy as np
 
 T = TypeVar("T")

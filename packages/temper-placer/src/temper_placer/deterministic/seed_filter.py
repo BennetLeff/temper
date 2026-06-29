@@ -13,7 +13,7 @@ anywhere a seed candidate is being evaluated.
 
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
 from temper_placer.deterministic.bottleneck_map import BottleneckMap
 

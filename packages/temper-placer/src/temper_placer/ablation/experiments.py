@@ -124,11 +124,8 @@ def create_component_addition_matrix() -> list[ExperimentConfig]:
         setattr(components, t, True)
 
         # Ensure GradNorm doesn't conflict with other techniques in isolation
-        if t == "grad_norm":
-            # For GradNorm addition test, we need some losses to balance
-            losses = LossToggle()
-        else:
-            losses = LossToggle.hard_constraints_only()
+        # For GradNorm addition test, we need some losses to balance
+        losses = LossToggle() if t == "grad_norm" else LossToggle.hard_constraints_only()
 
         experiments.append(ExperimentConfig(
             name=f"add_{t}",

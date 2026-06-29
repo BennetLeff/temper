@@ -12,14 +12,14 @@ Usage:
     python3 demo_integrated_pipeline.py
 """
 
-from pathlib import Path
 import time
+from pathlib import Path
 
-from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
-from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
-from temper_placer.io.kicad_metadata import extract_kicad_metadata
 from temper_placer.constraints import ConstraintReporter
+from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
+from temper_placer.io.config_loader import constraints_to_design_rules, load_constraints
+from temper_placer.io.kicad_metadata import extract_kicad_metadata
+from temper_placer.io.kicad_parser import parse_kicad_pcb
 
 
 def demo_phased_placement():
@@ -41,12 +41,12 @@ def demo_phased_placement():
         print(f"PCB not found: {pcb_path}")
         return
 
-    print(f"\nInput files:")
+    print("\nInput files:")
     print(f"  Config: {config_path.name}")
     print(f"  PCB:    {pcb_path.name}")
 
     # Load constraints to show what's configured
-    print(f"\nLoading constraints...")
+    print("\nLoading constraints...")
     constraints = load_constraints(config_path)
 
     print(f"  Board: {constraints.board_width_mm}x{constraints.board_height_mm}mm")
@@ -56,7 +56,7 @@ def demo_phased_placement():
 
     # Show sample constraints
     if constraints.component_spacing_rules:
-        print(f"\n  Sample spacing rules:")
+        print("\n  Sample spacing rules:")
         for rule in constraints.component_spacing_rules[:3]:
             print(
                 f"    - {rule.component_a} <-> {rule.component_b}: "
@@ -64,7 +64,7 @@ def demo_phased_placement():
             )
 
     if constraints.component_groups:
-        print(f"\n  Sample groups:")
+        print("\n  Sample groups:")
         for group in constraints.component_groups[:2]:
             print(f"    - {group.name}: {', '.join(group.components[:4])}")
             if group.proximity_rules:
@@ -75,7 +75,7 @@ def demo_phased_placement():
                     )
 
     # Load PCB and metadata
-    print(f"\nLoading PCB...")
+    print("\nLoading PCB...")
     parse_result = parse_kicad_pcb(pcb_path)
     design_rules = constraints_to_design_rules(constraints)
     metadata = extract_kicad_metadata(pcb_path)
@@ -85,7 +85,7 @@ def demo_phased_placement():
     print(f"  Board: {metadata.board_width}x{metadata.board_height}mm")
 
     # Create pipeline with constraint-aware placement
-    print(f"\nCreating pipeline with PhasedComponentAssignmentStage...")
+    print("\nCreating pipeline with PhasedComponentAssignmentStage...")
     pipeline = create_drc_aware_pipeline(
         design_rules=design_rules,
         config=constraints,
@@ -103,12 +103,12 @@ def demo_phased_placement():
 
     # Check if we're using phased placement
     if "phased_component_assignment" in stage_names:
-        print(f"\n  Using PhasedComponentAssignmentStage (constraint-aware)")
+        print("\n  Using PhasedComponentAssignmentStage (constraint-aware)")
     else:
-        print(f"\n  Using ComponentAssignmentStage (simple greedy)")
+        print("\n  Using ComponentAssignmentStage (simple greedy)")
 
     # Run placement stages only for demo
-    print(f"\nRunning placement stages...")
+    print("\nRunning placement stages...")
     initial_state = BoardState(board=parse_result.board, netlist=parse_result.netlist)
     state = initial_state
 
@@ -124,14 +124,14 @@ def demo_phased_placement():
         elapsed = time.perf_counter() - start
 
         print(f"\nPlacement completed in {elapsed:.2f}s")
-        print(f"\nResults:")
+        print("\nResults:")
 
         if state.placements:
             placements_dict = dict(state.placements)
             print(f"  Components placed: {len(placements_dict)}")
 
             # Check constraint satisfaction
-            print(f"\nConstraint satisfaction:")
+            print("\nConstraint satisfaction:")
             reporter = ConstraintReporter(constraints)
             report = reporter.check(placements_dict)
 
@@ -144,21 +144,21 @@ def demo_phased_placement():
             print(f"  Violations (hard): {len(violations)}")
 
             if violations:
-                print(f"\n  Hard violations:")
+                print("\n  Hard violations:")
                 for v in violations[:5]:
                     print(f"    - {v.constraint_type}: {v.message}")
                 if len(violations) > 5:
                     print(f"    ... and {len(violations) - 5} more")
 
             if warnings:
-                print(f"\n  Soft constraint warnings:")
+                print("\n  Soft constraint warnings:")
                 for w in warnings[:3]:
                     print(f"    - {w.constraint_type}: {w.message}")
                 if len(warnings) > 3:
                     print(f"    ... and {len(warnings) - 3} more")
 
         else:
-            print(f"  No placements generated")
+            print("  No placements generated")
 
     except Exception as e:
         print(f"\nPipeline failed: {e}")
@@ -191,7 +191,7 @@ def demo_comparison():
     results = {}
 
     # Test with constraints (phased placement)
-    print(f"\nTesting Phased (constraint-aware)...")
+    print("\nTesting Phased (constraint-aware)...")
     pipeline_phased = create_drc_aware_pipeline(
         design_rules=design_rules,
         config=constraints,
@@ -216,7 +216,7 @@ def demo_comparison():
         print(f"  Completed in {elapsed:.2f}s, {len(placements_dict)} placed")
 
     # Test without constraints (simple placement)
-    print(f"\nTesting Simple (greedy)...")
+    print("\nTesting Simple (greedy)...")
     pipeline_simple = create_drc_aware_pipeline(
         design_rules=design_rules,
         config=None,  # No constraints -> uses ComponentAssignmentStage
@@ -241,7 +241,7 @@ def demo_comparison():
         print(f"  Completed in {elapsed:.2f}s, {len(placements_dict)} placed")
 
     # Compare
-    print(f"\nComparison:")
+    print("\nComparison:")
     print(f"  {'Mode':<20} {'Time (s)':>10} {'Placed':>8} {'Violations':>12} {'Warnings':>10}")
     print(f"  {'-' * 20} {'-' * 10} {'-' * 8} {'-' * 12} {'-' * 10}")
 
@@ -251,7 +251,7 @@ def demo_comparison():
             f"{data['violations']:>12} {data['warnings']:>10}"
         )
 
-    print(f"\nNote: Phased placement should have fewer violations by respecting constraints.")
+    print("\nNote: Phased placement should have fewer violations by respecting constraints.")
 
 
 def main():
@@ -261,13 +261,13 @@ def main():
     # Uncomment to run comparison
     # demo_comparison()
 
-    print(f"\n" + "=" * 70)
+    print("\n" + "=" * 70)
     print("Demo complete!")
     print("=" * 70)
-    print(f"\nSee also:")
-    print(f"  - demo_constraint_builder.py  - Build constraints programmatically")
-    print(f"  - demo_constraint_reporting.py - Check constraint satisfaction")
-    print(f"  - tests/integration/test_phased_placement_pipeline.py - Integration tests")
+    print("\nSee also:")
+    print("  - demo_constraint_builder.py  - Build constraints programmatically")
+    print("  - demo_constraint_reporting.py - Check constraint satisfaction")
+    print("  - tests/integration/test_phased_placement_pipeline.py - Integration tests")
 
 
 if __name__ == "__main__":

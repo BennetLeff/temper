@@ -1,10 +1,10 @@
 """DRC compliance scoring and KiCad integration."""
 
+import re
+import subprocess
+import time
 from dataclasses import dataclass
 from enum import Enum
-import subprocess
-import re
-import time
 
 __all__ = [
     "ViolationSeverity",

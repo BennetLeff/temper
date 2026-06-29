@@ -13,13 +13,14 @@ Also provides functions for:
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
 from kiutils.items.common import Position
-from kiutils.items.gritems import GrRect, GrText, GrLine
+from kiutils.items.gritems import GrLine, GrRect, GrText
 
 from temper_placer.core.state import PlacementState
 
@@ -124,7 +125,7 @@ def write_placements_to_pcb(
     try:
         ki_board = KiBoard.from_file(str(template_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to load template PCB: {e}")
+        raise ValueError(f"Failed to load template PCB: {e}") from e
 
     # Update footprint positions
     for fp in ki_board.footprints:
@@ -171,7 +172,7 @@ def write_placements_to_pcb(
     try:
         ki_board.to_file(str(output_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}")
+        raise ValueError(f"Failed to write output PCB: {e}") from e
 
     return WriteResult(
         output_path=output_pcb,
@@ -279,10 +280,8 @@ def extract_original_angles(components: list) -> dict[str, float]:
     angles: dict[str, float] = {}
     for comp in components:
         if hasattr(comp, "attributes") and "_original_angle" in comp.attributes:
-            try:
+            with contextlib.suppress(ValueError, TypeError):
                 angles[comp.ref] = float(comp.attributes["_original_angle"])
-            except (ValueError, TypeError):
-                pass  # Skip invalid angle values
     return angles
 
 
@@ -411,7 +410,7 @@ def validate_output_pcb(output_pcb: Path) -> tuple[bool, list[str]]:
 
 def add_bounding_boxes_to_pcb(
     pcb_path: Path,
-    component_bounds: dict[str, tuple[float, float, float, float]] | None = None,
+    _component_bounds: dict[str, tuple[float, float, float, float]] | None = None,
     layer: str = "Dwgs.User",
     stroke_width: float = 0.2,
 ) -> int:
@@ -438,7 +437,7 @@ def add_bounding_boxes_to_pcb(
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}")
+        raise ValueError(f"Failed to load PCB: {e}") from e
 
     boxes_added = 0
 
@@ -510,7 +509,7 @@ def add_bounding_boxes_to_pcb(
     try:
         ki_board.to_file(str(pcb_path))
     except Exception as e:
-        raise ValueError(f"Failed to write PCB: {e}")
+        raise ValueError(f"Failed to write PCB: {e}") from e
 
     return boxes_added
 
@@ -549,7 +548,7 @@ def add_silkscreen_labels(
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}")
+        raise ValueError(f"Failed to load PCB: {e}") from e
 
     counts = {"references": 0, "values": 0, "outlines": 0}
 
@@ -595,7 +594,7 @@ def add_silkscreen_labels(
         comp_width = x_max - x_min
         comp_height = y_max - y_min
         comp_cx = (x_min + x_max) / 2
-        comp_cy = (y_min + y_max) / 2
+        (y_min + y_max) / 2
 
         # Scale text based on component size (min 0.8mm, max 1.5mm)
         scaled_height = max(0.8, min(1.5, min(comp_width, comp_height) / 4))
@@ -661,7 +660,7 @@ def add_silkscreen_labels(
     try:
         ki_board.to_file(str(pcb_path))
     except Exception as e:
-        raise ValueError(f"Failed to write PCB: {e}")
+        raise ValueError(f"Failed to write PCB: {e}") from e
 
     return counts
 
@@ -717,14 +716,14 @@ def strip_routing(
     try:
         ki_board = KiBoard.from_file(str(input_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to load input PCB: {e}")
+        raise ValueError(f"Failed to load input PCB: {e}") from e
 
     # Count components for verification
     components_preserved = len(ki_board.footprints)
 
     # Remove traces and vias from traceItems
     # traceItems contains: Segment (traces), Via, Arc
-    original_trace_count = len(ki_board.traceItems) if ki_board.traceItems else 0
+    len(ki_board.traceItems) if ki_board.traceItems else 0
 
     # Filter traceItems - keep only non-routing items (there shouldn't be any)
     # In kiutils, traceItems are: Segment, Via, Arc
@@ -767,7 +766,7 @@ def strip_routing(
     try:
         ki_board.to_file(str(output_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}")
+        raise ValueError(f"Failed to write output PCB: {e}") from e
 
     return StrippingResult(
         output_path=output_pcb,
@@ -800,7 +799,7 @@ def strip_routing_preserve_nets(
     try:
         ki_input = KiBoard.from_file(str(input_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to load input PCB: {e}")
+        raise ValueError(f"Failed to load input PCB: {e}") from e
 
     input_net_assignments: dict[str, dict[str, str]] = {}  # ref -> {pad_num -> net_name}
     for fp in ki_input.footprints:
@@ -870,8 +869,8 @@ def write_routes_to_pcb(
     Returns:
         WriteResult with statistics and warnings.
     """
-    from kiutils.items.common import Position
     from kiutils.items.brditems import Segment, Via
+    from kiutils.items.common import Position
 
     warnings: list[str] = []
     traces_added = 0
@@ -882,7 +881,7 @@ def write_routes_to_pcb(
     try:
         ki_board = KiBoard.from_file(str(template_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to load template PCB: {e}")
+        raise ValueError(f"Failed to load template PCB: {e}") from e
 
     # Build net name → index mapping if not provided
     if net_name_to_index is None:
@@ -959,7 +958,7 @@ def write_routes_to_pcb(
     try:
         ki_board.to_file(str(output_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}")
+        raise ValueError(f"Failed to write output PCB: {e}") from e
 
     return WriteResult(
         output_path=output_pcb,
@@ -990,8 +989,8 @@ def write_zones_to_pcb(
     Returns:
         WriteResult.
     """
-    from kiutils.items.zones import Zone, ZonePolygon, FillSettings
     from kiutils.items.common import Position
+    from kiutils.items.zones import Zone, ZonePolygon
 
     warnings: list[str] = []
     zones_added = 0
@@ -999,7 +998,7 @@ def write_zones_to_pcb(
     try:
         ki_board = KiBoard.from_file(str(template_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to load template PCB: {e}")
+        raise ValueError(f"Failed to load template PCB: {e}") from e
 
     if net_name_to_index is None:
         net_name_to_index = {}
@@ -1038,7 +1037,7 @@ def write_zones_to_pcb(
     try:
         ki_board.to_file(str(output_pcb))
     except Exception as e:
-        raise ValueError(f"Failed to write output PCB: {e}")
+        raise ValueError(f"Failed to write output PCB: {e}") from e
 
     return WriteResult(
         output_path=output_pcb,
@@ -1064,7 +1063,7 @@ def build_net_name_to_index_map(pcb_path: Path) -> dict[str, int]:
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}")
+        raise ValueError(f"Failed to load PCB: {e}") from e
 
     net_map = {}
     if hasattr(ki_board, "nets") and ki_board.nets:
@@ -1088,7 +1087,7 @@ def get_routing_statistics(pcb_path: Path) -> dict[str, int]:
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}")
+        raise ValueError(f"Failed to load PCB: {e}") from e
 
     trace_count = 0
     via_count = 0
@@ -1173,7 +1172,7 @@ def add_isolation_slots_to_pcb(
     try:
         ki_board = KiBoard.from_file(str(pcb_path))
     except Exception as e:
-        raise ValueError(f"Failed to load PCB: {e}")
+        raise ValueError(f"Failed to load PCB: {e}") from e
 
     # Build component reference -> position mapping
     component_positions: dict[str, tuple[float, float, float]] = {}  # ref -> (x, y, angle)
@@ -1241,7 +1240,7 @@ def add_isolation_slots_to_pcb(
     try:
         ki_board.to_file(str(out_path))
     except Exception as e:
-        raise ValueError(f"Failed to write PCB: {e}")
+        raise ValueError(f"Failed to write PCB: {e}") from e
 
     return IsolationSlotResult(
         output_path=out_path,

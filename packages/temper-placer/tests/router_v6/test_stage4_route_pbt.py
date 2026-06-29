@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from hypothesis import given, settings
-
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.route_stage import RouteStage, validate_route
 

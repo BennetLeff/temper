@@ -1,5 +1,5 @@
-from temper_placer.core.board import Board, LayerStackup
-from temper_placer.core.netlist import Netlist, Component, Pin, Net
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.dsn_schema import DSNSchemaHasher
 
 

@@ -52,7 +52,7 @@ def test_infer_safety_pairs_with_net_classes():
     """Test HV detection via net class assignments."""
     nets = ["MAINS", "VCC", "SIG1"]
     net_classes = {"MAINS": "HighVoltage", "VCC": "Power", "SIG1": "Signal"}
-    
+
     pairs = infer_safety_pairs(nets, net_classes)
 
     # MAINS should be detected as HV via net class
@@ -124,7 +124,7 @@ def test_infer_safety_pairs_temper_realistic():
         "GATE_A", "GATE_B",  # IGBT gate signals
         "I_SENSE", "TEMP_SENSE",  # Analog signals
     ]
-    
+
     pairs = infer_safety_pairs(nets)
 
     # Should have multiple safety pairs

@@ -35,7 +35,6 @@ from temper_placer.router_v6.clearance_check import (
 from temper_placer.router_v6.copper_balance import (
     CopperBalanceReport,
     _layer_is_between,
-    _via_annular_area,
     analyze_copper_balance,
 )
 from temper_placer.router_v6.creepage_check import (
@@ -48,16 +47,9 @@ from temper_placer.router_v6.teardrop_generation import (
     insert_teardrops,
 )
 from temper_placer.router_v6.thermal_relief import (
-    ThermalReliefReport,
     add_thermal_relief,
 )
 from temper_placer.router_v6.via_placement import Via
-
-from tests.router_v6.dfm_boundary_constants import (
-    exactly_at,
-    just_above,
-    just_below,
-)
 
 # ============================================================================
 # Shared helpers (follow the same pattern as other boundary test files)
@@ -223,7 +215,7 @@ class TestBlindVia:
         via = _make_via(from_layer=via_from, to_layer=via_to)
         results = _make_results(vias=[via], path=path)
 
-        with warnings.catch_warnings(record=True) as w:
+        with warnings.catch_warnings(record=True):
             warnings.simplefilter("always")
             report = insert_teardrops(results)
 
@@ -989,7 +981,7 @@ class TestCombinedInteractions:
         path = _make_path(layer=from_layer)
         results = _make_results(vias=[via], path=path)
 
-        report = analyze_copper_balance(results, 100, 100)
+        analyze_copper_balance(results, 100, 100)
 
         # Count how many inner layers have via copper from the
         # intermediate-layer (barrel) contribution ONLY.

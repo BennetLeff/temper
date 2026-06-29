@@ -75,7 +75,7 @@ class TestPlacementState:
             diffs = jnp.abs(valid_angles - angle)
             assert jnp.min(diffs) < 0.5  # Allow some deviation at low temp
 
-    def test_to_discrete(self, rng_key):
+    def test_to_discrete(self, _rng_key):
         """Test conversion to discrete placement."""
         positions = jnp.array([[10.0, 20.0], [30.0, 40.0]])
         logits = jnp.array(
@@ -115,7 +115,7 @@ class TestSampleRotation:
 
         # At very low temp, the straight-through estimator kicks in
         # Test the underlying softmax behavior instead
-        gumbel = jnp.zeros_like(logits)  # No noise for deterministic test
+        jnp.zeros_like(logits)  # No noise for deterministic test
         soft = jax.nn.softmax(logits / 5.0)  # High temp
         hard = jax.nn.softmax(logits / 0.1)  # Low temp
 

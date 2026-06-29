@@ -65,7 +65,7 @@ class DAGToLegacyObserver:
     def __init__(self, orchestrator: Any) -> None:
         self.orchestrator = orchestrator
 
-    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:
+    def on_stage_start(self, stage_name: str, _iteration: int, _context: dict[str, Any]) -> None:
         if self.orchestrator.on_phase_start:
             from temper_placer.pipeline.state import PipelinePhase
             try:
@@ -74,7 +74,7 @@ class DAGToLegacyObserver:
                 phase = stage_name
             self.orchestrator.on_phase_start(phase, self.orchestrator.state)
 
-    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:
+    def on_stage_complete(self, stage_name: str, _duration_s: float, _outputs: dict[str, Any]) -> None:
         if self.orchestrator.on_phase_complete:
             from temper_placer.pipeline.state import PipelinePhase
             try:
@@ -120,7 +120,7 @@ class DAGToLegacyObserver:
     def on_stage_error(self, stage_name: str, error: Exception) -> None:
         pass
 
-    def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,
+    def on_feedback_triggered(self, _contract_name: str, _from_stage: str, _to_stage: str,
                                attempt: int) -> None:
         if self.orchestrator.on_iteration:
             self.orchestrator.on_iteration(attempt, self.orchestrator.state)

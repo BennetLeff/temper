@@ -1,8 +1,6 @@
 
-import yaml
-from pathlib import Path
-from temper_placer.io.config_loader import load_constraints, PlacementConstraints
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
+from temper_placer.io.config_loader import load_constraints
+
 
 def test_load_net_topology(tmp_path):
     config_content = """
@@ -24,13 +22,13 @@ net_topology:
     config_file.write_text(config_content)
 
     constraints = load_constraints(config_file)
-    
+
     assert len(constraints.net_topologies) == 1
     graph = constraints.net_topologies[0]
     assert graph.net_name == "NET_I_SENSE"
     assert "R_SENSE.1" in graph.star_nodes
     assert len(graph.edges) == 2
-    
+
     # Check Edge 1
     edge1 = graph.get_edge("R_SENSE.1", "LOAD.1")
     assert edge1 is not None

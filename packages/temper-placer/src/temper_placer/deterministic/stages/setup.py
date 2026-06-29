@@ -1,18 +1,17 @@
-from typing import TYPE_CHECKING
-from dataclasses import dataclass, replace
 import math
+from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING
+
+from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser
+from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
+from temper_placer.router_v6.constraints_geometry import Point
+from temper_placer.router_v6.constraints_spatial_index import Pad
 
 from ..state import BoardState
 from .base import Stage
-from temper_placer.core.pin_geometry import pin_world_position
-from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
-from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser
-from temper_placer.router_v6.constraints_spatial_index import Pad
-from temper_placer.router_v6.constraints_geometry import Point
 
 if TYPE_CHECKING:
-    from temper_placer.core.board import Board
-    from temper_placer.core.netlist import Netlist
     from temper_placer.core.design_rules import DesignRules
 
 
@@ -56,7 +55,7 @@ class DRCOracleSetupStage(Stage):
 
             if hasattr(self.design_rules, "net_class_rules"):
                 # This is a PlacementConstraints object (config)
-                for name, rules in self.design_rules.net_class_rules.items():
+                for _name, rules in self.design_rules.net_class_rules.items():
                     # Convert NetClassRule to NetClassRules format
                     from temper_placer.core.design_rules import NetClassRules
 
@@ -77,7 +76,7 @@ class DRCOracleSetupStage(Stage):
                     matrix.set_net_class(net, class_name)
             else:
                 # This is a DesignRules object
-                for name, rules in self.design_rules.net_classes.items():
+                for _name, rules in self.design_rules.net_classes.items():
                     matrix.add_net_class_rules(rules)
                 for net, class_name in self.design_rules.net_class_assignments.items():
                     matrix.set_net_class(net, class_name)

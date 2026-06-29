@@ -4,9 +4,9 @@ KiCad DRC runner utility for feedback loop.
 Executes kicad-cli DRC and returns the report path.
 """
 
+import logging
 import subprocess
 import tempfile
-import logging
 from pathlib import Path
 
 logger = logging.getLogger(__name__)

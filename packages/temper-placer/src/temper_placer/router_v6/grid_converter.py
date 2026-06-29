@@ -22,17 +22,17 @@ def grid_to_world(
     cell_size: float,
 ) -> tuple[float, float]:
     """Convert grid cell to world coordinates (mm).
-    
+
     Returns center of cell in PCB coordinate system.
-    
+
     Args:
         cell: Grid cell coordinates
         origin: PCB origin (x0, y0) in mm
         cell_size: Grid cell size in mm
-        
+
     Returns:
         (x, y) position in mm, at cell center
-        
+
     Example:
         >>> cell = GridCell(x=10, y=20, layer=0)
         >>> grid_to_world(cell, origin=(0, 0), cell_size=0.5)
@@ -45,15 +45,15 @@ def grid_to_world(
 
 def extract_vias(cells: list[GridCell]) -> list[int]:
     """Find indices where layer transitions occur.
-    
+
     A via is required when consecutive cells are on different layers.
-    
+
     Args:
         cells: Ordered list of grid cells forming a path
-        
+
     Returns:
         List of cell indices where vias are needed
-        
+
     Example:
         >>> cells = [
         ...     GridCell(0, 0, 0),
@@ -73,14 +73,14 @@ def extract_vias(cells: list[GridCell]) -> list[int]:
 
 def compute_path_length(cells: list[GridCell], cell_size: float) -> float:
     """Calculate total path length in mm (Manhattan distance).
-    
+
     Args:
         cells: Ordered list of grid cells forming a path
         cell_size: Grid cell size in mm
-        
+
     Returns:
         Total path length in mm
-        
+
     Example:
         >>> cells = [GridCell(0, 0, 0), GridCell(1, 0, 0), GridCell(2, 0, 0)]
         >>> compute_path_length(cells, cell_size=0.5)
@@ -88,7 +88,7 @@ def compute_path_length(cells: list[GridCell], cell_size: float) -> float:
     """
     if len(cells) < 2:
         return 0.0
-    
+
     total_length = 0.0
     for i in range(1, len(cells)):
         # Manhattan distance between consecutive cells
@@ -96,19 +96,19 @@ def compute_path_length(cells: list[GridCell], cell_size: float) -> float:
         dy = abs(cells[i].y - cells[i - 1].y)
         # Layer change doesn't add physical length (via is at same x,y)
         total_length += (dx + dy) * cell_size
-    
+
     return total_length
 
 
 def count_vias_in_path(cells: list[GridCell]) -> int:
     """Count the number of layer transitions (vias) in a path.
-    
+
     Args:
         cells: Ordered list of grid cells forming a path
-        
+
     Returns:
         Number of vias needed
-        
+
     Example:
         >>> cells = [
         ...     GridCell(0, 0, 0),  # L0

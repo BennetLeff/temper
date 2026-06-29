@@ -18,12 +18,11 @@ stage plumbing.
 from __future__ import annotations
 
 import re
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from temper_placer.regression.closure_test import ClosureTest
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

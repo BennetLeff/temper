@@ -9,7 +9,7 @@ from temper_placer.pipeline.dag_types import DataContext, StageResult
 
 
 class SemanticStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, _state: Any, context: DataContext) -> StageResult:
         start = time.time()
         loops_enriched = context.get("loops", [])
         elapsed = time.time() - start

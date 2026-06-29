@@ -67,7 +67,7 @@ def handle_routing_failures(
 
 def _diagnose_failure(
     net_name: str,
-    occupancy_grid: Any = None,
+    _occupancy_grid: Any = None,
 ) -> FlaggedNet:
     """
     Perform deep diagnosis of a specific net failure.

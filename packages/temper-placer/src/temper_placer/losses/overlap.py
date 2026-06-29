@@ -78,8 +78,8 @@ class OverlapLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         """
         Compute total overlap penalty.
@@ -129,7 +129,7 @@ class OverlapLoss(LossFunction):
 
         return LossResult(value=total_overlap, breakdown={"per_component": per_component_overlap})
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, _epoch: int, _total_epochs: int) -> float:
         """
         Overlap is a hard constraint - full weight from early in training.
 
@@ -171,7 +171,7 @@ def _compute_pairwise_overlaps_vectorized(
     widths: Array,
     heights: Array,
     margin: float,
-    centrality: Array | None = None,
+    _centrality: Array | None = None,
 ) -> tuple[Array, Array]:
     """
     Compute sum of squared overlaps using full vectorized approach.
@@ -227,7 +227,7 @@ def _compute_pairwise_overlaps_chunked(
     widths: Array,
     heights: Array,
     margin: float,
-    centrality: Array | None = None,
+    _centrality: Array | None = None,
 ) -> tuple[Array, Array]:
     """
     Compute sum of squared overlaps using chunked approach for memory efficiency.

@@ -18,13 +18,16 @@ Pipeline Stages (via DAG manifest):
     8. output - Write placed PCB, reports
 """
 
-import time
 import warnings
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
+import jax.numpy as jnp
+
+from temper_placer.router_v6.adapter import MazeRouter
 
 if TYPE_CHECKING:
     from temper_placer.core.state import PlacementState
@@ -265,22 +268,22 @@ class PipelineOrchestrator:
     def _save_snapshot(self, phase: PipelinePhase) -> None:
         """Save state snapshot (JSON + SVG)."""
         from temper_placer.io.snapshot import save_json_snapshot, save_svg_snapshot
-        
+
         if self.config.output_pcb:
             snapshot_dir = self.config.output_pcb.parent / "snapshots"
         else:
             snapshot_dir = Path("snapshots")
-            
+
         snapshot_dir.mkdir(parents=True, exist_ok=True)
-        
+
         phase_idx = self.get_phase_order().index(phase)
         prefix = f"{phase_idx:02d}_{phase.value}"
         if phase == PipelinePhase.REFINEMENT:
             prefix += f"_iter{self.state.iteration}"
-            
+
         json_path = snapshot_dir / f"{prefix}.json"
         svg_path = snapshot_dir / f"{prefix}.svg"
-        
+
         try:
             save_json_snapshot(self.state, json_path)
             save_svg_snapshot(self.state, svg_path)
@@ -295,7 +298,7 @@ class PipelineOrchestrator:
         """Load input files (deprecated — use InputStage)."""
         warnings.warn("_run_input is deprecated. Use InputStage.", DeprecationWarning, stacklevel=2)
         from temper_placer.io.kicad_parser import parse_kicad_pcb
-        
+
         print(f"Loading PCB from {state.config.input_pcb}")
         if not state.config.input_pcb.exists():
             raise PipelineError(f"Input PCB not found: {state.config.input_pcb}", phase=PipelinePhase.INPUT)
@@ -320,19 +323,19 @@ class PipelineOrchestrator:
             print(f"Loading constraints from {state.config.constraints_yaml}")
             try:
                 state.constraints = load_constraints(state.config.constraints_yaml)
-                
+
                 # Update board with zones from constraints
                 # result.board might not have zones if it's a fresh KiCad file
                 # create_board_from_constraints combines board geometry + constraints
                 constrained_board = create_board_from_constraints(state.constraints)
-                # Keep original width/height if result.board had them? 
+                # Keep original width/height if result.board had them?
                 # Actually create_board_from_constraints uses values from YAML
                 state.board = constrained_board
-                
+
                 # Apply assignments to netlist
                 apply_fixed_components_to_netlist(state.netlist, state.constraints)
                 apply_zones_to_netlist(state.netlist, state.constraints)
-                
+
             except Exception as e:
                 raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
         else:
@@ -343,7 +346,7 @@ class PipelineOrchestrator:
         # Load physical specification
         from temper_placer.core.specification import PcbSpecification
         from temper_placer.pipeline.derivation import derive_constraints_from_spec
-        
+
         spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
         if spec_path.exists():
             print(f"Loading specification from {spec_path}")
@@ -361,10 +364,11 @@ class PipelineOrchestrator:
     def _run_topological(self, state: PipelineState) -> PipelineState:  # pragma: no cover
         """Run topological placement phase (deprecated — use TopologicalStage)."""
         warnings.warn("_run_topological is deprecated. Use TopologicalStage.", DeprecationWarning, stacklevel=2)
+        import numpy as np
+
+        from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
         from temper_placer.optimizer.legalization import legalize_zone_aware
         from temper_placer.placer.deterministic import PlacementResult
-        from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
-        import numpy as np
 
         print("Running topological placement...")
 
@@ -379,7 +383,7 @@ class PipelineOrchestrator:
             except ValueError:
                 # If neither found, just use default (likely fails or uses board center)
                 mcu_result = mcu_heuristic.apply(state.netlist, state.board)
-        
+
         positions = np.array(mcu_result.positions)
         rotations = np.array(mcu_result.rotations)
 
@@ -402,7 +406,7 @@ class PipelineOrchestrator:
         print("Running zone-aware legalization...")
         fixed_mask = np.array([c.fixed for c in state.netlist.components], dtype=bool)
         legalized_pos, success = legalize_zone_aware(positions, state.netlist, state.board, fixed_mask=fixed_mask)
-        
+
         if not success:
             print("Warning: Legalization could not fully resolve overlaps.")
 
@@ -430,37 +434,41 @@ class PipelineOrchestrator:
     def _run_geometric(self, state: PipelineState) -> PipelineState:  # pragma: no cover
         """Run geometric optimization (deprecated — use GeometricStage)."""
         warnings.warn("_run_geometric is deprecated. Use GeometricStage.", DeprecationWarning, stacklevel=2)
-        from temper_placer.core.state import PlacementState
-        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-        from temper_placer.optimizer.legalization import project_to_trust_region, resolve_overlaps_priority
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.losses.overlap import OverlapLoss
-        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
         import jax
         import jax.numpy as jnp
         import numpy as np
         import optax
 
+        from temper_placer.core.state import PlacementState
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.legalization import (
+            project_to_trust_region,
+            resolve_overlaps_priority,
+        )
+
         print("Initializing local refinement (Step 3)...")
         if state.deterministic_result is None:
              state = self._run_topological(state)
-        
+
         anchor_positions = np.array(state.deterministic_result.positions)
         positions = anchor_positions.copy()
         n = state.netlist.n_components
-        
+
         loss_fn = CompositeLoss([
             WeightedLoss(WirelengthLoss(), weight=1.0),
             WeightedLoss(OverlapLoss(), weight=10.0),
             WeightedLoss(ChannelCapacityLoss(), weight=5.0),
         ])
         context = LossContext.from_netlist_and_board(state.netlist, state.board)
-        
+
         print(f"Running refinement for {state.config.epochs} epochs (max {state.config.max_movement_mm}mm movement)...")
         optimizer = optax.adam(learning_rate=0.1)
         params = {"positions": jnp.array(positions)}
         opt_state = optimizer.init(params)
-        
+
         @jax.jit
         def step(params, opt_state):
             def f(p):
@@ -477,7 +485,7 @@ class PipelineOrchestrator:
                 pos_np = np.array(params["positions"])
                 pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=state.config.max_movement_mm)
                 from temper_placer.optimizer.legalization import clamp_to_bounds, clamp_to_zones
-                pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]), 
+                pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]),
                                          np.array([c.bounds[1] for c in state.netlist.components]), state.board)
                 pos_np = clamp_to_zones(pos_np, state.netlist, state.board)
                 params["positions"] = jnp.array(pos_np)
@@ -489,8 +497,9 @@ class PipelineOrchestrator:
     def _run_routing(self, state: PipelineState) -> PipelineState:  # pragma: no cover
         """Run routing verification (deprecated — use RoutingStage)."""
         warnings.warn("_run_routing is deprecated. Use RoutingStage.", DeprecationWarning, stacklevel=2)
-        from temper_placer.router_v6.congestion import analyze_congestion
         import jax.numpy as jnp
+
+        from temper_placer.router_v6.congestion import analyze_congestion
         print("Running routing verification...")
         positions = state.placement_state.positions if state.placement_state else jnp.array(state.deterministic_result.positions)
         result = analyze_congestion(state.netlist, state.board, positions=positions)
@@ -503,17 +512,16 @@ class PipelineOrchestrator:
     def _run_refinement(self, state: PipelineState) -> PipelineState:  # pragma: no cover
         """Run placement-routing refinement loop (deprecated — use RefinementStage)."""
         warnings.warn("_run_refinement is deprecated. Use RefinementStage.", DeprecationWarning, stacklevel=2)
-        from temper_placer.pipeline.iterator import PlaceRouteIterator
-        from temper_placer.router_v6 import V6RouterAdapter
-        from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
-        from temper_placer.optimizer.legalization import resolve_overlaps_priority
-        from temper_placer.pipeline.iterative_placer import simple_congestion_repel
-        import numpy as np
         import jax.numpy as jnp
+        import numpy as np
+
+        from temper_placer.optimizer.legalization import resolve_overlaps_priority
+        from temper_placer.pipeline.iterator import PlaceRouteIterator
+        from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
         if state.routing_result is None:
             return state
-            
+
         # Check if already feasible
         if state.routing_result.is_feasible(threshold=state.config.routability_threshold):
             state._refinement_complete = True
@@ -531,18 +539,20 @@ class PipelineOrchestrator:
                 router = MazeRouter.from_board(self.state.board, cell_size_mm=0.5, num_layers=2)
                 router.block_board_features(self.state.board)
                 router.block_components(self.state.netlist.components, pos, margin=-0.1, escape_length=5)
-                
+
                 # Simple routing for all nets
                 success_count = 0
                 for net in self.state.netlist.nets:
                     from temper_placer.router_v6.congestion import _get_pin_positions
                     pins = _get_pin_positions(self.state.netlist, net.name, pos)
-                    if len(pins) < 2: continue
+                    if len(pins) < 2:
+                        continue
                     res = router.route_net_adaptive(net.name, pins, None) # Simplification
-                    if res.success: success_count += 1
-                
+                    if res.success:
+                        success_count += 1
+
                 completion = success_count / len(self.state.netlist.nets)
-                
+
                 class Result:
                     def __init__(self, c, r):
                         self.completion_rate = c
@@ -553,16 +563,17 @@ class PipelineOrchestrator:
         # 2. Define placement update function
         def update_fn(pos, routing_res):
             print("    Refining placement using JAX optimization with routing feedback loss...")
-            from temper_placer.pipeline.feedback import RoutingFeedbackLoss
-            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-            import optax
             import jax
-            
+            import optax
+
+            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+            from temper_placer.losses.overlap import OverlapLoss
+            from temper_placer.losses.wirelength import WirelengthLoss
+            from temper_placer.pipeline.feedback import RoutingFeedbackLoss
+
             heatmap = CongestionHeatmap.from_router(routing_res.router)
-            
+
             # Combine original losses with the new routing feedback loss
             loss_fn = CompositeLoss([
                 WeightedLoss(WirelengthLoss(), weight=1.0),
@@ -570,15 +581,15 @@ class PipelineOrchestrator:
                 WeightedLoss(ChannelCapacityLoss(), weight=20.0),
                 WeightedLoss(RoutingFeedbackLoss(heatmap), weight=100.0), # Strong repulsion from congestion
             ])
-            
+
             context = LossContext.from_netlist_and_board(state.netlist, state.board)
             n = state.netlist.n_components
-            
+
             # Run a mini-optimization loop (Step 3 style)
             optimizer = optax.adam(learning_rate=0.05)
             params = {"positions": jnp.array(pos)}
             opt_state = optimizer.init(params)
-            
+
             @jax.jit
             def step(params, opt_state):
                 def f(p):
@@ -596,7 +607,7 @@ class PipelineOrchestrator:
                     # Occasional boundary clamping
                     from temper_placer.optimizer.legalization import clamp_to_bounds
                     pos_np = np.array(params["positions"])
-                    pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]), 
+                    pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]),
                                              np.array([c.bounds[1] for c in state.netlist.components]), state.board)
                     params["positions"] = jnp.array(pos_np)
 
@@ -617,30 +628,33 @@ class PipelineOrchestrator:
 
         current_pos = state.placement_state.positions if state.placement_state else jnp.array(state.deterministic_result.positions)
         result = iterator.run(current_pos)
-        
+
         # 4. Update state with best result
         from temper_placer.core.state import PlacementState
         state.placement_state = PlacementState.from_positions(result.final_positions)
         state.iteration = result.iterations
         state._refinement_complete = True
-        
+
         print(f"Refinement complete. Best completion: {result.iteration_history[-1].completion_rate:.2%}")
-        
+
         return state
 
     def _run_output(self, state: PipelineState) -> PipelineState:  # pragma: no cover
         """Generate output files (deprecated — use OutputStage)."""
         warnings.warn("_run_output is deprecated. Use OutputStage.", DeprecationWarning, stacklevel=2)
-        from temper_placer.io.kicad_writer import export_placements, add_bounding_boxes_to_pcb, add_silkscreen_labels
+        from temper_placer.io.kicad_writer import (
+            add_bounding_boxes_to_pcb,
+            add_silkscreen_labels,
+            export_placements,
+        )
         self._compute_physics_metrics()
         if not state.config.output_pcb:
             print("No output path specified.")
             return state
         print(f"Exporting placed PCB to {state.config.output_pcb}...")
         ps = state.placement_state or PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
-        import jax.numpy as jnp
         try:
-            write_result = export_placements(state.config.input_pcb, state.config.output_pcb, ps, 
+            write_result = export_placements(state.config.input_pcb, state.config.output_pcb, ps,
                                              [c.ref for c in state.netlist.components], state.board.origin)
             print(f"  Updated: {write_result.components_updated} components")
             add_bounding_boxes_to_pcb(state.config.output_pcb)
@@ -656,12 +670,17 @@ class PipelineOrchestrator:
 
     def _compute_physics_metrics(self) -> None:
         """Compute physical metrics."""
-        from temper_placer.metrics.physics import measure_emi, measure_geometric, measure_routability, measure_thermal, PhysicsReport
+        from temper_placer.metrics.physics import (
+            PhysicsReport,
+            measure_emi,
+            measure_geometric,
+            measure_routability,
+            measure_thermal,
+        )
         state = self.state
         if state.placement_state is None and state.deterministic_result is None:
             return
         ps = state.placement_state or PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
-        import jax.numpy as jnp
         geo = measure_geometric(ps, state.netlist, state.board)
         loop_refs = [["Q1", "Q2", "C_BUS1"], ["U_MCU", "C_MCU_1"]]
         emi = measure_emi(ps, state.netlist, loop_refs=loop_refs)

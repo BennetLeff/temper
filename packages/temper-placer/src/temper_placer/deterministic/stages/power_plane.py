@@ -13,17 +13,16 @@ Temper Board Layer Strategy:
 """
 
 from dataclasses import replace
-from typing import FrozenSet, Dict, Optional
+
 from ..state import BoardState
 from .base import Stage
 from .layer_assignment import LayerAssignment
-
 
 # Temper board plane nets
 # NOTE: Only include nets that should use plane connectivity (vias to copper pours).
 # Nets routed as traces (PowerTrace class) should NOT be in this list.
 # See: TemperPowerTopology in core/power_topology.py for power distribution strategy.
-TEMPER_PLANE_NETS: FrozenSet[str] = frozenset(
+TEMPER_PLANE_NETS: frozenset[str] = frozenset(
     {
         # Ground nets -> In1.Cu plane
         "GND",
@@ -47,7 +46,7 @@ TEMPER_PLANE_NETS: FrozenSet[str] = frozenset(
 # Layer assignments for plane nets
 # Layer 0 = F.Cu, Layer 1 = In1.Cu, Layer 2 = In2.Cu, Layer 3 = B.Cu
 # Only include nets that are in TEMPER_PLANE_NETS above.
-TEMPER_PLANE_LAYERS: Dict[str, int] = {
+TEMPER_PLANE_LAYERS: dict[str, int] = {
     # Ground to In1.Cu (inner ground plane)
     "GND": 1,
     "PGND": 1,
@@ -82,8 +81,8 @@ class PowerPlaneStage(Stage):
 
     def __init__(
         self,
-        plane_nets: Optional[FrozenSet[str]] = None,
-        plane_layers: Optional[Dict[str, int]] = None,
+        plane_nets: frozenset[str] | None = None,
+        plane_layers: dict[str, int] | None = None,
     ):
         """
         Initialize PowerPlaneStage.

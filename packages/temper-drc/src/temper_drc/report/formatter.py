@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from temper_drc.core.result import Issue, Severity
+from temper_drc.core.result import Severity
 
 if TYPE_CHECKING:
     from temper_drc.core.result import RunResult
@@ -155,7 +155,7 @@ def format_json(result: RunResult) -> str:
     return json.dumps(data, indent=2)
 
 
-def format_html(result: RunResult, placement_name: str, constraints: ConstraintSet) -> str:
+def format_html(result: RunResult, placement_name: str, _constraints: ConstraintSet) -> str:
     """
     Format check results as HTML report.
 

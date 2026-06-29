@@ -11,8 +11,8 @@ import logging
 import math
 from dataclasses import dataclass
 
-from temper_placer.router_v6.routing_results import RoutingResults
 from temper_placer.router_v6._check_report_base import BaseCheckReport
+from temper_placer.router_v6.routing_results import RoutingResults
 
 logger = logging.getLogger(__name__)
 

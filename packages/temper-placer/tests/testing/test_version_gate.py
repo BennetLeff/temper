@@ -1,5 +1,4 @@
 """Tests for version gate — U7."""
-import pytest
 
 from temper_placer.testing.version_gate import (
     check_format_version,

@@ -8,14 +8,13 @@ from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.placement.benders_loop import (
     BendersPlacementResult,
-    benders_placement,
     _extract_board,
     _extract_netlist,
+    benders_placement,
 )
 from temper_placer.router_v6.stage0_data import (
     DesignRules,
     LayerInfo,
-    NetClassRules,
     ParsedPCB,
     StackupInfo,
 )

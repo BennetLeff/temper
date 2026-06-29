@@ -4,17 +4,17 @@ from __future__ import annotations
 
 import pytest
 
-from temper_placer.router_v6.acid_trap_detection import AcidTrapReport, detect_acid_traps
-from temper_placer.router_v6.annular_ring_check import AnnularRingReport, check_annular_rings
+from temper_placer.router_v6.acid_trap_detection import detect_acid_traps
+from temper_placer.router_v6.annular_ring_check import check_annular_rings
 from temper_placer.router_v6.astar_pathfinding import RoutePath
-from temper_placer.router_v6.clearance_check import ClearanceReport, verify_clearance
-from temper_placer.router_v6.copper_balance import CopperBalanceReport, analyze_copper_balance
-from temper_placer.router_v6.creepage_check import CreepageReport, verify_creepage
+from temper_placer.router_v6.clearance_check import verify_clearance
+from temper_placer.router_v6.copper_balance import analyze_copper_balance
+from temper_placer.router_v6.creepage_check import verify_creepage
 from temper_placer.router_v6.manufacturing_report import generate_manufacturing_report
-from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
-from temper_placer.router_v6.teardrop_generation import TeardropReport, insert_teardrops
-from temper_placer.router_v6.thermal_relief import ThermalReliefReport, add_thermal_relief
+from temper_placer.router_v6.teardrop_generation import insert_teardrops
+from temper_placer.router_v6.thermal_relief import add_thermal_relief
+from tests.router_v6.test_induction_base import make_empty_rr
 
 BOARD_W, BOARD_H = 200.0, 150.0
 

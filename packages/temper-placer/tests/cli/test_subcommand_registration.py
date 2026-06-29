@@ -2,6 +2,7 @@
 from importlib.metadata import entry_points
 
 from click.testing import CliRunner
+
 from temper_placer.cli import main
 
 

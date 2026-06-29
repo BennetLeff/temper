@@ -1,19 +1,19 @@
-from typing import Tuple, List, Optional
 import math
 from dataclasses import dataclass
 
+
 @dataclass
 class PadInfo:
-    position: Tuple[float, float]
+    position: tuple[float, float]
     radius: float
     mask_expansion: float
 
-def distance(p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
+def distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
 
 def is_via_position_valid(
-    pos: Tuple[float, float],
-    pads: List[PadInfo],
+    pos: tuple[float, float],
+    pads: list[PadInfo],
     via_mask_radius: float,
     min_clearance: float = 0.1
 ) -> bool:
@@ -26,18 +26,18 @@ def is_via_position_valid(
     return True
 
 def place_via_with_clearance(
-    target_pos: Tuple[float, float],
-    pads: List[PadInfo],
+    target_pos: tuple[float, float],
+    pads: list[PadInfo],
     via_mask_radius: float,
     min_clearance: float = 0.1,
     max_search_radius: float = 2.0
-) -> Optional[Tuple[float, float]]:
+) -> tuple[float, float] | None:
     """Find valid via position near target, respecting mask clearances."""
-    
+
     # 1. Check if target position is already valid
     if is_via_position_valid(target_pos, pads, via_mask_radius, min_clearance):
         return target_pos
-    
+
     # 2. Search in expanding spiral for valid position
     # Steps: 0.25mm increments up to max_search_radius
     # Directions: 8 angles (45 deg)
@@ -52,5 +52,5 @@ def place_via_with_clearance(
             )
             if is_via_position_valid(candidate, pads, via_mask_radius, min_clearance):
                 return candidate
-                
+
     return None

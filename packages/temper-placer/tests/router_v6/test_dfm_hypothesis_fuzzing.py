@@ -22,10 +22,10 @@ Tests that reveal known limitations are marked ``pytest.mark.xfail``.
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import pytest
-from hypothesis import HealthCheck, given, settings, strategies as st
+from hypothesis import HealthCheck, given, settings
 
 from temper_placer.router_v6.acid_trap_detection import (
     AcidTrapReport,
@@ -61,19 +61,18 @@ from temper_placer.router_v6.thermal_relief import (
     ThermalReliefReport,
     add_thermal_relief,
 )
-from temper_placer.router_v6.via_placement import Via
 from tests.router_v6.dfm_property_strategies import (
-    BOARD_DIMS as _BOARD_DIMS,
-    BOARD_W as _BOARD_W,
     BOARD_H as _BOARD_H,
-    LAYERS as _LAYERS,
-    NET_NAME_VOCAB as _NET_NAME_VOCAB,
-    VIA_TYPES as _VIA_TYPES,
-    realistic_paths,
-    realistic_routing_results,
-    realistic_vias,
 )
-
+from tests.router_v6.dfm_property_strategies import (
+    BOARD_W as _BOARD_W,
+)
+from tests.router_v6.dfm_property_strategies import (
+    LAYERS as _LAYERS,
+)
+from tests.router_v6.dfm_property_strategies import (
+    realistic_routing_results,
+)
 
 # ---------------------------------------------------------------------------
 # Helper: all DFM entry points

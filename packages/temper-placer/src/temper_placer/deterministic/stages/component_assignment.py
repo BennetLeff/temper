@@ -1,6 +1,8 @@
-from dataclasses import replace
-from typing import Dict, Tuple, Set, List, Mapping, TYPE_CHECKING
 import math
+from collections.abc import Mapping
+from dataclasses import replace
+from typing import TYPE_CHECKING
+
 from ..state import BoardState
 from .base import Stage
 
@@ -11,7 +13,7 @@ if TYPE_CHECKING:
 class ComponentAssignmentStage(Stage):
     """Assign components to slots with multi-slot reservation for large footprints."""
 
-    def __init__(self, slot_spacing: float = 12.0, fixed_placements: Dict[str, Dict] = None):
+    def __init__(self, slot_spacing: float = 12.0, fixed_placements: dict[str, dict] = None):
         """Initialize with slot spacing and optional fixed placements.
 
         Args:
@@ -50,7 +52,7 @@ class ComponentAssignmentStage(Stage):
     ) -> tuple[dict[str, str], dict[str, "Polygon"]]:
         """Mirror of PhasedComponentAssignmentStage._domain_lookups (NFR6 parity)."""
         domain_for_ref: dict[str, str] = {}
-        domain_regions: dict[str, "Polygon"] = {}
+        domain_regions: dict[str, Polygon] = {}
         if not state.component_domain_map or not state.domain_regions:
             return domain_for_ref, domain_regions
         for ref, domain in state.component_domain_map:
@@ -66,10 +68,10 @@ class ComponentAssignmentStage(Stage):
     @staticmethod
     def _filter_by_domain(
         ref: str,
-        slots: List[Tuple[float, float]],
+        slots: list[tuple[float, float]],
         domain_for_ref: Mapping[str, str] | None,
         domain_regions: Mapping[str, "Polygon"] | None,
-    ) -> List[Tuple[float, float]]:
+    ) -> list[tuple[float, float]]:
         """Drop slots outside the component's HV/LV domain region.
 
         Mirrors ``PhasedComponentAssignmentStage._filter_by_domain`` so the
@@ -107,10 +109,10 @@ class ComponentAssignmentStage(Stage):
 
     def _reserve_slots(
         self,
-        center: Tuple[float, float],
+        center: tuple[float, float],
         radius: float,
-        all_slots: List[Tuple[float, float]],
-        used_slots: Set[Tuple[float, float]]
+        all_slots: list[tuple[float, float]],
+        used_slots: set[tuple[float, float]]
     ) -> None:
         """Reserve all slots within radius of center."""
         cx, cy = center
@@ -123,11 +125,11 @@ class ComponentAssignmentStage(Stage):
     def _assign_components_to_slots(
         self,
         netlist,
-        component_zone_map: Dict[str, str],
-        zone_slots: Dict[str, Tuple],
+        component_zone_map: dict[str, str],
+        zone_slots: dict[str, tuple],
         domain_for_ref: Mapping[str, str] | None = None,
         domain_regions: Mapping[str, "Polygon"] | None = None,
-    ) -> Dict[str, Tuple[float, float]]:
+    ) -> dict[str, tuple[float, float]]:
         """
         Assign components to slots using greedy wirelength minimization.
 
@@ -140,7 +142,7 @@ class ComponentAssignmentStage(Stage):
            component's HV/LV region when a domain map is present.
         """
         placements = {}
-        used_slots: Set[Tuple[float, float]] = set()
+        used_slots: set[tuple[float, float]] = set()
 
         # Build net connectivity map
         net_pins = {}  # net_name -> [(comp_ref, pin_name), ...]
@@ -149,7 +151,7 @@ class ComponentAssignmentStage(Stage):
 
         # Build flat list of all slots for reservation checks
         all_slots = []
-        for zone_name, slots in zone_slots.items():
+        for _zone_name, slots in zone_slots.items():
             all_slots.extend(slots)
 
         # 1. Process fixed placements first
@@ -162,18 +164,18 @@ class ComponentAssignmentStage(Stage):
                     pos = info
                 elif isinstance(info, dict):
                     pos = info.get('position')
-                
+
                 if pos and len(pos) == 2:
                     fixed_pos = (float(pos[0]), float(pos[1]))
                     placements[ref] = fixed_pos
-                    
+
                     # Reserve slots near fixed component
                     footprint_radius = self._get_footprint_radius(comp_by_ref[ref])
                     self._reserve_slots(fixed_pos, footprint_radius, all_slots, used_slots)
 
         # 2. Sort remaining components by footprint size (largest first)
         remaining_components = [c for c in netlist.components if c.ref not in placements]
-        
+
         def get_size(comp):
             if hasattr(comp, 'bounds') and comp.bounds:
                 return max(comp.bounds)
@@ -192,7 +194,7 @@ class ComponentAssignmentStage(Stage):
 
             if not available_slots:
                 # Fallback: use any available slot from other zones
-                for other_zone, slots in zone_slots.items():
+                for _other_zone, slots in zone_slots.items():
                     available_slots = [s for s in slots if s not in used_slots]
                     if available_slots:
                         break
@@ -221,34 +223,34 @@ class ComponentAssignmentStage(Stage):
             self._reserve_slots(best_slot, footprint_radius, all_slots, used_slots)
 
         return placements
-    
+
     def _compute_wirelength(
         self,
         component_ref: str,
-        candidate_slot: Tuple[float, float],
-        net_pins: Dict[str, list],
-        current_placements: Dict[str, Tuple[float, float]]
+        candidate_slot: tuple[float, float],
+        net_pins: dict[str, list],
+        current_placements: dict[str, tuple[float, float]]
     ) -> float:
         """Compute HPWL (Half-Perimeter Wirelength) for placing component at slot."""
         total_hpwl = 0.0
-        
+
         # Find all nets this component is on
-        for net_name, pins in net_pins.items():
+        for _net_name, pins in net_pins.items():
             component_on_net = any(ref == component_ref for ref, _ in pins)
             if not component_on_net:
                 continue
-            
+
             # Collect positions of all pins on this net
             positions = [candidate_slot]  # Include candidate position
             for ref, _ in pins:
                 if ref != component_ref and ref in current_placements:
                     positions.append(current_placements[ref])
-            
+
             # Compute HPWL: (max_x - min_x) + (max_y - min_y)
             if len(positions) > 1:
                 xs = [p[0] for p in positions]
                 ys = [p[1] for p in positions]
                 hpwl = (max(xs) - min(xs)) + (max(ys) - min(ys))
                 total_hpwl += hpwl
-        
+
         return total_hpwl

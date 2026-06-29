@@ -8,10 +8,9 @@ to prevent orphan goldens (goldens regenerated on unrelated branches).
 from __future__ import annotations
 
 import subprocess
-from typing import Optional
 
 
-def check_format_version(fixture_version: int, current_version: int) -> Optional[str]:
+def check_format_version(fixture_version: int, current_version: int) -> str | None:
     if fixture_version != current_version:
         return (
             f"MISMATCH: format version {fixture_version} != {current_version} "
@@ -20,7 +19,7 @@ def check_format_version(fixture_version: int, current_version: int) -> Optional
     return None
 
 
-def check_git_ancestry(golden_commit_hash: str, head_commit_hash: str) -> Optional[str]:
+def check_git_ancestry(golden_commit_hash: str, head_commit_hash: str) -> str | None:
     if not golden_commit_hash or golden_commit_hash == 'unknown':
         return None
     try:

@@ -8,16 +8,14 @@ produce the same placements as the unfiltered baseline (NFR6).
 
 from __future__ import annotations
 
-from types import SimpleNamespace
 from unittest.mock import Mock
 
-import pytest
 from shapely.geometry import Polygon
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
+from temper_placer.deterministic.state import BoardState
 from temper_placer.io.config_loader import PlacementConstraints
 
 
@@ -29,7 +27,7 @@ def _make_constraints(priority: dict | None = None) -> PlacementConstraints:
 
 
 def _make_state(
-    constraints: PlacementConstraints,
+    _constraints: PlacementConstraints,
     *,
     component_domain_map: frozenset = frozenset(),
     domain_regions: tuple = (),

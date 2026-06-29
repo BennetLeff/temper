@@ -2,12 +2,12 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+
+from temper_validation.comparison.drc_compliance import DRCComplianceResult
+from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 
 # Import result types from other modules
 from temper_validation.comparison.wirelength import WirelengthResult
-from temper_validation.comparison.drc_compliance import DRCComplianceResult
-from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 from temper_validation.metrics.quality_score import AggregateScoreResult
 from temper_validation.reporting.generator import ReportGenerator
 
@@ -33,7 +33,7 @@ def generate_markdown_report(
     drc_result: DRCComplianceResult,
     routing_result: RoutingFeasibilityResult,
     aggregate_result: AggregateScoreResult,
-    config: Optional[ReportConfig] = None
+    config: ReportConfig | None = None
 ) -> None:
     """
     Generate Markdown validation report.
@@ -74,7 +74,7 @@ def generate_html_report(
     drc_result: DRCComplianceResult,
     routing_result: RoutingFeasibilityResult,
     aggregate_result: AggregateScoreResult,
-    config: Optional[ReportConfig] = None
+    config: ReportConfig | None = None
 ) -> None:
     """
     Generate HTML validation report.

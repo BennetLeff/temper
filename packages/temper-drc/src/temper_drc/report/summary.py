@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def generate_summary(
     result: RunResult,
     placement: Placement,
-    constraints: ConstraintSet,
+    _constraints: ConstraintSet,
 ) -> str:
     """
     Generate a high-level summary of check results with key metrics.

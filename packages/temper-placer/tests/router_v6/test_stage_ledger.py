@@ -49,7 +49,6 @@ class TestStageLedger:
         assert "via_count" in report.message
 
     def test_fail_on_imbalance_raises(self):
-        import dataclasses
         state_a = _FakeState()
         state_b = _FakeState()
         state_b._escape_vias = (1, 2)

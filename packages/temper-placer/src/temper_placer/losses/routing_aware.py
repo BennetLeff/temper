@@ -25,9 +25,9 @@ from temper_placer.losses.base import (
 
 
 def _estimate_crossing_nets(
-    comp_i: int,
-    comp_j: int,
-    netlist: Any,
+    _comp_i: int,
+    _comp_j: int,
+    _netlist: Any,
 ) -> int:
     """Estimate how many nets must cross between two components.
 
@@ -143,7 +143,7 @@ class RoutingChannelLoss(LossFunction):
         context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """Compute routing channel penalty.
@@ -212,7 +212,7 @@ class MCUClusteringLoss(LossFunction):
         _context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """Penalizes peripherals that are too far from the MCU.
@@ -246,7 +246,7 @@ class MCUClusteringLoss(LossFunction):
         mcu_ref: str = "U_MCU",
         weight: float = 5.0,
         max_distance: float = 15.0,
-    ) -> "MCUClusteringLoss":
+    ) -> MCUClusteringLoss:
         """Create MCU clustering loss from netlist.
 
         Automatically identifies MCU and its direct peripherals
@@ -340,7 +340,7 @@ class BusAlignmentLoss(LossFunction):
         _context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """For each bus group, computes deviation from best-fit line
@@ -392,7 +392,7 @@ class BusAlignmentLoss(LossFunction):
         netlist: Any,
         bus_patterns: list[str] | None = None,
         weight: float = 5.0,
-    ) -> "BusAlignmentLoss":
+    ) -> BusAlignmentLoss:
         """Create bus alignment loss from netlist.
 
         Automatically identifies buses by net name patterns

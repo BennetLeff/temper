@@ -21,15 +21,15 @@ from temper_placer.explainability.trace import Trace
 
 def compose_traces(*traces: Trace) -> Trace:
     """Compose multiple traces using monoid operation.
-    
+
     This is a convenience function that makes trace composition more explicit.
-    
+
     Args:
         *traces: Variable number of Trace objects
-        
+
     Returns:
         Combined trace with all entries
-        
+
     Example:
         >>> trace1 = Trace.empty().add("Q1", (10, 20), "R1")
         >>> trace2 = Trace.empty().add("Q2", (30, 40), "R2")
@@ -51,18 +51,18 @@ def traced_pipeline_example(
     **kwargs
 ) -> tuple[Any, Trace]:
     """Example of composable traced pipeline.
-    
+
     This demonstrates how to structure a pipeline where each phase
     returns (result, trace) tuples that compose naturally.
-    
+
     Args:
         placement_fn: Function returning (positions, trace)
         routing_fn: Function returning (routes, trace)
         *args, **kwargs: Arguments for pipeline functions
-        
+
     Returns:
         (final_result, combined_trace) tuple
-        
+
     Example:
         >>> def place(components):
         ...     positions = optimize(components)
@@ -93,10 +93,10 @@ def traced_pipeline_example(
 
 class TracedPipeline:
     """Pipeline builder for composing traced operations.
-    
+
     This class provides a fluent interface for building pipelines
     where each stage returns (result, trace) tuples.
-    
+
     Example:
         >>> pipeline = TracedPipeline()
         >>> pipeline.add_stage("placement", optimize_with_trace)
@@ -111,11 +111,11 @@ class TracedPipeline:
 
     def add_stage(self, name: str, fn):
         """Add a stage to the pipeline.
-        
+
         Args:
             name: Name of the stage (for debugging)
             fn: Function returning (result, trace) tuple
-            
+
         Returns:
             self for chaining
         """
@@ -125,17 +125,17 @@ class TracedPipeline:
 
     def run(self, initial_data: Any) -> tuple[Any, Trace]:
         """Run the pipeline and return combined result and trace.
-        
+
         Args:
             initial_data: Input to first stage
-            
+
         Returns:
             (final_result, combined_trace) tuple
         """
         result = initial_data
         combined_trace = Trace.empty()
 
-        for stage_name, stage_fn in zip(self.stage_names, self.stages):
+        for _stage_name, stage_fn in zip(self.stage_names, self.stages):
             result, trace = stage_fn(result)
             combined_trace = combined_trace + trace
 
@@ -145,7 +145,7 @@ class TracedPipeline:
 # Example usage demonstration
 def example_placement_optimizer(components) -> tuple[Any, Trace]:
     """Example traced placement function.
-    
+
     In reality, this would call the actual optimizer with traced losses.
     """
     trace = Trace.empty()
@@ -161,9 +161,9 @@ def example_placement_optimizer(components) -> tuple[Any, Trace]:
     return {"positions": "mock"}, trace
 
 
-def example_router(placement_result) -> tuple[Any, Trace]:
+def example_router(_placement_result) -> tuple[Any, Trace]:
     """Example traced routing function.
-    
+
     In reality, this would call route_all_with_trace.
     """
     trace = Trace.empty()
@@ -180,7 +180,7 @@ def example_router(placement_result) -> tuple[Any, Trace]:
 
 def demo_pipeline():
     """Demonstrate the composable pipeline.
-    
+
     Example:
         >>> result, trace = demo_pipeline()
         >>> print(trace.why("Q1"))

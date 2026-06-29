@@ -81,7 +81,6 @@ def profile_run(
     if output_jsonl:
         from temper_placer.regression.metrics_recorder import (
             PipelineMetricsRecord,
-            find_metrics_file,
         )
         for rec_dict in all_records:
             rec = PipelineMetricsRecord(**rec_dict)

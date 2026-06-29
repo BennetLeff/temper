@@ -90,10 +90,7 @@ def pin_world_position_at(
     ry = px * sin_r + py * cos_r
 
     # Add component position (use override if provided)
-    if pos_override is not None:
-        cpos = pos_override
-    else:
-        cpos = comp.initial_position or (0.0, 0.0)
+    cpos = pos_override if pos_override is not None else comp.initial_position or (0.0, 0.0)
     return (cpos[0] + rx, cpos[1] + ry)
 
 

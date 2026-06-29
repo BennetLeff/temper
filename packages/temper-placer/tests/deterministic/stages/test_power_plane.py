@@ -5,12 +5,12 @@ Tests the stage that identifies power/ground nets and marks them for
 plane connection instead of trace routing.
 """
 
-import pytest
-from dataclasses import replace
 
-from temper_placer.deterministic.state import BoardState
+import pytest
+
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages.layer_assignment import LayerAssignment
-from temper_placer.core.netlist import Net, Netlist, Component, Pin
+from temper_placer.deterministic.state import BoardState
 
 
 # Test fixtures
@@ -234,7 +234,7 @@ class TestTemperBoardPlaneNets:
             "PE",
         }
 
-        assert TEMPER_PLANE_NETS == expected
+        assert expected == TEMPER_PLANE_NETS
 
     def test_temper_plane_layer_mapping(self):
         """Verify Temper board layer mappings."""

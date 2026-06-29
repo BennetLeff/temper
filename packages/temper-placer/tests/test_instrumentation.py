@@ -3,8 +3,6 @@
 import json
 import time
 
-import pytest
-
 from temper_placer.profiling.instrumentation import (
     PipelineProfiler,
     ProfileReport,

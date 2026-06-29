@@ -33,7 +33,7 @@ def test_normalize_preserves_schema_version():
 
 def test_normalize_trailing_whitespace():
     dsn = """(pcb test
-  (unit mm)   
+  (unit mm)
 )
 """
     result = DSNNormalizer.normalize(dsn)

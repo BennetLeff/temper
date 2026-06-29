@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-import click
 import sys
 from pathlib import Path
-from ._io import console
-from ._io import Panel
+from typing import TYPE_CHECKING
+
+import click
+
+from ._io import Panel, console
 
 if TYPE_CHECKING:
     from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator
-    from temper_placer.pipeline.visualization import RichDashboard
     from temper_placer.pipeline.state import PipelinePhase, PipelineState
+    from temper_placer.pipeline.visualization import RichDashboard
 
 @click.command()
 @click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))

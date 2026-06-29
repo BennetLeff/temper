@@ -12,12 +12,12 @@ Modules:
     golden      - Snapshot/golden file testing
 """
 
-from temper_testing.oracle import exact, bounded, oracle_test
-from temper_testing.gradients import check_gradient, find_discontinuities
-from temper_testing.viz import render_grid, render_placement
 from temper_testing.determinism import verify, verify_with_seed
+from temper_testing.gradients import check_gradient, find_discontinuities
+from temper_testing.invariants import assert_invariant, check
 from temper_testing.metamorphic import Property, verify_property
-from temper_testing.invariants import check, assert_invariant
+from temper_testing.oracle import bounded, exact, oracle_test
+from temper_testing.viz import render_grid, render_placement
 
 __all__ = [
     # Oracle

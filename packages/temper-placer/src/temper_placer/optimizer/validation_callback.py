@@ -170,7 +170,7 @@ class ValidationCallback:
         self._history: list[ValidationResult] = []
         self._initialized = False
 
-    def _lazy_init(self, context: LossContext) -> None:
+    def _lazy_init(self, _context: LossContext) -> None:
         """Initialize DRC and Routing components on first use."""
         if self._initialized:
             return
@@ -235,26 +235,19 @@ class ValidationCallback:
             return False
 
         # Check DRC interval
-        if self.config.drc_enabled:
-            if epoch == 0 or epoch % self.config.drc_interval == 0:
-                return True
+        if self.config.drc_enabled and (epoch == 0 or epoch % self.config.drc_interval == 0):
+            return True
 
         # Check Routing interval
-        if self.config.routing_enabled:
-            if epoch == 0 or epoch % self.config.routing_interval == 0:
-                return True
+        if self.config.routing_enabled and (epoch == 0 or epoch % self.config.routing_interval == 0):
+            return True
 
         # Check ML Routing interval
-        if self.config.ml_routing_enabled:
-            if epoch == 0 or epoch % self.config.ml_routing_interval == 0:
-                return True
+        if self.config.ml_routing_enabled and (epoch == 0 or epoch % self.config.ml_routing_interval == 0):
+            return True
 
         # Check SPICE interval
-        if self.config.spice_enabled:
-            if epoch == 0 or epoch % self.config.spice_interval == 0:
-                return True
-
-        return False
+        return bool(self.config.spice_enabled and (epoch == 0 or epoch % self.config.spice_interval == 0))
 
     def __call__(
         self,
@@ -372,7 +365,6 @@ class ValidationCallback:
                     adj = build_adjacency_matrix(context.netlist)
                     edges = jnp.array(np.where(np.array(adj) > 0)).T
 
-                    n = context.netlist.n_components
                     areas = jnp.array([c.width * c.height for c in context.netlist.components])
                     pin_counts = jnp.array([len(c.pins) for c in context.netlist.components])
 

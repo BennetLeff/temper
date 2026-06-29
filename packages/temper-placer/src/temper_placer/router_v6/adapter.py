@@ -13,6 +13,7 @@ for consumers that currently depend on `routing/maze_router`. Pattern:
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import math
 import os
@@ -20,16 +21,14 @@ import re
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
-
-import numpy as np
+from typing import TYPE_CHECKING, Any
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.design_rules import DesignRules
-    from temper_placer.core.netlist import Netlist, Component
+    from temper_placer.core.netlist import Component
 
 
 @dataclass
@@ -110,12 +109,12 @@ class V6RouterAdapter:
         num_layers: int | None = None,
         via_cost: float = 1.0,
         soft_blocking: bool = False,
-        congestion_via_discount: float = 0.1,
-        min_clearance: float = 0.0,
-        drc_oracle: Any = None,
-        strict_mode: bool = False,
+        _congestion_via_discount: float = 0.1,
+        _min_clearance: float = 0.0,
+        _drc_oracle: Any = None,
+        _strict_mode: bool = False,
         design_rules: DesignRules | None = None,
-        wrong_way_penalty: float = 2.0,
+        _wrong_way_penalty: float = 2.0,
     ) -> V6RouterAdapter:
         if num_layers is None:
             if hasattr(board, "layer_stackup") and board.layer_stackup:
@@ -133,7 +132,7 @@ class V6RouterAdapter:
         )
 
     def block_components(
-        self, components: list[Component], positions: Any, margin: float = 0.5
+        self, components: list[Component], positions: Any, _margin: float = 0.5
     ) -> None:
         """Record components and positions for routing."""
         self._components = components
@@ -143,9 +142,9 @@ class V6RouterAdapter:
         self,
         components: list[Component],
         positions: Any,
-        netlist: Any,
-        trace_width: float = 0.2,
-        clearance: float = 0.2,
+        _netlist: Any,
+        _trace_width: float = 0.2,
+        _clearance: float = 0.2,
     ) -> None:
         """Record components for routing (pad-level blocking handled by V6)."""
         self._components = components
@@ -159,19 +158,19 @@ class V6RouterAdapter:
         netlist: Any,
         positions: Any,
         net_order: list[str],
-        assignments: dict[str, Any],
-        cost_maps: Any = None,
-        max_iterations: int = 5,
-        history_increment: float = 1.0,
-        history_decay: float = 0.9,
-        p_scale_start: float = 1.0,
-        p_scale_step: float = 2.0,
-        progress_callback: Any = None,
-        incremental: bool = True,
-        validate_final: bool = False,
-        pin_positions_overrides: Any = None,
-        component_margin: float = 0.5,
-        soft_c_spaces: Any = None,
+        _assignments: dict[str, Any],
+        _cost_maps: Any = None,
+        _max_iterations: int = 5,
+        _history_increment: float = 1.0,
+        _history_decay: float = 0.9,
+        _p_scale_start: float = 1.0,
+        _p_scale_step: float = 2.0,
+        _progress_callback: Any = None,
+        _incremental: bool = True,
+        _validate_final: bool = False,
+        _pin_positions_overrides: Any = None,
+        _component_margin: float = 0.5,
+        _soft_c_spaces: Any = None,
     ) -> dict[str, _AdapterRoutePath]:
         """Route all nets using RouterV6Pipeline.
 
@@ -197,10 +196,8 @@ class V6RouterAdapter:
             )
             result = pipeline.run(Path(temp_path))
         finally:
-            try:
+            with contextlib.suppress(OSError):
                 os.unlink(temp_path)
-            except OSError:
-                pass
 
         # Convert V6 results to RoutePath-compatible dict
         results: dict[str, _AdapterRoutePath] = {}
@@ -250,11 +247,11 @@ class V6RouterAdapter:
         board = self._board
         lines = [
             "(kicad_pcb (version 20221018) (generator temper-placer)",
-            f"  (general (thickness 1.6))",
-            f"  (paper A4)",
-            f"  (layers (0 \"F.Cu\" signal) (31 \"B.Cu\" signal) (36 \"B.Adhes\" user) (44 \"Edge.Cuts\" edge))",
-            f"  (setup (pad_to_mask_clearance 0.1))",
-            f"",
+            "  (general (thickness 1.6))",
+            "  (paper A4)",
+            "  (layers (0 \"F.Cu\" signal) (31 \"B.Cu\" signal) (36 \"B.Adhes\" user) (44 \"Edge.Cuts\" edge))",
+            "  (setup (pad_to_mask_clearance 0.1))",
+            "",
         ]
 
         # Add board outline
@@ -281,7 +278,6 @@ class V6RouterAdapter:
         # Add components with footprints
         if self._components and positions is not None:
             for comp in self._components:
-                ref = comp.ref
                 footprint = getattr(comp, "footprint", "Resistor_SMD:R_0805_2012Metric")
                 x, y = (0.0, 0.0)
                 if hasattr(positions, "__getitem__"):
@@ -294,7 +290,7 @@ class V6RouterAdapter:
                 lines.append(
                     f"  (footprint \"{footprint}\" (layer \"F.Cu\")"
                 )
-                lines.append(f"    (attr smd)")
+                lines.append("    (attr smd)")
                 for pin in getattr(comp, "pins", []):
                     pin_x = x + getattr(pin, "position", (0, 0))[0]
                     pin_y = y + getattr(pin, "position", (0, 0))[1]
@@ -311,7 +307,7 @@ class V6RouterAdapter:
                         f" (net {net_idx} \"{net_name}\"))"
                     )
                 lines.append(f"    (at {x:.4f} {y:.4f})")
-                lines.append(f"  )")
+                lines.append("  )")
 
         lines.append(")")
         return "\n".join(lines)
@@ -320,7 +316,7 @@ class V6RouterAdapter:
 def route_pcb(
     parsed: Any,
     placements: dict[str, tuple[float, float]],
-    seed: int,
+    _seed: int,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -396,10 +392,8 @@ def route_pcb(
             result = pipeline.run(Path(temp_path))
             return RoutingResult(completion_rate=result.completion_rate)
         finally:
-            try:
+            with contextlib.suppress(OSError):
                 os.unlink(temp_path)
-            except OSError:
-                pass
     else:
         result = pipeline.run(pcb_path)
         return RoutingResult(completion_rate=result.completion_rate)

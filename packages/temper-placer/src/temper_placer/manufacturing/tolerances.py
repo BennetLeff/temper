@@ -1,7 +1,7 @@
 """
 Manufacturing tolerance models for PCB production.
 
-This module provides tools to analyze the impact of manufacturing variability 
+This module provides tools to analyze the impact of manufacturing variability
 (etching, drilling, layer registration) on the design.
 """
 
@@ -72,9 +72,9 @@ class ToleranceAnalyzer:
     ) -> FeatureTolerance:
         """
         Calculate tolerance for a clearance (gap) between copper features.
-        
+
         Clearance is reduced by:
-        1. Etching: Copper expands laterally (etch factor). 
+        1. Etching: Copper expands laterally (etch factor).
            Gap decreases by 2 * etch (one from each side).
         2. Registration: Layers can shift relative to each other.
         """
@@ -99,7 +99,7 @@ class ToleranceAnalyzer:
     ) -> FeatureTolerance:
         """
         Calculate tolerance for trace width.
-        
+
         Trace width changes primarily due to etching.
         """
         etch = self.table.etch_tolerance.get(copper_weight, 0.05)

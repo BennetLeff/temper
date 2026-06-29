@@ -1,7 +1,7 @@
 """Tests for ConstraintBuilder fluent API."""
 
-import pytest
 import yaml
+
 from temper_placer.constraints.builder import ConstraintBuilder
 from temper_placer.io.config_loader import PlacementConstraints
 

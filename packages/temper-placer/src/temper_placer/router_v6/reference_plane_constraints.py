@@ -90,10 +90,7 @@ def add_reference_plane_constraints(
 
         # Apply to signal layers
         for layer_info in pcb.stackup.layers:
-            if layer_info.layer_type in ["signal", "mixed"]:
-                # For each signal layer, specify the required reference plane
-                # Typically this would be the adjacent plane layer
-                if required_plane:
+                if layer_info.layer_type in ["signal", "mixed"] and required_plane:
                     constraints.append(ReferencePlaneConstraint(
                         signal_net=net_name,
                         required_plane=required_plane,
@@ -111,7 +108,7 @@ def _is_power_or_ground_net(net_name: str) -> bool:
     return any(kw in name_upper for kw in power_keywords)
 
 
-def _determine_reference_plane(net_name: str, net_class: str) -> str:
+def _determine_reference_plane(net_name: str, _net_class: str) -> str:
     """
     Determine which reference plane a signal should route over.
 

@@ -35,10 +35,7 @@ class DSNNormalizer:
             return False
         if dsn_text.endswith("\n\n"):
             return False
-        for ch in dsn_text:
-            if ord(ch) < 0x20 and ch not in ("\n", "\r", "\t"):
-                return False
-        return True
+        return all(not (ord(ch) < 32 and ch not in ("\n", "\r", "\t")) for ch in dsn_text)
 
     @staticmethod
     def strip_control_chars(dsn_text: str) -> str:

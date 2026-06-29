@@ -4,9 +4,8 @@ This module provides dataclasses for collecting detailed routing statistics
 that help identify bottlenecks and measure improvement.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 import json
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -32,7 +31,7 @@ class SegmentMetrics:
     # Result details (if successful)
     path_length_mm: float = 0.0
     via_count: int = 0
-    layers_used: List[str] = field(default_factory=list)
+    layers_used: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -58,7 +57,7 @@ class NetMetrics:
     elapsed_seconds: float
 
     # Detailed segment data
-    segment_details: List[SegmentMetrics] = field(default_factory=list)
+    segment_details: list[SegmentMetrics] = field(default_factory=list)
 
     @property
     def completion_rate(self) -> float:
@@ -102,11 +101,11 @@ class RoutingMetrics:
     total_elapsed_seconds: float = 0.0
 
     # Per-net details
-    net_metrics: Dict[str, NetMetrics] = field(default_factory=dict)
+    net_metrics: dict[str, NetMetrics] = field(default_factory=dict)
 
     # Failure analysis
-    failed_nets: List[str] = field(default_factory=list)
-    timeout_nets: List[str] = field(default_factory=list)
+    failed_nets: list[str] = field(default_factory=list)
+    timeout_nets: list[str] = field(default_factory=list)
 
     def add_net(self, net: NetMetrics) -> None:
         """Add a net's metrics and update totals."""
@@ -187,7 +186,7 @@ class RoutingMetrics:
         print("ROUTING METRICS SUMMARY")
         print("=" * 60)
 
-        print(f"\nNets:")
+        print("\nNets:")
         print(f"  Total:           {self.nets_total}")
         print(
             f"  Fully routed:    {self.nets_fully_routed} ({self.nets_fully_routed / max(self.nets_total, 1):.1%})"
@@ -196,7 +195,7 @@ class RoutingMetrics:
         print(f"  Failed:          {self.nets_failed}")
         print(f"  Plane (skipped): {self.nets_plane}")
 
-        print(f"\nSegments:")
+        print("\nSegments:")
         print(f"  Total:           {self.segments_total}")
         print(
             f"  Completed:       {self.segments_completed} ({self.segments_completed / max(self.segments_total, 1):.1%})"
@@ -204,16 +203,16 @@ class RoutingMetrics:
         print(f"  Failed:          {self.segments_failed}")
         print(f"  Timeout:         {self.segments_timeout} ({self.timeout_rate:.1%})")
 
-        print(f"\nSearch:")
+        print("\nSearch:")
         print(f"  Total iterations:    {self.total_iterations:,}")
         print(f"  Avg per segment:     {self.avg_iterations_per_segment:.0f}")
 
-        print(f"\nOutput:")
+        print("\nOutput:")
         print(f"  Traces:          {self.total_traces}")
         print(f"  Vias:            {self.total_vias}")
         print(f"  Trace length:    {self.total_trace_length_mm:.1f} mm")
 
-        print(f"\nTiming:")
+        print("\nTiming:")
         print(f"  Total:           {self.total_elapsed_seconds:.1f}s")
 
         if self.failed_nets:

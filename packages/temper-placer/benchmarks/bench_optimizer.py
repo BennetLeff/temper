@@ -12,15 +12,15 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root / "src"))
 sys.path.append(str(project_root)) # For tests.fixtures
 
-from tests.fixtures.generators.synthetic_netlist import generate_netlist
+from tests.fixtures.generators.synthetic_netlist import generate_netlist  # noqa: E402
 
-from temper_placer.core.board import Board
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.optimizer.config import OptimizerConfig
-from temper_placer.optimizer.train import train
+from temper_placer.core.board import Board  # noqa: E402
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss  # noqa: E402
+from temper_placer.losses.boundary import BoundaryLoss  # noqa: E402
+from temper_placer.losses.overlap import OverlapLoss  # noqa: E402
+from temper_placer.losses.wirelength import WirelengthLoss  # noqa: E402
+from temper_placer.optimizer.config import OptimizerConfig  # noqa: E402
+from temper_placer.optimizer.train import train  # noqa: E402
 
 
 def benchmark_run(n_components: int, epochs: int = 8000):
@@ -52,7 +52,7 @@ def benchmark_run(n_components: int, epochs: int = 8000):
     # 3. Main Run
     print(f"  Running {epochs} epochs...")
     start_time = time.time()
-    result = train(netlist, board, composite, context, config)
+    train(netlist, board, composite, context, config)
     duration = time.time() - start_time
 
     ms_per_epoch = (duration * 1000) / epochs

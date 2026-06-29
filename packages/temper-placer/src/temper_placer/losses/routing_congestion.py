@@ -40,11 +40,11 @@ class RoutingCongestionLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: jnp.ndarray | None = None, **kwargs: Any) -> LossResult:
+        _rotations: jnp.ndarray,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: jnp.ndarray | None = None, **_kwargs: Any) -> LossResult:
         """
         Calculate congestion penalty.
         """
@@ -77,8 +77,8 @@ class ConflictLocation:
 def compute_congestion_heatmap(
     conflicts: list[ConflictLocation],
     grid_size: tuple[int, int],
-    cell_size_mm: float,
-    origin: tuple[float, float]
+    _cell_size_mm: float,
+    _origin: tuple[float, float]
 ) -> jnp.ndarray:
     """Compute congestion heatmap from conflict locations."""
     width, height = grid_size

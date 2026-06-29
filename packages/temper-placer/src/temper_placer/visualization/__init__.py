@@ -66,11 +66,9 @@ from temper_placer.visualization.model import (
     # Loss tracking
     LossDataPoint,
     LossHistory,
-    PadView,
     # Geometry primitives
     Point,
     Rectangle,
-    TraceView,
     # Constraint tracking
     Violation,
     ViolationType,

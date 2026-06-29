@@ -8,7 +8,6 @@ Skips if the baseline JSON is absent or the corpus boards are not on disk.
 """
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -33,9 +32,9 @@ def _run_benchmark() -> dict:
     """Run the R3 benchmark and return the JSON result dict."""
     # Import inside function to avoid import-time side effects
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from temper_placer.router_v6.benchmark import run_benchmark_suite
-
     import tempfile
+
+    from temper_placer.router_v6.benchmark import run_benchmark_suite
 
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as tmp:
         output_path = Path(tmp.name)

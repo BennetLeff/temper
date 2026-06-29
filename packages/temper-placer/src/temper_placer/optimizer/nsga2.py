@@ -80,7 +80,6 @@ from typing import Any
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 from jax import Array
 
 logger = logging.getLogger(__name__)
@@ -1170,16 +1169,16 @@ class NSGAOptimizer:
                 fixed_mask = getattr(context, "fixed_mask", None)
 
                 # Apply mutation pool to each child
-                def mutate_individual(pos, rot, k):
+                def mutate_individual(pos, rot, k, _adjacency=adjacency, _thermal_mask=thermal_mask, _fixed_mask=fixed_mask):
                     return apply_mutation_pool(
                         pos,
                         rot,
                         k,
                         board.width,
                         board.height,
-                        adjacency=adjacency,
-                        thermal_mask=thermal_mask,
-                        fixed_mask=fixed_mask,
+                        adjacency=_adjacency,
+                        thermal_mask=_thermal_mask,
+                        fixed_mask=_fixed_mask,
                         gaussian_sigma=self.mutation_sigma,
                         gaussian_rate=self.mutation_rate,
                     )
@@ -1235,10 +1234,9 @@ class NSGAOptimizer:
                     # Check if all fixed components match parent positions
                     fixed_match = True
                     for j in range(len(fixed_mask)):
-                        if fixed_mask[j]:
-                            if not jnp.allclose(child_pos_i[j], parent_pos[j], atol=1e-5):
-                                fixed_match = False
-                                break
+                        if fixed_mask[j] and not jnp.allclose(child_pos_i[j], parent_pos[j], atol=1e-5):
+                            fixed_match = False
+                            break
                     if fixed_match:
                         children_with_fixed.append(n_parents + i)
 

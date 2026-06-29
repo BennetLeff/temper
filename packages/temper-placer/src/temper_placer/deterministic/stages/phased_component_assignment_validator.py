@@ -23,7 +23,7 @@ spacing.  See ``_build_slot_index`` and ``_slots_within_radius``.
 from __future__ import annotations
 
 import math
-from typing import Dict, Iterable, List, Set, Tuple
+from collections.abc import Iterable
 
 from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
@@ -38,7 +38,7 @@ _HV_SAFETY_CATEGORIES = frozenset({"HV", "AC"})
 _DEFAULT_SLOT_SPACING = 5.0
 
 
-def _absolute_hv_pins(state) -> List[Tuple[float, float, str, str]]:
+def _absolute_hv_pins(state) -> list[tuple[float, float, str, str]]:
     """Return ABSOLUTE (x, y, comp_ref, pin_name) for every HV pin of every placed component.
 
     Pin positions on the netlist are component-relative.  The placer
@@ -55,8 +55,8 @@ def _absolute_hv_pins(state) -> List[Tuple[float, float, str, str]]:
     net_classes = rules.net_classes
     net_class_assignments = getattr(rules, "net_class_assignments", {}) or {}
     placements = dict(getattr(state, "placements", frozenset()))
-    comp_by_ref = {c.ref: c for c in netlist.components}
-    pins: List[Tuple[float, float, str, str]] = []
+    {c.ref: c for c in netlist.components}
+    pins: list[tuple[float, float, str, str]] = []
     for comp in netlist.components:
         if comp.ref not in placements:
             continue
@@ -92,17 +92,17 @@ def _creepage_mm(state) -> float:
     return max_creepage
 
 
-def _flatten_slots(state) -> List[Tuple[float, float]]:
+def _flatten_slots(state) -> list[tuple[float, float]]:
     """All grid slots from every zone in state.zone_slots."""
     if not state.zone_slots:
         return []
-    out: List[Tuple[float, float]] = []
+    out: list[tuple[float, float]] = []
     for _zone, slots in state.zone_slots:
         out.extend(slots)
     return out
 
 
-def _infer_slot_spacing(slots: List[Tuple[float, float]]) -> float:
+def _infer_slot_spacing(slots: list[tuple[float, float]]) -> float:
     """Infer the regular slot-grid spacing from a flat list of slots.
 
     The placer's zone_slots are emitted by ``_build_state`` on a
@@ -123,9 +123,9 @@ def _infer_slot_spacing(slots: List[Tuple[float, float]]) -> float:
 
 
 def _build_slot_index(
-    slots: Iterable[Tuple[float, float]],
+    slots: Iterable[tuple[float, float]],
     spacing: float,
-) -> Dict[Tuple[int, int], List[Tuple[float, float]]]:
+) -> dict[tuple[int, int], list[tuple[float, float]]]:
     """Build a 2D bucketed cell map ``(i, j) -> [slots in that cell]``.
 
     Cells are unit squares of side ``spacing`` aligned to the
@@ -135,7 +135,7 @@ def _build_slot_index(
     coverage and over-claim run in O(slots + pins + placements)
     instead of the naive quadratic.
     """
-    index: Dict[Tuple[int, int], List[Tuple[float, float]]] = {}
+    index: dict[tuple[int, int], list[tuple[float, float]]] = {}
     for slot in slots:
         i = int(round(slot[0] / spacing))
         j = int(round(slot[1] / spacing))
@@ -144,11 +144,11 @@ def _build_slot_index(
 
 
 def _slots_within_radius(
-    center: Tuple[float, float],
+    center: tuple[float, float],
     radius: float,
-    index: Dict[Tuple[int, int], List[Tuple[float, float]]],
+    index: dict[tuple[int, int], list[tuple[float, float]]],
     spacing: float,
-) -> List[Tuple[float, float]]:
+) -> list[tuple[float, float]]:
     """Yield all slots within ``radius`` of ``center`` using the cell index.
 
     Walks the (2k+1) x (2k+1) cell window where
@@ -162,8 +162,8 @@ def _slots_within_radius(
     k = int(math.ceil(radius / spacing))
     ci = int(round(center[0] / spacing))
     cj = int(round(center[1] / spacing))
-    out: List[Tuple[float, float]] = []
-    seen: Set[Tuple[float, float]] = set()
+    out: list[tuple[float, float]] = []
+    seen: set[tuple[float, float]] = set()
     cx, cy = center
     for di in range(-k, k + 1):
         for dj in range(-k, k + 1):
@@ -182,7 +182,7 @@ def _slots_within_radius(
 
 
 @register_validator("PhasedComponentAssignment")
-def validate_phased_component_assignment_hv(state) -> List[StageDRCFailure]:
+def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
     """Verify the placer reserved every HV pin's creepage ring AND no slot is over-claimed.
 
     Two checks run in this order:
@@ -217,7 +217,7 @@ def validate_phased_component_assignment_hv(state) -> List[StageDRCFailure]:
         ring.  Built by walking placements + the bucketed index.
         Lookup is O(1) per slot.
     """
-    failures: List[StageDRCFailure] = []
+    failures: list[StageDRCFailure] = []
     netlist = getattr(state, "netlist", None)
     if netlist is None:
         return failures
@@ -266,7 +266,7 @@ def validate_phased_component_assignment_hv(state) -> List[StageDRCFailure]:
     # would mask such a bug by re-deriving the expected ring).
     used_slots_attr = getattr(state, "used_slots", None)
     if used_slots_attr is not None and len(used_slots_attr) > 0:
-        used_slots: Set[Tuple[float, float]] = set(used_slots_attr)
+        used_slots: set[tuple[float, float]] = set(used_slots_attr)
     else:
         # Fallback for older state objects that pre-date U3.
         used_slots = set()
@@ -314,7 +314,7 @@ def validate_phased_component_assignment_hv(state) -> List[StageDRCFailure]:
     # Pre-compute the legitimate-origin set (slots that fall within
     # some footprint ring OR some HV creepage ring).  Used by both
     # the coverage check and the over-claim check.
-    legitimate_origin: Set[Tuple[float, float]] = set()
+    legitimate_origin: set[tuple[float, float]] = set()
     for ref, pos in placements.items():
         comp = comp_by_ref.get(ref)
         if comp is None:

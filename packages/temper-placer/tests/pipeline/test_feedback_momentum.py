@@ -1,9 +1,6 @@
 """Tests for MomentumDampedRoutingFeedbackLoss (U3)."""
 
 import numpy as np
-import pytest
-
-from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
 
 class MockCongestionHeatmap:

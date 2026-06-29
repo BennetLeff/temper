@@ -30,8 +30,8 @@ from temper_placer.optimizer.initialization import SpectralInitializer
 def load_libresolar_bms():
     """Load libresolar_bms PCB and constraints."""
     pcb_path = Path("tests/fixtures/external/.cache/libresolar_bms/libresolar_bms_unrouted.kicad_pcb")
-    constraints_path = Path("tests/fixtures/external/.cache/libresolar_bms/libresolar_bms_constraints.yaml")
-    baseline_path = Path("tests/fixtures/external/.cache/libresolar_bms/libresolar_bms_baseline.yaml")
+    Path("tests/fixtures/external/.cache/libresolar_bms/libresolar_bms_constraints.yaml")
+    Path("tests/fixtures/external/.cache/libresolar_bms/libresolar_bms_baseline.yaml")
 
     print(f"Loading PCB from {pcb_path}")
     result = parse_kicad_pcb(pcb_path)

@@ -121,28 +121,28 @@ def closest_points_segment_segment(
     seg1: LineSegment, seg2: LineSegment
 ) -> tuple[Point, Point]:
     """Find closest points between two line segments.
-    
+
     Args:
         seg1: First segment
         seg2: Second segment
-        
+
     Returns:
         (p1, p2) where p1 is on seg1, p2 is on seg2, and dist(p1, p2) is minimized.
     """
     # Algorithm based on calculating the shortest distance between two lines,
     # then clamping parameters to segments.
-    
+
     p1, q1 = seg1.start, seg1.end
     p2, q2 = seg2.start, seg2.end
-    
+
     d1 = Point(q1.x - p1.x, q1.y - p1.y)
     d2 = Point(q2.x - p2.x, q2.y - p2.y)
     r = Point(p1.x - p2.x, p1.y - p2.y)
-    
+
     a = d1.x * d1.x + d1.y * d1.y
     e = d2.x * d2.x + d2.y * d2.y
     f = d2.x * r.x + d2.y * r.y
-    
+
     if a <= 1e-10 and e <= 1e-10:
         # Both segments are points
         return p1, p2
@@ -155,26 +155,23 @@ def closest_points_segment_segment(
         c = d1.x * r.x + d1.y * r.y
         s = max(0.0, min(1.0, -c / a))
         return Point(p1.x + s * d1.x, p1.y + s * d1.y), p2
-        
+
     c = d1.x * r.x + d1.y * r.y
     b = d1.x * d2.x + d1.y * d2.y
     denom = a * e - b * b
-    
+
     # Parallel lines check
-    if denom != 0.0:
-        s = max(0.0, min(1.0, (b * f - c * e) / denom))
-    else:
-        s = 0.0
-        
+    s = max(0.0, min(1.0, (b * f - c * e) / denom)) if denom != 0.0 else 0.0
+
     t = (b * s + f) / e
-    
+
     if t < 0.0:
         t = 0.0
         s = max(0.0, min(1.0, -c / a))
     elif t > 1.0:
         t = 1.0
         s = max(0.0, min(1.0, (b - c) / a))
-        
+
     c1 = Point(p1.x + s * d1.x, p1.y + s * d1.y)
     c2 = Point(p2.x + t * d2.x, p2.y + t * d2.y)
     return c1, c2
@@ -249,12 +246,12 @@ class RotatedRect:
         w, h = self.size
         # Half dimensions
         hw, hh = w / 2, h / 2
-        
+
         # Rotation matrix
         rad = math.radians(self.rotation)
         cos_a = math.cos(rad)
         sin_a = math.sin(rad)
-        
+
         # Local corners (unrotated, center at 0,0)
         # TL, TR, BR, BL
         local_pts = [
@@ -263,7 +260,7 @@ class RotatedRect:
             (hw, hh),
             (-hw, hh)
         ]
-        
+
         corners = []
         for lx, ly in local_pts:
             # Rotate
@@ -271,7 +268,7 @@ class RotatedRect:
             ry = lx * sin_a + ly * cos_a
             # Translate
             corners.append(Point(self.center.x + rx, self.center.y + ry))
-            
+
         return corners
 
     @property
@@ -283,60 +280,60 @@ class RotatedRect:
 
 def point_to_rotated_rect_distance(point: Point, rect: RotatedRect) -> float:
     """Distance from point to rotated rectangle.
-    
+
     Returns:
         Positive if outside, negative if inside, 0 on edge.
     """
     # Transform point into rect's local coordinate system
     dx = point.x - rect.center.x
     dy = point.y - rect.center.y
-    
+
     rad = math.radians(-rect.rotation) # Rotate point opposite to rect rotation
     cos_a = math.cos(rad)
     sin_a = math.sin(rad)
-    
+
     local_x = dx * cos_a - dy * sin_a
     local_y = dx * sin_a + dy * cos_a
-    
+
     # Calculate signed distance in local AABB
     hw = rect.size[0] / 2
     hh = rect.size[1] / 2
-    
+
     # q is absolute position in first quadrant
     qx = abs(local_x) - hw
     qy = abs(local_y) - hh
-    
+
     # Exterior distance (length of vector max(0, q))
     exterior = math.hypot(max(0.0, qx), max(0.0, qy))
-    
+
     # Interior distance (max of q components, clamped to 0)
     # If point is inside, both qx and qy are negative.
     interior = min(max(qx, qy), 0.0)
-    
+
     return exterior + interior
 
 
 def segment_to_rotated_rect_distance(segment: LineSegment, rect: RotatedRect) -> float:
     """Distance from segment to rotated rectangle.
-    
+
     Returns negative if intersecting.
     """
     # 1. Quick bounding circle check
-    dist_to_center = point_to_segment_distance(rect.center, segment)
+    point_to_segment_distance(rect.center, segment)
     # If we are really far, we can trust the bounding circle lower bound?
     # No, for DRC we need exactness to avoid false positives.
     # Only return if we are sure we are colliding?
     # Actually, we can just skip the early return and do the edge checks.
-    
+
     # Optimization: If dist_to_center is huge, return approximate.
     # But let's be correct first.
-        
+
     # 2. Check if segment endpoints are inside
     d_start = point_to_rotated_rect_distance(segment.start, rect)
     d_end = point_to_rotated_rect_distance(segment.end, rect)
     if d_start <= 0 or d_end <= 0:
         return min(d_start, d_end)
-        
+
     # 3. Check distance to each of the 4 edges
     corners = rect.corners
     edges = [
@@ -345,29 +342,29 @@ def segment_to_rotated_rect_distance(segment: LineSegment, rect: RotatedRect) ->
         LineSegment(corners[2], corners[3]),
         LineSegment(corners[3], corners[0])
     ]
-    
+
     # If segment intersects any edge, distance is 0 (or negative to indicate intersection)
     # But standard segment_to_segment returns 0 if intersecting.
     # We want to know if it's INSIDE.
-    
+
     # If we are here, endpoints are outside.
     # So we just need point_to_segment distance from rect edges to segment?
     # No, we need to know if the segment PIERCES the rect.
-    
+
     min_dist = float('inf')
     intersects = False
-    
+
     for edge in edges:
         d = segment_to_segment_distance(segment, edge)
         if d < 1e-9:
             intersects = True
         min_dist = min(min_dist, d)
-        
+
     if intersects:
         return -1.0 # Arbitrary negative to indicate collision
-        
+
     # If no intersection and endpoints outside, it's the distance to the closest edge
     # UNLESS the rect is fully inside the segment (impossible given bounding check usually?)
     # Actually segment to rect distance is min(dist(seg, edge_i)) generally.
-    
+
     return min_dist

@@ -7,20 +7,18 @@ from dataclasses import dataclass
 import pytest
 
 from temper_placer.protocol import (
-    StageMeta,
-    StageInput,
-    StageOutput,
     Contract,
     ContractViolation,
+    StageInput,
+    StageOutput,
 )
 from temper_placer.runner import (
-    PipelineRunner,
     DataFlowError,
-    resolve_and_run,
+    PipelineRunner,
     StrategyExhaustedError,
+    resolve_and_run,
 )
 from temper_placer.strategy_registry import register
-
 
 # ---- Test helpers -----------------------------------------------------------
 
@@ -58,7 +56,7 @@ class RaisingStage:
     provides: list[str] = []
     contract = None
 
-    def run(self, inp):
+    def run(self, _inp):
         raise RuntimeError("deliberate failure")
 
 
@@ -232,7 +230,7 @@ class BadStage:
     provides: list[str] = []
     contract = None
 
-    def run(self, inp):
+    def run(self, _inp):
         raise RuntimeError("bad strategy")
 
 

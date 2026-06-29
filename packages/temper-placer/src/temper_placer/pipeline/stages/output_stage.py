@@ -14,12 +14,12 @@ from temper_placer.pipeline.dag_types import DataContext, StageResult
 class OutputStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start = time.time()
+        from temper_placer.core.state import PlacementState
         from temper_placer.io.kicad_writer import (
             add_bounding_boxes_to_pcb,
             add_silkscreen_labels,
             export_placements,
         )
-        from temper_placer.core.state import PlacementState
 
         _compute_physics_metrics(state)
 
@@ -67,14 +67,14 @@ class OutputStage:
 
 
 def _compute_physics_metrics(state: Any) -> None:
+    from temper_placer.core.state import PlacementState
     from temper_placer.metrics.physics import (
+        PhysicsReport,
         measure_emi,
         measure_geometric,
         measure_routability,
         measure_thermal,
-        PhysicsReport,
     )
-    from temper_placer.core.state import PlacementState
 
     if state.placement_state is None and state.deterministic_result is None:
         return

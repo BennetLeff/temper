@@ -50,7 +50,6 @@ class TestGradNorm:
 
         # Check if weights changed from initial [1.0, 1.0]
         # Weights are normalized to sum to n_losses (2.0)
-        initial_weights = [1.0, 1.0]
 
         # history[0] is epoch 0 (weights might not have changed yet if update is after step)
         # But our implementation updates them within the step.

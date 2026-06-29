@@ -84,7 +84,6 @@ def generate_unrouted_benchmarks():
             # Using alpha=20 for sharp HPWL estimate matching human layout
 
             # We need a dummy rotation array (N, 4) - human rotations are fixed in state
-            n = parse_result.netlist.n_components
             # netlist_to_placement_state already sets rotation_logits to high values for initial
             # We can sample them with low temperature to get hard one-hots
             from temper_placer.geometry.transform import sample_rotation_batch

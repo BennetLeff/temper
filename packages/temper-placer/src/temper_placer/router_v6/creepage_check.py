@@ -22,9 +22,8 @@ import math
 import re
 from dataclasses import dataclass
 
-from temper_placer.router_v6.routing_results import RoutingResults
 from temper_placer.router_v6._check_report_base import BaseCheckReport
-
+from temper_placer.router_v6.routing_results import RoutingResults
 
 # ---------------------------------------------------------------------------
 # Data classes
@@ -171,10 +170,7 @@ def _is_high_voltage_net(net_name: str) -> bool:
     # (?:$|[\d_]) – end-of-string, digit, or underscore after
     if re.search(r'(?:^|_)AC(?:$|[\d_])', name_upper):
         return True
-    if re.search(r'(?:^|_)HV(?:$|[\d_])', name_upper):
-        return True
-
-    return False
+    return bool(re.search(r'(?:^|_)HV(?:$|[\d_])', name_upper))
 
 
 # ---------------------------------------------------------------------------

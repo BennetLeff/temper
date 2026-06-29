@@ -134,10 +134,7 @@ def evaluate_routing_feasibility(
     completion_rate = routed_count / total_nets if total_nets > 0 else 1.0
 
     # Calculate average wirelength (only for routed nets)
-    if routed_count > 0:
-        average_wirelength = total_wirelength / routed_count
-    else:
-        average_wirelength = 0.0
+    average_wirelength = total_wirelength / routed_count if routed_count > 0 else 0.0
 
     # Get verdict
     verdict = get_routing_verdict(completion_rate)

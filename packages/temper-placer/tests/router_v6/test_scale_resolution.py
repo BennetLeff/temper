@@ -40,7 +40,6 @@ from temper_placer.router_v6.creepage_check import (
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
-
 from tests.router_v6.dfm_boundary_constants import (
     COORD_EXTREME,
 )
@@ -498,7 +497,7 @@ class TestCumulativeFPError:
 
         # The minimum clearance should be the same (± a tiny epsilon)
         # Edge-to-edge: OFFSET - width (since width/2 + width/2 = width)
-        expected_edge = self.OFFSET - width
+        self.OFFSET - width
 
         # We may get violations if OFFSET < min_clearance, but the
         # actual_clearance values should agree between coarse and fine.

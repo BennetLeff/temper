@@ -5,12 +5,12 @@ This module provides strongly-typed extraction of courtyards, pad sizes,
 and other physical metadata needed for deterministic placement and routing.
 """
 
+import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple
-import logging
 
 from kiutils.board import Board as KiBoard
+
 from temper_placer.deterministic.geometry.courtyard import Courtyard
 
 logger = logging.getLogger(__name__)
@@ -49,8 +49,8 @@ class KiCadMetadata:
         board_height: Board height in mm
     """
 
-    courtyards: Dict[str, Courtyard]
-    pad_sizes: Dict[Tuple[str, str], PadSize]
+    courtyards: dict[str, Courtyard]
+    pad_sizes: dict[tuple[str, str], PadSize]
     board_width: float
     board_height: float
 
@@ -119,7 +119,7 @@ def extract_kicad_metadata(pcb_path: Path) -> KiCadMetadata:
     )
 
 
-def _extract_pad_sizes(raw_board: KiBoard) -> Dict[Tuple[str, str], PadSize]:
+def _extract_pad_sizes(raw_board: KiBoard) -> dict[tuple[str, str], PadSize]:
     """Extract pad dimensions from all footprints.
 
     Args:
@@ -160,7 +160,7 @@ def _extract_pad_sizes(raw_board: KiBoard) -> Dict[Tuple[str, str], PadSize]:
     return pad_sizes
 
 
-def _extract_courtyards(raw_board: KiBoard) -> Dict[str, Courtyard]:
+def _extract_courtyards(raw_board: KiBoard) -> dict[str, Courtyard]:
     """Extract courtyard polygons from all footprints.
 
     Extraction strategy:

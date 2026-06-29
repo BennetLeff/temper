@@ -37,7 +37,8 @@ method is verified by the BMC layer against the CNF encoding produced by
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.constraint_model import ConstraintModel

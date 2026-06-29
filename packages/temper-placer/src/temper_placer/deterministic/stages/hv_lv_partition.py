@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from dataclasses import replace
-from typing import Any, Mapping, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 from shapely.geometry import Polygon
@@ -27,11 +28,11 @@ class PartitionError(Exception):
 class HvLvGuardConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
     enabled: bool = True
-    width_mm: Optional[float] = None
+    width_mm: float | None = None
     fallback_to_unconstrained: bool = True
 
 
-def load_guard_config(config: Optional[Mapping[str, Any]]) -> HvLvGuardConfig:
+def load_guard_config(config: Mapping[str, Any] | None) -> HvLvGuardConfig:
     if not config:
         return HvLvGuardConfig()
     block = getattr(config, "get", lambda _: None)("hv_lv_guard_strip")
@@ -94,7 +95,8 @@ class HvLvPartitionStage(Stage):
             cats = {rules[n].safety_category for n in ns if n in rules}
             hh, hl = bool(cats & _HV), bool(cats & _LV)
             if hh and hl:
-                lv.append(c.ref); logger.warning("dual-domain %s -> LV bucket", c.ref)
+                lv.append(c.ref)
+                logger.warning("dual-domain %s -> LV bucket", c.ref)
             elif hh:
                 hv.append(c.ref)
             else:

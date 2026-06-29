@@ -7,6 +7,7 @@ the internal Netlist representation used by temper-placer.
 
 from __future__ import annotations
 
+import contextlib
 import math
 import re
 from dataclasses import dataclass, field
@@ -17,11 +18,11 @@ from kiutils.board import Board as KiBoard
 from kiutils.footprint import Footprint
 from kiutils.schematic import Schematic
 
-from temper_placer.core.board import Board, MountingHole, STANDARD_LAYER_ORDER, Zone
+from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole, Zone
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 if TYPE_CHECKING:
-    from temper_placer.router_v6.stage0_data import ParsedPCB
+    from temper_placer.router_v6.stage0_data import DesignRules, ParsedPCB, StackupInfo
 
 
 @dataclass
@@ -302,7 +303,7 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
 
 def _extract_components_from_pcb(
     ki_board: KiBoard,
-    warnings: list[str],
+    _warnings: list[str],
     board_origin: tuple[float, float],
 ) -> list[Component]:
     """
@@ -353,7 +354,7 @@ def _extract_components_from_pcb(
                 layer = "all"
             else:
                 # Find first copper layer
-                copper_layers = [l for l in pad_layers if ".Cu" in l and "*" not in l]
+                copper_layers = [ly for ly in pad_layers if ".Cu" in ly and "*" not in ly]
                 layer = copper_layers[0] if copper_layers else "F.Cu"
 
             # Get pad size
@@ -450,9 +451,9 @@ def _extract_components_from_pcb(
 
 
 def _extract_nets_from_pcb(
-    ki_board: KiBoard,
+    _ki_board: KiBoard,
     components: list[Component],
-    warnings: list[str],
+    _warnings: list[str],
 ) -> list[Net]:
     """
     Extract connectivity from Kiutils board object.
@@ -482,7 +483,7 @@ def _extract_nets_from_pcb(
 
 
 def _extract_traces_from_pcb(
-    ki_board: KiBoard, warnings: list[str], net_map: dict[str, str] | None = None
+    ki_board: KiBoard, _warnings: list[str], net_map: dict[str, str] | None = None
 ) -> list[TraceData]:
     """
     Extract copper trace segments from board.
@@ -536,7 +537,7 @@ def _extract_traces_from_pcb(
 
 
 def _extract_vias_from_pcb(
-    ki_board: KiBoard, warnings: list[str], net_map: dict[str, str] | None = None
+    ki_board: KiBoard, _warnings: list[str], net_map: dict[str, str] | None = None
 ) -> list[ViaData]:
     """
     Extract vias from board.
@@ -579,7 +580,7 @@ def _extract_vias_from_pcb(
     return vias
 
 
-def _extract_pads_from_pcb(ki_board: KiBoard, warnings: list[str]) -> list[PadData]:
+def _extract_pads_from_pcb(ki_board: KiBoard, _warnings: list[str]) -> list[PadData]:
     """
     Extract pad positions and layers for visualization.
 
@@ -875,8 +876,8 @@ def extract_net_classes(content: str) -> dict:
         rules = {"nets": []}
 
         # Helper to extract float
-        def get_float(pattern):
-            m = re.search(pattern, block)
+        def get_float(pattern, _block=block):
+            m = re.search(pattern, _block)
             return float(m.group(1)) if m else None
 
         rules["clearance"] = get_float(r"\(clearance\s+([\d.]+)\)")
@@ -897,7 +898,7 @@ def extract_net_classes(content: str) -> dict:
     return classes
 
 
-def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
+def parse_kicad_pcb_v6(pcb_path: Path) -> ParsedPCB:
     """
     Parse KiCad PCB for Router V6 Stage 0.1: Load KiCad PCB File.
 
@@ -918,11 +919,7 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
         >>> assert len(errors) == 0, f"PCB validation failed: {errors}"
     """
     from temper_placer.router_v6.stage0_data import (
-        DesignRules,
-        LayerInfo,
-        NetClassRules,
         ParsedPCB,
-        StackupInfo,
     )
 
     warnings: list[str] = []
@@ -965,8 +962,8 @@ def parse_kicad_pcb_v6(pcb_path: Path) -> "ParsedPCB":
 
 
 def _extract_design_rules(
-    ki_board: KiBoard, warnings: list[str], pcb_content: str | None = None
-) -> "DesignRules":
+    ki_board: KiBoard, _warnings: list[str], pcb_content: str | None = None
+) -> DesignRules:
     """
     Extract KiCad design rules from board setup.
 
@@ -1044,10 +1041,8 @@ def _extract_design_rules(
                 "_" in class_name
                 and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit()
             ):
-                try:
+                with contextlib.suppress(ValueError):
                     current_rating = float(class_name.split("_")[-1].replace("A", ""))
-                except ValueError:
-                    pass
 
             net_classes[class_name] = NetClassRules(
                 name=class_name,
@@ -1091,10 +1086,8 @@ def _extract_design_rules(
                 "_" in class_name
                 and class_name.split("_")[-1].replace("A", "").replace(".", "").isdigit()
             ):
-                try:
+                with contextlib.suppress(ValueError):
                     current_rating = float(class_name.split("_")[-1].replace("A", ""))
-                except ValueError:
-                    pass
 
             net_classes[class_name] = NetClassRules(
                 name=class_name,
@@ -1132,7 +1125,7 @@ def _extract_design_rules(
     )
 
 
-def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
+def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> StackupInfo:
     """
     Extract PCB layer stackup from KiCad board.
 
@@ -1191,21 +1184,21 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
         copper_layers = []
         raw_dielectrics = []
 
-        for l in setup_stackup.layers:
+        for layer in setup_stackup.layers:
             # Add to total thickness if available
-            if hasattr(l, "thickness") and l.thickness is not None:
-                total_thickness += l.thickness
+            if hasattr(layer, "thickness") and layer.thickness is not None:
+                total_thickness += layer.thickness
 
-            if l.type == "copper":
-                copper_layers.append(l)
-            elif l.type in ["core", "prepreg", "dielectric"] or "dielectric" in l.type:
-                raw_dielectrics.append(l)
+            if layer.type == "copper":
+                copper_layers.append(layer)
+            elif layer.type in ["core", "prepreg", "dielectric"] or "dielectric" in layer.type:
+                raw_dielectrics.append(layer)
 
         layer_count = len(copper_layers)
 
         # Process Copper Layers
-        for i, l in enumerate(copper_layers):
-            name = l.name
+        for i, layer in enumerate(copper_layers):
+            name = layer.name
 
             # Determine layer type
             if name in plane_assignments:
@@ -1221,7 +1214,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
 
             # Thickness in um (convert from mm)
             thickness_um = (
-                (l.thickness * 1000.0) if (hasattr(l, "thickness") and l.thickness) else 35.0
+                (layer.thickness * 1000.0) if (hasattr(layer, "thickness") and layer.thickness) else 35.0
             )
 
             layers.append(
@@ -1265,7 +1258,7 @@ def _extract_stackup(ki_board: KiBoard, warnings: list[str]) -> "StackupInfo":
         layer_count = 2  # Default to 2-layer
         if hasattr(ki_board, "layers") and ki_board.layers:
             # Count copper layers
-            copper_layers = [l for l in ki_board.layers if ".Cu" in getattr(l, "name", "")]
+            copper_layers = [ly for ly in ki_board.layers if ".Cu" in getattr(ly, "name", "")]
             layer_count = len(copper_layers)
 
         # Standard layer names for 2/4/6-layer boards

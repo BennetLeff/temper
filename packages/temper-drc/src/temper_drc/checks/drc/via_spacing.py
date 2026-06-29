@@ -33,7 +33,7 @@ class ViaSpacingCheck(Check):
         self,
         placement: Placement,
         constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         via_placement = getattr(placement, "via_placement", None)
         if via_placement is None:

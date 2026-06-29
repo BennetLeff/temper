@@ -8,7 +8,7 @@ These tests verify that the vectorized implementation:
 """
 
 import time
-from typing import Callable
+from collections.abc import Callable
 
 import jax
 import jax.numpy as jnp
@@ -242,7 +242,7 @@ class TestPerformanceBenchmark:
             fast_non_dominated_sort_vectorized, objectives, warmup=2, iterations=5
         )
 
-        print(f"\nPerformance N=100 (practical NSGA-II population size):")
+        print("\nPerformance N=100 (practical NSGA-II population size):")
         print(f"  Vectorized: {time_vectorized:.2f} ms")
 
         # Acceptance criterion: <500ms for N=100 (practical size)

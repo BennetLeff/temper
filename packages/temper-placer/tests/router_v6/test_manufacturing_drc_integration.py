@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from unittest import mock
 
-import pytest
-
 from temper_placer.router_v6.acid_trap_detection import AcidTrap, AcidTrapReport
 from temper_placer.router_v6.annular_ring_check import (
     AnnularRingReport,
@@ -27,7 +25,6 @@ from temper_placer.router_v6.teardrop_generation import TeardropReport
 from temper_placer.router_v6.thermal_relief import (
     ThermalReliefReport,
 )
-
 
 # ---------------------------------------------------------------------------
 # Gate logic

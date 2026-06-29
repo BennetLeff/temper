@@ -3,11 +3,11 @@
 import pytest
 
 from temper_placer.profiling.timing_gate import (
-    TimingResult,
-    TimingReport,
     StageTimingEntry,
-    measure_stage_timing,
+    TimingReport,
+    TimingResult,
     measure_all_stages,
+    measure_stage_timing,
 )
 
 

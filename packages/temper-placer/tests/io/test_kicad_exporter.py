@@ -4,20 +4,14 @@ Tests for KiCad exporter (temper-wnyn).
 Integration tests for trace and via export to KiCad PCB files.
 """
 
-import tempfile
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 import pytest
 
 from temper_placer.io.kicad_exporter import (
-    add_segments_to_board,
-    add_vias_to_board,
     path_to_segments,
     path_to_vias,
-    TraceSegment,
-    TraceVia,
 )
 from temper_placer.router_v6.grid_converter import GridCell
 
@@ -115,7 +109,7 @@ class TestPathToVias:
 
     def test_single_layer_transition_creates_one_via(self):
         """Path with one layer change should create one via.
-        
+
         Uses default 4-layer map where layer 0=F.Cu, layer 1=In1.Cu.
         Via connects only the layers involved in the transition (partial stack).
         """

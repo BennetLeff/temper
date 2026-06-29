@@ -9,13 +9,15 @@ Update golden files with: TEMPER_UPDATE_GOLDEN=1 pytest
 
 from __future__ import annotations
 
-import os
-import json
-import hashlib
 import functools
+import hashlib
+import json
+import os
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Any, TypeVar
-from dataclasses import dataclass, asdict
+from typing import Any, TypeVar
+
 import numpy as np
 
 T = TypeVar("T")
@@ -179,7 +181,7 @@ def _find_differences(
     """Find differences between actual and expected."""
     differences = []
 
-    if type(actual) != type(expected):
+    if type(actual) != type(expected):  # noqa: E721
         differences.append(f"{path}: type mismatch ({type(actual)} vs {type(expected)})")
         return differences
 
@@ -211,7 +213,7 @@ def _find_differences(
         if len(actual) != len(expected):
             differences.append(f"{path}: list length mismatch ({len(actual)} vs {len(expected)})")
         else:
-            for i, (a, e) in enumerate(zip(actual, expected)):
+            for i, (a, e) in enumerate(zip(actual, expected, strict=False)):
                 differences.extend(
                     _find_differences(a, e, tolerance, f"{path}[{i}]")
                 )

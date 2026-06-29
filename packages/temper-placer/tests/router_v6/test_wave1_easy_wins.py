@@ -13,11 +13,11 @@ R3: Channel skeleton extraction is restricted to F.Cu and B.Cu
 """
 from __future__ import annotations
 
-from temper_placer.router_v6.pipeline import RouterV6Pipeline
 from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_power_net,
 )
+from temper_placer.router_v6.pipeline import RouterV6Pipeline
 
 
 def test_r1_plane_nets_set_includes_ground_and_vcc():
@@ -84,6 +84,7 @@ def test_r3_channel_skeleton_filters_to_outer_layers():
     ``router_v6/channel_skeleton.py:411`` still excludes inner layers.
     """
     import inspect
+
     from temper_placer.router_v6.channel_skeleton import ChannelSkeletonStage
 
     source = inspect.getsource(ChannelSkeletonStage.run)

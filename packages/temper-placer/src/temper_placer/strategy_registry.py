@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from temper_placer.protocol import PipelineStage
 
 # (phase, name) → factory that returns a PipelineStage
-_registry: dict[tuple[str, str], Callable[[], "PipelineStage"]] = {}
+_registry: dict[tuple[str, str], Callable[[], PipelineStage]] = {}
 
 # composite_name → ordered list of (phase, name) keys
 _composites: dict[str, list[tuple[str, str]]] = {}
@@ -22,7 +22,7 @@ _composites: dict[str, list[tuple[str, str]]] = {}
 def register(
     phase: str,
     name: str,
-    stage_factory: Callable[[], "PipelineStage"],
+    stage_factory: Callable[[], PipelineStage],
 ) -> None:
     """Register a stage factory under ``(phase, name)``.
 
@@ -33,7 +33,7 @@ def register(
         _registry[key] = stage_factory
 
 
-def get(phase: str, name: str) -> "PipelineStage":
+def get(phase: str, name: str) -> PipelineStage:
     """Instantiate and return the stage for ``(phase, name)``.
 
     Raises:
@@ -45,13 +45,13 @@ def get(phase: str, name: str) -> "PipelineStage":
     return _registry[key]()
 
 
-def list_stages(phase: str | None = None) -> dict[str, "PipelineStage"]:
+def list_stages(phase: str | None = None) -> dict[str, PipelineStage]:
     """Return all registered stages, optionally filtered by *phase*.
 
     Returns:
         Dict mapping ``"phase/name"`` → instantiated ``PipelineStage``.
     """
-    result: dict[str, "PipelineStage"] = {}
+    result: dict[str, PipelineStage] = {}
     for (p, n), factory in _registry.items():
         if phase is None or p == phase:
             result[f"{p}/{n}"] = factory()
@@ -74,7 +74,7 @@ def register_composite(
         _composites[name] = stages
 
 
-def get_composite(name: str) -> list["PipelineStage"]:
+def get_composite(name: str) -> list[PipelineStage]:
     """Resolve and instantiate every stage in the named composite.
 
     Raises:

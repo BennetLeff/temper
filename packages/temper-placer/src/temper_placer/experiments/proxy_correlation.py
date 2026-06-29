@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 import statistics
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -235,7 +235,7 @@ class CorrelationTracker:
         """
         results: dict[str, CorrelationResult] = {}
 
-        for key, samples in self.correlations.items():
+        for key, _samples in self.correlations.items():
             proxy_name, actual_name = key.split("_vs_")
             result = self.analyze_correlation(proxy_name, actual_name)
             results[key] = result

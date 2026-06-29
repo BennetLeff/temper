@@ -1,16 +1,9 @@
 """Tests for geometric diff engine — U4."""
 import json
-import pytest
 
 from temper_placer.testing.golden_diff import (
-    DiffEntry,
-    DiffReport,
     diff_golden,
-    _diff_dsn,
-    _diff_ses,
-    _diff_json,
 )
-
 
 DSN_IDENTICAL = """(pcb temper
  (parser (string_quote ") (space_in_quoted_tokens on))

@@ -191,7 +191,7 @@ class LoopOwnershipMap:
         return list(loops_a & loops_b)
 
     def components_share_loop(
-        self, ref_a: str, ref_b: str, loop_collection: LoopCollection | None = None
+        self, ref_a: str, ref_b: str, _loop_collection: LoopCollection | None = None
     ) -> bool:
         """
         Check if two components share any loop.
@@ -230,7 +230,7 @@ class LoopOwnershipMap:
         return False
 
 
-def classify_role(component: Component, loop: Loop) -> str:
+def classify_role(component: Component, _loop: Loop) -> str:
     """
     Classify a component's role within a loop.
 

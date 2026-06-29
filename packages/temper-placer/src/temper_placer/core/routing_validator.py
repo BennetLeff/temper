@@ -49,11 +49,11 @@ class RoutingValidator:
                 # world_y = cell.y * path_cell_size
                 # mx = int(round(world_x / self.master_resolution))
                 # my = int(round(world_y / self.master_resolution))
-                
+
                 # To be safer with floats, use integer scaling if resolutions are multiples
                 # e.g. if path_cell_size = 0.2 and master = 0.05, scaling factor is 4
                 scale = int(round(path_cell_size / self.master_resolution))
-                
+
                 # A single path cell at path_cell_size covers a square of master grid cells
                 # if path_cell_size > master_resolution.
                 # For simplicity, we check the center, but to be robust we should check the whole footprint.
@@ -61,7 +61,7 @@ class RoutingValidator:
                 # Let's just check the center point for the "SHORT" check, but use the correct world position.
                 mx = cell.x * scale
                 my = cell.y * scale
-                
+
                 key = (mx, my, cell.layer)
 
                 if key in self.occupancy_map:
@@ -113,43 +113,45 @@ class RoutingValidator:
                 # Check pin coverage
                 # Convert path cells to set for fast lookup
                 cells = path.cells if hasattr(path, 'cells') else path
-                path_set = {(c.x, c.y, c.layer) for c in cells}
+                {(c.x, c.y, c.layer) for c in cells}
 
                 for comp_ref, pin_name in net.pins:
                     comp = netlist.get_component(comp_ref)
                     pin = comp.get_pin(pin_name)
-                    c_pos = comp_pos_map[comp_ref]
+                    comp_pos_map[comp_ref]
 
                     # Use world position from canonical helper
                     px, py = pin_world_position(pin, comp)
-                    
+
                     # Use world-to-path_cell_size mapping if we want to check path_set
                     # But path_set is also grid-based.
                     # Best is to use world coordinates for Connectivity too.
-                    
+
                     # Convert to master grid
                     mx = int(round(px / self.master_resolution))
                     my = int(round(py / self.master_resolution))
 
                     found = False
-                    for l in range(self.num_layers):
-                        if (mx, my, l) in self.occupancy_map and self.occupancy_map[(mx, my, l)] == net.name:
+                    for layer in range(self.num_layers):
+                        if (mx, my, layer) in self.occupancy_map and self.occupancy_map[(mx, my, layer)] == net.name:
                             found = True
                             break
-                    
+
                     if not found:
                          # Radius check in master grid
                          # (Approx 0.5mm search)
                          search_px = int(round(0.5 / self.master_resolution))
                          for dx in range(-search_px, search_px + 1):
                              for dy in range(-search_px, search_px + 1):
-                                 for l in range(self.num_layers):
-                                     mkey = (mx+dx, my+dy, l)
+                                 for layer in range(self.num_layers):
+                                     mkey = (mx+dx, my+dy, layer)
                                      if mkey in self.occupancy_map and self.occupancy_map[mkey] == net.name:
                                          found = True
                                          break
-                                 if found: break
-                             if found: break
+                                 if found:
+                                     break
+                             if found:
+                                 break
 
                     if not found:
                         self.violations.append(RoutingViolation(

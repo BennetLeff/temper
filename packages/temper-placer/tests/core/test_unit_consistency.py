@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 
-from temper_placer.core.units import Radians, deg_to_rad
+from temper_placer.core.units import deg_to_rad
 
 
 def test_deg_to_rad_consistency():

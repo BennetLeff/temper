@@ -104,13 +104,13 @@ class PipelineRunner:
     and enforces ``Contract`` schemas at runtime.
     """
 
-    def __init__(self, stages: list["PipelineStage"]) -> None:
+    def __init__(self, stages: list[PipelineStage]) -> None:
         self._stages = stages
         self._trace: list[tuple[str, float, bool | None]] = []
         self._ran = False
         _validate_data_flow(stages)
 
-    def run(self, initial_input: "StageInput") -> "StageOutput":
+    def run(self, initial_input: StageInput) -> StageOutput:
         """Execute all stages in order, feeding output→input.
 
         Returns the final ``StageOutput`` with accumulated ``meta.timings``.
@@ -163,7 +163,7 @@ class PipelineRunner:
 # ---------------------------------------------------------------------------
 
 
-def _validate_data_flow(stages: list["PipelineStage"]) -> None:
+def _validate_data_flow(stages: list[PipelineStage]) -> None:
     """Check that every ``requires`` key is provided by a prior stage."""
     available: set[str] = set()
     for stage in stages:
@@ -180,14 +180,14 @@ def _validate_data_flow(stages: list["PipelineStage"]) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _check_input_contract(stage: "PipelineStage", inp: "StageInput") -> None:
+def _check_input_contract(stage: PipelineStage, inp: StageInput) -> None:
     contract = getattr(stage, "contract", None)
     if contract is None:
         return
     _validate_schema(inp.data, contract.input_schema, stage.name, "input")
 
 
-def _check_output_contract(stage: "PipelineStage", out: "StageOutput") -> None:
+def _check_output_contract(stage: PipelineStage, out: StageOutput) -> None:
     contract = getattr(stage, "contract", None)
     if contract is None:
         return
@@ -202,10 +202,10 @@ def _check_output_contract(stage: "PipelineStage", out: "StageOutput") -> None:
 def resolve_and_run(
     phase: str,
     strategies: list[str],
-    input: "StageInput",
+    input: StageInput,
     *,
     fallback: str | None = None,
-) -> "StageOutput":
+) -> StageOutput:
     """Try strategies in order with optional fallback.
 
     Each strategy name is first looked up as a composite; if not found it

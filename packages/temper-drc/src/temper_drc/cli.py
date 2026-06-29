@@ -25,7 +25,7 @@ from temper_drc.checks.safety.isolation import IsolationCheck
 from temper_drc.core.runner import CheckRunner
 from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
-from temper_drc.report.formatter import format_text, format_json, format_html
+from temper_drc.report.formatter import format_html, format_json, format_text
 from temper_drc.report.summary import generate_summary
 
 

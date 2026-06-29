@@ -25,7 +25,7 @@ from temper_placer.losses.types import LossResult
 def compute_enhanced_congestion_heatmap(
     conflicts: list[dict[str, Any]],
     grid_size: tuple[int, int],
-    cell_size_mm: float,
+    _cell_size_mm: float,
     blur_sigma: float = 2.0,
     net_criticality: dict[str, float] | None = None,
 ) -> jnp.ndarray:
@@ -232,12 +232,12 @@ class EnhancedCongestionLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: jnp.ndarray | None = None,
-        **kwargs: Any,
+        _rotations: jnp.ndarray,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: jnp.ndarray | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         """
         Calculate congestion penalty for component positions.

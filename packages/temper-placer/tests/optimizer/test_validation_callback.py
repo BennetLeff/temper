@@ -144,7 +144,7 @@ class TestValidationCallback:
         assert callback.should_validate(0) is False
         assert callback.should_validate(100) is False
 
-    def test_history_accumulates(self, mock_context):
+    def test_history_accumulates(self, _mock_context):
         """Callback should accumulate results in history."""
         # Create callback with DRC disabled (so no external deps)
         config = ValidationConfig(
@@ -204,7 +204,7 @@ class TestValidationCallback:
         positions = jnp.array([[10.0, 20.0], [30.0, 40.0]])
         rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
 
-        result = callback(0, positions, rotations, mock_context)
+        callback(0, positions, rotations, mock_context)
 
         assert len(results_received) == 1
         assert results_received[0].drc_penalty == 10.0

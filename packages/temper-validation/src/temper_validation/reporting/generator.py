@@ -1,7 +1,8 @@
 """Report generator using Jinja2 templates."""
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
+
 from jinja2 import Environment, FileSystemLoader
 
 __all__ = ["ReportGenerator"]
@@ -10,7 +11,7 @@ __all__ = ["ReportGenerator"]
 class ReportGenerator:
     """Generates reports from Jinja2 templates."""
 
-    def __init__(self, template_dir: Optional[Path] = None):
+    def __init__(self, template_dir: Path | None = None):
         """
         Initialize the report generator.
 

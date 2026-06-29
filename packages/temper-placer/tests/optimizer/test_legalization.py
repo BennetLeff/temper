@@ -5,7 +5,11 @@ from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.losses.base import LossContext
-from temper_placer.optimizer.legalization import legalize_abacus, project_to_drc_feasible, resolve_overlaps
+from temper_placer.optimizer.legalization import (
+    legalize_abacus,
+    project_to_drc_feasible,
+    resolve_overlaps,
+)
 
 
 def test_no_overlap_after_legalization(simple_netlist, simple_board):

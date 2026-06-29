@@ -6,13 +6,13 @@ deterministic pipeline using create_drc_aware_pipeline().
 """
 
 from pathlib import Path
+
 import pytest
 
-from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
-from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
+from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
+from temper_placer.io.config_loader import constraints_to_design_rules, load_constraints
 from temper_placer.io.kicad_metadata import extract_kicad_metadata
-
+from temper_placer.io.kicad_parser import parse_kicad_pcb
 
 TEMPER_CONFIG_PATH = Path(__file__).parents[4] / "configs" / "temper_deterministic_config.yaml"
 TEMPER_PCB_PATH = Path(__file__).parents[4] / "pcb" / "temper_agent_optimized.kicad_pcb"
@@ -59,7 +59,7 @@ class TestPhasedPlacementIntegration:
         assert state.placements is not None
         assert len(state.placements) > 0, "No placements generated"
 
-        print(f"\n  Phased placement completed:")
+        print("\n  Phased placement completed:")
         print(f"  Components placed: {len(state.placements)}")
 
     @pytest.mark.skipif(not TEMPER_CONFIG_PATH.exists(), reason="Config not found")
@@ -143,6 +143,6 @@ class TestConstraintAwarePlacement:
 
             # Note: Some violations may be expected if constraints conflict
             # with zone assignments. This is a smoke test.
-            print(f"\n  Constraint report:")
+            print("\n  Constraint report:")
             print(f"  Hard violations: {len(violations)}")
             print(f"  Warnings: {len(report.warnings)}")

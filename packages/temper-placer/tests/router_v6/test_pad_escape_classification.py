@@ -4,22 +4,20 @@ Tests for Router V6 Stage 1.2: Classify Pads by Escape Need
 Part of temper-qvpt
 """
 
-import pytest
 
 from temper_placer.core.netlist import Component, Pin
 from temper_placer.router_v6.dense_package_detection import DensePackage
 from temper_placer.router_v6.pad_escape_classification import (
-    ClassifiedPad,
     EscapeClass,
-    classify_pads_by_escape_need,
     _is_thermal_pad,
+    classify_pads_by_escape_need,
 )
 
 
 def _create_qfn_component() -> Component:
     """Create a QFN-48 test component with peripheral and interior pads."""
     pins = []
-    
+
     # Peripheral pads (edge of 7x7mm component)
     for i in range(12):
         pins.append(Pin(
@@ -32,7 +30,7 @@ def _create_qfn_component() -> Component:
             shape="rect",
             layer="F.Cu",
         ))
-    
+
     # Interior pad (center thermal pad)
     pins.append(Pin(
         name="EPAD",
@@ -44,7 +42,7 @@ def _create_qfn_component() -> Component:
         shape="rect",
         layer="F.Cu",
     ))
-    
+
     return Component(
         ref="U1",
         footprint="QFN-48_7x7mm",
@@ -57,7 +55,7 @@ def _create_qfn_component() -> Component:
 def _create_bga_component() -> Component:
     """Create a BGA component with interior pads."""
     pins = []
-    
+
     # BGA grid: 5x5 array on 15x15mm component
     for row in range(5):
         for col in range(5):
@@ -71,7 +69,7 @@ def _create_bga_component() -> Component:
                 shape="circle",
                 layer="F.Cu",
             ))
-    
+
     return Component(
         ref="U2",
         footprint="BGA-25_15x15mm",
@@ -91,9 +89,9 @@ def test_classify_pads_qfn_peripheral():
         package_type="QFN",
         requires_escape=True,
     )
-    
+
     classified = classify_pads_by_escape_need([pkg])
-    
+
     # Edge pads should be PERIPHERAL
     peripheral = [p for p in classified if p.escape_class == EscapeClass.PERIPHERAL]
     assert len(peripheral) == 12  # 12 edge pads
@@ -109,9 +107,9 @@ def test_classify_pads_qfn_thermal():
         package_type="QFN",
         requires_escape=True,
     )
-    
+
     classified = classify_pads_by_escape_need([pkg])
-    
+
     # Center thermal pad should be THERMAL_PAD
     thermal = [p for p in classified if p.escape_class == EscapeClass.THERMAL_PAD]
     assert len(thermal) == 1
@@ -128,13 +126,13 @@ def test_classify_pads_bga_interior():
         package_type="BGA",
         requires_escape=True,
     )
-    
+
     classified = classify_pads_by_escape_need([pkg], interior_threshold_mm=1.0)
-    
+
     # BGA should have interior pads (center of grid)
     interior = [p for p in classified if p.escape_class == EscapeClass.INTERIOR]
     assert len(interior) > 0  # Center pads are interior
-    
+
     # Check that center pad (C3) is interior
     c3_pads = [p for p in classified if p.pin.name == "C3"]
     assert len(c3_pads) == 1
@@ -151,13 +149,13 @@ def test_classify_pads_needs_escape_via():
         package_type="QFN",
         requires_escape=True,
     )
-    
+
     classified = classify_pads_by_escape_need([pkg])
-    
+
     # Peripheral pads don't need escape vias
     peripheral = [p for p in classified if p.escape_class == EscapeClass.PERIPHERAL]
     assert all(not p.needs_escape_via for p in peripheral)
-    
+
     # Thermal pad doesn't need escape via (different handling)
     thermal = [p for p in classified if p.escape_class == EscapeClass.THERMAL_PAD]
     assert all(not p.needs_escape_via for p in thermal)
@@ -176,7 +174,7 @@ def test_is_thermal_pad_by_name():
         ("PIN1", False),
         ("A1", False),
     ]
-    
+
     comp = Component(
         ref="U1",
         footprint="QFN-48",
@@ -184,7 +182,7 @@ def test_is_thermal_pad_by_name():
         pins=[],
         initial_position=(50.0, 50.0),
     )
-    
+
     for pin_name, expected in test_cases:
         pin = Pin(
             name=pin_name,
@@ -198,7 +196,7 @@ def test_is_thermal_pad_by_name():
         )
         # Temporarily add pin for avg calculation
         comp.pins = [pin]
-        
+
         is_thermal = _is_thermal_pad(pin, comp)
         assert is_thermal == expected, f"Wrong thermal detection for {pin_name}"
 
@@ -219,7 +217,7 @@ def test_is_thermal_pad_by_position_and_size():
         )
         for i in range(4)
     ]
-    
+
     # Create large center pad
     center_pad = Pin(
         name="99",  # Not a thermal name
@@ -231,7 +229,7 @@ def test_is_thermal_pad_by_position_and_size():
         shape="rect",
         layer="F.Cu",
     )
-    
+
     comp = Component(
         ref="U1",
         footprint="QFN-48",
@@ -239,10 +237,10 @@ def test_is_thermal_pad_by_position_and_size():
         pins=signal_pins + [center_pad],
         initial_position=(50.0, 50.0),
     )
-    
+
     # Center pad should be detected as thermal (center + large)
     assert _is_thermal_pad(center_pad, comp) is True
-    
+
     # Signal pads should not be thermal
     assert _is_thermal_pad(signal_pins[0], comp) is False
 
@@ -251,17 +249,17 @@ def test_classify_pads_multiple_packages():
     """Test classifying pads from multiple dense packages."""
     comp1 = _create_qfn_component()
     comp2 = _create_bga_component()
-    
+
     pkgs = [
         DensePackage(comp1, 13, 0.5, "QFN", True),
         DensePackage(comp2, 25, 0.8, "BGA", True),
     ]
-    
+
     classified = classify_pads_by_escape_need(pkgs)
-    
+
     # Should have pads from both components
     u1_pads = [p for p in classified if p.component_ref == "U1"]
     u2_pads = [p for p in classified if p.component_ref == "U2"]
-    
+
     assert len(u1_pads) == 13  # QFN-48 + 1 thermal
     assert len(u2_pads) == 25  # BGA-25

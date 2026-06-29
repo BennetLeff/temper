@@ -15,17 +15,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.core.state import State
-    from temper_placer.core.netlist import Netlist
-    from temper_placer.core.board import Board
-    from temper_placer.pcl.parser import ConstraintCollection
-    from temper_placer.router_v6.stage0_data import ParsedPCB
+    pass
 
 import ast
 import re
 from typing import Any
 
-from temper_placer.pipeline.dag_types import DAGExprError, DAGExprSyntaxError
+from temper_placer.pipeline.dag_types import DAGExprError, DAGExprSyntaxError, DataContext
 
 _KEYWORD_START = re.compile(r"[a-zA-Z_]")
 _IDENTIFIER = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*")
@@ -226,15 +222,9 @@ def evaluate_skip_expr(
             return not _eval(node.operand)
         elif isinstance(node, ast.BoolOp):
             if isinstance(node.op, ast.And):
-                for v in node.values:
-                    if not _eval(v):
-                        return False
-                return True
+                return all(_eval(v) for v in node.values)
             elif isinstance(node.op, ast.Or):
-                for v in node.values:
-                    if _eval(v):
-                        return True
-                return False
+                return any(_eval(v) for v in node.values)
             raise DAGExprError(f"Unsupported boolean operator: {type(node.op).__name__}")
         elif isinstance(node, ast.Compare):
             left_val = _eval(node.left)

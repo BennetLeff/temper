@@ -1,6 +1,7 @@
 """Property-based tests for BottleneckAnalysis invariants."""
 
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.bottleneck_analysis import (
     Bottleneck,

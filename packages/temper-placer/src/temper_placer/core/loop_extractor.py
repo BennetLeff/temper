@@ -86,15 +86,14 @@ def classify_component(component: Component) -> ComponentClassification:
             )
 
     # Gate drivers
-    if ref.startswith("U"):
-        if any(
-            pattern in mpn for pattern in ["UCC", "ISO", "SI82", "HCPL", "FOD", "SI827", "ACPL"]
-        ):
-            return ComponentClassification(
-                ref=component.ref,
-                category="gate_driver",
-                confidence=0.9,
-            )
+    if ref.startswith("U") and any(
+        pattern in mpn for pattern in ["UCC", "ISO", "SI82", "HCPL", "FOD", "SI827", "ACPL"]
+    ):
+        return ComponentClassification(
+            ref=component.ref,
+            category="gate_driver",
+            confidence=0.9,
+        )
 
     # Capacitors
     if ref.startswith("C"):
@@ -389,7 +388,7 @@ def trace_gate_drive_loop(
     )
 
 
-def trace_bootstrap_loop(netlist: Netlist, driver: Component) -> Loop | None:
+def trace_bootstrap_loop(netlist: Netlist, _driver: Component) -> Loop | None:
     """
     Trace bootstrap charging loop if present.
 

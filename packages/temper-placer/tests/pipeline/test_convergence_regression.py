@@ -1,6 +1,5 @@
 """Tests for routability regression detection (U4)."""
 
-import pytest
 
 from temper_placer.pipeline.convergence import (
     ConvergenceChecker,

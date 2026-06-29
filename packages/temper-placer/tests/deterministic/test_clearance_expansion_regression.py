@@ -28,16 +28,15 @@ U4a status (deferred to follow-up):
             --kicad-pcb pcb/temper_agent_optimized.kicad_pcb
 """
 
-import pytest
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.clearance_grid import (
-    ClearanceGridStage,
     _EXPANSION_LOG,
+    ClearanceGridStage,
     check_clearance_grid_conservatism,
 )
+from temper_placer.deterministic.state import BoardState
 from temper_placer.io.config_loader import HVExclusionZone
 
 

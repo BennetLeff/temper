@@ -97,4 +97,5 @@ The training loop never hit this bug because its internal Gumbel-Softmax call al
 - `docs/plans/2026-06-22-010-feat-placer-regression-infrastructure-plan.md` — design context for the corpus runner
 - `docs/solutions/architecture-patterns/pad-position-ssot-placer-2026-06-28.md` — related pattern where rotation representation also caused bugs
 - `packages/temper-placer/tests/core/test_placement_invariants.py` — Theorem VIII: regression-specific invariant tests
+- `docs/solutions/architecture-patterns/ci-profiling-platform-canonical-metrics-contract-2026-06-28.md` — the profiling platform's weekly drift detection and PR comparison would catch this class of garbage-value regression before it ships; the trend check's sigma-based detection surfaces anomalous metric shifts from single commits
 - `packages/temper-placer/tests/core/test_corpus_reproduction.py` — 6-stage diagnostic reproduction test

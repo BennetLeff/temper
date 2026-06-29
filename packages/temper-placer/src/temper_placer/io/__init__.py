@@ -10,6 +10,7 @@ This module handles all input/output operations:
 The IO layer converts between external formats and internal data structures.
 """
 
+from temper_placer.io.boundary_registry import BoundaryDef, BoundaryRegistry
 from temper_placer.io.config_loader import (
     ClearanceRule,
     ComponentGroup,
@@ -19,6 +20,13 @@ from temper_placer.io.config_loader import (
     create_board_from_constraints,
     load_constraints,
 )
+from temper_placer.io.dsn_boundary import DSNBoundaryExporter
+
+# DSN/SES universal seam
+from temper_placer.io.dsn_exporter import DSNExporter
+from temper_placer.io.dsn_normalizer import DSNNormalizer
+from temper_placer.io.dsn_schema import DSNSchemaHasher
+from temper_placer.io.dsn_validator import DSNVersionMismatchError, DSNVersionValidator
 from temper_placer.io.kicad_parser import (
     ParseResult,
     parse_kicad_pcb,
@@ -52,14 +60,6 @@ from temper_placer.io.reference_loader import (
     load_reference_pcb,
     netlist_to_placement_state,
 )
-
-# DSN/SES universal seam
-from temper_placer.io.dsn_exporter import DSNExporter
-from temper_placer.io.dsn_normalizer import DSNNormalizer
-from temper_placer.io.dsn_schema import DSNSchemaHasher
-from temper_placer.io.dsn_validator import DSNVersionValidator, DSNVersionMismatchError
-from temper_placer.io.boundary_registry import BoundaryRegistry, BoundaryDef
-from temper_placer.io.dsn_boundary import DSNBoundaryExporter
 
 __all__ = [
     # Parser

@@ -199,8 +199,8 @@ def test_loop_area_loss_vectorized_oracles():
     loop_max_areas = jnp.array([100.0])
     loop_weights = jnp.array([1.0])
 
-    from temper_placer.losses.types import ConstraintContext, NetlistContext, GeometryContext
-    
+    from temper_placer.losses.types import ConstraintContext, GeometryContext, NetlistContext
+
     constraints_data = ConstraintContext(
         loop_pin_indices=loop_pin_indices,
         loop_pin_offsets=loop_pin_offsets,
@@ -208,7 +208,7 @@ def test_loop_area_loss_vectorized_oracles():
         loop_max_areas=loop_max_areas,
         loop_weights=loop_weights,
     )
-    
+
     from temper_placer.core.board import Board
     board = Board(100.0, 100.0)
     context = LossContext(

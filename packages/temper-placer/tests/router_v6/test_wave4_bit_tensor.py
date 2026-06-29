@@ -14,7 +14,6 @@ R9: A 4D boolean tensor (rows, cols, 8) is built once at A* pass
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from temper_placer.router_v6.neighbor_validity import (
     DIRS_8,

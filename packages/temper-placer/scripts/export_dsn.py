@@ -1,9 +1,12 @@
 
 import argparse
 from pathlib import Path
+
 import jax.numpy as jnp
-from temper_placer.io.kicad_parser import parse_kicad_pcb
+
 from temper_placer.io.dsn_exporter import DSNExporter
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+
 
 def main():
     parser = argparse.ArgumentParser(description="Export KiCad PCB to SPECCTRA DSN format")
@@ -18,11 +21,10 @@ def main():
 
     print(f"Parsing PCB: {input_pcb}")
     parse_result = parse_kicad_pcb(input_pcb)
-    
+
     netlist = parse_result.netlist
     board = parse_result.board
-    traces = parse_result.traces
-    
+
     # Extract positions and rotations from netlist components
     positions = []
     rotations = []
@@ -31,24 +33,24 @@ def main():
         positions.append(comp.initial_position or (0.0, 0.0))
         # initial_rotation is 0-3 index
         rotations.append(comp.initial_rotation or 0)
-    
+
     positions_array = jnp.array(positions)
     rotations_array = jnp.array(rotations)
 
     # Parse exclude_nets argument
     exclude_nets = None
     if args.exclude_nets:
-        exclude_nets = set(n.strip() for n in args.exclude_nets.split(","))
+        exclude_nets = {n.strip() for n in args.exclude_nets.split(",")}
         print(f"Excluding nets from routing: {exclude_nets}")
 
     print(f"Exporting to DSN: {output_dsn} (Traces: Disabled)")
     exporter = DSNExporter(board, netlist, positions_array, rotations_array)
     # We pass None for traces to ensure a clean board for autorouting
     dsn_content = str(exporter.export_pcb(traces=None, exclude_nets=exclude_nets))
-    
+
     with open(output_dsn, "w") as f:
         f.write(dsn_content)
-    
+
     print(f"Successfully exported {len(netlist.components)} components and {len(netlist.nets)} nets to {output_dsn}")
 
 if __name__ == "__main__":

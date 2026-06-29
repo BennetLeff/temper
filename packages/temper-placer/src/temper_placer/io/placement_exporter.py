@@ -26,6 +26,7 @@ Example usage:
 
 from __future__ import annotations
 
+import contextlib
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
@@ -207,10 +208,8 @@ def export_positions_to_temp_pcb(
     except Exception as e:
         # Clean up temp file on failure
         if temp_path.exists():
-            try:
+            with contextlib.suppress(Exception):
                 temp_path.unlink()
-            except Exception:
-                pass
         raise RuntimeError(f"Failed to write temp PCB: {e}") from e
 
 

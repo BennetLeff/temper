@@ -99,7 +99,7 @@ class ChannelMap:
         return len(self.grid)
 
     @classmethod
-    def empty(cls) -> "ChannelMap":
+    def empty(cls) -> ChannelMap:
         """Return a sentinel zero-bottleneck map (no routability penalty)."""
         return cls(
             grid=(),
@@ -110,7 +110,7 @@ class ChannelMap:
         )
 
     @classmethod
-    def load_from_sidecar(cls, path: Path | str) -> "ChannelMap":
+    def load_from_sidecar(cls, path: Path | str) -> ChannelMap:
         """Load a sidecar from ``path``.
 
         On any error (missing file, malformed JSON, schema mismatch, unknown
@@ -137,7 +137,7 @@ class ChannelMap:
         return cls._from_payload(payload, source=str(path))
 
     @classmethod
-    def _from_payload(cls, payload: dict, source: str = "<payload>") -> "ChannelMap":
+    def _from_payload(cls, payload: dict, source: str = "<payload>") -> ChannelMap:
         if not isinstance(payload, dict):
             raise ChannelSidecarError(
                 f"sidecar {source}: top-level must be an object"

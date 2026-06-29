@@ -23,15 +23,16 @@ Example usage:
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.core.netlist import Netlist
+    from temper_placer.core.netlist import Net, Netlist
 
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 
-import re
+from jax import Array
+
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position
-from jax import Array
 
 
 class Layer(Enum):
@@ -340,7 +341,7 @@ def _get_net_dominant_direction(net: "Net", netlist: Netlist, positions: Array) 
         comp = netlist.components[comp_idx]
         pin = comp.get_pin(pin_name)
         if pin:
-            cx, cy = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
+            _cx, _cy = float(positions[comp_idx, 0]), float(positions[comp_idx, 1])
             px, py = pin_world_position(pin, comp)
 
             min_x = min(min_x, px)
@@ -367,7 +368,7 @@ def _get_net_dominant_direction(net: "Net", netlist: Netlist, positions: Array) 
 
 
 def find_layer_conflicts(
-    assignments: dict[str, LayerAssignment],
+    _assignments: dict[str, LayerAssignment],
 ) -> list[LayerConflict]:
     """Find conflicts in layer assignments.
 

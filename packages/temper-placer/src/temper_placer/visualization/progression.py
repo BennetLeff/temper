@@ -24,7 +24,7 @@ from temper_placer.visualization.model import (
 def render_progression_html(
     history_path: Path | str,
     pcb_info: dict[str, Any],
-    output_path: Path | str | None = None,
+    _output_path: Path | str | None = None,
 ) -> str:
     """
     Generate an interactive HTML visualization of placement progression.

@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import sys
-from unittest.mock import patch
 
 import pytest
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.protocol import PipelineStage, StageInput, StageMeta
 
 

@@ -14,8 +14,9 @@ from __future__ import annotations
 
 import logging
 import math
+from collections.abc import Mapping
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Set, Tuple
+from typing import TYPE_CHECKING
 
 from temper_placer.constraints.compiler import ConstraintCompiler
 from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
@@ -27,10 +28,9 @@ from . import phased_component_assignment_validator  # noqa: F401  (registers U3
 from .base import Stage
 
 if TYPE_CHECKING:
-    from shapely.geometry import Point, Polygon
+    from shapely.geometry import Polygon
 
     from temper_placer.core.component import Component
-    from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.netlist import Netlist
 
 
@@ -93,7 +93,7 @@ class PhasedComponentAssignmentStage(Stage):
         self,
         constraints: PlacementConstraints,
         slot_spacing: float = 12.0,
-        fixed_placements: Dict[str, Dict] = None,
+        fixed_placements: dict[str, dict] = None,
         channel_map: ChannelMap | None = None,
         w_r: float = 0.05,
         design_rules=None,
@@ -145,7 +145,7 @@ class PhasedComponentAssignmentStage(Stage):
         # without re-scanning the constraints list on every pin.
         self.design_rules = design_rules
         self.use_isolation_slots = use_isolation_slots
-        self._isolation_slots_by_ref: Dict[str, List["IsolationSlot"]] = {}
+        self._isolation_slots_by_ref: dict[str, list[IsolationSlot]] = {}
         if use_isolation_slots and getattr(constraints, "isolation_slots", None):
             for slot in constraints.isolation_slots:
                 self._isolation_slots_by_ref.setdefault(slot.component_ref, []).append(slot)
@@ -235,9 +235,9 @@ class PhasedComponentAssignmentStage(Stage):
     @staticmethod
     def _domain_lookups(
         state: BoardState,
-    ) -> tuple[dict[str, str], dict[str, "Polygon"]]:
+    ) -> tuple[dict[str, str], dict[str, Polygon]]:
         domain_for_ref: dict[str, str] = {}
-        domain_regions: dict[str, "Polygon"] = {}
+        domain_regions: dict[str, Polygon] = {}
         if not state.component_domain_map or not state.domain_regions:
             return domain_for_ref, domain_regions
         for ref, domain in state.component_domain_map:
@@ -252,20 +252,20 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _phased_placement(
         self,
-        state: BoardState,
+        _state: BoardState,
         netlist: Netlist,
-        component_zone_map: Dict[str, str],
-        zone_slots: Dict[str, Tuple],
+        component_zone_map: dict[str, str],
+        zone_slots: dict[str, tuple],
         domain_for_ref: Mapping[str, str] | None = None,
-        domain_regions: Mapping[str, "Polygon"] | None = None,
-    ) -> Dict[str, Tuple[float, float]]:
+        domain_regions: Mapping[str, Polygon] | None = None,
+    ) -> dict[str, tuple[float, float]]:
         """Execute placement in priority-defined phases.
 
         Returns:
             Dict of component_ref -> (x, y) positions
         """
         placements = {}
-        used_slots: Set[Tuple[float, float]] = set()
+        used_slots: set[tuple[float, float]] = set()
 
         # Build lookup structures
         comp_by_ref = {c.ref: c for c in netlist.components}
@@ -362,14 +362,14 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _place_template(
         self,
-        components: List[str],
+        components: list[str],
         phase_config: dict,
-        comp_by_ref: Dict[str, Component],
-        all_slots: List[Tuple[float, float]],
-        used_slots: Set[Tuple[float, float]],
-        current_placements: Optional[Dict[str, Tuple[float, float]]] = None,
-        netlist: Optional[Netlist] = None,
-    ) -> Dict[str, Tuple[float, float]]:
+        comp_by_ref: dict[str, Component],
+        all_slots: list[tuple[float, float]],
+        used_slots: set[tuple[float, float]],
+        current_placements: dict[str, tuple[float, float]] | None = None,
+        netlist: Netlist | None = None,
+    ) -> dict[str, tuple[float, float]]:
         """Place components using a template (e.g., half-bridge layout).
 
         Template defines relative positions. Anchor defines absolute position.
@@ -386,12 +386,12 @@ class PhasedComponentAssignmentStage(Stage):
         Returns:
             Dict of ref -> (x, y) for this phase
         """
-        template_name = phase_config.get("template")
+        phase_config.get("template")
         anchor = phase_config.get("anchor", [0, 0])
 
         # For now, use simple fixed positions
         # TODO: Load actual templates from template library
-        placements: Dict[str, Tuple[float, float]] = {}
+        placements: dict[str, tuple[float, float]] = {}
 
         # Fallback: place at anchor with small offsets
         for i, ref in enumerate(components):
@@ -418,16 +418,16 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _place_proximity(
         self,
-        components: List[str],
+        components: list[str],
         phase_config: dict,
-        comp_by_ref: Dict[str, Component],
-        current_placements: Dict[str, Tuple[float, float]],
-        zone_slots: Dict[str, Tuple],
-        used_slots: Set[Tuple[float, float]],
-        all_slots: List[Tuple[float, float]],
-        net_pins: Dict[str, list],
-        netlist: Optional[Netlist] = None,
-    ) -> Dict[str, Tuple[float, float]]:
+        comp_by_ref: dict[str, Component],
+        current_placements: dict[str, tuple[float, float]],
+        zone_slots: dict[str, tuple],
+        used_slots: set[tuple[float, float]],
+        all_slots: list[tuple[float, float]],
+        net_pins: dict[str, list],
+        netlist: Netlist | None = None,
+    ) -> dict[str, tuple[float, float]]:
         """Place components near a reference component.
 
         Uses constraint-aware slot selection within max_distance of reference.
@@ -502,18 +502,18 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _place_optimize(
         self,
-        components: List[str],
-        comp_by_ref: Dict[str, Component],
-        component_zone_map: Dict[str, str],
-        zone_slots: Dict[str, Tuple],
-        current_placements: Dict[str, Tuple[float, float]],
-        used_slots: Set[Tuple[float, float]],
-        all_slots: List[Tuple[float, float]],
-        net_pins: Dict[str, list],
+        components: list[str],
+        comp_by_ref: dict[str, Component],
+        component_zone_map: dict[str, str],
+        zone_slots: dict[str, tuple],
+        current_placements: dict[str, tuple[float, float]],
+        used_slots: set[tuple[float, float]],
+        all_slots: list[tuple[float, float]],
+        net_pins: dict[str, list],
         netlist=None,
         domain_for_ref: Mapping[str, str] | None = None,
-        domain_regions: Mapping[str, "Polygon"] | None = None,
-    ) -> Dict[str, Tuple[float, float]]:
+        domain_regions: Mapping[str, Polygon] | None = None,
+    ) -> dict[str, tuple[float, float]]:
         """Place components using constraint-aware greedy optimization.
 
         This is the core placement algorithm:
@@ -592,7 +592,6 @@ class PhasedComponentAssignmentStage(Stage):
                 continue
 
             # Merge current + phase placements for scoring
-            all_placements = {**current_placements, **placements}
 
             # Select best slot using constraints + wirelength
             best_slot = self._select_best_slot(
@@ -613,10 +612,10 @@ class PhasedComponentAssignmentStage(Stage):
     @staticmethod
     def _filter_by_domain(
         ref: str,
-        slots: List[Tuple[float, float]],
+        slots: list[tuple[float, float]],
         domain_for_ref: Mapping[str, str] | None,
-        domain_regions: Mapping[str, "Polygon"] | None,
-    ) -> List[Tuple[float, float]]:
+        domain_regions: Mapping[str, Polygon] | None,
+    ) -> list[tuple[float, float]]:
         if not domain_for_ref or not domain_regions:
             return slots
         domain = domain_for_ref.get(ref)
@@ -634,11 +633,11 @@ class PhasedComponentAssignmentStage(Stage):
     def _select_best_slot(
         self,
         component_ref: str,
-        candidate_slots: List[Tuple[float, float]],
-        current_placements: Dict[str, Tuple[float, float]],
-        phase_placements: Dict[str, Tuple[float, float]],
-        net_pins: Dict[str, list],
-    ) -> Tuple[float, float] | None:
+        candidate_slots: list[tuple[float, float]],
+        current_placements: dict[str, tuple[float, float]],
+        phase_placements: dict[str, tuple[float, float]],
+        net_pins: dict[str, list],
+    ) -> tuple[float, float] | None:
         """Select best slot using filter + scorer + wirelength.
 
         Algorithm:
@@ -672,7 +671,7 @@ class PhasedComponentAssignmentStage(Stage):
             valid_slots = candidate_slots
 
         # Phase 2: Score each valid slot
-        def score_slot(slot: Tuple[float, float]) -> float:
+        def score_slot(slot: tuple[float, float]) -> float:
             # Soft constraint penalty
             constraint_penalty = self.slot_scorer(slot, component_ref, all_placements)
 
@@ -700,9 +699,9 @@ class PhasedComponentAssignmentStage(Stage):
     def _simple_greedy_placement(
         self,
         netlist: Netlist,
-        component_zone_map: Dict[str, str],
-        zone_slots: Dict[str, Tuple],
-    ) -> Tuple[Dict[str, Tuple[float, float]], Set[Tuple[float, float]]]:
+        component_zone_map: dict[str, str],
+        zone_slots: dict[str, tuple],
+    ) -> tuple[dict[str, tuple[float, float]], set[tuple[float, float]]]:
         """Fallback: simple greedy placement (same as ComponentAssignmentStage).
 
         Returns a ``(placements, used_slots)`` tuple mirroring the
@@ -711,11 +710,11 @@ class PhasedComponentAssignmentStage(Stage):
         used when ``placement_priority`` is empty).
         """
         placements = {}
-        used_slots: Set[Tuple[float, float]] = set()
+        used_slots: set[tuple[float, float]] = set()
 
         net_pins = self._build_net_pins(netlist)
         all_slots = self._flatten_slots(zone_slots)
-        comp_by_ref = {c.ref: c for c in netlist.components}
+        {c.ref: c for c in netlist.components}
 
         # Sort by size
         def get_size(comp):
@@ -755,12 +754,12 @@ class PhasedComponentAssignmentStage(Stage):
     # nets (AC_L/AC_N/PE) need the same 6mm ring as HV in the Temper
     # design.  Per open question A.1, None / missing values are treated
     # as LV (no ghost pad).
-    _HV_SAFETY_CATEGORIES: Set[str] = {"HV", "AC"}
+    _HV_SAFETY_CATEGORIES: set[str] = {"HV", "AC"}
 
     def _collect_hv_pin_positions(
         self,
         netlist: Netlist,
-    ) -> List[Tuple[float, float, str, str]]:
+    ) -> list[tuple[float, float, str, str]]:
         """Collect component-relative (x, y) positions for every HV-class pin.
 
         Returns a list of (pin_x, pin_y, component_ref, pin_name) tuples
@@ -785,7 +784,7 @@ class PhasedComponentAssignmentStage(Stage):
         net_classes = self.design_rules.net_classes
         net_class_assignments = getattr(self.design_rules, "net_class_assignments", {}) or {}
 
-        hv_pins: List[Tuple[float, float, str, str]] = []
+        hv_pins: list[tuple[float, float, str, str]] = []
         for component in netlist.components:
             for pin in component.pins:
                 if pin.net is None:
@@ -812,10 +811,10 @@ class PhasedComponentAssignmentStage(Stage):
     def _effective_ghost_pad_radius(
         self,
         component_ref: str,
-        pin_name: str,
+        _pin_name: str,
         base_radius: float,
-        current_pin_absolute: Tuple[float, float],
-        nearest_other_hv_pin_absolute: Tuple[float, float],
+        current_pin_absolute: tuple[float, float],
+        nearest_other_hv_pin_absolute: tuple[float, float],
     ) -> float:
         """Apply U2 isolation-slot reduction to a base ghost-pad radius.
 
@@ -868,14 +867,14 @@ class PhasedComponentAssignmentStage(Stage):
                 reduction += projection
         return max(0.0, base_radius - reduction)
 
-    def _build_net_pins(self, netlist: Netlist) -> Dict[str, list]:
+    def _build_net_pins(self, netlist: Netlist) -> dict[str, list]:
         """Build net_name -> [(comp_ref, pin_name), ...] map."""
         net_pins = {}
         for net in netlist.nets:
             net_pins[net.name] = list(net.pins)
         return net_pins
 
-    def _flatten_slots(self, zone_slots: Dict[str, Tuple]) -> List[Tuple[float, float]]:
+    def _flatten_slots(self, zone_slots: dict[str, tuple]) -> list[tuple[float, float]]:
         """Flatten zone_slots to single list of all slots."""
         all_slots = []
         for slots in zone_slots.values():
@@ -891,10 +890,10 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _reserve_slots(
         self,
-        center: Tuple[float, float],
+        center: tuple[float, float],
         radius: float,
-        all_slots: List[Tuple[float, float]],
-        used_slots: Set[Tuple[float, float]],
+        all_slots: list[tuple[float, float]],
+        used_slots: set[tuple[float, float]],
     ) -> None:
         """Reserve all slots within radius of center."""
         cx, cy = center
@@ -906,12 +905,12 @@ class PhasedComponentAssignmentStage(Stage):
 
     def _reserve_slots_with_hv(
         self,
-        component: "Component",
-        placed_pos: Tuple[float, float],
-        all_slots: List[Tuple[float, float]],
-        used_slots: Set[Tuple[float, float]],
-        placements: Optional[Dict[str, Tuple[float, float]]] = None,
-        netlist: Optional[Netlist] = None,
+        component: Component,
+        placed_pos: tuple[float, float],
+        all_slots: list[tuple[float, float]],
+        used_slots: set[tuple[float, float]],
+        placements: dict[str, tuple[float, float]] | None = None,
+        netlist: Netlist | None = None,
     ) -> None:
         """Reserve the footprint ring AND any HV-pin creepage ring for a placed component.
 
@@ -958,7 +957,7 @@ class PhasedComponentAssignmentStage(Stage):
         # only consider HV pins on different components; pins on the
         # same component don't define a creepage direction for
         # isolation-slot reduction (they share the same placed_pos).
-        other_hv_pins: List[Tuple[float, float]] = []
+        other_hv_pins: list[tuple[float, float]] = []
         if placements is not None and netlist is not None:
             net_class_assignments_other = (
                 getattr(self.design_rules, "net_class_assignments", {}) or {}
@@ -1027,11 +1026,11 @@ class PhasedComponentAssignmentStage(Stage):
                 (abs_x, abs_y), ring_radius, all_slots, used_slots
             )
 
-    def _distance(self, p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
+    def _distance(self, p1: tuple[float, float], p2: tuple[float, float]) -> float:
         """Euclidean distance between two points."""
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
-    def _is_hv_ref(self, ref: str, comp_by_ref: Dict[str, Component]) -> bool:
+    def _is_hv_ref(self, ref: str, comp_by_ref: dict[str, Component]) -> bool:
         """Return True if ``ref`` participates in any HV-class net.
 
         "HV" is determined by :meth:`PlacementConstraints.get_net_class`
@@ -1064,9 +1063,9 @@ class PhasedComponentAssignmentStage(Stage):
     def _apply_bottleneck_filter(
         self,
         component_ref: str,
-        candidate_slots: List[Tuple[float, float]],
-        comp_by_ref: Optional[Dict[str, Component]] = None,
-    ) -> List[Tuple[float, float]]:
+        candidate_slots: list[tuple[float, float]],
+        comp_by_ref: dict[str, Component] | None = None,
+    ) -> list[tuple[float, float]]:
         """Filter ``candidate_slots`` through the bottleneck map.
 
         Returns the unfiltered list when:
@@ -1100,9 +1099,9 @@ class PhasedComponentAssignmentStage(Stage):
             is_hv = self._is_hv_ref(component_ref, comp_by_ref)
         limit = config.hv_threshold if is_hv else config.threshold
 
-        accepted: List[Tuple[float, float]] = []
-        scores_accepted: List[float] = []
-        all_scores: List[float] = []
+        accepted: list[tuple[float, float]] = []
+        scores_accepted: list[float] = []
+        all_scores: list[float] = []
         for slot in candidate_slots:
             score = bmap.score_at(slot[0], slot[1])
             all_scores.append(score)
@@ -1161,14 +1160,14 @@ class PhasedComponentAssignmentStage(Stage):
     def _compute_wirelength(
         self,
         component_ref: str,
-        candidate_slot: Tuple[float, float],
-        net_pins: Dict[str, list],
-        current_placements: Dict[str, Tuple[float, float]],
+        candidate_slot: tuple[float, float],
+        net_pins: dict[str, list],
+        current_placements: dict[str, tuple[float, float]],
     ) -> float:
         """Compute HPWL (Half-Perimeter Wirelength) for placing component at slot."""
         total_hpwl = 0.0
 
-        for net_name, pins in net_pins.items():
+        for _net_name, pins in net_pins.items():
             component_on_net = any(ref == component_ref for ref, _ in pins)
             if not component_on_net:
                 continue
@@ -1187,7 +1186,7 @@ class PhasedComponentAssignmentStage(Stage):
         return total_hpwl
 
     def find_critical_bottleneck_violations(
-        self, placements: Dict[str, Tuple[float, float]]
+        self, placements: dict[str, tuple[float, float]]
     ) -> list[dict]:
         """Return a list of CRITICAL-severity bottleneck violations.
 
@@ -1213,7 +1212,7 @@ class PhasedComponentAssignmentStage(Stage):
         height = cmap.height
 
         # Pre-index bottlenecks by (gx, gy) for O(1) lookup per placement.
-        critical_by_cell: Dict[Tuple[int, int], Bottleneck] = {}
+        critical_by_cell: dict[tuple[int, int], Bottleneck] = {}
         for bn in cmap.bottlenecks:
             if bn.severity != "CRITICAL":
                 continue
@@ -1246,7 +1245,7 @@ class PhasedComponentAssignmentStage(Stage):
         return violations
 
     def _check_critical_bottlenecks(
-        self, placements: Dict[str, Tuple[float, float]]
+        self, placements: dict[str, tuple[float, float]]
     ) -> list[dict]:
         """Run the invariant check; blocking by default.
 

@@ -64,13 +64,12 @@ class MonitorState:
         # gap may reach ~2e-2, so 1e-3 per-step tolerance is tight enough
         # to catch genuine PQ ordering bugs while accepting the 1.414
         # approximation.
-        if self.last_f is not None:
-            if f_cost + 1e-3 < self.last_f:
-                self.violations.append(InvariantViolation(
-                    "f_cost_monotonicity",
-                    f"f-cost decreased: last={self.last_f:.6f}, current={f_cost:.6f}",
-                    {"current": current},
-                ))
+        if self.last_f is not None and f_cost + 1e-3 < self.last_f:
+            self.violations.append(InvariantViolation(
+                "f_cost_monotonicity",
+                f"f-cost decreased: last={self.last_f:.6f}, current={f_cost:.6f}",
+                {"current": current},
+            ))
         self.last_f = f_cost
 
         # (b) Single-expansion check (standard A* only)

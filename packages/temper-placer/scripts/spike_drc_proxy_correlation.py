@@ -99,8 +99,8 @@ def compute_proxy_score_placeholder(positions: np.ndarray, dims: np.ndarray) -> 
     Returns:
         Scalar proxy score.
     """
-    import jax
     import jax.numpy as jnp
+
     from temper_placer.geometry.drc_inflate import compute_drc_proxy_score
 
     half_w = jnp.array(dims[:, 0] / 2.0, dtype=jnp.float32)
@@ -202,7 +202,7 @@ def main():
         # Load board data
         positions, dims = load_board_data(board_dir)
         if positions.shape[0] == 0:
-            print(f"    [SKIP] No component data found")
+            print("    [SKIP] No component data found")
             continue
 
         # Compute proxy score
@@ -224,7 +224,7 @@ def main():
                 if drc_json.exists():
                     kicad_count = parse_kicad_drc_json(drc_json)
             else:
-                print(f"    [WARN] No .kicad_pcb found")
+                print("    [WARN] No .kicad_pcb found")
 
         kicad_counts.append(kicad_count)
         print(f"    KiCad DRC clearance violations: {kicad_count}")
@@ -243,13 +243,13 @@ def main():
     print(f"Threshold: {args.threshold:.4f}")
 
     if r >= args.threshold:
-        print(f"✓ PASS — proceed to full implementation (Phase 2+)")
+        print("✓ PASS — proceed to full implementation (Phase 2+)")
         result = 0
     elif r >= 0.85:
-        print(f"⚠ MARGINAL — iterate on proxy once before proceeding")
+        print("⚠ MARGINAL — iterate on proxy once before proceeding")
         result = 1
     else:
-        print(f"✗ FAIL — fall back to DRC ratchet")
+        print("✗ FAIL — fall back to DRC ratchet")
         result = 2
 
     print(f"{'='*60}")

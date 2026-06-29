@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from hypothesis import given, settings
-from hypothesis.strategies import floats, text
+from hypothesis.strategies import floats
 
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.grid_prep_stage import GridPrepStage, validate_grid_prep
@@ -11,7 +11,7 @@ from temper_placer.router_v6.grid_prep_stage import GridPrepStage, validate_grid
 
 @settings(max_examples=50, deadline=30000)
 @given(board_width=floats(min_value=10, max_value=500), board_height=floats(min_value=10, max_value=500))
-def test_grid_prep_dimensions(board_width: float, board_height: float):
+def test_grid_prep_dimensions(_board_width: float, _board_height: float):
     """GridPrepStage produces grids with matching dimensions."""
     stage = GridPrepStage()
     assert stage.name == "GridPrep"

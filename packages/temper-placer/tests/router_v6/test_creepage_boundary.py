@@ -23,7 +23,6 @@ from temper_placer.router_v6.creepage_check import (
     verify_creepage,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
-
 from tests.router_v6.dfm_boundary_constants import (
     COORD_INF,
     COORD_NAN,

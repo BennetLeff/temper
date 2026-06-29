@@ -52,11 +52,11 @@ class ComponentGroupLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute total penalty for component groups exceeding max_spread_mm.
@@ -113,7 +113,7 @@ class ComponentGroupLoss(LossFunction):
 
         return LossResult(value=total_penalty * self.weight)
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, _epoch: int, _total_epochs: int) -> float:
         """
         Component grouping is active from the start.
 

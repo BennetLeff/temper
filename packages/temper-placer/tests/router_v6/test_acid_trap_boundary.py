@@ -25,37 +25,27 @@ import pytest
 from temper_placer.router_v6.acid_trap_detection import (
     AcidTrap,
     AcidTrapReport,
+    _calculate_angle,
     detect_acid_traps,
 )
 from temper_placer.router_v6.astar_core import RoutePath
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
-from temper_placer.router_v6.via_placement import Via
-
 from tests.router_v6.dfm_boundary_constants import (
     COORD_BOUNDARY,
-    COORD_EXTREME,
     COORD_INF,
     COORD_NAN,
-    COORD_NEGATIVE,
-    COORD_ZERO,
     THRESHOLD_BOUNDARY,
     THRESHOLD_INF,
     THRESHOLD_NAN,
     THRESHOLD_NEGATIVE,
-    THRESHOLD_NORMAL,
     THRESHOLD_ZERO,
     TRACE_WIDTHS_BOUNDARY,
-    TRACE_WIDTHS_EXTREME,
-    TRACE_WIDTHS_INF,
-    TRACE_WIDTHS_NAN,
     TRACE_WIDTHS_NEGATIVE,
     TRACE_WIDTHS_NORMAL,
     TRACE_WIDTHS_ZERO,
-    just_below,
     just_above,
-    exactly_at,
+    just_below,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helper: build a RoutingResults with a single acute-angle route
@@ -407,7 +397,7 @@ def test_severity_at_threshold_boundaries(
 )
 def test_severity_narrow_trace_demotion(
     angle_deg: float,
-    expected_base: str,
+    _expected_base: str,
     width_mm: float,
     expected_demoted: str,
 ):
@@ -511,8 +501,6 @@ def test_endpoint_angle_with_inf_pin_location():
 # ===================================================================
 # _calculate_angle direct boundary tests
 # ===================================================================
-
-from temper_placer.router_v6.acid_trap_detection import _calculate_angle
 
 
 class TestCalculateAngleBoundaries:

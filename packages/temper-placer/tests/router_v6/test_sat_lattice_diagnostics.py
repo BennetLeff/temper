@@ -18,9 +18,7 @@ import pytest
 from temper_placer.router_v6.sat_model import (
     SATModel,
     SATVariable,
-    _encode_at_most_k,
 )
-
 
 # ---------------------------------------------------------------------------
 # SC6 TS1: AtMostK encoding bug — FR4 fails, FR1-FR3 pass
@@ -46,7 +44,6 @@ def test_lattice_fr4_fails_with_bug(monkeypatch) -> None:
     Monkeypatches _encode_at_most_k to produce wrong exclusion clauses,
     then verifies the encoding no longer matches the expected solution count.
     """
-    import math
 
     from pysat.solvers import Solver
 
@@ -189,17 +186,18 @@ def test_lattice_fr5_fails_with_omitted_layer(monkeypatch) -> None:
     causes FR5 to fail (missing clauses in produced set), but lower levels
     (FR1-FR4) still pass.
     """
-    from temper_placer.router_v6.constraint_model import (
-        ConstraintModel, NetChannelVar, LayerConstraint,
-    )
-
     import temper_placer.router_v6.sat_model as sm
+    from temper_placer.router_v6.constraint_model import (
+        ConstraintModel,
+        LayerConstraint,
+        NetChannelVar,
+    )
 
     _original_populate = sm.populate_sat_from_constraints
 
     def _omit_layer_constraints(
         sat_model: SATModel,
-        constraint_model: "ConstraintModel",
+        constraint_model: ConstraintModel,
         net_names: list[str] | None = None,
     ) -> None:
         """Remove LayerConstraint entries before calling the original,

@@ -1,7 +1,8 @@
 """Property-based tests for RoutingSpace invariants."""
 
-from hypothesis import given, settings, strategies as st
-from shapely.geometry import MultiPolygon, Polygon, box
+from hypothesis import given, settings
+from hypothesis import strategies as st
+from shapely.geometry import MultiPolygon, box
 
 from temper_placer.router_v6.routing_space import RoutingSpace
 

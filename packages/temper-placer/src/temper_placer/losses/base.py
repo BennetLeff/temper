@@ -68,7 +68,7 @@ class LossContext(BaseLossContext):
         thermal_constraints: list[ThermalConstraint] | None = None,
         star_ground_constraints: list[StarGroundConstraint] | None = None,
         loop_constraints: list[LoopConstraint] | None = None,
-        mounting_rules: list[MountingRule] | None = None,
+        _mounting_rules: list[MountingRule] | None = None,
         path_constraints: list[CriticalPathConstraint] | None = None,
         matched_groups: list[MatchedLengthConstraint] | None = None,
         spatial_penalties: Array | None = None,

@@ -16,7 +16,8 @@ from __future__ import annotations
 import math
 
 import pytest
-from hypothesis import HealthCheck, given, settings, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.acid_trap_detection import (
     _classify_severity,
@@ -25,7 +26,6 @@ from temper_placer.router_v6.acid_trap_detection import (
 from temper_placer.router_v6.astar_core import RoutePath
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from tests.router_v6.dfm_property_strategies import realistic_routing_results
-
 
 # ---------------------------------------------------------------------------
 # Shared settings
@@ -110,10 +110,7 @@ def test_classify_severity_matches_contract(angle: float, width: float) -> None:
 
     if width < 0.2:
         # Narrow trace — severity is demoted by one level.
-        if angle < 45:
-            expected = "medium"
-        else:
-            expected = "low"
+        expected = "medium" if angle < 45 else "low"
     else:
         # Normal / wide trace — no demotion.
         if angle < 45:

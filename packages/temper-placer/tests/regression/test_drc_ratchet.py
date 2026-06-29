@@ -3,9 +3,7 @@
 import json
 from pathlib import Path
 
-import pytest
-
-from temper_placer.regression.drc_ratchet import DrcCeilingEntry, DrcRatchet, DrcRatchetResult
+from temper_placer.regression.drc_ratchet import DrcRatchet, DrcRatchetResult
 
 
 class TestDrcRatchet:

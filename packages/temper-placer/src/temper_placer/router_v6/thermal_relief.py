@@ -90,7 +90,7 @@ def add_thermal_relief(
     *,
     plane_layers: list[str] | None = None,
     plane_nets: frozenset[str] | None = None,
-    board: "Board | None" = None,
+    board: Board | None = None,
 ) -> ThermalReliefReport:
     """
     Add thermal relief connections to power plane pads.
@@ -269,7 +269,7 @@ def _generate_spoke_segments(
     spoke_count: int,
     spoke_width: float,
     clearance_gap: float,
-    board: "Board | None" = None,
+    board: Board | None = None,
 ) -> list[tuple[tuple[float, float], tuple[float, float]]]:
     """
     Generate 4-spoke (or N-spoke) thermal relief line segments.
@@ -325,7 +325,7 @@ def _generate_spoke_segments(
 
 
 def _clamp_to_board_outline(
-    board: "Board",
+    board: Board,
     point: tuple[float, float],
     pad_center: tuple[float, float],
 ) -> tuple[float, float]:
@@ -361,7 +361,7 @@ def _clamp_to_board_outline(
 
     # Polygonal board ─ use shapely
     try:
-        from shapely.geometry import Point, Polygon, LineString  # noqa: PLC0415
+        from shapely.geometry import LineString, Point, Polygon  # noqa: PLC0415
     except ImportError:
         # Graceful degradation: return the original point
         return (x, y)
@@ -416,9 +416,9 @@ def _clamp_to_board_outline(
 
 
 def _add_smd_thermal_reliefs(
-    board: "Board",
-    routing_results: RoutingResults,
-    resolved_plane_layers: list[str],
+    board: Board,
+    _routing_results: RoutingResults,
+    _resolved_plane_layers: list[str],
     resolved_plane_nets: frozenset[str],
     spoke_count: int,
     spoke_width: float,

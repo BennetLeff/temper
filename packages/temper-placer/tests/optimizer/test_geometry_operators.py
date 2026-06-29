@@ -8,12 +8,10 @@ PCB-domain-specific mutations.
 import jax
 import jax.numpy as jnp
 import numpy as np
-import pytest
 
 from temper_placer.optimizer.nsga2 import (
     apply_mutation_pool,
     mutate_align_to_grid,
-    mutate_gaussian,
     mutate_push_to_edge,
     mutate_rotate_smart,
     mutate_slide_to_neighbor,
@@ -42,7 +40,7 @@ class TestSwapMutation:
     def test_swap_rate_respected(self):
         """Swap mutation respects rate parameter."""
         positions = jnp.array([[0.0, 0.0], [10.0, 10.0]])
-        
+
         # With rate=0, should never mutate
         applied_count = 0
         for i in range(100):
@@ -111,7 +109,7 @@ class TestRotateSmart:
             [1.0, 0.0, 0.0, 0.0],
             [1.0, 0.0, 0.0, 0.0],
         ])
-        
+
         rotation_changed = False
         for i in range(100):
             key = jax.random.PRNGKey(i)
@@ -123,7 +121,7 @@ class TestRotateSmart:
                 if not jnp.allclose(orig_rot, new_rot):
                     rotation_changed = True
                     break
-        
+
         assert rotation_changed, "At least one rotation should change"
 
     def test_rotate_produces_valid_rotation(self):
@@ -254,7 +252,7 @@ class TestMutationPool:
                 positions, rotations, key, 100.0, 100.0
             )
             # Hash the output
-            outputs.add((tuple(np.array(new_pos).flatten()), 
+            outputs.add((tuple(np.array(new_pos).flatten()),
                         tuple(np.array(new_rot).flatten())))
 
         # Should have some diversity

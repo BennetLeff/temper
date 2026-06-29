@@ -27,11 +27,11 @@ class HypergraphWirelengthLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         if context.hypergraph is None:
             # Fallback or error? For now, assume it's there as we added it to factory.
@@ -56,11 +56,11 @@ class HighVoltageRepulsionLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         if context.hypergraph is None:
             return LossResult(value=0.0)

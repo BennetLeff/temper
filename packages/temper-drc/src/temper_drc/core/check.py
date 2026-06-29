@@ -115,8 +115,8 @@ class Check(ABC):
 
     def is_applicable(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
+        _placement: Placement,
+        _constraints: ConstraintSet,
     ) -> bool:
         """
         Check if this check applies to the given input.

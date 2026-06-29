@@ -1,12 +1,13 @@
 """Tests for aggregate quality score calculation module."""
 
+
 import pytest
-from dataclasses import dataclass
+
+from temper_validation.comparison.drc_compliance import DRCComplianceResult
+from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 
 # Import real data structures from implementation
 from temper_validation.comparison.wirelength import WirelengthResult
-from temper_validation.comparison.drc_compliance import DRCComplianceResult
-from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 
 
 def test_perfect_score():
@@ -76,7 +77,7 @@ def test_mixed_metrics():
 
     assert pytest.approx(result.total_score, rel=0.01) == expected_score, \
         f"Expected score ~{expected_score}, got {result.total_score}"
-    
+
 
     assert result.verdict == "PASS", \
         f"Score {result.total_score} (>=80) should be PASS, got {result.verdict}"

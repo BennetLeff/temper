@@ -8,13 +8,12 @@ modified.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.router_v6.stage0_data import ParsedPCB  # noqa: F401
     from temper_placer.protocol import PipelineStage, StageInput, StageOutput  # noqa: F401
+    from temper_placer.router_v6.stage0_data import ParsedPCB  # noqa: F401
 
 
 # ---- Stage 0: Load PCB ------------------------------------------------------
@@ -53,13 +52,13 @@ class RouterV6Stage1_EscapeVias:
     contract = None
 
     def run(self, input):
+        from temper_placer.protocol import StageOutput
         from temper_placer.router_v6.dense_package_detection import (
             identify_dense_packages,
         )
         from temper_placer.router_v6.escape_via_generator import (
             generate_escape_vias,
         )
-        from temper_placer.protocol import StageOutput
 
         pcb = input.data
         dense_packages = identify_dense_packages(pcb.components)
@@ -88,8 +87,8 @@ class RouterV6Stage2_ChannelAnalysis:
     contract = None
 
     def run(self, input):
-        from temper_placer.router_v6.pipeline import RouterV6Pipeline
         from temper_placer.protocol import StageOutput
+        from temper_placer.router_v6.pipeline import RouterV6Pipeline
 
         data = input.data
         pcb = data.pcb if hasattr(data, "pcb") else data
@@ -116,8 +115,8 @@ class RouterV6Stage3_TopologicalRouting:
     contract = None
 
     def run(self, input):
-        from temper_placer.router_v6.pipeline import RouterV6Pipeline
         from temper_placer.protocol import StageOutput
+        from temper_placer.router_v6.pipeline import RouterV6Pipeline
 
         data = input.data
         pcb = data.pcb if hasattr(data, "pcb") else data
@@ -146,8 +145,8 @@ class RouterV6Stage4_GeometricRealization:
     contract = None
 
     def run(self, input):
-        from temper_placer.router_v6.pipeline import RouterV6Pipeline
         from temper_placer.protocol import StageOutput
+        from temper_placer.router_v6.pipeline import RouterV6Pipeline
 
         data = input.data
         pcb = data.pcb if hasattr(data, "pcb") else data

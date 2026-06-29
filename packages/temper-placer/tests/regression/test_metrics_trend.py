@@ -1,8 +1,10 @@
 """Tests for pipeline metrics trend CLI (R2, R5)."""
 import sys
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
+
 import pytest
+
 from temper_placer.regression.metrics_recorder import PipelineMetricsRecord, record_metrics
 
 # `scripts/pipeline_metrics.py` is a CLI script, not a module. Add scripts/ to
@@ -14,6 +16,7 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 import pipeline_metrics  # noqa: E402
+
 _compute_trends = pipeline_metrics._compute_trends
 _parse_window = pipeline_metrics._parse_window
 

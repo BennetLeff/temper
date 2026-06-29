@@ -24,8 +24,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.core.netlist import Netlist
     from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
 
 import json
 from dataclasses import dataclass
@@ -80,7 +80,7 @@ def load_pcl_schema() -> dict[str, Any]:
         if schema_path.exists():
             with open(schema_path) as f:
                 return json.load(f)
-        raise RuntimeError(f"Could not load PCL schema: {e}")
+        raise RuntimeError(f"Could not load PCL schema: {e}") from e
 
 
 def validate_pcl_dict(data: dict[str, Any]) -> None:
@@ -144,11 +144,11 @@ class ConstraintCollection:
 
     def lint(self, netlist: Netlist, board: Board) -> Any:
         """Lint the constraint collection.
-        
+
         Args:
             netlist: Netlist for component reference validation
             board: Board for geometry validation
-            
+
         Returns:
             LintResult with errors and warnings
         """
@@ -236,8 +236,8 @@ def _parse_distance_with_unit(value: Any) -> float:
 
     try:
         number = float(number_str)
-    except ValueError:
-        raise PCLParseError(f"Invalid distance value: {value}")
+    except ValueError as e:
+        raise PCLParseError(f"Invalid distance value: {value}") from e
 
     if number < 0:
         raise PCLParseError(f"Distance cannot be negative: {value}")
@@ -491,7 +491,7 @@ def parse_pcl_file(path: Path | str) -> ConstraintCollection:
         with open(path) as f:
             data = yaml.safe_load(f)
     except yaml.YAMLError as e:
-        raise PCLParseError(f"YAML parse error in {path}: {e}")
+        raise PCLParseError(f"YAML parse error in {path}: {e}") from e
 
     if not isinstance(data, dict):
         raise PCLParseError(f"Expected YAML dict at top level, got {type(data)}")
@@ -522,7 +522,7 @@ def parse_pcl_file(path: Path | str) -> ConstraintCollection:
             constraint = parse_constraint_dict(constraint_data)
             constraints.append(constraint)
         except PCLParseError as e:
-            raise PCLParseError(f"Error parsing constraint {i}: {e}")
+            raise PCLParseError(f"Error parsing constraint {i}: {e}") from e
 
     return ConstraintCollection(
         constraints=constraints,
@@ -566,7 +566,7 @@ def load_pcl_collection(directory: Path | str) -> ConstraintCollection:
             all_constraints.extend(collection.constraints)
             all_metadata[yaml_file.stem] = collection.metadata
         except PCLParseError as e:
-            raise PCLParseError(f"Error loading {yaml_file}: {e}")
+            raise PCLParseError(f"Error loading {yaml_file}: {e}") from e
 
     return ConstraintCollection(
         constraints=all_constraints,

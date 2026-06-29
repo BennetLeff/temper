@@ -19,8 +19,9 @@ Scorers (soft constraints):
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -144,9 +145,8 @@ class ConstraintCompiler:
             for ec in self.constraints.escape_clearances:
                 if ec.tier != "hard":
                     continue
-                if ec.component in placements:
-                    if self._in_escape_zone(slot, placements[ec.component], ec):
-                        return False
+                if ec.component in placements and self._in_escape_zone(slot, placements[ec.component], ec):
+                    return False
 
             # 4. Routing corridors (keep_clear + hard tier)
             for corridor in self.constraints.routing_corridors:
@@ -248,9 +248,8 @@ class ConstraintCompiler:
             for ec in self.constraints.escape_clearances:
                 if ec.tier != "soft":
                     continue
-                if ec.component in placements:
-                    if self._in_escape_zone(slot, placements[ec.component], ec):
-                        score += 50.0  # Strong penalty
+                if ec.component in placements and self._in_escape_zone(slot, placements[ec.component], ec):
+                    score += 50.0  # Strong penalty
 
             # 6. Routing corridors (soft mode)
             for corridor in self.constraints.routing_corridors:
@@ -264,7 +263,7 @@ class ConstraintCompiler:
 
         return score_slot
 
-    def validate(self, board: Board | None, netlist: Netlist) -> list[ValidationError]:
+    def validate(self, _board: Board | None, netlist: Netlist) -> list[ValidationError]:
         """Validate constraints against actual board/netlist.
 
         Checks for:

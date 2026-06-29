@@ -134,12 +134,12 @@ def add_loops_to_plotly(
                 x=x,
                 y=y,
                 mode="lines+markers",
-                line=dict(
-                    color=color,
-                    width=2 if is_violation else 1.5,
-                    dash="dash"
-                ),
-                marker=dict(size=4, color=color),
+                line={
+                    "color": color,
+                    "width": 2 if is_violation else 1.5,
+                    "dash": "dash"
+                },
+                marker={"size": 4, "color": color},
                 name=f"Loop: {loop.name}",
                 hoverinfo="text",
                 hovertext=(

@@ -6,23 +6,18 @@ Part of feat/ghost-pad-injection plan: U3 (Per-Stage DRC Fence Validator).
 
 from __future__ import annotations
 
-import math
 from dataclasses import replace
-
-import pytest
 
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
 from temper_placer.deterministic.stages.phased_component_assignment_validator import (
     validate_phased_component_assignment_hv,
 )
+from temper_placer.deterministic.state import BoardState
 from temper_placer.io.config_loader import PlacementConstraints
-from temper_placer.router_v6.stage_validators import StageDRCFailure
-
 
 # ---------------------------------------------------------------------------
 # Test fixtures
@@ -217,7 +212,7 @@ class TestPhasedComponentAssignmentValidator:
         # component/ring covers it — this is a synthetic test for
         # the over-claim check, so we directly build a used_slots
         # situation via the placement tuple.
-        result = _run_placer(state)
+        _run_placer(state)
         # Pick a slot far from FAR's placement (which is some grid
         # slot near (50, 50) since the grid is 0..95, 5mm spacing).
         far_slot = (0.0, 0.0)  # definitely far from (50, 50)

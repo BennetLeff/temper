@@ -41,13 +41,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Check for optional dependencies
-try:
-    import plotly.graph_objects as go
-    from plotly.subplots import make_subplots
+import importlib.util  # noqa: E402
 
-    PLOTLY_AVAILABLE = True
-except ImportError:
-    PLOTLY_AVAILABLE = False
+PLOTLY_AVAILABLE = importlib.util.find_spec("plotly") is not None
 
 
 @dataclass

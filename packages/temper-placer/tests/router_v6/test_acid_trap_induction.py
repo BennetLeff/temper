@@ -6,8 +6,8 @@ import pytest
 
 from temper_placer.router_v6.acid_trap_detection import detect_acid_traps
 from temper_placer.router_v6.astar_pathfinding import RoutePath
-from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
+from tests.router_v6.test_induction_base import make_empty_rr
 
 
 @pytest.mark.dependency(depends=["induction-base"])

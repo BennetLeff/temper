@@ -19,7 +19,6 @@ import pytest
 from hypothesis import given, settings
 
 from temper_placer.router_v6.routing_results import RoutingResults
-
 from tests.router_v6.router_v6_property_strategies import routing_results
 
 # ---------------------------------------------------------------------------

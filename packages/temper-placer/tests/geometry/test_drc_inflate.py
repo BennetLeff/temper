@@ -1,13 +1,13 @@
 """Unit tests for DRC inflation geometry utilities."""
-import numpy as np
 import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.geometry.drc_inflate import (
+    compute_drc_proxy_score,
+    compute_inflated_half_dims_from_bounds,
     inflate_pad_polygon,
     precompute_inflated_dims,
-    compute_inflated_half_dims_from_bounds,
-    compute_drc_proxy_score,
 )
 
 
@@ -106,7 +106,6 @@ class TestComputeDRCProxyScore:
 
     def test_overlapping_components(self):
         """Overlapping inflated components produce positive score."""
-        n = 2
         hw = jnp.array([5.0, 5.0], dtype=jnp.float32)
         hh = jnp.array([5.0, 5.0], dtype=jnp.float32)
         positions = jnp.array([

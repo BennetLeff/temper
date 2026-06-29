@@ -5,14 +5,14 @@ This module transforms declarative constraints (from YAML) into executable
 filter and scorer functions used by the placement engine.
 """
 
+from .builder import ConstraintBuilder
 from .compiler import ConstraintCompiler, ValidationError
 from .reporter import (
-    ConstraintReporter,
     ConstraintReport,
+    ConstraintReporter,
     ConstraintResult,
     ConstraintStatus,
 )
-from .builder import ConstraintBuilder
 
 __all__ = [
     "ConstraintCompiler",

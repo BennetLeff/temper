@@ -10,8 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from enum import Enum
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.layer_capacity import LayerCapacity
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.stage_validators import (
@@ -96,10 +96,7 @@ def identify_bottlenecks(
 
     # Distribute demand across layers (simplified - assume even distribution)
     num_layers = len(layer_capacities)
-    if num_layers > 0:
-        demand_per_layer = demand.routable_nets // num_layers
-    else:
-        demand_per_layer = 0
+    demand_per_layer = demand.routable_nets // num_layers if num_layers > 0 else 0
 
     # Analyze each layer
     for layer_name, capacity in layer_capacities.items():

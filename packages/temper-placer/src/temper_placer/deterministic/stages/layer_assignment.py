@@ -5,7 +5,7 @@ This is a 2.5D approach where we pre-assign layers rather than doing full 3D A* 
 """
 
 from dataclasses import dataclass, replace
-from typing import Dict, Optional
+
 from ..state import BoardState
 from .base import Stage
 
@@ -25,8 +25,8 @@ class LayerAssignmentStage(Stage):
 
     def __init__(
         self,
-        layer_assignments: Optional[Dict[str, int]] = None,
-        net_classes: Optional[Dict[str, str]] = None,
+        layer_assignments: dict[str, int] | None = None,
+        net_classes: dict[str, str] | None = None,
     ):
         """
         Args:
@@ -88,22 +88,14 @@ class LayerAssignmentStage(Stage):
         Returns:
             (layer_index, is_plane)
         """
-        if net_class == "HighVoltage":
-            return 0, False  # Top layer for easy inspection
-        elif net_class == "Power":
-            return 2, True  # Inner power plane
-        elif net_class == "PowerTrace":
-            return 0, False  # Top layer, routed as traces (NOT plane)
-        elif net_class == "Ground":
-            return 1, True  # Inner ground plane
-        elif net_class == "Signal":
-            return 0, False  # Top layer with option to use bottom
-        elif net_class == "Differential":
-            return 0, False  # Top layer for controlled impedance
-        elif net_class == "FinePitch":
-            return 0, False  # Top layer for fine-pitch IC routing
-        elif net_class == "FinePitchPower":
-            return 2, True  # Inner power plane (legacy, prefer PowerTrace now)
-        else:
-            # Default to top layer
-            return 0, False
+        mapping = {
+            "HighVoltage": (0, False),
+            "Power": (2, True),
+            "PowerTrace": (0, False),
+            "Ground": (1, True),
+            "Signal": (0, False),
+            "Differential": (0, False),
+            "FinePitch": (0, False),
+            "FinePitchPower": (2, True),
+        }
+        return mapping.get(net_class, (0, False))

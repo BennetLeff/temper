@@ -2,12 +2,13 @@
 
 import math
 
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 from shapely.geometry import Point
 
 from temper_placer.core.netlist import Component, Pin
 from temper_placer.router_v6.escape_via_generator import EscapeVia
-from temper_placer.router_v6.obstacle_map import build_obstacle_map, _create_pad_polygon
+from temper_placer.router_v6.obstacle_map import _create_pad_polygon, build_obstacle_map
 from temper_placer.router_v6.stage0_data import DesignRules, LayerInfo, ParsedPCB, StackupInfo
 
 
@@ -75,7 +76,7 @@ def test_obstacle_map_layer_coverage(num_pads, seed):
         LayerInfo(0, "F.Cu", "signal", 35.0),
         LayerInfo(1, "B.Cu", "signal", 35.0),
     ]
-    declared = {l.name for l in layers if l.layer_type in ("signal", "mixed")}
+    declared = {ly.name for ly in layers if ly.layer_type in ("signal", "mixed")}
 
     pins = []
     for i in range(num_pads):

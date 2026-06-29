@@ -11,7 +11,6 @@ mock helpers (``_Path``, ``_Via``, ``_Route``, ``_Results``) from
 
 from __future__ import annotations
 
-import math
 import warnings
 
 import pytest
@@ -51,18 +50,19 @@ from temper_placer.router_v6.thermal_relief import (
 # ---------------------------------------------------------------------------
 # Boundary constants
 # ---------------------------------------------------------------------------
-from tests.router_v6.dfm_boundary_constants import (
-    COORD_EXTREME,
-)
-
 # ---------------------------------------------------------------------------
 # Mock helpers (duck-typed stubs) — reused from test_dfm_correctness
 # ---------------------------------------------------------------------------
 from tests.router_v6.dfm_boundary_constants import (
     Path as _Path,
+)
+from tests.router_v6.dfm_boundary_constants import (
     Route as _Route,
-    Results as _Results,
+)
+from tests.router_v6.dfm_boundary_constants import (
     Via as _Via,
+)
+from tests.router_v6.dfm_boundary_constants import (
     make_results as _make_results,
 )
 
@@ -933,7 +933,7 @@ class TestEmptyResultsAllModules:
     report type without crashing."""
 
     def test_empty_routing_results_returns_valid_report(
-        self, module_name, module_fn, expected_report_type, extra_kwargs
+        self, module_name, module_fn, expected_report_type, _extra_kwargs
     ):
         empty = _make_results()
         with warnings.catch_warnings():

@@ -16,7 +16,6 @@ from hypothesis import HealthCheck, given, settings
 
 from temper_placer.router_v6.copper_balance import analyze_copper_balance
 from temper_placer.router_v6.routing_results import RoutingResults
-
 from tests.router_v6.dfm_property_strategies import (
     BOARD_H,
     BOARD_W,

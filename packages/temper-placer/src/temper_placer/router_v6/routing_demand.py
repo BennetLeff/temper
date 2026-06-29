@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
@@ -80,8 +80,8 @@ def estimate_routing_demand(
     else:
         # Assume list[Net]
         net_items = [(net.name, net) for net in pcb.nets]
-    
-    for net_name, net in net_items:
+
+    for net_name, _net in net_items:
         # Count pins in this net
         pin_count = sum(
             1 for comp in pcb.components

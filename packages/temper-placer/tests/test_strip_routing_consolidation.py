@@ -13,7 +13,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 

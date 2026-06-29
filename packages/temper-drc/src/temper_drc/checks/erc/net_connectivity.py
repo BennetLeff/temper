@@ -7,11 +7,11 @@ from temper_drc.input.placement import Placement
 class NetConnectivityCheck(Check):
     """
     Checks for net connectivity issues.
-    
+
     Verifies that all nets have at least two connections.
     Nets with 0 or 1 connection are flagged as errors.
     """
-    
+
     @property
     def name(self) -> str:
         return "erc_net_connectivity"
@@ -24,9 +24,9 @@ class NetConnectivityCheck(Check):
     def description(self) -> str:
         return "Ensure all nets have at least 2 connections (no single-pin nets)."
 
-    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, _constraints: ConstraintSet) -> CheckResult:
         issues = []
-        
+
         for net_name, comp_refs in placement.nets.items():
             count = len(comp_refs)
             if count < 2:
@@ -43,7 +43,7 @@ class NetConnectivityCheck(Check):
                         "connection_count": count
                     }
                 ))
-                
+
         return CheckResult(
             check_name=self.name,
             passed=len(issues) == 0,

@@ -14,8 +14,6 @@ import logging
 import statistics
 import time
 
-import pytest
-
 from temper_placer.deterministic.channels import ChannelMap, routability_penalty
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,

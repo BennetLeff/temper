@@ -25,7 +25,7 @@ Example usage:
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 TEMPLATE_DIR = Path(__file__).parent
 

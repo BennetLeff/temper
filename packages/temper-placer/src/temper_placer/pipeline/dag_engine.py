@@ -6,6 +6,7 @@ feedback contracts, timeouts, retries, and lifecycle event emission.
 
 from __future__ import annotations
 
+import contextlib
 import importlib
 import time
 from pathlib import Path
@@ -132,11 +133,10 @@ class StageDAGEngine:
             stage_name = self.stage_order[stage_index]
             stage_def = self.stage_map[stage_name]
 
-            if stage_def.skip_if:
-                if self._evaluate_skip(stage_def.skip_if, state.config, state, context):
-                    self._emit_skip(stage_name, f"skip_if: {stage_def.skip_if}")
-                    stage_index += 1
-                    continue
+            if stage_def.skip_if and self._evaluate_skip(stage_def.skip_if, state.config, state, context):
+                self._emit_skip(stage_name, f"skip_if: {stage_def.skip_if}")
+                stage_index += 1
+                continue
 
             if context.get("skip_topological") and stage_name == "topological":
                 self._emit_skip(stage_name, "skip_topological is set")
@@ -164,7 +164,7 @@ class StageDAGEngine:
                     try:
                         result = self._execute_stage(stage_def, state, context)
                         break
-                    except Exception as e:
+                    except Exception:
                         retry_attempts = attempt + 1
                         if attempt < max_attempts:
                             time.sleep(stage_def.retry.backoff_s)
@@ -238,10 +238,8 @@ class StageDAGEngine:
         output_dir = Path(".")
         if context.get("output_pcb"):
             output_dir = context["output_pcb"].parent
-        try:
+        with contextlib.suppress(OSError):
             write_execution_log_json(self.execution_log, output_dir)
-        except OSError:
-            pass
 
         return state
 
@@ -314,7 +312,7 @@ class StageDAGEngine:
         return instance
 
     def _evaluate_feedback_contracts(
-        self, stage_def: StageDefinition, state: Any, context: dict[str, Any],
+        self, stage_def: StageDefinition, _state: Any, context: dict[str, Any],
         current_stage_name: str,
     ) -> bool:
         counts = context.setdefault("_feedback_retrigger_counts", {})
@@ -336,17 +334,7 @@ class StageDAGEngine:
             triggered = False
             op = fc.trigger.condition
             threshold = fc.trigger.threshold
-            if op == "lt" and metric_val < threshold:
-                triggered = True
-            elif op == "gt" and metric_val > threshold:
-                triggered = True
-            elif op == "lte" and metric_val <= threshold:
-                triggered = True
-            elif op == "gte" and metric_val >= threshold:
-                triggered = True
-            elif op == "eq" and metric_val == threshold:
-                triggered = True
-            elif op == "neq" and metric_val != threshold:
+            if op == "lt" and metric_val < threshold or op == "gt" and metric_val > threshold or op == "lte" and metric_val <= threshold or op == "gte" and metric_val >= threshold or op == "eq" and metric_val == threshold or op == "neq" and metric_val != threshold:
                 triggered = True
 
             if not triggered:
@@ -377,28 +365,22 @@ class StageDAGEngine:
         event = StageEvent(name=name, kind="start", iteration=iteration)
         self.execution_log.events.append(event)
         for obs in self.observers:
-            try:
+            with contextlib.suppress(Exception):
                 obs.on_stage_start(name, iteration, context)
-            except Exception:
-                pass
 
     def _emit_stage_complete(self, name: str, duration_s: float, outputs: dict[str, Any]) -> None:
         event = StageEvent(name=name, kind="complete", duration_s=duration_s, outputs=outputs)
         self.execution_log.events.append(event)
         for obs in self.observers:
-            try:
+            with contextlib.suppress(Exception):
                 obs.on_stage_complete(name, duration_s, outputs)
-            except Exception:
-                pass
 
     def _emit_stage_skip(self, name: str, reason: str) -> None:
         event = StageEvent(name=name, kind="skip", reason=reason)
         self.execution_log.events.append(event)
         for obs in self.observers:
-            try:
+            with contextlib.suppress(Exception):
                 obs.on_stage_skip(name, reason)
-            except Exception:
-                pass
 
     _emit_skip = _emit_stage_skip
 
@@ -406,10 +388,8 @@ class StageDAGEngine:
         event = StageEvent(name=name, kind="error", error=str(error))
         self.execution_log.events.append(event)
         for obs in self.observers:
-            try:
+            with contextlib.suppress(Exception):
                 obs.on_stage_error(name, error)
-            except Exception:
-                pass
 
     def _emit_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,
                                   attempt: int) -> None:
@@ -419,15 +399,11 @@ class StageDAGEngine:
         )
         self.execution_log.events.append(event)
         for obs in self.observers:
-            try:
+            with contextlib.suppress(Exception):
                 obs.on_feedback_triggered(contract_name, from_stage, to_stage, attempt)
-            except Exception:
-                pass
 
     def _emit_pipeline_complete(self, success: bool, total_duration_s: float,
                                  stage_timings: dict[str, float]) -> None:
         for obs in self.observers:
-            try:
+            with contextlib.suppress(Exception):
                 obs.on_pipeline_complete(success, total_duration_s, stage_timings)
-            except Exception:
-                pass

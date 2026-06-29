@@ -11,15 +11,13 @@ from dataclasses import dataclass
 
 import networkx as nx
 
-from temper_placer.core.netlist import Component, Net
-from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
-from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
 from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_hv_net,
     is_power_net,
 )
+from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
 
 
 @dataclass
@@ -83,14 +81,11 @@ def map_topology_to_channels(
 
     # Infer net names from topology.  When topology is None
     # (Stage 3 bypassed), the caller's A* fallback handles routing.
-    if topology is not None:
-        net_names = list(topology.net_topologies.keys())
-    else:
-        net_names = []
+    net_names = list(topology.net_topologies.keys()) if topology is not None else []
 
     for net_name in net_names:
         net_topology = topology.get_topology(net_name) if topology is not None else None
-        
+
         channel_path = _map_net_to_channels(net_name, net_topology, skeleton)
         if channel_path:
             channel_paths[net_name] = channel_path
@@ -125,8 +120,7 @@ def _map_net_to_channels(
     if net_topology:
         channel_sequence = list(net_topology.uses_channels)
 
-        if not channel_sequence and net_topology.path_graph is not None:
-            if net_topology.path_graph.number_of_edges() > 0:
+        if not channel_sequence and net_topology.path_graph is not None and net_topology.path_graph.number_of_edges() > 0:
                 try:
                     nodes = list(net_topology.path_graph.nodes())
                     if nodes:
@@ -234,6 +228,22 @@ def _extract_waypoints(
         return nodes[:min(len(channel_sequence) + 1, len(nodes))]
 
     return []
+
+
+def _is_near_skeleton(
+    coord: tuple[float, float],
+    skeleton: ChannelSkeleton,
+    tolerance: float = 5.0,
+) -> bool:
+    """Check if a coordinate is near any skeleton node."""
+    if skeleton.graph.number_of_nodes() == 0:
+        return False
+    for node in skeleton.graph.nodes():
+        dx = node[0] - coord[0]
+        dy = node[1] - coord[1]
+        if (dx * dx + dy * dy) <= tolerance * tolerance:
+            return True
+    return False
 
 
 def _parse_channel_coordinate(

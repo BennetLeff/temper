@@ -11,21 +11,21 @@ import math
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from temper_placer.core.specification import PcbSpecification
     from temper_placer.core.netlist import Netlist
+    from temper_placer.core.specification import PcbSpecification
 
 
 def derive_constraints_from_spec(
     spec: PcbSpecification,
-    netlist: Netlist,
+    _netlist: Netlist,
 ) -> dict[str, Any]:
     """
     Derive geometric constraints from physical specifications.
-    
+
     Returns a dictionary of derived parameters (e.g. max distances).
     """
     derived = {}
-    
+
     # 1. EMI -> Max Distance
     for loop_name, max_area in spec.emi.max_loop_area_mm2.items():
         # L = sqrt(Area). Max side length of a square loop.
@@ -33,7 +33,7 @@ def derive_constraints_from_spec(
         # Conservative estimate for max component spacing (center-to-center)
         # Assuming 20% routing overhead
         derived[f"{loop_name}_max_dist"] = max_side * 0.8
-        
+
     # 2. Thermal -> Min Spacing
     # Simple model: heat sources should be spaced to avoid thermal overlap
     # Required spacing proportional to power dissipation
@@ -41,23 +41,23 @@ def derive_constraints_from_spec(
     for ref, power in power_map.items():
         # Heuristic: 2mm per Watt spacing
         derived[f"{ref}_min_clearance"] = power * 2.0
-        
+
     # 3. Signal Integrity -> Max Length
     for net_name, max_len in spec.signal_integrity.max_length_mm.items():
         # Max placement distance should be less than max length
         # Assuming 1.5x routing overhead (Manhattan + detours)
         derived[f"{net_name}_max_placement_dist"] = max_len / 1.5
-        
+
     # 4. Safety -> Isolation (Creepage/Clearance)
     # Default to 6.5mm for reinforced isolation (340V)
     derived["hv_lv_isolation_mm"] = 6.5
-    
+
     return derived
 
 
 def apply_derived_constraints(
     netlist: Netlist,
-    derived: dict[str, Any],
+    _derived: dict[str, Any],
 ) -> Netlist:
     """
     Apply derived constraints back to the netlist/constraints objects.

@@ -78,7 +78,7 @@ class TestPlacementIntegration:
             BendersPlacementResult,
             benders_placement,
         )
-        from temper_placer.router_v6 import route_pcb, RoutingResult
+        from temper_placer.router_v6 import RoutingResult, route_pcb
 
         assert callable(benders_placement)
         assert callable(route_pcb)

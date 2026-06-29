@@ -106,7 +106,7 @@ class TestLossRegistry:
 
         # Check that at least one loss has the custom weight
         assert len(loss.losses) > 0
-        assert any(l.weight == 50.0 for l in loss.losses)
+        assert any(loss_fn.weight == 50.0 for loss_fn in loss.losses)
 
 
 class TestTechniqueApplicator:

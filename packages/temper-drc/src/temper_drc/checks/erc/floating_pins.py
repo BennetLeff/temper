@@ -1,5 +1,5 @@
 from temper_drc.core.check import Check
-from temper_drc.core.result import CheckResult, Issue, Severity, Location
+from temper_drc.core.result import CheckResult, Issue, Location, Severity
 from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
 
@@ -7,11 +7,11 @@ from temper_drc.input.placement import Placement
 class FloatingPinsCheck(Check):
     """
     Checks for components with no net connections.
-    
+
     Every component in the placement should be part of at least one net.
     Floating components are flagged as warnings.
     """
-    
+
     @property
     def name(self) -> str:
         return "erc_floating_pins"
@@ -24,14 +24,14 @@ class FloatingPinsCheck(Check):
     def description(self) -> str:
         return "Identify components that are not connected to any net."
 
-    def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
+    def run(self, placement: Placement, _constraints: ConstraintSet) -> CheckResult:
         issues = []
-        
+
         # 1. Build a set of all connected components
         connected_refs = set()
         for comp_refs in placement.nets.values():
             connected_refs.update(comp_refs)
-            
+
         # 2. Check each component in placement
         for ref, comp in placement.components.items():
             if ref not in connected_refs:
@@ -48,7 +48,7 @@ class FloatingPinsCheck(Check):
                         "footprint": comp.footprint
                     }
                 ))
-                
+
         return CheckResult(
             check_name=self.name,
             passed=len(issues) == 0,

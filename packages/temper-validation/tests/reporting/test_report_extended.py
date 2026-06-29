@@ -1,15 +1,16 @@
 """Tests for report generator module - Additional coverage."""
 
-import pytest
-from dataclasses import dataclass
-from pathlib import Path
-import tempfile
 import os
+import tempfile
+from pathlib import Path
+
+import pytest
+
+from temper_validation.comparison.drc_compliance import DRCComplianceResult
+from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 
 # Import real data structures from implementation
 from temper_validation.comparison.wirelength import WirelengthResult
-from temper_validation.comparison.drc_compliance import DRCComplianceResult
-from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
 from temper_validation.metrics.quality_score import AggregateScoreResult
 
 
@@ -45,7 +46,7 @@ def test_custom_report_config():
         verdict="PASS",
     )
 
-    from temper_validation.reporting.report import ReportConfig
+    from temper_validation.reporting.report import ReportConfig, generate_markdown_report
 
     config = ReportConfig(
         title="Custom Validation Report", author="Validation System", show_timestamp=False
@@ -64,7 +65,7 @@ def test_custom_report_config():
             config=config,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         assert config.title in content, "Report should contain custom title"
@@ -79,10 +80,10 @@ def test_custom_report_config():
 def test_score_boundary_conditions():
     """Test edge cases for scoring thresholds."""
     from temper_validation.metrics.quality_score import (
-        normalize_wirelength_ratio,
-        normalize_routing_completion,
         get_drc_verdict,
         get_routing_verdict,
+        normalize_routing_completion,
+        normalize_wirelength_ratio,
     )
 
     # Test wirelength normalization boundaries
@@ -172,7 +173,7 @@ def test_markdown_report_all_verdict_pass():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Count PASS occurrences
@@ -231,12 +232,12 @@ def test_markdown_report_all_verdict_fail():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Count FAIL occurrences
         fail_count = content.count("**FAIL**")
-        pass_count = content.count("**PASS**")
+        content.count("**PASS**")
 
         assert fail_count >= 4, f"Should have 4+ FAIL verdicts, got {fail_count}"
 
@@ -289,7 +290,7 @@ def test_html_report_complete_document():
             aggregate_result=aggregate_result,
         )
 
-        with open(report_path, "r") as f:
+        with open(report_path) as f:
             content = f.read()
 
         # Check for required HTML elements
@@ -319,7 +320,7 @@ def test_score_calculation_with_extreme_ratios():
         score=100.0, max_score=100.0, critical_violations=0, warning_violations=0, verdict="PASS"
     )
 
-    routing_result = RoutingFeasibilityResult(
+    RoutingFeasibilityResult(
         total_nets=10,
         routed_nets=10,
         failed_nets=0,
@@ -371,9 +372,9 @@ def test_score_calculation_with_extreme_ratios():
 def test_drc_score_with_violation_thresholds():
     """Test DRC score calculation at key thresholds."""
     from temper_validation.comparison.drc_compliance import (
-        calculate_drc_score,
         DRCViolation,
         ViolationSeverity,
+        calculate_drc_score,
     )
 
     # Test score calculation at key points

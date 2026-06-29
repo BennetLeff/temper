@@ -7,7 +7,9 @@ RouterV6Result construction, enforcing shape and field correctness.
 from __future__ import annotations
 
 import pytest
-from hypothesis import HealthCheck, given, seed as hseed, settings, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import seed as hseed
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
@@ -28,7 +30,6 @@ from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
 from temper_placer.router_v6.via_placement import ViaPlacement
 
 from .router_v6_property_strategies import parsed_pcb, routing_results
-
 
 # ---------------------------------------------------------------------------
 # Helpers

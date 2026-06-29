@@ -148,9 +148,9 @@ def run_single_experiment(
     pcb_path: Path,
     weight_config: WeightConfig,
     epochs: int,
-    seed: int,
-    use_heuristics: bool,
-    use_curriculum: bool,
+    _seed: int,
+    _use_heuristics: bool,
+    _use_curriculum: bool,
 ) -> PCBResult:
     """
     Run optimizer on a single PCB with specific weight configuration.

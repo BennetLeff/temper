@@ -7,7 +7,7 @@ prediction and learned initialization.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NamedTuple, List
+from typing import TYPE_CHECKING, NamedTuple
 
 import jax.numpy as jnp
 from jax import Array
@@ -40,7 +40,6 @@ def netlist_to_graph(netlist: Netlist) -> NetlistGraph:
     Returns:
         NetlistGraph instance.
     """
-    n = netlist.n_components
 
     # 1. Node Features: [Area, PinCount, Fixed]
     areas = jnp.array([c.width * c.height for c in netlist.components])
@@ -58,7 +57,7 @@ def netlist_to_graph(netlist: Netlist) -> NetlistGraph:
 
     for net in netlist.nets:
         # Get component indices in this net
-        indices = list(set(comp_refs[p[0]] for p in net.pins if p[0] in comp_refs))
+        indices = list({comp_refs[p[0]] for p in net.pins if p[0] in comp_refs})
 
         # Clique expansion: connect all pairs
         for i in range(len(indices)):
@@ -78,7 +77,7 @@ def netlist_to_graph(netlist: Netlist) -> NetlistGraph:
     return NetlistGraph(nodes=nodes, edges=edges, edge_weights=weights)
 
 
-def batch_graphs(graphs: List[NetlistGraph]) -> NetlistGraph:
+def batch_graphs(graphs: list[NetlistGraph]) -> NetlistGraph:
     """
     Batch multiple graphs into a single large disconnected graph.
 

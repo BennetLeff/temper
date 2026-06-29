@@ -4,10 +4,9 @@ Tests for Router V6 Stage 2.4: Compute Channel Widths
 Part of temper-7qu7
 """
 
-import pytest
 from shapely.geometry import MultiPolygon, box
 
-from temper_placer.router_v6.channel_skeleton import ChannelSkeleton, extract_channel_skeleton
+from temper_placer.router_v6.channel_skeleton import extract_channel_skeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths, compute_channel_widths
 from temper_placer.router_v6.routing_space import RoutingSpace
 
@@ -103,7 +102,7 @@ def test_widths_statistics():
     assert widths.min_width > 0.0
     assert widths.max_width > 0.0
     assert widths.avg_width > 0.0
-    
+
     # Average should be between min and max
     assert widths.min_width <= widths.avg_width <= widths.max_width
 
@@ -119,17 +118,17 @@ def test_widths_with_sampling():
     )
 
     skeleton = extract_channel_skeleton(routing_space)
-    
+
     # Fine sampling
     widths_fine = compute_channel_widths(routing_space, skeleton, sample_distance=0.5)
-    
+
     # Coarse sampling
     widths_coarse = compute_channel_widths(routing_space, skeleton, sample_distance=5.0)
 
     # Both should produce valid results
     assert widths_fine.min_width > 0.0
     assert widths_coarse.min_width > 0.0
-    
+
     # Fine sampling may find narrower bottlenecks
     assert widths_fine.min_width <= widths_coarse.min_width + 1.0  # Allow small tolerance
 

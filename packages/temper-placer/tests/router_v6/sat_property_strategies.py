@@ -18,11 +18,9 @@ Strategies
 from __future__ import annotations
 
 import math
-from typing import Callable
 
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.constraint_model import (
     CapacityConstraint,
@@ -32,7 +30,7 @@ from temper_placer.router_v6.constraint_model import (
     NetChannelVar,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
-from temper_placer.router_v6.sat_model import SATClause, SATModel, SATVariable
+from temper_placer.router_v6.sat_model import SATClause, SATVariable
 from temper_placer.router_v6.via_placement import Via
 
 # ---------------------------------------------------------------------------
@@ -239,7 +237,7 @@ def boundary_biased_routing_results(
             vx = draw(st.floats(min_value=0.0, max_value=float(40 * SPATIAL_CELL_SIZE)))
             vy = draw(st.floats(min_value=0.0, max_value=float(30 * SPATIAL_CELL_SIZE)))
             frm = draw(st.sampled_from(LAYERS))
-            to = draw(st.sampled_from([l for l in LAYERS if l != frm]))
+            to = draw(st.sampled_from([ly for ly in LAYERS if ly != frm]))
             via = Via(
                 position=(vx, vy),
                 from_layer=frm,
@@ -323,7 +321,7 @@ def known_compliant_route(
         drill_max = dia - 0.15  # Ensure annular ring > 0.05
         drill = draw(st.floats(min_value=0.1, max_value=drill_max))
         frm = layer
-        to = draw(st.sampled_from([l for l in LAYERS if l != frm]))
+        to = draw(st.sampled_from([ly for ly in LAYERS if ly != frm]))
         vias.append(Via(
             position=(vx, vy),
             from_layer=frm,
@@ -394,7 +392,7 @@ def known_compliant_routing_results(
             dia = draw(st.floats(min_value=1.0, max_value=2.0))
             drill_max = dia - 0.15
             drill = draw(st.floats(min_value=0.1, max_value=drill_max))
-            lv = draw(st.sampled_from([l for l in LAYERS if l != layer]))
+            lv = draw(st.sampled_from([ly for ly in LAYERS if ly != layer]))
             vias.append(Via(
                 position=(50.0, y),
                 from_layer=layer,
@@ -434,9 +432,7 @@ def constraint_models(
     enumeration remains feasible (2^10 = 1024 assignments).
     """
     from temper_placer.router_v6.constraint_model import (
-        CapacityConstraint,
         ConstraintModel,
-        DiffPairConstraint,
         LayerConstraint,
         NetChannelVar,
     )

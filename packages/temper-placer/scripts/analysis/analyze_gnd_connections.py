@@ -6,7 +6,7 @@ with routed wires in SES file.
 
 import re
 from pathlib import Path
-from collections import defaultdict
+
 
 def parse_dsn_placements(dsn_path: Path) -> dict:
     """Extract component positions from DSN."""
@@ -103,19 +103,19 @@ def main():
     # Sort by Y position to understand vertical distribution
     sorted_pins = sorted(pin_positions.items(), key=lambda x: x[1][1])
 
-    print(f"\n--- Sorted by Y position (bottom to top) ---")
-    for pin, (x, y) in sorted_pins:
+    print("\n--- Sorted by Y position (bottom to top) ---")
+    for pin, (_x, y) in sorted_pins:
         print(f"  {pin:20} Y={y:6.1f}mm")
 
     # Analyze wires
-    print(f"\n--- Wire Analysis ---")
+    print("\n--- Wire Analysis ---")
     wires = parse_ses_gnd_wires(ses_path)
     print(f"GND has {len(wires)} wire segments")
 
     if wires:
         # Find Y range of wires
         all_y = []
-        for (x1, y1), (x2, y2) in wires:
+        for (_x1, y1), (_x2, y2) in wires:
             all_y.extend([y1, y2])
 
         print(f"Wire Y range: {min(all_y):.1f} to {max(all_y):.1f} mm")
@@ -125,7 +125,7 @@ def main():
         print(f"Pin Y range: {min(pin_ys):.1f} to {max(pin_ys):.1f} mm")
 
         # Identify likely unconnected pins (those far from wire endpoints)
-        print(f"\n--- Potentially Unconnected Pins ---")
+        print("\n--- Potentially Unconnected Pins ---")
         connected = find_connected_pins(wires, pin_positions, tolerance=2.0)
         unconnected = set(pin_positions.keys()) - connected
 
@@ -137,7 +137,7 @@ def main():
             print("  All pins appear to have nearby wires (may still have routing gaps)")
 
     # Calculate distances between pins to identify routing challenges
-    print(f"\n--- Largest Pin-to-Pin Gaps ---")
+    print("\n--- Largest Pin-to-Pin Gaps ---")
     if len(sorted_pins) > 1:
         gaps = []
         for i in range(len(sorted_pins) - 1):

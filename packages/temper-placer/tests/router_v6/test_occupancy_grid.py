@@ -5,12 +5,9 @@ Part of temper-8bj1
 """
 
 import numpy as np
-import pytest
 from shapely.geometry import MultiPolygon, box
 
 from temper_placer.router_v6.occupancy_grid import (
-    CellState,
-    OccupancyGrid,
     build_occupancy_grid,
 )
 from temper_placer.router_v6.routing_space import RoutingSpace
@@ -88,7 +85,7 @@ def test_grid_occupancy_ratio():
 
     # Occupancy ratio should be reasonable (not all blocked, not all free)
     assert 0.0 <= grid.occupancy_ratio <= 1.0
-    
+
     # For mostly free space, occupancy should be low
     assert grid.occupancy_ratio < 0.9
 
@@ -108,7 +105,7 @@ def test_grid_properties():
     # Check dimensional properties
     assert grid.width_mm == grid.width_cells * grid.cell_size
     assert grid.height_mm == grid.height_cells * grid.cell_size
-    
+
     # Total cells
     total_cells = grid.width_cells * grid.height_cells
     assert grid.free_cell_count + grid.blocked_cell_count == total_cells
@@ -126,7 +123,7 @@ def test_grid_with_different_cell_sizes():
 
     # Coarse grid
     grid_coarse = build_occupancy_grid(routing_space, cell_size=2.0)
-    
+
     # Fine grid
     grid_fine = build_occupancy_grid(routing_space, cell_size=0.5)
 

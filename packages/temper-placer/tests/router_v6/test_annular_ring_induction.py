@@ -6,9 +6,9 @@ import pytest
 
 from temper_placer.router_v6.annular_ring_check import check_annular_rings
 from temper_placer.router_v6.astar_pathfinding import RoutePath
-from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
+from tests.router_v6.test_induction_base import make_empty_rr
 
 
 @pytest.mark.dependency(depends=["induction-base"])

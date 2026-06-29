@@ -10,9 +10,9 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from temper_placer.router_v6._check_report_base import BaseCheckReport
 from temper_placer.router_v6.clearance_engine import get_clearance
 from temper_placer.router_v6.routing_results import RoutingResults
-from temper_placer.router_v6._check_report_base import BaseCheckReport
 
 
 @dataclass
@@ -134,7 +134,6 @@ def _calculate_minimum_clearance_by_layer(
     and reports per-layer independently so violations on multiple layers
     are never silently dropped.
     """
-    from collections import defaultdict
 
     layer_info: dict[str, tuple[float, tuple[float, float]]] = {}
     # lazy-init: layer -> [min_dist, closest_point]
@@ -440,16 +439,10 @@ def _get_required_clearance(
         voltage = 0.0
         if is_hv1:
             v1 = voltage_ratings.get(net1, 230.0)
-            if math.isfinite(v1):
-                voltage = max(voltage, v1)
-            else:
-                voltage = max(voltage, 230.0)
+            voltage = max(voltage, v1) if math.isfinite(v1) else max(voltage, 230.0)
         if is_hv2:
             v2 = voltage_ratings.get(net2, 230.0)
-            if math.isfinite(v2):
-                voltage = max(voltage, v2)
-            else:
-                voltage = max(voltage, 230.0)
+            voltage = max(voltage, v2) if math.isfinite(v2) else max(voltage, 230.0)
 
         # Classify each net for the unified engine
         class_a = _classify_net_class(net1)

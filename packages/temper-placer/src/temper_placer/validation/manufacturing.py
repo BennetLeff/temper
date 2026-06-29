@@ -31,10 +31,10 @@ class ManufacturingReport:
         return self.pass_rate >= 1.0
 
 def check_worst_case_drc(
-    state: PlacementState,
-    board: Board,
-    netlist: Netlist,
-    fab: FabPreset
+    _state: PlacementState,
+    _board: Board,
+    _netlist: Netlist,
+    _fab: FabPreset
 ) -> ManufacturingReport:
     """Run worst-case DRC checks and compute margins."""
     margins = []
@@ -48,10 +48,7 @@ def check_worst_case_drc(
     passes = 0
     total = 0
 
-    if total > 0:
-        pass_rate = passes / total
-    else:
-        pass_rate = 1.0 # No checks performed
+    pass_rate = passes / total if total > 0 else 1.0
 
     return ManufacturingReport(
         pass_rate=pass_rate,

@@ -33,11 +33,11 @@ class ViaDensityLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
+        _rotations: jnp.ndarray,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         # 1. Get positions of all pins for all nets
         # indices: (M, P), offsets: (M, P, 2)

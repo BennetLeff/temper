@@ -138,7 +138,6 @@ def dijkstra_cost_only(
 # Smoke tests (TS1-TS4) -- self-validating oracle (R10)
 # ---------------------------------------------------------------------------
 
-import pytest
 
 
 def _make_array(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> np.ndarray:

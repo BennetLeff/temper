@@ -92,7 +92,7 @@ def identify_congested_regions(
     failed_net_grid = [[0 for _ in range(grid_cells_x)] for _ in range(grid_cells_y)]
 
     # Analyze failed nets
-    for failed_net in routing_results.failed_nets:
+    for _failed_net in routing_results.failed_nets:
         # Failed nets contribute to congestion
         # In practice, would use net pin locations
         # Simplified: assume center of board
@@ -103,14 +103,14 @@ def identify_congested_regions(
             congestion_grid[cy][cx] += 0.5  # Failed net penalty
 
     # Analyze successful routes for density
-    for net_name, compiled_route in routing_results.compiled_routes.items():
+    for _net_name, compiled_route in routing_results.compiled_routes.items():
             # Extract coordinates (handle RoutePath and RoutePath3D)
             coords = []
             if hasattr(compiled_route.path, 'segments'):
                  coords = [c[:2] for c in compiled_route.path.segments]
             elif hasattr(compiled_route.path, 'coordinates'):
                  coords = compiled_route.path.coordinates
-            
+
             for coord in coords:
                 x, y = coord
                 cell_x = int(x / grid_size)

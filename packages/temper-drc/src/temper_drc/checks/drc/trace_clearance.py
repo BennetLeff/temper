@@ -33,7 +33,7 @@ class TraceClearanceCheck(Check):
         self,
         placement: Placement,
         constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         trace_placement = getattr(placement, "trace_placement", None)
         if trace_placement is None:

@@ -185,7 +185,7 @@ def _parse_plan_requirements(plan_path: Path) -> tuple[set[str], set[str]]:
 
 def _scan_annotations(
     opted_in_dirs: dict[Path, str | None],
-    registry: dict,
+    _registry: dict,
 ) -> list[dict]:
     """Scan opted-in directories for @req annotations.
 

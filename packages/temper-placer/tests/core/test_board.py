@@ -4,14 +4,14 @@
 import pytest
 
 from temper_placer.core.board import (
+    LAYER_IDX_TO_NAME,
+    LAYER_NAME_TO_IDX,
+    PLANE_LAYER_INDICES,
+    STANDARD_LAYER_ORDER,
     GroundDomain,
     LayerIndex,
     LayerStackup,
-    LAYER_IDX_TO_NAME,
-    LAYER_NAME_TO_IDX,
     MountingHole,
-    PLANE_LAYER_INDICES,
-    STANDARD_LAYER_ORDER,
     Zone,
     is_plane_layer,
     is_signal_layer,
@@ -227,7 +227,7 @@ class TestLayerIndex:
 
     def test_plane_layer_indices(self):
         """PLANE_LAYER_INDICES contains the inner plane layers."""
-        assert PLANE_LAYER_INDICES == frozenset({LayerIndex.IN1_CU, LayerIndex.IN2_CU})
+        assert frozenset({LayerIndex.IN1_CU, LayerIndex.IN2_CU}) == PLANE_LAYER_INDICES
 
     def test_is_plane_layer_enum_and_str(self):
         """is_plane_layer accepts both LayerIndex and str."""

@@ -1,7 +1,7 @@
 from temper_drc.checks.emc.ground_plane import GroundPlaneCheck
-from temper_drc.core.result import Severity
 from temper_drc.input.constraints import ConstraintSet, ZoneDefinition
 from temper_drc.input.placement import ComponentPlacement, Placement
+
 
 def test_ground_plane_pass():
     """Test passes when component is over a ground zone."""

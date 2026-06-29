@@ -55,7 +55,7 @@ def parse_footprint_courtyard(path: Path) -> FootprintBounds:
     try:
         content = path.read_text()
     except Exception as e:
-        raise FootprintParseError(f"Error reading {path}: {e}")
+        raise FootprintParseError(f"Error reading {path}: {e}") from e
 
     # Collect all courtyard points
     points: list[tuple[float, float]] = []

@@ -5,14 +5,15 @@ Creates copper pour zones (filled polygons) for power distribution layers.
 Supports standard 4-layer stackup: F.Cu (signal) - In1.Cu (GND) - In2.Cu (VCC) - B.Cu (signal)
 """
 
+import math
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence
-import math
+from typing import TYPE_CHECKING
 
 from kiutils.board import Board as KiBoard
-from kiutils.items.zones import Zone, ZonePolygon, FillSettings
 from kiutils.items.common import Position
+from kiutils.items.zones import FillSettings, Zone, ZonePolygon
 
 
 @dataclass
@@ -51,8 +52,8 @@ def get_board_outline(board: KiBoard) -> list[tuple[float, float]]:
     outline_points = []
 
     for item in board.graphicItems:
-        if hasattr(item, "layer") and item.layer == "Edge.Cuts":
-            if hasattr(item, "start") and hasattr(item, "end"):
+        if (hasattr(item, "layer") and item.layer == "Edge.Cuts"
+                and hasattr(item, "start") and hasattr(item, "end")):
                 # Line segment
                 outline_points.append((item.start.X, item.start.Y))
                 outline_points.append((item.end.X, item.end.Y))
@@ -128,7 +129,7 @@ def create_zone(
     zone.layers = [config.layer]
     zone.name = f"{config.net_name}_plane"
     zone.priority = config.priority
-    
+
     # Use thermal reliefs for spoke patterns (prevents cold solder joints)
     zone.connectPads = "thermal_reliefs"
     zone.clearance = config.clearance
@@ -285,7 +286,7 @@ def add_zones_from_classification(
     layers_used = []
 
     # Group nets by target layer
-    layer_to_nets: dict[str, list[tuple[str, "NetTypeSpec"]]] = {}
+    layer_to_nets: dict[str, list[tuple[str, NetTypeSpec]]] = {}
 
     for net_name, spec in net_classification.specs.items():
         if spec.connectivity == ConnectivityStrategy.PLANE:
@@ -341,8 +342,6 @@ def add_zones_from_classification(
     )
 
 
-# Import for type hints
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.core.net_types import NetClassification, NetTypeSpec

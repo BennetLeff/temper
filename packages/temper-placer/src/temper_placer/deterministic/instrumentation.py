@@ -5,10 +5,9 @@ Provides wrappers to track trace counts through pipeline stages.
 """
 
 import logging
-from typing import List, Optional, Set, Dict
 from dataclasses import dataclass
-from temper_placer.deterministic.state import BoardState
 
+from temper_placer.deterministic.state import BoardState
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +17,9 @@ class TraceLogEntry:
     """Log entry for trace counts at a pipeline stage."""
 
     stage_name: str
-    route_counts: Dict[str, int]  # net_name -> count
-    routes_lost: Dict[str, int]  # net_name -> count (negative = loss)
-    routes_gained: Dict[str, int]  # net_name -> count (positive = gain)
+    route_counts: dict[str, int]  # net_name -> count
+    routes_lost: dict[str, int]  # net_name -> count (negative = loss)
+    routes_gained: dict[str, int]  # net_name -> count (positive = gain)
 
 
 class InstrumentedStage:
@@ -33,7 +32,7 @@ class InstrumentedStage:
         state = instrumented.run(state)
     """
 
-    def __init__(self, inner_stage, track_nets: Optional[List[str]] = None):
+    def __init__(self, inner_stage, track_nets: list[str] | None = None):
         """
         Initialize instrumented stage.
 
@@ -45,7 +44,7 @@ class InstrumentedStage:
         self.track_nets = set(track_nets) if track_nets else None
         self.stage_name = inner_stage.__class__.__name__
 
-    def _count_routes(self, state: BoardState) -> Dict[str, int]:
+    def _count_routes(self, state: BoardState) -> dict[str, int]:
         """Count routes by net name."""
         counts = {}
         for route in state.routes:
@@ -87,7 +86,7 @@ class InstrumentedStage:
         return result
 
 
-def instrument_pipeline(pipeline, track_nets: Optional[List[str]] = None):
+def instrument_pipeline(pipeline, track_nets: list[str] | None = None):
     """
     Wrap all stages in a pipeline with instrumentation.
 
@@ -109,8 +108,8 @@ def instrument_pipeline(pipeline, track_nets: Optional[List[str]] = None):
 
 
 def run_with_trace_log(
-    pipeline, state: BoardState, track_nets: Optional[List[str]] = None
-) -> tuple[BoardState, List[TraceLogEntry]]:
+    pipeline, state: BoardState, track_nets: list[str] | None = None
+) -> tuple[BoardState, list[TraceLogEntry]]:
     """
     Run pipeline and collect detailed trace log.
 

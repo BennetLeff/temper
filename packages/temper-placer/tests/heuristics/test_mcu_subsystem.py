@@ -1,14 +1,16 @@
-import pytest
-from pathlib import Path
+
 import numpy as np
+import pytest
+
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Netlist, Component
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
+
 
 @pytest.fixture
 def mock_env():
     board = Board(width=100, height=100, zones=[Zone("MCU_ZONE", (50, 50, 100, 100))])
-    
+
     # Components from template
     components = [
         Component("U_MCU", "Pkg", (10, 10)),
@@ -28,18 +30,18 @@ def mock_env():
 def test_mcu_subsystem_heuristic(mock_env):
     board, netlist = mock_env
     heuristic = MCUSubsystemHeuristic()
-    
+
     result = heuristic.apply(netlist, board)
-    
+
     # MCU_ZONE center is (75, 75)
     # U_MCU is anchor, should be at (75, 75)
     idx_mcu = netlist.get_component_index("U_MCU")
     assert np.allclose(result.positions[idx_mcu], [75.0, 75.0])
-    
+
     # Y1 should be at (75+8, 75+0) = (83, 75)
     idx_y1 = netlist.get_component_index("Y1")
     assert np.allclose(result.positions[idx_y1], [83.0, 75.0])
-    
+
     # Check crystal caps are symmetric
     idx_c1 = netlist.get_component_index("C_XTAL1")
     idx_c2 = netlist.get_component_index("C_XTAL2")

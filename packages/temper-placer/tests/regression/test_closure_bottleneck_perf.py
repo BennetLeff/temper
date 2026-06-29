@@ -19,12 +19,11 @@ so the rest of the suite can run on a minimal install.
 from __future__ import annotations
 
 import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from temper_placer.router_v6.bottleneck_geometry import BOTTLENECK_TIMEOUT_S
-
 
 pytestmark = pytest.mark.slow
 
@@ -86,8 +85,11 @@ def test_large_node_count_falls_back() -> None:
     net reports carry a BottleneckGeometry in the aborted state, then
     asserts the closure test does not crash.
     """
+    from temper_placer.regression.closure_test import ClosureTest
     from temper_placer.router_v6.bottleneck_geometry import (
         BOTTLENECK_TIMEOUT_S as _BOTTLENECK_TIMEOUT_S,
+    )
+    from temper_placer.router_v6.bottleneck_geometry import (
         BottleneckGeometry,
     )
     from temper_placer.router_v6.diagnostics import (
@@ -95,7 +97,6 @@ def test_large_node_count_falls_back() -> None:
         NetRoutingReport,
         RoutingStatus,
     )
-    from temper_placer.regression.closure_test import ClosureTest
 
     assert BOTTLENECK_TIMEOUT_S == 0.5  # SC4: 0.5s per failed net
     assert _BOTTLENECK_TIMEOUT_S == BOTTLENECK_TIMEOUT_S

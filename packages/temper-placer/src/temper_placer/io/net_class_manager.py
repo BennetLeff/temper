@@ -13,10 +13,13 @@ import math
 from temper_placer.core.netlist import Netlist
 from temper_placer.router_v6.net_classification import (
     is_ground_net as _is_ground_net,
+)
+from temper_placer.router_v6.net_classification import (
     is_hv_net as _is_hv_net,
+)
+from temper_placer.router_v6.net_classification import (
     is_power_net as _is_power_net,
 )
-
 
 POWER_KEYWORDS = ["GND", "VCC", "VDD", "VSS", "VBUS", "+3V3", "+5V", "+12V", "+15V", "VBAT", "AC_L", "AC_N", "DC_BUS", "PGND", "CGND"]
 HIGH_SPEED_KEYWORDS = ["USB", "SPI", "I2C", "SDA", "SCL", "MISO", "MOSI", "CLK", "RX", "TX"]
@@ -317,11 +320,11 @@ def get_trace_width(
         Trace width in mm
     """
     net_upper = net_name.upper()
-    
+
     # AC Power
     if "AC_L" in net_upper or "AC_N" in net_upper:
         return 2.0
-        
+
     # DC Bus
     if "DC_BUS" in net_upper:
         return 1.5
@@ -369,7 +372,7 @@ def get_trace_width(
         for net in netlist.nets:
             if net.name == net_name:
                 # Check component pitch through pin spacing
-                for comp_ref, pin_num in net.pins:
+                for comp_ref, _pin_num in net.pins:
                     comp = next((c for c in netlist.components if c.ref == comp_ref), None)
                     if comp and _is_fine_pitch_component(comp):
                         return 0.15

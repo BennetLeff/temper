@@ -388,9 +388,9 @@ def _compute_wirelength_metrics(
                     continue
 
                 # Get component position and rotation
-                comp_pos = positions[comp_idx]
+                positions[comp_idx]
                 rot_idx = int(rotation_indices[comp_idx])
-                angle = rotation_angles[rot_idx]
+                rotation_angles[rot_idx]
 
                 # Compute absolute pin position
                 abs_pos = pin_world_position(pin, comp)
@@ -427,7 +427,7 @@ def _compute_distribution_metrics(
     board: Board,
 ) -> None:
     """Compute placement distribution metrics."""
-    n = positions.shape[0]
+    positions.shape[0]
 
     # Utilization
     total_component_area = float(jnp.sum(widths * heights))

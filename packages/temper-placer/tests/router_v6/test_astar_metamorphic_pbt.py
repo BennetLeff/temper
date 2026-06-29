@@ -20,7 +20,6 @@ MR9 — No Redundant Nodes
 from __future__ import annotations
 
 import math
-from itertools import combinations
 
 import numpy as np
 import pytest
@@ -29,18 +28,13 @@ from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_core import _astar_search, octile_distance
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-
 from tests.router_v6.astar_oracle_utils import (
-    SQRT2,
     DIJKSTRA_MAX_CELLS,
+    SQRT2,
     dijkstra_shortest_path,
 )
 from tests.router_v6.astar_property_strategies import (
     grid_and_pair,
-    grids,
-    obstacle_perturbations,
-    start_goal_pairs,
-    grid_translations,
 )
 
 _TOL = 1e-12
@@ -537,7 +531,7 @@ def test_mr7_translation_invariance(gsp):
             f"Translation ({dx},{dy}): {cost_orig} vs {cost_trans}"
         )
         assert len(path_orig) == len(path_trans), (
-            f"Path length mismatch after translation"
+            "Path length mismatch after translation"
         )
         for (ox, oy), (tx, ty) in zip(path_orig, path_trans):
             assert tx == ox + dx and ty == oy + dy, (
@@ -729,8 +723,8 @@ def test_thetastar_no_redundant_nodes(gsp):
 def test_lazy_thetastar_reachability_parity(gsp):
     """If Theta* finds a path, Lazy Theta* must also find a path."""
     from temper_placer.router_v6.astar_core import (
-        _astar_search_theta_star,
         _astar_search_lazy_theta_star,
+        _astar_search_theta_star,
     )
 
     grid, start, goal = gsp

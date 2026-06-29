@@ -4,8 +4,7 @@ Tests for Router V6 Stage 2.3: Extract Channel Skeleton
 Part of temper-h6t7
 """
 
-import pytest
-from shapely.geometry import MultiPolygon, Polygon, box
+from shapely.geometry import MultiPolygon, box
 
 from temper_placer.router_v6.channel_skeleton import (
     ChannelSkeleton,
@@ -107,7 +106,7 @@ def test_skeleton_disconnected_regions():
     # Should have nodes and edges
     assert skeleton.node_count > 0
     assert skeleton.edge_count > 0
-    
+
     # May or may not be connected depending on implementation
     # (disconnected regions are acceptable)
 
@@ -124,7 +123,7 @@ def test_skeleton_simplification():
 
     # Low tolerance (more detail)
     skeleton_detailed = extract_channel_skeleton(routing_space, simplify_tolerance=0.1)
-    
+
     # High tolerance (less detail)
     skeleton_simple = extract_channel_skeleton(routing_space, simplify_tolerance=2.0)
 
@@ -148,12 +147,12 @@ def test_skeleton_graph_structure():
     # Check graph has expected NetworkX properties
     assert hasattr(skeleton.graph, 'nodes')
     assert hasattr(skeleton.graph, 'edges')
-    
+
     # All nodes should have 'pos' attribute
     for node in skeleton.graph.nodes():
         assert isinstance(node, tuple)
         assert len(node) == 2  # (x, y) coordinates
-    
+
     # All edges should have 'weight' attribute
     for u, v in skeleton.graph.edges():
         assert 'weight' in skeleton.graph[u][v]

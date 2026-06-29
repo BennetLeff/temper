@@ -61,11 +61,7 @@ def compute_ground_crossing_penalty(
     # B. Net Virtual Nodes (if it's a star net)
     # net_virtual_nodes: (M, 2) if provided
     # we expand to (M, P, 2)
-    if net_virtual_nodes is not None:
-        virtual_stars = net_virtual_nodes[:, None, :] # (M, 1, 2)
-    else:
-        # Fallback to domain star points if no virtual nodes provided
-        virtual_stars = domain_stars
+    virtual_stars = net_virtual_nodes[:, None, :] if net_virtual_nodes is not None else domain_stars
 
     # C. Select target: if net is star_net, use virtual star point, else use domain star point
     # context.is_star_net: (M,) -> (M, 1, 1)
@@ -113,8 +109,8 @@ def compute_ground_crossing_penalty(
 
 
 def detect_ground_domain_violations(
-    positions: Array,
-    context: LossContext,
+    _positions: Array,
+    _context: LossContext,
 ) -> list[dict]:
     """Detect and report all ground domain violations for debugging."""
     return []

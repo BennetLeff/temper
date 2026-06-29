@@ -1,6 +1,5 @@
 """Tests for core.pin_geometry module."""
 
-import math
 
 import pytest
 
@@ -70,7 +69,6 @@ class TestPinWorldGeometry:
 
     def test_90deg_rotation_bottom_side(self):
         """90° rotation (index 1), bottom side: X mirrored then rotated."""
-        import jax.numpy as jnp
 
         pin = Pin("1", "1", (1.0, 0.0))
         comp = Component(

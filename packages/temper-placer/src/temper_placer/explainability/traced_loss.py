@@ -49,16 +49,16 @@ def traced(
     threshold: float = 1e-6,
 ):
     """Decorator to automatically trace function execution.
-    
+
     If running within a TracedLossContext, it automatically adds the result
     to the context and returns the original result.
     If NOT in a context, it returns a (result, trace) tuple.
-    
+
     Args:
         subject: Subject for the trace (defaults to function name)
         because: Reason for the trace
         threshold: Minimum value to record a trace entry (default 1e-6)
-        
+
     Example:
         >>> @traced(subject="Q1", because="Overlap penalty")
         ... def compute_overlap(pos):
@@ -112,12 +112,12 @@ def traced_loss(
     because: str,
 ) -> Callable:
     """Wrap a loss function to return (loss, trace) tuple.
-    
+
     Args:
         loss_fn: Original loss function returning scalar loss
         subject: Component/net being constrained
         because: Reason for the constraint (from PCL)
-        
+
     Returns:
         Wrapped function returning (loss, trace) tuple
     """
@@ -139,10 +139,10 @@ def combine_traced_losses(
     traced_results: list[tuple[Any, Trace]]
 ) -> tuple[Any, Trace]:
     """Combine multiple (loss, trace) tuples into single result.
-    
+
     Args:
         traced_results: List of (loss, trace) tuples
-        
+
     Returns:
         (total_loss, combined_trace) tuple
     """
@@ -165,11 +165,11 @@ def constraint_to_traced_loss(
     loss_fn: Callable,
 ) -> Callable:
     """Convert a PCL constraint to a traced loss function.
-    
+
     Args:
         constraint: PCL constraint with 'because' field
         loss_fn: Function computing loss from constraint
-        
+
     Returns:
         Traced loss function returning (loss, trace)
     """
@@ -196,7 +196,7 @@ def constraint_to_traced_loss(
 
 class TracedLossContext:
     """Context manager for collecting traced losses during optimization.
-    
+
     Example:
         >>> with TracedLossContext() as ctx:
         ...     for constraint in constraints:

@@ -5,6 +5,7 @@ Tests for thermal physics models.
 from __future__ import annotations
 
 import pytest
+
 from temper_placer.physics.thermal import estimate_junction_temp
 
 

@@ -18,7 +18,6 @@ from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResult
 from temper_placer.router_v6.teardrop_generation import insert_teardrops
 from temper_placer.router_v6.thermal_relief import add_thermal_relief
 
-
 # ---------------------------------------------------------------------------
 # Shared helpers — imported by per-validator induction files
 # ---------------------------------------------------------------------------

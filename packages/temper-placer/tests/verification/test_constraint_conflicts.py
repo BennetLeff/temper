@@ -347,7 +347,7 @@ class TestZoneWirelengthConflict:
     def test_zone_wirelength_conflict_setup(self) -> None:
         """Create scenario where zone assignment conflicts with wirelength."""
         # Component A in left zone, Component B in right zone, but connected
-        netlist = Netlist(
+        Netlist(
             components=[
                 Component(
                     ref="A",

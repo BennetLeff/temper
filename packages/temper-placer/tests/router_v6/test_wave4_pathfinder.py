@@ -24,12 +24,9 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pytest
 
 from temper_placer.router_v6.congestion_tensor import (
     CongestionTensor,
-    DECAY_FACTOR,
-    MAX_COST,
 )
 
 
@@ -75,8 +72,6 @@ def test_tensor_increment_path_world_to_grid():
     """increment_path maps world coords to grid via the
     grid's ``world_to_grid`` and increments each cell.
     """
-    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-    from shapely.geometry import MultiPolygon, Polygon
 
     class _Grid:
         width_cells = 10
@@ -165,6 +160,7 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     1M-cap wall-time blowup.
     """
     import time
+
     from temper_placer.router_v6.astar_core_numba import (
         _astar_search_numba,
     )

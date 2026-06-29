@@ -10,6 +10,7 @@ from __future__ import annotations
 import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
+
 from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
@@ -40,10 +41,8 @@ class SpectralPlacer:
 
         for net in self.pcb.nets:
             # Find connected components
-            connected_indices = []
-            seen_refs = set()
 
-            for pin in net.pins:
+            for _pin in net.pins:
                 # Resolve component ref from pin
                 # In router_v6, net.pins are Pin objects.
                 # We need to link back to component.
@@ -68,7 +67,7 @@ class SpectralPlacer:
                         net_to_comps[pin.net].add(comp_idx)
 
         # Build edges
-        for net_name, comp_indices in net_to_comps.items():
+        for _net_name, comp_indices in net_to_comps.items():
             k = len(comp_indices)
             if k < 2:
                 continue

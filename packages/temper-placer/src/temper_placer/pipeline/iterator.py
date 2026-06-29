@@ -6,14 +6,13 @@ Part of temper-1d78.2
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable
-
-import jax.numpy as jnp
-import numpy as np
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from jax import Array
+
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
 
@@ -40,7 +39,7 @@ class PlaceRouteResult:
 
 class PlaceRouteIterator:
     """Orchestrates the iterative loop between placement and routing.
-    
+
     This class manages multiple iterations of:
     1. Routing the current placement.
     2. Analyzing routing failures.
@@ -59,7 +58,7 @@ class PlaceRouteIterator:
         min_improvement: float = 0.001,
     ):
         """Initialize the iterator.
-        
+
         Args:
             netlist: The PCB netlist.
             board: The PCB board definition.
@@ -79,10 +78,10 @@ class PlaceRouteIterator:
 
     def run(self, initial_positions: Array) -> PlaceRouteResult:
         """Execute the iterative place-route loop.
-        
+
         Args:
             initial_positions: The starting positions for the components.
-            
+
         Returns:
             A PlaceRouteResult containing the final state and history.
         """
@@ -90,17 +89,17 @@ class PlaceRouteIterator:
         history = []
         best_completion = -1.0
         best_positions = initial_positions
-        
+
         for i in range(self.max_iterations):
             start_time = time.time()
             iteration_idx = i + 1
-            
+
             # 1. Route
             routing_result = self.router.route(current_positions)
-            
+
             completion = getattr(routing_result, "completion_rate", 0.0)
             is_feasible = routing_result.is_feasible()
-            
+
             # Record iteration
             metrics = {
                 "completion": completion,
@@ -110,7 +109,7 @@ class PlaceRouteIterator:
             # Merge any additional metrics from routing result
             if hasattr(routing_result, "metrics") and isinstance(routing_result.metrics, dict):
                 metrics.update(routing_result.metrics)
-                
+
             iter_result = IterationResult(
                 iteration=iteration_idx,
                 completion_rate=completion,
@@ -119,7 +118,7 @@ class PlaceRouteIterator:
                 metrics=metrics
             )
             history.append(iter_result)
-            
+
             # Track best
             if completion > best_completion:
                 best_completion = completion
@@ -134,7 +133,7 @@ class PlaceRouteIterator:
                     iteration_history=history,
                     final_metrics=iter_result.metrics
                 )
-            
+
             # Check for stagnation
             if i > 0 and self.min_improvement >= 0:
                 improvement = completion - history[-2].completion_rate
@@ -153,7 +152,7 @@ class PlaceRouteIterator:
             elif not self.placement_update_fn:
                 # If no update function, we can't iterate
                 break
-        
+
         return PlaceRouteResult(
             converged=False,
             iterations=len(history),

@@ -115,7 +115,7 @@ def test_routing_space_available_ratio():
 
 def test_routing_space_dataclass_properties():
     """Test RoutingSpace dataclass properties."""
-    from shapely.geometry import MultiPolygon, Polygon
+    from shapely.geometry import MultiPolygon
 
     space = RoutingSpace(
         layer_name="F.Cu",

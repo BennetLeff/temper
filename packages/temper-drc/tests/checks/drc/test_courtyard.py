@@ -7,7 +7,7 @@ from temper_drc.input.placement import ComponentPlacement, Placement
 def test_courtyard_check_pass():
     """Test passes when components have sufficient courtyard spacing."""
     constraints = ConstraintSet()
-    
+
     # Margin is usually small, e.g., 0.05mm
     # C1: x=0, size=1 -> [-0.5, 0.5] + margin
     # C2: x=2, size=1 -> [1.5, 2.5] - margin

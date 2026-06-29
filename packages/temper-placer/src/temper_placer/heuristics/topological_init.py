@@ -104,9 +104,9 @@ class TopologicalInitializationHeuristic(Heuristic):
         """
         # Get unplaced, non-fixed components
         unfixed_components = [c for c in context.netlist.components if not c.fixed]
-        unplaced_refs = set(
+        unplaced_refs = {
             c.ref for c in unfixed_components if c.ref not in context.current_placements
-        )
+        }
 
         if not unplaced_refs:
             return HeuristicResult(
@@ -238,7 +238,7 @@ class TopologicalInitializationHeuristic(Heuristic):
     def _build_zone_assignment(
         self,
         context: PlacementContext,
-        graph: TopologicalGraph,
+        _graph: TopologicalGraph,
         component_refs: set[str],
     ) -> ZoneAssignment:
         """Build zone assignment from context.

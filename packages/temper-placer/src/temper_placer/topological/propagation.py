@@ -128,7 +128,7 @@ class ConstraintPropagator:
         n = len(self.nodes)
         feasible = True
 
-        for iteration in range(max_iterations):
+        for _iteration in range(max_iterations):
             changed = False
 
             # Triangle inequality propagation (Floyd-Warshall)
@@ -136,7 +136,7 @@ class ConstraintPropagator:
                 for i in range(n):
                     for j in range(n):
                         # Skip self-loops and trivial cases
-                        if i == j or i == k or j == k:
+                        if i in (j, k) or j == k:
                             continue
 
                         # Propagate max bound: max(i,j) ≤ max(i,k) + max(k,j)

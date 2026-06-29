@@ -5,6 +5,9 @@ These tests are for planned manufacturing constraint features that are not yet i
 The AssemblySide, ManufacturingConstraint types, and ManufacturingOrientationLoss do not exist.
 Skip the entire module until these features are added.
 """
+
+# ruff: noqa: F821  # Manufacturing constraint feature not yet implemented
+
 import pytest
 
 pytestmark = pytest.mark.skip(
@@ -32,9 +35,9 @@ def test_manufacturing_pcl_parsing():
         "tier": "hard",
         "because": "Thermal alignment"
     }
-    
+
     constraint = parse_constraint_dict(d)
-    
+
     assert isinstance(constraint, ManufacturingConstraint)
     assert constraint.components == ["Q1", "Q2"]
     assert constraint.allowed_orientations == [0, 180]
@@ -53,9 +56,9 @@ manufacturing_constraints:
 """
     yaml_file = tmp_path / "constraints.yaml"
     yaml_file.write_text(yaml_content)
-    
+
     constraints = load_constraints(yaml_file)
-    
+
     assert len(constraints.manufacturing_constraints) == 1
     mfg = constraints.manufacturing_constraints[0]
     assert mfg.components == ["Q1", "Q2"]
@@ -70,7 +73,7 @@ def test_loss_context_mask_population():
     comp2 = Component(ref="Q2", footprint="TO-220", bounds=(10.0, 15.0), pins=[])
     netlist = Netlist(components=[comp1, comp2])
     board = Board(width=100, height=100)
-    
+
     # Setup constraints
     from temper_placer.io.config_loader import ManufacturingConstraint as ConfigMFG
     constraints = PlacementConstraints()
@@ -87,18 +90,18 @@ def test_loss_context_mask_population():
             because="Constraint 2"
         )
     ]
-    
+
     context = LossContext.from_netlist_and_board(netlist, board, constraints=constraints)
-    
+
     # Check orientation_mask (N, 4)
     # 0, 90, 180, 270
     # Q1: allowed [0, 180] -> [True, False, True, False]
     expected_q1_orient = jnp.array([True, False, True, False])
     assert jnp.all(context.constraints_data.orientation_mask[0] == expected_q1_orient)
-    
+
     # Q2: allowed all (default) -> [True, True, True, True]
     assert jnp.all(context.constraints_data.orientation_mask[1] == jnp.ones(4, dtype=bool))
-    
+
     # Check side_mask (N, 2)
     # 0: Top, 1: Bottom
     # Q1: Top -> [True, False]
@@ -114,35 +117,35 @@ def test_manufacturing_orientation_loss():
         [True, False, False, False],
         [True, True, True, True]
     ])
-    
+
     class MockConstraintsData:
         orientation_mask = orient_mask
-        
+
     class MockContext:
         constraints_data = MockConstraintsData()
-    
+
     loss_fn = ManufacturingOrientationLoss(weight=10.0)
-    
+
     # Case 1: All correct
     # Q1 at 0 deg, Q2 at 90 deg (both allowed)
     rotations = jnp.array([
         [1.0, 0.0, 0.0, 0.0], # Q1
         [0.0, 1.0, 0.0, 0.0]  # Q2
     ])
-    
+
     result = loss_fn(None, rotations, MockContext())
     assert result.value == 0.0
-    
+
     # Case 2: Q1 at 90 deg (disallowed)
     rotations = jnp.array([
         [0.0, 1.0, 0.0, 0.0], # Q1
         [0.0, 1.0, 0.0, 0.0]  # Q2
     ])
-    
+
     result = loss_fn(None, rotations, MockContext())
     # 1.0 mass on disallowed rotation * 10.0 weight = 10.0
     assert result.value == 10.0
-    
+
     # Case 3: Soft rotation (Gumbel-Softmax intermediate)
     # Q1 is 50/50 0 deg and 90 deg
     rotations = jnp.array([

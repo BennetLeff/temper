@@ -388,12 +388,11 @@ class ClosureTest:
                 with open(ceiling_path) as f:
                     ceiling_data = json.load(f)
                 for entry in ceiling_data.get("boards", []):
-                    if entry.get("board_id") == board_id:
-                        if drc_errors > entry.get("error_ceiling", 0):
-                            errors.append(
-                                f"DRC {drc_errors} exceeds ceiling {entry['error_ceiling']}"
-                            )
-                            ceiling_passed = False
+                    if entry.get("board_id") == board_id and drc_errors > entry.get("error_ceiling", 0):
+                        errors.append(
+                            f"DRC {drc_errors} exceeds ceiling {entry['error_ceiling']}"
+                        )
+                        ceiling_passed = False
         except Exception as e:
             warnings.append(f"Ceiling check failed: {e}")
 

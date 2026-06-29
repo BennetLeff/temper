@@ -7,12 +7,11 @@ Checks for physical collisions between components (courtyard overlap).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Tuple
-from shapely.geometry import Polygon, box
-from shapely.affinity import rotate, translate
-from temper_placer.router_v6.stage0_data import ParsedPCB
+
+from shapely.geometry import Polygon
+
 from temper_placer.core.pin_geometry import pin_world_position
-import math
+from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
 @dataclass
@@ -34,7 +33,7 @@ class PlacementAuditor:
         for comp in self.pcb.components:
             # Get position and rotation
             x, y = comp.initial_position or (0.0, 0.0)
-            rot_deg = comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
+            comp.initial_rotation * 90.0 if comp.initial_rotation is not None else 0.0
 
             # Default courtyard: Bounding box of pins + margin
             # Ideally we parse the 'courtyard' layer from footprint, but let's approximate
@@ -67,7 +66,7 @@ class PlacementAuditor:
 
         return courtyards
 
-    def check_collisions(self) -> List[Collision]:
+    def check_collisions(self) -> list[Collision]:
         """Find all overlapping pairs."""
         collisions = []
         refs = list(self.courtyards.keys())

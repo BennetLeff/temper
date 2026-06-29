@@ -345,13 +345,13 @@ class DRCLoss(LossFunction):
 
     def __call__(
         self,
-        positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
-        **kwargs: Any,
+        _positions: Array,
+        _rotations: Array,
+        _context: LossContext,
+        _epoch: int = 0,
+        _total_epochs: int = 1,
+        _net_virtual_nodes: Array | None = None,
+        **_kwargs: Any,
     ) -> LossResult:
         """
         Compute DRC loss (returns cached value between evaluations).

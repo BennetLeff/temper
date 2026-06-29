@@ -1,6 +1,6 @@
 from temper_drc.checks.safety._safety_keywords import resolve_safety_category
 from temper_drc.core.check import Check
-from temper_drc.core.result import CheckResult, Issue, Severity, Location
+from temper_drc.core.result import CheckResult, Issue, Location, Severity
 from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
 
@@ -8,12 +8,12 @@ from temper_drc.input.placement import Placement
 class HVLVSeparationCheck(Check):
     """
     Checks for safe separation between High Voltage (HV) and Low Voltage (LV) nets.
-    
-    Safety requirements (IEC 60335) often demand large clearances (e.g. 10mm) 
+
+    Safety requirements (IEC 60335) often demand large clearances (e.g. 10mm)
     between mains-connected circuitry and user-accessible low voltage logic.
     This check applies across layers as well.
     """
-    
+
     @property
     def name(self) -> str:
         return "safety_hv_lv_separation"
@@ -29,27 +29,27 @@ class HVLVSeparationCheck(Check):
     def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         issues = []
         pairs = placement.all_pairs()
-        
+
         required_gap = constraints.hv_clearance_mm
-        
+
         for ref_a, ref_b in pairs:
             comp_a = placement.get_component(ref_a)
             comp_b = placement.get_component(ref_b)
-            
+
             if not comp_a or not comp_b:
                 continue
-                
+
             a_cat = resolve_safety_category(comp_a.net_class)
             b_cat = resolve_safety_category(comp_b.net_class)
             is_a_hv = a_cat in ("HV", "AC")
             is_b_hv = b_cat in ("HV", "AC")
             is_a_lv = a_cat == "LV"
             is_b_lv = b_cat == "LV"
-            
+
             # Check if one is HV and the other is LV
             if (is_a_hv and is_b_lv) or (is_b_hv and is_a_lv):
                 dist = comp_a.edge_distance_to(comp_b)
-                
+
                 if dist < required_gap:
                     issues.append(Issue(
                         severity=Severity.CRITICAL,
@@ -69,7 +69,7 @@ class HVLVSeparationCheck(Check):
                             "class_b": comp_b.net_class
                         }
                     ))
-        
+
         return CheckResult(
             check_name=self.name,
             passed=len(issues) == 0,

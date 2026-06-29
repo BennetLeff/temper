@@ -14,13 +14,13 @@ from typing import Any, Literal
 import yaml
 from pydantic import BaseModel, Field, model_validator
 
+from temper_placer.pipeline.dag_expr import parse_skip_expr
 from temper_placer.pipeline.dag_types import (
     DAGCycleError,
     DAGDuplicateStageError,
     DAGExprSyntaxError,
     DAGMissingDependencyError,
 )
-from temper_placer.pipeline.dag_expr import parse_skip_expr
 
 BUILTIN_CONFIG_KEYS = frozenset({
     "input_pcb",
@@ -210,7 +210,7 @@ def _warn_unreachable(stages: list[StageDefinition], provides_map: dict[str, set
 
     unreachable = {s.name for s in stages} - reachable
     for name in sorted(unreachable):
-        warnings.warn(f"Stage '{name}' is unreachable from any root stage")
+        warnings.warn(f"Stage '{name}' is unreachable from any root stage", stacklevel=2)
 
 
 def load_manifest(path: Path) -> StageDAGManifest:

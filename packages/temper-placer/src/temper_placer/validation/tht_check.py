@@ -5,8 +5,9 @@ Part of Phase 3: Placement Validation (temper-d336).
 """
 
 import math
+
 from temper_placer.core.netlist import Netlist
-from temper_placer.core.board import Board
+
 
 def validate_hole_clearance(
     netlist: Netlist,
@@ -14,12 +15,12 @@ def validate_hole_clearance(
     min_clearance: float = 0.25
 ) -> list[str]:
     """Check for THT hole collisions.
-    
+
     Args:
         netlist: Component netlist
         positions: List of (x, y) positions corresponding to components
         min_clearance: Minimum required clearance between hole edges (mm)
-        
+
     Returns:
         List of violation messages
     """
@@ -49,13 +50,13 @@ def validate_hole_clearance(
         h1 = holes[i]
         for j in range(i + 1, len(holes)):
             h2 = holes[j]
-            
+
             dx = h1['x'] - h2['x']
             dy = h1['y'] - h2['y']
             dist = math.sqrt(dx*dx + dy*dy)
-            
+
             required = h1['radius'] + h2['radius'] + min_clearance
-            
+
             if dist < required:
                 violations.append(
                     f"{h1['ref']}.{h1['pad']} <-> {h2['ref']}.{h2['pad']}: "

@@ -156,7 +156,6 @@ from temper_placer.losses.manufacturing_margin import (
 # Mechanical mounting loss
 from temper_placer.losses.mechanical import (
     MechanicalMountingLoss,
-    MountingRule,
     create_mechanical_loss,
 )
 

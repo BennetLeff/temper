@@ -2,22 +2,18 @@
 
 import argparse
 import sys
-from pathlib import Path
+
+from temper_validation.comparison.drc_compliance import (
+    evaluate_drc_compliance,
+    run_kicad_drc,
+)
 
 # Import comparison modules
 from temper_validation.comparison.wirelength import compare_wirelength
-from temper_validation.comparison.drc_compliance import (
-    run_kicad_drc,
-    evaluate_drc_compliance,
-)
-from temper_validation.comparison.routing_feasibility import (
-    evaluate_routing_feasibility,
-    RoutingResult,
-)
 from temper_validation.metrics.quality_score import calculate_aggregate_score
 from temper_validation.reporting.report import (
-    generate_markdown_report,
     generate_html_report,
+    generate_markdown_report,
 )
 
 # Import PCB loader from temper-placer
@@ -32,17 +28,17 @@ __all__ = ['main']
 
 def cmd_compare(args):
     """Compare two PCB placements and generate report."""
-    print(f"Loading PCBs...")
+    print("Loading PCBs...")
     print(f"  Optimized: {args.optimized}")
     print(f"  Reference: {args.reference}")
-    
+
     try:
         # Load PCB files
         optimized_design = load_reference_pcb(args.optimized)
         reference_design = load_reference_pcb(args.reference)
-        
-        print(f"\\nRunning comparisons...")
-        
+
+        print("\\nRunning comparisons...")
+
         # 1. Wirelength comparison
         print("  - Wirelength analysis...")
         wirelength_result = compare_wirelength(
@@ -50,7 +46,7 @@ def cmd_compare(args):
             reference_design.state,
             optimized_design.netlist.nets
         )
-        
+
         # 2. DRC compliance (if KiCad available)
         print("  - DRC compliance check...")
         try:
@@ -64,7 +60,7 @@ def cmd_compare(args):
                 critical_violations=0, warning_violations=0,
                 verdict="SKIP"
             )
-        
+
         # 3. Routing feasibility (placeholder - would need actual router)
         print("  - Routing feasibility...")
         # For now, assume 100% completion as placeholder
@@ -78,13 +74,13 @@ def cmd_compare(args):
             total_vias=0,
             verdict="PASS"
         )
-        
+
         # 4. Calculate aggregate score
         print("  - Calculating aggregate score...")
         aggregate_result = calculate_aggregate_score(
             wirelength_result, drc_result, routing_result
         )
-        
+
         # 5. Generate report
         print(f"\\nGenerating report: {args.output}")
         if args.format in ['html']:
@@ -107,10 +103,10 @@ def cmd_compare(args):
                 routing_result,
                 aggregate_result
             )
-        
-        print(f"✓ Report generated successfully")
+
+        print("✓ Report generated successfully")
         print(f"\\nAggregate Score: {aggregate_result.total_score:.1f}/100.0 - {aggregate_result.verdict}")
-        
+
     except Exception as e:
         print(f"Error: {e}")
         import traceback
@@ -120,22 +116,22 @@ def cmd_compare(args):
 
 def cmd_score(args):
     """Score a single PCB placement."""
-    print(f"Loading PCBs...")
+    print("Loading PCBs...")
     print(f"  Optimized: {args.optimized}")
     print(f"  Reference: {args.reference}")
-    
+
     try:
         # Load PCB files
         optimized_design = load_reference_pcb(args.optimized)
         reference_design = load_reference_pcb(args.reference)
-        
+
         # Run all comparisons
         wirelength_result = compare_wirelength(
             optimized_design.state,
             reference_design.state,
             optimized_design.netlist.nets
         )
-        
+
         try:
             drc_raw = run_kicad_drc(args.optimized, kicad_path="kicad-cli")
             drc_result = evaluate_drc_compliance(drc_raw.violations)
@@ -146,7 +142,7 @@ def cmd_score(args):
                 critical_violations=0, warning_violations=0,
                 verdict="SKIP"
             )
-        
+
         from temper_validation.comparison.routing_feasibility import RoutingFeasibilityResult
         routing_result = RoutingFeasibilityResult(
             total_nets=len(optimized_design.netlist.nets),
@@ -157,11 +153,11 @@ def cmd_score(args):
             total_vias=0,
             verdict="PASS"
         )
-        
+
         aggregate_result = calculate_aggregate_score(
             wirelength_result, drc_result, routing_result
         )
-        
+
         # Print results
         print()
         print("=== Placement Validation Score ===")
@@ -183,7 +179,7 @@ def cmd_score(args):
         print("Routing Feasibility:")
         print(f"  Completion Rate: {routing_result.completion_rate * 100:.1f}%")
         print(f"  Verdict: {routing_result.verdict}")
-        
+
     except Exception as e:
         print(f"Error: {e}")
         import traceback
@@ -197,11 +193,11 @@ def cmd_drc(args):
     print(f"Running KiCad DRC on: {args.pcb}")
     print(f"Using KiCad: {kicad_path}")
     print()
-    
+
     try:
         drc_raw = run_kicad_drc(args.pcb, kicad_path)
         drc_result = evaluate_drc_compliance(drc_raw.violations)
-        
+
         print("=== DRC Check ===")
         print(f"Score: {drc_result.score:.1f}/{drc_result.max_score}")
         print(f"Critical Violations: {drc_result.critical_violations}")
@@ -213,7 +209,7 @@ def cmd_drc(args):
             print(f"  [{v.severity.value}] {v.description}")
         if len(drc_raw.violations) > 10:
             print(f"  ... and {len(drc_raw.violations) - 10} more")
-            
+
     except Exception as e:
         print(f"Error: {e}")
         import traceback

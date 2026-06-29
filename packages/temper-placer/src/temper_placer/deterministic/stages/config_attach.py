@@ -7,8 +7,6 @@ state so the rest of the pipeline can read it as if it were always there.
 """
 from __future__ import annotations
 
-from dataclasses import replace
-
 from ..state import BoardState
 from .base import Stage
 

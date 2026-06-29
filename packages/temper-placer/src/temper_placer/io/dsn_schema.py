@@ -24,8 +24,8 @@ class DSNSchemaHasher:
 
         # Layers
         if board.layer_stackup:
-            layer_names = sorted(l.name for l in board.layer_stackup.layers)
-            layer_types = {l.name: l.layer_type for l in board.layer_stackup.layers}
+            layer_names = sorted(ly.name for ly in board.layer_stackup.layers)
+            layer_types = {ly.name: ly.layer_type for ly in board.layer_stackup.layers}
         else:
             layer_names = sorted(["F.Cu", "B.Cu"])
             layer_types = {"F.Cu": "signal", "B.Cu": "signal"}

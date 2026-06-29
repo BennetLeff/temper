@@ -9,25 +9,21 @@ classify false-SAT vs false-UNSAT failures.
 
 from __future__ import annotations
 
-import pytest
-
-from temper_placer.router_v6.constraint_model import (
-    CapacityConstraint,
-    ConstraintModel,
-    DiffPairConstraint,
-    LayerConstraint,
-    NetChannelVar,
-)
-from temper_placer.router_v6.sat_model import (
-    SATModel,
-    populate_sat_from_constraints,
-)
 from temper_placer.router_v6.bmc import (
     bmc_check,
     bmc_check_with_diagnostics,
     render_counterexample,
 )
+from temper_placer.router_v6.constraint_model import (
+    ConstraintModel,
+    LayerConstraint,
+    NetChannelVar,
+)
 from temper_placer.router_v6.esl import eval_esl
+from temper_placer.router_v6.sat_model import (
+    SATModel,
+    populate_sat_from_constraints,
+)
 
 
 class TestBmcDiagnostics:
@@ -99,7 +95,7 @@ class TestBmcDiagnostics:
 
     def test_empty_counterexample_list_no_crash(self):
         """Empty counterexample list produces clean output."""
-        render = render_counterexample({
+        render_counterexample({
             "assignment": {},
             "esl_result": True,
             "cnf_result": "SAT",

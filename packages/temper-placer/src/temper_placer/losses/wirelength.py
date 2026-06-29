@@ -116,7 +116,7 @@ class WirelengthLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        _net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute total HPWL across all nets using vectorized operations.
@@ -258,7 +258,7 @@ class WirelengthLoss(LossFunction):
             return jnp.sum(weighted_hpwl)
         return weighted_hpwl
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, _epoch: int, _total_epochs: int) -> float:
         """
         Wirelength is active from the start but with lower weight initially.
 

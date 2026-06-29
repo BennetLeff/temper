@@ -1,5 +1,6 @@
 import pytest
-from temper_placer.io.dsn_validator import DSNVersionValidator, DSNVersionMismatchError
+
+from temper_placer.io.dsn_validator import DSNVersionMismatchError, DSNVersionValidator
 
 
 def test_validate_passes_on_match():

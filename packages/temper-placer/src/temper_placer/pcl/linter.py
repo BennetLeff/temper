@@ -103,7 +103,7 @@ def _check_invalid_refs(
     """Check for invalid component or zone references in a constraint."""
     refs_to_check: list[str] = []
 
-    if isinstance(constraint, AdjacentConstraint) or isinstance(constraint, SeparatedConstraint):
+    if isinstance(constraint, (AdjacentConstraint, SeparatedConstraint)):
         refs_to_check = [constraint.a, constraint.b]
     elif isinstance(constraint, EnclosingConstraint):
         # outer must be a zone
@@ -115,7 +115,7 @@ def _check_invalid_refs(
                 )
             )
         refs_to_check = constraint.inner
-    elif isinstance(constraint, AlignedConstraint) or isinstance(constraint, OnSideConstraint):
+    elif isinstance(constraint, (AlignedConstraint, OnSideConstraint)):
         refs_to_check = constraint.components
     elif isinstance(constraint, AnchoredConstraint):
         refs_to_check = [constraint.component]
@@ -267,9 +267,8 @@ def _check_circular_adjacencies(
                 )
                 return True
 
-            if neighbor not in visited:
-                if has_cycle(neighbor, node):
-                    return True
+            if neighbor not in visited and has_cycle(neighbor, node):
+                return True
 
         path.pop()
         return False

@@ -7,6 +7,7 @@ and parse the results into structured data.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 import subprocess
@@ -214,14 +215,12 @@ def run_drc(pcb_path: Path) -> DrcResult:
 
         return _parse_drc_json(json_path)
 
-    except subprocess.TimeoutExpired:
-        raise DrcRunnerError("DRC timed out after 60 seconds")
+    except subprocess.TimeoutExpired as e:
+        raise DrcRunnerError("DRC timed out after 60 seconds") from e
     except subprocess.SubprocessError as e:
-        raise DrcRunnerError(f"Failed to run kicad-cli: {e}")
+        raise DrcRunnerError(f"Failed to run kicad-cli: {e}") from e
     finally:
         # Clean up JSON file
         if json_path.exists():
-            try:
+            with contextlib.suppress(OSError):
                 json_path.unlink()
-            except OSError:
-                pass

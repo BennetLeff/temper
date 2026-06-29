@@ -26,7 +26,7 @@ from typing import Any
 @dataclass(frozen=True)
 class Entry:
     """Single trace entry.
-    
+
     Attributes:
         subject: Component ref, net name, or other identifier
         value: The decided value (position, path, layer, etc.)
@@ -43,15 +43,15 @@ class Entry:
 @dataclass(frozen=True)
 class Trace:
     """Immutable, composable trace.
-    
+
     A Trace is a monoid over Entry tuples:
     - Identity: Trace.empty()
     - Operation: trace1 + trace2
     - Associativity: (a + b) + c == a + (b + c)
     - Identity law: empty() + x == x == x + empty()
-    
+
     Traces are immutable - all operations return new Trace objects.
-    
+
     Example:
         >>> trace1 = Trace.empty().add("Q1", (10, 20), "Initial placement")
         >>> trace2 = Trace.empty().add("Q2", (30, 40), "Adjacent to Q1")
@@ -64,7 +64,7 @@ class Trace:
     @staticmethod
     def empty() -> "Trace":
         """Return empty trace (monoid identity).
-        
+
         Returns:
             Empty trace with no entries
         """
@@ -72,15 +72,15 @@ class Trace:
 
     def add(self, subject: str, value: Any, because: str) -> "Trace":
         """Add entry to trace, returning NEW trace (immutable).
-        
+
         Args:
             subject: Component ref, net name, etc.
             value: The decided value
             because: Natural language reason
-            
+
         Returns:
             New trace with entry appended
-            
+
         Example:
             >>> trace = Trace.empty()
             >>> trace = trace.add("Q1", (45.2, 12.3), "Proximity constraint")
@@ -91,13 +91,13 @@ class Trace:
 
     def __add__(self, other: "Trace") -> "Trace":
         """Compose traces (monoid operation).
-        
+
         Args:
             other: Trace to append
-            
+
         Returns:
             New trace with combined entries
-            
+
         Example:
             >>> trace1 = Trace.empty().add("Q1", (10, 20), "Reason 1")
             >>> trace2 = Trace.empty().add("Q2", (30, 40), "Reason 2")
@@ -109,13 +109,13 @@ class Trace:
 
     def for_subject(self, subject: str) -> "Trace":
         """Filter trace to specific subject.
-        
+
         Args:
             subject: Subject to filter by
-            
+
         Returns:
             New trace containing only entries for this subject
-            
+
         Example:
             >>> trace = Trace.empty()
             >>> trace = trace.add("Q1", (10, 20), "Reason 1")
@@ -129,17 +129,17 @@ class Trace:
 
     def why(self, subject: str, max_reasons: int = 3) -> str:
         """Generate natural language explanation for subject.
-        
+
         This is lazy - NL is only generated when queried, not when
         entries are added.
-        
+
         Args:
             subject: Subject to explain
             max_reasons: Maximum number of reasons to show (default 3)
-            
+
         Returns:
             Natural language explanation string
-            
+
         Example:
             >>> trace = Trace.empty()
             >>> trace = trace.add("Q1", (45.2, 12.3), "Minimize commutation loop")

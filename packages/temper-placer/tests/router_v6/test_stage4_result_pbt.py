@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-from hypothesis import given, settings
-from hypothesis.strategies import dictionaries, floats, integers, lists, text
-
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.result_aggregate_stage import (
     ResultAggregateStage,
     validate_result_aggregate,
 )
-from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 
 
 def test_result_aggregate_name():

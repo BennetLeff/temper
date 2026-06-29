@@ -2,21 +2,20 @@
 """
 Diagnostic tool to analyze routing failures and recommend experiments.
 """
-import sys
 import json
+import sys
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import Optional
 
 # Add temper-placer to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from temper_placer.router_v6.pipeline import RouterV6Pipeline
 from temper_placer.router_v6.astar_pathfinding import (
-    _find_access_node,
     _extract_pad_centers_per_net,
+    _find_access_node,
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.pipeline import RouterV6Pipeline
 
 
 @dataclass
@@ -66,7 +65,7 @@ def get_blockers_in_radius(
                 net_name = net_ids.get(cell_value, f"Unknown-{cell_value}")
                 blockers.add(net_name)
 
-    return sorted(list(blockers))
+    return sorted(blockers)
 
 
 def count_obstructions_along_path(
@@ -96,9 +95,8 @@ def count_obstructions_along_path(
             y = p1[1] + t * (p2[1] - p1[1])
 
             gx, gy = grid.world_to_grid(x, y)
-            if 0 <= gx < grid.width_cells and 0 <= gy < grid.height_cells:
-                if grid.grid[gy, gx] != 0:  # Blocked
-                    obstructions += 1
+            if 0 <= gx < grid.width_cells and 0 <= gy < grid.height_cells and grid.grid[gy, gx] != 0:
+                obstructions += 1
 
     return obstructions
 
@@ -106,7 +104,7 @@ def count_obstructions_along_path(
 def compute_min_gap_along_path(
     grid: OccupancyGrid,
     waypoints: list[tuple[float, float]],
-    net_ids: dict[int, str]
+    _net_ids: dict[int, str]
 ) -> float:
     """
     Compute minimum clearance gap along path to nearest obstacle.

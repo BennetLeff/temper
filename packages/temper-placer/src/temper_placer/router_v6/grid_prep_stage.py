@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
     register_validator,
@@ -38,7 +38,7 @@ class GridPrepStage(Stage):
             grid_res = getattr(pcb.design_rules, "grid_resolution_mm", 0.1)
 
         import numpy as np
-        from temper_placer.router_v6.occupancy_grid import CellState
+
 
         grids: dict[str, OccupancyGrid] = {}
         for layer in ("F.Cu", "B.Cu"):

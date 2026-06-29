@@ -40,7 +40,7 @@ class RoutingResults:
     # ``BottleneckGeometry`` describing the min-cut for a failed net.
     # The closure test reads this list to surface the actionable
     # ``routing_failure_messages`` field (SC1/SC2).
-    net_reports: list["NetRoutingReport"] = field(default_factory=list)
+    net_reports: list[NetRoutingReport] = field(default_factory=list)
 
     @property
     def success_count(self) -> int:
@@ -67,7 +67,7 @@ def compile_routing_results(
     width_assignment: TraceWidthAssignment,
     via_placement: ViaPlacement,
     plane_net_names: list[str] | None = None,
-    net_reports: list["NetRoutingReport"] | None = None,
+    net_reports: list[NetRoutingReport] | None = None,
 ) -> RoutingResults:
     """
     Compile all routing results into final output.

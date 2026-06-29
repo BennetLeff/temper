@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.protocol import PipelineStage, StageInput, StageOutput
+    from temper_placer.protocol import StageInput, StageOutput
 
 
 class TemplatePlacementStage:
@@ -21,8 +21,8 @@ class TemplatePlacementStage:
     contract = None
 
     def run(self, input: StageInput) -> StageOutput:
-        from temper_placer.protocol import StageOutput
         from temper_placer.placement.benders_loop import benders_placement
+        from temper_placer.protocol import StageOutput
 
         parsed = input.data
         seed = input.meta.seed

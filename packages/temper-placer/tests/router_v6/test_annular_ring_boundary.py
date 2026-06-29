@@ -10,7 +10,6 @@ Part of temper-j2xd (Stage 5 - Manufacturing DRC)
 from __future__ import annotations
 
 import math
-import warnings
 
 import pytest
 
@@ -23,21 +22,6 @@ from temper_placer.router_v6.annular_ring_check import (
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
-from tests.router_v6.dfm_boundary_constants import (
-    VIA_DIAMETERS_DRILL_LARGER,
-    VIA_DIAMETERS_EQUAL,
-    VIA_DIAMETERS_NAN,
-    VIA_DIAMETERS_NEGATIVE,
-    VIA_DIAMETERS_ZERO,
-    THRESHOLD_INF,
-    THRESHOLD_NAN,
-    THRESHOLD_NEGATIVE,
-    THRESHOLD_ZERO,
-    exactly_at,
-    just_above,
-    just_below,
-)
-
 
 # ---------------------------------------------------------------------------
 # Shared helpers

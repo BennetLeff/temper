@@ -13,8 +13,10 @@ Example relationships:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Any, TypeVar, Generic
+from typing import Any, Generic, TypeVar
+
 import numpy as np
 
 T = TypeVar("T")  # Input type
@@ -56,7 +58,7 @@ class Property(ABC, Generic[T, U]):
         """Check if outputs satisfy the expected relationship."""
         pass
 
-    def describe_failure(self, output1: U, output2: U, input1: T, input2: T) -> str:
+    def describe_failure(self, output1: U, output2: U, _input1: T, _input2: T) -> str:
         """Describe why the relation check failed."""
         return f"Relation failed: output1={output1}, output2={output2}"
 
@@ -131,7 +133,7 @@ class Monotonic(Property[float, float]):
     def transform_input(self, input1: float) -> float:
         return input1 + self.delta
 
-    def check_relation(self, output1: float, output2: float, input1: float, input2: float) -> bool:
+    def check_relation(self, output1: float, output2: float, _input1: float, _input2: float) -> bool:
         if self.increasing:
             return output2 >= output1
         else:
@@ -156,7 +158,7 @@ class Symmetric(Property[tuple[Any, Any], Any]):
         a, b = input1
         return (b, a)
 
-    def check_relation(self, output1: Any, output2: Any, input1: Any, input2: Any) -> bool:
+    def check_relation(self, output1: Any, output2: Any, _input1: Any, _input2: Any) -> bool:
         if isinstance(output1, np.ndarray):
             return np.allclose(output1, output2)
         elif isinstance(output1, float):
@@ -179,7 +181,7 @@ class Idempotent(Property[T, T]):
         # Apply function once to get input for second application
         return self._fn(input1)
 
-    def check_relation(self, output1: T, output2: T, input1: T, input2: T) -> bool:
+    def check_relation(self, output1: T, output2: T, _input1: T, _input2: T) -> bool:
         # output1 = f(input1), output2 = f(f(input1))
         # Should have output1 == output2
         if isinstance(output1, np.ndarray):
@@ -200,7 +202,7 @@ class Subset(Property[Any, set]):
     def transform_input(self, input1: Any) -> Any:
         return self._transform(input1)
 
-    def check_relation(self, output1: set, output2: set, input1: Any, input2: Any) -> bool:
+    def check_relation(self, output1: set, output2: set, _input1: Any, _input2: Any) -> bool:
         return output1.issubset(output2) or output2.issubset(output1)
 
 
@@ -217,7 +219,7 @@ class Superset(Property[Any, set]):
     def transform_input(self, input1: Any) -> Any:
         return self._transform(input1)
 
-    def check_relation(self, output1: set, output2: set, input1: Any, input2: Any) -> bool:
+    def check_relation(self, output1: set, output2: set, _input1: Any, _input2: Any) -> bool:
         return output2.issuperset(output1)
 
 
@@ -234,7 +236,7 @@ class Invariant(Property[T, U]):
     def transform_input(self, input1: T) -> T:
         return self._transform(input1)
 
-    def check_relation(self, output1: U, output2: U, input1: T, input2: T) -> bool:
+    def check_relation(self, output1: U, output2: U, _input1: T, _input2: T) -> bool:
         if isinstance(output1, np.ndarray):
             return np.allclose(output1, output2)
         elif isinstance(output1, float):
@@ -256,7 +258,7 @@ class LargerMarginBlocksMore(Property[float, set]):
     def transform_input(self, margin1: float) -> float:
         return margin1 + 0.5  # Increase margin
 
-    def check_relation(self, blocked1: set, blocked2: set, margin1: float, margin2: float) -> bool:
+    def check_relation(self, blocked1: set, blocked2: set, _margin1: float, _margin2: float) -> bool:
         return blocked1.issubset(blocked2)
 
     def describe_failure(self, blocked1: set, blocked2: set, margin1: float, margin2: float) -> str:
@@ -312,7 +314,7 @@ class RotationInvariantArea(Property[list, float]):
 
         return rotated
 
-    def check_relation(self, area1: float, area2: float, v1: list, v2: list) -> bool:
+    def check_relation(self, area1: float, area2: float, _v1: list, _v2: list) -> bool:
         return abs(area1 - area2) < 1e-6
 
 
@@ -330,5 +332,5 @@ class TranslationInvariantArea(Property[list, float]):
     def transform_input(self, vertices: list) -> list:
         return [(x + self.dx, y + self.dy) for x, y in vertices]
 
-    def check_relation(self, area1: float, area2: float, v1: list, v2: list) -> bool:
+    def check_relation(self, area1: float, area2: float, _v1: list, _v2: list) -> bool:
         return abs(area1 - area2) < 1e-10

@@ -1,16 +1,17 @@
 from temper_drc.core.check import Check
-from temper_drc.core.result import CheckResult, Issue, Severity, Location
+from temper_drc.core.result import CheckResult, Issue, Location, Severity
 from temper_drc.input.constraints import ConstraintSet
 from temper_drc.input.placement import Placement
+
 
 class ClearanceCheck(Check):
     """
     Checks for minimum clearance violations between components.
-    
+
     Uses PCL clearance rules based on component net classes.
     Only checks components on the same layer.
     """
-    
+
     @property
     def name(self) -> str:
         return "drc_clearance"
@@ -26,29 +27,29 @@ class ClearanceCheck(Check):
     def run(self, placement: Placement, constraints: ConstraintSet) -> CheckResult:
         issues = []
         pairs = placement.all_pairs()
-        
+
         min_clearance_found = float('inf')
-        
+
         for ref_a, ref_b in pairs:
             comp_a = placement.get_component(ref_a)
             comp_b = placement.get_component(ref_b)
-            
+
             if not comp_a or not comp_b:
                 continue
-                
+
             # Skip if different layers
             if comp_a.layer != comp_b.layer:
                 continue
-                
+
             required_clearance = constraints.get_clearance(comp_a.net_class, comp_b.net_class)
-            
+
             # If no rule (0.0), we skip
             if required_clearance <= 0:
                 continue
-                
+
             dist = comp_a.edge_distance_to(comp_b)
             min_clearance_found = min(min_clearance_found, dist)
-            
+
             if dist < required_clearance:
                 issues.append(Issue(
                     severity=Severity.ERROR,
@@ -68,7 +69,7 @@ class ClearanceCheck(Check):
                         "layer": comp_a.layer
                     }
                 ))
-        
+
         metrics = {}
         if min_clearance_found != float('inf'):
             metrics["min_clearance_mm"] = min_clearance_found

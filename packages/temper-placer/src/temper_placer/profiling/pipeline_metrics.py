@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 from temper_placer.regression.metrics_recorder import (
-    PipelineMetricsRecord,
     record_metrics_for_stage,
 )
 
@@ -50,7 +49,7 @@ def profile_pipeline(
         try:
             # Use the closure test internals — this runs parse + placement
             # + routing + DRC and captures wall-clock as ClosureResult
-            result = ClosureResult(
+            ClosureResult(
                 passed=True,
                 board_id=board_id,
                 wall_clock_seconds=time.perf_counter() - t0,

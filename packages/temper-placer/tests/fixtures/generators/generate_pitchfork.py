@@ -14,9 +14,6 @@ import uuid
 from dataclasses import dataclass
 
 
-from typing import Optional, List, Tuple
-
-
 def generate_uuid() -> str:
     """Generate a UUID for KiCad."""
     return str(uuid.uuid4())
@@ -44,7 +41,7 @@ class PitchforkConfig:
 class PitchforkGenerator:
     """Generator for pitchfork test board."""
 
-    def __init__(self, config: Optional[PitchforkConfig] = None):
+    def __init__(self, config: PitchforkConfig | None = None):
         if config is None:
             config = PitchforkConfig()
         self.config = config

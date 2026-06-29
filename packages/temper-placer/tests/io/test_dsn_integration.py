@@ -3,12 +3,9 @@
 These tests verify the golden DSN generation and verification pipeline.
 """
 
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist, Component, Pin, Net
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.boundary_registry import BoundaryRegistry
 from temper_placer.io.dsn_exporter import DSNExporter
 from temper_placer.io.dsn_normalizer import DSNNormalizer

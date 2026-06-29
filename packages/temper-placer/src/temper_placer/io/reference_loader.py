@@ -129,10 +129,7 @@ def netlist_to_placement_state(
 
     for comp in netlist.components:
         # Get position (origin-relative from parser)
-        if comp.initial_position:
-            pos = list(comp.initial_position)
-        else:
-            pos = [center_x, center_y]
+        pos = list(comp.initial_position) if comp.initial_position else [center_x, center_y]
         positions.append(pos)
 
         # Convert rotation index to logits
@@ -326,19 +323,17 @@ def infer_quality_config(design: ReferenceDesign) -> dict:
             hv.add(comp.ref)
 
         # LV: Small ICs, MCUs, sensors
-        if any(pkg in fp_lower for pkg in ["soic", "qfp", "bga", "qfn", "sot"]):
-            if area < 100:
+        if any(pkg in fp_lower for pkg in ["soic", "qfp", "bga", "qfn", "sot"]) and area < 100:
                 lv.add(comp.ref)
 
     # Infer loops from gate drive nets
     loops = []
     for net in design.netlist.nets:
         net_upper = net.name.upper()
-        if any(kw in net_upper for kw in ["GATE", "DRV", "DRIVE"]):
-            if len(net.pins) >= 2:
-                loop_refs = [ref for ref, _ in net.pins[:3]]  # First 3 components
-                if len(loop_refs) >= 2:
-                    loops.append(loop_refs)
+        if any(kw in net_upper for kw in ["GATE", "DRV", "DRIVE"]) and len(net.pins) >= 2:
+            loop_refs = [ref for ref, _ in net.pins[:3]]  # First 3 components
+            if len(loop_refs) >= 2:
+                loops.append(loop_refs)
 
     return {
         "thermal_components": thermal,

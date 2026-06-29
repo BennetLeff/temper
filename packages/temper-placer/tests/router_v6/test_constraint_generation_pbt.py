@@ -1,5 +1,7 @@
 """PBT: ConstraintGeneration invariants."""
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
 
 @given(net_count=st.integers(1,10), edge_count=st.integers(1,5), layer_count=st.integers(1,4))
 @settings(max_examples=100, deadline=30000)

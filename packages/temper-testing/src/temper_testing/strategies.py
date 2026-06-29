@@ -6,16 +6,14 @@ Reusable strategies that generate realistic test data.
 
 from __future__ import annotations
 
+import importlib.util
 from typing import Any
-import hypothesis.strategies as st
-from hypothesis import assume
-import numpy as np
 
-try:
-    import jax.numpy as jnp
-    HAS_JAX = True
-except ImportError:
-    HAS_JAX = False
+import hypothesis.strategies as st
+import numpy as np
+from hypothesis import assume
+
+HAS_JAX = importlib.util.find_spec("jax") is not None
 
 
 # =============================================================================
@@ -235,7 +233,7 @@ def non_overlapping_positions(
     for i in range(num_components):
         w, h = component_sizes[i]
 
-        for attempt in range(max_attempts):
+        for _attempt in range(max_attempts):
             x = draw(st.floats(min_value=w/2, max_value=board_width - w/2))
             y = draw(st.floats(min_value=h/2, max_value=board_height - h/2))
 

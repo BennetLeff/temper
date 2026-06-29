@@ -1,6 +1,5 @@
 """Tests for Router V6 adapter module."""
 
-from pathlib import Path
 
 import pytest
 

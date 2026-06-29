@@ -198,9 +198,9 @@ class ZoneSolver:
 
     def _is_consistent(
         self,
-        assignment: dict[str, str],
-        component: str,
-        zone_name: str,
+        _assignment: dict[str, str],
+        _component: str,
+        _zone_name: str,
     ) -> bool:
         """Check if assignment is consistent with constraints.
 

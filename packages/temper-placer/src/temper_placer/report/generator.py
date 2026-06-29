@@ -46,7 +46,7 @@ def calculate_benchmark_result(
     name: str,
     opt_result: Any, # TrainingResult
     baseline: dict[str, Any],
-    context: Any, # LossContext
+    _context: Any, # LossContext
 ) -> BenchmarkResult:
     """Compute quantitative scores comparing optimizer to baseline."""
     # Handle both new and legacy schema
@@ -85,8 +85,10 @@ def calculate_benchmark_result(
 
     # 5. Status Determination
     violations = []
-    if overlap_val > 10.0: violations.append(f"Overlap too high ({overlap_val:.1f})")
-    if boundary_val > 10.0: violations.append(f"Boundary violation ({boundary_val:.1f})")
+    if overlap_val > 10.0:
+        violations.append(f"Overlap too high ({overlap_val:.1f})")
+    if boundary_val > 10.0:
+        violations.append(f"Boundary violation ({boundary_val:.1f})")
 
     if violations:
         status = "FAIL"

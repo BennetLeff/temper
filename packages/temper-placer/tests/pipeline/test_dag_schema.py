@@ -7,7 +7,6 @@ import pytest
 import yaml
 
 from temper_placer.pipeline.dag_schema import (
-    StageDAGManifest,
     load_manifest,
 )
 from temper_placer.pipeline.dag_types import (

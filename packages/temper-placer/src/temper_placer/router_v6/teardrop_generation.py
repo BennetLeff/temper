@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import math
 import warnings
-
 from dataclasses import dataclass
 
 from temper_placer.router_v6.routing_results import RoutingResults
@@ -87,7 +86,7 @@ def insert_teardrops(
         clamped = 0.1 if math.isnan(teardrop_length_ratio) else max(0.1, min(teardrop_length_ratio, 1.0))
         warnings.warn(
             f"teardrop_length_ratio={teardrop_length_ratio} is outside [0.1, 1.0]; "
-            f"clamping to [{clamped}]."
+            f"clamping to [{clamped}].", stacklevel=2
         )
         teardrop_length_ratio = clamped
 
@@ -143,7 +142,7 @@ def _generate_via_teardrop(
     if math.isnan(via.diameter) or not math.isfinite(via.diameter) or via.diameter <= 0:
         warnings.warn(
             f"Via at {via.position} for net '{net_name}' has diameter "
-            f"{via.diameter}; skipping teardrop."
+            f"{via.diameter}; skipping teardrop.", stacklevel=2
         )
         return None
 

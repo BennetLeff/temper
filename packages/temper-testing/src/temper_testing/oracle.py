@@ -7,9 +7,11 @@ An "oracle" is a reference implementation or known result.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Any, TypeVar
+from typing import Any, TypeVar
+
 import numpy as np
 
 T = TypeVar("T")

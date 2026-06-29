@@ -27,21 +27,21 @@ class PlacementViolation:
 def validate_placement_drc(
     pins: list[PinInfo],
     min_clearance_mm: float,
-    trace_width_mm: float = 0.25
+    _trace_width_mm: float = 0.25
 ) -> list[PlacementViolation]:
     """
     Validate placement for DRC violations before routing.
-    
+
     Checks for:
     1. Shorts: Different nets overlapping (Distance < r1 + r2)
     2. Clearance: Different nets too close (Distance < r1 + r2 + clearance)
     3. Routability (Heuristic): Heuristic warning if pins are barely separated
-    
+
     Args:
         pins: List of PinInfo objects
         min_clearance_mm: Minimum electrical clearance required
         trace_width_mm: Nominal trace width (for routability warnings)
-        
+
     Returns:
         List of PlacementViolation objects
     """

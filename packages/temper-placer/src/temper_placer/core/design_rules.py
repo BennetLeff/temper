@@ -11,8 +11,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from temper_placer.core.differential_pair import DifferentialPairConstraint
 from temper_placer.core.bus_cohort import BusCohortConstraint
+from temper_placer.core.differential_pair import DifferentialPairConstraint
 from temper_placer.core.net_graph import NetGraph
 
 
@@ -273,20 +273,14 @@ class DesignRules:
         upper = net_name.upper()
         # GATE_H, GATE_L, PWM_H, PWM_L, SW_NODE (ref for gate)
         patterns = ["GATE", "PWM", "SW_NODE"]
-        for p in patterns:
-            if p in upper:
-                return True
-        return False
+        return any(p in upper for p in patterns)
 
     def _is_high_current_net(self, net_name: str) -> bool:
         """Check if net carries high switching current."""
         upper = net_name.upper()
         # DC_BUS+, AC_L, AC_N, COIL
         patterns = ["DC_BUS", "AC_L", "AC_N", "COIL"]
-        for p in patterns:
-            if p in upper:
-                return True
-        return False
+        return any(p in upper for p in patterns)
 
     def get_diff_pair_for_net(self, net_name: str) -> DifferentialPairConstraint | None:
         """Get differential pair constraint if net is part of a pair.

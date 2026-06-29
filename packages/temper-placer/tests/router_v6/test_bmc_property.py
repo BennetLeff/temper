@@ -12,10 +12,8 @@ from __future__ import annotations
 
 import pytest
 from hypothesis import given, settings
-from hypothesis import strategies as st
 
 from tests.router_v6.sat_property_strategies import constraint_models
-
 
 # ---------------------------------------------------------------------------
 # Sequential counter exhaustive proof (base case for induction)
@@ -79,7 +77,7 @@ def test_sequential_counter_exhaustive_n1_to_n8():
 
     # Sanity: we checked the expected number of assignments
     # sum_{n=1..8} sum_{k=0..n-1} (2^n) = sum_{n=1..8} n * 2^n
-    expected_total = sum(n * (1 << n) for n in range(1, 9))
+    sum(n * (1 << n) for n in range(1, 9))
     # We can't easily track a global counter in pytest, but this is
     # covered by the assertion messages above.
 
@@ -136,9 +134,7 @@ def _dpll_rec(clauses: list[list[int]], assign: list[bool | None]) -> bool:
                 if val is True and sign:
                     clause_sat = True
                     break
-                if val is True and not sign:
-                    pass  # falsified literal
-                elif val is False and sign:
+                if val is True and not sign or val is False and sign:
                     pass  # falsified literal
                 elif val is False and not sign:
                     clause_sat = True
@@ -251,10 +247,9 @@ def test_inductive_extension_capacity():
 
 
 def _check_encoding(
-    sat_model, n: int, k: int, vars_list: list
+    sat_model, n: int, k: int, _vars_list: list
 ) -> list[str]:
     """Check all 2^n assignments for (n, k) — returns failure messages."""
-    from temper_placer.router_v6.sat_model import SATVariable
 
     total_vars = len(sat_model.variables)
     failures: list[str] = []
@@ -297,8 +292,8 @@ def test_bmc_random_model_pbt(model_data):
     via BMC.  The ESL ground truth must agree with the CNF satisfiability
     for every assignment within the N <= 10 primary-variable bound.
     """
-    from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
     from temper_placer.router_v6.bmc import bmc_check_with_diagnostics
+    from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
     model, net_names, primary_var_names = model_data
 

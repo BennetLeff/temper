@@ -410,8 +410,8 @@ class LiveVisualizer:
         board_width: float,
         board_height: float,
         zones: list[dict[str, Any]] | None = None,
-        component_types: list[str] | None = None,
-        component_groups: list[str] | None = None,
+        _component_types: list[str] | None = None,
+        _component_groups: list[str] | None = None,
     ) -> BoardView:
         """Build a BoardView from raw arrays."""
         # Handle different position formats
@@ -473,11 +473,11 @@ class LiveVisualizer:
 
     def _detect_violations(
         self,
-        positions: np.ndarray,
-        widths: np.ndarray,
-        heights: np.ndarray,
-        board_width: float,
-        board_height: float,
+        _positions: np.ndarray,
+        _widths: np.ndarray,
+        _heights: np.ndarray,
+        _board_width: float,
+        _board_height: float,
         losses: dict[str, float],
     ) -> ConstraintStatus:
         """Detect constraint violations from loss values."""

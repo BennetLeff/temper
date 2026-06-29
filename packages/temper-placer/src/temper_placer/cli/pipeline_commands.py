@@ -65,7 +65,7 @@ def pipeline(
         orchestrator.on_iteration = dashboard.on_iteration
         orchestrator.on_epoch = dashboard.on_epoch
 
-        with Live(dashboard.create_layout(), refresh_per_second=4) as live:
+        with Live(dashboard.create_layout(), refresh_per_second=4):
             # Wrap on_epoch to also refresh the live display
             orig_on_epoch = orchestrator.on_epoch
             def on_epoch_wrapper(metrics):
@@ -189,7 +189,7 @@ def geometric(input_pcb: str, epochs: int, seed: int, visualize: bool, output: s
 @click.argument("input_pcb", type=click.Path(exists=True))
 @click.option("--level", type=int, default=2, help="Verification level (1-3)")
 @click.option("--output", "-o", type=click.Path(), help="Output report")
-def routing(input_pcb: str, level: int, output: str):
+def routing(input_pcb: str, _level: int, output: str):
     """Run routing verification phase."""
     # Note: 'level' is not yet used by the orchestrator
     config = PipelineConfig(

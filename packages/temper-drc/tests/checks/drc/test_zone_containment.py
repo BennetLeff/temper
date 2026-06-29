@@ -67,7 +67,7 @@ def test_zone_check_partial_overlap_fail():
     """Test fails if component is effectively outside (center outside) or we require full containment."""
     # Let's assume strict full containment for now, or at least center containment.
     # Implementation usually checks center.
-    
+
     constraints = ConstraintSet(
         zones=[
             ZoneDefinition(name="SmallZone", bounds=(0.0, 0.0, 2.0, 2.0), components=["C1"])

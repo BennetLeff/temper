@@ -40,7 +40,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import FrozenSet, List, Optional, Set
+
 from .board import LayerIndex
 
 
@@ -159,7 +159,7 @@ class NetTypeSpec:
     # Electrical properties
     voltage_class: VoltageClass = VoltageClass.SELV
     max_current_a: float = 0.5  # Maximum current in Amps
-    impedance_ohm: Optional[float] = None  # Target impedance
+    impedance_ohm: float | None = None  # Target impedance
 
     # Physical requirements
     trace_width_mm: float = 0.2
@@ -171,7 +171,7 @@ class NetTypeSpec:
     allow_layer_change: bool = True
     prefer_short_stubs: bool = False  # For power integrity
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """
         Validate that the spec is internally consistent.
 
@@ -181,9 +181,8 @@ class NetTypeSpec:
         errors = []
 
         # Ground MUST use plane connectivity
-        if self.net_type == NetType.GROUND:
-            if self.connectivity not in (ConnectivityStrategy.PLANE, ConnectivityStrategy.DIRECT):
-                errors.append(
+        if self.net_type == NetType.GROUND and self.connectivity not in (ConnectivityStrategy.PLANE, ConnectivityStrategy.DIRECT):
+            errors.append(
                     f"Ground nets MUST use PLANE or DIRECT connectivity, not {self.connectivity.name}. "
                     "Ground planes provide low-impedance return paths essential for EMI control."
                 )
@@ -204,19 +203,17 @@ class NetTypeSpec:
                 )
 
         # High current needs appropriate via arrays
-        if self.net_type == NetType.HIGH_CURRENT or self.max_current_a > 5.0:
-            if self.via_template == "Via1x1":
-                errors.append(
+        if (self.net_type == NetType.HIGH_CURRENT or self.max_current_a > 5.0) and self.via_template == "Via1x1":
+            errors.append(
                     f"High current net ({self.max_current_a}A) should use Via2x2 or larger, "
                     "not single vias. Single 0.3mm vias rated ~3-5A max."
                 )
 
         # Differential pairs need matched impedance
-        if self.net_type == NetType.DIFFERENTIAL:
-            if self.impedance_ohm is None:
-                errors.append(
-                    "Differential pairs should specify target impedance for controlled routing."
-                )
+        if self.net_type == NetType.DIFFERENTIAL and self.impedance_ohm is None:
+            errors.append(
+                "Differential pairs should specify target impedance for controlled routing."
+            )
 
         return errors
 
@@ -281,11 +278,11 @@ class NetClassification:
     specs: dict[str, NetTypeSpec] = field(default_factory=dict)
 
     # Auto-classification patterns
-    ground_patterns: FrozenSet[str] = frozenset({"GND", "PGND", "CGND", "AGND", "DGND", "VSS"})
-    power_patterns: FrozenSet[str] = frozenset(
+    ground_patterns: frozenset[str] = frozenset({"GND", "PGND", "CGND", "AGND", "DGND", "VSS"})
+    power_patterns: frozenset[str] = frozenset(
         {"+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS"}
     )
-    hv_patterns: FrozenSet[str] = frozenset({"AC_L", "AC_N", "PE", "DC_BUS+", "DC_BUS-", "SW_NODE"})
+    hv_patterns: frozenset[str] = frozenset({"AC_L", "AC_N", "PE", "DC_BUS+", "DC_BUS-", "SW_NODE"})
 
     def classify_net(self, net_name: str) -> NetTypeSpec:
         """
@@ -318,7 +315,7 @@ class NetClassification:
         # Default to signal
         return SIGNAL_SPEC
 
-    def get_plane_nets(self) -> Set[str]:
+    def get_plane_nets(self) -> set[str]:
         """Get all nets that should connect via planes."""
         plane_nets = set()
         for name, spec in self.specs.items():
@@ -326,7 +323,7 @@ class NetClassification:
                 plane_nets.add(name)
         return plane_nets
 
-    def get_pour_nets(self) -> Set[str]:
+    def get_pour_nets(self) -> set[str]:
         """Get all nets that should connect via copper pours."""
         pour_nets = set()
         for name, spec in self.specs.items():
@@ -334,7 +331,7 @@ class NetClassification:
                 pour_nets.add(name)
         return pour_nets
 
-    def validate_all(self) -> dict[str, List[str]]:
+    def validate_all(self) -> dict[str, list[str]]:
         """
         Validate all net specifications.
 
@@ -349,7 +346,7 @@ class NetClassification:
         return errors
 
     @classmethod
-    def from_yaml_config(cls, net_classes: dict, net_class_rules: dict) -> "NetClassification":
+    def from_yaml_config(cls, net_classes: dict, net_class_rules: dict) -> NetClassification:
         """
         Create NetClassification from YAML config dictionaries.
 
@@ -398,7 +395,7 @@ class NetClassification:
         return classification
 
 
-def _parse_net_type(type_str: str, class_name: str) -> NetType:
+def _parse_net_type(type_str: str, _class_name: str) -> NetType:
     """Parse net type from string."""
     type_str = type_str.lower()
 

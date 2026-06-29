@@ -115,7 +115,7 @@ def load_loop_from_dict(data: dict[str, Any], source: str = "yaml") -> Loop:
         loop_type_str = data["loop_type"]
         description = data.get("description", "")
     except KeyError as e:
-        raise LoopLoadError(f"Missing required field: {e}")
+        raise LoopLoadError(f"Missing required field: {e}") from e
 
     # Parse loop type
     loop_type = _parse_loop_type(loop_type_str)
@@ -175,7 +175,7 @@ def load_loop_template(path: str | Path) -> Loop:
         with open(path) as f:
             data = yaml.safe_load(f)
     except yaml.YAMLError as e:
-        raise LoopLoadError(f"Invalid YAML in {path}: {e}")
+        raise LoopLoadError(f"Invalid YAML in {path}: {e}") from e
 
     if data is None:
         raise LoopLoadError(f"Empty YAML file: {path}")
@@ -236,7 +236,7 @@ def load_loop_collection(
             loop = load_loop_template(template_path)
             collection.add_loop(loop)
         except Exception as e:
-            raise LoopLoadError(f"Failed to load {template_path}: {e}")
+            raise LoopLoadError(f"Failed to load {template_path}: {e}") from e
 
     return collection
 

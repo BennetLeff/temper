@@ -33,7 +33,7 @@ from temper_placer.io.config_loader import PlacementConstraints
 
 def identify_ground_domains(
     netlist: Netlist,
-    constraints: PlacementConstraints,
+    _constraints: PlacementConstraints,
 ) -> dict[str, str]:
     """
     Identify which ground domain each component belongs to.
@@ -169,7 +169,7 @@ class StarGroundTopologyHeuristic(Heuristic):
     def _get_star_point(
         self,
         board: Board,
-        constraints: PlacementConstraints,
+        _constraints: PlacementConstraints,
     ) -> tuple[float, float]:
         """Get the star ground point."""
         if self.star_point:
@@ -231,10 +231,7 @@ class StarGroundTopologyHeuristic(Heuristic):
 
                 # Distribute within sector
                 n = len(refs)
-                if n > 1:
-                    t = i / (n - 1)
-                else:
-                    t = 0.5
+                t = i / (n - 1) if n > 1 else 0.5
 
                 angle = angle_start + t * angle_range
                 radius = min_radius + t * (max_radius - min_radius)
@@ -270,7 +267,7 @@ class SignalChainNode:
 
 def extract_signal_chains(
     netlist: Netlist,
-    constraints: PlacementConstraints,
+    _constraints: PlacementConstraints,
 ) -> list[SignalChainNode]:
     """
     Extract signal chains from netlist connectivity.
@@ -293,15 +290,13 @@ def extract_signal_chains(
             input_connectors.append(comp.ref)
 
     # For each input, trace the signal path
-    chain_id = 0
     visited: set[str] = set()
 
-    for start_ref in input_connectors:
+    for chain_id, start_ref in enumerate(input_connectors):
         chain_components = _trace_signal_path(netlist, start_ref, visited)
         for pos, ref in enumerate(chain_components):
             nodes.append(SignalChainNode(ref=ref, chain_name=f"chain_{chain_id}", position=pos))
             visited.add(ref)
-        chain_id += 1
 
     return nodes
 
@@ -426,14 +421,14 @@ class SignalFlowPreservationHeuristic(Heuristic):
             chain_groups[node.chain_name].append(node)
 
         # Sort each chain by position
-        for chain_name, nodes in chain_groups.items():
+        for _chain_name, nodes in chain_groups.items():
             nodes.sort(key=lambda n: n.position)
 
         # Place chains (stacked vertically, flowing horizontally)
         n_chains = len(chain_groups)
         chain_height = (board.height - 2 * margin) / max(n_chains, 1)
 
-        for chain_idx, (chain_name, nodes) in enumerate(chain_groups.items()):
+        for chain_idx, (_chain_name, nodes) in enumerate(chain_groups.items()):
             # Find max position for normalization
             max_pos = max(n.position for n in nodes) if nodes else 1
 

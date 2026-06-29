@@ -71,7 +71,7 @@ def analyze_drc_correlation(
 
     courtyard_overlaps = [float(d.courtyards_overlap) for d in drc_results]
     edge_clearances = [float(d.edge_clearance) for d in drc_results]
-    pad_clearances = [float(d.pad_clearance) for d in drc_results]
+    [float(d.pad_clearance) for d in drc_results]
 
     correlations = []
 
@@ -143,10 +143,7 @@ def compute_correlation(x: Sequence[float], y: Sequence[float]) -> dict[str, flo
     sum_sq_x = sum((x[i] - mean_x) ** 2 for i in range(n))
     sum_sq_y = sum((y[i] - mean_y) ** 2 for i in range(n))
 
-    if sum_sq_x == 0 or sum_sq_y == 0:
-        pearson = 0.0
-    else:
-        pearson = numerator / math.sqrt(sum_sq_x * sum_sq_y)
+    pearson = 0.0 if sum_sq_x == 0 or sum_sq_y == 0 else numerator / math.sqrt(sum_sq_x * sum_sq_y)
 
     # Spearman correlation (rank-based) - avoid recursion
     spearman = compute_spearman_non_recursive(x, y)
@@ -207,7 +204,7 @@ def rank_data(data: Sequence[float]) -> list[float]:
 
     # Assign ranks
     ranks = [0.0] * len(data)
-    for rank, (value, original_index) in enumerate(indexed_data, 1):
+    for rank, (_value, original_index) in enumerate(indexed_data, 1):
         ranks[original_index] = float(rank)
 
     return ranks

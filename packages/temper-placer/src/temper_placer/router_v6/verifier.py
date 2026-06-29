@@ -29,9 +29,8 @@ from jax import Array
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
-from temper_placer.router_v6.congestion import analyze_congestion
-
 from temper_placer.router_v6.adapter import MazeRouter
+from temper_placer.router_v6.congestion import analyze_congestion
 
 if TYPE_CHECKING:
     from temper_placer.router_v6.diagnostics import (
@@ -39,7 +38,6 @@ if TYPE_CHECKING:
         RoutingDiagnostic,
         RoutingReport,
     )
-from temper_placer.router_v6.routing_results import RoutingResults  # noqa: E402
 from temper_placer.router_v6.layer_assignment import LayerAssignment, assign_layers  # noqa: E402
 from temper_placer.router_v6.net_ordering import order_nets  # noqa: E402
 
@@ -100,7 +98,7 @@ class VerificationResult:
     net_ordering: list[str]
     layer_assignments: dict[str, LayerAssignment]
     congestion_map: Array | None = None
-    diagnostics: "list[RoutingDiagnostic]" = field(default_factory=list)
+    diagnostics: list[RoutingDiagnostic] = field(default_factory=list)
     routed_nets: list[str] = field(default_factory=list)
     failed_nets: list[str] = field(default_factory=list)
     total_wirelength: float = 0.0
@@ -134,7 +132,7 @@ class RoutingVerifier:
         positions: Array,
         board: Board,
         loops: LoopCollection,
-        constraints: object | None = None,  # PCLConstraints placeholder
+        _constraints: object | None = None,  # PCLConstraints placeholder
     ) -> VerificationResult:
         """Verify routing feasibility for a placement.
 
@@ -234,8 +232,8 @@ class RoutingVerifier:
 
     def to_placement_feedback(
         self,
-        report: "RoutingReport",
-    ) -> "list[PlacementAdjustment]":
+        report: RoutingReport,
+    ) -> list[PlacementAdjustment]:
         """Convert routing report to placement adjustment hints.
 
         Extracts placement hints from diagnostics and sorts them by priority.
@@ -247,7 +245,6 @@ class RoutingVerifier:
             List of PlacementAdjustment sorted by priority (highest first)
         """
         # Lazy import to avoid circular dependency
-        from temper_placer.routing.diagnostics import PlacementAdjustment
         adjustments: list[PlacementAdjustment] = []
 
         for diag in report.diagnostics:

@@ -1,13 +1,11 @@
 """Internal IO utilities for the CLI (console, summaries, rich setup)."""
 from __future__ import annotations
+
 from rich.console import Console
-from rich.panel import Panel
-from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
-from rich.table import Table
 
 console = Console()
 
-def _print_placement_summary(console, netlist, state, constraints, min_separation=2.0):
+def _print_placement_summary(console, netlist, state, _constraints, min_separation=2.0):
     import numpy as np
     from rich.table import Table as RT
     positions = np.array(state.positions)
@@ -35,7 +33,7 @@ def _print_placement_summary(console, netlist, state, constraints, min_separatio
         for ref_a, ref_b, amount in overlap_pairs[:5]:
             console.print(f"    [red]- {ref_a} <-> {ref_b}: {amount:.1f}mm[/]")
     else:
-        console.print(f"  [green]Overlaps: 0 pairs[/]")
+        console.print("  [green]Overlaps: 0 pairs[/]")
     table = RT(title="Component Positions", show_lines=False)
     table.add_column("Ref", style="cyan", width=12)
     table.add_column("Size (mm)", width=10)

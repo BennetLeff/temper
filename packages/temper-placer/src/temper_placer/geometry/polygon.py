@@ -433,7 +433,7 @@ def is_convex(vertices: Array) -> Array:
     Returns:
         True if convex, False otherwise
     """
-    n = vertices.shape[0]
+    vertices.shape[0]
 
     # Get consecutive edge vectors
     edges = jnp.roll(vertices, -1, axis=0) - vertices

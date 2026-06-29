@@ -10,12 +10,13 @@ Special handling for plane connections:
 """
 
 from dataclasses import replace
-from typing import Set, Tuple
+
+from temper_placer.core.net_classification import is_ground_net, is_power_net
+
+from ...core.board import STANDARD_LAYER_ORDER, Trace, Via, is_plane_layer
+from ...core.pin_geometry import pin_world_position
 from ..state import BoardState
 from .base import Stage
-from ...core.board import Via, Trace, PLANE_LAYER_INDICES, is_plane_layer, STANDARD_LAYER_ORDER
-from ...core.pin_geometry import pin_world_position
-from temper_placer.core.net_classification import is_ground_net, is_power_net
 
 
 def _is_plane_net(net_name: str) -> bool:
@@ -82,12 +83,7 @@ class ViaValidationStage(Stage):
                 via, trace_endpoints_by_layer, pin_positions_by_layer
             )
 
-            if self.require_both_layers:
-                # Via must connect traces on at least 2 layers
-                is_valid = layers_connected >= 2
-            else:
-                # Via must connect at least 1 layer
-                is_valid = layers_connected >= 1
+            is_valid = layers_connected >= 2 if self.require_both_layers else layers_connected >= 1
 
             if is_valid:
                 valid_vias.append(via)
@@ -120,7 +116,7 @@ class ViaValidationStage(Stage):
         if plane_vias_total > 0:
             print(f"ViaValidation: Plane vias: {plane_vias_kept}/{plane_vias_total} kept")
             if plane_vias_removed:
-                print(f"  Removed plane vias (first 5):")
+                print("  Removed plane vias (first 5):")
                 for net, pos, layers, conn in plane_vias_removed[:5]:
                     print(f"    {net} at {pos} layers={layers} connected={conn}")
 
@@ -172,7 +168,7 @@ class ViaValidationStage(Stage):
 
         # Add pin positions - assume F.Cu for SMD, all layers for PTH
         for comp in state.netlist.components:
-            comp_pos = comp_positions.get(comp.ref, comp.initial_position or (0, 0))
+            comp_positions.get(comp.ref, comp.initial_position or (0, 0))
 
             for pin in comp.pins:
                 pin_pos = pin_world_position(pin, comp)

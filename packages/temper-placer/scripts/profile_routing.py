@@ -10,8 +10,8 @@ import jax.numpy as jnp
 
 from temper_placer.core.loop import LoopCollection
 from temper_placer.io.kicad_parser import parse_kicad_pcb
-from temper_placer.router_v6.layer_assignment import assign_layers
 from temper_placer.router_v6.adapter import MazeRouter
+from temper_placer.router_v6.layer_assignment import assign_layers
 from temper_placer.router_v6.net_ordering import order_nets
 
 
@@ -20,10 +20,7 @@ def main():
     project_root = Path(__file__).resolve().parent.parent.parent.parent
 
     # Find PCB file
-    if len(sys.argv) > 1:
-        pcb_path = Path(sys.argv[1])
-    else:
-        pcb_path = project_root / "pcb/temper.kicad_pcb"
+    pcb_path = Path(sys.argv[1]) if len(sys.argv) > 1 else project_root / "pcb/temper.kicad_pcb"
 
     if not pcb_path.exists():
         print(f"Error: {pcb_path} not found")

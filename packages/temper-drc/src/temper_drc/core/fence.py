@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -111,7 +111,7 @@ class FenceResult:
         return "\n".join(lines)
 
     def _format_dual(self) -> str:
-        lines = [f"STAGE FENCE DUAL-RUN"]
+        lines = ["STAGE FENCE DUAL-RUN"]
         lines.append(f"  Stage: {self.stage_name}")
         lines.append(f"  Primary:     {'PASS' if self.passed else 'FAIL'} ({len(self.violations)} violations)")
         if self.alternative_result:

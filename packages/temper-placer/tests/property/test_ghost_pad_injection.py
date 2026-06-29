@@ -16,12 +16,12 @@ filter-too-much warnings (NFR3 ≥100 examples; ``example=100`` in
 from __future__ import annotations
 
 import math
-from dataclasses import replace
 
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
+from conftest import board_state_with_ghost_pads, design_rules_with_hv
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
@@ -31,8 +31,6 @@ from temper_placer.deterministic.stages.phased_component_assignment_validator im
     _creepage_mm,
 )
 from temper_placer.io.config_loader import PlacementConstraints
-
-from conftest import board_state_with_ghost_pads, design_rules_with_hv
 
 
 def _run_placer(state):
@@ -141,7 +139,7 @@ def test_property_no_lv_pin_produces_ghost_pad(rules):
         design_rules=rules,
     )
     result = _run_placer(state)
-    used = set(result.used_slots)
+    set(result.used_slots)
     # With no HV rings, the only used slots are footprint rings
     # around placed components — the placer may or may not place
     # C1.  Verify the placer produced at least one placement.
@@ -235,7 +233,7 @@ def test_property_used_slots_symmetric(state_rules):
 )
 @settings(max_examples=100, deadline=None)
 def test_property_perpendicular_slot_reduces_zero(
-    slot_angle, slot_length, pin_to_hv_angle, base_radius
+    slot_angle, slot_length, _pin_to_hv_angle, base_radius
 ):
     """U2: a slot perpendicular to the pin-to-other-HV direction reclaims 0 creepage.
 

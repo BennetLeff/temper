@@ -9,24 +9,22 @@ stage (bucket assignment, width override, fallback, determinism).
 
 from __future__ import annotations
 
-import logging
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString
 
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.hv_lv_partition import (
     HvLvGuardConfig,
     HvLvPartitionStage,
     PartitionError,
     load_guard_config,
 )
-
+from temper_placer.deterministic.state import BoardState
 
 # ---------------------------------------------------------------------------
 # BoardState defaults (NFR6)
@@ -393,7 +391,7 @@ def test_stage_insufficient_area_falls_back_with_warning(caplog):
     assert any("insufficient" in rec.message for rec in caplog.records)
 
 
-def test_stage_insufficient_area_raises_when_fallback_disabled(caplog):
+def test_stage_insufficient_area_raises_when_fallback_disabled(_caplog):
     components = [
         Component(
             ref="Q_BIG",

@@ -17,17 +17,16 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import NetClassRules
-    from temper_placer.deterministic.state import BoardState
     from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
+    from temper_placer.deterministic.state import BoardState
     from temper_placer.router_v6.diagnostics import NetRoutingReport
 
 from temper_placer.core.pin_geometry import pin_world_position
-
 
 logger = logging.getLogger(__name__)
 
@@ -145,10 +144,10 @@ def _empty_bottleneck(
 def _compute_cell_capacity(
     cell: tuple[int, int, int],
     layer: int,
-    grid: "ClearanceGrid",
-    net_class_rules: "dict[str, NetClassRules] | NetClassRules | None",
+    grid: ClearanceGrid,
+    net_class_rules: dict[str, NetClassRules] | NetClassRules | None,
     net_name: str,
-    pad_net_classes: "dict[tuple[int, int, int], str] | None" = None,
+    pad_net_classes: dict[tuple[int, int, int], str] | None = None,
     current_net_class: str | None = None,
 ) -> int:
     """Return the routing capacity of a single cell after subtractive discounts.
@@ -287,7 +286,7 @@ _SAFETY_RANK: dict[str, int] = {
 def _should_discount_for_neighbor(
     neighbor_cell: tuple[int, int, int],
     pad_classes: dict[tuple[int, int, int], str],
-    net_class_rules: "dict[str, NetClassRules] | None",
+    net_class_rules: dict[str, NetClassRules] | None,
     current_category: int | None,
 ) -> bool:
     """Return True when the neighbour pad should discount capacity.
@@ -319,7 +318,7 @@ def _should_discount_for_neighbor(
     return neighbor_category > current_category
 
 
-def is_hard_blocked(grid: "ClearanceGrid", cell: tuple[int, int, int]) -> bool:
+def is_hard_blocked(grid: ClearanceGrid, cell: tuple[int, int, int]) -> bool:
     """Return True if the cell is hard-blocked (must be omitted from graph).
 
     A cell is hard-blocked when it carries an obstacle marker (-2 in
@@ -352,7 +351,7 @@ def is_hard_blocked(grid: "ClearanceGrid", cell: tuple[int, int, int]) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def _mm_to_cell(grid: "ClearanceGrid", x_mm: float, y_mm: float) -> tuple[int, int]:
+def _mm_to_cell(grid: ClearanceGrid, x_mm: float, y_mm: float) -> tuple[int, int]:
     """Convert mm coordinates to ``(row, col)`` cell indices.
 
     Mirrors the private helper in ``ClearanceGrid`` but is robust to grid
@@ -373,16 +372,16 @@ def _mm_to_cell(grid: "ClearanceGrid", x_mm: float, y_mm: float) -> tuple[int, i
 
 
 def _build_capacitated_graph(
-    grid: "ClearanceGrid",
+    grid: ClearanceGrid,
     source_cells: list[tuple[int, int, int]],
     sink_cells: list[tuple[int, int, int]],
-    net_class_rules: "dict[str, NetClassRules] | None",
-    board_state: "BoardState",
+    net_class_rules: dict[str, NetClassRules] | None,
+    board_state: BoardState,
     net_name: str,
     deadline: float | None = None,
-    pad_net_classes: "dict[tuple[int, int, int], str] | None" = None,
+    pad_net_classes: dict[tuple[int, int, int], str] | None = None,
     current_net_class: str | None = None,
-) -> "object":  # networkx.DiGraph (avoids hard import in fast path)
+) -> object:  # networkx.DiGraph (avoids hard import in fast path)
     """Build a directed capacitated graph for s-t min-cut.
 
     Nodes are ``(layer, row, col)`` triples whose capacity is > 0 and
@@ -532,9 +531,9 @@ def _build_capacitated_graph(
 
 
 def _resolve_pad_cells(
-    grid: "ClearanceGrid",
-    board_state: "BoardState",
-    net: "object",
+    grid: ClearanceGrid,
+    board_state: BoardState,
+    net: object,
 ) -> tuple[list[tuple[int, int, int]], list[tuple[int, int, int]]]:
     """Resolve source / sink cells for the failing net.
 
@@ -580,7 +579,6 @@ def _resolve_pad_cells(
             )
             if pin is None:
                 continue
-            pos = comp.initial_position or (0.0, 0.0)
             x_mm, y_mm = pin_world_position(pin, comp)
             row, col = _mm_to_cell(grid, x_mm, y_mm)
             cells_for_pad = _layers_for_pin(pin, grid.layer_count)
@@ -608,10 +606,10 @@ def _resolve_pad_cells(
 # kept here to avoid an import cycle (sequential_routing imports this
 # module). When the layer name is missing from the map, SMD pins fall
 # back to layer 0 (F.Cu) so the resulting cell is still routable.
-from temper_placer.core.board import LAYER_NAME_TO_IDX as _SMD_LAYER_NAME_TO_IDX
+from temper_placer.core.board import LAYER_NAME_TO_IDX as _SMD_LAYER_NAME_TO_IDX  # noqa: E402
 
 
-def _layers_for_pin(pin: "object", grid_layer_count: int) -> list[int]:
+def _layers_for_pin(pin: object, grid_layer_count: int) -> list[int]:
     """Return the list of layer indices a pad should occupy.
 
     PTH pins and pins with layer ``"all"`` occupy every layer in
@@ -638,14 +636,14 @@ def _layers_for_pin(pin: "object", grid_layer_count: int) -> list[int]:
 def _partition_to_components(
     reachable: set[tuple[int, int, int]],
     non_reachable: set[tuple[int, int, int]],
-    board_state: "BoardState",
+    board_state: BoardState,
     source_cells: list[tuple[int, int, int]],
     sink_cells: list[tuple[int, int, int]],
     pad_positions: dict[tuple[int, int, int], tuple[str, tuple[float, float]]],
-    grid: "ClearanceGrid | None" = None,
+    grid: ClearanceGrid | None = None,
 ) -> tuple[
     tuple[str, str],
-    "PairKind",
+    PairKind,
     tuple[tuple[float, float], tuple[float, float]],
 ]:
     """Classify the s-t partition and return (pair, kind, positions).
@@ -731,7 +729,7 @@ def _partition_to_components(
 
 
 def _resolve_cell_size_mm(
-    board_state: "BoardState", grid: "ClearanceGrid | None"
+    board_state: BoardState, grid: ClearanceGrid | None
 ) -> float:
     """Return the cell size in mm for the board's clearance grid.
 
@@ -757,7 +755,7 @@ def _resolve_cell_size_mm(
     return 1.0
 
 
-def grid_cell_size(board_state_or_grid: "object") -> float:
+def grid_cell_size(board_state_or_grid: object) -> float:
     """Return the cell size in mm for any object exposing ``cell_size_mm``.
 
     Tolerates ``BoardState``, ``ClearanceGrid``, and bare objects so
@@ -802,9 +800,9 @@ def _compute_current_gap_mm(
 
 
 def _required_creepage_mm(
-    net_class_rules: "dict[str, NetClassRules] | None",
-    net: "object",
-    board_state: "BoardState",
+    net_class_rules: dict[str, NetClassRules] | None,
+    net: object,
+    board_state: BoardState,
 ) -> float:
     """Pick the higher of the two sides' ``creepage_mm`` for the cut.
 
@@ -838,12 +836,12 @@ def _required_creepage_mm(
 
 
 def analyze_bottleneck(
-    grid: "ClearanceGrid",
-    net: "object",
-    board_state: "BoardState",
-    report: "NetRoutingReport",
-    net_class_rules: "dict[str, NetClassRules] | None" = None,
-) -> "BottleneckGeometry | None":
+    grid: ClearanceGrid,
+    net: object,
+    board_state: BoardState,
+    report: NetRoutingReport,
+    net_class_rules: dict[str, NetClassRules] | None = None,
+) -> BottleneckGeometry | None:
     """Public entry point for per-failed-net min-cut analysis.
 
     Returns ``None`` when the report's ``failure_reason`` is set and not
@@ -909,7 +907,6 @@ def analyze_bottleneck(
             )
             if pin is None:
                 continue
-            pos = comp.initial_position or (0.0, 0.0)
             x_mm, y_mm = pin_world_position(pin, comp)
             row, col = _mm_to_cell(grid, x_mm, y_mm)
             for layer in _layers_for_pin(pin, grid.layer_count):

@@ -228,7 +228,7 @@ class SpectralInitializer:
         self,
         netlist: Netlist,
         board: Board,
-        rng_key: Array | None = None,
+        _rng_key: Array | None = None,
     ) -> Array:
         """
         Compute initial positions for all components using spectral embedding.
@@ -431,7 +431,7 @@ class SpectralInitializer:
         """
         packed = []
 
-        for i, (subgraph, coords) in enumerate(zip(subgraphs, subgraph_coords)):
+        for i, (_subgraph, coords) in enumerate(zip(subgraphs, subgraph_coords)):
             if i == 0:
                 # Largest subgraph: center region with margin
                 region = self._get_board_region(board, "center", self.margin_fraction)
@@ -612,7 +612,6 @@ class LearnedInitializer:
         edges = jnp.array(np.where(np.array(adjacency) > 0)).T
 
         # Node features: [Area, PinCount, Fixed, Centrality]
-        n = netlist.n_components
         areas = jnp.array([c.width * c.height for c in netlist.components])
         pin_counts = jnp.array([len(c.pins) for c in netlist.components])
         fixed = jnp.array([c.fixed for c in netlist.components], dtype=jnp.float32)

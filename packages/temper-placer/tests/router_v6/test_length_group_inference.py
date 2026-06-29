@@ -16,11 +16,11 @@ def test_infer_length_groups_diff_pairs():
         DiffPair(base_name="USB_D", p_net="USB_DP", n_net="USB_DN"),
         DiffPair(base_name="ETH_TX", p_net="ETH_TX_P", n_net="ETH_TX_N"),
     ]
-    
+
     groups = infer_length_groups([], diff_pairs=diff_pairs)
-    
+
     assert len(groups) == 2
-    
+
     # Check USB differential pair group
     usb_group = [g for g in groups if "USB" in g.name][0]
     assert set(usb_group.nets) == {"USB_DP", "USB_DN"}
@@ -30,9 +30,9 @@ def test_infer_length_groups_diff_pairs():
 def test_infer_length_groups_parallel_bus():
     """Test parallel bus detection (DDR_DQ0-7)."""
     nets = ["DDR_DQ0", "DDR_DQ1", "DDR_DQ2", "DDR_DQ3", "GND", "3V3"]
-    
+
     groups = infer_length_groups(nets)
-    
+
     assert len(groups) == 1
     assert groups[0].name == "DDR_DQ"
     assert len(groups[0].nets) == 4
@@ -43,9 +43,9 @@ def test_infer_length_groups_parallel_bus():
 def test_infer_length_groups_bracket_notation():
     """Test bus detection with bracket notation SPI_D[0]."""
     nets = ["SPI_D[0]", "SPI_D[1]", "SPI_D[2]", "SPI_D[3]"]
-    
+
     groups = infer_length_groups(nets)
-    
+
     assert len(groups) == 1
     assert groups[0].name == "SPI_D"
     assert len(groups[0].nets) == 4
@@ -55,9 +55,9 @@ def test_infer_length_groups_bracket_notation():
 def test_infer_length_groups_clock_tree():
     """Test clock distribution tree detection."""
     nets = ["CLK_MCU_OUT_0", "CLK_MCU_OUT_1", "CLK_MCU_OUT_2"]
-    
+
     groups = infer_length_groups(nets)
-    
+
     # Should create clock tree group
     clock_groups = [g for g in groups if "CLK" in g.name]
     assert len(clock_groups) >= 1
@@ -67,9 +67,9 @@ def test_infer_length_groups_clock_tree():
 def test_infer_length_groups_no_groups():
     """Test that no groups are created for unrelated nets."""
     nets = ["GND", "3V3", "RESET", "LED"]
-    
+
     groups = infer_length_groups(nets)
-    
+
     assert len(groups) == 0
 
 
@@ -80,9 +80,9 @@ def test_infer_length_groups_multiple_buses():
         "DDR_A0", "DDR_A1", "DDR_A2",  # DDR address bus
         "SPI_D0", "SPI_D1",  # SPI data
     ]
-    
+
     groups = infer_length_groups(nets)
-    
+
     assert len(groups) == 3
     group_names = {g.name for g in groups}
     assert "DDR_DQ" in group_names
@@ -133,18 +133,18 @@ def test_infer_length_groups_combined():
         "DDR_DQ0", "DDR_DQ1", "DDR_DQ2",  # Parallel bus
         "GND", "3V3",  # No group
     ]
-    
+
     diff_pairs = [DiffPair(base_name="USB_D", p_net="USB_DP", n_net="USB_DN")]
-    
+
     groups = infer_length_groups(nets, diff_pairs=diff_pairs)
-    
+
     # Should have diff pair group + DDR bus group
     assert len(groups) == 2
-    
+
     # Check diff pair group exists
     diff_group = [g for g in groups if "DIFFPAIR" in g.name][0]
     assert set(diff_group.nets) == {"USB_DP", "USB_DN"}
-    
+
     # Check DDR group exists
     ddr_group = [g for g in groups if "DDR" in g.name][0]
     assert len(ddr_group.nets) == 3
@@ -158,7 +158,7 @@ def test_infer_length_groups_skew_assignment():
         (["I2C_SDA0", "I2C_SDA1"], 5.0),  # I2C: relaxed
         (["DATA0", "DATA1"], 1.0),  # Generic: moderate
     ]
-    
+
     for nets, expected_skew in test_cases:
         groups = infer_length_groups(nets)
         if len(groups) > 0:

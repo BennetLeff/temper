@@ -20,7 +20,6 @@ the pipeline honored the domain map end-to-end. Marked
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Any
 
 import pytest
 from shapely.geometry import Polygon
@@ -263,7 +262,7 @@ def test_hv_lv_partition_pipeline_keeps_hv_and_lv_components_apart():
     assert result.domain_regions and len(result.domain_regions) == 2
     assert result.routing_corridors, "Routing corridor must be present"
 
-    domain_map = {ref: domain for ref, domain in result.component_domain_map}
+    domain_map = dict(result.component_domain_map)
     for ref in HV_COMPONENT_REFS:
         assert domain_map.get(ref) == "HV_edge", (
             f"{ref} should be in the HV_edge bucket but is in "

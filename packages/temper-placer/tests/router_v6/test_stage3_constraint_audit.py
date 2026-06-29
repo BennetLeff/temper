@@ -41,7 +41,8 @@ class TestCapacityAudit:
 
     def test_4_nets_k2_rust_solver_clean(self):
         """4 nets sharing CH1, capacity 2 — Rust solver produces clean output."""
-        from temper_rust_router import solve_topology_rust, audit_result
+        from temper_rust_router import audit_result, solve_topology_rust
+
         from temper_placer.router_v6.constraint_model import (
             CapacityConstraint,
             ConstraintModel,
@@ -76,7 +77,8 @@ class TestDiffPairAudit:
 
     def test_diff_pair_rust_solver_clean(self):
         """Diff pair must have matching truth values."""
-        from temper_rust_router import solve_topology_rust, audit_result
+        from temper_rust_router import audit_result, solve_topology_rust
+
         from temper_placer.router_v6.constraint_model import (
             ConstraintModel,
             DiffPairConstraint,
@@ -108,7 +110,8 @@ class TestLayerAudit:
 
     def test_layer_restriction_rust_solver(self):
         """Net restricted to false on a channel must be false."""
-        from temper_rust_router import solve_topology_rust, audit_result
+        from temper_rust_router import audit_result, solve_topology_rust
+
         from temper_placer.router_v6.constraint_model import (
             ConstraintModel,
             LayerConstraint,
@@ -145,10 +148,14 @@ class TestPysatCrossValidation:
     def test_rust_vs_pysat_capacity_agreement(self):
         """Rust and pysat agree on SAT/UNSAT for capacity-constrained models."""
         from itertools import combinations
+
         from pysat.solvers import Glucose3
-        from temper_rust_router import solve_topology_rust, audit_result
+        from temper_rust_router import audit_result, solve_topology_rust
+
         from temper_placer.router_v6.constraint_model import (
-            CapacityConstraint, ConstraintModel, NetChannelVar,
+            CapacityConstraint,
+            ConstraintModel,
+            NetChannelVar,
         )
 
         # 4 nets, capacity 2.
@@ -204,11 +211,15 @@ class TestHypothesisCrossValidation:
     @pytest.mark.skipif(not _HAS_RUST, reason="temper-rust-router not installed")
     def test_random_capacity_encoding_agrees_with_pysat(self):
         """Property: Rust CNF encoding produces same SAT/UNSAT as pysat on same clauses."""
-        from hypothesis import given, settings, strategies as st
+        from hypothesis import given, settings
+        from hypothesis import strategies as st
         from pysat.solvers import Glucose3
-        from temper_rust_router import solve_topology_rust, audit_result
+        from temper_rust_router import audit_result, solve_topology_rust
+
         from temper_placer.router_v6.constraint_model import (
-            CapacityConstraint, ConstraintModel, NetChannelVar,
+            CapacityConstraint,
+            ConstraintModel,
+            NetChannelVar,
         )
 
         @given(

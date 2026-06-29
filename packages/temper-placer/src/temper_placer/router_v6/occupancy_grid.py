@@ -13,8 +13,8 @@ from enum import Enum
 import numpy as np
 from shapely import contains, points
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.stage0_data import ParsedPCB
 from temper_placer.router_v6.stage_validators import (
@@ -369,7 +369,7 @@ class OccupancyGrid:
 
 
 def mark_path_blocked_3d(
-    grids: dict[str, "OccupancyGrid"],
+    grids: dict[str, OccupancyGrid],
     path_3d: list[tuple[float, float, str]],
     trace_width: float,
     clearance: float,

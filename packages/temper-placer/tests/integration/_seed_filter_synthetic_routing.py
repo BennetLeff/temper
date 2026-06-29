@@ -16,8 +16,8 @@ full pipeline build:
 
 from __future__ import annotations
 
-import math
-from typing import Mapping, Protocol, Tuple
+from collections.abc import Mapping
+from typing import Protocol
 
 from temper_placer.deterministic.bottleneck_map import BottleneckMap
 
@@ -26,8 +26,8 @@ class RoutingStageLike(Protocol):
     """Minimal routing-stage contract for the seed-filter feedback loop."""
 
     def route(
-        self, placement: Mapping[str, Tuple[float, float]]
-    ) -> Tuple[float, BottleneckMap]: ...
+        self, placement: Mapping[str, tuple[float, float]]
+    ) -> tuple[float, BottleneckMap]: ...
 
 
 class SyntheticRoutingStub:
@@ -50,7 +50,7 @@ class SyntheticRoutingStub:
         cell_size_mm: float = 5.0,
         width_cells: int = 8,
         height_cells: int = 8,
-        origin_xy: Tuple[float, float] = (0.0, 0.0),
+        origin_xy: tuple[float, float] = (0.0, 0.0),
         capacity_per_cell: int = 2,
     ) -> None:
         if width_cells <= 0 or height_cells <= 0:
@@ -66,7 +66,7 @@ class SyntheticRoutingStub:
         self.capacity_per_cell = capacity_per_cell
 
     def _cell_counts(
-        self, placement: Mapping[str, Tuple[float, float]]
+        self, placement: Mapping[str, tuple[float, float]]
     ) -> list[int]:
         counts = [0] * (self.width_cells * self.height_cells)
         origin_x, origin_y = self.origin_xy
@@ -84,8 +84,8 @@ class SyntheticRoutingStub:
         return min(1.0, (count - self.capacity_per_cell) / self.capacity_per_cell)
 
     def route(
-        self, placement: Mapping[str, Tuple[float, float]]
-    ) -> Tuple[float, BottleneckMap]:
+        self, placement: Mapping[str, tuple[float, float]]
+    ) -> tuple[float, BottleneckMap]:
         """Return ``(routing_completion_pct, bottleneck_map)``.
 
         ``routing_completion_pct`` is in [0, 100] and is computed from

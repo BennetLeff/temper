@@ -6,6 +6,7 @@ pass/fail per board.
 
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
 
 from temper_placer.regression.manifest import GoldenManifest
@@ -33,11 +34,11 @@ class RegressionRunner:
 
         return 1 if self.reporter.has_failures else 0
 
-    def _run_board(self, board_entry, with_routing: bool = False) -> BoardResult:
+    def _run_board(self, board_entry, _with_routing: bool = False) -> BoardResult:
         board_id = board_entry.id
         pcb_path = board_entry.resolve_path(self.repo_root)
         baseline_yaml = board_entry.baseline_yaml_path(self.repo_root)
-        baseline_pcb = board_entry.baseline_pcb_path(self.repo_root)
+        board_entry.baseline_pcb_path(self.repo_root)
 
         if not pcb_path.exists():
             return BoardResult(
@@ -58,7 +59,6 @@ class RegressionRunner:
             )
 
         warnings: list[str] = []
-        errors: list[str] = []
 
         try:
             from temper_placer.validation.baseline_extractor import BaselineMetrics
@@ -122,10 +122,10 @@ class RegressionRunner:
         if current_net_count != baseline.net_count:
             net_delta.regression = True
 
-        try:
-            from temper_placer.metrics.quality_score import compute_quality_score
-            from temper_placer.validation.drc_runner import DrcResult
-
+        quality_available = (
+            importlib.util.find_spec("temper_placer.metrics.quality_score") is not None
+        )
+        if quality_available:
             current_drc_errors = 0
             current_drc_warnings = 0
 
@@ -158,8 +158,7 @@ class RegressionRunner:
             deltas.append(warn_delta)
             if current_drc_warnings > baseline.drc_warnings:
                 warn_delta.regression = True
-
-        except ImportError:
+        else:
             warnings.append("quality_score not available; skipping GPBM comparison")
 
         has_regression = any(d.regression for d in deltas)

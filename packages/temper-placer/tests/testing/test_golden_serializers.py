@@ -1,7 +1,7 @@
 """Tests for golden serializers — U1."""
 import json
+
 import pytest
-import yaml
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin

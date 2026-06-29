@@ -19,7 +19,6 @@ from temper_placer.deterministic import create_drc_aware_pipeline
 from temper_placer.deterministic.stages import ZoneAwareSlotGenerationStage
 from temper_placer.io.config_loader import IsolationSlot, load_constraints
 
-
 # Path to the production config that already declares Q1/Q2 isolation slots
 # (configs/temper_deterministic_config.yaml:482-499). Tests below use this as
 # the "real" Constraints input. Skipped automatically when the config is not

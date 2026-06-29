@@ -1,9 +1,11 @@
 
 import pytest
+
 from temper_placer.core.netlist import Component, Pin
+from temper_placer.router_v6.escape_drc_validator import validate_escape_plan
 from temper_placer.router_v6.escape_via_generator import EscapeVia
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
-from temper_placer.router_v6.escape_drc_validator import validate_escape_plan
+
 
 @pytest.fixture
 def mock_design_rules():

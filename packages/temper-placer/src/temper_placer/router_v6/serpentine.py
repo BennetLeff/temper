@@ -6,8 +6,6 @@ to equalize differential pair trace lengths.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Tuple
-import math
 
 
 @dataclass
@@ -20,38 +18,38 @@ class DiffPairPath:
     skew_mm: float = 0.0
 
 
-def measure_path_length(cells: List[Tuple[int, int, int]], cell_size_mm: float) -> float:
+def measure_path_length(cells: list[tuple[int, int, int]], cell_size_mm: float) -> float:
     """
     Measure the physical length of a routed path in mm.
-    
+
     Args:
         cells: List of (x, y, layer) grid cells
         cell_size_mm: Size of each grid cell
-        
+
     Returns:
         Total path length in mm
     """
     if len(cells) < 2:
         return 0.0
-    
+
     total_length = 0.0
     for i in range(len(cells) - 1):
         x1, y1, l1 = cells[i]
         x2, y2, l2 = cells[i + 1]
-        
+
         # Manhattan distance in grid cells
         dx = abs(x2 - x1)
         dy = abs(y2 - y1)
-        
+
         # Convert to mm
         segment_length = (dx + dy) * cell_size_mm
-        
+
         # Add via penalty if layer changes
         if l1 != l2:
             segment_length += 0.5  # Via adds ~0.5mm equivalent length
-        
+
         total_length += segment_length
-    
+
     return total_length
 
 
@@ -59,13 +57,13 @@ def generate_serpentine_pattern(
     amplitude_mm: float,
     frequency: int,
     insertion_index: int,
-    trace_cells: List[Tuple[int, int, int]],
+    trace_cells: list[tuple[int, int, int]],
     cell_size_mm: float,
-    perpendicular_direction: Tuple[int, int],
-) -> List[Tuple[int, int, int]]:
+    perpendicular_direction: tuple[int, int],
+) -> list[tuple[int, int, int]]:
     """
     Generate a serpentine (zigzag) pattern to add length to a trace.
-    
+
     Args:
         amplitude_mm: Peak-to-peak amplitude of serpentine in mm
         frequency: Number of zigzag cycles
@@ -73,7 +71,7 @@ def generate_serpentine_pattern(
         trace_cells: Original trace path
         cell_size_mm: Grid cell size
         perpendicular_direction: (dx, dy) perpendicular to trace direction
-        
+
     Returns:
         New trace with serpentine pattern inserted
     """
@@ -81,17 +79,17 @@ def generate_serpentine_pattern(
     amplitude_cells = int(amplitude_mm / cell_size_mm)
     if amplitude_cells < 1:
         return trace_cells.copy()  # Too small to insert
-    
+
     # Get insertion point
     if insertion_index >= len(trace_cells):
         insertion_index = len(trace_cells) // 2  # Default to middle
-    
+
     base_x, base_y, layer = trace_cells[insertion_index]
     perp_dx, perp_dy = perpendicular_direction
-    
+
     # Generate zigzag pattern
     pattern = []
-    for cycle in range(frequency):
+    for _cycle in range(frequency):
         # Zigzag: go perpendicular, then back
         for step in range(amplitude_cells):
             pattern.append((
@@ -99,7 +97,7 @@ def generate_serpentine_pattern(
                 base_y + perp_dy * step,
                 layer
             ))
-        
+
         # Return to centerline
         for step in range(amplitude_cells, 0, -1):
             pattern.append((
@@ -107,10 +105,10 @@ def generate_serpentine_pattern(
                 base_y + perp_dy * step,
                 layer
             ))
-    
+
     # Insert pattern into trace
     new_trace = trace_cells[:insertion_index] + pattern + trace_cells[insertion_index:]
-    
+
     return new_trace
 
 
@@ -118,35 +116,35 @@ def calculate_serpentine_params(
     length_deficit_mm: float,
     available_space_mm: float,
     cell_size_mm: float,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """
     Calculate serpentine amplitude and frequency to add desired length.
-    
+
     Geometric formula: Added length ≈ 4 × amplitude × frequency
     (Each zigzag cycle adds 4 × amplitude)
-    
+
     Args:
         length_deficit_mm: How much length to add
         available_space_mm: Available perpendicular space
         cell_size_mm: Grid cell size
-        
+
     Returns:
         (amplitude_mm, frequency) tuple
     """
     # Use 50% of available space for amplitude (leave clearance)
     amplitude_mm = min(available_space_mm * 0.5, 1.0)  # Max 1mm amplitude
-    
+
     if amplitude_mm < cell_size_mm:
         # Not enough space for serpentine
         return (0.0, 0)
-    
+
     # Calculate required frequency
     # length_added ≈ 4 × amplitude × frequency
     frequency = int(length_deficit_mm / (4 * amplitude_mm))
-    
+
     # Clamp frequency (avoid excessive zigzags)
     frequency = max(1, min(frequency, 10))
-    
+
     return (amplitude_mm, frequency)
 
 
@@ -157,31 +155,31 @@ def apply_length_matching(
 ) -> 'DiffPairPath':
     """
     Apply length matching to differential pair by inserting serpentine.
-    
+
     Measures lengths of P and N traces. If mismatch exceeds max_skew_mm,
     inserts serpentine pattern on the shorter trace.
-    
+
     Args:
         diff_pair_path: Original routed pair
         cell_size_mm: Grid cell size
         max_skew_mm: Maximum allowed skew
-        
+
     Returns:
         Updated DiffPairPath with length matching applied
     """
     if not diff_pair_path.success:
         return diff_pair_path  # Don't modify failed routes
-    
+
     # Measure current lengths
     pos_length = measure_path_length(diff_pair_path.pos_cells, cell_size_mm)
     neg_length = measure_path_length(diff_pair_path.neg_cells, cell_size_mm)
-    
+
     skew = abs(pos_length - neg_length)
-    
+
     if skew <= max_skew_mm:
         # Already within tolerance
         return diff_pair_path
-    
+
     # Determine which trace is shorter
     if pos_length < neg_length:
         shorter_cells = diff_pair_path.pos_cells
@@ -193,17 +191,17 @@ def apply_length_matching(
         longer_cells = diff_pair_path.pos_cells
         deficit_mm = pos_length - neg_length
         is_pos_shorter = False
-    
+
     # Calculate serpentine parameters
     # Assume 2mm available space (conservative for differential pairs)
     amplitude_mm, frequency = calculate_serpentine_params(
         deficit_mm, available_space_mm=2.0, cell_size_mm=cell_size_mm
     )
-    
+
     if frequency == 0:
         # Can't add serpentine (not enough space or deficit too small)
         return diff_pair_path
-    
+
     # Insert serpentine on shorter trace
     # Use perpendicular direction (assume horizontal trace → vertical serpentine)
     insertion_index = len(shorter_cells) // 2
@@ -215,7 +213,7 @@ def apply_length_matching(
         cell_size_mm=cell_size_mm,
         perpendicular_direction=(0, 1),  # Vertical zigzag
     )
-    
+
     # Update path
     if is_pos_shorter:
         new_pos_cells = new_shorter
@@ -223,12 +221,12 @@ def apply_length_matching(
     else:
         new_pos_cells = longer_cells
         new_neg_cells = new_shorter
-    
+
     # Recalculate metrics
     new_pos_length = measure_path_length(new_pos_cells, cell_size_mm)
     new_neg_length = measure_path_length(new_neg_cells, cell_size_mm)
     new_skew = abs(new_pos_length - new_neg_length)
-    
+
     # Return updated path
     return DiffPairPath(
         pos_cells=new_pos_cells,

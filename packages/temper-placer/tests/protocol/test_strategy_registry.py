@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from temper_placer.protocol import StageOutput, PipelineStage
+from temper_placer.protocol import PipelineStage, StageOutput
 from temper_placer.strategy_registry import (
-    register,
     get,
-    list_stages,
-    register_composite,
     get_composite,
+    list_stages,
+    register,
+    register_composite,
 )
 
 
@@ -32,7 +32,6 @@ class FakeStage:
 @pytest.fixture(autouse=True)
 def _clean_registry():
     """Each test gets a clean registry by re-importing the module."""
-    import importlib
     import temper_placer.strategy_registry as sr
 
     # Re-initialize the module-level dicts

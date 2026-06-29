@@ -34,8 +34,8 @@ Design Decisions:
 - Performance target: <2s per pair (correctness over speed)
 """
 
+from .run_experiments import run_all_experiments, run_experiment
 from .test_fixtures import TestFixture, create_test_fixtures
-from .run_experiments import run_experiment, run_all_experiments
 
 __all__ = [
     "TestFixture",

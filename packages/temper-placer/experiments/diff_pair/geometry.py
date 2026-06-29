@@ -4,11 +4,10 @@ Geometry Helpers for Differential Pair Routing
 Provides functions for corner geometry, serpentine generation, and spacing calculations.
 """
 
-from typing import List, Tuple
 import math
 
 
-def calculate_spacing(pos: Tuple[float, float], neg: Tuple[float, float]) -> float:
+def calculate_spacing(pos: tuple[float, float], neg: tuple[float, float]) -> float:
     """
     Calculate Euclidean distance between P and N positions.
 
@@ -25,7 +24,7 @@ def calculate_spacing(pos: Tuple[float, float], neg: Tuple[float, float]) -> flo
 
 
 def is_45_degree_angle(
-    p1: Tuple[float, float], p2: Tuple[float, float], p3: Tuple[float, float]
+    p1: tuple[float, float], p2: tuple[float, float], p3: tuple[float, float]
 ) -> bool:
     """
     Check if three points form a 45° or 90° angle (valid for mitered corners).
@@ -57,12 +56,12 @@ def is_45_degree_angle(
 
 
 def generate_trombone_serpentine(
-    start_pos: Tuple[float, float],
-    direction: Tuple[float, float],  # Unit vector of trace direction
+    _start_pos: tuple[float, float],
+    _direction: tuple[float, float],  # Unit vector of trace direction
     _required_length_mm: float,
-    width_mm: float = 1.0,
-    spacing_mm: float = 0.5,
-) -> List[Tuple[float, float]]:
+    _width_mm: float = 1.0,
+    _spacing_mm: float = 0.5,
+) -> list[tuple[float, float]]:
     """
     Generate a trombone (rectangular) serpentine to add length to a trace.
 
@@ -82,8 +81,8 @@ def generate_trombone_serpentine(
 
 
 def offset_parallel_traces(
-    centerline_path: List[Tuple[float, float]], offset_distance: float
-) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
+    centerline_path: list[tuple[float, float]], offset_distance: float
+) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
     """
     Create parallel offset paths from a centerline path.
 

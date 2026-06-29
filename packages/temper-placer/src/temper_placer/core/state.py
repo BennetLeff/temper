@@ -9,10 +9,15 @@ JAX-compatible for automatic differentiation.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import jax
 import jax.numpy as jnp
 from jax import Array
+
+if TYPE_CHECKING:
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
 
 
 @dataclass
@@ -64,8 +69,8 @@ class PlacementState:
     @classmethod
     def from_netlist_and_board(
         cls,
-        netlist: "Netlist",
-        board: "Board",
+        netlist: Netlist,
+        board: Board,
     ) -> PlacementState:
         """
         Create a PlacementState from a Netlist and Board.
@@ -77,12 +82,11 @@ class PlacementState:
         Returns:
             New PlacementState instance initialized from component data.
         """
-        n_components = netlist.n_components
-        
+
         # Extract initial positions and rotations
         positions_list = []
         rotation_logits_list = []
-        
+
         for comp in netlist.components:
             # Position
             if comp.initial_position:
@@ -90,7 +94,7 @@ class PlacementState:
             else:
                 # Default to board center if no initial position
                 positions_list.append([board.width / 2.0, board.height / 2.0])
-                
+
             # Rotation
             logits = [0.0, 0.0, 0.0, 0.0]
             if comp.initial_rotation is not None:
@@ -99,19 +103,19 @@ class PlacementState:
                 idx = comp.initial_rotation % 4
                 logits[idx] = 10.0
             rotation_logits_list.append(logits)
-            
+
         positions = jnp.array(positions_list, dtype=jnp.float32)
         rotation_logits = jnp.array(rotation_logits_list, dtype=jnp.float32)
-        
+
         # Initialize virtual nodes for nets
         n_nets = netlist.n_nets
         net_virtual_nodes = None
         if n_nets > 0:
             # Initialize to board center
-            net_virtual_nodes = jnp.full((n_nets, 2), 
-                                       jnp.array([board.width / 2.0, board.height / 2.0]), 
+            net_virtual_nodes = jnp.full((n_nets, 2),
+                                       jnp.array([board.width / 2.0, board.height / 2.0]),
                                        dtype=jnp.float32)
-            
+
         return cls(
             positions=positions,
             rotation_logits=rotation_logits,
@@ -126,7 +130,7 @@ class PlacementState:
         board_height: float,
         key: Array,
         margin: float = 10.0,
-        origin: tuple[float, float] = (0.0, 0.0),
+        _origin: tuple[float, float] = (0.0, 0.0),
         n_nets: int = 0,
     ) -> PlacementState:
         """

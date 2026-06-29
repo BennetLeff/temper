@@ -7,16 +7,13 @@ NFR4 / SM4: this is the regression anchor for the U1 change.
 
 from __future__ import annotations
 
-from dataclasses import replace
-
 from temper_placer.core.design_rules import DesignRules, NetClassRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.phased_component_assignment import (
     PhasedComponentAssignmentStage,
 )
+from temper_placer.deterministic.state import BoardState
 from temper_placer.io.config_loader import PlacementConstraints
-
 
 # Frozen LV-only board fixture.
 _LV_NETLIST = Netlist(

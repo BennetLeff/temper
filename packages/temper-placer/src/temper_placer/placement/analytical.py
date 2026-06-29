@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.optimize import linprog
-from temper_placer.router_v6.stage0_data import ParsedPCB
+
 from temper_placer.placement.audit import PlacementAuditor
+from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
 class AnalyticalLegalizer:
@@ -147,7 +148,7 @@ class AnalyticalLegalizer:
             w = sizes[i] / 2.0
             bounds.append((min_val + w, max_val - w))
         # u_i bounds (0, inf)
-        for i in range(n):
+        for _i in range(n):
             bounds.append((0, None))
 
         # Solve

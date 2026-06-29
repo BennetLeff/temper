@@ -167,14 +167,14 @@ def _is_position_valid(
     y: float,
     radius: float,
     component: Component,
-    comp_pos: tuple[float, float],
-    comp_angle: float,
+    _comp_pos: tuple[float, float],
+    _comp_angle: float,
     clearance: float,
-    ignore_net: str | None = None
+    _ignore_net: str | None = None
 ) -> bool:
     """
     Check if via at (x,y) with radius collides with any component pin.
-    
+
     Args:
         x, y: Via center coordinates.
         radius: Via radius.

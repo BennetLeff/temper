@@ -1,5 +1,4 @@
 from temper_drc.checks.safety.isolation import IsolationCheck
-from temper_drc.core.result import Severity
 from temper_drc.input.constraints import ConstraintSet, ZoneDefinition
 from temper_drc.input.placement import ComponentPlacement, Placement
 

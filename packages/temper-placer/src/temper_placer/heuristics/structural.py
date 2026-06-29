@@ -188,7 +188,7 @@ class KeepoutAwarenessHeuristic(Heuristic):
 
 def identify_connectors(
     netlist: Netlist,
-    constraints: PlacementConstraints,
+    _constraints: PlacementConstraints,
 ) -> list[tuple[Component, str]]:
     """
     Identify connector components and classify their purpose.
@@ -431,11 +431,8 @@ class ConnectorEdgeSnappingHeuristic(Heuristic):
 
         # Distribute components along edge
         n = len(components)
-        for i, (comp, purpose) in enumerate(components):
-            if n > 1:
-                t = i / (n - 1)
-            else:
-                t = 0.5
+        for i, (comp, _purpose) in enumerate(components):
+            t = i / (n - 1) if n > 1 else 0.5
 
             varying_coord = range_start + t * (range_end - range_start)
 
@@ -648,10 +645,7 @@ class ThermalEdgePlacementHeuristic(Heuristic):
         n = len(sorted_comps)
 
         for i, comp in enumerate(sorted_comps):
-            if n > 1:
-                t = i / (n - 1)
-            else:
-                t = 0.5
+            t = i / (n - 1) if n > 1 else 0.5
 
             varying_coord = range_start + t * (range_end - range_start)
 
@@ -744,7 +738,7 @@ class CriticalLoopHeuristic(Heuristic):
 
     def _place_loop_components(
         self,
-        loop_name: str,
+        _loop_name: str,
         loop_nets: list[str],
         netlist: Netlist,
         board: Board,

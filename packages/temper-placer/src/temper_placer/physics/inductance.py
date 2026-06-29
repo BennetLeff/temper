@@ -5,7 +5,6 @@ Parasitic inductance estimation for PCB current loops.
 from __future__ import annotations
 
 import math
-import numpy as np
 
 
 def estimate_loop_inductance(
@@ -56,11 +55,11 @@ def estimate_gate_inductance(
 ) -> float:
     """
     Specific estimator for gate drive loops.
-    
+
     Args:
         source_to_gate_dist_mm: Distance from driver output to gate.
         return_dist_mm: Distance from source back to driver ground.
-        
+
     Returns:
         Estimated inductance in nH.
     """

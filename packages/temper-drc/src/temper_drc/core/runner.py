@@ -167,9 +167,8 @@ class CheckRunner:
             CheckResult if found and run, None if check not found.
         """
         for check in self.checks:
-            if check.name == check_name:
-                if check.is_applicable(placement, constraints):
-                    return check.run(placement, constraints)
+            if check.name == check_name and check.is_applicable(placement, constraints):
+                return check.run(placement, constraints)
         return None
 
     @property

@@ -18,20 +18,18 @@ from unittest.mock import patch
 import pytest
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.bottleneck_geometry import (
     BOTTLENECK_TIMEOUT_S,
-    BottleneckGeometry,
-    analyze_bottleneck,
     _build_capacitated_graph,
+    analyze_bottleneck,
 )
 from temper_placer.router_v6.diagnostics import (
     FailureReason,
     NetRoutingReport,
     RoutingStatus,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -319,9 +317,6 @@ class TestBottleneckSynthetic:
         assert that ``_build_capacitated_graph`` raises ``TimeoutError``
         with a graph that has not been fully built.
         """
-        from temper_placer.router_v6.bottleneck_geometry import (
-            _build_capacitated_graph,
-        )
 
         # 30×30 grid (900 cells) at 1.0 mm — enough that the BFS
         # explores many cells, giving the deadline check a chance to

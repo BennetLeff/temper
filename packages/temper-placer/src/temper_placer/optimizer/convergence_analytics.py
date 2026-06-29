@@ -181,10 +181,7 @@ class LossImprovementTracker:
                 delta = loss - prev_loss
 
                 # Compute improvement rate (positive = improvement)
-                if abs(prev_loss) > 1e-10:
-                    improvement_rate = -delta / abs(prev_loss)
-                else:
-                    improvement_rate = 0.0
+                improvement_rate = -delta / abs(prev_loss) if abs(prev_loss) > 1e-10 else 0.0
         else:
             # First epoch - no delta yet
             delta = 0.0
@@ -510,7 +507,7 @@ class ConvergenceAnalyzer:
         # Find first epoch where rolling avg and velocity are both near zero
         threshold = 0.001  # 0.1% improvement
 
-        for i, rate in enumerate(self.tracker._improvement_rate_history):
+        for i, _rate in enumerate(self.tracker._improvement_rate_history):
             if i < 10:
                 continue
 
@@ -602,10 +599,8 @@ class ConvergenceAnalyzer:
             mean_change = abs(mean_after - mean_before) / (abs(mean_before) + 1e-10)
             std_change = abs(std_after - std_before) / (std_before + 1e-10)
 
-            if mean_change > sensitivity * 0.5 or std_change > sensitivity:
-                # Check if we haven't just recorded a nearby transition
-                if not transitions or i - transitions[-1] > window:
-                    transitions.append(i)
+            if (mean_change > sensitivity * 0.5 or std_change > sensitivity) and (not transitions or i - transitions[-1] > window):
+                transitions.append(i)
 
         return transitions
 
@@ -910,10 +905,7 @@ class ConvergenceConfidenceScorer:
             early_grads = self._gradient_history[:5]
             early_avg = sum(early_grads) / len(early_grads)
 
-            if early_avg > 1e-10:
-                grad_ratio = avg_grad / early_avg
-            else:
-                grad_ratio = 1.0
+            grad_ratio = avg_grad / early_avg if early_avg > 1e-10 else 1.0
         else:
             grad_ratio = 1.0
 

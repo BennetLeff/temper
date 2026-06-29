@@ -34,9 +34,7 @@ def is_drc_fence_fail_enabled() -> bool:
     (case-insensitive) to opt out and return to WARNING-only mode.
     """
     raw = os.environ.get(_ENV_VAR, "").strip().lower()
-    if raw in ("0", "false", "no", "off"):
-        return False
-    return True
+    return raw not in ("0", "false", "no", "off")
 
 
 # Module-level constant for callers that want to read the snapshot once
@@ -56,6 +54,4 @@ def is_feedback_enabled() -> bool:
     (case-insensitive) to disable the contract and fall back to single-pass.
     """
     raw = os.environ.get(_FEEDBACK_ENV_VAR, "").strip().lower()
-    if raw in ("0", "false", "no", "off"):
-        return False
-    return True
+    return raw not in ("0", "false", "no", "off")

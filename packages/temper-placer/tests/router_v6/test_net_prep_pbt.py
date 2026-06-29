@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-from hypothesis import given, settings
-from hypothesis.strategies import text
-
 from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.net_prep_stage import NetPrepStage, validate_net_prep
 

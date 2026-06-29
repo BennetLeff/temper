@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any
 
 from temper_placer.core.netlist import Netlist
-from temper_placer.core.state import PlacementState
 from temper_placer.experiments.metrics_tracker import (
     MetricsTracker,
     RunMetrics,
@@ -24,7 +23,7 @@ from temper_placer.experiments.metrics_tracker import (
 
 def create_run_metrics(
     result: Any,
-    netlist: Netlist,
+    _netlist: Netlist,
     experiment_name: str,
     seed: int,
     config: dict[str, Any],

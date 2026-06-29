@@ -53,7 +53,7 @@ def analyze_weight_correlations(results: dict) -> None:
         all_drc_pass_rates.append(drc_pass_rate)
 
     # Convert to numpy arrays
-    n = len(all_configs)
+    len(all_configs)
     overlap_weights = np.array([c["overlap_weight"] for c in all_configs])
     boundary_weights = np.array([c["boundary_weight"] for c in all_configs])
     clearance_weights = np.array([c["clearance_weight"] for c in all_configs])

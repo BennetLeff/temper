@@ -28,7 +28,7 @@ from temper_placer.losses.wirelength import WirelengthLoss
 
 def total_wirelength(
     state: PlacementState,
-    netlist: Netlist,
+    _netlist: Netlist,
     context: LossContext,
     alpha: float = 10.0,
 ) -> float:
@@ -238,12 +238,7 @@ def hv_lv_clearance_score(
             dx = abs(float(hv_pos[0]) - float(lv_pos[0])) - hv_hw - lv_hw
             dy = abs(float(hv_pos[1]) - float(lv_pos[1])) - hv_hh - lv_hh
 
-            if dx > 0 and dy > 0:
-                # Corner separation
-                clearance = (dx**2 + dy**2) ** 0.5
-            else:
-                # Edge separation or overlap
-                clearance = max(dx, dy)
+            clearance = (dx**2 + dy**2) ** 0.5 if dx > 0 and dy > 0 else max(dx, dy)
 
             min_found_clearance = min(min_found_clearance, clearance)
 
@@ -259,7 +254,7 @@ def hv_lv_clearance_score(
 def loop_area_score(
     state: PlacementState,
     netlist: Netlist,
-    context: LossContext,
+    _context: LossContext,
     loop_components: list[list[str]],
     max_area: float = 100.0,
 ) -> float:
@@ -317,7 +312,7 @@ def loop_area_score(
 
 def congestion_score(
     state: PlacementState,
-    netlist: Netlist,
+    _netlist: Netlist,
     board: Board,
     context: LossContext,
     grid_shape: tuple[int, int] = (10, 10),
@@ -362,7 +357,7 @@ def congestion_score(
 def compactness_score(
     state: PlacementState,
     netlist: Netlist,
-    board: Board,
+    _board: Board,
 ) -> float:
     """
     Score placement compactness (0-1, higher is better).

@@ -1,7 +1,7 @@
 ---
 title: Infrastructure components tested in isolation but never wired into the pipeline execution path
 date: "2026-06-28"
-last_updated: "2026-06-29"
+last_updated: "2026-06-28"
 category: workflow-issues
 module: temper_placer
 problem_type: workflow_issue
@@ -114,3 +114,4 @@ The lesson is not "don't wire dead code" — wiring was correct. The lesson is *
 - `packages/temper-placer/src/temper_placer/router_v6/stage_ledger.py` — StageLedger implementation
 - `packages/temper-placer/src/temper_placer/router_v6/pipeline.py:944` — `_ensure_checks_loaded` integration point
 - `docs/plans/2026-06-28-003-feat-pipeline-contracts-integration-plan.md` — contracts plan that introduced these components
+- `docs/solutions/architecture-patterns/ci-profiling-platform-canonical-metrics-contract-2026-06-28.md` — structural prevention: the profiling platform's `temper profile run` + `--from-stdin` pipeline ensures every new profiler is wired into CI from day one, eliminating the "tested but never called" failure mode

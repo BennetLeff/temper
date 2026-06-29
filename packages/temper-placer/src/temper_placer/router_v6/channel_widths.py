@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.base import Stage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.routing_space import RoutingSpace
 from temper_placer.router_v6.stage_validators import (
@@ -88,8 +88,8 @@ def compute_channel_widths(
     # exterior / interior rings via ``_get_ring`` (the dominant
     # per-call Shapely cost).  Demonstrated 2.2x speedup in the
     # sampling profile.
-    from shapely.geometry import MultiPolygon
     import shapely.prepared
+    from shapely.geometry import MultiPolygon
     prepared_area = shapely.prepared.prep(available_area)
     if isinstance(available_area, MultiPolygon):
         cached_polygons = list(available_area.geoms)

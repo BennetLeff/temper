@@ -28,6 +28,7 @@ pytest.skip(
 
 # The body below is preserved verbatim from the original scaffold (4fa9edf7)
 # so the rewrite can reuse the test cases once Stage 4 micro-stages land.
+from temper_placer.deterministic.state import BoardState  # noqa: E402
 from temper_placer.router_v6.bottleneck_analysis import identify_bottlenecks  # noqa: E402
 from temper_placer.router_v6.channel_skeleton import extract_channel_skeleton  # noqa: E402
 from temper_placer.router_v6.channel_widths import compute_channel_widths  # noqa: E402
@@ -42,7 +43,7 @@ from temper_placer.router_v6.test_boards import get_available_boards  # noqa: E4
 BOARDS = get_available_boards()
 
 _pcb_cache: dict[str, tuple] = {}
-_state_cache: dict[str, "BoardState"] = {}
+_state_cache: dict[str, BoardState] = {}
 
 
 def _prepare_pcb_and_vias(board):
@@ -96,7 +97,7 @@ def _run_monolith(pcb, escape_vias):
             routing_space, inflation_mm=base_inflation
         )
     layer_capacities = {}
-    for layer_name in occupancy_grids.keys():
+    for layer_name in occupancy_grids:
         cw = channel_widths.get(layer_name)
         if cw is not None:
             layer_capacities[layer_name] = calculate_layer_capacity(

@@ -9,18 +9,19 @@ Part of temper-lueu.3 and temper-lueu.4
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Literal, Mapping, Union
+from typing import TYPE_CHECKING, Literal
 
+from temper_placer.core.board import PLANE_LAYER_INDICES, LayerIndex
 from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
-from temper_placer.core.board import LayerIndex, PLANE_LAYER_INDICES
 from temper_placer.router_v6.constraints_geometry import (
     LineSegment,
     Point,
-    point_to_segment_distance,
-    segment_to_segment_distance,
     point_to_rotated_rect_distance,
+    point_to_segment_distance,
     segment_to_rotated_rect_distance,
+    segment_to_segment_distance,
 )
 from temper_placer.router_v6.constraints_spatial_index import (
     Pad,
@@ -128,7 +129,7 @@ class DRCOracle:
     ] = field(default_factory=dict)
     # @req(2026-06-23-007, R3): Maps each pad's `id` to its owning
     # component reference. May be a dict or a callable.
-    pin_owner: Union[Mapping[str, str], Callable[[str], str | None]] = field(
+    pin_owner: Mapping[str, str] | Callable[[str], str | None] = field(
         default_factory=dict
     )
 
@@ -190,8 +191,8 @@ class DRCOracle:
 
     def get_effective_clearance(
         self,
-        pad_a: "Pad",
-        pad_b: "Pad",
+        pad_a: Pad,
+        pad_b: Pad,
     ) -> float | None:
         """Return the credited clearance for a (pad_a, pad_b) check, or None.
 
@@ -265,7 +266,7 @@ class DRCOracle:
 
     def get_pad_credit(
         self,
-        pad: "Pad",
+        pad: Pad,
     ) -> float | None:
         """Return the credited clearance for a single pad inside a slot's reclaimed band.
 

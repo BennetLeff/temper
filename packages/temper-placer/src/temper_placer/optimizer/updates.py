@@ -14,8 +14,6 @@ import jax.numpy as jnp
 import optax
 from jax import Array
 
-from temper_placer.losses.base import LossContext
-
 
 def inject_learning_rate(
     opt_state: Any,

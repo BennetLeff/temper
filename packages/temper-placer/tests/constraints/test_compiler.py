@@ -6,8 +6,6 @@ Part of temper-g54c.2: Constraint compilation for deterministic placement.
 
 from unittest.mock import Mock
 
-import pytest
-
 from temper_placer.constraints.compiler import ConstraintCompiler, ValidationError
 from temper_placer.io.config_loader import (
     ComponentGroup,

@@ -7,8 +7,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import replace
-from typing import Mapping
 
 import pytest
 from hypothesis import given, settings

@@ -1,19 +1,20 @@
 import math
-import pytest
-from temper_placer.physics.emi import predict_radiated_emissions, check_emi_compliance
-from temper_placer.physics.safety import estimate_filter_delay, estimate_fault_response_time
+
+from temper_placer.physics.emi import check_emi_compliance, predict_radiated_emissions
+from temper_placer.physics.safety import estimate_fault_response_time, estimate_filter_delay
+
 
 def test_emi_prediction():
     """Verify EMI prediction logic."""
     # Area = 100mm2, Current = 10A, Freq = 50MHz, Dist = 3m
-    # E_v = 1.316e-14 * 100 * 10 * (50^2) / 3 
+    # E_v = 1.316e-14 * 100 * 10 * (50^2) / 3
     #     = 1.316e-14 * 1000 * 2500 / 3
     #     = 3.29e-8 / 3 = 1.096e-8 V/m
     # E_uv = 0.01096 uV/m
     # dBuv = 20 * log10(0.01096) = -39.2 dBuv
     dbuv = predict_radiated_emissions(100.0, 10.0, 50.0)
     assert -40.0 < dbuv < -38.0
-    assert check_emi_compliance(dbuv) == True
+    assert check_emi_compliance(dbuv)
 
 def test_emi_scaling():
     """EMI should scale with square of frequency."""

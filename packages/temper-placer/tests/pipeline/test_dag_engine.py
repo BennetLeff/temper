@@ -8,10 +8,8 @@ import pytest
 import yaml
 
 from temper_placer.pipeline.dag_engine import StageDAGEngine
-from temper_placer.pipeline.dag_observability import PipelineExecutionLog
 from temper_placer.pipeline.dag_types import (
     StageResult,
-    StageTimeoutError,
 )
 from temper_placer.pipeline.state import PipelineState
 
@@ -38,14 +36,14 @@ class MockStage:
 class FailingStage:
     """Stage that always raises an exception."""
 
-    def __call__(self, state, context):
+    def __call__(self, _state, _context):
         raise RuntimeError("Intentional failure for testing")
 
 
 class SlowStage:
     """Stage that sleeps for a configurable duration, checking deadline."""
 
-    def __call__(self, state, context):
+    def __call__(self, _state, _context):
         time.sleep(2.0)
         return StageResult(outputs={}, duration_s=2.0)
 

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class PlacementPriority(IntEnum):
     """Placement priority levels (lower = placed first)."""
-    
+
     POWER = 1       # IGBTs, bus caps, diodes - template/fixed
     DRIVER = 2      # Gate drivers, bootstrap - proximity to power
     HIGH_SPEED = 3  # MCU, oscillators - zone-constrained
@@ -30,7 +30,7 @@ class PlacementPriority(IntEnum):
 
 class RoutingPriority(IntEnum):
     """Routing priority levels (lower = routed first)."""
-    
+
     POWER = 1       # Wide traces, short paths, single layer
     GATE_DRIVE = 2  # Controlled impedance, matched length
     HIGH_SPEED = 3  # Length matching, impedance control
@@ -42,20 +42,20 @@ class RoutingPriority(IntEnum):
 @dataclass
 class PlacementPhaseConfig:
     """Configuration for a placement phase."""
-    
+
     name: str
     priority: PlacementPriority
     components: list[str] = field(default_factory=list)
     method: str = "optimize"  # "template", "proximity", "optimize"
-    
+
     # Template method options
     template: str | None = None
     anchor: tuple[float, float] | None = None
-    
+
     # Proximity method options
     reference: str | None = None
     max_distance_mm: float = 20.0
-    
+
     # Zone constraint
     zone: str | None = None
 
@@ -63,7 +63,7 @@ class PlacementPhaseConfig:
 @dataclass
 class RoutingPhaseConfig:
     """Configuration for a routing phase."""
-    
+
     name: str
     priority: RoutingPriority
     nets: list[str] = field(default_factory=list)
@@ -76,38 +76,38 @@ class RoutingPhaseConfig:
 @dataclass
 class PriorityConfig:
     """Complete priority configuration for placement and routing."""
-    
+
     placement_phases: list[PlacementPhaseConfig] = field(default_factory=list)
     routing_phases: list[RoutingPhaseConfig] = field(default_factory=list)
-    
+
     def get_placement_phase(self, priority: PlacementPriority) -> PlacementPhaseConfig | None:
         """Get placement phase config by priority."""
         for phase in self.placement_phases:
             if phase.priority == priority:
                 return phase
         return None
-    
+
     def get_routing_phase(self, priority: RoutingPriority) -> RoutingPhaseConfig | None:
         """Get routing phase config by priority."""
         for phase in self.routing_phases:
             if phase.priority == priority:
                 return phase
         return None
-    
+
     def classify_component(
-        self, 
-        ref: str, 
-        netlist: "Netlist"
+        self,
+        ref: str,
+        _netlist: Netlist
     ) -> PlacementPriority:
         """Classify a component into a placement priority."""
         # Check explicit assignments first
         for phase in self.placement_phases:
             if ref in phase.components:
                 return phase.priority
-        
+
         # Default classification by prefix
         prefix = ref.rstrip("0123456789")
-        
+
         if prefix in ("Q", "D", "C_BUS"):
             return PlacementPriority.POWER
         elif prefix in ("U_GATE", "R_GATE", "C_BOOT", "C_VCC"):
@@ -118,7 +118,7 @@ class PriorityConfig:
             return PlacementPriority.ANALOG
         else:
             return PlacementPriority.DIGITAL
-    
+
     def classify_net(self, net_name: str) -> RoutingPriority:
         """Classify a net into a routing priority."""
         # Check explicit assignments first
@@ -143,39 +143,6 @@ class PriorityConfig:
             return RoutingPriority.ANALOG
         else:
             return RoutingPriority.DIGITAL
-
-
-def classify_net_priority(
-    net_name: str,
-    routing_phases: list[RoutingPhaseConfig] | None = None,
-) -> RoutingPriority:
-    """Module-level convenience wrapper for net priority classification.
-
-    Re-exported via ``temper_placer.core`` as ``classify_net_priority`` so callers
-    that previously imported the symbol at module level can resolve it.
-
-    Args:
-        net_name: Net to classify.
-        routing_phases: Optional explicit routing-phase config. If omitted, the
-            classification falls back to the default name-based rules.
-
-    Returns:
-        The net's :class:`RoutingPriority`.
-    """
-    if routing_phases:
-        config = PriorityConfig(routing_phases=routing_phases)
-        return config.classify_net(net_name)
-
-    upper = net_name.upper()
-    if any(x in upper for x in ("BUS", "340V", "HV", "SW_NODE")):
-        return RoutingPriority.POWER
-    if any(x in upper for x in ("GATE", "+15V", "CGND")):
-        return RoutingPriority.GATE_DRIVE
-    if any(x in upper for x in ("SPI", "I2C", "USB", "CLK")):
-        return RoutingPriority.HIGH_SPEED
-    if any(x in upper for x in ("SENSE", "NTC", "RTD")):
-        return RoutingPriority.ANALOG
-    return RoutingPriority.DIGITAL
 
 
 # Pre-defined power stage templates

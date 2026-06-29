@@ -4,7 +4,6 @@ Tests for Router V6 Stage 3.8: Solve Topology
 Part of temper-wd32
 """
 
-import pytest
 
 from temper_placer.router_v6.sat_model import build_sat_model
 from temper_placer.router_v6.topology_solver import (
@@ -26,11 +25,11 @@ def test_solve_empty_model():
 def test_solve_simple_model():
     """Test solving simple SAT model."""
     model = build_sat_model()
-    
+
     # Add a simple variable and clause
     var = model.add_variable("test", "Test variable")
     model.add_clause([(var, True)], "Test must be true")
-    
+
     solution = solve_topology(model)
 
     assert solution.is_satisfiable
@@ -54,12 +53,12 @@ def test_solution_dataclass():
 def test_unsatisfiable_model():
     """Test detecting unsatisfiable model."""
     model = build_sat_model()
-    
+
     # Add contradictory clauses: v AND NOT v
     var = model.add_variable("v", "Variable")
     model.add_clause([(var, True)], "Must be true")
     model.add_clause([(var, False)], "Must be false")
-    
+
     solution = solve_topology(model)
 
     # Model is unsatisfiable

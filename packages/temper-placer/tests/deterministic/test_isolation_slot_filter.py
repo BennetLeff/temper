@@ -12,23 +12,21 @@ and the total reclaim in millimetres.
 """
 
 import logging
-from typing import List, Tuple
 
 import pytest
 
-from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.board import Board
-from temper_placer.deterministic.state import BoardState
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.deterministic.stages.zone_aware_slot_generation import (
     ZoneAwareSlotGenerationStage,
     isolation_slot_aabb,
 )
 from temper_placer.deterministic.stages.zone_geometry import ZoneGeometryStage
+from temper_placer.deterministic.state import BoardState
 from temper_placer.io.config_loader import (
     IsolationSlot,
     NetClassRule,
 )
-
 
 # ----------------------------------------------------------------------
 # Helpers
@@ -59,9 +57,9 @@ def _state_with_q1_at(x: float, y: float) -> BoardState:
     return state
 
 
-def _emitted_slots(state: BoardState) -> List[Tuple[float, float]]:
+def _emitted_slots(state: BoardState) -> list[tuple[float, float]]:
     """Flatten the per-zone slot list into one big list of (x, y) tuples."""
-    flat: List[Tuple[float, float]] = []
+    flat: list[tuple[float, float]] = []
     for _name, slots in state.zone_slots:
         flat.extend(slots)
     return flat
@@ -161,7 +159,7 @@ class TestSlotFilterByIsolation:
         )
 
         result = stage.run(state)
-        emitted = _emitted_slots(result)
+        _emitted_slots(result)
         # The Signal zone lives at x∈[60, 90]; a slot there is well clear of
         # Q1's cutout (which sits at x≈22).
         signal_zone_slots = [

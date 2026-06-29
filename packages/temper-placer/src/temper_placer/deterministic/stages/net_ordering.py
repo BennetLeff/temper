@@ -1,9 +1,10 @@
 from dataclasses import replace
-from typing import Dict, Optional
+
+from temper_placer.router_v6.net_ordering import order_nets
+
+from ...core.loop import LoopCollection
 from ..state import BoardState
 from .base import Stage
-from temper_placer.router_v6.net_ordering import order_nets
-from ...core.loop import LoopCollection
 
 
 class NetOrderingStage(Stage):
@@ -13,7 +14,7 @@ class NetOrderingStage(Stage):
     critical nets (USB, SPI) first when board is least congested.
     """
 
-    def __init__(self, net_priority: Optional[Dict[str, int]] = None):
+    def __init__(self, net_priority: dict[str, int] | None = None):
         """Initialize net ordering stage.
 
         Args:

@@ -4,13 +4,12 @@ Tests for Router V6 Stage 5.8: Generate Manufacturing Report
 Part of temper-klru
 """
 
-import pytest
 
 from temper_placer.router_v6.acid_trap_detection import AcidTrap, AcidTrapReport
 from temper_placer.router_v6.annular_ring_check import AnnularRingReport, AnnularRingViolation
-from temper_placer.router_v6.clearance_check import ClearanceReport, ClearanceViolation
+from temper_placer.router_v6.clearance_check import ClearanceReport
 from temper_placer.router_v6.copper_balance import CopperBalanceReport, LayerCopperBalance
-from temper_placer.router_v6.creepage_check import CreepageReport, CreepageViolation
+from temper_placer.router_v6.creepage_check import CreepageReport
 from temper_placer.router_v6.manufacturing_report import (
     ManufacturingReport,
     format_manufacturing_report,
@@ -33,11 +32,11 @@ def test_generate_empty_report():
     copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
-    
+
     report = generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance
     )
-    
+
     assert report.total_violations == 0
     assert report.is_manufacturability_ok
 
@@ -59,11 +58,11 @@ def test_generate_report_with_violations():
     copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
-    
+
     report = generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance
     )
-    
+
     # 1 acid trap + 1 annular ring = 2 total violations (teardrops/thermal present)
     assert report.total_violations == 2
     assert not report.is_manufacturability_ok
@@ -82,7 +81,7 @@ def test_manufacturing_report_dataclass():
     copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
-    
+
     report = ManufacturingReport(
         acid_traps=acid,
         annular_rings=annular,
@@ -92,7 +91,7 @@ def test_manufacturing_report_dataclass():
         creepage=creepage,
         clearance=clearance,
     )
-    
+
     assert report.total_violations == 0
     assert report.teardrops.teardrop_count == 1
     assert report.thermal_reliefs.relief_count == 1
@@ -116,11 +115,11 @@ def test_critical_violations():
     copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
-    
+
     report = generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance
     )
-    
+
     # 1 critical acid trap + 1 annular ring violation
     assert report.critical_violations == 2
 
@@ -138,13 +137,13 @@ def test_format_report():
     copper = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
     creepage = CreepageReport(violations=[], total_checks=5)
     clearance = ClearanceReport(violations=[], total_checks=20)
-    
+
     report = generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance
     )
-    
+
     formatted = format_manufacturing_report(report)
-    
+
     assert "MANUFACTURING DRC REPORT" in formatted
     assert "✓ PASS" in formatted
     assert "Total Violations: 0" in formatted
@@ -160,20 +159,20 @@ def test_copper_balance_violations():
     thermal = ThermalReliefReport(thermal_reliefs=[
         ThermalRelief("GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[])
     ])
-    
+
     # Unbalanced layers
     copper = CopperBalanceReport(layer_balances=[
         LayerCopperBalance("F.Cu", 1000, 10, False),
         LayerCopperBalance("B.Cu", 8000, 80, False),
     ], total_area_mm2=0.0)
-    
+
     creepage = CreepageReport(violations=[], total_checks=0)
     clearance = ClearanceReport(violations=[], total_checks=0)
-    
+
     report = generate_manufacturing_report(
         acid, annular, teardrops, thermal, copper, creepage, clearance
     )
-    
+
     # 2 unbalanced layers count as violations (teardrops/thermal present, so no partial failures)
     assert report.total_violations == 2
     assert report.critical_violations == 2

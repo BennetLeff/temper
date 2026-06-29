@@ -7,9 +7,8 @@ It uses flax.struct.dataclass for automatic JAX PyTree registration.
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
-import jax
 import jax.numpy as jnp
 from flax import struct
 from jax import Array
@@ -20,11 +19,11 @@ from jax.experimental import sparse
 class HypergraphIncidence:
     """
     Sparse BCOO representation of the Hypergraph Incidence Matrix H.
-    
+
     Dimensions: (N_nodes, N_hyperedges)
     - Rows: Components (Nodes)
     - Cols: Nets (Hyperedges)
-    
+
     Values:
     - 1.0 (or weight) if connected
     - 0.0 otherwise
@@ -38,16 +37,16 @@ class HypergraphIncidence:
 class PhysicsHypergraph:
     """
     Hypergraph with embedded physical attributes.
-    
+
     This is a registered JAX PyTree. Metadata fields (lists of strings)
     are marked as static (pytree_node=False).
     """
     incidence: HypergraphIncidence
-    
+
     # Metadata for reconstruction/mapping (Static)
     node_refs: Sequence[str] = struct.field(pytree_node=False)
     hyperedge_names: Sequence[str] = struct.field(pytree_node=False)
-    
+
     # Physics Attributes (Parallel arrays to hyperedges)
     edge_voltages: Array = struct.field(default_factory=lambda: jnp.array([])) # (N_edges,) 0=LV, 1=HV
     edge_currents: Array = struct.field(default_factory=lambda: jnp.array([])) # (N_edges,) Amps

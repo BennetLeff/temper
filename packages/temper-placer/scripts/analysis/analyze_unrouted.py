@@ -49,14 +49,14 @@ for name, pins in nets:
                 xs.append(x)
                 ys.append(y)
                 components.add(comp_ref)
-    
+
     if len(xs) >= 2:
         span = (max(xs) - min(xs)) + (max(ys) - min(ys))
         # Convert from DSN units (10um) to mm
         span_mm = span / 100
     else:
         span_mm = 0
-    
+
     net_spans.append((name, len(pins), span_mm, list(components)))
 
 # Sort by span (longest first)

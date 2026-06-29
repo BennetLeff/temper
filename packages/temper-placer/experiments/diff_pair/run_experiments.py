@@ -4,9 +4,9 @@ Experiment Runner for Differential Pair Routing
 Executes individual experiments and compares results against baselines.
 """
 
-from dataclasses import dataclass
-from typing import List, Optional, Dict, Any
 import time
+from dataclasses import dataclass
+from typing import Any
 
 from .test_fixtures import TestFixture, create_test_fixtures
 
@@ -35,14 +35,14 @@ class ExperimentResult:
     coupling_ratio: float
     max_skew_mm: float
     avg_separation_mm: float
-    error_message: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    error_message: str | None = None
+    metadata: dict[str, Any] | None = None
 
     def __post_init__(self):
         if self.metadata is None:
             self.metadata = {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert result to dictionary for reporting."""
         return {
             "fixture": self.fixture_name,
@@ -70,8 +70,8 @@ class ExperimentResult:
 
 def run_experiment(
     fixture: TestFixture,
-    router,  # Router implementation (passed as parameter)
-    drc_oracle=None,  # Optional DRC oracle for validation
+    _router,  # Router implementation (passed as parameter)
+    _drc_oracle=None,  # Optional DRC oracle for validation
     verbose: bool = False,
 ) -> ExperimentResult:
     """
@@ -125,8 +125,8 @@ def run_experiment(
 
 
 def run_all_experiments(
-    router, drc_oracle=None, tag_filter: Optional[str] = None, verbose: bool = False
-) -> List[ExperimentResult]:
+    router, drc_oracle=None, tag_filter: str | None = None, verbose: bool = False
+) -> list[ExperimentResult]:
     """
     Run all experiments (optionally filtered by tag).
 
@@ -172,8 +172,8 @@ def run_all_experiments(
 
 
 def compare_results(
-    baseline: List[ExperimentResult], current: List[ExperimentResult], print_diff: bool = True
-) -> Dict[str, Any]:
+    baseline: list[ExperimentResult], current: list[ExperimentResult], print_diff: bool = True
+) -> dict[str, Any]:
     """
     Compare baseline results with current results.
 

@@ -47,7 +47,6 @@ from temper_placer.optimizer.convergence_analytics import (
     LossImprovementTracker,
 )
 from temper_placer.optimizer.initialization import SpectralInitializer
-from temper_placer.optimizer.zone_aware_init import ZoneAwareSpectralInitializer
 from temper_placer.optimizer.scheduler import (
     get_learning_rate,
     get_temperature,
@@ -56,6 +55,7 @@ from temper_placer.optimizer.validation_callback import (
     ValidationCallback,
     ValidationResult,
 )
+from temper_placer.optimizer.zone_aware_init import ZoneAwareSpectralInitializer
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +277,7 @@ def create_optimizer(
     # We must wrap the chain to ensure it's a simple GradientTransformation
     # that inject_hyperparams can handle.
     # Note: inject_hyperparams passes params as keyword args.
-    optimizer = optax.inject_hyperparams(lambda **kwargs: optax.chain(*transforms))()
+    optimizer = optax.inject_hyperparams(lambda **_kwargs: optax.chain(*transforms))()
 
     # Use same optimizer for both, but they could be different
     return optimizer, optimizer
@@ -420,7 +420,7 @@ def make_train_step(
     centrality: Array | None = None,
     priority_scale: float = 1.0,
     use_grad_norm: bool = False,
-    grad_norm_alpha: float = 1.5,
+    _grad_norm_alpha: float = 1.5,
     grad_norm_lr: float = 0.025,
     composite_loss: CompositeLoss | None = None,
     loss_context: LossContext | None = None,
@@ -771,7 +771,7 @@ def train(
         # Build zone_bounds array
         board_bounds = context.board.get_relative_bounds_array()
         zone_bounds_list = []
-        for i, comp in enumerate(netlist.components):
+        for _i, comp in enumerate(netlist.components):
             if comp.ref in ref_to_zone:
                 zone_bounds_list.append(ref_to_zone[comp.ref])
             else:
@@ -1174,7 +1174,7 @@ def train_parallel(
     # We estimate the tax by comparing total wirelength vs a hypothetical minimum
     # Or just looking at the wirelength component of the best result vs the average.
     best_wl = best_result.history[-1].loss_breakdown.get("wirelength", 0.0)
-    avg_wl = jnp.mean(
+    jnp.mean(
         jnp.array([r.history[-1].loss_breakdown.get("wirelength", 0.0) for r in results])
     )
 
@@ -1305,7 +1305,7 @@ def train_multiphase(
         # Build zone_bounds array
         board_bounds = board.get_relative_bounds_array()
         zone_bounds_list = []
-        for i, comp in enumerate(netlist.components):
+        for _i, comp in enumerate(netlist.components):
             if comp.ref in ref_to_zone:
                 zone_bounds_list.append(ref_to_zone[comp.ref])
             else:

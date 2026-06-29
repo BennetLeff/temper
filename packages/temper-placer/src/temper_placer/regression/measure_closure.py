@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -33,7 +32,7 @@ from typing import Any
 
 def measure_closure(
     pcb_path: Path,
-    baseline: dict[str, Any] | None = None,
+    _baseline: dict[str, Any] | None = None,
     *,
     repo_root: Path | None = None,
     strategy: str = "template",

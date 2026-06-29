@@ -23,11 +23,9 @@ from jax import Array
 from scipy.ndimage import gaussian_filter
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist, build_adjacency_matrix
+from temper_placer.core.netlist import Netlist
 from temper_placer.optimizer.initialization import (
     SpectralInitializer,
-    compute_spectral_coordinates,
-    find_connected_components,
 )
 
 if TYPE_CHECKING:
@@ -100,7 +98,7 @@ def _point_in_polygon_with_margin(
     x: float,
     y: float,
     polygon: list[tuple[float, float]],
-    margin: float,
+    _margin: float,
 ) -> bool:
     """
     Check if point (x, y) is inside polygon with optional margin.
@@ -126,14 +124,12 @@ def _point_in_polygon_with_margin(
     p1x, p1y = polygon[0]
     for i in range(1, n + 1):
         p2x, p2y = polygon[i % n]
-        if y > min(p1y, p2y):
-            if y <= max(p1y, p2y):
-                if x <= max(p1x, p2x):
-                    xinters = 0.0  # Initialize
-                    if p1y != p2y:
-                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
+        if y > min(p1y, p2y) and y <= max(p1y, p2y) and x <= max(p1x, p2x):
+            xinters = 0.0  # Initialize
+            if p1y != p2y:
+                xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+            if p1x == p2x or x <= xinters:
+                inside = not inside
         p1x, p1y = p2x, p2y
 
     return inside
@@ -189,16 +185,10 @@ def adjust_positions_for_zones(
             ix, iy = int(gx), int(gy)
 
             # X gradient
-            if ix < w_cells - 1:
-                grad_x = cost_field[ix + 1, iy] - cost_field[ix, iy]
-            else:
-                grad_x = 0.0
+            grad_x = cost_field[ix + 1, iy] - cost_field[ix, iy] if ix < w_cells - 1 else 0.0
 
             # Y gradient
-            if iy < h_cells - 1:
-                grad_y = cost_field[ix, iy + 1] - cost_field[ix, iy]
-            else:
-                grad_y = 0.0
+            grad_y = cost_field[ix, iy + 1] - cost_field[ix, iy] if iy < h_cells - 1 else 0.0
 
             gradients[i] = [grad_x, grad_y]
 

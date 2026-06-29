@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 @dataclass
 class TopologicalGraph:
     """Adjacency graph representing topological relationships between components.
-    
+
     This structure is used to reason about placement before assigning coordinates.
     """
     nodes: list[str] = field(default_factory=list)
@@ -45,7 +45,7 @@ class TopologicalGraph:
 
     def get_clusters(self) -> list[set[str]]:
         """Identify connected components in the adjacency graph.
-        
+
         Connected components represent clusters of components that must stay
         relatively close to each other.
         """

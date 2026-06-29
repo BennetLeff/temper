@@ -19,13 +19,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import jax.numpy as jnp
 from jax import Array
 
 if TYPE_CHECKING:
     from temper_drc.core.result import RunResult
     from temper_drc.input.constraints import ConstraintSet as DrcConstraintSet
     from temper_drc.input.placement import Placement as DrcPlacement
+
     from temper_placer.losses.base import LossContext
 
 
@@ -45,7 +45,6 @@ def build_placement_from_netlist(
     from temper_drc.input.placement import ComponentPlacement, Placement
 
     netlist = context.netlist
-    n = netlist.n_components
     components: dict[str, ComponentPlacement] = {}
 
     for i, c in enumerate(netlist.components):
