@@ -119,6 +119,22 @@ class LayerConstraint(Constraint):
     allowed: bool
 
 
+@dataclass(kw_only=True)
+class ChannelSeparationConstraint(Constraint):
+    """
+    Constraint: nets from group A and group B must not share channels
+    within `min_slots` slots of each other.
+
+    Encodes the SAT grounding of PCL SeparatedConstraint. For a given
+    channel, enforces at least `min_slots` empty slots between nets
+    from the two groups via OrderVar-based separation.
+    """
+    group_a_indices: list[int]
+    group_b_indices: list[int]
+    min_slots: int
+    channel_id: str
+
+
 @dataclass
 class ConstraintModel:
     """

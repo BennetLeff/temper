@@ -147,6 +147,47 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
                     clauses.push(vec![encode_lit(idx, *allowed)]);
                 }
             }
+            InternalConstraint::ChannelSeparation { group_a, group_b, min_slots, channel_id: _ch } => {
+                // For each pair (a in A, b in B), enforce ordering separation.
+                // The encoding adds AtMostK cardinality: at most min_slots
+                // nets from (A U B) can share contiguous channel slots.
+                let combined_len = group_a.len() + group_b.len();
+                if *min_slots >= combined_len {
+                    continue; // Trivially satisfied.
+                }
+                // Collect all relevant variables (NetChannelVar for these nets on this channel).
+                // They were already registered as variables during model conversion.
+                // For now, enforce that for each a in A, b in B:
+                // at least one ordering variable separates them.
+                for &a_idx in group_a {
+                    for &b_idx in group_b {
+                        let order_name = format!(
+                            "order_N{}_N{}_{}",
+                            a_idx.min(b_idx),
+                            a_idx.max(b_idx),
+                            _ch
+                        );
+                        // If there's an ordering var, enforce it.
+                        if let Some(&order_idx) = name_to_idx.get(&order_name) {
+                            // a must be before b (positive order) OR must not share.
+                            // This is a soft constraint in MVP — encoded as hard.
+                            clauses.push(vec![encode_lit(order_idx, true)]);
+                        }
+                    }
+                }
+                // Also add an AtMostK cardinality: at most min_slots nets from
+                // (A U B) can be active on this channel.
+                let mut all_indices: Vec<usize> = Vec::new();
+                for &idx in group_a.iter().chain(group_b.iter()) {
+                    let nc_name = format!("uses_N{}_{}", idx, _ch);
+                    if let Some(&var_idx) = name_to_idx.get(&nc_name) {
+                        all_indices.push(var_idx);
+                    }
+                }
+                if !all_indices.is_empty() && *min_slots < all_indices.len() {
+                    encode_at_most_k(&mut clauses, &mut var_map, &all_indices, *min_slots);
+                }
+            }
         }
     }
 

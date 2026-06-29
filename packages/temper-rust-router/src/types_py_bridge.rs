@@ -80,6 +80,17 @@ pub fn model_from_python(
                     var_name: format!("uses_N{}_{}", net_idx, channel_id),
                     allowed,
                 });
+            } else if obj.getattr("group_a_indices").is_ok() {
+                let group_a: Vec<usize> = obj.getattr("group_a_indices")?.extract()?;
+                let group_b: Vec<usize> = obj.getattr("group_b_indices")?.extract()?;
+                let min_slots: usize = obj.getattr("min_slots")?.extract()?;
+                let channel_id: String = obj.getattr("channel_id")?.extract()?;
+                cons.push(InternalConstraint::ChannelSeparation {
+                    group_a,
+                    group_b,
+                    min_slots,
+                    channel_id,
+                });
             }
         }
         Ok(InternalConstraintModel { variables: vars, constraints: cons })

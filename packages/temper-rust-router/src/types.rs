@@ -303,6 +303,12 @@ pub enum InternalConstraint {
         var_name: String,
         allowed: bool,
     },
+    ChannelSeparation {
+        group_a: Vec<usize>,
+        group_b: Vec<usize>,
+        min_slots: usize,
+        channel_id: String,
+    },
 }
 
 #[derive(Clone, Debug)]
