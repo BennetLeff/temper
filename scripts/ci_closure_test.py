@@ -6,6 +6,7 @@ Exits 0 if all assertions pass, non-zero on failure.
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -30,6 +31,7 @@ def main() -> int:
     parser.add_argument("--pcb", type=str, required=True, help="Path to input .kicad_pcb file")
     parser.add_argument("--seed", type=str, default=None, help="Path to seed.json file")
     parser.add_argument("--output", type=str, default=None, help="Output path for JSON summary")
+    parser.add_argument("--metrics-dir", type=str, default=None, help="Directory for pipeline_metrics.jsonl")
     parser.add_argument(
         "--require-all-stages",
         action="store_true",
@@ -53,6 +55,8 @@ def main() -> int:
     else:
         seed_path = repo_root / "packages" / "temper-placer" / "src" / "temper_placer" / "regression" / "seed.json"
 
+    from temper_placer.pipeline.dag_observability import PipelineExecutionLog
+    from temper_placer.pipeline.metrics_observer import MetricsObserver
     from temper_placer.regression.closure_test import ClosureTest
 
     seed = ClosureTest.load_seed(seed_path)
@@ -62,7 +66,27 @@ def main() -> int:
         repo_root=repo_root,
         require_all_stages=args.require_all_stages,
     )
-    result = test.run()
+
+    # U2: Attach MetricsObserver for per-stage timing records
+    metrics_dir = args.metrics_dir
+    if metrics_dir:
+        metrics_dir = os.path.abspath(metrics_dir)
+    else:
+        metrics_dir = str(
+            repo_root / "power_pcb_dataset" / "metrics"
+        )
+    execution_log = PipelineExecutionLog()
+    observer = MetricsObserver(
+        metrics_dir,
+        execution_log,
+        board=pcb_path.stem,
+    )
+    result = test.run(observer=observer)
+    observer.on_pipeline_complete(
+        success=result.passed,
+        total_duration_s=result.wall_clock_seconds,
+        stage_timings={},
+    )
 
     print(result.summary())
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import time
 from dataclasses import dataclass, field
@@ -56,7 +57,13 @@ class PipelineExecutionLog:
             "feedback_activations": self.feedback_activations,
             "success": self.success,
             "total_duration_s": self.total_duration_s,
+            "events": [_event_to_dict(e) for e in self.events],
         }
+
+
+def _event_to_dict(event: StageEvent) -> dict[str, Any]:
+    d = dataclasses.asdict(event)
+    return {k: v for k, v in d.items() if v is not None}
 
 
 class DAGToLegacyObserver:

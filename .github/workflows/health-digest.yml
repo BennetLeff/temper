@@ -88,6 +88,15 @@ jobs:
           echo "$DRIFT_REPORT" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
+      - name: Pipeline SPC trends
+        id: spc-trends
+        run: |
+          SPC_SUMMARY=$(uv run python scripts/pipeline_metrics.py spc \
+            --board temper --window 20 --summary --json 2>&1) || true
+          echo "summary<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$SPC_SUMMARY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
       - name: Script sunset warnings
         id: sunset
         run: |
@@ -119,6 +128,7 @@ jobs:
             const coverageCount = "${{ steps.coverage.outputs.count }}";
             const goldenFailures = "${{ steps.golden.outputs.golden_failures }}".trim();
             const driftReport = `${{ steps.drift.outputs.report }}`;
+            const spcSummary = `${{ steps.spc-trends.outputs.summary }}`;
             const sunsetWarnings = "${{ steps.sunset.outputs.warnings }}";
             const sunsetEscalates = "${{ steps.sunset.outputs.escalates }}";
             const importBaseline = "${{ steps.import-linter.outputs.baseline }}";
@@ -174,6 +184,21 @@ jobs:
               driftSection = "No pipeline metrics data available for the 7-day window.";
             }
 
+            // Build SPC section
+            let spcSection = "";
+            let spcDegrading = 0;
+            if (spcSummary && spcSummary.trim()) {
+              try {
+                const spc = JSON.parse(spcSummary.replace(/^DEBUG:.*\n/gm, ""));
+                spcDegrading = spc.filter(r => r.direction === "degrading").length;
+                spcSection = `${spc.length} metric(s) tracked, ${spcDegrading} degrading.`;
+              } catch (e) {
+                spcSection = "Could not parse SPC summary.";
+              }
+            } else {
+              spcSection = "No SPC trend data available.";
+            }
+
             // Build sunset section
             let sunsetSection = `${sunsetWarnings} script(s) at WARNING (30d no invocation), ${sunsetEscalates} at ESCALATE (60d).`;
 
@@ -182,7 +207,7 @@ jobs:
 
             // Determine preamble
             const allClear = failCount === 0 && nullCount === 0 && !goldenFailures &&
-                             !hasRegression && sunsetEscalates === "0";
+                             !hasRegression && spcDegrading === 0 && sunsetEscalates === "0";
             const preamble = allClear
               ? "All clear — no drift, no fixture failures, no new sunset warnings."
               : "Regressions detected this week — see sections below.";
@@ -205,6 +230,9 @@ jobs:
               "",
               "### Pipeline Metrics Drift",
               driftSection,
+              "",
+              "### SPC Trend Direction",
+              spcSection,
               "",
               "### Script Sunset",
               sunsetSection,
