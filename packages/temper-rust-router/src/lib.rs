@@ -1,20 +1,21 @@
 // Router V6 topology stage — PyO3 entry point.
 //
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
+// Extended: U5 of docs/plans/2026-06-28-003-feat-unsat-provenance-tension-detection-plan.md
 
 pub mod audit;
 mod encoding;
-pub mod extraction;
+mod extraction;
+pub mod provenance;
 mod solver;
+pub mod tension;
 pub mod types;
 mod types_py_bridge;
-mod watchdog;
 
 use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
-use rustsat::solvers::Solve;
 use types::{
     InternalConstraintModel, SolverStatus, TopologyResult,
 };
@@ -38,15 +39,30 @@ fn solve_topology_rust(
     let model: InternalConstraintModel =
         types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
 
+    // U3: Run pre-solve tension detection before encoding/solving.
+    let tensions = tension::detect_tensions(&model);
+
     // Encode to CNF (cardinality constraints encoded as CNF clauses).
     let (cnf, var_names) = encoding::encode_to_cnf(&model);
     let num_vars = cnf.num_vars;
     let num_clauses = cnf.clauses.len();
 
-    // Solve with CaDiCaL via rustsat traits.
-    let mut result: TopologyResult = solver::solve_with_cadical(&cnf, &var_names);
+    // Solve with CaDiCaL via rustsat traits — core extraction via selector-
+    // literal assumptions.
+    let mut result: TopologyResult = solver::solve_with_cadical_cores(&cnf, &var_names);
     result.num_vars = num_vars;
     result.num_clauses = num_clauses;
+    result.tensions = tensions;
+
+    // U4: On UNSAT, build structured conflict report from core indices.
+    if result.status == SolverStatus::Unsatisfiable && !result.unsat_core.is_empty() {
+        result.conflict = Some(provenance::build_conflict_report(
+            &result.unsat_core,
+            &cnf.provenance,
+            &model,
+            &var_map_from_model(&model),
+        ));
+    }
 
     // Extract topology if satisfiable.
     let topology = if result.status == SolverStatus::Satisfiable {
@@ -93,14 +109,64 @@ fn solve_topology_rust(
     d.set_item("num_vars", result.num_vars)?;
     d.set_item("num_clauses", result.num_clauses)?;
 
-    // Unsat core
+    // Unsat core — raw clause indices for backward compatibility.
     let py_core = PyList::empty(py);
     for idx in &result.unsat_core {
         py_core.append(idx)?;
     }
     d.set_item("unsat_core", py_core)?;
 
+    // Tensions: list of dicts with severity, channel_id, explanation, constraint_pair.
+    let py_tensions = PyList::empty(py);
+    for t in &result.tensions {
+        let td = PyDict::new(py);
+        td.set_item(
+            "severity",
+            match t.severity {
+                types::TensionSeverity::HardConflict => "hard_conflict",
+                types::TensionSeverity::CapacityWarning => "capacity_warning",
+            },
+        )?;
+        td.set_item("channel_id", t.channel_id.clone())?;
+        td.set_item("explanation", t.explanation.clone())?;
+        let pair: Vec<usize> = vec![t.constraint_pair.0, t.constraint_pair.1];
+        td.set_item("constraint_pair", pair)?;
+        py_tensions.append(td)?;
+    }
+    d.set_item("tensions", py_tensions)?;
+
+    // Conflicts: on UNSAT with successful core extraction, struct with
+    // conflicting_constraints, channels_involved, explanation, core_clause_count.
+    match &result.conflict {
+        Some(conflict) => {
+            let cd = PyDict::new(py);
+            cd.set_item("conflicting_constraints", conflict.conflicting_constraints.clone())?;
+            cd.set_item("channels_involved", conflict.channels_involved.clone())?;
+            cd.set_item("explanation", conflict.explanation.clone())?;
+            cd.set_item("core_clause_count", conflict.core_clause_count)?;
+            d.set_item("conflicts", cd)?;
+        }
+        None => {
+            d.set_item("conflicts", py.None())?;
+        }
+    };
+
     Ok(d.into())
+}
+
+/// Build a var_map Vec<SatVariable> from the InternalConstraintModel for
+/// provenance reverse-mapping.
+fn var_map_from_model(model: &InternalConstraintModel) -> Vec<types::SatVariable> {
+    model
+        .variables
+        .iter()
+        .map(|v| match v {
+            types::InternalVariable::NetChannel { name, .. } => types::SatVariable::new(name, ""),
+            types::InternalVariable::NetLayer { name, .. } => types::SatVariable::new(name, ""),
+            types::InternalVariable::Via { name, .. } => types::SatVariable::new(name, ""),
+            types::InternalVariable::Ordering { name, .. } => types::SatVariable::new(name, ""),
+        })
+        .collect()
 }
 
 /// Audit solver output against the constraint model itself.
@@ -148,6 +214,8 @@ fn audit_result(
         assignments: assignment_map,
         unsat_core: Vec::new(),
         solver_time_ms: 0.0,
+        tensions: Vec::new(),
+        conflict: None,
     };
 
     let violations = audit::audit_constraints(&model, &result, &var_names);
@@ -192,131 +260,6 @@ fn audit_result(
     })
 }
 
-/// Python-callable entry point: bundled topology solve with CEGAR watchdog.
-///
-/// Accepts pre-bundled constraint model variables, constraints, bundle manifest
-/// dict, and net names. Runs the CEGAR loop via Watchdog and returns the
-/// expanded topology result.
-#[pyfunction]
-fn solve_topology_rust_bundled(
-    py: Python<'_>,
-    variables: &Bound<'_, PyList>,
-    constraints: &Bound<'_, PyList>,
-    bundle_manifest: &Bound<'_, PyDict>,
-    net_names: Vec<String>,
-) -> PyResult<PyObject> {
-    // Convert Python objects to internal model.
-    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
-    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
-
-    let model: InternalConstraintModel =
-        types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
-
-    let start_total = std::time::Instant::now();
-
-    // Encode safety-only CNF from class-level constraint model.
-    let (cnf, var_names) = encoding::encode_to_cnf(&model);
-    let class_var_count = cnf.num_vars;
-
-    // Initialize CaDiCaL with safety CNF.
-    let mut solver = rustsat_cadical::CaDiCaL::default();
-    for clause in &cnf.clauses {
-        let mut lits: Vec<rustsat::types::Lit> = Vec::with_capacity(clause.len());
-        for &lit in clause {
-            let var_idx = (lit.unsigned_abs() - 1) as u32;
-            let lit_obj = if lit > 0 {
-                rustsat::types::Lit::positive(var_idx)
-            } else {
-                rustsat::types::Lit::negative(var_idx)
-            };
-            lits.push(lit_obj);
-        }
-        if solver.add_clause(rustsat::types::Clause::from(&lits[..])).is_err() {
-            let d = PyDict::new(py);
-            d.set_item("status", "unsat")?;
-            d.set_item("assignments", PyDict::new(py))?;
-            d.set_item("topology_graph", PyDict::new(py))?;
-            d.set_item("solver_time_ms", 0.0)?;
-            d.set_item("num_vars", class_var_count)?;
-            d.set_item("num_clauses", cnf.clauses.len())?;
-            d.set_item("cegar_iterations", 0)?;
-            d.set_item("budget_used", 0)?;
-            d.set_item("degraded_nets", Vec::<String>::new())?;
-            d.set_item("unsat_core", PyList::empty(py))?;
-            return Ok(d.into());
-        }
-    }
-
-    // Bridge bundle manifest.
-    let manifest = types_py_bridge::bridge_bundle_manifest(bundle_manifest)?;
-
-    // Run CEGAR watchdog.
-    let mut wd = watchdog::Watchdog::new(
-        solver,
-        var_names.clone(),
-        class_var_count,
-        manifest.clone(),
-        &net_names,
-    );
-    let result = wd.solve(&net_names);
-
-    let solver_time_ms = start_total.elapsed().as_secs_f64() * 1000.0;
-
-    // Build assignments Python dict.
-    let py_assignments = PyDict::new(py);
-    for (idx, val) in &result.assignments {
-        if *idx < result.var_names.len() {
-            py_assignments.set_item(&result.var_names[*idx], *val)?;
-        }
-    }
-
-    // Extract topology if SAT.
-    let mut topology = types::TopologyGraph {
-        net_topologies: HashMap::new(),
-    };
-    if result.status == SolverStatus::Satisfiable {
-        topology = extraction::extract_bundled(
-            &model,
-            &result.assignments,
-            &result.var_names,
-            &net_names,
-            &manifest,
-        );
-    }
-
-    let py_topology = PyDict::new(py);
-    for (net_name, net_topo) in &topology.net_topologies {
-        let entry = PyDict::new(py);
-        entry.set_item("uses_channels", net_topo.uses_channels.clone())?;
-        let py_path: Vec<(String, String)> = net_topo.path_graph.clone();
-        entry.set_item("path_graph", py_path)?;
-        entry.set_item("total_length_estimate", net_topo.total_length_estimate)?;
-        py_topology.set_item(net_name, entry)?;
-    }
-
-    let d = PyDict::new(py);
-    d.set_item(
-        "status",
-        match result.status {
-            SolverStatus::Satisfiable => "sat",
-            SolverStatus::Unsatisfiable => "unsat",
-            SolverStatus::Unknown => "unknown",
-        },
-    )?;
-    d.set_item("assignments", py_assignments)?;
-    d.set_item("topology_graph", py_topology)?;
-    d.set_item("solver_time_ms", solver_time_ms)?;
-    d.set_item("num_vars", result.num_vars)?;
-    d.set_item("num_clauses", result.num_clauses)?;
-    d.set_item("cegar_iterations", result.cegar_iterations)?;
-    d.set_item("budget_used", result.budget_used)?;
-    d.set_item("degraded_nets", result.degraded_nets)?;
-    let py_core = PyList::empty(py);
-    d.set_item("unsat_core", py_core)?;
-
-    Ok(d.into())
-}
-
 /// Python module entry point.
 #[pymodule]
 fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -333,7 +276,6 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Register the solver entry point and constraint auditor.
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
-    m.add_function(wrap_pyfunction!(solve_topology_rust_bundled, m)?)?;
     m.add_function(wrap_pyfunction!(audit_result, m)?)?;
     Ok(())
 }

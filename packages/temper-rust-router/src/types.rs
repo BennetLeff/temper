@@ -4,10 +4,114 @@
 //   constraint_model.py, sat_model.py, topology_solver.py, topology_extraction.py
 //
 // Origin: U4 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
+// Extended: U1 of docs/plans/2026-06-28-003-feat-unsat-provenance-tension-detection-plan.md
 
 use std::collections::HashMap;
 
 use pyo3::prelude::*;
+
+// ---------------------------------------------------------------------------
+// Provenance and tension detection types (U1)
+// ---------------------------------------------------------------------------
+
+/// Role of a clause in the constraint encoding.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(u8)]
+pub enum ClauseRole {
+    ConstraintLiteral = 0,
+    CardinalityCounter = 1,
+    CardinalityExclusion = 2,
+    Unit = 3,
+}
+
+impl From<ClauseRole> for u8 {
+    fn from(r: ClauseRole) -> u8 {
+        r as u8
+    }
+}
+
+impl From<u8> for ClauseRole {
+    fn from(v: u8) -> Self {
+        match v {
+            0 => ClauseRole::ConstraintLiteral,
+            1 => ClauseRole::CardinalityCounter,
+            2 => ClauseRole::CardinalityExclusion,
+            3 => ClauseRole::Unit,
+            _ => ClauseRole::ConstraintLiteral,
+        }
+    }
+}
+
+/// Packed per-clause origin: constraint_idx (u16), role (u8), aux_block_id (u8).
+///
+/// `aux_block_id: 0xFF` = sentinel for "no auxiliary block".
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ClauseOrigin {
+    pub constraint_idx: u16,
+    pub role: ClauseRole,
+    pub aux_block_id: u8,
+}
+
+impl ClauseOrigin {
+    pub fn new(constraint_idx: usize, role: ClauseRole, aux_block_id: u8) -> Self {
+        Self {
+            constraint_idx: constraint_idx as u16,
+            role,
+            aux_block_id,
+        }
+    }
+
+    pub fn pack(&self) -> u32 {
+        (self.constraint_idx as u32)
+            | ((self.role as u32) << 16)
+            | ((self.aux_block_id as u32) << 24)
+    }
+
+    pub fn unpack(packed: u32) -> Self {
+        Self {
+            constraint_idx: (packed & 0xFFFF) as u16,
+            role: ClauseRole::from(((packed >> 16) & 0xFF) as u8),
+            aux_block_id: ((packed >> 24) & 0xFF) as u8,
+        }
+    }
+}
+
+impl From<ClauseOrigin> for u32 {
+    fn from(o: ClauseOrigin) -> u32 {
+        o.pack()
+    }
+}
+
+impl From<u32> for ClauseOrigin {
+    fn from(v: u32) -> Self {
+        ClauseOrigin::unpack(v)
+    }
+}
+
+/// Severity of a pre-solve tension violation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TensionSeverity {
+    HardConflict,
+    CapacityWarning,
+}
+
+/// A pre-solve tension between constraints.
+#[derive(Clone, Debug)]
+pub struct TensionViolation {
+    pub constraint_pair: (usize, usize),
+    pub channel_id: String,
+    pub explanation: String,
+    pub severity: TensionSeverity,
+}
+
+/// Structured conflict report from UNSAT core reverse-mapping.
+#[derive(Clone, Debug)]
+pub struct ConflictReport {
+    pub conflicting_constraints: Vec<(usize, String)>,
+    pub channels_involved: Vec<String>,
+    pub explanation: String,
+    pub core_clause_count: usize,
+}
 
 // ---------------------------------------------------------------------------
 // Constraint model variables
@@ -373,6 +477,8 @@ pub struct TopologyResult {
     pub assignments: HashMap<usize, bool>,
     pub unsat_core: Vec<usize>,
     pub solver_time_ms: f64,
+    pub tensions: Vec<TensionViolation>,
+    pub conflict: Option<ConflictReport>,
 }
 
 // ---------------------------------------------------------------------------
@@ -444,5 +550,52 @@ pub struct BundledSolverResult {
 pub trait IntoInternal {
     type Output;
     fn into_internal(&self) -> Self::Output;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_clause_origin_pack_unpack() {
+        let cases = vec![
+            (0usize, ClauseRole::ConstraintLiteral, 255u8),
+            (1, ClauseRole::CardinalityCounter, 0),
+            (65535, ClauseRole::CardinalityExclusion, 254),
+            (42, ClauseRole::Unit, 1),
+            (0, ClauseRole::CardinalityCounter, 0),
+            (0, ClauseRole::ConstraintLiteral, 255),
+        ];
+
+        for (ci, role, aux) in cases {
+            let origin = ClauseOrigin::new(ci, role, aux);
+            let packed: u32 = origin.pack();
+            let unpacked = ClauseOrigin::unpack(packed);
+            assert_eq!(origin.constraint_idx, unpacked.constraint_idx,
+                "constraint_idx mismatch: {origin:?} -> {packed:#010x} -> {unpacked:?}");
+            assert_eq!(origin.role, unpacked.role,
+                "role mismatch: {origin:?} -> {packed:#010x} -> {unpacked:?}");
+            assert_eq!(origin.aux_block_id, unpacked.aux_block_id,
+                "aux_block_id mismatch: {origin:?} -> {packed:#010x} -> {unpacked:?}");
+            assert_eq!(origin, unpacked);
+
+            let via_trait: u32 = origin.into();
+            let back: ClauseOrigin = via_trait.into();
+            assert_eq!(origin, back);
+        }
+    }
+
+    #[test]
+    fn test_clause_origin_sentinel_aux_block_id() {
+        let origin = ClauseOrigin::new(5, ClauseRole::CardinalityCounter, 255);
+        assert_eq!(origin.aux_block_id, 255);
+        let unpacked = ClauseOrigin::unpack(origin.pack());
+        assert_eq!(unpacked.aux_block_id, 255);
+
+        let origin_zero = ClauseOrigin::new(5, ClauseRole::CardinalityCounter, 0);
+        assert_eq!(origin_zero.aux_block_id, 0);
+        let unpacked_zero = ClauseOrigin::unpack(origin_zero.pack());
+        assert_eq!(unpacked_zero.aux_block_id, 0);
+    }
 }
 

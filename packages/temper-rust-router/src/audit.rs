@@ -181,7 +181,7 @@ mod tests {
     use std::collections::HashMap;
 
     fn make_result(status: SolverStatus, assignments: HashMap<usize, bool>) -> TopologyResult {
-        TopologyResult { status, num_vars: 0, num_clauses: 0, assignments, unsat_core: vec![], solver_time_ms: 0.0 }
+        TopologyResult { status, num_vars: 0, num_clauses: 0, assignments, unsat_core: vec![], solver_time_ms: 0.0, tensions: vec![], conflict: None }
     }
 
     #[test]
@@ -354,6 +354,8 @@ mod tests {
                 assignments: assign.clone(),
                 unsat_core: vec![],
                 solver_time_ms: 0.0,
+                tensions: vec![],
+                conflict: None,
             };
 
             let audit_violations = audit_constraints(&model, &result, &vn);
