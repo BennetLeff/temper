@@ -46,10 +46,6 @@ class WhitespaceLoss(LossFunction):
     grid_shape: tuple[int, int] = (10, 10)
     target_density: float | None = None
 
-    @property
-    def name(self) -> str:
-        return "whitespace"
-
     def __call__(
         self,
         positions: Array,
@@ -57,6 +53,7 @@ class WhitespaceLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         # Get component bounds
@@ -141,10 +138,6 @@ class AlignmentLoss(LossFunction):
 
     prefix_groups: Array  # (G, M) array of indices, padded with -1
 
-    @property
-    def name(self) -> str:
-        return "alignment"
-
     def __call__(
         self,
         positions: Array,
@@ -152,6 +145,7 @@ class AlignmentLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         """
@@ -209,10 +203,6 @@ class RotationConsistencyLoss(LossFunction):
     pushing the design toward a single dominant orientation (or two).
     """
 
-    @property
-    def name(self) -> str:
-        return "rotation_consistency"
-
     def __call__(
         self,
         positions: Array,
@@ -220,6 +210,7 @@ class RotationConsistencyLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         """
@@ -282,10 +273,6 @@ class MirrorSymmetryLoss(LossFunction):
     axis: int = 0
     center: float = 0.0
 
-    @property
-    def name(self) -> str:
-        return "mirror_symmetry"
-
     def __call__(
         self,
         positions: Array,
@@ -293,6 +280,7 @@ class MirrorSymmetryLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         if self.pairs.shape[0] < 1:
@@ -336,10 +324,6 @@ class VisualGroupingLoss(LossFunction):
     min_gap: float = 10.0
     intra_weight: float = 1.0
 
-    @property
-    def name(self) -> str:
-        return "visual_grouping"
-
     def __call__(
         self,
         positions: Array,
@@ -347,6 +331,7 @@ class VisualGroupingLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] < 1:
@@ -441,10 +426,6 @@ class ConsensusLayoutLoss(LossFunction):
 
     template_groups: Array  # (G, K, M)
 
-    @property
-    def name(self) -> str:
-        return "consensus_layout"
-
     def __call__(
         self,
         positions: Array,
@@ -452,6 +433,7 @@ class ConsensusLayoutLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         if self.template_groups.shape[0] == 0:
@@ -514,10 +496,6 @@ class StackedRowLoss(LossFunction):
     col_pitch: float
     net_crossing_weight: float = 0.5
 
-    @property
-    def name(self) -> str:
-        return "stacked_row"
-
     def __call__(
         self,
         positions: Array,
@@ -525,6 +503,7 @@ class StackedRowLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         if self.component_indices.shape[0] < 2:
@@ -600,10 +579,6 @@ class PinGridAlignmentLoss(LossFunction):
 
     grid_size: float = 0.5
 
-    @property
-    def name(self) -> str:
-        return "pin_grid_alignment"
-
     def __call__(
         self,
         positions: Array,
@@ -611,6 +586,7 @@ class PinGridAlignmentLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         # 1. Compute absolute pin positions
@@ -660,10 +636,6 @@ class PortFacingRotationLoss(LossFunction):
     primary_pin_offsets: Array  # (G, 2)
     target_indices: Array  # (G, K)
 
-    @property
-    def name(self) -> str:
-        return "port_facing_rotation"
-
     def __call__(
         self,
         positions: Array,
@@ -671,6 +643,7 @@ class PortFacingRotationLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] == 0:
