@@ -348,7 +348,7 @@ class PipelineOrchestrator:
         else:
             class MockConstraints:
                 constraints = []
-            state.constraints = MockConstraints()
+                constraints: list[Any] = []
 
         # Load physical specification
         from temper_placer.core.specification import PcbSpecification

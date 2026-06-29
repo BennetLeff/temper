@@ -71,10 +71,10 @@ class TerminalDashboardObserver:
 
     _STATUS_ICONS: ClassVar[dict[str, str]] = {
         "idle": " ",
-        "active": "▸",
-        "done": "✓",
-        "skip": "−",
-        "error": "✗",
+        "active": "\u25b8",
+        "done": "\u2713",
+        "skip": "\u2212",
+        "error": "\u2717",
     }
 
     # -- ProgressObserver protocol ------------------------------------------
@@ -85,7 +85,7 @@ class TerminalDashboardObserver:
         self._stage_timers[stage_name] = time.monotonic()
         self._stage_iterations[stage_name] = iteration
         self._current_stage = stage_name
-        self._header_text = f"Temper Pipeline — {stage_name}"
+        self._header_text = f"Temper Pipeline \u2014 {stage_name}"
         if self._pipeline_start == 0.0:
             self._pipeline_start = time.monotonic()
 
@@ -99,7 +99,7 @@ class TerminalDashboardObserver:
 
     def on_stage_error(self, stage_name: str, error: Exception) -> None:
         self._stage_status[stage_name] = self.STATUS_ERROR
-        self._header_text = f"Temper Pipeline — {stage_name} FAILED"
+        self._header_text = f"Temper Pipeline \u2014 {stage_name} FAILED"
 
     def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,
                                attempt: int) -> None:
@@ -111,7 +111,7 @@ class TerminalDashboardObserver:
         self._total_duration = total_duration_s
         self._stage_durations.update(stage_timings)
         self._header_text = (
-            f"Temper Pipeline — {'PASSED' if success else 'FAILED'} "
+            f"Temper Pipeline \u2014 {'PASSED' if success else 'FAILED'} "
             f"({total_duration_s:.1f}s)"
         )
 
@@ -180,7 +180,7 @@ class TerminalDashboardObserver:
                 if dur > 0:
                     lines.append(f"  duration: {dur:.1f}s")
                 elif status == self.STATUS_SKIP:
-                    lines.append(f"  skipped")
+                    lines.append("  skipped")
 
             if name == "geometric" and self._losses:
                 lines.append(f"  loss: {self._losses[-1]:.4f}")
@@ -210,7 +210,7 @@ class TerminalDashboardObserver:
         mn = min(recent)
         mx = max(recent)
         rng = mx - mn if mx > mn else 1.0
-        blocks = " ▁▂▃▄▅▆▇█"
+        blocks = " \u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588"
         line = ""
         for v in recent:
             idx = int((v - mn) / rng * (len(blocks) - 1))

@@ -411,3 +411,8 @@ class StageDAGEngine:
         for obs in self.observers:
             with contextlib.suppress(Exception):
                 obs.on_pipeline_complete(success, total_duration_s, stage_timings)
+
+    def _emit_epoch(self, stage_name: str, epoch: int, loss: float) -> None:
+        for obs in self.observers:
+            with contextlib.suppress(Exception):
+                obs.on_epoch(stage_name, epoch, loss)

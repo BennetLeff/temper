@@ -8,11 +8,7 @@ from pathlib import Path
 
 import click
 
-from temper_placer.pipeline.dag_observability import (
-    PipelineExecutionLog,
-    StageEvent,
-    _event_to_dict,
-)
+from temper_placer.pipeline.dag_observability import StageEvent
 from temper_placer.pipeline.terminal_dashboard import create_terminal_dashboard
 
 
@@ -50,7 +46,6 @@ def watch(input_pcb: str, loops: str | None, constraints: str | None,
 def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None,
                 dry_run: bool, skip_routing: bool, refresh: float) -> None:
     from temper_placer.pipeline import PipelineOrchestrator
-    from temper_placer.pipeline.dag_engine import StageDAGEngine
 
     config_kwargs: dict = {"input_pcb": input_pcb}
     if loops:
@@ -64,9 +59,7 @@ def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None
 
     orchestrator = PipelineOrchestrator.from_config(**config_kwargs)
 
-    pipeline_kwargs: dict = {
-        "input_pcb": input_pcb,
-    }
+    pipeline_kwargs: dict = {"input_pcb": input_pcb}
     if loops:
         pipeline_kwargs["loops"] = loops
     if constraints:

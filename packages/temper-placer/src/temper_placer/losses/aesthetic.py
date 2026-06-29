@@ -760,7 +760,7 @@ def get_prefix_groups(netlist: Netlist, exceptions: list[str] | None = None) -> 
     """
     import re
 
-    groups_dict = {}
+    groups_dict: dict[str, list[int]] = {}
     exceptions = exceptions or []
 
     for i, comp in enumerate(netlist.components):

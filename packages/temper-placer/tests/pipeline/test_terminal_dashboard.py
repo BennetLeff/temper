@@ -1,7 +1,5 @@
 """Tests for TerminalDashboardObserver live pipeline visualization."""
 
-from unittest.mock import Mock
-
 import pytest
 
 
@@ -69,7 +67,7 @@ class TestTerminalDashboardObserver:
         for i in range(250):
             obs.on_epoch("geometric", i, float(i))
         assert len(obs._losses) == 200
-        assert obs._losses[0] == 50.0  # dropped first 50
+        assert obs._losses[0] == 50.0
 
     def test_make_sparkline(self):
         from temper_placer.pipeline.terminal_dashboard import TerminalDashboardObserver
@@ -77,7 +75,7 @@ class TestTerminalDashboardObserver:
         obs.on_epoch("geometric", 0, 1.0)
         obs.on_epoch("geometric", 10, 2.0)
         spark = obs._make_sparkline()
-        assert len(spark) == 2  # two chars
+        assert len(spark) == 2
 
     def test_replays_pipeline_execution(self):
         from temper_placer.pipeline.terminal_dashboard import TerminalDashboardObserver
@@ -104,11 +102,8 @@ class TestProgressObserverProtocol:
 
     def test_metrics_observer_still_works_without_on_epoch(self):
         """MetricsObserver doesn't implement on_epoch — should still work."""
-        from temper_placer.pipeline.dag_observability import ProgressObserver
         from temper_placer.pipeline.metrics_observer import MetricsObserver
-        # If MetricsObserver doesn't crash when instantiated, it's fine
-        # (it doesn't implement on_epoch, but protocol is optional)
-        assert True  # MetricsObserver imports successfully
+        assert MetricsObserver is not None
 
     def test_dag_to_legacy_observer_still_works(self):
         from temper_placer.pipeline.dag_observability import DAGToLegacyObserver
