@@ -58,9 +58,34 @@ def derive_constraints_from_spec(
 def apply_derived_constraints(
     netlist: Netlist,
     derived: dict[str, Any],
-) -> Netlist:
+    pcl_constraints: Any = None,
+) -> Any:
     """
-    Apply derived constraints back to the netlist/constraints objects.
+    Apply derived constraints back to PCL constraint collection.
+
+    When pcl_constraints is provided, synthesized constraints from
+    derivation are added to it. Returns the modified collection or
+    netlist fallback.
+
+    This resolves the TODO at derivation.py:65 — back-propagation
+    of derived parameters to the PCL constraint IR.
     """
-    # TODO: Implement back-propagation to PCL constraints
-    return netlist
+    if pcl_constraints is None:
+        return netlist
+
+    from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
+
+    for key, value in derived.items():
+        if key.endswith("_min_clearance"):
+            ref = key.replace("_min_clearance", "")
+            pcl_constraints.add(
+                SeparatedConstraint(
+                    a=ref,
+                    b="*",
+                    min_distance_mm=float(value),
+                    tier=ConstraintTier.STRONG,
+                    because=f"Derived from thermal spec: {ref} min clearance {value}mm",
+                )
+            )
+
+    return pcl_constraints

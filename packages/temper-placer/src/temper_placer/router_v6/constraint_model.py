@@ -176,7 +176,8 @@ class ModelBuilder:
         channel_widths: dict[str, ChannelWidths] | None = None,
         design_rules: DesignRules | None = None,
         diff_pairs: list[DiffPair] | None = None,
-        pcb: ParsedPCB | None = None
+        pcb: ParsedPCB | None = None,
+        pcl_constraints=None,
     ):
         self.skeletons = skeletons
         self.nets = nets
@@ -184,6 +185,7 @@ class ModelBuilder:
         self.design_rules = design_rules
         self.diff_pairs = diff_pairs or []
         self.pcb = pcb
+        self.pcl_constraints = pcl_constraints
         self.model = ConstraintModel()
 
         # Build net name to index mapping for fast lookup
@@ -198,6 +200,7 @@ class ModelBuilder:
         self._create_capacity_constraints()
         self._create_diff_pair_constraints()
         self._create_layer_constraints()
+        self._apply_pcl_constraints()
         return self.model
 
     def _create_channel_vars(self):
@@ -378,6 +381,46 @@ class ModelBuilder:
                                     self.model.add_constraint(constraint)
 
 
+    def _apply_pcl_constraints(self):
+        """Apply PCL constraints to the SAT constraint model (R22).
+
+        When pcl_constraints is provided, compiles them to SAT via the
+        SAT bridge and adds the resulting constraints to the model.
+        When None, behavior is identical to current (R23).
+        """
+        if self.pcl_constraints is None:
+            return
+
+        try:
+            from temper_placer.pcl.constraints import CompilationContext, CompilationTarget
+            from temper_placer.core.netlist import Netlist
+
+            # Build a Netlist from available PCB data.
+            netlist = Netlist(
+                components=self.pcb.components if self.pcb else [],
+                nets=self.nets,
+            )
+
+            ctx = CompilationContext(
+                netlist=netlist,
+                board=self.pcb.board if self.pcb else None,
+                skeletons=self.skeletons,
+                channel_widths=self.channel_widths,
+                design_rules=self.design_rules,
+            )
+
+            compiled = self.pcl_constraints.compile(CompilationTarget.SAT, ctx)
+            for c_list in compiled:
+                if isinstance(c_list, list):
+                    for c in c_list:
+                        self.model.add_constraint(c)
+                elif hasattr(c_list, 'name'):
+                    self.model.add_constraint(c_list)
+        except Exception as e:
+            import warnings
+            warnings.warn(f"PCL→SAT compilation failed: {e}")
+
+
 class ConstraintGenerationStage(Stage):
     """Stage 3.1: Build constraint model from skeletons and nets."""
 
@@ -390,6 +433,7 @@ class ConstraintGenerationStage(Stage):
         skeletons = state.channel_skeletons
         channel_widths = state.channel_widths
         diff_pairs = infer_differential_pairs([net.name for net in pcb.nets])
+        pcl_constraints = getattr(state, 'pcl_constraints', None)
         model_builder = ModelBuilder(
             skeletons=skeletons,
             nets=pcb.nets,
@@ -397,6 +441,7 @@ class ConstraintGenerationStage(Stage):
             design_rules=pcb.design_rules,
             diff_pairs=diff_pairs,
             pcb=pcb,
+            pcl_constraints=pcl_constraints,
         )
         constraint_model = model_builder.build()
         return replace(state, constraint_model=constraint_model)
