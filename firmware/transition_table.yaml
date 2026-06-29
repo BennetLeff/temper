@@ -58,6 +58,5 @@ transitions:
   - { from: STATE_FAULT, event: EVENT_FAULT_RESET_CLEARED,       to: STATE_INIT }
   - { from: STATE_FAULT, event: EVENT_FAULT_RESET_PERSISTS,      to: STATE_FAULT }
 
-  # RUNAWAY_FAULT
-  - { from: STATE_RUNAWAY_FAULT, event: EVENT_FAULT_RESET_CLEARED,  to: STATE_INIT }
+  # RUNAWAY_FAULT (dead-end: hardware latch only, no software clear)
   - { from: STATE_RUNAWAY_FAULT, event: EVENT_FAULT_RESET_PERSISTS, to: STATE_RUNAWAY_FAULT }
