@@ -11,6 +11,7 @@ from temper_placer.router_v6.clearance_check import ClearanceReport, verify_clea
 from temper_placer.router_v6.copper_balance import CopperBalanceReport, analyze_copper_balance
 from temper_placer.router_v6.creepage_check import CreepageReport, verify_creepage
 from temper_placer.router_v6.manufacturing_report import generate_manufacturing_report
+from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.teardrop_generation import TeardropReport, insert_teardrops
 from temper_placer.router_v6.thermal_relief import ThermalReliefReport, add_thermal_relief
@@ -34,7 +35,7 @@ def _run_all(rr: RoutingResults):
 @pytest.mark.dependency(depends=["induction-base"])
 def test_manufacturing_report_add_compliant_route() -> None:
     """FR13: Adding a compliant route updates composite report correctly."""
-    rr = RoutingResults(compiled_routes={}, failed_nets=[])
+    rr = make_empty_rr()
     report = _run_all(rr)
     assert isinstance(report.total_violations, int)
 

@@ -6,6 +6,7 @@ import pytest
 
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.creepage_check import verify_creepage
+from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 
 

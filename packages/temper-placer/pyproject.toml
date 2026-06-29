@@ -98,6 +98,7 @@ markers = [
     "l3_pbt: Level 3 - PBT on arbitrary grids (CI: PR only)",
     "l4_regression: Level 4 - real-world regression (CI: PR only)",
     "dependency: marks tests for pytest-dependency lattice ordering (NFR7)",
+    "pbt_low_priority: marks PBT tests that can be skipped under CI-fast to meet time budget",
 ]
 
 [tool.ruff]

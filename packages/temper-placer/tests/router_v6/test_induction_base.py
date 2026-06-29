@@ -14,9 +14,50 @@ from temper_placer.router_v6.clearance_check import verify_clearance
 from temper_placer.router_v6.copper_balance import analyze_copper_balance
 from temper_placer.router_v6.creepage_check import verify_creepage
 from temper_placer.router_v6.manufacturing_report import generate_manufacturing_report
-from temper_placer.router_v6.routing_results import RoutingResults
+from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.teardrop_generation import insert_teardrops
 from temper_placer.router_v6.thermal_relief import add_thermal_relief
+
+
+# ---------------------------------------------------------------------------
+# Shared helpers — imported by per-validator induction files
+# ---------------------------------------------------------------------------
+
+
+# @req(N10, U3): shared induction helpers — make_empty_rr, make_compliant_route
+def make_empty_rr() -> RoutingResults:
+    """Return an empty RoutingResults suitable as the induction base case."""
+    return RoutingResults(compiled_routes={}, failed_nets=[])
+
+
+def make_compliant_route(
+    net_name: str,
+    coords: list[tuple[float, float]],
+    layer: str = "F.Cu",
+    width_mm: float = 0.127,
+    vias: list | None = None,
+) -> CompiledRoute:
+    """Build a CompiledRoute with a simple RoutePath."""
+    from temper_placer.router_v6.astar_pathfinding import RoutePath
+
+    path_length = 0.0
+    for i in range(len(coords) - 1):
+        dx = coords[i + 1][0] - coords[i][0]
+        dy = coords[i + 1][1] - coords[i][1]
+        path_length += (dx * dx + dy * dy) ** 0.5
+    return CompiledRoute(
+        net_name=net_name,
+        path=RoutePath(
+            net_name=net_name,
+            coordinates=coords,
+            layer_name=layer,
+            path_length=path_length,
+        ),
+        width_mm=width_mm,
+        vias=vias or [],
+        matched_length_mm=None,
+    )
+
 
 # ---------------------------------------------------------------------------
 # Empty input

@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from temper_placer.router_v6.astar_pathfinding import RoutePath
+from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.thermal_relief import add_thermal_relief
 
@@ -12,7 +13,7 @@ from temper_placer.router_v6.thermal_relief import add_thermal_relief
 @pytest.mark.dependency(depends=["induction-base"])
 def test_thermal_relief_add_compliant_route() -> None:
     """FR13: Adding a power-net route triggers thermal relief without violations."""
-    rr = RoutingResults(compiled_routes={}, failed_nets=[])
+    rr = make_empty_rr()
     report = add_thermal_relief(rr)
     assert report.relief_count >= 0
 

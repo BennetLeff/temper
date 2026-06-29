@@ -95,3 +95,11 @@ plans:
       - deadcode-baseline.py
       - .github/workflows/python-tests.yml
       - pyproject.toml
+
+  N10:
+    path: docs/plans/2026-06-28-004-feat-mathematical-rigor-deferred-items-plan.md
+    scope:
+      - packages/temper-placer/tests/router_v6/conftest.py
+      - packages/temper-placer/tests/router_v6/test_induction_base.py
+      - packages/temper-placer/tests/router_v6/test_clearance_induction.py
+      - packages/temper-placer/tests/router_v6/test_clearance_segment_dist.py

@@ -7,11 +7,10 @@ import pytest
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.clearance_check import verify_clearance
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
+from tests.router_v6.test_induction_base import make_empty_rr
 from tests.router_v6.sat_property_strategies import known_compliant_route
 
 
-def _empty_rr() -> RoutingResults:
-    return RoutingResults(compiled_routes={}, failed_nets=[])
 
 
 @pytest.mark.dependency(depends=["induction-base"], name="clearance-add")
@@ -20,7 +19,7 @@ def test_clearance_add_compliant_route() -> None:
     clearance violations."""
     min_clearance = 0.127
 
-    rr = _empty_rr()
+    rr = make_empty_rr()
     assert verify_clearance(rr, min_clearance=min_clearance).violation_count == 0
 
     route = known_compliant_route(layer="F.Cu")

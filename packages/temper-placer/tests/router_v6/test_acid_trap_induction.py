@@ -6,13 +6,14 @@ import pytest
 
 from temper_placer.router_v6.acid_trap_detection import detect_acid_traps
 from temper_placer.router_v6.astar_pathfinding import RoutePath
+from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 
 
 @pytest.mark.dependency(depends=["induction-base"])
 def test_acid_trap_add_compliant_route() -> None:
     """FR13: Adding a compliant route (no acute angles) does not create traps."""
-    rr = RoutingResults(compiled_routes={}, failed_nets=[])
+    rr = make_empty_rr()
     assert detect_acid_traps(rr).trap_count == 0
 
     # A wide-angle path (135-degree turns) — angles > 90 degrees

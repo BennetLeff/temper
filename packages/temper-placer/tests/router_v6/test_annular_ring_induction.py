@@ -6,6 +6,7 @@ import pytest
 
 from temper_placer.router_v6.annular_ring_check import check_annular_rings
 from temper_placer.router_v6.astar_pathfinding import RoutePath
+from tests.router_v6.test_induction_base import make_compliant_route, make_empty_rr
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.via_placement import Via
 
@@ -13,7 +14,7 @@ from temper_placer.router_v6.via_placement import Via
 @pytest.mark.dependency(depends=["induction-base"])
 def test_annular_ring_add_compliant_route() -> None:
     """FR13: Adding a route with compliant vias does not create violations."""
-    rr = RoutingResults(compiled_routes={}, failed_nets=[])
+    rr = make_empty_rr()
     assert check_annular_rings(rr).violation_count == 0
 
     # Via with pad=1.0, drill=0.3, ring=0.35 >= 0.05 → compliant
