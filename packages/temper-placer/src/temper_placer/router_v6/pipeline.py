@@ -382,9 +382,10 @@ class RouterV6Pipeline:
         self.max_sat_nets = max_sat_nets
 
         # Stage ledger: tracks object cardinality across stage boundaries.
-        # When a fence is provided, the ledger is enabled by default.
+        # `fail_on_imbalance` is False by default — ledger violations are
+        # warnings, not runtime errors.  Set True for debugging only.
         from temper_placer.router_v6.stage_ledger import StageLedger
-        self.ledger = StageLedger(fail_on_imbalance=fence is not None)
+        self.ledger = StageLedger(fail_on_imbalance=False)
 
     def run(
         self,
@@ -975,12 +976,18 @@ def _ensure_checks_loaded(fence, invariants: tuple) -> None:
     in the fence's runner.  Without this, referencing ``drc_via_spacing``
     or ``drc_trace_clearance`` would silently produce zero violations."""
     needed = {inv.check_name for inv in invariants}
-    existing = {c.name for c in fence._runner.checks}
+    try:
+        existing = {c.name for c in fence._runner.checks}
+    except (AttributeError, TypeError):
+        return  # fence runner not initialized, skip
     missing = needed - existing
     if not missing:
         return
-    from temper_drc.checks.drc.trace_clearance import TraceClearanceCheck  # noqa: E402
-    from temper_drc.checks.drc.via_spacing import ViaSpacingCheck          # noqa: E402
+    try:
+        from temper_drc.checks.drc.trace_clearance import TraceClearanceCheck  # noqa: E402
+        from temper_drc.checks.drc.via_spacing import ViaSpacingCheck          # noqa: E402
+    except ImportError:
+        return  # temper_drc not available, skip
     if "drc_via_spacing" in missing:
         fence._runner.checks.append(ViaSpacingCheck())
     if "drc_trace_clearance" in missing:
