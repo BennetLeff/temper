@@ -7,19 +7,19 @@
       "margin_rel": 0.3
     },
     "spread": {
-      "mean_ms": 57.0,
+      "mean_ms": 80.0,
       "margin_rel": 0.3
     },
     "wirelength": {
-      "mean_ms": 2.1,
+      "mean_ms": 3.0,
       "margin_rel": 0.3
     },
     "boundary": {
-      "mean_ms": 1.4,
+      "mean_ms": 2.0,
       "margin_rel": 0.3
     },
     "total_step_ms": {
-      "mean_ms": 130.0,
+      "mean_ms": 160.0,
       "margin_rel": 0.3
     }
   }
