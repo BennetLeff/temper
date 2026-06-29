@@ -2,6 +2,9 @@
 
 Firmware, PCB, and JAX-based placer for a high-power induction heating system.
 
+[![License](https://img.shields.io/badge/license-proprietary-red)](./LICENSE)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits)](https://conventionalcommits.org)
+
 ---
 
 ## Core Health
