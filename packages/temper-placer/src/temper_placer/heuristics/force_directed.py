@@ -135,7 +135,7 @@ class ForceDirectedUnfoldingHeuristic(Heuristic):
             board_width=context.board.width,
             board_height=context.board.height,
             key=rng_key,
-            _origin=context.board.origin,
+            origin=context.board.origin,
             margin=context.constraints.board_margin_mm,
         )
         positions = initial_state.positions

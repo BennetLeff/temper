@@ -394,7 +394,7 @@ class SpectralInitializer:
 
         # Reconstruct positions in original component order
         positions = np.zeros((n, 2))
-        for subgraph, coords in zip(sorted_subgraphs, packed_positions):
+        for subgraph, coords in zip(sorted_subgraphs, packed_positions):  # type: ignore[assignment]
             for idx, comp_idx in enumerate(subgraph):
                 positions[comp_idx] = np.asarray(coords[idx])  # type: ignore[assignment]
 

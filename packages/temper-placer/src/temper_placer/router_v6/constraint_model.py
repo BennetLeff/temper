@@ -494,6 +494,7 @@ class ConstraintGenerationStage(Stage):
         return "ConstraintGeneration"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         skeletons = state.channel_skeletons
         channel_widths = state.channel_widths

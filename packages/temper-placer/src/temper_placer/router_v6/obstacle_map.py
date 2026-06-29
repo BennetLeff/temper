@@ -170,6 +170,7 @@ class ObstacleMapStage(Stage):
         return "ObstacleMap"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         escape_vias = list(state._escape_vias) if state._escape_vias else []
         obstacle_maps = build_obstacle_map(pcb, escape_vias)
@@ -234,6 +235,7 @@ def validate_obstacle_map(state: BoardState) -> list[StageDRCFailure]:
         ))
         return failures
 
+    assert state._parsed_pcb is not None
     pcb: ParsedPCB = state._parsed_pcb
     declared_layers = {ly.name for ly in pcb.stackup.layers if ly.layer_type in ("signal", "mixed")}
 

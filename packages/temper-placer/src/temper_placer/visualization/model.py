@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, cast
+from typing import Any
 
 
 class ComponentStatus(Enum):
@@ -538,10 +538,11 @@ def create_board_view_from_state(
         BoardView instance.
     """
     n = len(component_refs)
-    # Use explicit typing to handle None list - cast to satisfy type checker
-    fp_list: list[str | None] = list(
-        footprints if footprints else [None] * n
-    )
+    # Build footprint list element-by-element to satisfy invariant list type check
+    fp_list: list[str | None] = [
+        footprints[i] if footprints else None
+        for i in range(n)
+    ]
     status_list = statuses if statuses else [ComponentStatus.OK] * n
 
     components = tuple(

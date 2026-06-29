@@ -493,6 +493,7 @@ class OccupancyGridStage(Stage):
         return "OccupancyGrid"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         base_inflation = (
             pcb.design_rules.default_trace_width_mm / 2.0

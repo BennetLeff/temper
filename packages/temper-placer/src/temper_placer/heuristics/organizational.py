@@ -14,8 +14,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import jax.numpy as jnp
+
+if TYPE_CHECKING:
+    from jax import Array
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -292,13 +296,15 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
         for i, ref in enumerate(to_place):
             comp = context.netlist.get_component(ref)
 
+            offset_x: Array | float
+            offset_y: Array | float
             if n > 1:
                 angle = 2 * 3.14159 * i / n
                 offset_x = radius * jnp.cos(angle)
                 offset_y = radius * jnp.sin(angle)
             else:
-                offset_x: float | Array = 0.0
-                offset_y: float | Array = 0.0
+                offset_x = 0.0
+                offset_y = 0.0
 
             pos_x = cx + float(offset_x)
             pos_y = cy + float(offset_y)

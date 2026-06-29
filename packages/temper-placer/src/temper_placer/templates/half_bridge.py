@@ -7,8 +7,9 @@ from typing import TYPE_CHECKING
 
 import yaml  # type: ignore[import-untyped]
 
+from temper_placer.core.loop import Loop, LoopPriority, LoopType
+
 if TYPE_CHECKING:
-    from temper_placer.core.loop import Loop, LoopPriority
     from temper_placer.core.netlist import Netlist
 
 @dataclass

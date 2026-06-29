@@ -272,7 +272,7 @@ def discrete_rotation_refinement_greedy(
 
             if test_loss < best_loss:
                 best_loss = test_loss
-                best_rotation = rot_idx
+                best_rotation = rot_idx  # type: ignore[assignment]
 
         # Apply best rotation
         if best_rotation != get_rotation_index(current_state.rotation_logits)[comp_idx]:

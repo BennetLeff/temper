@@ -802,7 +802,7 @@ class CriticalLoopHeuristic(Heuristic):
                 offset_x = radius * 0.5 * jnp.cos(angle)
                 offset_y = radius * 0.5 * jnp.sin(angle)
             else:
-                offset_x, offset_y = 0.0, 0.0
+                offset_x, offset_y = jnp.array(0.0), jnp.array(0.0)
 
             pos_x = cx + float(offset_x)
             pos_y = cy + float(offset_y)

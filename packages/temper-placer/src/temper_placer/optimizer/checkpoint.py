@@ -448,4 +448,4 @@ def restore_training_state_from_checkpoint(
     if checkpoint.best_positions is not None:
         training_state.best_positions = checkpoint.best_positions
 
-    return training_state, checkpoint.validation_history
+    return training_state, checkpoint.validation_history or []

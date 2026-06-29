@@ -125,9 +125,9 @@ def score_config(results: list[PCBResult]) -> float:
     # Secondary: Mean wirelength ratio (only for passing boards)
     passing_results = [r for r in results if r.drc_errors == 0]
     if passing_results:
-        mean_wl_ratio = np.mean([r.wirelength_ratio for r in passing_results])
+        mean_wl_ratio = float(np.mean([r.wirelength_ratio for r in passing_results]))
         # Convert to score: 1.0 is perfect, higher ratios get lower score
-        wl_score = max(0.0, 2.0 - mean_wl_ratio)
+        wl_score = float(max(0.0, 2.0 - mean_wl_ratio))
     else:
         wl_score = 0.0
 

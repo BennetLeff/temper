@@ -110,6 +110,7 @@ class LayerCapacityStage(Stage):
         return "LayerCapacity"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         layer_capacities: dict[str, LayerCapacity] = {}
         for layer_name in state.occupancy_grids:  # type: ignore[union-attr]

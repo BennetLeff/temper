@@ -393,5 +393,5 @@ def list_reference_designs(directory: Path | str) -> list[dict]:
             continue
 
     # Sort by component count
-    designs.sort(key=lambda d: int(d["estimated_components"]))  # type: ignore[arg-type]
+    designs.sort(key=lambda d: cast(int, d["estimated_components"]))
     return designs

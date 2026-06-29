@@ -193,5 +193,3 @@ class astar_monitor:
                 pytest.fail(msg)
 
             logging.getLogger(__name__).warning(msg)
-
-        return False  # Don't suppress exceptions

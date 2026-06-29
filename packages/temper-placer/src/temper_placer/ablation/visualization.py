@@ -124,9 +124,9 @@ class AblationVisualizer:
             for h in histories:
                 all_losses.append(h.get("losses", []))
 
-            all_losses = np.array(all_losses, dtype=object)
-            mean_loss = np.mean(all_losses, axis=0)
-            std_loss = np.std(all_losses, axis=0)
+            all_losses_arr = np.array(all_losses, dtype=object)
+            mean_loss = np.mean(all_losses_arr, axis=0)
+            std_loss = np.std(all_losses_arr, axis=0)
 
             # Add mean line
             fig.add_trace(go.Scatter(

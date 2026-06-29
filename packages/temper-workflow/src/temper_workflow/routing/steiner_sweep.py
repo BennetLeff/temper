@@ -44,7 +44,7 @@ def run_correlation_study(pcb_path: Path, config_path: Path):
         rotations = rotations.at[i, c.initial_rotation or 0].set(1.0)
 
     hpwl_loss = WirelengthLoss()
-    steiner_loss = SteinerTreeLoss(use_congestion_penalty=False)
+    steiner_loss = SteinerTreeLoss()
 
     # We want per-net breakdown
     # Note: These loss functions typically return a total.

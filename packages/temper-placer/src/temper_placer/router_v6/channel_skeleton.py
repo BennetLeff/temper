@@ -416,6 +416,7 @@ class ChannelSkeletonStage(Stage):
         return "ChannelSkeleton"
 
     def run(self, state: BoardState) -> BoardState:
+        assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
         routing_spaces = state.routing_spaces
         skeletons: dict[str, ChannelSkeleton] = {}

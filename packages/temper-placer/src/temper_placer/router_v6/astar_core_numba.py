@@ -329,7 +329,7 @@ def _compile_kernel():
                 # PathFinder history tensor.  log1p + cap means
                 # cost grows logarithmically; admissible as a
                 # tie-breaker.
-                if use_congestion:
+                if use_congestion and congestion_flat is not None:
                     raw = congestion_flat[n_idx]
                     if raw > np.float32(0.0):
                         # Inline: 1 + log(1 + raw), capped
