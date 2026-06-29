@@ -73,3 +73,28 @@ jobs:
         with:
           name: pipeline-metrics-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ env.NDJSON_FILE }}
+      - name: Auto-tighten timing baselines
+        if: env.FEATURE_AUTO_BASELINE_TIGHTEN == 'true'
+        continue-on-error: true
+        run: |
+          echo "Checking for eligible baseline tightening..."
+          uv run temper timing tighten --ci \
+            --n-runs "${AUTO_TIGHTEN_N:-7}" \
+            --threshold "${AUTO_TIGHTEN_THRESHOLD:-0.50}"
+          if git diff --quiet power_pcb_dataset/timing_baselines.yaml; then
+            echo "No baselines tightened."
+          else
+            echo "Baselines tightened — committing directly."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add power_pcb_dataset/timing_baselines.yaml
+            git commit -m "chore(timing): auto-tighten baselines for ${{ github.sha }}"
+            for i in 1 2 3; do
+              git pull --rebase origin main && git push origin main && break
+              echo "Push attempt $i failed, retrying..."; sleep 5
+            done
+          fi
+        env:
+          FEATURE_AUTO_BASELINE_TIGHTEN: ${{ vars.FEATURE_AUTO_BASELINE_TIGHTEN || 'false' }}
+          AUTO_TIGHTEN_N: ${{ vars.AUTO_TIGHTEN_N || '7' }}
+          AUTO_TIGHTEN_THRESHOLD: ${{ vars.AUTO_TIGHTEN_THRESHOLD || '0.50' }}
