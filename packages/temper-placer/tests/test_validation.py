@@ -1,7 +1,6 @@
 """Tests for Hypothesis PBT validation and golden fixture infrastructure."""
 
 import json
-import os
 from pathlib import Path
 
 import pytest

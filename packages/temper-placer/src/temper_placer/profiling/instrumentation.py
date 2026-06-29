@@ -27,7 +27,7 @@ class StageTiming:
     wall_time_ms: float = 0.0
     cpu_time_ms: float = 0.0
     iterations: int = 0
-    sub_steps: dict[str, "StageTiming"] = field(default_factory=dict)
+    sub_steps: dict[str, StageTiming] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         result = {
@@ -77,7 +77,7 @@ class ProfileReport:
 
     def to_pipeline_metrics_record(
         self, board: str, stage: str, module: str = "profiler"
-    ) -> "PipelineMetricsRecord":
+    ) -> PipelineMetricsRecord:
         from temper_placer.regression.metrics_recorder import PipelineMetricsRecord
 
         metrics: dict[str, float] = {}

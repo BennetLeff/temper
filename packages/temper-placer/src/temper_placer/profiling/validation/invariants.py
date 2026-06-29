@@ -13,7 +13,7 @@ from __future__ import annotations
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from temper_placer.deterministic import DeterministicPipeline, create_legacy_pipeline
+from temper_placer.deterministic import create_legacy_pipeline
 from temper_placer.deterministic.state import BoardState
 
 
@@ -27,7 +27,6 @@ def board_state_strategy(draw: st.DrawFn) -> BoardState:
     board = Board(width=w, height=h, origin=(0.0, 0.0))
 
     n_comp = draw(st.integers(min_value=1, max_value=6))
-    n_layers = draw(st.sampled_from([1, 2, 4]))
 
     components: list[Component] = []
     nets: list[Net] = []
