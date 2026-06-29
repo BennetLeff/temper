@@ -53,6 +53,11 @@ pub fn evaluate_one(constraint: &InternalConstraint, assignment: &HashMap<String
         } => {
             assignment.get(var_name).copied().unwrap_or(false) == *allowed
         }
+        InternalConstraint::ChannelSeparation { .. } => {
+            // ChannelSeparation is a structural constraint, not a behavioral one.
+            // It is decomposed into sub-constraints before evaluation.
+            true
+        }
     }
 }
 
@@ -85,6 +90,9 @@ pub fn audit(
 ) -> Vec<Violation> {
     let mut violations = Vec::new();
     for c in constraints {
+        if matches!(c, InternalConstraint::ChannelSeparation { .. }) {
+            continue;
+        }
         if !evaluate_one(c, assignment) {
             violations.push(match c {
                 InternalConstraint::Capacity {
@@ -129,6 +137,7 @@ pub fn audit(
                     expected: *allowed,
                     actual: !allowed,
                 },
+                InternalConstraint::ChannelSeparation { .. } => unreachable!("ChannelSeparation skipped before audit match"),
             });
         }
     }

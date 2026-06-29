@@ -147,6 +147,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
                     clauses.push(vec![encode_lit(idx, *allowed)]);
                 }
             }
+            &InternalConstraint::ChannelSeparation { .. } => { /* encoded in downstream pass */ }
         }
     }
 

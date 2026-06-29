@@ -268,10 +268,11 @@ class SpreadLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
+        rotations: Array,
         context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -318,10 +319,10 @@ class RotationEntropyLoss(LossFunction):
         self,
         _positions: Array,
         rotations: Array,
-        _context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        context: LossContext,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
     ) -> LossResult:
         """
         Compute rotation entropy loss.
@@ -383,11 +384,11 @@ class CenterOfMassLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
+        rotations: Array,
         context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
-        _net_virtual_nodes: Array | None = None,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -448,10 +449,11 @@ class EdgeAvoidanceLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        _rotations: Array,
+        rotations: Array,
         context: LossContext,
-        _epoch: int = 0,
-        _total_epochs: int = 1,
+        epoch: int = 0,
+        total_epochs: int = 1,
+        net_virtual_nodes: Array | None = None,
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -459,10 +461,10 @@ class EdgeAvoidanceLoss(LossFunction):
 
         Args:
             positions: (N, 3) component positions (x, y, rotation_idx).
-            _rotations: (N, 4) soft one-hot rotations (unused).
+            rotations: (N, 4) soft one-hot rotations (unused).
             context: LossContext with board and bounds info.
-            _epoch: Current epoch (unused).
-            _total_epochs: Total epochs (unused).
+            epoch: Current epoch (unused).
+            total_epochs: Total epochs (unused).
 
         Returns:
             LossResult with total edge avoidance penalty.

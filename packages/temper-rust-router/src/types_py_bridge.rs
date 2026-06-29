@@ -1,7 +1,9 @@
 // Python → Rust bridge for constraint model data.
+use std::collections::HashMap;
+
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyTuple};
-use crate::types::{InternalConstraintModel, InternalVariable, InternalConstraint};
+use pyo3::types::{PyDict, PyList, PyTuple};
+use crate::types::{BundleClass, InternalBundleManifest, InternalConstraint, InternalConstraintModel, InternalVariable};
 
 pub fn model_from_python(
     _net_ids: Vec<String>,
@@ -80,8 +82,66 @@ pub fn model_from_python(
                     var_name: format!("uses_N{}_{}", net_idx, channel_id),
                     allowed,
                 });
+            } else if obj.getattr("group_a").is_ok() && obj.getattr("group_b").is_ok() {
+                cons.push(InternalConstraint::ChannelSeparation {
+                    group_a: obj.getattr("group_a")?.extract()?,
+                    group_b: obj.getattr("group_b")?.extract()?,
+                    min_slots: obj.getattr("min_slots")?.extract()?,
+                    channel_id: obj.getattr("channel_id")?.extract()?,
+                });
             }
         }
         Ok(InternalConstraintModel { variables: vars, constraints: cons })
+    })
+}
+
+/// Bridge Python BundleManifest dict to Rust InternalBundleManifest.
+pub fn bridge_bundle_manifest(
+    py_dict: &Bound<'_, PyDict>,
+) -> PyResult<InternalBundleManifest> {
+    let binding = py_dict
+        .get_item("bundles")?
+        .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyValueError, _>("missing 'bundles'"))?;
+    let bundles_list: &Bound<'_, PyList> = binding.downcast()?;
+
+    let mut bundles = Vec::new();
+    for item in bundles_list.iter() {
+        let d: &Bound<'_, PyDict> = item.downcast()?;
+        let bundle_id: usize = d.get_item("bundle_id")?.unwrap().extract()?;
+        let net_indices: Vec<usize> = d.get_item("net_indices")?.unwrap().extract()?;
+        let constraint_types: Vec<String> = d
+            .get_item("constraint_types")?
+            .unwrap()
+            .extract::<Vec<String>>()?;
+        let is_diff_pair: bool = d.get_item("is_diff_pair")?.unwrap().extract()?;
+
+        bundles.push(BundleClass {
+            bundle_id,
+            net_indices,
+            constraint_types,
+            is_diff_pair,
+        });
+    }
+
+    let bfn_binding = py_dict
+        .get_item("bundle_id_for_net")?
+        .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyValueError, _>("missing 'bundle_id_for_net'"))?;
+    let bfn: &Bound<'_, PyDict> = bfn_binding.downcast()?;
+    let mut bundle_id_for_net = HashMap::new();
+    for (key, val) in bfn.iter() {
+        let net_idx: usize = key.extract()?;
+        let bundle_id: usize = val.extract()?;
+        bundle_id_for_net.insert(net_idx, bundle_id);
+    }
+
+    let unbundled_binding = py_dict
+        .get_item("unbundled_net_indices")?
+        .unwrap();
+    let unbundled: Vec<usize> = unbundled_binding.extract()?;
+
+    Ok(InternalBundleManifest {
+        bundles,
+        bundle_id_for_net,
+        unbundled_net_indices: unbundled,
     })
 }

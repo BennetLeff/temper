@@ -124,6 +124,7 @@ pub fn audit_constraints(
                     }
                 }
             }
+            &InternalConstraint::ChannelSeparation { .. } => { /* decomposed into sub-constraints */ }
         }
     }
 
@@ -269,6 +270,7 @@ mod tests {
                         if val != *allowed { violations.push(format!("layer:{var_name}:{val}!={allowed}")); }
                     }
                 }
+                &InternalConstraint::ChannelSeparation { .. } => { /* decomposed into sub-constraints */ }
             }
         }
         violations

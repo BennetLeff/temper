@@ -303,6 +303,27 @@ pub enum InternalConstraint {
         var_name: String,
         allowed: bool,
     },
+    ChannelSeparation {
+        group_a: Vec<usize>,
+        group_b: Vec<usize>,
+        min_slots: usize,
+        channel_id: String,
+    },
+}
+
+#[derive(Clone, Debug)]
+pub struct BundleClass {
+    pub bundle_id: usize,
+    pub net_indices: Vec<usize>,
+    pub constraint_types: Vec<String>,
+    pub is_diff_pair: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct InternalBundleManifest {
+    pub bundles: Vec<BundleClass>,
+    pub bundle_id_for_net: std::collections::HashMap<usize, usize>,
+    pub unbundled_net_indices: Vec<usize>,
 }
 
 #[derive(Clone, Debug)]
