@@ -635,6 +635,7 @@ class PipelineOrchestrator:
             return state
         print(f"Exporting placed PCB to {state.config.output_pcb}...")
         ps = state.placement_state or PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
+        import jax.numpy as jnp
         try:
             write_result = export_placements(state.config.input_pcb, state.config.output_pcb, ps, 
                                              [c.ref for c in state.netlist.components], state.board.origin)
@@ -657,6 +658,7 @@ class PipelineOrchestrator:
         if state.placement_state is None and state.deterministic_result is None:
             return
         ps = state.placement_state or PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
+        import jax.numpy as jnp
         geo = measure_geometric(ps, state.netlist, state.board)
         loop_refs = [["Q1", "Q2", "C_BUS1"], ["U_MCU", "C_MCU_1"]]
         emi = measure_emi(ps, state.netlist, loop_refs=loop_refs)

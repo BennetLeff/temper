@@ -31,6 +31,8 @@ from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
 from temper_placer.router_v6.congestion import analyze_congestion
 
+from temper_placer.router_v6.adapter import MazeRouter
+
 if TYPE_CHECKING:
     from temper_placer.router_v6.diagnostics import (
         PlacementAdjustment,
