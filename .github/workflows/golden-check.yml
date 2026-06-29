@@ -37,5 +37,4 @@ jobs:
           uv run temper-placer dsn check \
             --boundary ${{ matrix.boundary }} \
             --input pcb/temper.kicad_pcb \
-            --config pcb/temper_config.yaml \
             --golden-dir power_pcb_dataset/goldens/temper
