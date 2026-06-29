@@ -10,8 +10,6 @@ on:
       - 'scripts/pipeline_metrics.py'
       - '.github/workflows/metrics-record.yml'
       - 'power_pcb_dataset/timing_baselines.yaml'
-    paths-ignore:
-      - 'power_pcb_dataset/metrics/pipeline_metrics.jsonl'
   workflow_dispatch:
 
 jobs:
