@@ -128,18 +128,17 @@ class RoutabilityGradientLoss(StatefulLossFunction):
                 self._ema_scores = self._best_scores
 
         # Reset freeze on improving iteration
-        if len(self._score_history) >= 2:
-            if self._score_history[-1] < self._score_history[-2]:
-                self._frozen = False
+        if len(self._score_history) >= 2 and self._score_history[-1] < self._score_history[-2]:
+            self._frozen = False
 
     def compute_loss(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         """
         Compute routability gradient loss via straight-through estimator (FR3.2-FR3.5).

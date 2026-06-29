@@ -305,12 +305,11 @@ class BundleAnalyzer:
                     continue
                 p_idx = self._net_to_idx.get(dp.p_net)
                 n_idx = self._net_to_idx.get(dp.n_net)
-                if p_idx is not None and n_idx is not None:
-                    if p_idx in remaining_diff_nets and n_idx in remaining_diff_nets:
-                        paired_diff_nets.append((p_idx, n_idx))
-                        remaining_diff_nets.discard(p_idx)
-                        remaining_diff_nets.discard(n_idx)
-                        matched_pairs.add(base)
+                if p_idx is not None and n_idx is not None and p_idx in remaining_diff_nets and n_idx in remaining_diff_nets:
+                    paired_diff_nets.append((p_idx, n_idx))
+                    remaining_diff_nets.discard(p_idx)
+                    remaining_diff_nets.discard(n_idx)
+                    matched_pairs.add(base)
 
             # Create bundles for diff pairs (each pair = one bundle)
             for p_idx, n_idx in paired_diff_nets:

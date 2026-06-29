@@ -53,7 +53,7 @@ class SchemaValidator:
         """
         set(self._fields.keys())
 
-        for field_name, value in metrics.items():
+        for field_name, _value in metrics.items():
             if field_name not in self._fields:
                 raise SchemaValidationError(field_name, "unknown field — not declared in metrics_schema.yaml")
 

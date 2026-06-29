@@ -232,11 +232,11 @@ class EnhancedCongestionLoss(LossFunction):
     def __call__(
         self,
         positions: jnp.ndarray,
-        rotations: jnp.ndarray,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: jnp.ndarray | None = None,
+        rotations: jnp.ndarray,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: jnp.ndarray | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """

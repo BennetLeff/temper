@@ -72,10 +72,9 @@ def _extract_primary_vars(
             for cname in constraint_var_names:
                 c_parts = cname.split("_", 2)
                 s_parts = sv.name.split("_", 2)
-                if len(c_parts) >= 3 and len(s_parts) >= 3:
-                    if c_parts[2] == s_parts[2]:
-                        primary_names.append(sv.name)
-                        break
+                if len(c_parts) >= 3 and len(s_parts) >= 3 and c_parts[2] == s_parts[2]:
+                    primary_names.append(sv.name)
+                    break
 
     return list(dict.fromkeys(primary_names))
 

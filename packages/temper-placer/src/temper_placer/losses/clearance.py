@@ -65,9 +65,9 @@ class ClearanceLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         """
         Compute total clearance violation penalty.

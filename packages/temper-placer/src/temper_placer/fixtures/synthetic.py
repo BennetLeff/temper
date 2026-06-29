@@ -230,7 +230,7 @@ def generate_200_component_netlist(
     for net_name, target_fanout in power_nets_config:
         # Select random components for this power net
         selected_comps = rng.sample(components, min(target_fanout, len(components)))
-        pins = []
+        net_pins: list[tuple[str, str]] = []
         for comp in selected_comps:
             if len(comp.pins) > 0:
                 # Use first available pin

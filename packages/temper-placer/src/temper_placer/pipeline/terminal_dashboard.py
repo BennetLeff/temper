@@ -49,7 +49,7 @@ class TerminalDashboardObserver:
         "skip": "\u2212", "error": "\u2717",
     }
 
-    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:
+    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:  # noqa: ARG002
         import time
         self._stage_status[stage_name] = self.STATUS_ACTIVE
         self._stage_timers[stage_name] = time.monotonic()
@@ -59,20 +59,20 @@ class TerminalDashboardObserver:
         if self._pipeline_start == 0.0:
             self._pipeline_start = time.monotonic()
 
-    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:
+    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:  # noqa: ARG002
         self._stage_status[stage_name] = self.STATUS_DONE
         self._stage_durations[stage_name] = duration_s
 
-    def on_stage_skip(self, stage_name: str, reason: str) -> None:
+    def on_stage_skip(self, stage_name: str, reason: str) -> None:  # noqa: ARG002
         self._stage_status[stage_name] = self.STATUS_SKIP
         self._stage_durations[stage_name] = 0.0
 
-    def on_stage_error(self, stage_name: str, error: Exception) -> None:
+    def on_stage_error(self, stage_name: str, error: Exception) -> None:  # noqa: ARG002
         self._stage_status[stage_name] = self.STATUS_ERROR
         self._header_text = f"Temper Pipeline \u2014 {stage_name} FAILED"
 
-    def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,
-                               attempt: int) -> None:
+    def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,  # noqa: ARG002, ARG002, ARG002
+                               attempt: int) -> None:  # noqa: ARG002
         self._feedback_count += 1
 
     def on_pipeline_complete(self, success: bool, total_duration_s: float,
@@ -85,7 +85,7 @@ class TerminalDashboardObserver:
             f"({total_duration_s:.1f}s)"
         )
 
-    def on_epoch(self, stage_name: str, epoch: int, loss: float) -> None:
+    def on_epoch(self, stage_name: str, epoch: int, loss: float) -> None:  # noqa: ARG002
         self._loss_epochs.append(epoch)
         self._losses.append(loss)
         if len(self._losses) > 200:

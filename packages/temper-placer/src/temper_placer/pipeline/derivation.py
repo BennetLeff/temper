@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 def derive_constraints_from_spec(
     spec: PcbSpecification,
-    netlist: Netlist,
+    netlist: Netlist,  # noqa: ARG001
 ) -> dict[str, Any]:
     """
     Derive geometric constraints from physical specifications.

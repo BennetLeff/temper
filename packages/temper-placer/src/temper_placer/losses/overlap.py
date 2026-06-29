@@ -78,7 +78,7 @@ class OverlapLoss(LossFunction):
         context: LossContext,
         epoch: int = 0,
         total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -129,7 +129,7 @@ class OverlapLoss(LossFunction):
 
         return LossResult(value=total_overlap, breakdown={"per_component": per_component_overlap})
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float:  # noqa: ARG002, ARG002
         """
         Overlap is a hard constraint - full weight from early in training.
 

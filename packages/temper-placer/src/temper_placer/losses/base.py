@@ -809,7 +809,7 @@ class LossFunction(ABC):
         """
         ...
 
-    def weight_schedule(self, epoch: int, total_epochs: int) -> float:
+    def weight_schedule(self, epoch: int, total_epochs: int) -> float:  # noqa: ARG002, ARG002
         """
         Get the weight multiplier for this loss at a given epoch.
 

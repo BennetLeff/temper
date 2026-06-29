@@ -55,9 +55,9 @@ class WhitespaceLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         # Get component bounds
@@ -149,11 +149,11 @@ class AlignmentLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -217,12 +217,12 @@ class RotationConsistencyLoss(LossFunction):
 
     def __call__(
         self,
-        positions: Array,
+        positions: Array,  # noqa: ARG002
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -289,11 +289,11 @@ class MirrorSymmetryLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.pairs.shape[0] < 1:
@@ -344,11 +344,11 @@ class VisualGroupingLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] < 1:
@@ -450,11 +450,11 @@ class ConsensusLayoutLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.template_groups.shape[0] == 0:
@@ -524,11 +524,11 @@ class StackedRowLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.component_indices.shape[0] < 2:
@@ -613,9 +613,9 @@ class PinGridAlignmentLoss(LossFunction):
         positions: Array,
         rotations: Array,
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         # 1. Compute absolute pin positions
@@ -673,10 +673,10 @@ class PortFacingRotationLoss(LossFunction):
         self,
         positions: Array,
         rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self.group_indices.shape[0] == 0:

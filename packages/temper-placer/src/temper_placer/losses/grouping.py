@@ -85,11 +85,11 @@ class GroupClusterLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -244,11 +244,11 @@ class ProximityLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -323,11 +323,11 @@ class GroupSeparationLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         """
@@ -445,11 +445,11 @@ class SymmetryLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
-        context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        rotations: Array,  # noqa: ARG002
+        context: LossContext,  # noqa: ARG002
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
         **_kwargs: Any,
     ) -> LossResult:
         if self._a1.shape[0] == 0:

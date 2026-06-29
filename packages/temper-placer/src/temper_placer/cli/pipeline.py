@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
+from rich.panel import Panel
 
 from ._io import console
 

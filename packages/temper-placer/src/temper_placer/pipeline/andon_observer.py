@@ -106,13 +106,13 @@ class AndonObserver:
 
     # -- ProgressObserver protocol ------------------------------------------
 
-    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:
+    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:  # noqa: ARG002
         if self._pipeline_start == 0.0:
             self._pipeline_start = time.monotonic()
         self._update_stage(stage_name, "active",
                             timer=f"Iteration {iteration}")
 
-    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:
+    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:  # noqa: ARG002
         self._update_stage(stage_name, "done", timer=f"{duration_s:.1f}s")
 
     def on_stage_skip(self, stage_name: str, reason: str) -> None:
@@ -122,7 +122,7 @@ class AndonObserver:
         self._update_stage(stage_name, "error", timer=str(error))
         self._update_header(f"FAILED: {stage_name} — {error}")
 
-    def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,
+    def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,  # noqa: ARG002, ARG002
                                attempt: int) -> None:
         self._update_footer(f"Feedback: {contract_name} (attempt {attempt})")
 

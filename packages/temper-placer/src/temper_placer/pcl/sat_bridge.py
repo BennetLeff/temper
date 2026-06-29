@@ -248,7 +248,7 @@ def _enclosing_to_sat(
 
 
 def _aligned_to_sat(
-    constraint: AlignedConstraint, ctx: SATBridgeContext,
+    constraint: AlignedConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
 ) -> list[Constraint]:
     """AlignedConstraint has no SAT grounding (placement-only).
 
@@ -367,35 +367,35 @@ def _loop_area_to_sat(
 
 
 def _separation_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,
+    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
 ) -> list[Constraint]:
     """Default SEPARATION grounding: ChannelSeparationConstraint."""
     return []
 
 
 def _proximity_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,
+    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
 ) -> list[Constraint]:
     """Default PROXIMITY grounding: soft OrderVar proximity."""
     return []
 
 
 def _ordering_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,
+    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
 ) -> list[Constraint]:
     """Default ORDERING grounding: OrderVar constraints."""
     return []
 
 
 def _zoning_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,
+    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
 ) -> list[Constraint]:
     """Default ZONING grounding: LayerConstraint restrictions."""
     return []
 
 
 def _alignment_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,
+    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
 ) -> list[Constraint]:
     """Default ALIGNMENT grounding: no SAT clauses."""
     return []

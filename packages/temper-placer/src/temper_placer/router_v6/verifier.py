@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from jax import Array
 
@@ -94,7 +94,7 @@ class VerificationResult:
     net_ordering: list[str]
     layer_assignments: dict[str, LayerAssignment]
     congestion_map: Array | None = None
-    diagnostics: list[RoutingDiagnostic] = field(default_factory=list)
+    diagnostics: Any = field(default_factory=list)
     routed_nets: list[str] = field(default_factory=list)
     failed_nets: list[str] = field(default_factory=list)
     total_wirelength: float = 0.0
@@ -228,8 +228,8 @@ class RoutingVerifier:
 
     def to_placement_feedback(
         self,
-        report: RoutingReport,
-    ) -> list[PlacementAdjustment]:
+        report: Any,
+    ) -> list[Any]:
         """Convert routing report to placement adjustment hints.
 
         Extracts placement hints from diagnostics and sorts them by priority.
@@ -241,7 +241,7 @@ class RoutingVerifier:
             List of PlacementAdjustment sorted by priority (highest first)
         """
         # Lazy import to avoid circular dependency
-        adjustments: list[PlacementAdjustment] = []
+        adjustments: list[Any] = []
 
         for diag in report.diagnostics:
             if diag.placement_hint is not None:

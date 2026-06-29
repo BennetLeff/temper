@@ -33,7 +33,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 from jsonschema import ValidationError, validate
 
 from temper_placer.pcl.constraints import (

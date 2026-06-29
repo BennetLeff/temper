@@ -264,8 +264,8 @@ class RefinementStage:
 
 
 def _invoke_sat_solver(
-    board, netlist, positions,
-    timeout_ms: float = 500.0,
+    board, netlist, positions,  # noqa: ARG001, ARG001
+    timeout_ms: float = 500.0,  # noqa: ARG001
     constraint_model_data: dict | None = None,
 ):
     """Invoke SAT solver for routability statistics (FR4.2, FR4.3).
@@ -357,7 +357,7 @@ def _log_unsat_escape(streak: int):
     )
 
 
-def simple_congestion_repel(positions, heatmap, netlist, board):
+def simple_congestion_repel(positions, heatmap, netlist, board):  # noqa: ARG001, ARG001
     """U7: Fallback to congestion-based repulsion (FR6.4)."""
     pos_np = np.asarray(positions)
     from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap

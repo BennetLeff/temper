@@ -66,7 +66,7 @@ class MetricsObserver:
 
     # -- ProgressObserver protocol ----------------------------------------
 
-    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:
+    def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:  # noqa: ARG002, ARG002
         self._stage_start_times[stage_name] = time.monotonic()
 
     def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:

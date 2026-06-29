@@ -1083,7 +1083,7 @@ class RouterV6Pipeline:
     def _run_stage5(
         self,
         pcb: ParsedPCB,
-        stage2: Stage2Output,
+        stage2: Stage2Output,  # noqa: ARG002
         pathfinding_result: PathfindingResult,
     ) -> Stage4Output:
         """Run Stage 5: Post-processing (smoothing, via placement, width, results)."""

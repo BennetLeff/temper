@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import click
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from ._io import console
 

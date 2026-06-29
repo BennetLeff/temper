@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from temper_placer.router_v6.adapter import MazeRouter
+from temper_placer.router_v6.astar_core import RoutePath
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
 if TYPE_CHECKING:

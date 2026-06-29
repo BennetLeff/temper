@@ -43,11 +43,11 @@ class RoutabilityLoss(LossFunction):
     def __call__(
         self,
         positions: Array,
-        rotations: Array,
+        rotations: Array,  # noqa: ARG002
         context: LossContext,
-        epoch: int = 0,
-        total_epochs: int = 1,
-        net_virtual_nodes: Array | None = None,
+        epoch: int = 0,  # noqa: ARG002
+        total_epochs: int = 1,  # noqa: ARG002
+        net_virtual_nodes: Array | None = None,  # noqa: ARG002
     ) -> LossResult:
         """
         Compute routability loss using layer-aware capacity.
