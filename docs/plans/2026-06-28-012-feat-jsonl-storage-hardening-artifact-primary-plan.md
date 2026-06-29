@@ -1,7 +1,7 @@
 ---
 title: "feat: JSONL Storage Hardening — Artifact-Primary with Git Commit as Queryable Copy"
 type: feat
-status: active
+status: completed
 date: 2026-06-28
 ---
 
