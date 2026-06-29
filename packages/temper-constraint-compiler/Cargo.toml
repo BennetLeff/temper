@@ -6,7 +6,7 @@ description = "Constraint lowering compiler — compiles PCL designer-level cons
 
 [lib]
 name = "temper_constraint_compiler"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module"] }
