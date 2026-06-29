@@ -1,7 +1,7 @@
 ---
 title: "feat: Per-Stage Timing Regression Gate — Block Slowdowns at Pipeline Boundaries"
 type: feat
-status: active
+status: completed
 date: 2026-06-22
 origin: docs/ideation/2026-06-22-test-and-build-next-ideation.md
 depends_on:
