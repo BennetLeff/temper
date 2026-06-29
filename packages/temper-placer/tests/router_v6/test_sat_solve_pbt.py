@@ -53,7 +53,7 @@ _SETTINGS = settings(
 # ============================================================================
 
 
-@pytest.mark.dependency(name="sat-l1")
+@pytest.mark.dependency(depends=["bmc-l0"], name="sat-l1")
 @given(
     variables=sat_variable_set(min_size=2, max_size=10),
     data=st.data(),

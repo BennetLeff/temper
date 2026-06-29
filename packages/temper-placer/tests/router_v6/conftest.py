@@ -25,6 +25,10 @@ def pytest_configure(config: pytest.Config) -> None:
         "nightly: tests that run only in scheduled nightly CI "
         "(too heavy for per-commit; opt-in with -m nightly)",
     )
+    config.addinivalue_line(
+        "markers",
+        "bmc_l0_encoding: BMC L0 encoding correctness tests (pre-solve verification)",
+    )
 
 
 def pytest_collection_modifyitems(
