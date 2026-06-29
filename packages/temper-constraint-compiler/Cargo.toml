@@ -1,0 +1,20 @@
+[package]
+name = "temper-constraint-compiler"
+version = "0.1.0"
+edition = "2024"
+description = "Constraint lowering compiler — compiles PCL designer-level constraints through a type lattice and multi-tier desugaring into SAT constraint ISA"
+
+[lib]
+name = "temper_constraint_compiler"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
+temper-rust-router = { path = "../temper-rust-router" }
+serde = { version = "1", features = ["derive"] }
+
+[profile.release]
+panic = "unwind"
+
+[dev-dependencies]
+proptest = "1"
