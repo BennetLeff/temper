@@ -1,27 +1,22 @@
 {
   "add_power_planes.py": [],
-  "analyze_congestion.py": [],
-  "analyze_drc.py": [],
-  "analyze_drc_json.py": [],
-  "analyze_star_ground.py": [],
-  "analyze_steiner_correlation.py": [],
-  "benchmark_baselines.py": [],
-  "benchmark_router.py": [],
-  "benchmark_routing.py": [],
   "bless_baselines.py": [],
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
+  ],
+  "check_fault_list_consistency.py": [
+    ".github/workflows/firmware-tests.yml"
   ],
   "check_manifest_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
   "check_perf_regression.py": [
-    "Makefile"
+    "Makefile",
+    "packages/temper-placer/src/temper_placer/profiling/pipeline_metrics.py"
   ],
-  "check_regression.py": [
-    "Makefile"
-  ],
+  "check_regression.py": [],
   "check_script_sunset.py": [
+    ".github/workflows/health-digest.yml",
     ".github/workflows/python-tests.yml"
   ],
   "check_traceability.py": [],
@@ -30,28 +25,18 @@
   ],
   "ci_closure_test.py": [
     ".github/workflows/metrics-record.yml",
+    ".github/workflows/pr-pipeline-scorecard.yml",
     ".github/workflows/python-tests.yml",
     ".github/workflows/regression.yml"
   ],
-  "collect_routing_data.py": [],
-  "compare_configs.py": [],
   "compare_drc_reports.py": [
     "scripts/sprint1_validation.sh"
   ],
-  "correlation_analysis.py": [],
   "debug_diff_pair_path.py": [
     "scripts/test_backpath_fix.sh"
   ],
-  "export_router_v6_pcb.py": [],
   "extract_corpus_baselines.py": [],
-  "extract_temper_a98v_full_metrics.py": [],
-  "extract_temper_a98v_metrics.py": [],
-  "fanout_power.py": [],
-  "fill_zones.py": [],
-  "finalize_board.py": [],
-  "finalize_pcb.py": [],
-  "fix_igbt_pinout.py": [],
-  "force_drill_rule.py": [],
+  "full_pipeline_profile.py": [],
   "generate_golden_baselines.py": [],
   "generate_kicad_dru.py": [
     "packages/temper-drc/tests/test_safety_constant_reconciliation.py"
@@ -59,50 +44,46 @@
   "import_linter_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "instrumented_pipeline_with_config.py": [],
-  "inter_loss_correlation.py": [],
   "internal_route.py": [
     "Makefile",
     "scripts/route_v3.sh",
     "scripts/run_physics_flow.sh",
     "scripts/sprint1_validation.sh",
-    "scripts/verify_occupancy_strict.sh",
-    "scripts/verify_temper_a98v_all_routing.sh"
+    "scripts/verify_occupancy_strict.sh"
   ],
-  "measure_structural_placement.py": [],
-  "measure_usb_baseline.py": [],
-  "patch_pcb_footprint.py": [],
   "pipeline_metrics.py": [
+    ".github/workflows/firmware-perf-record.yml",
+    ".github/workflows/health-digest.yml",
     ".github/workflows/metrics-record.yml",
-    ".github/workflows/metrics-trend-check.yml"
+    ".github/workflows/metrics-trend-check.yml",
+    "packages/temper-placer/tests/regression/test_metrics_trend.py"
   ],
-  "placement_quality_report.py": [
-    "tools/bd-worktree-helpers.sh"
+  "pipeline_report.py": [
+    ".github/workflows/metrics-record.yml"
   ],
-  "placement_routing_loop.py": [],
-  "pre_route_power.py": [],
-  "profile_optimizer.py": [],
-  "profile_pipeline.py": [],
-  "profile_usb_routing.py": [],
-  "quick_routing_metrics.py": [],
-  "refine_placement.py": [],
-  "routing_experiments.py": [],
+  "placement_quality_report.py": [],
+  "pr_perf_compare.py": [
+    ".github/workflows/pr-perf-check.yml"
+  ],
+  "pr_scorecard.py": [
+    ".github/workflows/pr-pipeline-scorecard.yml"
+  ],
+  "profile_router_v6_sampling.py": [],
+  "profile_rust_topology.py": [],
+  "reconcile_metrics.py": [
+    ".github/workflows/metrics-reconcile.yml"
+  ],
   "run_feedback_loop.py": [
     "scripts/test_backpath_fix.sh"
   ],
-  "run_spectral.py": [],
-  "sanitize_baseline.py": [],
-  "steiner_vs_hpwl_analysis.py": [],
+  "slo_evaluator.py": [],
+  "spc_rules.py": [],
   "trace_invocations.py": [
     ".github/workflows/python-tests.yml"
   ],
-  "trace_pipeline_debug.py": [],
-  "tune_loss_weights.py": [],
   "validate_footprints.py": [
     "scripts/sprint1_validation.sh"
   ],
-  "validate_input.py": [],
-  "validate_placement_bounds.py": [],
   "vulture_gate.py": [
     ".github/workflows/python-tests.yml"
   ]
