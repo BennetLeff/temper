@@ -7,7 +7,7 @@ Part of temper-wd32 (Stage 3 - Topological Routing)
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 from temper_placer.router_v6.sat_model import SATModel
@@ -28,7 +28,8 @@ class TopologicalSolution:
     status: SolverStatus
     assignment: dict[str, bool]  # Variable name -> value
     solver_time_ms: float  # Time taken to solve
-    unsat_core: list[str] = field(default_factory=list)  # Constraint names in UNSAT core
+    solver_stats: dict | None = None  # CDCL statistics from Rust solver
+    var_to_net: list[int] | None = None  # Variable index -> net index mapping
 
     @property
     def is_satisfiable(self) -> bool:
@@ -76,7 +77,7 @@ def solve_topology(
     # Smarter heuristic: Start with all False, then satisfy connectivity clauses
     # Use round-robin to spread nets across channels (avoids capacity violations)
     assignment = {var.name: False for var in model.variables}
-
+    
     # For each connectivity clause, try to set one variable to True
     # Use round-robin to avoid all nets using the same channel
     for clause_idx, clause in enumerate(model.clauses):
@@ -88,7 +89,7 @@ def solve_topology(
                 idx = clause_idx % len(positive_literals)
                 var, _ = positive_literals[idx]
                 assignment[var.name] = True
-
+    
     # Check if assignment satisfies all clauses
     if _check_assignment(model, assignment):
         return TopologicalSolution(
@@ -96,8 +97,8 @@ def solve_topology(
             assignment=assignment,
             solver_time_ms=1.0,
         )
-
-    # If that didn't work, try with different round-robin offsets
+    
+    # If that didn't work, try with different round-robin offsets  
     for offset in range(1, 4):
         assignment = {var.name: False for var in model.variables}
         for clause_idx, clause in enumerate(model.clauses):
@@ -107,15 +108,15 @@ def solve_topology(
                     idx = (clause_idx + offset) % len(positive_literals)
                     var, _ = positive_literals[idx]
                     assignment[var.name] = True
-
+        
         if _check_assignment(model, assignment):
             return TopologicalSolution(
                 status=SolverStatus.SATISFIABLE,
                 assignment=assignment,
                 solver_time_ms=1.0 + offset * 0.5,
             )
-
-
+    
+    
     # Try all True as fallback
     assignment = {var.name: True for var in model.variables}
     if _check_assignment(model, assignment):
@@ -124,7 +125,7 @@ def solve_topology(
             assignment=assignment,
             solver_time_ms=1.5,
         )
-
+    
     # Try all False as fallback
     assignment = {var.name: False for var in model.variables}
     if _check_assignment(model, assignment):

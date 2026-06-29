@@ -262,6 +262,10 @@ class StageDAGEngine:
             "epochs", "seed", "max_movement_mm",
             "max_iterations", "routability_threshold",
             "convergence_threshold", "fab_preset",
+            "routability_gradient_weight", "routability_gradient_max_grad_norm",
+            "routability_gradient_unsat_movement_multiplier",
+            "routability_gradient_sat_timeout_ms",
+            "routability_gradient_unsat_escape_iterations",
         ]
         for name in field_names:
             if hasattr(config, name):

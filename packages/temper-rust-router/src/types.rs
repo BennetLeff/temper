@@ -351,6 +351,18 @@ pub enum SolverStatus {
 }
 
 #[derive(Clone, Debug)]
+pub struct SolverStats {
+    pub conflicts: u64,
+    pub decisions: u64,
+    pub propagations: u64,
+    pub decision_level_histogram: [u64; 10],
+    pub unsat_core_size: usize,
+    pub variable_count: u64,
+    pub clause_count: u64,
+    pub cpu_solve_time_ms: f64,
+}
+
+#[derive(Clone, Debug)]
 pub struct TopologyResult {
     pub status: SolverStatus,
     pub num_vars: usize,
@@ -358,6 +370,7 @@ pub struct TopologyResult {
     pub assignments: HashMap<usize, bool>,
     pub unsat_core: Vec<usize>,
     pub solver_time_ms: f64,
+    pub solver_stats: Option<SolverStats>,
 }
 
 // ---------------------------------------------------------------------------
