@@ -1,7 +1,7 @@
 ---
 title: "feat: Extend Timing Gate Coverage to RouterV6Pipeline and PipelineOrchestrator"
 type: feat
-status: draft
+status: completed
 date: 2026-06-29
 origin: docs/plans/2026-06-22-022-feat-per-stage-timing-regression-gate-plan.md (deferred scope — OQ4)
 depends_on:
