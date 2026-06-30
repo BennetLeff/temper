@@ -787,6 +787,7 @@ dependencies = [
  "serde_json",
  "temper-viewer-core",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
  "wgpu",
 ]

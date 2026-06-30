@@ -1,5 +1,6 @@
 import init, {
     load_board as wasmLoadBoard,
+    start_render_loop as wasmStartRenderLoop,
     on_wheel as wasmOnWheel,
     on_mouse_down as wasmOnMouseDown,
     on_mouse_move as wasmOnMouseMove,
@@ -165,37 +166,38 @@ canvas.addEventListener('mousemove', (e) => {
         lastMouseX = e.offsetX; lastMouseY = e.offsetY;
         wasmOnMouseMove(dx, dy, true);
     } else if (wasm) {
-        wasmOnMouseMove(e.offsetX, e.offsetY, false).then(result => {
-            const tooltip = document.getElementById('tooltip');
-            if (!result || result === 'clear') {
-                tooltip.classList.add('hidden');
-            } else if (result.startsWith('component:')) {
-                const parts = result.split(':');
-                tooltip.textContent = `${parts[1]} — ${parts[2]}`;
-                tooltip.style.left = (e.clientX + 12) + 'px';
-                tooltip.style.top = (e.clientY - 28) + 'px';
-                tooltip.classList.remove('hidden');
-            } else if (result.startsWith('trace:')) {
-                const parts = result.split(':');
-                tooltip.textContent = `${parts[1]} — ${parts[2]}`;
-                tooltip.style.left = (e.clientX + 12) + 'px';
-                tooltip.style.top = (e.clientY - 28) + 'px';
-                tooltip.classList.remove('hidden');
-            }
-        });
+        const result = wasmOnMouseMove(e.offsetX, e.offsetY, false);
+        if (!result) return;
+        const tooltip = document.getElementById('tooltip');
+        if (result === 'clear') {
+            tooltip.classList.add('hidden');
+        } else if (result.startsWith && result.startsWith('component:')) {
+            const parts = result.split(':');
+            tooltip.textContent = `${parts[1]} — ${parts[2]}`;
+            tooltip.style.left = (e.clientX + 12) + 'px';
+            tooltip.style.top = (e.clientY - 28) + 'px';
+            tooltip.classList.remove('hidden');
+        } else if (result.startsWith && result.startsWith('trace:')) {
+            const parts = result.split(':');
+            tooltip.textContent = `${parts[1]} — ${parts[2]}`;
+            tooltip.style.left = (e.clientX + 12) + 'px';
+            tooltip.style.top = (e.clientY - 28) + 'px';
+            tooltip.classList.remove('hidden');
+        }
     }
 });
 canvas.addEventListener('mouseup', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
 canvas.addEventListener('mouseleave', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
 canvas.addEventListener('click', (e) => {
     if (!wasm) return;
-    wasmOnClick(e.offsetX, e.offsetY).then(result => {
-        const inspector = document.getElementById('inspector-content');
-        if (result === 'none' || result === 'deselected') {
-            inspector.textContent = 'Select a component to inspect.';
-        } else {
-            try {
-                const data = JSON.parse(result);
+    const result = wasmOnClick(e.offsetX, e.offsetY);
+    if (!result) return;
+    const inspector = document.getElementById('inspector-content');
+    if (result === 'none' || result === 'deselected') {
+        inspector.textContent = 'Select a component to inspect.';
+    } else {
+        try {
+            const data = JSON.parse(result);
                 inspector.innerHTML = `
                     <div><strong>${data.ref}</strong> (${data.footprint || '?'})</div>
                     <div>Value: ${data.value || 'N/A'}</div>
@@ -309,22 +311,29 @@ async function waitForWasm() {
 
 async function autoLoadDefault() {
     const el = document.getElementById('default-board');
-    if (!el) { console.log('No default-board element in page'); return; }
+    if (!el) { console.log('No default-board element'); return; }
 
     const ready = await waitForWasm();
-    if (!ready) { console.error('WASM module failed to initialize'); return; }
+    if (!ready) {
+        document.getElementById('landing-overlay').querySelector('.landing-content').innerHTML =
+            '<h1>Temper Board Viewer</h1><p class="error-msg">WASM module failed to initialize.</p>';
+        return;
+    }
 
     try {
         const data = JSON.parse(el.textContent);
         currentState = data;
         await wasmLoadBoard(JSON.stringify(data));
+        await wasmStartRenderLoop('board-canvas');
         updateSidebar(data);
         document.getElementById('landing-overlay').style.display = 'none';
         document.getElementById('toolbar').classList.remove('hidden');
         document.getElementById('main-content').classList.remove('hidden');
-        console.log('Auto-loaded board:', data.board?.components?.length, 'components');
+        console.log('Board loaded:', data.board?.components?.length, 'components');
     } catch (e) {
-        console.error('Auto-load failed:', e.message || e);
+        console.error('Auto-load error:', e.message || e);
+        document.getElementById('landing-overlay').querySelector('.landing-content').innerHTML =
+            '<h1>Temper Board Viewer</h1><p class="error-msg">Failed to load board: ' + (e.message || e) + '</p>';
     }
 }
 

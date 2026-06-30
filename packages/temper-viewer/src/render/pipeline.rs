@@ -1,4 +1,4 @@
-use wgpu::{Device, Queue, SurfaceConfiguration, TextureFormat};
+use wgpu::{Device, Queue, Surface, SurfaceConfiguration, TextureFormat};
 
 pub struct RenderState {
     pub device: Device,
@@ -9,30 +9,30 @@ pub struct RenderState {
 
 impl RenderState {
     #[cfg(target_arch = "wasm32")]
-    pub async fn new_from_canvas(canvas: &web_sys::HtmlCanvasElement) -> Result<Self, String> {
+    pub async fn new_from_canvas(canvas: &web_sys::HtmlCanvasElement) -> Result<(Self, Surface<'static>), String> {
         let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
             ..Default::default()
         });
 
-        let surface = instance
-            .create_surface_from_canvas(canvas)
-            .map_err(|e| format!("Failed to create surface: {:?}", e))?;
+        let surface = instance.create_surface(
+            wgpu::SurfaceTarget::Canvas(canvas.clone())
+        ).map_err(|e| format!("Failed to create surface: {:?}", e))?;
 
         Self::from_surface(instance, surface, canvas.width(), canvas.height()).await
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub async fn new_from_canvas(_canvas: &web_sys::HtmlCanvasElement) -> Result<Self, String> {
-        Err("WASM renderer requires wasm32 target".to_string())
+    pub async fn new_from_canvas(_canvas: &web_sys::HtmlCanvasElement) -> Result<(Self, Surface<'static>), String> {
+        Err("Wgpu surface creation requires wasm32 target".to_string())
     }
 
     pub async fn from_surface(
         instance: wgpu::Instance,
-        surface: wgpu::Surface<'_>,
+        surface: Surface<'static>,
         width: u32,
         height: u32,
-    ) -> Result<Self, String> {
+    ) -> Result<(Self, Surface<'static>), String> {
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
@@ -74,14 +74,18 @@ impl RenderState {
         };
         surface.configure(&device, &config);
 
-        Ok(Self { device, queue, config, format })
+        Ok((Self { device, queue, config, format }, surface))
     }
 
-    pub fn resize(&mut self, surface: &wgpu::Surface<'_>, width: u32, height: u32) {
+    pub fn reconfigure(&mut self, surface: &Surface<'_>) {
+        surface.configure(&self.device, &self.config);
+    }
+
+    pub fn resize(&mut self, surface: &Surface<'_>, width: u32, height: u32) {
         if width > 0 && height > 0 {
             self.config.width = width;
             self.config.height = height;
-            surface.configure(&self.device, &self.config);
+            self.reconfigure(surface);
         }
     }
 }

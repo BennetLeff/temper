@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>WASM Test</title></head>
+<body>
+<h1>WASM Load Test</h1>
+<div id="status">Loading...</div>
+<script type="module">
+import init from './wasm/temper_viewer.js';
+try {
+    await init();
+    document.getElementById('status').textContent = 'WASM loaded OK';
+} catch(e) {
+    document.getElementById('status').textContent = 'FAIL: ' + e.message;
+    console.error(e);
+}
+</script>
+</body>
+</html>
