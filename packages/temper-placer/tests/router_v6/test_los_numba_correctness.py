@@ -2,7 +2,8 @@
 
 import numpy as np
 import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_core import _line_of_sight
 from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba

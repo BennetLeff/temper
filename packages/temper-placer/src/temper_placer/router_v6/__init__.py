@@ -56,6 +56,9 @@ from temper_placer.router_v6.adapter import (  # noqa: E402
     _AdapterRoutePath,
     route_pcb,
 )
+from temper_placer.router_v6.astar_core_numba import (  # noqa: E402
+    _line_of_sight_numba,
+)
 from temper_placer.router_v6.constraint_model import (  # noqa: E402
     ESL_REGISTRY,
     CapacityConstraint,
@@ -99,9 +102,6 @@ from temper_placer.router_v6.routing_failure_handler import (  # noqa: E402
     FlaggedNet,
     RoutingFailureReport,
     handle_routing_failures,
-)
-from temper_placer.router_v6.astar_core_numba import (  # noqa: E402
-    _line_of_sight_numba,
 )
 from temper_placer.router_v6.safety_pair_inference import (  # noqa: E402
     SafetyPair,

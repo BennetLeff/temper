@@ -23,7 +23,6 @@ from temper_placer.router_v6.astar_core import (
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from tests.router_v6.astar_property_strategies import grids
 
-
 # ---------------------------------------------------------------------------
 # Reference Bresenham (pure, no BB shortcut)
 # ---------------------------------------------------------------------------

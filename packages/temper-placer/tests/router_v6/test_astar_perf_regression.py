@@ -127,15 +127,16 @@ def test_lazy_vs_theta_star_los_reduction():
     substantially fewer LOS calls (1 per expansion at pop time vs
     8 per expansion at push time for standard Theta*).
     """
-    import time
-    import math
     import random
+    import time
 
     import numpy as np
 
     from temper_placer.router_v6.astar_core import (
         _astar_search_lazy_theta_star,
         _astar_search_theta_star,
+    )
+    from temper_placer.router_v6.astar_core import (
         _line_of_sight as _los,
     )
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid

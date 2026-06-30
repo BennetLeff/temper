@@ -12,12 +12,12 @@ from collections import deque
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_core import (
-    log_los_bb_stats,
-    reset_los_bb_stats,
     RoutePath,
     RoutePath3D,
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
+    log_los_bb_stats,
+    reset_los_bb_stats,
 )
 from temper_placer.router_v6.astar_grid import (
     _build_tht_pad_locations,
