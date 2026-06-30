@@ -23,6 +23,7 @@ from kiutils.items.common import Position
 from kiutils.items.gritems import GrLine, GrRect, GrText
 
 from temper_placer.core.state import PlacementState
+from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
 
 @dataclass
@@ -170,6 +171,7 @@ def write_placements_to_pcb(
 
     # Write the modified PCB
     try:
+        _validate_4_layer_output(ki_board)
         ki_board.to_file(str(output_pcb))
     except Exception as e:
         raise ValueError(f"Failed to write output PCB: {e}") from e
@@ -507,6 +509,7 @@ def add_bounding_boxes_to_pcb(
 
     # Write back
     try:
+        _validate_4_layer_output(ki_board)
         ki_board.to_file(str(pcb_path))
     except Exception as e:
         raise ValueError(f"Failed to write PCB: {e}") from e
@@ -658,6 +661,7 @@ def add_silkscreen_labels(
 
     # Write back
     try:
+        _validate_4_layer_output(ki_board)
         ki_board.to_file(str(pcb_path))
     except Exception as e:
         raise ValueError(f"Failed to write PCB: {e}") from e
@@ -764,6 +768,7 @@ def strip_routing(
 
     # Write the stripped PCB
     try:
+        _validate_4_layer_output(ki_board)
         ki_board.to_file(str(output_pcb))
     except Exception as e:
         raise ValueError(f"Failed to write output PCB: {e}") from e
@@ -956,6 +961,7 @@ def write_routes_to_pcb(
 
     # Write the modified PCB
     try:
+        _validate_4_layer_output(ki_board)
         ki_board.to_file(str(output_pcb))
     except Exception as e:
         raise ValueError(f"Failed to write output PCB: {e}") from e
@@ -1035,6 +1041,7 @@ def write_zones_to_pcb(
             warnings.append(f"Failed to add zone for {net_name}: {e}")
 
     try:
+        _validate_4_layer_output(ki_board)
         ki_board.to_file(str(output_pcb))
     except Exception as e:
         raise ValueError(f"Failed to write output PCB: {e}") from e
@@ -1238,6 +1245,7 @@ def add_isolation_slots_to_pcb(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
+        _validate_4_layer_output(ki_board)
         ki_board.to_file(str(out_path))
     except Exception as e:
         raise ValueError(f"Failed to write PCB: {e}") from e

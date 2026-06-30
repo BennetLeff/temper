@@ -60,6 +60,7 @@ class PreflightChecker:
     def run(self, board: BoardLike, netlist: NetlistLike, constraints: Any, _fab_preset: Any) -> PreflightReport:
         start_time = time.time()
         results = []
+        results.append(self._check_layer_count(board))
         results.append(self._check_component_area(board, netlist))
         results.append(self._check_constraint_satisfiability(netlist, constraints))
         results.append(self._check_zone_capacity(board, netlist))
@@ -68,6 +69,7 @@ class PreflightChecker:
         results.append(self._check_isolation_feasibility(board, netlist, constraints))
         results.append(self._check_layer_assignment(netlist, constraints))
         results.append(self._check_routing_channels(board, netlist))
+        results.append(self._check_stackup_quality(board))
 
         if any(r.result == PreflightResult.FAIL for r in results):
             overall = PreflightResult.FAIL
@@ -77,6 +79,29 @@ class PreflightChecker:
             overall = PreflightResult.PASS
 
         return PreflightReport(results, overall, (time.time() - start_time) * 1000)
+
+    def _check_layer_count(self, board: BoardLike) -> PreflightCheck:
+        start = time.time()
+        stackup = getattr(board, "layer_stackup", None)
+        if stackup is None:
+            return PreflightCheck(
+                "Layer Count", PreflightResult.FAIL,
+                "Board has no layer stackup defined",
+                time_ms=(time.time() - start) * 1000,
+            )
+        n_layers = len(stackup.layers)
+        if n_layers != 4:
+            names = [ly.name for ly in stackup.layers]
+            return PreflightCheck(
+                "Layer Count", PreflightResult.FAIL,
+                f"Expected 4-layer stackup (F.Cu/In1.Cu/In2.Cu/B.Cu), got {n_layers} layers: {names}",
+                time_ms=(time.time() - start) * 1000,
+            )
+        return PreflightCheck(
+            "Layer Count", PreflightResult.PASS,
+            "4-layer stackup verified (F.Cu/In1.Cu/In2.Cu/B.Cu)",
+            time_ms=(time.time() - start) * 1000,
+        )
 
     def _check_component_area(self, board: BoardLike, netlist: NetlistLike) -> PreflightCheck:
         start = time.time()
@@ -162,3 +187,35 @@ class PreflightChecker:
 
     def _check_routing_channels(self, _board: BoardLike, _netlist: NetlistLike) -> PreflightCheck:
         return PreflightCheck("Routing Channels", PreflightResult.PASS, "Available")
+
+    def _check_stackup_quality(self, board: BoardLike) -> PreflightCheck:
+        start = time.time()
+        stackup = getattr(board, "layer_stackup", None)
+        if stackup is None:
+            return PreflightCheck(
+                "Stackup Quality", PreflightResult.WARN,
+                "No stackup available for quality validation",
+                time_ms=(time.time() - start) * 1000,
+            )
+        try:
+            from temper_placer.manufacturing.stackup_validator import validate_stackup
+
+            report = validate_stackup(stackup)
+            if not report.all_passed:
+                warn_msgs = "; ".join(r.message[:80] for r in report.warnings[:3])
+                return PreflightCheck(
+                    "Stackup Quality", PreflightResult.WARN,
+                    f"{len(report.warnings)} warning(s): {warn_msgs}",
+                    time_ms=(time.time() - start) * 1000,
+                )
+            return PreflightCheck(
+                "Stackup Quality", PreflightResult.PASS,
+                "All stackup quality checks passed",
+                time_ms=(time.time() - start) * 1000,
+            )
+        except Exception as exc:
+            return PreflightCheck(
+                "Stackup Quality", PreflightResult.WARN,
+                f"Stackup validation failed: {exc}",
+                time_ms=(time.time() - start) * 1000,
+            )

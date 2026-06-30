@@ -11,7 +11,13 @@ This module contains the fundamental data structures that all other modules depe
 All position arrays use jax.Array for differentiability.
 """
 
-from temper_placer.core.board import Board, LayerStackup, Zone
+from temper_placer.core.board import (
+    CANONICAL_4LAYER_LAYER_NAMES,
+    CANONICAL_LAYER_COUNT,
+    Board,
+    LayerStackup,
+    Zone,
+)
 
 # Bus cohort routing constraints
 from temper_placer.core.bus_cohort import BusCohortConstraint, BusRegistry
@@ -112,6 +118,8 @@ __all__ = [
     "NetClassification",
     # Board geometry
     "Board",
+    "CANONICAL_4LAYER_LAYER_NAMES",
+    "CANONICAL_LAYER_COUNT",
     "Zone",
     "LayerStackup",
     # Loop-centric modeling

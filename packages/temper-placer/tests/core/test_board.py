@@ -280,3 +280,57 @@ class TestLayerIndex:
         assert LAYER_NAME_TO_IDX["In2.Cu"] is LayerIndex.IN2_CU
         for idx, name in LAYER_IDX_TO_NAME.items():
             assert LAYER_NAME_TO_IDX[name] is idx
+
+
+class TestLayerCountInvariant:
+    """Board must always have the canonical 4-layer stackup."""
+
+    def test_canonical_4layer_board_construction_succeeds(self):
+        """Board with default_4layer stackup constructs successfully."""
+        import temper_placer.core.board as bm
+
+        board = bm.Board(width=100, height=100, layer_stackup=bm.LayerStackup.default_4layer())
+        assert len(board.layer_stackup.layers) == 4  # type: ignore[union-attr]
+
+    def test_board_defaults_to_4layer(self):
+        """Board with no explicit stackup defaults to 4 layers."""
+        import temper_placer.core.board as bm
+
+        board = bm.Board(width=100, height=100)
+        assert len(board.layer_stackup.layers) == 4  # type: ignore[union-attr]
+        names = [ly.name for ly in board.layer_stackup.layers]  # type: ignore[union-attr]
+        assert names == ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
+
+    def test_2layer_board_raises_valueerror(self):
+        """Board with a 2-layer stackup raises ValueError at construction."""
+        import temper_placer.core.board as bm
+
+        with pytest.raises(ValueError, match="2 layers"):
+            bm.Board(width=100, height=100, layer_stackup=bm.LayerStackup._test_only_2layer())
+
+    def test_6layer_board_raises_valueerror(self):
+        """Board with a non-canonical layer count raises ValueError."""
+        import temper_placer.core.board as bm
+
+        stackup = bm.LayerStackup(
+            layers=[
+                bm.Layer("F.Cu", "signal"),
+                bm.Layer("In1.Cu", "plane"),
+                bm.Layer("In2.Cu", "plane"),
+                bm.Layer("In3.Cu", "plane"),
+                bm.Layer("In4.Cu", "plane"),
+                bm.Layer("B.Cu", "signal"),
+            ],
+            thickness=1.6,
+        )
+        with pytest.raises(ValueError, match="6 layers"):
+            bm.Board(width=100, height=100, layer_stackup=stackup)
+
+    def test_test_only_2layer_still_constructs_standalone(self):
+        """_test_only_2layer() constructs a LayerStackup (not used with Board)."""
+        import temper_placer.core.board as bm
+
+        stackup = bm.LayerStackup._test_only_2layer()
+        assert len(stackup.layers) == 2
+        assert stackup.layers[0].name == "F.Cu"
+        assert stackup.layers[1].name == "B.Cu"

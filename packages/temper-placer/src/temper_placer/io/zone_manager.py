@@ -15,6 +15,8 @@ from kiutils.board import Board as KiBoard
 from kiutils.items.common import Position
 from kiutils.items.zones import FillSettings, Zone, ZonePolygon
 
+from temper_placer.io.kicad_exporter import _validate_4_layer_output
+
 
 @dataclass
 class PlaneConfig:
@@ -253,6 +255,7 @@ def add_zones_to_pcb(
     """
     board = KiBoard.from_file(str(input_pcb))
     result = add_power_planes(board, gnd_nets, vcc_nets)
+    _validate_4_layer_output(board)
     board.to_file(str(output_pcb))
     return result
 
@@ -332,6 +335,7 @@ def add_zones_from_classification(
         else:
             warnings.append(f"No valid nets found for layer {layer}")
 
+    _validate_4_layer_output(board)
     board.to_file(str(output_pcb))
 
     return ZoneResult(

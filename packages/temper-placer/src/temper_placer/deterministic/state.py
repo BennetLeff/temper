@@ -75,18 +75,32 @@ class BoardState:
     violations: frozenset = frozenset()
     net_order: tuple[str, ...] = field(default_factory=tuple)
     zones: frozenset = frozenset()  # Set of Zone objects
-    component_zone_map: frozenset = frozenset()  # Set of (component_ref, zone_name) tuples
-    zone_slots: frozenset = (
-        frozenset()
-    )  # Set of (zone_name, tuple_of_slots) - each zone maps to tuple of (x,y) positions
-    layer_assignments: frozenset = frozenset()  # Set of LayerAssignment objects (net_name, layer)
-    # EXP-5: Route locking - nets that have been successfully routed and should be preserved
+    component_zone_map: frozenset = frozenset()
+    zone_slots: frozenset = frozenset()
+    layer_assignments: frozenset = frozenset()
+    # EXP-5: Route locking
     locked_routes: frozenset[str] = field(default_factory=frozenset)
     # Router V6 Stage 2 channel-analysis fields
     obstacle_maps: dict[str, Any] | None = None
     routing_spaces: dict[str, RoutingSpace] | None = None
     channel_skeletons: dict[str, ChannelSkeleton] | None = None
     channel_widths: dict[str, ChannelWidths] | None = None
+
+    def __post_init__(self) -> None:
+        if self.board is not None and self.board.layer_stackup is not None:
+            from temper_placer.core.board import (
+                CANONICAL_4LAYER_LAYER_NAMES,
+                CANONICAL_LAYER_COUNT,
+            )
+
+            n = len(self.board.layer_stackup.layers)
+            if n != CANONICAL_LAYER_COUNT:
+                actual = [ly.name for ly in self.board.layer_stackup.layers]
+                raise ValueError(
+                    f"BoardState requires {CANONICAL_LAYER_COUNT}-layer stackup "
+                    f"(canonical: {sorted(CANONICAL_4LAYER_LAYER_NAMES)}), "
+                    f"got {n} layers: {actual}"
+                )
     occupancy_grids: dict[str, OccupancyGrid] | None = None
     layer_capacities: dict[str, LayerCapacity] | None = None
     routing_demand: RoutingDemand | None = None

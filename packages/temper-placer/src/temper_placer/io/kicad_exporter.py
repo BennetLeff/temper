@@ -26,22 +26,41 @@ from temper_placer.router_v6.constraints_spatial_index import Via as GeoVia
 from temper_placer.router_v6.grid_converter import grid_to_world
 from temper_placer.router_v6.path_simplify import simplify_path
 
-# Layer mapping from grid layer index to KiCad layer name
-DEFAULT_LAYER_MAP = {
+# Layer mapping from grid layer index to KiCad layer name.
+# The canonical Temper board is 4-layer. 2-layer is not a production
+# path and has been removed.
+LAYER_MAP = {
     0: "F.Cu",    # Top copper (L1)
-    1: "In1.Cu",  # Inner layer 1 (L2)
-    2: "In2.Cu",  # Inner layer 2 (L3)
+    1: "In1.Cu",  # Inner layer 1 (L2, GND plane)
+    2: "In2.Cu",  # Inner layer 2 (L3, PWR plane)
     3: "B.Cu",    # Bottom copper (L4)
-}
-
-# Standard 2-layer fallback
-TWO_LAYER_MAP = {
-    0: "F.Cu",
-    1: "B.Cu",
 }
 
 # Endpoint snapping tolerance in mm (increased to handle grid alignment)
 SNAP_TOLERANCE_MM = 0.5   # 0.5mm handles typical grid cell sizes (0.5mm spacing)
+
+
+def _validate_4_layer_output(board: object) -> None:
+    """Validate that a KiCad board has exactly 4 copper layers with canonical names.
+
+    Raises RuntimeError if the board does not match the canonical 4-layer stackup.
+    """
+    from temper_placer.core.board import CANONICAL_4LAYER_LAYER_NAMES
+
+    if not hasattr(board, "layers"):
+        raise RuntimeError("KiCad board has no layers attribute — cannot validate layer count")
+    copper_names = [ly.name for ly in board.layers if hasattr(ly, "name") and ly.name.endswith(".Cu")]
+    if len(copper_names) != 4:
+        raise RuntimeError(
+            f"Expected 4 copper layers (canonical: {sorted(CANONICAL_4LAYER_LAYER_NAMES)}), "
+            f"got {len(copper_names)} copper layers: {copper_names}"
+        )
+    name_set = set(copper_names)
+    if name_set != set(CANONICAL_4LAYER_LAYER_NAMES):
+        raise RuntimeError(
+            f"Copper layer names must match canonical set {sorted(CANONICAL_4LAYER_LAYER_NAMES)}, "
+            f"got {sorted(name_set)}"
+        )
 
 def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
     """Extract pad center coordinates grouped by net name.
@@ -114,7 +133,7 @@ def path_to_segments(
     coords = []
     if hasattr(path, "cells") and getattr(path, "cells", None):
         path_cell_size = getattr(path, "cell_size", cell_size)
-        layer_map = layer_map or DEFAULT_LAYER_MAP
+        layer_map = layer_map or LAYER_MAP
         simplified = simplify_path(path.cells)
         for c in simplified:
             x, y = grid_to_world(c, origin, path_cell_size)
@@ -175,7 +194,7 @@ def path_to_vias(
     coords = []
     if hasattr(path, "cells") and getattr(path, "cells", None):
         path_cell_size = getattr(path, "cell_size", cell_size)
-        layer_map = layer_map or DEFAULT_LAYER_MAP
+        layer_map = layer_map or LAYER_MAP
         for c in path.cells:
             x, y = grid_to_world(c, origin, path_cell_size)
             layer_name = layer_map.get(c.layer, "F.Cu")
@@ -449,14 +468,7 @@ def export_routed_pcb(
     nets_failed = 0
     warnings: list[str] = []
 
-    # Determine layer map based on presence of inner layers
-    has_inner_layers = False
-    if hasattr(board, 'layers'):
-        layer_names = [ly.name for ly in board.layers]
-        if "In1.Cu" in layer_names or "In2.Cu" in layer_names:
-            has_inner_layers = True
-
-    layer_map_to_use = layer_map or (DEFAULT_LAYER_MAP if has_inner_layers else TWO_LAYER_MAP)
+    layer_map_to_use = layer_map or LAYER_MAP
 
     # FIX: Clean up corrupt drills from kiutils import of template
     # kiutils < 1.4.9 has a bug parsing (drill (offset...)) which results in garbage data
@@ -526,6 +538,7 @@ def export_routed_pcb(
     # Write output file
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    _validate_4_layer_output(board)
     board.to_file(str(output_pcb))
 
     # Automatically fill zones if requested (temper-x8jz)
@@ -623,6 +636,7 @@ def export_board_state(
     # Write output
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
+    _validate_4_layer_output(board)
     board.to_file(str(output_pcb))
 
     # Automatically fill zones if requested
@@ -658,7 +672,7 @@ def export_from_geometry(
     Returns:
         ExportResult stats
     """
-    layer_map = layer_map or DEFAULT_LAYER_MAP
+    layer_map = layer_map or LAYER_MAP
 
     # Load PCB
     board = KiBoard.from_file(str(template_pcb))
@@ -707,6 +721,7 @@ def export_from_geometry(
         total_vias += 1
 
     # Write output
+    _validate_4_layer_output(board)
     board.to_file(str(output_pcb))
 
     return ExportResult(
