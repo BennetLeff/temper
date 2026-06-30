@@ -6,6 +6,8 @@ contains exactly 4 copper layers with canonical KiCad names.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from temper_placer.core.board import (
@@ -14,6 +16,9 @@ from temper_placer.core.board import (
     Layer,
     LayerStackup,
 )
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_TEMPER_PCB = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
 
 
 class TestStackupCorrectness:
@@ -62,7 +67,7 @@ class TestKiCadExportLayerValidation:
         from kiutils.board import Board as KiBoard
         from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
-        board = KiBoard.from_file("pcb/temper.kicad_pcb")
+        board = KiBoard.from_file(str(_TEMPER_PCB))
         _validate_4_layer_output(board)
 
     def test_validation_raises_for_no_layers_attribute(self):
