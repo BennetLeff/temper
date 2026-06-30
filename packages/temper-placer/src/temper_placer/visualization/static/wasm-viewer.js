@@ -87,7 +87,7 @@ function handleMessage(msg) {
             currentState = msg.data;
             if (wasm && msg.data.board) {
                 try {
-                    wasmLoadBoard(JSON.stringify(msg.data.board));
+                    wasmLoadBoard(JSON.stringify(msg.data));
                 } catch (e) { console.error('WASM render error:', e); }
             }
             updateSidebar(msg.data);
@@ -252,7 +252,7 @@ dropZone.addEventListener('drop', async (e) => {
         const text = await file.text();
         const data = JSON.parse(text);
         currentState = data;
-        if (wasm && data.board) wasmLoadBoard(JSON.stringify(data.board));
+        if (wasm) wasmLoadBoard(JSON.stringify(data));
         updateSidebar(data);
         document.getElementById('landing-overlay').classList.add('hidden');
         document.getElementById('main-content').classList.remove('hidden');
@@ -297,3 +297,35 @@ document.addEventListener('mouseup', () => { sidebarResizing = false; });
 window.connectToServer = window.connectToServer || connectToServer;
 
 initViewer();
+
+// Wait for WASM init, then auto-load embedded board
+async function waitForWasm() {
+    for (let i = 0; i < 100; i++) {
+        if (wasm) return true;
+        await new Promise(r => setTimeout(r, 50));
+    }
+    return false;
+}
+
+async function autoLoadDefault() {
+    const el = document.getElementById('default-board');
+    if (!el) { console.log('No default-board element in page'); return; }
+
+    const ready = await waitForWasm();
+    if (!ready) { console.error('WASM module failed to initialize'); return; }
+
+    try {
+        const data = JSON.parse(el.textContent);
+        currentState = data;
+        await wasmLoadBoard(JSON.stringify(data));
+        updateSidebar(data);
+        document.getElementById('landing-overlay').style.display = 'none';
+        document.getElementById('toolbar').classList.remove('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        console.log('Auto-loaded board:', data.board?.components?.length, 'components');
+    } catch (e) {
+        console.error('Auto-load failed:', e.message || e);
+    }
+}
+
+autoLoadDefault();
