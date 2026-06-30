@@ -108,6 +108,7 @@ class BoardState:
     escape_vias_map: dict[str, Any] | None = None
     enable_theta_star: bool = False
     enable_lazy_theta_star: bool = False
+    enable_numba_los: bool = False
     enable_coarse_to_fine: bool = False
     coarse_factor: int = 4
     corridor_buffer_cells: int = 12
