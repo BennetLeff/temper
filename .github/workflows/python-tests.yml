@@ -236,7 +236,10 @@ jobs:
         working-directory: packages/temper-drc
         run: uv run pytest tests/ -v --tb=short
 
-      - name: Verify committed .kicad_pcb has 4 copper layers
+      - name: Verify committed .kicad_pcb has 4 copper layers (semantic)
+        run: uv run python tools/check_kicad_layers.py
+
+      - name: Verify committed .kicad_pcb has 4 copper layers (property tests)
         working-directory: packages/temper-placer
         run: uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short
        

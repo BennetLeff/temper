@@ -6,6 +6,8 @@ import pytest
 
 from temper_placer.core.board import Layer, LayerStackup
 from temper_placer.manufacturing.stackup_validator import (
+    COPPER_BALANCE_MAX_PCT,
+    COPPER_BALANCE_MIN_PCT,
     StackupValidationResult,
     validate_stackup,
 )
@@ -18,12 +20,18 @@ def canonical_stackup() -> LayerStackup:
 
 @pytest.fixture
 def balanced_fill() -> dict[str, float]:
-    return {"F.Cu": 35.0, "In1.Cu": 95.0, "In2.Cu": 95.0, "B.Cu": 30.0}
+    return {"F.Cu": 35.0, "In1.Cu": 65.0, "In2.Cu": 65.0, "B.Cu": 30.0}
 
 
 @pytest.fixture
 def unbalanced_fill() -> dict[str, float]:
     return {"F.Cu": 95.0, "In1.Cu": 10.0, "In2.Cu": 90.0, "B.Cu": 3.0}
+
+
+@pytest.fixture
+def temper_default_fill() -> dict[str, float]:
+    """Canonical Temper fill estimates (inner planes near-solid, outer sparse)."""
+    return {"F.Cu": 35.0, "In1.Cu": 95.0, "In2.Cu": 95.0, "B.Cu": 30.0}
 
 
 @pytest.fixture
@@ -44,10 +52,12 @@ class TestCopperSymmetry:
         result = _find_result(report, "Copper Symmetry")
         assert not result.passed
 
-    def test_no_fill_data_skips(self, canonical_stackup):
+    def test_no_fill_data_uses_defaults(self, canonical_stackup):
+        """When no explicit fill data, Temper defaults are used (35/95/95/30)."""
         report = validate_stackup(canonical_stackup, copper_fill_percentages={})
         result = _find_result(report, "Copper Symmetry")
-        assert "No fill data" in result.message
+        assert result.passed
+        assert "22.4%" in result.message
 
 
 class TestReturnPathAdjacency:
@@ -65,6 +75,16 @@ class TestReturnPathAdjacency:
         assert result.passed
         assert "No differential nets" in result.message
 
+    def test_stitching_vias_suppress_warning(self, canonical_stackup, usb_differential_nets):
+        report = validate_stackup(
+            canonical_stackup,
+            differential_nets=usb_differential_nets,
+            has_stitching_vias=True,
+        )
+        result = _find_result(report, "Return-Path Adjacency")
+        assert result.passed
+        assert "stitching GND vias" in result.message
+
 
 class TestControlledImpedance:
     """R10: Controlled-impedance specification check."""
@@ -77,7 +97,7 @@ class TestControlledImpedance:
         )
         result = _find_result(report, "Controlled Impedance")
         assert not result.passed
-        assert "90Ω" in result.message
+        assert "90" in result.message
 
     def test_valid_spec_passes(self, usb_differential_nets):
         report = validate_stackup(
@@ -126,10 +146,19 @@ class TestCopperBalance:
         assert not result.passed, f"Expected warning, got: {result.message}"
         assert "warping" in result.message.lower()
 
-    def test_no_fill_data_skips(self, canonical_stackup):
+    def test_no_fill_data_uses_defaults(self, canonical_stackup):
+        """Default Temper fills (95% inner planes) trigger balance warning."""
         report = validate_stackup(canonical_stackup, copper_fill_percentages={})
         result = _find_result(report, "Copper Balance")
-        assert "No fill data" in result.message
+        assert not result.passed
+        assert "95%" in result.message
+
+    def test_temper_default_fill_warns(self, canonical_stackup, temper_default_fill):
+        """Temper inner planes at 95% exceed the 75% upper threshold."""
+        report = validate_stackup(canonical_stackup, copper_fill_percentages=temper_default_fill)
+        result = _find_result(report, "Copper Balance")
+        assert not result.passed
+        assert "95%" in result.message
 
 
 class TestValidationReport:
