@@ -168,6 +168,26 @@ fn default_board_height() -> f64 {
     150.0
 }
 
+impl Default for ConstraintSet {
+    fn default() -> Self {
+        Self {
+            clearances: vec![],
+            zones: vec![],
+            critical_loops: vec![],
+            hv_clearance_mm: default_hv_clearance(),
+            board_width: default_board_width(),
+            board_height: default_board_height(),
+            thermal_properties: vec![],
+            noise_domains: vec![],
+            isolation_barriers: vec![],
+            matched_length_groups: vec![],
+            snubber_requirements: vec![],
+            bleed_resistor: None,
+            skin_effect_derating: None,
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Builder from Python dict
 // ---------------------------------------------------------------------------

@@ -328,3 +328,110 @@ pub fn location_midpoint(
         layer: layer.map(|s| s.to_string()),
     })
 }
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+    use crate::board::*;
+    use crate::constraints::*;
+    use geo::Point;
+    use std::collections::HashMap;
+
+    fn empty_board() -> BoardState {
+        BoardState {
+            width_mm: 100.0,
+            height_mm: 100.0,
+            margin_mm: 3.0,
+            electrical_components: vec![],
+            mechanical_components: vec![],
+            nets: vec![],
+            net_class_rules: HashMap::new(),
+            traces: vec![],
+            vias: vec![],
+            zones: vec![],
+        }
+    }
+
+    fn empty_constraints() -> ConstraintSet {
+        ConstraintSet::default()
+    }
+
+    #[test]
+    fn empty_board_zero_violations() {
+        let reg = create_default_registry();
+        let violations = reg.run_all(&empty_board(), &empty_constraints());
+        assert!(
+            violations.is_empty(),
+            "empty board must produce 0 violations, got {}",
+            violations.len()
+        );
+    }
+
+    #[test]
+    fn incremental_check_equals_full_check_for_same_region() {
+        // Build a simple board with two components and a constraint
+        let board = BoardState {
+            width_mm: 100.0,
+            height_mm: 100.0,
+            margin_mm: 3.0,
+            electrical_components: vec![
+                Component {
+                    refdes: ComponentRef("C1".into()),
+                    center: Point::new(0.0, 0.0),
+                    rotation: 0.0,
+                    side: BoardSide::Top,
+                    width: 10.0,
+                    height: 10.0,
+                    net_class: NetClassName("Signal".into()),
+                    power_dissipation_w: None,
+                    package_type: PackageType::Smd,
+                    is_magnetic: false,
+                    is_electrolytic: false,
+                    vent_direction: None,
+                    footprint_polygon: None,
+                },
+                Component {
+                    refdes: ComponentRef("C2".into()),
+                    center: Point::new(50.0, 0.0),
+                    rotation: 0.0,
+                    side: BoardSide::Top,
+                    width: 10.0,
+                    height: 10.0,
+                    net_class: NetClassName("Signal".into()),
+                    power_dissipation_w: None,
+                    package_type: PackageType::Smd,
+                    is_magnetic: false,
+                    is_electrolytic: false,
+                    vent_direction: None,
+                    footprint_polygon: None,
+                },
+            ],
+            mechanical_components: vec![],
+            nets: vec![],
+            net_class_rules: {
+                let mut m = HashMap::new();
+                m.insert(
+                    NetClassName("Signal".into()),
+                    NetClassRules::default(),
+                );
+                m
+            },
+            traces: vec![],
+            vias: vec![],
+            zones: vec![],
+        };
+        let constraints = empty_constraints();
+        let reg = create_default_registry();
+        let full = reg.run_all(&board, &constraints);
+        let inc = reg.run_incremental(&board, &constraints, &[geo::Rect::new(
+            (0.0, 0.0),
+            (100.0, 100.0),
+        )]);
+        assert_eq!(
+            full.len(),
+            inc.len(),
+            "incremental with full-board region should match run_all"
+        );
+    }
+}
+

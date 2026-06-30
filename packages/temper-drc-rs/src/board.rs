@@ -182,6 +182,21 @@ pub struct NetClassRules {
     pub routing_strategy: Option<String>,
 }
 
+impl Default for NetClassRules {
+    fn default() -> Self {
+        Self {
+            trace_width_mm: 0.0,
+            clearance_mm: 0.0,
+            creepage_mm: None,
+            voltage_v: None,
+            max_current_rating: None,
+            safety_category: None,
+            required_layer: None,
+            routing_strategy: None,
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -502,5 +517,135 @@ mod tests {
             edge <= min_vertex_dist + 0.001,
             "edge distance {edge} should be ≤ vertex distance {min_vertex_dist}"
         );
+    }
+
+    #[test]
+    fn edge_distance_bbox_fallback_upper_bound() {
+        // The polygon path (edge-to-edge) is tested above. The bbox fallback
+        // (rect_edge_distance) is used when footprint_polygon is None on either
+        // side. Verify it never under-estimates — a bbox under-estimate would
+        // produce false-positive clearance violations.
+        let a_no_fp = Component {
+            footprint_polygon: None,
+            ..component("A", 0.0, 0.0, 10.0, 10.0)
+        };
+        let b_no_fp = Component {
+            footprint_polygon: None,
+            ..component("B", 12.0, 0.0, 10.0, 10.0)
+        };
+        let bbox_dist = a_no_fp.edge_distance_to(&b_no_fp);
+        let a = component("A", 0.0, 0.0, 10.0, 10.0);
+        let b = component("B", 12.0, 0.0, 10.0, 10.0);
+        let poly_dist = a.edge_distance_to(&b);
+        // Bbox (AABB) is a superset of the component — its distance should
+        // never be larger than the true polygon distance.
+        assert!(
+            bbox_dist <= poly_dist + 0.01,
+            "bbox dist {bbox_dist} should be ≤ polygon dist {poly_dist}"
+        );
+    }
+}
+
+#[cfg(test)]
+mod board_state_tests {
+    use super::*;
+    use geo::Point;
+    use std::collections::HashMap;
+
+    fn basic_state() -> BoardState {
+        BoardState {
+            width_mm: 100.0,
+            height_mm: 150.0,
+            margin_mm: 3.0,
+            electrical_components: vec![
+                Component {
+                    refdes: ComponentRef("C1".into()),
+                    center: Point::new(10.0, 10.0),
+                    rotation: 0.0,
+                    side: BoardSide::Top,
+                    width: 5.0,
+                    height: 3.0,
+                    net_class: NetClassName("Signal".into()),
+                    power_dissipation_w: None,
+                    package_type: PackageType::Smd,
+                    is_magnetic: false,
+                    is_electrolytic: false,
+                    vent_direction: None,
+                    footprint_polygon: None,
+                },
+                Component {
+                    refdes: ComponentRef("C2".into()),
+                    center: Point::new(20.0, 10.0),
+                    rotation: 0.0,
+                    side: BoardSide::Top,
+                    width: 5.0,
+                    height: 3.0,
+                    net_class: NetClassName("Power".into()),
+                    power_dissipation_w: Some(5.0),
+                    package_type: PackageType::Smd,
+                    is_magnetic: false,
+                    is_electrolytic: false,
+                    vent_direction: None,
+                    footprint_polygon: None,
+                },
+            ],
+            mechanical_components: vec![Component {
+                refdes: ComponentRef("MH1".into()),
+                center: Point::new(3.5, 3.5),
+                rotation: 0.0,
+                side: BoardSide::Top,
+                width: 3.0,
+                height: 3.0,
+                net_class: NetClassName("Signal".into()),
+                power_dissipation_w: None,
+                package_type: PackageType::Other,
+                is_magnetic: false,
+                is_electrolytic: false,
+                vent_direction: None,
+                footprint_polygon: None,
+            }],
+            nets: vec![
+                Net {
+                    name: NetName("N1".into()),
+                    components: vec![ComponentRef("C1".into()), ComponentRef("C2".into())],
+                    class: NetClassName("Signal".into()),
+                    rules: NetClassRules::default(),
+                },
+            ],
+            net_class_rules: {
+                let mut m = HashMap::new();
+                m.insert(NetClassName("Signal".into()), NetClassRules::default());
+                m.insert(NetClassName("Power".into()), NetClassRules {
+                    trace_width_mm: 0.5,
+                    clearance_mm: 0.5,
+                    ..NetClassRules::default()
+                });
+                m
+            },
+            traces: vec![],
+            vias: vec![],
+            zones: vec![],
+        }
+    }
+
+    #[test]
+    fn component_count_sums_correctly() {
+        let s = basic_state();
+        assert_eq!(s.electrical_components.len(), 2);
+        assert_eq!(s.mechanical_components.len(), 1);
+        assert_eq!(s.all_components().count(), 3);
+    }
+
+    #[test]
+    fn net_class_rules_covers_all_net_classes() {
+        let s = basic_state();
+        for net in &s.nets {
+            assert!(
+                s.net_class_rules.contains_key(&net.class),
+                "net '{}' has class '{}' not found in net_class_rules",
+                net.name,
+                net.class,
+            );
+        }
     }
 }
