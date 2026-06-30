@@ -1304,3 +1304,15 @@ scripts:
       - pathlib
       - re
       - sys
+- path: calibrate_drc_ceiling.py
+  purpose: "Calibrate DRC violation ceiling for Rust DRC engine"
+  owner: pipeline
+  last_run: "2026-06-30"
+  category: keep
+  disposition: utility
+    imports:
+      - argparse
+      - collections
+      - json
+      - pathlib
+      - sys

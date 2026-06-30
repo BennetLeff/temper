@@ -2,6 +2,15 @@
 
 Loads drc_ceiling.json, runs DRC on target boards, and enforces
 a monotonically-non-increasing ceiling on DRC violation counts.
+
+Supports two backends:
+  - ``rust`` (default): uses ``temper_drc_rs.run_drc()`` with the
+    parsed-PCB-via-KiCad-parser path.
+  - ``kicad-cli``: uses the KiCad CLI DRC via
+    ``temper_placer.validation.drc_runner.run_drc()``.
+
+When the Rust backend is selected but ``temper_drc_rs`` is not
+installed, the check fails with a clear error message.
 """
 
 from __future__ import annotations
@@ -34,10 +43,18 @@ class DrcRatchetResult:
 
 
 class DrcRatchet:
-    """Enforces DRC ceiling via committed JSON file."""
+    """Enforces DRC ceiling via committed JSON file.
 
-    def __init__(self, ceiling_path: Path):
+    Args:
+        ceiling_path: Path to ``drc_ceiling.json``.
+        backend: ``"rust"`` (default) to use the Rust DRC engine via
+            ``temper_drc_rs.run_drc()``, or ``"kicad-cli"`` to use
+            KiCad's CLI DRC.
+    """
+
+    def __init__(self, ceiling_path: Path, backend: str = "rust"):
         self.ceiling_path = Path(ceiling_path)
+        self.backend = backend
         self.entries: dict[str, DrcCeilingEntry] = {}
 
     def load(self) -> None:
@@ -67,6 +84,124 @@ class DrcRatchet:
 
         return results
 
+    def _run_rust_drc(self, pcb_path: Path) -> tuple[int, int]:
+        """Run the Rust DRC engine on a PCB file.
+
+        Returns:
+            (error_count, warning_count)
+
+        Raises:
+            ImportError: If ``temper_drc_rs`` is not installed.
+            Exception: On parse/DRC failure.
+        """
+        import temper_drc_rs
+        from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+
+        parsed = parse_kicad_pcb_v6(str(pcb_path))
+
+        # ── Build board_dict ────────────────────────────────────────────
+        components = []
+        for c in parsed.components:
+            x, y = c.initial_position or (0.0, 0.0)
+            rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
+            side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
+            fp_lower = c.footprint.lower() if c.footprint else ""
+            if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
+                package_type = "tht"
+            elif "to-247" in fp_lower or "to247" in fp_lower:
+                package_type = "to247"
+            elif "to-220" in fp_lower or "to220" in fp_lower:
+                package_type = "to220"
+            elif "bga" in fp_lower:
+                package_type = "bga"
+            elif "qfn" in fp_lower:
+                package_type = "qfn"
+            elif "qfp" in fp_lower or "tqfp" in fp_lower:
+                package_type = "qfp"
+            elif "dpak" in fp_lower or "d2pak" in fp_lower:
+                package_type = "dpak"
+            else:
+                package_type = "smd"
+
+            components.append({
+                "ref": c.ref,
+                "x": x,
+                "y": y,
+                "rot": rotation,
+                "side": side,
+                "width": float(c.width),
+                "height": float(c.height),
+                "net_class": c.net_class,
+                "package_type": package_type,
+                "power_dissipation_w": None,
+                "is_magnetic": False,
+                "is_electrolytic": False,
+                "vent_direction": None,
+                "footprint_polygon": None,
+            })
+
+        nets: dict[str, list[str]] = {}
+        net_classes: dict[str, str] = {}
+        for net in parsed.nets:
+            comp_refs = list({ref for ref, _ in net.pins})
+            nets[net.name] = comp_refs
+            net_classes[net.name] = net.net_class
+
+        net_class_rules: dict[str, dict] = {}
+        for class_name, rules in parsed.design_rules.net_classes.items():
+            net_class_rules[class_name] = {
+                "trace_width_mm": rules.trace_width_mm,
+                "clearance_mm": rules.clearance_mm,
+                "creepage_mm": None,
+                "voltage_v": None,
+                "max_current_rating": None,
+                "safety_category": None,
+                "required_layer": None,
+                "routing_strategy": None,
+            }
+
+        board_dict = {
+            "board": {
+                "width_mm": float(parsed.board.width),
+                "height_mm": float(parsed.board.height),
+                "margin_mm": 3.0,
+            },
+            "components": components,
+            "nets": nets,
+            "net_classes": net_classes,
+            "net_class_rules": net_class_rules,
+        }
+
+        # ── Build constraints_dict ──────────────────────────────────────
+        constraints_dict = {
+            "clearances": [],
+            "zones": [],
+            "critical_loops": [],
+            "noise_domains": [],
+            "isolation_barriers": [],
+            "thermal_properties": [],
+            "matched_length_groups": [],
+            "snubber_requirements": [],
+            "bleed_resistor": None,
+            "skin_effect_derating": None,
+            "hv_clearance_mm": 10.0,
+            "board_width": float(parsed.board.width),
+            "board_height": float(parsed.board.height),
+        }
+
+        violations = temper_drc_rs.run_drc(board_dict, constraints_dict)
+
+        errors = sum(
+            1 for v in violations
+            if v.get("severity", "").upper() in ("ERROR", "CRITICAL")
+        )
+        warnings = sum(
+            1 for v in violations
+            if v.get("severity", "").upper() == "WARNING"
+        )
+
+        return errors, warnings
+
     def _check_board(
         self, board_id: str, pcb_path: Path, entry: DrcCeilingEntry
     ) -> DrcRatchetResult:
@@ -79,19 +214,28 @@ class DrcRatchet:
             )
 
         try:
-            from temper_placer.validation.drc_runner import run_drc
+            if self.backend == "rust":
+                current_errors, current_warnings = self._run_rust_drc(pcb_path)
+            elif self.backend == "kicad-cli":
+                from temper_placer.validation.drc_runner import run_drc
 
-            drc_result = run_drc(pcb_path)
+                drc_result = run_drc(pcb_path)
+                current_errors = drc_result.error_count
+                current_warnings = drc_result.warning_count
+            else:
+                return DrcRatchetResult(
+                    passed=False,
+                    board_id=board_id,
+                    message=f"Unknown DRC backend: {self.backend}",
+                    exit_code=1,
+                )
         except Exception as e:
             return DrcRatchetResult(
                 passed=False,
                 board_id=board_id,
-                message=f"DRC failed: {e}",
+                message=f"DRC ({self.backend}) failed: {e}",
                 exit_code=1,
             )
-
-        current_errors = drc_result.error_count
-        current_warnings = drc_result.warning_count
 
         if current_errors > entry.error_ceiling:
             delta = current_errors - entry.error_ceiling

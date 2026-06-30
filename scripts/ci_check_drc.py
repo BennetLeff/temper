@@ -5,6 +5,7 @@ Loads drc_ceiling.json, runs DRC on each board, checks against ceilings.
 Exit codes: 0 = pass, 1 = ceiling exceeded, 2 = ceiling raised without approval.
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -25,6 +26,16 @@ def _setup_path(repo_root: Path) -> None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="DRC ratchet CI check")
+    parser.add_argument(
+        "--backend",
+        type=str,
+        default="rust",
+        choices=["rust", "kicad-cli"],
+        help="DRC backend: 'rust' (default, temper_drc_rs) or 'kicad-cli' (KiCad CLI)",
+    )
+    args = parser.parse_args()
+
     repo_root = _find_repo_root()
     _setup_path(repo_root)
     ceiling_path = repo_root / "power_pcb_dataset" / "drc_ceiling.json"
@@ -36,7 +47,7 @@ def main() -> int:
 
     from temper_placer.regression.drc_ratchet import DrcRatchet
 
-    ratchet = DrcRatchet(ceiling_path)
+    ratchet = DrcRatchet(ceiling_path, backend=args.backend)
     ratchet.load()
 
     if not ratchet.entries:
