@@ -320,7 +320,7 @@ class RouterV6Pipeline:
         self,
         verbose: bool = False,
         enable_theta_star: bool = True,
-        enable_lazy_theta_star: bool = False,
+        enable_lazy_theta_star: bool = True,
         enable_smoothing: bool = False,
         enable_legalization: bool = True,
         max_nets: int | None = None,
@@ -334,9 +334,10 @@ class RouterV6Pipeline:
         dfm_fail_on: str = "critical",
         max_sat_nets: int | None = None,
         enable_bundling: bool = False,
-        enable_coarse_to_fine: bool = False,
+        enable_coarse_to_fine: bool = True,
         coarse_factor: int = 4,
         corridor_buffer_cells: int = 12,
+        enable_numba_los: bool = True,
     ):
         """
         Initialize Router V6 pipeline.
@@ -399,6 +400,7 @@ class RouterV6Pipeline:
         self.enable_coarse_to_fine = enable_coarse_to_fine
         self.coarse_factor = coarse_factor
         self.corridor_buffer_cells = corridor_buffer_cells
+        self.enable_numba_los = enable_numba_los
 
         # Warn if both max_sat_nets and enable_bundling are set
         if enable_bundling and max_sat_nets is not None:
@@ -1060,8 +1062,8 @@ class RouterV6Pipeline:
             enable_coarse_to_fine=self.enable_coarse_to_fine,
             coarse_factor=self.coarse_factor,
             corridor_buffer_cells=self.corridor_buffer_cells,
+            enable_numba_los=self.enable_numba_los,
         )
-        state = orchestrated.run(initial_state=state)
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
         if pathfinding_result is None:
@@ -1089,9 +1091,8 @@ class RouterV6Pipeline:
                 enable_coarse_to_fine=self.enable_coarse_to_fine,
                 coarse_factor=self.coarse_factor,
                 corridor_buffer_cells=self.corridor_buffer_cells,
-            )
-
-        return self._run_stage5(pcb, stage2, pathfinding_result)
+                enable_numba_los=self.enable_numba_los,
+            )(pcb, stage2, pathfinding_result)
 
     def _run_stage5(
         self,
