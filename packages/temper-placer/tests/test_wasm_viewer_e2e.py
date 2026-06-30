@@ -87,7 +87,8 @@ class TestLiveServerE2E:
         )
         srv.start()
         time.sleep(0.5)
-        srv._port = port  # Store for tests
+        srv._port = port       # HTTP port
+        srv._ws_port = port + 1  # WebSocket port
         yield srv
         srv.stop()
         time.sleep(0.2)
@@ -161,7 +162,7 @@ class TestLiveServerE2E:
         received = []
 
         async def client():
-            async with websockets.connect(f"ws://localhost:{server._port}/ws") as ws:
+            async with websockets.connect(f"ws://localhost:{server._ws_port}/ws") as ws:
                 # Server sends current state on connect (if available)
                 try:
                     msg = await asyncio.wait_for(ws.recv(), timeout=2.0)
@@ -180,7 +181,7 @@ class TestLiveServerE2E:
         received = []
 
         async def client():
-            async with websockets.connect(f"ws://localhost:{server._port}/ws") as ws:
+            async with websockets.connect(f"ws://localhost:{server._ws_port}/ws") as ws:
                 state = _build_test_state()
                 server.send_update(state)
                 try:
@@ -208,7 +209,7 @@ class TestLiveServerE2E:
         received = []
 
         async def client():
-            async with websockets.connect(f"ws://localhost:{server._port}/ws") as ws:
+            async with websockets.connect(f"ws://localhost:{server._ws_port}/ws") as ws:
                 server.send_stage_change(
                     stage="geometric",
                     phase="active",

@@ -35,8 +35,9 @@ async function initViewer() {
 
 window.connectToServer = function() {
     const host = window.location.hostname || 'localhost';
-    const port = 8765;
-    const url = `ws://${host}:${port}/ws`;
+    const httpPort = parseInt(window.location.port) || 8765;
+    const wsPort = httpPort + 1;
+    const url = `ws://${host}:${wsPort}/ws`;
 
     ws = new WebSocket(url);
 

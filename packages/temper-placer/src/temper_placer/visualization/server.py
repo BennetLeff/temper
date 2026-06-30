@@ -215,6 +215,10 @@ class LiveServer:
         logger.info("Stopping visualization server...")
         self._stop_event.set()
 
+        # Shutdown HTTP server
+        if hasattr(self, '_httpd'):
+            self._httpd.shutdown()
+
         # Cancel the event loop
         if self._event_loop:
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
@@ -297,66 +301,71 @@ class LiveServer:
         return self.state.is_paused
 
     def _run_server(self) -> None:
-        """Run the WebSocket server (in background thread)."""
+        """Run the HTTP + WebSocket server (in background thread)."""
+        import http.server
+
+        http_port = self.config.port
+        ws_port = http_port + 1
+
+        static_dir = self.config.static_dir or self._default_static_dir()
+
+        class ViewerHTTPHandler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, directory=str(static_dir), **kwargs)
+            def do_GET(self):
+                path = self.path.lstrip("/")
+                if path in ("", "index.html"):
+                    self.path = "/wasm-viewer.html"
+                super().do_GET()
+            def log_message(self, format, *args):
+                pass
+
+        # Start HTTP server on main port
+        try:
+            httpd = http.server.HTTPServer((self.config.host, http_port), ViewerHTTPHandler)
+            self._httpd = httpd
+        except OSError as e:
+            logger.error(f"Failed to bind HTTP server on port {http_port}: {e}")
+            raise
+
+        http_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        http_thread.start()
+        logger.info(f"HTTP server listening on http://{self.config.host}:{http_port}")
+
+        # Start WebSocket server on ws_port in the event loop
         self._event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._event_loop)
 
+        async def start_ws():
+            logger.info(f"Binding WebSocket to port {ws_port} (http on {http_port})")
+            self._ws_server = await serve(
+                self._handle_client,
+                self.config.host,
+                ws_port,
+            )
+            logger.info(f"WebSocket server listening on ws://{self.config.host}:{ws_port}/ws")
+
         try:
-            self._event_loop.run_until_complete(self._start_servers())
+            self._event_loop.run_until_complete(start_ws())
             self.state.is_running = True
             self._event_loop.run_forever()
         except Exception as e:
             logger.error(f"Server error: {e}")
         finally:
+            if hasattr(self, '_httpd'):
+                self._httpd.shutdown()
             self._event_loop.close()
             self._event_loop = None
 
-    async def _start_servers(self) -> None:
-        """Start both HTTP and WebSocket servers."""
-        from websockets.http11 import Response
-        from websockets.datastructures import Headers
-
-        static_dir = self.config.static_dir or self._default_static_dir()
-
-        async def http_handler(connection: Any, request: Any) -> Response | None:
-            """Handle HTTP requests by serving static files. Return None for WebSocket upgrade."""
-            if request.path is None:
-                return Response(404, "Not Found", Headers())
-
-            # Let WebSocket upgrade requests through
-            if request.path == "/ws" or request.headers.get("Upgrade", "").lower() == "websocket":
-                return None
-
-            path = request.path.lstrip("/")
-            if path in ("", "index.html"):
-                file_path = static_dir / "wasm-viewer.html"
-            else:
-                # Prevent directory traversal
-                file_path = (static_dir / path).resolve()
-                if not str(file_path).startswith(str(static_dir.resolve())):
-                    return Response(404, "Not Found", Headers())
-
-            if not file_path.is_file():
-                return Response(404, "Not Found", Headers())
-
-            content_type = _guess_mime_type(file_path)
-            try:
-                body = file_path.read_bytes()
-                headers = Headers({
-                    "Content-Type": content_type,
-                    "Content-Length": str(len(body)),
-                })
-                return Response(200, "OK", headers, body=body)
-            except OSError:
-                return Response(500, "Internal Server Error", Headers())
-
+    async def _start_ws_server(self) -> None:
+        """Start WebSocket server."""
+        logger.info(f"Starting WebSocket server on {self.config.host}:{self.config.port}")
         self._ws_server = await serve(
             self._handle_client,
             self.config.host,
             self.config.port,
-            process_request=http_handler,
         )
-        logger.debug(f"Server listening on {self.url} (ws: {self.ws_url})")
+        logger.info(f"WebSocket server listening on {self.ws_url}")
 
     async def _handle_client(self, websocket: Any) -> None:
         """Handle a WebSocket client connection."""
