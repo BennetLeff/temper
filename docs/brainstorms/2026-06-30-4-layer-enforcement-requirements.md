@@ -144,12 +144,25 @@ Separately, even when 4-layer output is correct, the stackup design has professi
 
 ### Deferred to Planning
 
-- [Affects R8] [Technical] What is the effective copper imbalance threshold (percentage) that triggers a warping-risk warning? AE7 uses 25% as an illustrative value.
-- [Affects R8] [Technical] How is "estimated fill percentage" computed — pre-routing (footprint-based) or post-routing (trace-aware)? What granularity — global layer average or per-region?
-- [Affects R11] [Technical] What is the acceptable copper balance threshold (percentage difference between max and min fill)?
-- [Affects R10] [Needs research] What target impedance should USB D+/D- differential pairs use? USB 2.0 full-speed typically targets 90Ω differential. Verify against the actual MCU (ESP32-S3) USB specification.
-- [Affects R10] [Technical] R10 checks only for existence of an impedance specification, not correctness. Should the check validate the value (e.g., 90Ω ± tolerance) or only presence?
-- [Affects R9] [Technical] Should the return-path adjacency check consider plane stitching (e.g., GND vias near the differential pair) as mitigation?
-- [Affects R3] [Technical] Does the placer pipeline serialize/deserialize Board objects between stages (pickle, JSON)? If so, construction-time validation may be bypassed and needs a deserialization guard.
-- [Affects R5] [Technical] Are Board objects mutable mid-pipeline, or is per-stage validation redundant with construction-time (R3) and output-time (R4) checks?
-- [Affects R7] [Technical] Should the CI diff gate use a semantic layer-count diff rather than a raw textual diff of the .kicad_pcb file to avoid false positives from benign KiCad version format changes?
+(All resolved — see below.  Questions from the original brainstorm have been addressed in implementation.)
+
+**R8 — Resolved:**
+- Imbalance threshold: 25% (effective), encoded as `COPPER_SYMMETRY_IMBALANCE_THRESHOLD` in `stackup_validator.py`.
+- Fill estimation: uses `analyze_copper_balance()` from `router_v6/copper_balance.py` when `RoutingResults` are available (post-routing, trace-aware). Falls back to explicit `copper_fill_percentages` dict, then to default Temper estimates (35/95/95/30% pre-routing). Both global-per-layer and per-region granularities are supported via the existing copper_balance API.
+
+**R11 — Resolved:**
+- Copper balance thresholds: 25% min / 75% max, per IPC-2221/IPC-6012 guidance. Encoded as `COPPER_BALANCE_MIN_PCT` / `COPPER_BALANCE_MAX_PCT` module-level constants in `stackup_validator.py`.
+
+**R10 — Resolved:**
+- Target impedance: 90Ω differential for USB 2.0 Full-Speed. Verified against ESP32-S3 USB OTG 1.1 specification. Encoded as `USB_DIFFERENTIAL_IMPEDANCE_OHMS`.
+- Value validation: the check now validates the impedance value (must be positive, within 70-120Ω) in addition to checking existence.
+
+**R9 — Resolved:**
+- Stitching vias: the `validate_stackup()` function accepts `has_stitching_vias: bool = False`. When True, the L4-to-PWR adjacency warning is suppressed with a note that stitching GND vias mitigate the concern.
+
+**R7 — Resolved:**
+- Semantic diff: `tools/check_kicad_layers.py` parses the committed `.kicad_pcb` and validates exactly 4 canonical copper layers. This runs in CI before the property test suite and tolerates benign KiCad format changes (version upgrades, non-copper layer additions, whitespace reformatting) that a textual `git diff` would reject.
+
+**R3 / R5 — Resolved:**
+- BoardState deserialization guard: `BoardState.__post_init__` validates the nested Board's layer count against the canonical set.
+- Board mutability: `LayerStackup` is `frozen=True` with `tuple[Layer, ...]` layers -- no mid-pipeline mutation possible. Per-stage re-validation is therefore redundant; preflight-only validation is sufficient.
