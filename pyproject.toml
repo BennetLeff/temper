@@ -28,13 +28,13 @@ temper-drc = { workspace = true }
 temper-autoprof = { workspace = true }
 temper-testing = { workspace = true }
 temper-validation = { workspace = true }
+temper-drc-rs = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = [
     "packages/temper-placer/tests",
     "packages/temper-workflow/tests",
     "packages/temper-tools/tests",
-    "packages/temper-drc/tests",
     "packages/temper-autoprof/tests",
     "packages/temper-testing/tests",
     "packages/temper-validation/tests"

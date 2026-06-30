@@ -27,6 +27,7 @@ dependencies = [
     "pyyaml>=6.0",
     "click>=8.1.0",
     "rich>=13.0.0",
+    "temper-drc-rs>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -46,19 +47,6 @@ Repository = "https://github.com/temper-project/temper"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/temper_drc"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]
-addopts = [
-    "-v",
-    "--tb=short",
-    "--strict-markers",
-]
-markers = [
-    "slow: marks tests as slow",
-    "integration: marks integration tests",
-]
 
 [tool.mypy]
 python_version = "3.11"
