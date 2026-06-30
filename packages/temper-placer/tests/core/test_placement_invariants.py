@@ -188,7 +188,7 @@ class TestBoundaryLossInvariants:
 
     @given(positions=st.data())
     @settings(suppress_health_check=[HealthCheck.data_too_large], deadline=None)
-    def test_boundary_loss_zero_when_all_components_in_bounds(self, positions): # noqa: ARG002
+    def test_boundary_loss_zero_when_all_components_in_bounds(self, positions):  # noqa: ARG002 (consumed by Hypothesis @given)
         """II.1: If all components are within bounds, boundary loss = 0."""
         board = Board(width=100, height=100)
         netlist = _make_minimal_netlist(n_components=4, bounds=(10, 10))
@@ -214,7 +214,7 @@ class TestBoundaryLossInvariants:
 
     @given(positions=st.data())
     @settings(suppress_health_check=[HealthCheck.data_too_large], deadline=None)
-    def test_boundary_loss_positive_when_component_out_of_bounds(self, positions): # noqa: ARG002
+    def test_boundary_loss_positive_when_component_out_of_bounds(self, positions):  # noqa: ARG002 (consumed by Hypothesis @given)
         """II.2: If any component is outside bounds, boundary loss > 0."""
         board = Board(width=100, height=100)
         netlist = _make_minimal_netlist(n_components=2, bounds=(10, 10))
@@ -321,7 +321,7 @@ class TestPlacementBoundednessInvariant:
         suppress_health_check=[HealthCheck.data_too_large],
         deadline=None,
     )
-    def test_clamping_preserves_invariant_for_in_bounds_positions(self, board, positions): # noqa: ARG002
+    def test_clamping_preserves_invariant_for_in_bounds_positions(self, board, positions):  # noqa: ARG002 (consumed by Hypothesis @given)
         """III.2: If positions are in bounds, clamping is a no-op."""
         margin = 5.0
         n = 10
@@ -343,7 +343,7 @@ class TestPlacementBoundednessInvariant:
         suppress_health_check=[HealthCheck.data_too_large],
         deadline=None,
     )
-    def test_clamping_brings_out_of_bounds_positions_into_bounds(self, board, positions): # noqa: ARG002
+    def test_clamping_brings_out_of_bounds_positions_into_bounds(self, board, positions):  # noqa: ARG002 (consumed by Hypothesis @given)
         """III.3: Clamping any positions produces in-bounds positions."""
         n = 10
         # Generate wild positions (some in, some far out)

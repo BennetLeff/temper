@@ -329,7 +329,7 @@ class RouterV6Pipeline:
         profiler: Any | None = None,
         skip_stage3: bool = False,
         congestion_weight: float = 0.0,
-        max_iter: int = 500_000,
+        max_iter: int = 500_000,  # proven sweet spot: faster AND better closure than 1M
         enable_manufacturing_drc: bool = False,
         dfm_fail_on: str = "critical",
         max_sat_nets: int | None = None,

@@ -75,7 +75,7 @@ class TestPlacementState:
             diffs = jnp.abs(valid_angles - angle)
             assert jnp.min(diffs) < 0.5  # Allow some deviation at low temp
 
-    def test_to_discrete(self, rng_key): # noqa: ARG002
+    def test_to_discrete(self, rng_key):  # noqa: ARG002 (consumed by pytest fixture)
         """Test conversion to discrete placement."""
         positions = jnp.array([[10.0, 20.0], [30.0, 40.0]])
         logits = jnp.array(
