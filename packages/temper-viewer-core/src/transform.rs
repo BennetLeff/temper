@@ -124,4 +124,62 @@ mod tests {
         cam.zoom_to(Point::new(0.0, 0.0), 1000.0);
         assert!(cam.zoom <= 100.0);
     }
+
+    #[test]
+    fn zoom_factor_is_exact_ratio() {
+        let mut cam = Camera { center: Point::new(50.0, 75.0), zoom: 4.0, viewport_width: 800.0, viewport_height: 600.0 };
+        let factor = 2.0_f32;
+        cam.zoom_to(Point::new(50.0, 75.0), factor);
+        assert!((cam.zoom / 4.0 - factor).abs() < 0.001, "zoom should multiply by factor exactly");
+    }
+
+    #[test]
+    fn zoom_out_then_in_returns_to_original() {
+        let cam1 = Camera { center: Point::new(50.0, 75.0), zoom: 4.0, viewport_width: 800.0, viewport_height: 600.0 };
+        let mut cam2 = cam1;
+        cam2.zoom_to(Point::new(50.0, 75.0), 0.5);
+        cam2.zoom_to(Point::new(50.0, 75.0), 2.0);
+        assert!((cam1.zoom - cam2.zoom).abs() < 0.001, "zoom out then in should return to original");
+        assert!((cam1.center.x - cam2.center.x).abs() < 0.01);
+        assert!((cam1.center.y - cam2.center.y).abs() < 0.01);
+    }
+
+    #[test]
+    fn pan_then_reverse_pan_returns_to_center() {
+        let mut cam = Camera { center: Point::new(50.0, 75.0), zoom: 4.0, viewport_width: 800.0, viewport_height: 600.0 };
+        let orig = cam.center;
+        cam.pan(100.0, 200.0);
+        assert!((cam.center.x - orig.x).abs() > 1.0, "pan should shift center");
+        cam.pan(-100.0, -200.0);
+        assert!((cam.center.x - orig.x).abs() < 0.01);
+        assert!((cam.center.y - orig.y).abs() < 0.01);
+    }
+
+    #[test]
+    fn screen_edge_to_world_at_zoom_1() {
+        let cam = Camera { center: Point::new(50.0, 75.0), zoom: 1.0, viewport_width: 800.0, viewport_height: 600.0 };
+        let top_left = cam.screen_to_world(0.0, 0.0);
+        let top_right = cam.screen_to_world(800.0, 0.0);
+        let bottom_left = cam.screen_to_world(0.0, 600.0);
+        let bottom_right = cam.screen_to_world(800.0, 600.0);
+        assert!((top_right.x - top_left.x - 800.0).abs() < 0.01);
+        assert!((bottom_left.y - top_left.y - 600.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn viewport_center_maps_to_camera_center() {
+        let cam = Camera { center: Point::new(37.0, 82.0), zoom: 4.0, viewport_width: 1024.0, viewport_height: 768.0 };
+        let center_world = cam.screen_to_world(512.0, 384.0);
+        assert!((center_world.x - cam.center.x).abs() < 0.01);
+        assert!((center_world.y - cam.center.y).abs() < 0.01);
+    }
+
+    #[test]
+    fn zoom_scale_is_inverse_pixel_to_mm() {
+        let cam = Camera { center: Point::new(0.0, 0.0), zoom: 4.0, viewport_width: 800.0, viewport_height: 600.0 };
+        let p1 = cam.screen_to_world(400.0, 300.0);
+        let p2 = cam.screen_to_world(401.0, 300.0);
+        let dx = p2.x - p1.x;
+        assert!((dx - 0.25).abs() < 0.001, "1 pixel at 4px/mm should be 0.25mm, got {}", dx);
+    }
 }

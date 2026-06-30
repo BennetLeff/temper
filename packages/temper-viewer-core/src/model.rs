@@ -142,7 +142,7 @@ impl Trace {
             return self.start.distance_to(point);
         }
         let t = ((point.x - self.start.x) * d.x + (point.y - self.start.y) * d.y) / len_sq;
-        let t_clamped = t.max(0.0).min(1.0);
+        let t_clamped = t.clamp(0.0, 1.0);
         let closest = Point::new(
             self.start.x + t_clamped * d.x,
             self.start.y + t_clamped * d.y,
@@ -221,5 +221,201 @@ impl Default for Component {
             active_constraints: vec![], last_gradient: None,
             last_movement: None, last_movement_reason: None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn zone_area_rectangle_100x50() {
+        let zone = Zone {
+            name: "rect".into(),
+            polygon: vec![
+                Point::new(0.0, 0.0), Point::new(100.0, 0.0),
+                Point::new(100.0, 50.0), Point::new(0.0, 50.0),
+            ],
+            zone_type: "test".into(),
+            color: None,
+        };
+        assert!((zone.area() - 5000.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn zone_area_right_triangle() {
+        let zone = Zone {
+            name: "tri".into(),
+            polygon: vec![
+                Point::new(0.0, 0.0), Point::new(10.0, 0.0),
+                Point::new(0.0, 10.0),
+            ],
+            zone_type: "test".into(),
+            color: None,
+        };
+        assert!((zone.area() - 50.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn zone_area_degenerate_two_points() {
+        let zone = Zone {
+            name: "deg".into(),
+            polygon: vec![Point::new(0.0, 0.0), Point::new(10.0, 10.0)],
+            zone_type: "test".into(),
+            color: None,
+        };
+        assert_eq!(zone.area(), 0.0);
+    }
+
+    #[test]
+    fn zone_fill_percentage_correct() {
+        let zone = Zone {
+            name: "half".into(),
+            polygon: vec![
+                Point::new(0.0, 0.0), Point::new(50.0, 0.0),
+                Point::new(50.0, 150.0), Point::new(0.0, 150.0),
+            ],
+            zone_type: "test".into(),
+            color: None,
+        };
+        assert!((zone.fill_percentage(100.0, 150.0) - 50.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn zone_fill_percentage_zero_board() {
+        let zone = Zone {
+            name: "z".into(),
+            polygon: vec![Point::new(0.0, 0.0), Point::new(10.0, 0.0), Point::new(10.0, 10.0), Point::new(0.0, 10.0)],
+            zone_type: "test".into(),
+            color: None,
+        };
+        assert_eq!(zone.fill_percentage(0.0, 0.0), 0.0);
+    }
+
+    #[test]
+    fn component_contains_center() {
+        let comp = Component {
+            ref_: "C1".into(), position: Point::new(50.0, 50.0),
+            rotation: 0.0, width: 10.0, height: 5.0,
+            ..Default::default()
+        };
+        assert!(comp.contains_point(&Point::new(50.0, 50.0)));
+    }
+
+    #[test]
+    fn component_excludes_far_point() {
+        let comp = Component {
+            ref_: "C1".into(), position: Point::new(50.0, 50.0),
+            rotation: 0.0, width: 10.0, height: 5.0,
+            ..Default::default()
+        };
+        assert!(!comp.contains_point(&Point::new(100.0, 100.0)));
+    }
+
+    #[test]
+    fn component_contains_point_at_45_degree_rotation() {
+        let comp = Component {
+            ref_: "U1".into(), position: Point::new(50.0, 50.0),
+            rotation: 45.0, width: 10.0, height: 5.0,
+            ..Default::default()
+        };
+        assert!(comp.contains_point(&Point::new(50.0, 50.0)), "center should be inside rotated component");
+    }
+
+    #[test]
+    fn component_90_degree_rotation_swaps_bounds() {
+        let comp = Component {
+            ref_: "U1".into(), position: Point::new(50.0, 50.0),
+            rotation: 90.0, width: 10.0, height: 4.0,
+            ..Default::default()
+        };
+        let (min, max) = comp.bounds();
+        let bw = max.x - min.x;
+        let bh = max.y - min.y;
+        assert!((bw - 4.0).abs() < 0.01, "90°: width should be height, got {}", bw);
+        assert!((bh - 10.0).abs() < 0.01, "90°: height should be width, got {}", bh);
+    }
+
+    #[test]
+    fn component_0_degree_rotation_preserves_bounds() {
+        let comp = Component {
+            ref_: "U1".into(), position: Point::new(50.0, 50.0),
+            rotation: 0.0, width: 10.0, height: 4.0,
+            ..Default::default()
+        };
+        let (min, max) = comp.bounds();
+        assert!((max.x - min.x - 10.0).abs() < 0.01);
+        assert!((max.y - min.y - 4.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn component_pin1_at_0_degrees() {
+        let comp = Component {
+            ref_: "U1".into(), position: Point::new(50.0, 50.0),
+            rotation: 0.0, width: 10.0, height: 6.0,
+            ..Default::default()
+        };
+        let pin1 = comp.pin1_position();
+        assert!((pin1.x - 45.0).abs() < 0.01, "pin1 x at 0°: expected 45.0, got {}", pin1.x);
+        assert!((pin1.y - 47.0).abs() < 0.01, "pin1 y at 0°: expected 47.0, got {}", pin1.y);
+    }
+
+    #[test]
+    fn component_pin1_at_90_degrees() {
+        let comp = Component {
+            ref_: "U1".into(), position: Point::new(50.0, 50.0),
+            rotation: 90.0, width: 10.0, height: 6.0,
+            ..Default::default()
+        };
+        let pin1 = comp.pin1_position();
+        let expected_x = 50.0_f32 + 0.0 * 0.0_f32.to_radians().cos() - (-3.0) * 0.0_f32.to_radians().sin();
+        let expected_y = 50.0_f32 + 0.0 * 0.0_f32.to_radians().sin() + (-3.0) * 0.0_f32.to_radians().cos();
+        let dx = pin1.x - 50.0;
+        let dy = pin1.y - 50.0;
+        assert!(dx < 0.0 || dy.abs() > 0.0, "pin1 should not be at center for rotated component");
+    }
+
+    #[test]
+    fn trace_distance_to_midpoint() {
+        let trace = Trace {
+            start: Point::new(0.0, 0.0), end: Point::new(10.0, 0.0),
+            width: 0.25, layer: "F.Cu".into(), net: Some("VCC".into()),
+        };
+        let d = trace.distance_to_point(&Point::new(5.0, 0.5));
+        assert!((d - 0.5).abs() < 0.01);
+    }
+
+    #[test]
+    fn trace_distance_beyond_endpoint_clamps() {
+        let trace = Trace {
+            start: Point::new(0.0, 0.0), end: Point::new(10.0, 0.0),
+            width: 0.25, layer: "F.Cu".into(), net: None,
+        };
+        let d = trace.distance_to_point(&Point::new(15.0, 0.0));
+        assert!((d - 5.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn trace_distance_zero_length_segment() {
+        let trace = Trace {
+            start: Point::new(5.0, 5.0), end: Point::new(5.0, 5.0),
+            width: 0.25, layer: "F.Cu".into(), net: None,
+        };
+        let d = trace.distance_to_point(&Point::new(8.0, 5.0));
+        assert!((d - 3.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn neighbors_sort_by_distance() {
+        let components = vec![
+            Component { ref_: "U1".into(), position: Point::new(0.0, 0.0), rotation: 0.0, width: 10.0, height: 5.0, ..Default::default() },
+            Component { ref_: "C1".into(), position: Point::new(3.0, 4.0), rotation: 0.0, width: 2.0, height: 1.0, ..Default::default() },
+            Component { ref_: "R1".into(), position: Point::new(10.0, 0.0), rotation: 0.0, width: 2.0, height: 1.0, ..Default::default() },
+            Component { ref_: "D1".into(), position: Point::new(6.0, 8.0), rotation: 0.0, width: 2.0, height: 1.0, ..Default::default() },
+        ];
+        let neighbors = components[0].neighbors(&components, 2);
+        assert_eq!(neighbors.len(), 2);
+        assert_eq!(neighbors[0].0.ref_, "C1");
+        assert!((neighbors[0].1 - 5.0).abs() < 0.01, "C1 at (3,4) distance to (0,0) = 5");
     }
 }

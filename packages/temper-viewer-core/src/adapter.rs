@@ -41,13 +41,12 @@ pub fn from_board_value(value: &Value) -> Result<Board, String> {
 }
 
 fn parse_point(value: &Value) -> Result<Point, String> {
-    if let Some(arr) = value.as_array() {
-        if arr.len() >= 2 {
+    if let Some(arr) = value.as_array()
+        && arr.len() >= 2 {
             let x = arr[0].as_f64().unwrap_or(0.0) as f32;
             let y = arr[1].as_f64().unwrap_or(0.0) as f32;
             return Ok(Point::new(x, y));
         }
-    }
     if let Some(obj) = value.as_object() {
         let x = obj.get("x").and_then(|v| v.as_f64()).unwrap_or(0.0) as f32;
         let y = obj.get("y").and_then(|v| v.as_f64()).unwrap_or(0.0) as f32;

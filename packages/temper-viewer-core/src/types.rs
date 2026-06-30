@@ -39,8 +39,10 @@ impl std::ops::Sub for Point {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum ComponentStatus {
     #[serde(rename = "ok")]
+    #[default]
     Ok,
     #[serde(rename = "warning")]
     Warning,
@@ -50,15 +52,12 @@ pub enum ComponentStatus {
     Fixed,
 }
 
-impl Default for ComponentStatus {
-    fn default() -> Self {
-        Self::Ok
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum PadShape {
     #[serde(rename = "rect")]
+    #[default]
     Rect,
     #[serde(rename = "circle")]
     Circle,
@@ -70,11 +69,6 @@ pub enum PadShape {
     Custom,
 }
 
-impl Default for PadShape {
-    fn default() -> Self {
-        Self::Rect
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ConstraintBinding {
@@ -105,7 +99,7 @@ pub enum LayerName {
 }
 
 impl LayerName {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s {
             "F.Cu" => Some(Self::FCu),
             "In1.Cu" => Some(Self::In1Cu),
@@ -136,6 +130,7 @@ impl LayerName {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Default)]
 pub enum ComponentType {
     #[serde(rename = "ic")]
     Ic,
@@ -152,6 +147,7 @@ pub enum ComponentType {
     #[serde(rename = "transistor")]
     Transistor,
     #[serde(rename = "other")]
+    #[default]
     Other,
 }
 
@@ -173,8 +169,83 @@ impl ComponentType {
     }
 }
 
-impl Default for ComponentType {
-    fn default() -> Self {
-        Self::Other
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn point_add_commutative() {
+        let a = Point::new(1.0, 2.0);
+        let b = Point::new(3.0, 4.0);
+        let ab = a + b;
+        let ba = b + a;
+        assert!((ab.x - ba.x).abs() < 1e-6);
+        assert!((ab.y - ba.y).abs() < 1e-6);
+    }
+
+    #[test]
+    fn point_sub_is_add_negative() {
+        let a = Point::new(5.0, 7.0);
+        let b = Point::new(2.0, 3.0);
+        let diff = a - b;
+        let neg = Point::new(-b.x, -b.y);
+        let sum = a + neg;
+        assert!((diff.x - sum.x).abs() < 1e-6);
+        assert!((diff.y - sum.y).abs() < 1e-6);
+    }
+
+    #[test]
+    fn point_distance_to_self_is_zero() {
+        let p = Point::new(3.0, 4.0);
+        assert!(p.distance_to(&p) < 1e-6);
+    }
+
+    #[test]
+    fn point_distance_satisfies_triangle_inequality() {
+        let a = Point::new(0.0, 0.0);
+        let b = Point::new(3.0, 4.0);
+        let c = Point::new(5.0, 0.0);
+        assert!(a.distance_to(&c) <= a.distance_to(&b) + b.distance_to(&c) + 1e-6);
+    }
+
+    #[test]
+    fn component_type_from_ref_designator() {
+        assert_eq!(ComponentType::from_ref_designator("U3"), ComponentType::Ic);
+        assert_eq!(ComponentType::from_ref_designator("J1"), ComponentType::Connector);
+        assert_eq!(ComponentType::from_ref_designator("P2"), ComponentType::Connector);
+        assert_eq!(ComponentType::from_ref_designator("R12"), ComponentType::Resistor);
+        assert_eq!(ComponentType::from_ref_designator("C5"), ComponentType::Capacitor);
+        assert_eq!(ComponentType::from_ref_designator("L1"), ComponentType::Inductor);
+        assert_eq!(ComponentType::from_ref_designator("D3"), ComponentType::Diode);
+        assert_eq!(ComponentType::from_ref_designator("Q2"), ComponentType::Transistor);
+    }
+
+    #[test]
+    fn component_type_empty_string_is_other() {
+        assert_eq!(ComponentType::from_ref_designator(""), ComponentType::Other);
+    }
+
+    #[test]
+    fn layer_name_round_trip() {
+        for name in &["F.Cu", "In1.Cu", "In2.Cu", "B.Cu", "F.Silkscreen", "B.Silkscreen", "Edge.Cuts"] {
+            let layer = LayerName::parse(name).unwrap();
+            assert_eq!(layer.as_str(), *name);
+        }
+    }
+
+    #[test]
+    fn layer_name_is_copper() {
+        assert!(LayerName::FCu.is_copper());
+        assert!(LayerName::In1Cu.is_copper());
+        assert!(LayerName::In2Cu.is_copper());
+        assert!(LayerName::BCu.is_copper());
+        assert!(!LayerName::FSilkscreen.is_copper());
+        assert!(!LayerName::EdgeCuts.is_copper());
+    }
+
+    #[test]
+    fn layer_name_from_unknown_is_none() {
+        assert!(LayerName::parse("Unknown.Layer").is_none());
     }
 }
