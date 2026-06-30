@@ -133,3 +133,86 @@ def test_monitor_path_completeness_ok():
         v for v in state.violations if v.invariant == "path_completeness"
     ]
     assert len(path_violations) == 0
+
+
+# ---------------------------------------------------------------------------
+# Lazy Theta* Monitor Tests (U7)
+# ---------------------------------------------------------------------------
+
+
+def test_monitor_lazy_theta_star_no_violations_empty_grid():
+    """Lazy Theta* on empty 10x10 grid with monitor active.
+
+    On empty grids, Lazy Theta* uses the straight-line diagonal so no
+    LOS failures occur, hence no parent corrections and no violation
+    of f-cost monotonicity.
+    """
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    grid = _make_grid(10, 10)
+    with astar_monitor() as state:
+        path = _astar_search_lazy_theta_star(grid, (0, 0), (9, 9), net_id=0)
+        assert path is not None
+        assert len(path) > 0
+    assert len(state.violations) == 0
+
+
+def test_monitor_lazy_theta_star_obstacle_grid():
+    """Lazy Theta* on grid with obstacles triggers f_cost_monotonicity.
+
+    Lazy Theta* naturally produces non-monotonic f-costs on obstacle
+    grids because optimistic parent assignments are corrected at pop
+    time. The monitor should detect this, but only f_cost_monotonicity
+    violations (not structural ones like path_completeness).
+    """
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    blocked = {(5, y) for y in range(9)} | {(5, 5)}
+    grid = _make_grid(10, 10, blocked)
+    try:
+        with astar_monitor():
+            path = _astar_search_lazy_theta_star(grid, (0, 0), (9, 9), net_id=0)
+            assert path is not None, "Should find path on obstacle grid"
+    except pytest.fail.Exception as e:
+        # Expected: f_cost_monotonicity violations from optimistic parent
+        assert "f_cost_monotonicity" in str(e), (
+            f"Unexpected monitor failure: {e}"
+        )
+    # Verify path is actually findable (without monitor interference)
+    path = _astar_search_lazy_theta_star(grid, (0, 0), (9, 9), net_id=0)
+    assert path is not None, "Should find path on obstacle grid"
+
+
+def test_monitor_lazy_theta_star_blocked_grid():
+    """Lazy Theta* on blocked grid triggers f_cost_monotonicity.
+
+    Same as above — f_cost_monotonicity violations are expected due
+    to optimistic parent corrections on blocked grids.
+    """
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    blocked = {(5, y) for y in range(10)}
+    grid = _make_grid(10, 10, blocked)
+    try:
+        with astar_monitor() as state:
+            path = _astar_search_lazy_theta_star(grid, (0, 0), (9, 9), net_id=0)
+            assert path is None
+    except pytest.fail.Exception as e:
+        # Expected: f_cost_monotonicity violations from optimistic parent
+        assert "f_cost_monotonicity" in str(e), (
+            f"Unexpected monitor failure: {e}"
+        )
+
+
+def test_monitor_lazy_theta_star_path_completeness_ok():
+    """Monitor validates Lazy Theta* path starts/ends correctly."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    grid = _make_grid(10, 10)
+    with astar_monitor() as state:
+        path = _astar_search_lazy_theta_star(grid, (0, 0), (9, 9), net_id=0)
+        assert path is not None
+    path_violations = [
+        v for v in state.violations if v.invariant == "path_completeness"
+    ]
+    assert len(path_violations) == 0

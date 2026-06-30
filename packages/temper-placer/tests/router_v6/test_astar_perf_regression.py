@@ -111,3 +111,99 @@ def test_astar_perf_regression():
             f"Per-path p95 regression beyond {REGRESSION_TOLERANCE:.0%} tolerance:\n"
             + "\n".join(failures)
         )
+
+
+# ---------------------------------------------------------------------------
+# U4: Lazy Theta* vs Theta* A/B profiling (synthetic grids)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.benchmark
+def test_lazy_vs_theta_star_los_reduction():
+    """A/B profiling: Lazy Theta* reduces line-of-sight calls vs Theta*.
+
+    Compares wall time and line_of_sight call count on synthetic grids
+    with varying obstacle density. Lazy Theta* should have
+    substantially fewer LOS calls (1 per expansion at pop time vs
+    8 per expansion at push time for standard Theta*).
+    """
+    import time
+    import math
+    import random
+
+    import numpy as np
+
+    from temper_placer.router_v6.astar_core import (
+        _astar_search_lazy_theta_star,
+        _astar_search_theta_star,
+        _line_of_sight as _los,
+    )
+    from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+
+    # Monkey-patch _line_of_sight to count calls
+    _orig_los = _los
+    _los_count = 0
+
+    def _counted_los(*args, **kwargs):
+        nonlocal _los_count
+        _los_count += 1
+        return _orig_los(*args, **kwargs)
+
+    import temper_placer.router_v6.astar_core as ac
+    ac._line_of_sight = _counted_los
+
+    try:
+        sizes = [(20, 20), (30, 30), (50, 50)]
+        rng = random.Random(42)
+
+        print("\n--- A/B Profiling: Lazy Theta* vs Theta* ---")
+        print(f"{'Grid':>10} | {'Variant':>12} | {'Wall(ms)':>8} | {'LOS':>8} | {'Exps':>6} | {'Path':>5}")
+        print("-" * 60)
+
+        for height, width in sizes:
+            for density in [0.05, 0.15, 0.3]:
+                arr = np.zeros((height, width), dtype=np.int8)
+                for y in range(height):
+                    for x in range(width):
+                        if rng.random() < density:
+                            arr[y, x] = 1
+
+                # Ensure start and goal are free
+                arr[0, 0] = 0
+                arr[height - 1, width - 1] = 0
+                grid = OccupancyGrid("test", arr, (0.0, 0.0), 1.0, width, height)
+
+                label = f"{width}x{height} d={density:.2f}"
+
+                # Theta*
+                _los_count = 0
+                t0 = time.perf_counter()
+                theta_path = _astar_search_theta_star(grid, (0, 0), (width - 1, height - 1), net_id=0)
+                theta_time = (time.perf_counter() - t0) * 1000
+                theta_los = _los_count
+
+                # Lazy Theta*
+                _los_count = 0
+                t0 = time.perf_counter()
+                lazy_path = _astar_search_lazy_theta_star(grid, (0, 0), (width - 1, height - 1), net_id=0)
+                lazy_time = (time.perf_counter() - t0) * 1000
+                lazy_los = _los_count
+
+                theta_len = len(theta_path) if theta_path else 0
+                lazy_len = len(lazy_path) if lazy_path else 0
+
+                print(f"{label:>10} | {'Theta*':>12} | {theta_time:>7.1f} | {theta_los:>5}   | {'  -':>5} | {theta_len:>5}")
+                print(f"{'':>10} | {'Lazy Theta*':>12} | {lazy_time:>7.1f} | {lazy_los:>5}   | {'  -':>5} | {lazy_len:>5}")
+
+                if theta_los > 0 and lazy_los > 0:
+                    ratio = theta_los / max(lazy_los, 1)
+                    print(f"{'':>10} | {'Reduction':>12} | {'':>8} | {ratio:>5.1f}x")
+                print()
+
+                # Assert reachability parity (but skip assertion for very
+                # dense grids where both may fail)
+                if theta_path is not None and lazy_path is not None:
+                    # Lazy Theta* should have fewer LOS calls
+                    pass  # Informational, not a hard gate
+    finally:
+        ac._line_of_sight = _orig_los

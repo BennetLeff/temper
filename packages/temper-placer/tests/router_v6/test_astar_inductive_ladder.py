@@ -388,3 +388,87 @@ def test_l4_regression_boards():
 
     if issues:
         pytest.fail("\n".join(issues))
+
+
+# =============================================================================
+# Lazy Theta* Inductive Ladder (U6)
+# =============================================================================
+
+
+@pytest.mark.l1_exhaustive
+def test_l1_lazy_thetastar_2x2_reachability():
+    """L1: Lazy Theta* finds a path on 2x2 iff plain A* does."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    for occ_bits in range(16):
+        blocked: set[tuple[int, int]] = set()
+        for r in range(2):
+            for c in range(2):
+                if occ_bits & (1 << (r * 2 + c)):
+                    blocked.add((r, c))
+        grid = _make_grid(2, 2, blocked)
+        free_cells = [(c, r) for r in range(2) for c in range(2) if grid.grid[r, c] == 0]
+
+        for i in range(len(free_cells)):
+            for j in range(i + 1, len(free_cells)):
+                s, g = free_cells[i], free_cells[j]
+                astar_path = _astar_search(s, g, grid)
+                lazy_path = _astar_search_lazy_theta_star(grid, s, g, net_id=0)
+                assert (astar_path is None) == (lazy_path is None), (
+                    f"2x2 cfg={occ_bits}: A* {'has' if astar_path else 'no'} path, "
+                    f"Lazy Theta* {'has' if lazy_path else 'no'} path"
+                )
+
+
+@pytest.mark.l2_exhaustive
+def test_l2_lazy_thetastar_3x3_reachability():
+    """L2: Lazy Theta* finds a path on 3x3 iff plain A* does."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    for occ_bits in range(512):
+        blocked: set[tuple[int, int]] = set()
+        for r in range(3):
+            for c in range(3):
+                if occ_bits & (1 << (r * 3 + c)):
+                    blocked.add((r, c))
+        grid = _make_grid(3, 3, blocked)
+        free_cells = [(c, r) for r in range(3) for c in range(3) if grid.grid[r, c] == 0]
+
+        for i in range(len(free_cells)):
+            for j in range(i + 1, len(free_cells)):
+                s, g = free_cells[i], free_cells[j]
+                astar_path = _astar_search(s, g, grid)
+                lazy_path = _astar_search_lazy_theta_star(grid, s, g, net_id=0)
+                assert (astar_path is None) == (lazy_path is None), (
+                    f"3x3 cfg={occ_bits}: A* {'has' if astar_path else 'no'} path, "
+                    f"Lazy Theta* {'has' if lazy_path else 'no'} path"
+                )
+
+
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(st.integers(2, 30), st.integers(2, 30), st.floats(0.0, 0.6)))
+@settings(max_examples=100, deadline=30000)
+def test_l3_lazy_thetastar_cost_parity(gsp):
+    """L3: Lazy Theta* path cost <= Dijkstra oracle cost (grids <=30x30)."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    grid, s, g = gsp
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells > DIJKSTRA_MAX_CELLS:
+        return
+
+    lazy_path = _astar_search_lazy_theta_star(grid, s, g, net_id=0)
+    d_path, d_cost = dijkstra_shortest_path(s, g, grid)
+    assert (lazy_path is None) == (d_path is None), (
+        "Lazy Theta* / Dijkstra completeness mismatch"
+    )
+    if lazy_path is not None and d_path is not None:
+        # Lazy Theta* uses Euclidean, Dijkstra uses octile — cost < oracle
+        lazy_cost = 0.0
+        for i in range(len(lazy_path) - 1):
+            dx = lazy_path[i + 1][0] - lazy_path[i][0]
+            dy = lazy_path[i + 1][1] - lazy_path[i][1]
+            lazy_cost += math.sqrt(dx * dx + dy * dy)
+        assert lazy_cost <= d_cost + _TOL, (
+            f"Lazy Theta* cost {lazy_cost} > Dijkstra {d_cost}"
+        )

@@ -320,7 +320,7 @@ class RouterV6Pipeline:
         self,
         verbose: bool = False,
         enable_theta_star: bool = True,
-        enable_lazy_theta_star: bool = False,
+        enable_lazy_theta_star: bool = True,
         enable_smoothing: bool = False,
         enable_legalization: bool = True,
         max_nets: int | None = None,
@@ -340,8 +340,9 @@ class RouterV6Pipeline:
 
         Args:
             verbose: Enable verbose logging
-            enable_theta_star: Use Theta* any-angle routing (Experiment F)
-            enable_lazy_theta_star: Use Lazy Theta* (Experiment O4)
+            enable_theta_star: Use Theta* any-angle routing (Experiment F). Default True.
+            enable_lazy_theta_star: Use Lazy Theta* (Experiment O4). Default True
+                (checked first; when both are True, Lazy Theta* wins).
             enable_smoothing: Apply force-directed smoothing (Experiment G)
             enable_legalization: Auto-fix component overlaps (Phase 6)
             max_nets: Limit number of nets to route (for profiling)

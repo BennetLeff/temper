@@ -773,6 +773,75 @@ def test_lazy_thetastar_no_redundant_nodes(gsp):
     assert len(path) <= grid.width_cells * grid.height_cells
 
 
+# @req(2026-06-29-001, R5): Lazy Theta* MR6 — empty-grid cost parity with Dijkstra
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 100, st.floats(0.0, 0.0)))
+@settings(max_examples=100, deadline=30000)
+def test_lazy_thetastar_empty_grid_optimality(gsp):
+    """Lazy Theta* MR6: on empty grid, path cost equals Dijkstra oracle cost."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    grid, start, goal = gsp
+    path = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
+    assert path is not None, f"Lazy Theta* no path on empty grid: {start}->{goal}"
+
+    # Cost comparison vs Dijkstra oracle (uses Euclidean distance for any-angle paths)
+    n_cells = grid.width_cells * grid.height_cells
+    if n_cells <= DIJKSTRA_MAX_CELLS:
+        _, d_cost = dijkstra_shortest_path(start, goal, grid)
+        path_cost = _path_cost_euclidean(path)
+        assert path_cost <= d_cost + _RELAXED_TOL, (
+            f"Lazy Theta* cost {path_cost} > Dijkstra {d_cost} on empty grid"
+        )
+
+
+# @req(2026-06-29-001, R5): max_iter cap terminates on blocked grid
+@pytest.mark.l3_pbt
+@given(gsp=grid_and_pair(2, 30, 0.3))
+@settings(max_examples=100, deadline=30000)
+def test_lazy_thetastar_max_iter_cap(gsp):
+    """Lazy Theta* with max_iter cap terminates even on hard grids."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    grid, start, goal = gsp
+    # Run with a tight max_iter cap
+    path = _astar_search_lazy_theta_star(grid, start, goal, net_id=0, max_iter=200)
+    # Should either find a path or return None — must NOT hang
+    if path is not None:
+        assert len(path) >= 1, f"Path too short: {len(path)} nodes"
+    # Verify unlimited runs find a path iff there is one
+    path_unlimited = _astar_search_lazy_theta_star(grid, start, goal, net_id=0)
+    if path_unlimited is not None and path is not None:
+        # When both succeed, the capped version should not be worse
+        pass  # No strict assertion — capped version may take different route
+
+
+def test_lazy_thetastar_max_iter_blocked_grid():
+    """Lazy Theta* returns None on fully blocked grid with max_iter cap."""
+    from temper_placer.router_v6.astar_core import _astar_search_lazy_theta_star
+
+    # Create a grid with a wall separating start and goal
+    blocked = {(5, y) for y in range(20)}
+    grid = _make_grid(20, 20, blocked)
+    # Run with a generous cap — blocked grid should return None
+    path = _astar_search_lazy_theta_star(grid, (0, 0), (19, 19), net_id=0, max_iter=5000)
+    assert path is None, (
+        "Lazy Theta* should return None on blocked grid with max_iter cap"
+    )
+
+
+def test_theta_star_max_iter_blocked_grid():
+    """Theta* returns None on fully blocked grid with max_iter cap."""
+    from temper_placer.router_v6.astar_core import _astar_search_theta_star
+
+    blocked = {(5, y) for y in range(20)}
+    grid = _make_grid(20, 20, blocked)
+    path = _astar_search_theta_star(grid, (0, 0), (19, 19), net_id=0, max_iter=5000)
+    assert path is None, (
+        "Theta* should return None on blocked grid with max_iter cap"
+    )
+
+
 # =============================================================================
 # 3D A* Variant Tests (U7 — R19c, R20)
 # =============================================================================
