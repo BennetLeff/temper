@@ -43,7 +43,7 @@ from temper_placer.router_v6.stage0_data import DesignRules
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
 _MAX_RIPUP_DEPTH_PROBLEM = 30
-_MAX_REROUTE_ATTEMPTS_PER_NET = 5
+_MAX_REROUTE_ATTEMPTS_PER_NET = 2
 
 _SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
