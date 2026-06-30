@@ -156,3 +156,4 @@ class TestLayerIndex:
 - `docs/plans/2026-06-22-002-feat-safety-constant-ssot-plan.md` — sibling SSOT pattern (safety constants)
 - `docs/solutions/architecture-patterns/x-macro-ssot-firmware.md` — parallel SSOT pattern (C X-macro for firmware enums)
 - `docs/solutions/architecture-patterns/pydantic-dataclass-migration.md` — sibling "validate at construction" pattern
+- `docs/solutions/architecture-patterns/4layer-invariant-chain-boundary-enforcement-2026-06-30.md` — invariant chain pattern that builds on this SSOT for end-to-end 4-layer board enforcement

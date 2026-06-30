@@ -186,3 +186,4 @@ def test_all_path_coordinates_within_board_bounds(rr):
 - `packages/temper-placer/tests/router_v6/router_v6_property_strategies.py` — shared strategy file for Router V6 invariant tests
 - `packages/temper-placer/tests/router_v6/test_router_v6_*_pbt.py` — 4-class invariant test suite (26 tests)
 - `packages/temper-placer/tests/router_v6/test_dfm_hypothesis_fuzzing.py` — existing DFM fuzzing suite extended (not duplicated) by the DRC class
+- `docs/solutions/architecture-patterns/4layer-invariant-chain-boundary-enforcement-2026-06-30.md` — concise (< 80 lines) implementation of this pattern in `test_4layer_output_properties.py`: single invariant theorem, 5 test methods, CI-gated on every push

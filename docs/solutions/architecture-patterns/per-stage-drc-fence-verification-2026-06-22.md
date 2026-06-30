@@ -429,6 +429,7 @@ STAGE FENCE VIOLATION
 - `packages/temper-drc/src/temper_drc/core/runner.py` — `CheckRunner.run()` with `check_names` filtering and incremental check routing
 - `packages/temper-drc/tests/test_fence.py` — unit tests for violation attribution, fingerprint diff, soft-launch behavior
 - `packages/temper-drc/tests/test_fence_perf_budget.py` — performance budget enforcement tests
+- `docs/solutions/architecture-patterns/4layer-invariant-chain-boundary-enforcement-2026-06-30.md` — concrete instantiation of the fence pattern for layer-count invariants with preflight checks and output validation across 12 write call sites
 - `packages/temper-placer/tests/test_stage_invariants.py` — stage invariant declaration tests
 - `docs/plans/2026-06-22-013-feat-per-stage-drc-fence-plan.md` — full implementation plan (U1–U8)
 - `docs/ideation/2026-06-22-pipeline-strangler-decomposition-ideation.md` — strangler-fig context (#6: per-stage DRC fence)
