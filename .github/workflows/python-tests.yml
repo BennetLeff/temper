@@ -189,6 +189,10 @@ jobs:
       - name: Run temper-drc tests
         working-directory: packages/temper-drc
         run: uv run pytest tests/ -v --tb=short
+
+      - name: Verify committed .kicad_pcb has 4 copper layers
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short
        
       - name: Regenerate transition-table test and check drift
         run: |

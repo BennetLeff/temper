@@ -186,6 +186,13 @@ _LAYER_INDEX_TO_KICAD_NAME: dict[LayerIndex, str] = {
     LayerIndex.B_CU: "B.Cu",
 }
 
+# Canonical layer names for the Temper 4-layer board.
+# Derived from STANDARD_LAYER_ORDER / _LAYER_INDEX_TO_KICAD_NAME.
+CANONICAL_4LAYER_LAYER_NAMES: frozenset[str] = frozenset(
+    str(idx) for idx in STANDARD_LAYER_ORDER
+)
+CANONICAL_LAYER_COUNT: int = len(STANDARD_LAYER_ORDER)
+
 LAYER_IDX_TO_NAME: dict[LayerIndex, str] = _LAYER_INDEX_TO_KICAD_NAME
 LAYER_NAME_TO_IDX: dict[str, LayerIndex] = {
     name: idx for idx, name in _LAYER_INDEX_TO_KICAD_NAME.items()
@@ -225,7 +232,7 @@ def layer_name_to_index(name: str) -> LayerIndex:
     return LAYER_NAME_TO_IDX[name]
 
 
-@dataclass
+@dataclass(frozen=True)
 class LayerStackup:
     """
     PCB layer stackup definition.
@@ -237,11 +244,11 @@ class LayerStackup:
     - L4 (B.Cu): 1oz copper, signal
 
     Attributes:
-        layers: List of layers from top to bottom.
+        layers: Tuple of layers from top to bottom.
         thickness: Total board thickness in mm.
     """
 
-    layers: list[Layer] = field(default_factory=list)
+    layers: tuple[Layer, ...] = ()
     thickness: float = 1.6  # mm
 
     def is_plane_layer(self, layer_idx: int) -> bool:
@@ -259,23 +266,44 @@ class LayerStackup:
         plane net connections separately via vias.
         """
         return cls(
-            layers=[
+            layers=(
                 Layer("F.Cu", "signal", copper_weight=2.0, is_routable=True),
                 Layer("In1.Cu", "plane", copper_weight=1.0, is_routable=False),
                 Layer("In2.Cu", "plane", copper_weight=1.0, is_routable=False),
                 Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
-            ],
+            ),
             thickness=1.6,
         )
 
     @classmethod
-    def default_2layer(cls) -> LayerStackup:
-        """Create default 2-layer stackup."""
+    def _test_only_2layer(cls) -> LayerStackup:
+        """TEST-ONLY: Create a 2-layer stackup for focused unit tests.
+
+        Not a production path. The canonical Temper board is 4-layer.
+        Use `default_4layer()` for any production or integration code.
+
+        Raises RuntimeError if called from outside a test file.
+        """
+        import sys
+        import warnings
+
+        frame = sys._getframe(1)
+        caller_file = frame.f_code.co_filename
+        if "/test" not in caller_file and "/tests/" not in caller_file:
+            raise RuntimeError(
+                "_test_only_2layer() may only be called from test files. "
+                f"Called from {caller_file}. Use default_4layer() instead."
+            )
+
+        warnings.warn(
+            "_test_only_2layer() is for test use only. Use default_4layer() for production.",
+            stacklevel=2,
+        )
         return cls(
-            layers=[
+            layers=(
                 Layer("F.Cu", "signal", copper_weight=1.0, is_routable=True),
                 Layer("B.Cu", "signal", copper_weight=1.0, is_routable=True),
-            ],
+            ),
             thickness=1.6,
         )
 
@@ -435,9 +463,16 @@ class Board:
     _zone_map: dict[str, Zone] = field(init=False, default_factory=dict)
 
     def __post_init__(self) -> None:
-        """Initialize caches and defaults."""
+        """Initialize caches and defaults. Enforce 4-layer stackup."""
         if not self.layer_stackup:
             self.layer_stackup = LayerStackup.default_4layer()
+        elif len(self.layer_stackup.layers) != CANONICAL_LAYER_COUNT:
+            actual = [ly.name for ly in self.layer_stackup.layers]
+            raise ValueError(
+                f"Board requires {CANONICAL_LAYER_COUNT}-layer stackup (canonical: "
+                f"{sorted(CANONICAL_4LAYER_LAYER_NAMES)}), got "
+                f"{len(self.layer_stackup.layers)} layers: {actual}"
+            )
         self.build_indices()
 
     def build_indices(self) -> None:
