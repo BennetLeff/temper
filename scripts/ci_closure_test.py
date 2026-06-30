@@ -120,13 +120,33 @@ def main() -> int:
                 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
                 parsed = parse_kicad_pcb_v6(pcb_path)
-                netlist = parsed.netlist
 
+                # ParsedPCB has .components (list[Component]) and .nets (list[Net])
+                # directly — no .netlist attribute.
                 components = []
-                for c in netlist.components:
+                for c in parsed.components:
                     x, y = c.initial_position or (0.0, 0.0)
                     rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
                     side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
+                    # Infer package_type from footprint name heuristics
+                    fp_lower = c.footprint.lower() if c.footprint else ""
+                    if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
+                        package_type = "tht"
+                    elif "to-247" in fp_lower or "to247" in fp_lower:
+                        package_type = "to247"
+                    elif "to-220" in fp_lower or "to220" in fp_lower:
+                        package_type = "to220"
+                    elif "bga" in fp_lower:
+                        package_type = "bga"
+                    elif "qfn" in fp_lower:
+                        package_type = "qfn"
+                    elif "qfp" in fp_lower or "tqfp" in fp_lower:
+                        package_type = "qfp"
+                    elif "dpak" in fp_lower or "d2pak" in fp_lower:
+                        package_type = "dpak"
+                    else:
+                        package_type = "smd"
+
                     components.append({
                         "ref": c.ref,
                         "x": x,
@@ -136,7 +156,7 @@ def main() -> int:
                         "width": float(c.width),
                         "height": float(c.height),
                         "net_class": c.net_class,
-                        "package_type": "smd",
+                        "package_type": package_type,
                         "power_dissipation_w": None,
                         "is_magnetic": False,
                         "is_electrolytic": False,
@@ -146,10 +166,24 @@ def main() -> int:
 
                 nets = {}
                 net_classes = {}
-                for net in netlist.nets:
+                for net in parsed.nets:
                     comp_refs = list({ref for ref, _ in net.pins})
                     nets[net.name] = comp_refs
                     net_classes[net.name] = net.net_class
+
+                # Populate net_class_rules from the parsed DesignRules
+                net_class_rules = {}
+                for class_name, rules in parsed.design_rules.net_classes.items():
+                    net_class_rules[class_name] = {
+                        "trace_width_mm": rules.trace_width_mm,
+                        "clearance_mm": rules.clearance_mm,
+                        "creepage_mm": None,
+                        "voltage_v": None,
+                        "max_current_rating": None,
+                        "safety_category": None,
+                        "required_layer": None,
+                        "routing_strategy": None,
+                    }
 
                 board_dict = {
                     "board": {
@@ -160,11 +194,23 @@ def main() -> int:
                     "components": components,
                     "nets": nets,
                     "net_classes": net_classes,
-                    "net_class_rules": {},
+                    "net_class_rules": net_class_rules,
                 }
 
+                # Use DRCOracle._build_constraints_dict if available via context,
+                # otherwise build a minimal constraints dict matching the Rust
+                # ConstraintSet serde schema.
                 constraints_dict = {
                     "clearances": [],
+                    "zones": [],
+                    "critical_loops": [],
+                    "noise_domains": [],
+                    "isolation_barriers": [],
+                    "thermal_properties": [],
+                    "matched_length_groups": [],
+                    "snubber_requirements": [],
+                    "bleed_resistor": None,
+                    "skin_effect_derating": None,
                     "hv_clearance_mm": 10.0,
                     "board_width": float(parsed.board.width),
                     "board_height": float(parsed.board.height),

@@ -38,6 +38,30 @@ except ImportError:
     _HAS_RUST_DRC = False
 
 
+def _infer_package_type(footprint: str | None) -> str:
+    """Infer SMD package type from footprint name.
+
+    Heuristic used by both the placer-path and parsed-PCB-path
+    board-dict builders.
+    """
+    fp_lower = footprint.lower() if footprint else ""
+    if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
+        return "tht"
+    if "to-247" in fp_lower or "to247" in fp_lower:
+        return "to247"
+    if "to-220" in fp_lower or "to220" in fp_lower:
+        return "to220"
+    if "bga" in fp_lower:
+        return "bga"
+    if "qfn" in fp_lower:
+        return "qfn"
+    if "qfp" in fp_lower or "tqfp" in fp_lower:
+        return "qfp"
+    if "dpak" in fp_lower or "d2pak" in fp_lower:
+        return "dpak"
+    return "smd"
+
+
 def build_placement_from_netlist(
     positions: Array,
     context: LossContext,
@@ -200,13 +224,14 @@ class DRCOracle:
         return self.runner.run(placement, self.constraints, categories=categories)  # type: ignore[attr-defined]
 
     # ------------------------------------------------------------------
-    # Rust DRC backend helpers
+    # Board dict builders (K1 schema)
     # ------------------------------------------------------------------
 
     def _build_board_dict(
         self,
         positions: Array,
         context: LossContext,
+        parsed_pcb: Any = None,
     ) -> dict[str, Any]:
         """Build a K1-schema board dict from positions + LossContext.
 
@@ -217,9 +242,17 @@ class DRCOracle:
         - net_class_rules: class_name → rule dict
         - board: {width_mm, height_mm, margin_mm}
 
+        When ``parsed_pcb`` is provided, delegates to the parsed-PCB path
+        (ignoring positions/context).  This allows callers like
+        ``ci_closure_test.py`` to reuse the same dict builder for either
+        placer output or a static KiCad-parsed board.
+
         Returns:
             dict matching the K1 schema (see plan §K1).
         """
+        if parsed_pcb is not None:
+            return self._build_board_dict_from_parsed_pcb(parsed_pcb)
+
         netlist = context.netlist
 
         # --- Board dimensions ---
@@ -236,25 +269,7 @@ class DRCOracle:
             y = float(positions[i, 1])
             rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
             side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
-            # Infer package_type from footprint name heuristics; default to "smd"
-            fp_lower = c.footprint.lower() if c.footprint else ""
-            if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
-                package_type = "tht"
-            elif "to-247" in fp_lower or "to247" in fp_lower:
-                package_type = "to247"
-            elif "to-220" in fp_lower or "to220" in fp_lower:
-                package_type = "to220"
-            elif "bga" in fp_lower:
-                package_type = "bga"
-            elif "qfn" in fp_lower:
-                package_type = "qfn"
-            elif "qfp" in fp_lower or "tqfp" in fp_lower:
-                package_type = "qfp"
-            elif "dpak" in fp_lower or "d2pak" in fp_lower:
-                package_type = "dpak"
-            else:
-                package_type = "smd"
-
+            package_type = _infer_package_type(c.footprint)
             comp: dict[str, Any] = {
                 "ref": c.ref,
                 "x": x,
@@ -265,8 +280,6 @@ class DRCOracle:
                 "height": float(c.height),
                 "net_class": c.net_class,
                 "package_type": package_type,
-                # Fields not available on the placer Component are set to
-                # reasonable defaults or omitted:
                 "power_dissipation_w": None,
                 "is_magnetic": False,
                 "is_electrolytic": False,
@@ -284,7 +297,6 @@ class DRCOracle:
             net_classes[net.name] = net.net_class
 
         # --- Net class rules ---
-        # Build from clearance_rules in the LossContext
         net_class_rules: dict[str, dict[str, Any]] = {}
         for rule in context.clearance_rules:
             for nc in (rule.net_class_a, rule.net_class_b):
@@ -297,10 +309,84 @@ class DRCOracle:
                         "max_current_rating": None,
                         "safety_category": None,
                         "required_layer": None,
+                        "routing_strategy": None,
                     }
 
         return {
             "board": board_dict,
+            "components": components,
+            "nets": nets,
+            "net_classes": net_classes,
+            "net_class_rules": net_class_rules,
+        }
+
+    @staticmethod
+    def _build_board_dict_from_parsed_pcb(
+        parsed_pcb: Any,
+    ) -> dict[str, Any]:
+        """Build a K1-schema board dict from a ParsedPCB object.
+
+        This is the static path used by ``ci_closure_test.py`` and other
+        callers that have a ``ParsedPCB`` (from ``parse_kicad_pcb_v6()``)
+        rather than a placer positions array.
+
+        Args:
+            parsed_pcb: A ``ParsedPCB`` instance (from
+                ``temper_placer.router_v6.stage0_data``).
+
+        Returns:
+            dict matching the K1 schema.
+        """
+        components: list[dict[str, Any]] = []
+        for c in parsed_pcb.components:
+            x, y = c.initial_position or (0.0, 0.0)
+            rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
+            side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
+            package_type = _infer_package_type(c.footprint)
+            components.append({
+                "ref": c.ref,
+                "x": x,
+                "y": y,
+                "rot": rotation,
+                "side": side,
+                "width": float(c.width),
+                "height": float(c.height),
+                "net_class": c.net_class,
+                "package_type": package_type,
+                "power_dissipation_w": None,
+                "is_magnetic": False,
+                "is_electrolytic": False,
+                "vent_direction": None,
+                "footprint_polygon": None,
+            })
+
+        nets: dict[str, list[str]] = {}
+        net_classes: dict[str, str] = {}
+        for net in parsed_pcb.nets:
+            comp_refs = list({ref for ref, _ in net.pins})
+            nets[net.name] = comp_refs
+            net_classes[net.name] = net.net_class
+
+        # Populate net_class_rules from parsed DesignRules
+        net_class_rules: dict[str, dict[str, Any]] = {}
+        for class_name, rules in parsed_pcb.design_rules.net_classes.items():
+            net_class_rules[class_name] = {
+                "trace_width_mm": rules.trace_width_mm,
+                "clearance_mm": rules.clearance_mm,
+                "creepage_mm": None,
+                "voltage_v": None,
+                "max_current_rating": None,
+                "safety_category": None,
+                "required_layer": None,
+                "routing_strategy": None,
+            }
+
+        return {
+            "board": {
+                "width_mm": float(parsed_pcb.board.width),
+                "height_mm": float(parsed_pcb.board.height),
+                "margin_mm": 3.0,
+            },
             "components": components,
             "nets": nets,
             "net_classes": net_classes,
@@ -313,12 +399,31 @@ class DRCOracle:
     ) -> dict[str, Any]:
         """Build a constraints dict for the Rust DRC engine.
 
-        Produces the dict format consumed by temper_drc_rs.build_constraint_set():
-        - clearances: list of {from_class, to_class, clearance_mm, description}
-        - hv_clearance_mm: default HV clearance
-        - board_width, board_height: board dimensions
-        - Optional constraint types (noise_domains, isolation_barriers, etc.)
-          populated from context.constraints_config if available.
+        Produces the dict format consumed by temper_drc_rs.build_constraint_set().
+        Every field that Rust's ``ConstraintSet`` (de)serializes via serde is
+        included with its default value, ensuring the JSON bridge never encounters
+        a missing key.
+
+        Fields that Rust expects as sequences (all default to ``[]``):
+        - ``clearances``: list of ``{"from_class": str, "to_class": str,
+          "clearance_mm": float, "description": str}``
+        - ``matched_length_groups``: list of ``{"name": str,
+          "tolerance_mm": float, "nets": [str]}``
+        - ``noise_domains``: list of ``{"emitters": [str], "victims": [str],
+          "max_parallel_run_mm": float}``
+        - ``isolation_barriers``: list of ``{"name": str, "x_mm": float,
+          "y_span": [float, float], "layers": str}``
+        - ``thermal_properties``: list of ``{"component": str,
+          "power_dissipation_w": float|None, "max_ambient_c": float|None}``
+        - ``snubber_requirements``: list of dicts
+
+        Optional singleton fields:
+        - ``bleed_resistor``: ``None`` or ``{"bus_voltage_v": float,
+          "target_voltage_v": float, "timeout_s": float}``
+        - ``skin_effect_derating``: ``None`` or ``{"frequency_hz": float,
+          "derating_factor": float}``
+
+        See also ``ConstraintSet`` in ``packages/temper-drc-rs/src/constraints.rs``.
 
         Returns:
             dict matching the ConstraintSet serde schema.
@@ -327,6 +432,13 @@ class DRCOracle:
             "clearances": [],
             "zones": [],
             "critical_loops": [],
+            "noise_domains": [],
+            "isolation_barriers": [],
+            "thermal_properties": [],
+            "matched_length_groups": [],
+            "snubber_requirements": [],
+            "bleed_resistor": None,
+            "skin_effect_derating": None,
             "hv_clearance_mm": 10.0,
             "board_width": float(context.board.width),
             "board_height": float(context.board.height),
@@ -343,8 +455,8 @@ class DRCOracle:
 
         # --- Merge constraints_config if present ---
         # This carries the YAML-derived PlacementConstraints which may
-        # include noise_domains, isolation_barriers, thermal_properties,
-        # matched_length_groups, etc.
+        # override the defaults above (noise_domains, isolation_barriers,
+        # thermal_properties, matched_length_groups, etc.)
         config = getattr(context, "constraints_config", None)
         if config is not None:
             for key in (
