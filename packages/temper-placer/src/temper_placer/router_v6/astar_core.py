@@ -205,6 +205,29 @@ def _astar_search(
     return None  # No path found
 
 
+_LOS_BB_HITS: list[int] = [0]
+_LOS_BB_FALLS_THROUGH: list[int] = [0]
+
+
+def reset_los_bb_stats() -> None:
+    _LOS_BB_HITS[0] = 0
+    _LOS_BB_FALLS_THROUGH[0] = 0
+
+
+def get_los_bb_stats() -> tuple[int, int]:
+    return (_LOS_BB_HITS[0], _LOS_BB_FALLS_THROUGH[0])
+
+
+def log_los_bb_stats() -> None:
+    hits, falls = get_los_bb_stats()
+    total = hits + falls
+    if total > 0:
+        rate = hits / total * 100
+        print(f"LOS BB shortcut: {hits} hits / {total} total = {rate:.1f}% skip rate")
+    else:
+        print("LOS BB shortcut: no calls recorded")
+
+
 def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
     """Octile distance heuristic for 8-connected grid search."""
     return octile_distance(a, b)
@@ -237,6 +260,13 @@ def _line_of_sight(
 
     x0, y0 = p1
     x1, y1 = p2
+
+    # @req(2026-06-29-feat-los-bb, R1): BB empty shortcut
+    bbox = grid.grid[min(y0, y1):max(y0, y1) + 1, min(x0, x1):max(x0, x1) + 1]
+    if not np.any(bbox):
+        _LOS_BB_HITS[0] += 1
+        return True
+    _LOS_BB_FALLS_THROUGH[0] += 1
 
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
