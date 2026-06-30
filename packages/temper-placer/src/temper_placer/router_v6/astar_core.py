@@ -294,11 +294,7 @@ def _astar_search_lazy_theta_star(
     goal_grid: tuple[int, int],
     net_id: int,
     came_from_init: dict | None = None,
-<<<<<<< HEAD
     max_iter: int | None = None,
-=======
-    enable_numba_los: bool = False,
->>>>>>> feat/numba-jit-los
 ) -> list[tuple[int, int]] | None:
     """
     Lazy Theta* pathfinding.
@@ -312,12 +308,8 @@ def _astar_search_lazy_theta_star(
         goal_grid: Goal position (grid coordinates)
         net_id: Net ID for unblocking own cells
         came_from_init: Optional initial came_from for warm-starting
-<<<<<<< HEAD
         max_iter: Maximum node expansions before returning None (safety net).
             Default ``None`` = unlimited (backward-compatible).
-=======
-        enable_numba_los: Use Numba-jitted LOS check (default False)
->>>>>>> feat/numba-jit-los
 
     Returns:
         Path as list of (x, y) grid cells, or None if no path
@@ -470,11 +462,7 @@ def _astar_search_theta_star(
     goal_grid: tuple[int, int],
     net_id: int,
     came_from_init: dict | None = None,
-<<<<<<< HEAD
     max_iter: int | None = None,
-=======
-    enable_numba_los: bool = False,
->>>>>>> feat/numba-jit-los
 ) -> list[tuple[int, int]] | None:
     """
     Theta* pathfinding with any-angle paths.
@@ -489,12 +477,8 @@ def _astar_search_theta_star(
         goal_grid: Goal position (grid coordinates)
         net_id: Net ID for unblocking own cells
         came_from_init: Optional initial came_from for warm-starting
-<<<<<<< HEAD
         max_iter: Maximum node expansions before returning None (safety net).
             Default ``None`` = unlimited (backward-compatible).
-=======
-        enable_numba_los: Use Numba-jitted LOS check (default False)
->>>>>>> feat/numba-jit-los
 
     Returns:
         Path as list of (x, y) grid cells, or None if no path

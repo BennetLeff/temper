@@ -15,4 +15,4 @@ firmware/main/state_machine.c 1181 temper-N6-U8 # firmware, Phase 4 (grew from 1
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1059 temper-N7-cap4 # new over-cap file
 packages/temper-placer/src/temper_placer/optimizer/convergence_analytics.py 1023 temper-N7-1 # follow-up
 packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1008 temper-N7-board # follow-up
-packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1343 temper-N6-U8 # grew from sat_model=None fix
+packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1350 temper-N6-U8 # grew from sat_model=None fix
