@@ -680,9 +680,9 @@ def _dispatch_search(
     max_iter: int = 1_000_000,
 ):
     if use_lazy_theta_star:
-        return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1)
+        return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1, max_iter=max_iter)
     if use_theta_star:
-        return _astar_search_theta_star(grid, start, goal, net_id=-1)
+        return _astar_search_theta_star(grid, start, goal, net_id=-1, max_iter=max_iter)
     # 2D plain A*.  Delegate to the Numba-jitted kernel when available
     # and the grid is small enough that the overhead of building the
     # bit tensor (once per call) is amortized.  Falls through to the

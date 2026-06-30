@@ -282,6 +282,7 @@ def _astar_search_lazy_theta_star(
     goal_grid: tuple[int, int],
     net_id: int,
     came_from_init: dict | None = None,
+    max_iter: int | None = None,
 ) -> list[tuple[int, int]] | None:
     """
     Lazy Theta* pathfinding.
@@ -295,6 +296,8 @@ def _astar_search_lazy_theta_star(
         goal_grid: Goal position (grid coordinates)
         net_id: Net ID for unblocking own cells
         came_from_init: Optional initial came_from for warm-starting
+        max_iter: Maximum node expansions before returning None (safety net).
+            Default ``None`` = unlimited (backward-compatible).
 
     Returns:
         Path as list of (x, y) grid cells, or None if no path
@@ -380,6 +383,9 @@ def _astar_search_lazy_theta_star(
 
         closed_set.add(current)
 
+        if max_iter is not None and len(closed_set) >= max_iter:
+            return None
+
         # Get 8-connected neighbors
         cx, cy = current
         neighbors = []
@@ -439,6 +445,7 @@ def _astar_search_theta_star(
     goal_grid: tuple[int, int],
     net_id: int,
     came_from_init: dict | None = None,
+    max_iter: int | None = None,
 ) -> list[tuple[int, int]] | None:
     """
     Theta* pathfinding with any-angle paths.
@@ -453,6 +460,8 @@ def _astar_search_theta_star(
         goal_grid: Goal position (grid coordinates)
         net_id: Net ID for unblocking own cells
         came_from_init: Optional initial came_from for warm-starting
+        max_iter: Maximum node expansions before returning None (safety net).
+            Default ``None`` = unlimited (backward-compatible).
 
     Returns:
         Path as list of (x, y) grid cells, or None if no path
@@ -491,6 +500,9 @@ def _astar_search_theta_star(
             return reconstruct_path(current)
 
         closed_set.add(current)
+
+        if max_iter is not None and len(closed_set) >= max_iter:
+            return None
 
         # Get 8-connected neighbors
         cx, cy = current
