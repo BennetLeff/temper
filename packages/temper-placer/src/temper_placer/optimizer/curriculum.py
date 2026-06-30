@@ -379,6 +379,21 @@ class CurriculumState:
         changed = new_name != self.current_phase_name
         self.current_phase_name = new_name
         self.current_phase_idx = new_idx
+        # ── DRC fence integration point (U9, K4) ──────────────────────────
+        # When changed is True, a curriculum phase boundary has been crossed.
+        # This is the canonical hook to fire the DRC fence at phase
+        # transitions (5 evaluations per full optimization run per K4).
+        #
+        # Integration pattern:
+        #   if changed:
+        #       from temper_placer.validation.drc_oracle import DRCOracle
+        #       oracle = ...  # created externally and stored on this object
+        #       run_result = oracle.evaluate(positions, context, use_rust=True)
+        #       # Use violations to inform next phase's constraint weights
+        #       # (e.g., increase clearance weight if violations persist)
+        #
+        # See docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md §K4
+        # for the full specification.
         return changed
 
     def get_progress_string(self, epoch: int) -> str:

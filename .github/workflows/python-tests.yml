@@ -99,6 +99,29 @@ jobs:
         env:
           RUST_BACKTRACE: full
 
+      - name: Cache Rust build (temper-drc-rs)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-drc-rs/target
+          key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-drc-rs-
+
+      - name: Build and install temper-drc-rs
+        run: |
+          uv pip install maturin
+          cd packages/temper-drc-rs
+          uv run maturin develop --release
+          cd ../..
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Check temper-constraint-compiler compiles
+        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
+
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
         run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10
@@ -153,6 +176,29 @@ jobs:
           cd packages/temper-rust-router
           uv run maturin develop --release
           cd ../..
+
+      - name: Cache Rust build (temper-drc-rs)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-drc-rs/target
+          key: ${{ runner.os }}-drc-rs-${{ hashFiles('packages/temper-drc-rs/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-drc-rs-
+
+      - name: Build and install temper-drc-rs
+        run: |
+          uv pip install maturin
+          cd packages/temper-drc-rs
+          uv run maturin develop --release
+          cd ../..
+
+      - name: Verify temper-drc-rs loads
+        run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Check temper-constraint-compiler compiles
+        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
       - name: Per-stage timing regression check
         run: uv run temper timing check --ci --json

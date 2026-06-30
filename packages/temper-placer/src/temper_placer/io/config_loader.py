@@ -157,6 +157,51 @@ class ThermalProperties:
 
 
 @dataclass
+class NoiseDomain:
+    """Noise coupling domain: emitters and victims that must not run parallel."""
+
+    emitters: list[str]
+    victims: list[str]
+    max_parallel_run_mm: float = 5.0
+
+
+@dataclass
+class IsolationBarrier:
+    """An isolation barrier line across the board."""
+
+    name: str
+    x_mm: float
+    y_span: tuple[float, float]
+    layers: str | list[str] = "all"
+
+
+@dataclass
+class SnubberRequirement:
+    """Snubber circuit requirement near an IGBT pair."""
+
+    igbt_pair: tuple[str, str]
+    type: str = "RC"
+    across: str = "collector_emitter"
+
+
+@dataclass
+class BleedResistor:
+    """Bleed resistor specification for bus discharge."""
+
+    bus_voltage_v: float
+    target_voltage_v: float
+    timeout_s: float = 5.0
+
+
+@dataclass
+class SkinEffectDerating:
+    """Skin-effect derating for high-frequency traces."""
+
+    frequency_hz: float
+    derating_factor: float = 3.0
+
+
+@dataclass
 class FeedbackConfig:
     """Configuration for the automated DRC feedback loop."""
 
@@ -698,6 +743,21 @@ class PlacementConstraints:
     # default and the stage's ``if config is None or not config.enabled``
     # branch is exercised in normal use.
     seed_filter: SeedFilterConfig = field(default_factory=SeedFilterConfig)
+
+    # U3: Noise coupling domains (emitter/victim net pairs with parallel-run limits)
+    noise_domains: list[NoiseDomain] = field(default_factory=list)
+
+    # U3: Isolation barrier lines across the board
+    isolation_barriers: list[IsolationBarrier] = field(default_factory=list)
+
+    # U3: Snubber circuit requirements near IGBT pairs
+    snubber_requirements: list[SnubberRequirement] = field(default_factory=list)
+
+    # U3: Bleed resistor specification for bus discharge
+    bleed_resistor: BleedResistor | None = None
+
+    # U3: Skin-effect derating for high-frequency traces
+    skin_effect_derating: SkinEffectDerating | None = None
 
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
@@ -1367,6 +1427,54 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             )
             constraints.isolation_slots.append(slot)
 
+    # U3: Noise coupling domains
+    if "noise_domains" in config:
+        for nd_cfg in config["noise_domains"]:
+            nd = NoiseDomain(
+                emitters=nd_cfg.get("emitters", []),
+                victims=nd_cfg.get("victims", []),
+                max_parallel_run_mm=nd_cfg.get("max_parallel_run_mm", 5.0),
+            )
+            constraints.noise_domains.append(nd)
+
+    # U3: Isolation barrier lines
+    if "isolation_barriers" in config:
+        for ib_cfg in config["isolation_barriers"]:
+            ib = IsolationBarrier(
+                name=ib_cfg["name"],
+                x_mm=ib_cfg["x_mm"],
+                y_span=tuple(ib_cfg["y_span"]),
+                layers=ib_cfg.get("layers", "all"),
+            )
+            constraints.isolation_barriers.append(ib)
+
+    # U3: Snubber circuit requirements
+    if "snubber_requirements" in config:
+        for sr_cfg in config["snubber_requirements"]:
+            sr = SnubberRequirement(
+                igbt_pair=tuple(sr_cfg["igbt_pair"]),
+                type=sr_cfg.get("type", "RC"),
+                across=sr_cfg.get("across", "collector_emitter"),
+            )
+            constraints.snubber_requirements.append(sr)
+
+    # U3: Bleed resistor specification
+    if "bleed_resistor" in config:
+        br_cfg = config["bleed_resistor"]
+        constraints.bleed_resistor = BleedResistor(
+            bus_voltage_v=br_cfg["bus_voltage_v"],
+            target_voltage_v=br_cfg["target_voltage_v"],
+            timeout_s=br_cfg.get("timeout_s", 5.0),
+        )
+
+    # U3: Skin-effect derating for high-frequency traces
+    if "skin_effect_derating" in config:
+        sed_cfg = config["skin_effect_derating"]
+        constraints.skin_effect_derating = SkinEffectDerating(
+            frequency_hz=sed_cfg["frequency_hz"],
+            derating_factor=sed_cfg.get("derating_factor", 3.0),
+        )
+
     # Seed filter (bottleneck-map pre-filter for placement seeds)
     # @req(2026-06-23-004, R4)
     if "seed_filter" in config and isinstance(config["seed_filter"], dict):
@@ -1424,6 +1532,11 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "hv_exclusion_zones",  # EXP-13: HV zones that signals must route around
         "isolation_slots",  # EXP-15: PCB slots for creepage isolation
         "seed_filter",  # Bottleneck-map seed filter (2026-06-23-004)
+        "noise_domains",  # U3: Noise coupling domains
+        "isolation_barriers",  # U3: Isolation barrier lines
+        "snubber_requirements",  # U3: Snubber circuit requirements
+        "bleed_resistor",  # U3: Bleed resistor specification
+        "skin_effect_derating",  # U3: Skin-effect derating
     }
 )
 

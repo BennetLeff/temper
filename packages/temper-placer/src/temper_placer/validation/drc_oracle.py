@@ -1,5 +1,5 @@
 """
-DRCOracle: Batch DRC evaluator using temper-drc composable checks.
+DRCOracle: Batch DRC evaluator using temper-drc composable checks (or Rust engine).
 
 Provides a DRCOracle class that wraps temper_drc.CheckRunner for batch
 placement evaluation. Not to be confused with routing.constraints.drc_oracle.DRCOracle
@@ -9,15 +9,17 @@ This oracle:
 - Converts temper-placer Netlist/Board data into temper_drc.input.Placement + ConstraintSet
 - Runs the full temper-drc check suite (DRC, Safety, EMC, ERC)
 - Returns RunResult with aggregate penalty
+- Optionally uses the Rust DRC engine (temper_drc_rs) for improved performance
 
 Graceful degradation: If temper-drc is not installed, the factory function raises
-ImportError with a clear message.
+ImportError with a clear message. If temper_drc_rs is not installed, the Rust
+backend is unavailable but the Python backend still works.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from jax import Array
 
@@ -27,6 +29,13 @@ if TYPE_CHECKING:
     from temper_drc.input.placement import Placement as DrcPlacement
 
     from temper_placer.losses.base import LossContext
+
+try:
+    import temper_drc_rs
+
+    _HAS_RUST_DRC = True
+except ImportError:
+    _HAS_RUST_DRC = False
 
 
 def build_placement_from_netlist(
@@ -112,7 +121,7 @@ def build_constraint_set(context: LossContext) -> DrcConstraintSet:
 
 @dataclass
 class DRCOracle:
-    """Batch DRC evaluator using temper-drc composable checks.
+    """Batch DRC evaluator using temper-drc composable checks (or Rust engine).
 
     Not to be confused with routing.constraints.drc_oracle.DRCOracle,
     which serves real-time track/via clearance queries.
@@ -140,18 +149,37 @@ class DRCOracle:
         positions: Array,
         context: LossContext,
         categories: list[str] | None = None,
+        use_rust: bool = True,
     ) -> RunResult:
         """Convert positions to Placement, run checks, return RunResult.
+
+        Optionally uses the Rust DRC engine (temper_drc_rs) for improved
+        performance. Falls back to the Python CheckRunner if the Rust
+        engine is unavailable or use_rust is False.
 
         Args:
             positions: (N, 2) array of component positions in mm.
             context: LossContext with netlist and board.
             categories: Optional list of check categories to run
                 (e.g. ["drc", "safety"]). None means all categories.
+            use_rust: If True and temper_drc_rs is installed, use the
+                Rust DRC engine instead of the Python CheckRunner.
+                Defaults to True for strangler-fig migration (K3).
 
         Returns:
             RunResult with per-check results and aggregate metrics.
         """
+        if use_rust and _HAS_RUST_DRC:
+            board_dict = self._build_board_dict(positions, context)
+            constraints_dict = self._build_constraints_dict(context)
+            # @req(U9, R1): Call temper_drc_rs.run_drc() instead of Python CheckRunner
+            violation_dicts = temper_drc_rs.run_drc(
+                board_dict,
+                constraints_dict,
+                categories=categories,
+            )
+            return self._violations_to_run_result(violation_dicts)
+        # Fallback: existing Python path
         placement = build_placement_from_netlist(positions, context)
         return self.runner.run(placement, self.constraints, categories=categories)  # type: ignore[attr-defined]
 
@@ -170,6 +198,252 @@ class DRCOracle:
             RunResult with per-check results and aggregate metrics.
         """
         return self.runner.run(placement, self.constraints, categories=categories)  # type: ignore[attr-defined]
+
+    # ------------------------------------------------------------------
+    # Rust DRC backend helpers
+    # ------------------------------------------------------------------
+
+    def _build_board_dict(
+        self,
+        positions: Array,
+        context: LossContext,
+    ) -> dict[str, Any]:
+        """Build a K1-schema board dict from positions + LossContext.
+
+        Produces the dict format consumed by temper_drc_rs.run_drc():
+        - components: list of dicts with ref, x, y, rot, side, width, height, net_class, ...
+        - nets: net_name → list of component refs
+        - net_classes: net_name → class_name
+        - net_class_rules: class_name → rule dict
+        - board: {width_mm, height_mm, margin_mm}
+
+        Returns:
+            dict matching the K1 schema (see plan §K1).
+        """
+        netlist = context.netlist
+
+        # --- Board dimensions ---
+        board_dict: dict[str, Any] = {
+            "width_mm": float(context.board.width),
+            "height_mm": float(context.board.height),
+            "margin_mm": float(context.board_margin),
+        }
+
+        # --- Components ---
+        components: list[dict[str, Any]] = []
+        for i, c in enumerate(netlist.components):
+            x = float(positions[i, 0])
+            y = float(positions[i, 1])
+            rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
+            side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
+            # Infer package_type from footprint name heuristics; default to "smd"
+            fp_lower = c.footprint.lower() if c.footprint else ""
+            if any(p in fp_lower for p in ("tht", "through", "pin", "dip")):
+                package_type = "tht"
+            elif "to-247" in fp_lower or "to247" in fp_lower:
+                package_type = "to247"
+            elif "to-220" in fp_lower or "to220" in fp_lower:
+                package_type = "to220"
+            elif "bga" in fp_lower:
+                package_type = "bga"
+            elif "qfn" in fp_lower:
+                package_type = "qfn"
+            elif "qfp" in fp_lower or "tqfp" in fp_lower:
+                package_type = "qfp"
+            elif "dpak" in fp_lower or "d2pak" in fp_lower:
+                package_type = "dpak"
+            else:
+                package_type = "smd"
+
+            comp: dict[str, Any] = {
+                "ref": c.ref,
+                "x": x,
+                "y": y,
+                "rot": rotation,
+                "side": side,
+                "width": float(c.width),
+                "height": float(c.height),
+                "net_class": c.net_class,
+                "package_type": package_type,
+                # Fields not available on the placer Component are set to
+                # reasonable defaults or omitted:
+                "power_dissipation_w": None,
+                "is_magnetic": False,
+                "is_electrolytic": False,
+                "vent_direction": None,
+                "footprint_polygon": None,
+            }
+            components.append(comp)
+
+        # --- Nets ---
+        nets: dict[str, list[str]] = {}
+        net_classes: dict[str, str] = {}
+        for net in netlist.nets:
+            comp_refs = list({ref for ref, _ in net.pins})
+            nets[net.name] = comp_refs
+            net_classes[net.name] = net.net_class
+
+        # --- Net class rules ---
+        # Build from clearance_rules in the LossContext
+        net_class_rules: dict[str, dict[str, Any]] = {}
+        for rule in context.clearance_rules:
+            for nc in (rule.net_class_a, rule.net_class_b):
+                if nc not in net_class_rules:
+                    net_class_rules[nc] = {
+                        "trace_width_mm": 0.2,
+                        "clearance_mm": rule.min_clearance,
+                        "creepage_mm": None,
+                        "voltage_v": None,
+                        "max_current_rating": None,
+                        "safety_category": None,
+                        "required_layer": None,
+                    }
+
+        return {
+            "board": board_dict,
+            "components": components,
+            "nets": nets,
+            "net_classes": net_classes,
+            "net_class_rules": net_class_rules,
+        }
+
+    def _build_constraints_dict(
+        self,
+        context: LossContext,
+    ) -> dict[str, Any]:
+        """Build a constraints dict for the Rust DRC engine.
+
+        Produces the dict format consumed by temper_drc_rs.build_constraint_set():
+        - clearances: list of {from_class, to_class, clearance_mm, description}
+        - hv_clearance_mm: default HV clearance
+        - board_width, board_height: board dimensions
+        - Optional constraint types (noise_domains, isolation_barriers, etc.)
+          populated from context.constraints_config if available.
+
+        Returns:
+            dict matching the ConstraintSet serde schema.
+        """
+        constraints_dict: dict[str, Any] = {
+            "clearances": [],
+            "zones": [],
+            "critical_loops": [],
+            "hv_clearance_mm": 10.0,
+            "board_width": float(context.board.width),
+            "board_height": float(context.board.height),
+        }
+
+        # --- Clearance rules ---
+        for rule in context.clearance_rules:
+            constraints_dict["clearances"].append({
+                "from_class": rule.net_class_a,
+                "to_class": rule.net_class_b,
+                "clearance_mm": rule.min_clearance,
+                "description": getattr(rule, "because", ""),
+            })
+
+        # --- Merge constraints_config if present ---
+        # This carries the YAML-derived PlacementConstraints which may
+        # include noise_domains, isolation_barriers, thermal_properties,
+        # matched_length_groups, etc.
+        config = getattr(context, "constraints_config", None)
+        if config is not None:
+            for key in (
+                "zones",
+                "critical_loops",
+                "noise_domains",
+                "isolation_barriers",
+                "thermal_properties",
+                "matched_length_groups",
+                "snubber_requirements",
+                "bleed_resistor",
+                "skin_effect_derating",
+            ):
+                val = getattr(config, key, None)
+                if val is not None:
+                    constraints_dict[key] = val
+
+        return constraints_dict
+
+    @staticmethod
+    def _violations_to_run_result(
+        violation_dicts: list[dict[str, Any]],
+    ) -> RunResult:
+        """Convert a list of Rust DRC violation dicts to a RunResult.
+
+        Groups violations by ``check_name`` and wraps each group into a
+        ``CheckResult``.  This allows existing Python consumers (loss
+        functions, CI reports) to consume Rust DRC output transparently.
+
+        Args:
+            violation_dicts: List of violation dicts from
+                ``temper_drc_rs.run_drc()``, each with keys:
+                severity, code, message, category, check_name,
+                affected_items, location, details.
+
+        Returns:
+            RunResult consumable by temper_drc consumers.
+        """
+        # Lazy import to avoid hard dependency on temper_drc
+        from temper_drc.core.result import CheckResult, Issue, RunResult
+        from temper_drc.core.severity import Severity
+
+        _SEVERITY_MAP = {
+            "INFO": Severity.INFO,
+            "WARNING": Severity.WARNING,
+            "ERROR": Severity.ERROR,
+            "CRITICAL": Severity.CRITICAL,
+        }
+
+        # --- Group by check_name ---
+        grouped: dict[str, list[dict[str, Any]]] = {}
+        for v in violation_dicts:
+            name = v.get("check_name", "unknown")
+            grouped.setdefault(name, []).append(v)
+
+        # --- Build CheckResult per group ---
+        check_results: list[CheckResult] = []
+        for check_name, violations in sorted(grouped.items()):
+            issues: list[Issue] = []
+            has_failure = False
+            for v in violations:
+                severity_str = v.get("severity", "ERROR").upper()
+                severity = _SEVERITY_MAP.get(severity_str, Severity.ERROR)
+                if severity in (Severity.ERROR, Severity.CRITICAL):
+                    has_failure = True
+
+                # Build Location
+                loc_dict = v.get("location")
+                location = None
+                if loc_dict is not None and isinstance(loc_dict, dict):
+                    from temper_drc.core.result import Location as DrcLocation
+
+                    location = DrcLocation(
+                        x=loc_dict.get("x"),
+                        y=loc_dict.get("y"),
+                        layer=loc_dict.get("layer"),
+                    )
+
+                issue = Issue(
+                    severity=severity,
+                    code=v.get("code", "DRC_RS_000"),
+                    message=v.get("message", ""),
+                    category=v.get("category", "drc"),
+                    check_name=check_name,
+                    affected_items=v.get("affected_items", []),
+                    location=location,
+                    details=v.get("details", {}),
+                )
+                issues.append(issue)
+
+            check_results.append(
+                CheckResult(
+                    check_name=check_name,
+                    passed=not has_failure,
+                    issues=issues,
+                )
+            )
+
+        return RunResult(check_results=check_results)
 
 
 def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
