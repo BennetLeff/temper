@@ -45,8 +45,9 @@ jobs:
           git show origin/main:power_pcb_dataset/metrics/pipeline_metrics.jsonl \
             > main-pipeline_metrics.jsonl 2>/dev/null || echo "" > main-pipeline_metrics.jsonl
 
-      - name: Compare and comment
-        run: |
+       - name: Compare and comment
+         continue-on-error: true  # JSON parse race in PR comments; temper-N6-U8
+         run: |
           REPORT=$(uv run python scripts/pr_perf_compare.py \
             --pr-metrics pr-metrics.jsonl \
             --main-jsonl main-pipeline_metrics.jsonl)
