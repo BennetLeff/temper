@@ -49,8 +49,8 @@ impl Camera {
 
     pub fn pan(&mut self, screen_dx: f32, screen_dy: f32) {
         let px = self.pixels_per_mm();
-        self.center.x -= screen_dx / px;
-        self.center.y -= screen_dy / px;
+        self.center.x += screen_dx / px;
+        self.center.y += screen_dy / px;
     }
 
     pub fn fit_board(&mut self, board_width: f32, board_height: f32) {
@@ -102,8 +102,8 @@ mod tests {
         let mut cam = Camera::default();
         let old_center = cam.center;
         cam.pan(100.0, 50.0);
-        assert!(cam.center.x < old_center.x);
-        assert!(cam.center.y < old_center.y);
+        assert!(cam.center.x > old_center.x);
+        assert!(cam.center.y > old_center.y);
     }
 
     #[test]
