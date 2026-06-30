@@ -93,7 +93,7 @@ main.add_command(watch)
 @click.option(
     "--port",
     type=int,
-    default=8080,
+    default=8765,
     help="Port for visualization server.",
 )
 @click.option(
@@ -754,6 +754,21 @@ def optimize(
 
     # Step 5: Run optimization
     console.print("\n[bold cyan]Step 5/5:[/] Running optimization...")
+
+    # Initialize live visualization if requested
+    live_visualizer = None
+    if visualize:
+        try:
+            from temper_placer.visualization.live import LiveVisualizer
+            from temper_placer.visualization.model import VisualizationState
+
+            live_visualizer = LiveVisualizer(port=port)
+            live_visualizer.start()
+            console.print(f"  [green]✓[/] Live visualization: [bold]http://localhost:{port}[/]")
+        except ImportError:
+            console.print("  [yellow]⚠[/] Visualization requires websockets. Install: pip install websockets")
+        except Exception as e:
+            console.print(f"  [yellow]⚠[/] Could not start live visualization: {e}")
     if profile_dir:
         console.print(f"  [dim]JAX profiler enabled, saving to: {profile_dir}[/]")
     if track_metrics:
@@ -771,6 +786,23 @@ def optimize(
         if guard.interrupted:
             console.print("\n[yellow]Interrupted! Saving current best state...[/]")
             raise KeyboardInterrupt()
+
+        # Feed live visualizer if active
+        if live_visualizer and hasattr(metrics, 'positions') and hasattr(metrics, 'rotations'):
+            try:
+                live_visualizer.update(
+                    positions=metrics.positions,
+                    rotations=metrics.rotations,
+                    widths=metrics.widths if hasattr(metrics, 'widths') else None,
+                    heights=metrics.heights if hasattr(metrics, 'heights') else None,
+                    refs=metrics.refs if hasattr(metrics, 'refs') else None,
+                    board_width=metrics.board_width if hasattr(metrics, 'board_width') else 100.0,
+                    board_height=metrics.board_height if hasattr(metrics, 'board_height') else 150.0,
+                    losses=metrics.loss,
+                    epoch=metrics.epoch,
+                )
+            except Exception:
+                pass  # Fail-soft: don't crash training if visualization fails
 
         # Print every 10% of epochs (unless verbose)
         print_interval = 10 if verbose_losses else max(1, epochs // 10)
