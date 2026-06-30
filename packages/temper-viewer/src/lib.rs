@@ -80,10 +80,18 @@ pub async fn start_render_loop(canvas_id: &str) -> Result<(), JsValue> {
     ).to_cols_array_2d();
     rs.queue.write_buffer(&cam_buf, 0, bytemuck::cast_slice(&cam));
 
-    // Store the fit zoom in interaction state
+    // Always update interaction state viewport to match actual canvas
     INTERACTION.with(|i| {
-        if i.borrow().is_none() {
-            *i.borrow_mut() = Some(InteractionState::new(Camera {
+        let mut istate = i.borrow_mut();
+        if let Some(ref mut s) = *istate {
+            s.camera.viewport_width = pw as f32;
+            s.camera.viewport_height = ph as f32;
+            // Only override zoom/center if not yet set by load_board
+            if s.camera.zoom == 1.0 && s.camera.center.x == bw/2.0 && s.camera.center.y == bh/2.0 {
+                s.camera.zoom = fit_zoom;
+            }
+        } else {
+            *istate = Some(InteractionState::new(Camera {
                 center: Point::new(bw/2.0, bh/2.0),
                 zoom: fit_zoom,
                 viewport_width: pw as f32,
@@ -199,9 +207,9 @@ pub fn load_board(json: &str) -> Result<(), JsValue> {
     Ok(())
 }
 
-#[wasm_bindgen] pub fn on_wheel(d: f64, sx: f32, sy: f32) -> Result<(), JsValue> { INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { let w = s.camera.screen_to_world(sx, sy); s.handle_event(InteractionEvent::Zoom { cursor_world: w, factor: if d < 0.0 { 1.1 } else { 0.9 } }, get_board().as_ref()); } }); Ok(()) }
+#[wasm_bindgen] pub fn on_wheel(d: f64, sx: f32, sy: f32) -> Result<(), JsValue> { INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { let w = s.camera.screen_to_world(sx, sy); s.handle_event(InteractionEvent::Zoom { cursor_world: w, factor: if d < 0.0 { 1.05 } else { 0.952 } }, get_board().as_ref()); } }); Ok(()) }
 #[wasm_bindgen] pub fn on_mouse_down(sx: f32, sy: f32) -> Result<(), JsValue> { INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { s.handle_event(InteractionEvent::PanStart { screen_pos: (sx, sy) }, None); } }); Ok(()) }
-#[wasm_bindgen] pub fn on_mouse_move(sx: f32, sy: f32, d: bool) -> Result<JsValue, JsValue> { let mut r = JsValue::NULL; INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { for o in &s.handle_event(if d { InteractionEvent::PanMove { screen_delta: (sx, sy) } } else { InteractionEvent::Hover { screen_pos: (sx, sy) } }, get_board().as_ref()) { match o { InteractionResult::ComponentHovered(idx) => { if let Some(b) = get_board() { if let Some(c) = b.components.get(*idx) { r = JsValue::from_str(&format!("component:{},{}:{}", c.ref_, c.footprint.as_deref().unwrap_or("?"), *idx)); } } }, InteractionResult::TraceHovered(idx) => { if let Some(b) = get_board() { if let Some(t) = b.traces.get(*idx) { r = JsValue::from_str(&format!("trace:{},{}:{}", t.net.as_deref().unwrap_or("?"), t.layer, *idx)); } } }, InteractionResult::HoverCleared => { r = JsValue::from_str("clear"); }, _ => {} } } } }); Ok(r) }
+#[wasm_bindgen] pub fn on_mouse_move(sx: f32, sy: f32, d: bool) -> Result<JsValue, JsValue> { let mut r = JsValue::NULL; INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { for o in &s.handle_event(if d { InteractionEvent::PanMove { screen_delta: (sx, sy) } } else { InteractionEvent::Hover { screen_pos: (sx, sy) } }, get_board().as_ref()) { match o { InteractionResult::ComponentHovered(idx) => { if let Some(b) = get_board() { if let Some(c) = b.components.get(*idx) { r = JsValue::from_str(&format!("component:{}:{}", c.ref_, c.footprint.as_deref().unwrap_or("?"))); } } }, InteractionResult::TraceHovered(idx) => { if let Some(b) = get_board() { if let Some(t) = b.traces.get(*idx) { r = JsValue::from_str(&format!("trace:{}:{}", t.net.as_deref().unwrap_or("?"), t.layer)); } } }, InteractionResult::HoverCleared => { r = JsValue::from_str("clear"); }, _ => {} } } } }); Ok(r) }
 #[wasm_bindgen] pub fn on_mouse_up() -> Result<(), JsValue> { INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { s.handle_event(InteractionEvent::PanEnd, None); } }); Ok(()) }
 #[wasm_bindgen] pub fn on_click(sx: f32, sy: f32) -> Result<JsValue, JsValue> { let mut r = JsValue::from_str("none"); INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { for o in &s.handle_event(InteractionEvent::Click { screen_pos: (sx, sy) }, get_board().as_ref()) { match o { InteractionResult::ComponentSelected(idx) => { if let Some(b) = get_board() { if let Some(c) = b.components.get(*idx) { let ns: Vec<String> = c.neighbors(&b.components, 5).iter().map(|(n,d)| format!("{}: {:.1}mm", n.ref_, d)).collect(); r = JsValue::from_str(&serde_json::json!({"ref":c.ref_,"footprint":c.footprint,"value":c.value,"position":{"x":c.position.x,"y":c.position.y},"rotation":c.rotation,"zone":c.zone,"status":format!("{:?}",c.status),"loss_contribution":c.loss_contribution,"loss_breakdown":c.loss_breakdown,"last_movement_reason":c.last_movement_reason,"neighbors":ns}).to_string()); } } }, InteractionResult::Deselected => { r = JsValue::from_str("deselected"); }, _ => {} } } } }); Ok(r) }
 #[wasm_bindgen] pub fn search(rf: &str) -> Result<JsValue, JsValue> { INTERACTION.with(|i| { if let Some(ref mut s) = *i.borrow_mut() { if let Some(b) = get_board() { if let Some(idx) = s.search_and_pan_to(&b, rf) { Ok(JsValue::from_str(&format!("found:{}:{}", b.components[idx].position.x, b.components[idx].position.y))) } else { Ok(JsValue::from_str("not_found")) } } else { Ok(JsValue::from_str("not_ready")) } } else { Ok(JsValue::from_str("not_ready")) } }) }

@@ -174,16 +174,21 @@ canvas.addEventListener('mousemove', (e) => {
         } else if (result.startsWith && result.startsWith('component:')) {
             const parts = result.split(':');
             tooltip.textContent = `${parts[1]} — ${parts[2]}`;
-            tooltip.style.left = (e.clientX + 12) + 'px';
-            tooltip.style.top = (e.clientY - 28) + 'px';
+            tooltip.style.left = (e.clientX + 14) + 'px';
+            tooltip.style.top = (e.clientY - 30) + 'px';
             tooltip.classList.remove('hidden');
+            // Highlight component on canvas by adding a subtle border
+            canvas.style.cursor = 'pointer';
         } else if (result.startsWith && result.startsWith('trace:')) {
             const parts = result.split(':');
             tooltip.textContent = `${parts[1]} — ${parts[2]}`;
-            tooltip.style.left = (e.clientX + 12) + 'px';
-            tooltip.style.top = (e.clientY - 28) + 'px';
+            tooltip.style.left = (e.clientX + 14) + 'px';
+            tooltip.style.top = (e.clientY - 30) + 'px';
             tooltip.classList.remove('hidden');
+            canvas.style.cursor = 'crosshair';
         }
+    } else if (!dragging) {
+        canvas.style.cursor = 'default';
     }
 });
 canvas.addEventListener('mouseup', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
