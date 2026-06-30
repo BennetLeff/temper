@@ -58,6 +58,7 @@ class MessageType(Enum):
     TRAINING_STARTED = "training_started"
     TRAINING_STOPPED = "training_stopped"
     TRAINING_COMPLETE = "training_complete"
+    STAGE_CHANGE = "stage_change"
     ERROR = "error"
 
     # Client -> Server
@@ -267,6 +268,21 @@ class LiveServer:
         if self._event_loop and self.state.is_running:
             data = final_state.to_dict() if final_state else None
             message = self._create_message(MessageType.TRAINING_COMPLETE, data)
+            asyncio.run_coroutine_threadsafe(self._broadcast(message), self._event_loop)
+
+    def send_stage_change(
+        self, stage: str, phase: str = "active",
+        elapsed_seconds: float = 0.0, eta_seconds: float | None = None,
+    ) -> None:
+        """Notify clients of a pipeline stage change."""
+        if self._event_loop and self.state.is_running:
+            data = {
+                "stage": stage,
+                "phase": phase,
+                "elapsed_seconds": elapsed_seconds,
+                "eta_seconds": eta_seconds,
+            }
+            message = self._create_message(MessageType.STAGE_CHANGE, data)
             asyncio.run_coroutine_threadsafe(self._broadcast(message), self._event_loop)
 
     @property
