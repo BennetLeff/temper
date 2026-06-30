@@ -16,7 +16,7 @@ from pathlib import Path
 
 STATIC = Path(__file__).parent.parent / "src" / "temper_placer" / "visualization" / "static"
 WASM_DIR = STATIC / "wasm"
-INDEX = STATIC / "index.html"
+INDEX = STATIC / "wasm-viewer.html"
 JS = STATIC / "wasm-viewer.js"
 WASM_JS = WASM_DIR / "temper_viewer.js"
 WASM_BIN = WASM_DIR / "temper_viewer_bg.wasm"
@@ -27,7 +27,7 @@ def assert_true(cond, msg):
 
 
 class TestEmbeddedBoard:
-    """The embedded JSON in index.html must be valid and complete."""
+    """The embedded JSON in wasm-viewer.html must be valid and complete."""
 
     def test_json_is_valid(self):
         html = INDEX.read_text()
@@ -66,7 +66,7 @@ class TestEmbeddedBoard:
 
 
 class TestInlineAutoLoad:
-    """The inline <script> in index.html must have correct load sequence."""
+    """The inline <script> in wasm-viewer.html must have correct load sequence."""
 
     def test_inline_script_exists(self):
         html = INDEX.read_text()

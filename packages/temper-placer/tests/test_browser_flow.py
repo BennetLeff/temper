@@ -76,23 +76,25 @@ def test_wasm_module_loadable():
     print("  PASS: all required WASM exports present")
 
 def test_auto_load_sequence_correct():
-    """Verify the auto-load JS calls functions in the right order."""
+    """Verify init/load sequence is correct across HTML and JS."""
+    html = (STATIC / "wasm-viewer.html").read_text()
     js = (STATIC / "wasm-viewer.js").read_text()
 
-    # autoLoadDefault must exist
-    assert "async function autoLoadDefault" in js, "FAIL: autoLoadDefault not found"
+    # HTML inline script must call load_board before start_render_loop
+    load_pos = html.index("load_board")
+    render_pos = html.index("start_render_loop")
+    assert load_pos < render_pos, "FAIL: load_board must be called before start_render_loop in HTML"
 
-    # Must call wasmLoadBoard before wasmStartRenderLoop
-    load_pos = js.index("wasmLoadBoard")
-    render_pos = js.index("wasmStartRenderLoop")
-    assert load_pos < render_pos, "FAIL: wasmLoadBoard must be called before wasmStartRenderLoop"
+    # wasm-viewer.js must have initialization function
+    assert "async function initViewer" in js, "FAIL: initViewer not found in wasm-viewer.js"
 
-    # Must hide landing overlay after successful load
+    # Both HTML and JS must hide landing overlay
+    assert "landing-overlay" in html
     assert "landing-overlay" in js
-    assert "style.display" in js or "classList.add('hidden')" in js or "classList.remove('hidden')" in js
 
-    # Must have error handling
-    assert "catch" in js, "FAIL: no error handling in autoLoadDefault"
+    # Both must have error handling
+    assert "catch" in html, "FAIL: no error handling in HTML inline script"
+    assert "catch" in js, "FAIL: no error handling in wasm-viewer.js"
     print("  PASS: auto-load sequence is correct")
 
 def test_server_serves_fresh_content():
@@ -126,8 +128,8 @@ def test_no_console_errors_in_static_files():
     """Check for common JS mistakes that cause runtime errors."""
     js = (STATIC / "wasm-viewer.js").read_text()
 
-    # No undefined function calls
-    assert "wasmStartRenderLoop" in js, "FAIL: start_render_loop not imported"
+    # load_board must be imported (used for WebSocket and drop updates)
+    assert "wasmLoadBoard" in js, "FAIL: load_board import not found in wasm-viewer.js"
 
     # All event listeners reference existing elements
     elements_used = set(re.findall(r"getElementById\('([^']+)'\)", js))

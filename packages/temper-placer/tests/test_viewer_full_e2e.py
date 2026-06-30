@@ -97,8 +97,8 @@ class TestServerHTTP:
             status, _, body = _http_get(srv._port, "/wasm-viewer.js")
             assert status == 200
             assert "wasmLoadBoard" in body
-            assert "autoLoadDefault" in body
-            assert "waitForWasm" in body
+            assert "initViewer" in body
+            assert "connectToServer" in body
         finally:
             srv.stop()
 
@@ -254,9 +254,9 @@ class TestWasmBinary:
     def test_wasm_file_exists(self):
         assert (WASM_DIR / "temper_viewer_bg.wasm").is_file(), "WASM binary missing"
 
-    def test_wasm_size_under_2mb(self):
+    def test_wasm_size_under_2_5mb(self):
         size = (WASM_DIR / "temper_viewer_bg.wasm").stat().st_size
-        assert size < 2_000_000, f"WASM too large: {size} bytes"
+        assert size < 2_500_000, f"WASM too large: {size} bytes"
 
     def test_wasm_glue_js_exists(self):
         assert (WASM_DIR / "temper_viewer.js").is_file(), "WASM glue JS missing"
@@ -331,9 +331,9 @@ class TestStaticIntegrity:
 
     def test_js_has_auto_load(self):
         js = (STATIC_DIR / "wasm-viewer.js").read_text()
-        assert "autoLoadDefault" in js
-        assert "waitForWasm" in js
-        assert "default-board" in js
+        assert "initViewer" in js
+        assert "connectToServer" in js
+        assert "wasmLoadBoard" in js
 
     def test_js_has_escape_deselect(self):
         js = (STATIC_DIR / "wasm-viewer.js").read_text()

@@ -301,5 +301,5 @@ document.addEventListener('mouseup', () => { sidebarResizing = false; });
 // Expose connect globally for the button onclick
 window.connectToServer = window.connectToServer || connectToServer;
 
-// Auto-load handled by inline script in index.html — init viewer only
+// Auto-load handled by inline script in wasm-viewer.html — init viewer only
 initViewer();
