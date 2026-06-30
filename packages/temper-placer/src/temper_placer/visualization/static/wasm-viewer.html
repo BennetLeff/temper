@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temper Board Viewer</title>
+    <link rel="stylesheet" href="wasm-viewer.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Landing overlay -->
+        <div id="landing-overlay">
+            <div class="landing-content">
+                <h1>Temper Board Viewer</h1>
+                <p>Connect to a running server or drop a JSON file to begin.</p>
+                <button id="btn-connect" onclick="connectToServer()">Connect to Server</button>
+                <div class="drop-zone" id="drop-zone">
+                    <p>Or drag and drop a VisualizationState JSON file here</p>
+                </div>
+                <div id="connection-error" class="error hidden"></div>
+            </div>
+        </div>
+
+        <!-- Reconnect banner -->
+        <div id="reconnect-banner" class="hidden">Reconnecting...</div>
+
+        <!-- Performance warning -->
+        <div id="perf-warning" class="hidden">Performance degraded: board scale exceeds recommended maximum</div>
+
+        <!-- Top toolbar -->
+        <div id="toolbar" class="hidden">
+            <input type="text" id="search-input" placeholder="Search component (e.g. U3)...">
+            <select id="layer-select">
+                <option value="F.Cu">F.Cu</option>
+                <option value="In1.Cu">In1.Cu</option>
+                <option value="In2.Cu">In2.Cu</option>
+                <option value="B.Cu">B.Cu</option>
+            </select>
+        </div>
+
+        <!-- Main content -->
+        <div id="main-content" class="hidden">
+            <div id="canvas-container">
+                <canvas id="board-canvas"></canvas>
+            </div>
+
+            <!-- Sidebar -->
+            <div id="sidebar">
+                <div id="sidebar-resize-handle"></div>
+
+                <!-- Loss Dashboard -->
+                <div class="sidebar-section collapsible" id="section-loss">
+                    <div class="section-header" onclick="toggleSection('loss')">
+                        <span>Loss Dashboard</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="loss-total">---</div>
+                        <div id="loss-terms"></div>
+                        <div id="loss-trend"></div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Progress -->
+                <div class="sidebar-section collapsible" id="section-pipeline">
+                    <div class="section-header" onclick="toggleSection('pipeline')">
+                        <span>Pipeline Progress</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="pipeline-stages"></div>
+                    </div>
+                </div>
+
+                <!-- Board Summary -->
+                <div class="sidebar-section collapsible" id="section-summary">
+                    <div class="section-header" onclick="toggleSection('summary')">
+                        <span>Board Summary</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="board-stats"></div>
+                    </div>
+                </div>
+
+                <!-- Inspector Panel -->
+                <div class="sidebar-section collapsible" id="section-inspector">
+                    <div class="section-header">
+                        <span>Inspector</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="inspector-content">Select a component to inspect.</div>
+                    </div>
+                </div>
+
+                <!-- Display Controls -->
+                <div class="sidebar-section collapsible" id="section-display">
+                    <div class="section-header" onclick="toggleSection('display')">
+                        <span>Display</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <label><input type="checkbox" id="toggle-components" checked onchange="updateVisibility()"> Components</label>
+                        <label><input type="checkbox" id="toggle-traces" checked onchange="updateVisibility()"> Traces</label>
+                        <label><input type="checkbox" id="toggle-zones" checked onchange="updateVisibility()"> Zones</label>
+                        <label><input type="checkbox" id="toggle-pads" checked onchange="updateVisibility()"> Pads</label>
+                        <label><input type="checkbox" id="toggle-grid" checked onchange="updateVisibility()"> Grid</label>
+                        <label><input type="checkbox" id="toggle-ratsnest" onchange="updateVisibility()"> Ratsnest</label>
+                        <label class="disabled"><input type="checkbox" id="toggle-heatmap" disabled> Loss Heatmap <span class="tooltip-hint">(requires optimizer instrumentation)</span></label>
+                        <label class="disabled"><input type="checkbox" id="toggle-constraint-overlay" disabled> Constraint Density <span class="tooltip-hint">(requires optimizer instrumentation)</span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animation controls -->
+        <div id="animation-controls" class="hidden">
+            <button id="btn-pause" onclick="togglePause()">Pause</button>
+            <select id="animation-mode" onchange="updateAnimationMode()">
+                <option value="smooth">Smooth</option>
+                <option value="snap">Snap</option>
+            </select>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="hidden"></div>
+    </div>
+
+    <script type="module" src="wasm-viewer.js"></script>
+</body>
+</html>
