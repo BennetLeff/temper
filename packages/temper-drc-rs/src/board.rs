@@ -229,7 +229,16 @@ impl Component {
     /// back to bounding-box edge distance.
     pub fn edge_distance_to(&self, other: &Component) -> f64 {
         match (&self.footprint_polygon, &other.footprint_polygon) {
-            (Some(p1), Some(p2)) => p1.euclidean_distance(p2),
+            (Some(p1), Some(p2)) => {
+                // Edge-to-edge: iterate each polygon's edges (Line segments),
+                // not just vertices. Catches the case where the closest approach
+                // is mid-edge (e.g., two rectangles side-by-side).
+                let e1 = p1.exterior();
+                let e2 = p2.exterior();
+                e1.lines()
+                    .flat_map(|a| e2.lines().map(move |b| a.euclidean_distance(&b)))
+                    .fold(f64::MAX, f64::min)
+            }
             _ => {
                 let b1 = self.footprint_bbox();
                 let b2 = other.footprint_bbox();
