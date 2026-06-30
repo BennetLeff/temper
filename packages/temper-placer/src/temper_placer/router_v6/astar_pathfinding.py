@@ -9,6 +9,7 @@ Part of temper-x2xd (Stage 4 - Geometric Realization)
 
 from __future__ import annotations
 
+import math
 import time
 from collections import deque
 from dataclasses import dataclass
@@ -245,6 +246,17 @@ def run_astar_pathfinding(
         net_id = net_ids[net_name]
 
         primary_grid = all_grids.get(channel_path.preferred_layer, grid)
+
+        per_net_max_iter = max_iter
+        waypoints = channel_path.waypoints
+        if waypoints and len(waypoints) >= 2:
+            dx = abs(waypoints[-1][0] - waypoints[0][0])
+            dy = abs(waypoints[-1][1] - waypoints[0][1])
+            span_cells = int((dx + dy) / primary_grid.cell_size)
+            grid_area = primary_grid.width_cells * primary_grid.height_cells
+            ellipse_cells = int(math.pi * (span_cells / 2.0) ** 2)
+            derived = max(1000, min(ellipse_cells, grid_area))
+            per_net_max_iter = min(max_iter, derived)
         alt_layer = next((layer for layer in all_grids if layer != channel_path.preferred_layer), None)
         active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
 
@@ -272,7 +284,7 @@ def run_astar_pathfinding(
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
-            max_iter=max_iter,
+            max_iter=per_net_max_iter,
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
