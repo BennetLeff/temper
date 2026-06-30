@@ -266,6 +266,7 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
     let package_type = parse_package_type(&package_type_str)?;
     let is_magnetic = extract_opt_bool(dict, "is_magnetic")?.unwrap_or(false);
     let is_electrolytic = extract_opt_bool(dict, "is_electrolytic")?.unwrap_or(false);
+    let is_mechanical = extract_opt_bool(dict, "is_mechanical")?.unwrap_or(false);
     let vent_direction = extract_opt_f64(dict, "vent_direction")?;
     let footprint_polygon = extract_opt_polygon(dict, "footprint_polygon")?;
 
@@ -281,6 +282,7 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
         package_type,
         is_magnetic,
         is_electrolytic,
+        is_mechanical,
         vent_direction,
         footprint_polygon,
     })

@@ -110,6 +110,7 @@ pub struct Component {
     pub package_type: PackageType,
     pub is_magnetic: bool,
     pub is_electrolytic: bool,
+    pub is_mechanical: bool,
     pub vent_direction: Option<f64>,
     pub footprint_polygon: Option<Polygon<f64>>,
 }

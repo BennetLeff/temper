@@ -4,46 +4,22 @@
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
       "error_ceiling": 0,
-      "warning_ceiling": 4,
-      "violations_by_type": {
-        "erc_floating_pins:WARNING": 4
-      }
+      "warning_ceiling": 0,
+      "violations_by_type": {}
     },
     {
       "board_id": "temper_physics_routed",
       "path": "pcb/temper_physics_routed.kicad_pcb",
       "error_ceiling": 0,
-      "warning_ceiling": 4,
-      "violations_by_type": {
-        "erc_floating_pins:WARNING": 4
-      }
+      "warning_ceiling": 0,
+      "violations_by_type": {}
     },
     {
       "board_id": "temper_final_verified",
       "path": "pcb/temper_final_verified.kicad_pcb",
       "error_ceiling": 0,
-      "warning_ceiling": 4,
-      "violations_by_type": {
-        "erc_floating_pins:WARNING": 4
-      }
-    },
-    {
-      "board_id": "temper_fixed_placement",
-      "path": "pcb/temper_fixed_placement.kicad_pcb",
-      "error_ceiling": 0,
-      "warning_ceiling": 4,
-      "violations_by_type": {
-        "erc_floating_pins:WARNING": 4
-      }
-    },
-    {
-      "board_id": "temper_agent_optimized",
-      "path": "pcb/temper_agent_optimized.kicad_pcb",
-      "error_ceiling": 0,
-      "warning_ceiling": 4,
-      "violations_by_type": {
-        "erc_floating_pins:WARNING": 4
-      }
+      "warning_ceiling": 0,
+      "violations_by_type": {}
     }
   ]
 }

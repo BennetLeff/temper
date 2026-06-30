@@ -1214,6 +1214,7 @@ def train_multiphase(
     callback: Callable[[TrainingMetrics], None] | None = None,
     validation_callback: ValidationCallback | None = None,
     profile_dir: str | None = None,
+    drc_oracle: object | None = None,
 ) -> TrainingResult:
     """
     Run multi-phase training with curriculum learning.
@@ -1338,7 +1339,36 @@ def train_multiphase(
 
             # Recreate loss and optimizer if phase changed or not yet initialized
             if new_phase_idx != current_phase_idx or composite_loss is None:
+                phase_changed = new_phase_idx != current_phase_idx
                 current_phase_idx = new_phase_idx
+
+                # ── DRC fence at phase boundary (U9, K4) ──────────────────
+                # Evaluate DRC violations at each curriculum phase transition.
+                # This is informational only — violations do NOT block the
+                # optimizer. Results are logged for monitoring and tuning.
+                if phase_changed and drc_oracle is not None:
+                    try:
+                        phase_name = (
+                            config.curriculum_phases[new_phase_idx].name
+                            if new_phase_idx >= 0 and config.curriculum_phases
+                            else "unknown"
+                        )
+                        result = drc_oracle.evaluate(
+                            state.positions, context, use_rust=True
+                        )
+                        logger.info(
+                            "DRC fence at phase '%s' (epoch %d): "
+                            "%sC/%sE/%sW",
+                            phase_name,
+                            epoch,
+                            getattr(result, "critical_count", "?"),
+                            getattr(result, "error_count", "?"),
+                            getattr(result, "warning_count", "?"),
+                        )
+                    except Exception as e:
+                        logger.warning(
+                            "DRC fence at phase boundary failed: %s", e
+                        )
 
                 # Get current weights
                 if config.curriculum_phases:

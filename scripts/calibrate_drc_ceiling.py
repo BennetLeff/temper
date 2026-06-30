@@ -56,6 +56,8 @@ def build_board_dict(parsed) -> dict:
         x, y = c.initial_position or (0.0, 0.0)
         rotation = float(c.initial_rotation * 90) if c.initial_rotation is not None else 0.0
         side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
+        package_type = _infer_package_type(c.footprint)
+        is_mechanical = c.ref.startswith("MH") or package_type == "MECHANICAL"
         components.append({
             "ref": c.ref,
             "x": x,
@@ -65,10 +67,11 @@ def build_board_dict(parsed) -> dict:
             "width": float(c.width),
             "height": float(c.height),
             "net_class": c.net_class,
-            "package_type": _infer_package_type(c.footprint),
+            "package_type": package_type,
             "power_dissipation_w": None,
             "is_magnetic": False,
             "is_electrolytic": False,
+            "is_mechanical": is_mechanical,
             "vent_direction": None,
             "footprint_polygon": None,
         })

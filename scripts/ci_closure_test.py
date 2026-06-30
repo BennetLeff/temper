@@ -147,6 +147,7 @@ def main() -> int:
                     else:
                         package_type = "smd"
 
+                    is_mechanical = c.ref.startswith("MH") or package_type == "MECHANICAL"
                     components.append({
                         "ref": c.ref,
                         "x": x,
@@ -160,6 +161,7 @@ def main() -> int:
                         "power_dissipation_w": None,
                         "is_magnetic": False,
                         "is_electrolytic": False,
+                        "is_mechanical": is_mechanical,
                         "vent_direction": None,
                         "footprint_polygon": None,
                     })

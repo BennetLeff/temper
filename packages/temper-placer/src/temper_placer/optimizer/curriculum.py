@@ -14,7 +14,9 @@ the optimizer avoid local minima by:
 Each phase has different loss weights that transition smoothly.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 from temper_placer.optimizer.config import CurriculumPhase, get_default_loss_weights
 
@@ -307,12 +309,34 @@ class CurriculumState:
         transition_epochs: Number of epochs for smooth transitions.
         current_phase_name: Name of current phase (for logging).
         current_phase_idx: Index of current phase.
+        _phase_boundary_hooks: Callbacks invoked at each phase boundary.
     """
 
     phases: list[CurriculumPhase]
     transition_epochs: int = 100
     current_phase_name: str | None = None
     current_phase_idx: int = -1
+    _phase_boundary_hooks: list[Callable[[str, "CurriculumState"], Any]] | None = None
+
+    def __post_init__(self) -> None:
+        """Initialize the hooks list after dataclass init."""
+        self._phase_boundary_hooks = []
+
+    def add_phase_boundary_hook(
+        self, hook: Callable[[str, "CurriculumState"], Any]
+    ) -> None:
+        """Register a callback invoked at each phase boundary.
+
+        The hook receives two positional arguments:
+            phase_name (str): The name of the phase being entered.
+            state (CurriculumState): This state object, for accessing
+                current_phase_idx, phases, etc.
+
+        Args:
+            hook: Callable with signature ``(phase_name: str, state) -> None``.
+        """
+        if self._phase_boundary_hooks is not None:
+            self._phase_boundary_hooks.append(hook)
 
     def get_weights(self, epoch: int) -> dict[str, float]:
         """
@@ -358,12 +382,13 @@ class CurriculumState:
             return phase.learning_rate_override
         return default_lr
 
-    def update(self, epoch: int) -> bool:
+    def update(self, epoch: int, losses: dict[str, float] | None = None) -> bool:
         """
         Update curriculum state and check for phase change.
 
         Args:
             epoch: Current epoch.
+            losses: Optional dict of loss component values (for hook use).
 
         Returns:
             True if phase changed, False otherwise.
@@ -379,21 +404,22 @@ class CurriculumState:
         changed = new_name != self.current_phase_name
         self.current_phase_name = new_name
         self.current_phase_idx = new_idx
-        # ── DRC fence integration point (U9, K4) ──────────────────────────
-        # When changed is True, a curriculum phase boundary has been crossed.
-        # This is the canonical hook to fire the DRC fence at phase
-        # transitions (5 evaluations per full optimization run per K4).
-        #
-        # Integration pattern:
-        #   if changed:
-        #       from temper_placer.validation.drc_oracle import DRCOracle
-        #       oracle = ...  # created externally and stored on this object
-        #       run_result = oracle.evaluate(positions, context, use_rust=True)
-        #       # Use violations to inform next phase's constraint weights
-        #       # (e.g., increase clearance weight if violations persist)
-        #
-        # See docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md §K4
-        # for the full specification.
+        if changed:
+            # ── DRC fence integration (U9, K4) ────────────────────────────
+            # Fire registered phase-boundary hooks so that external consumers
+            # (e.g., DRC oracle evaluation) can react at phase transitions.
+            # State has been updated to reflect the new phase before hooks
+            # are called, so ``self.current_phase_name`` and
+            # ``self.current_phase_idx`` are correct inside the hook.
+            for hook in (self._phase_boundary_hooks or []):
+                try:
+                    hook(new_name, self)
+                except Exception:
+                    logger = __import__("logging").getLogger(__name__)
+                    logger.exception(
+                        "Phase-boundary hook failed at phase '%s'",
+                        new_name,
+                    )
         return changed
 
     def get_progress_string(self, epoch: int) -> str:

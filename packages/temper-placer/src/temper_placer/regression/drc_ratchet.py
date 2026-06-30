@@ -138,6 +138,7 @@ class DrcRatchet:
                 "is_electrolytic": False,
                 "vent_direction": None,
                 "footprint_polygon": None,
+                "is_mechanical": c.ref.startswith("MH"),
             })
 
         nets: dict[str, list[str]] = {}
