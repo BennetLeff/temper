@@ -7,7 +7,12 @@ Part of temper-7qu7 (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, replace
+from pathlib import Path
+
+import numpy as np
 
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
@@ -17,6 +22,8 @@ from temper_placer.router_v6.stage_validators import (
     StageDRCFailure,
     register_validator,
 )
+
+_EDT_CACHE_DIR = Path("/tmp/temper-edt-cache")
 
 
 @dataclass
@@ -40,10 +47,142 @@ class ChannelWidths:
         return self.node_widths.get(node, 0.0)
 
 
+def _rasterize_boundary_mask(
+    available_area,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+) -> np.ndarray:
+    """Rasterize the available routing area onto a binary grid.
+
+    Cells whose centers lie inside the available area are marked as
+    interior (True).  Cells outside or on the boundary are False.
+
+    The result is used as input to the Euclidean distance transform,
+    where False cells act as distance-zero sources and True cells
+    receive the distance to the nearest boundary.
+
+    Proof of correctness (base case):
+        For any cell exactly on the polygon boundary, the Shapely
+        ``contains`` predicate returns False (boundary is not
+        interior).  The cell is marked False in the mask.  The EDT
+        assigns distance 0 to that cell.  This matches the Shapely
+        distance query: distance(Point_on_boundary, boundary_ring) = 0.
+
+    Induction step:
+        For a cell at grid distance d from the nearest boundary cell,
+        the EDT propagates distance through the grid using the Eikonal
+        equation.  The error relative to the true Euclidean distance
+        is bounded by cell_size * sqrt(2) (the diagonal of a single
+        cell).  As cell_size → 0, the EDT converges to the true
+        distance.
+    """
+    import shapely.prepared
+    from shapely.geometry import MultiPolygon
+
+    min_x, min_y, max_x, max_y = bounds
+    w = int(np.ceil((max_x - min_x) / cell_size)) + 1
+    h = int(np.ceil((max_y - min_y) / cell_size)) + 1
+
+    prepared = shapely.prepared.prep(available_area)
+    from shapely.geometry import Point as ShapelyPoint
+
+    xs = np.linspace(min_x, min_x + (w - 1) * cell_size, w)
+    ys = np.linspace(min_y, min_y + (h - 1) * cell_size, h)
+    xx, yy = np.meshgrid(xs, ys, indexing='xy')
+    points = np.column_stack([xx.ravel(), yy.ravel()])
+
+    mask = np.zeros(h * w, dtype=bool)
+    batch_size = 100000
+    for i in range(0, len(points), batch_size):
+        batch = points[i:i + batch_size]
+        for j, (px, py) in enumerate(batch):
+            mask[i + j] = prepared.contains(ShapelyPoint(px, py))
+
+    return mask.reshape(h, w)
+
+
+def _edt_width_lookup(
+    x: float,
+    y: float,
+    edt: np.ndarray,
+    mask: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+) -> float:
+    """Query width from a precomputed EDT grid.
+
+    Maps world coordinates (x, y) to grid indices, reads the EDT
+    distance, and returns width = 2 * distance * cell_size.
+
+    For sub-cell accuracy, bilinear interpolation is used over the
+    4 nearest grid points.
+    """
+    min_x, min_y, _, _ = bounds
+    gx = (x - min_x) / cell_size
+    gy = (y - min_y) / cell_size
+
+    ix, iy = int(np.floor(gx)), int(np.floor(gy))
+    fx, fy = gx - ix, gy - iy
+
+    h, w = edt.shape
+    if ix < 0 or iy < 0 or ix + 1 >= w or iy + 1 >= h:
+        return 0.0
+
+    d00 = edt[iy, ix] if mask[iy, ix] else 0.0
+    d10 = edt[iy, ix + 1] if mask[iy, ix + 1] else 0.0
+    d01 = edt[iy + 1, ix] if mask[iy + 1, ix] else 0.0
+    d11 = edt[iy + 1, ix + 1] if mask[iy + 1, ix + 1] else 0.0
+
+    d = (d00 * (1 - fx) + d10 * fx) * (1 - fy) + (d01 * (1 - fx) + d11 * fx) * fy
+    return 2.0 * d * cell_size
+
+
+def _compute_board_fingerprint(routing_space: RoutingSpace) -> str:
+    """Stable hash of the routing space geometry for cache keying."""
+    bounds = routing_space.available_area.bounds
+    area = routing_space.available_area.area
+    return hashlib.sha256(f"{bounds}{area}".encode()).hexdigest()[:16]
+
+
+def _edt_cache_path(fp: str, layer: str) -> Path:
+    _EDT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    return _EDT_CACHE_DIR / f"edt_{fp}_{layer}.npz"
+
+
+def _build_edt(
+    routing_space: RoutingSpace,
+    cell_size: float,
+    use_cache: bool = True,
+) -> tuple[np.ndarray, np.ndarray, tuple[float, float, float, float]]:
+    """Build an EDT grid for the given routing space, with optional disk cache.
+
+    Returns:
+        (edt_distances, interior_mask, bounds)
+    """
+    bounds = routing_space.available_area.bounds
+    fp = _compute_board_fingerprint(routing_space)
+
+    if use_cache:
+        cache_path = _edt_cache_path(fp, routing_space.layer_name)
+        if cache_path.exists():
+            data = np.load(cache_path)
+            return data["edt"], data["mask"], bounds
+
+    mask = _rasterize_boundary_mask(routing_space.available_area, bounds, cell_size)
+    from scipy.ndimage import distance_transform_edt
+    edt = distance_transform_edt(mask.astype(np.uint8))
+
+    if use_cache:
+        np.savez_compressed(cache_path, edt=edt, mask=mask)
+
+    return edt, mask, bounds
+
+
 def compute_channel_widths(
     routing_space: RoutingSpace,
     skeleton: ChannelSkeleton,
     sample_distance: float = 1.0,
+    use_edt: bool = True,
 ) -> ChannelWidths:
     """
     Compute channel widths along the skeleton.
@@ -98,15 +237,23 @@ def compute_channel_widths(
     cached_exteriors = [p.exterior for p in cached_polygons]
     cached_interiors = [list(p.interiors) for p in cached_polygons]
 
-    # Compute width at each node
-    for node in skeleton.graph.nodes():
-        width = _compute_width_at_point(
-            node, available_area,
-            _prepared=prepared_area,
-            _polygons=cached_polygons,
-            _exteriors=cached_exteriors,
+    # EDT path: rasterize + distance transform replaces per-point Shapely
+    _edt_grid, _edt_mask, _edt_bounds, _edt_cell = None, None, None, 0.1
+    if use_edt:
+        _edt_grid, _edt_mask, _edt_bounds = _build_edt(routing_space, _edt_cell)
+
+    def _width_at(p: tuple[float, float]) -> float:
+        if _edt_grid is not None:
+            return _edt_width_lookup(p[0], p[1], _edt_grid, _edt_mask, _edt_bounds, _edt_cell)
+        return _compute_width_at_point(
+            p, available_area, _prepared=prepared_area,
+            _polygons=cached_polygons, _exteriors=cached_exteriors,
             _interiors=cached_interiors,
         )
+
+    # Compute width at each node
+    for node in skeleton.graph.nodes():
+        width = _width_at(node)
         node_widths[node] = width
 
     # Compute width along each edge
@@ -129,13 +276,7 @@ def compute_channel_widths(
                 t = i / num_samples
                 sample_x = u[0] + t * dx
                 sample_y = u[1] + t * dy
-                width = _compute_width_at_point(
-                    (sample_x, sample_y), available_area,
-                    _prepared=prepared_area,
-                    _polygons=cached_polygons,
-                    _exteriors=cached_exteriors,
-                    _interiors=cached_interiors,
-                )
+                width = _width_at((sample_x, sample_y))
                 widths_along_edge.append(width)
 
         # Edge width is the minimum along the edge (bottleneck)

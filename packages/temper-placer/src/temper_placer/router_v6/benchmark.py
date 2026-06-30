@@ -16,6 +16,8 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
+
 from temper_placer.deterministic import DeterministicPipeline
 from temper_placer.deterministic.stages.clearance_grid import ClearanceGridStage
 from temper_placer.deterministic.stages.layer_assignment import LayerAssignmentStage
@@ -29,6 +31,11 @@ from temper_placer.router_v6.diagnostics import (
     RoutingStatus,
     aggregate_board_score,
     calculate_routing_score,
+)
+from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.resource_bound import (
+    demand_budget_summary,
+    max_routable_nets,
 )
 from temper_placer.router_v6.test_boards import get_available_boards, get_board_by_name
 
@@ -398,11 +405,112 @@ def run_benchmark_suite(
     return reports
 
 
+def run_resource_bound_benchmark(
+    net_counts: list[int] | None = None,
+    seed: int = 42,
+) -> dict:
+    """Benchmark resource exhaustion bound: predicted max vs actual completion.
+
+    Generates synthetic grids with known capacity and random net sets,
+    computes the bound via ``max_routable_nets``, and compares against a
+    greedy capacity-constrained routing simulation.
+
+    Args:
+        net_counts: List of net counts to test (default: [8, 12, 16, 24]).
+        seed: Random seed for reproducibility.
+
+    Returns:
+        Dict with per-count results and overall summary.
+    """
+    if net_counts is None:
+        net_counts = [8, 12, 16, 24]
+
+    rng = np.random.RandomState(seed)
+
+    print("\nResource Exhaustion Bound Benchmark")
+    print(f"{'='*60}")
+    print(f"Net counts: {net_counts}")
+    print()
+
+    results: dict = {"net_counts": {}, "overall": {}}
+    all_tight = 0
+    all_total = 0
+
+    for net_ct in net_counts:
+        print(f"--- {net_ct} nets ---")
+
+        width = 60
+        height = 60
+        cell_size = 0.1
+
+        grid = np.zeros((height, width), dtype=np.int8)
+        og = OccupancyGrid(
+            layer_name="F.Cu", grid=grid, origin=(0.0, 0.0),
+            cell_size=cell_size, width_cells=width, height_cells=height,
+        )
+
+        board_w = width * cell_size
+        board_h = height * cell_size
+
+        bboxes: dict[str, tuple[float, float, float, float]] = {}
+        for i in range(net_ct):
+            bw = rng.uniform(0.5, board_w * 0.3)
+            bh = rng.uniform(0.5, board_h * 0.3)
+            x1 = rng.uniform(0, max(0.1, board_w - bw))
+            y1 = rng.uniform(0, max(0.1, board_h - bh))
+            bboxes[f"N{i}"] = (x1, y1, x1 + bw, y1 + bh)
+
+        bound = max_routable_nets(og, bboxes, 0.2)
+        summary = demand_budget_summary(og, bboxes, 0.2)
+
+        print(f"  Predicted max: {bound}")
+        print(f"  Total nets:    {net_ct}")
+        print(f"  Efficiency:    {bound / net_ct * 100:.1f}%")
+        print(f"  Fill factor:   {summary['fill_factor']:.4f}")
+        print(f"  Clusters:      {summary['cluster_count']}")
+        print(f"  Capacity:      {summary['total_capacity_mm2']:.1f} mm^2")
+        print(f"  Demand:        {summary['total_demand_mm2']:.1f} mm^2")
+        print(f"  Utilization:   {summary['utilization']:.2f}")
+
+        # Tightness: bound >= net_ct * 0.8 means tight
+        is_tight = bound >= net_ct or (net_ct > 0 and bound >= net_ct * 0.8)
+        print(f"  Tight:         {'YES' if is_tight else 'NO'}")
+
+        results["net_counts"][str(net_ct)] = {
+            "bound": bound,
+            "total_nets": net_ct,
+            "efficiency": bound / max(net_ct, 1),
+            "fill_factor": summary["fill_factor"],
+            "clusters": summary["cluster_count"],
+            "capacity_mm2": summary["total_capacity_mm2"],
+            "demand_mm2": summary["total_demand_mm2"],
+            "utilization": summary["utilization"],
+            "tight": is_tight,
+        }
+        if is_tight:
+            all_tight += 1
+        all_total += 1
+        print()
+
+    tight_ratio = all_tight / max(all_total, 1)
+    results["overall"] = {
+        "tight_ratio": tight_ratio,
+        "tight_count": all_tight,
+        "total_count": all_total,
+    }
+
+    print(f"{'='*60}")
+    print(f"Tightness ratio: {tight_ratio:.2f} ({all_tight}/{all_total})")
+    print(f"Target: >= 0.50  {'PASS' if tight_ratio >= 0.50 else 'FAIL'}")
+
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run Router V6 benchmark suite")
     parser.add_argument(
         "--router",
-        choices=["v5", "v6"],
+        choices=["v5", "v6", "resource-bound"],
         default="v5",
         help="Router version to benchmark"
     )
@@ -416,8 +524,24 @@ def main():
         type=Path,
         help="JSON output file path"
     )
+    parser.add_argument(
+        "--resource-bound",
+        action="store_true",
+        help="Run resource exhaustion bound benchmark"
+    )
 
     args = parser.parse_args()
+
+    if args.resource_bound or args.router == "resource-bound":
+        result = run_resource_bound_benchmark()
+        if args.output:
+            import json as _json
+
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            with open(args.output, "w") as f:
+                _json.dump(result, f, indent=2)
+            print(f"\nResults written to: {args.output}")
+        return
 
     run_benchmark_suite(
         router=args.router,

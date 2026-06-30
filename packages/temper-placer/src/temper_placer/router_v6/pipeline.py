@@ -44,6 +44,7 @@ from temper_placer.router_v6.net_classification import (
     is_power_net,
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.resource_bound import demand_budget_summary
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
 from temper_placer.router_v6.routing_space import RoutingSpace
@@ -518,6 +519,9 @@ class RouterV6Pipeline:
             print("Stage 2: Channel analysis...")
         stage2 = self._run_stage2(pcb, escape_vias)
 
+        # Resource exhaustion bound (after EDT grids are built)
+        self._compute_resource_bound(pcb, stage2)
+
         # Stage 3: Topological routing.  When skip_stage3 is True,
         # bypass the SAT solver entirely and feed Stage 4 an empty
         # topology graph.  After Dijkstra removal (2026-06-28),
@@ -612,6 +616,62 @@ class RouterV6Pipeline:
             )
 
         return stage2
+
+    def _compute_resource_bound(
+        self, pcb: ParsedPCB, stage2: Stage2Output
+    ) -> None:
+        """Compute and log the resource exhaustion upper bound.
+
+        Uses the EDT occupancy grid from Stage 2 and net bounding boxes
+        to compute the theoretical maximum number of simultaneously
+        routable nets (bin-packing lower bound).
+        """
+        if not stage2.occupancy_grids:
+            if self.verbose:
+                print("    Resource bound: no occupancy grids available, skipping")
+            return
+
+        grid = (stage2.occupancy_grids.get("F.Cu")
+                or next(iter(stage2.occupancy_grids.values())))
+        if grid is None:
+            return
+
+        trace_width = pcb.design_rules.default_trace_width_mm
+        from temper_placer.router_v6.resource_bound import _net_bboxes_from_pcb
+
+        bboxes = _net_bboxes_from_pcb(pcb)
+        summary = demand_budget_summary(grid, bboxes, trace_width)
+
+        if self.verbose:
+            print(
+                f"    Resource bound: {summary['max_routable']}/{summary['total_nets']} "
+                f"nets routable "
+                f"(fill_factor={summary['fill_factor']:.3f}, "
+                f"capacity={summary['total_capacity_mm2']:.1f} mm^2, "
+                f"demand={summary['total_demand_mm2']:.1f} mm^2, "
+                f"utilization={summary['utilization']:.2f})"
+            )
+
+            if summary["max_routable"] < summary["total_nets"]:
+                shortage = summary["total_nets"] - summary["max_routable"]
+                print(
+                    f"    WARNING: Resource bound predicts at least {shortage} "
+                    f"net(s) will fail regardless of algorithm"
+                )
+
+        import logging as _logging
+
+        _logging.getLogger(__name__).info(
+            "Resource exhaustion bound: %d/%d routable "
+            "(fill_factor=%.3f, %d clusters, capacity=%.1f mm^2, "
+            "demand=%.1f mm^2)",
+            summary["max_routable"],
+            summary["total_nets"],
+            summary["fill_factor"],
+            summary["cluster_count"],
+            summary["total_capacity_mm2"],
+            summary["total_demand_mm2"],
+        )
 
 
     def _select_sat_nets(self, pcb: ParsedPCB) -> list[str] | None:

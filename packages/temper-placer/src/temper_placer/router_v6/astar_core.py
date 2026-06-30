@@ -289,6 +289,11 @@ def _line_of_sight(
             y += sy
 
 
+_CONGESTION_CHECK_INTERVAL: int = 1000
+_CONGESTION_GROWTH_THRESHOLD: int = 5
+_CONGESTION_PLATEAU_STRIKES: int = 3
+
+
 def _astar_search_lazy_theta_star(
     grid,
     start_grid: tuple[int, int],
@@ -297,6 +302,7 @@ def _astar_search_lazy_theta_star(
     came_from_init: dict | None = None,
     max_iter: int | None = None,
     enable_numba_los: bool = False,
+    enable_congestion_derivative: bool = True,
 ) -> list[tuple[int, int]] | None:
     """
     Lazy Theta* pathfinding.
@@ -312,6 +318,9 @@ def _astar_search_lazy_theta_star(
         came_from_init: Optional initial came_from for warm-starting
         max_iter: Maximum node expansions before returning None (safety net).
             Default ``None`` = unlimited (backward-compatible).
+        enable_congestion_derivative: When True, abort search early if
+            frontier growth plateaus (fewer than 5 new cells per 1000
+            expansions for 3 consecutive windows). Default True.
 
     Returns:
         Path as list of (x, y) grid cells, or None if no path
@@ -333,6 +342,10 @@ def _astar_search_lazy_theta_star(
     came_from = came_from_init.copy() if came_from_init else {}
     g_score = {start_grid: 0.0}
     closed_set = set()
+
+    # Congestion derivative tracking
+    _g_score_size_prev: int = 1  # start cell
+    _plateau_count: int = 0
 
     def euclidean_dist(p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
@@ -405,6 +418,16 @@ def _astar_search_lazy_theta_star(
         if max_iter is not None and len(closed_set) >= max_iter:
             return None
 
+        if enable_congestion_derivative and len(closed_set) % _CONGESTION_CHECK_INTERVAL == 0:
+            new_cells = len(g_score) - _g_score_size_prev
+            if new_cells < _CONGESTION_GROWTH_THRESHOLD:
+                _plateau_count += 1
+                if _plateau_count >= _CONGESTION_PLATEAU_STRIKES:
+                    return None
+            else:
+                _plateau_count = 0
+            _g_score_size_prev = len(g_score)
+
         # Get 8-connected neighbors
         cx, cy = current
         neighbors = []
@@ -466,6 +489,7 @@ def _astar_search_theta_star(
     came_from_init: dict | None = None,
     max_iter: int | None = None,
     enable_numba_los: bool = False,
+    enable_congestion_derivative: bool = True,
 ) -> list[tuple[int, int]] | None:
     """
     Theta* pathfinding with any-angle paths.
@@ -482,6 +506,9 @@ def _astar_search_theta_star(
         came_from_init: Optional initial came_from for warm-starting
         max_iter: Maximum node expansions before returning None (safety net).
             Default ``None`` = unlimited (backward-compatible).
+        enable_congestion_derivative: When True, abort search early if
+            frontier growth plateaus (fewer than 5 new cells per 1000
+            expansions for 3 consecutive windows). Default True.
 
     Returns:
         Path as list of (x, y) grid cells, or None if no path
@@ -503,6 +530,10 @@ def _astar_search_theta_star(
     came_from = came_from_init.copy() if came_from_init else {}
     g_score = {start_grid: 0.0}
     closed_set = set()
+
+    # Congestion derivative tracking
+    _g_score_size_prev: int = 1  # start cell
+    _plateau_count: int = 0
 
     def euclidean_dist(p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
@@ -528,6 +559,16 @@ def _astar_search_theta_star(
 
         if max_iter is not None and len(closed_set) >= max_iter:
             return None
+
+        if enable_congestion_derivative and len(closed_set) % _CONGESTION_CHECK_INTERVAL == 0:
+            new_cells = len(g_score) - _g_score_size_prev
+            if new_cells < _CONGESTION_GROWTH_THRESHOLD:
+                _plateau_count += 1
+                if _plateau_count >= _CONGESTION_PLATEAU_STRIKES:
+                    return None
+            else:
+                _plateau_count = 0
+            _g_score_size_prev = len(g_score)
 
         # Get 8-connected neighbors
         cx, cy = current

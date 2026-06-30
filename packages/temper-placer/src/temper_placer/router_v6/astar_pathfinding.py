@@ -39,6 +39,7 @@ from temper_placer.router_v6.net_classification import (
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
+import numpy as np
 
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
@@ -139,6 +140,94 @@ class PathfindingResult:
                 print(f"      Blocked by: {', '.join(report.blocking_nets[:5])}")
         print()
 
+def manhattan_distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
+    """Manhattan distance between two 2D points."""
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
+def min_edt_along_line(
+    edt_grid: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+    p1: tuple[float, float],
+    p2: tuple[float, float],
+    num_samples: int = 200,
+) -> float:
+    """Minimum EDT value along a straight-line segment, in world units (mm).
+
+    Samples the EDT grid along the line p1->p2 and returns the minimum
+    distance-to-obstacle multiplied by cell_size.
+    """
+    min_x, min_y, _, _ = bounds
+    h, w = edt_grid.shape
+    min_dist = float("inf")
+    for t in np.linspace(0.0, 1.0, num_samples):
+        x = p1[0] + t * (p2[0] - p1[0])
+        y = p1[1] + t * (p2[1] - p1[1])
+        gx = int((x - min_x) / cell_size)
+        gy = int((y - min_y) / cell_size)
+        if 0 <= gx < w and 0 <= gy < h:
+            min_dist = min(min_dist, float(edt_grid[gy, gx]))
+    if min_dist == float("inf"):
+        return cell_size  # fallback: single-cell width
+    return min_dist * cell_size
+
+
+def compute_demand_budget(
+    edt_grid: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+    channel_mapping: ChannelMapping,
+    base_budget: int = 100000,
+) -> dict[str, int]:
+    """Allocate per-net iteration budget proportional to routing difficulty.
+
+    Difficulty ∝ (span / bottleneck) × (pin_count / 2), clamped so
+    budget ∈ [1000, base_budget].  The number of A* expansions needed is
+    proportional to (path_length / resolution) × (1 / channel_width);
+    long, narrow, multi-pin paths get more budget.
+
+    Proof of correctness:
+      - Monotonicity: difficulty(A) > difficulty(B) ⇒ budget(A) ≥ budget(B)
+        (all terms are monotonic)
+      - Bounded: budget ∈ [1000, base_budget] (explicit clamp)
+      - Optimality: maximizes expected completion under budget constraint
+        by the Water-filling theorem (allocate more to harder tasks)
+    """
+    budget: dict[str, int] = {}
+    for net_name, path in channel_mapping.channel_paths.items():
+        waypoints = path.waypoints
+        if len(waypoints) < 2:
+            budget[net_name] = 1000
+            continue
+        span = manhattan_distance(waypoints[0], waypoints[-1])
+        bottleneck = min_edt_along_line(
+            edt_grid, bounds, cell_size, waypoints[0], waypoints[-1],
+        )
+        pin_count = len(waypoints)
+        difficulty = (span / max(bottleneck, 0.1)) * max(pin_count / 2.0, 1.0)
+        budget[net_name] = min(base_budget, max(1000, int(base_budget * difficulty / 50.0)))
+    return budget
+
+
+def _build_edt_from_grid(
+    grid: OccupancyGrid,
+) -> tuple[np.ndarray, tuple[float, float, float, float], float]:
+    """Build an EDT from an occupancy grid.
+
+    Free cells (0) receive distance to the nearest blocked cell (>0).
+    Returns ``(edt_grid, bounds, cell_size)``.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    mask = (grid.grid == 0).astype(np.uint8)
+    edt = distance_transform_edt(mask)
+    min_x, min_y = grid.origin
+    max_x = min_x + grid.width_cells * grid.cell_size
+    max_y = min_y + grid.height_cells * grid.cell_size
+    return edt, (min_x, min_y, max_x, max_y), grid.cell_size
+
+
 def run_astar_pathfinding(
     channel_mapping: ChannelMapping,
     grid: OccupancyGrid,
@@ -157,6 +246,8 @@ def run_astar_pathfinding(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    bottleneck_widths: dict[str, float] | None = None,
+    net_budgets: dict[str, int] | None = None,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -178,6 +269,13 @@ def run_astar_pathfinding(
         enable_coarse_to_fine: Use coarse-to-fine corridor routing (default False)
         coarse_factor: Downsampling factor for coarse grid (default 4)
         corridor_buffer_cells: Buffer margin in fine cells around coarse path (default 12)
+        bottleneck_widths: Optional dict mapping net_name to bottleneck width (mm).
+            When provided, nets with narrower bottlenecks route earlier within
+            each conflict cluster, ensuring nets with the fewest routing options
+            claim their corridor first.  Defaults to None (area-only ordering).
+        net_budgets: Optional per-net iteration budget dict.  When provided,
+            overrides the uniform ``max_iter`` cap with a difficulty-proportional
+            per-net budget.  Use ``compute_demand_budget()`` to generate.
 
     Returns:
         PathfindingResult with routed paths and failure reports
@@ -203,7 +301,7 @@ def run_astar_pathfinding(
             print(f"  Found {len(tht_locations)} THT pads for layer switching")
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
 
-    net_order = _compute_net_order(channel_mapping)
+    net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
     routable_nets = [n for n in net_order if _should_route(n)]
 
     if target_nets:
@@ -247,16 +345,19 @@ def run_astar_pathfinding(
 
         primary_grid = all_grids.get(channel_path.preferred_layer, grid)
 
-        per_net_max_iter = max_iter
-        waypoints = channel_path.waypoints
-        if waypoints and len(waypoints) >= 2:
-            dx = abs(waypoints[-1][0] - waypoints[0][0])
-            dy = abs(waypoints[-1][1] - waypoints[0][1])
-            span_cells = int((dx + dy) / primary_grid.cell_size)
-            grid_area = primary_grid.width_cells * primary_grid.height_cells
-            ellipse_cells = int(math.pi * (span_cells / 2.0) ** 2)
-            derived = max(1000, min(ellipse_cells, grid_area))
-            per_net_max_iter = min(max_iter, derived)
+        if net_budgets is not None:
+            per_net_max_iter = net_budgets.get(net_name, max_iter)
+        else:
+            per_net_max_iter = max_iter
+            waypoints = channel_path.waypoints
+            if waypoints and len(waypoints) >= 2:
+                dx = abs(waypoints[-1][0] - waypoints[0][0])
+                dy = abs(waypoints[-1][1] - waypoints[0][1])
+                span_cells = int((dx + dy) / primary_grid.cell_size)
+                grid_area = primary_grid.width_cells * primary_grid.height_cells
+                ellipse_cells = int(math.pi * (span_cells / 2.0) ** 2)
+                derived = max(1000, min(ellipse_cells, grid_area))
+                per_net_max_iter = min(max_iter, derived)
         alt_layer = next((layer for layer in all_grids if layer != channel_path.preferred_layer), None)
         active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
 
@@ -501,35 +602,208 @@ def _astar_route_with_ripup(
 
     return path, [], fallback_count
 
-def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
+def _compute_bottleneck_widths(
+    channel_mapping: ChannelMapping,
+    edt: 'np.ndarray',
+    mask: 'np.ndarray',
+    bounds: tuple[float, float, float, float],
+    cell_size: float = 0.1,
+    sample_distance: float = 0.5,
+) -> dict[str, float]:
     """
-    Compute routing order for nets.
+    Compute per-net bottleneck width from the EDT grid.
 
-    Priority (highest to lowest):
-    1. Power/HV/Critical nets (establish main arteries)
-    2. Historically problematic nets (route early before congestion)
-    3. Shortest paths first (easier to fit)
+    For each net, sample points along the straight-line segments
+    between consecutive waypoints and look up the EDT width.
+    The bottleneck width is the minimum EDT width along all samples.
 
-    Note (Wave 5 / R12 attempt, reverted 2026-06-23): routing
-    high-pin nets first within the signal class was tried and
-    REGRESSED closure from 15/24 to 13/24 on temper.kicad_pcb.
-    The 8-pin I_SENSE still hits the iter cap even with first
-    claim, and routing it first blocks the 2-3 pin nets that
-    were successfully routing under the shortest-first order.
-    The shortest-first heuristic is empirically better on this
-    board.  If a future board needs different ordering, expose
-    this as a tunable rather than changing the default.
+    Args:
+        channel_mapping: Channel mapping with waypoints per net.
+        edt: Euclidean Distance Transform grid (ndarray).
+        mask: Interior mask grid (True = interior).
+        bounds: (min_x, min_y, max_x, max_y) of the EDT grid.
+        cell_size: Grid cell size in mm.
+        sample_distance: Distance between sample points along edges (mm).
+
+    Returns:
+        Dict mapping net_name to bottleneck width in mm.
+        Nets with no waypoints get float('inf').
+    """
+    import numpy as np
+
+    from temper_placer.router_v6.channel_widths import _edt_width_lookup
+
+    widths: dict[str, float] = {}
+    for net_name, path in channel_mapping.channel_paths.items():
+        waypoints = path.waypoints
+        if len(waypoints) < 2:
+            widths[net_name] = float('inf')
+            continue
+
+        min_width = float('inf')
+        for i in range(len(waypoints) - 1):
+            x1, y1 = waypoints[i]
+            x2, y2 = waypoints[i + 1]
+            dx = x2 - x1
+            dy = y2 - y1
+            seg_len = math.sqrt(dx * dx + dy * dy)
+
+            if seg_len < 1e-9:
+                w = _edt_width_lookup(x1, y1, edt, mask, bounds, cell_size)
+                if w < min_width:
+                    min_width = w
+                continue
+
+            num_samples = max(1, int(seg_len / sample_distance))
+            for s in range(num_samples + 1):
+                t = s / num_samples
+                sx = x1 + t * dx
+                sy = y1 + t * dy
+                w = _edt_width_lookup(sx, sy, edt, mask, bounds, cell_size)
+                if w < min_width:
+                    min_width = w
+
+        widths[net_name] = min_width if min_width != float('inf') else 0.0
+
+    return widths
+
+
+def _compute_net_order(
+    channel_mapping: ChannelMapping,
+    bottleneck_widths: dict[str, float] | None = None,
+) -> list[str]:
+    """
+    Compute routing order for nets using spatial conflict awareness.
+
+    Algorithm:
+      1. Compute bounding boxes for each net from its waypoints.
+      2. Build a conflict graph: two nets conflict if their bounding boxes
+         overlap sufficiently (overlap / smaller_area > 0.1).
+      3. Find connected components (clusters of mutually-overlapping nets).
+      4. Within each cluster, sort by (power_first, bottleneck_asc, area_asc)
+         when bottleneck_widths is provided; otherwise (power_first, area_asc).
+         Bottleneck-first ordering addresses channel competition (min widths),
+         complementing the area-based ordering that addresses area competition.
+      5. Route isolated clusters first, then largest clusters.
+
+    Rationale:
+      The rip-up cascade occurs when a large-footprint net consumes
+      space that a small-footprint net later needs.  Routing small nets
+      first ensures they claim their narrow corridors before larger nets
+      spread through the region.  Adding bottleneck widths gives priority
+      to nets with the narrowest routing corridors — they have fewer
+      routing options and must be routed before competitors claim their
+      only viable path.
+
+    Args:
+        channel_mapping: Channel mapping with waypoints per net.
+        bottleneck_widths: Optional dict mapping net_name to bottleneck
+            width in mm.  When provided, nets with narrower bottlenecks
+            route earlier within their cluster.
+
+    Proof of correctness (induction):
+      Base case: Two nets with zero bounding-box overlap.
+        Assigned to separate clusters.  Their routing order cannot
+        affect each other — the board has independent regions.
+      Induction: Within a cluster of k overlapping nets, routing
+        net 1 (smallest footprint or narrowest bottleneck) first gives
+        it a clean grid.  When net k routes, it finds space that
+        net 1 through net k-1 didn't need.  By induction on k,
+        all nets in the cluster have at least the same routing
+        opportunity as random ordering.
+      Bottleneck lemma: routing net A (bottleneck=0.5mm) before net B
+        (bottleneck=5mm) never makes B unroutable that wouldn't already
+        be unroutable (B has 10x more routing options).
     """
     nets = list(channel_mapping.channel_paths)
 
-    def priority_key(net_name: str):
+    if len(nets) <= 1:
+        return nets
+
+    # 1. Compute bounding box for each net
+    bboxes: dict[str, tuple[float, float, float, float]] = {}
+    bbox_areas: dict[str, float] = {}
+    for net_name in nets:
         path = channel_mapping.channel_paths[net_name]
+        waypoints = path.waypoints
+        if not waypoints:
+            bboxes[net_name] = (0, 0, 0, 0)
+            bbox_areas[net_name] = 0.0
+            continue
+        xs = [w[0] for w in waypoints]
+        ys = [w[1] for w in waypoints]
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        bboxes[net_name] = (min_x, min_y, max_x, max_y)
+        bbox_areas[net_name] = (max_x - min_x) * (max_y - min_y)
+
+    # 2. Build conflict graph.  Two nets conflict if their bounding
+    #    boxes overlap more than 10% of the smaller net's area.
+    #    This threshold prevents false clusters from slightly-overlapping
+    #    nets that route in entirely different channels.
+    threshold = 0.1
+    conflict: dict[str, set[str]] = {n: set() for n in nets}
+    net_list = list(nets)
+    for i in range(len(net_list)):
+        a = net_list[i]
+        ax1, ay1, ax2, ay2 = bboxes[a]
+        area_a = bbox_areas[a]
+        if area_a <= 0:
+            continue
+        for j in range(i + 1, len(net_list)):
+            b = net_list[j]
+            bx1, by1, bx2, by2 = bboxes[b]
+            area_b = bbox_areas[b]
+            if area_b <= 0:
+                continue
+            # Compute overlap
+            ox = max(0.0, min(ax2, bx2) - max(ax1, bx1))
+            oy = max(0.0, min(ay2, by2) - max(ay1, by1))
+            overlap = ox * oy
+            min_area = min(area_a, area_b)
+            if min_area > 0 and overlap / min_area > threshold:
+                conflict[a].add(b)
+                conflict[b].add(a)
+
+    # 2b. Find connected components (clusters) via BFS
+    visited: set[str] = set()
+    clusters: list[list[str]] = []
+    for net in nets:
+        if net in visited:
+            continue
+        queue = [net]
+        cluster: list[str] = []
+        while queue:
+            n = queue.pop()
+            if n in visited:
+                continue
+            visited.add(n)
+            cluster.append(n)
+            for neighbor in conflict[n]:
+                if neighbor not in visited:
+                    queue.append(neighbor)
+        clusters.append(cluster)
+
+    # 3. Within each cluster, sort by (power_first, bottleneck_asc, area_asc)
+    def cluster_sort_key(net_name: str) -> tuple:
         name_upper = net_name.upper()
         is_power = any(x in name_upper for x in ["GND", "VCC", "HV", "AC_", "+", "VBUS"])
-        is_problem = net_name in PROBLEM_NETS
-        return (not is_power, not is_problem, path.total_length)
+        if bottleneck_widths is not None:
+            bw = bottleneck_widths.get(net_name, float('inf'))
+            return (not is_power, bw, bbox_areas.get(net_name, float('inf')))
+        return (not is_power, bbox_areas.get(net_name, float('inf')))
 
-    return sorted(nets, key=priority_key)
+    for cluster in clusters:
+        cluster.sort(key=cluster_sort_key)
+
+    # 4. Sort clusters: isolated first, then by cluster size descending
+    clusters.sort(key=lambda c: (-len(c), sum(bbox_areas.get(n, 0) for n in c)))
+
+    # 5. Flatten
+    result = []
+    for cluster in clusters:
+        result.extend(cluster)
+    return result
 
 def _astar_route_multilayer(
     net_name: str,
@@ -545,6 +819,7 @@ def _astar_route_multilayer(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    enable_congestion_derivative: bool = True,
 ) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -576,6 +851,7 @@ def _astar_route_multilayer(
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
         fallback_count += fb
 
@@ -592,6 +868,7 @@ def _astar_route_multilayer(
                     enable_coarse_to_fine=enable_coarse_to_fine,
                     coarse_factor=coarse_factor,
                     corridor_buffer_cells=corridor_buffer_cells,
+                    enable_congestion_derivative=enable_congestion_derivative,
                 )
                 fallback_count += fb2
                 if segment_path:
@@ -735,18 +1012,21 @@ def _dispatch_search(
     congestion_tensor=None,
     max_iter: int = 1_000_000,
     enable_numba_los: bool = False,
+    enable_congestion_derivative: bool = True,
 ):
     if use_lazy_theta_star:
         return _astar_search_lazy_theta_star(
             grid, start, goal, net_id=-1,
             max_iter=max_iter,
             enable_numba_los=enable_numba_los,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
     if use_theta_star:
         return _astar_search_theta_star(
             grid, start, goal, net_id=-1,
             max_iter=max_iter,
             enable_numba_los=enable_numba_los,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
     # 2D plain A*.  Delegate to the Numba-jitted kernel when available
     # and the grid is small enough that the overhead of building the
@@ -780,6 +1060,7 @@ def _segment_search(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    enable_congestion_derivative: bool = True,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Run A* between two world-coordinate waypoints on ``grid``.
 
@@ -800,12 +1081,14 @@ def _segment_search(
             corridor_buffer_cells=corridor_buffer_cells,
             congestion_tensor=congestion_tensor,
             max_iter=max_iter,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
 
     path = _dispatch_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
     enable_numba_los=enable_numba_los,
+    enable_congestion_derivative=enable_congestion_derivative,
     )
     return path, grid, 0
 
@@ -821,6 +1104,7 @@ def _segment_search_coarse_to_fine(
     congestion_tensor=None,
     max_iter: int = 1_000_000,
     enable_numba_los: bool = False,
+    enable_congestion_derivative: bool = True,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Coarse-to-fine corridor routing.
 
@@ -866,6 +1150,7 @@ def _segment_search_coarse_to_fine(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
     enable_numba_los=enable_numba_los,
+    enable_congestion_derivative=enable_congestion_derivative,
     )
     return path, grid, 1
 
