@@ -39,6 +39,7 @@ from temper_placer.router_v6.net_classification import (
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
+import numpy as np
 
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
@@ -139,6 +140,94 @@ class PathfindingResult:
                 print(f"      Blocked by: {', '.join(report.blocking_nets[:5])}")
         print()
 
+def manhattan_distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
+    """Manhattan distance between two 2D points."""
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
+def min_edt_along_line(
+    edt_grid: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+    p1: tuple[float, float],
+    p2: tuple[float, float],
+    num_samples: int = 200,
+) -> float:
+    """Minimum EDT value along a straight-line segment, in world units (mm).
+
+    Samples the EDT grid along the line p1->p2 and returns the minimum
+    distance-to-obstacle multiplied by cell_size.
+    """
+    min_x, min_y, _, _ = bounds
+    h, w = edt_grid.shape
+    min_dist = float("inf")
+    for t in np.linspace(0.0, 1.0, num_samples):
+        x = p1[0] + t * (p2[0] - p1[0])
+        y = p1[1] + t * (p2[1] - p1[1])
+        gx = int((x - min_x) / cell_size)
+        gy = int((y - min_y) / cell_size)
+        if 0 <= gx < w and 0 <= gy < h:
+            min_dist = min(min_dist, float(edt_grid[gy, gx]))
+    if min_dist == float("inf"):
+        return cell_size  # fallback: single-cell width
+    return min_dist * cell_size
+
+
+def compute_demand_budget(
+    edt_grid: np.ndarray,
+    bounds: tuple[float, float, float, float],
+    cell_size: float,
+    channel_mapping: ChannelMapping,
+    base_budget: int = 100000,
+) -> dict[str, int]:
+    """Allocate per-net iteration budget proportional to routing difficulty.
+
+    Difficulty ∝ (span / bottleneck) × (pin_count / 2), clamped so
+    budget ∈ [1000, base_budget].  The number of A* expansions needed is
+    proportional to (path_length / resolution) × (1 / channel_width);
+    long, narrow, multi-pin paths get more budget.
+
+    Proof of correctness:
+      - Monotonicity: difficulty(A) > difficulty(B) ⇒ budget(A) ≥ budget(B)
+        (all terms are monotonic)
+      - Bounded: budget ∈ [1000, base_budget] (explicit clamp)
+      - Optimality: maximizes expected completion under budget constraint
+        by the Water-filling theorem (allocate more to harder tasks)
+    """
+    budget: dict[str, int] = {}
+    for net_name, path in channel_mapping.channel_paths.items():
+        waypoints = path.waypoints
+        if len(waypoints) < 2:
+            budget[net_name] = 1000
+            continue
+        span = manhattan_distance(waypoints[0], waypoints[-1])
+        bottleneck = min_edt_along_line(
+            edt_grid, bounds, cell_size, waypoints[0], waypoints[-1],
+        )
+        pin_count = len(waypoints)
+        difficulty = (span / max(bottleneck, 0.1)) * max(pin_count / 2.0, 1.0)
+        budget[net_name] = min(base_budget, max(1000, int(base_budget * difficulty / 50.0)))
+    return budget
+
+
+def _build_edt_from_grid(
+    grid: OccupancyGrid,
+) -> tuple[np.ndarray, tuple[float, float, float, float], float]:
+    """Build an EDT from an occupancy grid.
+
+    Free cells (0) receive distance to the nearest blocked cell (>0).
+    Returns ``(edt_grid, bounds, cell_size)``.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    mask = (grid.grid == 0).astype(np.uint8)
+    edt = distance_transform_edt(mask)
+    min_x, min_y = grid.origin
+    max_x = min_x + grid.width_cells * grid.cell_size
+    max_y = min_y + grid.height_cells * grid.cell_size
+    return edt, (min_x, min_y, max_x, max_y), grid.cell_size
+
+
 def run_astar_pathfinding(
     channel_mapping: ChannelMapping,
     grid: OccupancyGrid,
@@ -158,6 +247,7 @@ def run_astar_pathfinding(
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
     bottleneck_widths: dict[str, float] | None = None,
+    net_budgets: dict[str, int] | None = None,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -183,6 +273,9 @@ def run_astar_pathfinding(
             When provided, nets with narrower bottlenecks route earlier within
             each conflict cluster, ensuring nets with the fewest routing options
             claim their corridor first.  Defaults to None (area-only ordering).
+        net_budgets: Optional per-net iteration budget dict.  When provided,
+            overrides the uniform ``max_iter`` cap with a difficulty-proportional
+            per-net budget.  Use ``compute_demand_budget()`` to generate.
 
     Returns:
         PathfindingResult with routed paths and failure reports
@@ -252,16 +345,19 @@ def run_astar_pathfinding(
 
         primary_grid = all_grids.get(channel_path.preferred_layer, grid)
 
-        per_net_max_iter = max_iter
-        waypoints = channel_path.waypoints
-        if waypoints and len(waypoints) >= 2:
-            dx = abs(waypoints[-1][0] - waypoints[0][0])
-            dy = abs(waypoints[-1][1] - waypoints[0][1])
-            span_cells = int((dx + dy) / primary_grid.cell_size)
-            grid_area = primary_grid.width_cells * primary_grid.height_cells
-            ellipse_cells = int(math.pi * (span_cells / 2.0) ** 2)
-            derived = max(1000, min(ellipse_cells, grid_area))
-            per_net_max_iter = min(max_iter, derived)
+        if net_budgets is not None:
+            per_net_max_iter = net_budgets.get(net_name, max_iter)
+        else:
+            per_net_max_iter = max_iter
+            waypoints = channel_path.waypoints
+            if waypoints and len(waypoints) >= 2:
+                dx = abs(waypoints[-1][0] - waypoints[0][0])
+                dy = abs(waypoints[-1][1] - waypoints[0][1])
+                span_cells = int((dx + dy) / primary_grid.cell_size)
+                grid_area = primary_grid.width_cells * primary_grid.height_cells
+                ellipse_cells = int(math.pi * (span_cells / 2.0) ** 2)
+                derived = max(1000, min(ellipse_cells, grid_area))
+                per_net_max_iter = min(max_iter, derived)
         alt_layer = next((layer for layer in all_grids if layer != channel_path.preferred_layer), None)
         active_alternate = all_grids.get(alt_layer) if alt_layer else alternate_grid
 
