@@ -12,7 +12,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from temper_placer.core.priority import POWER_STAGE_TEMPLATES, PlacementPhaseConfig, PlacementPriority
+from temper_placer.core.priority import (
+    POWER_STAGE_TEMPLATES,
+    PlacementPhaseConfig,
+    PlacementPriority,
+)
 from temper_placer.heuristics.base import (
     ComponentPlacement,
     Heuristic,

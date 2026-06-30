@@ -42,8 +42,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     from shapely.geometry import Polygon
-
     from temper_drc.core.fence import DRCFence
+
     from temper_placer.core.board import Zone as CopperZone
     from temper_placer.io.config_loader import IsolationSlot
 
