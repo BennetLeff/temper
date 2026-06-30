@@ -1537,6 +1537,13 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "snubber_requirements",  # U3: Snubber circuit requirements
         "bleed_resistor",  # U3: Bleed resistor specification
         "skin_effect_derating",  # U3: Skin-effect derating
+        "critical_routing_order",  # Net routing order
+        "fixed_components",  # Fixed-position component list
+        "group_separation",  # Inter-group separation rules
+        "hv_lv_separation",  # HV/LV separation thresholds
+        "nets",  # Net list
+        "thermal",  # Thermal edge-preference constraints
+        "via_array_overrides",  # Per-net via array templates
     }
 )
 
