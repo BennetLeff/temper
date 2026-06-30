@@ -163,7 +163,7 @@ class PhasedComponentAssignmentStage(Stage):
         check meaningfully, so the invariant is omitted to avoid spurious
         false positives on degraded runs.
         """
-        from temper_drc.core.fence import InvariantSpec
+        from temper_placer.validation.drc_fence import InvariantSpec
 
         if self.channel_map is None or not self.channel_map.has_grid():
             return ()

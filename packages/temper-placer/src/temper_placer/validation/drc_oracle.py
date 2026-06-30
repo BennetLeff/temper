@@ -24,9 +24,9 @@ from typing import TYPE_CHECKING, Any
 from jax import Array
 
 if TYPE_CHECKING:
-    from temper_drc.core.result import RunResult
-    from temper_drc.input.constraints import ConstraintSet as DrcConstraintSet
-    from temper_drc.input.placement import Placement as DrcPlacement
+    from temper_placer.validation.drc_result import RunResult
+    from temper_placer.validation.drc_types import ConstraintSet as DrcConstraintSet
+    from temper_placer.validation.drc_types import Placement as DrcPlacement
 
     from temper_placer.losses.base import LossContext
 
@@ -75,7 +75,7 @@ def build_placement_from_netlist(
     - layer from initial_side (0=F.Cu, 1=B.Cu)
     - voltage_domain set to None (not present on temper-placer Component)
     """
-    from temper_drc.input.placement import ComponentPlacement, Placement
+    from temper_placer.validation.drc_types import ComponentPlacement, Placement
 
     netlist = context.netlist
     components: dict[str, ComponentPlacement] = {}
@@ -123,7 +123,7 @@ def build_constraint_set(context: LossContext) -> DrcConstraintSet:
     min_clearance) to temper_drc.input.constraints.ClearanceRule (from_class,
     to_class, min_mm).
     """
-    from temper_drc.input.constraints import ClearanceRule, ConstraintSet
+    from temper_placer.validation.drc_types import ClearanceRule, ConstraintSet
 
     clearances: list[ClearanceRule] = []
     for rule in context.clearance_rules:
@@ -496,8 +496,8 @@ class DRCOracle:
             RunResult consumable by temper_drc consumers.
         """
         # Lazy import to avoid hard dependency on temper_drc
-        from temper_drc.core.result import CheckResult, Issue, RunResult
-        from temper_drc.core.severity import Severity
+        from temper_placer.validation.drc_result import CheckResult, Issue, RunResult
+        from temper_placer.validation.drc_result import Severity
 
         _SEVERITY_MAP = {
             "INFO": Severity.INFO,
@@ -527,7 +527,7 @@ class DRCOracle:
                 loc_dict = v.get("location")
                 location = None
                 if loc_dict is not None and isinstance(loc_dict, dict):
-                    from temper_drc.core.result import Location as DrcLocation
+                    from temper_placer.validation.drc_result import Location as DrcLocation
 
                     location = DrcLocation(
                         x=loc_dict.get("x"),
@@ -577,23 +577,25 @@ def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
         ImportError: If temper-drc is not installed.
     """
     try:
-        from temper_drc import CheckRunner
-        from temper_drc.checks.drc import (
+        from temper_placer.validation.drc_runner import CheckRunner
+        from temper_placer.validation.drc_result import (
             ClearanceCheck,
             ComponentOverlapCheck,
             CourtyardCheck,
-            ZoneContainmentCheck,
-        )
-        from temper_drc.checks.emc import GroundPlaneCheck, LoopAreaCheck, NoiseCouplingCheck
-        from temper_drc.checks.erc import FloatingPinsCheck, NetConnectivityCheck, PowerDomainCheck
-        from temper_drc.checks.safety import (
             CreepageCheck,
+            FloatingPinsCheck,
+            GroundPlaneCheck,
             HVLVSeparationCheck,
             IsolationCheck,
+            LoopAreaCheck,
+            NetConnectivityCheck,
+            NoiseCouplingCheck,
+            PowerDomainCheck,
+            ZoneContainmentCheck,
         )
     except ImportError as e:
         raise ImportError(
-            "temper-drc is not installed. Install it with: pip install temper-drc"
+            "temper-drc is not installed. Install it with: pip install temper-placer"
         ) from e
 
     runner = CheckRunner()

@@ -58,10 +58,6 @@ dev = [
 gpu = [
     "jax[cuda12_pip]>=0.4.20",
 ]
-drc = [
-    "temper-drc",
-]
-
 [project.scripts]
 temper-placer = "temper_placer.cli:main"
 temper = "temper_placer.cli:main"

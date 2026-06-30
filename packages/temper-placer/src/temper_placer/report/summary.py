@@ -1,13 +1,16 @@
-"""Summary report generation."""
+"""
+Summary report generation for DRC check results.
+
+Moved from ``temper_drc.report.summary``.
+"""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_drc.core.result import RunResult
-    from temper_drc.input.constraints import ConstraintSet
-    from temper_drc.input.placement import Placement
+    from temper_placer.validation.drc_result import RunResult
+    from temper_placer.validation.drc_types import ConstraintSet, Placement
 
 
 def generate_summary(
@@ -15,29 +18,17 @@ def generate_summary(
     placement: Placement,
     _constraints: ConstraintSet,
 ) -> str:
-    """
-    Generate a high-level summary of check results with key metrics.
-
-    Args:
-        result: The run result to summarize.
-        placement: The placement data.
-        constraints: The constraint set.
-
-    Returns:
-        Formatted summary text.
-    """
+    """Generate a high-level summary of check results with key metrics."""
     lines = []
     lines.append("=" * 60)
     lines.append("temper-drc Summary")
     lines.append("=" * 60)
     lines.append("")
 
-    # Overall status
     status = "✓ PASS" if result.passed else "✗ FAIL"
     lines.append(f"Overall Status: {status}")
     lines.append("")
 
-    # Basic statistics
     lines.append("Statistics:")
     lines.append(f"  Components: {len(placement.components)}")
     lines.append(f"  Nets: {len(placement.nets)}")
@@ -45,7 +36,6 @@ def generate_summary(
     lines.append(f"  Board Size: {placement.board_width}mm × {placement.board_height}mm")
     lines.append("")
 
-    # Check summary
     total_checks = len(result.check_results)
     passed_checks = sum(1 for r in result.check_results if r.passed)
     failed_checks = total_checks - passed_checks
@@ -57,7 +47,6 @@ def generate_summary(
     lines.append(f"  Runtime: {result.total_elapsed_ms:.1f}ms")
     lines.append("")
 
-    # Issue breakdown by category
     issues_by_category: dict[str, int] = {}
     for check_result in result.check_results:
         for issue in check_result.issues:
@@ -70,7 +59,6 @@ def generate_summary(
             lines.append(f"  {category.upper()}: {count}")
         lines.append("")
 
-    # Key metrics
     key_metrics = _extract_key_metrics(result)
     if key_metrics:
         lines.append("Key Metrics:")
@@ -81,7 +69,6 @@ def generate_summary(
                 lines.append(f"  {metric_name}: {metric_value}")
         lines.append("")
 
-    # Top issues (if any)
     all_issues = result.all_issues
     if all_issues:
         critical_count = sum(1 for i in all_issues if i.severity.name == "CRITICAL")
@@ -97,7 +84,6 @@ def generate_summary(
             lines.append(f"  WARNING: {warning_count}")
         lines.append("")
 
-        # Show top 5 issues
         top_issues = sorted(
             all_issues,
             key=lambda i: (
@@ -115,7 +101,6 @@ def generate_summary(
             lines.append("")
 
     lines.append("=" * 60)
-
     return "\n".join(lines)
 
 
@@ -127,45 +112,19 @@ def _extract_key_metrics(result: RunResult) -> list[tuple[str, float | int]]:
         if not check_result.metrics:
             continue
 
-        # Extract specific metrics we care about
         if "min_clearance_mm" in check_result.metrics:
-            metrics.append(
-                (
-                    "Minimum Clearance",
-                    check_result.metrics["min_clearance_mm"],
-                )
-            )
+            metrics.append(("Minimum Clearance", check_result.metrics["min_clearance_mm"]))
 
         if "overlap_count" in check_result.metrics:
-            metrics.append(
-                (
-                    "Component Overlaps",
-                    check_result.metrics["overlap_count"],
-                )
-            )
+            metrics.append(("Component Overlaps", check_result.metrics["overlap_count"]))
 
         if "max_loop_area_mm2" in check_result.metrics:
-            metrics.append(
-                (
-                    "Max Loop Area (mm²)",
-                    check_result.metrics["max_loop_area_mm2"],
-                )
-            )
+            metrics.append(("Max Loop Area (mm²)", check_result.metrics["max_loop_area_mm2"]))
 
         if "ground_discontinuities" in check_result.metrics:
-            metrics.append(
-                (
-                    "Ground Discontinuities",
-                    check_result.metrics["ground_discontinuities"],
-                )
-            )
+            metrics.append(("Ground Discontinuities", check_result.metrics["ground_discontinuities"]))
 
         if "floating_pins" in check_result.metrics:
-            metrics.append(
-                (
-                    "Floating Pins",
-                    check_result.metrics["floating_pins"],
-                )
-            )
+            metrics.append(("Floating Pins", check_result.metrics["floating_pins"]))
 
     return metrics

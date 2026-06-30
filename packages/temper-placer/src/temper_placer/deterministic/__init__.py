@@ -7,10 +7,10 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from temper_drc.input.constraints import ClearanceRule as _DRCClearanceRule
-from temper_drc.input.constraints import ConstraintSet as _DRCConstraintSet
-from temper_drc.input.placement import ComponentPlacement as _DRCCompPlacement
-from temper_drc.input.placement import Placement as _DRCPlacement
+from temper_placer.validation.drc_types import ClearanceRule as _DRCClearanceRule
+from temper_placer.validation.drc_types import ConstraintSet as _DRCConstraintSet
+from temper_placer.validation.drc_types import ComponentPlacement as _DRCCompPlacement
+from temper_placer.validation.drc_types import Placement as _DRCPlacement
 
 from .channels import (
     ALLOWED_SCHEMA_HASHES as ALLOWED_SCHEMA_HASHES,
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from shapely.geometry import Polygon
-    from temper_drc.core.fence import DRCFence
+    from temper_placer.validation.drc_fence import DRCFence
 
     from temper_placer.core.board import Zone as CopperZone
     from temper_placer.io.config_loader import IsolationSlot
@@ -187,7 +187,7 @@ class DeterministicPipeline:
         self.fence = fence
 
     def run(self, initial_state: BoardState | None = None) -> BoardState:
-        from temper_drc.core import _issue_fingerprint
+        from temper_placer.validation.drc_fence import _issue_fingerprint
 
         state = initial_state or BoardState()
         previous_violations: frozenset[str] | None = None

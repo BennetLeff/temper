@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from temper_drc.core.fence import DRCFence, InvariantSpec
+from temper_placer.validation.drc_fence import DRCFence, InvariantSpec
 
 from temper_placer.core.board import side_to_layer_name
 from temper_placer.deterministic.state import BoardState
@@ -213,9 +213,9 @@ def _parsed_pcb_to_drc_input(
     Placement model for DRC checks that operate on geometry beyond
     component footprint overlap.
     """
-    from temper_drc.input.constraints import ClearanceRule, ConstraintSet
-    from temper_drc.input.placement import ComponentPlacement as DRCCompPlacement
-    from temper_drc.input.placement import Placement as DRCPlacement
+    from temper_placer.validation.drc_types import ClearanceRule, ConstraintSet
+    from temper_placer.validation.drc_types import ComponentPlacement as DRCCompPlacement
+    from temper_placer.validation.drc_types import Placement as DRCPlacement
 
     board_width = pcb.board.width
     board_height = pcb.board.height
@@ -262,8 +262,8 @@ def _parsed_pcb_to_drc_input(
 
     # Populate via/trace data when available
     if escape_vias:
-        from temper_drc.types import Via as DRCVia
-        from temper_drc.types import ViaPlacement as DRCViaPlacement
+        from temper_placer.validation.drc_types import Via as DRCVia
+        from temper_placer.validation.drc_types import ViaPlacement as DRCViaPlacement
         # NOTE: Assumes all vias are through-hole (F.Cu <-> B.Cu).
         # Blind/buried via support requires per-via layer resolution.
         drc_vias = [
@@ -280,8 +280,8 @@ def _parsed_pcb_to_drc_input(
         placement.via_placement = DRCViaPlacement(vias=drc_vias)
 
     if routing_results is not None:
-        from temper_drc.types import TracePlacement as DRCTracePlacement
-        from temper_drc.types import TraceSegment
+        from temper_placer.validation.drc_types import TracePlacement as DRCTracePlacement
+        from temper_placer.validation.drc_types import TraceSegment
         segments: list[TraceSegment] = []
         for net_name, net_result in getattr(routing_results, "results", {}).items():
             if not getattr(net_result, "success", False):
@@ -1356,8 +1356,8 @@ def _ensure_checks_loaded(fence, invariants: tuple) -> None:
     if not missing:
         return
     try:
-        from temper_drc.checks.drc.trace_clearance import TraceClearanceCheck  # noqa: E402
-        from temper_drc.checks.drc.via_spacing import ViaSpacingCheck  # noqa: E402
+        from temper_placer.validation.drc_result import TraceClearanceCheck  # noqa: E402
+        from temper_placer.validation.drc_result import ViaSpacingCheck  # noqa: E402
     except ImportError:
         return  # temper_drc not available, skip
     if "drc_via_spacing" in missing:

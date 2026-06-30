@@ -8,10 +8,9 @@ without errors.
 from pathlib import Path
 
 import pytest
-from temper_drc.checks.drc.clearance import ClearanceCheck
-from temper_drc.checks.drc.component_overlap import ComponentOverlapCheck
-from temper_drc.core.fence import DRCFence
-from temper_drc.core.runner import CheckRunner
+from temper_placer.validation.drc_result import ClearanceCheck, ComponentOverlapCheck
+from temper_placer.validation.drc_fence import DRCFence
+from temper_placer.validation.drc_runner import CheckRunner
 
 from temper_placer.router_v6.pipeline import RouterV6Pipeline
 

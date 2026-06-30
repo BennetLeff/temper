@@ -1,4 +1,8 @@
-"""Command-line interface for temper-drc."""
+"""
+Command-line interface for DRC checking.
+
+Moved from ``temper_drc.cli``.
+"""
 
 from __future__ import annotations
 
@@ -9,24 +13,25 @@ from typing import Any
 import click
 import yaml
 
-from temper_drc.checks.drc.clearance import ClearanceCheck
-from temper_drc.checks.drc.component_overlap import ComponentOverlapCheck
-from temper_drc.checks.drc.courtyard import CourtyardCheck
-from temper_drc.checks.drc.zone_containment import ZoneContainmentCheck
-from temper_drc.checks.emc.ground_plane import GroundPlaneCheck
-from temper_drc.checks.emc.loop_area import LoopAreaCheck
-from temper_drc.checks.emc.noise_coupling import NoiseCouplingCheck
-from temper_drc.checks.erc.floating_pins import FloatingPinsCheck
-from temper_drc.checks.erc.net_connectivity import NetConnectivityCheck
-from temper_drc.checks.erc.power_domain import PowerDomainCheck
-from temper_drc.checks.safety.creepage import CreepageCheck
-from temper_drc.checks.safety.hv_lv_separation import HVLVSeparationCheck
-from temper_drc.checks.safety.isolation import IsolationCheck
-from temper_drc.core.runner import CheckRunner
-from temper_drc.input.constraints import ConstraintSet
-from temper_drc.input.placement import Placement
-from temper_drc.report.formatter import format_html, format_json, format_text
-from temper_drc.report.summary import generate_summary
+from temper_placer.validation.drc_result import (
+    ClearanceCheck,
+    ComponentOverlapCheck,
+    CourtyardCheck,
+    CreepageCheck,
+    FloatingPinsCheck,
+    GroundPlaneCheck,
+    HVLVSeparationCheck,
+    IsolationCheck,
+    LoopAreaCheck,
+    NetConnectivityCheck,
+    NoiseCouplingCheck,
+    PowerDomainCheck,
+    ZoneContainmentCheck,
+)
+from temper_placer.validation.drc_runner import CheckRunner
+from temper_placer.validation.drc_types import ConstraintSet, Placement
+from temper_placer.report.formatter import format_html, format_json, format_text
+from temper_placer.report.summary import generate_summary
 
 
 @click.group()
@@ -82,12 +87,7 @@ def check(
     fail_on_error: bool,
     verbose: bool,
 ) -> None:
-    """
-    Run DRC/ERC checks on a placement file.
-
-    PLACEMENT_FILE: YAML file containing component placement data
-    """
-    # Load inputs
+    """Run DRC/ERC checks on a placement file."""
     if verbose:
         click.echo(f"Loading placement from {placement_file}...", err=True)
     placement = Placement.from_yaml(placement_file)
@@ -96,34 +96,26 @@ def check(
         click.echo(f"Loading constraints from {constraints}...", err=True)
     constraint_set = ConstraintSet.from_yaml(constraints)
 
-    # Build runner with all checks
     runner = CheckRunner()
 
-    # Register all checks
     all_checks = [
-        # DRC
         ClearanceCheck(),
         ComponentOverlapCheck(),
         CourtyardCheck(),
         ZoneContainmentCheck(),
-        # ERC
         NetConnectivityCheck(),
         PowerDomainCheck(),
         FloatingPinsCheck(),
-        # Safety
         HVLVSeparationCheck(),
         CreepageCheck(),
         IsolationCheck(),
-        # EMC
         LoopAreaCheck(),
         NoiseCouplingCheck(),
         GroundPlaneCheck(),
     ]
     runner.add_checks(all_checks)
 
-    # Add callbacks for verbose mode
     if verbose:
-
         def on_start(check: Any) -> None:
             click.echo(f"  Running {check.name}...", err=True)
 
@@ -131,10 +123,9 @@ def check(
             status = "✓" if result.passed else "✗"
             click.echo(f"  {status} {check.name} ({result.elapsed_ms:.1f}ms)", err=True)
 
-        runner.on_check_start = on_start
-        runner.on_check_complete = on_complete
+        runner.on_check_start = on_start  # type: ignore[attr-defined]
+        runner.on_check_complete = on_complete  # type: ignore[attr-defined]
 
-    # Run checks
     categories_list = list(category) if category else None
     if verbose:
         if categories_list:
@@ -144,7 +135,6 @@ def check(
 
     result = runner.run(placement, constraint_set, categories=categories_list)
 
-    # Format output
     if format == "text":
         output_str = format_text(result)
     elif format == "json":
@@ -154,7 +144,6 @@ def check(
     else:
         raise ValueError(f"Unknown format: {format}")
 
-    # Write output
     if output:
         output.write_text(output_str)
         if verbose:
@@ -162,7 +151,6 @@ def check(
     else:
         click.echo(output_str)
 
-    # Exit code
     if fail_on_error and not result.passed:
         sys.exit(1)
 
@@ -187,16 +175,10 @@ def summary(
     constraints: Path,
     category: tuple[str, ...],
 ) -> None:
-    """
-    Generate metrics summary for a placement.
-
-    PLACEMENT_FILE: YAML file containing component placement data
-    """
-    # Load inputs
+    """Generate metrics summary for a placement."""
     placement = Placement.from_yaml(placement_file)
     constraint_set = ConstraintSet.from_yaml(constraints)
 
-    # Build runner
     runner = CheckRunner()
     all_checks = [
         ClearanceCheck(),
@@ -215,11 +197,9 @@ def summary(
     ]
     runner.add_checks(all_checks)
 
-    # Run checks
     categories_list = list(category) if category else None
     result = runner.run(placement, constraint_set, categories=categories_list)
 
-    # Generate summary
     summary_text = generate_summary(result, placement, constraint_set)
     click.echo(summary_text)
 
@@ -261,28 +241,14 @@ def list_checks() -> None:
 
 @cli.command()
 @click.argument("output_file", type=click.Path(path_type=Path))
-@click.option(
-    "--board-width",
-    type=float,
-    default=100.0,
-    help="Board width in mm",
-)
-@click.option(
-    "--board-height",
-    type=float,
-    default=100.0,
-    help="Board height in mm",
-)
+@click.option("--board-width", type=float, default=100.0, help="Board width in mm")
+@click.option("--board-height", type=float, default=100.0, help="Board height in mm")
 def init_placement(
     output_file: Path,
     board_width: float,
     board_height: float,
 ) -> None:
-    """
-    Create a template placement YAML file.
-
-    OUTPUT_FILE: Path for the template placement file
-    """
+    """Create a template placement YAML file."""
     template = {
         "board_width": board_width,
         "board_height": board_height,
@@ -300,47 +266,28 @@ def init_placement(
                 "voltage_domain": "3V3",
             }
         ],
-        "nets": {
-            "VCC": ["U1"],
-            "GND": ["U1"],
-        },
+        "nets": {"VCC": ["U1"], "GND": ["U1"]},
         "zones": [
             {"name": "Power", "bounds": [0, 0, 40, 100]},
             {"name": "Digital", "bounds": [40, 0, 100, 100]},
         ],
-        "net_classes": {
-            "VCC": "Power",
-            "GND": "Power",
-        },
-        "voltage_domains": {
-            "VCC": "3V3",
-            "GND": "GND",
-        },
+        "net_classes": {"VCC": "Power", "GND": "Power"},
+        "voltage_domains": {"VCC": "3V3", "GND": "GND"},
     }
 
     with open(output_file, "w") as f:
         yaml.dump(template, f, default_flow_style=False, sort_keys=False)
-
     click.echo(f"Template placement created: {output_file}")
 
 
 @cli.command()
 @click.argument("output_file", type=click.Path(path_type=Path))
-@click.option(
-    "--hv-clearance",
-    type=float,
-    default=10.0,
-    help="HV/LV clearance in mm",
-)
+@click.option("--hv-clearance", type=float, default=10.0, help="HV/LV clearance in mm")
 def init_constraints(
     output_file: Path,
     hv_clearance: float,
 ) -> None:
-    """
-    Create a template constraints YAML file.
-
-    OUTPUT_FILE: Path for the template constraints file
-    """
+    """Create a template constraints YAML file."""
     template = {
         "clearances": {
             "Signal-Signal": 0.2,
@@ -350,8 +297,8 @@ def init_constraints(
             "HV-Signal": 10.0,
         },
         "hv_clearance_mm": hv_clearance,
-        "creepage_mm": 6.0,  # allow-safety-constant: DRC template default
-        "isolation_mm": 6.0,  # allow-safety-constant: DRC template default
+        "creepage_mm": 6.0,
+        "isolation_mm": 6.0,
         "courtyard_clearance_mm": 0.25,
         "max_loop_area_mm2": 100.0,
         "noise_sensitive_clearance_mm": 5.0,
@@ -359,7 +306,6 @@ def init_constraints(
 
     with open(output_file, "w") as f:
         yaml.dump(template, f, default_flow_style=False, sort_keys=False)
-
     click.echo(f"Template constraints created: {output_file}")
 
 

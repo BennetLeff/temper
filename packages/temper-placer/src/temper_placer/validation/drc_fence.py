@@ -1,23 +1,42 @@
-"""DRC Fence: Per-stage design rule checking orchestration."""
+"""
+DRC Fence: Per-stage design rule checking orchestration.
+
+Moved from the now-removed ``temper-drc`` Python package.
+
+Former locations:
+  - ``temper_drc.core.fence`` → DRCFence, InvariantSpec, FenceResult, …
+  - ``temper_drc.core.metrics`` → CheckMetrics, MetricsSummary
+  - ``temper_drc.core._issue_fingerprint`` → ``_issue_fingerprint`` (here)
+"""
 
 from __future__ import annotations
 
+import json
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from temper_drc.core.result import CheckResult, Issue
-from temper_drc.core.runner import CheckRunner
+from temper_placer.validation.drc_result import (
+    CheckResult,
+    Issue,
+    RunResult,
+    Severity,
+)
+from temper_placer.validation.drc_runner import CheckRunner
 
 if TYPE_CHECKING:
-    from temper_drc.input.constraints import ConstraintSet
-    from temper_drc.input.placement import Placement
+    from temper_placer.validation.drc_types import ConstraintSet, Placement
 
 logger = logging.getLogger(__name__)
 
 _BUDGET_ENFORCEMENT_START = datetime(2026, 7, 6)
+
+
+# =========================================================================
+#  _issue_fingerprint  (was in temper_drc.core.__init__)
+# =========================================================================
 
 
 def _issue_fingerprint(issue: Issue) -> str:
@@ -26,13 +45,18 @@ def _issue_fingerprint(issue: Issue) -> str:
     return f"{issue.code}:{issue.message}:{items}"
 
 
+# =========================================================================
+#  InvariantSpec / FenceViolation / FenceResult  (was temper_drc.core.fence)
+# =========================================================================
+
+
 @dataclass(frozen=True)
 class InvariantSpec:
     """
     Declaration of a per-stage invariant that the fence should verify.
 
     Attributes:
-        check_name: Name of the temper_drc check to run (e.g. "drc_component_overlap").
+        check_name: Name of the DRC check to run (e.g. "drc_component_overlap").
         guarantees: Human-readable description of what this invariant ensures.
         affected_regions: Optional bounding boxes to scope incremental checking.
     """
@@ -150,26 +174,6 @@ class DRCFence:
 
     Wraps a CheckRunner and provides methods to verify stage invariants
     after each pipeline stage executes.
-
-    Features:
-    - Violation attribution: diffs pre-stage vs post-stage violations
-    - Dual-run mode for strangler fig transitions
-    - Performance budget monitoring with soft-launch CI enforcement
-    - Incremental check scoping for bounded overhead
-
-    Example:
-        runner = CheckRunner()
-        runner.add_checks(create_standard_checks())
-        fence = DRCFence(runner, fail_on_violation=True)
-
-        result = fence.check(
-            stage_name="placement",
-            invariants=(InvariantSpec("drc_component_overlap", "No overlaps"),),
-            placement=placement,
-            constraints=constraints,
-        )
-        if not result.passed:
-            print(result.format())
     """
 
     def __init__(
@@ -198,12 +202,7 @@ class DRCFence:
         stage_wall_time_ms: float | None = None,
         alternative_result: FenceResult | None = None,
     ) -> FenceResult:
-        """
-        Run fence checks for a stage's invariants.
-
-        Returns:
-            FenceResult with pass/fail status, violations, timing, and overhead.
-        """
+        """Run fence checks for a stage's invariants."""
         t0 = time.time()
 
         if not invariants:
@@ -218,14 +217,12 @@ class DRCFence:
 
         current_issues = run_result.all_issues
 
-        # Compute attribution: identify new violations
         current_fingerprints = frozenset(_issue_fingerprint(i) for i in current_issues)
         if previous_violations is not None:
             new_fingerprints = current_fingerprints - previous_violations
         else:
             new_fingerprints = current_fingerprints
 
-        # Build attributed violations
         violations: list[FenceViolation] = []
         for issue in current_issues:
             fp = _issue_fingerprint(issue)
@@ -242,12 +239,11 @@ class DRCFence:
         new_violations = [v for v in violations if v.is_new]
         elapsed_ms = (time.time() - t0) * 1000
 
-        # Compute overhead
         overhead_pct = None
         if stage_wall_time_ms is not None and stage_wall_time_ms >= self.perf_budget_floor_ms:
             overhead_pct = (elapsed_ms / stage_wall_time_ms) * 100
 
-        passed = len(violations) == 0
+        passed = len(new_violations) == 0
 
         result = FenceResult(
             stage_name=stage_name,
@@ -259,12 +255,12 @@ class DRCFence:
             mode="single",
         )
 
-        # Dual-run mode: check divergence with alternative stage output
         if alternative_result is not None:
             consistency = (passed == alternative_result.passed)
             if not consistency:
                 level = logging.ERROR if passed != alternative_result.passed else logging.WARNING
-                logger.log(level,
+                logger.log(
+                    level,
                     "Stage '%s' dual-run divergence: PRIMARY=%s, ALTERNATIVE=%s",
                     stage_name,
                     "PASS" if passed else "FAIL",
@@ -272,10 +268,8 @@ class DRCFence:
                 )
             result.mode = "dual"
             result.alternative_result = alternative_result
-            # Suppress budget warning for dual-run (transient, ~2x overhead expected)
             overhead_pct = None
 
-        # Perf budget check (suppressed for dual-run)
         if overhead_pct is not None and overhead_pct > self.perf_budget_pct:
             logger.warning(
                 "Fence overhead %.1f%% exceeds budget %.1f%% for stage '%s'",
@@ -284,7 +278,6 @@ class DRCFence:
             if self.ci_enforce and datetime.now() >= _BUDGET_ENFORCEMENT_START:
                 raise FenceBudgetError(result)
 
-        # Violation enforcement - only raise on new violations introduced by this stage
         if self.fail_on_violation and len(new_violations) > 0:
             raise FenceViolationError(result)
 
@@ -295,3 +288,190 @@ class DRCFence:
             if inv.check_name == check_name:
                 return inv.guarantees
         return check_name
+
+
+# =========================================================================
+#  CheckMetrics / MetricsSummary  (was temper_drc.core.metrics)
+# =========================================================================
+
+
+@dataclass
+class CheckMetrics:
+    """Metrics for a single check run."""
+
+    check_name: str
+    category: str
+    elapsed_ms: float
+    issue_counts: dict[str, int] = field(default_factory=dict)
+    custom_metrics: dict[str, float] = field(default_factory=dict)
+
+    @property
+    def total_issues(self) -> int:
+        return sum(
+            count for severity, count in self.issue_counts.items()
+            if severity != "INFO"
+        )
+
+    @property
+    def passed(self) -> bool:
+        return (
+            self.issue_counts.get("ERROR", 0) == 0
+            and self.issue_counts.get("CRITICAL", 0) == 0
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "check_name": self.check_name,
+            "category": self.category,
+            "elapsed_ms": self.elapsed_ms,
+            "issue_counts": self.issue_counts,
+            "custom_metrics": self.custom_metrics,
+            "total_issues": self.total_issues,
+            "passed": self.passed,
+        }
+
+
+@dataclass
+class MetricsSummary:
+    """Aggregated metrics across all checks."""
+
+    total_checks: int = 0
+    passed_checks: int = 0
+    failed_checks: int = 0
+    total_elapsed_ms: float = 0.0
+
+    info_count: int = 0
+    warning_count: int = 0
+    error_count: int = 0
+    critical_count: int = 0
+
+    erc_issues: int = 0
+    drc_issues: int = 0
+    safety_issues: int = 0
+    emc_issues: int = 0
+
+    check_timings: dict[str, float] = field(default_factory=dict)
+    checks_run: list[str] = field(default_factory=list)
+    checks_skipped: list[str] = field(default_factory=list)
+    custom_metrics: dict[str, float] = field(default_factory=dict)
+
+    @property
+    def passed(self) -> bool:
+        return self.failed_checks == 0
+
+    @property
+    def total_issues(self) -> int:
+        return self.warning_count + self.error_count + self.critical_count
+
+    @property
+    def total_penalty(self) -> float:
+        return (
+            self.warning_count * Severity.WARNING.weight
+            + self.error_count * Severity.ERROR.weight
+            + self.critical_count * Severity.CRITICAL.weight
+        )
+
+    @property
+    def coverage(self) -> float:
+        total = len(self.checks_run) + len(self.checks_skipped)
+        if total == 0:
+            return 100.0
+        return (len(self.checks_run) / total) * 100.0
+
+    @classmethod
+    def from_run_result(
+        cls,
+        result: RunResult,
+        skipped_checks: list[str] | None = None,
+    ) -> MetricsSummary:
+        summary = cls(
+            total_checks=result.total_checks,
+            passed_checks=result.passed_checks,
+            failed_checks=result.failed_checks,
+            total_elapsed_ms=result.total_elapsed_ms,
+            info_count=result.info_count,
+            warning_count=result.warning_count,
+            error_count=result.error_count,
+            critical_count=result.critical_count,
+            checks_skipped=skipped_checks or [],
+        )
+
+        for check_result in result.check_results:
+            summary.checks_run.append(check_result.check_name)
+            summary.check_timings[check_result.check_name] = check_result.elapsed_ms
+
+            for issue in check_result.issues:
+                if issue.category == "erc":
+                    summary.erc_issues += 1
+                elif issue.category == "drc":
+                    summary.drc_issues += 1
+                elif issue.category == "safety":
+                    summary.safety_issues += 1
+                elif issue.category == "emc":
+                    summary.emc_issues += 1
+
+            for key, value in check_result.metrics.items():
+                if key in summary.custom_metrics:
+                    summary.custom_metrics[key] += value
+                else:
+                    summary.custom_metrics[key] = value
+
+        return summary
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "passed": self.passed,
+            "total_checks": self.total_checks,
+            "passed_checks": self.passed_checks,
+            "failed_checks": self.failed_checks,
+            "total_elapsed_ms": self.total_elapsed_ms,
+            "by_severity": {
+                "info": self.info_count,
+                "warning": self.warning_count,
+                "error": self.error_count,
+                "critical": self.critical_count,
+            },
+            "by_category": {
+                "erc": self.erc_issues,
+                "drc": self.drc_issues,
+                "safety": self.safety_issues,
+                "emc": self.emc_issues,
+            },
+            "total_penalty": self.total_penalty,
+            "coverage": self.coverage,
+            "check_timings": self.check_timings,
+            "checks_run": self.checks_run,
+            "checks_skipped": self.checks_skipped,
+            "custom_metrics": self.custom_metrics,
+        }
+
+    def to_json(self, indent: int = 2) -> str:
+        return json.dumps(self.to_dict(), indent=indent)
+
+    def summary_text(self) -> str:
+        status = "PASSED" if self.passed else "FAILED"
+        lines = [
+            f"Check Summary: {status}",
+            f"  Checks: {self.passed_checks}/{self.total_checks} passed",
+            f"  Time: {self.total_elapsed_ms:.1f}ms",
+            "",
+            "Issues by Severity:",
+            f"  CRITICAL: {self.critical_count}",
+            f"  ERROR: {self.error_count}",
+            f"  WARNING: {self.warning_count}",
+            f"  INFO: {self.info_count}",
+            "",
+            "Issues by Category:",
+            f"  ERC: {self.erc_issues}",
+            f"  DRC: {self.drc_issues}",
+            f"  Safety: {self.safety_issues}",
+            f"  EMC: {self.emc_issues}",
+        ]
+
+        if self.checks_skipped:
+            lines.extend([
+                "",
+                f"Skipped: {', '.join(self.checks_skipped)}",
+            ])
+
+        return "\n".join(lines)
