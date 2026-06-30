@@ -72,7 +72,7 @@ impl DrcRule for GroundPlaneCheck {
                 if !is_gnd_zone(&zone.name) {
                     return false;
                 }
-                zone.net_classes.iter().any(|zc| zc == &comp.net_class)
+                zone.net_classes.iter().any(|zc| zc.as_str() == comp.net_class.0.as_str())
             });
 
             if !inside_gnd {
@@ -91,7 +91,7 @@ impl DrcRule for GroundPlaneCheck {
                     ),
                     DrcCategory::Emc,
                     "emc_ground_plane",
-                    vec![comp.refdes.clone()],
+                    vec![comp.refdes.0.clone()],
                     Some(crate::rules::Location {
                         x: Some(comp.center.x()),
                         y: Some(comp.center.y()),

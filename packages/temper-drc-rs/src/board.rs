@@ -12,6 +12,98 @@
 use std::collections::HashMap;
 
 use geo::{EuclideanDistance, Intersects, Line, Point, Polygon, Rect};
+use serde::Serialize;
+
+// ---------------------------------------------------------------------------
+// Newtype wrappers for type safety
+// ---------------------------------------------------------------------------
+
+/// Component reference designator (e.g., "Q1", "C_BOOT", "U_MCU").
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize)]
+pub struct ComponentRef(pub String);
+
+impl std::fmt::Display for ComponentRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::ops::Deref for ComponentRef {
+    type Target = str;
+    fn deref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<&str> for ComponentRef {
+    fn from(s: &str) -> Self {
+        Self(s.to_string())
+    }
+}
+
+impl PartialEq<str> for ComponentRef {
+    fn eq(&self, other: &str) -> bool {
+        self.0 == other
+    }
+}
+
+/// Net name (e.g., "+340V_BUS", "GATE_HS", "SPI_CLK").
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize)]
+pub struct NetName(pub String);
+
+impl std::fmt::Display for NetName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::ops::Deref for NetName {
+    type Target = str;
+    fn deref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<&str> for NetName {
+    fn from(s: &str) -> Self {
+        Self(s.to_string())
+    }
+}
+
+impl PartialEq<str> for NetName {
+    fn eq(&self, other: &str) -> bool {
+        self.0 == other
+    }
+}
+
+/// Net class name (e.g., "Signal", "Power", "HighVoltage").
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize)]
+pub struct NetClassName(pub String);
+
+impl std::fmt::Display for NetClassName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::ops::Deref for NetClassName {
+    type Target = str;
+    fn deref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<&str> for NetClassName {
+    fn from(s: &str) -> Self {
+        Self(s.to_string())
+    }
+}
+
+impl PartialEq<str> for NetClassName {
+    fn eq(&self, other: &str) -> bool {
+        self.0 == other
+    }
+}
 
 // ---------------------------------------------------------------------------
 // LayerType
@@ -99,13 +191,13 @@ pub struct NetClassRules {
 /// The `center` field is the spatial coordinate used for rstar indexing.
 #[derive(Debug, Clone)]
 pub struct Component {
-    pub refdes: String,
+    pub refdes: ComponentRef,
     pub center: Point<f64>,
     pub rotation: f64,
     pub side: BoardSide,
     pub width: f64,
     pub height: f64,
-    pub net_class: String,
+    pub net_class: NetClassName,
     pub power_dissipation_w: Option<f64>,
     pub package_type: PackageType,
     pub is_magnetic: bool,
@@ -205,7 +297,7 @@ fn rect_edge_distance(r1: &Rect<f64>, r2: &Rect<f64>) -> f64 {
 /// A routed trace composed of one or more straight-line segments.
 #[derive(Debug, Clone)]
 pub struct TraceSegment {
-    pub net: String,
+    pub net: NetName,
     pub layer: String,
     pub width: f64,
     pub segments: Vec<Line<f64>>,
@@ -218,7 +310,7 @@ pub struct TraceSegment {
 /// A plated through-hole via connecting layers.
 #[derive(Debug, Clone)]
 pub struct Via {
-    pub net: String,
+    pub net: NetName,
     pub position: Point<f64>,
     pub drill: f64,
     pub pad: f64,
@@ -233,9 +325,22 @@ pub struct Via {
 /// A copper pour/fill zone on a specific layer.
 #[derive(Debug, Clone)]
 pub struct CopperZone {
-    pub net: String,
+    pub net: NetName,
     pub layer: String,
     pub polygon: Polygon<f64>,
+}
+
+// ---------------------------------------------------------------------------
+// Net
+// ---------------------------------------------------------------------------
+
+/// A net: a named electrical connection between components.
+#[derive(Debug, Clone)]
+pub struct Net {
+    pub name: NetName,
+    pub components: Vec<ComponentRef>,
+    pub class: NetClassName,
+    pub rules: NetClassRules, // denormalized from net_class_rules for fast access
 }
 
 // ---------------------------------------------------------------------------
@@ -245,7 +350,7 @@ pub struct CopperZone {
 /// Complete board state consumed by all DRC checks.
 ///
 /// Mirrors the K1 schema (plan §K1):
-///   - components, nets, net_classes, net_class_rules
+///   - components, nets, net_class_rules
 ///   - traces, vias, zones (optional, populated post-route)
 ///   - board dimensions
 #[derive(Debug, Clone)]
@@ -261,10 +366,11 @@ pub struct BoardState {
     pub electrical_components: Vec<Component>,
     pub mechanical_components: Vec<Component>,
 
-    // Net topology
-    pub nets: HashMap<String, Vec<String>>,
-    pub net_classes: HashMap<String, String>,
-    pub net_class_rules: HashMap<String, NetClassRules>,
+    // Net topology — Vec<Net> replaces the former nets + net_classes HasMaps.
+    // net_class_rules is retained as a HashNap keyed by NetClassName for
+    // clearance lookups between classes.
+    pub nets: Vec<Net>,
+    pub net_class_rules: HashMap<NetClassName, NetClassRules>,
 
     // Routing data (optional, populated post-route)
     pub traces: Vec<TraceSegment>,
@@ -276,11 +382,33 @@ impl BoardState {
     /// All components (electrical + mechanical). Use for spatial checks (clearance, overlap)
     /// where mechanical components can physically interfere with electrical ones.
     pub fn all_components(&self) -> impl Iterator<Item = &Component> {
-        self.electrical_components.iter().chain(self.mechanical_components.iter())
+        self.electrical_components
+            .iter()
+            .chain(self.mechanical_components.iter())
     }
 
     /// Number of electrical components.
     pub fn electrical_count(&self) -> usize {
         self.electrical_components.len()
+    }
+
+    /// Look up a net by name.
+    pub fn net_by_name(&self, name: &str) -> Option<&Net> {
+        self.nets.iter().find(|n| n.name.0 == name)
+    }
+
+    /// Get all component references connected to the given net.
+    pub fn components_for_net(&self, net_name: &str) -> Vec<&ComponentRef> {
+        self.net_by_name(net_name)
+            .map(|n| n.components.iter().collect())
+            .unwrap_or_default()
+    }
+
+    /// Look up the net class for a component given its reference designator.
+    pub fn net_class_for_ref(&self, refdes: &str) -> Option<&NetClassName> {
+        self.electrical_components
+            .iter()
+            .find(|c| c.refdes.0 == refdes)
+            .map(|c| &c.net_class)
     }
 }

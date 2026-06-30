@@ -10,7 +10,7 @@
 
 use geo::{EuclideanDistance, Point};
 
-use crate::board::{BoardSide, BoardState};
+use crate::board::{BoardSide, BoardState, NetClassName};
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Location, Severity, Violation};
 
@@ -72,8 +72,8 @@ impl DrcRule for PadEntryWidthCheck {
     fn check(&self, board: &BoardState, _constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
 
-        // ---- 1. Identify high-current nets (max_current_rating >= 20.0 A) ---------
-        let class_names: Vec<&str> = board
+        // ---- 1. Identify high-current net classes (max_current_rating >= 20.0 A) ---
+        let class_names: Vec<NetClassName> = board
             .net_class_rules
             .iter()
             .filter(|(_, rules)| {
@@ -81,18 +81,19 @@ impl DrcRule for PadEntryWidthCheck {
                     .max_current_rating
                     .map_or(false, |r| r >= HIGH_CUR_THRESHOLD_A)
             })
-            .map(|(name, _)| name.as_str())
+            .map(|(name, _)| name.clone())
             .collect();
 
         if class_names.is_empty() {
             return violations;
         }
 
+        // Nets belonging to those high-current classes
         let high_cur_nets: Vec<&str> = board
-            .net_classes
+            .nets
             .iter()
-            .filter(|(_, cls)| class_names.contains(&cls.as_str()))
-            .map(|(net, _)| net.as_str())
+            .filter(|n| class_names.contains(&n.class))
+            .map(|n| n.name.0.as_str())
             .collect();
 
         if high_cur_nets.is_empty() {
@@ -109,7 +110,7 @@ impl DrcRule for PadEntryWidthCheck {
 
         // ---- 3. Iterate traces ----------------------------------------------------
         for trace in &board.traces {
-            if !high_cur_nets.contains(&trace.net.as_str()) {
+            if !high_cur_nets.contains(&trace.net.0.as_str()) {
                 continue;
             }
 
@@ -147,7 +148,7 @@ impl DrcRule for PadEntryWidthCheck {
                                 ),
                                 DrcCategory::Dfm,
                                 "routing_pad_entry_width",
-                                vec![trace.net.clone(), comp.refdes.clone()],
+                                vec![trace.net.0.clone(), comp.refdes.0.clone()],
                                 Some(Location {
                                     x: Some(ep.x),
                                     y: Some(ep.y),

@@ -85,7 +85,7 @@ impl DrcRule for IsolationCheck {
                 }
 
                 // If component's net_class matches a zone's net_classes, check containment
-                let in_zone_via_net_class = zone.net_classes.iter().any(|zc| zc == &comp.net_class);
+                let in_zone_via_net_class = zone.net_classes.iter().any(|zc| zc.as_str() == comp.net_class.0.as_str());
 
                 if in_zone_via_net_class {
                     let layer = if comp.side == crate::board::BoardSide::Top {
@@ -103,7 +103,7 @@ impl DrcRule for IsolationCheck {
                         ),
                         DrcCategory::Safety,
                         "safety_isolation",
-                        vec![comp.refdes.clone()],
+                        vec![comp.refdes.0.clone()],
                         Some(crate::rules::Location {
                             x: Some(cx),
                             y: Some(cy),

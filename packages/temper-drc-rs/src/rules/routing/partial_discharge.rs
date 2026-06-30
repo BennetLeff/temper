@@ -11,7 +11,7 @@
 
 use geo::EuclideanDistance;
 
-use crate::board::BoardState;
+use crate::board::{BoardState, NetName, NetClassName};
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Location, Severity, Violation};
 
@@ -53,13 +53,13 @@ impl DrcRule for PartialDischargeCheck {
         let mut violations = Vec::new();
 
         // ---- 1. Identify high-voltage net classes ---------------------------------
-        let hv_class_names: Vec<&str> = board
+        let hv_class_names: Vec<NetClassName> = board
             .net_class_rules
             .iter()
             .filter(|(_, rules)| {
                 rules.voltage_v.map_or(false, |v| v >= HV_VOLTAGE_THRESHOLD_V)
             })
-            .map(|(name, _)| name.as_str())
+            .map(|(name, _)| name.clone())
             .collect();
 
         if hv_class_names.is_empty() {
@@ -67,18 +67,18 @@ impl DrcRule for PartialDischargeCheck {
         }
 
         // Map net name → class name, keep only HV-class nets
-        let hv_nets: Vec<&str> = board
-            .net_classes
+        let hv_nets: Vec<NetName> = board
+            .nets
             .iter()
-            .filter(|(_, cls)| hv_class_names.contains(&cls.as_str()))
-            .map(|(net, _)| net.as_str())
+            .filter(|n| hv_class_names.contains(&n.class))
+            .map(|n| n.name.clone())
             .collect();
 
         // ---- 2. Collect HV traces on inner layers --------------------------------
         let hv_inner_traces: Vec<&crate::board::TraceSegment> = board
             .traces
             .iter()
-            .filter(|t| hv_nets.contains(&t.net.as_str()) && INNER_LAYERS.contains(&t.layer.as_str()))
+            .filter(|t| hv_nets.iter().any(|hn| hn == &t.net) && INNER_LAYERS.contains(&t.layer.as_str()))
             .collect();
 
         if hv_inner_traces.is_empty() {
@@ -90,11 +90,10 @@ impl DrcRule for PartialDischargeCheck {
 
         // ---- 3. Compare each HV inner trace segment to ALL other trace segments ---
         for hv_trace in &hv_inner_traces {
-            // Look up this HV trace's net class rules for base clearance
-            let net_class = board.net_classes.get(&hv_trace.net);
-            let base_clearance: f64 = net_class
-                .and_then(|cls| board.net_class_rules.get(cls))
-                .map(|rules| rules.clearance_mm)
+            // Look up this HV trace's net info for base clearance (denormalized in Net)
+            let base_clearance: f64 = board
+                .net_by_name(&hv_trace.net)
+                .map(|n| n.rules.clearance_mm)
                 .unwrap_or(0.2); // fallback default
             let min_clearance = base_clearance * INNER_LAYER_CLEARANCE_MULTIPLIER;
 
@@ -128,7 +127,7 @@ impl DrcRule for PartialDischargeCheck {
                                 ),
                                 DrcCategory::Safety,
                                 "routing_partial_discharge",
-                                vec![hv_trace.net.clone(), other_trace.net.clone()],
+                                vec![hv_trace.net.0.clone(), other_trace.net.0.clone()],
                                 Some(Location {
                                     x: Some(mid.x()),
                                     y: Some(mid.y()),

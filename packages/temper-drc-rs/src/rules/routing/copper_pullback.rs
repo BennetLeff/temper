@@ -98,7 +98,7 @@ impl DrcRule for CopperPullbackCheck {
                     ),
                     DrcCategory::Drc,
                     "routing_copper_pullback",
-                    vec![zone.net.clone()],
+                    vec![zone.net.0.clone()],
                     Some(crate::rules::Location {
                         x: Some(cx),
                         y: Some(cy),

@@ -13,7 +13,7 @@ use std::collections::HashSet;
 
 use geo::EuclideanDistance;
 
-use crate::board::{BoardState, Component};
+use crate::board::{BoardState, Component, NetClassName};
 use crate::constraints::ConstraintSet;
 use crate::rules::{
     clearance_between, violation, DrcCategory, Location, Severity, Violation,
@@ -66,7 +66,7 @@ pub fn oracle_clearance(board: &BoardState, constraints: &ConstraintSet) -> Vec<
                     ),
                     DrcCategory::Drc,
                     "oracle_clearance",
-                    vec![a.refdes.clone(), b.refdes.clone()],
+                    vec![a.refdes.0.clone(), b.refdes.0.clone()],
                     Some(Location {
                         x: Some((a.center.x() + b.center.x()) / 2.0),
                         y: Some((a.center.y() + b.center.y()) / 2.0),
@@ -122,7 +122,7 @@ pub fn oracle_component_overlap(board: &BoardState) -> Vec<Violation> {
                     ),
                     DrcCategory::Drc,
                     "oracle_component_overlap",
-                    vec![a.refdes.clone(), b.refdes.clone()],
+                    vec![a.refdes.0.clone(), b.refdes.0.clone()],
                     Some(Location {
                         x: Some((a.center.x() + b.center.x()) / 2.0),
                         y: Some((a.center.y() + b.center.y()) / 2.0),
@@ -182,7 +182,7 @@ pub fn oracle_courtyard(board: &BoardState, margin_mm: f64) -> Vec<Violation> {
                     ),
                     DrcCategory::Drc,
                     "oracle_courtyard",
-                    vec![a.refdes.clone(), b.refdes.clone()],
+                    vec![a.refdes.0.clone(), b.refdes.0.clone()],
                     Some(Location {
                         x: Some((a.center.x() + b.center.x()) / 2.0),
                         y: Some((a.center.y() + b.center.y()) / 2.0),
@@ -211,23 +211,23 @@ pub fn oracle_courtyard(board: &BoardState, margin_mm: f64) -> Vec<Violation> {
 pub fn oracle_net_connectivity(board: &BoardState) -> Vec<Violation> {
     let mut violations = Vec::new();
 
-    for (net_name, comp_refs) in &board.nets {
-        let count: HashSet<&str> = comp_refs.iter().map(|s| s.as_str()).collect();
+    for net in &board.nets {
+        let count: HashSet<&str> = net.components.iter().map(|c| &*c.0).collect();
         if count.len() < 2 {
             violations.push(violation(
                 Severity::Error,
                 "ERC_NET_001",
                 &format!(
                     "[ORACLE] Net '{}' has only {} connection(s). Minimum 2 required.",
-                    net_name,
+                    net.name,
                     count.len(),
                 ),
                 DrcCategory::Erc,
                 "oracle_net_connectivity",
-                comp_refs.clone(),
+                net.components.iter().map(|c| c.0.clone()).collect(),
                 None,
                 serde_json::json!({
-                    "net_name": net_name,
+                    "net_name": net.name.to_string(),
                     "connection_count": count.len(),
                 }),
             ));
@@ -247,15 +247,15 @@ pub fn oracle_floating_pins(board: &BoardState) -> Vec<Violation> {
 
     let connected: HashSet<&str> = board
         .nets
-        .values()
-        .flat_map(|refs| refs.iter().map(|s| s.as_str()))
+        .iter()
+        .flat_map(|net| net.components.iter().map(|c| &*c.0))
         .collect();
 
     // Double-check by counting
     let total_connected: usize = connected.len();
 
     for comp in board.all_components() {
-        if !connected.contains(comp.refdes.as_str()) {
+        if !connected.contains(&*comp.refdes) {
             violations.push(violation(
                 Severity::Warning,
                 "ERC_FLT_001",
@@ -265,7 +265,7 @@ pub fn oracle_floating_pins(board: &BoardState) -> Vec<Violation> {
                 ),
                 DrcCategory::Erc,
                 "oracle_floating_pins",
-                vec![comp.refdes.clone()],
+                vec![comp.refdes.0.clone()],
                 None,
                 serde_json::json!({
                     "ref": comp.refdes,
@@ -343,8 +343,8 @@ pub fn oracle_trace_clearance(board: &BoardState, min_clearance: f64) -> Vec<Vio
                                 si.net, sj.net, si.layer,
                             ),
                             DrcCategory::Drc,
-                            "oracle_trace_clearance",
-                            vec![si.net.clone(), sj.net.clone()],
+                    "oracle_trace_clearance",
+                    vec![si.net.0.clone(), sj.net.0.clone()],
                             None,
                             serde_json::json!({
                                 "actual_mm": dist,

@@ -40,10 +40,10 @@ impl DrcRule for LoopAreaCheck {
         for loop_constraint in &constraints.critical_loops {
             // Collect all unique component refdes involved in this loop's nets
             let mut involved_refs: HashSet<&str> = HashSet::new();
-            for net in &loop_constraint.nets {
-                if let Some(refs) = board.nets.get(net) {
-                    for r in refs {
-                        involved_refs.insert(r.as_str());
+            for net_name in &loop_constraint.nets {
+                if let Some(net) = board.net_by_name(net_name) {
+                    for r in &net.components {
+                        involved_refs.insert(&*r.0);
                     }
                 }
             }
@@ -60,7 +60,7 @@ impl DrcRule for LoopAreaCheck {
             let mut valid = false;
 
             for refdes in &involved_refs {
-                if let Some(comp) = board.electrical_components.iter().find(|c| c.refdes == *refdes) {
+                if let Some(comp) = board.electrical_components.iter().find(|c| c.refdes.0 == *refdes) {
                     min_x = min_x.min(comp.center.x());
                     min_y = min_y.min(comp.center.y());
                     max_x = max_x.max(comp.center.x());

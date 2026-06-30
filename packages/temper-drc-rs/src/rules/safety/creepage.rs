@@ -74,7 +74,7 @@ impl DrcRule for CreepageCheck {
                     ),
                     DrcCategory::Safety,
                     "safety_creepage",
-                    vec![comp.refdes.clone()],
+                    vec![comp.refdes.0.clone()],
                     Some(crate::rules::Location {
                         x: Some(comp.center.x()),
                         y: Some(comp.center.y()),

@@ -86,7 +86,7 @@ impl DrcRule for HVLVSeparationCheck {
                             ),
                             DrcCategory::Safety,
                             "safety_hv_lv_separation",
-                            vec![a.refdes.clone(), b.refdes.clone()],
+                            vec![a.refdes.0.clone(), b.refdes.0.clone()],
                             location_midpoint(&a.center, &b.center, None),
                             serde_json::json!({
                                 "actual_gap_mm": dist,

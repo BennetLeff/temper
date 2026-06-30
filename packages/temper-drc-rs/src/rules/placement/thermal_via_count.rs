@@ -9,7 +9,7 @@
 //
 // Origin: U6 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use crate::board::BoardState;
+use crate::board::{BoardState, NetName};
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 
@@ -53,11 +53,11 @@ impl DrcRule for ThermalViaCountCheck {
             // Count vias within this component's footprint bounding box
             // that belong to the same net as the component.
             let bbox = comp.footprint_bbox();
-            let comp_nets: Vec<&String> = board
+            let comp_nets: Vec<&NetName> = board
                 .nets
                 .iter()
-                .filter(|(_, refs)| refs.iter().any(|r| r == &comp.refdes))
-                .map(|(net, _)| net)
+                .filter(|net| net.components.iter().any(|r| r == &comp.refdes))
+                .map(|net| &net.name)
                 .collect();
 
             let actual = board
@@ -68,7 +68,7 @@ impl DrcRule for ThermalViaCountCheck {
                         && v.position.x() <= bbox.max().x
                         && v.position.y() >= bbox.min().y
                         && v.position.y() <= bbox.max().y
-                        && comp_nets.contains(&&v.net)
+                        && comp_nets.iter().any(|cn| cn.0 == v.net.0)
                 })
                 .count() as u32;
 
@@ -83,7 +83,7 @@ impl DrcRule for ThermalViaCountCheck {
                     DrcCategory::Drc,
                     "placement_thermal_via_count",
                     vec![
-                        comp.refdes.clone(),
+                        comp.refdes.0.clone(),
                         format!("actual={}", actual),
                         format!("required={}", required),
                     ],

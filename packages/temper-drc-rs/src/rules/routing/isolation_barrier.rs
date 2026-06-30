@@ -77,7 +77,7 @@ impl DrcRule for IsolationBarrierCheck {
                             ),
                             DrcCategory::Safety,
                             "routing_isolation_barrier",
-                            vec![trace.net.clone(), barrier_name.clone()],
+                            vec![trace.net.0.clone(), barrier_name.clone()],
                             Some(crate::rules::Location {
                                 x: Some(mid.x()),
                                 y: Some(mid.y()),
@@ -108,7 +108,7 @@ impl DrcRule for IsolationBarrierCheck {
                         ),
                         DrcCategory::Safety,
                         "routing_isolation_barrier",
-                        vec![zone.net.clone(), barrier_name.clone()],
+                        vec![zone.net.0.clone(), barrier_name.clone()],
                         Some(crate::rules::Location {
                             x: Some(centroid.x()),
                             y: Some(centroid.y()),

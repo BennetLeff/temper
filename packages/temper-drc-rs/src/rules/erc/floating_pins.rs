@@ -39,14 +39,14 @@ impl DrcRule for FloatingPinsCheck {
         // Build set of all connected component refdes
         let connected: HashSet<&str> = board
             .nets
-            .values()
-            .flat_map(|refs| refs.iter().map(|s| s.as_str()))
+            .iter()
+            .flat_map(|net| net.components.iter().map(|c| &*c.0))
             .collect();
 
         // Check each electrical component — mechanical components are
         // in board.mechanical_components and not visible here.
         for comp in &board.electrical_components {
-            if !connected.contains(comp.refdes.as_str()) {
+            if !connected.contains(&*comp.refdes) {
                 let layer = if comp.side == crate::board::BoardSide::Top {
                     "F.Cu"
                 } else {
@@ -62,7 +62,7 @@ impl DrcRule for FloatingPinsCheck {
                     ),
                     DrcCategory::Erc,
                     "erc_floating_pins",
-                    vec![comp.refdes.clone()],
+                    vec![comp.refdes.0.clone()],
                     Some(crate::rules::Location {
                         x: Some(comp.center.x()),
                         y: Some(comp.center.y()),

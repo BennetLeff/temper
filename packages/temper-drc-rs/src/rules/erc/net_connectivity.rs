@@ -35,9 +35,9 @@ impl DrcRule for NetConnectivityCheck {
         let _filtered_connection_counts: Vec<(&str, usize)> = board
             .nets
             .iter()
-            .map(|(net, refs)| {
-                let count = refs.len();
-                (net.as_str(), count)
+            .map(|net| {
+                let count = net.components.len();
+                (&*net.name, count)
             })
             .collect();
 

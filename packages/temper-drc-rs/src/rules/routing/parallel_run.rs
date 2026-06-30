@@ -74,14 +74,14 @@ impl DrcRule for ParallelRunCheck {
                     let emitter_segs: Vec<&Line<f64>> = board
                         .traces
                         .iter()
-                        .filter(|t| t.net == *emitter_net)
+                        .filter(|t| t.net.0 == *emitter_net)
                         .flat_map(|t| &t.segments)
                         .collect();
 
                     let victim_segs: Vec<&Line<f64>> = board
                         .traces
                         .iter()
-                        .filter(|t| t.net == *victim_net)
+                        .filter(|t| t.net.0 == *victim_net)
                         .flat_map(|t| &t.segments)
                         .collect();
 
@@ -90,10 +90,9 @@ impl DrcRule for ParallelRunCheck {
                     }
 
                     // Determine separation distance from net class clearance rules.
-                    let separation = match (
-                        board.net_classes.get(emitter_net),
-                        board.net_classes.get(victim_net),
-                    ) {
+                    let emitter_class = board.net_by_name(emitter_net).map(|n| &n.class);
+                    let victim_class = board.net_by_name(victim_net).map(|n| &n.class);
+                    let separation = match (emitter_class, victim_class) {
                         (Some(ec), Some(vc)) => clearance_between(
                             constraints,
                             &board.net_class_rules,

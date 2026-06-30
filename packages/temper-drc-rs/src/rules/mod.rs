@@ -20,7 +20,7 @@ use std::collections::HashMap;
 use geo::Rect;
 use serde::Serialize;
 
-use crate::board::{BoardState, NetClassRules};
+use crate::board::{BoardState, NetClassRules, NetClassName};
 use crate::constraints::ConstraintSet;
 
 // ---------------------------------------------------------------------------
@@ -264,14 +264,14 @@ pub fn create_default_registry() -> RuleRegistry {
 /// the maximum of the two classes' individual clearance_mm values.
 pub fn clearance_between(
     constraints: &ConstraintSet,
-    net_class_rules: &HashMap<String, NetClassRules>,
-    class_a: &str,
-    class_b: &str,
+    net_class_rules: &HashMap<NetClassName, NetClassRules>,
+    class_a: &NetClassName,
+    class_b: &NetClassName,
 ) -> f64 {
     // Check explicit pair rules (bidirectional)
     for rule in &constraints.clearances {
-        if (rule.from_class == class_a && rule.to_class == class_b)
-            || (rule.from_class == class_b && rule.to_class == class_a)
+        if (rule.from_class == class_a.0 && rule.to_class == class_b.0)
+            || (rule.from_class == class_b.0 && rule.to_class == class_a.0)
         {
             return rule.clearance_mm;
         }

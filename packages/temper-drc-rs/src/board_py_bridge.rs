@@ -16,7 +16,8 @@ use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyDict, PyList};
 
 use crate::board::{
-    BoardSide, BoardState, Component, CopperZone, NetClassRules, PackageType, TraceSegment, Via,
+    BoardSide, BoardState, Component, ComponentRef, CopperZone, Net, NetClassRules, NetClassName,
+    NetName, PackageType, TraceSegment, Via,
 };
 
 // ---------------------------------------------------------------------------
@@ -270,13 +271,13 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
     let footprint_polygon = extract_opt_polygon(dict, "footprint_polygon")?;
 
     Ok(Component {
-        refdes,
+        refdes: ComponentRef(refdes),
         center: Point::new(x, y),
         rotation,
         side,
         width,
         height,
-        net_class,
+        net_class: NetClassName(net_class),
         power_dissipation_w,
         package_type,
         is_magnetic,
@@ -344,7 +345,7 @@ fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
     }
 
     Ok(TraceSegment {
-        net,
+        net: NetName(net),
         layer,
         width,
         segments,
@@ -365,7 +366,7 @@ fn extract_via(dict: &Bound<'_, PyDict>) -> PyResult<Via> {
     let to_layer = extract_opt_str(dict, "to_layer")?.unwrap_or_else(|| "B.Cu".into());
 
     Ok(Via {
-        net,
+        net: NetName(net),
         position: Point::new(x, y),
         drill,
         pad,
@@ -383,7 +384,11 @@ fn extract_copper_zone(dict: &Bound<'_, PyDict>) -> PyResult<CopperZone> {
     let layer = extract_str(dict, "layer")?;
     let polygon = extract_polygon(dict, "polygon")?;
 
-    Ok(CopperZone { net, layer, polygon })
+    Ok(CopperZone {
+        net: NetName(net),
+        layer,
+        polygon,
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -435,8 +440,8 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         (elec, mech)
     };
 
-    // --- Nets ---
-    let nets: HashMap<String, Vec<String>> = {
+    // --- Nets (HashMap: net_name → [component_refs]) ---
+    let nets_dict_raw: HashMap<String, Vec<String>> = {
         let mut result = HashMap::new();
         if let Some(nets_val) = board_dict.get_item("nets")? {
             if !nets_val.is_none() && nets_val.is_instance_of::<PyDict>() {
@@ -465,8 +470,8 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         result
     };
 
-    // --- Net classes ---
-    let net_classes: HashMap<String, String> = {
+    // --- Net classes (HashMap: net_name → class_name) ---
+    let net_classes_raw: HashMap<String, String> = {
         let mut result = HashMap::new();
         if let Some(nc_val) = board_dict.get_item("net_classes")? {
             if !nc_val.is_none() && nc_val.is_instance_of::<PyDict>() {
@@ -487,8 +492,8 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         result
     };
 
-    // --- Net class rules ---
-    let net_class_rules: HashMap<String, NetClassRules> = {
+    // --- Net class rules (HashMap: class_name → rules) ---
+    let net_class_rules: HashMap<NetClassName, NetClassRules> = {
         let mut result = HashMap::new();
         if let Some(ncr_val) = board_dict.get_item("net_class_rules")? {
             if !ncr_val.is_none() && ncr_val.is_instance_of::<PyDict>() {
@@ -504,12 +509,43 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
                             "net_class_rules['{class_name}'] is not a dict: {e}"
                         ))
                     })?;
-                    result.insert(class_name, extract_net_class_rules(rules_dict)?);
+                    result.insert(NetClassName(class_name), extract_net_class_rules(rules_dict)?);
                 }
             }
         }
         result
     };
+
+    // --- Join nets + net_classes + rules into Vec<Net> ---
+    let nets: Vec<Net> = nets_dict_raw
+        .into_iter()
+        .map(|(name, comps)| {
+            let net_name = NetName(name.clone());
+            let class_name = net_classes_raw
+                .get(&name)
+                .map(|c| NetClassName(c.clone()))
+                .unwrap_or_else(|| NetClassName("Unknown".to_string()));
+            let rules = net_class_rules
+                .get(&class_name)
+                .cloned()
+                .unwrap_or_else(|| NetClassRules {
+                    trace_width_mm: 0.2,
+                    clearance_mm: 0.2,
+                    creepage_mm: None,
+                    voltage_v: None,
+                    max_current_rating: None,
+                    safety_category: None,
+                    required_layer: None,
+                    routing_strategy: None,
+                });
+            Net {
+                name: net_name,
+                components: comps.into_iter().map(ComponentRef).collect(),
+                class: class_name,
+                rules,
+            }
+        })
+        .collect();
 
     // --- Traces (optional) ---
     let traces = {
@@ -548,7 +584,6 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         electrical_components,
         mechanical_components,
         nets,
-        net_classes,
         net_class_rules,
         traces,
         vias,

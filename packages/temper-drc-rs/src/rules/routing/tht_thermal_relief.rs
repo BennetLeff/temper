@@ -52,6 +52,7 @@ impl DrcRule for ThtThermalReliefCheck {
             }
 
             // Look up the net class rules for this component's net class.
+            // comp.net_class is NetClassName — the HashMap is keyed by NetClassName
             let current_rating = board
                 .net_class_rules
                 .get(&comp.net_class)
@@ -76,7 +77,7 @@ impl DrcRule for ThtThermalReliefCheck {
                         ),
                         DrcCategory::Dfm,
                         "routing_tht_thermal_relief",
-                        vec![comp.refdes.clone(), comp.net_class.clone()],
+                        vec![comp.refdes.0.clone(), comp.net_class.0.clone()],
                         Some(crate::rules::Location {
                             x: Some(comp.center.x()),
                             y: Some(comp.center.y()),

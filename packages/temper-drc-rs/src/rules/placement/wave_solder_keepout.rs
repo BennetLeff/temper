@@ -66,7 +66,7 @@ impl DrcRule for WaveSolderKeepoutCheck {
                         ),
                         DrcCategory::Dfm,
                         "placement_wave_solder_keepout",
-                        vec![smd.refdes.clone(), tht.refdes.clone()],
+                        vec![smd.refdes.0.clone(), tht.refdes.0.clone()],
                         Some(crate::rules::Location {
                             x: Some((smd.center.x() + tht.center.x()) / 2.0),
                             y: Some((smd.center.y() + tht.center.y()) / 2.0),

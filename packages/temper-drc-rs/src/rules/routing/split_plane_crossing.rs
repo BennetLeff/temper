@@ -72,7 +72,7 @@ impl DrcRule for SplitPlaneCrossingCheck {
             .traces
             .iter()
             .filter(|t| is_fast_digital(&t.net))
-            .map(|t| t.net.as_str())
+            .map(|t| t.net.0.as_str())
             .collect();
 
         if fast_nets.is_empty() {
@@ -89,7 +89,7 @@ impl DrcRule for SplitPlaneCrossingCheck {
                 .zones
                 .iter()
                 .filter(|z| is_ground_net(&z.net))
-                .map(|z| (z.net.as_str(), &z.polygon))
+                .map(|z| (z.net.0.as_str(), &z.polygon))
                 .collect()
         } else {
             // Identify constraint-defined zones that are ground-related
@@ -108,7 +108,7 @@ impl DrcRule for SplitPlaneCrossingCheck {
                     let lc_net = z.net.to_lowercase();
                     ground_zone_names.iter().any(|gzn| lc_net.contains(&gzn.to_lowercase()))
                 })
-                .map(|z| (z.net.as_str(), &z.polygon))
+                .map(|z| (z.net.0.as_str(), &z.polygon))
                 .collect()
         };
 
@@ -118,7 +118,7 @@ impl DrcRule for SplitPlaneCrossingCheck {
 
         // ---- 3. Check each trace belonging to a fast net -------------------------
         for trace in &board.traces {
-            if !fast_nets.contains(&trace.net.as_str()) {
+            if !fast_nets.contains(&trace.net.0.as_str()) {
                 continue;
             }
 
@@ -162,7 +162,7 @@ impl DrcRule for SplitPlaneCrossingCheck {
                     ),
                     DrcCategory::Emc,
                     "routing_split_plane_crossing",
-                    vec![trace.net.clone()],
+                    vec![trace.net.0.clone()],
                     Some(Location {
                         x: Some(mid.x()),
                         y: Some(mid.y()),

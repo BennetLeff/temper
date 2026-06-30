@@ -103,7 +103,7 @@ impl DrcRule for NoiseCouplingCheck {
                         ),
                         DrcCategory::Emc,
                         "emc_noise_coupling",
-                        vec![a.refdes.clone(), b.refdes.clone()],
+                        vec![a.refdes.0.clone(), b.refdes.0.clone()],
                         location_midpoint(&a.center, &b.center, None),
                         serde_json::json!({
                             "distance_mm": dist,

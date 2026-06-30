@@ -110,7 +110,7 @@ impl DrcRule for StitchingViaDensityCheck {
                     ),
                     DrcCategory::Emc,
                     "routing_stitching_via_density",
-                    vec![zone.net.clone()],
+                    vec![zone.net.0.clone()],
                     Some(crate::rules::Location {
                         x: Some(centroid_x),
                         y: Some(centroid_y),
