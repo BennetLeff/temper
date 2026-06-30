@@ -1062,7 +1062,8 @@ class RouterV6Pipeline:
             enable_coarse_to_fine=self.enable_coarse_to_fine,
             coarse_factor=self.coarse_factor,
             corridor_buffer_cells=self.corridor_buffer_cells,
-            enable_numba_los=self.enable_numba_los,
+            enable_numba_los=  # type: ignore[call-arg]
+                self.enable_numba_los,
         )
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)
 
@@ -1092,7 +1093,9 @@ class RouterV6Pipeline:
                 coarse_factor=self.coarse_factor,
                 corridor_buffer_cells=self.corridor_buffer_cells,
                 enable_numba_los=self.enable_numba_los,
-            )(pcb, stage2, pathfinding_result)
+            )
+
+        return self._run_stage5(pcb, stage2, pathfinding_result)
 
     def _run_stage5(
         self,
