@@ -693,21 +693,17 @@ def _dispatch_search(
     enable_numba_los: bool = False,
 ):
     if use_lazy_theta_star:
-<<<<<<< HEAD
-        return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1, max_iter=max_iter)
-    if use_theta_star:
-        return _astar_search_theta_star(grid, start, goal, net_id=-1, max_iter=max_iter)
-=======
         return _astar_search_lazy_theta_star(
             grid, start, goal, net_id=-1,
+            max_iter=max_iter,
             enable_numba_los=enable_numba_los,
         )
     if use_theta_star:
         return _astar_search_theta_star(
             grid, start, goal, net_id=-1,
+            max_iter=max_iter,
             enable_numba_los=enable_numba_los,
         )
->>>>>>> feat/numba-jit-los
     # 2D plain A*.  Delegate to the Numba-jitted kernel when available
     # and the grid is small enough that the overhead of building the
     # bit tensor (once per call) is amortized.  Falls through to the
