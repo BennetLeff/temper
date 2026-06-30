@@ -421,3 +421,86 @@ impl BoardState {
             .map(|c| &c.net_class)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use geo::polygon;
+
+    fn component(refdes: &str, x: f64, y: f64, w: f64, h: f64) -> Component {
+        Component {
+            refdes: ComponentRef(refdes.into()),
+            center: Point::new(x, y),
+            rotation: 0.0,
+            side: BoardSide::Top,
+            width: w,
+            height: h,
+            net_class: NetClassName("Signal".into()),
+            power_dissipation_w: None,
+            package_type: PackageType::Smd,
+            is_magnetic: false,
+            is_electrolytic: false,
+            vent_direction: None,
+            footprint_polygon: Some(polygon![
+                (x: x - w / 2.0, y: y - h / 2.0),
+                (x: x + w / 2.0, y: y - h / 2.0),
+                (x: x + w / 2.0, y: y + h / 2.0),
+                (x: x - w / 2.0, y: y + h / 2.0),
+            ]),
+        }
+    }
+
+    #[test]
+    fn edge_distance_is_symmetric() {
+        let a = component("A", 0.0, 0.0, 10.0, 10.0);
+        let b = component("B", 20.0, 0.0, 10.0, 10.0);
+        assert_eq!(a.edge_distance_to(&b), b.edge_distance_to(&a));
+    }
+
+    #[test]
+    fn edge_distance_catches_mid_edge_gap() {
+        // Two 10x10 rectangles side-by-side, 2mm edge gap.
+        // Old vertex-to-vertex code reported corner distance (~10.2mm)
+        // instead of the true 2mm gap between facing edges.
+        let a = component("A", 0.0, 0.0, 10.0, 10.0);
+        let b = component("B", 12.0, 0.0, 10.0, 10.0);
+        let d = a.edge_distance_to(&b);
+        assert!((d - 2.0).abs() < 0.01, "expected ~2mm edge gap, got {d}");
+    }
+
+    #[test]
+    fn overlapping_components_have_zero_edge_distance() {
+        let a = component("A", 0.0, 0.0, 10.0, 10.0);
+        let b = component("B", 5.0, 0.0, 10.0, 10.0);
+        assert!(a.overlaps(&b));
+        assert!(a.edge_distance_to(&b) < 0.001, "overlapping → 0 edge distance");
+    }
+
+    #[test]
+    fn edge_distance_stacked_vertically() {
+        let a = component("A", 0.0, 0.0, 10.0, 10.0);
+        let b = component("B", 0.0, 13.0, 10.0, 10.0);
+        let d = a.edge_distance_to(&b);
+        assert!((d - 3.0).abs() < 0.01, "expected ~3mm vertical gap, got {d}");
+    }
+
+    #[test]
+    fn edge_distance_le_vertex_distance() {
+        // Invariant: edge distance is ≤ the distance between any pair of
+        // vertices, so it should never overstate clearance.
+        use geo::EuclideanDistance;
+        let a = component("A", 0.0, 0.0, 10.0, 10.0);
+        let b = component("B", 12.0, 8.0, 10.0, 10.0);
+        let edge = a.edge_distance_to(&b);
+        let a_verts: Vec<geo::Point<f64>> = a.footprint_polygon.as_ref().unwrap().exterior().points().collect();
+        let b_verts: Vec<geo::Point<f64>> = b.footprint_polygon.as_ref().unwrap().exterior().points().collect();
+        let min_vertex_dist = a_verts
+            .iter()
+            .flat_map(|va| b_verts.iter().map(move |vb| va.euclidean_distance(vb)))
+            .fold(f64::MAX, f64::min);
+        assert!(
+            edge <= min_vertex_dist + 0.001,
+            "edge distance {edge} should be ≤ vertex distance {min_vertex_dist}"
+        );
+    }
+}
