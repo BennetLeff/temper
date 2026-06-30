@@ -3,480 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temper Placer - Live Visualization</title>
-    <!-- Plotly.js for charts -->
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-         <style>
-         * {
-             margin: 0;
-             padding: 0;
-             box-sizing: border-box;
-         }
-
-         /* Slider styles */
-         .slider-container {
-             display: flex;
-             align-items: center;
-             gap: 10px;
-             width: 120px;
-         }
-
-         .slider-value {
-             font-size: 1.1rem;
-             font-weight: 600;
-             font-variant-numeric: tabular-nums;
-             width: 40px;
-             text-align: right;
-         }
-
-         input[type="range"] {
-             -webkit-appearance: none;
-             appearance: none;
-             height: 6px;
-             border-radius: 3px;
-             background: #444;
-             outline: none;
-             flex: 1;
-         }
-
-         input[type="range"]::-webkit-slider-thumb {
-             -webkit-appearance: none;
-             appearance: none;
-             width: 16px;
-             height: 16px;
-             border-radius: 50%;
-             background: #3b82f6;
-             cursor: pointer;
-             box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
-         }
-
-         input[type="range"]::-moz-range-thumb {
-             width: 16px;
-             height: 16px;
-             border-radius: 50%;
-             background: #3b82f6;
-             cursor: pointer;
-             border: none;
-             box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
-         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #1a1a2e;
-            color: #eee;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            grid-template-rows: auto 1fr auto;
-            height: 100vh;
-            gap: 1px;
-            background: #333;
-        }
-
-        /* Header */
-        header {
-            grid-column: 1 / -1;
-            background: #16213e;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-
-        header h1 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #666;
-        }
-
-        .status-dot.connected {
-            background: #4ade80;
-            box-shadow: 0 0 8px #4ade80;
-        }
-
-        .status-dot.training {
-            background: #fbbf24;
-            animation: pulse 1s infinite;
-        }
-
-        .status-dot.paused {
-            background: #f97316;
-        }
-
-        .status-dot.complete {
-            background: #4ade80;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Main board view */
-        .board-panel {
-            background: #1a1a2e;
-            padding: 15px;
-            overflow: hidden;
-        }
-
-        .board-panel h2 {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        #board-view {
-            width: 100%;
-            height: calc(100% - 30px);
-            background: #0f0f1a;
-            border-radius: 4px;
-        }
-
-        /* Side panel for loss curves */
-        .side-panel {
-            background: #1a1a2e;
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-        }
-
-        .chart-section {
-            background: #1a1a2e;
-            padding: 15px;
-            flex: 1;
-        }
-
-        .chart-section h2 {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        #loss-curves {
-            width: 100%;
-            height: calc(100% - 30px);
-            background: #0f0f1a;
-            border-radius: 4px;
-        }
-
-        #loss-breakdown {
-            width: 100%;
-            height: calc(100% - 30px);
-            background: #0f0f1a;
-            border-radius: 4px;
-        }
-
-        /* Bottom status panel */
-        .status-panel {
-            grid-column: 1 / -1;
-            background: #16213e;
-            padding: 15px 20px;
-            display: flex;
-            gap: 30px;
-            align-items: center;
-            border-top: 1px solid #333;
-        }
-
-        .metric {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .metric-label {
-            font-size: 0.75rem;
-            color: #888;
-            text-transform: uppercase;
-        }
-
-        .metric-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .metric-value.good {
-            color: #4ade80;
-        }
-
-        .metric-value.warning {
-            color: #fbbf24;
-        }
-
-        .metric-value.bad {
-            color: #f87171;
-        }
-
-        /* Controls */
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-left: auto;
-        }
-
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-
-        .btn-primary:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: #374151;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #d97706;
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-            /* Namespace filter */
-            #namespace-filter {
-                padding: 4px 8px;
-                border: 1px solid #444;
-                border-radius: 4px;
-                background: #1a1a2e;
-                color: white;
-                font-size: 0.9rem;
-                margin-right: 12px;
-            }
-            
-            /* Step input */
-            .step-control {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-            
-            .step-control input {
-                width: 60px;
-                padding: 6px 8px;
-                border: 1px solid #444;
-                border-radius: 4px;
-                background: #1a1a2e;
-                color: white;
-                font-size: 0.9rem;
-                text-align: center;
-            }
-
-        /* Constraint indicators */
-        .constraint-indicators {
-            display: flex;
-            gap: 15px;
-        }
-
-        .constraint-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .constraint-badge.ok {
-            background: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
-        }
-
-        .constraint-badge.violation {
-            background: rgba(248, 113, 113, 0.2);
-            color: #f87171;
-        }
-
-        /* Connection overlay */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .overlay.hidden {
-            display: none;
-        }
-
-        .overlay-content {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .overlay-content h2 {
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-        }
-
-        .overlay-content p {
-            color: #888;
-            margin-bottom: 20px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #333;
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+    <title>Temper Board Viewer</title>
+    <link rel="stylesheet" href="wasm-viewer.css">
+<script id="default-board" type="application/json">{"board": {"width": 100.0, "height": 150.0, "components": [{"ref": "U_MCU", "position": {"x": 85, "y": 60}, "rotation": 0, "width": 8, "height": 7, "status": "ok", "zone": null, "footprint": "QFP-64", "value": "ESP32-S3", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "Q1", "position": {"x": 10, "y": 105}, "rotation": 0, "width": 15, "height": 4, "status": "ok", "zone": null, "footprint": "TO-247", "value": "IGBT", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "Q2", "position": {"x": 85, "y": 110}, "rotation": 0, "width": 15, "height": 4, "status": "ok", "zone": null, "footprint": "TO-247", "value": "IGBT", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "D1", "position": {"x": 35, "y": 108}, "rotation": 0, "width": 18, "height": 3, "status": "ok", "zone": null, "footprint": "TO-220", "value": "Diode", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "D2", "position": {"x": 48, "y": 102}, "rotation": 0, "width": 18, "height": 3, "status": "ok", "zone": null, "footprint": "TO-220", "value": "Diode", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "U_GATE", "position": {"x": 12, "y": 74}, "rotation": 0, "width": 11, "height": 10, "status": "ok", "zone": null, "footprint": "SOIC-16", "value": "UCC27511", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "U_LDO_5V", "position": {"x": 5, "y": 54}, "rotation": 0, "width": 6, "height": 6, "status": "ok", "zone": null, "footprint": "SOT-223", "value": "LMR51430", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "U_LDO_3V3", "position": {"x": 13, "y": 63}, "rotation": 0, "width": 6, "height": 6, "status": "ok", "zone": null, "footprint": "SOT-223", "value": "AMS1117", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "U_CT", "position": {"x": 86, "y": 72}, "rotation": 0, "width": 8, "height": 7, "status": "ok", "zone": null, "footprint": "QFN-32", "value": "MAX31865", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "C_BUS1", "position": {"x": 10, "y": 112}, "rotation": 0, "width": 11, "height": 3, "status": "ok", "zone": null, "footprint": "Electrolytic", "value": "1000uF", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "C_BUS2", "position": {"x": 67, "y": 112}, "rotation": 0, "width": 11, "height": 3, "status": "ok", "zone": null, "footprint": "Electrolytic", "value": "1000uF", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "J_AC_IN", "position": {"x": 10, "y": 136}, "rotation": 0, "width": 4, "height": 24, "status": "ok", "zone": null, "footprint": "Terminal", "value": "AC Input", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "J_COIL", "position": {"x": 95, "y": 140}, "rotation": 0, "width": 4, "height": 20, "status": "ok", "zone": null, "footprint": "Terminal", "value": "Coil Output", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "J_DEBUG", "position": {"x": 70, "y": 16}, "rotation": 0, "width": 2, "height": 15, "status": "ok", "zone": null, "footprint": "PinHeader", "value": "Debug", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}, {"ref": "U_OPAMP_CT", "position": {"x": 24, "y": 99}, "rotation": 0, "width": 7, "height": 5, "status": "ok", "zone": null, "footprint": "SOIC-8", "value": "LM358", "violations": [], "loss_contribution": null, "loss_breakdown": null, "active_constraints": null, "last_gradient": null, "last_movement": null, "last_movement_reason": null}], "zones": [], "traces": [], "pads": [{"position": {"x": 82, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 82, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 82, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 82, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 57}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 82, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 82, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 82, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 82, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 88, "y": 63}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "U_MCU"}, {"position": {"x": 7, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "Q1"}, {"position": {"x": 7, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "Q1"}, {"position": {"x": 7, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "Q1"}, {"position": {"x": 7, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 102}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "Q1"}, {"position": {"x": 7, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "Q1"}, {"position": {"x": 7, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "Q1"}, {"position": {"x": 7, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "Q1"}, {"position": {"x": 7, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "Q1"}, {"position": {"x": 13, "y": 108}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "Q1"}, {"position": {"x": 32, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "D1"}, {"position": {"x": 32, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "D1"}, {"position": {"x": 32, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "D1"}, {"position": {"x": 32, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 105}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "D1"}, {"position": {"x": 32, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "D1"}, {"position": {"x": 32, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "D1"}, {"position": {"x": 32, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "D1"}, {"position": {"x": 32, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "1", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "2", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "3", "net": null, "component_ref": "D1"}, {"position": {"x": 38, "y": 111}, "size": [1.5, 1.5], "shape": "rect", "rotation": 0.0, "layer": "F.Cu", "number": "4", "net": null, "component_ref": "D1"}], "origin": {"x": 0.0, "y": 0.0}, "title": "Temper Induction Cooker"}, "loss_history": {"data_points": [], "phase_boundaries": [], "phase_names": []}, "constraints": {"violations": [], "summary": {"overlap": 0, "boundary": 0, "clearance": 0, "thermal": 0, "drc": 0}, "total_violations": 0, "has_errors": false}, "epoch": 0, "elapsed_seconds": 0.0, "is_training": true}</script>
 </head>
 <body>
-    <!-- Connection overlay -->
-    <div id="connection-overlay" class="overlay">
-        <div class="overlay-content">
-            <div class="spinner"></div>
-            <h2>Connecting...</h2>
-            <p>Waiting for WebSocket connection to server</p>
-            <button class="btn-secondary" onclick="reconnect()">Retry Connection</button>
+    <div id="app">
+        <!-- Landing overlay -->
+        <div id="landing-overlay">
+            <div class="landing-content">
+                <h1>Temper Board Viewer</h1>
+                <p>Connect to a running server or drop a JSON file to begin.</p>
+                <button id="btn-connect" onclick="connectToServer()">Connect to Server</button>
+                <div class="drop-zone" id="drop-zone">
+                    <p>Or drag and drop a VisualizationState JSON file here</p>
+                </div>
+                <div id="connection-error" class="error hidden"></div>
+            </div>
         </div>
+
+        <!-- Reconnect banner -->
+        <div id="reconnect-banner" class="hidden">Reconnecting...</div>
+
+        <!-- Performance warning -->
+        <div id="perf-warning" class="hidden">Performance degraded: board scale exceeds recommended maximum</div>
+
+        <!-- Top toolbar -->
+        <div id="toolbar" class="hidden">
+            <input type="text" id="search-input" placeholder="Search component (e.g. U3)...">
+            <select id="layer-select">
+                <option value="F.Cu">F.Cu</option>
+                <option value="In1.Cu">In1.Cu</option>
+                <option value="In2.Cu">In2.Cu</option>
+                <option value="B.Cu">B.Cu</option>
+            </select>
+        </div>
+
+        <!-- Main content -->
+        <div id="main-content" class="hidden">
+            <div id="canvas-container">
+                <canvas id="board-canvas"></canvas>
+            </div>
+
+            <!-- Sidebar -->
+            <div id="sidebar">
+                <div id="sidebar-resize-handle"></div>
+
+                <!-- Loss Dashboard -->
+                <div class="sidebar-section collapsible" id="section-loss">
+                    <div class="section-header" onclick="toggleSection('loss')">
+                        <span>Loss Dashboard</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="loss-total">---</div>
+                        <div id="loss-terms"></div>
+                        <div id="loss-trend"></div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Progress -->
+                <div class="sidebar-section collapsible" id="section-pipeline">
+                    <div class="section-header" onclick="toggleSection('pipeline')">
+                        <span>Pipeline Progress</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="pipeline-stages"></div>
+                    </div>
+                </div>
+
+                <!-- Board Summary -->
+                <div class="sidebar-section collapsible" id="section-summary">
+                    <div class="section-header" onclick="toggleSection('summary')">
+                        <span>Board Summary</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="board-stats"></div>
+                    </div>
+                </div>
+
+                <!-- Inspector Panel -->
+                <div class="sidebar-section collapsible" id="section-inspector">
+                    <div class="section-header">
+                        <span>Inspector</span>
+                    </div>
+                    <div class="section-body">
+                        <div id="inspector-content">Select a component to inspect.</div>
+                    </div>
+                </div>
+
+                <!-- Display Controls -->
+                <div class="sidebar-section collapsible" id="section-display">
+                    <div class="section-header" onclick="toggleSection('display')">
+                        <span>Display</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <label><input type="checkbox" id="toggle-components" checked onchange="updateVisibility()"> Components</label>
+                        <label><input type="checkbox" id="toggle-traces" checked onchange="updateVisibility()"> Traces</label>
+                        <label><input type="checkbox" id="toggle-zones" checked onchange="updateVisibility()"> Zones</label>
+                        <label><input type="checkbox" id="toggle-pads" checked onchange="updateVisibility()"> Pads</label>
+                        <label><input type="checkbox" id="toggle-grid" checked onchange="updateVisibility()"> Grid</label>
+                        <label><input type="checkbox" id="toggle-ratsnest" onchange="updateVisibility()"> Ratsnest</label>
+                        <label class="disabled"><input type="checkbox" id="toggle-heatmap" disabled> Loss Heatmap <span class="tooltip-hint">(requires optimizer instrumentation)</span></label>
+                        <label class="disabled"><input type="checkbox" id="toggle-constraint-overlay" disabled> Constraint Density <span class="tooltip-hint">(requires optimizer instrumentation)</span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animation controls -->
+        <div id="animation-controls" class="hidden">
+            <button id="btn-pause" onclick="togglePause()">Pause</button>
+            <select id="animation-mode" onchange="updateAnimationMode()">
+                <option value="smooth">Smooth</option>
+                <option value="snap">Snap</option>
+            </select>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="hidden"></div>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>Temper Placer - Live Visualization</h1>
-                <div class="status-indicator">
-                    <span class="status-dot" id="status-dot"></span>
-                    <select id="namespace-filter">
-                        <option value="">All Namespaces</option>
-                        <option value="reflective">Reflective</option>
-                        <option value="procedural">Procedural</option>
-                        <option value="semantic">Semantic</option>
-                        <option value="temporality">Temporality</option>
-                        <option value="episodic">Episodic</option>
-                        <option value="planner">Planner</option>
-                        <option value="coder">Coder</option>
-                        <option value="architect">Architect</option>
-                        <option value="temper-placer">Temper-Placer</option>
-                        <option value="firmware">Firmware</option>
-                        <option value="design">Design</option>
-                        <option value="research">Research</option>
-                        <option value="meeting-notes">Meeting Notes</option>
-                        <option value="project-tracking">Project Tracking</option>
-                    </select>
-                    <span id="status-text">Disconnected</span>
-                </div>
-        </header>
-
-        <div class="board-panel">
-            <h2>Board Layout</h2>
-            <div id="board-view"></div>
-        </div>
-
-        <div class="side-panel">
-            <div class="chart-section">
-                <h2>Loss Curves</h2>
-                <div id="loss-curves"></div>
-            </div>
-            <div class="chart-section">
-                <h2>Loss Breakdown</h2>
-                <div id="loss-breakdown"></div>
-            </div>
-        </div>
-
-         <div class="status-panel">
-             <div class="metric">
-                 <span class="metric-label">Epoch</span>
-                 <span class="metric-value" id="epoch-value">0</span>
-             </div>
-             <div class="metric">
-                 <span class="metric-label">Total Loss</span>
-                 <span class="metric-value" id="loss-value">-</span>
-             </div>
-             <div class="metric">
-                 <span class="metric-label">Elapsed</span>
-                 <span class="metric-value" id="elapsed-value">0:00</span>
-             </div>
-             <div class="metric">
-                 <span class="metric-label">Score Threshold</span>
-                 <div class="slider-container">
-                     <input type="range" id="score-slider" min="0" max="1" step="0.01" value="0.5">
-                     <span class="slider-value" id="score-value">0.5</span>
-                 </div>
-             </div>
-
-            <div class="constraint-indicators" id="constraint-indicators">
-                <!-- Populated dynamically -->
-            </div>
-
-            <div class="controls">
-                <div class="step-control">
-                    <input type="number" id="step-count" value="10" min="1" max="1000">
-                    <button class="btn-secondary" id="btn-step" onclick="stepIterations()">Step</button>
-                </div>
-                <button class="btn-warning" id="btn-pause" onclick="togglePause()">Pause</button>
-                <button class="btn-success" id="btn-export" onclick="exportState()">Export</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="viewer.js"></script>
+    <script type="module">
+        import init, { load_board, start_render_loop } from './wasm/temper_viewer.js';
+        (async () => {
+            try {
+                await init();
+                const el = document.getElementById('default-board');
+                if (!el) return;
+                const data = JSON.parse(el.textContent);
+                await load_board(JSON.stringify(data));
+                // Show canvas first so it has real dimensions
+                document.getElementById('landing-overlay').style.display = 'none';
+                document.getElementById('toolbar').classList.remove('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                // Small delay for layout to compute
+                await new Promise(r => setTimeout(r, 50));
+                await start_render_loop('board-canvas');
+            } catch(e) { console.error('Auto-load error:', e); }
+        })();
+    </script>
+    <script type="module" src="wasm-viewer.js?v=6"></script>
 </body>
 </html>

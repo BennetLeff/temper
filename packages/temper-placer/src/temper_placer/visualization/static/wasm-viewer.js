@@ -198,19 +198,18 @@ canvas.addEventListener('click', (e) => {
     } else {
         try {
             const data = JSON.parse(result);
-                inspector.innerHTML = `
-                    <div><strong>${data.ref}</strong> (${data.footprint || '?'})</div>
-                    <div>Value: ${data.value || 'N/A'}</div>
-                    <div>Position: (${data.position.x.toFixed(2)}, ${data.position.y.toFixed(2)}) mm</div>
-                    <div>Rotation: ${data.rotation}°</div>
-                    <div>Zone: ${data.zone || 'none'}</div>
-                    <div>Loss: ${data.loss_contribution?.toFixed(4) || 'N/A'}</div>
-                    ${data.last_movement_reason ? `<div>Reason: ${data.last_movement_reason}</div>` : ''}
-                    <div>Neighbors: ${data.neighbors.join(', ') || 'none'}</div>
-                `;
-            } catch { inspector.textContent = 'Error displaying component data.'; }
-        }
-    });
+            inspector.innerHTML = `
+                <div><strong>${data.ref}</strong> (${data.footprint || '?'})</div>
+                <div>Value: ${data.value || 'N/A'}</div>
+                <div>Position: (${data.position.x.toFixed(2)}, ${data.position.y.toFixed(2)}) mm</div>
+                <div>Rotation: ${data.rotation}°</div>
+                <div>Zone: ${data.zone || 'none'}</div>
+                <div>Loss: ${data.loss_contribution?.toFixed(4) || 'N/A'}</div>
+                ${data.last_movement_reason ? '<div>Reason: ' + data.last_movement_reason + '</div>' : ''}
+                <div>Neighbors: ${data.neighbors.join(', ') || 'none'}</div>
+            `;
+        } catch { inspector.textContent = 'Error displaying component data.'; }
+    }
 });
 
 // Search bar
