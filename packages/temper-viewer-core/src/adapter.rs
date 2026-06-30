@@ -57,7 +57,11 @@ fn parse_point(value: &Value) -> Result<Point, String> {
 }
 
 fn parse_component(value: &Value) -> Result<Component, String> {
-    let ref_ = value.get("ref").and_then(|v| v.as_str()).unwrap_or("?").to_string();
+    let ref_ = value.get("ref")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| "Component missing 'ref' field".to_string())?
+        .to_string();
     let position = value.get("position").map(parse_point).unwrap_or(Ok(Point::new(0.0, 0.0)))?;
     let rotation = value.get("rotation").and_then(|v| v.as_f64()).unwrap_or(0.0) as f32;
     let width = value.get("width").and_then(|v| v.as_f64()).unwrap_or(0.0) as f32;
@@ -248,6 +252,20 @@ mod tests {
         let board = from_visualization_state(json).unwrap();
         assert!(board.components.is_empty());
         assert!(board.traces.is_empty());
+    }
+
+    #[test]
+    fn parse_missing_ref_is_error() {
+        let json = r#"{"board": {"width": 50.0, "height": 50.0, "components": [{"position": [10.0, 10.0], "rotation": 0.0, "width": 2.0, "height": 1.0}]}}"#;
+        let result = from_visualization_state(json);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn parse_empty_ref_is_error() {
+        let json = r#"{"board": {"width": 50.0, "height": 50.0, "components": [{"ref": "", "position": [10.0, 10.0], "rotation": 0.0, "width": 2.0, "height": 1.0}]}}"#;
+        let result = from_visualization_state(json);
+        assert!(result.is_err());
     }
 
     #[test]
