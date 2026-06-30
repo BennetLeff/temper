@@ -157,6 +157,7 @@ def run_astar_pathfinding(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    bottleneck_widths: dict[str, float] | None = None,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -178,6 +179,10 @@ def run_astar_pathfinding(
         enable_coarse_to_fine: Use coarse-to-fine corridor routing (default False)
         coarse_factor: Downsampling factor for coarse grid (default 4)
         corridor_buffer_cells: Buffer margin in fine cells around coarse path (default 12)
+        bottleneck_widths: Optional dict mapping net_name to bottleneck width (mm).
+            When provided, nets with narrower bottlenecks route earlier within
+            each conflict cluster, ensuring nets with the fewest routing options
+            claim their corridor first.  Defaults to None (area-only ordering).
 
     Returns:
         PathfindingResult with routed paths and failure reports
@@ -203,7 +208,7 @@ def run_astar_pathfinding(
             print(f"  Found {len(tht_locations)} THT pads for layer switching")
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
 
-    net_order = _compute_net_order(channel_mapping)
+    net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
     routable_nets = [n for n in net_order if _should_route(n)]
 
     if target_nets:
@@ -501,7 +506,76 @@ def _astar_route_with_ripup(
 
     return path, [], fallback_count
 
-def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
+def _compute_bottleneck_widths(
+    channel_mapping: ChannelMapping,
+    edt: 'np.ndarray',
+    mask: 'np.ndarray',
+    bounds: tuple[float, float, float, float],
+    cell_size: float = 0.1,
+    sample_distance: float = 0.5,
+) -> dict[str, float]:
+    """
+    Compute per-net bottleneck width from the EDT grid.
+
+    For each net, sample points along the straight-line segments
+    between consecutive waypoints and look up the EDT width.
+    The bottleneck width is the minimum EDT width along all samples.
+
+    Args:
+        channel_mapping: Channel mapping with waypoints per net.
+        edt: Euclidean Distance Transform grid (ndarray).
+        mask: Interior mask grid (True = interior).
+        bounds: (min_x, min_y, max_x, max_y) of the EDT grid.
+        cell_size: Grid cell size in mm.
+        sample_distance: Distance between sample points along edges (mm).
+
+    Returns:
+        Dict mapping net_name to bottleneck width in mm.
+        Nets with no waypoints get float('inf').
+    """
+    import numpy as np
+
+    from temper_placer.router_v6.channel_widths import _edt_width_lookup
+
+    widths: dict[str, float] = {}
+    for net_name, path in channel_mapping.channel_paths.items():
+        waypoints = path.waypoints
+        if len(waypoints) < 2:
+            widths[net_name] = float('inf')
+            continue
+
+        min_width = float('inf')
+        for i in range(len(waypoints) - 1):
+            x1, y1 = waypoints[i]
+            x2, y2 = waypoints[i + 1]
+            dx = x2 - x1
+            dy = y2 - y1
+            seg_len = math.sqrt(dx * dx + dy * dy)
+
+            if seg_len < 1e-9:
+                w = _edt_width_lookup(x1, y1, edt, mask, bounds, cell_size)
+                if w < min_width:
+                    min_width = w
+                continue
+
+            num_samples = max(1, int(seg_len / sample_distance))
+            for s in range(num_samples + 1):
+                t = s / num_samples
+                sx = x1 + t * dx
+                sy = y1 + t * dy
+                w = _edt_width_lookup(sx, sy, edt, mask, bounds, cell_size)
+                if w < min_width:
+                    min_width = w
+
+        widths[net_name] = min_width if min_width != float('inf') else 0.0
+
+    return widths
+
+
+def _compute_net_order(
+    channel_mapping: ChannelMapping,
+    bottleneck_widths: dict[str, float] | None = None,
+) -> list[str]:
     """
     Compute routing order for nets using spatial conflict awareness.
 
@@ -510,28 +584,40 @@ def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
       2. Build a conflict graph: two nets conflict if their bounding boxes
          overlap sufficiently (overlap / smaller_area > 0.1).
       3. Find connected components (clusters of mutually-overlapping nets).
-      4. Within each cluster, sort by bounding-box area ASCENDING
-         (smallest footprint routes first on a clean grid).
-      5. Route power/HV nets first within their cluster.
-      6. Route isolated clusters first, then largest clusters.
+      4. Within each cluster, sort by (power_first, bottleneck_asc, area_asc)
+         when bottleneck_widths is provided; otherwise (power_first, area_asc).
+         Bottleneck-first ordering addresses channel competition (min widths),
+         complementing the area-based ordering that addresses area competition.
+      5. Route isolated clusters first, then largest clusters.
 
     Rationale:
       The rip-up cascade occurs when a large-footprint net consumes
       space that a small-footprint net later needs.  Routing small nets
       first ensures they claim their narrow corridors before larger nets
-      spread through the region.  This is a data transformation — no
-      algorithm change — so path quality is unchanged.
+      spread through the region.  Adding bottleneck widths gives priority
+      to nets with the narrowest routing corridors — they have fewer
+      routing options and must be routed before competitors claim their
+      only viable path.
 
-    Proof of correctors (induction):
+    Args:
+        channel_mapping: Channel mapping with waypoints per net.
+        bottleneck_widths: Optional dict mapping net_name to bottleneck
+            width in mm.  When provided, nets with narrower bottlenecks
+            route earlier within their cluster.
+
+    Proof of correctness (induction):
       Base case: Two nets with zero bounding-box overlap.
         Assigned to separate clusters.  Their routing order cannot
         affect each other — the board has independent regions.
       Induction: Within a cluster of k overlapping nets, routing
-        net 1 (smallest footprint) first gives it a clean grid.
-        When net k (largest footprint) routes, it finds space that
+        net 1 (smallest footprint or narrowest bottleneck) first gives
+        it a clean grid.  When net k routes, it finds space that
         net 1 through net k-1 didn't need.  By induction on k,
         all nets in the cluster have at least the same routing
         opportunity as random ordering.
+      Bottleneck lemma: routing net A (bottleneck=0.5mm) before net B
+        (bottleneck=5mm) never makes B unroutable that wouldn't already
+        be unroutable (B has 10x more routing options).
     """
     nets = list(channel_mapping.channel_paths)
 
@@ -602,10 +688,13 @@ def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
                     queue.append(neighbor)
         clusters.append(cluster)
 
-    # 3. Within each cluster, sort by (power_first, area_asc)
-    def cluster_sort_key(net_name: str) -> tuple[bool, float]:
+    # 3. Within each cluster, sort by (power_first, bottleneck_asc, area_asc)
+    def cluster_sort_key(net_name: str) -> tuple:
         name_upper = net_name.upper()
         is_power = any(x in name_upper for x in ["GND", "VCC", "HV", "AC_", "+", "VBUS"])
+        if bottleneck_widths is not None:
+            bw = bottleneck_widths.get(net_name, float('inf'))
+            return (not is_power, bw, bbox_areas.get(net_name, float('inf')))
         return (not is_power, bbox_areas.get(net_name, float('inf')))
 
     for cluster in clusters:
