@@ -112,3 +112,4 @@ x_cap_positions  # unused variable (packages/temper-placer/tests/requirements/va
 y_cap_positions  # unused variable (packages/temper-placer/tests/requirements/validators/emi_filter.py:118)
 y_cap_positions  # unused variable (packages/temper-placer/tests/requirements/validators/emi_filter.py:175)
 y_cap_values  # unused variable (packages/temper-placer/tests/requirements/validators/emi_filter.py:119)
+# unreachable code after 'return' (packages/temper-placer/src/temper_placer/router_v6/pipeline.py:1151)
