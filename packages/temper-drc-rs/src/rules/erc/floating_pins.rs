@@ -43,13 +43,9 @@ impl DrcRule for FloatingPinsCheck {
             .flat_map(|refs| refs.iter().map(|s| s.as_str()))
             .collect();
 
-        // Check each component in the board
-        for comp in &board.components {
-            // Skip mechanical components (mounting holes, etc.) — they have
-            // no electrical nets by design and should not trigger floating pins.
-            if comp.is_mechanical {
-                continue;
-            }
+        // Check each electrical component — mechanical components are
+        // in board.mechanical_components and not visible here.
+        for comp in &board.electrical_components {
             if !connected.contains(comp.refdes.as_str()) {
                 let layer = if comp.side == crate::board::BoardSide::Top {
                     "F.Cu"

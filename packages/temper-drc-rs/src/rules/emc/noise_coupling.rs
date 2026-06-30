@@ -54,7 +54,7 @@ impl DrcRule for NoiseCouplingCheck {
 
     fn check(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
-        let comps = &board.components;
+        let comps = &board.electrical_components;
         let n = comps.len();
 
         for i in 0..n {

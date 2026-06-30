@@ -42,11 +42,11 @@ impl DrcRule for ThtThermalReliefCheck {
         let mut violations = Vec::new();
 
         // Degenerate: no components → nothing to check.
-        if board.components.is_empty() {
+        if board.electrical_components.is_empty() {
             return violations;
         }
 
-        for comp in &board.components {
+        for comp in &board.electrical_components {
             if comp.package_type != PackageType::Tht {
                 continue;
             }

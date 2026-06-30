@@ -110,7 +110,6 @@ pub struct Component {
     pub package_type: PackageType,
     pub is_magnetic: bool,
     pub is_electrolytic: bool,
-    pub is_mechanical: bool,
     pub vent_direction: Option<f64>,
     pub footprint_polygon: Option<Polygon<f64>>,
 }
@@ -256,8 +255,11 @@ pub struct BoardState {
     pub height_mm: f64,
     pub margin_mm: f64,
 
-    // Placement data
-    pub components: Vec<Component>,
+    // Placement data — type-level separation: ERC checks only see electrical_components.
+    // Mechanical components (mounting holes, standoffs) are physically separate and
+    // cannot be passed to electrical checks.
+    pub electrical_components: Vec<Component>,
+    pub mechanical_components: Vec<Component>,
 
     // Net topology
     pub nets: HashMap<String, Vec<String>>,
@@ -268,4 +270,17 @@ pub struct BoardState {
     pub traces: Vec<TraceSegment>,
     pub vias: Vec<Via>,
     pub zones: Vec<CopperZone>,
+}
+
+impl BoardState {
+    /// All components (electrical + mechanical). Use for spatial checks (clearance, overlap)
+    /// where mechanical components can physically interfere with electrical ones.
+    pub fn all_components(&self) -> impl Iterator<Item = &Component> {
+        self.electrical_components.iter().chain(self.mechanical_components.iter())
+    }
+
+    /// Number of electrical components.
+    pub fn electrical_count(&self) -> usize {
+        self.electrical_components.len()
+    }
 }

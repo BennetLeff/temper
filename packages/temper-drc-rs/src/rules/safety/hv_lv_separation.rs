@@ -8,7 +8,7 @@
 //
 // Origin: U4 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use crate::board::BoardState;
+use crate::board::{BoardState, Component};
 use crate::constraints::ConstraintSet;
 use crate::rules::{location_midpoint, violation, DrcCategory, DrcRule, Severity, Violation};
 
@@ -56,7 +56,7 @@ impl DrcRule for HVLVSeparationCheck {
     fn check(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
         let required_gap = constraints.hv_clearance_mm;
-        let comps = &board.components;
+        let comps: Vec<&Component> = board.all_components().collect();
         let n = comps.len();
 
         for i in 0..n {

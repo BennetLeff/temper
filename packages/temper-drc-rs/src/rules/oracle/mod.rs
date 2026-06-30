@@ -13,7 +13,7 @@ use std::collections::HashSet;
 
 use geo::EuclideanDistance;
 
-use crate::board::BoardState;
+use crate::board::{BoardState, Component};
 use crate::constraints::ConstraintSet;
 use crate::rules::{
     clearance_between, violation, DrcCategory, Location, Severity, Violation,
@@ -29,7 +29,7 @@ use crate::rules::{
 /// validate that the production ClearanceCheck finds all violations.
 pub fn oracle_clearance(board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
     let mut violations = Vec::new();
-    let comps = &board.components;
+    let comps: Vec<&Component> = board.all_components().collect();
     let n = comps.len();
 
     for i in 0..n {
@@ -94,7 +94,7 @@ pub fn oracle_clearance(board: &BoardState, constraints: &ConstraintSet) -> Vec<
 /// used in production) to validate overlap detection.
 pub fn oracle_component_overlap(board: &BoardState) -> Vec<Violation> {
     let mut violations = Vec::new();
-    let comps = &board.components;
+    let comps: Vec<&Component> = board.all_components().collect();
     let n = comps.len();
 
     for i in 0..n {
@@ -144,7 +144,7 @@ pub fn oracle_component_overlap(board: &BoardState) -> Vec<Violation> {
 /// Brute-force oracle for CourtyardCheck using expanded bounding boxes.
 pub fn oracle_courtyard(board: &BoardState, margin_mm: f64) -> Vec<Violation> {
     let mut violations = Vec::new();
-    let comps = &board.components;
+    let comps: Vec<&Component> = board.all_components().collect();
     let n = comps.len();
     let required_gap = margin_mm * 2.0;
 
@@ -254,7 +254,7 @@ pub fn oracle_floating_pins(board: &BoardState) -> Vec<Violation> {
     // Double-check by counting
     let total_connected: usize = connected.len();
 
-    for comp in &board.components {
+    for comp in board.all_components() {
         if !connected.contains(comp.refdes.as_str()) {
             violations.push(violation(
                 Severity::Warning,

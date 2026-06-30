@@ -62,7 +62,7 @@ impl DrcRule for GroundPlaneCheck {
             .collect();
 
         // Check each noisy component
-        for comp in &board.components {
+        for comp in &board.electrical_components {
             if !is_noisy(&comp.net_class) {
                 continue;
             }

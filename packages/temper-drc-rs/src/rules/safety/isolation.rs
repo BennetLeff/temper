@@ -68,7 +68,7 @@ impl DrcRule for IsolationCheck {
         }
 
         // Check each component against isolation zones
-        for comp in &board.components {
+        for comp in board.all_components() {
             let is_iso_device = is_iso_component(&comp.net_class);
 
             if is_iso_device {

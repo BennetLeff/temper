@@ -266,7 +266,6 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
     let package_type = parse_package_type(&package_type_str)?;
     let is_magnetic = extract_opt_bool(dict, "is_magnetic")?.unwrap_or(false);
     let is_electrolytic = extract_opt_bool(dict, "is_electrolytic")?.unwrap_or(false);
-    let is_mechanical = extract_opt_bool(dict, "is_mechanical")?.unwrap_or(false);
     let vent_direction = extract_opt_f64(dict, "vent_direction")?;
     let footprint_polygon = extract_opt_polygon(dict, "footprint_polygon")?;
 
@@ -282,7 +281,6 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
         package_type,
         is_magnetic,
         is_electrolytic,
-        is_mechanical,
         vent_direction,
         footprint_polygon,
     })
@@ -421,13 +419,20 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     let margin_mm = extract_f64(board_info, "margin_mm", 3.0)?;
 
     // --- Components ---
-    let components = {
+    let (electrical_components, mechanical_components) = {
         let comp_list = extract_dict_list(board_dict, "components")?;
-        let mut result = Vec::with_capacity(comp_list.len());
+        let mut elec = Vec::with_capacity(comp_list.len());
+        let mut mech = Vec::new();
         for comp_dict in comp_list {
-            result.push(extract_component(&comp_dict)?);
+            let is_mechanical = extract_opt_bool(&comp_dict, "is_mechanical")?.unwrap_or(false);
+            let comp = extract_component(&comp_dict)?;
+            if is_mechanical {
+                mech.push(comp);
+            } else {
+                elec.push(comp);
+            }
         }
-        result
+        (elec, mech)
     };
 
     // --- Nets ---
@@ -540,7 +545,8 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         width_mm,
         height_mm,
         margin_mm,
-        components,
+        electrical_components,
+        mechanical_components,
         nets,
         net_classes,
         net_class_rules,

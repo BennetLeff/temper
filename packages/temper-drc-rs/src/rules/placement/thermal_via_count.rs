@@ -42,7 +42,7 @@ impl DrcRule for ThermalViaCountCheck {
             return violations;
         }
 
-        for comp in &board.components {
+        for comp in &board.electrical_components {
             let power = match comp.power_dissipation_w {
                 Some(p) if p > 0.0 => p,
                 _ => continue,

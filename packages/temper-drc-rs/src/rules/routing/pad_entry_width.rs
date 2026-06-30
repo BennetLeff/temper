@@ -117,7 +117,7 @@ impl DrcRule for PadEntryWidthCheck {
                 for ep in [seg.start, seg.end] {
                     let ep_point = Point::new(ep.x, ep.y);
 
-                    for comp in &board.components {
+                    for comp in &board.electrical_components {
                         // Layer check
                         if trace.layer != comp_layer(comp.side) {
                             continue;

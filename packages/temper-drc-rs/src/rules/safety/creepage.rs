@@ -49,7 +49,7 @@ impl DrcRule for CreepageCheck {
     fn check(&self, board: &BoardState, _constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
 
-        for comp in &board.components {
+        for comp in board.all_components() {
             if !is_iso_component(&comp.net_class) {
                 continue;
             }

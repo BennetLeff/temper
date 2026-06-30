@@ -5,7 +5,7 @@
 //
 // Origin: U6 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use crate::board::{BoardSide, BoardState, PackageType};
+use crate::board::{BoardSide, BoardState, Component, PackageType};
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 
@@ -36,16 +36,15 @@ impl DrcRule for WaveSolderKeepoutCheck {
     fn check(&self, board: &BoardState, _constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
 
-        // Collect bottom-side SMD components.
-        let bottom_smd: Vec<_> = board
-            .components
+        // Collect bottom-side SMD components (all components — mechanical too).
+        let all_comps: Vec<&Component> = board.all_components().collect();
+        let bottom_smd: Vec<&&Component> = all_comps
             .iter()
             .filter(|c| c.side == BoardSide::Bottom && c.package_type != PackageType::Tht)
             .collect();
 
-        // Collect THT components (top or bottom — THT goes through all layers).
-        let tht_components: Vec<_> = board
-            .components
+        // Collect THT components (all).
+        let tht_components: Vec<&&Component> = all_comps
             .iter()
             .filter(|c| c.package_type == PackageType::Tht)
             .collect();

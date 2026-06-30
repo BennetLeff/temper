@@ -60,7 +60,7 @@ impl DrcRule for LoopAreaCheck {
             let mut valid = false;
 
             for refdes in &involved_refs {
-                if let Some(comp) = board.components.iter().find(|c| c.refdes == *refdes) {
+                if let Some(comp) = board.electrical_components.iter().find(|c| c.refdes == *refdes) {
                     min_x = min_x.min(comp.center.x());
                     min_y = min_y.min(comp.center.y());
                     max_x = max_x.max(comp.center.x());

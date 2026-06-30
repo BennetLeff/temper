@@ -121,7 +121,7 @@ impl DrcRule for PowerPadTeardropCheck {
                     let ep_point = Point::new(ep.x, ep.y);
 
                     // Find which component (if any) this endpoint touches
-                    for comp in &board.components {
+                    for comp in &board.electrical_components {
                         // Layer check: trace layer must match component side
                         if trace.layer != comp_layer(comp.side) {
                             continue;

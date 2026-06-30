@@ -30,25 +30,13 @@ impl DrcRule for NetConnectivityCheck {
         "Verify each net has at least two connected (non-mechanical) components."
     }
     fn check(&self, board: &BoardState, _constraints: &ConstraintSet) -> Vec<Violation> {
-        // Build set of mechanical component refs to exclude from connection counts.
-        let mechanical_refs: HashSet<&str> = board
-            .components
-            .iter()
-            .filter(|c| c.is_mechanical)
-            .map(|c| c.refdes.as_str())
-            .collect();
-
-        // Filter nets to exclude mechanical-only connections.
-        // When fully implemented, each net's filtered connection count will
-        // be checked — any net with < 2 non-mechanical components is a violation.
+        // Only electrical components are in board.electrical_components —
+        // mechanical components are separated at the type level.
         let _filtered_connection_counts: Vec<(&str, usize)> = board
             .nets
             .iter()
             .map(|(net, refs)| {
-                let count = refs
-                    .iter()
-                    .filter(|r| !mechanical_refs.contains(r.as_str()))
-                    .count();
+                let count = refs.len();
                 (net.as_str(), count)
             })
             .collect();
