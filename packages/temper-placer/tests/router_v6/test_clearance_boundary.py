@@ -118,7 +118,7 @@ def _make_results(
         *[(v, f"inf_{i}") for i, v in enumerate(THRESHOLD_INF)],
     ],
 )
-def test_clearance_threshold_boundary(min_clearance, _desc):
+def test_clearance_threshold_boundary(min_clearance, desc):
     """``verify_clearance`` with boundary ``min_clearance`` values.
 
     The function should not crash; it may return 0 or all violations
@@ -244,7 +244,7 @@ def test_voltage_bracket_transitions(voltage, expected_creepage):
         *[(v, f"extreme_{i}") for i, v in enumerate(VOLTAGE_EXTREME)],
     ],
 )
-def test_voltage_boundary_values(voltage, _desc):
+def test_voltage_boundary_values(voltage, desc):
     """``_get_required_clearance`` with boundary voltage values in the
     ratings dict.
 
@@ -274,7 +274,7 @@ def test_voltage_boundary_values(voltage, _desc):
         *[(c, f"extreme_{i}") for i, c in enumerate(COORD_EXTREME)],
     ],
 )
-def test_coordinate_boundary_single_point_path(coords, _desc):
+def test_coordinate_boundary_single_point_path(coords, desc):
     """Single-point paths with boundary coordinate values.
 
     A single-point path has no segments — the clearance code must
@@ -298,7 +298,7 @@ def test_coordinate_boundary_single_point_path(coords, _desc):
         *[(c, f"inf_{i}") for i, c in enumerate(COORD_INF)],
     ],
 )
-def test_coordinate_boundary_two_point_path(coords, _desc):
+def test_coordinate_boundary_two_point_path(coords, desc):
     """Two-point paths (one segment) with NaN/inf coordinates.
 
     The segment-to-segment distance calculation should not crash,
@@ -327,7 +327,7 @@ def test_coordinate_boundary_two_point_path(coords, _desc):
         *[(c, f"negative_{i}") for i, c in enumerate(COORD_NEGATIVE)],
     ],
 )
-def test_coordinate_boundary_normal_segments(coords, _desc):
+def test_coordinate_boundary_normal_segments(coords, desc):
     """Normal multi-point paths with finite boundary coordinates.
 
     Should behave identically to any other finite-coordinate path.
@@ -356,7 +356,7 @@ def test_coordinate_boundary_normal_segments(coords, _desc):
         *[(w, f"inf_{i}") for i, w in enumerate(TRACE_WIDTHS_INF)],
     ],
 )
-def test_trace_width_boundary(width, _desc):
+def test_trace_width_boundary(width, desc):
     """Edge-to-edge clearance with boundary trace widths.
 
     The ``_calculate_minimum_clearance`` function subtracts
@@ -552,7 +552,7 @@ def test_degenerate_segment_zero_length():
         *[(v, f"extreme_{i}") for i, v in enumerate(VOLTAGE_EXTREME)],
     ],
 )
-def test_hv_escalation_boundary_voltage(voltage, _desc):
+def test_hv_escalation_boundary_voltage(voltage, desc):
     """HV net with boundary voltage values — does clearance escalate?
 
     The ``verify_clearance`` function should consult the voltage

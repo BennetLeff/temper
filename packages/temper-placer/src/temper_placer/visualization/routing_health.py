@@ -308,7 +308,7 @@ def build_dashboard_from_pipeline(
         from temper_placer.router_v6.astar_pathfinding import _compute_bottleneck_widths
         try:
             bottleneck_widths = _compute_bottleneck_widths(
-                edt, mask, board_bounds, channel_mapping, 0.1,
+                channel_mapping, edt, mask, board_bounds, 0.1,
             )
         except Exception:
             pass
@@ -320,8 +320,8 @@ def build_dashboard_from_pipeline(
         for net_name, bbox in net_bboxes.items():
             try:
                 ok = check_routability_direct(
-                    (bbox[0], bbox[1]), (bbox[2], bbox[3]),
-                    edt, mask, 0.1, trace_width=0.2,
+                    net_name, (bbox[0], bbox[1]), (bbox[2], bbox[3]),
+                    edt, trace_width=0.2, cell_size=0.1,
                 )
                 routability[net_name] = ok
             except Exception:
@@ -333,7 +333,7 @@ def build_dashboard_from_pipeline(
         ordered = _compute_net_order(channel_mapping)
         if len(ordered) > 1:
             threshold = 0.1
-            graph = {n: set() for n in ordered}
+            graph: dict[str, set[str]] = {n: set() for n in ordered}
             nlist = list(ordered)
             for i in range(len(nlist)):
                 a = nlist[i]

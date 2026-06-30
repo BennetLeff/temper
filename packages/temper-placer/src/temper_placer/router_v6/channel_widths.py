@@ -243,7 +243,7 @@ def compute_channel_widths(
         _edt_grid, _edt_mask, _edt_bounds = _build_edt(routing_space, _edt_cell)
 
     def _width_at(p: tuple[float, float]) -> float:
-        if _edt_grid is not None:
+        if _edt_grid is not None and _edt_mask is not None and _edt_bounds is not None:
             return _edt_width_lookup(p[0], p[1], _edt_grid, _edt_mask, _edt_bounds, _edt_cell)
         return _compute_width_at_point(
             p, available_area, _prepared=prepared_area,

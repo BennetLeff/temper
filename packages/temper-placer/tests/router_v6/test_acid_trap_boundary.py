@@ -396,7 +396,7 @@ def test_severity_at_threshold_boundaries(
 )
 def test_severity_narrow_trace_demotion(
     angle_deg: float,
-    _expected_base: str,
+    expected_base: str,
     width_mm: float,
     expected_demoted: str,
 ):
