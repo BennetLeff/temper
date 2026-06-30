@@ -28,8 +28,17 @@ jobs:
         language: [c-cpp, python]
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-      - uses: github/codeql-action/autobuild@v3
-      - uses: github/codeql-action/analyze@v3
+
+      - name: Build C/C++ firmware (if applicable)
+        if: matrix.language == 'c-cpp'
+        run: |
+          cmake -B firmware/build firmware/
+          cmake --build firmware/build
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
