@@ -1,3 +1,4 @@
+# ruff: noqa: ARG001, F821  # enable_numba_los from incomplete numba merge
 """
 Router V6 Stage 4.2: Run A* Pathfinding
 

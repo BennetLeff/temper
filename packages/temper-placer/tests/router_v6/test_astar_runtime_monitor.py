@@ -1,3 +1,4 @@
+# ruff: noqa: F841  # state variable from incomplete numba merge
 """
 Tests for A* Runtime Invariant Monitor.
 
