@@ -317,8 +317,9 @@ class OptimizationPipeline:
                 break
 
         # If no Pareto result, just return the single final state
-        if not final_states and geo_res.state is not None:
-            final_states = [geo_res.state]
+        if not final_states:  # noqa: SIM102
+            if geo_res.state is not None:
+                final_states = [geo_res.state]
 
         return PipelineResult(
             success=True,
