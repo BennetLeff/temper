@@ -203,3 +203,23 @@ impl Zone {
         (self.area() / board_area) * 100.0
     }
 }
+
+impl Default for Board {
+    fn default() -> Self {
+        Self { width: 100.0, height: 100.0, components: vec![], traces: vec![], pads: vec![], zones: vec![], title: None }
+    }
+}
+
+impl Default for Component {
+    fn default() -> Self {
+        Self {
+            ref_: String::new(), position: Point::new(0.0, 0.0), rotation: 0.0,
+            width: 0.0, height: 0.0, status: ComponentStatus::Ok, zone: None,
+            footprint: None, value: None, violations: vec![],
+            component_type: ComponentType::Other,
+            loss_contribution: None, loss_breakdown: None,
+            active_constraints: vec![], last_gradient: None,
+            last_movement: None, last_movement_reason: None,
+        }
+    }
+}
