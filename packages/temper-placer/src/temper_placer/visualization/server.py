@@ -313,13 +313,50 @@ class LiveServer:
 
     async def _start_servers(self) -> None:
         """Start both HTTP and WebSocket servers."""
-        # WebSocket server
+        from websockets.http11 import Response
+        from websockets.datastructures import Headers
+
+        static_dir = self.config.static_dir or self._default_static_dir()
+
+        async def http_handler(connection: Any, request: Any) -> Response | None:
+            """Handle HTTP requests by serving static files. Return None for WebSocket upgrade."""
+            if request.path is None:
+                return Response(404, "Not Found", Headers())
+
+            # Let WebSocket upgrade requests through
+            if request.path == "/ws" or request.headers.get("Upgrade", "").lower() == "websocket":
+                return None
+
+            path = request.path.lstrip("/")
+            if path in ("", "index.html"):
+                file_path = static_dir / "wasm-viewer.html"
+            else:
+                # Prevent directory traversal
+                file_path = (static_dir / path).resolve()
+                if not str(file_path).startswith(str(static_dir.resolve())):
+                    return Response(404, "Not Found", Headers())
+
+            if not file_path.is_file():
+                return Response(404, "Not Found", Headers())
+
+            content_type = _guess_mime_type(file_path)
+            try:
+                body = file_path.read_bytes()
+                headers = Headers({
+                    "Content-Type": content_type,
+                    "Content-Length": str(len(body)),
+                })
+                return Response(200, "OK", headers, body=body)
+            except OSError:
+                return Response(500, "Internal Server Error", Headers())
+
         self._ws_server = await serve(
             self._handle_client,
             self.config.host,
             self.config.port,
+            process_request=http_handler,
         )
-        logger.debug(f"WebSocket server listening on {self.ws_url}")
+        logger.debug(f"Server listening on {self.url} (ws: {self.ws_url})")
 
     async def _handle_client(self, websocket: Any) -> None:
         """Handle a WebSocket client connection."""
@@ -506,3 +543,18 @@ def create_server(**kwargs: Any) -> LiveServer | MockLiveServer:
             "websockets not installed, using mock server. Install with: pip install websockets"
         )
         return MockLiveServer(**kwargs)
+
+
+def _guess_mime_type(file_path: Path) -> str:
+    """Guess MIME type from file extension."""
+    ext = file_path.suffix.lower()
+    return {
+        ".html": "text/html; charset=utf-8",
+        ".css": "text/css; charset=utf-8",
+        ".js": "application/javascript; charset=utf-8",
+        ".wasm": "application/wasm",
+        ".json": "application/json",
+        ".png": "image/png",
+        ".svg": "image/svg+xml",
+        ".ico": "image/x-icon",
+    }.get(ext, "application/octet-stream")
