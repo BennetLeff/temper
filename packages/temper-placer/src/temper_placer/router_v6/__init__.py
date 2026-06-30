@@ -100,6 +100,9 @@ from temper_placer.router_v6.routing_failure_handler import (  # noqa: E402
     RoutingFailureReport,
     handle_routing_failures,
 )
+from temper_placer.router_v6.astar_core_numba import (  # noqa: E402
+    _line_of_sight_numba,
+)
 from temper_placer.router_v6.safety_pair_inference import (  # noqa: E402
     SafetyPair,
     infer_safety_pairs,
@@ -171,4 +174,6 @@ __all__ = [
     # Min-cut bottleneck geometry (U2/U3) — lazily resolved; see __getattr__.
     "BottleneckGeometry",
     "analyze_bottleneck",
+    # Numba LOS kernel
+    "_line_of_sight_numba",
 ]

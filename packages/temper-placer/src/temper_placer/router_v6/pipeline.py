@@ -334,6 +334,7 @@ class RouterV6Pipeline:
         dfm_fail_on: str = "critical",
         max_sat_nets: int | None = None,
         enable_bundling: bool = False,
+        enable_numba_los: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -372,6 +373,10 @@ class RouterV6Pipeline:
                 bundle equivalence classes and only Safety constraints
                 are encoded eagerly; Performance constraints are lazily
                 grounded via CEGAR loop. Deprecated max_sat_nets if set.
+            enable_numba_los: Use Numba-jitted Bresenham LOS check in
+                Theta* and Lazy Theta* (default False). 10-50x per-call
+                speedup on the inner-loop LOS check; opt-in for
+                correctness validation.
         """
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
@@ -394,6 +399,7 @@ class RouterV6Pipeline:
         self.dfm_fail_on = dfm_fail_on
         self.max_sat_nets = max_sat_nets
         self.enable_bundling = enable_bundling
+        self.enable_numba_los = enable_numba_los
 
         # Warn if both max_sat_nets and enable_bundling are set
         if enable_bundling and max_sat_nets is not None:
@@ -1052,6 +1058,7 @@ class RouterV6Pipeline:
             enable_theta_star=self.enable_theta_star,
             enable_lazy_theta_star=self.enable_lazy_theta_star,
             congestion_weight=self.congestion_weight,
+            enable_numba_los=self.enable_numba_los,
         )
         state = orchestrated.run(initial_state=state)
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)
@@ -1078,6 +1085,7 @@ class RouterV6Pipeline:
                 max_nets=self.max_nets,
                 target_nets=self.target_nets,
                 max_iter=self.max_iter,
+                enable_numba_los=self.enable_numba_los,
             )
 
         return self._run_stage5(pcb, stage2, pathfinding_result)

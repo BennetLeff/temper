@@ -44,6 +44,7 @@ class RouteStage(Stage):
         escape_vias_map = getattr(state, "escape_vias_map", None)
         use_theta_star = getattr(state, "enable_theta_star", False)
         use_lazy_theta_star = getattr(state, "enable_lazy_theta_star", False)
+        enable_numba_los = getattr(state, "enable_numba_los", False)
 
         # U7 / R11: PathFinder history cost.  Build a per-cell
         # congestion tensor matching the primary grid.  The
@@ -76,6 +77,7 @@ class RouteStage(Stage):
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
+            enable_numba_los=enable_numba_los,
         )
 
         return replace(
