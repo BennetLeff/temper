@@ -108,7 +108,9 @@ class BoardState:
     escape_vias_map: dict[str, Any] | None = None
     enable_theta_star: bool = False
     enable_lazy_theta_star: bool = False
-    enable_numba_los: bool = False
+    enable_coarse_to_fine: bool = False
+    coarse_factor: int = 4
+    corridor_buffer_cells: int = 12
     # U7 / R11: PathFinder-style history cost.  0.0 disables
     # (no detour behavior).  Non-zero values push later nets
     # around already-routed channels.  Empirically 0.0 closes

@@ -57,7 +57,8 @@ def test_occupancy_grid_coordinate_roundtrip(width, height, cell_size):
 )
 @settings(max_examples=100, deadline=30000)
 def test_occupancy_grid_downsample(seed):
-    """Downsampled grid has factor× fewer cells."""
+    """Downsampled grid has factor× fewer (or equal) cells."""
+    import math
     import random
     rng = random.Random(seed)
     w = rng.randint(10, 50)
@@ -72,8 +73,8 @@ def test_occupancy_grid_downsample(seed):
     )
     factor = 2
     coarse = og.downsample(factor)
-    assert coarse.width_cells == max(1, w // factor)
-    assert coarse.height_cells == max(1, h // factor)
+    assert coarse.width_cells == max(1, math.ceil(w / factor))
+    assert coarse.height_cells == max(1, math.ceil(h / factor))
     assert coarse.cell_size == og.cell_size * factor
 
 

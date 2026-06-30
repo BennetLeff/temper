@@ -320,7 +320,7 @@ class RouterV6Pipeline:
         self,
         verbose: bool = False,
         enable_theta_star: bool = True,
-        enable_lazy_theta_star: bool = True,
+        enable_lazy_theta_star: bool = False,
         enable_smoothing: bool = False,
         enable_legalization: bool = True,
         max_nets: int | None = None,
@@ -334,16 +334,17 @@ class RouterV6Pipeline:
         dfm_fail_on: str = "critical",
         max_sat_nets: int | None = None,
         enable_bundling: bool = False,
-        enable_numba_los: bool = False,
+        enable_coarse_to_fine: bool = False,
+        coarse_factor: int = 4,
+        corridor_buffer_cells: int = 12,
     ):
         """
         Initialize Router V6 pipeline.
 
         Args:
             verbose: Enable verbose logging
-            enable_theta_star: Use Theta* any-angle routing (Experiment F). Default True.
-            enable_lazy_theta_star: Use Lazy Theta* (Experiment O4). Default True
-                (checked first; when both are True, Lazy Theta* wins).
+            enable_theta_star: Use Theta* any-angle routing (Experiment F)
+            enable_lazy_theta_star: Use Lazy Theta* (Experiment O4)
             enable_smoothing: Apply force-directed smoothing (Experiment G)
             enable_legalization: Auto-fix component overlaps (Phase 6)
             max_nets: Limit number of nets to route (for profiling)
@@ -373,10 +374,6 @@ class RouterV6Pipeline:
                 bundle equivalence classes and only Safety constraints
                 are encoded eagerly; Performance constraints are lazily
                 grounded via CEGAR loop. Deprecated max_sat_nets if set.
-            enable_numba_los: Use Numba-jitted Bresenham LOS check in
-                Theta* and Lazy Theta* (default False). 10-50x per-call
-                speedup on the inner-loop LOS check; opt-in for
-                correctness validation.
         """
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
@@ -399,7 +396,9 @@ class RouterV6Pipeline:
         self.dfm_fail_on = dfm_fail_on
         self.max_sat_nets = max_sat_nets
         self.enable_bundling = enable_bundling
-        self.enable_numba_los = enable_numba_los
+        self.enable_coarse_to_fine = enable_coarse_to_fine
+        self.coarse_factor = coarse_factor
+        self.corridor_buffer_cells = corridor_buffer_cells
 
         # Warn if both max_sat_nets and enable_bundling are set
         if enable_bundling and max_sat_nets is not None:
@@ -1058,7 +1057,9 @@ class RouterV6Pipeline:
             enable_theta_star=self.enable_theta_star,
             enable_lazy_theta_star=self.enable_lazy_theta_star,
             congestion_weight=self.congestion_weight,
-            enable_numba_los=self.enable_numba_los,
+            enable_coarse_to_fine=self.enable_coarse_to_fine,
+            coarse_factor=self.coarse_factor,
+            corridor_buffer_cells=self.corridor_buffer_cells,
         )
         state = orchestrated.run(initial_state=state)
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)
@@ -1085,7 +1086,9 @@ class RouterV6Pipeline:
                 max_nets=self.max_nets,
                 target_nets=self.target_nets,
                 max_iter=self.max_iter,
-                enable_numba_los=self.enable_numba_los,
+                enable_coarse_to_fine=self.enable_coarse_to_fine,
+                coarse_factor=self.coarse_factor,
+                corridor_buffer_cells=self.corridor_buffer_cells,
             )
 
         return self._run_stage5(pcb, stage2, pathfinding_result)

@@ -2,9 +2,23 @@ _meta:
   last_audit_date: '2026-06-24'
   total_scripts: 27
   counts:
-    keep: 24
+    keep: 25
   ticket_scripts_deleted: 40
 scripts:
+- path: bench_coarse_to_fine.py
+  purpose: "A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb"
+  owner: router-v6-closure-rate
+  last_run: "2026-06-29"
+  category: keep
+  disposition: utility
+    imports:
+      - __future__
+      - argparse
+      - json
+      - pathlib
+      - sys
+      - time
+      - temper_placer.router_v6.pipeline
 - path: add_power_planes.py
   purpose: Manually add power plane geometry to a KiCad PCB
   owner: unassigned
