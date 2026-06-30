@@ -45,6 +45,7 @@ DIRS_8: tuple[tuple[int, int], ...] = (
 
 def build_neighbor_validity_tensor_2d(
     grid: OccupancyGrid,
+    corridor_mask: np.ndarray | None = None,
 ) -> np.ndarray:
     """Build a ``(rows, cols, 8)`` boolean tensor for a 2D grid.
 
@@ -52,9 +53,19 @@ def build_neighbor_validity_tensor_2d(
     (c, r) in direction ``dir`` (using the 8-move encoding in
     ``DIRS_8``) lands on a free, in-bounds cell on the same layer.
 
+    When ``corridor_mask`` is supplied (a bool array of the same
+    shape as the grid), a move is also invalid if the destination
+    cell lies outside the corridor.  This implements corridor-
+    constrained coarse-to-fine A* without modifying the Numba
+    kernel.
+
     Args:
         grid: An ``OccupancyGrid`` instance (the same one the A*
             inner loop will read from).
+        corridor_mask: Optional boolean array of shape
+            ``(height_cells, width_cells)`` where ``True`` marks
+            cells allowed for routing.  ``None`` (default) imposes
+            no extra constraint.
 
     Returns:
         A ``np.ndarray`` of dtype ``np.bool_`` with shape
@@ -70,21 +81,19 @@ def build_neighbor_validity_tensor_2d(
 
     arr = grid.grid
     for dir_idx, (dx, dy) in enumerate(DIRS_8):
-        # For each source cell (r, c) we mark whether (r + dy, c + dx)
-        # is in bounds and free.  The source range is the set of
-        # cells that stay in-bounds *after* shifting; the destination
-        # range is the same shape, shifted.  Out-of-bounds sources
-        # are left False (the tensor was initialized to all False).
         r_src_lo = max(0, -dy)
         r_src_hi = min(rows, rows - dy)
         c_src_lo = max(0, -dx)
         c_src_hi = min(cols, cols - dx)
         if r_src_lo >= r_src_hi or c_src_lo >= c_src_hi:
-            # Shift pushes the entire view out of bounds; every
-            # move in this direction is invalid.
             continue
         dst = arr[r_src_lo + dy : r_src_hi + dy, c_src_lo + dx : c_src_hi + dx]
         dst_free = dst == 0
+        if corridor_mask is not None:
+            dst_in_corridor = corridor_mask[
+                r_src_lo + dy : r_src_hi + dy, c_src_lo + dx : c_src_hi + dx
+            ]
+            dst_free = dst_free & dst_in_corridor
         tensor[r_src_lo:r_src_hi, c_src_lo:c_src_hi, dir_idx] = dst_free
 
     return tensor

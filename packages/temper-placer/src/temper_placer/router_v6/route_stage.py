@@ -44,6 +44,9 @@ class RouteStage(Stage):
         escape_vias_map = getattr(state, "escape_vias_map", None)
         use_theta_star = getattr(state, "enable_theta_star", False)
         use_lazy_theta_star = getattr(state, "enable_lazy_theta_star", False)
+        enable_coarse_to_fine = getattr(state, "enable_coarse_to_fine", False)
+        coarse_factor = getattr(state, "coarse_factor", 4)
+        corridor_buffer_cells = getattr(state, "corridor_buffer_cells", 12)
 
         # U7 / R11: PathFinder history cost.  Build a per-cell
         # congestion tensor matching the primary grid.  The
@@ -76,6 +79,9 @@ class RouteStage(Stage):
             use_theta_star=use_theta_star,
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
+            enable_coarse_to_fine=enable_coarse_to_fine,
+            coarse_factor=coarse_factor,
+            corridor_buffer_cells=corridor_buffer_cells,
         )
 
         return replace(

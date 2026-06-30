@@ -7,6 +7,7 @@ Part of temper-8bj1 (Stage 2 - Channel Analysis)
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, replace
 from enum import Enum
 
@@ -106,18 +107,33 @@ class OccupancyGrid:
 
         A coarse cell is blocked if any of its sub-cells are blocked.
         Used for coarse-to-fine A* routing (U4).
+
+        Vectorized block-reduce via reshape + np.any over factor axes.
+        When the fine dimensions are not evenly divisible by ``factor``,
+        the grid is padded with BLOCKED cells before pooling (conservative).
         """
-        old_w, old_h = self.width_cells, self.height_cells
-        new_w = max(1, old_w // factor)
-        new_h = max(1, old_h // factor)
-        new_grid = np.zeros((new_h, new_w), dtype=self.grid.dtype)
-        for j in range(new_h):
-            for i in range(new_w):
-                patch = self.grid[
-                    j * factor : min((j + 1) * factor, old_h),
-                    i * factor : min((i + 1) * factor, old_w),
-                ]
-                new_grid[j, i] = CellState.BLOCKED.value if np.any(patch) else CellState.FREE.value
+        old_h, old_w = self.height_cells, self.width_cells
+        new_h = max(1, math.ceil(old_h / factor))
+        new_w = max(1, math.ceil(old_w / factor))
+
+        pad_h = new_h * factor - old_h
+        pad_w = new_w * factor - old_w
+
+        arr = self.grid
+        if pad_h > 0 or pad_w > 0:
+            arr = np.pad(
+                arr,
+                ((0, pad_h), (0, pad_w)),
+                mode="constant",
+                constant_values=CellState.BLOCKED.value,
+            )
+
+        reshaped = arr.reshape(new_h, factor, new_w, factor)
+        # max-pool: any blocked sub-cell => blocked coarse cell
+        blocked = np.any(reshaped, axis=(1, 3))
+        new_grid = np.where(blocked, CellState.BLOCKED.value, CellState.FREE.value).astype(
+            self.grid.dtype
+        )
         return OccupancyGrid(
             layer_name=f"{self.layer_name}_coarse",
             grid=new_grid,

@@ -62,6 +62,7 @@ class PathfindingResult:
     failure_reports: dict[str, RoutingFailureReport] | None = None  # Detailed failures
     net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
     per_path_latency_ms: dict[str, float] | None = None  # Per-net routing latency
+    coarse_to_fine_fallbacks: int = 0  # Number of times coarse-to-fine fell back to unrestricted A*
 
     @property
     def success_count(self) -> int:
@@ -147,6 +148,9 @@ def run_astar_pathfinding(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,  # U7 / R11: PathFinder history cost
     max_iter: int = 1_000_000,
+    enable_coarse_to_fine: bool = False,
+    coarse_factor: int = 4,
+    corridor_buffer_cells: int = 12,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -165,6 +169,9 @@ def run_astar_pathfinding(
         components: Optional component list (deprecated, use pcb)
         pcb: ParsedPCB with pads for THT detection
         escape_vias_map: Map of net_name -> list of (x, y, diameter) for escape vias
+        enable_coarse_to_fine: Use coarse-to-fine corridor routing (default False)
+        coarse_factor: Downsampling factor for coarse grid (default 4)
+        corridor_buffer_cells: Buffer margin in fine cells around coarse path (default 12)
 
     Returns:
         PathfindingResult with routed paths and failure reports
@@ -224,7 +231,10 @@ def run_astar_pathfinding(
 
     reroute_queue: deque[str] = deque()
 
+    fallback_count = 0  # coarse-to-fine fallback counter
+
     def attempt_route(net_name: str) -> tuple[bool, str, list[str], tuple[float, float] | None]:
+        nonlocal fallback_count
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
 
@@ -242,7 +252,7 @@ def run_astar_pathfinding(
         )
 
         # Pass dummy net_id=-1 since we haven't routed yet (cells should be 0)
-        route_path, ripped_ids = _astar_route_with_ripup(
+        route_path, ripped_ids, fb = _astar_route_with_ripup(
             net_name,
             channel_path,
             primary_grid,
@@ -257,7 +267,11 @@ def run_astar_pathfinding(
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
             max_iter=max_iter,
+            enable_coarse_to_fine=enable_coarse_to_fine,
+            coarse_factor=coarse_factor,
+            corridor_buffer_cells=corridor_buffer_cells,
         )
+        fallback_count += fb
 
         _restore_net_pads(restoration)
 
@@ -385,6 +399,7 @@ def run_astar_pathfinding(
         failure_reports=failure_reports,
         net_ids=net_ids,
         per_path_latency_ms=per_path_latency_ms,
+        coarse_to_fine_fallbacks=fallback_count,
     )
 
 
@@ -408,7 +423,10 @@ def _astar_route_with_ripup(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-) -> tuple[RoutePath | RoutePath3D | None, list[int]]:
+    enable_coarse_to_fine: bool = False,
+    coarse_factor: int = 4,
+    corridor_buffer_cells: int = 12,
+) -> tuple[RoutePath | RoutePath3D | None, list[int], int]:
     """
     Route a net, potentially ripping up blocking nets.
 
@@ -416,7 +434,7 @@ def _astar_route_with_ripup(
     with layer switching at any pad (THT preferred when available).
 
     Returns:
-        (RoutePath, list_of_net_ids_to_rip)
+        (RoutePath, list_of_net_ids_to_rip, coarse_to_fine_fallback_count)
     """
     # Try multilayer routing if alternate grid available.  The
     # ``tht_locations`` gate is no longer required: layer switching at
@@ -424,8 +442,9 @@ def _astar_route_with_ripup(
     # are present they remain the preferred layer-switch site (handled
     # inside ``_astar_route_multilayer``).
     path: RoutePath | RoutePath3D | None
+    fallback_count = 0
     if alternate_grid:
-        path = _astar_route_multilayer(
+        path, fb = _astar_route_multilayer(
             net_name,
             channel_path,
             grid,
@@ -435,13 +454,21 @@ def _astar_route_with_ripup(
             use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
             max_iter=max_iter,
+            enable_coarse_to_fine=enable_coarse_to_fine,
+            coarse_factor=coarse_factor,
+            corridor_buffer_cells=corridor_buffer_cells,
         )
+        fallback_count += fb
     else:
-        path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star,
-                            max_iter=max_iter)
+        path, fb = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star,
+                                max_iter=max_iter,
+                                enable_coarse_to_fine=enable_coarse_to_fine,
+                                coarse_factor=coarse_factor,
+                                corridor_buffer_cells=corridor_buffer_cells)
+        fallback_count += fb
 
     if path and path.forced_segment_count == 0:
-        return path, []
+        return path, [], fallback_count
 
     # Identify blockers if forced
     if path and path.forced_segment_count > 0:
@@ -449,9 +476,9 @@ def _astar_route_with_ripup(
         target_grids = list(all_grids.values()) if all_grids else [grid]
         blockers = _identify_blocking_nets(channel_path, target_grids)
         if blockers:
-            return path, list(blockers)
+            return path, list(blockers), fallback_count
 
-    return path, []
+    return path, [], fallback_count
 
 def _compute_net_order(channel_mapping: ChannelMapping) -> list[str]:
     """
@@ -493,7 +520,10 @@ def _astar_route_multilayer(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-) -> RoutePath3D | None:
+    enable_coarse_to_fine: bool = False,
+    coarse_factor: int = 4,
+    corridor_buffer_cells: int = 12,
+) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
 
@@ -502,33 +532,30 @@ def _astar_route_multilayer(
     2. If it fails AND waypoints are at THT pads, try alternate grid
     3. Stitch segments together
 
-    Args:
-        net_name: Net to route
-        channel_path: Channel path guidance
-        primary_grid: Primary layer grid (e.g., F.Cu)
-        alternate_grid: Alternate layer grid (e.g., B.Cu)
-        tht_locations: Set of THT pad positions for layer switching
-        use_theta_star: Use Theta* any-angle routing instead of standard A*
-
     Returns:
-        RoutePath3D with segments potentially on multiple layers
+        (RoutePath3D or None, coarse_to_fine_fallback_count)
     """
     waypoints = channel_path.waypoints
     if len(waypoints) < 2:
-        return None
+        return None, 0
 
     detailed_segments: list[tuple[float, float, str]] = []
     forced_segments = 0
+    fallback_count = 0
 
     for i in range(len(waypoints) - 1):
         start_world = waypoints[i]
         goal_world = waypoints[i + 1]
 
-        segment_path, grid_to_use = _segment_search(
+        segment_path, grid_to_use, fb = _segment_search(
             primary_grid, start_world, goal_world, use_theta_star,
             use_lazy_theta_star, congestion_tensor=congestion_tensor,
             max_iter=max_iter,
+            enable_coarse_to_fine=enable_coarse_to_fine,
+            coarse_factor=coarse_factor,
+            corridor_buffer_cells=corridor_buffer_cells,
         )
+        fallback_count += fb
 
         # Allow layer switching when THT pads exist on the board - the router
         # assumes layer transitions happen at nearby THT pads (implicit vias)
@@ -536,11 +563,15 @@ def _astar_route_multilayer(
             alt_start = alternate_grid.world_to_grid(*start_world)
             alt_goal = alternate_grid.world_to_grid(*goal_world)
             if _in_bounds(alternate_grid, alt_start) and _in_bounds(alternate_grid, alt_goal):
-                segment_path = _dispatch_search(
-                    alternate_grid, alt_start, alt_goal, use_theta_star,
+                segment_path, grid_to_use, fb2 = _segment_search(
+                    alternate_grid, start_world, goal_world, use_theta_star,
                     use_lazy_theta_star, congestion_tensor=congestion_tensor,
                     max_iter=max_iter,
+                    enable_coarse_to_fine=enable_coarse_to_fine,
+                    coarse_factor=coarse_factor,
+                    corridor_buffer_cells=corridor_buffer_cells,
                 )
+                fallback_count += fb2
                 if segment_path:
                     grid_to_use = alternate_grid
 
@@ -579,7 +610,7 @@ def _astar_route_multilayer(
         path_length=path_length,
         via_count=0,
         forced_segment_count=forced_segments,
-    )
+    ), fallback_count
 
 
 def _astar_route(
@@ -589,34 +620,36 @@ def _astar_route(
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
     max_iter: int = 1_000_000,
-) -> RoutePath | None:
+    enable_coarse_to_fine: bool = False,
+    coarse_factor: int = 4,
+    corridor_buffer_cells: int = 12,
+) -> tuple[RoutePath | None, int]:
     """
     Route a single net using A* or Theta* pathfinding.
 
-    Args:
-        net_name: Net to route
-        channel_path: Channel path guidance
-        grid: Occupancy grid
-        use_theta_star: Use Theta* any-angle routing instead of standard A*
-
     Returns:
-        RoutePath or None if routing fails
+        (RoutePath or None, coarse_to_fine_fallback_count)
     """
     waypoints = channel_path.waypoints
     if len(waypoints) < 2:
-        return None
+        return None, 0
 
     detailed_coords: list[tuple[float, float]] = []
     forced_segments = 0
+    fallback_count = 0
 
     for i in range(len(waypoints) - 1):
         start_world = waypoints[i]
         goal_world = waypoints[i + 1]
 
-        grid_path, _ = _segment_search(
+        grid_path, _, fb = _segment_search(
             grid, start_world, goal_world, use_theta_star, use_lazy_theta_star,
             max_iter=max_iter,
+            enable_coarse_to_fine=enable_coarse_to_fine,
+            coarse_factor=coarse_factor,
+            corridor_buffer_cells=corridor_buffer_cells,
         )
+        fallback_count += fb
 
         if grid_path:
             if i == 0:
@@ -648,7 +681,7 @@ def _astar_route(
         layer_name=grid.layer_name,
         path_length=path_length,
         forced_segment_count=forced_segments,
-    )
+    ), fallback_count
 
 
 
@@ -711,24 +744,94 @@ def _segment_search(
     use_lazy_theta_star: bool,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
-) -> tuple[list | None, OccupancyGrid]:
+    enable_coarse_to_fine: bool = False,
+    coarse_factor: int = 4,
+    corridor_buffer_cells: int = 12,
+) -> tuple[list | None, OccupancyGrid, int]:
     """Run A* between two world-coordinate waypoints on ``grid``.
 
-    Returns ``(path, grid)`` where ``path`` is a list of grid cells or
-    ``None`` if no path was found (or start/goal are out of bounds), and
-    ``grid`` is the grid that was searched.  The caller may retry on
-    ``alternate_grid`` if ``path`` is ``None`` and an alternate grid is
-    available.
+    Returns ``(path, grid, fallback_count)`` where ``path`` is a list
+    of grid cells or ``None``, ``grid`` is the grid searched, and
+    ``fallback_count`` is 1 if coarse-to-fine fell back to unrestricted
+    A* (0 otherwise).
     """
     start = grid.world_to_grid(*start_world)
     goal = grid.world_to_grid(*goal_world)
     if not _in_bounds(grid, start) or not _in_bounds(grid, goal):
-        return None, grid
+        return None, grid, 0
+
+    if enable_coarse_to_fine:
+        return _segment_search_coarse_to_fine(
+            grid, start, goal, use_theta_star, use_lazy_theta_star,
+            coarse_factor=coarse_factor,
+            corridor_buffer_cells=corridor_buffer_cells,
+            congestion_tensor=congestion_tensor,
+            max_iter=max_iter,
+        )
+
     path = _dispatch_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
     )
-    return path, grid
+    return path, grid, 0
+
+
+def _segment_search_coarse_to_fine(
+    grid: OccupancyGrid,
+    start: tuple[int, int],
+    goal: tuple[int, int],
+    use_theta_star: bool,
+    use_lazy_theta_star: bool,
+    coarse_factor: int = 4,
+    corridor_buffer_cells: int = 12,
+    congestion_tensor=None,
+    max_iter: int = 1_000_000,
+) -> tuple[list | None, OccupancyGrid, int]:
+    """Coarse-to-fine corridor routing.
+
+    1. Downsample grid to coarse resolution.
+    2. Run plain A* on coarse grid.
+    3. Extract corridor mask from coarse path.
+    4. Run constrained fine A* within corridor.
+    5. Fall back to unrestricted A* on any failure.
+    """
+    from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+    from temper_placer.router_v6.corridor import extract_corridor_mask
+    from temper_placer.router_v6.neighbor_validity import (
+        build_neighbor_validity_tensor_2d,
+    )
+
+    coarse_grid = grid.downsample(factor=coarse_factor)
+
+    coarse_start = (start[0] // coarse_factor, start[1] // coarse_factor)
+    coarse_goal = (goal[0] // coarse_factor, goal[1] // coarse_factor)
+
+    coarse_path = _astar_search_numba(coarse_start, coarse_goal, coarse_grid)
+
+    if coarse_path is not None:
+        corridor_mask = extract_corridor_mask(
+            coarse_path,
+            coarse_factor=coarse_factor,
+            buffer_cells=corridor_buffer_cells,
+            fine_rows=grid.height_cells,
+            fine_cols=grid.width_cells,
+        )
+        if corridor_mask[start[1], start[0]] and corridor_mask[goal[1], goal[0]]:
+            neighbor_tensor = build_neighbor_validity_tensor_2d(
+                grid, corridor_mask=corridor_mask
+            )
+            fine_path = _astar_search_numba(
+                start, goal, grid, neighbor_tensor=neighbor_tensor,
+                max_iterations=max_iter,
+            )
+            if fine_path is not None:
+                return fine_path, grid, 0
+
+    path = _dispatch_search(
+        grid, start, goal, use_theta_star, use_lazy_theta_star,
+        congestion_tensor=congestion_tensor, max_iter=max_iter,
+    )
+    return path, grid, 1
 
 
 def _in_bounds(grid: OccupancyGrid, point: tuple[int, int]) -> bool:

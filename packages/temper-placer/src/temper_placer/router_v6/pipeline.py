@@ -334,6 +334,9 @@ class RouterV6Pipeline:
         dfm_fail_on: str = "critical",
         max_sat_nets: int | None = None,
         enable_bundling: bool = False,
+        enable_coarse_to_fine: bool = False,
+        coarse_factor: int = 4,
+        corridor_buffer_cells: int = 12,
     ):
         """
         Initialize Router V6 pipeline.
@@ -393,6 +396,9 @@ class RouterV6Pipeline:
         self.dfm_fail_on = dfm_fail_on
         self.max_sat_nets = max_sat_nets
         self.enable_bundling = enable_bundling
+        self.enable_coarse_to_fine = enable_coarse_to_fine
+        self.coarse_factor = coarse_factor
+        self.corridor_buffer_cells = corridor_buffer_cells
 
         # Warn if both max_sat_nets and enable_bundling are set
         if enable_bundling and max_sat_nets is not None:
@@ -1051,6 +1057,9 @@ class RouterV6Pipeline:
             enable_theta_star=self.enable_theta_star,
             enable_lazy_theta_star=self.enable_lazy_theta_star,
             congestion_weight=self.congestion_weight,
+            enable_coarse_to_fine=self.enable_coarse_to_fine,
+            coarse_factor=self.coarse_factor,
+            corridor_buffer_cells=self.corridor_buffer_cells,
         )
         state = orchestrated.run(initial_state=state)
         pathfinding_result = orchestrated.assemble_pathfinding_result(state)
@@ -1077,6 +1086,9 @@ class RouterV6Pipeline:
                 max_nets=self.max_nets,
                 target_nets=self.target_nets,
                 max_iter=self.max_iter,
+                enable_coarse_to_fine=self.enable_coarse_to_fine,
+                coarse_factor=self.coarse_factor,
+                corridor_buffer_cells=self.corridor_buffer_cells,
             )
 
         return self._run_stage5(pcb, stage2, pathfinding_result)
