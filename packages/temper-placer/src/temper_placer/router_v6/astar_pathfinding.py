@@ -634,6 +634,7 @@ def _astar_route_multilayer(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    enable_congestion_derivative: bool = True,
 ) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -665,6 +666,7 @@ def _astar_route_multilayer(
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
         fallback_count += fb
 
@@ -681,6 +683,7 @@ def _astar_route_multilayer(
                     enable_coarse_to_fine=enable_coarse_to_fine,
                     coarse_factor=coarse_factor,
                     corridor_buffer_cells=corridor_buffer_cells,
+                    enable_congestion_derivative=enable_congestion_derivative,
                 )
                 fallback_count += fb2
                 if segment_path:
@@ -824,18 +827,21 @@ def _dispatch_search(
     congestion_tensor=None,
     max_iter: int = 1_000_000,
     enable_numba_los: bool = False,
+    enable_congestion_derivative: bool = True,
 ):
     if use_lazy_theta_star:
         return _astar_search_lazy_theta_star(
             grid, start, goal, net_id=-1,
             max_iter=max_iter,
             enable_numba_los=enable_numba_los,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
     if use_theta_star:
         return _astar_search_theta_star(
             grid, start, goal, net_id=-1,
             max_iter=max_iter,
             enable_numba_los=enable_numba_los,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
     # 2D plain A*.  Delegate to the Numba-jitted kernel when available
     # and the grid is small enough that the overhead of building the
@@ -869,6 +875,7 @@ def _segment_search(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    enable_congestion_derivative: bool = True,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Run A* between two world-coordinate waypoints on ``grid``.
 
@@ -889,12 +896,14 @@ def _segment_search(
             corridor_buffer_cells=corridor_buffer_cells,
             congestion_tensor=congestion_tensor,
             max_iter=max_iter,
+            enable_congestion_derivative=enable_congestion_derivative,
         )
 
     path = _dispatch_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
     enable_numba_los=enable_numba_los,
+    enable_congestion_derivative=enable_congestion_derivative,
     )
     return path, grid, 0
 
@@ -910,6 +919,7 @@ def _segment_search_coarse_to_fine(
     congestion_tensor=None,
     max_iter: int = 1_000_000,
     enable_numba_los: bool = False,
+    enable_congestion_derivative: bool = True,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Coarse-to-fine corridor routing.
 
@@ -955,6 +965,7 @@ def _segment_search_coarse_to_fine(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
     enable_numba_los=enable_numba_los,
+    enable_congestion_derivative=enable_congestion_derivative,
     )
     return path, grid, 1
 
