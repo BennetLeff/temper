@@ -147,6 +147,7 @@ def run_astar_pathfinding(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,  # U7 / R11: PathFinder history cost
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -257,6 +258,7 @@ def run_astar_pathfinding(
             use_lazy_theta_star=use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
             max_iter=max_iter,
+            enable_numba_los=enable_numba_los,
         )
 
         _restore_net_pads(restoration)
@@ -408,6 +410,7 @@ def _astar_route_with_ripup(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int]]:
     """
     Route a net, potentially ripping up blocking nets.
@@ -435,10 +438,11 @@ def _astar_route_with_ripup(
             use_lazy_theta_star,
             congestion_tensor=congestion_tensor,
             max_iter=max_iter,
+            enable_numba_los=enable_numba_los,
         )
     else:
         path = _astar_route(net_name, channel_path, grid, use_theta_star, use_lazy_theta_star,
-                            max_iter=max_iter)
+                            max_iter=max_iter, enable_numba_los=enable_numba_los)
 
     if path and path.forced_segment_count == 0:
         return path, []
@@ -493,6 +497,7 @@ def _astar_route_multilayer(
     use_lazy_theta_star: bool = False,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ) -> RoutePath3D | None:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -527,7 +532,7 @@ def _astar_route_multilayer(
         segment_path, grid_to_use = _segment_search(
             primary_grid, start_world, goal_world, use_theta_star,
             use_lazy_theta_star, congestion_tensor=congestion_tensor,
-            max_iter=max_iter,
+            max_iter=max_iter, enable_numba_los=enable_numba_los,
         )
 
         # Allow layer switching when THT pads exist on the board - the router
@@ -539,7 +544,7 @@ def _astar_route_multilayer(
                 segment_path = _dispatch_search(
                     alternate_grid, alt_start, alt_goal, use_theta_star,
                     use_lazy_theta_star, congestion_tensor=congestion_tensor,
-                    max_iter=max_iter,
+                    max_iter=max_iter, enable_numba_los=enable_numba_los,
                 )
                 if segment_path:
                     grid_to_use = alternate_grid
@@ -589,6 +594,7 @@ def _astar_route(
     use_theta_star: bool = False,
     use_lazy_theta_star: bool = False,
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ) -> RoutePath | None:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -615,7 +621,7 @@ def _astar_route(
 
         grid_path, _ = _segment_search(
             grid, start_world, goal_world, use_theta_star, use_lazy_theta_star,
-            max_iter=max_iter,
+            max_iter=max_iter, enable_numba_los=enable_numba_los,
         )
 
         if grid_path:
@@ -678,11 +684,18 @@ def _dispatch_search(
     use_theta_star: bool, use_lazy_theta_star: bool,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ):
     if use_lazy_theta_star:
-        return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1)
+        return _astar_search_lazy_theta_star(
+            grid, start, goal, net_id=-1,
+            enable_numba_los=enable_numba_los,
+        )
     if use_theta_star:
-        return _astar_search_theta_star(grid, start, goal, net_id=-1)
+        return _astar_search_theta_star(
+            grid, start, goal, net_id=-1,
+            enable_numba_los=enable_numba_los,
+        )
     # 2D plain A*.  Delegate to the Numba-jitted kernel when available
     # and the grid is small enough that the overhead of building the
     # bit tensor (once per call) is amortized.  Falls through to the
@@ -711,6 +724,7 @@ def _segment_search(
     use_lazy_theta_star: bool,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ) -> tuple[list | None, OccupancyGrid]:
     """Run A* between two world-coordinate waypoints on ``grid``.
 
@@ -727,6 +741,7 @@ def _segment_search(
     path = _dispatch_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
+        enable_numba_los=enable_numba_los,
     )
     return path, grid
 

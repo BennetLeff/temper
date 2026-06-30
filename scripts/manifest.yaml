@@ -1,6 +1,6 @@
 _meta:
   last_audit_date: '2026-06-24'
-  total_scripts: 26
+  total_scripts: 27
   counts:
     keep: 24
   ticket_scripts_deleted: 40
@@ -12,6 +12,10 @@ scripts:
   category: keep
   disposition: utility
     imports:
+      - pathlib
+      - re
+      - sys
+      - uuid
       - pathlib
       - re
       - sys
@@ -51,6 +55,14 @@ scripts:
       - sys
       - typing
       - yaml
+      - argparse
+      - datetime
+      - json
+      - pathlib
+      - subprocess
+      - sys
+      - typing
+      - yaml
   - argparse
   - datetime
   - json
@@ -74,6 +86,15 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - ast
+      - json
+      - os
+      - pathlib
+      - re
+      - rich.console
+      - subprocess
+      - sys
       - argparse
       - ast
       - json
@@ -145,6 +166,20 @@ scripts:
       - temper_placer.losses.overlap
       - temper_placer.losses.regularization
       - temper_placer.losses.wirelength
+      - argparse
+      - jax
+      - json
+      - os
+      - pathlib
+      - rich.console
+      - sys
+      - temper_placer.io.config_loader
+      - temper_placer.io.kicad_parser
+      - temper_placer.losses.base
+      - temper_placer.losses.boundary
+      - temper_placer.losses.overlap
+      - temper_placer.losses.regularization
+      - temper_placer.losses.wirelength
   - argparse
   - jax
   - json
@@ -182,6 +217,7 @@ scripts:
     imports:
       - sys
       - sys
+      - sys
   - argparse
   - benchmark_baselines
   - jax
@@ -217,6 +253,11 @@ scripts:
       - pathlib
       - subprocess
       - sys
+      - __future__
+      - argparse
+      - pathlib
+      - subprocess
+      - sys
   - __future__
   - argparse
   - pathlib
@@ -238,6 +279,8 @@ scripts:
       - sys
       - pathlib
       - sys
+      - pathlib
+      - sys
   - pathlib
   - sys
   - pathlib
@@ -249,6 +292,10 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - os
+      - pathlib
+      - sys
       - argparse
       - os
       - pathlib
@@ -277,6 +324,10 @@ scripts:
       - pathlib
       - re
       - sys
+      - argparse
+      - pathlib
+      - re
+      - sys
   - argparse
   - pathlib
   - re
@@ -292,6 +343,11 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - datetime
+      - json
+      - pathlib
+      - sys
       - argparse
       - datetime
       - json
@@ -329,6 +385,11 @@ scripts:
       - pathlib
       - sys
       - typing
+      - dataclasses
+      - json
+      - pathlib
+      - sys
+      - typing
   - dataclasses
   - json
   - pathlib
@@ -352,6 +413,9 @@ scripts:
       - pathlib
       - sys
       - temper_placer.io.kicad_parser
+      - pathlib
+      - sys
+      - temper_placer.io.kicad_parser
   - pathlib
   - sys
   - temper_placer.io.kicad_parser
@@ -365,6 +429,13 @@ scripts:
   category: keep
   disposition: utility
     imports:
+      - argparse
+      - datetime
+      - jax
+      - json
+      - pathlib
+      - sys
+      - yaml
       - argparse
       - datetime
       - jax
@@ -404,6 +475,8 @@ scripts:
       - sys
       - pathlib
       - sys
+      - pathlib
+      - sys
   - pathlib
   - sys
   - pathlib
@@ -419,6 +492,8 @@ scripts:
       - temper_placer.core.design_rules
       - pathlib
       - temper_placer.core.design_rules
+      - pathlib
+      - temper_placer.core.design_rules
   - pathlib
   - temper_placer.core.design_rules
   - pathlib
@@ -430,6 +505,13 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - datetime
+      - os
+      - pathlib
+      - re
+      - subprocess
+      - sys
       - argparse
       - datetime
       - os
@@ -465,6 +547,23 @@ scripts:
   category: keep
   disposition: shell-invoked
     imports:
+      - argparse
+      - jax.numpy
+      - math
+      - pathlib
+      - rich.console
+      - sys
+      - temper_placer.core.loop
+      - temper_placer.io.kicad_parser
+      - temper_placer.io.trace_writer
+      - temper_placer.io.zone_manager
+      - temper_placer.router_v6.adapter
+      - temper_placer.routing.constraints.geometry
+      - temper_placer.routing.constraints.spatial_index
+      - temper_placer.routing.fanout
+      - temper_placer.routing.layer_assignment
+      - temper_placer.routing.net_ordering
+      - time
       - argparse
       - jax.numpy
       - math
@@ -552,6 +651,12 @@ scripts:
       - math
       - pathlib
       - sys
+      - __future__
+      - datetime
+      - json
+      - math
+      - pathlib
+      - sys
   - __future__
   - datetime
   - json
@@ -571,6 +676,22 @@ scripts:
   category: keep
   disposition: shell-invoked
     imports:
+      - __future__
+      - argparse
+      - dataclasses
+      - datetime
+      - json
+      - pathlib
+      - subprocess
+      - sys
+      - temper_placer.core.netlist
+      - temper_placer.core.state
+      - temper_placer.io
+      - temper_placer.losses.base
+      - temper_placer.metrics.quality
+      - temper_placer.routing.analysis
+      - tempfile
+      - typing
       - __future__
       - argparse
       - dataclasses
@@ -670,6 +791,20 @@ scripts:
       - temper_placer.io.kicad_parser
       - temper_placer.io.kicad_writer
       - temper_placer.io.zone_manager
+      - argparse
+      - datetime
+      - json
+      - logging
+      - pathlib
+      - subprocess
+      - sys
+      - temper_placer.deterministic
+      - temper_placer.deterministic.feedback
+      - temper_placer.io.config_loader
+      - temper_placer.io.kicad_metadata
+      - temper_placer.io.kicad_parser
+      - temper_placer.io.kicad_writer
+      - temper_placer.io.zone_manager
   - argparse
   - datetime
   - json
@@ -717,6 +852,12 @@ scripts:
       - pathlib
       - re
       - sys
+      - ast
+      - json
+      - os
+      - pathlib
+      - re
+      - sys
   - ast
   - json
   - os
@@ -736,6 +877,12 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - __future__
+      - argparse
+      - json
+      - pathlib
+      - subprocess
+      - sys
       - __future__
       - argparse
       - json
@@ -774,6 +921,11 @@ scripts:
       - pathlib
       - re
       - typing
+      - argparse
+      - dataclasses
+      - pathlib
+      - re
+      - typing
   - argparse
   - dataclasses
   - pathlib
@@ -791,6 +943,11 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - pathlib
+      - re
+      - subprocess
+      - sys
       - argparse
       - pathlib
       - re
@@ -834,6 +991,14 @@ scripts:
       - pstats
       - sys
       - time
+      - __future__
+      - argparse
+      - cProfile
+      - io
+      - pathlib
+      - pstats
+      - sys
+      - time
   - argparse
   - cProfile
   - io
@@ -850,6 +1015,18 @@ scripts:
   category: keep
   disposition: utility
     imports:
+      - __future__
+      - argparse
+      - cProfile
+      - io
+      - json
+      - logging
+      - os
+      - pathlib
+      - pstats
+      - sys
+      - time
+      - typing
       - __future__
       - argparse
       - cProfile
@@ -909,6 +1086,30 @@ scripts:
       - subprocess
       - sys
       - time
+      - __future__
+      - json
+      - os
+      - pathlib
+      - subprocess
+      - sys
+      - time
+- path: benchmark_numba_los.py
+  purpose: Before/after Numba LOS profiling (micro-benchmark + full pipeline cProfile)
+  owner: temper-team
+  last_run: '2026-06-29'
+  category: ticket
+  disposition: utility
+    imports:
+      - __future__
+      - argparse
+      - cProfile
+      - io
+      - json
+      - numpy
+      - pathlib
+      - pstats
+      - sys
+      - time
 - path: bmc_adoption_gate.py
   purpose: 'CI gate: enforce ESL + BMC test coverage for every Constraint subclass'
   owner: pipeline
@@ -916,6 +1117,11 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - __future__
+      - ast
+      - os
+      - pathlib
+      - sys
       - __future__
       - ast
       - os
@@ -945,6 +1151,11 @@ scripts:
       - re
       - sys
       - yaml
+      - json
+      - pathlib
+      - re
+      - sys
+      - yaml
 - path: check_typecheck_gate.py
   purpose: "Type-check gate with per-file monotonic-shrink allowlist baseline"
   owner: pipeline
@@ -952,6 +1163,13 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - argparse
+      - collections
+      - os
+      - pathlib
+      - re
+      - subprocess
+      - sys
       - argparse
       - collections
       - os
@@ -970,6 +1188,10 @@ scripts:
       - json
       - pathlib
       - sys
+      - __future__
+      - json
+      - pathlib
+      - sys
 - path: pr_perf_compare.py
   purpose: "Compare PR performance metrics against main-branch JSONL baseline"
   owner: pipeline
@@ -977,6 +1199,13 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - __future__
+      - argparse
+      - json
+      - pathlib
+      - statistics
+      - sys
+      - typing
       - __future__
       - argparse
       - json
@@ -997,6 +1226,12 @@ scripts:
       - pathlib
       - sys
       - typing
+      - __future__
+      - json
+      - logging
+      - pathlib
+      - sys
+      - typing
 - path: reconcile_metrics.py
   purpose: "Reconcile pipeline metrics across multiple runs"
   owner: pipeline
@@ -1004,6 +1239,9 @@ scripts:
   category: keep
   disposition: utility
     imports:
+      - json
+      - pathlib
+      - sys
       - json
       - pathlib
       - sys
@@ -1019,6 +1257,11 @@ scripts:
       - pathlib
       - typing
       - yaml
+      - __future__
+      - dataclasses
+      - pathlib
+      - typing
+      - yaml
 - path: spc_rules.py
   purpose: "Western Electric SPC rules — pure Python, no external stats dependency"
   owner: pipeline
@@ -1028,6 +1271,8 @@ scripts:
     imports:
       - __future__
       - math
+      - __future__
+      - math
 - path: verify_proofs.py
   purpose: "Verify PROOFS.toml completeness — CI gate"
   owner: pipeline
@@ -1035,6 +1280,11 @@ scripts:
   category: keep
   disposition: ci-gate
     imports:
+      - __future__
+      - os
+      - pathlib
+      - re
+      - sys
       - __future__
       - os
       - pathlib

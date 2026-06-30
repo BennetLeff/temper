@@ -91,6 +91,8 @@ def reset_route_profile_stats() -> None:
 
 
 _NUMBA_KERNEL = None
+_LOS_KERNEL = None
+_LOS_GRID_CACHE: dict[int, np.ndarray] = {}
 
 
 def _get_kernel():
@@ -443,3 +445,90 @@ def _astar_search_numba(
     # Convert flat indices back to (col, row) tuples matching
     # the Python _astar_search return shape.
     return [(int(i % cols), int(i // cols)) for i in path_flat]
+
+
+def _compile_los_kernel():
+    """Define and @njit-compile the Bresenham LOS kernel."""
+
+    @njit(cache=True, fastmath=False)
+    def _line_of_sight_numba_kernel(
+        x0: int, y0: int, x1: int, y1: int,
+        grid_arr: np.ndarray,
+        width_cells: int, height_cells: int,
+        net_id: int,
+    ):
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx - dy
+        x, y = x0, y0
+
+        while True:
+            if x < 0 or x >= width_cells or y < 0 or y >= height_cells:
+                return False
+            cell = grid_arr[y, x]
+            if cell != 0 and cell != net_id:
+                return False
+            if x == x1 and y == y1:
+                return True
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x += sx
+            if e2 < dx:
+                err += dx
+                y += sy
+
+    return _line_of_sight_numba_kernel
+
+
+def _get_los_kernel():
+    """Lazily compile the @njit LOS kernel on first use."""
+    global _LOS_KERNEL
+    if _LOS_KERNEL is None:
+        if not _HAVE_NUMBA:
+            return None
+        _LOS_KERNEL = _compile_los_kernel()
+    return _LOS_KERNEL
+
+
+def _line_of_sight_numba(p1, p2, grid, net_id: int) -> bool:
+    """Python wrapper for the Numba-jitted Bresenham LOS check.
+
+    Args:
+        p1: Start grid position (x, y)
+        p2: End grid position (x, y)
+        grid: OccupancyGrid with .grid, .width_cells, .height_cells
+        net_id: Net ID (cells with this ID are allowed)
+
+    Returns:
+        True if line is clear, False otherwise.
+        Falls back to Python LOS if Numba is unavailable.
+    """
+    if not _HAVE_NUMBA:
+        from temper_placer.router_v6.astar_core import _line_of_sight
+        return _line_of_sight(p1, p2, grid, net_id)
+
+    kernel = _get_los_kernel()
+    if kernel is None:
+        from temper_placer.router_v6.astar_core import _line_of_sight
+        return _line_of_sight(p1, p2, grid, net_id)
+
+    x0, y0 = p1
+    x1, y1 = p2
+    # Cache the contiguous grid array per grid object to avoid
+    # copying the entire grid on every LOS call (called 8x per A* expansion).
+    grid_id = id(grid.grid)
+    cached = _LOS_GRID_CACHE.get(grid_id)
+    if cached is not None and cached.shape == grid.grid.shape:
+        grid_contig = cached
+    else:
+        grid_contig = np.ascontiguousarray(grid.grid)
+        _LOS_GRID_CACHE[grid_id] = grid_contig
+    return bool(kernel(
+        np.int32(x0), np.int32(y0), np.int32(x1), np.int32(y1),
+        grid_contig,
+        np.int32(grid.width_cells), np.int32(grid.height_cells),
+        np.int32(net_id),
+    ))
