@@ -19,6 +19,7 @@ dev = [
 
 [tool.uv.workspace]
 members = ["packages/*"]
+exclude = ["packages/temper-viewer", "packages/temper-viewer-core"]
 
 [tool.uv.sources]
 temper-placer = { workspace = true }
