@@ -64,6 +64,7 @@ drc = [
 
 [project.scripts]
 temper-placer = "temper_placer.cli:main"
+temper = "temper_placer.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/temper-project/temper-placer"

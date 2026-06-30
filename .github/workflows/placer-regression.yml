@@ -135,6 +135,7 @@ jobs:
           merge-multiple: true
 
       - name: Update regression cache
+        continue-on-error: true  # cache update is best-effort; temper-N6-U8
         run: uv run python scripts/update_regression_cache.py --reports-dir ./reports
 
        - name: Commit and push cache
