@@ -721,11 +721,20 @@ def _dispatch_search(
     use_theta_star: bool, use_lazy_theta_star: bool,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ):
     if use_lazy_theta_star:
-        return _astar_search_lazy_theta_star(grid, start, goal, net_id=-1)
+        return _astar_search_lazy_theta_star(
+            grid, start, goal, net_id=-1,
+            max_iter=max_iter,
+            enable_numba_los=enable_numba_los,
+        )
     if use_theta_star:
-        return _astar_search_theta_star(grid, start, goal, net_id=-1)
+        return _astar_search_theta_star(
+            grid, start, goal, net_id=-1,
+            max_iter=max_iter,
+            enable_numba_los=enable_numba_los,
+        )
     # 2D plain A*.  Delegate to the Numba-jitted kernel when available
     # and the grid is small enough that the overhead of building the
     # bit tensor (once per call) is amortized.  Falls through to the
@@ -798,6 +807,7 @@ def _segment_search_coarse_to_fine(
     corridor_buffer_cells: int = 12,
     congestion_tensor=None,
     max_iter: int = 1_000_000,
+    enable_numba_los: bool = False,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Coarse-to-fine corridor routing.
 

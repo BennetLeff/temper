@@ -296,6 +296,7 @@ def _astar_search_lazy_theta_star(
     net_id: int,
     came_from_init: dict | None = None,
     max_iter: int | None = None,
+    enable_numba_los: bool = False,
 ) -> list[tuple[int, int]] | None:
     """
     Lazy Theta* pathfinding.
@@ -464,6 +465,7 @@ def _astar_search_theta_star(
     net_id: int,
     came_from_init: dict | None = None,
     max_iter: int | None = None,
+    enable_numba_los: bool = False,
 ) -> list[tuple[int, int]] | None:
     """
     Theta* pathfinding with any-angle paths.
