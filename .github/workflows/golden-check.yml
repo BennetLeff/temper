@@ -18,6 +18,10 @@ jobs:
     strategy:
       matrix:
         boundary: [semantic, topological, placement, routing, validation]
+        board:
+          - id: temper
+            pcb: pcb/temper.kicad_pcb
+            golden: power_pcb_dataset/goldens/temper
     steps:
       - uses: actions/checkout@v4
 
@@ -33,9 +37,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
-      - name: Run golden check (${{ matrix.boundary }})
+      - name: Run golden check (${{ matrix.board.id }} / ${{ matrix.boundary }})
         run: |
           uv run temper-placer dsn check \
             --boundary ${{ matrix.boundary }} \
-            --input pcb/temper.kicad_pcb \
-            --golden-dir power_pcb_dataset/goldens/temper
+            --input ${{ matrix.board.pcb }} \
+            --golden-dir ${{ matrix.board.golden }}

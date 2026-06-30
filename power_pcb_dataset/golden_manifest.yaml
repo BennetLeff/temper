@@ -6,3 +6,9 @@ boards:
     net_count: 0
     baseline_git_hash: unknown
     description: "Temper induction cooker — placed, not routed"
+  - id: bitaxe_ultra
+    path: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
+    component_count: 0
+    net_count: 0
+    baseline_git_hash: unknown
+    description: "Bitaxe Ultra — ES P32-S3 + BM1366 ASIC, power electronics. Golden fixtures pending generation."

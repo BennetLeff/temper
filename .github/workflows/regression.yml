@@ -50,8 +50,28 @@ jobs:
         run: uv run python3 scripts/ci_closure_test.py --pcb pcb/temper_placed.kicad_pcb
         continue-on-error: true
 
+      - name: Round-Trip Integrity Tests
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/test_round_trip_integrity.py -v --tb=short -m "slow or l4_regression" --timeout=600
+        continue-on-error: true
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
+          JAX_PLATFORM_NAME: cpu
+
+      - name: Metamorphic Oracle Tests
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/test_metamorphic_oracles.py -v --tb=short -m "slow or property" --timeout=600
+        continue-on-error: true
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
+          JAX_PLATFORM_NAME: cpu
+
+      - name: Quarantine Report
+        run: uv run python scripts/quarantine_report.py
+        continue-on-error: true
+
       - name: Summary
         if: always()
         run: |
           echo "## Regression Suite Results" >> $GITHUB_STEP_SUMMARY
-          echo "Regression suite, DRC ratchet, and closure test executed." >> $GITHUB_STEP_SUMMARY
+          echo "Regression suite, DRC ratchet, closure test, round-trip integrity, metamorphic oracles, and quarantine report executed." >> $GITHUB_STEP_SUMMARY
