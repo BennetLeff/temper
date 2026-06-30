@@ -1,6 +1,5 @@
 import init, {
     load_board as wasmLoadBoard,
-    start_render_loop as wasmStartRenderLoop,
     on_wheel as wasmOnWheel,
     on_mouse_down as wasmOnMouseDown,
     on_mouse_move as wasmOnMouseMove,
@@ -302,43 +301,5 @@ document.addEventListener('mouseup', () => { sidebarResizing = false; });
 // Expose connect globally for the button onclick
 window.connectToServer = window.connectToServer || connectToServer;
 
+// Auto-load handled by inline script in index.html — init viewer only
 initViewer();
-
-// Wait for WASM init, then auto-load embedded board
-async function waitForWasm() {
-    for (let i = 0; i < 100; i++) {
-        if (wasm) return true;
-        await new Promise(r => setTimeout(r, 50));
-    }
-    return false;
-}
-
-async function autoLoadDefault() {
-    const el = document.getElementById('default-board');
-    if (!el) { console.log('No default-board element'); return; }
-
-    const ready = await waitForWasm();
-    if (!ready) {
-        document.getElementById('landing-overlay').querySelector('.landing-content').innerHTML =
-            '<h1>Temper Board Viewer</h1><p class="error-msg">WASM module failed to initialize.</p>';
-        return;
-    }
-
-    try {
-        const data = JSON.parse(el.textContent);
-        currentState = data;
-        await wasmLoadBoard(JSON.stringify(data));
-        await wasmStartRenderLoop('board-canvas');
-        updateSidebar(data);
-        document.getElementById('landing-overlay').style.display = 'none';
-        document.getElementById('toolbar').classList.remove('hidden');
-        document.getElementById('main-content').classList.remove('hidden');
-        console.log('Board loaded:', data.board?.components?.length, 'components');
-    } catch (e) {
-        console.error('Auto-load error:', e.message || e);
-        document.getElementById('landing-overlay').querySelector('.landing-content').innerHTML =
-            '<h1>Temper Board Viewer</h1><p class="error-msg">Failed to load board: ' + (e.message || e) + '</p>';
-    }
-}
-
-autoLoadDefault();
