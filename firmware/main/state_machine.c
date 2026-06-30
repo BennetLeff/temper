@@ -1179,3 +1179,4 @@ static void show_message_then_transition(const char *msg, system_state_t next_st
     sm_ctx.message_next_state = next_state;
     sm_ctx.message_start_time = get_time_ms();
 }
+// CodeQL trigger
