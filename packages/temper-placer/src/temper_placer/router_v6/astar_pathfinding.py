@@ -16,6 +16,8 @@ from temper_placer.router_v6.astar_core import (
     RoutePath3D,
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
+    log_los_bb_stats,
+    reset_los_bb_stats,
 )
 from temper_placer.router_v6.astar_grid import (
     _build_tht_pad_locations,
@@ -224,6 +226,8 @@ def run_astar_pathfinding(
 
     reroute_queue: deque[str] = deque()
 
+    reset_los_bb_stats()
+
     def attempt_route(net_name: str) -> tuple[bool, str, list[str], tuple[float, float] | None]:
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
@@ -378,6 +382,8 @@ def run_astar_pathfinding(
     for net_name in reroute_queue:
         failed_nets_set.add(net_name)
         record_failure(net_name, "rip_up_limit", [], None)
+
+    log_los_bb_stats()
 
     return PathfindingResult(
         routed_paths=routed_paths,
