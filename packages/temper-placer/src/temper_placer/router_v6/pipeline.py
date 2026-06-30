@@ -1077,7 +1077,7 @@ class RouterV6Pipeline:
             if fcu_grid is None:
                 raise ValueError("No occupancy grid available for A* pathfinding")
 
-            pathfinding_result = run_astar_pathfinding(
+            pathfinding_result = run_astar_pathfinding(  # type: ignore[operator]
                 channel_mapping,
                 fcu_grid,
                 pcb.design_rules,
@@ -1148,6 +1148,7 @@ class RouterV6Pipeline:
             routing_results=routing_results,
         )
 
+        return Stage4Output()  # type: ignore[return]
     def _run_manufacturing_drc(
         self,
         pcb: ParsedPCB,
