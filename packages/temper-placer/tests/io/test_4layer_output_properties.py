@@ -17,7 +17,7 @@ from temper_placer.core.board import (
     LayerStackup,
 )
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 _TEMPER_PCB = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
 
 
