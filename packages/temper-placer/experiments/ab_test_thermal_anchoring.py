@@ -4,10 +4,23 @@
 Runs the full placement pipeline with and without Phase-0 thermal anchoring,
 collecting comparative metrics for SC1-SC6 validation.
 
+Two modes:
+  --quick:  Heuristic evaluation (fast, for development iteration).
+            Uses approximate HPWL and dummy loop_area/DRC. Does NOT
+            validate plan acceptance criteria that require optimizer
+            convergence.
+
+  --full:   Full pipeline evaluation using train_multiphase() with the
+            optimizer's real loss stack. Uses low epochs (100) for speed.
+            Validates: SC3 (wirelength), SC4 (loop_area), and overall
+            optimizer convergence behavior.
+
 Usage:
     uv run python experiments/ab_test_thermal_anchoring.py \
         --pcb ../pcb/temper_agent_optimized.kicad_pcb \
         --constraints configs/temper_constraints.yaml \
+        --full \
+        --epochs 100 \
         --runs 5
 
 Output: JSON report with per-run metrics and two-sample t-test results.
@@ -196,6 +209,8 @@ def run_pipeline(
     constraints_path: Path,
     thermal_anchoring: bool,
     seed: int,
+    mode: str = "quick",
+    full_epochs: int = 100,
 ) -> RunMetrics:
     """Run the placement pipeline and collect metrics.
 
@@ -204,9 +219,28 @@ def run_pipeline(
         constraints_path: Path to PCL constraints YAML.
         thermal_anchoring: If True, enable Phase-0 thermal anchoring.
         seed: Random seed for reproducibility.
+        mode: "quick" for heuristic evaluation, "full" for train_multiphase.
+        full_epochs: Number of epochs for full-mode training (default 100).
 
     Returns:
         RunMetrics with collected metrics.
+    """
+    if mode == "full":
+        return _run_pipeline_full(pcb_path, constraints_path, thermal_anchoring, seed, full_epochs)
+    return _run_pipeline_quick(pcb_path, constraints_path, thermal_anchoring, seed)
+
+
+def _run_pipeline_quick(
+    pcb_path: Path,
+    constraints_path: Path,
+    thermal_anchoring: bool,
+    seed: int,
+) -> RunMetrics:
+    """Run the placement pipeline with heuristic evaluation (quick mode).
+
+    Uses approximate HPWL and dummy loop_area/DRC. Fast enough for
+    development iteration but does NOT validate plan acceptance criteria
+    that require optimizer convergence.
     """
     import jax.numpy as jnp
 
@@ -214,7 +248,6 @@ def run_pipeline(
     metrics = RunMetrics()
 
     try:
-        # Load board and netlist
         from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.io.config_loader import (
             PlacementConstraints,
@@ -229,13 +262,11 @@ def run_pipeline(
         netlist = result.netlist
         constraints = load_constraints(constraints_path)
 
-        # Configure thermal anchoring
         if thermal_anchoring:
             constraints.initialization = PlacementInitialization(
                 thermal_anchoring=True,
                 anchoring_grid_resolution=50,
             )
-            # Ensure thermal_properties exist with power data
             if constraints.thermal_properties is None:
                 from temper_placer.io.config_loader import ThermalProperties
 
@@ -245,7 +276,6 @@ def run_pipeline(
 
         board = create_board_from_constraints(constraints)
 
-        # Run thermal anchoring directly if enabled
         anchoring_start = time.time()
         if thermal_anchoring and constraints.initialization and constraints.initialization.thermal_anchoring:
             from temper_placer.physics.thermal_potential import (
@@ -294,27 +324,185 @@ def run_pipeline(
 
                     apply_fixed_components_to_netlist(netlist, constraints)
 
-                    # Compute thermal distances (SC1)
                     if anchors:
                         distances = []
-                        for ref, (x, y) in anchors.items():
-                            dist = board.height - y  # TOP edge
+                        for _ref, (x, y) in anchors.items():
+                            dist = board.height - y
                             distances.append(dist)
                         metrics.thermal_distance_mm = statistics.mean(distances)
 
         metrics.anchoring_time_s = time.time() - anchoring_start
 
-        # Approximate wirelength metric (HPWL)
         wirelength_sum = 0.0
         for comp in netlist.components:
             if comp.initial_position:
                 wx, wy = comp.initial_position
-                wirelength_sum += wx + wy  # simple heuristic
+                wirelength_sum += wx + wy
         metrics.wirelength = wirelength_sum
 
-        # Default/incomplete metrics for abbreviated pipeline
         metrics.loop_area = 0.0
         metrics.drc_violations = 0
+        metrics.total_time_s = time.time() - start
+        metrics.success = True
+
+    except Exception as e:
+        metrics.error = str(e)
+        metrics.success = False
+        metrics.total_time_s = time.time() - start
+
+    return metrics
+
+
+def _run_pipeline_full(
+    pcb_path: Path,
+    constraints_path: Path,
+    thermal_anchoring: bool,
+    seed: int,
+    epochs: int,
+) -> RunMetrics:
+    """Run the full placement pipeline via train_multiphase().
+
+    Uses the optimizer's real loss stack with the specified number of
+    epochs.  Validates SC3 (wirelength), SC4 (loop_area), and optimizer
+    convergence behavior against plan acceptance criteria.
+    """
+    start = time.time()
+    metrics = RunMetrics()
+
+    try:
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.io.config_loader import (
+            PlacementInitialization,
+            apply_fixed_components_to_netlist,
+            create_board_from_constraints,
+            load_constraints,
+        )
+
+        result = parse_kicad_pcb(pcb_path)
+        board = result.board
+        netlist = result.netlist
+        constraints = load_constraints(constraints_path)
+
+        if constraints.thermal_properties is None:
+            from temper_placer.io.config_loader import ThermalProperties
+
+            constraints.thermal_properties = ThermalProperties(
+                high_power_components=[],
+            )
+
+        board = create_board_from_constraints(constraints)
+
+        # ---------------------------------------------------------------------
+        # Phase 0: thermal anchoring (if enabled)
+        # ---------------------------------------------------------------------
+        anchoring_start = time.time()
+        if thermal_anchoring:
+            from temper_placer.physics.thermal_potential import (
+                ThermalPotentialConfig,
+                assign_thermal_anchors,
+                validate_heatsink_edge,
+            )
+
+            constraints.initialization = PlacementInitialization(
+                thermal_anchoring=True,
+                anchoring_grid_resolution=50,
+            )
+
+            thermal_props = constraints.thermal_properties
+            if thermal_props:
+                power_devices = [
+                    (ref, thermal_props.power_dissipation_w.get(ref, 0.0))
+                    for ref in thermal_props.high_power_components
+                ]
+                power_devices = [(r, p) for r, p in power_devices if p > 0]
+                power_devices.sort(key=lambda x: (-x[1], x[0]))
+
+                if power_devices:
+                    edge_name = "TOP"
+                    for tc in constraints.thermal_constraints:
+                        if hasattr(tc, "prefer_edge") and tc.prefer_edge:
+                            edge_name = "TOP"
+                            break
+
+                    try:
+                        validate_heatsink_edge(
+                            (0.0, 0.0, board.width, board.height), edge_name
+                        )
+                    except Exception as e:
+                        metrics.error = f"Heatsink edge validation failed: {e}"
+                        metrics.success = False
+                        return metrics
+
+                    anchors = assign_thermal_anchors(
+                        board_bounds=(0.0, 0.0, board.width, board.height),
+                        edge=edge_name,
+                        power_devices=power_devices,
+                        config=ThermalPotentialConfig(grid_resolution=50),
+                        min_separation_mm=thermal_props.min_separation_mm,
+                    )
+
+                    for ref, (x, y) in anchors.items():
+                        constraints.fixed_positions[ref] = (x, y)
+                        if ref not in constraints.fixed_components:
+                            constraints.fixed_components.append(ref)
+
+                    apply_fixed_components_to_netlist(netlist, constraints)
+
+                    if anchors:
+                        distances = []
+                        for _ref, (_x, _y) in anchors.items():
+                            from temper_placer.losses.thermal import compute_edge_distance
+
+                            import jax.numpy as jnp
+
+                            pos = jnp.array([_x, _y])
+                            bounds_arr = jnp.array([0.0, 0.0, board.width, board.height])
+                            _edge_dist = float(compute_edge_distance(pos, bounds_arr, edge_name))
+                            distances.append(_edge_dist)
+                        metrics.thermal_distance_mm = statistics.mean(distances)
+
+        metrics.anchoring_time_s = time.time() - anchoring_start
+
+        # ---------------------------------------------------------------------
+        # Full optimizer evaluation via train_multiphase
+        # ---------------------------------------------------------------------
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+        from temper_placer.losses.boundary import BoundaryLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.config import OptimizerConfig
+        from temper_placer.optimizer.curriculum import create_default_phases
+        from temper_placer.optimizer.train import train_multiphase
+
+        phases = create_default_phases()
+
+        def make_loss(weights):
+            return CompositeLoss(
+                [
+                    WeightedLoss(OverlapLoss(), weight=weights.get("overlap", 100.0)),
+                    WeightedLoss(BoundaryLoss(), weight=weights.get("boundary", 50.0)),
+                    WeightedLoss(WirelengthLoss(), weight=weights.get("wirelength", 1.0)),
+                ]
+            )
+
+        context = LossContext.from_netlist_and_board(netlist, board, constraints=constraints)
+        config = OptimizerConfig(
+            seed=seed,
+            curriculum_phases=phases,
+            epochs=epochs,
+        )
+
+        training_result = train_multiphase(
+            netlist, board, make_loss, context, config, constraints=constraints
+        )
+
+        # Extract HPWL from final placement
+        if training_result.history:
+            last_metrics = training_result.history[-1]
+            metrics.wirelength = float(getattr(last_metrics, "wirelength", 0.0) or 0.0)
+            metrics.loop_area = float(getattr(last_metrics, "loop_area", 0.0) or 0.0)
+            metrics.drc_violations = int(getattr(last_metrics, "drc_violations", 0) or 0)
+
         metrics.total_time_s = time.time() - start
         metrics.success = True
 
@@ -363,6 +551,28 @@ def main() -> None:
         default=42,
         help="Base random seed (default: 42, incremented per run)",
     )
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--quick",
+        action="store_const",
+        dest="mode",
+        const="quick",
+        default="quick",
+        help="Heuristic evaluation mode (fast, for development iteration). Default.",
+    )
+    mode_group.add_argument(
+        "--full",
+        action="store_const",
+        dest="mode",
+        const="full",
+        help="Full pipeline evaluation via train_multiphase() with real loss stack.",
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=100,
+        help="Number of epochs for full mode (default: 100). Ignored in quick mode.",
+    )
 
     args = parser.parse_args()
 
@@ -375,8 +585,11 @@ def main() -> None:
         sys.exit(1)
 
     print(f"A/B testing thermal anchoring: {args.runs} runs each")
+    print(f"  Mode: {args.mode}")
     print(f"  PCB: {args.pcb}")
     print(f"  Constraints: {args.constraints}")
+    if args.mode == "full":
+        print(f"  Epochs: {args.epochs}")
     print()
 
     report = ABReport(num_runs=args.runs)
@@ -386,7 +599,11 @@ def main() -> None:
     for run_idx in range(args.runs):
         seed = args.seed + run_idx
         print(f"  Run {run_idx + 1}/{args.runs} (seed={seed})...", end=" ")
-        metrics = run_pipeline(args.pcb, args.constraints, thermal_anchoring=False, seed=seed)
+        metrics = run_pipeline(
+            args.pcb, args.constraints,
+            thermal_anchoring=False, seed=seed,
+            mode=args.mode, full_epochs=args.epochs,
+        )
         if metrics.success:
             print("OK")
         else:
@@ -400,7 +617,11 @@ def main() -> None:
     for run_idx in range(args.runs):
         seed = args.seed + 100 + run_idx
         print(f"  Run {run_idx + 1}/{args.runs} (seed={seed})...", end=" ")
-        metrics = run_pipeline(args.pcb, args.constraints, thermal_anchoring=True, seed=seed)
+        metrics = run_pipeline(
+            args.pcb, args.constraints,
+            thermal_anchoring=True, seed=seed,
+            mode=args.mode, full_epochs=args.epochs,
+        )
         if metrics.success:
             print("OK")
         else:
