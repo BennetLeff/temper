@@ -609,3 +609,78 @@ class Board:
     def area(self) -> float:
         """Total board area in mm²."""
         return self.width * self.height
+
+    def rotated_90(self) -> "Board":
+        """Return a new Board rotated 90° clockwise.
+
+        All geometry is transformed: (x, y) maps to (old_height - y, x).
+        Zones, mounting holes, keepouts, ground domains, and outline
+        polygon are deep-copied and rotated.  Layer stackup is preserved.
+        """
+        h = self.height
+
+        def _rotate_point(x: float, y: float) -> tuple[float, float]:
+            return (h - y, x)
+
+        def _rotate_bounds(b: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+            return (h - b[3], b[0], h - b[1], b[2])
+
+        _EXPAND_ROTATE = {"up": "right", "right": "down", "down": "left", "left": "up"}
+
+        def _rotate_expand(dirs: list[str]) -> list[str]:
+            return [_EXPAND_ROTATE.get(d, d) for d in dirs]
+
+        rotated_zones = [
+            Zone(
+                name=z.name,
+                bounds=_rotate_bounds(z.bounds),
+                net_classes=list(z.net_classes),
+                components=list(z.components),
+                weight=z.weight,
+                polygon=[_rotate_point(px, py) for px, py in z.polygon] if z.polygon else None,
+                layers=list(z.layers),
+                max_size=z.max_size,
+                can_expand=_rotate_expand(z.can_expand),
+            )
+            for z in self.zones
+        ]
+
+        rotated_holes = [
+            MountingHole(
+                position=_rotate_point(mh.position[0], mh.position[1]),
+                diameter=mh.diameter,
+                keepout_radius=mh.keepout_radius,
+            )
+            for mh in self.mounting_holes
+        ]
+
+        rotated_keepouts = [
+            _rotate_bounds(k) for k in self.keepouts
+        ]
+
+        rotated_grounds = [
+            GroundDomain(
+                name=gd.name,
+                bounds=_rotate_bounds(gd.bounds),
+                star_point=_rotate_point(gd.star_point[0], gd.star_point[1])
+                if gd.star_point else None,
+            )
+            for gd in self.ground_domains
+        ]
+
+        rotated_outline = (
+            [_rotate_point(px, py) for px, py in self.outline_polygon]
+            if self.outline_polygon else None
+        )
+
+        return Board(
+            width=self.height,
+            height=self.width,
+            origin=self.origin,
+            zones=rotated_zones,
+            mounting_holes=rotated_holes,
+            keepouts=rotated_keepouts,
+            ground_domains=rotated_grounds,
+            layer_stackup=self.layer_stackup,
+            outline_polygon=rotated_outline,
+        )
