@@ -694,6 +694,9 @@ class PlacementConstraints:
     # Net topology constraints (NetGraph)
     net_topologies: list[NetGraph] = field(default_factory=list)
 
+    # PCL constraints (auto-generated + enriched at pipeline time)
+    pcl_constraints: list = field(default_factory=list)
+
     # Feedback loop configuration
     feedback: FeedbackConfig = field(default_factory=FeedbackConfig)
 
@@ -838,6 +841,20 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 zone_type=zone_cfg.get("type", "placement"),
             )
             constraints.zones.append(zone)
+
+    # Auto-emit PCL KeepoutConstraint from zones with type='keepout'
+    for zone in constraints.zones:
+        if getattr(zone, "zone_type", "placement") == "keepout":
+            from temper_placer.pcl.constraints import ConstraintTier, KeepoutConstraint
+
+            constraints.pcl_constraints.append(
+                KeepoutConstraint(
+                    zone_name=zone.name,
+                    tier=ConstraintTier.HARD,
+                    margin_mm=0.0,
+                    because=f"Auto-generated from zone '{zone.name}' (type: keepout)",
+                )
+            )
 
     # Load copper zones (for zone-aware routing)
     if "copper_zones" in config:

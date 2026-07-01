@@ -348,34 +348,25 @@ class PipelineOrchestrator:
         else:
             class MockConstraints:
                 constraints: list = []
+                pcl_constraints: list = []
             state.constraints = MockConstraints()
 
-        # Wire PCL constraint auto-enrichment
-        if state.config.constraints_yaml:
-            pcl_path = state.config.constraints_yaml.with_suffix(".pcl.yaml")
-            if not pcl_path.exists():
-                pcl_path = state.config.constraints_yaml.parent / (
-                    state.config.constraints_yaml.stem + ".pcl.yaml"
-                )
-            if pcl_path.exists():
-                print(f"Loading PCL constraints from {pcl_path}")
-                try:
-                    from temper_placer.pcl.parser import parse_pcl_file
+        # Enrich PCL constraints from design data
+        if state.config.constraints_yaml and state.constraints is not None:
+            try:
+                from temper_placer.losses.decoupling import auto_detect_decoupling
 
-                    pcl_collection = parse_pcl_file(pcl_path)
-                    pcl_collection.auto_enrich(state.netlist, state.board)
-                    if not hasattr(state, "pcl_constraints"):
-                        state.pcl_constraints = pcl_collection
-                    else:
-                        state.pcl_constraints.constraints.extend(
-                            pcl_collection.constraints
-                        )
+                detections = auto_detect_decoupling(state.netlist)
+                for constraint in detections.to_constraints():
+                    state.constraints.pcl_constraints.append(constraint)
+                if detections.detections:
                     print(
-                        f"  Loaded {len(pcl_collection)} PCL constraints "
-                        f"(with auto-enrichment)"
+                        f"  Auto-detected {len(detections.detections)} decoupling "
+                        f"constraints ({detections.bypass_count} bypass, "
+                        f"{detections.bulk_count} bulk)"
                     )
-                except Exception as e:
-                    print(f"Warning: Failed to load PCL constraints: {e}")
+            except Exception as e:
+                print(f"  Note: decoupling auto-detection skipped ({e})")
 
         # Load physical specification
         from temper_placer.core.specification import PcbSpecification
