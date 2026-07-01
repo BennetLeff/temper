@@ -47,6 +47,7 @@ from temper_placer.optimizer.config import (
     EarlyStoppingConfig,
     InitializationConfig,
     LearningRateSchedule,
+    MultiSeedConfig,
     OptimizerConfig,
     TemperatureSchedule,
     ZoneAwareConfig,
@@ -96,11 +97,13 @@ from temper_placer.optimizer.scheduler import (
 )
 from temper_placer.optimizer.train import (
     NumericalInstabilityError,
+    ParallelTrainingResult,
     TrainingMetrics,
     TrainingResult,
     TrainingState,
     initialize_training_state,
     train,
+    train_dpp_multiseed,
     train_multiphase,
 )
 from temper_placer.optimizer.validation_callback import (
@@ -118,6 +121,7 @@ from temper_placer.optimizer.zone_aware_init import (
 __all__ = [
     # Config
     "OptimizerConfig",
+    "MultiSeedConfig",
     "InitializationConfig",
     "TemperatureSchedule",
     "LearningRateSchedule",
@@ -151,6 +155,8 @@ __all__ = [
     # Training
     "train",
     "train_multiphase",
+    "train_dpp_multiseed",
+    "ParallelTrainingResult",
     "TrainingResult",
     "TrainingMetrics",
     "TrainingState",

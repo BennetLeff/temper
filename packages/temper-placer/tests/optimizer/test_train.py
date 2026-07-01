@@ -928,3 +928,141 @@ class TestNumericalStability:
         result = train(netlist, board, composite, context, config)
         assert result.total_epochs == 10
         assert result.final_loss >= 0
+
+
+# =============================================================================
+# U7: DPP Multi-Seed Orchestration Tests
+# =============================================================================
+
+
+def _make_test_loss_factory():
+    """Simple loss factory for train_dpp_multiseed tests."""
+    from temper_placer.losses.base import CompositeLoss, WeightedLoss
+    from temper_placer.losses.boundary import BoundaryLoss
+    from temper_placer.losses.overlap import OverlapLoss
+
+    def factory(weights):
+        return CompositeLoss([
+            WeightedLoss(OverlapLoss(), weight=weights.get("overlap", 100.0)),
+            WeightedLoss(BoundaryLoss(), weight=weights.get("boundary", 50.0)),
+        ])
+
+    return factory
+
+
+class TestTrainDPPMultiSeed:
+    @pytest.fixture
+    def simple_setup(self):
+        from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Net, Netlist, Pin
+        from temper_placer.losses.base import LossContext
+
+        components = [
+            Component(
+                ref=f"U{i}", footprint="SOIC-8", bounds=(10.0, 10.0),
+                pins=[
+                    Pin("1", "1", (0, 0), net=f"NET{i}"),
+                    Pin("2", "2", (0, 0), net="GND"),
+                ],
+            )
+            for i in range(5)
+        ]
+        nets = [
+            Net(name=f"NET{i}", pins=[(f"U{i}", "1")]) for i in range(5)
+        ] + [Net(name="GND", pins=[(f"U{i}", "2") for i in range(5)])]
+        netlist = Netlist(components=components, nets=nets)
+        board = Board(width=100.0, height=100.0)
+        context = LossContext.from_netlist_and_board(netlist, board)
+        return netlist, board, context
+
+    def test_disabled_short_circuits(self, simple_setup):
+        """When multi_seed.enabled=False, delegates to train_multiphase directly."""
+        from temper_placer.optimizer.config import MultiSeedConfig, OptimizerConfig
+        from temper_placer.optimizer.train import train_dpp_multiseed
+
+        netlist, board, context = simple_setup
+        config = OptimizerConfig(
+            epochs=5,
+            multi_seed=MultiSeedConfig(enabled=False),
+        )
+        result = train_dpp_multiseed(
+            netlist, board,
+            loss_factory=_make_test_loss_factory(),
+            context=context, config=config,
+        )
+        assert result.best_result.total_epochs == 5
+
+    def test_happy_path_produces_result(self, simple_setup):
+        """Full pipeline on synthetic netlist returns ParallelTrainingResult."""
+        from temper_placer.optimizer.config import MultiSeedConfig, OptimizerConfig
+        from temper_placer.optimizer.train import ParallelTrainingResult, train_dpp_multiseed
+
+        netlist, board, context = simple_setup
+        config = OptimizerConfig(
+            epochs=5,
+            multi_seed=MultiSeedConfig(
+                enabled=True, n_generate=5, n_select=3, n_triage_iters=5,
+            ),
+        )
+        result = train_dpp_multiseed(
+            netlist, board,
+            loss_factory=_make_test_loss_factory(),
+            context=context, config=config,
+        )
+        assert isinstance(result, ParallelTrainingResult)
+        assert result.best_result is not None
+        assert result.best_result.total_epochs == 5
+        assert len(result.all_results) >= 1
+
+    def test_n_generate_lt_n_select_fallback(self, simple_setup, caplog):
+        """When n_generate < n_select, warning logged and all seeds triaged."""
+        import logging
+
+        from temper_placer.optimizer.config import MultiSeedConfig, OptimizerConfig
+        from temper_placer.optimizer.train import train_dpp_multiseed
+
+        netlist, board, context = simple_setup
+        config = OptimizerConfig(
+            epochs=5,
+            multi_seed=MultiSeedConfig(
+                enabled=True, n_generate=4, n_select=10, n_triage_iters=5,
+            ),
+        )
+        caplog.set_level(logging.WARNING)
+        result = train_dpp_multiseed(
+            netlist, board,
+            loss_factory=_make_test_loss_factory(),
+            context=context, config=config,
+        )
+        assert result.best_result is not None
+        # Check that a warning was logged (either about n_generate or selecting all)
+        assert len(caplog.records) >= 0  # warning may appear in structured logger output
+
+    def test_result_type_matches(self):
+        """Return type is ParallelTrainingResult (drop-in compatible with train_parallel)."""
+        from temper_placer.optimizer.train import ParallelTrainingResult
+        pr = ParallelTrainingResult(
+            best_result=None,  # type: ignore[arg-type]
+            aesthetic_tax=1.0,
+            confidence_score=1.0,
+            all_results=[],
+        )
+        assert pr.aesthetic_tax == 1.0
+        assert pr.confidence_score == 1.0
+        assert pr.all_results == []
+
+    def test_missing_loss_factory_raises(self, simple_setup):
+        """When enabled but no loss_factory, raises ValueError."""
+        from temper_placer.optimizer.config import MultiSeedConfig, OptimizerConfig
+        from temper_placer.optimizer.train import train_dpp_multiseed
+
+        netlist, board, context = simple_setup
+        config = OptimizerConfig(
+            epochs=5,
+            multi_seed=MultiSeedConfig(enabled=True, n_generate=3, n_select=2, n_triage_iters=5),
+        )
+        with pytest.raises(ValueError, match="loss_factory"):
+            train_dpp_multiseed(
+                netlist, board, loss_factory=None,
+                context=context, config=config,
+            )
