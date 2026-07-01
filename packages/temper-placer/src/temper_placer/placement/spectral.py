@@ -21,39 +21,22 @@ class SpectralPlacer:
         self.idx_to_comp = {i: c.ref for i, c in enumerate(pcb.components)}
         self.num_components = len(pcb.components)
 
-    def compute_placement(self) -> dict[str, tuple[float, float]]:
+    def compute_placement(
+        self,
+        constraint_weights: dict[tuple[int, int], float] | None = None,
+    ) -> dict[str, tuple[float, float]]:
         """
         Compute spectral placement coordinates.
+
+        Args:
+            constraint_weights: Optional per-edge constraint weight contributions.
+
         Returns:
             dict mapping component ref -> (x, y) [normalized/unscaled]
         """
         if self.num_components < 3:
             # Trivial case
             return {c.ref: (0.0, 0.0) for c in self.pcb.components}
-
-        # 1. Build Adjacency Matrix
-        # Using Clique Model for hyperedges (nets)
-        # Weight for clique of size k: w = 2/k (standard) or 1/(k-1)
-
-        rows = []
-        cols = []
-        data = []
-
-        for net in self.pcb.nets:
-            # Find connected components
-
-            for _pin in net.pins:
-                # Resolve component ref from pin
-                # In router_v6, net.pins are Pin objects.
-                # We need to link back to component.
-                # Usually we iterate components and check their pins?
-                # Or parsing links pin->comp?
-                # Let's assume pin.component_ref or finding via component list is needed.
-                pass
-
-            # Efficient way: Inverse map already built?
-            # No. Let's build a map NetName -> List[CompIndex] first.
-            pass
 
         # Re-scan components to build connectivity
         net_to_comps: dict[str, set[int]] = {}
@@ -66,64 +49,64 @@ class SpectralPlacer:
                             net_to_comps[pin.net] = set()
                         net_to_comps[pin.net].add(comp_idx)
 
-        # Build edges
+        # Build adjacency matrix
+        adj = np.zeros((self.num_components, self.num_components), dtype=np.float64)
         for _net_name, comp_indices in net_to_comps.items():
             k = len(comp_indices)
             if k < 2:
                 continue
-
-            # Clique weight
             weight = 1.0 / (k - 1)
-
             indices = list(comp_indices)
             for i in range(k):
                 for j in range(i + 1, k):
                     u = indices[i]
                     v = indices[j]
+                    adj[u, v] += weight
+                    adj[v, u] += weight
 
-                    # Add edge (u, v) and (v, u)
-                    rows.append(u)
-                    cols.append(v)
-                    data.append(weight)
+        # Layer on constraint weights
+        needs_stabilize = False
+        if constraint_weights:
+            for (i, j), w in constraint_weights.items():
+                if 0 <= i < self.num_components and 0 <= j < self.num_components:
+                    adj[i, j] += w
+                    adj[j, i] += w
+                    if w < 0:
+                        needs_stabilize = True
 
-                    rows.append(v)
-                    cols.append(u)
-                    data.append(weight)
+        # Build normalized Laplacian
+        degrees = np.sum(adj, axis=1)
+        d_inv_sqrt = np.where(degrees > 0, 1.0 / np.sqrt(degrees + 1e-10), 0.0)
+        D_inv_sqrt = np.diag(d_inv_sqrt)
+        laplacian = np.eye(self.num_components) - D_inv_sqrt @ adj @ D_inv_sqrt
 
-        # Construct sparse matrix
-        adj = sp.coo_matrix((data, (rows, cols)), shape=(self.num_components, self.num_components))
-        adj = adj.tocsr()
+        # PSD stabilization if negative weights are present
+        if needs_stabilize:
+            from temper_placer.placement.constraint_weights import apply_psd_shift
 
-        # 2. Compute Laplacian: L = D - A
-        # D is diagonal matrix of degrees (row sums of A)
-        degrees = np.array(adj.sum(axis=1)).flatten()
-        laplacian = sp.diags(degrees) - adj
+            laplacian_stable, shift, was_overdamped = apply_psd_shift(laplacian, adj)
+            if shift > 0:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(
+                    "SpectralPlacer PSD shift: %.4f (over-damped: %s)",
+                    shift, was_overdamped,
+                )
+            laplacian = laplacian_stable
 
-        # 3. Eigen Decomposition
-        # We need smallest eigenvalues.
-        # k=3 because 1st is 0 (constant vector). We want 2nd and 3rd.
-        # which='SM' (Smallest Magnitude)
+        # Convert to sparse for eigsh
+        laplacian_sparse = sp.csr_matrix(laplacian)
 
-        # Determine number of eigenvectors to compute
-        # Must be < num_components
+        # Eigen decomposition
         k = min(self.num_components - 1, 3)
         if k < 2:
             return {c.ref: (0.0, 0.0) for c in self.pcb.components}
 
         try:
-            # Use 'SA' (Smallest Algebraic) for symmetric matrix
-            evals, evecs = spla.eigsh(laplacian, k=k, which="SA")
-
-            # evecs is (N, k). Columns are eigenvectors.
-            # Sorted by eigenvalue? usually.
-            # 1st vector (index 0) should be near-zero eigenvalue (constant)
-            # We want index 1 and 2.
+            evals, evecs = spla.eigsh(laplacian_sparse, k=k, which="SA")
 
             x_vec = evecs[:, 1]
             y_vec = evecs[:, 2] if k > 2 else np.zeros_like(x_vec)
-
-            # Normalize to 0-1 range for easier downstream handling?
-            # Or keep centered. Let's keep centered.
 
             result = {}
             for i in range(self.num_components):

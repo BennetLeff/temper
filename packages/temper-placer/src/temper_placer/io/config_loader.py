@@ -1485,6 +1485,10 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             hv_threshold=float(sf_cfg.get("hv_threshold", 0.5)),
         )
 
+    # Placer-level configuration (initialization method, etc.)
+    if "placer" in config and isinstance(config["placer"], dict):
+        constraints.placer = config["placer"]
+
     # Current capacity validation (temper-bvr5)
     _validate_current_capacity(constraints)
 
@@ -1544,6 +1548,7 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "nets",  # Net list
         "thermal",  # Thermal edge-preference constraints
         "via_array_overrides",  # Per-net via array templates
+        "placer",  # Placer-level toggles (initialization method, etc.)
     }
 )
 
