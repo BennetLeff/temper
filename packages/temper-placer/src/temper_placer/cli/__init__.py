@@ -178,6 +178,12 @@ main.add_command(watch)
     help="Number of random seeds to run in parallel (default: 1).",
 )
 @click.option(
+    "--multi-seed",
+    is_flag=True,
+    default=False,
+    help="Enable DPP-diversified multi-seed placement with triage gate.",
+)
+@click.option(
     "--skip-topological",
     is_flag=True,
     default=False,
@@ -234,6 +240,7 @@ def optimize(
     log_all_epochs: bool,
     verbose_losses: bool,
     parallel_seeds: int,
+    multi_seed: bool,
     skip_topological: bool,
     track_metrics: Path | None,
     spice_validate: bool,
@@ -808,7 +815,30 @@ def optimize(
     try:
         profile_dir_str = str(profile_dir) if profile_dir else None
 
-        if parallel_seeds > 1:
+        if multi_seed or cfg.multi_seed.enabled:
+            from temper_placer.optimizer.train import train_dpp_multiseed
+
+            if multi_seed:
+                cfg.multi_seed.enabled = True
+
+            dpp_result = train_dpp_multiseed(
+                netlist,
+                board,
+                loss_factory=make_loss,
+                context=context,
+                config=cfg,
+                callback=progress_callback,
+            )
+            result = dpp_result.best_result
+
+            console.print("\n[bold cyan]DPP Multi-Seed Summary:[/]")
+            console.print(f"  Enabled: {cfg.multi_seed.enabled}")
+            console.print(f"  Seeds Generated: {cfg.multi_seed.n_generate}")
+            console.print(f"  Seeds Selected (DPP): {cfg.multi_seed.n_select}")
+            console.print(f"  Triage Iterations: {cfg.multi_seed.n_triage_iters}")
+            console.print(f"  Confidence Score: {dpp_result.confidence_score:.2%}")
+
+        elif parallel_seeds > 1:
             from temper_placer.optimizer.train import train_parallel
 
             parallel_result = train_parallel(
