@@ -133,8 +133,7 @@ def _dpp_select(
         )
         if seed_vectors is not None:
             return _farthest_point_sampling(seed_vectors, k)
-        else:
-            return _farthest_point_sampling(L, k)
+        raise ValueError("seed_vectors required for farthest-point fallback")
 
     # Quality-diversity decomposition
     if quality is not None:

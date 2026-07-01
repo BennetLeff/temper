@@ -144,7 +144,9 @@ class TestDPPSelect:
         ]
         seeds = make_seeds(*(cluster_a + cluster_b))
         L, cond = _dpp_kernel_from_positions(seeds)
-        selected = _dpp_select(L, k=3, condition_number=cond)
+        seed_vecs = jnp.stack([p.ravel() for p, _md in seeds], axis=0)
+        selected = _dpp_select(L, k=3, condition_number=cond,
+                               seed_vectors=seed_vecs)
 
         # An index < 3 is from cluster_a, >= 3 is from cluster_b
         has_a = any(idx < 3 for idx in selected)
