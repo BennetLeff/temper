@@ -350,6 +350,33 @@ class PipelineOrchestrator:
                 constraints: list = []
             state.constraints = MockConstraints()
 
+        # Wire PCL constraint auto-enrichment
+        if state.config.constraints_yaml:
+            pcl_path = state.config.constraints_yaml.with_suffix(".pcl.yaml")
+            if not pcl_path.exists():
+                pcl_path = state.config.constraints_yaml.parent / (
+                    state.config.constraints_yaml.stem + ".pcl.yaml"
+                )
+            if pcl_path.exists():
+                print(f"Loading PCL constraints from {pcl_path}")
+                try:
+                    from temper_placer.pcl.parser import parse_pcl_file
+
+                    pcl_collection = parse_pcl_file(pcl_path)
+                    pcl_collection.auto_enrich(state.netlist, state.board)
+                    if not hasattr(state, "pcl_constraints"):
+                        state.pcl_constraints = pcl_collection
+                    else:
+                        state.pcl_constraints.constraints.extend(
+                            pcl_collection.constraints
+                        )
+                    print(
+                        f"  Loaded {len(pcl_collection)} PCL constraints "
+                        f"(with auto-enrichment)"
+                    )
+                except Exception as e:
+                    print(f"Warning: Failed to load PCL constraints: {e}")
+
         # Load physical specification
         from temper_placer.core.specification import PcbSpecification
         from temper_placer.pipeline.derivation import derive_constraints_from_spec

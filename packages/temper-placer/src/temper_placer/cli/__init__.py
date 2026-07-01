@@ -2744,6 +2744,9 @@ def pcl_validate(
             parse_result = parse_kicad_pcb(pcb)
             component_refs = [c.ref for c in parse_result.netlist.components]
 
+            # Auto-enrich constraints from design data
+            collection.auto_enrich(parse_result.netlist, parse_result.board)
+
             if not json_output:
                 console.print(f"  [dim]Loaded {len(component_refs)} components from PCB[/]")
 

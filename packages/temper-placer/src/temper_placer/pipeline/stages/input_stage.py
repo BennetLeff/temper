@@ -62,6 +62,28 @@ class InputStage:
         state.constraints = constraints
         state.loops = loops
 
+        # Wire PCL constraint auto-enrichment
+        pcl_constraints_yaml: Path | None = context.get("pcl_constraints_yaml")
+        if pcl_constraints_yaml:
+            print(f"Loading PCL constraints from {pcl_constraints_yaml}")
+            try:
+                from temper_placer.pcl.parser import parse_pcl_file
+
+                pcl_collection = parse_pcl_file(pcl_constraints_yaml)
+                pcl_collection.auto_enrich(netlist, board)
+                if not hasattr(state, "pcl_constraints"):
+                    state.pcl_constraints = pcl_collection
+                else:
+                    state.pcl_constraints.constraints.extend(
+                        pcl_collection.constraints
+                    )
+                print(
+                    f"  Loaded {len(pcl_collection)} PCL constraints "
+                    f"(with auto-enrichment)"
+                )
+            except Exception as e:
+                print(f"Warning: Failed to load PCL constraints: {e}")
+
         from temper_placer.core.specification import PcbSpecification
         from temper_placer.pipeline.derivation import derive_constraints_from_spec
 

@@ -280,6 +280,208 @@ class ConstraintCollection:
 
         return errors
 
+    def auto_enrich(self, netlist: "Netlist", board: "Board | None" = None) -> None:
+        """Auto-generate constraints from design data.
+
+        Three automatic enrichments:
+        1. Decoupling detection: scan netlist for capacitor-IC pairs
+        2. Keepout emission: emit KeepoutConstraint for zones with type='keepout'
+        3. Tag expansion: expand tagged constraints into concrete constraints
+
+        Args:
+            netlist: The netlist to analyze
+            board: Optional board for zone-based enrichments
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # 1. Decoupling detection
+        from temper_placer.losses.decoupling import auto_detect_decoupling
+
+        rules = auto_detect_decoupling(netlist)
+        if rules:
+            count = len(rules)
+            for rule in rules:
+                from temper_placer.pcl.constraints import ConstraintTier as CT
+
+                classification = getattr(rule, "_classification", None)
+                if classification is not None:
+                    tier = CT.HARD if getattr(classification, "name", "") == "BYPASS" else CT.STRONG
+                else:
+                    tier = CT.STRONG
+                self.constraints.append(
+                    AdjacentConstraint(
+                        a=rule.cap_ref,
+                        b=rule.ic_ref,
+                        max_distance_mm=rule.max_distance_mm,
+                        tier=tier,
+                        because=(
+                            f"Decoupling capacitor {rule.cap_ref} for {rule.ic_ref}"
+                            f"{' on net ' + rule.power_pin if rule.power_pin else ''}"
+                        ),
+                        pin_b=rule.power_pin if rule.power_pin else None,
+                    )
+                )
+            logger.info("Auto-detected %d decoupling constraints", count)
+
+        # 2. Keepout emission from board zones
+        if board is not None:
+            keepout_count = 0
+            for zone in board.zones:
+                zone_type = getattr(zone, "zone_type", "placement")
+                if zone_type == "keepout":
+                    self.constraints.append(
+                        KeepoutConstraint(
+                            zone_name=zone.name,
+                            tier=ConstraintTier.HARD,
+                            because=f"Auto-generated from zone '{zone.name}' (type: keepout)",
+                            margin_mm=0.0,
+                        )
+                    )
+                    keepout_count += 1
+            if keepout_count > 0:
+                logger.info(
+                    "Emitted %d keepout constraint(s) from board zones", keepout_count
+                )
+
+        # 3. Tag expansion
+        from temper_placer.pcl.tagged_constraints import (
+            TaggedAdjacentConstraint,
+            TaggedAlignedConstraint,
+            TaggedAnchoredConstraint,
+            TaggedEnclosingConstraint,
+            TaggedOnSideConstraint,
+            TaggedSeparatedConstraint,
+        )
+        from temper_placer.pcl.tag_dispatch import _tag_to_component_refs
+
+        tagged_types = (
+            TaggedAdjacentConstraint,
+            TaggedAlignedConstraint,
+            TaggedAnchoredConstraint,
+            TaggedEnclosingConstraint,
+            TaggedOnSideConstraint,
+            TaggedSeparatedConstraint,
+        )
+
+        expanded_count = 0
+        new_constraints = []
+
+        for constraint in list(self.constraints):
+            if not isinstance(constraint, tagged_types):
+                continue
+
+            constraint_id = getattr(constraint, "id", "") or ""
+
+            if isinstance(constraint, (TaggedAdjacentConstraint, TaggedSeparatedConstraint)):
+                comps_a = _tag_to_component_refs(constraint.tag_expr_a, netlist)
+                comps_b = _tag_to_component_refs(constraint.tag_expr_b, netlist)
+                for a_ref in comps_a:
+                    for b_ref in comps_b:
+                        if a_ref == b_ref:
+                            continue
+                        if isinstance(constraint, TaggedAdjacentConstraint):
+                            new_constraints.append(
+                                AdjacentConstraint(
+                                    a=a_ref,
+                                    b=b_ref,
+                                    max_distance_mm=constraint.max_distance_mm,
+                                    tier=constraint.tier,
+                                    because=constraint.because,
+                                    metric=constraint.metric,
+                                    id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
+                                )
+                            )
+                        elif isinstance(constraint, TaggedSeparatedConstraint):
+                            new_constraints.append(
+                                SeparatedConstraint(
+                                    a=a_ref,
+                                    b=b_ref,
+                                    min_distance_mm=constraint.min_distance_mm,
+                                    tier=constraint.tier,
+                                    because=constraint.because,
+                                    metric=constraint.metric,
+                                    id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
+                                )
+                            )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedEnclosingConstraint):
+                comps_inner = _tag_to_component_refs(constraint.tag_expr_inner, netlist)
+                if comps_inner:
+                    new_constraints.append(
+                        EnclosingConstraint(
+                            outer=constraint.outer,
+                            inner=comps_inner,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            margin_mm=constraint.margin_mm,
+                            id=constraint_id,
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedAlignedConstraint):
+                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+                if len(comps) >= 2:
+                    new_constraints.append(
+                        AlignedConstraint(
+                            components=comps,
+                            axis=constraint.axis,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            tolerance_mm=constraint.tolerance_mm,
+                            id=constraint_id,
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedOnSideConstraint):
+                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+                if comps:
+                    new_constraints.append(
+                        OnSideConstraint(
+                            components=comps,
+                            side=constraint.side,
+                            edge=constraint.edge,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            max_distance_mm=constraint.max_distance_mm,
+                            id=constraint_id,
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedAnchoredConstraint):
+                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+                for comp_ref in comps:
+                    new_constraints.append(
+                        AnchoredConstraint(
+                            component=comp_ref,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            region=constraint.region,
+                            position=constraint.position,
+                            id=f"{constraint_id}_{comp_ref}" if constraint_id else "",
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+        if new_constraints:
+            self.constraints.extend(new_constraints)
+        if expanded_count > 0:
+            logger.info(
+                "Expanded %d tagged constraint(s) into %d concrete constraint(s)",
+                expanded_count,
+                len(new_constraints),
+            )
+
 
 def _parse_distance_with_unit(value: Any) -> float:
     """Parse distance value with optional unit suffix.
