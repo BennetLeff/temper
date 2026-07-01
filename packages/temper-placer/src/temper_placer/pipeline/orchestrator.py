@@ -670,7 +670,18 @@ class PipelineOrchestrator:
             metrics_path = state.config.output_pcb.with_suffix(".metrics.json")
             import json
             with open(metrics_path, "w") as f:
-                json.dump(state.physics_report.to_dict(), f, indent=2)
+                report = state.physics_report.to_dict()
+
+                def _make_serializable(obj):
+                    if isinstance(obj, frozenset):
+                        return list(obj)
+                    if isinstance(obj, dict):
+                        return {str(k): _make_serializable(v) for k, v in obj.items()}
+                    if isinstance(obj, (list, tuple)):
+                        return [_make_serializable(v) for v in obj]
+                    return obj
+
+                json.dump(_make_serializable(report), f, indent=2)
             print(f"  Metrics saved to {metrics_path.name}")
         except Exception as e:
             print(f"Error during export: {e}")
