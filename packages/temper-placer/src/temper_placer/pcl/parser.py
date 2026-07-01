@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import yaml  # type: ignore[import-untyped]
-from jsonschema import ValidationError, validate
+from jsonschema import ValidationError, validate  # type: ignore[import-untyped]
 
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
