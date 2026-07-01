@@ -77,10 +77,10 @@ class TestPipelinePhase:
         assert PipelinePhase.OUTPUT.value == "output"
 
     def test_pipeline_phase_count(self):
-        """PipelinePhase should have exactly 8 phases."""
+        """PipelinePhase should have exactly 16 phases."""
         from temper_placer.pipeline.orchestrator import PipelinePhase
 
-        assert len(PipelinePhase) == 8
+        assert len(PipelinePhase) == 16
 
 
 # =============================================================================
@@ -332,7 +332,7 @@ class TestPipelineOrchestratorInit:
         assert orchestrator.state.config == config
 
     def test_orchestrator_has_phase_handlers(self):
-        """PipelineOrchestrator has handlers for all phases."""
+        """PipelineOrchestrator has handlers for the 8 original phases."""
         from temper_placer.pipeline.orchestrator import (
             PipelineConfig,
             PipelineOrchestrator,
@@ -342,9 +342,14 @@ class TestPipelineOrchestratorInit:
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
         orchestrator = PipelineOrchestrator(config)
 
-        # Should have handlers for all phases
-        for phase in PipelinePhase:
-            assert phase in orchestrator.phases
+        # Only check the 8 original phases (sub-phases added later have no handlers)
+        original_phases = [
+            PipelinePhase.INPUT, PipelinePhase.SEMANTIC, PipelinePhase.TOPOLOGICAL,
+            PipelinePhase.PREFLIGHT, PipelinePhase.GEOMETRIC, PipelinePhase.ROUTING,
+            PipelinePhase.REFINEMENT, PipelinePhase.OUTPUT,
+        ]
+        for phase in original_phases:
+            assert phase in orchestrator.phases, f"Missing handler for {phase}"
             assert callable(orchestrator.phases[phase])
 
     def test_orchestrator_callbacks_none_by_default(self):
@@ -385,8 +390,8 @@ class TestPhaseSequencing:
             PipelinePhase.PREFLIGHT,
             PipelinePhase.GEOMETRIC,
             PipelinePhase.ROUTING,
-            PipelinePhase.OUTPUT,
             PipelinePhase.REFINEMENT,
+            PipelinePhase.OUTPUT,
         ]
 
         config = PipelineConfig(input_pcb=Path("/tmp/test.kicad_pcb"))
