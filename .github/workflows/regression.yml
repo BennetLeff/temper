@@ -67,6 +67,14 @@ jobs:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
 
+      - name: Optimizer Invariant Tests
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/test_optimizer_invariants.py -v --tb=short -m "slow or property" --timeout=300
+        continue-on-error: true
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
+          JAX_PLATFORM_NAME: cpu
+
       - name: Quarantine Report
         run: uv run python scripts/quarantine_report.py
         continue-on-error: true

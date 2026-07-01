@@ -38,6 +38,26 @@ jobs:
             board_id: temper
             board_pcb: pcb/temper.kicad_pcb
             board_golden: power_pcb_dataset/goldens/temper
+          - boundary: semantic
+            board_id: bitaxe_ultra
+            board_pcb: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/bitaxe_ultra
+          - boundary: topological
+            board_id: bitaxe_ultra
+            board_pcb: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/bitaxe_ultra
+          - boundary: placement
+            board_id: bitaxe_ultra
+            board_pcb: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/bitaxe_ultra
+          - boundary: routing
+            board_id: bitaxe_ultra
+            board_pcb: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/bitaxe_ultra
+          - boundary: validation
+            board_id: bitaxe_ultra
+            board_pcb: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/bitaxe_ultra
     steps:
       - uses: actions/checkout@v4
 
