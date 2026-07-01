@@ -36,6 +36,7 @@ from temper_placer.core.state import PlacementState
 from temper_placer.explainability.trace import Trace
 from temper_placer.geometry.transform import sample_rotation_batch
 from temper_placer.heuristics.force_directed import compute_force_directed_layout
+from temper_placer.io.config_loader import PlacementConstraints
 from temper_placer.losses.base import (
     CompositeLoss,
     LossContext,
@@ -288,6 +289,7 @@ def initialize_training_state(
     board: Board,
     config: OptimizerConfig,
     initial_state: PlacementState | None = None,
+    constraints: PlacementConstraints | None = None,
 ) -> TrainingState:
     """
     Initialize training state with positions and rotation logits.
@@ -297,6 +299,8 @@ def initialize_training_state(
         board: Board definition.
         config: Optimizer configuration.
         initial_state: Optional initial placement to start from.
+        constraints: Optional placement constraints (passed through to
+            constraint-aware initializers; ignored by current initializers).
 
     Returns:
         Initialized TrainingState.
@@ -320,7 +324,7 @@ def initialize_training_state(
                 normalized_laplacian=config.initialization.spectral_normalized,
                 margin_fraction=config.initialization.spectral_margin,
             )
-            positions = initializer.initialize(netlist, board)
+            positions = initializer.initialize(netlist, board, constraints=constraints)
             net_virtual_nodes = None
         elif config.initialization.method == "zone_aware_spectral":
             # Zone-aware spectral: bias components away from copper zones
@@ -332,7 +336,7 @@ def initialize_training_state(
                 boundary_margin=zone_cfg.boundary_margin,
                 adjustment_iters=zone_cfg.adjustment_iters,
             )
-            positions = initializer.initialize(netlist, board)
+            positions = initializer.initialize(netlist, board, constraints=constraints)
             net_virtual_nodes = None
             logger.info(
                 f"Zone-aware spectral init: penalty={zone_cfg.zone_penalty}, "
@@ -342,7 +346,7 @@ def initialize_training_state(
             from temper_placer.optimizer.initialization import LearnedInitializer
 
             initializer = LearnedInitializer(model_path=config.initialization.learned_model_path)  # type: ignore[assignment]
-            positions = initializer.initialize(netlist, board)
+            positions = initializer.initialize(netlist, board, constraints=constraints)
             net_virtual_nodes = None
         else:
             # Default: Random initialization in relative coordinates
@@ -692,6 +696,7 @@ def train(
     callback: Callable[[TrainingMetrics], None] | None = None,
     validation_callback: ValidationCallback | None = None,
     profile_dir: str | None = None,
+    constraints: PlacementConstraints | None = None,
 ) -> TrainingResult:
     """
     Run placement optimization training loop.
@@ -715,6 +720,8 @@ def train(
         callback: Optional function called after each logged epoch.
         validation_callback: Optional ValidationCallback for DRC/SPICE validation.
         profile_dir: If provided, save JAX profiler trace to this directory.
+        constraints: Optional placement constraints (passed through to
+            initialization; ignored by current initializers).
 
     Returns:
         TrainingResult with final placement and training history.
@@ -735,7 +742,7 @@ def train(
     start_time = time.time()
 
     # Initialize training state
-    state = initialize_training_state(netlist, board, config, initial_state)
+    state = initialize_training_state(netlist, board, config, initial_state, constraints=constraints)
 
     # Initialize dynamic loss weights for GradNorm
     n_losses = len(composite_loss.losses)
@@ -1139,6 +1146,7 @@ def train_parallel(
     config: OptimizerConfig,
     n_seeds: int = 4,
     callback: Callable[[TrainingMetrics], None] | None = None,
+    constraints: PlacementConstraints | None = None,
 ) -> ParallelTrainingResult:
     """
     Run optimization across multiple random seeds in parallel (or sequence).
@@ -1153,6 +1161,8 @@ def train_parallel(
         config: Optimizer configuration.
         n_seeds: Number of seeds to run.
         callback: Optional callback for progress tracking.
+        constraints: Optional placement constraints (passed through to
+            initialization; ignored by current initializers).
 
     Returns:
         ParallelTrainingResult.
@@ -1165,7 +1175,7 @@ def train_parallel(
         seed_config = dataclass_replace(config, seed=base_seed + i)
 
         # Run training
-        res = train(netlist, board, composite_loss, context, seed_config, callback=callback)
+        res = train(netlist, board, composite_loss, context, seed_config, callback=callback, constraints=constraints)
         results.append(res)
 
     # 1. Identify best result
@@ -1214,7 +1224,8 @@ def train_multiphase(
     callback: Callable[[TrainingMetrics], None] | None = None,
     validation_callback: ValidationCallback | None = None,
     profile_dir: str | None = None,
-     drc_oracle: Any | None = None,
+    drc_oracle: Any | None = None,
+    constraints: PlacementConstraints | None = None,
 ) -> TrainingResult:
     """
     Run multi-phase training with curriculum learning.
@@ -1232,6 +1243,9 @@ def train_multiphase(
         callback: Optional callback for metrics.
         validation_callback: Optional ValidationCallback for DRC/SPICE validation.
         profile_dir: If provided, save JAX profiler trace to this directory.
+        drc_oracle: Optional DRC oracle for early stopping.
+        constraints: Optional placement constraints (passed through to
+            initialization; ignored by current initializers).
 
     Returns:
         TrainingResult with final placement.
@@ -1256,7 +1270,7 @@ def train_multiphase(
     start_time = time.time()
 
     # Initialize training state
-    state = initialize_training_state(netlist, board, config, initial_state)
+    state = initialize_training_state(netlist, board, config, initial_state, constraints=constraints)
 
     # Initialize dynamic loss weights for GradNorm
     # We initialize with ones, but we'll resize if composite_loss size changes

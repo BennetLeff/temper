@@ -237,7 +237,12 @@ class TestTrainAcceptsConstraints:
         result = train(
             netlist, board, composite_loss, context, config, constraints=_empty_constraints()
         )
-        assert result.final_loss >= 0.0
+        result_none = train(
+            netlist, board, composite_loss, context, config, constraints=None
+        )
+        # Invariance: populated constraints produce identical output to None
+        assert jnp.allclose(result.final_state.positions, result_none.final_state.positions)
+        assert jnp.allclose(result.final_state.rotation_logits, result_none.final_state.rotation_logits)
         assert result.total_epochs > 0
 
     def test_train_multiphase_with_constraints_kwarg(self):
@@ -270,5 +275,10 @@ class TestTrainAcceptsConstraints:
         result = train_multiphase(
             netlist, board, make_loss, context, config, constraints=_empty_constraints()
         )
-        assert result.final_loss >= 0.0
+        result_none = train_multiphase(
+            netlist, board, make_loss, context, config, constraints=None
+        )
+        # Invariance: populated constraints produce identical output to None
+        assert jnp.allclose(result.final_state.positions, result_none.final_state.positions)
+        assert jnp.allclose(result.final_state.rotation_logits, result_none.final_state.rotation_logits)
         assert result.total_epochs > 0
