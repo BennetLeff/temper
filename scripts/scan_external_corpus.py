@@ -44,9 +44,9 @@ def profile_board(pcb_path: Path) -> dict:
     }
 
     try:
-        from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
 
-        parsed = parse_kicad_pcb_v6(pcb_path)
+        parsed = parse_kicad_pcb(pcb_path)
         netlist = getattr(parsed, "netlist", None)
         board = getattr(parsed, "board", None)
 

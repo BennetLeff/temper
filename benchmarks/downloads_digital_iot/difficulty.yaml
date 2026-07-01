@@ -1,129 +1,32 @@
-generated_at: '2026-07-01T17:09:48Z'
+generated_at: '2026-07-01T17:25:12Z'
 tier_summary:
   tier_0:
-    count: 149
+    count: 69
     boards:
-    - id: CIRCUITSTATE/Mitayi-Pico-D1/Mitayi-Pico-D1.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Mitayi-Pico-D1.kicad_pcb
-    - id: Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
-    - id: Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
-    - id: Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
-    - id: Revisions/Mitayi-Pico-RP2040-r0.5/Mitayi-Pico-RP2040-r0.5.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Mitayi-Pico-RP2040-r0.5.kicad_pcb
-    - id: Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
-    - id: Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
-    - id: Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
     - id: kicad/column_board/column_driver.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CarlRaymond/AnnaxFlipdotDriver/kicad/column_board/column_driver.kicad_pcb
     - id: kicad/row_board/row_driver.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CarlRaymond/AnnaxFlipdotDriver/kicad/row_board/row_driver.kicad_pcb
-    - id: pcb/Clean/Clean.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Clean/Clean.kicad_pcb
-    - id: pcb/Connecting-piece/Connecting-piece.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Connecting-piece/Connecting-piece.kicad_pcb
-    - id: pcb/ESP32/ESP32.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/ESP32/ESP32.kicad_pcb
-    - id: pcb/Protoboard/Protoboard.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Protoboard/Protoboard.kicad_pcb
-    - id: pcb/Raspberry/Raspberry.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Raspberry/Raspberry.kicad_pcb
-    - id: RP2040/EliteMicro2040/EliteMicro2040.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2040/EliteMicro2040/EliteMicro2040.kicad_pcb
     - id: josh-kicad-lib/template/template.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2040/EliteMicro2040/Resources/josh-kicad-lib/template/template.kicad_pcb
-    - id: RP2040/EnvOpenPico2040/EnvOpenPico-RP2040.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2040/EnvOpenPico2040/EnvOpenPico-RP2040.kicad_pcb
-    - id: RP2040/EnvPicoLiPo/EnvPicoLiPo.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2040/EnvPicoLiPo/EnvPicoLiPo.kicad_pcb
-    - id: RP2350/EnvOpenPico2350/EnvOpenPico2350.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2350/EnvOpenPico2350/EnvOpenPico2350.kicad_pcb
     - id: icezum/src-kicad/icezum.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/FPGAwars/icezum/src-kicad/icezum.kicad_pcb
-    - id: project-hydra-meshtastic-pcb/Hydra Base/Hydra Base.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Hydra-Designs/project-hydra-meshtastic-pcb/Hydra
-        Base/Hydra Base.kicad_pcb
     - id: Hydra-Designs/project-hydra-meshtastic-pcb/meshtastic-diy.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Hydra-Designs/project-hydra-meshtastic-pcb/meshtastic-diy.kicad_pcb
-    - id: build-a-devboard/PCB_DESIGN/devboard.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/KaiPereira/build-a-devboard/PCB_DESIGN/devboard.kicad_pcb
     - id: case/fr-4-bottom/bottom.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/TK44/case/fr-4-bottom/bottom.kicad_pcb
-    - id: case/fr-4-plate/plate.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/TK44/case/fr-4-plate/plate.kicad_pcb
-    - id: pcb/TK44/TK44.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/TK44/pcb/TK44/TK44.kicad_pcb
-    - id: fr-4/plate/plate.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/jiran-ble-lite/case/fr-4/plate/plate.kicad_pcb
-    - id: fr-4/underplate/underplate.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/jiran-ble-lite/case/fr-4/underplate/underplate.kicad_pcb
-    - id: pcb/jiran-ble-lite/jiran-ble-lite.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/jiran-ble-lite/pcb/jiran-ble-lite/jiran-ble-lite.kicad_pcb
     - id: Miceuz/ble-soil-moisture-sensor/ble-soil-moisture-sensor-pannel.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Miceuz/ble-soil-moisture-sensor/ble-soil-moisture-sensor-pannel.kicad_pcb
     - id: Miceuz/ble-soil-moisture-sensor/ble-soil-moisture-sensor.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Miceuz/ble-soil-moisture-sensor/ble-soil-moisture-sensor.kicad_pcb
-    - id: development/ethersweep402/ethersweep.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep402/ethersweep.kicad_pcb
-    - id: development/ethersweep406/ethersweep.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep406/ethersweep.kicad_pcb
-    - id: development/ethersweep407_CAN/ethersweep.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep407_CAN/ethersweep.kicad_pcb
-    - id: development/ethersweep_tmc2209/ethersweep.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep_tmc2209/ethersweep.kicad_pcb
-    - id: production/ethersweep405/ethersweep.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/production/ethersweep405/ethersweep.kicad_pcb
-    - id: hardware/version100/tmc2209_devboard.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/tmc2209_devboard/hardware/version100/tmc2209_devboard.kicad_pcb
-    - id: hardware/version102/tmc2209_devboard.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/tmc2209_devboard/hardware/version102/tmc2209_devboard.kicad_pcb
-    - id: hardware/version103/tmc2209_devboard.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/tmc2209_devboard/hardware/version103/tmc2209_devboard.kicad_pcb
     - id: Hardware/Schematics/IoT_Power_Meter_schematics.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Nurgak/Internet-of-Things-Power-Meter/Hardware/Schematics/IoT_Power_Meter_schematics.kicad_pcb
@@ -148,84 +51,21 @@ tier_summary:
     - id: OLIMEX/iCE40HX1K-EVB/iCE40HX1K-EVB_Rev_B.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OLIMEX/iCE40HX1K-EVB/iCE40HX1K-EVB_Rev_B.kicad_pcb
-    - id: hardware/baseboard_2slots/baseboard_2slots.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/baseboard_2slots/baseboard_2slots.kicad_pcb
-    - id: hardware/baseboard_4slots/baseboard_4slots.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/baseboard_4slots/baseboard_4slots.kicad_pcb
-    - id: hardware/ioboard_2ports_rdm_isolated/ioboard_2ports_rdm_isolated.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_2ports_rdm_isolated/ioboard_2ports_rdm_isolated.kicad_pcb
-    - id: hardware/ioboard_2ports_rdm_unisolated/ioboard_2ports_unisolated.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_2ports_rdm_unisolated/ioboard_2ports_unisolated.kicad_pcb
-    - id: hardware/ioboard_4ports_isolated/ioboard_4ports_isolated.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_4ports_isolated/ioboard_4ports_isolated.kicad_pcb
-    - id: hardware/ioboard_4ports_unisolated/ioboard_4ports_unisolated.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_4ports_unisolated/ioboard_4ports_unisolated.kicad_pcb
-    - id: ProtoConn/Hardware/ProtoConn.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Pakequis/ProtoConn/Hardware/ProtoConn.kicad_pcb
-    - id: rp2040-motor-controller/RP2040_base/RP2040_base.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/RP2040_base/RP2040_base.kicad_pcb
-    - id: rp2040-motor-controller/debugger/RP2040_debugger.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/debugger/RP2040_debugger.kicad_pcb
-    - id: rp2040-motor-controller/driver_module/driver_module.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/driver_module/driver_module.kicad_pcb
-    - id: rp2040-motor-controller/rp2040_encoder/rp2040_encoder.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/rp2040_encoder/rp2040_encoder.kicad_pcb
-    - id: rp2040-motor-controller/user_interface/user_interface.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/user_interface/user_interface.kicad_pcb
     - id: ESP32-kiCAD-Footprints/ESP32-Footprints/ESP32-Footprints.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/adamjvr/ESP32-kiCAD-Footprints/ESP32-Footprints/ESP32-Footprints.kicad_pcb
     - id: HASwitchPlate/PCB/HASwitchPlate.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/aderusha/HASwitchPlate/PCB/HASwitchPlate.kicad_pcb
-    - id: pcb/left/keyboard_pcb.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/beekeeb/piantor/pcb/left/keyboard_pcb.kicad_pcb
-    - id: pcb/right/keyboard_pcb.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/beekeeb/piantor/pcb/right/keyboard_pcb.kicad_pcb
-    - id: pinci/pcb/pinci.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/camrbuss/pinci/pcb/pinci.kicad_pcb
     - id: pico-hx/pcb/pico-hx.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/dan-rodrigues/pico-hx/pcb/pico-hx.kicad_pcb
-    - id: openDTU-BreakoutBoard/KiCad/openDTU.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/dokuhn/openDTU-BreakoutBoard/KiCad/openDTU.kicad_pcb
-    - id: Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2GDKiCAD/TCD1304Rev2G.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/drmcnelson/Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2GDKiCAD/TCD1304Rev2G.kicad_pcb
-    - id: Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2KiCAD/TCD1304Rev2.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/drmcnelson/Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2KiCAD/TCD1304Rev2.kicad_pcb
-    - id: hardware/esp-rust-board/esp-rust-board.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/esp-rs/esp-rust-board/hardware/esp-rust-board/esp-rust-board.kicad_pcb
     - id: snackymini-keyboard/hardware/snackymini-keyboard.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/huytd/snackymini-keyboard/hardware/snackymini-keyboard.kicad_pcb
     - id: jackhumbert/kicad_to_blender/blender-test.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/jackhumbert/kicad_to_blender/blender-test.kicad_pcb
-    - id: jenschr/Teensy-4.1-example/Teensy4.1-example.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/jenschr/Teensy-4.1-example/Teensy4.1-example.kicad_pcb
-    - id: tokay-lite-pcb/ai-camera-rev0/ai-camera.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/maxlab-io/tokay-lite-pcb/ai-camera-rev0/ai-camera.kicad_pcb
     - id: tokay-lite-pcb/ai-camera-rev1/ai-camera.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/maxlab-io/tokay-lite-pcb/ai-camera-rev1/ai-camera.kicad_pcb
@@ -241,9 +81,6 @@ tier_summary:
     - id: tokay-lite-pcb/ai-camera-rev3.2/ai-camera-rev3.2.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/maxlab-io/tokay-lite-pcb/ai-camera-rev3.2/ai-camera-rev3.2.kicad_pcb
-    - id: RetroWiFiModem/kicad/RetroWiFiModem.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/mecparts/RetroWiFiModem/kicad/RetroWiFiModem.kicad_pcb
     - id: mikelawrence/RPi_Zero_pHat_Template/RPi_Zero_pHat_Template.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/mikelawrence/RPi_Zero_pHat_Template/RPi_Zero_pHat_Template.kicad_pcb
@@ -274,31 +111,6 @@ tier_summary:
     - id: pdp7/kicad-teensy-epaper/kicad-teensy-epaper.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/pdp7/kicad-teensy-epaper/kicad-teensy-epaper.kicad_pcb
-    - id: pcb/DonConIO/DonConIO.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/ravinrabbid/DonCon2040/pcb/DonConIO/DonConIO.kicad_pcb
-    - id: pcb/DonConIOmini/DonConIOmini.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/ravinrabbid/DonCon2040/pcb/DonConIOmini/DonConIOmini.kicad_pcb
-    - id: pcb/DonConPad/DonConPad.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/ravinrabbid/DonCon2040/pcb/DonConPad/DonConPad.kicad_pcb
-    - id: KiCad Projects/Arduino Leonardo/Arduino Leonardo.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
-        Leonardo/Arduino Leonardo.kicad_pcb
-    - id: KiCad Projects/Arduino Mega 2560/Arduino Mega 2560.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
-        Mega 2560/Arduino Mega 2560.kicad_pcb
-    - id: KiCad Projects/Arduino Micro/Arduino Micro.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
-        Micro/Arduino Micro.kicad_pcb
-    - id: KiCad Projects/Arduino Nano/Arduino Nano.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
-        Nano/Arduino Nano.kicad_pcb
     - id: Uno/Arduino UNO R4 Minima/Arduino UNO R4 Minima.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Uno/Arduino
@@ -307,29 +119,9 @@ tier_summary:
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Uno/Arduino
         UNO R4 WiFi/Arduino UNO R4 WiFi.kicad_pcb
-    - id: Uno/Arduino Uno/Arduino UNO.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Uno/Arduino
-        Uno/Arduino UNO.kicad_pcb
-    - id: Uno/Arduino Uno SMD/Arduino Uno SMD.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Uno/Arduino
-        Uno SMD/Arduino Uno SMD.kicad_pcb
     - id: ergo-snm-keyboard/EC56_rotary_encoder_pcb/EC56_rotary_encoder_pcb.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/EC56_rotary_encoder_pcb/EC56_rotary_encoder_pcb.kicad_pcb
-    - id: prototype/left_prototype_1/ErgoSNM_Keyboard_Left_Prototype_1.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/prototype/left_prototype_1/ErgoSNM_Keyboard_Left_Prototype_1.kicad_pcb
-    - id: prototype/right_prototype_1/ErgoSNM_Keyboard_Right_Prototype_1.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/prototype/right_prototype_1/ErgoSNM_Keyboard_Right_Prototype_1.kicad_pcb
-    - id: ErgoSNM_Keyboard/rev1/ErgoSNM_keyboard.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev1/ErgoSNM_keyboard.kicad_pcb
-    - id: rev2/left/left.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/left/left.kicad_pcb
     - id: rev2/plate/ergosnm_plate.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/plate/ergosnm_plate.kicad_pcb
@@ -339,36 +131,6 @@ tier_summary:
     - id: rev2/plate/ergosnm_plate_thumb_cluster.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/plate/ergosnm_plate_thumb_cluster.kicad_pcb
-    - id: rev2/right/ErgoSNM_right.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/right/ErgoSNM_right.kicad_pcb
-    - id: rev2/thumb_cluster/thumb_cluster.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/thumb_cluster/thumb_cluster.kicad_pcb
-    - id: rev3/left/ErgoSNM_v3_left.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev3/left/ErgoSNM_v3_left.kicad_pcb
-    - id: rev3/receiver/receiver.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev3/receiver/receiver.kicad_pcb
-    - id: rev3/right/ErgoSNM_v3_right.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev3/right/ErgoSNM_v3_right.kicad_pcb
-    - id: pmw3360-pcb/pmw3360_pcb_ffc/pmw3360_pcb_ffc.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3360-pcb/pmw3360_pcb_ffc/pmw3360_pcb_ffc.kicad_pcb
-    - id: pmw3360-pcb/pmw3360_pcb_jst/pmw3360_pcb_jst.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3360-pcb/pmw3360_pcb_jst/pmw3360_pcb_jst.kicad_pcb
-    - id: pmw3360-pcb/pmw3360_pcb_pinheader/pmw3360_pcb_pinheader.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3360-pcb/pmw3360_pcb_pinheader/pmw3360_pcb_pinheader.kicad_pcb
-    - id: siderakb/pmw3610-pcb/pmw3610_pcb.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3610-pcb/pmw3610_pcb.kicad_pcb
-    - id: rp-micro/hardware/rp-micro.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/rp-micro/hardware/rp-micro.kicad_pcb
     - id: BreakoutBoards/CR1220/CR1220.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sirboard/BreakoutBoards/CR1220/CR1220.kicad_pcb
@@ -455,27 +217,265 @@ tier_summary:
     - id: themainframe/5g-m2-usb3-interface-pcb/usb3-ngff-carrier.kicad_pcb
       score: 0
       path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/themainframe/5g-m2-usb3-interface-pcb/usb3-ngff-carrier.kicad_pcb
-    - id: tommy-gilligan/RP2040-minimal-design/RP2040_minimal.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/tommy-gilligan/RP2040-minimal-design/RP2040_minimal.kicad_pcb
-    - id: ghoul/v1.0/ghoul.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/tzarc/ghoul/v1.0/ghoul.kicad_pcb
-    - id: v1.0/half-plate/half-plate.kicad_pcb
-      score: 0
-      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/tzarc/ghoul/v1.0/half-plate/half-plate.kicad_pcb
   tier_1:
-    count: 0
-    boards: []
+    count: 4
+    boards:
+    - id: openDTU-BreakoutBoard/KiCad/openDTU.kicad_pcb
+      score: 41
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/dokuhn/openDTU-BreakoutBoard/KiCad/openDTU.kicad_pcb
+    - id: v1.0/half-plate/half-plate.kicad_pcb
+      score: 40
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/tzarc/ghoul/v1.0/half-plate/half-plate.kicad_pcb
+    - id: fr-4/underplate/underplate.kicad_pcb
+      score: 8
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/jiran-ble-lite/case/fr-4/underplate/underplate.kicad_pcb
+    - id: fr-4/plate/plate.kicad_pcb
+      score: 7
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/jiran-ble-lite/case/fr-4/plate/plate.kicad_pcb
   tier_2:
-    count: 0
-    boards: []
+    count: 36
+    boards:
+    - id: rp-micro/hardware/rp-micro.kicad_pcb
+      score: 200
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/rp-micro/hardware/rp-micro.kicad_pcb
+    - id: hardware/baseboard_4slots/baseboard_4slots.kicad_pcb
+      score: 181
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/baseboard_4slots/baseboard_4slots.kicad_pcb
+    - id: RP2040/EliteMicro2040/EliteMicro2040.kicad_pcb
+      score: 179
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2040/EliteMicro2040/EliteMicro2040.kicad_pcb
+    - id: build-a-devboard/PCB_DESIGN/devboard.kicad_pcb
+      score: 177
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/KaiPereira/build-a-devboard/PCB_DESIGN/devboard.kicad_pcb
+    - id: hardware/baseboard_2slots/baseboard_2slots.kicad_pcb
+      score: 177
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/baseboard_2slots/baseboard_2slots.kicad_pcb
+    - id: RetroWiFiModem/kicad/RetroWiFiModem.kicad_pcb
+      score: 176
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/mecparts/RetroWiFiModem/kicad/RetroWiFiModem.kicad_pcb
+    - id: KiCad Projects/Arduino Nano/Arduino Nano.kicad_pcb
+      score: 175
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
+        Nano/Arduino Nano.kicad_pcb
+    - id: tommy-gilligan/RP2040-minimal-design/RP2040_minimal.kicad_pcb
+      score: 166
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/tommy-gilligan/RP2040-minimal-design/RP2040_minimal.kicad_pcb
+    - id: hardware/version102/tmc2209_devboard.kicad_pcb
+      score: 161
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/tmc2209_devboard/hardware/version102/tmc2209_devboard.kicad_pcb
+    - id: hardware/version103/tmc2209_devboard.kicad_pcb
+      score: 159
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/tmc2209_devboard/hardware/version103/tmc2209_devboard.kicad_pcb
+    - id: hardware/ioboard_4ports_isolated/ioboard_4ports_isolated.kicad_pcb
+      score: 158
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_4ports_isolated/ioboard_4ports_isolated.kicad_pcb
+    - id: hardware/version100/tmc2209_devboard.kicad_pcb
+      score: 154
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/tmc2209_devboard/hardware/version100/tmc2209_devboard.kicad_pcb
+    - id: Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2GDKiCAD/TCD1304Rev2G.kicad_pcb
+      score: 151
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/drmcnelson/Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2GDKiCAD/TCD1304Rev2G.kicad_pcb
+    - id: hardware/ioboard_4ports_unisolated/ioboard_4ports_unisolated.kicad_pcb
+      score: 145
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_4ports_unisolated/ioboard_4ports_unisolated.kicad_pcb
+    - id: pinci/pcb/pinci.kicad_pcb
+      score: 139
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/camrbuss/pinci/pcb/pinci.kicad_pcb
+    - id: rp2040-motor-controller/user_interface/user_interface.kicad_pcb
+      score: 136
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/user_interface/user_interface.kicad_pcb
+    - id: pcb/left/keyboard_pcb.kicad_pcb
+      score: 123
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/beekeeb/piantor/pcb/left/keyboard_pcb.kicad_pcb
+    - id: pcb/right/keyboard_pcb.kicad_pcb
+      score: 123
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/beekeeb/piantor/pcb/right/keyboard_pcb.kicad_pcb
+    - id: hardware/ioboard_2ports_rdm_unisolated/ioboard_2ports_unisolated.kicad_pcb
+      score: 121
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_2ports_rdm_unisolated/ioboard_2ports_unisolated.kicad_pcb
+    - id: hardware/ioboard_2ports_rdm_isolated/ioboard_2ports_rdm_isolated.kicad_pcb
+      score: 119
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/OpenLightingProject/rp2040-dmxsun/hardware/ioboard_2ports_rdm_isolated/ioboard_2ports_rdm_isolated.kicad_pcb
+    - id: pcb/Raspberry/Raspberry.kicad_pcb
+      score: 110
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Raspberry/Raspberry.kicad_pcb
+    - id: Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2KiCAD/TCD1304Rev2.kicad_pcb
+      score: 109
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/drmcnelson/Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library/TCD1304Rev2KiCAD/TCD1304Rev2.kicad_pcb
+    - id: development/ethersweep407_CAN/ethersweep.kicad_pcb
+      score: 106
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep407_CAN/ethersweep.kicad_pcb
+    - id: pcb/DonConPad/DonConPad.kicad_pcb
+      score: 105
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/ravinrabbid/DonCon2040/pcb/DonConPad/DonConPad.kicad_pcb
+    - id: rev3/receiver/receiver.kicad_pcb
+      score: 94
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev3/receiver/receiver.kicad_pcb
+    - id: siderakb/pmw3610-pcb/pmw3610_pcb.kicad_pcb
+      score: 89
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3610-pcb/pmw3610_pcb.kicad_pcb
+    - id: pcb/Connecting-piece/Connecting-piece.kicad_pcb
+      score: 73
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Connecting-piece/Connecting-piece.kicad_pcb
+    - id: pcb/Clean/Clean.kicad_pcb
+      score: 70
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Clean/Clean.kicad_pcb
+    - id: pcb/Protoboard/Protoboard.kicad_pcb
+      score: 70
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/Protoboard/Protoboard.kicad_pcb
+    - id: pmw3360-pcb/pmw3360_pcb_ffc/pmw3360_pcb_ffc.kicad_pcb
+      score: 70
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3360-pcb/pmw3360_pcb_ffc/pmw3360_pcb_ffc.kicad_pcb
+    - id: pmw3360-pcb/pmw3360_pcb_jst/pmw3360_pcb_jst.kicad_pcb
+      score: 70
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3360-pcb/pmw3360_pcb_jst/pmw3360_pcb_jst.kicad_pcb
+    - id: pmw3360-pcb/pmw3360_pcb_pinheader/pmw3360_pcb_pinheader.kicad_pcb
+      score: 70
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/pmw3360-pcb/pmw3360_pcb_pinheader/pmw3360_pcb_pinheader.kicad_pcb
+    - id: rev2/thumb_cluster/thumb_cluster.kicad_pcb
+      score: 66
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/thumb_cluster/thumb_cluster.kicad_pcb
+    - id: case/fr-4-plate/plate.kicad_pcb
+      score: 58
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/TK44/case/fr-4-plate/plate.kicad_pcb
+    - id: rp2040-motor-controller/rp2040_encoder/rp2040_encoder.kicad_pcb
+      score: 57
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/rp2040_encoder/rp2040_encoder.kicad_pcb
+    - id: project-hydra-meshtastic-pcb/Hydra Base/Hydra Base.kicad_pcb
+      score: 52
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Hydra-Designs/project-hydra-meshtastic-pcb/Hydra
+        Base/Hydra Base.kicad_pcb
   tier_3:
-    count: 0
-    boards: []
+    count: 39
+    boards:
+    - id: ProtoConn/Hardware/ProtoConn.kicad_pcb
+      score: 699
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Pakequis/ProtoConn/Hardware/ProtoConn.kicad_pcb
+    - id: ghoul/v1.0/ghoul.kicad_pcb
+      score: 604
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/tzarc/ghoul/v1.0/ghoul.kicad_pcb
+    - id: tokay-lite-pcb/ai-camera-rev0/ai-camera.kicad_pcb
+      score: 414
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/maxlab-io/tokay-lite-pcb/ai-camera-rev0/ai-camera.kicad_pcb
+    - id: pcb/jiran-ble-lite/jiran-ble-lite.kicad_pcb
+      score: 409
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/jiran-ble-lite/pcb/jiran-ble-lite/jiran-ble-lite.kicad_pcb
+    - id: KiCad Projects/Arduino Mega 2560/Arduino Mega 2560.kicad_pcb
+      score: 371
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
+        Mega 2560/Arduino Mega 2560.kicad_pcb
+    - id: jenschr/Teensy-4.1-example/Teensy4.1-example.kicad_pcb
+      score: 370
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/jenschr/Teensy-4.1-example/Teensy4.1-example.kicad_pcb
+    - id: development/ethersweep406/ethersweep.kicad_pcb
+      score: 354
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep406/ethersweep.kicad_pcb
+    - id: development/ethersweep402/ethersweep.kicad_pcb
+      score: 353
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep402/ethersweep.kicad_pcb
+    - id: production/ethersweep405/ethersweep.kicad_pcb
+      score: 353
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/production/ethersweep405/ethersweep.kicad_pcb
+    - id: development/ethersweep_tmc2209/ethersweep.kicad_pcb
+      score: 341
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Neumi/ethersweep/electronic_design/development/ethersweep_tmc2209/ethersweep.kicad_pcb
+    - id: pcb/TK44/TK44.kicad_pcb
+      score: 320
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Ladniy/TK44/pcb/TK44/TK44.kicad_pcb
+    - id: CIRCUITSTATE/Mitayi-Pico-D1/Mitayi-Pico-D1.kicad_pcb
+      score: 317
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Mitayi-Pico-D1.kicad_pcb
+    - id: rev2/left/left.kicad_pcb
+      score: 314
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/left/left.kicad_pcb
+    - id: rev2/right/ErgoSNM_right.kicad_pcb
+      score: 314
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev2/right/ErgoSNM_right.kicad_pcb
+    - id: rp2040-motor-controller/driver_module/driver_module.kicad_pcb
+      score: 306
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/driver_module/driver_module.kicad_pcb
+    - id: Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
+      score: 287
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
+    - id: Revisions/Mitayi-Pico-RP2040-r0.5/Mitayi-Pico-RP2040-r0.5.kicad_pcb
+      score: 287
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Mitayi-Pico-RP2040-r0.5.kicad_pcb
+    - id: Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
+      score: 287
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Revisions/Mitayi-Pico-RP2040-r0.4/Mitayi-Pico-RP2040-r0.4.kicad_pcb
+    - id: pcb/DonConIO/DonConIO.kicad_pcb
+      score: 284
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/ravinrabbid/DonCon2040/pcb/DonConIO/DonConIO.kicad_pcb
+    - id: Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
+      score: 280
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
+    - id: Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
+      score: 280
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Revisions/Mitayi-Pico-RP2040-r0.3/Mitayi-Pico-RP2040-r0.3.kicad_pcb
+    - id: rev3/right/ErgoSNM_v3_right.kicad_pcb
+      score: 273
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev3/right/ErgoSNM_v3_right.kicad_pcb
+    - id: rev3/left/ErgoSNM_v3_left.kicad_pcb
+      score: 270
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev3/left/ErgoSNM_v3_left.kicad_pcb
+    - id: Uno/Arduino Uno/Arduino UNO.kicad_pcb
+      score: 261
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Uno/Arduino
+        Uno/Arduino UNO.kicad_pcb
+    - id: Uno/Arduino Uno SMD/Arduino Uno SMD.kicad_pcb
+      score: 258
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Uno/Arduino
+        Uno SMD/Arduino Uno SMD.kicad_pcb
+    - id: pcb/ESP32/ESP32.kicad_pcb
+      score: 257
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Chrismettal/flipper-zero-backpacks/pcb/ESP32/ESP32.kicad_pcb
+    - id: pcb/DonConIOmini/DonConIOmini.kicad_pcb
+      score: 254
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/ravinrabbid/DonCon2040/pcb/DonConIOmini/DonConIOmini.kicad_pcb
+    - id: hardware/esp-rust-board/esp-rust-board.kicad_pcb
+      score: 251
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/esp-rs/esp-rust-board/hardware/esp-rust-board/esp-rust-board.kicad_pcb
+    - id: prototype/left_prototype_1/ErgoSNM_Keyboard_Left_Prototype_1.kicad_pcb
+      score: 251
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/prototype/left_prototype_1/ErgoSNM_Keyboard_Left_Prototype_1.kicad_pcb
+    - id: ErgoSNM_Keyboard/rev1/ErgoSNM_keyboard.kicad_pcb
+      score: 247
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/rev1/ErgoSNM_keyboard.kicad_pcb
+    - id: rp2040-motor-controller/debugger/RP2040_debugger.kicad_pcb
+      score: 245
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/debugger/RP2040_debugger.kicad_pcb
+    - id: Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
+      score: 239
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
+    - id: Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
+      score: 239
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/CIRCUITSTATE/Mitayi-Pico-D1/Revisions/Mitayi-Pico-RP2040-r0.5/Revisions/Mitayi-Pico-RP2040-r0.2/Mitayi-Pico-RP2040-r0.2.kicad_pcb
+    - id: KiCad Projects/Arduino Leonardo/Arduino Leonardo.kicad_pcb
+      score: 238
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
+        Leonardo/Arduino Leonardo.kicad_pcb
+    - id: RP2350/EnvOpenPico2350/EnvOpenPico2350.kicad_pcb
+      score: 237
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2350/EnvOpenPico2350/EnvOpenPico2350.kicad_pcb
+    - id: RP2040/EnvPicoLiPo/EnvPicoLiPo.kicad_pcb
+      score: 235
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2040/EnvPicoLiPo/EnvPicoLiPo.kicad_pcb
+    - id: RP2040/EnvOpenPico2040/EnvOpenPico-RP2040.kicad_pcb
+      score: 234
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Envious-Data/EnvOpenPico/RP2040/EnvOpenPico2040/EnvOpenPico-RP2040.kicad_pcb
+    - id: prototype/right_prototype_1/ErgoSNM_Keyboard_Right_Prototype_1.kicad_pcb
+      score: 226
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/siderakb/ergo-snm-keyboard/ErgoSNM_Keyboard/prototype/right_prototype_1/ErgoSNM_Keyboard_Right_Prototype_1.kicad_pcb
+    - id: KiCad Projects/Arduino Micro/Arduino Micro.kicad_pcb
+      score: 206
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/sabogalc/KiCad-Arduino-Boards/KiCad Projects/Arduino
+        Micro/Arduino Micro.kicad_pcb
   tier_4:
-    count: 0
-    boards: []
+    count: 1
+    boards:
+    - id: rp2040-motor-controller/RP2040_base/RP2040_base.kicad_pcb
+      score: 877
+      path: /Users/bennet/Desktop/temper/benchmarks/downloads_digital_iot/Twisted-Fields/rp2040-motor-controller/RP2040_base/RP2040_base.kicad_pcb
   tier_5:
     count: 0
     boards: []

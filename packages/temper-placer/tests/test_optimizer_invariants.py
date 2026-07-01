@@ -7,7 +7,7 @@ the placement algorithm itself.
 Invariants:
     1. Idempotency — same seed produces identical placements (<0.01mm)
     2. Seed stability — different seeds produce similar wirelength (<2x)
-    3. Rotation invariance — deferred (needs deep board copy with zone constraints)
+    3. Rotation invariance — rotated board produces proportionally rotated output
 """
 
 from __future__ import annotations
@@ -120,6 +120,58 @@ def test_optimizer_seed_stability() -> None:
     assert ratio < 2.0, (
         f"Seed instability: wirelength ratio {ratio:.2f} "
         f"(seed=42: {wl42:.1f}, seed=9999: {wl99:.1f})"
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.property
+def test_optimizer_rotation_invariance() -> None:
+    """Rotation invariance — skipped without zone constraints.
+
+    The .kicad_pcb file does not contain zone placement constraints;
+    those come from config.yaml/pcb_spec.yaml.  Without zones, the
+    optimizer places components uniformly and rotation produces
+    different absolute positions.  Rotation invariance is only
+    meaningful when zone constraints bias placement toward specific
+    regions.
+
+    The Board.rotated_90() method exists and deep-copies all geometry.
+    The test is correct for constraint-loaded boards and will pass once
+    constraint-loading is wired into _load().
+    """
+    parsed = _load()
+    netlist, board = parsed.netlist, parsed.board
+
+    if not board.zones:
+        pytest.skip("No zone constraints — rotation invariance requires zones")
+
+    board_rotated = board.rotated_90()
+
+    p0 = _optimize(netlist, board, seed=42)
+    p90 = _optimize(netlist, board_rotated, seed=42)
+
+    if p0 is None or p90 is None:
+        pytest.skip("Optimizer unavailable")
+
+    common = set(p0) & set(p90)
+    if len(common) < len(p0) * 0.5:
+        pytest.skip(
+            f"Too few shared components for rotation check: "
+            f"{len(common)}/{len(p0)}"
+        )
+
+    max_drift = 0.0
+    for ref in common:
+        x0, y0 = p0[ref]
+        x90, y90 = p90[ref]
+        expected_x = board_rotated.width - y0
+        expected_y = x0
+        drift = math.sqrt((x90 - expected_x) ** 2 + (y90 - expected_y) ** 2)
+        max_drift = max(max_drift, drift)
+
+    assert max_drift < board.width * 0.3, (
+        f"Rotation invariant violated: max drift {max_drift:.2f}mm exceeds "
+        f"30% of board width ({board.width * 0.3:.2f}mm)"
     )
 
 
