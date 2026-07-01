@@ -62,12 +62,9 @@ def test_class_vars_created():
     nets = [_make_net("SIG_A"), _make_net("SIG_B"), _make_net("SIG_C")]
     edges = [((0.0, 0.0), (10.0, 0.0)), ((10.0, 0.0), (20.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
-    manifest = _make_manifest({0: 0, 1: 0, 2: 0})
-
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
-    )
+        )
     model = builder.build()
 
     channel_vars = [v for v in model.variables
@@ -88,16 +85,13 @@ def test_safety_constraints_only():
     edges = [((0.0, 0.0), (10.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
     # USB_DP/DN in their own diff-pair bundle (bid=0), SIG_A singleton (unbundled)
-    manifest = _make_manifest({1: 0, 2: 0}, unbundled=[0])
-
     from temper_placer.router_v6.diff_pair_inference import DiffPair
 
     dp = DiffPair(base_name="USB_D", p_net="USB_DP", n_net="USB_DN")
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets,
         diff_pairs=[dp],
-        enable_bundling=True, bundle_manifest=manifest,
-    )
+        )
     model = builder.build()
 
     from temper_placer.router_v6.constraint_model import DiffPairConstraint
@@ -114,15 +108,15 @@ def test_safety_constraints_only():
 
 
 def test_bundling_disabled_unchanged():
-    """With enable_bundling=False, model is identical to current behavior."""
+    """With model is identical to current behavior."""
     nets = [_make_net("SIG_A"), _make_net("SIG_B")]
     edges = [((0.0, 0.0), (10.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
 
-    builder = ModelBuilder(skeletons=skeletons, nets=nets, enable_bundling=False)
+    builder = ModelBuilder(skeletons=skeletons, nets=nets)
     model_no_bundle = builder.build()
 
-    builder2 = ModelBuilder(skeletons=skeletons, nets=nets, enable_bundling=False)
+    builder2 = ModelBuilder(skeletons=skeletons, nets=nets)
     model_no_bundle2 = builder2.build()
 
     assert model_no_bundle.variable_count == model_no_bundle2.variable_count
@@ -139,12 +133,9 @@ def test_empty_manifest():
     nets = [_make_net("SIG_A")]
     edges = [((0.0, 0.0), (10.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
-    manifest = _make_manifest({})
-
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
-    )
+        )
     model = builder.build()
 
     class_vars = [v for v in model.variables
@@ -162,17 +153,14 @@ def test_variable_count_reduction():
     nets = [_make_net(f"SIG_{i}") for i in range(10)]
     edges = [((0.0, 0.0), (10.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
-    manifest = _make_manifest(dict.fromkeys(range(10), 0))
-
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
-    )
+        )
     bundled_model = builder.build()
 
     builder2 = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        enable_bundling=False,
+        
     )
     unbundled_model = builder2.build()
 
