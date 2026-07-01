@@ -1,6 +1,7 @@
 ---
 title: "SAT Solver API Vetting and Parallel Worktree Multi-Feature Sprint Architecture"
 date: 2026-06-29
+last_updated: 2026-07-01
 category: architecture-patterns
 module: temper-placer
 problem_type: architecture_pattern
@@ -64,8 +65,7 @@ In this session, three gaps blocked all seven features:
 
 The fix: migrate to rustsat-cadical, which exposes `SolveIncremental::solve_assumps()` +
 `core()` for UNSAT cores, `GetInternalStats` for conflicts/decisions/propagations, and a
-trait-generic `Solve` interface that makes the solver swappable post-migration. The migration
-itself was 97 → 107 lines in `solver.rs`.
+trait-generic `Solve` interface that makes the solver swappable post-migration. The solver module grew from ~97 lines (original) to a clean trait-generic implementation.
 
 **Pattern**: check solver capabilities against your feature road map BEFORE committing to
 implementations. A one-hour solver migration unblocked seven features. Discovering the gap
@@ -102,6 +102,10 @@ safety_category: str | None = None
 This avoids creating a cross-package import dependency between `router_v6` and `core` —
 exactly the coupling the import-linter boundary enforcement guards against. Unifying to a
 single shared type would couple `router_v6` to `core` internals.
+
+> **Note:** the `safety_category` field was added to `core/design_rules.py` (Pydantic)
+> but not yet added to the dataclass in `router_v6/stage0_data.py`. Code defensively
+> uses `getattr(rules, "safety_category", None)`.
 
 ### 4. The `--theirs` merge strategy for parallel worktree conflicts
 
@@ -145,7 +149,7 @@ to keyword-scan heuristics. The 1-line fix makes every construction site carry t
 
 ## Examples
 
-**Solver migration (97→107 lines):** See `docs/solutions/tooling-decisions/splr-to-rustsat-cadical-solver-migration-2026-06-29.md` for the full before/after code diff.
+**Solver migration:** See `docs/solutions/tooling-decisions/splr-to-rustsat-cadical-solver-migration-2026-06-29.md` for the full before/after code diff.
 
 **NetClassRules harmonization (1 line):**
 
@@ -175,12 +179,18 @@ is exhaustive. Three files need arms: `encoding.rs`, `audit.rs` (both loops), `t
 (Python parsing). The fourth file `esl.rs` also needs coverage if ESL evaluation is enabled.
 Run `cargo test` — Rust's exhaustiveness checking catches every missed arm at compile time.
 
+## Forward Reference
+
+CaDiCaL's UNSAT core extraction capability enables the UNSAT provenance pattern
+in the [PCL constraint system](docs/solutions/architecture-patterns/pcl-constraint-system-triple-extension-2026-07-01.md),
+which builds a constraint type system with bidirectional placement↔routing constraint flow.
+
 ## Related
 
 - `docs/solutions/tooling-decisions/splr-to-rustsat-cadical-solver-migration-2026-06-29.md` — solver migration before/after code diff
 - `docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md` — the splr-era encoding bug that the BMC feature now catches at CI time
 - `docs/solutions/performance-issues/sat-model-too-large-for-splr-selective-construction-2026-06-28.md` — selective construction (superseded by net bundling)
 - `docs/solutions/architecture-patterns/per-stage-drc-fence-verification-2026-06-22.md` — pipeline safety pattern
-- `docs/brainstorms/2026-06-28-sat-constraint-type-system-ideation.md` — the ideation artifact (47 ideas → 7 survivors)
+- `docs/ideation/2026-06-28-sat-constraint-type-system-ideation.md` — the ideation artifact (47 ideas → 7 survivors)
 - `docs/plans/2026-06-28-001-feat-constraint-lowering-compiler-plan.md` through `docs/plans/2026-06-28-007-feat-routability-gradient-signal-plan.md` — all 7 implementation plans
 - PR #93: the merged PR containing all 7 features

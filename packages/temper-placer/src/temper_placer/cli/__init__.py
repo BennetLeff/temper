@@ -344,6 +344,22 @@ def optimize(
         console.print(f"  [green]✓[/] Board: {board.width:.1f}mm x {board.height:.1f}mm")
         console.print(f"  [green]✓[/] Zones: {len(board.zones)}")
         console.print(f"  [green]✓[/] HV clearance: {constraints.hv_clearance_mm}mm")
+
+        # Auto-detect decoupling constraints from netlist topology
+        try:
+            from temper_placer.losses.decoupling import auto_detect_decoupling_set
+
+            detections = auto_detect_decoupling_set(netlist)
+            for constraint in detections.to_constraints():
+                constraints.pcl_constraints.append(constraint)
+            if detections.detections:
+                console.print(
+                    f"  [green]✓[/] Auto-detected {len(detections.detections)} "
+                    f"decoupling constraints ({detections.bypass_count} bypass, "
+                    f"{detections.bulk_count} bulk)"
+                )
+        except Exception as e:
+            console.print(f"  [dim]Note: decoupling auto-detection skipped ({e})[/]")
     except Exception as e:
         console.print(f"[red]Failed to load constraints: {e}[/]")
         sys.exit(1)
@@ -675,6 +691,24 @@ def optimize(
         mfg_loss_fn = create_manufacturing_margin_loss()
         if mfg_loss_fn:
             losses.append(WeightedLoss(mfg_loss_fn, weight=5.0))
+
+        # Compile PCL constraints (keepout, decoupling, tag-expanded)
+        if hasattr(constraints, "pcl_constraints") and constraints.pcl_constraints:
+            from temper_placer.pcl.constraints import ConstraintTier
+            from temper_placer.pcl.loss_bridge import constraint_to_loss
+
+            tier_weight_map = {
+                ConstraintTier.HARD: 1e6,
+                ConstraintTier.STRONG: 1e3,
+                ConstraintTier.SOFT: 1e1,
+            }
+            for pcl_c in constraints.pcl_constraints:
+                try:
+                    loss_fn = constraint_to_loss(pcl_c, netlist, board)
+                    tier_weight = tier_weight_map.get(pcl_c.tier, 100.0)
+                    losses.append(WeightedLoss(loss_fn, weight=tier_weight))
+                except Exception:
+                    pass
 
         return CompositeLoss(losses)
 
@@ -2743,6 +2777,9 @@ def pcl_validate(
 
             parse_result = parse_kicad_pcb(pcb)
             component_refs = [c.ref for c in parse_result.netlist.components]
+
+            # Auto-enrich constraints from design data
+            collection.auto_enrich(parse_result.netlist, parse_result.board)
 
             if not json_output:
                 console.print(f"  [dim]Loaded {len(component_refs)} components from PCB[/]")

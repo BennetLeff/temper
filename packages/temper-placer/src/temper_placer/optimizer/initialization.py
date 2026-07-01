@@ -13,6 +13,7 @@ from __future__ import annotations
 import pickle
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
@@ -229,6 +230,7 @@ class SpectralInitializer:
         netlist: Netlist,
         board: Board,
         _rng_key: Array | None = None,
+        constraints: Any | None = None,
     ) -> Array:
         """
         Compute initial positions for all components using spectral embedding.

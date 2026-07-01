@@ -16,6 +16,7 @@ from temper_placer.pcl.constraints import (
     AnchoredConstraint,
     BaseConstraint,
     EnclosingConstraint,
+    KeepoutConstraint,
     OnSideConstraint,
     SeparatedConstraint,
 )
@@ -84,6 +85,8 @@ def lint_constraints(
             _check_aligned_constraint(constraint, result)
         elif isinstance(constraint, AdjacentConstraint):
             _check_adjacent_constraint(constraint, board, result)
+        elif isinstance(constraint, KeepoutConstraint):
+            _check_keepout_constraint(constraint, board, result)
 
     # Check for contradictions between constraints
     _check_contradictions(constraints, result)
@@ -158,7 +161,7 @@ def _check_adjacent_constraint(
     board: Board,
     result: LintResult,
 ) -> None:
-    """Check adjacent constraint for unreasonable distances."""
+    """Check adjacent constraint for unreasonable distances.    """
     # Board diagonal is the maximum possible distance
     board_diagonal = math.sqrt(board.width**2 + board.height**2)
 
@@ -172,6 +175,47 @@ def _check_adjacent_constraint(
                 constraint_ids=[constraint.id] if hasattr(constraint, "id") else None,
             )
         )
+
+
+def _check_keepout_constraint(
+    constraint: KeepoutConstraint,
+    board: Board,
+    result: LintResult,
+) -> None:
+    """Check that the keepout zone exists in the board."""
+    zone_names = {z.name for z in board.zones}
+    if constraint.zone_name not in zone_names:
+        result.errors.append(
+            LintError(
+                message=f"Keepout zone '{constraint.zone_name}' not found in board",
+                constraint_ids=[constraint.id],
+            )
+        )
+
+
+def _check_keepout_enclosing_conflicts(
+    constraints: list[BaseConstraint],
+    result: LintResult,
+) -> None:
+    """Check for conflicts where a component is both enclosed and keepout'd."""
+    enclosing_zones: dict[str, str] = {}
+    keepout_zones: set[str] = set()
+
+    for c in constraints:
+        if isinstance(c, EnclosingConstraint):
+            for inner in c.inner:
+                enclosing_zones[inner] = c.outer
+        elif isinstance(c, KeepoutConstraint):
+            keepout_zones.add(c.zone_name)
+
+    for comp_ref, zone in enclosing_zones.items():
+        if zone in keepout_zones:
+            result.errors.append(
+                LintError(
+                    message=f"Component '{comp_ref}' is enclosed in '{zone}' which is also a keepout zone",
+                    constraint_ids=None,
+                )
+            )
 
 
 def _check_contradictions(

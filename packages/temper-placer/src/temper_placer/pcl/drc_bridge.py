@@ -19,6 +19,7 @@ from temper_placer.pcl.constraints import (
     CompilationContext,
     ConstraintType,
     EnclosingConstraint,
+    KeepoutConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
@@ -175,7 +176,33 @@ def _loop_area_to_drc(
             subjects=[constraint.loop_name],
             threshold=constraint.max_area_mm2,
             metric="polygon_area",
-            pass_criteria=f"Loop '{constraint.loop_name}' polygon area ≤ {constraint.max_area_mm2}mm²",
+            pass_criteria=f"Loop '{constraint.loop_name}' polygon area <= {constraint.max_area_mm2}mm^2",
+        )
+    ]
+
+
+def _keepout_to_drc(
+    constraint: KeepoutConstraint, ctx: CompilationContext,  # noqa: ARG001
+) -> list[DRCAssertion]:
+    zone = None
+    if ctx.board:
+        for z in ctx.board.zones:
+            if z.name == constraint.zone_name:
+                zone = z
+                break
+    if zone is None:
+        return []
+
+    return [
+        DRCAssertion(
+            source_id=constraint.id,
+            source_because=constraint.because,
+            check_type="keepout",
+            subjects=[constraint.zone_name],
+            threshold=constraint.margin_mm,
+            metric="signed_distance",
+            pass_criteria=f"No component centroid within keepout zone '{constraint.zone_name}' "
+            f"(+{constraint.margin_mm}mm margin)",
         )
     ]
 
@@ -188,6 +215,7 @@ TYPE_HANDLERS: dict[ConstraintType, Callable] = {
     ConstraintType.ADJACENT: _adjacent_to_drc,
     ConstraintType.SEPARATED: _separated_to_drc,
     ConstraintType.ENCLOSING: _enclosing_to_drc,
+    ConstraintType.KEEPOUT: _keepout_to_drc,
     ConstraintType.ALIGNED: _aligned_to_drc,
     ConstraintType.ON_SIDE: _onside_to_drc,
     ConstraintType.ANCHORED: _anchored_to_drc,

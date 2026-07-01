@@ -111,13 +111,15 @@ def test_trivial_completeness():
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
 
     # Unbundled
-    builder_ub = ModelBuilder(skeletons=skeletons, nets=nets)
+    builder_ub = ModelBuilder(skeletons=skeletons, nets=nets, enable_bundling=False)
     model_ub = builder_ub.build()
 
     # Bundled — single net in its own bundle
+    manifest = _make_manifest({0: 0})
     builder_b = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        )
+        enable_bundling=True, bundle_manifest=manifest,
+    )
     model_b = builder_b.build()
 
     # Both should produce some variables
@@ -136,9 +138,11 @@ def test_safety_constraints_preserved():
     edges = [((0.0, 0.0), (10.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
 
+    manifest = _make_manifest({0: 0, 1: 1})  # 2 separate bundles (different types)
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        )
+        enable_bundling=True, bundle_manifest=manifest,
+    )
     model = builder.build()
 
     # Should have class-level variables (uses_B prefix)
@@ -164,9 +168,11 @@ def test_safety_in_cnf_before_solve():
     edges = [((0.0, 0.0), (10.0, 0.0))]
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
 
+    manifest = _make_manifest({0: 0, 1: 0})  # both in same bundle
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        )
+        enable_bundling=True, bundle_manifest=manifest,
+    )
     model = builder.build()
 
     # The model should have variables (class-level)
@@ -190,9 +196,11 @@ def test_variable_naming_class_prefix():
     skeletons = {"F.Cu": _make_skeleton("F.Cu", edges)}
 
     # Bundled
+    manifest = _make_manifest({0: 0, 1: 0})
     builder_b = ModelBuilder(
         skeletons=skeletons, nets=nets,
-        )
+        enable_bundling=True, bundle_manifest=manifest,
+    )
     model_b = builder_b.build()
 
     class_vars = [v for v in model_b.variables
@@ -220,9 +228,12 @@ def test_diff_pair_not_in_bundled_model():
     from temper_placer.router_v6.diff_pair_inference import DiffPair
 
     dp = DiffPair(base_name="USB_D", p_net="USB_DP", n_net="USB_DN")
+    manifest = _make_manifest({0: 0, 1: 0})  # diff pair in same bundle
+
     builder = ModelBuilder(
         skeletons=skeletons, nets=nets, diff_pairs=[dp],
-        )
+        enable_bundling=True, bundle_manifest=manifest,
+    )
     model = builder.build()
 
     from temper_placer.router_v6.constraint_model import DiffPairConstraint

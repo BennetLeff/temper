@@ -15,7 +15,7 @@ Key improvements:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import jax.numpy as jnp
 import numpy as np
@@ -228,6 +228,7 @@ class ZoneAwareSpectralInitializer(SpectralInitializer):
         netlist: Netlist,
         board: Board,
         rng_key: Array | None = None,
+        constraints: Any | None = None,
     ) -> Array:
         """
         Compute zone-aware initial positions.
