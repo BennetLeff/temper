@@ -749,8 +749,9 @@ def compute_laplacian_from_weights(
 
     if normalized:
         degrees = np.sum(adj, axis=1)
+        safe_degrees = np.maximum(degrees, 1e-10)
         d_inv_sqrt = np.where(
-            degrees > 0, 1.0 / np.sqrt(degrees + 1e-10), 0.0
+            degrees > 0, 1.0 / np.sqrt(safe_degrees), 0.0
         )
         D_inv_sqrt = np.diag(d_inv_sqrt)
         L = np.eye(n) - D_inv_sqrt @ adj @ D_inv_sqrt
