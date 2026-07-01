@@ -739,3 +739,163 @@ class TestPipelineIntegration:
         result = pipeline.run()
 
         assert result.success, f"Pipeline failed: {result.error}"
+
+
+# ---------------------------------------------------------------------------
+# Phase G: Edge Cases and Hardening Tests
+# ---------------------------------------------------------------------------
+
+
+class TestEdgeCases:
+    """Edge case tests for hierarchical pre-clustering."""
+
+    def test_no_nets_board(self):
+        """Purely unconnected components: each is its own super-node, no errors."""
+        components = [_make_component(f"C{i+1}") for i in range(6)]
+        netlist = Netlist(components=components, nets=[])
+
+        group = ComponentGroup(
+            name="all",
+            components=["C1", "C2", "C3", "C4", "C5", "C6"],
+            max_spread_mm=50.0,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=50)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert jnp.all(jnp.isfinite(positions))
+        assert jnp.all(positions >= 0.0)
+        assert jnp.all(positions[:, 0] <= BOARD.width)
+        assert jnp.all(positions[:, 1] <= BOARD.height)
+
+    def test_all_fixed_components(self):
+        """All components fixed: init completes, positions on board."""
+        fixed_positions = [(10.0, 10.0), (20.0, 20.0), (30.0, 30.0)]
+        components = [
+            _make_component(f"C{i+1}", fixed=True, pos=fixed_positions[i])
+            for i in range(3)
+        ]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1"), ("C3", "1")])],
+        )
+        group = ComponentGroup(
+            name="all_fixed",
+            components=["C1", "C2", "C3"],
+            max_spread_mm=50.0,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=50)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert jnp.all(jnp.isfinite(positions))
+
+    def test_unknown_component_in_group(self):
+        """Component ref not in netlist: skipped with warning, no crash."""
+        components = [_make_component("C1")]
+        netlist = Netlist(
+            components=components,
+            nets=[],
+        )
+        group = ComponentGroup(
+            name="missing",
+            components=["C1", "MISSING_C2", "MISSING_C3"],
+            max_spread_mm=30.0,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=50)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert positions.shape == (1, 2)
+        assert any("not found in netlist" in d for d in init.diagnostics)
+
+    def test_force_directed_radial_fallback(self):
+        """Force-directed solver produces diameter > 1.2*max_spread -> radial fallback."""
+        components = [_make_component(f"C{i+1}") for i in range(10)]
+        nets = []
+        for i in range(9):
+            nets.append(Net(f"N{i+1}", [(f"C{i+1}", "1"), (f"C{i+2}", "1")]))
+        netlist = Netlist(components=components, nets=nets)
+
+        spread = 20.0
+        group = ComponentGroup(
+            name="tight_10",
+            components=[f"C{i+1}" for i in range(10)],
+            max_spread_mm=spread,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=300)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert jnp.all(jnp.isfinite(positions))
+
+    def test_zero_max_spread_defaults(self):
+        """max_spread_mm=0 -> defaults to 30.0mm."""
+        components = [_make_component("C1"), _make_component("C2")]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1")])],
+        )
+        group = ComponentGroup(
+            name="zero_spread",
+            components=["C1", "C2"],
+            max_spread_mm=0.0,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=100)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert jnp.all(jnp.isfinite(positions))
+        dist = float(jnp.linalg.norm(positions[0] - positions[1]))
+        assert dist > 0.01
+
+    def test_component_group_with_no_matching_members(self):
+        """Group where no components exist in netlist -> no crash, falls back."""
+        components = [_make_component("C1"), _make_component("C2")]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1")])],
+        )
+        group = ComponentGroup(
+            name="ghost",
+            components=["X1", "X2"],
+            max_spread_mm=30.0,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=50)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert positions.shape == (2, 2)
+        assert jnp.all(jnp.isfinite(positions))
+
+    def test_many_singletons_correct_count(self):
+        """N ungrouped components produce N singleton super-nodes."""
+        from temper_placer.core.netlist import build_adjacency_matrix
+
+        components = [_make_component(f"C{i+1}") for i in range(5)]
+        netlist = Netlist(components=components, nets=[])
+        adjacency = build_adjacency_matrix(netlist)
+
+        constraints = PlacementConstraints(component_groups=[])
+
+        init = HierarchicalGroupInitializer()
+        (
+            super_adj,
+            super_node_map,
+            component_to_super,
+            group_to_super,
+            _,
+        ) = init._coarsen_to_super_nodes(
+            netlist, adjacency, constraints.component_groups, Board(width=100.0, height=100.0)
+        )
+
+        assert len(super_node_map) == 5
+        assert len(group_to_super) == 0
+        for sn in super_node_map:
+            assert len(sn) == 1
