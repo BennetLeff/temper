@@ -136,6 +136,7 @@ def _generate_one_seed(
     metadata: dict = {
         "init_method": method,
         "perturb_sigma": sigma,
+        "comp_refs": [c.ref for c in netlist.components],
     }
 
     if method == "random":
