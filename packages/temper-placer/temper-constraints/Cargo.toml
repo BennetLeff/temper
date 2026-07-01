@@ -1,0 +1,22 @@
+[package]
+name = "temper-constraints"
+version = "0.1.0"
+edition = "2024"
+description = "Rust PCL constraint engine — loss computation for temper-placer with exhaustive enum dispatch"
+
+[lib]
+name = "temper_constraints"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
+nalgebra = "0.33"
+rayon = "1.10"
+serde = { version = "1", features = ["derive"] }
+
+[profile.release]
+panic = "unwind"
+opt-level = 3
+lto = true
+
+[dev-dependencies]

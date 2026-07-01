@@ -122,6 +122,33 @@ jobs:
       - name: Check temper-constraint-compiler compiles
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
+      - name: Cache Rust build (temper-constraints)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-placer/temper-constraints/target
+          key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-temper-constraints-
+
+      - name: Build and install temper-constraints
+        run: |
+          cd packages/temper-placer/temper-constraints
+          maturin develop --release
+          cd ../../..
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+        env:
+          RUST_BACKTRACE: full
+
+      - name: Run temper-constraints integration tests
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/rust_integration/ -v --tb=short -p no:cacheprovider -m "not benchmark"
+        env:
+          RUST_BACKTRACE: full
+
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
         run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10
@@ -199,6 +226,29 @@ jobs:
 
       - name: Check temper-constraint-compiler compiles
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
+
+      - name: Cache Rust build (temper-constraints)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-placer/temper-constraints/target
+          key: ${{ runner.os }}-temper-constraints-${{ hashFiles('packages/temper-placer/temper-constraints/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-temper-constraints-
+
+      - name: Build and install temper-constraints
+        run: |
+          cd packages/temper-placer/temper-constraints
+          maturin develop --release
+          cd ../../..
+        env:
+          PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
+
+      - name: Verify temper-constraints loads
+        run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+
+      - name: Run temper-constraints integration tests
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/rust_integration/ -v --tb=short -p no:cacheprovider -m "not benchmark"
 
       - name: Per-stage timing regression check
         run: uv run temper timing check --ci --json
