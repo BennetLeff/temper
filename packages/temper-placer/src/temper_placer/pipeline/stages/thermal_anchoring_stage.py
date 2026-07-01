@@ -171,6 +171,7 @@ class ThermalAnchoringStage:
             config=config,
             copper_zones=getattr(constraints, "copper_zones", None),
             airflow_vector=thermal_props.airflow_vector,
+            min_separation_mm=thermal_props.min_separation_mm,
         )
 
         if not anchors:

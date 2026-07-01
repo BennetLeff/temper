@@ -347,6 +347,7 @@ def assign_thermal_anchors(
     config: ThermalPotentialConfig | None = None,
     copper_zones: list | None = None,
     airflow_vector: tuple[float, float] | None = None,
+    min_separation_mm: float = 2.0,
 ) -> dict[str, tuple[float, float]]:
     """Greedy two-pass anchor assignment for power devices.
 
@@ -408,6 +409,7 @@ def assign_thermal_anchors(
         """Find the minimum phi position within all constraints."""
         best_val = float("inf")
         best_xy: tuple[float, float] | None = None
+        min_dist2 = min_separation_mm * min_separation_mm
         for i in range(resolution):
             for j in range(resolution):
                 x = float(x_grid[i, j])
@@ -418,10 +420,10 @@ def assign_thermal_anchors(
                     continue
                 if _in_keepout(x, y):
                     continue
-                # Check min separation from existing anchors (2mm default)
+                # Check min separation from existing anchors
                 too_close = False
                 for ex, ey in existing_positions:
-                    if ((x - ex) ** 2 + (y - ey) ** 2) < 4.0:  # 2mm min separation
+                    if ((x - ex) ** 2 + (y - ey) ** 2) < min_dist2:
                         too_close = True
                         break
                 if too_close:
