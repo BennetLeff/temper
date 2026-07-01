@@ -464,6 +464,71 @@ def polygon_orientation(vertices: Array) -> Array:
 
 
 # =============================================================================
+# Nearest Point on Polygon / Segment
+# =============================================================================
+
+
+def nearest_point_on_segment(point: Array, a: Array, b: Array) -> Array:
+    """Find the nearest point on line segment ab to the query point.
+
+    Projects the point onto the infinite line through a and b, then clamps
+    the projection parameter t to [0, 1] to stay on the segment. Handles
+    degenerate segments (a == b) by returning a.
+
+    Args:
+        point: Query point as (x, y) array.
+        a: Segment start point as (x, y) array.
+        b: Segment end point as (x, y) array.
+
+    Returns:
+        Nearest point on the segment as (x, y) array.
+    """
+    # Vector from a to b
+    ab = b - a
+    # Squared length of the segment (with epsilon to avoid division by zero)
+    ab_len_sq = jnp.sum(ab**2)
+    # Parameter t = dot(ap, ab) / |ab|^2, clamped to [0, 1]
+    ap = point - a
+    t = jnp.clip(jnp.dot(ap, ab) / jnp.maximum(ab_len_sq, 1e-10), 0.0, 1.0)
+    return a + t * ab
+
+
+def nearest_point_on_polygon(point: Array, vertices: Array) -> Array:
+    """Find the nearest point on a polygon boundary to the query point.
+
+    Sweeps all polygon edges, calling nearest_point_on_segment for each,
+    and returns the point with minimum Euclidean distance. Uses
+    jax.lax.fori_loop for JAX compatibility.
+
+    Args:
+        point: Query point as (x, y) array.
+        vertices: Polygon vertices as (N, 2) array.
+
+    Returns:
+        Nearest point on the polygon boundary as (x, y) array.
+    """
+    n = vertices.shape[0]
+
+    def _edge_body(i, state):
+        best_point, best_dist_sq = state
+        a = vertices[i]
+        b = vertices[(i + 1) % n]
+        candidate = nearest_point_on_segment(point, a, b)
+        dist_sq = jnp.sum((candidate - point) ** 2)
+        is_closer = dist_sq < best_dist_sq
+        new_best_point = jnp.where(
+            is_closer, candidate, best_point
+        )
+        new_best_dist_sq = jnp.where(is_closer, dist_sq, best_dist_sq)
+        return (new_best_point, new_best_dist_sq)
+
+    init_point = vertices[0]
+    init_dist_sq = jnp.sum((init_point - point) ** 2)
+    result = jax.lax.fori_loop(0, n, _edge_body, (init_point, init_dist_sq))
+    return result[0]
+
+
+# =============================================================================
 # Polygon Transformations
 # =============================================================================
 

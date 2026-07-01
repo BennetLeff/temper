@@ -364,6 +364,31 @@ def initialize_training_state(
         # Initialize uniform rotation logits if not starting from existing state
         rotation_logits = jnp.zeros((netlist.n_components, 4))
 
+        # C-CAP pre-projection (constraint-cascade alternating projections)
+        if config.initialization.ccap_enabled and constraints is not None:
+            from temper_placer.optimizer.ccap import CcapConfig, project_to_feasible
+
+            ccap_cfg = CcapConfig(
+                max_cycles=config.initialization.ccap_max_cycles,
+                convergence_tol=config.initialization.ccap_convergence_tol,
+            )
+            result = project_to_feasible(
+                positions=positions,
+                netlist=netlist,
+                board=board,
+                constraints=constraints,
+                config=ccap_cfg,
+                rng_key=rng_key,
+            )
+            positions = result.positions
+            logger.info(
+                "C-CAP: converged=%s, cycles=%d, unresolved=%d, pairwise_violations=%.2fmm",
+                result.converged, result.cycles_run, len(result.unresolved),
+                result.pairwise_violations_mm,
+            )
+            if result.unresolved:
+                logger.warning("C-CAP unresolved components: %s", result.unresolved)
+
     # Initialize virtual nodes if not present
     if net_virtual_nodes is None:
         ox, oy = board.origin

@@ -34,7 +34,6 @@ class FootprintSpec:
     courtyard_margin: float = 0.0
     thermal_pad: bool = False
     pin_1_offset: tuple[float, float] | None = None
-    Rjc: float | None = None  # Junction-to-case thermal resistance (K/W)
 
     @property
     def width(self) -> float:
