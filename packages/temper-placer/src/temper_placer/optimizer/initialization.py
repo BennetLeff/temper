@@ -36,6 +36,7 @@ def compute_spectral_coordinates(
     n_dims: int = 2,
     normalized: bool = True,
     stabilize: bool = False,
+    precomputed_laplacian: np.ndarray | None = None,
 ) -> Array:
     """
     Compute spectral coordinates from adjacency matrix.
@@ -50,6 +51,7 @@ def compute_spectral_coordinates(
         n_dims: Number of dimensions (typically 2 for X/Y placement).
         normalized: If True, use normalized Laplacian.
         stabilize: If True, apply PSD stabilization via Gershgorin before eigh.
+        precomputed_laplacian: Optional precomputed Laplacian to skip recomputation.
 
     Returns:
         (N, n_dims) array of spectral coordinates.
@@ -62,16 +64,21 @@ def compute_spectral_coordinates(
     if n == 1:
         return jnp.zeros((1, n_dims))
 
-    adj_np = np.array(adjacency, dtype=np.float64)
-    degrees = np.sum(adj_np, axis=1)
-
-    if normalized:
-        d_inv_sqrt = np.where(degrees > 0, 1.0 / np.sqrt(degrees + 1e-10), 0.0)
-        D_inv_sqrt = np.diag(d_inv_sqrt)
-        L = np.eye(n) - D_inv_sqrt @ adj_np @ D_inv_sqrt
+    if precomputed_laplacian is not None:
+        L = precomputed_laplacian
     else:
-        D = np.diag(degrees)
-        L = D - adj_np
+        adj_np = np.array(adjacency, dtype=np.float64)
+        degrees = np.sum(adj_np, axis=1)
+
+        if normalized:
+            d_inv_sqrt = np.where(degrees > 0, 1.0 / np.sqrt(degrees + 1e-10), 0.0)
+            D_inv_sqrt = np.diag(d_inv_sqrt)
+            L = np.eye(n) - D_inv_sqrt @ adj_np @ D_inv_sqrt
+        else:
+            D = np.diag(degrees)
+            L = D - adj_np
+
+    adj_np = np.array(adjacency, dtype=np.float64)
 
     # U3: PSD stabilization
     if stabilize:
@@ -286,6 +293,7 @@ class SpectralInitializer:
             adjacency = jnp.array(adj)
         else:
             adjacency = raw_adjacency
+            _L = None
 
         # Determine if PSD stabilization is needed (negative weights present)
         needs_stabilize = use_weighted and any(w < 0 for w in constraint_weights.values())  # type: ignore[union-attr]
@@ -296,6 +304,7 @@ class SpectralInitializer:
                 n_dims=2,
                 normalized=self.normalized_laplacian,
                 stabilize=needs_stabilize,
+                precomputed_laplacian=_L,
             )
             positions = scale_to_board(all_coords, board, self.margin_fraction)
             positions = self._separate_coincident_components(positions, board)
