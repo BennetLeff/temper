@@ -178,6 +178,12 @@ main.add_command(watch)
     help="Number of random seeds to run in parallel (default: 1).",
 )
 @click.option(
+    "--multi-seed",
+    is_flag=True,
+    default=False,
+    help="Enable DPP-diversified multi-seed placement with triage gate.",
+)
+@click.option(
     "--skip-topological",
     is_flag=True,
     default=False,
@@ -234,6 +240,7 @@ def optimize(
     log_all_epochs: bool,
     verbose_losses: bool,
     parallel_seeds: int,
+    multi_seed: bool,
     skip_topological: bool,
     track_metrics: Path | None,
     spice_validate: bool,
@@ -344,6 +351,22 @@ def optimize(
         console.print(f"  [green]✓[/] Board: {board.width:.1f}mm x {board.height:.1f}mm")
         console.print(f"  [green]✓[/] Zones: {len(board.zones)}")
         console.print(f"  [green]✓[/] HV clearance: {constraints.hv_clearance_mm}mm")
+
+        # Auto-detect decoupling constraints from netlist topology
+        try:
+            from temper_placer.losses.decoupling import auto_detect_decoupling_set
+
+            detections = auto_detect_decoupling_set(netlist)
+            for constraint in detections.to_constraints():
+                constraints.pcl_constraints.append(constraint)
+            if detections.detections:
+                console.print(
+                    f"  [green]✓[/] Auto-detected {len(detections.detections)} "
+                    f"decoupling constraints ({detections.bypass_count} bypass, "
+                    f"{detections.bulk_count} bulk)"
+                )
+        except Exception as e:
+            console.print(f"  [dim]Note: decoupling auto-detection skipped ({e})[/]")
     except Exception as e:
         console.print(f"[red]Failed to load constraints: {e}[/]")
         sys.exit(1)
@@ -676,6 +699,24 @@ def optimize(
         if mfg_loss_fn:
             losses.append(WeightedLoss(mfg_loss_fn, weight=5.0))
 
+        # Compile PCL constraints (keepout, decoupling, tag-expanded)
+        if hasattr(constraints, "pcl_constraints") and constraints.pcl_constraints:
+            from temper_placer.pcl.constraints import ConstraintTier
+            from temper_placer.pcl.loss_bridge import constraint_to_loss
+
+            tier_weight_map = {
+                ConstraintTier.HARD: 1e6,
+                ConstraintTier.STRONG: 1e3,
+                ConstraintTier.SOFT: 1e1,
+            }
+            for pcl_c in constraints.pcl_constraints:
+                try:
+                    loss_fn = constraint_to_loss(pcl_c, netlist, board)
+                    tier_weight = tier_weight_map.get(pcl_c.tier, 100.0)
+                    losses.append(WeightedLoss(loss_fn, weight=tier_weight))
+                except Exception:
+                    pass
+
         return CompositeLoss(losses)
 
     # Build weights from config, CLI overrides, or defaults
@@ -808,7 +849,30 @@ def optimize(
     try:
         profile_dir_str = str(profile_dir) if profile_dir else None
 
-        if parallel_seeds > 1:
+        if multi_seed or cfg.multi_seed.enabled:
+            from temper_placer.optimizer.train import train_dpp_multiseed
+
+            if multi_seed:
+                cfg.multi_seed.enabled = True
+
+            dpp_result = train_dpp_multiseed(
+                netlist,
+                board,
+                loss_factory=make_loss,
+                context=context,
+                config=cfg,
+                callback=progress_callback,
+            )
+            result = dpp_result.best_result
+
+            console.print("\n[bold cyan]DPP Multi-Seed Summary:[/]")
+            console.print(f"  Enabled: {cfg.multi_seed.enabled}")
+            console.print(f"  Seeds Generated: {cfg.multi_seed.n_generate}")
+            console.print(f"  Seeds Selected (DPP): {cfg.multi_seed.n_select}")
+            console.print(f"  Triage Iterations: {cfg.multi_seed.n_triage_iters}")
+            console.print(f"  Confidence Score: {dpp_result.confidence_score:.2%}")
+
+        elif parallel_seeds > 1:
             from temper_placer.optimizer.train import train_parallel
 
             parallel_result = train_parallel(
@@ -2743,6 +2807,9 @@ def pcl_validate(
 
             parse_result = parse_kicad_pcb(pcb)
             component_refs = [c.ref for c in parse_result.netlist.components]
+
+            # Auto-enrich constraints from design data
+            collection.auto_enrich(parse_result.netlist, parse_result.board)
 
             if not json_output:
                 console.print(f"  [dim]Loaded {len(component_refs)} components from PCB[/]")

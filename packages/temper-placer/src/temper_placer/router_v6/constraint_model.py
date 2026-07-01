@@ -243,6 +243,8 @@ class ModelBuilder:
         diff_pairs: list[DiffPair] | None = None,
         pcb: ParsedPCB | None = None,
         pcl_constraints=None,
+        enable_bundling: bool = False,
+        bundle_manifest=None,
     ):
         self.skeletons = skeletons or {}
         self.nets = nets
@@ -251,6 +253,8 @@ class ModelBuilder:
         self.diff_pairs = diff_pairs or []
         self.pcb = pcb
         self.pcl_constraints = pcl_constraints
+        self.enable_bundling = enable_bundling
+        self.bundle_manifest = bundle_manifest
         self.model = ConstraintModel()
 
         # Build net name to index mapping for fast lookup
@@ -270,14 +274,66 @@ class ModelBuilder:
 
     def _create_channel_vars(self):
         """Create variables for net-channel assignment."""
+        if self.enable_bundling and self.bundle_manifest is not None:
+            self._create_bundle_channel_vars()
+        else:
+            self._create_per_net_channel_vars()
+
+    def _create_per_net_channel_vars(self):
+        """Create per-net channel variables (unbundled path)."""
         for net_idx, _net in enumerate(self.nets):
-            # For each layer skeleton
             for layer_name, skeleton in self.skeletons.items():
-                # For each edge in the skeleton
-                # We need a stable ID for edges.
-                # nx edges are (u, v). We can sort nodes to canonicalize.
                 for i, (u, v) in enumerate(skeleton.graph.edges):
-                    # Sort nodes by coordinate to ensure stable ID
+                    n1, n2 = sorted([u, v])
+                    edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+
+                    var = NetChannelVar(
+                        name=f"uses_N{net_idx}_{edge_id}",
+                        net_idx=net_idx,
+                        channel_id=edge_id
+                    )
+                    self.model.add_variable(var)
+
+    def _create_bundle_channel_vars(self):
+        """Create bundle-level channel variables (bundled path).
+
+        Each bundle gets one NetChannelVar per edge with uses_B prefix
+        and var_type='bundle'. Unbundled (singleton) nets get per-net
+        uses_N variables.
+
+        Works with both full BundleManifest objects (which have .bundles)
+        and minimal manifests (which only have bundle_id_for_net and
+        unbundled_net_indices).
+        """
+        manifest = self.bundle_manifest
+        bundle_id_for_net: dict[int, int] = getattr(manifest, "bundle_id_for_net", {})
+        unbundled_indices: set[int] = set(getattr(manifest, "unbundled_net_indices", []))
+
+        # Collect unique bundle IDs and the nets in each bundle
+        unique_bundle_ids: set[int] = set(bundle_id_for_net.values())
+
+        for bid in sorted(unique_bundle_ids):
+            for layer_name, skeleton in self.skeletons.items():
+                for i, (u, v) in enumerate(skeleton.graph.edges):
+                    n1, n2 = sorted([u, v])
+                    edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
+
+                    var = NetChannelVar(
+                        name=f"uses_B{bid}_{edge_id}",
+                        net_idx=bid,
+                        channel_id=edge_id,
+                        var_type="bundle",
+                    )
+                    self.model.add_variable(var)
+
+        # Create per-net vars for unbundled nets
+        bundled_net_indices: set[int] = set(bundle_id_for_net.keys())
+        for net_idx, _net in enumerate(self.nets):
+            if net_idx in bundled_net_indices:
+                continue
+            # Also skip nets that are explicitly unbundled (redundant but safe)
+            for layer_name, skeleton in self.skeletons.items():
+                for i, (u, v) in enumerate(skeleton.graph.edges):
                     n1, n2 = sorted([u, v])
                     edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
 
@@ -363,7 +419,13 @@ class ModelBuilder:
         """
         Create constraints for differential pairs.
         uses[p_net, c] == uses[n_net, c]
+
+        Skipped when bundling is enabled — diff pairs are tracked
+        at the bundle level in the Rust solver.
         """
+        if self.enable_bundling:
+            return
+
         for pair in self.diff_pairs:
             if pair.p_net not in self.net_to_idx or pair.n_net not in self.net_to_idx:
                 continue

@@ -50,17 +50,17 @@ from temper_placer.pcl.loss_bridge import (
 class TestTierToWeight:
     """Test tier to weight mapping."""
 
-    def test_hard_tier_maps_to_10(self):
-        """HARD tier (1) should map to weight 10.0."""
-        assert tier_to_weight(ConstraintTier.HARD) == 10.0
+    def test_hard_tier_maps_to_1e6(self):
+        """HARD tier should map to weight 1e6."""
+        assert tier_to_weight(ConstraintTier.HARD) == 1_000_000.0
 
-    def test_strong_tier_maps_to_1(self):
-        """STRONG tier (2) should map to weight 1.0."""
-        assert tier_to_weight(ConstraintTier.STRONG) == 1.0
+    def test_strong_tier_maps_to_1e3(self):
+        """STRONG tier should map to weight 1e3."""
+        assert tier_to_weight(ConstraintTier.STRONG) == 1_000.0
 
-    def test_soft_tier_maps_to_0_1(self):
-        """SOFT tier (3) should map to weight 0.1."""
-        assert tier_to_weight(ConstraintTier.SOFT) == 0.1
+    def test_soft_tier_maps_to_10(self):
+        """SOFT tier should map to weight 10.0."""
+        assert tier_to_weight(ConstraintTier.SOFT) == 10.0
 
 
 class TestAdjacentToProximityLoss:
@@ -132,7 +132,7 @@ class TestSeparatedToSeparationLoss:
 
         netlist = _create_simple_netlist(["Q1", "U1"])
         # Zones are handled differently - need zone definitions
-        loss_fn = separated_to_separation_loss(constraint, netlist, zones=[])
+        loss_fn = separated_to_separation_loss(constraint, netlist)
 
         assert loss_fn is not None
         assert isinstance(loss_fn, LossFunction)
@@ -153,7 +153,7 @@ class TestEnclosingToZoneLoss:
         netlist = _create_simple_netlist(["Q1", "Q2", "D1", "U1"])
         zones = {"HV_ZONE": {"polygon": [[0, 0], [50, 0], [50, 30], [0, 30]]}}
 
-        loss_fn = enclosing_to_zone_loss(constraint, netlist, zones)
+        loss_fn = enclosing_to_zone_loss(constraint, netlist)
 
         assert loss_fn is not None
         assert isinstance(loss_fn, LossFunction)
@@ -293,7 +293,7 @@ class TestConstraintToLoss:
         )
 
         netlist = _create_simple_netlist(["Q1", "U1"])
-        loss_fn = constraint_to_loss(constraint, netlist, zones=[])
+        loss_fn = constraint_to_loss(constraint, netlist, _zones=[])
 
         assert loss_fn is not None
         assert isinstance(loss_fn, LossFunction)
@@ -309,7 +309,7 @@ class TestConstraintToLoss:
 
         netlist = _create_simple_netlist(["Q1", "Q2", "U1"])
         zones = {"HV_ZONE": {"polygon": [[0, 0], [50, 0], [50, 30], [0, 30]]}}
-        loss_fn = constraint_to_loss(constraint, netlist, zones=zones)
+        loss_fn = constraint_to_loss(constraint, netlist, _zones=zones)
 
         assert loss_fn is not None
         assert isinstance(loss_fn, LossFunction)
@@ -406,5 +406,5 @@ def _create_simple_board(width: float, height: float) -> Board:
         width=width,
         height=height,
         zones=[],
-        keepout_regions=[],
+        keepouts=[],
     )

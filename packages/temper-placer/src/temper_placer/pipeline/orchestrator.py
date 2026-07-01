@@ -348,6 +348,7 @@ class PipelineOrchestrator:
         else:
             class MockConstraints:
                 constraints: list = []
+                pcl_constraints: list = []
             state.constraints = MockConstraints()
 
         # Load physical specification

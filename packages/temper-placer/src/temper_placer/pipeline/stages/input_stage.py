@@ -62,6 +62,23 @@ class InputStage:
         state.constraints = constraints
         state.loops = loops
 
+        # Enrich PCL constraints from design data
+        if hasattr(state.constraints, "pcl_constraints"):
+            try:
+                from temper_placer.losses.decoupling import auto_detect_decoupling_set
+
+                detections = auto_detect_decoupling_set(netlist)
+                for constraint in detections.to_constraints():
+                    state.constraints.pcl_constraints.append(constraint)
+                if detections.detections:
+                    print(
+                        f"  Auto-detected {len(detections.detections)} decoupling "
+                        f"constraints ({detections.bypass_count} bypass, "
+                        f"{detections.bulk_count} bulk)"
+                    )
+            except Exception as e:
+                print(f"  Note: decoupling auto-detection skipped ({e})")
+
         from temper_placer.core.specification import PcbSpecification
         from temper_placer.pipeline.derivation import derive_constraints_from_spec
 

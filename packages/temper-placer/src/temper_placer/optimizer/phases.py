@@ -13,7 +13,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import jax.numpy as jnp
 
@@ -249,7 +249,8 @@ class OptimizationPipeline:
         opt_config: OptimizerConfig,
         loss_factory: Callable[[dict[str, float]], CompositeLoss],
         context: LossContext,
-        use_nsga: bool = False
+        use_nsga: bool = False,
+        placement_constraints: Any | None = None,
     ):
         self.netlist = netlist
         self.board = board
@@ -257,6 +258,7 @@ class OptimizationPipeline:
         self.opt_config = opt_config
         self.loss_factory = loss_factory
         self.context = context
+        self.placement_constraints = placement_constraints
 
         self.topological_phase = TopologicalPhase()
         self.nsga_phase = NsgaPhase() if use_nsga else None
@@ -275,6 +277,43 @@ class OptimizationPipeline:
             return PipelineResult(success=False, phases=phases, error=topo_res.error)
 
         current_state = topo_res.state
+
+        # 1.3 Hierarchical Group Pre-Clustering
+        if (
+            self.opt_config.initialization.group_preclustering
+            and self.placement_constraints is not None
+            and hasattr(self.placement_constraints, "component_groups")
+            and self.placement_constraints.component_groups
+        ):
+            import logging
+
+            from temper_placer.core.netlist import build_adjacency_matrix
+            from temper_placer.optimizer.initialization import (
+                HierarchicalGroupInitializer,
+            )
+
+            logger = logging.getLogger(__name__)
+
+            groups = self.placement_constraints.component_groups
+            n_members = sum(
+                len(getattr(g, "components", [])) for g in groups
+            )
+            logger.info(
+                f"Pre-clustering {len(groups)} groups ({n_members} components)"
+            )
+            init = HierarchicalGroupInitializer(
+                normalized_laplacian=self.opt_config.initialization.spectral_normalized,
+                margin_fraction=self.opt_config.initialization.spectral_margin,
+            )
+            positions = init.initialize(
+                self.netlist,
+                self.board,
+                self.placement_constraints,
+            )
+            from temper_placer.core.state import PlacementState
+
+            current_state = PlacementState.from_positions(positions)
+            logger.info(f"Pre-clustering complete: {init.diagnostics}")
 
         # 1.5 NSGA Phase (Optional)
         if self.nsga_phase:

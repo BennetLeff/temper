@@ -1,6 +1,9 @@
 ---
 title: "SAT model explosion — 130K variables unsolvable by splr (now CaDiCaL; solution remains general), fixed with selective net construction"
 date: "2026-06-28"
+last_updated: "2026-07-01"
+status: superseded
+superseded_by: net-bundling-cadical-solver
 category: performance-issues/
 module: temper-rust-router
 problem_type: performance_issue
@@ -21,6 +24,14 @@ tags:
   - pcb-router
   - escape-vias
 ---
+
+> **Superseded:** The `target_net_names` selective construction approach
+> described below was developed on a branch that never merged to `main`.
+> The current architecture uses net bundling (`BundleAnalyzer` with
+> `enable_bundling`) and the CaDiCaL SAT solver to handle full-constraint
+> models. See [solver migration](docs/solutions/tooling-decisions/splr-to-rustsat-cadical-solver-migration-2026-06-29.md)
+> for the solver change and [PCL constraint system](docs/solutions/architecture-patterns/pcl-constraint-system-triple-extension-2026-07-01.md)
+> for the explosion-containment pattern carried forward.
 
 # SAT Model Explosion — Selective Net Construction Generic Scale Limit Fix
 

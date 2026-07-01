@@ -38,7 +38,7 @@ def _create_simple_board(width: float, height: float, zones: list[Zone] = None) 
         width=width,
         height=height,
         zones=zones or [],
-        keepout_regions=[],
+        keepouts=[],
     )
 
 def test_separated_constraint_is_implemented():

@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import yaml  # type: ignore[import-untyped]
-from jsonschema import ValidationError, validate
+from jsonschema import ValidationError, validate  # type: ignore[import-untyped]
 
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
@@ -50,6 +50,7 @@ from temper_placer.pcl.constraints import (
     DistanceMetric,
     EdgeType,
     EnclosingConstraint,
+    KeepoutConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
@@ -279,6 +280,208 @@ class ConstraintCollection:
 
         return errors
 
+    def auto_enrich(self, netlist: "Netlist", board: "Board | None" = None) -> None:
+        """Auto-generate constraints from design data.
+
+        Three automatic enrichments:
+        1. Decoupling detection: scan netlist for capacitor-IC pairs
+        2. Keepout emission: emit KeepoutConstraint for zones with type='keepout'
+        3. Tag expansion: expand tagged constraints into concrete constraints
+
+        Args:
+            netlist: The netlist to analyze
+            board: Optional board for zone-based enrichments
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # 1. Decoupling detection
+        from temper_placer.losses.decoupling import auto_detect_decoupling
+
+        rules = auto_detect_decoupling(netlist)
+        if rules:
+            count = len(rules)
+            for rule in rules:
+                from temper_placer.pcl.constraints import ConstraintTier as CT
+
+                classification = getattr(rule, "_classification", None)
+                if classification is not None:
+                    tier = CT.HARD if getattr(classification, "name", "") == "BYPASS" else CT.STRONG
+                else:
+                    tier = CT.STRONG
+                self.constraints.append(
+                    AdjacentConstraint(
+                        a=rule.cap_ref,
+                        b=rule.ic_ref,
+                        max_distance_mm=rule.max_distance_mm,
+                        tier=tier,
+                        because=(
+                            f"Decoupling capacitor {rule.cap_ref} for {rule.ic_ref}"
+                            f"{' on net ' + rule.power_pin if rule.power_pin else ''}"
+                        ),
+                        pin_b=rule.power_pin if rule.power_pin else None,
+                    )
+                )
+            logger.info("Auto-detected %d decoupling constraints", count)
+
+        # 2. Keepout emission from board zones
+        if board is not None:
+            keepout_count = 0
+            for zone in board.zones:
+                zone_type = getattr(zone, "zone_type", "placement")
+                if zone_type == "keepout":
+                    self.constraints.append(
+                        KeepoutConstraint(
+                            zone_name=zone.name,
+                            tier=ConstraintTier.HARD,
+                            because=f"Auto-generated from zone '{zone.name}' (type: keepout)",
+                            margin_mm=0.0,
+                        )
+                    )
+                    keepout_count += 1
+            if keepout_count > 0:
+                logger.info(
+                    "Emitted %d keepout constraint(s) from board zones", keepout_count
+                )
+
+        # 3. Tag expansion
+        from temper_placer.pcl.tagged_constraints import (
+            TaggedAdjacentConstraint,
+            TaggedAlignedConstraint,
+            TaggedAnchoredConstraint,
+            TaggedEnclosingConstraint,
+            TaggedOnSideConstraint,
+            TaggedSeparatedConstraint,
+        )
+        from temper_placer.pcl.tag_dispatch import _tag_to_component_refs
+
+        tagged_types = (
+            TaggedAdjacentConstraint,
+            TaggedAlignedConstraint,
+            TaggedAnchoredConstraint,
+            TaggedEnclosingConstraint,
+            TaggedOnSideConstraint,
+            TaggedSeparatedConstraint,
+        )
+
+        expanded_count = 0
+        new_constraints: list[BaseConstraint] = []
+
+        for constraint in list(self.constraints):
+            if not isinstance(constraint, tagged_types):
+                continue
+
+            constraint_id = getattr(constraint, "id", "") or ""
+
+            if isinstance(constraint, (TaggedAdjacentConstraint, TaggedSeparatedConstraint)):
+                comps_a = _tag_to_component_refs(constraint.tag_expr_a, netlist)
+                comps_b = _tag_to_component_refs(constraint.tag_expr_b, netlist)
+                for a_ref in comps_a:
+                    for b_ref in comps_b:
+                        if a_ref == b_ref:
+                            continue
+                        if isinstance(constraint, TaggedAdjacentConstraint):
+                            new_constraints.append(
+                                AdjacentConstraint(
+                                    a=a_ref,
+                                    b=b_ref,
+                                    max_distance_mm=constraint.max_distance_mm,
+                                    tier=constraint.tier,
+                                    because=constraint.because,
+                                    metric=constraint.metric,
+                                    id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
+                                )
+                            )
+                        elif isinstance(constraint, TaggedSeparatedConstraint):
+                            new_constraints.append(
+                                SeparatedConstraint(
+                                    a=a_ref,
+                                    b=b_ref,
+                                    min_distance_mm=constraint.min_distance_mm,
+                                    tier=constraint.tier,
+                                    because=constraint.because,
+                                    metric=constraint.metric,
+                                    id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
+                                )
+                            )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedEnclosingConstraint):
+                comps_inner = _tag_to_component_refs(constraint.tag_expr_inner, netlist)
+                if comps_inner:
+                    new_constraints.append(
+                        EnclosingConstraint(
+                            outer=constraint.outer,
+                            inner=comps_inner,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            margin_mm=constraint.margin_mm,
+                            id=constraint_id,
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedAlignedConstraint):
+                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+                if len(comps) >= 2:
+                    new_constraints.append(
+                        AlignedConstraint(
+                            components=comps,
+                            axis=constraint.axis,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            tolerance_mm=constraint.tolerance_mm,
+                            id=constraint_id,
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedOnSideConstraint):
+                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+                if comps:
+                    new_constraints.append(
+                        OnSideConstraint(
+                            components=comps,
+                            side=constraint.side,
+                            edge=constraint.edge,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            max_distance_mm=constraint.max_distance_mm,
+                            id=constraint_id,
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+            elif isinstance(constraint, TaggedAnchoredConstraint):
+                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+                for comp_ref in comps:
+                    new_constraints.append(
+                        AnchoredConstraint(
+                            component=comp_ref,
+                            tier=constraint.tier,
+                            because=constraint.because,
+                            region=constraint.region,
+                            position=constraint.position,
+                            id=f"{constraint_id}_{comp_ref}" if constraint_id else "",
+                        )
+                    )
+                self.constraints.remove(constraint)
+                expanded_count += 1
+
+        if new_constraints:
+            self.constraints.extend(new_constraints)
+        if expanded_count > 0:
+            logger.info(
+                "Expanded %d tagged constraint(s) into %d concrete constraint(s)",
+                expanded_count,
+                len(new_constraints),
+            )
+
 
 def _parse_distance_with_unit(value: Any) -> float:
     """Parse distance value with optional unit suffix.
@@ -417,6 +620,112 @@ def _parse_edge_type(edge_value: str) -> EdgeType:
     raise PCLParseError(f"Invalid edge type: {edge_value}. Valid: flush, near, overhang")
 
 
+def _is_tag_expr_dict(value: Any) -> bool:
+    """Check if a value represents a tag expression dict."""
+    if not isinstance(value, dict):
+        return False
+    return any(k in value for k in ("tag", "and", "or", "not", "ref"))
+
+
+def _parse_tag_expr(value: Any):
+    """Parse a tag expression from a YAML dict.
+
+    Supports:
+        {tag: POWER}            -> TagRef(ComponentTag.POWER)
+        {ref: Q1}               -> ComponentRef("Q1")
+        {and: [...]}            -> TagAnd(left, right)
+        {or: [...]}             -> TagOr(left, right)
+        {not: {...}}            -> TagNot(expr)
+
+    Args:
+        value: Dict with tag expression keys
+
+    Returns:
+        TagExpr instance
+
+    Raises:
+        PCLParseError: If value cannot be parsed as a tag expression
+    """
+    from temper_placer.pcl.tag_dispatch import (
+        ComponentRef,
+        ComponentTag,
+        TagAnd,
+        TagNot,
+        TagOr,
+        TagRef,
+    )
+
+    if not isinstance(value, dict):
+        raise PCLParseError(f"Expected tag expression dict, got {type(value)}")
+
+    if "tag" in value:
+        tag_name = str(value["tag"])
+        try:
+            tag = ComponentTag(tag_name.lower())
+        except ValueError:
+            valid = [t.value for t in ComponentTag]
+            warnings.warn(
+                f"Unknown tag '{tag_name}', treating as literal ref. "
+                f"Valid tags: {sorted(valid)}"
+            )
+            return ComponentRef(tag_name.upper())
+        return TagRef(tag)
+
+    elif "ref" in value:
+        return ComponentRef(str(value["ref"]))
+
+    elif "not" in value:
+        return TagNot(_parse_tag_expr(value["not"]))
+
+    elif "and" in value:
+        parts = value["and"]
+        if not isinstance(parts, list) or len(parts) < 2:
+            raise PCLParseError("'and' requires a list of at least 2 tag expressions")
+        result = _parse_tag_expr(parts[0])
+        for part in parts[1:]:
+            result = TagAnd(result, _parse_tag_expr(part))
+        return result
+
+    elif "or" in value:
+        parts = value["or"]
+        if not isinstance(parts, list) or len(parts) < 2:
+            raise PCLParseError("'or' requires a list of at least 2 tag expressions")
+        result = _parse_tag_expr(parts[0])
+        for part in parts[1:]:
+            result = TagOr(result, _parse_tag_expr(part))
+        return result
+
+    else:
+        raise PCLParseError(f"Unknown tag expression keys: {list(value.keys())}")
+
+
+def _parse_constraint_ref(value: Any, default_to_tag: bool = False):
+    """Parse a constraint reference field (a/b/inner/etc).
+
+    If value is a string, treat as ComponentRef (existing behavior via string).
+    If value is a dict with tag expression keys, parse as TagExpr.
+    Returns the raw string (for concrete constraints) or a TagExpr (for tagged constraints).
+
+    Args:
+        value: The field value from YAML
+        default_to_tag: If True, wrap strings as ComponentRef
+
+    Returns:
+        str or TagExpr
+    """
+    if isinstance(value, str):
+        if default_to_tag:
+            from temper_placer.pcl.tag_dispatch import ComponentRef
+
+            return ComponentRef(value)
+        return value
+
+    if _is_tag_expr_dict(value):
+        return _parse_tag_expr(value)
+
+    raise PCLParseError(f"Invalid constraint reference: expected string or tag expression dict, got {type(value)}")
+
+
 def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
     """Parse a single constraint from a dictionary.
 
@@ -442,8 +751,27 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
     because = data["because"]
     constraint_id = data.get("id", "")
 
+    # Detect tag expressions in a/b fields
+    a_is_tag = constraint_type in ("adjacent", "separated") and _is_tag_expr_dict(data.get("a"))
+    b_is_tag = constraint_type in ("adjacent", "separated") and _is_tag_expr_dict(data.get("b"))
+    has_tag_expr = a_is_tag or b_is_tag
+
     # Dispatch based on type
     if constraint_type == "adjacent":
+        if has_tag_expr:
+            from temper_placer.pcl.tagged_constraints import TaggedAdjacentConstraint
+
+            tag_expr_a = _parse_constraint_ref(data["a"], default_to_tag=True)
+            tag_expr_b = _parse_constraint_ref(data["b"], default_to_tag=True)
+            return TaggedAdjacentConstraint(
+                tag_expr_a=tag_expr_a,
+                tag_expr_b=tag_expr_b,
+                max_distance_mm=_parse_distance_with_unit(data["max_distance_mm"]),
+                tier=tier,
+                because=because,
+                metric=_parse_metric(data.get("metric")),
+                id=constraint_id,
+            )
         return AdjacentConstraint(
             a=data["a"],
             b=data["b"],
@@ -457,6 +785,20 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
         )
 
     elif constraint_type == "separated":
+        if has_tag_expr:
+            from temper_placer.pcl.tagged_constraints import TaggedSeparatedConstraint
+
+            tag_expr_a = _parse_constraint_ref(data["a"], default_to_tag=True)
+            tag_expr_b = _parse_constraint_ref(data["b"], default_to_tag=True)
+            return TaggedSeparatedConstraint(
+                tag_expr_a=tag_expr_a,
+                tag_expr_b=tag_expr_b,
+                min_distance_mm=_parse_distance_with_unit(data["min_distance_mm"]),
+                tier=tier,
+                because=because,
+                metric=_parse_metric(data.get("metric")),
+                id=constraint_id,
+            )
         return SeparatedConstraint(
             a=data["a"],
             b=data["b"],
@@ -468,6 +810,28 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
         )
 
     elif constraint_type == "enclosing":
+        # Check if inner contains tag expressions
+        inner_data = data["inner"]
+        has_inner_tags = isinstance(inner_data, list) and any(
+            _is_tag_expr_dict(item) for item in inner_data
+        )
+        if has_inner_tags:
+            from temper_placer.pcl.tagged_constraints import TaggedEnclosingConstraint
+
+            if _is_tag_expr_dict(inner_data):
+                tag_expr_inner = _parse_tag_expr(inner_data)
+            elif len(inner_data) == 1:
+                tag_expr_inner = _parse_tag_expr(inner_data[0])
+            else:
+                tag_expr_inner = _parse_tag_expr({"and": inner_data})
+            return TaggedEnclosingConstraint(
+                outer=data["outer"],
+                tag_expr_inner=tag_expr_inner,
+                tier=tier,
+                because=because,
+                margin_mm=_parse_distance_with_unit(data.get("margin_mm", 0.0)),
+                id=constraint_id,
+            )
         return EnclosingConstraint(
             outer=data["outer"],
             inner=data["inner"],
@@ -477,7 +841,37 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
             id=constraint_id,
         )
 
+    elif constraint_type == "keepout":
+        return KeepoutConstraint(
+            zone_name=data["zone_name"],
+            tier=tier,
+            because=because,
+            margin_mm=_parse_distance_with_unit(data.get("margin_mm", 0.0)),
+            id=constraint_id,
+        )
+
     elif constraint_type == "aligned":
+        components_data = data["components"]
+        has_tagged = isinstance(components_data, list) and any(
+            _is_tag_expr_dict(item) for item in components_data
+        )
+        if has_tagged or _is_tag_expr_dict(components_data):
+            from temper_placer.pcl.tagged_constraints import TaggedAlignedConstraint
+
+            if _is_tag_expr_dict(components_data):
+                tag_expr = _parse_tag_expr(components_data)
+            elif len(components_data) == 1:
+                tag_expr = _parse_tag_expr(components_data[0])
+            else:
+                tag_expr = _parse_tag_expr({"and": components_data})
+            return TaggedAlignedConstraint(
+                tag_expr=tag_expr,
+                axis=_parse_axis(data["axis"]),
+                tier=tier,
+                because=because,
+                tolerance_mm=_parse_distance_with_unit(data.get("tolerance_mm", 0.5)),
+                id=constraint_id,
+            )
         return AlignedConstraint(
             components=data["components"],
             axis=_parse_axis(data["axis"]),
@@ -488,6 +882,28 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
         )
 
     elif constraint_type == "on_side":
+        components_data = data["components"]
+        has_tagged = isinstance(components_data, list) and any(
+            _is_tag_expr_dict(item) for item in components_data
+        )
+        if has_tagged or _is_tag_expr_dict(components_data):
+            from temper_placer.pcl.tagged_constraints import TaggedOnSideConstraint
+
+            if _is_tag_expr_dict(components_data):
+                tag_expr = _parse_tag_expr(components_data)
+            elif len(components_data) == 1:
+                tag_expr = _parse_tag_expr(components_data[0])
+            else:
+                tag_expr = _parse_tag_expr({"and": components_data})
+            return TaggedOnSideConstraint(
+                tag_expr=tag_expr,
+                side=_parse_board_side(data["side"]),
+                edge=_parse_edge_type(data["edge"]),
+                tier=tier,
+                because=because,
+                max_distance_mm=_parse_distance_with_unit(data.get("max_distance_mm", 5.0)),
+                id=constraint_id,
+            )
         return OnSideConstraint(
             components=data["components"],
             side=_parse_board_side(data["side"]),
@@ -499,15 +915,32 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
         )
 
     elif constraint_type == "anchored":
+        component_data = data["component"]
+        if _is_tag_expr_dict(component_data):
+            from temper_placer.pcl.tagged_constraints import TaggedAnchoredConstraint
+
+            tag_expr = _parse_tag_expr(component_data)
+            region = data.get("region")
+            position = data.get("position")
+            if region is not None:
+                region = tuple(region)
+            if position is not None:
+                position = tuple(position)
+            return TaggedAnchoredConstraint(
+                tag_expr=tag_expr,
+                tier=tier,
+                because=because,
+                region=region,
+                position=position,
+                id=constraint_id,
+            )
+
         region = data.get("region")
         position = data.get("position")
-
-        # Convert region/position lists to tuples
         if region is not None:
             region = tuple(region)
         if position is not None:
             position = tuple(position)
-
         return AnchoredConstraint(
             component=data["component"],
             tier=tier,

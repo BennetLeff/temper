@@ -31,6 +31,7 @@ from temper_placer.pcl.constraints import (
     BaseConstraint,
     ConstraintTier,
     EnclosingConstraint,
+    KeepoutConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
@@ -280,6 +281,68 @@ def onside_to_edge_loss(
     )
 
 
+def keepout_to_loss(
+    constraint: KeepoutConstraint,
+    netlist: Netlist,  # noqa: ARG001
+    board: Board,
+) -> LossFunction:
+    """
+    Convert Keepout constraint to a signed-distance penalty loss.
+
+    Uses smooth_relu_penalty for AABB signed-distance loss:
+    components inside the keepout zone are penalized by their penetration depth.
+
+    Args:
+        constraint: Keepout constraint specifying a zone to stay out of.
+        netlist: Netlist for component index lookup (unused; loss is position-only).
+        board: Board for zone geometry.
+
+    Returns:
+        Loss function penalizing components inside the keepout zone.
+    """
+    from temper_placer.geometry.smooth import smooth_relu_penalty
+
+    zone = board.get_zone(constraint.zone_name)
+    x_min, y_min, x_max, y_max = zone.bounds
+    margin = constraint.margin_mm
+    weight = tier_to_weight(constraint.tier)
+
+    class KeepoutLoss(LossFunction):
+        @property
+        def name(self) -> str:
+            return f"keepout_{constraint.zone_name}"
+
+        def __call__(
+            self,
+            positions: Array,
+            _rotations: Array,
+            _context: LossContext,
+            _epoch: int = 0,
+            _total_epochs: int = 1,
+            _net_virtual_nodes: Array | None = None,
+        ) -> LossResult:
+            if positions.shape[0] == 0:
+                return LossResult(value=jnp.array(0.0))
+
+            x = positions[:, 0]
+            y = positions[:, 1]
+
+            penetration_x = jnp.maximum(0.0, (x_min + margin) - x) + jnp.maximum(
+                0.0, x - (x_max - margin)
+            )
+            penetration_y = jnp.maximum(0.0, (y_min + margin) - y) + jnp.maximum(
+                0.0, y - (y_max - margin)
+            )
+
+            total_penetration = penetration_x + penetration_y
+            penalties = smooth_relu_penalty(total_penetration)
+            total = weight * jnp.sum(penalties)
+
+            return LossResult(value=total)
+
+    return KeepoutLoss()
+
+
 def anchored_to_positional_loss(
     constraint: AnchoredConstraint,
     netlist: Netlist,
@@ -449,6 +512,11 @@ def constraint_to_loss(
 
     elif isinstance(constraint, AnchoredConstraint):
         return anchored_to_positional_loss(constraint, netlist)
+
+    elif isinstance(constraint, KeepoutConstraint):
+        if board is None:
+            raise ValueError("board required for KeepoutConstraint")
+        return keepout_to_loss(constraint, netlist, board)
 
     elif isinstance(constraint, LoopAreaConstraint):
         if loops is None:

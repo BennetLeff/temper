@@ -380,6 +380,7 @@ class Zone:
     layers: list[str] = field(default_factory=lambda: ["F.Cu"])
     max_size: tuple[float, float] | None = None
     can_expand: list[str] = field(default_factory=lambda: ["up", "down", "left", "right"])
+    zone_type: str = "placement"
 
     @property
     def width(self) -> float:

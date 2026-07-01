@@ -856,7 +856,7 @@ class RouterV6Pipeline:
                 pcb=pcb,
                 enable_bundling=True,
                 bundle_manifest=bundle_manifest,
-            )  # type: ignore[call-arg]
+            )
             constraint_model = model_builder.build()
         else:
             model_builder = ModelBuilder(
