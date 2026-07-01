@@ -237,7 +237,6 @@ class SpectralInitializer:
         netlist: Netlist,
         board: Board,
         _rng_key: Array | None = None,
-        constraints: Any = None,  # noqa: ANN401  # @req(2026-07-01-003, SC6): passthrough
         constraints: Any | None = None,
     ) -> Array:
         """

@@ -228,13 +228,8 @@ class ZoneAwareSpectralInitializer(SpectralInitializer):
         netlist: "Netlist",
         board: "Board",
         rng_key: "Array | None" = None,
-        constraints: Any = None,  # noqa: ANN401  # @req(2026-07-01-003, SC6): passthrough
-    ) -> "Array":
-        netlist: Netlist,
-        board: Board,
-        rng_key: Array | None = None,
         constraints: Any | None = None,
-    ) -> Array:
+    ) -> "Array":
         """
         Compute zone-aware initial positions.
 
