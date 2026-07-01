@@ -899,3 +899,59 @@ class TestEdgeCases:
         assert len(group_to_super) == 0
         for sn in super_node_map:
             assert len(sn) == 1
+
+    def test_fixed_component_anchor_preserved(self):
+        """Fixed component in a pre-clustered group retains its exact anchor position."""
+        anchor = (42.0, 73.0)
+        components = [
+            _make_component("C1"),
+            _make_component("C2", fixed=True, pos=anchor),
+            _make_component("C3"),
+        ]
+        netlist = Netlist(
+            components=components,
+            nets=[
+                Net("N1", [("C1", "1"), ("C2", "1")]),
+                Net("N2", [("C2", "1"), ("C3", "1")]),
+            ],
+        )
+        group = ComponentGroup(
+            name="anchored",
+            components=["C1", "C2", "C3"],
+            max_spread_mm=40.0,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=100)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert jnp.allclose(
+            positions[1], jnp.array(anchor), atol=1e-4
+        ), f"Fixed component not at anchor: {positions[1]} != {anchor}"
+
+    def test_fixed_component_anchor_preserved_spanning(self):
+        """Fixed component in a spanning (>30% board diagonal) group retains its anchor."""
+        anchor = (5.0, 95.0)
+        board = Board(width=100.0, height=100.0)
+        components = [
+            _make_component("C1"),
+            _make_component("C2", fixed=True, pos=anchor),
+        ]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1")])],
+        )
+        spanning_spread = 50.0  # > 30% of board_diagonal ≈ 42.4
+        group = ComponentGroup(
+            name="wide",
+            components=["C1", "C2"],
+            max_spread_mm=spanning_spread,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=100)
+        positions = init.initialize(netlist, board, constraints)
+
+        assert jnp.allclose(
+            positions[1], jnp.array(anchor), atol=1e-4
+        ), f"Fixed component in spanning group not at anchor: {positions[1]} != {anchor}"

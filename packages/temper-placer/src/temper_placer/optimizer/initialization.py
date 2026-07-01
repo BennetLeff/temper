@@ -705,6 +705,12 @@ class HierarchicalGroupInitializer:
 
         adjacency = build_adjacency_matrix(netlist)
 
+        # Record fixed component anchor positions before any transformation
+        fixed_anchors: dict[int, tuple[float, float]] = {}
+        for i, comp in enumerate(netlist.components):
+            if comp.fixed and comp.initial_position is not None:
+                fixed_anchors[i] = comp.initial_position
+
         # Phase 1: Intra-group micro-placement
         micro_offsets = self._solve_group_micro_layout(
             netlist, adjacency, constraints.component_groups, board
@@ -730,7 +736,7 @@ class HierarchicalGroupInitializer:
         # Phase 4: Explode to component positions
         positions = self._explode_positions(
             super_centroids, micro_offsets, component_to_super,
-            group_to_super, board,
+            group_to_super, board, fixed_anchors,
         )
 
         self.diagnostics.append(
@@ -963,12 +969,18 @@ class HierarchicalGroupInitializer:
         component_to_super: Array,
         group_to_super: dict[int, int],
         board: Board,
+        fixed_anchors: dict[int, tuple[float, float]] | None = None,
     ) -> Array:
         """Phase 4: Explode super-node positions back to component positions.
 
         For each component: position = centroid[super_node] + offset[group][local_idx].
         Uses member_indices from micro_offsets to correctly pair offsets with components.
+        Fixed components are placed at their recorded anchor positions, not
+        via centroid + offset.
         """
+        if fixed_anchors is None:
+            fixed_anchors = {}
+
         n = len(component_to_super)
         positions = jnp.zeros((n, 2))
 
@@ -986,9 +998,17 @@ class HierarchicalGroupInitializer:
                 continue
             g_offsets, g_member_indices = micro_offsets[gid]
             if len(g_member_indices) != g_offsets.shape[0]:
+                self.diagnostics.append(
+                    f"  Warning: Group {gid} micro-offset size mismatch "
+                    f"({len(g_member_indices)} members vs {g_offsets.shape[0]} offsets) — skipped"
+                )
                 continue
             for local_i, comp_idx in enumerate(g_member_indices):
                 positions = positions.at[comp_idx].add(g_offsets[local_i])
+
+        # Override fixed component positions with recorded anchors
+        for comp_idx, anchor_pos in fixed_anchors.items():
+            positions = positions.at[comp_idx].set(jnp.array(anchor_pos))
 
         # Board-boundary correction: shift groups inward if members exceed bounds
         positions = self._shift_groups_in_bounds(positions, component_to_super, board)
