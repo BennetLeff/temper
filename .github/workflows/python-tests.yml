@@ -132,8 +132,9 @@ jobs:
 
       - name: Build and install temper-constraints
         run: |
+          uv pip install maturin
           cd packages/temper-placer/temper-constraints
-          maturin develop --release
+          uv run maturin develop --release
           cd ../../..
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
