@@ -68,6 +68,9 @@ from temper_placer.optimizer.curriculum import (
     get_phase_progress,
     smooth_transition_weights,
 )
+from temper_placer.optimizer.initialization import (
+    HierarchicalGroupInitializer,
+)
 from temper_placer.optimizer.postprocess import (
     DEFAULT_GRID_SIZE,
     PostProcessConfig,
@@ -153,6 +156,8 @@ __all__ = [
     "TrainingState",
     "initialize_training_state",
     "NumericalInstabilityError",
+    # Initialization
+    "HierarchicalGroupInitializer",
     # Zone-aware initialization
     "ZoneAwareSpectralInitializer",
     "create_zone_cost_field",

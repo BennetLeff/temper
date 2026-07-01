@@ -196,6 +196,7 @@ class InitializationConfig:
     learned_model_path: str | None = "models/learned_init.pkl"
     force_directed: ForceDirectedConfig = field(default_factory=ForceDirectedConfig)
     zone_aware: ZoneAwareConfig = field(default_factory=ZoneAwareConfig)
+    group_preclustering: bool = False
 
 
 @dataclass
