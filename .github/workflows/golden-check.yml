@@ -17,7 +17,27 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        boundary: [semantic, topological, placement, routing, validation]
+        include:
+          - boundary: semantic
+            board_id: temper
+            board_pcb: pcb/temper.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/temper
+          - boundary: topological
+            board_id: temper
+            board_pcb: pcb/temper.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/temper
+          - boundary: placement
+            board_id: temper
+            board_pcb: pcb/temper.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/temper
+          - boundary: routing
+            board_id: temper
+            board_pcb: pcb/temper.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/temper
+          - boundary: validation
+            board_id: temper
+            board_pcb: pcb/temper.kicad_pcb
+            board_golden: power_pcb_dataset/goldens/temper
     steps:
       - uses: actions/checkout@v4
 
@@ -33,9 +53,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
-      - name: Run golden check (${{ matrix.boundary }})
+      - name: Run golden check (${{ matrix.board_id }} / ${{ matrix.boundary }})
         run: |
           uv run temper-placer dsn check \
             --boundary ${{ matrix.boundary }} \
-            --input pcb/temper.kicad_pcb \
-            --golden-dir power_pcb_dataset/goldens/temper
+            --input ${{ matrix.board_pcb }} \
+            --golden-dir ${{ matrix.board_golden }}

@@ -1,8 +1,8 @@
 _meta:
   last_audit_date: '2026-06-24'
-  total_scripts: 27
+  total_scripts: 29
   counts:
-    keep: 25
+    keep: 27
   ticket_scripts_deleted: 40
 scripts:
 - path: bench_coarse_to_fine.py
@@ -1313,6 +1313,30 @@ scripts:
     imports:
       - argparse
       - collections
+      - json
+      - pathlib
+      - sys
+- path: scan_external_corpus.py
+  purpose: "Scan downloads_digital_iot/ for .kicad_pcb files, profile parse success and difficulty tiers"
+  owner: pipeline
+  last_run: "2026-06-30"
+  category: keep
+  disposition: utility
+    imports:
+      - argparse
+      - pathlib
+      - sys
+      - time
+      - yaml
+      - temper_placer.io.kicad_parser
+- path: quarantine_report.py
+  purpose: "Report on dead-letter quarantine status and taxonomy distribution (CI gate)"
+  owner: pipeline
+  last_run: "2026-06-30"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - argparse
       - json
       - pathlib
       - sys

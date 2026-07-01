@@ -60,7 +60,7 @@ def record_closure_result(
     board_id: str,
     commit: str = "",
 ) -> PipelineMetricsRecord:
-    wall_time_ms = int(result.wall_clock_seconds * 1000)
+    wall_time_ms = round(result.wall_clock_seconds * 1000)
 
     return PipelineMetricsRecord(
         board=board_id,
@@ -75,6 +75,22 @@ def record_closure_result(
             "benders_iterations": result.benders_iterations,
             "benders_cuts": result.benders_cuts,
         },
+    )
+
+
+def record_stage_timing(
+    board: str,
+    stage: str,
+    wall_time_ms: int,
+    commit: str = "",
+) -> PipelineMetricsRecord:
+    return PipelineMetricsRecord(
+        board=board,
+        stage=stage,
+        module="pipeline",
+        git_commit=commit,
+        stage_name=stage,
+        metrics={"wall_time_ms": wall_time_ms},
     )
 
 
