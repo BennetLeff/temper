@@ -24,12 +24,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Hyperparameter grid defaults (exposed via config in U11)
-_INIT_METHODS = ["spectral", "zone_aware_spectral", "random"]
-_LAPLACIAN_OPTIONS = [True, False]
-_MARGIN_OPTIONS = [0.05, 0.10, 0.20]
-_PERTURB_SIGMAS = [0.0, 0.02, 0.05, 0.10]
-
 
 def _generate_diverse_seeds(
     netlist: Netlist,
@@ -56,20 +50,26 @@ def _generate_diverse_seeds(
     max_retries = n_generate * 3
     is_random_only = netlist.n_components <= 1
 
+    # Use config-specified hyperparameter grids
+    init_methods = config.init_methods
+    laplacian_options = config.laplacian_options
+    margin_options = config.margin_options
+    perturb_sigmas = config.perturb_sigmas
+
     seeds: list[tuple[Array, dict]] = []
     keys = jax.random.split(master_rng_key, max_retries + 1)
     key_idx = 0
 
-    # Build the full hyperparameter grid
+    # Build the full hyperparameter grid from config
     if is_random_only:
         grid = [("random", None, None, None)]
     else:
         grid = [
             (method, laplacian, margin, sigma)
-            for method in _INIT_METHODS
-            for laplacian in _LAPLACIAN_OPTIONS
-            for margin in _MARGIN_OPTIONS
-            for sigma in _PERTURB_SIGMAS
+            for method in init_methods
+            for laplacian in laplacian_options
+            for margin in margin_options
+            for sigma in perturb_sigmas
         ]
 
     # Shuffle grid deterministically

@@ -69,3 +69,51 @@ class TestMultiSeedConfig:
         c = MultiSeedConfig(n_generate=5, n_select=5)
         assert c.n_generate == 5
         assert c.n_select == 5
+
+
+class TestMultiSeedConfigP2Knobs:
+    """U11: Full config knob exposure."""
+
+    def test_init_methods_default(self):
+        c = MultiSeedConfig()
+        assert c.init_methods == ["spectral", "zone_aware_spectral", "random"]
+
+    def test_laplacian_options_default(self):
+        c = MultiSeedConfig()
+        assert c.laplacian_options == [True, False]
+
+    def test_margin_options_default(self):
+        c = MultiSeedConfig()
+        assert c.margin_options == [0.05, 0.10, 0.20]
+
+    def test_perturb_sigmas_default(self):
+        c = MultiSeedConfig()
+        assert c.perturb_sigmas == [0.0, 0.02, 0.05, 0.10]
+
+    def test_triage_loss_weights_default(self):
+        c = MultiSeedConfig()
+        expected = {"wirelength": 1.0, "overlap": 1.0, "boundary": 1.0, "clearance": 1.0}
+        assert c.triage_loss_weights == expected
+
+    def test_dpp_quality_weight_default(self):
+        c = MultiSeedConfig()
+        assert c.dpp_quality_weight == 0.0
+
+    def test_init_methods_custom(self):
+        c = MultiSeedConfig(init_methods=["spectral", "random"])
+        assert c.init_methods == ["spectral", "random"]
+
+    def test_all_knobs_wired_in_optimizer_config(self):
+        ms = MultiSeedConfig(
+            init_methods=["spectral"],
+            laplacian_options=[True],
+            margin_options=[0.10],
+            perturb_sigmas=[0.02],
+            triage_loss_weights={"wirelength": 2.0, "overlap": 2.0},
+            dpp_quality_weight=0.5,
+        )
+        oc = OptimizerConfig(multi_seed=ms)
+        assert oc.multi_seed.init_methods == ["spectral"]
+        assert oc.multi_seed.laplacian_options == [True]
+        assert oc.multi_seed.triage_loss_weights["wirelength"] == 2.0
+        assert oc.multi_seed.dpp_quality_weight == 0.5

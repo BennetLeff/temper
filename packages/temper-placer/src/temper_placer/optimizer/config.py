@@ -287,6 +287,12 @@ class MultiSeedConfig:
         n_select: DPP subset size promoted to triage evaluation (2-10).
         n_triage_iters: Triage evaluation iterations per seed.
         dpp_quality_enabled: Whether to use constraint-violation quality scores in DPP.
+        init_methods: Initialization methods to include in seed pool.
+        laplacian_options: Normalized/unormalized Laplacian options.
+        margin_options: Spectral margin fraction options.
+        perturb_sigmas: Random perturbation sigma magnitude options.
+        triage_loss_weights: Weights for triage loss terms.
+        dpp_quality_weight: Weight for quality term in DPP quality-diversity split.
     """
 
     enabled: bool = False
@@ -294,6 +300,16 @@ class MultiSeedConfig:
     n_select: int = 4
     n_triage_iters: int = 30
     dpp_quality_enabled: bool = False
+
+    # P2 knobs (exposed after core path validation)
+    init_methods: list[str] = field(default_factory=lambda: ["spectral", "zone_aware_spectral", "random"])
+    laplacian_options: list[bool] = field(default_factory=lambda: [True, False])
+    margin_options: list[float] = field(default_factory=lambda: [0.05, 0.10, 0.20])
+    perturb_sigmas: list[float] = field(default_factory=lambda: [0.0, 0.02, 0.05, 0.10])
+    triage_loss_weights: dict[str, float] = field(default_factory=lambda: {
+        "wirelength": 1.0, "overlap": 1.0, "boundary": 1.0, "clearance": 1.0,
+    })
+    dpp_quality_weight: float = 0.0
 
     def __post_init__(self):
         if self.n_generate > 50:
