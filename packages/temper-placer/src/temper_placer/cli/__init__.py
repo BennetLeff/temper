@@ -819,6 +819,7 @@ def optimize(
                 cfg,
                 n_seeds=parallel_seeds,
                 callback=progress_callback,
+                constraints=constraints,
             )
             result = parallel_result.best_result
 
@@ -851,6 +852,7 @@ def optimize(
                 initial_state=initial_state,
                 callback=progress_callback,
                 profile_dir=profile_dir_str,
+                constraints=constraints,
             )
         else:
             result = train(
@@ -862,6 +864,7 @@ def optimize(
                 initial_state=initial_state,
                 callback=progress_callback,
                 profile_dir=profile_dir_str,
+                constraints=constraints,
             )
 
         # Restore signal handler
@@ -1633,7 +1636,7 @@ def benchmark(
 
             # 3. Run Optimizer
             cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs // 10))
-            opt_result = train(ref_design.netlist, board, composite_loss, context, cfg)
+            opt_result = train(ref_design.netlist, board, composite_loss, context, cfg, constraints=constraints)
 
             # 4. Compute Real Score
             res = calculate_benchmark_result(name, opt_result, baseline, context)

@@ -438,6 +438,7 @@ class CorpusRegressionRunner:
             result = train_multiphase(
                 netlist, board, make_loss, context, cfg,
                 initial_state=initial_state,
+                constraints=constraints,
             )
 
             elapsed = time.time() - start_time
@@ -505,6 +506,7 @@ class CorpusRegressionRunner:
                     result = train_multiphase(
                         netlist, board, make_loss, context, cfg,
                         initial_state=initial_state,
+                        constraints=constraints,
                     )
                 except Exception as e2:
                     return CorpusBoardResult(
