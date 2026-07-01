@@ -25,21 +25,21 @@ class TestClosureIsolationBarrier:
 
     def test_pcl_constraints_load_from_config(self):
         """PCL config loads successfully and contains the separation constraint."""
-        from temper_placer.io.config_loader import load_constraints
         from temper_placer.pcl.constraints import SeparatedConstraint
+        from temper_placer.pcl.parser import parse_pcl_file
 
-        constraints = load_constraints(PCL_CONFIG_PATH)
-        assert constraints is not None, "PCL constraints failed to load"
-        assert len(constraints.constraints) > 0, "No constraints loaded from PCL config"
+        collection = parse_pcl_file(PCL_CONFIG_PATH)
+        assert collection is not None, "PCL constraints failed to load"
+        assert len(collection.constraints) > 0, "No constraints loaded from PCL config"
 
         separated = [
-            c for c in constraints.constraints
+            c for c in collection.constraints
             if isinstance(c, SeparatedConstraint)
         ]
         assert len(separated) >= 1, (
             f"HV/MCU separation constraint not found in loaded constraints. "
-            f"Found {len(constraints.constraints)} constraints: "
-            f"{[type(c).__name__ for c in constraints.constraints]}"
+            f"Found {len(collection.constraints)} constraints: "
+            f"{[type(c).__name__ for c in collection.constraints]}"
         )
 
         # Verify the specific HV/MCU separation
@@ -54,12 +54,12 @@ class TestClosureIsolationBarrier:
 
     def test_separated_constraint_has_hard_tier(self):
         """The HV/MCU separation constraint is tier HARD (tier=1)."""
-        from temper_placer.io.config_loader import load_constraints
         from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
+        from temper_placer.pcl.parser import parse_pcl_file
 
-        constraints = load_constraints(PCL_CONFIG_PATH)
+        collection = parse_pcl_file(PCL_CONFIG_PATH)
         separated = [
-            c for c in constraints.constraints
+            c for c in collection.constraints
             if isinstance(c, SeparatedConstraint)
             and c.a == 'HV_ZONE' and c.b == 'MCU_ZONE'
         ]
@@ -201,12 +201,12 @@ class TestClosureIsolationBarrier:
     def test_legacy_config_does_not_load_pcl_constraints(self):
         """The legacy config path returns PlacementConstraints, not PCL."""
         from temper_placer.io.config_loader import (
-            PlacementConstraints, load_legacy_config,
+            PlacementConstraints, load_constraints,
         )
         from temper_placer.pcl.parser import ConstraintCollection
 
         legacy_path = LEGACY_CONFIG_PATH
-        result = load_legacy_config(legacy_path)
+        result = load_constraints(legacy_path)
         assert result is not None, "Legacy config should still load"
 
         # Legacy returns a PlacementConstraints, NOT a ConstraintCollection
@@ -222,15 +222,15 @@ class TestClosureIsolationBarrier:
         """PCL constraints compile to JAX loss functions via the bridge."""
         from temper_placer.core.board import Board, Zone
         from temper_placer.core.netlist import Component, Netlist
-        from temper_placer.io.config_loader import load_constraints
         from temper_placer.pcl.constraints import CompilationContext, CompilationTarget
         from temper_placer.pcl.loss_bridge import (
             constraint_to_loss, separated_to_separation_loss,
         )
         from temper_placer.pcl.constraints import SeparatedConstraint
+        from temper_placer.pcl.parser import parse_pcl_file
 
-        constraints = load_constraints(PCL_CONFIG_PATH)
-        assert len(constraints.constraints) > 0
+        collection = parse_pcl_file(PCL_CONFIG_PATH)
+        assert len(collection.constraints) > 0
 
         # Create a minimal Board with HV_ZONE and MCU_ZONE
         board = Board(
@@ -268,7 +268,7 @@ class TestClosureIsolationBarrier:
         # Verify each SeparatedConstraint can compile to a loss function
         from temper_placer.pcl.constraints import SeparatedConstraint as SC
 
-        for constraint in constraints.constraints:
+        for constraint in collection.constraints:
             if isinstance(constraint, SC):
                 loss_fn = separated_to_separation_loss(
                     constraint,
@@ -282,9 +282,9 @@ class TestClosureIsolationBarrier:
 
         # Test the full CompilationTarget.JAX path
         ctx = CompilationContext(netlist=netlist, board=board)
-        losses = constraints.compile(CompilationTarget.JAX, ctx)
+        losses = collection.compile(CompilationTarget.JAX, ctx)
         assert len(losses) > 0, (
-            f"ConstraintCollection.compiled to zero loss functions. "
+            f"ConstraintCollection.compile(CompilationTarget.JAX) returned zero loss functions. "
             f"Bridge is not wired. Context has netlist={netlist.n_components} comps"
         )
 
