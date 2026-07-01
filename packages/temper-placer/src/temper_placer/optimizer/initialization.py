@@ -262,7 +262,16 @@ class SpectralInitializer:
             center_y = board.height / 2
             return jnp.array([[center_x, center_y]])
 
-        # Build connectivity graph — use constraint-weighted if available
+        # Build raw adjacency (without constraint weights) for connectivity.
+        # Negative constraint weights would break topological connectivity
+        # detection; connectivity is a topological property independent of
+        # weight sign, so we always use the raw netlist adjacency for BFS.
+        raw_adjacency = build_adjacency_matrix(netlist)
+
+        # Find connected components (disjoint subgraphs) from raw graph
+        components = find_connected_components(raw_adjacency)
+
+        # Build constraint-weighted adjacency for spectral embedding
         use_weighted = constraint_weights is not None and len(constraint_weights) > 0
         if use_weighted:
             from temper_placer.placement.constraint_weights import (
@@ -276,10 +285,7 @@ class SpectralInitializer:
             )
             adjacency = jnp.array(adj)
         else:
-            adjacency = build_adjacency_matrix(netlist)
-
-        # Find connected components (disjoint subgraphs)
-        components = find_connected_components(adjacency)
+            adjacency = raw_adjacency
 
         # Determine if PSD stabilization is needed (negative weights present)
         needs_stabilize = use_weighted and any(w < 0 for w in constraint_weights.values())  # type: ignore[union-attr]
