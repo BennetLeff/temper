@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import click
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from temper_placer.validation.drc_result import (
     ClearanceCheck,

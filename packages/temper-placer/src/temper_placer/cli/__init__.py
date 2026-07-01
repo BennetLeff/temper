@@ -503,7 +503,7 @@ def optimize(
 
         # Decoupling capacitor proximity loss
         if "decoupling" in weights:
-            from temper_placer.losses.decoupling import (
+            from temper_placer.losses.decoupling import (  # type: ignore[attr-defined]
                 DecouplingRule,
                 create_decoupling_loss,
             )

@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -97,7 +98,7 @@ class DrcRatchet:
         import temper_drc_rs
         from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
-        parsed = parse_kicad_pcb_v6(str(pcb_path))
+        parsed = parse_kicad_pcb_v6(pcb_path)
 
         # ── Build board_dict ────────────────────────────────────────────
         components = []
@@ -174,7 +175,7 @@ class DrcRatchet:
         }
 
         # ── Build constraints_dict ──────────────────────────────────────
-        constraints_dict = {
+        constraints_dict: dict[str, Any] = {
             "clearances": [],
             "zones": [],
             "critical_loops": [],

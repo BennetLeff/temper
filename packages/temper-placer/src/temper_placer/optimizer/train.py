@@ -1214,7 +1214,7 @@ def train_multiphase(
     callback: Callable[[TrainingMetrics], None] | None = None,
     validation_callback: ValidationCallback | None = None,
     profile_dir: str | None = None,
-    drc_oracle: object | None = None,
+     drc_oracle: Any | None = None,
 ) -> TrainingResult:
     """
     Run multi-phase training with curriculum learning.
