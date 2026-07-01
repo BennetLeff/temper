@@ -24,6 +24,7 @@ import jax
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import (
+    Net,
     Netlist,
     build_adjacency_matrix,
 )
@@ -776,13 +777,16 @@ class HierarchicalGroupInitializer:
                 netlist, member_indices, max_spread, rng_key
             )
 
+            # Build subnetlist for force-directed solver
+            sub_netlist = self._build_subnetlist(netlist, member_indices)
+
             # Run force-directed solve
             local_bbox = max_spread * 2.0
             area = local_bbox * local_bbox
             repulsion_k = float(jnp.sqrt(area / len(member_indices)))
 
             solved = compute_force_directed_layout(
-                netlist,
+                sub_netlist,
                 local_positions,
                 board_width=local_bbox,
                 board_height=local_bbox,
@@ -1051,6 +1055,22 @@ class HierarchicalGroupInitializer:
         diff = positions[:, None, :] - positions[None, :, :]
         dist = jnp.sqrt(jnp.sum(diff**2, axis=-1) + 1e-10)
         return float(jnp.max(dist))
+
+    def _build_subnetlist(
+        self, netlist: Netlist, member_indices: list[int]
+    ) -> Netlist:
+        """Build a Netlist containing only the specified subset of components."""
+        subset_comps = [netlist.components[i] for i in member_indices]
+        # Build nets connecting only subset members
+        subset_nets = []
+        comp_set = {c.ref for c in subset_comps}
+        for net in netlist.nets:
+            pins_in_subset = [
+                (ref, pin) for ref, pin in net.pins if ref in comp_set
+            ]
+            if len(pins_in_subset) >= 2:
+                subset_nets.append(Net(net.name, pins_in_subset))
+        return Netlist(components=subset_comps, nets=subset_nets)
 
     def _radial_placement(self, member_indices: list[int], max_spread: float) -> Array:
         """Fallback: arrange components in a circle at max_spread_mm / 2 radius."""

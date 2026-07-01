@@ -536,3 +536,111 @@ class TestCoarsening:
         # Should have exactly 2 super-nodes
         assert len(super_node_map) == 2
         assert super_adj.shape == (2, 2)
+
+
+# ---------------------------------------------------------------------------
+# Phase D: Global Embedding + Explosion Tests
+# ---------------------------------------------------------------------------
+
+
+class TestEmbeddingAndExplosion:
+    """Unit tests for Phase 3 (super-node embedding) and Phase 4 (explosion)."""
+
+    def test_single_group_board_center(self):
+        """One group covering all components → positions cluster around board center."""
+        components = [_make_component(f"C{i+1}") for i in range(6)]
+        chains = []
+        for i in range(5):
+            chains.append(Net(f"N{i+1}", [(f"C{i+1}", "1"), (f"C{i+2}", "1")]))
+        netlist = Netlist(components=components, nets=chains)
+
+        group = ComponentGroup(
+            name="all",
+            components=[f"C{i+1}" for i in range(6)],
+            max_spread_mm=60.0,
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init = HierarchicalGroupInitializer(force_iterations=100)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        # All positions should be on the board
+        assert jnp.all(jnp.isfinite(positions))
+        assert jnp.all(positions >= 0.0)
+
+        # Group center of mass should be near board center
+        com = jnp.mean(positions, axis=0)
+        center = jnp.array([BOARD.width / 2, BOARD.height / 2])
+        dist_to_center = float(jnp.linalg.norm(com - center))
+        # For a single super-node, centroid should be at board center
+        assert dist_to_center < 30.0, f"Center-of-mass {com} too far from board center {center}"
+
+    def test_multi_group_positions_on_board(self):
+        """Multiple groups: all positions within board bounds."""
+        components = [_make_component(f"C{i+1}") for i in range(6)]
+        nets = [
+            Net("N1", [("C1", "1"), ("C2", "1"), ("C3", "1")]),
+            Net("N2", [("C4", "1"), ("C5", "1"), ("C6", "1")]),
+            Net("N3", [("C3", "1"), ("C4", "1")]),  # cross-group connection
+        ]
+        netlist = Netlist(components=components, nets=nets)
+
+        group_a = ComponentGroup(name="A", components=["C1", "C2", "C3"], max_spread_mm=30.0)
+        group_b = ComponentGroup(name="B", components=["C4", "C5", "C6"], max_spread_mm=30.0)
+        constraints = PlacementConstraints(component_groups=[group_a, group_b])
+
+        init = HierarchicalGroupInitializer(force_iterations=100)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        assert jnp.all(jnp.isfinite(positions))
+        assert jnp.all(positions >= 0.0)
+        assert jnp.all(positions[:, 0] <= BOARD.width)
+        assert jnp.all(positions[:, 1] <= BOARD.height)
+
+    def test_idempotence(self):
+        """Property P5: Running initialize() twice with same inputs produces identical positions."""
+        components = [_make_component(f"C{i+1}") for i in range(4)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1"), ("C3", "1"), ("C4", "1")])],
+        )
+        group = ComponentGroup(
+            name="quad", components=["C1", "C2", "C3", "C4"], max_spread_mm=40.0
+        )
+        constraints = PlacementConstraints(component_groups=[group])
+
+        init1 = HierarchicalGroupInitializer(force_iterations=100)
+        positions1 = init1.initialize(netlist, BOARD, constraints)
+
+        init2 = HierarchicalGroupInitializer(force_iterations=100)
+        positions2 = init2.initialize(netlist, BOARD, constraints)
+
+        assert jnp.allclose(positions1, positions2)
+
+    def test_group_separation_integration(self):
+        """GroupSeparation constraint pushes group centroids apart."""
+        components = [_make_component(f"C{i+1}") for i in range(4)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C3", "1")])],  # minimal cross-connection
+        )
+        group_a = ComponentGroup(name="A", components=["C1", "C2"], max_spread_mm=20.0)
+        group_b = ComponentGroup(name="B", components=["C3", "C4"], max_spread_mm=20.0)
+        separation = GroupSeparation(group_a="A", group_b="B", min_distance_mm=60.0)
+        constraints = PlacementConstraints(
+            component_groups=[group_a, group_b],
+            group_separations=[separation],
+        )
+
+        init = HierarchicalGroupInitializer(force_iterations=50)
+        positions = init.initialize(netlist, BOARD, constraints)
+
+        # Compute group centroids post-init
+        mask_a = jnp.array([True, True, False, False])
+        mask_b = jnp.array([False, False, True, True])
+        centroid_a = jnp.mean(positions[mask_a], axis=0)
+        centroid_b = jnp.mean(positions[mask_b], axis=0)
+        dist = float(jnp.linalg.norm(centroid_a - centroid_b))
+
+        # With separation push, distance should be reasonable (not coincident)
+        assert dist > 10.0, f"Groups too close: {dist}mm"
