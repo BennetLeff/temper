@@ -1324,11 +1324,9 @@ scripts:
   disposition: utility
     imports:
       - argparse
-      - json
       - pathlib
       - sys
       - time
-      - traceback
       - yaml
       - temper_placer.io.kicad_parser
 - path: quarantine_report.py

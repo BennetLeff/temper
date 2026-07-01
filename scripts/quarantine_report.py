@@ -58,24 +58,35 @@ def main() -> None:
 
     known_failures = set(baseline.get("known_failures", []))
     passing_boards = set(baseline.get("passing_boards", []))
+    today_failing_ids = {e.get("board_id", "") for e in entries if e.get("board_id")}
 
-    regressions = 0
-    for entry in entries:
-        board_id = entry.get("board_id", "")
-        if board_id in passing_boards:
-            print(f"REGRESSION: {board_id} ({entry.get('stage', '?')} / {entry.get('taxonomy', '?')})")
-            regressions += 1
+    regressions = passing_boards & today_failing_ids
+    recovered = known_failures - today_failing_ids
 
-    if regressions > 0:
-        print(f"\n{regressions} regression(s) found — previously-passing boards now failing.")
+    for bid in sorted(regressions):
+        matching = [e for e in entries if e.get("board_id") == bid]
+        summary = matching[0] if matching else {}
+        print(
+            f"REGRESSION: {bid} "
+            f"({summary.get('stage', '?')} / {summary.get('taxonomy', '?')})"
+        )
+
+    if recovered:
+        print(f"\n{len(recovered)} previously-failing board(s) recovered (no longer in quarantine).")
+
+    if regressions:
+        print(f"\n{len(regressions)} regression(s) found — previously-passing boards now failing.")
         sys.exit(1)
 
-    if len(entries) > len(known_failures):
-        new_count = len(entries) - len(known_failures)
-        print(f"\n{new_count} new quarantine entries (not regressions).")
+    new_failures = today_failing_ids - known_failures - passing_boards
+    if new_failures:
+        print(f"\n{len(new_failures)} new board(s) in quarantine (not regressions, not previously known).")
         sys.exit(2)
 
-    print("\nQuarantine clean — no regressions, no new entries.")
+    if not entries:
+        print("\nQuarantine empty — no entries.")
+    else:
+        print("\nQuarantine stable — no regressions, no new boards.")
     sys.exit(0)
 
 

@@ -2222,6 +2222,7 @@ dev = [
     { name = "hypothesis" },
     { name = "pytest" },
     { name = "pytest-bdd" },
+    { name = "pytest-timeout" },
     { name = "python-sat" },
 ]
 
@@ -2263,6 +2264,7 @@ dev = [
     { name = "hypothesis", specifier = ">=6.148.7" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "pytest-bdd", specifier = ">=8.1.0" },
+    { name = "pytest-timeout", specifier = ">=2.3.1" },
     { name = "python-sat", specifier = ">=1.8.dev14" },
 ]
 
