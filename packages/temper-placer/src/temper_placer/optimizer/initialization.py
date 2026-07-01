@@ -13,6 +13,7 @@ from __future__ import annotations
 import pickle
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Any
 
 import jax.numpy as jnp
@@ -33,11 +34,17 @@ from temper_placer.heuristics.force_directed import compute_force_directed_layou
 from temper_placer.io.config_loader import GroupSeparation, PlacementConstraints
 from temper_placer.ml.learned_init import LearnedInitializerGNN
 
+if TYPE_CHECKING:
+    from temper_placer.io.config_loader import PlacementConstraints
+    from temper_placer.pcl.parser import ConstraintCollection
+
 
 def compute_spectral_coordinates(
     adjacency: Array,
     n_dims: int = 2,
     normalized: bool = True,
+    stabilize: bool = False,
+    precomputed_laplacian: np.ndarray | None = None,
 ) -> Array:
     """
     Compute spectral coordinates from adjacency matrix.
@@ -50,17 +57,12 @@ def compute_spectral_coordinates(
     Args:
         adjacency: (N, N) weighted adjacency matrix.
         n_dims: Number of dimensions (typically 2 for X/Y placement).
-        normalized: If True, use normalized Laplacian L = I - D^(-1/2) A D^(-1/2).
-                   If False, use unnormalized Laplacian L = D - A.
-                   Normalized is generally better for graphs with varying node degrees.
+        normalized: If True, use normalized Laplacian.
+        stabilize: If True, apply PSD stabilization via Gershgorin before eigh.
+        precomputed_laplacian: Optional precomputed Laplacian to skip recomputation.
 
     Returns:
         (N, n_dims) array of spectral coordinates.
-
-    Notes:
-        - For disconnected graphs, there will be multiple zero eigenvalues.
-        - The normalized Laplacian handles varying node degrees better.
-        - Edge case: graphs with < n_dims+1 nodes may not have enough eigenvectors.
     """
     n = adjacency.shape[0]
 
@@ -68,31 +70,40 @@ def compute_spectral_coordinates(
         return jnp.zeros((0, n_dims))
 
     if n == 1:
-        # Single node: return zeros
         return jnp.zeros((1, n_dims))
 
-    # Compute degree matrix
-    degrees = jnp.sum(adjacency, axis=1)
-
-    if normalized:
-        # Normalized Laplacian: L = I - D^(-1/2) A D^(-1/2)
-        # Add small epsilon to avoid division by zero for isolated nodes
-        d_inv_sqrt = jnp.where(degrees > 0, 1.0 / jnp.sqrt(degrees + 1e-10), 0.0)
-        D_inv_sqrt = jnp.diag(d_inv_sqrt)
-        L = jnp.eye(n) - D_inv_sqrt @ adjacency @ D_inv_sqrt
+    if precomputed_laplacian is not None:
+        L = precomputed_laplacian
     else:
-        # Unnormalized Laplacian: L = D - A
-        D = jnp.diag(degrees)
-        L = D - adjacency
+        adj_np = np.array(adjacency, dtype=np.float64)
+        degrees = np.sum(adj_np, axis=1)
 
-    # Eigendecomposition
-    # eigh returns eigenvalues in ascending order
-    eigenvalues, eigenvectors = jnp.linalg.eigh(L)
+        if normalized:
+            d_inv_sqrt = np.where(degrees > 0, 1.0 / np.sqrt(degrees + 1e-10), 0.0)
+            D_inv_sqrt = np.diag(d_inv_sqrt)
+            L = np.eye(n) - D_inv_sqrt @ adj_np @ D_inv_sqrt
+        else:
+            D = np.diag(degrees)
+            L = D - adj_np
 
-    # Skip first eigenvector (corresponds to eigenvalue ≈ 0, constant vector)
-    # Take next n_dims eigenvectors for coordinates
+    adj_np = np.array(adjacency, dtype=np.float64)
+
+    # U3: PSD stabilization
+    if stabilize:
+        from temper_placer.placement.constraint_weights import apply_psd_shift
+
+        L_stable, shift, was_overdamped = apply_psd_shift(L, adj_np)
+        if shift > 0:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info("PSD shift applied: %.4f (over-damped: %s)", shift, was_overdamped)
+        L = L_stable
+
+    L_jax = jnp.array(L)
+
+    eigenvalues, eigenvectors = jnp.linalg.eigh(L_jax)
+
     if n < n_dims + 1:
-        # Not enough eigenvectors, take what we have and pad with zeros
         coords = eigenvectors[:, 1:n]
         padding = jnp.zeros((n, n_dims - (n - 1)))
         coords = jnp.concatenate([coords, padding], axis=1)
@@ -237,26 +248,27 @@ class SpectralInitializer:
         netlist: Netlist,
         board: Board,
         _rng_key: Array | None = None,
+        constraint_weights: dict[tuple[int, int], float] | None = None,
+        placement_constraints: "PlacementConstraints | None" = None,
+        pcl_collection: "ConstraintCollection | None" = None,
         constraints: Any | None = None,
     ) -> Array:
         """
         Compute initial positions for all components using spectral embedding.
 
-        For disjoint subgraphs, places largest subgraph at center and smaller
-        subgraphs in corners/periphery to prevent overlap.
+        If constraint_weights is provided, builds a constraint-weighted
+        Laplacian instead of the uniform-weight baseline.
 
         Args:
             netlist: Components and connectivity.
             board: Board dimensions.
             rng_key: Random key (unused, for API compatibility).
+            constraint_weights: Optional per-edge constraint weight contributions.
+            placement_constraints: PlacementConstraints for building weights.
+            pcl_collection: PCL constraint collection for building weights.
 
         Returns:
             (N, 2) initial positions in board coordinates.
-
-        Notes:
-            - Deterministic for same netlist (no randomness).
-            - Single components placed at center.
-            - Disjoint subgraphs are partitioned and packed strategically.
         """
         n = len(netlist.components)
         if n == 0:
@@ -266,25 +278,51 @@ class SpectralInitializer:
             center_y = board.height / 2
             return jnp.array([[center_x, center_y]])
 
-        # Build connectivity graph
-        adjacency = build_adjacency_matrix(netlist)
+        # Build raw adjacency (without constraint weights) for connectivity.
+        # Negative constraint weights would break topological connectivity
+        # detection; connectivity is a topological property independent of
+        # weight sign, so we always use the raw netlist adjacency for BFS.
+        raw_adjacency = build_adjacency_matrix(netlist)
 
-        # Find connected components (disjoint subgraphs)
-        components = find_connected_components(adjacency)
+        # Find connected components (disjoint subgraphs) from raw graph
+        components = find_connected_components(raw_adjacency)
 
-        # If single connected graph, use unified spectral embedding
+        # Build constraint-weighted adjacency for spectral embedding
+        use_weighted = constraint_weights is not None and len(constraint_weights) > 0
+        if use_weighted:
+            from temper_placer.placement.constraint_weights import (
+                compute_laplacian_from_weights,
+            )
+
+            adj, _L = compute_laplacian_from_weights(
+                netlist,
+                constraint_weights=constraint_weights,
+                normalized=self.normalized_laplacian,
+            )
+            adjacency = jnp.array(adj)
+        else:
+            adjacency = raw_adjacency
+            _L = None
+
+        # Determine if PSD stabilization is needed (negative weights present)
+        needs_stabilize = use_weighted and any(w < 0 for w in constraint_weights.values())  # type: ignore[union-attr]
+
         if len(components) == 1:
             all_coords = compute_spectral_coordinates(
                 adjacency,
                 n_dims=2,
                 normalized=self.normalized_laplacian,
+                stabilize=needs_stabilize,
+                precomputed_laplacian=_L,
             )
             positions = scale_to_board(all_coords, board, self.margin_fraction)
             positions = self._separate_coincident_components(positions, board)
             return positions
 
         # Multiple disjoint subgraphs: handle each independently
-        return self._initialize_disjoint_subgraphs(adjacency, components, board)
+        return self._initialize_disjoint_subgraphs(
+            adjacency, components, board, stabilize=needs_stabilize
+        )
 
     def _separate_coincident_components(
         self,
@@ -358,6 +396,7 @@ class SpectralInitializer:
         adjacency: Array,
         components: list[list[int]],
         board: Board,
+        stabilize: bool = False,
     ) -> Array:
         """
         Initialize disjoint subgraphs independently and pack them strategically.
@@ -372,6 +411,7 @@ class SpectralInitializer:
             adjacency: (N, N) adjacency matrix.
             components: List of component indices for each subgraph.
             board: Board dimensions.
+            stabilize: If True, apply PSD stabilization before eigendecomposition.
 
         Returns:
             (N, 2) positions for all components.
@@ -395,6 +435,7 @@ class SpectralInitializer:
                     sub_adj,
                     n_dims=2,
                     normalized=self.normalized_laplacian,
+                    stabilize=stabilize,
                 )
                 subgraph_coords.append(np.array(coords))
 
