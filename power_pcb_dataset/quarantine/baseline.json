@@ -1,0 +1,13 @@
+{
+  "description": "Known-failure baseline for quarantine CI gate",
+  "generated_at": "2026-07-01",
+  "passing_boards": [
+    "temper",
+    "bitaxe_ultra",
+    "minimal",
+    "rp2040_designguide",
+    "piantor_right"
+  ],
+  "known_failures": [],
+  "notes": "Initial baseline.  passing_boards are the 5 boards in power_pcb_dataset/corpus/.  known_failures will grow as external boards are profiled through batch_pipeline_validate.py."
+}
