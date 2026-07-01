@@ -289,6 +289,14 @@ def _apply_group_coherence_weights(
         comps_in_group = [r for r in cg.components if r in ref_to_idx]
         group_refs = set(cg.components)
 
+        # Precompute nets that touch any component in this group (O(N_nets)
+        # once per group, instead of O(N_nets) per pair).
+        group_nets: set[str] = set()
+        for net in netlist.nets:
+            net_refs = {r for r, _ in net.pins}
+            if net_refs & group_refs:
+                group_nets.add(net.name)
+
         for i in range(len(comps_in_group)):
             for j in range(i + 1, len(comps_in_group)):
                 a, b = comps_in_group[i], comps_in_group[j]
@@ -302,11 +310,6 @@ def _apply_group_coherence_weights(
                 if not a_nets:
                     continue
 
-                group_nets: set[str] = set()
-                for net in netlist.nets:
-                    net_refs = {r for r, _ in net.pins}
-                    if net_refs & group_refs:
-                        group_nets.add(net.name)
                 intra = a_nets & group_nets
                 group_fraction = len(intra) / len(a_nets) if a_nets else 0.0
 
