@@ -238,6 +238,7 @@ class SpectralInitializer:
         board: Board,
         _rng_key: Array | None = None,
         constraints: Any | None = None,
+        precomputed_laplacian: Array | None = None,
     ) -> Array:
         """
         Compute initial positions for all components using spectral embedding.
@@ -249,6 +250,9 @@ class SpectralInitializer:
             netlist: Components and connectivity.
             board: Board dimensions.
             rng_key: Random key (unused, for API compatibility).
+            constraints: Optional placement constraints.
+            precomputed_laplacian: If provided, skip adjacency construction
+                and use this pre-built Laplacian directly.
 
         Returns:
             (N, 2) initial positions in board coordinates.
@@ -267,7 +271,12 @@ class SpectralInitializer:
             return jnp.array([[center_x, center_y]])
 
         # Build connectivity graph
-        adjacency = build_adjacency_matrix(netlist)
+        if precomputed_laplacian is not None:
+            adjacency = precomputed_laplacian
+            use_normalized = False  # already applied by constraint_weights
+        else:
+            adjacency = build_adjacency_matrix(netlist)
+            use_normalized = self.normalized_laplacian
 
         # Find connected components (disjoint subgraphs)
         components = find_connected_components(adjacency)
@@ -277,7 +286,7 @@ class SpectralInitializer:
             all_coords = compute_spectral_coordinates(
                 adjacency,
                 n_dims=2,
-                normalized=self.normalized_laplacian,
+                normalized=use_normalized,
             )
             positions = scale_to_board(all_coords, board, self.margin_fraction)
             positions = self._separate_coincident_components(positions, board)

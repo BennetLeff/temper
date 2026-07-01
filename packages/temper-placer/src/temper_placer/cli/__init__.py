@@ -184,6 +184,24 @@ main.add_command(watch)
     help="Enable DPP-diversified multi-seed placement with triage gate.",
 )
 @click.option(
+    "--init-method",
+    type=click.Choice(
+        ["random", "spectral", "zone_aware_spectral", "constraint_weighted_spectral", "learned"]
+    ),
+    default=None,
+    help="Initialization method (default: constraint_weighted_spectral).",
+)
+@click.option(
+    "--ccap/--no-ccap",
+    default=None,
+    help="Enable/disable C-CAP feasibility pre-projection (default: enabled).",
+)
+@click.option(
+    "--precluster/--no-precluster",
+    default=None,
+    help="Enable/disable hierarchical group pre-clustering (default: enabled).",
+)
+@click.option(
     "--skip-topological",
     is_flag=True,
     default=False,
@@ -241,6 +259,9 @@ def optimize(
     verbose_losses: bool,
     parallel_seeds: int,
     multi_seed: bool,
+    init_method: str | None,
+    ccap: bool | None,
+    precluster: bool | None,
     skip_topological: bool,
     track_metrics: Path | None,
     spice_validate: bool,
@@ -785,6 +806,14 @@ def optimize(
             use_grad_norm=grad_norm,
             grad_norm=gn_cfg,
         )
+
+    # Apply CLI overrides for initialization features
+    if init_method is not None:
+        cfg.initialization.method = init_method
+    if ccap is not None:
+        cfg.initialization.ccap_enabled = ccap
+    if precluster is not None:
+        cfg.initialization.group_preclustering = precluster
 
     console.print(
         f"  [green]✓[/] Temperature: {cfg.temperature.start:.1f} → {cfg.temperature.end:.2f}"

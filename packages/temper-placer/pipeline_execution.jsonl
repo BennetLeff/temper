@@ -1,0 +1,24 @@
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=dryrun.yaml", "timestamp": 1782938997.531575}
+{"severity": "INFO", "tool_id": "input", "msg_id": 1, "msg": "start", "timestamp": 1782938997.531782}
+{"severity": "INFO", "tool_id": "input", "msg_id": 2, "msg": "completed: 0.00s, loss=None, constraints_active=0", "timestamp": 1782938997.531876, "wall_clock_s": 0.0, "extras": {"loss": null, "constraints_active": 0, "errors": []}}
+{"severity": "WARN", "tool_id": "input", "msg_id": 1, "msg": "missing declared outputs: ['board', 'netlist']", "timestamp": 1782938997.531948}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 2, "msg": "pipeline complete: success, 3 stages, 0.00s", "timestamp": 1782938997.532052}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=gate.yaml", "timestamp": 1782938999.6504629}
+{"severity": "ERROR", "tool_id": "dag-engine", "msg_id": 2, "msg": "--canary-gate requires --profile", "timestamp": 1782938999.650571}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=test_manifest.yaml", "timestamp": 1782939000.991622}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=dryrun.yaml", "timestamp": 1782939193.441728}
+{"severity": "INFO", "tool_id": "input", "msg_id": 1, "msg": "start", "timestamp": 1782939193.4419992}
+{"severity": "INFO", "tool_id": "input", "msg_id": 2, "msg": "completed: 0.00s, loss=None, constraints_active=0", "timestamp": 1782939193.442114, "wall_clock_s": 0.0, "extras": {"loss": null, "constraints_active": 0, "errors": []}}
+{"severity": "WARN", "tool_id": "input", "msg_id": 1, "msg": "missing declared outputs: ['board', 'netlist']", "timestamp": 1782939193.4421902}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 2, "msg": "pipeline complete: success, 3 stages, 0.00s", "timestamp": 1782939193.442274}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=gate.yaml", "timestamp": 1782939195.533153}
+{"severity": "ERROR", "tool_id": "dag-engine", "msg_id": 2, "msg": "--canary-gate requires --profile", "timestamp": 1782939195.53331}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=test_manifest.yaml", "timestamp": 1782939196.69002}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=dryrun.yaml", "timestamp": 1782939368.432299}
+{"severity": "INFO", "tool_id": "input", "msg_id": 1, "msg": "start", "timestamp": 1782939368.432547}
+{"severity": "INFO", "tool_id": "input", "msg_id": 2, "msg": "completed: 0.00s, loss=None, constraints_active=0", "timestamp": 1782939368.4326348, "wall_clock_s": 0.0, "extras": {"loss": null, "constraints_active": 0, "errors": []}}
+{"severity": "WARN", "tool_id": "input", "msg_id": 1, "msg": "missing declared outputs: ['board', 'netlist']", "timestamp": 1782939368.432696}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 2, "msg": "pipeline complete: success, 3 stages, 0.00s", "timestamp": 1782939368.4327638}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=gate.yaml", "timestamp": 1782939370.494022}
+{"severity": "ERROR", "tool_id": "dag-engine", "msg_id": 2, "msg": "--canary-gate requires --profile", "timestamp": 1782939370.494143}
+{"severity": "INFO", "tool_id": "dag-engine", "msg_id": 1, "msg": "pipeline start: manifest=test_manifest.yaml", "timestamp": 1782939371.450222}

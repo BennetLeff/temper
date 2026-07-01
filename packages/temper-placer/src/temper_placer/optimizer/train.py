@@ -319,7 +319,45 @@ def initialize_training_state(
         net_virtual_nodes = initial_state.net_virtual_nodes
     else:
         # Use configured initialization method
-        if config.initialization.method == "spectral":
+        if config.initialization.method == "constraint_weighted_spectral":
+            # Build constraint-weighted Laplacian if constraints available
+            if constraints is not None:
+                try:
+                    from temper_placer.placement.constraint_weights import (
+                        compute_constraint_weight_dict,
+                        compute_laplacian_from_weights,
+                        apply_psd_shift,
+                    )
+                    constraint_weights = compute_constraint_weight_dict(
+                        netlist, constraints
+                    )
+                    laplacian = compute_laplacian_from_weights(
+                        netlist, constraint_weights
+                    )
+                    laplacian = apply_psd_shift(laplacian)
+                except Exception:
+                    logger.info(
+                        "constraint_weighted_spectral: weight computation failed, "
+                        "falling back to spectral"
+                    )
+                    laplacian = None
+            else:
+                laplacian = None
+                logger.info(
+                    "constraint_weighted_spectral: no constraints loaded, "
+                    "falling back to spectral"
+                )
+
+            initializer = SpectralInitializer(
+                normalized_laplacian=config.initialization.spectral_normalized,
+                margin_fraction=config.initialization.spectral_margin,
+            )
+            positions = initializer.initialize(
+                netlist, board, constraints=constraints,
+                precomputed_laplacian=laplacian,
+            )
+            net_virtual_nodes = None
+        elif config.initialization.method == "spectral":
             initializer = SpectralInitializer(
                 normalized_laplacian=config.initialization.spectral_normalized,
                 margin_fraction=config.initialization.spectral_margin,
