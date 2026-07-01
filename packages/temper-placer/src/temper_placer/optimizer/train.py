@@ -1768,7 +1768,9 @@ def train_dpp_multiseed(
 
     seeds = _generate_diverse_seeds(netlist, board, ms_config, master_key)
     logger.info(
-        "dpp_seed_gen_emitted",
+        "Generated %d diverse seeds (requested %d, %d degenerate)",
+        len(seeds), ms_config.n_generate,
+        max(0, ms_config.n_generate - len(seeds)),
         extra={
             "event": "dpp_seed_gen",
             "n_requested": ms_config.n_generate,
@@ -1796,7 +1798,10 @@ def train_dpp_multiseed(
         seeds[i][1].get("init_method", "unknown") for i in selected_indices
     ]
     logger.info(
-        "dpp_selection_emitted",
+        "DPP selected %d of %d seeds (method: %s, cond: %.1e)",
+        len(selected_indices), len(seeds),
+        "farthest_point" if condition_number > 1e6 else "dpp_greedy",
+        condition_number,
         extra={
             "event": "dpp_selection",
             "n_input": len(seeds),
@@ -1844,7 +1849,9 @@ def train_dpp_multiseed(
 
     triage_elapsed = time.time() - start_time
     logger.info(
-        "dpp_triage_emitted",
+        "Triage evaluated %d seeds (%d iters) in %.0f ms, best_loss=%.3f (seed %d)",
+        len(selected_indices), ms_config.n_triage_iters,
+        triage_elapsed * 1000, best_triage_loss, best_seed_idx,
         extra={
             "event": "dpp_triage",
             "n_seeds": len(selected_indices),
