@@ -694,13 +694,19 @@ def optimize(
 
         # Compile PCL constraints (keepout, decoupling, tag-expanded)
         if hasattr(constraints, "pcl_constraints") and constraints.pcl_constraints:
+            from temper_placer.pcl.constraints import ConstraintTier
             from temper_placer.pcl.loss_bridge import constraint_to_loss
 
-            pcl_weight = weights.get("pcl", weights.get("boundary", 100.0))
+            tier_weight_map = {
+                ConstraintTier.HARD: 1e6,
+                ConstraintTier.STRONG: 1e3,
+                ConstraintTier.SOFT: 1e1,
+            }
             for pcl_c in constraints.pcl_constraints:
                 try:
                     loss_fn = constraint_to_loss(pcl_c, netlist, board)
-                    losses.append(WeightedLoss(loss_fn, weight=pcl_weight))
+                    tier_weight = tier_weight_map.get(pcl_c.tier, 100.0)
+                    losses.append(WeightedLoss(loss_fn, weight=tier_weight))
                 except Exception:
                     pass
 
