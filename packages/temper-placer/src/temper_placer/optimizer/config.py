@@ -192,6 +192,9 @@ class InitializationConfig:
         learned_model_path: Path to pre-trained model for 'learned' init.
         force_directed: Force-directed unfolding configuration.
         zone_aware: Zone avoidance configuration (used when method="zone_aware_spectral").
+        ccap_enabled: If True, run C-CAP pre-projection before main initializer.
+        ccap_max_cycles: Max Dykstra projection cycles (default 15).
+        ccap_convergence_tol: Stop when max position delta < this (mm, default 0.01).
     """
 
     method: str = "random"  # "random", "spectral", "zone_aware_spectral", "learned"
@@ -200,6 +203,9 @@ class InitializationConfig:
     learned_model_path: str | None = "models/learned_init.pkl"
     force_directed: ForceDirectedConfig = field(default_factory=ForceDirectedConfig)
     zone_aware: ZoneAwareConfig = field(default_factory=ZoneAwareConfig)
+    ccap_enabled: bool = False
+    ccap_max_cycles: int = 15
+    ccap_convergence_tol: float = 0.01
     group_preclustering: bool = False
 
 

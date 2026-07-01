@@ -10,12 +10,6 @@ stages:
     timeout_s: 60
     skip_if: "config.input_pcb == null"
 
-  - name: thermal_anchoring
-    handler: temper_placer.pipeline.stages.thermal_anchoring_stage.ThermalAnchoringStage
-    requires: [board, netlist, constraints]
-    provides: []
-    timeout_s: 5
-
   - name: semantic
     handler: temper_placer.pipeline.stages.semantic_stage.SemanticStage
     requires: [board, netlist, loops]

@@ -79,7 +79,6 @@ class Component:
     pads: list[Pad] = field(default_factory=list)
     layer: str = "F.Cu"
     fixed: bool = False
-    Rjc: float | None = None  # Junction-to-case thermal resistance (K/W)
 
 
 @dataclass(frozen=True)

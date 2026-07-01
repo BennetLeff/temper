@@ -36,6 +36,8 @@ from temper_placer.geometry.polygon import (
     compute_loop_perimeter,
     is_convex,
     loop_area_penalty,
+    nearest_point_on_polygon,
+    nearest_point_on_segment,
     point_in_polygon_soft,
     point_in_polygon_winding,
     point_in_rect,
@@ -79,6 +81,17 @@ from temper_placer.geometry.primitives import (
     rect_corners,
     rect_dimensions,
     rect_from_center,
+)
+
+# Projection operators: C-CAP constraint projections
+from temper_placer.geometry.projections import (
+    identity_projection,
+    project_onto_board,
+    project_onto_edge_strip,
+    project_onto_half_plane,
+    project_onto_side,
+    project_onto_zone,
+    project_outside_keepout,
 )
 
 # Signed Distance Functions: smooth shape representations
@@ -267,4 +280,14 @@ __all__ = [
     "compute_loop_area",
     "compute_loop_perimeter",
     "loop_area_penalty",
+    "nearest_point_on_polygon",
+    "nearest_point_on_segment",
+    # Projections
+    "identity_projection",
+    "project_onto_board",
+    "project_onto_edge_strip",
+    "project_onto_half_plane",
+    "project_onto_side",
+    "project_onto_zone",
+    "project_outside_keepout",
 ]
