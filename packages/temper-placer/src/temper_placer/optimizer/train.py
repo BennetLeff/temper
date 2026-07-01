@@ -42,7 +42,7 @@ from temper_placer.losses.base import (
     LossContext,
     create_value_and_grad_fn_with_breakdown,
 )
-from temper_placer.optimizer.config import OptimizerConfig
+from temper_placer.optimizer.config import MultiSeedConfig, OptimizerConfig
 from temper_placer.optimizer.convergence_analytics import (
     ConvergenceConfidenceScorer,
     LossImprovementTracker,
@@ -1704,4 +1704,188 @@ def train_multiphase(
             total_epochs=config.epochs,
             net_virtual_nodes=state.net_virtual_nodes,
         )[1],
+    )
+
+
+def train_dpp_multiseed(
+    netlist: Netlist,
+    board: Board,
+    composite_loss: CompositeLoss | None = None,
+    loss_factory: Callable[[dict[str, float]], CompositeLoss] | None = None,
+    context: LossContext | None = None,
+    config: OptimizerConfig | None = None,
+    n_generate: int | None = None,
+    n_select: int | None = None,
+    n_triage_iters: int | None = None,
+    callback: Callable[[TrainingMetrics], None] | None = None,
+    validation_callback: ValidationCallback | None = None,
+) -> ParallelTrainingResult:
+    """Run DPP-diversified multi-seed placement with triage gating."""
+    import jax
+    import math
+
+    from temper_placer.optimizer.dpp_selection import (
+        _dpp_kernel_from_positions,
+        _dpp_select,
+    )
+    from temper_placer.optimizer.seed_generation import _generate_diverse_seeds
+    from temper_placer.optimizer.triage import _triage_evaluate
+
+    if config is None:
+        config = OptimizerConfig()
+
+    ms_config = MultiSeedConfig(
+        enabled=config.multi_seed.enabled,
+        n_generate=n_generate if n_generate is not None else config.multi_seed.n_generate,
+        n_select=n_select if n_select is not None else config.multi_seed.n_select,
+        n_triage_iters=n_triage_iters if n_triage_iters is not None else config.multi_seed.n_triage_iters,
+        dpp_quality_enabled=config.multi_seed.dpp_quality_enabled,
+    )
+
+    if not ms_config.enabled:
+        if loss_factory is None:
+            raise ValueError(
+                "loss_factory required when multi_seed is disabled"
+            )
+        if context is None:
+            context = LossContext.from_netlist_and_board(netlist, board)
+        result = train_multiphase(
+            netlist, board, loss_factory, context, config,
+            callback=callback, validation_callback=validation_callback,
+        )
+        return ParallelTrainingResult(
+            best_result=result,
+            aesthetic_tax=1.0,
+            confidence_score=1.0,
+            all_results=[result],
+        )
+
+    if context is None:
+        context = LossContext.from_netlist_and_board(netlist, board)
+
+    master_key = jax.random.PRNGKey(config.seed)
+    start_time = time.time()
+
+    seeds = _generate_diverse_seeds(netlist, board, ms_config, master_key)
+    logger.info(
+        "dpp_seed_gen_emitted",
+        extra={
+            "event": "dpp_seed_gen",
+            "n_requested": ms_config.n_generate,
+            "n_generated": len(seeds),
+            "n_degenerate": max(0, ms_config.n_generate - len(seeds)),
+        },
+    )
+
+    L, condition_number = _dpp_kernel_from_positions(seeds)
+    n_select_actual = min(ms_config.n_select, len(seeds))
+    if len(seeds) < ms_config.n_select:
+        logger.warning(
+            "n_generate (%d) < n_select (%d); selecting all seeds.",
+            len(seeds), ms_config.n_select,
+        )
+
+    seed_vecs = jnp.stack([p.ravel() for p, _md in seeds], axis=0)
+    selected_indices = _dpp_select(
+        L, k=n_select_actual,
+        condition_number=condition_number,
+        seed_vectors=seed_vecs,
+    )
+
+    selected_hyperparams = [
+        seeds[i][1].get("init_method", "unknown") for i in selected_indices
+    ]
+    logger.info(
+        "dpp_selection_emitted",
+        extra={
+            "event": "dpp_selection",
+            "n_input": len(seeds),
+            "n_selected": len(selected_indices),
+            "kernel_condition_number": condition_number,
+            "selected_indices": selected_indices,
+            "selected_hyperparams": selected_hyperparams,
+            "fallback_method": (
+                "farthest_point" if condition_number > 1e6 else "dpp_greedy"
+            ),
+        },
+    )
+
+    triage_scores: list[dict] = []
+    triage_num_nan = 0
+    for idx in selected_indices:
+        positions, md = seeds[idx]
+        triage_loss = _triage_evaluate(
+            positions, netlist, board, context=context,
+            n_iters=ms_config.n_triage_iters,
+        )
+        if math.isnan(triage_loss):
+            triage_num_nan += 1
+        triage_scores.append({
+            "seed_id": idx,
+            "triage_loss": float(triage_loss) if not math.isnan(triage_loss) else float("nan"),
+            "hyperparams": md.get("init_method", "unknown"),
+        })
+
+    if triage_num_nan > len(selected_indices) * 0.2:
+        raise RuntimeError(
+            f"Triage evaluation aborted: {triage_num_nan}/{len(selected_indices)} "
+            f"seeds produced NaN triage loss (>20%)."
+        )
+
+    valid_scores = [s for s in triage_scores if not math.isnan(s["triage_loss"])]
+    if not valid_scores:
+        logger.warning("All triaged seeds produced NaN; falling back to first seed.")
+        best_seed_idx = selected_indices[0]
+        best_triage_loss = float("nan")
+    else:
+        best_score = min(valid_scores, key=lambda s: s["triage_loss"])
+        best_seed_idx = best_score["seed_id"]
+        best_triage_loss = best_score["triage_loss"]
+
+    triage_elapsed = time.time() - start_time
+    logger.info(
+        "dpp_triage_emitted",
+        extra={
+            "event": "dpp_triage",
+            "n_seeds": len(selected_indices),
+            "n_iters": ms_config.n_triage_iters,
+            "scores": triage_scores,
+            "best_seed_id": best_seed_idx,
+            "best_triage_loss": best_triage_loss,
+            "elapsed_ms": triage_elapsed * 1000,
+        },
+    )
+
+    best_metadata = seeds[best_seed_idx][1]
+    logger.info(
+        "seed_promoted",
+        extra={
+            "event": "seed_promoted",
+            "seed_id": best_seed_idx,
+            "triage_loss": best_triage_loss,
+            "hyperparams": best_metadata,
+        },
+    )
+
+    if loss_factory is None:
+        raise ValueError("loss_factory required for full optimization in multi-seed mode")
+
+    best_positions = seeds[best_seed_idx][0]
+    initial_state = PlacementState(
+        positions=best_positions,
+        rotation_logits=jnp.zeros((netlist.n_components, 4)),
+    )
+
+    full_result = train_multiphase(
+        netlist, board, loss_factory, context, config,
+        initial_state=initial_state,
+        callback=callback,
+        validation_callback=validation_callback,
+    )
+
+    return ParallelTrainingResult(
+        best_result=full_result,
+        aesthetic_tax=1.0,
+        confidence_score=1.0,
+        all_results=[full_result],
     )

@@ -94,11 +94,13 @@ from temper_placer.optimizer.scheduler import (
 )
 from temper_placer.optimizer.train import (
     NumericalInstabilityError,
+    ParallelTrainingResult,
     TrainingMetrics,
     TrainingResult,
     TrainingState,
     initialize_training_state,
     train,
+    train_dpp_multiseed,
     train_multiphase,
 )
 from temper_placer.optimizer.validation_callback import (
@@ -150,6 +152,8 @@ __all__ = [
     # Training
     "train",
     "train_multiphase",
+    "train_dpp_multiseed",
+    "ParallelTrainingResult",
     "TrainingResult",
     "TrainingMetrics",
     "TrainingState",
