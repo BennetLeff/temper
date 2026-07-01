@@ -354,9 +354,9 @@ class PipelineOrchestrator:
         # Enrich PCL constraints from design data
         if state.config.constraints_yaml and state.constraints is not None:
             try:
-                from temper_placer.losses.decoupling import auto_detect_decoupling
+                from temper_placer.losses.decoupling import auto_detect_decoupling_set
 
-                detections = auto_detect_decoupling(state.netlist)
+                detections = auto_detect_decoupling_set(state.netlist)
                 for constraint in detections.to_constraints():
                     state.constraints.pcl_constraints.append(constraint)
                 if detections.detections:

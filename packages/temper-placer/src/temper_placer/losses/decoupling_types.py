@@ -124,3 +124,11 @@ class DecouplingDetectionSet:
 
     def __contains__(self, item):
         return item in self.detections
+
+    @property
+    def bypass_count(self) -> int:
+        return len(self.by_classification(DecouplingClass.BYPASS))
+
+    @property
+    def bulk_count(self) -> int:
+        return len(self.by_classification(DecouplingClass.BULK))
