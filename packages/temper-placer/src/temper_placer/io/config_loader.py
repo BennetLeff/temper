@@ -119,6 +119,14 @@ class StarGroundConfig:
 
 
 @dataclass
+class PlacementInitialization:
+    """Initialization-phase configuration for the placer pipeline."""
+
+    thermal_anchoring: bool = False
+    anchoring_grid_resolution: int = 50
+
+
+@dataclass
 class ThermalConstraint:
     """Thermal placement constraint for heat-generating components."""
 
@@ -154,6 +162,44 @@ class ThermalProperties:
     thermal_pad_components: list[str] = field(default_factory=list)
     prefer_edge: bool = True
     preferred_edge_margin_mm: float = 10.0
+
+    # Airflow direction (m/s magnitude at 0°, direction in degrees from +x)
+    airflow_vector: tuple[float, float] | None = None
+
+    # Per-component rated maximum junction temperature (°C)
+    rated_tj_max: dict[str, float] = field(default_factory=dict)
+
+
+# Package-type Rjc lookup table for thermal anchoring inference.
+# Values in K/W (junction-to-case).
+_RJC_PACKAGE_LOOKUP: dict[str, float] = {
+    "TO-247": 0.6,
+    "TO-220": 1.0,
+    "DPAK": 2.0,
+    "D2PAK": 1.5,
+    "SOT-223": 15.0,
+    "SOIC-8": 50.0,
+    "TO-263": 1.5,
+    "TO-252": 2.0,
+    "QFN-48": 5.0,
+    "QFN-32": 8.0,
+    "SOT-23": 200.0,
+}
+_DEFAULT_RJC: float = 0.6  # Conservative default (TO-247 class)
+
+
+def infer_rjc(package_type: str | None) -> float:
+    """Infer Rjc (K/W) from package type string.
+
+    Returns the lookup table value if the package type is recognized,
+    otherwise returns the conservative default of 0.6 K/W.
+    """
+    if not package_type:
+        return _DEFAULT_RJC
+    for key, value in _RJC_PACKAGE_LOOKUP.items():
+        if key.lower() in package_type.lower():
+            return value
+    return _DEFAULT_RJC
 
 
 @dataclass
@@ -733,6 +779,9 @@ class PlacementConstraints:
     # EXP-13: HV exclusion zones for routing
     hv_exclusion_zones: list[HVExclusionZone] = field(default_factory=list)
 
+    # Phase-0 placement initialization
+    initialization: PlacementInitialization | None = None
+
     # EXP-15: Isolation slots for creepage compliance
     isolation_slots: list[IsolationSlot] = field(default_factory=list)
 
@@ -1004,6 +1053,21 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
             thermal_pad_components=thermal_pads.get("components", []),
             prefer_edge=thermal_pads.get("prefer_edge", True),
             preferred_edge_margin_mm=thermal_pads.get("preferred_edge_margin_mm", 10.0),
+            airflow_vector=(
+                tuple(tp_cfg["airflow_vector"])
+                if "airflow_vector" in tp_cfg
+                and isinstance(tp_cfg["airflow_vector"], (list, tuple))
+                and len(tp_cfg["airflow_vector"]) >= 2
+                else None
+            ),
+            rated_tj_max=tp_cfg.get("rated_tj_max", {}),
+        )
+
+    if "initialization" in config:
+        init_cfg = config["initialization"]
+        constraints.initialization = PlacementInitialization(
+            thermal_anchoring=init_cfg.get("thermal_anchoring", False),
+            anchoring_grid_resolution=init_cfg.get("anchoring_grid_resolution", 50),
         )
 
     if "groups" in config:
