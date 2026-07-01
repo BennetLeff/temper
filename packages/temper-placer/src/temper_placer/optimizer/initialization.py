@@ -761,7 +761,18 @@ class HierarchicalGroupInitializer:
         offsets: dict[int, tuple[Array, list[int]]] = {}
         self.diagnostics.append("Phase 1: Solving intra-group micro-layouts")
 
+        board_diagonal = float(jnp.sqrt(board.width**2 + board.height**2))
+        spanning_threshold = 0.3 * board_diagonal
+
         for gid, group in enumerate(component_groups):
+            is_spanning = group.max_spread_mm > spanning_threshold
+            if is_spanning:
+                self.diagnostics.append(
+                    f"  Group '{group.name}' exceeds spanning threshold "
+                    f"({group.max_spread_mm:.1f} > {spanning_threshold:.1f}) "
+                    f"— not coarsened, but micro-solving for relative layout"
+                )
+
             member_indices = self._resolve_member_indices(netlist, group)
             if len(member_indices) <= 1:
                 offsets[gid] = (jnp.zeros((len(member_indices), 2)), list(member_indices))
@@ -1002,6 +1013,14 @@ class HierarchicalGroupInitializer:
                     f"  Warning: Group {gid} micro-offset size mismatch "
                     f"({len(g_member_indices)} members vs {g_offsets.shape[0]} offsets) — skipped"
                 )
+                continue
+            for local_i, comp_idx in enumerate(g_member_indices):
+                positions = positions.at[comp_idx].add(g_offsets[local_i])
+
+        # Apply micro-offsets for spanning groups (not coarsened, members are
+        # singleton super-nodes). Each member gets its own centroid + offset.
+        for gid, (g_offsets, g_member_indices) in micro_offsets.items():
+            if gid in group_to_super or len(g_member_indices) == 0:
                 continue
             for local_i, comp_idx in enumerate(g_member_indices):
                 positions = positions.at[comp_idx].add(g_offsets[local_i])
