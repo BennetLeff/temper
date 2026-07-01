@@ -319,3 +319,220 @@ class TestMicroPlacement:
         # The micro-solve diameter (before adding centroid) is what's checked
         # Post-explosion, offsets are applied on top of centroid
         assert jnp.all(jnp.isfinite(positions))
+
+
+# ---------------------------------------------------------------------------
+# Phase C: Group Coarsening Tests
+# ---------------------------------------------------------------------------
+
+
+class TestCoarsening:
+    """Unit tests for Phase 2: coarsening to super-nodes."""
+
+    def test_spanning_group_not_coarsened(self):
+        """Spanning group (>30% board diagonal) → members treated as individual super-nodes."""
+        from temper_placer.core.netlist import build_adjacency_matrix
+
+        board = Board(width=100.0, height=100.0)
+        board_diagonal = (100**2 + 100**2) ** 0.5  # ≈ 141.4
+        threshold = 0.3 * board_diagonal  # ≈ 42.4
+
+        components = [_make_component(f"C{i+1}") for i in range(4)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1"), ("C3", "1"), ("C4", "1")])],
+        )
+        adjacency = build_adjacency_matrix(netlist)
+
+        spanning_group = ComponentGroup(
+            name="wide",
+            components=["C1", "C2"],
+            max_spread_mm=50.0,  # > 42.4 → spanning
+        )
+        normal_group = ComponentGroup(
+            name="tight",
+            components=["C3", "C4"],
+            max_spread_mm=20.0,  # < 42.4 → coarsened
+        )
+        constraints = PlacementConstraints(
+            component_groups=[spanning_group, normal_group]
+        )
+
+        init = HierarchicalGroupInitializer()
+        (
+            super_adj,
+            super_node_map,
+            component_to_super,
+            group_to_super,
+            group_name_to_super,
+        ) = init._coarsen_to_super_nodes(
+            netlist, adjacency, constraints.component_groups, board
+        )
+
+        # Spanning group should NOT be coarsened (not in group_to_super)
+        assert 0 not in group_to_super, "spanning group should not be coarsened"
+        assert "wide" not in group_name_to_super
+
+        # Normal group should be coarsened
+        assert 1 in group_to_super, "normal group should be coarsened"
+        assert "tight" in group_name_to_super
+
+        # Spanning group members should each be in their own singleton super-nodes
+        c1_sn = int(component_to_super[0])
+        c2_sn = int(component_to_super[1])
+        assert c1_sn != c2_sn, "spanning group members should be in different super-nodes"
+        assert len(super_node_map[c1_sn]) == 1
+        assert len(super_node_map[c2_sn]) == 1
+
+        # Normal group members should be in the same super-node
+        c3_sn = int(component_to_super[2])
+        c4_sn = int(component_to_super[3])
+        assert c3_sn == c4_sn, "normal group members should be in the same super-node"
+
+        # Diagnostic about spanning
+        assert any("spans >30%" in d for d in init.diagnostics)
+
+    def test_spanning_group_threshold_derivation(self):
+        """30% threshold: groups above not coarsened, groups below coarsened."""
+        from temper_placer.core.netlist import build_adjacency_matrix
+
+        board = Board(width=100.0, height=100.0)
+
+        components = [_make_component(f"C{i+1}") for i in range(4)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C3", "1")]), Net("N2", [("C2", "1"), ("C4", "1")])],
+        )
+        adjacency = build_adjacency_matrix(netlist)
+
+        # Above threshold → spanning
+        spanning = ComponentGroup(name="above", components=["C1", "C2"], max_spread_mm=45.0)
+        # Below threshold → coarsened
+        normal = ComponentGroup(name="below", components=["C3", "C4"], max_spread_mm=20.0)
+
+        constraints = PlacementConstraints(component_groups=[spanning, normal])
+        init = HierarchicalGroupInitializer()
+        _, _, _, _, group_name_to_super = init._coarsen_to_super_nodes(
+            netlist, adjacency, constraints.component_groups, board
+        )
+        assert "above" not in group_name_to_super
+        assert "below" in group_name_to_super
+
+    def test_overlapping_group_resolution(self):
+        """Component in two groups → assigned to one with tighter max_spread_mm."""
+        from temper_placer.core.netlist import build_adjacency_matrix
+
+        components = [_make_component(f"C{i+1}") for i in range(3)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1"), ("C3", "1")])],
+        )
+        adjacency = build_adjacency_matrix(netlist)
+
+        # C2 is in both groups
+        group_tight = ComponentGroup(
+            name="tight",
+            components=["C1", "C2"],
+            max_spread_mm=10.0,
+        )
+        group_loose = ComponentGroup(
+            name="loose",
+            components=["C2", "C3"],
+            max_spread_mm=40.0,
+        )
+        constraints = PlacementConstraints(
+            component_groups=[group_tight, group_loose]
+        )
+
+        init = HierarchicalGroupInitializer()
+        (
+            super_adj,
+            super_node_map,
+            component_to_super,
+            group_to_super,
+            group_name_to_super,
+        ) = init._coarsen_to_super_nodes(
+            netlist, adjacency, constraints.component_groups, Board(width=100.0, height=100.0)
+        )
+
+        # C2 should be assigned to the tighter group
+        # C1 and C2 should be in the same super-node (tight group)
+        c1_sn = int(component_to_super[0])
+        c2_sn = int(component_to_super[1])
+        c3_sn = int(component_to_super[2])
+        assert c1_sn == c2_sn, "C1 and C2 should be in the same super-node (tight group)"
+        assert c2_sn != c3_sn, "C2 and C3 should be in different super-nodes"
+
+        # Warning about overlap should be in diagnostics
+        assert any("appears in multiple" in d for d in init.diagnostics)
+
+    def test_coarsened_adjacency_preserves_cross_group_edge_weight(self):
+        """Property P4: sum(super_adj) == sum(original_adj) - sum(intra_group_edges)."""
+        from temper_placer.core.netlist import build_adjacency_matrix
+
+        components = [_make_component(f"C{i+1}") for i in range(4)]
+        # C1-C2 and C3-C4 are intra-group; C2-C3 is cross-group
+        netlist = Netlist(
+            components=components,
+            nets=[
+                Net("N1", [("C1", "1"), ("C2", "1")]),  # intra group 0
+                Net("N2", [("C2", "1"), ("C3", "1")]),  # cross-group
+                Net("N3", [("C3", "1"), ("C4", "1")]),  # intra group 1
+                Net("N4", [("C1", "1"), ("C4", "1")]),  # cross-group
+            ],
+        )
+        adjacency = build_adjacency_matrix(netlist)
+
+        group_a = ComponentGroup(name="A", components=["C1", "C2"], max_spread_mm=20.0)
+        group_b = ComponentGroup(name="B", components=["C3", "C4"], max_spread_mm=20.0)
+        constraints = PlacementConstraints(component_groups=[group_a, group_b])
+
+        init = HierarchicalGroupInitializer()
+        super_adj, super_node_map, _, _, _ = init._coarsen_to_super_nodes(
+            netlist, adjacency, constraints.component_groups, Board(width=100.0, height=100.0)
+        )
+
+        total_orig = float(jnp.sum(adjacency))
+        total_super = float(jnp.sum(super_adj))
+
+        # C1-C2 edge is intra-group (indices 0-1) → excluded from super_adj
+        # C3-C4 edge is intra-group (indices 2-3) → excluded
+        # C2-C3 (indices 1-2) → cross-group, preserved
+        # C1-C4 (indices 0-3) → cross-group, preserved
+        intra_0_1 = float(adjacency[0, 1] + adjacency[1, 0])
+        intra_2_3 = float(adjacency[2, 3] + adjacency[3, 2])
+
+        intra_total = intra_0_1 + intra_2_3
+        cross_total = total_orig - intra_total
+
+        assert total_super == cross_total, (
+            f"super_adj sum {total_super} != cross-group sum {cross_total}"
+        )
+
+    def test_all_components_in_groups(self):
+        """All components in coarsened groups → no singleton super-nodes."""
+        from temper_placer.core.netlist import build_adjacency_matrix
+
+        components = [_make_component(f"C{i+1}") for i in range(6)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [(f"C{i+1}", "1") for i in range(6)])],
+        )
+        adjacency = build_adjacency_matrix(netlist)
+
+        group_a = ComponentGroup(
+            name="A", components=["C1", "C2", "C3"], max_spread_mm=30.0
+        )
+        group_b = ComponentGroup(
+            name="B", components=["C4", "C5", "C6"], max_spread_mm=30.0
+        )
+        constraints = PlacementConstraints(component_groups=[group_a, group_b])
+
+        init = HierarchicalGroupInitializer()
+        super_adj, super_node_map, _, _, _ = init._coarsen_to_super_nodes(
+            netlist, adjacency, constraints.component_groups, Board(width=100.0, height=100.0)
+        )
+
+        # Should have exactly 2 super-nodes
+        assert len(super_node_map) == 2
+        assert super_adj.shape == (2, 2)

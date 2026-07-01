@@ -744,15 +744,20 @@ class HierarchicalGroupInitializer:
         adjacency: Array,
         component_groups: list,
         board: Board,
-    ) -> dict[int, Array]:
-        """Phase 1: Solve intra-group micro-layout per group using force-directed solver."""
-        offsets: dict[int, Array] = {}
+    ) -> dict[int, tuple[Array, list[int]]]:
+        """Phase 1: Solve intra-group micro-layout per group using force-directed solver.
+        
+        Returns:
+            dict mapping group_id → (M_i, 2) offsets, list of member indices.
+            The member indices list specifies which component each offset row belongs to.
+        """
+        offsets: dict[int, tuple[Array, list[int]]] = {}
         self.diagnostics.append("Phase 1: Solving intra-group micro-layouts")
 
         for gid, group in enumerate(component_groups):
             member_indices = self._resolve_member_indices(netlist, group)
             if len(member_indices) <= 1:
-                offsets[gid] = jnp.zeros((len(member_indices), 2))
+                offsets[gid] = (jnp.zeros((len(member_indices), 2)), list(member_indices))
                 continue
 
             max_spread = group.max_spread_mm
@@ -801,7 +806,7 @@ class HierarchicalGroupInitializer:
                 )
                 solved = self._radial_placement(member_indices, max_spread)
 
-            offsets[gid] = solved
+            offsets[gid] = (solved, list(member_indices))
 
             self.diagnostics.append(
                 f"  Group '{group.name}': {len(member_indices)} components, "
@@ -950,7 +955,7 @@ class HierarchicalGroupInitializer:
     def _explode_positions(
         self,
         super_centroids: Array,
-        micro_offsets: dict[int, Array],
+        micro_offsets: dict[int, tuple[Array, list[int]]],
         component_to_super: Array,
         group_to_super: dict[int, int],
         board: Board,
@@ -958,8 +963,7 @@ class HierarchicalGroupInitializer:
         """Phase 4: Explode super-node positions back to component positions.
 
         For each component: position = centroid[super_node] + offset[group][local_idx].
-        Builds a mapping from group-level local index to global component index
-        so micro-offsets are applied correctly.
+        Uses member_indices from micro_offsets to correctly pair offsets with components.
         """
         n = len(component_to_super)
         positions = jnp.zeros((n, 2))
@@ -970,27 +974,17 @@ class HierarchicalGroupInitializer:
             mask = component_to_super == sn_id
             indices = jnp.where(mask)[0]
             for comp_idx in indices:
-                positions = positions.at[comp_idx].set(centroid)
+                positions = positions.at[int(comp_idx)].set(centroid)
 
-        # Apply micro-offsets: for each group, add offsets to its members
-        # Build a mapping: for each group_id, we need the component indices
+        # Apply micro-offsets using the stored member_indices for correct pairing
         for gid, sn_id in group_to_super.items():
             if gid not in micro_offsets:
                 continue
-            offsets = micro_offsets[gid]
-            # Get all component indices assigned to this super-node
-            sn_mask = component_to_super == sn_id
-            member_indices = jnp.where(sn_mask)[0]
-            if len(member_indices) != len(offsets):
-                self.diagnostics.append(
-                    f"  Mismatch: super-node {sn_id} has {len(member_indices)} components "
-                    f"but group {gid} has {len(offsets)} offsets — skipping offsets"
-                )
+            g_offsets, g_member_indices = micro_offsets[gid]
+            if len(g_member_indices) != g_offsets.shape[0]:
                 continue
-            # Sort member indices for deterministic pairing
-            sorted_indices = jnp.sort(member_indices)
-            for local_i, comp_idx in enumerate(sorted_indices):
-                positions = positions.at[int(comp_idx)].add(offsets[local_i])
+            for local_i, comp_idx in enumerate(g_member_indices):
+                positions = positions.at[comp_idx].add(g_offsets[local_i])
 
         # Board-boundary correction: shift groups inward if members exceed bounds
         positions = self._shift_groups_in_bounds(positions, component_to_super, board)
