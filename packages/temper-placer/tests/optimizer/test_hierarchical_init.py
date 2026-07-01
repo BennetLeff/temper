@@ -644,3 +644,98 @@ class TestEmbeddingAndExplosion:
 
         # With separation push, distance should be reasonable (not coincident)
         assert dist > 10.0, f"Groups too close: {dist}mm"
+
+
+# ---------------------------------------------------------------------------
+# Phase E: Pipeline Integration Tests
+# ---------------------------------------------------------------------------
+
+
+class TestPipelineIntegration:
+    """Integration tests with OptimizationPipeline."""
+
+    def test_pipeline_with_preclustering(self):
+        """Pipeline runs end-to-end with pre-clustering enabled."""
+        from temper_placer.optimizer.config import OptimizerConfig
+        from temper_placer.optimizer.phases import OptimizationPipeline
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+
+        components = [_make_component(f"C{i+1}") for i in range(4)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1"), ("C3", "1"), ("C4", "1")])],
+        )
+        board = Board(width=100.0, height=100.0)
+
+        group_a = ComponentGroup(name="A", components=["C1", "C2"], max_spread_mm=30.0)
+        group_b = ComponentGroup(name="B", components=["C3", "C4"], max_spread_mm=30.0)
+        placement_constraints = PlacementConstraints(
+            component_groups=[group_a, group_b]
+        )
+
+        opt_config = OptimizerConfig.fast_test()
+        opt_config.initialization.group_preclustering = True
+        opt_config.epochs = 5  # very short run
+
+        from temper_placer.pcl.parser import ConstraintCollection
+
+        constraints = ConstraintCollection(constraints=[])
+
+        context = LossContext.from_netlist_and_board(netlist, board)
+
+        def loss_factory(_weights):
+            return CompositeLoss([WeightedLoss(WirelengthLoss(), weight=1.0)])
+
+        pipeline = OptimizationPipeline(
+            netlist=netlist,
+            board=board,
+            constraints=constraints,
+            opt_config=opt_config,
+            loss_factory=loss_factory,
+            context=context,
+            placement_constraints=placement_constraints,
+        )
+        result = pipeline.run()
+
+        assert result.success, f"Pipeline failed: {result.error}"
+        assert result.final_state is not None
+
+    def test_pipeline_without_preclustering(self):
+        """Pipeline runs with pre-clustering disabled (no groups)."""
+        from temper_placer.optimizer.config import OptimizerConfig
+        from temper_placer.optimizer.phases import OptimizationPipeline
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+
+        components = [_make_component(f"C{i+1}") for i in range(2)]
+        netlist = Netlist(
+            components=components,
+            nets=[Net("N1", [("C1", "1"), ("C2", "1")])],
+        )
+        board = Board(width=100.0, height=100.0)
+
+        opt_config = OptimizerConfig.fast_test()
+        opt_config.initialization.group_preclustering = False
+        opt_config.epochs = 5
+
+        from temper_placer.pcl.parser import ConstraintCollection
+
+        constraints = ConstraintCollection(constraints=[])
+
+        context = LossContext.from_netlist_and_board(netlist, board)
+
+        def loss_factory(_weights):
+            return CompositeLoss([WeightedLoss(WirelengthLoss(), weight=1.0)])
+
+        pipeline = OptimizationPipeline(
+            netlist=netlist,
+            board=board,
+            constraints=constraints,
+            opt_config=opt_config,
+            loss_factory=loss_factory,
+            context=context,
+        )
+        result = pipeline.run()
+
+        assert result.success, f"Pipeline failed: {result.error}"
