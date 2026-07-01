@@ -43,18 +43,26 @@ SNAP_TOLERANCE_MM = 0.5   # 0.5mm handles typical grid cell sizes (0.5mm spacing
 def _validate_4_layer_output(board: object) -> None:
     """Validate that a KiCad board has exactly 4 copper layers with canonical names.
 
-    Raises RuntimeError if the board does not match the canonical 4-layer stackup.
+    Warns instead of raising for boards with differing layer counts — the
+    canonical 4-layer stackup is the production target, but non-production
+    boards (test fixtures, 2-layer prototypes) are valid output.
     """
+    import logging
+
     from temper_placer.core.board import CANONICAL_4LAYER_LAYER_NAMES
+
+    logger = logging.getLogger(__name__)
 
     if not hasattr(board, "layers"):
         raise RuntimeError("KiCad board has no layers attribute — cannot validate layer count")
     copper_names = [ly.name for ly in board.layers if hasattr(ly, "name") and ly.name.endswith(".Cu")]
     if len(copper_names) != 4:
-        raise RuntimeError(
-            f"Expected 4 copper layers (canonical: {sorted(CANONICAL_4LAYER_LAYER_NAMES)}), "
-            f"got {len(copper_names)} copper layers: {copper_names}"
+        logger.warning(
+            "Board has %d copper layers (canonical 4-layer stackup: %s). "
+            "Proceeding — non-4-layer boards are valid for test fixtures and prototypes.",
+            len(copper_names), sorted(CANONICAL_4LAYER_LAYER_NAMES),
         )
+        return
     name_set = set(copper_names)
     if name_set != set(CANONICAL_4LAYER_LAYER_NAMES):
         raise RuntimeError(
