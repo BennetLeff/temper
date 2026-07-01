@@ -3,12 +3,14 @@
 These tests validate that triage loss (30-iteration cheap evaluation) correlates
 with full optimization quality (Spearman rho >= 0.5).
 
-Full test (20 seeds) is gated on --long. Fast-path (3 seeds) runs in CI.
+Full test (20 seeds, 30 iters) is gated on @pytest.mark.slow. Fast-path (3 seeds) runs in CI.
 """
 
 import jax
 import jax.numpy as jnp
 import pytest
+from dataclasses import replace
+
 from scipy.stats import spearmanr
 
 from temper_placer.core.state import PlacementState
@@ -120,45 +122,46 @@ class TestTriageCorrelation:
         # Basic sanity: triage losses and full losses should be finite
         assert all(l >= 0.0 for l in triage_losses)
 
-    @pytest.mark.skip(reason="Nightly only — run with pytest --long to skip")
+    @pytest.mark.slow
     def test_triage_correlation_meets_threshold(self, small_setup):
-        """Run 10 seeds through triage + full optimization and verify Spearman rho >= 0.5.
+        """Validation gate (R5): Spearman rho >= 0.5 for triage ↔ full optimization.
 
-        Gated on --long (nightly only).
+        Uses 20 seeds and 30 triage iters per the plan specification.
+        Monitored in CI via @pytest.mark.slow.
         """
         netlist, board, context = small_setup
 
-        n_seeds = 10
-        config = MultiSeedConfig(n_generate=n_seeds, n_select=n_seeds)
+        n_seeds = 20
+        config = MultiSeedConfig(n_generate=n_seeds, n_select=10)
         key = jax.random.PRNGKey(101)
         seeds = _generate_diverse_seeds(netlist, board, config, key)
 
         triage_losses = []
         full_losses = []
 
-        opt_config = OptimizerConfig(epochs=50, seed=42)
+        opt_config_tmpl = OptimizerConfig(epochs=50, seed=42)
 
-        for positions, _md in seeds:
+        for i, (positions, _md) in enumerate(seeds):
             triage_loss = _triage_evaluate(
-                positions, netlist, board, context=context, n_iters=15
+                positions, netlist, board, context=context, n_iters=30
             )
             triage_losses.append(triage_loss)
 
+            initial_state = PlacementState.from_positions(positions)
+            opt_config = replace(opt_config_tmpl, seed=42 + i)
             result = train_multiphase(
                 netlist,
                 board,
                 _make_loss_factory(),
                 context,
                 config=opt_config,
-                initial_state=None,
+                initial_state=initial_state,
             )
             full_losses.append(result.best_loss)
 
         # Compute Spearman rank correlation
         rho, _pval = spearmanr(triage_losses, full_losses)
 
-        assert rho >= 0.3, (
-            f"Spearman rho ({rho:.3f}) below minimum threshold 0.3 "
-            f"(plan threshold is 0.5 for 20-seed nightly, "
-            f"reduced for 10-seed test)"
+        assert rho >= 0.5, (
+            f"Spearman rho ({rho:.3f}) below minimum threshold 0.5"
         )
