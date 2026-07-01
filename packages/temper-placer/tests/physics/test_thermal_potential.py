@@ -203,6 +203,26 @@ class TestValidateHeatsinkEdge:
         """Edge name is case-insensitive."""
         validate_heatsink_edge(board_bounds, "top")
 
+    def test_copper_density_aborts_when_no_adjacent_zone(self, board_bounds):
+        """Check 2: copper density is a HARD ABORT when zones exist but none touch the edge."""
+        from types import SimpleNamespace
+
+        x_min, y_min, x_max, y_max = board_bounds
+        # Create a copper zone far from any edge (centered in the board)
+        far_zone = SimpleNamespace(bounds=(x_min + 20, y_min + 20, x_max - 20, y_max - 20))
+        with pytest.raises(ThermalAnchoringSafetyError, match="Copper density safety gate"):
+            validate_heatsink_edge(board_bounds, "TOP", copper_zones=[far_zone])
+
+    def test_copper_density_passes_with_adjacent_zone(self, board_bounds):
+        """Check 2: passes when at least one copper zone touches the declared edge."""
+        from types import SimpleNamespace
+
+        x_min, y_min, x_max, y_max = board_bounds
+        # Create a copper zone touching the TOP edge (zy1 >= y_max - 5.0)
+        edge_zone = SimpleNamespace(bounds=(x_min, y_max - 5.0, x_max, y_max))
+        # Should not raise
+        validate_heatsink_edge(board_bounds, "TOP", copper_zones=[edge_zone])
+
 
 class TestValidateTjSafety:
     def test_tj_below_limit_passes(self):

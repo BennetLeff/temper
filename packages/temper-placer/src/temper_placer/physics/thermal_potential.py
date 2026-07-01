@@ -608,12 +608,15 @@ def validate_heatsink_edge(
 ) -> None:
     """Validate that the identified heatsink edge is a real board edge.
 
-    Three checks:
+    Three safety-gate checks (HARD ABORTS on failure):
+
     1. Edge proximity: edge_name must map to a real board boundary.
     2. Copper density: adjacent zone must have non-zero copper pour density
-       (checked only when copper_zones is provided).
+       (checked only when copper_zones is provided). Raises on failure
+       because insufficient copper for heat spreading = thermal runaway risk.
     3. Correct side: edge must be on the correct board side (TOP/BOTTOM for F.Cu,
-       LEFT/RIGHT are valid for any side).
+       LEFT/RIGHT are valid for any side). No hard gate for this in current
+       design --- all edges are valid for anchoring.
 
     Raises ThermalAnchoringSafetyError on any failure.
     """
@@ -635,7 +638,7 @@ def validate_heatsink_edge(
             f"Expected one of: {sorted(valid_edges)}"
         )
 
-    # Check 2: Copper density in adjacent zone (soft check, only when data available)
+    # Check 2: Copper density in adjacent zone (HARD ABORT when data available)
     if copper_zones:
         # Verify at least one copper zone touches the declared edge
         found = False
@@ -655,10 +658,10 @@ def validate_heatsink_edge(
                     found = True
                     break
         if not found:
-            logger.warning(
-                "No copper zone found adjacent to declared heatsink edge '%s'. "
-                "Copper density may be insufficient for heat spreading.",
-                edge_name,
+            raise ThermalAnchoringSafetyError(
+                f"Copper density safety gate FAILED: No copper zone found adjacent "
+                f"to declared heatsink edge '{edge_name}'. "
+                f"Insufficient copper for heat spreading --- placement is thermally unsafe."
             )
 
     # Check 3: Correct board side (TOP/BOTTOM edges are valid for F.Cu, all edges valid)
