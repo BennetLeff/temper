@@ -7,7 +7,7 @@ Moved from ``temper_drc.report.formatter``.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from temper_placer.validation.drc_result import Severity
 
@@ -95,7 +95,7 @@ def format_text(result: RunResult) -> str:
 
 def format_json(result: RunResult) -> str:
     """Format check results as JSON."""
-    data = {
+    data: dict[str, Any] = {
         "passed": result.passed,
         "total_checks": len(result.check_results),
         "passed_checks": sum(1 for r in result.check_results if r.passed),
@@ -106,7 +106,7 @@ def format_json(result: RunResult) -> str:
     }
 
     for check_result in result.check_results:
-        check_data = {
+        check_data: dict[str, Any] = {
             "name": check_result.check_name,
             "passed": check_result.passed,
             "elapsed_ms": check_result.elapsed_ms,
@@ -116,7 +116,7 @@ def format_json(result: RunResult) -> str:
         }
 
         for issue in check_result.issues:
-            issue_data = {
+            issue_data: dict[str, Any] = {
                 "severity": issue.severity.name,
                 "code": issue.code,
                 "message": issue.message,

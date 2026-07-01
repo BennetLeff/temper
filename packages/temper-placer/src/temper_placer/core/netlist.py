@@ -76,6 +76,7 @@ class Component:
     initial_rotation: int | None = None
     initial_side: int | None = None
     attributes: dict[str, str] = field(default_factory=dict)
+    tags: frozenset = field(default_factory=frozenset)
 
     @property
     def width(self) -> float:

@@ -413,6 +413,7 @@ class CurriculumState:
             # ``self.current_phase_idx`` are correct inside the hook.
             for hook in (self._phase_boundary_hooks or []):
                 try:
+                    assert new_name is not None
                     hook(new_name, self)
                 except Exception:
                     logger = __import__("logging").getLogger(__name__)
