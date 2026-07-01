@@ -408,7 +408,6 @@ def _apply_hv_lv_repulsion_weights(
     netlist: "Netlist",
     ref_to_idx: dict[str, int],
     c_iso: float,
-    warned: set[str],
 ) -> None:
     net_rules = _build_net_rules_map(netlist)
     if not net_rules:
@@ -485,7 +484,6 @@ def _apply_clearance_weights(
     netlist: "Netlist",
     ref_to_idx: dict[str, int],
     c_iso: float,
-    warned: set[str],
 ) -> None:
     net_rules = _build_net_rules_map(netlist)
     if not net_rules:
@@ -574,7 +572,6 @@ def compute_constraint_weight_dict(
 
     ref_to_idx = {c.ref: i for i, c in enumerate(netlist.components)}
     weights: dict[tuple[int, int], float] = {}
-    warned: set[str] = set()
 
     # U2.1: Proximity
     if strategies.get("proximity", True):
@@ -596,11 +593,11 @@ def compute_constraint_weight_dict(
 
     # U2.4: HV/LV Repulsion
     if strategies.get("hv_lv_repulsion", False):
-        _apply_hv_lv_repulsion_weights(weights, netlist, ref_to_idx, c_iso, warned)
+        _apply_hv_lv_repulsion_weights(weights, netlist, ref_to_idx, c_iso)
 
     # U2.5: Clearance
     if strategies.get("clearance", False):
-        _apply_clearance_weights(weights, netlist, ref_to_idx, c_iso, warned)
+        _apply_clearance_weights(weights, netlist, ref_to_idx, c_iso)
 
     return weights
 
