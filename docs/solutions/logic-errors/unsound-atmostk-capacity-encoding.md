@@ -1,7 +1,7 @@
 ---
 title: "Router V6 SAT solver produced unsound AtMostK capacity assignments"
 date: "2026-06-28"
-last_updated: "2026-06-28"
+last_updated: "2026-07-01"
 category: logic-errors/
 module: temper-rust-router
 problem_type: logic_error
@@ -110,6 +110,13 @@ The sequential counter introduces auxiliary variables `s[i][j]` that form a tran
 
 The constraint audit is the backstop: even if the CDCL implementation regresses, violations cannot pass silently because every output is validated against the input model.
 
+## Forward Reference
+
+The ESL+BMC+PBT+audit verification pattern developed here was generalized in
+the [PCL constraint system triple extension](docs/solutions/architecture-patterns/pcl-constraint-system-triple-extension-2026-07-01.md),
+which applies the same correctness architecture to decoupling auto-detection,
+semantic tag dispatch, and keepout zone constraints.
+
 ## Prevention
 
 - Constraint audit (`audit.rs`) runs unconditionally after every Rust solve — violations raise `RuntimeError`, not a warning
@@ -127,5 +134,5 @@ The following additional verification layers were added to make the encoding cor
 - **`esl()` methods on constraint classes** — `CapacityConstraint`, `DiffPairConstraint`, `LayerConstraint` each define their semantics declaratively in ESL, decoupling "what the constraint means" from "how it's encoded in CNF."
 - **`skip_connectivity` parameter** — `populate_sat_from_constraints(sat, cm, net_names, skip_connectivity=True)` excludes per-net connectivity clauses so primary-variable count stays within the BMC bound (≤10 vars, 1024 assignments).
 - **Property-based tests** — 91 tests in `test_bmc_property.py` + `test_bmc_encoding.py` + `test_bmc_diagnostics.py`: sequential counter exhaustive proof (n ≤ 8, matching the Rust `encoding.rs` base case), inductive extension (n → n+1), 200 random Hypothesis PBT models, and 82 exhaustive topology tests. Run automatically in CI (`tests/router_v6/ -m "not slow"`).
-- **Pipeline ESL verify hook** — `esl_verify()` runs as a secondary post-solve check in `_run_stage3` (verbose mode), confirming the Python ES ground truth agrees with the Rust solver output independent of the Rust `audit_result`.
-- **`diagnose_submodel()`** — For UNSAT debugging, samples the most-constrained channels (capped at 10 vars) and runs BMC on the sub-model to verify whether the UNSAT is genuine (overconstrained) or a solver bug.
+- **Pipeline ESL verify hook** — ESL predicates are verified at test time via BMC (bounded model checking), not at runtime.
+- **`diagnose_submodel()`** — Implemented in Rust (`bmc.rs`) for UNSAT debugging but not yet exported to Python via `lib.rs`. Samples the most-constrained channels (capped at 10 vars) and runs BMC on the sub-model to verify whether the UNSAT is genuine (overconstrained) or a solver bug.
