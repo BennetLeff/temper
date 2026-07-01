@@ -6,7 +6,11 @@ including learning rates, temperature schedules, curriculum phases, and
 checkpointing settings.
 """
 
+import logging
+
 from dataclasses import dataclass, field
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -268,6 +272,49 @@ class ElectrostaticCongestionConfig:
 
 
 @dataclass
+class MultiSeedConfig:
+    """
+    Configuration for DPP-diversified multi-seed placement.
+
+    When enabled, the optimizer generates a diverse pool of initial placements
+    by varying initialization hyperparameters, selects a maximally-diverse subset
+    via DPP (Determinantal Point Process), evaluates them through a cheap triage
+    pass, and promotes the best seed to full optimization.
+
+    Attributes:
+        enabled: Master switch; when False, single-seed behavior is unchanged.
+        n_generate: Total seeds to generate (capped at 50).
+        n_select: DPP subset size promoted to triage evaluation (2-10).
+        n_triage_iters: Triage evaluation iterations per seed.
+        dpp_quality_enabled: Whether to use constraint-violation quality scores in DPP.
+    """
+
+    enabled: bool = False
+    n_generate: int = 50
+    n_select: int = 4
+    n_triage_iters: int = 30
+    dpp_quality_enabled: bool = False
+
+    def __post_init__(self):
+        if self.n_generate > 50:
+            logger.info(
+                "n_generate capped from %d to 50 (maximum).", self.n_generate
+            )
+            self.n_generate = 50
+        if self.n_generate < self.n_select:
+            logger.info(
+                "n_generate raised from %d to %d (minimum to satisfy n_select).",
+                self.n_generate,
+                self.n_select,
+            )
+            self.n_generate = self.n_select
+        if self.n_select < 2 or self.n_select > 10:
+            raise ValueError(
+                f"n_select must be in [2, 10], got {self.n_select}"
+            )
+
+
+@dataclass
 class OptimizerConfig:
     """
     Complete optimizer configuration.
@@ -348,6 +395,9 @@ class OptimizerConfig:
 
     # Soft-body inflation (temper-gcp.2)
     inflation_ramp: float = 0.3  # Fraction of epochs to ramp component size 5%→100%
+
+    # DPP multi-seed diversification
+    multi_seed: MultiSeedConfig = field(default_factory=MultiSeedConfig)
 
     @classmethod
     def fast_test(cls) -> "OptimizerConfig":

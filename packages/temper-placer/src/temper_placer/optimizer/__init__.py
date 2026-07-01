@@ -47,6 +47,7 @@ from temper_placer.optimizer.config import (
     EarlyStoppingConfig,
     InitializationConfig,
     LearningRateSchedule,
+    MultiSeedConfig,
     OptimizerConfig,
     TemperatureSchedule,
     ZoneAwareConfig,
@@ -115,6 +116,7 @@ from temper_placer.optimizer.zone_aware_init import (
 __all__ = [
     # Config
     "OptimizerConfig",
+    "MultiSeedConfig",
     "InitializationConfig",
     "TemperatureSchedule",
     "LearningRateSchedule",
