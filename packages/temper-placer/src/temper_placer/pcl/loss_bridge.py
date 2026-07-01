@@ -514,6 +514,8 @@ def constraint_to_loss(
         return anchored_to_positional_loss(constraint, netlist)
 
     elif isinstance(constraint, KeepoutConstraint):
+        if board is None:
+            raise ValueError("board required for KeepoutConstraint")
         return keepout_to_loss(constraint, netlist, board)
 
     elif isinstance(constraint, LoopAreaConstraint):

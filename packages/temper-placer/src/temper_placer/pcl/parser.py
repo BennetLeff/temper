@@ -366,7 +366,7 @@ class ConstraintCollection:
         )
 
         expanded_count = 0
-        new_constraints = []
+        new_constraints: list[BaseConstraint] = []
 
         for constraint in list(self.constraints):
             if not isinstance(constraint, tagged_types):
