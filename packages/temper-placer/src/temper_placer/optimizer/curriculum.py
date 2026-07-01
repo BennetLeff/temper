@@ -21,7 +21,10 @@ from typing import Any
 from temper_placer.optimizer.config import CurriculumPhase, get_default_loss_weights
 
 
-def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
+def create_default_phases(
+    total_epochs: int = 8000,
+    thermal_anchoring_active: bool = False,
+) -> list[CurriculumPhase]:
     """
     Create the default 5-phase curriculum for Temper PCB placement.
 
@@ -32,12 +35,18 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
 
     Args:
         total_epochs: Total training epochs (phases scale proportionally).
+        thermal_anchoring_active: If True, Phase-0 anchoring pre-placed power
+            devices.  Reduce thermal_spread weight 5x (25.0 -> 5.0) since
+            spread is handled by fixed anchors.
 
     Returns:
         List of CurriculumPhase instances.
     """
     # Scale phase boundaries to total epochs
     scale = total_epochs / 8000.0
+
+    # When thermal anchoring is active, reduce thermal_spread by 5x
+    thermal_spread_weight = 5.0 if thermal_anchoring_active else 25.0
 
     return [
         # Phase 1: Spread and exploration (0-12.5%)
@@ -82,7 +91,7 @@ def create_default_phases(total_epochs: int = 8000) -> list[CurriculumPhase]:
                 "boundary": 100.0,
                 "clearance": 100.0,
                 "loop_area": 100.0, # EMI minimization
-                "thermal_spread": 25.0, # IGBT spacing
+                "thermal_spread": thermal_spread_weight, # IGBT spacing
                 "grouping": 50.0,   # Hierarchical blocks
                 "decoupling": 30.0, # CAP-to-IC
                 "wirelength": 20.0,
