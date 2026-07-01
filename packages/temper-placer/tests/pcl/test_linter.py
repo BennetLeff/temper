@@ -46,7 +46,7 @@ def _create_simple_board(width: float, height: float) -> Board:
         width=width,
         height=height,
         zones=[],
-        keepout_regions=[],
+        keepouts=[],
     )
 
 

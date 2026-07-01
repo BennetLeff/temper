@@ -151,8 +151,11 @@ class TestConstraintToClauses:
         assert isinstance(origin, ConstraintOrigin)
 
     def test_type_handlers_cover_all_types(self):
-        """All 7 ConstraintType members have TYPE_HANDLERS entries."""
+        """All ConstraintType members that support SAT have TYPE_HANDLERS entries."""
+        from temper_placer.pcl.constraints import CompilationTarget
         for ct in ConstraintType:
+            if CompilationTarget.SAT not in ct.supported_targets:
+                continue
             assert ct in TYPE_HANDLERS, f"{ct} missing from TYPE_HANDLERS"
 
 

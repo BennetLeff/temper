@@ -100,6 +100,7 @@ class ConstraintType(Enum):
     ADJACENT = ("adjacent", frozenset({SemanticTag.PROXIMITY}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
     SEPARATED = ("separated", frozenset({SemanticTag.SEPARATION, SemanticTag.ORDERING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
     ENCLOSING = ("enclosing", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+    KEEPOUT = ("keepout", frozenset({SemanticTag.ZONING, SemanticTag.SEPARATION}), frozenset({CompilationTarget.JAX, CompilationTarget.DRC}))
     ALIGNED = ("aligned", frozenset({SemanticTag.ALIGNMENT}), frozenset({CompilationTarget.JAX, CompilationTarget.DRC}))
     ON_SIDE = ("on_side", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
     ANCHORED = ("anchored", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
@@ -463,6 +464,64 @@ class EnclosingConstraint(BaseConstraint):
             "type": self.constraint_type.value,
             "outer": self.outer,
             "inner": self.inner,
+            "margin_mm": self.margin_mm,
+            "tier": self.tier.value,
+            "because": self.because,
+            "id": self.id,
+        }
+
+
+class KeepoutConstraint(BaseConstraint):
+    """Constraint keeping components out of a keepout zone.
+
+    Used for:
+    - Safety isolation (no components in high-voltage zone)
+    - Thermal isolation (no sensitive parts near hot components)
+    - Mechanical clearance (no components near mounting holes)
+    - EMI management (no components in noisy zones)
+
+    Attributes:
+        zone_name: Keepout zone name (must have zone_type="keepout").
+        tier: Priority tier.
+        because: Mandatory rationale.
+        margin_mm: Optional additional margin beyond zone boundary.
+
+    Example:
+        >>> KeepoutConstraint(
+        ...     zone_name="HV_KEEPOUT",
+        ...     tier=ConstraintTier.HARD,
+        ...     because="No components allowed in HV keepout for safety isolation"
+        ... )
+    """
+
+    def __init__(
+        self,
+        zone_name: str,
+        tier: ConstraintTier,
+        because: str,
+        margin_mm: float = 0.0,
+        id: str = "",
+    ):
+        self.zone_name = zone_name
+        self.margin_mm = margin_mm
+
+        super().__init__(
+            constraint_type=ConstraintType.KEEPOUT,
+            tier=tier,
+            because=because,
+            id=id,
+        )
+
+    def _generate_id(self) -> str:
+        return f"keepout_{self.zone_name}"
+
+    def involves_component(self, component: str) -> bool:
+        return component == self.zone_name
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.constraint_type.value,
+            "zone_name": self.zone_name,
             "margin_mm": self.margin_mm,
             "tier": self.tier.value,
             "because": self.because,

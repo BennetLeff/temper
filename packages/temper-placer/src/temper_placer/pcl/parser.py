@@ -50,6 +50,7 @@ from temper_placer.pcl.constraints import (
     DistanceMetric,
     EdgeType,
     EnclosingConstraint,
+    KeepoutConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
@@ -471,6 +472,15 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
         return EnclosingConstraint(
             outer=data["outer"],
             inner=data["inner"],
+            tier=tier,
+            because=because,
+            margin_mm=_parse_distance_with_unit(data.get("margin_mm", 0.0)),
+            id=constraint_id,
+        )
+
+    elif constraint_type == "keepout":
+        return KeepoutConstraint(
+            zone_name=data["zone_name"],
             tier=tier,
             because=because,
             margin_mm=_parse_distance_with_unit(data.get("margin_mm", 0.0)),

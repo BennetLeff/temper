@@ -80,10 +80,31 @@ from .constraints import (
     DistanceMetric,
     EdgeType,
     EnclosingConstraint,
+    KeepoutConstraint,
     LoopAreaConstraint,
     OnSideConstraint,
     SemanticTag,
     SeparatedConstraint,
+)
+from .tag_dispatch import (
+    ComponentRef,
+    ComponentTag,
+    TagAnd,
+    TagExpr,
+    TagNot,
+    TagOr,
+    TagRef,
+    TagValidationError,
+    components as tag_components,
+    resolve as tag_resolve,
+)
+from .tagged_constraints import (
+    TaggedAdjacentConstraint,
+    TaggedAlignedConstraint,
+    TaggedAnchoredConstraint,
+    TaggedEnclosingConstraint,
+    TaggedOnSideConstraint,
+    TaggedSeparatedConstraint,
 )
 from .parser import (
     # Collection class
@@ -113,10 +134,29 @@ __all__ = [
     "AdjacentConstraint",
     "SeparatedConstraint",
     "EnclosingConstraint",
+    "KeepoutConstraint",
     "AlignedConstraint",
     "OnSideConstraint",
     "AnchoredConstraint",
     "LoopAreaConstraint",
+    # Tagged constraint types
+    "TaggedAdjacentConstraint",
+    "TaggedSeparatedConstraint",
+    "TaggedEnclosingConstraint",
+    "TaggedAlignedConstraint",
+    "TaggedOnSideConstraint",
+    "TaggedAnchoredConstraint",
+    # Tags
+    "ComponentTag",
+    "TagRef",
+    "TagAnd",
+    "TagOr",
+    "TagNot",
+    "ComponentRef",
+    "TagExpr",
+    "TagValidationError",
+    "tag_resolve",
+    "tag_components",
     # Enums
     "CompilationTarget",
     "SemanticTag",

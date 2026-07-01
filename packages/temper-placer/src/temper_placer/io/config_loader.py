@@ -835,6 +835,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
                 components=zone_cfg.get("components", []),
                 max_size=tuple(zone_cfg["max_size"]) if "max_size" in zone_cfg else None,
                 can_expand=zone_cfg.get("can_expand", ["up", "down", "left", "right"]),
+                zone_type=zone_cfg.get("type", "placement"),
             )
             constraints.zones.append(zone)
 
