@@ -373,3 +373,127 @@ class TestThermalAnchoringSafetyGates:
         # Without thermal_properties, stage is a no-op (no PipelineError)
         result = stage(state, context)
         assert isinstance(result, StageResult)
+
+    def test_stage_raises_on_invalid_heatsink_edge(self, board, pipeline_state, netlist_with_power_devices):
+        """PipelineError raised when heatsink edge is invalid (R3)."""
+        from types import SimpleNamespace
+
+        from temper_placer.pipeline.stages.thermal_anchoring_stage import (
+            ThermalAnchoringStage,
+        )
+
+        # Mock constraint with an invalid edge name
+        invalid_tc = SimpleNamespace(edge="DIAGONAL")
+        constraints = PlacementConstraints(
+            board_width_mm=100.0,
+            board_height_mm=150.0,
+            initialization=PlacementInitialization(
+                thermal_anchoring=True,
+                anchoring_grid_resolution=25,
+            ),
+            thermal_constraints=[invalid_tc],
+            thermal_properties=ThermalProperties(
+                high_power_components=["Q1", "Q2"],
+                power_dissipation_w={"Q1": 20.0, "Q2": 20.0},
+                rated_tj_max={"Q1": 175.0, "Q2": 175.0},
+            ),
+        )
+
+        state = pipeline_state
+        context: DataContext = {
+            "board": board,
+            "netlist": netlist_with_power_devices,
+            "constraints": constraints,
+        }
+
+        stage = ThermalAnchoringStage()
+        with pytest.raises(PipelineError, match="safety gate FAILED"):
+            stage(state, context)
+
+    def test_stage_raises_on_tj_exceeding_max(self, board, pipeline_state, netlist_with_power_devices):
+        """PipelineError raised when predicted Tj exceeds rated Tj_max (R4)."""
+        from temper_placer.pipeline.stages.thermal_anchoring_stage import (
+            ThermalAnchoringStage,
+        )
+
+        # Extremely high power with extremely low rated Tj_max guarantees Tj violation
+        constraints = PlacementConstraints(
+            board_width_mm=100.0,
+            board_height_mm=150.0,
+            initialization=PlacementInitialization(
+                thermal_anchoring=True,
+                anchoring_grid_resolution=25,
+            ),
+            thermal_constraints=[
+                ThermalConstraint(
+                    components=["Q1", "Q2"],
+                    prefer_edge=True,
+                    max_distance_from_edge_mm=10.0,
+                ),
+            ],
+            thermal_properties=ThermalProperties(
+                high_power_components=["Q1", "Q2"],
+                power_dissipation_w={"Q1": 500.0, "Q2": 500.0},
+                rated_tj_max={"Q1": 10.0, "Q2": 10.0},
+                min_separation_mm=15.0,
+            ),
+        )
+
+        state = pipeline_state
+        context: DataContext = {
+            "board": board,
+            "netlist": netlist_with_power_devices,
+            "constraints": constraints,
+        }
+
+        stage = ThermalAnchoringStage()
+        with pytest.raises(PipelineError, match="Thermal anchoring safety gate FAILED"):
+            stage(state, context)
+
+    def test_stage_proceeds_on_insufficient_stackup(self, board, pipeline_state, netlist_with_power_devices):
+        """Stage proceeds (no PipelineError) with 2-layer stackup; copper weight disabled."""
+        from temper_placer.pipeline.stages.thermal_anchoring_stage import (
+            ThermalAnchoringStage,
+        )
+
+        constraints = PlacementConstraints(
+            board_width_mm=100.0,
+            board_height_mm=150.0,
+            initialization=PlacementInitialization(
+                thermal_anchoring=True,
+                anchoring_grid_resolution=25,
+            ),
+            thermal_constraints=[
+                ThermalConstraint(
+                    components=["Q1", "Q2"],
+                    prefer_edge=True,
+                    max_distance_from_edge_mm=10.0,
+                ),
+            ],
+            thermal_properties=ThermalProperties(
+                high_power_components=["Q1", "Q2"],
+                power_dissipation_w={"Q1": 20.0, "Q2": 20.0},
+                rated_tj_max={"Q1": 175.0, "Q2": 175.0},
+                min_separation_mm=15.0,
+            ),
+        )
+
+        # Monkeypatch board to simulate 2-layer stackup
+        from temper_placer.core.board import LayerStackup
+        board.layer_stackup = LayerStackup._test_only_2layer()
+
+        state = pipeline_state
+        context: DataContext = {
+            "board": board,
+            "netlist": netlist_with_power_devices,
+            "constraints": constraints,
+        }
+
+        stage = ThermalAnchoringStage()
+        result = stage(state, context)
+
+        # Should succeed (no PipelineError) --- stackup disables copper but proceeds
+        assert isinstance(result, StageResult)
+        assert state.thermal_anchoring_applied is True
+        assert "Q1" in constraints.fixed_positions
+        assert "Q2" in constraints.fixed_positions
