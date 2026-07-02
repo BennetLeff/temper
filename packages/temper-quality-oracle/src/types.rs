@@ -123,6 +123,21 @@ impl QualityMetrics {
             total_wirelength_mm: pre.total_wirelength_mm,
         })
     }
+
+    pub fn zeroed() -> Self {
+        let z = NormalizedScore::new(0.0).expect("0.0 is a valid NormalizedScore");
+        QualityMetrics {
+            thermal_score: z,
+            zone_compliance_score: z,
+            hv_lv_clearance_score: z,
+            loop_area_score: z,
+            congestion_score: z,
+            compactness_score: z,
+            connectivity_clustering_score: z,
+            overall_score: z,
+            total_wirelength_mm: 0.0,
+        }
+    }
 }
 
 /// The type of a quality violation.

@@ -14,6 +14,10 @@ pub mod config;
 pub mod thresholds;
 pub mod oracle;
 
+#[cfg(test)]
+#[path = "tests_common.rs"]
+mod tests_common;
+
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
@@ -208,18 +212,6 @@ fn violation_to_py_dict(
     Ok(dict.into())
 }
 
-#[pyo3::pyclass(name = "NetClass", eq, eq_int)]
-#[derive(Clone, PartialEq)]
-pub enum PyNetClass {
-    Ground = 0,
-    Power = 1,
-    HighVoltage = 2,
-    Differential = 3,
-    HighCurrent = 4,
-    GateDrive = 5,
-    Signal = 6,
-}
-
 fn extract_metrics(dict: &Bound<'_, PyDict>) -> PrecomputedMetrics {
     let get = |key: &str| -> f64 {
         dict.get_item(key)
@@ -365,6 +357,5 @@ fn temper_quality_oracle(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(required_clearance_py, m)?)?;
     m.add_function(wrap_pyfunction!(is_available_py, m)?)?;
     m.add_function(wrap_pyfunction!(version_py, m)?)?;
-    m.add_class::<PyNetClass>()?;
     Ok(())
 }

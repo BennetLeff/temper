@@ -75,7 +75,7 @@ fn evaluate_clearance(
 
 fn evaluate_loop_areas(
     _spec: &PcbSpecification,
-    _metrics: &QualityMetrics,
+    metrics: &QualityMetrics,
     loop_components: &[Vec<String>],
     violations: &mut Vec<Violation>,
 ) {
@@ -83,16 +83,16 @@ fn evaluate_loop_areas(
         return;
     }
     let threshold = 0.3;
-    if _metrics.loop_area_score.value() < threshold {
+    if metrics.loop_area_score.value() < threshold {
         violations.push(Violation {
             violation_type: ViolationType::LoopAreaExceeded,
             description: format!(
                 "loop_area_score {:.4} is below threshold {:.2}",
-                _metrics.loop_area_score.value(),
+                metrics.loop_area_score.value(),
                 threshold
             ),
             components: vec![],
-            actual_value: _metrics.loop_area_score.value(),
+            actual_value: metrics.loop_area_score.value(),
             required_value: threshold,
         });
     }
@@ -148,11 +148,16 @@ fn evaluate_zones(
     _classifications: &[crate::types::NetClassification],
     _violations: &mut Vec<Violation>,
 ) {
+    // TODO: Implement zone compliance checking — validate that components
+    // assigned to zones (via QualityConfig::zone_assignments) are placed
+    // within their designated zone boundaries. Currently all zone assignments
+    // are silently accepted.
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tests_common::{dummy_metrics, empty_placement, empty_spec};
     use crate::types::QualityMetrics;
     use std::collections::{BTreeSet, HashMap};
 
@@ -273,31 +278,6 @@ mod tests {
             zone_assignments: HashMap::new(),
             loop_components: vec![],
             min_hv_lv_clearance_mm: 4.0,
-        }
-    }
-
-    fn dummy_metrics() -> QualityMetrics {
-        crate::types::QualityMetrics::from_precomputed(&crate::types::PrecomputedMetrics {
-            thermal_score: 0.5,
-            zone_compliance_score: 0.5,
-            hv_lv_clearance_score: 0.5,
-            loop_area_score: 0.5,
-            congestion_score: 0.5,
-            compactness_score: 0.5,
-            connectivity_clustering_score: 0.5,
-            total_wirelength_mm: 100.0,
-        })
-        .unwrap()
-    }
-
-    fn empty_spec() -> PcbSpecification {
-        PcbSpecification {
-            name: "test".into(),
-            max_loop_area_mm2: HashMap::new(),
-            power_dissipation: HashMap::new(),
-            max_length_mm: HashMap::new(),
-            max_junction_temp_c: 125.0,
-            ambient_temp_c: 40.0,
         }
     }
 }
