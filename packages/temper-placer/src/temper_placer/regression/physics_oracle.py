@@ -20,9 +20,7 @@ from typing import Any
 import jax
 import jax.numpy as jnp
 
-from temper_placer.core.board import Board
 from temper_placer.core.design_rules import create_temper_design_rules
-from temper_placer.core.netlist import Netlist
 from temper_placer.core.specification import PcbSpecification
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.io.kicad_parser import parse_kicad_pcb
@@ -259,9 +257,6 @@ def run_physics_oracle(
 
     # Compute quality report
     try:
-        # Build quality config: heuristic base + classification override
-        rotations = jax.nn.softmax(result.final_state.rotation_logits, axis=-1)
-
         # Build a minimal ReferenceDesign-like object for infer_quality_config
         from dataclasses import dataclass as dc_dataclass
 
