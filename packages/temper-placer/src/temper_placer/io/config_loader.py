@@ -119,6 +119,14 @@ class StarGroundConfig:
 
 
 @dataclass
+class PlacementInitialization:
+    """Initialization-phase configuration for the placer pipeline."""
+
+    thermal_anchoring: bool = False
+    anchoring_grid_resolution: int = 50
+
+
+@dataclass
 class ThermalConstraint:
     """Thermal placement constraint for heat-generating components."""
 
@@ -154,6 +162,44 @@ class ThermalProperties:
     thermal_pad_components: list[str] = field(default_factory=list)
     prefer_edge: bool = True
     preferred_edge_margin_mm: float = 10.0
+
+    # Airflow direction (m/s magnitude at 0°, direction in degrees from +x)
+    airflow_vector: tuple[float, float] | None = None
+
+    # Per-component rated maximum junction temperature (°C)
+    rated_tj_max: dict[str, float] = field(default_factory=dict)
+
+
+# Package-type Rjc lookup table for thermal anchoring inference.
+# Values in K/W (junction-to-case).
+_RJC_PACKAGE_LOOKUP: dict[str, float] = {
+    "TO-247": 0.6,
+    "TO-220": 1.0,
+    "DPAK": 2.0,
+    "D2PAK": 1.5,
+    "SOT-223": 15.0,
+    "SOIC-8": 50.0,
+    "TO-263": 1.5,
+    "TO-252": 2.0,
+    "QFN-48": 5.0,
+}
+
+
+_DEFAULT_RJC: float = 0.6  # Conservative default (TO-247 class)
+
+
+def infer_rjc(package_type: str | None) -> float:
+    """Infer Rjc (K/W) from package type string.
+
+    Returns the lookup table value if the package type is recognized,
+    otherwise returns the conservative default of 0.6 K/W.
+    """
+    if not package_type:
+        return _DEFAULT_RJC
+    for key, value in _RJC_PACKAGE_LOOKUP.items():
+        if key.lower() in package_type.lower():
+            return value
+    return _DEFAULT_RJC
 
 
 @dataclass
@@ -660,6 +706,9 @@ class PlacementConstraints:
 
     # Extended thermal properties (advanced)
     thermal_properties: ThermalProperties | None = None
+
+    # Initialization configuration
+    initialization: PlacementInitialization = field(default_factory=PlacementInitialization)
 
     # Component groups
     component_groups: list[ComponentGroup] = field(default_factory=list)
