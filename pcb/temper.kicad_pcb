@@ -36,7 +36,7 @@
     )
   )
 
-  ; Net definitions
+  # Net definitions
   (net 0 "")
   (net 1 "GND")
   (net 2 "PGND")
@@ -65,9 +65,9 @@
   (net 25 "USB_D+")
   (net 26 "USB_D-")
 
-  ; ========== POWER INPUT SECTION ==========
+  # ========== POWER INPUT SECTION ==========
   
-  ; AC Input Connector (IEC C14)
+  # AC Input Connector (IEC C14)
   (footprint "Connector_IEC:IEC_C14_Male" (layer "F.Cu")
     (tstamp 00000001-0001-0000-0000-000000000001)
     (at 10 75)
@@ -83,7 +83,7 @@
       (net 1 "GND"))
   )
 
-  ; Voltage Doubler Diodes (D1, D2)
+  # Voltage Doubler Diodes (D1, D2)
   (footprint "Diode_THT:D_DO-201AD_P15.24mm_Horizontal" (layer "F.Cu")
     (tstamp 00000001-0002-0000-0000-000000000001)
     (at 30 30)
@@ -110,7 +110,7 @@
       (net 20 "AC_N"))
   )
 
-  ; DC Bus Capacitors (large electrolytics)
+  # DC Bus Capacitors (large electrolytics)
   (footprint "Capacitor_THT:CP_Radial_D18.0mm_P7.50mm" (layer "F.Cu")
     (tstamp 00000001-0003-0000-0000-000000000001)
     (at 25 60)
@@ -137,9 +137,9 @@
       (net 9 "DC_BUS-"))
   )
 
-  ; ========== HALF BRIDGE SECTION ==========
+  # ========== HALF BRIDGE SECTION ==========
 
-  ; High-side IGBT (Q1 - IKW40N120H3)
+  # High-side IGBT (Q1 - IKW40N120H3)
   (footprint "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown" (layer "F.Cu")
     (tstamp 00000002-0001-0000-0000-000000000001)
     (at 20 15)
@@ -155,7 +155,7 @@
       (net 10 "SW_NODE"))
   )
 
-  ; Low-side IGBT (Q2 - IKW40N120H3)
+  # Low-side IGBT (Q2 - IKW40N120H3)
   (footprint "Package_TO_SOT_THT:TO-247-3_Horizontal_TabDown" (layer "F.Cu")
     (tstamp 00000002-0001-0000-0000-000000000002)
     (at 45 15)
@@ -171,7 +171,7 @@
       (net 9 "DC_BUS-"))
   )
 
-  ; Gate Driver (UCC21550 - SOIC-16)
+  # Gate Driver (UCC21550 - SOIC-16)
   (footprint "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm" (layer "F.Cu")
     (tstamp 00000002-0002-0000-0000-000000000001)
     (at 35 30)
@@ -212,7 +212,7 @@
       (net 10 "SW_NODE"))
   )
 
-  ; Bootstrap Capacitor
+  # Bootstrap Capacitor
   (footprint "Capacitor_SMD:C_0805_2012Metric" (layer "F.Cu")
     (tstamp 00000002-0003-0000-0000-000000000001)
     (at 42 30)
@@ -225,7 +225,7 @@
       (net 10 "SW_NODE"))
   )
 
-  ; Gate Driver VCC Decoupling
+  # Gate Driver VCC Decoupling
   (footprint "Capacitor_SMD:C_0805_2012Metric" (layer "F.Cu")
     (tstamp 00000002-0003-0000-0000-000000000002)
     (at 30 30)
@@ -238,7 +238,7 @@
       (net 3 "CGND"))
   )
 
-  ; Gate Resistors
+  # Gate Resistors
   (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu")
     (tstamp 00000002-0004-0000-0000-000000000001)
     (at 25 25)
@@ -263,9 +263,9 @@
       (net 12 "GATE_L"))
   )
 
-  ; ========== POWER MANAGEMENT SECTION ==========
+  # ========== POWER MANAGEMENT SECTION ==========
 
-  ; Buck Converter (LMR51430)
+  # Buck Converter (LMR51430)
   (footprint "Package_TO_SOT_SMD:SOT-23-6" (layer "F.Cu")
     (tstamp 00000003-0001-0000-0000-000000000001)
     (at 75 30)
@@ -286,7 +286,7 @@
       (net 1 "GND"))
   )
 
-  ; 3.3V LDO
+  # 3.3V LDO
   (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2" (layer "F.Cu")
     (tstamp 00000003-0002-0000-0000-000000000001)
     (at 75 50)
@@ -303,7 +303,7 @@
       (net 4 "+3V3"))
   )
 
-  ; 5V LDO
+  # 5V LDO
   (footprint "Package_TO_SOT_SMD:SOT-223-3_TabPin2" (layer "F.Cu")
     (tstamp 00000003-0002-0000-0000-000000000002)
     (at 75 65)
@@ -320,16 +320,16 @@
       (net 5 "+5V"))
   )
 
-  ; ========== MCU SECTION ==========
+  # ========== MCU SECTION ==========
 
-  ; ESP32-S3 (QFN-56)
+  # ESP32-S3 (QFN-56)
   (footprint "Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm" (layer "F.Cu")
     (tstamp 00000004-0001-0000-0000-000000000001)
     (at 80 100)
     (property "Reference" "U_MCU")
     (property "Value" "ESP32-S3-WROOM-1")
     (property "Footprint" "Package_DFN_QFN:QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm")
-    ; Simplified pads - just key connections
+    # Simplified pads - just key connections
     (pad "1" smd roundrect (at -3.45 2.8) (size 0.8 0.24) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25)
       (net 4 "+3V3"))
     (pad "2" smd roundrect (at -3.45 2.4) (size 0.8 0.24) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25)
@@ -356,7 +356,7 @@
       (net 1 "GND"))
   )
 
-  ; MCU Decoupling Capacitors
+  # MCU Decoupling Capacitors
   (footprint "Capacitor_SMD:C_0402_1005Metric" (layer "F.Cu")
     (tstamp 00000004-0002-0000-0000-000000000001)
     (at 73 97)
@@ -405,7 +405,7 @@
       (net 1 "GND"))
   )
 
-  ; USB-C Connector
+  # USB-C Connector
   (footprint "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12" (layer "F.Cu")
     (tstamp 00000004-0003-0000-0000-000000000001)
     (at 95 130)
@@ -423,7 +423,7 @@
       (net 1 "GND"))
   )
 
-  ; Debug Header
+  # Debug Header
   (footprint "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" (layer "F.Cu")
     (tstamp 00000004-0004-0000-0000-000000000001)
     (at 95 115)
@@ -445,9 +445,9 @@
       (net 0 ""))
   )
 
-  ; ========== SENSING SECTION ==========
+  # ========== SENSING SECTION ==========
 
-  ; Current Transformer Interface (MAX31865 for RTD - reused as CT interface)
+  # Current Transformer Interface (MAX31865 for RTD - reused as CT interface)
   (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" (layer "F.Cu")
     (tstamp 00000005-0001-0000-0000-000000000001)
     (at 30 110)
@@ -468,7 +468,7 @@
       (net 4 "+3V3"))
   )
 
-  ; CT Burden Resistor
+  # CT Burden Resistor
   (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu")
     (tstamp 00000005-0002-0000-0000-000000000001)
     (at 30 120)
@@ -481,7 +481,7 @@
       (net 1 "GND"))
   )
 
-  ; CT Filter Capacitor
+  # CT Filter Capacitor
   (footprint "Capacitor_SMD:C_0603_1608Metric" (layer "F.Cu")
     (tstamp 00000005-0003-0000-0000-000000000001)
     (at 30 125)
@@ -494,7 +494,7 @@
       (net 1 "GND"))
   )
 
-  ; OpAmp for CT Signal Conditioning
+  # OpAmp for CT Signal Conditioning
   (footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
     (tstamp 00000005-0004-0000-0000-000000000001)
     (at 40 120)
@@ -519,7 +519,7 @@
       (net 5 "+5V"))
   )
 
-  ; Temperature Sensor (MAX31865 for RTD)
+  # Temperature Sensor (MAX31865 for RTD)
   (footprint "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" (layer "F.Cu")
     (tstamp 00000005-0005-0000-0000-000000000001)
     (at 30 135)
@@ -540,9 +540,9 @@
       (net 4 "+3V3"))
   )
 
-  ; ========== INTERFACE CONNECTORS ==========
+  # ========== INTERFACE CONNECTORS ==========
 
-  ; Coil Connector
+  # Coil Connector
   (footprint "Connector_Phoenix_MC:PhoenixContact_MCV_1,5_2-G-3.81_1x02_P3.81mm_Vertical" (layer "F.Cu")
     (tstamp 00000006-0001-0000-0000-000000000001)
     (at 10 120)
@@ -556,7 +556,7 @@
       (net 1 "GND"))
   )
 
-  ; NTC Connector
+  # NTC Connector
   (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (layer "F.Cu")
     (tstamp 00000006-0002-0000-0000-000000000001)
     (at 10 135)
@@ -570,7 +570,7 @@
       (net 1 "GND"))
   )
 
-  ; ========== MOUNTING HOLES ==========
+  # ========== MOUNTING HOLES ==========
 
   (footprint "MountingHole:MountingHole_3.2mm_M3" (layer "F.Cu")
     (tstamp 00000007-0001-0000-0000-000000000001)
@@ -608,7 +608,7 @@
     (attr exclude_from_pos_files exclude_from_bom)
   )
 
-  ; Board outline (100mm x 150mm)
+  # Board outline (100mm x 150mm)
   (gr_rect (start 0 0) (end 100 150) (layer "Edge.Cuts") (width 0.15))
 
 )
