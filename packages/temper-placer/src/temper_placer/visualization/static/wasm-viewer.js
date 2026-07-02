@@ -180,7 +180,6 @@ canvas.addEventListener('mousemove', (e) => {
         if (typeof result !== 'string') return;
         if (result.startsWith('component:')) {
             const parts = result.split(':');
-            console.log('hover:', parts[1], '@ screen', sx.toFixed(0)+','+sy.toFixed(0), 'rect', canvas.width+'x'+canvas.height);
             tooltip.textContent = parts[1] + ' — ' + parts[2];
             tooltip.style.left = e.clientX + 14 + 'px';
             tooltip.style.top = e.clientY - 30 + 'px';
