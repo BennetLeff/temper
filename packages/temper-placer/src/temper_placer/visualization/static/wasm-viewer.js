@@ -280,12 +280,16 @@ dropZone.addEventListener('drop', async (e) => {
     }
 });
 
-// Keyboard: Escape = deselect
+// Keyboard: Escape = deselect, +/- = zoom, arrows = pan
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         document.getElementById('inspector-content').textContent = 'Select a component to inspect.';
         if (wasm) wasmOnClick(-1, -1);
     }
+    if (!wasm) return;
+    if (e.key === '+' || e.key === '=') { e.preventDefault(); wasmOnWheel(-100, 400, 300); }
+    if (e.key === '-') { e.preventDefault(); wasmOnWheel(100, 400, 300); }
+    if (e.key === '0') { e.preventDefault(); location.reload(); } // Reset zoom
 });
 
 // Resize handler
