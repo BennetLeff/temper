@@ -287,6 +287,26 @@ def run_physics_oracle(
         # Override threshold with derived value
         quality_config["min_hv_lv_clearance"] = threshold_mm
 
+        # Populate loop components from spec, falling back to auto-extraction
+        if spec.emi.loop_components:
+            spec_loops = [
+                comps for comps in spec.emi.loop_components.values()
+                if len(comps) >= 3
+            ]
+            if spec_loops:
+                quality_config["loop_components"] = spec_loops
+        else:
+            from temper_placer.core.loop_extractor import auto_extract_loops
+            loop_collection = auto_extract_loops(netlist)
+            if loop_collection.loops:
+                loop_components = []
+                for loop in loop_collection.loops:
+                    comps = loop.components
+                    if len(comps) >= 3:
+                        loop_components.append(list(comps))
+                if loop_components:
+                    quality_config["loop_components"] = loop_components
+
         report = compute_quality_report(
             result.final_state, netlist, board, context, quality_config
         )

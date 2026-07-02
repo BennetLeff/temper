@@ -41,13 +41,15 @@ def derive_constraints_from_spec(
     """
     derived = {}
 
-    # 1. EMI -> Max Distance
+    # 1. EMI -> Max Distance and Max Area
     for loop_name, max_area in spec.emi.max_loop_area_mm2.items():
         # L = sqrt(Area). Max side length of a square loop.
         max_side = math.sqrt(max_area)
         # Conservative estimate for max component spacing (center-to-center)
         # Assuming 20% routing overhead
         derived[f"{loop_name}_max_dist"] = max_side * 0.8
+        # Store the max area directly for quality metric scoring
+        derived[f"{loop_name}_max_area_mm2"] = max_area
 
     # 2. Thermal -> Min Spacing
     # Simple model: heat sources should be spaced to avoid thermal overlap

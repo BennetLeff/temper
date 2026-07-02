@@ -25,6 +25,7 @@ class ThermalSpec:
 class EMISpec:
     """EMI performance targets (loop areas)."""
     max_loop_area_mm2: dict[str, float] = field(default_factory=dict)
+    loop_components: dict[str, list[str]] = field(default_factory=dict)
     frequency_hz: float = 100000.0
 
 

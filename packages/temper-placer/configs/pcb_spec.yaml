@@ -14,6 +14,10 @@ emi:
   max_loop_area_mm2:
     commutation_loop: 80.0
     gate_drive_loop: 30.0
+  loop_components:
+    commutation_loop: [C_BUS1, Q1, Q2, C_BUS2]
+    gate_drive_high: [U_GATE_DRV, R_GATE_H, Q1]
+    gate_drive_low: [U_GATE_DRV, R_GATE_L, Q2]
   frequency_hz: 100000.0
 
 signal_integrity:

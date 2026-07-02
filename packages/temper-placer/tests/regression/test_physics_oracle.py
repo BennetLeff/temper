@@ -183,6 +183,53 @@ class TestHumanPlacement:
 
 
 # ============================================================================
+# Loop-area metric is live (extends pattern to second physics metric)
+# ============================================================================
+
+class TestLoopArea:
+    """Validates the loop-area metric is live (not returning 1.0 dark default)."""
+
+    def test_derivation_includes_loop_areas(self):
+        """derive_constraints_from_spec returns max_area_mm2 for each loop."""
+        from temper_placer.core.specification import PcbSpecification
+        from temper_placer.pipeline.derivation import derive_constraints_from_spec
+
+        spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
+        spec = PcbSpecification.load(spec_path)
+        derived = derive_constraints_from_spec(spec, None)
+
+        assert "commutation_loop_max_area_mm2" in derived
+        assert derived["commutation_loop_max_area_mm2"] == 80.0
+        assert "gate_drive_loop_max_area_mm2" in derived
+        assert derived["gate_drive_loop_max_area_mm2"] == 30.0
+
+    def test_spec_has_loop_components(self):
+        """pcb_spec.yaml defines loop component lists for commutation and gate drive."""
+        from temper_placer.core.specification import PcbSpecification
+        spec = PcbSpecification.load(Path("packages/temper-placer/configs/pcb_spec.yaml"))
+        assert "commutation_loop" in spec.emi.loop_components
+        assert spec.emi.loop_components["commutation_loop"] == ["C_BUS1", "Q1", "Q2", "C_BUS2"]
+        assert "gate_drive_high" in spec.emi.loop_components
+        assert len(spec.emi.loop_components["gate_drive_high"]) == 3
+
+    @pytest.mark.slow
+    def test_temper_loop_area_is_not_dark(self):
+        """Physics oracle on temper produces a loop_area_score != 1.0 (not dark)."""
+        temper_pcb = Path("pcb/temper.kicad_pcb")
+        spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
+        if not temper_pcb.exists():
+            pytest.skip("temper.kicad_pcb not found")
+
+        result = run_physics_oracle(temper_pcb, spec_path=spec_path,
+                                    verbose=False, epochs=200)
+        if not result.skipped and result.quality_report:
+            score = result.quality_report["loop_area_score"]
+            assert score != 1.0, \
+                f"loop_area_score should not be 1.0 (dark default). " \
+                f"Got {score}. 0.0 = loop is large (real signal)."
+
+
+# ============================================================================
 # A/B placement diff (R8)
 # ============================================================================
 
