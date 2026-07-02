@@ -1,0 +1,136 @@
+board_id: minimal
+extraction_source: power_pcb_dataset/corpus/minimal/minimal_board.kicad_pcb
+extractor_version: 804b808a
+metrics:
+  hpwl:
+    value: 51.40888977050781
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  overlap_loss:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  boundary_loss:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  rdl:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  via_count:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  overlap_count:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  total_overlap_area:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  worst_overlap:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  boundary_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  total_boundary_violation:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  clearance_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  hv_lv_violations:
+    value: -1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  min_hv_lv_clearance:
+    value: -1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  zone_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  keepout_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  total_wirelength:
+    value: 51.40888977050781
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  max_net_length:
+    value: 30.205000000000002
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  avg_net_length:
+    value: 25.67
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  utilization:
+    value: 0.02391200002034505
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  spread_score:
+    value: 8.020120620727539
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  grid_snap_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  orientation_score:
+    value: 0.24984073532473428
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  prefix_alignment_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  aesthetic_index:
+    value: 0.7749522205974203
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  thermal_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  zone_compliance_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  hv_lv_clearance_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  loop_area_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  congestion_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  compactness_score:
+    value: 0.09375159310044943
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  connectivity_clustering_score:
+    value: 0.25260306522250175
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  overall_score:
+    value: 0.7637649511889931
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a
+  drc_violations:
+    value: -1.0
+    extracted_at: '2026-07-02T03:57:21.715511+00:00'
+    pcb_git_hash: 804b808a

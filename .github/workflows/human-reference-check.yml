@@ -1,0 +1,121 @@
+name: Human-Reference Oracle
+
+on:
+  pull_request:
+    paths:
+      - 'packages/temper-placer/src/**'
+      - 'power_pcb_dataset/corpus/**'
+      - 'power_pcb_dataset/corpus/*/human_reference.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  current:
+    name: Current (PR head)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Run placer and extract metrics
+        continue-on-error: true
+        run: |
+          uv run python3 -c "
+          import json, jax
+          jax.config.update('jax_platform_name', 'cpu')
+          from temper_placer.validation.human_reference_extractor import (
+              _build_state_and_context, _compute_placement_metrics,
+              _compute_detailed_metrics, _compute_aesthetic_metrics,
+              _compute_quality_metrics,
+          )
+          from temper_placer.io.kicad_parser import parse_kicad_pcb
+          from datetime import datetime, timezone
+
+          now = datetime.now(timezone.utc).isoformat()
+          gh = 'ci'
+
+          boards = ['piantor_right', 'temper', 'minimal', 'rp2040_designguide', 'bitaxe_ultra']
+          results = {}
+          for bid in boards:
+              pcb = f'power_pcb_dataset/corpus/{bid}/keyboard_pcb.kicad_pcb'
+              if bid == 'minimal':
+                  pcb = 'power_pcb_dataset/corpus/minimal/minimal_board.kicad_pcb'
+              if bid == 'rp2040_designguide':
+                  pcb = 'power_pcb_dataset/corpus/rp2040_designguide/RP2040-Guide.kicad_pcb'
+              if bid == 'bitaxe_ultra':
+                  pcb = 'power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb'
+              try:
+                  pr = parse_kicad_pcb(pcb)
+                  state, ctx = _build_state_and_context(pr)
+                  pm = _compute_placement_metrics(state, ctx, gh, now)
+                  dm = _compute_detailed_metrics(state, pr, gh, now)
+                  am = _compute_aesthetic_metrics(state, pr, gh, now)
+                  qm = _compute_quality_metrics(state, ctx, pr, gh, now)
+                  all_m = {k: v.value for d in [pm, dm, am, qm] for k, v in d.items()}
+                  results[bid] = all_m
+              except Exception as e:
+                  results[bid] = {'_error': str(e)}
+          with open('opt_metrics.json', 'w') as f:
+              json.dump(results, f)
+          "
+      - name: Upload opt metrics
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: opt-metrics
+          path: opt_metrics.json
+          retention-days: 1
+
+  comparison:
+    name: Comparison
+    needs: [current]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 5
+    if: always()
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Download opt metrics
+        uses: actions/download-artifact@v4
+        with:
+          name: opt-metrics
+          path: .
+        continue-on-error: true
+      - name: Generate human-reference comment
+        continue-on-error: true
+        run: |
+          export OPT_METRICS_FILE=opt_metrics.json
+          uv run python3 scripts/human_reference_compare.py --boards piantor_right temper minimal rp2040_designguide bitaxe_ultra > comment.md
+      - name: Post sticky comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: corpus-oracle
+          path: comment.md

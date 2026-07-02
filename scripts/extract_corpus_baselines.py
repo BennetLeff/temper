@@ -62,7 +62,7 @@ def optimize_board(
 
     from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
     from temper_placer.losses.overlap import OverlapLoss
-    from temper_placer.losses.wirelength import WirelengthLoss
+    from temper_placer.losses.wirelength import WirelengthLoss, compute_total_hpwl
     from temper_placer.losses.boundary import BoundaryLoss
     from temper_placer.losses.regularization import SpreadLoss
 
@@ -115,20 +115,46 @@ def optimize_board(
     print(f"    Optimizing {epochs} epochs (seed={seed})...")
     result = train_multiphase(netlist, board, make_loss, context, cfg, initial_state=initial_state)
 
-    # Compute HPWL from final positions
-    hpwl_val = 0.0
-    try:
-        from temper_placer.losses.wirelength import compute_hpwl
-        hpwl_val = float(compute_hpwl(result.final_state, netlist))
-    except Exception:
-        pass
+    # Compute individual loss values from the composite breakdown.
+    # Rotations must be softmax'd --- passing raw logits to loss functions
+    # (which expect soft one-hot rotations) produces garbage metrics.
+    rotations = jax.nn.softmax(result.final_state.rotation_logits, axis=-1)
+    loss_result = make_loss(weights)(
+        result.final_state.positions, rotations, context
+    )
+    breakdown = loss_result.breakdown if loss_result.breakdown else {}
+
+    # Compute HPWL from final positions using the correct function signature.
+    hpwl_val = float(
+        compute_total_hpwl(result.final_state.positions, rotations, context)
+    )
 
     return {
-        "wirelength_final": {"mean": float(result.final_loss), "margin_rel": 0.10, "margin_abs": 100.0},
-        "overlap_loss_final": {"mean": 0.0, "margin_rel": 0.10, "margin_abs": 2.0},
-        "boundary_loss_final": {"mean": 0.0, "margin_rel": 0.10, "margin_abs": 5.0},
-        "final_loss": {"mean": float(result.final_loss), "margin_rel": 0.05, "margin_abs": 20.0},
-        "hpwl_final": {"mean": hpwl_val, "margin_rel": 0.05, "margin_abs": 100.0},
+        "wirelength_final": {
+            "mean": float(breakdown.get("wirelength", 0.0)),
+            "margin_rel": 0.10,
+            "margin_abs": 100.0,
+        },
+        "overlap_loss_final": {
+            "mean": float(breakdown.get("overlap", 0.0)),
+            "margin_rel": 0.10,
+            "margin_abs": 12.0,
+        },
+        "boundary_loss_final": {
+            "mean": float(breakdown.get("boundary", 0.0)),
+            "margin_rel": 0.10,
+            "margin_abs": 5.0,
+        },
+        "final_loss": {
+            "mean": float(result.final_loss),
+            "margin_rel": 0.05,
+            "margin_abs": 20.0,
+        },
+        "hpwl_final": {
+            "mean": hpwl_val,
+            "margin_rel": 0.05,
+            "margin_abs": 100.0,
+        },
     }
 
 

@@ -478,15 +478,6 @@ scripts:
   - pathlib
   - sys
   - yaml
-- path: generate_golden_baselines.py
-  purpose: Generate golden baseline fixtures for tests
-  owner: pipeline
-  last_run: '2026-06-22'
-  category: keep
-  disposition: utility
-    imports:
-      - pathlib
-      - sys
       - pathlib
       - sys
       - pathlib
@@ -1340,3 +1331,16 @@ scripts:
       - json
       - pathlib
       - sys
+- path: human_reference_compare.py
+  purpose: "Generate human-reference PR comment comparing optimizer metrics to human placement"
+  owner: pipeline
+  last_run: "2026-07-01"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - argparse
+      - json
+      - os
+      - pathlib
+      - sys
+      - yaml

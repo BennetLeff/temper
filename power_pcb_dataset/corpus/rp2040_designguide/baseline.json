@@ -1,7 +1,7 @@
 {
   "board_id": "rp2040_designguide",
-  "extracted_at": "2026-06-29T02:20:39.560354+00:00",
-  "git_hash": "ce604b59",
+  "extracted_at": "2026-07-02T02:47:18.844678+00:00",
+  "git_hash": "856e2ddd",
   "config": {
     "seed": 44,
     "epochs": 8000,
@@ -11,14 +11,14 @@
   },
   "metrics": {
     "wirelength_final": {
-      "mean": 12720.990234375,
+      "mean": 1109.4825439453125,
       "margin_rel": 0.1,
       "margin_abs": 100.0
     },
     "overlap_loss_final": {
-      "mean": 0.0,
+      "mean": 1.412203311920166,
       "margin_rel": 0.1,
-      "margin_abs": 2.0
+      "margin_abs": 12.0
     },
     "boundary_loss_final": {
       "mean": 0.0,
@@ -31,7 +31,7 @@
       "margin_abs": 20.0
     },
     "hpwl_final": {
-      "mean": 0.0,
+      "mean": 1100.6407470703125,
       "margin_rel": 0.05,
       "margin_abs": 100.0
     }
