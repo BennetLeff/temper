@@ -1,28 +1,28 @@
 board_id: bitaxe_ultra
 extraction_source: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
-extractor_version: 044bf909
+extractor_version: 298777fd
 metrics:
   hpwl:
-    value: 1046.3402099609375
-    extracted_at: '2026-07-02T01:36:39.074348+00:00'
-    pcb_git_hash: 044bf909
+    value: 1046.34033203125
+    extracted_at: '2026-07-02T03:19:40.135134+00:00'
+    pcb_git_hash: 298777fd
   overlap_loss:
-    value: 1444.9193115234375
-    extracted_at: '2026-07-02T01:36:39.074348+00:00'
-    pcb_git_hash: 044bf909
+    value: 1444.9197998046875
+    extracted_at: '2026-07-02T03:19:40.135134+00:00'
+    pcb_git_hash: 298777fd
   boundary_loss:
-    value: 515927.84375
-    extracted_at: '2026-07-02T01:36:39.074348+00:00'
-    pcb_git_hash: 044bf909
+    value: 96.99227142333984
+    extracted_at: '2026-07-02T03:19:40.135134+00:00'
+    pcb_git_hash: 298777fd
   rdl:
     value: 2126.8900804896816
-    extracted_at: '2026-07-02T01:36:39.074348+00:00'
-    pcb_git_hash: 044bf909
+    extracted_at: '2026-07-02T03:19:40.135134+00:00'
+    pcb_git_hash: 298777fd
   via_count:
     value: 201.0
-    extracted_at: '2026-07-02T01:36:39.074348+00:00'
-    pcb_git_hash: 044bf909
+    extracted_at: '2026-07-02T03:19:40.135134+00:00'
+    pcb_git_hash: 298777fd
   drc_violations:
     value: -1.0
-    extracted_at: '2026-07-02T01:36:39.074348+00:00'
-    pcb_git_hash: 044bf909
+    extracted_at: '2026-07-02T03:19:40.135134+00:00'
+    pcb_git_hash: 298777fd

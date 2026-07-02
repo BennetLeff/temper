@@ -144,10 +144,13 @@ def _build_state_and_context(
     rotation_logits = jnp.zeros((n, 4), dtype=jnp.float32)
 
     for i, comp in enumerate(netlist.components):
-        # Component.initial_position is origin-relative; add board origin
-        # to get absolute coordinates used by loss functions.
-        px = float(comp.initial_position[0]) + float(board.origin[0])
-        py = float(comp.initial_position[1]) + float(board.origin[1])
+        # The parser already normalizes component.initial_position to be
+        # relative to the board origin (board space, [0,width]×[0,height]).
+        # BoundaryLoss works in this same space — adding board.origin back
+        # would push components into absolute coordinates where they appear
+        # to be outside the board's [0,width]×[0,height] rectangle.
+        px = float(comp.initial_position[0])
+        py = float(comp.initial_position[1])
         positions.append((px, py))
 
         # One-hot the initial rotation.  Rotation values are 0-3.

@@ -1,28 +1,28 @@
 board_id: piantor_right
 extraction_source: power_pcb_dataset/corpus/piantor_right/keyboard_pcb.kicad_pcb
-extractor_version: 044bf909
+extractor_version: 298777fd
 metrics:
   hpwl:
-    value: 1093.6585693359375
-    extracted_at: '2026-07-02T01:36:23.125004+00:00'
-    pcb_git_hash: 044bf909
+    value: 1093.6583251953125
+    extracted_at: '2026-07-02T03:19:22.730603+00:00'
+    pcb_git_hash: 298777fd
   overlap_loss:
-    value: 903.3681640625
-    extracted_at: '2026-07-02T01:36:23.125004+00:00'
-    pcb_git_hash: 044bf909
+    value: 903.368896484375
+    extracted_at: '2026-07-02T03:19:22.730603+00:00'
+    pcb_git_hash: 298777fd
   boundary_loss:
-    value: 58116.6796875
-    extracted_at: '2026-07-02T01:36:23.125004+00:00'
-    pcb_git_hash: 044bf909
+    value: 494.7426452636719
+    extracted_at: '2026-07-02T03:19:22.730603+00:00'
+    pcb_git_hash: 298777fd
   rdl:
     value: 2416.6578281509082
-    extracted_at: '2026-07-02T01:36:23.125004+00:00'
-    pcb_git_hash: 044bf909
+    extracted_at: '2026-07-02T03:19:22.730603+00:00'
+    pcb_git_hash: 298777fd
   via_count:
     value: 11.0
-    extracted_at: '2026-07-02T01:36:23.125004+00:00'
-    pcb_git_hash: 044bf909
+    extracted_at: '2026-07-02T03:19:22.730603+00:00'
+    pcb_git_hash: 298777fd
   drc_violations:
     value: -1.0
-    extracted_at: '2026-07-02T01:36:23.125004+00:00'
-    pcb_git_hash: 044bf909
+    extracted_at: '2026-07-02T03:19:22.730603+00:00'
+    pcb_git_hash: 298777fd
