@@ -36,12 +36,23 @@ class SignalIntegritySpec:
 
 
 @dataclass
+class SafetySpec:
+    """Safety-critical specifications for mains-connected designs.
+
+    Follows IEC 60335-1 for clearance and creepage requirements.
+    """
+    mains_voltage_v: float = 230.0
+    pollution_degree: int = 2
+
+
+@dataclass
 class PcbSpecification:
     """Complete physical specification for a design."""
     name: str = "Unnamed Design"
     thermal: ThermalSpec = field(default_factory=ThermalSpec)
     emi: EMISpec = field(default_factory=EMISpec)
     signal_integrity: SignalIntegritySpec = field(default_factory=SignalIntegritySpec)
+    safety: SafetySpec | None = None
 
     @classmethod
     def load(cls, path: Path) -> PcbSpecification:
@@ -53,9 +64,15 @@ class PcbSpecification:
         emi = EMISpec(**data.get("emi", {}))
         si = SignalIntegritySpec(**data.get("signal_integrity", {}))
 
+        safety = None
+        safety_data = data.get("safety")
+        if safety_data is not None:
+            safety = SafetySpec(**safety_data)
+
         return cls(
             name=data.get("name", path.stem),
             thermal=thermal,
             emi=emi,
-            signal_integrity=si
+            signal_integrity=si,
+            safety=safety,
         )

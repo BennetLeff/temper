@@ -22,3 +22,7 @@ signal_integrity:
   length_match_mm:
     DIFF_P: 2.0
     DIFF_N: 2.0
+
+safety:
+  mains_voltage_v: 230.0
+  pollution_degree: 2
