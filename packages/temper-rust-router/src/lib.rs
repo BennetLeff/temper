@@ -6,6 +6,7 @@ pub mod audit;
 mod combinator;
 mod encoding;
 mod extraction;
+pub mod loop_extractor;
 mod solver;
 pub mod types;
 mod types_py_bridge;
