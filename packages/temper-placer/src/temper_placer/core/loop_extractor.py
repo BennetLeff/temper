@@ -460,6 +460,15 @@ def auto_extract_loops(netlist: Netlist, topology_hints: dict | None = None) -> 
         >>> for loop in loops.get_critical_loops():
         ...     print(f"  {loop.name}: {loop.loop_type}")
     """
+    # Try Rust backend first (R23: fallback)
+    try:
+        from temper_placer.core.loop_extractor_rs import auto_extract_loops_rs
+        rs_result = auto_extract_loops_rs(netlist, topology_hints)
+        if rs_result is not None:
+            return rs_result
+    except Exception:
+        pass  # Fall through to Python implementation
+
     loops = []
     topology_hints = topology_hints or {}
 

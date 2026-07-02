@@ -9,7 +9,7 @@ after intentional placement quality improvements (via bless_baselines.py).
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import jax
@@ -50,8 +50,8 @@ def optimize_board(
         return None
 
     print(f"  Parsing {pcb_path}...")
+    from temper_placer.io.config_loader import create_board_from_constraints, load_constraints
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.config_loader import load_constraints, create_board_from_constraints
 
     parse_result = parse_kicad_pcb(pcb_path)
     netlist = parse_result.netlist
@@ -60,11 +60,11 @@ def optimize_board(
 
     print(f"    {netlist.n_components} components, {netlist.n_nets} nets")
 
-    from temper_placer.losses.base import LossContext, CompositeLoss, WeightedLoss
-    from temper_placer.losses.overlap import OverlapLoss
-    from temper_placer.losses.wirelength import WirelengthLoss, compute_total_hpwl
+    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
     from temper_placer.losses.boundary import BoundaryLoss
+    from temper_placer.losses.overlap import OverlapLoss
     from temper_placer.losses.regularization import SpreadLoss
+    from temper_placer.losses.wirelength import WirelengthLoss, compute_total_hpwl
 
     weights = {
         "overlap": 200.0,
@@ -90,10 +90,10 @@ def optimize_board(
 
     context = LossContext.from_netlist_and_board(netlist, board)
 
+    from temper_placer.heuristics.pipeline import create_default_pipeline
     from temper_placer.optimizer.config import OptimizerConfig
     from temper_placer.optimizer.curriculum import create_default_phases
     from temper_placer.optimizer.train import train_multiphase
-    from temper_placer.heuristics.pipeline import create_default_pipeline
 
     pipeline = create_default_pipeline()
     rng = jax.random.PRNGKey(seed)
@@ -115,46 +115,31 @@ def optimize_board(
     print(f"    Optimizing {epochs} epochs (seed={seed})...")
     result = train_multiphase(netlist, board, make_loss, context, cfg, initial_state=initial_state)
 
-    # Compute individual loss values from the composite breakdown.
-    # Rotations must be softmax'd --- passing raw logits to loss functions
-    # (which expect soft one-hot rotations) produces garbage metrics.
+    # Compute final individual loss values from composite loss breakdown.
+    # Matches the pattern in corpus_runner.py:_run_board (lines 447-480).
     rotations = jax.nn.softmax(result.final_state.rotation_logits, axis=-1)
-    loss_result = make_loss(weights)(
-        result.final_state.positions, rotations, context
+    composite = make_loss(weights)
+    loss_result = composite(
+        result.final_state.positions,
+        rotations,
+        context,
     )
     breakdown = loss_result.breakdown if loss_result.breakdown else {}
 
-    # Compute HPWL from final positions using the correct function signature.
-    hpwl_val = float(
-        compute_total_hpwl(result.final_state.positions, rotations, context)
-    )
+    overlap_val = float(breakdown.get("overlap", 0.0))
+    wirelength_val = float(breakdown.get("wirelength", 0.0))
+    boundary_val = float(breakdown.get("boundary", 0.0))
+    final_loss_val = float(result.final_loss)
+
+    hpwl_val = float(compute_total_hpwl(
+        result.final_state.positions, rotations, context))
 
     return {
-        "wirelength_final": {
-            "mean": float(breakdown.get("wirelength", 0.0)),
-            "margin_rel": 0.10,
-            "margin_abs": 100.0,
-        },
-        "overlap_loss_final": {
-            "mean": float(breakdown.get("overlap", 0.0)),
-            "margin_rel": 0.10,
-            "margin_abs": 12.0,
-        },
-        "boundary_loss_final": {
-            "mean": float(breakdown.get("boundary", 0.0)),
-            "margin_rel": 0.10,
-            "margin_abs": 5.0,
-        },
-        "final_loss": {
-            "mean": float(result.final_loss),
-            "margin_rel": 0.05,
-            "margin_abs": 20.0,
-        },
-        "hpwl_final": {
-            "mean": hpwl_val,
-            "margin_rel": 0.05,
-            "margin_abs": 100.0,
-        },
+        "overlap_loss_final": {"mean": overlap_val, "margin_rel": 0.10, "margin_abs": 2.0},
+        "wirelength_final":   {"mean": wirelength_val, "margin_rel": 0.10, "margin_abs": 20.0},
+        "boundary_loss_final": {"mean": boundary_val, "margin_rel": 0.10, "margin_abs": 5.0},
+        "final_loss":          {"mean": final_loss_val, "margin_rel": 0.05, "margin_abs": 20.0},
+        "hpwl_final":          {"mean": hpwl_val, "margin_rel": 0.05, "margin_abs": 10.0},
     }
 
 
@@ -183,7 +168,7 @@ def main():
     except Exception:
         pass
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     for entry in boards_to_run:
         board_id = entry["id"]

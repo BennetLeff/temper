@@ -8,11 +8,26 @@ physical performance specifications (EMI, Thermal, Signal Integrity).
 from __future__ import annotations
 
 import math
+import warnings
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.specification import PcbSpecification
+
+from temper_placer.core.net_types import VoltageClass
+
+
+def _mains_voltage_to_class(voltage_v: float) -> VoltageClass:
+    """Map a mains voltage in volts to the nearest IEC 60335-1 voltage class."""
+    if voltage_v <= 50:
+        return VoltageClass.LOW_VOLTAGE
+    elif voltage_v <= 130:
+        return VoltageClass.MAINS_120V
+    elif voltage_v <= 264:
+        return VoltageClass.MAINS_240V
+    else:
+        return VoltageClass.HIGH_VOLTAGE
 
 
 def derive_constraints_from_spec(
@@ -26,13 +41,15 @@ def derive_constraints_from_spec(
     """
     derived = {}
 
-    # 1. EMI -> Max Distance
+    # 1. EMI -> Max Distance and Max Area
     for loop_name, max_area in spec.emi.max_loop_area_mm2.items():
         # L = sqrt(Area). Max side length of a square loop.
         max_side = math.sqrt(max_area)
         # Conservative estimate for max component spacing (center-to-center)
         # Assuming 20% routing overhead
         derived[f"{loop_name}_max_dist"] = max_side * 0.8
+        # Store the max area directly for quality metric scoring
+        derived[f"{loop_name}_max_area_mm2"] = max_area
 
     # 2. Thermal -> Min Spacing
     # Simple model: heat sources should be spaced to avoid thermal overlap
@@ -49,8 +66,18 @@ def derive_constraints_from_spec(
         derived[f"{net_name}_max_placement_dist"] = max_len / 1.5
 
     # 4. Safety -> Isolation (Creepage/Clearance)
-    # Default to 6.5mm for reinforced isolation (340V)
-    derived["hv_lv_isolation_mm"] = 6.5
+    if spec.safety is not None:
+        vc = _mains_voltage_to_class(spec.safety.mains_voltage_v)
+        derived["hv_lv_isolation_mm"] = vc.get_clearance_mm(
+            pollution_degree=spec.safety.pollution_degree
+        )
+    else:
+        # Default to 6.5mm for reinforced isolation (340V)
+        warnings.warn(
+            "No safety spec provided — falling back to hardcoded 6.5mm isolation.",
+            stacklevel=2,
+        )
+        derived["hv_lv_isolation_mm"] = 6.5
 
     return derived
 

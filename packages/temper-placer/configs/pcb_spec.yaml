@@ -5,6 +5,8 @@ name: "Temper V1"
 thermal:
   max_junction_temp_c: 110.0
   ambient_temp_c: 40.0
+  target_edge: "BOTTOM"
+  max_heatspread_mm: 30.0
   power_dissipation:
     Q1: 15.0
     Q2: 15.0
@@ -14,6 +16,10 @@ emi:
   max_loop_area_mm2:
     commutation_loop: 80.0
     gate_drive_loop: 30.0
+  loop_components:
+    commutation_loop: [C_BUS1, Q1, Q2, C_BUS2]
+    gate_drive_high: [U_GATE_DRV, R_GATE_H, Q1]
+    gate_drive_low: [U_GATE_DRV, R_GATE_L, Q2]
   frequency_hz: 100000.0
 
 signal_integrity:
@@ -22,3 +28,7 @@ signal_integrity:
   length_match_mm:
     DIFF_P: 2.0
     DIFF_N: 2.0
+
+safety:
+  mains_voltage_v: 230.0
+  pollution_degree: 2

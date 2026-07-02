@@ -6,6 +6,7 @@ pub mod audit;
 mod combinator;
 mod encoding;
 mod extraction;
+pub mod loop_extractor;
 mod solver;
 pub mod types;
 mod types_py_bridge;
@@ -247,5 +248,15 @@ fn temper_rust_router(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Register the solver entry point and constraint auditor.
     m.add_function(wrap_pyfunction!(solve_topology_rust, m)?)?;
     m.add_function(wrap_pyfunction!(audit_result, m)?)?;
+    m.add_function(wrap_pyfunction!(auto_extract_loops_rust, m)?)?;
     Ok(())
+}
+
+/// Python-callable entry point for loop extraction via JSON.
+#[pyfunction]
+fn auto_extract_loops_rust(
+    py: Python<'_>,
+    json_str: &str,
+) -> PyResult<String> {
+    crate::loop_extractor::bridge::auto_extract_loops_rust(py, json_str)
 }

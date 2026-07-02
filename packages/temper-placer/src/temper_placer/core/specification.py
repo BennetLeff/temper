@@ -15,16 +15,19 @@ import yaml  # type: ignore[import-untyped]
 
 @dataclass
 class ThermalSpec:
-    """Thermal performance targets."""
-    max_junction_temp_c: float = 125.0
+    """Thermal management targets."""
+    max_junction_temp_c: float = 110.0
     ambient_temp_c: float = 40.0
     power_dissipation: dict[str, float] = field(default_factory=dict)
+    target_edge: str = "TOP"
+    max_heatspread_mm: float = 10.0
 
 
 @dataclass
 class EMISpec:
     """EMI performance targets (loop areas)."""
     max_loop_area_mm2: dict[str, float] = field(default_factory=dict)
+    loop_components: dict[str, list[str]] = field(default_factory=dict)
     frequency_hz: float = 100000.0
 
 
@@ -36,12 +39,23 @@ class SignalIntegritySpec:
 
 
 @dataclass
+class SafetySpec:
+    """Safety-critical specifications for mains-connected designs.
+
+    Follows IEC 60335-1 for clearance and creepage requirements.
+    """
+    mains_voltage_v: float = 230.0
+    pollution_degree: int = 2
+
+
+@dataclass
 class PcbSpecification:
     """Complete physical specification for a design."""
     name: str = "Unnamed Design"
     thermal: ThermalSpec = field(default_factory=ThermalSpec)
     emi: EMISpec = field(default_factory=EMISpec)
     signal_integrity: SignalIntegritySpec = field(default_factory=SignalIntegritySpec)
+    safety: SafetySpec | None = None
 
     @classmethod
     def load(cls, path: Path) -> PcbSpecification:
@@ -53,9 +67,15 @@ class PcbSpecification:
         emi = EMISpec(**data.get("emi", {}))
         si = SignalIntegritySpec(**data.get("signal_integrity", {}))
 
+        safety = None
+        safety_data = data.get("safety")
+        if safety_data is not None:
+            safety = SafetySpec(**safety_data)
+
         return cls(
             name=data.get("name", path.stem),
             thermal=thermal,
             emi=emi,
-            signal_integrity=si
+            signal_integrity=si,
+            safety=safety,
         )
