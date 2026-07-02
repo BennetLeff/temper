@@ -287,6 +287,10 @@ def run_physics_oracle(
         # Override threshold with derived value
         quality_config["min_hv_lv_clearance"] = threshold_mm
 
+        # Wire thermal edge configuration from spec
+        quality_config["thermal_target_edge"] = spec.thermal.target_edge
+        quality_config["thermal_max_distance"] = spec.thermal.max_heatspread_mm
+
         # Populate loop components from spec, falling back to auto-extraction
         if spec.emi.loop_components:
             spec_loops = [

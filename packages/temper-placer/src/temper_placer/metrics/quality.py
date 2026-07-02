@@ -522,10 +522,13 @@ def compute_quality_report(
     zone_assigns = config.get("zone_assignments", {})
     loop_comps = config.get("loop_components", [])
     min_clearance = config.get("min_hv_lv_clearance", 8.0)
+    thermal_edge = config.get("thermal_target_edge", "TOP")
+    thermal_max_dist = config.get("thermal_max_distance", 10.0)
 
     # Compute all metrics
     wl = total_wirelength(state, netlist, context)
-    thermal = thermal_score(state, netlist, board, thermal_comps)
+    thermal = thermal_score(state, netlist, board, thermal_comps,
+                            target_edge=thermal_edge, max_distance=thermal_max_dist)
     zone = zone_compliance_score(state, netlist, board, zone_assigns)
     clearance = hv_lv_clearance_score(state, netlist, hv_comps, lv_comps, min_clearance)
     loop = loop_area_score(state, netlist, context, loop_comps)

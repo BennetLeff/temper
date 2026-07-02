@@ -5,6 +5,8 @@ name: "Temper V1"
 thermal:
   max_junction_temp_c: 110.0
   ambient_temp_c: 40.0
+  target_edge: "BOTTOM"
+  max_heatspread_mm: 30.0
   power_dissipation:
     Q1: 15.0
     Q2: 15.0

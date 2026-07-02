@@ -230,6 +230,202 @@ class TestLoopArea:
 
 
 # ============================================================================
+# Thermal metric TDD — edge-distance scoring (extends to third physics metric)
+# ============================================================================
+
+class TestThermalScore:
+    """TDD base cases proving thermal_score dynamic range and edge behavior."""
+
+    def _make_state(self, positions):
+        from temper_placer.core.state import PlacementState
+        return PlacementState(
+            positions=jnp.array(positions),
+            rotation_logits=jnp.zeros((len(positions), 4)),
+        )
+
+    # ---- Base case 1: empty thermal set → 1.0 (dark, no work to do) ----
+
+    def test_empty_thermal_set_returns_one(self):
+        """Empty thermal_components → perfect score (nothing to check)."""
+        from temper_placer.metrics.quality import thermal_score
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+
+        netlist = Netlist(); netlist.components = []; netlist.build_indices()
+        state = self._make_state([])
+        board = Board(width=100, height=150)
+        score = thermal_score(state, netlist, board, set())
+        assert score == 1.0, f"empty set → 1.0, got {score}"
+
+    # ---- Base case 2: component at target edge → 1.0 ----
+
+    def test_component_at_edge_scores_one(self):
+        """Component placed at TOP edge (y=height) → distance 0 → score 1.0."""
+        from temper_placer.metrics.quality import thermal_score
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+
+        comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
+                         initial_position=(50, 150))
+        netlist = Netlist(); netlist.components = [comp]; netlist.build_indices()
+        state = self._make_state([[50, 150]])
+        board = Board(width=100, height=150)
+        score = thermal_score(state, netlist, board, {"Q1"}, target_edge="TOP")
+        assert score == 1.0, f"at-edge → 1.0, got {score}"
+
+    # ---- Base case 3: component at max_distance → 0.0 ----
+
+    def test_component_at_max_distance_scores_zero(self):
+        """Component 10mm from TOP edge with max_distance=10 → score 0.0."""
+        from temper_placer.metrics.quality import thermal_score
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+
+        comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
+                         initial_position=(50, 140))  # 10mm from top (150)
+        netlist = Netlist(); netlist.components = [comp]; netlist.build_indices()
+        state = self._make_state([[50, 140]])
+        board = Board(width=100, height=150)
+        score = thermal_score(state, netlist, board, {"Q1"}, target_edge="TOP",
+                              max_distance=10.0)
+        assert score == 0.0, f"at-max → 0.0, got {score}"
+
+    # ---- Base case 4: proportional distance scoring ----
+
+    def test_half_max_distance_scores_half(self):
+        """Component 5mm from TOP with max_distance=10 → score 0.5."""
+        from temper_placer.metrics.quality import thermal_score
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+
+        comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
+                         initial_position=(50, 145))  # 5mm from top
+        netlist = Netlist(); netlist.components = [comp]; netlist.build_indices()
+        state = self._make_state([[50, 145]])
+        board = Board(width=100, height=150)
+        score = thermal_score(state, netlist, board, {"Q1"}, target_edge="TOP",
+                              max_distance=10.0)
+        assert 0.49 < score < 0.51, f"5mm/10mm → ~0.5, got {score}"
+
+    # ---- Base case 5: mixed distances → average ----
+
+    def test_two_components_averaged(self):
+        """One at edge (1.0) + one at max (0.0) → average 0.5."""
+        from temper_placer.metrics.quality import thermal_score
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+
+        q1 = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
+                       initial_position=(25, 150))  # at edge
+        q2 = Component(ref="Q2", footprint="TO-247", bounds=(10, 5), pins=[],
+                       initial_position=(75, 140))  # 10mm from edge
+        netlist = Netlist(); netlist.components = [q1, q2]; netlist.build_indices()
+        state = self._make_state([[25, 150], [75, 140]])
+        board = Board(width=100, height=150)
+        score = thermal_score(state, netlist, board, {"Q1", "Q2"},
+                              target_edge="TOP", max_distance=10.0)
+        assert 0.49 < score < 0.51, f"mixed → ~0.5, got {score}"
+
+    # ---- Base case 6: BOTTOM edge scores correctly ----
+
+    def test_bottom_edge_inverts_distance(self):
+        """Component at y=0 → bottom edge distance 0 → score 1.0."""
+        from temper_placer.metrics.quality import thermal_score
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+
+        comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
+                         initial_position=(50, 0))
+        netlist = Netlist(); netlist.components = [comp]; netlist.build_indices()
+        state = self._make_state([[50, 0]])
+        board = Board(width=100, height=150)
+        score = thermal_score(state, netlist, board, {"Q1"}, target_edge="BOTTOM")
+        assert score == 1.0, f"bottom-edge → 1.0, got {score}"
+
+
+# ============================================================================
+# PBT: thermal_score monotonicity invariant
+# ============================================================================
+
+class TestThermalPBT:
+    """Property-based: thermal_score is monotonic in distance to target edge."""
+
+    def test_score_decreases_with_distance(self):
+        """For any component, moving it away from the edge reduces score."""
+        from temper_placer.metrics.quality import thermal_score
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.core.board import Board
+
+        for edge, (dx, dy) in [("TOP", (0, -1)), ("BOTTOM", (0, 1)),
+                                ("LEFT", (1, 0)), ("RIGHT", (-1, 0))]:
+            comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
+                             initial_position=(50, 100))
+            netlist = Netlist(); netlist.components = [comp]; netlist.build_indices()
+            board = Board(width=150, height=150)
+
+            score_near = thermal_score(
+                self._make_state([[50, 100]]), netlist, board, {"Q1"},
+                target_edge=edge, max_distance=150.0)
+            score_far = thermal_score(
+                self._make_state([[50 + dx * 20, 100 + dy * 20]]), netlist, board, {"Q1"},
+                target_edge=edge, max_distance=150.0)
+            assert score_near > score_far, \
+                f"{edge}: near={score_near:.3f}, far={score_far:.3f}"
+
+    def _make_state(self, positions):
+        from temper_placer.core.state import PlacementState
+        return PlacementState(
+            positions=jnp.array(positions),
+            rotation_logits=jnp.zeros((len(positions), 4)),
+        )
+
+
+# ============================================================================
+# Temper board thermal verification
+# ============================================================================
+
+class TestThermalTemper:
+    """Verify thermal metric on the temper board."""
+
+    def test_temper_thermal_components_detected(self):
+        """infer_quality_config finds temper thermal components (Q1, Q2)."""
+        from temper_placer.io.reference_loader import infer_quality_config
+        from dataclasses import dataclass
+        from pathlib import Path
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.core.design_rules import create_temper_design_rules
+
+        parse = parse_kicad_pcb(Path("pcb/temper.kicad_pcb"),
+                                design_rules=create_temper_design_rules())
+
+        @dataclass
+        class _Ref: netlist = None; board = None
+        ref = _Ref(); ref.netlist = parse.netlist; ref.board = parse.board
+        qc = infer_quality_config(ref)
+
+        assert "Q1" in qc["thermal_components"], "Q1 must be thermal"
+        assert "Q2" in qc["thermal_components"], "Q2 must be thermal"
+        assert len(qc["thermal_components"]) >= 2
+
+    @pytest.mark.slow
+    def test_temper_thermal_score_not_dark(self):
+        """Physics oracle produces thermal_score != 1.0 (metric is live)."""
+        temper_pcb = Path("pcb/temper.kicad_pcb")
+        spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
+        if not temper_pcb.exists():
+            pytest.skip("temper.kicad_pcb not found")
+
+        result = run_physics_oracle(temper_pcb, spec_path=spec_path,
+                                    verbose=False, epochs=200)
+        if not result.skipped and result.quality_report:
+            score = result.quality_report["thermal_score"]
+            # Metric must be live: not 1.0 (that would be dark)
+            assert score != 1.0, \
+                f"thermal_score should not be 1.0 (dark default). " \
+                f"Got {score}. 0.0 = components far from edge (real signal)."
+
+
+# ============================================================================
 # A/B placement diff (R8)
 # ============================================================================
 

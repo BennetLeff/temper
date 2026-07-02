@@ -15,10 +15,12 @@ import yaml  # type: ignore[import-untyped]
 
 @dataclass
 class ThermalSpec:
-    """Thermal performance targets."""
-    max_junction_temp_c: float = 125.0
+    """Thermal management targets."""
+    max_junction_temp_c: float = 110.0
     ambient_temp_c: float = 40.0
     power_dissipation: dict[str, float] = field(default_factory=dict)
+    target_edge: str = "TOP"
+    max_heatspread_mm: float = 10.0
 
 
 @dataclass
