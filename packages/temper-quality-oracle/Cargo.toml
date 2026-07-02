@@ -1,0 +1,20 @@
+[package]
+name = "temper-quality-oracle"
+version = "0.1.0"
+edition = "2024"
+description = "Typed quality oracle for PCB placement — implements the full six-layer quality pipeline as a pure Rust function"
+
+[lib]
+name = "temper_quality_oracle"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+
+[profile.release]
+panic = "unwind"
+
+[dev-dependencies]
+proptest = "1"
