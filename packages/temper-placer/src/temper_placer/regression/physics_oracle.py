@@ -25,11 +25,12 @@ from temper_placer.core.specification import PcbSpecification
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.reference_loader import infer_quality_config
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint
 from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.losses.clearance import ClearanceLoss
 from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.regularization import SpreadLoss
+from temper_placer.losses.thermal import ThermalLoss
 from temper_placer.losses.wirelength import WirelengthLoss
 from temper_placer.metrics.quality import compute_quality_report
 from temper_placer.optimizer.config import OptimizerConfig
@@ -180,8 +181,23 @@ def run_physics_oracle(
                 )
             )
 
+        # Build thermal constraints from spec config
+        thermal_constraints: list[ThermalConstraint] = []
+        for ref, power in spec.thermal.power_dissipation.items():
+            thermal_constraints.append(
+                ThermalConstraint(
+                    component_ref=ref,
+                    edge=spec.thermal.target_edge,
+                    max_distance=spec.thermal.max_heatspread_mm,
+                    weight=power,  # weight proportional to power dissipation
+                    because=f"{power}W dissipation requires {spec.thermal.target_edge} edge placement",
+                )
+            )
+
         context = LossContext.from_netlist_and_board(
-            netlist, board, clearance_rules=clearance_rules
+            netlist, board,
+            clearance_rules=clearance_rules,
+            thermal_constraints=thermal_constraints,
         )
         loss_fn = CompositeLoss([
             WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weights["overlap"]),
@@ -192,6 +208,7 @@ def run_physics_oracle(
             ),
             WeightedLoss(WirelengthLoss(), weights["wirelength"]),
             WeightedLoss(SpreadLoss(), weights["spread"]),
+            WeightedLoss(ThermalLoss(margin=2.0), weights.get("thermal", 30.0)),
         ])
     except Exception as e:
         return PhysicsOracleResult(
