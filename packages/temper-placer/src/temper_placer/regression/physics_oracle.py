@@ -25,10 +25,11 @@ from temper_placer.core.specification import PcbSpecification
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.reference_loader import infer_quality_config
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
 from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.losses.clearance import ClearanceLoss
 from temper_placer.losses.component_loop_area import ComponentLoopAreaLoss, ComponentLoopConfig
+from temper_placer.losses.loop_area import LoopAreaLoss
 from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.regularization import SpreadLoss
 from temper_placer.losses.thermal import ThermalLoss
@@ -193,30 +194,58 @@ def run_physics_oracle(
                     component_ref=ref,
                     edge=spec.thermal.target_edge,
                     max_distance=spec.thermal.max_heatspread_mm,
-                    weight=power,  # weight proportional to power dissipation
+                    weight=power,
                     because=f"{power}W dissipation requires {spec.thermal.target_edge} edge placement",
                 )
             )
+
+        # Build pin-based loop constraints for commutation loop
+        # Pin order traces the actual current path around the loop perimeter
+        comm_max_area = spec.emi.max_loop_area_mm2.get("commutation_loop", 80.0)
+        loop_constraints: list[LoopConstraint] = [
+            LoopConstraint(
+                name="commutation_loop",
+                pins=(
+                    ("C_BUS1", "1"),   # DC_BUS+ side of bus cap
+                    ("Q1", "2"),       # IGBT collector = DC_BUS+
+                    ("Q1", "3"),       # IGBT emitter = SW_NODE
+                    ("Q2", "2"),       # IGBT collector = SW_NODE  
+                    ("Q2", "3"),       # IGBT emitter = DC_BUS-
+                    ("C_BUS2", "2"),   # DC_BUS- side of bus cap
+                    ("C_BUS2", "1"),   # PGND side of bus cap 2
+                    ("C_BUS1", "2"),   # PGND side of bus cap 1 (closes loop)
+                ),
+                max_area=comm_max_area,
+                weight=10.0,
+                because="Main switching loop — most critical for EMI and voltage spikes.",
+            ),
+        ]
 
         context = LossContext.from_netlist_and_board(
             netlist, board,
             clearance_rules=clearance_rules,
             thermal_constraints=thermal_constraints,
+            loop_constraints=loop_constraints,
         )
 
-        # Build component-level loop area loss from spec
-        loop_losses = []
+        # Use pin-based LoopAreaLoss for commutation (physically correct),
+        # ComponentLoopAreaLoss only for gate-drive (no driver in netlist).
+        pin_loop_losses = [
+            WeightedLoss(LoopAreaLoss(area_penalty_scale=0.01, routing_factor=1.0),
+                         weights.get("loop_area", 20.0)),
+        ]
+
+        # Component-center loop loss only for loops without pin defs
+        comp_loop_losses = []
         for loop_name, comp_refs in spec.emi.loop_components.items():
+            # Skip commutation — handled by pin-based LoopAreaLoss
+            if loop_name == "commutation_loop":
+                continue
             max_area = spec.emi.max_loop_area_mm2.get(loop_name, 100.0)
             if len(comp_refs) >= 3:
-                loop_losses.append(
-                    ComponentLoopConfig(
-                        name=loop_name,
-                        component_refs=list(comp_refs),
-                        max_area_mm2=max_area * 0.5,  # target half of max for margin
-                        weight=10.0,
-                    )
-                )
+                comp_loop_losses.append(
+                    ComponentLoopConfig(name=loop_name, component_refs=list(comp_refs),
+                                        max_area_mm2=max_area * 0.5, weight=5.0))
 
         loss_fn = CompositeLoss([
             WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weights["overlap"]),
@@ -228,12 +257,13 @@ def run_physics_oracle(
             WeightedLoss(WirelengthLoss(), weights["wirelength"]),
             WeightedLoss(SpreadLoss(), weights["spread"]),
             WeightedLoss(ThermalLoss(margin=2.0), weights.get("thermal", 30.0)),
+        ] + pin_loop_losses + ([
             WeightedLoss(
-                ComponentLoopAreaLoss(loops=loop_losses, margin=10.0,
+                ComponentLoopAreaLoss(loops=comp_loop_losses, margin=10.0,
                                       min_separation_mm=2.0),
-                weights.get("loop_area", 30.0),
+                weights.get("loop_area", 5.0),
             ),
-        ])
+        ] if comp_loop_losses else []))
     except Exception as e:
         return PhysicsOracleResult(
             board_id=board_id,
