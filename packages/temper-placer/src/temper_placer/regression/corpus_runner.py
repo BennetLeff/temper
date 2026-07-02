@@ -465,11 +465,8 @@ class CorpusRegressionRunner:
             final_loss_val = float(result.final_loss)
 
             hpwl_val = 0.0
-            try:
-                from temper_placer.losses.wirelength import compute_total_hpwl
-                hpwl_val = float(compute_total_hpwl(result.final_state.positions, rotations, context))
-            except Exception:
-                pass
+            from temper_placer.losses.wirelength import compute_total_hpwl
+            hpwl_val = float(compute_total_hpwl(result.final_state.positions, rotations, context))
 
             collected = {
                 "overlap_loss_final": overlap_val,
