@@ -1331,3 +1331,16 @@ scripts:
       - json
       - pathlib
       - sys
+- path: human_reference_compare.py
+  purpose: "Generate human-reference PR comment comparing optimizer metrics to human placement"
+  owner: pipeline
+  last_run: "2026-07-01"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - argparse
+      - json
+      - os
+      - pathlib
+      - sys
+      - yaml

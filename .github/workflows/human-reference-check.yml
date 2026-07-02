@@ -1,0 +1,96 @@
+name: Human-Reference Oracle
+
+on:
+  pull_request:
+    paths:
+      - 'packages/temper-placer/src/**'
+      - 'power_pcb_dataset/corpus/**'
+      - 'power_pcb_dataset/corpus/*/human_reference.yaml'
+
+jobs:
+  current:
+    name: Current (PR head)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Run placer and extract metrics
+        continue-on-error: true
+        run: |
+          uv run python3 -c "
+          import json, jax
+          jax.config.update('jax_platform_name', 'cpu')
+          from temper_placer.validation.human_reference_extractor import _build_state_and_context
+          from temper_placer.io.kicad_parser import parse_kicad_pcb
+          from temper_placer.losses.wirelength import compute_total_hpwl
+          from temper_placer.losses.overlap import OverlapLoss
+          from temper_placer.losses.boundary import BoundaryLoss
+
+          boards = ['piantor_right']
+          results = {}
+          for bid in boards:
+              pcb = f'power_pcb_dataset/corpus/{bid}/keyboard_pcb.kicad_pcb'
+              pr = parse_kicad_pcb(pcb)
+              state, ctx = _build_state_and_context(pr)
+              rot = jax.nn.softmax(state.rotation_logits, axis=-1)
+              results[bid] = {
+                  'hpwl': float(compute_total_hpwl(state.positions, rot, ctx)),
+                  'overlap_loss': float(OverlapLoss(margin=1.0, rotation_invariant=True)(state.positions, rot, ctx).value),
+                  'boundary_loss': float(BoundaryLoss()(state.positions, rot, ctx).value),
+              }
+          with open('opt_metrics.json', 'w') as f:
+              json.dump(results, f)
+          "
+      - name: Upload opt metrics
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: opt-metrics
+          path: opt_metrics.json
+          retention-days: 1
+
+  comparison:
+    name: Comparison
+    needs: [current]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-packages
+      - name: Download opt metrics
+        uses: actions/download-artifact@v4
+        with:
+          name: opt-metrics
+          path: .
+        continue-on-error: true
+      - name: Generate human-reference comment
+        continue-on-error: true
+        run: |
+          export OPT_METRICS_FILE=opt_metrics.json
+          uv run python3 scripts/human_reference_compare.py --boards piantor_right > comment.md
+      - name: Post sticky comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: corpus-oracle
+          path: comment.md
