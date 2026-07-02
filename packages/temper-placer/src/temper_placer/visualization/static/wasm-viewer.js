@@ -8,7 +8,7 @@ import {
     search as wasmSearch,
     set_viewport as wasmSetViewport,
     get_board_summary as wasmGetBoardSummary,
-} from './wasmReady/temper_viewer.js';
+} from './wasm/temper_viewer.js';
 
 let wasmReady = false;
 let ws = null;
