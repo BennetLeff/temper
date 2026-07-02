@@ -188,7 +188,8 @@ pub async fn start_render_loop(canvas_id: &str) -> Result<(), JsValue> {
         }
     }
     std::mem::forget(g);
-    console::log_1(&"temper-viewer: render loop started".into());
+    console::log_1(&format!("Render loop: canvas {}x{}, fit_zoom {:.2}, camera center ({:.0},{:.0})",
+        pw, ph, fit_zoom, bw/2.0, bh/2.0).into());
     Ok(())
 }
 
@@ -203,7 +204,10 @@ pub fn load_board(json: &str) -> Result<(), JsValue> {
     cam.fit_board(board.width, board.height);
     INTERACTION.with(|i| *i.borrow_mut() = Some(InteractionState::new(cam)));
     set_board(board.clone());
-    console::log_1(&format!("Board: {}x{}mm, {} comps", board.width, board.height, board.components.len()).into());
+    console::log_1(&format!("Board: {}x{}mm, {} comps at positions:", board.width, board.height, board.components.len()).into());
+    for c in &board.components {
+        console::log_1(&format!("  {} @ ({:.0},{:.0}) {}x{}mm r{:.0}°", c.ref_, c.position.x, c.position.y, c.width, c.height, c.rotation).into());
+    }
     Ok(())
 }
 
