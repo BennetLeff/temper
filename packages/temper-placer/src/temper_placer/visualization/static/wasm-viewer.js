@@ -301,6 +301,7 @@ document.addEventListener('keydown', (e) => {
 // Zoom controls (buttons + keyboard)
 window.zoomIn = function() {
     if (!wasmReady) return;
+    // Zoom at canvas center (world center maps to canvas center)
     wasmOnWheel(-100, canvas.width/2, canvas.height/2);
 };
 window.zoomOut = function() {
@@ -314,13 +315,14 @@ function updateZoomDisplay() {
     document.getElementById('zoom-level').textContent = '';
 }
 
-// Resize handler
+// Resize handler — keep camera viewport synced to actual canvas size
 window.addEventListener('resize', () => {
-    const canvasEl = document.getElementById('board-canvas');
-    if (wasmReady && canvasEl) {
-        wasmSetViewport(canvasEl.clientWidth, canvasEl.clientHeight);
+    if (wasmReady) {
+        wasmSetViewport(canvas.width, canvas.height);
     }
 });
+// Also sync on load
+setTimeout(() => { if (wasmReady) wasmSetViewport(canvas.width, canvas.height); }, 200);
 
 // Resizable sidebar
 let sidebarResizing = false;
