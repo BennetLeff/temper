@@ -61,9 +61,12 @@ class RegressionRunner:
         warnings: list[str] = []
 
         try:
-            from temper_placer.validation.baseline_extractor import BaselineMetrics
-
-            baseline = BaselineMetrics.load(baseline_yaml)
+            # TODO(U3): Replace with canonical human_reference_extractor.
+            import yaml as _yaml
+            from types import SimpleNamespace
+            with open(baseline_yaml) as f:
+                raw = _yaml.safe_load(f)
+            baseline = SimpleNamespace(**raw)
         except Exception as e:
             return BoardResult(
                 board_id=board_id,
