@@ -1,0 +1,277 @@
+"""
+Canonical human-reference metric extraction for corpus boards.
+
+Extracts placement and routing metrics from a human-designed .kicad_pcb
+file, validates every link in the extraction chain, and writes a flat
+``human_reference.yaml`` file. No metric is ever hardcoded, and no
+exception is ever swallowed into a recorded value.
+
+Single source of truth — replaces the two divergent baseline_extractor.py
+copies that were deleted in the prerequisites.
+"""
+
+from __future__ import annotations
+
+import subprocess
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+
+import jax
+import jax.numpy as jnp
+import yaml
+
+from temper_placer.core.state import PlacementState
+from temper_placer.losses.base import LossContext
+from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.overlap import OverlapLoss
+from temper_placer.losses.wirelength import compute_total_hpwl
+
+
+# ---------------------------------------------------------------------------
+# Pydantic-style data models (plain dataclasses for zero-dependency YAML I/O)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class MetricValue:
+    """A single measured metric with provenance metadata."""
+
+    value: float
+    extracted_at: str  # ISO-8601
+    pcb_git_hash: str
+
+
+@dataclass
+class HumanReference:
+    """Complete human-reference metrics for one board."""
+
+    board_id: str
+    extraction_source: str  # relative path within corpus/, e.g. "piantor_right/keyboard_pcb.kicad_pcb"
+    extractor_version: str  # git describe
+    metrics: dict[str, MetricValue]
+
+    def save(self, path: str | Path) -> None:
+        """Write the reference to a flat YAML file."""
+        data = {
+            "board_id": self.board_id,
+            "extraction_source": self.extraction_source,
+            "extractor_version": self.extractor_version,
+            "metrics": {
+                key: {
+                    "value": mv.value,
+                    "extracted_at": mv.extracted_at,
+                    "pcb_git_hash": mv.pcb_git_hash,
+                }
+                for key, mv in self.metrics.items()
+            },
+        }
+        with open(path, "w") as f:
+            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _git_hash(repo_root: Path) -> str:
+    """Return the short git hash of HEAD (8 chars)."""
+    result = subprocess.run(
+        ["git", "-C", str(repo_root), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()[:8] if result.returncode == 0 else "unknown"
+
+
+def _repo_root(pcb_path: str | Path) -> Path:
+    """Walk up from *pcb_path* until a ``.git`` directory is found."""
+    p = Path(pcb_path).resolve()
+    for parent in [p, *p.parents]:
+        if (parent / ".git").exists():
+            return parent
+    return p.parent  # fallback
+
+
+# ---------------------------------------------------------------------------
+# Step 1 — parse + validate
+# ---------------------------------------------------------------------------
+
+def _parse_and_validate(pcb_path: str | Path, validate: bool) -> "ParseResult":
+    """Parse *pcb_path* and (when *validate*) assert correctness invariants."""
+    from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
+
+    result = parse_kicad_pcb(pcb_path)
+
+    if not validate:
+        return result
+
+    net_names = {n.name for n in result.netlist.nets}
+
+    # Every trace must resolve to a named net (no "<Net object at ...>" fallback).
+    for t in result.traces:
+        if t.net is None or t.net not in net_names:
+            raise AssertionError(
+                f"Trace net '{t.net}' does not resolve to a named net on the parsed board."
+            )
+
+    # Every via must resolve to a named net.
+    for v in result.vias:
+        if v.net is None or v.net not in net_names:
+            raise AssertionError(
+                f"Via net '{v.net}' does not resolve to a named net on the parsed board."
+            )
+
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Step 2 — build PlacementState + LossContext from parse output
+# ---------------------------------------------------------------------------
+
+def _build_state_and_context(
+    parse_result: "ParseResult",
+) -> tuple[PlacementState, LossContext]:
+    """Create a PlacementState from the human-designed positions and a LossContext."""
+    board = parse_result.board
+    if board is None:
+        raise ValueError("No board geometry extracted from PCB.")
+
+    netlist = parse_result.netlist
+    n = netlist.n_components
+
+    positions = []
+    rotation_logits = jnp.zeros((n, 4), dtype=jnp.float32)
+
+    for i, comp in enumerate(netlist.components):
+        # Component.initial_position is origin-relative; add board origin
+        # to get absolute coordinates used by loss functions.
+        px = float(comp.initial_position[0]) + float(board.origin[0])
+        py = float(comp.initial_position[1]) + float(board.origin[1])
+        positions.append((px, py))
+
+        # One-hot the initial rotation.  Rotation values are 0-3.
+        rot = int(comp.initial_rotation) % 4
+        rotation_logits = rotation_logits.at[i, rot].set(10.0)
+
+    state = PlacementState(
+        positions=jnp.array(positions, dtype=jnp.float32),
+        rotation_logits=rotation_logits,
+    )
+    context = LossContext.from_netlist_and_board(netlist, board)
+    return state, context
+
+
+# ---------------------------------------------------------------------------
+# Step 3 — compute placement metrics (HPWL, overlap, boundary)
+# ---------------------------------------------------------------------------
+
+def _compute_placement_metrics(
+    state: PlacementState,
+    context: LossContext,
+    pcb_git_hash: str,
+    now: str,
+) -> dict[str, MetricValue]:
+    """Compute HPWL, overlap loss, and boundary loss from the human placement."""
+    # Loss functions expect soft one-hot rotations, not raw logits.
+    rotations = jax.nn.softmax(state.rotation_logits, axis=-1)
+
+    # --- HPWL ---
+    hpwl_val = float(compute_total_hpwl(state.positions, rotations, context))
+    if not jnp.isfinite(hpwl_val):
+        raise ValueError("HPWL is non-finite.")
+    if hpwl_val <= 0 and context.netlist.n_nets > 0:
+        raise AssertionError(
+            f"HPWL is {hpwl_val} for a board with {context.netlist.n_nets} nets — "
+            "expected strictly positive for any board with multi-pin nets."
+        )
+
+    # --- Overlap loss ---
+    overlap_loss = OverlapLoss(margin=1.0, rotation_invariant=True)
+    overlap_result = overlap_loss(state.positions, rotations, context)
+    overlap_val = float(overlap_result.value)
+    if not jnp.isfinite(overlap_val):
+        raise ValueError("Overlap loss is non-finite.")
+
+    # --- Boundary loss ---
+    boundary_loss = BoundaryLoss()
+    boundary_result = boundary_loss(state.positions, rotations, context)
+    boundary_val = float(boundary_result.value)
+    if not jnp.isfinite(boundary_val):
+        raise ValueError("Boundary loss is non-finite.")
+
+    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    return {
+        "hpwl": mk(hpwl_val),
+        "overlap_loss": mk(overlap_val),
+        "boundary_loss": mk(boundary_val),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Step 4 — routing metrics (stub — implemented in expansion phase U7)
+# ---------------------------------------------------------------------------
+
+def _compute_routing_metrics(
+    parse_result: "ParseResult",
+    pcb_git_hash: str,
+    now: str,
+) -> dict[str, MetricValue]:
+    """Stub — returns empty dict.  Expansion phase U7 fills this in."""
+    return {}
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+def extract_human_reference(
+    pcb_path: str | Path,
+    validate: bool = True,
+) -> HumanReference:
+    """Extract human-reference metrics from a .kicad_pcb file.
+
+    The pipeline is validation-gated: every intermediate result is asserted
+    before proceeding to the next step.  No ``try/except: pass`` patterns —
+    failures raise loudly.
+
+    Args:
+        pcb_path: Path to a ``.kicad_pcb`` file.
+        validate: If True (default), assert correctness invariants at each
+            step.  Set to False for debugging or iteration.
+
+    Returns:
+        ``HumanReference`` with board_id, extraction metadata, and metrics.
+
+    Raises:
+        FileNotFoundError: *pcb_path* does not exist.
+        ValueError: A metric is non-finite or missing.
+        AssertionError: A validation invariant is violated.
+    """
+    pcb_path = Path(pcb_path).resolve()
+    if not pcb_path.exists():
+        raise FileNotFoundError(f"PCB file not found: {pcb_path}")
+
+    repo = _repo_root(pcb_path)
+    gh = _git_hash(repo)
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Derive board_id from the path:  …/corpus/{board_id}/{file}.kicad_pcb
+    corpus_dir = pcb_path.parent  # e.g. …/corpus/piantor_right
+    board_id = corpus_dir.name
+    extraction_source = str(pcb_path.relative_to(repo))
+
+    # --- Pipeline ---
+    parse_result = _parse_and_validate(pcb_path, validate)
+    state, context = _build_state_and_context(parse_result)
+
+    placement_metrics = _compute_placement_metrics(state, context, gh, now)
+    routing_metrics = _compute_routing_metrics(parse_result, gh, now)
+
+    all_metrics = {**placement_metrics, **routing_metrics}
+
+    return HumanReference(
+        board_id=board_id,
+        extraction_source=extraction_source,
+        extractor_version=gh,  # proxy — could be `git describe` in a CI context
+        metrics=all_metrics,
+    )

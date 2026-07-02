@@ -1,0 +1,16 @@
+board_id: piantor_right
+extraction_source: power_pcb_dataset/corpus/piantor_right/keyboard_pcb.kicad_pcb
+extractor_version: 024661a4
+metrics:
+  hpwl:
+    value: 1093.6585693359375
+    extracted_at: '2026-07-02T01:28:30.047346+00:00'
+    pcb_git_hash: 024661a4
+  overlap_loss:
+    value: 903.3681640625
+    extracted_at: '2026-07-02T01:28:30.047346+00:00'
+    pcb_git_hash: 024661a4
+  boundary_loss:
+    value: 58116.6796875
+    extracted_at: '2026-07-02T01:28:30.047346+00:00'
+    pcb_git_hash: 024661a4
