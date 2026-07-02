@@ -1,0 +1,16 @@
+board_id: rp2040_designguide
+extraction_source: power_pcb_dataset/corpus/rp2040_designguide/RP2040-Guide.kicad_pcb
+extractor_version: a0675336
+metrics:
+  hpwl:
+    value: 954.3090209960938
+    extracted_at: '2026-07-02T01:32:43.597926+00:00'
+    pcb_git_hash: a0675336
+  overlap_loss:
+    value: 685.9963989257812
+    extracted_at: '2026-07-02T01:32:43.597926+00:00'
+    pcb_git_hash: a0675336
+  boundary_loss:
+    value: 940070.5
+    extracted_at: '2026-07-02T01:32:43.597926+00:00'
+    pcb_git_hash: a0675336

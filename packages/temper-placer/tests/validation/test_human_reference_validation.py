@@ -31,6 +31,20 @@ def _corpus_board_path(board_id: str, filename: str | None = None) -> Path:
         return board_dir
     return board_dir / filename
 
+_CORPUS_BOARDS = ["piantor_right", "temper", "minimal", "rp2040_designguide", "bitaxe_ultra"]
+
+
+# ---------------------------------------------------------------------------
+# Path helpers
+# ---------------------------------------------------------------------------
+
+def _corpus_board_path(board_id: str, filename: str | None = None) -> Path:
+    repo = Path(__file__).resolve().parents[4]
+    board_dir = repo / "power_pcb_dataset" / "corpus" / board_id
+    if filename is None:
+        return board_dir
+    return board_dir / filename
+
 
 # ---------------------------------------------------------------------------
 # Trace / via extraction on piantor_right (covers R3, R4)
@@ -186,6 +200,45 @@ class TestBoundaryLossFixture:
         assert float(result.value) > 0.0, (
             f"Boundary loss is {result.value}, expected > 0 on an off-board fixture"
         )
+
+
+# ---------------------------------------------------------------------------
+# Per-board validation — all 5 corpus boards (covers R13)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.l4_regression
+@pytest.mark.parametrize("board_id", _CORPUS_BOARDS)
+class TestAllCorpusBoards:
+    """Every corpus board must pass per-piece validation."""
+
+    def test_human_reference_yaml_committed(self, board_id: str):
+        yaml_path = _corpus_board_path(board_id, "human_reference.yaml")
+        assert yaml_path.exists(), f"human_reference.yaml not found for {board_id}"
+        with open(yaml_path) as f:
+            data = yaml.safe_load(f)
+        assert data["board_id"] == board_id
+        assert "hpwl" in data["metrics"]
+        hpwl = data["metrics"]["hpwl"]["value"]
+        assert hpwl > 0.0, f"HPWL is {hpwl} for {board_id}, expected > 0"
+        assert jnp.isfinite(data["metrics"]["overlap_loss"]["value"])
+        assert jnp.isfinite(data["metrics"]["boundary_loss"]["value"])
+
+    def test_net_names_resolve(self, board_id: str):
+        """Every trace and via net resolves to a named net from the parsed netlist."""
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        kicad_files = list(_corpus_board_path(board_id).glob("*.kicad_pcb"))
+        if not kicad_files:
+            pytest.skip(f"No .kicad_pcb found for {board_id}")
+        result = parse_kicad_pcb(str(kicad_files[0]))
+        net_names = {n.name for n in result.netlist.nets}
+        for t in result.traces:
+            assert t.net is not None and t.net in net_names, (
+                f"Trace net '{t.net}' on {board_id} not in parsed netlist"
+            )
+        for v in result.vias:
+            assert v.net is not None and v.net in net_names, (
+                f"Via net '{v.net}' on {board_id} not in parsed netlist"
+            )
 
 
 # ---------------------------------------------------------------------------

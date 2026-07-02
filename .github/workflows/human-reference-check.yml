@@ -37,7 +37,7 @@ jobs:
           from temper_placer.losses.overlap import OverlapLoss
           from temper_placer.losses.boundary import BoundaryLoss
 
-          boards = ['piantor_right']
+          boards = ['piantor_right', 'temper', 'minimal', 'rp2040_designguide', 'bitaxe_ultra']
           results = {}
           for bid in boards:
               pcb = f'power_pcb_dataset/corpus/{bid}/keyboard_pcb.kicad_pcb'
@@ -88,7 +88,7 @@ jobs:
         continue-on-error: true
         run: |
           export OPT_METRICS_FILE=opt_metrics.json
-          uv run python3 scripts/human_reference_compare.py --boards piantor_right > comment.md
+          uv run python3 scripts/human_reference_compare.py --boards piantor_right temper minimal rp2040_designguide bitaxe_ultra > comment.md
       - name: Post sticky comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
