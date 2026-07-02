@@ -143,49 +143,6 @@
                 // Small delay for layout to compute
                 await new Promise(r => setTimeout(r, 50));
                 await start_render_loop('board-canvas');
-
-                // Canvas2D overlay: prove component positions by drawing on top
-                const canvas = document.getElementById('board-canvas');
-                const overlay = document.createElement('canvas');
-                overlay.width = canvas.width;
-                overlay.height = canvas.height;
-                overlay.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:10;';
-                const cc = document.getElementById('canvas-container');
-                cc.style.position = 'relative';
-                cc.appendChild(overlay);
-                const ctx2d = overlay.getContext('2d');
-
-                // Camera: center=(bw/2, bh/2), fit_zoom matches start_render_loop
-                const bw = data.board.width; const bh = data.board.height;
-                const fitZoom = Math.min(overlay.width / bw, overlay.height / bh) * 0.85;
-                const cx = bw / 2; const cy = bh / 2;
-
-                const colors = ['#3377EE','#EEBB33','#33AA55','#EE7733','#9955CC','#DD4444','#33AABB','#888888'];
-                data.board.components.forEach((c, i) => {
-                    // world→screen: screen = (world - center) * zoom + viewport/2
-                    const sx = (c.position[0] - cx) * fitZoom + overlay.width / 2;
-                    const sy = (c.position[1] - cy) * fitZoom + overlay.height / 2;
-                    const sw = (c.width || 5) * fitZoom;
-                    const sh = (c.height || 5) * fitZoom;
-                    ctx2d.save();
-                    ctx2d.translate(sx, sy);
-                    ctx2d.rotate((c.rotation || 0) * Math.PI / 180);
-                    ctx2d.fillStyle = colors[i % colors.length];
-                    ctx2d.globalAlpha = 0.7;
-                    ctx2d.fillRect(-sw/2, -sh/2, Math.max(sw, 4), Math.max(sh, 4));
-                    ctx2d.strokeStyle = '#000';
-                    ctx2d.lineWidth = 1;
-                    ctx2d.strokeRect(-sw/2, -sh/2, Math.max(sw, 4), Math.max(sh, 4));
-                    ctx2d.restore();
-                    // Label below component
-                    ctx2d.fillStyle = '#fff';
-                    ctx2d.strokeStyle = '#000';
-                    ctx2d.lineWidth = 2;
-                    ctx2d.font = 'bold 10px monospace';
-                    ctx2d.strokeText(c.ref, sx - 12, sy + sh/2 + 12);
-                    ctx2d.fillText(c.ref, sx - 12, sy + sh/2 + 12);
-                });
-                console.log('Overlay: ' + data.board.components.length + ' components drawn');
             } catch(e) { console.error('Auto-load error:', e); }
         })();
     </script>

@@ -51,7 +51,7 @@ pub fn status_color(status: &crate::types::ConstraintBinding) -> Rgb {
     }
 }
 
-pub const BOARD_BACKGROUND: Rgb = Rgb(0x2D, 0x5A, 0x3D);
+pub const BOARD_BACKGROUND: Rgb = Rgb(0x4A, 0x7A, 0x5A);
 pub const CANVAS_BACKGROUND: Rgb = Rgb(0xF0, 0xF0, 0xF0);
 pub const GRID_DOT: Rgb = Rgb(0x50, 0x80, 0x60);
 pub const RULER_TICK: Rgb = Rgb(0x66, 0x66, 0x66);
