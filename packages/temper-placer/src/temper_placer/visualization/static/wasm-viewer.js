@@ -280,16 +280,20 @@ dropZone.addEventListener('drop', async (e) => {
     }
 });
 
-// Keyboard: Escape = deselect, +/- = zoom, arrows = pan
+// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
+    // Don't capture when typing in search box
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
     if (e.key === 'Escape') {
         document.getElementById('inspector-content').textContent = 'Select a component to inspect.';
         if (wasm) wasmOnClick(-1, -1);
+        return;
     }
     if (!wasm) return;
-    if (e.key === 'p') { e.preventDefault(); wasmOnWheel(-100, 400, 300); }
-    if (e.key === 'o') { e.preventDefault(); wasmOnWheel(100, 400, 300); }
-    if (e.key === '0') { e.preventDefault(); location.reload(); } // Reset zoom
+    console.log('key:', e.key); // Debug
+    if (e.key === 'p') { e.preventDefault(); wasmOnWheel(-100, 400, 300); return; }
+    if (e.key === 'o') { e.preventDefault(); wasmOnWheel(100, 400, 300); return; }
+    if (e.key === '0') { e.preventDefault(); location.reload(); return; }
 });
 
 // Resize handler
