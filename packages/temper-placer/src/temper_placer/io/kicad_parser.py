@@ -19,6 +19,7 @@ from kiutils.footprint import Footprint
 from kiutils.schematic import Schematic
 
 from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole, Zone
+from temper_placer.core.design_rules import DesignRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 if TYPE_CHECKING:
@@ -88,13 +89,20 @@ class ParseResult:
         return len(self.warnings) > 0
 
 
-def parse_kicad_pcb(pcb_path: Path, normalize: bool = True) -> ParseResult:
+def parse_kicad_pcb(
+    pcb_path: Path,
+    normalize: bool = True,
+    design_rules: DesignRules | None = None,
+) -> ParseResult:
     """
     Parse a KiCad PCB file (.kicad_pcb) to extract component placement and netlist.
 
     Args:
         pcb_path: Path to the .kicad_pcb file.
         normalize: If True, subtract board origin from component positions.
+        design_rules: Optional DesignRules for net safety classification.
+            When provided, component net_class is set based on the safety_category
+            of connected nets (HV/AC → "HighVoltage", LV → "Signal").
 
     Returns:
         ParseResult containing netlist, board geometry, and any warnings.
@@ -152,6 +160,11 @@ def parse_kicad_pcb(pcb_path: Path, normalize: bool = True) -> ParseResult:
     pads = _extract_pads_from_pcb(ki_board, warnings)
 
     netlist = Netlist(components=components, nets=nets)
+
+    # Apply safety classifications from design rules if provided
+    if design_rules is not None:
+        _apply_safety_classifications(netlist, design_rules)
+
     return ParseResult(
         netlist=netlist, board=board, warnings=warnings, traces=traces, vias=vias, pads=pads
     )
@@ -480,6 +493,50 @@ def _extract_nets_from_pcb(
 
     # Filter out empty nets or single-pin nets
     return [n for n in nets_dict.values() if len(n.pins) >= 2]
+
+
+def _apply_safety_classifications(netlist: Netlist, design_rules: DesignRules) -> None:
+    """
+    Apply safety classifications from design rules to each component's net_class.
+
+    For each component, determines the most severe safety category among its
+    connected nets and sets ``comp.net_class`` accordingly:
+
+    - Any net with ``safety_category`` ``"HV"`` or ``"AC"`` → ``"HighVoltage"``
+    - All nets ``"LV"`` or unclassified → keeps existing default (``"Signal"``)
+
+    Severity order: ``HV > AC > LV``. A component with one HV net and one LV net
+    is classified as ``"HighVoltage"`` — the worst-case classification.
+
+    Args:
+        netlist: The parsed netlist (mutated in-place).
+        design_rules: Design rules with ``net_class_assignments`` and ``net_classes``
+            containing ``NetClassRules`` with ``safety_category`` values.
+    """
+    severity_order = {"HV": 3, "AC": 2, "LV": 1}
+    # Map the highest severity to a net_class string
+    severity_to_class = {3: "HighVoltage", 2: "HighVoltage"}
+
+    for comp in netlist.components:
+        max_severity = 0
+
+        for pin in comp.pins:
+            if not pin.net:
+                continue
+
+            # Look up the net class name for this net
+            class_name = design_rules.net_class_assignments.get(pin.net)
+            if class_name and class_name in design_rules.net_classes:
+                nc_rules = design_rules.net_classes[class_name]
+                safety = nc_rules.safety_category
+                if safety in severity_order:
+                    sev = severity_order[safety]
+                    if sev > max_severity:
+                        max_severity = sev
+
+        if max_severity in severity_to_class:
+            comp.net_class = severity_to_class[max_severity]
+        # else: keep existing default ("Signal")
 
 
 def _extract_traces_from_pcb(

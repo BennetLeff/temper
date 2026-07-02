@@ -100,16 +100,13 @@ class LossContext(BaseLossContext):
         bounds = netlist.get_bounds_array()
         fixed_mask = netlist.get_fixed_mask()
 
-        # Build net class map from components
-        {c.ref: c.net_class for c in netlist.components}
-
         # Compute HV and LV indices
         hv_indices = []
         lv_indices = []
         net_class_indices_dict: dict[str, list[int]] = {}
 
         for i, comp in enumerate(netlist.components):
-            if comp.net_class == "HighVoltage":
+            if comp.net_class in ("HighVoltage", "ACMains"):
                 hv_indices.append(i)
             elif comp.net_class in ("Signal", "LowVoltage"):
                 lv_indices.append(i)
