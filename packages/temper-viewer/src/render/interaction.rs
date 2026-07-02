@@ -100,10 +100,7 @@ impl InteractionState {
     }
 
     fn hit_test_component(&self, board: &Board, world: &Point) -> Option<usize> {
-        board.components.iter().position(|c| {
-            let (min, max) = c.bounds();
-            world.x >= min.x && world.x <= max.x && world.y >= min.y && world.y <= max.y
-        })
+        board.components.iter().position(|c| c.contains_point(world))
     }
 
     fn hit_test_trace(&self, board: &Board, world: &Point) -> Option<usize> {
