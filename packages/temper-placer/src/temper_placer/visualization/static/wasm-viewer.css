@@ -84,8 +84,8 @@ label.disabled { color: #999; cursor: not-allowed; }
 
 /* Tooltip */
 #tooltip {
-    position: fixed; padding: 4px 8px; background: rgba(0,0,0,0.8); color: #fff;
-    font-size: 0.8em; border-radius: 4px; pointer-events: none; z-index: 300;
+    position: fixed; padding: 4px 8px; background: rgba(0,0,0,0.85); color: #fff;
+    font-size: 0.8em; border-radius: 4px; pointer-events: none; z-index: 999;
 }
 
 /* Pipeline stages */

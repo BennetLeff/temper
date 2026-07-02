@@ -161,13 +161,8 @@ canvas.addEventListener('mousemove', (e) => {
         lastMouseX = e.offsetX; lastMouseY = e.offsetY;
         wasmOnMouseMove(dx, dy, true);
     } else if (wasmReady) {
-        const now = Date.now();
-        if (now - hoverThrottle < 50) return; // 20fps hover max
-        hoverThrottle = now;
         const result = wasmOnMouseMove(e.offsetX, e.offsetY, false);
-        // wasmReady-bindgen returns JsValue::NULL for no-hit, which is !== null in JS
-        if (!result || result === undefined || (typeof result === 'string' && result === 'null')) return;
-        lastHoverResult = result;
+        if (!result || result === null) return;
         const tooltip = document.getElementById('tooltip');
         if (result === 'clear') {
             tooltip.classList.add('hidden');
@@ -177,16 +172,16 @@ canvas.addEventListener('mousemove', (e) => {
         if (typeof result !== 'string') return;
         if (result.startsWith('component:')) {
             const parts = result.split(':');
-            tooltip.textContent = parts[1] + ' — ' + (parts[2] || '');
-            tooltip.style.left = (e.clientX + 14) + 'px';
-            tooltip.style.top = (e.clientY - 30) + 'px';
+            tooltip.textContent = parts[1] + ' — ' + parts[2];
+            tooltip.style.left = e.clientX + 14 + 'px';
+            tooltip.style.top = e.clientY - 30 + 'px';
             tooltip.classList.remove('hidden');
             canvas.style.cursor = 'pointer';
         } else if (result.startsWith('trace:')) {
             const parts = result.split(':');
-            tooltip.textContent = parts[1] + ' — ' + (parts[2] || '');
-            tooltip.style.left = (e.clientX + 14) + 'px';
-            tooltip.style.top = (e.clientY - 30) + 'px';
+            tooltip.textContent = parts[1] + ' — ' + parts[2];
+            tooltip.style.left = e.clientX + 14 + 'px';
+            tooltip.style.top = e.clientY - 30 + 'px';
             tooltip.classList.remove('hidden');
             canvas.style.cursor = 'crosshair';
         }
