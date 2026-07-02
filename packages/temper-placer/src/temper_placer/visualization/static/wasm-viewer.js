@@ -287,8 +287,8 @@ document.addEventListener('keydown', (e) => {
         if (wasm) wasmOnClick(-1, -1);
     }
     if (!wasm) return;
-    if (e.key === '+' || e.key === '=') { e.preventDefault(); wasmOnWheel(-100, 400, 300); }
-    if (e.key === '-') { e.preventDefault(); wasmOnWheel(100, 400, 300); }
+    if (e.key === 'p') { e.preventDefault(); wasmOnWheel(-100, 400, 300); }
+    if (e.key === 'o') { e.preventDefault(); wasmOnWheel(100, 400, 300); }
     if (e.key === '0') { e.preventDefault(); location.reload(); } // Reset zoom
 });
 
