@@ -62,7 +62,7 @@ class RegressionRunner:
 
         try:
             # TODO(U3): Replace with canonical human_reference_extractor.
-            import yaml as _yaml
+            import yaml as _yaml  # type: ignore[import-untyped]
             from types import SimpleNamespace
             with open(baseline_yaml) as f:
                 raw = _yaml.safe_load(f)

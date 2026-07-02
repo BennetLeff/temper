@@ -152,12 +152,13 @@ def _build_state_and_context(
         # BoundaryLoss works in this same space — adding board.origin back
         # would push components into absolute coordinates where they appear
         # to be outside the board's [0,width]×[0,height] rectangle.
+        assert comp.initial_position is not None, f"Component {comp.ref} has no initial_position"
         px = float(comp.initial_position[0])
         py = float(comp.initial_position[1])
         positions.append((px, py))
 
         # One-hot the initial rotation.  Rotation values are 0-3.
-        rot = int(comp.initial_rotation) % 4
+        rot = int(comp.initial_rotation or 0) % 4
         rotation_logits = rotation_logits.at[i, rot].set(10.0)
 
     state = PlacementState(
@@ -262,6 +263,7 @@ def _compute_detailed_metrics(
     try:
         from temper_placer.validation.metrics import compute_metrics
 
+        assert parse_result.board is not None
         pm = compute_metrics(state, parse_result.netlist, parse_result.board)
         return {
             "overlap_count": mk(float(pm.overlap_count)),
@@ -333,7 +335,8 @@ def _compute_quality_metrics(
         from temper_placer.io.reference_loader import infer_quality_config
         from temper_placer.metrics.quality import compute_quality_report
 
-        config = infer_quality_config(parse_result)
+        config = infer_quality_config(parse_result)  # type: ignore[arg-type]
+        assert parse_result.board is not None
         report = compute_quality_report(
             state, parse_result.netlist, parse_result.board, context, config
         )
