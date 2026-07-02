@@ -39,7 +39,7 @@ pub fn evaluate_quality(
                     panic!("zero-padded metrics should always be valid")
                 }),
                 violations: vec![crate::types::Violation {
-                    violation_type: crate::types::ViolationType::CreepageInsufficient,
+                    violation_type: crate::types::ViolationType::InvalidMetric,
                     description: format!("Invalid precomputed metric: {e}"),
                     components: vec![],
                     actual_value: 0.0,

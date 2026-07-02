@@ -13,7 +13,7 @@ use std::collections::{BTreeSet, HashMap};
 
 pub fn build_config(
     netlist: &Netlist,
-    _constraints: &DerivedConstraints,
+    constraints: &DerivedConstraints,
 ) -> QualityConfig {
     let mut thermal = BTreeSet::new();
     let mut hv = BTreeSet::new();
@@ -35,10 +35,10 @@ pub fn build_config(
         let is_hv = (ref_upper.starts_with('Q')
             || ref_upper.starts_with('D')
             || ref_upper.starts_with("TR")
-            || ref_upper.starts_with('U'))
-            && area > 50.0
+            || ref_upper.starts_with('U')
             || fp_lower.contains("igbt")
-            || fp_lower.contains("mosfet");
+            || fp_lower.contains("mosfet"))
+            && area > 50.0;
         if is_hv {
             hv.insert(comp.ref_des.clone());
         }
@@ -73,7 +73,7 @@ pub fn build_config(
         lv_components: lv,
         zone_assignments: HashMap::new(),
         loop_components: loops,
-        min_hv_lv_clearance_mm: 4.0,
+        min_hv_lv_clearance_mm: constraints.hv_lv_isolation_mm,
     }
 }
 
@@ -182,6 +182,6 @@ mod tests {
     #[test]
     fn test_config_default_clearance() {
         let config = build_config(&test_netlist(), &DerivedConstraints::default());
-        assert!((config.min_hv_lv_clearance_mm - 4.0).abs() < 1e-10);
+        assert!((config.min_hv_lv_clearance_mm - 6.5).abs() < 1e-10);
     }
 }

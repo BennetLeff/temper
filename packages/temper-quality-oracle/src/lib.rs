@@ -198,6 +198,7 @@ fn violation_to_py_dict(
             crate::types::ViolationType::LoopAreaExceeded => "loop_area_exceeded",
             crate::types::ViolationType::ThermalClearanceViolated => "thermal_clearance_violated",
             crate::types::ViolationType::ZoneComplianceFailed => "zone_compliance_failed",
+            crate::types::ViolationType::InvalidMetric => "invalid_metric",
         },
     )?;
     dict.set_item("description", v.description.as_str())?;
@@ -225,7 +226,7 @@ fn extract_metrics(dict: &Bound<'_, PyDict>) -> PrecomputedMetrics {
             .ok()
             .flatten()
             .and_then(|v| v.extract().ok())
-            .unwrap_or(1.0)
+            .unwrap_or(0.0)
     };
     PrecomputedMetrics {
         thermal_score: get("thermal_score"),

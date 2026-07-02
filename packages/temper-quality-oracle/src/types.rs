@@ -132,6 +132,7 @@ pub enum ViolationType {
     LoopAreaExceeded,
     ThermalClearanceViolated,
     ZoneComplianceFailed,
+    InvalidMetric,
 }
 
 /// A single quality violation with measured and required values.
@@ -165,7 +166,7 @@ impl QualityVerdict {
 }
 
 /// Derived constraints from PcbSpecification.
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DerivedConstraints {
     /// loop_name → max component spacing (mm)
     pub loop_spacing: HashMap<String, f64>,
@@ -175,6 +176,17 @@ pub struct DerivedConstraints {
     pub si_max_placement_dist: HashMap<String, f64>,
     /// HV-LV isolation distance (mm)
     pub hv_lv_isolation_mm: f64,
+}
+
+impl Default for DerivedConstraints {
+    fn default() -> Self {
+        Self {
+            loop_spacing: HashMap::new(),
+            thermal_clearances: HashMap::new(),
+            si_max_placement_dist: HashMap::new(),
+            hv_lv_isolation_mm: 6.5,
+        }
+    }
 }
 
 /// Quality configuration assembled from classification + derived constraints.
