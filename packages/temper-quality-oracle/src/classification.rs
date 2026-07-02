@@ -4,7 +4,7 @@
 /// `router_v6/net_classification.py` with precedence order:
 /// Ground > Power > HighVoltage > Differential > HighCurrent > GateDrive > Signal.
 
-use crate::types::{NetClass, NetClassification, NetInfo, Netlist};
+use crate::types::{NetClass, NetClassification, Netlist};
 
 const GROUND_PATTERNS: &[&str] = &["GND", "PGND", "CGND", "AGND", "DGND", "VSS"];
 const POWER_PATTERNS: &[&str] = &["+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS"];
@@ -50,6 +50,7 @@ pub fn classify_nets(netlist: &Netlist) -> Vec<NetClassification> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::NetInfo;
 
     #[test]
     fn test_ground_nets() {

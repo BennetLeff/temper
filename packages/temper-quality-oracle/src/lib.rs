@@ -109,7 +109,7 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
             }
         }
     }
-    drop(py);
+    let _ = py;
 
     Ok(Netlist { nets, components })
 }
