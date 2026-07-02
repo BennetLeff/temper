@@ -58,6 +58,7 @@ class MessageType(Enum):
     TRAINING_STARTED = "training_started"
     TRAINING_STOPPED = "training_stopped"
     TRAINING_COMPLETE = "training_complete"
+    STAGE_CHANGE = "stage_change"
     ERROR = "error"
 
     # Client -> Server
@@ -214,6 +215,10 @@ class LiveServer:
         logger.info("Stopping visualization server...")
         self._stop_event.set()
 
+        # Shutdown HTTP server
+        if hasattr(self, '_httpd'):
+            self._httpd.shutdown()
+
         # Cancel the event loop
         if self._event_loop:
             self._event_loop.call_soon_threadsafe(self._event_loop.stop)
@@ -269,6 +274,21 @@ class LiveServer:
             message = self._create_message(MessageType.TRAINING_COMPLETE, data)
             asyncio.run_coroutine_threadsafe(self._broadcast(message), self._event_loop)
 
+    def send_stage_change(
+        self, stage: str, phase: str = "active",
+        elapsed_seconds: float = 0.0, eta_seconds: float | None = None,
+    ) -> None:
+        """Notify clients of a pipeline stage change."""
+        if self._event_loop and self.state.is_running:
+            data = {
+                "stage": stage,
+                "phase": phase,
+                "elapsed_seconds": elapsed_seconds,
+                "eta_seconds": eta_seconds,
+            }
+            message = self._create_message(MessageType.STAGE_CHANGE, data)
+            asyncio.run_coroutine_threadsafe(self._broadcast(message), self._event_loop)
+
     @property
     def client_count(self) -> int:
         """Get number of connected clients."""
@@ -281,29 +301,71 @@ class LiveServer:
         return self.state.is_paused
 
     def _run_server(self) -> None:
-        """Run the WebSocket server (in background thread)."""
+        """Run the HTTP + WebSocket server (in background thread)."""
+        import http.server
+
+        http_port = self.config.port
+        ws_port = http_port + 1
+
+        static_dir = self.config.static_dir or self._default_static_dir()
+
+        class ViewerHTTPHandler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, directory=str(static_dir), **kwargs)
+            def do_GET(self):
+                path = self.path.lstrip("/")
+                if path in ("", "index.html"):
+                    self.path = "/wasm-viewer.html"
+                super().do_GET()
+            def log_message(self, format, *args):
+                pass
+
+        # Start HTTP server on main port
+        try:
+            httpd = http.server.HTTPServer((self.config.host, http_port), ViewerHTTPHandler)
+            self._httpd = httpd
+        except OSError as e:
+            logger.error(f"Failed to bind HTTP server on port {http_port}: {e}")
+            raise
+
+        http_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        http_thread.start()
+        logger.info(f"HTTP server listening on http://{self.config.host}:{http_port}")
+
+        # Start WebSocket server on ws_port in the event loop
         self._event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._event_loop)
 
+        async def start_ws():
+            logger.info(f"Binding WebSocket to port {ws_port} (http on {http_port})")
+            self._ws_server = await serve(
+                self._handle_client,
+                self.config.host,
+                ws_port,
+            )
+            logger.info(f"WebSocket server listening on ws://{self.config.host}:{ws_port}/ws")
+
         try:
-            self._event_loop.run_until_complete(self._start_servers())
+            self._event_loop.run_until_complete(start_ws())
             self.state.is_running = True
             self._event_loop.run_forever()
         except Exception as e:
             logger.error(f"Server error: {e}")
         finally:
+            if hasattr(self, '_httpd'):
+                self._httpd.shutdown()
             self._event_loop.close()
             self._event_loop = None
 
-    async def _start_servers(self) -> None:
-        """Start both HTTP and WebSocket servers."""
-        # WebSocket server
+    async def _start_ws_server(self) -> None:
+        """Start WebSocket server."""
+        logger.info(f"Starting WebSocket server on {self.config.host}:{self.config.port}")
         self._ws_server = await serve(
             self._handle_client,
             self.config.host,
             self.config.port,
         )
-        logger.debug(f"WebSocket server listening on {self.ws_url}")
+        logger.info(f"WebSocket server listening on {self.ws_url}")
 
     async def _handle_client(self, websocket: Any) -> None:
         """Handle a WebSocket client connection."""
@@ -490,3 +552,18 @@ def create_server(**kwargs: Any) -> LiveServer | MockLiveServer:
             "websockets not installed, using mock server. Install with: pip install websockets"
         )
         return MockLiveServer(**kwargs)
+
+
+def _guess_mime_type(file_path: Path) -> str:
+    """Guess MIME type from file extension."""
+    ext = file_path.suffix.lower()
+    return {
+        ".html": "text/html; charset=utf-8",
+        ".css": "text/css; charset=utf-8",
+        ".js": "application/javascript; charset=utf-8",
+        ".wasm": "application/wasm",
+        ".json": "application/json",
+        ".png": "image/png",
+        ".svg": "image/svg+xml",
+        ".ico": "image/x-icon",
+    }.get(ext, "application/octet-stream")

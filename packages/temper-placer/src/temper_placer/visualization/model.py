@@ -121,6 +121,12 @@ class ComponentView:
     footprint: str | None = None
     value: str | None = None
     violations: tuple[str, ...] = ()
+    loss_contribution: float | None = None
+    loss_breakdown: dict[str, float] | None = None
+    active_constraints: tuple[str, ...] | None = None
+    last_gradient: tuple[float, float] | None = None
+    last_movement: tuple[float, float] | None = None
+    last_movement_reason: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -134,6 +140,12 @@ class ComponentView:
             "footprint": self.footprint,
             "value": self.value,
             "violations": list(self.violations),
+            "loss_contribution": self.loss_contribution,
+            "loss_breakdown": self.loss_breakdown,
+            "active_constraints": list(self.active_constraints) if self.active_constraints else None,
+            "last_gradient": list(self.last_gradient) if self.last_gradient else None,
+            "last_movement": list(self.last_movement) if self.last_movement else None,
+            "last_movement_reason": self.last_movement_reason,
         }
 
     @property

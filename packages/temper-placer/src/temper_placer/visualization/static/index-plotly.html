@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temper Placer - Live Visualization</title>
+    <!-- Plotly.js for charts -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+         <style>
+         * {
+             margin: 0;
+             padding: 0;
+             box-sizing: border-box;
+         }
+
+         /* Slider styles */
+         .slider-container {
+             display: flex;
+             align-items: center;
+             gap: 10px;
+             width: 120px;
+         }
+
+         .slider-value {
+             font-size: 1.1rem;
+             font-weight: 600;
+             font-variant-numeric: tabular-nums;
+             width: 40px;
+             text-align: right;
+         }
+
+         input[type="range"] {
+             -webkit-appearance: none;
+             appearance: none;
+             height: 6px;
+             border-radius: 3px;
+             background: #444;
+             outline: none;
+             flex: 1;
+         }
+
+         input[type="range"]::-webkit-slider-thumb {
+             -webkit-appearance: none;
+             appearance: none;
+             width: 16px;
+             height: 16px;
+             border-radius: 50%;
+             background: #3b82f6;
+             cursor: pointer;
+             box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+         }
+
+         input[type="range"]::-moz-range-thumb {
+             width: 16px;
+             height: 16px;
+             border-radius: 50%;
+             background: #3b82f6;
+             cursor: pointer;
+             border: none;
+             box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+         }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+            gap: 1px;
+            background: #333;
+        }
+
+        /* Header */
+        header {
+            grid-column: 1 / -1;
+            background: #16213e;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .status-dot.connected {
+            background: #4ade80;
+            box-shadow: 0 0 8px #4ade80;
+        }
+
+        .status-dot.training {
+            background: #fbbf24;
+            animation: pulse 1s infinite;
+        }
+
+        .status-dot.paused {
+            background: #f97316;
+        }
+
+        .status-dot.complete {
+            background: #4ade80;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main board view */
+        .board-panel {
+            background: #1a1a2e;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .board-panel h2 {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #board-view {
+            width: 100%;
+            height: calc(100% - 30px);
+            background: #0f0f1a;
+            border-radius: 4px;
+        }
+
+        /* Side panel for loss curves */
+        .side-panel {
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .chart-section {
+            background: #1a1a2e;
+            padding: 15px;
+            flex: 1;
+        }
+
+        .chart-section h2 {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #loss-curves {
+            width: 100%;
+            height: calc(100% - 30px);
+            background: #0f0f1a;
+            border-radius: 4px;
+        }
+
+        #loss-breakdown {
+            width: 100%;
+            height: calc(100% - 30px);
+            background: #0f0f1a;
+            border-radius: 4px;
+        }
+
+        /* Bottom status panel */
+        .status-panel {
+            grid-column: 1 / -1;
+            background: #16213e;
+            padding: 15px 20px;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            border-top: 1px solid #333;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .metric-value.good {
+            color: #4ade80;
+        }
+
+        .metric-value.warning {
+            color: #fbbf24;
+        }
+
+        .metric-value.bad {
+            color: #f87171;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #374151;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+            /* Namespace filter */
+            #namespace-filter {
+                padding: 4px 8px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                background: #1a1a2e;
+                color: white;
+                font-size: 0.9rem;
+                margin-right: 12px;
+            }
+            
+            /* Step input */
+            .step-control {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .step-control input {
+                width: 60px;
+                padding: 6px 8px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                background: #1a1a2e;
+                color: white;
+                font-size: 0.9rem;
+                text-align: center;
+            }
+
+        /* Constraint indicators */
+        .constraint-indicators {
+            display: flex;
+            gap: 15px;
+        }
+
+        .constraint-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .constraint-badge.ok {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .constraint-badge.violation {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+        }
+
+        /* Connection overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .overlay-content {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .overlay-content h2 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .overlay-content p {
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection overlay -->
+    <div id="connection-overlay" class="overlay">
+        <div class="overlay-content">
+            <div class="spinner"></div>
+            <h2>Connecting...</h2>
+            <p>Waiting for WebSocket connection to server</p>
+            <button class="btn-secondary" onclick="reconnect()">Retry Connection</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Temper Placer - Live Visualization</h1>
+                <div class="status-indicator">
+                    <span class="status-dot" id="status-dot"></span>
+                    <select id="namespace-filter">
+                        <option value="">All Namespaces</option>
+                        <option value="reflective">Reflective</option>
+                        <option value="procedural">Procedural</option>
+                        <option value="semantic">Semantic</option>
+                        <option value="temporality">Temporality</option>
+                        <option value="episodic">Episodic</option>
+                        <option value="planner">Planner</option>
+                        <option value="coder">Coder</option>
+                        <option value="architect">Architect</option>
+                        <option value="temper-placer">Temper-Placer</option>
+                        <option value="firmware">Firmware</option>
+                        <option value="design">Design</option>
+                        <option value="research">Research</option>
+                        <option value="meeting-notes">Meeting Notes</option>
+                        <option value="project-tracking">Project Tracking</option>
+                    </select>
+                    <span id="status-text">Disconnected</span>
+                </div>
+        </header>
+
+        <div class="board-panel">
+            <h2>Board Layout</h2>
+            <div id="board-view"></div>
+        </div>
+
+        <div class="side-panel">
+            <div class="chart-section">
+                <h2>Loss Curves</h2>
+                <div id="loss-curves"></div>
+            </div>
+            <div class="chart-section">
+                <h2>Loss Breakdown</h2>
+                <div id="loss-breakdown"></div>
+            </div>
+        </div>
+
+         <div class="status-panel">
+             <div class="metric">
+                 <span class="metric-label">Epoch</span>
+                 <span class="metric-value" id="epoch-value">0</span>
+             </div>
+             <div class="metric">
+                 <span class="metric-label">Total Loss</span>
+                 <span class="metric-value" id="loss-value">-</span>
+             </div>
+             <div class="metric">
+                 <span class="metric-label">Elapsed</span>
+                 <span class="metric-value" id="elapsed-value">0:00</span>
+             </div>
+             <div class="metric">
+                 <span class="metric-label">Score Threshold</span>
+                 <div class="slider-container">
+                     <input type="range" id="score-slider" min="0" max="1" step="0.01" value="0.5">
+                     <span class="slider-value" id="score-value">0.5</span>
+                 </div>
+             </div>
+
+            <div class="constraint-indicators" id="constraint-indicators">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div class="controls">
+                <div class="step-control">
+                    <input type="number" id="step-count" value="10" min="1" max="1000">
+                    <button class="btn-secondary" id="btn-step" onclick="stepIterations()">Step</button>
+                </div>
+                <button class="btn-warning" id="btn-pause" onclick="togglePause()">Pause</button>
+                <button class="btn-success" id="btn-export" onclick="exportState()">Export</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="viewer.js"></script>
+</body>
+</html>

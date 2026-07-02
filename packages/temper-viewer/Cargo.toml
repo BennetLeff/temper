@@ -1,0 +1,39 @@
+[package]
+name = "temper-viewer"
+version = "0.1.0"
+edition = "2024"
+description = "WASM-based wgpu PCB board viewer for the Temper induction cooker"
+license = "MIT"
+
+[lib]
+name = "temper_viewer"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+temper-viewer-core = { path = "../temper-viewer-core" }
+wasm-bindgen = "0.2"
+wgpu = { version = "24", features = ["webgl"] }
+web-sys = { version = "0.3", features = [
+    "console",
+    "HtmlCanvasElement",
+    "WebGl2RenderingContext",
+    "Window",
+    "Document",
+    "Element",
+    "MouseEvent",
+    "WheelEvent",
+    "KeyboardEvent",
+    "FocusEvent",
+] }
+js-sys = "0.3"
+wasm-bindgen-futures = "0.4"
+glam = { version = "0.29" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bytemuck = { version = "1", features = ["derive"] }
+console_error_panic_hook = "0.1"
+
+[profile.release]
+panic = "abort"
+opt-level = "s"
+lto = true
