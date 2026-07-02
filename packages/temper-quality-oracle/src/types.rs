@@ -236,6 +236,7 @@ pub struct ComponentInfo {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
     fn test_normalized_score_valid() {
@@ -259,6 +260,37 @@ mod tests {
     #[test]
     fn test_normalized_score_nan() {
         assert!(matches!(NormalizedScore::new(f64::NAN), Err(ScoreError::NaN)));
+    }
+
+    proptest! {
+        #[test]
+        fn pbt_normalized_score_bounds(v in prop::num::f64::ANY) {
+            let result = NormalizedScore::new(v);
+            if v.is_nan() {
+                prop_assert!(result.is_err());
+            } else if v < 0.0 || v > 1.0 {
+                prop_assert!(result.is_err());
+            } else {
+                prop_assert!(result.is_ok());
+                prop_assert!((result.unwrap().value() - v).abs() < 1e-15);
+            }
+        }
+
+        #[test]
+        fn pbt_netclass_roundtrip(class in prop::sample::select(&[
+            NetClass::Ground, NetClass::Power, NetClass::HighVoltage,
+            NetClass::Differential, NetClass::HighCurrent, NetClass::GateDrive,
+            NetClass::Signal,
+        ])) {
+            let s = class.as_str();
+            let found: Vec<_> = [
+                NetClass::Ground, NetClass::Power, NetClass::HighVoltage,
+                NetClass::Differential, NetClass::HighCurrent, NetClass::GateDrive,
+                NetClass::Signal,
+            ].iter().filter(|c| c.as_str() == s).collect();
+            prop_assert_eq!(found.len(), 1);
+            prop_assert_eq!(*found[0], class);
+        }
     }
 
     #[test]

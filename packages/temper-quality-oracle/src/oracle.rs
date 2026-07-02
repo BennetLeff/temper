@@ -62,6 +62,7 @@ pub fn evaluate_quality(
 mod tests {
     use super::*;
     use crate::types::{ComponentInfo, NetInfo};
+    use proptest::prelude::*;
     use std::collections::HashMap;
 
     fn empty_spec() -> PcbSpecification {
@@ -98,6 +99,69 @@ mod tests {
             compactness_score: 0.5,
             connectivity_clustering_score: 0.5,
             total_wirelength_mm: 100.0,
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn pbt_oracle_empty_board_always_passes(
+            metrics in prop::array::uniform7(0.0f64..1.0f64),
+            wirelength in 0.0f64..10000.0f64,
+        ) {
+            let pre = PrecomputedMetrics {
+                thermal_score: metrics[0],
+                zone_compliance_score: metrics[1],
+                hv_lv_clearance_score: metrics[2],
+                loop_area_score: metrics[3],
+                congestion_score: metrics[4],
+                compactness_score: metrics[5],
+                connectivity_clustering_score: metrics[6],
+                total_wirelength_mm: wirelength,
+            };
+            let verdict = evaluate_quality(
+                &empty_spec(),
+                &empty_netlist(),
+                &empty_placement(),
+                &pre,
+            );
+            prop_assert!(verdict.is_pass());
+        }
+
+        #[test]
+        fn pbt_oracle_deterministic(
+            metrics in prop::array::uniform7(0.0f64..1.0f64),
+        ) {
+            let pre = PrecomputedMetrics {
+                thermal_score: metrics[0],
+                zone_compliance_score: metrics[1],
+                hv_lv_clearance_score: metrics[2],
+                loop_area_score: metrics[3],
+                congestion_score: metrics[4],
+                compactness_score: metrics[5],
+                connectivity_clustering_score: metrics[6],
+                total_wirelength_mm: 100.0,
+            };
+            let v1 = evaluate_quality(&empty_spec(), &empty_netlist(), &empty_placement(), &pre);
+            let v2 = evaluate_quality(&empty_spec(), &empty_netlist(), &empty_placement(), &pre);
+            prop_assert_eq!(v1.is_pass(), v2.is_pass());
+        }
+
+        #[test]
+        fn pbt_oracle_rejects_invalid_scores(
+            bad_score in prop::num::f64::NORMAL,
+        ) {
+            prop_assume!(bad_score < 0.0 || bad_score > 1.0 || bad_score.is_nan());
+            let pre = PrecomputedMetrics {
+                thermal_score: bad_score,
+                ..valid_metrics()
+            };
+            let verdict = evaluate_quality(
+                &empty_spec(),
+                &empty_netlist(),
+                &empty_placement(),
+                &pre,
+            );
+            prop_assert!(!verdict.is_pass());
         }
     }
 

@@ -480,6 +480,8 @@ def connectivity_clustering_score(
     return total_score / count if count > 0 else 1.0
 
 
+import warnings
+
 def compute_quality_report(
     state: PlacementState,
     netlist: Netlist,
@@ -515,6 +517,12 @@ def compute_quality_report(
         - connectivity_clustering_score: float [0, 1]
         - overall_score: float [0, 1] (weighted average)
     """
+    warnings.warn(
+        "compute_quality_report is deprecated. Use temper_quality_oracle.evaluate_quality_py() "
+        "from the temper-quality-oracle Rust crate instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     # Extract config
     thermal_comps = config.get("thermal_components", set())
     hv_comps = config.get("hv_components", set())

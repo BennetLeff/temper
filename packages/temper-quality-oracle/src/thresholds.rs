@@ -20,7 +20,7 @@ pub fn evaluate(
     let mut violations = Vec::new();
 
     evaluate_clearance(config, placement, &mut violations);
-    evaluate_loop_areas(spec, metrics, &mut violations);
+    evaluate_loop_areas(spec, metrics, &config.loop_components, &mut violations);
     evaluate_thermal(config, placement, &mut violations);
     evaluate_zones(config, placement, classifications, &mut violations);
 
@@ -76,8 +76,12 @@ fn evaluate_clearance(
 fn evaluate_loop_areas(
     _spec: &PcbSpecification,
     _metrics: &QualityMetrics,
+    loop_components: &[Vec<String>],
     violations: &mut Vec<Violation>,
 ) {
+    if loop_components.is_empty() {
+        return;
+    }
     let threshold = 0.3;
     if _metrics.loop_area_score.value() < threshold {
         violations.push(Violation {
