@@ -13,6 +13,7 @@ use crate::loop_extractor::types::ExtractionError;
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct Component {
     pub ref_des: String,
     pub footprint: String,
@@ -23,6 +24,7 @@ pub struct Component {
 }
 
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct Pin {
     pub name: String,
     pub net: Option<String>,

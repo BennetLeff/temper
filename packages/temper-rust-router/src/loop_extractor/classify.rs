@@ -14,7 +14,7 @@ pub struct CompInfo {
 }
 
 /// Classification result.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Classification {
     pub component_ref: String,
     pub category: String,
