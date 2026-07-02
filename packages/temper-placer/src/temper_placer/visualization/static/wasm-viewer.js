@@ -145,31 +145,41 @@ let lastMouseX = 0, lastMouseY = 0;
 let lastHoverResult = null;
 let hoverThrottle = 0;
 const canvas = document.getElementById('board-canvas');
+
+// Convert screen coords to canvas pixel coords (accounts for CSS scaling)
+function screenToCanvas(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY,
+        rect,
+    };
+}
+
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
     if (wasmReady) {
-        const rect = canvas.getBoundingClientRect();
-        wasmOnWheel(e.deltaY, e.clientX - rect.left, e.clientY - rect.top);
+        const {x, y} = screenToCanvas(e.clientX, e.clientY);
+        wasmOnWheel(e.deltaY, x, y);
     }
 }, { passive: false });
 canvas.addEventListener('mousedown', (e) => {
     dragging = true;
-    const rect = canvas.getBoundingClientRect();
-    lastMouseX = e.clientX - rect.left;
-    lastMouseY = e.clientY - rect.top;
-    if (wasmReady) wasmOnMouseDown(lastMouseX, lastMouseY);
+    const {x, y} = screenToCanvas(e.clientX, e.clientY);
+    lastMouseX = x; lastMouseY = y;
+    if (wasmReady) wasmOnMouseDown(x, y);
 });
 canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const sx = e.clientX - rect.left;
-    const sy = e.clientY - rect.top;
+    const {x, y} = screenToCanvas(e.clientX, e.clientY);
     if (dragging && wasmReady) {
-        const dx = sx - lastMouseX;
-        const dy = sy - lastMouseY;
-        lastMouseX = sx; lastMouseY = sy;
+        const dx = x - lastMouseX;
+        const dy = y - lastMouseY;
+        lastMouseX = x; lastMouseY = y;
         wasmOnMouseMove(dx, dy, true);
     } else if (wasmReady) {
-        const result = wasmOnMouseMove(sx, sy, false);
+        const result = wasmOnMouseMove(x, y, false);
         if (!result || result === null) return;
         const tooltip = document.getElementById('tooltip');
         if (result === 'clear') {
@@ -201,8 +211,8 @@ canvas.addEventListener('mouseup', () => { dragging = false; if (wasmReady) wasm
 canvas.addEventListener('mouseleave', () => { dragging = false; if (wasmReady) wasmOnMouseUp(); });
 canvas.addEventListener('click', (e) => {
     if (!wasmReady) return;
-    const rect = canvas.getBoundingClientRect();
-    const result = wasmOnClick(e.clientX - rect.left, e.clientY - rect.top);
+    const {x, y} = screenToCanvas(e.clientX, e.clientY);
+    const result = wasmOnClick(x, y);
     if (!result) return;
     const inspector = document.getElementById('inspector-content');
     if (result === 'none' || result === 'deselected') {
@@ -290,14 +300,12 @@ document.addEventListener('keydown', (e) => {
 
 // Zoom controls (buttons + keyboard)
 window.zoomIn = function() {
-    if (!wasmReady) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
-    const rect = canvas.getBoundingClientRect();
-    wasmOnWheel(-100, rect.width/2, rect.height/2);
+    if (!wasmReady) return;
+    wasmOnWheel(-100, canvas.width/2, canvas.height/2);
 };
 window.zoomOut = function() {
-    if (!wasmReady) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
-    const rect = canvas.getBoundingClientRect();
-    wasmOnWheel(100, rect.width/2, rect.height/2);
+    if (!wasmReady) return;
+    wasmOnWheel(100, canvas.width/2, canvas.height/2);
 };
 window.zoomReset = function() { location.reload(); };
 
