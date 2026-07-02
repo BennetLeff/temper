@@ -8,7 +8,7 @@ import {
     search as wasmSearch,
     set_viewport as wasmSetViewport,
     get_board_summary as wasmGetBoardSummary,
-} from './wasm/temper_viewer.js';
+} from './wasmReady/temper_viewer.js';
 
 let wasmReady = false;
 let ws = null;
@@ -21,7 +21,7 @@ let currentState = null;
 setInterval(() => {
     if (window._wasmReady && !wasmReady) {
         wasmReady = true;
-        console.log('wasm-viewer.js: WASM ready via inline script');
+        console.log('wasmReady-viewer.js: WASM ready via inline script');
     }
 }, 100);
 
@@ -79,7 +79,7 @@ function handleMessage(msg) {
     switch (msg.type) {
         case 'STATE_UPDATE':
             currentState = msg.data;
-            if (wasm && msg.data.board) {
+            if (wasmReady && msg.data.board) {
                 try {
                     wasmLoadBoard(JSON.stringify(msg.data));
                 } catch (e) { console.error('WASM render error:', e); }
@@ -152,20 +152,20 @@ canvas.addEventListener('wheel', (e) => {
 canvas.addEventListener('mousedown', (e) => {
     dragging = true;
     lastMouseX = e.offsetX; lastMouseY = e.offsetY;
-    if (wasm) wasmOnMouseDown(e.offsetX, e.offsetY);
+    if (wasmReady) wasmOnMouseDown(e.offsetX, e.offsetY);
 });
 canvas.addEventListener('mousemove', (e) => {
-    if (dragging && wasm) {
+    if (dragging && wasmReady) {
         const dx = e.offsetX - lastMouseX;
         const dy = e.offsetY - lastMouseY;
         lastMouseX = e.offsetX; lastMouseY = e.offsetY;
         wasmOnMouseMove(dx, dy, true);
-    } else if (wasm) {
+    } else if (wasmReady) {
         const now = Date.now();
         if (now - hoverThrottle < 50) return; // 20fps hover max
         hoverThrottle = now;
         const result = wasmOnMouseMove(e.offsetX, e.offsetY, false);
-        // wasm-bindgen returns JsValue::NULL for no-hit, which is !== null in JS
+        // wasmReady-bindgen returns JsValue::NULL for no-hit, which is !== null in JS
         if (!result || result === undefined || (typeof result === 'string' && result === 'null')) return;
         lastHoverResult = result;
         const tooltip = document.getElementById('tooltip');
@@ -194,9 +194,8 @@ canvas.addEventListener('mousemove', (e) => {
         canvas.style.cursor = 'default';
     }
 });
-});
-canvas.addEventListener('mouseup', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
-canvas.addEventListener('mouseleave', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
+canvas.addEventListener('mouseup', () => { dragging = false; if (wasmReady) wasmOnMouseUp(); });
+canvas.addEventListener('mouseleave', () => { dragging = false; if (wasmReady) wasmOnMouseUp(); });
 canvas.addEventListener('click', (e) => {
     if (!wasmReady) return;
     const result = wasmOnClick(e.offsetX, e.offsetY);
@@ -223,7 +222,7 @@ canvas.addEventListener('click', (e) => {
 
 // Search bar
 document.getElementById('search-input').addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' || !wasm) return;
+    if (e.key !== 'Enter' || !wasmReady) return;
     const query = e.target.value.trim();
     if (!query) return;
     wasmSearch(query).then(result => {
@@ -262,7 +261,7 @@ dropZone.addEventListener('drop', async (e) => {
         const text = await file.text();
         const data = JSON.parse(text);
         currentState = data;
-        if (wasm) wasmLoadBoard(JSON.stringify(data));
+        if (wasmReady) wasmLoadBoard(JSON.stringify(data));
         updateSidebar(data);
         document.getElementById('landing-overlay').classList.add('hidden');
         document.getElementById('main-content').classList.remove('hidden');
@@ -304,7 +303,7 @@ function updateZoomDisplay() {
 // Resize handler
 window.addEventListener('resize', () => {
     const canvasEl = document.getElementById('board-canvas');
-    if (wasm && canvasEl) {
+    if (wasmReady && canvasEl) {
         wasmSetViewport(canvasEl.clientWidth, canvasEl.clientHeight);
     }
 });
