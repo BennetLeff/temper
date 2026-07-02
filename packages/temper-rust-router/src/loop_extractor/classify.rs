@@ -3,7 +3,6 @@
 /// Three-tier priority chain: MPN heuristics → footprint matching → ref-prefix fallback.
 /// Always produces a classification — never returns None.
 
-use crate::loop_extractor::types::Confidence;
 
 /// Internal representation of a component for classification.
 #[derive(Debug, Clone)]

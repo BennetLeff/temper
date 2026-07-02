@@ -1,6 +1,7 @@
 /// Module root for the loop extractor.
 /// Re-exports public API: extract loops, classify components, and error types.
 
+pub mod bridge;
 pub mod classify;
 pub mod extract;
 pub mod types;

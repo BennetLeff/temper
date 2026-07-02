@@ -152,7 +152,7 @@ pub fn detect_half_bridge(
 fn find_capacitor_chain(
     components: &[Component],
     classifications: &[Classification],
-    nets: &[Net],
+    _nets: &[Net],
     dc_plus: &str,
     dc_minus: &str,
 ) -> Result<Vec<String>, ExtractionError> {
