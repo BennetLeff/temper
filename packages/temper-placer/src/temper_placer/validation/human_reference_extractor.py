@@ -265,7 +265,11 @@ def _compute_detailed_metrics(
             "boundary_violations": mk(float(pm.boundary_violations)),
             "total_boundary_violation": mk(float(pm.total_boundary_violation)),
             "clearance_violations": mk(float(pm.clearance_violations)),
-            "hv_lv_violations": mk(float(pm.hv_lv_violations)),
+            "hv_lv_violations": mk(
+                float(pm.hv_lv_violations)
+                if pm.min_hv_lv_clearance != float("inf")
+                else -1.0
+            ),
             "min_hv_lv_clearance": mk(
                 pm.min_hv_lv_clearance if pm.min_hv_lv_clearance != float("inf") else -1.0
             ),
@@ -274,8 +278,6 @@ def _compute_detailed_metrics(
             "total_wirelength": mk(float(pm.total_wirelength)),
             "max_net_length": mk(float(pm.max_net_length)),
             "avg_net_length": mk(float(pm.avg_net_length)),
-            "max_congestion": mk(float(pm.max_congestion)),
-            "avg_congestion": mk(float(pm.avg_congestion)),
             "utilization": mk(float(pm.utilization)),
             "spread_score": mk(float(pm.spread_score)),
         }
@@ -317,34 +319,16 @@ def _compute_quality_metrics(
 ) -> dict[str, MetricValue]:
     """Compute normalized [0,1] quality scores via ``metrics.quality``.
 
-    Returns sentinel -1 for metrics that require configuration not
-    available for this board.
+    Config (thermal/HV components, critical loops) is inferred from the
+    netlist using ``io.reference_loader.infer_quality_config`` — the same
+    function used by the existing reference-loader comparison infrastructure.
     """
     mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
     try:
+        from temper_placer.io.reference_loader import infer_quality_config
         from temper_placer.metrics.quality import compute_quality_report
 
-        # Build a best-effort config from the netlist — real constraint
-        # files would give richer configs, but we infer from net classes.
-        hv_comps = set()
-        lv_comps = set()
-        thermal_comps = set()
-        for comp in parse_result.netlist.components:
-            if comp.net_class == "HighVoltage":
-                hv_comps.add(comp.ref)
-            elif comp.net_class != "":
-                lv_comps.add(comp.ref)
-            if getattr(comp, "attributes", None) and comp.attributes.get("is_thermal", False):
-                thermal_comps.add(comp.ref)
-
-        config = {
-            "thermal_components": thermal_comps,
-            "hv_components": hv_comps,
-            "lv_components": lv_comps,
-            "zone_assignments": {},
-            "loop_components": [],
-            "min_hv_lv_clearance": 10.0,
-        }
+        config = infer_quality_config(parse_result)
         report = compute_quality_report(
             state, parse_result.netlist, parse_result.board, context, config
         )

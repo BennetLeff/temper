@@ -32,8 +32,7 @@ METRIC_GROUPS: list[tuple[str, list[str]]] = [
         "clearance_violations", "hv_lv_violations",
         "zone_violations", "keepout_violations",
     ]),
-    ("Congestion & Distribution", [
-        "max_congestion", "avg_congestion",
+    ("Distribution", [
         "spread_score", "utilization",
         "max_net_length", "avg_net_length",
     ]),
