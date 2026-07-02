@@ -282,17 +282,18 @@ dropZone.addEventListener('drop', async (e) => {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    // Don't capture when typing in search box
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-    if (e.key === 'Escape') {
-        document.getElementById('inspector-content').textContent = 'Select a component to inspect.';
-        if (wasm) wasmOnClick(-1, -1);
+    console.log('keydown:', e.key, 'wasm:', !!wasm, 'target:', e.target.tagName);
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+        console.log('  skipped: input focused');
         return;
     }
-    if (!wasm) return;
-    console.log('key:', e.key); // Debug
-    if (e.key === 'p') { e.preventDefault(); wasmOnWheel(-100, 400, 300); return; }
-    if (e.key === 'o') { e.preventDefault(); wasmOnWheel(100, 400, 300); return; }
+    if (e.key === 'Escape') {
+        document.getElementById('inspector-content').textContent = 'Select a component to inspect.';
+        return;
+    }
+    if (!wasm) { console.log('  skipped: wasm not ready'); return; }
+    if (e.key === 'p') { e.preventDefault(); wasmOnWheel(-100, 400, 300); console.log('  zoom IN'); return; }
+    if (e.key === 'o') { e.preventDefault(); wasmOnWheel(100, 400, 300); console.log('  zoom OUT'); return; }
     if (e.key === '0') { e.preventDefault(); location.reload(); return; }
 });
 
