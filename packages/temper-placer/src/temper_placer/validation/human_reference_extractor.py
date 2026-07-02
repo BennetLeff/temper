@@ -27,8 +27,6 @@ from temper_placer.losses.base import LossContext
 from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.wirelength import compute_total_hpwl
-
-
 # ---------------------------------------------------------------------------
 # Pydantic-style data models (plain dataclasses for zero-dependency YAML I/O)
 # ---------------------------------------------------------------------------
@@ -245,7 +243,118 @@ def _compute_routing_metrics(
 
 
 # ---------------------------------------------------------------------------
-# Step 5 — DRC violations
+# Step 5 — detailed placement metrics (clearance, zone, congestion, etc.)
+# ---------------------------------------------------------------------------
+
+def _compute_detailed_metrics(
+    state: PlacementState,
+    parse_result: "ParseResult",
+    pcb_git_hash: str,
+    now: str,
+) -> dict[str, MetricValue]:
+    """Compute comprehensive placement quality metrics via ``validation.metrics``."""
+    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    try:
+        from temper_placer.validation.metrics import compute_metrics
+
+        pm = compute_metrics(state, parse_result.netlist, parse_result.board)
+        return {
+            "overlap_count": mk(float(pm.overlap_count)),
+            "total_overlap_area": mk(float(pm.total_overlap_area)),
+            "worst_overlap": mk(float(pm.worst_overlap)),
+            "boundary_violations": mk(float(pm.boundary_violations)),
+            "total_boundary_violation": mk(float(pm.total_boundary_violation)),
+            "clearance_violations": mk(float(pm.clearance_violations)),
+            "hv_lv_violations": mk(float(pm.hv_lv_violations)),
+            "min_hv_lv_clearance": mk(
+                pm.min_hv_lv_clearance if pm.min_hv_lv_clearance != float("inf") else -1.0
+            ),
+            "zone_violations": mk(float(pm.zone_violations)),
+            "keepout_violations": mk(float(pm.keepout_violations)),
+            "total_wirelength": mk(float(pm.total_wirelength)),
+            "max_net_length": mk(float(pm.max_net_length)),
+            "avg_net_length": mk(float(pm.avg_net_length)),
+            "max_congestion": mk(float(pm.max_congestion)),
+            "avg_congestion": mk(float(pm.avg_congestion)),
+            "utilization": mk(float(pm.utilization)),
+            "spread_score": mk(float(pm.spread_score)),
+        }
+    except Exception:
+        return {}
+
+
+# ---------------------------------------------------------------------------
+# Step 6 — aesthetic metrics (grid snap, orientation, alignment)
+# ---------------------------------------------------------------------------
+
+def _compute_aesthetic_metrics(
+    state: PlacementState,
+    parse_result: "ParseResult",
+    pcb_git_hash: str,
+    now: str,
+) -> dict[str, MetricValue]:
+    """Compute aesthetic quality: grid alignment, rotation consistency, prefix alignment."""
+    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    try:
+        from temper_placer.metrics.aesthetic import compute_aesthetic_score
+
+        scores = compute_aesthetic_score(state, parse_result.netlist, grid_size=0.5)
+        return {key: mk(float(value)) for key, value in scores.items()}
+    except Exception:
+        return {}
+
+
+# ---------------------------------------------------------------------------
+# Step 7 — normalized quality report (thermal, zone, loop, congestion, etc.)
+# ---------------------------------------------------------------------------
+
+def _compute_quality_metrics(
+    state: PlacementState,
+    context: LossContext,
+    parse_result: "ParseResult",
+    pcb_git_hash: str,
+    now: str,
+) -> dict[str, MetricValue]:
+    """Compute normalized [0,1] quality scores via ``metrics.quality``.
+
+    Returns sentinel -1 for metrics that require configuration not
+    available for this board.
+    """
+    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    try:
+        from temper_placer.metrics.quality import compute_quality_report
+
+        # Build a best-effort config from the netlist — real constraint
+        # files would give richer configs, but we infer from net classes.
+        hv_comps = set()
+        lv_comps = set()
+        thermal_comps = set()
+        for comp in parse_result.netlist.components:
+            if comp.net_class == "HighVoltage":
+                hv_comps.add(comp.ref)
+            elif comp.net_class != "":
+                lv_comps.add(comp.ref)
+            if getattr(comp, "attributes", None) and comp.attributes.get("is_thermal", False):
+                thermal_comps.add(comp.ref)
+
+        config = {
+            "thermal_components": thermal_comps,
+            "hv_components": hv_comps,
+            "lv_components": lv_comps,
+            "zone_assignments": {},
+            "loop_components": [],
+            "min_hv_lv_clearance": 10.0,
+        }
+        report = compute_quality_report(
+            state, parse_result.netlist, parse_result.board, context, config
+        )
+        return {key: mk(float(value)) for key, value in report.items()}
+    except Exception:
+        return {}
+
+
+# ---------------------------------------------------------------------------
+# Step 8 — DRC violations
 # ---------------------------------------------------------------------------
 
 def _compute_drc(
@@ -311,9 +420,19 @@ def extract_human_reference(
 
     placement_metrics = _compute_placement_metrics(state, context, gh, now)
     routing_metrics = _compute_routing_metrics(parse_result, gh, now)
+    detailed_metrics = _compute_detailed_metrics(state, parse_result, gh, now)
+    aesthetic_metrics = _compute_aesthetic_metrics(state, parse_result, gh, now)
+    quality_metrics = _compute_quality_metrics(state, context, parse_result, gh, now)
     drc_metrics = _compute_drc(pcb_path, gh, now)
 
-    all_metrics = {**placement_metrics, **routing_metrics, **drc_metrics}
+    all_metrics = {
+        **placement_metrics,
+        **routing_metrics,
+        **detailed_metrics,
+        **aesthetic_metrics,
+        **quality_metrics,
+        **drc_metrics,
+    }
 
     return HumanReference(
         board_id=board_id,

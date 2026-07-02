@@ -1,28 +1,144 @@
 board_id: piantor_right
 extraction_source: power_pcb_dataset/corpus/piantor_right/keyboard_pcb.kicad_pcb
-extractor_version: 298777fd
+extractor_version: 546735d0
 metrics:
   hpwl:
     value: 1093.6583251953125
-    extracted_at: '2026-07-02T03:19:22.730603+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
   overlap_loss:
     value: 903.368896484375
-    extracted_at: '2026-07-02T03:19:22.730603+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
   boundary_loss:
     value: 494.7426452636719
-    extracted_at: '2026-07-02T03:19:22.730603+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
   rdl:
     value: 2416.6578281509082
-    extracted_at: '2026-07-02T03:19:22.730603+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
   via_count:
     value: 11.0
-    extracted_at: '2026-07-02T03:19:22.730603+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  overlap_count:
+    value: 8.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  total_overlap_area:
+    value: 41.90690231323242
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  worst_overlap:
+    value: 14.521602630615234
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  boundary_violations:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  total_boundary_violation:
+    value: 12.050000190734863
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  clearance_violations:
+    value: 15.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  hv_lv_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  min_hv_lv_clearance:
+    value: -1.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  zone_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  keepout_violations:
+    value: 20.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  total_wirelength:
+    value: 1093.6583251953125
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  max_net_length:
+    value: 219.46372514348928
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  avg_net_length:
+    value: 66.01894861218146
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  max_congestion:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  avg_congestion:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  utilization:
+    value: 0.5526270090819525
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  spread_score:
+    value: 41.59089660644531
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  grid_snap_score:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  orientation_score:
+    value: 0.3545055346632926
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  prefix_alignment_score:
+    value: 0.5
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  aesthetic_index:
+    value: 0.25635166039898777
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  thermal_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  zone_compliance_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  hv_lv_clearance_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  loop_area_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  congestion_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  compactness_score:
+    value: 0.35964044058280875
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  connectivity_clustering_score:
+    value: 0.6813489523800936
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
+  overall_score:
+    value: 0.8629984847089861
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0
   drc_violations:
     value: -1.0
-    extracted_at: '2026-07-02T03:19:22.730603+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:18.607520+00:00'
+    pcb_git_hash: 546735d0

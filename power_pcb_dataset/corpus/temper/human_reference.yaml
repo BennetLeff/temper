@@ -1,28 +1,144 @@
 board_id: temper
 extraction_source: power_pcb_dataset/corpus/temper/temper.kicad_pcb
-extractor_version: 298777fd
+extractor_version: 546735d0
 metrics:
   hpwl:
     value: 910.301025390625
-    extracted_at: '2026-07-02T03:19:28.123867+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
   overlap_loss:
     value: 278.330810546875
-    extracted_at: '2026-07-02T03:19:28.123867+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
   boundary_loss:
     value: 35.99760437011719
-    extracted_at: '2026-07-02T03:19:28.123867+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
   rdl:
     value: 0.0
-    extracted_at: '2026-07-02T03:19:28.123867+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
   via_count:
     value: 0.0
-    extracted_at: '2026-07-02T03:19:28.123867+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  overlap_count:
+    value: 4.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  total_overlap_area:
+    value: 25.96000051498413
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  worst_overlap:
+    value: 11.750000953674316
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  boundary_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  total_boundary_violation:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  clearance_violations:
+    value: 5.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  hv_lv_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  min_hv_lv_clearance:
+    value: -1.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  zone_violations:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  keepout_violations:
+    value: 4.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  total_wirelength:
+    value: 910.301025390625
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  max_net_length:
+    value: 195.275
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  avg_net_length:
+    value: 75.83145833333333
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  max_congestion:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  avg_congestion:
+    value: 0.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  utilization:
+    value: 0.05138533121744791
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  spread_score:
+    value: 51.171146392822266
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  grid_snap_score:
+    value: 0.6363636363636364
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  orientation_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  prefix_alignment_score:
+    value: 0.2857142857142857
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  aesthetic_index:
+    value: 0.6402597402597403
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  thermal_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  zone_compliance_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  hv_lv_clearance_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  loop_area_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  congestion_score:
+    value: 1.0
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  compactness_score:
+    value: 0.04375580819139506
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  connectivity_clustering_score:
+    value: 0.15791683069740733
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
+  overall_score:
+    value: 0.7430960912698289
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0
   drc_violations:
     value: -1.0
-    extracted_at: '2026-07-02T03:19:28.123867+00:00'
-    pcb_git_hash: 298777fd
+    extracted_at: '2026-07-02T03:38:25.366617+00:00'
+    pcb_git_hash: 546735d0

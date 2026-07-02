@@ -31,24 +31,38 @@ jobs:
           uv run python3 -c "
           import json, jax
           jax.config.update('jax_platform_name', 'cpu')
-          from temper_placer.validation.human_reference_extractor import _build_state_and_context
+          from temper_placer.validation.human_reference_extractor import (
+              _build_state_and_context, _compute_placement_metrics,
+              _compute_detailed_metrics, _compute_aesthetic_metrics,
+              _compute_quality_metrics,
+          )
           from temper_placer.io.kicad_parser import parse_kicad_pcb
-          from temper_placer.losses.wirelength import compute_total_hpwl
-          from temper_placer.losses.overlap import OverlapLoss
-          from temper_placer.losses.boundary import BoundaryLoss
+          from datetime import datetime, timezone
+
+          now = datetime.now(timezone.utc).isoformat()
+          gh = 'ci'
 
           boards = ['piantor_right', 'temper', 'minimal', 'rp2040_designguide', 'bitaxe_ultra']
           results = {}
           for bid in boards:
               pcb = f'power_pcb_dataset/corpus/{bid}/keyboard_pcb.kicad_pcb'
-              pr = parse_kicad_pcb(pcb)
-              state, ctx = _build_state_and_context(pr)
-              rot = jax.nn.softmax(state.rotation_logits, axis=-1)
-              results[bid] = {
-                  'hpwl': float(compute_total_hpwl(state.positions, rot, ctx)),
-                  'overlap_loss': float(OverlapLoss(margin=1.0, rotation_invariant=True)(state.positions, rot, ctx).value),
-                  'boundary_loss': float(BoundaryLoss()(state.positions, rot, ctx).value),
-              }
+              if bid == 'minimal':
+                  pcb = 'power_pcb_dataset/corpus/minimal/minimal_board.kicad_pcb'
+              if bid == 'rp2040_designguide':
+                  pcb = 'power_pcb_dataset/corpus/rp2040_designguide/RP2040-Guide.kicad_pcb'
+              if bid == 'bitaxe_ultra':
+                  pcb = 'power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb'
+              try:
+                  pr = parse_kicad_pcb(pcb)
+                  state, ctx = _build_state_and_context(pr)
+                  pm = _compute_placement_metrics(state, ctx, gh, now)
+                  dm = _compute_detailed_metrics(state, pr, gh, now)
+                  am = _compute_aesthetic_metrics(state, pr, gh, now)
+                  qm = _compute_quality_metrics(state, ctx, pr, gh, now)
+                  all_m = {k: v.value for d in [pm, dm, am, qm] for k, v in d.items()}
+                  results[bid] = all_m
+              except Exception as e:
+                  results[bid] = {'_error': str(e)}
           with open('opt_metrics.json', 'w') as f:
               json.dump(results, f)
           "
