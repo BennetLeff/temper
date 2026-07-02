@@ -221,12 +221,12 @@ class TestLoopArea:
             pytest.skip("temper.kicad_pcb not found")
 
         result = run_physics_oracle(temper_pcb, spec_path=spec_path,
-                                    verbose=False, epochs=200)
+                                    verbose=False, epochs=500)
         if not result.skipped and result.quality_report:
             score = result.quality_report["loop_area_score"]
             assert score != 1.0, \
                 f"loop_area_score should not be 1.0 (dark default). " \
-                f"Got {score}. 0.0 = loop is large (real signal)."
+                f"Got {score}. Score changes when loop_components is populated."
 
 
 # ============================================================================

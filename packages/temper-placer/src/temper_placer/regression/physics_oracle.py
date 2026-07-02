@@ -28,6 +28,7 @@ from temper_placer.io.reference_loader import infer_quality_config
 from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint
 from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.losses.clearance import ClearanceLoss
+from temper_placer.losses.component_loop_area import ComponentLoopAreaLoss, ComponentLoopConfig
 from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.regularization import SpreadLoss
 from temper_placer.losses.thermal import ThermalLoss
@@ -199,6 +200,21 @@ def run_physics_oracle(
             clearance_rules=clearance_rules,
             thermal_constraints=thermal_constraints,
         )
+
+        # Build component-level loop area loss from spec
+        loop_losses = []
+        for loop_name, comp_refs in spec.emi.loop_components.items():
+            max_area = spec.emi.max_loop_area_mm2.get(loop_name, 100.0)
+            if len(comp_refs) >= 3:
+                loop_losses.append(
+                    ComponentLoopConfig(
+                        name=loop_name,
+                        component_refs=list(comp_refs),
+                        max_area_mm2=max_area * 0.5,  # target half of max for margin
+                        weight=10.0,
+                    )
+                )
+
         loss_fn = CompositeLoss([
             WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weights["overlap"]),
             WeightedLoss(BoundaryLoss(), weights["boundary"]),
@@ -209,6 +225,10 @@ def run_physics_oracle(
             WeightedLoss(WirelengthLoss(), weights["wirelength"]),
             WeightedLoss(SpreadLoss(), weights["spread"]),
             WeightedLoss(ThermalLoss(margin=2.0), weights.get("thermal", 30.0)),
+            WeightedLoss(
+                ComponentLoopAreaLoss(loops=loop_losses, margin=10.0),
+                weights.get("loop_area", 30.0),
+            ),
         ])
     except Exception as e:
         return PhysicsOracleResult(
