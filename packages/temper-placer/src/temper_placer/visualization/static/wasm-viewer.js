@@ -145,9 +145,11 @@ window.updateAnimationMode = function() {
     console.log('Animation mode:', mode);
 };
 
-// Canvas mouse events → WASM
+// Canvas mouse events → WASM (throttled for performance)
 let dragging = false;
 let lastMouseX = 0, lastMouseY = 0;
+let lastHoverResult = null;
+let hoverThrottle = 0;
 const canvas = document.getElementById('board-canvas');
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -165,22 +167,30 @@ canvas.addEventListener('mousemove', (e) => {
         lastMouseX = e.offsetX; lastMouseY = e.offsetY;
         wasmOnMouseMove(dx, dy, true);
     } else if (wasm) {
+        const now = Date.now();
+        if (now - hoverThrottle < 50) return; // 20fps hover max
+        hoverThrottle = now;
         const result = wasmOnMouseMove(e.offsetX, e.offsetY, false);
-        if (!result) return;
+        // wasm-bindgen returns JsValue::NULL for no-hit, which is !== null in JS
+        if (!result || result === undefined || (typeof result === 'string' && result === 'null')) return;
+        lastHoverResult = result;
         const tooltip = document.getElementById('tooltip');
         if (result === 'clear') {
             tooltip.classList.add('hidden');
-        } else if (result.startsWith && result.startsWith('component:')) {
+            canvas.style.cursor = 'default';
+            return;
+        }
+        if (typeof result !== 'string') return;
+        if (result.startsWith('component:')) {
             const parts = result.split(':');
-            tooltip.textContent = `${parts[1]} — ${parts[2]}`;
+            tooltip.textContent = parts[1] + ' — ' + (parts[2] || '');
             tooltip.style.left = (e.clientX + 14) + 'px';
             tooltip.style.top = (e.clientY - 30) + 'px';
             tooltip.classList.remove('hidden');
-            // Highlight component on canvas by adding a subtle border
             canvas.style.cursor = 'pointer';
-        } else if (result.startsWith && result.startsWith('trace:')) {
+        } else if (result.startsWith('trace:')) {
             const parts = result.split(':');
-            tooltip.textContent = `${parts[1]} — ${parts[2]}`;
+            tooltip.textContent = parts[1] + ' — ' + (parts[2] || '');
             tooltip.style.left = (e.clientX + 14) + 'px';
             tooltip.style.top = (e.clientY - 30) + 'px';
             tooltip.classList.remove('hidden');
@@ -189,6 +199,7 @@ canvas.addEventListener('mousemove', (e) => {
     } else if (!dragging) {
         canvas.style.cursor = 'default';
     }
+});
 });
 canvas.addEventListener('mouseup', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
 canvas.addEventListener('mouseleave', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
