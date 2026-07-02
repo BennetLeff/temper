@@ -12,6 +12,7 @@ copies that were deleted in the prerequisites.
 
 from __future__ import annotations
 
+import math
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -208,7 +209,7 @@ def _compute_placement_metrics(
 
 
 # ---------------------------------------------------------------------------
-# Step 4 — routing metrics (stub — implemented in expansion phase U7)
+# Step 4 — routing metrics (RDL and via count)
 # ---------------------------------------------------------------------------
 
 def _compute_routing_metrics(
@@ -216,8 +217,28 @@ def _compute_routing_metrics(
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
-    """Stub — returns empty dict.  Expansion phase U7 fills this in."""
-    return {}
+    """Compute routed length (RDL) and via count from parsed traces and vias.
+
+    RDL is the sum of Euclidean distances between each trace segment's
+    start and end points (straight-line approximation per segment, not
+    accounting for layer transitions).
+    """
+    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+
+    # Routed length from trace segments
+    rdl = 0.0
+    for t in parse_result.traces:
+        dx = float(t.end[0]) - float(t.start[0])
+        dy = float(t.end[1]) - float(t.start[1])
+        rdl += math.hypot(dx, dy)
+
+    # Via count
+    via_count = len(parse_result.vias)
+
+    return {
+        "rdl": mk(rdl),
+        "via_count": mk(float(via_count)),
+    }
 
 
 # ---------------------------------------------------------------------------

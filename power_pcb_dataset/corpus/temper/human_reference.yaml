@@ -1,16 +1,24 @@
 board_id: temper
 extraction_source: power_pcb_dataset/corpus/temper/temper.kicad_pcb
-extractor_version: a0675336
+extractor_version: 63fe6979
 metrics:
   hpwl:
     value: 910.301025390625
-    extracted_at: '2026-07-02T01:32:37.613914+00:00'
-    pcb_git_hash: a0675336
+    extracted_at: '2026-07-02T01:34:47.392717+00:00'
+    pcb_git_hash: 63fe6979
   overlap_loss:
     value: 278.330810546875
-    extracted_at: '2026-07-02T01:32:37.613914+00:00'
-    pcb_git_hash: a0675336
+    extracted_at: '2026-07-02T01:34:47.392717+00:00'
+    pcb_git_hash: 63fe6979
   boundary_loss:
     value: 35.99760437011719
-    extracted_at: '2026-07-02T01:32:37.613914+00:00'
-    pcb_git_hash: a0675336
+    extracted_at: '2026-07-02T01:34:47.392717+00:00'
+    pcb_git_hash: 63fe6979
+  rdl:
+    value: 0.0
+    extracted_at: '2026-07-02T01:34:47.392717+00:00'
+    pcb_git_hash: 63fe6979
+  via_count:
+    value: 0.0
+    extracted_at: '2026-07-02T01:34:47.392717+00:00'
+    pcb_git_hash: 63fe6979

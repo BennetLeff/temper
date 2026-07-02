@@ -1,16 +1,24 @@
 board_id: bitaxe_ultra
 extraction_source: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
-extractor_version: a0675336
+extractor_version: 63fe6979
 metrics:
   hpwl:
     value: 1046.3402099609375
-    extracted_at: '2026-07-02T01:32:47.083285+00:00'
-    pcb_git_hash: a0675336
+    extracted_at: '2026-07-02T01:34:56.780972+00:00'
+    pcb_git_hash: 63fe6979
   overlap_loss:
     value: 1444.9193115234375
-    extracted_at: '2026-07-02T01:32:47.083285+00:00'
-    pcb_git_hash: a0675336
+    extracted_at: '2026-07-02T01:34:56.780972+00:00'
+    pcb_git_hash: 63fe6979
   boundary_loss:
     value: 515927.84375
-    extracted_at: '2026-07-02T01:32:47.083285+00:00'
-    pcb_git_hash: a0675336
+    extracted_at: '2026-07-02T01:34:56.780972+00:00'
+    pcb_git_hash: 63fe6979
+  rdl:
+    value: 2126.8900804896816
+    extracted_at: '2026-07-02T01:34:56.780972+00:00'
+    pcb_git_hash: 63fe6979
+  via_count:
+    value: 201.0
+    extracted_at: '2026-07-02T01:34:56.780972+00:00'
+    pcb_git_hash: 63fe6979

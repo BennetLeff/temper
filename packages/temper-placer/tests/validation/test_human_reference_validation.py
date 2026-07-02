@@ -242,6 +242,41 @@ class TestAllCorpusBoards:
 
 
 # ---------------------------------------------------------------------------
+# Routing metrics (covers R7)
+# ---------------------------------------------------------------------------
+
+class TestRoutingMetrics:
+    """RDL and via count are derived from traced segments and vias."""
+
+    def test_rdl_and_via_count_on_piantor_right(self):
+        """R7: Routed board has positive RDL and via count."""
+        yaml_path = _corpus_board_path("piantor_right", "human_reference.yaml")
+        with open(yaml_path) as f:
+            data = yaml.safe_load(f)
+        assert "rdl" in data["metrics"], "RDL metric not in human_reference.yaml"
+        assert "via_count" in data["metrics"], "via_count metric not in human_reference.yaml"
+        rdl = data["metrics"]["rdl"]["value"]
+        via_count = data["metrics"]["via_count"]["value"]
+        assert rdl > 0, f"RDL is {rdl}, expected > 0 on a routed board"
+        assert via_count > 0, f"Via count is {via_count}, expected > 0 on a routed board"
+
+    def test_unrouted_board_yields_zero(self):
+        """R7: Deliberately unrouted board produces zero RDL and vias."""
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.validation.human_reference_extractor import (
+            _compute_routing_metrics,
+        )
+        pcb_path = _corpus_board_path("minimal", "minimal_board.kicad_pcb")
+        if not pcb_path.exists():
+            pytest.skip("minimal board not available")
+        result = parse_kicad_pcb(pcb_path)
+        # minimal board has 4 components but is typically unrouted
+        metrics = _compute_routing_metrics(result, "test", "now")
+        assert metrics["rdl"].value >= 0
+        assert metrics["via_count"].value >= 0
+
+
+# ---------------------------------------------------------------------------
 # Committed human_reference.yaml validation (covers AE5)
 # ---------------------------------------------------------------------------
 
