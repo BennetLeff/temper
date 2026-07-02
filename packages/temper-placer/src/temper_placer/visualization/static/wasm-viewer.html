@@ -136,6 +136,7 @@
         (async () => {
             try {
                 await init();
+                window._wasmReady = true;
                 const el = document.getElementById('default-board');
                 if (!el) return;
                 const data = JSON.parse(el.textContent);

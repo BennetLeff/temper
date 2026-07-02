@@ -1,4 +1,4 @@
-import init, {
+import {
     load_board as wasmLoadBoard,
     on_wheel as wasmOnWheel,
     on_mouse_down as wasmOnMouseDown,
@@ -10,28 +10,22 @@ import init, {
     get_board_summary as wasmGetBoardSummary,
 } from './wasm/temper_viewer.js';
 
-let wasm = null;
+let wasmReady = false;
 let ws = null;
 let reconnectAttempt = 0;
 const maxReconnectDelay = 30000;
 let isPaused = false;
 let currentState = null;
 
-const STAGES = ['input', 'semantic', 'topological', 'preflight', 'geometric', 'routing', 'refinement', 'output'];
-
-async function initViewer() {
-    try {
-        wasm = await init();
-        console.log('WASM viewer initialized');
-        if (window.location.search.includes('connect')) connectToServer();
-    } catch (e) {
-        console.error('Failed to initialize WASM module:', e);
-        document.getElementById('landing-overlay').querySelector('.landing-content').innerHTML = `
-            <h1>Temper Board Viewer</h1>
-            <p class="error-msg">Failed to load WASM renderer. Check browser console for details.</p>
-        `;
+// Wait for inline script to set _wasmReady
+setInterval(() => {
+    if (window._wasmReady && !wasmReady) {
+        wasmReady = true;
+        console.log('wasm-viewer.js: WASM ready via inline script');
     }
-}
+}, 100);
+
+const STAGES = ['input', 'semantic', 'topological', 'preflight', 'geometric', 'routing', 'refinement', 'output'];
 
 window.connectToServer = function() {
     const host = window.location.hostname || 'localhost';
@@ -153,7 +147,7 @@ let hoverThrottle = 0;
 const canvas = document.getElementById('board-canvas');
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
-    if (wasm) wasmOnWheel(e.deltaY, e.offsetX, e.offsetY);
+        if (wasmReady) wasmOnWheel(e.deltaY, e.offsetX, e.offsetY);
 }, { passive: false });
 canvas.addEventListener('mousedown', (e) => {
     dragging = true;
@@ -204,7 +198,7 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mouseup', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
 canvas.addEventListener('mouseleave', () => { dragging = false; if (wasm) wasmOnMouseUp(); });
 canvas.addEventListener('click', (e) => {
-    if (!wasm) return;
+    if (!wasmReady) return;
     const result = wasmOnClick(e.offsetX, e.offsetY);
     if (!result) return;
     const inspector = document.getElementById('inspector-content');
@@ -286,18 +280,18 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('inspector-content').textContent = 'Select a component to inspect.';
         return;
     }
-    if (!wasm) return;
+    if (!wasmReady) return;
     if (e.key === 'p') { e.preventDefault(); zoomIn(); return; }
     if (e.key === 'o') { e.preventDefault(); zoomOut(); return; }
 });
 
 // Zoom controls (buttons + keyboard)
 window.zoomIn = function() {
-    if (!wasm) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
+    if (!wasmReady) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
     wasmOnWheel(-100, 400, 300);
 };
 window.zoomOut = function() {
-    if (!wasm) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
+    if (!wasmReady) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
     wasmOnWheel(100, 400, 300);
 };
 window.zoomReset = function() { location.reload(); };
@@ -330,6 +324,3 @@ document.addEventListener('mouseup', () => { sidebarResizing = false; });
 
 // Expose connect globally for the button onclick
 window.connectToServer = window.connectToServer || connectToServer;
-
-// Auto-load handled by inline script in wasm-viewer.html — init viewer only
-initViewer();
