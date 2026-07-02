@@ -17,6 +17,7 @@ import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import jax
 import jax.numpy as jnp
@@ -27,6 +28,10 @@ from temper_placer.losses.base import LossContext
 from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.wirelength import compute_total_hpwl
+
+if TYPE_CHECKING:
+    from temper_placer.io.kicad_parser import ParseResult
+
 # ---------------------------------------------------------------------------
 # Pydantic-style data models (plain dataclasses for zero-dependency YAML I/O)
 # ---------------------------------------------------------------------------
@@ -95,11 +100,11 @@ def _repo_root(pcb_path: str | Path) -> Path:
 # Step 1 — parse + validate
 # ---------------------------------------------------------------------------
 
-def _parse_and_validate(pcb_path: str | Path, validate: bool) -> "ParseResult":
+def _parse_and_validate(pcb_path: Path | str, validate: bool) -> "ParseResult":
     """Parse *pcb_path* and (when *validate*) assert correctness invariants."""
     from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
 
-    result = parse_kicad_pcb(pcb_path)
+    result = parse_kicad_pcb(Path(pcb_path))
 
     if not validate:
         return result
@@ -355,8 +360,8 @@ def _compute_drc(
     mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
     try:
         from temper_placer.validation.drc_runner import run_drc
-        result = run_drc(str(pcb_path))
-        return {"drc_violations": mk(float(result.errors))}
+        result = run_drc(Path(pcb_path))
+        return {"drc_violations": mk(float(result.error_count))}
     except ImportError:
         return {"drc_violations": mk(-1.0)}  # sentinel: KiCad unavailable
     except Exception:
