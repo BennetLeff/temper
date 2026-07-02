@@ -147,21 +147,29 @@ let hoverThrottle = 0;
 const canvas = document.getElementById('board-canvas');
 canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
-        if (wasmReady) wasmOnWheel(e.deltaY, e.offsetX, e.offsetY);
+    if (wasmReady) {
+        const rect = canvas.getBoundingClientRect();
+        wasmOnWheel(e.deltaY, e.clientX - rect.left, e.clientY - rect.top);
+    }
 }, { passive: false });
 canvas.addEventListener('mousedown', (e) => {
     dragging = true;
-    lastMouseX = e.offsetX; lastMouseY = e.offsetY;
-    if (wasmReady) wasmOnMouseDown(e.offsetX, e.offsetY);
+    const rect = canvas.getBoundingClientRect();
+    lastMouseX = e.clientX - rect.left;
+    lastMouseY = e.clientY - rect.top;
+    if (wasmReady) wasmOnMouseDown(lastMouseX, lastMouseY);
 });
 canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
     if (dragging && wasmReady) {
-        const dx = e.offsetX - lastMouseX;
-        const dy = e.offsetY - lastMouseY;
-        lastMouseX = e.offsetX; lastMouseY = e.offsetY;
+        const dx = sx - lastMouseX;
+        const dy = sy - lastMouseY;
+        lastMouseX = sx; lastMouseY = sy;
         wasmOnMouseMove(dx, dy, true);
     } else if (wasmReady) {
-        const result = wasmOnMouseMove(e.offsetX, e.offsetY, false);
+        const result = wasmOnMouseMove(sx, sy, false);
         if (!result || result === null) return;
         const tooltip = document.getElementById('tooltip');
         if (result === 'clear') {
@@ -193,7 +201,8 @@ canvas.addEventListener('mouseup', () => { dragging = false; if (wasmReady) wasm
 canvas.addEventListener('mouseleave', () => { dragging = false; if (wasmReady) wasmOnMouseUp(); });
 canvas.addEventListener('click', (e) => {
     if (!wasmReady) return;
-    const result = wasmOnClick(e.offsetX, e.offsetY);
+    const rect = canvas.getBoundingClientRect();
+    const result = wasmOnClick(e.clientX - rect.left, e.clientY - rect.top);
     if (!result) return;
     const inspector = document.getElementById('inspector-content');
     if (result === 'none' || result === 'deselected') {
@@ -282,11 +291,13 @@ document.addEventListener('keydown', (e) => {
 // Zoom controls (buttons + keyboard)
 window.zoomIn = function() {
     if (!wasmReady) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
-    wasmOnWheel(-100, 400, 300);
+    const rect = canvas.getBoundingClientRect();
+    wasmOnWheel(-100, rect.width/2, rect.height/2);
 };
 window.zoomOut = function() {
     if (!wasmReady) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
-    wasmOnWheel(100, 400, 300);
+    const rect = canvas.getBoundingClientRect();
+    wasmOnWheel(100, rect.width/2, rect.height/2);
 };
 window.zoomReset = function() { location.reload(); };
 
