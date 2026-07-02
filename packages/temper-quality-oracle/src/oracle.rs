@@ -163,6 +163,110 @@ mod tests {
             );
             prop_assert!(!verdict.is_pass());
         }
+
+        #[test]
+        fn pbt_clearance_monotonicity_adding_component(
+            mut positions in prop::collection::vec((-50.0f64..150.0f64, -50.0f64..150.0f64), 1..8),
+            extra_x in -100.0f64..200.0f64,
+            extra_y in -100.0f64..200.0f64,
+        ) {
+            let refs: Vec<String> = (1..=positions.len()).map(|i| format!("C{i}")).collect();
+            let mut components: Vec<ComponentInfo> = refs.iter().map(|r| ComponentInfo {
+                ref_des: r.clone(),
+                footprint: "R0805".into(),
+                width_mm: 2.0,
+                height_mm: 1.2,
+                voltage: 0.0,
+            }).collect();
+            let len = components.len();
+            components[0].voltage = 230.0;
+            components[0].footprint = "TO-247".into();
+            if len > 1 {
+                components[1].voltage = 3.3;
+                components[1].footprint = "SOIC-8".into();
+            }
+
+            let netlist = Netlist { nets: vec![], components: components.clone() };
+            let placement_before = PlacementState {
+                positions: positions.clone(),
+                component_refs: refs.clone(),
+                board_width_mm: 100.0,
+                board_height_mm: 100.0,
+            };
+
+            let verdict_before = evaluate_quality(
+                &empty_spec(), &netlist, &placement_before, &valid_metrics(),
+            );
+            let violations_before = match &verdict_before {
+                QualityVerdict::Fail { violations, .. } => violations.len(),
+                QualityVerdict::Pass { .. } => 0,
+            };
+
+            positions.push((extra_x, extra_y));
+            let mut refs_after = refs.clone();
+            refs_after.push("EXTRA".into());
+            let mut components_after = components;
+            components_after.push(ComponentInfo {
+                ref_des: "EXTRA".into(), footprint: "R0805".into(),
+                width_mm: 2.0, height_mm: 1.2, voltage: 0.0,
+            });
+            let netlist_after = Netlist { nets: vec![], components: components_after };
+            let placement_after = PlacementState {
+                positions,
+                component_refs: refs_after,
+                board_width_mm: 100.0,
+                board_height_mm: 100.0,
+            };
+
+            let verdict_after = evaluate_quality(
+                &empty_spec(), &netlist_after, &placement_after, &valid_metrics(),
+            );
+            let violations_after = match &verdict_after {
+                QualityVerdict::Fail { violations, .. } => violations.len(),
+                QualityVerdict::Pass { .. } => 0,
+            };
+
+            prop_assert!(violations_after >= violations_before,
+                "adding a component must not reduce clearance violation count: before={violations_before}, after={violations_after}"
+            );
+        }
+
+        #[test]
+        fn pbt_roundtrip_no_panic(
+            n_components in 0usize..10,
+            metrics in prop::array::uniform7(0.0f64..1.0f64),
+        ) {
+            let refs: Vec<String> = (0..n_components).map(|i| format!("C{i}")).collect();
+            let positions: Vec<(f64, f64)> = (0..n_components)
+                .map(|i| (i as f64 * 10.0, 0.0))
+                .collect();
+            let components: Vec<ComponentInfo> = refs.iter().map(|r| ComponentInfo {
+                ref_des: r.clone(),
+                footprint: "R0805".into(),
+                width_mm: 2.0, height_mm: 1.2, voltage: 0.0,
+            }).collect();
+            let netlist = Netlist {
+                nets: refs.iter().map(|r| NetInfo { name: r.clone(), pins: vec![r.clone()] }).collect(),
+                components,
+            };
+            let placement = PlacementState {
+                positions,
+                component_refs: refs,
+                board_width_mm: 200.0,
+                board_height_mm: 200.0,
+            };
+            let pre = PrecomputedMetrics {
+                thermal_score: metrics[0],
+                zone_compliance_score: metrics[1],
+                hv_lv_clearance_score: metrics[2],
+                loop_area_score: metrics[3],
+                congestion_score: metrics[4],
+                compactness_score: metrics[5],
+                connectivity_clustering_score: metrics[6],
+                total_wirelength_mm: 100.0,
+            };
+            let _verdict = evaluate_quality(&empty_spec(), &netlist, &placement, &pre);
+        }
     }
 
     #[test]
