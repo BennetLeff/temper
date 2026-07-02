@@ -45,9 +45,11 @@ class ComponentLoopAreaLoss(LossFunction):
         margin: Soft margin for penalty transition (mm²).
     """
 
-    def __init__(self, loops: list[ComponentLoopConfig], margin: float = 10.0):
+    def __init__(self, loops: list[ComponentLoopConfig], margin: float = 10.0,
+                 min_separation_mm: float = 2.0):
         self.loops = loops
         self.margin = margin
+        self.min_separation_mm = min_separation_mm
 
     @property
     def name(self) -> str:
@@ -96,6 +98,18 @@ class ComponentLoopAreaLoss(LossFunction):
             penalty = loop.weight * soft_excess**2
 
             total_penalty = total_penalty + penalty
+
+            # Minimum-separation floor: prevent components in the same loop
+            # from being stacked on top of each other when loop area weight is low
+            if self.min_separation_mm > 0.0 and len(idx_array) >= 2:
+                # Compute pairwise distances
+                diffs = verts[:, None, :] - verts[None, :, :]  # (K, K, 2)
+                dists = jnp.sqrt(jnp.sum(diffs**2, axis=-1) + 1e-12)  # (K, K)
+                upper = jnp.triu(jnp.ones_like(dists), k=1)
+                # Penalize pairs below min_separation
+                too_close = jax.nn.relu(self.min_separation_mm - dists)
+                sep_penalty = 10.0 * jnp.sum(too_close * upper)
+                total_penalty = total_penalty + sep_penalty
 
         return LossResult(value=total_penalty, breakdown=breakdown)
 

@@ -68,6 +68,7 @@ def run_physics_oracle(
     seed: int = 42,
     epochs: int = 500,
     verbose: bool = True,
+    weights_override: dict[str, float] | None = None,
 ) -> PhysicsOracleResult:
     """
     Run the physics oracle on a PCB board.
@@ -168,6 +169,8 @@ def run_physics_oracle(
         "wirelength": 20.0,
         "spread": 5.0,
     }
+    if weights_override:
+        weights.update(weights_override)
 
     try:
         clearance_rules = []
@@ -226,7 +229,8 @@ def run_physics_oracle(
             WeightedLoss(SpreadLoss(), weights["spread"]),
             WeightedLoss(ThermalLoss(margin=2.0), weights.get("thermal", 30.0)),
             WeightedLoss(
-                ComponentLoopAreaLoss(loops=loop_losses, margin=10.0),
+                ComponentLoopAreaLoss(loops=loop_losses, margin=10.0,
+                                      min_separation_mm=2.0),
                 weights.get("loop_area", 30.0),
             ),
         ])
