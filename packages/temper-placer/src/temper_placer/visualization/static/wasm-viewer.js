@@ -293,14 +293,12 @@ document.addEventListener('keydown', (e) => {
 
 // Zoom controls (buttons + keyboard)
 window.zoomIn = function() {
-    if (!wasm) return;
+    if (!wasm) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
     wasmOnWheel(-100, 400, 300);
-    updateZoomDisplay();
 };
 window.zoomOut = function() {
-    if (!wasm) return;
+    if (!wasm) { alert('WASM not loaded yet. Wait for board to appear.'); return; }
     wasmOnWheel(100, 400, 300);
-    updateZoomDisplay();
 };
 window.zoomReset = function() { location.reload(); };
 
