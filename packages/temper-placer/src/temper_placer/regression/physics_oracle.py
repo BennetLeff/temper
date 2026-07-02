@@ -174,9 +174,9 @@ def run_physics_oracle(
 
             clearance_rules.append(
                 ClearanceRule(
-                    class_a="HighVoltage",
-                    class_b="Signal",
-                    clearance_mm=threshold_mm,
+                    net_class_a="HighVoltage",
+                    net_class_b="Signal",
+                    min_clearance=threshold_mm,
                 )
             )
 
