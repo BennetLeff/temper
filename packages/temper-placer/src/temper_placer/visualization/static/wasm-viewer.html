@@ -143,6 +143,35 @@
                 // Small delay for layout to compute
                 await new Promise(r => setTimeout(r, 50));
                 await start_render_loop('board-canvas');
+
+                // Canvas2D overlay: draw components tagged by ref
+                const overlay = document.createElement('canvas');
+                const cc = document.getElementById('canvas-container');
+                overlay.width = cc.clientWidth; overlay.height = cc.clientHeight;
+                overlay.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:10;';
+                cc.style.position = 'relative';
+                cc.appendChild(overlay);
+                const ctx2d = overlay.getContext('2d');
+                const colors = ['#3377EE','#EEBB33','#33AA55','#EE7733','#9955CC','#DD4444','#33AABB','#888888'];
+                const fitZoom = Math.min(overlay.width / data.board.width, overlay.height / data.board.height) * 0.85 * 0.5;
+                const ox = data.board.width / 2; const oy = data.board.height / 2;
+                data.board.components.forEach((c, i) => {
+                    const sx = overlay.width/2 + (c.position[0] - ox) * 0.5 * (overlay.width / data.board.width);
+                    const sy = overlay.height/2 + (c.position[1] - oy) * 0.5 * (overlay.height / data.board.height);
+                    ctx2d.save();
+                    ctx2d.translate(sx, sy);
+                    ctx2d.rotate((c.rotation || 0) * Math.PI / 180);
+                    ctx2d.fillStyle = colors[i % colors.length];
+                    ctx2d.globalAlpha = 0.6;
+                    ctx2d.fillRect(-15, -8, 30, 16);
+                    ctx2d.strokeStyle = '#000';
+                    ctx2d.lineWidth = 1;
+                    ctx2d.strokeRect(-15, -8, 30, 16);
+                    ctx2d.restore();
+                    ctx2d.fillStyle = '#000';
+                    ctx2d.font = '9px monospace';
+                    ctx2d.fillText(c.ref, sx - 10, sy - 10);
+                });
             } catch(e) { console.error('Auto-load error:', e); }
         })();
     </script>
