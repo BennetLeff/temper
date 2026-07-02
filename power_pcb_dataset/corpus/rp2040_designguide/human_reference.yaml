@@ -1,24 +1,28 @@
 board_id: rp2040_designguide
 extraction_source: power_pcb_dataset/corpus/rp2040_designguide/RP2040-Guide.kicad_pcb
-extractor_version: 63fe6979
+extractor_version: 044bf909
 metrics:
   hpwl:
     value: 954.3090209960938
-    extracted_at: '2026-07-02T01:34:53.249837+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:34.827806+00:00'
+    pcb_git_hash: 044bf909
   overlap_loss:
     value: 685.9963989257812
-    extracted_at: '2026-07-02T01:34:53.249837+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:34.827806+00:00'
+    pcb_git_hash: 044bf909
   boundary_loss:
     value: 940070.5
-    extracted_at: '2026-07-02T01:34:53.249837+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:34.827806+00:00'
+    pcb_git_hash: 044bf909
   rdl:
     value: 1814.6348203058217
-    extracted_at: '2026-07-02T01:34:53.249837+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:34.827806+00:00'
+    pcb_git_hash: 044bf909
   via_count:
     value: 32.0
-    extracted_at: '2026-07-02T01:34:53.249837+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:34.827806+00:00'
+    pcb_git_hash: 044bf909
+  drc_violations:
+    value: -1.0
+    extracted_at: '2026-07-02T01:36:34.827806+00:00'
+    pcb_git_hash: 044bf909

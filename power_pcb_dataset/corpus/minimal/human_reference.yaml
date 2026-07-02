@@ -1,24 +1,28 @@
 board_id: minimal
 extraction_source: power_pcb_dataset/corpus/minimal/minimal_board.kicad_pcb
-extractor_version: 63fe6979
+extractor_version: 044bf909
 metrics:
   hpwl:
     value: 51.40888214111328
-    extracted_at: '2026-07-02T01:34:50.595935+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:31.809139+00:00'
+    pcb_git_hash: 044bf909
   overlap_loss:
     value: 0.0
-    extracted_at: '2026-07-02T01:34:50.595935+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:31.809139+00:00'
+    pcb_git_hash: 044bf909
   boundary_loss:
     value: 31518.86328125
-    extracted_at: '2026-07-02T01:34:50.595935+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:31.809139+00:00'
+    pcb_git_hash: 044bf909
   rdl:
     value: 0.0
-    extracted_at: '2026-07-02T01:34:50.595935+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:31.809139+00:00'
+    pcb_git_hash: 044bf909
   via_count:
     value: 0.0
-    extracted_at: '2026-07-02T01:34:50.595935+00:00'
-    pcb_git_hash: 63fe6979
+    extracted_at: '2026-07-02T01:36:31.809139+00:00'
+    pcb_git_hash: 044bf909
+  drc_violations:
+    value: -1.0
+    extracted_at: '2026-07-02T01:36:31.809139+00:00'
+    pcb_git_hash: 044bf909

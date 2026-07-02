@@ -242,8 +242,29 @@ def _compute_routing_metrics(
 
 
 # ---------------------------------------------------------------------------
-# Public API
+# Step 5 — DRC violations
 # ---------------------------------------------------------------------------
+
+def _compute_drc(
+    pcb_path: str | Path,
+    pcb_git_hash: str,
+    now: str,
+) -> dict[str, MetricValue]:
+    """Run DRC on the human-reference board and record violation count.
+
+    Requires KiCad to be installed and on PATH.  A board whose human
+    reference has nonzero DRC errors is excluded from the DRC-delta row
+    of the comparison comment (per R15).
+    """
+    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    try:
+        from temper_placer.validation.drc_runner import run_drc
+        result = run_drc(str(pcb_path))
+        return {"drc_violations": mk(float(result.errors))}
+    except ImportError:
+        return {"drc_violations": mk(-1.0)}  # sentinel: KiCad unavailable
+    except Exception:
+        return {"drc_violations": mk(-1.0)}
 
 def extract_human_reference(
     pcb_path: str | Path,
@@ -287,8 +308,9 @@ def extract_human_reference(
 
     placement_metrics = _compute_placement_metrics(state, context, gh, now)
     routing_metrics = _compute_routing_metrics(parse_result, gh, now)
+    drc_metrics = _compute_drc(pcb_path, gh, now)
 
-    all_metrics = {**placement_metrics, **routing_metrics}
+    all_metrics = {**placement_metrics, **routing_metrics, **drc_metrics}
 
     return HumanReference(
         board_id=board_id,

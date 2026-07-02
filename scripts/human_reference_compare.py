@@ -37,7 +37,7 @@ def compute_ratios(
     """Return per-metric ratio rows as {metric: {opt, human, ratio}}."""
     human_metrics = human_data.get("metrics", {})
     result = {}
-    for metric in ("hpwl", "overlap_loss", "boundary_loss", "rdl", "via_count", "drc_violations"):
+    for metric in ("hpwl", "overlap_loss", "boundary_loss", "rdl", "via_count"):
         if metric not in opt_metrics or metric not in human_metrics:
             continue
         human_val = human_metrics[metric]["value"]
@@ -46,6 +46,21 @@ def compute_ratios(
         if human_val != 0:
             ratio = f"{opt_val / human_val:.2f}"
         result[metric] = {"opt": opt_val, "human": human_val, "ratio": ratio}
+
+    # DRC delta is an absolute count, not a ratio.
+    if "drc_violations" in opt_metrics and "drc_violations" in human_metrics:
+        human_drc = human_metrics["drc_violations"]["value"]
+        opt_drc = opt_metrics["drc_violations"]
+        if human_drc < 0 or opt_drc < 0:
+            # Sentinel -1 means DRC unavailable; skip the row.
+            pass
+        elif human_drc != 0:
+            # Human reference has nonzero DRC errors — exclude the row.
+            result["drc_delta"] = {"opt": opt_drc, "human": human_drc, "ratio": "excluded (human DRC nonzero)"}
+        else:
+            delta = opt_drc
+            result["drc_delta"] = {"opt": opt_drc, "human": human_drc, "ratio": str(int(delta))}
+
     return result
 
 
