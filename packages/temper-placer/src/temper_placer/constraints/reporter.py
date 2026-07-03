@@ -9,7 +9,7 @@ import math
 from dataclasses import dataclass, field
 from enum import Enum
 
-from temper_placer.io.config_loader import (
+from temper_placer._constraint_types import (
     ComponentGroup,
     ComponentSpacingRule,
     EscapeClearance,

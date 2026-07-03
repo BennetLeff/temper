@@ -10,13 +10,15 @@ This module handles all input/output operations:
 The IO layer converts between external formats and internal data structures.
 """
 
-from temper_placer.io.boundary_registry import BoundaryDef, BoundaryRegistry
-from temper_placer.io.config_loader import (
+from temper_placer._constraint_types import (
     ClearanceRule,
     ComponentGroup,
     CriticalLoop,
     PlacementConstraints,
     ThermalConstraint,
+)
+from temper_placer.io.boundary_registry import BoundaryDef, BoundaryRegistry
+from temper_placer.io.config_loader import (
     create_board_from_constraints,
     load_constraints,
 )
