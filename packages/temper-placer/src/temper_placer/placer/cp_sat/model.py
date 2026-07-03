@@ -249,6 +249,8 @@ def add_soft_wirelength_objective(
     model: cp_model.CpModel,
     ctx: SolveContext,
     net_pairs: list[tuple[str, str]],
+    board_w_units: int = 0,
+    board_h_units: int = 0,
     spread_weight: float = 1.0,
 ) -> None:
     """R6: Soft wirelength + spread objective (tiebreaker).
@@ -258,14 +260,19 @@ def add_soft_wirelength_objective(
 
     Args:
         net_pairs: List of (comp_a, comp_b) tuples representing net connections.
+        board_w_units: Board width in grid units (used for variable domain bounds).
+            If 0, computed from max component size (may be too small).
+        board_h_units: Board height in grid units.
         spread_weight: Weight of the spread term relative to wirelength.
     """
-    board_w = max(ctx.x_size[r] for r in ctx.x_size) * 2  # rough upper bound
-    board_h = max(ctx.y_size[r] for r in ctx.y_size) * 2
+    if board_w_units <= 0:
+        board_w_units = max(ctx.x_size[r] for r in ctx.x_size) * 4
+    if board_h_units <= 0:
+        board_h_units = max(ctx.y_size[r] for r in ctx.y_size) * 4
 
     for a, b in net_pairs:
-        dx = model.NewIntVar(0, board_w, f"dx_{a}_{b}")
-        dy = model.NewIntVar(0, board_h, f"dy_{a}_{b}")
+        dx = model.NewIntVar(0, board_w_units, f"dx_{a}_{b}")
+        dy = model.NewIntVar(0, board_h_units, f"dy_{a}_{b}")
 
         cx_a = ctx.x_start[a] + ctx.x_size[a] // 2
         cx_b = ctx.x_start[b] + ctx.x_size[b] // 2
@@ -283,10 +290,10 @@ def add_soft_wirelength_objective(
     # Bounding-box spread
     if ctx.x_start:
         refs = list(ctx.x_start.keys())
-        x_min = model.NewIntVar(0, board_w, "x_min")
-        x_max = model.NewIntVar(0, board_w, "x_max")
-        y_min = model.NewIntVar(0, board_h, "y_min")
-        y_max = model.NewIntVar(0, board_h, "y_max")
+        x_min = model.NewIntVar(0, board_w_units, "x_min")
+        x_max = model.NewIntVar(0, board_w_units, "x_max")
+        y_min = model.NewIntVar(0, board_h_units, "y_min")
+        y_max = model.NewIntVar(0, board_h_units, "y_max")
 
         for ref in refs:
             model.Add(x_min <= ctx.x_start[ref])
@@ -295,14 +302,7 @@ def add_soft_wirelength_objective(
             model.Add(y_max >= ctx.y_start[ref] + ctx.y_size[ref])
 
         spread = (x_max - x_min) + (y_max - y_min)
-        spread_scaled = model.NewIntVar(
-            0, board_w + board_h, "spread_weighted"
-        )
-        model.AddMultiplicationEquality(
-            spread_scaled, [spread, model.NewConstant(int(spread_weight))]
-        )
-
-        all_terms = ctx.objective_terms + [spread_scaled]
+        all_terms = ctx.objective_terms + [spread]
     else:
         all_terms = ctx.objective_terms
 
