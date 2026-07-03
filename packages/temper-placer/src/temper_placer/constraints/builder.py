@@ -8,7 +8,7 @@ chainable, fluent interface.
 
 import yaml  # type: ignore[import-untyped]
 
-from temper_placer.io.config_loader import (
+from temper_placer._constraint_types import (
     ComponentGroup,
     ComponentSpacingRule,
     EscapeClearance,

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
 
-from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer._constraint_types import PlacementConstraints
 
 # Type aliases for clarity
 SlotFilter = Callable[[tuple[float, float], str, dict[str, tuple[float, float]]], bool]
