@@ -9,8 +9,6 @@ from __future__ import annotations
 import json
 from typing import Any, TYPE_CHECKING
 
-from temper_placer.validation.drc_result import Severity
-
 if TYPE_CHECKING:
     from temper_placer.validation.drc_result import RunResult
     from temper_placer.validation.drc_types import ConstraintSet
@@ -29,13 +27,13 @@ def format_text(result: RunResult) -> str:
     failed_checks = total_checks - passed_checks
     total_issues = len(result.all_issues)
     critical_issues = sum(
-        1 for r in result.check_results for i in r.issues if i.severity == Severity.CRITICAL
+        1 for r in result.check_results for i in r.issues if i.severity.name == "CRITICAL"
     )
     error_issues = sum(
-        1 for r in result.check_results for i in r.issues if i.severity == Severity.ERROR
+        1 for r in result.check_results for i in r.issues if i.severity.name == "ERROR"
     )
     warning_issues = sum(
-        1 for r in result.check_results for i in r.issues if i.severity == Severity.WARNING
+        1 for r in result.check_results for i in r.issues if i.severity.name == "WARNING"
     )
 
     lines.append(f"Status: {'PASS' if result.passed else 'FAIL'}")
@@ -268,12 +266,12 @@ def format_html(result: RunResult, placement_name: str, _constraints: Constraint
     return html
 
 
-def _severity_to_bootstrap(severity: Severity) -> str:
+def _severity_to_bootstrap(severity):
     """Map severity to Bootstrap badge class."""
     mapping = {
-        Severity.CRITICAL: "danger",
-        Severity.ERROR: "warning",
-        Severity.WARNING: "info",
-        Severity.INFO: "secondary",
+        "CRITICAL": "danger",
+        "ERROR": "warning",
+        "WARNING": "info",
+        "INFO": "secondary",
     }
-    return mapping.get(severity, "secondary")
+    return mapping.get(getattr(severity, "name", str(severity)), "secondary")
