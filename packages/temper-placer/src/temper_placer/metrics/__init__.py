@@ -17,6 +17,9 @@ from temper_placer.metrics.quality import (
     total_wirelength,
     zone_compliance_score,
 )
+from temper_placer.metrics.external_oracle import (
+    score_placement,
+)
 from temper_placer.metrics.quality_score import (
     QualityInputs,
     compute_quality_score,
@@ -37,6 +40,7 @@ __all__ = [
     "compactness_score",
     "connectivity_clustering_score",
     "compute_quality_report",
+    "score_placement",
     "QualityInputs",
     "compute_quality_score",
     "interpret_score",

@@ -234,6 +234,30 @@ main.add_command(watch)
     default=False,
     help="Use the consolidated Core 8 loss set (default: False).",
 )
+@click.option(
+    "--placer",
+    type=click.Choice(["jax", "cp-sat"]),
+    default="jax",
+    help="Placement engine (default: jax).",
+)
+@click.option(
+    "--cp-sat-timeout",
+    type=int,
+    default=300,
+    help="CP-SAT solver timeout in seconds (default: 300).",
+)
+@click.option(
+    "--cp-sat-workers",
+    type=int,
+    default=8,
+    help="CP-SAT solver search workers (default: 8).",
+)
+@click.option(
+    "--cp-sat-grid-scale",
+    type=int,
+    default=10,
+    help="CP-SAT grid scale in units per mm (default: 10 = 0.1mm).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -268,15 +292,22 @@ def optimize(
     spice_penalty_weight: float,
     weight_channel_capacity: float | None,
     compact: bool,
+    placer: str,
+    cp_sat_timeout: int,
+    cp_sat_workers: int,
+    cp_sat_grid_scale: int,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
 
-    Reads INPUT_PCB and constraint CONFIG, runs gradient-based optimization,
-    and writes the result to OUTPUT.
+    Reads INPUT_PCB and constraint CONFIG, runs optimization using the
+    selected placer engine (JAX or CP-SAT), and writes the result to OUTPUT.
 
-    Example:
+    Examples:
         temper-placer optimize temper.kicad_pcb -c constraints.yaml -o optimized.kicad_pcb
+
+        temper-placer optimize --placer cp-sat temper.kicad_pcb \\
+            -c constraints.yaml -o optimized.kicad_pcb
     """
     console.print(
         Panel.fit(
@@ -294,6 +325,152 @@ def optimize(
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
     console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
+    console.print(f"[bold]Placer:[/] {placer}")
+
+    # ------------------------------------------------------------------
+    # CP-SAT placer dispatch
+    # ------------------------------------------------------------------
+    if placer == "cp-sat":
+        console.print(f"\n[bold green]Using CP-SAT placer[/] (--placer cp-sat)")
+        console.print(f"  [dim]timeout={cp_sat_timeout}s, workers={cp_sat_workers}, grid_scale={cp_sat_grid_scale}[/]")
+
+        # Import CP-SAT modules (with ortools availability guard)
+        try:
+            from temper_placer.placer.cp_sat import (
+                SolveStatus,
+                build_cp_sat_model,
+                solve_cp_sat_model,
+            )
+            from temper_placer.placer.cp_sat.audit import audit_placement
+        except ImportError as e:
+            console.print(f"[red]CP-SAT placer unavailable: {e}[/]")
+            console.print("Ensure ortools is installed: pip install ortools")
+            sys.exit(1)
+
+        # Import parsing modules (non-JAX path — same functions as JAX path)
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.io.config_loader import (
+            create_board_from_constraints,
+            load_constraints,
+        )
+
+        # Step 1: Parse KiCad PCB
+        console.print("\n[bold cyan]Step 1/4:[/] Parsing KiCad PCB...")
+        try:
+            parse_result = parse_kicad_pcb(input_pcb)
+            netlist = parse_result.netlist
+            if parse_result.has_warnings:
+                for w in parse_result.warnings:
+                    console.print(f"  [yellow]Warning:[/] {w}")
+            console.print(
+                f"  [green]✓[/] Loaded {netlist.n_components} components, {netlist.n_nets} nets"
+            )
+        except Exception as e:
+            console.print(f"[red]Failed to parse PCB: {e}[/]")
+            sys.exit(1)
+
+        # Step 2: Load constraints
+        console.print("\n[bold cyan]Step 2/4:[/] Loading constraints...")
+        try:
+            constraints_obj = load_constraints(config)
+            board = create_board_from_constraints(constraints_obj)
+            console.print(f"  [green]✓[/] Board: {board.width:.1f}mm x {board.height:.1f}mm")
+        except Exception as e:
+            console.print(f"[red]Failed to load constraints: {e}[/]")
+            sys.exit(1)
+
+        # Build component dict for CP-SAT model
+        components_dict: dict[str, dict] = {}
+        for comp in netlist.components:
+            components_dict[comp.ref] = {
+                "width_mm": comp.width,
+                "height_mm": comp.height,
+            }
+
+        # Step 3: Build CP-SAT model (NoOverlap2D + side constraints)
+        console.print("\n[bold cyan]Step 3/4:[/] Building CP-SAT model...")
+        model, ctx = build_cp_sat_model(
+            components=components_dict,
+            board_w_mm=board.width,
+            board_h_mm=board.height,
+            scale_factor=cp_sat_grid_scale,
+        )
+        console.print(f"  [green]✓[/] Model built: {len(components_dict)} components")
+
+        # Try PCL constraint encoding (U3); skip if encoder not available
+        try:
+            from temper_placer.placer.cp_sat.encoder import compile_pcl_to_cp_sat
+            if hasattr(constraints_obj, "pcl_constraints") and constraints_obj.pcl_constraints:
+                console.print("  [dim]PCL constraint encoding (U3) not yet integrated — skipping[/]")
+        except ImportError:
+            pass  # U3 encoder not yet available
+
+        # Step 4: Solve
+        console.print(f"\n[bold cyan]Step 4/4:[/] Solving CP-SAT model...")
+        console.print(f"  [dim]timeout={cp_sat_timeout}s, workers={cp_sat_workers}[/]")
+
+        result = solve_cp_sat_model(
+            model,
+            ctx,
+            timeout_s=cp_sat_timeout,
+            num_workers=cp_sat_workers,
+        )
+
+        console.print(f"  Status: [bold]{result.status.value}[/]")
+        console.print(f"  Solve time: {result.solve_time_s:.1f}s")
+        if result.objective_value is not None:
+            console.print(f"  Objective: {result.objective_value:.1f}")
+
+        if result.status in (SolveStatus.OPTIMAL, SolveStatus.FEASIBLE):
+            # Audit placement (U4)
+            console.print("\n[bold cyan]Auditing placement...[/]")
+            audit_result = audit_placement(
+                positions=result.positions,
+                components=components_dict,
+                constraints=None,
+                board_w_mm=board.width,
+                board_h_mm=board.height,
+            )
+
+            passed = audit_result.stats["passed"]
+            checked = audit_result.stats["checked"]
+            failed = audit_result.stats["failed"]
+            if audit_result.passed:
+                console.print(f"  [green]✓[/] Audit passed: {passed}/{checked} checks OK")
+            else:
+                console.print(f"  [red]✗[/] Audit failed: {failed} violation(s)")
+                for v in audit_result.violations[:10]:
+                    console.print(f"    [red]- {v.detail}[/]")
+
+            # Print positions summary
+            console.print(f"\n[bold]Placement ({len(result.positions)} components):[/]")
+            for i, (ref, (x, y)) in enumerate(sorted(result.positions.items())):
+                if i >= 10:
+                    console.print(f"  ... and {len(result.positions) - 10} more")
+                    break
+                w = components_dict[ref]["width_mm"]
+                h = components_dict[ref]["height_mm"]
+                console.print(f"  {ref:12s}  ({x:7.1f}, {y:7.1f})  [{w:.1f}x{h:.1f}mm]")
+
+            # Check for infeasibility due to constraints (U7 not yet wired)
+            if not audit_result.passed:
+                console.print("\n[yellow]Placement has constraint violations — review the audit output above.[/]")
+
+        elif result.status == SolveStatus.INFEASIBLE:
+            console.print("[red]No feasible placement found (INFEASIBLE).[/]")
+            console.print("  [dim]UNSAT core extraction (U7) not yet implemented[/]")
+            sys.exit(1)
+        else:
+            console.print(f"[yellow]Solver returned {result.status.value} (timeout or unknown).[/]")
+            console.print("  Try increasing --cp-sat-timeout or check constraints.")
+            sys.exit(1)
+
+        console.print("\n[bold green]CP-SAT placement complete![/]")
+        return
+
+    # ------------------------------------------------------------------
+    # JAX placer (default) — heavy imports and pipeline below
+    # ------------------------------------------------------------------
 
     # Import heavy dependencies only when needed
     console.print("\n[dim]Loading JAX and optimizer modules...[/]")

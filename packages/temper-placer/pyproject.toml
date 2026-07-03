@@ -28,6 +28,7 @@ dependencies = [
     "optax>=0.1.7",
     "kiutils>=1.4.0",
     "numpy>=1.24.0",
+    "ortools>=9.12",
     "pyyaml>=6.0",
     "plotly>=5.18.0",
     "websockets>=12.0",
