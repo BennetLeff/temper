@@ -99,6 +99,7 @@ markers = [
     "pbt_low_priority: marks PBT tests that can be skipped under CI-fast to meet time budget",
     "nightly: marks tests that run only in scheduled nightly CI (too heavy for per-commit)",
     "bmc_l0_encoding: Level 0 BMC encoding correctness tests — exhaustive N <= 10",
+    "cp_sat: marks CP-SAT feasibility-first placer tests (U0-U8)",
 ]
 
 [tool.ruff]
