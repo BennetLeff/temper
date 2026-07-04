@@ -1,7 +1,7 @@
 ---
 title: "feat: calendar-gate JAX retirement (override of parity-gate requirement)"
 type: feat
-status: active
+status: completed
 date: 2026-07-03
 origin: docs/brainstorms/2026-07-03-calendar-gate-jax-retirement-requirements.md
 ---
