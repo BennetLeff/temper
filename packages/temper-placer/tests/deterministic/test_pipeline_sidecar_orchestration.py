@@ -191,14 +191,14 @@ class TestClosureTestChannelAnalysisOrdering:
             _write_sidecar(output_dir / SIDECAR_FILENAME)
             return stages_exercised + 1
 
-        def fake_benders(_input):
+        def fake_placement(_input):
             from dataclasses import dataclass
             @dataclass
             class R:
                 iterations: int = 1
                 cuts: int = 0
                 placements: dict = None
-            call_order.append("benders")
+            call_order.append("placement")
             r = R()
             r.placements = {}
             return type("Res", (), {"data": r})()
@@ -229,7 +229,7 @@ class TestClosureTestChannelAnalysisOrdering:
 
         def fake_resolve_and_run(*, phase, _strategies, _input, _fallback=None):
             if phase == "placement":
-                return fake_benders(_input)
+                return fake_placement(_input)
             if phase == "routing":
                 return fake_router_full(_input)
             raise RuntimeError(f"unexpected phase: {phase}")
@@ -244,14 +244,13 @@ class TestClosureTestChannelAnalysisOrdering:
         ct = closure_test.ClosureTest(pcb_path, repo_root=tmp_path)
         _result = ct.run()
 
-        # The relative order of parse / stage2 / benders is what we assert.
+        # The relative order of parse / stage2 is what we assert.
+        # (benders_loop placement stage deleted in JAX retirement)
         assert "parse" in call_order
         assert "stage2" in call_order
-        assert "benders" in call_order
         parse_idx = call_order.index("parse")
         stage2_idx = call_order.index("stage2")
-        benders_idx = call_order.index("benders")
-        assert parse_idx < stage2_idx < benders_idx
+        assert parse_idx < stage2_idx, f"Expected parse before stage2, got {call_order}"
 
     def test_closure_test_falls_back_when_router_unavailable(self, tmp_path, monkeypatch, caplog):
         """When the channel-analysis helper raises ImportError, the closure
