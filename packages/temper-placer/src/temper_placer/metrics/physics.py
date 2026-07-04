@@ -250,7 +250,10 @@ def measure_routability(
     metrics.overflow_cells = len(res.bottlenecks)
 
     # total_wirelength (HPWL)
-    from temper_placer.losses.base import LossContext
+    try:
+        from temper_placer.losses.base import LossContext
+    except ImportError:
+        pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
     from temper_placer.metrics.quality import total_wirelength
 
     ctx = LossContext.from_netlist_and_board(netlist, board)

@@ -10,11 +10,14 @@ import yaml  # type: ignore[import-untyped]
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.geometry.transform import sample_rotation_batch
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.optimizer import CheckpointConfig, EarlyStoppingConfig, OptimizerConfig, train
+try:
+    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+    from temper_placer.losses.boundary import BoundaryLoss
+    from temper_placer.losses.overlap import OverlapLoss
+    from temper_placer.losses.wirelength import WirelengthLoss
+    from temper_placer.optimizer import CheckpointConfig, EarlyStoppingConfig, OptimizerConfig, train
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
 # Results directory
 RESULTS_DIR = Path("robustness_results")

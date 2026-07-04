@@ -373,24 +373,17 @@ def create_default_pipeline(
 
     This factory includes:
     1. Spectral Layout (Initial global placement)
-    2. Force Directed Layout (Refinement)
-    3. (Other heuristics to be added...)
+    2. (Other heuristics to be added...)
+
+    Note: Force-directed heuristics have been removed (JAX retirement, plan 2026-07-03-002).
     """
-    from temper_placer.heuristics.force_directed import (
-        ForceDirectedHeuristic,
-        ForceDirectedUnfoldingHeuristic,
-    )
     from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
 
     pipeline = HeuristicPipeline(conflict_strategy=conflict_strategy)
 
     # Priority: INITIALIZATION (-1)
-    # 1. Unfold first (topology)
-    pipeline.register(ForceDirectedUnfoldingHeuristic(iterations=200))
-    # 2. Spectral (global structure)
+    # Spectral (global structure)
     pipeline.register(SpectralPlacementHeuristic(confidence=0.1))
-    # 3. Force-directed (refinement)
-    pipeline.register(ForceDirectedHeuristic(confidence=0.2, iterations=50))
 
     # TODO: Add Hard, Structural, Organizational, Style heuristics
 
@@ -411,11 +404,9 @@ def create_priority_pipeline(
 
     Order matters! Power stage is placed first and marked fixed,
     so subsequent heuristics work around it.
+
+    Note: Force-directed heuristics have been removed (JAX retirement, plan 2026-07-03-002).
     """
-    from temper_placer.heuristics.force_directed import (
-        ForceDirectedHeuristic,
-        ForceDirectedUnfoldingHeuristic,
-    )
     from temper_placer.heuristics.power_stage import (
         DriverProximityHeuristic,
         PowerStageTemplateHeuristic,
@@ -433,8 +424,6 @@ def create_priority_pipeline(
     pipeline.register(DriverProximityHeuristic())
 
     # Phase 3-4: Standard heuristics for rest
-    pipeline.register(ForceDirectedUnfoldingHeuristic(iterations=200))
     pipeline.register(SpectralPlacementHeuristic(confidence=0.1))
-    pipeline.register(ForceDirectedHeuristic(confidence=0.2, iterations=50))
 
     return pipeline

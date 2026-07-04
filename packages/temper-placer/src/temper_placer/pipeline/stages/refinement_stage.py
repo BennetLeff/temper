@@ -16,7 +16,10 @@ class RefinementStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start_time = time.time()
         from temper_placer.core.state import PlacementState
-        from temper_placer.optimizer.legalization import resolve_overlaps_priority
+        try:
+            from temper_placer.optimizer.legalization import resolve_overlaps_priority
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
         from temper_placer.pipeline.iterator import PlaceRouteIterator
         from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
@@ -55,7 +58,10 @@ class RefinementStage:
         print(f"Starting iterative refinement (max {max_iterations} iterations)...")
 
         # U5: Routability gradient loss — created once, blended per iteration.
-        from temper_placer.losses.routability_gradient import RoutabilityGradientLoss
+        try:
+            from temper_placer.losses.routability_gradient import RoutabilityGradientLoss
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
         from temper_placer.router_v6.routability_aggregator import RoutabilityAggregator
 
         routability_loss = RoutabilityGradientLoss()
@@ -108,10 +114,13 @@ class RefinementStage:
             import jax
             import optax
 
-            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
+            try:
+                from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+                from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+                from temper_placer.losses.overlap import OverlapLoss
+                from temper_placer.losses.wirelength import WirelengthLoss
+            except ImportError:
+                pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
             from temper_placer.pipeline.feedback import RoutingFeedbackLoss
 
             heatmap = CongestionHeatmap.from_router(routing_res.router)
@@ -210,7 +219,10 @@ class RefinementStage:
                     break
                 params, opt_state, _ = step(params, opt_state)
                 if epoch % 50 == 0:
-                    from temper_placer.optimizer.legalization import clamp_to_bounds
+                    try:
+                        from temper_placer.optimizer.legalization import clamp_to_bounds
+                    except ImportError:
+                        pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
                     pos_np = np.array(params["positions"])
                     pos_np = clamp_to_bounds(pos_np,
                                              np.array([c.bounds[0] for c in netlist.components]),

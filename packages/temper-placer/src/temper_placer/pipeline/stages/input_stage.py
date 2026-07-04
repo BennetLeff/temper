@@ -65,7 +65,10 @@ class InputStage:
         # Enrich PCL constraints from design data
         if hasattr(state.constraints, "pcl_constraints"):
             try:
-                from temper_placer.losses.decoupling import auto_detect_decoupling_set
+                try:
+                    from temper_placer.losses.decoupling import auto_detect_decoupling_set
+                except ImportError:
+                    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
                 detections = auto_detect_decoupling_set(netlist)
                 for constraint in detections.to_constraints():

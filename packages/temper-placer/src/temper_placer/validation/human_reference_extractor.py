@@ -24,10 +24,13 @@ import jax.numpy as jnp
 import yaml
 
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import LossContext
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.wirelength import compute_total_hpwl
+try:
+    from temper_placer.losses.base import LossContext
+    from temper_placer.losses.boundary import BoundaryLoss
+    from temper_placer.losses.overlap import OverlapLoss
+    from temper_placer.losses.wirelength import compute_total_hpwl
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
 if TYPE_CHECKING:
     from temper_placer.io.kicad_parser import ParseResult

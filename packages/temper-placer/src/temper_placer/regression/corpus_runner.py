@@ -349,11 +349,14 @@ class CorpusRegressionRunner:
 
         try:
             # Build loss function
-            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.losses.boundary import BoundaryLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.regularization import SpreadLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
+            try:
+                from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+                from temper_placer.losses.boundary import BoundaryLoss
+                from temper_placer.losses.overlap import OverlapLoss
+                from temper_placer.losses.regularization import SpreadLoss
+                from temper_placer.losses.wirelength import WirelengthLoss
+            except ImportError:
+                pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
             weights = {
                 "overlap": 200.0,
@@ -379,9 +382,12 @@ class CorpusRegressionRunner:
 
             # Build optimizer config
             from temper_placer.heuristics import create_default_pipeline
-            from temper_placer.optimizer.config import OptimizerConfig
-            from temper_placer.optimizer.curriculum import create_default_phases
-            from temper_placer.optimizer.train import train_multiphase
+            try:
+                from temper_placer.optimizer.config import OptimizerConfig
+                from temper_placer.optimizer.curriculum import create_default_phases
+                from temper_placer.optimizer.train import train_multiphase
+            except ImportError:
+                pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
             pipeline = create_default_pipeline()
             rng_key = __import__("jax").random.PRNGKey(entry.seed)
@@ -465,7 +471,10 @@ class CorpusRegressionRunner:
             final_loss_val = float(result.final_loss)
 
             hpwl_val = 0.0
-            from temper_placer.losses.wirelength import compute_total_hpwl
+            try:
+                from temper_placer.losses.wirelength import compute_total_hpwl
+            except ImportError:
+                pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
             hpwl_val = float(compute_total_hpwl(result.final_state.positions, rotations, context))
 
             collected = {

@@ -19,7 +19,10 @@ if TYPE_CHECKING:
     from temper_placer.core.state import PlacementState
     from temper_placer.pipeline.orchestrator import PipelineState
 
-from temper_placer.losses.base import LossContext, LossFunction, LossResult
+try:
+    from temper_placer.losses.base import LossContext, LossFunction, LossResult
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
 
@@ -138,7 +141,10 @@ class MomentumDampedRoutingFeedbackLoss:
         """Compute congestion loss from the EWMA-blended grid."""
         from jax.scipy.ndimage import map_coordinates
 
-        from temper_placer.losses.base import LossResult
+        try:
+            from temper_placer.losses.base import LossResult
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
         gx = (positions[:, 0] - self.origin[0]) / self.cell_size
         gy = (positions[:, 1] - self.origin[1]) / self.cell_size

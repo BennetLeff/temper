@@ -22,8 +22,11 @@ import jax.numpy as jnp
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import LossContext
-from temper_placer.losses.wirelength import WirelengthLoss
+try:
+    from temper_placer.losses.base import LossContext
+    from temper_placer.losses.wirelength import WirelengthLoss
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
 
 def total_wirelength(
@@ -335,7 +338,10 @@ def congestion_score(
         Score in [0, 1] where 1.0 = evenly distributed demand,
         0.0 = severe congestion hotspots.
     """
-    from temper_placer.losses.congestion import compute_routing_demand
+    try:
+        from temper_placer.losses.congestion import compute_routing_demand
+    except ImportError:
+        pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
     board_bounds = board.get_relative_bounds_array()
     demand = compute_routing_demand(state.positions, context, grid_shape, board_bounds)

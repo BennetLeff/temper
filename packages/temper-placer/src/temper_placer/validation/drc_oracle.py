@@ -28,7 +28,10 @@ if TYPE_CHECKING:
     from temper_placer.validation.drc_types import ConstraintSet as DrcConstraintSet
     from temper_placer.validation.drc_types import Placement as DrcPlacement
 
-    from temper_placer.losses.base import LossContext
+    try:
+        from temper_placer.losses.base import LossContext
+    except ImportError:
+        pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
 try:
     import temper_drc_rs

@@ -17,11 +17,14 @@ class GeometricStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start_time = time.time()
         from temper_placer.core.state import PlacementState
-        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-        from temper_placer.losses.overlap import OverlapLoss
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.optimizer.legalization import (
+        try:
+            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+            from temper_placer.losses.overlap import OverlapLoss
+            from temper_placer.losses.wirelength import WirelengthLoss
+            from temper_placer.optimizer.legalization import (
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
             project_to_trust_region,
             resolve_overlaps_priority,
         )
@@ -74,7 +77,10 @@ class GeometricStage:
             if epoch % 10 == 0:
                 pos_np = np.array(params["positions"])
                 pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=max_movement_mm)
-                from temper_placer.optimizer.legalization import clamp_to_bounds, clamp_to_zones
+                try:
+                    from temper_placer.optimizer.legalization import clamp_to_bounds, clamp_to_zones
+                except ImportError:
+                    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
                 pos_np = clamp_to_bounds(pos_np,
                                          np.array([c.bounds[0] for c in netlist.components]),
                                          np.array([c.bounds[1] for c in netlist.components]),

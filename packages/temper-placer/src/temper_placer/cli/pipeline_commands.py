@@ -3,8 +3,8 @@ from pathlib import Path
 
 import click
 
-from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
-from temper_placer.pipeline.visualization import RichDashboard, TerminalProgress
+# Note: PipelineConfig, PipelineOrchestrator, PipelinePhase imported lazily below
+# (JAX retirement, plan 2026-07-03-002 U5 - these modules import from deleted losses/)
 
 
 @click.command()
@@ -39,6 +39,8 @@ def pipeline(
     routability_threshold: float,
 ):
     """Run the full placement pipeline."""
+    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+    from temper_placer.pipeline.visualization import RichDashboard, TerminalProgress
 
     config = PipelineConfig(
         input_pcb=Path(input_pcb),
@@ -102,6 +104,8 @@ def phase():
 @click.option("--output", "-o", type=click.Path(), help="Output JSON")
 def semantic(input_pcb: str, loops: str, output: str):
     """Run semantic extraction phase."""
+    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+
     config = PipelineConfig(
         input_pcb=Path(input_pcb),
         loops_yaml=Path(loops) if loops else None
@@ -131,6 +135,8 @@ def semantic(input_pcb: str, loops: str, output: str):
 @click.option("--output", "-o", type=click.Path(), help="Output JSON")
 def topological(input_pcb: str, constraints: str, output: str):
     """Run topological placement phase."""
+    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+
     config = PipelineConfig(
         input_pcb=Path(input_pcb),
         constraints_yaml=Path(constraints) if constraints else None
@@ -157,6 +163,8 @@ def topological(input_pcb: str, constraints: str, output: str):
 @click.option("--output", "-o", type=click.Path(), help="Output PCB")
 def geometric(input_pcb: str, epochs: int, seed: int, visualize: bool, output: str):
     """Run geometric optimization phase."""
+    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+
     config = PipelineConfig(
         input_pcb=Path(input_pcb),
         output_pcb=Path(output) if output else None,
@@ -190,6 +198,8 @@ def geometric(input_pcb: str, epochs: int, seed: int, visualize: bool, output: s
 @click.option("--output", "-o", type=click.Path(), help="Output report")
 def routing(input_pcb: str, _level: int, output: str):
     """Run routing verification phase."""
+    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
+
     # Note: 'level' is not yet used by the orchestrator
     config = PipelineConfig(
         input_pcb=Path(input_pcb)

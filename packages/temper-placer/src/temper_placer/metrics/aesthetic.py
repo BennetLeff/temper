@@ -10,7 +10,10 @@ from __future__ import annotations
 import numpy as np
 
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.aesthetic import get_prefix_groups
+try:
+    from temper_placer.losses.aesthetic import get_prefix_groups
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
 
 def compute_aesthetic_score(

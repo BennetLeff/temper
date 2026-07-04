@@ -25,19 +25,25 @@ from temper_placer.core.specification import PcbSpecification
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.reference_loader import infer_quality_config
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.clearance import ClearanceLoss
-from temper_placer.losses.component_loop_area import ComponentLoopAreaLoss, ComponentLoopConfig
-from temper_placer.losses.loop_area import LoopAreaLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.regularization import SpreadLoss
-from temper_placer.losses.thermal import ThermalLoss
-from temper_placer.losses.wirelength import WirelengthLoss
+try:
+    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
+    from temper_placer.losses.boundary import BoundaryLoss
+    from temper_placer.losses.clearance import ClearanceLoss
+    from temper_placer.losses.component_loop_area import ComponentLoopAreaLoss, ComponentLoopConfig
+    from temper_placer.losses.loop_area import LoopAreaLoss
+    from temper_placer.losses.overlap import OverlapLoss
+    from temper_placer.losses.regularization import SpreadLoss
+    from temper_placer.losses.thermal import ThermalLoss
+    from temper_placer.losses.wirelength import WirelengthLoss
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 from temper_placer.metrics.quality import compute_quality_report
-from temper_placer.optimizer.config import OptimizerConfig
-from temper_placer.optimizer.curriculum import create_default_phases
-from temper_placer.optimizer.train import train_multiphase
+try:
+    from temper_placer.optimizer.config import OptimizerConfig
+    from temper_placer.optimizer.curriculum import create_default_phases
+    from temper_placer.optimizer.train import train_multiphase
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 from temper_placer.pipeline.derivation import derive_constraints_from_spec
 
 
@@ -176,7 +182,10 @@ def run_physics_oracle(
     try:
         clearance_rules = []
         if threshold_mm > 0:
-            from temper_placer.losses.types import ClearanceRule
+            try:
+                from temper_placer.losses.types import ClearanceRule
+            except ImportError:
+                pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
             clearance_rules.append(
                 ClearanceRule(
@@ -447,15 +456,18 @@ def run_ab_diff(
     from temper_placer.core.specification import PcbSpecification
     from temper_placer.heuristics import create_default_pipeline
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-    from temper_placer.losses.boundary import BoundaryLoss
-    from temper_placer.losses.clearance import ClearanceLoss
-    from temper_placer.losses.overlap import OverlapLoss
-    from temper_placer.losses.regularization import SpreadLoss
-    from temper_placer.losses.wirelength import WirelengthLoss
-    from temper_placer.optimizer.config import OptimizerConfig
-    from temper_placer.optimizer.curriculum import create_default_phases
-    from temper_placer.optimizer.train import train_multiphase
+    try:
+        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+        from temper_placer.losses.boundary import BoundaryLoss
+        from temper_placer.losses.clearance import ClearanceLoss
+        from temper_placer.losses.overlap import OverlapLoss
+        from temper_placer.losses.regularization import SpreadLoss
+        from temper_placer.losses.wirelength import WirelengthLoss
+        from temper_placer.optimizer.config import OptimizerConfig
+        from temper_placer.optimizer.curriculum import create_default_phases
+        from temper_placer.optimizer.train import train_multiphase
+    except ImportError:
+        pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
     from temper_placer.pipeline.derivation import derive_constraints_from_spec
 
     if spec_path is None:

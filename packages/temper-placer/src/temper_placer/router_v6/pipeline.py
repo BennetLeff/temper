@@ -26,7 +26,6 @@ from temper_placer.validation.drc_fence import DRCFence, InvariantSpec
 from temper_placer.core.board import side_to_layer_name
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.placement.legalization import Legalizer
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
 from temper_placer.router_v6.channel_mapping import ChannelPath, map_topology_to_channels
@@ -448,27 +447,10 @@ class RouterV6Pipeline:
         if pcb_override is not None:
             pcb = pcb_override
 
-        # Stage 0.5: Legalization
-        if self.enable_legalization:
-            if self.verbose:
-                print("Stage 0.5: Checking and Legalizing Placement...")
-
-            legalizer = Legalizer(pcb)
-            # Check collisions before
-            if self.verbose:
-                collisions = legalizer.auditor.check_collisions()
-                print(f"  Found {len(collisions)} initial collisions")
-
-            if legalizer.legalize():
-                if self.verbose:
-                    print("  Legalization successful (0 overlaps)")
-            else:
-                if self.verbose:
-                    print("  Warning: Legalization did not fully converge (residual overlap)")
-
-        # Validate placement (Post-Legalization)
-        # Note: pcb.validate_placement checks for missing footprints etc, not necessarily geometric overlap.
-        # But we assume Legalizer updated pcb.components in-place.
+        # Note: Placement legalization is handled by the CP-SAT placer or
+        # by the optimizer. Router V6 relies on the input placement being valid.
+        if self.verbose:
+            print("Stage 0.5: Validating placement...")
         errors = pcb.validate_placement()
         if errors:
             raise ValueError(f"PCB validation failed: {errors}")

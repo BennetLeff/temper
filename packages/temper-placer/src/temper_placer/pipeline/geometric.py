@@ -15,13 +15,16 @@ import numpy as np
 import optax
 
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.loop_area import LoopAreaLoss, create_temper_loop_constraints
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.thermal import ThermalLoss, create_temper_thermal_constraints
-from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.optimizer.legalization import (
+try:
+    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+    from temper_placer.losses.boundary import BoundaryLoss
+    from temper_placer.losses.loop_area import LoopAreaLoss, create_temper_loop_constraints
+    from temper_placer.losses.overlap import OverlapLoss
+    from temper_placer.losses.thermal import ThermalLoss, create_temper_thermal_constraints
+    from temper_placer.losses.wirelength import WirelengthLoss
+    from temper_placer.optimizer.legalization import (
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
     clamp_to_bounds,
     clamp_to_zones,
     project_to_trust_region,

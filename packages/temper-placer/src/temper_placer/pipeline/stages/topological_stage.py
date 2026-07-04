@@ -14,7 +14,10 @@ class TopologicalStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
-        from temper_placer.optimizer.legalization import legalize_zone_aware
+        try:
+            from temper_placer.optimizer.legalization import legalize_zone_aware
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
         from temper_placer.placer.deterministic import PlacementResult
 
         print("Running topological placement...")

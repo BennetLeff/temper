@@ -297,7 +297,10 @@ class ConstraintCollection:
         logger = logging.getLogger(__name__)
 
         # 1. Decoupling detection
-        from temper_placer.losses.decoupling import auto_detect_decoupling
+        try:
+            from temper_placer.losses.decoupling import auto_detect_decoupling
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
         rules = auto_detect_decoupling(netlist)
         if rules:

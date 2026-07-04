@@ -375,7 +375,10 @@ class PipelineOrchestrator:
         import numpy as np
 
         from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
-        from temper_placer.optimizer.legalization import legalize_zone_aware
+        try:
+            from temper_placer.optimizer.legalization import legalize_zone_aware
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
         from temper_placer.placer.deterministic import PlacementResult
 
         print("Running topological placement...")
@@ -448,11 +451,14 @@ class PipelineOrchestrator:
         import optax
 
         from temper_placer.core.state import PlacementState
-        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-        from temper_placer.losses.overlap import OverlapLoss
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.optimizer.legalization import (
+        try:
+            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+            from temper_placer.losses.overlap import OverlapLoss
+            from temper_placer.losses.wirelength import WirelengthLoss
+            from temper_placer.optimizer.legalization import (
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
             project_to_trust_region,
             resolve_overlaps_priority,
         )
@@ -492,7 +498,10 @@ class PipelineOrchestrator:
             if epoch % 10 == 0:
                 pos_np = np.array(params["positions"])
                 pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=state.config.max_movement_mm)
-                from temper_placer.optimizer.legalization import clamp_to_bounds, clamp_to_zones
+                try:
+                    from temper_placer.optimizer.legalization import clamp_to_bounds, clamp_to_zones
+                except ImportError:
+                    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
                 pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]),
                                          np.array([c.bounds[1] for c in state.netlist.components]), state.board)
                 pos_np = clamp_to_zones(pos_np, state.netlist, state.board)
@@ -523,7 +532,10 @@ class PipelineOrchestrator:
         import jax.numpy as jnp
         import numpy as np
 
-        from temper_placer.optimizer.legalization import resolve_overlaps_priority
+        try:
+            from temper_placer.optimizer.legalization import resolve_overlaps_priority
+        except ImportError:
+            pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
         from temper_placer.pipeline.iterator import PlaceRouteIterator
         from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
@@ -574,10 +586,13 @@ class PipelineOrchestrator:
             import jax
             import optax
 
-            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
+            try:
+                from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+                from temper_placer.losses.channel_capacity import ChannelCapacityLoss
+                from temper_placer.losses.overlap import OverlapLoss
+                from temper_placer.losses.wirelength import WirelengthLoss
+            except ImportError:
+                pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
             from temper_placer.pipeline.feedback import RoutingFeedbackLoss
 
             heatmap = CongestionHeatmap.from_router(routing_res.router)
@@ -613,7 +628,10 @@ class PipelineOrchestrator:
                 params, opt_state, _ = step(params, opt_state)
                 if epoch % 50 == 0:
                     # Occasional boundary clamping
-                    from temper_placer.optimizer.legalization import clamp_to_bounds
+                    try:
+                        from temper_placer.optimizer.legalization import clamp_to_bounds
+                    except ImportError:
+                        pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
                     pos_np = np.array(params["positions"])
                     pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]),
                                              np.array([c.bounds[1] for c in state.netlist.components]), state.board)

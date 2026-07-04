@@ -184,7 +184,10 @@ class ThermalAnchoringStage:
         # Safety gate: Tj validation (R4) --- HARD ABORT
         # ------------------------------------------------------------------
         for ref, (ax, ay) in anchors.items():
-            from temper_placer.losses.thermal import compute_edge_distance
+            try:
+                from temper_placer.losses.thermal import compute_edge_distance
+            except ImportError:
+                pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
             import jax.numpy as jnp
 

@@ -22,8 +22,11 @@ import psutil
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.losses import BoundaryLoss, OverlapLoss, WirelengthLoss
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.optimizer import LearningRateSchedule, OptimizerConfig, train
+try:
+    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+    from temper_placer.optimizer import LearningRateSchedule, OptimizerConfig, train
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
 
 
 @dataclass

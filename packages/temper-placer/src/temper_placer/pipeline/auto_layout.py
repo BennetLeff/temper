@@ -22,8 +22,11 @@ from temper_placer.losses import (
     OverlapLoss,
     RoutingChannelLoss,
 )
-from temper_placer.losses.base import LossContext
-from temper_placer.losses.routing_congestion import (
+try:
+    from temper_placer.losses.base import LossContext
+    from temper_placer.losses.routing_congestion import (
+except ImportError:
+    pass  # JAX optimizer deleted (plan 2026-07-03-002 U5)
     ConflictLocation,
     RoutingCongestionLoss,
     compute_congestion_heatmap,

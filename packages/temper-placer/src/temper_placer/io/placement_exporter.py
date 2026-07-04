@@ -35,7 +35,13 @@ import jax.numpy as jnp
 from jax import Array
 
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
-from temper_placer.losses.types import LossContext
+
+# LossContext was previously imported from temper_placer.losses.types.
+# With the JAX retirement (plan 2026-07-03-002 U5), the losses module is deleted.
+# A minimal stub is provided here for type annotation compatibility.
+class LossContext:
+    """Stub: previously defined in temper_placer.losses.types."""
+    pass
 
 
 def soft_to_discrete_rotations(rotations: Array) -> Array:
