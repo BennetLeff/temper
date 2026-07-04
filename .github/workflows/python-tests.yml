@@ -256,13 +256,23 @@ jobs:
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
 
-      - name: Run invariant tests (router_v6, io, deterministic, losses)
+      - name: Run invariant tests (router_v6, io, deterministic)
         working-directory: packages/temper-placer
         run: |
-          uv run pytest tests/router_v6/ tests/io/ tests/deterministic/ tests/losses/ \
+          uv run pytest tests/router_v6/ tests/io/ tests/deterministic/ \
             -v --tb=short -p no:cacheprovider --maxfail=10 \
             -m "not slow"
         continue-on-error: true
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
+          JAX_PLATFORM_NAME: cpu
+
+      - name: Run CP-SAT placer tests
+        working-directory: packages/temper-placer
+        run: |
+          uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py \
+            tests/cli/test_cp_sat_flag.py \
+            -v --tb=short -p no:cacheprovider --maxfail=10
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
           JAX_PLATFORM_NAME: cpu
