@@ -43,36 +43,35 @@ class TestCpSatFlag:
             "--cp-sat-grid-scale option not found"
         )
 
-    def test_default_placer_is_jax(self, runner: CliRunner) -> None:
-        """Verify --placer defaults to 'jax' (backward compatibility)."""
+    def test_default_placer_is_cp_sat(self, runner: CliRunner) -> None:
+        """Verify CP-SAT is the default placer (JAX retired, only jax-deprecated remains)."""
         result = runner.invoke(main, ["optimize", "--help"])
         assert result.exit_code == 0
-        # Click shows default in help text
-        assert "default: jax" in result.output, (
-            f"Expected 'default: jax' in help output. Got:\n{result.output}"
+        assert "jax-deprecated" in result.output, (
+            f"Expected jax-deprecated in help output. Got:\n{result.output}"
+        )
+        assert "default: jax" not in result.output, (
+            f"Expected no 'default: jax' in help output. Got:\n{result.output}"
         )
 
-    def test_placer_accepts_jax_value(self, runner: CliRunner) -> None:
-        """Verify --placer jax is accepted (no crash on flag parsing)."""
-        # --placer jax with minimal args — will fail on requirements
-        # (missing -c and -o), but should parse the --placer flag correctly
+    def test_jax_deprecated_rejected(self, runner: CliRunner) -> None:
+        """Verify --placer jax-deprecated is a valid flag (fails on missing input, not on flag)."""
         result = runner.invoke(main, [
             "optimize",
-            "--placer", "jax",
+            "--placer", "jax-deprecated",
             "nonexistent.kicad_pcb",
         ])
-        # Should fail on input file existence, not on --placer flag parsing
+        # Flag is valid; failure is on input file, not on --placer parsing
         assert result.exit_code != 0
         assert "nonexistent" in result.output
 
-    def test_placer_accepts_cp_sat_value(self, runner: CliRunner) -> None:
-        """Verify --placer cp-sat is accepted (no crash on flag parsing)."""
+    def test_cp_sat_default_placer(self, runner: CliRunner) -> None:
+        """Verify CP-SAT runs by default (no --placer flag needed)."""
         result = runner.invoke(main, [
             "optimize",
-            "--placer", "cp-sat",
             "nonexistent.kicad_pcb",
         ])
-        # Should fail on input file existence, not on --placer flag parsing
+        # Should fail on input file existence, not on missing --placer flag
         assert result.exit_code != 0
         assert "nonexistent" in result.output
 
