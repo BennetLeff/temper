@@ -47,6 +47,8 @@ class SolveContext:
     assumption_vars: list[cp_model.IntVar] = field(default_factory=list)
     scale_factor: int = 10
     objective_terms: list[cp_model.IntVar] = field(default_factory=list)
+    board_w_mm: float = 0.0
+    board_h_mm: float = 0.0
 
 
 def _to_units(mm: float, scale: int) -> int:
@@ -80,7 +82,11 @@ def build_cp_sat_model(
         Caller adds side constraints via the helper functions, then calls solve.
     """
     model = cp_model.CpModel()
-    ctx = SolveContext(scale_factor=scale_factor)
+    ctx = SolveContext(
+        scale_factor=scale_factor,
+        board_w_mm=board_w_mm,
+        board_h_mm=board_h_mm,
+    )
 
     board_w = _to_units(board_w_mm, scale_factor)
     board_h = _to_units(board_h_mm, scale_factor)
@@ -173,23 +179,20 @@ def add_edge_anchoring(
         max_dist_mm: Maximum distance from edge in mm.
         edge: One of 'left', 'right', 'bottom', 'top'.
     """
+    # @req(2026-07-03-002, R4): Thermal-edge anchoring for Q1/Q2
     max_d = _to_units(max_dist_mm, ctx.scale_factor)
+    board_w = _to_units(ctx.board_w_mm, ctx.scale_factor)
+    board_h = _to_units(ctx.board_h_mm, ctx.scale_factor)
 
     for ref in components:
         if edge == "left":
             model.Add(ctx.x_start[ref] <= max_d)
         elif edge == "right":
-            # The board dimensions aren't stored in ctx; caller must handle
-            # by adding a constraint with the board width passed separately.
-            raise NotImplementedError(
-                "Right-edge anchoring requires board width; pass via ctx or call directly."
-            )
+            model.Add(ctx.x_start[ref] >= board_w - max_d - ctx.x_size[ref])
         elif edge == "bottom":
             model.Add(ctx.y_start[ref] <= max_d)
         elif edge == "top":
-            raise NotImplementedError(
-                "Top-edge anchoring requires board height; pass via ctx or call directly."
-            )
+            model.Add(ctx.y_start[ref] >= board_h - max_d - ctx.y_size[ref])
         else:
             raise ValueError(f"Unknown edge: {edge}")
 

@@ -19,6 +19,7 @@ from temper_placer.pcl.constraints import (
     ConstraintTier,
     EdgeType,
     EnclosingConstraint,
+    LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
 )
@@ -62,6 +63,31 @@ def three_components() -> dict:
 def one_component() -> dict:
     """Single 10×10 mm component for edge-anchoring tests."""
     return {"Q1": {"width_mm": 10.0, "height_mm": 10.0}}
+
+
+@pytest.fixture
+def three_loop_components() -> dict:
+    """Three 8×8 mm components that form a test loop."""
+    return {
+        "L1": {"width_mm": 8.0, "height_mm": 8.0},
+        "L2": {"width_mm": 8.0, "height_mm": 8.0},
+        "L3": {"width_mm": 8.0, "height_mm": 8.0},
+    }
+
+
+class _FakeLoopResolver:
+    """Minimal stub that provides ``loop_components`` for tests."""
+    def __init__(self, mapping: dict[str, list[str]]):
+        self.loop_components = mapping
+
+
+@pytest.fixture
+def igbt_pair() -> dict:
+    """Q1/Q2 as TO-247 IGBTs (~16×21 mm) for thermal-edge anchoring tests."""
+    return {
+        "Q1": {"width_mm": 16.0, "height_mm": 21.0},
+        "Q2": {"width_mm": 16.0, "height_mm": 21.0},
+    }
 
 
 @pytest.fixture
@@ -379,6 +405,146 @@ class TestAdjacentConstraint:
 
 
 # ======================================================================
+# Tests: LoopAreaConstraint
+# ======================================================================
+
+
+class TestLoopAreaConstraint:
+    """LoopAreaConstraint → soft wirelength-term addition."""
+
+    def test_compile_and_solve(self, three_loop_components, small_board):
+        """A loop-area constraint should compile and solve without error."""
+        bw, bh = small_board
+        model, ctx = build_cp_sat_model(three_loop_components, bw, bh)
+
+        constraint = LoopAreaConstraint(
+            loop_name="test_loop",
+            max_area_mm2=500.0,
+            tier=ConstraintTier.STRONG,
+            because="Minimize test loop for unit test validation",
+        )
+
+        netlist = _FakeLoopResolver(
+            {"test_loop": ["L1", "L2", "L3"]}
+        )
+        coll = ConstraintCollection(constraints=[constraint])
+        compile_pcl_to_cp_sat(coll, three_loop_components, model, ctx, netlist=netlist)
+
+        result = _run(model, ctx)
+        assert result.status in (
+            SolveStatus.OPTIMAL,
+            SolveStatus.FEASIBLE,
+        ), f"Solve failed: {result.status}"
+
+    def test_assumption_var_collected(self, three_loop_components, small_board):
+        """A loop-area constraint should produce an assumption var."""
+        bw, bh = small_board
+        model, ctx = build_cp_sat_model(three_loop_components, bw, bh)
+
+        constraint = LoopAreaConstraint(
+            loop_name="test_loop",
+            max_area_mm2=500.0,
+            tier=ConstraintTier.STRONG,
+            because="Assumption test for loop area",
+        )
+
+        netlist = _FakeLoopResolver(
+            {"test_loop": ["L1", "L2", "L3"]}
+        )
+        coll = ConstraintCollection(constraints=[constraint])
+        compile_pcl_to_cp_sat(coll, three_loop_components, model, ctx, netlist=netlist)
+
+        assert len(ctx.assumption_vars) == 1
+        assert ctx.assumption_vars[0].Name().startswith("assump_loop_")
+
+    def test_no_netlist_no_error(self, three_loop_components, small_board):
+        """A loop-area constraint without a netlist should solve without error."""
+        bw, bh = small_board
+        model, ctx = build_cp_sat_model(three_loop_components, bw, bh)
+
+        constraint = LoopAreaConstraint(
+            loop_name="test_loop",
+            max_area_mm2=500.0,
+            tier=ConstraintTier.STRONG,
+            because="No-netlist test for loop area",
+        )
+
+        coll = ConstraintCollection(constraints=[constraint])
+        compile_pcl_to_cp_sat(coll, three_loop_components, model, ctx)
+
+        result = _run(model, ctx)
+        assert result.status in (
+            SolveStatus.OPTIMAL,
+            SolveStatus.FEASIBLE,
+        ), f"Solve failed: {result.status}"
+
+        # Assumption var is still created even without loop component resolution
+        assert len(ctx.assumption_vars) == 1
+
+    def test_loop_components_closer_than_baseline(
+        self, three_loop_components, small_board,
+    ):
+        """Loop components should be closer together with the loop-area term."""
+        bw, bh = small_board
+
+        # --- Baseline: solve with NoOverlap2D only (no loop-area term) ---
+        model_base, ctx_base = build_cp_sat_model(three_loop_components, bw, bh)
+        result_base = _run(model_base, ctx_base)
+        assert result_base.status in (
+            SolveStatus.OPTIMAL,
+            SolveStatus.FEASIBLE,
+        ), f"Baseline solve failed: {result_base.status}"
+
+        def _loop_perimeter(result) -> float:
+            """Sum of Manhattan distances between consecutive loop components."""
+            refs = ["L1", "L2", "L3"]
+            perimeter = 0.0
+            for i in range(len(refs)):
+                a = refs[i]
+                b = refs[(i + 1) % len(refs)]
+                x_a, y_a = result.positions[a]
+                x_b, y_b = result.positions[b]
+                perimeter += abs(x_a - x_b) + abs(y_a - y_b)
+            return perimeter
+
+        baseline_perimeter = _loop_perimeter(result_base)
+
+        # --- With loop-area constraint ---
+        model_loop, ctx_loop = build_cp_sat_model(three_loop_components, bw, bh)
+
+        constraint = LoopAreaConstraint(
+            loop_name="test_loop",
+            max_area_mm2=500.0,
+            tier=ConstraintTier.STRONG,
+            because="Round-trip test for loop proximity",
+        )
+
+        netlist = _FakeLoopResolver(
+            {"test_loop": ["L1", "L2", "L3"]}
+        )
+        coll = ConstraintCollection(constraints=[constraint])
+        compile_pcl_to_cp_sat(
+            coll, three_loop_components, model_loop, ctx_loop, netlist=netlist,
+        )
+
+        result_loop = _run(model_loop, ctx_loop)
+        assert result_loop.status in (
+            SolveStatus.OPTIMAL,
+            SolveStatus.FEASIBLE,
+        ), f"Loop-area solve failed: {result_loop.status}"
+
+        loop_perimeter = _loop_perimeter(result_loop)
+
+        # The loop-area term should reduce the Manhattan perimeter.
+        # With only 3 components on a 100×100 board the baseline may place
+        # them far apart; the loop term should pull them together.
+        assert loop_perimeter <= baseline_perimeter + 0.5, (
+            f"Loop perimeter {loop_perimeter:.1f}mm > baseline "
+            f"{baseline_perimeter:.1f}mm (loop ought to be closer)"
+        )
+
+
+# ======================================================================
 # Tests: unsupported types
 # ======================================================================
 
@@ -452,12 +618,11 @@ class TestUnsupportedConstraints:
         )
 
     def test_unsupported_types_defined(self):
-        """UNSUPPORTED_TYPES should cover the 4 deferred types."""
+        """UNSUPPORTED_TYPES should cover the 3 deferred types (LOOP_AREA removed)."""
         from temper_placer.pcl.constraints import ConstraintType
 
         expected = {
             ConstraintType.ALIGNED,
-            ConstraintType.LOOP_AREA,
             ConstraintType.ANCHORED,
             ConstraintType.KEEPOUT,
         }
@@ -688,6 +853,70 @@ class TestRoundtrip:
             f"Roundtrip: adjacency span {span:.2f}mm > 5.0mm"
         )
 
+    # @req(2026-07-03-002, R4): Thermal-edge anchoring for Q1/Q2
+    def test_roundtrip_thermal_edge_anchoring(self, igbt_pair, small_board):
+        """Encode OnSideConstraint for Q1/Q2 at top edge, solve, verify anchoring.
+
+        U2: Thermal-edge anchoring for Q1/Q2 — confirms CP-SAT encoder compiles
+        the OnSideConstraint for the top edge and places components within the
+        specified max_distance_mm of the board top edge.
+        """
+        bw, bh = small_board  # 100×100 mm board
+        model, ctx = build_cp_sat_model(igbt_pair, bw, bh)
+
+        constraint = OnSideConstraint(
+            components=["Q1", "Q2"],
+            side=BoardSide.TOP,
+            edge=EdgeType.FLUSH,
+            max_distance_mm=5.0,
+            tier=ConstraintTier.HARD,
+            because="TO-247 packages at top edge for external heatsink access",
+        )
+
+        coll = ConstraintCollection(constraints=[constraint])
+        compile_pcl_to_cp_sat(coll, igbt_pair, model, ctx)
+
+        result = _run(model, ctx, timeout_s=15.0)
+        assert result.status in (
+            SolveStatus.OPTIMAL,
+            SolveStatus.FEASIBLE,
+        ), f"Solve failed: {result.status}"
+
+        board_h = 100.0
+        for ref in ("Q1", "Q2"):
+            x, y = result.positions[ref]
+            h = igbt_pair[ref]["height_mm"]
+            # The top edge of the component (y + h) must be within 5mm of
+            # the board top edge (board_h). So: y + h >= board_h - 5.0.
+            top_edge_of_component = y + h
+            assert top_edge_of_component >= board_h - 5.0 - 0.1, (
+                f"{ref} top edge {top_edge_of_component:.1f}mm "
+                f"< {board_h - 5.0}mm (board top - max_dist)"
+            )
+            # Also verify the component is on the board.
+            assert y >= 0.0 - 0.1, f"{ref} y={y:.1f} < 0 (off board)"
+
+    def test_roundtrip_on_side_top_assumption_var(self, igbt_pair, small_board):
+        """OnSideConstraint for top edge should produce an assumption var."""
+        bw, bh = small_board
+        model, ctx = build_cp_sat_model(igbt_pair, bw, bh)
+
+        constraint = OnSideConstraint(
+            components=["Q1", "Q2"],
+            side=BoardSide.TOP,
+            edge=EdgeType.FLUSH,
+            max_distance_mm=5.0,
+            tier=ConstraintTier.HARD,
+            because="Assumption var test for top-edge anchoring",
+        )
+
+        coll = ConstraintCollection(constraints=[constraint])
+        compile_pcl_to_cp_sat(coll, igbt_pair, model, ctx)
+
+        # Verify an assumption var was created.
+        assert len(ctx.assumption_vars) == 1
+        assert ctx.assumption_vars[0].Name().startswith("assump_side_")
+
 
 # ======================================================================
 # Tests: TYPE_HANDLERS dispatch table
@@ -706,6 +935,7 @@ class TestTypeHandlers:
             ConstraintType.ENCLOSING,
             ConstraintType.ON_SIDE,
             ConstraintType.ADJACENT,
+            ConstraintType.LOOP_AREA,
         }
         registered = set(TYPE_HANDLERS.keys())
         assert supported == registered, (

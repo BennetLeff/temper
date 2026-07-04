@@ -8,9 +8,10 @@ Supported constraint types (v1):
     - EnclosingConstraint  → add_region_membership
     - OnSideConstraint     → add_edge_anchoring
     - AdjacentConstraint   → add_proximity
+    - LoopAreaConstraint   → soft wirelength-term (Manhattan distance per pair)
 
 Deferred (logged as warnings, skipped):
-    - AlignedConstraint, LoopAreaConstraint, AnchoredConstraint, KeepoutConstraint
+    - AlignedConstraint, AnchoredConstraint, KeepoutConstraint
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ from temper_placer.pcl.constraints import (
     BoardSide,
     ConstraintType,
     EnclosingConstraint,
+    LoopAreaConstraint,
     OnSideConstraint,
     SeparatedConstraint,
 )
@@ -218,6 +220,99 @@ def _encode_adjacent(
     return [assumption]
 
 
+# @req(2026-07-03-002, R5): Loop-area honoring in CP-SAT encoder
+def _encode_loop_area(
+    constraint: LoopAreaConstraint,
+    components: dict,
+    model: cp_model.CpModel,
+    ctx: SolveContext,
+    board: Any = None,  # noqa: ARG001
+    netlist: Any = None,
+) -> list[cp_model.IntVar]:
+    """Encode a ``LoopAreaConstraint`` as a soft wirelength-term addition.
+
+    For each consecutive pair of components in the loop, adds a Manhattan
+    distance term to the objective, minimising the loop's wirelength span.
+
+    The v1 encoding is a soft objective term (not a hard area bound).  Hard
+    area bounding (e.g. max 500 mm²) is deferred to a follow-up.
+
+    Loop components are resolved from ``netlist.loop_components`` (a dict
+    mapping loop_name → list of component refs) if available; otherwise the
+    handler is a no-op and logs a debug message.
+    """
+    assumption = model.NewBoolVar(f"assump_{constraint.id}")
+    ctx.assumption_vars.append(assumption)
+
+    # Resolve loop_name → component refs via netlist if available
+    loop_refs: list[str] = []
+    if netlist is not None and hasattr(netlist, "loop_components"):
+        loop_refs = netlist.loop_components.get(constraint.loop_name, [])
+
+    if not loop_refs:
+        logger.debug(
+            "LoopAreaConstraint '%s': no loop components resolved for "
+            "loop_name='%s' — skipping distance-term addition",
+            constraint.id,
+            constraint.loop_name,
+        )
+        return [assumption]
+
+    if len(loop_refs) < 2:
+        logger.debug(
+            "LoopAreaConstraint '%s': loop '%s' has <2 components — "
+            "skipping distance-term addition",
+            constraint.id,
+            constraint.loop_name,
+        )
+        return [assumption]
+
+    # Compute board bounds from component sizes for the IntVar domains
+    if ctx.x_size:
+        board_w_units = max(ctx.x_size[r] for r in ctx.x_size) * 4
+        board_h_units = max(ctx.y_size[r] for r in ctx.y_size) * 4
+    else:
+        board_w_units = 1000
+        board_h_units = 1000
+
+    # For each pair of consecutive components (closing the loop), add a
+    # Manhattan distance term — same pattern as add_soft_wirelength_objective.
+    n = len(loop_refs)
+    for i in range(n):
+        a = loop_refs[i]
+        b = loop_refs[(i + 1) % n]
+
+        if a not in ctx.x_start or b not in ctx.x_start:
+            logger.debug(
+                "LoopAreaConstraint '%s': component '%s' or '%s' not in "
+                "model — skipping pair",
+                constraint.id, a, b,
+            )
+            continue
+
+        dx = model.NewIntVar(0, board_w_units, f"loop_dx_{a}_{b}")
+        dy = model.NewIntVar(0, board_h_units, f"loop_dy_{a}_{b}")
+
+        cx_a = ctx.x_start[a] + ctx.x_size[a] // 2
+        cx_b = ctx.x_start[b] + ctx.x_size[b] // 2
+        cy_a = ctx.y_start[a] + ctx.y_size[a] // 2
+        cy_b = ctx.y_start[b] + ctx.y_size[b] // 2
+
+        model.Add(dx >= cx_a - cx_b)
+        model.Add(dx >= cx_b - cx_a)
+        model.Add(dy >= cy_a - cy_b)
+        model.Add(dy >= cy_b - cy_a)
+
+        ctx.objective_terms.append(dx)
+        ctx.objective_terms.append(dy)
+
+    # Activate the objective if we added terms
+    if ctx.objective_terms:
+        model.Minimize(sum(ctx.objective_terms))
+
+    return [assumption]
+
+
 # ---------------------------------------------------------------------------
 # Dispatch table
 # ---------------------------------------------------------------------------
@@ -227,11 +322,11 @@ TYPE_HANDLERS: dict[ConstraintType, Callable] = {
     ConstraintType.ENCLOSING: _encode_enclosing,
     ConstraintType.ON_SIDE: _encode_on_side,
     ConstraintType.ADJACENT: _encode_adjacent,
+    ConstraintType.LOOP_AREA: _encode_loop_area,
 }
 
 UNSUPPORTED_TYPES: frozenset[ConstraintType] = frozenset({
     ConstraintType.ALIGNED,
-    ConstraintType.LOOP_AREA,
     ConstraintType.ANCHORED,
     ConstraintType.KEEPOUT,
 })
@@ -255,7 +350,7 @@ def compile_pcl_to_cp_sat(
     For each constraint in the collection the encoder looks up the
     registered handler in ``TYPE_HANDLERS`` by constraint type.  Supported
     types compile to CP-SAT model constraints; unsupported types
-    (ALIGNED, LOOP_AREA, ANCHORED, KEEPOUT) log a warning and are skipped.
+    (ALIGNED, ANCHORED, KEEPOUT) log a warning and are skipped.
 
     Each handler creates an assumption Boolean variable, appends it to the
     model, and records it in ``ctx.assumption_vars`` for use by U7 UNSAT
@@ -302,7 +397,15 @@ def compile_pcl_to_cp_sat(
             continue
 
         try:
-            handler(constraint, components, model, ctx, board=board)
+            # Thread netlist through to handlers that need it
+            # (currently only _encode_loop_area).
+            if constraint.constraint_type == ConstraintType.LOOP_AREA:
+                handler(
+                    constraint, components, model, ctx,
+                    board=board, netlist=netlist,
+                )
+            else:
+                handler(constraint, components, model, ctx, board=board)
         except Exception:
             logger.exception(
                 "Failed to encode constraint '%s' (type=%s), skipping. "
