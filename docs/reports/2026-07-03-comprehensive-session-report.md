@@ -21,14 +21,14 @@ brainstorming, calendar-gate planning, partial implementation, and CI cleanup.
 | 1 | Worktree setup | ce-worktree | Branch `feat/cp-sat-feasibility-first-placer` from `main` |
 | 2 | Plan review | ce-doc-review | 5 personas, 20 findings, 11 fixes applied |
 | 3 | Implementation | ce-work | U0-U8 completed, 86 tests passing |
-| 4 | Parity testing | — | Feasibility 0.1s, with-objective 60s, 652/652 audit |
+| 4 | Feasibility validation | — | Feasibility 0.1s, with-objective 60s, 652/652 audit |
 | 5 | Report | — | Implementation report with feasibility validation |
 | 6 | Compound | ce-compound | 3 learnings documented in `docs/solutions/` |
 | 7 | Refresh | ce-compound-refresh | C-CAP doc marked `superseded` |
 | 8 | Brainstorm | ce-brainstorm | Calendar-gate JAX retirement requirements (23 review fixes) |
 | 9 | Doc review | ce-doc-review | 23 findings, 23 fixes applied |
 | 10 | Plan | ce-plan | Calendar-gate implementation plan (6 units) |
-| 11 | Implementation | ce-work | U1-U5 (frozen receipt, quality gaps, parity retirement, JAX deletion) |
+| 11 | Implementation | ce-work | U1-U5 (feasibility evidence, quality gaps, parity retirement, JAX deletion) |
 | 12 | CI fix | — | Removed `tests/losses/` from CI, added CP-SAT test step |
 
 ## Deliverables
@@ -76,7 +76,7 @@ brainstorming, calendar-gate planning, partial implementation, and CI cleanup.
 | `docs/solutions/architecture-patterns/alternating-projections-...md` | +12 | C-CAP marked `superseded` |
 | `docs/brainstorms/...calendar-gate-jax-retirement-requirements.md` | 200 | Calendar-gate requirements (23 review fixes) |
 | `docs/plans/...calendar-gate-jax-retirement-plan.md` | 240 | Calendar-gate implementation plan (6 units) |
-| `docs/evidence/cp-sat-jax-parity-2026-07-03.md` | 80 | Frozen parity receipt |
+| `docs/evidence/cp-sat-feasibility-evidence-2026-07-03.md` | 80 | CP-SAT-only feasibility evidence (no JAX comparison — per brainstorm skip-parity decision) |
 | `docs/reports/...comprehensive-session-report.md` | — | This report |
 
 ## Review Findings Summary
@@ -101,14 +101,14 @@ brainstorming, calendar-gate planning, partial implementation, and CI cleanup.
 
 ### Requirements Review (ce-doc-review, round 2)
 
-5 personas reviewed the calendar-gate requirements doc. 24 findings surfaced; 23 applied:
+5 personas reviewed the calendar-gate requirements doc. 24 findings surfaced; 22 applied, 1 skipped, 1 deferred:
 
 | # | Severity | Finding | Fix |
 |---|----------|---------|-----|
 | 1 | P0 | Calendar gate replaces falsifiable verdict with unfalsifiable date | Skipped (user preference) |
 | 2 | P1 | `jax-deprecated` flag can't work after optimizer deleted | Flag → no-op deprecation warning |
 | 3 | P1 | Feasibility conflated with quality (652/652 ≠ good placement) | T1/T2 gate tiers separated |
-| 4 | P1 | No head-to-head receipt for future maintainers | Frozen parity receipt added |
+| 4 | P1 | No head-to-head receipt for future maintainers | CP-SAT feasibility evidence doc added (CP-SAT-only, not a comparison — no JAX baseline was run, per the brainstorm's skip-parity decision) |
 | 5 | P1 | R12 corpus confidence undefined | Moved to deferred |
 | 6 | P1 | Calendar gate recreates deferral surface | Sunset decision at deadline |
 | 7 | P1 | Origin traceability broken | `origin:` + Deviations from Origin section |

@@ -1,8 +1,12 @@
-# CP-SAT vs JAX Parity Receipt (Frozen)
+# CP-SAT Feasibility Evidence
 
 **Date:** 2026-07-03
-**Produced by:** U1 — Frozen Parity Receipt (before quality-gap closure)
-**Status:** Evidence artifact — not a live CI gate
+**Produced by:** U1 — Feasibility evidence (before quality-gap closure)
+**Status:** Documentation artifact — not a live CI gate
+**Note:** This doc records CP-SAT-only performance data. No JAX baseline was
+run — the brainstorm explicitly decided to skip parity comparison (calendar-gate
+requirements doc, ce-doc-review round 2, finding #1: skipped). This is a
+feasibility artifact, not a parity receipt.
 
 ## CP-SAT Placements
 
@@ -61,7 +65,7 @@ The structural argument for retirement carries the decision instead:
   were computed because the `score_placement()` oracle adapter was not invoked
   on the CP-SAT output during parity gathering.  The adapter exists and works
   (8 passing tests in `test_external_oracle.py`), but was not wired into the
-  parity receipt pipeline.
+  CP-SAT evidence doc.
 - No JAX baseline was produced because the JAX pipeline was not invoked.
 
 ## Future Maintainer Notes
