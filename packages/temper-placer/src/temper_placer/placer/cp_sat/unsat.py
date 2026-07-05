@@ -187,6 +187,7 @@ def _refine_mus(
 
     working_set = list(proto_indices)
     necessary: set[int] = set()
+    all_checks_confident = True
 
     # Build proto_idx -> variable lookup.
     var_lookup = _build_proto_index_map(assumption_vars)
@@ -206,9 +207,11 @@ def _refine_mus(
                 continue
 
             # Check if the remaining set is still infeasible.
-            is_still_infeasible = _check_assumptions_infeasible(
+            is_still_infeasible, is_confident = _check_assumptions_infeasible(
                 model, var_lookup, test_set
             )
+            if not is_confident:
+                all_checks_confident = False
 
             if is_still_infeasible:
                 # This assumption is NOT necessary; remove it.
@@ -223,7 +226,7 @@ def _refine_mus(
             break
 
     result = list(necessary) if necessary else list(working_set)
-    is_minimal = len(necessary) == len(result)
+    is_minimal = len(necessary) == len(result) and all_checks_confident
 
     # Restore model assumptions to the MUS for the caller.
     _set_assumptions(model, var_lookup, result)
@@ -235,19 +238,26 @@ def _check_assumptions_infeasible(
     model: cp_model.CpModel,
     var_lookup: dict[int, cp_model.IntVar],
     assumption_indices: list[int],
-) -> bool:
+    timeout_s: float = 5.0,
+    max_timeout_s: float = 60.0,
+) -> tuple[bool, bool]:
     """Check if the model with only the given assumptions is still INFEASIBLE.
 
     Clones the model via proto serialization, sets the test assumptions,
-    and solves with a fresh solver.
+    and solves with a fresh solver. When the solver returns UNKNOWN (timed
+    out), the timeout is doubled and the solve retried up to max_timeout_s.
+    If still UNKNOWN at the max, the check conservatively treats as
+    INFEASIBLE (errs toward a smaller core) but returns is_confident=False.
 
     Args:
         model: The CP-SAT model (original, unmodified expectation).
         var_lookup: Mapping from proto-index to variable.
         assumption_indices: Proto-indices of assumptions to test.
+        timeout_s: Initial solver timeout in seconds.
+        max_timeout_s: Maximum retry timeout in seconds.
 
     Returns:
-        True if the test assumptions produce INFEASIBLE.
+        Tuple of (is_infeasible, is_confident).
     """
     from ortools.sat.python import cp_model as cp
 
@@ -260,12 +270,22 @@ def _check_assumptions_infeasible(
     # Set assumptions to only the test subset.
     _set_assumptions(test_model, var_lookup, assumption_indices)
 
-    new_solver = cp.CpSolver()
-    new_solver.parameters.log_search_progress = False
-    new_solver.parameters.max_time_in_seconds = 5.0
+    current_timeout = timeout_s
+    while True:
+        new_solver = cp.CpSolver()
+        new_solver.parameters.log_search_progress = False
+        new_solver.parameters.max_time_in_seconds = current_timeout
 
-    status = new_solver.Solve(test_model)
-    return status == cp.INFEASIBLE
+        status = new_solver.Solve(test_model)
+        if status == cp.INFEASIBLE:
+            return True, True
+        if status in (cp.FEASIBLE, cp.OPTIMAL):
+            return False, True
+
+        # status == cp.UNKNOWN: timed out; retry with longer timeout
+        if current_timeout >= max_timeout_s:
+            return True, False
+        current_timeout = min(current_timeout * 2.0, max_timeout_s)
 
 
 def _set_assumptions(
