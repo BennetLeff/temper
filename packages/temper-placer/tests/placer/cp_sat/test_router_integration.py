@@ -192,6 +192,18 @@ def test_apply_placements_to_pcb_empty_placements():
 
 class MockPipelineResult:
     completion_rate: float = 0.0
+    stage4: object = None
+    manufacturing_report: object = None
+
+    def __init__(self):
+        mock_rr = type('RoutingResults', (), {
+            'failed_nets': [],
+            'net_reports': [],
+        })()
+        self.stage4 = type('Stage4Output', (), {
+            'routing_results': mock_rr,
+        })()
+        self.manufacturing_report = None
 
 
 def test_route_pcb_with_placements():

@@ -163,7 +163,7 @@ def solve_placement(
     if extra_constraints:
         _encode_extra_constraints(
             model, extra_constraints, comp_refs, x_vars, y_vars,
-            rot_vars, grid_step, max_x, max_y,
+            rot_vars, grid_step, max_x, max_y, board,
         )
 
     # Solve
@@ -223,6 +223,7 @@ def _encode_extra_constraints(
     grid_step: float,
     max_x: int,
     max_y: int,
+    board: object | None = None,
 ) -> None:
     """Encode additional PCL constraints into the CP-SAT model."""
     from temper_placer.pcl.constraints import (
@@ -273,7 +274,97 @@ def _encode_extra_constraints(
             pass  # Already handled via zone logic above
 
         elif isinstance(constraint, KeepoutConstraint):
-            pass  # Keepout is handled as a no-place zone
+            _encode_keepout_constraint(
+                model, constraint, comp_refs, x_vars, y_vars,
+                grid_step, max_x, max_y, board,
+            )
+
+
+def _encode_keepout_constraint(
+    model,
+    constraint,
+    comp_refs: list[str],
+    x_vars,
+    y_vars,
+    grid_step: float,
+    max_x: int,
+    max_y: int,
+    board: object | None = None,
+) -> None:
+    """Encode a KeepoutConstraint as component exclusion from a zone.
+
+    Resolves the keepout zone bounds from one of:
+    1. A matching board zone (by name) with ``zone_type="keepout"``.
+    2. A ``congestion_*`` synthetic keepout: parses bbox from the zone name
+       format ``congestion_xmin_ymin_xmax_ymax``.
+    3. Falls back to a warning if neither resolution works.
+    """
+    zone_name: str = constraint.zone_name
+    bounds: tuple[float, float, float, float] | None = None
+    margin_mm: float = getattr(constraint, 'margin_mm', 0.0)
+
+    # 1. Look up from board zones
+    if board is not None and hasattr(board, 'zones'):
+        for z in board.zones:
+            if getattr(z, 'name', '') == zone_name:
+                if getattr(z, 'zone_type', 'placement') in ('keepout', 'no_place'):
+                    bounds = (
+                        float(z.bounds[0]) - margin_mm,
+                        float(z.bounds[1]) - margin_mm,
+                        float(z.bounds[2]) + margin_mm,
+                        float(z.bounds[3]) + margin_mm,
+                    )
+                break
+
+    # 2. Parse synthetic congestion keepout name
+    if bounds is None and zone_name.startswith('congestion_'):
+        parts = zone_name.split('_')
+        if len(parts) == 5:
+            try:
+                x0, y0, x1, y1 = float(parts[1]), float(parts[2]), float(parts[3]), float(parts[4])
+                bounds = (
+                    x0 - margin_mm,
+                    y0 - margin_mm,
+                    x1 + margin_mm,
+                    y1 + margin_mm,
+                )
+            except ValueError:
+                pass
+
+    if bounds is None:
+        logger.warning(
+            f"KeepoutConstraint '{zone_name}' could not be resolved to board "
+            f"bounds — ignored during CP-SAT encoding"
+        )
+        return
+
+    kx_min = max(0, int(bounds[0] / grid_step))
+    ky_min = max(0, int(bounds[1] / grid_step))
+    kx_max = min(max_x, int(bounds[2] / grid_step))
+    ky_max = min(max_y, int(bounds[3] / grid_step))
+
+    if kx_max <= kx_min or ky_max <= ky_min:
+        return
+
+    # Exclude all components from the keepout zone via a negated
+    # bounding-box constraint: for each component i, add
+    #   NOT (kx_min <= xi <= kx_max AND ky_min <= yi <= ky_max)
+    # which expands to:
+    #   (xi < kx_min) OR (xi > kx_max) OR (yi < ky_min) OR (yi > ky_max)
+    for i in range(len(comp_refs)):
+        below_x = model.NewBoolVar(f"keepout_{zone_name}_below_x_{i}")
+        above_x = model.NewBoolVar(f"keepout_{zone_name}_above_x_{i}")
+        below_y = model.NewBoolVar(f"keepout_{zone_name}_below_y_{i}")
+        above_y = model.NewBoolVar(f"keepout_{zone_name}_above_y_{i}")
+        model.Add(x_vars[i] < kx_min).OnlyEnforceIf(below_x)
+        model.Add(x_vars[i] >= kx_min).OnlyEnforceIf(below_x.Not())
+        model.Add(x_vars[i] > kx_max).OnlyEnforceIf(above_x)
+        model.Add(x_vars[i] <= kx_max).OnlyEnforceIf(above_x.Not())
+        model.Add(y_vars[i] < ky_min).OnlyEnforceIf(below_y)
+        model.Add(y_vars[i] >= ky_min).OnlyEnforceIf(below_y.Not())
+        model.Add(y_vars[i] > ky_max).OnlyEnforceIf(above_y)
+        model.Add(y_vars[i] <= ky_max).OnlyEnforceIf(above_y.Not())
+        model.Add(below_x + above_x + below_y + above_y >= 1)
 
 
 def component_width(ref: str, netlist: Netlist) -> float:

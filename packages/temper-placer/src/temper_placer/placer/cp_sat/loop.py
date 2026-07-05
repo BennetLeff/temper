@@ -139,6 +139,10 @@ class PlaceRouteLoop:
         for round_num in range(1, self.MAX_ROUNDS + 1):
             logger.info(f"Round {round_num}/{self.MAX_ROUNDS}")
 
+            # Deduplicate accumulated deltas by constraint ID before each
+            # round to prevent UNSAT from stale overlapping feedback.
+            injected_deltas = _deduplicate_deltas(injected_deltas)
+
             # Phase 1: Solve CP-SAT with current constraints
             t0 = time.monotonic()
             constraint_objects = all_constraints + [
@@ -430,6 +434,19 @@ class PlaceRouteLoop:
         }
 
 
+def _deduplicate_deltas(deltas: list[ConstraintDelta]) -> list[ConstraintDelta]:
+    """Deduplicate ConstraintDeltas by constraint ID, keeping latest.
+
+    Prevents accumulated deltas from causing UNSAT when different
+    rounds produce overlapping feedback for the same constraint.
+    """
+    seen: dict[str, ConstraintDelta] = {}
+    for delta in deltas:
+        cid = getattr(delta.constraint, 'id', str(id(delta)))
+        seen[cid] = delta
+    return list(seen.values())
+
+
 def _build_minimal_pcb(netlist, board) -> str:
     """Build a minimal KiCad PCB file for routing."""
     width_mm = getattr(board, 'width', 100)
@@ -458,8 +475,30 @@ def _build_minimal_pcb(netlist, board) -> str:
     if netlist and hasattr(netlist, 'components'):
         for comp in netlist.components:
             footprint = getattr(comp, 'footprint', "Resistor_SMD:R_0805_2012Metric")
+            ref = getattr(comp, 'ref', comp.__class__.__name__) if hasattr(comp, '__class__') else 'U1'
             lines.append(f"  (footprint \"{footprint}\" (layer \"F.Cu\")")
             lines.append("    (attr smd)")
+            lines.append(f"    (property \"Reference\" \"{ref}\")")
+            # Include pin pads so the router has pin positions to route.
+            pins = getattr(comp, 'pins', [])
+            if pins:
+                for pin in pins:
+                    pin_num = getattr(pin, 'number', '1')
+                    pin_x = getattr(pin, 'position', (0.0, 0.0))[0]
+                    pin_y = getattr(pin, 'position', (0.0, 0.0))[1]
+                    pin_net = getattr(pin, 'net', '')
+                    net_idx = 0
+                    if netlist and hasattr(netlist, 'nets'):
+                        for ni, n in enumerate(netlist.nets):
+                            if getattr(n, 'name', '') == pin_net:
+                                net_idx = ni + 1
+                                break
+                    lines.append(
+                        f"    (pad \"{pin_num}\" smd rect"
+                        f" (at {pin_x:.4f} {pin_y:.4f})"
+                        f" (size 1 1) (layers \"F.Cu\" \"F.Paste\" \"F.Mask\")"
+                        f" (net {net_idx} \"{pin_net}\"))"
+                    )
             lines.append(f"    (at 0 0)")
             lines.append("  )")
 
