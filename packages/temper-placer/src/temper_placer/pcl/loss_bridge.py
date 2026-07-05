@@ -58,44 +58,7 @@ def tier_to_weight(tier: ConstraintTier) -> float:
     return weight_map[tier]
 
 
-def _resolve_to_indices(
-    name: str,
-    netlist: Netlist,
-    board: Board | None = None,
-) -> list[int]:
-    """
-    Resolve a name (component ref or zone name) to component indices.
-
-    Args:
-        name: Component reference (e.g., 'Q1') or zone name (e.g., 'HV_ZONE').
-        netlist: Netlist for component lookup.
-        board: Optional board for zone component lookup.
-
-    Returns:
-        List of component indices.
-    """
-    ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
-
-    # 1. Check if it's a direct component reference
-    if name in ref_to_idx:
-        return [ref_to_idx[name]]
-
-    # 2. Check if it's a zone name in the board definition
-    if board and board.zones:
-        for zone in board.zones:
-            if zone.name == name:
-                indices = []
-                for comp_ref in zone.components:
-                    if comp_ref in ref_to_idx:
-                        indices.append(ref_to_idx[comp_ref])
-                return indices
-
-    # 3. Handle fallback case (e.g., zone name not yet in board.zones)
-    # This happens during early optimization phases
-    if "_ZONE" in name:
-        return []
-
-    raise ValueError(f"Could not resolve '{name}' to any components in netlist or board zones")
+from temper_placer.pcl.resolver import _resolve_to_indices  # noqa: F401, E402
 
 
 def adjacent_to_proximity_loss(

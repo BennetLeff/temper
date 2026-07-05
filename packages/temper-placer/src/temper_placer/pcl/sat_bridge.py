@@ -106,7 +106,7 @@ class SATBridgeContext:
 
     def component_indices(self, ref: str) -> list[int]:
         """Resolve a component ref to a list of indices."""
-        from temper_placer.pcl.loss_bridge import _resolve_to_indices
+        from temper_placer.pcl.resolver import _resolve_to_indices
         return _resolve_to_indices(ref, self.netlist, self.board)
 
     @property

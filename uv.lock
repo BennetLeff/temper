@@ -25,6 +25,7 @@ members = [
     "temper-constraint-compiler",
     "temper-drc-rs",
     "temper-placer",
+    "temper-quality-oracle",
     "temper-rust-router",
     "temper-testing",
     "temper-tools",
@@ -2267,6 +2268,11 @@ dev = [
     { name = "pytest-timeout", specifier = ">=2.3.1" },
     { name = "python-sat", specifier = ">=1.8.dev14" },
 ]
+
+[[package]]
+name = "temper-quality-oracle"
+version = "0.1.0"
+source = { editable = "packages/temper-quality-oracle" }
 
 [[package]]
 name = "temper-rust-router"

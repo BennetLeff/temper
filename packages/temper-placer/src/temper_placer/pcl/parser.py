@@ -79,7 +79,7 @@ def _is_resolved(constraint: BaseConstraint, context: CompilationContext) -> boo
     Returns True if all referenced components/zones exist in the context.
     Returns False if any reference is unresolvable (R10: skip, not error).
     """
-    from temper_placer.pcl.loss_bridge import _resolve_to_indices
+    from temper_placer.pcl.resolver import _resolve_to_indices
 
     try:
         if isinstance(constraint, (AdjacentConstraint, SeparatedConstraint)):
