@@ -7,7 +7,6 @@ import pytest
 from temper_placer.placer.cp_sat.model import (
     ComponentVars,
     CpSatModel,
-    CpSolverSolution,
     SolveStatus,
 )
 
