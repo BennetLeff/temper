@@ -234,6 +234,13 @@ main.add_command(watch)
     default=False,
     help="Use the consolidated Core 8 loss set (default: False).",
 )
+@click.option(
+    "--placer",
+    type=click.Choice(["cp-sat", "jax-deprecated"]),
+    default="cp-sat",
+    show_default=True,
+    help="Placer engine to use.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -268,6 +275,7 @@ def optimize(
     spice_penalty_weight: float,
     weight_channel_capacity: float | None,
     compact: bool,
+    placer: str,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -295,8 +303,21 @@ def optimize(
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
     console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
 
+    if placer == "jax-deprecated":
+        console.print(
+            "[bold red]The JAX placer has been removed; CP-SAT is the sole placer.[/]",
+            file=sys.stderr,
+        )
+        console.print(
+            "If you reached this flag for production-rollback reasons, "
+            "file an issue with the board's PCL config and the routed-PCB file.",
+            file=sys.stderr,
+        )
+        console.print("[dim]Exiting with code 0 (informational, not an error).[/]")
+        sys.exit(0)
+
     # Import heavy dependencies only when needed
-    console.print("\n[dim]Loading JAX and optimizer modules...[/]")
+    console.print("\n[dim]Loading optimizer modules...[/]")
 
     try:
         import jax
