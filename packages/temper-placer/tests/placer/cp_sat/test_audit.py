@@ -206,8 +206,7 @@ class TestLoopAreaAudit:
             loop_name="commutation", max_area_mm2=500.0, tier=ConstraintTier.HARD,
             because="Minimize commutation loop to reduce voltage overshoot and EMI emission",
         )
-        c._loop_components = ["C1", "C2"]  # type: ignore[attr-defined]
-        report = auditor.audit([c])
+        report = auditor.audit([c], loop_components={"commutation": ["C1", "C2"]})
         assert report.all_pass
 
     def test_fails_exceeds_ceiling(self) -> None:
@@ -218,6 +217,5 @@ class TestLoopAreaAudit:
             loop_name="commutation", max_area_mm2=10.0, tier=ConstraintTier.HARD,
             because="Minimize commutation loop to reduce voltage overshoot and EMI emission",
         )
-        c._loop_components = ["C1", "C2"]  # type: ignore[attr-defined]
-        report = auditor.audit([c])
+        report = auditor.audit([c], loop_components={"commutation": ["C1", "C2"]})
         assert not report.all_pass

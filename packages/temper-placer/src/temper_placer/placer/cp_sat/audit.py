@@ -86,12 +86,16 @@ class PlacementAuditor:
     def __init__(self, placement: Placement) -> None:
         self.placement = placement
 
-    def audit(self, constraints: list[BaseConstraint]) -> AuditReport:
+    def audit(
+        self,
+        constraints: list[BaseConstraint],
+        loop_components: dict[str, list[str]] | None = None,
+    ) -> AuditReport:
         passed = 0
         failed = 0
         violations: list[AuditViolation] = []
         for c in constraints:
-            v_list = self._check(c)
+            v_list = self._check(c, loop_components)
             if v_list:
                 failed += 1
                 violations.extend(v_list)
@@ -99,7 +103,9 @@ class PlacementAuditor:
                 passed += 1
         return AuditReport(passed=passed, failed=failed, violations=violations)
 
-    def _check(self, c: BaseConstraint) -> list[AuditViolation]:
+    def _check(
+        self, c: BaseConstraint, loop_components: dict[str, list[str]] | None = None
+    ) -> list[AuditViolation]:
         ct = c.constraint_type
         if ct == ConstraintType.SEPARATED:
             return self._check_separated(c)  # type: ignore[arg-type]
@@ -116,7 +122,7 @@ class PlacementAuditor:
         elif ct == ConstraintType.ALIGNED:
             return self._check_aligned(c)  # type: ignore[arg-type]
         elif ct == ConstraintType.LOOP_AREA:
-            return self._check_loop_area(c)  # type: ignore[arg-type]
+            return self._check_loop_area(c, loop_components)  # type: ignore[arg-type]
         return []
 
     # ---- checks ----
@@ -268,9 +274,12 @@ class PlacementAuditor:
                     )]
         return []
 
-    def _check_loop_area(self, c: LoopAreaConstraint) -> list[AuditViolation]:
-        # Loop components should be embedded in constraint context
-        loop_comps: list[str] = getattr(c, '_loop_components', None) or []
+    def _check_loop_area(
+        self, c: LoopAreaConstraint,
+        loop_components: dict[str, list[str]] | None = None,
+    ) -> list[AuditViolation]:
+        comps = loop_components or {}
+        loop_comps: list[str] = comps.get(c.loop_name, [])
         if not loop_comps:
             return []
         refs = [r for r in loop_comps if r in self.placement.positions_mm]

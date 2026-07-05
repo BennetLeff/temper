@@ -114,7 +114,10 @@ class TestTemperIntegration:
         )
 
         auditor = PlacementAuditor(placement)
-        report = auditor.audit(constraints)
+        report = auditor.audit(
+            constraints,
+            loop_components=ctx.loop_components,
+        )
         assert report.all_pass, (
             f"Audit failed: {report.failed}/{report.passed + report.failed} checks failed\n"
             + "\n".join(v.description for v in report.violations)
