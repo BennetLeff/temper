@@ -17,7 +17,8 @@ from temper_placer.router_v6.astar_core import RoutePath
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
 if TYPE_CHECKING:
-    from jax import Array
+    from numpy.typing import NDArray
+Array = NDArray
 
 
 
@@ -181,7 +182,7 @@ def simple_congestion_repel(
     Returns:
         Updated positions
     """
-    import jax.numpy as jnp
+    import numpy as np
 
     new_positions = []
 
@@ -204,4 +205,4 @@ def simple_congestion_repel(
 
         new_positions.append([new_x, new_y])
 
-    return jnp.array(new_positions)
+    return np.array(new_positions)

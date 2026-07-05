@@ -15,15 +15,11 @@ The exception is total_wirelength which returns raw mm value (lower is better).
 from __future__ import annotations
 
 from typing import Any
-
-import jax
-import jax.numpy as jnp
-
+import numpy as np
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import LossContext
-from temper_placer.losses.wirelength import WirelengthLoss
+from temper_placer.core.loss_types import LossContext
 
 
 def total_wirelength(
@@ -297,10 +293,10 @@ def loop_area_score(
             continue
 
         # Compute polygon area using shoelace formula
-        vertices = jnp.array([[float(p[0]), float(p[1])] for p in positions])
-        vertices_next = jnp.roll(vertices, -1, axis=0)
+        vertices = np.array([[float(p[0]), float(p[1])] for p in positions])
+        vertices_next = np.roll(vertices, -1, axis=0)
         cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
-        area = abs(float(jnp.sum(cross)) / 2.0)
+        area = abs(float(np.sum(cross)) / 2.0)
 
         # Score: 1.0 for zero area, 0.0 for max_area or larger
         loop_score = max(0.0, 1.0 - area / max_area)
@@ -335,15 +331,14 @@ def congestion_score(
         Score in [0, 1] where 1.0 = evenly distributed demand,
         0.0 = severe congestion hotspots.
     """
-    from temper_placer.losses.congestion import compute_routing_demand
 
     board_bounds = board.get_relative_bounds_array()
     demand = compute_routing_demand(state.positions, context, grid_shape, board_bounds)
 
     # Compute overflow ratio
-    overflow = jnp.maximum(0.0, demand - capacity_per_cell)
-    total_overflow = float(jnp.sum(overflow))
-    total_demand = float(jnp.sum(demand))
+    overflow = np.maximum(0.0, demand - capacity_per_cell)
+    total_overflow = float(np.sum(overflow))
+    total_demand = float(np.sum(demand))
 
     if total_demand <= 0:
         return 1.0  # No demand = no congestion
@@ -382,15 +377,15 @@ def compactness_score(
     x_coords = positions[:, 0]
     y_coords = positions[:, 1]
 
-    x_min, x_max = float(jnp.min(x_coords)), float(jnp.max(x_coords))
-    y_min, y_max = float(jnp.min(y_coords)), float(jnp.max(y_coords))
+    x_min, x_max = float(np.min(x_coords)), float(np.max(x_coords))
+    y_min, y_max = float(np.min(y_coords)), float(np.max(y_coords))
 
     # Add component sizes to get actual bounding box
-    half_widths = jnp.array([c.bounds[0] / 2 for c in netlist.components])
-    half_heights = jnp.array([c.bounds[1] / 2 for c in netlist.components])
+    half_widths = np.array([c.bounds[0] / 2 for c in netlist.components])
+    half_heights = np.array([c.bounds[1] / 2 for c in netlist.components])
 
-    placement_width = (x_max - x_min) + float(jnp.max(half_widths)) * 2
-    placement_height = (y_max - y_min) + float(jnp.max(half_heights)) * 2
+    placement_width = (x_max - x_min) + float(np.max(half_widths)) * 2
+    placement_height = (y_max - y_min) + float(np.max(half_heights)) * 2
 
     # Compute total component area
     total_component_area = sum(c.bounds[0] * c.bounds[1] for c in netlist.components)
@@ -453,10 +448,10 @@ def connectivity_clustering_score(
         net_comp_positions = positions[valid_indices]
 
         # Compute actual bounding box of component centers
-        x_min = jnp.min(net_comp_positions[:, 0])
-        x_max = jnp.max(net_comp_positions[:, 0])
-        y_min = jnp.min(net_comp_positions[:, 1])
-        y_max = jnp.max(net_comp_positions[:, 1])
+        x_min = np.min(net_comp_positions[:, 0])
+        x_max = np.max(net_comp_positions[:, 0])
+        y_min = np.min(net_comp_positions[:, 1])
+        y_max = np.max(net_comp_positions[:, 1])
 
         # Add half-widths/heights to get component-aware bounding box
         net_components = [netlist.components[idx] for idx in valid_indices.tolist()]

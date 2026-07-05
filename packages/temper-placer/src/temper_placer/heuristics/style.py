@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -236,8 +236,8 @@ class StarGroundTopologyHeuristic(Heuristic):
                 angle = angle_start + t * angle_range
                 radius = min_radius + t * (max_radius - min_radius)
 
-                pos_x = sx + radius * float(jnp.cos(angle))
-                pos_y = sy + radius * float(jnp.sin(angle))
+                pos_x = sx + radius * float(np.cos(angle))
+                pos_y = sy + radius * float(np.sin(angle))
 
                 if context.is_position_valid(pos_x, pos_y, comp.width, comp.height):
                     placements[ref] = ComponentPlacement(

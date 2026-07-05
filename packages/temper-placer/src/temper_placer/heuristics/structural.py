@@ -15,8 +15,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+from numpy.typing import NDArray
+Array = NDArray
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
@@ -64,7 +65,7 @@ def create_keepout_mask(
     height_cells = int(board.height / resolution_mm) + 1
 
     # Start with all valid
-    mask = jnp.ones((height_cells, width_cells), dtype=jnp.bool_)
+    mask = np.ones((height_cells, width_cells), dtype=np.bool_)
 
     # Mark board edges as invalid (margin)
     margin = constraints.board_margin_mm + buffer_mm
@@ -170,7 +171,7 @@ class KeepoutAwarenessHeuristic(Heuristic):
         object.__setattr__(context, "keep_out_mask", mask)
 
         # Count valid cells for reporting
-        valid_cells = int(jnp.sum(mask))
+        valid_cells = int(np.sum(mask))
         total_cells = mask.size
         valid_pct = 100 * valid_cells / total_cells if total_cells > 0 else 0
 
@@ -799,10 +800,10 @@ class CriticalLoopHeuristic(Heuristic):
             # Arrange in a circle pattern
             if n > 1:
                 angle = 2 * 3.14159 * i / n
-                offset_x = radius * 0.5 * jnp.cos(angle)
-                offset_y = radius * 0.5 * jnp.sin(angle)
+                offset_x = radius * 0.5 * np.cos(angle)
+                offset_y = radius * 0.5 * np.sin(angle)
             else:
-                offset_x, offset_y = jnp.array(0.0), jnp.array(0.0)
+                offset_x, offset_y = np.array(0.0), np.array(0.0)
 
             pos_x = cx + float(offset_x)
             pos_y = cy + float(offset_y)

@@ -11,11 +11,7 @@ Key features:
 - Batch operations for computing all pairwise overlaps efficiently
 - Smooth penalties suitable for loss functions
 """
-
-
-import jax.numpy as jnp
-from jax import Array
-
+import numpy as np
 from temper_placer.geometry.smooth import smooth_relu
 from temper_placer.geometry.transform import get_rotated_bounds
 
@@ -69,8 +65,8 @@ def box_box_distance(
     # Compute gaps in each dimension
     # Gap = center distance - sum of half-dimensions
     # Positive gap = separated, negative gap = overlapping
-    gap_x = jnp.abs(pos1[0] - pos2[0]) - (half_w1 + half_w2)
-    gap_y = jnp.abs(pos1[1] - pos2[1]) - (half_h1 + half_h2)
+    gap_x = np.abs(pos1[0] - pos2[0]) - (half_w1 + half_w2)
+    gap_y = np.abs(pos1[1] - pos2[1]) - (half_h1 + half_h2)
 
     # If both gaps are negative, boxes overlap
     # The overlap amount is min(|gap_x|, |gap_y|) in the most restrictive dimension
@@ -88,13 +84,13 @@ def box_box_distance(
     # Use differentiable selection
     # Overlap case: min(gap_x, gap_y) [most negative = largest overlap]
     # Separated case: max(gap_x, gap_y) [most positive = true separation]
-    overlap_dist = jnp.minimum(gap_x, gap_y)  # Both negative, want min (most overlap)
-    separated_dist = jnp.maximum(gap_x, gap_y)  # At least one positive
+    overlap_dist = np.minimum(gap_x, gap_y)  # Both negative, want min (most overlap)
+    separated_dist = np.maximum(gap_x, gap_y)  # At least one positive
 
     # Soft selection between cases
     # When both_negative is True (1.0), use overlap_dist
     # When both_negative is False (0.0), use separated_dist
-    return jnp.where(both_negative, overlap_dist, separated_dist)
+    return np.where(both_negative, overlap_dist, separated_dist)
 
 
 def box_box_distance_aabb(
@@ -116,15 +112,15 @@ def box_box_distance_aabb(
         Signed distance between boxes (negative if overlapping)
     """
     # Compute gaps in each dimension
-    gap_x = jnp.maximum(min1[0] - max2[0], min2[0] - max1[0])
-    gap_y = jnp.maximum(min1[1] - max2[1], min2[1] - max1[1])
+    gap_x = np.maximum(min1[0] - max2[0], min2[0] - max1[0])
+    gap_y = np.maximum(min1[1] - max2[1], min2[1] - max1[1])
 
     # Handle separated vs overlapping cases
     both_negative = (gap_x < 0) & (gap_y < 0)
-    overlap_dist = jnp.minimum(gap_x, gap_y)
-    separated_dist = jnp.maximum(gap_x, gap_y)
+    overlap_dist = np.minimum(gap_x, gap_y)
+    separated_dist = np.maximum(gap_x, gap_y)
 
-    return jnp.where(both_negative, overlap_dist, separated_dist)
+    return np.where(both_negative, overlap_dist, separated_dist)
 
 
 # =============================================================================
@@ -189,18 +185,18 @@ def overlap_area_estimate(
     rw2, rh2 = get_rotated_bounds(width2, height2, rot2)
 
     # Compute AABB corners
-    min1 = pos1 - jnp.array([rw1 / 2, rh1 / 2])
-    max1 = pos1 + jnp.array([rw1 / 2, rh1 / 2])
-    min2 = pos2 - jnp.array([rw2 / 2, rh2 / 2])
-    max2 = pos2 + jnp.array([rw2 / 2, rh2 / 2])
+    min1 = pos1 - np.array([rw1 / 2, rh1 / 2])
+    max1 = pos1 + np.array([rw1 / 2, rh1 / 2])
+    min2 = pos2 - np.array([rw2 / 2, rh2 / 2])
+    max2 = pos2 + np.array([rw2 / 2, rh2 / 2])
 
     # Compute intersection dimensions
     # Intersection is [max(min1, min2), min(max1, max2)]
-    inter_min = jnp.maximum(min1, min2)
-    inter_max = jnp.minimum(max1, max2)
+    inter_min = np.maximum(min1, min2)
+    inter_max = np.minimum(max1, max2)
 
     # Intersection dimensions (clamped to >= 0)
-    inter_dims = jnp.maximum(inter_max - inter_min, 0.0)
+    inter_dims = np.maximum(inter_max - inter_min, 0.0)
 
     # Area is product of dimensions
     return inter_dims[0] * inter_dims[1]
@@ -234,7 +230,7 @@ def compute_pairwise_distances(
 
     # Get rotated bounds for all components
     # Swap weights: [0°, 90°, 180°, 270°] -> [0, 1, 0, 1]
-    swap_weights = jnp.array([0.0, 1.0, 0.0, 1.0])
+    swap_weights = np.array([0.0, 1.0, 0.0, 1.0])
     swap_amounts = rotations @ swap_weights  # (N,)
 
     rotated_widths = widths * (1 - swap_amounts) + heights * swap_amounts
@@ -247,8 +243,8 @@ def compute_pairwise_distances(
     # Compute pairwise center distances
     # positions[:, None, :] - positions[None, :, :] gives (N, N, 2)
     center_diff = positions[:, None, :] - positions[None, :, :]
-    center_dist_x = jnp.abs(center_diff[:, :, 0])  # (N, N)
-    center_dist_y = jnp.abs(center_diff[:, :, 1])  # (N, N)
+    center_dist_x = np.abs(center_diff[:, :, 0])  # (N, N)
+    center_dist_y = np.abs(center_diff[:, :, 1])  # (N, N)
 
     # Sum of half-dimensions for each pair
     # half_w[:, None] + half_w[None, :] gives (N, N)
@@ -261,13 +257,13 @@ def compute_pairwise_distances(
 
     # Distance computation (same logic as box_box_distance)
     both_negative = (gap_x < 0) & (gap_y < 0)
-    overlap_dist = jnp.minimum(gap_x, gap_y)
-    separated_dist = jnp.maximum(gap_x, gap_y)
+    overlap_dist = np.minimum(gap_x, gap_y)
+    separated_dist = np.maximum(gap_x, gap_y)
 
-    distances = jnp.where(both_negative, overlap_dist, separated_dist)
+    distances = np.where(both_negative, overlap_dist, separated_dist)
 
     # Zero out diagonal (component vs itself)
-    distances = distances.at[jnp.diag_indices(n)].set(0.0)
+    distances = distances.at[np.diag_indices(n)].set(0.0)
 
     return distances
 
@@ -301,9 +297,9 @@ def compute_total_overlap(
     # Sum upper triangle only (avoid double counting)
     # Use triu_indices to get upper triangle
     n = positions.shape[0]
-    i_upper, j_upper = jnp.triu_indices(n, k=1)
+    i_upper, j_upper = np.triu_indices(n, k=1)
 
-    return jnp.sum(overlaps[i_upper, j_upper])
+    return np.sum(overlaps[i_upper, j_upper])
 
 
 def compute_overlap_penalty(
@@ -336,9 +332,9 @@ def compute_overlap_penalty(
 
     # Sum upper triangle
     n = positions.shape[0]
-    i_upper, j_upper = jnp.triu_indices(n, k=1)
+    i_upper, j_upper = np.triu_indices(n, k=1)
 
-    return penalty_weight * jnp.sum(squared_overlaps[i_upper, j_upper])
+    return penalty_weight * np.sum(squared_overlaps[i_upper, j_upper])
 
 
 # =============================================================================
@@ -403,9 +399,9 @@ def compute_clearance_penalties(
 
     # Sum upper triangle
     n = positions.shape[0]
-    i_upper, j_upper = jnp.triu_indices(n, k=1)
+    i_upper, j_upper = np.triu_indices(n, k=1)
 
-    return jnp.sum(squared_violations[i_upper, j_upper])
+    return np.sum(squared_violations[i_upper, j_upper])
 
 
 # =============================================================================
@@ -440,10 +436,10 @@ def count_overlaps(
 
     # Count pairs with distance < -threshold (overlapping by at least threshold)
     n = positions.shape[0]
-    i_upper, j_upper = jnp.triu_indices(n, k=1)
+    i_upper, j_upper = np.triu_indices(n, k=1)
     upper_distances = distances[i_upper, j_upper]
 
-    return int(jnp.sum(upper_distances < -threshold))
+    return int(np.sum(upper_distances < -threshold))
 
 
 def get_worst_overlap(
@@ -469,16 +465,16 @@ def get_worst_overlap(
 
     # Set diagonal to large positive value to ignore
     n = positions.shape[0]
-    distances = distances.at[jnp.diag_indices(n)].set(jnp.inf)
+    distances = distances.at[np.diag_indices(n)].set(np.inf)
 
     # Find minimum distance (most negative = worst overlap)
-    min_idx = jnp.argmin(distances)
+    min_idx = np.argmin(distances)
     min_dist = distances.ravel()[min_idx]
 
     i = min_idx // n
     j = min_idx % n
 
     # Overlap amount is negative of distance (positive when overlapping)
-    overlap_amount = jnp.maximum(0.0, -min_dist)
+    overlap_amount = np.maximum(0.0, -min_dist)
 
     return overlap_amount, int(i), int(j)

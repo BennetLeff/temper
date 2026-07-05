@@ -18,9 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
-
-import jax.numpy as jnp
-
+import numpy as np
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Net, Netlist
 from temper_placer.core.state import PlacementState
@@ -142,8 +140,8 @@ def netlist_to_placement_state(
         rotation_logits.append(logits)
 
     return PlacementState(
-        positions=jnp.array(positions, dtype=jnp.float32),
-        rotation_logits=jnp.array(rotation_logits, dtype=jnp.float32),
+        positions=np.array(positions, dtype=np.float32),
+        rotation_logits=np.array(rotation_logits, dtype=np.float32),
     )
 
 
@@ -264,7 +262,7 @@ def filter_components(
     filtered_netlist = Netlist(components=filtered_comps, nets=filtered_nets)
 
     # Filter state
-    indices = jnp.array(filtered_indices)
+    indices = np.array(filtered_indices)
     filtered_state = PlacementState(
         positions=design.state.positions[indices],
         rotation_logits=design.state.rotation_logits[indices],

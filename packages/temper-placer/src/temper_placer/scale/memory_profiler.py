@@ -15,14 +15,12 @@ import json
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-
-import jax
 import psutil
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.losses import BoundaryLoss, OverlapLoss, WirelengthLoss
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss
 from temper_placer.optimizer import LearningRateSchedule, OptimizerConfig, train
 
 

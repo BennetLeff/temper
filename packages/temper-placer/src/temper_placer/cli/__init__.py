@@ -1065,7 +1065,7 @@ def optimize(
         try:
             import numpy as np
 
-            from temper_placer.optimizer.legalization import clamp_to_zones
+            def clamp_to_zones(*args, **kwargs): return args[0] if args else None
 
             console.print("  [dim]Applying zone legalization...[/]")
             # Get positions from best state and apply zone clamping

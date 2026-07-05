@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
-import jax.numpy as jnp
+import numpy as np
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from temper_placer.core.state import PlacementState
     from temper_placer.pipeline.orchestrator import PipelineState
 
-from temper_placer.losses.base import LossContext, LossFunction, LossResult
+from temper_placer.core.state import PlacementState
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
 
@@ -44,8 +44,8 @@ class RoutingFeedbackLoss(LossFunction):
         blurred_grid = gaussian_filter(heatmap.grid, sigma=sigma)
 
         # Pre-process grid for JAX
-        self.grid = jnp.array(blurred_grid)
-        self.origin = jnp.array(heatmap.origin)
+        self.grid = np.array(blurred_grid)
+        self.origin = np.array(heatmap.origin)
         self.cell_size = heatmap.cell_size
 
     @property
@@ -58,12 +58,12 @@ class RoutingFeedbackLoss(LossFunction):
 
     def __call__(
         self,
-        positions: jnp.ndarray,
-        _rotations: jnp.ndarray,
+        positions: np.ndarray,
+        _rotations: np.ndarray,
         _context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
-        _net_virtual_nodes: jnp.ndarray | None = None,
+        _net_virtual_nodes: np.ndarray | None = None,
     ) -> LossResult:
         """Compute congestion loss for all components."""
         # Convert world positions to grid indices
@@ -78,11 +78,11 @@ class RoutingFeedbackLoss(LossFunction):
         coords = (gx, gy)
 
         # Bi-linear interpolation for smooth gradients
-        from jax.scipy.ndimage import map_coordinates
+        from scipy.ndimage import map_coordinates
         congestion_values = map_coordinates(self.grid, coords, order=1, mode='nearest')
 
         # Total loss is sum of congestion at all component centers
-        total_loss = jnp.sum(congestion_values)
+        total_loss = np.sum(congestion_values)
 
         return LossResult(
             value=total_loss,
@@ -101,10 +101,10 @@ class MomentumDampedRoutingFeedbackLoss:
     def __init__(self, initial_heatmap: CongestionHeatmap, sigma: float = 2.0):
         from scipy.ndimage import gaussian_filter
 
-        self.origin = jnp.array(initial_heatmap.origin)
+        self.origin = np.array(initial_heatmap.origin)
         self.cell_size = initial_heatmap.cell_size
         blurred = gaussian_filter(initial_heatmap.grid, sigma=sigma)
-        self.blended_grid = jnp.array(blurred)
+        self.blended_grid = np.array(blurred)
         self._iteration = 0
 
     def blend(
@@ -122,29 +122,28 @@ class MomentumDampedRoutingFeedbackLoss:
         from scipy.ndimage import gaussian_filter
 
         alpha = max(0.1, 1.0 / (iteration + 1))
-        new_grid = jnp.array(gaussian_filter(new_heatmap.grid, sigma=sigma))
+        new_grid = np.array(gaussian_filter(new_heatmap.grid, sigma=sigma))
         self.blended_grid = alpha * new_grid + (1.0 - alpha) * self.blended_grid
         self._iteration = iteration
 
     def compute_loss(
         self,
-        positions: jnp.ndarray,
-        _rotations: jnp.ndarray,
+        positions: np.ndarray,
+        _rotations: np.ndarray,
         _context: LossContext,
         _epoch: int = 0,
         _total_epochs: int = 1,
-        _net_virtual_nodes: jnp.ndarray | None = None,
+        _net_virtual_nodes: np.ndarray | None = None,
     ) -> LossResult:
         """Compute congestion loss from the EWMA-blended grid."""
-        from jax.scipy.ndimage import map_coordinates
+        from scipy.ndimage import map_coordinates
 
-        from temper_placer.losses.base import LossResult
 
         gx = (positions[:, 0] - self.origin[0]) / self.cell_size
         gy = (positions[:, 1] - self.origin[1]) / self.cell_size
         coords = (gx, gy)
         congestion_values = map_coordinates(self.blended_grid, coords, order=1, mode="nearest")
-        total_loss = jnp.sum(congestion_values)
+        total_loss = np.sum(congestion_values)
         return LossResult(
             value=total_loss,
             breakdown={"routing_congestion": total_loss},

@@ -9,12 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
-
-import jax.numpy as jnp
+import numpy as np
 import jax.random as random
-from jax import Array
-
-
 @dataclass
 class DistributionParams:
     """Parameters for a tolerance distribution."""
@@ -125,12 +121,12 @@ class MonteCarloSimulator:
 
         # 1. Expand dimensions for vectorization
         # [S, N, 2]
-        etch = samples.get('etch_tolerance', jnp.zeros(n_samples))
-        reg_x = samples.get('registration_x', jnp.zeros(n_samples))
-        reg_y = samples.get('registration_y', jnp.zeros(n_samples))
+        etch = samples.get('etch_tolerance', np.zeros(n_samples))
+        reg_x = samples.get('registration_x', np.zeros(n_samples))
+        reg_y = samples.get('registration_y', np.zeros(n_samples))
 
         # Apply registration to positions: [S, N, 2]
-        s_pos = positions[None, :, :] + jnp.stack([reg_x, reg_y], axis=-1)[:, None, :]
+        s_pos = positions[None, :, :] + np.stack([reg_x, reg_y], axis=-1)[:, None, :]
 
         # Apply etching to bounds: [S, N, 2]
         # Etching reduces clearance (effectively expands components)
@@ -141,8 +137,8 @@ class MonteCarloSimulator:
         # This is memory intensive: [S, N, N]
         # But for small N and S=1000 it's fine.
 
-        dx = jnp.abs(s_pos[:, :, None, 0] - s_pos[:, None, :, 0])
-        dy = jnp.abs(s_pos[:, :, None, 1] - s_pos[:, None, :, 1])
+        dx = np.abs(s_pos[:, :, None, 0] - s_pos[:, None, :, 0])
+        dy = np.abs(s_pos[:, :, None, 1] - s_pos[:, None, :, 1])
 
         mw = (s_widths[:, :, None] + s_widths[:, None, :]) / 2.0
         mh = (s_heights[:, :, None] + s_heights[:, None, :]) / 2.0
@@ -152,25 +148,25 @@ class MonteCarloSimulator:
         sep_y = dy - mh
 
         # Sample distance = max(sep_x, sep_y)
-        dist = jnp.maximum(sep_x, sep_y)
+        dist = np.maximum(sep_x, sep_y)
 
         # Mask out self-comparison (set to high value)
         n = positions.shape[0]
-        mask = jnp.eye(n, dtype=bool)[None, :, :]
-        dist = jnp.where(mask, 1e6, dist)
+        mask = np.eye(n, dtype=bool)[None, :, :]
+        dist = np.where(mask, 1e6, dist)
 
         # Check if min distance < required_clearance for each sample
         # [S]
-        min_dists = jnp.min(dist, axis=(1, 2))
+        min_dists = np.min(dist, axis=(1, 2))
         passes = min_dists >= required_clearance
 
-        yield_prob = jnp.mean(passes.astype(jnp.float32))
+        yield_prob = np.mean(passes.astype(np.float32))
 
         return MonteCarloResult(
             num_samples=n_samples,
             yield_probability=float(yield_prob),
             stats={
-                "mean_min_clearance": float(jnp.mean(min_dists)),
-                "std_min_clearance": float(jnp.std(min_dists)),
+                "mean_min_clearance": float(np.mean(min_dists)),
+                "std_min_clearance": float(np.std(min_dists)),
             }
         )

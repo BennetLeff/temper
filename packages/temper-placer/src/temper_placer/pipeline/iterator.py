@@ -11,8 +11,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from jax import Array
-
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
 

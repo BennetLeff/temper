@@ -14,11 +14,7 @@ All rotations are counter-clockwise around a center point.
 """
 
 import math
-
-import jax
-import jax.numpy as jnp
-from jax import Array
-
+import numpy as np
 from temper_placer.core.units import Degrees, DegreesArray, RadiansArray
 
 # =============================================================================
@@ -27,7 +23,7 @@ from temper_placer.core.units import Degrees, DegreesArray, RadiansArray
 
 # Pre-computed rotation matrices for 0°, 90°, 180°, 270° (counter-clockwise)
 # Each matrix is 2x2: [[cos(θ), -sin(θ)], [sin(θ), cos(θ)]]
-ROTATION_MATRICES = jnp.array(
+ROTATION_MATRICES = np.array(
     [
         [[1.0, 0.0], [0.0, 1.0]],  # 0°
         [[0.0, -1.0], [1.0, 0.0]],  # 90°
@@ -37,10 +33,10 @@ ROTATION_MATRICES = jnp.array(
 )
 
 # Rotation angles in radians
-ROTATION_ANGLES = jnp.array([0.0, math.pi / 2, math.pi, 3 * math.pi / 2])
+ROTATION_ANGLES = np.array([0.0, math.pi / 2, math.pi, 3 * math.pi / 2])
 
 # Rotation angles in degrees
-ROTATION_ANGLES_DEG = jnp.array([0.0, 90.0, 180.0, 270.0])
+ROTATION_ANGLES_DEG = np.array([0.0, 90.0, 180.0, 270.0])
 
 
 # =============================================================================
@@ -66,7 +62,7 @@ def get_rotation_matrix(rotation_onehot: Array) -> Array:
     # Weighted sum of rotation matrices
     # rotation_onehot: (4,), ROTATION_MATRICES: (4, 2, 2)
     # Result: (2, 2)
-    return jnp.einsum("r,rij->ij", rotation_onehot, ROTATION_MATRICES)
+    return np.einsum("r,rij->ij", rotation_onehot, ROTATION_MATRICES)
 
 
 def rotate_point(point: Array, rotation_onehot: Array, center: Array | None = None) -> Array:
@@ -82,7 +78,7 @@ def rotate_point(point: Array, rotation_onehot: Array, center: Array | None = No
         Rotated point as (x, y) array
     """
     if center is None:
-        center = jnp.zeros(2)
+        center = np.zeros(2)
 
     # Translate to origin
     point_centered = point - center
@@ -108,7 +104,7 @@ def rotate_points(points: Array, rotation_onehot: Array, center: Array | None = 
         Rotated points as (N, 2) array
     """
     if center is None:
-        center = jnp.zeros(2)
+        center = np.zeros(2)
 
     # Translate to origin
     points_centered = points - center
@@ -147,8 +143,8 @@ def get_rotated_bounds(width: float, height: float, rotation_onehot: Array) -> t
     # For 0° and 180°: (width, height) stays same
     # For 90° and 270°: swap to (height, width)
     # Use one-hot to blend: [0°, 90°, 180°, 270°] -> [no_swap, swap, no_swap, swap]
-    swap_weights = jnp.array([0.0, 1.0, 0.0, 1.0])
-    swap_amount = jnp.dot(rotation_onehot, swap_weights)
+    swap_weights = np.array([0.0, 1.0, 0.0, 1.0])
+    swap_amount = np.dot(rotation_onehot, swap_weights)
 
     # Blend between (width, height) and (height, width)
     rotated_width = width * (1 - swap_amount) + height * swap_amount
@@ -177,7 +173,7 @@ def rotate_rectangle_corners(
     half_h = height / 2.0
 
     # Corners relative to center (before rotation)
-    corners = jnp.array(
+    corners = np.array(
         [
             [-half_w, -half_h],  # bottom-left
             [half_w, -half_h],  # bottom-right
@@ -210,8 +206,8 @@ def get_rotated_aabb(
         Tuple of (min_corner, max_corner) as (x, y) arrays
     """
     corners = rotate_rectangle_corners(center, width, height, rotation_onehot)
-    min_corner = jnp.min(corners, axis=0)
-    max_corner = jnp.max(corners, axis=0)
+    min_corner = np.min(corners, axis=0)
+    max_corner = np.max(corners, axis=0)
     return min_corner, max_corner
 
 
@@ -238,7 +234,7 @@ def transform_pin_position(
         World position of pin as (x, y) array
     """
     # Rotate the pin offset around origin (component center)
-    rotated_offset = rotate_point(pin_offset, rotation_onehot, center=jnp.zeros(2))
+    rotated_offset = rotate_point(pin_offset, rotation_onehot, center=np.zeros(2))
 
     # Add component center to get world position
     return component_center + rotated_offset
@@ -259,7 +255,7 @@ def transform_pin_positions(
         World positions of pins as (N, 2) array
     """
     # Rotate all pin offsets around origin
-    rotated_offsets = rotate_points(pin_offsets, rotation_onehot, center=jnp.zeros(2))
+    rotated_offsets = rotate_points(pin_offsets, rotation_onehot, center=np.zeros(2))
 
     # Add component center to get world positions
     return rotated_offsets + component_center
@@ -285,7 +281,7 @@ def batch_get_rotated_bounds(
         Tuple of (rotated_widths, rotated_heights) each of shape (N,)
     """
     # Swap weights for each rotation: [0°, 90°, 180°, 270°] -> [0, 1, 0, 1]
-    swap_weights = jnp.array([0.0, 1.0, 0.0, 1.0])
+    swap_weights = np.array([0.0, 1.0, 0.0, 1.0])
 
     # Compute swap amount for each component
     swap_amounts = rotation_onehots @ swap_weights  # (N,)
@@ -312,14 +308,14 @@ def batch_rotate_points(points: Array, rotation_onehots: Array, centers: Array) 
         Rotated points as (N, M, 2) array
     """
     # Get rotation matrices for all components: (N, 2, 2)
-    rot_matrices = jnp.einsum("nr,rij->nij", rotation_onehots, ROTATION_MATRICES)
+    rot_matrices = np.einsum("nr,rij->nij", rotation_onehots, ROTATION_MATRICES)
 
     # Center the points: (N, M, 2)
     points_centered = points - centers[:, None, :]
 
     # Apply rotation: (N, M, 2) @ (N, 2, 2).T -> (N, M, 2)
     # Using einsum: points[n, m, i] * rot_matrices[n, j, i] -> result[n, m, j]
-    points_rotated = jnp.einsum("nmi,nji->nmj", points_centered, rot_matrices)
+    points_rotated = np.einsum("nmi,nji->nmj", points_centered, rot_matrices)
 
     # Translate back
     return points_rotated + centers[:, None, :]
@@ -340,7 +336,7 @@ def rotation_index_to_onehot(index: int) -> Array:
     Returns:
         One-hot vector of shape (4,)
     """
-    return jnp.eye(4)[index]
+    return np.eye(4)[index]
 
 
 def rotation_degrees_to_onehot(degrees: float | Degrees | DegreesArray) -> Array:
@@ -356,10 +352,10 @@ def rotation_degrees_to_onehot(degrees: float | Degrees | DegreesArray) -> Array
         One-hot vector of shape (4,)
     """
     # Normalize to 0-360
-    degrees_val = jnp.array(degrees) % 360.0
+    degrees_val = np.array(degrees) % 360.0
 
     # Find nearest valid rotation
-    index = jnp.round(degrees_val / 90.0).astype(jnp.int32) % 4
+    index = np.round(degrees_val / 90.0).astype(np.int32) % 4
     if index.ndim == 0:
         return rotation_index_to_onehot(int(index))
     return jax.nn.one_hot(index, 4)
@@ -377,7 +373,7 @@ def onehot_to_rotation_degrees(rotation_onehot: Array) -> DegreesArray:
     Returns:
         Rotation in degrees
     """
-    return jnp.dot(rotation_onehot, ROTATION_ANGLES_DEG)
+    return np.dot(rotation_onehot, ROTATION_ANGLES_DEG)
 
 
 def onehot_to_rotation_radians(rotation_onehot: Array) -> RadiansArray:
@@ -390,7 +386,7 @@ def onehot_to_rotation_radians(rotation_onehot: Array) -> RadiansArray:
     Returns:
         Rotation in radians
     """
-    return jnp.dot(rotation_onehot, ROTATION_ANGLES)
+    return np.dot(rotation_onehot, ROTATION_ANGLES)
 
 
 # =============================================================================
@@ -425,7 +421,7 @@ def gumbel_softmax(
 
     Example:
         >>> key = jax.random.PRNGKey(0)
-        >>> logits = jnp.array([[0.0, 1.0, 0.0, 0.0],   # Prefer 90°
+        >>> logits = np.array([[0.0, 1.0, 0.0, 0.0],   # Prefer 90°
         ...                     [1.0, 0.0, 0.0, 0.0]])  # Prefer 0°
         >>> samples = gumbel_softmax(logits, key, temperature=0.5)
         >>> # samples will be approximately one-hot, with gradients flowing
@@ -439,7 +435,7 @@ def gumbel_softmax(
     # Add small epsilon for numerical stability
     eps = 1e-10
     uniform = jax.random.uniform(key, logits.shape, minval=eps, maxval=1.0 - eps)
-    gumbel_noise = -jnp.log(-jnp.log(uniform))
+    gumbel_noise = -np.log(-np.log(uniform))
 
     # Add Gumbel noise to logits and apply temperature-scaled softmax
     noisy_logits = (logits + gumbel_noise) / temperature
@@ -447,7 +443,7 @@ def gumbel_softmax(
 
     if hard:
         # Straight-through estimator: hard in forward, soft gradients in backward
-        hard_samples = jax.nn.one_hot(jnp.argmax(soft_samples, axis=-1), logits.shape[-1])
+        hard_samples = jax.nn.one_hot(np.argmax(soft_samples, axis=-1), logits.shape[-1])
         # This trick: forward pass uses hard_samples, backward pass uses soft_samples
         return soft_samples + jax.lax.stop_gradient(hard_samples - soft_samples)
     else:
@@ -484,7 +480,7 @@ def sample_rotation(
     Example:
         >>> key = jax.random.PRNGKey(42)
         >>> # 3 components with rotation preferences
-        >>> logits = jnp.array([
+        >>> logits = np.array([
         ...     [0.0, 2.0, 0.0, 0.0],  # Strongly prefer 90°
         ...     [1.0, 1.0, 0.0, 0.0],  # Equal preference for 0° and 90°
         ...     [0.0, 0.0, 0.0, 3.0],  # Strongly prefer 270°

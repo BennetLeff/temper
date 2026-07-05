@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-import jax.numpy as jnp
+import numpy as np
 import numpy as np
 
 from temper_placer.pipeline.dag_types import DataContext, StageResult
@@ -16,7 +16,6 @@ class RefinementStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start_time = time.time()
         from temper_placer.core.state import PlacementState
-        from temper_placer.optimizer.legalization import resolve_overlaps_priority
         from temper_placer.pipeline.iterator import PlaceRouteIterator
         from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
@@ -55,7 +54,6 @@ class RefinementStage:
         print(f"Starting iterative refinement (max {max_iterations} iterations)...")
 
         # U5: Routability gradient loss — created once, blended per iteration.
-        from temper_placer.losses.routability_gradient import RoutabilityGradientLoss
         from temper_placer.router_v6.routability_aggregator import RoutabilityAggregator
 
         routability_loss = RoutabilityGradientLoss()
@@ -99,19 +97,14 @@ class RefinementStage:
             nonlocal unsat_streak, overridden_max_movement_mm
 
             if deadline is not None and time.time() > deadline:
-                return jnp.array(pos)
+                return np.array(pos)
 
             iteration_idx = getattr(routing_res, "iteration", 0)
             completion_rate = routing_res.completion_rate
 
             print("    Refining placement using JAX optimization with routing feedback loss...")
-            import jax
-            import optax
+            # optax removed (JAX retirement)
 
-            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
             from temper_placer.pipeline.feedback import RoutingFeedbackLoss
 
             heatmap = CongestionHeatmap.from_router(routing_res.router)
@@ -191,14 +184,14 @@ class RefinementStage:
             n = netlist.n_components
 
             optimizer = optax.adam(learning_rate=0.05)
-            old_positions = jnp.array(pos)
+            old_positions = np.array(pos)
             params = {"positions": old_positions}
             opt_state = optimizer.init(params)
 
-            @jax.jit
+            #  removed (JAX retirement)
             def step(params, opt_state):
                 def f(p):
-                    rotations = jnp.zeros((n, 4)).at[:, 0].set(1.0)
+                    rotations = np.zeros((n, 4)).at[:, 0].set(1.0)
                     return loss_fn(p["positions"], rotations, loss_context).value
                 loss, grads = jax.value_and_grad(f)(params)
                 updates, opt_state = optimizer.update(grads, opt_state)
@@ -210,26 +203,25 @@ class RefinementStage:
                     break
                 params, opt_state, _ = step(params, opt_state)
                 if epoch % 50 == 0:
-                    from temper_placer.optimizer.legalization import clamp_to_bounds
                     pos_np = np.array(params["positions"])
                     pos_np = clamp_to_bounds(pos_np,
                                              np.array([c.bounds[0] for c in netlist.components]),
                                              np.array([c.bounds[1] for c in netlist.components]),
                                              board)
-                    params["positions"] = jnp.array(pos_np)
+                    params["positions"] = np.array(pos_np)
 
             # U6: Gradient clipping per component (FR5.4)
-            updated_positions = jnp.array(params["positions"])
+            updated_positions = np.array(params["positions"])
             delta = updated_positions - old_positions
-            delta_norm = jnp.linalg.norm(delta, axis=-1, keepdims=True)
-            delta_clipped = delta * jnp.minimum(
+            delta_norm = np.linalg.norm(delta, axis=-1, keepdims=True)
+            delta_clipped = delta * np.minimum(
                 1.0, routability_gradient_max_grad_norm / (delta_norm + 1e-8)
             )
             params["positions"] = old_positions + delta_clipped
 
             legalized = resolve_overlaps_priority(np.array(params["positions"]), netlist, board,
                                                    min_separation=1.0)
-            return jnp.array(legalized)
+            return np.array(legalized)
 
         router = OrchestratorRouter(state)
         iterator = PlaceRouteIterator(
@@ -243,7 +235,7 @@ class RefinementStage:
         )
 
         current_pos = (placement_state.positions if placement_state is not None
-                       else jnp.array(context["deterministic_result"].positions))
+                       else np.array(context["deterministic_result"].positions))
         result = iterator.run(current_pos)
 
         new_placement_state = PlacementState.from_positions(result.final_positions)
@@ -362,18 +354,18 @@ def simple_congestion_repel(positions, heatmap, netlist, board):  # noqa: ARG001
     pos_np = np.asarray(positions)
     from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
     if not isinstance(heatmap, CongestionHeatmap):
-        return jnp.array(pos_np)
+        return np.array(pos_np)
     indices = heatmap.get_hotspots(threshold=0.3)
     if not indices:
-        return jnp.array(pos_np)
+        return np.array(pos_np)
     max_disp = 2.0
     for (gx, gy) in indices[:50]:
         cx = gx * 0.5 + 5.0
         cy = gy * 0.5 + 5.0
-        hotspot = jnp.array([cx, cy])
+        hotspot = np.array([cx, cy])
         for ci in range(min(len(pos_np), 10)):
             disp = pos_np[ci] - hotspot
-            dist = float(jnp.linalg.norm(disp))
+            dist = float(np.linalg.norm(disp))
             if dist < max_disp:
                 pos_np[ci] += disp / max(dist, 0.1) * 1.5
-    return jnp.array(pos_np)
+    return np.array(pos_np)

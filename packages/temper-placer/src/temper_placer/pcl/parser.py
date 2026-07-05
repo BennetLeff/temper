@@ -297,7 +297,6 @@ class ConstraintCollection:
         logger = logging.getLogger(__name__)
 
         # 1. Decoupling detection
-        from temper_placer.losses.decoupling import auto_detect_decoupling
 
         rules = auto_detect_decoupling(netlist)
         if rules:

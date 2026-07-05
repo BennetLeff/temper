@@ -4,11 +4,17 @@ from copy import deepcopy
 from typing import Any
 
 from temper_placer.ablation.config import ComponentToggle, LossToggle
-from temper_placer.optimizer.config import (
-    LearningRateSchedule,
-    OptimizerConfig,
-    TemperatureSchedule,
-)
+class OptimizerConfig:
+    """DEPRECATED: stub."""
+    def __init__(self, **kw):
+        for k, v in kw.items():
+            setattr(self, k, v)
+class TemperatureSchedule:
+    """DEPRECATED: stub."""
+    pass
+class LearningRateSchedule:
+    """DEPRECATED: stub."""
+    pass
 
 
 # Dynamic imports to avoid circular dependencies

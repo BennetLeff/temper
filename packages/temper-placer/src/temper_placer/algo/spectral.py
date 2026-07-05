@@ -6,9 +6,7 @@ for global placement initialization.
 """
 
 from __future__ import annotations
-
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
 from jax.experimental import sparse
 
 from temper_placer.core.hypergraph import PhysicsHypergraph
@@ -41,7 +39,7 @@ def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
     W = hg.incidence.hyperedge_weights
 
     # D_e (vector) = sum columns of H
-    ones_v = jnp.ones(hg.n_nodes)
+    ones_v = np.ones(hg.n_nodes)
     D_e_vec = H.T @ ones_v
 
     # D_v (vector) = H @ W
@@ -51,7 +49,7 @@ def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
     # 2. Inverses (avoid divide by zero)
     eps = 1e-10
     D_e_inv = 1.0 / (D_e_vec + eps)
-    1.0 / jnp.sqrt(D_v_vec + eps)
+    1.0 / np.sqrt(D_v_vec + eps)
 
     # 3. Construct Normalized Laplacian
     # We want L = I - Theta
@@ -104,13 +102,13 @@ def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
 
     # L = D_v - A
     # But D_v must match A's row sums.
-    ones = jnp.ones(hg.n_nodes)
+    ones = np.ones(hg.n_nodes)
     row_sums = A @ ones
 
     # In sparse land: L = Diag(row_sums) - A
     # Creating Diag(row_sums) as BCOO
-    idx_diag = jnp.arange(hg.n_nodes)
-    indices_diag = jnp.stack([idx_diag, idx_diag], axis=1)
+    idx_diag = np.arange(hg.n_nodes)
+    indices_diag = np.stack([idx_diag, idx_diag], axis=1)
     D_mat = sparse.BCOO((row_sums, indices_diag), shape=(hg.n_nodes, hg.n_nodes))
 
     L = D_mat - A
@@ -140,7 +138,7 @@ def spectral_layout(
     L_dense = L.todense()
 
     # Eigh for symmetric Hermitian
-    eigenvalues, eigenvectors = jnp.linalg.eigh(L_dense)
+    eigenvalues, eigenvectors = np.linalg.eigh(L_dense)
 
     # Sort eigenvalues (they should be sorted by eigh, but verifying)
     # The smallest eigenvalue is 0 (constant vector).
@@ -148,7 +146,7 @@ def spectral_layout(
 
     # Indices of smallest non-zero
     # Skip the first one (index 0)
-    indices = jnp.arange(1, 1 + dim)
+    indices = np.arange(1, 1 + dim)
 
     coords = eigenvectors[:, indices]
 

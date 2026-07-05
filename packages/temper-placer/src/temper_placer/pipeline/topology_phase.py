@@ -104,13 +104,12 @@ def generate_initial_placement(
     netlist: Netlist
 ) -> PlacementState:
     """Generate initial coordinates based on topological clusters."""
-    import jax
-    import jax.numpy as jnp
+    import numpy as np
 
     from temper_placer.core.state import PlacementState
 
     n = netlist.n_components
-    positions = jnp.zeros((n, 2))
+    positions = np.zeros((n, 2))
 
     # Map zone name to bounds
     zone_bounds = {z.name: z.bounds for z in board.zones}
@@ -134,9 +133,9 @@ def generate_initial_placement(
             idx = netlist.get_component_index(ref)
             key, subkey = jax.random.split(key)
             jitter = jax.random.uniform(subkey, (2,), minval=-5.0, maxval=5.0)
-            positions = positions.at[idx].set(jnp.array([cx, cy]) + jitter)
+            positions = positions.at[idx].set(np.array([cx, cy]) + jitter)
 
     return PlacementState(
         positions=positions,
-        rotation_logits=jnp.zeros((n, 4))
+        rotation_logits=np.zeros((n, 4))
     )

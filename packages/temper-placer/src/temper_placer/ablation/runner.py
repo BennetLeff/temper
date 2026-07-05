@@ -11,7 +11,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import jax
 
 from temper_placer.ablation.config import (
     AblationStudyConfig,
@@ -367,11 +366,11 @@ class ExperimentRunner:
         Returns:
             OptimizerConfig with default settings
         """
-        from temper_placer.optimizer.config import (
-            LearningRateSchedule,
-            OptimizerConfig,
-            TemperatureSchedule,
-        )
+        class OptimizerConfig:
+            def __init__(self, **kw):
+                for k, v in kw.items():
+                    setattr(self, k, v)
+        # Removed import (JAX retirement)
 
         return OptimizerConfig(
             epochs=8000,
@@ -578,7 +577,7 @@ class ExperimentRunner:
             # 5. BUILD LOSS CONTEXT
             # ========================
             try:
-                from temper_placer.losses.base import LossContext
+                from temper_placer.core.loss_types import LossContext
 
                 context = LossContext.from_netlist_and_board(
                     netlist,
@@ -609,7 +608,8 @@ class ExperimentRunner:
 
             try:
                 if experiment.components.curriculum_learning:
-                    from temper_placer.optimizer.train import train_multiphase
+                    def train_multiphase(*a, **kw):
+                        raise NotImplementedError("JAX optimizer removed.")
 
                     training_result = train_multiphase(
                         netlist,
@@ -622,7 +622,8 @@ class ExperimentRunner:
                         initial_state=initial_state,
                     )
                 else:
-                    from temper_placer.optimizer.train import train
+                    def train(*a, **kw):
+                        raise NotImplementedError("JAX optimizer removed.")
 
                     training_result = train(
                         netlist,

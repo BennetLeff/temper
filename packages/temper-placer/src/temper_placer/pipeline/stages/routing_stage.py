@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.pipeline.dag_types import DataContext, StageResult
 
@@ -25,7 +25,7 @@ class RoutingStage:
             positions = placement_state.positions
         else:
             deterministic_result = context.get("deterministic_result")
-            positions = jnp.array(deterministic_result.positions)  # type: ignore[union-attr]
+            positions = np.array(deterministic_result.positions)  # type: ignore[union-attr]
 
         result = analyze_congestion(netlist, board, positions=positions)
         print(f"Max congestion: {result.max_utilization:.2f}, Total overflow: {result.total_overflow:.2f}")

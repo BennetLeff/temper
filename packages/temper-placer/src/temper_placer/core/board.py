@@ -11,11 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import IntEnum
-
-import jax.numpy as jnp
-from jax import Array
-
-
+import numpy as np
 @dataclass
 class MountingHole:
     """
@@ -494,7 +490,7 @@ class Board:
         """Get outline as a (P, 2) JAX array."""
         if not self.outline_polygon:
             return None
-        return jnp.array(self.outline_polygon, dtype=jnp.float32)
+        return np.array(self.outline_polygon, dtype=np.float32)
 
     @classmethod
     def from_polygon(
@@ -600,11 +596,11 @@ class Board:
     def get_bounds_array(self) -> Array:
         """Get [x_min, y_min, x_max, y_max] absolute board bounds."""
         ox, oy = self.origin
-        return jnp.array([ox, oy, ox + self.width, oy + self.height], dtype=jnp.float32)
+        return np.array([ox, oy, ox + self.width, oy + self.height], dtype=np.float32)
 
     def get_relative_bounds_array(self) -> Array:
         """Get [0, 0, width, height] relative board bounds."""
-        return jnp.array([0.0, 0.0, self.width, self.height], dtype=jnp.float32)
+        return np.array([0.0, 0.0, self.width, self.height], dtype=np.float32)
 
     @property
     def area(self) -> float:

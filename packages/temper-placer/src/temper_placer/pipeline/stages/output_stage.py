@@ -6,7 +6,7 @@ import json
 import time
 from typing import Any
 
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.pipeline.dag_types import DataContext, StageResult
 
@@ -39,7 +39,7 @@ class OutputStage:
         ps = state.placement_state
         if ps is None:
             deterministic_result = context.get("deterministic_result")
-            ps = PlacementState.from_positions(jnp.array(deterministic_result.positions))  # type: ignore[union-attr]
+            ps = PlacementState.from_positions(np.array(deterministic_result.positions))  # type: ignore[union-attr]
 
         try:
             write_result = export_placements(input_pcb_path, output_pcb_path, ps,
@@ -80,7 +80,7 @@ def _compute_physics_metrics(state: Any) -> None:
         return
     ps = state.placement_state
     if ps is None:
-        ps = PlacementState.from_positions(jnp.array(state.deterministic_result.positions))
+        ps = PlacementState.from_positions(np.array(state.deterministic_result.positions))
     geo = measure_geometric(ps, state.netlist, state.board)
     loop_refs = [["Q1", "Q2", "C_BUS1"], ["U_MCU", "C_MCU_1"]]
     emi = measure_emi(ps, state.netlist, loop_refs=loop_refs)

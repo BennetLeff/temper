@@ -5,10 +5,9 @@ from __future__ import annotations
 import time
 from typing import Any
 
-import jax
-import jax.numpy as jnp
 import numpy as np
-import optax
+import numpy as np
+# optax removed (JAX retirement)
 
 from temper_placer.pipeline.dag_types import DataContext, StageResult
 
@@ -17,11 +16,6 @@ class GeometricStage:
     def __call__(self, state: Any, context: DataContext) -> StageResult:
         start_time = time.time()
         from temper_placer.core.state import PlacementState
-        from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-        from temper_placer.losses.channel_capacity import ChannelCapacityLoss
-        from temper_placer.losses.overlap import OverlapLoss
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.optimizer.legalization import (
             project_to_trust_region,
             resolve_overlaps_priority,
         )
@@ -54,13 +48,13 @@ class GeometricStage:
         print(f"Running refinement for {epochs} epochs (max {max_movement_mm}mm movement)...")
 
         optimizer = optax.adam(learning_rate=0.1)
-        params = {"positions": jnp.array(positions)}
+        params = {"positions": np.array(positions)}
         opt_state = optimizer.init(params)
 
-        @jax.jit
+        #  removed (JAX retirement)
         def step(params, opt_state):
             def f(p):
-                rotations = jnp.zeros((n, 4)).at[:, 0].set(1.0)
+                rotations = np.zeros((n, 4)).at[:, 0].set(1.0)
                 return loss_fn(p["positions"], rotations, loss_context).value
             loss, grads = jax.value_and_grad(f)(params)
             updates, opt_state = optimizer.update(grads, opt_state)
@@ -74,22 +68,21 @@ class GeometricStage:
             if epoch % 10 == 0:
                 pos_np = np.array(params["positions"])
                 pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=max_movement_mm)
-                from temper_placer.optimizer.legalization import clamp_to_bounds, clamp_to_zones
                 pos_np = clamp_to_bounds(pos_np,
                                          np.array([c.bounds[0] for c in netlist.components]),
                                          np.array([c.bounds[1] for c in netlist.components]),
                                          board)
                 pos_np = clamp_to_zones(pos_np, netlist, board)
-                params["positions"] = jnp.array(pos_np)
+                params["positions"] = np.array(pos_np)
                 if on_epoch is not None:
                     loss_val = loss_fn(params["positions"],
-                                       jnp.zeros((n, 4)).at[:, 0].set(1.0),
+                                       np.zeros((n, 4)).at[:, 0].set(1.0),
                                        loss_context).value
                     on_epoch("geometric", epoch, float(loss_val))
 
         final_pos = resolve_overlaps_priority(np.array(params["positions"]), netlist, board,
                                                min_separation=0.5, enforce_zones=True)
-        placement_state = PlacementState.from_positions(jnp.array(final_pos))
+        placement_state = PlacementState.from_positions(np.array(final_pos))
         state.placement_state = placement_state
 
         elapsed = time.time() - start_time

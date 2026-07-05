@@ -5,9 +5,9 @@ This module provides the main entry point for zero-input automated placement and
 
 from typing import TYPE_CHECKING
 
-import jax
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+from numpy.typing import NDArray
+Array = NDArray
 
 if TYPE_CHECKING:
     from temper_placer.io.config_loader import PlacementConstraints
@@ -22,8 +22,6 @@ from temper_placer.losses import (
     OverlapLoss,
     RoutingChannelLoss,
 )
-from temper_placer.losses.base import LossContext
-from temper_placer.losses.routing_congestion import (
     ConflictLocation,
     RoutingCongestionLoss,
     compute_congestion_heatmap,
@@ -44,7 +42,7 @@ def initial_placement(netlist: Netlist, board: Board) -> Array:
             positions.append(comp.initial_position)
         else:
             positions.append((board.width / 2, board.height / 2))
-    return jnp.array(positions)
+    return np.array(positions)
 
 def auto_layout_pcb(
     netlist: Netlist,
@@ -193,13 +191,13 @@ def optimize_placement_with_feedback(
         congestion_heatmap,
         weight=1.0,
         cell_size=cell_size_mm,
-        origin=jnp.array(board.origin),
-        grid_size=jnp.array(congestion_heatmap.shape),
+        origin=np.array(board.origin),
+        grid_size=np.array(congestion_heatmap.shape),
     )
 
     def combined_loss(pos):
-        rotations = jnp.zeros((len(netlist.components), 4))
-        total = jnp.array(0.0)
+        rotations = np.zeros((len(netlist.components), 4))
+        total = np.array(0.0)
         total += 100.0 * overlap_loss(pos, rotations, context).value
         total += 50.0 * boundary_loss(pos, rotations, context).value
         total += 20.0 * channel_loss(pos, rotations, context).value
@@ -216,10 +214,10 @@ def optimize_placement_with_feedback(
     def update_step(pos, _):
         grads = grad_fn(pos)
         new_pos = pos - learning_rate * grads
-        new_pos = jnp.clip(
+        new_pos = np.clip(
             new_pos,
-            jnp.array([5.0, 5.0]),
-            jnp.array([board.width - 5.0, board.height - 5.0])
+            np.array([5.0, 5.0]),
+            np.array([board.width - 5.0, board.height - 5.0])
         )
         return new_pos, None
 

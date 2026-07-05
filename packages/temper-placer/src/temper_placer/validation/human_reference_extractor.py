@@ -18,16 +18,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
-
-import jax
-import jax.numpy as jnp
+import numpy as np
 import yaml
 
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import LossContext
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.wirelength import compute_total_hpwl
+from temper_placer.core.loss_types import LossContext
 
 if TYPE_CHECKING:
     from temper_placer.io.kicad_parser import ParseResult
@@ -144,7 +139,7 @@ def _build_state_and_context(
     n = netlist.n_components
 
     positions = []
-    rotation_logits = jnp.zeros((n, 4), dtype=jnp.float32)
+    rotation_logits = np.zeros((n, 4), dtype=np.float32)
 
     for i, comp in enumerate(netlist.components):
         # The parser already normalizes component.initial_position to be
@@ -162,7 +157,7 @@ def _build_state_and_context(
         rotation_logits = rotation_logits.at[i, rot].set(10.0)
 
     state = PlacementState(
-        positions=jnp.array(positions, dtype=jnp.float32),
+        positions=np.array(positions, dtype=np.float32),
         rotation_logits=rotation_logits,
     )
     context = LossContext.from_netlist_and_board(netlist, board)
@@ -185,7 +180,7 @@ def _compute_placement_metrics(
 
     # --- HPWL ---
     hpwl_val = float(compute_total_hpwl(state.positions, rotations, context))
-    if not jnp.isfinite(hpwl_val):
+    if not np.isfinite(hpwl_val):
         raise ValueError("HPWL is non-finite.")
     if hpwl_val <= 0 and context.netlist.n_nets > 0:
         raise AssertionError(
@@ -197,14 +192,14 @@ def _compute_placement_metrics(
     overlap_loss = OverlapLoss(margin=1.0, rotation_invariant=True)
     overlap_result = overlap_loss(state.positions, rotations, context)
     overlap_val = float(overlap_result.value)
-    if not jnp.isfinite(overlap_val):
+    if not np.isfinite(overlap_val):
         raise ValueError("Overlap loss is non-finite.")
 
     # --- Boundary loss ---
     boundary_loss = BoundaryLoss()
     boundary_result = boundary_loss(state.positions, rotations, context)
     boundary_val = float(boundary_result.value)
-    if not jnp.isfinite(boundary_val):
+    if not np.isfinite(boundary_val):
         raise ValueError("Boundary loss is non-finite.")
 
     mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)

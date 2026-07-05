@@ -10,9 +10,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import jax
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+from numpy.typing import NDArray
+Array = NDArray
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -312,45 +312,45 @@ class HeuristicPipeline:
         Convert placements to a JAX PlacementState.
         """
         n_components = netlist.n_components
-        positions = jnp.zeros((n_components, 2), dtype=jnp.float32)
-        rotation_logits = jnp.zeros((n_components, 4), dtype=jnp.float32)
+        positions = np.zeros((n_components, 2), dtype=np.float32)
+        rotation_logits = np.zeros((n_components, 4), dtype=np.float32)
 
         for comp in netlist.components:
             idx = netlist.get_component_index(comp.ref)
 
             # Fixed components ALWAYS use their configured position (highest priority)
             if comp.fixed and comp.initial_position is not None:
-                positions = positions.at[idx].set(jnp.array(comp.initial_position))
+                positions = positions.at[idx].set(np.array(comp.initial_position))
                 if comp.initial_rotation is not None:
                     rot_idx = comp.initial_rotation
-                    logits = jnp.array([-10.0, -10.0, -10.0, -10.0])
+                    logits = np.array([-10.0, -10.0, -10.0, -10.0])
                     logits = logits.at[rot_idx].set(10.0)
                     rotation_logits = rotation_logits.at[idx].set(logits)
 
             elif comp.ref in context.current_placements:
                 placement = context.current_placements[comp.ref]
-                positions = positions.at[idx].set(jnp.array(placement.position))
+                positions = positions.at[idx].set(np.array(placement.position))
 
                 # Set rotation logits to strongly prefer the chosen rotation
                 rot_idx = placement.rotation
-                logits = jnp.array([-10.0, -10.0, -10.0, -10.0])
+                logits = np.array([-10.0, -10.0, -10.0, -10.0])
                 logits = logits.at[rot_idx].set(10.0)
                 rotation_logits = rotation_logits.at[idx].set(logits)
 
             elif comp.initial_position is not None:
                 # Use initial position from netlist (non-fixed components)
-                positions = positions.at[idx].set(jnp.array(comp.initial_position))
+                positions = positions.at[idx].set(np.array(comp.initial_position))
 
                 if comp.initial_rotation is not None:
                     rot_idx = comp.initial_rotation
-                    logits = jnp.array([-10.0, -10.0, -10.0, -10.0])
+                    logits = np.array([-10.0, -10.0, -10.0, -10.0])
                     logits = logits.at[rot_idx].set(10.0)
                     rotation_logits = rotation_logits.at[idx].set(logits)
 
             else:
                 # Fallback: center of board (shouldn't happen if fill works)
                 ox, oy = context.board.origin
-                center = jnp.array(
+                center = np.array(
                     [
                         ox + context.board.width / 2,
                         oy + context.board.height / 2,
@@ -376,21 +376,12 @@ def create_default_pipeline(
     2. Force Directed Layout (Refinement)
     3. (Other heuristics to be added...)
     """
-    from temper_placer.heuristics.force_directed import (
-        ForceDirectedHeuristic,
-        ForceDirectedUnfoldingHeuristic,
-    )
     from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
 
     pipeline = HeuristicPipeline(conflict_strategy=conflict_strategy)
 
-    # Priority: INITIALIZATION (-1)
-    # 1. Unfold first (topology)
-    pipeline.register(ForceDirectedUnfoldingHeuristic(iterations=200))
-    # 2. Spectral (global structure)
+    # 1. Spectral (global structure)
     pipeline.register(SpectralPlacementHeuristic(confidence=0.1))
-    # 3. Force-directed (refinement)
-    pipeline.register(ForceDirectedHeuristic(confidence=0.2, iterations=50))
 
     # TODO: Add Hard, Structural, Organizational, Style heuristics
 
@@ -412,10 +403,6 @@ def create_priority_pipeline(
     Order matters! Power stage is placed first and marked fixed,
     so subsequent heuristics work around it.
     """
-    from temper_placer.heuristics.force_directed import (
-        ForceDirectedHeuristic,
-        ForceDirectedUnfoldingHeuristic,
-    )
     from temper_placer.heuristics.power_stage import (
         DriverProximityHeuristic,
         PowerStageTemplateHeuristic,
@@ -432,9 +419,6 @@ def create_priority_pipeline(
     # Places gate driver near power stage
     pipeline.register(DriverProximityHeuristic())
 
-    # Phase 3-4: Standard heuristics for rest
-    pipeline.register(ForceDirectedUnfoldingHeuristic(iterations=200))
+    # Phase 3: Standard heuristics for rest
     pipeline.register(SpectralPlacementHeuristic(confidence=0.1))
-    pipeline.register(ForceDirectedHeuristic(confidence=0.2, iterations=50))
-
     return pipeline

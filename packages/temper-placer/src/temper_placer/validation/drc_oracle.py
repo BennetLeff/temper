@@ -20,15 +20,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-
-from jax import Array
-
 if TYPE_CHECKING:
     from temper_placer.validation.drc_result import RunResult
     from temper_placer.validation.drc_types import ConstraintSet as DrcConstraintSet
     from temper_placer.validation.drc_types import Placement as DrcPlacement
 
-    from temper_placer.losses.base import LossContext
+    from temper_placer.core.loss_types import LossContext
 
 try:
     import temper_drc_rs

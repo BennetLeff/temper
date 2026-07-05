@@ -13,10 +13,8 @@ The smoothness is controlled by alpha/beta parameters:
 These parameters should be annealed during training: start low for exploration,
 increase for refinement.
 """
-
-import jax.numpy as jnp
-from jax import Array
-from jax.scipy.special import logsumexp
+import numpy as np
+from scipy.special import logsumexp
 
 # =============================================================================
 # Smooth Maximum Functions
@@ -79,7 +77,7 @@ def smooth_max_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
         Smooth maximum of a and b (element-wise for arrays)
     """
     # Stack and compute logsumexp
-    stacked = jnp.stack([a, b], axis=-1)
+    stacked = np.stack([a, b], axis=-1)
     return logsumexp(alpha * stacked, axis=-1) / alpha
 
 
@@ -138,7 +136,7 @@ def smooth_min_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
     Returns:
         Smooth minimum of a and b (element-wise for arrays)
     """
-    stacked = jnp.stack([a, b], axis=-1)
+    stacked = np.stack([a, b], axis=-1)
     return -logsumexp(-alpha * stacked, axis=-1) / alpha
 
 
@@ -171,7 +169,7 @@ def smooth_relu(x: Array, beta: float = 10.0) -> Array:
     # Use softplus for numerical stability
     # softplus(x) = log(1 + exp(x))
     # smooth_relu(x, beta) = softplus(beta * x) / beta
-    return jnp.logaddexp(0.0, beta * x) / beta
+    return np.logaddexp(0.0, beta * x) / beta
 
 
 def smooth_relu_penalty(x: Array, beta: float = 10.0) -> Array:
@@ -228,7 +226,7 @@ def smooth_abs(x: Array, beta: float = 10.0) -> Array:
     """
     # Using sqrt(x^2 + epsilon) where epsilon = 1/beta^2
     epsilon = 1.0 / (beta * beta)
-    return jnp.sqrt(x * x + epsilon)
+    return np.sqrt(x * x + epsilon)
 
 
 def smooth_clip(x: Array, min_val: float, max_val: float, beta: float = 10.0) -> Array:
@@ -245,8 +243,8 @@ def smooth_clip(x: Array, min_val: float, max_val: float, beta: float = 10.0) ->
         Smoothly clipped values
     """
     # clip(x) = min(max(x, min_val), max_val)
-    clipped_low = smooth_max_pair(x, jnp.full_like(x, min_val), beta)
-    clipped_both = smooth_min_pair(clipped_low, jnp.full_like(x, max_val), beta)
+    clipped_low = smooth_max_pair(x, np.full_like(x, min_val), beta)
+    clipped_both = smooth_min_pair(clipped_low, np.full_like(x, max_val), beta)
     return clipped_both
 
 
@@ -324,7 +322,7 @@ def weighted_average_smooth(values: Array, weights: Array, temperature: float = 
     import jax.nn
 
     soft_weights = jax.nn.softmax(weights / temperature)
-    return jnp.sum(values * soft_weights)
+    return np.sum(values * soft_weights)
 
 
 # =============================================================================

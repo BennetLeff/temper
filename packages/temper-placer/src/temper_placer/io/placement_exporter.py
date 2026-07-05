@@ -30,12 +30,14 @@ import contextlib
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+from numpy.typing import NDArray
+Array = NDArray
 
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
-from temper_placer.losses.types import LossContext
+
 
 
 def soft_to_discrete_rotations(rotations: Array) -> Array:
@@ -52,7 +54,7 @@ def soft_to_discrete_rotations(rotations: Array) -> Array:
     Returns:
         (N,) array of rotation indices (0-3).
     """
-    return jnp.argmax(rotations, axis=-1)
+    return np.argmax(rotations, axis=-1)
 
 
 def rotation_index_to_degrees(index: int) -> float:
@@ -123,7 +125,7 @@ def positions_to_placements(
 def export_positions_to_temp_pcb(
     positions: Array,
     rotations: Array,
-    context: LossContext,
+    context: Any,
     template_pcb: Path,
     board_origin: tuple[float, float] = (0.0, 0.0),
     temp_dir: Path | None = None,

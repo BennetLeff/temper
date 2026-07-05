@@ -13,9 +13,7 @@ for use in differentiable optimization.
 
 
 import jax.nn
-import jax.numpy as jnp
-from jax import Array
-
+import numpy as np
 # =============================================================================
 # Point Operations
 # =============================================================================
@@ -38,7 +36,7 @@ def point_distance(p1: Array, p2: Array, eps: float = 1e-12) -> Array:
         Scalar distance between points (always >= sqrt(eps))
     """
     diff = p2 - p1
-    return jnp.sqrt(jnp.sum(diff**2) + eps)
+    return np.sqrt(np.sum(diff**2) + eps)
 
 
 def point_distance_squared(p1: Array, p2: Array) -> Array:
@@ -56,7 +54,7 @@ def point_distance_squared(p1: Array, p2: Array) -> Array:
         Scalar squared distance between points
     """
     diff = p2 - p1
-    return jnp.sum(diff**2)
+    return np.sum(diff**2)
 
 
 def point_midpoint(p1: Array, p2: Array) -> Array:
@@ -83,7 +81,7 @@ def points_centroid(points: Array) -> Array:
     Returns:
         Centroid as (x, y) array
     """
-    return jnp.mean(points, axis=0)
+    return np.mean(points, axis=0)
 
 
 def point_to_line_distance(point: Array, line_start: Array, line_end: Array) -> Array:
@@ -100,14 +98,14 @@ def point_to_line_distance(point: Array, line_start: Array, line_end: Array) -> 
     """
     # Vector from line_start to line_end
     line_vec = line_end - line_start
-    line_len_sq = jnp.sum(line_vec**2)
+    line_len_sq = np.sum(line_vec**2)
 
     # Handle degenerate case (line is a point)
-    line_len_sq = jnp.maximum(line_len_sq, 1e-10)
+    line_len_sq = np.maximum(line_len_sq, 1e-10)
 
     # Project point onto line, clamped to [0, 1]
-    t = jnp.sum((point - line_start) * line_vec) / line_len_sq
-    t = jnp.clip(t, 0.0, 1.0)
+    t = np.sum((point - line_start) * line_vec) / line_len_sq
+    t = np.clip(t, 0.0, 1.0)
 
     # Find closest point on line segment
     closest = line_start + t * line_vec
@@ -134,8 +132,8 @@ def rect_from_center(center: Array, width: float, height: float) -> tuple[Array,
     """
     half_w = width / 2.0
     half_h = height / 2.0
-    min_corner = center - jnp.array([half_w, half_h])
-    max_corner = center + jnp.array([half_w, half_h])
+    min_corner = center - np.array([half_w, half_h])
+    max_corner = center + np.array([half_w, half_h])
     return min_corner, max_corner
 
 
@@ -198,11 +196,11 @@ def rect_contains_point(min_corner: Array, max_corner: Array, point: Array) -> A
         Soft containment indicator (0.0 to 1.0)
     """
     # Distance inside rectangle (positive if inside)
-    dist_inside_x = jnp.minimum(point[0] - min_corner[0], max_corner[0] - point[0])
-    dist_inside_y = jnp.minimum(point[1] - min_corner[1], max_corner[1] - point[1])
+    dist_inside_x = np.minimum(point[0] - min_corner[0], max_corner[0] - point[0])
+    dist_inside_y = np.minimum(point[1] - min_corner[1], max_corner[1] - point[1])
 
     # Minimum distance (negative if outside)
-    min_dist = jnp.minimum(dist_inside_x, dist_inside_y)
+    min_dist = np.minimum(dist_inside_x, dist_inside_y)
 
     # Soft sigmoid for differentiability (steep transition)
     beta = 10.0  # Steepness parameter
@@ -225,7 +223,7 @@ def rect_corners(center: Array, width: float, height: float) -> Array:
     half_w = width / 2.0
     half_h = height / 2.0
 
-    return jnp.array(
+    return np.array(
         [
             [center[0] - half_w, center[1] - half_h],  # bottom-left
             [center[0] + half_w, center[1] - half_h],  # bottom-right
@@ -250,8 +248,8 @@ def aabb_from_points(points: Array) -> tuple[Array, Array]:
     Returns:
         Tuple of (min_corner, max_corner) as (x, y) arrays
     """
-    min_corner = jnp.min(points, axis=0)
-    max_corner = jnp.max(points, axis=0)
+    min_corner = np.min(points, axis=0)
+    max_corner = np.max(points, axis=0)
     return min_corner, max_corner
 
 
@@ -270,11 +268,11 @@ def aabb_intersects(min1: Array, max1: Array, min2: Array, max2: Array) -> Array
         Overlap indicator (positive = overlap, negative = separation)
     """
     # Compute overlap in each dimension
-    overlap_x = jnp.minimum(max1[0], max2[0]) - jnp.maximum(min1[0], min2[0])
-    overlap_y = jnp.minimum(max1[1], max2[1]) - jnp.maximum(min1[1], min2[1])
+    overlap_x = np.minimum(max1[0], max2[0]) - np.maximum(min1[0], min2[0])
+    overlap_y = np.minimum(max1[1], max2[1]) - np.maximum(min1[1], min2[1])
 
     # Both dimensions must overlap for intersection
-    return jnp.minimum(overlap_x, overlap_y)
+    return np.minimum(overlap_x, overlap_y)
 
 
 def aabb_overlap_area(min1: Array, max1: Array, min2: Array, max2: Array) -> Array:
@@ -289,8 +287,8 @@ def aabb_overlap_area(min1: Array, max1: Array, min2: Array, max2: Array) -> Arr
         Overlap area (0 if no overlap)
     """
     # Compute overlap in each dimension
-    overlap_x = jnp.maximum(0.0, jnp.minimum(max1[0], max2[0]) - jnp.maximum(min1[0], min2[0]))
-    overlap_y = jnp.maximum(0.0, jnp.minimum(max1[1], max2[1]) - jnp.maximum(min1[1], min2[1]))
+    overlap_x = np.maximum(0.0, np.minimum(max1[0], max2[0]) - np.maximum(min1[0], min2[0]))
+    overlap_y = np.maximum(0.0, np.minimum(max1[1], max2[1]) - np.maximum(min1[1], min2[1]))
 
     return overlap_x * overlap_y
 
@@ -306,8 +304,8 @@ def aabb_union(min1: Array, max1: Array, min2: Array, max2: Array) -> tuple[Arra
     Returns:
         Tuple of (min_corner, max_corner) of union AABB
     """
-    min_corner = jnp.minimum(min1, min2)
-    max_corner = jnp.maximum(max1, max2)
+    min_corner = np.minimum(min1, min2)
+    max_corner = np.maximum(max1, max2)
     return min_corner, max_corner
 
 
@@ -323,7 +321,7 @@ def aabb_expand(min_corner: Array, max_corner: Array, margin: float) -> tuple[Ar
     Returns:
         Tuple of (new_min, new_max) corners
     """
-    margin_vec = jnp.array([margin, margin])
+    margin_vec = np.array([margin, margin])
     return min_corner - margin_vec, max_corner + margin_vec
 
 
@@ -354,7 +352,7 @@ def distance_to_rect_edge(point: Array, min_corner: Array, max_corner: Array) ->
 
     # If all positive, point is inside - return distance to nearest edge
     # If any negative, point is outside - return most negative
-    return jnp.minimum(jnp.minimum(dist_left, dist_right), jnp.minimum(dist_bottom, dist_top))
+    return np.minimum(np.minimum(dist_left, dist_right), np.minimum(dist_bottom, dist_top))
 
 
 def distance_to_specific_edge(
@@ -411,8 +409,8 @@ def distance_to_board_boundary(
     half_h = component_height / 2.0
 
     # Effective board boundaries accounting for component size
-    effective_min = board_min + jnp.array([half_w, half_h])
-    effective_max = board_max - jnp.array([half_w, half_h])
+    effective_min = board_min + np.array([half_w, half_h])
+    effective_max = board_max - np.array([half_w, half_h])
 
     return distance_to_rect_edge(point, effective_min, effective_max)
 
@@ -441,7 +439,7 @@ def pairwise_distances(points: Array, eps: float = 1e-12) -> Array:
     # points[:, None, :] has shape (N, 1, 2)
     # points[None, :, :] has shape (1, N, 2)
     diff = points[:, None, :] - points[None, :, :]  # (N, N, 2)
-    return jnp.sqrt(jnp.sum(diff**2, axis=-1) + eps)  # (N, N)
+    return np.sqrt(np.sum(diff**2, axis=-1) + eps)  # (N, N)
 
 
 def pairwise_distances_squared(points: Array) -> Array:
@@ -457,7 +455,7 @@ def pairwise_distances_squared(points: Array) -> Array:
         Array of shape (N, N) with squared distances
     """
     diff = points[:, None, :] - points[None, :, :]
-    return jnp.sum(diff**2, axis=-1)
+    return np.sum(diff**2, axis=-1)
 
 
 def batch_point_distance(points1: Array, points2: Array, eps: float = 1e-12) -> Array:
@@ -476,4 +474,4 @@ def batch_point_distance(points1: Array, points2: Array, eps: float = 1e-12) -> 
         Array of shape (N,) with distances
     """
     diff = points2 - points1
-    return jnp.sqrt(jnp.sum(diff**2, axis=-1) + eps)
+    return np.sqrt(np.sum(diff**2, axis=-1) + eps)

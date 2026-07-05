@@ -24,10 +24,7 @@ Example usage:
 import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-
-import jax.numpy as jnp
-from jax import Array
-
+import numpy as np
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position
@@ -90,11 +87,11 @@ class CongestionGrid:
         height_cells = int(math.ceil(board.height / cell_size_mm))
 
         if num_layers == 1:
-            demand = jnp.zeros((height_cells, width_cells))
-            supply = jnp.full((height_cells, width_cells), default_supply)
+            demand = np.zeros((height_cells, width_cells))
+            supply = np.full((height_cells, width_cells), default_supply)
         else:
-            demand = jnp.zeros((num_layers, height_cells, width_cells))
-            supply = jnp.full((num_layers, height_cells, width_cells), default_supply)
+            demand = np.zeros((num_layers, height_cells, width_cells))
+            supply = np.full((num_layers, height_cells, width_cells), default_supply)
 
         return cls(
             demand=demand,
@@ -112,7 +109,7 @@ class CongestionGrid:
         Returns:
             Array of utilization ratios, same shape as demand.
         """
-        return self.demand / jnp.maximum(self.supply, 1e-6)
+        return self.demand / np.maximum(self.supply, 1e-6)
 
     def get_overflow(self) -> Array:
         """Compute overflow (demand - supply) for each cell.
@@ -120,7 +117,7 @@ class CongestionGrid:
         Returns:
             Array of overflow values, clipped to >= 0.
         """
-        return jnp.maximum(self.demand - self.supply, 0.0)
+        return np.maximum(self.demand - self.supply, 0.0)
 
 
 @dataclass
@@ -426,7 +423,7 @@ def analyze_congestion(
         # 2D grid
         overflow_mask = overflow > 0
         if overflow_mask.any():
-            rows, cols = jnp.where(overflow_mask)
+            rows, cols = np.where(overflow_mask)
             for i in range(len(rows)):
                 r, c = int(rows[i]), int(cols[i])
                 bottlenecks.append(
@@ -444,7 +441,7 @@ def analyze_congestion(
             layer_overflow = overflow[layer_idx]
             overflow_mask = layer_overflow > 0
             if overflow_mask.any():
-                rows, cols = jnp.where(overflow_mask)
+                rows, cols = np.where(overflow_mask)
                 for i in range(len(rows)):
                     r, c = int(rows[i]), int(cols[i])
                     bottlenecks.append(
