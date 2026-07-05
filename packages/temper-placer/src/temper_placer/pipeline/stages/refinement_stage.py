@@ -53,18 +53,6 @@ class RefinementStage:
 
         print(f"Starting iterative refinement (max {max_iterations} iterations)...")
 
-        # U5: Routability gradient loss — created once, blended per iteration.
-        from temper_placer.router_v6.routability_aggregator import RoutabilityAggregator
-
-        routability_loss = RoutabilityGradientLoss()
-        routability_loss.current_weight = routability_gradient_weight
-
-        aggressor = RoutabilityAggregator()
-
-        # U7: UNSAT streak tracking
-        unsat_streak = 0
-        overridden_max_movement_mm = context.get("max_movement_mm", 2.0)
-
         class OrchestratorRouter:
             def __init__(self, st):
                 self.state = st
@@ -94,134 +82,8 @@ class RefinementStage:
                 return Result(completion, router)
 
         def update_fn(pos, routing_res):
-            nonlocal unsat_streak, overridden_max_movement_mm
-
-            if deadline is not None and time.time() > deadline:
-                return np.array(pos)
-
-            iteration_idx = getattr(routing_res, "iteration", 0)
-            completion_rate = routing_res.completion_rate
-
-            print("    Refining placement using JAX optimization with routing feedback loss...")
-            # optax removed (JAX retirement)
-
-            from temper_placer.pipeline.feedback import RoutingFeedbackLoss
-
-            heatmap = CongestionHeatmap.from_router(routing_res.router)
-
-            # U6: SAT solver invocation + routability scores.
-            solver_status, routability_scores, solver_stats, var_to_net, unsat_core = (
-                _invoke_sat_solver(
-                    board, netlist, pos,
-                    timeout_ms=routability_gradient_sat_timeout_ms,
-                    constraint_model_data=context.get("constraint_model_data"),
-                )
-            )
-
-            # U3: Aggregate per-net scores to per-component.
-            n_components = netlist.n_components
-            scores, score_mean = aggressor.compute_scores(
-                stats=solver_stats,
-                var_to_net=var_to_net,
-                n_components=n_components,
-                unsat_core=unsat_core,
-                solver_status=solver_status,
-                timeout_ms=routability_gradient_sat_timeout_ms,
-            )
-
-            # U6: blend scores into routability loss.
-            routability_loss.blend({
-                "routability_scores": scores,
-                "iteration": iteration_idx,
-                "completion_rate": completion_rate,
-                "routability_threshold": routability_threshold,
-            })
-
-            # U7: UNSAT handling
-            if solver_status == "unsat":
-                unsat_streak += 1
-                if unsat_core:
-                    overridden_max_movement_mm = (
-                        overridden_max_movement_mm * routability_gradient_unsat_movement_multiplier
-                    )
-                if unsat_streak >= routability_gradient_unsat_escape_iterations:
-                    _log_unsat_escape(unsat_streak)
-                    pos = simple_congestion_repel(pos, heatmap, netlist, board)
-                    unsat_streak = 0
-            else:
-                unsat_streak = 0
-
-            # U9: Observability logging
-            _log_routability_iteration(
-                iteration_idx, score_mean, scores, solver_status,
-                len(unsat_core), unsat_streak,
-            )
-
-            # U6: Build CompositeLoss with routability term (FR4.1).
-            composite_losses = [
-                WeightedLoss(WirelengthLoss(), weight=1.0),
-                WeightedLoss(OverlapLoss(), weight=50.0),
-                WeightedLoss(ChannelCapacityLoss(), weight=20.0),
-                WeightedLoss(RoutingFeedbackLoss(heatmap), weight=100.0),
-            ]
-
-            # U6: Add routability gradient loss with weight scheduling (FR4.4).
-            if iteration_idx > 0:
-                ramp = min(iteration_idx / 2.0, 1.0)
-                if completion_rate > routability_threshold:
-                    ramp *= 0.3
-                effective_weight = routability_loss.current_weight * ramp
-            else:
-                effective_weight = 0.0  # Iteration 0: no signal yet (baseline)
-
-            composite_losses.append(
-                WeightedLoss(routability_loss, weight=effective_weight)
-            )
-
-            loss_fn = CompositeLoss(composite_losses)
-
-            loss_context = LossContext.from_netlist_and_board(netlist, board)
-            n = netlist.n_components
-
-            optimizer = optax.adam(learning_rate=0.05)
-            old_positions = np.array(pos)
-            params = {"positions": old_positions}
-            opt_state = optimizer.init(params)
-
-            #  removed (JAX retirement)
-            def step(params, opt_state):
-                def f(p):
-                    rotations = np.zeros((n, 4)).at[:, 0].set(1.0)
-                    return loss_fn(p["positions"], rotations, loss_context).value
-                loss, grads = jax.value_and_grad(f)(params)
-                updates, opt_state = optimizer.update(grads, opt_state)
-                params = optax.apply_updates(params, updates)
-                return params, opt_state, loss
-
-            for epoch in range(200):
-                if deadline is not None and time.time() > deadline:
-                    break
-                params, opt_state, _ = step(params, opt_state)
-                if epoch % 50 == 0:
-                    pos_np = np.array(params["positions"])
-                    pos_np = clamp_to_bounds(pos_np,
-                                             np.array([c.bounds[0] for c in netlist.components]),
-                                             np.array([c.bounds[1] for c in netlist.components]),
-                                             board)
-                    params["positions"] = np.array(pos_np)
-
-            # U6: Gradient clipping per component (FR5.4)
-            updated_positions = np.array(params["positions"])
-            delta = updated_positions - old_positions
-            delta_norm = np.linalg.norm(delta, axis=-1, keepdims=True)
-            delta_clipped = delta * np.minimum(
-                1.0, routability_gradient_max_grad_norm / (delta_norm + 1e-8)
-            )
-            params["positions"] = old_positions + delta_clipped
-
-            legalized = resolve_overlaps_priority(np.array(params["positions"]), netlist, board,
-                                                   min_separation=1.0)
-            return np.array(legalized)
+            # JAX gradient descent is retired; pass through CP-SAT placement directly.
+            return np.array(pos)
 
         router = OrchestratorRouter(state)
         iterator = PlaceRouteIterator(
