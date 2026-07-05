@@ -48,6 +48,40 @@ main.add_command(timing)
 main.add_command(profile)
 main.add_command(watch)
 
+
+def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None:
+    """Surface UNSAT report if the result carries one.
+
+    Integration point for the F2 constraint-completion CP-SAT solve path.
+    When the encoder produces an UnsatReport after INFEASIBLE, this
+    function surfaces it as Rich panel (stderr) and optional JSON file.
+
+    Args:
+        result: Optimization result that may carry an ``unsat_report`` attr.
+        unsat_report_path: Optional path for JSON output.
+    """
+    unsat = getattr(result, "unsat_report", None)
+    if unsat is None:
+        return
+
+    try:
+        from temper_placer.placer.cp_sat.unsat_surface import (
+            format_unsat_panel,
+            write_unsat_json,
+        )
+
+        console.print(
+            Panel(format_unsat_panel(unsat), border_style="red", title="UNSAT Core"),
+            style="",
+        )
+
+        if unsat_report_path is not None:
+            write_unsat_json(unsat, unsat_report_path)
+            console.print(f"[yellow]UNSAT report written to:[/] {unsat_report_path}")
+    except ImportError:
+        console.print("[red]Failed to import UNSAT surface module.[/]")
+
+
 @main.command()
 @click.argument("input_pcb", type=click.Path(exists=True, path_type=Path))
 @click.option(
@@ -234,6 +268,12 @@ main.add_command(watch)
     default=False,
     help="Use the consolidated Core 8 loss set (default: False).",
 )
+@click.option(
+    "--unsat-report",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Write UNSAT core report as JSON to this path when CP-SAT returns INFEASIBLE.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -268,6 +308,7 @@ def optimize(
     spice_penalty_weight: float,
     weight_channel_capacity: float | None,
     compact: bool,
+    unsat_report: Path | None,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -984,6 +1025,11 @@ def optimize(
 
         traceback.print_exc()
         sys.exit(1)
+
+    # --- UNSAT surfacing (integration point for F2 CP-SAT solves) ---
+    # When CP-SAT returns INFEASIBLE, the encoder produces an UnsatReport.
+    # This block surfaces it via Rich panel (stderr) and optional JSON.
+    _maybe_surface_unsat(result, unsat_report)
 
     # Export results
     console.print("\n[bold cyan]Exporting results...[/]")
