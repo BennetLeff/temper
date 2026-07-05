@@ -29,8 +29,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import jax.numpy as jnp
-
 from temper_placer.core.state import PlacementState
 from temper_placer.metrics.quality import (
     compactness_score,
@@ -48,8 +46,8 @@ def score_placement(
     positions: dict[str, tuple[float, float]],
     netlist: Netlist,
     board: Board,
-    design_rules: Any = None,
-    footprint_library: Any = None,
+    _design_rules: Any = None,
+    _footprint_library: Any = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """

@@ -68,7 +68,7 @@ def _get_size(ref: str, components: dict) -> tuple[float, float]:
 
 def _build_boxes(
     positions: dict[str, tuple[float, float]],
-    components: dict[str, dict],
+    components: dict[str, dict],  # noqa: ARG001
 ) -> dict[str, tuple[float, float, float, float]]:
     """Build bounding-box dict: {ref: (left, bottom, right, top)} in mm."""
     boxes: dict[str, tuple[float, float, float, float]] = {}
@@ -192,7 +192,7 @@ def _audit_clearance(
 def _audit_edge_anchors(
     constraints: dict,
     positions: dict[str, tuple[float, float]],
-    components: dict[str, dict],
+    components: dict[str, dict],  # noqa: ARG001
     boxes: dict[str, tuple[float, float, float, float]],
     board_w_mm: float | None,
     board_h_mm: float | None,
@@ -216,7 +216,7 @@ def _audit_edge_anchors(
         if ref not in boxes:
             continue
 
-        box = boxes[ref]
+        boxes[ref]
         x, y = positions[ref]
         w, h = _get_size(ref, components)
 
@@ -225,15 +225,9 @@ def _audit_edge_anchors(
         elif edge == "bottom":
             dist = y
         elif edge == "right":
-            if board_w_mm is None:
-                dist = x + w  # fallback: report distance of right edge from origin
-            else:
-                dist = board_w_mm - (x + w)
+            dist = x + w if board_w_mm is None else board_w_mm - (x + w)
         elif edge == "top":
-            if board_h_mm is None:
-                dist = y + h  # fallback: report distance of top edge from origin
-            else:
-                dist = board_h_mm - (y + h)
+            dist = y + h if board_h_mm is None else board_h_mm - (y + h)
         else:
             continue
 
@@ -260,7 +254,7 @@ def _audit_edge_anchors(
 def _audit_adjacency(
     constraints: dict,
     boxes: dict[str, tuple[float, float, float, float]],
-    components: dict[str, dict],
+    components: dict[str, dict],  # noqa: ARG001
     violations: list[Violation],
     checked: int,
     passed: int,
@@ -329,7 +323,7 @@ def _audit_adjacency(
 def _audit_region_membership(
     constraints: dict,
     boxes: dict[str, tuple[float, float, float, float]],
-    components: dict[str, dict],
+    components: dict[str, dict],  # noqa: ARG001
     violations: list[Violation],
     checked: int,
     passed: int,
@@ -403,9 +397,9 @@ def _audit_region_membership(
 
 def audit_placement(
     positions: dict[str, tuple[float, float]],
-    components: dict[str, dict],
+    components: dict[str, dict],  # noqa: ARG001
     constraints: dict | None = None,
-    scale_factor: int = 10,
+    scale_factor: int = 10,  # noqa: ARG001
     board_w_mm: float | None = None,
     board_h_mm: float | None = None,
 ) -> AuditReport:

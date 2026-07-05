@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 def _resolve_zone_bounds(
     zone_name: str,
     board: Any,
-    components: dict,
+    components: dict,  # noqa: ARG001
 ) -> tuple[float, float, float, float]:
     """Resolve a zone name to (x_min, y_min, x_max, y_max) bounds in mm.
 
@@ -127,7 +127,7 @@ def _encode_separated(
 
 def _encode_enclosing(
     constraint: EnclosingConstraint,
-    components: dict,
+    components: dict,  # noqa: ARG001
     model: cp_model.CpModel,
     ctx: SolveContext,
     board: Any = None,
@@ -223,7 +223,7 @@ def _encode_adjacent(
 # @req(2026-07-03-002, R5): Loop-area honoring in CP-SAT encoder
 def _encode_loop_area(
     constraint: LoopAreaConstraint,
-    components: dict,
+    components: dict,  # noqa: ARG001
     model: cp_model.CpModel,
     ctx: SolveContext,
     board: Any = None,  # noqa: ARG001
@@ -339,7 +339,7 @@ UNSUPPORTED_TYPES: frozenset[ConstraintType] = frozenset({
 
 def compile_pcl_to_cp_sat(
     constraints: ConstraintCollection,
-    components: dict,
+    components: dict,  # noqa: ARG001
     model: cp_model.CpModel,
     ctx: SolveContext,
     netlist: Any = None,

@@ -9,7 +9,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from ortools.sat.python import cp_model
 
@@ -25,7 +24,7 @@ class SolveStatus(Enum):
 class SolveResult:
     status: SolveStatus
     positions: dict[str, tuple[float, float]] = field(default_factory=dict)
-    objective_value: Optional[float] = None
+    objective_value: float | None = None
     solve_time_s: float = 0.0
     wall_time_s: float = 0.0
 
@@ -254,7 +253,7 @@ def add_soft_wirelength_objective(
     net_pairs: list[tuple[str, str]],
     board_w_units: int = 0,
     board_h_units: int = 0,
-    spread_weight: float = 1.0,
+    spread_weight: float = 1.0,  # noqa: ARG001
 ) -> None:
     """R6: Soft wirelength + spread objective (tiebreaker).
 
