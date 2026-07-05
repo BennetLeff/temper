@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from temper_placer.core.state import PlacementState
     from temper_placer.pipeline.orchestrator import PipelineState
 
+from temper_placer.core.loss_types import LossFunction
 from temper_placer.core.state import PlacementState
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 

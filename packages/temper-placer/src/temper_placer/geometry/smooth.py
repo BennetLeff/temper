@@ -16,6 +16,8 @@ increase for refinement.
 import numpy as np
 from scipy.special import logsumexp
 
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 # =============================================================================
 # Smooth Maximum Functions
 # =============================================================================
@@ -263,9 +265,7 @@ def smooth_step(x: Array, edge: float = 0.0, beta: float = 10.0) -> Array:
     Returns:
         Smooth step function applied element-wise (values in [0, 1])
     """
-    import jax.nn
-
-    return jax.nn.sigmoid(beta * (x - edge))
+    return 1.0 / (1.0 + np.exp(-beta * (x - edge)))
 
 
 # =============================================================================
@@ -319,9 +319,8 @@ def weighted_average_smooth(values: Array, weights: Array, temperature: float = 
     Returns:
         Weighted average (scalar)
     """
-    import jax.nn
-
-    soft_weights = jax.nn.softmax(weights / temperature)
+    exp_weights = np.exp((weights - np.max(weights)) / temperature)
+    soft_weights = exp_weights / np.sum(exp_weights)
     return np.sum(values * soft_weights)
 
 

@@ -18,6 +18,10 @@ backend is unavailable but the Python backend still works.
 
 from __future__ import annotations
 
+import numpy as np
+
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:

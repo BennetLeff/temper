@@ -14,6 +14,8 @@ Part of feat/routability-gradient-signal (U3).
 
 from __future__ import annotations
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 class RoutabilityAggregator:
     """Computes per-component routability scores from solver statistics."""
 

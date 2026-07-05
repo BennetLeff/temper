@@ -13,6 +13,8 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position

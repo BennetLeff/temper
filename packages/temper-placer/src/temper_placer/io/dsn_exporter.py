@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.io.dsn import dsn_list
 

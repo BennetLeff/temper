@@ -25,6 +25,8 @@ import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position

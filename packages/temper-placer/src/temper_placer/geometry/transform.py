@@ -15,6 +15,8 @@ All rotations are counter-clockwise around a center point.
 
 import math
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from temper_placer.core.units import Degrees, DegreesArray, RadiansArray
 
 # =============================================================================

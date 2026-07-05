@@ -19,9 +19,8 @@ class LearningRateSchedule:
 
 # Dynamic imports to avoid circular dependencies
 def _get_heuristics():
-    """Get heuristic classes."""
+    """Get heuristic classes (force_directed removed post-JAX retirement)."""
     try:
-        from temper_placer.heuristics.force_directed import ForceDirectedHeuristic
         from temper_placer.heuristics.organizational import (
             DecouplingCapHeuristic,
             DomainSeparationHeuristic,
@@ -39,7 +38,6 @@ def _get_heuristics():
 
         return {
             "spectral_init": SpectralPlacementHeuristic,
-            "force_directed": ForceDirectedHeuristic,
             "connector_edge_snap": ConnectorEdgeSnappingHeuristic,
             "thermal_edge": ThermalEdgePlacementHeuristic,
             "critical_loop": CriticalLoopHeuristic,
@@ -53,7 +51,7 @@ def _get_heuristics():
     except ImportError:
         # Return mock classes for testing
         return {name: type(name, (), {}) for name in [
-            "spectral_init", "force_directed", "connector_edge_snap",
+            "spectral_init", "connector_edge_snap",
             "thermal_edge", "critical_loop", "functional_clustering",
             "power_flow_topology", "decoupling_cap", "domain_separation",
             "star_ground", "signal_flow",

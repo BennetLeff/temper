@@ -235,7 +235,8 @@ def measure_routability(
     """
     Measure routability indicators (post-placement estimation).
     """
-import numpy as np
+    import numpy as np
+
     from temper_placer.router_v6.congestion import analyze_congestion
 
     metrics = RoutabilityMetrics()

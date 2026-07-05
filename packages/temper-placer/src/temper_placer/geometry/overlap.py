@@ -12,6 +12,8 @@ Key features:
 - Smooth penalties suitable for loss functions
 """
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from temper_placer.geometry.smooth import smooth_relu
 from temper_placer.geometry.transform import get_rotated_bounds
 

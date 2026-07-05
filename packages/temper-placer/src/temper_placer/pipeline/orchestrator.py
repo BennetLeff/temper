@@ -442,56 +442,15 @@ class PipelineOrchestrator:
         """Run geometric optimization (deprecated — use GeometricStage)."""
         warnings.warn("_run_geometric is deprecated. Use GeometricStage.", DeprecationWarning, stacklevel=2)
         import numpy as np
-        import numpy as np
-        # optax removed (JAX retirement)
 
         from temper_placer.core.state import PlacementState
-            project_to_trust_region,
-            resolve_overlaps_priority,
-        )
 
         print("Initializing local refinement (Step 3)...")
         if state.deterministic_result is None:
-             state = self._run_topological(state)
+            state = self._run_topological(state)
 
-        anchor_positions = np.array(state.deterministic_result.positions)
-        positions = anchor_positions.copy()
-        n = state.netlist.n_components
-
-        loss_fn = CompositeLoss([
-            WeightedLoss(WirelengthLoss(), weight=1.0),
-            WeightedLoss(OverlapLoss(), weight=10.0),
-            WeightedLoss(ChannelCapacityLoss(), weight=5.0),
-        ])
-        context = LossContext.from_netlist_and_board(state.netlist, state.board)
-
-        print(f"Running refinement for {state.config.epochs} epochs (max {state.config.max_movement_mm}mm movement)...")
-        optimizer = optax.adam(learning_rate=0.1)
-        params = {"positions": np.array(positions)}
-        opt_state = optimizer.init(params)
-
-        #  removed (JAX retirement)
-        def step(params, opt_state):
-            def f(p):
-                rotations = np.zeros((n, 4)).at[:, 0].set(1.0)
-                return loss_fn(p["positions"], rotations, context).value
-            loss, grads = jax.value_and_grad(f)(params)
-            updates, opt_state = optimizer.update(grads, opt_state)
-            params = optax.apply_updates(params, updates)
-            return params, opt_state, loss
-
-        for epoch in range(min(state.config.epochs, 500)):
-            params, opt_state, _ = step(params, opt_state)
-            if epoch % 10 == 0:
-                pos_np = np.array(params["positions"])
-                pos_np = project_to_trust_region(pos_np, anchor_positions, max_radius=state.config.max_movement_mm)
-                pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]),
-                                         np.array([c.bounds[1] for c in state.netlist.components]), state.board)
-                pos_np = clamp_to_zones(pos_np, state.netlist, state.board)
-                params["positions"] = np.array(pos_np)
-
-        final_pos = resolve_overlaps_priority(np.array(params["positions"]), state.netlist, state.board, min_separation=0.5, enforce_zones=True)
-        state.placement_state = PlacementState.from_positions(np.array(final_pos))
+        positions = np.array(state.deterministic_result.positions, dtype=np.float32)
+        state.placement_state = PlacementState.from_positions(positions)
         return state
 
     def _run_routing(self, state: PipelineState) -> PipelineState:  # pragma: no cover

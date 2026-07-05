@@ -12,8 +12,9 @@ for use in differentiable optimization.
 """
 
 
-import jax.nn
 import numpy as np
+
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 # =============================================================================
 # Point Operations
 # =============================================================================
@@ -204,7 +205,7 @@ def rect_contains_point(min_corner: Array, max_corner: Array, point: Array) -> A
 
     # Soft sigmoid for differentiability (steep transition)
     beta = 10.0  # Steepness parameter
-    return jax.nn.sigmoid(beta * min_dist)
+    return 1.0 / (1.0 + np.exp(-beta * min_dist))
 
 
 def rect_corners(center: Array, width: float, height: float) -> Array:

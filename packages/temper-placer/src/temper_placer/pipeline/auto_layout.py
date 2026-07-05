@@ -15,17 +15,23 @@ if TYPE_CHECKING:
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
-from temper_placer.losses import (
-    BoundaryLoss,
-    BusAlignmentLoss,
-    MCUClusteringLoss,
-    OverlapLoss,
-    RoutingChannelLoss,
-)
-    ConflictLocation,
-    RoutingCongestionLoss,
-    compute_congestion_heatmap,
-)
+# JAX retirement stubs for deleted losses module
+class BoundaryLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class BusAlignmentLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class MCUClusteringLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class OverlapLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class RoutingChannelLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class ConflictLocation:
+    pass
+class RoutingCongestionLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+def compute_congestion_heatmap(*a, **kw):
+    raise NotImplementedError("JAX losses removed.")
 from temper_placer.pipeline.convergence import is_converged
 from temper_placer.router_v6 import V6RouterAdapter
 from temper_placer.router_v6 import _AdapterRoutePath as RoutePath

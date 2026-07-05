@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, NamedTuple
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
 

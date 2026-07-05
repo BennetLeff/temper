@@ -23,6 +23,8 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 if hasattr(jnp, "long"):
     _jnp_int = np.long  # type: ignore[attr-defined]
 else:

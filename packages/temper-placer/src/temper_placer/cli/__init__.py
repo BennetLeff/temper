@@ -288,7 +288,7 @@ def optimize(
     """
     console.print(
         Panel.fit(
-            f"[bold blue]temper-placer[/] v{__version__}\nJAX-based PCB placement optimizer",
+            f"[bold blue]temper-placer[/] v{__version__}\nCP-SAT PCB placement optimizer",
             border_style="blue",
         )
     )
@@ -304,64 +304,23 @@ def optimize(
     console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
 
     if placer == "jax-deprecated":
-        console.print(
-            "[bold red]The JAX placer has been removed; CP-SAT is the sole placer.[/]",
-            file=sys.stderr,
-        )
-        console.print(
+        sys.stderr.write(
+            "The JAX placer has been removed; CP-SAT is the sole placer.\n"
             "If you reached this flag for production-rollback reasons, "
-            "file an issue with the board's PCL config and the routed-PCB file.",
-            file=sys.stderr,
+            "file an issue with the board's PCL config and the routed-PCB file.\n"
         )
         console.print("[dim]Exiting with code 0 (informational, not an error).[/]")
         sys.exit(0)
 
-    # Import heavy dependencies only when needed
-    console.print("\n[dim]Loading optimizer modules...[/]")
-
-    try:
-        import jax
-        import jax.numpy as jnp
-
-        from temper_placer.core.community import detect_communities
-        from temper_placer.core.state import PlacementState
-        from temper_placer.heuristics import create_default_pipeline
-        from temper_placer.io.config_loader import (
-            apply_fixed_components_to_netlist,
-            apply_zones_to_netlist,
-            create_board_from_constraints,
-            load_constraints,
-        )
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
-        from temper_placer.io.kicad_writer import (
-            export_placements,
-            placements_to_json,
-            state_to_placements,
-        )
-        from temper_placer.losses import (
-            BoundaryLoss,
-            ChannelCapacityLoss,
-            CompositeLoss,
-            GroupClusterLoss,
-            GroupConfig,
-            OverlapLoss,
-            RoutabilityLoss,
-            SpreadLoss,
-            WeightedLoss,
-            WirelengthLoss,
-        )
-        from temper_placer.losses.base import LossContext
-        from temper_placer.losses.compact import create_compact_loss_set
-        from temper_placer.optimizer import OptimizerConfig, train, train_multiphase
-        from temper_placer.optimizer.curriculum import create_default_phases
-    except ImportError as e:
-        console.print(f"[red]Failed to import required modules: {e}[/]")
-        console.print("Please ensure JAX and all dependencies are installed:")
-        console.print("  pip install temper-placer")
-        sys.exit(1)
+    # CP-SAT placer (default, sole active path)
+    console.print()
+    console.print("[bold green]CP-SAT placer selected (default).[/]")
+    console.print("[dim]The JAX gradient-descent pipeline has been removed.[/]")
+    console.print("[dim]Full CP-SAT pipeline integration is in progress.[/]")
+    console.print("[dim]Use `temper pipeline` for router-based placement flows.[/]")
+    sys.exit(0)
 
     # Step 1: Parse KiCad PCB
-    console.print("\n[bold cyan]Step 1/5:[/] Parsing KiCad PCB...")
     try:
         parse_result = parse_kicad_pcb(input_pcb)
         netlist = parse_result.netlist
@@ -1611,181 +1570,16 @@ def benchmark(
     Example:
         temper-placer benchmark --pcbs piantor_left,bitaxe_ultra
     """
-    import jax.numpy as jnp
-
-    from temper_placer.core.community import detect_communities
-    from temper_placer.io.config_loader import create_board_from_constraints, load_constraints
-    from temper_placer.io.reference_loader import load_reference_pcb
-    from temper_placer.losses import (
-        BoundaryLoss,
-        CompositeLoss,
-        GroupClusterLoss,
-        GroupConfig,
-        OverlapLoss,
-        SpreadLoss,
-        WeightedLoss,
-        WirelengthLoss,
-    )
-    from temper_placer.losses.base import LossContext
-    from temper_placer.optimizer import OptimizerConfig, train
-    from temper_placer.report.generator import (
-        BenchmarkSummary,
-        calculate_benchmark_result,
-        generate_json_report,
-        generate_text_report,
-    )
-
     console.print(
         Panel.fit(
-            "[bold blue]temper-placer benchmark[/]\nComparing optimizer to human ground truth",
+            "[bold blue]temper-placer benchmark[/]\nBenchmark command removed",
             border_style="blue",
         )
     )
-
-    # 1. Identify PCBs
-    design_dir = Path("tests/fixtures/external/.cache")
-    all_designs = []
-    seen_names = set()
-
-    if design_dir.exists():
-        for p in design_dir.iterdir():
-            if p.is_dir() and p.name not in seen_names:
-                for pcb in p.glob("*.kicad_pcb"):
-                    all_designs.append({"name": p.name, "path": str(pcb)})
-                    seen_names.add(p.name)
-                    break  # Only one PCB per project for now
-
-    selected_names = [] if pcbs == "all" else [n.strip() for n in pcbs.split(",")]
-    targets = []
-    for d in all_designs:
-        if pcbs == "all" or d["name"] in selected_names:
-            targets.append(d)
-
-    if not targets:
-        console.print(f"[red]No matching PCBs found in {design_dir}[/]")
-        return
-
-    console.print(f"Found {len(targets)} benchmark targets.\n")
-
-    # 2. Setup Loss Factory
-    def make_benchmark_loss(weights, netlist=None, detected_communities=None):
-        losses = []
-        losses.append(
-            WeightedLoss(
-                OverlapLoss(margin=2.0, rotation_invariant=True, inflation_ramp=0.3),
-                weight=weights["overlap"],
-            )
-        )
-        losses.append(WeightedLoss(BoundaryLoss(), weight=weights["boundary"]))
-        losses.append(WeightedLoss(WirelengthLoss(), weight=weights["wirelength"]))
-        losses.append(WeightedLoss(SpreadLoss(), weight=weights["spread"]))
-
-        if auto_group and detected_communities and netlist:
-            group_configs = []
-            for comm in detected_communities:
-                indices = [netlist.get_component_index(ref) for ref in comm.component_refs]
-                group_configs.append(
-                    GroupConfig(
-                        name=comm.name,
-                        component_indices=jnp.array(indices, dtype=jnp.int32),
-                        max_diameter_mm=30.0,
-                        weight=1.0,
-                    )
-                )
-            losses.append(WeightedLoss(GroupClusterLoss(group_configs), weight=10.0))
-
-        return CompositeLoss(losses)
-
-    default_weights = {"overlap": 100.0, "boundary": 50.0, "wirelength": 10.0, "spread": 5.0}
-
-    # 3. Run Benchmarks
-    summary = BenchmarkSummary(total_pcbs=len(targets), passed=0, failed=0, better_than_human=0)
-
-    for target in targets:
-        name = target["name"]
-        pcb_path = Path(target["path"])
-        console.print(f"Benchmarking [cyan]{name}[/]...")
-
-        try:
-            # 1. Load Human Baseline
-            baseline_path = pcb_path.parent / f"{name}_benchmark.yaml"
-            if not baseline_path.exists():
-                # Try legacy name just in case
-                legacy_path = pcb_path.parent / f"{name}_baseline.yaml"
-                if legacy_path.exists():
-                    baseline_path = legacy_path
-                else:
-                    console.print(
-                        f"  [yellow]Warning:[/] Benchmark baseline not found for {name}. Run generate_unrouted_benchmarks.py first."
-                    )
-                    continue
-
-            with open(baseline_path) as f:
-                import yaml as yaml_module  # type: ignore[import-untyped]
-
-                baseline = yaml_module.safe_load(f)
-
-            # 2. Setup Optimizer Data
-            ref_design = load_reference_pcb(pcb_path)
-
-            # Load constraints
-            config_path = pcb_path.parent / f"{name}_constraints.yaml"
-            if config_path.exists():
-                constraints = load_constraints(config_path)
-            else:
-                from temper_placer.io.config_loader import PlacementConstraints
-
-                constraints = PlacementConstraints()
-
-            board = create_board_from_constraints(constraints)
-            context = LossContext.from_netlist_and_board(ref_design.netlist, board)
-
-            # Community detection for auto-grouping
-            detected = []
-            if auto_group:
-                detected = detect_communities(ref_design.netlist)
-
-            # Create loss for this specific board
-            composite_loss = make_benchmark_loss(default_weights, ref_design.netlist, detected)
-
-            # 3. Run Optimizer
-            cfg = OptimizerConfig(epochs=epochs, seed=42, log_interval=max(1, epochs // 10))
-            opt_result = train(ref_design.netlist, board, composite_loss, context, cfg, constraints=constraints)
-
-            # 4. Compute Real Score
-            res = calculate_benchmark_result(name, opt_result, baseline, context)
-
-            summary.results.append(res)
-            if res.status == "FAIL":
-                summary.failed += 1
-            else:
-                summary.passed += 1
-                if res.status == "BETTER":
-                    summary.better_than_human += 1
-
-            console.print(f"  [green]✓[/] Result: {res.status} (WL: {res.wirelength_ratio:.2f}x)")
-
-        except Exception as e:
-            console.print(f"  [red]Failed to benchmark {name}: {e}[/]")
-            summary.failed += 1
-            import traceback
-
-            console.print(traceback.format_exc())
-
-    # 4. Generate Report
-    if format == "text":
-        report_text = generate_text_report(summary)
-        if output:
-            output.write_text(report_text)
-            console.print(f"\n[green]✓[/] Report written to {output}")
-        else:
-            print(report_text)
-    else:
-        if output:
-            generate_json_report(summary, output)
-            console.print(f"\n[green]✓[/] JSON report written to {output}")
-        else:
-            console.print(json.dumps(summary.to_dict(), indent=2))  # type: ignore[attr-defined]
+    console.print()
+    console.print("[bold red]The benchmark command has been removed.[/]")
+    console.print("[dim]JAX-based optimization (optimizer, losses) was deleted.[/]")
+    console.print("[dim]CP-SAT placement benchmarks are planned for a future release.[/]")
 
 
 @main.command()

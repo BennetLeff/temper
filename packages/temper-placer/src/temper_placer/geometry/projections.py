@@ -16,6 +16,8 @@ Projection operators map a point to the nearest point in a constraint set:
 - Manufacturing side: clamp to top/bottom half of board
 """
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from temper_placer.geometry.polygon import (
     nearest_point_on_polygon,
     nearest_point_on_segment,

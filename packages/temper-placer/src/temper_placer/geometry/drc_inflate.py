@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 import numpy as np
 def inflate_pad_polygon(
     pad_vertices: Sequence[tuple[float, float]],

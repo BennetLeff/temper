@@ -10,15 +10,22 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-import numpy as np
-# optax removed (JAX retirement)
 
 from temper_placer.core.state import PlacementState
-    clamp_to_bounds,
-    clamp_to_zones,
-    project_to_trust_region,
-    resolve_overlaps_priority,
-)
+
+# JAX retirement stubs
+class clamp_to_bounds:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
+class clamp_to_zones:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
+class project_to_trust_region:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
+class resolve_overlaps_priority:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
 
 if TYPE_CHECKING:
     from temper_placer.pipeline.state import PipelineState

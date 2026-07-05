@@ -15,6 +15,8 @@ Key advantages:
 All functions are JAX-compatible for automatic differentiation.
 """
 import numpy as np
+
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 # =============================================================================
 # Basic Shape SDFs
 # =============================================================================

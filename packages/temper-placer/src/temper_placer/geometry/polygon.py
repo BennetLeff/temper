@@ -15,6 +15,8 @@ Key algorithms:
 - Convex hull for component bounding
 """
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 # =============================================================================
 # Polygon Area (Shoelace Formula)
 # =============================================================================

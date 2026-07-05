@@ -36,6 +36,7 @@ import numpy as np
 from numpy.typing import NDArray
 Array = NDArray
 
+from temper_placer.core.loss_types import LossContext
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
 
 

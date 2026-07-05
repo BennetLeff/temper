@@ -155,5 +155,15 @@ class NetlistContext:
     pass
 
 
+@dataclass
+class RunMetrics:
+    """DEPRECATED: RunMetrics stub (JAX retirement)."""
+    run_id: str = ""
+    experiment_name: str = ""
+    seed: int = 0
+    timestamp: str = ""
+    config_hash: str = ""
+
+
 # Provide a bare fallback so callers that imported from losses.types
 # or losses.base don't get AttributeError on cold import
