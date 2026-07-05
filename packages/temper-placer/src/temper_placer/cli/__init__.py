@@ -234,6 +234,11 @@ main.add_command(watch)
     default=False,
     help="Use the consolidated Core 8 loss set (default: False).",
 )
+@click.option(
+    "--loop/--no-loop",
+    default=True,
+    help="Enable place→route feedback loop for routing-aware placement (default: enabled).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -268,6 +273,7 @@ def optimize(
     spice_penalty_weight: float,
     weight_channel_capacity: float | None,
     compact: bool,
+    loop: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -969,6 +975,41 @@ def optimize(
         console.print(f"    Epochs: {result.total_epochs}")
         console.print(f"    Converged: {'yes' if result.converged else 'no'}")
         console.print(f"    Time: {result.elapsed_seconds:.1f}s")
+
+        # Place→Route feedback loop (U4)
+        if loop:
+            console.print("\n[bold cyan]Step 5b:[/] Running place→route feedback loop...")
+            try:
+                from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
+
+                loop_runner = PlaceRouteLoop()
+                pcl_constraints = getattr(constraints, "pcl_constraints", [])
+                loop_result = loop_runner.run(
+                    netlist=netlist,
+                    board=board,
+                    pcl_constraints=pcl_constraints,
+                    seed=seed,
+                )
+
+                if loop_result.success:
+                    console.print(
+                        f"  [green]✓[/] Loop converged in {len(loop_result.rounds)} rounds"
+                    )
+                    console.print(
+                        f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0)*100:.1f}%"
+                    )
+                else:
+                    console.print(
+                        f"  [yellow]Loop did not converge: {loop_result.reason}[/]"
+                    )
+                    if loop_result.rounds:
+                        last = loop_result.rounds[-1]
+                        console.print(
+                            f"    Best routing completion: {last.completion_rate*100:.1f}%"
+                            f" ({last.drc_errors} DRC errors)"
+                        )
+            except Exception as e:
+                console.print(f"  [yellow]Place→route loop failed: {e}[/]")
 
     except KeyboardInterrupt:
         guard.restore()
