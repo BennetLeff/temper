@@ -20,7 +20,7 @@ constraints:
     loop_name: commutation_loop
     max_area_mm2: 500
     tier: 1
-    because: "Commutation loop EMI scales with area. 500mm² max for acceptable EMI at 25kHz switching frequency."
+    because: "Commutation loop area ≤ 500mm² prevents IGBT overvoltage destruction (V_os = L_loop · di/dt; at 1 A/ns di/dt and 80%-derated V_CE=960V, the critical area is 635mm² — 500mm² leaves 21% parasitic-inductance margin. EMI is a secondary consequence of the same inductance). See docs/solutions/best-practices/commutation-loop-area-physics-derivation-2026-07-04.md"
 
   - type: loop_area
     loop_name: gate_drive_high

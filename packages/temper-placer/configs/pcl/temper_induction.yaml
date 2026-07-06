@@ -71,4 +71,4 @@ constraints:
     loop_name: commutation
     max_area_mm2: 500
     tier: 2
-    because: "Minimize commutation loop to reduce voltage overshoot and EMI"
+    because: "Commutation loop area ≤ 500mm² prevents IGBT overvoltage destruction (V_os = L_loop · di/dt; 500mm² ≈ 79% of the 635mm² physics ceiling at 1 A/ns di/dt and 80%-derated V_CE=960V; EMI is a secondary consequence). See docs/solutions/best-practices/commutation-loop-area-physics-derivation-2026-07-04.md"
