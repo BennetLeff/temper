@@ -1,0 +1,73 @@
+{
+  "dag_topology": [
+    {
+      "name": "input",
+      "requires": [],
+      "provides": [
+        "board",
+        "netlist",
+        "constraints",
+        "loops"
+      ]
+    },
+    {
+      "name": "output",
+      "requires": [
+        "board",
+        "netlist"
+      ],
+      "provides": [
+        "output_files",
+        "physics_report"
+      ]
+    }
+  ],
+  "stage_order": [
+    "input",
+    "output"
+  ],
+  "stage_timings": {
+    "input": 4.76837158203125e-06,
+    "output": 4.291534423828125e-06
+  },
+  "retry_counts": {},
+  "feedback_activations": [],
+  "success": true,
+  "total_duration_s": 0.00025010108947753906,
+  "events": [
+    {
+      "name": "input",
+      "kind": "start",
+      "iteration": 0,
+      "duration_s": 0.0,
+      "reason": "",
+      "timestamp": 1782927069.852919
+    },
+    {
+      "name": "input",
+      "kind": "complete",
+      "iteration": 0,
+      "duration_s": 4.76837158203125e-06,
+      "reason": "",
+      "outputs": {},
+      "timestamp": 1782927069.852928
+    },
+    {
+      "name": "output",
+      "kind": "start",
+      "iteration": 0,
+      "duration_s": 0.0,
+      "reason": "",
+      "timestamp": 1782927069.853056
+    },
+    {
+      "name": "output",
+      "kind": "complete",
+      "iteration": 0,
+      "duration_s": 4.291534423828125e-06,
+      "reason": "",
+      "outputs": {},
+      "timestamp": 1782927069.8530629
+    }
+  ]
+}

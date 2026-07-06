@@ -4,7 +4,7 @@ Pytest configuration and shared fixtures for temper-placer tests.
 
 from pathlib import Path
 
-import jax
+import numpy as np
 import pytest
 
 from temper_placer.core.board import Board, Zone
@@ -64,8 +64,8 @@ def _make_temper_design_rules() -> DesignRules:
 
 @pytest.fixture
 def rng_key():
-    """Provide a consistent JAX random key for reproducible tests."""
-    return jax.random.PRNGKey(42)
+    """Provide a consistent random seed for reproducible tests."""
+    return np.random.default_rng(42)
 
 
 @pytest.fixture

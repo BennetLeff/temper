@@ -1,0 +1,19 @@
+repo: "."
+ignore:
+  - .worktrees/**
+  - benchmarks/**
+  - "**/.venv/**"
+  - "**/build/**"
+  - "**/target/**"
+  - "**/node_modules/**"
+extractors:
+  - python
+  - cpp
+explainers:
+  - cycles
+  - layers
+  - god_class
+  - hotspots
+  - dependency_depth
+  - exported_surface
+  - complexity_outliers

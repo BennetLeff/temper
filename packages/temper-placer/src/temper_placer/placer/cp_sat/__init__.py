@@ -12,8 +12,10 @@ from temper_placer.placer.cp_sat.audit import (
 from temper_placer.placer.cp_sat.encoder import (
     TYPE_HANDLERS,
     UNSUPPORTED_TYPES,
+    CpSatPlacementResult,
     EncoderContext,
     encode_constraints,
+    solve_placement,
 )
 from temper_placer.placer.cp_sat.feedback import ConstraintDelta, FeedbackClassifier
 from temper_placer.placer.cp_sat.gate import AcceptanceGate
@@ -31,6 +33,7 @@ __all__ = [
     "AuditViolation",
     "ComponentVars",
     "ConstraintDelta",
+    "CpSatPlacementResult",
     "CpSatModel",
     "CpSolverSolution",
     "EncoderContext",
@@ -40,6 +43,7 @@ __all__ = [
     "Placement",
     "PlacementAuditor",
     "SolveStatus",
+    "solve_placement",
     "TYPE_HANDLERS",
     "UNSUPPORTED_TYPES",
     "encode_constraints",
