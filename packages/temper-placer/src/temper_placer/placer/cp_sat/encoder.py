@@ -752,11 +752,9 @@ def solve_placement(
             width=model_wrapper.mm_to_units(float(bounds[0])),
             height=model_wrapper.mm_to_units(float(bounds[1])),
         )
-        # Rotation: skip for now — AddElement + midpoint constraint
-        # combination proves INFEASIBLE at >7 components (OR-Tools CP-SAT
-        # limitation).  Re-enable when root-caused.
-        # polarized = ref in _POLARIZED_REFS
-        # model_wrapper.add_rotation(ref, is_polarized=polarized)
+        # Add rotation unless it's a known polarized part.
+        polarized = ref in _POLARIZED_REFS
+        model_wrapper.add_rotation(ref, is_polarized=polarized)
 
     # Constrain all components to lie within board bounds.
     model_wrapper.set_bounds(0, 0, board_w_units, board_h_units)

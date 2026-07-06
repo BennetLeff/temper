@@ -91,7 +91,14 @@ class CpSatModel:
     # ------------------------------------------------------------------
 
     def mm_to_units(self, mm: float) -> int:
-        return int(round(mm * self.units_per_mm))
+        """Convert physical mm to integer model units, rounding to nearest even.
+
+        Even rounding is REQUIRED by the midpoint constraint
+        ``x_start + x_end == 2 * x_center``: sizes must be even so that
+        ``2 * x_start + x_size`` is even, matching ``2 * x_center``.
+        """
+        raw = int(round(mm * self.units_per_mm))
+        return raw - (raw % 2) if raw % 2 else raw
 
     def units_to_mm(self, units: int) -> float:
         return units / self.units_per_mm
