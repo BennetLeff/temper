@@ -1,5 +1,5 @@
 """PCL-to-CP-SAT constraint encoder.
-
+ 
 Maps all 8 PCL constraint types to CP-SAT model constraints using a
 TYPE_HANDLERS dispatch pattern mirroring sat_bridge.py.
 
@@ -9,8 +9,12 @@ Each handler returns a list of assumption literals for UNSAT-core extraction.
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+
+import numpy as np
 
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
@@ -683,3 +687,189 @@ def _encode_keepout_constraint(
         model.Add(y_vars[i] > ky_max).OnlyEnforceIf(above_y)
         model.Add(y_vars[i] <= ky_max).OnlyEnforceIf(above_y.Not())
         model.Add(below_x + above_x + below_y + above_y >= 1)
+
+
+# ---------------------------------------------------------------------------
+# Solver entry point
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class CpSatPlacementResult:
+    """Result of a CP-SAT placement solve.
+
+    Carries placed component positions, rotation indices, solve status
+    and timing metadata.  This is the interface that the place→route loop
+    reads — every field that loop.py accesses must be defined here.
+    """
+
+    positions: dict[str, tuple[float, float]] = field(default_factory=dict)
+    rotations: dict[str, int] = field(default_factory=dict)
+    status: str = "unknown"  # "optimal" | "feasible" | "infeasible" | "model_invalid"
+    solve_time_ms: float = 0.0
+    objective_value: float = 0.0
+
+    def to_placements_dict(self) -> dict[str, tuple[float, float]]:
+        """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
+        return dict(self.positions)
+
+
+def solve_placement(
+    netlist,
+    board,
+    extra_constraints: list | None = None,
+    timeout_ms: int = 1_000,
+    seed: int = 0,
+) -> CpSatPlacementResult:
+    """Build a CP-SAT model, encode constraints, solve, and return the result.
+
+    This is the single entry point consumed by PlaceRouteLoop and ``temper
+    optimize``.  It wires the full pipeline: model creation → PCL encoding
+    → solve → position extraction.
+    """
+    from ortools.sat.python import cp_model as cp
+
+    t_start = time.monotonic()
+
+    # Determine board dimensions.
+    board_w = float(getattr(board, "width", 100.0))
+    board_h = float(getattr(board, "height", 100.0))
+
+    model_wrapper = CpSatModel(units_per_mm=100)
+    board_w_units = model_wrapper.mm_to_units(board_w)
+    board_h_units = model_wrapper.mm_to_units(board_h)
+
+    # Register every board component in the model.
+    comp_refs: list[str] = []
+    for comp in netlist.components:
+        ref = comp.ref
+        comp_refs.append(ref)
+        bounds = getattr(comp, "bounds", (10.0, 10.0))
+        model_wrapper.add_component(
+            ref,
+            x_start_val=0,
+            y_start_val=0,
+            width=model_wrapper.mm_to_units(float(bounds[0])),
+            height=model_wrapper.mm_to_units(float(bounds[1])),
+        )
+        # Add rotation unless it's a known polarized part.
+        polarized = ref in _POLARIZED_REFS
+        model_wrapper.add_rotation(ref, is_polarized=polarized)
+
+    # Constrain all components to lie within board bounds.
+    model_wrapper.set_bounds(0, 0, board_w_units, board_h_units)
+
+    # Wire up NoOverlap2D.
+    model_wrapper.add_no_overlap_2d(comp_refs)
+
+    # Build EncoderContext from board and netlist data.
+    zones: dict[str, tuple[float, float, float, float]] = {}
+    zone_components_dict: dict[str, list[str]] = {}
+    for z in board.zones:
+        zones[z.name] = z.bounds
+        zone_refs = list(z.components)
+        for comp in netlist.components:
+            if getattr(comp, "zone", None) == z.name and comp.ref not in zone_refs:
+                zone_refs.append(comp.ref)
+        zone_components_dict[z.name] = zone_refs
+
+    ctx = EncoderContext(
+        board_w,
+        board_h,
+        zones=zones,
+        loop_components=_resolve_loop_components(netlist),
+        zone_components=zone_components_dict,
+        board_x_min_units=0,
+        board_y_min_units=0,
+        board_x_max_units=board_w_units,
+        board_y_max_units=board_h_units,
+    )
+
+    constraint_objects: list[BaseConstraint] = list(extra_constraints or [])
+    # Also pull PCL constraints from the board's constraint collection
+    # if available (temper pipeline path).
+    pcl_coll = getattr(board, "constraints", None)
+    if pcl_coll is not None:
+        constraint_objects.extend(pcl_coll)
+
+    labels = encode_constraints(constraint_objects, model_wrapper, ctx)
+
+    # Build the objective (minimize wirelength).
+    mref = model_wrapper.model_ref
+    objective_terms: list = []
+    for i, ref_a in enumerate(comp_refs):
+        for ref_b in comp_refs[i + 1 :]:
+            cv_a = model_wrapper.get_component(ref_a)
+            cv_b = model_wrapper.get_component(ref_b)
+            dx = mref.NewIntVar(-board_w_units, board_w_units, f"dx_{ref_a}_{ref_b}")
+            dy = mref.NewIntVar(-board_h_units, board_h_units, f"dy_{ref_a}_{ref_b}")
+            mref.Add(cv_a.x_center - cv_b.x_center == dx)
+            mref.Add(cv_a.y_center - cv_b.y_center == dy)
+            abs_dx = mref.NewIntVar(0, board_w_units, f"abs_dx_{ref_a}_{ref_b}")
+            abs_dy = mref.NewIntVar(0, board_h_units, f"abs_dy_{ref_a}_{ref_b}")
+            mref.AddAbsEquality(abs_dx, dx)
+            mref.AddAbsEquality(abs_dy, dy)
+            objective_terms.append(abs_dx)
+            objective_terms.append(abs_dy)
+
+    if objective_terms:
+        mref.Minimize(sum(objective_terms))
+
+    solver = cp.CpSolver()
+    solver.parameters.max_time_in_seconds = timeout_ms / 1000.0
+    solver.parameters.random_seed = seed
+    solver.parameters.num_search_workers = 4
+    solver.parameters.log_search_progress = False
+
+    status_code = solver.Solve(mref)
+    elapsed_ms = (time.monotonic() - t_start) * 1000.0
+
+    status_map = {
+        cp.OPTIMAL: "optimal",
+        cp.FEASIBLE: "feasible",
+        cp.INFEASIBLE: "infeasible",
+        cp.MODEL_INVALID: "model_invalid",
+        cp.UNKNOWN: "unknown",
+    }
+    status_str = status_map.get(status_code, "unknown")
+
+    positions: dict[str, tuple[float, float]] = {}
+    rotations: dict[str, int] = {}
+    objective = 0.0
+
+    if status_str in ("optimal", "feasible"):
+        objective = solver.ObjectiveValue()
+        for ref in comp_refs:
+            cv = model_wrapper.get_component(ref)
+            x_mm = solver.Value(cv.x_center) / model_wrapper.units_per_mm
+            y_mm = solver.Value(cv.y_center) / model_wrapper.units_per_mm
+            positions[ref] = (round(x_mm, 3), round(y_mm, 3))
+            if cv.rot_ref is not None:
+                rotations[ref] = solver.Value(cv.rot_ref)
+
+    return CpSatPlacementResult(
+        positions=positions,
+        rotations=rotations,
+        status=status_str,
+        solve_time_ms=elapsed_ms,
+        objective_value=objective,
+    )
+
+
+def _resolve_loop_components(netlist) -> dict[str, list[str]]:
+    """Return {loop_name: [comp_ref, ...]} for all detectable commutation loops."""
+    from temper_placer.core.loop_extractor import auto_extract_loops
+
+    try:
+        loops = auto_extract_loops(netlist)
+        return {loop.name: loop.components for loop in loops}
+    except Exception:
+        return {}
+
+
+# List of component refs known to be polarized on the temper board.
+# This is the v1 fallback; automatic footprint detection is a follow-up.
+_POLARIZED_REFS: set[str] = {
+    "D_1", "D_2", "D_3", "D_4", "D_5", "D_6",  # diodes
+    "K_1", "K_2", "K_5", "K_6",               # electrolytic capacitors
+}
