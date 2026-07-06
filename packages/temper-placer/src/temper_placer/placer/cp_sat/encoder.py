@@ -794,26 +794,11 @@ def solve_placement(
 
     labels = encode_constraints(constraint_objects, model_wrapper, ctx)
 
-    # Build the objective (minimize wirelength).
-    mref = model_wrapper.model_ref
-    objective_terms: list = []
-    for i, ref_a in enumerate(comp_refs):
-        for ref_b in comp_refs[i + 1 :]:
-            cv_a = model_wrapper.get_component(ref_a)
-            cv_b = model_wrapper.get_component(ref_b)
-            dx = mref.NewIntVar(-board_w_units, board_w_units, f"dx_{ref_a}_{ref_b}")
-            dy = mref.NewIntVar(-board_h_units, board_h_units, f"dy_{ref_a}_{ref_b}")
-            mref.Add(cv_a.x_center - cv_b.x_center == dx)
-            mref.Add(cv_a.y_center - cv_b.y_center == dy)
-            abs_dx = mref.NewIntVar(0, board_w_units, f"abs_dx_{ref_a}_{ref_b}")
-            abs_dy = mref.NewIntVar(0, board_h_units, f"abs_dy_{ref_a}_{ref_b}")
-            mref.AddAbsEquality(abs_dx, dx)
-            mref.AddAbsEquality(abs_dy, dy)
-            objective_terms.append(abs_dx)
-            objective_terms.append(abs_dy)
-
-    if objective_terms:
-        mref.Minimize(sum(objective_terms))
+    # Phase 1 (feasibility): no objective — find any valid placement.
+    # Phase 2 (wirelength polish) runs separately with a longer timeout
+    # and bounded pair count.  The full O(n²) objective with 33 components
+    # creates ~2100 extra variables and makes the solver hit the timeout.
+    # See loop.py:_solve_phase2 for the polish path.
 
     solver = cp.CpSolver()
     solver.parameters.max_time_in_seconds = timeout_ms / 1000.0
@@ -821,7 +806,7 @@ def solve_placement(
     solver.parameters.num_search_workers = 4
     solver.parameters.log_search_progress = False
 
-    status_code = solver.Solve(mref)
+    status_code = solver.Solve(model_wrapper.model_ref)
     elapsed_ms = (time.monotonic() - t_start) * 1000.0
 
     status_map = {
