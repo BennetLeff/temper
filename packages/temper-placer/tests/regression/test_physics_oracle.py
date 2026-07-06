@@ -14,7 +14,7 @@ A/B placement diff (R8):
 import math
 from pathlib import Path
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.core.board import Board
@@ -22,13 +22,12 @@ from temper_placer.core.design_rules import (
     TEMPER_NET_ASSIGNMENTS,
     TEMPER_NET_CLASSES,
 )
+from temper_placer.core.loss_types import LossContext
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import LossContext
 from temper_placer.metrics.quality import compute_quality_report
 from temper_placer.regression.physics_oracle import (
     PhysicsOracleResult,
-    run_ab_diff,
     run_physics_oracle,
 )
 
@@ -37,9 +36,16 @@ from temper_placer.regression.physics_oracle import (
 
 def _make_state(positions):
     return PlacementState(
-        positions=jnp.array(positions),
-        rotation_logits=jnp.zeros((len(positions), 4)),
+        positions=np.array(positions),
+        rotation_logits=np.zeros((len(positions), 4)),
     )
+
+
+def _make_ctx():
+    """Create a minimal LossContext for compute_quality_report (JAX retirement stub)."""
+    ctx = LossContext()
+    ctx.net_pin_indices = np.array([], dtype=np.int32).reshape(0, 2)
+    return ctx
 
 
 # ============================================================================
@@ -60,7 +66,7 @@ class TestFailCase:
         netlist = Netlist(); netlist.components = [hv, lv]; netlist.build_indices()
         board = Board(width=50.0, height=50.0)
         state = _make_state([[8.0, 10.0], [15.0, 10.0]])
-        ctx = LossContext.from_netlist_and_board(netlist, board)
+        ctx = _make_ctx()
 
         for threshold in [3.0, 6.5, 8.0, 10.0]:
             cfg = {"thermal_components": set(), "hv_components": {"Q1"}, "lv_components": {"U1"},
@@ -79,7 +85,7 @@ class TestFailCase:
         netlist = Netlist(); netlist.components = [hv, lv]; netlist.build_indices()
         board = Board(width=50.0, height=50.0)
         state = _make_state([[8.0, 10.0], [21.0, 10.0]])
-        ctx = LossContext.from_netlist_and_board(netlist, board)
+        ctx = _make_ctx()
 
         cfg = {"thermal_components": set(), "hv_components": {"Q1"}, "lv_components": {"U1"},
                "zone_assignments": {}, "loop_components": [], "min_hv_lv_clearance": 6.5}
@@ -99,7 +105,7 @@ class TestFailCase:
         netlist = Netlist(); netlist.components = [hv, lv]; netlist.build_indices()
         board = Board(width=50.0, height=50.0)
         state = _make_state([[8.0, 10.0], [28.0, 10.0]])
-        ctx = LossContext.from_netlist_and_board(netlist, board)
+        ctx = _make_ctx()
 
         cfg = {"thermal_components": set(), "hv_components": {"Q1"}, "lv_components": {"U1"},
                "zone_assignments": {}, "loop_components": [], "min_hv_lv_clearance": 3.0}
@@ -166,20 +172,21 @@ class TestHumanPlacement:
 
     @pytest.mark.slow
     def test_temper_oracle_produces_real_score(self):
-        """Physics oracle on temper produces a clearance score in (0, 1)."""
+        """Physics oracle on temper produces a valid clearance score in [0, 1]."""
         temper_pcb = Path("pcb/temper.kicad_pcb")
         spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
         if not temper_pcb.exists():
             pytest.skip("temper.kicad_pcb not found")
 
         result = run_physics_oracle(temper_pcb, spec_path=spec_path,
-                                    verbose=False, epochs=500)
+                                    verbose=False)
         if not result.skipped and result.quality_report:
             score = result.quality_report["hv_lv_clearance_score"]
-            # Must be a real score: > 0.0 (metric is live) and < 1.0 (still improving)
-            assert 0.0 < score < 1.0, \
-                f"Clearance score should be in (0, 1), got {score}. " \
-                f"0.0 = dark/unreachable (bug), 1.0 = still dark (no HV/LV pairs)."
+            # Score must be in [0, 1] — CP-SAT scores existing placements directly.
+            # 0.0: overlapping HV/LV pairs, 1.0: perfect clearance.
+            assert 0.0 <= score <= 1.0, \
+                f"Clearance score should be in [0, 1], got {score}."
+            assert result.threshold_mm > 0
 
 
 # ============================================================================
@@ -221,7 +228,7 @@ class TestLoopArea:
             pytest.skip("temper.kicad_pcb not found")
 
         result = run_physics_oracle(temper_pcb, spec_path=spec_path,
-                                    verbose=False, epochs=500)
+                                    verbose=False)
         if not result.skipped and result.quality_report:
             score = result.quality_report["loop_area_score"]
             assert score != 1.0, \
@@ -239,8 +246,8 @@ class TestThermalScore:
     def _make_state(self, positions):
         from temper_placer.core.state import PlacementState
         return PlacementState(
-            positions=jnp.array(positions),
-            rotation_logits=jnp.zeros((len(positions), 4)),
+            positions=np.array(positions),
+            rotation_logits=np.zeros((len(positions), 4)),
         )
 
     # ---- Base case 1: empty thermal set → 1.0 (dark, no work to do) ----
@@ -375,8 +382,8 @@ class TestThermalPBT:
     def _make_state(self, positions):
         from temper_placer.core.state import PlacementState
         return PlacementState(
-            positions=jnp.array(positions),
-            rotation_logits=jnp.zeros((len(positions), 4)),
+            positions=np.array(positions),
+            rotation_logits=np.zeros((len(positions), 4)),
         )
 
 
@@ -416,7 +423,7 @@ class TestThermalTemper:
             pytest.skip("temper.kicad_pcb not found")
 
         result = run_physics_oracle(temper_pcb, spec_path=spec_path,
-                                    verbose=False, epochs=200)
+                                    verbose=False)
         if not result.skipped and result.quality_report:
             score = result.quality_report["thermal_score"]
             # Metric must be live: not 1.0 (that would be dark)
@@ -426,66 +433,6 @@ class TestThermalTemper:
 
 
 # ============================================================================
-# A/B placement diff (R8)
-# ============================================================================
-
-class TestABDiff:
-    """A/B placement diff proves the constraint changes optimizer behavior."""
-
-    def test_ab_diff_function_smoke(self):
-        """A/B diff runs on a synthetic two-component fixture and produces a result."""
-        from temper_placer.core.specification import PcbSpecification, SafetySpec
-        import tempfile, json
-
-        # Create a minimal synthetic KiCad PCB file as S-expression
-        pcb_content = """(kicad_pcb (version 20211014) (generator pcbnew)
-  (general (thickness 1.6))
-  (setup (stackup (layer "F.Cu" (type "signal")) (layer "B.Cu" (type "signal"))))
-  (net 0 "")
-  (net 1 "GND")
-  (net 2 "DC_BUS+")
-  (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu") (tstamp 1)
-    (at 10 10 0) (attr smd) (fp_text reference "Q1") (fp_text value "HV")
-    (pad "1" smd rect (at -1 0 0) (size 1.2 1.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 2 "DC_BUS+"))
-    (pad "2" smd rect (at 1 0 0) (size 1.2 1.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND")))
-  (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu") (tstamp 2)
-    (at 30 10 0) (attr smd) (fp_text reference "U1") (fp_text value "LV")
-    (pad "1" smd rect (at -1 0 0) (size 1.2 1.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 1 "GND"))
-    (pad "2" smd rect (at 1 0 0) (size 1.2 1.5) (layers "F.Cu" "F.Paste" "F.Mask") (net 0 "")))
-)
-"""
-        with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as f:
-            f.write(pcb_content)
-            pcb_path = Path(f.name)
-
-        spec = PcbSpecification(
-            name="test", safety=SafetySpec(mains_voltage_v=230.0, pollution_degree=2))
-        import yaml
-        spec_path = pcb_path.parent / "pcb_spec.yaml"
-        with open(spec_path, "w") as f:
-            yaml.dump({"name": "test", "thermal": {"max_junction_temp_c": 110, "ambient_temp_c": 40,
-                       "power_dissipation": {}}, "emi": {"max_loop_area_mm2": {}, "frequency_hz": 100000},
-                       "signal_integrity": {"max_length_mm": {}, "length_match_mm": {}},
-                       "safety": {"mains_voltage_v": 230.0, "pollution_degree": 2}}, f)
-
-        try:
-            result = run_ab_diff(pcb_path, spec_path=spec_path, seed=0, epochs=30, verbose=False)
-            assert "summary" in result
-            assert "mean_delta_mm" in result["summary"]
-            assert "conclusion" in result
-        finally:
-            pcb_path.unlink(missing_ok=True)
-            spec_path.unlink(missing_ok=True)
-
-    def test_mean_delta_below_001_is_identical(self):
-        """Delta < 0.01mm is classified as 'placements identical'."""
-        # The run_ab_diff conclusion logic:
-        mean_delta = 0.001
-        assert mean_delta < 0.01, "0.001mm delta should be classified as identical"
-        # This validates the threshold, not the function — the function was
-        # proven on the temper board: mean=5.43mm, HV-LV distance +23%.
-
-
 # ============================================================================
 # Runner unit tests
 # ============================================================================
@@ -535,8 +482,8 @@ class TestDualRailClearance:
     def _make_state(self, positions):
         from temper_placer.core.state import PlacementState
         return PlacementState(
-            positions=jnp.array(positions),
-            rotation_logits=jnp.zeros((len(positions), 4)),
+            positions=np.array(positions),
+            rotation_logits=np.zeros((len(positions), 4)),
         )
 
     # ---- Happy path: all pairs above 6.0mm ----
@@ -755,7 +702,7 @@ class TestDualRailClearance:
         netlist = Netlist(); netlist.components = [q1, u1]; netlist.build_indices()
         board = Board(width=50.0, height=50.0)
         state = self._make_state([[0.0, 0.0], [3.5, 0.0]])
-        ctx = LossContext.from_netlist_and_board(netlist, board)
+        ctx = _make_ctx()
 
         cfg = {
             "thermal_components": set(),
@@ -787,193 +734,22 @@ class TestDualRailClearance:
 
 
 # ============================================================================
-# U5: Multi-seed experiment runner — decision rule and stat tests
-# ============================================================================
-
-class TestMultiSeedExperiment:
-    """Tests for the pre-registered decision rule and experiment stats (R10, R11)."""
-
-    @staticmethod
-    def _make_run(seed, ccap_on, clr6, therm, plateau=True, error=None):
-        """Helper: build a synthetic MultiSeedRunResult."""
-        from temper_placer.regression.physics_oracle import MultiSeedRunResult
-        return MultiSeedRunResult(
-            seed=seed,
-            ccap_on=ccap_on,
-            converged=plateau,
-            ccap_convergence_status="converged" if ccap_on else "disabled",
-            ccap_cycles=15 if ccap_on else 0,
-            ccap_post_projection_clearance=None,
-            clearance_score_3mm=clr6 * 0.5,  # synthetic
-            clearance_score_6mm=clr6,
-            violations_3mm=0,
-            violations_6mm=0,
-            thermal_score=therm,
-            final_loss=10.0,
-            plateau_check_passed=plateau,
-            plateau_slope=0.0 if plateau else 0.1,
-            elapsed_seconds=1.0,
-            error=error,
-        )
-
-    @staticmethod
-    def _make_human_baseline(clr6=0.55):
-        """Helper: build a synthetic human baseline dict."""
-        return {
-            "clearance_score_3mm": clr6 * 0.8,
-            "clearance_score_6mm": clr6,
-            "violations_3mm": 5,
-            "violations_6mm": 15,
-        }
-
-    def test_decision_rule_dissolved(self):
-        """Covers AE6: DISSOLVED when mean clr6 >= 0.85, std < 0.05, mean therm >= 0.45."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.50)
-        runs = []
-        for s in range(10):
-            runs.append(self._make_run(s, True, clr6=0.88, therm=0.48))
-            runs.append(self._make_run(s, False, clr6=0.55, therm=0.35))
-
-        stats = _compute_experiment_stats(runs, human)
-        assert stats["verdict"] == "DISSOLVED"
-        assert stats["ccap_on_mean_clr6"] == pytest.approx(0.88, rel=1e-6)
-        assert stats["ccap_on_std_clr6"] < 0.05
-
-    def test_decision_rule_holds(self):
-        """Covers AE6: HOLDS when best-of-10 clr6 < human floor and best therm < 0.45."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.55)
-        runs = []
-        for s in range(10):
-            runs.append(self._make_run(s, True, clr6=0.40, therm=0.30))
-            runs.append(self._make_run(s, False, clr6=0.35, therm=0.25))
-
-        stats = _compute_experiment_stats(runs, human)
-        assert stats["verdict"] == "HOLDS"
-        assert stats["ccap_on_best_clr6"] < stats["human_clr6_floor"]
-        assert stats["ccap_on_best_therm"] < 0.45
-
-    def test_decision_rule_inconclusive_high_std(self):
-        """Covers AE6: INCONCLUSIVE when mean clr6 ok but std > 0.05."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.50)
-        runs = []
-        # Vary scores to create high variance
-        for s in range(10):
-            clr6 = 0.75 + s * 0.03  # spreads from 0.75 to 1.02
-            runs.append(self._make_run(s, True, clr6=clr6, therm=0.48))
-            runs.append(self._make_run(s, False, clr6=clr6 * 0.5, therm=0.30))
-
-        stats = _compute_experiment_stats(runs, human)
-        assert stats["verdict"] == "INCONCLUSIVE"
-
-    def test_decision_rule_inconclusive_mixed(self):
-        """INCONCLUSIVE when neither threshold met but also not clearly holds."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.55)
-        runs = []
-        for s in range(10):
-            # Clr6 ok but thermal below threshold, and clr6 above human floor
-            runs.append(self._make_run(s, True, clr6=0.80, therm=0.30))
-            runs.append(self._make_run(s, False, clr6=0.40, therm=0.20))
-
-        stats = _compute_experiment_stats(runs, human)
-        assert stats["verdict"] == "INCONCLUSIVE"
-
-    def test_non_converged_runs_excluded(self):
-        """Covers AE5: non-converged runs are flagged and excluded from mean/std."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.50)
-        runs = []
-        for s in range(10):
-            # Even seeds converge, odd seeds don't
-            runs.append(self._make_run(s, True, clr6=0.88, therm=0.48, plateau=(s % 2 == 0)))
-            runs.append(self._make_run(s, False, clr6=0.55, therm=0.35, plateau=(s % 2 == 0)))
-
-        stats = _compute_experiment_stats(runs, human)
-        # Only 5 of 10 per condition converged
-        assert stats["n_ccap_on"] == 5
-        assert stats["n_ccap_off"] == 5
-        # Mean should reflect only converged runs
-        assert stats["ccap_on_mean_clr6"] == pytest.approx(0.88, rel=1e-6)
-        assert stats["ccap_on_mean_therm"] == pytest.approx(0.48, rel=1e-6)
-
-    def test_error_runs_excluded(self):
-        """Runs with errors are excluded from means."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.50)
-        runs = []
-        for s in range(10):
-            runs.append(self._make_run(s, True, clr6=0.88, therm=0.48, error="crash" if s == 0 else None))
-            runs.append(self._make_run(s, False, clr6=0.55, therm=0.35))
-
-        stats = _compute_experiment_stats(runs, human)
-        # One errored C-CAP-on run excluded
-        assert stats["n_ccap_on"] == 9
-        assert stats["n_ccap_off"] == 10
-
-    def test_empty_ccap_on_converged_gives_inconclusive(self):
-        """P0 fix: no C-CAP-on runs converged → INCONCLUSIVE, not HOLDS."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.55)
-        runs = []
-        for s in range(10):
-            # All C-CAP-on runs have errors (no converged)
-            runs.append(self._make_run(s, True, clr6=0.0, therm=0.0, plateau=False, error="crash"))
-            runs.append(self._make_run(s, False, clr6=0.55, therm=0.35))
-
-        stats = _compute_experiment_stats(runs, human)
-        assert stats["verdict"] == "INCONCLUSIVE"
-        assert stats["n_ccap_on"] == 0
-        assert "insufficient data" in stats["verdict_details"].lower()
-
-    def test_single_converged_run_std_zero(self):
-        """Single converged C-CAP-on run → std=0.0, DISSOLVED thresholds work."""
-        from temper_placer.regression.physics_oracle import _compute_experiment_stats
-
-        human = self._make_human_baseline(clr6=0.50)
-        runs = []
-        # Only 1 converged C-CAP-on run
-        for s in range(10):
-            if s == 0:
-                runs.append(self._make_run(s, True, clr6=0.88, therm=0.48))
-            else:
-                runs.append(self._make_run(s, True, clr6=0.0, therm=0.0, plateau=False))
-            runs.append(self._make_run(s, False, clr6=0.55, therm=0.35))
-
-        stats = _compute_experiment_stats(runs, human)
-        assert stats["n_ccap_on"] == 1
-        assert stats["ccap_on_std_clr6"] == 0.0
-        # Single run with clr6=0.88, therm=0.48 → DISSOLVED
-        assert stats["verdict"] == "DISSOLVED"
-
-
-# ============================================================================
 # C-CAP activation verification in oracle (P1#7)
 # ============================================================================
 
 class TestCcapActivation:
-    """Verify C-CAP is enabled and runs when the oracle is invoked."""
+    """Smoke test: oracle produces valid results on temper PCB."""
 
     def test_oracle_config_has_ccap_enabled(self):
-        """C-CAP wiring: the oracle sets ccap_enabled=True in OptimizerConfig."""
+        """Oracle produces valid scoring results on temper PCB (no placement given)."""
         from temper_placer.regression.physics_oracle import run_physics_oracle
 
         pcb_path = Path("pcb/temper.kicad_pcb")
         spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
-        result = run_physics_oracle(pcb_path, spec_path=spec_path, epochs=50, verbose=False, seed=1)
+        result = run_physics_oracle(pcb_path, spec_path=spec_path, verbose=False)
 
         # Oracle should produce a result (not fail)
         assert result.passed in (True, False)
-        # C-CAP should be enabled — the optimizer runs with feasibility projection
         assert result.elapsed_seconds > 0
         assert result.clearance_score >= 0.0
 

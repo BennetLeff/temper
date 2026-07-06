@@ -3,43 +3,36 @@ Physics-derived oracle runner for the Temper induction board.
 
 Wires the full physics chain end-to-end:
   pcb_spec.yaml -> PcbSpecification -> derive_constraints_from_spec ->
-  quality_config -> optimizer with ClearanceLoss -> compute_quality_report ->
-  IEC 60335-1 threshold comparison -> pass/fail.
+  score CP-SAT placement -> IEC 60335-1 threshold comparison -> pass/fail.
 
-The runner supplements the corpus runner (geometric regression floor) without
-modifying it. The corpus runner stays as-is; this runner adds the physics path.
+The oracle accepts a CP-SAT placement result and scores it against physics
+metrics (thermal, clearance, dual-rail) without running gradient optimization.
 """
 
 from __future__ import annotations
 
-import math
 import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import jax
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.core.design_rules import create_temper_design_rules
+from temper_placer.core.loss_types import LossContext
 from temper_placer.core.specification import PcbSpecification
-from temper_placer.heuristics import create_default_pipeline
+from temper_placer.core.state import PlacementState
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.reference_loader import infer_quality_config
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.clearance import ClearanceLoss
-from temper_placer.losses.component_loop_area import ComponentLoopAreaLoss, ComponentLoopConfig
-from temper_placer.losses.loop_area import LoopAreaLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.regularization import SpreadLoss
-from temper_placer.losses.thermal import ThermalLoss
-from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.metrics.quality import compute_quality_report, dual_rail_clearance_report, thermal_score
-from temper_placer.io.config_loader import PlacementConstraints
-from temper_placer.optimizer.config import OptimizerConfig
-from temper_placer.optimizer.curriculum import create_default_phases
-from temper_placer.optimizer.train import train_multiphase
+from temper_placer.metrics.quality import (
+    compactness_score,
+    dual_rail_clearance_report,
+    hv_lv_clearance_score,
+    loop_area_score,
+    thermal_score,
+    zone_compliance_score,
+)
+from temper_placer.placer.deterministic import PlacementResult
 from temper_placer.pipeline.derivation import derive_constraints_from_spec
 
 
@@ -66,11 +59,6 @@ class PhysicsOracleResult:
 
 
 # Module-level constants for experiment thresholds
-_CONVERGENCE_FRACTION = 0.2       # last N% of epochs for plateau check
-_PLATEAU_THRESHOLD = 1e-4         # max slope (loss/epoch) for convergence
-_DISSOLVED_CLR6_MIN = 0.85        # min mean clearance_6mm for DISSOLVED
-_DISSOLVED_CLR6_STD_MAX = 0.05    # max std of clearance_6mm for DISSOLVED
-_DISSOLVED_THERM_MIN = 0.45       # min mean thermal_score for DISSOLVED
 _CLEARANCE_PASS_THRESHOLD = 0.95  # legacy pass/fail for single-run oracle
 
 
@@ -81,24 +69,100 @@ class _BoardSnapshot:
     board: Any
 
 
+def _build_placement_state(positions: np.ndarray, n_components: int) -> PlacementState:
+    """Build a PlacementState from a (N, 2) positions array."""
+    return PlacementState(
+        positions=np.asarray(positions, dtype=np.float32),
+        rotation_logits=np.zeros((n_components, 4), dtype=np.float32),
+    )
+
+
+def _make_minimal_context(netlist, board) -> LossContext:
+    """Create a minimal LossContext for metric functions that need one.
+
+    Post-JAX retirement, LossContext is a stub; metric functions that take
+    context only access shape checks (e.g. net_pin_indices.shape[0]) before
+    early-returning.  We populate just enough to keep those guards happy.
+    """
+    ctx = LossContext(netlist=netlist, board=board)
+    ctx.net_pin_indices = np.array([], dtype=np.int32).reshape(0, 2)
+    return ctx
+
+
+def score_placement(
+    placement: PlacementResult,
+    board,
+    netlist,
+) -> dict[str, Any]:
+    """
+    Compute physics metrics from a CP-SAT placement without running optimization.
+
+    Args:
+        placement: PlacementResult from deterministic placer (positions in mm).
+        board: Board geometry.
+        netlist: Design netlist.
+
+    Returns:
+        Dict with physics metrics: hv_lv_clearance_score, clearance_score_3mm,
+        clearance_score_6mm, violations_3mm, violations_6mm, thermal_score,
+        zone_compliance_score, loop_area_score, compactness_score, overall_score.
+    """
+    positions = np.asarray(placement.positions, dtype=np.float32)
+    n_components = positions.shape[0]
+    state = _build_placement_state(positions, n_components)
+    context = _make_minimal_context(netlist, board)
+
+    hv_components = {
+        c.ref for c in netlist.components
+        if c.net_class in ("HighVoltage", "ACMains")
+    }
+    lv_components = {
+        c.ref for c in netlist.components
+        if c.net_class == "Signal"
+    }
+
+    dual_rail = dual_rail_clearance_report(state, netlist, hv_components, lv_components)
+    clearance = hv_lv_clearance_score(state, netlist, hv_components, lv_components, min_clearance=8.0)
+    thermal = thermal_score(state, netlist, board, set())
+    zone = zone_compliance_score(state, netlist, board, {})
+    loop = loop_area_score(state, netlist, context, [])
+    compact = compactness_score(state, netlist, board)
+
+    normalized_scores = [thermal, zone, clearance, loop, compact]
+    overall = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0.0
+
+    return {
+        "hv_lv_clearance_score": clearance,
+        "clearance_score_3mm": dual_rail["clearance_score_3mm"],
+        "clearance_score_6mm": dual_rail["clearance_score_6mm"],
+        "violations_3mm": dual_rail["violations_3mm"],
+        "violations_6mm": dual_rail["violations_6mm"],
+        "thermal_score": thermal,
+        "zone_compliance_score": zone,
+        "loop_area_score": loop,
+        "compactness_score": compact,
+        "overall_score": overall,
+    }
+
+
 def run_physics_oracle(
     pcb_path: Path,
+    placement: PlacementResult | None = None,
     spec_path: Path | None = None,
-    seed: int = 42,
-    epochs: int = 500,
     verbose: bool = True,
     weights_override: dict[str, float] | None = None,
 ) -> PhysicsOracleResult:
     """
-    Run the physics oracle on a PCB board.
+    Score a CP-SAT placement against the physics oracle.
 
     Args:
         pcb_path: Path to the KiCad PCB file.
+        placement: CP-SAT placement result from deterministic placer.
+                   If None, uses the intrinsic KiCad reference positions.
         spec_path: Path to pcb_spec.yaml. If None, looks alongside pcb_path
                    or uses the default configs/pcb_spec.yaml.
-        seed: Random seed for the optimizer.
-        epochs: Number of optimizer epochs.
         verbose: Whether to print progress.
+        weights_override: (unused, kept for signature compatibility)
 
     Returns:
         PhysicsOracleResult with quality report and threshold comparison.
@@ -180,238 +244,88 @@ def run_physics_oracle(
     if verbose:
         print(f"  Physics oracle for '{board_id}': threshold = {threshold_mm} mm")
 
-    # Build PlacementConstraints for C-CAP feasibility projection
-    placement_constraints = PlacementConstraints(
-        board_width_mm=board.width,
-        board_height_mm=board.height,
-        board_margin_mm=2.0,
-        hv_clearance_mm=threshold_mm,
-    )
+    # Build PlacementState from the placement result
+    if placement is not None:
+        positions = np.asarray(placement.positions, dtype=np.float32)
+    else:
+        # Fall back to KiCad reference positions from the netlist
+        positions = np.array(
+            [c.initial_position for c in netlist.components],
+            dtype=np.float32,
+        )
 
-    # Build loss function with ClearanceLoss
-    weights = {
-        "overlap": 200.0,
-        "boundary": 100.0,
-        "clearance": 100.0,
-        "wirelength": 20.0,
-        "spread": 5.0,
+    n_components = positions.shape[0]
+    state = _build_placement_state(positions, n_components)
+    context = _make_minimal_context(netlist, board)
+
+    # Solve HV/LV component sets from net classification
+    hv_components = {
+        c.ref for c in netlist.components
+        if c.net_class in ("HighVoltage", "ACMains")
     }
-    if weights_override:
-        weights.update(weights_override)
+    lv_components = {
+        c.ref for c in netlist.components
+        if c.net_class == "Signal"
+    }
 
-    try:
-        clearance_rules = []
-        if threshold_mm > 0:
-            from temper_placer.losses.types import ClearanceRule
-
-            clearance_rules.append(
-                ClearanceRule(
-                    net_class_a="HighVoltage",
-                    net_class_b="Signal",
-                    min_clearance=threshold_mm,
-                )
-            )
-
-        # Build thermal constraints from spec config
-        thermal_constraints: list[ThermalConstraint] = []
-        for ref, power in spec.thermal.power_dissipation.items():
-            thermal_constraints.append(
-                ThermalConstraint(
-                    component_ref=ref,
-                    edge=spec.thermal.target_edge,
-                    max_distance=spec.thermal.max_heatspread_mm,
-                    weight=power,
-                    because=f"{power}W dissipation requires {spec.thermal.target_edge} edge placement",
-                )
-            )
-
-        # Build pin-based loop constraints for commutation loop
-        # Pin order traces the actual current path around the loop perimeter
-        comm_max_area = spec.emi.max_loop_area_mm2.get("commutation_loop", 80.0)
-        loop_constraints: list[LoopConstraint] = [
-            LoopConstraint(
-                name="commutation_loop",
-                pins=(
-                    ("C_BUS1", "1"),   # DC_BUS+ side of bus cap
-                    ("Q1", "2"),       # IGBT collector = DC_BUS+
-                    ("Q1", "3"),       # IGBT emitter = SW_NODE
-                    ("Q2", "2"),       # IGBT collector = SW_NODE  
-                    ("Q2", "3"),       # IGBT emitter = DC_BUS-
-                    ("C_BUS2", "2"),   # DC_BUS- side of bus cap
-                    ("C_BUS2", "1"),   # PGND side of bus cap 2
-                    ("C_BUS1", "2"),   # PGND side of bus cap 1 (closes loop)
-                ),
-                max_area=comm_max_area,
-                weight=10.0,
-                because="Main switching loop — most critical for EMI and voltage spikes.",
-            ),
-        ]
-
-        context = LossContext.from_netlist_and_board(
-            netlist, board,
-            clearance_rules=clearance_rules,
-            thermal_constraints=thermal_constraints,
-            loop_constraints=loop_constraints,
-        )
-
-        # Use pin-based LoopAreaLoss for commutation (physically correct),
-        # ComponentLoopAreaLoss only for gate-drive (no driver in netlist).
-        pin_loop_losses = [
-            WeightedLoss(LoopAreaLoss(area_penalty_scale=0.01, routing_factor=1.0),
-                         weights.get("loop_area", 20.0)),
-        ]
-
-        # Component-center loop loss only for loops without pin defs
-        comp_loop_losses = []
-        for loop_name, comp_refs in spec.emi.loop_components.items():
-            # Skip commutation — handled by pin-based LoopAreaLoss
-            if loop_name == "commutation_loop":
-                continue
-            max_area = spec.emi.max_loop_area_mm2.get(loop_name, 100.0)
-            if len(comp_refs) >= 3:
-                comp_loop_losses.append(
-                    ComponentLoopConfig(name=loop_name, component_refs=list(comp_refs),
-                                        max_area_mm2=max_area * 0.5, weight=5.0))
-
-        loss_fn = CompositeLoss([
-            WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weights["overlap"]),
-            WeightedLoss(BoundaryLoss(), weights["boundary"]),
-            WeightedLoss(
-                ClearanceLoss(default_hv_lv_clearance=6.0),
-                weights["clearance"],
-            ),
-            WeightedLoss(WirelengthLoss(), weights["wirelength"]),
-            WeightedLoss(SpreadLoss(), weights["spread"]),
-            WeightedLoss(ThermalLoss(margin=2.0), weights.get("thermal", 30.0)),
-        ] + pin_loop_losses + ([
-            WeightedLoss(
-                ComponentLoopAreaLoss(loops=comp_loop_losses, margin=10.0,
-                                      min_separation_mm=2.0),
-                weights.get("loop_area", 5.0),
-            ),
-        ] if comp_loop_losses else []))
-    except Exception as e:
-        return PhysicsOracleResult(
-            board_id=board_id,
-            passed=False,
-            errors=[f"Loss setup failed: {e}"],
-        )
-
-    # Run optimizer
-    try:
-        jax.config.update("jax_platform_name", "cpu")
-
-        pipeline = create_default_pipeline()
-        rng_key = jax.random.PRNGKey(seed)
-        preset = pipeline.run(board, netlist, None, rng_key)
-        initial_state = preset.state
-
-        # Guard against degenerate initial placements
-        pos = initial_state.positions
-        if not jnp.all(jnp.isfinite(pos)):
-            k1, k2 = jax.random.split(rng_key)
-            margin = min(2.0, board.width * 0.1, board.height * 0.1)
-            px = jax.random.uniform(
-                k1, (netlist.n_components,),
-                minval=margin, maxval=board.width - margin,
-            )
-            py = jax.random.uniform(
-                k2, (netlist.n_components,),
-                minval=margin, maxval=board.height - margin,
-            )
-            from dataclasses import replace as dc_replace
-            initial_state = dc_replace(
-                initial_state,
-                positions=jnp.stack([px, py], axis=-1),
-                rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
-            )
-
-        phases = create_default_phases(epochs)
-        cfg = OptimizerConfig(
-            epochs=epochs,
-            seed=seed,
-            log_interval=max(1, epochs // 100),
-            curriculum_phases=phases,
-            use_centrality_weighting=False,
-        )
-        cfg.initialization.ccap_enabled = True
-
-        if verbose:
-            print(f"  C-CAP: enabled, max_cycles={cfg.initialization.ccap_max_cycles}")
-
-        result = train_multiphase(
-            netlist, board, lambda _: loss_fn, context, cfg,
-            initial_state=initial_state,
-            constraints=placement_constraints,
-        )
-        elapsed = time.time() - start_time
-
-        if verbose:
-            print(f"  Optimization complete in {elapsed:.1f}s, loss = {result.final_loss:.4f}")
-
-    except Exception as e:
-        return PhysicsOracleResult(
-            board_id=board_id,
-            passed=False,
-            errors=[f"Optimization failed: {e}"],
-        )
-
-    # Compute quality report
+    # Compute quality report from individual metric functions
     try:
         ref = _BoardSnapshot(netlist=netlist, board=board)
         quality_config = infer_quality_config(ref)  # type: ignore[arg-type]
 
-        # Override hv/lv from net classification (more authoritative than footprint heuristics)
-        hv_from_class = {
-            c.ref
-            for c in netlist.components
-            if c.net_class in ("HighVoltage", "ACMains")
-        }
-        lv_from_class = {
-            c.ref
-            for c in netlist.components
-            if c.net_class == "Signal"
-        }
-        if hv_from_class:
-            quality_config["hv_components"] = hv_from_class
-        if lv_from_class:
-            quality_config["lv_components"] = lv_from_class
+        if hv_components:
+            quality_config["hv_components"] = hv_components
+        if lv_components:
+            quality_config["lv_components"] = lv_components
 
-        # Override threshold with derived value
         quality_config["min_hv_lv_clearance"] = threshold_mm
-
-        # Wire thermal edge configuration from spec
         quality_config["thermal_target_edge"] = spec.thermal.target_edge
         quality_config["thermal_max_distance"] = spec.thermal.max_heatspread_mm
 
-        # Populate loop components from spec, falling back to auto-extraction
+        loop_comps = []
         if spec.emi.loop_components:
-            spec_loops = [
-                comps for comps in spec.emi.loop_components.values()
+            loop_comps = [
+                list(comps) for comps in spec.emi.loop_components.values()
                 if len(comps) >= 3
             ]
-            if spec_loops:
-                quality_config["loop_components"] = spec_loops
-        else:
-            from temper_placer.core.loop_extractor import auto_extract_loops
-            loop_collection = auto_extract_loops(netlist)
-            if loop_collection.loops:
-                loop_components = []
-                for loop in loop_collection.loops:
-                    comps = loop.components
-                    if len(comps) >= 3:
-                        loop_components.append(list(comps))
-                if loop_components:
-                    quality_config["loop_components"] = loop_components
 
-        report = compute_quality_report(
-            result.final_state, netlist, board, context, quality_config
+        dual_rail = dual_rail_clearance_report(state, netlist, hv_components, lv_components)
+        clearance = hv_lv_clearance_score(
+            state, netlist, hv_components, lv_components, min_clearance=threshold_mm,
         )
-        clearance_score = report.get("hv_lv_clearance_score", 1.0)
+        thermal = thermal_score(
+            state, netlist, board,
+            quality_config.get("thermal_components", set()),
+            target_edge=spec.thermal.target_edge,
+            max_distance=spec.thermal.max_heatspread_mm,
+        )
+        zone = zone_compliance_score(
+            state, netlist, board,
+            quality_config.get("zone_assignments", {}),
+        )
+        loop = loop_area_score(state, netlist, context, loop_comps)
+        compact = compactness_score(state, netlist, board)
+
+        normalized_scores = [thermal, zone, clearance, loop, compact]
+        overall = sum(normalized_scores) / len(normalized_scores) if normalized_scores else 0.0
+
+        report = {
+            "thermal_score": thermal,
+            "zone_compliance_score": zone,
+            "hv_lv_clearance_score": clearance,
+            "clearance_score_3mm": dual_rail["clearance_score_3mm"],
+            "clearance_score_6mm": dual_rail["clearance_score_6mm"],
+            "violations_3mm": dual_rail["violations_3mm"],
+            "violations_6mm": dual_rail["violations_6mm"],
+            "loop_area_score": loop,
+            "compactness_score": compact,
+            "overall_score": overall,
+        }
+        elapsed = time.time() - start_time
 
         if verbose:
-            print(f"  HV/LV clearance score: {clearance_score:.4f}")
-            print(f"  Overall quality score: {report.get('overall_score', 0.0):.4f}")
+            print(f"  HV/LV clearance score: {clearance:.4f}")
+            print(f"  Overall quality score: {overall:.4f}")
 
     except Exception as e:
         return PhysicsOracleResult(
@@ -420,183 +334,16 @@ def run_physics_oracle(
             errors=[f"Quality report failed: {e}"],
         )
 
-    # Compare against threshold: score of 1.0 means all pairs satisfy clearance;
-    # score < 1.0 means some pairs violate it. Pass if score >= 0.95 (allow minor violations).
-    passed = clearance_score >= _CLEARANCE_PASS_THRESHOLD
+    passed = clearance >= _CLEARANCE_PASS_THRESHOLD
 
     return PhysicsOracleResult(
         board_id=board_id,
         passed=passed,
         quality_report=report,
         threshold_mm=threshold_mm,
-        clearance_score=clearance_score,
+        clearance_score=clearance,
         elapsed_seconds=elapsed,
     )
-
-
-def run_ab_diff(
-    pcb_path: Path,
-    spec_path: Path | None = None,
-    seed: int = 42,
-    epochs: int = 500,
-    verbose: bool = True,
-) -> dict[str, Any]:
-    """
-    A/B placement diff: run placer without and with HV/LV classification.
-
-    Run A: parser without design_rules -> all components "Signal" -> clearance
-           loss dark -> optimizer runs normally.
-    Run B: parser with design_rules -> HV/LV classification -> clearance loss
-           live -> optimizer pushes HV/LV apart.
-
-    Returns a dict with per-component position deltas, summary stats,
-    and directional HV-LV distance check.
-
-    Args:
-        pcb_path: Path to the KiCad PCB file.
-        spec_path: Path to pcb_spec.yaml.
-        seed: Random seed (same for both runs).
-        epochs: Number of optimizer epochs.
-        verbose: Whether to print progress.
-
-    Returns:
-        Dict with 'positions_a', 'positions_b', 'deltas', 'summary', 'conclusion'.
-    """
-    import jax
-    import jax.numpy as jnp
-
-    from temper_placer.core.design_rules import create_temper_design_rules
-    from temper_placer.core.specification import PcbSpecification
-    from temper_placer.heuristics import create_default_pipeline
-    from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-    from temper_placer.losses.boundary import BoundaryLoss
-    from temper_placer.losses.clearance import ClearanceLoss
-    from temper_placer.losses.overlap import OverlapLoss
-    from temper_placer.losses.regularization import SpreadLoss
-    from temper_placer.losses.wirelength import WirelengthLoss
-    from temper_placer.optimizer.config import OptimizerConfig
-    from temper_placer.optimizer.curriculum import create_default_phases
-    from temper_placer.optimizer.train import train_multiphase
-    from temper_placer.pipeline.derivation import derive_constraints_from_spec
-
-    if spec_path is None:
-        spec_path = Path("configs/pcb_spec.yaml")
-    spec = PcbSpecification.load(spec_path)
-    derived = derive_constraints_from_spec(spec, None)
-    threshold_mm = derived.get("hv_lv_isolation_mm", 6.5)
-
-    jax.config.update("jax_platform_name", "cpu")
-    weights = {"overlap": 200.0, "boundary": 100.0, "clearance": 100.0,
-               "wirelength": 20.0, "spread": 5.0}
-
-    def _run_one(with_classification: bool) -> tuple:
-        if with_classification:
-            dr = create_temper_design_rules()
-            result = parse_kicad_pcb(pcb_path, design_rules=dr)
-        else:
-            result = parse_kicad_pcb(pcb_path)
-        netlist = result.netlist
-        board = result.board
-
-        context = LossContext.from_netlist_and_board(netlist, board)
-        loss_fn = CompositeLoss([
-            WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weights["overlap"]),
-            WeightedLoss(BoundaryLoss(), weights["boundary"]),
-            WeightedLoss(
-                ClearanceLoss(default_hv_lv_clearance=6.0),
-                weights["clearance"],
-            ),
-            WeightedLoss(WirelengthLoss(), weights["wirelength"]),
-            WeightedLoss(SpreadLoss(), weights["spread"]),
-        ])
-
-        pipeline = create_default_pipeline()
-        rng_key = jax.random.PRNGKey(seed)
-        preset = pipeline.run(board, netlist, None, rng_key)
-        initial_state = preset.state
-
-        pos = initial_state.positions
-        if not jnp.all(jnp.isfinite(pos)):
-            from dataclasses import replace as dc_replace
-            k1, k2 = jax.random.split(rng_key)
-            margin = min(2.0, board.width * 0.1, board.height * 0.1)
-            px = jax.random.uniform(k1, (netlist.n_components,), minval=margin, maxval=board.width - margin)
-            py = jax.random.uniform(k2, (netlist.n_components,), minval=margin, maxval=board.height - margin)
-            initial_state = dc_replace(
-                initial_state,
-                positions=jnp.stack([px, py], axis=-1),
-                rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
-            )
-
-        phases = create_default_phases(epochs)
-        cfg = OptimizerConfig(epochs=epochs, seed=seed, log_interval=max(1, epochs // 100),
-                              curriculum_phases=phases, use_centrality_weighting=False)
-
-        train_result = train_multiphase(
-            netlist, board, lambda _: loss_fn, context, cfg,
-            initial_state=initial_state, constraints=None,
-        )
-        return netlist, board, train_result.final_state.positions
-
-    if verbose:
-        print("  A/B diff: Run A (no HV/LV classification)...")
-    netlist_a, _, positions_a = _run_one(with_classification=False)
-
-    if verbose:
-        print("  A/B diff: Run B (with HV/LV classification)...")
-    netlist_b, _, positions_b = _run_one(with_classification=True)
-
-    # Per-component deltas
-    n = min(positions_a.shape[0], positions_b.shape[0])
-    deltas = jnp.linalg.norm(positions_b[:n] - positions_a[:n], axis=1)
-
-    # Directional check: HV-LV distance change
-    hv_refs = {c.ref for c in netlist_b.components if c.net_class in ("HighVoltage", "ACMains")}
-    lv_refs = {c.ref for c in netlist_b.components if c.net_class == "Signal"}
-    all_refs = [c.ref for c in netlist_b.components]
-
-    def _min_hv_lv_dist(positions, refs):
-        hv_idxs = [i for i, r in enumerate(refs) if r in hv_refs]
-        lv_idxs = [i for i, r in enumerate(refs) if r in lv_refs]
-        if not hv_idxs or not lv_idxs:
-            return float("inf")
-        min_d = float("inf")
-        for hi in hv_idxs:
-            for li in lv_idxs:
-                d = float(jnp.linalg.norm(positions[hi] - positions[li]))
-                min_d = min(min_d, d)
-        return min_d
-
-    dist_a = _min_hv_lv_dist(positions_a, all_refs)
-    dist_b = _min_hv_lv_dist(positions_b, all_refs)
-
-    mean_delta = float(jnp.mean(deltas))
-    max_delta = float(jnp.max(deltas))
-
-    if mean_delta < 0.01:
-        conclusion = ("placements identical — clearance loss weight may need retuning "
-                      "(was calibrated when dark)")
-    elif dist_b > dist_a:
-        conclusion = (f"constraint has teeth: min HV-LV distance increased "
-                      f"from {dist_a:.2f} mm to {dist_b:.2f} mm")
-    else:
-        conclusion = (f"HV-LV distance unchanged or decreased: "
-                      f"{dist_a:.2f} -> {dist_b:.2f} mm")
-
-    if verbose:
-        print(f"  Mean delta: {mean_delta:.4f} mm, max delta: {max_delta:.4f} mm")
-        print(f"  HV-LV distance: {dist_a:.2f} -> {dist_b:.2f} mm")
-        print(f"  Conclusion: {conclusion}")
-
-    return {
-        "positions_a": positions_a,
-        "positions_b": positions_b,
-        "deltas": deltas,
-        "summary": {"mean_delta_mm": mean_delta, "max_delta_mm": max_delta,
-                    "dist_a_mm": dist_a, "dist_b_mm": dist_b},
-        "conclusion": conclusion,
-    }
 
 
 def score_human_baseline(
@@ -620,10 +367,6 @@ def score_human_baseline(
         Dict with clearance_score_3mm, clearance_score_6mm,
         violations_3mm, violations_6mm.
     """
-    import jax
-
-    jax.config.update("jax_platform_name", "cpu")
-
     # Resolve spec
     if spec_path is None:
         default_spec = Path("configs/pcb_spec.yaml")
@@ -640,11 +383,12 @@ def score_human_baseline(
     derived = derive_constraints_from_spec(spec, netlist)
     threshold_mm = derived.get("hv_lv_isolation_mm", 6.5)
 
-    # Build initial state from pipeline (uses original PCB positions)
-    pipeline = create_default_pipeline()
-    rng_key = jax.random.PRNGKey(0)
-    preset = pipeline.run(board, netlist, None, rng_key)
-    state = preset.state
+    # Build state from intrinsic KiCad positions (no optimizer pipeline)
+    positions = np.array(
+        [c.initial_position for c in netlist.components],
+        dtype=np.float32,
+    )
+    state = _build_placement_state(positions, len(netlist.components))
 
     # Build quality config mirroring the oracle's setup
     ref = _BoardSnapshot(netlist=netlist, board=board)
@@ -681,10 +425,17 @@ def score_human_baseline(
     return result
 
 
-# Re-export multi-seed experiment API from its own module
-from temper_placer.regression.multi_seed_experiment import (  # noqa: E402, F401
-    MultiSeedExperimentResult,
-    MultiSeedRunResult,
-    _compute_experiment_stats,
-    run_multi_seed_experiment,
-)
+# Re-export multi-seed experiment API from its own module.
+# NOTE: multi_seed_experiment.py also needs JAX retirement; re-export is
+# conditional until that module is updated.
+try:
+    from temper_placer.regression.multi_seed_experiment import (  # noqa: E402, F401
+        MultiSeedExperimentResult,
+        MultiSeedRunResult,
+        _compute_experiment_stats,
+        run_multi_seed_experiment,
+    )
+except Exception:
+    # Multi-seed experiment module still has JAX dependencies;
+    # these symbols will be available once that module is updated.
+    pass

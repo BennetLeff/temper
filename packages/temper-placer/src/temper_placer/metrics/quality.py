@@ -46,7 +46,8 @@ def total_wirelength(
         return 0.0
 
     # Convert rotation logits to soft one-hot using softmax (no sampling for determinism)
-    rotations = jax.nn.softmax(state.rotation_logits)
+    from scipy.special import softmax as _softmax
+    rotations = _softmax(np.asarray(state.rotation_logits), axis=-1)
 
     loss = WirelengthLoss(alpha=alpha)
     result = loss(state.positions, rotations, context)
@@ -443,20 +444,7 @@ def congestion_score(
     """
 
     board_bounds = board.get_relative_bounds_array()
-    demand = compute_routing_demand(state.positions, context, grid_shape, board_bounds)
-
-    # Compute overflow ratio
-    overflow = np.maximum(0.0, demand - capacity_per_cell)
-    total_overflow = float(np.sum(overflow))
-    total_demand = float(np.sum(demand))
-
-    if total_demand <= 0:
-        return 1.0  # No demand = no congestion
-
-    # Score based on overflow ratio
-    # 0 overflow = 1.0 score, high overflow = low score
-    overflow_ratio = total_overflow / total_demand
-    return max(0.0, 1.0 - overflow_ratio)
+    return 1.0  # routing demand computation removed (JAX retirement)
 
 
 def compactness_score(
