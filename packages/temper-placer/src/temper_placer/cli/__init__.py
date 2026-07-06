@@ -241,6 +241,11 @@ main.add_command(watch)
     show_default=True,
     help="Placer engine to use.",
 )
+@click.option(
+    "--loop/--no-loop",
+    default=True,
+    help="Enable place→route feedback loop for routing-aware placement (default: enabled).",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -276,6 +281,7 @@ def optimize(
     weight_channel_capacity: float | None,
     compact: bool,
     placer: str,
+    loop: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -318,6 +324,53 @@ def optimize(
     console.print("[dim]The JAX gradient-descent pipeline has been removed.[/]")
     console.print("[dim]Full CP-SAT pipeline integration is in progress.[/]")
     console.print("[dim]Use `temper pipeline` for router-based placement flows.[/]")
+
+    # Place→Route feedback loop (U4)
+    if loop:
+        console.print("\n[bold cyan]Running place→route feedback loop...[/]")
+        try:
+            from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
+
+            from temper_placer.io.config_loader import (
+                create_board_from_constraints,
+                load_constraints,
+            )
+            from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+            parse_result = parse_kicad_pcb(input_pcb)
+            netlist = parse_result.netlist
+            board = parse_result.board
+            constraints = load_constraints(config)
+
+            loop_runner = PlaceRouteLoop()
+            pcl_constraints = getattr(constraints, "pcl_constraints", [])
+            loop_result = loop_runner.run(
+                netlist=netlist,
+                board=board,
+                pcl_constraints=pcl_constraints,
+                seed=seed,
+            )
+
+            if loop_result.success:
+                console.print(
+                    f"  [green]✓[/] Loop converged in {len(loop_result.rounds)} rounds"
+                )
+                console.print(
+                    f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0)*100:.1f}%"
+                )
+            else:
+                console.print(
+                    f"  [yellow]Loop did not converge: {loop_result.reason}[/]"
+                )
+                if loop_result.rounds:
+                    last = loop_result.rounds[-1]
+                    console.print(
+                        f"    Best routing completion: {last.completion_rate*100:.1f}%"
+                        f" ({last.drc_errors} DRC errors)"
+                    )
+        except Exception as e:
+            console.print(f"  [yellow]Place→route loop failed: {e}[/]")
+
     sys.exit(0)
 
 

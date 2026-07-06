@@ -37,9 +37,17 @@ class RoutingResult:
 
     Attributes:
         completion_rate: Fraction of nets successfully routed (0.0 to 1.0).
+        unrouted_nets: List of net names that failed to route.
+        drc_violations: List of DRC violation details from per-net reports
+            and optional manufacturing report.
+        congestion_regions: List of congestion region details from
+            bottleneck geometry analysis.
     """
 
     completion_rate: float = 0.0
+    unrouted_nets: list[str] = field(default_factory=list)
+    drc_violations: list[object] = field(default_factory=list)
+    congestion_regions: list[object] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -390,13 +398,71 @@ def route_pcb(
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
             result = pipeline.run(Path(temp_path))
-            return RoutingResult(completion_rate=result.completion_rate)
+            return _build_routing_result(result)
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
     else:
         result = pipeline.run(pcb_path)
-        return RoutingResult(completion_rate=result.completion_rate)
+        return _build_routing_result(result)
+
+
+def _build_routing_result(result: Any) -> RoutingResult:
+    """Extract failure data from RouterV6Pipeline result into RoutingResult.
+
+    Pulls failed net names, DRC violations from per-net reports, and
+    congestion regions from bottleneck geometry analysis so that the
+    FeedbackClassifier can act on real routing failures.
+    """
+    routing_results = result.stage4.routing_results
+    unrouted_nets = list(routing_results.failed_nets)
+
+    drc_violations: list[object] = []
+    congestion_regions: list[object] = []
+
+    for report in getattr(routing_results, 'net_reports', []):
+        # Collect DRC violations from per-net reports
+        drc_count = getattr(report, 'drc_violations', 0)
+        if drc_count > 0:
+            drc_violations.append({
+                'net_name': getattr(report, 'net_name', 'unknown'),
+                'count': drc_count,
+                'message': getattr(report, 'message', ''),
+            })
+
+        # Collect congestion regions from bottleneck geometry
+        bottleneck = getattr(report, 'bottleneck', None)
+        if bottleneck is not None:
+            pair_kind = getattr(bottleneck, 'pair_kind', None)
+            if pair_kind in ('component_edge', 'component_keepout'):
+                comps = getattr(bottleneck, 'component_pair', ('unknown', 'unknown'))
+                gap = getattr(bottleneck, 'current_gap_mm', 0.0)
+                positions = getattr(bottleneck, 'positions_mm', ((0.0, 0.0), (0.0, 0.0)))
+                congestion_regions.append({
+                    'net_name': getattr(report, 'net_name', 'unknown'),
+                    'comp_a': comps[0],
+                    'comp_b': comps[1],
+                    'current_gap_mm': gap,
+                    'positions': positions,
+                })
+
+    # Pull DRC data from manufacturing report if available
+    mfg = getattr(result, 'manufacturing_report', None)
+    if mfg is not None:
+        for v in getattr(mfg, 'violations', []):
+            drc_violations.append({
+                'type': getattr(v, 'type', 'unknown'),
+                'message': getattr(v, 'message', ''),
+                'net_name': getattr(v, 'net_name', ''),
+                'location': getattr(v, 'location', (0.0, 0.0)),
+            })
+
+    return RoutingResult(
+        completion_rate=result.completion_rate,
+        unrouted_nets=unrouted_nets,
+        drc_violations=drc_violations,
+        congestion_regions=congestion_regions,
+    )
 
 
 def _apply_placements_to_pcb(

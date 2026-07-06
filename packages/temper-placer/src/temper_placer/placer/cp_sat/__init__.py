@@ -15,7 +15,9 @@ from temper_placer.placer.cp_sat.encoder import (
     EncoderContext,
     encode_constraints,
 )
+from temper_placer.placer.cp_sat.feedback import ConstraintDelta, FeedbackClassifier
 from temper_placer.placer.cp_sat.gate import AcceptanceGate
+from temper_placer.placer.cp_sat.loop import LoopResult, PlaceRouteLoop
 from temper_placer.placer.cp_sat.model import (
     ComponentVars,
     CpSatModel,
@@ -28,9 +30,13 @@ __all__ = [
     "AuditReport",
     "AuditViolation",
     "ComponentVars",
+    "ConstraintDelta",
     "CpSatModel",
     "CpSolverSolution",
     "EncoderContext",
+    "FeedbackClassifier",
+    "LoopResult",
+    "PlaceRouteLoop",
     "Placement",
     "PlacementAuditor",
     "SolveStatus",
