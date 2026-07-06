@@ -47,6 +47,7 @@ dependencies = [
     "shapely>=2.1.2",
     "pandas>=2.0.0",
     "pydantic>=2.13.4",
+    "ortools>=9.10",
 ]
 
 [project.optional-dependencies]
