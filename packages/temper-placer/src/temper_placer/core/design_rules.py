@@ -9,7 +9,10 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Literal
 
+import numpy as np
 from pydantic import BaseModel, ConfigDict
+
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.bus_cohort import BusCohortConstraint
 from temper_placer.core.differential_pair import DifferentialPairConstraint

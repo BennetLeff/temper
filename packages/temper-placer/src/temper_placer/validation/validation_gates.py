@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-from temper_placer.experiments.metrics_tracker import RunMetrics
+from temper_placer.core.loss_types import RunMetrics
 
 
 class GateStatus(Enum):

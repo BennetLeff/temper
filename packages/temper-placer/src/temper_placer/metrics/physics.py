@@ -235,7 +235,7 @@ def measure_routability(
     """
     Measure routability indicators (post-placement estimation).
     """
-    import jax.numpy as jnp
+    import numpy as np
 
     from temper_placer.router_v6.congestion import analyze_congestion
 
@@ -243,14 +243,14 @@ def measure_routability(
 
     # Run congestion analysis
     # Use JAX positions
-    pos_jax = jnp.array(state.positions)
+    pos_jax = np.array(state.positions)
     res = analyze_congestion(netlist, board, positions=pos_jax)
 
     metrics.max_congestion = res.max_utilization
     metrics.overflow_cells = len(res.bottlenecks)
 
     # total_wirelength (HPWL)
-    from temper_placer.losses.base import LossContext
+    from temper_placer.core.loss_types import LossContext
     from temper_placer.metrics.quality import total_wirelength
 
     ctx = LossContext.from_netlist_and_board(netlist, board)

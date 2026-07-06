@@ -184,12 +184,11 @@ class ThermalAnchoringStage:
         # Safety gate: Tj validation (R4) --- HARD ABORT
         # ------------------------------------------------------------------
         for ref, (ax, ay) in anchors.items():
-            from temper_placer.losses.thermal import compute_edge_distance
 
-            import jax.numpy as jnp
+            import numpy as np
 
-            pos = jnp.array([ax, ay])
-            bounds_arr = jnp.array([0.0, 0.0, board.width, board.height])
+            pos = np.array([ax, ay])
+            bounds_arr = np.array([0.0, 0.0, board.width, board.height])
             edge_dist = float(compute_edge_distance(pos, bounds_arr, edge_name))
 
             power_w = power_dissipation.get(ref, 0.0)

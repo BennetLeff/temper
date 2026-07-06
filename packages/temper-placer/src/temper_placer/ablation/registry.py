@@ -4,18 +4,23 @@ from copy import deepcopy
 from typing import Any
 
 from temper_placer.ablation.config import ComponentToggle, LossToggle
-from temper_placer.optimizer.config import (
-    LearningRateSchedule,
-    OptimizerConfig,
-    TemperatureSchedule,
-)
+class OptimizerConfig:
+    """DEPRECATED: stub."""
+    def __init__(self, **kw):
+        for k, v in kw.items():
+            setattr(self, k, v)
+class TemperatureSchedule:
+    """DEPRECATED: stub."""
+    pass
+class LearningRateSchedule:
+    """DEPRECATED: stub."""
+    pass
 
 
 # Dynamic imports to avoid circular dependencies
 def _get_heuristics():
-    """Get heuristic classes."""
+    """Get heuristic classes (force_directed removed post-JAX retirement)."""
     try:
-        from temper_placer.heuristics.force_directed import ForceDirectedHeuristic
         from temper_placer.heuristics.organizational import (
             DecouplingCapHeuristic,
             DomainSeparationHeuristic,
@@ -33,7 +38,6 @@ def _get_heuristics():
 
         return {
             "spectral_init": SpectralPlacementHeuristic,
-            "force_directed": ForceDirectedHeuristic,
             "connector_edge_snap": ConnectorEdgeSnappingHeuristic,
             "thermal_edge": ThermalEdgePlacementHeuristic,
             "critical_loop": CriticalLoopHeuristic,
@@ -47,7 +51,7 @@ def _get_heuristics():
     except ImportError:
         # Return mock classes for testing
         return {name: type(name, (), {}) for name in [
-            "spectral_init", "force_directed", "connector_edge_snap",
+            "spectral_init", "connector_edge_snap",
             "thermal_edge", "critical_loop", "functional_clustering",
             "power_flow_topology", "decoupling_cap", "domain_separation",
             "star_ground", "signal_flow",
@@ -55,73 +59,24 @@ def _get_heuristics():
 
 
 def _get_losses():
-    """Get loss function classes."""
-    try:
-        from temper_placer.losses.boundary import BoundaryLoss
-        from temper_placer.losses.clearance import ClearanceLoss
-        from temper_placer.losses.coil import CoilRequirementLoss
-        from temper_placer.losses.congestion import CongestionLoss
-        from temper_placer.losses.critical_path import CriticalPathLengthLoss
-        from temper_placer.losses.crystal import CrystalPlacementLoss
-        from temper_placer.losses.drc_loss import DRCLoss
-        from temper_placer.losses.ground_crossing import GroundCrossingLoss
-        from temper_placer.losses.grouping import (
-            GroupClusterLoss,
-            GroupSeparationLoss,
-            ProximityLoss,
-        )
-        from temper_placer.losses.loop_area import LoopAreaLoss
-        from temper_placer.losses.mechanical import MechanicalMountingLoss
-        from temper_placer.losses.net_class import NetClassSeparationLoss
-        from temper_placer.losses.overlap import OverlapLoss
-        from temper_placer.losses.power_path import PowerPathLoss
-        from temper_placer.losses.regularization import (
-            CenterOfMassLoss,
-            RotationEntropyLoss,
-            SpreadLoss,
-        )
-        from temper_placer.losses.return_path import CurrentReturnPathLoss
-        from temper_placer.losses.thermal import ThermalLoss
-        from temper_placer.losses.via_density import ViaDensityLoss
-        from temper_placer.losses.wirelength import WirelengthLoss
-        from temper_placer.losses.zone import ZoneMembershipLoss
+    """Get loss function classes — always returns stubs; losses.* modules retired with JAX."""
+    import warnings
 
-        return {
-            "overlap": lambda: OverlapLoss(margin=1.0, rotation_invariant=True),
-            "boundary": lambda: BoundaryLoss(soft_margin=2.0),
-            "clearance": lambda: ClearanceLoss(min_clearance_mm=10.0),
-            "thermal": ThermalLoss,
-            "zone": ZoneMembershipLoss,
-            "ground_crossing": GroundCrossingLoss,
-            "net_class": NetClassSeparationLoss,
-            "wirelength": WirelengthLoss,
-            "loop_area": LoopAreaLoss,
-            "congestion": CongestionLoss,
-            "power_path": PowerPathLoss,
-            "return_path": CurrentReturnPathLoss,
-            "critical_path": CriticalPathLengthLoss,
-            "spread": SpreadLoss,
-            "rotation_entropy": RotationEntropyLoss,
-            "center_of_mass": CenterOfMassLoss,
-            "crystal": CrystalPlacementLoss,
-            "mechanical": MechanicalMountingLoss,
-            "via_density": ViaDensityLoss,
-            "coil": CoilRequirementLoss,
-            "drc": DRCLoss,
-            "group_cluster": GroupClusterLoss,
-            "group_separation": GroupSeparationLoss,
-            "proximity": ProximityLoss,
-        }
-    except ImportError:
-        # Return mock classes for testing
-        return {name: (lambda n=name: type(n, (), {})()) for name in [
-            "overlap", "boundary", "clearance", "thermal", "zone",
-            "ground_crossing", "net_class", "wirelength", "loop_area",
-            "congestion", "power_path", "return_path", "critical_path",
-            "spread", "rotation_entropy", "center_of_mass", "crystal",
-            "mechanical", "via_density", "coil", "drc",
-            "group_cluster", "group_separation", "proximity",
-        ]}
+    warnings.warn(
+        "losses.* modules have been retired (JAX removal). "
+        "All loss registrations use stub classes.",
+        UserWarning,
+        stacklevel=2,
+    )
+    # Return mock classes for testing / pass-through
+    return {name: (lambda n=name: type(n, (), {})()) for name in [
+        "overlap", "boundary", "clearance", "thermal", "zone",
+        "ground_crossing", "net_class", "wirelength", "loop_area",
+        "congestion", "power_path", "return_path", "critical_path",
+        "spread", "rotation_entropy", "center_of_mass", "crystal",
+        "mechanical", "via_density", "coil", "drc",
+        "group_cluster", "group_separation", "proximity",
+    ]}
 
 
 class HeuristicRegistry:

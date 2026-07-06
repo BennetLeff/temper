@@ -1,7 +1,6 @@
 import time
 
-import jax
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -43,7 +42,7 @@ def auto_layout_pcb_with_recovery(netlist: Netlist, board: Board):
     # Recovery 3: Random restart with different initial placement
     print('Trying different initial placement (randomized)...')
     key = jax.random.PRNGKey(int(time.time()))
-    random_pos = jnp.array([(board.width/2, board.height/2) for _ in netlist.components])
+    random_pos = np.array([(board.width/2, board.height/2) for _ in netlist.components])
     random_pos += jax.random.normal(key, random_pos.shape) * 10.0
 
     positions, results = auto_layout_pcb(netlist, board, initial_positions=random_pos)

@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING
-
-import jax.numpy as jnp
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.pin_geometry import pin_world_position
 from temper_placer.io.dsn import dsn_list
 
 if TYPE_CHECKING:
-    from jax import Array
-
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.io.dsn import DSNExpression
@@ -41,7 +39,7 @@ class DSNExporter:
         # Convert rotations to indices (0-3) if provided as logits/one-hot
         if rotations is not None:
             if rotations.ndim == 2:
-                self.rotation_indices: Array | None = jnp.argmax(rotations, axis=1)
+                self.rotation_indices: Array | None = np.argmax(rotations, axis=1)
             else:
                 self.rotation_indices = rotations
         else:

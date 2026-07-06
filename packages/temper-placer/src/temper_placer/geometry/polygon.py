@@ -14,11 +14,8 @@ Key algorithms:
 - Winding number for point-in-polygon (soft version for gradients)
 - Convex hull for component bounding
 """
-
-
-import jax
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 # =============================================================================
 # Polygon Area (Shoelace Formula)
@@ -39,14 +36,14 @@ def polygon_area(vertices: Array) -> Array:
         Polygon area (always positive)
     """
     # Roll vertices to get (i+1) indices
-    vertices_next = jnp.roll(vertices, -1, axis=0)
+    vertices_next = np.roll(vertices, -1, axis=0)
 
     # Shoelace formula: sum of cross products
     # cross = x_i * y_{i+1} - x_{i+1} * y_i
     cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
 
     # Area is half the absolute value of the sum
-    return jnp.abs(jnp.sum(cross)) / 2.0
+    return np.abs(np.sum(cross)) / 2.0
 
 
 def polygon_signed_area(vertices: Array) -> Array:
@@ -59,9 +56,9 @@ def polygon_signed_area(vertices: Array) -> Array:
     Returns:
         Signed polygon area
     """
-    vertices_next = jnp.roll(vertices, -1, axis=0)
+    vertices_next = np.roll(vertices, -1, axis=0)
     cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
-    return jnp.sum(cross) / 2.0
+    return np.sum(cross) / 2.0
 
 
 def triangle_area(p1: Array, p2: Array, p3: Array) -> Array:
@@ -79,7 +76,7 @@ def triangle_area(p1: Array, p2: Array, p3: Array) -> Array:
     v1 = p2 - p1
     v2 = p3 - p1
     cross = v1[0] * v2[1] - v1[1] * v2[0]
-    return jnp.abs(cross) / 2.0
+    return np.abs(cross) / 2.0
 
 
 # =============================================================================
@@ -103,27 +100,27 @@ def polygon_centroid(vertices: Array, eps: float = 1e-10) -> Array:
     Returns:
         Centroid as (x, y) array (always finite)
     """
-    vertices_next = jnp.roll(vertices, -1, axis=0)
+    vertices_next = np.roll(vertices, -1, axis=0)
 
     # Cross products for area calculation
     cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
 
     # Signed area
-    area = jnp.sum(cross) / 2.0
+    area = np.sum(cross) / 2.0
 
     # Centroid coordinates (standard formula)
-    cx_standard = jnp.sum((vertices[:, 0] + vertices_next[:, 0]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
-    cy_standard = jnp.sum((vertices[:, 1] + vertices_next[:, 1]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
+    cx_standard = np.sum((vertices[:, 0] + vertices_next[:, 0]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
+    cy_standard = np.sum((vertices[:, 1] + vertices_next[:, 1]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
 
     # Fallback: mean of vertices (for degenerate polygons)
-    mean_centroid = jnp.mean(vertices, axis=0)
+    mean_centroid = np.mean(vertices, axis=0)
 
     # Use standard formula if area is non-zero, otherwise use mean
-    is_degenerate = jnp.abs(area) < eps
-    cx = jnp.where(is_degenerate, mean_centroid[0], cx_standard)
-    cy = jnp.where(is_degenerate, mean_centroid[1], cy_standard)
+    is_degenerate = np.abs(area) < eps
+    cx = np.where(is_degenerate, mean_centroid[0], cx_standard)
+    cy = np.where(is_degenerate, mean_centroid[1], cy_standard)
 
-    return jnp.array([cx, cy])
+    return np.array([cx, cy])
 
 
 def points_centroid(points: Array) -> Array:
@@ -138,7 +135,7 @@ def points_centroid(points: Array) -> Array:
     Returns:
         Centroid as (x, y) array
     """
-    return jnp.mean(points, axis=0)
+    return np.mean(points, axis=0)
 
 
 # =============================================================================
@@ -188,13 +185,13 @@ def point_in_polygon_winding(point: Array, vertices: Array) -> Array:
         # Downward crossing
         downward = y_below_start & y_above_end & (cross < 0)
 
-        return jnp.where(upward, 1.0, 0.0) - jnp.where(downward, 1.0, 0.0)
+        return np.where(upward, 1.0, 0.0) - np.where(downward, 1.0, 0.0)
 
     # Sum winding contributions
-    winding = jnp.sum(jax.vmap(edge_winding)(jnp.arange(n)))
+    winding = np.sum(jax.vmap(edge_winding)(np.arange(n)))
 
     # Non-zero winding = inside
-    return jnp.where(winding != 0, 1.0, 0.0)
+    return np.where(winding != 0, 1.0, 0.0)
 
 
 def point_in_polygon_soft(point: Array, vertices: Array, smoothness: float = 0.1) -> Array:
@@ -228,19 +225,19 @@ def point_in_polygon_soft(point: Array, vertices: Array, smoothness: float = 0.1
         # Edge vector
         edge = vj - vi
         # Perpendicular (inward normal for CCW polygon)
-        normal = jnp.array([edge[1], -edge[0]])
-        normal = normal / (jnp.sqrt(jnp.sum(normal**2)) + 1e-10)
+        normal = np.array([edge[1], -edge[0]])
+        normal = normal / (np.sqrt(np.sum(normal**2)) + 1e-10)
 
         # Signed distance to edge line
         to_point = point - vi
-        return jnp.sum(to_point * normal)
+        return np.sum(to_point * normal)
 
     # Get signed distance to each edge
-    signed_dists = jax.vmap(edge_signed_distance)(jnp.arange(n))
+    signed_dists = jax.vmap(edge_signed_distance)(np.arange(n))
 
     # For convex polygon, point is inside if all signed distances < 0
     # The "most positive" distance indicates how far outside
-    min_dist = jnp.max(signed_dists)
+    min_dist = np.max(signed_dists)
 
     # Sigmoid for soft transition
     return jax.nn.sigmoid(-min_dist / smoothness)
@@ -264,7 +261,7 @@ def point_in_rect(
     """
     inside_x = (point[0] >= min_corner[0]) & (point[0] <= max_corner[0])
     inside_y = (point[1] >= min_corner[1]) & (point[1] <= max_corner[1])
-    return jnp.where(inside_x & inside_y, 1.0, 0.0)
+    return np.where(inside_x & inside_y, 1.0, 0.0)
 
 
 def point_in_rect_soft(
@@ -292,7 +289,7 @@ def point_in_rect_soft(
     dist_top = point[1] - max_corner[1]
 
     # Maximum of these is the "most outside" distance
-    max_dist = jnp.maximum(jnp.maximum(dist_left, dist_right), jnp.maximum(dist_bottom, dist_top))
+    max_dist = np.maximum(np.maximum(dist_left, dist_right), np.maximum(dist_bottom, dist_top))
 
     # Sigmoid for soft transition
     return jax.nn.sigmoid(-max_dist / smoothness)
@@ -313,10 +310,10 @@ def polygon_perimeter(vertices: Array) -> Array:
     Returns:
         Polygon perimeter (sum of edge lengths)
     """
-    vertices_next = jnp.roll(vertices, -1, axis=0)
+    vertices_next = np.roll(vertices, -1, axis=0)
     edges = vertices_next - vertices
-    edge_lengths = jnp.sqrt(jnp.sum(edges**2, axis=1))
-    return jnp.sum(edge_lengths)
+    edge_lengths = np.sqrt(np.sum(edges**2, axis=1))
+    return np.sum(edge_lengths)
 
 
 # =============================================================================
@@ -372,7 +369,7 @@ def loop_area_penalty(
         Squared penalty for area exceeding max_area
     """
     area = compute_loop_area(pin_positions)
-    violation = jnp.maximum(0.0, area - max_area)
+    violation = np.maximum(0.0, area - max_area)
     return weight * violation**2
 
 
@@ -391,8 +388,8 @@ def polygon_bounding_box(vertices: Array) -> tuple[Array, Array]:
     Returns:
         Tuple of (min_corner, max_corner) as (x, y) arrays
     """
-    min_corner = jnp.min(vertices, axis=0)
-    max_corner = jnp.max(vertices, axis=0)
+    min_corner = np.min(vertices, axis=0)
+    max_corner = np.max(vertices, axis=0)
     return min_corner, max_corner
 
 
@@ -410,8 +407,8 @@ def polygon_bounding_circle(vertices: Array) -> tuple[Array, Array]:
         Tuple of (center, radius)
     """
     center = points_centroid(vertices)
-    distances = jnp.sqrt(jnp.sum((vertices - center) ** 2, axis=1))
-    radius = jnp.max(distances)
+    distances = np.sqrt(np.sum((vertices - center) ** 2, axis=1))
+    radius = np.max(distances)
     return center, radius
 
 
@@ -436,15 +433,15 @@ def is_convex(vertices: Array) -> Array:
     vertices.shape[0]
 
     # Get consecutive edge vectors
-    edges = jnp.roll(vertices, -1, axis=0) - vertices
-    edges_next = jnp.roll(edges, -1, axis=0)
+    edges = np.roll(vertices, -1, axis=0) - vertices
+    edges_next = np.roll(edges, -1, axis=0)
 
     # Cross products of consecutive edges
     cross = edges[:, 0] * edges_next[:, 1] - edges[:, 1] * edges_next[:, 0]
 
     # All should have same sign for convex polygon
-    all_positive = jnp.all(cross >= 0)
-    all_negative = jnp.all(cross <= 0)
+    all_positive = np.all(cross >= 0)
+    all_negative = np.all(cross <= 0)
 
     return all_positive | all_negative
 
@@ -460,7 +457,7 @@ def polygon_orientation(vertices: Array) -> Array:
         1.0 for CCW, -1.0 for CW
     """
     signed_area = polygon_signed_area(vertices)
-    return jnp.sign(signed_area)
+    return np.sign(signed_area)
 
 
 # =============================================================================
@@ -486,10 +483,10 @@ def nearest_point_on_segment(point: Array, a: Array, b: Array) -> Array:
     # Vector from a to b
     ab = b - a
     # Squared length of the segment (with epsilon to avoid division by zero)
-    ab_len_sq = jnp.sum(ab**2)
+    ab_len_sq = np.sum(ab**2)
     # Parameter t = dot(ap, ab) / |ab|^2, clamped to [0, 1]
     ap = point - a
-    t = jnp.clip(jnp.dot(ap, ab) / jnp.maximum(ab_len_sq, 1e-10), 0.0, 1.0)
+    t = np.clip(np.dot(ap, ab) / np.maximum(ab_len_sq, 1e-10), 0.0, 1.0)
     return a + t * ab
 
 
@@ -514,16 +511,16 @@ def nearest_point_on_polygon(point: Array, vertices: Array) -> Array:
         a = vertices[i]
         b = vertices[(i + 1) % n]
         candidate = nearest_point_on_segment(point, a, b)
-        dist_sq = jnp.sum((candidate - point) ** 2)
+        dist_sq = np.sum((candidate - point) ** 2)
         is_closer = dist_sq < best_dist_sq
-        new_best_point = jnp.where(
+        new_best_point = np.where(
             is_closer, candidate, best_point
         )
-        new_best_dist_sq = jnp.where(is_closer, dist_sq, best_dist_sq)
+        new_best_dist_sq = np.where(is_closer, dist_sq, best_dist_sq)
         return (new_best_point, new_best_dist_sq)
 
     init_point = vertices[0]
-    init_dist_sq = jnp.sum((init_point - point) ** 2)
+    init_dist_sq = np.sum((init_point - point) ** 2)
     result = jax.lax.fori_loop(0, n, _edge_body, (init_point, init_dist_sq))
     return result[0]
 
@@ -584,14 +581,14 @@ def rotate_polygon(
     if center is None:
         center = points_centroid(vertices)
 
-    cos_a = jnp.cos(angle)
-    sin_a = jnp.sin(angle)
+    cos_a = np.cos(angle)
+    sin_a = np.sin(angle)
 
     # Translate to origin
     centered = vertices - center
 
     # Rotate
-    rotated = jnp.stack(
+    rotated = np.stack(
         [
             centered[:, 0] * cos_a - centered[:, 1] * sin_a,
             centered[:, 0] * sin_a + centered[:, 1] * cos_a,

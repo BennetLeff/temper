@@ -14,12 +14,9 @@ Key advantages:
 
 All functions are JAX-compatible for automatic differentiation.
 """
+import numpy as np
 
-
-import jax
-import jax.numpy as jnp
-from jax import Array
-
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 # =============================================================================
 # Basic Shape SDFs
 # =============================================================================
@@ -37,7 +34,7 @@ def sdf_circle(point: Array, center: Array, radius: float) -> Array:
     Returns:
         Signed distance: negative inside, zero on boundary, positive outside
     """
-    dist_to_center = jnp.sqrt(jnp.sum((point - center) ** 2))
+    dist_to_center = np.sqrt(np.sum((point - center) ** 2))
     return dist_to_center - radius
 
 
@@ -55,8 +52,8 @@ def sdf_rectangle(point: Array, center: Array, width: float, height: float) -> A
         Signed distance: negative inside, zero on boundary, positive outside
     """
     # Transform to rectangle's local coordinates
-    local = jnp.abs(point - center)
-    half_dims = jnp.array([width / 2.0, height / 2.0])
+    local = np.abs(point - center)
+    half_dims = np.array([width / 2.0, height / 2.0])
 
     # Distance from point to rectangle edge
     # For points inside: negative of distance to nearest edge
@@ -67,14 +64,14 @@ def sdf_rectangle(point: Array, center: Array, width: float, height: float) -> A
 
     # Outside distance: sqrt of squared positive components
     # Add small epsilon for numerical stability in gradients
-    outside_dist = jnp.sqrt(jnp.sum(jnp.maximum(d, 0.0) ** 2) + 1e-10)
+    outside_dist = np.sqrt(np.sum(np.maximum(d, 0.0) ** 2) + 1e-10)
 
     # For points fully inside, outside_dist should be 0
-    is_fully_inside = jnp.all(d < 0)
-    outside_dist = jnp.where(is_fully_inside, 0.0, outside_dist)
+    is_fully_inside = np.all(d < 0)
+    outside_dist = np.where(is_fully_inside, 0.0, outside_dist)
 
     # Inside distance: negative of min distance to edge
-    inside_dist = jnp.minimum(jnp.max(d), 0.0)
+    inside_dist = np.minimum(np.max(d), 0.0)
 
     return outside_dist + inside_dist
 
@@ -92,9 +89,9 @@ def sdf_box_2d(point: Array, half_extents: Array) -> Array:
     Returns:
         Signed distance
     """
-    d = jnp.abs(point) - half_extents
-    outside_dist = jnp.sqrt(jnp.sum(jnp.maximum(d, 0.0) ** 2))
-    inside_dist = jnp.minimum(jnp.max(d), 0.0)
+    d = np.abs(point) - half_extents
+    outside_dist = np.sqrt(np.sum(np.maximum(d, 0.0) ** 2))
+    inside_dist = np.minimum(np.max(d), 0.0)
     return outside_dist + inside_dist
 
 
@@ -119,19 +116,19 @@ def sdf_rounded_rectangle(
         Signed distance
     """
     # Clamp corner radius to valid range
-    max_radius = jnp.minimum(width, height) / 2.0
-    r = jnp.minimum(corner_radius, max_radius)
+    max_radius = np.minimum(width, height) / 2.0
+    r = np.minimum(corner_radius, max_radius)
 
     # Shrink the rectangle by the corner radius
-    inner_half_dims = jnp.array([(width - 2 * r) / 2.0, (height - 2 * r) / 2.0])
+    inner_half_dims = np.array([(width - 2 * r) / 2.0, (height - 2 * r) / 2.0])
 
     # SDF of inner rectangle, then offset by radius
-    local = jnp.abs(point - center)
+    local = np.abs(point - center)
     d = local - inner_half_dims
 
     # Distance to rounded edge
-    outside_dist = jnp.sqrt(jnp.sum(jnp.maximum(d, 0.0) ** 2)) - r
-    inside_dist = jnp.minimum(jnp.max(d), 0.0) - r
+    outside_dist = np.sqrt(np.sum(np.maximum(d, 0.0) ** 2)) - r
+    inside_dist = np.minimum(np.max(d), 0.0) - r
 
     return outside_dist + inside_dist
 
@@ -162,14 +159,14 @@ def sdf_capsule(
     ap = point - start
 
     # Project point onto line, clamped to segment
-    ab_len_sq = jnp.sum(ab**2)
-    t = jnp.clip(jnp.sum(ap * ab) / jnp.maximum(ab_len_sq, 1e-10), 0.0, 1.0)
+    ab_len_sq = np.sum(ab**2)
+    t = np.clip(np.sum(ap * ab) / np.maximum(ab_len_sq, 1e-10), 0.0, 1.0)
 
     # Closest point on segment
     closest = start + t * ab
 
     # Distance to closest point, minus radius
-    return jnp.sqrt(jnp.sum((point - closest) ** 2)) - radius
+    return np.sqrt(np.sum((point - closest) ** 2)) - radius
 
 
 # =============================================================================
@@ -196,8 +193,8 @@ def sdf_polygon(point: Array, vertices: Array) -> Array:
     n = vertices.shape[0]
 
     # Compute distance to each edge
-    min_dist_sq = jnp.inf
-    sign = jnp.array(1.0)  # Will be set by winding number
+    min_dist_sq = np.inf
+    sign = np.array(1.0)  # Will be set by winding number
 
     # Check each edge
     def edge_distance(carry, idx):
@@ -215,17 +212,17 @@ def sdf_polygon(point: Array, vertices: Array) -> Array:
         to_point = point - vi
 
         # Project point onto edge line, clamped to edge
-        edge_len_sq = jnp.sum(edge**2)
-        t = jnp.clip(jnp.sum(to_point * edge) / jnp.maximum(edge_len_sq, 1e-10), 0.0, 1.0)
+        edge_len_sq = np.sum(edge**2)
+        t = np.clip(np.sum(to_point * edge) / np.maximum(edge_len_sq, 1e-10), 0.0, 1.0)
 
         # Closest point on edge
         closest = vi + t * edge
 
         # Distance squared to closest point
-        d_sq = jnp.sum((point - closest) ** 2)
+        d_sq = np.sum((point - closest) ** 2)
 
         # Update minimum
-        min_d_sq = jnp.minimum(min_d_sq, d_sq)
+        min_d_sq = np.minimum(min_d_sq, d_sq)
 
         # Winding number contribution
         # Cross product of edge vector with vector to point determines side
@@ -242,19 +239,19 @@ def sdf_polygon(point: Array, vertices: Array) -> Array:
         # Downward crossing (subtracts from winding)
         downward = y_below_start & y_above_end & (cross < 0)
 
-        winding = winding + jnp.where(upward, 1.0, 0.0) - jnp.where(downward, 1.0, 0.0)
+        winding = winding + np.where(upward, 1.0, 0.0) - np.where(downward, 1.0, 0.0)
 
         return (min_d_sq, winding), None
 
     # Use lax.scan for efficient iteration
     import jax.lax as lax
 
-    (min_dist_sq, winding), _ = lax.scan(edge_distance, (jnp.inf, 0.0), jnp.arange(n))
+    (min_dist_sq, winding), _ = lax.scan(edge_distance, (np.inf, 0.0), np.arange(n))
 
     # Sign based on winding number (non-zero = inside)
-    sign = jnp.where(winding != 0, -1.0, 1.0)
+    sign = np.where(winding != 0, -1.0, 1.0)
 
-    return sign * jnp.sqrt(min_dist_sq)
+    return sign * np.sqrt(min_dist_sq)
 
 
 def sdf_convex_polygon(point: Array, vertices: Array) -> Array:
@@ -283,23 +280,23 @@ def sdf_convex_polygon(point: Array, vertices: Array) -> Array:
         # Edge vector
         edge = vj - vi
         # Normal (pointing inward for CCW polygon)
-        normal = jnp.array([edge[1], -edge[0]])
-        normal = normal / jnp.sqrt(jnp.sum(normal**2) + 1e-10)
+        normal = np.array([edge[1], -edge[0]])
+        normal = normal / np.sqrt(np.sum(normal**2) + 1e-10)
 
         # Signed distance to infinite line
         to_point = point - vi
-        signed_dist = jnp.sum(to_point * normal)
+        signed_dist = np.sum(to_point * normal)
 
         return signed_dist
 
     # Compute signed distance to each edge line
-    signed_dists = jax.vmap(edge_signed_distance)(jnp.arange(n))
+    signed_dists = jax.vmap(edge_signed_distance)(np.arange(n))
 
     # For convex polygon:
     # - If all signed_dists are negative, point is inside
     # - The SDF is max(signed_dists) (most positive = closest to being outside)
 
-    return jnp.max(signed_dists)
+    return np.max(signed_dists)
 
 
 
@@ -322,7 +319,7 @@ def sdf_union(sdf1: Array, sdf2: Array) -> Array:
     Returns:
         SDF of union
     """
-    return jnp.minimum(sdf1, sdf2)
+    return np.minimum(sdf1, sdf2)
 
 
 def sdf_intersection(sdf1: Array, sdf2: Array) -> Array:
@@ -338,7 +335,7 @@ def sdf_intersection(sdf1: Array, sdf2: Array) -> Array:
     Returns:
         SDF of intersection
     """
-    return jnp.maximum(sdf1, sdf2)
+    return np.maximum(sdf1, sdf2)
 
 
 def sdf_subtraction(sdf1: Array, sdf2: Array) -> Array:
@@ -354,7 +351,7 @@ def sdf_subtraction(sdf1: Array, sdf2: Array) -> Array:
     Returns:
         SDF of subtraction
     """
-    return jnp.maximum(sdf1, -sdf2)
+    return np.maximum(sdf1, -sdf2)
 
 
 def sdf_smooth_union(sdf1: Array, sdf2: Array, k: float = 0.5) -> Array:
@@ -371,7 +368,7 @@ def sdf_smooth_union(sdf1: Array, sdf2: Array, k: float = 0.5) -> Array:
     Returns:
         SDF of smooth union
     """
-    h = jnp.clip(0.5 + 0.5 * (sdf2 - sdf1) / k, 0.0, 1.0)
+    h = np.clip(0.5 + 0.5 * (sdf2 - sdf1) / k, 0.0, 1.0)
     return sdf2 * (1 - h) + sdf1 * h - k * h * (1 - h)
 
 
@@ -387,7 +384,7 @@ def sdf_smooth_intersection(sdf1: Array, sdf2: Array, k: float = 0.5) -> Array:
     Returns:
         SDF of smooth intersection
     """
-    h = jnp.clip(0.5 - 0.5 * (sdf2 - sdf1) / k, 0.0, 1.0)
+    h = np.clip(0.5 - 0.5 * (sdf2 - sdf1) / k, 0.0, 1.0)
     return sdf2 * (1 - h) + sdf1 * h + k * h * (1 - h)
 
 
@@ -440,7 +437,7 @@ def sdf_shell(sdf_value: Array, thickness: float) -> Array:
     Returns:
         SDF of the shell
     """
-    return jnp.abs(sdf_value) - thickness / 2.0
+    return np.abs(sdf_value) - thickness / 2.0
 
 
 # =============================================================================
@@ -479,7 +476,7 @@ def sdf_to_penalty(sdf_value: Array, beta: float = 10.0) -> Array:
         Penalty value (0 outside, positive inside)
     """
     # Using softplus for smooth ReLU
-    return jnp.logaddexp(0.0, -beta * sdf_value) / beta
+    return np.logaddexp(0.0, -beta * sdf_value) / beta
 
 
 def sdf_gradient(sdf_func, point: Array, _epsilon: float = 1e-4) -> Array:
@@ -502,5 +499,5 @@ def sdf_gradient(sdf_func, point: Array, _epsilon: float = 1e-4) -> Array:
     grad = jax.grad(lambda p: sdf_func(p))(point)
 
     # Normalize (SDF gradient should have unit magnitude)
-    magnitude = jnp.sqrt(jnp.sum(grad**2) + 1e-10)
+    magnitude = np.sqrt(np.sum(grad**2) + 1e-10)
     return grad / magnitude

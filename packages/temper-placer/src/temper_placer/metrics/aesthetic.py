@@ -10,7 +10,6 @@ from __future__ import annotations
 import numpy as np
 
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.aesthetic import get_prefix_groups
 
 
 def compute_aesthetic_score(

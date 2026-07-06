@@ -39,21 +39,9 @@ class PlacementStage(PipelineStage):
             self.provides = []
 
     def run(self, input: StageInput) -> StageOutput:
-        from temper_placer.placement.benders_loop import benders_placement
-
-        parsed = input.data
-        seed = getattr(input.meta, "seed", 42) if input.meta else 42
-        strategy = "template"
-
-        if input.meta and input.meta.trace_context:
-            tc_strategy = input.meta.trace_context.get("strategy")
-            if tc_strategy:
-                strategy = tc_strategy
-
-        result = benders_placement(parsed, strategy=strategy, seed=seed)
-        return StageOutput(
-            data=result,
-            meta=input.meta,
+        raise NotImplementedError(
+            "JAX-based placement (benders_loop) has been removed. "
+            "Use the CP-SAT placer via temper_placer.placer.deterministic."
         )
 
 

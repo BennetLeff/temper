@@ -14,12 +14,10 @@ Design Decision: Precompute at import, check at evaluation.
 from __future__ import annotations
 
 from collections.abc import Sequence
-
-import jax.numpy as jnp
 import numpy as np
-from jax import Array
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
-
+import numpy as np
 def inflate_pad_polygon(
     pad_vertices: Sequence[tuple[float, float]],
     trace_width_mm: float,
@@ -173,11 +171,11 @@ def compute_drc_proxy_score(
 
     n = positions.shape[0]
     if n < 2:
-        return jnp.array(0.0)
+        return np.array(0.0)
 
     center_diff = positions[:, None, :] - positions[None, :, :]
-    center_dist_x = jnp.abs(center_diff[:, :, 0])
-    center_dist_y = jnp.abs(center_diff[:, :, 1])
+    center_dist_x = np.abs(center_diff[:, :, 0])
+    center_dist_y = np.abs(center_diff[:, :, 1])
 
     sum_half_w = inflated_half_widths[:, None] + inflated_half_widths[None, :]
     sum_half_h = inflated_half_heights[:, None] + inflated_half_heights[None, :]
@@ -186,12 +184,12 @@ def compute_drc_proxy_score(
     gap_y = center_dist_y - sum_half_h
 
     both_negative = (gap_x < 0) & (gap_y < 0)
-    overlap_dist = jnp.minimum(gap_x, gap_y)
-    separated_dist = jnp.maximum(gap_x, gap_y)
-    distances = jnp.where(both_negative, overlap_dist, separated_dist)
+    overlap_dist = np.minimum(gap_x, gap_y)
+    separated_dist = np.maximum(gap_x, gap_y)
+    distances = np.where(both_negative, overlap_dist, separated_dist)
 
     violations = smooth_relu(clearance_mm - distances, beta=beta)
     squared_violations = violations ** 2
 
-    i_upper, j_upper = jnp.triu_indices(n, k=1)
-    return jnp.sum(squared_violations[i_upper, j_upper])
+    i_upper, j_upper = np.triu_indices(n, k=1)
+    return np.sum(squared_violations[i_upper, j_upper])

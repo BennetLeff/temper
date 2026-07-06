@@ -15,15 +15,27 @@ import json
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-
-import jax
 import psutil
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.losses import BoundaryLoss, OverlapLoss, WirelengthLoss
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.optimizer import LearningRateSchedule, OptimizerConfig, train
+from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss
+
+# JAX retirement stubs
+class BoundaryLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class OverlapLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")  
+class WirelengthLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class OptimizerConfig:
+    def __init__(self, **kw):
+        for k, v in kw.items():
+            setattr(self, k, v)
+class LearningRateSchedule:
+    pass
+def train(*args, **kwargs):
+    raise NotImplementedError("JAX optimizer removed.")
 
 
 @dataclass

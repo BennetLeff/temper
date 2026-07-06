@@ -9,10 +9,8 @@ electrical connectivity, and Netlist aggregates everything.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
-import jax.numpy as jnp
-from jax import Array
-
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 @dataclass
 class Pin:
@@ -198,11 +196,11 @@ class Netlist:
 
     def get_bounds_array(self) -> Array:
         """Get (N, 2) array of component bounds (width, height)."""
-        return jnp.array([c.bounds for c in self.components], dtype=jnp.float32)
+        return np.array([c.bounds for c in self.components], dtype=np.float32)
 
     def get_fixed_mask(self) -> Array:
         """Get (N,) boolean array of fixed components."""
-        return jnp.array([c.fixed for c in self.components], dtype=jnp.bool_)
+        return np.array([c.fixed for c in self.components], dtype=np.bool_)
 
     def apply_net_class_mapping(self, mapping: dict[str, str]) -> int:
         """
@@ -268,7 +266,7 @@ class Netlist:
         neighbor_lists = []
         for i in range(n):
             # Components connected by any net
-            neighbors = jnp.where(adj[i] > 0)[0].tolist()
+            neighbors = np.where(adj[i] > 0)[0].tolist()
             neighbor_lists.append(neighbors)
 
         # 2. Iterative Refinement (WL algorithm)
@@ -349,7 +347,7 @@ def build_adjacency_matrix(netlist: Netlist) -> Array:
     n = len(netlist.components)
 
     if n == 0:
-        return jnp.array([]).reshape(0, 0)
+        return np.array([]).reshape(0, 0)
 
     # Build component ref -> index mapping
     ref_to_idx = {comp.ref: i for i, comp in enumerate(netlist.components)}
@@ -377,7 +375,7 @@ def build_adjacency_matrix(netlist: Netlist) -> Array:
                 adj[idx_i, idx_j] += 1
                 adj[idx_j, idx_i] += 1  # Symmetric
 
-    return jnp.array(adj)
+    return np.array(adj)
 
 
 def compute_eigenvector_centrality(adjacency: Array) -> Array:
@@ -396,21 +394,21 @@ def compute_eigenvector_centrality(adjacency: Array) -> Array:
     """
     n = adjacency.shape[0]
     if n == 0:
-        return jnp.array([])
+        return np.array([])
     if n == 1:
-        return jnp.array([1.0], dtype=jnp.float32)
+        return np.array([1.0], dtype=np.float32)
 
     # For symmetric matrices, eigh returns eigenvalues in ascending order
-    eigenvalues, eigenvectors = jnp.linalg.eigh(adjacency)
+    eigenvalues, eigenvectors = np.linalg.eigh(adjacency)
 
     # The leading eigenvector is the last one (largest eigenvalue)
     centrality = eigenvectors[:, -1]
 
     # Eigenvector centrality should be non-negative (Perron-Frobenius theorem)
-    centrality = jnp.abs(centrality)
+    centrality = np.abs(centrality)
 
     # Normalize so they sum to 1.0
-    total = jnp.sum(centrality)
+    total = np.sum(centrality)
     if total > 0:
         centrality = centrality / total
 

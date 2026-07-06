@@ -349,11 +349,16 @@ class CorpusRegressionRunner:
 
         try:
             # Build loss function
-            from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.losses.boundary import BoundaryLoss
-            from temper_placer.losses.overlap import OverlapLoss
-            from temper_placer.losses.regularization import SpreadLoss
-            from temper_placer.losses.wirelength import WirelengthLoss
+            from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss
+            from temper_placer.core.loss_types import LossContext
+            class BoundaryLoss:
+                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+            class OverlapLoss:
+                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+            class SpreadLoss:
+                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+            class WirelengthLoss:
+                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
 
             weights = {
                 "overlap": 200.0,
@@ -379,9 +384,14 @@ class CorpusRegressionRunner:
 
             # Build optimizer config
             from temper_placer.heuristics import create_default_pipeline
-            from temper_placer.optimizer.config import OptimizerConfig
-            from temper_placer.optimizer.curriculum import create_default_phases
-            from temper_placer.optimizer.train import train_multiphase
+            class OptimizerConfig:
+                def __init__(self, **kw):
+                    for k, v in kw.items():
+                        setattr(self, k, v)
+            def create_default_phases(*a, **kw):
+                raise NotImplementedError("JAX optimizer removed.")
+            def train_multiphase(*a, **kw):
+                raise NotImplementedError("JAX optimizer removed.")
 
             pipeline = create_default_pipeline()
             rng_key = __import__("jax").random.PRNGKey(entry.seed)
@@ -393,7 +403,7 @@ class CorpusRegressionRunner:
             # Small boards with few components are especially prone.
             pos = initial_state.positions
             if not __import__("jax").numpy.all(__import__("jax").numpy.isfinite(pos)):
-                import jax.numpy as jnp
+                import numpy as np
                 # Fall back to uniform random within board bounds
                 ox, oy = board.origin
                 k1, k2 = __import__("jax").random.split(rng_key)
@@ -411,8 +421,8 @@ class CorpusRegressionRunner:
                 from dataclasses import replace as dc_replace
                 initial_state = dc_replace(
                     initial_state,
-                    positions=jnp.stack([px, py], axis=-1),
-                    rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
+                    positions=np.stack([px, py], axis=-1),
+                    rotation_logits=np.zeros_like(initial_state.rotation_logits),
                 )
 
             phases = create_default_phases(entry.epochs)
@@ -432,9 +442,6 @@ class CorpusRegressionRunner:
 
         # Run optimizer
         try:
-            import jax
-            jax.config.update("jax_platform_name", "cpu")
-
             result = train_multiphase(
                 netlist, board, make_loss, context, cfg,
                 initial_state=initial_state,
@@ -465,7 +472,8 @@ class CorpusRegressionRunner:
             final_loss_val = float(result.final_loss)
 
             hpwl_val = 0.0
-            from temper_placer.losses.wirelength import compute_total_hpwl
+            def compute_total_hpwl(*a, **kw):
+                raise NotImplementedError("JAX losses removed.")
             hpwl_val = float(compute_total_hpwl(result.final_state.positions, rotations, context))
 
             collected = {
@@ -482,9 +490,9 @@ class CorpusRegressionRunner:
             if "Non-finite" in err_msg:
                 from dataclasses import replace as dc_replace
 
-                import jax
-                import jax.numpy as jnp
-                k1, k2 = jax.random.split(rng_key)
+                import numpy as np
+                rng_key = np.random.default_rng(seed or 42)
+                k1, k2 = rng_key.integers(0, 2**31, size=2)
                 margin = min(2.0, board.width * 0.1, board.height * 0.1)
                 ox, oy = board.origin
                 px = jax.random.uniform(
@@ -496,8 +504,8 @@ class CorpusRegressionRunner:
                 rng_key = jax.random.split(k2)[0]
                 initial_state = dc_replace(
                     initial_state,
-                    positions=jnp.stack([px, py], axis=-1),
-                    rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
+                    positions=np.stack([px, py], axis=-1),
+                    rotation_logits=np.zeros_like(initial_state.rotation_logits),
                 )
                 try:
                     result = train_multiphase(

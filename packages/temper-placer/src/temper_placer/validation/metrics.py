@@ -12,9 +12,8 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -149,8 +148,8 @@ def compute_metrics(
     n_components = positions.shape[0]
 
     # Get rotation one-hot vectors
-    rotation_indices = jnp.argmax(state.rotation_logits, axis=-1)
-    rotations = jnp.eye(4)[rotation_indices]
+    rotation_indices = np.argmax(state.rotation_logits, axis=-1)
+    rotations = np.eye(4)[rotation_indices]
 
     # Get component dimensions
     bounds = netlist.get_bounds_array()
@@ -215,8 +214,8 @@ def _compute_boundary_metrics(
 ) -> None:
     """Compute boundary violation metrics."""
     # Board bounds (relative to board origin)
-    board_min = jnp.array([0.0, 0.0])
-    board_max = jnp.array([board.width, board.height])
+    board_min = np.array([0.0, 0.0])
+    board_max = np.array([board.width, board.height])
 
     n = positions.shape[0]
     violation_count = 0
@@ -369,7 +368,7 @@ def _compute_wirelength_metrics(
     net_lengths = []
 
     # Rotation angles for each index (0, 90, 180, 270 degrees)
-    rotation_angles = [0.0, jnp.pi / 2, jnp.pi, 3 * jnp.pi / 2]
+    rotation_angles = [0.0, np.pi / 2, np.pi, 3 * np.pi / 2]
 
     for net in netlist.nets:
         if len(net.pins) < 2:
@@ -430,15 +429,15 @@ def _compute_distribution_metrics(
     positions.shape[0]
 
     # Utilization
-    total_component_area = float(jnp.sum(widths * heights))
+    total_component_area = float(np.sum(widths * heights))
     board_area = board.width * board.height
     metrics.utilization = total_component_area / board_area
 
     # Center of mass
-    com_x = float(jnp.mean(positions[:, 0]))
-    com_y = float(jnp.mean(positions[:, 1]))
+    com_x = float(np.mean(positions[:, 0]))
+    com_y = float(np.mean(positions[:, 1]))
     metrics.center_of_mass = (com_x, com_y)
 
     # Spread score: average distance from center of mass
-    distances_from_com = jnp.sqrt((positions[:, 0] - com_x) ** 2 + (positions[:, 1] - com_y) ** 2)
-    metrics.spread_score = float(jnp.mean(distances_from_com))
+    distances_from_com = np.sqrt((positions[:, 0] - com_x) ** 2 + (positions[:, 1] - com_y) ** 2)
+    metrics.spread_score = float(np.mean(distances_from_com))

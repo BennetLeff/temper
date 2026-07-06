@@ -11,6 +11,8 @@ The force simulation converges positions toward constraint satisfaction.
 from __future__ import annotations
 
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from numpy.typing import NDArray
 
 from temper_placer.core.board import Zone

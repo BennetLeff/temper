@@ -8,9 +8,8 @@ prediction and learned initialization.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, NamedTuple
-
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
@@ -42,11 +41,11 @@ def netlist_to_graph(netlist: Netlist) -> NetlistGraph:
     """
 
     # 1. Node Features: [Area, PinCount, Fixed]
-    areas = jnp.array([c.width * c.height for c in netlist.components])
-    pin_counts = jnp.array([len(c.pins) for c in netlist.components])
-    fixed = jnp.array([1.0 if c.fixed else 0.0 for c in netlist.components])
+    areas = np.array([c.width * c.height for c in netlist.components])
+    pin_counts = np.array([len(c.pins) for c in netlist.components])
+    fixed = np.array([1.0 if c.fixed else 0.0 for c in netlist.components])
 
-    nodes = jnp.stack([areas, pin_counts, fixed], axis=-1)
+    nodes = np.stack([areas, pin_counts, fixed], axis=-1)
 
     # 2. Edges (Clique expansion of nets)
     edge_sources = []
@@ -68,11 +67,11 @@ def netlist_to_graph(netlist: Netlist) -> NetlistGraph:
                 edge_weights.append(net.weight)
 
     if not edge_sources:
-        edges = jnp.zeros((0, 2), dtype=jnp.int32)
-        weights = jnp.zeros((0,))
+        edges = np.zeros((0, 2), dtype=np.int32)
+        weights = np.zeros((0,))
     else:
-        edges = jnp.stack([jnp.array(edge_sources), jnp.array(edge_targets)], axis=-1)
-        weights = jnp.array(edge_weights)
+        edges = np.stack([np.array(edge_sources), np.array(edge_targets)], axis=-1)
+        weights = np.array(edge_weights)
 
     return NetlistGraph(nodes=nodes, edges=edges, edge_weights=weights)
 
@@ -89,7 +88,7 @@ def batch_graphs(graphs: list[NetlistGraph]) -> NetlistGraph:
     Returns:
         Unified NetlistGraph.
     """
-    all_nodes = jnp.concatenate([g.nodes for g in graphs], axis=0)
+    all_nodes = np.concatenate([g.nodes for g in graphs], axis=0)
 
     shifted_edges = []
     offset = 0
@@ -97,7 +96,7 @@ def batch_graphs(graphs: list[NetlistGraph]) -> NetlistGraph:
         shifted_edges.append(g.edges + offset)
         offset += g.nodes.shape[0]
 
-    all_edges = jnp.concatenate(shifted_edges, axis=0)
-    all_weights = jnp.concatenate([g.edge_weights for g in graphs], axis=0)
+    all_edges = np.concatenate(shifted_edges, axis=0)
+    all_weights = np.concatenate([g.edge_weights for g in graphs], axis=0)
 
     return NetlistGraph(nodes=all_nodes, edges=all_edges, edge_weights=all_weights)

@@ -1,8 +1,4 @@
-"""Placement adapter — wraps ``benders_placement()`` as a ``PipelineStage``.
-
-Registers the ``"template"`` strategy under phase ``"placement"`` so
-``resolve_and_run`` can dispatch placement without coupling to ``benders_loop``.
-"""
+"""Placement adapter — raises NotImplementedError post-JAX retirement."""
 
 from __future__ import annotations
 
@@ -13,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class TemplatePlacementStage:
-    """Wraps ``benders_placement(strategy="template")`` as a PipelineStage."""
+    """DEPRECATED: JAX-based placement removed. Use CP-SAT placer instead."""
 
     name = "placement/template"
     requires: list[str] = []
@@ -21,13 +17,10 @@ class TemplatePlacementStage:
     contract = None
 
     def run(self, input: StageInput) -> StageOutput:
-        from temper_placer.placement.benders_loop import benders_placement
-        from temper_placer.protocol import StageOutput
-
-        parsed = input.data
-        seed = input.meta.seed
-        result = benders_placement(parsed, seed, strategy="template")
-        return StageOutput(data=result, meta=input.meta)
+        raise NotImplementedError(
+            "JAX-based placement (benders_loop) has been removed. "
+            "Use the CP-SAT placer via temper_placer.placer.deterministic."
+        )
 
 
 def _register_placement_stages() -> None:

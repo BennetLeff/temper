@@ -17,27 +17,41 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import jax
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.core.design_rules import create_temper_design_rules
 from temper_placer.core.specification import PcbSpecification
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.reference_loader import infer_quality_config
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.clearance import ClearanceLoss
-from temper_placer.losses.component_loop_area import ComponentLoopAreaLoss, ComponentLoopConfig
-from temper_placer.losses.loop_area import LoopAreaLoss
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.regularization import SpreadLoss
-from temper_placer.losses.thermal import ThermalLoss
-from temper_placer.losses.wirelength import WirelengthLoss
+from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
+class BoundaryLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class ClearanceLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class ComponentLoopAreaLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class ComponentLoopConfig:
+        for k, v in kw.items():
+            setattr(self, k, v)
+class LoopAreaLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class OverlapLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class SpreadLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class ThermalLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+class WirelengthLoss:
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
 from temper_placer.metrics.quality import compute_quality_report
-from temper_placer.optimizer.config import OptimizerConfig
-from temper_placer.optimizer.curriculum import create_default_phases
-from temper_placer.optimizer.train import train_multiphase
+class OptimizerConfig:
+        for k, v in kw.items():
+            setattr(self, k, v)
+def create_default_phases(*a, **kw):
+    raise NotImplementedError("JAX optimizer removed.")
+def train_multiphase(*a, **kw):
+    raise NotImplementedError("JAX optimizer removed.")
 from temper_placer.pipeline.derivation import derive_constraints_from_spec
 
 
@@ -176,7 +190,9 @@ def run_physics_oracle(
     try:
         clearance_rules = []
         if threshold_mm > 0:
-            from temper_placer.losses.types import ClearanceRule
+            class ClearanceRule:
+                    for k, v in kw.items():
+                        setattr(self, k, v)
 
             clearance_rules.append(
                 ClearanceRule(
@@ -282,7 +298,7 @@ def run_physics_oracle(
 
         # Guard against degenerate initial placements
         pos = initial_state.positions
-        if not jnp.all(jnp.isfinite(pos)):
+        if not np.all(np.isfinite(pos)):
             k1, k2 = jax.random.split(rng_key)
             margin = min(2.0, board.width * 0.1, board.height * 0.1)
             px = jax.random.uniform(
@@ -296,8 +312,8 @@ def run_physics_oracle(
             from dataclasses import replace as dc_replace
             initial_state = dc_replace(
                 initial_state,
-                positions=jnp.stack([px, py], axis=-1),
-                rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
+                positions=np.stack([px, py], axis=-1),
+                rotation_logits=np.zeros_like(initial_state.rotation_logits),
             )
 
         phases = create_default_phases(epochs)
@@ -440,22 +456,35 @@ def run_ab_diff(
     Returns:
         Dict with 'positions_a', 'positions_b', 'deltas', 'summary', 'conclusion'.
     """
-    import jax
-    import jax.numpy as jnp
+    import numpy as np
 
     from temper_placer.core.design_rules import create_temper_design_rules
     from temper_placer.core.specification import PcbSpecification
     from temper_placer.heuristics import create_default_pipeline
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-    from temper_placer.losses.boundary import BoundaryLoss
-    from temper_placer.losses.clearance import ClearanceLoss
-    from temper_placer.losses.overlap import OverlapLoss
-    from temper_placer.losses.regularization import SpreadLoss
-    from temper_placer.losses.wirelength import WirelengthLoss
-    from temper_placer.optimizer.config import OptimizerConfig
-    from temper_placer.optimizer.curriculum import create_default_phases
-    from temper_placer.optimizer.train import train_multiphase
+
+    class BoundaryLoss:
+        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+    class ClearanceLoss:
+        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+    class OverlapLoss:
+        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+    class SpreadLoss:
+        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+    class WirelengthLoss:
+        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+
+    class OptimizerConfig:
+        def __init__(self, **kw):
+            for k, v in kw.items():
+                setattr(self, k, v)
+
+    def create_default_phases(*a, **kw):
+        raise NotImplementedError("JAX optimizer removed.")
+
+    def train_multiphase(*a, **kw):
+        raise NotImplementedError("JAX optimizer removed.")
+
     from temper_placer.pipeline.derivation import derive_constraints_from_spec
 
     if spec_path is None:
@@ -495,7 +524,7 @@ def run_ab_diff(
         initial_state = preset.state
 
         pos = initial_state.positions
-        if not jnp.all(jnp.isfinite(pos)):
+        if not np.all(np.isfinite(pos)):
             from dataclasses import replace as dc_replace
             k1, k2 = jax.random.split(rng_key)
             margin = min(2.0, board.width * 0.1, board.height * 0.1)
@@ -503,8 +532,8 @@ def run_ab_diff(
             py = jax.random.uniform(k2, (netlist.n_components,), minval=margin, maxval=board.height - margin)
             initial_state = dc_replace(
                 initial_state,
-                positions=jnp.stack([px, py], axis=-1),
-                rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
+                positions=np.stack([px, py], axis=-1),
+                rotation_logits=np.zeros_like(initial_state.rotation_logits),
             )
 
         phases = create_default_phases(epochs)
@@ -527,7 +556,7 @@ def run_ab_diff(
 
     # Per-component deltas
     n = min(positions_a.shape[0], positions_b.shape[0])
-    deltas = jnp.linalg.norm(positions_b[:n] - positions_a[:n], axis=1)
+    deltas = np.linalg.norm(positions_b[:n] - positions_a[:n], axis=1)
 
     # Directional check: HV-LV distance change
     hv_refs = {c.ref for c in netlist_b.components if c.net_class in ("HighVoltage", "ACMains")}
@@ -542,15 +571,15 @@ def run_ab_diff(
         min_d = float("inf")
         for hi in hv_idxs:
             for li in lv_idxs:
-                d = float(jnp.linalg.norm(positions[hi] - positions[li]))
+                d = float(np.linalg.norm(positions[hi] - positions[li]))
                 min_d = min(min_d, d)
         return min_d
 
     dist_a = _min_hv_lv_dist(positions_a, all_refs)
     dist_b = _min_hv_lv_dist(positions_b, all_refs)
 
-    mean_delta = float(jnp.mean(deltas))
-    max_delta = float(jnp.max(deltas))
+    mean_delta = float(np.mean(deltas))
+    max_delta = float(np.max(deltas))
 
     if mean_delta < 0.01:
         conclusion = ("placements identical — clearance loss weight may need retuning "

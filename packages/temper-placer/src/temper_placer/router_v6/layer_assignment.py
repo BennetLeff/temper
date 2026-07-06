@@ -22,15 +22,16 @@ Example usage:
 
 from typing import TYPE_CHECKING
 
+import numpy as np
+
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Net, Netlist
 
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-
-from jax import Array
-
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position
 

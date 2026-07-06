@@ -15,9 +15,8 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from enum import Enum, auto
-
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -123,8 +122,8 @@ class GeometricValidator(Validator):
         positions.shape[0]
 
         # Get rotation one-hot vectors (use argmax for discrete)
-        rotation_indices = jnp.argmax(state.rotation_logits, axis=-1)
-        rotations = jnp.eye(4)[rotation_indices]  # (N, 4) one-hot
+        rotation_indices = np.argmax(state.rotation_logits, axis=-1)
+        rotations = np.eye(4)[rotation_indices]  # (N, 4) one-hot
 
         # Get component dimensions
         bounds = netlist.get_bounds_array()  # (N, 2)

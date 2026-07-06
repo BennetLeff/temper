@@ -7,8 +7,7 @@ data structure.
 """
 
 from __future__ import annotations
-
-import jax.numpy as jnp
+import numpy as np
 from jax.experimental import sparse
 
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
@@ -86,25 +85,25 @@ class HypergraphFactory:
 
         # 3. Create JAX Arrays
         if n_edges > 0:
-            indices = jnp.array([rows, cols]).T # (N_entries, 2)
-            values = jnp.array(data, dtype=jnp.float32)
+            indices = np.array([rows, cols]).T # (N_entries, 2)
+            values = np.array(data, dtype=np.float32)
         else:
-            indices = jnp.empty((0, 2), dtype=jnp.int32)
-            values = jnp.empty((0,), dtype=jnp.float32)
+            indices = np.empty((0, 2), dtype=np.int32)
+            values = np.empty((0,), dtype=np.float32)
 
         shape = (n_nodes, n_edges)
         bcoo_matrix = sparse.BCOO((values, indices), shape=shape)
 
         # 4. Node Weights (Area based)
-        node_weights = jnp.array(
+        node_weights = np.array(
             [c.width * c.height for c in self.netlist.components],
-            dtype=jnp.float32
+            dtype=np.float32
         )
 
         # 5. Hyperedge Weights (Base importance)
-        hyperedge_weights = jnp.array(
+        hyperedge_weights = np.array(
             [n.weight for n in valid_nets],
-            dtype=jnp.float32
+            dtype=np.float32
         )
 
         return PhysicsHypergraph(
@@ -115,9 +114,9 @@ class HypergraphFactory:
             ),
             node_refs=[c.ref for c in self.netlist.components],
             hyperedge_names=[n.name for n in valid_nets],
-            edge_voltages=jnp.array(edge_voltages, dtype=jnp.float32),
-            edge_currents=jnp.array(edge_currents, dtype=jnp.float32),
-            edge_widths=jnp.array(edge_widths, dtype=jnp.float32)
+            edge_voltages=np.array(edge_voltages, dtype=np.float32),
+            edge_currents=np.array(edge_currents, dtype=np.float32),
+            edge_widths=np.array(edge_widths, dtype=np.float32)
         )
 
 

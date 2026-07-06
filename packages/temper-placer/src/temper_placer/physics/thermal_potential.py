@@ -13,7 +13,7 @@ Five field components superpose at each grid cell:
               + w_exclusion * phi_exclusion(x, y)
               + w_convection * phi_convection(x, y)
 
-All operations use JAX arrays (jnp.*) for compatibility with the
+All operations use JAX arrays (np.*) for compatibility with the
 existing gradient-based pipeline, though anchoring itself does not
 require differentiability today.
 """
@@ -22,14 +22,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 if hasattr(jnp, "long"):
-    _jnp_int = jnp.long  # type: ignore[attr-defined]
+    _jnp_int = np.long  # type: ignore[attr-defined]
 else:
-    _jnp_int = jnp.int32
+    _jnp_int = np.int32
 
 logger = logging.getLogger(__name__)
 
@@ -111,9 +110,9 @@ def phi_edge(
     elif edge_upper == "RIGHT":
         d = x_max - x_grid
     else:
-        return jnp.zeros_like(x_grid)
+        return np.zeros_like(x_grid)
 
-    return 1.0 - jnp.exp(-d / decay_length_mm)
+    return 1.0 - np.exp(-d / decay_length_mm)
 
 
 def phi_copper(
@@ -134,17 +133,17 @@ def phi_copper(
 
     if copper_zones is None or len(copper_zones) == 0:
         # Uniform conductivity --- return a constant field
-        return jnp.ones((1, 1)) * 0.5
+        return np.ones((1, 1)) * 0.5
 
     # Build per-cell conductance from copper zones
     x_min, y_min, x_max, y_max = board_bounds
     board_w = x_max - x_min
     board_h = y_max - y_min
     if board_w <= 0 or board_h <= 0:
-        return jnp.ones((1, 1)) * 0.5
+        return np.ones((1, 1)) * 0.5
 
     grid_res = 50  # default coarse estimate for copper
-    conductance = jnp.zeros((grid_res, grid_res))
+    conductance = np.zeros((grid_res, grid_res))
 
     for zone in copper_zones:
         if hasattr(zone, "bounds"):
@@ -168,7 +167,7 @@ def phi_copper(
 
     # Compute effective conductivity: high fill -> low potential
     # phi_copper = 1 / (k_eff + epsilon)
-    k_eff = jnp.clip(conductance, 0.0, None) + eps
+    k_eff = np.clip(conductance, 0.0, None) + eps
     return 1.0 / k_eff
 
 
@@ -187,16 +186,16 @@ def phi_coupling(
     If no device positions are provided, returns a zero field.
     """
     if not device_positions:
-        return jnp.zeros_like(x_grid)
+        return np.zeros_like(x_grid)
 
-    field = jnp.zeros_like(x_grid)
+    field = np.zeros_like(x_grid)
     for pos, power in zip(device_positions, device_powers):
         dx = x_grid - pos[0]
         dy = y_grid - pos[1]
         dist_sq = dx * dx + dy * dy
-        sigma = jnp.sqrt(max(power, 1e-6)) * sigma_factor
+        sigma = np.sqrt(max(power, 1e-6)) * sigma_factor
         sigma_sq = 2.0 * sigma * sigma
-        field = field + power * jnp.exp(-dist_sq / sigma_sq)
+        field = field + power * np.exp(-dist_sq / sigma_sq)
 
     return field
 
@@ -216,17 +215,17 @@ def phi_exclusion(
     decaying to ~0 at radius_mm.
     """
     if not anchor_positions:
-        return jnp.zeros_like(x_grid)
+        return np.zeros_like(x_grid)
 
-    field = jnp.zeros_like(x_grid)
+    field = np.zeros_like(x_grid)
     for ax, ay in anchor_positions:
         dx = x_grid - ax
         dy = y_grid - ay
-        dist = jnp.sqrt(dx * dx + dy * dy)
+        dist = np.sqrt(dx * dx + dy * dy)
         # sigmoid: high when dist < radius, low when dist > radius
         # barrier_height * sigma(kappa * (radius - dist))
-        barrier = barrier_height * (1.0 / (1.0 + jnp.exp(-steepness * (dist - radius_mm))))
-        field = jnp.maximum(field, barrier)
+        barrier = barrier_height * (1.0 / (1.0 + np.exp(-steepness * (dist - radius_mm))))
+        field = np.maximum(field, barrier)
 
     return field
 
@@ -241,16 +240,16 @@ def phi_convection(
     If airflow_vector is None, returns a zero field (uniform ambient).
     """
     if airflow_vector is None:
-        return jnp.zeros_like(x_grid)
+        return np.zeros_like(x_grid)
 
     magnitude, direction_deg = airflow_vector
     if magnitude <= 0:
-        return jnp.zeros_like(x_grid)
+        return np.zeros_like(x_grid)
 
     # Convert direction (degrees from +x) to unit vector
-    rad = jnp.radians(direction_deg)
-    ux = jnp.cos(rad)
-    uy = jnp.sin(rad)
+    rad = np.radians(direction_deg)
+    ux = np.cos(rad)
+    uy = np.sin(rad)
 
     # Linear ramp: projection onto airflow direction
     return magnitude * (x_grid * ux + y_grid * uy)
@@ -278,7 +277,7 @@ def superpose_fields(
     Returns a scalar potential array of shape (grid_resolution, grid_resolution).
     Lower potential = better thermal position.
     """
-    total = jnp.zeros_like(x_grid)
+    total = np.zeros_like(x_grid)
 
     if config.edge_weight > 0:
         total = total + config.edge_weight * phi_edge(
@@ -327,9 +326,9 @@ def build_potential_grid(
     Returns two (resolution, resolution) arrays.
     """
     x_min, y_min, x_max, y_max = board_bounds
-    x_lin = jnp.linspace(x_min, x_max, resolution)
-    y_lin = jnp.linspace(y_min, y_max, resolution)
-    x_grid, y_grid = jnp.meshgrid(x_lin, y_lin)
+    x_lin = np.linspace(x_min, x_max, resolution)
+    y_lin = np.linspace(y_min, y_max, resolution)
+    x_grid, y_grid = np.meshgrid(x_lin, y_lin)
     return x_grid, y_grid
 
 
@@ -523,7 +522,7 @@ def assign_thermal_anchors(
 
             old_x, old_y = pass1_anchors[ref]
             new_x, new_y = xy
-            dist = jnp.sqrt((new_x - old_x) ** 2 + (new_y - old_y) ** 2)
+            dist = np.sqrt((new_x - old_x) ** 2 + (new_y - old_y) ** 2)
             if float(dist) > REASSIGN_THRESHOLD_MM:
                 new_anchors[ref] = xy
                 new_existing.append(xy)
@@ -540,17 +539,17 @@ def assign_thermal_anchors(
     final: dict[str, tuple[float, float]] = {}
     for ref, (ax, ay) in pass1_anchors.items():
         # Clamp to board bounds
-        cx = float(jnp.clip(ax, x_min, x_max))
-        cy = float(jnp.clip(ay, y_min, y_max))
+        cx = float(np.clip(ax, x_min, x_max))
+        cy = float(np.clip(ay, y_min, y_max))
 
         # Clamp to zone
         if zones and ref in zones:
             zx0, zy0, zx1, zy1 = zones[ref]
-            cx = float(jnp.clip(cx, zx0, zx1))
-            cy = float(jnp.clip(cy, zy0, zy1))
+            cx = float(np.clip(cx, zx0, zx1))
+            cy = float(np.clip(cy, zy0, zy1))
 
         # Warn if clamped position differs significantly from phi_min
-        dist = jnp.sqrt((cx - ax) ** 2 + (cy - ay) ** 2)
+        dist = np.sqrt((cx - ax) ** 2 + (cy - ay) ** 2)
         if float(dist) > 2.0:
             logger.warning(
                 "Clamped anchor for '%s': phi_min=(%.2f, %.2f) -> clamped=(%.2f, %.2f) "

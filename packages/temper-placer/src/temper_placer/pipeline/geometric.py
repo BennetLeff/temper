@@ -9,24 +9,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import jax
-import jax.numpy as jnp
 import numpy as np
-import optax
 
 from temper_placer.core.state import PlacementState
-from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
-from temper_placer.losses.boundary import BoundaryLoss
-from temper_placer.losses.loop_area import LoopAreaLoss, create_temper_loop_constraints
-from temper_placer.losses.overlap import OverlapLoss
-from temper_placer.losses.thermal import ThermalLoss, create_temper_thermal_constraints
-from temper_placer.losses.wirelength import WirelengthLoss
-from temper_placer.optimizer.legalization import (
-    clamp_to_bounds,
-    clamp_to_zones,
-    project_to_trust_region,
-    resolve_overlaps_priority,
-)
+
+# JAX retirement stubs
+class clamp_to_bounds:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
+class clamp_to_zones:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
+class project_to_trust_region:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
+class resolve_overlaps_priority:
+    @staticmethod
+    def __call__(*a, **kw): raise NotImplementedError("JAX legalization removed.")
 
 if TYPE_CHECKING:
     from temper_placer.pipeline.state import PipelineState
@@ -65,14 +64,14 @@ def run_geometric_phase(state: PipelineState) -> PipelineState:
 
     print(f"Running refinement for {state.config.epochs} epochs (max {state.config.max_movement_mm}mm movement)...")
     optimizer = optax.adam(learning_rate=0.1)
-    params = {"positions": jnp.array(positions)}
+    params = {"positions": np.array(positions)}
     opt_state = optimizer.init(params)
 
-    @jax.jit
+    #  removed (JAX retirement)
     def step(params, opt_state):
         def f(p):
             # Assumes 0 degree rotation for now in local refinement
-            rotations = jnp.zeros((n, 4)).at[:, 0].set(1.0)
+            rotations = np.zeros((n, 4)).at[:, 0].set(1.0)
             return loss_fn(p["positions"], rotations, context).value
         loss, grads = jax.value_and_grad(f)(params)
         updates, opt_state = optimizer.update(grads, opt_state)
@@ -96,7 +95,7 @@ def run_geometric_phase(state: PipelineState) -> PipelineState:
             pos_np = clamp_to_bounds(pos_np, widths, heights, state.board)
             pos_np = clamp_to_zones(pos_np, state.netlist, state.board)
 
-            params["positions"] = jnp.array(pos_np)
+            params["positions"] = np.array(pos_np)
 
     # Final legalization pass
     final_pos = resolve_overlaps_priority(
@@ -107,5 +106,5 @@ def run_geometric_phase(state: PipelineState) -> PipelineState:
         enforce_zones=True
     )
 
-    state.placement_state = PlacementState.from_positions(jnp.array(final_pos))
+    state.placement_state = PlacementState.from_positions(np.array(final_pos))
     return state

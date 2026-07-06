@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import math
 
-from temper_placer.placement.audit import PlacementAuditor
+from temper_placer.router_v6.placement_audit import PlacementAuditor
 from temper_placer.router_v6.stage0_data import ParsedPCB
 
 

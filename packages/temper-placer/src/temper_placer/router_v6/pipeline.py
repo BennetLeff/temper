@@ -26,7 +26,7 @@ from temper_placer.validation.drc_fence import DRCFence, InvariantSpec
 from temper_placer.core.board import side_to_layer_name
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.placement.legalization import Legalizer
+from temper_placer.router_v6.placement_legalization import Legalizer
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
 from temper_placer.router_v6.channel_mapping import ChannelPath, map_topology_to_channels

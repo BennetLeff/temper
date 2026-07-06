@@ -196,7 +196,7 @@ class BaseConstraint(ABC):
     tier: ConstraintTier
     because: str
     id: str = ""
-    targets: list[str] = field(default_factory=lambda: ["jax"])
+    targets: list[str] = field(default_factory=lambda: ["sat"])
 
     def __post_init__(self):
         """Validate constraint fields."""
@@ -247,7 +247,7 @@ class BaseConstraint(ABC):
 # Each key maps a CompilationTarget.value string to a callable
 # (constraint, context) -> backend_output.
 # Populated by bridge modules at import time (lazy registration).
-BaseConstraint.backends: dict[str, Callable] = {"jax": None}  # type: ignore[attr-defined, misc]
+BaseConstraint.backends: dict[str, Callable] = {}  # type: ignore[attr-defined, misc]
 
 
 class AdjacentConstraint(BaseConstraint):

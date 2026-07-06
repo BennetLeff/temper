@@ -16,10 +16,11 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import jax.numpy as jnp
+import numpy as np
 
 if TYPE_CHECKING:
-    from jax import Array
+    from numpy.typing import NDArray
+Array = NDArray
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
@@ -239,7 +240,7 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
 
         # Compute centroids for modules (grid layout)
         n_modules = len(modules)
-        cols = max(1, int(jnp.sqrt(n_modules)))
+        cols = max(1, int(np.sqrt(n_modules)))
         rows = (n_modules + cols - 1) // cols
 
         # Available board area (with margin)
@@ -300,8 +301,8 @@ class FunctionalModuleClusteringHeuristic(Heuristic):
             offset_y: Array | float
             if n > 1:
                 angle = 2 * 3.14159 * i / n
-                offset_x = radius * jnp.cos(angle)
-                offset_y = radius * jnp.sin(angle)
+                offset_x = radius * np.cos(angle)
+                offset_y = radius * np.sin(angle)
             else:
                 offset_x = 0.0
                 offset_y = 0.0
@@ -893,7 +894,7 @@ class DomainSeparationHeuristic(Heuristic):
 
                 # Distribute within region
                 n = len(refs)
-                cols = max(1, int(jnp.sqrt(n)))
+                cols = max(1, int(np.sqrt(n)))
                 rows = (n + cols - 1) // cols
 
                 col = i % cols

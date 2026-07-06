@@ -20,10 +20,8 @@ Example of bug prevented by type system:
 """
 
 from typing import NewType, TypeAlias
-
-import jax.numpy as jnp
-from jax import Array
-
+import numpy as np
+from numpy.typing import NDArray as Array
 # ============================================================================
 # Angle Units
 # ============================================================================
@@ -41,12 +39,12 @@ RadiansArray: TypeAlias = Array
 
 def deg_to_rad(degrees: float | Array) -> float | Array:
     """Convert degrees to radians."""
-    return degrees * jnp.pi / 180.0
+    return degrees * np.pi / 180.0
 
 
 def rad_to_deg(radians: float | Array) -> float | Array:
     """Convert radians to degrees."""
-    return radians * 180.0 / jnp.pi
+    return radians * 180.0 / np.pi
 
 
 # ============================================================================

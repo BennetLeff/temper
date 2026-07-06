@@ -30,20 +30,15 @@ source_modules =
     temper_placer.cli
     temper_placer.constraints
     temper_placer.deterministic
-    temper_placer.experiments
     temper_placer.explainability
     temper_placer.fixtures
     temper_placer.geometry
     temper_placer.heuristics
     temper_placer.io
-    temper_placer.losses
     temper_placer.manufacturing
     temper_placer.metrics
-    temper_placer.ml
-    temper_placer.optimizer
     temper_placer.pcl
     temper_placer.pipeline
-    temper_placer.placement
     temper_placer.placer
     temper_placer.profiling
     temper_placer.regression
@@ -72,20 +67,15 @@ source_modules =
     temper_placer.constraints
     temper_placer.core
     temper_placer.deterministic
-    temper_placer.experiments
     temper_placer.explainability
     temper_placer.fixtures
     temper_placer.geometry
     temper_placer.heuristics
     temper_placer.io
-    temper_placer.losses
     temper_placer.manufacturing
     temper_placer.metrics
-    temper_placer.ml
-    temper_placer.optimizer
     temper_placer.pcl
     temper_placer.pipeline
-    temper_placer.placement
     temper_placer.placer
     temper_placer.profiling
     temper_placer.regression

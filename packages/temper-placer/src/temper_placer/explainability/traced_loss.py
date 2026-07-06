@@ -29,9 +29,7 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from functools import wraps
 from typing import Any, Optional
-
-import jax.numpy as jnp
-
+import numpy as np
 from temper_placer.explainability.trace import Trace
 
 # Global context for active tracing.
@@ -62,7 +60,7 @@ def traced(
     Example:
         >>> @traced(subject="Q1", because="Overlap penalty")
         ... def compute_overlap(pos):
-        ...     return jnp.sum(pos)
+        ...     return np.sum(pos)
         ...
         >>> # Standalone usage
         >>> val, trace = compute_overlap(pos)
@@ -229,7 +227,7 @@ class TracedLossContext:
             return 0.0, Trace.empty()
 
         # Ensure we handle JAX arrays correctly during sum
-        total_loss = jnp.zeros(())
+        total_loss = np.zeros(())
         for loss in self.losses:
             total_loss = total_loss + loss
 

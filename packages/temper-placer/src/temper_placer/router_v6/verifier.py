@@ -23,9 +23,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any
-
-from jax import Array
-
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist

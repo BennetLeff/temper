@@ -15,10 +15,8 @@ Projection operators map a point to the nearest point in a constraint set:
 - Edge-mounting: clamp to edge-adjacent strip
 - Manufacturing side: clamp to top/bottom half of board
 """
-
-import jax
-import jax.numpy as jnp
-from jax import Array
+import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.geometry.polygon import (
     nearest_point_on_polygon,
@@ -58,9 +56,9 @@ def project_onto_board(
     Returns:
         Projected (x, y) array within the margin-bounded board rect.
     """
-    x = jnp.clip(point[0], margin, board_w - margin)
-    y = jnp.clip(point[1], margin, board_h - margin)
-    return jnp.array([x, y])
+    x = np.clip(point[0], margin, board_w - margin)
+    y = np.clip(point[1], margin, board_h - margin)
+    return np.array([x, y])
 
 
 def project_onto_zone(
@@ -96,26 +94,26 @@ def project_onto_zone(
     def _rect_projection():
         min_corner = zone_vertices[0]
         max_corner = zone_vertices[2]
-        min_x = jnp.minimum(min_corner[0], max_corner[0])
-        max_x = jnp.maximum(min_corner[0], max_corner[0])
-        min_y = jnp.minimum(min_corner[1], max_corner[1])
-        max_y = jnp.maximum(min_corner[1], max_corner[1])
+        min_x = np.minimum(min_corner[0], max_corner[0])
+        max_x = np.maximum(min_corner[0], max_corner[0])
+        min_y = np.minimum(min_corner[1], max_corner[1])
+        max_y = np.maximum(min_corner[1], max_corner[1])
         inner_min_x = min_x + half_w
         inner_max_x = max_x - half_w
         inner_min_y = min_y + half_h
         inner_max_y = max_y - half_h
         # If inner is inverted (component too large), collapse to midpoint
-        cx = jnp.where(
+        cx = np.where(
             inner_min_x <= inner_max_x,
-            jnp.clip(point[0], inner_min_x, inner_max_x),
+            np.clip(point[0], inner_min_x, inner_max_x),
             (min_x + max_x) / 2.0,
         )
-        cy = jnp.where(
+        cy = np.where(
             inner_min_y <= inner_max_y,
-            jnp.clip(point[1], inner_min_y, inner_max_y),
+            np.clip(point[1], inner_min_y, inner_max_y),
             (min_y + max_y) / 2.0,
         )
-        return jnp.array([cx, cy])
+        return np.array([cx, cy])
 
     # Helper: generic polygon projection
     # NOTE: half_w/half_h are accepted but not applied in the generic polygon
@@ -125,13 +123,13 @@ def project_onto_zone(
     def _poly_projection():
         inside = point_in_polygon_winding(point, zone_vertices)
         nearest = nearest_point_on_polygon(point, zone_vertices)
-        return jnp.where(inside > 0.5, point, nearest)
+        return np.where(inside > 0.5, point, nearest)
 
     # Use rect fast-path when zone has exactly 4 vertices (axis-aligned rect)
     is_rect = n_vertices == 4
     rect_result = _rect_projection()
     poly_result = _poly_projection()
-    return jnp.where(is_rect, rect_result, poly_result)
+    return np.where(is_rect, rect_result, poly_result)
 
 
 def project_outside_keepout(
@@ -159,26 +157,26 @@ def project_outside_keepout(
     kx_min, ky_min, kx_max, ky_max = keepout_rect
 
     # Expand keepout by component half-size
-    ex_min = jnp.asarray(kx_min - half_w, dtype=jnp.float32)
-    ex_max = jnp.asarray(kx_max + half_w, dtype=jnp.float32)
-    ey_min = jnp.asarray(ky_min - half_h, dtype=jnp.float32)
-    ey_max = jnp.asarray(ky_max + half_h, dtype=jnp.float32)
+    ex_min = np.asarray(kx_min - half_w, dtype=np.float32)
+    ex_max = np.asarray(kx_max + half_w, dtype=np.float32)
+    ey_min = np.asarray(ky_min - half_h, dtype=np.float32)
+    ey_max = np.asarray(ky_max + half_h, dtype=np.float32)
 
     # Is the point inside the expanded keepout?
     inside = (x >= ex_min) & (x <= ex_max) & (y >= ey_min) & (y <= ey_max)
 
     # 4 candidate projection points (one per edge of expanded rect)
-    c0 = jnp.array([ex_min, jnp.clip(y, ey_min, ey_max)])  # left
-    c1 = jnp.array([ex_max, jnp.clip(y, ey_min, ey_max)])  # right
-    c2 = jnp.array([jnp.clip(x, ex_min, ex_max), ey_min])  # bottom
-    c3 = jnp.array([jnp.clip(x, ex_min, ex_max), ey_max])  # top
+    c0 = np.array([ex_min, np.clip(y, ey_min, ey_max)])  # left
+    c1 = np.array([ex_max, np.clip(y, ey_min, ey_max)])  # right
+    c2 = np.array([np.clip(x, ex_min, ex_max), ey_min])  # bottom
+    c3 = np.array([np.clip(x, ex_min, ex_max), ey_max])  # top
 
-    candidates = jnp.stack([c0, c1, c2, c3])
+    candidates = np.stack([c0, c1, c2, c3])
     diffs = candidates - point
-    dists_sq = jnp.sum(diffs**2, axis=1)
-    nearest_idx = jnp.argmin(dists_sq)
+    dists_sq = np.sum(diffs**2, axis=1)
+    nearest_idx = np.argmin(dists_sq)
 
-    result = jnp.where(inside, candidates[nearest_idx], point)
+    result = np.where(inside, candidates[nearest_idx], point)
     return result
 
 
@@ -206,10 +204,10 @@ def project_onto_half_plane(
     """
     x, y = point[0], point[1]
     if normal_sign > 0:
-        new_y = jnp.maximum(y, boundary_line)
+        new_y = np.maximum(y, boundary_line)
     else:
-        new_y = jnp.minimum(y, boundary_line)
-    return jnp.array([x, new_y])
+        new_y = np.minimum(y, boundary_line)
+    return np.array([x, new_y])
 
 
 def project_onto_edge_strip(
@@ -240,21 +238,21 @@ def project_onto_edge_strip(
     """
     x, y = point[0], point[1]
     if edge == "left":
-        nx = jnp.clip(x, 0.0, max_dist)
-        ny = jnp.clip(y, 0.0, board_h)
+        nx = np.clip(x, 0.0, max_dist)
+        ny = np.clip(y, 0.0, board_h)
     elif edge == "right":
-        nx = jnp.clip(x, board_w - max_dist, board_w)
-        ny = jnp.clip(y, 0.0, board_h)
+        nx = np.clip(x, board_w - max_dist, board_w)
+        ny = np.clip(y, 0.0, board_h)
     elif edge == "top":
-        nx = jnp.clip(x, 0.0, board_w)
-        ny = jnp.clip(y, board_h - max_dist, board_h)
+        nx = np.clip(x, 0.0, board_w)
+        ny = np.clip(y, board_h - max_dist, board_h)
     elif edge == "bottom":
-        nx = jnp.clip(x, 0.0, board_w)
-        ny = jnp.clip(y, 0.0, max_dist)
+        nx = np.clip(x, 0.0, board_w)
+        ny = np.clip(y, 0.0, max_dist)
     else:
         valid = {"left", "right", "top", "bottom"}
         raise ValueError(f"Invalid edge '{edge}'. Must be one of {valid}.")
-    return jnp.array([nx, ny])
+    return np.array([nx, ny])
 
 
 def project_onto_side(
@@ -281,8 +279,8 @@ def project_onto_side(
     """
     x, y = point[0], point[1]
     if side == "top":
-        return jnp.array([x, jnp.minimum(y, midline)])
+        return np.array([x, np.minimum(y, midline)])
     elif side == "bottom":
-        return jnp.array([x, jnp.maximum(y, midline)])
+        return np.array([x, np.maximum(y, midline)])
     else:
         raise ValueError(f"Invalid side '{side}'. Must be 'top' or 'bottom'.")

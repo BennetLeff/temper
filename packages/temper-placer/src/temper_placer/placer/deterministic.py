@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from numpy.typing import NDArray
 
 if TYPE_CHECKING:

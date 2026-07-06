@@ -4,6 +4,8 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 
 import numpy as np
+Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
 from scipy import stats
 
 from temper_placer.ablation.runner import ExperimentRun

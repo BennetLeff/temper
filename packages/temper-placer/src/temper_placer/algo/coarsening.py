@@ -6,8 +6,7 @@ of the hypergraph while preserving structural properties.
 """
 
 from __future__ import annotations
-
-import jax.numpy as jnp
+import numpy as np
 import numpy as np
 from jax.experimental import sparse
 
@@ -40,7 +39,7 @@ def coarsen_hypergraph(
 
     if n_fine < 2:
         # Cannot coarsen
-        identity = sparse.BCOO.fromdense(jnp.eye(n_fine))
+        identity = sparse.BCOO.fromdense(np.eye(n_fine))
         return hg, identity
 
     # Reconstruct connectivity for matching
@@ -149,8 +148,8 @@ def coarsen_hypergraph(
 
         coarse_node_refs.append(hg.node_refs[u])
 
-    P_indices = jnp.array([P_rows, P_cols]).T
-    P_values = jnp.array(P_data, dtype=jnp.float32)
+    P_indices = np.array([P_rows, P_cols]).T
+    P_values = np.array(P_data, dtype=np.float32)
     P = sparse.BCOO((P_values, P_indices), shape=(n_fine, n_coarse))
 
     # 4. Build Coarse Hypergraph Incidence H_c = P.T @ H
