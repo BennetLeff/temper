@@ -2,11 +2,17 @@
 
 Inner gate (audit): fast geometric invariant checks.
 Truth gate (DRC): KiCad DRC for physical rule compliance.
+
+Two-tier rule is explicit:
+- inner_passed=true, truth_passed=false -> NOT accepted (DRC wins)
+- inner_passed=false -> NOT accepted (no need to run DRC)
+- inner_passed=true, truth_passed=true -> accepted
 """
 
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -19,8 +25,50 @@ from temper_placer.validation.drc_runner import DrcError, DrcResult, run_drc
 
 if TYPE_CHECKING:
     from temper_placer.pcl.constraints import BaseConstraint
+    from temper_placer.validation.drc_runner import DrcWarning
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class GateResult:
+    """Result of running one or both gates.
+
+    Attributes:
+        inner_passed: True if the inner gate (audit + physics) passed.
+        truth_passed: True if the truth gate (KiCad DRC) passed.
+            None if the truth gate was not run.
+        audit_violations: Violations from the inner-gate audit checks.
+        drc_errors: DRC errors from the truth gate (blockers).
+        drc_warnings: DRC warnings from the truth gate (non-blocking).
+    """
+
+    inner_passed: bool
+    truth_passed: bool | None = None
+    audit_violations: list[str] = field(default_factory=list)
+    drc_errors: list[DrcError] = field(default_factory=list)
+    drc_warnings: list[DrcWarning] = field(default_factory=list)
+
+    @property
+    def accepted(self) -> bool:
+        """True only if both gates pass.
+
+        - inner_passed + truth_passed=None -> NOT accepted (truth not run)
+        - inner_passed=false -> NOT accepted
+        - inner_passed=true + truth_passed=false -> NOT accepted
+        - inner_passed=true + truth_passed=true -> accepted
+        """
+        return self.inner_passed and self.truth_passed is True
+
+    @property
+    def disagreement_signal(self) -> bool:
+        """True if inner and truth gates disagree -- a key diagnostic signal.
+
+        This happens when Chebyshev (inner gate) approves a placement that
+        Euclidean DRC (truth gate) rejects. The gap is the signal this
+        two-tier design exists to detect.
+        """
+        return self.inner_passed and self.truth_passed is False
 
 
 class AcceptanceGate:
