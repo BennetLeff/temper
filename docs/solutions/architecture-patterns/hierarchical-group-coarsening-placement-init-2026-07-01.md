@@ -6,6 +6,9 @@ module: temper-placer
 problem_type: architecture_pattern
 component: tooling
 severity: high
+status: superseded
+superseded_date: 2026-07-05
+superseded_by: docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md
 applies_when:
   - "Reducing placement optimization dimensionality by exploiting functional group structure in component netlists"
   - "Initializing placement for boards where component_groups are declared in constraints (e.g., half-bridge stages, EMI-sensitive clusters, template-replicated blocks)"
@@ -21,6 +24,9 @@ tags:
   - group-pre-clustering
   - placement-initialization
 ---
+
+> **Status: Superseded (2026-07-05).** Hierarchical coarsening was a JAX-placement-init dimensionality-reduction technique; CP-SAT's `NoOverlap2D` global propagator handles N≈33 components natively without coarsening. The principle (coarse-to-fine decomposition for placement at large N) may re-apply if the project scales toward the regime where coarsening buys solve time; see `docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md` for the retirement record.
+
 # Pattern: Hierarchical Group Coarsening for Dimensionality Reduction in Placement Initialization
 
 ## Context

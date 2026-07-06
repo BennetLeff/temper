@@ -6,6 +6,9 @@ module: temper-placer
 problem_type: architecture_pattern
 component: tooling
 severity: high
+status: superseded
+superseded_date: 2026-07-05
+superseded_by: docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md
 applies_when:
   - "Initializing gradient-based placement optimization where randomly-seeded positions violate hard geometric constraints and the optimizer needs a feasible starting point"
   - "Satisfying overlapping unary and pairwise constraints where constraint sets intersect but closed-form joint projection does not exist"
@@ -19,6 +22,8 @@ tags:
   - ccap
   - optimization-init
 ---
+
+> **Status: Superseded (2026-07-05).** The C-CAP feasibility projector and the JAX descent optimizer it served were retired by the CP-SAT paradigm swap. CP-SAT's `NoOverlap2D` + hard-ceiling feasibility encoding makes projection-to-feasible unnecessary — the solver produces feasible placements by construction. The principle (alternating projections onto closed convex sets) may re-apply if the project later scales beyond N≈33 (see `docs/brainstorms/2026-07-03-post-parity-cp-sat-umbrella-roadmap-requirements.md` Scope Boundaries). The mathematical basis is preserved at `docs/solutions/ccap-mathematical-basis.md`.
 
 # Pattern: Alternating Projections for Hard-Constraint Feasibility Pre-Processing
 

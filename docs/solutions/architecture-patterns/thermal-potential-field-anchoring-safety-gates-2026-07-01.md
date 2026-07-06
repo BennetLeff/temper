@@ -6,6 +6,9 @@ module: temper_placer
 problem_type: architecture_pattern
 component: development_workflow
 severity: high
+status: superseded
+superseded_date: 2026-07-05
+superseded_by: docs/solutions/architecture-patterns/cp-sat-constraint-encoder-greenfield-hard-ceiling-2026-07-05.md
 applies_when:
   - Power devices must be placed with thermal constraints before other components
   - A pipeline needs hard-abort safety gates (not warnings) when thermal limits are violated
@@ -21,6 +24,8 @@ tags:
   - pipeline-stage-0
   - curriculum-weighting
 ---
+
+> **Status: Superseded (2026-07-05).** The thermal-potential-field initializer was a JAX-placement-init Stage 0; the JAX descent stack was retired by the CP-SAT paradigm swap, with thermal now encoded as a hard `OnSideConstraint` (bottom-edge anchoring) per F2's CP-SAT constraint-completion workstream. The principle (physics-derived field gradients with hard safety gates) generalizes to constraint solvers (hard constraints ARE the safety gate); the specific curricular-weighting soft-init form is retired. See `docs/solutions/architecture-patterns/cp-sat-constraint-encoder-greenfield-hard-ceiling-2026-07-05.md` for the successor encoding.
 
 # Pattern: Physics-Aware Potential Fields with Hard Safety Gates for Safety-Critical Placement Initialization
 

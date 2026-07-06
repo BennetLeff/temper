@@ -6,6 +6,9 @@ module: temper-placer
 problem_type: architecture_pattern
 component: tooling
 severity: high
+status: superseded
+superseded_date: 2026-07-05
+superseded_by: docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md
 applies_when:
   - "Encoding PCB domain constraints (proximity, clearance, critical loops, HV/LV separation, group coherence) as edge weight modifications on a spectral graph embedding"
   - "Computing initial placement coordinates from a constraint-augmented connectivity graph Laplacian where component clusters emerge naturally from the eigenvector structure"
@@ -27,6 +30,8 @@ tags:
   - clearance-coulomb
   - group-coherence
 ---
+
+> **Status: Superseded (2026-07-05).** This spectral-Laplacian initializer was a JAX-placement-init technique; the JAX descent stack was retired by the CP-SAT paradigm swap. CP-SAT needs no spectral warm-start — feasibility solves from cold-start in ~0.1s on the temper board. The principle (constraint-augmented spectral embedding for placement init) may re-apply at scale; see `docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md` for the retirement record.
 
 # Pattern: Constraint-Weighted Spectral Laplacian for Domain-Aware PCB Placement Initialization
 

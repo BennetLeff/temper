@@ -247,6 +247,116 @@ def hv_lv_clearance_score(
         return min_found_clearance / min_clearance
 
 
+def dual_rail_clearance_report(
+    state: PlacementState,
+    netlist: Netlist,
+    hv_components: set[str],
+    lv_components: set[str],
+) -> dict[str, float | int]:
+    """
+    Compute dual-rail clearance report with worst-pair scores and violation counts
+    against both 3.0mm (IEC) and 6.0mm (DRC) thresholds.
+
+    Both worst-pair scores use the same linear ramp as hv_lv_clearance_score:
+    min_found_clearance / threshold, clamped to [0, 1].
+
+    Args:
+        state: Current placement state.
+        netlist: Design netlist.
+        hv_components: Set of high-voltage component refs.
+        lv_components: Set of low-voltage component refs.
+
+    Returns:
+        Dict with:
+        - clearance_score_3mm: float [0, 1] — worst-pair severity vs 3.0mm IEC rail
+        - clearance_score_6mm: float [0, 1] — worst-pair severity vs 6.0mm DRC rail
+        - violations_3mm: int — count of HV-LV pairs below 3.0mm
+        - violations_6mm: int — count of HV-LV pairs below 6.0mm
+    """
+    THRESHOLD_3MM = 3.0
+    THRESHOLD_6MM = 6.0
+
+    if not hv_components or not lv_components:
+        return {
+            "clearance_score_3mm": 1.0,
+            "clearance_score_6mm": 1.0,
+            "violations_3mm": 0,
+            "violations_6mm": 0,
+        }
+
+    # Get positions for HV and LV components
+    hv_positions = []
+    hv_bounds = []
+    for ref in hv_components:
+        try:
+            idx = netlist.get_component_index(ref)
+            hv_positions.append(state.positions[idx])
+            hv_bounds.append(netlist.components[idx].bounds)
+        except KeyError:
+            continue
+
+    lv_positions = []
+    lv_bounds = []
+    for ref in lv_components:
+        try:
+            idx = netlist.get_component_index(ref)
+            lv_positions.append(state.positions[idx])
+            lv_bounds.append(netlist.components[idx].bounds)
+        except KeyError:
+            continue
+
+    if not hv_positions or not lv_positions:
+        return {
+            "clearance_score_3mm": 1.0,
+            "clearance_score_6mm": 1.0,
+            "violations_3mm": 0,
+            "violations_6mm": 0,
+        }
+
+    # Single pass through all HV-LV pairs
+    min_found_clearance = float("inf")
+    violations_3mm = 0
+    violations_6mm = 0
+
+    for i, hv_pos in enumerate(hv_positions):
+        hv_hw, hv_hh = hv_bounds[i][0] / 2, hv_bounds[i][1] / 2
+
+        for j, lv_pos in enumerate(lv_positions):
+            lv_hw, lv_hh = lv_bounds[j][0] / 2, lv_bounds[j][1] / 2
+
+            # Compute edge-to-edge distance (axis-aligned approximation)
+            dx = abs(float(hv_pos[0]) - float(lv_pos[0])) - hv_hw - lv_hw
+            dy = abs(float(hv_pos[1]) - float(lv_pos[1])) - hv_hh - lv_hh
+
+            if dx > 0 and dy > 0:
+                clearance = (dx**2 + dy**2) ** 0.5
+            else:
+                clearance = max(dx, dy)
+
+            min_found_clearance = min(min_found_clearance, clearance)
+
+            if clearance < THRESHOLD_3MM:
+                violations_3mm += 1
+            if clearance < THRESHOLD_6MM:
+                violations_6mm += 1
+
+    # Compute scores using linear ramp (same pattern as hv_lv_clearance_score)
+    def _score(clearance: float, threshold: float) -> float:
+        if clearance >= threshold:
+            return 1.0
+        elif clearance <= 0:
+            return 0.0
+        else:
+            return clearance / threshold
+
+    return {
+        "clearance_score_3mm": _score(min_found_clearance, THRESHOLD_3MM),
+        "clearance_score_6mm": _score(min_found_clearance, THRESHOLD_6MM),
+        "violations_3mm": violations_3mm,
+        "violations_6mm": violations_6mm,
+    }
+
+
 def loop_area_score(
     state: PlacementState,
     netlist: Netlist,
@@ -534,6 +644,7 @@ def compute_quality_report(
                             target_edge=thermal_edge, max_distance=thermal_max_dist)
     zone = zone_compliance_score(state, netlist, board, zone_assigns)
     clearance = hv_lv_clearance_score(state, netlist, hv_comps, lv_comps, min_clearance)
+    dual_rail = dual_rail_clearance_report(state, netlist, hv_comps, lv_comps)
     loop = loop_area_score(state, netlist, context, loop_comps)
     congestion = congestion_score(state, netlist, board, context)
     compact = compactness_score(state, netlist, board)
@@ -549,6 +660,10 @@ def compute_quality_report(
         "thermal_score": thermal,
         "zone_compliance_score": zone,
         "hv_lv_clearance_score": clearance,
+        "clearance_score_3mm": dual_rail["clearance_score_3mm"],
+        "clearance_score_6mm": dual_rail["clearance_score_6mm"],
+        "violations_3mm": dual_rail["violations_3mm"],
+        "violations_6mm": dual_rail["violations_6mm"],
         "loop_area_score": loop,
         "congestion_score": congestion,
         "compactness_score": compact,

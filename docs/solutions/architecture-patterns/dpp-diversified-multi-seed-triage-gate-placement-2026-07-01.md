@@ -6,6 +6,9 @@ module: temper-placer
 problem_type: architecture_pattern
 component: tooling
 severity: medium
+status: superseded
+superseded_date: 2026-07-05
+superseded_by: docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md
 applies_when:
   - "Gradient-based optimizers are sensitive to initial conditions and single-seed runs exhibit high variance in final cost"
   - "A pool of candidate initial placements can be generated cheaply through hyperparameter variation but full optimization per seed is too expensive"
@@ -21,6 +24,9 @@ tags:
   - farthest-point-fallback
   - spearman-validation
 ---
+
+> **Status: Superseded (2026-07-05).** Multi-seed initialization addressed JAX-descent's local-minima variance — the problem class disappears under CP-SAT, which solves feasibility deterministically from any hint with no seeds, no weights, no local minima. The principle (diverse seed selection via DPP for variance-bounded multi-start optimization) may re-apply to non-deterministic solvers; see `docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md` for the retirement record.
+
 # Pattern: DPP-Diversified Multi-Seed Initialization with Triage Gating
 
 ## Context

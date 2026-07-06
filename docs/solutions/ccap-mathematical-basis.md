@@ -1,11 +1,15 @@
 ---
 date: 2026-07-01
-status: active
+status: superseded
+superseded_date: 2026-07-05
+superseded_by: docs/solutions/architecture-patterns/cp-sat-constraint-encoder-greenfield-hard-ceiling-2026-07-05.md
 source: docs/plans/2026-07-01-003-feat-ccap-alternating-projections-plan.md
 category: algorithm
 ---
 
 # C-CAP Mathematical Basis
+
+> **Status: Superseded (2026-07-05).** C-CAP (the Dykstra alternating-projection feasibility pump) and the JAX descent stack it served were retired by the CP-SAT paradigm swap. The math below is preserved for historical reference; the technique itself is not in use and the `optimizer/ccap.py` module that implemented it was deleted per `docs/solutions/architecture-patterns/jax-framework-retirement-reverse-topological-deletion-2026-07-05.md`. CP-SAT's `NoOverlap2D` + side constraints solves the feasibility problem natively (0.1s on the temper board vs 5–8 Dykstra cycles). The Dykstra alternating-projections principle may re-apply to non-convex or non-OR-Tools-encodable constraint sets should they arise; until then, this document is reference-only.
 
 ## 1. Dykstra's Alternating Projections
 

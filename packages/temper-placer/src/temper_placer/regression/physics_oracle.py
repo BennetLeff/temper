@@ -12,46 +12,34 @@ modifying it. The corpus runner stays as-is; this runner adds the physics path.
 
 from __future__ import annotations
 
+import math
 import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import numpy as np
+import jax
+import jax.numpy as jnp
 
 from temper_placer.core.design_rules import create_temper_design_rules
 from temper_placer.core.specification import PcbSpecification
 from temper_placer.heuristics import create_default_pipeline
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.reference_loader import infer_quality_config
-from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
-class BoundaryLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-class ClearanceLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-class ComponentLoopAreaLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-class ComponentLoopConfig:
-        for k, v in kw.items():
-            setattr(self, k, v)
-class LoopAreaLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-class OverlapLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-class SpreadLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-class ThermalLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-class WirelengthLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-from temper_placer.metrics.quality import compute_quality_report
-class OptimizerConfig:
-        for k, v in kw.items():
-            setattr(self, k, v)
-def create_default_phases(*a, **kw):
-    raise NotImplementedError("JAX optimizer removed.")
-def train_multiphase(*a, **kw):
-    raise NotImplementedError("JAX optimizer removed.")
+from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss, ThermalConstraint, LoopConstraint
+from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.clearance import ClearanceLoss
+from temper_placer.losses.component_loop_area import ComponentLoopAreaLoss, ComponentLoopConfig
+from temper_placer.losses.loop_area import LoopAreaLoss
+from temper_placer.losses.overlap import OverlapLoss
+from temper_placer.losses.regularization import SpreadLoss
+from temper_placer.losses.thermal import ThermalLoss
+from temper_placer.losses.wirelength import WirelengthLoss
+from temper_placer.metrics.quality import compute_quality_report, dual_rail_clearance_report, thermal_score
+from temper_placer.io.config_loader import PlacementConstraints
+from temper_placer.optimizer.config import OptimizerConfig
+from temper_placer.optimizer.curriculum import create_default_phases
+from temper_placer.optimizer.train import train_multiphase
 from temper_placer.pipeline.derivation import derive_constraints_from_spec
 
 
@@ -75,6 +63,22 @@ class PhysicsOracleResult:
             self.errors = []
         if self.quality_report is None:
             self.quality_report = {}
+
+
+# Module-level constants for experiment thresholds
+_CONVERGENCE_FRACTION = 0.2       # last N% of epochs for plateau check
+_PLATEAU_THRESHOLD = 1e-4         # max slope (loss/epoch) for convergence
+_DISSOLVED_CLR6_MIN = 0.85        # min mean clearance_6mm for DISSOLVED
+_DISSOLVED_CLR6_STD_MAX = 0.05    # max std of clearance_6mm for DISSOLVED
+_DISSOLVED_THERM_MIN = 0.45       # min mean thermal_score for DISSOLVED
+_CLEARANCE_PASS_THRESHOLD = 0.95  # legacy pass/fail for single-run oracle
+
+
+@dataclass
+class _BoardSnapshot:
+    """Minimal adapter to bridge Netlist + Board into infer_quality_config."""
+    netlist: Any
+    board: Any
 
 
 def run_physics_oracle(
@@ -176,6 +180,14 @@ def run_physics_oracle(
     if verbose:
         print(f"  Physics oracle for '{board_id}': threshold = {threshold_mm} mm")
 
+    # Build PlacementConstraints for C-CAP feasibility projection
+    placement_constraints = PlacementConstraints(
+        board_width_mm=board.width,
+        board_height_mm=board.height,
+        board_margin_mm=2.0,
+        hv_clearance_mm=threshold_mm,
+    )
+
     # Build loss function with ClearanceLoss
     weights = {
         "overlap": 200.0,
@@ -190,9 +202,7 @@ def run_physics_oracle(
     try:
         clearance_rules = []
         if threshold_mm > 0:
-            class ClearanceRule:
-                    for k, v in kw.items():
-                        setattr(self, k, v)
+            from temper_placer.losses.types import ClearanceRule
 
             clearance_rules.append(
                 ClearanceRule(
@@ -267,7 +277,7 @@ def run_physics_oracle(
             WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weights["overlap"]),
             WeightedLoss(BoundaryLoss(), weights["boundary"]),
             WeightedLoss(
-                ClearanceLoss(default_hv_lv_clearance=threshold_mm),
+                ClearanceLoss(default_hv_lv_clearance=6.0),
                 weights["clearance"],
             ),
             WeightedLoss(WirelengthLoss(), weights["wirelength"]),
@@ -298,7 +308,7 @@ def run_physics_oracle(
 
         # Guard against degenerate initial placements
         pos = initial_state.positions
-        if not np.all(np.isfinite(pos)):
+        if not jnp.all(jnp.isfinite(pos)):
             k1, k2 = jax.random.split(rng_key)
             margin = min(2.0, board.width * 0.1, board.height * 0.1)
             px = jax.random.uniform(
@@ -312,8 +322,8 @@ def run_physics_oracle(
             from dataclasses import replace as dc_replace
             initial_state = dc_replace(
                 initial_state,
-                positions=np.stack([px, py], axis=-1),
-                rotation_logits=np.zeros_like(initial_state.rotation_logits),
+                positions=jnp.stack([px, py], axis=-1),
+                rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
             )
 
         phases = create_default_phases(epochs)
@@ -324,11 +334,15 @@ def run_physics_oracle(
             curriculum_phases=phases,
             use_centrality_weighting=False,
         )
+        cfg.initialization.ccap_enabled = True
+
+        if verbose:
+            print(f"  C-CAP: enabled, max_cycles={cfg.initialization.ccap_max_cycles}")
 
         result = train_multiphase(
             netlist, board, lambda _: loss_fn, context, cfg,
             initial_state=initial_state,
-            constraints=None,
+            constraints=placement_constraints,
         )
         elapsed = time.time() - start_time
 
@@ -344,15 +358,7 @@ def run_physics_oracle(
 
     # Compute quality report
     try:
-        # Build a minimal ReferenceDesign-like object for infer_quality_config
-        from dataclasses import dataclass as dc_dataclass
-
-        @dc_dataclass
-        class _RefDesign:
-            netlist: Any
-            board: Any
-
-        ref = _RefDesign(netlist=netlist, board=board)
+        ref = _BoardSnapshot(netlist=netlist, board=board)
         quality_config = infer_quality_config(ref)  # type: ignore[arg-type]
 
         # Override hv/lv from net classification (more authoritative than footprint heuristics)
@@ -416,7 +422,7 @@ def run_physics_oracle(
 
     # Compare against threshold: score of 1.0 means all pairs satisfy clearance;
     # score < 1.0 means some pairs violate it. Pass if score >= 0.95 (allow minor violations).
-    passed = clearance_score >= 0.95
+    passed = clearance_score >= _CLEARANCE_PASS_THRESHOLD
 
     return PhysicsOracleResult(
         board_id=board_id,
@@ -456,35 +462,22 @@ def run_ab_diff(
     Returns:
         Dict with 'positions_a', 'positions_b', 'deltas', 'summary', 'conclusion'.
     """
-    import numpy as np
+    import jax
+    import jax.numpy as jnp
 
     from temper_placer.core.design_rules import create_temper_design_rules
     from temper_placer.core.specification import PcbSpecification
     from temper_placer.heuristics import create_default_pipeline
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-
-    class BoundaryLoss:
-        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-    class ClearanceLoss:
-        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-    class OverlapLoss:
-        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-    class SpreadLoss:
-        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-    class WirelengthLoss:
-        def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
-
-    class OptimizerConfig:
-        def __init__(self, **kw):
-            for k, v in kw.items():
-                setattr(self, k, v)
-
-    def create_default_phases(*a, **kw):
-        raise NotImplementedError("JAX optimizer removed.")
-
-    def train_multiphase(*a, **kw):
-        raise NotImplementedError("JAX optimizer removed.")
-
+    from temper_placer.losses.base import CompositeLoss, LossContext, WeightedLoss
+    from temper_placer.losses.boundary import BoundaryLoss
+    from temper_placer.losses.clearance import ClearanceLoss
+    from temper_placer.losses.overlap import OverlapLoss
+    from temper_placer.losses.regularization import SpreadLoss
+    from temper_placer.losses.wirelength import WirelengthLoss
+    from temper_placer.optimizer.config import OptimizerConfig
+    from temper_placer.optimizer.curriculum import create_default_phases
+    from temper_placer.optimizer.train import train_multiphase
     from temper_placer.pipeline.derivation import derive_constraints_from_spec
 
     if spec_path is None:
@@ -511,7 +504,7 @@ def run_ab_diff(
             WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), weights["overlap"]),
             WeightedLoss(BoundaryLoss(), weights["boundary"]),
             WeightedLoss(
-                ClearanceLoss(default_hv_lv_clearance=threshold_mm),
+                ClearanceLoss(default_hv_lv_clearance=6.0),
                 weights["clearance"],
             ),
             WeightedLoss(WirelengthLoss(), weights["wirelength"]),
@@ -524,7 +517,7 @@ def run_ab_diff(
         initial_state = preset.state
 
         pos = initial_state.positions
-        if not np.all(np.isfinite(pos)):
+        if not jnp.all(jnp.isfinite(pos)):
             from dataclasses import replace as dc_replace
             k1, k2 = jax.random.split(rng_key)
             margin = min(2.0, board.width * 0.1, board.height * 0.1)
@@ -532,8 +525,8 @@ def run_ab_diff(
             py = jax.random.uniform(k2, (netlist.n_components,), minval=margin, maxval=board.height - margin)
             initial_state = dc_replace(
                 initial_state,
-                positions=np.stack([px, py], axis=-1),
-                rotation_logits=np.zeros_like(initial_state.rotation_logits),
+                positions=jnp.stack([px, py], axis=-1),
+                rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
             )
 
         phases = create_default_phases(epochs)
@@ -556,7 +549,7 @@ def run_ab_diff(
 
     # Per-component deltas
     n = min(positions_a.shape[0], positions_b.shape[0])
-    deltas = np.linalg.norm(positions_b[:n] - positions_a[:n], axis=1)
+    deltas = jnp.linalg.norm(positions_b[:n] - positions_a[:n], axis=1)
 
     # Directional check: HV-LV distance change
     hv_refs = {c.ref for c in netlist_b.components if c.net_class in ("HighVoltage", "ACMains")}
@@ -571,15 +564,15 @@ def run_ab_diff(
         min_d = float("inf")
         for hi in hv_idxs:
             for li in lv_idxs:
-                d = float(np.linalg.norm(positions[hi] - positions[li]))
+                d = float(jnp.linalg.norm(positions[hi] - positions[li]))
                 min_d = min(min_d, d)
         return min_d
 
     dist_a = _min_hv_lv_dist(positions_a, all_refs)
     dist_b = _min_hv_lv_dist(positions_b, all_refs)
 
-    mean_delta = float(np.mean(deltas))
-    max_delta = float(np.max(deltas))
+    mean_delta = float(jnp.mean(deltas))
+    max_delta = float(jnp.max(deltas))
 
     if mean_delta < 0.01:
         conclusion = ("placements identical — clearance loss weight may need retuning "
@@ -604,3 +597,94 @@ def run_ab_diff(
                     "dist_a_mm": dist_a, "dist_b_mm": dist_b},
         "conclusion": conclusion,
     }
+
+
+def score_human_baseline(
+    pcb_path: Path,
+    spec_path: Path | None = None,
+    verbose: bool = True,
+) -> dict[str, float | int]:
+    """
+    Score the human reference placement under the dual-rail clearance metric.
+
+    Loads the KiCad PCB at its original component positions (no optimizer run)
+    and computes worst-pair severity and violation count against both the
+    3.0mm IEC regulatory floor and the 6.0mm DRC design-rule rail.
+
+    Args:
+        pcb_path: Path to the KiCad PCB file (human reference placement).
+        spec_path: Path to pcb_spec.yaml. If None, looks alongside pcb_path.
+        verbose: Whether to print the four numbers.
+
+    Returns:
+        Dict with clearance_score_3mm, clearance_score_6mm,
+        violations_3mm, violations_6mm.
+    """
+    import jax
+
+    jax.config.update("jax_platform_name", "cpu")
+
+    # Resolve spec
+    if spec_path is None:
+        default_spec = Path("configs/pcb_spec.yaml")
+        spec_path = default_spec if default_spec.exists() else pcb_path.parent / "pcb_spec.yaml"
+
+    spec = PcbSpecification.load(spec_path)
+    design_rules = create_temper_design_rules()
+    parse_result = parse_kicad_pcb(pcb_path, design_rules=design_rules)
+    netlist = parse_result.netlist
+    board = parse_result.board
+    if board is None:
+        raise ValueError("No board geometry extracted from PCB")
+
+    derived = derive_constraints_from_spec(spec, netlist)
+    threshold_mm = derived.get("hv_lv_isolation_mm", 6.5)
+
+    # Build initial state from pipeline (uses original PCB positions)
+    pipeline = create_default_pipeline()
+    rng_key = jax.random.PRNGKey(0)
+    preset = pipeline.run(board, netlist, None, rng_key)
+    state = preset.state
+
+    # Build quality config mirroring the oracle's setup
+    ref = _BoardSnapshot(netlist=netlist, board=board)
+    quality_config = infer_quality_config(ref)  # type: ignore[arg-type]
+
+    hv_from_class = {
+        c.ref for c in netlist.components
+        if c.net_class in ("HighVoltage", "ACMains")
+    }
+    lv_from_class = {
+        c.ref for c in netlist.components
+        if c.net_class == "Signal"
+    }
+    if hv_from_class:
+        quality_config["hv_components"] = hv_from_class
+    if lv_from_class:
+        quality_config["lv_components"] = lv_from_class
+
+    # Score with dual-rail metric
+    result = dual_rail_clearance_report(
+        state, netlist,
+        quality_config.get("hv_components", set()),
+        quality_config.get("lv_components", set()),
+    )
+
+    if verbose:
+        print(f"Human baseline ({pcb_path.stem}):")
+        print(f"  clearance_score_3mm  = {result['clearance_score_3mm']:.4f}")
+        print(f"  clearance_score_6mm  = {result['clearance_score_6mm']:.4f}")
+        print(f"  violations_3mm       = {result['violations_3mm']}")
+        print(f"  violations_6mm       = {result['violations_6mm']}")
+        print(f"  (threshold from spec  = {threshold_mm} mm)")
+
+    return result
+
+
+# Re-export multi-seed experiment API from its own module
+from temper_placer.regression.multi_seed_experiment import (  # noqa: E402, F401
+    MultiSeedExperimentResult,
+    MultiSeedRunResult,
+    _compute_experiment_stats,
+    run_multi_seed_experiment,
+)
