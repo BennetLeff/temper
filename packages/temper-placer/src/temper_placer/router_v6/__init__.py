@@ -51,6 +51,8 @@ def __getattr__(name: str):  # noqa: D401 — module-level dunder
 
 
 from temper_placer.router_v6.adapter import (  # noqa: E402
+    CongestionRegion,
+    DrcViolation,
     RoutingResult,
     V6RouterAdapter,
     _AdapterRoutePath,
@@ -119,6 +121,8 @@ __all__ = [
     # Adapter
     "route_pcb",
     "RoutingResult",
+    "CongestionRegion",
+    "DrcViolation",
     "V6RouterAdapter",
     "_AdapterRoutePath",
     # Stage 0: Design Intent

@@ -32,22 +32,70 @@ if TYPE_CHECKING:
 
 
 @dataclass
+class DrcViolation:
+    """DRC violation from routing or manufacturing check.
+
+    Attributes:
+        net_name: Net name associated with the violation.
+        message: Human-readable description.
+        location: (x, y) position of the violation in mm.
+        comp_a: First component ref (for separation violations).
+        comp_b: Second component ref (for separation violations).
+        required_mm: Required clearance distance.
+        components: Component refs involved.
+    """
+
+    net_name: str = ""
+    message: str = ""
+    location: tuple[float, float] = (0.0, 0.0)
+    comp_a: str = ""
+    comp_b: str = ""
+    required_mm: float = 6.0
+    components: list[str] = field(default_factory=list)
+    count: int = 0
+    type: str = "unknown"
+
+
+@dataclass
+class CongestionRegion:
+    """Bottleneck congestion region between components.
+
+    Attributes:
+        net_name: Net affected by congestion.
+        comp_a: First component ref.
+        comp_b: Second component ref.
+        current_distance_mm: Current gap between components.
+        positions: (pos_a, pos_b) positions in mm.
+        bbox: Optional bounding box (x_min, y_min, x_max, y_max).
+    """
+
+    net_name: str = ""
+    comp_a: str = ""
+    comp_b: str = ""
+    current_distance_mm: float = 0.0
+    positions: tuple[
+        tuple[float, float], tuple[float, float]
+    ] = ((0.0, 0.0), (0.0, 0.0))
+    bbox: tuple[float, float, float, float] | None = None
+
+
+@dataclass
 class RoutingResult:
     """Result from route_pcb call.
 
     Attributes:
         completion_rate: Fraction of nets successfully routed (0.0 to 1.0).
         unrouted_nets: List of net names that failed to route.
-        drc_violations: List of DRC violation details from per-net reports
+        drc_violations: List of DrcViolation details from per-net reports
             and optional manufacturing report.
-        congestion_regions: List of congestion region details from
+        congestion_regions: List of CongestionRegion details from
             bottleneck geometry analysis.
     """
 
     completion_rate: float = 0.0
     unrouted_nets: list[str] = field(default_factory=list)
-    drc_violations: list[object] = field(default_factory=list)
-    congestion_regions: list[object] = field(default_factory=list)
+    drc_violations: list[DrcViolation] = field(default_factory=list)
+    congestion_regions: list[CongestionRegion] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -417,18 +465,18 @@ def _build_routing_result(result: Any) -> RoutingResult:
     routing_results = result.stage4.routing_results
     unrouted_nets = list(routing_results.failed_nets)
 
-    drc_violations: list[object] = []
-    congestion_regions: list[object] = []
+    drc_violations: list[DrcViolation] = []
+    congestion_regions: list[CongestionRegion] = []
 
     for report in getattr(routing_results, 'net_reports', []):
         # Collect DRC violations from per-net reports
         drc_count = getattr(report, 'drc_violations', 0)
         if drc_count > 0:
-            drc_violations.append({
-                'net_name': getattr(report, 'net_name', 'unknown'),
-                'count': drc_count,
-                'message': getattr(report, 'message', ''),
-            })
+            drc_violations.append(DrcViolation(
+                net_name=getattr(report, 'net_name', 'unknown'),
+                count=drc_count,
+                message=getattr(report, 'message', ''),
+            ))
 
         # Collect congestion regions from bottleneck geometry
         bottleneck = getattr(report, 'bottleneck', None)
@@ -438,24 +486,24 @@ def _build_routing_result(result: Any) -> RoutingResult:
                 comps = getattr(bottleneck, 'component_pair', ('unknown', 'unknown'))
                 gap = getattr(bottleneck, 'current_gap_mm', 0.0)
                 positions = getattr(bottleneck, 'positions_mm', ((0.0, 0.0), (0.0, 0.0)))
-                congestion_regions.append({
-                    'net_name': getattr(report, 'net_name', 'unknown'),
-                    'comp_a': comps[0],
-                    'comp_b': comps[1],
-                    'current_gap_mm': gap,
-                    'positions': positions,
-                })
+                congestion_regions.append(CongestionRegion(
+                    net_name=getattr(report, 'net_name', 'unknown'),
+                    comp_a=comps[0],
+                    comp_b=comps[1],
+                    current_distance_mm=gap,
+                    positions=positions,
+                ))
 
     # Pull DRC data from manufacturing report if available
     mfg = getattr(result, 'manufacturing_report', None)
     if mfg is not None:
         for v in getattr(mfg, 'violations', []):
-            drc_violations.append({
-                'type': getattr(v, 'type', 'unknown'),
-                'message': getattr(v, 'message', ''),
-                'net_name': getattr(v, 'net_name', ''),
-                'location': getattr(v, 'location', (0.0, 0.0)),
-            })
+            drc_violations.append(DrcViolation(
+                type=getattr(v, 'type', 'unknown'),
+                message=getattr(v, 'message', ''),
+                net_name=getattr(v, 'net_name', ''),
+                location=getattr(v, 'location', (0.0, 0.0)),
+            ))
 
     return RoutingResult(
         completion_rate=result.completion_rate,
