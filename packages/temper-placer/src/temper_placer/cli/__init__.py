@@ -400,11 +400,50 @@ def optimize(
                                 pass
                 except Exception:
                     pass
+
+            # Load zone definitions from the cooker constraint config.
+            cooker_path = Path("packages/temper-placer/configs/constraints/temper_induction_cooker.yaml")
+            zone_objs = []
+            zone_comps: dict[str, list[str]] = {}
+            if cooker_path.exists():
+                import yaml as _yaml2
+                cooker = _yaml2.safe_load(cooker_path.read_text())
+                for zd in cooker.get("zones", []):
+                    z = type("Zone", (), {
+                        "name": zd["name"],
+                        "bounds": tuple(zd["bounds"]),
+                        "components": zd.get("components", []),
+                    })()
+                    zone_objs.append(z)
+                if zone_objs:
+                    board.zones = zone_objs
+
+            # Derive zone component lists from enclosing constraints.
+            for c in pcl_constraints:
+                outer = getattr(c, "outer", None)
+                inner = getattr(c, "inner", None)
+                if outer and inner:
+                    zone_comps[outer] = list(set(
+                        zone_comps.get(outer, []) + list(inner)
+                    ))
+
+            # Load loop component definitions from pcb_spec.yaml.
+            loop_comps: dict[str, list[str]] = {}
+            spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
+            if spec_path.exists():
+                import yaml as _yaml3
+                spec = _yaml3.safe_load(spec_path.read_text())
+                emi = spec.get("emi", {})
+                for name, comps in emi.get("loop_components", {}).items():
+                    loop_comps[name] = comps
             loop_result = loop_runner.run(
                 netlist=netlist,
                 board=board,
                 pcl_constraints=pcl_constraints,
                 seed=seed,
+                zones={z.name: z.bounds for z in zone_objs} if zone_objs else None,
+                zone_components=zone_comps if zone_comps else None,
+                loop_components=loop_comps if loop_comps else None,
             )
 
             if loop_result.success:

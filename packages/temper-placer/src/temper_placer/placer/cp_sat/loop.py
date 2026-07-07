@@ -111,6 +111,9 @@ class PlaceRouteLoop:
         board: Board,
         pcl_constraints: list | None = None,
         seed: int = 42,
+        zones: dict | None = None,
+        zone_components: dict[str, list[str]] | None = None,
+        loop_components: dict[str, list[str]] | None = None,
     ) -> LoopResult:
         """Run the full place-route loop.
 
@@ -119,11 +122,18 @@ class PlaceRouteLoop:
             board: Board definition.
             pcl_constraints: Initial PCL constraints from config.
             seed: Random seed.
+            zones: Optional pre-resolved zone bounds dict.
+            zone_components: Optional zone-to-component mapping.
+            loop_components: Optional loop-name-to-component mapping.
 
         Returns:
             LoopResult with success status, placement, and routing.
         """
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult, solve_placement
+
+        self._zones = zones
+        self._zone_components = zone_components
+        self._loop_components = loop_components
 
         injected_deltas: list[ConstraintDelta] = []
         rounds: list[RoundRecord] = []
@@ -154,6 +164,9 @@ class PlaceRouteLoop:
                 extra_constraints=constraint_objects,
                 timeout_ms=self.RE_SOLVE_TIMEOUT_MS,
                 seed=seed,
+                zones=self._zones,
+                zone_components=self._zone_components,
+                loop_components=self._loop_components,
             )
             solve_time = (time.monotonic() - t0) * 1000.0
 
@@ -334,6 +347,9 @@ class PlaceRouteLoop:
             extra_constraints=all_objects,
             timeout_ms=self.RE_SOLVE_TIMEOUT_MS,
             seed=seed,
+            zones=zones,
+            zone_components=zone_components,
+            loop_components=loop_components,
         )
 
         if result.status in ("infeasible", "model_invalid"):
@@ -364,6 +380,9 @@ class PlaceRouteLoop:
             extra_constraints=constraint_objects,
             timeout_ms=5000,  # 5s for polish
             seed=seed,
+            zones=self._zones,
+            zone_components=self._zone_components,
+            loop_components=self._loop_components,
         )
 
         if result.status in ("infeasible", "model_invalid"):

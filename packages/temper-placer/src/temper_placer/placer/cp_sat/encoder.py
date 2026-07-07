@@ -720,6 +720,9 @@ def solve_placement(
     extra_constraints: list | None = None,
     timeout_ms: int = 1_000,
     seed: int = 0,
+    zones: dict[str, tuple[float, float, float, float]] | None = None,
+    loop_components: dict[str, list[str]] | None = None,
+    zone_components: dict[str, list[str]] | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
@@ -763,22 +766,24 @@ def solve_placement(
     model_wrapper.add_no_overlap_2d(comp_refs)
 
     # Build EncoderContext from board and netlist data.
-    zones: dict[str, tuple[float, float, float, float]] = {}
-    zone_components_dict: dict[str, list[str]] = {}
+    resolved_zones: dict[str, tuple[float, float, float, float]] = dict(zones or {})
+    resolved_zone_components: dict[str, list[str]] = dict(zone_components or {})
     for z in board.zones:
-        zones[z.name] = z.bounds
+        if z.name not in resolved_zones:
+            resolved_zones[z.name] = z.bounds
         zone_refs = list(z.components)
         for comp in netlist.components:
             if getattr(comp, "zone", None) == z.name and comp.ref not in zone_refs:
                 zone_refs.append(comp.ref)
-        zone_components_dict[z.name] = zone_refs
+        if zone_refs:
+            resolved_zone_components[z.name] = zone_refs
 
     ctx = EncoderContext(
         board_w,
         board_h,
-        zones=zones,
-        loop_components=_resolve_loop_components(netlist),
-        zone_components=zone_components_dict,
+        zones=resolved_zones,
+        loop_components=loop_components or _resolve_loop_components(netlist),
+        zone_components=resolved_zone_components,
         board_x_min_units=0,
         board_y_min_units=0,
         board_x_max_units=board_w_units,
