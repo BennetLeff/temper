@@ -371,6 +371,7 @@ def optimize(
         console.print("\n[bold cyan]Running place→route feedback loop...[/]")
         try:
             from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
+            from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
             from temper_placer.io.config_loader import (
                 create_board_from_constraints,
                 load_constraints,
