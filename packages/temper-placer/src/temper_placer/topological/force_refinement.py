@@ -10,10 +10,15 @@ The force simulation converges positions toward constraint satisfaction.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
-from numpy.typing import NDArray
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+else:
+    NDArray = np.ndarray
 
 from temper_placer.core.board import Zone
 from temper_placer.topological.graph import TopologicalGraph
