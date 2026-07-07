@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "temper-placer"
 version = "0.1.0"
-description = "JAX-based PCB placement optimizer for the Temper induction cooker"
+description = "CP-SAT-based PCB placement optimizer for the Temper induction cooker"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
@@ -20,15 +20,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
 ]
-keywords = ["pcb", "placement", "optimization", "jax", "kicad", "eda"]
+keywords = ["pcb", "placement", "optimization", "kicad", "eda"]
 
 dependencies = [
-    # TODO(jax-retirement): JAX deps retained during strangler transition.
-    # 12 files still import JAX (sparse, nn, lax, random submodules).
-    # See docs/plans/2026-07-05-001-feat-jax-retirement-production-rollback-plan.md U10.
-    "jax>=0.4.20",
-    "jaxlib>=0.4.20",
-    "optax>=0.1.7",
     "kiutils>=1.4.0",
     "numpy>=1.24.0",
     "pyyaml>=6.0",
@@ -40,7 +34,6 @@ dependencies = [
     "python-louvain>=0.16",
     "psutil>=5.9.0",
     "jsonschema>=4.20.0",
-    "flax>=0.7.0",
     "numba>=0.63.1",
     "tqdm>=4.67.1",
     "opencv-python>=4.11.0.86",
@@ -59,9 +52,7 @@ dev = [
     "pre-commit>=3.5.0",
     "hypothesis>=6.0.0",
 ]
-gpu = [
-    "jax[cuda12_pip]>=0.4.20",
-]
+gpu = []
 [project.scripts]
 temper-placer = "temper_placer.cli:main"
 temper = "temper_placer.cli:main"
