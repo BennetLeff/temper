@@ -18,8 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import jax
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.core.design_rules import create_temper_design_rules
 from temper_placer.core.specification import PcbSpecification
@@ -242,8 +241,6 @@ def run_multi_seed_experiment(
     Returns:
         MultiSeedExperimentResult with per-run data, means, and verdict.
     """
-    jax.config.update("jax_platform_name", "cpu")
-
     board_id = pcb_path.stem
 
     if spec_path is None:
@@ -406,27 +403,20 @@ def run_multi_seed_experiment(
 
             try:
                 pipeline = create_default_pipeline()
-                rng_key = jax.random.PRNGKey(seed)
-                preset = pipeline.run(board, netlist, None, rng_key)
+                rng = np.random.default_rng(seed)
+                preset = pipeline.run(board, netlist, None, rng)
                 initial_state = preset.state
 
                 pos = initial_state.positions
-                if not jnp.all(jnp.isfinite(pos)):
-                    k1, k2 = jax.random.split(rng_key)
+                if not np.all(np.isfinite(pos)):
                     margin_inner = min(2.0, board.width * 0.1, board.height * 0.1)
-                    px = jax.random.uniform(
-                        k1, (netlist.n_components,),
-                        minval=margin_inner, maxval=board.width - margin_inner,
-                    )
-                    py = jax.random.uniform(
-                        k2, (netlist.n_components,),
-                        minval=margin_inner, maxval=board.height - margin_inner,
-                    )
+                    px = rng.uniform(margin_inner, board.width - margin_inner, size=netlist.n_components)
+                    py = rng.uniform(margin_inner, board.height - margin_inner, size=netlist.n_components)
                     from dataclasses import replace as dc_replace
                     initial_state = dc_replace(
                         initial_state,
-                        positions=jnp.stack([px, py], axis=-1),
-                        rotation_logits=jnp.zeros_like(initial_state.rotation_logits),
+                        positions=np.stack([px, py], axis=-1),
+                        rotation_logits=np.zeros_like(initial_state.rotation_logits),
                     )
 
                 phases = create_default_phases(epochs)
@@ -596,8 +586,8 @@ def _score_human_inline(
     derived = derive_constraints_from_spec(spec, netlist)
 
     pipeline = create_default_pipeline()
-    rng_key = jax.random.PRNGKey(0)
-    preset = pipeline.run(board, netlist, None, rng_key)
+    rng = np.random.default_rng(0)
+    preset = pipeline.run(board, netlist, None, rng)
     state = preset.state
 
     ref = _BoardSnapshot(netlist=netlist, board=board)
