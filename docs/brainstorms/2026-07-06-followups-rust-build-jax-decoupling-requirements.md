@@ -15,7 +15,7 @@ Two machine-specific or incomplete artifacts from the paradigm swap:
 
 1. **Rust rpath is machine-specific.** `RUSTFLAGS='-C link-arg=-Wl,-rpath,/Users/bennet/Miniforge3/lib'` hardcodes a home directory. CI and other developers on different Python installs (brew, pyenv, system) can't build `temper_rust_router` without manually discovering and setting the rpath. The compound learning at `docs/solutions/build-errors/stale-rust-build-artifacts-gil-crash-2026-07-06.md` documents the symptom but not the portable fix.
 
-2. **12 files still import JAX at function level.** These are the strangler's tail from F1 — geometry modules (`sdf.py`, `polygon.py`, `transform.py`) and hypergraph modules (`hypergraph.py`, `coarsening.py`, `spectral.py`, `hypergraph_factory.py`) that use `jax.lax.scan`, `jax.vmap`, `jax.grad`, `jax.experimental.sparse` inside function bodies. `pyproject.toml` carries JAX as a dependency solely for these survivors. The round-2 review flagged this as the "highest-risk refactor in umbrella" (residual concern #3).
+2. **12 files still import JAX at function level.** These are the strangler's tail from the JAX Retirement workstream (F1 of the umbrella) — located across `geometry/`, `algo/`, `core/`, `extraction/`, `cli/`, `profiling/`, `manufacturing/`, and `regression/`. They use `jax.lax.scan`, `jax.vmap`, `jax.grad`, `jax.experimental.sparse` inside function bodies. `pyproject.toml` carries JAX as a dependency solely for these survivors. The round-2 review flagged this as the "highest-risk refactor in umbrella" (residual concern #3).
 
 ---
 
@@ -25,7 +25,7 @@ Two machine-specific or incomplete artifacts from the paradigm swap:
 
 The `temper_rust_router` and `temper_constraint_compiler` crates must build on any developer's machine (brew Python, pyenv Python, conda Python) and in CI without manual `RUSTFLAGS` configuration.
 
-**Approach:** Add a `build.rs` to each crate that auto-detects the Python library directory via `python3 -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))"` and emits `cargo:rustc-link-arg=-Wl,-rpath,<path>`.
+**Approach:** Extend the existing `build.rs` in `temper-rust-router` (which already auto-detects LIBDIR via `sysconfig` for `cargo:rustc-link-search`) to also emit `cargo:rustc-link-arg=-Wl,-rpath,<lib_dir>` for runtime library resolution. Add an equivalent `build.rs` to `temper-constraint-compiler`.
 
 **Success criteria:**
 - `cargo clean && maturin develop` succeeds on a fresh checkout without setting `RUSTFLAGS`
@@ -59,8 +59,8 @@ Eliminate all 12 remaining JAX imports so `pyproject.toml` can drop `jax`, `jaxl
 ## Scope Boundaries
 
 ### In scope
-- `build.rs` for `temper_rust_router` and `temper_constraint_compiler`
-- 12 files under `geometry/`, `algo/`, and `extraction/` with function-level JAX imports
+- `build.rs` extension for `temper_rust_router`, new `build.rs` for `temper_constraint_compiler`
+- 12 JAX-importing files across `geometry/`, `algo/`, `core/`, `extraction/`, `cli/`, `profiling/`, `manufacturing/`, `regression/`
 - `pyproject.toml` dependency cleanup
 
 ### Outside scope
