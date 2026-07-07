@@ -13,14 +13,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from temper_placer.core.netclass_rules import (
-    NetClassRulesDict,
-    get_pair_because,
-    get_pair_clearance,
-    resolve_net_class,
-)
-
 if TYPE_CHECKING:
+    from temper_placer.core.design_rules import DesignRules
     from temper_placer.pcl.constraints import BaseConstraint, ConstraintType
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
     from temper_placer.router_v6.adapter import RoutingResult
@@ -88,8 +82,8 @@ class FeedbackClassifier:
     CRITICAL_ICS: set[str] = {"Q1", "Q2", "U_GATE", "U_MCU"}
     PERSISTENCE_THRESHOLD: int = 3
 
-    def __init__(self, netclass_rules: NetClassRulesDict | None = None):
-        self.netclass_rules = netclass_rules
+    def __init__(self, design_rules: DesignRules | None = None):
+        self.design_rules = design_rules
 
     def classify(
         self,
@@ -265,40 +259,23 @@ class FeedbackClassifier:
         authoriative_mm = required_mm
         because_text = f"Post-route DRC clearance violation at {required_mm}mm — enforce separation"
 
-        if self.netclass_rules is not None:
+        if self.design_rules is not None:
             net_a = getattr(violation, 'net_a', None)
             net_b = getattr(violation, 'net_b', None)
-            if not net_a:
-                net_a = getattr(violation, 'net_name', '')
-            if not net_b:
-                net_b = getattr(violation, 'net_name', '')
-
-            class_a = resolve_net_class(net_a) if net_a else 'Signal'
-            class_b = resolve_net_class(net_b) if net_b else 'Signal'
-
-            authoriative_mm = get_pair_clearance(
-                class_a, class_b, rules=self.netclass_rules,
-            )
-
-            if abs(required_mm - authoriative_mm) > 0.01:
-                logger.warning(
-                    'Feedback: DRC violation required %.2fmm but YAML '
-                    'authority says %.2fmm for %s↔%s (nets %s↔%s) — '
-                    'using YAML value.',
-                    required_mm, authoriative_mm,
-                    class_a, class_b, net_a, net_b,
-                )
-
-            yaml_because = get_pair_because(
-                class_a, class_b, rules=self.netclass_rules,
-            )
-            if yaml_because:
-                because_text = yaml_because
-            else:
-                because_text = (
-                    f"Post-route DRC clearance violation at {authoriative_mm}mm"
-                    f" ({class_a}↔{class_b}) — enforce separation"
-                )
+            if net_a and net_b:
+                from temper_placer.core.net_classification import classify_net_type
+                _map = {"ground": "GND", "power": "Power", "hv": "HighVoltage", "signal": "Signal"}
+                class_a = _map.get(classify_net_type(net_a), "Signal")
+                class_b = _map.get(classify_net_type(net_b), "Signal")
+                rules_a = self.design_rules.get_rules_for_net("", net_class=class_a)
+                rules_b = self.design_rules.get_rules_for_net("", net_class=class_b)
+                authoriative_mm = max(rules_a.clearance, rules_b.clearance)
+                cp_key = tuple(sorted([class_a, class_b]))
+                if hasattr(self.design_rules, 'class_pairs') and cp_key in self.design_rules.class_pairs:
+                    authoriative_mm = self.design_rules.class_pairs[cp_key].get("clearance", authoriative_mm)
+                    because_text = self.design_rules.class_pairs[cp_key].get("because", "")
+                else:
+                    because_text = ""
 
         from temper_placer.pcl.constraints import (
             ConstraintTier,

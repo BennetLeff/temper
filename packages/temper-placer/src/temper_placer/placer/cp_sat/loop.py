@@ -110,11 +110,9 @@ class PlaceRouteLoop:
         import logging
         _logger = logging.getLogger(__name__)
         try:
-            from temper_placer.core.netclass_rules import (
-                get_default_rules_path,
-                load_netclass_rules,
-            )
-            config_path = get_default_rules_path()
+            from temper_placer.io.netclass_loader import load_netclass_rules
+            from pathlib import Path
+            config_path = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
             if config_path.exists():
                 return load_netclass_rules(config_path)
         except Exception:
@@ -152,7 +150,7 @@ class PlaceRouteLoop:
         self._loop_components = loop_components
         self._netclass_rules = self._load_netclass_rules()
         if self._netclass_rules is not None:
-            self.classifier.netclass_rules = self._netclass_rules
+            self.classifier.design_rules = self._netclass_rules.design_rules
 
         injected_deltas: list[ConstraintDelta] = []
         rounds: list[RoundRecord] = []
@@ -340,7 +338,12 @@ class PlaceRouteLoop:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(_build_minimal_pcb(netlist, board, netclass_rules))
             parsed = type("ParsedPCB", (), {"source_path": temp_path})()
-            return route_pcb(parsed, placements_dict, _seed=seed)
+            return route_pcb(
+                parsed,
+                placements_dict,
+                _seed=seed,
+                design_rules=netclass_rules.design_rules if netclass_rules is not None else None,
+            )
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
@@ -500,8 +503,15 @@ def _build_minimal_pcb(netlist, board, netclass_rules=None) -> str:
     ]
 
     if netclass_rules is not None:
-        from temper_placer.core.netclass_rules import format_netclass_sexpr_lines
-        lines.extend(format_netclass_sexpr_lines(netclass_rules))
+        dr = netclass_rules.design_rules
+        for nc in sorted(dr.net_classes.values(), key=lambda nc: nc.name):
+            lines.append(
+                f"  (net_class \"{nc.name}\""
+                f" (clearance {nc.clearance})"
+                f" (trace_width {nc.trace_width})"
+                f" (via_dia {nc.via_diameter})"
+                f" (via_drill {nc.via_drill}))"
+            )
 
     # Board outline
     lines.append(f"  (gr_line (start 0 0) (end {width_mm} 0) (layer \"Edge.Cuts\") (width 0.1))")

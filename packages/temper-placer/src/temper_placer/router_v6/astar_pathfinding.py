@@ -14,8 +14,6 @@ import time
 from collections import deque
 from dataclasses import dataclass
 
-import numpy as np
-
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
@@ -34,7 +32,6 @@ from temper_placer.router_v6.astar_grid import (
     _unmark_route_blocked,
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping
-from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix
 from temper_placer.router_v6.net_classification import (
     is_ground_net,
     is_hv_net,
@@ -42,6 +39,7 @@ from temper_placer.router_v6.net_classification import (
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
+import numpy as np
 
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
@@ -250,7 +248,6 @@ def run_astar_pathfinding(
     corridor_buffer_cells: int = 12,
     bottleneck_widths: dict[str, float] | None = None,
     net_budgets: dict[str, int] | None = None,
-    clearance_matrix: ClearanceMatrix | None = None,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -332,12 +329,6 @@ def run_astar_pathfinding(
     net_ids = {name: i + 1 for i, name in enumerate(routable_nets)}
     id_to_net = {v: k for k, v in net_ids.items()}
 
-    if clearance_matrix is not None:
-        from temper_placer.core.netclass_rules import resolve_net_class  # noqa: E402
-        for net_name_ in routable_nets:
-            nc = resolve_net_class(net_name_)
-            clearance_matrix.set_net_class(net_name_, nc)
-
     base_inflation = (
         design_rules.default_trace_width_mm / 2.0
     )
@@ -353,17 +344,6 @@ def run_astar_pathfinding(
         net_id = net_ids[net_name]
 
         primary_grid = all_grids.get(channel_path.preferred_layer, grid)
-
-        # U6: Inflate obstacles for netclass-aware clearance before routing.
-        if clearance_matrix is not None:
-            from temper_placer.router_v6.netclass_inflation import (  # noqa: E402
-                clear_netclass_inflation,
-                inflate_obstacles_by_netclass,
-            )
-            for _g in all_grids.values():
-                inflate_obstacles_by_netclass(
-                    _g, net_name, id_to_net, clearance_matrix, _g.cell_size,
-                )
 
         if net_budgets is not None:
             per_net_max_iter = net_budgets.get(net_name, max_iter)
@@ -413,10 +393,6 @@ def run_astar_pathfinding(
         fallback_count += fb
 
         _restore_net_pads(restoration)
-
-        if clearance_matrix is not None:
-            for _g in all_grids.values():
-                clear_netclass_inflation(_g)
 
         blocker_names = [id_to_net.get(rid, f"Unknown-{rid}") for rid in ripped_ids]
         blocker_history.setdefault(net_name, set()).update(blocker_names)

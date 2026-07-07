@@ -488,11 +488,11 @@ def encode_constraints(
     ctx: EncoderContext | None = None,
     *,
     netlist=None,
-    netclass_rules=None,
+    netclass_rules_data=None,
 ) -> list[AssumptionLiteral]:
     """Encode all constraints into the CP-SAT model.
 
-    When *netclass_rules* is provided together with *netlist*,
+    When *netclass_rules_data* is provided together with *netlist*,
     auto-generates cross-class separation constraints and appends them
     to the constraint list before encoding.
 
@@ -508,7 +508,7 @@ def encode_constraints(
             board_y_max_units=10_000,
         )
 
-    if netlist is not None and netclass_rules is not None:
+    if netlist is not None and netclass_rules_data is not None:
         from temper_placer.placer.cp_sat.netclass_constraints import (
             generate_netclass_separated_constraints,
         )
@@ -516,7 +516,7 @@ def encode_constraints(
         auto_constraints = generate_netclass_separated_constraints(
             netlist,
             netlist.components,
-            netclass_rules,
+            netclass_rules_data.design_rules,
             existing_constraints=constraints,
         )
         constraints = list(constraints) + auto_constraints
@@ -819,15 +819,13 @@ def solve_placement(
         constraint_objects.extend(pcl_coll)
 
     # Load netclass rules for auto-generated cross-class separation.
-    netclass_rules_data = None
+    loaded_netclass_rules = None
     try:
-        from temper_placer.core.netclass_rules import (
-            get_default_rules_path,
-            load_netclass_rules,
-        )
-        _config_yaml = get_default_rules_path()
+        from temper_placer.io.netclass_loader import load_netclass_rules
+        from pathlib import Path
+        _config_yaml = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
         if _config_yaml.exists():
-            netclass_rules_data = load_netclass_rules(_config_yaml)
+            loaded_netclass_rules = load_netclass_rules(_config_yaml)
     except Exception:
         logger.debug("Could not load netclass_rules.yaml", exc_info=True)
 
@@ -836,7 +834,7 @@ def solve_placement(
         model_wrapper,
         ctx,
         netlist=netlist,
-        netclass_rules=netclass_rules_data,
+        netclass_rules_data=loaded_netclass_rules,
     )
 
     # Phase 1 (feasibility): no objective — find any valid placement.

@@ -374,6 +374,7 @@ def route_pcb(
     parsed: Any,
     placements: dict[str, tuple[float, float]],
     _seed: int,
+    design_rules: Any = None,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -385,6 +386,8 @@ def route_pcb(
         placements: Dict mapping component ref -> (x, y) position in mm.
             If empty, routing proceeds with the board's existing positions.
         seed: Random seed (passed through to pipeline configuration).
+        design_rules: Optional DesignRules with net_classes for netclass
+            form injection into the output PCB.
 
     Returns:
         RoutingResult with completion_rate.
@@ -414,7 +417,9 @@ def route_pcb(
 
     if placements:
         raw_content = pcb_path.read_text(encoding="utf-8")
-        modified_content = _apply_placements_to_pcb(raw_content, placements)
+        modified_content = _apply_placements_to_pcb(
+            raw_content, placements, design_rules=design_rules
+        )
 
         fd, temp_path = tempfile.mkstemp(suffix=".kicad_pcb")
         try:
@@ -517,7 +522,8 @@ def _build_routing_result(result: Any, routed_content: str | None = None) -> Rou
 
 
 def _apply_placements_to_pcb(
-    raw_content: str, placements: dict[str, tuple[float, float]]
+    raw_content: str, placements: dict[str, tuple[float, float]],
+    design_rules: Any = None,
 ) -> str:
     """Modify footprint (at X Y [ANGLE]) positions in KiCad PCB raw content."""
     foot_starts = [
@@ -556,7 +562,35 @@ def _apply_placements_to_pcb(
         prev_end = end
 
     result_parts.append(raw_content[prev_end:])
-    return "".join(result_parts)
+    raw_content = "".join(result_parts)
+
+    if design_rules is not None and getattr(design_rules, "net_classes", None):
+        nc_forms = []
+        for nc_name, nc_rules in sorted(design_rules.net_classes.items()):
+            nc_forms.append(
+                f"  (net_class \"{nc_name}\""
+                f" (clearance {nc_rules.clearance})"
+                f" (trace_width {nc_rules.trace_width})"
+                f" (via_dia {nc_rules.via_diameter})"
+                f" (via_drill {nc_rules.via_drill}))"
+            )
+        nc_block = "\n" + "\n".join(nc_forms) + "\n"
+
+        setup_match = re.search(r'\(setup\b', raw_content)
+        if setup_match:
+            depth = 0
+            i = setup_match.start()
+            while i < len(raw_content):
+                if raw_content[i] == '(':
+                    depth += 1
+                elif raw_content[i] == ')':
+                    depth -= 1
+                    if depth == 0:
+                        raw_content = raw_content[:i + 1] + nc_block + raw_content[i + 1:]
+                        break
+                i += 1
+
+    return raw_content
 
 
 MazeRouter = V6RouterAdapter
