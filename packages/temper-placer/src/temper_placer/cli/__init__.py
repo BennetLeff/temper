@@ -52,16 +52,34 @@ main.add_command(watch)
 def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None:
     """Surface UNSAT report if the result carries one.
 
-    Integration point for the F2 constraint-completion CP-SAT solve path.
-    When the encoder produces an UnsatReport after INFEASIBLE, this
-    function surfaces it as Rich panel (stderr) and optional JSON file.
-
-    Args:
-        result: Optimization result that may carry an ``unsat_report`` attr.
-        unsat_report_path: Optional path for JSON output.
+    Handles both CpSatPlacementResult.unsat_core (list of {name, because})
+    and UnsatReport dataclass from the F4 acceptance gate workstream.
     """
-    unsat = getattr(result, "unsat_report", None)
-    if unsat is None:
+    if result is None:
+        return
+
+    unsat = getattr(result, "unsat_report", None) or getattr(result, "unsat_core", None)
+    if not unsat:
+        return
+
+    # Handle simplified unsat_core list from CpSatPlacementResult.
+    if isinstance(unsat, list) and unsat:
+        console.print(
+            Panel(
+                "\n".join(
+                    f"  • {e.get('name', '?')}"
+                    + (f"\n    because: {e['because']}" if e.get('because') else "")
+                    for e in unsat
+                ),
+                border_style="red",
+                title="UNSAT Core",
+            ),
+            style="",
+        )
+        if unsat_report_path is not None:
+            import json as _json
+            unsat_report_path.write_text(_json.dumps(unsat, indent=2), encoding="utf-8")
+            console.print(f"[yellow]UNSAT report written to:[/] {unsat_report_path}")
         return
 
     try:
@@ -445,6 +463,9 @@ def optimize(
                 zone_components=zone_comps if zone_comps else None,
                 loop_components=loop_comps if loop_comps else None,
             )
+
+            # Surface UNSAT core from CP-SAT placement result.
+            _maybe_surface_unsat(loop_result.placement, unsat_report)
 
             if loop_result.success:
                 console.print(

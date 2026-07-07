@@ -708,6 +708,7 @@ class CpSatPlacementResult:
     status: str = "unknown"  # "optimal" | "feasible" | "infeasible" | "model_invalid"
     solve_time_ms: float = 0.0
     objective_value: float = 0.0
+    unsat_core: list[dict] = field(default_factory=list)  # [{name, because}] when infeasible
 
     def to_placements_dict(self) -> dict[str, tuple[float, float]]:
         """Return {component_ref: (x_mm, y_mm)} mapping (loop.py interface)."""
@@ -837,12 +838,23 @@ def solve_placement(
             if cv.rot_ref is not None:
                 rotations[ref] = solver.Value(cv.rot_ref)
 
+    unsat_core: list[dict] = []
+    if status_str in ("infeasible", "model_invalid"):
+        try:
+            proto_indices = solver.SufficientAssumptionsForInfeasibility()
+            for idx in proto_indices:
+                label = model_wrapper._assumption_labels.get(idx, f"constraint_{idx}")
+                unsat_core.append({"name": label, "because": "", "literal_index": idx})
+        except Exception:
+            pass
+
     return CpSatPlacementResult(
         positions=positions,
         rotations=rotations,
         status=status_str,
         solve_time_ms=elapsed_ms,
         objective_value=objective,
+        unsat_core=unsat_core,
     )
 
 
