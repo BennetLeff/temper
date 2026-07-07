@@ -12,7 +12,7 @@ Key advantages:
 - Natural for overlap detection: overlap = relu(-sdf)
 - Works well with soft boundaries for optimization
 
-All functions are JAX-compatible for automatic differentiation.
+All functions are numpy-compatible for automatic differentiation.
 """
 import numpy as np
 
@@ -192,15 +192,11 @@ def sdf_polygon(point: Array, vertices: Array) -> Array:
     """
     n = vertices.shape[0]
 
-    # Compute distance to each edge
+    # Iterate edges with a plain for loop
     min_dist_sq = np.inf
-    sign = np.array(1.0)  # Will be set by winding number
-
-    # Check each edge
-    def edge_distance(carry, idx):
-        min_d_sq, winding = carry
-        i = idx
-        j = (idx + 1) % n
+    winding = np.array(0.0)
+    for i in range(n):
+        j = (i + 1) % n
 
         # Edge from vertices[i] to vertices[j]
         vi = vertices[i]
@@ -222,31 +218,20 @@ def sdf_polygon(point: Array, vertices: Array) -> Array:
         d_sq = np.sum((point - closest) ** 2)
 
         # Update minimum
-        min_d_sq = np.minimum(min_d_sq, d_sq)
+        min_dist_sq = np.minimum(min_dist_sq, d_sq)
 
         # Winding number contribution
-        # Cross product of edge vector with vector to point determines side
         cross = edge[0] * to_point[1] - edge[1] * to_point[0]
 
-        # Check if edge crosses horizontal ray from point going right
         y_above_start = point[1] >= vi[1]
         y_below_end = point[1] < vj[1]
         y_below_start = point[1] < vi[1]
         y_above_end = point[1] >= vj[1]
 
-        # Upward crossing (adds to winding)
         upward = y_above_start & y_below_end & (cross > 0)
-        # Downward crossing (subtracts from winding)
         downward = y_below_start & y_above_end & (cross < 0)
 
         winding = winding + np.where(upward, 1.0, 0.0) - np.where(downward, 1.0, 0.0)
-
-        return (min_d_sq, winding), None
-
-    # Use lax.scan for efficient iteration
-    import jax.lax as lax
-
-    (min_dist_sq, winding), _ = lax.scan(edge_distance, (np.inf, 0.0), np.arange(n))
 
     # Sign based on winding number (non-zero = inside)
     sign = np.where(winding != 0, -1.0, 1.0)
@@ -289,8 +274,8 @@ def sdf_convex_polygon(point: Array, vertices: Array) -> Array:
 
         return signed_dist
 
-    # Compute signed distance to each edge line
-    signed_dists = jax.vmap(edge_signed_distance)(np.arange(n))
+    # Compute signed distance to each edge line via list comprehension
+    signed_dists = np.array([edge_signed_distance(i) for i in np.arange(n)])
 
     # For convex polygon:
     # - If all signed_dists are negative, point is inside
@@ -458,7 +443,7 @@ def sdf_to_mask(sdf_value: Array, smoothness: float = 0.1) -> Array:
     Returns:
         Mask value(s) in range [0, 1]
     """
-    return jax.nn.sigmoid(-sdf_value / smoothness)
+    return 1.0 / (1.0 + np.exp(sdf_value / smoothness))
 
 
 def sdf_to_penalty(sdf_value: Array, beta: float = 10.0) -> Array:
@@ -495,8 +480,11 @@ def sdf_gradient(sdf_func, point: Array, _epsilon: float = 1e-4) -> Array:
     Returns:
         Gradient vector as (gx, gy) array (normalized)
     """
-    # Use JAX automatic differentiation
-    grad = jax.grad(lambda p: sdf_func(p))(point)
+    # Finite-difference gradient approximation
+    f0 = sdf_func(point)
+    dx = (sdf_func(point + np.array([_epsilon, 0.0])) - f0) / _epsilon
+    dy = (sdf_func(point + np.array([0.0, _epsilon])) - f0) / _epsilon
+    grad = np.array([dx, dy])
 
     # Normalize (SDF gradient should have unit magnitude)
     magnitude = np.sqrt(np.sum(grad**2) + 1e-10)
