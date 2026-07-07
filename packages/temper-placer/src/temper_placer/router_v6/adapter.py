@@ -96,6 +96,7 @@ class RoutingResult:
     unrouted_nets: list[str] = field(default_factory=list)
     drc_violations: list[DrcViolation] = field(default_factory=list)
     congestion_regions: list[CongestionRegion] = field(default_factory=list)
+    routed_pcb_content: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -446,7 +447,8 @@ def route_pcb(
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
             result = pipeline.run(Path(temp_path))
-            return _build_routing_result(result)
+            routed_content = Path(temp_path).read_text(encoding="utf-8")
+            return _build_routing_result(result, routed_content)
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
@@ -455,7 +457,7 @@ def route_pcb(
         return _build_routing_result(result)
 
 
-def _build_routing_result(result: Any) -> RoutingResult:
+def _build_routing_result(result: Any, routed_content: str | None = None) -> RoutingResult:
     """Extract failure data from RouterV6Pipeline result into RoutingResult.
 
     Pulls failed net names, DRC violations from per-net reports, and
@@ -510,6 +512,7 @@ def _build_routing_result(result: Any) -> RoutingResult:
         unrouted_nets=unrouted_nets,
         drc_violations=drc_violations,
         congestion_regions=congestion_regions,
+        routed_pcb_content=routed_content,
     )
 
 

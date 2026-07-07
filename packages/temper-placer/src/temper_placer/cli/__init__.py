@@ -454,15 +454,34 @@ def optimize(
                     f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0)*100:.1f}%"
                 )
 
-                # Write the final placed PCB to the output file.
+                # Write the final PCB. Re-route the placement against the real
+                # board file so the output carries real footprints and routes.
                 if loop_result.placement is not None:
-                    from temper_placer.router_v6.adapter import _apply_placements_to_pcb
-
-                    raw = input_pcb.read_text(encoding="utf-8")
-                    placed = _apply_placements_to_pcb(
-                        raw, loop_result.placement.to_placements_dict()
+                    import os as _os
+                    import tempfile as _tempfile
+                    from temper_placer.router_v6.adapter import (
+                        RoutingResult,
+                        _apply_placements_to_pcb,
+                        route_pcb,
                     )
-                    output.write_text(placed, encoding="utf-8")
+
+                    placements = loop_result.placement.to_placements_dict()
+                    if placements:
+                        raw = input_pcb.read_text(encoding="utf-8")
+                        placed = _apply_placements_to_pcb(raw, placements)
+                        fd, tp = _tempfile.mkstemp(suffix=".kicad_pcb")
+                        with _os.fdopen(fd, "w", encoding="utf-8") as f:
+                            f.write(placed)
+                        parsed = type("ParsedPCB", (), {"source_path": tp})()
+                        try:
+                            routed = route_pcb(parsed, placements, _seed=seed)
+                            routed_body = getattr(routed, "routed_pcb_content", None)
+                            if routed_body:
+                                output.write_text(routed_body, encoding="utf-8")
+                            else:
+                                output.write_text(placed, encoding="utf-8")
+                        finally:
+                            _os.unlink(tp)
                     console.print(f"    Output: {output}")
 
                     # Run KiCad DRC on the placed output.
