@@ -13,6 +13,13 @@ import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from temper_placer.core.netclass_rules import (
+    NetClassRulesDict,
+    get_pair_because,
+    get_pair_clearance,
+    resolve_net_class,
+)
+
 if TYPE_CHECKING:
     from temper_placer.pcl.constraints import BaseConstraint, ConstraintType
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
@@ -80,6 +87,9 @@ class FeedbackClassifier:
 
     CRITICAL_ICS: set[str] = {"Q1", "Q2", "U_GATE", "U_MCU"}
     PERSISTENCE_THRESHOLD: int = 3
+
+    def __init__(self, netclass_rules: NetClassRulesDict | None = None):
+        self.netclass_rules = netclass_rules
 
     def classify(
         self,
@@ -249,27 +259,65 @@ class FeedbackClassifier:
             if len(components) >= 2:
                 comp_a, comp_b = components[0], components[1]
 
-        if comp_a and comp_b:
-            from temper_placer.pcl.constraints import (
-                ConstraintTier,
-                SeparatedConstraint,
+        if not comp_a or not comp_b:
+            return None
+
+        authoriative_mm = required_mm
+        because_text = f"Post-route DRC clearance violation at {required_mm}mm — enforce separation"
+
+        if self.netclass_rules is not None:
+            net_a = getattr(violation, 'net_a', None)
+            net_b = getattr(violation, 'net_b', None)
+            if not net_a:
+                net_a = getattr(violation, 'net_name', '')
+            if not net_b:
+                net_b = getattr(violation, 'net_name', '')
+
+            class_a = resolve_net_class(net_a) if net_a else 'Signal'
+            class_b = resolve_net_class(net_b) if net_b else 'Signal'
+
+            authoriative_mm = get_pair_clearance(
+                class_a, class_b, rules=self.netclass_rules,
             )
 
-            constraint = SeparatedConstraint(
-                a=comp_a,
-                b=comp_b,
-                min_distance_mm=required_mm,
-                tier=ConstraintTier.HARD,
-                because=f"Post-route DRC clearance violation at {required_mm}mm — enforce separation",
-                id=f"feedback_clearance_{comp_a}_{comp_b}",
-            )
-            return ConstraintDelta(
-                constraint=constraint,
-                reason=f"Clearance violation: {comp_a}-{comp_b} needs {required_mm}mm",
-                priority=5,
-            )
+            if abs(required_mm - authoriative_mm) > 0.01:
+                logger.warning(
+                    'Feedback: DRC violation required %.2fmm but YAML '
+                    'authority says %.2fmm for %s↔%s (nets %s↔%s) — '
+                    'using YAML value.',
+                    required_mm, authoriative_mm,
+                    class_a, class_b, net_a, net_b,
+                )
 
-        return None
+            yaml_because = get_pair_because(
+                class_a, class_b, rules=self.netclass_rules,
+            )
+            if yaml_because:
+                because_text = yaml_because
+            else:
+                because_text = (
+                    f"Post-route DRC clearance violation at {authoriative_mm}mm"
+                    f" ({class_a}↔{class_b}) — enforce separation"
+                )
+
+        from temper_placer.pcl.constraints import (
+            ConstraintTier,
+            SeparatedConstraint,
+        )
+
+        constraint = SeparatedConstraint(
+            a=comp_a,
+            b=comp_b,
+            min_distance_mm=authoriative_mm,
+            tier=ConstraintTier.HARD,
+            because=because_text,
+            id=f"feedback_clearance_{comp_a}_{comp_b}",
+        )
+        return ConstraintDelta(
+            constraint=constraint,
+            reason=f"Clearance violation: {comp_a}-{comp_b} needs {authoriative_mm}mm",
+            priority=5,
+        )
 
     # -----------------------------------------------------------------------
     # Class 3: Unrouted Critical Pin

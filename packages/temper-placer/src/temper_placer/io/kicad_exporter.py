@@ -416,6 +416,53 @@ def add_vias_to_board(
     return added_count
 
 
+def write_netclass_forms(board: object, rules: dict) -> str:
+    """Generate (net_class ...) s-expression forms for KiCad board output.
+
+    KiCad 9 supports per-class self-clearance in (net_class ...) forms.
+    Each net class's own ``clearance`` field is written into the form.
+    Cross-class pair clearances are enforced by the placer/router, not
+    written here since KiCad's (net_class ...) syntax only supports
+    per-class self-clearance.
+
+    Returns the s-expression text to be inserted into the board file
+    after (setup ...) and before (net ...) declarations.
+    """
+    from temper_placer.core.netclass_rules import format_netclass_sexpr_lines
+    return "\n".join(format_netclass_sexpr_lines(rules))
+
+
+def _insert_netclass_forms_into_sexpr(sexpr: str, forms: str) -> str:
+    """Insert netclass form lines into a KiCad board s-expression.
+
+    Places the forms after the (setup ...) block and before the first
+    (net ...) declaration.
+    """
+    import re
+
+    setup_match = re.search(r'\(setup\b', sexpr)
+    if setup_match:
+        depth = 0
+        i = setup_match.start()
+        in_setup = True
+        while i < len(sexpr) and in_setup:
+            ch = sexpr[i]
+            if ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+                if depth == 0:
+                    return sexpr[:i + 1] + "\n\n  " + forms + "\n" + sexpr[i + 1:]
+            i += 1
+
+    net_match = re.search(r'\n\s*\(net\b', sexpr)
+    if net_match:
+        idx = net_match.start()
+        return sexpr[:idx] + "\n  " + forms + "\n" + sexpr[idx:]
+
+    return sexpr
+
+
 def export_routed_pcb(
     template_pcb: Path,
     routes: dict[str, RoutePath],
@@ -428,6 +475,7 @@ def export_routed_pcb(
     cell_size: float = 1.0,
     layer_map: dict[int, str] | None = None,
     auto_fill_zones: bool = True,
+    netclass_rules: dict | None = None,
 ) -> ExportResult:
     """Export routed paths to KiCad PCB file.
 
@@ -448,6 +496,9 @@ def export_routed_pcb(
         origin: PCB origin offset (x0, y0)
         cell_size: Router grid cell size in mm
         layer_map: Optional layer index → name mapping
+        netclass_rules: Optional NetClassRulesDict with net class
+            definitions to emit as (net_class ...) s-expression forms
+            in the output PCB
 
     Returns:
         ExportResult with statistics and warnings
@@ -543,11 +594,18 @@ def export_routed_pcb(
     # Add geometry to board
     segments_added = add_segments_to_board(board, all_segments)
     vias_added = add_vias_to_board(board, unique_vias)
+
     # Write output file
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
     _validate_4_layer_output(board)
-    board.to_file(str(output_pcb))
+    if netclass_rules is not None:
+        forms = write_netclass_forms(board, netclass_rules)
+        sexpr = board.to_sexpr()
+        sexpr = _insert_netclass_forms_into_sexpr(sexpr, forms)
+        output_pcb.write_text(sexpr, encoding="utf-8")  # @req(2026-07-07-001-feat-netclass-aware-clearance-ssot, R4): emit net_class forms from SSOT into output PCB
+    else:
+        board.to_file(str(output_pcb))
 
     # Automatically fill zones if requested (temper-x8jz)
     if auto_fill_zones:

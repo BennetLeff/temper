@@ -105,6 +105,22 @@ class PlaceRouteLoop:
             classifier = FeedbackClassifier()
         self.classifier = classifier
 
+    @staticmethod
+    def _load_netclass_rules():
+        import logging
+        _logger = logging.getLogger(__name__)
+        try:
+            from temper_placer.core.netclass_rules import (
+                get_default_rules_path,
+                load_netclass_rules,
+            )
+            config_path = get_default_rules_path()
+            if config_path.exists():
+                return load_netclass_rules(config_path)
+        except Exception:
+            _logger.debug("netclass_rules.yaml not loaded", exc_info=True)
+        return None
+
     def run(
         self,
         netlist: Netlist,
@@ -134,6 +150,9 @@ class PlaceRouteLoop:
         self._zones = zones
         self._zone_components = zone_components
         self._loop_components = loop_components
+        self._netclass_rules = self._load_netclass_rules()
+        if self._netclass_rules is not None:
+            self.classifier.netclass_rules = self._netclass_rules
 
         injected_deltas: list[ConstraintDelta] = []
         rounds: list[RoundRecord] = []
@@ -315,10 +334,11 @@ class PlaceRouteLoop:
         if not placements_dict:
             return RoutingResult(completion_rate=0.0)
 
+        netclass_rules = getattr(self, '_netclass_rules', None)
         fd, temp_path = tempfile.mkstemp(suffix=".kicad_pcb")
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
-                f.write(_build_minimal_pcb(netlist, board))
+                f.write(_build_minimal_pcb(netlist, board, netclass_rules))
             parsed = type("ParsedPCB", (), {"source_path": temp_path})()
             return route_pcb(parsed, placements_dict, _seed=seed)
         finally:
@@ -347,9 +367,9 @@ class PlaceRouteLoop:
             extra_constraints=all_objects,
             timeout_ms=self.RE_SOLVE_TIMEOUT_MS,
             seed=seed,
-            zones=zones,
-            zone_components=zone_components,
-            loop_components=loop_components,
+            zones=self._zones,
+            zone_components=self._zone_components,
+            loop_components=self._loop_components,
         )
 
         if result.status in ("infeasible", "model_invalid"):
@@ -466,7 +486,7 @@ def _deduplicate_deltas(deltas: list[ConstraintDelta]) -> list[ConstraintDelta]:
     return list(seen.values())
 
 
-def _build_minimal_pcb(netlist, board) -> str:
+def _build_minimal_pcb(netlist, board, netclass_rules=None) -> str:
     """Build a minimal KiCad PCB file for routing."""
     width_mm = getattr(board, 'width', 100)
     height_mm = getattr(board, 'height', 100)
@@ -478,6 +498,10 @@ def _build_minimal_pcb(netlist, board) -> str:
         "  (layers (0 \"F.Cu\" signal) (31 \"B.Cu\" signal) (44 \"Edge.Cuts\" edge))",
         "  (setup (pad_to_mask_clearance 0.1))",
     ]
+
+    if netclass_rules is not None:
+        from temper_placer.core.netclass_rules import format_netclass_sexpr_lines
+        lines.extend(format_netclass_sexpr_lines(netclass_rules))
 
     # Board outline
     lines.append(f"  (gr_line (start 0 0) (end {width_mm} 0) (layer \"Edge.Cuts\") (width 0.1))")

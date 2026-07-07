@@ -92,6 +92,7 @@ markers = [
     "l4_regression: Level 4 - real-world regression (CI: PR only)",
     "dependency: marks tests for pytest-dependency lattice ordering (NFR7)",
     "pbt_low_priority: marks PBT tests that can be skipped under CI-fast to meet time budget",
+    "integration: marks integration tests that span multiple components",
     "nightly: marks tests that run only in scheduled nightly CI (too heavy for per-commit)",
     "bmc_l0_encoding: Level 0 BMC encoding correctness tests — exhaustive N <= 10",
 ]

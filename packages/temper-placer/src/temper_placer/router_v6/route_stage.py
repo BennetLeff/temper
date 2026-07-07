@@ -24,6 +24,8 @@ class RouteStage(Stage):
         return "Route"
 
     def run(self, state: BoardState) -> BoardState:
+        from pathlib import Path
+
         from temper_placer.router_v6.astar_pathfinding import run_astar_pathfinding
         from temper_placer.router_v6.congestion_tensor import CongestionTensor
 
@@ -48,6 +50,27 @@ class RouteStage(Stage):
         enable_coarse_to_fine = getattr(state, "enable_coarse_to_fine", False)
         coarse_factor = getattr(state, "coarse_factor", 4)
         corridor_buffer_cells = getattr(state, "corridor_buffer_cells", 12)
+
+        clearance_matrix = None
+        try:
+            from temper_placer.core.netclass_rules import (
+                get_default_rules_path,
+                load_netclass_rules,
+            )
+            rules_path = get_default_rules_path()
+            if rules_path.exists():
+                from temper_placer.router_v6.constraints_design_rules import (
+                    ClearanceMatrix,
+                )
+                from temper_placer.router_v6.netclass_inflation import (
+                    populate_clearance_matrix_from_rules,
+                )
+
+                rules = load_netclass_rules(rules_path)
+                clearance_matrix = ClearanceMatrix()
+                populate_clearance_matrix_from_rules(clearance_matrix, rules)
+        except Exception:
+            clearance_matrix = None
 
         # U7 / R11: PathFinder history cost.  Build a per-cell
         # congestion tensor matching the primary grid.  The
@@ -84,6 +107,7 @@ class RouteStage(Stage):
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
+            clearance_matrix=clearance_matrix,
         )
 
         return replace(

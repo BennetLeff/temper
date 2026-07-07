@@ -486,8 +486,15 @@ def encode_constraints(
     constraints: list[BaseConstraint],
     model: CpSatModel,
     ctx: EncoderContext | None = None,
+    *,
+    netlist=None,
+    netclass_rules=None,
 ) -> list[AssumptionLiteral]:
     """Encode all constraints into the CP-SAT model.
+
+    When *netclass_rules* is provided together with *netlist*,
+    auto-generates cross-class separation constraints and appends them
+    to the constraint list before encoding.
 
     Returns a flat list of assumption literal indices for downstream
     UNSAT-core inspection.
@@ -500,6 +507,19 @@ def encode_constraints(
             board_x_max_units=10_000,
             board_y_max_units=10_000,
         )
+
+    if netlist is not None and netclass_rules is not None:
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            generate_netclass_separated_constraints,
+        )
+
+        auto_constraints = generate_netclass_separated_constraints(
+            netlist,
+            netlist.components,
+            netclass_rules,
+            existing_constraints=constraints,
+        )
+        constraints = list(constraints) + auto_constraints
 
     all_assumptions: list[AssumptionLiteral] = []
     for c in constraints:
@@ -798,7 +818,26 @@ def solve_placement(
     if pcl_coll is not None:
         constraint_objects.extend(pcl_coll)
 
-    labels = encode_constraints(constraint_objects, model_wrapper, ctx)
+    # Load netclass rules for auto-generated cross-class separation.
+    netclass_rules_data = None
+    try:
+        from temper_placer.core.netclass_rules import (
+            get_default_rules_path,
+            load_netclass_rules,
+        )
+        _config_yaml = get_default_rules_path()
+        if _config_yaml.exists():
+            netclass_rules_data = load_netclass_rules(_config_yaml)
+    except Exception:
+        logger.debug("Could not load netclass_rules.yaml", exc_info=True)
+
+    labels = encode_constraints(
+        constraint_objects,
+        model_wrapper,
+        ctx,
+        netlist=netlist,
+        netclass_rules=netclass_rules_data,
+    )
 
     # Phase 1 (feasibility): no objective — find any valid placement.
     # Phase 2 (wirelength polish) runs separately with a longer timeout
