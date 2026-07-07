@@ -145,7 +145,6 @@ def profile_loss_functions(
     }
 
     import numpy as np  # type: ignore[import-untyped]
-    from jax import block_until_ready  # type: ignore[import-untyped]
 
     # Generate dummy data for a 33-component board (matches temper.kicad_pcb)
     N = 33
@@ -155,7 +154,6 @@ def profile_loss_functions(
         t0 = time.perf_counter()
         try:
             raw = loss_fn.compute_loss(dummy_xy)
-            block_until_ready(raw)
         except Exception:
             raw = None
         step_ms = (time.perf_counter() - t0) * 1000
@@ -168,7 +166,6 @@ def profile_loss_functions(
         if named is not None and callable(named):
             try:
                 terms = named(dummy_xy)
-                block_until_ready(list(terms.values()))
             except Exception:
                 terms = {}
             for name, val in terms.items():
