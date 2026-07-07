@@ -10,7 +10,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 import numpy as np
-import jax.random as random
 @dataclass
 class DistributionParams:
     """Parameters for a tolerance distribution."""
@@ -59,9 +58,9 @@ class MonteCarloSimulator:
     ):
         self.variables = variables
         self.config = config
-        self._key = random.PRNGKey(config.seed)
+        self._rng = np.random.default_rng(config.seed)
 
-    def sample_parameters(self, n: int) -> dict[str, Array]:
+    def sample_parameters(self, n: int) -> dict[str, "np.ndarray"]:
         """
         Generate n samples of all manufacturing parameters.
 
@@ -69,10 +68,10 @@ class MonteCarloSimulator:
             n: Number of samples to generate.
 
         Returns:
-            Dictionary mapping parameter names to JAX arrays of shape (n,).
+            Dictionary mapping parameter names to numpy arrays of shape (n,).
         """
         samples = {}
-        curr_key = self._key
+        rng = self._rng
 
         for name in [
             'etch_tolerance', 'drill_tolerance', 'registration_x',
@@ -82,27 +81,19 @@ class MonteCarloSimulator:
             if params is None:
                 continue
 
-            curr_key, subkey = random.split(curr_key)
-
             if params.distribution == 'normal':
-                samples[name] = random.normal(
-                    subkey, shape=(n,)
-                ) * params.std_dev + params.mean
+                samples[name] = rng.normal(params.mean, params.std_dev, size=n)
             elif params.distribution == 'uniform':
                 min_v = params.min_val if params.min_val is not None else params.mean - 1.0
                 max_v = params.max_val if params.max_val is not None else params.mean + 1.0
-                samples[name] = random.uniform(
-                    subkey, shape=(n,),
-                    minval=min_v,
-                    maxval=max_v
-                )
+                samples[name] = rng.uniform(min_v, max_v, size=n)
 
         return samples
 
     def run_clearance_simulation(
         self,
-        positions: Array,
-        bounds: Array,
+        positions: np.ndarray,
+        bounds: np.ndarray,
         required_clearance: float,
     ) -> MonteCarloResult:
         """
