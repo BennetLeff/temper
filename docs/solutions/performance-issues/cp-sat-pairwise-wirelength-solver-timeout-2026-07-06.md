@@ -62,9 +62,7 @@ solver.Solve(model.model_ref)
 
 ## Prevention
 
-- Cap pair count in `Minimize` objective (e.g., top 50 net-critical pairs, not all 528)
-- Use `add_objective_term(var, weight)` for sparse objectives instead of `Minimize(sum(...))`
-- Benchmark solver performance with and without objective before committing to a phase strategy
+The fundamental tension: CP-SAT solves fast on feasibility but the O(n²) objective variable expansion is inherent — every component pair in a wirelength objective costs 4 `IntVar`s + 3 constraints. There is no free lunch in encoding a pairwise metric into an integer program. Mitigation paths (bounded pairs, sparse objectives, phase strategies) all involve trading placement quality for solve time; the right trade depends on the board's routing requirements and the solver budget.
 
 ## See Also
 
