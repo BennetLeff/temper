@@ -2,21 +2,23 @@
 Physics-Aware Hypergraph representation for PCB placement.
 
 This module defines the core immutable data structures for the hypergraph.
-It uses flax.struct.dataclass for automatic JAX PyTree registration.
+Uses Python dataclasses and scipy sparse matrices (JAX removed).
 """
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import numpy as np
-from flax import struct
-from jax.experimental import sparse
+from dataclasses import dataclass, field
+from numpy.typing import NDArray
+from scipy.sparse import coo_matrix
+
+Array = NDArray  # type alias for sparse operations
 
 
-@struct.dataclass
+@dataclass
 class HypergraphIncidence:
     """
-    Sparse BCOO representation of the Hypergraph Incidence Matrix H.
+    Sparse COO representation of the Hypergraph Incidence Matrix H.
 
     Dimensions: (N_nodes, N_hyperedges)
     - Rows: Components (Nodes)
@@ -26,29 +28,26 @@ class HypergraphIncidence:
     - 1.0 (or weight) if connected
     - 0.0 otherwise
     """
-    matrix: sparse.BCOO
+    matrix: coo_matrix
     node_weights: Array      # (N_nodes,) - e.g., component area
     hyperedge_weights: Array # (N_edges,) - e.g., net priority/current
 
 
-@struct.dataclass
+@dataclass
 class PhysicsHypergraph:
     """
     Hypergraph with embedded physical attributes.
-
-    This is a registered JAX PyTree. Metadata fields (lists of strings)
-    are marked as static (pytree_node=False).
     """
     incidence: HypergraphIncidence
 
-    # Metadata for reconstruction/mapping (Static)
-    node_refs: Sequence[str] = struct.field(pytree_node=False)
-    hyperedge_names: Sequence[str] = struct.field(pytree_node=False)
+    # Metadata for reconstruction/mapping
+    node_refs: list[str] = field(default_factory=list)
+    hyperedge_names: list[str] = field(default_factory=list)
 
     # Physics Attributes (Parallel arrays to hyperedges)
-    edge_voltages: Array = struct.field(default_factory=lambda: np.array([])) # (N_edges,) 0=LV, 1=HV
-    edge_currents: Array = struct.field(default_factory=lambda: np.array([])) # (N_edges,) Amps
-    edge_widths: Array = struct.field(default_factory=lambda: np.array([]))   # (N_edges,) mm
+    edge_voltages: Array = field(default_factory=lambda: np.array([])) # (N_edges,) 0=LV, 1=HV
+    edge_currents: Array = field(default_factory=lambda: np.array([])) # (N_edges,) Amps
+    edge_widths: Array = field(default_factory=lambda: np.array([]))   # (N_edges,) mm
 
     @property
     def n_nodes(self) -> int:

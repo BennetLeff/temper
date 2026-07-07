@@ -8,7 +8,7 @@ data structure.
 
 from __future__ import annotations
 import numpy as np
-from jax.experimental import sparse
+from scipy.sparse import coo_matrix
 
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 from temper_placer.core.netlist import Netlist
@@ -83,16 +83,14 @@ class HypergraphFactory:
                 cols.append(net_idx)
                 data.append(net.weight)
 
-        # 3. Create JAX Arrays
+        # 3. Create Sparse Matrix
         if n_edges > 0:
-            indices = np.array([rows, cols]).T # (N_entries, 2)
             values = np.array(data, dtype=np.float32)
         else:
-            indices = np.empty((0, 2), dtype=np.int32)
             values = np.empty((0,), dtype=np.float32)
 
         shape = (n_nodes, n_edges)
-        bcoo_matrix = sparse.BCOO((values, indices), shape=shape)
+        bcoo_matrix = coo_matrix((values, (rows, cols)), shape=shape)
 
         # 4. Node Weights (Area based)
         node_weights = np.array(

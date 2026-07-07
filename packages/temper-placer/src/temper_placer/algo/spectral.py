@@ -7,12 +7,13 @@ for global placement initialization.
 
 from __future__ import annotations
 import numpy as np
-from jax.experimental import sparse
+from numpy.typing import NDArray
+from scipy.sparse import coo_matrix
 
 from temper_placer.core.hypergraph import PhysicsHypergraph
 
 
-def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
+def compute_laplacian(hg: PhysicsHypergraph) -> coo_matrix:
     """
     Compute the normalized hypergraph Laplacian.
 
@@ -54,7 +55,7 @@ def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
     # 3. Construct Normalized Laplacian
     # We want L = I - Theta
     # Theta = D_v^(-1/2) @ H @ W @ D_e^(-1) @ H.T @ D_v^(-1/2)
-    # This is a bit complex with BCOO directly.
+    # This is a bit complex with COO directly.
     # Let's do it step by step.
 
     # Scale H columns by (W * D_e_inv)
@@ -77,21 +78,21 @@ def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
     scale_factor = W * D_e_inv # (M,)
 
     # H_scaled = H @ diag(scale_factor)
-    # Since H is BCOO, we can multiply its 'data' by scale_factor[indices[:,1]]
+    # Since H is COO, we can multiply its 'data' by scale_factor[col]
     # This requires accessing internals.
 
-    # JAX way:
-    # H_scaled = H * scale_factor[None, :] ? No, broadcasting might be dense.
+    # Scipy way:
+    # H_scaled = H @ diag(scale_factor) via data scaling
 
     # Safe way:
-    indices = H.indices
+    row = H.row
+    col = H.col
     data = H.data
 
     # Multiply data by scale factor corresponding to the column (edge) index
-    col_indices = indices[:, 1]
-    new_data = data * scale_factor[col_indices]
+    new_data = data * scale_factor[col]
 
-    H_scaled = sparse.BCOO((new_data, indices), shape=H.shape)
+    H_scaled = coo_matrix((new_data, (row, col)), shape=H.shape)
 
     # Now A = H_scaled @ H.T
     # This matrix multiplication is (N,M) @ (M,N) -> (N,N).
@@ -106,10 +107,9 @@ def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
     row_sums = A @ ones
 
     # In sparse land: L = Diag(row_sums) - A
-    # Creating Diag(row_sums) as BCOO
+    # Creating Diag(row_sums) as COO
     idx_diag = np.arange(hg.n_nodes)
-    indices_diag = np.stack([idx_diag, idx_diag], axis=1)
-    D_mat = sparse.BCOO((row_sums, indices_diag), shape=(hg.n_nodes, hg.n_nodes))
+    D_mat = coo_matrix((row_sums, (idx_diag, idx_diag)), shape=(hg.n_nodes, hg.n_nodes))
 
     L = D_mat - A
 
@@ -119,7 +119,7 @@ def compute_laplacian(hg: PhysicsHypergraph) -> sparse.BCOO:
 def spectral_layout(
     hg: PhysicsHypergraph,
     dim: int = 2
-) -> Array:
+) -> NDArray:
     """
     Compute spectral layout positions.
 

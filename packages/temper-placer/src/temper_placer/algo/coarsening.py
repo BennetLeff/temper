@@ -7,8 +7,7 @@ of the hypergraph while preserving structural properties.
 
 from __future__ import annotations
 import numpy as np
-import numpy as np
-from jax.experimental import sparse
+from scipy.sparse import coo_matrix
 
 from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 
@@ -16,7 +15,7 @@ from temper_placer.core.hypergraph import HypergraphIncidence, PhysicsHypergraph
 def coarsen_hypergraph(
     hg: PhysicsHypergraph,
     reduction_ratio: float = 0.5
-) -> tuple[PhysicsHypergraph, sparse.BCOO]:
+) -> tuple[PhysicsHypergraph, coo_matrix]:
     """
     Coarsen the hypergraph using Heavy Edge Matching (HEM).
 
@@ -39,16 +38,17 @@ def coarsen_hypergraph(
 
     if n_fine < 2:
         # Cannot coarsen
-        identity = sparse.BCOO.fromdense(np.eye(n_fine))
+        identity = coo_matrix(np.eye(n_fine))
         return hg, identity
 
     # Reconstruct connectivity for matching
     # A_clique = H W H.T (approximate)
     # Actually, we just need pairwise affinities.
 
-    # Extract BCOO data to numpy
-    H_indices = np.array(hg.incidence.matrix.indices)
-    np.array(hg.incidence.matrix.data)
+    # Extract COO data to numpy
+    H = hg.incidence.matrix
+    H_rows = np.array(H.row)
+    H_cols = np.array(H.col)
     edge_weights = np.array(hg.incidence.hyperedge_weights)
 
     # Build adjacency list: node -> set of (neighbor, weight)
@@ -57,7 +57,7 @@ def coarsen_hypergraph(
 
     # Compute edge sizes
     edge_sizes = np.zeros(hg.n_edges)
-    np.add.at(edge_sizes, H_indices[:, 1], 1)
+    np.add.at(edge_sizes, H_cols, 1)
 
     # Valid edges for affinity (size >= 2)
     valid_mask = edge_sizes >= 2
@@ -70,9 +70,9 @@ def coarsen_hypergraph(
 
     # Group nodes by edge
     edge_to_nodes = defaultdict(list)
-    for i in range(len(H_indices)):
-        node_idx = H_indices[i, 0]
-        edge_idx = H_indices[i, 1]
+    for i in range(len(H_rows)):
+        node_idx = H_rows[i]
+        edge_idx = H_cols[i]
         if valid_mask[edge_idx]:
             edge_to_nodes[edge_idx].append(node_idx)
 
@@ -148,9 +148,8 @@ def coarsen_hypergraph(
 
         coarse_node_refs.append(hg.node_refs[u])
 
-    P_indices = np.array([P_rows, P_cols]).T
     P_values = np.array(P_data, dtype=np.float32)
-    P = sparse.BCOO((P_values, P_indices), shape=(n_fine, n_coarse))
+    P = coo_matrix((P_values, (P_rows, P_cols)), shape=(n_fine, n_coarse))
 
     # 4. Build Coarse Hypergraph Incidence H_c = P.T @ H
     # Note: P is (Fine, Coarse). We want H_coarse to be (Coarse, Edge).
@@ -158,11 +157,10 @@ def coarsen_hypergraph(
     # H_coarse = P.T @ H_fine
 
     H_fine = hg.incidence.matrix
-    H_coarse_bcoo = P.T @ H_fine
+    H_coarse = coo_matrix(P.T @ H_fine)
 
     # 5. Aggregate Node Weights
     node_weights_fine = hg.incidence.node_weights
-    # w_coarse = P.T @ w_fine
     node_weights_coarse = P.T @ node_weights_fine
 
     # 6. Hyperedge weights stay the same
@@ -172,7 +170,7 @@ def coarsen_hypergraph(
     # For now, we keep them (degree 1 edges don't affect Laplacian anyway).
 
     coarse_incidence = HypergraphIncidence(
-        matrix=H_coarse_bcoo,
+        matrix=H_coarse,
         node_weights=node_weights_coarse,
         hyperedge_weights=hg.incidence.hyperedge_weights
     )
