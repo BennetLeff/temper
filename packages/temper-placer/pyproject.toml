@@ -40,6 +40,7 @@ dependencies = [
     "shapely>=2.1.2",
     "pandas>=2.0.0",
     "pydantic>=2.13.4",
+    "scipy>=1.10.0",
     "ortools>=9.10",
 ]
 
