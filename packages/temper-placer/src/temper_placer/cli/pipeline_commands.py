@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import numpy as np
+
 import click
 
 from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
@@ -210,8 +212,6 @@ def routing(input_pcb: str, _level: int, output: str):
     # _run_routing needs state.placement_state.
 
     # Create pseudo placement state from input
-    import jax.numpy as jnp
-
     from temper_placer.core.state import PlacementState
 
     # Extract positions from loaded components
@@ -223,8 +223,8 @@ def routing(input_pcb: str, _level: int, output: str):
         positions.append(pos)
 
     state.placement_state = PlacementState(
-        positions=jnp.array(positions),
-        rotation_logits=jnp.zeros((len(positions), 4), dtype=jnp.float32)
+        positions=np.array(positions, dtype=np.float32),
+        rotation_logits=np.zeros((len(positions), 4), dtype=np.float32)
     )
 
     state = orchestrator.phases[PipelinePhase.ROUTING](state)
