@@ -383,7 +383,23 @@ def optimize(
             constraints = load_constraints(config)
 
             loop_runner = PlaceRouteLoop()
-            pcl_constraints = getattr(constraints, "pcl_constraints", [])
+            pcl_constraints = list(getattr(constraints, "pcl_constraints", []))
+            # Also load inline constraints from the config YAML if present.
+            if not pcl_constraints:
+                try:
+                    import yaml as _yaml
+                    from temper_placer.pcl.parser import parse_constraint_dict
+                    raw = config.read_text(encoding="utf-8") if hasattr(config, "read_text") else ""
+                    if raw:
+                        cfg = _yaml.safe_load(raw)
+                        inline = cfg.get("constraints", []) if isinstance(cfg, dict) else []
+                        for cdict in inline:
+                            try:
+                                pcl_constraints.append(parse_constraint_dict(cdict))
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
             loop_result = loop_runner.run(
                 netlist=netlist,
                 board=board,
@@ -398,6 +414,46 @@ def optimize(
                 console.print(
                     f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0)*100:.1f}%"
                 )
+
+                # Write the final placed PCB to the output file.
+                if loop_result.placement is not None:
+                    from temper_placer.router_v6.adapter import _apply_placements_to_pcb
+
+                    raw = input_pcb.read_text(encoding="utf-8")
+                    placed = _apply_placements_to_pcb(
+                        raw, loop_result.placement.to_placements_dict()
+                    )
+                    output.write_text(placed, encoding="utf-8")
+                    console.print(f"    Output: {output}")
+
+                    # Run KiCad DRC on the placed output.
+                    console.print("\n[bold]Running KiCad DRC (truth gate)...[/]")
+                    try:
+                        import json, subprocess, tempfile, os
+
+                        drc_out = Path(tempfile.mktemp(suffix=".json"))
+                        result = subprocess.run(
+                            ["kicad-cli", "pcb", "drc", "--format", "json",
+                             "-o", str(drc_out), str(output)],
+                            capture_output=True, text=True, timeout=120,
+                        )
+                        if drc_out.exists():
+                            with open(drc_out) as f:
+                                drc_data = json.load(f)
+                            violations = drc_data.get("violations", [])
+                            errors = [v for v in violations if v.get("severity") == "error"]
+                            warnings = [v for v in violations if v.get("severity") == "warning"]
+                            if errors:
+                                console.print(f"  [red]DRC: {len(errors)} errors, {len(warnings)} warnings[/]")
+                                for e in errors[:5]:
+                                    console.print(f"    ERROR: {e.get('type','?')} — {e.get('description','')[:100]}")
+                            else:
+                                console.print(f"  [green]DRC: 0 errors, {len(warnings)} warnings[/]")
+                            os.unlink(drc_out)
+                        else:
+                            console.print(f"  [yellow]DRC report not produced: {result.stderr[:200]}[/]")
+                    except Exception as drc_e:
+                        console.print(f"  [yellow]DRC run failed: {drc_e}[/]")
             else:
                 console.print(
                     f"  [yellow]Loop did not converge: {loop_result.reason}[/]"
