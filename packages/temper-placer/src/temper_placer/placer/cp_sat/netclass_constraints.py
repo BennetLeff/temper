@@ -19,12 +19,17 @@ _NET_TYPE_TO_CLASS = {
     "signal": "Signal",
 }
 
+# Severity ordering for when a component has pins on multiple net classes.
+# Highest rank wins: HighVoltage > Power > GND > Signal.
+_SEVERITY_RANK = {"HighVoltage": 4, "Power": 3, "GND": 2, "Signal": 1}
+
 
 def _resolve_component_net_class(comp, netlist) -> str | None:
     """Determine the net class for a component from its connected nets.
 
-    Returns the DesignRules net class name (e.g. "HighVoltage", "Signal")
-    or None if it can't be determined.
+    Iterates ALL pins, classifies each connected net, and returns the
+    highest-severity net class across all pins.  Returns None only when
+    the component has no pins at all.
 
     Uses ``component.pins[i].net`` (Pin objects on the Component) rather
     than ``netlist.nets[].pins[].component`` (tuples in the Net parser
@@ -37,13 +42,21 @@ def _resolve_component_net_class(comp, netlist) -> str | None:
     if not pins:
         return None
 
+    best_class = None
+    best_rank = -1
+
     for pin in pins:
         net_name = getattr(pin, 'net', '')
-        if net_name:
-            net_type = classify_net_type(net_name)
-            return _NET_TYPE_TO_CLASS.get(net_type, "Signal")
+        if not net_name:
+            continue
+        net_type = classify_net_type(net_name)
+        net_class = _NET_TYPE_TO_CLASS.get(net_type, "Signal")
+        rank = _SEVERITY_RANK.get(net_class, 0)
+        if rank > best_rank:
+            best_rank = rank
+            best_class = net_class
 
-    return None
+    return best_class
 
 
 def generate_netclass_separated_constraints(

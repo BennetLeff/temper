@@ -795,27 +795,40 @@ def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
                     has_valid_items = True
 
             if has_valid_items:
-                return (max(0.5, x_max - x_min), max(0.5, y_max - y_min))
+                gfx_bounds = (x_min, y_min, x_max, y_max)
+            else:
+                gfx_bounds = None
+        else:
+            gfx_bounds = None
+    else:
+        gfx_bounds = None
 
-    # Fallback: Calculate bounds from pads
-    # In kiutils, pad.position is in footprint-local coordinates
+    # Compute bounds from pads (always done to ensure pads are enclosed)
+    pad_x_min, pad_y_min = float("inf"), float("inf")
+    pad_x_max, pad_y_max = float("-inf"), float("-inf")
+
     if fp.pads:
-        x_min, y_min = float("inf"), float("inf")
-        x_max, y_max = float("-inf"), float("-inf")
-
         for pad in fp.pads:
-            # pad.position is local to footprint center
             px, py = pad.position.X, pad.position.Y
             pw, ph = pad.size.X, pad.size.Y
+            pad_x_min = min(pad_x_min, px - pw / 2)
+            pad_y_min = min(pad_y_min, py - ph / 2)
+            pad_x_max = max(pad_x_max, px + pw / 2)
+            pad_y_max = max(pad_y_max, py + ph / 2)
 
-            # Extend bounds by pad position +/- half pad size
-            x_min = min(x_min, px - pw / 2)
-            y_min = min(y_min, py - ph / 2)
-            x_max = max(x_max, px + pw / 2)
-            y_max = max(y_max, py + ph / 2)
+    if gfx_bounds is not None and pad_x_min != float("inf"):
+        # Union of courtyard/fab graphics and pad extents
+        x_min = min(gfx_bounds[0], pad_x_min)
+        y_min = min(gfx_bounds[1], pad_y_min)
+        x_max = max(gfx_bounds[2], pad_x_max)
+        y_max = max(gfx_bounds[3], pad_y_max)
+        return (max(0.5, x_max - x_min), max(0.5, y_max - y_min))
 
-        if x_min != float("inf"):
-            return (max(0.5, x_max - x_min), max(0.5, y_max - y_min))
+    if gfx_bounds is not None:
+        return (max(0.5, gfx_bounds[2] - gfx_bounds[0]), max(0.5, gfx_bounds[3] - gfx_bounds[1]))
+
+    if pad_x_min != float("inf"):
+        return (max(0.5, pad_x_max - pad_x_min), max(0.5, pad_y_max - pad_y_min))
 
     # Ultimate fallback - should rarely happen
     return (2.0, 2.0)

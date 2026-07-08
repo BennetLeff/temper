@@ -34,6 +34,65 @@ def rules():
     return load_netclass_rules(RULES_PATH)
 
 
+class TestResolveComponentNetClass:
+    """Unit tests for _resolve_component_net_class."""
+
+    def test_mixed_pins_returns_max_severity(self, rules):
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            _resolve_component_net_class,
+        )
+
+        class MockPin:
+            def __init__(self, number, net):
+                self.number = number
+                self.component = "Q2"
+                self.net = net
+
+        class MockComp:
+            def __init__(self, ref, pins):
+                self.ref = ref
+                self.pins = pins
+
+        comp = MockComp(
+            "Q2",
+            [
+                MockPin("1", "GATE_H"),    # Signal
+                MockPin("2", "DC_BUS-"),   # HighVoltage
+                MockPin("3", "SW_NODE"),   # Signal
+            ],
+        )
+        result = _resolve_component_net_class(comp, None)
+        assert result == "HighVoltage", (
+            f"Expected HighVoltage (max severity across all pins), got {result}"
+        )
+
+    def test_all_signal_pins_returns_signal(self, rules):
+        from temper_placer.placer.cp_sat.netclass_constraints import (
+            _resolve_component_net_class,
+        )
+
+        class MockPin:
+            def __init__(self, number, net):
+                self.number = number
+                self.component = "U1"
+                self.net = net
+
+        class MockComp:
+            def __init__(self, ref, pins):
+                self.ref = ref
+                self.pins = pins
+
+        comp = MockComp(
+            "U1",
+            [
+                MockPin("1", "SPI_CLK"),
+                MockPin("2", "SPI_MOSI"),
+            ],
+        )
+        result = _resolve_component_net_class(comp, None)
+        assert result == "Signal"
+
+
 class TestCrossClassGeneration:
     def test_cross_class_pair_count(self, rules):
         from temper_placer.placer.cp_sat.netclass_constraints import (

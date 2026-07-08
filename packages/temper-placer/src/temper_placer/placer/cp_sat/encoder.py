@@ -851,11 +851,13 @@ def solve_placement(
         logger.debug("Could not load netclass_rules.yaml", exc_info=True)
 
     # Compute courtyard clearance τ (C1) and board-edge margin m (C2).
-    # τ = max(default_clearance_mm, 2 * mask_expansion_mm).
+    # τ = default_clearance_mm + 2 * mask_expansion_mm (strict >, not max).
     # mask_expansion_mm = 0.1 is the industry-standard solder mask expansion.
+    # Using + instead of max() guarantees strict separation so mask apertures
+    # never touch at 0, preventing solder mask bridging.
     # TODO: parse mask_expansion_mm from board (setup) via kiutils.
     MASK_EXPANSION_MM = 0.1
-    tau_mm = max(default_clearance_mm, 2 * MASK_EXPANSION_MM)
+    tau_mm = default_clearance_mm + 2 * MASK_EXPANSION_MM
 
     # m derives from copper_edge_clearance_mm.
     # copper_edge_clearance_mm = 0.5 is a conservative default.
