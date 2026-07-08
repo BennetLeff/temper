@@ -568,7 +568,7 @@ def _apply_placements_to_pcb(
         nc_forms = []
         for nc_name, nc_rules in sorted(design_rules.net_classes.items()):
             nc_forms.append(
-                f"  (net_class \"{nc_name}\""
+                f"  (net_class \"{nc_name}\" \"Auto-generated from netclass_rules.yaml\""
                 f" (clearance {nc_rules.clearance})"
                 f" (trace_width {nc_rules.trace_width})"
                 f" (via_dia {nc_rules.via_diameter})"
