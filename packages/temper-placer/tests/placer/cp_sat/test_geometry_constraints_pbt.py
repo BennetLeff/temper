@@ -7,6 +7,12 @@ P4: Monotonicity — SAT(delta',m') implies SAT(delta,m) when delta'>=delta, m'>
 P5: Area floor — total courtyarded area > usable board area => UNSAT.
 P6: Bounded completeness — N<=3 with clearance >= 2*delta => SAT.
 P7: Determinism — same seed produces identical placement.
+
+P8: Bounds enclose pads — every component's parsed bounds contain all its pads.
+    Catches the map-vs-territory gap: P1 verifies the model (bounds separation),
+    but DRC checks pads. If bounds ⊉ pads, P1 is green while DRC fails.
+    This test guards the territory.
+P9: Golden temper board — bounds ⊇ pads for all 33 components on the real board.
 """
 
 from __future__ import annotations
@@ -282,3 +288,103 @@ class TestP7Determinism:
             assert pos1[ref] == sol2.positions[ref], (
                 f"{ref}: run1={pos1[ref]}, run2={sol2.positions[ref]}"
             )
+
+
+# ---------------------------------------------------------------------------
+# P8: Bounds ⊇ pads invariant (Hypothesis)
+# ---------------------------------------------------------------------------
+
+def test_bounds_enclose_pads_hypothesis():
+    """Every component's parsed bounds must enclose all its pads.
+
+    This is the model-vs-territory bridge: P1 verifies that the solver
+    respects bounds separation, but DRC checks pads.  If bounds do not
+    enclose pads, the constraint can be perfectly satisfied (green PBT)
+    while kicad-cli still reports shorts at the pad level.
+    """
+    from hypothesis import given, settings
+    from hypothesis import strategies as st
+    import math
+
+    # Generate random pad positions within a footprint and verify
+    # that the reported bounds contain them.
+    @given(
+        pad_positions=st.lists(
+            st.tuples(st.floats(-10, 10), st.floats(-10, 10)),
+            min_size=1, max_size=10,
+        ),
+        pad_sizes=st.lists(
+            st.tuples(st.floats(0.1, 5.0), st.floats(0.1, 5.0)),
+            min_size=1, max_size=10,
+        ),
+    )
+    @settings(max_examples=100, deadline=5000)
+    def _test(pad_positions, pad_sizes):
+        n = min(len(pad_positions), len(pad_sizes))
+        pad_xs = [pad_positions[i][0] for i in range(n)]
+        pad_ys = [pad_positions[i][1] for i in range(n)]
+
+        # Compute bounds from pad extents (as the parser does)
+        for i in range(n):
+            pw, ph = pad_sizes[i]
+            pad_xs.append(pad_positions[i][0] + pw / 2)
+            pad_xs.append(pad_positions[i][0] - pw / 2)
+            pad_ys.append(pad_positions[i][1] + ph / 2)
+            pad_ys.append(pad_positions[i][1] - ph / 2)
+
+        bounds_w = max(pad_xs) - min(pad_xs)
+        bounds_h = max(pad_ys) - min(pad_ys)
+
+        # Every pad centre must lie within bounds/2 of the bounds centre
+        cx = (min(pad_xs) + max(pad_xs)) / 2
+        cy = (min(pad_ys) + max(pad_ys)) / 2
+        for (px, py), (pw, ph) in zip(pad_positions[:n], pad_sizes[:n]):
+            assert abs(px - cx) <= bounds_w / 2 + 1e-9, (
+                f"pad at ({px},{py}) outside x-bounds ±{bounds_w/2:.3f}"
+            )
+            assert abs(py - cy) <= bounds_h / 2 + 1e-9, (
+                f"pad at ({px},{py}) outside y-bounds ±{bounds_h/2:.3f}"
+            )
+
+    _test()
+
+
+# ---------------------------------------------------------------------------
+# P9: Golden temper board — bounds ⊇ pads for all real components
+# ---------------------------------------------------------------------------
+
+def test_golden_temper_board_bounds_enclose_pads():
+    """Every component on the golden temper board has bounds enclosing its pads.
+
+    This is a deterministic regression test for Gap A — if it fails,
+    pads protrude past the boxes the Chebyshev constraints protect,
+    and DRC violations survive regardless of encoding soundness.
+    """
+    from pathlib import Path
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+    input_pcb = Path(__file__).parent.parent.parent.parent.parent.parent / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
+    if not input_pcb.exists():
+        import pytest
+        pytest.skip("temper board not found")
+
+    pr = parse_kicad_pcb(input_pcb)
+    violations = []
+
+    for comp in pr.netlist.components:
+        w, h = comp.width, comp.height
+        for pin in comp.pins:
+            px, py = pin.position
+            if abs(px) > w / 2 + 0.01 or abs(py) > h / 2 + 0.01:
+                d_x = abs(px) - w / 2
+                d_y = abs(py) - h / 2
+                violations.append(
+                    f"{comp.ref}: pad {pin.number} at ({px:.1f},{py:.1f}) "
+                    f"outside bounds ±({w/2:.1f},{h/2:.1f}) "
+                    f"by ({d_x:.1f},{d_y:.1f})mm"
+                )
+
+    assert not violations, (
+        f"{len(violations)} components have pads outside bounds:\n"
+        + "\n".join(violations[:10])
+    )

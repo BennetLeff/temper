@@ -10,7 +10,7 @@ symptoms:
   - "CP-SAT reports OPTIMAL but physical DRC shows component pads shorting"
   - "Pairwise Euclidean gaps as low as 0mm despite a 0.4mm SEPARATED constraint"
   - "Constraint enforcement appears to work for large margins (6mm) but fails for small margins (0.3mm)"
-root_cause: "Wrong encoding — AddNoOverlap2D with one-sided interval inflation only requires disjointness on ONE axis, not both. Components vertically separated but horizontally touching (0 gap) satisfy the constraint vacuously."
+root_cause: "One-axis interval inflation under-enforces pairwise clearance — AddNoOverlap2D with inflation on one component's intervals only requires disjointness on ONE axis, not both. The Chebyshev disjunction is chosen over symmetric two-axis inflation because it enables per-pair UNSAT assumption literals (R3 requirement)."
 resolution_type: code_fix
 tags: ["cp-sat", "separated", "nooverlap2d", "chebyshev", "encoding", "soundness-proof", "induction"]
 ---
@@ -43,7 +43,9 @@ The gap between C_MCU_3 and C_CT_FILT was 0.135mm despite a 0.3mm netclass const
 
 ## Root Cause
 
-**The `_encode_separated` handler used `AddNoOverlap2D` with one-sided interval inflation.**
+**The `_encode_separated` handler inflated ONE component's intervals and checked `AddNoOverlap2D(inflated_A, normal_B)`.** `AddNoOverlap2D` correctly enforces non-overlap, and symmetric two-axis inflation would also correctly enforce clearance ≥ margin — cheaper than 6 Booleans × 528 pairs. The real reason to prefer the Chebyshev disjunction is per-pair UNSAT assumption literals: `AddNoOverlap2D` (global constraint) cannot carry `OnlyEnforceIf` enforcement literals, so it cannot surface which specific pair caused infeasibility. The disjunction encodes the same pairwise separation as axis-level `AddNoOverlap2D` variants but with per-pair enforceable Booleans, satisfying R3's per-pair UNSAT surfacing requirement.
+
+With one-axis inflation, `AddNoOverlap2D(inflated_A, normal_B)` only requires disjointness on ONE axis. If A is above B (y disjoint), they can touch horizontally (x overlap), producing a 0 gap on the unconstrained axis.
 
 ```python
 # OLD ENCODING (weak):
@@ -94,8 +96,10 @@ model.model_ref.AddBoolOr([x_ok, y_ok])
 
 ## Prevention
 
-1. **Property-based test for soundness.** P1 in `test_geometry_constraints_pbt.py` verifies that for Hypothesis-generated placements, the Euclidean gap between ALL pairs is ≥ τ. This test would have caught the old encoding.
-2. **Golden-board DRC gate.** `test_regression_drc.py` runs kicad-cli DRC on the placed temper board and asserts specific violation counts. A solver that says OPTIMAL but produces shorts is caught by the truth gate.
+1. **Property-based test for soundness.** P1 in `test_geometry_constraints_pbt.py` verifies that for Hypothesis-generated placements, the Euclidean gap between ALL pairs' **bounds boxes** is ≥ τ. This catches encoding bugs in the constraint handler. However, P1 does NOT verify that bounds enclose pads — if `component.bounds ⊉ pads`, the constraint can be perfectly satisfied on bounds while DRC still sees shorts at the pad level. That gap needs a separate invariant test (bounds ⊇ pads on every component) plus the golden-board DRC gate.
+
+2. **Golden-board DRC gate.** `test_regression_drc.py` runs kicad-cli DRC on the placed temper board and asserts specific violation counts. This catches both encoding bugs AND bounds-vs-pads gaps because it measures the territory, not the model. P1 measures the map — both are needed.
+
 3. **Binary-search margin test.** A deterministic test: two components with τ separation → solver SAT → verify Chebyshev gap ≥ τ. For τ = 0.1, 0.3, 0.4, 6.0. Each τ value catches under-enforcement at different scales.
 
 ## Related
