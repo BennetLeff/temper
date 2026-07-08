@@ -817,18 +817,28 @@ def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
             pad_y_max = max(pad_y_max, py + ph / 2)
 
     if gfx_bounds is not None and pad_x_min != float("inf"):
-        # Union of courtyard/fab graphics and pad extents
+        # Union of courtyard/fab graphics and pad extents.
+        # The returned size is symmetric around the footprint origin so that
+        # the box covers the maximum extent in every direction — necessary
+        # because Component.bounds carries no offset and the placer models
+        # every component as a box centred on its origin.
         x_min = min(gfx_bounds[0], pad_x_min)
         y_min = min(gfx_bounds[1], pad_y_min)
         x_max = max(gfx_bounds[2], pad_x_max)
         y_max = max(gfx_bounds[3], pad_y_max)
-        return (max(0.5, x_max - x_min), max(0.5, y_max - y_min))
+        hw = max(abs(x_min), abs(x_max))
+        hh = max(abs(y_min), abs(y_max))
+        return (max(0.5, 2 * hw), max(0.5, 2 * hh))
 
     if gfx_bounds is not None:
-        return (max(0.5, gfx_bounds[2] - gfx_bounds[0]), max(0.5, gfx_bounds[3] - gfx_bounds[1]))
+        hw = max(abs(gfx_bounds[0]), abs(gfx_bounds[2]))
+        hh = max(abs(gfx_bounds[1]), abs(gfx_bounds[3]))
+        return (max(0.5, 2 * hw), max(0.5, 2 * hh))
 
     if pad_x_min != float("inf"):
-        return (max(0.5, pad_x_max - pad_x_min), max(0.5, pad_y_max - pad_y_min))
+        hw = max(abs(pad_x_min), abs(pad_x_max))
+        hh = max(abs(pad_y_min), abs(pad_y_max))
+        return (max(0.5, 2 * hw), max(0.5, 2 * hh))
 
     # Ultimate fallback - should rarely happen
     return (2.0, 2.0)
