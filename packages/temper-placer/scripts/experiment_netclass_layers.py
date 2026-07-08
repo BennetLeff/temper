@@ -98,13 +98,8 @@ def _apply_placements(input_pcb: Path, placements: dict, output_pcb: Path) -> No
 
 def _inject_netclass_forms(rules: Any, pcb_content: str) -> str:
     """Insert ``(net_class ...)`` s-expression forms into PCB content."""
-    from temper_placer.io.kicad_exporter import (
-        _insert_netclass_forms_into_sexpr,
-        write_netclass_forms,
-    )
-
-    forms = write_netclass_forms(None, rules)
-    return _insert_netclass_forms_into_sexpr(pcb_content, forms)
+    from temper_placer.router_v6.adapter import _apply_placements_to_pcb
+    return _apply_placements_to_pcb(pcb_content, {}, design_rules=rules.design_rules)
 
 
 def _route_and_write(
@@ -125,12 +120,13 @@ def _route_and_write(
     )
 
     parsed = type("ParsedPCB", (), {"source_path": str(input_pcb)})()
-    routed = route_pcb(parsed, placements, _seed=seed)
+    routed = route_pcb(parsed, placements, _seed=seed, design_rules=rules.design_rules)
     body = getattr(routed, "routed_pcb_content", None)
     if not body:
         # Routing produced no output; fall back to placed-only PCB.
         body = _apply_placements_to_pcb(
-            input_pcb.read_text(encoding="utf-8"), placements
+            input_pcb.read_text(encoding="utf-8"), placements,
+            design_rules=rules.design_rules,
         )
 
     body = _inject_netclass_forms(rules, body)
@@ -344,12 +340,13 @@ def main() -> None:
     rules_path = _PROJ / "configs" / "netclass_rules.yaml"
     config_path = _PROJ / "configs" / "constraints" / "temper_induction_cooker.yaml"
 
-    from temper_placer.core.netclass_rules import load_netclass_rules
+    from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     rules = load_netclass_rules(rules_path)
-    print(f"Loaded netclass rules: {len(rules['net_classes'])} classes, "
-          f"{len(rules['pair_clearances'])} cross-class pairs")
+    n_classes = len(rules.design_rules.net_classes)
+    n_pairs = len(rules.class_pairs)
+    print(f"Loaded netclass rules: {n_classes} classes, {n_pairs} cross-class pairs")
 
     parse_result = parse_kicad_pcb(input_pcb)
     netlist = parse_result.netlist
