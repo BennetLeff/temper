@@ -46,8 +46,8 @@ UNSUPPORTED_TYPES: set[ConstraintType] = set()
 class EncoderContext:
     """Context passed to each handler during encoding.
 
-    Carries board dimensions, region definitions, and loop data needed
-    by specific handlers.
+    Carries board dimensions, region definitions, loop data, and
+    courtyard/edge-margin parameters needed by specific handlers.
     """
 
     def __init__(
@@ -61,6 +61,8 @@ class EncoderContext:
         board_y_min_units: int = 0,
         board_x_max_units: int = 0,
         board_y_max_units: int = 0,
+        courtyard_clearance_mm: float = 0.0,
+        board_edge_margin_units: int = 0,
     ) -> None:
         self.board_w_mm = board_w_mm
         self.board_h_mm = board_h_mm
@@ -71,6 +73,8 @@ class EncoderContext:
         self.board_y_min_units = board_y_min_units
         self.board_x_max_units = board_x_max_units
         self.board_y_max_units = board_y_max_units
+        self.courtyard_clearance_mm = courtyard_clearance_mm
+        self.board_edge_margin_units = board_edge_margin_units
 
 
 # ---------------------------------------------------------------------------
@@ -780,10 +784,38 @@ def solve_placement(
         polarized = ref in _POLARIZED_REFS
         model_wrapper.add_rotation(ref, is_polarized=polarized)
 
-    # Constrain all components to lie within board bounds.
+    # Load netclass rules early — needed for auto-generated cross-class
+    # separation AND for computing courtyard clearance τ (U1).
+    loaded_netclass_rules = None
+    default_clearance_mm = 0.2
+    try:
+        from temper_placer.io.netclass_loader import load_netclass_rules
+        from pathlib import Path
+        _config_yaml = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
+        if _config_yaml.exists():
+            loaded_netclass_rules = load_netclass_rules(_config_yaml)
+            default_clearance_mm = loaded_netclass_rules.design_rules.default_clearance
+    except Exception:
+        logger.debug("Could not load netclass_rules.yaml", exc_info=True)
+
+    # Compute courtyard clearance τ (C1) and board-edge margin m (C2).
+    # τ = max(default_clearance_mm, 2 * mask_expansion_mm).
+    # mask_expansion_mm = 0.1 is the industry-standard solder mask expansion.
+    # TODO: parse mask_expansion_mm from board (setup) via kiutils.
+    MASK_EXPANSION_MM = 0.1
+    tau_mm = max(default_clearance_mm, 2 * MASK_EXPANSION_MM)
+
+    # m derives from copper_edge_clearance_mm.
+    # copper_edge_clearance_mm = 0.5 is a conservative default.
+    # TODO: parse copper_edge_clearance_mm from board (setup) via kiutils.
+    COPPER_EDGE_CLEARANCE_MM = 0.5
+    margin_units = model_wrapper.mm_to_units(COPPER_EDGE_CLEARANCE_MM)
+
+    # Constrain all components to lie within board bounds with edge margin (C2).
     model_wrapper.set_bounds(0, 0, board_w_units, board_h_units)
 
-    # Wire up NoOverlap2D.
+    # Wire up NoOverlap2D (redundant global for propagation — per-pair
+    # SEPARATED-τ is added during constraint encoding in U2).
     model_wrapper.add_no_overlap_2d(comp_refs)
 
     # Build EncoderContext from board and netlist data.
@@ -809,25 +841,14 @@ def solve_placement(
         board_y_min_units=0,
         board_x_max_units=board_w_units,
         board_y_max_units=board_h_units,
+        courtyard_clearance_mm=tau_mm,
+        board_edge_margin_units=margin_units,
     )
 
     constraint_objects: list[BaseConstraint] = list(extra_constraints or [])
-    # Also pull PCL constraints from the board's constraint collection
-    # if available (temper pipeline path).
     pcl_coll = getattr(board, "constraints", None)
     if pcl_coll is not None:
         constraint_objects.extend(pcl_coll)
-
-    # Load netclass rules for auto-generated cross-class separation.
-    loaded_netclass_rules = None
-    try:
-        from temper_placer.io.netclass_loader import load_netclass_rules
-        from pathlib import Path
-        _config_yaml = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
-        if _config_yaml.exists():
-            loaded_netclass_rules = load_netclass_rules(_config_yaml)
-    except Exception:
-        logger.debug("Could not load netclass_rules.yaml", exc_info=True)
 
     labels = encode_constraints(
         constraint_objects,
