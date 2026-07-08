@@ -21,6 +21,7 @@ from temper_placer.pcl.constraints import (
     AlignedConstraint,
     AnchoredConstraint,
     BaseConstraint,
+    ConstraintTier,
     ConstraintType,
     EnclosingConstraint,
     KeepoutConstraint,
@@ -525,6 +526,12 @@ def encode_constraints(
         )
         constraints = list(constraints) + auto_constraints
 
+    if ctx.courtyard_clearance_mm > 0:
+        courtyard_constraints = _generate_courtyard_separated_constraints(
+            model, ctx.courtyard_clearance_mm, constraints,
+        )
+        constraints = list(constraints) + courtyard_constraints
+
     all_assumptions: list[AssumptionLiteral] = []
     for c in constraints:
         handler = TYPE_HANDLERS.get(c.constraint_type)
@@ -540,6 +547,51 @@ def encode_constraints(
         all_assumptions.extend(assumptions)
 
     return all_assumptions
+
+
+def _generate_courtyard_separated_constraints(
+    model,
+    tau_mm: float,
+    existing_constraints: list[BaseConstraint],
+) -> list[SeparatedConstraint]:
+    """Generate per-pair SEPARATED constraints with ``min_distance_mm=tau_mm``.
+
+    Skips pairs that already carry a SEPARATED constraint with clearance >= τ
+    (e.g. cross-class netclass constraints at 6mm dominate the τ constraint).
+    """
+    constraints: list[SeparatedConstraint] = []
+    comp_refs = list(model.component_map.keys())
+    if len(comp_refs) < 2:
+        return constraints
+
+    existing_pairs: dict[tuple[str, str], float] = {}
+    for c in existing_constraints:
+        if isinstance(c, SeparatedConstraint) and c.min_distance_mm >= tau_mm:
+            a_ref = c.a if c.a in model.component_map else None
+            b_ref = c.b if c.b in model.component_map else None
+            if a_ref is not None and b_ref is not None and a_ref != b_ref:
+                key = tuple(sorted([a_ref, b_ref]))
+                existing_pairs[key] = max(existing_pairs.get(key, 0.0), c.min_distance_mm)
+
+    for i in range(len(comp_refs)):
+        for j in range(i + 1, len(comp_refs)):
+            ra, rb = comp_refs[i], comp_refs[j]
+            key = tuple(sorted([ra, rb]))
+            if key in existing_pairs:
+                continue
+            constraints.append(
+                SeparatedConstraint(
+                    a=ra,
+                    b=rb,
+                    min_distance_mm=tau_mm,
+                    tier=ConstraintTier.HARD,
+                    because=f"Courtyard clearance {tau_mm}mm to prevent shorting and solder mask bridging",
+                    id=f"courtyard_{ra}_{rb}",
+                )
+            )
+
+    logger.info("Auto-generated %d courtyard SEPARATED constraints (τ=%.2fmm)", len(constraints), tau_mm)
+    return constraints
 
 
 def _resolve_refs(
@@ -812,7 +864,7 @@ def solve_placement(
     margin_units = model_wrapper.mm_to_units(COPPER_EDGE_CLEARANCE_MM)
 
     # Constrain all components to lie within board bounds with edge margin (C2).
-    model_wrapper.set_bounds(0, 0, board_w_units, board_h_units)
+    model_wrapper.set_bounds(margin_units, margin_units, board_w_units - margin_units, board_h_units - margin_units)
 
     # Wire up NoOverlap2D (redundant global for propagation — per-pair
     # SEPARATED-τ is added during constraint encoding in U2).

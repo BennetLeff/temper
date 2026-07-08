@@ -389,12 +389,19 @@ class CpSatModel:
     def set_bounds(
         self, x_min: int, y_min: int, x_max: int, y_max: int,
     ) -> None:
-        """Constrain all components to lie within board bounds."""
+        """Constrain all components to lie within board bounds.
+
+        Each component's four bounds are guarded by an ``edge_margin_<ref>``
+        assumption literal so that ``SufficientAssumptionsForInfeasibility``
+        can identify which component violates the edge clearance.
+        """
         for v in self._components.values():
-            self._model.Add(v.x_start >= x_min)
-            self._model.Add(v.y_start >= y_min)
-            self._model.Add(v.x_end <= x_max)
-            self._model.Add(v.y_end <= y_max)
+            label = f"edge_margin_{v.ref}"
+            assumption = self.new_assumption(label)
+            self.add_constraint_enforced(v.x_start >= x_min, assumption)
+            self.add_constraint_enforced(v.y_start >= y_min, assumption)
+            self.add_constraint_enforced(v.x_end <= x_max, assumption)
+            self.add_constraint_enforced(v.y_end <= y_max, assumption)
 
     def add(self, constraint: cp_model.BoundedLinearExpression | cp_model.Constraint) -> None:
         """Delegate to underlying CpModel.Add()."""
