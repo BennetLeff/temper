@@ -22,25 +22,26 @@ _NET_TYPE_TO_CLASS = {
 
 def _resolve_component_net_class(comp, netlist) -> str | None:
     """Determine the net class for a component from its connected nets.
-    
+
     Returns the DesignRules net class name (e.g. "HighVoltage", "Signal")
     or None if it can't be determined.
+
+    Uses ``component.pins[i].net`` (Pin objects on the Component) rather
+    than ``netlist.nets[].pins[].component`` (tuples in the Net parser
+    output) — the Net.pins path is tuple data and lacks a ``.component``
+    attribute.
     """
     from temper_placer.core.net_classification import classify_net_type
 
-    if not netlist or not hasattr(netlist, 'nets'):
+    pins = getattr(comp, 'pins', [])
+    if not pins:
         return None
 
-    # Find nets connected to this component's pins
-    comp_ref = getattr(comp, 'ref', None)
-    if not comp_ref:
-        return None
-
-    for net in netlist.nets:
-        for pin in getattr(net, 'pins', []):
-            if getattr(pin, 'component', None) == comp_ref:
-                net_type = classify_net_type(net.name)
-                return _NET_TYPE_TO_CLASS.get(net_type, "Signal")
+    for pin in pins:
+        net_name = getattr(pin, 'net', '')
+        if net_name:
+            net_type = classify_net_type(net_name)
+            return _NET_TYPE_TO_CLASS.get(net_type, "Signal")
 
     return None
 
