@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from temper_placer.core.design_rules import DesignRules
     from temper_placer.pcl.constraints import BaseConstraint, ConstraintType
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
     from temper_placer.router_v6.adapter import RoutingResult
@@ -80,6 +81,9 @@ class FeedbackClassifier:
 
     CRITICAL_ICS: set[str] = {"Q1", "Q2", "U_GATE", "U_MCU"}
     PERSISTENCE_THRESHOLD: int = 3
+
+    def __init__(self, design_rules: DesignRules | None = None):
+        self.design_rules = design_rules
 
     def classify(
         self,
@@ -249,27 +253,48 @@ class FeedbackClassifier:
             if len(components) >= 2:
                 comp_a, comp_b = components[0], components[1]
 
-        if comp_a and comp_b:
-            from temper_placer.pcl.constraints import (
-                ConstraintTier,
-                SeparatedConstraint,
-            )
+        if not comp_a or not comp_b:
+            return None
 
-            constraint = SeparatedConstraint(
-                a=comp_a,
-                b=comp_b,
-                min_distance_mm=required_mm,
-                tier=ConstraintTier.HARD,
-                because=f"Post-route DRC clearance violation at {required_mm}mm — enforce separation",
-                id=f"feedback_clearance_{comp_a}_{comp_b}",
-            )
-            return ConstraintDelta(
-                constraint=constraint,
-                reason=f"Clearance violation: {comp_a}-{comp_b} needs {required_mm}mm",
-                priority=5,
-            )
+        authoriative_mm = required_mm
+        because_text = f"Post-route DRC clearance violation at {required_mm}mm — enforce separation"
 
-        return None
+        if self.design_rules is not None:
+            net_a = getattr(violation, 'net_a', None)
+            net_b = getattr(violation, 'net_b', None)
+            if net_a and net_b:
+                from temper_placer.core.net_classification import classify_net_type
+                _map = {"ground": "GND", "power": "Power", "hv": "HighVoltage", "signal": "Signal"}
+                class_a = _map.get(classify_net_type(net_a), "Signal")
+                class_b = _map.get(classify_net_type(net_b), "Signal")
+                rules_a = self.design_rules.get_rules_for_net("", net_class=class_a)
+                rules_b = self.design_rules.get_rules_for_net("", net_class=class_b)
+                authoriative_mm = max(rules_a.clearance, rules_b.clearance)
+                cp_key = tuple(sorted([class_a, class_b]))
+                if hasattr(self.design_rules, 'class_pairs') and cp_key in self.design_rules.class_pairs:
+                    authoriative_mm = self.design_rules.class_pairs[cp_key].get("clearance", authoriative_mm)
+                    because_text = self.design_rules.class_pairs[cp_key].get("because", "")
+                else:
+                    because_text = ""
+
+        from temper_placer.pcl.constraints import (
+            ConstraintTier,
+            SeparatedConstraint,
+        )
+
+        constraint = SeparatedConstraint(
+            a=comp_a,
+            b=comp_b,
+            min_distance_mm=authoriative_mm,
+            tier=ConstraintTier.HARD,
+            because=because_text,
+            id=f"feedback_clearance_{comp_a}_{comp_b}",
+        )
+        return ConstraintDelta(
+            constraint=constraint,
+            reason=f"Clearance violation: {comp_a}-{comp_b} needs {authoriative_mm}mm",
+            priority=5,
+        )
 
     # -----------------------------------------------------------------------
     # Class 3: Unrouted Critical Pin

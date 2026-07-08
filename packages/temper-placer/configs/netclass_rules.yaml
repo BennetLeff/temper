@@ -1,0 +1,91 @@
+version: "1.0"
+metadata:
+  name: "Temper Netclass Clearance Rules"
+  description: "Single source of truth for per-netclass-pair clearance values"
+  author: "temper-placer"
+  date: "2026-07-07"
+  board: "temper"
+
+default_clearance_mm: 0.2
+
+classes:
+  ACMains:
+    clearance: 6.0
+    trace_width: 3.0
+    via_diameter: 1.2
+    via_drill: 0.6
+    creepage_mm: 6.0
+    voltage_v: 325.0
+    safety_category: "AC"
+    because: "IEC 60335-1 Table 16 working isolation at 400V"
+
+  HighVoltage:
+    clearance: 6.0
+    trace_width: 3.0
+    via_diameter: 1.2
+    via_drill: 0.6
+    creepage_mm: 6.0
+    voltage_v: 400.0
+    safety_category: "HV"
+    because: "IEC 60335-1 Table 16 working isolation at 400V"
+
+  FinePitch:
+    clearance: 0.1
+    trace_width: 0.127
+    via_diameter: 0.4
+    via_drill: 0.2
+    safety_category: "LV"
+
+  Power:
+    clearance: 0.25
+    trace_width: 0.5
+    via_diameter: 0.8
+    via_drill: 0.4
+    safety_category: "LV"
+
+  GateDrive:
+    clearance: 0.25
+    trace_width: 0.4
+    via_diameter: 0.8
+    via_drill: 0.4
+    safety_category: "LV"
+
+  GND:
+    clearance: 0.3
+    trace_width: 1.0
+    via_diameter: 1.0
+    via_drill: 0.5
+    safety_category: "LV"
+
+  HighSpeed:
+    clearance: 0.2
+    trace_width: 0.15
+    via_diameter: 0.6
+    via_drill: 0.3
+    target_impedance: 50.0
+    safety_category: "LV"
+
+  Signal:
+    clearance: 0.15
+    trace_width: 0.2
+    via_diameter: 0.6
+    via_drill: 0.3
+    safety_category: "LV"
+
+  HighCurrent:
+    clearance: 0.25
+    trace_width: 0.5
+    via_diameter: 0.8
+    via_drill: 0.4
+    safety_category: "HV"
+
+class_pairs:
+  ACMains-Signal: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between mains and signal traces"}
+  ACMains-GND: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between mains and ground"}
+  ACMains-Power: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between mains and power"}
+  ACMains-FinePitch: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between mains and fine-pitch"}
+  HighVoltage-Signal: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between HV and signal"}
+  HighVoltage-GND: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between HV and ground"}
+  HighVoltage-Power: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between HV and power"}
+  HighVoltage-FinePitch: {clearance: 6.0, because: "IEC 60335-1 Table 16 working isolation at 400V — 6.0mm between HV and fine-pitch"}
+  ACMains-HighVoltage: {clearance: 6.0, because: "Both HV domains — conservative 6.0mm"}
