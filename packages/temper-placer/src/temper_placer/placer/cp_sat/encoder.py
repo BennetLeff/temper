@@ -95,10 +95,33 @@ def _encode_separated(
     model: CpSatModel,
     ctx: EncoderContext,
 ) -> list[AssumptionLiteral]:
-    """Enforce chebyshev clearance between every component in group A and B.
+    """Enforce Chebyshev clearance between every component in group A and B.
 
-    Each pair (a, b) gets a dedicated NoOverlap2D constraint with intervals
-    inflated by ``min_distance_mm / 2`` on each side.
+    Each pair (a, b) gets a pairwise Chebyshev disjunction — exactly the
+    margin required on **either** the x-axis **or** the y-axis — using 6
+    Boolean auxiliary variables per pair.  This is strictly stronger than
+    the previous ``AddNoOverlap2D`` with one-sided interval inflation,
+    which allowed components to touch on one axis while being disjoint
+    on the other and consequently under-delivered the stated clearance.
+
+    Encoding for a single pair (bounding boxes in model units):
+
+        margin = mm_to_units(min_distance_mm)
+
+        left   ⇔  a.x_end + margin ≤ b.x_start
+        right  ⇔  b.x_end + margin ≤ a.x_start
+        below  ⇔  a.y_end + margin ≤ b.y_start
+        above  ⇔  b.y_end + margin ≤ a.y_start
+
+        x_ok   ⇔  left ∨ right         (BoolVar, not reified — via BoolOr)
+        y_ok   ⇔  below ∨ above
+
+        AddBoolOr([x_ok, y_ok])         # at least one axis has the gap
+
+    Soundness: SAT ⇒ Chebyshev(L∞) gap ≥ margin (by case analysis over
+    which of left/right/below/above holds).  Induction: base n≤1 vacuously
+    true; step adds constraints for (i, k+1) that are linear on existing
+    variables — previous constraints are unaffected.
     """
     labels: list[AssumptionLiteral] = []
     margin = model.mm_to_units(constraint.min_distance_mm)
@@ -117,38 +140,27 @@ def _encode_separated(
             vb = components[rb]
             label = f"sep_{constraint.id}_{ra}_{rb}"
 
-            # Expand a's interval by full margin on each side;
-            # NoOverlap2D with unexpanded b enforces edge-to-edge gap >= margin.
-            # Widen domains to accommodate the expansion (may go negative or exceed board).
-            pad = margin + ctx.board_x_max_units
-            x_start_a = model.new_int_var(-pad, ctx.board_x_max_units + pad, f"sep_xs_{ra}_{rb}")
-            x_end_a = model.new_int_var(-pad, ctx.board_x_max_units + pad, f"sep_xe_{ra}_{rb}")
-            y_start_a = model.new_int_var(-pad, ctx.board_y_max_units + pad, f"sep_ys_{ra}_{rb}")
-            y_end_a = model.new_int_var(-pad, ctx.board_y_max_units + pad, f"sep_ye_{ra}_{rb}")
-            x_size_a = model.new_int_var(0, ctx.board_x_max_units + 2 * pad, f"sep_xsz_{ra}_{rb}")
-            y_size_a = model.new_int_var(0, ctx.board_y_max_units + 2 * pad, f"sep_ysz_{ra}_{rb}")
+            # ---- direction Booleans (each enforced by a linear bound) ----
+            left = model.new_bool_var(f"sep_left_{ra}_{rb}")
+            right = model.new_bool_var(f"sep_right_{ra}_{rb}")
+            below = model.new_bool_var(f"sep_below_{ra}_{rb}")
+            above = model.new_bool_var(f"sep_above_{ra}_{rb}")
 
-            model.add(x_start_a == va.x_start - margin)
-            model.add(x_end_a == va.x_end + margin)
-            model.add(y_start_a == va.y_start - margin)
-            model.add(y_end_a == va.y_end + margin)
-            model.add(x_start_a + x_size_a == x_end_a)
-            model.add(y_start_a + y_size_a == y_end_a)
+            model.model_ref.Add(va.x_end + margin <= vb.x_start).OnlyEnforceIf(left)
+            model.model_ref.Add(vb.x_end + margin <= va.x_start).OnlyEnforceIf(right)
+            model.model_ref.Add(va.y_end + margin <= vb.y_start).OnlyEnforceIf(below)
+            model.model_ref.Add(vb.y_end + margin <= va.y_start).OnlyEnforceIf(above)
 
-            ix_a = model.model_ref.NewIntervalVar(
-                x_start_a, x_size_a, x_end_a, f"six_{ra}_{rb}"
-            )
-            iy_a = model.model_ref.NewIntervalVar(
-                y_start_a, y_size_a, y_end_a, f"siy_{ra}_{rb}"
-            )
-            ix_b = model.model_ref.NewIntervalVar(
-                vb.x_start, vb.x_size, vb.x_end, f"six_{rb}_{ra}"
-            )
-            iy_b = model.model_ref.NewIntervalVar(
-                vb.y_start, vb.y_size, vb.y_end, f"siy_{rb}_{ra}"
-            )
+            # ---- axis Booleans ----
+            x_ok = model.new_bool_var(f"sep_x_ok_{ra}_{rb}")
+            y_ok = model.new_bool_var(f"sep_y_ok_{ra}_{rb}")
 
-            model.model_ref.AddNoOverlap2D([ix_a, ix_b], [iy_a, iy_b])
+            model.model_ref.AddBoolOr([x_ok.Not(), left, right])
+            model.model_ref.AddBoolOr([y_ok.Not(), below, above])
+
+            # ---- final disjunction — at least one axis separated ----
+            model.model_ref.AddBoolOr([x_ok, y_ok])
+
             labels.append(model.new_assumption(label))
     return labels
 
