@@ -25,10 +25,7 @@ from dataclasses import dataclass
 import numpy as np
 Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
-if hasattr(jnp, "long"):
-    _jnp_int = np.long  # type: ignore[attr-defined]
-else:
-    _jnp_int = np.int32
+_jnp_int = np.int32  # post-JAX retirement: numpy.int32 only
 
 logger = logging.getLogger(__name__)
 
