@@ -107,7 +107,7 @@ def classify_vias(routed_pcb_path: Path) -> ViaCounts:
     return _classify_vias(result)
 
 
-def classify_vias_from_parse(parse_result: "ParseResult") -> ViaCounts:
+def classify_vias_from_parse(parse_result: ParseResult) -> ViaCounts:
     """Classify all vias in a ParseResult (for reuse by human_reference_extractor).
 
     Args:
@@ -124,14 +124,14 @@ def classify_vias_from_parse(parse_result: "ParseResult") -> ViaCounts:
 # ---------------------------------------------------------------------------
 
 
-def _parse_pcb(pcb_path: Path) -> "ParseResult":
+def _parse_pcb(pcb_path: Path) -> ParseResult:
     """Parse a KiCad PCB file. Returns ParseResult with vias, pads, components."""
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     return parse_kicad_pcb(Path(pcb_path))
 
 
-def _classify_vias(result: "ParseResult") -> ViaCounts:
+def _classify_vias(result: ParseResult) -> ViaCounts:
     """Classify all vias in a ParseResult.
 
     - Thermal: vias under Q1/Q2 footprint on DC_BUS+.
@@ -188,7 +188,7 @@ def _classify_vias(result: "ParseResult") -> ViaCounts:
 
 
 def _get_component_bboxes(
-    result: "ParseResult",
+    result: ParseResult,
     refs: frozenset[str],
 ) -> list[tuple[float, float, float, float]]:
     """Get bounding boxes for components with given refs (x_min, y_min, x_max, y_max).
@@ -212,7 +212,7 @@ def _get_component_bboxes(
 
 
 def _get_board_bbox(
-    result: "ParseResult",
+    result: ParseResult,
 ) -> tuple[float, float, float, float] | None:
     """Get the board bounding box (x_min, y_min, x_max, y_max)."""
     board = result.board
@@ -222,7 +222,7 @@ def _get_board_bbox(
 
 
 def _is_via_in_bbox(
-    via: "ViaData",
+    via: ViaData,
     bboxes: list[tuple[float, float, float, float]],
 ) -> bool:
     """Check if a via's position is within any of the given bboxes."""
@@ -234,7 +234,7 @@ def _is_via_in_bbox(
 
 
 def _is_via_near_board_edge(
-    via: "ViaData",
+    via: ViaData,
     board_bbox: tuple[float, float, float, float],
     margin_mm: float,
 ) -> bool:

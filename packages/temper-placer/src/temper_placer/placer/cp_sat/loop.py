@@ -19,13 +19,13 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
     from temper_placer.placer.cp_sat.feedback import (
         ClassificationResult,
         ConstraintDelta,
-        FeedbackClassifier,
         UnclassifiedFailure,
     )
     from temper_placer.placer.cp_sat.gates import BoardState, Gate
@@ -131,8 +131,9 @@ class PlaceRouteLoop:
         import logging
         _logger = logging.getLogger(__name__)
         try:
-            from temper_placer.io.netclass_loader import load_netclass_rules
             from pathlib import Path
+
+            from temper_placer.io.netclass_loader import load_netclass_rules
             config_path = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
             if config_path.exists():
                 return load_netclass_rules(config_path)
@@ -170,7 +171,7 @@ class PlaceRouteLoop:
         Returns:
             LoopResult with success status, placement, and routing.
         """
-        from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult, solve_placement
+        from temper_placer.placer.cp_sat.encoder import solve_placement
 
         # Reset per-run state.
         self._unmeasured_streak = {}
@@ -186,8 +187,11 @@ class PlaceRouteLoop:
         # ---- Build gate registry for all_gates path --------------------------
         if all_gates:
             from temper_placer.placer.cp_sat.gates import (
-                DrcGate, PhysicsGate, QualityGate,
-                RoutingGate, StackupGate,
+                DrcGate,
+                PhysicsGate,
+                QualityGate,
+                RoutingGate,
+                StackupGate,
             )
             gates = [DrcGate(), RoutingGate(), StackupGate(),
                      PhysicsGate(), QualityGate()]
@@ -219,7 +223,6 @@ class PlaceRouteLoop:
             )
 
         # ---- Legacy classifier-based path (unchanged) ------------------------
-        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
         # ---- Legacy classifier-based path ------------------------------------
         # Backward-compatible: when all_gates=False (default), the original
@@ -415,9 +418,9 @@ class PlaceRouteLoop:
         failures per gate and exits after 3+ rounds.
         """
         from pathlib import Path as _Path
+
         from temper_placer.placer.cp_sat.encoder import solve_placement
         from temper_placer.placer.cp_sat.gates import GateStage, GateStatus
-        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
         self._gate_results = {}
 
@@ -770,7 +773,7 @@ class PlaceRouteLoop:
         returning ``UNMEASURED`` is logged but never treated as green
         (the core three-state invariant).
         """
-        from temper_placer.placer.cp_sat.gates import GateStatus, GateResult
+        from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
 
         self._gate_results = {}
         for gate in self.gates:
@@ -902,7 +905,6 @@ class PlaceRouteLoop:
 
     def _gates_for_stage(self, gates: list, stage) -> list:
         """Return gates from *gates* registered for the given stage."""
-        from temper_placer.placer.cp_sat.gates import GateStage
         return [g for g in gates if g.stage is stage]
 
     def _collect_deltas_from_gates(
@@ -941,10 +943,10 @@ class PlaceRouteLoop:
 
     def _route_placement(
         self, placement, netlist, board, seed: int
-    ) -> "RoutingResult":
+    ) -> RoutingResult:
         """Route a placement through router_v6."""
-        import os
         import contextlib
+        import os
         import tempfile
 
         from temper_placer.router_v6.adapter import RoutingResult, route_pcb
@@ -1196,7 +1198,7 @@ def _build_minimal_pcb(netlist, board, netclass_rules=None) -> str:
                         f" (size 1 1) (layers \"F.Cu\" \"F.Paste\" \"F.Mask\")"
                         f" (net {net_idx} \"{pin_net}\"))"
                     )
-            lines.append(f"    (at 0 0)")
+            lines.append("    (at 0 0)")
             lines.append("  )")
 
     lines.append(")")

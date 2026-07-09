@@ -256,7 +256,6 @@ def test_route_pcb_no_source_path_raises():
 
 def test_place_to_route_pipeline():
     """CP-SAT placement feeds into routing pipeline end-to-end."""
-    from unittest import mock as umock
 
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 

@@ -2,6 +2,7 @@
 
 import pytest
 
+from temper_placer.core.board import LayerStackup
 from temper_placer.core.ipc2152 import (
     DEFAULT_SIGNAL_CURRENT,
     NET_CURRENTS,
@@ -14,9 +15,7 @@ from temper_placer.core.ipc2152 import (
     ipc2152_min_width,
     ipc2152_min_width_mm,
 )
-from temper_placer.core.board import LayerStackup
 from temper_placer.core.stackup import jlc04161h_7628
-
 
 # ---------------------------------------------------------------------------
 # Unit conversion helpers

@@ -96,6 +96,7 @@ class DrcRatchet:
             Exception: On parse/DRC failure.
         """
         import temper_drc_rs
+
         from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
         parsed = parse_kicad_pcb_v6(pcb_path)

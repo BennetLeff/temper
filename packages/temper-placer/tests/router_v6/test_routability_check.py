@@ -9,7 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import math
 import time
 from pathlib import Path
 
@@ -19,11 +18,9 @@ import pytest
 from temper_placer.router_v6.routability_check import (
     astar_passability,
     check_routability,
-    check_routability_bidi,
     check_routability_cc,
     check_routability_direct,
 )
-
 
 # ---------------------------------------------------------------------------
 # Unit tests (correctness proof)
@@ -279,10 +276,10 @@ def _load_temper_edt():
     pytest.importorskip("shapely")
     from dataclasses import replace
 
+    from temper_placer.deterministic.state import BoardState
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.router_v6.channel_widths import _build_edt
     from temper_placer.router_v6.routing_space import RoutingSpaceStage
-    from temper_placer.deterministic.state import BoardState
 
     pcb_path = Path(__file__).resolve().parent.parent.parent.parent.parent / "pcb" / "temper.kicad_pcb"
     if not pcb_path.exists():

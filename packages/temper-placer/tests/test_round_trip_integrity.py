@@ -108,7 +108,6 @@ def test_round_trip_netlist_preservation(pcb_rel: Path) -> None:
         pytest.skip(f"PCB not found: {pcb_path}")
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
-    from temper_placer.io.kicad_writer import write_placements_to_pcb
 
     parsed_input = parse_kicad_pcb(pcb_path)
     input_nets = _extract_netlist(parsed_input)

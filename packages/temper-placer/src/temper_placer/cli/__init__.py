@@ -395,12 +395,12 @@ def optimize(
     if loop:
         console.print("\n[bold cyan]Running place→route feedback loop...[/]")
         try:
-            from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
             from temper_placer.io.config_loader import (
                 create_board_from_constraints,
                 load_constraints,
             )
             from temper_placer.io.kicad_parser import parse_kicad_pcb
+            from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
 
             parse_result = parse_kicad_pcb(input_pcb)
             netlist = parse_result.netlist
@@ -413,6 +413,7 @@ def optimize(
             if not pcl_constraints:
                 try:
                     import yaml as _yaml
+
                     from temper_placer.pcl.parser import parse_constraint_dict
                     raw = config.read_text(encoding="utf-8") if hasattr(config, "read_text") else ""
                     if raw:
@@ -519,6 +520,7 @@ def optimize(
                 if loop_result.placement is not None:
                     import os as _os
                     import tempfile as _tempfile
+
                     from temper_placer.router_v6.adapter import (
                         RoutingResult,
                         _apply_placements_to_pcb,
@@ -547,7 +549,10 @@ def optimize(
                     # Run KiCad DRC on the placed output.
                     console.print("\n[bold]Running KiCad DRC (truth gate)...[/]")
                     try:
-                        import json, subprocess, tempfile, os
+                        import json
+                        import os
+                        import subprocess
+                        import tempfile
 
                         drc_out = Path(tempfile.mktemp(suffix=".json"))
                         result = subprocess.run(

@@ -7,7 +7,7 @@ Moved from ``temper_drc.report.formatter``.
 from __future__ import annotations
 
 import json
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from temper_placer.validation.drc_result import RunResult

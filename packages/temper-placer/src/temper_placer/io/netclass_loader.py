@@ -1,13 +1,14 @@
 """Load netclass_rules.yaml into a DesignRules instance."""
 
 from __future__ import annotations
+
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-import logging
+
 import yaml
 
-from temper_placer.core.design_rules import DesignRules, NetClassRules, TEMPER_NET_ASSIGNMENTS
-from temper_placer.core.net_classification import classify_net_type
+from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS, DesignRules, NetClassRules
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +36,10 @@ def load_netclass_rules(path: Path) -> NetClassRulesDict:
     """
     with open(path) as f:
         data = yaml.safe_load(f)
-    
+
     dr = DesignRules()
     dr.default_clearance = data["default_clearance_mm"]
-    
+
     # Populate net_classes
     for class_name, class_data in data.get("classes", {}).items():
         # Map YAML field names to NetClassRules constructor args
@@ -56,10 +57,10 @@ def load_netclass_rules(path: Path) -> NetClassRulesDict:
             layer=class_data.get("layer"),
         )
         dr.net_classes[class_name] = nc
-    
+
     # Populate net_class_assignments from TEMPER_NET_ASSIGNMENTS
     dr.net_class_assignments.update(TEMPER_NET_ASSIGNMENTS)
-    
+
     # Parse class_pairs
     class_pairs: dict[tuple[str, str], dict] = {}
     for pair_key, pair_data in data.get("class_pairs", {}).items():
@@ -74,5 +75,5 @@ def load_netclass_rules(path: Path) -> NetClassRulesDict:
             "because": pair_data.get("because"),
         }
     dr.class_pairs = class_pairs
-    
+
     return NetClassRulesDict(design_rules=dr, class_pairs=class_pairs)

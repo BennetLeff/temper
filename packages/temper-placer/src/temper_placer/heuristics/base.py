@@ -10,6 +10,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import IntEnum
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.io.config_loader import PlacementConstraints

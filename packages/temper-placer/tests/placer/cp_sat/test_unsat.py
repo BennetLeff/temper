@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 from ortools.sat.python import cp_model
 
 from temper_placer.pcl.constraints import ConstraintType

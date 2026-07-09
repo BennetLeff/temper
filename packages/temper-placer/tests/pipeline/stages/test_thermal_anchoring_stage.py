@@ -22,7 +22,6 @@ from temper_placer.io.config_loader import (
 from temper_placer.pipeline.dag_types import DataContext, StageResult
 from temper_placer.pipeline.state import PipelineError, PipelineState
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

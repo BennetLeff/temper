@@ -5,9 +5,9 @@ from click.testing import CliRunner
 
 jax = pytest.importorskip("jax")
 
-from temper_placer.cli import main  # noqa: E402
-
 from pathlib import Path  # noqa: E402
+
+from temper_placer.cli import main  # noqa: E402
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 MINIMAL_PCB = FIXTURES_DIR / "minimal_board.kicad_pcb"

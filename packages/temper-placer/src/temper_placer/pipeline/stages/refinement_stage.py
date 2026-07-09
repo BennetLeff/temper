@@ -6,7 +6,6 @@ import time
 from typing import Any
 
 import numpy as np
-import numpy as np
 
 from temper_placer.pipeline.dag_types import DataContext, StageResult
 from temper_placer.router_v6.adapter import MazeRouter
@@ -17,7 +16,6 @@ class RefinementStage:
         start_time = time.time()
         from temper_placer.core.state import PlacementState
         from temper_placer.pipeline.iterator import PlaceRouteIterator
-        from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
         board = context["board"]
         netlist = context["netlist"]

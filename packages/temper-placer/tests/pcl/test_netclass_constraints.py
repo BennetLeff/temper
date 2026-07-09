@@ -1,7 +1,7 @@
 """Test CP-SAT netclass constraint generation using DesignRules."""
-import pytest
 from pathlib import Path
 
+import pytest
 
 RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
 
@@ -125,10 +125,10 @@ class TestCrossClassGeneration:
         assert constraints[0].min_distance_mm == 6.0
 
     def test_constraint_tier_is_hard(self, rules):
+        from temper_placer.pcl.constraints import ConstraintTier
         from temper_placer.placer.cp_sat.netclass_constraints import (
             generate_netclass_separated_constraints,
         )
-        from temper_placer.pcl.constraints import ConstraintTier
         c1, n1 = _make_mock_component("U1", "DC_BUS+")
         c2, n2 = _make_mock_component("U2", "SPI_CLK")
         class MockNetlist:

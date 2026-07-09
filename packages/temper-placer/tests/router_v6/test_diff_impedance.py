@@ -7,8 +7,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
-
 from temper_placer.router_v6.diff_impedance import (
     USB_PREDICTED_ZDIFF,
     USB_S_MM,

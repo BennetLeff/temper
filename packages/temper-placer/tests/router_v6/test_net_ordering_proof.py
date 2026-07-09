@@ -11,13 +11,10 @@ leaves more resources for subsequent nets.
 
 from __future__ import annotations
 
-import math
 import random
 
-import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
-
 
 # --- Theorem statement ---
 

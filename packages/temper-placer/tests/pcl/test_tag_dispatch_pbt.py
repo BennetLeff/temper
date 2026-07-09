@@ -10,25 +10,23 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import Component, Netlist
+from temper_placer.pcl.constraints import ConstraintTier
 from temper_placer.pcl.tag_dispatch import (
+    _TAG_CLOSURE,
     ComponentTag,
+    E,
     TagAnd,
     TagNot,
     TagOr,
     TagRef,
     TagValidationError,
-    _TAG_CLOSURE,
-    E,
     components,
-    pre_expansion_validate,
     resolve,
 )
 from temper_placer.pcl.tagged_constraints import (
     TaggedAdjacentConstraint,
-    TaggedSeparatedConstraint,
 )
-from temper_placer.pcl.constraints import ConstraintTier
 
 
 def _make_component(ref: str, tags: frozenset[str] | None = None) -> Component:

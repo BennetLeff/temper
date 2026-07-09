@@ -29,7 +29,9 @@ from collections.abc import Callable
 from contextvars import ContextVar
 from functools import wraps
 from typing import Any, Optional
+
 import numpy as np
+
 from temper_placer.explainability.trace import Trace
 
 # Global context for active tracing.

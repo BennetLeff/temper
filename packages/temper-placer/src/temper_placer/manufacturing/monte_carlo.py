@@ -9,7 +9,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+
 import numpy as np
+
+
 @dataclass
 class DistributionParams:
     """Parameters for a tolerance distribution."""
@@ -60,7 +63,7 @@ class MonteCarloSimulator:
         self.config = config
         self._rng = np.random.default_rng(config.seed)
 
-    def sample_parameters(self, n: int) -> dict[str, "np.ndarray"]:
+    def sample_parameters(self, n: int) -> dict[str, np.ndarray]:
         """
         Generate n samples of all manufacturing parameters.
 

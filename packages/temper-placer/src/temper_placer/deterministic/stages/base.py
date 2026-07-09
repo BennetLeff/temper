@@ -6,9 +6,8 @@ from typing import TYPE_CHECKING
 from ..state import BoardState
 
 if TYPE_CHECKING:
-    from temper_placer.validation.drc_fence import InvariantSpec
-
     from temper_placer.pipeline.bottleneck_report import DeclaredArtifact
+    from temper_placer.validation.drc_fence import InvariantSpec
 
 class Stage(ABC):
     '''Abstract base class for pipeline stages.'''

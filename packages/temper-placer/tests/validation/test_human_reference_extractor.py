@@ -11,10 +11,8 @@ import yaml
 
 from temper_placer.validation.human_reference_extractor import (
     HumanReference,
-    MetricValue,
     extract_human_reference,
 )
-
 
 # ---------------------------------------------------------------------------
 # Path helpers

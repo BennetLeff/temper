@@ -10,16 +10,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from temper_placer.router_v6.stage0_data import ParsedPCB
-
 # @req(2026-07-08-004-feat-4-layer-functional-stackup-plan, R6):
 # USB diff-pair geometry from U5 diff_impedance module.
 from temper_placer.router_v6.diff_impedance import (
     USB_PREDICTED_ZDIFF,
     USB_S_MM,
     USB_W_MM,
-    edge_coupled_microstrip_z0,
 )
+from temper_placer.router_v6.stage0_data import ParsedPCB
 
 
 @dataclass

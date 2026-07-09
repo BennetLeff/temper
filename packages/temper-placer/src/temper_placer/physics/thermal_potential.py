@@ -642,16 +642,7 @@ def validate_heatsink_edge(
         for zone in copper_zones:
             if hasattr(zone, "bounds"):
                 zx0, zy0, zx1, zy1 = zone.bounds
-                if edge_upper == "TOP" and zy1 >= y_max - 5.0:
-                    found = True
-                    break
-                elif edge_upper == "BOTTOM" and zy0 <= y_min + 5.0:
-                    found = True
-                    break
-                elif edge_upper == "LEFT" and zx0 <= x_min + 5.0:
-                    found = True
-                    break
-                elif edge_upper == "RIGHT" and zx1 >= x_max - 5.0:
+                if edge_upper == "TOP" and zy1 >= y_max - 5.0 or edge_upper == "BOTTOM" and zy0 <= y_min + 5.0 or edge_upper == "LEFT" and zx0 <= x_min + 5.0 or edge_upper == "RIGHT" and zx1 >= x_max - 5.0:
                     found = True
                     break
         if not found:

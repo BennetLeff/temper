@@ -24,7 +24,6 @@ from temper_placer.geometry.projections import (
     project_outside_keepout,
 )
 
-
 # ---------------------------------------------------------------------------
 # project_onto_zone
 # ---------------------------------------------------------------------------

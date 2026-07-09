@@ -6,9 +6,6 @@ Part of temper-7rqf (Stage 6 - Quality Gate)
 
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass
-
 import pytest
 
 from temper_placer.router_v6.quality.corridor import (
@@ -16,14 +13,11 @@ from temper_placer.router_v6.quality.corridor import (
     TrackSegment,
     _assign_tracks_to_channels,
     _compute_courtyards,
+    _gap,
     _identify_channels,
     _overlap,
-    _gap,
     _point_in_rect,
-    corridor_consolidation_score,
-    track_spread_score,
 )
-
 
 # ---------------------------------------------------------------------------
 # Stub types for testing internal helpers without full KiCad parse

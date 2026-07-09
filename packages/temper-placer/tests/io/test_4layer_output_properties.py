@@ -65,6 +65,7 @@ class TestKiCadExportLayerValidation:
     def test_validation_passes_for_4_layers(self):
         """_validate_4_layer_output succeeds for a valid 4-layer board."""
         from kiutils.board import Board as KiBoard
+
         from temper_placer.io.kicad_exporter import _validate_4_layer_output
 
         board = KiBoard.from_file(str(_TEMPER_PCB))

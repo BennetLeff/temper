@@ -10,7 +10,6 @@ Run with:
 
 from __future__ import annotations
 
-import sys
 import time
 from pathlib import Path
 
@@ -218,7 +217,7 @@ def benchmark_temper_board():
         print(f"  Found net: {target_net.name} ({len(target_net.pins)} pins)")
 
     if len(target_net.pins) < 2:
-        print(f"  SKIP: Net has insufficient pins")
+        print("  SKIP: Net has insufficient pins")
         return
 
     # Get pin world positions

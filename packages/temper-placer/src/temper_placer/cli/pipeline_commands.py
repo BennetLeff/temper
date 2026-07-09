@@ -1,9 +1,8 @@
 import json
 from pathlib import Path
 
-import numpy as np
-
 import click
+import numpy as np
 
 from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator, PipelinePhase
 from temper_placer.pipeline.visualization import RichDashboard, TerminalProgress

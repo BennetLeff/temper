@@ -8,7 +8,6 @@ Part of temper-7qu7 (Stage 2 - Channel Analysis)
 from __future__ import annotations
 
 import hashlib
-import json
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -77,7 +76,6 @@ def _rasterize_boundary_mask(
         distance.
     """
     import shapely.prepared
-    from shapely.geometry import MultiPolygon
 
     min_x, min_y, max_x, max_y = bounds
     w = int(np.ceil((max_x - min_x) / cell_size)) + 1

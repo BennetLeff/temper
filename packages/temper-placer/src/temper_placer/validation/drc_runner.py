@@ -239,14 +239,25 @@ def run_drc(pcb_path: Path) -> DrcResult:
 
 import time as _time
 from dataclasses import dataclass as _dataclass
-from typing import TYPE_CHECKING as _TYPE_CHECKING, Any as _Any
+from typing import TYPE_CHECKING as _TYPE_CHECKING
+from typing import Any as _Any
 
 from temper_placer.validation.drc_result import (
-    CheckResult as _CheckResult,
     Check as _Check,
+)
+from temper_placer.validation.drc_result import (
+    CheckResult as _CheckResult,
+)
+from temper_placer.validation.drc_result import (
     Issue as _Issue,
+)
+from temper_placer.validation.drc_result import (
     Location as _Location,
+)
+from temper_placer.validation.drc_result import (
     RunResult as _RunResult,
+)
+from temper_placer.validation.drc_result import (
     Severity as _Severity,
 )
 

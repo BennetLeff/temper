@@ -9,7 +9,6 @@ Covers:
 - R14: Rust engine never aborts process, returns Python exceptions
 """
 
-import math
 
 import pytest
 

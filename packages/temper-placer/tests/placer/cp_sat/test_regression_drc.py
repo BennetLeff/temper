@@ -24,7 +24,6 @@ from __future__ import annotations
 import contextlib
 import json
 import os
-import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -78,7 +77,7 @@ def _run_drc(pcb_path: str) -> dict:
 
     if not drc_out.exists():
         pytest.skip(
-            f"kicad-cli DRC produced no output file"
+            "kicad-cli DRC produced no output file"
             + (f": {stderr_summary}" if stderr_summary else "")
         )
         return {}

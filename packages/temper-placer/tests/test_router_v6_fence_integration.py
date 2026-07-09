@@ -8,11 +8,11 @@ without errors.
 from pathlib import Path
 
 import pytest
-from temper_placer.validation.drc_result import ClearanceCheck, ComponentOverlapCheck
-from temper_placer.validation.drc_fence import DRCFence
-from temper_placer.validation.drc_runner import CheckRunner
 
 from temper_placer.router_v6.pipeline import RouterV6Pipeline
+from temper_placer.validation.drc_fence import DRCFence
+from temper_placer.validation.drc_result import ClearanceCheck, ComponentOverlapCheck
+from temper_placer.validation.drc_runner import CheckRunner
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures"
 

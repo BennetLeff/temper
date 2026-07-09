@@ -1,23 +1,24 @@
 """Integration test: auto_enrich generates constraints from Temper board data."""
 
-import pytest
 
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
+    Axis,
+    BoardSide,
     ConstraintTier,
+    EdgeType,
     KeepoutConstraint,
 )
 from temper_placer.pcl.parser import ConstraintCollection
+from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
 from temper_placer.pcl.tagged_constraints import (
     TaggedAdjacentConstraint,
     TaggedAlignedConstraint,
     TaggedAnchoredConstraint,
     TaggedOnSideConstraint,
 )
-from temper_placer.pcl.tag_dispatch import ComponentTag, TagRef
-from temper_placer.pcl.constraints import Axis, BoardSide, EdgeType
 
 
 def test_keepout_auto_emission():

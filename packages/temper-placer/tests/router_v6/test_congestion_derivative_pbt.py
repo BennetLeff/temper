@@ -18,9 +18,6 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_core import (
-    _CONGESTION_CHECK_INTERVAL,
-    _CONGESTION_GROWTH_THRESHOLD,
-    _CONGESTION_PLATEAU_STRIKES,
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
 )
@@ -82,7 +79,7 @@ def test_congestion_derivative_no_false_positive_theta_star(gsp):
         grid, start, goal, net_id=0, enable_congestion_derivative=False,
     )
     assert path_off is not None, (
-        f"Theta* without derivative failed on reachable grid"
+        "Theta* without derivative failed on reachable grid"
     )
 
 
@@ -114,7 +111,7 @@ def test_congestion_derivative_no_false_positive_lazy_theta_star(gsp):
         grid, start, goal, net_id=0, enable_congestion_derivative=False,
     )
     assert path_off is not None, (
-        f"Lazy Theta* without derivative failed on reachable grid"
+        "Lazy Theta* without derivative failed on reachable grid"
     )
 
 
@@ -361,7 +358,7 @@ def test_congestion_derivative_large_grid_consistency_theta_star(gsp):
     # (early abort can't "find" a path that doesn't exist)
     else:
         assert path_on is None, (
-            f"Early abort found phantom path on unreachable grid"
+            "Early abort found phantom path on unreachable grid"
         )
 
 

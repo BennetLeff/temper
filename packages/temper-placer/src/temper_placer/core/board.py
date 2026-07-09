@@ -612,7 +612,7 @@ class Board:
         """Total board area in mm²."""
         return self.width * self.height
 
-    def rotated_90(self) -> "Board":
+    def rotated_90(self) -> Board:
         """Return a new Board rotated 90° clockwise.
 
         All geometry is transformed: (x, y) maps to (old_height - y, x).

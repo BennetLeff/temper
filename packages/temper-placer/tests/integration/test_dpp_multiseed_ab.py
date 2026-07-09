@@ -41,8 +41,8 @@ class TestDPPABInfrastructure:
         sys.path.insert(0, str(reporoot / "tools" / "measurements"))
         from dpp_ab_measurement import (
             _run_baseline,
-            _run_random_multiseed,
             _run_dpp_multiseed,
+            _run_random_multiseed,
         )
         for fn in [_run_baseline, _run_random_multiseed, _run_dpp_multiseed]:
             assert callable(fn), f"{fn} is not callable"

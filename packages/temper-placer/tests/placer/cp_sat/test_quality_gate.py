@@ -9,8 +9,6 @@ import tempfile
 from pathlib import Path
 from unittest import mock
 
-import pytest
-
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     Gate,
@@ -21,7 +19,6 @@ from temper_placer.placer.cp_sat.gates import (
     Violation,
     ViolationType,
 )
-
 
 # =========================================================================
 # Helpers

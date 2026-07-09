@@ -15,8 +15,7 @@ registered by U6 when ``--all-gates`` is requested.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from temper_placer.placer.cp_sat.gates import (
     BoardState,

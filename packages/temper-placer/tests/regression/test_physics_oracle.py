@@ -27,10 +27,8 @@ from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.metrics.quality import compute_quality_report
 from temper_placer.regression.physics_oracle import (
-    PhysicsOracleResult,
     run_physics_oracle,
 )
-
 
 # ---- Helpers ----
 
@@ -155,8 +153,8 @@ class TestHumanPlacement:
 
     def test_temper_components_classified(self):
         """Parser with design_rules classifies at least 5 HV/AC components."""
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.core.design_rules import create_temper_design_rules
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
 
         temper_pcb = Path("pcb/temper.kicad_pcb")
         if not temper_pcb.exists():
@@ -254,9 +252,9 @@ class TestThermalScore:
 
     def test_empty_thermal_set_returns_one(self):
         """Empty thermal_components → perfect score (nothing to check)."""
-        from temper_placer.metrics.quality import thermal_score
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Netlist
+        from temper_placer.metrics.quality import thermal_score
 
         netlist = Netlist(); netlist.components = []; netlist.build_indices()
         state = self._make_state([])
@@ -268,9 +266,9 @@ class TestThermalScore:
 
     def test_component_at_edge_scores_one(self):
         """Component placed at TOP edge (y=height) → distance 0 → score 1.0."""
-        from temper_placer.metrics.quality import thermal_score
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import thermal_score
 
         comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
                          initial_position=(50, 150))
@@ -284,9 +282,9 @@ class TestThermalScore:
 
     def test_component_at_max_distance_scores_zero(self):
         """Component 10mm from TOP edge with max_distance=10 → score 0.0."""
-        from temper_placer.metrics.quality import thermal_score
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import thermal_score
 
         comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
                          initial_position=(50, 140))  # 10mm from top (150)
@@ -301,9 +299,9 @@ class TestThermalScore:
 
     def test_half_max_distance_scores_half(self):
         """Component 5mm from TOP with max_distance=10 → score 0.5."""
-        from temper_placer.metrics.quality import thermal_score
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import thermal_score
 
         comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
                          initial_position=(50, 145))  # 5mm from top
@@ -318,9 +316,9 @@ class TestThermalScore:
 
     def test_two_components_averaged(self):
         """One at edge (1.0) + one at max (0.0) → average 0.5."""
-        from temper_placer.metrics.quality import thermal_score
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import thermal_score
 
         q1 = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
                        initial_position=(25, 150))  # at edge
@@ -337,9 +335,9 @@ class TestThermalScore:
 
     def test_bottom_edge_inverts_distance(self):
         """Component at y=0 → bottom edge distance 0 → score 1.0."""
-        from temper_placer.metrics.quality import thermal_score
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import thermal_score
 
         comp = Component(ref="Q1", footprint="TO-247", bounds=(10, 5), pins=[],
                          initial_position=(50, 0))
@@ -359,9 +357,9 @@ class TestThermalPBT:
 
     def test_score_decreases_with_distance(self):
         """For any component, moving it away from the edge reduces score."""
-        from temper_placer.metrics.quality import thermal_score
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import thermal_score
 
         for edge, (dx, dy) in [("TOP", (0, -1)), ("BOTTOM", (0, 1)),
                                 ("LEFT", (1, 0)), ("RIGHT", (-1, 0))]:
@@ -396,11 +394,12 @@ class TestThermalTemper:
 
     def test_temper_thermal_components_detected(self):
         """infer_quality_config finds temper thermal components (Q1, Q2)."""
-        from temper_placer.io.reference_loader import infer_quality_config
         from dataclasses import dataclass
         from pathlib import Path
-        from temper_placer.io.kicad_parser import parse_kicad_pcb
+
         from temper_placer.core.design_rules import create_temper_design_rules
+        from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.io.reference_loader import infer_quality_config
 
         parse = parse_kicad_pcb(Path("pcb/temper.kicad_pcb"),
                                 design_rules=create_temper_design_rules())
@@ -490,8 +489,8 @@ class TestDualRailClearance:
 
     def test_dual_rail_all_pairs_above_6mm_gives_perfect_scores(self):
         """2 HV + 5 LV components, all pairs above 6.0mm → both scores=1.0, violations=0."""
-        from temper_placer.metrics.quality import dual_rail_clearance_report
         from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import dual_rail_clearance_report
 
         hv = [
             Component(ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
@@ -541,8 +540,8 @@ class TestDualRailClearance:
     def test_dual_rail_mixed_distances_counts_correct_violations(self):
         """One pair at 1.5mm (below both), one at 4.5mm (below 6.0mm only),
         rest above 6.0mm → violations_3mm=1, violations_6mm=2."""
-        from temper_placer.metrics.quality import dual_rail_clearance_report
         from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import dual_rail_clearance_report
 
         # Q1 (HV) at (0, 0), bounds (10, 5) → half-width 5, half-height 2.5
         # Q2 (HV) at (0, 30), bounds (10, 5)
@@ -638,8 +637,8 @@ class TestDualRailClearance:
 
     def test_dual_rail_empty_hv_gives_perfect_scores(self):
         """0 HV components → all scores 1.0, violation counts 0."""
-        from temper_placer.metrics.quality import dual_rail_clearance_report
         from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import dual_rail_clearance_report
 
         lv = Component(ref="U1", footprint="QFP", bounds=(8.0, 8.0),
                        pins=[], initial_position=(0.0, 0.0), net_class="Signal")
@@ -656,8 +655,8 @@ class TestDualRailClearance:
 
     def test_dual_rail_empty_lv_gives_perfect_scores(self):
         """0 LV components → all scores 1.0, violation counts 0."""
-        from temper_placer.metrics.quality import dual_rail_clearance_report
         from temper_placer.core.netlist import Component, Netlist
+        from temper_placer.metrics.quality import dual_rail_clearance_report
 
         hv = Component(ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
                        pins=[], initial_position=(0.0, 0.0), net_class="HighVoltage")
@@ -674,8 +673,8 @@ class TestDualRailClearance:
 
     def test_dual_rail_both_empty_gives_perfect_scores(self):
         """No HV or LV components → all scores 1.0, violation counts 0."""
-        from temper_placer.metrics.quality import dual_rail_clearance_report
         from temper_placer.core.netlist import Netlist
+        from temper_placer.metrics.quality import dual_rail_clearance_report
 
         netlist = Netlist(); netlist.components = []; netlist.build_indices()
         state = self._make_state([])
@@ -691,8 +690,8 @@ class TestDualRailClearance:
     def test_compute_quality_report_includes_dual_rail_fields(self):
         """compute_quality_report returns all four dual-rail fields alongside
         the legacy hv_lv_clearance_score."""
-        from temper_placer.core.netlist import Component, Netlist
         from temper_placer.core.board import Board
+        from temper_placer.core.netlist import Component, Netlist
 
         q1 = Component(ref="Q1", footprint="small", bounds=(2.0, 2.0),
                        pins=[], initial_position=(0.0, 0.0), net_class="HighVoltage")
@@ -763,8 +762,9 @@ class TestHumanBaseline:
 
     def test_import_and_signature(self):
         """score_human_baseline is importable and has correct signature."""
-        from temper_placer.regression.physics_oracle import score_human_baseline
         import inspect
+
+        from temper_placer.regression.physics_oracle import score_human_baseline
 
         sig = inspect.signature(score_human_baseline)
         params = list(sig.parameters.keys())

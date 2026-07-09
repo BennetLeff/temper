@@ -2,20 +2,16 @@
 
 from unittest import mock
 
+from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
+from temper_placer.placer.cp_sat.feedback import (
+    FeedbackClassifier,
+)
 from temper_placer.placer.cp_sat.loop import (
     LoopExitReason,
     LoopResult,
     PlaceRouteLoop,
     RoundRecord,
-    UnsatError,
 )
-from temper_placer.placer.cp_sat.feedback import (
-    ConstraintDelta,
-    FeedbackClassifier,
-    UnclassifiedFailure,
-)
-from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult, solve_placement
-
 
 # ---------------------------------------------------------------------------
 # U4.1: --no-loop flag (existing behavior preserved)
@@ -25,6 +21,7 @@ from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult, solve_plac
 def test_optimize_no_loop_skips_loop_stage():
     """--no-loop flag skips the place-route loop integration."""
     from click.testing import CliRunner
+
     from temper_placer.cli import main
 
     runner = CliRunner()

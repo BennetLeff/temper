@@ -32,8 +32,8 @@ from temper_placer.metrics.quality import (
     thermal_score,
     zone_compliance_score,
 )
-from temper_placer.placer.deterministic import PlacementResult
 from temper_placer.pipeline.derivation import derive_constraints_from_spec
+from temper_placer.placer.deterministic import PlacementResult
 
 
 @dataclass

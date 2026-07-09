@@ -13,8 +13,7 @@ import community as community_louvain
 import networkx as nx
 import numpy as np
 
-from temper_placer.core.netlist import Netlist
-from temper_placer.core.netlist import build_adjacency_matrix
+from temper_placer.core.netlist import Netlist, build_adjacency_matrix
 
 
 @dataclass

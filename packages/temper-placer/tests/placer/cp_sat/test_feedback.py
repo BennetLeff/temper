@@ -19,7 +19,6 @@ from temper_placer.placer.cp_sat.feedback import (
     UnclassifiedFailure,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -130,7 +129,7 @@ def test_congestion_produces_separated_constraint(classifier, basic_placement):
     assert len(sep_deltas) >= 1
     delta = sep_deltas[0]
 
-    from temper_placer.pcl.constraints import ConstraintType, SeparatedConstraint
+    from temper_placer.pcl.constraints import SeparatedConstraint
 
     constraint = delta.constraint
     assert isinstance(constraint, SeparatedConstraint)

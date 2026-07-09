@@ -7,7 +7,7 @@ to a Minimal Unsatisfiable Subset (MUS) via iterative assumption removal.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from temper_placer.pcl.constraints import ConstraintType

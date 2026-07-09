@@ -6,17 +6,13 @@ Part of temper-7rqf (Stage 6 - Quality Gate)
 
 from __future__ import annotations
 
-import pytest
-
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.quality.via_count import (
     ViaCounts,
-    classify_vias,
     count_signal_vias_from_routing,
 )
 from temper_placer.router_v6.routing_results import CompiledRoute
 from temper_placer.router_v6.via_placement import Via
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

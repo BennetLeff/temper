@@ -31,7 +31,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-
 TAXONOMY_CLASSES: dict[str, str] = {
     "PARSE_KICAD_VERSION_MISMATCH": "KiCad version not supported by parser",
     "PARSE_UNSUPPORTED_SYNTAX": "S-expression construct not handled",

@@ -125,8 +125,8 @@ class TestDRCMatchesGeometry:
     @pytest.mark.property
     def test_keepout_drc_produces_assertion(self):
         """Keepout constraint produces a DRC assertion via the bridge."""
-        from temper_placer.pcl.drc_bridge import constraint_to_assertions
         from temper_placer.pcl.constraints import CompilationContext
+        from temper_placer.pcl.drc_bridge import constraint_to_assertions
 
         board = Board(width=100.0, height=100.0, zones=[
             Zone("KO_ZONE", (20, 20, 80, 80), zone_type="keepout"),

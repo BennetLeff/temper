@@ -350,7 +350,6 @@ class CorpusRegressionRunner:
         try:
             # Build loss function
             from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss
-            from temper_placer.core.loss_types import LossContext
             class BoundaryLoss:
                 def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
             class OverlapLoss:

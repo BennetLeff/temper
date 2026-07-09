@@ -15,19 +15,14 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.pcl.constraints import ConstraintTier
+from temper_placer.core.netlist import Component, Netlist
 from temper_placer.pcl.tag_dispatch import (
     ComponentTag,
     TagAnd,
     TagNot,
     TagOr,
     TagRef,
-    components as tag_components,
     resolve,
-)
-from temper_placer.pcl.tagged_constraints import (
-    TaggedAdjacentConstraint,
 )
 
 

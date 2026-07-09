@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from temper_placer.core.board import Layer, LayerStackup
+from temper_placer.core.board import LayerStackup
 from temper_placer.manufacturing.stackup_validator import (
-    COPPER_BALANCE_MAX_PCT,
-    COPPER_BALANCE_MIN_PCT,
     StackupValidationResult,
     validate_stackup,
 )

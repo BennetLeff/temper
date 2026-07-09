@@ -15,14 +15,15 @@ from __future__ import annotations
 import math
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+
 import numpy as np
 import yaml
 
-from temper_placer.core.state import PlacementState
 from temper_placer.core.loss_types import LossContext
+from temper_placer.core.state import PlacementState
 
 if TYPE_CHECKING:
     from temper_placer.io.kicad_parser import ParseResult
@@ -95,9 +96,9 @@ def _repo_root(pcb_path: str | Path) -> Path:
 # Step 1 — parse + validate
 # ---------------------------------------------------------------------------
 
-def _parse_and_validate(pcb_path: Path | str, validate: bool) -> "ParseResult":
+def _parse_and_validate(pcb_path: Path | str, validate: bool) -> ParseResult:
     """Parse *pcb_path* and (when *validate*) assert correctness invariants."""
-    from temper_placer.io.kicad_parser import ParseResult, parse_kicad_pcb
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     result = parse_kicad_pcb(Path(pcb_path))
 
@@ -128,7 +129,7 @@ def _parse_and_validate(pcb_path: Path | str, validate: bool) -> "ParseResult":
 # ---------------------------------------------------------------------------
 
 def _build_state_and_context(
-    parse_result: "ParseResult",
+    parse_result: ParseResult,
 ) -> tuple[PlacementState, LossContext]:
     """Create a PlacementState from the human-designed positions and a LossContext."""
     board = parse_result.board
@@ -215,7 +216,7 @@ def _compute_placement_metrics(
 # ---------------------------------------------------------------------------
 
 def _compute_routing_metrics(
-    parse_result: "ParseResult",
+    parse_result: ParseResult,
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
@@ -282,7 +283,7 @@ def _compute_routing_metrics(
 
 def _compute_detailed_metrics(
     state: PlacementState,
-    parse_result: "ParseResult",
+    parse_result: ParseResult,
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
@@ -326,7 +327,7 @@ def _compute_detailed_metrics(
 
 def _compute_aesthetic_metrics(
     state: PlacementState,
-    parse_result: "ParseResult",
+    parse_result: ParseResult,
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
@@ -348,7 +349,7 @@ def _compute_aesthetic_metrics(
 def _compute_quality_metrics(
     state: PlacementState,
     context: LossContext,
-    parse_result: "ParseResult",
+    parse_result: ParseResult,
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
@@ -427,7 +428,7 @@ def extract_human_reference(
 
     repo = _repo_root(pcb_path)
     gh = _git_hash(repo)
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # Derive board_id from the path:  …/corpus/{board_id}/{file}.kicad_pcb
     corpus_dir = pcb_path.parent  # e.g. …/corpus/piantor_right

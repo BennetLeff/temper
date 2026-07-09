@@ -12,13 +12,11 @@ Tests cover:
 
 import jax
 import jax.numpy as jnp
-import pytest
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.io.config_loader import (
     ComponentSpacingRule,
-    ManufacturingConstraint,
     PlacementConstraints,
 )
 from temper_placer.optimizer.ccap import (
@@ -30,7 +28,6 @@ from temper_placer.optimizer.config import (
     OptimizerConfig,
 )
 from temper_placer.optimizer.train import initialize_training_state
-
 
 # ---------------------------------------------------------------------------
 # Full C-CAP pipeline synthetic board

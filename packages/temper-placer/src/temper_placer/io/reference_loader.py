@@ -18,7 +18,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import cast
+
 import numpy as np
+
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Net, Netlist
 from temper_placer.core.state import PlacementState

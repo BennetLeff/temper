@@ -86,26 +86,6 @@ from .constraints import (
     SemanticTag,
     SeparatedConstraint,
 )
-from .tag_dispatch import (
-    ComponentRef,
-    ComponentTag,
-    TagAnd,
-    TagExpr,
-    TagNot,
-    TagOr,
-    TagRef,
-    TagValidationError,
-    components as tag_components,
-    resolve as tag_resolve,
-)
-from .tagged_constraints import (
-    TaggedAdjacentConstraint,
-    TaggedAlignedConstraint,
-    TaggedAnchoredConstraint,
-    TaggedEnclosingConstraint,
-    TaggedOnSideConstraint,
-    TaggedSeparatedConstraint,
-)
 from .parser import (
     # Collection class
     ConstraintCollection,
@@ -116,6 +96,30 @@ from .parser import (
     parse_constraint_dict,
     # Parser functions
     parse_pcl_file,
+)
+from .tag_dispatch import (
+    ComponentRef,
+    ComponentTag,
+    TagAnd,
+    TagExpr,
+    TagNot,
+    TagOr,
+    TagRef,
+    TagValidationError,
+)
+from .tag_dispatch import (
+    components as tag_components,
+)
+from .tag_dispatch import (
+    resolve as tag_resolve,
+)
+from .tagged_constraints import (
+    TaggedAdjacentConstraint,
+    TaggedAlignedConstraint,
+    TaggedAnchoredConstraint,
+    TaggedEnclosingConstraint,
+    TaggedOnSideConstraint,
+    TaggedSeparatedConstraint,
 )
 from .tiers import (
     ConstraintStatus,

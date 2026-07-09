@@ -31,7 +31,6 @@ from temper_placer.placer.cp_sat.loop import (
     UnsatError,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -41,7 +40,7 @@ def _make_cp_result(refs=("Q1", "Q2", "C_BUS1"), status="optimal"):
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
     positions = {r: (float(i * 20 + 10), float(i * 20 + 20)) for i, r in enumerate(refs)}
-    rotations = {r: 0 for r in refs}
+    rotations = dict.fromkeys(refs, 0)
     return CpSatPlacementResult(
         positions=positions,
         rotations=rotations,

@@ -47,7 +47,11 @@ def _load():
 
 def _optimize(netlist, board, seed: int = 42, epochs: int = 10) -> dict[str, tuple[float, float]] | None:
     from temper_placer.losses import (
-        BoundaryLoss, CompositeLoss, OverlapLoss, WeightedLoss, WirelengthLoss,
+        BoundaryLoss,
+        CompositeLoss,
+        OverlapLoss,
+        WeightedLoss,
+        WirelengthLoss,
     )
     from temper_placer.losses.base import LossContext
     from temper_placer.optimizer import OptimizerConfig, train
