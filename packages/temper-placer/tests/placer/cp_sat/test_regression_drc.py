@@ -1,4 +1,4 @@
-"""Golden-board DRC regression gate for temper board placement.
+"""Golden-board DRC regression gate for temper board placement and routing.
 
 Golden-board regression gate: if this fails, the placement model no longer
 produces DRC-clean output.  The gate distinguishes placement-fixable
@@ -13,12 +13,18 @@ map-vs-territory gaps documented in the three solutions/ learnings:
   - Off-centre pad offset defeats centered component bounds
   - Silent no-op bugs in measurement code
 No model-level invariant test (P1–P9) can substitute.
+
+Routing DRC gate (:func:`test_golden_board_routing_drc_regression`) extends
+the placement gate to full placement + routing + KiCad DRC round-trip,
+asserting ``unconnected_items=0`` and zero routing-introduced DRC errors
+on the routed board.
 """
 from __future__ import annotations
 
 import contextlib
 import json
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -218,3 +224,165 @@ def test_golden_board_drc_regression():
         )
     finally:
         os.unlink(tmp.name)
+
+
+def _count_errors_by_type(drc_data: dict) -> dict[str, int]:
+    """Count error-severity DRC violations by type string.
+
+    Returns a dict mapping violation type -> count.  Only violations with
+    ``severity == "error"`` are counted.  ``unconnected_items`` from the
+    top-level JSON array are included under the key ``"unconnected_items"``.
+    """
+    counts: dict[str, int] = {}
+    for v in drc_data.get("violations", []):
+        if v.get("severity") != "error":
+            continue
+        vtype = v.get("type", "other")
+        counts[vtype] = counts.get(vtype, 0) + 1
+    unconnected = len(drc_data.get("unconnected_items", []))
+    if unconnected:
+        counts["unconnected_items"] = unconnected
+    return counts
+
+
+@pytest.mark.slow
+def test_golden_board_routing_drc_regression():
+    """Full placement + routing + KiCad DRC round-trip gate.
+
+    Asserts ``unconnected_items=0`` and zero routing-introduced DRC errors
+    on the routed temper board.  Decomposes routing-only errors by
+    subtracting the placement-only DRC baseline from the routed-board DRC
+    result, isolating routing regressions from placement-inherited
+    violations.
+    """
+    if not _kicad_cli_available():
+        pytest.skip("kicad-cli not available")
+
+    assert BOARD_PATH.exists(), f"Board not found: {BOARD_PATH}"
+    assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
+
+    # 1. Load netclass rules
+    from temper_placer.io.netclass_loader import load_netclass_rules
+
+    rules = load_netclass_rules(RULES_PATH)
+
+    # 2. Parse the PCB
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+
+    parse_result = parse_kicad_pcb(BOARD_PATH)
+    netlist = parse_result.netlist
+    board = parse_result.board
+    assert board is not None, "Board geometry parsing failed"
+    assert len(netlist.components) > 0, "No components parsed from PCB"
+
+    # 3. Load PCL constraints
+    extra_constraints = _load_pcl_constraints(PCL_CONFIG)
+
+    # 4. Solve placement with all constraints active (30s timeout)
+    from temper_placer.placer.cp_sat.encoder import solve_placement
+
+    result = solve_placement(
+        netlist=netlist,
+        board=board,
+        extra_constraints=extra_constraints,
+        timeout_ms=30_000,
+        seed=42,
+    )
+
+    if result.status not in ("optimal", "feasible"):
+        n_unsat = len(result.unsat_core)
+        detail = ""
+        if n_unsat > 0:
+            names = [u.get("name", "?") for u in result.unsat_core[:5]]
+            detail = f" unsat_core={n_unsat} ({', '.join(names)})"
+        pytest.skip(
+            f"Placement solver returned status {result.status}{detail}"
+        )
+
+    placements_dict = result.to_placements_dict()
+
+    # 5. Write placed-only PCB and run placement DRC for baseline
+    from temper_placer.router_v6.adapter import _apply_placements_to_pcb
+
+    raw = BOARD_PATH.read_text(encoding="utf-8")
+    placed_content = _apply_placements_to_pcb(
+        raw, placements_dict, design_rules=rules.design_rules,
+    )
+
+    placed_tmp = tempfile.NamedTemporaryFile(
+        suffix=".kicad_pcb", mode="w", delete=False,
+    )
+    placed_tmp.write(placed_content)
+    placed_tmp.close()
+
+    try:
+        placement_drc = _run_drc(placed_tmp.name)
+    finally:
+        os.unlink(placed_tmp.name)
+
+    placement_counts = _count_errors_by_type(placement_drc)
+
+    # 6. Route the placed PCB.
+    # route_pcb expects a duck-typed "parsed" object with source_path.
+    # ParseResult doesn't carry source_path, so we build a compatible stub.
+    from temper_placer.router_v6.adapter import route_pcb
+
+    parsed_stub = type("ParsedStub", (), {"source_path": BOARD_PATH})()
+
+    routing_result = route_pcb(
+        parsed_stub, placements_dict,
+        _seed=42,
+        design_rules=rules.design_rules,
+    )
+
+    # 7. Assert internal completion signal
+    assert routing_result.completion_rate == 1.0, (
+        f"Router failed to complete all nets: "
+        f"completion_rate={routing_result.completion_rate:.1%}, "
+        f"unrouted={list(routing_result.unrouted_nets)[:10]}"
+    )
+
+    # 8. Write routed PCB content to temp file
+    assert routing_result.routed_pcb_content is not None, (
+        "RoutingResult.routed_pcb_content is None"
+    )
+    routed_tmp = tempfile.NamedTemporaryFile(
+        suffix=".kicad_pcb", mode="w", delete=False,
+    )
+    routed_tmp.write(routing_result.routed_pcb_content)
+    routed_tmp.close()
+
+    try:
+        # 9. Run kicad-cli DRC on the routed PCB
+        routed_drc = _run_drc(routed_tmp.name)
+    finally:
+        os.unlink(routed_tmp.name)
+
+    routed_counts = _count_errors_by_type(routed_drc)
+
+    # 10. ---- assertions ----
+    assert routed_counts.get("unconnected_items", 0) == 0, (
+        f"Routed PCB has {routed_counts.get('unconnected_items', 0)} "
+        f"unconnected items; every net must be routed."
+    )
+
+    # 11. Decompose routing-introduced delta from placement baseline
+    routing_delta: dict[str, int] = {}
+    all_types = sorted(set(placement_counts.keys()) | set(routed_counts.keys()))
+    for vtype in all_types:
+        p = placement_counts.get(vtype, 0)
+        r = routed_counts.get(vtype, 0)
+        delta = r - p
+        if delta != 0:
+            routing_delta[vtype] = delta
+
+    routing_introduced = sum(v for v in routing_delta.values() if v > 0)
+
+    assert routing_introduced == 0, (
+        f"Routing introduced {routing_introduced} new DRC violations "
+        f"(placement baseline: {sum(placement_counts.values())} total, "
+        f"routed: {sum(routed_counts.values())} total). "
+        f"Routing deltas by type: {routing_delta}. "
+        f"Known routing quality issue: single-layer F.Cu routing with all 24 "
+        f"nets on one layer may produce track-to-track clearance issues."
+    )
