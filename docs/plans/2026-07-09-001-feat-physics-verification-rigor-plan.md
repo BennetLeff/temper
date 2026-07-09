@@ -50,6 +50,7 @@ Traces to the origin requirements doc (`docs/brainstorms/2026-07-09-physics-veri
 - Running the physics-U10 thermal helps-battery A/B against a golden board (the reality check) — separate; this plan makes the instrument trustworthy so that run is meaningful.
 - Pre-existing LOC-cap / stale-JAX allowlist cleanup — separate, not caused by this work.
 - Extracting the four-layer pattern into a reusable framework for future fields — do it when a second field actually adopts it (surfaced in review; default is thermal-specific-first).
+- **Full L3 model-independence of the whole thermal field** — U11 closes it only for the per-device `T_j` safety number (two-model-corroborated via datasheet R_θ). The interior model (5-point stencil, `k_eff`, conduction-only) is still shared for the *field* used as routing cost; a genuinely different interior formulation, or the power-on hardware trigger, remains the full close.
 
 ---
 
@@ -407,6 +408,39 @@ graph TD
 - Test expectation: none for the AGENTS.md convention text — pure documentation.
 
 **Verification:** The pattern is documented, the batteries gate in CI, and the triage/forward-looking rules are recorded.
+
+---
+
+### U11. Datasheet-R_θ lumped-network cross-check gate (partial L3 close — the safety number)
+
+**Goal:** Corroborate each power device's junction temperature `T_j` — the number that gates the `T_j ≤ T_j(max)` hard **safety** ceiling — against a genuinely model-independent lumped R_θ network built from manufacturer datasheet values, so the limit that decides whether a mains switch survives rests on **two independent models** (distributed FDM + lumped R_θ), not one solver-validated model. This is the cheap partial-close for the L3 gap that sits specifically under the thermal hard constraint; it does **not** retire the power-on hardware trigger.
+
+**Requirements:** R6 (extends H6 model-independence to the safety number), R10 (fail-closed), R5 (worst-case, not nominal); §5 datasheet-absolute-limits with `because` citations.
+
+**Dependencies:** physics-U5 (`solve_thermal_fdm`), `physics/thermal.py` (`estimate_junction_temp` lumped model), U6 (worst-case operating point / per-device power), U2 (worst-case coupling). Independent of U1–U10 otherwise.
+
+**Files:**
+- Create: `packages/temper-placer/src/temper_placer/physics/tj_cross_check.py` (the gate — conforms to the `Gate`/`GateResult` contract)
+- Modify/extend: the config/YAML authority for per-device `R_θJC`, `R_θCS`, `R_θSA` (or `R_θJA`) with `because` datasheet citations (never hardcoded)
+- Test: `packages/temper-placer/tests/physics/test_tj_cross_check.py`
+
+**Approach:**
+- **Two independent estimates of the *same* quantity** (junction T_j at the same device, same worst-case power P from U6, same T_amb — the same-objective discipline; a mismatch of objective would be a bfs-oracle-class error, not evidence):
+  - **Distributed (FDM):** `solve_thermal_fdm` at worst-case P → area-average the board/case temperature over the device footprint (pads/courtyard, not a single cell) → `T_j_fdm = T_case_fdm + P·R_θJC` (add the junction-to-case datasheet resistance the 2-D board field cannot represent).
+  - **Lumped (datasheet R_θ ladder):** `T_j_lumped = T_amb + P·(R_θJC + R_θCS + R_θSA)` (or `T_amb + P·R_θJA`).
+- **Document shared vs independent inputs.** *Shared:* P (operating point), T_amb. *Independent:* the thermal-transport model (distributed `k_eff` PDE vs lumped R_θ ladder) **and** the data source (derived conductivity vs manufacturer-measured R_θ — which folds in the convection the conduction-only FDM interior omits). This is genuine model + data independence, one rung above U3's boundary-only independence.
+- **Gate (fail-closed):** `|T_j_fdm − T_j_lumped| ≤ τ`, τ pre-registered as an absolute °C or a fraction of the margin `T_j(max) − T_j`. `CLEAN` on agreement; `VIOLATIONS` on disagreement > τ (carry the per-device delta); `UNMEASURED` if any required R_θ is missing (never silently skip a device). Until CLEAN, the `T_j ≤ T_j(max)` ceiling is not trusted.
+- **Worst-case, not nominal (L2 tie-in):** evaluate at the U6 operating point that *maximizes* T_j, so the corroborated number is the one the safety ceiling actually depends on.
+- **Disagreement is information, not just failure:** attribute it — a large delta on a device far from the heatsink localizes the conduction-only / adiabatic-edge assumption (the FDM under-models convection there); a uniform delta suggests a global `k_eff` or ambient mismatch; a delta consistent with JEDEC test-condition differences (e.g. `R_θJA` measured on a standard 1"×1" test board vs this board's copper) flags that the datasheet number does not apply to this layout — itself a finding. Emit the attribution in the gate result.
+
+**Test scenarios:**
+- Happy: a well-heatsinked device — FDM-derived and lumped T_j agree within τ → CLEAN.
+- **Fail-capable (R4):** inject a wrong `k_eff`, or a device far from the heatsink where the distributed gradient dominates and the single-resistor lumped model under-predicts → disagreement > τ → VIOLATIONS. Proves the gate is not a dark metric.
+- Error / fail-closed: a device with a missing datasheet R_θ → UNMEASURED, not a silent pass.
+- Worst-case: assert the cross-check uses the U6 worst-case P, not a nominal value.
+- Attribution: a far-from-heatsink disagreement is labeled as convection/edge-assumption localization.
+
+**Verification:** the `T_j ≤ T_j(max)` ceiling is corroborated by two independent-model estimates at the worst-case operating point; disagreement fails closed and localizes the biting assumption; the gate is CI-wired and demonstrably fail-capable. This moves L3 **for the safety number** from solver-validated to two-model-corroborated. It is a *partial* close: full model-independence of the whole field still needs a genuinely different interior formulation or hardware, and the power-on measurement trigger (L5) is unchanged.
 
 ---
 
