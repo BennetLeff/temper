@@ -8,10 +8,11 @@ overlap-free, zone-compliant layouts without gradient optimization.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from numpy.typing import NDArray
 

@@ -14,10 +14,15 @@ Design Decision: Precompute at import, check at evaluation.
 from __future__ import annotations
 
 from collections.abc import Sequence
-import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+from typing import TypeAlias
 
 import numpy as np
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+import numpy as np
+
+
 def inflate_pad_polygon(
     pad_vertices: Sequence[tuple[float, float]],
     trace_width_mm: float,

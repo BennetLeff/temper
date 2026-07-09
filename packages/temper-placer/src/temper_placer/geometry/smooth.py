@@ -13,10 +13,12 @@ The smoothness is controlled by alpha/beta parameters:
 These parameters should be annealed during training: start low for exploration,
 increase for refinement.
 """
+from typing import TypeAlias
+
 import numpy as np
 from scipy.special import logsumexp
 
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 # =============================================================================
 # Smooth Maximum Functions

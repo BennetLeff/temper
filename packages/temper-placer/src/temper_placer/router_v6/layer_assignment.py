@@ -20,11 +20,11 @@ Example usage:
     ...     print(f"{net_name}: {assignment.primary_layer.name}")
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
 
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Net, Netlist
@@ -32,9 +32,9 @@ if TYPE_CHECKING:
 import re
 from dataclasses import dataclass, field
 from enum import Enum
+
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position
-
 
 # KiCad layer name <-> Layer enum mapping (SSOT decision U2 in
 # 2026-07-08-004-feat-4-layer-functional-stackup-plan.md): the netclass YAML

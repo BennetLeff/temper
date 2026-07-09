@@ -11,8 +11,11 @@ Key features:
 - Batch operations for computing all pairwise overlaps efficiently
 - Smooth penalties suitable for loss functions
 """
+from typing import TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.geometry.smooth import smooth_relu
 from temper_placer.geometry.transform import get_rotated_bounds

@@ -11,8 +11,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import IntEnum
+from typing import TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 @dataclass
 class MountingHole:

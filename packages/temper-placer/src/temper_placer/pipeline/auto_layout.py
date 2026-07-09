@@ -3,11 +3,12 @@
 This module provides the main entry point for zero-input automated placement and routing.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
 from numpy.typing import NDArray
-Array = NDArray
+
+Array: TypeAlias = NDArray
 
 if TYPE_CHECKING:
     from temper_placer.io.config_loader import PlacementConstraints
@@ -15,6 +16,8 @@ if TYPE_CHECKING:
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
+
+
 # JAX retirement stubs for deleted losses module
 class BoundaryLoss:
     def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")

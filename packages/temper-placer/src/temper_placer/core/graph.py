@@ -7,9 +7,11 @@ prediction and learned initialization.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist

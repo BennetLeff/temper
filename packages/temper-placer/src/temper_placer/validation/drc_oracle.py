@@ -18,18 +18,20 @@ backend is unavailable but the Python backend still works.
 
 from __future__ import annotations
 
+from typing import TypeAlias
+
 import numpy as np
 
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
+
 if TYPE_CHECKING:
+    from temper_placer.core.loss_types import LossContext
     from temper_placer.validation.drc_result import RunResult
     from temper_placer.validation.drc_types import ConstraintSet as DrcConstraintSet
     from temper_placer.validation.drc_types import Placement as DrcPlacement
-
-    from temper_placer.core.loss_types import LossContext
 
 try:
     import temper_drc_rs
@@ -501,8 +503,7 @@ class DRCOracle:
             RunResult consumable by temper_drc consumers.
         """
         # Lazy import to avoid hard dependency on temper_drc
-        from temper_placer.validation.drc_result import CheckResult, Issue, RunResult
-        from temper_placer.validation.drc_result import Severity
+        from temper_placer.validation.drc_result import CheckResult, Issue, RunResult, Severity
 
         _SEVERITY_MAP = {
             "INFO": Severity.INFO,
@@ -582,7 +583,6 @@ def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
         ImportError: If temper-drc is not installed.
     """
     try:
-        from temper_placer.validation.drc_runner import CheckRunner
         from temper_placer.validation.drc_result import (
             ClearanceCheck,
             ComponentOverlapCheck,
@@ -598,6 +598,7 @@ def create_standard_drc_oracle(context: LossContext) -> DRCOracle:
             PowerDomainCheck,
             ZoneContainmentCheck,
         )
+        from temper_placer.validation.drc_runner import CheckRunner
     except ImportError as e:
         raise ImportError(
             "temper-drc is not installed. Install it with: pip install temper-placer"

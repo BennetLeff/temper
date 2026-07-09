@@ -9,8 +9,11 @@ electrical connectivity, and Netlist aggregates everything.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 @dataclass
 class Pin:
