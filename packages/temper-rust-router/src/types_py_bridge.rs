@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
-use crate::types::{
+use temper_rust_router_core::types::{
     BundleClass, InternalBundleManifest, InternalConstraint, InternalConstraintModel,
     InternalVariable,
 };

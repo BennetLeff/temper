@@ -6,8 +6,7 @@
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::loop_extractor::extract::{auto_extract_loops, Component, Net, Pin};
-use crate::loop_extractor::types::ExtractionError;
+use temper_rust_router_core::loop_extractor::extract::{auto_extract_loops, Component, Net, Pin};
 
 // Add serde as a dependency — already a transitive dep of temper-rust-router
 // (rustsat uses serde). We just need serde = { version = "1", features = ["derive"] }.
@@ -83,7 +82,7 @@ struct LoopOut {
     max_area_mm2: f64,
 }
 
-fn convert_input(input: NetlistInput) -> (Vec<Component>, Vec<Net>, Vec<crate::loop_extractor::extract::Loop>) {
+fn convert_input(input: NetlistInput) -> (Vec<Component>, Vec<Net>, Vec<temper_rust_router_core::loop_extractor::extract::Loop>) {
     let comps: Vec<Component> = input.components.into_iter().map(|c| Component {
         ref_des: c.r#ref,
         footprint: c.footprint,
@@ -93,7 +92,7 @@ fn convert_input(input: NetlistInput) -> (Vec<Component>, Vec<Net>, Vec<crate::l
             name: p.name,
             net: p.net,
         }).collect(),
-        classification: crate::loop_extractor::classify::Classification {
+        classification: temper_rust_router_core::loop_extractor::classify::Classification {
             component_ref: String::new(),
             category: String::new(),
             subcategory: None,
@@ -106,8 +105,8 @@ fn convert_input(input: NetlistInput) -> (Vec<Component>, Vec<Net>, Vec<crate::l
         pins: n.pins,
     }).collect();
 
-    let manual: Vec<crate::loop_extractor::extract::Loop> = input.manual_loops.into_iter().map(|l| {
-        crate::loop_extractor::extract::Loop {
+    let manual: Vec<temper_rust_router_core::loop_extractor::extract::Loop> = input.manual_loops.into_iter().map(|l| {
+        temper_rust_router_core::loop_extractor::extract::Loop {
             name: l.name,
             loop_type: l.loop_type,
             components: l.components,

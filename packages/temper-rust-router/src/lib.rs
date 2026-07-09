@@ -2,25 +2,18 @@
 //
 // Origin: U3/U4/U7 of docs/plans/2026-06-28-001-feat-router-v6-rust-topology-plan.md
 
-pub mod audit;
-mod combinator;
-mod encoding;
-mod extraction;
 pub mod loop_extractor;
-mod solver;
 pub mod types;
 mod types_py_bridge;
-
-pub use types::SolverStats;
-pub use types::TopologyResult;
 
 use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
-use types::{
-    InternalConstraintModel, SolverStatus,
-};
+
+use temper_rust_router_core::types as core_types;
+use temper_rust_router_core::types::{InternalConstraintModel, SolverStatus, TopologyResult};
+use temper_rust_router_core::{audit, combinator, encoding, extraction, solver};
 
 /// Python-callable entry point: solve the topology stage in Rust.
 ///
@@ -60,7 +53,7 @@ fn solve_topology_rust(
     let topology = if result.status == SolverStatus::Satisfiable {
         extraction::extract_topology(&model, &result.assignments, &var_names, &net_names)
     } else {
-        types::TopologyGraph {
+        core_types::TopologyGraph {
             net_topologies: HashMap::new(),
         }
     };
@@ -160,10 +153,10 @@ fn audit_result(
 
     // Build var_names from model
     let var_names: Vec<String> = model.variables.iter().map(|v| match v {
-        types::InternalVariable::NetChannel { name, .. } => name.clone(),
-        types::InternalVariable::NetLayer { name, .. } => name.clone(),
-        types::InternalVariable::Via { name, .. } => name.clone(),
-        types::InternalVariable::Ordering { name, .. } => name.clone(),
+        core_types::InternalVariable::NetChannel { name, .. } => name.clone(),
+        core_types::InternalVariable::NetLayer { name, .. } => name.clone(),
+        core_types::InternalVariable::Via { name, .. } => name.clone(),
+        core_types::InternalVariable::Ordering { name, .. } => name.clone(),
     }).collect();
 
     let name_to_idx: std::collections::HashMap<String, usize> = var_names
@@ -179,8 +172,8 @@ fn audit_result(
         }
     }
 
-    let result = types::TopologyResult {
-        status: types::SolverStatus::Satisfiable,
+    let result = core_types::TopologyResult {
+        status: core_types::SolverStatus::Satisfiable,
         num_vars: 0,
         num_clauses: 0,
         assignments: assignment_map,
