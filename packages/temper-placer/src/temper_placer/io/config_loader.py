@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 import yaml  # type: ignore[import-untyped]
 
 from temper_placer._constraint_types import (
+    BleedResistor,
     ClearanceRule,
     ComponentGroup,
     ComponentSpacingRule,
@@ -28,6 +29,7 @@ from temper_placer._constraint_types import (
     FeedbackConfig,
     GroupSeparation,
     HVExclusionZone,
+    IsolationBarrier,
     IsolationSlot,
     LossConfig,
     LossesConfig,
@@ -42,11 +44,16 @@ from temper_placer._constraint_types import (
     RoutingCorridor,
     SeedFilterConfig,
     SignalToHVClearance,
+    SkinEffectDerating,
+    SnubberRequirement,
     StarGroundConfig,
     ThermalConstraint,
     ThermalProperties,
 )
-from temper_placer.core.board import Board, LayerStackup
+from temper_placer.core.board import Board, GroundDomain, LayerStackup, Zone
+from temper_placer.core.differential_pair import DifferentialPairConstraint
+from temper_placer.core.net_graph import NetGraph, SubNetEdge
+from temper_placer.core.net_types import NetClassification
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
