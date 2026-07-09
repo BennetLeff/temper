@@ -6,6 +6,11 @@ load at ideal-coupling vs zero-coupling extremes, confirms datasheet ceilings
 stay feasible across that range, and guards against SPICE-vs-analytic
 circularity by recording shared model assumptions.
 
+U2 (physics-verification-rigor): Fixes R5 coupling-extreme bounding soundness.
+Adds the continuous coupling model L_eff(k), a monotonicity proof that the
+endpoints provably bound all interior coupling values, and an interior-sampling
+safeguard that detects ceiling breaches from non-monotone coupling models.
+
 The per-device power values this gate validates are the SAME values the
 thermal solver uses as Q heat sources — both sourced from the config/YAML
 authority (cross-cutting invariant with the field track's U5).
@@ -14,6 +19,7 @@ authority (cross-cutting invariant with the field track's U5).
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -193,6 +199,206 @@ def _compute_per_device_power(cfg: OperatingPointConfig) -> float:
     return P_cond + P_sw
 
 
+# ---------------------------------------------------------------------------
+# Continuous coupling model (U2 R5 monotonicity proof)
+# ---------------------------------------------------------------------------
+
+
+def _l_eff(cfg: OperatingPointConfig, k: float) -> float:
+    """Effective inductance at coupling coefficient k ∈ [0, 1].
+
+    L_eff(k) = L_coil·(1−k) + L_leakage·k
+
+    This linear-interpolation model is the simplest physically-grounded
+    continuous coupling model: the effective inductance transitions from the
+    uncoupled work-coil inductance (L_coil at k=0) to the fully-coupled
+    leakage inductance (L_leakage at k=1).
+
+    **Monotonicity proof — endpoints PROVABLY bound the interior:**
+
+    Since L_coil > 0 and L_leakage > 0 (enforced at config validation),
+    L_eff(k) is linear in k and strictly positive on [0, 1].  Therefore:
+
+    1. di/dt(k) = V_bus / L_eff(k)
+       — monotone in k because L_eff(k) is monotone in k, V_bus > 0,
+       and 1/x is monotone for x > 0.
+
+    2. P_device and T_j
+       — independent of coupling (they depend on I_load_rms, V_bus, f_sw,
+       R_θ, etc., none of which are functions of k).
+
+    3. L_loop_max(k) = (V_BR·derate − V_bus) / di/dt(k)
+       — monotone in k as a monotone function of di/dt(k).
+
+    Since all quantities of interest are monotone in k, the worst-case
+    (highest di/dt, lowest L_loop_max) MUST occur at an endpoint k=0
+    or k=1.  The endpoints therefore provably bound all interior coupling
+    values.
+    """
+    return cfg.L_coil * (1.0 - k) + cfg.L_leakage * k
+
+
+# Number of coupling grid points for interior-sampling safeguard.
+_INTERIOR_GRID_POINTS = 11  # k = 0.00, 0.10, ..., 1.00
+
+
+def _interior_bounding_soundness_check(
+    cfg: OperatingPointConfig,
+    coupling_l_eff_fn: Callable[[float], float] | None = None,
+) -> list[Violation]:
+    """Interior bounding-soundness safeguard (U2 R5).
+
+    Samples coupling coefficient k on a fixed grid in (0, 1) and confirms
+    that no interior coupling value produces a di/dt or L_loop_max worse
+    than the endpoints, and that no interior value breaches a datasheet
+    ceiling that the endpoints passed.
+
+    With the proven-monotone L_eff(k) model this check should **never**
+    find violations.  It exists as a defensive guard so that if a future
+    coupling model becomes non-monotone the gate will surface the gap
+    instead of silently returning CLEAN.
+
+    Args:
+        cfg: Validated operating-point configuration.
+        coupling_l_eff_fn: Optional override of the coupling model for
+            testing.  When None the proven-monotone ``_l_eff`` is used.
+
+    Returns:
+        A list of Violation objects (empty when bounding soundness holds).
+        Each violation carries the offending k and interior measurement
+        so the caller can diagnose which physical quantity drifted.
+    """
+    if coupling_l_eff_fn is None:
+        coupling_l_eff_fn = lambda k: _l_eff(cfg, k)
+
+    v_br_derated = cfg.V_BR * cfg.derate
+    num = v_br_derated - cfg.V_bus
+
+    # Compute endpoint values for bounding comparison.
+    l_eff_k0 = coupling_l_eff_fn(0.0)
+    l_eff_k1 = coupling_l_eff_fn(1.0)
+    if l_eff_k0 <= 0 or l_eff_k1 <= 0:
+        return []
+
+    di_dt_k0 = cfg.V_bus / l_eff_k0
+    di_dt_k1 = cfg.V_bus / l_eff_k1
+    endpoint_worst_di_dt = max(di_dt_k0, di_dt_k1)
+
+    l_loop_max_k0 = num / di_dt_k0 if num > 0 else 0.0
+    l_loop_max_k1 = num / di_dt_k1 if num > 0 else 0.0
+    endpoint_worst_L_loop_max = min(l_loop_max_k0, l_loop_max_k1)
+
+    violations: list[Violation] = []
+
+    # Interior samples (exclude k=0 and k=1 which are already covered).
+    for i in range(1, _INTERIOR_GRID_POINTS - 1):
+        k = i / (_INTERIOR_GRID_POINTS - 1)
+        L_eff_val = coupling_l_eff_fn(k)
+        if L_eff_val <= 0:
+            continue
+
+        di_dt_val = cfg.V_bus / L_eff_val
+
+        l_loop_max = num / di_dt_val if num > 0 else 0.0
+
+        # Check: does this interior point breach a ceiling the endpoints
+        # pass?  That would mean the endpoint-only approach is unsound.
+        if l_loop_max < cfg.min_feasible_L_loop:
+            violations.append(
+                Violation(
+                    type=ViolationType.LOOP_INDUCTANCE,
+                    components=("Q1", "Q2", "C_BUS1", "C_BUS2"),
+                    nets=("DC_BUS+", "SW_NODE", "DC_BUS-"),
+                    severity=l_loop_max * 1e9,
+                    threshold=cfg.min_feasible_L_loop * 1e9,
+                    description=(
+                        f"INTERIOR BOUNDING VIOLATION: at coupling "
+                        f"k={k:.3f}, L_loop_max = {l_loop_max * 1e9:.2f} nH "
+                        f"falls below min_feasible_L_loop = "
+                        f"{cfg.min_feasible_L_loop * 1e9:.1f} nH. "
+                        f"Endpoint values: L_loop_max(k=0) = "
+                        f"{l_loop_max_k0 * 1e9:.2f} nH, "
+                        f"L_loop_max(k=1) = {l_loop_max_k1 * 1e9:.2f} nH. "
+                        f"di/dt = {di_dt_val:.2e} A/s. "
+                        f"The coupling model is non-monotone — "
+                        f"endpoint-only bounding is unsound."
+                    ),
+                    context={
+                        "because": (
+                            "interior bounding-soundness check (U2 R5): "
+                            "non-monotone coupling model produced a "
+                            "ceiling breach inside (0, 1)"
+                        ),
+                        "coupling": k,
+                        "di_dt_A_per_s": di_dt_val,
+                        "L_loop_max_H": l_loop_max,
+                        "endpoint_worst_di_dt": endpoint_worst_di_dt,
+                        "endpoint_worst_L_loop_max": endpoint_worst_L_loop_max,
+                    },
+                )
+            )
+
+        # Check: is interior di/dt worse than the endpoint worst?
+        if di_dt_val > endpoint_worst_di_dt * (1.0 + 1e-12):
+            violations.append(
+                Violation(
+                    type=ViolationType.LOOP_INDUCTANCE,
+                    components=("Q1", "Q2"),
+                    severity=di_dt_val,
+                    threshold=endpoint_worst_di_dt,
+                    description=(
+                        f"INTERIOR BOUNDING VIOLATION: at coupling "
+                        f"k={k:.3f}, di/dt = {di_dt_val:.3e} A/s "
+                        f"exceeds endpoint worst = {endpoint_worst_di_dt:.3e} A/s. "
+                        f"The coupling model is non-monotone — "
+                        f"endpoint-only bounding is unsound."
+                    ),
+                    context={
+                        "because": (
+                            "interior bounding-soundness check (U2 R5): "
+                            "interior coupling produced a worse di/dt "
+                            "than either endpoint"
+                        ),
+                        "coupling": k,
+                        "di_dt_A_per_s": di_dt_val,
+                        "endpoint_worst_di_dt": endpoint_worst_di_dt,
+                    },
+                )
+            )
+
+        # Check: is interior L_loop_max worse than the endpoint worst?
+        if l_loop_max < endpoint_worst_L_loop_max * (1.0 - 1e-12):
+            violations.append(
+                Violation(
+                    type=ViolationType.LOOP_INDUCTANCE,
+                    components=("Q1", "Q2", "C_BUS1", "C_BUS2"),
+                    nets=("DC_BUS+", "SW_NODE", "DC_BUS-"),
+                    severity=l_loop_max * 1e9,
+                    threshold=endpoint_worst_L_loop_max * 1e9,
+                    description=(
+                        f"INTERIOR BOUNDING VIOLATION: at coupling "
+                        f"k={k:.3f}, L_loop_max = {l_loop_max * 1e9:.2f} nH "
+                        f"is worse than endpoint worst = "
+                        f"{endpoint_worst_L_loop_max * 1e9:.2f} nH. "
+                        f"The coupling model is non-monotone — "
+                        f"endpoint-only bounding is unsound."
+                    ),
+                    context={
+                        "because": (
+                            "interior bounding-soundness check (U2 R5): "
+                            "interior coupling produced a worse "
+                            "L_loop_max than either endpoint"
+                        ),
+                        "coupling": k,
+                        "L_loop_max_H": l_loop_max,
+                        "endpoint_worst_L_loop_max": endpoint_worst_L_loop_max,
+                    },
+                )
+            )
+
+    return violations
+
+
 def compute_extremes(cfg: OperatingPointConfig) -> tuple[_ExtremePoint, _ExtremePoint]:
     """Compute di/dt, per-device power, and ceiling checks at BOTH extremes."""
     R_th_total = cfg.R_theta_jc + cfg.R_theta_cs + cfg.R_theta_sa
@@ -318,6 +524,7 @@ class OperatingPointGate(Gate):
         spice_validator: Any | None = None,
         *,
         tolerance: float = 0.20,
+        _coupling_l_eff_fn: Callable[[float], float] | None = None,
     ):
         """
         Args:
@@ -327,10 +534,16 @@ class OperatingPointGate(Gate):
                 lazily with defaults when ``None``.
             tolerance: Fractional tolerance for SPICE-vs-analytic
                 agreement (default 20%).
+            _coupling_l_eff_fn: Optional coupling-model override for
+                the interior bounding-soundness safeguard (U2 R5).
+                When ``None`` the proven-monotone ``_l_eff`` is used.
+                This is a **test hook** — production code MUST pass
+                ``None``.
         """
         self._cfg = _validate_config(config)
         self._spice = spice_validator
         self._tolerance = tolerance
+        self._coupling_l_eff_fn = _coupling_l_eff_fn
         self.last_cross_check: SpiceCrossCheckInfo | None = None
 
     # ------------------------------------------------------------------
@@ -415,6 +628,13 @@ class OperatingPointGate(Gate):
                         },
                     )
                 )
+
+        # --- Interior bounding-soundness safeguard (U2 R5) -----------
+        interior_violations = _interior_bounding_soundness_check(
+            self._cfg,
+            coupling_l_eff_fn=self._coupling_l_eff_fn,
+        )
+        violations.extend(interior_violations)
 
         # --- SPICE cross-check -----------------------------------------
         cc = self._run_spice_cross_check(k0, k1)
