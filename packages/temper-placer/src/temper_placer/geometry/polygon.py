@@ -1,17 +1,16 @@
 """
 Polygon operations for temper-placer.
 
-This module provides differentiable polygon operations essential for:
+This module provides polygon operations essential for:
 - Loop area loss (gate drive loops, bootstrap loops)
 - Zone containment checking
 - Component grouping and clustering
 
-All functions use JAX for automatic differentiation and are compatible
-with jax.jit and jax.grad.
+Implemented with NumPy (post-JAX retirement).
 
 Key algorithms:
-- Shoelace formula for polygon area (differentiable)
-- Winding number for point-in-polygon (soft version for gradients)
+- Shoelace formula for polygon area
+- Winding number for point-in-polygon (soft version for smooth transitions)
 - Convex hull for component bounding
 """
 from typing import TypeAlias
@@ -19,6 +18,12 @@ from typing import TypeAlias
 import numpy as np
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+
+def _sigmoid(z: Array) -> Array:
+    """Logistic sigmoid, 1 / (1 + exp(-z)) (NumPy replacement for jax.nn.sigmoid)."""
+    return 1.0 / (1.0 + np.exp(-z))
+
 
 # =============================================================================
 # Polygon Area (Shoelace Formula)
@@ -191,7 +196,7 @@ def point_in_polygon_winding(point: Array, vertices: Array) -> Array:
         return np.where(upward, 1.0, 0.0) - np.where(downward, 1.0, 0.0)
 
     # Sum winding contributions
-    winding = np.sum(jax.vmap(edge_winding)(np.arange(n)))
+    winding = np.sum([edge_winding(i) for i in range(n)])
 
     # Non-zero winding = inside
     return np.where(winding != 0, 1.0, 0.0)
@@ -236,14 +241,14 @@ def point_in_polygon_soft(point: Array, vertices: Array, smoothness: float = 0.1
         return np.sum(to_point * normal)
 
     # Get signed distance to each edge
-    signed_dists = jax.vmap(edge_signed_distance)(np.arange(n))
+    signed_dists = np.array([edge_signed_distance(i) for i in range(n)])
 
     # For convex polygon, point is inside if all signed distances < 0
     # The "most positive" distance indicates how far outside
     min_dist = np.max(signed_dists)
 
     # Sigmoid for soft transition
-    return jax.nn.sigmoid(-min_dist / smoothness)
+    return _sigmoid(-min_dist / smoothness)
 
 
 def point_in_rect(
@@ -295,7 +300,7 @@ def point_in_rect_soft(
     max_dist = np.maximum(np.maximum(dist_left, dist_right), np.maximum(dist_bottom, dist_top))
 
     # Sigmoid for soft transition
-    return jax.nn.sigmoid(-max_dist / smoothness)
+    return _sigmoid(-max_dist / smoothness)
 
 
 # =============================================================================
@@ -497,8 +502,7 @@ def nearest_point_on_polygon(point: Array, vertices: Array) -> Array:
     """Find the nearest point on a polygon boundary to the query point.
 
     Sweeps all polygon edges, calling nearest_point_on_segment for each,
-    and returns the point with minimum Euclidean distance. Uses
-    jax.lax.fori_loop for JAX compatibility.
+    and returns the point with minimum Euclidean distance.
 
     Args:
         point: Query point as (x, y) array.
@@ -524,7 +528,9 @@ def nearest_point_on_polygon(point: Array, vertices: Array) -> Array:
 
     init_point = vertices[0]
     init_dist_sq = np.sum((init_point - point) ** 2)
-    result = jax.lax.fori_loop(0, n, _edge_body, (init_point, init_dist_sq))
+    result = (init_point, init_dist_sq)
+    for i in range(n):
+        result = _edge_body(i, result)
     return result[0]
 
 
