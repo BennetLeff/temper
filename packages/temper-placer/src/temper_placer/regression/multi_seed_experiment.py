@@ -210,6 +210,10 @@ def _compute_experiment_stats(
     }
 
 
+# Public alias for the verdict-decision function (consumed by helps-battery U3).
+compute_experiment_stats = _compute_experiment_stats
+
+
 # ---- Multi-seed experiment runner ----
 
 
