@@ -151,6 +151,83 @@ def _placements_equal(a: Any, b: Any) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Pure verdict decision (extracted from run_helps_battery for U8 direct testing)
+# ---------------------------------------------------------------------------
+
+
+def decide_verdict(
+    *,
+    margin_gain: float,
+    beats_cheap_by: float,
+    n_actual_physics: int,
+    n_actual_cheap: int,
+    n_required: int,
+    divergence_detected: bool,
+    budget_exceeded: bool,
+    pass_bar_x: float,
+    pass_bar_y: float,
+    kill_criterion_description: str = "",
+    phys_mean: float = 0.0,
+    cheap_mean: float = 0.0,
+    primary_gate: str = "",
+    budget_detail: str = "",
+    divergence_detail: str = "",
+) -> tuple[BatteryVerdict, str]:
+    """Pure verdict decision from pre-registered bar and measured quantities.
+
+    No I/O, no placement/scoring — operates only on the numbers and the
+    pre-registered bar.  The priority order is:
+
+    1. budget_exceeded → INCONCLUSIVE
+    2. divergence not detected → INCONCLUSIVE
+    3. insufficient perturbations → INCONCLUSIVE
+    4. margin_gain >= pass_bar_x AND beats_cheap_by >= pass_bar_y → KEEP
+    5. otherwise → KILL
+
+    Returns ``(BatteryVerdict, reason_string)``.
+    """
+    if budget_exceeded:
+        detail = f"Cost budget exceeded: {budget_detail}" if budget_detail else "Cost budget exceeded"
+        return BatteryVerdict.INCONCLUSIVE, detail
+
+    if not divergence_detected:
+        detail = divergence_detail if divergence_detail else "-"
+        return BatteryVerdict.INCONCLUSIVE, (
+            f"A/B divergence assertion FAILED: {detail}. "
+            f"The field toggle is a no-op — this is a finding, not a pass."
+        )
+
+    if n_actual_physics < n_required or n_actual_cheap < n_required:
+        return BatteryVerdict.INCONCLUSIVE, (
+            f"Insufficient perturbations: need >= {n_required} scorable runs "
+            f"per arm, got physics={n_actual_physics} cheap={n_actual_cheap}"
+        )
+
+    margin_gain_ok = margin_gain >= pass_bar_x
+    beat_cheap_ok = beats_cheap_by >= pass_bar_y
+
+    if margin_gain_ok and beat_cheap_ok:
+        return BatteryVerdict.KEEP, (
+            f"KEEP: margin_gain={margin_gain:.3f} >= {pass_bar_x} (X), "
+            f"beat_cheap_by={beats_cheap_by:.3f} >= {pass_bar_y} (Y), "
+            f"across N={n_actual_physics} >= {n_required} perturbations, "
+            f"physics_mean({primary_gate})={phys_mean:.3f}, "
+            f"cheap_mean({primary_gate})={cheap_mean:.3f}"
+        )
+
+    kill_reasons: list[str] = []
+    if not margin_gain_ok:
+        kill_reasons.append(f"margin_gain={margin_gain:.3f} < {pass_bar_x}")
+    if not beat_cheap_ok:
+        kill_reasons.append(f"beat_cheap_by={beats_cheap_by:.3f} < {pass_bar_y}")
+    return BatteryVerdict.KILL, (
+        f"KILL ({kill_criterion_description}): "
+        + "; ".join(kill_reasons)
+        + f" across N={n_actual_physics} perturbations"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Battery runner
 # ---------------------------------------------------------------------------
 
@@ -328,25 +405,6 @@ def run_helps_battery(
             f"perturbations {n} > max_rounds_budget {budget.max_rounds_budget}"
         )
 
-    if budget_exceeded:
-        return HelpsBatteryResult(
-            field_name=field.field_name,
-            baseline_name=field.cheap_baseline.name,
-            n_perturbations=n,
-            prereg=field,
-            per_run=per_run,
-            no_field_margins=no_field_margins,
-            cheap_margins=cheap_margins,
-            physics_margins=physics_margins,
-            divergence_detected=divergence_ok,
-            divergence_detail=divergence_detail,
-            cost_seconds=max_arm_elapsed,
-            budget_exceeded=True,
-            budget_detail=budget_detail,
-            verdict=BatteryVerdict.INCONCLUSIVE,
-            verdict_details=f"Cost budget exceeded: {budget_detail}",
-        )
-
     # ---- Verdict: pre-registered pass bar ----
     pass_bar = field.pass_bar
 
@@ -357,7 +415,6 @@ def run_helps_battery(
     n_actual_physics = len(physics_margins.get(primary_gate, []))
     n_actual_cheap = len(cheap_margins.get(primary_gate, []))
     n_required = int(pass_bar.across_perturbations.value)
-    n_sufficient = n_actual_physics >= n_required and n_actual_cheap >= n_required
 
     phys_vals = physics_margins.get(primary_gate, [])
     cheap_vals = cheap_margins.get(primary_gate, [])
@@ -371,43 +428,23 @@ def run_helps_battery(
     X = pass_bar.margin_gain.value
     Y = pass_bar.beat_cheap_baseline_by.value
 
-    margin_gain_ok = margin_gain >= X
-    beat_cheap_ok = beat_cheap >= Y
-
-    # Verdict logic.
-    if not divergence_ok:
-        verdict = BatteryVerdict.INCONCLUSIVE
-        verdict_details = (
-            f"A/B divergence assertion FAILED: {divergence_detail}. "
-            f"The field toggle is a no-op — this is a finding, not a pass."
-        )
-    elif not n_sufficient:
-        verdict = BatteryVerdict.INCONCLUSIVE
-        verdict_details = (
-            f"Insufficient perturbations: need >= {n_required} scorable runs "
-            f"per arm, got physics={n_actual_physics} cheap={n_actual_cheap}"
-        )
-    elif margin_gain_ok and beat_cheap_ok:
-        verdict = BatteryVerdict.KEEP
-        verdict_details = (
-            f"KEEP: margin_gain={margin_gain:.3f} >= {X} (X), "
-            f"beat_cheap_by={beat_cheap:.3f} >= {Y} (Y), "
-            f"across N={n_actual_physics} >= {n_required} perturbations, "
-            f"physics_mean({primary_gate})={phys_mean:.3f}, "
-            f"cheap_mean({primary_gate})={cheap_mean:.3f}"
-        )
-    else:
-        kill_reasons: list[str] = []
-        if not margin_gain_ok:
-            kill_reasons.append(f"margin_gain={margin_gain:.3f} < {X}")
-        if not beat_cheap_ok:
-            kill_reasons.append(f"beat_cheap_by={beat_cheap:.3f} < {Y}")
-        verdict = BatteryVerdict.KILL
-        verdict_details = (
-            f"KILL ({field.kill_criterion.description}): "
-            + "; ".join(kill_reasons)
-            + f" across N={n_actual_physics} perturbations"
-        )
+    verdict, verdict_details = decide_verdict(
+        margin_gain=margin_gain,
+        beats_cheap_by=beat_cheap,
+        n_actual_physics=n_actual_physics,
+        n_actual_cheap=n_actual_cheap,
+        n_required=n_required,
+        divergence_detected=divergence_ok,
+        budget_exceeded=budget_exceeded,
+        pass_bar_x=X,
+        pass_bar_y=Y,
+        kill_criterion_description=field.kill_criterion.description,
+        phys_mean=phys_mean,
+        cheap_mean=cheap_mean,
+        primary_gate=primary_gate,
+        budget_detail=budget_detail,
+        divergence_detail=divergence_detail,
+    )
 
     return HelpsBatteryResult(
         field_name=field.field_name,

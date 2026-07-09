@@ -19,7 +19,7 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from temper_placer.validation.helps_battery import BatteryVerdict, run_helps_battery
+from temper_placer.validation.helps_battery import BatteryVerdict, decide_verdict, run_helps_battery
 from temper_placer.validation.prereg.schema import PreregistrationManifest
 from temper_placer.validation.scorecard import (
     GateMargin,
@@ -382,6 +382,262 @@ def test_verdict_divergence_noop_gives_inconclusive():
         divergence_noop=True,
     )
     assert verdict == BatteryVerdict.INCONCLUSIVE
+
+
+# ---------------------------------------------------------------------------
+# U8 — Direct decide_verdict unit tests (pure-function properties)
+# ---------------------------------------------------------------------------
+
+
+class TestDecideVerdictDirect:
+    """U8: Direct unit tests exercising the pure ``decide_verdict`` function.
+
+    These complement the synthetic-battery integration tests above by
+    testing the decision logic without placement/stub machinery.
+    """
+
+    # ---- totality ----
+
+    @given(
+        margin_gain=st.floats(-2.0, 2.0),
+        beats_cheap_by=st.floats(-2.0, 2.0),
+        n_actual_physics=st.integers(0, 10),
+        n_actual_cheap=st.integers(0, 10),
+        n_required=st.integers(1, 10),
+        divergence_detected=st.booleans(),
+        budget_exceeded=st.booleans(),
+        pass_bar_x=st.floats(0.01, 1.0),
+        pass_bar_y=st.floats(0.01, 1.0),
+    )
+    @settings(max_examples=500)
+    def test_totality(self, margin_gain, beats_cheap_by, n_actual_physics,
+                      n_actual_cheap, n_required, divergence_detected,
+                      budget_exceeded, pass_bar_x, pass_bar_y):
+        """R18: Every pure-function input yields exactly one valid verdict."""
+        verdict, reason = decide_verdict(
+            margin_gain=margin_gain,
+            beats_cheap_by=beats_cheap_by,
+            n_actual_physics=n_actual_physics,
+            n_actual_cheap=n_actual_cheap,
+            n_required=n_required,
+            divergence_detected=divergence_detected,
+            budget_exceeded=budget_exceeded,
+            pass_bar_x=pass_bar_x,
+            pass_bar_y=pass_bar_y,
+        )
+        assert isinstance(verdict, BatteryVerdict)
+        assert verdict in {BatteryVerdict.KEEP, BatteryVerdict.KILL, BatteryVerdict.INCONCLUSIVE}
+        assert isinstance(reason, str)
+        assert len(reason) > 0
+
+    # ---- monotonicity in margin_gain ----
+
+    @given(
+        beats_cheap_by=st.floats(0.0, 1.0),
+        margin_base=st.floats(-0.5, 0.9),
+        delta=st.floats(0.01, 1.0),
+        pass_bar_x=st.floats(0.02, 0.5),
+        pass_bar_y=st.floats(0.02, 0.5),
+        n_required=st.integers(2, 5),
+    )
+    @settings(max_examples=200)
+    def test_monotonicity(self, beats_cheap_by, margin_base, delta, pass_bar_x, pass_bar_y, n_required):
+        """R18: Improving margin_gain never moves the verdict away from KEEP."""
+        base = dict(
+            beats_cheap_by=beats_cheap_by,
+            n_actual_physics=n_required, n_actual_cheap=n_required,
+            n_required=n_required,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=pass_bar_x, pass_bar_y=pass_bar_y,
+            phys_mean=0.5, cheap_mean=0.3, primary_gate="thermal",
+        )
+        v1, _ = decide_verdict(margin_gain=margin_base, **base)
+        v2, _ = decide_verdict(margin_gain=margin_base + delta, **base)
+        assert _VERDICT_ORDER[v2] >= _VERDICT_ORDER[v1], (
+            f"Monotonicity violated: margin_gain {margin_base:.4f}→{margin_base + delta:.4f} "
+            f"gave {v1.value}→{v2.value}"
+        )
+
+    # ---- kill-reachable ----
+
+    def test_kill_reachable_margin_gain_below_x(self):
+        """R18: margin_gain < pass_bar_x → KILL."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.05, beats_cheap_by=0.30,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.KILL
+
+    def test_kill_reachable_beat_cheap_below_y(self):
+        """R18: beats_cheap_by < pass_bar_y → KILL."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.30, beats_cheap_by=0.02,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.KILL
+
+    def test_kill_reachable_both_below(self):
+        """R18: both bars violated → KILL."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.03, beats_cheap_by=0.01,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.KILL
+
+    def test_kill_reachable_physics_worse(self):
+        """R18: negative margin_gain (physics worse than cheap) → KILL."""
+        verdict, _ = decide_verdict(
+            margin_gain=-0.20, beats_cheap_by=-0.20,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.KILL
+
+    # ---- budget dominance ----
+
+    def test_budget_dominance_overrides_good_margins(self):
+        """R18: budget_exceeded → INCONCLUSIVE even with great margins."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=True,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+            budget_detail="Slowest arm total: 100.0s > budget 1.0s",
+        )
+        assert verdict == BatteryVerdict.INCONCLUSIVE
+
+    def test_budget_dominance_preserves_detail(self):
+        """R18: budget verdict includes the specified detail."""
+        _, reason = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=True,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+            budget_detail="perturbations 5 > max_rounds_budget 3",
+        )
+        assert "budget" in reason.lower()
+        assert "max_rounds_budget" in reason
+
+    # ---- divergence priority ----
+
+    def test_divergence_failure_overrides_good_margins(self):
+        """R18: divergence not detected → INCONCLUSIVE even with good margins."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=False, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.INCONCLUSIVE
+
+    def test_divergence_failure_includes_noop_language(self):
+        """R18: divergence detail always includes NO-OP language."""
+        _, reason = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=False, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+            divergence_detail="no-OP deTAIL",
+        )
+        assert "no-op" in reason.lower()
+        assert "divergence" in reason.lower()
+
+    # ---- insufficient perturbations ----
+
+    def test_insufficient_perturbations_gives_inconclusive(self):
+        """R18: not enough scorable runs → INCONCLUSIVE."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=2, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.INCONCLUSIVE
+
+    def test_insufficient_cheap_perturbations_gives_inconclusive(self):
+        """R18: cheap arm with too few scorable runs → INCONCLUSIVE."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=5, n_actual_cheap=3, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.INCONCLUSIVE
+
+    # ---- keep confirm ----
+
+    def test_keep_when_both_bars_passed(self):
+        """R18: both bars pass → KEEP."""
+        verdict, reason = decide_verdict(
+            margin_gain=0.30, beats_cheap_by=0.20,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+            phys_mean=0.50, cheap_mean=0.20, primary_gate="thermal",
+        )
+        assert verdict == BatteryVerdict.KEEP
+        assert "KEEP" in reason
+
+    # ---- priority ordering ----
+
+    def test_budget_dominates_divergence(self):
+        """Priority: budget_exceeded beats divergence_detected."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=False, budget_exceeded=True,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.INCONCLUSIVE
+
+    def test_budget_dominates_insufficient(self):
+        """Priority: budget_exceeded beats insufficient perturbations."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=1, n_actual_cheap=1, n_required=5,
+            divergence_detected=True, budget_exceeded=True,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.INCONCLUSIVE
+
+    def test_divergence_dominates_insufficient(self):
+        """Priority: divergence failure beats insufficient perturbations."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.80, beats_cheap_by=0.50,
+            n_actual_physics=1, n_actual_cheap=1, n_required=5,
+            divergence_detected=False, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.INCONCLUSIVE
+
+    # ---- edge: exact threshold equality ----
+
+    def test_margin_gain_at_exact_x_threshold_is_keep(self):
+        """margin_gain == pass_bar_x is a pass (>= not >)."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.10, beats_cheap_by=0.05,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.10, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.KEEP
+
+    def test_margin_gain_at_y_threshold_is_keep(self):
+        """beats_cheap_by == pass_bar_y is a pass (>= not >)."""
+        verdict, _ = decide_verdict(
+            margin_gain=0.10, beats_cheap_by=0.05,
+            n_actual_physics=5, n_actual_cheap=5, n_required=5,
+            divergence_detected=True, budget_exceeded=False,
+            pass_bar_x=0.05, pass_bar_y=0.05,
+        )
+        assert verdict == BatteryVerdict.KEEP
 
 
 # ---------------------------------------------------------------------------
