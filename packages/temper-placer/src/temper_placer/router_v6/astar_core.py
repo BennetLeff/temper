@@ -21,6 +21,13 @@ from temper_placer.router_v6.astar_monitor import get_monitor_state  # noqa: E40
 # A* search primitives (formerly in routing/heuristics.py)
 OCTILE_DIAG: Final[float] = math.sqrt(2.0) - 1.0
 
+# Configurable diagonal cost multiplier for the A* inner loop.
+# 1.0 = standard octile (diagonal  1.414, cardinal  1.0).
+# Lower values incentivise diagonals.  Set via
+# :func:`temper_placer.router_v6.metrics.octilinear.add_diagonal_incentive`.
+DIAGONAL_COST_FACTOR: float = 1.0
+_BASE_DIAGONAL_COST: Final[float] = math.sqrt(2.0)
+
 _SAME_LAYER_DELTAS: tuple[tuple[int, int], ...] = (
     (0, 1), (1, 0), (0, -1), (-1, 0),
     (1, 1), (1, -1), (-1, 1), (-1, -1),
@@ -192,8 +199,8 @@ def _astar_search(
             dx, dy = _DIRS_8[dir_idx]
             nx, ny = cx + dx, cy + dy
 
-            # Diagonal cost = 1.414, Cardinal = 1.0
-            move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
+            # Diagonal cost uses configurable multiplier
+            move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
             new_cost = cost_so_far[current] + move_cost
             neighbor = (nx, ny)
 
@@ -717,7 +724,7 @@ def _astar_search_3d(
         for dx, dy in _SAME_LAYER_DELTAS:
             nx, ny = x + dx, y + dy
             if grid.is_free(nx, ny):
-                move_cost = 1.414 if dx != 0 and dy != 0 else 1.0
+                move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
                 moves.append(((nx, ny, layer), move_cost))
 
         # Layer transition moves (via insertion)

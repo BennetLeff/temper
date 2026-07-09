@@ -93,15 +93,17 @@ class MonitorState:
             return
 
         # Recompute cost by traversing came_from chain using the same
-        # move costs as astar_core.py (1.414 for diagonal, 1.0 for cardinal).
-        # The code uses 1.414 rather than exact sqrt(2).
+        # move costs as astar_core.py (DIAGONAL_COST_FACTOR * sqrt(2) for
+        # diagonal, 1.0 for cardinal).
+        from temper_placer.router_v6.astar_core import _BASE_DIAGONAL_COST, DIAGONAL_COST_FACTOR
+
         recomputed = 0.0
         node = goal
         while node in came_from and came_from[node] is not None:
             parent = came_from[node]
             dx = abs(node[0] - parent[0])
             dy = abs(node[1] - parent[1])
-            step = 1.414 if dx != 0 and dy != 0 else 1.0
+            step = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
             recomputed += step
             node = parent
 
