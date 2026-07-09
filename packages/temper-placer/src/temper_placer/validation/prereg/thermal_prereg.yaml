@@ -1,0 +1,71 @@
+# Pre-registration record for the thermal validation field.
+# FROZEN — do not edit after start of battery run.
+# Written before any thermal field is built (U1 Tier 0 artifact).
+#
+# Pass bar: ships iff
+#   margin_gain >= X (0.10),
+#   no hard-gate regression,
+#   beat cheap baseline by >= Y (0.05),
+#   across >= N (5) perturbations.
+# Kill criterion: any pass-bar violation kills the thermal field.
+
+version: 1
+created_at: "2026-07-09T00:00:00Z"
+
+fields:
+  - field_name: "thermal"
+    independent_instrument: "temper_placer.physics.thermal.ThermalOracle"
+
+    cheap_baseline:
+      name: "uniform_heat_spread"
+      description: "Components placed uniformly without thermal awareness — worst-case thermal profile"
+      metric: "thermal_score"
+      target_value: 0.0
+      because: "Represents the worst-case: no thermal optimization whatsoever. Any field that cannot beat this is broken."
+
+    parametric_ranges:
+      - parameter: "max_heatspread_mm"
+        min: 5.0
+        max: 40.0
+        because: "Covers from tight enclosure (5 mm) to open-chassis (40 mm) per IEC 60335-1 bounding envelope"
+      - parameter: "power_dissipation_w"
+        min: 5.0
+        max: 180.0
+        because: "Covers 5 W signal-level to 180 W IGBT full-load at 240 V AC, 10 A"
+      - parameter: "junction_to_case_c_per_w"
+        min: 0.5
+        max: 3.5
+        because: "Covers typical TO-247 (0.5 K/W) to package-with-heatsink (3.5 K/W)"
+
+    structural_bounding_cases:
+      - case_name: "single_igbt"
+        description: "Single IGBT with passive cooling only — no redundant IGBT, no active cooling"
+        because: "Minimum viable thermal configuration. If the field cannot handle this, it cannot handle anything."
+      - case_name: "dual_igbt_mirrored"
+        description: "Two IGBTs in mirror configuration with heat sources on opposite board edges"
+        because: "Worst-case thermal cross-talk scenario: two 180 W devices 10 mm apart with no thermal barrier"
+
+    pass_bar:
+      margin_gain:
+        name: "X"
+        value: 0.10
+        because: "Thermal score must improve by at least 0.10 over cheap baseline to justify added complexity of thermal-aware placement"
+      beat_cheap_baseline_by:
+        name: "Y"
+        value: 0.05
+        because: "Must demonstrate measurable improvement even under conservative perturbation sampling"
+      across_perturbations:
+        name: "N"
+        value: 5.0
+        because: "Minimum of 5 perturbations required for statistical confidence, matching multi-seed N=10 convention"
+
+    kill_criterion:
+      description: "Ships iff thermal field passes all pass_bar thresholds across all perturbations; any pass-bar violation kills the field"
+      because: "Thermal is safety-critical for induction cookers. No partial credit — a field that fails under any perturbation is not shippable."
+
+    cost_budget:
+      max_total_battery_seconds: 3600.0
+      max_rounds_budget: 20
+      field_convergence_round_limit: 5
+      thermal_grid_cells_max: 10000
+      target_solve_time_ms_per_field: 5000.0
