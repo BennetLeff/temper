@@ -391,6 +391,8 @@ def route_pcb(
     placements: dict[str, tuple[float, float]],
     _seed: int,
     design_rules: Any = None,
+    thermal_flat: Any = None,  # U9: (N,) float32 thermal cost field
+    thermal_weight: float = 0.0,  # U9: multiplier
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -404,6 +406,10 @@ def route_pcb(
         seed: Random seed (passed through to pipeline configuration).
         design_rules: Optional DesignRules with net_classes for netclass
             form injection into the output PCB.
+        thermal_flat: U9 optional (N,) float32 thermal cost field from
+            the previous round's field.  Threaded to A* kernel.
+        thermal_weight: U9 multiplier on per-cell thermal cost
+            (from CostFieldInput.weight).  0.0 = field-off.
 
     Returns:
         RoutingResult with completion_rate.
@@ -447,6 +453,8 @@ def route_pcb(
         enable_smoothing=False,
         max_iter=500_000,
         layer_constraints=layer_constraints,
+        thermal_flat=thermal_flat,  # U9
+        thermal_weight=thermal_weight,  # U9
     )
 
     if placements:
