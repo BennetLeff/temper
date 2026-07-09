@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module"] }
-temper-rust-router = { path = "../temper-rust-router" }
+temper-rust-router-core = { path = "../temper-rust-router-core" }
 serde = { version = "1", features = ["derive"] }
 
 [profile.release]

@@ -366,11 +366,11 @@ pub fn build_channel_topology_from_py(
 
 pub fn internal_constraint_to_py_dict(
     py: Python<'_>,
-    constraint: &temper_rust_router::types::InternalConstraint,
+    constraint: &temper_rust_router_core::types::InternalConstraint,
 ) -> PyResult<PyObject> {
     let d = PyDict::new(py);
     match constraint {
-        temper_rust_router::types::InternalConstraint::Capacity {
+        temper_rust_router_core::types::InternalConstraint::Capacity {
             channel_id,
             capacity,
             slack_factor,
@@ -389,7 +389,7 @@ pub fn internal_constraint_to_py_dict(
             }
             d.set_item("terms", py_terms)?;
         }
-        temper_rust_router::types::InternalConstraint::DiffPair {
+        temper_rust_router_core::types::InternalConstraint::DiffPair {
             channel_id,
             p_var_name,
             n_var_name,
@@ -399,7 +399,7 @@ pub fn internal_constraint_to_py_dict(
             d.set_item("p_var_name", p_var_name)?;
             d.set_item("n_var_name", n_var_name)?;
         }
-        temper_rust_router::types::InternalConstraint::LayerRestriction {
+        temper_rust_router_core::types::InternalConstraint::LayerRestriction {
             var_name,
             allowed,
         } => {
@@ -407,7 +407,7 @@ pub fn internal_constraint_to_py_dict(
             d.set_item("var_name", var_name)?;
             d.set_item("allowed", allowed)?;
         }
-        temper_rust_router::types::InternalConstraint::ChannelSeparation {
+        temper_rust_router_core::types::InternalConstraint::ChannelSeparation {
             group_a,
             group_b,
             min_slots,

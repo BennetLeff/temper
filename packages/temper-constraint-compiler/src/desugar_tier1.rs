@@ -1,7 +1,7 @@
 use crate::desugar_tier0::CompileError;
 use crate::ir_tier1::{ChannelTopology, ResolvedConstraint, ResolvedConstraintModel};
 use crate::provenance::ProvenanceMap;
-use temper_rust_router::types::InternalConstraint;
+use temper_rust_router_core::types::InternalConstraint;
 
 pub type DesugarRuleTier1 = fn(
     constraint: &ResolvedConstraint,
