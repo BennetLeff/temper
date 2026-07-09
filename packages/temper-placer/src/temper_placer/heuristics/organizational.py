@@ -14,12 +14,11 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TypeAlias
 
 import numpy as np
+from numpy.typing import NDArray
 
-if TYPE_CHECKING:
-    from numpy.typing import NDArray
 Array: TypeAlias = NDArray
 
 from temper_placer.core.board import Board
