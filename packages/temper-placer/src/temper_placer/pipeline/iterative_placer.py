@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 from temper_placer.router_v6.adapter import MazeRouter
 from temper_placer.router_v6.astar_core import RoutePath
@@ -18,7 +18,7 @@ from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-Array = NDArray
+Array: TypeAlias = NDArray
 
 
 

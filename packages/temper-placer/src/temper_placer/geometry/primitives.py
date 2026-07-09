@@ -12,9 +12,11 @@ for use in differentiable optimization.
 """
 
 
+from typing import TypeAlias
+
 import numpy as np
 
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 # =============================================================================
 # Point Operations
 # =============================================================================

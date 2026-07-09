@@ -22,8 +22,11 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from typing import TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 if hasattr(jnp, "long"):
     _jnp_int = np.long  # type: ignore[attr-defined]

@@ -2,9 +2,11 @@
 
 from collections import defaultdict
 from dataclasses import dataclass, field
+from typing import TypeAlias
 
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from scipy import stats
 

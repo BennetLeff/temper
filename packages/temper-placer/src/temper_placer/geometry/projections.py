@@ -15,8 +15,11 @@ Projection operators map a point to the nearest point in a constraint set:
 - Edge-mounting: clamp to edge-adjacent strip
 - Manufacturing side: clamp to top/bottom half of board
 """
+from typing import TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.geometry.polygon import (
     nearest_point_on_polygon,

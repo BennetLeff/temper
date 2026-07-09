@@ -14,8 +14,11 @@ Key algorithms:
 - Winding number for point-in-polygon (soft version for gradients)
 - Convex hull for component bounding
 """
+from typing import TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 # =============================================================================
 # Polygon Area (Shoelace Formula)

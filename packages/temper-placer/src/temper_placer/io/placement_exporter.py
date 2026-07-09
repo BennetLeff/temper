@@ -30,15 +30,15 @@ import contextlib
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeAlias
 
 import numpy as np
 from numpy.typing import NDArray
-Array = NDArray
+
+Array: TypeAlias = NDArray
 
 from temper_placer.core.loss_types import LossContext
 from temper_placer.io.kicad_writer import PlacementUpdate, write_placements_to_pcb
-
 
 
 def soft_to_discrete_rotations(rotations: Array) -> Array:

@@ -10,10 +10,11 @@ The force simulation converges positions toward constraint satisfaction.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray

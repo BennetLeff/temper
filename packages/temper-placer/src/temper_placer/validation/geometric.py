@@ -15,8 +15,11 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import TypeAlias
+
 import numpy as np
-Array = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+
+Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist

@@ -7,12 +7,14 @@ Uses Python dataclasses and scipy sparse matrices (JAX removed).
 
 from __future__ import annotations
 
-import numpy as np
 from dataclasses import dataclass, field
+from typing import TypeAlias
+
+import numpy as np
 from numpy.typing import NDArray
 from scipy.sparse import coo_matrix
 
-Array = NDArray  # type alias for sparse operations
+Array: TypeAlias = NDArray  # type alias for sparse operations
 
 
 @dataclass
