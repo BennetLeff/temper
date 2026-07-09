@@ -137,12 +137,105 @@ class Gate:
         raise NotImplementedError
 
     def to_delta(self, violation: Violation) -> ConstraintDelta | None:
-        """Map a violation to a constraint delta the loop can inject.
+        """Map a violation to a constraint delta via the shared DeltaMapper.
 
         Returns ``None`` when this violation type has no corrective delta
         (e.g. an intra-component clearance placement cannot fix).
         """
-        return None
+        from temper_placer.placer.cp_sat.delta_mapper import DeltaMapper
+        return DeltaMapper.map(violation)
+
+
+class DrcGate(Gate):
+    """PLACEMENT-stage gate: runs KiCad DRC on the placement-only PCB.
+
+    Catches clearance violations between placed components before routing
+    so the loop can inject ``SeparatedConstraint`` deltas and re-solve
+    without wasting time on routing.  When kicad-cli cannot run or the
+    PCB is missing, the result is ``UNMEASURED`` (never ``CLEAN``).
+    """
+
+    stage = GateStage.PLACEMENT
+    name = "drc"
+
+    def check(self, state: BoardState) -> GateResult:
+        pcb_path = state.routed_pcb_path
+        if not pcb_path or not Path(pcb_path).exists():
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message="No PCB available for placement DRC",
+            )
+
+        drc_out = Path(tempfile.mktemp(suffix=".json"))
+        try:
+            try:
+                result = subprocess.run(
+                    [
+                        "kicad-cli", "pcb", "drc",
+                        "--format", "json",
+                        "-o", str(drc_out),
+                        str(pcb_path),
+                    ],
+                    capture_output=True, text=True, timeout=120,
+                )
+            except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message=f"kicad-cli unavailable: {exc}",
+                )
+
+            if result.returncode != 0:
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message=(
+                        f"kicad-cli exit {result.returncode}: "
+                        f"{result.stderr[:200]}"
+                    ),
+                )
+
+            if not drc_out.exists():
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message="kicad-cli produced no DRC output file",
+                )
+
+            data = json.loads(drc_out.read_text())
+            violations: list[Violation] = []
+
+            for v in data.get("violations", []):
+                if v.get("severity") != "error":
+                    continue
+                vtype = v.get("type", "other")
+                vt = _map_violation_type(vtype)
+                # Extract component refs from DRC entries when possible.
+                comp_refs: tuple[str, ...] = ()
+                items = v.get("items") or v.get("locations") or []
+                if isinstance(items, list) and len(items) >= 2:
+                    refs = [
+                        str(it.get("reference", ""))
+                        for it in items
+                        if isinstance(it, dict) and it.get("reference")
+                    ]
+                    if refs:
+                        comp_refs = tuple(refs[:2])
+                violations.append(
+                    Violation(
+                        type=vt,
+                        components=comp_refs,
+                        description=v.get("description", ""),
+                        severity=1.0,
+                        context={"raw": v},
+                    )
+                )
+
+            if violations:
+                return GateResult(
+                    GateStatus.VIOLATIONS, violations=tuple(violations)
+                )
+            return GateResult(GateStatus.CLEAN)
+        finally:
+            with contextlib.suppress(OSError):
+                os.unlink(drc_out)
 
 
 class RoutingGate(Gate):
@@ -432,21 +525,9 @@ class StackupGate(Gate):
     # to_delta
     # ------------------------------------------------------------------
 
-    def to_delta(self, violation: Violation) -> Any | None:
-        """Map a StackupGate violation to a corrective delta.
-
-        - ``CURRENT_DENSITY``: proposes the minimum width for the net.
-        - ``REFERENCE_PLANE_SPLIT``: returns ``None`` — routing must
-          re-path around the split; no placement delta can fix it.
-        """
-        if violation.type is ViolationType.CURRENT_DENSITY:
-            return {
-                "type": "trace_width_increase",
-                "net": violation.nets[0] if violation.nets else "",
-                "min_width_mm": violation.threshold,
-                "reason": "IPC-2152 minimum width",
-            }
-        return None
+    # to_delta delegates to DeltaMapper via Gate base class.
+    # CURRENT_DENSITY / REFERENCE_PLANE_SPLIT -> None (placement
+    # cannot fix trace width or plane splits).
 
 
 # ------------------------------------------------------------------
@@ -598,30 +679,7 @@ class IECCreepageGate(Gate):
             return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
         return GateResult(GateStatus.CLEAN)
 
-    def to_delta(self, violation: Violation) -> Any | None:
-        if violation.type is not ViolationType.CREEPAGE:
-            return None
-
-        try:
-            from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
-        except ImportError:
-            return None
-
-        if len(violation.nets) < 2:
-            return None
-
-        a, b = violation.nets[0], violation.nets[1]
-        return {
-            "type": "separated",
-            "constraint": SeparatedConstraint(
-                a=a,
-                b=b,
-                min_distance_mm=violation.threshold,
-                tier=ConstraintTier.HARD,
-                because="IEC 60335-1 Table 16 creepage requirement",
-            ),
-            "reason": f"IEC creepage gate: {violation.description}",
-        }
+    # to_delta delegates to DeltaMapper via Gate base class.
 
 
 # ------------------------------------------------------------------
@@ -876,68 +934,7 @@ class PhysicsGate(Gate):
     # to_delta
     # ------------------------------------------------------------------
 
-    def to_delta(self, violation: Violation) -> Any | None:
-        """Map physics violations to constraint deltas.
-
-        - ``LOOP_INDUCTANCE`` → ``LoopAreaConstraint`` tightening.
-        - ``THERMAL`` / ``CREEPAGE`` → ``SeparatedConstraint``.
-        - ``VIA_COUNT`` → ``None`` (via count is a routing concern;
-          placement cannot fix it).
-        """
-        if violation.type is ViolationType.LOOP_INDUCTANCE:
-            try:
-                from temper_placer.pcl.constraints import ConstraintTier, LoopAreaConstraint
-            except ImportError:
-                return None
-
-            loop_name = violation.context.get("loop", "commutation")
-            max_area = violation.context.get("max_area_mm2", 2000.0)
-            tightened = min(violation.severity * 0.9, max_area * 0.5)
-            return {
-                "type": "loop_area",
-                "constraint": LoopAreaConstraint(
-                    loop_name=str(loop_name),
-                    max_area_mm2=tightened,
-                    tier=ConstraintTier.STRONG,
-                    because=(
-                        f"Physics gate: {violation.type.value} "
-                        f"at {violation.severity:.1f} > "
-                        f"{violation.threshold:.1f}"
-                    ),
-                ),
-                "reason": violation.description,
-            }
-
-        if violation.type in (ViolationType.THERMAL, ViolationType.CREEPAGE):
-            try:
-                from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
-            except ImportError:
-                return None
-
-            if len(violation.components) >= 2:
-                a, b = violation.components[0], violation.components[1]
-            elif len(violation.nets) >= 2:
-                a, b = violation.nets[0], violation.nets[1]
-            else:
-                return None
-
-            min_distance = violation.threshold
-            if violation.type is ViolationType.CREEPAGE:
-                min_distance = 6.0
-
-            return {
-                "type": "separated",
-                "constraint": SeparatedConstraint(
-                    a=a,
-                    b=b,
-                    min_distance_mm=min_distance,
-                    tier=ConstraintTier.HARD,
-                    because=violation.description,
-                ),
-                "reason": f"Physics gate ({violation.type.value}): {violation.description}",
-            }
-
-        return None  # VIA_COUNT and unrecognized types
+    # to_delta delegates to DeltaMapper via Gate base class.
 
 
 # ------------------------------------------------------------------
@@ -1016,47 +1013,7 @@ class QualityGate(Gate):
 
         return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
 
-    def to_delta(self, violation: Violation) -> Any | None:
-        """Map quality violations to constraint deltas.
-
-        - ``SLOP`` → ``KeepoutConstraint`` at the first artifact's
-          region.  The W5 loop treats these as soft (skip on UNSAT).
-        - ``OCTILINEAR``, ``VIA_COUNT`` → ``None`` (informational only;
-          cannot be fixed by placement deltas).
-        """
-        if violation.type is not ViolationType.SLOP:
-            return None
-
-        try:
-            from temper_placer.pcl.constraints import ConstraintTier, KeepoutConstraint
-        except ImportError:
-            return None
-
-        artifacts = violation.context.get("artifacts", [])
-        if not artifacts:
-            return None
-
-        first = artifacts[0]
-        position = first.get("position", (0.0, 0.0))
-        net_name = first.get("net_name", "?")
-        artifact_type = violation.context.get("artifact_type", "slop")
-
-        zone_name = f"SLOP_{artifact_type}_{net_name}"
-        return {
-            "type": "keepout",
-            "constraint": KeepoutConstraint(
-                zone_name=zone_name,
-                tier=ConstraintTier.SOFT,
-                because=(
-                    f"QualityGate slop artifact on net {net_name}: "
-                    f"{first.get('description', '')}"
-                ),
-            ),
-            "reason": (
-                f"Slop artifact ({artifact_type}) at ({position[0]:.2f}, "
-                f"{position[1]:.2f}) mm on net {net_name}"
-            ),
-        }
+    # to_delta delegates to DeltaMapper via Gate base class.
 
 
 _VIOLATION_TYPE_MAP = {

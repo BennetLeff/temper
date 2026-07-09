@@ -304,6 +304,12 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
     default=None,
     help="Write UNSAT core report as JSON to this path when CP-SAT returns INFEASIBLE.",
 )
+@click.option(
+    "--all-gates",
+    is_flag=True,
+    default=False,
+    help="Register all five gates (DRC, Routing, Stackup, Physics, Quality) on the place-route loop.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -341,6 +347,7 @@ def optimize(
     placer: str,
     loop: bool,
     unsat_report: Path | None,
+    all_gates: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -462,6 +469,7 @@ def optimize(
                 zones={z.name: z.bounds for z in zone_objs} if zone_objs else None,
                 zone_components=zone_comps if zone_comps else None,
                 loop_components=loop_comps if loop_comps else None,
+                all_gates=all_gates,
             )
 
             # Surface UNSAT core from CP-SAT placement result.
@@ -469,11 +477,42 @@ def optimize(
 
             if loop_result.success:
                 console.print(
-                    f"  [green]✓[/] Loop converged in {len(loop_result.rounds)} rounds"
+                    f"  [green]âœ“[/] Loop converged in {len(loop_result.rounds)} rounds"
                 )
                 console.print(
                     f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0)*100:.1f}%"
                 )
+
+                # Gate results summary when all_gates was used.
+                gate_results = getattr(loop_runner, '_gate_results', {})
+                if gate_results:
+                    from ..placer.cp_sat.gates import GateStatus
+                    table = Table(title="Gate Results", show_header=True)
+                    table.add_column("Gate", style="cyan")
+                    table.add_column("Status")
+                    table.add_column("Violations")
+                    for gname, gr in sorted(gate_results.items()):
+                        status_str = (
+                            "[green]CLEAN[/]" if gr.status is GateStatus.CLEAN
+                            else "[yellow]UNMEASURED[/]"
+                            if gr.status is GateStatus.UNMEASURED
+                            else "[red]VIOLATIONS[/]"
+                        )
+                        vcount = str(len(gr.violations))
+                        table.add_row(gname, status_str, vcount)
+                    console.print(table)
+
+                # Surface UNMEASURED data.
+                unmeasured = getattr(loop_result, 'unmeasured_gates', {})
+                if unmeasured:
+                    console.print(
+                        "[yellow]UNMEASURED gates:[/] "
+                        + ", ".join(unmeasured.keys())
+                    )
+                    for gname, msg in unmeasured.items():
+                        console.print(
+                            f"  [dim]{gname}: {msg[:120]}[/]"
+                        )
 
                 # Write the final PCB. Re-route the placement against the real
                 # board file so the output carries real footprints and routes.
