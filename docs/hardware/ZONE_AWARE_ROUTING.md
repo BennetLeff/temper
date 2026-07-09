@@ -244,6 +244,6 @@ Potential improvements:
 
 ## References
 
-- Original root cause analysis: `docs/router-v5/root-cause-analysis.md`
+- Original root cause analysis: `docs/legacy/router-v5/root-cause-analysis.md`
 - Slot generation: `packages/temper-placer/src/temper_placer/deterministic/stages/slot_generation.py`
 - Spectral initialization: `packages/temper-placer/src/temper_placer/optimizer/initialization.py`

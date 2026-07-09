@@ -114,7 +114,7 @@ Based on comprehensive codebase exploration, I identified three key issues with 
    - Zone blocking enabled (`router.block_zones(board.zones, clearance=0.3)`)
    - Components placed without zone awareness → many in zone-covered areas
    - Remaining routing channels too narrow for number of competing nets
-   - Matches root cause #3 from `docs/router-v5/root-cause-analysis.md`:
+   - Matches root cause #3 from `docs/legacy/router-v5/root-cause-analysis.md`:
      > "Component placement was optimized WITHOUT knowledge of zone geometry"
 
 ---
@@ -278,7 +278,7 @@ scripts/
 ## References
 
 ### Documentation Read:
-- `docs/router-v5/root-cause-analysis.md` - Router violation analysis
+- `docs/legacy/router-v5/root-cause-analysis.md` - Router violation analysis
 - `packages/temper-placer/tests/sensitivity/results/ROBUSTNESS_COMPARISON.md` - Optimizer robustness
 - Spectral initialization paper: "Spectral Graph Layout" (Koren 2005)
 - Gaussian processes for PCB routing: "Learning to Route" (Mirhoseini 2020)

@@ -12,7 +12,7 @@
 - Documented zone data flow through routing pipeline
 - Identified break point: `route_net_rrr(clearance_mm: float)` receives scalar, not zone-aware function
 - Recommended approach: Add clearance_grid precomputation
-- Document: `docs/router-v5/zone-context-audit.md`
+- Document: `docs/legacy/router-v5/zone-context-audit.md`
 
 ### temper-d6kv.2 - Grid Infrastructure (✅ Done)
 **File:** `maze_router.py`
