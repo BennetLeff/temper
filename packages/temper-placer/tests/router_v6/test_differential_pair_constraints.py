@@ -120,3 +120,91 @@ def test_no_differential_pairs():
 
     assert constraints.pair_count == 0
     assert len(constraints.constraints) == 0
+
+
+# ---------------------------------------------------------------------------
+# route_diff_pair (U5) tests
+# ---------------------------------------------------------------------------
+
+
+def test_route_diff_pair_usb_defaults():
+    """USB pair gets JLC04161H-7628 defaults from diff_impedance module."""
+    from temper_placer.router_v6.differential_pair_constraints import route_diff_pair
+
+    spec = route_diff_pair("USB_D+", "USB_D-", "F.Cu")
+    assert spec["pair"] == ("USB_D+", "USB_D-")
+    geom = spec["geometry"]
+    assert geom.target_impedance == 90.0
+    assert geom.layer == "F.Cu"
+    assert geom.reference_plane == "In1.Cu"
+    assert geom.track_width_mm > 0
+    assert geom.track_spacing_mm > 0
+    assert geom.predicted_impedance > 0
+
+
+def test_route_diff_pair_length_matching():
+    """Length-matching skew tolerance is 0.5mm."""
+    from temper_placer.router_v6.differential_pair_constraints import route_diff_pair
+
+    spec = route_diff_pair("USB_D+", "USB_D-", "F.Cu")
+    assert spec["length_matching"]["max_skew_mm"] == 0.5
+    assert spec["length_matching"]["tolerance"] == "skew"
+
+
+def test_route_diff_pair_hv_keepaway():
+    """HV keep-away is 3mm from ACMains/HighVoltage/HighCurrent."""
+    from temper_placer.router_v6.differential_pair_constraints import route_diff_pair
+
+    spec = route_diff_pair("USB_D+", "USB_D-", "F.Cu")
+    ka = spec["keepaway"]
+    assert ka["distance_mm"] == 3.0
+    assert "ACMains" in ka["from_classes"]
+    assert "HighVoltage" in ka["from_classes"]
+    assert "HighCurrent" in ka["from_classes"]
+    assert ka["layer"] == "F.Cu"
+
+
+def test_route_diff_pair_custom_skew():
+    """Custom max_skew_mm is honoured."""
+    from temper_placer.router_v6.differential_pair_constraints import route_diff_pair
+
+    spec = route_diff_pair("USB_D+", "USB_D-", "F.Cu", max_skew_mm=0.25)
+    assert spec["length_matching"]["max_skew_mm"] == 0.25
+
+
+def test_route_diff_pair_custom_keepaway():
+    """Custom hv_keepaway_mm is honoured."""
+    from temper_placer.router_v6.differential_pair_constraints import route_diff_pair
+
+    spec = route_diff_pair("USB_D+", "USB_D-", "F.Cu", hv_keepaway_mm=5.0)
+    assert spec["keepaway"]["distance_mm"] == 5.0
+
+
+def test_route_diff_pair_explicit_geometry():
+    """Explicit geometry is passed through."""
+    from temper_placer.router_v6.differential_pair_constraints import (
+        DifferentialPairGeometry,
+        route_diff_pair,
+    )
+
+    geom = DifferentialPairGeometry(
+        track_width_mm=0.4,
+        track_spacing_mm=0.25,
+        target_impedance=85.0,
+        layer="F.Cu",
+        reference_plane="In1.Cu",
+        predicted_impedance=84.5,
+    )
+    spec = route_diff_pair("NET_P", "NET_N", "F.Cu", geometry=geom)
+    assert spec["geometry"].track_width_mm == 0.4
+    assert spec["geometry"].target_impedance == 85.0
+
+
+def test_route_diff_pair_no_usb_no_geometry_raises():
+    """Non-USB nets without geometry raise ValueError."""
+    import pytest
+
+    from temper_placer.router_v6.differential_pair_constraints import route_diff_pair
+
+    with pytest.raises(ValueError, match="No geometry provided"):
+        route_diff_pair("CLK_P", "CLK_N", "F.Cu")
