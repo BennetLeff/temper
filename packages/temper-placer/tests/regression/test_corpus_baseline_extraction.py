@@ -3,10 +3,7 @@
 Verifies that the five-bug regime (wrong function name, swallowed try/except,
 hardcoded zeroes, mislabeled alias) is no longer possible.
 """
-import importlib
-import sys
 
-import pytest
 
 
 def test_compute_total_hpwl_imports_do_not_raise():

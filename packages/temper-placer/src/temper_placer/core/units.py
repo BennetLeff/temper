@@ -20,8 +20,10 @@ Example of bug prevented by type system:
 """
 
 from typing import NewType, TypeAlias
+
 import numpy as np
 from numpy.typing import NDArray as Array
+
 # ============================================================================
 # Angle Units
 # ============================================================================

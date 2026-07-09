@@ -12,13 +12,6 @@ from unittest import mock
 
 import pytest
 
-from temper_placer.placer.cp_sat.loop import (
-    LoopExitReason,
-    LoopResult,
-    PlaceRouteLoop,
-    RoundRecord,
-    UnsatError,
-)
 from temper_placer.placer.cp_sat.gates import (
     DrcGate,
     GateResult,
@@ -30,7 +23,11 @@ from temper_placer.placer.cp_sat.gates import (
     Violation,
     ViolationType,
 )
-
+from temper_placer.placer.cp_sat.loop import (
+    LoopExitReason,
+    LoopResult,
+    PlaceRouteLoop,
+)
 
 # ---------------------------------------------------------------------------
 # Factory for CpSatPlacementResult (dict-based positions, real dataclass)

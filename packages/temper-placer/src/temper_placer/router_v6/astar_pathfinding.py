@@ -14,6 +14,8 @@ import time
 from collections import deque
 from dataclasses import dataclass
 
+import numpy as np
+
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
@@ -39,7 +41,6 @@ from temper_placer.router_v6.net_classification import (
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
-import numpy as np
 
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
@@ -604,8 +605,8 @@ def _astar_route_with_ripup(
 
 def _compute_bottleneck_widths(
     channel_mapping: ChannelMapping,
-    edt: 'np.ndarray',
-    mask: 'np.ndarray',
+    edt: np.ndarray,
+    mask: np.ndarray,
     bounds: tuple[float, float, float, float],
     cell_size: float = 0.1,
     sample_distance: float = 0.5,
@@ -629,7 +630,6 @@ def _compute_bottleneck_widths(
         Dict mapping net_name to bottleneck width in mm.
         Nets with no waypoints get float('inf').
     """
-    import numpy as np
 
     from temper_placer.router_v6.channel_widths import _edt_width_lookup
 

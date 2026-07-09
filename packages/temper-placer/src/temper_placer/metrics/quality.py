@@ -15,11 +15,13 @@ The exception is total_wirelength which returns raw mm value (lower is better).
 from __future__ import annotations
 
 from typing import Any
+
 import numpy as np
+
 from temper_placer.core.board import Board
+from temper_placer.core.loss_types import LossContext
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
-from temper_placer.core.loss_types import LossContext
 
 
 def total_wirelength(
@@ -574,6 +576,7 @@ def connectivity_clustering_score(
 
 
 import warnings
+
 
 def compute_quality_report(
     state: PlacementState,

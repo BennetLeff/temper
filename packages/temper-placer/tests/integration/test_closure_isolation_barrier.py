@@ -14,7 +14,6 @@ This test proves the fix works by demonstrating:
 from pathlib import Path
 
 import jax.numpy as jnp
-import pytest
 
 PCL_CONFIG_PATH = Path(__file__).parents[2] / "configs" / "pcl" / "temper_induction.yaml"
 LEGACY_CONFIG_PATH = Path(__file__).parents[2] / "configs" / "temper_constraints.yaml"
@@ -201,7 +200,8 @@ class TestClosureIsolationBarrier:
     def test_legacy_config_does_not_load_pcl_constraints(self):
         """The legacy config path returns PlacementConstraints, not PCL."""
         from temper_placer.io.config_loader import (
-            PlacementConstraints, load_constraints,
+            PlacementConstraints,
+            load_constraints,
         )
         from temper_placer.pcl.parser import ConstraintCollection
 
@@ -222,11 +222,13 @@ class TestClosureIsolationBarrier:
         """PCL constraints compile to JAX loss functions via the bridge."""
         from temper_placer.core.board import Board, Zone
         from temper_placer.core.netlist import Component, Netlist
-        from temper_placer.pcl.constraints import CompilationContext, CompilationTarget
-        from temper_placer.pcl.loss_bridge import (
-            constraint_to_loss, separated_to_separation_loss,
+        from temper_placer.pcl.constraints import (
+            CompilationContext,
+            CompilationTarget,
         )
-        from temper_placer.pcl.constraints import SeparatedConstraint
+        from temper_placer.pcl.loss_bridge import (
+            separated_to_separation_loss,
+        )
         from temper_placer.pcl.parser import parse_pcl_file
 
         collection = parse_pcl_file(PCL_CONFIG_PATH)

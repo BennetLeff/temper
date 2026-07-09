@@ -10,19 +10,15 @@ Tests cover:
 """
 
 import jax.numpy as jnp
-import pytest
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.io.config_loader import (
     ComponentSpacingRule,
     ManufacturingConstraint,
     PlacementConstraints,
-    ThermalConstraint,
 )
 from temper_placer.optimizer.ccap import (
-    CcapConfig,
-    CcapResult,
     _build_projection_schedule,
     _detect_oscillation,
     _feasibility_pump_step,
@@ -31,7 +27,6 @@ from temper_placer.optimizer.ccap import (
     _validate_zone_keepout_compatibility,
     project_to_feasible,
 )
-
 
 # ---------------------------------------------------------------------------
 # Dykstra invariants
@@ -343,7 +338,6 @@ class TestPreFlightValidation:
 
     def test_side_zone_overlap_low_returns_override(self):
         """Low zone overlap with manufacturing side returns override."""
-        from temper_placer.io.config_loader import ManufacturingConstraint
 
         components = [
             Component(ref="U1", footprint="QFN", bounds=(10.0, 10.0)),
@@ -367,7 +361,6 @@ class TestPreFlightValidation:
 
     def test_side_zone_overlap_ok_no_override(self):
         """Sufficient overlap → no override."""
-        from temper_placer.io.config_loader import ManufacturingConstraint
 
         components = [
             Component(ref="U1", footprint="QFN", bounds=(10.0, 10.0)),

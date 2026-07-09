@@ -21,7 +21,6 @@ from typing import Any
 
 import yaml  # type: ignore[import-untyped]
 
-
 # =========================================================================
 #  Component / Placement  (was temper_drc.input.placement)
 # =========================================================================

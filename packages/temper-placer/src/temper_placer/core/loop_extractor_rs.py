@@ -11,7 +11,7 @@ import json
 import warnings
 from typing import Any
 
-from temper_placer.core.loop import Loop, LoopCollection
+from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
 
 
@@ -41,7 +41,8 @@ def _netlist_to_dict(netlist: Netlist) -> dict[str, Any]:
 
 def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
     """Convert a Rust-produced dict to a LoopCollection."""
-    from temper_placer.core.loop import Loop as PyLoop, LoopEvent, LoopPin
+    from temper_placer.core.loop import Loop as PyLoop
+    from temper_placer.core.loop import LoopEvent
 
     loops = []
     for loop_dict in data.get("loops", []):

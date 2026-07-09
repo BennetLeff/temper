@@ -11,8 +11,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     Gate,

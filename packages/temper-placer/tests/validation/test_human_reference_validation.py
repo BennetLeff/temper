@@ -5,20 +5,20 @@ HPWL computation on real boards, overlap loss on a deliberately-overlapping
 fixture, and boundary loss on an off-board fixture.
 """
 
+from pathlib import Path
+
 import jax
 import jax.numpy as jnp
 import pytest
 import yaml
-from pathlib import Path
 
+from temper_placer.core.board import Board
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
 from temper_placer.losses.base import LossContext
 from temper_placer.losses.boundary import BoundaryLoss
 from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.wirelength import compute_total_hpwl
-from temper_placer.core.board import Board
-from temper_placer.core.netlist import Component, Netlist, Net, Pin
-
 
 # ---------------------------------------------------------------------------
 # Path helpers
@@ -70,7 +70,7 @@ class TestTraceAndViaExtraction:
         """R3: No trace falls back to '<Net object at 0x…>' placeholder."""
         net_names = {n.name for n in parse_result.netlist.nets}
         for t in parse_result.traces:
-            assert t.net is not None, f"Trace has no net assigned"
+            assert t.net is not None, "Trace has no net assigned"
             assert t.net in net_names, (
                 f"Trace net '{t.net}' not found in parsed netlist — "
                 "possible fallback to str(track.net) placeholder."
@@ -84,7 +84,7 @@ class TestTraceAndViaExtraction:
         """R4: No via falls back to a placeholder net name."""
         net_names = {n.name for n in parse_result.netlist.nets}
         for v in parse_result.vias:
-            assert v.net is not None, f"Via has no net assigned"
+            assert v.net is not None, "Via has no net assigned"
             assert v.net in net_names, (
                 f"Via net '{v.net}' not found in parsed netlist"
             )
@@ -100,8 +100,8 @@ class TestHPWLOnPiantorRight:
 
     @pytest.fixture(scope="class")
     def state_and_context(self):
-        from temper_placer.validation.human_reference_extractor import _build_state_and_context
         from temper_placer.io.kicad_parser import parse_kicad_pcb
+        from temper_placer.validation.human_reference_extractor import _build_state_and_context
         pcb_path = _corpus_board_path("piantor_right", "keyboard_pcb.kicad_pcb")
         if not pcb_path.exists():
             pytest.skip("piantor_right PCB not available")

@@ -16,19 +16,17 @@ from __future__ import annotations
 
 import math
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 import pytest
-from hypothesis import assume, given, settings
+from hypothesis import given, settings
 from hypothesis import strategies as st
-from shapely.geometry import MultiPolygon, Point, Polygon, box
+from shapely.geometry import MultiPolygon, Polygon, box
 
 from temper_placer.router_v6.channel_widths import (
     _build_edt,
     _compute_width_at_point,
     _edt_width_lookup,
-    _rasterize_boundary_mask,
 )
 
 

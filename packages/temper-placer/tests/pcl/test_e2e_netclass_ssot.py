@@ -1,6 +1,7 @@
 """End-to-end SSOT chain verification for netclass-aware clearance."""
-import pytest
 from pathlib import Path
+
+import pytest
 
 RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
 

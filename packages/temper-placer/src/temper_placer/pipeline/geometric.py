@@ -13,6 +13,7 @@ import numpy as np
 
 from temper_placer.core.state import PlacementState
 
+
 # JAX retirement stubs
 class clamp_to_bounds:
     @staticmethod

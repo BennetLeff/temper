@@ -14,8 +14,6 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-import numpy as np
-
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
@@ -853,8 +851,9 @@ def solve_placement(
     loaded_netclass_rules = None
     default_clearance_mm = 0.2
     try:
-        from temper_placer.io.netclass_loader import load_netclass_rules
         from pathlib import Path
+
+        from temper_placer.io.netclass_loader import load_netclass_rules
         _config_yaml = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
         if _config_yaml.exists():
             loaded_netclass_rules = load_netclass_rules(_config_yaml)

@@ -14,13 +14,12 @@ Part of temper-7rqf (Stage 6 - Quality Gate)
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from math import hypot
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from temper_placer.io.kicad_parser import ParseResult, TraceData
+    from temper_placer.io.kicad_parser import ParseResult
 
 
 # ---------------------------------------------------------------------------
@@ -155,7 +154,7 @@ def track_spread_score(
 
 
 def corridor_consolidation_from_parse(
-    result: "ParseResult",
+    result: ParseResult,
     courtyard_clearance_mm: float | None = None,
     track_width_mm: float | None = None,
     min_clearance_mm: float | None = None,
@@ -165,7 +164,7 @@ def corridor_consolidation_from_parse(
 
 
 def track_spread_from_parse(
-    result: "ParseResult",
+    result: ParseResult,
     courtyard_clearance_mm: float | None = None,
     track_width_mm: float | None = None,
     min_clearance_mm: float | None = None,
@@ -174,7 +173,7 @@ def track_spread_from_parse(
     return _compute_spread(result, courtyard_clearance_mm, track_width_mm, min_clearance_mm)
 
 
-def _parse_pcb(pcb_path: Path) -> "ParseResult":
+def _parse_pcb(pcb_path: Path) -> ParseResult:
     """Parse a KiCad PCB file."""
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
@@ -182,7 +181,7 @@ def _parse_pcb(pcb_path: Path) -> "ParseResult":
 
 
 def _compute_consolidation(
-    result: "ParseResult",
+    result: ParseResult,
     courtyard_clearance_mm: float | None,
     track_width_mm: float | None,
     min_clearance_mm: float | None,
@@ -239,7 +238,7 @@ def _compute_consolidation(
 
 
 def _compute_spread(
-    result: "ParseResult",
+    result: ParseResult,
     courtyard_clearance_mm: float | None,
     track_width_mm: float | None,
     min_clearance_mm: float | None,
@@ -305,7 +304,7 @@ class _Courtyard:
 
 
 def _compute_courtyards(
-    result: "ParseResult",
+    result: ParseResult,
     clearance_mm: float,
 ) -> list[_Courtyard]:
     """Compute component courtyards from the parsed PCB.
@@ -421,7 +420,7 @@ def _identify_channels(
 
 
 def _assign_tracks_to_channels(
-    result: "ParseResult",
+    result: ParseResult,
     channels: list[Channel],
 ) -> dict[int, list[TrackSegment]]:
     """Assign trace segments to the channels they pass through.

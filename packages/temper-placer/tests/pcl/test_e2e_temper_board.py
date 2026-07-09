@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 import yaml
 
 from temper_placer.core.board import Board, Zone
@@ -25,7 +24,6 @@ from temper_placer.pcl.constraints import (
     KeepoutConstraint,
 )
 from temper_placer.pcl.parser import ConstraintCollection, parse_constraint_dict
-
 
 CONFIG_PATH = Path(__file__).parent.parent.parent / "configs" / "constraints" / "temper_induction_cooker.yaml"
 
@@ -209,10 +207,14 @@ class TestDRCCompilation:
 
     def test_drc_compilation_produces_keepout_assertions(self, temper_board):
         """DRC compilation for keepout constraints produces keepout-type assertions."""
-        from temper_placer.core.netlist import Netlist
-        from temper_placer.pcl.constraints import CompilationContext, ConstraintTier, KeepoutConstraint
-        from temper_placer.pcl.parser import ConstraintCollection
         import temper_placer.pcl.drc_bridge  # noqa: F401  triggers backend registration
+        from temper_placer.core.netlist import Netlist
+        from temper_placer.pcl.constraints import (
+            CompilationContext,
+            ConstraintTier,
+            KeepoutConstraint,
+        )
+        from temper_placer.pcl.parser import ConstraintCollection
 
         netlist = Netlist(components=[], nets=[])
         kc = KeepoutConstraint(

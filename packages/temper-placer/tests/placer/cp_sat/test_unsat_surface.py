@@ -6,8 +6,6 @@ import json
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from temper_placer.pcl.constraints import ConstraintType
 from temper_placer.placer.cp_sat.unsat import UnsatConstraint, UnsatReport
 from temper_placer.placer.cp_sat.unsat_surface import (

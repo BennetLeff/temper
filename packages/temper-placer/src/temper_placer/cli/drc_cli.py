@@ -13,6 +13,8 @@ from typing import Any
 import click
 import yaml  # type: ignore[import-untyped]
 
+from temper_placer.report.formatter import format_html, format_json, format_text
+from temper_placer.report.summary import generate_summary
 from temper_placer.validation.drc_result import (
     ClearanceCheck,
     ComponentOverlapCheck,
@@ -30,8 +32,6 @@ from temper_placer.validation.drc_result import (
 )
 from temper_placer.validation.drc_runner import CheckRunner
 from temper_placer.validation.drc_types import ConstraintSet, Placement
-from temper_placer.report.formatter import format_html, format_json, format_text
-from temper_placer.report.summary import generate_summary
 
 
 @click.group()

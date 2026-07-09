@@ -15,9 +15,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from temper_placer.core.design_rules import DesignRules
-    from temper_placer.pcl.constraints import BaseConstraint, ConstraintType
-    from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
-    from temper_placer.router_v6.adapter import RoutingResult
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +100,6 @@ class FeedbackClassifier:
         Returns:
             ClassificationResult with sorted deltas and unclassified failures.
         """
-        from temper_placer.router_v6.adapter import RoutingResult
 
         deltas: list[ConstraintDelta] = []
         unclassified: list[UnclassifiedFailure] = []
@@ -140,7 +136,7 @@ class FeedbackClassifier:
                 deltas.append(delta)
             else:
                 unclassified.append(UnclassifiedFailure(
-                    description=f"Congestion in region",
+                    description="Congestion in region",
                 ))
 
         # Class 3: Unrouted critical pins
@@ -225,7 +221,7 @@ class FeedbackClassifier:
             constraint = KeepoutConstraint(
                 zone_name=f"congestion_{hash(bbox) & 0xFFFF:04x}",
                 tier=ConstraintTier.SOFT,
-                because=f"Congestion in routing region — keep components clear",
+                because="Congestion in routing region — keep components clear",
                 id=f"feedback_congestion_keepout_{hash(bbox) & 0xFFFF:04x}",
             )
             return ConstraintDelta(
@@ -452,7 +448,7 @@ def _compute_heuristic_position(
     toward edges for connectors.
     """
     x, y = current_pos
-    if "Q" in comp_ref and not "U_" in comp_ref:
+    if "Q" in comp_ref and "U_" not in comp_ref:
         return (x, y - 5.0)
     if "U_" in comp_ref or "MCU" in comp_ref:
         return (x, y)

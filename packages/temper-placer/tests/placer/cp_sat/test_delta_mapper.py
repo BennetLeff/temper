@@ -12,7 +12,6 @@ import pytest
 from temper_placer.placer.cp_sat.delta_mapper import DeltaMapper
 from temper_placer.placer.cp_sat.gates import Violation, ViolationType
 
-
 # ---------------------------------------------------------------------------
 # Helper
 # ---------------------------------------------------------------------------

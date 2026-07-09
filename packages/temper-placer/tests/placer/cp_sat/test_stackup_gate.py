@@ -14,8 +14,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-import pytest
-
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     Gate,
@@ -26,7 +24,6 @@ from temper_placer.placer.cp_sat.gates import (
     Violation,
     ViolationType,
 )
-
 
 # ------------------------------------------------------------------
 # Route-like stub for testing

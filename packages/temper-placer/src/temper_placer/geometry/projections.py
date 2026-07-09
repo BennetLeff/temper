@@ -23,7 +23,6 @@ Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retire
 
 from temper_placer.geometry.polygon import (
     nearest_point_on_polygon,
-    nearest_point_on_segment,
     point_in_polygon_winding,
 )
 

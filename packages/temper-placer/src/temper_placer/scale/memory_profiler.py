@@ -15,17 +15,19 @@ import json
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
+
 import psutil
 
 from temper_placer.core.board import Board
-from temper_placer.core.netlist import Netlist
 from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss
+from temper_placer.core.netlist import Netlist
+
 
 # JAX retirement stubs
 class BoundaryLoss:
     def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
 class OverlapLoss:
-    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")  
+    def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
 class WirelengthLoss:
     def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
 class OptimizerConfig:

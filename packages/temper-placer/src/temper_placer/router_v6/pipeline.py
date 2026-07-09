@@ -21,12 +21,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from temper_placer.validation.drc_fence import DRCFence, InvariantSpec
-
 from temper_placer.core.board import side_to_layer_name
 from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
-from temper_placer.router_v6.placement_legalization import Legalizer
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
 from temper_placer.router_v6.channel_mapping import ChannelPath, map_topology_to_channels
@@ -44,6 +41,7 @@ from temper_placer.router_v6.net_classification import (
     is_power_net,
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.placement_legalization import Legalizer
 from temper_placer.router_v6.resource_bound import demand_budget_summary
 from temper_placer.router_v6.routing_demand import RoutingDemand
 from temper_placer.router_v6.routing_results import RoutingResults, compile_routing_results
@@ -58,6 +56,7 @@ from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGra
 from temper_placer.router_v6.topology_solver import SolverStatus, TopologicalSolution
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment, assign_trace_widths
 from temper_placer.router_v6.via_placement import ViaPlacement, place_vias
+from temper_placer.validation.drc_fence import DRCFence, InvariantSpec
 
 
 @dataclass
@@ -1383,8 +1382,10 @@ def _ensure_checks_loaded(fence, invariants: tuple) -> None:
     if not missing:
         return
     try:
-        from temper_placer.validation.drc_result import TraceClearanceCheck  # noqa: E402
-        from temper_placer.validation.drc_result import ViaSpacingCheck  # noqa: E402
+        from temper_placer.validation.drc_result import (
+            TraceClearanceCheck,  # noqa: E402
+            ViaSpacingCheck,  # noqa: E402
+        )
     except ImportError:
         return  # temper_drc not available, skip
     if "drc_via_spacing" in missing:

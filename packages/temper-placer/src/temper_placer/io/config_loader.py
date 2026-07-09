@@ -12,14 +12,12 @@ This module loads placement constraints from YAML files, defining:
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import yaml  # type: ignore[import-untyped]
 
 from temper_placer._constraint_types import (
-    AestheticConstraints,
     ClearanceRule,
     ComponentGroup,
     ComponentSpacingRule,
@@ -34,13 +32,11 @@ from temper_placer._constraint_types import (
     LossConfig,
     LossesConfig,
     ManufacturingConstraint,
-    ManufacturingConstraints,
     MatchedLengthGroup,
     NetClassRule,
     NoiseDomain,
     NoiseIsolationRule,
     PlacementConstraints,
-    PlacementInitialization,
     PlacementProximityConstraint,
     ProximityRule,
     RoutingCorridor,

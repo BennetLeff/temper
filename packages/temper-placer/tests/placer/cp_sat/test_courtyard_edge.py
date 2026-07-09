@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-from ortools.sat.python import cp_model
-
 from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
 from temper_placer.placer.cp_sat.encoder import (
     EncoderContext,

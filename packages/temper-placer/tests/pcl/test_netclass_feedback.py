@@ -1,7 +1,7 @@
 """Test feedback handler with DesignRules."""
-import pytest
 from pathlib import Path
-from unittest.mock import MagicMock
+
+import pytest
 
 RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
 

@@ -6,23 +6,23 @@ with full optimization quality (Spearman rho >= 0.5).
 Full test (20 seeds, 30 iters) is gated on @pytest.mark.slow. Fast-path (3 seeds) runs in CI.
 """
 
+from dataclasses import replace
+
 import jax
 import jax.numpy as jnp
 import pytest
-from dataclasses import replace
-
 from scipy.stats import spearmanr
 
-from temper_placer.core.state import PlacementState
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.core.state import PlacementState
 from temper_placer.losses.base import (
     CompositeLoss,
     LossContext,
     WeightedLoss,
 )
-from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.losses.boundary import BoundaryLoss
+from temper_placer.losses.overlap import OverlapLoss
 from temper_placer.optimizer.config import MultiSeedConfig, OptimizerConfig
 from temper_placer.optimizer.seed_generation import _generate_diverse_seeds
 from temper_placer.optimizer.train import train_multiphase

@@ -242,9 +242,7 @@ def ipc2152_min_width(
             elif isinstance(layer, int):
                 # Check kicad_index (stackup.LayerConfig) or positional idx
                 kicad_idx = getattr(candidate, "kicad_index", None)
-                if kicad_idx is not None and kicad_idx == layer:
-                    match = True
-                elif idx == layer:
+                if kicad_idx is not None and kicad_idx == layer or idx == layer:
                     match = True
             if match:
                 # Duck-type copper weight: board.Layer has copper_weight,

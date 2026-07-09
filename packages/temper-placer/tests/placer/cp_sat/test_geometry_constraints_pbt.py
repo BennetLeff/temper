@@ -17,14 +17,13 @@ P9: Golden temper board — bounds ⊇ pads for all 33 components on the real bo
 
 from __future__ import annotations
 
-import math
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
 from temper_placer.placer.cp_sat.encoder import EncoderContext, encode_constraints
 from temper_placer.placer.cp_sat.model import CpSatModel
+
 from ._strategies import small_placement_instance, tau_and_margin
 
 
@@ -304,7 +303,6 @@ def test_bounds_enclose_pads_hypothesis():
     """
     from hypothesis import given, settings
     from hypothesis import strategies as st
-    import math
 
     # Generate random pad positions within a footprint and verify
     # that the reported bounds contain them.
@@ -361,6 +359,7 @@ def test_golden_temper_board_bounds_enclose_pads():
     and DRC violations survive regardless of encoding soundness.
     """
     from pathlib import Path
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
     input_pcb = Path(__file__).parent.parent.parent.parent.parent.parent / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"

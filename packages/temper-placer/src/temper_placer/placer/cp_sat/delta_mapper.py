@@ -31,8 +31,6 @@ class DeltaMapper:
         Returns ``None`` for violation types placement cannot fix
         (e.g. intra-component clearance, or informational-only types).
         """
-        from temper_placer.placer.cp_sat.gates import ViolationType
-        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
         from temper_placer.pcl.constraints import (
             AnchoredConstraint,
             ConstraintTier,
@@ -40,6 +38,8 @@ class DeltaMapper:
             LoopAreaConstraint,
             SeparatedConstraint,
         )
+        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
+        from temper_placer.placer.cp_sat.gates import ViolationType
 
         vtype = violation.type
 

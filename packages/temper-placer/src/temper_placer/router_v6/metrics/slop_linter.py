@@ -138,9 +138,7 @@ def lint_isolated_vias(routed_pcb_path: Path) -> list[dict]:
         for trace in traces:
             if trace["net"] != via_net:
                 continue
-            if _distance_mm(trace["start"], via_pos) < 0.2:
-                segment_count += 1
-            elif _distance_mm(trace["end"], via_pos) < 0.2:
+            if _distance_mm(trace["start"], via_pos) < 0.2 or _distance_mm(trace["end"], via_pos) < 0.2:
                 segment_count += 1
         if segment_count == 1:
             findings.append({

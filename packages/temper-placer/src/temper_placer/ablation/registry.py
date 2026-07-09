@@ -4,6 +4,8 @@ from copy import deepcopy
 from typing import Any
 
 from temper_placer.ablation.config import ComponentToggle, LossToggle
+
+
 class OptimizerConfig:
     """DEPRECATED: stub."""
     def __init__(self, **kw):

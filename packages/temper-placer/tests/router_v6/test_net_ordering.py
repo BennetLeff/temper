@@ -10,8 +10,6 @@ Proves that the spatial-conflict-aware ordering:
 
 from __future__ import annotations
 
-import math
-import random
 from dataclasses import dataclass
 
 import pytest
@@ -178,6 +176,7 @@ def test_missing_waypoints():
 def test_temper_clusters_are_reasonable():
     """On real temper PCB, clusters should be non-trivial but not all-in-one."""
     from pathlib import Path
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.router_v6.pipeline import RouterV6Pipeline
 

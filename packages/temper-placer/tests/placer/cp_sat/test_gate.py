@@ -6,8 +6,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from unittest import mock
 
-import pytest
-
 from temper_placer.placer.cp_sat.gate import AcceptanceGate, GateResult
 
 

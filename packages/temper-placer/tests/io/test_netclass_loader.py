@@ -1,6 +1,7 @@
 """Test netclass loader: YAML -> DesignRules."""
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Path to the fixture YAML
 RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"

@@ -280,7 +280,7 @@ class ConstraintCollection:
 
         return errors
 
-    def auto_enrich(self, netlist: "Netlist", board: "Board | None" = None) -> None:
+    def auto_enrich(self, netlist: Netlist, board: Board | None = None) -> None:
         """Auto-generate constraints from design data.
 
         Three automatic enrichments:
@@ -345,6 +345,7 @@ class ConstraintCollection:
                 )
 
         # 3. Tag expansion
+        from temper_placer.pcl.tag_dispatch import _tag_to_component_refs
         from temper_placer.pcl.tagged_constraints import (
             TaggedAdjacentConstraint,
             TaggedAlignedConstraint,
@@ -353,7 +354,6 @@ class ConstraintCollection:
             TaggedOnSideConstraint,
             TaggedSeparatedConstraint,
         )
-        from temper_placer.pcl.tag_dispatch import _tag_to_component_refs
 
         tagged_types = (
             TaggedAdjacentConstraint,
