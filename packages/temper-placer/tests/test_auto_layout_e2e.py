@@ -1,10 +1,16 @@
 
 from pathlib import Path
 
+import pytest
+
 from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.pipeline.auto_layout import auto_layout_pcb
 
 
+@pytest.mark.skip(
+    reason="JAX gradient-descent auto-layout retired (JAX retirement); "
+    "use the CP-SAT placer. See optimize_placement_with_feedback stub."
+)
 def test_auto_layout_temper_board():
     """Validate complete pipeline on the temper board test case."""
     pcb_path = Path("pcb/temper_ready_for_route.kicad_pcb")
