@@ -1304,12 +1304,19 @@ class PlaceRouteLoop:
 
         Uses a FIELD_OSCILLATION_WINDOW (4) and ε_field max-norm
         criterion: if the current field matches any field in the
-        last window rounds within epsilon, it is a cycle.
+        window — EXCLUDING the immediately-preceding round — within
+        epsilon, it is a cycle.  A match against the immediately-
+        preceding round is *stability* (monotone convergence), not a
+        cycle, and is handled by ``_check_field_stability``; including it
+        here would kill a slowly-converging field as a false oscillation.
+        A genuine cycle repeats a state ≥2 rounds back (period-2 → [-2],
+        period-4 → [-4]).
         """
         import numpy as np
         if len(self._field_history) < self.FIELD_OSCILLATION_WINDOW:
             return False
-        recent = self._field_history[-self.FIELD_OSCILLATION_WINDOW:]
+        # Exclude the immediately-preceding entry ([-1]) — that is stability.
+        recent = self._field_history[-self.FIELD_OSCILLATION_WINDOW:-1]
         for old_field in recent:
             if np.max(np.abs(current_field - old_field)) < self.FIELD_EPSILON:
                 return True

@@ -395,6 +395,51 @@ def test_drifting_field_is_budget_not_convergence():
     assert loop._field_stability_counter < PlaceRouteLoop.STABILITY_ROUNDS
 
 
+def test_converging_field_not_flagged_as_cycle():
+    """Regression (review F1): a slowly-converging field whose last two rounds
+    fall within FIELD_EPSILON must NOT be misread as an oscillation cycle.
+
+    A cycle repeats a state >=2 rounds back; a match against the immediately-
+    preceding round is *stability*, not a cycle. Before the fix,
+    _detect_field_cycle included _field_history[-1] and killed converging
+    fields with a false OSCILLATION_DETECTED.
+    """
+    loop = PlaceRouteLoop()
+    eps = PlaceRouteLoop.FIELD_EPSILON
+
+    def flat(v):
+        return np.full((8, 8), v, dtype=np.float32)
+
+    # Monotone convergence toward 50; late rounds get within epsilon.
+    loop._field_history = [flat(100.0), flat(80.0), flat(60.0), flat(55.0), flat(50.3)]
+    current = flat(50.3 + eps / 2.0)  # within epsilon of the PRECEDING round (stability)
+
+    assert loop._detect_field_cycle(current) is False, (
+        "Converging field (match against immediately-preceding round) must NOT "
+        "be flagged as a cycle — that is stability, handled separately"
+    )
+    assert loop._check_field_stability(current) is True, (
+        "A field within epsilon of the previous round is stable"
+    )
+
+
+def test_true_period2_cycle_still_detected():
+    """The F1 fix must not blind the detector to a genuine period-2 cycle
+    (current matches the round 2 back, [-2], not the immediately-preceding)."""
+    loop = PlaceRouteLoop()
+
+    def flat(v):
+        return np.full((8, 8), v, dtype=np.float32)
+
+    # A <-> B oscillation: history ...A, B ; current == A (matches [-2], not [-1]).
+    loop._field_history = [flat(70.0), flat(40.0), flat(70.0), flat(40.0)]
+    current = flat(70.0)
+
+    assert loop._detect_field_cycle(current) is True, (
+        "A genuine period-2 cycle (match >=2 rounds back) must still be detected"
+    )
+
+
 # ---------------------------------------------------------------------------
 # R16: Counter Invariant (RuleBasedStateMachine)
 # ---------------------------------------------------------------------------
