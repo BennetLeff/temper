@@ -182,21 +182,32 @@ class _ExtremePoint:
 
 
 def _compute_per_device_power(cfg: OperatingPointConfig) -> float:
-    """Per-semiconductor total power (conduction + switching)."""
-    if cfg.R_ds_on > 0:
-        P_cond = cfg.I_load_rms**2 * cfg.R_ds_on
-    else:
-        P_cond = cfg.I_load_rms * cfg.V_ce_sat
+    """Per-semiconductor total power (conduction + switching).
 
-    I_peak = cfg.I_load_rms * math.sqrt(2)
-    P_sw = (
-        0.5
-        * cfg.V_bus
-        * I_peak
-        * cfg.f_sw
-        * (cfg.t_rise + cfg.t_fall)
+    Delegates to the canonical per-device power model so there is exactly
+    one power-source formula (issue #140: the operating-point gate and
+    the thermal battery both call the same function).
+    """
+    from temper_placer.physics.device_power import (
+        DeviceLossConfig,
+        _compute_single_device_power,
     )
-    return P_cond + P_sw
+
+    default_igbt = DeviceLossConfig(
+        name="_default",
+        device_type="IGBT",
+        V_ce_sat=cfg.V_ce_sat,
+        R_ds_on=cfg.R_ds_on,
+        V_ce_sat_because="inherited from OperatingPointConfig.V_ce_sat",
+    )
+    return _compute_single_device_power(
+        V_bus=cfg.V_bus,
+        I_load_rms=cfg.I_load_rms,
+        f_sw=cfg.f_sw,
+        device=default_igbt,
+        t_rise=cfg.t_rise,
+        t_fall=cfg.t_fall,
+    )
 
 
 # ---------------------------------------------------------------------------

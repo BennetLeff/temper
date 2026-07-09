@@ -528,6 +528,7 @@ def run_thermal_helps_battery(
     devices: dict[str, tuple[float, float]] | None = None,
     power_map: dict[str, float] | None = None,
     operating_point_config: dict[str, Any] | None = None,
+    device_loss_configs: dict[str, Any] | None = None,
     base_seed: int = 42,
     n_perturbations: int | None = None,
     skip_smoke_test: bool = False,
@@ -555,6 +556,15 @@ def run_thermal_helps_battery(
         Dict matching ``OperatingPointConfig`` contract.  Required for
         the gate-first guard (U6).  If ``None``, the gate is skipped
         (for test-only scenarios where electrical config is absent).
+    device_loss_configs:
+        ``{ref: DeviceLossConfig}`` per-device datasheet loss params with
+        ``because`` citations (issue #140).  When *power_map* is empty and
+        *operating_point_config* is supplied, the power map is derived from
+        the shared operating point + per-device loss configs via
+        ``derive_power_map``.  If *operating_point_config* is supplied but
+        *device_loss_configs* is absent, the battery aborts — a placeholder
+        zero-power must NOT silently produce a T_j verdict.  A caller-supplied
+        *power_map* is treated as an explicit override (test-only).
     base_seed:
         Base seed for deterministic reproducibility.
     n_perturbations:
@@ -595,6 +605,41 @@ def run_thermal_helps_battery(
     # Resolve defaults
     devices = devices or {}
     power_map = power_map or {}
+
+    # --- Derive power_map from operating point + device loss configs (#140) ---
+    if not power_map and operating_point_config:
+        if device_loss_configs:
+            from temper_placer.physics.operating_point import _validate_config
+
+            op_cfg = _validate_config(operating_point_config)
+            try:
+                from temper_placer.physics.device_power import derive_power_map
+
+                power_map = derive_power_map(op_cfg, device_loss_configs)
+                logger.info(
+                    "U10 derived power_map from operating point + device "
+                    "loss configs: %s",
+                    {k: f"{v:.1f} W" for k, v in power_map.items()},
+                )
+            except ValueError as exc:
+                raise SystemError(
+                    f"Cannot derive per-device power: {exc}. "
+                    f"A placeholder/zero power map must NOT silently "
+                    f"produce a T_j verdict (#140 fail-closed guard). "
+                    f"Provide complete device_loss_configs with datasheet "
+                    f"'because' citations for every power device."
+                ) from exc
+        else:
+            raise SystemError(
+                "Power map is empty and operating_point_config is supplied "
+                "without device_loss_configs.  Cannot derive per-device "
+                "power — the thermal solve would receive a zero/placeholder "
+                "power map, producing a garbage T_j verdict (#140 "
+                "fail-closed guard).  Provide device_loss_configs "
+                "(per-device datasheet loss params with 'because' "
+                "citations) or an explicit power_map for test-only scenarios."
+            )
+
     if fdm_config is None:
         fdm_config = ThermalFDMConfig(
             cell_size_mm=1.0,
