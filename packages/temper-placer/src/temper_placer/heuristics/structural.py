@@ -75,11 +75,11 @@ def create_keepout_mask(
 
     if margin_cells > 0:
         # Top and bottom edges
-        mask = mask.at[:margin_cells, :].set(False)
-        mask = mask.at[-margin_cells:, :].set(False)
+        mask[:margin_cells, :] = False
+        mask[-margin_cells:, :] = False
         # Left and right edges
-        mask = mask.at[:, :margin_cells].set(False)
-        mask = mask.at[:, -margin_cells:].set(False)
+        mask[:, :margin_cells] = False
+        mask[:, -margin_cells:] = False
 
     # Mark mounting holes as invalid
     for hole in board.mounting_holes:
@@ -97,7 +97,7 @@ def create_keepout_mask(
                 if dx * dx + dy * dy <= cr * cr:
                     mx, my = cx + dx, cy + dy
                     if 0 <= mx < width_cells and 0 <= my < height_cells:
-                        mask = mask.at[my, mx].set(False)
+                        mask[my, mx] = False
 
     # Mark explicit keepout regions
     for x_min, y_min, x_max, y_max in board.keepout_regions:
@@ -113,7 +113,7 @@ def create_keepout_mask(
         mx_max = min(width_cells, int((x_max_buf - ox) / resolution_mm) + 1)
         my_max = min(height_cells, int((y_max_buf - oy) / resolution_mm) + 1)
 
-        mask = mask.at[my_min:my_max, mx_min:mx_max].set(False)
+        mask[my_min:my_max, mx_min:mx_max] = False
 
     return mask
 

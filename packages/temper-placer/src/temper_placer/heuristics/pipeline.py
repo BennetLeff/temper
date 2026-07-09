@@ -108,7 +108,7 @@ class HeuristicPipeline:
         board: Board,
         netlist: Netlist,
         constraints: PlacementConstraints | None = None,
-        key: Array | None = None,
+        key: np.random.Generator | None = None,
         keep_out_mask: Array | None = None,
     ) -> PipelineResult:
         """
@@ -118,17 +118,17 @@ class HeuristicPipeline:
             board: Board geometry
             netlist: Components and nets
             constraints: Optional placement constraints
-            key: JAX random key for stochastic decisions
+            key: NumPy random Generator for stochastic decisions
             keep_out_mask: Optional (H, W) boolean mask of valid regions
 
         Returns:
-            PipelineResult with final placements and JAX state
+            PipelineResult with final placements and state
         """
         if constraints is None:
             constraints = PlacementConstraints()
 
         if key is None:
-            key = jax.random.PRNGKey(42)
+            key = np.random.default_rng(42)
 
         # Sort heuristics by priority
         sorted_heuristics = sorted(self.heuristics, key=lambda h: h.priority)
@@ -188,10 +188,6 @@ class HeuristicPipeline:
                 "message": result.message,
             }
 
-            # Update key for next heuristic
-            if context.rng_key is not None:
-                context.rng_key, _ = jax.random.split(context.rng_key)
-
         # Fill remaining components with random placement
         unplaced_components = context.get_unplaced_components()
         unplaced_refs = []
@@ -250,27 +246,20 @@ class HeuristicPipeline:
         ox, oy = context.board.origin
 
         for comp in unplaced:
-            key, subkey = jax.random.split(key)
-
             # Try up to 100 random positions
             placed = False
             for _ in range(100):
-                key, subkey = jax.random.split(key)
-
                 # Random position within bounds
                 x = float(
-                    jax.random.uniform(
-                        subkey,
-                        minval=ox + margin + comp.width / 2,
-                        maxval=ox + context.board.width - margin - comp.width / 2,
+                    key.uniform(
+                        low=ox + margin + comp.width / 2,
+                        high=ox + context.board.width - margin - comp.width / 2,
                     )
                 )
-                key, subkey = jax.random.split(key)
                 y = float(
-                    jax.random.uniform(
-                        subkey,
-                        minval=oy + margin + comp.height / 2,
-                        maxval=oy + context.board.height - margin - comp.height / 2,
+                    key.uniform(
+                        low=oy + margin + comp.height / 2,
+                        high=oy + context.board.height - margin - comp.height / 2,
                     )
                 )
 
@@ -322,32 +311,32 @@ class HeuristicPipeline:
 
             # Fixed components ALWAYS use their configured position (highest priority)
             if comp.fixed and comp.initial_position is not None:
-                positions = positions.at[idx].set(np.array(comp.initial_position))
+                positions[idx] = np.array(comp.initial_position)
                 if comp.initial_rotation is not None:
                     rot_idx = comp.initial_rotation
                     logits = np.array([-10.0, -10.0, -10.0, -10.0])
-                    logits = logits.at[rot_idx].set(10.0)
-                    rotation_logits = rotation_logits.at[idx].set(logits)
+                    logits[rot_idx] = 10.0
+                    rotation_logits[idx] = logits
 
             elif comp.ref in context.current_placements:
                 placement = context.current_placements[comp.ref]
-                positions = positions.at[idx].set(np.array(placement.position))
+                positions[idx] = np.array(placement.position)
 
                 # Set rotation logits to strongly prefer the chosen rotation
                 rot_idx = placement.rotation
                 logits = np.array([-10.0, -10.0, -10.0, -10.0])
-                logits = logits.at[rot_idx].set(10.0)
-                rotation_logits = rotation_logits.at[idx].set(logits)
+                logits[rot_idx] = 10.0
+                rotation_logits[idx] = logits
 
             elif comp.initial_position is not None:
                 # Use initial position from netlist (non-fixed components)
-                positions = positions.at[idx].set(np.array(comp.initial_position))
+                positions[idx] = np.array(comp.initial_position)
 
                 if comp.initial_rotation is not None:
                     rot_idx = comp.initial_rotation
                     logits = np.array([-10.0, -10.0, -10.0, -10.0])
-                    logits = logits.at[rot_idx].set(10.0)
-                    rotation_logits = rotation_logits.at[idx].set(logits)
+                    logits[rot_idx] = 10.0
+                    rotation_logits[idx] = logits
 
             else:
                 # Fallback: center of board (shouldn't happen if fill works)
@@ -358,7 +347,7 @@ class HeuristicPipeline:
                         oy + context.board.height / 2,
                     ]
                 )
-                positions = positions.at[idx].set(center)
+                positions[idx] = center
 
         return PlacementState(positions=positions, rotation_logits=rotation_logits)
 
