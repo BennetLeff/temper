@@ -19,7 +19,17 @@ The existing `PlaceRouteLoop` (`placer/cp_sat/loop.py`) handles placement feedba
 
 ### R1 — Extend PlaceRouteLoop to consume all gates
 
-Add a gate registry to `PlaceRouteLoop`: a list of `Gate` objects, each with a `check(state) → list[Violation]` method and a `to_delta(violation) → ConstraintDelta` method. After each place→route round, run all registered gates. On any violation, emit the corresponding constraint delta and trigger a re-solve.
+Add a gate registry to `PlaceRouteLoop`: a list of `Gate` objects, each with a `check(state) → GateResult` method. `GateResult` is a three-state type (see `docs/brainstorms/2026-07-08-gate-contract.md`):
+
+```
+GateResult{status: CLEAN | VIOLATIONS | UNMEASURED, violations: list[Violation]}
+```
+
+- `CLEAN` — measurement completed, zero violations. The gate is green.
+- `VIOLATIONS` — measurement completed, violations found. Emit `to_delta()` per violation.
+- `UNMEASURED` — measurement could not be performed (tool crashed, board didn't load, oracle errored, kicad-cli exited nonzero). The gate is red — convergence is blocked until the gate can measure.
+
+**Why three-state.** An empty violations list means two different things: "measured, clean" and "couldn't measure." This is the `run_drc` false-zero bug elevated to an architectural invariant: a gate whose tool crashes returns `UNMEASURED`, not `[]`. `all_gates_green()` returns `True` when every gate's `status == CLEAN` — an unmeasured gate can never pass.
 
 `Violation` is a dataclass with:
 - `type` (enum: `CLEARANCE`, `UNROUTED`, `LOOP_INDUCTANCE`, `THERMAL`, `CREEPAGE`, `VIA_COUNT`, `SLOP`)
@@ -40,7 +50,7 @@ Each `Gate` declares a `stage`: `PLACEMENT` (checked after CP-SAT solve, before 
 
 **Integration with existing code.** The `Gate` registry wraps the existing `FeedbackClassifier`. `DrcGate` and `RoutingGate` compose the existing feedback classes (congestion, DRC, unrouted-pin). `PhysicsGate` and `QualityGate` are additive. The loop calls `Gate.check()` after each round, replacing the direct `classify()` call.
 
-`all_gates_green()` returns `True` when every registered `Gate`'s `check(state)` returns an empty violations list. Equivalent to: `all(len(gate.check(state)) == 0 for gate in self.gates)`.
+`all_gates_green()` returns `True` when every registered `Gate`'s `check(state)` returns `status == CLEAN`. Equivalent to: `all(gate.check(state).status == GateStatus.CLEAN for gate in self.gates)`. A gate returning `UNMEASURED` prevents convergence until the measurement can be performed successfully.
 
 Gate: `PlaceRouteLoop.run()` iterates until `all_gates_green()` or `max_rounds` reached.
 
