@@ -341,6 +341,8 @@ class RouterV6Pipeline:
         enable_numba_los: bool = True,
         single_layer: bool = False,
         layer_constraints: dict[str, Any] | None = None,
+        thermal_flat: Any = None,  # U8: (N,) float32 cost field
+        thermal_weight: float = 0.0,  # U8: multiplier
     ):
         """
         Initialize Router V6 pipeline.
@@ -378,6 +380,11 @@ class RouterV6Pipeline:
                 bundle equivalence classes and only Safety constraints
                 are encoded eagerly; Performance constraints are lazily
                 grounded via CEGAR loop. Deprecated max_sat_nets if set.
+            thermal_flat: U8 optional (N,) float32 thermal cost field
+                (from CostFieldInput.cost_flat).  Threaded to A*
+                kernel step-cost.
+            thermal_weight: U8 multiplier on per-cell thermal cost
+                (from CostFieldInput.weight).  0.0 = field-off.
         """
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
@@ -405,6 +412,9 @@ class RouterV6Pipeline:
         self.corridor_buffer_cells = corridor_buffer_cells
         self.enable_numba_los = enable_numba_los
         self.single_layer = single_layer
+        # U8: thermal cost field (flat float32 + weight) threaded to A* kernel
+        self.thermal_flat = thermal_flat
+        self.thermal_weight = thermal_weight
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
         self.layer_constraints = layer_constraints or {}
@@ -1117,6 +1127,15 @@ class RouterV6Pipeline:
         if self.verbose:
             print("  4.2: Running A* pathfinding (orchestrated)...")
 
+        # U8: build CostFieldInput from pipeline params for BoardState
+        thermal_field = None
+        if self.thermal_flat is not None and self.thermal_weight > 0.0:
+            from temper_placer.fields.interface import CostFieldInput
+            thermal_field = CostFieldInput(
+                cost_flat=self.thermal_flat,
+                weight=self.thermal_weight,
+            )
+
         orchestrated = Stage4Orchestrator(verbose=self.verbose)
         state = BoardState(
             _parsed_pcb=pcb,
@@ -1125,6 +1144,7 @@ class RouterV6Pipeline:
             enable_theta_star=self.enable_theta_star,
             enable_lazy_theta_star=self.enable_lazy_theta_star,
             congestion_weight=self.congestion_weight,
+            thermal_field=thermal_field,
             enable_coarse_to_fine=self.enable_coarse_to_fine,
             coarse_factor=self.coarse_factor,
             corridor_buffer_cells=self.corridor_buffer_cells,

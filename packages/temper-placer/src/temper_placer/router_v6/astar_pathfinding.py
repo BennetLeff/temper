@@ -248,6 +248,8 @@ def run_astar_pathfinding(
     corridor_buffer_cells: int = 12,
     bottleneck_widths: dict[str, float] | None = None,
     net_budgets: dict[str, int] | None = None,
+    thermal_flat=None,  # U8: thermal cost field (rows*cols, float32)
+    thermal_weight: float = 0.0,  # U8: multiplier on per-cell thermal cost
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -389,6 +391,8 @@ def run_astar_pathfinding(
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
+            thermal_flat=thermal_flat,
+            thermal_weight=thermal_weight,
         )
         fallback_count += fb
 
@@ -548,6 +552,8 @@ def _astar_route_with_ripup(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    thermal_flat=None,
+    thermal_weight: float = 0.0,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int], int]:
     """
     Route a net, potentially ripping up blocking nets.
@@ -579,6 +585,8 @@ def _astar_route_with_ripup(
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
+            thermal_flat=thermal_flat,
+            thermal_weight=thermal_weight,
         )
         fallback_count += fb
     else:
@@ -586,7 +594,9 @@ def _astar_route_with_ripup(
                                 max_iter=max_iter,
                                 enable_coarse_to_fine=enable_coarse_to_fine,
                                 coarse_factor=coarse_factor,
-                                corridor_buffer_cells=corridor_buffer_cells)
+                                corridor_buffer_cells=corridor_buffer_cells,
+                                thermal_flat=thermal_flat,
+                                thermal_weight=thermal_weight)
         fallback_count += fb
 
     if path and path.forced_segment_count == 0:
@@ -820,6 +830,8 @@ def _astar_route_multilayer(
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
     enable_congestion_derivative: bool = True,
+    thermal_flat=None,
+    thermal_weight: float = 0.0,
 ) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -852,6 +864,8 @@ def _astar_route_multilayer(
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
             enable_congestion_derivative=enable_congestion_derivative,
+            thermal_flat=thermal_flat,
+            thermal_weight=thermal_weight,
         )
         fallback_count += fb
 
@@ -869,6 +883,8 @@ def _astar_route_multilayer(
                     coarse_factor=coarse_factor,
                     corridor_buffer_cells=corridor_buffer_cells,
                     enable_congestion_derivative=enable_congestion_derivative,
+                    thermal_flat=thermal_flat,
+                    thermal_weight=thermal_weight,
                 )
                 fallback_count += fb2
                 if segment_path:
@@ -923,6 +939,8 @@ def _astar_route(
     enable_coarse_to_fine: bool = False,
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
+    thermal_flat=None,
+    thermal_weight: float = 0.0,
 ) -> tuple[RoutePath | None, int]:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -948,6 +966,8 @@ def _astar_route(
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
+            thermal_flat=thermal_flat,
+            thermal_weight=thermal_weight,
         )
         fallback_count += fb
 
@@ -1013,6 +1033,8 @@ def _dispatch_search(
     max_iter: int = 1_000_000,
     enable_numba_los: bool = False,
     enable_congestion_derivative: bool = True,
+    thermal_flat=None,
+    thermal_weight: float = 0.0,
 ):
     if use_lazy_theta_star:
         return _astar_search_lazy_theta_star(
@@ -1037,15 +1059,15 @@ def _dispatch_search(
     )
     # U7 / R11: thread the optional congestion tensor through.  The
     # Numba kernel reads it as a flat float32 array per expansion.
+    kwargs = {"max_iterations": max_iter}
+    if thermal_flat is not None:
+        kwargs["thermal_flat"] = thermal_flat
+        kwargs["thermal_weight"] = thermal_weight
     if congestion_tensor is not None:
-        return _astar_search_numba(
-            start, goal, grid,
-            max_iterations=max_iter,
-            congestion_flat=congestion_tensor.array.reshape(-1),
-            congestion_weight=congestion_tensor.weight,
-            max_congestion_cost=congestion_tensor.max_cost,
-        )
-    return _astar_search_numba(start, goal, grid, max_iterations=max_iter)
+        kwargs["congestion_flat"] = congestion_tensor.array.reshape(-1)
+        kwargs["congestion_weight"] = congestion_tensor.weight
+        kwargs["max_congestion_cost"] = congestion_tensor.max_cost
+    return _astar_search_numba(start, goal, grid, **kwargs)
 
 
 def _segment_search(
@@ -1061,6 +1083,8 @@ def _segment_search(
     coarse_factor: int = 4,
     corridor_buffer_cells: int = 12,
     enable_congestion_derivative: bool = True,
+    thermal_flat=None,
+    thermal_weight: float = 0.0,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Run A* between two world-coordinate waypoints on ``grid``.
 
@@ -1082,13 +1106,17 @@ def _segment_search(
             congestion_tensor=congestion_tensor,
             max_iter=max_iter,
             enable_congestion_derivative=enable_congestion_derivative,
+            thermal_flat=thermal_flat,
+            thermal_weight=thermal_weight,
         )
 
     path = _dispatch_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
-    enable_numba_los=enable_numba_los,
-    enable_congestion_derivative=enable_congestion_derivative,
+        enable_numba_los=enable_numba_los,
+        enable_congestion_derivative=enable_congestion_derivative,
+        thermal_flat=thermal_flat,
+        thermal_weight=thermal_weight,
     )
     return path, grid, 0
 
@@ -1105,6 +1133,8 @@ def _segment_search_coarse_to_fine(
     max_iter: int = 1_000_000,
     enable_numba_los: bool = False,
     enable_congestion_derivative: bool = True,
+    thermal_flat=None,
+    thermal_weight: float = 0.0,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Coarse-to-fine corridor routing.
 
@@ -1149,8 +1179,10 @@ def _segment_search_coarse_to_fine(
     path = _dispatch_search(
         grid, start, goal, use_theta_star, use_lazy_theta_star,
         congestion_tensor=congestion_tensor, max_iter=max_iter,
-    enable_numba_los=enable_numba_los,
-    enable_congestion_derivative=enable_congestion_derivative,
+        enable_numba_los=enable_numba_los,
+        enable_congestion_derivative=enable_congestion_derivative,
+        thermal_flat=thermal_flat,
+        thermal_weight=thermal_weight,
     )
     return path, grid, 1
 
