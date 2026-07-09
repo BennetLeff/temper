@@ -1,0 +1,6 @@
+self-hosted-runner:
+  # Custom labels for the self-hosted ESP32 hardware runner used by
+  # firmware-perf-record.yml. Declared here so actionlint does not flag
+  # them as unknown runner labels.
+  labels:
+    - esp32

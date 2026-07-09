@@ -58,6 +58,22 @@ If violations are reported:
 The same check runs in CI. After the soft-launch period (until 2026-07-06), violations block PR merge.
 See `docs/plans/2026-06-22-014-feat-import-linter-boundary-enforcement-plan.md`.
 
+## GitHub Actions Workflow Linting
+
+Any change under `.github/workflows/` is linted by `actionlint` (the
+`Lint Workflows` CI job). It catches the failures that silently abort a run:
+YAML indentation mistakes, duplicate keys (e.g. two `permissions:` blocks in
+one job), unknown runner labels, and bad action references.
+
+Run it locally before pushing workflow edits:
+
+```bash
+brew install actionlint   # or: go install github.com/rhysd/actionlint/cmd/actionlint@latest
+SHELLCHECK_OPTS='--severity=error' actionlint -ignore 'constant expression "false" in condition'
+```
+
+Custom self-hosted runner labels are declared in `.github/actionlint.yaml`.
+
 ## Script Manifest Convention
 
 Every `scripts/*.py` file must have an entry in `scripts/manifest.yaml`. The
