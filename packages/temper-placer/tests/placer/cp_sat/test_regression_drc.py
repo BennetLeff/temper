@@ -246,6 +246,7 @@ def _count_errors_by_type(drc_data: dict) -> dict[str, int]:
 
 
 @pytest.mark.slow
+@pytest.mark.routing
 def test_golden_board_routing_drc_regression():
     """Full placement + routing + KiCad DRC round-trip gate.
 
@@ -254,6 +255,9 @@ def test_golden_board_routing_drc_regression():
     subtracting the placement-only DRC baseline from the routed-board DRC
     result, isolating routing regressions from placement-inherited
     violations.
+
+    CI gate: if this test fails, routing completeness or routed-board DRC
+    has regressed.  This is the W1 territory-level truth gate.
     """
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
