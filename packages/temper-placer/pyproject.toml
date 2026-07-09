@@ -96,6 +96,9 @@ markers = [
     "integration: marks integration tests that span multiple components",
     "nightly: marks tests that run only in scheduled nightly CI (too heavy for per-commit)",
     "bmc_l0_encoding: Level 0 BMC encoding correctness tests — exhaustive N <= 10",
+    "k1: K1 — closed-form analytic validation of thermal FDM solver",
+    "k2: K2 — real copper offset / geometry-faithful validation",
+    "k4: K4 — determinism / bit-stability validation",
 ]
 
 [tool.ruff]
