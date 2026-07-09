@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from temper_placer.placer.cp_sat.feedback import ConstraintDelta  # noqa: F401
     from temper_placer.router_v6.adapter import RoutingResult
 
 
@@ -86,26 +87,42 @@ class GateResult:
     """Result of a single gate check.
 
     ``error_message`` is only populated for ``UNMEASURED``.
+
+    Contract invariant (gate-contract.md §GateResult): a ``VIOLATIONS``
+    status with an empty ``violations`` tuple is rejected at construction
+    so "empty means clean, not couldn't-measure" is enforced at the type
+    boundary.
     """
 
     status: GateStatus
     violations: tuple[Violation, ...] = ()
     error_message: str = ""
 
+    def __post_init__(self):
+        if (
+            self.status is GateStatus.VIOLATIONS
+            and len(self.violations) == 0
+        ):
+            raise ValueError(
+                "GateResult with status=VIOLATIONS must have at least "
+                "one Violation"
+            )
+
 
 @dataclass(frozen=True)
 class BoardState:
     """Frozen snapshot of the pipeline state handed to every gate.
 
-    Gates must not mutate this. For W1 the only field the RoutingGate needs
-    is ``routed_pcb_path``; ``placement``, ``routing``, and ``netlist`` are
-    populated from the ``PlaceRouteLoop`` result and carried for the other
-    gates (physics, quality) that share the same ``BoardState``.
+    Gates must not mutate this.  Per ``docs/brainstorms/2026-07-08-
+    gate-contract.md`` §BoardState: placement + routing + netlist + board
+    geometry + design rules + the routed PCB path.
     """
 
     placement: Any = None
     routing: RoutingResult | None = None
     netlist: Any = None
+    board: Any = None
+    design_rules: Any = None
     routed_pcb_path: Path | None = None
 
 
@@ -119,7 +136,7 @@ class Gate:
         """Inspect the board state and return a three-state result."""
         raise NotImplementedError
 
-    def to_delta(self, violation: Violation) -> Any | None:
+    def to_delta(self, violation: Violation) -> ConstraintDelta | None:
         """Map a violation to a constraint delta the loop can inject.
 
         Returns ``None`` when this violation type has no corrective delta
