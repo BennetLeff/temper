@@ -121,7 +121,8 @@ class PlaceRouteLoop:
     FIELD_CONVERGENCE_ROUND_LIMIT: int = 8  # U9: distinct from MAX_ROUNDS
 
     def __init__(self, classifier=None, gates=None,
-                 field_compute_fn=None, thermal_weight=0.0):
+                 field_compute_fn=None, thermal_weight=0.0,
+                 _placement_solver=None):
         if classifier is None:
             from temper_placer.placer.cp_sat.feedback import FeedbackClassifier
             classifier = FeedbackClassifier()
@@ -151,6 +152,36 @@ class PlaceRouteLoop:
         self._field_stability_counter: int = 0
         self._field_round_counter: int = 0
         self._solve_times_history: list[float] = []
+
+        # Placement solver injection point (U7): None uses the module-level
+        # solve_placement resolved at call time (supports mock.patch at
+        # encoder.solve_placement).  Tests inject a deterministic stub to
+        # drive round outcomes without real CP-SAT solves.
+        self._placement_solver = _placement_solver
+
+    def _call_solver(self, netlist, board, extra_constraints, timeout_ms, seed,
+                     zones=None, zone_components=None, loop_components=None):
+        """Resolve the placement solver lazily and call it.
+
+        When ``_placement_solver`` is None (default), imports
+        ``solve_placement`` from encoder at call time so that
+        ``mock.patch('...encoder.solve_placement')`` still works.
+        When an injected stub is present, that stub is called directly.
+        """
+        solver = self._placement_solver
+        if solver is None:
+            from temper_placer.placer.cp_sat.encoder import solve_placement
+            solver = solve_placement
+        return solver(
+            netlist=netlist,
+            board=board,
+            extra_constraints=extra_constraints,
+            timeout_ms=timeout_ms,
+            seed=seed,
+            zones=zones,
+            zone_components=zone_components,
+            loop_components=loop_components,
+        )
 
     @staticmethod
     def _load_netclass_rules():
@@ -196,7 +227,7 @@ class PlaceRouteLoop:
         Returns:
             LoopResult with success status, placement, and routing.
         """
-        from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult, solve_placement
+        from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         # Reset per-run state.
         self._unmeasured_streak = {}
@@ -262,7 +293,7 @@ class PlaceRouteLoop:
             constraint_objects = all_constraints + [
                 delta.constraint for delta in injected_deltas
             ]
-            placement = solve_placement(
+            placement = self._call_solver(
                 netlist=netlist,
                 board=board,
                 extra_constraints=constraint_objects,
@@ -447,7 +478,6 @@ class PlaceRouteLoop:
         """
         import numpy as np  # U9
         from pathlib import Path as _Path
-        from temper_placer.placer.cp_sat.encoder import solve_placement
         from temper_placer.placer.cp_sat.gates import GateStage, GateStatus
         from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
@@ -491,7 +521,7 @@ class PlaceRouteLoop:
             constraint_objects = all_constraints + [
                 delta.constraint for delta in injected_deltas
             ]
-            placement = solve_placement(
+            placement = self._call_solver(
                 netlist=netlist,
                 board=board,
                 extra_constraints=constraint_objects,
@@ -1141,13 +1171,12 @@ class PlaceRouteLoop:
         warm_start_placement=None,
     ):
         """Try solving with an additional delta. Raises UnsatError on failure."""
-        from temper_placer.placer.cp_sat.encoder import solve_placement
 
         all_objects = list(base_constraints) + [
             delta.constraint for delta in new_deltas
         ]
 
-        result = solve_placement(
+        result = self._call_solver(
             netlist=netlist,
             board=board,
             extra_constraints=all_objects,
@@ -1178,9 +1207,7 @@ class PlaceRouteLoop:
         Phase 2 uses a longer timeout for better wirelength optimization
         but must not regress the completion rate below Phase 1's.
         """
-        from temper_placer.placer.cp_sat.encoder import solve_placement
-
-        result = solve_placement(
+        result = self._call_solver(
             netlist=netlist,
             board=board,
             extra_constraints=constraint_objects,
