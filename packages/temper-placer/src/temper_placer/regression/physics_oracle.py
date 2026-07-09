@@ -423,19 +423,3 @@ def score_human_baseline(
         print(f"  (threshold from spec  = {threshold_mm} mm)")
 
     return result
-
-
-# Re-export multi-seed experiment API from its own module.
-# NOTE: multi_seed_experiment.py also needs JAX retirement; re-export is
-# conditional until that module is updated.
-try:
-    from temper_placer.regression.multi_seed_experiment import (  # noqa: E402, F401
-        MultiSeedExperimentResult,
-        MultiSeedRunResult,
-        _compute_experiment_stats,
-        run_multi_seed_experiment,
-    )
-except Exception:
-    # Multi-seed experiment module still has JAX dependencies;
-    # these symbols will be available once that module is updated.
-    pass

@@ -22,7 +22,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias
+
+from numpy.typing import NDArray
 
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
@@ -34,6 +36,8 @@ if TYPE_CHECKING:
     pass
 from temper_placer.router_v6.layer_assignment import LayerAssignment, assign_layers  # noqa: E402
 from temper_placer.router_v6.net_ordering import order_nets  # noqa: E402
+
+Array: TypeAlias = NDArray
 
 
 class VerificationLevel(Enum):
