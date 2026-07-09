@@ -219,11 +219,15 @@ def _compute_routing_metrics(
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
-    """Compute routed length (RDL) and via count from parsed traces and vias.
+    """Compute routed length (RDL), via counts, corridor, and track-spread metrics.
 
     RDL is the sum of Euclidean distances between each trace segment's
     start and end points (straight-line approximation per segment, not
     accounting for layer transitions).
+
+    Via counts are classified into signal, thermal, and stitching.
+    Corridor consolidation and track-spread scores are computed from
+    channels between component courtyards.
     """
     mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
 
@@ -237,9 +241,38 @@ def _compute_routing_metrics(
     # Via count
     via_count = len(parse_result.vias)
 
+    # Signal / thermal / stitching via classification (U2)
+    try:
+        from temper_placer.router_v6.quality.via_count import classify_vias_from_parse
+        via_counts = classify_vias_from_parse(parse_result)
+        signal_via_count = via_counts.signal
+        thermal_via_count = via_counts.thermal
+        stitching_via_count = via_counts.stitching
+    except Exception:
+        signal_via_count = -1
+        thermal_via_count = -1
+        stitching_via_count = -1
+
+    # Corridor consolidation and track-spread (U3)
+    try:
+        from temper_placer.router_v6.quality.corridor import (
+            corridor_consolidation_from_parse,
+            track_spread_from_parse,
+        )
+        corridor_score = corridor_consolidation_from_parse(parse_result)
+        track_spread = track_spread_from_parse(parse_result)
+    except Exception:
+        corridor_score = -1.0
+        track_spread = -1.0
+
     return {
         "rdl": mk(rdl),
         "via_count": mk(float(via_count)),
+        "signal_via_count": mk(float(signal_via_count)),
+        "thermal_via_count": mk(float(thermal_via_count)),
+        "stitching_via_count": mk(float(stitching_via_count)),
+        "corridor_consolidation_score": mk(corridor_score),
+        "track_spread_score": mk(track_spread),
     }
 
 
