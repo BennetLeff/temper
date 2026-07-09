@@ -59,7 +59,11 @@ class ViolationType(Enum):
     # W2/U6: functional stackup violations.
     REFERENCE_PLANE_SPLIT = "reference_plane_split"
     CURRENT_DENSITY = "current_density"
-    # Future: LOOP_INDUCTANCE, THERMAL, CREEPAGE, VIA_COUNT, SLOP
+    # W3/U5: physics-gate violation types.
+    LOOP_INDUCTANCE = "loop_inductance"
+    THERMAL = "thermal"
+    CREEPAGE = "creepage"
+    VIA_COUNT = "via_count"
 
 
 @dataclass(frozen=True)
@@ -98,7 +102,7 @@ class BoardState:
     """
 
     placement: Any = None
-    routing: "RoutingResult | None" = None
+    routing: RoutingResult | None = None
     netlist: Any = None
     routed_pcb_path: Path | None = None
 
@@ -113,7 +117,7 @@ class Gate:
         """Inspect the board state and return a three-state result."""
         raise NotImplementedError
 
-    def to_delta(self, violation: Violation) -> "Any | None":
+    def to_delta(self, violation: Violation) -> Any | None:
         """Map a violation to a constraint delta the loop can inject.
 
         Returns ``None`` when this violation type has no corrective delta
@@ -409,7 +413,7 @@ class StackupGate(Gate):
     # to_delta
     # ------------------------------------------------------------------
 
-    def to_delta(self, violation: Violation) -> "Any | None":
+    def to_delta(self, violation: Violation) -> Any | None:
         """Map a StackupGate violation to a corrective delta.
 
         - ``CURRENT_DENSITY``: proposes the minimum width for the net.
@@ -443,7 +447,6 @@ def _min_width_ipc2152(
     is broadly similar for standard 1oz/10C rise.  Internal layers are
     derated by a factor of 0.55 per IPC-2152 Section 3.
     """
-    import math
 
     if current_a <= 0.0:
         return 0.0
@@ -483,6 +486,439 @@ def _ipc2152_forward(
     if internal_layer:
         return current_ext * 0.65
     return current_ext
+
+
+# ------------------------------------------------------------------
+# W3/U4: IEC Creepage Gate — kicad-cli DRC clearance HV ↔ LV
+# ------------------------------------------------------------------
+# @req(2026-07-08-005, R4): verify 6mm creepage via kicad-cli DRC
+# on the routed board, filtering clearance violations between HV
+# and LV net classes.  kicad-cli failure → UNMEASURED.
+
+_HV_NET_PATTERNS: frozenset[str] = frozenset(
+    {
+        "DC_BUS+",
+        "DC_BUS-",
+        "SW_NODE",
+        "SW_NODE_DC+",
+        "SW_NODE_DC-",
+        "AC_L",
+        "AC_N",
+    }
+)
+
+
+def _is_hv_net(name: str) -> bool:
+    """Check whether *name* is a known HV net in the half-bridge design."""
+    return name in _HV_NET_PATTERNS
+
+
+class IECCreepageGate(Gate):
+    """ROUTING-stage gate: verifies 6 mm creepage between HV and LV nets.
+
+    Runs ``kicad-cli pcb drc`` on the routed board, filtering clearance
+    violations that cross HV ↔ LV net classes.  Returns ``CLEAN`` when
+    there are zero such violations, ``VIOLATIONS`` when at least one is
+    found, and ``UNMEASURED`` when kicad-cli fails or the routed PCB is
+    missing (never returns a false ``CLEAN``).
+    """
+
+    stage = GateStage.ROUTING
+    name = "iec_creepage"
+
+    def check(self, state: BoardState) -> GateResult:
+        if not state.routed_pcb_path or not Path(state.routed_pcb_path).exists():
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message="No routed PCB available for creepage DRC",
+            )
+
+        try:
+            from temper_placer.validation.drc_runner import DrcRunnerError, run_drc
+        except ImportError as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"drc_runner import failed: {exc}",
+            )
+
+        try:
+            drc_result = run_drc(state.routed_pcb_path)
+        except (DrcRunnerError, FileNotFoundError, Exception) as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"creepage DRC failed: {exc}",
+            )
+
+        violations: list[Violation] = []
+        for err in drc_result.errors:
+            if err.rule != "clearance":
+                continue
+
+            entry_names = err.components or []
+
+            hv_nets = [n for n in entry_names if _is_hv_net(n)]
+            lv_nets = [
+                n
+                for n in entry_names
+                if not _is_hv_net(n) and n and not n[0].isdigit()
+            ]
+
+            if hv_nets and lv_nets:
+                violations.append(
+                    Violation(
+                        type=ViolationType.CREEPAGE,
+                        nets=tuple(set(hv_nets + lv_nets)),
+                        severity=6.0,  # placeholder — actual clearance in message
+                        threshold=6.0,
+                        description=err.message,
+                        context={"required_mm": 6.0, "rule": err.rule},
+                    )
+                )
+
+        if violations:
+            return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
+        return GateResult(GateStatus.CLEAN)
+
+    def to_delta(self, violation: Violation) -> Any | None:
+        if violation.type is not ViolationType.CREEPAGE:
+            return None
+
+        try:
+            from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
+        except ImportError:
+            return None
+
+        if len(violation.nets) < 2:
+            return None
+
+        a, b = violation.nets[0], violation.nets[1]
+        return {
+            "type": "separated",
+            "constraint": SeparatedConstraint(
+                a=a,
+                b=b,
+                min_distance_mm=violation.threshold,
+                tier=ConstraintTier.HARD,
+                because="IEC 60335-1 Table 16 creepage requirement",
+            ),
+            "reason": f"IEC creepage gate: {violation.description}",
+        }
+
+
+# ------------------------------------------------------------------
+# W3/U5: PhysicsGate — aggregate loop, gate-drive, thermal, creepage
+# ------------------------------------------------------------------
+# @req(2026-07-08-005, R5): gate wraps four sub-checks; first
+# measurement failure → UNMEASURED; else VIOLATIONS or CLEAN.
+
+
+class PhysicsGate(Gate):
+    """ROUTING-stage gate: verifies electrical and thermal physics rules.
+
+    Aggregates four sub-checks on the routed board:
+
+    1. Commutation-loop area ≤ 2000 mm²
+    2. Gate-drive loop area ≤ 500 mm² + trace spacing ≤ 2 mm
+    3. Thermal via count ≥ 9 per IGBT + B.Cu pour ≥ footprint area
+    4. Creepage ≥ 6 mm between HV and LV nets
+
+    Any sub-check that cannot measure ⇒ ``UNMEASURED`` (fail-closed).
+    """
+
+    stage = GateStage.ROUTING
+    name = "physics"
+
+    # ------------------------------------------------------------------
+    # Thresholds (SSOT — do not duplicate)
+    # ------------------------------------------------------------------
+
+    _COMMUTATION_LOOP_MAX_MM2: float = 2000.0
+    _GATE_DRIVE_LOOP_MAX_MM2: float = 500.0
+    _GATE_DRIVE_SPACING_MAX_MM: float = 2.0
+    _THERMAL_VIA_MIN_COUNT: int = 9
+    _CREEPAGE_MIN_MM: float = 6.0
+
+    _IGBT_REFS: tuple[str, str] = ("Q1", "Q2")
+    _GATE_NETS: tuple[str, str] = ("GATE_H", "GATE_L")
+
+    # ------------------------------------------------------------------
+    # check
+    # ------------------------------------------------------------------
+
+    def check(self, state: BoardState) -> GateResult:  # noqa: C901
+        """Run all four sub-checks and aggregate into a three-state result."""
+        pcb = state.routed_pcb_path
+        if not pcb or not Path(pcb).exists():
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message="No routed PCB available for physics gate",
+            )
+
+        violations: list[Violation] = []
+
+        # ---- 1. Commutation-loop area (U1) ----------------------------
+        try:
+            from temper_placer.physics.loop_area import commutation_loop_area
+
+            loop_area_mm2 = commutation_loop_area(pcb)
+            if loop_area_mm2 is None:
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message="commutation-loop area: trace extraction failed",
+                )
+            if loop_area_mm2 > self._COMMUTATION_LOOP_MAX_MM2:
+                violations.append(
+                    Violation(
+                        type=ViolationType.LOOP_INDUCTANCE,
+                        components=("Q1", "Q2", "C_BUS1", "C_BUS2"),
+                        nets=("DC_BUS+", "SW_NODE", "DC_BUS-"),
+                        severity=loop_area_mm2,
+                        threshold=self._COMMUTATION_LOOP_MAX_MM2,
+                        description=(
+                            f"Commutation loop area {loop_area_mm2:.1f} mm² "
+                            f"> {self._COMMUTATION_LOOP_MAX_MM2:.0f} mm²"
+                        ),
+                        context={
+                            "max_area_mm2": self._COMMUTATION_LOOP_MAX_MM2,
+                            "loop": "commutation",
+                        },
+                    )
+                )
+        except ImportError as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"commutation-loop area: import failed: {exc}",
+            )
+        except Exception as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"commutation-loop area: {exc}",
+            )
+
+        # ---- 2. Gate-drive tightness (U2) -----------------------------
+        try:
+            from temper_placer.physics.gate_drive import (
+                gate_drive_loop_area,
+                gate_drive_spacing,
+            )
+
+            for gate_net in self._GATE_NETS:
+                loop_label = gate_net
+                area = gate_drive_loop_area(pcb, gate_net)
+                spacing = gate_drive_spacing(pcb, gate_net)
+
+                if area is None and spacing is None:
+                    return GateResult(
+                        GateStatus.UNMEASURED,
+                        error_message=(
+                            f"gate-drive {loop_label}: measurement failed "
+                            f"(no gate traces or no return path)"
+                        ),
+                    )
+
+                if area is not None and area > self._GATE_DRIVE_LOOP_MAX_MM2:
+                    violations.append(
+                        Violation(
+                            type=ViolationType.LOOP_INDUCTANCE,
+                            nets=(gate_net,),
+                            severity=area,
+                            threshold=self._GATE_DRIVE_LOOP_MAX_MM2,
+                            description=(
+                                f"Gate-drive loop {loop_label} area "
+                                f"{area:.1f} mm² > "
+                                f"{self._GATE_DRIVE_LOOP_MAX_MM2:.0f} mm²"
+                            ),
+                            context={
+                                "loop": loop_label,
+                                "max_area_mm2": self._GATE_DRIVE_LOOP_MAX_MM2,
+                            },
+                        )
+                    )
+
+                if spacing is not None and spacing > self._GATE_DRIVE_SPACING_MAX_MM:
+                    violations.append(
+                        Violation(
+                            type=ViolationType.LOOP_INDUCTANCE,
+                            nets=(gate_net,),
+                            severity=spacing,
+                            threshold=self._GATE_DRIVE_SPACING_MAX_MM,
+                            description=(
+                                f"Gate-drive {loop_label} trace spacing "
+                                f"{spacing:.2f} mm > "
+                                f"{self._GATE_DRIVE_SPACING_MAX_MM} mm"
+                            ),
+                            context={
+                                "metric": "spacing_mm",
+                                "loop": loop_label,
+                            },
+                        )
+                    )
+        except ImportError as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"gate-drive: import failed: {exc}",
+            )
+        except Exception as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"gate-drive: {exc}",
+            )
+
+        # ---- 3. Thermal vias (U3) -------------------------------------
+        try:
+            from temper_placer.io.kicad_parser import parse_kicad_pcb
+            from temper_placer.physics.thermal_via_check import (
+                count_thermal_vias,
+                thermal_pour_area,
+            )
+        except ImportError as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"thermal-via: import failed: {exc}",
+            )
+
+        try:
+            parsed = parse_kicad_pcb(pcb)
+            for ref in self._IGBT_REFS:
+                comp = None
+                for c in parsed.netlist.components:
+                    if c.ref == ref:
+                        comp = c
+                        break
+
+                footprint_area_mm2: float = (
+                    comp.bounds[0] * comp.bounds[1] if comp else 0.0
+                )
+
+                via_count = count_thermal_vias(pcb, ref)
+                pour_area = thermal_pour_area(pcb, ref)
+
+                if pour_area is None:
+                    return GateResult(
+                        GateStatus.UNMEASURED,
+                        error_message=(
+                            f"thermal-via {ref}: pour-area measurement failed"
+                        ),
+                    )
+
+                if via_count < self._THERMAL_VIA_MIN_COUNT:
+                    violations.append(
+                        Violation(
+                            type=ViolationType.VIA_COUNT,
+                            components=(ref,),
+                            severity=float(via_count),
+                            threshold=float(self._THERMAL_VIA_MIN_COUNT),
+                            description=(
+                                f"{ref} has {via_count} B.Cu thermal vias, "
+                                f"need ≥ {self._THERMAL_VIA_MIN_COUNT}"
+                            ),
+                            context={"device": ref},
+                        )
+                    )
+
+                if pour_area < footprint_area_mm2:
+                    violations.append(
+                        Violation(
+                            type=ViolationType.THERMAL,
+                            components=(ref,),
+                            severity=pour_area,
+                            threshold=footprint_area_mm2,
+                            description=(
+                                f"{ref} B.Cu pour area {pour_area:.1f} mm² "
+                                f"< footprint {footprint_area_mm2:.1f} mm²"
+                            ),
+                            context={
+                                "device": ref,
+                                "metric": "pour_area_mm2",
+                            },
+                        )
+                    )
+        except Exception as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"thermal-via: {exc}",
+            )
+
+        # ---- 4. Creepage (U4) -----------------------------------------
+        creepage_gate = IECCreepageGate()
+        creepage_result = creepage_gate.check(state)
+        if creepage_result.status is GateStatus.UNMEASURED:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"creepage: {creepage_result.error_message}",
+            )
+        violations.extend(creepage_result.violations)
+
+        if violations:
+            return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
+        return GateResult(GateStatus.CLEAN)
+
+    # ------------------------------------------------------------------
+    # to_delta
+    # ------------------------------------------------------------------
+
+    def to_delta(self, violation: Violation) -> Any | None:
+        """Map physics violations to constraint deltas.
+
+        - ``LOOP_INDUCTANCE`` → ``LoopAreaConstraint`` tightening.
+        - ``THERMAL`` / ``CREEPAGE`` → ``SeparatedConstraint``.
+        - ``VIA_COUNT`` → ``None`` (via count is a routing concern;
+          placement cannot fix it).
+        """
+        if violation.type is ViolationType.LOOP_INDUCTANCE:
+            try:
+                from temper_placer.pcl.constraints import ConstraintTier, LoopAreaConstraint
+            except ImportError:
+                return None
+
+            loop_name = violation.context.get("loop", "commutation")
+            max_area = violation.context.get("max_area_mm2", 2000.0)
+            tightened = min(violation.severity * 0.9, max_area * 0.5)
+            return {
+                "type": "loop_area",
+                "constraint": LoopAreaConstraint(
+                    loop_name=str(loop_name),
+                    max_area_mm2=tightened,
+                    tier=ConstraintTier.STRONG,
+                    because=(
+                        f"Physics gate: {violation.type.value} "
+                        f"at {violation.severity:.1f} > "
+                        f"{violation.threshold:.1f}"
+                    ),
+                ),
+                "reason": violation.description,
+            }
+
+        if violation.type in (ViolationType.THERMAL, ViolationType.CREEPAGE):
+            try:
+                from temper_placer.pcl.constraints import ConstraintTier, SeparatedConstraint
+            except ImportError:
+                return None
+
+            if len(violation.components) >= 2:
+                a, b = violation.components[0], violation.components[1]
+            elif len(violation.nets) >= 2:
+                a, b = violation.nets[0], violation.nets[1]
+            else:
+                return None
+
+            min_distance = violation.threshold
+            if violation.type is ViolationType.CREEPAGE:
+                min_distance = 6.0
+
+            return {
+                "type": "separated",
+                "constraint": SeparatedConstraint(
+                    a=a,
+                    b=b,
+                    min_distance_mm=min_distance,
+                    tier=ConstraintTier.HARD,
+                    because=violation.description,
+                ),
+                "reason": f"Physics gate ({violation.type.value}): {violation.description}",
+            }
+
+        return None  # VIA_COUNT and unrecognized types
 
 
 _VIOLATION_TYPE_MAP = {
