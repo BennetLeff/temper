@@ -180,6 +180,17 @@ cadence; lighter L0/L1 exhaustive tests run on every commit.
 
 ---
 
+## Triaged findings (follow-ups)
+
+The batteries surfaced real limitations in the shipped solver, triaged per the AGENTS.md R22 rule
+(trivial fixes in-scope; architectural/discretization fixes documented and scoped as follow-ups):
+
+- **Thermal FDM is 1st-order accurate (cell-centre Dirichlet BC)** — found by the U5 refinement
+  ladder (p ≈ 0.99, not 2). Accuracy floor, not a soundness violation; scoped as a follow-up.
+  See `docs/triaged/2026-07-09-thermal-fdm-first-order-bc.md`.
+
+---
+
 ## References
 
 - Plan: `docs/plans/2026-07-09-001-feat-physics-verification-rigor-plan.md`
