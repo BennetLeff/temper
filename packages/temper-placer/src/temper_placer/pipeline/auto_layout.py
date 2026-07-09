@@ -188,49 +188,12 @@ def optimize_placement_with_feedback(
     cell_size_mm: float,
     steps: int = 100
 ) -> Array:
-    """Optimize placement using routing congestion feedback."""
-    context = LossContext.from_netlist_and_board(netlist, board)
+    """DEPRECATED: JAX gradient-descent placement optimization removed (JAX retirement).
 
-    overlap_loss = OverlapLoss()
-    boundary_loss = BoundaryLoss()
-    channel_loss = RoutingChannelLoss(weight=1.0)
-    mcu_clustering = MCUClusteringLoss.from_netlist(netlist)
-    bus_alignment = BusAlignmentLoss.from_netlist(netlist)
-    congestion_loss = RoutingCongestionLoss(
-        congestion_heatmap,
-        weight=1.0,
-        cell_size=cell_size_mm,
-        origin=np.array(board.origin),
-        grid_size=np.array(congestion_heatmap.shape),
+    This used jax.grad / jax.lax.scan over the (now-removed) differentiable
+    loss system. Use the CP-SAT placer for placement optimization instead.
+    """
+    raise NotImplementedError(
+        "optimize_placement_with_feedback removed (JAX retirement). "
+        "Use the CP-SAT placer for placement optimization."
     )
-
-    def combined_loss(pos):
-        rotations = np.zeros((len(netlist.components), 4))
-        total = np.array(0.0)
-        total += 100.0 * overlap_loss(pos, rotations, context).value
-        total += 50.0 * boundary_loss(pos, rotations, context).value
-        total += 20.0 * channel_loss(pos, rotations, context).value
-        total += 10.0 * mcu_clustering(pos, rotations, context).value
-        total += 5.0 * bus_alignment(pos, rotations, context).value
-        total += 30.0 * congestion_loss(pos)
-        return total
-
-    grad_fn = jax.grad(combined_loss)
-    learning_rate = 0.5
-
-    # JIT-compile the update step
-    # We use scan to unroll the loop on the device
-    def update_step(pos, _):
-        grads = grad_fn(pos)
-        new_pos = pos - learning_rate * grads
-        new_pos = np.clip(
-            new_pos,
-            np.array([5.0, 5.0]),
-            np.array([board.width - 5.0, board.height - 5.0])
-        )
-        return new_pos, None
-
-    # Run optimization loop on device
-    final_positions, _ = jax.lax.scan(update_step, current_positions, None, length=steps)
-
-    return final_positions
