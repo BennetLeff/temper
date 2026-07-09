@@ -28,11 +28,6 @@ import numpy as np
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
-if hasattr(jnp, "long"):
-    _jnp_int = np.long  # type: ignore[attr-defined]
-else:
-    _jnp_int = np.int32
-
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
