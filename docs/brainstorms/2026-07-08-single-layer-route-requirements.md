@@ -1,15 +1,15 @@
 ---
 date: "2026-07-08"
-topic: single-layer-agnostic-route
+topic: single-layer-fcu-route
 status: requirements
 tier: standard-feature
 ---
 
-# Single-Layer-Agnostic Route — Prove the Router Routes at All
+# Single-Layer F.Cu Route — Prove the Router Routes at All
 
 ## Summary
 
-Route 100% of nets on the placed temper board on a single layer (F.Cu). This proves the router functions end-to-end on this board before adding multi-layer complexity. Extend the golden-board DRC gate to routing: unconnected nets = 0, KiCad DRC = 0, ERC = 0.
+Route 100% of nets on the placed temper board on a single layer (F.Cu). This proves the router functions end-to-end on this board before adding multi-layer complexity. Extend the golden-board DRC gate to routing: unconnected nets = 0, KiCad DRC = 0.
 
 ## Problem Frame
 
@@ -19,7 +19,7 @@ The router (`router_v6`) has never been proven to route the temper board end-to-
 
 ### R1 — Route 100% of nets
 
-Run `PlaceRouteLoop` on the temper board with netclass-aware placement + routing. Every net in the netlist must be routed (completion rate = 1.0).
+Run `PlaceRouteLoop` on the temper board with netclass-aware placement + routing. Every net in the netlist must be routed.
 
 Gate: `unconnected_items = 0` in the `kicad-cli pcb drc` output on the routed `.kicad_pcb`.
 
@@ -29,17 +29,11 @@ The routed board must pass `kicad-cli pcb drc` with zero errors. This includes t
 
 Gate: `kicad-cli pcb drc` returns 0 errors of all types on the routed output PCB.
 
-### R3 — ERC = 0
+### R3 — Extend golden-board gate to routing
 
-Electrical rules check must pass. All pins connected, no unconnected net segments, no single-pin nets with missing connections.
+Add a routing DRC decomposition to `test_regression_drc.py` that extends the existing placement gate. The CI test runs `solve_placement → route_pcb → kicad-cli pcb drc` and asserts `unconnected_items = 0` AND `total_errors = 0`.
 
-Gate: `kicad-cli sch erc` (or equivalent connectivity check) returns 0 errors.
-
-### R4 — Extend golden-board gate to routing
-
-Add a routed-board DRC decomposition to the existing `test_regression_drc.py`. The gate must run `solve_placement` → `route_pcb` → `kicad-cli pcb drc` → assert `unconnected_items = 0`.
-
-Gate: CI breaks if routing introduces DRC violations beyond the placement baseline.
+Gate: CI breaks if the routed board has any DRC violation (error count > 0). Routing-introduced DRC = routed_errors - placement_errors. The golden-board gate tracks both.
 
 ## Key Decisions
 
@@ -52,12 +46,12 @@ Gate: CI breaks if routing introduces DRC violations beyond the placement baseli
 - Multi-layer routing is out of scope (W2).
 - Physics-constrained routing is out of scope (W3).
 - 45° routing, via optimization, and aesthetic routing are out of scope (W4).
-- Netlist completeness is the gate — completion rate is a means, not the metric.
+- Netlist completeness is the gate.
 
 ## Dependencies
 
 - **W0 (router build unblock).** `temper_rust_router` must import and run on this machine.
-- **Placement SSOT chain.** Netclass-aware placement (U1-U6 from `2026-07-08-001`) must produce a valid placement.
+- **Placement SSOT chain.** The CP-SAT courtyard+edge constraints (plan `2026-07-08-001`, units U1-U6) must produce a DRC-clean placement with `placement_relevant_drc <= 22`.
 
 ## Success Criteria
 

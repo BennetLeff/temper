@@ -21,11 +21,26 @@ The existing `PlaceRouteLoop` (`placer/cp_sat/loop.py`) handles placement feedba
 
 Add a gate registry to `PlaceRouteLoop`: a list of `Gate` objects, each with a `check(state) → list[Violation]` method and a `to_delta(violation) → ConstraintDelta` method. After each place→route round, run all registered gates. On any violation, emit the corresponding constraint delta and trigger a re-solve.
 
+`Violation` is a dataclass with:
+- `type` (enum: `CLEARANCE`, `UNROUTED`, `LOOP_INDUCTANCE`, `THERMAL`, `CREEPAGE`, `VIA_COUNT`, `SLOP`)
+- `components` (`list[str]`)
+- `nets` (`list[str]`)
+- `severity` (`float`)
+- `context` (`dict` for gate-specific parameters like `required_mm`, `max_area_mm2`, `location`)
+
+`state` is a `BoardState` wrapping the current placement (`CpSatPlacementResult`) + routing (`RoutingResult`) + netlist.
+
 Gate types:
 - `DrcGate` (placement DRC from golden-board decomposition)
 - `RoutingGate` (unconnected nets, routing DRC, ERC from W1)
 - `PhysicsGate` (loop inductance, thermal margin, creepage from W3)
 - `QualityGate` (octilinear %, via count, slop linter from W4)
+
+Each `Gate` declares a `stage`: `PLACEMENT` (checked after CP-SAT solve, before routing) or `ROUTING` (checked after routing). `DrcGate` runs at `PLACEMENT`; all others run at `ROUTING`. This avoids re-routing on placement-only violations.
+
+**Integration with existing code.** The `Gate` registry wraps the existing `FeedbackClassifier`. `DrcGate` and `RoutingGate` compose the existing feedback classes (congestion, DRC, unrouted-pin). `PhysicsGate` and `QualityGate` are additive. The loop calls `Gate.check()` after each round, replacing the direct `classify()` call.
+
+`all_gates_green()` returns `True` when every registered `Gate`'s `check(state)` returns an empty violations list. Equivalent to: `all(len(gate.check(state)) == 0 for gate in self.gates)`.
 
 Gate: `PlaceRouteLoop.run()` iterates until `all_gates_green()` or `max_rounds` reached.
 
@@ -33,11 +48,14 @@ Gate: `PlaceRouteLoop.run()` iterates until `all_gates_green()` or `max_rounds` 
 
 Each gate maps its violation type to a `ConstraintDelta` that the placer or router can consume:
 - **DRC violation** (clearance, short, mask bridge): `SeparatedConstraint(min_distance_mm = violated_mm + δ)` — existing pattern
-- **Unconnected net:** `AnchoredConstraint(net, near_pin)` — force the net to be routed through a specific channel
+- **Unconnected net:** `AnchoredConstraint(component=comp_ref, region=vicinity_of_pin)` — bias the offending component toward the pin so the net can route (matches the existing `feedback.py:334-340` implementation)
 - **Loop inductance > budget:** `LoopAreaConstraint(loop_name, max_area_mm2)` — force tighter component grouping
 - **Creepage violation:** `SeparatedConstraint(net_a, net_b, min_distance_mm=6.0)` — same as existing cross-class SEPARATED
-- **Via count > ceiling:** `ViaCostMultiplier(net, multiplier)` — increase via penalty for the offending net
-- **Slop pattern:** `KeepoutConstraint(region)` — block the region where the slop occurred
+- **Thermal margin not met:** `SeparatedConstraint(a=hot_component, b=thermal_sensitive_component, min_distance_mm=violated_margin + δ)` — increase separation between the hot component and any component whose thermal budget is violated
+- **Via count > ceiling:** `KeepoutConstraint(region)` — place a keepout zone on the congested via region to force re-routing
+- **Slop pattern:** `KeepoutConstraint(region)` — block the region where the slop occurred, where `region` = bounding box of the offending trace segments, expanded by 2× `track_width` on each side
+
+`LoopAreaConstraint` tightens by 5% per round: `max_area_mm2 = measured × 0.95`. It is treated as SOFT — if UNSAT, it surfaces rather than blocks convergence.
 
 Gate: every gate type has at least one `ConstraintDelta` mapping. The loop's existing `_solve_with_delta` handler dispatches the delta to CP-SAT re-solve.
 
@@ -49,19 +67,21 @@ Gate: on the temper board, the loop converges to all-green within ≤ 5 rounds. 
 
 ### R4 — Unattended execution
 
-`temper optimize` with all gates registered must run to completion without operator intervention. The loop must handle infeasible deltas by escalating to the operator (existing `UnsatError` mechanism), not by silently skipping gates.
+`temper optimize` with all gates registered must run to completion without operator intervention. The loop must handle infeasible deltas by escalating to the operator (existing `UnsatError` mechanism), not by silently skipping gates. Unattended mode auto-accepts hard deltas (no operator prompt).
 
 Gate: `temper optimize --all-gates temper.kicad_pcb` runs to completion and produces a routed `.kicad_pcb` that passes all gates.
 
 ## Key Decisions
 
 - **Gate registry, not monolithic loop.** Adding each new gate type to a central `if/elif` chain would create a god-function. A registry of `Gate` objects with `check()` → `to_delta()` keeps the loop clean and each gate testable in isolation.
-- **Constraint deltas follow the existing hybrid backtracking policy.** Safety-critical deltas (creepage, thermal) are hard — the operator must approve. Quality deltas (via count, slop) are soft — the loop tries them, skips on UNSAT.
+- **`check()` and `to_delta()` are split.** `Gate.check(state) → list[Violation]` is pure and testable in isolation. A separate `DeltaMapper.map(violation) → ConstraintDelta` is shared across gates and tested once.
+- **Constraint deltas follow the existing hybrid backtracking policy.** Safety-critical deltas (creepage, thermal) are hard-constraint deltas — the solver must satisfy them without skipping. If a hard delta produces UNSAT, the loop surfaces it (via `UnsatError`) but continues trying the next delta. In attended mode, the operator approves relaxation. In unattended mode, the loop exits with the UNSAT core surfaced in the result. Quality deltas (via count, slop) are soft — the loop tries them, skips on UNSAT.
 - **The loop orchestrates; gates are pure functions.** A `Gate.check(state)` receives the current board state and returns violations. It does not mutate state. The loop handles the feedback logic.
 
 ## Scope Boundaries
 
-- New constraint types (beyond the existing PCL vocabulary + delta extensions) are out of scope — reuse existing constraint types with delta parameters.
+- New PCL constraint types are out of scope. Via-count feedback reuses `KeepoutConstraint`. Thermal margin reuses `SeparatedConstraint`. All delta types map to existing PCL types.
+- ERC violations are limited to routing-induced issues (pins left floating because a trace couldn't route). These map to `AnchoredConstraint` as above. Schematic-level ERC violations are detected pre-loop and fail-fast before convergence.
 - Real-time convergence visualization is out of scope — the loop reports round-by-round status via logging.
 - Multi-board optimization (running the loop on multiple boards in parallel) is out of scope.
 
@@ -73,6 +93,8 @@ Gate: `temper optimize --all-gates temper.kicad_pcb` runs to completion and prod
 ## Success Criteria
 
 1. `PlaceRouteLoop.run(all_gates=True)` converges to all-green on the temper board within ≤ 5 rounds
+   - **SC1a:** With `DrcGate` + `RoutingGate` only (no `PhysicsGate`/`QualityGate`), converges to all-green within ≤ 5 rounds on the temper board.
+   - **SC1b:** Full gate convergence verified after W3/W4 integration.
 2. Each gate type (DRC, routing, physics, quality) has a `check()` and `to_delta()` implementation
 3. `temper optimize --all-gates` runs unattended and produces a routed `.kicad_pcb` passing all gates
 4. On an intentionally broken board (e.g., too-small board for 6mm creepage), the UNSAT core names the blocking constraint

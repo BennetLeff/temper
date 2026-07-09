@@ -27,24 +27,21 @@ Split `temper-rust-router` into two crates:
 
 `temper-constraint-compiler` depends on `temper-rust-router-core`, not the pyo3 wrapper.
 
-Gate: `import temper_rust_router` succeeds without GIL crash. `PlaceRouteLoop.run()` completes end-to-end on this machine and writes a routed `.kicad_pcb`.
+Gate: `import temper_rust_router` succeeds without GIL crash. `PlaceRouteLoop.run()` completes end-to-end on a fresh `uv venv --python 3.12` checkout on macOS arm64 and writes a routed `.kicad_pcb`.
+
+Module boundary rule: Any module that does not import `pyo3` belongs in `temper-rust-router-core`. Modules that import `pyo3` (e.g. `bridge.rs`, `types_py_bridge.rs`) stay in the wrapper crate.
 
 ### R2 — Venv recreation (immediate unblock)
 
-Recreate the project venv on a non-conda Python interpreter:
-
-```bash
-uv venv --python 3.12
-uv pip install maturin
-```
-
-This pulls a python-build-standalone interpreter that doesn't trip the libpython double-link. Low effort, sidesteps the crash while R1 is in progress.
+The project venv must use a non-conda Python interpreter (python-build-standalone via `uv venv --python 3.12` or Homebrew Python). This avoids the libpython double-link. Low effort, sidesteps the crash while R1 is in progress.
 
 Gate: `import temper_rust_router` succeeds. Existing test suite passes unchanged.
 
 ### R3 — Build reproducibility
 
-Document the venv source in `.python-version` or `pyproject.toml` so future environment setups don't regress. The project's Python dependency must not depend on conda.
+Document in `.python-version` (`3.12`) and note in README that the project requires non-conda Python. The project's Python dependency must not depend on conda.
+
+R3 is verifiable only after R1 is complete — the import gate depends on the split crate structure.
 
 Gate: `uv venv && uv pip install -e .` produces a working `temper_rust_router` import on a clean checkout.
 
@@ -57,11 +54,11 @@ Gate: `uv venv && uv pip install -e .` produces a working `temper_rust_router` i
 
 - pyo3 version or maturin configuration changes are out of scope — the crate split is the fix.
 - Other crates in the workspace are unaffected — only `temper-rust-router` is split.
-- macOS-specific workarounds (install_name_tool, DYLD_LIBRARY_PATH) are out of scope — the non-conda venv is the permanent fix.
+- The non-conda venv is a permanent environment change (also serving as the fastest unblock path). The crate split (R1) is an architectural fix addressing the root cause.
 
 ## Success Criteria
 
-1. `import temper_rust_router` succeeds without GIL crash on a fresh `uv venv --python 3.12`
-2. `PlaceRouteLoop.run()` completes end-to-end on the temper board
-3. `temper-constraint-compiler` builds against `temper-rust-router-core` without pyo3 dependency
-4. Existing test suite passes unchanged
+1. R1: `import temper_rust_router` succeeds without GIL crash on a fresh `uv venv --python 3.12`
+2. R1: `PlaceRouteLoop.run()` completes end-to-end on the temper board
+3. R1: `temper-constraint-compiler` builds against `temper-rust-router-core` without pyo3 dependency
+4. R2: Existing test suite passes unchanged
