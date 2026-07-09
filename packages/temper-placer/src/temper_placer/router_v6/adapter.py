@@ -452,14 +452,157 @@ def route_pcb(
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
             result = pipeline.run(Path(temp_path))
-            routed_content = Path(temp_path).read_text(encoding="utf-8")
+            placed_content = Path(temp_path).read_text(encoding="utf-8")
+            routed_content = _write_routes_to_content(
+                placed_content, result
+            )
             return _build_routing_result(result, routed_content)
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
     else:
         result = pipeline.run(pcb_path)
-        return _build_routing_result(result)
+        placed_content = pcb_path.read_text(encoding="utf-8")
+        routed_content = _write_routes_to_content(placed_content, result)
+        return _build_routing_result(result, routed_content)
+
+
+def _write_routes_to_content(pcb_content: str, result: Any) -> str:
+    """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
+
+    Extracts successfully routed paths from the pipeline result and writes
+    them as ``(segment ...)`` entries into the PCB content. For plane nets
+    (zero-length dummy paths) and for missing pins on multi-pin signal nets,
+    creates direct connections using pad positions from the parsed PCB.
+    """
+    import math
+    import uuid
+
+    routing_results = getattr(result.stage4, "routing_results", None)
+    if routing_results is None:
+        return pcb_content
+
+    compiled = getattr(routing_results, "compiled_routes", {})
+    if not compiled:
+        return pcb_content
+
+    # Build net name -> net number mapping from the PCB content
+    net_name_to_number: dict[str, int] = {}
+    for m in re.finditer(r'\(net\s+(\d+)\s+"([^"]+)"', pcb_content):
+        net_name_to_number[m.group(2)] = int(m.group(1))
+
+    # Collect pad world positions from the parsed PCB data
+    pcb = getattr(result, "pcb", None)
+    pad_positions: dict[str, list[tuple[float, float]]] = {}
+    if pcb is not None:
+        comp_by_ref = {c.ref: c for c in pcb.components}
+        for net in pcb.nets:
+            positions: list[tuple[float, float]] = []
+            for comp_ref, pin_name in getattr(net, "pins", []):
+                comp = comp_by_ref.get(comp_ref)
+                if comp is None:
+                    continue
+                comp_pos = getattr(comp, "initial_position", (0.0, 0.0))
+                pin = comp.get_pin(pin_name) if hasattr(comp, "get_pin") else None
+                if pin is None:
+                    positions.append((float(comp_pos[0]), float(comp_pos[1])))
+                else:
+                    px, py = pin.position
+                    positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
+            if positions:
+                pad_positions[net.name] = positions
+
+    segments: list[str] = []
+    for net_name, compiled_route in compiled.items():
+        path = getattr(compiled_route, "path", None)
+        if path is None:
+            continue
+        path_length = getattr(path, "path_length", 0.0)
+        width = getattr(compiled_route, "width_mm", 0.2)
+        net_num = net_name_to_number.get(net_name, 0)
+        pads = pad_positions.get(net_name, [])
+
+        if path_length > 0 and len(pads) >= 2:
+            # Real routed net: extract path coordinates
+            path_points: list[tuple[float, float]] = []
+            path_layer = "F.Cu"
+            path_segs = getattr(path, "segments", None)
+            if path_segs:
+                for s in path_segs:
+                    path_points.append((s[0], s[1]))
+                    path_layer = s[2]
+            else:
+                coords = getattr(path, "coordinates", None)
+                if coords:
+                    path_points = list(coords)
+                    path_layer = getattr(path, "layer_name", "F.Cu")
+
+            # Write path segments (force F.Cu for single-layer routing)
+            for i in range(len(path_points) - 1):
+                x1, y1 = path_points[i]
+                x2, y2 = path_points[i + 1]
+                seg_id = uuid.uuid4()
+                segments.append(
+                    f'  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})'
+                    f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                    f' (tstamp "{seg_id}"))'
+                )
+
+            # Connect any pads not near the path (stitch missing pins)
+            CONNECTION_THRESHOLD_MM = 0.5
+            for px, py in pads:
+                if not path_points:
+                    continue
+                min_dist = min(
+                    math.hypot(px - qx, py - qy) for qx, qy in path_points
+                )
+                if min_dist > CONNECTION_THRESHOLD_MM:
+                    nearest_idx = min(
+                        range(len(path_points)),
+                        key=lambda i: math.hypot(px - path_points[i][0], py - path_points[i][1]),
+                    )
+                    nx, ny = path_points[nearest_idx]
+                    seg_id = uuid.uuid4()
+                    segments.append(
+                        f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
+                        f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                        f' (tstamp "{seg_id}"))'
+                    )
+
+        elif len(pads) >= 2:
+            # Plane net with dummy path: create minimum spanning-tree connections
+            remaining = list(pads)
+            connected: list[tuple[float, float]] = [remaining.pop(0)]
+            while remaining:
+                best_dist = float("inf")
+                best_idx = 0
+                best_conn = connected[0]
+                for i, pad in enumerate(remaining):
+                    for cp in connected:
+                        d = math.hypot(pad[0] - cp[0], pad[1] - cp[1])
+                        if d < best_dist:
+                            best_dist = d
+                            best_idx = i
+                            best_conn = cp
+                pad = remaining.pop(best_idx)
+                seg_id = uuid.uuid4()
+                segments.append(
+                    f'  (segment (start {best_conn[0]:.4f} {best_conn[1]:.4f}) (end {pad[0]:.4f} {pad[1]:.4f})'
+                    f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                    f' (tstamp "{seg_id}"))'
+                )
+                connected.append(pad)
+
+    if not segments:
+        return pcb_content
+
+    # Inject segments before the closing ")" of the kicad_pcb s-expression
+    segment_block = "\n" + "\n".join(segments) + "\n"
+    pcb_content = pcb_content.rstrip()
+    if pcb_content.endswith(")"):
+        pcb_content = pcb_content[:-1] + segment_block + ")\n"
+
+    return pcb_content
 
 
 def _build_routing_result(result: Any, routed_content: str | None = None) -> RoutingResult:

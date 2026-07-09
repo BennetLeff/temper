@@ -339,6 +339,7 @@ class RouterV6Pipeline:
         coarse_factor: int = 4,
         corridor_buffer_cells: int = 12,
         enable_numba_los: bool = True,
+        single_layer: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -402,6 +403,7 @@ class RouterV6Pipeline:
         self.coarse_factor = coarse_factor
         self.corridor_buffer_cells = corridor_buffer_cells
         self.enable_numba_los = enable_numba_los
+        self.single_layer = single_layer
 
         # Warn if both max_sat_nets and enable_bundling are set
         if enable_bundling and max_sat_nets is not None:
@@ -1141,7 +1143,7 @@ class RouterV6Pipeline:
                 channel_mapping,
                 fcu_grid,
                 pcb.design_rules,
-                alternate_grid=bcu_grid,
+                alternate_grid=None if self.single_layer else bcu_grid,
                 pcb=pcb,
                 escape_vias_map=escape_vias_map,
                 use_theta_star=self.enable_theta_star,
@@ -1187,13 +1189,16 @@ class RouterV6Pipeline:
         # 4.9: Compile results
         if self.verbose:
             print("  4.9: Compiling routing results...")
-        plane_net_names = [
-            net.name
-            for net in pcb.nets
-            if is_power_net(net.name)
-            or is_ground_net(net.name)
-            or is_hv_net(net.name)
-        ]
+        if self.single_layer:
+            plane_net_names: list[str] = []
+        else:
+            plane_net_names = [
+                net.name
+                for net in pcb.nets
+                if is_power_net(net.name)
+                or is_ground_net(net.name)
+                or is_hv_net(net.name)
+            ]
         routing_results = compile_routing_results(
             pathfinding_result,
             width_assignment,

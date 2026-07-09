@@ -13,6 +13,7 @@ import networkx as nx
 
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.net_classification import (
+    get_single_layer_mode,
     is_ground_net,
     is_hv_net,
     is_power_net,
@@ -36,7 +37,10 @@ def _assign_layer(net_name: str) -> str:
     Assign net to preferred layer based on net class.
 
     Power, ground, and HV nets go to B.Cu (bottom) to free up F.Cu for signals.
+    In single-layer mode, all nets go to F.Cu.
     """
+    if get_single_layer_mode():
+        return "F.Cu"
     if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
         return "B.Cu"
     return "F.Cu"

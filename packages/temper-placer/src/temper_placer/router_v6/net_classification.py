@@ -52,18 +52,42 @@ def _matches_any(name: str, patterns: frozenset[str]) -> bool:
     return any(p in upper for p in patterns)
 
 
+_SINGLE_LAYER_MODE: bool = False
+
+
+def set_single_layer_mode(enabled: bool) -> None:
+    """Enable or disable single-layer routing mode.
+
+    In single-layer mode, all nets (including power, ground, and HV)
+    are treated as signal nets so they get routed on a single layer.
+    """
+    global _SINGLE_LAYER_MODE
+    _SINGLE_LAYER_MODE = enabled
+
+
+def get_single_layer_mode() -> bool:
+    """Return whether single-layer routing mode is enabled."""
+    return _SINGLE_LAYER_MODE
+
+
 def is_ground_net(name: str) -> bool:
     """Return True if `name` matches a ground-net pattern."""
+    if _SINGLE_LAYER_MODE:
+        return False
     return _matches_any(name, GROUND_NET_PATTERNS)
 
 
 def is_power_net(name: str) -> bool:
     """Return True if `name` matches a power-net pattern."""
+    if _SINGLE_LAYER_MODE:
+        return False
     return _matches_any(name, POWER_NET_PATTERNS)
 
 
 def is_hv_net(name: str) -> bool:
     """Return True if `name` matches a high-voltage-net pattern."""
+    if _SINGLE_LAYER_MODE:
+        return False
     return _matches_any(name, HV_NET_PATTERNS)
 
 
