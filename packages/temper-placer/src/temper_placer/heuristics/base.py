@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TypeAlias
 
+import numpy as np
 from numpy.typing import NDArray
 
 from temper_placer.core.board import Board
@@ -106,7 +107,7 @@ class PlacementContext:
         constraints: Placement constraints from YAML config
         current_placements: Already-placed components (from higher-priority heuristics)
         keep_out_mask: Optional (H, W) boolean mask of valid placement regions
-        rng_key: JAX random key for any stochastic decisions
+        rng_key: NumPy random Generator for any stochastic decisions
     """
 
     board: Board
@@ -114,7 +115,7 @@ class PlacementContext:
     constraints: PlacementConstraints
     current_placements: dict[str, ComponentPlacement] = field(default_factory=dict)
     keep_out_mask: Array | None = None
-    rng_key: Array | None = None
+    rng_key: np.random.Generator | None = None
 
     def get_unplaced_components(self) -> list[Component]:
         """Get components that haven't been placed yet."""
