@@ -132,6 +132,10 @@ class BoardState:
     # more nets than 0.1 or 1.0 on temper.kicad_pcb because
     # the hard signal nets need direct paths.
     congestion_weight: float = 0.0
+    # U8: thermal cost field (CostFieldInput with cost_flat + weight).
+    # Threaded into A* step-cost via the congestion-tensor kernel seam.
+    # Default None = field-off (byte-identical to today's routing).
+    thermal_field: Any = None
     # Router V6 Stage 3 topological-routing fields
     constraint_model: ConstraintModel | None = None
     sat_variable_map: dict[str, Any] | None = None

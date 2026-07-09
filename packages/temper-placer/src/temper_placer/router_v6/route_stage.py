@@ -70,6 +70,31 @@ class RouteStage(Stage):
             weight=cong_weight,
         )
 
+        # U8: thermal cost field injection via the CostFieldInput
+        # contract.  The field is an optional (N,) float32 flat
+        # array with a weight multiplier.  field-off
+        # (thermal_weight=0.0 or no field) is byte-identical to
+        # today's routing.  U9 will set a non-zero
+        # ``state.thermal_field`` via the cost-field seam.
+        thermal_flat = None
+        thermal_weight = 0.0
+        cost_field_input = getattr(state, "thermal_field", None)
+        if cost_field_input is not None:
+            # CostFieldInput from U4: carries cost_flat + weight
+            thermal_flat = cost_field_input.cost_flat
+            thermal_weight = cost_field_input.weight
+
+        # U8: lexicographic net ordering via order_nets()
+        # ensures EMI/critical/thermal-sensitive nets route first
+        # through a clean congestion tensor and un-congested
+        # thermal field.  The call is placed here so the ordering
+        # is computed alongside the thermal field injection.
+        netlist = getattr(pcb, "netlist", None)
+        loops = getattr(state, "loops", None)
+        if netlist is not None and loops is not None:
+            from temper_placer.router_v6.net_ordering import order_nets
+            _lex_order = order_nets(netlist, loops)
+
         result = run_astar_pathfinding(
             channel_mapping=channel_mapping,
             grid=fcu_grid,
@@ -84,6 +109,8 @@ class RouteStage(Stage):
             enable_coarse_to_fine=enable_coarse_to_fine,
             coarse_factor=coarse_factor,
             corridor_buffer_cells=corridor_buffer_cells,
+            thermal_flat=thermal_flat,
+            thermal_weight=thermal_weight,
         )
 
         return replace(

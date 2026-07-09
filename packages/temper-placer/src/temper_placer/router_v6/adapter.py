@@ -234,8 +234,22 @@ class V6RouterAdapter:
         Writes a temporary KiCad PCB file with the current component
         positions, invokes RouterV6Pipeline, and converts results to
         RoutePath-compatible format.
+
+        U8: the dormant ``_cost_maps`` seam accepts a
+        :class:`temper_placer.fields.CostFieldInput` (or any object
+        with ``cost_flat`` and ``weight`` attributes).  When
+        supplied, the thermal cost field is threaded into the A*
+        kernel via the congestion-tensor injection path.
         """
         from temper_placer.router_v6.pipeline import RouterV6Pipeline
+
+        # U8: extract thermal cost field from the _cost_maps seam
+        thermal_flat = None
+        thermal_weight = 0.0
+        if _cost_maps is not None:
+            if hasattr(_cost_maps, "cost_flat") and hasattr(_cost_maps, "weight"):
+                thermal_flat = _cost_maps.cost_flat
+                thermal_weight = _cost_maps.weight
 
         # Build a minimal temp PCB from board + positions data
         temp_content = self._build_temp_pcb(netlist, positions)
@@ -250,6 +264,8 @@ class V6RouterAdapter:
                 enable_lazy_theta_star=False,
                 enable_smoothing=False,
                 max_iter=500_000,
+                thermal_flat=thermal_flat,
+                thermal_weight=thermal_weight,
             )
             result = pipeline.run(Path(temp_path))
         finally:

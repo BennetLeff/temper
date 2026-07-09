@@ -122,6 +122,8 @@ def _astar_search(
     goal: tuple[int, int],
     grid,
     neighbor_tensor: np.ndarray | None = None,
+    thermal_flat: np.ndarray | None = None,
+    thermal_weight: float = 0.0,
 ) -> list[tuple[int, int]] | None:
     """
     A* search algorithm for pathfinding.
@@ -136,11 +138,17 @@ def _astar_search(
             callers), the inner loop falls back to the inlined
             bounds + numpy check.  When supplied, the inner loop
             uses a single bit read per neighbor.
+        thermal_flat: U8 optional ``(height_cells*width_cells,)``
+            float32 cost field.  Added to step-cost alongside
+            congestion.
+        thermal_weight: U8 multiplier on per-cell thermal cost.
 
     Returns:
         List of cells or None if no path found
     """
     from heapq import heappop, heappush
+
+    use_thermal = thermal_flat is not None and thermal_weight > 0.0
 
     # Backward-compat: if no tensor was passed, build one on the
     # fly.  This is the same cost as the inlined check (one pass
@@ -152,6 +160,8 @@ def _astar_search(
             build_neighbor_validity_tensor_2d,
         )
         neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
+
+    cols = grid.width_cells
 
     # A* frontier (priority queue)
     frontier: list = []
@@ -201,6 +211,10 @@ def _astar_search(
 
             # Diagonal cost uses configurable multiplier
             move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
+            # U8: additive thermal cost
+            if use_thermal and thermal_flat is not None:
+                n_idx = ny * cols + nx
+                move_cost += float(thermal_weight) * float(thermal_flat[n_idx])
             new_cost = cost_so_far[current] + move_cost
             neighbor = (nx, ny)
 
