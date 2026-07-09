@@ -363,7 +363,7 @@ def rotation_degrees_to_onehot(degrees: float | Degrees | DegreesArray) -> Array
     index = np.round(degrees_val / 90.0).astype(np.int32) % 4
     if index.ndim == 0:
         return rotation_index_to_onehot(int(index))
-    return jax.nn.one_hot(index, 4)
+    return np.eye(4)[index]
 
 
 def onehot_to_rotation_degrees(rotation_onehot: Array) -> DegreesArray:
@@ -405,54 +405,16 @@ def gumbel_softmax(
     temperature: float = 1.0,
     hard: bool = True,
 ) -> Array:
+    """DEPRECATED: JAX Gumbel-Softmax sampling removed (JAX retirement).
+
+    This was a differentiable discrete-sampling primitive for the JAX
+    gradient-descent placer, which no longer exists. Use the CP-SAT placer
+    for discrete rotation decisions instead.
     """
-    Gumbel-Softmax sampling for differentiable discrete choices.
-
-    This enables gradient flow through discrete rotation selection by using
-    the reparameterization trick with Gumbel noise.
-
-    Args:
-        logits: Unnormalized log-probabilities of shape (..., 4) for rotations
-        key: JAX random key for sampling
-        temperature: Softmax temperature. Higher = more uniform, lower = more peaked.
-                    Typically annealed from high (e.g., 5.0) to low (e.g., 0.1)
-                    during training.
-        hard: If True, return hard one-hot samples using straight-through estimator.
-              If False, return soft samples (useful for some applications).
-
-    Returns:
-        Samples of same shape as logits. If hard=True, these are one-hot vectors
-        in the forward pass but have gradients as if they were soft samples.
-
-    Example:
-        >>> key = jax.random.PRNGKey(0)
-        >>> logits = np.array([[0.0, 1.0, 0.0, 0.0],   # Prefer 90°
-        ...                     [1.0, 0.0, 0.0, 0.0]])  # Prefer 0°
-        >>> samples = gumbel_softmax(logits, key, temperature=0.5)
-        >>> # samples will be approximately one-hot, with gradients flowing
-
-    Note:
-        The straight-through estimator (hard=True) uses the identity:
-            hard_sample = soft_sample + stop_gradient(hard_sample - soft_sample)
-        This gives hard samples in forward pass but soft gradients in backward pass.
-    """
-    # Sample Gumbel noise: -log(-log(U)) where U ~ Uniform(0, 1)
-    # Add small epsilon for numerical stability
-    eps = 1e-10
-    uniform = jax.random.uniform(key, logits.shape, minval=eps, maxval=1.0 - eps)
-    gumbel_noise = -np.log(-np.log(uniform))
-
-    # Add Gumbel noise to logits and apply temperature-scaled softmax
-    noisy_logits = (logits + gumbel_noise) / temperature
-    soft_samples = jax.nn.softmax(noisy_logits, axis=-1)
-
-    if hard:
-        # Straight-through estimator: hard in forward, soft gradients in backward
-        hard_samples = jax.nn.one_hot(np.argmax(soft_samples, axis=-1), logits.shape[-1])
-        # This trick: forward pass uses hard_samples, backward pass uses soft_samples
-        return soft_samples + jax.lax.stop_gradient(hard_samples - soft_samples)
-    else:
-        return soft_samples
+    raise NotImplementedError(
+        "gumbel_softmax removed (JAX retirement). "
+        "Use the CP-SAT placer for discrete rotation decisions."
+    )
 
 
 def sample_rotation(
@@ -460,49 +422,14 @@ def sample_rotation(
     key: Array,
     temperature: float = 1.0,
 ) -> Array:
+    """DEPRECATED: JAX Gumbel-Softmax rotation sampling removed (JAX retirement).
+
+    Use the CP-SAT placer for discrete rotation decisions instead.
     """
-    Sample rotation one-hot vectors using Gumbel-Softmax.
-
-    This is the primary function for sampling discrete rotations during
-    optimization. It uses the straight-through estimator to enable gradient
-    flow through the discrete rotation selection.
-
-    Args:
-        logits: Rotation preference logits of shape (N, 4) or (4,).
-                Each row contains unnormalized log-probabilities for
-                [0°, 90°, 180°, 270°] rotations.
-        key: JAX random key for sampling
-        temperature: Softmax temperature for Gumbel-Softmax.
-                    - High temperature (e.g., 5.0): More exploration, softer samples
-                    - Low temperature (e.g., 0.1): More exploitation, harder samples
-                    Typically annealed during training: start high, end low.
-
-    Returns:
-        One-hot rotation samples of same shape as logits.
-        In forward pass: hard one-hot vectors (exactly one 1, rest 0s)
-        In backward pass: gradients flow as if samples were soft
-
-    Example:
-        >>> key = jax.random.PRNGKey(42)
-        >>> # 3 components with rotation preferences
-        >>> logits = np.array([
-        ...     [0.0, 2.0, 0.0, 0.0],  # Strongly prefer 90°
-        ...     [1.0, 1.0, 0.0, 0.0],  # Equal preference for 0° and 90°
-        ...     [0.0, 0.0, 0.0, 3.0],  # Strongly prefer 270°
-        ... ])
-        >>> rotations = sample_rotation(logits, key, temperature=1.0)
-        >>> # rotations is (3, 4) array of one-hot vectors
-
-    Training workflow:
-        1. Start with high temperature (exploration)
-        2. Gradually anneal temperature during training
-        3. At inference, use temperature ≈ 0.1 or argmax
-
-    See Also:
-        gumbel_softmax: Lower-level Gumbel-Softmax implementation
-        rotation_index_to_onehot: Convert integer index to one-hot
-    """
-    return gumbel_softmax(logits, key, temperature, hard=True)
+    raise NotImplementedError(
+        "sample_rotation removed (JAX retirement). "
+        "Use the CP-SAT placer for discrete rotation decisions."
+    )
 
 
 def sample_rotation_batch(
@@ -510,20 +437,11 @@ def sample_rotation_batch(
     key: Array,
     temperature: float = 1.0,
 ) -> Array:
+    """DEPRECATED: JAX Gumbel-Softmax batch rotation sampling removed (JAX retirement).
+
+    Use the CP-SAT placer for discrete rotation decisions instead.
     """
-    Sample rotations for a batch of components.
-
-    Convenience wrapper that handles key splitting for batch sampling.
-
-    Args:
-        logits: Rotation logits of shape (N, 4) for N components
-        key: JAX random key (will be split for each component)
-        temperature: Gumbel-Softmax temperature
-
-    Returns:
-        One-hot rotation samples of shape (N, 4)
-    """
-    # For batch sampling, we can use the same key since gumbel_softmax
-    # handles the full shape. But if we wanted independent samples per
-    # component, we'd split the key.
-    return sample_rotation(logits, key, temperature)
+    raise NotImplementedError(
+        "sample_rotation_batch removed (JAX retirement). "
+        "Use the CP-SAT placer for discrete rotation decisions."
+    )
