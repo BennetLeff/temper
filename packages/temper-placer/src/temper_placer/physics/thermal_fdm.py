@@ -384,6 +384,39 @@ def _assemble_system(
 
 
 # ---------------------------------------------------------------------------
+# Matrix inspection (for verification)
+# ---------------------------------------------------------------------------
+
+
+def get_system_matrix(
+    config: ThermalFDMConfig,
+    copper_grid: np.ndarray | None = None,
+    traces: list | None = None,
+) -> "scipy.sparse.csr_matrix":
+    """Return the assembled system matrix A for the isotropic FDM discretisation.
+
+    This is a utility for verifying matrix-class properties (symmetry,
+    positive-definiteness, M-matrix sign pattern).  It builds the
+    conductivity field from *config* and *copper_grid*/*traces*, assembles
+    the sparse CSR system matrix, and returns it without solving.
+
+    Args:
+        config: Grid geometry and boundary conditions.
+        copper_grid: ``(height_cells, width_cells)`` per-cell copper
+            coverage fraction in [0, 1].
+        traces: Optional routed trace segments.
+
+    Returns:
+        The ``scipy.sparse.csr_matrix`` system matrix A.
+    """
+    k_field = _build_conductivity_field(config, copper_grid=copper_grid, traces=traces)
+    h, w = config.height_cells, config.width_cells
+    Q_dummy = np.zeros((h, w), dtype=np.float64)
+    A, _ = _assemble_system(config, k_field, Q_dummy)
+    return A
+
+
+# ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
