@@ -340,6 +340,7 @@ class RouterV6Pipeline:
         corridor_buffer_cells: int = 12,
         enable_numba_los: bool = True,
         single_layer: bool = False,
+        layer_constraints: dict[str, Any] | None = None,
     ):
         """
         Initialize Router V6 pipeline.
@@ -404,6 +405,9 @@ class RouterV6Pipeline:
         self.corridor_buffer_cells = corridor_buffer_cells
         self.enable_numba_los = enable_numba_los
         self.single_layer = single_layer
+        # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
+        # Maps net name -> LayerAssignment; consumed to constrain layer choice.
+        self.layer_constraints = layer_constraints or {}
 
         # Warn if both max_sat_nets and enable_bundling are set
         if enable_bundling and max_sat_nets is not None:

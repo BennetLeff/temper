@@ -16,6 +16,7 @@ classes:
     via_drill: 0.6
     creepage_mm: 6.0
     voltage_v: 325.0
+    layer: "F.Cu"
     safety_category: "AC"
     because: "IEC 60335-1 Table 16 working isolation at 400V"
 
@@ -26,6 +27,7 @@ classes:
     via_drill: 0.6
     creepage_mm: 6.0
     voltage_v: 400.0
+    layer: "F.Cu"
     safety_category: "HV"
     because: "IEC 60335-1 Table 16 working isolation at 400V"
 
@@ -34,6 +36,7 @@ classes:
     trace_width: 0.127
     via_diameter: 0.4
     via_drill: 0.2
+    layer: "B.Cu"
     safety_category: "LV"
 
   Power:
@@ -41,6 +44,7 @@ classes:
     trace_width: 0.5
     via_diameter: 0.8
     via_drill: 0.4
+    layer: "B.Cu"
     safety_category: "LV"
 
   GateDrive:
@@ -48,6 +52,7 @@ classes:
     trace_width: 0.4
     via_diameter: 0.8
     via_drill: 0.4
+    layer: "B.Cu"
     safety_category: "LV"
 
   GND:
@@ -55,6 +60,7 @@ classes:
     trace_width: 1.0
     via_diameter: 1.0
     via_drill: 0.5
+    layer: "In1.Cu"
     safety_category: "LV"
 
   HighSpeed:
@@ -63,6 +69,7 @@ classes:
     via_diameter: 0.6
     via_drill: 0.3
     target_impedance: 50.0
+    layer: "B.Cu"
     safety_category: "LV"
 
   Signal:
@@ -70,6 +77,7 @@ classes:
     trace_width: 0.2
     via_diameter: 0.6
     via_drill: 0.3
+    layer: "F.Cu"
     safety_category: "LV"
 
   HighCurrent:
@@ -77,6 +85,7 @@ classes:
     trace_width: 0.5
     via_diameter: 0.8
     via_drill: 0.4
+    layer: "F.Cu"
     safety_category: "HV"
 
 class_pairs:

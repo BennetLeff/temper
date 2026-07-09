@@ -53,6 +53,7 @@ def load_netclass_rules(path: Path) -> NetClassRulesDict:
             safety_category=class_data.get("safety_category"),
             dru_priority=class_data.get("dru_priority", 0),
             required_layer=class_data.get("required_layer"),
+            layer=class_data.get("layer"),
         )
         dr.net_classes[class_name] = nc
     

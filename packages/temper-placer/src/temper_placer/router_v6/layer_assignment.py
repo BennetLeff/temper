@@ -36,6 +36,34 @@ from temper_placer.core.netlist import Netlist
 from temper_placer.core.pin_geometry import pin_world_position
 
 
+# KiCad layer name <-> Layer enum mapping (SSOT decision U2 in
+# 2026-07-08-004-feat-4-layer-functional-stackup-plan.md): the netclass YAML
+# `layer` value is the KiCad layer name; this is the single place the KiCad
+# name, the KiCad index, and the L1..L4 Layer enum meet.
+_LAYER_NAME_TO_ENUM: dict[str, "Layer"] = {
+    "F.Cu": None,   # populated after Layer is defined
+    "In1.Cu": None,
+    "In2.Cu": None,
+    "B.Cu": None,
+}
+_LAYER_NAME_TO_INDEX: dict[str, int] = {
+    "F.Cu": 0,
+    "In1.Cu": 1,
+    "In2.Cu": 2,
+    "B.Cu": 3,
+}
+
+# Power-domain rails poured on In2.Cu (per R2). These override the Power
+# netclass `layer` (B.Cu) because the rails reach copper as plane pours, not
+# as bottom-side signal traces.
+_POWER_DOMAIN_RAILS: frozenset[str] = frozenset({"+3V3", "+5V", "+15V"})
+
+# Default layer for nets with no class layer assignment (catch-all → B.Cu,
+# matching DEFAULT_LAYER_CONSTRAINTS' bottom-layer preference).
+_DEFAULT_LAYER_NAME: str = "B.Cu"
+
+
+
 class Layer(Enum):
     """PCB layer enumeration for 4-layer stackup.
 
@@ -56,6 +84,65 @@ class Layer(Enum):
     L2_GND = 2
     L3_PWR = 3
     L4_BOT = 4
+
+
+# Complete the KiCad-name -> Layer enum mapping now that Layer exists.
+_LAYER_NAME_TO_ENUM.update(
+    {
+        "F.Cu": Layer.L1_TOP,
+        "In1.Cu": Layer.L2_GND,
+        "In2.Cu": Layer.L3_PWR,
+        "B.Cu": Layer.L4_BOT,
+    }
+)
+
+
+def layer_name_to_enum(name: str) -> Layer:
+    """Map a KiCad layer name (e.g. ``"F.Cu"``) to its :class:`Layer` enum.
+
+    Raises:
+        KeyError: if ``name`` is not one of the canonical 4-layer names.
+    """
+    return _LAYER_NAME_TO_ENUM[name]
+
+
+def layer_name_to_index(name: str) -> int:
+    """Map a KiCad layer name to its KiCad copper index (F.Cu=0 .. B.Cu=3).
+
+    Raises:
+        KeyError: if ``name`` is not one of the canonical 4-layer names.
+    """
+    return _LAYER_NAME_TO_INDEX[name]
+
+
+def get_layer_for_net(net_name: str, design_rules: "object") -> str:
+    """Return the KiCad layer name a given net is assigned to.
+
+    Resolution order (deterministic):
+
+    1. Power-domain rails (``+3V3`` / ``+5V`` / ``+15V``) → ``In2.Cu`` pours.
+    2. The net's resolved net class ``layer`` field from the netclass SSOT.
+    3. Fall back to the catch-all default (``B.Cu``).
+
+    Args:
+        net_name: Name of the net (e.g. ``"AC_L"``, ``"+3V3"``).
+        design_rules: A ``DesignRules`` instance whose net classes carry the
+            SSOT ``layer`` field (loaded from ``netclass_rules.yaml``).
+
+    Returns:
+        A canonical KiCad copper layer name.
+    """
+    if net_name in _POWER_DOMAIN_RAILS:
+        return "In2.Cu"
+
+    rules = None
+    if design_rules is not None and hasattr(design_rules, "get_rules_for_net"):
+        rules = design_rules.get_rules_for_net(net_name)
+
+    layer_name = getattr(rules, "layer", None) if rules is not None else None
+    if layer_name is None:
+        return _DEFAULT_LAYER_NAME
+    return layer_name
 
 
 @dataclass
@@ -207,6 +294,42 @@ DEFAULT_LAYER_CONSTRAINTS: list[LayerConstraint] = [
         reason="Default signal routing prefers bottom layer",
     ),
 ]
+
+
+def layer_assignments_from_netclass(
+    design_rules: "object",
+    net_names: list[str],
+) -> dict[str, LayerAssignment]:
+    """Resolve each net's layer from the netclass SSOT ``layer`` field.
+
+    This is the SSOT-driven replacement for the regex-based
+    ``DEFAULT_LAYER_CONSTRAINTS`` path: it walks each net's resolved net class
+    and reads the ``layer`` value that originated in ``netclass_rules.yaml``,
+    producing the same ``LayerAssignment`` output contract that
+    :func:`assign_layers` returns.
+
+    Signal nets are restricted to a single primary layer (never In1.Cu/In2.Cu);
+    power-domain rails resolve to In2.Cu pours via :func:`get_layer_for_net`.
+
+    Args:
+        design_rules: ``DesignRules`` whose net classes carry ``layer``.
+        net_names: Net names to resolve.
+
+    Returns:
+        Mapping of net name → :class:`LayerAssignment` (deterministic).
+    """
+    assignments: dict[str, LayerAssignment] = {}
+    for net_name in net_names:
+        layer_name = get_layer_for_net(net_name, design_rules)
+        primary = layer_name_to_enum(layer_name)
+        assignments[net_name] = LayerAssignment(
+            net=net_name,
+            primary_layer=primary,
+            allowed_layers={primary},
+            vias_required=False,
+            reason=f"netclass SSOT layer={layer_name}",
+        )
+    return assignments
 
 
 def _get_net_class(net_name: str, netlist: Netlist) -> str | None:

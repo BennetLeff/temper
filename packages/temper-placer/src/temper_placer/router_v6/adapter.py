@@ -407,12 +407,30 @@ def route_pcb(
         raise ValueError("ParsedPCB has no source_path attribute")
     pcb_path = Path(pcb_path)
 
+    # Resolve per-net layer assignments from the netclass SSOT (W2 R2) so the
+    # router constrains each net to its assigned layer instead of letting a
+    # signal hop onto a reference/power plane.
+    layer_constraints: dict[str, Any] = {}
+    if design_rules is not None:
+        from temper_placer.router_v6.layer_assignment import (
+            layer_assignments_from_netclass,
+        )
+
+        net_names = [
+            n.name for n in getattr(parsed, "nets", []) if getattr(n, "name", None)
+        ]
+        if net_names:
+            layer_constraints = layer_assignments_from_netclass(
+                design_rules, net_names
+            )
+
     pipeline = RouterV6Pipeline(
         verbose=False,
         enable_theta_star=False,
         enable_lazy_theta_star=False,
         enable_smoothing=False,
         max_iter=500_000,
+        layer_constraints=layer_constraints,
     )
 
     if placements:

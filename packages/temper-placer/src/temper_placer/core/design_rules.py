@@ -141,6 +141,7 @@ class NetClassRules(BaseModel):
     )
     dru_priority: int = 0  # lower emits earlier in DRU trace-width section (required)
     required_layer: str | None = None  # KiCad layer name or None for no constraint
+    layer: str | None = None  # SSOT KiCad layer name for this class (W2 R2)
     safety_category: Literal["HV", "LV", "AC", "iso"] | None = None
 
 

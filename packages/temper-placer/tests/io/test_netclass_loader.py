@@ -54,3 +54,15 @@ class TestNetclassLoader:
     def test_default_clearance(self):
         """Default clearance is loaded."""
         assert self.dr.default_clearance == 0.2
+
+    def test_layer_field_loaded(self):
+        """Each class carries its SSOT `layer` field (W2 R2)."""
+        assert self.dr.net_classes["ACMains"].layer == "F.Cu"
+        assert self.dr.net_classes["HighVoltage"].layer == "F.Cu"
+        assert self.dr.net_classes["HighCurrent"].layer == "F.Cu"
+        assert self.dr.net_classes["Signal"].layer == "F.Cu"
+        assert self.dr.net_classes["GateDrive"].layer == "B.Cu"
+        assert self.dr.net_classes["Power"].layer == "B.Cu"
+        assert self.dr.net_classes["FinePitch"].layer == "B.Cu"
+        assert self.dr.net_classes["HighSpeed"].layer == "B.Cu"
+        assert self.dr.net_classes["GND"].layer == "In1.Cu"
