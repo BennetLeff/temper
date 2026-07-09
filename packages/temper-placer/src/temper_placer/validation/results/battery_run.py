@@ -31,6 +31,11 @@ from typing import Any, Callable
 
 import numpy as np
 
+from temper_placer.physics.copper_coverage import (
+    SANITY_CEILING_C,
+    check_thermal_plausibility,
+    copper_coverage_grid,
+)
 from temper_placer.regression.physics_oracle import PhysicsOracleResult
 from temper_placer.validation.helps_battery import (
     BatteryVerdict,
@@ -57,6 +62,7 @@ def _ensure_field_diverges(
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],
     *,
+    copper_grid: np.ndarray | None = None,
     n_perturbations: int = 2,
     base_seed: int = 99,
 ) -> None:
@@ -66,6 +72,13 @@ def _ensure_field_diverges(
     are caught here, not after a full battery run.
     """
     from temper_placer.physics.thermal_fdm import solve_thermal_fdm
+
+    # Auto-build copper grid from board stackup if none provided (#137)
+    if copper_grid is None and board is not None:
+        try:
+            copper_grid = copper_coverage_grid(board, fdm_config)
+        except Exception:
+            pass  # allow explicit None to mean pure-FR4 (test-only path)
 
     logger.info("U10 smoke test: verifying field-on vs field-off divergence ...")
 
@@ -92,6 +105,7 @@ def _ensure_field_diverges(
                 config=fdm_config,
                 devices=fdm_devices,
                 power_map=power_map,
+                copper_grid=copper_grid,
             )
             if not u5_result.is_usable:
                 raise RuntimeError(
@@ -104,6 +118,14 @@ def _ensure_field_diverges(
                 if np.max(field_grid) <= fdm_config.ambient_C + 0.1:
                     raise RuntimeError(
                         "Smoke test: thermal field is flat (no heating detected)"
+                    )
+                # Sanity ceiling (#137 durable gate): catch pure-FR4 garbage
+                plausible, reason = check_thermal_plausibility(
+                    field_grid, ambient_C=fdm_config.ambient_C,
+                )
+                if not plausible:
+                    raise RuntimeError(
+                        f"Smoke test: thermal field implausible -- {reason}"
                     )
                 logger.info(
                     "  Perturbation %d: peak %.1f C (ambient %.1f C)",
@@ -216,6 +238,8 @@ def _make_thermal_scorer_adapter(
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],
     T_j_max: float = 150.0,
+    *,
+    copper_grid: np.ndarray | None = None,
 ) -> Callable[[Any, Any, Any], PhysicsOracleResult]:
     """Build a scorer adapter that wraps ThermalScorer into a
     ``(placement, board, netlist) -> PhysicsOracleResult`` callable
@@ -226,6 +250,7 @@ def _make_thermal_scorer_adapter(
     2. Runs ``solve_thermal_fdm`` (U5) to get the direct-solve field.
     3. Runs ``ThermalScorer.score`` (U7) for the independent assessment.
     4. Converts the U7 peak into a ``thermal_score`` in [0, 1].
+    5. Applies the sanity-floor ceiling check (#137 durable gate).
     """
     from temper_placer.physics.thermal_fdm import solve_thermal_fdm
 
@@ -238,12 +263,13 @@ def _make_thermal_scorer_adapter(
         # Extract device positions from placement if available
         fdm_devices = devices
         if placement is not None and hasattr(placement, "positions"):
-            pos = np.asarray(placement.positions, dtype=np.float64)
+            pos = np.asarray(placement.positions, dtype=np.float32)
             fdm_devices = _positions_to_devices(pos, list(devices.keys()))
 
         try:
             u5_result = solve_thermal_fdm(
                 config=fdm_config, devices=fdm_devices, power_map=power_map,
+                copper_grid=copper_grid,
             )
         except Exception as exc:
             return PhysicsOracleResult(
@@ -258,6 +284,24 @@ def _make_thermal_scorer_adapter(
                 quality_report={"thermal_score": 0.0, "hv_lv_clearance_score": 1.0,
                                 "loop_area_score": 1.0, "compactness_score": 0.5},
             )
+
+        # --- Sanity floor: peak temperature ceiling (#137 durable gate) ---
+        if u5_result.field is not None:
+            u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
+            plausible, reason = check_thermal_plausibility(
+                u5_grid, ambient_C=T_amb,
+            )
+            if not plausible:
+                return PhysicsOracleResult(
+                    board_id=board_id, passed=False,
+                    errors=[
+                        f"Thermal field implausible — {reason}. "
+                        f"This is the #137 garbage guard: the conductivity "
+                        f"field may be pure-FR4 (no copper planes supplied)."
+                    ],
+                    quality_report={"thermal_score": 0.0, "hv_lv_clearance_score": 1.0,
+                                    "loop_area_score": 1.0, "compactness_score": 0.5},
+                )
 
         try:
             score_result = thermal_scorer.score(
@@ -303,6 +347,8 @@ def _make_arm_placement_builder(
     fdm_config: Any,
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],
+    *,
+    copper_grid: np.ndarray | None = None,
 ) -> Callable[[str, int, Any, Any, int], Any]:
     """Build the ``build_arm_placement`` callback for the helps battery.
 
@@ -351,6 +397,7 @@ def _make_arm_placement_builder(
             try:
                 u5_result = solve_thermal_fdm(
                     config=fdm_config, devices=devices, power_map=power_map,
+                    copper_grid=copper_grid,
                 )
                 if u5_result.is_usable and u5_result.field is not None:
                     field_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
@@ -563,6 +610,24 @@ def run_thermal_helps_battery(
     if operating_point_config:
         T_j_max = float(operating_point_config.get("T_j_max", 150.0))
 
+    # --- Build copper coverage grid (#137: feed solver real stackup planes) ---
+    copper_grid: np.ndarray | None = None
+    if board is not None:
+        try:
+            copper_grid = copper_coverage_grid(board, fdm_config)
+            logger.info(
+                "U10 copper coverage grid: shape=%s, mean=%.3f, max=%.3f, min=%.3f",
+                copper_grid.shape,
+                float(np.mean(copper_grid)),
+                float(np.max(copper_grid)),
+                float(np.min(copper_grid)),
+            )
+        except Exception as exc:
+            logger.warning(
+                "Failed to build copper coverage grid (falling back to pure-FR4): %s",
+                exc,
+            )
+
     # --- Gate-first (U6) ---
     gate_clean = False
     if operating_point_config:
@@ -583,6 +648,7 @@ def run_thermal_helps_battery(
             fdm_config=fdm_config,
             devices=devices,
             power_map=power_map,
+            copper_grid=copper_grid,
             n_perturbations=2,
             base_seed=99,
         )
@@ -593,6 +659,7 @@ def run_thermal_helps_battery(
         scorer = ThermalScorer(ThermalScorerConfig(max_iterations=2000, tolerance_C=0.05))
         scorer_adapter = _make_thermal_scorer_adapter(
             scorer, fdm_config, devices, power_map, T_j_max=T_j_max,
+            copper_grid=copper_grid,
         )
         scorer_fn = lambda p, b, n: build_scorecard(  # noqa: E731
             p, b, n, scorer=scorer_adapter,
@@ -607,6 +674,7 @@ def run_thermal_helps_battery(
     scorer = ThermalScorer(ThermalScorerConfig(max_iterations=2000, tolerance_C=0.05))
     scorer_adapter = _make_thermal_scorer_adapter(
         scorer, fdm_config, devices, power_map, T_j_max=T_j_max,
+        copper_grid=copper_grid,
     )
 
     # --- Score function ---
@@ -621,6 +689,7 @@ def run_thermal_helps_battery(
     # --- Build arm placement ---
     build_arm_placement = _make_arm_placement_builder(
         fdm_config=fdm_config, devices=devices, power_map=power_map,
+        copper_grid=copper_grid,
     )
 
     # --- Run battery ---
@@ -643,6 +712,11 @@ def run_thermal_helps_battery(
     cost_seconds = result.cost_seconds
     budget_exceeded = result.budget_exceeded
     budget_detail = result.budget_detail
+
+    # --- Between-arm saturation check (#137 durable gate) ---
+    # If all arms produce identically saturated thermal_scores (all 0.0 or
+    # all 1.0), the field is degenerate and must not gate a keep/kill verdict.
+    _check_between_arm_saturation(result, field_name="thermal")
 
     # --- Build per-arm report ---
     per_arm = BatteryRunReport(
@@ -736,3 +810,40 @@ def _board_bounds(board: Any) -> tuple[float, float, float, float]:
     ox = getattr(board, "origin_x", 0.0)
     oy = getattr(board, "origin_y", 0.0)
     return (ox, oy, ox + w, oy + h)
+
+
+def _check_between_arm_saturation(
+    result: HelpsBatteryResult,
+    field_name: str = "thermal",
+) -> None:
+    """#137 durable gate: detect degenerate/saturated per-arm scores.
+
+    If all arms produce the same thermal_score and that score is at a
+    saturation bound (0.0 or 1.0), the conductivity field is likely
+    garbage (e.g. pure-FR4 input yielding ~189,000 deg-C).  This check
+    logs a loud warning so the issue is surfaced — it does NOT mutate
+    the verdict in-place (that's the orchestrator's job), but it makes
+    the problem impossible to miss in logs.
+    """
+    gate_name = f"{field_name}_score"
+    no_field_vals = result.no_field_margins.get(gate_name, [])
+    cheap_vals = result.cheap_margins.get(gate_name, [])
+    physics_vals = result.physics_margins.get(gate_name, [])
+
+    all_vals = no_field_vals + cheap_vals + physics_vals
+    if not all_vals:
+        return
+
+    unique_vals = set(round(v, 6) for v in all_vals)
+    if len(unique_vals) <= 1:
+        sat_value = list(unique_vals)[0]
+        if sat_value in (0.0, 1.0):
+            logger.warning(
+                "BETWEEN-ARM SATURATION detected (#137 guard): "
+                "all arms have identical %s = %.6f (n=%d). "
+                "The conductivity field may be degenerate "
+                "(e.g. pure-FR4, no copper planes). "
+                "Scores: no_field=%s, cheap=%s, physics=%s",
+                gate_name, sat_value, len(all_vals),
+                no_field_vals, cheap_vals, physics_vals,
+            )
