@@ -64,6 +64,8 @@ class ViolationType(Enum):
     THERMAL = "thermal"
     CREEPAGE = "creepage"
     VIA_COUNT = "via_count"
+    OCTILINEAR = "octilinear"
+    SLOP = "slop"
 
 
 @dataclass(frozen=True)
@@ -919,6 +921,125 @@ class PhysicsGate(Gate):
             }
 
         return None  # VIA_COUNT and unrecognized types
+
+
+# ------------------------------------------------------------------
+# W4: QualityGate — measurement-only post-route quality checks
+# ------------------------------------------------------------------
+# @req(2026-07-08-006, R5): post-route slop-linter detection of hairpin
+# turns, zigzag patterns, isolated vias, and single-net detours.
+# @req(2026-07-08-006, R6): gate contract conformance — three-state
+# check(), to_delta() for corrective deltas.
+
+
+class QualityGate(Gate):
+    """ROUTING-stage gate: post-route slop-linting quality checks.
+
+    Runs the AI-slop linter on the routed PCB and surfaces detected
+    artifacts.  Each artifact class maps to a ``SLOP`` violation.
+    ``UNMEASURED`` is returned when the routed PCB is missing or the
+    linter raises an exception (fail-closed per the gate contract).
+
+    ``to_delta`` maps ``SLOP`` violations to ``KeepoutConstraint`` deltas;
+    ``VIA_COUNT`` and ``OCTILINEAR`` violations return ``None``.
+    """
+
+    stage = GateStage.ROUTING
+    name = "quality"
+
+    def check(self, state: BoardState) -> GateResult:
+        pcb = state.routed_pcb_path
+        if not pcb or not Path(pcb).exists():
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message="No routed PCB available for quality check",
+            )
+
+        try:
+            from temper_placer.router_v6.metrics.slop_linter import lint_all
+
+            artifacts = lint_all(pcb)
+        except ImportError as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"slop_linter import failed: {exc}",
+            )
+        except Exception as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=f"slop_linter measurement failed: {exc}",
+            )
+
+        if not artifacts:
+            return GateResult(GateStatus.CLEAN)
+
+        # Group artifacts by type for compact violations.
+        by_type: dict[str, list[dict]] = {}
+        for a in artifacts:
+            by_type.setdefault(a["type"], []).append(a)
+
+        violations: list[Violation] = []
+        for artifact_type, items in by_type.items():
+            violations.append(
+                Violation(
+                    type=ViolationType.SLOP,
+                    nets=tuple({a.get("net_name", "?") for a in items}),
+                    severity=float(len(items)),
+                    threshold=0.0,
+                    description=(
+                        f"Slop linter found {len(items)} "
+                        f"{artifact_type.replace('_', ' ')} artifact(s)"
+                    ),
+                    context={
+                        "artifact_type": artifact_type,
+                        "artifacts": items,
+                    },
+                )
+            )
+
+        return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
+
+    def to_delta(self, violation: Violation) -> Any | None:
+        """Map quality violations to constraint deltas.
+
+        - ``SLOP`` → ``KeepoutConstraint`` at the first artifact's
+          region.  The W5 loop treats these as soft (skip on UNSAT).
+        - ``OCTILINEAR``, ``VIA_COUNT`` → ``None`` (informational only;
+          cannot be fixed by placement deltas).
+        """
+        if violation.type is not ViolationType.SLOP:
+            return None
+
+        try:
+            from temper_placer.pcl.constraints import ConstraintTier, KeepoutConstraint
+        except ImportError:
+            return None
+
+        artifacts = violation.context.get("artifacts", [])
+        if not artifacts:
+            return None
+
+        first = artifacts[0]
+        position = first.get("position", (0.0, 0.0))
+        net_name = first.get("net_name", "?")
+        artifact_type = violation.context.get("artifact_type", "slop")
+
+        zone_name = f"SLOP_{artifact_type}_{net_name}"
+        return {
+            "type": "keepout",
+            "constraint": KeepoutConstraint(
+                zone_name=zone_name,
+                tier=ConstraintTier.SOFT,
+                because=(
+                    f"QualityGate slop artifact on net {net_name}: "
+                    f"{first.get('description', '')}"
+                ),
+            ),
+            "reason": (
+                f"Slop artifact ({artifact_type}) at ({position[0]:.2f}, "
+                f"{position[1]:.2f}) mm on net {net_name}"
+            ),
+        }
 
 
 _VIOLATION_TYPE_MAP = {
