@@ -27,6 +27,7 @@ members = [
     "temper-placer",
     "temper-quality-oracle",
     "temper-rust-router",
+    "temper-rust-router-core",
     "temper-testing",
     "temper-tools",
     "temper-validation",
@@ -2099,6 +2100,11 @@ source = { editable = "packages/temper-quality-oracle" }
 name = "temper-rust-router"
 version = "0.1.0"
 source = { editable = "packages/temper-rust-router" }
+
+[[package]]
+name = "temper-rust-router-core"
+version = "0.1.0"
+source = { editable = "packages/temper-rust-router-core" }
 
 [[package]]
 name = "temper-testing"
