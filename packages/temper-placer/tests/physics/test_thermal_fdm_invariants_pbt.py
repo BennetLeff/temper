@@ -5,7 +5,7 @@ Invariants tested (each fail-capable against a realistic bug class):
   R7  — energy/flux conservation: total injected power ≈ Dirichlet boundary flux
   R8  — source monotonicity: Q1 ≤ Q2 ⇒ T1 ≤ T2 (M-matrix property)
   R9  — discrete maximum principle: all-heating + cold Dirichlet ⇒ no cell < ambient
-  R10 — SPD well-posedness: interior block of system matrix is symmetric positive-definite
+  R10 — SPD well-posedness: system matrix is symmetric positive-definite
   R12 — metamorphic symmetry: translation/reflection/rotation transforms field identically
 
 Uses Hypothesis PBT over boards ≤ 20×20.  Heavy PBT is marked
@@ -29,7 +29,6 @@ from temper_placer.physics.thermal_fdm import (
     ThermalFDMConfig,
     _assemble_system,
     _build_conductivity_field,
-    _is_heatsink_edge_cell,
     _is_neumann_boundary,
     get_system_matrix,
     solve_thermal_fdm,
@@ -45,32 +44,25 @@ _HEATSINKS = ("TOP", "BOTTOM", "LEFT", "RIGHT")
 
 
 def _dirichlet_rows(A_dense: np.ndarray) -> np.ndarray:
-    """Boolean mask of Dirichlet identity rows (U1 pattern)."""
+    """Boolean mask of Dirichlet identity rows (vacuous with boundary-aligned
+    Dirichlet face terms — the full matrix has no identity rows)."""
     diag = np.abs(np.diag(A_dense))
     off_sum = np.sum(np.abs(A_dense), axis=1) - diag
     return (off_sum < 1e-14) & (np.abs(diag - 1.0) < 1e-14)
 
 
-def _interior_submatrix(A_dense: np.ndarray) -> np.ndarray:
-    """Return the interior-interior block of a dense system matrix."""
-    mask = ~_dirichlet_rows(A_dense)
-    return A_dense[np.ix_(mask, mask)]
+def _is_dirichlet_mask(config: ThermalFDMConfig) -> np.ndarray:
+    """Boolean mask of Dirichlet (heatsink) cells, shape (H, W).
 
-
-def _check_interior_spd(A: "scipy.sparse.csr_matrix") -> bool:
-    """Return True if the interior block of *A* is symmetric positive-definite."""
-    A_dense = A.toarray()
-    interior = _interior_submatrix(A_dense)
-    if interior.size == 0:
-        return True  # vacuous
-    if not np.allclose(interior, interior.T, atol=1e-12):
-        return False
-    eigvals = np.linalg.eigvalsh(interior)
-    return bool(np.all(eigvals > 1e-10))
+    With boundary-aligned Dirichlet face terms there are no Dirichlet cells
+    (all cells are active solved cells), so this returns all False.
+    """
+    h, w = config.height_cells, config.width_cells
+    return np.zeros((h, w), dtype=bool)
 
 
 def _heatsink_indices(config: ThermalFDMConfig):
-    """Return ``(row, col)`` indices of all Dirichlet (heatsink edge) cells."""
+    """Return ``(row, col)`` indices of all heatsink edge cells."""
     h, w = config.height_cells, config.width_cells
     edge = config.heatsink_edge.upper().strip()
     if edge == "TOP":
@@ -83,87 +75,54 @@ def _heatsink_indices(config: ThermalFDMConfig):
         return [(r, w - 1) for r in range(h)]
 
 
-def _is_dirichlet_mask(config: ThermalFDMConfig) -> np.ndarray:
-    """Boolean mask of Dirichlet (heatsink) cells, shape (H, W)."""
-    h, w = config.height_cells, config.width_cells
-    mask = np.zeros((h, w), dtype=bool)
-    for r, c in _heatsink_indices(config):
-        mask[r, c] = True
-    return mask
+def _check_full_spd(A: "scipy.sparse.csr_matrix") -> bool:
+    """Return True if the full matrix *A* is symmetric positive-definite."""
+    A_dense = A.toarray()
+    if not np.allclose(A_dense, A_dense.T, atol=1e-12):
+        return False
+    eigvals = np.linalg.eigvalsh(A_dense)
+    return bool(np.all(eigvals > 1e-10))
 
 
 def _total_injected_power(
     config: ThermalFDMConfig, Q_field: np.ndarray, cell_size_mm: float
 ) -> float:
-    """Sum of Q_i * dx² over interior cells only (W).
+    """Sum of Q_i * dx² over all cells (W).
 
-    Dirichlet cells have identity rows; their Q entries are unused by the
-    solver.  We exclude them for a clean energy balance.
+    With boundary-aligned Dirichlet face terms, all cells are active
+    solved cells — no Q values are excluded.
     """
-    interior = ~_is_dirichlet_mask(config)
-    return float(np.sum(Q_field[interior]) * cell_size_mm * cell_size_mm)
+    return float(np.sum(Q_field) * cell_size_mm * cell_size_mm)
 
 
 def _dirichlet_boundary_flux(
     config: ThermalFDMConfig, T: np.ndarray, k_field: np.ndarray
 ) -> float:
-    """Compute total heat flux (W) leaving through the Dirichlet boundary.
+    """Compute total heat flux (W) leaving through the Dirichlet boundary faces.
 
-    For each interior cell adjacent to a Dirichlet cell, flux =
-    k_interface * (T_int − T_dir).  k_interface is the harmonic-mean
-    effective conductivity (W/K), matching the stencil.
+    With boundary-aligned Dirichlet face terms, the flux per heatsink-edge
+    cell is 2 * k_c * (T_cell − T_ambient) — the conductance is 2*k_c
+    because the cell centre is cs/2 from the physical boundary.
     """
-    h, w = config.height_cells, config.width_cells
+    ambient = config.ambient_C
     flux = 0.0
-
-    for row in range(h):
-        for col in range(w):
-            if _is_heatsink_edge_cell(row, col, config):
-                continue
-            k_c = k_field[row, col]
-
-            # East
-            if not _is_neumann_boundary(row, col, "east", config):
-                if _is_heatsink_edge_cell(row, col + 1, config):
-                    k_iface = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
-                    flux += k_iface * (T[row, col] - T[row, col + 1])
-
-            # West
-            if not _is_neumann_boundary(row, col, "west", config):
-                if _is_heatsink_edge_cell(row, col - 1, config):
-                    k_iface = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
-                    flux += k_iface * (T[row, col] - T[row, col - 1])
-
-            # North
-            if not _is_neumann_boundary(row, col, "north", config):
-                if _is_heatsink_edge_cell(row + 1, col, config):
-                    k_iface = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
-                    flux += k_iface * (T[row, col] - T[row + 1, col])
-
-            # South
-            if not _is_neumann_boundary(row, col, "south", config):
-                if _is_heatsink_edge_cell(row - 1, col, config):
-                    k_iface = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
-                    flux += k_iface * (T[row, col] - T[row - 1, col])
-
+    for row, col in _heatsink_indices(config):
+        k_c = k_field[row, col]
+        flux += 2.0 * k_c * (T[row, col] - ambient)
     return flux
 
 
 def _safe_solve(config, Q_field, copper_grid=None):
     """Solve and return (T_grid, k_field) or skip if UNMEASURED.
 
-    Dirichlet-cell Q values are masked out (they are ignored by the
-    solver) so callers see the effective heat source distribution.
+    All cells are active solved cells — no Q values are masked.
     """
     h, w = config.height_cells, config.width_cells
     if copper_grid is None:
         copper_grid = np.zeros((h, w), dtype=np.float64)
 
-    Q_masked = Q_field.copy()
-    Q_masked[_is_dirichlet_mask(config)] = 0.0
-
     result = solve_thermal_fdm(
-        config, copper_grid=copper_grid, Q_field=Q_masked,
+        config, copper_grid=copper_grid, Q_field=Q_field,
     )
     if not result.is_usable:
         pytest.skip("Solver returned UNMEASURED")
@@ -376,7 +335,8 @@ def test_r8_fail_capable_assembly_sign_error():
     n_total = h * w
     for idx in range(n_total):
         row_sum = sum(abs(A_lil[idx, j]) for j in range(n_total))
-        if row_sum > 1.5:  # interior row (Dirichlet rows have row_sum ≈ 1.0)
+        # All rows are active (no identity rows); any row with off-diagonals
+        if row_sum > 0 and any(abs(A_lil[idx, j]) > 1e-12 for j in range(n_total) if j != idx):
             # Pick the first non-zero off-diagonal and flip sign
             for j in range(n_total):
                 if j != idx and abs(A_lil[idx, j]) > 1e-12:
@@ -413,14 +373,11 @@ def test_r9_maximum_principle(data):
     T, _ = _safe_solve(config, Q_field, copper_grid=copper)
     ambient = config.ambient_C
 
-    # Exclude Dirichlet cells from the minimum check
-    for r, c in _heatsink_indices(config):
-        T[r, c] = float("inf")  # neutralise for min
-
-    min_interior = float(np.min(T))
-    assert min_interior >= ambient - 1e-10, (
+    # All cells are active solved cells — maximum principle applies everywhere
+    min_all = float(np.min(T))
+    assert min_all >= ambient - 1e-10, (
         f"Maximum principle violated: ambient={ambient}°C, "
-        f"min interior cell={min_interior:.6f}°C"
+        f"min cell={min_all:.6f}°C"
     )
 
 
@@ -457,8 +414,7 @@ def test_r9_fail_capable_bc_swap():
     # Verify the correct solver obeys the maximum principle
     T_correct, _ = _safe_solve(config, Q_field, copper_grid=copper)
     ambient = config.ambient_C
-    interior = ~_is_dirichlet_mask(config)
-    assert np.min(T_correct[interior]) >= ambient - 1e-10, (
+    assert np.min(T_correct) >= ambient - 1e-10, (
         "Expected maximum principle to hold on correct solver"
     )
 
@@ -473,15 +429,15 @@ def test_r9_fail_capable_bc_swap():
     for idx in range(n):
         diag_val = A_lil[idx, idx]
         row_sum_off = sum(abs(A_lil[idx, j]) for j in range(n) if j != idx)
-        # Interior row: diagonal ≠ 1.0 and has non-trivial off-diagonals
-        if abs(diag_val - 1.0) > 1e-12 and row_sum_off > 1e-12:
+        # Every row is an active (non-identity) row with boundary-aligned BC
+        if row_sum_off > 1e-12:
             for j in range(n):
                 if j != idx and abs(A_lil[idx, j]) > 1e-12:
-                    # Flip sign → positive off-diagonal
+                    # Flip sign -> positive off-diagonal
                     A_lil[idx, j] = abs(A_lil[idx, j])
                     A_bad = A_lil.tocsr()
                     T_bad = spsolve(A_bad, b).reshape(h, w)
-                    if np.min(T_bad[interior]) < ambient - 1e-10:
+                    if np.min(T_bad) < ambient - 1e-10:
                         violated = True
                         break
                     # Reset
@@ -505,18 +461,18 @@ def test_r9_fail_capable_bc_swap():
 @pytest.mark.l3_pbt
 @given(config=small_grid_config())
 @settings(max_examples=50, deadline=2000)
-def test_r10_interior_spd(config):
-    """R10: interior block of get_system_matrix is symmetric positive-definite."""
+def test_r10_full_spd(config):
+    """R10: full system matrix of get_system_matrix is symmetric positive-definite."""
     h, w = config.height_cells, config.width_cells
     copper = np.full((h, w), 0.5, dtype=np.float64)
     A = get_system_matrix(config, copper_grid=copper)
-    assert _check_interior_spd(A), (
-        f"Interior block not SPD: h={h} w={w} edge={config.heatsink_edge}"
+    assert _check_full_spd(A), (
+        f"Full matrix not SPD: h={h} w={w} edge={config.heatsink_edge}"
     )
 
 
 def test_r10_fail_capable():
-    """Fail-capable: flipping a diagonal entry negative in an interior row
+    """Fail-capable: flipping a diagonal entry negative
     destroys positive-definiteness; the SPD check must detect it."""
     h, w = 6, 6
     config = ThermalFDMConfig(
@@ -532,19 +488,19 @@ def test_r10_fail_capable():
     A = get_system_matrix(config, copper_grid=copper)
 
     # Verify correct matrix is SPD
-    assert _check_interior_spd(A), "Expected SPD on correct matrix"
+    assert _check_full_spd(A), "Expected SPD on correct matrix"
 
-    # Perturb an interior diagonal
+    # Perturb any diagonal (all rows are active now)
     A_lil = A.tolil()
     n = h * w
     for idx in range(n):
-        # Find an interior row (diagonal not 1.0 = not Dirichlet)
-        if abs(A_lil[idx, idx] - 1.0) > 1e-12:
+        # Find the first interior row (any row with non-zero off-diagonals)
+        if A_lil[idx, idx] != 1.0 and sum(abs(A_lil[idx, j]) for j in range(n) if j != idx) > 0:
             A_lil[idx, idx] = -abs(A_lil[idx, idx])
             break
 
     A_bad = A_lil.tocsr()
-    assert not _check_interior_spd(A_bad), (
+    assert not _check_full_spd(A_bad), (
         "Fail-capable: a negative diagonal entry must trip the SPD check"
     )
 
@@ -565,7 +521,7 @@ def test_r10_spd_random_copper():
             max_cells=2000,
         )
         A = get_system_matrix(config, copper_grid=copper)
-        assert _check_interior_spd(A), f"SPD failed for edge={edge}"
+        assert _check_full_spd(A), f"SPD failed for edge={edge}"
 
 
 # ---------------------------------------------------------------------------

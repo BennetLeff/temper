@@ -271,25 +271,6 @@ def _build_heat_source_field(
 # ---------------------------------------------------------------------------
 
 
-def _is_heatsink_edge_cell(
-    row: int, col: int,
-    config: ThermalFDMConfig,
-) -> bool:
-    """Return True if (row, col) lies on the declared heatsink edge."""
-    h = config.height_cells
-    w = config.width_cells
-    edge = config.heatsink_edge.upper().strip()
-    if edge == "TOP":
-        return row == h - 1
-    elif edge == "BOTTOM":
-        return row == 0
-    elif edge == "LEFT":
-        return col == 0
-    elif edge == "RIGHT":
-        return col == w - 1
-    return False
-
-
 def _is_neumann_boundary(
     row: int, col: int,
     direction: str,  # "north", "south", "east", "west"
@@ -314,6 +295,27 @@ def _is_neumann_boundary(
     return False
 
 
+def _is_heatsink_boundary_face(
+    row: int, col: int,
+    direction: str,
+    config: ThermalFDMConfig,
+) -> bool:
+    """Return True if the face in *direction* is the outer boundary
+    in the heatsink direction (Dirichlet face, not Neumann)."""
+    h = config.height_cells
+    w = config.width_cells
+    hs = config.heatsink_edge.upper().strip()
+    if direction == "north" and row == h - 1 and hs == "TOP":
+        return True
+    if direction == "south" and row == 0 and hs == "BOTTOM":
+        return True
+    if direction == "east" and col == w - 1 and hs == "RIGHT":
+        return True
+    if direction == "west" and col == 0 and hs == "LEFT":
+        return True
+    return False
+
+
 def _assemble_system(
     config: ThermalFDMConfig,
     k_field: np.ndarray,
@@ -322,8 +324,9 @@ def _assemble_system(
     """Assemble the sparse linear system A·T = b for the FDM discretisation.
 
     Uses the 5-point stencil with harmonic-mean interface conductivity
-    for material boundaries.  Dirichlet at the heatsink edge, Neumann
-    adiabatic (zero-flux) at all other edges.
+    for material boundaries.  Dirichlet face term at the heatsink edge
+    (boundary-aligned, 2nd-order), Neumann adiabatic (zero-flux) at all
+    other edges.
     """
     from scipy.sparse import lil_matrix
 
@@ -341,44 +344,55 @@ def _assemble_system(
         for col in range(w):
             idx = row * w + col
 
-            if _is_heatsink_edge_cell(row, col, config):
-                A[idx, idx] = 1.0
-                b[idx] = config.ambient_C
-                continue
-
             diag = 0.0
             k_c = k_field[row, col]
 
             # East
-            if not _is_neumann_boundary(row, col, "east", config):
+            if col + 1 < w:
                 k_e = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
                 coeff = k_e / dx2
                 A[idx, row * w + col + 1] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "east", config):
+                coeff = 2.0 * k_c / dx2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             # West
-            if not _is_neumann_boundary(row, col, "west", config):
+            if col - 1 >= 0:
                 k_w = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
                 coeff = k_w / dx2
                 A[idx, row * w + col - 1] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "west", config):
+                coeff = 2.0 * k_c / dx2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             # North (row+1 = up in grid = larger y in world)
-            if not _is_neumann_boundary(row, col, "north", config):
+            if row + 1 < h:
                 k_n = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
                 coeff = k_n / dy2
                 A[idx, (row + 1) * w + col] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "north", config):
+                coeff = 2.0 * k_c / dy2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             # South
-            if not _is_neumann_boundary(row, col, "south", config):
+            if row - 1 >= 0:
                 k_s = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
                 coeff = k_s / dy2
                 A[idx, (row - 1) * w + col] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "south", config):
+                coeff = 2.0 * k_c / dy2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             A[idx, idx] = diag
-            b[idx] = Q_field[row, col]
+            b[idx] += Q_field[row, col]
 
     return A.tocsr(), b
 

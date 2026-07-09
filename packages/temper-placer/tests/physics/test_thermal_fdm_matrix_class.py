@@ -34,31 +34,16 @@ def _dirichlet_rows(A_dense: np.ndarray) -> np.ndarray:
 
 
 def _check_symmetry(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
-    """Return True if A is symmetric within *atol*, excluding Dirichlet
-    identity rows.
+    """Return True if A is symmetric within *atol*.
 
-    The shipped Dirichlet treatment uses identity equations whose rows
-    are naturally one-way — interior cells connect to Dirichlet neighbours
-    but the Dirichlet rows have no off-diagonals.  This is a standard
-    strong-Dirichlet pattern; the interior submatrix is symmetric.
+    With boundary-aligned Dirichlet face terms there are no identity rows;
+    the full matrix is symmetric.
     """
     A_dense = A.toarray()
-    d_rows = _dirichlet_rows(A_dense)
-    interior_mask = ~d_rows
 
-    # Check symmetry on the interior-interior block
-    interior = A_dense[np.ix_(interior_mask, interior_mask)]
-    if not np.allclose(interior, interior.T, atol=atol):
+    # Check full matrix symmetry
+    if not np.allclose(A_dense, A_dense.T, atol=atol):
         return False
-
-    # For cross-terms (interior ↔ Dirichlet): the Dirichlet row has
-    # zero off-diagonals, so A[dir, int] = 0, while A[int, dir] may be
-    # non-zero.  That is legitimate — just verify there are no
-    # symmetric-looking non-zero pairs that accidentally match.
-    for i in np.where(interior_mask)[0]:
-        for j in np.where(d_rows)[0]:
-            if abs(A_dense[i, j]) > atol and abs(A_dense[j, i]) > atol:
-                return False  # both non-zero but we only checked interior symmetry above
     return True
 
 
@@ -80,7 +65,8 @@ def _check_m_matrix(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
     - Positive diagonal
     - Nonpositive off-diagonals
     - Weak diagonal dominance: |A[i,i]| >= sum_{j!=i} |A[i,j]|
-    - At least one row is strictly diagonally dominant (the Dirichlet anchor)
+    - At least one row is strictly diagonally dominant (heatsink face rows
+      have the extra 2*k/dx2 Dirichlet face term)
     """
     A_dense = A.toarray()
     n = A_dense.shape[0]
@@ -239,9 +225,10 @@ def test_system_matrix_m_pattern_pbt(cfg_cu):
 def _build_anisotropic_system_matrix(config, copper_grid):
     """Build a matrix with directional (anisotropic) interface conductivity.
 
-    Uses the same LIL-coo-based pattern as ``_assemble_system`` but with
-    different effective k for east/west vs north/south connections, so
-    the matrix loses symmetry.
+    Uses the same pattern as ``_assemble_system`` but with different
+    effective k for east/west vs north/south connections, so the matrix
+    loses symmetry.  Dirichlet face terms at the heatsink edge follow
+    the same boundary-aligned Dirichlet as the production code.
 
     This is a test-only tool to demonstrate the boundary of the SPD/M-matrix
     precondition — it is NOT a production feature.
@@ -262,37 +249,45 @@ def _build_anisotropic_system_matrix(config, copper_grid):
         for col in range(w):
             idx = row * w + col
 
-            if _is_heatsink_edge_cell(row, col, config):
-                A[idx, idx] = 1.0
-                continue
-
             diag = 0.0
             k_rowcol = k_f[row, col]
 
             # Directional: east uses cell's own k (no harmonic mean)
-            if not _is_neumann_boundary(row, col, "east", config):
+            if col + 1 < w:
                 k_e = k_rowcol
                 coeff = k_e / dx2
                 A[idx, row * w + col + 1] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "east", config):
+                coeff = 2.0 * k_rowcol / dx2
+                diag += coeff
 
-            if not _is_neumann_boundary(row, col, "west", config):
+            if col - 1 >= 0:
                 k_w = k_rowcol
                 coeff = k_w / dx2
                 A[idx, row * w + col - 1] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "west", config):
+                coeff = 2.0 * k_rowcol / dx2
+                diag += coeff
 
             # Different k-scaling for vertical connections (anisotropy)
-            if not _is_neumann_boundary(row, col, "north", config):
+            if row + 1 < h:
                 k_n = k_rowcol * 10.0
                 coeff = k_n / dy2
                 A[idx, (row + 1) * w + col] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "north", config):
+                coeff = 2.0 * k_rowcol * 10.0 / dy2
+                diag += coeff
 
-            if not _is_neumann_boundary(row, col, "south", config):
+            if row - 1 >= 0:
                 k_s = k_rowcol * 10.0
                 coeff = k_s / dy2
                 A[idx, (row - 1) * w + col] = -coeff
+                diag += coeff
+            elif _is_heatsink_boundary_face(row, col, "south", config):
+                coeff = 2.0 * k_rowcol * 10.0 / dy2
                 diag += coeff
 
             A[idx, idx] = diag
@@ -322,11 +317,11 @@ def _guard_passes_m_matrix(A):
     return _check_m_matrix(A)
 
 
-def _is_heatsink_edge_cell(row, col, config):
+def _is_heatsink_boundary_face(row, col, direction, config):
     """Inline copy of the private helper for test-only matrix construction."""
-    from temper_placer.physics.thermal_fdm import _is_heatsink_edge_cell
+    from temper_placer.physics.thermal_fdm import _is_heatsink_boundary_face
 
-    return _is_heatsink_edge_cell(row, col, config)
+    return _is_heatsink_boundary_face(row, col, direction, config)
 
 
 def _is_neumann_boundary(row, col, direction, config):

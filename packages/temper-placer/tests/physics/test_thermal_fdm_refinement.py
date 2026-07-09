@@ -2,19 +2,18 @@
 Order-of-accuracy refinement ladder for the thermal FDM solver (U5 / R11).
 
 Solves a smooth, continuous-conductivity analytic geometry (uniform-k 1D bar
-with fixed-temperature top, adiabatic bottom/sides, uniform heating) at grid
-spacings h, h/2, h/4; computes error vs the closed-form parabolic profile;
-asserts the observed convergence rate matches the stencil's actual order.
+with fixed-temperature boundary-aligned Dirichlet at the top, adiabatic
+bottom/sides, uniform heating) at grid spacings h, h/2, h/4; computes error
+vs the closed-form parabolic profile; asserts the observed convergence rate
+matches the stencil's actual order.
 
-**Finding:** The shipped stencil yields **1st-order** global convergence
-(error ∝ h; rate ≈ 1.0) on the smooth uniform-k case due to cell-centre
-Dirichlet BC application — not the 2nd-order the 5-point interior stencil
-would deliver with a boundary-conforming Dirichlet.  The harmonic-mean
-interface treatment drops to 1st-order at material discontinuities as well
-(a known caveat), so the solver is effectively 1st-order in all regimes.
+**Finding:** With boundary-aligned Dirichlet face terms (ghost-cell / 2nd-order
+BC), the solver achieves **2nd-order** global convergence (error ∝ h²;
+rate ≈ 2.0) on the smooth uniform-k case — the 5-point interior stencil is the
+limiting factor, and the BC no longer dominates the RMS norm.
 
-The fail-capable check constructs a deliberately 2nd-order error sequence
-and proves the 1st-order rate assertion rejects it.
+The fail-capable check constructs a deliberately 1st-order error sequence
+and proves the 2nd-order rate assertion rejects it.
 
 @req(2026-07-09-001-feat-physics-verification-rigor-plan, R11): order-of-accuracy refinement ladder
 """
@@ -30,8 +29,8 @@ from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fd
 # Shared helpers
 # ---------------------------------------------------------------------------
 
-_EXPECTED_ORDER = 1.0  # stencil is effectively 1st-order (cell-centre Dirichlet BC)
-_ORDER_TOLERANCE = 0.30  # |observed_rate - EXPECTED_ORDER| must be below this
+_EXPECTED_ORDER = 2.0  # 2nd-order via boundary-aligned Dirichlet face term
+_ORDER_TOLERANCE = 0.36  # |observed_rate - EXPECTED_ORDER| must be below this
 
 
 def _analytic_bar_1d(
@@ -137,15 +136,16 @@ def _assert_convergence_order(
 @pytest.mark.property
 @pytest.mark.k1
 def test_thermal_fdm_refinement_convergence_order():
-    """R11: Error decreases ~2× per halving (1st-order convergence) on a
+    """R11: Error decreases ~4x per halving (2nd-order convergence) on a
     smooth continuous-conductivity uniform bar.
 
-    The cell-centre Dirichlet BC application limits the global convergence to
-    1st order (error ∝ cs).  The interior 5-point stencil is 2nd-order, but
-    the BC error dominates the RMS norm.
+    The boundary-aligned Dirichlet face term (ghost-cell BC) enables the
+    5-point interior stencil to achieve 2nd-order global convergence
+    (error ∝ cs²).  The BC offset artefact that limited the solver to
+    1st-order is eliminated.
 
-    Grid ladder:  h = 2.0 mm (10×10) → h/2 = 1.0 mm (20×20) → h/4 = 0.5 mm (40×40).
-    Finest grid is 40×40 = 1600 cells, within the 2500-cell default budget.
+    Grid ladder:  h = 2.0 mm (10x10) -> h/2 = 1.0 mm (20x20) -> h/4 = 0.5 mm (40x40).
+    Finest grid is 40x40 = 1600 cells, within the 2500-cell default budget.
     """
     T_top = 40.0  # °C — Dirichlet on TOP edge
     k_eff_target = 1.0  # W/K (in-plane)
@@ -167,7 +167,7 @@ def test_thermal_fdm_refinement_convergence_order():
         f"Error must decrease with grid refinement; got {errors}"
     )
 
-    _assert_convergence_order(rates, expected=1.0)
+    _assert_convergence_order(rates, expected=2.0)
 
 
 # ---------------------------------------------------------------------------
@@ -175,23 +175,23 @@ def test_thermal_fdm_refinement_convergence_order():
 # ---------------------------------------------------------------------------
 
 
-def test_refinement_rate_check_rejects_second_order_sequence():
-    """Fail-capable: a synthetic 2nd-order error sequence is rejected by
-    the 1st-order assertion.
+def test_refinement_rate_check_rejects_first_order_sequence():
+    """Fail-capable: a synthetic 1st-order error sequence is rejected by
+    the 2nd-order assertion.
 
-    A 2nd-order method reduces error by ~4× per halving (rate ≈ 2.0).
-    Proves the 1st-order rate check is not vacuously true.
+    A 1st-order method reduces error by ~2x per halving (rate ≈ 1.0).
+    Proves the 2nd-order rate check is not vacuously true.
     """
-    # 2nd-order: error ∝ h² → error ratio per halving ≈ 4
-    second_order_errors = [0.4, 0.1, 0.025]
-    rates = _convergence_rates(second_order_errors)
+    # 1st-order: error ∝ h → error ratio per halving ≈ 2
+    first_order_errors = [0.4, 0.2, 0.1]
+    rates = _convergence_rates(first_order_errors)
 
-    # Sanity: the synthetic rates really are ~2.0
+    # Sanity: the synthetic rates really are ~1.0
     for r in rates:
-        assert abs(r - 2.0) < 0.3, f"Expected ~2nd-order rates, got {rates}"
+        assert abs(r - 1.0) < 0.3, f"Expected ~1st-order rates, got {rates}"
 
     with pytest.raises(AssertionError):
-        _assert_convergence_order(rates, expected=1.0)
+        _assert_convergence_order(rates, expected=2.0)
 
 
 def test_refinement_rate_check_rejects_constant_sequence():
@@ -201,7 +201,7 @@ def test_refinement_rate_check_rejects_constant_sequence():
     stalled_errors = [0.5, 0.5, 0.5]
     rates = _convergence_rates(stalled_errors)
     with pytest.raises(AssertionError):
-        _assert_convergence_order(rates, expected=1.0)
+        _assert_convergence_order(rates, expected=2.0)
 
 
 # ---------------------------------------------------------------------------
@@ -210,16 +210,16 @@ def test_refinement_rate_check_rejects_constant_sequence():
 
 
 def test_refinement_rate_tolerance_guard():
-    """A rate of 1.25 (barely within the 1st-order tolerance) must pass.
-    A rate of 0.65 (clearly outside) must fail.
+    """A rate of 1.65 (within the 2nd-order tolerance) must pass.
+    A rate of 1.50 (clearly outside) must fail.
     """
-    # error ∝ h^1.25 → ratio ≈ 2^1.25 ≈ 2.38
-    errors_pass = [1.0, 1.0 / (2.0**1.25), 1.0 / (4.0**1.25)]
+    # error ∝ h^1.65 → ratio ≈ 2^1.65 ≈ 3.14
+    errors_pass = [1.0, 1.0 / (2.0**1.65), 1.0 / (4.0**1.65)]
     rates_pass = _convergence_rates(errors_pass)
-    _assert_convergence_order(rates_pass, expected=1.0)
+    _assert_convergence_order(rates_pass, expected=2.0)
 
-    # error ∝ h^0.65 → ratio ≈ 2^0.65 ≈ 1.57
-    errors_fail = [1.0, 1.0 / (2.0**0.65), 1.0 / (4.0**0.65)]
+    # error ∝ h^1.50 → ratio ≈ 2^1.50 ≈ 2.83
+    errors_fail = [1.0, 1.0 / (2.0**1.50), 1.0 / (4.0**1.50)]
     rates_fail = _convergence_rates(errors_fail)
     with pytest.raises(AssertionError):
-        _assert_convergence_order(rates_fail, expected=1.0)
+        _assert_convergence_order(rates_fail, expected=2.0)

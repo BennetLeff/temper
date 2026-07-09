@@ -450,6 +450,26 @@ def _build_heat_source_field_gs(
     return Q
 
 
+def _is_heatsink_boundary_face_u7(
+    row: int, col: int,
+    direction: str,
+    height_cells: int, width_cells: int,
+    heatsink_edge: str,
+) -> bool:
+    """Return True if the face in *direction* is the outer boundary
+    in the heatsink direction (Dirichlet face, not Neumann)."""
+    hs = heatsink_edge.upper().strip()
+    if direction == "north" and row == height_cells - 1 and hs == "TOP":
+        return True
+    if direction == "south" and row == 0 and hs == "BOTTOM":
+        return True
+    if direction == "east" and col == width_cells - 1 and hs == "RIGHT":
+        return True
+    if direction == "west" and col == 0 and hs == "LEFT":
+        return True
+    return False
+
+
 def _assemble_convective_system(
     config: "ThermalFDMConfig",
     k_field: np.ndarray,
@@ -461,7 +481,8 @@ def _assemble_convective_system(
     Same 5-point harmonic-mean stencil as U5's ``_assemble_system``, PLUS a
     convective term ``h_conv * (T - T_amb)`` at the three non-heatsink edges.
 
-    Dirichlet at the heatsink edge, Robin (convective) at all other edges.
+    Dirichlet face term at the heatsink edge (boundary-aligned, 2nd-order),
+    Robin (convective) at all other edges.
     """
     from scipy.sparse import lil_matrix
 
@@ -481,41 +502,52 @@ def _assemble_convective_system(
         for col in range(w):
             idx = row * w + col
 
-            if _is_heatsink_edge_cell(row, col, h, w, hs_edge):
-                A[idx, idx] = 1.0
-                b[idx] = config.ambient_C
-                continue
-
             diag = 0.0
             k_c = k_field[row, col]
 
             # East
-            if not _is_neumann_boundary_u7(row, col, "east", h, w, hs_edge):
+            if col + 1 < w:
                 k_e = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
                 coeff = k_e / dx2
                 A[idx, row * w + col + 1] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face_u7(row, col, "east", h, w, hs_edge):
+                coeff = 2.0 * k_c / dx2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             # West
-            if not _is_neumann_boundary_u7(row, col, "west", h, w, hs_edge):
+            if col - 1 >= 0:
                 k_w = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
                 coeff = k_w / dx2
                 A[idx, row * w + col - 1] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face_u7(row, col, "west", h, w, hs_edge):
+                coeff = 2.0 * k_c / dx2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             # North (row+1 = up in grid)
-            if not _is_neumann_boundary_u7(row, col, "north", h, w, hs_edge):
+            if row + 1 < h:
                 k_n = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
                 coeff = k_n / dy2
                 A[idx, (row + 1) * w + col] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face_u7(row, col, "north", h, w, hs_edge):
+                coeff = 2.0 * k_c / dy2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             # South
-            if not _is_neumann_boundary_u7(row, col, "south", h, w, hs_edge):
+            if row - 1 >= 0:
                 k_s = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
                 coeff = k_s / dy2
                 A[idx, (row - 1) * w + col] = -coeff
                 diag += coeff
+            elif _is_heatsink_boundary_face_u7(row, col, "south", h, w, hs_edge):
+                coeff = 2.0 * k_c / dy2
+                diag += coeff
+                b[idx] += coeff * config.ambient_C
 
             # Convective boundary term at non-heatsink edge cells.
             # Convection adds h * t_edge_area * (T_amb - T_cell) to the
