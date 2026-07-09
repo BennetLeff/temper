@@ -18,6 +18,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
         FeedbackClassifier,
         UnclassifiedFailure,
     )
+    from temper_placer.placer.cp_sat.gates import BoardState, Gate
     from temper_placer.router_v6.adapter import RoutingResult
 
 logger = logging.getLogger(__name__)
@@ -40,6 +42,7 @@ class LoopExitReason(Enum):
     NO_CLASSIFIABLE_FEEDBACK = "no_classifiable_feedback"
     ALL_FEEDBACK_UNSAT = "all_feedback_unsat"
     OSCILLATION_DETECTED = "oscillation_detected"
+    GATE_UNMEASURED = "gate_unmeasured"
 
 
 @dataclass
@@ -74,6 +77,7 @@ class LoopResult:
     routing: object | None = None  # RoutingResult
     rounds: list[RoundRecord] = field(default_factory=list)
     unsat_core: dict[str, object] | None = None
+    unmeasured_gates: dict[str, str] = field(default_factory=dict)
 
 
 class UnsatError(Exception):
@@ -99,11 +103,28 @@ class PlaceRouteLoop:
     RE_SOLVE_TIMEOUT_MS: int = 1000
     OSCILLATION_WINDOW: int = 3
 
-    def __init__(self, classifier=None):
+    def __init__(self, classifier=None, gates=None):
         if classifier is None:
             from temper_placer.placer.cp_sat.feedback import FeedbackClassifier
             classifier = FeedbackClassifier()
         self.classifier = classifier
+
+        # Gate registry: when non-empty, gates drive convergence.
+        # When empty (None passed explicitly), preserve backward-compat
+        # direct-classifier path.
+        if gates is None:
+            from temper_placer.placer.cp_sat.gates import DrcGate, RoutingGate  # noqa: F811
+            self.gates: list[Gate] = [
+                DrcGate(),
+                RoutingGate(),
+            ]
+        else:
+            self.gates: list[Gate] = list(gates)
+
+        from temper_placer.placer.cp_sat.gates import GateResult
+        self._gate_results: dict[str, GateResult] = {}
+        self._unmeasured_streak: dict[str, int] = {}
+        self._surfaced: list[str] = []
 
     @staticmethod
     def _load_netclass_rules():
@@ -128,6 +149,8 @@ class PlaceRouteLoop:
         zones: dict | None = None,
         zone_components: dict[str, list[str]] | None = None,
         loop_components: dict[str, list[str]] | None = None,
+        all_gates: bool = False,
+        routed_pcb_path: Path | None = None,
     ) -> LoopResult:
         """Run the full place-route loop.
 
@@ -139,11 +162,22 @@ class PlaceRouteLoop:
             zones: Optional pre-resolved zone bounds dict.
             zone_components: Optional zone-to-component mapping.
             loop_components: Optional loop-name-to-component mapping.
+            all_gates: When True, register all 5 gates (DrcGate,
+                RoutingGate, StackupGate, PhysicsGate, QualityGate).
+                When False, use the default [DrcGate, RoutingGate].
+            routed_pcb_path: Path to a routed PCB file for DRC gates.
 
         Returns:
             LoopResult with success status, placement, and routing.
         """
+        from pathlib import Path as _Path
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult, solve_placement
+        from temper_placer.placer.cp_sat.gates import GateStage, GateStatus
+        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
+
+        # Reset per-run state.
+        self._unmeasured_streak = {}
+        self._surfaced = []
 
         self._zones = zones
         self._zone_components = zone_components
@@ -152,25 +186,56 @@ class PlaceRouteLoop:
         if self._netclass_rules is not None:
             self.classifier.design_rules = self._netclass_rules.design_rules
 
+        # ---- Build gate registry -------------------------------------------
+        if all_gates:
+            from temper_placer.placer.cp_sat.gates import (
+                DrcGate, PhysicsGate, QualityGate,
+                RoutingGate, StackupGate,
+            )
+            gates = [DrcGate(), RoutingGate(), StackupGate(),
+                     PhysicsGate(), QualityGate()]
+            logger.info("All-gates mode: 5 gates registered")
+        else:
+            gates = list(self.gates) if self.gates else []
+
+        self._routed_pcb_path_override = routed_pcb_path
+
         injected_deltas: list[ConstraintDelta] = []
         rounds: list[RoundRecord] = []
-        previous_unclassified: list[UnclassifiedFailure] = []
         placement_history: list[CpSatPlacementResult] = []
+        previous_unclassified: list[UnclassifiedFailure] = []
 
-        # Combine initial PCL with injected deltas
         all_constraints = list(pcl_constraints) if pcl_constraints else []
 
         placement: CpSatPlacementResult | None = None
         routing: RoutingResult | None = None
 
+        # Counters for incremental success logging (SC1a / SC1b).
+        sc1a_green_rounds = 0
+        sc1b_green_rounds = 0
+
+        # ---- Gate-driven path (U4) -------------------------------------------
+        if all_gates:
+            return self._run_with_gates(
+                netlist, board, pcl_constraints,
+                all_constraints, gates, injected_deltas,
+                rounds, placement_history, previous_unclassified,
+                seed, zones, zone_components, loop_components,
+                routed_pcb_path, placement, routing,
+                sc1a_green_rounds, sc1b_green_rounds,
+            )
+
+        # ---- Legacy classifier-based path ------------------------------------
+        # Backward-compatible: when all_gates=False (default), the original
+        # completion_rate + drc_errors check + FeedbackClassifier.classify()
+        # path is used unchanged.
+
         for round_num in range(1, self.MAX_ROUNDS + 1):
             logger.info(f"Round {round_num}/{self.MAX_ROUNDS}")
 
-            # Deduplicate accumulated deltas by constraint ID before each
-            # round to prevent UNSAT from stale overlapping feedback.
             injected_deltas = _deduplicate_deltas(injected_deltas)
 
-            # Phase 1: Solve CP-SAT with current constraints
+            # Phase 1: Solve CP-SAT
             t0 = time.monotonic()
             constraint_objects = all_constraints + [
                 delta.constraint for delta in injected_deltas
@@ -197,9 +262,10 @@ class PlaceRouteLoop:
                     unsat_core={"round": round_num, "deltas": injected_deltas},
                 )
 
-            # Check for oscillation
             if self._detect_oscillation(placement, placement_history):
-                logger.warning(f"Oscillation detected at round {round_num} — same placement repeats")
+                logger.warning(
+                    f"Oscillation detected at round {round_num}"
+                )
                 return LoopResult(
                     success=False,
                     reason=LoopExitReason.OSCILLATION_DETECTED.value,
@@ -208,16 +274,100 @@ class PlaceRouteLoop:
                 )
             placement_history.append(placement)
 
-            # Route with router_v6
+            # ---- Stage 1: PLACEMENT-stage gates (U4) -----------------------
+            # Run before routing so placement-only violations don't
+            # waste time on routing.
+            placement_gates = self._gates_for_stage(gates, GateStage.PLACEMENT)
+            if placement_gates:
+                pcb_path = self._get_placement_pcb_path(
+                    placement, netlist, board, seed,
+                )
+                state = self._build_board_state(
+                    placement=placement,
+                    routing=None,
+                    netlist=netlist,
+                    board=board,
+                    routed_pcb_path_override=(
+                        pcb_path or routed_pcb_path
+                    ),
+                )
+                placement_deltas: list[ConstraintDelta] = []
+                placement_violations = False
+                for gate in placement_gates:
+                    result = gate.check(state)
+                    self._gate_results[gate.name] = result
+                    self._track_unmeasured(gate, result)
+                    if result.status is GateStatus.VIOLATIONS:
+                        placement_violations = True
+                        for v in result.violations:
+                            delta = gate.to_delta(v)
+                            if delta is not None:
+                                placement_deltas.append(delta)
+                            else:
+                                logger.debug(
+                                    "Gate %s violation %s no delta",
+                                    gate.name, v.type.value,
+                                )
+
+                # Early-exit check for UNMEASURED persisting 3+ rounds.
+                unmeasured_exit = self._check_unmeasured_exit(
+                    round_num, placement, routing, rounds,
+                )
+                if unmeasured_exit is not None:
+                    return unmeasured_exit
+
+                if placement_violations:
+                    # Inject placement deltas and continue without routing.
+                    delta_accepted = False
+                    for delta in placement_deltas:
+                        try:
+                            test_placement = self._solve_with_delta(
+                                netlist, board, constraint_objects,
+                                [delta], seed, placement,
+                            )
+                            injected_deltas.append(delta)
+                            placement = test_placement
+                            delta_accepted = True
+                            logger.info(
+                                "  Accepted placement delta: %s",
+                                delta.reason,
+                            )
+                            break
+                        except UnsatError:
+                            logger.info(
+                                "  Placement delta UNSAT: %s",
+                                delta.reason,
+                            )
+                            continue
+
+                    rounds.append(RoundRecord(
+                        round_number=round_num,
+                        completion_rate=0.0,
+                        drc_errors=0,
+                        solve_time_ms=solve_time,
+                        deltas_applied=list(injected_deltas),
+                        route_time_ms=0.0,
+                        status=placement.status,
+                    ))
+                    # SC1a/SC1b: forced re-solve, reset green counters.
+                    sc1a_green_rounds = 0
+                    sc1b_green_rounds = 0
+                    continue  # skip routing this round
+
+            # ---- Route ------------------------------------------------------
             t_route = time.monotonic()
             routing = self._route_placement(placement, netlist, board, seed)
             route_time = (time.monotonic() - t_route) * 1000.0
 
             completion_rate = getattr(routing, 'completion_rate', 0.0)
-            drc_errors = routing.drc_errors if hasattr(routing, 'drc_errors') else 0
+            drc_errors = (
+                routing.drc_errors
+                if hasattr(routing, 'drc_errors') else 0
+            )
             logger.info(
                 f"Round {round_num}: completion={completion_rate:.1%}, "
-                f"DRC errors={drc_errors}, solve={solve_time:.0f}ms, route={route_time:.0f}ms"
+                f"DRC errors={drc_errors}, solve={solve_time:.0f}ms, "
+                f"route={route_time:.0f}ms"
             )
 
             rounds.append(RoundRecord(
@@ -230,11 +380,147 @@ class PlaceRouteLoop:
                 status=placement.status,
             ))
 
-            # Check termination
+            # ---- Stage 2: ROUTING-stage gates (U4) -------------------------
+            routing_gates = self._gates_for_stage(gates, GateStage.ROUTING)
+            if routing_gates:
+                routed_path = getattr(routing, 'routed_pcb_path', None)
+                if isinstance(routed_path, str):
+                    routed_path = _Path(routed_path)
+                state = self._build_board_state(
+                    placement=placement,
+                    routing=routing,
+                    netlist=netlist,
+                    board=board,
+                    routed_pcb_path_override=(
+                        routed_path or routed_pcb_path
+                    ),
+                )
+
+                for gate in routing_gates:
+                    result = gate.check(state)
+                    self._gate_results[gate.name] = result
+                    self._track_unmeasured(gate, result)
+
+
+                # Check convergence via all_gates_green.
+                all_green = self._all_gates_green_results()
+                if all_green:
+                    # Track SC1a (DrcGate+RoutingGate) and SC1b (all).
+                    sc1a_ok = self._are_named_gates_clean(
+                        {"drc", "routing"},
+                    )
+                    sc1b_ok = all_green
+                    if sc1a_ok:
+                        sc1a_green_rounds += 1
+                        if sc1a_green_rounds == self.STABILITY_ROUNDS:
+                            logger.info(
+                                "SC1a: DrcGate+RoutingGate green in "
+                                "%d rounds", round_num,
+                            )
+                    else:
+                        sc1a_green_rounds = 0
+                    if sc1b_ok:
+                        sc1b_green_rounds += 1
+                        if sc1b_green_rounds == self.STABILITY_ROUNDS:
+                            logger.info(
+                                "SC1b: all gates green in %d rounds",
+                                round_num,
+                            )
+                    else:
+                        sc1b_green_rounds = 0
+
+                    # Stability check: need STABILITY_ROUNDS of all-green.
+                    if sc1a_green_rounds >= self.STABILITY_ROUNDS or (
+                        all_gates and sc1b_green_rounds >= self.STABILITY_ROUNDS
+                    ):
+                        placement = self._solve_phase2(
+                            placement, netlist, board,
+                            constraint_objects, seed,
+                        )
+                        return LoopResult(
+                            success=True,
+                            reason=LoopExitReason.SUCCESS.value,
+                            placement=placement,
+                            routing=routing,
+                            rounds=rounds,
+                        )
+                    continue
+                else:
+                    sc1a_green_rounds = 0
+                    sc1b_green_rounds = 0
+
+                # Collect ROUTING-stage deltas.
+                gate_deltas = self._collect_deltas_from_gates(gates)
+                if not gate_deltas:
+                    logger.warning(
+                        "Routing gates not green but no deltas produced"
+                    )
+                    # Fall through to classifier path.
+                else:
+                    delta_accepted = False
+                    for delta in gate_deltas:
+                        try:
+                            test_placement = self._solve_with_delta(
+                                netlist, board, constraint_objects,
+                                [delta], seed, placement,
+                            )
+                            injected_deltas.append(delta)
+                            placement = test_placement
+                            delta_accepted = True
+                            logger.info(
+                                "  Accepted routing delta: %s",
+                                delta.reason,
+                            )
+                            break
+                        except UnsatError:
+                            logger.info(
+                                "  Routing delta UNSAT: %s",
+                                delta.reason,
+                            )
+                            continue
+
+                    if not delta_accepted:
+                        return LoopResult(
+                            success=False,
+                            reason=LoopExitReason.ALL_FEEDBACK_UNSAT.value,
+                            placement=placement,
+                            routing=routing,
+                            rounds=rounds,
+                            unsat_core={
+                                "message": (
+                                    "All gate deltas produced UNSAT"
+                                ),
+                                "gate_results": {
+                                    name: {
+                                        "status": r.status.value,
+                                        "violations": len(r.violations),
+                                        "error": r.error_message,
+                                    }
+                                    for name, r in self._gate_results.items()
+                                },
+                            },
+                        )
+
+                # Check UNMEASURED exit after routing gate round.
+                unmeasured_exit = self._check_unmeasured_exit(
+                    round_num, placement, routing, rounds,
+                )
+                if unmeasured_exit is not None:
+                    return unmeasured_exit
+
+                continue
+
+            # ---- Backward-compatible classifier path ------------------------
             if completion_rate >= 1.0 and drc_errors == 0:
-                stable = self._consecutive_stable_rounds(rounds) >= self.STABILITY_ROUNDS
+                stable = (
+                    self._consecutive_stable_rounds(rounds)
+                    >= self.STABILITY_ROUNDS
+                )
                 if stable:
-                    placement = self._solve_phase2(placement, netlist, board, constraint_objects, seed)
+                    placement = self._solve_phase2(
+                        placement, netlist, board,
+                        constraint_objects, seed,
+                    )
                     return LoopResult(
                         success=True,
                         reason=LoopExitReason.SUCCESS.value,
@@ -243,10 +529,8 @@ class PlaceRouteLoop:
                         rounds=rounds,
                     )
                 else:
-                    # Still going — continue with current deltas (stability check)
                     continue
 
-            # Classify feedback
             classification = self.classifier.classify(
                 routing_result=routing,
                 placement=placement,
@@ -254,10 +538,12 @@ class PlaceRouteLoop:
                 previous_unclassified=previous_unclassified,
             )
 
-            # Check for unclassifiable failures
             if not classification.deltas and classification.unclassified:
-                # More than 50% unclassified after 3 rounds -> abort
-                if round_num >= 3 and len(classification.unclassified) > len(classification.deltas):
+                if (
+                    round_num >= 3
+                    and len(classification.unclassified)
+                    > len(classification.deltas)
+                ):
                     return LoopResult(
                         success=False,
                         reason=LoopExitReason.NO_CLASSIFIABLE_FEEDBACK.value,
@@ -277,7 +563,6 @@ class PlaceRouteLoop:
 
             previous_unclassified = list(classification.unclassified)
 
-            # Closed-loop backtracking: try deltas in priority order
             delta_accepted = False
             for delta in classification.deltas:
                 try:
@@ -291,21 +576,24 @@ class PlaceRouteLoop:
                     logger.info(f"  Accepted delta: {delta.reason}")
                     break
                 except UnsatError:
-                    logger.info(f"  Delta UNSAT, trying next: {delta.reason}")
+                    logger.info(
+                        f"  Delta UNSAT, trying next: {delta.reason}"
+                    )
                     continue
 
             if not delta_accepted:
-                # All deltas produced UNSAT
                 return LoopResult(
                     success=False,
                     reason=LoopExitReason.ALL_FEEDBACK_UNSAT.value,
                     placement=placement,
                     routing=routing,
                     rounds=rounds,
-                    unsat_core=self._extract_unsat_core(injected_deltas, classification),
+                    unsat_core=self._extract_unsat_core(
+                        injected_deltas, classification,
+                    ),
                 )
 
-        # N=10 rounds exhausted
+        # MAX_ROUNDS exhausted
         return LoopResult(
             success=False,
             reason=LoopExitReason.ROUND_LIMIT_EXCEEDED.value,
@@ -313,6 +601,547 @@ class PlaceRouteLoop:
             routing=routing,
             rounds=rounds,
         )
+
+    # -------------------------------------------------------------------
+    # Gate-driven round loop (U4, U5, U6)
+    # -------------------------------------------------------------------
+
+    def _run_with_gates(
+        self,
+        netlist, board, pcl_constraints,
+        all_constraints, gates, injected_deltas,
+        rounds, placement_history, previous_unclassified,
+        seed, zones, zone_components, loop_components,
+        routed_pcb_path, placement, routing,
+        sc1a_green_rounds, sc1b_green_rounds,
+    ) -> LoopResult:
+        """Run the full gate-driven place-route loop (all_gates=True).
+
+        Implements stage ordering (U4): PLACEMENT-stage gates run after
+        CP-SAT solve and before routing; ROUTING-stage gates run after
+        routing completes.  UNMEASURED discipline (U5) tracks consecutive
+        failures per gate and exits after 3+ rounds.
+        """
+        from pathlib import Path as _Path
+        from temper_placer.placer.cp_sat.encoder import solve_placement
+        from temper_placer.placer.cp_sat.gates import GateStage, GateStatus
+        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
+
+        self._gate_results = {}
+
+        for round_num in range(1, self.MAX_ROUNDS + 1):
+            logger.info(f"Round {round_num}/{self.MAX_ROUNDS}")
+
+            injected_deltas = _deduplicate_deltas(injected_deltas)
+
+            # Phase 1: Solve CP-SAT
+            t0 = time.monotonic()
+            constraint_objects = all_constraints + [
+                delta.constraint for delta in injected_deltas
+            ]
+            placement = solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=constraint_objects,
+                timeout_ms=self.RE_SOLVE_TIMEOUT_MS,
+                seed=seed,
+                zones=self._zones,
+                zone_components=self._zone_components,
+                loop_components=self._loop_components,
+            )
+            solve_time = (time.monotonic() - t0) * 1000.0
+
+            if placement.status in ("infeasible", "model_invalid"):
+                logger.warning(f"Placement UNSAT at round {round_num}")
+                return LoopResult(
+                    success=False,
+                    reason=LoopExitReason.ALL_FEEDBACK_UNSAT.value,
+                    placement=placement,
+                    rounds=rounds,
+                    unsat_core={
+                        "round": round_num, "deltas": injected_deltas,
+                    },
+                )
+
+            if self._detect_oscillation(placement, placement_history):
+                logger.warning(
+                    f"Oscillation detected at round {round_num}"
+                )
+                return LoopResult(
+                    success=False,
+                    reason=LoopExitReason.OSCILLATION_DETECTED.value,
+                    placement=placement,
+                    rounds=rounds,
+                )
+            placement_history.append(placement)
+
+            # ---- Stage 1: PLACEMENT-stage gates --------------------------
+            placement_gates = self._gates_for_stage(
+                gates, GateStage.PLACEMENT,
+            )
+            if placement_gates:
+                pcb_path = self._get_placement_pcb_path(
+                    placement, netlist, board, seed,
+                )
+                state = self._build_board_state(
+                    placement=placement,
+                    routing=None,
+                    netlist=netlist,
+                    board=board,
+                    routed_pcb_path_override=(
+                        pcb_path or routed_pcb_path
+                    ),
+                )
+                placement_deltas: list[ConstraintDelta] = []
+                placement_violations = False
+                for gate in placement_gates:
+                    result = gate.check(state)
+                    self._track_unmeasured(gate, result)
+                    self._gate_results[gate.name] = result
+                    if result.status is GateStatus.VIOLATIONS:
+                        placement_violations = True
+                        for v in result.violations:
+                            delta = gate.to_delta(v)
+                            if delta is not None:
+                                placement_deltas.append(delta)
+                            else:
+                                logger.debug(
+                                    "Gate %s violation %s has no delta",
+                                    gate.name, v.type.value,
+                                )
+
+                unmeasured_exit = self._check_unmeasured_exit(
+                    round_num, placement, routing, rounds,
+                )
+                if unmeasured_exit is not None:
+                    return unmeasured_exit
+
+                if placement_violations:
+                    delta_accepted = False
+                    for delta in placement_deltas:
+                        try:
+                            test_placement = self._solve_with_delta(
+                                netlist, board, constraint_objects,
+                                [delta], seed, placement,
+                            )
+                            injected_deltas.append(delta)
+                            placement = test_placement
+                            delta_accepted = True
+                            logger.info(
+                                "  Accepted placement delta: %s",
+                                delta.reason,
+                            )
+                            break
+                        except UnsatError:
+                            logger.info(
+                                "  Placement delta UNSAT: %s",
+                                delta.reason,
+                            )
+                            continue
+
+                    rounds.append(RoundRecord(
+                        round_number=round_num,
+                        completion_rate=0.0,
+                        drc_errors=0,
+                        solve_time_ms=solve_time,
+                        deltas_applied=list(injected_deltas),
+                        route_time_ms=0.0,
+                        status=placement.status,
+                    ))
+                    sc1a_green_rounds = 0
+                    sc1b_green_rounds = 0
+                    continue  # Skip routing this round.
+
+            # ---- Route ----------------------------------------------------
+            t_route = time.monotonic()
+            routing = self._route_placement(
+                placement, netlist, board, seed,
+            )
+            route_time = (time.monotonic() - t_route) * 1000.0
+
+            completion_rate = getattr(routing, 'completion_rate', 0.0)
+            drc_errors = (
+                routing.drc_errors
+                if hasattr(routing, 'drc_errors') else 0
+            )
+            logger.info(
+                f"Round {round_num}: completion={completion_rate:.1%}, "
+                f"DRC errors={drc_errors}, solve={solve_time:.0f}ms, "
+                f"route={route_time:.0f}ms"
+            )
+
+            rounds.append(RoundRecord(
+                round_number=round_num,
+                completion_rate=completion_rate,
+                drc_errors=drc_errors,
+                solve_time_ms=solve_time,
+                deltas_applied=list(injected_deltas),
+                route_time_ms=route_time,
+                status=placement.status,
+            ))
+
+            # ---- Stage 2: ROUTING-stage gates -----------------------------
+            routing_gates = self._gates_for_stage(
+                gates, GateStage.ROUTING,
+            )
+            if routing_gates:
+                routed_path = getattr(routing, 'routed_pcb_path', None)
+                if isinstance(routed_path, str):
+                    routed_path = _Path(routed_path)
+                state = self._build_board_state(
+                    placement=placement,
+                    routing=routing,
+                    netlist=netlist,
+                    board=board,
+                    routed_pcb_path_override=(
+                        routed_path or routed_pcb_path
+                    ),
+                )
+
+                for gate in routing_gates:
+                    result = gate.check(state)
+                    self._track_unmeasured(gate, result)
+                    self._gate_results[gate.name] = result
+
+                all_green = self._all_gates_green_results()
+                if all_green:
+                    sc1a_ok = self._are_named_gates_clean(
+                        {"drc", "routing"},
+                    )
+                    sc1b_ok = all_green
+                    if sc1a_ok:
+                        sc1a_green_rounds += 1
+                        if sc1a_green_rounds == self.STABILITY_ROUNDS:
+                            logger.info(
+                                "SC1a: DrcGate+RoutingGate green in "
+                                "%d rounds", round_num,
+                            )
+                    else:
+                        sc1a_green_rounds = 0
+                    if sc1b_ok:
+                        sc1b_green_rounds += 1
+                        if sc1b_green_rounds == self.STABILITY_ROUNDS:
+                            logger.info(
+                                "SC1b: all gates green in %d rounds",
+                                round_num,
+                            )
+                    else:
+                        sc1b_green_rounds = 0
+
+                    if (
+                        sc1a_green_rounds >= self.STABILITY_ROUNDS
+                        or sc1b_green_rounds >= self.STABILITY_ROUNDS
+                    ):
+                        placement = self._solve_phase2(
+                            placement, netlist, board,
+                            constraint_objects, seed,
+                        )
+                        return LoopResult(
+                            success=True,
+                            reason=LoopExitReason.SUCCESS.value,
+                            placement=placement,
+                            routing=routing,
+                            rounds=rounds,
+                        )
+                    continue
+                else:
+                    sc1a_green_rounds = 0
+                    sc1b_green_rounds = 0
+
+                gate_deltas = self._collect_deltas_from_gates(gates)
+                if not gate_deltas:
+                    logger.warning(
+                        "Routing gates not green but no deltas produced"
+                    )
+                else:
+                    delta_accepted = False
+                    for delta in gate_deltas:
+                        try:
+                            test_placement = self._solve_with_delta(
+                                netlist, board, constraint_objects,
+                                [delta], seed, placement,
+                            )
+                            injected_deltas.append(delta)
+                            placement = test_placement
+                            delta_accepted = True
+                            logger.info(
+                                "  Accepted routing delta: %s",
+                                delta.reason,
+                            )
+                            break
+                        except UnsatError:
+                            logger.info(
+                                "  Routing delta UNSAT: %s",
+                                delta.reason,
+                            )
+                            continue
+
+                    if not delta_accepted:
+                        return LoopResult(
+                            success=False,
+                            reason=(
+                                LoopExitReason.ALL_FEEDBACK_UNSAT.value
+                            ),
+                            placement=placement,
+                            routing=routing,
+                            rounds=rounds,
+                            unsat_core={
+                                "message": (
+                                    "All gate deltas produced UNSAT"
+                                ),
+                                "gate_results": {
+                                    name: {
+                                        "status": r.status.value,
+                                        "violations": len(r.violations),
+                                        "error": r.error_message,
+                                    }
+                                    for name, r
+                                    in self._gate_results.items()
+                                },
+                            },
+                        )
+
+                unmeasured_exit = self._check_unmeasured_exit(
+                    round_num, placement, routing, rounds,
+                )
+                if unmeasured_exit is not None:
+                    return unmeasured_exit
+
+        return LoopResult(
+            success=False,
+            reason=LoopExitReason.ROUND_LIMIT_EXCEEDED.value,
+            placement=placement,
+            routing=routing,
+            rounds=rounds,
+        )
+
+    def _get_placement_pcb_path(
+        self, placement, netlist, board, seed: int,
+    ) -> Path | None:
+        """Write a placement-only PCB to a temp file and return its path.
+
+        Returns None if the placement or netlist is missing data.
+        """
+        import os as _os
+        import tempfile as _tempfile
+        from pathlib import Path as _Path
+
+        placements_dict = getattr(placement, 'to_placements_dict', None)
+        if placements_dict is None:
+            return None
+        placements = placements_dict()
+        if not placements:
+            return None
+
+        raw_pcb = _build_minimal_pcb(
+            netlist, board,
+            getattr(self, '_netclass_rules', None),
+        )
+        try:
+            from temper_placer.router_v6.adapter import (
+                _apply_placements_to_pcb,
+            )
+            placed = _apply_placements_to_pcb(raw_pcb, placements)
+        except ImportError:
+            placed = raw_pcb
+
+        fd, temp_path = _tempfile.mkstemp(suffix=".kicad_pcb")
+        with _os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(placed)
+        return _Path(temp_path)
+
+    def _all_gates_green_results(self) -> bool:
+        """Return True iff every gate in ``_gate_results`` is CLEAN.
+
+        Uses cached results from ``check()`` calls; does not re-run
+        gates.  An UNMEASURED gate is never green (core invariant).
+        """
+        from temper_placer.placer.cp_sat.gates import GateStatus
+        return all(
+            r.status is GateStatus.CLEAN
+            for r in self._gate_results.values()
+        )
+
+    def _are_named_gates_clean(self, gate_names: set[str]) -> bool:
+        """Return True iff every named gate in ``_gate_results`` is CLEAN."""
+        from temper_placer.placer.cp_sat.gates import GateStatus
+        for name in gate_names:
+            result = self._gate_results.get(name)
+            if result is None or result.status is not GateStatus.CLEAN:
+                return False
+        return True
+
+    def all_gates_green(self, state: BoardState) -> bool:
+        """Run every registered gate and return True iff all are CLEAN.
+
+        Stores per-gate results in ``self._gate_results``.  A gate
+        returning ``UNMEASURED`` is logged but never treated as green
+        (the core three-state invariant).
+        """
+        from temper_placer.placer.cp_sat.gates import GateStatus, GateResult
+
+        self._gate_results = {}
+        for gate in self.gates:
+            try:
+                result = gate.check(state)
+            except Exception as exc:
+                logger.error(
+                    "Gate %s check raised: %s", gate.name, exc,
+                )
+                result = GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message=f"Gate check raised: {exc}",
+                )
+            self._gate_results[gate.name] = result
+            if result.status is GateStatus.UNMEASURED:
+                logger.error(
+                    "Gate %s UNMEASURED: %s",
+                    gate.name, result.error_message,
+                )
+
+        return all(
+            r.status is GateStatus.CLEAN
+            for r in self._gate_results.values()
+        )
+
+    def _track_unmeasured(self, gate, result) -> None:
+        """Increment or reset the UNMEASURED streak for *gate*.
+
+        A gate that measures this round resets its streak to 0.
+        A gate that returns UNMEASURED increments by 1 and logs
+        the error.
+        """
+        from temper_placer.placer.cp_sat.gates import GateStatus
+
+        name = gate.name
+        if result.status is GateStatus.UNMEASURED:
+            self._unmeasured_streak[name] = (
+                self._unmeasured_streak.get(name, 0) + 1
+            )
+            self._surface(
+                f"Gate {name} UNMEASURED (streak "
+                f"{self._unmeasured_streak[name]}): "
+                f"{result.error_message}"
+            )
+        else:
+            self._unmeasured_streak[name] = 0
+
+    def _check_unmeasured_exit(
+        self, round_num: int, placement, routing,
+        rounds: list[RoundRecord],
+    ) -> LoopResult | None:
+        """Check for persistent UNMEASURED gates and exit if >= 3 rounds.
+
+        Returns a ``LoopResult`` signalling ``GATE_UNMEASURED`` when any
+        gate has been UNMEASURED for 3+ consecutive rounds; otherwise
+        returns None (keep looping).
+        """
+        for name, streak in self._unmeasured_streak.items():
+            if streak >= 3:
+                result = self._gate_results.get(name)
+                msg = (
+                    result.error_message if result is not None else ""
+                )
+                logger.error(
+                    "Gate %s UNMEASURED for %d rounds; exiting. "
+                    "Message: %s",
+                    name, streak, msg,
+                )
+                return LoopResult(
+                    success=False,
+                    reason=LoopExitReason.GATE_UNMEASURED.value,
+                    placement=placement,
+                    routing=routing,
+                    rounds=rounds,
+                    unsat_core={
+                        "gate": name,
+                        "error_message": msg,
+                        "round": round_num,
+                    },
+                    unmeasured_gates={
+                        name: msg for name, streak
+                        in self._unmeasured_streak.items()
+                        if streak >= 3
+                    },
+                )
+        return None
+
+    def _surface(self, msg: str) -> None:
+        """Log and record a surfaced message for the operator/CLI."""
+        logger.error(msg)
+        self._surfaced.append(msg)
+
+    def _build_board_state(
+        self,
+        placement,
+        routing,
+        netlist,
+        board,
+        routed_pcb_path_override: Path | None = None,
+    ) -> BoardState:
+        """Assemble a frozen ``BoardState`` for gate inspection.
+
+        Args:
+            routed_pcb_path_override: Explicit PCB path to use instead
+                of extracting from ``routing``.  Used when the loop
+                writes a placement-only PCB for PLACEMENT-stage gates.
+        """
+        from temper_placer.placer.cp_sat.gates import BoardState
+
+        design_rules = None
+        netclass_rules = getattr(self, '_netclass_rules', None)
+        if netclass_rules is not None:
+            design_rules = getattr(netclass_rules, 'design_rules', None)
+
+        routed_pcb_path = routed_pcb_path_override
+        if routed_pcb_path is None and routing is not None:
+            routed_pcb_path = getattr(routing, 'routed_pcb_path', None)
+            if isinstance(routed_pcb_path, str):
+                routed_pcb_path = Path(routed_pcb_path)
+
+        return BoardState(
+            placement=placement,
+            routing=routing,
+            netlist=netlist,
+            board=board,
+            design_rules=design_rules,
+            routed_pcb_path=routed_pcb_path,
+        )
+
+    def _gates_for_stage(self, gates: list, stage) -> list:
+        """Return gates from *gates* registered for the given stage."""
+        from temper_placer.placer.cp_sat.gates import GateStage
+        return [g for g in gates if g.stage is stage]
+
+    def _collect_deltas_from_gates(
+        self, gates: list | None = None,
+    ) -> list[ConstraintDelta]:
+        """Collect corrective deltas from all non-CLEAN gate results.
+
+        Iterates every gate's violations, calls ``gate.to_delta(v)``,
+        and returns the list of non-None ``ConstraintDelta`` objects
+        sorted by priority.
+        """
+        from temper_placer.placer.cp_sat.gates import GateStatus
+
+        source = gates if gates is not None else self.gates
+        deltas: list[ConstraintDelta] = []
+        for gate in source:
+            result = self._gate_results.get(gate.name)
+            if result is None or result.status is GateStatus.CLEAN:
+                continue
+            for violation in result.violations:
+                delta = gate.to_delta(violation)
+                if delta is not None:
+                    deltas.append(delta)
+                else:
+                    logger.debug(
+                        "Gate %s violation %s has no corrective delta",
+                        gate.name, violation.type.value,
+                    )
+
+        deltas.sort(key=lambda d: d.priority)
+        return deltas
 
     # -------------------------------------------------------------------
     # Routing
@@ -445,11 +1274,10 @@ class PlaceRouteLoop:
         recent = history[-self.OSCILLATION_WINDOW:]
         recent_positions = [getattr(p, 'positions', None) for p in recent]
 
-        import numpy as np
         for rp in recent_positions:
             if rp is None:
                 return False
-            if np.allclose(positions, rp, atol=0.1):
+            if _positions_equal(positions, rp):
                 return True
 
         return False
@@ -474,6 +1302,30 @@ class PlaceRouteLoop:
                 for d in injected_deltas
             ],
         }
+
+
+def _positions_equal(a, b) -> bool:
+    """Compare two position representations for equality within tolerance.
+
+    Supports both numpy arrays (legacy) and dict[str, tuple[float, float]]
+    (current CpSatPlacementResult.positions format).
+    """
+    if a is b:
+        return True
+    if type(a) is not type(b):
+        return False
+
+    if isinstance(a, dict):
+        if a.keys() != b.keys():
+            return False
+        for key in a:
+            pa, pb = a[key], b[key]
+            if abs(pa[0] - pb[0]) > 0.1 or abs(pa[1] - pb[1]) > 0.1:
+                return False
+        return True
+
+    import numpy as np
+    return bool(np.allclose(a, b, atol=0.1))
 
 
 def _deduplicate_deltas(deltas: list[ConstraintDelta]) -> list[ConstraintDelta]:
