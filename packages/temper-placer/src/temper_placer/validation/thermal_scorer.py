@@ -1,50 +1,47 @@
 """
-U7: Independent thermal scorer (H6: structurally-independent method + falsifiability).
+U7: Independent thermal scorer (H6: **model**-independent method + falsifiability).
 
-**Structural independence axis**: Transient Gauss-Seidel iterative relaxation
-to steady state (iterative solver family), distinct from U5's direct sparse
-solve via SuperLU (``spsolve``).  Same PDE — :math:`\\nabla\\cdot(k\\nabla T) = -Q`
-— and same 5-point harmonic-mean stencil, but **different solution method**:
+**Model independence axis**: Convective-boundary 2-D finite-difference model
+with Robin (convective) boundary conditions on the three non-heatsink edges,
+solved via sparse-direct ``spsolve`` (SuperLU).  U5 treats those edges as
+adiabatic Neumann — a genuinely different physical model, not just a different
+solver of the same PDE.
 
-- U5: assembles sparse CSR matrix, calls ``scipy.sparse.linalg.spsolve``
-  (SuperLU direct factorisation).  No iteration, exact to machine precision for
-  well-conditioned systems.  (``thermal_fdm.py:_assemble_system`` + ``spsolve``)
-- U7: iterates in-place Gauss-Seidel sweeps over the grid with successive
-  over-relaxation (SOR), driven by a residual tolerance.  Convergence depends on
-  iteration budget and relaxation parameter.  No matrix assembly; no
-  ``scipy.sparse`` at all.
+This scorer assembles the same 5-point harmonic-mean stencil as U5 for the
+in-plane conduction :math:`\\nabla\\cdot(k\\nabla T) = -Q`, but **adds a
+convective term** ``h \\cdot (T - T_{\\text{amb}})`` at the three boundary edges
+the heatsink does NOT cover.  U5's adiabatic-Neumann boundary is the special
+case ``h = 0``, so the two models genuinely differ in their boundary physics.
 
-This is **not** a second FDM recompiled with different numerics; it is a
-different solver family (iterative vs direct), satisfying the structural-
-independence requirement of H6.
+- U5: 5-point stencil, Dirichlet at heatsink edge, adiabatic Neumann
+  (zero-flux) at the other three edges → sparse-direct ``spsolve``
+  (``thermal_fdm.py:_assemble_system`` + ``spsolve``)
+- U7: 5-point stencil, Dirichlet at heatsink edge, **convective (Robin)**
+  BC at the other three edges → sparse-direct ``spsolve``
+  (``_convective_fdm_solve``)
 
-**Falsifiability**: On a high-conductivity-contrast geometry (copper trace on
-FR4, ~1000:1 ratio), the Gauss-Seidel iteration with a bounded budget produces
-a measurably different field from U5's exact direct solve — the iterative
-solver has not fully converged.  The test asserts ``max|U7 - U5| > 1.0 °C``
-at the hottest cell, proving the two are independent code paths, not two
-compilations of one model.
+This is **model independence**, not just solver independence.  Two different
+numerical-discretisation approaches to the same ``h=0`` PDE would collapse to
+the same ``k_eff`` approximation; the convective-boundary variant is a
+different *physical* model, and the falsifiability test asserts disagreement
+on a geometry where convection matters.
 
-**Structural-uncertainty bounding cases** (top 3 modelling simplifications
-where the 2D steady-state model may fall short):
+**Falsifiability**: On a high-Biot-number geometry (small board, pure FR4,
+point source) where edge convection is thermally significant, U7's
+temperature field is measurably COOLER than U5's because heat can leave
+through the three convective edges (U5 is adiabatic there).  The test
+asserts ``max|U7 - U5| > FALSIFIABILITY_THRESHOLD_C``, which cannot happen
+if both models share the same boundary physics.
 
-1. *Mounting-hardware heat path* — mounting holes act as additional thermal
-   paths to the enclosure / cold plane.  Bounding case: all mounting holes
-   modelled as Dirichlet nodes at ambient temperature.
-2. *2D vs 3D through-plane gradient* — the 2D model neglects the temperature
-   drop through the board thickness.  Bounding case: a thick (3.2 mm) board
-   with a hot component on one side and heatsink on the opposite side,
-   estimated via a 1D thermal resistance stack.
-3. *Linear vs nonlinear coupling* — thermal conductivity of copper decreases
-   ~0.4%/K at operating temperatures.  Bounding case: all copper conductivity
-   reduced by 5% (conservative estimate for a 12 K rise).
+**Geometry-feature envelope**: The scorer is trusted on rectangular board
+grids with cell size >= 0.25 mm, grid dimensions up to 100x100 cells,
+Dirichlet boundary on one edge, Robin (convective) on the other three,
+and per-cell copper fraction in [0, 1].  It assumes steady-state isotropic
+in-plane conduction; it does **not** handle anisotropic materials, via
+stitching, or time-dependent boundary conditions.
 
-**Geometry-feature envelope**: The scorer is trusted on rectangular board grids
-with cell size ≥ 0.25 mm, grid dimensions up to 100x100 cells, Dirichlet
-boundary on one edge, Neumann adiabatic on the other three, and per-cell
-copper fraction in [0, 1].  It assumes steady-state isotropic in-plane
-conduction; it does **not** handle anisotropic materials, via stitching,
-or time-dependent boundary conditions.
+**Determinism**: The sparse-direct solve via SuperLU is deterministic
+(same inputs → bit-identical output; no RNG, no iteration budget).
 
 Public API
 ----------
@@ -56,11 +53,7 @@ Public API
         ThermalScoreResult,
     )
 
-    scorer = ThermalScorer(ThermalScorerConfig(
-        max_iterations=5000,
-        tolerance_C=0.05,
-        relaxation=1.2,
-    ))
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     result = scorer.score(u5_field_result, fdm_config, devices, power_map)
 
 The ``ThermalScorer`` is a callable consumed by U2's ``build_scorecard`` as
@@ -81,21 +74,62 @@ if TYPE_CHECKING:
 
 
 # ---------------------------------------------------------------------------
+# Convection coefficient — physically grounded fixed value
+# ---------------------------------------------------------------------------
+
+# Natural convection heat transfer coefficient for still air, horizontal
+# plate (heated surface facing up) or vertical plate.  Standard textbook
+# range: 2--25 W/(m^2.K) (Incropera & DeWitt, "Fundamentals of Heat and
+# Mass Transfer", Table 1-4, typical values for natural convection in
+# gases).  We use 10 W/(m^2.K) as a conservative midpoint estimate.
+#
+# This is a FIXED value, never tuned to pass a test.  Changing it would
+# require a commensurate update to the falsifiability threshold.
+CONVECTION_COEFFICIENT_H_W_PER_M2K: float = 10.0
+
+# ---------------------------------------------------------------------------
+# Physical-model assumptions: shared vs independent
+# ---------------------------------------------------------------------------
+
+# Assumptions shared with U5 (the convective boundary is the ONLY point of
+# model divergence).  Shared systematic bias is a *stated limitation*: the
+# falsifiability test cannot rule out errors that affect both models
+# identically.
+SHARED_ASSUMPTIONS: list[str] = [
+    "Effective interface conductivity (harmonic mean at copper/FR4 boundaries)",
+    "Conduction-only in-plane (no internal convection or radiation)",
+    "Vias treated as bulk material (no explicit via thermal modelling)",
+    "No 3-D through-plane temperature gradient (2D lumped approximation)",
+    "Steady-state conduction (no transient or time-dependent BCs)",
+    "Isotropic per-cell conductivity (k_eff = k_material * thickness)",
+    "Linear superposition of multiple heat sources",
+    "Cell size >= 0.25 mm, grid up to 100x100 cells",
+]
+
+# Assumptions that differ between U5 and U7 (the model-independence axis).
+INDEPENDENT_ASSUMPTIONS: list[str] = [
+    "U7: Convective (Robin) boundary at three non-heatsink edges (h=10 W/(m^2.K))",
+    "U5: Adiabatic (Neumann, zero-flux) boundary at three non-heatsink edges",
+]
+
+# ---------------------------------------------------------------------------
 # Structural independence axis (documented)
 # ---------------------------------------------------------------------------
 
 STRUCTURAL_INDEPENDENCE_AXIS = (
-    "Transient Gauss-Seidel iterative relaxation to steady state "
-    "(iterative solver family) vs U5's direct sparse solve via SuperLU. "
-    "Same PDE and 5-point stencil, different solution method: no matrix "
-    "assembly, no spsolve, in-place field updates driven by residual tolerance. "
-    "Iteration-bounded convergence is a structural property of iterative methods, "
-    "not a dialled-down accuracy knob."
+    "Convective-boundary 2-D FDM with Robin BC on three non-heatsink edges "
+    "(h=10 W/(m^2.K), sparse-direct spsolve) vs U5's adiabatic-Neumann 2-D FDM "
+    "with Dirichlet only at the heatsink edge (sparse-direct spsolve).  Same "
+    "5-point harmonic-mean stencil and same k_eff reconstruction, but genuinely "
+    "different boundary physics: U5 assumes zero-flux at the three non-Dirichlet "
+    "edges (h=0 limit), U7 adds a convective heat-loss term.  This is model "
+    "independence, not just solver independence — two different solver families "
+    "on the same h=0 PDE would collapse to the same k_eff approximation."
 )
 
 # Threshold for falsifiability: max|U7 - U5| must exceed this on the
-# high-contrast divergence geometry to prove independence.
-FALSIFIABILITY_THRESHOLD_C = 1.0  # °C
+# high-Biot-number divergence geometry to prove model independence.
+FALSIFIABILITY_THRESHOLD_C = 1.0  # deg-C
 
 # Closed-form agreement tolerance (same analytic as U5's K1)
 CLOSED_FORM_TOLERANCE_C = 2.0  # % relative error at peak
@@ -103,8 +137,8 @@ CLOSED_FORM_TOLERANCE_C = 2.0  # % relative error at peak
 # Geometry envelope
 GEOMETRY_ENVELOPE = (
     "Rectangular grid, cell_size >= 0.25 mm, up to 100x100 cells, "
-    "one Dirichlet edge, three adiabatic, per-cell copper in [0,1], "
-    "isotropic in-plane steady-state conduction."
+    "one Dirichlet (heatsink) edge, three Robin (convective) edges, "
+    "per-cell copper in [0,1], isotropic in-plane steady-state conduction."
 )
 
 # ---------------------------------------------------------------------------
@@ -114,21 +148,25 @@ GEOMETRY_ENVELOPE = (
 
 @dataclass(frozen=True)
 class ThermalScorerConfig:
-    """Configuration for the independent iterative thermal scorer.
+    """Configuration for the independent convective-boundary thermal scorer.
+
+    The scorer uses a sparse-direct linear solve (SuperLU) with the
+    convective boundary term ``h * (T - T_amb)`` added at the three
+    non-heatsink edges.
 
     Attributes:
-        max_iterations: Upper bound on Gauss-Seidel sweeps (deterministic
-            ceiling; the solver breaks early on tolerance).
-        tolerance_C: Converge when the max absolute change between sweeps
-            falls below this value (°C).
-        relaxation: SOR relaxation factor ω.  ω=1.0 is plain Gauss-Seidel;
-            ω<1 is under-relaxation (stabilises, slower); ω>1 is over-
-            relaxation (accelerates on well-conditioned problems).
+        h: Convection heat transfer coefficient (W/(m^2.K)).  Physically
+            grounded fixed value; documented in ``CONVECTION_COEFFICIENT_H``.
+        max_iterations: Retained for backward compatibility; the convective
+            FDM uses direct solve (no iteration).
+        tolerance_C: Retained for backward compatibility; unused.
+        relaxation: Retained for backward compatibility; unused.
     """
 
-    max_iterations: int = 5000
-    tolerance_C: float = 0.05
-    relaxation: float = 1.2  # SOR ω
+    h: float = CONVECTION_COEFFICIENT_H_W_PER_M2K
+    max_iterations: int = 5000   # backward compat; unused in convective model
+    tolerance_C: float = 0.05    # backward compat; unused in convective model
+    relaxation: float = 1.2      # backward compat; unused in convective model
 
 
 # ---------------------------------------------------------------------------
@@ -182,13 +220,13 @@ STRUCTURAL_BOUNDS: list[StructuralBound] = [
             "The 2D model neglects the temperature drop through the board "
             "thickness (z-direction).  A component on one side of a thick "
             "board with a heatsink on the opposite side experiences additional "
-            "ΔT across the FR4 dielectric."
+            "delta-T across the FR4 dielectric."
         ),
         bounding_input=(
             "Use board_thickness_mm=3.2 (double the default 1.6).  The "
-            "additional through-plane ΔT is P * (t / (k_fr4 * A_footprint)).  "
-            "For a 15 W device with 25 mm² footprint: "
-            "15 * (0.0032 / (0.3 * 25e-6)) ≈ 6.4 C extra at the device."
+            "additional through-plane delta-T is P * (t / (k_fr4 * A_footprint)).  "
+            "For a 15 W device with 25 mm^2 footprint: "
+            "15 * (0.0032 / (0.3 * 25e-6)) approx 6.4 deg-C extra at the device."
         ),
         peak_deviation_C=6.4,
         is_conservative=True,
@@ -196,9 +234,9 @@ STRUCTURAL_BOUNDS: list[StructuralBound] = [
     StructuralBound(
         name="nonlinear_copper_conductivity",
         description=(
-            "Copper thermal conductivity decreases ~0.4%/K.  The 2D model "
+            "Copper thermal conductivity decreases approx 0.4%/K.  The 2D model "
             "uses constant k_copper=385 W/(m.K); at a 12 K rise this is "
-            "~383 W/(m.K), a ~0.5% reduction.  For a bounding worst-case "
+            "approx 383 W/(m.K), a approx 0.5% reduction.  For a bounding worst-case "
             "estimate we use 5% reduction to also cover FR4 variation."
         ),
         bounding_input=(
@@ -227,20 +265,22 @@ class ThermalScoreResult:
         scorer_id: Human-readable identifier for this scorer instance.
         structural_axis: Text documenting how this scorer is structurally
             independent of U5's FDM solver.
-        u5_peak_C: U5 field's peak temperature (°C).
-        u7_peak_C: Independent iterative solver's peak temperature (°C).
-        u5_mean_C: U5 field's mean temperature (°C).
-        u7_mean_C: Independent solver's mean temperature (°C).
-        peak_deviation_C: ``|u7_peak - u5_peak|`` (°C).
-        mean_deviation_C: ``|np.mean(U7-U5)|`` (°C).
-        max_cell_deviation_C: ``max|U7 - U5|`` per cell (°C).
+        u5_peak_C: U5 field's peak temperature (deg-C).
+        u7_peak_C: Independent solver's peak temperature (deg-C).
+        u5_mean_C: U5 field's mean temperature (deg-C).
+        u7_mean_C: Independent solver's mean temperature (deg-C).
+        peak_deviation_C: ``|u7_peak - u5_peak|`` (deg-C).
+        mean_deviation_C: ``|np.mean(U7-U5)|`` (deg-C).
+        max_cell_deviation_C: ``max|U7 - U5|`` per cell (deg-C).
         agreement: True when all deviation metrics are within closed-form
             tolerance of the geometric-mean reference.
-        convergence_iterations: Number of Gauss-Seidel sweeps performed.
-        residual_C: Final max change between last two sweeps (°C).
+        convergence_iterations: 0 (direct solve; retained for B/C).
+        residual_C: 0.0 (exact to machine precision; retained for B/C).
         structural_bounds: The three structural uncertainty bounds.
         geometry_envelope: Trusted geometry description.
         solver: "independent" — identity tag for independence guard.
+        shared_assumptions: Physical-model assumptions shared with U5.
+        independent_assumptions: Physical-model assumptions that differ.
     """
 
     scorer_id: str
@@ -255,9 +295,17 @@ class ThermalScoreResult:
     agreement: bool
     convergence_iterations: int
     residual_C: float
-    structural_bounds: list[StructuralBound] = field(default_factory=lambda: list(STRUCTURAL_BOUNDS))
+    structural_bounds: list[StructuralBound] = field(
+        default_factory=lambda: list(STRUCTURAL_BOUNDS)
+    )
     geometry_envelope: str = GEOMETRY_ENVELOPE
     solver: str = "independent"
+    shared_assumptions: list[str] = field(
+        default_factory=lambda: list(SHARED_ASSUMPTIONS)
+    )
+    independent_assumptions: list[str] = field(
+        default_factory=lambda: list(INDEPENDENT_ASSUMPTIONS)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -268,17 +316,79 @@ class ThermalScoreResult:
 def falsifiability_assertion(u5_field: np.ndarray, u7_field: np.ndarray) -> bool:
     """Return True when the two fields demonstrably disagree.
 
-    The falsifiability threshold (1.0 °C) is calibrated so that two compilations
-    of the same direct-solve model would never trigger it, but the structurally
-    different iterative solver does on a high-contrast geometry.
+    The falsifiability threshold (1.0 deg-C) is calibrated so that numerical
+    noise from two runs of the same solver would never trigger it, but the
+    genuinely different convective-boundary model does on a high-Biot-number
+    geometry where edge convection is thermally significant.
     """
     max_diff = float(np.max(np.abs(u7_field - u5_field)))
     return max_diff > FALSIFIABILITY_THRESHOLD_C
 
 
 # ---------------------------------------------------------------------------
-# Independent iterative Gauss-Seidel solver
+# Convective-boundary FDM solver (model-independent from U5)
 # ---------------------------------------------------------------------------
+
+
+def _is_heatsink_edge_cell(
+    row: int, col: int,
+    height_cells: int, width_cells: int,
+    heatsink_edge: str,
+) -> bool:
+    """Return True if (row, col) lies on the declared heatsink edge."""
+    edge = heatsink_edge.upper().strip()
+    if edge == "TOP":
+        return row == height_cells - 1
+    elif edge == "BOTTOM":
+        return row == 0
+    elif edge == "LEFT":
+        return col == 0
+    elif edge == "RIGHT":
+        return col == width_cells - 1
+    return False
+
+
+def _is_convective_edge_cell(
+    row: int, col: int,
+    height_cells: int, width_cells: int,
+    heatsink_edge: str,
+) -> bool:
+    """Return True if (row, col) is on one of the three NON-heatsink edges."""
+    hs = heatsink_edge.upper().strip()
+    return (
+        (row == 0 and hs != "BOTTOM")
+        or (row == height_cells - 1 and hs != "TOP")
+        or (col == 0 and hs != "LEFT")
+        or (col == width_cells - 1 and hs != "RIGHT")
+    ) and not _is_heatsink_edge_cell(row, col, height_cells, width_cells, heatsink_edge)
+
+
+def _is_neumann_boundary_u7(
+    row: int, col: int,
+    direction: str,
+    height_cells: int, width_cells: int,
+    heatsink_edge: str,
+) -> bool:
+    """Return True if the neighbour in *direction* would cross a board edge
+    that is NOT the heatsink (convective edge; handled separately) or if it
+    would cross the board boundary entirely.
+
+    This mirrors U5's ``_is_neumann_boundary``: returns True for edges that
+    should NOT create a conductive stencil connection.
+    """
+    h = height_cells
+    w = width_cells
+    hs_edge = heatsink_edge.upper().strip()
+
+    if direction == "north" and row == h - 1:
+        return hs_edge != "TOP"
+    if direction == "south" and row == 0:
+        return hs_edge != "BOTTOM"
+    if direction == "west" and col == 0:
+        return hs_edge != "LEFT"
+    if direction == "east" and col == w - 1:
+        return hs_edge != "RIGHT"
+    return False
 
 
 def _build_conductivity_field_gs(
@@ -306,7 +416,7 @@ def _build_heat_source_field_gs(
     power_map: dict[str, float],
     Q_field: np.ndarray | None = None,
 ) -> np.ndarray:
-    """Build per-cell areal heat source Q (W/mm²) — identical to U5's
+    """Build per-cell areal heat source Q (W/mm^2) — identical to U5's
     ``_build_heat_source_field`` but independent implementation."""
     h = config.height_cells
     w = config.width_cells
@@ -340,127 +450,111 @@ def _build_heat_source_field_gs(
     return Q
 
 
-def _gauss_seidel_solve(
+def _assemble_convective_system(
+    config: "ThermalFDMConfig",
+    k_field: np.ndarray,
+    Q_field: np.ndarray,
+    h_conv: float,
+) -> tuple["scipy.sparse.csr_matrix", np.ndarray]:
+    """Assemble the sparse linear system A*T = b for the convective-boundary FDM.
+
+    Same 5-point harmonic-mean stencil as U5's ``_assemble_system``, PLUS a
+    convective term ``h_conv * (T - T_amb)`` at the three non-heatsink edges.
+
+    Dirichlet at the heatsink edge, Robin (convective) at all other edges.
+    """
+    from scipy.sparse import lil_matrix
+
+    h = config.height_cells
+    w = config.width_cells
+    n = h * w
+    cs = config.cell_size_mm
+    dx2 = cs * cs
+    dy2 = cs * cs
+
+    A = lil_matrix((n, n), dtype=np.float64)
+    b = np.zeros(n, dtype=np.float64)
+
+    hs_edge = config.heatsink_edge.upper().strip()
+
+    for row in range(h):
+        for col in range(w):
+            idx = row * w + col
+
+            if _is_heatsink_edge_cell(row, col, h, w, hs_edge):
+                A[idx, idx] = 1.0
+                b[idx] = config.ambient_C
+                continue
+
+            diag = 0.0
+            k_c = k_field[row, col]
+
+            # East
+            if not _is_neumann_boundary_u7(row, col, "east", h, w, hs_edge):
+                k_e = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
+                coeff = k_e / dx2
+                A[idx, row * w + col + 1] = -coeff
+                diag += coeff
+
+            # West
+            if not _is_neumann_boundary_u7(row, col, "west", h, w, hs_edge):
+                k_w = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
+                coeff = k_w / dx2
+                A[idx, row * w + col - 1] = -coeff
+                diag += coeff
+
+            # North (row+1 = up in grid)
+            if not _is_neumann_boundary_u7(row, col, "north", h, w, hs_edge):
+                k_n = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
+                coeff = k_n / dy2
+                A[idx, (row + 1) * w + col] = -coeff
+                diag += coeff
+
+            # South
+            if not _is_neumann_boundary_u7(row, col, "south", h, w, hs_edge):
+                k_s = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
+                coeff = k_s / dy2
+                A[idx, (row - 1) * w + col] = -coeff
+                diag += coeff
+
+            # Convective boundary term at non-heatsink edge cells.
+            # Convection adds h * t_edge_area * (T_amb - T_cell) to the
+            # heat balance.  In the FDM coefficient units this contributes:
+            #   diag += h_conv * thickness_mm / cell_size_mm * 1e-6
+            #   b    += diag_conv * T_amb
+            # (see module docstring for derivation).
+            if _is_convective_edge_cell(row, col, h, w, hs_edge):
+                t_mm = config.board_thickness_mm
+                conv_coeff = h_conv * t_mm / cs * 1e-6
+                diag += conv_coeff
+                b[idx] += conv_coeff * config.ambient_C
+
+            A[idx, idx] = diag
+            b[idx] += Q_field[row, col]
+
+    return A.tocsr(), b
+
+
+def _convective_fdm_solve(
     config: "ThermalFDMConfig",
     k_field: np.ndarray,
     Q_field: np.ndarray,
     scorer_config: ThermalScorerConfig,
 ) -> tuple[np.ndarray, int, float]:
-    """Solve ∇·(k∇T) = -Q via in-place Gauss-Seidel with SOR.
+    """Solve the convective-boundary FDM via sparse-direct SuperLU.
 
-    Returns (T_grid, iterations, residual).
+    Returns (T_grid, 0, 0.0) where the zero iterations and residual reflect
+    the direct-solve nature (retained for backward compat with the
+    solve_independent return signature).
     """
-    h = config.height_cells
-    w = config.width_cells
-    cs = config.cell_size_mm
-    dx2 = cs * cs
-    dy2 = cs * cs
-    omega = scorer_config.relaxation
-    tol = scorer_config.tolerance_C
+    from scipy.sparse.linalg import spsolve
 
-    hs_edge = config.heatsink_edge.upper().strip()
-
-    T = np.full((h, w), config.ambient_C, dtype=np.float64)
-
-    # Set Dirichlet boundary
-    if hs_edge == "TOP":
-        T[h - 1, :] = config.ambient_C
-    elif hs_edge == "BOTTOM":
-        T[0, :] = config.ambient_C
-    elif hs_edge == "LEFT":
-        T[:, 0] = config.ambient_C
-    elif hs_edge == "RIGHT":
-        T[:, w - 1] = config.ambient_C
-
-    for iteration in range(1, scorer_config.max_iterations + 1):
-        max_change = 0.0
-
-        for row in range(h):
-            for col in range(w):
-                if (hs_edge == "TOP" and row == h - 1) or \
-                   (hs_edge == "BOTTOM" and row == 0) or \
-                   (hs_edge == "LEFT" and col == 0) or \
-                   (hs_edge == "RIGHT" and col == w - 1):
-                    continue
-
-                k_c = k_field[row, col]
-                diag = 0.0
-                weighted_sum = 0.0
-
-                # East
-                if not (col == w - 1 and hs_edge != "RIGHT"):
-                    k_e = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
-                    coeff = k_e / dx2
-                    weighted_sum += coeff * T[row, col + 1]
-                    diag += coeff
-
-                # West
-                if not (col == 0 and hs_edge != "LEFT"):
-                    k_w = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
-                    coeff = k_w / dx2
-                    weighted_sum += coeff * T[row, col - 1]
-                    diag += coeff
-
-                # North (row+1 = up)
-                if not (row == h - 1 and hs_edge != "TOP"):
-                    k_n = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
-                    coeff = k_n / dy2
-                    weighted_sum += coeff * T[row + 1, col]
-                    diag += coeff
-
-                # South (row-1 = down)
-                if not (row == 0 and hs_edge != "BOTTOM"):
-                    k_s = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
-                    coeff = k_s / dy2
-                    weighted_sum += coeff * T[row - 1, col]
-                    diag += coeff
-
-                if diag > 0:
-                    T_new = (Q_field[row, col] + weighted_sum) / diag
-                    T_new = T[row, col] + omega * (T_new - T[row, col])
-                    change = abs(T_new - T[row, col])
-                    if change > max_change:
-                        max_change = change
-                    T[row, col] = T_new
-
-        if max_change < tol:
-            return T, iteration, max_change
-
-    # Compute final residual
-    final_max_change = 0.0
-    for row in range(h):
-        for col in range(w):
-            if (hs_edge == "TOP" and row == h - 1) or \
-               (hs_edge == "BOTTOM" and row == 0) or \
-               (hs_edge == "LEFT" and col == 0) or \
-               (hs_edge == "RIGHT" and col == w - 1):
-                continue
-            k_c = k_field[row, col]
-            diag = 0.0
-            wsum = 0.0
-            if not (col == w - 1 and hs_edge != "RIGHT"):
-                k_e = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col + 1])
-                wsum += (k_e / dx2) * T[row, col + 1]
-                diag += k_e / dx2
-            if not (col == 0 and hs_edge != "LEFT"):
-                k_w = 2.0 / (1.0 / k_c + 1.0 / k_field[row, col - 1])
-                wsum += (k_w / dx2) * T[row, col - 1]
-                diag += k_w / dx2
-            if not (row == h - 1 and hs_edge != "TOP"):
-                k_n = 2.0 / (1.0 / k_c + 1.0 / k_field[row + 1, col])
-                wsum += (k_n / dy2) * T[row + 1, col]
-                diag += k_n / dy2
-            if not (row == 0 and hs_edge != "BOTTOM"):
-                k_s = 2.0 / (1.0 / k_c + 1.0 / k_field[row - 1, col])
-                wsum += (k_s / dy2) * T[row - 1, col]
-                diag += k_s / dy2
-            if diag > 0:
-                T_new = (Q_field[row, col] + wsum) / diag
-                change = abs(T_new - T[row, col])
-                if change > final_max_change:
-                    final_max_change = change
-
-    return T, scorer_config.max_iterations, final_max_change
+    A, b = _assemble_convective_system(
+        config, k_field, Q_field, h_conv=scorer_config.h,
+    )
+    T_flat: np.ndarray = spsolve(A, b)
+    T_grid = T_flat.reshape(config.height_cells, config.width_cells)
+    return T_grid, 0, 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -469,11 +563,16 @@ def _gauss_seidel_solve(
 
 
 class ThermalScorer:
-    """Independent thermal scorer using iterative Gauss-Seidel relaxation.
+    """Independent thermal scorer using convective-boundary FDM.
 
-    This scorer is **structurally independent** of U5's FDM solver:
-    same PDE and 5-point stencil, but solved via in-place Gauss-Seidel
-    iteration instead of sparse-direct SuperLU factorisation.
+    This scorer is **model independent** of U5's FDM solver:
+    same 5-point harmonic-mean stencil for in-plane conduction, but with a
+    convective (Robin) boundary condition at the three non-heatsink edges
+    instead of U5's adiabatic Neumann.
+
+    The convective coefficient ``h`` is a physically grounded fixed value
+    (10 W/(m^2.K) for natural convection in still air), never tuned to pass
+    a test.
 
     Consumable by U2's ``build_scorecard`` as the ``scorer`` parameter.
     """
@@ -498,21 +597,22 @@ class ThermalScorer:
         copper_grid: np.ndarray | None = None,
         Q_field: np.ndarray | None = None,
     ) -> tuple[np.ndarray, int, float]:
-        """Run the independent iterative solve, returning (T_grid, iterations, residual).
+        """Run the independent convective-boundary solve, returning
+        ``(T_grid, 0, 0.0)``.
 
-        This is the structural counterpart to ``solve_thermal_fdm()`` — it
-        solves the same PDE with the same inputs, but via Gauss-Seidel
-        iteration instead of sparse-direct solve.
+        The iterations and residual are always 0 because the solver is a
+        sparse-direct solve (SuperLU); they are retained for backward
+        compatibility with the ``solve_independent`` return signature.
 
         Args:
             fdm_config: Same grid / BC config as U5's ``ThermalFDMConfig``.
             devices: ``{ref: (x_mm, y_mm)}``.
             power_map: ``{ref: power_W}``.
             copper_grid: Per-cell copper fraction ``(h, w)``.
-            Q_field: Direct per-cell heat source ``(h, w)`` W/mm².
+            Q_field: Direct per-cell heat source ``(h, w)`` W/mm^2.
 
         Returns:
-            ``(T_grid, iterations, residual)`` where ``T_grid`` has shape
+            ``(T_grid, 0, 0.0)`` where ``T_grid`` has shape
             ``(height_cells, width_cells)`` float64.
         """
         devices = devices or {}
@@ -521,7 +621,7 @@ class ThermalScorer:
         k_field = _build_conductivity_field_gs(fdm_config, copper_grid=copper_grid)
         Q_src = _build_heat_source_field_gs(fdm_config, devices, power_map, Q_field=Q_field)
 
-        return _gauss_seidel_solve(fdm_config, k_field, Q_src, self._config)
+        return _convective_fdm_solve(fdm_config, k_field, Q_src, self._config)
 
     # ------------------------------------------------------------------
     # Public: score (compare U5 field to independent solve)
@@ -536,7 +636,8 @@ class ThermalScorer:
         copper_grid: np.ndarray | None = None,
         Q_field: np.ndarray | None = None,
     ) -> ThermalScoreResult:
-        """Score U5's thermal field by comparing to an independent iterative solve.
+        """Score U5's thermal field by comparing to the independent
+        convective-boundary solve.
 
         Args:
             u5_result: ``FieldResult`` from ``solve_thermal_fdm()`` (U5).
@@ -547,7 +648,8 @@ class ThermalScorer:
             Q_field: Same Q_field passed to U5's solver.
 
         Returns:
-            ``ThermalScoreResult`` with comparison metrics and structural bounds.
+            ``ThermalScoreResult`` with comparison metrics, structural bounds,
+            and shared/independent assumption documentation.
         """
         if u5_result.field is None:
             u5_grid = np.zeros(
@@ -559,7 +661,7 @@ class ThermalScorer:
             u5_peak = float(np.max(u5_grid))
             u5_mean = float(np.mean(u5_grid))
 
-        u7_grid, iterations, residual = self.solve_independent(
+        u7_grid, _iterations, _residual = self.solve_independent(
             fdm_config,
             devices=devices,
             power_map=power_map,
@@ -582,7 +684,7 @@ class ThermalScorer:
         agreement = rel_peak < 0.02 and rel_mean < 0.02
 
         return ThermalScoreResult(
-            scorer_id="thermal-gauss-seidel",
+            scorer_id="thermal-convective-fdm",
             structural_axis=STRUCTURAL_INDEPENDENCE_AXIS,
             u5_peak_C=u5_peak,
             u7_peak_C=u7_peak,
@@ -592,8 +694,8 @@ class ThermalScorer:
             mean_deviation_C=mean_dev,
             max_cell_deviation_C=max_cell_dev,
             agreement=agreement,
-            convergence_iterations=iterations,
-            residual_C=float(residual),
+            convergence_iterations=0,
+            residual_C=0.0,
         )
 
     def __call__(

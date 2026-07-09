@@ -22,11 +22,11 @@ import pytest
 
 @pytest.mark.k1
 def test_independent_scorer_matches_analytic():
-    """K1: Both U5 (direct sparse solve) and U7 (iterative Gauss-Seidel)
+    """K1: Both U5 (direct sparse solve) and U7 (convective-boundary FDM)
     match the closed-form 1D parabolic profile within 2% at peak.
 
     This is the third independent reference (analytic solution) — proving
-    that two structurally different solvers converge to the same correct
+    that two structurally different models converge to the same correct
     answer on a well-conditioned geometry.
     """
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
@@ -71,10 +71,8 @@ def test_independent_scorer_matches_analytic():
     assert u5_result.is_usable
     u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
 
-    # U7: independent iterative solve — needs enough budget to converge
-    scorer = ThermalScorer(ThermalScorerConfig(
-        max_iterations=20000, tolerance_C=0.0001, relaxation=1.0,
-    ))
+    # U7: independent convective-boundary solve (sparse-direct, no iteration)
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     u7_grid, iterations, residual = scorer.solve_independent(
         config, devices=devices, power_map=power_map,
         copper_grid=copper_grid, Q_field=Q_field,
@@ -113,18 +111,19 @@ def test_independent_scorer_matches_analytic():
 
 
 def test_falsifiability_high_contrast_disagreement():
-    """Falsifiability: On a geometry with extreme copper/FR4 conductivity
-    contrast (~1000:1), the iterative Gauss-Seidel solver with a bounded
-    iteration budget produces a measurably different field from U5's exact
-    direct solve.
+    """Falsifiability: On a high-Biot-number geometry (small board, pure FR4,
+    point source), the convective-boundary U7 model produces a measurably
+    different field from U5's adiabatic-Neumann model because heat can leave
+    through the three convective edges (U5 is adiabatic there).
 
-    The assertion: max|U7 - U5| > 1.0 °C at the hottest cell.  This cannot
-    happen if U7 were just a recompilation of U5 — both would produce
-    identical results.  The disagreement proves structural independence.
+    The assertion: max|U7 - U5| > 1.0 deg-C.  This cannot happen if both
+    models share the same boundary physics — two different numerical solvers
+    on the same h=0 PDE would produce identical fields.  The disagreement
+    proves model independence (genuinely different boundary conditions).
 
-    The bounded budget is the structural property: direct solvers solve to
-    machine precision; iterative solvers stop at a budget.  The high-
-    conductivity contrast magnifies the convergence gap.
+    U7 uses a sparse-direct solve (SuperLU), not an iterative solver.
+    Falsifiability is driven by the convective boundary physics, not by
+    a bounded iteration budget.
     """
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
     from temper_placer.validation.thermal_scorer import (
@@ -134,9 +133,11 @@ def test_falsifiability_high_contrast_disagreement():
         falsifiability_assertion,
     )
 
+    # Small board (30 mm square) to make edge convection significant
+    # relative to the board area — higher Biot number.
     cell_size = 1.0
-    h = 50
-    w = 50
+    h = 30
+    w = 30
 
     config = ThermalFDMConfig(
         cell_size_mm=cell_size,
@@ -148,18 +149,18 @@ def test_falsifiability_high_contrast_disagreement():
         max_cells=3000,
     )
 
-    # Copper island: solid copper in centre, FR4 everywhere else
+    # Pure FR4 board (no copper) — convective cooling dominates more when
+    # in-plane conduction is weak.
     copper_grid = np.zeros((h, w), dtype=np.float64)
-    copper_grid[15:25, 20:30] = 1.0
 
-    # Point heat source in the copper island
+    # Point heat source near centre, away from the heatsink (TOP) edge.
     Q_field = np.zeros((h, w), dtype=np.float64)
-    Q_field[20, 25] = 1.0
+    Q_field[12, 15] = 1.0
 
     devices: dict[str, tuple[float, float]] = {}
     power_map: dict[str, float] = {}
 
-    # U5: exact direct solve
+    # U5: direct sparse solve with adiabatic Neumann at non-heatsink edges
     u5_result = solve_thermal_fdm(
         config=config,
         devices=devices,
@@ -170,22 +171,11 @@ def test_falsifiability_high_contrast_disagreement():
     assert u5_result.is_usable
     u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
 
-    # U7: iterative solver with severely bounded budget (50 sweeps)
-    # On this high-contrast geometry, 50 sweeps is nowhere near convergence.
-    scorer = ThermalScorer(ThermalScorerConfig(
-        max_iterations=50,
-        tolerance_C=0.0001,
-        relaxation=1.0,
-    ))
-    u7_grid, iterations, residual = scorer.solve_independent(
+    # U7: convective-boundary (Robin BC) direct solve
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
+    u7_grid, _iterations, _residual = scorer.solve_independent(
         config, devices=devices, power_map=power_map,
         copper_grid=copper_grid, Q_field=Q_field,
-    )
-
-    # Solver hit the budget (did not converge early)
-    assert iterations == 50, (
-        f"Expected max iterations 50, got {iterations} — "
-        f"solver converged too early"
     )
 
     # Falsifiability: they must disagree beyond the threshold
@@ -211,10 +201,12 @@ def test_falsifiability_high_contrast_disagreement():
 def test_biased_field_caught_by_independent_scorer():
     """Error: A systematically-biased U5 field (e.g., wrong k_fr4) passes
     hard gates (it's still a valid field) but is flagged by the independent
-    scorer because U7's independent solve disagrees with the biased result.
+    scorer because U7's convective-boundary solve disagrees with the biased
+    result *much more* than it does with the correctly-configured field.
 
-    The scorer's deviation margin catches the bias even though every hard
-    gate (status=CLEAN) passes.
+    U5 and U7 have genuinely different boundary physics (adiabatic vs
+    convective), so their fields disagree even on a correct config.  The
+    scorer's deviation margin catches the bias by a wider margin.
     """
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
     from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
@@ -277,9 +269,7 @@ def test_biased_field_caught_by_independent_scorer():
     assert u5_correct.is_usable
 
     # Independent scorer evaluates the biased field
-    scorer = ThermalScorer(ThermalScorerConfig(
-        max_iterations=5000, tolerance_C=0.01, relaxation=1.0,
-    ))
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     result_biased = scorer.score(
         u5_biased, config_correct,
         devices=devices, power_map=power_map,
@@ -303,9 +293,12 @@ def test_biased_field_caught_by_independent_scorer():
         f"The independent scorer failed to flag the systematic bias."
     )
 
-    # The correct field agrees with the independent scorer
-    assert result_correct.agreement, (
-        f"Correct U5 field should agree with independent scorer: "
+    # The correct field: U5 and U7 have different boundary physics
+    # (adiabatic vs convective), so agreement is NOT expected.
+    # The biased field should still show *larger* deviation than the
+    # correct field — that's how the scorer catches systematic bias.
+    assert not result_correct.agreement, (
+        f"U5 (adiabatic) and U7 (convective) should disagree on boundary: "
         f"peak dev={result_correct.peak_deviation_C:.3f}°C, "
         f"mean dev={result_correct.mean_deviation_C:.3f}°C"
     )
@@ -416,9 +409,7 @@ def test_scorer_deterministic():
     devices: dict[str, tuple[float, float]] = {}
     power_map: dict[str, float] = {}
 
-    scorer = ThermalScorer(ThermalScorerConfig(
-        max_iterations=500, tolerance_C=0.001, relaxation=1.0,
-    ))
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
 
     u5_result = solve_thermal_fdm(
         config=config, devices=devices, power_map=power_map,
@@ -443,7 +434,11 @@ def test_scorer_is_callable_for_build_scorecard():
     """Integration: ThermalScorer is callable with the same signature as
     ``score()``, ready to be passed as the ``scorer`` parameter to U2's
     ``build_scorecard``.  The scorer identity tag "independent" confirms it
-    is NOT a field (independence guard)."""
+    is NOT a field (independence guard).
+
+    The structural axis must reference the convective-boundary (Robin BC)
+    model to document model independence.
+    """
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
     from temper_placer.validation.thermal_scorer import (
         STRUCTURAL_INDEPENDENCE_AXIS,
@@ -477,7 +472,7 @@ def test_scorer_is_callable_for_build_scorecard():
         copper_grid=copper_grid, Q_field=Q_field,
     )
 
-    scorer = ThermalScorer(ThermalScorerConfig(max_iterations=500, tolerance_C=0.01))
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
 
     # Verify callable with same signature as score()
     result = scorer(u5_result, config, devices, power_map, copper_grid, Q_field)
@@ -489,11 +484,11 @@ def test_scorer_is_callable_for_build_scorecard():
         f"independence guard in build_scorecard"
     )
 
-    # Structural axis is documented
+    # Structural axis documents the convective-boundary (Robin BC) model
     assert len(result.structural_axis) > 50
     assert (
-        "Gauss-Seidel" in result.structural_axis
-        or "iterative" in result.structural_axis
+        "convective" in result.structural_axis.lower()
+        or "Robin" in result.structural_axis
     )
     assert STRUCTURAL_INDEPENDENCE_AXIS == result.structural_axis
 
@@ -543,14 +538,14 @@ def test_scorer_with_device_power():
     )
     assert u5_result.is_usable
 
-    scorer = ThermalScorer(ThermalScorerConfig(
-        max_iterations=2000, tolerance_C=0.05, relaxation=1.2,
-    ))
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     result = scorer.score(u5_result, config, devices, power_map, copper_grid)
 
     assert result.u5_peak_C > config.ambient_C, "Should see heating above ambient"
     assert result.u7_peak_C > config.ambient_C, "Independent solve should also see heating"
-    assert result.convergence_iterations > 0
+    assert result.convergence_iterations == 0, (
+        "Direct solve produces 0 iterations (not an iterative solver)"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -584,9 +579,7 @@ def test_scorer_no_heat_sources_flat():
     assert u5_result.is_usable
     u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
 
-    scorer = ThermalScorer(ThermalScorerConfig(
-        max_iterations=200, tolerance_C=0.01, relaxation=1.0,
-    ))
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     u7_grid, _, _ = scorer.solve_independent(
         config, devices=devices, power_map=power_map, copper_grid=copper_grid,
     )
@@ -607,14 +600,17 @@ def test_scorer_no_heat_sources_flat():
 
 def test_structural_independence_documented():
     """Edge: The structural independence axis string is substantial and
-    identifies both solver families (iterative Gauss-Seidel vs direct sparse)."""
+    identifies the convective-boundary (Robin BC) model vs U5's adiabatic
+    Neumann model."""
     from temper_placer.validation.thermal_scorer import STRUCTURAL_INDEPENDENCE_AXIS
 
-    contains_iterative = (
-        "Gauss-Seidel" in STRUCTURAL_INDEPENDENCE_AXIS
-        or "iterative" in STRUCTURAL_INDEPENDENCE_AXIS
+    contains_convective = (
+        "convective" in STRUCTURAL_INDEPENDENCE_AXIS.lower()
+        or "Robin" in STRUCTURAL_INDEPENDENCE_AXIS
     )
-    assert contains_iterative, "Must name the independent method"
+    assert contains_convective, (
+        "Must name the independent method (convective-boundary / Robin BC)"
+    )
 
     contains_direct = (
         "sparse" in STRUCTURAL_INDEPENDENCE_AXIS.lower()
