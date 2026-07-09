@@ -1291,6 +1291,24 @@ class RouterV6Pipeline:
             board=pcb.board,
         ) or ThermalReliefReport(thermal_reliefs=[])
 
+        # Functional 4-layer power-plane geometry (W2 / U4): GND pour on In1.Cu,
+        # per-domain pours on In2.Cu, and the Q1/Q2 thermal via arrays. Best
+        # effort -- a failure here must not sink the manufacturing report.
+        if pcb.board is not None:
+            from temper_placer.router_v6.power_plane import generate_power_planes
+
+            geometry = _run_one(
+                "power_planes", generate_power_planes, pcb.board, pcb.components,
+            )
+            if geometry is not None:
+                _logger.info(
+                    "Power planes: GND pour on %s, %d domain pours on In2.Cu, "
+                    "%d thermal vias",
+                    geometry.ground_pour.layer,
+                    len(geometry.power_pours),
+                    geometry.via_count,
+                )
+
         copper_balance = CopperBalanceReport(layer_balances=[], total_area_mm2=0.0)
         if pcb.board is not None:
             copper_balance = _run_one(
