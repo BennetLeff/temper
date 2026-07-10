@@ -66,7 +66,10 @@ pub fn solve_with_cadical(
                 };
                 let mut assignments = std::collections::HashMap::new();
                 for i in 0..cnf.num_vars {
-                    let val = sol[Var::new(i as u32)];
+                    // Use var_value (not Index) so a variable the solver left
+                    // out of the solution (DontCare) does not panic — the
+                    // solution can be shorter than num_vars.
+                    let val = sol.var_value(Var::new(i as u32));
                     match val {
                         TernaryVal::True => {
                             assignments.insert(i, true);
