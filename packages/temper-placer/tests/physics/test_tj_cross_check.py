@@ -156,6 +156,49 @@ def test_well_heatsinked_device_clean():
     )
 
 
+def test_agreeing_but_over_ceiling_is_violation():
+    """Safe-by-default (regression): even when the two models AGREE within
+    tau, a conservative T_j above T_j(max) must be a VIOLATION — a
+    corroborated-but-over-limit design cannot pass. Before the ceiling
+    check, U11 only checked model agreement and would report CLEAN here.
+    """
+    import dataclasses
+
+    config = _make_config(height_cells=20, width_cells=20, heatsink_edge="TOP")
+    devices = {"Q1": (5.0, 9.0)}
+    power_map = {"Q1": 5.0}
+    copper_grid = np.ones((20, 20), dtype=np.float64)
+
+    def solver_with_cu(**kw):
+        kw.pop("copper_grid", None)
+        return solve_thermal_fdm(copper_grid=copper_grid, **kw)
+
+    # Same well-sinked device (FDM and lumped agree), but T_j(max) set just
+    # above ambient so the agreed T_j necessarily exceeds it.
+    low_ceiling = dataclasses.replace(
+        _DEVICE_WELL_SINKED,
+        T_j_max=41.0,
+        T_j_max_because="test: ceiling set just above T_amb to force over-limit",
+    )
+    gate = TjCrossCheckGate(
+        fdm_config=config,
+        devices=devices,
+        power_map=power_map,
+        device_thermal={"Q1": low_ceiling},
+        tau_C=5.0,
+        T_amb=40.0,
+    )
+    result = gate._check_inner(solver_with_cu)
+    assert result.status is GateStatus.VIOLATIONS, (
+        "Conservative T_j above T_j(max) must be a VIOLATION even when the "
+        "two models agree"
+    )
+    assert any("SAFETY CEILING" in v.description for v in result.violations), (
+        "Expected a safety-ceiling violation (gated on the conservative T_j), "
+        "not only a corroboration one"
+    )
+
+
 # ---------------------------------------------------------------------------
 # FAIL-CAPABLE (wrong k_eff): disagreement > tau → VIOLATIONS
 # ---------------------------------------------------------------------------

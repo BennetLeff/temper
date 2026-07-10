@@ -169,10 +169,15 @@ class TjCrossCheckGate(Gate):
     R_θ ladder), data source (derived conductivity vs manufacturer R_θ).
 
     **Gate discipline (fail-closed):**
-    - ``CLEAN``: |T_j_fdm - T_j_lumped| ≤ tau for every device.
-    - ``VIOLATIONS``: disagreement > tau on at least one device; carries
-      per-device delta + an attribution string diagnosing the likely
-      assumption mismatch.
+    - ``CLEAN``: for every device BOTH hold — the two models agree
+      (|T_j_fdm - T_j_lumped| ≤ tau) AND the conservative estimate is
+      within the ceiling (max(T_j_fdm, T_j_lumped) ≤ T_j_max).
+    - ``VIOLATIONS``: on at least one device, the models disagree > tau
+      (carries per-device delta + an attribution string), OR the
+      conservative T_j exceeds T_j(max). The safety ceiling is gated on
+      the conservative (higher) estimate so the optimistic model cannot
+      decide whether a mains switch survives — corroborated-but-over-limit
+      is still a VIOLATION.
     - ``UNMEASURED``: any required R_θ value is missing — never silently
       skips a device.
     """
@@ -309,8 +314,12 @@ class TjCrossCheckGate(Gate):
             T_j_lumped = self._T_amb + power * R_total
 
             delta = abs(T_j_fdm - T_j_lumped)
+            # Gate the SAFETY ceiling on the CONSERVATIVE (higher) estimate —
+            # the optimistic one must not decide whether a mains switch survives.
+            conservative_T_j = max(T_j_fdm, T_j_lumped)
+            margin = dev_th.T_j_max - conservative_T_j
 
-            # 4. Compare
+            # 4a. Corroboration: the two independent models must agree.
             exceeds = delta > self._tau_C
             attribution = ""
             if exceeds:
@@ -322,9 +331,6 @@ class TjCrossCheckGate(Gate):
                     position_mm=(dx_mm, dy_mm),
                     fdm_config=self._fdm_config,
                 )
-
-            if exceeds:
-                margin = dev_th.T_j_max - max(T_j_fdm, T_j_lumped)
                 violations.append(
                     Violation(
                         type=ViolationType.THERMAL,
@@ -356,6 +362,41 @@ class TjCrossCheckGate(Gate):
                             "attribution": attribution,
                             "shared_inputs": list(SHARED_INPUTS),
                             "independent_inputs": list(INDEPENDENT_INPUTS),
+                        },
+                    )
+                )
+
+            # 4b. Safety ceiling: the CONSERVATIVE T_j must not exceed T_j(max),
+            #     independent of whether the two models agree. A corroborated-
+            #     but-over-limit design must NOT pass — safe-by-default.
+            if conservative_T_j > dev_th.T_j_max:
+                violations.append(
+                    Violation(
+                        type=ViolationType.THERMAL,
+                        components=(dev_name,),
+                        severity=conservative_T_j,
+                        threshold=dev_th.T_j_max,
+                        description=(
+                            f"T_j SAFETY CEILING exceeded on {dev_name}: "
+                            f"conservative T_j = max(fdm={T_j_fdm:.1f}, "
+                            f"lumped={T_j_lumped:.1f}) = {conservative_T_j:.1f}°C "
+                            f"> T_j(max) = {dev_th.T_j_max:.1f}°C "
+                            f"(margin = {margin:.1f}°C)."
+                        ),
+                        context={
+                            "because": (
+                                "T_j <= T_j(max) hard safety ceiling, gated on "
+                                "the conservative (higher) of the FDM and lumped "
+                                "estimates — the optimistic estimate must not "
+                                "decide whether a mains switch survives"
+                            ),
+                            "device": dev_name,
+                            "conservative_T_j_C": conservative_T_j,
+                            "T_j_fdm_C": T_j_fdm,
+                            "T_j_lumped_C": T_j_lumped,
+                            "T_j_max_C": dev_th.T_j_max,
+                            "margin_C": margin,
+                            "T_j_max_because": dev_th.T_j_max_because,
                         },
                     )
                 )
