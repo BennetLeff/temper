@@ -55,7 +55,11 @@ def simple_test_netlist():
     return Netlist(components=components, nets=nets)
 
 
-@pytest.mark.skip(reason="end-to-end routing/export integration failure - needs investigation")
+@pytest.mark.skip(
+    reason="Rust SAT router bug: solver.rs num_vars (194) exceeds CaDiCaL solution length (193); the OOB read is now guarded (var_value), but the "
+    "underlying encoding mismatch still triggers a downstream SIGABRT. "
+    "Needs dedicated temper-rust-router-core investigation."
+)
 def test_end_to_end_routing_and_export(simple_test_board, simple_test_netlist):
     """Test complete routing and export pipeline.
 
@@ -82,7 +86,7 @@ def test_end_to_end_routing_and_export(simple_test_board, simple_test_netlist):
     assignments = assign_layers(netlist)
 
     # Route all nets
-    results = router.route_all_nets(netlist, positions, net_order, assignments)
+    results = router.rrr_route_all_nets(netlist, positions, net_order, assignments)
 
     # Verify routing succeeded
     assert len(results) == 1
