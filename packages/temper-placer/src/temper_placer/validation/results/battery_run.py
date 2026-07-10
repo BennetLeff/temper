@@ -658,6 +658,24 @@ def run_thermal_helps_battery(
             heatsink_edge="TOP",
             max_cells=5000,
         )
+    # Ensure the solver grid fits within the budget (50x50=2500 cells < 5000).
+    # If the caller supplies a grid that exceeds max_cells, the solver returns
+    # UNMEASURED and the adapter returns a sentinel thermal_score=0.0.
+    # A 100x150mm board at 1mm cell size = 15000 cells — UNMEASURED.
+    # Increase max_cells for the real board if needed:
+    if fdm_config.height_cells * fdm_config.width_cells > fdm_config.max_cells:
+        # Don't silently fail — log and bump the budget to match the grid.
+        import logging
+        _log = logging.getLogger(__name__)
+        needed = fdm_config.height_cells * fdm_config.width_cells
+        _log.warning(
+            'FDM config grid (%dx%d = %d cells) exceeds max_cells=%d — '
+            'bumping max_cells to match. The solver would return UNMEASURED '
+            'otherwise, producing a sentinel thermal_score=0.0.',
+            fdm_config.width_cells, fdm_config.height_cells,
+            needed, fdm_config.max_cells,
+        )
+        fdm_config.max_cells = needed
 
     T_j_max = 150.0
     if operating_point_config:
