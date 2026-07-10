@@ -376,8 +376,7 @@ def _measure_pipeline_orchestrator(
     """Measure PipelineOrchestrator phases via DAG engine timing."""
     pcb_path = _resolve_board_path(board_id)
 
-    from temper_placer.pipeline.orchestrator import PipelineConfig, PipelineOrchestrator
-
+    
     phase_names = [
         "input", "semantic", "topological", "preflight",
         "geometric", "routing", "refinement", "output",
