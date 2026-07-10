@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+import numpy as np
+
 
 @dataclass(frozen=True)
 class LossResult:
@@ -106,6 +108,14 @@ class LossContext:
     netlist: Any = None
     board: Any = None
     constraints: Any = None
+    # Legacy fields consumed by the (deprecated) drc_oracle / metrics.quality
+    # paths. Empty defaults keep those paths importable and no-op (loops over
+    # empty collections; total_wirelength short-circuits to 0.0) until they are
+    # rewired to the CP-SAT/deterministic pipeline.
+    clearance_rules: list = field(default_factory=list)
+    board_margin: float = 0.0
+    net_pin_indices: Any = field(default_factory=lambda: np.zeros((0, 2), dtype=np.int64))
+    net_pin_mask: Any = field(default_factory=lambda: np.zeros((0, 2), dtype=bool))
 
     @classmethod
     def from_netlist_and_board(cls, netlist, board, **kwargs):

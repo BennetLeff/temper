@@ -25,10 +25,10 @@ from temper_placer.core.state import PlacementState
 
 
 def total_wirelength(
-    state: PlacementState,
+    _state: PlacementState,
     _netlist: Netlist,
     context: LossContext,
-    alpha: float = 10.0,
+    _alpha: float = 10.0,
 ) -> float:
     """
     Compute total Half-Perimeter Wire Length (HPWL) for a placement.
@@ -47,13 +47,13 @@ def total_wirelength(
     if context.net_pin_indices.shape[0] == 0:
         return 0.0
 
-    # Convert rotation logits to soft one-hot using softmax (no sampling for determinism)
-    from scipy.special import softmax as _softmax
-    rotations = _softmax(np.asarray(state.rotation_logits), axis=-1)
-
-    loss = WirelengthLoss(alpha=alpha)
-    result = loss(state.positions, rotations, context)
-    return float(result.value)
+    # Non-empty net_pin_indices required the removed JAX WirelengthLoss.
+    # The current pipeline always supplies an empty net_pin_indices (HPWL is
+    # computed from routed geometry elsewhere), so this path is retired.
+    raise NotImplementedError(
+        "total_wirelength for non-empty net_pin_indices used the removed JAX "
+        "WirelengthLoss; use routed-wirelength metrics instead."
+    )
 
 
 def thermal_score(

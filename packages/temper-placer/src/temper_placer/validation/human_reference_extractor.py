@@ -175,40 +175,18 @@ def _compute_placement_metrics(
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
-    """Compute HPWL, overlap loss, and boundary loss from the human placement."""
-    # Loss functions expect soft one-hot rotations, not raw logits.
-    rotations = jax.nn.softmax(state.rotation_logits, axis=-1)
+    """DEPRECATED: HPWL/overlap/boundary extraction removed (JAX retirement).
 
-    # --- HPWL ---
-    hpwl_val = float(compute_total_hpwl(state.positions, rotations, context))
-    if not np.isfinite(hpwl_val):
-        raise ValueError("HPWL is non-finite.")
-    if hpwl_val <= 0 and context.netlist.n_nets > 0:
-        raise AssertionError(
-            f"HPWL is {hpwl_val} for a board with {context.netlist.n_nets} nets — "
-            "expected strictly positive for any board with multi-pin nets."
-        )
-
-    # --- Overlap loss ---
-    overlap_loss = OverlapLoss(margin=1.0, rotation_invariant=True)
-    overlap_result = overlap_loss(state.positions, rotations, context)
-    overlap_val = float(overlap_result.value)
-    if not np.isfinite(overlap_val):
-        raise ValueError("Overlap loss is non-finite.")
-
-    # --- Boundary loss ---
-    boundary_loss = BoundaryLoss()
-    boundary_result = boundary_loss(state.positions, rotations, context)
-    boundary_val = float(boundary_result.value)
-    if not np.isfinite(boundary_val):
-        raise ValueError("Boundary loss is non-finite.")
-
-    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
-    return {
-        "hpwl": mk(hpwl_val),
-        "overlap_loss": mk(overlap_val),
-        "boundary_loss": mk(boundary_val),
-    }
+    These metrics were computed with the removed JAX loss functions
+    (compute_total_hpwl / OverlapLoss / BoundaryLoss). The human-reference
+    oracle now relies on the detailed/aesthetic/quality metric extractors;
+    this placement-loss extractor is retired until rewired to the
+    CP-SAT/deterministic metrics. The (best-effort) caller catches this.
+    """
+    raise NotImplementedError(
+        "_compute_placement_metrics removed (JAX retirement): HPWL/overlap/"
+        "boundary used the removed JAX loss functions."
+    )
 
 
 # ---------------------------------------------------------------------------
