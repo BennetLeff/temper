@@ -16,11 +16,8 @@ Test categories:
 import math
 
 # Enable 64-bit precision for accurate tests
-import jax
-import jax.numpy as jnp
+import numpy as np
 import pytest
-
-jax.config.update("jax_enable_x64", True)
 
 
 class TestPointDistanceGroundTruth:
@@ -30,8 +27,8 @@ class TestPointDistanceGroundTruth:
         """Classic 3-4-5 right triangle: distance should be exactly 5."""
         from temper_placer.geometry.primitives import point_distance
 
-        p1 = jnp.array([0.0, 0.0])
-        p2 = jnp.array([3.0, 4.0])
+        p1 = np.array([0.0, 0.0])
+        p2 = np.array([3.0, 4.0])
 
         result = float(point_distance(p1, p2))
 
@@ -42,8 +39,8 @@ class TestPointDistanceGroundTruth:
         """5-12-13 right triangle."""
         from temper_placer.geometry.primitives import point_distance
 
-        p1 = jnp.array([0.0, 0.0])
-        p2 = jnp.array([5.0, 12.0])
+        p1 = np.array([0.0, 0.0])
+        p2 = np.array([5.0, 12.0])
 
         result = float(point_distance(p1, p2))
 
@@ -54,8 +51,8 @@ class TestPointDistanceGroundTruth:
         """Pure horizontal distance."""
         from temper_placer.geometry.primitives import point_distance
 
-        p1 = jnp.array([10.0, 5.0])
-        p2 = jnp.array([25.0, 5.0])
+        p1 = np.array([10.0, 5.0])
+        p2 = np.array([25.0, 5.0])
 
         result = float(point_distance(p1, p2))
 
@@ -66,8 +63,8 @@ class TestPointDistanceGroundTruth:
         """Pure vertical distance."""
         from temper_placer.geometry.primitives import point_distance
 
-        p1 = jnp.array([5.0, 10.0])
-        p2 = jnp.array([5.0, 30.0])
+        p1 = np.array([5.0, 10.0])
+        p2 = np.array([5.0, 30.0])
 
         result = float(point_distance(p1, p2))
 
@@ -78,8 +75,8 @@ class TestPointDistanceGroundTruth:
         """Unit diagonal: sqrt(2)."""
         from temper_placer.geometry.primitives import point_distance
 
-        p1 = jnp.array([0.0, 0.0])
-        p2 = jnp.array([1.0, 1.0])
+        p1 = np.array([0.0, 0.0])
+        p2 = np.array([1.0, 1.0])
 
         result = float(point_distance(p1, p2))
 
@@ -95,7 +92,7 @@ class TestPolygonAreaGroundTruth:
         from temper_placer.geometry.polygon import polygon_area
 
         # Counter-clockwise unit square
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [1.0, 0.0],
@@ -112,7 +109,7 @@ class TestPolygonAreaGroundTruth:
         """10x5 rectangle has area 50."""
         from temper_placer.geometry.polygon import polygon_area
 
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [10.0, 0.0],
@@ -130,7 +127,7 @@ class TestPolygonAreaGroundTruth:
         from temper_placer.geometry.polygon import polygon_area
 
         # Right triangle: (0,0), (6,0), (0,4)
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [6.0, 0.0],
@@ -149,7 +146,7 @@ class TestPolygonAreaGroundTruth:
 
         # Equilateral triangle with side 2, base at origin
         # Height = sqrt(3)
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [2.0, 0.0],
@@ -168,7 +165,7 @@ class TestPolygonAreaGroundTruth:
         from temper_placer.geometry.polygon import polygon_area
 
         # Clockwise unit square
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [0.0, 1.0],
@@ -190,7 +187,7 @@ class TestPolygonCentroidGroundTruth:
         """Centroid of unit square is at (0.5, 0.5)."""
         from temper_placer.geometry.polygon import polygon_centroid
 
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [1.0, 0.0],
@@ -208,7 +205,7 @@ class TestPolygonCentroidGroundTruth:
         """Centroid of 10x4 rectangle at (5,15) to (15,19) is at (10, 17)."""
         from temper_placer.geometry.polygon import polygon_centroid
 
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [5.0, 15.0],
                 [15.0, 15.0],
@@ -228,7 +225,7 @@ class TestPolygonCentroidGroundTruth:
         from temper_placer.geometry.polygon import polygon_centroid
 
         # Right triangle: (0,0), (9,0), (0,6)
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [9.0, 0.0],
@@ -252,12 +249,12 @@ class TestAABBOverlapGroundTruth:
         from temper_placer.geometry.primitives import aabb_overlap_area
 
         # Box 1: (0,0) to (10,10)
-        min1 = jnp.array([0.0, 0.0])
-        max1 = jnp.array([10.0, 10.0])
+        min1 = np.array([0.0, 0.0])
+        max1 = np.array([10.0, 10.0])
 
         # Box 2: (20,20) to (30,30) - no overlap
-        min2 = jnp.array([20.0, 20.0])
-        max2 = jnp.array([30.0, 30.0])
+        min2 = np.array([20.0, 20.0])
+        max2 = np.array([30.0, 30.0])
 
         result = float(aabb_overlap_area(min1, max1, min2, max2))
 
@@ -268,12 +265,12 @@ class TestAABBOverlapGroundTruth:
         from temper_placer.geometry.primitives import aabb_overlap_area
 
         # Box 1: (0,0) to (10,10) - area 100
-        min1 = jnp.array([0.0, 0.0])
-        max1 = jnp.array([10.0, 10.0])
+        min1 = np.array([0.0, 0.0])
+        max1 = np.array([10.0, 10.0])
 
         # Box 2: (5,5) to (15,15) - overlaps in 5x5 region
-        min2 = jnp.array([5.0, 5.0])
-        max2 = jnp.array([15.0, 15.0])
+        min2 = np.array([5.0, 5.0])
+        max2 = np.array([15.0, 15.0])
 
         result = float(aabb_overlap_area(min1, max1, min2, max2))
 
@@ -285,12 +282,12 @@ class TestAABBOverlapGroundTruth:
         from temper_placer.geometry.primitives import aabb_overlap_area
 
         # Large box: (0,0) to (20,20)
-        min1 = jnp.array([0.0, 0.0])
-        max1 = jnp.array([20.0, 20.0])
+        min1 = np.array([0.0, 0.0])
+        max1 = np.array([20.0, 20.0])
 
         # Small box: (5,5) to (10,10) - fully inside
-        min2 = jnp.array([5.0, 5.0])
-        max2 = jnp.array([10.0, 10.0])
+        min2 = np.array([5.0, 5.0])
+        max2 = np.array([10.0, 10.0])
 
         result = float(aabb_overlap_area(min1, max1, min2, max2))
 
@@ -301,8 +298,8 @@ class TestAABBOverlapGroundTruth:
         """Identical boxes have overlap equal to their area."""
         from temper_placer.geometry.primitives import aabb_overlap_area
 
-        min1 = jnp.array([0.0, 0.0])
-        max1 = jnp.array([7.0, 8.0])
+        min1 = np.array([0.0, 0.0])
+        max1 = np.array([7.0, 8.0])
 
         result = float(aabb_overlap_area(min1, max1, min1, max1))
 
@@ -318,11 +315,11 @@ class TestPointToLineDistanceGroundTruth:
         from temper_placer.geometry.primitives import point_to_line_distance
 
         # Horizontal line from (0,0) to (10,0)
-        line_start = jnp.array([0.0, 0.0])
-        line_end = jnp.array([10.0, 0.0])
+        line_start = np.array([0.0, 0.0])
+        line_end = np.array([10.0, 0.0])
 
         # Point at (5, 7) - directly above midpoint
-        point = jnp.array([5.0, 7.0])
+        point = np.array([5.0, 7.0])
 
         result = float(point_to_line_distance(point, line_start, line_end))
 
@@ -334,11 +331,11 @@ class TestPointToLineDistanceGroundTruth:
         from temper_placer.geometry.primitives import point_to_line_distance
 
         # Horizontal line from (0,0) to (10,0)
-        line_start = jnp.array([0.0, 0.0])
-        line_end = jnp.array([10.0, 0.0])
+        line_start = np.array([0.0, 0.0])
+        line_end = np.array([10.0, 0.0])
 
         # Point at (13, 4) - closest to endpoint (10, 0)
-        point = jnp.array([13.0, 4.0])
+        point = np.array([13.0, 4.0])
 
         result = float(point_to_line_distance(point, line_start, line_end))
 
@@ -349,11 +346,11 @@ class TestPointToLineDistanceGroundTruth:
         """Point exactly on line segment."""
         from temper_placer.geometry.primitives import point_to_line_distance
 
-        line_start = jnp.array([0.0, 0.0])
-        line_end = jnp.array([10.0, 10.0])
+        line_start = np.array([0.0, 0.0])
+        line_end = np.array([10.0, 10.0])
 
         # Point at (5, 5) - on the line
-        point = jnp.array([5.0, 5.0])
+        point = np.array([5.0, 5.0])
 
         result = float(point_to_line_distance(point, line_start, line_end))
 
@@ -368,7 +365,7 @@ class TestPolygonPerimeterGroundTruth:
         """Unit square has perimeter 4."""
         from temper_placer.geometry.polygon import polygon_perimeter
 
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [1.0, 0.0],
@@ -385,7 +382,7 @@ class TestPolygonPerimeterGroundTruth:
         """10x5 rectangle has perimeter 30."""
         from temper_placer.geometry.polygon import polygon_perimeter
 
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [10.0, 0.0],
@@ -404,7 +401,7 @@ class TestPolygonPerimeterGroundTruth:
         from temper_placer.geometry.polygon import polygon_perimeter
 
         # Equilateral triangle with side 3
-        vertices = jnp.array(
+        vertices = np.array(
             [
                 [0.0, 0.0],
                 [3.0, 0.0],
@@ -425,7 +422,7 @@ class TestPairwiseDistancesGroundTruth:
         """Three points forming a 3-4-5 right triangle."""
         from temper_placer.geometry.primitives import pairwise_distances
 
-        points = jnp.array(
+        points = np.array(
             [
                 [0.0, 0.0],  # A
                 [3.0, 0.0],  # B

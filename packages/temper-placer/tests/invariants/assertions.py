@@ -9,14 +9,14 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 
 def assert_zero_when_no_violation(
     loss_fn: Callable[..., Any],
-    positions: jnp.ndarray,
-    rotations: jnp.ndarray,
+    positions: np.ndarray,
+    rotations: np.ndarray,
     context: Any,
     *,
     name: str = "",
@@ -46,8 +46,8 @@ def assert_zero_when_no_violation(
 
 def assert_positive_when_violation(
     loss_fn: Callable[..., Any],
-    positions: jnp.ndarray,
-    rotations: jnp.ndarray,
+    positions: np.ndarray,
+    rotations: np.ndarray,
     context: Any,
     *,
     name: str = "",
@@ -77,9 +77,9 @@ def assert_positive_when_violation(
 
 def assert_monotonic(
     loss_fn: Callable[..., Any],
-    positions_near: jnp.ndarray,
-    positions_far: jnp.ndarray,
-    rotations: jnp.ndarray,
+    positions_near: np.ndarray,
+    positions_far: np.ndarray,
+    rotations: np.ndarray,
     context: Any,
     *,
     name: str = "",
@@ -111,8 +111,8 @@ def assert_monotonic(
 
 def assert_idempotent(
     loss_fn: Callable[..., Any],
-    positions: jnp.ndarray,
-    rotations: jnp.ndarray,
+    positions: np.ndarray,
+    rotations: np.ndarray,
     context: Any,
     *,
     name: str = "",
@@ -143,8 +143,8 @@ def assert_idempotent(
 
 def assert_empty_is_zero(
     loss_fn: Callable[..., Any],
-    empty_positions: jnp.ndarray,
-    empty_rotations: jnp.ndarray,
+    empty_positions: np.ndarray,
+    empty_rotations: np.ndarray,
     context: Any,
     *,
     name: str = "",

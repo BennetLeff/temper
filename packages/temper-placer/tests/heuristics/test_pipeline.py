@@ -9,7 +9,7 @@ Tests the HeuristicPipeline orchestrator:
 """
 
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.core.board import Board
@@ -72,8 +72,8 @@ class TestPipelineResult:
         """Test basic result creation."""
         placements = {"U1": ComponentPlacement(ref="U1", position=(50.0, 50.0))}
         state = PlacementState(
-            positions=jnp.zeros((1, 2)),
-            rotation_logits=jnp.zeros((1, 4)),
+            positions=np.zeros((1, 2)),
+            rotation_logits=np.zeros((1, 4)),
         )
         result = PipelineResult(
             placements=placements,
@@ -352,7 +352,7 @@ class TestHeuristicPipeline:
         logits = result.state.rotation_logits[u1_idx]
 
         # Rotation 2 should have highest logit
-        assert jnp.argmax(logits) == 2
+        assert np.argmax(logits) == 2
 
     def test_conflict_strategy_configurable(self):
         """Conflict resolution strategy is configurable."""
