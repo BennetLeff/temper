@@ -10,6 +10,7 @@ from temper_placer.metrics.physics import (
     measure_routability,
     measure_thermal,
 )
+from temper_placer.physics.inductance import estimate_loop_inductance
 
 
 @pytest.fixture
@@ -40,7 +41,6 @@ def test_measure_geometric(sample_setup):
     metrics = measure_geometric(state, netlist, board)
     assert metrics.zone_violation_count == 1
 
-@pytest.mark.skip(reason="gate_loop_area metric returns 102 vs expected 50 - needs physics investigation")
 def test_measure_emi(sample_setup):
     board, netlist, state = sample_setup
     # Create a 3-component loop
@@ -50,9 +50,18 @@ def test_measure_emi(sample_setup):
 
     state.positions = np.array([[0.0, 0.0], [10.0, 0.0], [0.0, 10.0]])
 
-    # 3-4-5 triangle area = 50
+    # Right triangle (0,0)-(10,0)-(0,10): shoelace area = 50 mm^2.
+    # NOTE: EMIMetrics.*_loop_area_mm2 fields store the estimated loop
+    # *inductance* (nH), not the raw area — the area-named fields were
+    # repurposed (see measure_emi). Verify measure_emi feeds the correct
+    # area+perimeter into the inductance estimator.
     metrics = measure_emi(state, netlist, loop_refs=[["U1", "U2", "U3"]])
-    assert metrics.gate_loop_area_mm2 == pytest.approx(50.0)
+
+    perimeter = 10.0 + 10.0 + np.sqrt(200.0)
+    expected_inductance = estimate_loop_inductance(
+        loop_area_mm2=50.0, perimeter_mm=perimeter
+    )
+    assert metrics.gate_loop_area_mm2 == pytest.approx(expected_inductance)
 
 def test_measure_thermal(sample_setup):
     board, netlist, state = sample_setup
