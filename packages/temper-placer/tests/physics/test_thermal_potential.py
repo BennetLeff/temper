@@ -7,7 +7,7 @@ Covers:
 
 from __future__ import annotations
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -74,7 +74,7 @@ def test_phi_edge_non_negative(board, edge):
     """R11: phi_edge produces non-negative values for any valid input."""
     x_grid, y_grid = build_potential_grid(board, 20)
     field = phi_edge(x_grid, y_grid, board, edge, 10.0)
-    assert jnp.all(field >= 0.0), f"phi_edge negative values for {edge}"
+    assert np.all(field >= 0.0), f"phi_edge negative values for {edge}"
 
 
 @given(board=valid_board_bounds(), edge=valid_edge_name())
@@ -84,7 +84,7 @@ def test_superpose_non_negative(board, edge):
     x_grid, y_grid = build_potential_grid(board, 20)
     config = ThermalPotentialConfig()
     field = superpose_fields(x_grid, y_grid, board, edge, config)
-    assert jnp.all(field >= 0.0), "superpose_fields produced negative values"
+    assert np.all(field >= 0.0), "superpose_fields produced negative values"
 
 
 @given(board=valid_board_bounds(), edge=valid_edge_name())
@@ -93,7 +93,7 @@ def test_phi_edge_minimum_near_edge(board, edge):
     """R12: Minimum of phi_edge lies within 10mm of the declared edge."""
     x_grid, y_grid = build_potential_grid(board, 20)
     field = phi_edge(x_grid, y_grid, board, edge, 10.0)
-    min_idx = jnp.unravel_index(jnp.argmin(field), field.shape)
+    min_idx = np.unravel_index(np.argmin(field), field.shape)
     min_x = float(x_grid[min_idx])
     min_y = float(y_grid[min_idx])
 
@@ -282,7 +282,7 @@ class TestPhiEdge:
         field = phi_edge(x_grid, y_grid, board_bounds, "TOP", 10.0)
         # At TOP edge (y=150), phi should be near 0
         # At BOTTOM edge (y=0), phi should be near 1
-        min_idx = jnp.unravel_index(jnp.argmin(field), field.shape)
+        min_idx = np.unravel_index(np.argmin(field), field.shape)
         min_y = float(y_grid[min_idx])
         _, _, _, y_max = board_bounds
         dist_from_top = y_max - min_y
@@ -291,7 +291,7 @@ class TestPhiEdge:
     def test_bottom_edge_minimum_near_edge(self, tiny_grid, board_bounds):
         x_grid, y_grid = tiny_grid
         field = phi_edge(x_grid, y_grid, board_bounds, "BOTTOM", 10.0)
-        min_idx = jnp.unravel_index(jnp.argmin(field), field.shape)
+        min_idx = np.unravel_index(np.argmin(field), field.shape)
         min_y = float(y_grid[min_idx])
         _, y_min, _, _ = board_bounds
         dist_from_bottom = min_y - y_min
@@ -302,19 +302,19 @@ class TestPhiConvection:
     def test_zero_without_airflow(self, tiny_grid):
         x_grid, y_grid = tiny_grid
         field = phi_convection(x_grid, y_grid, None)
-        assert jnp.all(field == 0.0)
+        assert np.all(field == 0.0)
 
     def test_nonzero_with_airflow(self, tiny_grid):
         x_grid, y_grid = tiny_grid
         field = phi_convection(x_grid, y_grid, (1.0, 0.0))
-        assert jnp.any(field != 0.0)
+        assert np.any(field != 0.0)
 
 
 class TestPhiExclusion:
     def test_zero_without_anchors(self, tiny_grid):
         x_grid, y_grid = tiny_grid
         field = phi_exclusion(x_grid, y_grid, [])
-        assert jnp.all(field == 0.0)
+        assert np.all(field == 0.0)
 
     def test_high_at_anchor_position(self, tiny_grid):
         x_grid, y_grid = tiny_grid
@@ -328,19 +328,19 @@ class TestPhiCopper:
     def test_uniform_without_zones(self, tiny_grid, board_bounds):
         x_grid, y_grid = tiny_grid
         field = phi_copper(x_grid, y_grid, board_bounds, copper_zones=None)
-        assert jnp.all(field > 0.0)
+        assert np.all(field > 0.0)
 
 
 class TestPhiCoupling:
     def test_zero_without_devices(self, tiny_grid):
         x_grid, y_grid = tiny_grid
         field = phi_coupling(x_grid, y_grid, [], [])
-        assert jnp.all(field == 0.0)
+        assert np.all(field == 0.0)
 
     def test_nonzero_with_devices(self, tiny_grid):
         x_grid, y_grid = tiny_grid
         field = phi_coupling(x_grid, y_grid, [(50.0, 75.0)], [50.0])
-        assert jnp.any(field > 0.0)
+        assert np.any(field > 0.0)
 
 
 class TestSuperposeFields:
@@ -354,7 +354,7 @@ class TestSuperposeFields:
             convection_weight=0.0,
         )
         field = superpose_fields(x_grid, y_grid, board_bounds, "TOP", config)
-        assert jnp.all(field == 0.0)
+        assert np.all(field == 0.0)
 
 
 class TestAssignThermalAnchors:

@@ -1,5 +1,5 @@
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.manufacturing.monte_carlo import (
@@ -22,14 +22,14 @@ def test_parameter_sampling():
 
     # Normal distribution
     etch = samples['etch_tolerance']
-    assert jnp.mean(etch) == pytest.approx(0.05, abs=0.001)
-    assert jnp.std(etch) == pytest.approx(0.01, abs=0.001)
+    assert np.mean(etch) == pytest.approx(0.05, abs=0.001)
+    assert np.std(etch) == pytest.approx(0.01, abs=0.001)
 
     # Uniform distribution
     drill = samples['drill_tolerance']
-    assert jnp.min(drill) >= 0.05
-    assert jnp.max(drill) <= 0.15
-    assert jnp.mean(drill) == pytest.approx(0.1, abs=0.002)
+    assert np.min(drill) >= 0.05
+    assert np.max(drill) <= 0.15
+    assert np.mean(drill) == pytest.approx(0.1, abs=0.002)
 
 def test_monte_carlo_yield_calculation():
     """Verify yield probability calculation for a controlled case."""
@@ -38,8 +38,8 @@ def test_monte_carlo_yield_calculation():
     # Required clearance = 0.05mm.
     # If etch_tolerance > 0, they fail.
 
-    positions = jnp.array([[0.0, 0.0], [10.05, 0.0]])
-    bounds = jnp.array([[10.0, 10.0], [10.0, 10.0]])
+    positions = np.array([[0.0, 0.0], [10.05, 0.0]])
+    bounds = np.array([[10.0, 10.0], [10.0, 10.0]])
 
     # 50% etch > 0
     variables = ManufacturingVariables(

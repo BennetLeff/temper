@@ -1,4 +1,4 @@
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.core.board import Board
@@ -23,7 +23,7 @@ def sample_env():
     netlist = Netlist([c1, c2, c3], [])
 
     # Large area triangle: (0,0), (10,0), (0,10) -> Area = 50
-    state = PlacementState.from_positions(jnp.array([[0.0, 0.0], [10.0, 0.0], [0.0, 10.0]]))
+    state = PlacementState.from_positions(np.array([[0.0, 0.0], [10.0, 0.0], [0.0, 10.0]]))
     return board, netlist, state
 
 def test_analyze_loop_failure(sample_env):
