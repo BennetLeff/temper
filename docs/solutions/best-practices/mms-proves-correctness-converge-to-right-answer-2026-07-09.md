@@ -47,4 +47,4 @@ On the thermal FDM with 2nd-order boundary-aligned Dirichlet:
 
 ## Related
 - `docs/solutions/logic-errors/thermal-fdm-cell-centre-dirichlet-first-order-2026-07-09.md` (the 1st-order BC the refinement ladder caught)
-- `docs/physics-verification-methodology.md` (four-layer verification pattern — MMS is layer 2: domain-invariant, cross-validated by the refinement ladder in layer 4)
+- `docs/physics-verification-methodology.md` (four-layer verification pattern — MMS is the correctness rung of the three-target ladder)

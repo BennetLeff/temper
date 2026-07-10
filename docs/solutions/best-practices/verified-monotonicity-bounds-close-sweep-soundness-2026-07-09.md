@@ -51,4 +51,4 @@ The worst-case corner is (max power, min k_eff, max T_amb, min h_sink, zero copp
 ## Related
 - `docs/solutions/logic-errors/endpoint-bounding-unsound-without-monotonicity-2026-07-09.md` (the endpoint-only trap that motivated this)
 - `docs/solutions/best-practices/termination-is-not-convergence-2026-07-09.md` (halting ≠ convergence — the same "claim what you've actually proven" discipline)
-- `docs/physics-verification-methodology.md` (four-layer verification pattern — verified bounds are layer 2: domain-invariant, cross-validated by MMS in layer 3)
+- `docs/physics-verification-methodology.md` (four-layer verification pattern — verified bounds are the soundness rung of the three-target ladder)
