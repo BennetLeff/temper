@@ -489,7 +489,7 @@ class CorpusRegressionRunner:
                 from dataclasses import replace as dc_replace
 
                 import numpy as np
-                rng_key = np.random.default_rng(seed or 42)
+                rng_key = np.random.default_rng(entry.seed or 42)
                 margin = min(2.0, board.width * 0.1, board.height * 0.1)
                 ox, oy = board.origin
                 px = rng_key.uniform(
