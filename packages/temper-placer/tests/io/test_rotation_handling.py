@@ -5,7 +5,7 @@ are handled gracefully - quantized to nearest 90° for optimization but
 with the original angle offset preserved for export.
 """
 
-import jax.numpy as jnp
+import numpy as np
 
 from temper_placer.core.netlist import Component
 from temper_placer.core.state import PlacementState
@@ -128,8 +128,8 @@ class TestStateToPlacementsWithOriginalAngles:
     def test_without_original_angles(self):
         """Test state_to_placements without original angles (default behavior)."""
         state = PlacementState(
-            positions=jnp.array([[10.0, 20.0], [30.0, 40.0]]),
-            rotation_logits=jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]]),
+            positions=np.array([[10.0, 20.0], [30.0, 40.0]]),
+            rotation_logits=np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]]),
         )
         placements = state_to_placements(state, ["U1", "R1"])
 
@@ -139,8 +139,8 @@ class TestStateToPlacementsWithOriginalAngles:
     def test_with_original_angles_90_degree(self):
         """Test that 90° original angles produce no offset."""
         state = PlacementState(
-            positions=jnp.array([[10.0, 20.0]]),
-            rotation_logits=jnp.array([[0.0, 1.0, 0.0, 0.0]]),  # 90° from optimizer
+            positions=np.array([[10.0, 20.0]]),
+            rotation_logits=np.array([[0.0, 1.0, 0.0, 0.0]]),  # 90° from optimizer
         )
         original_angles = {"U1": 90.0}  # Original was exactly 90°
         placements = state_to_placements(state, ["U1"], original_angles=original_angles)
@@ -151,8 +151,8 @@ class TestStateToPlacementsWithOriginalAngles:
     def test_with_45_degree_original_angle(self):
         """Test that 45° original angle produces 45° offset."""
         state = PlacementState(
-            positions=jnp.array([[10.0, 20.0]]),
-            rotation_logits=jnp.array([[1.0, 0.0, 0.0, 0.0]]),  # 0° from optimizer
+            positions=np.array([[10.0, 20.0]]),
+            rotation_logits=np.array([[1.0, 0.0, 0.0, 0.0]]),  # 0° from optimizer
         )
         # Original was 45° (quantized to 0° for optimization)
         original_angles = {"U1": 45.0}
@@ -164,8 +164,8 @@ class TestStateToPlacementsWithOriginalAngles:
     def test_with_45_degree_and_90_rotation(self):
         """Test 45° original with optimizer choosing 90°."""
         state = PlacementState(
-            positions=jnp.array([[10.0, 20.0]]),
-            rotation_logits=jnp.array([[0.0, 1.0, 0.0, 0.0]]),  # 90° from optimizer
+            positions=np.array([[10.0, 20.0]]),
+            rotation_logits=np.array([[0.0, 1.0, 0.0, 0.0]]),  # 90° from optimizer
         )
         # Original was 45° (quantized to 0° for optimization)
         original_angles = {"U1": 45.0}
@@ -177,8 +177,8 @@ class TestStateToPlacementsWithOriginalAngles:
     def test_with_315_degree_and_270_rotation(self):
         """Test 315° original with optimizer choosing 270°."""
         state = PlacementState(
-            positions=jnp.array([[10.0, 20.0]]),
-            rotation_logits=jnp.array([[0.0, 0.0, 0.0, 1.0]]),  # 270° from optimizer
+            positions=np.array([[10.0, 20.0]]),
+            rotation_logits=np.array([[0.0, 0.0, 0.0, 1.0]]),  # 270° from optimizer
         )
         # Original was 315° (quantized to 0° because round(315/90)=4, 4%4=0)
         # offset = 315 - 0 = 315 (or equivalently -45)
@@ -192,8 +192,8 @@ class TestStateToPlacementsWithOriginalAngles:
     def test_angle_wraparound(self):
         """Test angle wraparound at 360°."""
         state = PlacementState(
-            positions=jnp.array([[10.0, 20.0]]),
-            rotation_logits=jnp.array([[0.0, 0.0, 0.0, 1.0]]),  # 270° from optimizer
+            positions=np.array([[10.0, 20.0]]),
+            rotation_logits=np.array([[0.0, 0.0, 0.0, 1.0]]),  # 270° from optimizer
         )
         # Original was 350° (quantized to 0° for optimization)
         # offset = 350 - 0 = 350 (but should be -10)
@@ -216,8 +216,8 @@ class TestStateToPlacementsWithOriginalAngles:
     def test_multiple_components_mixed_angles(self):
         """Test multiple components with mixed original angles."""
         state = PlacementState(
-            positions=jnp.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]]),
-            rotation_logits=jnp.array(
+            positions=np.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]]),
+            rotation_logits=np.array(
                 [
                     [1.0, 0.0, 0.0, 0.0],  # 0° from optimizer
                     [0.0, 1.0, 0.0, 0.0],  # 90° from optimizer

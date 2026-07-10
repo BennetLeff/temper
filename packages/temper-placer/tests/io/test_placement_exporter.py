@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.io.placement_exporter import (
@@ -27,7 +27,7 @@ class TestSoftToDiscreteRotations:
 
     def test_perfect_one_hot(self):
         """Perfect one-hot vectors should convert to correct indices."""
-        rotations = jnp.array(
+        rotations = np.array(
             [
                 [1.0, 0.0, 0.0, 0.0],  # 0°
                 [0.0, 1.0, 0.0, 0.0],  # 90°
@@ -47,7 +47,7 @@ class TestSoftToDiscreteRotations:
     def test_soft_rotations(self):
         """Soft rotations should pick the maximum."""
         # First has highest at index 0, second at index 2
-        rotations = jnp.array(
+        rotations = np.array(
             [
                 [0.7, 0.1, 0.1, 0.1],  # Should be 0
                 [0.1, 0.1, 0.6, 0.2],  # Should be 2
@@ -61,7 +61,7 @@ class TestSoftToDiscreteRotations:
 
     def test_nearly_uniform(self):
         """Nearly uniform distributions should still pick one."""
-        rotations = jnp.array(
+        rotations = np.array(
             [
                 [0.26, 0.25, 0.25, 0.24],  # Slightly prefer 0
             ]
@@ -73,7 +73,7 @@ class TestSoftToDiscreteRotations:
 
     def test_empty_input(self):
         """Empty input should return empty output."""
-        rotations = jnp.zeros((0, 4))
+        rotations = np.zeros((0, 4))
         indices = soft_to_discrete_rotations(rotations)
         assert indices.shape == (0,)
 
@@ -94,13 +94,13 @@ class TestPositionsToPlacements:
 
     def test_basic_conversion(self):
         """Basic conversion should work correctly."""
-        positions = jnp.array(
+        positions = np.array(
             [
                 [10.0, 20.0],
                 [30.0, 40.0],
             ]
         )
-        rotations = jnp.array(
+        rotations = np.array(
             [
                 [1.0, 0.0, 0.0, 0.0],  # 0°
                 [0.0, 0.0, 1.0, 0.0],  # 180°
@@ -124,12 +124,12 @@ class TestPositionsToPlacements:
 
     def test_with_origin_offset(self):
         """Origin offset should be added to positions."""
-        positions = jnp.array(
+        positions = np.array(
             [
                 [10.0, 20.0],
             ]
         )
-        rotations = jnp.array(
+        rotations = np.array(
             [
                 [1.0, 0.0, 0.0, 0.0],
             ]
@@ -144,8 +144,8 @@ class TestPositionsToPlacements:
 
     def test_mismatched_positions_raises(self):
         """Mismatched position count should raise ValueError."""
-        positions = jnp.array([[10.0, 20.0], [30.0, 40.0]])
-        rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+        positions = np.array([[10.0, 20.0], [30.0, 40.0]])
+        rotations = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
         refs = ["U1"]  # Only 1 ref for 2 positions
 
         with pytest.raises(ValueError, match="Position count.*doesn't match"):
@@ -153,8 +153,8 @@ class TestPositionsToPlacements:
 
     def test_mismatched_rotations_raises(self):
         """Mismatched rotation count should raise ValueError."""
-        positions = jnp.array([[10.0, 20.0]])
-        rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+        positions = np.array([[10.0, 20.0]])
+        rotations = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
         refs = ["U1"]
 
         with pytest.raises(ValueError, match="Rotation count.*doesn't match"):
@@ -162,8 +162,8 @@ class TestPositionsToPlacements:
 
     def test_empty_input(self):
         """Empty input should return empty dict."""
-        positions = jnp.zeros((0, 2))
-        rotations = jnp.zeros((0, 4))
+        positions = np.zeros((0, 2))
+        rotations = np.zeros((0, 4))
         refs = []
 
         placements = positions_to_placements(positions, rotations, refs)
@@ -219,8 +219,8 @@ class TestExportPositionsToTempPcb:
 
     def test_template_not_found_raises(self, mock_context):
         """Should raise ValueError if template doesn't exist."""
-        positions = jnp.array([[10.0, 20.0], [30.0, 40.0]])
-        rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+        positions = np.array([[10.0, 20.0], [30.0, 40.0]])
+        rotations = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
         template = Path("/nonexistent/template.kicad_pcb")
 
         with pytest.raises(ValueError, match="Template PCB not found"):
@@ -229,8 +229,8 @@ class TestExportPositionsToTempPcb:
     @patch("temper_placer.io.placement_exporter.write_placements_to_pcb")
     def test_calls_write_placements(self, mock_write, mock_context, mock_template_pcb, tmp_path):
         """Should call write_placements_to_pcb with correct arguments."""
-        positions = jnp.array([[10.0, 20.0], [30.0, 40.0]])
-        rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+        positions = np.array([[10.0, 20.0], [30.0, 40.0]])
+        rotations = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
 
         # Mock successful write
         mock_result = MagicMock()
@@ -264,8 +264,8 @@ class TestExportPositionsToTempPcb:
     @patch("temper_placer.io.placement_exporter.write_placements_to_pcb")
     def test_cleans_up_on_failure(self, mock_write, mock_context, mock_template_pcb, tmp_path):
         """Should clean up temp file if write fails."""
-        positions = jnp.array([[10.0, 20.0], [30.0, 40.0]])
-        rotations = jnp.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
+        positions = np.array([[10.0, 20.0], [30.0, 40.0]])
+        rotations = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
 
         # Mock failed write
         mock_write.side_effect = Exception("Write failed")
@@ -309,8 +309,8 @@ class TestCreatePcbExporter:
         )
 
         # Call the exporter
-        positions = jnp.array([[10.0, 20.0]])
-        rotations = jnp.array([[1.0, 0.0, 0.0, 0.0]])
+        positions = np.array([[10.0, 20.0]])
+        rotations = np.array([[1.0, 0.0, 0.0, 0.0]])
         mock_context = MagicMock()
 
         mock_export.return_value = tmp_path / "output.kicad_pcb"
@@ -321,8 +321,8 @@ class TestCreatePcbExporter:
         mock_export.assert_called_once()
         call_kwargs = mock_export.call_args.kwargs
 
-        assert jnp.allclose(call_kwargs["positions"], positions)
-        assert jnp.allclose(call_kwargs["rotations"], rotations)
+        assert np.allclose(call_kwargs["positions"], positions)
+        assert np.allclose(call_kwargs["rotations"], rotations)
         assert call_kwargs["context"] is mock_context
         assert call_kwargs["template_pcb"] == template
         assert call_kwargs["board_origin"] == origin

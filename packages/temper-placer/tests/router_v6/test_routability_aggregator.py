@@ -1,6 +1,6 @@
 """Unit tests for RoutabilityAggregator."""
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.router_v6.routability_aggregator import RoutabilityAggregator
@@ -30,8 +30,8 @@ def test_sat_fine_grained_scores():
 
     assert scores.shape == (n_components,)
     assert 0.0 <= score_mean <= 1.0
-    assert jnp.all(scores >= 0.0)
-    assert jnp.all(scores <= 1.0)
+    assert np.all(scores >= 0.0)
+    assert np.all(scores <= 1.0)
 
 
 def test_all_zero_stats():
@@ -54,7 +54,7 @@ def test_all_zero_stats():
 
     assert scores.shape == (n_components,)
     # With all-zero CDCL stats, falls back to coarse path
-    assert jnp.all(scores >= 0.0)
+    assert np.all(scores >= 0.0)
 
 
 def test_unsat_with_core():
@@ -102,7 +102,7 @@ def test_empty_unsat_core():
     )
 
     assert scores.shape == (n_components,)
-    assert jnp.all(scores >= 0.0)
+    assert np.all(scores >= 0.0)
 
 
 def test_coarse_fallback():
@@ -125,8 +125,8 @@ def test_coarse_fallback():
 
     assert scores.shape == (n_components,)
     assert 0.0 <= score_mean <= 1.0
-    assert jnp.all(scores >= 0.0)
-    assert jnp.all(scores <= 1.0)
+    assert np.all(scores >= 0.0)
+    assert np.all(scores <= 1.0)
 
 
 def test_zero_components():

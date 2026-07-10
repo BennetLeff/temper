@@ -1,5 +1,4 @@
 """Unit tests for DRC inflation geometry utilities."""
-import jax.numpy as jnp
 import numpy as np
 import pytest
 
@@ -85,40 +84,40 @@ class TestComputeInflatedHalfDims:
 class TestComputeDRCProxyScore:
     def test_no_components(self):
         """Zero components give zero score."""
-        positions = jnp.zeros((0, 2), dtype=jnp.float32)
-        hw = jnp.zeros((0,), dtype=jnp.float32)
-        hh = jnp.zeros((0,), dtype=jnp.float32)
+        positions = np.zeros((0, 2), dtype=np.float32)
+        hw = np.zeros((0,), dtype=np.float32)
+        hh = np.zeros((0,), dtype=np.float32)
         score = compute_drc_proxy_score(positions, hw, hh)
         assert float(score) == 0.0
 
     def test_separated_components(self):
         """Well-separated components produce low score."""
         n = 3
-        hw = jnp.ones(n, dtype=jnp.float32) * 3.0
-        hh = jnp.ones(n, dtype=jnp.float32) * 3.0
-        positions = jnp.array([
+        hw = np.ones(n, dtype=np.float32) * 3.0
+        hh = np.ones(n, dtype=np.float32) * 3.0
+        positions = np.array([
             [0.0, 0.0],
             [100.0, 0.0],
             [200.0, 0.0],
-        ], dtype=jnp.float32)
+        ], dtype=np.float32)
         score = compute_drc_proxy_score(positions, hw, hh, clearance_mm=0.2)
         assert float(score) < 1e-3
 
     def test_overlapping_components(self):
         """Overlapping inflated components produce positive score."""
-        hw = jnp.array([5.0, 5.0], dtype=jnp.float32)
-        hh = jnp.array([5.0, 5.0], dtype=jnp.float32)
-        positions = jnp.array([
+        hw = np.array([5.0, 5.0], dtype=np.float32)
+        hh = np.array([5.0, 5.0], dtype=np.float32)
+        positions = np.array([
             [0.0, 0.0],
             [2.0, 0.0],
-        ], dtype=jnp.float32)
+        ], dtype=np.float32)
         score = compute_drc_proxy_score(positions, hw, hh, clearance_mm=0.2)
         assert float(score) > 0.0
 
     def test_single_component(self):
         """Single component produces zero score."""
-        hw = jnp.array([5.0], dtype=jnp.float32)
-        hh = jnp.array([5.0], dtype=jnp.float32)
-        positions = jnp.array([[0.0, 0.0]], dtype=jnp.float32)
+        hw = np.array([5.0], dtype=np.float32)
+        hh = np.array([5.0], dtype=np.float32)
+        positions = np.array([[0.0, 0.0]], dtype=np.float32)
         score = compute_drc_proxy_score(positions, hw, hh)
         assert float(score) == 0.0
