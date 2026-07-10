@@ -133,23 +133,25 @@ def spectral_layout(
     """
     L = compute_laplacian(hg)
 
-    # Convert to dense for eigendecomposition if small
-    # For large graphs, we'd use lobpcg, but let's start simple.
-    # Assuming coarsening reduced N to < 1000.
-    L_dense = L.todense()
+    # Convert to dense for eigendecomposition if small.
+    # For large graphs we'd use lobpcg; assume coarsening kept N small.
+    # np.asarray avoids the deprecated np.matrix returned by sparse .todense().
+    L_dense = np.asarray(L.todense())
 
     # Eigh for symmetric Hermitian
     eigenvalues, eigenvectors = np.linalg.eigh(L_dense)
+    eigenvectors = np.asarray(eigenvectors)
 
-    # Sort eigenvalues (they should be sorted by eigh, but verifying)
-    # The smallest eigenvalue is 0 (constant vector).
-    # We want the next 'dim' smallest non-zero eigenvectors.
-
-    # Indices of smallest non-zero
-    # Skip the first one (index 0)
-    indices = np.arange(1, 1 + dim)
-
-    coords = eigenvectors[:, indices]
+    # The smallest eigenvalue is 0 (constant vector); skip index 0 and take the
+    # next `dim` smallest eigenvectors as coordinate axes. A graph with N nodes
+    # only has N-1 non-trivial eigenvectors, so for very small/coarsened graphs
+    # (N <= dim) we use what is available and zero-pad the remaining axes.
+    n = L_dense.shape[0]
+    coords = np.zeros((n, dim), dtype=float)
+    k = min(dim, max(0, n - 1))
+    if k > 0:
+        indices = np.arange(1, 1 + k)
+        coords[:, :k] = eigenvectors[:, indices]
 
     # Normalize coords?
     # Spectral usually gives centered at 0.
