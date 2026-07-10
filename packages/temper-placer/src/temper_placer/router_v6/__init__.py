@@ -85,10 +85,6 @@ from temper_placer.router_v6.escape_via_generator import (  # noqa: E402
     EscapeVia,
     generate_escape_vias,
 )
-from temper_placer.router_v6.length_group_inference import (  # noqa: E402
-    LengthGroup,
-    infer_length_groups,
-)
 from temper_placer.router_v6.obstacle_map import build_obstacle_map  # noqa: E402
 from temper_placer.router_v6.stage0_data import (  # noqa: E402
     DesignRules,
@@ -115,8 +111,6 @@ __all__ = [
     "infer_differential_pairs",
     "SafetyPair",
     "infer_safety_pairs",
-    "LengthGroup",
-    "infer_length_groups",
     # Stage 1: Pin Escape
     "DensePackage",
     "identify_dense_packages",
