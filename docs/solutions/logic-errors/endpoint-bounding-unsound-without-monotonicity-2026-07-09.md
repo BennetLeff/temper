@@ -54,4 +54,5 @@ Endpoint evaluation is a valid bound **iff** the quantity is monotone on the int
 
 ## Related Issues
 - `docs/plans/2026-07-09-001-feat-physics-verification-rigor-plan.md` (U2, R5)
+- `docs/solutions/best-practices/verified-monotonicity-bounds-close-sweep-soundness-2026-07-09.md` — the verified-interval upgrade: for M-matrix systems with provably monotone parameters, the corner-bound is a mathematical guarantee, not a sample
 - AGENTS.md — "Future CP-SAT Physics Constraint Discipline (R24)"

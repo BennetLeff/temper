@@ -102,3 +102,4 @@ assert a_cost <= d_cost + 1e-6   # optimality
 - `docs/solutions/logic-errors/clearance-false-negatives-per-net-pair-2026-06-28.md` — completeness oracle pattern
 - `packages/temper-placer/tests/router_v6/astar_oracle_utils.py` — Dijkstra oracle implementation
 - `docs/solutions/best-practices/solver-independence-is-not-model-independence-2026-07-09.md` — the same-objective rule extended: an oracle must also differ on the *model* axis (not just solver method) to validate the model rather than the linear solve
+- `docs/solutions/best-practices/mms-proves-correctness-converge-to-right-answer-2026-07-09.md` — the same "right answer vs wrong verification instrument" principle applied to numerical solvers: Method of Manufactured Solutions proves convergence to the right answer, not just the right rate
