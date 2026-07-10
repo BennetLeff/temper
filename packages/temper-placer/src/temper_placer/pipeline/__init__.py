@@ -24,9 +24,6 @@ from temper_placer.pipeline.metrics_observer import (
     CrossValidationError,
     MetricsObserver,
 )
-from temper_placer.pipeline.orchestrator import (
-    PipelineOrchestrator,
-)
 from temper_placer.pipeline.preflight import (
     PreflightCheck,
     PreflightChecker,
@@ -48,11 +45,10 @@ from temper_placer.pipeline.visualization import (
 
 __all__ = [
     # Orchestrator
-    "PipelinePhase",
     "PipelineConfig",
-    "PipelineState",
     "PipelineError",
-    "PipelineOrchestrator",
+    "PipelinePhase",
+    "PipelineState",
     # Convergence
     "TerminationReason",
     "ConvergenceCriteria",

@@ -17,12 +17,10 @@ from temper_placer._constraint_types import (
     PlacementConstraints,
     ThermalConstraint,
 )
-from temper_placer.io.boundary_registry import BoundaryDef, get_boundary, list_boundaries
 from temper_placer.io.config_loader import (
     create_board_from_constraints,
     load_constraints,
 )
-from temper_placer.io.dsn_boundary import export_at_boundary, export_all_boundaries
 
 # DSN/SES universal seam
 from temper_placer.io.dsn_exporter import DSNExporter
@@ -112,9 +110,4 @@ __all__ = [
     "validate_dsn",
     "validate_or_warn_dsn",
     "DSNVersionMismatchError",
-    "BoundaryDef",
-    "get_boundary",
-    "list_boundaries",
-    "export_at_boundary",
-    "export_all_boundaries",
 ]

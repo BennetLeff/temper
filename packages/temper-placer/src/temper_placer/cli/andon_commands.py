@@ -22,7 +22,6 @@ def andon(input_pcb: str, loops: str | None, constraints: str | None,
 
     INPUT_PCB: Path to the KiCad PCB file.
     """
-    from temper_placer.pipeline import PipelineOrchestrator
     from temper_placer.pipeline.andon_observer import AndonObserver
 
     config_kwargs: dict = {"input_pcb": Path(input_pcb)}
@@ -33,7 +32,7 @@ def andon(input_pcb: str, loops: str | None, constraints: str | None,
     if dry_run:
         config_kwargs["dry_run"] = True
 
-    orchestrator = PipelineOrchestrator.from_config(**config_kwargs)  # type: ignore[attr-defined]
+    raise NotImplementedError("PipelineOrchestrator removed (old-pipeline retirement); watch/andon need migration to deterministic pipeline")
 
     pipeline_kwargs: dict = {"input_pcb": Path(input_pcb)}
     if loops:

@@ -45,8 +45,7 @@ def watch(input_pcb: str, loops: str | None, constraints: str | None,
 
 def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None,
                 dry_run: bool, skip_routing: bool, refresh: float) -> None:
-    from temper_placer.pipeline import PipelineOrchestrator
-
+    
     config_kwargs: dict = {"input_pcb": input_pcb}
     if loops:
         config_kwargs["loops_yaml"] = loops
@@ -57,7 +56,7 @@ def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None
     if skip_routing:
         config_kwargs["skip_routing"] = True
 
-    orchestrator = PipelineOrchestrator.from_config(**config_kwargs)  # type: ignore[attr-defined]
+    raise NotImplementedError("PipelineOrchestrator removed (old-pipeline retirement); watch/andon need migration to deterministic pipeline")
 
     pipeline_kwargs: dict = {"input_pcb": input_pcb}
     if loops:

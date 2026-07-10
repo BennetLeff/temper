@@ -13,8 +13,6 @@ from rich.table import Table
 
 from temper_placer import __version__
 from temper_placer.pipeline import (
-    PipelineConfig,
-    PipelineOrchestrator,
     PipelinePhase,
     PipelineState,
     RichDashboard,
@@ -24,8 +22,6 @@ from temper_placer.profiling.cli import profile
 from ._io import _print_placement_summary, console
 from ._signal import InterruptGuard
 from .andon_commands import andon
-from .dsn_commands import dsn
-from .pipeline_commands import phase, pipeline
 from .timing import timing
 from .trace_commands import trace
 from .version import version
@@ -39,10 +35,7 @@ def main() -> None:
     pass
 
 
-main.add_command(pipeline)
-main.add_command(phase)
 main.add_command(trace)
-main.add_command(dsn)
 main.add_command(andon)
 main.add_command(timing)
 main.add_command(profile)
