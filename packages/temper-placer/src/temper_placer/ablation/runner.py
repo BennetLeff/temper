@@ -17,8 +17,11 @@ from temper_placer.ablation.config import (
 )
 from temper_placer.ablation.registry import (
     HeuristicRegistry,
+    LearningRateSchedule,
     LossRegistry,
+    OptimizerConfig,
     TechniqueApplicator,
+    TemperatureSchedule,
 )
 
 
@@ -365,12 +368,6 @@ class ExperimentRunner:
         Returns:
             OptimizerConfig with default settings
         """
-        class OptimizerConfig:
-            def __init__(self, **kw):
-                for k, v in kw.items():
-                    setattr(self, k, v)
-        # Removed import (JAX retirement)
-
         return OptimizerConfig(
             epochs=8000,
             seed=seed,
@@ -528,7 +525,8 @@ class ExperimentRunner:
                     pipeline = HeuristicRegistry.create_pipeline(
                         experiment.components, constraints=constraints
                     )
-                    key = jax.random.PRNGKey(seed)
+                    import numpy as np
+                    key = np.random.default_rng(seed)
                     heuristic_result = pipeline.run(board, netlist, constraints, key)
                     initial_state = heuristic_result.state
                 except Exception as e:

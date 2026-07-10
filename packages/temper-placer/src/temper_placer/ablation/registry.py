@@ -7,16 +7,42 @@ from temper_placer.ablation.config import ComponentToggle, LossToggle
 
 
 class OptimizerConfig:
-    """DEPRECATED: stub."""
-    def __init__(self, **kw):
+    """DEPRECATED stub: flag container for the retired JAX optimizer, kept for
+    ablation technique-toggle bookkeeping (TechniqueApplicator)."""
+
+    # Assigned by TechniqueApplicator.apply_toggles / read by
+    # get_technique_status. Declared for the type checker; set dynamically.
+    epochs: Any
+    seed: Any
+    curriculum_phases: Any
+    use_gumbel_rotation: Any
+    adaptive_overlap_enabled: Any
+    jiggle_enabled: Any
+    use_grad_norm: Any
+    use_centrality_weighting: Any
+    temperature: Any
+    learning_rate: Any
+    gradient_clip_norm: Any
+
+    def __init__(self, **kw: Any) -> None:
         for k, v in kw.items():
             setattr(self, k, v)
+
+
 class TemperatureSchedule:
-    """DEPRECATED: stub."""
-    pass
+    """DEPRECATED stub: temperature-schedule flag container (start/end)."""
+
+    def __init__(self, **kw: Any) -> None:
+        for k, v in kw.items():
+            setattr(self, k, v)
+
+
 class LearningRateSchedule:
-    """DEPRECATED: stub."""
-    pass
+    """DEPRECATED stub: LR-schedule flag container (initial/final/...)."""
+
+    def __init__(self, **kw: Any) -> None:
+        for k, v in kw.items():
+            setattr(self, k, v)
 
 
 # Dynamic imports to avoid circular dependencies
