@@ -89,6 +89,7 @@ class TestTopologicalStage:
             stage(state, context)
 
 
+@pytest.mark.skip(reason="RefinementStage removed (old-pipeline retirement)")
 class TestRefinementStage:
     def test_no_routing_result_returns_empty(self, state):
         from temper_placer.pipeline.stages.refinement_stage import RefinementStage

@@ -54,7 +54,6 @@ from temper_placer.router_v6.adapter import (  # noqa: E402
     CongestionRegion,
     DrcViolation,
     RoutingResult,
-    V6RouterAdapter,
     _AdapterRoutePath,
     route_pcb,
 )
@@ -105,7 +104,6 @@ __all__ = [
     "RoutingResult",
     "CongestionRegion",
     "DrcViolation",
-    "V6RouterAdapter",
     "_AdapterRoutePath",
     # Stage 0: Design Intent
     "ParsedPCB",
