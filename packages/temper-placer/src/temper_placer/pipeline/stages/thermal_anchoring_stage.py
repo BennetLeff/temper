@@ -189,6 +189,7 @@ class ThermalAnchoringStage:
 
             pos = np.array([ax, ay])
             bounds_arr = np.array([0.0, 0.0, board.width, board.height])
+            def compute_edge_distance(*a, **kw): raise NotImplementedError(f"compute_edge_distance removed (JAX retirement)")
             edge_dist = float(compute_edge_distance(pos, bounds_arr, edge_name))
 
             power_w = power_dissipation.get(ref, 0.0)

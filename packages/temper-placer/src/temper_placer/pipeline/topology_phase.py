@@ -116,7 +116,7 @@ def generate_initial_placement(
 
     # Track placed components
 
-    key = jax.random.PRNGKey(42)
+    key = np.random.default_rng(42)
 
     for cluster in solution.clusters:
         # Determine center for cluster
@@ -131,8 +131,8 @@ def generate_initial_placement(
         # Place components in a small jittered group around center
         for ref in cluster.components:
             idx = netlist.get_component_index(ref)
-            key, subkey = jax.random.split(key)
-            jitter = jax.random.uniform(subkey, (2,), minval=-5.0, maxval=5.0)
+            subkey = np.random.default_rng(key.integers(0, 2**31))
+            jitter = subkey.uniform(-5.0, 5.0, size=(2,))
             positions = positions.at[idx].set(np.array([cx, cy]) + jitter)
 
     return PlacementState(
