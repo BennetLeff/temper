@@ -849,6 +849,131 @@ class TestHumanReferenceSkip:
 
 
 # ---------------------------------------------------------------------------
+# Fail-closed: device_power derivation (#140)
+# ---------------------------------------------------------------------------
+
+
+class TestFailClosedPowerDerivation:
+    """Battery aborts when device_loss_configs is missing (fail-closed)."""
+
+    def test_op_config_without_device_loss_configs_aborts(self, tmp_path):
+        """operating_point_config without device_loss_configs and without
+        explicit power_map → SystemError (#140 fail-closed guard)."""
+        prereg_path = _mini_prereg_path(tmp_path)
+        board = _mini_board(100, 100)
+        q1 = Component(
+            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
+            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+        )
+        netlist = _mini_netlist([q1])
+        fdm_config = _mini_fdm_config()
+        devices = {"Q1": (50.0, 20.0)}
+        op_config = _mini_op_config()
+
+        with pytest.raises(SystemError, match="device_loss_configs"):
+            run_thermal_helps_battery(
+                prereg_path=prereg_path, board=board, netlist=netlist,
+                fdm_config=fdm_config, devices=devices,
+                power_map=None,  # not provided
+                operating_point_config=op_config,
+                device_loss_configs=None,  # missing
+                base_seed=42, n_perturbations=2,
+                skip_smoke_test=True, skip_human_reference=True,
+            )
+
+    def test_explicit_power_map_overrides_derivation(self, tmp_path):
+        """When power_map is explicitly provided, it overrides derivation
+        even when device_loss_configs is present."""
+        prereg_path = _mini_prereg_path(tmp_path)
+        board = _mini_board(100, 100)
+        q1 = Component(
+            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
+            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+        )
+        netlist = _mini_netlist([q1])
+        fdm_config = _mini_fdm_config()
+        devices = {"Q1": (50.0, 20.0)}
+        power_map = {"Q1": 30.0}
+        op_config = _mini_op_config()
+
+        from temper_placer.physics.device_power import DeviceLossConfig
+
+        loss_configs = {
+            "Q1": DeviceLossConfig(
+                name="Q1", device_type="IGBT", V_ce_sat=1.7,
+                E_on=0.32e-3, E_off=0.21e-3,
+                V_ce_sat_because="test",
+                E_on_because="test",
+                E_off_because="test",
+            ),
+        }
+
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+
+        artifact = run_thermal_helps_battery(
+            prereg_path=prereg_path, board=board, netlist=netlist,
+            fdm_config=fdm_config, devices=devices,
+            power_map=power_map,  # explicit override
+            operating_point_config=op_config,
+            device_loss_configs=loss_configs,
+            base_seed=42, n_perturbations=2,
+            skip_smoke_test=True, skip_human_reference=True,
+            battery_run_timestamp=run_ts,
+        )
+
+        # Should run without error — power_map takes priority
+        assert artifact.verdict in (
+            BatteryVerdict.KEEP, BatteryVerdict.KILL, BatteryVerdict.INCONCLUSIVE,
+        )
+
+    def test_derived_power_map_produces_sane_results(self, tmp_path):
+        """Battery run with derived power_map (via device_loss_configs)
+        completes without error and produces a valid verdict."""
+        prereg_path = _mini_prereg_path(tmp_path)
+        board = _mini_board(100, 100)
+        q1 = Component(
+            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
+            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+        )
+        q2 = Component(
+            ref="Q2", footprint="TO-247", bounds=(10.0, 5.0),
+            pins=[], initial_position=(30.0, 20.0), net_class="HighVoltage",
+        )
+        netlist = _mini_netlist([q1, q2])
+        fdm_config = _mini_fdm_config()
+        devices = {"Q1": (50.0, 20.0), "Q2": (30.0, 20.0)}
+        op_config = _mini_op_config()
+
+        from temper_placer.physics.device_power import (
+            DeviceLossConfig,
+            temper_igbt_loss_config,
+        )
+
+        loss_configs = {
+            "Q1": temper_igbt_loss_config("Q1"),
+            "Q2": temper_igbt_loss_config("Q2"),
+        }
+
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+
+        artifact = run_thermal_helps_battery(
+            prereg_path=prereg_path, board=board, netlist=netlist,
+            fdm_config=fdm_config, devices=devices,
+            power_map=None,  # derive from loss configs
+            operating_point_config=op_config,
+            device_loss_configs=loss_configs,
+            base_seed=42, n_perturbations=2,
+            skip_smoke_test=True, skip_human_reference=True,
+            battery_run_timestamp=run_ts,
+        )
+
+        assert artifact.verdict in (
+            BatteryVerdict.KEEP, BatteryVerdict.KILL, BatteryVerdict.INCONCLUSIVE,
+        )
+        assert artifact.gate_clean
+
+
+# ---------------------------------------------------------------------------
 # Smoke test: scorer adapter
 # ---------------------------------------------------------------------------
 
