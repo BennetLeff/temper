@@ -10,10 +10,6 @@ from .assertions import (
     assert_positive_when_violation,
     assert_zero_when_no_violation,
 )
-from .jax_helpers import (
-    assert_gradient_finite,
-    assert_loss_context_is_pytree,
-)
 from .strategies import (
     board_strategy,
     netlist_strategy,
@@ -27,8 +23,6 @@ __all__ = [
     "assert_idempotent",
     "assert_empty_is_zero",
     # JAX helpers
-    "assert_gradient_finite",
-    "assert_loss_context_is_pytree",
     # Strategies
     "board_strategy",
     "netlist_strategy",
