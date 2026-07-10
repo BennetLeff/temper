@@ -121,6 +121,9 @@ ignore = [
     "B905",   # zip without explicit strict parameter
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ARG001", "ARG002"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["temper_placer"]
 
