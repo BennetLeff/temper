@@ -94,6 +94,8 @@ Constants
   Stefan Boltzmann = 5.670374419e-08
 End
 
+{body_force_sections}
+
 Body 1
   Name = "FR4 Bulk"
   Material = 1
@@ -195,6 +197,7 @@ def build_temper_mesh(
     device_thermal: dict[str, DeviceThermalConfig],
     output_dir: Path,
     *,
+    power_map: dict[str, float] | None = None,
     device_materials_start_id: int = 10,
 ) -> tuple[Path, Path]:
     """Generate an Elmer mesh definition directory and ``.sif`` solver-input file.
@@ -217,6 +220,9 @@ def build_temper_mesh(
         devices: ``{ref: (x_mm, y_mm)}`` device centroids.
         device_thermal: ``{ref: DeviceThermalConfig}`` -- per-device thermal
             properties with ``because`` citations.
+        power_map: ``{ref: power_W}`` per-device power dissipation. Body Force
+            sections are generated for each device.  When empty or ``None``,
+            a single zero Body Force is emitted.
         output_dir: Directory to write mesh artifacts into (created if absent).
         device_materials_start_id: First material ID to assign to device bodies.
 
@@ -350,6 +356,29 @@ def build_temper_mesh(
     geo_path.write_text(geo_content)
 
     # --- Build .sif file ---
+    # Body Force sections (one per powered device + fallback zero)
+    _power_map = power_map or {}
+    body_force_lines: list[str] = []
+    bf_idx: dict[str, int] = {}
+    if _power_map:
+        for i, (dev_name, power_W) in enumerate(sorted(_power_map.items()), start=1):
+            bf_idx[dev_name] = i
+            body_force_lines.append(
+                f"Body Force {i}\n"
+                f'  Name = "Device {dev_name} Power"\n'
+                f"  Heat Source = Real {power_W:.6f}\n"
+                f"End"
+            )
+    else:
+        body_force_lines.append(
+            "Body Force 1\n"
+            '  Name = "Zero Power"\n'
+            "  Heat Source = Real 0.0\n"
+            "End"
+        )
+
+    body_force_sif = "\n".join(body_force_lines)
+
     # Device body blocks (only for devices that are in device_thermal)
     device_bodies_sif_parts: list[str] = []
     device_material_blocks: list[str] = []
@@ -357,17 +386,18 @@ def build_temper_mesh(
     if device_thermal:
         next_mat = device_materials_start_id
         for dev_name in sorted(set(device_thermal.keys()) & set(devices.keys())):
+            bf_ref = bf_idx.get(dev_name, 1)
             device_bodies_sif_parts.append(
                 f"Body {next_mat}\n"
                 f'  Name = "Device {dev_name}"\n'
                 f"  Material = {next_mat}\n"
                 f"  Equation = 1\n"
+                f"  Body Force = {bf_ref}\n"
                 f"End"
             )
             device_material_blocks.append(
                 f'Material {next_mat}\n'
                 f'  Name = "Device {dev_name}"\n'
-                f'  Heat Source = Equals "power_{dev_name}"\n'
                 f"  Heat Conductivity = {TEMPER_MATERIALS['copper'].k_inplane} "
                 f"{TEMPER_MATERIALS['copper'].k_through}\n"
                 f"End"
@@ -388,6 +418,7 @@ def build_temper_mesh(
     sif_content = SIF_TEMPLATE.format(
         board_name=f"temper_{board.width:.0f}x{board.height:.0f}",
         mesh_dir_name=mesh_dir_name,
+        body_force_sections=body_force_sif,
         device_bodies=device_bodies_sif,
         device_material_blocks=device_blocks_sif,
         k_fr4_ip=fr4.k_inplane,

@@ -3,9 +3,11 @@ Tests for Elmer orchestrator (validation/elmer.py).
 
 Covers:
 - ``check_elmer()`` preflight: returns False when Elmer absent.
+- ``elmer_grid()`` meshing step: error paths when absent / missing geo.
 - ``ElmerRunner.run()``: error path when ElmerSolver not found, timeout
   handling, VTU parsing (synthetic/canned VTU file).
-- Happy-path VTU parse using a minimal valid VTU XML string.
+- Happy-path VTU parse using a minimal valid VTU XML string with
+  node coordinate extraction.
 
 Elmer is NOT installed — tests that need the real CLI skip gracefully.
 """
@@ -22,6 +24,7 @@ from temper_placer.validation.elmer import (
     ElmerResult,
     ElmerRunner,
     check_elmer,
+    elmer_grid,
 )
 
 
@@ -108,6 +111,35 @@ class TestCheckElmer:
             else None
         )
         assert check_elmer() is False
+
+
+# ---------------------------------------------------------------------------
+# elmer_grid tests
+# ---------------------------------------------------------------------------
+
+
+class TestElmerGrid:
+    """elmer_grid() meshing step — error paths when Elmer absent."""
+
+    def test_elmer_grid_absent_raises_runtime_error(self, tmp_path):
+        """elmer_grid raises RuntimeError when ElmerGrid is not on PATH."""
+        mesh_dir = tmp_path / "elmermesh"
+        mesh_dir.mkdir()
+        geo_file = mesh_dir / f"{mesh_dir.name}.geo"
+        geo_file.write_text("// dummy geo\n")
+
+        with pytest.raises(RuntimeError, match="not available"):
+            elmer_grid(mesh_dir)
+
+    def test_elmer_grid_missing_geo_raises(self, tmp_path, monkeypatch):
+        """elmer_grid raises FileNotFoundError when .geo is missing."""
+        mesh_dir = tmp_path / "elmermesh"
+        mesh_dir.mkdir()
+
+        monkeypatch.setattr(shutil, "which", lambda name: f"/usr/bin/{name}")
+
+        with pytest.raises(FileNotFoundError, match="not found"):
+            elmer_grid(mesh_dir)
 
 
 # ---------------------------------------------------------------------------
@@ -297,6 +329,45 @@ class TestVTUParsing:
         result = ElmerRunner._parse_vtu(vtu_path, 0.0)
         assert result.success
         assert result.temperature_field is not None
+        np.testing.assert_array_almost_equal(
+            result.temperature_field, np.array(temps, dtype=np.float64)
+        )
+
+    def test_parse_vtu_extracts_node_coords(self, tmp_path):
+        """VTU parse extracts per-node (x,y,z) coordinates from Points DataArray."""
+        temps = [40.0, 42.0, 41.0]
+        coords = "0.0 0.0 0.0 5.0 0.0 0.0 2.5 5.0 0.0"
+        vtu_xml = f"""<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="3" NumberOfCells="0">
+      <Points>
+        <DataArray type="Float64" Name="Points" NumberOfComponents="3" format="ascii">
+          {coords}
+        </DataArray>
+      </Points>
+      <PointData>
+        <DataArray type="Float64" Name="temperature" format="ascii">
+          {" ".join(f"{t:.6f}" for t in temps)}
+        </DataArray>
+      </PointData>
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" format="ascii"/>
+        <DataArray type="Int32" Name="offsets" format="ascii"/>
+        <DataArray type="UInt8" Name="types" format="ascii"/>
+      </Cells>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
+"""
+        vtu_path = tmp_path / "coords.vtu"
+        vtu_path.write_text(vtu_xml)
+
+        result = ElmerRunner._parse_vtu(vtu_path, 0.0)
+        assert result.success
+        assert result.node_coords is not None
+        expected_xyz = np.array([[0.0, 0.0, 0.0], [5.0, 0.0, 0.0], [2.5, 5.0, 0.0]], dtype=np.float64)
+        np.testing.assert_array_almost_equal(result.node_coords, expected_xyz)
         np.testing.assert_array_almost_equal(
             result.temperature_field, np.array(temps, dtype=np.float64)
         )

@@ -19,6 +19,7 @@ from temper_placer.validation.elmer_compare import (
     AttributionRegion,
     ComparisonResult,
     compare_fields,
+    project_elmer_to_fdm,
 )
 
 
@@ -262,3 +263,106 @@ class TestTrivialFields:
             tolerance_C=1.0,
         )
         assert result.is_clean
+
+
+# ---------------------------------------------------------------------------
+# 3-D unstructured → 2-D FDM grid projection tests
+# ---------------------------------------------------------------------------
+
+
+class TestProjectElmerToFdm:
+    """project_elmer_to_fdm() maps unstructured nodes onto the FDM grid."""
+
+    def test_projection_regular_grid(self):
+        """Projection of a regular grid matches the input field exactly."""
+        cfg = _fdm_config(H=10, W=15, cell_size=0.5, origin=(0.0, 0.0))
+        H, W = cfg.height_cells, cfg.width_cells
+        cs = cfg.cell_size_mm
+        ox, oy = cfg.origin_mm
+
+        # FDM cell centres
+        xc = ox + (np.arange(W, dtype=np.float64) + 0.5) * cs
+        yc = oy + (np.arange(H, dtype=np.float64) + 0.5) * cs
+        xx, yy = np.meshgrid(xc, yc)
+        expected_2d = xx * 0.5 + yy * 0.3 + 40.0  # synthetic field
+
+        # Node coords — centres at mid-plane
+        z_mid = 1.6 / 2.0
+        node_coords = np.column_stack([xx.ravel(), yy.ravel(), np.full(H*W, z_mid)])
+        node_temps = expected_2d.ravel()
+
+        projected = project_elmer_to_fdm(
+            node_coords=node_coords,
+            node_temps=node_temps,
+            fdm_config=cfg,
+            thickness_mm=1.6,
+        )
+
+        assert projected.shape == (H, W)
+        np.testing.assert_array_almost_equal(projected, expected_2d)
+
+    def test_projection_deterministic(self):
+        """Same inputs → same output every time."""
+        cfg = _fdm_config(H=5, W=5)
+        H, W = cfg.height_cells, cfg.width_cells
+        cs = cfg.cell_size_mm
+        ox, oy = cfg.origin_mm
+
+        xc = ox + (np.arange(W, dtype=np.float64) + 0.5) * cs
+        yc = oy + (np.arange(H, dtype=np.float64) + 0.5) * cs
+        xx, yy = np.meshgrid(xc, yc)
+        z_mid = 0.8
+        node_coords = np.column_stack([xx.ravel(), yy.ravel(), np.full(H*W, z_mid)])
+        node_temps = np.random.RandomState(42).uniform(30.0, 80.0, size=H*W)
+
+        result1 = project_elmer_to_fdm(node_coords, node_temps, cfg, thickness_mm=1.6)
+        result2 = project_elmer_to_fdm(node_coords, node_temps, cfg, thickness_mm=1.6)
+        np.testing.assert_array_equal(result1, result2)
+
+    def test_projection_irregular_nodes(self):
+        """Sparse irregular nodes project to full FDM grid via nearest-neighbor."""
+        cfg = _fdm_config(H=6, W=8, cell_size=1.0, origin=(0.0, 0.0))
+        H, W = cfg.height_cells, cfg.width_cells
+
+        # Sparse nodes: only 4 corners + centre
+        node_coords = np.array([
+            [0.5, 0.5, 0.8],
+            [7.5, 0.5, 0.8],
+            [0.5, 5.5, 0.8],
+            [7.5, 5.5, 0.8],
+            [4.0, 3.0, 0.8],
+        ], dtype=np.float64)
+        node_temps = np.array([30.0, 35.0, 40.0, 45.0, 50.0], dtype=np.float64)
+
+        projected = project_elmer_to_fdm(
+            node_coords=node_coords,
+            node_temps=node_temps,
+            fdm_config=cfg,
+            thickness_mm=1.6,
+        )
+
+        assert projected.shape == (H, W)
+        # All FDM cells should be filled (no NaN from nearest)
+        assert not np.any(np.isnan(projected))
+
+    def test_projection_empty_raises(self):
+        """Empty node arrays raise ValueError."""
+        cfg = _fdm_config(H=5, W=5)
+
+        with pytest.raises(ValueError, match="non-empty"):
+            project_elmer_to_fdm(
+                node_coords=np.empty((0, 3)),
+                node_temps=np.empty(0),
+                fdm_config=cfg,
+            )
+
+    def test_projection_mismatched_lengths_raises(self):
+        """Mismatched node_coords and node_temps lengths raise ValueError."""
+        cfg = _fdm_config(H=5, W=5)
+
+        with pytest.raises(ValueError, match="same length"):
+            project_elmer_to_fdm(
+                node_coords=np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float64),
+                node_temps=np.array([30.0], dtype=np.float64),
+                fdm_config=cfg,
+            )

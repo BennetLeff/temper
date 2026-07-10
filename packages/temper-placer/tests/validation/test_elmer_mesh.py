@@ -157,6 +157,95 @@ class TestBuildTemperMesh:
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# Edge cases
+# ---------------------------------------------------------------------------
+
+
+class TestPowerMapBodyForces:
+    """power_map → Body Force sections in .sif."""
+
+    def test_power_map_generates_body_force_sections(
+        self, board_temper, fdm_config, devices, device_thermal, tmp_path
+    ):
+        """Body Force N sections are generated for each powered device."""
+        _, sif_path = build_temper_mesh(
+            board=board_temper,
+            fdm_config=fdm_config,
+            devices=devices,
+            device_thermal=device_thermal,
+            power_map={"Q1": 15.0},
+            output_dir=tmp_path / "mesh_bf",
+        )
+        sif_text = sif_path.read_text()
+        assert "Body Force 1" in sif_text
+        assert "Device Q1 Power" in sif_text
+        assert "Heat Source = Real 15.000000" in sif_text
+
+    def test_device_body_references_body_force(
+        self, board_temper, fdm_config, devices, device_thermal, tmp_path
+    ):
+        """Device Body N references its Body Force."""
+        _, sif_path = build_temper_mesh(
+            board=board_temper,
+            fdm_config=fdm_config,
+            devices=devices,
+            device_thermal=device_thermal,
+            power_map={"Q1": 25.0},
+            output_dir=tmp_path / "mesh_bf2",
+        )
+        sif_text = sif_path.read_text()
+        assert "Body Force = 1" in sif_text
+        assert 'Name = "Device Q1"' in sif_text
+
+    def test_empty_power_map_generates_zero_body_force(
+        self, board_temper, fdm_config, devices, device_thermal, tmp_path
+    ):
+        """Empty power_map generates a single zero Body Force."""
+        _, sif_path = build_temper_mesh(
+            board=board_temper,
+            fdm_config=fdm_config,
+            devices=devices,
+            device_thermal=device_thermal,
+            power_map={},
+            output_dir=tmp_path / "mesh_zero_bf",
+        )
+        sif_text = sif_path.read_text()
+        assert "Body Force 1" in sif_text
+        assert "Zero Power" in sif_text
+        assert "Heat Source = Real 0.0" in sif_text
+
+    def test_none_power_map_generates_zero_body_force(
+        self, board_temper, fdm_config, devices, device_thermal, tmp_path
+    ):
+        """None power_map (default) generates a single zero Body Force."""
+        _, sif_path = build_temper_mesh(
+            board=board_temper,
+            fdm_config=fdm_config,
+            devices=devices,
+            device_thermal=device_thermal,
+            output_dir=tmp_path / "mesh_none_bf",
+        )
+        sif_text = sif_path.read_text()
+        assert "Zero Power" in sif_text
+
+    def test_power_map_preserves_material_conductivity_no_heat_source(
+        self, board_temper, fdm_config, devices, device_thermal, tmp_path
+    ):
+        """Device Material blocks do NOT contain Heat Source = Equals."""
+        _, sif_path = build_temper_mesh(
+            board=board_temper,
+            fdm_config=fdm_config,
+            devices=devices,
+            device_thermal=device_thermal,
+            power_map={"Q1": 15.0},
+            output_dir=tmp_path / "mesh_no_equals",
+        )
+        sif_text = sif_path.read_text()
+        assert 'Heat Source = Equals' not in sif_text
+        assert "Heat Conductivity = 385.0" in sif_text
+
+
 class TestEdgeCases:
     """Edge: zero devices, zero copper, minimal board."""
 

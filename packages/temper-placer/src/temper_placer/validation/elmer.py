@@ -37,6 +37,58 @@ def check_elmer() -> bool:
     return shutil.which("ElmerGrid") is not None and shutil.which("ElmerSolver") is not None
 
 
+def elmer_grid(mesh_dir: Path) -> None:
+    """Run ElmerGrid to convert Gmsh ``.geo`` geometry to Elmer mesh files.
+
+    ElmerGrid (format 1 = Gmsh input, format 2 = Elmer output) reads
+    ``{mesh_dir.name}.geo`` from *mesh_dir* and writes ``mesh.header``,
+    ``mesh.nodes``, ``mesh.elements``, and ``mesh.boundary`` into a
+    subdirectory named ``{mesh_dir.name}``.
+
+    Args:
+        mesh_dir: Directory containing the ``.geo`` geometry file.
+
+    Raises:
+        RuntimeError: If ElmerGrid is not on PATH.
+        FileNotFoundError: If the expected ``.geo`` file is missing.
+        RuntimeError: If ElmerGrid exits non-zero.
+    """
+    elmer_grid_path = shutil.which("ElmerGrid")
+    if elmer_grid_path is None:
+        raise RuntimeError(
+            "ElmerGrid not available on PATH — external FEM instrument is absent"
+        )
+
+    geo_basename = mesh_dir.name
+    geo_path = mesh_dir / f"{geo_basename}.geo"
+    if not geo_path.is_file():
+        raise FileNotFoundError(
+            f"Geometry file not found: {geo_path}"
+        )
+
+    cmd = [elmer_grid_path, "1", "2", geo_basename]
+
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd=mesh_dir,
+        )
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(
+            f"ElmerGrid timed out after 300 s on {mesh_dir}"
+        ) from None
+
+    if proc.returncode != 0:
+        joined = proc.stderr + proc.stdout
+        hint = joined[-500:] if len(joined) > 500 else joined
+        raise RuntimeError(
+            f"ElmerGrid exit code {proc.returncode}: {hint}"
+        )
+
+
 @dataclass(frozen=True)
 class ElmerResult:
     """Result from an ElmerSolver run.
@@ -44,12 +96,15 @@ class ElmerResult:
     Attributes:
         success: Whether the solve completed without errors.
         temperature_field: Parsed temperature field (numpy array) or ``None``.
+        node_coords: Per-node (x,y,z) coordinates ``(N, 3)`` from VTU Points,
+            or ``None`` when not extracted.
         elapsed_ms: Wall-clock solve time in milliseconds.
         error_message: Error description when ``success`` is ``False``.
     """
 
     success: bool
     temperature_field: np.ndarray | None = None
+    node_coords: np.ndarray | None = None
     elapsed_ms: float = 0.0
     error_message: str = ""
 
@@ -185,26 +240,37 @@ class ElmerRunner:
 
     @staticmethod
     def _parse_vtu(vtu_path: Path, elapsed_ms: float) -> ElmerResult:
-        """Parse an Elmer VTU (XML unstructured grid) into a numpy array.
+        """Parse an Elmer VTU (XML unstructured grid) into numpy arrays.
 
-        Extracts the ``temperature`` scalar field from the ``PointData``
-        section, which is the canonical output variable for Elmer's
-        ``HeatSolver``.
+        Extracts the ``temperature`` scalar field *and* per-node ``(x, y, z)``
+        coordinates from the ``PointData`` and ``Points`` sections, which are
+        needed for 3-D → 2-D projection onto the FDM grid.
 
         Returns:
             ``ElmerResult`` with ``temperature_field`` as a ``(N,)`` float64
-            array of per-node temperatures, or error on parse failure.
+            array and ``node_coords`` as a ``(N, 3)`` float64 array, or error
+            on parse failure.
         """
         try:
             tree = ET.parse(str(vtu_path))
             root = tree.getroot()
 
-            # Extract point data — Elmer stores temperature in
-            # <PointData Scalars="temperature"> or within a <DataArray>
+            # --- Extract node coordinates from <Points> ---
+            coords = None
+            for elem in root.iter():
+                tag = elem.tag.split("}")[-1] if "}" in elem.tag else elem.tag
+                if tag == "DataArray" and elem.get("Name", "") == "Points":
+                    ncomp = int(elem.get("NumberOfComponents", "3"))
+                    text = "".join(elem.itertext())
+                    vals = np.fromstring(text, sep=" ", dtype=np.float64)
+                    if len(vals) % ncomp == 0:
+                        coords = vals.reshape(-1, ncomp)
+                    break
+
+            # --- Extract temperature ---
             temp = None
             for elem in root.iter():
                 tag = elem.tag.split("}")[-1] if "}" in elem.tag else elem.tag
-                # Elmer classic VTU: <DataArray type="Float64" Name="temperature" ...>
                 if tag == "DataArray" and elem.get("Name", "").lower() == "temperature":
                     text = "".join(elem.itertext())
                     vals = np.fromstring(text, sep=" ", dtype=np.float64)
@@ -234,6 +300,7 @@ class ElmerRunner:
             return ElmerResult(
                 success=True,
                 temperature_field=temp,
+                node_coords=coords,
                 elapsed_ms=elapsed_ms,
             )
 

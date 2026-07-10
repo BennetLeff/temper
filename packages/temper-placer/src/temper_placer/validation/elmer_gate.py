@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
     Gate,
@@ -53,7 +55,7 @@ class ElmerGateConfig:
     power_map: dict[str, float]
     device_thermal: dict[str, DeviceThermalConfig]
     tolerance_C: float = 5.0
-    copper_grid: np.ndarray | None = None  # noqa: F821
+    copper_grid: np.ndarray | None = None
 
 
 class ElmerCorroborationGate(Gate):
@@ -150,12 +152,26 @@ class ElmerCorroborationGate(Gate):
                 fdm_config=cfg.fdm_config,
                 devices=cfg.devices,
                 device_thermal=cfg.device_thermal,
+                power_map=cfg.power_map,
                 output_dir=self._output_dir,
             )
         except Exception as exc:
             return GateResult(
                 GateStatus.UNMEASURED,
                 error_message=f"Elmer corroboration gate: mesh generation failed — {exc}",
+            )
+
+        # --- Step 2b: ElmerGrid meshing --------------------------------------
+        from temper_placer.validation.elmer import elmer_grid
+
+        try:
+            elmer_grid(mesh_dir)
+        except Exception as exc:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=(
+                    f"Elmer corroboration gate: ElmerGrid meshing failed — {exc}"
+                ),
             )
 
         # --- Step 3: Run Elmer solve ----------------------------------------
@@ -175,29 +191,50 @@ class ElmerCorroborationGate(Gate):
 
         # --- Step 4: Compare fields -----------------------------------------
 
-        from temper_placer.validation.elmer_compare import compare_fields
+        from temper_placer.validation.elmer_compare import (
+            compare_fields,
+            project_elmer_to_fdm,
+        )
 
-        # Project Elmer 1-D field onto FDM 2-D grid
+        # Project Elmer 3-D unstructured field onto 2-D FDM grid
         elmer_t = elmer_result.temperature_field
+        elmer_xyz = elmer_result.node_coords
         if elmer_t is None:
             return GateResult(
                 GateStatus.UNMEASURED,
                 error_message="Elmer corroboration gate: Elmer returned empty temperature field",
             )
 
-        # Reshape to FDM grid if possible (Elmer may output per-node array)
         H, W = fdm_grid.shape
-        expected_n = H * W
-        if len(elmer_t) == expected_n:
+
+        if elmer_xyz is not None and len(elmer_xyz) > 0:
+            # Convert Elmer SI (metres) → mm for projection
+            elmer_xyz_mm = elmer_xyz * 1000.0
+            thickness_mm = board.layer_stackup.thickness if board.layer_stackup else 1.6
+            try:
+                elmer_2d = project_elmer_to_fdm(
+                    node_coords=elmer_xyz_mm,
+                    node_temps=elmer_t,
+                    fdm_config=cfg.fdm_config,
+                    thickness_mm=thickness_mm,
+                )
+            except Exception as exc:
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message=(
+                        f"Elmer corroboration gate: projection failed — {exc}"
+                    ),
+                )
+        elif len(elmer_t) == H * W:
+            # Fallback: legacy reshape for pre-existing rectangular output
             elmer_2d = elmer_t.reshape(H, W)
         else:
-            # Interpolate / down-sample to FDM grid size — simple reshape
-            # for when Elmer mesh matches FDM cell count
             return GateResult(
                 GateStatus.UNMEASURED,
                 error_message=(
                     f"Elmer corroboration gate: cannot project Elmer field "
-                    f"(size {len(elmer_t)}) onto FDM grid ({H}x{W} = {expected_n})"
+                    f"(size {len(elmer_t)}) onto FDM grid ({H}x{W} = {H*W}) "
+                    f"— no node coordinates available"
                 ),
             )
 

@@ -109,8 +109,16 @@ class TestElmerCorroborationGateClean:
         monkeypatch.setattr(shutil, "which", lambda name: f"/usr/bin/{name}")
 
         H, W = fdm_config.height_cells, fdm_config.width_cells
+        cs = fdm_config.cell_size_mm
+        ox, oy = fdm_config.origin_mm
         T = np.full((H, W), 45.0, dtype=np.float64)
-        # Uniform field — FDM and Elmer should agree perfectly
+
+        # Node coords: FDM cell centres at mid-plane (mm)
+        xc = ox + (np.arange(W, dtype=np.float64) + 0.5) * cs
+        yc = oy + (np.arange(H, dtype=np.float64) + 0.5) * cs
+        xx, yy = np.meshgrid(xc, yc)
+        z_mid = 1.6 / 2.0
+        node_coords = np.column_stack([xx.ravel(), yy.ravel(), np.full(H*W, z_mid)])
 
         # Monkey-patch FDM solver to return our synthetic field
         def fake_fdm(config, devices, power_map, copper_grid=None, h_field=None):
@@ -128,12 +136,18 @@ class TestElmerCorroborationGateClean:
             fake_fdm,
         )
 
-        # Monkey-patch ElmerRunner.run to return the same matching field
+        # Monkey-patch ElmerGrid to be a no-op
+        monkeypatch.setattr(
+            "temper_placer.validation.elmer.elmer_grid",
+            lambda mesh_dir: None,
+        )
+
+        # Monkey-patch ElmerRunner.run to return matching field + node_coords
         def fake_run(self, mesh_dir, sif_path):
-            import time
             return ElmerResult(
                 success=True,
                 temperature_field=T.ravel().copy(),
+                node_coords=node_coords.copy(),
                 elapsed_ms=10.0,
             )
 
@@ -173,7 +187,16 @@ class TestElmerCorroborationGateViolations:
         monkeypatch.setattr(shutil, "which", lambda name: f"/usr/bin/{name}")
 
         H, W = fdm_config.height_cells, fdm_config.width_cells
+        cs = fdm_config.cell_size_mm
+        ox, oy = fdm_config.origin_mm
         T_fdm = np.full((H, W), 45.0, dtype=np.float64)
+
+        # Node coords: FDM cell centres at mid-plane (mm)
+        xc = ox + (np.arange(W, dtype=np.float64) + 0.5) * cs
+        yc = oy + (np.arange(H, dtype=np.float64) + 0.5) * cs
+        xx, yy = np.meshgrid(xc, yc)
+        z_mid = 1.6 / 2.0
+        node_coords = np.column_stack([xx.ravel(), yy.ravel(), np.full(H*W, z_mid)])
 
         # Mock FDM to return a cool uniform field
         def fake_fdm(config, devices, power_map, copper_grid=None, h_field=None):
@@ -191,14 +214,20 @@ class TestElmerCorroborationGateViolations:
             fake_fdm,
         )
 
+        # Monkey-patch ElmerGrid to be a no-op
+        monkeypatch.setattr(
+            "temper_placer.validation.elmer.elmer_grid",
+            lambda mesh_dir: None,
+        )
+
         # Elmer returns a much hotter field — disagreement
         T_elmer = np.full((H, W), 200.0, dtype=np.float64)
 
         def fake_run(self, mesh_dir, sif_path):
-            import time
             return ElmerResult(
                 success=True,
                 temperature_field=T_elmer.ravel().copy(),
+                node_coords=node_coords.copy(),
                 elapsed_ms=10.0,
             )
 

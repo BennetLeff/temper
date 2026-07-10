@@ -158,6 +158,82 @@ def compare_fields(
 
 
 # ---------------------------------------------------------------------------
+# 3-D unstructured → 2-D FDM grid field projection
+# ---------------------------------------------------------------------------
+
+
+def project_elmer_to_fdm(
+    node_coords: np.ndarray,
+    node_temps: np.ndarray,
+    fdm_config: ThermalFDMConfig,
+    thickness_mm: float = 1.6,
+) -> np.ndarray:
+    """Project Elmer 3-D unstructured nodal temperatures onto the 2-D FDM grid.
+
+    Extracts the board mid-plane z-slice from the Elmer node coordinates,
+    then uses nearest-neighbor interpolation (via ``scipy.interpolate.griddata``)
+    to map per-node temperatures onto the FDM cell-centre (x, y) positions.
+
+    The projection is deterministic: same inputs → same output.
+
+    Args:
+        node_coords: ``(N, 3)`` float64 array of (x, y, z) node positions in mm
+            (Elmer writes SI metres; callers must convert to mm before passing).
+        node_temps: ``(N,)`` float64 array of per-node temperatures in deg-C.
+        fdm_config: FDM grid geometry (cell_size_mm, origin_mm, shape).
+        thickness_mm: Board thickness in mm for the mid-plane z-slice.
+
+    Returns:
+        ``(H, W)`` float64 2-D temperature field projected onto the FDM grid.
+
+    Raises:
+        ValueError: If node_coords or node_temps are empty or mismatched.
+    """
+    from scipy.interpolate import griddata
+
+    if len(node_coords) == 0 or len(node_temps) == 0:
+        raise ValueError("node_coords and node_temps must be non-empty")
+    if node_coords.shape[0] != len(node_temps):
+        raise ValueError(
+            f"node_coords ({node_coords.shape[0]}) and "
+            f"node_temps ({len(node_temps)}) must have the same length"
+        )
+
+    H = fdm_config.height_cells
+    W = fdm_config.width_cells
+    cs = fdm_config.cell_size_mm
+    ox, oy = fdm_config.origin_mm
+
+    # Board mid-plane z in mm
+    z_mid = thickness_mm / 2.0
+    eps_z = max(thickness_mm * 0.1, 0.05)
+
+    # Filter to nodes near the board mid-plane
+    z_vals = node_coords[:, 2]
+    mid_mask = np.abs(z_vals - z_mid) <= eps_z
+    if not np.any(mid_mask):
+        mid_mask = np.ones(len(node_coords), dtype=bool)
+
+    xy_nodes = node_coords[mid_mask, :2]
+    T_nodes = node_temps[mid_mask]
+
+    # FDM cell-centre positions
+    x_centres = ox + (np.arange(W, dtype=np.float64) + 0.5) * cs
+    y_centres = oy + (np.arange(H, dtype=np.float64) + 0.5) * cs
+    xx, yy = np.meshgrid(x_centres, y_centres)
+    query_points = np.column_stack([xx.ravel(), yy.ravel()])
+
+    projected = griddata(
+        xy_nodes,
+        T_nodes,
+        query_points,
+        method="nearest",
+    ).reshape(H, W).astype(np.float64)
+
+    return projected
+
+
+# ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
 
