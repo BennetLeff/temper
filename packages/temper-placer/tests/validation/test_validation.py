@@ -26,10 +26,6 @@ from temper_placer.validation.metrics import (
     compute_metrics,
 )
 
-pytestmark = pytest.mark.skip(
-    reason="validation suite stale after validator/metrics refactor (20/26 assertions fail); needs rewrite, not a JAX issue"
-)
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -111,7 +107,7 @@ def simple_board():
 
 
 @pytest.fixture
-def valid_placement(_simple_netlist, _simple_board):
+def valid_placement():
     """Create a valid placement with no violations."""
     # Place components well-separated
     positions = np.array(
@@ -127,7 +123,7 @@ def valid_placement(_simple_netlist, _simple_board):
 
 
 @pytest.fixture
-def overlapping_placement(_simple_netlist):
+def overlapping_placement():
     """Create a placement with overlapping components."""
     positions = np.array(
         [
@@ -142,7 +138,7 @@ def overlapping_placement(_simple_netlist):
 
 
 @pytest.fixture
-def boundary_violating_placement(_simple_netlist, _simple_board):
+def boundary_violating_placement():
     """Create a placement with boundary violations."""
     positions = np.array(
         [
@@ -508,7 +504,7 @@ class TestCompositeValidator:
         # Should have merged results
         assert "+GeometricValidator" in result.validator_name
 
-    def test_availability_check(self, _valid_placement, _simple_netlist, _simple_board):
+    def test_availability_check(self):
         """Test is_available check."""
         composite = CompositeValidator([GeometricValidator()])
         assert composite.is_available()
@@ -525,6 +521,7 @@ class TestCompositeValidator:
 class TestValidationIntegration:
     """Integration tests for validation module."""
 
+    @pytest.mark.skip(reason="PlacementState.random_init retired (JAX); needs CP-SAT rewrite")
     def test_full_validation_workflow(self, simple_netlist, simple_board):
         """Test complete validation workflow."""
         # Create a placement
@@ -551,6 +548,7 @@ class TestValidationIntegration:
         assert val_result.metrics["overlap_count"] == metrics.overlap_count
         assert val_result.metrics["boundary_violations"] == metrics.boundary_violations
 
+    @pytest.mark.skip(reason="PlacementState.random_init retired (JAX); needs CP-SAT rewrite")
     def test_validation_performance(self, simple_netlist, simple_board):
         """Test validation performance is reasonable."""
         key = np.random.default_rng(0)
