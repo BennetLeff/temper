@@ -748,14 +748,13 @@ dependencies = [
  "proptest",
  "pyo3",
  "serde",
- "temper-rust-router",
+ "temper-rust-router-core",
 ]
 
 [[package]]
-name = "temper-rust-router"
+name = "temper-rust-router-core"
 version = "0.1.0"
 dependencies = [
- "pyo3",
  "rustsat",
  "rustsat-cadical",
  "serde",
