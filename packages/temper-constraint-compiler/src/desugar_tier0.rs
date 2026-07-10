@@ -64,7 +64,7 @@ fn resolve_components(
     for name in names {
         match resolver.resolve(name) {
             Some(idx) => indices.push(idx),
-            None => return Err(CompileError::UnresolvedComponent(name.clone())),
+            None => return Err(CompileError::UnresolvedComponent(name.to_owned())),
         }
     }
     Ok(indices)
@@ -88,19 +88,20 @@ fn desugar_adjacent(
     {
         let net_a = resolver
             .resolve(a)
-            .ok_or_else(|| CompileError::UnresolvedComponent(a.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedComponent(a.to_owned()))?;
         let net_b = resolver
             .resolve(b)
-            .ok_or_else(|| CompileError::UnresolvedComponent(b.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedComponent(b.to_owned()))?;
+        let id_owned = id.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "Adjacent".into(),
             "desugar_adjacent".into(),
-            because.clone(),
+            because.to_owned(),
             *tier,
         );
         Ok(vec![ResolvedConstraint::Adjacency {
-            id: id.clone(),
+            id: id_owned,
             net_a,
             net_b,
             max_distance_mm: *max_distance_mm,
@@ -130,19 +131,20 @@ fn desugar_separated(
     {
         let net_a = resolver
             .resolve(a)
-            .ok_or_else(|| CompileError::UnresolvedComponent(a.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedComponent(a.to_owned()))?;
         let net_b = resolver
             .resolve(b)
-            .ok_or_else(|| CompileError::UnresolvedComponent(b.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedComponent(b.to_owned()))?;
+        let id_owned = id.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "Separated".into(),
             "desugar_separated".into(),
-            because.clone(),
+            because.to_owned(),
             *tier,
         );
         Ok(vec![ResolvedConstraint::Separation {
-            id: id.clone(),
+            id: id_owned,
             net_a,
             net_b,
             min_distance_mm: *min_distance_mm,
@@ -171,17 +173,18 @@ fn desugar_enclosing(
     {
         let zone_bounds = zone_resolver
             .resolve(outer)
-            .ok_or_else(|| CompileError::UnresolvedZone(outer.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedZone(outer.to_owned()))?;
         let nets = resolve_components(inner, resolver)?;
+        let id_owned = id.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "Enclosing".into(),
             "desugar_enclosing".into(),
-            because.clone(),
+            because.to_owned(),
             *tier,
         );
         Ok(vec![ResolvedConstraint::ZoneEnclosing {
-            id: id.clone(),
+            id: id_owned,
             nets,
             zone_bounds,
             margin_mm: *margin_mm,
@@ -210,15 +213,16 @@ fn desugar_aligned(
     {
         let nets = resolve_components(components, resolver)?;
         let axis = axis.unwrap_or(crate::ir_tier0::Axis::X);
+        let id_owned = id.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "Aligned".into(),
             "desugar_aligned".into(),
-            because.clone(),
+            because.to_owned(),
             *tier,
         );
         Ok(vec![ResolvedConstraint::Alignment {
-            id: id.clone(),
+            id: id_owned,
             nets,
             axis,
             tolerance_mm: *tolerance_mm,
@@ -248,15 +252,16 @@ fn desugar_on_side(
     {
         let nets = resolve_components(components, resolver)?;
         let side = side.unwrap_or(crate::ir_tier0::BoardEdge::Top);
+        let id_owned = id.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "OnSide".into(),
             "desugar_on_side".into(),
-            because.clone(),
+            because.to_owned(),
             *tier,
         );
         Ok(vec![ResolvedConstraint::EdgePlacement {
-            id: id.clone(),
+            id: id_owned,
             nets,
             side,
             max_distance_mm: *max_distance_mm,
@@ -285,16 +290,17 @@ fn desugar_anchored(
     {
         let net = resolver
             .resolve(component)
-            .ok_or_else(|| CompileError::UnresolvedComponent(component.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedComponent(component.to_owned()))?;
+        let id_owned = id.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "Anchored".into(),
             "desugar_anchored".into(),
-            because.clone(),
+            because.to_owned(),
             *tier,
         );
         Ok(vec![ResolvedConstraint::Anchored {
-            id: id.clone(),
+            id: id_owned,
             net,
             region: *region,
             position: *position,
@@ -322,16 +328,17 @@ fn desugar_loop_area(
     } = constraint
     {
         let nets = resolve_components(components, resolver)?;
+        let id_owned = id.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "LoopArea".into(),
             "desugar_loop_area".into(),
-            because.clone(),
+            because.to_owned(),
             *tier,
         );
         Ok(vec![ResolvedConstraint::LoopArea {
-            id: id.clone(),
-            loop_name: loop_name.clone(),
+            id: id_owned,
+            loop_name: loop_name.to_owned(),
             nets,
             max_area_mm2: *max_area_mm2,
             tier: *tier,
@@ -359,19 +366,21 @@ fn desugar_inferred_separation(
     {
         let net_a = resolver
             .resolve(&source_pair.0)
-            .ok_or_else(|| CompileError::UnresolvedComponent(source_pair.0.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedComponent(source_pair.0.to_owned()))?;
         let net_b = resolver
             .resolve(&source_pair.1)
-            .ok_or_else(|| CompileError::UnresolvedComponent(source_pair.1.clone()))?;
+            .ok_or_else(|| CompileError::UnresolvedComponent(source_pair.1.to_owned()))?;
+        let id_owned = id.to_owned();
+        let because_owned = because.to_owned();
         let prov_ref = prov.push_tier0_and_return(
-            id.clone(),
+            id_owned.clone(),
             "InferredSeparation".into(),
             "desugar_inferred_separation".into(),
-            because.clone(),
+            because_owned.clone(),
             *tier,
         );
         let mut results = vec![ResolvedConstraint::Separation {
-            id: id.clone(),
+            id: id_owned,
             net_a,
             net_b,
             min_distance_mm: *clearance_floor_mm,
@@ -383,13 +392,13 @@ fn desugar_inferred_separation(
                 format!("{id}_layer"),
                 "InferredSeparation".into(),
                 "desugar_inferred_separation".into(),
-                because.clone(),
+                because_owned,
                 *tier,
             );
             results.push(ResolvedConstraint::LayerPreference {
                 id: format!("{id}_layer"),
                 net: net_a,
-                layer: layer.clone(),
+                layer: layer.to_owned(),
                 tier: *tier,
                 provenance: layer_prov_ref,
             });
@@ -444,7 +453,7 @@ pub fn compile_lattice_inferred_to_tier0(
             );
             PclConstraint::InferredSeparation {
                 id,
-                source_pair: (ipc.net_class_a.clone(), ipc.net_class_b.clone()),
+                source_pair: (ipc.net_class_a.to_owned(), ipc.net_class_b.to_owned()),
                 clearance_floor_mm: ipc.clearance_floor_mm,
                 layer_restriction: ipc.layer_restriction.clone(),
                 tier: ConstraintTier::Hard,
