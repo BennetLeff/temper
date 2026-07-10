@@ -69,6 +69,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
+    import scipy
+
     from temper_placer.fields.result import FieldResult
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig
 
@@ -392,7 +394,7 @@ def _is_neumann_boundary_u7(
 
 
 def _build_conductivity_field_gs(
-    config: "ThermalFDMConfig",
+    config: ThermalFDMConfig,
     copper_grid: np.ndarray | None = None,
 ) -> np.ndarray:
     """Build per-cell in-plane conductance k_eff (W/K) — identical physics
@@ -411,7 +413,7 @@ def _build_conductivity_field_gs(
 
 
 def _build_heat_source_field_gs(
-    config: "ThermalFDMConfig",
+    config: ThermalFDMConfig,
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],
     Q_field: np.ndarray | None = None,
@@ -465,17 +467,16 @@ def _is_heatsink_boundary_face_u7(
         return True
     if direction == "east" and col == width_cells - 1 and hs == "RIGHT":
         return True
-    if direction == "west" and col == 0 and hs == "LEFT":
-        return True
-    return False
+    return bool(direction == "west" and col == 0 and hs == "LEFT")
 
 
 def _assemble_convective_system(
-    config: "ThermalFDMConfig",
+    config: ThermalFDMConfig,
     k_field: np.ndarray,
     Q_field: np.ndarray,
     h_conv: float,
-) -> tuple["scipy.sparse.csr_matrix", np.ndarray]:
+    h_field: np.ndarray | None = None,
+) -> tuple[scipy.sparse.csr_matrix, np.ndarray]:
     """Assemble the sparse linear system A*T = b for the convective-boundary FDM.
 
     Same 5-point harmonic-mean stencil as U5's ``_assemble_system``, PLUS a
@@ -483,6 +484,9 @@ def _assemble_convective_system(
 
     Dirichlet face term at the heatsink edge (boundary-aligned, 2nd-order),
     Robin (convective) at all other edges.
+
+    When *h_field* is provided, adds a per-cell through-plane vertical sink
+    term (same pattern as U5's ``_assemble_system``).
     """
     from scipy.sparse import lil_matrix
 
@@ -561,6 +565,13 @@ def _assemble_convective_system(
                 diag += conv_coeff
                 b[idx] += conv_coeff * config.ambient_C
 
+            # Through-plane heat-removal sink (U5-compatible, #141)
+            if h_field is not None:
+                h_cell = float(h_field[row, col])
+                if h_cell > 0.0:
+                    diag += h_cell
+                    b[idx] += h_cell * config.ambient_C
+
             A[idx, idx] = diag
             b[idx] += Q_field[row, col]
 
@@ -568,10 +579,11 @@ def _assemble_convective_system(
 
 
 def _convective_fdm_solve(
-    config: "ThermalFDMConfig",
+    config: ThermalFDMConfig,
     k_field: np.ndarray,
     Q_field: np.ndarray,
     scorer_config: ThermalScorerConfig,
+    h_field: np.ndarray | None = None,
 ) -> tuple[np.ndarray, int, float]:
     """Solve the convective-boundary FDM via sparse-direct SuperLU.
 
@@ -582,7 +594,7 @@ def _convective_fdm_solve(
     from scipy.sparse.linalg import spsolve
 
     A, b = _assemble_convective_system(
-        config, k_field, Q_field, h_conv=scorer_config.h,
+        config, k_field, Q_field, h_conv=scorer_config.h, h_field=h_field,
     )
     T_flat: np.ndarray = spsolve(A, b)
     T_grid = T_flat.reshape(config.height_cells, config.width_cells)
@@ -618,11 +630,12 @@ class ThermalScorer:
 
     def solve_independent(
         self,
-        fdm_config: "ThermalFDMConfig",
+        fdm_config: ThermalFDMConfig,
         devices: dict[str, tuple[float, float]] | None = None,
         power_map: dict[str, float] | None = None,
         copper_grid: np.ndarray | None = None,
         Q_field: np.ndarray | None = None,
+        h_field: np.ndarray | None = None,
     ) -> tuple[np.ndarray, int, float]:
         """Run the independent convective-boundary solve, returning
         ``(T_grid, 0, 0.0)``.
@@ -637,6 +650,8 @@ class ThermalScorer:
             power_map: ``{ref: power_W}``.
             copper_grid: Per-cell copper fraction ``(h, w)``.
             Q_field: Direct per-cell heat source ``(h, w)`` W/mm^2.
+            h_field: Per-cell through-plane vertical sink conductance ``(h, w)``
+                in W/(K·mm^2), same as U5's ``solve_thermal_fdm`` parameter.
 
         Returns:
             ``(T_grid, 0, 0.0)`` where ``T_grid`` has shape
@@ -648,7 +663,7 @@ class ThermalScorer:
         k_field = _build_conductivity_field_gs(fdm_config, copper_grid=copper_grid)
         Q_src = _build_heat_source_field_gs(fdm_config, devices, power_map, Q_field=Q_field)
 
-        return _convective_fdm_solve(fdm_config, k_field, Q_src, self.config)
+        return _convective_fdm_solve(fdm_config, k_field, Q_src, self.config, h_field=h_field)
 
     # ------------------------------------------------------------------
     # Public: score (compare U5 field to independent solve)
@@ -656,12 +671,13 @@ class ThermalScorer:
 
     def score(
         self,
-        u5_result: "FieldResult",
-        fdm_config: "ThermalFDMConfig",
+        u5_result: FieldResult,
+        fdm_config: ThermalFDMConfig,
         devices: dict[str, tuple[float, float]] | None = None,
         power_map: dict[str, float] | None = None,
         copper_grid: np.ndarray | None = None,
         Q_field: np.ndarray | None = None,
+        h_field: np.ndarray | None = None,
     ) -> ThermalScoreResult:
         """Score U5's thermal field by comparing to the independent
         convective-boundary solve.
@@ -673,6 +689,7 @@ class ThermalScorer:
             power_map: Same power_map passed to U5's solver.
             copper_grid: Same copper_grid passed to U5's solver.
             Q_field: Same Q_field passed to U5's solver.
+            h_field: Same h_field passed to U5's solver (through-plane sink).
 
         Returns:
             ``ThermalScoreResult`` with comparison metrics, structural bounds,
@@ -694,6 +711,7 @@ class ThermalScorer:
             power_map=power_map,
             copper_grid=copper_grid,
             Q_field=Q_field,
+            h_field=h_field,
         )
 
         u7_peak = float(np.max(u7_grid))
@@ -727,12 +745,13 @@ class ThermalScorer:
 
     def __call__(
         self,
-        u5_result: "FieldResult",
-        fdm_config: "ThermalFDMConfig",
+        u5_result: FieldResult,
+        fdm_config: ThermalFDMConfig,
         devices: dict[str, tuple[float, float]] | None = None,
         power_map: dict[str, float] | None = None,
         copper_grid: np.ndarray | None = None,
         Q_field: np.ndarray | None = None,
+        h_field: np.ndarray | None = None,
     ) -> ThermalScoreResult:
         """Callable interface for U2's ``build_scorecard``."""
         return self.score(
@@ -742,4 +761,5 @@ class ThermalScorer:
             power_map=power_map,
             copper_grid=copper_grid,
             Q_field=Q_field,
+            h_field=h_field,
         )

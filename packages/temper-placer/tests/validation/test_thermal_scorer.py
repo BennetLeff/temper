@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from hypothesis import given, settings, strategies as st
 
 
 # ---------------------------------------------------------------------------
@@ -620,4 +621,60 @@ def test_structural_independence_documented():
 
     assert len(STRUCTURAL_INDEPENDENCE_AXIS) > 100, (
         "Structural axis documentation must be substantial (>100 chars)"
+    )
+
+
+# ---------------------------------------------------------------------------
+# PBT guard: scorer must not produce runaway temperatures
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.property
+@given(
+    power=st.floats(1.0, 100.0),
+    copper_frac=st.floats(0.0, 1.0),
+    ambient_C=st.floats(20.0, 60.0),
+)
+@settings(max_examples=50)
+def test_scorer_no_runaway_temperatures(power, copper_frac, ambient_C):
+    """PBT guard: for any physically-plausible power/copper/ambient,
+    the scorer must NOT produce a temperature far above the FDM
+    (a realistic ceiling — no runaway solves)."""
+    from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
+    from temper_placer.physics.tj_cross_check import DeviceThermalConfig
+    from temper_placer.physics.heat_removal import build_h_field
+    from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
+
+    config = ThermalFDMConfig(
+        cell_size_mm=1.0, origin_mm=(0.0, 0.0), height_cells=20, width_cells=20,
+        ambient_C=ambient_C, heatsink_edge='BOTTOM',
+    )
+    copper = np.full((20, 20), copper_frac, dtype=np.float64)
+    dt = DeviceThermalConfig(
+        name='Q1', R_theta_jc=0.6, R_theta_cs=0.25, R_theta_sa=1.0,
+        T_j_max=150.0,
+        R_jc_because='test', R_cs_because='test',
+        R_sa_because='test', T_j_max_because='test',
+    )
+    h_field = build_h_field(
+        config=config, devices={'Q1': (10.0, 5.0)}, device_thermal={'Q1': dt},
+    )
+    u5 = solve_thermal_fdm(
+        config=config, devices={'Q1': (10.0, 5.0)}, power_map={'Q1': power},
+        copper_grid=copper, h_field=h_field,
+    )
+    scorer = ThermalScorer(ThermalScorerConfig(max_iterations=500))
+    score = scorer.score(
+        u5_result=u5, fdm_config=config,
+        devices={'Q1': (10.0, 5.0)}, power_map={'Q1': power},
+        copper_grid=copper, h_field=h_field,
+    )
+    # Conservative ceiling: 10x the FDM peak (generous — catches the 59k C bug
+    # which was ~300x the FDM peak of 223 C). With h_field both models use
+    # the same through-plane sink, so they should agree within a factor.
+    u5_peak = u5.field.grid.max() if u5.field is not None else 0.0
+    assert score.u7_peak_C < max(50.0, u5_peak * 10.0), (
+        f'scorer runaway: u7_peak={score.u7_peak_C:.0f} C '
+        f'vs u5_peak={u5_peak:.0f} C '
+        f'(power={power:.0f}W, copper={copper_frac:.2f}, amb={ambient_C:.0f}C)'
     )

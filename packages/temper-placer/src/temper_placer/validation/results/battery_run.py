@@ -24,15 +24,15 @@ import json
 import logging
 import statistics
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
 from temper_placer.physics.copper_coverage import (
-    SANITY_CEILING_C,
     check_thermal_plausibility,
     copper_coverage_grid,
 )
@@ -311,6 +311,8 @@ def _make_thermal_scorer_adapter(
             score_result = thermal_scorer.score(
                 u5_result=u5_result, fdm_config=fdm_config,
                 devices=fdm_devices, power_map=power_map,
+                copper_grid=copper_grid,
+                h_field=h_field,
             )
         except Exception as exc:
             return PhysicsOracleResult(
@@ -406,7 +408,7 @@ def _make_arm_placement_builder(
                     h_field=h_field,
                 )
                 if u5_result.is_usable and u5_result.field is not None:
-                    field_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
+                    np.asarray(u5_result.field.grid, dtype=np.float64)
                     # Nudge toward cooler cells
                     cs = fdm_config.cell_size_mm
                     ox, oy = fdm_config.origin_mm
@@ -591,14 +593,13 @@ def run_thermal_helps_battery(
     BatteryRunArtifact
     """
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig
-    from temper_placer.validation.prereg.schema import PreregistrationManifest
     from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
 
     # Resolve battery run timestamp
     if battery_run_timestamp is None:
-        battery_run_timestamp = datetime.now(timezone.utc)
+        battery_run_timestamp = datetime.now(UTC)
     if battery_run_timestamp.tzinfo is None:
-        battery_run_timestamp = battery_run_timestamp.replace(tzinfo=timezone.utc)
+        battery_run_timestamp = battery_run_timestamp.replace(tzinfo=UTC)
 
     # Load prereg
     if not prereg_path:
@@ -786,7 +787,7 @@ def run_thermal_helps_battery(
         n_perturbations=n_perturbations,
         battery_run_timestamp=battery_run_timestamp,
     )
-    elapsed = time.monotonic() - t0
+    time.monotonic() - t0
 
     # --- Cost budget enforcement ---
     cost_seconds = result.cost_seconds
@@ -914,7 +915,7 @@ def _check_between_arm_saturation(
     if not all_vals:
         return
 
-    unique_vals = set(round(v, 6) for v in all_vals)
+    unique_vals = {round(v, 6) for v in all_vals}
     if len(unique_vals) <= 1:
         sat_value = list(unique_vals)[0]
         if sat_value in (0.0, 1.0):
