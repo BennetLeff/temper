@@ -82,17 +82,6 @@ temper-placer/research/*.svg
 /*.stats
 /10A
 
-# Beads issue tracking - ignore runtime files, track JSONL and config
-# Use .beads/* instead of .beads/ to allow negation patterns to work
-.beads/*
-!.beads/.gitignore
-!.beads/.local_version
-!.beads/issues.jsonl
-!.beads/deletions.jsonl
-!.beads/config.yaml
-!.beads/metadata.json
-!.beads/README.md
-
 .hypothesis/
 .worktrees
 worktrees/
