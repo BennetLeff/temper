@@ -53,6 +53,8 @@ def run_topological_phase(state: PipelineState) -> PipelineState:
     # 3. Zone-Aware Legalization
     print("Running zone-aware legalization...")
     fixed_mask = np.array([c.fixed for c in state.netlist.components], dtype=bool)
+    def legalize_zone_aware(*a, **kw): raise NotImplementedError("legalize_zone_aware removed (JAX retirement)")
+
     legalized_pos, success = legalize_zone_aware(positions, state.netlist, state.board, fixed_mask=fixed_mask)
 
     if not success:

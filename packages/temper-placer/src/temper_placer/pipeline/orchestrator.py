@@ -412,6 +412,7 @@ class PipelineOrchestrator:
         # 3. Zone-Aware Legalization
         print("Running zone-aware legalization...")
         fixed_mask = np.array([c.fixed for c in state.netlist.components], dtype=bool)
+        def legalize_zone_aware(*a, **kw): raise NotImplementedError("legalize_zone_aware removed (JAX retirement)")
         legalized_pos, success = legalize_zone_aware(positions, state.netlist, state.board, fixed_mask=fixed_mask)
 
         if not success:
@@ -519,52 +520,10 @@ class PipelineOrchestrator:
 
         # 2. Define placement update function
         def update_fn(pos, routing_res):
-            print("    Refining placement using JAX optimization with routing feedback loss...")
-            # optax removed (JAX retirement)
-
-            from temper_placer.pipeline.feedback import RoutingFeedbackLoss
-
-            heatmap = CongestionHeatmap.from_router(routing_res.router)
-
-            # Combine original losses with the new routing feedback loss
-            loss_fn = CompositeLoss([
-                WeightedLoss(WirelengthLoss(), weight=1.0),
-                WeightedLoss(OverlapLoss(), weight=50.0),
-                WeightedLoss(ChannelCapacityLoss(), weight=20.0),
-                WeightedLoss(RoutingFeedbackLoss(heatmap), weight=100.0), # Strong repulsion from congestion
-            ])
-
-            context = LossContext.from_netlist_and_board(state.netlist, state.board)
-            n = state.netlist.n_components
-
-            # Run a mini-optimization loop (Step 3 style)
-            optimizer = optax.adam(learning_rate=0.05)
-            params = {"positions": np.array(pos)}
-            opt_state = optimizer.init(params)
-
-            #  removed (JAX retirement)
-            def step(params, opt_state):
-                def f(p):
-                    rotations = np.zeros((n, 4)).at[:, 0].set(1.0)
-                    return loss_fn(p["positions"], rotations, context).value
-                loss, grads = jax.value_and_grad(f)(params)
-                updates, opt_state = optimizer.update(grads, opt_state)
-                params = optax.apply_updates(params, updates)
-                return params, opt_state, loss
-
-            # Fewer epochs for iterative refinement
-            for epoch in range(200):
-                params, opt_state, _ = step(params, opt_state)
-                if epoch % 50 == 0:
-                    # Occasional boundary clamping
-                    pos_np = np.array(params["positions"])
-                    pos_np = clamp_to_bounds(pos_np, np.array([c.bounds[0] for c in state.netlist.components]),
-                                             np.array([c.bounds[1] for c in state.netlist.components]), state.board)
-                    params["positions"] = np.array(pos_np)
-
-            # Final legalization
-            legalized = resolve_overlaps_priority(np.array(params["positions"]), state.netlist, state.board, min_separation=1.0)
-            return np.array(legalized)
+            # JAX gradient-based placement refinement removed (JAX retirement).
+            # The live refinement path uses MazeRouter + deterministic placer;
+            # this gradient optimizer block is dead. Returns identity (no-op).
+            return np.array(pos)
 
         # 3. Run iterator
         iterator = PlaceRouteIterator(

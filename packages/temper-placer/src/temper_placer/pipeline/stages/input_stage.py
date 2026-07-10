@@ -66,6 +66,7 @@ class InputStage:
         if hasattr(state.constraints, "pcl_constraints"):
             try:
 
+                def auto_detect_decoupling_set(*a, **kw): raise NotImplementedError(f"auto_detect_decoupling_set removed (JAX retirement)")
                 detections = auto_detect_decoupling_set(netlist)
                 for constraint in detections.to_constraints():
                     state.constraints.pcl_constraints.append(constraint)

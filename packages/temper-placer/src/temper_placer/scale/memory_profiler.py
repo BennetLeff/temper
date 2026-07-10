@@ -209,7 +209,7 @@ def profile_optimizer_memory(
     try:
         # Get JAX memory stats if available
         jax_device_mb = 0.0
-        for device in jax.devices():
+        for device in []:  # jax.devices removed (JAX retirement)
             stats = device.memory_stats()
             if stats is not None and "bytes_in_use" in stats:
                 jax_device_mb += stats["bytes_in_use"] / (1024 * 1024)
