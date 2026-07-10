@@ -6,9 +6,9 @@ from pathlib import Path
 
 import click
 
-from temper_placer.io.boundary_registry import BoundaryRegistry
-from temper_placer.io.dsn_normalizer import DSNNormalizer
-from temper_placer.io.dsn_validator import DSNVersionValidator
+from temper_placer.io.boundary_registry import get_boundary, list_boundaries
+from temper_placer.io.dsn_normalizer import normalize_dsn
+from temper_placer.io.dsn_validator import DSNVersionMismatchError, validate_dsn
 
 
 @click.group()
@@ -31,12 +31,12 @@ def export(
     no_deterministic: bool,
 ) -> None:
     """Export DSN at a stage boundary."""
-    from temper_placer.io.dsn_boundary import DSNBoundaryExporter
+    from temper_placer.io.dsn_boundary import export_at_boundary
 
-    dsn_text = DSNBoundaryExporter.export_at_boundary(boundary, input_pcb, config)
+    dsn_text = export_at_boundary(boundary, input_pcb, config)
 
     if not no_deterministic:
-        dsn_text = DSNNormalizer.normalize(dsn_text)
+        dsn_text = normalize_dsn(dsn_text)
 
     if output:
         output.write_text(dsn_text)
@@ -56,8 +56,8 @@ def check(
     golden_dir: Path,
 ) -> None:
     """Compare current DSN output against committed golden."""
-    from temper_placer.io.dsn_boundary import DSNBoundaryExporter
-    from temper_placer.io.dsn_schema import DSNSchemaHasher
+    from temper_placer.io.dsn_boundary import export_at_boundary
+    from temper_placer.io.dsn_schema import extract_schema_hash
 
     golden_path = golden_dir / f"{boundary}.dsn"
 
@@ -65,12 +65,12 @@ def check(
         click.echo(f"PASS (no golden for {boundary})", err=True)
         return  # no golden to compare; not a failure
 
-    golden_text = DSNNormalizer.normalize(golden_path.read_text())
-    current = DSNNormalizer.normalize(DSNBoundaryExporter.export_at_boundary(boundary, input_pcb, config))
+    golden_text = normalize_dsn(golden_path.read_text())
+    current = normalize_dsn(export_at_boundary(boundary, input_pcb, config))
 
     # Check schema hash first
-    golden_hash = DSNSchemaHasher.extract_hash(golden_text)
-    current_hash = DSNSchemaHasher.extract_hash(current)
+    golden_hash = extract_schema_hash(golden_text)
+    current_hash = extract_schema_hash(current)
     if golden_hash and current_hash and golden_hash != current_hash:
         click.echo(f"FAIL: schema version mismatch\n  golden: sha256:{golden_hash}\n  current: sha256:{current_hash}")
         raise click.Abort()
@@ -99,8 +99,8 @@ def check(
 @dsn.command("boundaries")
 def list_boundaries_cmd() -> None:
     """List registered stage boundaries."""
-    for name in BoundaryRegistry.list_boundaries():
-        b = BoundaryRegistry.get_boundary(name)
+    for name in list_boundaries():
+        b = get_boundary(name)
         click.echo(f"{name:20s} {b.pipeline_class}.{b.phase_name:15s} format={b.output_format}")
 
 
@@ -110,7 +110,7 @@ def list_boundaries_cmd() -> None:
 def validate(dsn_file: Path, expected_hash: str) -> None:
     """Validate a DSN file's schema version against an expected hash."""
     dsn_text = dsn_file.read_text()
-    DSNVersionValidator.validate(dsn_text, expected_hash)
+    validate_dsn(dsn_text, expected_hash)
     click.echo(f"PASS: schema version matches sha256:{expected_hash}")
 
 
@@ -130,9 +130,9 @@ def generate(
 
     import yaml  # type: ignore[import-untyped]
 
-    from temper_placer.io.dsn_boundary import DSNBoundaryExporter
+    from temper_placer.io.dsn_boundary import export_at_boundary
 
-    boundaries = [boundary] if boundary else BoundaryRegistry.list_boundaries()
+    boundaries = [boundary] if boundary else list_boundaries()
     golden_dir.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -141,7 +141,7 @@ def generate(
         commit_sha = "unknown"
 
     for name in boundaries:
-        dsn_text = DSNNormalizer.normalize(DSNBoundaryExporter.export_at_boundary(name, input_pcb, config))
+        dsn_text = normalize_dsn(export_at_boundary(name, input_pcb, config))
         out_path = golden_dir / f"{name}.dsn"
         out_path.write_text(dsn_text)
         click.echo(f"Wrote {out_path}")
@@ -153,8 +153,8 @@ def generate(
         "fixtures": [
             {
                 "stage": name,
-                "pipeline": BoundaryRegistry.get_boundary(name).pipeline_class,
-                "format": BoundaryRegistry.get_boundary(name).output_format,
+                "pipeline": get_boundary(name).pipeline_class,
+                "format": get_boundary(name).output_format,
                 "generated_at_commit": commit_sha,
             }
             for name in boundaries

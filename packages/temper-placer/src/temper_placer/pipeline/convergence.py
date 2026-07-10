@@ -319,16 +319,14 @@ class ConvergenceChecker:
         """
         current_ratio = len(routed_nets) / max(total_nets, 1)
 
-        if self.state.best_loss == float("inf"):
-            best_routed = getattr(self.state, "_best_routed_nets", None)
-            if best_routed is None:
-                self.state._best_routed_nets = routed_nets  # type: ignore[attr-defined]
-                self.state._best_routability = current_ratio  # type: ignore[attr-defined]
-                self.state._stall_count = 0  # type: ignore[attr-defined]
-                return False
+        if self.state._best_routed_nets is None:
+            self.state._best_routed_nets = routed_nets
+            self.state._best_routability = current_ratio
+            self.state._stall_count = 0
+            return False
 
-        best_routed = self.state._best_routed_nets  # type: ignore[attr-defined]
-        best_ratio = self.state._best_routability  # type: ignore[attr-defined]
+        best_routed: frozenset[str] = self.state._best_routed_nets
+        best_ratio: float | None = self.state._best_routability
 
         # Regression: routability ratio dropped below threshold
         if current_ratio < best_ratio * regression_threshold:
@@ -344,8 +342,8 @@ class ConvergenceChecker:
 
         # Convergence: identical net set for stall_limit consecutive iterations
         if previous_routed_nets is not None and routed_nets == previous_routed_nets:
-            self.state._stall_count += 1  # type: ignore[attr-defined]
-            if self.state._stall_count >= stall_limit:  # type: ignore[attr-defined]
+            self.state._stall_count += 1
+            if self.state._stall_count >= stall_limit:
                 self.state.terminated = True
                 self.state.termination_reason = TerminationReason.ROUTABILITY_CONVERGED
                 self.state.failure_message = (
@@ -354,12 +352,12 @@ class ConvergenceChecker:
                 )
                 return True
         else:
-            self.state._stall_count = 0  # type: ignore[attr-defined]
+            self.state._stall_count = 0
 
         # Improvement: update best
-        if current_ratio > best_ratio:
-            self.state._best_routed_nets = routed_nets  # type: ignore[attr-defined]
-            self.state._best_routability = current_ratio  # type: ignore[attr-defined]
+        if current_ratio > (best_ratio or 0.0):
+            self.state._best_routed_nets = routed_nets
+            self.state._best_routability = current_ratio
 
         return False
 

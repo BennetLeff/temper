@@ -483,7 +483,7 @@ class DesignRulesParser:
                 net_name = net.name if hasattr(net, "name") else str(net)
                 if net_name not in matrix._net_to_class:
                     # Auto-classify based on name patterns
-                    class_name = DesignRulesParser._classify_net(net_name)
+                    class_name = _classify_net(net_name)
                     matrix.set_net_class(net_name, class_name)
 
         return matrix
@@ -502,112 +502,6 @@ class DesignRulesParser:
 
         pcb = Board.from_file(pcb_path)
         return DesignRulesParser.parse(pcb)
-
-    @staticmethod
-    def _classify_net(net_name: str) -> str:
-        """Auto-classify net based on name patterns.
-
-        Args:
-            net_name: Net name to classify
-
-        Returns:
-            Net class name
-        """
-        from temper_placer.core.net_classification import (
-            is_ground_net,
-            is_power_net,
-        )
-
-        if is_ground_net(net_name):
-            return "GND"
-        if is_power_net(net_name):
-            return "Power"
-
-        # High-speed patterns
-        high_speed_patterns = ["CLK", "CLOCK", "SPI_", "I2C_", "USB", "JTAG"]
-        for pattern in high_speed_patterns:
-            if pattern in net_name.upper():
-                return "HighSpeed"
-
-        return "Signal"
-
-    @staticmethod
-    def infer_zones(pcb: Board, matrix: ClearanceMatrix) -> list[RoutingZone]:
-        """Infer routing zones from board components and net classes.
-
-        Args:
-            pcb: kiutils Board object
-            matrix: ClearanceMatrix for net-class lookup
-
-        Returns:
-            List of RoutingZone objects
-        """
-        # 1. Identify HV and Signal Components
-        hv_points = []
-        signal_points = []
-
-        for fp in pcb.footprints:
-            is_hv = False
-            is_signal = False
-
-            # Check pads for net classes
-            for pad in fp.pads:
-                net_name = pad.net.name if pad.net and hasattr(pad.net, "name") else ""
-                net_class = matrix._net_to_class.get(net_name, "Default")
-
-                if net_class == "HighVoltage":
-                    is_hv = True
-                elif net_class in ["Signal", "HighSpeed"]:
-                    is_signal = True
-
-            # Also check ref patterns for power switching components
-            ref = fp.properties.get("Reference", "")
-            if any(p in ref for p in ["Q", "D", "J_AC"]):
-                is_hv = True
-
-            if fp.position:
-                pos = (fp.position.X, fp.position.Y)
-                if is_hv:
-                    hv_points.append(pos)
-                elif is_signal:
-                    signal_points.append(pos)
-
-        zones = []
-
-        # 2. Create HV Zone (Convex Hull + 5mm buffer)
-        if hv_points:
-            hull = MultiPoint(hv_points).convex_hull
-            # If hull is a point or line, buffer still works
-            hv_poly = hull.buffer(5.0)
-
-            if hasattr(hv_poly, "exterior"):
-                coords = list(hv_poly.exterior.coords)
-                zones.append(
-                    RoutingZone(
-                        name="HV",
-                        polygon=coords,
-                        clearance_mm=3.0,
-                        allowed_net_classes={"HighVoltage", "GND", "Power"},
-                    )
-                )
-
-        # 3. Create Signal Zone (Convex Hull + 3mm buffer)
-        if signal_points:
-            hull = MultiPoint(signal_points).convex_hull
-            sig_poly = hull.buffer(3.0)
-
-            if hasattr(sig_poly, "exterior"):
-                coords = list(sig_poly.exterior.coords)
-                zones.append(
-                    RoutingZone(
-                        name="Signal",
-                        polygon=coords,
-                        clearance_mm=0.2,
-                        allowed_net_classes={"Signal", "HighSpeed", "GND", "Power"},
-                    )
-                )
-
-        return zones
 
     @staticmethod
     def create_default() -> ClearanceMatrix:
@@ -629,3 +523,109 @@ class DesignRulesParser:
         matrix.set_class_to_class_clearance("HighSpeed", "HighSpeed", 0.2)
 
         return matrix
+
+
+def _classify_net(net_name: str) -> str:
+    """Auto-classify net based on name patterns.
+
+    Args:
+        net_name: Net name to classify
+
+    Returns:
+        Net class name
+    """
+    from temper_placer.core.net_classification import (
+        is_ground_net,
+        is_power_net,
+    )
+
+    if is_ground_net(net_name):
+        return "GND"
+    if is_power_net(net_name):
+        return "Power"
+
+    # High-speed patterns
+    high_speed_patterns = ["CLK", "CLOCK", "SPI_", "I2C_", "USB", "JTAG"]
+    for pattern in high_speed_patterns:
+        if pattern in net_name.upper():
+            return "HighSpeed"
+
+    return "Signal"
+
+
+def infer_zones(pcb: Board, matrix: ClearanceMatrix) -> list[RoutingZone]:
+    """Infer routing zones from board components and net classes.
+
+    Args:
+        pcb: kiutils Board object
+        matrix: ClearanceMatrix for net-class lookup
+
+    Returns:
+        List of RoutingZone objects
+    """
+    # 1. Identify HV and Signal Components
+    hv_points = []
+    signal_points = []
+
+    for fp in pcb.footprints:
+        is_hv = False
+        is_signal = False
+
+        # Check pads for net classes
+        for pad in fp.pads:
+            net_name = pad.net.name if pad.net and hasattr(pad.net, "name") else ""
+            net_class = matrix._net_to_class.get(net_name, "Default")
+
+            if net_class == "HighVoltage":
+                is_hv = True
+            elif net_class in ["Signal", "HighSpeed"]:
+                is_signal = True
+
+        # Also check ref patterns for power switching components
+        ref = fp.properties.get("Reference", "")
+        if any(p in ref for p in ["Q", "D", "J_AC"]):
+            is_hv = True
+
+        if fp.position:
+            pos = (fp.position.X, fp.position.Y)
+            if is_hv:
+                hv_points.append(pos)
+            elif is_signal:
+                signal_points.append(pos)
+
+    zones = []
+
+    # 2. Create HV Zone (Convex Hull + 5mm buffer)
+    if hv_points:
+        hull = MultiPoint(hv_points).convex_hull
+        # If hull is a point or line, buffer still works
+        hv_poly = hull.buffer(5.0)
+
+        if hasattr(hv_poly, "exterior"):
+            coords = list(hv_poly.exterior.coords)
+            zones.append(
+                RoutingZone(
+                    name="HV",
+                    polygon=coords,
+                    clearance_mm=3.0,
+                    allowed_net_classes={"HighVoltage", "GND", "Power"},
+                )
+            )
+
+    # 3. Create Signal Zone (Convex Hull + 3mm buffer)
+    if signal_points:
+        hull = MultiPoint(signal_points).convex_hull
+        sig_poly = hull.buffer(3.0)
+
+        if hasattr(sig_poly, "exterior"):
+            coords = list(sig_poly.exterior.coords)
+            zones.append(
+                RoutingZone(
+                    name="Signal",
+                    polygon=coords,
+                    clearance_mm=0.2,
+                    allowed_net_classes={"Signal", "HighSpeed", "GND", "Power"},
+                )
+            )
+
+    return zones

@@ -77,7 +77,7 @@ class CpSatModel:
     """
 
     def __init__(self, units_per_mm: int = 100) -> None:
-        self._model = cp_model.CpModel()
+        self.model_ref = cp_model.CpModel()
         self._components: dict[str, ComponentVars] = {}
         self._assumptions: list[cp_model.IntVar] = []
         self._assumption_labels: dict[int, str] = {}
@@ -126,22 +126,22 @@ class CpSatModel:
 
         min_dim = max(1, min(width, height))
         max_dim = max(width, height)
-        x_size = self._model.NewIntVar(min_dim, max_dim, f"x_size_{ref}")
-        y_size = self._model.NewIntVar(min_dim, max_dim, f"y_size_{ref}")
-        x_center = self._model.NewIntVar(0, 1_000_000, f"x_{ref}")
-        y_center = self._model.NewIntVar(0, 1_000_000, f"y_{ref}")
-        x_start = self._model.NewIntVar(0, 1_000_000, f"x_start_{ref}")
-        y_start = self._model.NewIntVar(0, 1_000_000, f"y_start_{ref}")
-        x_end = self._model.NewIntVar(0, 1_000_000, f"x_end_{ref}")
-        y_end = self._model.NewIntVar(0, 1_000_000, f"y_end_{ref}")
+        x_size = self.model_ref.NewIntVar(min_dim, max_dim, f"x_size_{ref}")
+        y_size = self.model_ref.NewIntVar(min_dim, max_dim, f"y_size_{ref}")
+        x_center = self.model_ref.NewIntVar(0, 1_000_000, f"x_{ref}")
+        y_center = self.model_ref.NewIntVar(0, 1_000_000, f"y_{ref}")
+        x_start = self.model_ref.NewIntVar(0, 1_000_000, f"x_start_{ref}")
+        y_start = self.model_ref.NewIntVar(0, 1_000_000, f"y_start_{ref}")
+        x_end = self.model_ref.NewIntVar(0, 1_000_000, f"x_end_{ref}")
+        y_end = self.model_ref.NewIntVar(0, 1_000_000, f"y_end_{ref}")
 
         # Centre is midpoint (works with variable sizes)
-        self._model.Add(x_start + x_end == 2 * x_center)  # type: ignore[operator]
-        self._model.Add(y_start + y_end == 2 * y_center)  # type: ignore[operator]
+        self.model_ref.Add(x_start + x_end == 2 * x_center)  # type: ignore[operator]
+        self.model_ref.Add(y_start + y_end == 2 * y_center)  # type: ignore[operator]
 
         # Interval consistency: start + size == end
-        self._model.Add(x_start + x_size == x_end)  # type: ignore[operator]
-        self._model.Add(y_start + y_size == y_end)  # type: ignore[operator]
+        self.model_ref.Add(x_start + x_size == x_end)  # type: ignore[operator]
+        self.model_ref.Add(y_start + y_size == y_end)  # type: ignore[operator]
 
         vars_ = ComponentVars(
             ref=ref,
@@ -176,17 +176,17 @@ class CpSatModel:
         w0, h0 = vars_.orig_w, vars_.orig_h
 
         if is_polarized:
-            rot_ref = self._model.NewConstant(0)
+            rot_ref = self.model_ref.NewConstant(0)
             vars_.rot_ref = rot_ref
-            self._model.Add(vars_.x_size == w0)
-            self._model.Add(vars_.y_size == h0)
+            self.model_ref.Add(vars_.x_size == w0)
+            self.model_ref.Add(vars_.y_size == h0)
             return None
 
-        rot_ref = self._model.NewIntVar(0, 3, f"rot_{ref}")
+        rot_ref = self.model_ref.NewIntVar(0, 3, f"rot_{ref}")
         vars_.rot_ref = rot_ref
 
-        self._model.AddElement(rot_ref, [w0, h0, w0, h0], vars_.x_size)
-        self._model.AddElement(rot_ref, [h0, w0, h0, w0], vars_.y_size)
+        self.model_ref.AddElement(rot_ref, [w0, h0, w0, h0], vars_.x_size)
+        self.model_ref.AddElement(rot_ref, [h0, w0, h0, w0], vars_.y_size)
 
         return rot_ref
 
@@ -209,15 +209,15 @@ class CpSatModel:
         intervals_y: list[cp_model.IntervalVar] = []
         for ref in refs:
             v = self._components[ref]
-            ix = self._model.NewIntervalVar(v.x_start, v.x_size, v.x_end, f"ix_{ref}")
-            iy = self._model.NewIntervalVar(v.y_start, v.y_size, v.y_end, f"iy_{ref}")
+            ix = self.model_ref.NewIntervalVar(v.x_start, v.x_size, v.x_end, f"ix_{ref}")
+            iy = self.model_ref.NewIntervalVar(v.y_start, v.y_size, v.y_end, f"iy_{ref}")
             intervals_x.append(ix)
             intervals_y.append(iy)
         if extra_x_intervals:
             intervals_x.extend(extra_x_intervals)
         if extra_y_intervals:
             intervals_y.extend(extra_y_intervals)
-        self._model.AddNoOverlap2D(intervals_x, intervals_y)
+        self.model_ref.AddNoOverlap2D(intervals_x, intervals_y)
         return self.new_assumption("no_overlap_2d")
 
     # ------------------------------------------------------------------
@@ -237,15 +237,15 @@ class CpSatModel:
         The returned intervals should be passed to ``add_no_overlap_2d`` via
         ``extra_x_intervals`` / ``extra_y_intervals``.
         """
-        ks = self._model.NewConstant(kx_start)
-        ksize = self._model.NewConstant(kx_size)
-        ke = self._model.NewConstant(kx_start + kx_size)
-        ix = self._model.NewIntervalVar(ks, ksize, ke, f"kx_{label}")
+        ks = self.model_ref.NewConstant(kx_start)
+        ksize = self.model_ref.NewConstant(kx_size)
+        ke = self.model_ref.NewConstant(kx_start + kx_size)
+        ix = self.model_ref.NewIntervalVar(ks, ksize, ke, f"kx_{label}")
 
-        ks_y = self._model.NewConstant(ky_start)
-        ksize_y = self._model.NewConstant(ky_size)
-        ke_y = self._model.NewConstant(ky_start + ky_size)
-        iy = self._model.NewIntervalVar(ks_y, ksize_y, ke_y, f"ky_{label}")
+        ks_y = self.model_ref.NewConstant(ky_start)
+        ksize_y = self.model_ref.NewConstant(ky_size)
+        ke_y = self.model_ref.NewConstant(ky_start + ky_size)
+        iy = self.model_ref.NewIntervalVar(ks_y, ksize_y, ke_y, f"ky_{label}")
 
         self._keepout_intervals_x.append(ix)
         self._keepout_intervals_y.append(iy)
@@ -270,8 +270,8 @@ class CpSatModel:
         ``cp_model.AddAssumption()`` so that the solver can report an
         unsat core when the model is infeasible.
         """
-        b = self._model.NewBoolVar(label)
-        self._model.AddAssumption(b)
+        b = self.model_ref.NewBoolVar(label)
+        self.model_ref.AddAssumption(b)
         self._assumptions.append(b)
         self._assumption_labels[b.Index()] = label
         return b
@@ -285,7 +285,7 @@ class CpSatModel:
         assumption: cp_model.IntVar,
     ) -> None:
         """Add a constraint that is only enforced when *assumption* is True."""
-        self._model.Add(constraint).OnlyEnforceIf(assumption)  # type: ignore[union-attr]
+        self.model_ref.Add(constraint).OnlyEnforceIf(assumption)  # type: ignore[union-attr]
 
     def add_multiplication_equality(
         self,
@@ -293,7 +293,7 @@ class CpSatModel:
         a: cp_model.IntVar,
         b: cp_model.IntVar,
     ) -> None:
-        self._model.AddMultiplicationEquality(target, [a, b])
+        self.model_ref.AddMultiplicationEquality(target, [a, b])
 
     def add_abs_diff_le(
         self,
@@ -303,11 +303,11 @@ class CpSatModel:
         label: str = "",
     ) -> cp_model.IntVar:
         """Constrain |a - b| <= max_diff using two linear inequalities."""
-        self._model.Add(a - b <= max_diff)  # type: ignore[operator]
-        self._model.Add(b - a <= max_diff)  # type: ignore[operator]
+        self.model_ref.Add(a - b <= max_diff)  # type: ignore[operator]
+        self.model_ref.Add(b - a <= max_diff)  # type: ignore[operator]
         # For UNSAT-core: create a helper var for the max
-        d = self._model.NewIntVar(-max_diff, max_diff, f"diff_{label}" if label else "")
-        self._model.Add(d == a - b)  # type: ignore[operator]
+        d = self.model_ref.NewIntVar(-max_diff, max_diff, f"diff_{label}" if label else "")
+        self.model_ref.Add(d == a - b)  # type: ignore[operator]
         return d
 
     # ------------------------------------------------------------------
@@ -321,13 +321,13 @@ class CpSatModel:
         """Run the CP-SAT solver and return a solution."""
         if self._objective_terms:
             obj = sum(v * w for v, w in self._objective_terms)
-            self._model.Minimize(obj)
+            self.model_ref.Minimize(obj)
 
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = time_limit_s
         solver.parameters.num_search_workers = 8
 
-        status = solver.Solve(self._model)
+        status = solver.Solve(self.model_ref)
 
         positions: dict[str, tuple[int, int]] = {}
         rotations: dict[str, int] = {}
@@ -370,10 +370,6 @@ class CpSatModel:
     # ------------------------------------------------------------------
 
     @property
-    def model_ref(self) -> cp_model.CpModel:
-        return self._model
-
-    @property
     def component_map(self) -> dict[str, ComponentVars]:
         return dict(self._components)
 
@@ -405,11 +401,11 @@ class CpSatModel:
 
     def add(self, constraint: cp_model.BoundedLinearExpression | cp_model.Constraint) -> None:
         """Delegate to underlying CpModel.Add()."""
-        self._model.Add(constraint)  # type: ignore[arg-type]
+        self.model_ref.Add(constraint)  # type: ignore[arg-type]
 
     def new_int_var(self, lb: int, ub: int, name: str) -> cp_model.IntVar:
         """Create a new integer variable."""
-        return self._model.NewIntVar(lb, ub, name)
+        return self.model_ref.NewIntVar(lb, ub, name)
 
     def new_bool_var(self, name: str) -> cp_model.IntVar:
-        return self._model.NewBoolVar(name)
+        return self.model_ref.NewBoolVar(name)

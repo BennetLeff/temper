@@ -110,274 +110,276 @@ def _get_kernel():
     return _NUMBA_KERNEL
 
 
-def _compile_kernel():
-    """Define and @njit-compile the A* inner-loop kernel."""
+@njit(cache=True, fastmath=False)
+def _heap_push(
+    heap_pri: np.ndarray,
+    heap_idx: np.ndarray,
+    heap_size: int,
+    heap_cap: int,
+    pri: np.float32,
+    idx: np.int32,
+) -> tuple:
+    """Push (pri, idx) onto the min-heap.
 
-    @njit(cache=True, fastmath=False)
-    def _heap_push(
-        heap_pri: np.ndarray,
-        heap_idx: np.ndarray,
-        heap_size: int,
-        heap_cap: int,
-        pri: np.float32,
-        idx: np.int32,
-    ) -> tuple:
-        """Push (pri, idx) onto the min-heap.
+    Returns the new (heap_pri, heap_idx, heap_size, heap_cap)
+    tuple.  Numba supports tuple return + array mutation; the
+    caller assigns back the new arrays.  ``heap_cap`` grows
+    exponentially on overflow.
+    """
+    if heap_size >= heap_cap:
+        new_cap = heap_cap * 2
+        new_pri = np.empty(new_cap, dtype=np.float32)
+        new_idx = np.empty(new_cap, dtype=np.int32)
+        new_pri[:heap_cap] = heap_pri[:heap_cap]
+        new_idx[:heap_cap] = heap_idx[:heap_cap]
+        heap_pri = new_pri
+        heap_idx = new_idx
+        heap_cap = new_cap
+    i = heap_size
+    heap_pri[i] = pri
+    heap_idx[i] = idx
+    heap_size += 1
+    # Sift up
+    while i > 0:
+        parent = (i - 1) >> 1
+        if heap_pri[parent] <= heap_pri[i]:
+            break
+        tmp_p = heap_pri[parent]
+        tmp_i = heap_idx[parent]
+        heap_pri[parent] = heap_pri[i]
+        heap_idx[parent] = heap_idx[i]
+        heap_pri[i] = tmp_p
+        heap_idx[i] = tmp_i
+        i = parent
+    return heap_pri, heap_idx, heap_size, heap_cap
 
-        Returns the new (heap_pri, heap_idx, heap_size, heap_cap)
-        tuple.  Numba supports tuple return + array mutation; the
-        caller assigns back the new arrays.  ``heap_cap`` grows
-        exponentially on overflow.
-        """
-        if heap_size >= heap_cap:
-            new_cap = heap_cap * 2
-            new_pri = np.empty(new_cap, dtype=np.float32)
-            new_idx = np.empty(new_cap, dtype=np.int32)
-            new_pri[:heap_cap] = heap_pri[:heap_cap]
-            new_idx[:heap_cap] = heap_idx[:heap_cap]
-            heap_pri = new_pri
-            heap_idx = new_idx
-            heap_cap = new_cap
-        i = heap_size
-        heap_pri[i] = pri
-        heap_idx[i] = idx
-        heap_size += 1
-        # Sift up
-        while i > 0:
-            parent = (i - 1) >> 1
-            if heap_pri[parent] <= heap_pri[i]:
+
+@njit(cache=True, fastmath=False)
+def _heap_pop(
+    heap_pri: np.ndarray,
+    heap_idx: np.ndarray,
+    heap_size: int,
+) -> tuple:
+    """Pop (pri, idx) from the min-heap.  Returns
+    (heap_pri, heap_idx, heap_size, pri, idx).  Caller must
+    check ``heap_size > 0`` before calling.
+    """
+    pri = heap_pri[0]
+    idx = heap_idx[0]
+    heap_size -= 1
+    if heap_size > 0:
+        heap_pri[0] = heap_pri[heap_size]
+        heap_idx[0] = heap_idx[heap_size]
+        i = 0
+        while True:
+            left = 2 * i + 1
+            right = 2 * i + 2
+            smallest = i
+            if left < heap_size and heap_pri[left] < heap_pri[smallest]:
+                smallest = left
+            if right < heap_size and heap_pri[right] < heap_pri[smallest]:
+                smallest = right
+            if smallest == i:
                 break
-            tmp_p = heap_pri[parent]
-            tmp_i = heap_idx[parent]
-            heap_pri[parent] = heap_pri[i]
-            heap_idx[parent] = heap_idx[i]
-            heap_pri[i] = tmp_p
-            heap_idx[i] = tmp_i
-            i = parent
-        return heap_pri, heap_idx, heap_size, heap_cap
+            tmp_p = heap_pri[i]
+            tmp_i = heap_idx[i]
+            heap_pri[i] = heap_pri[smallest]
+            heap_idx[i] = heap_idx[smallest]
+            heap_pri[smallest] = tmp_p
+            heap_idx[smallest] = tmp_i
+            i = smallest
+    return heap_pri, heap_idx, heap_size, pri, idx
 
-    @njit(cache=True, fastmath=False)
-    def _heap_pop(
-        heap_pri: np.ndarray,
-        heap_idx: np.ndarray,
-        heap_size: int,
-    ) -> tuple:
-        """Pop (pri, idx) from the min-heap.  Returns
-        (heap_pri, heap_idx, heap_size, pri, idx).  Caller must
-        check ``heap_size > 0`` before calling.
-        """
-        pri = heap_pri[0]
-        idx = heap_idx[0]
-        heap_size -= 1
-        if heap_size > 0:
-            heap_pri[0] = heap_pri[heap_size]
-            heap_idx[0] = heap_idx[heap_size]
-            i = 0
-            while True:
-                left = 2 * i + 1
-                right = 2 * i + 2
-                smallest = i
-                if left < heap_size and heap_pri[left] < heap_pri[smallest]:
-                    smallest = left
-                if right < heap_size and heap_pri[right] < heap_pri[smallest]:
-                    smallest = right
-                if smallest == i:
-                    break
-                tmp_p = heap_pri[i]
-                tmp_i = heap_idx[i]
-                heap_pri[i] = heap_pri[smallest]
-                heap_idx[i] = heap_idx[smallest]
-                heap_pri[smallest] = tmp_p
-                heap_idx[smallest] = tmp_i
-                i = smallest
-        return heap_pri, heap_idx, heap_size, pri, idx
 
-    @njit(cache=True, fastmath=False)
-    def _kernel(
-        start_idx: int,
-        goal_idx: int,
-        rows: int,
-        cols: int,
-        validity_flat: np.ndarray,  # (rows*cols*8,) uint8
-        max_iterations: int,
-        congestion_flat: np.ndarray | None = None,  # (rows*cols,) float32; null = no congestion
-        congestion_weight: float = 1.0,  # multiplier on per-cell congestion cost
-        max_congestion_cost: float = 100.0,  # cap on per-cell cost
-        thermal_flat: np.ndarray | None = None,  # (rows*cols,) float32; U8 thermal cost field
-        thermal_weight: float = 0.0,  # U8: additive multiplier on per-cell thermal cost
-    ) -> tuple:
-        """Run A* on the 2D grid.  Returns (path_indices, iterations).
+@njit(cache=True, fastmath=False)
+def _astar_kernel_3d(
+    start_idx: int,
+    goal_idx: int,
+    rows: int,
+    cols: int,
+    validity_flat: np.ndarray,  # (rows*cols*8,) uint8
+    max_iterations: int,
+    congestion_flat: np.ndarray | None = None,  # (rows*cols,) float32; null = no congestion
+    congestion_weight: float = 1.0,  # multiplier on per-cell congestion cost
+    max_congestion_cost: float = 100.0,  # cap on per-cell cost
+    thermal_flat: np.ndarray | None = None,  # (rows*cols,) float32; U8 thermal cost field
+    thermal_weight: float = 0.0,  # U8: additive multiplier on per-cell thermal cost
+) -> tuple:
+    """Run A* on the 2D grid.  Returns (path_indices, iterations).
 
-        ``path_indices`` is a 1D array of cell indices from start to
-        goal inclusive, or an empty array if no path was found.
-        ``iterations`` is the number of heap pops performed.
+    ``path_indices`` is a 1D array of cell indices from start to
+    goal inclusive, or an empty array if no path was found.
+    ``iterations`` is the number of heap pops performed.
 
-        If ``congestion_flat`` is supplied (U7 / R11), each
-        per-cell expansion adds a per-cell congestion penalty to
-        ``f_score`` so the next net naturally detours around
-        already-routed channels.  Cost formula is
-        ``min(max_congestion_cost, 1 + log(1 + raw))`` at the
-        cell; multiplied by ``congestion_weight``.  Logarithmic
-        growth keeps the cost admissible as a tie-breaker.
+    If ``congestion_flat`` is supplied (U7 / R11), each
+    per-cell expansion adds a per-cell congestion penalty to
+    ``f_score`` so the next net naturally detours around
+    already-routed channels.  Cost formula is
+    ``min(max_congestion_cost, 1 + log(1 + raw))`` at the
+    cell; multiplied by ``congestion_weight``.  Logarithmic
+    growth keeps the cost admissible as a tie-breaker.
 
-        If ``thermal_flat`` is supplied (U8), each per-cell
-        expansion adds an additive thermal penalty.  The cost is
-        ``thermal_flat[cell] * thermal_weight``, summed with any
-        congestion cost inside the same kernel step-cost path.
-        ``thermal_weight = 0.0`` prunes the branch at JIT time so
-        field-off is byte-identical to today's routing.
-        """
-        INF = np.float32(1.0e30)
-        n_cells = rows * cols
-        # Hoist the U7 / R11 congestion branch decision out of the
-        # inner loop.  When ``congestion_weight`` is zero, the
-        # entire per-neighbor cost fold is mathematically a no-op,
-        # but Numba does not eliminate the dead ``np.log``,
-        # ``np.float32(...)``, and multiply at the call site.
-        # Gating on ``congestion_weight > 0`` lets Numba prune the
-        # branch at JIT time when callers (the closure test, the
-        # smoke runner) pass weight=0.  This is the single biggest
-        # source of the 1M-iter-cap wall-time blowup that the
-        # full-pipeline profile surfaced on 2026-06-23.
-        use_congestion = (
-            congestion_flat is not None
-            and congestion_weight > 0.0
+    If ``thermal_flat`` is supplied (U8), each per-cell
+    expansion adds an additive thermal penalty.  The cost is
+    ``thermal_flat[cell] * thermal_weight``, summed with any
+    congestion cost inside the same kernel step-cost path.
+    ``thermal_weight = 0.0`` prunes the branch at JIT time so
+    field-off is byte-identical to today's routing.
+    """
+    INF = np.float32(1.0e30)
+    n_cells = rows * cols
+    # Hoist the U7 / R11 congestion branch decision out of the
+    # inner loop.  When ``congestion_weight`` is zero, the
+    # entire per-neighbor cost fold is mathematically a no-op,
+    # but Numba does not eliminate the dead ``np.log``,
+    # ``np.float32(...)``, and multiply at the call site.
+    # Gating on ``congestion_weight > 0`` lets Numba prune the
+    # branch at JIT time when callers (the closure test, the
+    # smoke runner) pass weight=0.  This is the single biggest
+    # source of the 1M-iter-cap wall-time blowup that the
+    # full-pipeline profile surfaced on 2026-06-23.
+    use_congestion = (
+        congestion_flat is not None
+        and congestion_weight > 0.0
+    )
+    # U8: same early-out gate for thermal — when weight is
+    # zero (or no field), the branch is Numba-pruned at JIT
+    # time and field-off routing is byte-identical.
+    use_thermal = (
+        thermal_flat is not None
+        and thermal_weight > 0.0
+    )
+
+    # Work arrays
+    g_score = np.full(n_cells, INF, dtype=np.float32)
+    g_score[start_idx] = np.float32(0.0)
+
+    came_from = np.full(n_cells, -1, dtype=np.int32)
+    closed = np.zeros(n_cells, dtype=np.uint8)
+
+    # Manual binary heap: parallel arrays for (priority, cell).
+    heap_cap = 4096
+    heap_pri = np.empty(heap_cap, dtype=np.float32)
+    heap_idx = np.empty(heap_cap, dtype=np.int32)
+    heap_size = 0
+
+    # Octile distance heuristic — admissible, no via-cost.
+    sr = start_idx // cols
+    sc = start_idx - sr * cols
+    gr = goal_idx // cols
+    gc = goal_idx - gr * cols
+    dx0 = abs(sc - gc)
+    dy0 = abs(sr - gr)
+    heuristic_start = np.float32(max(dx0, dy0) + _HEURISTIC_OCTILE_DIAG * min(dx0, dy0))
+
+    heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
+        heap_pri, heap_idx, heap_size, heap_cap,
+        heuristic_start, np.int32(start_idx),
+    )
+
+    iterations = 0
+    while heap_size > 0 and iterations < max_iterations:
+        iterations += 1
+        heap_pri, heap_idx, heap_size, _, cur = _heap_pop(
+            heap_pri, heap_idx, heap_size,
         )
-        # U8: same early-out gate for thermal — when weight is
-        # zero (or no field), the branch is Numba-pruned at JIT
-        # time and field-off routing is byte-identical.
-        use_thermal = (
-            thermal_flat is not None
-            and thermal_weight > 0.0
-        )
+        cur_i = cur
 
-        # Work arrays
-        g_score = np.full(n_cells, INF, dtype=np.float32)
-        g_score[start_idx] = np.float32(0.0)
+        if cur_i == goal_idx:
+            back_list = []
+            c = cur_i
+            while c != -1:
+                back_list.append(c)
+                c = came_from[c]
+            n = len(back_list)
+            path = np.empty(n, dtype=np.int32)
+            for k in range(n):
+                path[k] = back_list[n - 1 - k]
+            return path, iterations
 
-        came_from = np.full(n_cells, -1, dtype=np.int32)
-        closed = np.zeros(n_cells, dtype=np.uint8)
+        if closed[cur_i] != np.uint8(0):
+            continue
+        closed[cur_i] = np.uint8(1)
 
-        # Manual binary heap: parallel arrays for (priority, cell).
-        heap_cap = 4096
-        heap_pri = np.empty(heap_cap, dtype=np.float32)
-        heap_idx = np.empty(heap_cap, dtype=np.int32)
-        heap_size = 0
+        cur_r = cur_i // cols
+        cur_c = cur_i - cur_r * cols
 
-        # Octile distance heuristic — admissible, no via-cost.
-        sr = start_idx // cols
-        sc = start_idx - sr * cols
-        gr = goal_idx // cols
-        gc = goal_idx - gr * cols
-        dx0 = abs(sc - gc)
-        dy0 = abs(sr - gr)
-        heuristic_start = np.float32(max(dx0, dy0) + _HEURISTIC_OCTILE_DIAG * min(dx0, dy0))
-
-        heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
-            heap_pri, heap_idx, heap_size, heap_cap,
-            heuristic_start, np.int32(start_idx),
-        )
-
-        iterations = 0
-        while heap_size > 0 and iterations < max_iterations:
-            iterations += 1
-            heap_pri, heap_idx, heap_size, _, cur = _heap_pop(
-                heap_pri, heap_idx, heap_size,
-            )
-            cur_i = cur
-
-            if cur_i == goal_idx:
-                back_list = []
-                c = cur_i
-                while c != -1:
-                    back_list.append(c)
-                    c = came_from[c]
-                n = len(back_list)
-                path = np.empty(n, dtype=np.int32)
-                for k in range(n):
-                    path[k] = back_list[n - 1 - k]
-                return path, iterations
-
-            if closed[cur_i] != np.uint8(0):
+        # 8-connected expansion, all from the U5 bit tensor
+        base = cur_i * 8
+        for d in range(8):
+            if validity_flat[base + d] == np.uint8(0):
                 continue
-            closed[cur_i] = np.uint8(1)
+            # Direction table (E, SE, S, SW, W, NW, N, NE)
+            if d == 0:
+                ndc = cur_c + 1
+                ndr = cur_r
+            elif d == 1:
+                ndc = cur_c + 1
+                ndr = cur_r + 1
+            elif d == 2:
+                ndc = cur_c
+                ndr = cur_r + 1
+            elif d == 3:
+                ndc = cur_c - 1
+                ndr = cur_r + 1
+            elif d == 4:
+                ndc = cur_c - 1
+                ndr = cur_r
+            elif d == 5:
+                ndc = cur_c - 1
+                ndr = cur_r - 1
+            elif d == 6:
+                ndc = cur_c
+                ndr = cur_r - 1
+            else:  # d == 7
+                ndc = cur_c + 1
+                ndr = cur_r - 1
+            if ndc < 0 or ndr < 0 or ndc >= cols or ndr >= rows:
+                continue
+            n_idx = ndr * cols + ndc
+            # Octile cost
+            if d == 0 or d == 2 or d == 4 or d == 6:
+                step = np.float32(1.0)
+            else:
+                step = np.float32(1.4142135)
+            # U7 / R11: per-cell congestion penalty from the
+            # PathFinder history tensor.  log1p + cap means
+            # cost grows logarithmically; admissible as a
+            # tie-breaker.
+            if use_congestion and congestion_flat is not None:
+                raw = congestion_flat[n_idx]
+                if raw > np.float32(0.0):
+                    # Inline: 1 + log(1 + raw), capped
+                    cong_cost = np.float32(1.0) + np.log(np.float32(1.0) + raw)
+                    if cong_cost > max_congestion_cost:
+                        cong_cost = max_congestion_cost
+                    step = step + np.float32(congestion_weight) * cong_cost
+            # U8: additive thermal cost field — summed with
+            # congestion cost inside the same kernel step-cost
+            # path.  thermal_weight=0.0 prunes at JIT time so
+            # field-off routing is byte-identical.
+            if use_thermal and thermal_flat is not None:
+                t_val = thermal_flat[n_idx]
+                if t_val > np.float32(0.0):
+                    step = step + np.float32(thermal_weight) * t_val
+            tentative = g_score[cur_i] + step
+            if tentative < g_score[n_idx]:
+                g_score[n_idx] = tentative
+                came_from[n_idx] = cur_i
+                gdx = abs(ndc - gc)
+                gdy = abs(ndr - gr)
+                h = np.float32(max(gdx, gdy) + _HEURISTIC_OCTILE_DIAG * min(gdx, gdy))
+                heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
+                    heap_pri, heap_idx, heap_size, heap_cap,
+                    tentative + h, np.int32(n_idx),
+                )
 
-            cur_r = cur_i // cols
-            cur_c = cur_i - cur_r * cols
+    return np.empty(0, dtype=np.int32), iterations
 
-            # 8-connected expansion, all from the U5 bit tensor
-            base = cur_i * 8
-            for d in range(8):
-                if validity_flat[base + d] == np.uint8(0):
-                    continue
-                # Direction table (E, SE, S, SW, W, NW, N, NE)
-                if d == 0:
-                    ndc = cur_c + 1
-                    ndr = cur_r
-                elif d == 1:
-                    ndc = cur_c + 1
-                    ndr = cur_r + 1
-                elif d == 2:
-                    ndc = cur_c
-                    ndr = cur_r + 1
-                elif d == 3:
-                    ndc = cur_c - 1
-                    ndr = cur_r + 1
-                elif d == 4:
-                    ndc = cur_c - 1
-                    ndr = cur_r
-                elif d == 5:
-                    ndc = cur_c - 1
-                    ndr = cur_r - 1
-                elif d == 6:
-                    ndc = cur_c
-                    ndr = cur_r - 1
-                else:  # d == 7
-                    ndc = cur_c + 1
-                    ndr = cur_r - 1
-                if ndc < 0 or ndr < 0 or ndc >= cols or ndr >= rows:
-                    continue
-                n_idx = ndr * cols + ndc
-                # Octile cost
-                if d == 0 or d == 2 or d == 4 or d == 6:
-                    step = np.float32(1.0)
-                else:
-                    step = np.float32(1.4142135)
-                # U7 / R11: per-cell congestion penalty from the
-                # PathFinder history tensor.  log1p + cap means
-                # cost grows logarithmically; admissible as a
-                # tie-breaker.
-                if use_congestion and congestion_flat is not None:
-                    raw = congestion_flat[n_idx]
-                    if raw > np.float32(0.0):
-                        # Inline: 1 + log(1 + raw), capped
-                        cong_cost = np.float32(1.0) + np.log(np.float32(1.0) + raw)
-                        if cong_cost > max_congestion_cost:
-                            cong_cost = max_congestion_cost
-                        step = step + np.float32(congestion_weight) * cong_cost
-                # U8: additive thermal cost field — summed with
-                # congestion cost inside the same kernel step-cost
-                # path.  thermal_weight=0.0 prunes at JIT time so
-                # field-off routing is byte-identical.
-                if use_thermal and thermal_flat is not None:
-                    t_val = thermal_flat[n_idx]
-                    if t_val > np.float32(0.0):
-                        step = step + np.float32(thermal_weight) * t_val
-                tentative = g_score[cur_i] + step
-                if tentative < g_score[n_idx]:
-                    g_score[n_idx] = tentative
-                    came_from[n_idx] = cur_i
-                    gdx = abs(ndc - gc)
-                    gdy = abs(ndr - gr)
-                    h = np.float32(max(gdx, gdy) + _HEURISTIC_OCTILE_DIAG * min(gdx, gdy))
-                    heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
-                        heap_pri, heap_idx, heap_size, heap_cap,
-                        tentative + h, np.int32(n_idx),
-                    )
 
-        return np.empty(0, dtype=np.int32), iterations
-
-    return _kernel
+def _compile_kernel():
+    """Return the compiled A* inner-loop kernel."""
+    return _astar_kernel_3d
 
 
 def _astar_search_numba(

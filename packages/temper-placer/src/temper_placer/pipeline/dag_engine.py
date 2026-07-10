@@ -206,7 +206,7 @@ class StageDAGEngine:
             for key, value in result.outputs.items():
                 context[key] = value
 
-            self._record_phase_timing(state, stage_name, stage_duration)
+            _record_phase_timing(state, stage_name, stage_duration)
             self.execution_log.stage_timings[stage_name] = stage_duration
             if retry_attempts > 0:
                 self.execution_log.retry_counts[stage_name] = retry_attempts
@@ -243,15 +243,15 @@ class StageDAGEngine:
 
         return state
 
-    @staticmethod
-    def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
-        """Record phase timing, converting stage name to PipelinePhase if possible."""
-        try:
-            from temper_placer.pipeline.orchestrator import PipelinePhase
-            phase = PipelinePhase(stage_name)
-            state.phase_timings[phase] = duration
-        except (ValueError, ImportError):
-            state.phase_timings[stage_name] = duration
+
+def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
+    """Record phase timing, converting stage name to PipelinePhase if possible."""
+    try:
+        from temper_placer.pipeline.orchestrator import PipelinePhase
+        phase = PipelinePhase(stage_name)
+        state.phase_timings[phase] = duration
+    except (ValueError, ImportError):
+        state.phase_timings[stage_name] = duration
 
     def _init_context(self, config: Any) -> dict[str, Any]:
         context: dict[str, Any] = {}

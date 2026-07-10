@@ -610,12 +610,7 @@ class ThermalScorer:
     """
 
     def __init__(self, config: ThermalScorerConfig | None = None) -> None:
-        self._config = config or ThermalScorerConfig()
-
-    @property
-    def config(self) -> ThermalScorerConfig:
-        """The active scorer configuration."""
-        return self._config
+        self.config = config or ThermalScorerConfig()
 
     # ------------------------------------------------------------------
     # Public: independent solve (returns raw grid)
@@ -653,7 +648,7 @@ class ThermalScorer:
         k_field = _build_conductivity_field_gs(fdm_config, copper_grid=copper_grid)
         Q_src = _build_heat_source_field_gs(fdm_config, devices, power_map, Q_field=Q_field)
 
-        return _convective_fdm_solve(fdm_config, k_field, Q_src, self._config)
+        return _convective_fdm_solve(fdm_config, k_field, Q_src, self.config)
 
     # ------------------------------------------------------------------
     # Public: score (compare U5 field to independent solve)

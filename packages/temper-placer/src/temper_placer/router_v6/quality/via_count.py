@@ -31,17 +31,6 @@ class ViaCounts:
     stitching: int
     total: int
 
-    @property
-    def signal_vias(self) -> int:
-        return self.signal
-
-    @property
-    def thermal_vias(self) -> int:
-        return self.thermal
-
-    @property
-    def stitching_vias(self) -> int:
-        return self.stitching
 
 
 # ---------------------------------------------------------------------------

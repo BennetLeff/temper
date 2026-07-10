@@ -149,9 +149,6 @@ def test_via_counts_dataclass():
     assert counts.thermal == 5
     assert counts.stitching == 3
     assert counts.total == 18
-    assert counts.signal_vias == 10
-    assert counts.thermal_vias == 5
-    assert counts.stitching_vias == 3
 
 
 def test_via_counts_zero():
@@ -203,9 +200,8 @@ def test_classify_vias_empty_parse_result():
     """Empty via list returns all zeros."""
     counts = ViaCounts(signal=0, thermal=0, stitching=0, total=0)
     assert counts.signal == 0
-    assert counts.signal_vias == 0
-    assert counts.thermal_vias == 0
-    assert counts.stitching_vias == 0
+    assert counts.thermal == 0
+    assert counts.stitching == 0
 
 
 # ---------------------------------------------------------------------------

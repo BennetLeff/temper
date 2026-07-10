@@ -295,25 +295,25 @@ class V6RouterAdapter:
                 )
 
         self._last_results = results
-        self._last_conflicts = self._extract_conflicts(result)
+        self._last_conflicts = _extract_conflicts(result)
         return results
 
     def get_conflict_locations(self) -> list[dict[str, Any]]:
         return self._last_conflicts
 
-    @staticmethod
-    def _extract_conflicts(result: Any) -> list[dict[str, Any]]:
-        """Extract conflict locations from V6 routing result."""
-        conflicts: list[dict[str, Any]] = []
-        if hasattr(result, "stage4") and result.stage4:
-            unrouted = getattr(result.stage4, "unrouted_nets", []) or []
-            for net_name in unrouted:
-                conflicts.append({
-                    "x": 0, "y": 0, "layer": 0,
-                    "nets": [net_name],
-                    "world_x": 0.0, "world_y": 0.0,
-                })
-        return conflicts
+
+def _extract_conflicts(result: Any) -> list[dict[str, Any]]:
+    """Extract conflict locations from V6 routing result."""
+    conflicts: list[dict[str, Any]] = []
+    if hasattr(result, "stage4") and result.stage4:
+        unrouted = getattr(result.stage4, "unrouted_nets", []) or []
+        for net_name in unrouted:
+            conflicts.append({
+                "x": 0, "y": 0, "layer": 0,
+                "nets": [net_name],
+                "world_x": 0.0, "world_y": 0.0,
+            })
+    return conflicts
 
     def _build_temp_pcb(self, netlist: Any, positions: Any) -> str:
         """Build minimal KiCad PCB content from board + components."""

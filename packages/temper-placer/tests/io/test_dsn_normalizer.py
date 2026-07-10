@@ -1,4 +1,4 @@
-from temper_placer.io.dsn_normalizer import DSNNormalizer
+from temper_placer.io.dsn_normalizer import is_dsn_normalized, normalize_dsn, strip_control_chars
 
 
 def test_normalize_strips_non_semantic_lines():
@@ -11,7 +11,7 @@ def test_normalize_strips_non_semantic_lines():
   (structure (layer F.Cu (type signal)))
 )
 """
-    result = DSNNormalizer.normalize(dsn)
+    result = normalize_dsn(dsn)
     assert ";exported-at:" not in result
     assert ";tool-version:" not in result
     assert ";machine:" not in result
@@ -26,7 +26,7 @@ def test_normalize_preserves_schema_version():
 ;exported-at: 2026-06-22T10:00:00
 (pcb test (unit mm))
 """
-    result = DSNNormalizer.normalize(dsn)
+    result = normalize_dsn(dsn)
     assert ";schema-version: sha256:" in result
     assert ";exported-at:" not in result
 
@@ -36,7 +36,7 @@ def test_normalize_trailing_whitespace():
   (unit mm)
 )
 """
-    result = DSNNormalizer.normalize(dsn)
+    result = normalize_dsn(dsn)
     assert "   " not in result
     assert result.endswith("\n")
     assert not result.endswith("\n\n")
@@ -44,32 +44,32 @@ def test_normalize_trailing_whitespace():
 
 def test_normalize_single_trailing_newline():
     dsn = "(pcb test)\n\n\n"
-    result = DSNNormalizer.normalize(dsn)
+    result = normalize_dsn(dsn)
     assert result == "(pcb test)\n"
 
 
 def test_is_normalized_clean():
     dsn = "(pcb test)\n"
-    assert DSNNormalizer.is_normalized(dsn)
+    assert is_dsn_normalized(dsn)
 
 
 def test_is_normalized_rejects_noise():
     dsn = ";exported-at: now\n(pcb test)\n"
-    assert not DSNNormalizer.is_normalized(dsn)
+    assert not is_dsn_normalized(dsn)
 
 
 def test_is_normalized_rejects_double_newline():
     dsn = "(pcb test)\n\n"
-    assert not DSNNormalizer.is_normalized(dsn)
+    assert not is_dsn_normalized(dsn)
 
 
 def test_is_normalized_rejects_no_trailing_newline():
     dsn = "(pcb test)"
-    assert not DSNNormalizer.is_normalized(dsn)
+    assert not is_dsn_normalized(dsn)
 
 
 def test_strip_control_chars():
     dsn = "(pcb\x00 test)\n"
-    result = DSNNormalizer.strip_control_chars(dsn)
+    result = strip_control_chars(dsn)
     assert "\x00" not in result
     assert "(pcb test)" in result

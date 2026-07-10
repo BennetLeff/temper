@@ -96,6 +96,20 @@ class UnsatError(Exception):
         super().__init__(message)
 
 
+def _load_netclass_rules():
+    import logging
+    _logger = logging.getLogger(__name__)
+    try:
+        from temper_placer.io.netclass_loader import load_netclass_rules
+        from pathlib import Path
+        config_path = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
+        if config_path.exists():
+            return load_netclass_rules(config_path)
+    except Exception:
+        _logger.debug("netclass_rules.yaml not loaded", exc_info=True)
+    return None
+
+
 class PlaceRouteLoop:
     """Orchestrates the place→route feedback loop.
 
@@ -183,20 +197,6 @@ class PlaceRouteLoop:
             loop_components=loop_components,
         )
 
-    @staticmethod
-    def _load_netclass_rules():
-        import logging
-        _logger = logging.getLogger(__name__)
-        try:
-            from temper_placer.io.netclass_loader import load_netclass_rules
-            from pathlib import Path
-            config_path = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
-            if config_path.exists():
-                return load_netclass_rules(config_path)
-        except Exception:
-            _logger.debug("netclass_rules.yaml not loaded", exc_info=True)
-        return None
-
     def run(
         self,
         netlist: Netlist,
@@ -236,7 +236,7 @@ class PlaceRouteLoop:
         self._zones = zones
         self._zone_components = zone_components
         self._loop_components = loop_components
-        self._netclass_rules = self._load_netclass_rules()
+        self._netclass_rules = _load_netclass_rules()
         if self._netclass_rules is not None:
             self.classifier.design_rules = self._netclass_rules.design_rules
 

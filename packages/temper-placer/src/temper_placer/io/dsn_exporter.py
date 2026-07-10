@@ -512,8 +512,8 @@ class DSNExporter:
         pcb_expr = dsn_list("pcb", pcb_name, *sections)
 
         if self.deterministic:
-            from temper_placer.io.dsn_schema import DSNSchemaHasher
-            schema_hash = DSNSchemaHasher.compute_schema_hash(self.board, self.netlist)
+            from temper_placer.io.dsn_schema import compute_dsn_schema_hash
+            schema_hash = compute_dsn_schema_hash(self.board, self.netlist)
             pcb_expr = pcb_expr.with_comment(f"schema-version: sha256:{schema_hash}")
 
         return pcb_expr

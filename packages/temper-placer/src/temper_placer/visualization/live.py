@@ -165,16 +165,11 @@ class LiveVisualizer:
         # State
         self._loss_history = LossHistory()
         self._start_time: float | None = None
-        self._is_running = False
+        self.is_running = False
         self._last_log_epoch = -1
 
         # Thread safety
         self._lock = threading.Lock()
-
-    @property
-    def is_running(self) -> bool:
-        """Check if the visualizer is running."""
-        return self._is_running
 
     @property
     def is_paused(self) -> bool:
@@ -204,7 +199,7 @@ class LiveVisualizer:
         This spawns a background thread with the WebSocket server
         and optionally opens a browser window.
         """
-        if self._is_running:
+        if self.is_running:
             logger.warning("LiveVisualizer already running")
             return
 
@@ -244,7 +239,7 @@ class LiveVisualizer:
                 if self.config.verbose:
                     logger.info(f"LiveVisualizer started at {self.url}")
 
-        self._is_running = True
+        self.is_running = True
 
         # Notify clients that training has started
         if self._server:
@@ -256,7 +251,7 @@ class LiveVisualizer:
 
         This shuts down the WebSocket server and cleans up resources.
         """
-        if not self._is_running:
+        if not self.is_running:
             return
 
         if self._server:
@@ -269,7 +264,7 @@ class LiveVisualizer:
             self._server.send_training_complete(final_state)
             self._server.stop()
 
-        self._is_running = False
+        self.is_running = False
 
         if self.config.verbose:
             logger.info("LiveVisualizer stopped")
@@ -308,7 +303,7 @@ class LiveVisualizer:
             component_types: Optional list of component types.
             component_groups: Optional list of component groups.
         """
-        if not self._is_running:
+        if not self.is_running:
             return
 
         with self._lock:

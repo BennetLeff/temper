@@ -117,15 +117,11 @@ BOUNDARIES: dict[str, BoundaryDef] = {
 }
 
 
-class BoundaryRegistry:
-    """Registry of pipeline stage boundaries for DSN/SES export."""
+def get_boundary(name: str) -> BoundaryDef:
+    if name not in BOUNDARIES:
+        raise KeyError(f"Unknown boundary '{name}'. Known: {', '.join(BOUNDARY_NAMES)}")
+    return BOUNDARIES[name]
 
-    @staticmethod
-    def get_boundary(name: str) -> BoundaryDef:
-        if name not in BOUNDARIES:
-            raise KeyError(f"Unknown boundary '{name}'. Known: {', '.join(BOUNDARY_NAMES)}")
-        return BOUNDARIES[name]
 
-    @staticmethod
-    def list_boundaries() -> list[str]:
-        return list(BOUNDARY_NAMES)
+def list_boundaries() -> list[str]:
+    return list(BOUNDARY_NAMES)

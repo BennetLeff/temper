@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from temper_placer.io.dsn_schema import DSNSchemaHasher
+from temper_placer.io.dsn_schema import extract_schema_hash
 
 logger = logging.getLogger(__name__)
 
@@ -21,25 +21,21 @@ class DSNVersionMismatchError(Exception):
         super().__init__(msg)
 
 
-class DSNVersionValidator:
-    """Validate DSN schema version before processing."""
+def validate_dsn(dsn_text: str, expected_hash: str) -> None:
+    """Raise DSNVersionMismatchError if the embedded hash doesn't match."""
+    received = extract_schema_hash(dsn_text)
+    if received != expected_hash:
+        raise DSNVersionMismatchError(expected_hash, received)
 
-    @staticmethod
-    def validate(dsn_text: str, expected_hash: str) -> None:
-        """Raise DSNVersionMismatchError if the embedded hash doesn't match."""
-        received = DSNSchemaHasher.extract_hash(dsn_text)
-        if received != expected_hash:
-            raise DSNVersionMismatchError(expected_hash, received)
 
-    @staticmethod
-    def validate_or_warn(dsn_text: str, expected_hash: str) -> bool:
-        """Return False on mismatch (no exception), logging a warning."""
-        received = DSNSchemaHasher.extract_hash(dsn_text)
-        if received != expected_hash:
-            logger.warning(
-                "DSN schema version mismatch: expected sha256:%s, got sha256:%s",
-                expected_hash,
-                received if received else "MISSING",
-            )
-            return False
-        return True
+def validate_or_warn_dsn(dsn_text: str, expected_hash: str) -> bool:
+    """Return False on mismatch (no exception), logging a warning."""
+    received = extract_schema_hash(dsn_text)
+    if received != expected_hash:
+        logger.warning(
+            "DSN schema version mismatch: expected sha256:%s, got sha256:%s",
+            expected_hash,
+            received if received else "MISSING",
+        )
+        return False
+    return True

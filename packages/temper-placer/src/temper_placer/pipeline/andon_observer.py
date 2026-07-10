@@ -102,7 +102,7 @@ class AndonObserver:
             {"name": n, "status": "idle"} for n in self.stage_order
         ], "footer": ""}
         if self.port == 0:
-            self.port = self._find_free_port()
+            self.port = _find_free_port()
 
     # -- ProgressObserver protocol ------------------------------------------
 
@@ -228,11 +228,11 @@ class AndonObserver:
             self._server.shutdown()
             self._server = None
 
-    @staticmethod
-    def _find_free_port() -> int:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(("127.0.0.1", 0))
-            return s.getsockname()[1]
+
+def _find_free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
 
 
 class _SSEClient:

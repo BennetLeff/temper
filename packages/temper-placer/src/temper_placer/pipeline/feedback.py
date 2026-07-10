@@ -106,7 +106,7 @@ class MomentumDampedRoutingFeedbackLoss:
         self.cell_size = initial_heatmap.cell_size
         blurred = gaussian_filter(initial_heatmap.grid, sigma=sigma)
         self.blended_grid = np.array(blurred)
-        self._iteration = 0
+        self.iteration = 0
 
     def blend(
         self,
@@ -125,7 +125,7 @@ class MomentumDampedRoutingFeedbackLoss:
         alpha = max(0.1, 1.0 / (iteration + 1))
         new_grid = np.array(gaussian_filter(new_heatmap.grid, sigma=sigma))
         self.blended_grid = alpha * new_grid + (1.0 - alpha) * self.blended_grid
-        self._iteration = iteration
+        self.iteration = iteration
 
     def compute_loss(
         self,
@@ -149,10 +149,6 @@ class MomentumDampedRoutingFeedbackLoss:
             value=total_loss,
             breakdown={"routing_congestion": total_loss},
         )
-
-    @property
-    def iteration(self) -> int:
-        return self._iteration
 
 @dataclass
 class FeedbackAdjustment:

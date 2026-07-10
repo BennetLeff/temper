@@ -73,31 +73,11 @@ class DecisionLogger:
             trace: Optional existing trace to append to. If None, creates
                    a new DecisionTrace.
         """
-        self._trace = trace if trace is not None else DecisionTrace()
+        self.trace = trace if trace is not None else DecisionTrace()
         self._enabled = True
-        self._current_phase = DecisionPhase.GEOMETRIC
-        self._current_epoch: int | None = None
-        self._current_iteration: int | None = None
-
-    @property
-    def trace(self) -> DecisionTrace:
-        """Get the underlying decision trace."""
-        return self._trace
-
-    @property
-    def current_phase(self) -> DecisionPhase:
-        """Get the current pipeline phase."""
-        return self._current_phase
-
-    @property
-    def current_epoch(self) -> int | None:
-        """Get the current optimizer epoch."""
-        return self._current_epoch
-
-    @property
-    def current_iteration(self) -> int | None:
-        """Get the current iteration within epoch."""
-        return self._current_iteration
+        self.current_phase = DecisionPhase.GEOMETRIC
+        self.current_epoch: int | None = None
+        self.current_iteration: int | None = None
 
     def enable(self) -> None:
         """Enable logging."""
@@ -117,7 +97,7 @@ class DecisionLogger:
         Args:
             phase: The phase to set (SEMANTIC, TOPOLOGICAL, GEOMETRIC, etc.)
         """
-        self._current_phase = phase
+        self.current_phase = phase
 
     def set_epoch(self, epoch: int) -> None:
         """Set the current optimizer epoch.
@@ -125,7 +105,7 @@ class DecisionLogger:
         Args:
             epoch: The epoch number (0-indexed)
         """
-        self._current_epoch = epoch
+        self.current_epoch = epoch
 
     def set_iteration(self, iteration: int) -> None:
         """Set the current iteration within an epoch.
@@ -133,7 +113,7 @@ class DecisionLogger:
         Args:
             iteration: The iteration number
         """
-        self._current_iteration = iteration
+        self.current_iteration = iteration
 
     @contextmanager
     def phase(self, phase: DecisionPhase) -> Generator[None, None, None]:
@@ -146,12 +126,12 @@ class DecisionLogger:
             >>> with logger.phase(DecisionPhase.ROUTING):
             ...     logger.log_position("C1", (10.0, 20.0))
         """
-        old_phase = self._current_phase
-        self._current_phase = phase
+        old_phase = self.current_phase
+        self.current_phase = phase
         try:
             yield
         finally:
-            self._current_phase = old_phase
+            self.current_phase = old_phase
 
     @contextmanager
     def epoch(self, epoch: int) -> Generator[None, None, None]:
@@ -164,12 +144,12 @@ class DecisionLogger:
             >>> with logger.epoch(500):
             ...     logger.log_position("C1", (10.0, 20.0))
         """
-        old_epoch = self._current_epoch
-        self._current_epoch = epoch
+        old_epoch = self.current_epoch
+        self.current_epoch = epoch
         try:
             yield
         finally:
-            self._current_epoch = old_epoch
+            self.current_epoch = old_epoch
 
     def log_position(
         self,
@@ -202,7 +182,7 @@ class DecisionLogger:
 
         decision = Decision(
             decision_type=decision_type,
-            phase=self._current_phase,
+            phase=self.current_phase,
             subject=component,
             value=position,
             previous_value=previous,
@@ -210,10 +190,10 @@ class DecisionLogger:
             constraint_refs=constraint_refs or [],
             loss_contribution=loss_delta if loss_delta is not None else 0.0,
             alternatives=alternatives or [],
-            epoch=self._current_epoch,
-            iteration=self._current_iteration,
+            epoch=self.current_epoch,
+            iteration=self.current_iteration,
         )
-        self._trace.add(decision)
+        self.trace.add(decision)
 
     def log_rotation(
         self,
@@ -235,15 +215,15 @@ class DecisionLogger:
 
         decision = Decision(
             decision_type=DecisionType.ROTATION,
-            phase=self._current_phase,
+            phase=self.current_phase,
             subject=component,
             value=rotation,
             previous_value=previous,
             reason=reason,
-            epoch=self._current_epoch,
-            iteration=self._current_iteration,
+            epoch=self.current_epoch,
+            iteration=self.current_iteration,
         )
-        self._trace.add(decision)
+        self.trace.add(decision)
 
     def log_heuristic(
         self,
@@ -278,10 +258,10 @@ class DecisionLogger:
             value=position,
             reason=effective_reason,
             loss_contribution=confidence,  # Store confidence in loss_contribution
-            epoch=self._current_epoch,
-            iteration=self._current_iteration,
+            epoch=self.current_epoch,
+            iteration=self.current_iteration,
         )
-        self._trace.add(decision)
+        self.trace.add(decision)
 
     def log_constraint_application(
         self,
@@ -310,15 +290,15 @@ class DecisionLogger:
 
         decision = Decision(
             decision_type=DecisionType.CONSTRAINT_APPLIED,
-            phase=self._current_phase,
+            phase=self.current_phase,
             subject=constraint_id,
             value=affected_components,
             reason=effective_reason,
             constraint_refs=[constraint_id],
-            epoch=self._current_epoch,
-            iteration=self._current_iteration,
+            epoch=self.current_epoch,
+            iteration=self.current_iteration,
         )
-        self._trace.add(decision)
+        self.trace.add(decision)
 
     def should_log(
         self,

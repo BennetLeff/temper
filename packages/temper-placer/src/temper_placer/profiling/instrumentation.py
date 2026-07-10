@@ -104,20 +104,16 @@ class ProfileReport:
 
 class PipelineProfiler:
     def __init__(self) -> None:
-        self._report = ProfileReport()
+        self.report = ProfileReport()
         self._active_timings: dict[str, StageTiming] = {}
         self._t0: float | None = None
-
-    @property
-    def report(self) -> ProfileReport:
-        return self._report
 
     def start(self) -> None:
         self._t0 = time.perf_counter()
 
     def stop(self) -> None:
         if self._t0 is not None:
-            self._report.total_wall_time_ms = (time.perf_counter() - self._t0) * 1000.0
+            self.report.total_wall_time_ms = (time.perf_counter() - self._t0) * 1000.0
 
     @contextmanager
     def stage(self, name: str):
@@ -139,7 +135,7 @@ class PipelineProfiler:
             timing.wall_time_ms = (time.perf_counter() - t0_wall) * 1000.0
             timing.cpu_time_ms = (time.process_time() - t0_cpu) * 1000.0
             timing.iterations = iteration_count
-            self._report.stage_timings[name] = timing
+            self.report.stage_timings[name] = timing
 
     @contextmanager
     def sub_step(self, parent_stage: str, name: str):
@@ -154,7 +150,7 @@ class PipelineProfiler:
                 parent.sub_steps[name] = sub
 
     def record_per_path_latency(self, net_name: str, latency_ms: float) -> None:
-        self._report.per_path_latency_ms[net_name] = latency_ms
+        self.report.per_path_latency_ms[net_name] = latency_ms
 
     def merge_router_stats(self, stats: Any) -> None:
-        self._report.merge_maze_router_stats(stats)
+        self.report.merge_maze_router_stats(stats)

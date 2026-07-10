@@ -17,18 +17,18 @@ from temper_placer._constraint_types import (
     PlacementConstraints,
     ThermalConstraint,
 )
-from temper_placer.io.boundary_registry import BoundaryDef, BoundaryRegistry
+from temper_placer.io.boundary_registry import BoundaryDef, get_boundary, list_boundaries
 from temper_placer.io.config_loader import (
     create_board_from_constraints,
     load_constraints,
 )
-from temper_placer.io.dsn_boundary import DSNBoundaryExporter
+from temper_placer.io.dsn_boundary import export_at_boundary, export_all_boundaries
 
 # DSN/SES universal seam
 from temper_placer.io.dsn_exporter import DSNExporter
-from temper_placer.io.dsn_normalizer import DSNNormalizer
-from temper_placer.io.dsn_schema import DSNSchemaHasher
-from temper_placer.io.dsn_validator import DSNVersionMismatchError, DSNVersionValidator
+from temper_placer.io.dsn_normalizer import is_dsn_normalized, normalize_dsn, strip_control_chars
+from temper_placer.io.dsn_schema import compute_dsn_schema_hash, embed_schema_header, extract_schema_hash
+from temper_placer.io.dsn_validator import DSNVersionMismatchError, validate_dsn, validate_or_warn_dsn
 from temper_placer.io.kicad_parser import (
     ParseResult,
     parse_kicad_pcb,
@@ -103,11 +103,18 @@ __all__ = [
     "ReferenceDesign",
     # DSN/SES universal seam
     "DSNExporter",
-    "DSNNormalizer",
-    "DSNSchemaHasher",
-    "DSNVersionValidator",
+    "normalize_dsn",
+    "is_dsn_normalized",
+    "strip_control_chars",
+    "compute_dsn_schema_hash",
+    "embed_schema_header",
+    "extract_schema_hash",
+    "validate_dsn",
+    "validate_or_warn_dsn",
     "DSNVersionMismatchError",
-    "BoundaryRegistry",
     "BoundaryDef",
-    "DSNBoundaryExporter",
+    "get_boundary",
+    "list_boundaries",
+    "export_at_boundary",
+    "export_all_boundaries",
 ]

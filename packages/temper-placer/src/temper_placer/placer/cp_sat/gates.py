@@ -454,11 +454,11 @@ class StackupGate(Gate):
         """Check trace width meets IPC-2152 minimum for the net's current."""
         current_a = self._DEFAULT_NET_CURRENTS.get(net_name, self._DEFAULT_CURRENT)
 
-        width_mm = self._extract_trace_width(route)
+        width_mm = _extract_trace_width(route)
         if width_mm is None or width_mm <= 0.0:
             return None  # no width to check
 
-        internal = self._is_internal_net(net_name, route)
+        internal = _is_internal_net(net_name, route)
 
         min_width_mm = _min_width_ipc2152(
             current_a=current_a,
@@ -487,47 +487,43 @@ class StackupGate(Gate):
         return None
 
     # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _extract_trace_width(route: Any) -> float | None:
-        """Extract trace width from a route object (tolerant of any shape)."""
-        for attr in ("width_mm", "trace_width", "width"):
-            val = getattr(route, attr, None)
-            if isinstance(val, (int, float)) and val > 0:
-                return float(val)
-        if isinstance(route, dict):
-            for key in ("width_mm", "trace_width", "width"):
-                val = route.get(key)
-                if isinstance(val, (int, float)) and val > 0:
-                    return float(val)
-        if hasattr(route, "path") and hasattr(route.path, "width"):
-            return float(route.path.width)
-        return None
-
-    @staticmethod
-    def _is_internal_net(_net_name: str, route: Any) -> bool:
-        """Heuristic: does the route live on an internal layer?
-
-        Checks layer attribute; defaults to False (external) when unknown.
-        """
-        layer = getattr(route, "layer", None)
-        if isinstance(layer, str) and layer in ("In1.Cu", "In2.Cu"):
-            return True
-        if layer is None and hasattr(route, "path"):
-            path_layer = getattr(route.path, "layer", None)
-            if isinstance(path_layer, str) and path_layer in ("In1.Cu", "In2.Cu"):
-                return True
-        return False
-
-    # ------------------------------------------------------------------
     # to_delta
     # ------------------------------------------------------------------
 
     # to_delta delegates to DeltaMapper via Gate base class.
     # CURRENT_DENSITY / REFERENCE_PLANE_SPLIT -> None (placement
     # cannot fix trace width or plane splits).
+
+
+def _extract_trace_width(route: Any) -> float | None:
+    """Extract trace width from a route object (tolerant of any shape)."""
+    for attr in ("width_mm", "trace_width", "width"):
+        val = getattr(route, attr, None)
+        if isinstance(val, (int, float)) and val > 0:
+            return float(val)
+    if isinstance(route, dict):
+        for key in ("width_mm", "trace_width", "width"):
+            val = route.get(key)
+            if isinstance(val, (int, float)) and val > 0:
+                return float(val)
+    if hasattr(route, "path") and hasattr(route.path, "width"):
+        return float(route.path.width)
+    return None
+
+
+def _is_internal_net(_net_name: str, route: Any) -> bool:
+    """Heuristic: does the route live on an internal layer?
+
+    Checks layer attribute; defaults to False (external) when unknown.
+    """
+    layer = getattr(route, "layer", None)
+    if isinstance(layer, str) and layer in ("In1.Cu", "In2.Cu"):
+        return True
+    if layer is None and hasattr(route, "path"):
+        path_layer = getattr(route.path, "layer", None)
+        if isinstance(path_layer, str) and path_layer in ("In1.Cu", "In2.Cu"):
+            return True
+    return False
 
 
 # ------------------------------------------------------------------

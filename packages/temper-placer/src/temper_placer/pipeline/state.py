@@ -110,3 +110,8 @@ class PipelineState:
 
     # Internal flags
     _refinement_complete: bool = False
+
+    # Routing convergence tracking (used by convergence.py)
+    _best_routed_nets: Any = None
+    _best_routability: float | None = None
+    _stall_count: int = 0

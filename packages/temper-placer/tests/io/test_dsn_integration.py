@@ -6,11 +6,11 @@ These tests verify the golden DSN generation and verification pipeline.
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io.boundary_registry import BoundaryRegistry
+from temper_placer.io.boundary_registry import get_boundary, list_boundaries
 from temper_placer.io.dsn_exporter import DSNExporter
-from temper_placer.io.dsn_normalizer import DSNNormalizer
-from temper_placer.io.dsn_schema import DSNSchemaHasher
-from temper_placer.io.dsn_validator import DSNVersionValidator
+from temper_placer.io.dsn_normalizer import is_dsn_normalized, normalize_dsn
+from temper_placer.io.dsn_schema import compute_dsn_schema_hash, embed_schema_header, extract_schema_hash
+from temper_placer.io.dsn_validator import validate_dsn
 
 
 def test_golden_flow_export_and_validate():
@@ -31,20 +31,20 @@ def test_golden_flow_export_and_validate():
     exporter = DSNExporter(board, netlist, deterministic=True)
     dsn_text = str(exporter.export_pcb("temper"))
 
-    normalized = DSNNormalizer.normalize(dsn_text)
-    assert DSNNormalizer.is_normalized(normalized)
+    normalized = normalize_dsn(dsn_text)
+    assert is_dsn_normalized(normalized)
 
-    schema_hash = DSNSchemaHasher.compute_schema_hash(board, netlist)
+    schema_hash = compute_dsn_schema_hash(board, netlist)
     assert schema_hash is not None
     assert len(schema_hash) == 64
 
-    embedded = DSNSchemaHasher.embed_header(normalized, schema_hash)
+    embedded = embed_schema_header(normalized, schema_hash)
     assert embedded.startswith(f";schema-version: sha256:{schema_hash}")
 
-    extracted = DSNSchemaHasher.extract_hash(embedded)
+    extracted = extract_schema_hash(embedded)
     assert extracted == schema_hash
 
-    DSNVersionValidator.validate(embedded, schema_hash)
+    validate_dsn(embedded, schema_hash)
 
 
 def test_golden_deterministic_byte_identical():
@@ -62,8 +62,8 @@ def test_golden_deterministic_byte_identical():
     exporter1 = DSNExporter(board, netlist, deterministic=True)
     exporter2 = DSNExporter(board, netlist, deterministic=True)
 
-    dsn1 = DSNNormalizer.normalize(str(exporter1.export_pcb("temper")))
-    dsn2 = DSNNormalizer.normalize(str(exporter2.export_pcb("temper")))
+    dsn1 = normalize_dsn(str(exporter1.export_pcb("temper")))
+    dsn2 = normalize_dsn(str(exporter2.export_pcb("temper")))
 
     assert dsn1 == dsn2
 
@@ -72,8 +72,8 @@ def test_boundary_registry_integration():
     """Boundary registry provides correct mappings for golden check flow."""
     from temper_placer.pipeline.orchestrator import PipelinePhase
 
-    for boundary_name in BoundaryRegistry.list_boundaries():
-        bd = BoundaryRegistry.get_boundary(boundary_name)
+    for boundary_name in list_boundaries():
+        bd = get_boundary(boundary_name)
         # Map to PipelinePhase
         phase = PipelinePhase(bd.phase_name)
         assert phase is not None
@@ -95,7 +95,7 @@ def test_schema_hash_changes_pipeline_output_header():
     exp1 = DSNExporter(board, netlist1, deterministic=True)
     exp2 = DSNExporter(board, netlist2, deterministic=True)
 
-    h1 = DSNSchemaHasher.extract_hash(str(exp1.export_pcb("temper")))
-    h2 = DSNSchemaHasher.extract_hash(str(exp2.export_pcb("temper")))
+    h1 = extract_schema_hash(str(exp1.export_pcb("temper")))
+    h2 = extract_schema_hash(str(exp2.export_pcb("temper")))
 
     assert h1 != h2

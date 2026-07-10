@@ -342,13 +342,9 @@ class CompositeCheck(Check):
         name: str = "composite",
         description: str = "",
     ):
-        self._checks = checks
-        self._name = name
+        self.checks = checks
+        self.name = name
         self._description = description
-
-    @property
-    def name(self) -> str:
-        return self._name
 
     @property
     def category(self) -> str:
@@ -358,12 +354,8 @@ class CompositeCheck(Check):
     def description(self) -> str:
         if self._description:
             return self._description
-        check_names = ", ".join(c.name for c in self._checks)
+        check_names = ", ".join(c.name for c in self.checks)
         return f"Composite of: {check_names}"
-
-    @property
-    def checks(self) -> list[Check]:
-        return self._checks
 
     def run(
         self,
@@ -372,7 +364,7 @@ class CompositeCheck(Check):
         modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         result = CheckResult(check_name=self.name, passed=True)
-        for check in self._checks:
+        for check in self.checks:
             if check.is_applicable(placement, constraints):
                 if modified_regions is not None and check.supports_incremental:
                     sub_result = check.run(placement, constraints, modified_regions=modified_regions)
@@ -394,7 +386,7 @@ class CompositeCheck(Check):
         placement: Placement,
         constraints: ConstraintSet,
     ) -> bool:
-        return any(c.is_applicable(placement, constraints) for c in self._checks)
+        return any(c.is_applicable(placement, constraints) for c in self.checks)
 
 
 # =========================================================================

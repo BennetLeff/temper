@@ -260,7 +260,7 @@ class ConstraintReporter:
         # Calculate distance
         pos_a = placements[comp_a]
         pos_b = placements[comp_b]
-        distance = self._distance(pos_a, pos_b)
+        distance = _distance(pos_a, pos_b)
 
         # Check against threshold
         satisfied = distance >= rule.min_separation_mm
@@ -295,7 +295,7 @@ class ConstraintReporter:
         # Calculate distance
         pos_a = placements[comp_a]
         pos_b = placements[comp_b]
-        distance = self._distance(pos_a, pos_b)
+        distance = _distance(pos_a, pos_b)
 
         # Check against threshold
         satisfied = distance <= rule.max_distance_mm
@@ -344,7 +344,7 @@ class ConstraintReporter:
             )
 
         pos = placements[comp]
-        edge_distance = self._min_edge_distance(pos, self.board_bounds)
+        edge_distance = _min_edge_distance(pos, self.board_bounds)
 
         # Check against threshold - use max_distance_from_edge_mm
         threshold = thermal.max_distance_from_edge_mm
@@ -443,7 +443,7 @@ class ConstraintReporter:
             if other_ref == comp:
                 continue
 
-            distance = self._distance(pos, other_pos)
+            distance = _distance(pos, other_pos)
             if distance < clearance:
                 violations.append((other_ref, distance))
 
@@ -518,7 +518,7 @@ class ConstraintReporter:
             if other_ref in (from_comp, to_comp):
                 continue
 
-            distance = self._point_to_segment_distance(other_pos, pos_from, pos_to)
+            distance = _point_to_segment_distance(other_pos, pos_from, pos_to)
             if distance < half_width:
                 violations.append((other_ref, distance))
 
@@ -549,51 +549,51 @@ class ConstraintReporter:
 
         return results
 
-    @staticmethod
-    def _distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
-        """Euclidean distance between two points."""
-        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
-    @staticmethod
-    def _min_edge_distance(
-        pos: tuple[float, float], bounds: tuple[float, float, float, float]
-    ) -> float:
-        """Minimum distance from point to any board edge."""
-        x, y = pos
-        x_min, y_min, x_max, y_max = bounds
+def _distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
+    """Euclidean distance between two points."""
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
-        distances = [
-            x - x_min,  # Left edge
-            x_max - x,  # Right edge
-            y - y_min,  # Bottom edge
-            y_max - y,  # Top edge
-        ]
 
-        return min(distances)
+def _min_edge_distance(
+    pos: tuple[float, float], bounds: tuple[float, float, float, float]
+) -> float:
+    """Minimum distance from point to any board edge."""
+    x, y = pos
+    x_min, y_min, x_max, y_max = bounds
 
-    @staticmethod
-    def _point_to_segment_distance(
-        point: tuple[float, float], seg_start: tuple[float, float], seg_end: tuple[float, float]
-    ) -> float:
-        """Minimum distance from point to line segment."""
-        px, py = point
-        x1, y1 = seg_start
-        x2, y2 = seg_end
+    distances = [
+        x - x_min,  # Left edge
+        x_max - x,  # Right edge
+        y - y_min,  # Bottom edge
+        y_max - y,  # Top edge
+    ]
 
-        # Vector from start to end
-        dx = x2 - x1
-        dy = y2 - y1
+    return min(distances)
 
-        if dx == 0 and dy == 0:
-            # Segment is a point
-            return math.sqrt((px - x1) ** 2 + (py - y1) ** 2)
 
-        # Parameter t for projection onto line
-        t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)
-        t = max(0, min(1, t))  # Clamp to segment
+def _point_to_segment_distance(
+    point: tuple[float, float], seg_start: tuple[float, float], seg_end: tuple[float, float]
+) -> float:
+    """Minimum distance from point to line segment."""
+    px, py = point
+    x1, y1 = seg_start
+    x2, y2 = seg_end
 
-        # Closest point on segment
-        closest_x = x1 + t * dx
-        closest_y = y1 + t * dy
+    # Vector from start to end
+    dx = x2 - x1
+    dy = y2 - y1
 
-        return math.sqrt((px - closest_x) ** 2 + (py - closest_y) ** 2)
+    if dx == 0 and dy == 0:
+        # Segment is a point
+        return math.sqrt((px - x1) ** 2 + (py - y1) ** 2)
+
+    # Parameter t for projection onto line
+    t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)
+    t = max(0, min(1, t))  # Clamp to segment
+
+    # Closest point on segment
+    closest_x = x1 + t * dx
+    closest_y = y1 + t * dy
+
+    return math.sqrt((px - closest_x) ** 2 + (py - closest_y) ** 2)
