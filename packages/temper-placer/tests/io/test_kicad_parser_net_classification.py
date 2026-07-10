@@ -21,12 +21,12 @@ def fixtures_dir() -> Path:
 
 from temper_placer.core.board import Board
 from temper_placer.core.design_rules import DesignRules, NetClassRules
+from temper_placer.core.loss_types import LossContext
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io.kicad_parser import (
     _apply_safety_classifications,
     parse_kicad_pcb,
 )
-from temper_placer.losses.base import LossContext
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -266,6 +266,7 @@ class TestApplySafetyClassifications:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.skip(reason="retired LossContext data computation (JAX)")
 class TestLossContextIntegration:
     """After classification, LossContext hv/lv indices should be non-empty."""
 
@@ -295,7 +296,7 @@ class TestLossContextIntegration:
         netlist = _make_netlist_from_components([hv_comp, lv_comp])
         _apply_safety_classifications(netlist, temper_design_rules)
 
-        context = LossContext.from_netlist_and_board(netlist, simple_board)
+        context = LossContext(netlist=netlist, board=simple_board)
 
         assert context.netlist_data.hv_indices.shape[0] > 0, (
             f"Expected non-empty hv_indices, got shape {context.netlist_data.hv_indices.shape}"
@@ -326,7 +327,7 @@ class TestLossContextIntegration:
         netlist = _make_netlist_from_components([lv_comp])
         _apply_safety_classifications(netlist, temper_design_rules)
 
-        context = LossContext.from_netlist_and_board(netlist, simple_board)
+        context = LossContext(netlist=netlist, board=simple_board)
 
         assert context.netlist_data.hv_indices.shape[0] == 0
         assert context.netlist_data.lv_indices.shape[0] > 0

@@ -1,5 +1,7 @@
 """Tests for ablation study component registries."""
 
+import pytest
+
 from temper_placer.ablation.config import ComponentToggle, LossToggle
 from temper_placer.ablation.registry import (
     HeuristicRegistry,
@@ -15,9 +17,8 @@ class TestHeuristicRegistry:
         """Should list all heuristic names."""
         names = HeuristicRegistry.list_heuristics()
 
-        assert len(names) == 11
+        assert len(names) == 10
         assert "spectral_init" in names
-        assert "force_directed" in names
 
     def test_create_pipeline_all_enabled(self):
         """Should attempt to create pipeline with all heuristics enabled."""
@@ -112,6 +113,7 @@ class TestLossRegistry:
 class TestTechniqueApplicator:
     """Tests for TechniqueApplicator."""
 
+    @pytest.mark.skip(reason="retired JAX (LossContext.from_netlist_and_board / removed optimizer/losses)")
     def test_apply_toggles_all_enabled(self):
         """Should keep all techniques when enabled."""
         from temper_placer.optimizer.config import OptimizerConfig
@@ -123,6 +125,7 @@ class TestTechniqueApplicator:
 
         assert config.use_centrality_weighting is True
 
+    @pytest.mark.skip(reason="retired JAX (LossContext.from_netlist_and_board / removed optimizer/losses)")
     def test_apply_toggles_disable_curriculum(self):
         """Should disable curriculum when toggled off."""
         from temper_placer.optimizer.config import CurriculumPhase, OptimizerConfig
@@ -136,6 +139,7 @@ class TestTechniqueApplicator:
 
         assert len(config.curriculum_phases) == 0
 
+    @pytest.mark.skip(reason="retired JAX (LossContext.from_netlist_and_board / removed optimizer/losses)")
     def test_apply_toggles_constant_temperature(self):
         """Should set constant temperature when annealing disabled."""
         from temper_placer.optimizer.config import OptimizerConfig
@@ -148,6 +152,7 @@ class TestTechniqueApplicator:
         # Temperature should be constant (start == end)
         assert config.temperature.start == config.temperature.end
 
+    @pytest.mark.skip(reason="retired JAX (LossContext.from_netlist_and_board / removed optimizer/losses)")
     def test_apply_toggles_constant_learning_rate(self):
         """Should set constant learning rate when annealing disabled."""
         from temper_placer.optimizer.config import OptimizerConfig
@@ -160,6 +165,7 @@ class TestTechniqueApplicator:
         # Learning rate should be constant (initial == final)
         assert config.learning_rate.initial == config.learning_rate.final
 
+    @pytest.mark.skip(reason="retired JAX (LossContext.from_netlist_and_board / removed optimizer/losses)")
     def test_apply_toggles_disable_gradient_clipping(self):
         """Should disable gradient clipping when toggled off."""
         from temper_placer.optimizer.config import OptimizerConfig
@@ -171,6 +177,7 @@ class TestTechniqueApplicator:
 
         assert config.gradient_clip_norm is None
 
+    @pytest.mark.skip(reason="retired JAX (LossContext.from_netlist_and_board / removed optimizer/losses)")
     def test_get_technique_status(self):
         """Should extract technique status from config."""
         from temper_placer.optimizer.config import OptimizerConfig

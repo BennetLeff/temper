@@ -19,8 +19,8 @@ import jax.numpy as jnp
 import pytest
 from hypothesis import given, settings
 
+from temper_placer.core.loss_types import LossContext
 from temper_placer.core.netlist import Netlist
-from temper_placer.losses.base import LossContext
 from temper_placer.router_v6.stage0_data import ParsedPCB
 
 from .io_property_strategies import (
@@ -309,6 +309,7 @@ class TestCoordinateScaling:
 # =========================================================================
 
 
+@pytest.mark.skip(reason="retired LossContext data computation (JAX)")
 class TestLossContextFidelity:
     """Theorem: A LossContext built from a ParsedPCB faithfully represents
     the component dimensions and board geometry.
@@ -322,7 +323,7 @@ class TestLossContextFidelity:
     def _make_context_from_parsed_pcb(pcb: ParsedPCB) -> LossContext:
         """Build a LossContext from a ParsedPCB."""
         nl = Netlist(components=pcb.components, nets=pcb.nets)
-        return LossContext.from_netlist_and_board(nl, pcb.board)
+        return LossContext(netlist=nl, board=pcb.board)
 
     @pytest.mark.property
     @given(parsed_pcb())
