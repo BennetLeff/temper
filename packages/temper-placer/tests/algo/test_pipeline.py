@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from temper_placer.algo.coarsening import coarsen_hypergraph
 from temper_placer.algo.spectral import spectral_layout
@@ -7,7 +6,6 @@ from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.extraction.hypergraph_factory import netlist_to_hypergraph
 
 
-@pytest.mark.skip(reason="spectral_layout IndexError in src/algo/spectral.py - source bug, needs fix")
 def test_full_pipeline_flow():
     """
     Test the full Netlist -> Hypergraph -> Coarsen -> Spectral flow.
