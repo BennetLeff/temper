@@ -8,8 +8,7 @@ Following TDD: these tests are written BEFORE implementation changes.
 
 from __future__ import annotations
 
-import jax
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.core.board import Board, Zone
@@ -67,9 +66,9 @@ def default_constraints() -> PlacementConstraints:
 
 
 @pytest.fixture
-def jax_key() -> jax.Array:
+def jax_key() -> np.random.Generator:
     """JAX random key for tests."""
-    return jax.random.PRNGKey(42)
+    return np.random.default_rng(42)
 
 
 # =============================================================================
@@ -189,12 +188,12 @@ class TestPipelineExecution:
         positions = result.state.positions
 
         # Check all positions are within board
-        assert jnp.all(positions[:, 0] >= 0), "X positions should be >= 0"
-        assert jnp.all(positions[:, 0] <= simple_board.width), (
+        assert np.all(positions[:, 0] >= 0), "X positions should be >= 0"
+        assert np.all(positions[:, 0] <= simple_board.width), (
             "X positions should be <= board width"
         )
-        assert jnp.all(positions[:, 1] >= 0), "Y positions should be >= 0"
-        assert jnp.all(positions[:, 1] <= simple_board.height), (
+        assert np.all(positions[:, 1] >= 0), "Y positions should be >= 0"
+        assert np.all(positions[:, 1] <= simple_board.height), (
             "Y positions should be <= board height"
         )
 
@@ -407,8 +406,8 @@ class TestDeterminism:
         pipeline1 = create_default_pipeline()
         pipeline2 = create_default_pipeline()
 
-        key1 = jax.random.PRNGKey(42)
-        key2 = jax.random.PRNGKey(42)
+        key1 = np.random.default_rng(42)
+        key2 = np.random.default_rng(42)
 
         result1 = pipeline1.run(
             board=simple_board,
@@ -425,7 +424,7 @@ class TestDeterminism:
         )
 
         # Positions should be identical
-        assert jnp.allclose(result1.state.positions, result2.state.positions)
+        assert np.allclose(result1.state.positions, result2.state.positions)
 
     def test_different_seed_different_result(
         self, simple_board, simple_netlist, default_constraints
@@ -434,8 +433,8 @@ class TestDeterminism:
         pipeline1 = create_default_pipeline()
         pipeline2 = create_default_pipeline()
 
-        key1 = jax.random.PRNGKey(42)
-        key2 = jax.random.PRNGKey(999)
+        key1 = np.random.default_rng(42)
+        key2 = np.random.default_rng(999)
 
         result1 = pipeline1.run(
             board=simple_board,

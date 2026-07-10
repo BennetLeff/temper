@@ -8,6 +8,7 @@ import json
 import tempfile
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from temper_placer.io import (
@@ -241,14 +242,14 @@ class TestCoordinateRoundTrip:
 
     def test_state_to_placements_adds_origin(self):
         """Test that state_to_placements adds origin back."""
-        import jax.numpy as jnp
+        import numpy as np
 
         from temper_placer.core.state import PlacementState
         from temper_placer.io.kicad_writer import state_to_placements
 
         # Create state with origin-relative positions
-        positions = jnp.array([[25.0, 25.0], [35.0, 35.0]])
-        rotation_logits = jnp.array([[10.0, 0.0, 0.0, 0.0], [0.0, 10.0, 0.0, 0.0]])
+        positions = np.array([[25.0, 25.0], [35.0, 35.0]])
+        rotation_logits = np.array([[10.0, 0.0, 0.0, 0.0], [0.0, 10.0, 0.0, 0.0]])
         state = PlacementState(positions=positions, rotation_logits=rotation_logits)
 
         # Convert to placements with origin (50, 30)
@@ -262,7 +263,6 @@ class TestCoordinateRoundTrip:
 
     def test_full_round_trip_preserves_positions(self, pcb_with_nonzero_origin, tmp_path):
         """Test that parse -> export -> parse preserves positions."""
-        import jax.numpy as jnp
 
         from temper_placer.core.state import PlacementState
         from temper_placer.io.kicad_parser import parse_kicad_pcb
@@ -275,14 +275,14 @@ class TestCoordinateRoundTrip:
         component_refs = list(comp_by_ref.keys())
 
         # Step 2: Create state from parsed positions (origin-relative)
-        positions = jnp.array(
-            [comp_by_ref[ref].initial_position for ref in component_refs], dtype=jnp.float32
+        positions = np.array(
+            [comp_by_ref[ref].initial_position for ref in component_refs], dtype=np.float32
         )
         # Use rotation logits that will produce the same discrete rotations
-        rotation_logits = jnp.zeros((len(component_refs), 4))
+        rotation_logits = np.zeros((len(component_refs), 4))
         for i, ref in enumerate(component_refs):
             rot_idx = comp_by_ref[ref].initial_rotation or 0
-            rotation_logits = rotation_logits.at[i, rot_idx].set(10.0)
+            rotation_logits[i, rot_idx] = 10.0
 
         state = PlacementState(positions=positions, rotation_logits=rotation_logits)
 
