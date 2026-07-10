@@ -320,6 +320,7 @@ def _assemble_system(
     config: ThermalFDMConfig,
     k_field: np.ndarray,
     Q_field: np.ndarray,
+    h_field: np.ndarray | None = None,
 ) -> tuple["scipy.sparse.csr_matrix", np.ndarray]:
     """Assemble the sparse linear system A·T = b for the FDM discretisation.
 
@@ -327,6 +328,14 @@ def _assemble_system(
     for material boundaries.  Dirichlet face term at the heatsink edge
     (boundary-aligned, 2nd-order), Neumann adiabatic (zero-flux) at all
     other edges.
+
+    When *h_field* is provided, adds a per-cell vertical sink term
+    ``h(T - T_amb)`` for through-plane heat removal (heatsink path).
+    The sink adds ``h_cell`` to the diagonal and ``h_cell * T_amb`` to
+    the RHS, preserving symmetry, SPD, and the M-matrix property
+    (positive diagonal addition improves diagonal dominance).
+    When ``h_field`` is None or all-zero, behaviour is identical to
+    the pure in-plane conduction solve.
     """
     from scipy.sparse import lil_matrix
 
@@ -391,6 +400,16 @@ def _assemble_system(
                 diag += coeff
                 b[idx] += coeff * config.ambient_C
 
+            # --- Vertical sink term: h(T - T_amb) (issue #141) -------------
+            # Adds h_cell to the diagonal (positive → preserves SPD/M-matrix)
+            # and h_cell * T_amb to the RHS (source term).
+            # Units: h_cell [W/(K·mm²)] matches diagonal coefficient units.
+            if h_field is not None:
+                h_cell = float(h_field[row, col])
+                if h_cell > 0.0:
+                    diag += h_cell
+                    b[idx] += h_cell * config.ambient_C
+
             A[idx, idx] = diag
             b[idx] += Q_field[row, col]
 
@@ -406,6 +425,7 @@ def get_system_matrix(
     config: ThermalFDMConfig,
     copper_grid: np.ndarray | None = None,
     traces: list | None = None,
+    h_field: np.ndarray | None = None,
 ) -> "scipy.sparse.csr_matrix":
     """Return the assembled system matrix A for the isotropic FDM discretisation.
 
@@ -419,6 +439,8 @@ def get_system_matrix(
         copper_grid: ``(height_cells, width_cells)`` per-cell copper
             coverage fraction in [0, 1].
         traces: Optional routed trace segments.
+        h_field: Optional per-cell vertical conductance ``(H, W)`` in
+            ``W/(K·mm²)`` for through-plane heat removal (#141).
 
     Returns:
         The ``scipy.sparse.csr_matrix`` system matrix A.
@@ -426,7 +448,7 @@ def get_system_matrix(
     k_field = _build_conductivity_field(config, copper_grid=copper_grid, traces=traces)
     h, w = config.height_cells, config.width_cells
     Q_dummy = np.zeros((h, w), dtype=np.float64)
-    A, _ = _assemble_system(config, k_field, Q_dummy)
+    A, _ = _assemble_system(config, k_field, Q_dummy, h_field=h_field)
     return A
 
 
@@ -442,8 +464,16 @@ def solve_thermal_fdm(
     copper_grid: np.ndarray | None = None,
     traces: list | None = None,
     Q_field: np.ndarray | None = None,
+    h_field: np.ndarray | None = None,
 ) -> "FieldResult":
-    """Solve :math:`\\nabla\\cdot(k\\nabla T) = -Q` on the board grid.
+    """Solve :math:`\\nabla\\cdot(k\\nabla T) - h(T - T_\\mathrm{amb}) = -Q`
+    on the board grid.
+
+    When *h_field* is provided, a per-cell vertical sink models
+    through-plane heat removal (e.g. junction→case→sink→ambient).
+    The units of ``h_field`` are ``W/(K·mm²)`` (per-area vertical
+    conductance).  When ``h_field`` is ``None``, the solve reduces to
+    pure in-plane conduction.
 
     Args:
         config: Grid geometry, boundary conditions, and budget limits.
@@ -460,6 +490,8 @@ def solve_thermal_fdm(
         Q_field: Direct per-cell heat source (W/mm²).  When provided,
             *devices*/*power_map* are ignored.  Used for uniform-source
             test cases.
+        h_field: Optional per-cell vertical conductance ``(H, W)`` in
+            ``W/(K·mm²)`` for through-plane heat removal (#141).
 
     Returns:
         ``FieldResult`` with:
@@ -492,7 +524,7 @@ def solve_thermal_fdm(
     Q_src = _build_heat_source_field(config, devices, power_map, Q_field=Q_field)
 
     # Assemble linear system
-    A, b = _assemble_system(config, k_field, Q_src)
+    A, b = _assemble_system(config, k_field, Q_src, h_field=h_field)
 
     # Direct deterministic solve via SuperLU
     from scipy.sparse.linalg import spsolve

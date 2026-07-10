@@ -127,12 +127,12 @@ SHARED_INPUTS: tuple[str, ...] = (
 )
 
 INDEPENDENT_INPUTS: tuple[str, ...] = (
-    "transport model: distributed k_eff conduction-only PDE (FDM)"
+    "transport model: distributed k_eff conduction PDE with through-plane sink (FDM)"
     "  vs lumped R_θJC + R_θCS + R_θSA ladder (datasheet)",
-    "data source: derived per-cell k_eff from copper coverage (FDM)"
-    "  vs manufacturer-measured R_θ values from device datasheets,"
-    "  which fold in the convection / heat-sinking the conduction-only"
-    "  FDM interior omits",
+    "data source: derived per-cell k_eff from copper coverage + per-cell h_sink"
+    "  from shared R_θCS/R_θSA (FDM)"
+    "  vs manufacturer-measured lumped R_θ values from device datasheets,"
+    "  which match the FDM's sink path",
 )
 
 
@@ -242,11 +242,21 @@ class TjCrossCheckGate(Gate):
                     ),
                 )
 
+        # --- Build vertical sink field from device thermal configs (#141) ---
+        from temper_placer.physics.heat_removal import build_h_field
+
+        h_field = build_h_field(
+            config=self._fdm_config,
+            devices=self._devices,
+            device_thermal=self._device_thermal,
+        )
+
         # --- Run the distributed FDM solve ------------------------------
         fdm_result = fdm_solver(
             config=self._fdm_config,
             devices=self._devices,
             power_map=self._power_map,
+            h_field=h_field,
         )
 
         if not fdm_result.is_usable:

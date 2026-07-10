@@ -63,6 +63,7 @@ def _ensure_field_diverges(
     power_map: dict[str, float],
     *,
     copper_grid: np.ndarray | None = None,
+    h_field: np.ndarray | None = None,
     n_perturbations: int = 2,
     base_seed: int = 99,
 ) -> None:
@@ -106,6 +107,7 @@ def _ensure_field_diverges(
                 devices=fdm_devices,
                 power_map=power_map,
                 copper_grid=copper_grid,
+                h_field=h_field,
             )
             if not u5_result.is_usable:
                 raise RuntimeError(
@@ -240,6 +242,7 @@ def _make_thermal_scorer_adapter(
     T_j_max: float = 150.0,
     *,
     copper_grid: np.ndarray | None = None,
+    h_field: np.ndarray | None = None,
 ) -> Callable[[Any, Any, Any], PhysicsOracleResult]:
     """Build a scorer adapter that wraps ThermalScorer into a
     ``(placement, board, netlist) -> PhysicsOracleResult`` callable
@@ -270,6 +273,7 @@ def _make_thermal_scorer_adapter(
             u5_result = solve_thermal_fdm(
                 config=fdm_config, devices=fdm_devices, power_map=power_map,
                 copper_grid=copper_grid,
+                h_field=h_field,
             )
         except Exception as exc:
             return PhysicsOracleResult(
@@ -349,6 +353,7 @@ def _make_arm_placement_builder(
     power_map: dict[str, float],
     *,
     copper_grid: np.ndarray | None = None,
+    h_field: np.ndarray | None = None,
 ) -> Callable[[str, int, Any, Any, int], Any]:
     """Build the ``build_arm_placement`` callback for the helps battery.
 
@@ -398,6 +403,7 @@ def _make_arm_placement_builder(
                 u5_result = solve_thermal_fdm(
                     config=fdm_config, devices=devices, power_map=power_map,
                     copper_grid=copper_grid,
+                    h_field=h_field,
                 )
                 if u5_result.is_usable and u5_result.field is not None:
                     field_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
@@ -529,6 +535,7 @@ def run_thermal_helps_battery(
     power_map: dict[str, float] | None = None,
     operating_point_config: dict[str, Any] | None = None,
     device_loss_configs: dict[str, Any] | None = None,
+    device_thermal_configs: dict[str, Any] | None = None,
     base_seed: int = 42,
     n_perturbations: int | None = None,
     skip_smoke_test: bool = False,
@@ -673,6 +680,30 @@ def run_thermal_helps_battery(
                 exc,
             )
 
+    # --- Build vertical sink field (#141: feed solver through-plane heatsink) ---
+    h_field: np.ndarray | None = None
+    if device_thermal_configs:
+        try:
+            from temper_placer.physics.heat_removal import build_h_field
+
+            h_field = build_h_field(
+                config=fdm_config,
+                devices=devices,
+                device_thermal=device_thermal_configs,
+            )
+            logger.info(
+                "U10 h_field: shape=%s, mean=%.3e, max=%.3e, min=%.3e",
+                h_field.shape,
+                float(np.mean(h_field)),
+                float(np.max(h_field)),
+                float(np.min(h_field)),
+            )
+        except Exception as exc:
+            logger.warning(
+                "Failed to build h_field (falling back to no vertical sink): %s",
+                exc,
+            )
+
     # --- Gate-first (U6) ---
     gate_clean = False
     if operating_point_config:
@@ -694,6 +725,7 @@ def run_thermal_helps_battery(
             devices=devices,
             power_map=power_map,
             copper_grid=copper_grid,
+            h_field=h_field,
             n_perturbations=2,
             base_seed=99,
         )
@@ -705,6 +737,7 @@ def run_thermal_helps_battery(
         scorer_adapter = _make_thermal_scorer_adapter(
             scorer, fdm_config, devices, power_map, T_j_max=T_j_max,
             copper_grid=copper_grid,
+            h_field=h_field,
         )
         scorer_fn = lambda p, b, n: build_scorecard(  # noqa: E731
             p, b, n, scorer=scorer_adapter,
@@ -720,6 +753,7 @@ def run_thermal_helps_battery(
     scorer_adapter = _make_thermal_scorer_adapter(
         scorer, fdm_config, devices, power_map, T_j_max=T_j_max,
         copper_grid=copper_grid,
+        h_field=h_field,
     )
 
     # --- Score function ---
@@ -735,6 +769,7 @@ def run_thermal_helps_battery(
     build_arm_placement = _make_arm_placement_builder(
         fdm_config=fdm_config, devices=devices, power_map=power_map,
         copper_grid=copper_grid,
+        h_field=h_field,
     )
 
     # --- Run battery ---
