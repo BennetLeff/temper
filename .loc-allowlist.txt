@@ -2,16 +2,20 @@
 # Format: <repo-relative-path> <baseline_lines> <ticket-id> # <description>
 packages/temper-placer/src/temper_placer/cli/__init__.py 3946 temper-N6-U3 # CLI god-object, Phase 2 decomposition
 packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py 1797 temper-N6-U6 # router, Phase 3
+packages/temper-placer/src/temper_placer/optimizer/train.py 1923 temper-N7-10 # follow-up (grew from 1707: C-CAP constraint cascade integration)
 packages/temper-placer/src/temper_placer/io/config_loader.py 1748 temper-N7-9 # follow-up (grew from 1731, keepout emission +17)
-packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1442 temper-N6-U8 # grew from 1415: sat_model plumbing
-packages/temper-placer/src/temper_placer/io/kicad_parser.py 1400 temper-N7-6 # follow-up (grew from 1328)
+packages/temper-placer/src/temper_placer/pcl/parser.py 1089 temper-N7-10 # tag dispatch YAML parser + tagged constraint expansion
+packages/temper-placer/src/temper_placer/optimizer/nsga2.py 1521 temper-N7-8 # follow-up
+packages/temper-placer/src/temper_placer/losses/base.py 1382 temper-N7-2 # follow-up
+packages/temper-placer/src/temper_placer/io/kicad_parser.py 1328 temper-N7-6 # follow-up (grew from 1312)
 packages/temper-placer/src/temper_placer/io/kicad_writer.py 1311 temper-N7-7 # follow-up (grew from 4-layer validation guards)
 packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py 1283 temper-N7-cap1 # new over-cap file
 packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 1232 temper-N7-cap2 # new over-cap file
-packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py 1203 temper-N7-cap8 # new over-cap file (cp_sat place-route loop)
+packages/temper-placer/src/temper_placer/optimizer/initialization.py 1204 temper-N7-cap5 # new over-cap file (grew from HierarchicalGroupInitializer addition)
+packages/temper-placer/src/temper_placer/losses/aesthetic.py 1153 temper-N7-aesthetic # follow-up
 firmware/main/state_machine.c 1181 temper-N6-U8 # firmware, Phase 4 (grew from 1116: added IGBT short + ADC stuck + stuck tracking)
-packages/temper-placer/src/temper_placer/pcl/parser.py 1089 temper-N7-10 # tag dispatch YAML parser + tagged constraint expansion
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1059 temper-N7-cap4 # new over-cap file
-packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1035 temper-N7-cap7 # new over-cap file (cp_sat gate registry)
+packages/temper-placer/src/temper_placer/optimizer/convergence_analytics.py 1023 temper-N7-1 # follow-up
 packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1008 temper-N7-board # follow-up
-packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py 1001 temper-N7-cap6 # new over-cap file (cp_sat constraint encoder)
+packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1462 temper-phys-U8 # grew from 1442: A* thermal cost-field plumbing (physics-informed routing)
+packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py 1435 temper-phys-U9 # new over-cap: W5 continuous thermal-field fixed-point feedback (physics-informed placement)

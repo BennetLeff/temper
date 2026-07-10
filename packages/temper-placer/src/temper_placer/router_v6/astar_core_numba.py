@@ -203,6 +203,8 @@ def _compile_kernel():
         congestion_flat: np.ndarray | None = None,  # (rows*cols,) float32; null = no congestion
         congestion_weight: float = 1.0,  # multiplier on per-cell congestion cost
         max_congestion_cost: float = 100.0,  # cap on per-cell cost
+        thermal_flat: np.ndarray | None = None,  # (rows*cols,) float32; U8 thermal cost field
+        thermal_weight: float = 0.0,  # U8: additive multiplier on per-cell thermal cost
     ) -> tuple:
         """Run A* on the 2D grid.  Returns (path_indices, iterations).
 
@@ -217,6 +219,13 @@ def _compile_kernel():
         ``min(max_congestion_cost, 1 + log(1 + raw))`` at the
         cell; multiplied by ``congestion_weight``.  Logarithmic
         growth keeps the cost admissible as a tie-breaker.
+
+        If ``thermal_flat`` is supplied (U8), each per-cell
+        expansion adds an additive thermal penalty.  The cost is
+        ``thermal_flat[cell] * thermal_weight``, summed with any
+        congestion cost inside the same kernel step-cost path.
+        ``thermal_weight = 0.0`` prunes the branch at JIT time so
+        field-off is byte-identical to today's routing.
         """
         INF = np.float32(1.0e30)
         n_cells = rows * cols
@@ -233,6 +242,13 @@ def _compile_kernel():
         use_congestion = (
             congestion_flat is not None
             and congestion_weight > 0.0
+        )
+        # U8: same early-out gate for thermal — when weight is
+        # zero (or no field), the branch is Numba-pruned at JIT
+        # time and field-off routing is byte-identical.
+        use_thermal = (
+            thermal_flat is not None
+            and thermal_weight > 0.0
         )
 
         # Work arrays
@@ -339,6 +355,14 @@ def _compile_kernel():
                         if cong_cost > max_congestion_cost:
                             cong_cost = max_congestion_cost
                         step = step + np.float32(congestion_weight) * cong_cost
+                # U8: additive thermal cost field — summed with
+                # congestion cost inside the same kernel step-cost
+                # path.  thermal_weight=0.0 prunes at JIT time so
+                # field-off routing is byte-identical.
+                if use_thermal and thermal_flat is not None:
+                    t_val = thermal_flat[n_idx]
+                    if t_val > np.float32(0.0):
+                        step = step + np.float32(thermal_weight) * t_val
                 tentative = g_score[cur_i] + step
                 if tentative < g_score[n_idx]:
                     g_score[n_idx] = tentative
@@ -365,6 +389,8 @@ def _astar_search_numba(
     congestion_flat: np.ndarray | None = None,
     congestion_weight: float = 1.0,
     max_congestion_cost: float = 100.0,
+    thermal_flat: np.ndarray | None = None,
+    thermal_weight: float = 0.0,
 ) -> list | None:
     """Numba-jitted A* front-end.  See module docstring.
 
@@ -380,6 +406,13 @@ def _astar_search_numba(
     channels.  ``congestion_weight`` is a multiplier (1.0 by
     default); ``max_congestion_cost`` caps the per-cell cost
     (100.0 by default).
+
+    U8: optional ``thermal_flat`` is a flat ``(rows*cols,)``
+    float32 cost field (built via
+    :class:`temper_placer.fields.CostFieldInput`).  When supplied,
+    the per-cell thermal cost is added to the step-cost sum
+    alongside congestion.  ``thermal_weight`` (0.0 by default) is
+    the scalar multiplier — U9 sets a non-zero value.
     """
     t0_total = time.perf_counter()
 
@@ -428,6 +461,15 @@ def _astar_search_numba(
     else:
         congestion_arg = None
 
+    # U8: thermal field — same pattern as congestion; kernel
+    # skips the per-expansion read when None.
+    if thermal_flat is not None:
+        thermal_arg = np.ascontiguousarray(
+            thermal_flat.astype(np.float32)
+        )
+    else:
+        thermal_arg = None
+
     t0_numba = time.perf_counter()
     path_flat, _iters = kernel(
         start_idx, goal_idx, rows, cols, validity_flat,
@@ -435,6 +477,8 @@ def _astar_search_numba(
         congestion_arg,
         np.float32(congestion_weight),
         np.float32(max_congestion_cost),
+        thermal_arg,
+        np.float32(thermal_weight),
     )
     _route_profile_stats.numba_time_ms += (time.perf_counter() - t0_numba) * 1000.0
     _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0

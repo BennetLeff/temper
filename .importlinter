@@ -31,6 +31,7 @@ source_modules =
     temper_placer.constraints
     temper_placer.deterministic
     temper_placer.explainability
+    temper_placer.fields
     temper_placer.fixtures
     temper_placer.geometry
     temper_placer.heuristics
@@ -68,6 +69,7 @@ source_modules =
     temper_placer.core
     temper_placer.deterministic
     temper_placer.explainability
+    temper_placer.fields
     temper_placer.fixtures
     temper_placer.geometry
     temper_placer.heuristics

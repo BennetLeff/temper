@@ -19,13 +19,13 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
-
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
     from temper_placer.placer.cp_sat.feedback import (
         ClassificationResult,
         ConstraintDelta,
+        FeedbackClassifier,
         UnclassifiedFailure,
     )
     from temper_placer.placer.cp_sat.gates import BoardState, Gate
@@ -43,11 +43,17 @@ class LoopExitReason(Enum):
     ALL_FEEDBACK_UNSAT = "all_feedback_unsat"
     OSCILLATION_DETECTED = "oscillation_detected"
     GATE_UNMEASURED = "gate_unmeasured"
+    FIELD_ROUND_LIMIT_EXCEEDED = "field_round_limit_exceeded"  # U9
 
 
 @dataclass
 class RoundRecord:
-    """Record of a single round-trip through the loop."""
+    """Record of a single round-trip through the loop.
+
+    U9: ``field_grid`` and ``field_status`` form a parallel continuous
+    channel distinct from ``deltas_applied`` (discrete constraint deltas).
+    Audit consumers to avoid mistaking the field for a ConstraintDelta.
+    """
 
     round_number: int
     completion_rate: float = 0.0
@@ -56,6 +62,8 @@ class RoundRecord:
     deltas_applied: list[ConstraintDelta] = field(default_factory=list)
     route_time_ms: float = 0.0
     status: str = "unknown"
+    field_grid: object | None = None  # U9: np.ndarray (h, w) or None
+    field_status: str | None = None  # U9: GateStatus value string or None
 
 
 @dataclass
@@ -96,14 +104,25 @@ class PlaceRouteLoop:
         STABILITY_ROUNDS: Consecutive stability rounds before Phase 2 polish.
         RE_SOLVE_TIMEOUT_MS: Target re-solve time for Phase 1.
         OSCILLATION_WINDOW: Rounds to check for oscillation detection.
+        FIELD_EPSILON: U9 — max-cell |T[i] - T[i-1]| threshold for
+            continuous-field stability (degrees C).
+        FIELD_OSCILLATION_WINDOW: U9 — rounds to check for field
+            period-2 / period-4 cycle detection.
+        FIELD_CONVERGENCE_ROUND_LIMIT: U9 — max field-feedback rounds
+            before exiting with UNMEASURED.
     """
 
     MAX_ROUNDS: int = 10
     STABILITY_ROUNDS: int = 2
     RE_SOLVE_TIMEOUT_MS: int = 1000
     OSCILLATION_WINDOW: int = 3
+    FIELD_EPSILON: float = 0.5  # U9: degrees C per-cell stability threshold
+    FIELD_OSCILLATION_WINDOW: int = 4  # U9: period-4 cycle detection window
+    FIELD_CONVERGENCE_ROUND_LIMIT: int = 8  # U9: distinct from MAX_ROUNDS
 
-    def __init__(self, classifier=None, gates=None):
+    def __init__(self, classifier=None, gates=None,
+                 field_compute_fn=None, thermal_weight=0.0,
+                 _placement_solver=None):
         if classifier is None:
             from temper_placer.placer.cp_sat.feedback import FeedbackClassifier
             classifier = FeedbackClassifier()
@@ -126,14 +145,51 @@ class PlaceRouteLoop:
         self._unmeasured_streak: dict[str, int] = {}
         self._surfaced: list[str] = []
 
+        # U9: field-feedback state (opt-in; field-off when field_compute_fn is None)
+        self._field_compute_fn = field_compute_fn  # Callable | None
+        self._thermal_weight = thermal_weight  # float
+        self._field_history: list = []  # list[np.ndarray] — post-route fields
+        self._field_stability_counter: int = 0
+        self._field_round_counter: int = 0
+        self._solve_times_history: list[float] = []
+
+        # Placement solver injection point (U7): None uses the module-level
+        # solve_placement resolved at call time (supports mock.patch at
+        # encoder.solve_placement).  Tests inject a deterministic stub to
+        # drive round outcomes without real CP-SAT solves.
+        self._placement_solver = _placement_solver
+
+    def _call_solver(self, netlist, board, extra_constraints, timeout_ms, seed,
+                     zones=None, zone_components=None, loop_components=None):
+        """Resolve the placement solver lazily and call it.
+
+        When ``_placement_solver`` is None (default), imports
+        ``solve_placement`` from encoder at call time so that
+        ``mock.patch('...encoder.solve_placement')`` still works.
+        When an injected stub is present, that stub is called directly.
+        """
+        solver = self._placement_solver
+        if solver is None:
+            from temper_placer.placer.cp_sat.encoder import solve_placement
+            solver = solve_placement
+        return solver(
+            netlist=netlist,
+            board=board,
+            extra_constraints=extra_constraints,
+            timeout_ms=timeout_ms,
+            seed=seed,
+            zones=zones,
+            zone_components=zone_components,
+            loop_components=loop_components,
+        )
+
     @staticmethod
     def _load_netclass_rules():
         import logging
         _logger = logging.getLogger(__name__)
         try:
-            from pathlib import Path
-
             from temper_placer.io.netclass_loader import load_netclass_rules
+            from pathlib import Path
             config_path = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
             if config_path.exists():
                 return load_netclass_rules(config_path)
@@ -171,7 +227,7 @@ class PlaceRouteLoop:
         Returns:
             LoopResult with success status, placement, and routing.
         """
-        from temper_placer.placer.cp_sat.encoder import solve_placement
+        from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         # Reset per-run state.
         self._unmeasured_streak = {}
@@ -187,11 +243,8 @@ class PlaceRouteLoop:
         # ---- Build gate registry for all_gates path --------------------------
         if all_gates:
             from temper_placer.placer.cp_sat.gates import (
-                DrcGate,
-                PhysicsGate,
-                QualityGate,
-                RoutingGate,
-                StackupGate,
+                DrcGate, PhysicsGate, QualityGate,
+                RoutingGate, StackupGate,
             )
             gates = [DrcGate(), RoutingGate(), StackupGate(),
                      PhysicsGate(), QualityGate()]
@@ -223,6 +276,7 @@ class PlaceRouteLoop:
             )
 
         # ---- Legacy classifier-based path (unchanged) ------------------------
+        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
         # ---- Legacy classifier-based path ------------------------------------
         # Backward-compatible: when all_gates=False (default), the original
@@ -239,7 +293,7 @@ class PlaceRouteLoop:
             constraint_objects = all_constraints + [
                 delta.constraint for delta in injected_deltas
             ]
-            placement = solve_placement(
+            placement = self._call_solver(
                 netlist=netlist,
                 board=board,
                 extra_constraints=constraint_objects,
@@ -416,25 +470,58 @@ class PlaceRouteLoop:
         CP-SAT solve and before routing; ROUTING-stage gates run after
         routing completes.  UNMEASURED discipline (U5) tracks consecutive
         failures per gate and exits after 3+ rounds.
-        """
-        from pathlib import Path as _Path
 
-        from temper_placer.placer.cp_sat.encoder import solve_placement
+        U9: when ``_field_compute_fn`` is set, a continuous thermal field
+        is carried across rounds.  The field from round N-1 is injected
+        into A* during round N; after routing a new post-route field is
+        computed and compared for stability.
+        """
+        import numpy as np  # U9
+        from pathlib import Path as _Path
         from temper_placer.placer.cp_sat.gates import GateStage, GateStatus
+        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
         self._gate_results = {}
+
+        field_active = self._field_compute_fn is not None  # U9
 
         for round_num in range(1, self.MAX_ROUNDS + 1):
             logger.info(f"Round {round_num}/{self.MAX_ROUNDS}")
 
             injected_deltas = _deduplicate_deltas(injected_deltas)
 
+            # ---- U9: Field round budget check ------------------------------
+            if field_active and self._field_round_counter >= self.FIELD_CONVERGENCE_ROUND_LIMIT:
+                logger.error(
+                    "Field convergence round limit (%d / %d) exceeded; "
+                    "exiting with UNMEASURED (never silent zero field).",
+                    self._field_round_counter,
+                    self.FIELD_CONVERGENCE_ROUND_LIMIT,
+                )
+                self._surface(
+                    "Field convergence round budget exceeded "
+                    f"({self._field_round_counter} rounds)"
+                )
+                return LoopResult(
+                    success=False,
+                    reason=LoopExitReason.FIELD_ROUND_LIMIT_EXCEEDED.value,
+                    placement=placement,
+                    routing=routing,
+                    rounds=rounds,
+                    unmeasured_gates={
+                        "thermal_field": (
+                            f"Field round limit exceeded after "
+                            f"{self._field_round_counter} rounds"
+                        ),
+                    },
+                )
+
             # Phase 1: Solve CP-SAT
             t0 = time.monotonic()
             constraint_objects = all_constraints + [
                 delta.constraint for delta in injected_deltas
             ]
-            placement = solve_placement(
+            placement = self._call_solver(
                 netlist=netlist,
                 board=board,
                 extra_constraints=constraint_objects,
@@ -445,6 +532,10 @@ class PlaceRouteLoop:
                 loop_components=self._loop_components,
             )
             solve_time = (time.monotonic() - t0) * 1000.0
+
+            # ---- U9: Solve-time trend monitor ------------------------------
+            self._solve_times_history.append(solve_time)
+            self._check_solve_time_trend()
 
             if placement.status in ("infeasible", "model_invalid"):
                 logger.warning(f"Placement UNSAT at round {round_num}")
@@ -547,10 +638,22 @@ class PlaceRouteLoop:
                     sc1b_green_rounds = 0
                     continue  # Skip routing this round.
 
+            # ---- U9: Prepare thermal field from previous round -----------
+            _thermal_flat = None
+            _thermal_weight = 0.0
+            if field_active and len(self._field_history) > 0:
+                prev_field = self._field_history[-1]
+                _thermal_flat = np.ascontiguousarray(
+                    prev_field.ravel()
+                ).astype(np.float32)
+                _thermal_weight = self._thermal_weight
+
             # ---- Route ----------------------------------------------------
             t_route = time.monotonic()
             routing = self._route_placement(
                 placement, netlist, board, seed,
+                thermal_flat=_thermal_flat,
+                thermal_weight=_thermal_weight,
             )
             route_time = (time.monotonic() - t_route) * 1000.0
 
@@ -565,6 +668,60 @@ class PlaceRouteLoop:
                 f"route={route_time:.0f}ms"
             )
 
+            # ---- U9: Compute post-route thermal field --------------------
+            field_grid = None
+            field_status_str = None
+            if field_active:
+                field_result = self._compute_field(
+                    placement, routing, netlist, board,
+                )
+                if field_result is not None and field_result.is_usable:
+                    field_grid = field_result.field.grid
+
+                    # Cycle detection BEFORE adding to history
+                    if self._detect_field_cycle(field_grid):
+                        logger.warning(
+                            "Field period-%s cycle detected "
+                            "at round %d",
+                            self.FIELD_OSCILLATION_WINDOW,
+                            round_num,
+                        )
+                        return LoopResult(
+                            success=False,
+                            reason=LoopExitReason.OSCILLATION_DETECTED.value,
+                            placement=placement,
+                            routing=routing,
+                            rounds=rounds,
+                        )
+
+                    # Stability check
+                    if self._check_field_stability(field_grid):
+                        self._field_stability_counter += 1
+                        logger.debug(
+                            "Field stable for %d rounds "
+                            "(ε=%.2f °C)",
+                            self._field_stability_counter,
+                            self.FIELD_EPSILON,
+                        )
+                    else:
+                        self._field_stability_counter = 0
+
+                    self._field_history.append(field_grid)
+                    self._field_round_counter += 1
+                    field_status_str = field_result.gate_result.status.value
+
+                elif field_result is not None and not field_result.is_usable:
+                    # UNMEASURED field: feed through the shared path
+                    self._unmeasured_streak["thermal_field"] = (
+                        self._unmeasured_streak.get("thermal_field", 0) + 1
+                    )
+                    self._surface(
+                        f"Thermal field UNMEASURED (streak "
+                        f"{self._unmeasured_streak['thermal_field']}): "
+                        f"{field_result.error_message}"
+                    )
+                    field_status_str = GateStatus.UNMEASURED.value
+
             rounds.append(RoundRecord(
                 round_number=round_num,
                 completion_rate=completion_rate,
@@ -573,7 +730,17 @@ class PlaceRouteLoop:
                 deltas_applied=list(injected_deltas),
                 route_time_ms=route_time,
                 status=placement.status,
+                field_grid=field_grid,
+                field_status=field_status_str,
             ))
+
+            # ---- U9: Early exit on UNMEASURED field streak ---------------
+            if field_active:
+                unmeas = self._check_unmeasured_exit(
+                    round_num, placement, routing, rounds,
+                )
+                if unmeas is not None:
+                    return unmeas
 
             # ---- Stage 2: ROUTING-stage gates -----------------------------
             routing_gates = self._gates_for_stage(
@@ -599,6 +766,11 @@ class PlaceRouteLoop:
                     self._gate_results[gate.name] = result
 
                 all_green = self._all_gates_green_results()
+                # U9: field stability is an independent convergence axis
+                field_stable = (
+                    not field_active
+                    or self._field_stability_counter >= self.STABILITY_ROUNDS
+                )
                 if all_green:
                     sc1a_ok = self._are_named_gates_clean(
                         {"drc", "routing"},
@@ -623,10 +795,18 @@ class PlaceRouteLoop:
                     else:
                         sc1b_green_rounds = 0
 
-                    if (
+                    # U9: convergence requires gates + field all stable
+                    gate_stable = (
                         sc1a_green_rounds >= self.STABILITY_ROUNDS
                         or sc1b_green_rounds >= self.STABILITY_ROUNDS
-                    ):
+                    )
+                    if gate_stable and field_stable:
+                        logger.info(
+                            "Converged: gates green %d rounds, "
+                            "field stable %d rounds",
+                            max(sc1a_green_rounds, sc1b_green_rounds),
+                            self._field_stability_counter,
+                        )
                         placement = self._solve_phase2(
                             placement, netlist, board,
                             constraint_objects, seed,
@@ -773,7 +953,7 @@ class PlaceRouteLoop:
         returning ``UNMEASURED`` is logged but never treated as green
         (the core three-state invariant).
         """
-        from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
+        from temper_placer.placer.cp_sat.gates import GateStatus, GateResult
 
         self._gate_results = {}
         for gate in self.gates:
@@ -905,6 +1085,7 @@ class PlaceRouteLoop:
 
     def _gates_for_stage(self, gates: list, stage) -> list:
         """Return gates from *gates* registered for the given stage."""
+        from temper_placer.placer.cp_sat.gates import GateStage
         return [g for g in gates if g.stage is stage]
 
     def _collect_deltas_from_gates(
@@ -942,11 +1123,18 @@ class PlaceRouteLoop:
     # -------------------------------------------------------------------
 
     def _route_placement(
-        self, placement, netlist, board, seed: int
-    ) -> RoutingResult:
-        """Route a placement through router_v6."""
-        import contextlib
+        self, placement, netlist, board, seed: int,
+        thermal_flat=None, thermal_weight=0.0,
+    ) -> "RoutingResult":
+        """Route a placement through router_v6.
+
+        U9: optional ``thermal_flat`` / ``thermal_weight`` thread
+        the continuous field from the previous round into the
+        A* kernel.  When ``thermal_weight=0.0`` the field-off
+        path is byte-identical to today's routing.
+        """
         import os
+        import contextlib
         import tempfile
 
         from temper_placer.router_v6.adapter import RoutingResult, route_pcb
@@ -966,6 +1154,8 @@ class PlaceRouteLoop:
                 placements_dict,
                 _seed=seed,
                 design_rules=netclass_rules.design_rules if netclass_rules is not None else None,
+                thermal_flat=thermal_flat,
+                thermal_weight=thermal_weight,
             )
         finally:
             with contextlib.suppress(OSError):
@@ -981,13 +1171,12 @@ class PlaceRouteLoop:
         warm_start_placement=None,
     ):
         """Try solving with an additional delta. Raises UnsatError on failure."""
-        from temper_placer.placer.cp_sat.encoder import solve_placement
 
         all_objects = list(base_constraints) + [
             delta.constraint for delta in new_deltas
         ]
 
-        result = solve_placement(
+        result = self._call_solver(
             netlist=netlist,
             board=board,
             extra_constraints=all_objects,
@@ -1018,9 +1207,7 @@ class PlaceRouteLoop:
         Phase 2 uses a longer timeout for better wirelength optimization
         but must not regress the completion rate below Phase 1's.
         """
-        from temper_placer.placer.cp_sat.encoder import solve_placement
-
-        result = solve_placement(
+        result = self._call_solver(
             netlist=netlist,
             board=board,
             extra_constraints=constraint_objects,
@@ -1075,6 +1262,83 @@ class PlaceRouteLoop:
                 return True
 
         return False
+
+    # -------------------------------------------------------------------
+    # U9: Continuous-field feedback (field stability, cycle detection,
+    #     solve-time trend monitor)
+    # -------------------------------------------------------------------
+
+    def _compute_field(self, placement, routing, netlist, board):
+        """Call the injected field-compute function; return FieldResult or None.
+
+        When ``_field_compute_fn`` is None (field-off), returns None
+        immediately — this is the zero-cost default path.
+        """
+        if self._field_compute_fn is None:
+            return None
+        try:
+            return self._field_compute_fn(placement, routing, netlist, board)
+        except Exception as exc:
+            logger.error("Field compute raised: %s", exc)
+            from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
+            from temper_placer.fields.result import FieldResult
+            return FieldResult(
+                gate_result=GateResult(
+                    status=GateStatus.UNMEASURED,
+                    error_message=f"Field compute raised: {exc}",
+                ),
+                field=None,
+            )
+
+    def _check_field_stability(self, current_field) -> bool:
+        """Return True when |T[i] - T[i-1]|_max < FIELD_EPSILON."""
+        import numpy as np
+        if len(self._field_history) < 1:
+            return False
+        prev = self._field_history[-1]
+        delta_max = float(np.max(np.abs(current_field - prev)))
+        return delta_max < self.FIELD_EPSILON
+
+    def _detect_field_cycle(self, current_field) -> bool:
+        """Detect period-2 or period-4 place↔field cycles.
+
+        Uses a FIELD_OSCILLATION_WINDOW (4) and ε_field max-norm
+        criterion: if the current field matches any field in the
+        window — EXCLUDING the immediately-preceding round — within
+        epsilon, it is a cycle.  A match against the immediately-
+        preceding round is *stability* (monotone convergence), not a
+        cycle, and is handled by ``_check_field_stability``; including it
+        here would kill a slowly-converging field as a false oscillation.
+        A genuine cycle repeats a state ≥2 rounds back (period-2 → [-2],
+        period-4 → [-4]).
+        """
+        import numpy as np
+        if len(self._field_history) < self.FIELD_OSCILLATION_WINDOW:
+            return False
+        # Exclude the immediately-preceding entry ([-1]) — that is stability.
+        recent = self._field_history[-self.FIELD_OSCILLATION_WINDOW:-1]
+        for old_field in recent:
+            if np.max(np.abs(current_field - old_field)) < self.FIELD_EPSILON:
+                return True
+        return False
+
+    def _check_solve_time_trend(self) -> None:
+        """Log a WARNING when solve_time_ms increases monotonically ≥3 rounds.
+
+        A monotonically-growing solve time signals the CP-SAT feasible
+        region shrinking — field detours can tighten constraints toward
+        a timeout.  Log only; do not abort.
+        """
+        if len(self._solve_times_history) < 3:
+            return
+        recent = self._solve_times_history[-3:]
+        if recent[0] < recent[1] < recent[2]:
+            logger.warning(
+                "U9: solve-time trend increasing across last 3 rounds "
+                "(%0.f → %0.f → %0.f ms) — feasible region may be "
+                "shrinking (field detours tightening constraints).",
+                recent[0], recent[1], recent[2],
+            )
 
     # -------------------------------------------------------------------
     # UNSAT core extraction
@@ -1198,7 +1462,7 @@ def _build_minimal_pcb(netlist, board, netclass_rules=None) -> str:
                         f" (size 1 1) (layers \"F.Cu\" \"F.Paste\" \"F.Mask\")"
                         f" (net {net_idx} \"{pin_net}\"))"
                     )
-            lines.append("    (at 0 0)")
+            lines.append(f"    (at 0 0)")
             lines.append("  )")
 
     lines.append(")")
