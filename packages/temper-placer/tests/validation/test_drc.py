@@ -385,7 +385,7 @@ class TestValidatorInterface:
 
     def test_validate_returns_result(self):
         """Test that validate() returns ValidationResult."""
-        import jax.numpy as jnp
+        import numpy as np
 
         from temper_placer.core.board import Board
         from temper_placer.core.netlist import Netlist
@@ -395,8 +395,8 @@ class TestValidatorInterface:
 
         # Create minimal test objects
         state = PlacementState(
-            positions=jnp.zeros((1, 2)),
-            rotation_logits=jnp.zeros((1, 4)),
+            positions=np.zeros((1, 2)),
+            rotation_logits=np.zeros((1, 4)),
         )
         netlist = Netlist(
             components=[],

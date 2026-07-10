@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+import numpy as np
+
 from temper_placer.core.state import PlacementState
 from temper_placer.io.kicad_writer import (
     PlacementUpdate,
@@ -116,13 +118,12 @@ class TestStateToPlacementsConversion:
 
     def test_basic_conversion(self):
         """Test converting a simple state to placements."""
-        import jax.numpy as jnp
 
         # Create a state with 3 components
-        positions = jnp.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]])
+        positions = np.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]])
         # Rotation logits: strongly prefer specific rotations
         # Component 0: 0 degrees, Component 1: 90 degrees, Component 2: 180 degrees
-        logits = jnp.array(
+        logits = np.array(
             [
                 [10.0, 0.0, 0.0, 0.0],  # 0 deg
                 [0.0, 10.0, 0.0, 0.0],  # 90 deg
@@ -144,9 +145,8 @@ class TestStateToPlacementsConversion:
 
     def test_conversion_with_origin(self):
         """Test that origin offset is applied."""
-        import jax.numpy as jnp
 
-        positions = jnp.array([[10.0, 20.0]])
+        positions = np.array([[10.0, 20.0]])
         state = PlacementState.from_positions(positions)
         component_refs = ["U1"]
 
