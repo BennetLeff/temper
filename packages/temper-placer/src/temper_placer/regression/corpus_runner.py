@@ -393,7 +393,8 @@ class CorpusRegressionRunner:
                 raise NotImplementedError("JAX optimizer removed.")
 
             pipeline = create_default_pipeline()
-            rng_key = __import__("jax").random.PRNGKey(entry.seed)
+            import numpy as np
+            rng_key = np.random.default_rng(entry.seed)
             preset = pipeline.run(board, netlist, constraints, rng_key)
             initial_state = preset.state
 
@@ -401,21 +402,19 @@ class CorpusRegressionRunner:
             # extreme rotations) that cause NaN gradients at epoch 0.
             # Small boards with few components are especially prone.
             pos = initial_state.positions
-            if not __import__("jax").numpy.all(__import__("jax").numpy.isfinite(pos)):
-                import numpy as np
+            if not np.all(np.isfinite(pos)):
                 # Fall back to uniform random within board bounds
                 ox, oy = board.origin
-                k1, k2 = __import__("jax").random.split(rng_key)
                 margin = min(2.0, board.width * 0.1, board.height * 0.1)
-                px = __import__("jax").random.uniform(
-                    k1, (netlist.n_components,),
-                    minval=ox + margin,
-                    maxval=ox + board.width - margin,
+                px = rng_key.uniform(
+                    low=ox + margin,
+                    high=ox + board.width - margin,
+                    size=(netlist.n_components,),
                 )
-                py = __import__("jax").random.uniform(
-                    k2, (netlist.n_components,),
-                    minval=oy + margin,
-                    maxval=oy + board.height - margin,
+                py = rng_key.uniform(
+                    low=oy + margin,
+                    high=oy + board.height - margin,
+                    size=(netlist.n_components,),
                 )
                 from dataclasses import replace as dc_replace
                 initial_state = dc_replace(
@@ -491,16 +490,14 @@ class CorpusRegressionRunner:
 
                 import numpy as np
                 rng_key = np.random.default_rng(seed or 42)
-                k1, k2 = rng_key.integers(0, 2**31, size=2)
                 margin = min(2.0, board.width * 0.1, board.height * 0.1)
                 ox, oy = board.origin
-                px = jax.random.uniform(
-                    k1, (netlist.n_components,),
-                    minval=ox + margin, maxval=ox + board.width - margin)
-                py = jax.random.uniform(
-                    k2, (netlist.n_components,),
-                    minval=oy + margin, maxval=oy + board.height - margin)
-                rng_key = jax.random.split(k2)[0]
+                px = rng_key.uniform(
+                    low=ox + margin, high=ox + board.width - margin,
+                    size=(netlist.n_components,))
+                py = rng_key.uniform(
+                    low=oy + margin, high=oy + board.height - margin,
+                    size=(netlist.n_components,))
                 initial_state = dc_replace(
                     initial_state,
                     positions=np.stack([px, py], axis=-1),

@@ -113,7 +113,7 @@ class RoutabilityAggregator:
             if clause_idx < len(var_to_net):
                 net_idx = var_to_net[clause_idx]
                 if net_idx < n_nets:
-                    per_net = per_net.at[net_idx].set(1.0)
+                    per_net[net_idx] = 1.0
         return per_net
 
     def _sat_fine_grained_scores(
@@ -137,7 +137,7 @@ class RoutabilityAggregator:
         net_var_counts = np.zeros(n_nets, dtype=np.int32)
         for net_idx in var_to_net:
             if 0 <= net_idx < n_nets:
-                net_var_counts = net_var_counts.at[net_idx].add(1)
+                net_var_counts[net_idx] += 1
 
         # b_n: Backtrack count proportionally by net variable count
         b_n = net_var_counts.astype(np.float32) / max(n_nets, 1)
@@ -203,7 +203,7 @@ class RoutabilityAggregator:
         net_var_counts = np.zeros(n_nets)
         for net_idx in var_to_net:
             if 0 <= net_idx < n_nets:
-                net_var_counts = net_var_counts.at[net_idx].add(1)
+                net_var_counts[net_idx] += 1
 
         n_total = max(variable_count, 1)
         difficulty_factor = min(solver_time_ms / max(timeout_ms, 1.0), 1.0)
@@ -234,6 +234,6 @@ class RoutabilityAggregator:
         # For expanded case: pad or truncate
         if per_net.shape[0] < n_components:
             padded = np.zeros(n_components)
-            padded = padded.at[: per_net.shape[0]].set(per_net)
+            padded[: per_net.shape[0]] = per_net
             return padded
         return per_net[:n_components]

@@ -257,9 +257,8 @@ def estimate_net_demand(
     # Use half-perimeter estimation - weight cells along likely routing paths
     if grid.num_layers == 1:
         # 2D grid
-        new_demand = grid.demand.at[row_min : row_max + 1, col_min : col_max + 1].add(
-            demand_per_cell
-        )
+        new_demand = grid.demand.copy()
+        new_demand[row_min : row_max + 1, col_min : col_max + 1] += demand_per_cell
         return CongestionGrid(
             demand=new_demand,
             supply=grid.supply,
@@ -271,9 +270,8 @@ def estimate_net_demand(
         )
     else:
         # 3D grid - add demand to specific layer
-        new_demand = grid.demand.at[layer, row_min : row_max + 1, col_min : col_max + 1].add(
-            demand_per_cell
-        )
+        new_demand = grid.demand.copy()
+        new_demand[layer, row_min : row_max + 1, col_min : col_max + 1] += demand_per_cell
         return CongestionGrid(
             demand=new_demand,
             supply=grid.supply,
