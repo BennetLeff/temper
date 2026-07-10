@@ -786,13 +786,12 @@ class TestWorstCasePerturbationGuard:
     @given(
         n_good=st.integers(1, 6),
         n_bad=st.integers(1, 3),
-        good_margin=st.floats(0.15, 0.5),
         bad_margin=st.floats(-0.20, 0.09),
         x=st.floats(0.10, 0.30),
         y=st.floats(0.05, 0.15),
     )
     @settings(max_examples=200)
-    def test_interior_violation_never_keep(self, n_good, n_bad, good_margin, bad_margin, x, y):
+    def test_interior_violation_never_keep(self, n_good, n_bad, bad_margin, x, y):
         """When the worst perturbation fails the bar, the verdict is never KEEP.
 
         This is the fail-capable property (R4): even if the mean passes,

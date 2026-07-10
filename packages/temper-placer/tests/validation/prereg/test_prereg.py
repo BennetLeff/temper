@@ -13,7 +13,6 @@ Covers:
 
 from __future__ import annotations
 
-import textwrap
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from tempfile import NamedTemporaryFile
