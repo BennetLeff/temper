@@ -47,6 +47,7 @@ class PhysicsOracleResult:
     errors: list[str] = None  # type: ignore[assignment]
 
     quality_report: dict[str, float] = None  # type: ignore[assignment]
+    margins: dict[str, float] = None  # type: ignore[assignment]
     threshold_mm: float = 0.0
     clearance_score: float = 0.0
     elapsed_seconds: float = 0.0
@@ -56,10 +57,57 @@ class PhysicsOracleResult:
             self.errors = []
         if self.quality_report is None:
             self.quality_report = {}
+        if self.margins is None:
+            self.margins = {}
 
 
 # Module-level constants for experiment thresholds
 _CLEARANCE_PASS_THRESHOLD = 0.95  # legacy pass/fail for single-run oracle
+
+
+def compute_oracle_margins(
+    quality_report: dict[str, float],
+    *,
+    max_heatspread_mm: float = 10.0,
+    hv_lv_threshold_mm: float = 6.5,
+    max_loop_area_mm2: float = 100.0,
+) -> dict[str, float]:
+    """Convert quality_report [0, 1] scores to engineering-unit margins.
+
+    Margins are *signed headroom*: positive means above threshold,
+    negative means violation.  A score of 1.0 indicates the metric is
+    fully satisfied; scores below 1.0 give a proportional margin estimate.
+
+    Parameters
+    ----------
+    quality_report:
+        Dict from ``run_physics_oracle`` or ``score_placement``.
+    max_heatspread_mm:
+        Maximum acceptable heat spread distance from target edge (mm).
+    hv_lv_threshold_mm:
+        Required HV-LV clearance threshold (mm).
+    max_loop_area_mm2:
+        Maximum acceptable loop area (mm²) — areas above this score 0.
+
+    Returns
+    -------
+    dict
+        Keys: ``thermal_headroom_mm``, ``clearance_margin_mm``,
+        ``loop_area_margin_mm2``.
+    """
+    thermal_score = quality_report.get("thermal_score", 1.0)
+    clearance_score = quality_report.get("hv_lv_clearance_score", 1.0)
+    loop_score = quality_report.get("loop_area_score", 1.0)
+
+    thermal_headroom_mm = thermal_score * max_heatspread_mm
+    clearance_margin_mm = (clearance_score - 1.0) * hv_lv_threshold_mm
+    loop_area_margin_mm2 = loop_score * max_loop_area_mm2
+
+    return {
+        "thermal_headroom_mm": thermal_headroom_mm,
+        "clearance_margin_mm": clearance_margin_mm,
+        "loop_area_margin_mm2": loop_area_margin_mm2,
+    }
 
 
 @dataclass
@@ -323,9 +371,19 @@ def run_physics_oracle(
         }
         elapsed = time.time() - start_time
 
+        # Compute continuous margins from quality report
+        _loop_max = max(spec.emi.max_loop_area_mm2.values()) if spec.emi.max_loop_area_mm2 else 100.0
+        oracle_margins = compute_oracle_margins(
+            report,
+            max_heatspread_mm=spec.thermal.max_heatspread_mm,
+            hv_lv_threshold_mm=threshold_mm,
+            max_loop_area_mm2=_loop_max,
+        )
+
         if verbose:
             print(f"  HV/LV clearance score: {clearance:.4f}")
             print(f"  Overall quality score: {overall:.4f}")
+            print(f"  Margins: {oracle_margins}")
 
     except Exception as e:
         return PhysicsOracleResult(
@@ -340,6 +398,7 @@ def run_physics_oracle(
         board_id=board_id,
         passed=passed,
         quality_report=report,
+        margins=oracle_margins,
         threshold_mm=threshold_mm,
         clearance_score=clearance,
         elapsed_seconds=elapsed,

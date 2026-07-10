@@ -127,3 +127,30 @@ non-deferred requirement must have at least one code annotation — but only
 in directories that have opted in via a `TRACEABILITY` sentinel file.
 
 See `docs/TRACEABILITY.md` for the full specification.
+
+## Physics Verification Conventions
+
+### Bug-Triage Rule (R22)
+
+When an invariant surfaces a real bug, produce a triaged bug report. Trivial fixes
+in-scope: sign flip, index/stencil mis-orientation, BC swap, off-by-one. Architectural
+fixes (e.g., "the solver needs a different discretization") are documented and scoped
+as a separate follow-up — do not inline a redesign in a bugfix PR.
+
+### Future CP-SAT Physics Constraint Discipline (R24)
+
+Any future CP-SAT constraint that gates on a physics quantity (e.g., zone penalty
+from a thermal field) must carry:
+
+1. A **Chebyshev-style soundness proof** — the constraint is either a conservative
+   bound (overestimates cost / underestimates margin) or the proof classifies the
+   approximation error.
+2. **BMC-exhaustive validation on small N** — the constraint is verified against
+   a truthful oracle on all inputs up to a bounded size.
+3. **Post-solve audit** — after each CP-SAT solve, the constraint's actual value is
+   recomputed from the placement coordinates and compared against the encoded bound;
+   a mismatch is a hard CI failure.
+
+These gates are prerequisites for the constraint to ship; they are NOT optional
+nice-to-haves. See `docs/physics-verification-methodology.md` for the broader
+verification pattern.

@@ -216,60 +216,86 @@ def evaluate_skip_expr(
     """
 
     def _eval(node: ast.AST) -> Any:
-        if isinstance(node, ast.Constant):
-            return node.value
-        elif isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
-            return not _eval(node.operand)
-        elif isinstance(node, ast.BoolOp):
-            if isinstance(node.op, ast.And):
-                return all(_eval(v) for v in node.values)
-            elif isinstance(node.op, ast.Or):
-                return any(_eval(v) for v in node.values)
-            raise DAGExprError(f"Unsupported boolean operator: {type(node.op).__name__}")
-        elif isinstance(node, ast.Compare):
-            left_val = _eval(node.left)
-            for op, comp in zip(node.ops, node.comparators):
-                right_val = _eval(comp)
-                if isinstance(op, ast.Eq):
-                    result = left_val == right_val
-                elif isinstance(op, ast.NotEq):
-                    result = left_val != right_val
-                elif isinstance(op, ast.Lt):
-                    result = left_val < right_val
-                elif isinstance(op, ast.Gt):
-                    result = left_val > right_val
-                elif isinstance(op, ast.LtE):
-                    result = left_val <= right_val
-                elif isinstance(op, ast.GtE):
-                    result = left_val >= right_val
-                else:
-                    raise DAGExprError(f"Unsupported comparison: {type(op).__name__}")
-                if not result:
-                    return False
-                left_val = right_val
-            return True
-        elif isinstance(node, _AccessorExpr):
-            if node.ns == "config":
-                if not hasattr(config, node.field):
-                    raise DAGExprError(
-                        f"Unknown config field '{node.field}' in skip expression"
-                    )
-                return getattr(config, node.field)
-            elif node.ns == "state":
-                if not hasattr(state, node.field):
-                    raise DAGExprError(
-                        f"Unknown state field '{node.field}' in skip expression"
-                    )
-                return getattr(state, node.field)
-            elif node.ns == "context":
-                if node.field not in context:
-                    raise DAGExprError(
-                        f"Unknown context key '{node.field}' in skip expression"
-                    )
-                return context[node.field]
-            else:
-                raise DAGExprError(f"Unknown namespace '{node.ns}' in skip expression")
-        else:
+        handler = _EVALUATORS.get(type(node))
+        if handler is None:
             raise DAGExprError(f"Unsupported AST node: {type(node).__name__}")
+        return handler(node, config, state, context)
+
+    def _eval_constant(
+        node: ast.Constant, _cfg: Any, _st: Any, _ctx: DataContext,
+    ) -> Any:
+        return node.value
+
+    def _eval_unaryop(
+        node: ast.UnaryOp, _cfg: Any, _st: Any, _ctx: DataContext,
+    ) -> Any:
+        if isinstance(node.op, ast.Not):
+            return not _eval(node.operand)
+        raise DAGExprError(f"Unsupported unary operator: {type(node.op).__name__}")
+
+    def _eval_boolop(
+        node: ast.BoolOp, _cfg: Any, _st: Any, _ctx: DataContext,
+    ) -> Any:
+        if isinstance(node.op, ast.And):
+            return all(_eval(v) for v in node.values)
+        if isinstance(node.op, ast.Or):
+            return any(_eval(v) for v in node.values)
+        raise DAGExprError(f"Unsupported boolean operator: {type(node.op).__name__}")
+
+    def _eval_compare(
+        node: ast.Compare, _cfg: Any, _st: Any, _ctx: DataContext,
+    ) -> Any:
+        _LEFT_VAL = _eval(node.left)
+        for op, comp in zip(node.ops, node.comparators):
+            _RIGHT_VAL = _eval(comp)
+            if isinstance(op, ast.Eq):
+                result = _LEFT_VAL == _RIGHT_VAL
+            elif isinstance(op, ast.NotEq):
+                result = _LEFT_VAL != _RIGHT_VAL
+            elif isinstance(op, ast.Lt):
+                result = _LEFT_VAL < _RIGHT_VAL
+            elif isinstance(op, ast.Gt):
+                result = _LEFT_VAL > _RIGHT_VAL
+            elif isinstance(op, ast.LtE):
+                result = _LEFT_VAL <= _RIGHT_VAL
+            elif isinstance(op, ast.GtE):
+                result = _LEFT_VAL >= _RIGHT_VAL
+            else:
+                raise DAGExprError(f"Unsupported comparison: {type(op).__name__}")
+            if not result:
+                return False
+            _LEFT_VAL = _RIGHT_VAL
+        return True
+
+    def _eval_accessor(
+        node: _AccessorExpr, _cfg: Any, _st: Any, _ctx: DataContext,
+    ) -> Any:
+        if node.ns == "config":
+            if not hasattr(config, node.field):
+                raise DAGExprError(
+                    f"Unknown config field '{node.field}' in skip expression"
+                )
+            return getattr(config, node.field)
+        if node.ns == "state":
+            if not hasattr(state, node.field):
+                raise DAGExprError(
+                    f"Unknown state field '{node.field}' in skip expression"
+                )
+            return getattr(state, node.field)
+        if node.ns == "context":
+            if node.field not in context:
+                raise DAGExprError(
+                    f"Unknown context key '{node.field}' in skip expression"
+                )
+            return context[node.field]
+        raise DAGExprError(f"Unknown namespace '{node.ns}' in skip expression")
+
+    _EVALUATORS = {
+        ast.Constant: _eval_constant,
+        ast.UnaryOp: _eval_unaryop,
+        ast.BoolOp: _eval_boolop,
+        ast.Compare: _eval_compare,
+        _AccessorExpr: _eval_accessor,
+    }
 
     return bool(_eval(expr.body))

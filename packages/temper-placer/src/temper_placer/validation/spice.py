@@ -176,6 +176,29 @@ class NgspiceValidator(Validator):
         """Check if ngspice is available."""
         return self.ngspice_path is not None and Path(self.ngspice_path).exists()
 
+    def check_ngspice(self) -> bool:
+        """Preflight: is ngspice available AND functional?
+
+        Runs a trivial ``.op`` netlist to confirm ngspice is not just
+        installed but can actually execute.  Returns ``False`` when the
+        binary is missing or the test netlist fails.
+
+        This is the method that an independent-verification gate calls as
+        its instrument-health check before accepting SPICE results as an
+        independent observation.
+        """
+        if not self.is_available():
+            return False
+        netlist = (
+            "Trivial operating-point probe\n"
+            "V1 1 0 DC 5\n"
+            "R1 1 0 1k\n"
+            ".op\n"
+            ".end\n"
+        )
+        result = self.run_netlist_string(netlist)
+        return result.success
+
     def validate(
         self,
         _state: PlacementState,

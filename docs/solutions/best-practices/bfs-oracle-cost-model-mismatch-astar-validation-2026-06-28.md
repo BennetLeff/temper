@@ -101,3 +101,4 @@ assert a_cost <= d_cost + 1e-6   # optimality
 - `docs/solutions/logic-errors/unsound-atmostk-capacity-encoding.md` — dual-solver cross-validation pattern
 - `docs/solutions/logic-errors/clearance-false-negatives-per-net-pair-2026-06-28.md` — completeness oracle pattern
 - `packages/temper-placer/tests/router_v6/astar_oracle_utils.py` — Dijkstra oracle implementation
+- `docs/solutions/best-practices/solver-independence-is-not-model-independence-2026-07-09.md` — the same-objective rule extended: an oracle must also differ on the *model* axis (not just solver method) to validate the model rather than the linear solve
