@@ -446,6 +446,36 @@ def run_helps_battery(
         divergence_detail=divergence_detail,
     )
 
+    # ---- Worst-case per-perturbation check (#133) ----
+    # The mean-based verdict can mask an interior violation:
+    # a single perturbation that fails the bar while the rest
+    # pass can KEEP on mean alone.  This guard ensures the
+    # pass bar holds at *every* sampled perturbation, not just
+    # on average.  If the worst perturbation fails, the verdict
+    # is downgraded to INCONCLUSIVE (sampling uncertainty).
+    n_paired = min(len(phys_vals), len(cheap_vals))
+    if verdict == BatteryVerdict.KEEP and n_paired > 0:
+        min_mg = float("inf")
+        worst_idx = -1
+        for i in range(n_paired):
+            mg = phys_vals[i] - cheap_vals[i]
+            if mg < min_mg:
+                min_mg = mg
+                worst_idx = i
+        threshold = max(X, Y)
+        if min_mg < threshold:
+            verdict = BatteryVerdict.INCONCLUSIVE
+            verdict_details = (
+                f"INCONCLUSIVE (sampling uncertainty): mean-based verdict is "
+                f"KEEP (mean_margin_gain={margin_gain:.3f} >= {threshold} "
+                f"threshold), but worst perturbation (idx {worst_idx}, "
+                f"margin_gain={min_mg:.3f}) fails the pass bar "
+                f"(X={X}, Y={Y}). The pass bar must hold at every sampled "
+                f"perturbation, not just the mean — this guards against "
+                f"interior resonances or non-monotone responses missed by "
+                f"favourably-sampled means."
+            )
+
     return HelpsBatteryResult(
         field_name=field.field_name,
         baseline_name=field.cheap_baseline.name,

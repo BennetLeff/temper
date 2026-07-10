@@ -1,5 +1,6 @@
-"""Property-based tests for verdict totality/monotonicity and scorecard
-independence-guard totality (U8 — R18, R19).
+"""Property-based tests for verdict totality/monotonicity, worst-case
+perturbation guard, and scorecard independence-guard totality
+(U8 — R18, R19, #133).
 
 Tests the keep/kill/inconclusive verdict logic via Hypothesis PBT over
 synthetic arm-score distributions and pre-registered bars, following the
@@ -728,3 +729,151 @@ class TestIndependenceGuardTotality:
         )
         assert isinstance(sc, MarginScorecard)
         assert sc.scorer_id == "physics_oracle"
+
+
+# ---------------------------------------------------------------------------
+# #133 — Worst-case per-perturbation guard (fail-capable R4)
+# ---------------------------------------------------------------------------
+
+
+def _run_synthetic_battery_varying(
+    *,
+    phys_margins: list[float],
+    cheap_margins: list[float],
+    x: float = 0.10,
+    y: float = 0.05,
+    n_required: int = 5,
+    base_seed: int = 42,
+) -> BatteryVerdict:
+    """Synthetic battery run with per-perturbation-varying margins.
+
+    Each perturbation i uses ``phys_margins[i]`` for the physics arm
+    and ``cheap_margins[i]`` for the cheap arm.
+    """
+    n = len(phys_margins)
+    manifest = _prereg_with_thresholds(x=x, y=y, n_req=n_required)
+
+    def build_arm(arm_id, pert_idx, board, netlist, seed):
+        arm_num = {"no_field": 0, "cheap_heuristic": 1, "physics_field": 2}[arm_id]
+        return _fake_placement([[float(pert_idx), float(arm_num)]])
+
+    def score_placement(placement, board, netlist):
+        pert_idx = int(placement.positions[0][0])
+        arm_num = int(placement.positions[0][1])
+        margins = {0: 0.05, 1: cheap_margins[pert_idx], 2: phys_margins[pert_idx]}
+        return _fake_scorecard(margins[arm_num])
+
+    return run_helps_battery(
+        manifest=manifest,
+        field_name="thermal",
+        board=None,
+        netlist=None,
+        build_arm_placement=build_arm,
+        score_placement_fn=score_placement,
+        scorer_id="physics_oracle",
+        base_seed=base_seed,
+        n_perturbations=n,
+    ).verdict
+
+
+class TestWorstCasePerturbationGuard:
+    """#133: Pass bar must hold at every sampled perturbation, not just mean.
+
+    An interior violation masked by favourable sampling must produce
+    INCONCLUSIVE, never KEEP.  The gate is fail-closed.
+    """
+
+    @given(
+        n_good=st.integers(1, 6),
+        n_bad=st.integers(1, 3),
+        good_margin=st.floats(0.15, 0.5),
+        bad_margin=st.floats(-0.20, 0.09),
+        x=st.floats(0.10, 0.30),
+        y=st.floats(0.05, 0.15),
+    )
+    @settings(max_examples=200)
+    def test_interior_violation_never_keep(self, n_good, n_bad, good_margin, bad_margin, x, y):
+        """When the worst perturbation fails the bar, the verdict is never KEEP.
+
+        This is the fail-capable property (R4): even if the mean passes,
+        a single interior violation degrades the verdict to INCONCLUSIVE
+        (or KILL if the mean itself fails).
+        """
+        threshold = max(x, y)
+        phys_base = 0.35  # high enough that going above cheap is possible
+        cheap_base = 0.10
+
+        phys = [phys_base] * n_good + [cheap_base + bad_margin] * n_bad
+        cheap = [cheap_base] * (n_good + n_bad)
+
+        mean_mg = sum(p - c for p, c in zip(phys, cheap)) / len(phys)
+        min_mg = min(p - c for p, c in zip(phys, cheap))
+
+        # We want scenarios where mean passes but min fails
+        assume(mean_mg >= threshold and min_mg < threshold)
+
+        verdict = _run_synthetic_battery_varying(
+            phys_margins=phys,
+            cheap_margins=cheap,
+            x=x,
+            y=y,
+            n_required=min(len(phys), 5),
+        )
+
+        assert verdict != BatteryVerdict.KEEP, (
+            f"INTERIOR VIOLATION NOT CAUGHT: mean_margin_gain={mean_mg:.3f} >= "
+            f"{threshold} but min_margin_gain={min_mg:.3f} < {threshold}. "
+            f"Verdict was {verdict.value} — should be INCONCLUSIVE or KILL."
+        )
+
+    def test_all_pass_is_keep(self):
+        """When every perturbation individually passes, KEEP is reachable."""
+        phys = [0.35] * 5
+        cheap = [0.10] * 5
+        verdict = _run_synthetic_battery_varying(
+            phys_margins=phys,
+            cheap_margins=cheap,
+            x=0.10,
+            y=0.05,
+            n_required=5,
+        )
+        assert verdict == BatteryVerdict.KEEP
+
+    @given(
+        phys=st.lists(st.floats(0.10, 0.50), min_size=3, max_size=6),
+        cheap=st.lists(st.floats(0.05, 0.20), min_size=3, max_size=6),
+        x=st.floats(0.05, 0.25),
+        y=st.floats(0.02, 0.15),
+    )
+    @settings(max_examples=100)
+    def test_all_pass_degrades_correctly(self, phys, cheap, x, y):
+        """When worst perturbation passes, verdict is not forced to INCONCLUSIVE.
+
+        The guard must not false-positive on clean data.
+        """
+        # All perturbations must pass individually for KEEP to be possible.
+        min_mg = min(p - c for p, c in zip(phys, cheap))
+        threshold = max(x, y)
+        assume(min_mg >= threshold)  # worst case passes
+
+        min_len = min(len(phys), len(cheap))
+        phys = phys[:min_len]
+        cheap = cheap[:min_len]
+
+        verdict = _run_synthetic_battery_varying(
+            phys_margins=phys,
+            cheap_margins=cheap,
+            x=x,
+            y=y,
+            n_required=min_len,
+        )
+
+        # When all perturbations pass individually and mean passes,
+        # the verdict should be KEEP (not INCONCLUSIVE).
+        mean_mg = sum(p - c for p, c in zip(phys, cheap)) / len(phys)
+        if mean_mg >= threshold:
+            assert verdict == BatteryVerdict.KEEP, (
+                f"False positive: all perturbations pass (min_mg={min_mg:.3f} "
+                f">= {threshold}) and mean passes (mean_mg={mean_mg:.3f}), "
+                f"but verdict={verdict.value}"
+            )
