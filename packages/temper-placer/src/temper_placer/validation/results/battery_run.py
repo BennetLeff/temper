@@ -365,10 +365,6 @@ def _make_arm_placement_builder(
     - ``physics_field``: FDM-guided placement (solve_thermal_fdm).
     """
     from temper_placer.physics.thermal_fdm import solve_thermal_fdm
-    from temper_placer.physics.thermal_potential import (
-        ThermalPotentialConfig,
-        assign_thermal_anchors,
-    )
 
     dev_names = list(devices.keys())
     base_positions = np.array(list(devices.values()), dtype=np.float64)
@@ -382,21 +378,32 @@ def _make_arm_placement_builder(
             pos = base_positions + perturb
 
         elif arm_id == "cheap_heuristic":
+            # Competent Euclidean keep-away: push devices toward the heatsink
+            # edge proportionally to their power dissipation.  Higher-power
+            # devices (IGBTs) benefit more from proximity to the sink.
+            # Scored through the SAME FDM instrument as the physics arm
+            # (H3 apples-to-apples — the bar the strawman baseline missed).
             try:
-                power_devices = [(name, power_map.get(name, 0.0)) for name in dev_names]
-                power_devices_sorted = sorted(power_devices, key=lambda x: x[1], reverse=True)
-                board_bounds = _board_bounds(board)
-                anchors = assign_thermal_anchors(
-                    board_bounds=board_bounds,
-                    edge=fdm_config.heatsink_edge,
-                    power_devices=power_devices_sorted,
-                    config=ThermalPotentialConfig(
-                        edge_weight=1.0,
-                        grid_resolution=50,
-                    ),
-                )
-                pos_list = [anchors.get(name, tuple(base_positions[i])) for i, name in enumerate(dev_names)]
-                pos = np.array(pos_list, dtype=np.float64) + perturb * 0.5
+                bx_min, by_min, bx_max, by_max = _board_bounds(board)
+                total_power = sum(power_map.values()) or 1.0
+                pos = base_positions.copy()
+                for i, name in enumerate(dev_names):
+                    pwr = power_map.get(name, 0.0)
+                    if pwr <= 0.0:
+                        continue
+                    frac = pwr / total_power
+                    hs = fdm_config.heatsink_edge.upper()
+                    # Push device toward the heatsink edge — stronger push
+                    # for higher-power devices (IGBTs move, diodes barely).
+                    if hs == "BOTTOM":
+                        pos[i, 1] = by_min + (base_positions[i, 1] - by_min) * (1.0 - frac)
+                    elif hs == "TOP":
+                        pos[i, 1] = by_max - (by_max - base_positions[i, 1]) * (1.0 - frac)
+                    elif hs == "LEFT":
+                        pos[i, 0] = bx_min + (base_positions[i, 0] - bx_min) * (1.0 - frac)
+                    elif hs == "RIGHT":
+                        pos[i, 0] = bx_max - (bx_max - base_positions[i, 0]) * (1.0 - frac)
+                pos = pos + perturb * 0.5
             except Exception:
                 pos = base_positions + perturb
 
