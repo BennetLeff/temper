@@ -65,119 +65,126 @@ impl DrcRule for SplitPlaneCrossingCheck {
     }
 
     fn check(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
-        let mut violations = Vec::new();
+        let fast_nets = collect_fast_nets(board);
+        if fast_nets.is_empty() {
+            return Vec::new();
+        }
 
-        // ---- 1. Identify fast digital nets ----------------------------------------
-        let fast_nets: Vec<&str> = board
-            .traces
+        let ground_polys = collect_ground_polys(board, constraints);
+        if ground_polys.is_empty() {
+            return Vec::new();
+        }
+
+        check_fast_traces(board, &fast_nets, &ground_polys)
+    }
+}
+
+fn collect_fast_nets(board: &BoardState) -> Vec<&str> {
+    let mut nets: Vec<&str> = board
+        .traces
+        .iter()
+        .filter(|t| is_fast_digital(&t.net))
+        .map(|t| t.net.0.as_str())
+        .collect();
+    nets.sort();
+    nets.dedup();
+    nets
+}
+
+fn collect_ground_polys<'a>(
+    board: &'a BoardState,
+    constraints: &ConstraintSet,
+) -> Vec<(&'a str, &'a geo::Polygon<f64>)> {
+    if constraints.zones.is_empty() {
+        board
+            .zones
             .iter()
-            .filter(|t| is_fast_digital(&t.net))
-            .map(|t| t.net.0.as_str())
+            .filter(|z| is_ground_net(&z.net))
+            .map(|z| (z.net.0.as_str(), &z.polygon))
+            .collect()
+    } else {
+        let ground_zone_names: Vec<&str> = constraints
+            .zones
+            .iter()
+            .filter(|zd| is_ground_net(&zd.name) || zd.net_classes.iter().any(|nc| is_ground_net(nc)))
+            .map(|zd| zd.name.as_str())
             .collect();
 
-        if fast_nets.is_empty() {
-            return violations;
+        board
+            .zones
+            .iter()
+            .filter(|z| {
+                let lc_net = z.net.to_lowercase();
+                ground_zone_names.iter().any(|gzn| lc_net.contains(&gzn.to_lowercase()))
+            })
+            .map(|z| (z.net.0.as_str(), &z.polygon))
+            .collect()
+    }
+}
+
+fn check_fast_traces(
+    board: &BoardState,
+    fast_nets: &[&str],
+    ground_polys: &[(&str, &geo::Polygon<f64>)],
+) -> Vec<Violation> {
+    let mut violations = Vec::new();
+
+    for trace in &board.traces {
+        if !fast_nets.contains(&trace.net.0.as_str()) {
+            continue;
         }
 
-        // ---- 2. Build ground-domain zone list from constraints ---------------------
-        //     Use constraints.zones to find ground-related zone definitions, then
-        //     match them against board.zones to get polygons.
-        //     Fall back to keyword check on board.zones if constraints.zones is empty.
-        let ground_polys: Vec<(&str, &geo::Polygon<f64>)> = if constraints.zones.is_empty() {
-            // Fallback: find ground zones via keyword heuristic on board zones
-            board
-                .zones
-                .iter()
-                .filter(|z| is_ground_net(&z.net))
-                .map(|z| (z.net.0.as_str(), &z.polygon))
-                .collect()
-        } else {
-            // Identify constraint-defined zones that are ground-related
-            let ground_zone_names: Vec<&str> = constraints
-                .zones
-                .iter()
-                .filter(|zd| is_ground_net(&zd.name) || zd.net_classes.iter().any(|nc| is_ground_net(nc)))
-                .map(|zd| zd.name.as_str())
-                .collect();
+        let mut domains_hit: Vec<String> = Vec::new();
 
-            // Match constraint zone names to copper zone nets
-            board
-                .zones
-                .iter()
-                .filter(|z| {
-                    let lc_net = z.net.to_lowercase();
-                    ground_zone_names.iter().any(|gzn| lc_net.contains(&gzn.to_lowercase()))
-                })
-                .map(|z| (z.net.0.as_str(), &z.polygon))
-                .collect()
-        };
-
-        if ground_polys.is_empty() {
-            return violations;
-        }
-
-        // ---- 3. Check each trace belonging to a fast net -------------------------
-        for trace in &board.traces {
-            if !fast_nets.contains(&trace.net.0.as_str()) {
-                continue;
-            }
-
-            // Collect distinct ground-domain names whose polygons contain
-            // segments of this trace.
-            let mut domains_hit: Vec<String> = Vec::new();
-
-            for seg in &trace.segments {
-                let mid = Point::new(
-                    (seg.start.x + seg.end.x) / 2.0,
-                    (seg.start.y + seg.end.y) / 2.0,
-                );
-                for (gnd_name, poly) in &ground_polys {
-                    if poly.intersects(&mid) {
-                        let name_str = gnd_name.to_string();
-                        if !domains_hit.contains(&name_str) {
-                            domains_hit.push(name_str);
-                        }
+        for seg in &trace.segments {
+            let mid = Point::new(
+                (seg.start.x + seg.end.x) / 2.0,
+                (seg.start.y + seg.end.y) / 2.0,
+            );
+            for (gnd_name, poly) in ground_polys {
+                if poly.intersects(&mid) {
+                    let name_str = gnd_name.to_string();
+                    if !domains_hit.contains(&name_str) {
+                        domains_hit.push(name_str);
                     }
                 }
             }
-
-            if domains_hit.len() > 1 {
-                let mid = if let Some(seg) = trace.segments.first() {
-                    Point::new(
-                        (seg.start.x + seg.end.x) / 2.0,
-                        (seg.start.y + seg.end.y) / 2.0,
-                    )
-                } else {
-                    Point::new(0.0, 0.0)
-                };
-
-                violations.push(violation(
-                    Severity::Warning,
-                    "EMC_SPC_001",
-                    &format!(
-                        "Fast digital net {} crosses ground domain boundaries on {}: {}",
-                        trace.net,
-                        trace.layer,
-                        domains_hit.join(" ↔ "),
-                    ),
-                    DrcCategory::Emc,
-                    "routing_split_plane_crossing",
-                    vec![trace.net.0.clone()],
-                    Some(Location {
-                        x: Some(mid.x()),
-                        y: Some(mid.y()),
-                        layer: Some(trace.layer.clone()),
-                    }),
-                    serde_json::json!({
-                        "crossed_domains": domains_hit,
-                        "ground_domains": domains_hit,
-                        "trace_net": trace.net,
-                        "layer": trace.layer,
-                    }),
-                ));
-            }
         }
 
-        violations
+        if domains_hit.len() > 1 {
+            let mid = trace.segments.first().map_or(Point::new(0.0, 0.0), |seg| {
+                Point::new(
+                    (seg.start.x + seg.end.x) / 2.0,
+                    (seg.start.y + seg.end.y) / 2.0,
+                )
+            });
+
+            violations.push(violation(
+                Severity::Warning,
+                "EMC_SPC_001",
+                &format!(
+                    "Fast digital net {} crosses ground domain boundaries on {}: {}",
+                    trace.net,
+                    trace.layer,
+                    domains_hit.join(" ↔ "),
+                ),
+                DrcCategory::Emc,
+                "routing_split_plane_crossing",
+                vec![trace.net.0.clone()],
+                Some(Location {
+                    x: Some(mid.x()),
+                    y: Some(mid.y()),
+                    layer: Some(trace.layer.clone()),
+                }),
+                serde_json::json!({
+                    "crossed_domains": domains_hit,
+                    "ground_domains": domains_hit,
+                    "trace_net": trace.net,
+                    "layer": trace.layer,
+                }),
+            ));
+        }
     }
+
+    violations
 }

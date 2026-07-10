@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temper Pipeline — Andon Board</title>
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --border: #30363d;
+  --text: #c9d1d9; --dim: #484f58;
+  --green: #3fb950; --red: #f85149; --yellow: #d29922; --cyan: #58a6ff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 24px; }
+h1 { font-size: 20px; margin-bottom: 8px; }
+.subtitle { color: var(--dim); font-size: 13px; margin-bottom: 24px; }
+.stations { display: flex; gap: 12px; flex-wrap: wrap; }
+.station { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; min-width: 160px; flex: 1; transition: border-color 0.3s; }
+.station.idle { border-color: var(--border); opacity: 0.6; }
+.station.active { border-color: var(--cyan); opacity: 1; }
+.station.done { border-color: var(--green); opacity: 1; }
+.station.error { border-color: var(--red); opacity: 1; }
+.station.skip { border-color: var(--border); opacity: 0.4; text-decoration: line-through; }
+.station-name { font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+.station-timer { font-size: 13px; color: var(--dim); }
+.station-timer.running { color: var(--cyan); }
+.station-metric { font-size: 12px; color: var(--dim); margin-top: 4px; }
+.footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 13px; color: var(--dim); }
+.light { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; background: var(--dim); }
+.light.green { background: var(--green); }
+.light.red { background: var(--red); }
+.light.yellow { background: var(--yellow); }
+.light.cyan { background: var(--cyan); }
+</style>
+</head>
+<body>
+<h1>Temper Pipeline — Andon Board</h1>
+<p class="subtitle" id="header">Waiting for pipeline...</p>
+<div class="stations" id="stations"></div>
+<div class="footer" id="footer"></div>
+<script>
+const LIGHTS = { idle: "", active: "cyan", done: "green", error: "red", skip: "dim" };
+function render(state) {
+  document.getElementById("header").textContent = state.header || "Pipeline running...";
+  const container = document.getElementById("stations");
+  container.innerHTML = "";
+  (state.stages || []).forEach(s => {
+    const div = document.createElement("div");
+    div.className = "station " + (s.status || "idle");
+    div.innerHTML = '<div class="station-name"><span class="light ' + (LIGHTS[s.status] || "") + '"></span>' + s.name + '</div>'
+      + (s.timer ? '<div class="station-timer' + (s.status === "active" ? " running" : "") + '">' + s.timer + '</div>' : '')
+      + (s.metric ? '<div class="station-metric">' + s.metric + '</div>' : '');
+    container.appendChild(div);
+  });
+  document.getElementById("footer").textContent = state.footer || "";
+}
+const es = new EventSource("/events");
+es.onmessage = e => render(JSON.parse(e.data));
+es.onerror = () => { document.getElementById("header").textContent = "Connection lost — retrying..."; };
+</script>
+</body>
+</html>

@@ -51,109 +51,111 @@ impl DrcRule for ParallelRunCheck {
     }
 
     fn check(&self, board: &BoardState, constraints: &ConstraintSet) -> Vec<Violation> {
-        let mut violations = Vec::new();
-
-        // Degenerate: no traces or no noise domains → empty
         if board.traces.is_empty() || constraints.noise_domains.is_empty() {
-            return violations;
+            return Vec::new();
         }
 
+        let mut violations = Vec::new();
         for domain in &constraints.noise_domains {
             let max_run = domain.max_parallel_run_mm;
             if max_run <= 0.0 {
                 continue;
             }
-
             for emitter_net in &domain.emitters {
                 for victim_net in &domain.victims {
                     if emitter_net == victim_net {
                         continue;
                     }
-
-                    // Collect all trace segments belonging to the emitter and victim nets.
-                    let emitter_segs: Vec<&Line<f64>> = board
-                        .traces
-                        .iter()
-                        .filter(|t| t.net.0 == *emitter_net)
-                        .flat_map(|t| &t.segments)
-                        .collect();
-
-                    let victim_segs: Vec<&Line<f64>> = board
-                        .traces
-                        .iter()
-                        .filter(|t| t.net.0 == *victim_net)
-                        .flat_map(|t| &t.segments)
-                        .collect();
-
-                    if emitter_segs.is_empty() || victim_segs.is_empty() {
-                        continue;
-                    }
-
-                    // Determine separation distance from net class clearance rules.
-                    let emitter_class = board.net_by_name(emitter_net).map(|n| &n.class);
-                    let victim_class = board.net_by_name(victim_net).map(|n| &n.class);
-                    let separation = match (emitter_class, victim_class) {
-                        (Some(ec), Some(vc)) => clearance_between(
-                            constraints,
-                            &board.net_class_rules,
-                            ec,
-                            vc,
-                        ),
-                        _ => DEFAULT_SEPARATION_MM,
-                    };
-                    let max_sep = separation * 2.0;
-
-                    // Accumulate total parallel run length between these two nets.
-                    let mut total_parallel_mm = 0.0;
-
-                    for e_seg in &emitter_segs {
-                        let e_angle = line_angle(e_seg);
-                        for v_seg in &victim_segs {
-                            let v_angle = line_angle(v_seg);
-                            if angles_parallel(e_angle, v_angle) {
-                                // Only count if segments are within separation distance.
-                                let seg_dist = e_seg.euclidean_distance(*v_seg);
-                                if seg_dist < max_sep {
-                                    // The overlapping run contribution is the minimum of
-                                    // the two segment lengths when they are parallel.
-                                    let run = e_seg
-                                        .euclidean_distance(&e_seg.start)
-                                        .min(v_seg.euclidean_distance(&v_seg.start));
-                                    total_parallel_mm += run;
-                                }
-                            }
-                        }
-                    }
-
-                    if total_parallel_mm > max_run {
-                        violations.push(violation(
-                            Severity::Error,
-                            "EMC_PRL_001",
-                            &format!(
-                                "Parallel run {:.2} mm between emitter net '{}' and victim net '{}' exceeds limit of {:.2} mm in noise domain '{}'",
-                                total_parallel_mm, emitter_net, victim_net, max_run,
-                                domain.emitters.first().map(|s| s.as_str()).unwrap_or("unknown"),
-                            ),
-                            DrcCategory::Emc,
-                            "routing_parallel_run",
-                            vec![emitter_net.clone(), victim_net.clone()],
-                            None,
-                            serde_json::json!({
-                                "emitter_net": emitter_net,
-                                "victim_net": victim_net,
-                                "parallel_run_mm": total_parallel_mm,
-                                "max_allowed_mm": max_run,
-                                "excess_mm": total_parallel_mm - max_run,
-                                "separation_mm": separation,
-                            }),
-                        ));
+                    if let Some(v) = check_net_pair(board, constraints, emitter_net, victim_net, max_run) {
+                        violations.push(v);
                     }
                 }
             }
         }
-
         violations
     }
+}
+
+fn check_net_pair(
+    board: &BoardState,
+    constraints: &ConstraintSet,
+    emitter_net: &str,
+    victim_net: &str,
+    max_run: f64,
+) -> Option<Violation> {
+    let emitter_segs: Vec<&Line<f64>> = board
+        .traces
+        .iter()
+        .filter(|t| t.net.0 == emitter_net)
+        .flat_map(|t| &t.segments)
+        .collect();
+    let victim_segs: Vec<&Line<f64>> = board
+        .traces
+        .iter()
+        .filter(|t| t.net.0 == victim_net)
+        .flat_map(|t| &t.segments)
+        .collect();
+
+    if emitter_segs.is_empty() || victim_segs.is_empty() {
+        return None;
+    }
+
+    let emitter_class = board.net_by_name(emitter_net).map(|n| &n.class);
+    let victim_class = board.net_by_name(victim_net).map(|n| &n.class);
+    let separation = match (emitter_class, victim_class) {
+        (Some(ec), Some(vc)) => {
+            clearance_between(constraints, &board.net_class_rules, ec, vc)
+        }
+        _ => DEFAULT_SEPARATION_MM,
+    };
+    let max_sep = separation * 2.0;
+
+    let total_parallel_mm = parallel_run_length(&emitter_segs, &victim_segs, max_sep);
+
+    if total_parallel_mm > max_run {
+        Some(violation(
+            Severity::Error,
+            "EMC_PRL_001",
+            &format!(
+                "Parallel run {:.2} mm between emitter net '{}' and victim net '{}' exceeds limit of {:.2} mm in noise domain",
+                total_parallel_mm, emitter_net, victim_net, max_run,
+            ),
+            DrcCategory::Emc,
+            "routing_parallel_run",
+            vec![emitter_net.to_owned(), victim_net.to_owned()],
+            None,
+            serde_json::json!({
+                "emitter_net": emitter_net,
+                "victim_net": victim_net,
+                "parallel_run_mm": total_parallel_mm,
+                "max_allowed_mm": max_run,
+                "excess_mm": total_parallel_mm - max_run,
+                "separation_mm": separation,
+            }),
+        ))
+    } else {
+        None
+    }
+}
+
+fn parallel_run_length(emitter_segs: &[&Line<f64>], victim_segs: &[&Line<f64>], max_sep: f64) -> f64 {
+    let mut total = 0.0;
+    for e_seg in emitter_segs {
+        let e_angle = line_angle(e_seg);
+        for v_seg in victim_segs {
+            let v_angle = line_angle(v_seg);
+            if angles_parallel(e_angle, v_angle) {
+                let seg_dist = e_seg.euclidean_distance(*v_seg);
+                if seg_dist < max_sep {
+                    let run = e_seg
+                        .euclidean_distance(&e_seg.start)
+                        .min(v_seg.euclidean_distance(&v_seg.start));
+                    total += run;
+                }
+            }
+        }
+    }
+    total
 }
 
 /// Compute the angle (in radians) of a line segment from start to end.
