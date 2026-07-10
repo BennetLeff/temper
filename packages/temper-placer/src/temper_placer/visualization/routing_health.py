@@ -102,14 +102,14 @@ def routing_health_dashboard(
                 x0=min_x, dx=dx,
                 y0=min_y, dy=dy,
                 colorscale="RdYlGn_r",
-                colorbar=dict(
-                    title="Width mm",
-                    orientation="h",
-                    x=0.5, y=-0.18,
-                    xanchor="center", yanchor="top",
-                    len=0.6, thickness=12,
-                    tickfont=dict(size=10),
-                ),
+                colorbar={
+                    "title": "Width mm",
+                    "orientation": "h",
+                    "x": 0.5, "y": -0.18,
+                    "xanchor": "center", "yanchor": "top",
+                    "len": 0.6, "thickness": 12,
+                    "tickfont": {"size": 10},
+                },
                 zmin=0,
                 zmax=max(10.0, float(np.nanmax(display))),
                 hoverongaps=False,
@@ -117,9 +117,9 @@ def routing_health_dashboard(
             ),
             row=1, col=1,
         )
-        fig.update_xaxes(title_text="X (mm)", title_font=dict(size=11),
+        fig.update_xaxes(title_text="X (mm)", title_font={"size": 11},
                          row=1, col=1, range=x_range, constrain="domain")
-        fig.update_yaxes(title_text="Y (mm)", title_font=dict(size=11),
+        fig.update_yaxes(title_text="Y (mm)", title_font={"size": 11},
                          row=1, col=1, range=y_range,
                          scaleanchor="x", scaleratio=1.0, constrain="domain")
 
@@ -139,9 +139,9 @@ def routing_health_dashboard(
         )
         fig.add_hline(y=0.5, line_dash="dash", line_color="red", row=1, col=3,
                        annotation_text="critical")
-        fig.update_xaxes(title_text="", tickangle=90, tickfont=dict(size=8),
+        fig.update_xaxes(title_text="", tickangle=90, tickfont={"size": 8},
                          row=1, col=3)
-        fig.update_yaxes(title_text="Min Width (mm)", title_font=dict(size=10),
+        fig.update_yaxes(title_text="Min Width (mm)", title_font={"size": 10},
                          row=1, col=3)
 
     # ── Row 2, Col 1: Routability Map ──
@@ -158,18 +158,18 @@ def routing_health_dashboard(
             fig.add_trace(
                 go.Scatter(
                     x=xs, y=ys, mode="markers+text",
-                    text=ts, textposition="top center", textfont=dict(size=8, color="#333"),
-                    marker=dict(size=10, color=cs, symbol="square",
-                                line=dict(width=1, color="white")),
+                    text=ts, textposition="top center", textfont={"size": 8, "color": "#333"},
+                    marker={"size": 10, "color": cs, "symbol": "square",
+                                "line": {"width": 1, "color": "white"}},
                     name="Routability",
                 ),
                 row=2, col=1,
             )
             fig.add_shape(type="rect", x0=min_x, y0=min_y, x1=max_x, y1=max_y,
-                          line=dict(color="gray", dash="dot"), row=2, col=1)
-        fig.update_xaxes(title_text="X (mm)", title_font=dict(size=11),
+                          line={"color": "gray", "dash": "dot"}, row=2, col=1)
+        fig.update_xaxes(title_text="X (mm)", title_font={"size": 11},
                          row=2, col=1, range=x_range)
-        fig.update_yaxes(title_text="Y (mm)", title_font=dict(size=11),
+        fig.update_yaxes(title_text="Y (mm)", title_font={"size": 11},
                          row=2, col=1, range=y_range)
 
     # ── Row 2, Col 2: Capacity-Demand Scatter ──
@@ -188,14 +188,14 @@ def routing_health_dashboard(
             go.Scatter(
                 x=x_vals, y=ratios, mode="markers",
                 text=names,
-                marker=dict(size=7, color=cs),
+                marker={"size": 7, "color": cs},
                 hovertemplate="%{text}: %{y:.1f}x (%{x:.2f}mm)<extra></extra>",
             ),
             row=2, col=2,
         )
         fig.add_hline(y=1.0, line_dash="dash", line_color="red", row=2, col=2)
-        fig.update_xaxes(title_text=x_label, title_font=dict(size=10), row=2, col=2)
-        fig.update_yaxes(title_text="C/D Ratio", title_font=dict(size=10), row=2, col=2)
+        fig.update_xaxes(title_text=x_label, title_font={"size": 10}, row=2, col=2)
+        fig.update_yaxes(title_text="C/D Ratio", title_font={"size": 10}, row=2, col=2)
 
     # ── Row 2, Col 3: Summary ──
     lines = []
@@ -214,7 +214,7 @@ def routing_health_dashboard(
         text=f"<b>Summary</b><br><br>{text}",
         xref="x6 domain", yref="y6 domain",
         x=0.5, y=0.5, showarrow=False,
-        font=dict(size=12, color="#333"),
+        font={"size": 12, "color": "#333"},
         row=2, col=3,
     )
     fig.update_xaxes(visible=False, row=2, col=3)
@@ -236,26 +236,26 @@ def routing_health_dashboard(
                 fig.add_trace(
                     go.Scatter(
                         x=cxs, y=cys, mode="markers+text",
-                        text=cts, textposition="top center", textfont=dict(size=7, color="#555"),
-                        marker=dict(size=8, color=f"hsl({hue},70%,50%)"),
+                        text=cts, textposition="top center", textfont={"size": 7, "color": "#555"},
+                        marker={"size": 8, "color": f"hsl({hue},70%,50%)"},
                         name=f"C{ci+1} ({len(cluster)})",
                     ),
                     row=3, col=1,
                 )
         fig.add_shape(type="rect", x0=min_x, y0=min_y, x1=max_x, y1=max_y,
-                      line=dict(color="gray", dash="dot"), row=3, col=1)
-        fig.update_xaxes(title_text="X (mm)", title_font=dict(size=11),
+                      line={"color": "gray", "dash": "dot"}, row=3, col=1)
+        fig.update_xaxes(title_text="X (mm)", title_font={"size": 11},
                          row=3, col=1, range=x_range, constrain="domain")
-        fig.update_yaxes(title_text="Y (mm)", title_font=dict(size=11),
+        fig.update_yaxes(title_text="Y (mm)", title_font={"size": 11},
                          row=3, col=1, range=y_range, constrain="domain")
 
     # ── Global layout ──
     fig.update_layout(
-        title=dict(text=title, font=dict(size=16), x=0.5),
+        title={"text": title, "font": {"size": 16}, "x": 0.5},
         height=edt_row_h + 320 + 280 + 100,
         width=1400,
         showlegend=False,
-        margin=dict(t=50, b=30, l=30, r=30),
+        margin={"t": 50, "b": 30, "l": 30, "r": 30},
         plot_bgcolor="rgba(245,245,245,1)",
         paper_bgcolor="white",
     )
