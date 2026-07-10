@@ -163,6 +163,18 @@ class RunMetrics:
     seed: int = 0
     timestamp: str = ""
     config_hash: str = ""
+    # Legacy quality metrics consumed by the (deprecated) validation gates.
+    # Defaults represent an "unmeasured" run: routing_completion_percent < 0
+    # is the gate SKIP sentinel; the loss/violation fields default to a
+    # passing zero. Retained so validation_gates stays importable/typed until
+    # the gates are rewired to the CP-SAT/deterministic metrics.
+    overlap_loss: float = 0.0
+    boundary_loss: float = 0.0
+    hv_clearance_violations: int = 0
+    zone_violations: int = 0
+    convergence_epoch: int = 0
+    routing_completion_percent: float = -1.0
+    drc_errors: int = 0
 
 
 # Provide a bare fallback so callers that imported from losses.types
