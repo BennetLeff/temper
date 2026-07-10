@@ -29,7 +29,6 @@ from numpy.typing import NDArray
 from temper_placer.core.board import Board
 from temper_placer.core.loop import LoopCollection
 from temper_placer.core.netlist import Netlist
-from temper_placer.router_v6.adapter import MazeRouter
 from temper_placer.router_v6.congestion import analyze_congestion
 
 if TYPE_CHECKING:
@@ -186,7 +185,7 @@ class RoutingVerifier:
             return result
 
         # Level 3: Maze routing verification
-        router = MazeRouter.from_board(
+        raise NotImplementedError('route_nets removed (old-pipeline retirement)'); _ = MazeRouter.from_board(
             board,
             cell_size_mm=self.config.cell_size_mm,
             num_layers=self.config.num_layers,
