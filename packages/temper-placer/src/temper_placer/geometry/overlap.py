@@ -268,7 +268,7 @@ def compute_pairwise_distances(
     distances = np.where(both_negative, overlap_dist, separated_dist)
 
     # Zero out diagonal (component vs itself)
-    distances = distances.at[np.diag_indices(n)].set(0.0)
+    distances[np.diag_indices(n)] = 0.0
 
     return distances
 
@@ -470,7 +470,7 @@ def get_worst_overlap(
 
     # Set diagonal to large positive value to ignore
     n = positions.shape[0]
-    distances = distances.at[np.diag_indices(n)].set(np.inf)
+    distances[np.diag_indices(n)] = np.inf
 
     # Find minimum distance (most negative = worst overlap)
     min_idx = np.argmin(distances)
