@@ -1,5 +1,5 @@
 
-import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from temper_placer.core.graph import NetlistGraph, netlist_to_graph
@@ -40,16 +40,16 @@ def test_graph_batching():
 
     # Graph 1 (2 nodes, 1 edge)
     g1 = NetlistGraph(
-        nodes=jnp.ones((2, 3)),
-        edges=jnp.array([[0, 1]]),
-        edge_weights=jnp.ones(1)
+        nodes=np.ones((2, 3)),
+        edges=np.array([[0, 1]]),
+        edge_weights=np.ones(1)
     )
 
     # Graph 2 (3 nodes, 2 edges)
     g2 = NetlistGraph(
-        nodes=jnp.zeros((3, 3)),
-        edges=jnp.array([[0, 1], [1, 2]]),
-        edge_weights=jnp.ones(2)
+        nodes=np.zeros((3, 3)),
+        edges=np.array([[0, 1], [1, 2]]),
+        edge_weights=np.ones(2)
     )
 
     batched = batch_graphs([g1, g2])
@@ -60,5 +60,5 @@ def test_graph_batching():
 
     # Check edge index shifting
     # Second graph edges [0,1], [1,2] should become [2,3], [3,4]
-    assert jnp.all(batched.edges[1:] == jnp.array([[2, 3], [3, 4]]))
+    assert np.all(batched.edges[1:] == np.array([[2, 3], [3, 4]]))
 

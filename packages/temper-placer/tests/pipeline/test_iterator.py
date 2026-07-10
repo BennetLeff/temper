@@ -5,7 +5,6 @@ Part of temper-1d78.2
 
 from unittest.mock import MagicMock
 
-import jax.numpy as jnp
 import numpy as np
 
 
@@ -46,7 +45,7 @@ class TestPlaceRouteIterator:
 
         # Mock initial positions
         n_comp = 5
-        initial_pos = jnp.zeros((n_comp, 2))
+        initial_pos = np.zeros((n_comp, 2))
 
         # Mock router results
         mock_routing_result = MagicMock()
@@ -75,7 +74,7 @@ class TestPlaceRouteIterator:
         mock_board = MagicMock()
         mock_router = MagicMock()
 
-        initial_pos = jnp.zeros((2, 2))
+        initial_pos = np.zeros((2, 2))
 
         # Mock router to fail twice then succeed
         res_fail1 = MagicMock()
@@ -118,7 +117,7 @@ class TestPlaceRouteIterator:
         mock_board = MagicMock()
         mock_router = MagicMock()
 
-        initial_pos = jnp.zeros((2, 2))
+        initial_pos = np.zeros((2, 2))
 
         # Mock router to show very small improvement
         res1 = MagicMock()
@@ -155,7 +154,7 @@ class TestPlaceRouteIterator:
         mock_board = MagicMock()
         mock_router = MagicMock()
 
-        initial_pos = jnp.zeros((2, 2))
+        initial_pos = np.zeros((2, 2))
 
         # Mock router to always fail but with improvement
         def route_fn(_pos):
