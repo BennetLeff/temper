@@ -23,6 +23,48 @@ from temper_placer.placer.cp_sat.gates import (
 
 
 # ---------------------------------------------------------------------------
+# CostField-stored-in-FieldResult.field path (defensive dispatch)
+# ---------------------------------------------------------------------------
+
+class TestFieldResultWithCostField:
+    """FieldResult with a CostField (not raw ndarray) as its .field value."""
+
+    def test_cost_field_via_to_cost_field_input(self):
+        """to_cost_field_input() must work when .field is a CostField."""
+        grid = np.full((8, 12), 2.5, dtype=np.float32)
+        cf = CostField(grid=grid, cell_size_mm=0.5, origin_mm=(0.0, 0.0))
+        fr = FieldResult(gate_result=GateResult(GateStatus.CLEAN), field=cf)
+        cfi = fr.to_cost_field_input()
+        assert isinstance(cfi, CostFieldInput)
+        assert cfi.cost_flat.shape == (8 * 12,)
+        assert cfi.cost_flat.dtype == np.float32
+        assert cfi.cost_flat[0] == pytest.approx(2.5)
+
+    def test_cost_field_with_violations_to_cost_field_input(self):
+        """to_cost_field_input() must work when .field is a CostField and status is VIOLATIONS."""
+        grid = np.ones((5, 5), dtype=np.float32)
+        cf = CostField(grid=grid, cell_size_mm=1.0, origin_mm=(0.0, 0.0))
+        gr = GateResult(
+            GateStatus.VIOLATIONS,
+            violations=(Violation(type=ViolationType.THERMAL, description="hot"),),
+        )
+        fr = FieldResult(gate_result=gr, field=cf, weight=3.0)
+        cfi = fr.to_cost_field_input()
+        assert cfi.cost_flat.shape == (25,)
+        assert cfi.cost_flat.dtype == np.float32
+        assert cfi.weight == 3.0
+
+    def test_cost_field_roundtrip_values_preserved(self):
+        """CostField stored in FieldResult produces correct flat values."""
+        grid = np.arange(20, dtype=np.float32).reshape(4, 5) + 0.5
+        cf = CostField(grid=grid, cell_size_mm=0.25, origin_mm=(10.0, 20.0))
+        fr = FieldResult(gate_result=GateResult(GateStatus.CLEAN), field=cf)
+        cfi = fr.to_cost_field_input()
+        expected_flat = np.arange(20, dtype=np.float32) + 0.5
+        np.testing.assert_array_equal(cfi.cost_flat, expected_flat)
+
+
+# ---------------------------------------------------------------------------
 # Happy path
 # ---------------------------------------------------------------------------
 
