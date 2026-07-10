@@ -311,6 +311,25 @@ jobs:
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
 
+      - name: Preflight check for Elmer availability
+        id: elmer_preflight
+        run: |
+          if which ElmerGrid && which ElmerSolver; then
+            echo "elmer_available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "elmer_available=false" >> "$GITHUB_OUTPUT"
+          fi
+        continue-on-error: true
+
+      - name: Elmer corroboration gate (l3_pbt cadence)
+        if: steps.elmer_preflight.outputs.elmer_available == 'true'
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/validation/test_elmer.py tests/validation/test_elmer_mesh.py tests/validation/test_elmer_compare.py tests/validation/test_elmer_gate.py -v --tb=short -p no:cacheprovider
+        continue-on-error: true
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
+          JAX_PLATFORM_NAME: cpu
+
       - name: Rebuild script invocation graph
         run: uv run python scripts/trace_invocations.py
 
