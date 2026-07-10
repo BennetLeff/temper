@@ -178,3 +178,4 @@ fn build_decision_level_histogram(_conflicts: u64, _decisions: u64) -> [u64; 10]
     }
     hist
 }
+

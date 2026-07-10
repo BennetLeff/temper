@@ -56,9 +56,11 @@ def simple_test_netlist():
 
 
 @pytest.mark.skip(
-    reason="Rust SAT router bug: solver.rs num_vars (194) exceeds CaDiCaL solution length (193); the OOB read is now guarded (var_value), but the "
-    "underlying encoding mismatch still triggers a downstream SIGABRT. "
-    "Needs dedicated temper-rust-router-core investigation."
+    reason="Maze router returns 'V6 routing failed' (no path) for this net; "
+    "routing_complete drops the net (net_count 1->0). Separate routing-logic "
+    "bug. NOTE: the earlier 'SIGABRT/num_vars' diagnosis was wrong — that was "
+    "an ABI-mismatched local build; the OOB SAT read is fixed (#160) and a "
+    "consistent build imports/solves fine."
 )
 def test_end_to_end_routing_and_export(simple_test_board, simple_test_netlist):
     """Test complete routing and export pipeline.
