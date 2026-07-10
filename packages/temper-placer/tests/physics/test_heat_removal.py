@@ -104,11 +104,11 @@ def test_sink_limit_single_device_lumped_agreement():
             name="Q1",
             R_theta_jc=0.0,
             R_theta_cs=0.25,
-            R_theta_sa=2.0,
+            R_theta_sa=1.0,
             T_j_max=150.0,
             R_jc_because="test",
             R_cs_because="test: R_θCS = 0.25 K/W",
-            R_sa_because="test: R_θSA = 2.0 K/W",
+            R_sa_because="test: R_θSA = 1.0 K/W",
         ),
     }
 
@@ -403,11 +403,11 @@ def test_build_h_field_footprint_coverage():
             R_sa_because="test: board-heatsinked, R_vert=0",
         ),
         "Q2": DeviceThermalConfig(
-            name="Q2", R_theta_jc=0.6, R_theta_cs=0.25, R_theta_sa=2.0,
+            name="Q2", R_theta_jc=0.6, R_theta_cs=0.25, R_theta_sa=1.0,
             T_j_max=150.0,
             R_jc_because="test",
             R_cs_because="test: R_θCS = 0.25 K/W",
-            R_sa_because="test: R_θSA = 2.0 K/W",
+            R_sa_because="test: R_θSA = 1.0 K/W",
         ),
     }
 
