@@ -30,7 +30,7 @@ from temper_placer.placer.cp_sat.gates import (
 )
 
 if TYPE_CHECKING:
-    from temper_placer.physics.thermal_fdm import ThermalFDMConfig
+    pass
 
 
 # ---------------------------------------------------------------------------

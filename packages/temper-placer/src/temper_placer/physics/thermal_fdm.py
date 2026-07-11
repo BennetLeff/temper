@@ -54,7 +54,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 if TYPE_CHECKING:
-    from temper_placer.fields.field import CostField
+    import scipy
+
     from temper_placer.fields.result import FieldResult
 
 
@@ -321,7 +322,7 @@ def _assemble_system(
     k_field: np.ndarray,
     Q_field: np.ndarray,
     h_field: np.ndarray | None = None,
-) -> tuple["scipy.sparse.csr_matrix", np.ndarray]:
+) -> tuple[scipy.sparse.csr_matrix, np.ndarray]:
     """Assemble the sparse linear system A·T = b for the FDM discretisation.
 
     Uses the 5-point stencil with harmonic-mean interface conductivity
@@ -426,7 +427,7 @@ def get_system_matrix(
     copper_grid: np.ndarray | None = None,
     traces: list | None = None,
     h_field: np.ndarray | None = None,
-) -> "scipy.sparse.csr_matrix":
+) -> scipy.sparse.csr_matrix:
     """Return the assembled system matrix A for the isotropic FDM discretisation.
 
     This is a utility for verifying matrix-class properties (symmetry,
@@ -465,7 +466,7 @@ def solve_thermal_fdm(
     traces: list | None = None,
     Q_field: np.ndarray | None = None,
     h_field: np.ndarray | None = None,
-) -> "FieldResult":
+) -> FieldResult:
     """Solve :math:`\\nabla\\cdot(k\\nabla T) - h(T - T_\\mathrm{amb}) = -Q`
     on the board grid.
 

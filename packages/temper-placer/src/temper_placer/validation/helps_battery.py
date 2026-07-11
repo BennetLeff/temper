@@ -14,9 +14,10 @@ from __future__ import annotations
 import enum
 import statistics
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable
+from datetime import UTC, datetime
+from typing import Any
 
 import numpy as np
 
@@ -25,7 +26,6 @@ from temper_placer.validation.prereg import (
     PreregistrationManifest,
 )
 from temper_placer.validation.scorecard import MarginScorecard
-
 
 # ---------------------------------------------------------------------------
 # Verdict enum
@@ -287,7 +287,7 @@ def run_helps_battery(
         created = _parse_iso_to_utc(manifest.created_at)
         normalized = battery_run_timestamp
         if battery_run_timestamp.tzinfo is None:
-            normalized = battery_run_timestamp.replace(tzinfo=timezone.utc)
+            normalized = battery_run_timestamp.replace(tzinfo=UTC)
         if created > normalized:
             raise ValueError(
                 f"manifest created_at ({manifest.created_at}) "

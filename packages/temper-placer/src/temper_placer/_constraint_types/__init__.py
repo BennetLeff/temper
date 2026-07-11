@@ -38,7 +38,7 @@ from .routing import (
     RoutingCorridor,
 )
 from .safety import BleedResistor, IsolationBarrier, SkinEffectDerating, SnubberRequirement
-from .thermal import ThermalConstraint, ThermalProperties, _DEFAULT_RJC, _RJC_PACKAGE_LOOKUP
+from .thermal import _DEFAULT_RJC, _RJC_PACKAGE_LOOKUP, ThermalConstraint, ThermalProperties
 from .topology import CriticalLoop, CriticalPath, MatchedLengthGroup, StarGroundConfig
 
 __all__ = [

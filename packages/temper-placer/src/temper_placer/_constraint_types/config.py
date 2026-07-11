@@ -4,8 +4,7 @@ import math
 from dataclasses import dataclass, field
 
 from temper_placer.core.board import GroundDomain, LayerStackup, Zone
-from temper_placer.core.differential_pair import DifferentialPairConstraint
-from temper_placer.core.net_graph import NetGraph, SubNetEdge
+from temper_placer.core.net_graph import NetGraph
 from temper_placer.core.net_types import NetClassification
 
 from .clearance import ClearanceRule, DifferentialPairRule, NetClassRule, SignalToHVClearance
@@ -15,7 +14,6 @@ from .groups import (
     EscapeClearance,
     GroupSeparation,
     ManufacturingConstraint,
-    ProximityRule,
 )
 from .noise import NoiseDomain, NoiseIsolationRule
 from .routing import (

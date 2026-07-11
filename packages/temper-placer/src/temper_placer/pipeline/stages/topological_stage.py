@@ -49,7 +49,7 @@ class TopologicalStage:
 
         print("Running zone-aware legalization...")
         fixed_mask = np.array([c.fixed for c in netlist.components], dtype=bool)
-        def legalize_zone_aware(*a, **kw): raise NotImplementedError(f"legalize_zone_aware removed (JAX retirement)")
+        def legalize_zone_aware(*a, **kw): raise NotImplementedError("legalize_zone_aware removed (JAX retirement)")
         legalized_pos, success = legalize_zone_aware(positions, netlist, board, fixed_mask=fixed_mask)
 
         if not success:

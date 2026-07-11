@@ -14,15 +14,12 @@ solver is passed as its scorer (runtime assertion guard).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from temper_placer.regression.physics_oracle import (
     PhysicsOracleResult,
     compute_oracle_margins,
-    run_physics_oracle,
 )
-
 
 # ---------------------------------------------------------------------------
 # Independence guard
@@ -285,14 +282,6 @@ def score_placement_via_oracle(
     physics oracle (imported here), which is structurally independent of
     any placement field.
     """
-    from temper_placer.metrics.quality import (  # noqa: PLC0415
-        dual_rail_clearance_report,
-        hv_lv_clearance_score,
-        loop_area_score,
-        thermal_score,
-        zone_compliance_score,
-        compactness_score,
-    )
     from temper_placer.regression.physics_oracle import score_placement
 
     def _oracle_scorer(placement, board, netlist):

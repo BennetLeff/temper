@@ -18,7 +18,6 @@ authority (cross-cutting invariant with the field track's U5).
 
 from __future__ import annotations
 
-import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -743,7 +742,7 @@ class OperatingPointGate(Gate):
         # Compare SPICE-vs-analytic at zero-coupling (k=0, L_coil).
         # di/dt = V_bus / L_coil, L_loop_max = (V_BR*derate - V_bus)/di_dt
         analytic_di_dt = k0.di_dt
-        spice_di_dt = measurements.get("di_dt_k0", None)
+        spice_di_dt = measurements.get("di_dt_k0")
         match = spice_di_dt is not None and (
             abs(spice_di_dt - analytic_di_dt)
             <= self._tolerance * max(abs(analytic_di_dt), 1e-3)

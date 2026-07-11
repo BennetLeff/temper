@@ -34,8 +34,8 @@ if TYPE_CHECKING:
 
 
 def copper_coverage_grid(
-    board: "Board",
-    fdm_config: "ThermalFDMConfig",
+    board: Board,
+    fdm_config: ThermalFDMConfig,
     traces: list | None = None,
 ) -> np.ndarray:
     """Build per-cell effective copper fraction grid aligned to the FDM grid.
