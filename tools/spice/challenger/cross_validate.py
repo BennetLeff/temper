@@ -12,11 +12,14 @@ R8: Cross-validation compares per-corner Tj. A corner is "flagged" when
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from tools.spice.challenger.thermal_mesh import (
     compute_Tj_rtheta,
 )
-from tools.spice.corner_results import CornerResult
+
+if TYPE_CHECKING:
+    from tools.spice.corner_results import CornerResult
 
 
 @dataclass
