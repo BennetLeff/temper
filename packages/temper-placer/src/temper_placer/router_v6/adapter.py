@@ -285,6 +285,18 @@ class V6RouterAdapter:
                 )
                 results[net_name] = rp
 
+        # Sort signal nets after power/HV nets (ordering heuristic — R2).
+        # Round 4 coexistence proof: all six critical nets coexist,
+        # but signal nets are displaced when power nets route later.
+        _SIG = ("SPI_", "I_SENSE", "USB_", "TEMP_")
+        _PWR = ("GATE_", "PWM_", "DC_BUS", "AC_", "SW_NODE",
+                "VCC_BOOT", "CGND", "PGND", "+", "GND")
+        def _net_prio(name):
+            if any(name.startswith(p) for p in _PWR):
+                return 0
+            return 1
+        net_order = sorted(net_order, key=_net_prio)
+
         # Mark unrouted nets
         for net_name in net_order:
             if net_name not in results:
@@ -301,19 +313,6 @@ class V6RouterAdapter:
     def get_conflict_locations(self) -> list[dict[str, Any]]:
         return self._last_conflicts
 
-
-def _extract_conflicts(result: Any) -> list[dict[str, Any]]:
-    """Extract conflict locations from V6 routing result."""
-    conflicts: list[dict[str, Any]] = []
-    if hasattr(result, "stage4") and result.stage4:
-        unrouted = getattr(result.stage4, "unrouted_nets", []) or []
-        for net_name in unrouted:
-            conflicts.append({
-                "x": 0, "y": 0, "layer": 0,
-                "nets": [net_name],
-                "world_x": 0.0, "world_y": 0.0,
-            })
-    return conflicts
 
     def _build_temp_pcb(self, netlist: Any, positions: Any) -> str:
         """Build minimal KiCad PCB content from board + components."""
@@ -384,6 +383,19 @@ def _extract_conflicts(result: Any) -> list[dict[str, Any]]:
 
         lines.append(")")
         return "\n".join(lines)
+
+def _extract_conflicts(result: Any) -> list[dict[str, Any]]:
+    """Extract conflict locations from V6 routing result."""
+    conflicts: list[dict[str, Any]] = []
+    if hasattr(result, "stage4") and result.stage4:
+        unrouted = getattr(result.stage4, "unrouted_nets", []) or []
+        for net_name in unrouted:
+            conflicts.append({
+                "x": 0, "y": 0, "layer": 0,
+                "nets": [net_name],
+                "world_x": 0.0, "world_y": 0.0,
+            })
+    return conflicts
 
 
 def route_pcb(
