@@ -225,12 +225,10 @@ def measure_all_stages(
         return _measure_deterministic(board_id, n_runs)
     elif pipeline == "RouterV6Pipeline":
         return _measure_router_v6(board_id, n_runs, sub_steps=sub_steps)
-    elif pipeline == "PipelineOrchestrator":
-        return _measure_pipeline_orchestrator(board_id, n_runs)
     else:
         raise ValueError(
             f"Unsupported pipeline '{pipeline}'. "
-            "Supported: DeterministicPipeline, RouterV6Pipeline, PipelineOrchestrator"
+            "Supported: DeterministicPipeline, RouterV6Pipeline"
         )
 
 
@@ -366,80 +364,6 @@ def _measure_router_v6(
                     individual_ms=individual_ms,
                 )
             )
-
-    return results
-
-
-def _measure_pipeline_orchestrator(
-    board_id: str, n_runs: int
-) -> list[TimingResult]:
-    """Measure PipelineOrchestrator phases via DAG engine timing."""
-    pcb_path = _resolve_board_path(board_id)
-
-    
-    phase_names = [
-        "input", "semantic", "topological", "preflight",
-        "geometric", "routing", "refinement", "output",
-    ]
-
-    # Warmup run (JAX JIT compilation etc.)
-    config = PipelineConfig(input_pcb=pcb_path, skip_routing=False, dry_run=False)
-    orchestrator = PipelineOrchestrator(config)
-    with contextlib.suppress(Exception):
-        orchestrator.run()
-
-    results: list[TimingResult] = []
-    per_run_timings: list[dict[str, float]] = []
-
-    class _TimingObserver:
-        def __init__(self):
-            self.stage_timings: dict[str, float] = {}
-
-        def on_stage_start(self, *args, **kwargs) -> None:
-            pass
-
-        def on_stage_complete(self, stage_name, duration_s, _outputs) -> None:
-            self.stage_timings[stage_name] = duration_s * 1000.0
-
-        def on_stage_skip(self, *args, **kwargs) -> None:
-            pass
-
-        def on_stage_error(self, *args, **kwargs) -> None:
-            pass
-
-        def on_feedback_triggered(self, *args, **kwargs) -> None:
-            pass
-
-        def on_pipeline_complete(self, success, total_duration_s, stage_timings) -> None:
-            pass
-
-    for _ in range(n_runs):
-        config = PipelineConfig(input_pcb=pcb_path, skip_routing=False, dry_run=False)
-        orchestrator = PipelineOrchestrator(config)
-        observer = _TimingObserver()
-        orchestrator._engine.add_observer(observer)  # type: ignore[arg-type]
-
-        with contextlib.suppress(Exception):
-            orchestrator.run()
-
-        run_timings: dict[str, float] = {}
-        for phase_name in phase_names:
-            run_timings[phase_name] = observer.stage_timings.get(phase_name, 0.0)
-        per_run_timings.append(run_timings)
-
-    for phase_name in phase_names:
-        individual_ms = [run.get(phase_name, 0.0) for run in per_run_timings]
-        mean_ms = sum(individual_ms) / len(individual_ms) if individual_ms else 0.0
-        results.append(
-            TimingResult(
-                board_id=board_id,
-                pipeline="PipelineOrchestrator",
-                stage_name=phase_name,
-                wall_ms=mean_ms,
-                n_runs=n_runs,
-                individual_ms=individual_ms,
-            )
-        )
 
     return results
 

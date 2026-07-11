@@ -22,46 +22,7 @@ def andon(input_pcb: str, loops: str | None, constraints: str | None,
 
     INPUT_PCB: Path to the KiCad PCB file.
     """
-    from temper_placer.pipeline.andon_observer import AndonObserver
-
-    config_kwargs: dict = {"input_pcb": Path(input_pcb)}
-    if loops:
-        config_kwargs["loops_yaml"] = Path(loops)
-    if constraints:
-        config_kwargs["constraints_yaml"] = Path(constraints)
-    if dry_run:
-        config_kwargs["dry_run"] = True
-
-    raise NotImplementedError("PipelineOrchestrator removed (old-pipeline retirement); watch/andon need migration to deterministic pipeline")
-
-    pipeline_kwargs: dict = {"input_pcb": Path(input_pcb)}
-    if loops:
-        pipeline_kwargs["loops"] = Path(loops)
-    if constraints:
-        pipeline_kwargs["constraints_yaml"] = Path(constraints)
-    if dry_run:
-        pipeline_kwargs["dry_run"] = True
-
-    if not hasattr(orchestrator, 'dag_engine') or orchestrator.dag_engine is None:
-        stage_order = [
-            "input", "semantic", "topological", "preflight",
-            "geometric", "routing", "refinement", "output",
-        ]
-        orchestrator.run(**pipeline_kwargs)
-        click.echo("Pipeline completed (no DAG engine for live dashboard).")
-        return
-    else:
-        stage_order = orchestrator.dag_engine.stage_order or [
-            "input", "semantic", "topological", "preflight",
-            "geometric", "routing", "refinement", "output",
-        ]
-
-    observer = AndonObserver(stage_order=stage_order, port=port)
-    observer.start()
-    click.echo(f"Andon Board: http://127.0.0.1:{observer.port}")
-
-    try:
-        orchestrator.dag_engine.add_observer(observer)
-        orchestrator.run(**pipeline_kwargs)
-    finally:
-        observer.stop()
+    raise NotImplementedError(
+        "Andon board not yet migrated to DAG engine. "
+        "See: temper-placer pipeline (StageDAGEngine)."
+    )

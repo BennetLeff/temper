@@ -18,9 +18,9 @@ class ProgressObserver(Protocol):
     def on_stage_skip(self, stage_name: str, reason: str) -> None: ...
     def on_stage_error(self, stage_name: str, error: Exception) -> None: ...
     def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,
-                               attempt: int) -> None: ...
+                                attempt: int) -> None: ...
     def on_pipeline_complete(self, success: bool, total_duration_s: float,
-                              stage_timings: dict[str, float]) -> None: ...
+                               stage_timings: dict[str, float]) -> None: ...
 
     def on_epoch(self, stage_name: str, epoch: int, loss: float) -> None: ...
 
@@ -66,77 +66,6 @@ class PipelineExecutionLog:
 def _event_to_dict(event: StageEvent) -> dict[str, Any]:
     d = dataclasses.asdict(event)
     return {k: v for k, v in d.items() if v is not None}
-
-
-class DAGToLegacyObserver:
-    """Adapts ProgressObserver events to legacy PipelineOrchestrator callbacks."""
-
-    def __init__(self, orchestrator: Any) -> None:
-        self.orchestrator = orchestrator
-
-    def on_stage_start(self, stage_name: str, _iteration: int, _context: dict[str, Any]) -> None:
-        if self.orchestrator.on_phase_start:
-            from temper_placer.pipeline.state import PipelinePhase
-            try:
-                phase: PipelinePhase | str = PipelinePhase(stage_name)
-            except ValueError:
-                phase = stage_name
-            self.orchestrator.on_phase_start(phase, self.orchestrator.state)  # type: ignore[arg-type]
-
-    def on_stage_complete(self, stage_name: str, _duration_s: float, _outputs: dict[str, Any]) -> None:
-        if self.orchestrator.on_phase_complete:
-            from temper_placer.pipeline.state import PipelinePhase
-            try:
-                phase: PipelinePhase | str = PipelinePhase(stage_name)
-            except ValueError:
-                phase = stage_name
-            self.orchestrator.on_phase_complete(phase, self.orchestrator.state)  # type: ignore[arg-type]
-        self._save_snapshot(stage_name)
-
-    def _save_snapshot(self, stage_name: str) -> None:
-        try:
-            from temper_placer.io.snapshot import save_json_snapshot, save_svg_snapshot
-            from temper_placer.pipeline.state import PipelinePhase
-            config = self.orchestrator.config
-            state = self.orchestrator.state
-            if config.output_pcb:
-                snapshot_dir = config.output_pcb.parent / "snapshots"
-            else:
-                snapshot_dir = Path("snapshots")
-            snapshot_dir.mkdir(parents=True, exist_ok=True)
-            phase_order = [p.value for p in PipelinePhase]
-            try:
-                phase = PipelinePhase(stage_name)
-            except ValueError:
-                return
-            try:
-                phase_idx = phase_order.index(phase.value)
-            except ValueError:
-                phase_idx = 0
-            prefix = f"{phase_idx:02d}_{phase.value}"
-            if stage_name == "refinement":
-                prefix += f"_iter{state.iteration}"
-            json_path = snapshot_dir / f"{prefix}.json"
-            svg_path = snapshot_dir / f"{prefix}.svg"
-            save_json_snapshot(state, json_path)
-            save_svg_snapshot(state, svg_path)
-        except Exception:
-            pass
-
-    def on_stage_skip(self, stage_name: str, reason: str) -> None:
-        pass
-
-    def on_stage_error(self, stage_name: str, error: Exception) -> None:
-        pass
-
-    def on_feedback_triggered(self, _contract_name: str, _from_stage: str, _to_stage: str,
-                               attempt: int) -> None:
-        if self.orchestrator.on_iteration:
-            self.orchestrator.on_iteration(attempt, self.orchestrator.state)
-
-    def on_pipeline_complete(self, success: bool, total_duration_s: float,
-                              stage_timings: dict[str, float]) -> None:
-        pass
 
 
 def write_execution_log_json(exec_log: PipelineExecutionLog, output_dir: Path) -> Path:

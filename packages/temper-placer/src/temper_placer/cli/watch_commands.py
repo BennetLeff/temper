@@ -33,60 +33,10 @@ def watch(input_pcb: str, loops: str | None, constraints: str | None,
         _watch_replay(Path(replay_path))
         return
 
-    _watch_live(
-        input_pcb=Path(input_pcb),
-        loops=Path(loops) if loops else None,
-        constraints=Path(constraints) if constraints else None,
-        dry_run=dry_run,
-        skip_routing=skip_routing,
-        refresh=refresh,
+    raise NotImplementedError(
+        "Live watch not yet migrated to DAG engine. "
+        "Use --replay to replay a saved pipeline_execution.json."
     )
-
-
-def _watch_live(*, input_pcb: Path, loops: Path | None, constraints: Path | None,
-                dry_run: bool, skip_routing: bool, refresh: float) -> None:
-    
-    config_kwargs: dict = {"input_pcb": input_pcb}
-    if loops:
-        config_kwargs["loops_yaml"] = loops
-    if constraints:
-        config_kwargs["constraints_yaml"] = constraints
-    if dry_run:
-        config_kwargs["dry_run"] = True
-    if skip_routing:
-        config_kwargs["skip_routing"] = True
-
-    raise NotImplementedError("PipelineOrchestrator removed (old-pipeline retirement); watch/andon need migration to deterministic pipeline")
-
-    pipeline_kwargs: dict = {"input_pcb": input_pcb}
-    if loops:
-        pipeline_kwargs["loops"] = loops
-    if constraints:
-        pipeline_kwargs["constraints_yaml"] = constraints
-    if dry_run:
-        pipeline_kwargs["dry_run"] = True
-    if skip_routing:
-        pipeline_kwargs["skip_routing"] = True
-
-    if not hasattr(orchestrator, 'dag_engine') or orchestrator.dag_engine is None:
-        orchestrator.run(**pipeline_kwargs)
-        click.echo("Pipeline completed (no DAG engine available for live dashboard).")
-        return
-
-    stage_order = orchestrator.dag_engine.stage_order
-    if not stage_order:
-        stage_order = [
-            "input", "semantic", "topological", "preflight",
-            "geometric", "routing", "refinement", "output",
-        ]
-
-    dashboard = TerminalDashboardObserver(stage_order=stage_order,
-                                           refresh_per_second=refresh)
-    orchestrator.dag_engine.add_observer(dashboard)
-
-    with dashboard:
-        orchestrator.run(**pipeline_kwargs)
-        dashboard.update()
 
 
 def _watch_replay(replay_path: Path) -> None:
