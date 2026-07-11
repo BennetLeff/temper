@@ -56,5 +56,7 @@ One round, one grep, the entire "genuine contention" hypothesis retired. The ord
 
 ## Related
 
-- `docs/solutions/best-practices/per-net-isolation-routing-diagnosis-2026-07-10.md` (the companion diagnosis: "does a legal path exist?")
+This is **step 2 of the routing-diagnosis ladder** — within the router-side branch established by step 1.
+- `docs/solutions/best-practices/per-net-isolation-routing-diagnosis-2026-07-10.md` — step 1 (isolation: router-side vs placement-side)
+- `docs/solutions/best-practices/seed-stability-doesnt-discriminate-ordering-contention-2026-07-10.md` — the anti-pattern that makes this check necessary (why seed-stability is a non-result)
 - `docs/solutions/best-practices/three-target-verification-ladder-correctness-soundness-validity-2026-07-10.md` (the same "direct counter-evidence beats indirect inference" pattern)

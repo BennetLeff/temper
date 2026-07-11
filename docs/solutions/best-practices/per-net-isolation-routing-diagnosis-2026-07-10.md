@@ -47,16 +47,22 @@ The diagnosis split is decisive: a pure router-side fix is algorithmic (days); a
 On the temper induction-cooker board (87.5% routed, 3 unrouted nets: SPI_MOSI, SPI_CLK, I_SENSE):
 
 ```python
+# ISOLATION: route each net alone, all others removed from the board.
+# Write a temp board with only the target net's connections, route it,
+# and check whether the net routed.
 for net_name in ['SPI_MOSI', 'SPI_CLK', 'I_SENSE']:
-    # Route full board, check if this specific net routed
-    result = route_pcb(board, placements, seed=42)
-    routed_in_isolation = net_name not in result.unrouted_nets
-    print(f'{net_name}: {"ROUTED — legal path exists" if routed_in_isolation else "STILL UNROUTED"}')
+    isolated = _write_board_with_only(net_name, board_file)
+    result = route_pcb(isolated_board, placements, seed=42)
+    routed = net_name not in result.unrouted_nets
+    print(f'{net_name}: {"ROUTED — legal path exists" if routed else "STILL UNROUTED"}')
 ```
 
 Result: **3/3 routed in isolation** → legal paths exist → router-side failure. R3 (placement feedback loop) off the table. The remaining work is purely router-side: ordering, rip-up-reroute, or negotiated-congestion.
 
 ## Related
 
+This is **step 1 of the routing-diagnosis ladder**: isolation → coexistence → escalate.
+- `docs/solutions/best-practices/round-coexistence-cheaper-than-seed-stability-2026-07-10.md` — step 2 (within router-side: ordering vs contention)
+- `docs/solutions/best-practices/seed-stability-doesnt-discriminate-ordering-contention-2026-07-10.md` — the anti-pattern that makes the step-2 check necessary
 - `docs/plans/2026-07-10-001-feat-finish-the-board-plan.md` (U1 — the plan this diagnosis grounded)
 - `docs/solutions/best-practices/termination-is-not-convergence-2026-07-09.md` (the same "measure, don't guess" discipline applied to loop behavior)

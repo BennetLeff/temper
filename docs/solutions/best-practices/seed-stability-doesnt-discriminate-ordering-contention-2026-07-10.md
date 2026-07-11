@@ -57,5 +57,7 @@ RIGHT (discriminating):
 
 ## Related
 
-- `docs/solutions/best-practices/round-coexistence-cheaper-than-seed-stability-2026-07-10.md` (the direct positive check that overturns the seed-stability inference)
-- `docs/solutions/best-practices/per-net-isolation-routing-diagnosis-2026-07-10.md` (the companion diagnosis: "does a legal path exist?")
+This is the **guard on step 2 of the routing-diagnosis ladder** — it explains why the coexistence check is necessary and why seed-stability alone isn't evidence.
+- `docs/solutions/best-practices/per-net-isolation-routing-diagnosis-2026-07-10.md` — step 1 (isolation: router-side vs placement-side)
+- `docs/solutions/best-practices/round-coexistence-cheaper-than-seed-stability-2026-07-10.md` — step 2 (coexistence: ordering vs contention) — the check this doc guards
+- `docs/solutions/best-practices/three-target-verification-ladder-correctness-soundness-validity-2026-07-10.md` (the generalization: "check whether your randomization varied the discriminating variable")
