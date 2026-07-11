@@ -13,6 +13,7 @@ pyo3 = { version = "0.29", features = ["extension-module"] }
 nalgebra = "0.33"
 rayon = "1.10"
 serde = { version = "1", features = ["derive"] }
+temper-pcl-ir = { path = "../../temper-pcl-ir" }
 
 [profile.release]
 panic = "unwind"

@@ -1,3 +1,9 @@
+pub mod ir {
+    pub use temper_pcl_ir::{
+        ConstraintOrigin, ConstraintTier, PclConstraint, PclConstraintKind, PclIr,
+    };
+}
+
 // temper-constraints: Rust PCL constraint engine.
 //
 // Exposes constraint type enums and loss computation functions
@@ -20,9 +26,7 @@ use std::panic::{self};
 use crate::constraints::*;
 use crate::loss::*;
 
-fn catch_unwind_f64(
-    f: impl FnOnce() -> PyResult<f64>,
-) -> PyResult<f64> {
+fn catch_unwind_f64(f: impl FnOnce() -> PyResult<f64>) -> PyResult<f64> {
     match panic::catch_unwind(panic::AssertUnwindSafe(f)) {
         Ok(result) => result,
         Err(panic_info) => {
@@ -33,7 +37,9 @@ fn catch_unwind_f64(
             } else {
                 "unknown panic in Rust constraint engine".to_string()
             };
-            Err(PyRuntimeError::new_err(format!("temper_constraints panic: {msg}")))
+            Err(PyRuntimeError::new_err(format!(
+                "temper_constraints panic: {msg}"
+            )))
         }
     }
 }
@@ -76,7 +82,16 @@ fn compute_adjacent_loss_py(
             (Some(x), Some(y)) => Some((x, y)),
             _ => None,
         };
-        Ok(compute_adjacent_loss(&positions, idx_a, idx_b, max_distance_mm, weight, m, pin_a, pin_b))
+        Ok(compute_adjacent_loss(
+            &positions,
+            idx_a,
+            idx_b,
+            max_distance_mm,
+            weight,
+            m,
+            pin_a,
+            pin_b,
+        ))
     })
 }
 
@@ -90,7 +105,12 @@ fn compute_separation_loss_py(
     weight: f64,
 ) -> PyResult<f64> {
     catch_unwind_f64(|| {
-        Ok(compute_separation_loss_batch(&positions_a, &positions_b, min_distance_mm, weight))
+        Ok(compute_separation_loss_batch(
+            &positions_a,
+            &positions_b,
+            min_distance_mm,
+            weight,
+        ))
     })
 }
 
@@ -157,7 +177,12 @@ fn compute_edge_loss_py(
             _ => return Err(PyValueError::new_err(format!("Unknown side: {side}"))),
         };
         Ok(compute_edge_preference_loss(
-            &positions, s, board_width, board_height, max_distance_mm, weight,
+            &positions,
+            s,
+            board_width,
+            board_height,
+            max_distance_mm,
+            weight,
         ))
     })
 }
@@ -172,7 +197,9 @@ fn compute_anchored_loss_position_py(
     weight: f64,
 ) -> PyResult<f64> {
     catch_unwind_f64(|| {
-        Ok(compute_anchored_loss_position(&positions, 0, target_x, target_y, weight))
+        Ok(compute_anchored_loss_position(
+            &positions, 0, target_x, target_y, weight,
+        ))
     })
 }
 
@@ -189,7 +216,10 @@ fn compute_anchored_loss_region_py(
 ) -> PyResult<f64> {
     catch_unwind_f64(|| {
         Ok(compute_anchored_loss_region(
-            &positions, 0, (x_min, y_min, x_max, y_max), weight,
+            &positions,
+            0,
+            (x_min, y_min, x_max, y_max),
+            weight,
         ))
     })
 }
@@ -202,9 +232,7 @@ fn compute_loop_area_loss_py(
     max_area_mm2: f64,
     weight: f64,
 ) -> PyResult<f64> {
-    catch_unwind_f64(|| {
-        Ok(compute_loop_area_loss(&positions, max_area_mm2, weight))
-    })
+    catch_unwind_f64(|| Ok(compute_loop_area_loss(&positions, max_area_mm2, weight)))
 }
 
 // Constraint type enum (Python-visible)
@@ -315,7 +343,10 @@ fn compute_constraint_loss_py(
                 if args[0] > 0.0 {
                     // Region mode
                     Ok(compute_anchored_loss_region(
-                        &positions, 0, (args[1], args[2], args[3], args[4]), args[5],
+                        &positions,
+                        0,
+                        (args[1], args[2], args[3], args[4]),
+                        args[5],
                     ))
                 } else {
                     // Position mode
@@ -340,15 +371,20 @@ fn compute_constraint_loss_py(
 
 // Module metadata: list of supported constraint types (R12: test detects unknown types)
 #[pyfunction]
-fn supported_constraint_types_py(py: Python<'_>) -> PyResult<PyObject> {
+fn supported_constraint_types_py(py: Python<'_>) -> PyResult<Bound<'_, PyAny>> {
     let list = PyList::new(
         py,
         [
-            "adjacent", "separated", "enclosing", "aligned",
-            "on_side", "anchored", "loop_area",
+            "adjacent",
+            "separated",
+            "enclosing",
+            "aligned",
+            "on_side",
+            "anchored",
+            "loop_area",
         ],
     )?;
-    Ok(list.into())
+    Ok(list.into_any())
 }
 
 // Version / health check

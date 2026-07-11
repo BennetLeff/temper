@@ -170,13 +170,148 @@ pub fn resolve_positions(
             .get(name.as_str())
             .ok_or_else(|| format!("Component '{name}' not found in index"))?;
         if *idx >= n {
-            return Err(format!(
-                "Component index {idx} out of bounds (n={n})"
-            ));
+            return Err(format!("Component index {idx} out of bounds (n={n})"));
         }
         let x = positions[idx * 2];
         let y = positions[idx * 2 + 1];
         result.push(Vector2::new(x, y));
     }
     Ok(result)
+}
+
+/// Adapt the shared PCL IR at the legacy loss-engine edge.
+///
+/// This is intentionally exhaustive: adding a new IR kind requires an explicit
+/// decision about whether the engine can consume it.
+pub fn from_shared_ir(ir: &temper_pcl_ir::PclConstraint) -> Result<Constraint, String> {
+    use temper_pcl_ir::PclConstraintKind;
+    let tier = match ir.tier {
+        temper_pcl_ir::ConstraintTier::Hard => ConstraintTier::Hard,
+        temper_pcl_ir::ConstraintTier::Strong => ConstraintTier::Strong,
+        temper_pcl_ir::ConstraintTier::Soft => ConstraintTier::Soft,
+    };
+    match &ir.kind {
+        PclConstraintKind::Adjacent {
+            a,
+            b,
+            max_distance_mm,
+            metric,
+        } => Ok(Constraint::Adjacent {
+            a: a.clone(),
+            b: b.clone(),
+            max_distance_mm: max_distance_mm.unwrap_or(f64::INFINITY),
+            tier,
+            metric: parse_metric(metric)?,
+            pin_a: None,
+            pin_b: None,
+        }),
+        PclConstraintKind::Separated {
+            a,
+            b,
+            min_distance_mm,
+            metric,
+        } => Ok(Constraint::Separated {
+            a: a.clone(),
+            b: b.clone(),
+            min_distance_mm: *min_distance_mm,
+            tier,
+            metric: parse_metric(metric)?,
+        }),
+        PclConstraintKind::Enclosing {
+            outer,
+            inner,
+            margin_mm,
+        } => Ok(Constraint::Enclosing {
+            outer: outer.clone(),
+            inner: inner.clone(),
+            margin_mm: *margin_mm,
+            tier,
+        }),
+        PclConstraintKind::Aligned {
+            components,
+            axis,
+            tolerance_mm,
+        } => Ok(Constraint::Aligned {
+            components: components.clone(),
+            axis: parse_axis(axis)?,
+            tolerance_mm: *tolerance_mm,
+            tier,
+        }),
+        PclConstraintKind::OnSide {
+            components,
+            side,
+            edge,
+            max_distance_mm,
+        } => {
+            let side = parse_side(side)?;
+            let edge = parse_edge(edge)?;
+            // The legacy engine requires a scalar. Infinity disables its finite-distance
+            // penalty while preserving the shared IR edge semantics; None remains the
+            // native representation for future consumers.
+            Ok(Constraint::OnSide {
+                components: components.clone(),
+                side,
+                edge,
+                max_distance_mm: max_distance_mm.unwrap_or(f64::INFINITY),
+                tier,
+            })
+        }
+        PclConstraintKind::Anchored {
+            component,
+            region,
+            position,
+        } => Ok(Constraint::Anchored {
+            component: component.clone(),
+            region: region.map(|v| (v[0], v[1], v[2], v[3])),
+            position: position.map(|v| (v[0], v[1])),
+            tier,
+        }),
+        PclConstraintKind::LoopArea {
+            loop_name,
+            max_area_mm2,
+        } => Ok(Constraint::LoopArea {
+            loop_name: loop_name.clone(),
+            max_area_mm2: *max_area_mm2,
+            tier,
+        }),
+        PclConstraintKind::Keepout { .. } => Err(format!(
+            "unsupported shared PCL constraint kind 'keepout' for loss engine (id {})",
+            ir.id
+        )),
+    }
+}
+
+fn parse_metric(value: &str) -> Result<DistanceMetric, String> {
+    match value {
+        "edge_to_edge" => Ok(DistanceMetric::EdgeToEdge),
+        "center_to_center" => Ok(DistanceMetric::CenterToCenter),
+        "pin_to_pin" => Ok(DistanceMetric::PinToPin),
+        _ => Err(format!("unsupported distance metric '{value}'")),
+    }
+}
+fn parse_axis(value: &str) -> Result<Axis, String> {
+    match value {
+        "x" => Ok(Axis::X),
+        "y" => Ok(Axis::Y),
+        "major" => Ok(Axis::Major),
+        "minor" => Ok(Axis::Minor),
+        _ => Err(format!("unsupported axis '{value}'")),
+    }
+}
+fn parse_side(value: &str) -> Result<BoardSide, String> {
+    match value {
+        "top" => Ok(BoardSide::Top),
+        "bottom" => Ok(BoardSide::Bottom),
+        "left" => Ok(BoardSide::Left),
+        "right" => Ok(BoardSide::Right),
+        _ => Err(format!("unsupported board side '{value}'")),
+    }
+}
+fn parse_edge(value: &str) -> Result<EdgeType, String> {
+    match value {
+        "flush" => Ok(EdgeType::Flush),
+        "near" => Ok(EdgeType::Near),
+        "overhang" => Ok(EdgeType::Overhang),
+        _ => Err(format!("unsupported edge type '{value}'")),
+    }
 }

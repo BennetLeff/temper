@@ -1,5 +1,6 @@
 use crate::model::{Component, Constraint, ConstraintOrigin, Net, NetClass, SafetyDomain, Stackup};
 use serde::{Deserialize, Serialize};
+use temper_pcl_ir::{ConstraintTier, PclConstraintKind};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AtopileExport {
@@ -55,13 +56,18 @@ impl AtopileExport {
         self.safety
             .iter()
             .map(|r| Constraint {
+                schema_version: 1,
                 id: r.id.clone(),
-                subject: r.subject.clone(),
-                metric: r.metric.clone(),
-                value_mm: r.value_mm,
-                tier: 1,
+                tier: ConstraintTier::Hard,
                 because: r.because.clone(),
                 origin: ConstraintOrigin::AtopileDerived,
+                references: vec![r.subject.clone()],
+                kind: PclConstraintKind::Separated {
+                    a: r.subject.clone(),
+                    b: r.subject.clone(),
+                    min_distance_mm: r.value_mm,
+                    metric: r.metric.clone(),
+                },
             })
             .collect()
     }
