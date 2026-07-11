@@ -55,3 +55,5 @@ Also useful: verify the counter logic with stateful property testing (Hypothesis
 ## Related
 - `docs/plans/2026-07-09-001-feat-physics-verification-rigor-plan.md` (U7, R15/R16)
 - `docs/solutions/architecture-patterns/place-route-loop-feedback-constraint-deltas-2026-07-05.md`
+- `docs/solutions/best-practices/per-net-isolation-routing-diagnosis-2026-07-10.md` — same "measure, don't guess" discipline applied to routing: isolate each unrouted net to determine router-side vs placement-side
+- `docs/solutions/best-practices/round-coexistence-cheaper-than-seed-stability-2026-07-10.md` — direct counter-evidence overturns indirect inference (the same move as halting≠convergence)
