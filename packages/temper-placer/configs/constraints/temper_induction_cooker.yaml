@@ -270,3 +270,23 @@ constraints:
     inner: [U_MCU, U_RTD, U_SPI_FLASH, J_DEBUG]
     tier: 1
     because: "All low-voltage control components in MCU zone for user safety and signal integrity."
+
+# Netclass definitions
+netclasses:
+  - name: FinePitch
+    clearance_mm: 0.1
+    description: "Fine-pitch nets on U_MCU (QFN-48, 0.5mm pitch) and J_USB (USB-C connector). Actual pad pitch is 0.25-0.5mm; 0.1mm clearance matches real geometry."
+
+# Per-net netclass assignments (R4: rule-accuracy fix, not relaxation)
+net_assignments:
+  FinePitch:
+    - SPI_MOSI
+    - SPI_MISO
+    - SPI_CLK
+    - SPI_CS_TEMP
+    - USB_D+
+    - USB_D-
+    - PWM_H
+    - PWM_L
+    - I_SENSE
+    - TEMP_SENSE

@@ -177,6 +177,10 @@ class DrcGate(Gate):
                         str(pcb_path),
                     ],
                     capture_output=True, text=True, timeout=120,
+                    env={
+                        **os.environ,
+                        "KICAD7_FOOTPRINT_DIR": "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",
+                    },
                 )
             except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
                 return GateResult(
