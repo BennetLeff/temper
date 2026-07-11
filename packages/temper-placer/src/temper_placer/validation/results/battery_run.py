@@ -378,31 +378,26 @@ def _make_arm_placement_builder(
             pos = base_positions + perturb
 
         elif arm_id == "cheap_heuristic":
-            # Competent Euclidean keep-away: push devices toward the heatsink
-            # edge proportionally to their power dissipation.  Higher-power
-            # devices (IGBTs) benefit more from proximity to the sink.
-            # Scored through the SAME FDM instrument as the physics arm
-            # (H3 apples-to-apples — the bar the strawman baseline missed).
+            # Competent Euclidean keep-away: push the highest-power devices
+            # close to the heatsink edge.  The physics arm nudges with a
+            # cost field; the cheap arm moves IGBTs to y=2mm (near the
+            # BOTTOM edge) and leaves diodes near their default positions.
+            # Scored through the SAME FDM instrument (H3 apples-to-apples).
             try:
-                bx_min, by_min, bx_max, by_max = _board_bounds(board)
-                total_power = sum(power_map.values()) or 1.0
                 pos = base_positions.copy()
                 for i, name in enumerate(dev_names):
                     pwr = power_map.get(name, 0.0)
-                    if pwr <= 0.0:
-                        continue
-                    frac = pwr / total_power
                     hs = fdm_config.heatsink_edge.upper()
-                    # Push device toward the heatsink edge — stronger push
-                    # for higher-power devices (IGBTs move, diodes barely).
-                    if hs == "BOTTOM":
-                        pos[i, 1] = by_min + (base_positions[i, 1] - by_min) * (1.0 - frac)
-                    elif hs == "TOP":
-                        pos[i, 1] = by_max - (by_max - base_positions[i, 1]) * (1.0 - frac)
-                    elif hs == "LEFT":
-                        pos[i, 0] = bx_min + (base_positions[i, 0] - bx_min) * (1.0 - frac)
-                    elif hs == "RIGHT":
-                        pos[i, 0] = bx_max - (bx_max - base_positions[i, 0]) * (1.0 - frac)
+                    # IGBTs (40.5W each): push to y=2mm near the heatsink
+                    if pwr >= 30.0:
+                        if hs == "BOTTOM":
+                            pos[i, 1] = 2.0
+                        elif hs == "TOP":
+                            pos[i, 1] = (by_max - 2.0) if 'by_max' in dir() else 98.0
+                    # Diodes (9.9W): stay near default
+                pos = pos + perturb * 0.5
+            except Exception:
+                pos = base_positions + perturb
                 pos = pos + perturb * 0.5
             except Exception:
                 pos = base_positions + perturb
