@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "board": {"width_mm": 100.0, "height_mm": 150.0, "thickness_mm": 1.6},
+  "components": [{"id": "Q1"}, {"id": "Q2"}, {"id": "U_MCU"}],
+  "nets": [
+    {"id": "gnd", "name": "GND", "net_class": "Default", "safety_domain": "lv"},
+    {"id": "dc_bus_plus", "name": "+340V_BUS", "net_class": "HighVoltage", "safety_domain": "hv"}
+  ],
+  "zones": ["HV_ZONE", "MCU_ZONE"],
+  "loops": ["commutation_loop"],
+  "safety": [
+    {"id": "hv-lv-clearance", "subject": "dc_bus_plus", "metric": "clearance", "value_mm": 6.0, "because": "reinforced insulation"}
+  ]
+}

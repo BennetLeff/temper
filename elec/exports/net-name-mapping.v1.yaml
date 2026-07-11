@@ -1,0 +1,6 @@
+schema_version: 1
+entries:
+  - atopile_signal: top.gnd
+    kicad_net: GND
+  - atopile_signal: top.dc_bus_plus
+    kicad_net: +340V_BUS

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "board": {
+    "width_mm": 100.0,
+    "height_mm": 150.0,
+    "thickness_mm": 1.6
+  },
+  "components": [
+    {
+      "id": "Q1",
+      "reference": null
+    },
+    {
+      "id": "Q2",
+      "reference": null
+    },
+    {
+      "id": "U_MCU",
+      "reference": null
+    }
+  ],
+  "nets": [
+    {
+      "id": "gnd",
+      "name": "GND",
+      "net_class": "Default",
+      "safety_domain": "lv"
+    },
+    {
+      "id": "dc_bus_plus",
+      "name": "+340V_BUS",
+      "net_class": "HighVoltage",
+      "safety_domain": "hv"
+    }
+  ],
+  "net_classes": [],
+  "safety_domains": [],
+  "stackup": null,
+  "constraints": {
+    "constraints": [
+      {
+        "id": "hv-lv-clearance-authored",
+        "subject": "dc_bus_plus",
+        "metric": "clearance",
+        "value_mm": 8.0,
+        "tier": 1,
+        "because": "reinforced insulation margin",
+        "origin": "AuthoredPcl"
+      }
+    ]
+  },
+  "provenance": {
+    "atopile_sha256": "4d724341e014a297a508b410d186219a0d81f109973e8cf14f08fef6bcd271f0",
+    "pcl_sha256": "8844114459c7d20830eefee132b2d23a6f2cc8d0beb8f6f158ce31d2962b143c",
+    "board_sha256": "51460f5b5b565b8c7e1a185269b1b607b813ba476efce881aef3d1aa4fe784fa",
+    "mapping_sha256": "06b8552edb3738235f9ca133c0317bb1a670010b9524fcecff2ad7625af2edc0"
+  }
+}

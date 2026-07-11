@@ -1,0 +1,9 @@
+version: "1.0"
+constraints:
+  - id: hv-lv-clearance-authored
+    type: separated
+    subject: dc_bus_plus
+    metric: clearance
+    value_mm: 8.0
+    tier: 1
+    because: reinforced insulation margin
