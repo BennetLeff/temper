@@ -155,7 +155,7 @@ def _build_state_and_context(
 
         # One-hot the initial rotation.  Rotation values are 0-3.
         rot = int(comp.initial_rotation or 0) % 4
-        rotation_logits = rotation_logits.at[i, rot].set(10.0)
+        rotation_logits[i, rot] = 10.0
 
     state = PlacementState(
         positions=np.array(positions, dtype=np.float32),

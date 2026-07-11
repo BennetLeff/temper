@@ -133,7 +133,7 @@ def generate_initial_placement(
             idx = netlist.get_component_index(ref)
             subkey = np.random.default_rng(key.integers(0, 2**31))
             jitter = subkey.uniform(-5.0, 5.0, size=(2,))
-            positions = positions.at[idx].set(np.array([cx, cy]) + jitter)
+            positions[idx] = np.array([cx, cy]) + jitter
 
     return PlacementState(
         positions=positions,
