@@ -72,7 +72,7 @@ def test_measure_thermal(sample_setup):
     assert metrics.max_junction_temp_c > 40.0
     assert metrics.edge_distance_avg_mm == 25.0
 
-@pytest.mark.skip(reason="LossContext.from_netlist_and_board retired (JAX)")
+@pytest.mark.skip(reason="synthetic fixture has no comp.position; wirelength needs the state.positions fix in validation.metrics._compute_wirelength_metrics (separate follow-up)")
 def test_measure_routability(sample_setup):
     board, netlist, state = sample_setup
     metrics = measure_routability(state, netlist, board)

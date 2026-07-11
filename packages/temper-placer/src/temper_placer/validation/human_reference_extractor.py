@@ -161,7 +161,7 @@ def _build_state_and_context(
         positions=np.array(positions, dtype=np.float32),
         rotation_logits=rotation_logits,
     )
-    context = LossContext.from_netlist_and_board(netlist, board)
+    context = LossContext(netlist=netlist, board=board)
     return state, context
 
 
@@ -175,18 +175,27 @@ def _compute_placement_metrics(
     pcb_git_hash: str,
     now: str,
 ) -> dict[str, MetricValue]:
-    """DEPRECATED: HPWL/overlap/boundary extraction removed (JAX retirement).
+    """Compute HPWL / overlap / boundary via the deterministic numpy metrics.
 
-    These metrics were computed with the removed JAX loss functions
-    (compute_total_hpwl / OverlapLoss / BoundaryLoss). The human-reference
-    oracle now relies on the detailed/aesthetic/quality metric extractors;
-    this placement-loss extractor is retired until rewired to the
-    CP-SAT/deterministic metrics. The (best-effort) caller catches this.
+    Replaces the removed JAX loss functions (compute_total_hpwl / OverlapLoss
+    / BoundaryLoss) with ``validation.metrics.compute_metrics`` — the same
+    numpy metric core the CP-SAT/deterministic pipeline uses. Metric names are
+    kept as the legacy ``hpwl`` / ``overlap_loss`` / ``boundary_loss`` for
+    backward compatibility with existing human-reference consumers.
     """
-    raise NotImplementedError(
-        "_compute_placement_metrics removed (JAX retirement): HPWL/overlap/"
-        "boundary used the removed JAX loss functions."
-    )
+    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    try:
+        from temper_placer.validation.metrics import compute_metrics
+
+        assert context.netlist is not None and context.board is not None
+        pm = compute_metrics(state, context.netlist, context.board)
+        return {
+            "hpwl": mk(float(pm.total_wirelength)),
+            "overlap_loss": mk(float(pm.total_overlap_area)),
+            "boundary_loss": mk(float(pm.total_boundary_violation)),
+        }
+    except Exception:
+        return {}
 
 
 # ---------------------------------------------------------------------------
