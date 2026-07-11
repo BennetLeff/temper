@@ -249,12 +249,11 @@ def measure_routability(
     metrics.max_congestion = res.max_utilization
     metrics.overflow_cells = len(res.bottlenecks)
 
-    # total_wirelength (HPWL)
-    from temper_placer.core.loss_types import LossContext
-    from temper_placer.metrics.quality import total_wirelength
+    # total_wirelength (HPWL) via the deterministic numpy metric core
+    # (replaces the removed JAX LossContext path).
+    from temper_placer.validation.metrics import compute_metrics
 
-    ctx = LossContext.from_netlist_and_board(netlist, board)
-    metrics.total_wirelength_mm = total_wirelength(state, netlist, ctx)
+    metrics.total_wirelength_mm = compute_metrics(state, netlist, board).total_wirelength
 
     # completion_pct estimation
     # This is hard without a router, but we can use (1 - overflow_ratio)
