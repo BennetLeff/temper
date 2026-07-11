@@ -1,0 +1,17 @@
+[package]
+name = "temper-geometry"
+version = "0.1.0"
+edition = "2024"
+description = "2D geometry math functions for temper PCB placement"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+temper-geometry-core = { path = "../temper-geometry-core" }
+rand = "0.8"
+pyo3 = { version = "0.23", features = ["extension-module"] }
+
+[profile.release]
+panic = "unwind"
