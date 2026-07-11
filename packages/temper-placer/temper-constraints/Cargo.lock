@@ -347,6 +347,14 @@ dependencies = [
  "pyo3",
  "rayon",
  "serde",
+ "temper-pcl-ir",
+]
+
+[[package]]
+name = "temper-pcl-ir"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

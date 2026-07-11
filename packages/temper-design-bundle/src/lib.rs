@@ -11,7 +11,7 @@ pub use atopile::{
 };
 pub use error::{DesignBundleError, Diagnostic};
 pub use model::*;
-pub use pcl::{PclConstraint, PclDocument};
+pub use pcl::{PclDocument, PclInputConstraint};
 
 /// Constructs the canonical boundary from already-read source documents.
 pub fn build_bundle(

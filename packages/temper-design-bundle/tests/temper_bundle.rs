@@ -21,16 +21,10 @@ fn temper_fixture_is_valid_and_deterministic() {
         normalized,
         include_str!("golden/temper.design-bundle.json").trim_end()
     );
-    assert_eq!(
-        bundle
-            .constraints
-            .constraints
-            .iter()
-            .find(|c| c.metric == "clearance")
-            .unwrap()
-            .value_mm,
-        8.0
-    );
+    assert!(bundle.constraints.constraints.iter().any(|c| matches!(
+        c.kind,
+        temper_pcl_ir::PclConstraintKind::Separated { min_distance_mm, .. } if min_distance_mm == 8.0
+    )));
 }
 
 #[test]
@@ -66,7 +60,7 @@ fn authored_safety_weakening_is_fatal() {
         }],
     };
     let p = PclDocument {
-        constraints: vec![PclConstraint {
+        constraints: vec![PclInputConstraint {
             id: Some("weaken".into()),
             r#type: "separated".into(),
             subject: Some("n".into()),
@@ -77,11 +71,22 @@ fn authored_safety_weakening_is_fatal() {
             margin_mm: None,
             max_area_mm2: None,
             a: None,
-            b: None,
+            b: Some("n".into()),
+            outer: None,
+            inner: vec![],
+            components: vec![],
+            axis: None,
+            tolerance_mm: None,
+            side: None,
+            edge: None,
+            bounds_mm: None,
+            region: None,
+            position: None,
             component: None,
             loop_name: None,
             tier: 1,
             because: None,
+            source_location: None,
         }],
     };
     let err = build_bundle(

@@ -49,23 +49,8 @@ pub struct Stackup {
     pub layers: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ConstraintOrigin {
-    AtopileDerived,
-    AuthoredPcl,
-    DerivedValidation,
-    RouterFeedback,
-}
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Constraint {
-    pub id: String,
-    pub subject: String,
-    pub metric: String,
-    pub value_mm: f64,
-    pub tier: u8,
-    pub because: Option<String>,
-    pub origin: ConstraintOrigin,
-}
+pub use temper_pcl_ir::{ConstraintOrigin, PclConstraint, PclConstraint as Constraint};
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConstraintSet {
     pub constraints: Vec<Constraint>,

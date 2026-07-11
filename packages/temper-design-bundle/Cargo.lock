@@ -521,7 +521,15 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "sha2",
+ "temper-pcl-ir",
  "thiserror",
+]
+
+[[package]]
+name = "temper-pcl-ir"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

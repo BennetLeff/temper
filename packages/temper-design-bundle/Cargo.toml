@@ -19,6 +19,8 @@ serde_yaml = "0.9"
 sha2 = "0.10"
 thiserror = "2"
 pyo3 = { version = "0.23", optional = true, features = ["extension-module"] }
+temper-pcl-ir = { path = "../temper-pcl-ir" }
 
 [dev-dependencies]
 proptest = "1"
+temper-pcl-ir = { path = "../temper-pcl-ir" }
