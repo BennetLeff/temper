@@ -161,7 +161,7 @@ def phi_copper(
         gy1 = min(grid_res, int((zy1 - y_min) / board_h * grid_res) + 1)
 
         if gx1 > gx0 and gy1 > gy0:
-            conductance = conductance.at[gx0:gx1, gy0:gy1].add(1.0)
+            conductance[gx0:gx1, gy0:gy1] += 1.0
 
     # Compute effective conductivity: high fill -> low potential
     # phi_copper = 1 / (k_eff + epsilon)
