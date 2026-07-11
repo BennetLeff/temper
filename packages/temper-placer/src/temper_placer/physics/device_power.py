@@ -33,7 +33,6 @@ from dataclasses import dataclass
 
 from temper_placer.physics.operating_point import OperatingPointConfig
 
-
 # ---------------------------------------------------------------------------
 # Per-device loss config with datasheet citations
 # ---------------------------------------------------------------------------

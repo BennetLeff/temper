@@ -185,47 +185,7 @@ class RoutingVerifier:
             return result
 
         # Level 3: Maze routing verification
-        raise NotImplementedError('route_nets removed (old-pipeline retirement)'); _ = MazeRouter.from_board(
-            board,
-            cell_size_mm=self.config.cell_size_mm,
-            num_layers=self.config.num_layers,
-        )
-
-        # Block components
-        router.block_components(netlist.components, positions)
-
-        # Route all nets
-        routing_results = router.rrr_route_all_nets(
-            netlist,
-            positions,
-            net_ordering,
-            layer_assignments,
-        )
-
-        # Compute metrics
-        total = routing_results.success_count + routing_results.failure_count  # type: ignore[attr-defined]
-        completion_rate = routing_results.success_count / total if total > 0 else 0.0  # type: ignore[attr-defined]
-        result.completion_rate = completion_rate
-        result.feasible = completion_rate >= 1.0
-
-        # Separate routed and failed nets
-        result.routed_nets = [name for name, path in routing_results.items() if path.success]
-        result.failed_nets = [name for name, path in routing_results.items() if not path.success]
-
-        # Compute totals
-        result.total_wirelength = sum(
-            path.length * self.config.cell_size_mm
-            for path in routing_results.values()
-            if path.success
-        )
-        result.total_vias = sum(path.via_count for path in routing_results.values() if path.success)
-
-        # Generate diagnostics for failures
-        # Lazy import to avoid circular dependency
-        from temper_placer.routing.diagnostics import generate_diagnostics_from_results
-        result.diagnostics = generate_diagnostics_from_results(routing_results)
-
-        return result
+        raise NotImplementedError('route_nets removed (old-pipeline retirement)')
 
     def to_placement_feedback(
         self,

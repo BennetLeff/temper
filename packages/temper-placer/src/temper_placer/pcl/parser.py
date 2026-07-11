@@ -298,7 +298,7 @@ class ConstraintCollection:
 
         # 1. Decoupling detection
 
-        def auto_detect_decoupling(*a, **kw): raise NotImplementedError(f"auto_detect_decoupling removed (JAX retirement)")
+        def auto_detect_decoupling(*a, **kw): raise NotImplementedError("auto_detect_decoupling removed (JAX retirement)")
         rules = auto_detect_decoupling(netlist)
         if rules:
             count = len(rules)

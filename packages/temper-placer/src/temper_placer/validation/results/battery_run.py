@@ -393,7 +393,7 @@ def _make_arm_placement_builder(
                         if hs == "BOTTOM":
                             pos[i, 1] = 2.0
                         elif hs == "TOP":
-                            pos[i, 1] = (by_max - 2.0) if 'by_max' in dir() else 98.0
+                            pos[i, 1] = 98.0
                     # Diodes (9.9W): stay near default
                 pos = pos + perturb * 0.5
             except Exception:

@@ -12,9 +12,8 @@ rationale auditable.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import yaml  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -181,7 +180,7 @@ class PreregistrationManifest(BaseModel):
             created = _parse_iso_to_utc(manifest.created_at)
             normalized_battery = battery_run_timestamp
             if battery_run_timestamp.tzinfo is None:
-                normalized_battery = battery_run_timestamp.replace(tzinfo=timezone.utc)
+                normalized_battery = battery_run_timestamp.replace(tzinfo=UTC)
             if created > normalized_battery:
                 raise ValueError(
                     f"pre-registration created_at ({manifest.created_at}) "
@@ -201,5 +200,5 @@ def _parse_iso_to_utc(iso_string: str) -> datetime:
     s = iso_string.replace("Z", "+00:00")
     dt = datetime.fromisoformat(s)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt

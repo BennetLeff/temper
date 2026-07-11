@@ -19,13 +19,13 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
     from temper_placer.placer.cp_sat.feedback import (
         ClassificationResult,
         ConstraintDelta,
-        FeedbackClassifier,
         UnclassifiedFailure,
     )
     from temper_placer.placer.cp_sat.gates import BoardState, Gate
@@ -100,8 +100,9 @@ def _load_netclass_rules():
     import logging
     _logger = logging.getLogger(__name__)
     try:
-        from temper_placer.io.netclass_loader import load_netclass_rules
         from pathlib import Path
+
+        from temper_placer.io.netclass_loader import load_netclass_rules
         config_path = Path(__file__).parent.parent.parent.parent.parent / "configs" / "netclass_rules.yaml"
         if config_path.exists():
             return load_netclass_rules(config_path)
@@ -129,6 +130,15 @@ class PlaceRouteLoop:
     MAX_ROUNDS: int = 10
     STABILITY_ROUNDS: int = 2
     RE_SOLVE_TIMEOUT_MS: int = 1000
+    # Round 1 solves the full constraint model cold, with no warm-start deltas,
+    # so it needs a far larger budget than the incremental Phase-1 re-solves.
+    # Empirically the full temper cooker model (33 components, 29 PCL
+    # constraints) proves OPTIMAL deterministically at ~18s; a solve that hits
+    # the time limit returns status 'unknown' with ZERO placed components (not a
+    # partial placement), so the initial budget must clear the proof threshold
+    # or the whole loop is dead on arrival. 30s gives margin over the measured
+    # ~18s without being unbounded.
+    INITIAL_SOLVE_TIMEOUT_MS: int = 30000
     OSCILLATION_WINDOW: int = 3
     FIELD_EPSILON: float = 0.5  # U9: degrees C per-cell stability threshold
     FIELD_OSCILLATION_WINDOW: int = 4  # U9: period-4 cycle detection window
@@ -227,7 +237,6 @@ class PlaceRouteLoop:
         Returns:
             LoopResult with success status, placement, and routing.
         """
-        from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         # Reset per-run state.
         self._unmeasured_streak = {}
@@ -243,8 +252,11 @@ class PlaceRouteLoop:
         # ---- Build gate registry for all_gates path --------------------------
         if all_gates:
             from temper_placer.placer.cp_sat.gates import (
-                DrcGate, PhysicsGate, QualityGate,
-                RoutingGate, StackupGate,
+                DrcGate,
+                PhysicsGate,
+                QualityGate,
+                RoutingGate,
+                StackupGate,
             )
             gates = [DrcGate(), RoutingGate(), StackupGate(),
                      PhysicsGate(), QualityGate()]
@@ -276,7 +288,6 @@ class PlaceRouteLoop:
             )
 
         # ---- Legacy classifier-based path (unchanged) ------------------------
-        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
         # ---- Legacy classifier-based path ------------------------------------
         # Backward-compatible: when all_gates=False (default), the original
@@ -293,11 +304,19 @@ class PlaceRouteLoop:
             constraint_objects = all_constraints + [
                 delta.constraint for delta in injected_deltas
             ]
+            # Round 1 is the cold, delta-free full-model solve — give it the
+            # larger initial budget; later rounds are warm incremental re-solves
+            # that must stay within the fast Phase-1 target.
+            solve_budget_ms = (
+                self.INITIAL_SOLVE_TIMEOUT_MS
+                if round_num == 1
+                else self.RE_SOLVE_TIMEOUT_MS
+            )
             placement = self._call_solver(
                 netlist=netlist,
                 board=board,
                 extra_constraints=constraint_objects,
-                timeout_ms=self.RE_SOLVE_TIMEOUT_MS,
+                timeout_ms=solve_budget_ms,
                 seed=seed,
                 zones=self._zones,
                 zone_components=self._zone_components,
@@ -476,10 +495,11 @@ class PlaceRouteLoop:
         into A* during round N; after routing a new post-route field is
         computed and compared for stability.
         """
-        import numpy as np  # U9
         from pathlib import Path as _Path
+
+        import numpy as np  # U9
+
         from temper_placer.placer.cp_sat.gates import GateStage, GateStatus
-        from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
         self._gate_results = {}
 
@@ -521,11 +541,19 @@ class PlaceRouteLoop:
             constraint_objects = all_constraints + [
                 delta.constraint for delta in injected_deltas
             ]
+            # Round 1 is the cold, delta-free full-model solve — give it the
+            # larger initial budget; later rounds are warm incremental re-solves
+            # that must stay within the fast Phase-1 target.
+            solve_budget_ms = (
+                self.INITIAL_SOLVE_TIMEOUT_MS
+                if round_num == 1
+                else self.RE_SOLVE_TIMEOUT_MS
+            )
             placement = self._call_solver(
                 netlist=netlist,
                 board=board,
                 extra_constraints=constraint_objects,
-                timeout_ms=self.RE_SOLVE_TIMEOUT_MS,
+                timeout_ms=solve_budget_ms,
                 seed=seed,
                 zones=self._zones,
                 zone_components=self._zone_components,
@@ -953,7 +981,7 @@ class PlaceRouteLoop:
         returning ``UNMEASURED`` is logged but never treated as green
         (the core three-state invariant).
         """
-        from temper_placer.placer.cp_sat.gates import GateStatus, GateResult
+        from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
 
         self._gate_results = {}
         for gate in self.gates:
@@ -1085,7 +1113,6 @@ class PlaceRouteLoop:
 
     def _gates_for_stage(self, gates: list, stage) -> list:
         """Return gates from *gates* registered for the given stage."""
-        from temper_placer.placer.cp_sat.gates import GateStage
         return [g for g in gates if g.stage is stage]
 
     def _collect_deltas_from_gates(
@@ -1125,7 +1152,7 @@ class PlaceRouteLoop:
     def _route_placement(
         self, placement, netlist, board, seed: int,
         thermal_flat=None, thermal_weight=0.0,
-    ) -> "RoutingResult":
+    ) -> RoutingResult:
         """Route a placement through router_v6.
 
         U9: optional ``thermal_flat`` / ``thermal_weight`` thread
@@ -1133,8 +1160,8 @@ class PlaceRouteLoop:
         A* kernel.  When ``thermal_weight=0.0`` the field-off
         path is byte-identical to today's routing.
         """
-        import os
         import contextlib
+        import os
         import tempfile
 
         from temper_placer.router_v6.adapter import RoutingResult, route_pcb
@@ -1280,8 +1307,8 @@ class PlaceRouteLoop:
             return self._field_compute_fn(placement, routing, netlist, board)
         except Exception as exc:
             logger.error("Field compute raised: %s", exc)
-            from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
             from temper_placer.fields.result import FieldResult
+            from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
             return FieldResult(
                 gate_result=GateResult(
                     status=GateStatus.UNMEASURED,
@@ -1462,7 +1489,7 @@ def _build_minimal_pcb(netlist, board, netclass_rules=None) -> str:
                         f" (size 1 1) (layers \"F.Cu\" \"F.Paste\" \"F.Mask\")"
                         f" (net {net_idx} \"{pin_net}\"))"
                     )
-            lines.append(f"    (at 0 0)")
+            lines.append("    (at 0 0)")
             lines.append("  )")
 
     lines.append(")")

@@ -24,7 +24,7 @@ class CostField:
     ``r * cols + c``).
     """
 
-    grid: "np.ndarray"  # (height_cells, width_cells) float32
+    grid: np.ndarray  # (height_cells, width_cells) float32
     cell_size_mm: float
     origin_mm: tuple[float, float]
 
@@ -43,7 +43,7 @@ class CostField:
         """Number of columns (x-dimension) in cells."""
         return int(self.grid.shape[1])
 
-    def to_flat(self) -> "np.ndarray":
+    def to_flat(self) -> np.ndarray:
         """Return ``(height_cells * width_cells,)`` float32, congestion_flat-compatible.
 
         Flatten order is row-major (C-order), matching A*'s ``r * cols + c``

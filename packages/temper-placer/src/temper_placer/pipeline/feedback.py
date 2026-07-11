@@ -17,7 +17,8 @@ if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
     from temper_placer.core.state import PlacementState
-    
+    from temper_placer.pipeline.state import PipelineState
+
 from temper_placer.core.loss_types import LossContext, LossFunction, LossResult
 from temper_placer.core.state import PlacementState
 from temper_placer.router_v6.congestion_heatmap import CongestionHeatmap

@@ -55,9 +55,9 @@ _DEVICE_FOOTPRINT_MM = 5.0
 
 
 def build_h_field(
-    config: "ThermalFDMConfig",
+    config: ThermalFDMConfig,
     devices: dict[str, tuple[float, float]],
-    device_thermal: dict[str, "DeviceThermalConfig"],
+    device_thermal: dict[str, DeviceThermalConfig],
 ) -> np.ndarray:
     """Build per-cell vertical conductance field ``(H, W)`` in ``W/(K·mm²)``.
 

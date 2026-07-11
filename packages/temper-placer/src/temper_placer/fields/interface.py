@@ -13,14 +13,14 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import numpy as np
+
+    from temper_placer.fields.result import FieldResult
     from temper_placer.placer.cp_sat.gates import (
         BoardState,
         GateResult,
         GateStage,
         Violation,
     )
-
-    from temper_placer.fields.result import FieldResult
 
 
 @dataclass(frozen=True, slots=True)
@@ -36,7 +36,7 @@ class CostFieldInput:
     row-major (C-order) to match the A* ``r * cols + c`` cell-indexing scheme.
     """
 
-    cost_flat: "np.ndarray"  # (height_cells * width_cells,) float32
+    cost_flat: np.ndarray  # (height_cells * width_cells,) float32
     weight: float = 1.0
 
 
@@ -56,10 +56,10 @@ class FieldGate:
     ``FieldResult.to_cost_field_input()``.
     """
 
-    stage: "GateStage" | None = None
+    stage: GateStage | None = None
     name: str = ""
 
-    def compute_field(self, state: "BoardState") -> "FieldResult":
+    def compute_field(self, state: BoardState) -> FieldResult:
         """Compute the scalar field and return a fail-closed ``FieldResult``.
 
         Subclasses must override this.  The returned ``FieldResult`` must
@@ -68,7 +68,7 @@ class FieldGate:
         """
         raise NotImplementedError
 
-    def check(self, state: "BoardState") -> "GateResult":
+    def check(self, state: BoardState) -> GateResult:
         """Default ``Gate.check()`` — delegates to ``compute_field()``.
 
         Returns only the ``GateResult`` portion (stripping the grid) so this
@@ -78,7 +78,7 @@ class FieldGate:
         result = self.compute_field(state)
         return result.gate_result
 
-    def to_delta(self, violation: "Violation"):
+    def to_delta(self, violation: Violation):
         """Map a violation to a constraint delta.
 
         Returns ``None`` by default; subclasses may override.

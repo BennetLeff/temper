@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import numpy as np
+
     from temper_placer.placer.cp_sat.gates import GateResult
 
 
@@ -34,8 +35,8 @@ class FieldResult:
     which raises ``FieldNotReadyError`` when the status is ``UNMEASURED``.
     """
 
-    gate_result: "GateResult"
-    field: "np.ndarray | None" = None
+    gate_result: GateResult
+    field: np.ndarray | None = None
     weight: float = 1.0
 
     def __post_init__(self) -> None:

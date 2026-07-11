@@ -7,7 +7,6 @@ TimingReport dataclasses consumed by the CLI baseline/check commands.
 
 from __future__ import annotations
 
-import contextlib
 import statistics
 import subprocess
 import time
