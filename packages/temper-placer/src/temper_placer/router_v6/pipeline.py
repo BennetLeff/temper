@@ -463,6 +463,18 @@ class RouterV6Pipeline:
         if pcb_override is not None:
             pcb = pcb_override
 
+        # Reorder nets: power/HV nets first, signal nets last.
+        # Prevents final-round displacement of SPI/USB/sense nets.
+        _SIG = ("SPI_", "I_SENSE", "USB_", "TEMP_")
+        _PWR = ("GATE_", "PWM_", "DC_BUS", "AC_", "SW_NODE",
+                "VCC_BOOT", "CGND", "PGND", "+", "GND")
+        def _prio(net):
+            name = net.name if hasattr(net, "name") else str(net)
+            if any(name.startswith(p) for p in _PWR):
+                return 0
+            return 1
+        pcb.nets.sort(key=_prio)
+
         # Stage 0.5: Legalization
         if self.enable_legalization:
             if self.verbose:
