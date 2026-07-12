@@ -1,76 +1,51 @@
 """
-Smooth approximations for non-differentiable operations.
+Smooth approximations — Rust-backed via temper_geometry.
 
 This module provides differentiable approximations to min, max, relu, and
-related functions using LogSumExp and other techniques. These are essential
-for computing differentiable HPWL (Half-Perimeter Wire Length) and other
-placement metrics.
+related functions. These are essential for computing differentiable HPWL
+(Half-Perimeter Wire Length) and other placement metrics.
 
-The smoothness is controlled by alpha/beta parameters:
-- Higher alpha/beta = sharper approximation (closer to true min/max)
-- Lower alpha/beta = smoother gradients (better for early training)
-
-These parameters should be annealed during training: start low for exploration,
-increase for refinement.
+All functions delegate to the temper_geometry Rust crate.
 """
-from typing import TypeAlias
+import temper_geometry as _tg
 
-import numpy as np
-from scipy.special import logsumexp
-
-Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 # =============================================================================
 # Smooth Maximum Functions
 # =============================================================================
 
 
-def smooth_max(x: Array, alpha: float = 10.0) -> Array:
-    """
-    Smooth approximation of max(x) using LogSumExp.
+def smooth_max(a, b, alpha=10.0):
+    """Smooth approximation of element-wise max(a, b).
 
-    As alpha → ∞, smooth_max → max(x)
-
-    The LogSumExp trick:
-        max(x) ≈ (1/alpha) * log(sum(exp(alpha * x)))
-
-    This is always >= max(x), with equality as alpha → ∞.
+    As alpha → inf, smooth_max → max(a, b)
 
     Args:
-        x: Input array of any shape. Max is computed over flattened array.
+        a: First input
+        b: Second input
         alpha: Smoothing parameter. Higher = sharper approximation.
-               Recommended range: 1.0 (smooth) to 100.0 (sharp)
 
     Returns:
-        Smooth maximum value (scalar)
-
-    Gradient behavior:
-        When alpha is low, gradients are distributed across all elements.
-        When alpha is high, gradients concentrate on the maximum element.
+        Smooth maximum of a and b
     """
-    # Flatten if needed
-    x_flat = x.ravel()
-    return logsumexp(alpha * x_flat) / alpha
+    return _tg.smooth_max(a, b, alpha)
 
 
-def smooth_max_axis(x: Array, alpha: float = 10.0, axis: int = -1) -> Array:
-    """
-    Smooth approximation of max along a specific axis.
+def smooth_max_axis(arr, alpha=10.0):
+    """Smooth approximation of max along an axis.
 
     Args:
-        x: Input array
+        arr: Input array
         alpha: Smoothing parameter
-        axis: Axis along which to compute max
 
     Returns:
-        Array with one fewer dimension (max computed along axis)
+        Smooth max along axis
     """
-    return logsumexp(alpha * x, axis=axis) / alpha
+    return _tg.smooth_max_axis(arr, alpha)
 
 
-def smooth_max_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
-    """
-    Smooth approximation of max(a, b) for two scalars or arrays.
+def smooth_max_pair(a, b, alpha=10.0):
+    """Smooth approximation of element-wise max(a, b).
 
     Args:
         a: First input
@@ -78,11 +53,9 @@ def smooth_max_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
         alpha: Smoothing parameter
 
     Returns:
-        Smooth maximum of a and b (element-wise for arrays)
+        Smooth maximum of a and b (element-wise)
     """
-    # Stack and compute logsumexp
-    stacked = np.stack([a, b], axis=-1)
-    return logsumexp(alpha * stacked, axis=-1) / alpha
+    return _tg.smooth_max_pair(a, b, alpha)
 
 
 # =============================================================================
@@ -90,47 +63,37 @@ def smooth_max_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
 # =============================================================================
 
 
-def smooth_min(x: Array, alpha: float = 10.0) -> Array:
-    """
-    Smooth approximation of min(x) using LogSumExp.
+def smooth_min(a, b, alpha=10.0):
+    """Smooth approximation of element-wise min(a, b).
 
-    Uses the identity: min(x) = -max(-x)
-
-    As alpha → ∞, smooth_min → min(x)
+    As alpha → inf, smooth_min → min(a, b)
 
     Args:
-        x: Input array of any shape. Min is computed over flattened array.
+        a: First input
+        b: Second input
         alpha: Smoothing parameter. Higher = sharper approximation.
 
     Returns:
-        Smooth minimum value (scalar)
-
-    Gradient behavior:
-        When alpha is low, gradients are distributed across all elements.
-        When alpha is high, gradients concentrate on the minimum element.
+        Smooth minimum of a and b
     """
-    x_flat = x.ravel()
-    return -logsumexp(-alpha * x_flat) / alpha
+    return _tg.smooth_min(a, b, alpha)
 
 
-def smooth_min_axis(x: Array, alpha: float = 10.0, axis: int = -1) -> Array:
-    """
-    Smooth approximation of min along a specific axis.
+def smooth_min_axis(arr, alpha=10.0):
+    """Smooth approximation of min along an axis.
 
     Args:
-        x: Input array
+        arr: Input array
         alpha: Smoothing parameter
-        axis: Axis along which to compute min
 
     Returns:
-        Array with one fewer dimension (min computed along axis)
+        Smooth min along axis
     """
-    return -logsumexp(-alpha * x, axis=axis) / alpha
+    return _tg.smooth_min_axis(arr, alpha)
 
 
-def smooth_min_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
-    """
-    Smooth approximation of min(a, b) for two scalars or arrays.
+def smooth_min_pair(a, b, alpha=10.0):
+    """Smooth approximation of element-wise min(a, b).
 
     Args:
         a: First input
@@ -138,10 +101,9 @@ def smooth_min_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
         alpha: Smoothing parameter
 
     Returns:
-        Smooth minimum of a and b (element-wise for arrays)
+        Smooth minimum of a and b (element-wise)
     """
-    stacked = np.stack([a, b], axis=-1)
-    return -logsumexp(-alpha * stacked, axis=-1) / alpha
+    return _tg.smooth_min_pair(a, b, alpha)
 
 
 # =============================================================================
@@ -149,63 +111,47 @@ def smooth_min_pair(a: Array, b: Array, alpha: float = 10.0) -> Array:
 # =============================================================================
 
 
-def smooth_relu(x: Array, beta: float = 10.0) -> Array:
-    """
-    Smooth approximation of ReLU: max(0, x).
+def smooth_relu(x, alpha=10.0):
+    """Smooth approximation of ReLU: max(0, x).
 
-    Uses softplus: log(1 + exp(beta * x)) / beta
-
-    As beta → ∞, smooth_relu → relu(x)
+    Uses softplus: log(1 + exp(alpha * x)) / alpha
 
     Args:
-        x: Input array
-        beta: Smoothing parameter. Higher = sharper transition at 0.
-              Recommended range: 1.0 (smooth) to 50.0 (sharp)
+        x: Input
+        alpha: Smoothing parameter. Higher = sharper transition at 0.
 
     Returns:
         Smooth ReLU applied element-wise
-
-    Gradient behavior:
-        - For x << 0: gradient ≈ 0
-        - For x >> 0: gradient ≈ 1
-        - For x ≈ 0: smooth transition (sigmoid-like)
     """
-    # Use softplus for numerical stability
-    # softplus(x) = log(1 + exp(x))
-    # smooth_relu(x, beta) = softplus(beta * x) / beta
-    return np.logaddexp(0.0, beta * x) / beta
+    return _tg.smooth_relu(x, alpha)
 
 
-def smooth_relu_penalty(x: Array, beta: float = 10.0) -> Array:
-    """
-    Smooth penalty for constraint violations: max(0, x)^2.
-
-    Useful for penalizing positive violations while ignoring negative values.
-    The squaring provides quadratic penalty growth.
+def smooth_relu_penalty(x, margin=0.0, alpha=10.0):
+    """Smooth penalty for constraint violations: max(0, x - margin)^2.
 
     Args:
-        x: Input array (positive values are violations)
-        beta: Smoothing parameter
+        x: Input (values above margin are violations)
+        margin: Threshold for violations
+        alpha: Smoothing parameter
 
     Returns:
         Squared smooth ReLU applied element-wise
     """
-    return smooth_relu(x, beta) ** 2
+    return _tg.smooth_relu_penalty(x, margin, alpha)
 
 
-def smooth_leaky_relu(x: Array, negative_slope: float = 0.01, beta: float = 10.0) -> Array:
-    """
-    Smooth approximation of leaky ReLU.
+def smooth_leaky_relu(x, alpha=10.0, negative_slope=0.01):
+    """Smooth approximation of leaky ReLU.
 
     Args:
-        x: Input array
+        x: Input
+        alpha: Smoothing parameter for the transition
         negative_slope: Slope for x < 0 (default 0.01)
-        beta: Smoothing parameter for the transition
 
     Returns:
         Smooth leaky ReLU applied element-wise
     """
-    return smooth_relu(x, beta) + negative_slope * smooth_relu(-x, beta) * (-1)
+    return _tg.smooth_leaky_relu(x, alpha, negative_slope)
 
 
 # =============================================================================
@@ -213,61 +159,45 @@ def smooth_leaky_relu(x: Array, negative_slope: float = 0.01, beta: float = 10.0
 # =============================================================================
 
 
-def smooth_abs(x: Array, beta: float = 10.0) -> Array:
-    """
-    Smooth approximation of |x|.
-
-    Uses: |x| = max(x, -x) ≈ smooth_max([x, -x])
-
-    Alternatively uses: sqrt(x^2 + epsilon) for simplicity
+def smooth_abs(x, alpha=10.0):
+    """Smooth approximation of |x|.
 
     Args:
-        x: Input array
-        beta: Controls smoothness at x=0. Higher = sharper.
+        x: Input
+        alpha: Controls smoothness at x=0. Higher = sharper.
 
     Returns:
         Smooth absolute value applied element-wise
     """
-    # Using sqrt(x^2 + epsilon) where epsilon = 1/beta^2
-    epsilon = 1.0 / (beta * beta)
-    return np.sqrt(x * x + epsilon)
+    return _tg.smooth_abs(x, alpha)
 
 
-def smooth_clip(x: Array, min_val: float, max_val: float, beta: float = 10.0) -> Array:
-    """
-    Smooth approximation of clip(x, min_val, max_val).
+def smooth_clip(x, min_val, max_val, alpha=10.0):
+    """Smooth approximation of clip(x, min_val, max_val).
 
     Args:
-        x: Input array
+        x: Input
         min_val: Minimum value
         max_val: Maximum value
-        beta: Smoothing parameter
+        alpha: Smoothing parameter
 
     Returns:
         Smoothly clipped values
     """
-    # clip(x) = min(max(x, min_val), max_val)
-    clipped_low = smooth_max_pair(x, np.full_like(x, min_val), beta)
-    clipped_both = smooth_min_pair(clipped_low, np.full_like(x, max_val), beta)
-    return clipped_both
+    return _tg.smooth_clip(x, min_val, max_val, alpha)
 
 
-def smooth_step(x: Array, edge: float = 0.0, beta: float = 10.0) -> Array:
-    """
-    Smooth approximation of step function (Heaviside).
-
-    Returns ≈1 for x > edge, ≈0 for x < edge, with smooth transition.
-    Uses sigmoid function.
+def smooth_step(x, alpha=10.0):
+    """Smooth approximation of step function (Heaviside).
 
     Args:
-        x: Input array
-        edge: Location of step (default 0)
-        beta: Controls transition sharpness
+        x: Input
+        alpha: Controls transition sharpness
 
     Returns:
         Smooth step function applied element-wise (values in [0, 1])
     """
-    return 1.0 / (1.0 + np.exp(-beta * (x - edge)))
+    return _tg.smooth_step(x, alpha)
 
 
 # =============================================================================
@@ -275,55 +205,33 @@ def smooth_step(x: Array, edge: float = 0.0, beta: float = 10.0) -> Array:
 # =============================================================================
 
 
-def hpwl_smooth(pin_positions: Array, alpha: float = 10.0) -> Array:
-    """
-    Compute smooth Half-Perimeter Wire Length for a set of pin positions.
+def hpwl_smooth(points, alpha=10.0):
+    """Compute smooth Half-Perimeter Wire Length.
 
     HPWL = (max_x - min_x) + (max_y - min_y)
 
-    This is the standard metric for estimating wirelength in placement.
-
     Args:
-        pin_positions: Array of shape (N, 2) with pin (x, y) coordinates
-        alpha: Smoothing parameter for min/max approximation
+        points: Flat list of [x1, y1, x2, y2, ...] coordinates
+        alpha: Smoothing parameter
 
     Returns:
-        Smooth HPWL value (scalar)
+        Smooth HPWL value
     """
-    # Extract x and y coordinates
-    x_coords = pin_positions[:, 0]
-    y_coords = pin_positions[:, 1]
-
-    # Compute smooth bounding box
-    x_max = smooth_max(x_coords, alpha)
-    x_min = smooth_min(x_coords, alpha)
-    y_max = smooth_max(y_coords, alpha)
-    y_min = smooth_min(y_coords, alpha)
-
-    # Half-perimeter
-    return (x_max - x_min) + (y_max - y_min)
+    return _tg.hpwl_smooth(points, alpha)
 
 
-def weighted_average_smooth(values: Array, weights: Array, temperature: float = 1.0) -> Array:
-    """
-    Compute weighted average with temperature-controlled softmax weights.
-
-    As temperature → 0, this approaches a hard selection of the highest-weighted value.
-    As temperature → ∞, this approaches uniform averaging.
-
-    Useful for differentiable selection among discrete options.
+def weighted_average_smooth(values, weights, alpha=1.0):
+    """Compute weighted average with temperature-controlled softmax weights.
 
     Args:
         values: Values to average
         weights: Raw weights (will be softmax-normalized)
-        temperature: Controls softness of weighting
+        alpha: Temperature parameter (lower = sharper selection)
 
     Returns:
-        Weighted average (scalar)
+        Weighted average
     """
-    exp_weights = np.exp((weights - np.max(weights)) / temperature)
-    soft_weights = exp_weights / np.sum(exp_weights)
-    return np.sum(values * soft_weights)
+    return _tg.weighted_average_smooth(values, weights, alpha)
 
 
 # =============================================================================
@@ -331,52 +239,29 @@ def weighted_average_smooth(values: Array, weights: Array, temperature: float = 
 # =============================================================================
 
 
-def get_alpha_schedule(
-    epoch: int,
-    total_epochs: int,
-    initial_alpha: float = 1.0,
-    final_alpha: float = 50.0,
-) -> float:
-    """
-    Compute alpha value for current epoch using exponential annealing.
-
-    Starts with low alpha (smooth) and increases to high alpha (sharp)
-    as training progresses.
+def get_alpha_schedule(start_alpha, end_alpha, epochs):
+    """Compute alpha value for current epoch using exponential annealing.
 
     Args:
-        epoch: Current epoch number
-        total_epochs: Total number of epochs
-        initial_alpha: Starting alpha value
-        final_alpha: Final alpha value
+        start_alpha: Starting alpha value
+        end_alpha: Final alpha value
+        epochs: Total number of epochs
 
     Returns:
         Alpha value for current epoch
     """
-    # Exponential schedule
-    progress = epoch / max(total_epochs - 1, 1)
-    return initial_alpha * (final_alpha / initial_alpha) ** progress
+    return _tg.get_alpha_schedule(start_alpha, end_alpha, epochs)
 
 
-def get_beta_schedule(
-    epoch: int,
-    total_epochs: int,
-    initial_beta: float = 1.0,
-    final_beta: float = 50.0,
-) -> float:
-    """
-    Compute beta value for current epoch using exponential annealing.
-
-    Same as alpha schedule, but named separately for clarity when used
-    for different purposes (e.g., ReLU smoothing vs min/max smoothing).
+def get_beta_schedule(start_beta, end_beta, epochs):
+    """Compute beta value for current epoch using exponential annealing.
 
     Args:
-        epoch: Current epoch number
-        total_epochs: Total number of epochs
-        initial_beta: Starting beta value
-        final_beta: Final beta value
+        start_beta: Starting beta value
+        end_beta: Final beta value
+        epochs: Total number of epochs
 
     Returns:
         Beta value for current epoch
     """
-    progress = epoch / max(total_epochs - 1, 1)
-    return initial_beta * (final_beta / initial_beta) ** progress
+    return _tg.get_beta_schedule(start_beta, end_beta, epochs)
