@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import hashlib
-import json
 from typing import TYPE_CHECKING
+
+import temper_dsn as _td
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
@@ -10,57 +10,30 @@ if TYPE_CHECKING:
 
 
 def compute_dsn_schema_hash(board: Board, netlist: Netlist) -> str:
-    """Compute SHA-256 hash of the DSN schema skeleton.
-
-    Covers: layer names/types, component footprint names/pin counts,
-    net names, design rules.
-    Does NOT cover: positions, rotations, pin coordinates, wiring.
-    """
-    schema: dict = {}
-
-    # Layers
+    layer_names: list[str] = []
+    layer_types: dict[str, str] = {}
     if board.layer_stackup:
-        layer_names = sorted(ly.name for ly in board.layer_stackup.layers)
-        layer_types = {ly.name: ly.layer_type for ly in board.layer_stackup.layers}
+        for ly in board.layer_stackup.layers:
+            layer_names.append(ly.name)
+            layer_types[ly.name] = ly.layer_type
     else:
-        layer_names = sorted(["F.Cu", "B.Cu"])
+        layer_names = ["F.Cu", "B.Cu"]
         layer_types = {"F.Cu": "signal", "B.Cu": "signal"}
-    schema["layers"] = {
-        "count": len(layer_names),
-        "names": layer_names,
-        "types": {n: layer_types.get(n, "signal") for n in layer_names},
-    }
 
-    # Footprints (sorted by name, pin counts)
-    fp_info: dict[str, int] = {}
+    footprints: dict[str, int] = {}
     for comp in netlist.components:
-        fp_name = comp.footprint
         pin_count = len(comp.pins)
-        fp_info[fp_name] = max(fp_info.get(fp_name, 0), pin_count)
-    schema["footprints"] = dict(sorted(fp_info.items()))
+        fp_name = comp.footprint
+        footprints[fp_name] = max(footprints.get(fp_name, 0), pin_count)
 
-    # Nets (sorted by name)
-    schema["nets"] = sorted(n.name for n in netlist.nets)
+    nets = [n.name for n in netlist.nets]
 
-    # Rules (constant for now; extendable)
-    schema["rules"] = {"trace_width": 13, "clearance": 12}
-
-    canonical = json.dumps(schema, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return _td.compute_dsn_schema_hash(layer_names, layer_types, footprints, nets)
 
 
 def embed_schema_header(dsn_text: str, schema_hash: str) -> str:
-    """Insert ;schema-version: sha256:<hash> as the first line."""
-    header = f";schema-version: sha256:{schema_hash}"
-    if dsn_text.startswith(";schema-version:"):
-        first_nl = dsn_text.index("\n")
-        return header + dsn_text[first_nl:]
-    return f"{header}\n{dsn_text}"
+    return _td.embed_schema_header(dsn_text, schema_hash)
 
 
 def extract_schema_hash(dsn_text: str) -> str | None:
-    """Extract schema-version hash from DSN header comment, or None."""
-    for line in dsn_text.split("\n"):
-        if line.startswith(";schema-version: sha256:"):
-            return line[len(";schema-version: sha256:"):].strip()
-    return None
+    return _td.extract_schema_hash(dsn_text)
