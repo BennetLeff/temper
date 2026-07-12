@@ -1,18 +1,12 @@
-use std::process::Command;
-
+// Build script for temper-drc-rs.
+//
+// This is a PyO3 extension module that shares the Python interpreter's
+// existing libpython.  Unlike an embedded-Python binary, we do NOT
+// link against a separate libpython — the `pyo3/extension-module`
+// feature handles this automatically.
+//
+// Origin: U1 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 fn main() {
-    // Detect Python library directory for linking.
-    let python = std::env::var("PYO3_PYTHON")
-        .unwrap_or_else(|_| "python3".into());
-    if let Ok(output) = Command::new(&python)
-        .args(["-c", "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))"])
-        .output()
-    {
-        let lib_dir = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        if !lib_dir.is_empty() {
-            println!("cargo:rustc-link-search=native={}", lib_dir);
-            println!("cargo:rustc-link-arg=-Wl,-rpath,{}", lib_dir);
-        }
-    }
-    println!("cargo:rustc-link-lib=python3.12");
+    // No extra linking needed.  The `pyo3` crate and the
+    // `extension-module` feature set up the correct ABI.
 }

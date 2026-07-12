@@ -1,4 +1,4 @@
-// Build script for temper-rust-router.
+// Build script for temper-geometry.
 //
 // This is a PyO3 extension module that shares the Python interpreter's
 // existing libpython.  Unlike an embedded-Python binary, we do NOT

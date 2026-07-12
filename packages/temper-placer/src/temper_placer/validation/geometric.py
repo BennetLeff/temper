@@ -196,11 +196,13 @@ class GeometricValidator(Validator):
         """Check for component overlaps."""
         issues = []
 
-        # Compute pairwise distances
-        distances = compute_pairwise_distances(positions, rotations, widths, heights)
+        # Compute pairwise distances (Rust-backed, 1-arg: Vec<f64> flat rects list)
+        n = positions.shape[0]
+        rects = np.column_stack([positions, widths[:, None], heights[:, None]])
+        rects_flat = rects.ravel().tolist()
+        distances = np.array(compute_pairwise_distances(rects_flat)).reshape(n, n)
 
         # Find overlapping pairs (negative distance)
-        n = positions.shape[0]
         total_overlap = 0.0
         overlap_count = 0
 
@@ -267,7 +269,10 @@ class GeometricValidator(Validator):
         for i in range(n):
             # Get rotated component bounds
             rot_one_hot = rotations[i]
-            rw, rh = get_rotated_bounds(float(widths[i]), float(heights[i]), rot_one_hot)
+            rot_idx = int(np.argmax(rot_one_hot)) if isinstance(rot_one_hot, np.ndarray) and rot_one_hot.ndim == 1 else 0
+            angle_rad = {0: 0.0, 1: np.pi / 2, 2: np.pi, 3: 3 * np.pi / 2}[rot_idx]
+            xmi, ymi, xma, yma = get_rotated_bounds(float(positions[i, 0]), float(positions[i, 1]), float(widths[i]), float(heights[i]), angle_rad)
+            rw, rh = xma - xmi, yma - ymi
             half_w, half_h = rw / 2, rh / 2
 
             pos = positions[i]
@@ -338,10 +343,11 @@ class GeometricValidator(Validator):
         issues = []
         violation_count = 0
 
-        # Compute pairwise distances
-        distances = compute_pairwise_distances(positions, rotations, widths, heights)
-
+        # Compute pairwise distances (Rust-backed, 1-arg: Vec<f64> flat rects list)
         n = positions.shape[0]
+        rects = np.column_stack([positions, widths[:, None], heights[:, None]])
+        rects_flat = rects.ravel().tolist()
+        distances = np.array(compute_pairwise_distances(rects_flat)).reshape(n, n)
 
         for i in range(n):
             for j in range(i + 1, n):
@@ -487,7 +493,10 @@ class GeometricValidator(Validator):
 
             # Get rotated bounds
             rot_one_hot = rotations[i]
-            rw, rh = get_rotated_bounds(float(widths[i]), float(heights[i]), rot_one_hot)
+            rot_idx = int(np.argmax(rot_one_hot)) if isinstance(rot_one_hot, np.ndarray) and rot_one_hot.ndim == 1 else 0
+            angle_rad = {0: 0.0, 1: np.pi / 2, 2: np.pi, 3: 3 * np.pi / 2}[rot_idx]
+            xmi, ymi, xma, yma = get_rotated_bounds(float(positions[i, 0]), float(positions[i, 1]), float(widths[i]), float(heights[i]), angle_rad)
+            rw, rh = xma - xmi, yma - ymi
             half_w, half_h = rw / 2, rh / 2
 
             # Component bounding box

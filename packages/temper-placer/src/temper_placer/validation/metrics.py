@@ -159,8 +159,11 @@ def compute_metrics(
     widths = bounds[:, 0]
     heights = bounds[:, 1]
 
-    # Compute pairwise distances once
-    distances = compute_pairwise_distances(positions, rotations, widths, heights)
+    # Build rects list for the Rust-backed compute_pairwise_distances
+    # (signature changed from 4 args to 1: Vec<f64> of [cx, cy, w, h] per component).
+    rects = np.column_stack([positions, widths[:, None], heights[:, None]])
+    rects_flat = rects.ravel().tolist()
+    distances = np.array(compute_pairwise_distances(rects_flat)).reshape(n_components, n_components)
 
     # === Overlap metrics ===
     _compute_overlap_metrics(metrics, distances, n_components)
@@ -226,7 +229,10 @@ def _compute_boundary_metrics(
 
     for i in range(n):
         rot = rotations[i]
-        rw, rh = get_rotated_bounds(float(widths[i]), float(heights[i]), rot)
+        rot_idx = int(np.argmax(rot)) if isinstance(rot, np.ndarray) and rot.ndim == 1 else 0
+        angle_rad = {0: 0.0, 1: np.pi / 2, 2: np.pi, 3: 3 * np.pi / 2}[rot_idx]
+        xmi, ymi, xma, yma = get_rotated_bounds(float(positions[i, 0]), float(positions[i, 1]), float(widths[i]), float(heights[i]), angle_rad)
+        rw, rh = xma - xmi, yma - ymi
         half_w, half_h = rw / 2, rh / 2
 
         pos = positions[i]
@@ -328,7 +334,10 @@ def _compute_keepout_metrics(
         x, y = float(pos[0]), float(pos[1])
 
         rot = rotations[i]
-        rw, rh = get_rotated_bounds(float(widths[i]), float(heights[i]), rot)
+        rot_idx = int(np.argmax(rot)) if isinstance(rot, np.ndarray) and rot.ndim == 1 else 0
+        angle_rad = {0: 0.0, 1: np.pi / 2, 2: np.pi, 3: 3 * np.pi / 2}[rot_idx]
+        xmi, ymi, xma, yma = get_rotated_bounds(float(positions[i, 0]), float(positions[i, 1]), float(widths[i]), float(heights[i]), angle_rad)
+        rw, rh = xma - xmi, yma - ymi
         half_w, half_h = rw / 2, rh / 2
 
         comp_min_x = x - half_w
