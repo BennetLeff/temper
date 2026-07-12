@@ -11,6 +11,8 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module"] }
 regex = "1"
+sha2 = "0.10"
+serde_json = "1"
 
 [profile.release]
 panic = "unwind"
