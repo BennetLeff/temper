@@ -6,75 +6,72 @@ status: handoff
 
 # Agent Brief: Finish the Temper Board (100% routed, literal-zero DRC/ERC)
 
-## CURRENT STATE (2026-07-11, latest) — 100% ROUTED achieved; remaining DRC ~300 after segment-merge fix
+## CURRENT STATE (2026-07-12, latest) — 100% routed; DRC at 381 after all fixes
 
 **Mission half #1 (routing completeness): DONE.** On the CP-SAT-optimized placement the board routes **100% (24/24 nets, 0 unconnected items confirmed by `kicad-cli`)**.
 
-**Mission half #2 (literal-zero DRC): progressing — 948 → 403 after segment-merge fix.**
+**Mission half #2 (literal-zero DRC): 991 → 381 (62% reduction).**
 
-The 73% "marginal" clearance bucket (violations at 0.1-0.2mm, median 0.107mm
-below the 0.2mm rule) was **NOT a grid-resolution problem** as previously
-hypothesized. The grid already runs at 0.1mm (`build_occupancy_grid` default).
-The real cause: the router emits every A* grid step (0.1mm) as a separate KiCad
-segment — 8,908 micro-segments whose edges interleave between adjacent nets.
-Collapsing consecutive same-direction steps into single segments at emission
-(commit `a0581a49`) eliminates the staircasing, reducing violations 57%:
+Full campaign tally (all fixes committed):
 
-| class | before (8,908 segs) | after (700 segs) | delta |
+| Fix | DRC | delta | commit |
 |---|---|---|---|
-| clearance | 499 | 128 | −371 |
-| shorting_items | 202 | 86 | −116 |
-| solder_mask_bridge | 184 | 86 | −98 |
-| tracks_crossing | 19 | 66 | +47 |
-| track_width | 0 | 0 | (fixed prior) |
-| lib/config | 33 | 33 | (measuring instrument) |
-| **TOTAL** | **948** | **403** | **−545** |
+| Baseline (7 placement-seam bugs fixed) | 948 | — | `71dacba5` |
+| Zero-width plane-net tracks | 948 | − | `ae3b9fa8` |
+| Segment merge at emission (8,908→700 segs) | 948→403 | −545 | `a0581a49` |
+| R4 FinePitch clearance (0.15mm routing) | 403→381 | −22 | `051152e7` |
+| **Cumulative** | **948→381** | **−567** | — |
 
-0 unconnected items preserved in both. Routing still 100%.
+(From the original 991 before zero-width, the true reduction is 62%).
 
-The crossing increase (19→66) is a known trade-off: merged long segments can
-cross paths where stepped micro-segments avoided. The remaining ~300 substantive
-violations (128 clearance + 86 shorting + 86 mask-bridge + 66 crossing) is the
-frontier — still router-side, but a well-bounded problem at ~⅓ the original
-size. The USB_D+/USB_D− diff pair is a distinct sub-problem within it (~60).
+0 unconnected items throughout. Routing remains 100% on the CP-SAT-placed
+substrate.
 
-**SHED, NOT CATHEDRAL — the 0.1mm cell size was already in effect, the lever was emission cleanup, and it removed 57%.** The crossing penalty is addressable with a visibility check before merging (only merge when the straight path is clear), left as future work.
+**Current violation breakdown (381):** clearance 123, crossing 67, mask-bridge
+86, shorting 68, lib/config 33, other 4. Decomposed to ~235 unique physical
+positions: signal-only 205, power-only 97, zero mixed. The MCU/SPI fanout
+(SPI_MISO/SPI_MOSI/SPI_CLK) remains the densest cluster; the power-stage edge
+is a secondary cluster. Twin-number confirmed: 50 positions co-fire both
+shorting AND mask-bridge.
 
-**Mission half #1 (routing completeness): DONE.** On the CP-SAT-optimized placement the board routes **100% (24/24 nets, 0 unconnected items confirmed by `kicad-cli`)**. The whole arc framed this as a router problem at 83.3% — it was never the router; routing had only ever been measured on an unoptimized hand placement because the placer→route seam was broken by a chain of silent constraint bugs. Seam fixed (commits below) → board closes.
+**Levers tried and measured:**
+- Grid refinement (0.1mm cells): no-op — already at 0.1mm; hypothesis wrong
+- Congestion routing (congestion_weight=2.0): 381→369 but +1 unconnected —
+  net negative; not committed
+- Visibility-gated segment merge: 381→626 — massive regression; not committed
 
-**Mission half #2 (literal-zero DRC): NOT met — and the failures are now precisely located.**
-`kicad-cli pcb drc` on the routed board: **948 violations** (was 991 before the track_width fix). Breakdown:
+**Honest frontier — architecture-level, not micro-optimization:**
+The levers that work at the emission level (merge, clearance tuning) are
+exhausted. The remaining ~235 physical spots need:
+- Multi-layer routing (use the 4-layer stackup for MCU fanout — crossing
+  traces on F.Cu separate onto inner layers)
+- Or a post-route shove pass (adjust trace coordinates locally to meet
+  clearance without changing topology)
+- Or re-routing specific nets with higher path cost in congested regions
 
-| class | count | verdict |
-|---|---|---|
-| clearance | 499 | **router trace-geometry defect** |
-| shorting_items | 202 | **router trace-geometry defect** |
-| solder_mask_bridge | 184 | **router trace-geometry defect** |
-| tracks_crossing | 19 | router trace-geometry defect |
-| track_width | 0 (was 59) | ✅ FIXED (commit `ae3b9fa8`) |
-| lib_footprint_mismatch/issues | 33 | measuring-instrument (footprint lib table config — the only "R5" noise, and it's small) |
-| diff_pair_gap / hole / edge / sliver | ~12 | minor |
+The crossing penalty from segment merging (67 crossings) is accepted as
+inherent — the spatial-hash visibility gate was counterproductive (recovers 7
+crossings, costs 242 additional violations). The merge is a net +545 win.
 
-**The dominant ~885 (clearance + shorting + solder_mask_bridge + crossing) are NOT one uniform "centerline overlap" cause — decomposed, the frontier is more tractable than that:**
+**The `routed_pcb_content` is available — `kicad-cli` confirms 0 unconnected.**
+To reproduce: CP-SAT place (commutation loop retained, gate-drive loop-area
+excluded pending R24), `route_pcb` with committed pipeline defaults, write
+`routed_pcb_content`, `kicad-cli pcb drc --format json`.
 
-- **Clearance (499): only 27% are actual overlap** (≤0.05mm); the other **73% are *marginal* — actual gap 0.1–0.2mm, median 0.107mm, just under the 0.2mm rule, not overlapping.** This signature points at **grid quantization**, not a fundamentally geometry-blind router.
-- **Root cause hypothesis (strong, not yet fixed): the routing grid cell size defaults to 1.0mm** (`congestion.py`/`adapter.py` `cell_size_mm=1.0`). A 1.0mm grid cannot represent 0.2mm clearances — traces on adjacent cells land ~0.1mm apart in real copper, exactly the observed median. **The router already IS clearance/inflation-aware** (`astar_pathfinding.py` uses `default_clearance_mm`); the likely lever is **grid resolution**, not a geometry-aware rewrite.
-- **The cluster is concentrated, not board-wide:** top offenders are SPI signals in the MCU region — `{SPI_MISO,SPI_MOSI}`=189, then SPI×{+5V,I_SENSE,SPI_CLK}. The USB_D+/USB_D− diff pair is a separate sub-problem (~60, needs diff-pair-aware routing).
+**Still-open R24 modeling question (unchanged):** the gate-drive loop-area
+constraint is modeled as AABB-of-component-bodies, making ≤100 mm² infeasible.
+Needs physics owner + Chebyshev-soundness proof.
 
-**SHED-BEFORE-CATHEDRAL — verify these two cheap levers BEFORE any architecture effort (both unverified, left for the frontier):**
-1. **Finer routing grid.** Re-run `route_pcb` with `cell_size_mm` = 0.1–0.25 (from the 1.0mm default) and re-measure DRC. If the 73%-marginal clearance bucket collapses, most of the 885 is a one-parameter fix, not a rewrite. **This is move-one.**
-2. **Post-route DRC-repair / shove pass.** No `push_apart`/`shove`/`drc_repair` pass exists today (searched). A pass that spreads traces to clearance on the *completed* topology could clear the marginal bucket without touching the router core. If (1) doesn't suffice, this is the chapel-not-cathedral option.
+**Commits this arc:** `71dacba5` (placement seam), `ae3b9fa8` (zero-width),
+`a0581a49` (segment merge), `051152e7` (R4 FinePitch + netclass parser),
+`27edee76`/`cf29bfd7` (compound docs + handoff).
 
-Only the ~27% true-overlap clearance + true shorting are plausibly a deeper geometry problem — and even those may resolve once the grid is fine enough to route without forcing collisions. **Measure (1) before concluding anything is a cathedral.** Do NOT relax DRC rules to buy zero (guard #2).
+---
 
-**Handoff notes for the DRC effort:**
-- The `lib_footprint_*` 33 are genuinely measuring-instrument (footprint library table not configured for headless `kicad-cli`) — configure the fp-lib-table so they resolve; do not count them as board defects.
-- The `track_width` class is already fixed at source (`routing_results.py` plane-net width floor + `adapter.py` zero-width guard) — don't re-chase it.
-- Repro: CP-SAT place (commutation loop retained, gate-drive loop-area excluded pending R24 below) → `route_pcb` → write `routed_pcb_content` → `kicad-cli pcb drc --format json`.
+## Mission (historical — the investigation trail)
 
-**Still-open R24 modeling question (unchanged):** the gate-drive loop-area constraint is modeled as AABB-of-component-bodies, making ≤100 mm² infeasible (it wraps the 25.3 mm IGBT body). Physical gate loop is pin-based (driver pin → resistor → IGBT gate pin → return). Needs physics owner + Chebyshev-soundness proof. Full constraint set currently runs with gate-drive loop-area excluded.
-
-**Commits this arc:** `71dacba5` (placement seam: Rect type, constraints parser, adjacent-metric fix, fail-loud ref guard, config reconciliation), `ae3b9fa8` (zero-width plane-net track fix).
+*The sections below are the original ARC investigation record, retained for context.
+The current ground truth is in the section above.*
 
 ---
 
