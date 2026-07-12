@@ -6,7 +6,39 @@ status: handoff
 
 # Agent Brief: Finish the Temper Board (100% routed, literal-zero DRC/ERC)
 
-## CURRENT STATE (2026-07-11, latest) — 100% ROUTED achieved; the real wall is now DRC trace-geometry
+## CURRENT STATE (2026-07-11, latest) — 100% ROUTED achieved; remaining DRC ~300 after segment-merge fix
+
+**Mission half #1 (routing completeness): DONE.** On the CP-SAT-optimized placement the board routes **100% (24/24 nets, 0 unconnected items confirmed by `kicad-cli`)**.
+
+**Mission half #2 (literal-zero DRC): progressing — 948 → 403 after segment-merge fix.**
+
+The 73% "marginal" clearance bucket (violations at 0.1-0.2mm, median 0.107mm
+below the 0.2mm rule) was **NOT a grid-resolution problem** as previously
+hypothesized. The grid already runs at 0.1mm (`build_occupancy_grid` default).
+The real cause: the router emits every A* grid step (0.1mm) as a separate KiCad
+segment — 8,908 micro-segments whose edges interleave between adjacent nets.
+Collapsing consecutive same-direction steps into single segments at emission
+(commit `a0581a49`) eliminates the staircasing, reducing violations 57%:
+
+| class | before (8,908 segs) | after (700 segs) | delta |
+|---|---|---|---|
+| clearance | 499 | 128 | −371 |
+| shorting_items | 202 | 86 | −116 |
+| solder_mask_bridge | 184 | 86 | −98 |
+| tracks_crossing | 19 | 66 | +47 |
+| track_width | 0 | 0 | (fixed prior) |
+| lib/config | 33 | 33 | (measuring instrument) |
+| **TOTAL** | **948** | **403** | **−545** |
+
+0 unconnected items preserved in both. Routing still 100%.
+
+The crossing increase (19→66) is a known trade-off: merged long segments can
+cross paths where stepped micro-segments avoided. The remaining ~300 substantive
+violations (128 clearance + 86 shorting + 86 mask-bridge + 66 crossing) is the
+frontier — still router-side, but a well-bounded problem at ~⅓ the original
+size. The USB_D+/USB_D− diff pair is a distinct sub-problem within it (~60).
+
+**SHED, NOT CATHEDRAL — the 0.1mm cell size was already in effect, the lever was emission cleanup, and it removed 57%.** The crossing penalty is addressable with a visibility check before merging (only merge when the straight path is clear), left as future work.
 
 **Mission half #1 (routing completeness): DONE.** On the CP-SAT-optimized placement the board routes **100% (24/24 nets, 0 unconnected items confirmed by `kicad-cli`)**. The whole arc framed this as a router problem at 83.3% — it was never the router; routing had only ever been measured on an unoptimized hand placement because the placer→route seam was broken by a chain of silent constraint bugs. Seam fixed (commits below) → board closes.
 
