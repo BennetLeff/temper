@@ -14,13 +14,16 @@ All rotations are counter-clockwise around a center point.
 """
 
 import math
-from typing import TypeAlias
+from typing import NewType, TypeAlias
 
 import numpy as np
 
-Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
+Array: TypeAlias = np.ndarray
 
-from temper_placer.core.units import Degrees, DegreesArray, RadiansArray
+# Local type aliases — formerly from core.units, now defined here to sever import edge
+Degrees = NewType("Degrees", float)
+DegreesArray: TypeAlias = Array
+RadiansArray: TypeAlias = Array
 
 # =============================================================================
 # Rotation Matrices

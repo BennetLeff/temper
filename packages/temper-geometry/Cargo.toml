@@ -13,5 +13,8 @@ temper-geometry-core = { path = "../temper-geometry-core" }
 rand = "0.8"
 pyo3 = { version = "0.23", features = ["extension-module"] }
 
+[dev-dependencies]
+proptest = "1"
+
 [profile.release]
 panic = "unwind"
