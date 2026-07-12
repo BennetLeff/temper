@@ -208,6 +208,29 @@ def _emit_keepout_constraints(constraints: PlacementConstraints) -> None:
             )
 
 
+def _parse_net_assignments(config: dict, constraints: PlacementConstraints) -> None:
+    """Parse a top-level ``net_assignments:`` block into ``net_classes``.
+
+    The temper cooker config declares per-netclass member lists::
+
+        net_assignments:
+          FinePitch: [SPI_MOSI, SPI_MISO, SPI_CLK, SPI_CS_TEMP, USB_D+, USB_D-]
+
+    This populates ``constraints.net_classes`` (the net_name → netclass_name
+    mapping) so that the routing pipeline can inject per-net clearance rules
+    into the parsed board's design rules for clearance-aware routing.
+    """
+    raw = config.get("net_assignments")
+    if not raw or not isinstance(raw, dict):
+        return
+    for class_name, net_list in raw.items():
+        if not isinstance(net_list, list):
+            continue
+        for net_name in net_list:
+            if isinstance(net_name, str) and net_name.strip():
+                constraints.net_classes[net_name.strip()] = class_name
+
+
 def _parse_feedback(config: dict, constraints: PlacementConstraints) -> None:
     if "feedback" in config:
         f_cfg = config["feedback"]
@@ -812,6 +835,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
 
     _parse_board_geometry(config, constraints)
     _parse_pcl_constraints(config, constraints)
+    _parse_net_assignments(config, constraints)
     _parse_feedback(config, constraints)
     _parse_clearance_rules(config, constraints)
     _parse_critical_loops(config, constraints)

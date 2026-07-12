@@ -403,6 +403,7 @@ def route_pcb(
     placements: dict[str, tuple[float, float]],
     _seed: int,
     design_rules: Any = None,
+    net_class_assignments: dict[str, str] | None = None,
     thermal_flat: Any = None,  # U9: (N,) float32 thermal cost field
     thermal_weight: float = 0.0,  # U9: multiplier
 ) -> RoutingResult:
@@ -418,6 +419,8 @@ def route_pcb(
         seed: Random seed (passed through to pipeline configuration).
         design_rules: Optional DesignRules with net_classes for netclass
             form injection into the output PCB.
+        net_class_assignments: Optional ``{net_name: netclass_name}`` map
+            for per-net clearance-aware routing (R4 FinePitch 0.15mm).
         thermal_flat: U9 optional (N,) float32 thermal cost field from
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost

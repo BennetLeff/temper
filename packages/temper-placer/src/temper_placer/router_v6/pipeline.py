@@ -437,22 +437,16 @@ class RouterV6Pipeline:
         self,
         pcb_path: Path,
         pcb_override=None,
+        net_class_assignments: dict[str, str] | None = None,
     ) -> RouterV6Result:
-        """
-        Run complete Router V6 pipeline on a PCB file.
+        """Run complete Router V6 pipeline on a PCB file.
 
         Args:
-            pcb_path: Path to .kicad_pcb file.  When ``pcb_override``
-                is supplied, the file is still loaded (for legal
-                rule context) but the override replaces the net
-                list in the routing stage.
-            pcb_override: Optional pre-parsed ``ParsedPCB`` to use
-                in place of the one parsed from ``pcb_path``.  Used
-                by sampling profiles that filter to a small subset
-                of nets without re-parsing the board.
-
-        Returns:
-            RouterV6Result with complete routing solution
+            pcb_path: Path to .kicad_pcb file.
+            pcb_override: Optional pre-parsed ``ParsedPCB`` to use.
+            net_class_assignments: Optional ``{net_name: netclass_name}``
+                map to inject into the parsed board's design rules for
+                per-net clearance-aware routing (R4 FinePitch 0.15mm).
         """
         start_time = time.time()
 
@@ -462,6 +456,19 @@ class RouterV6Pipeline:
         pcb = parse_kicad_pcb_v6(pcb_path)
         if pcb_override is not None:
             pcb = pcb_override
+
+        # Inject per-net netclass assignments and lower default clearance
+        # to the SSOT Signal netclass (0.15mm). FinePitch nets (SPI, USB,
+        # PWM, I_SENSE, TEMP_SENSE) coexist with other low-voltage signals;
+        # 0.15mm is the correct inter-net signal clearance from netclass_rules.yaml.
+        if net_class_assignments:
+            dr = getattr(pcb, "design_rules", None)
+            if dr is not None:
+                nc = getattr(dr, "net_class_assignments", {})
+                if isinstance(nc, dict):
+                    nc.update(net_class_assignments)
+                    dr.net_class_assignments = nc
+                dr.default_clearance_mm = 0.15
 
         # Reorder nets: power/HV nets first, signal nets last.
         # Prevents final-round displacement of SPI/USB/sense nets.
