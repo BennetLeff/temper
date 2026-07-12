@@ -16,6 +16,7 @@ dev = [
     "import-linter>=2.0",
     "python-sat>=1.9.dev5",
     "temper-geometry",
+    "temper-dsn",
 ]
 
 [tool.uv.workspace]
@@ -31,6 +32,7 @@ temper-validation = { workspace = true }
 temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
 temper-geometry-core = { workspace = true }
+temper-dsn = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = [
