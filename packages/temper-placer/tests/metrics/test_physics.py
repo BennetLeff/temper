@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from temper_placer.core.board import Board, Zone
-from temper_placer.core.netlist import Component, Net, Netlist
+from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.core.state import PlacementState
 from temper_placer.metrics.physics import (
     measure_emi,
@@ -17,8 +17,8 @@ from temper_placer.physics.inductance import estimate_loop_inductance
 def sample_setup():
     board = Board(width=100, height=100, zones=[Zone("Z1", (0, 0, 50, 50))])
 
-    c1 = Component("U1", "Pkg1", (10, 10), zone="Z1")
-    c2 = Component("U2", "Pkg2", (10, 10))
+    c1 = Component("U1", "Pkg1", (10, 10), zone="Z1", pins=[Pin("1", "1", (3.0, 0.0))])
+    c2 = Component("U2", "Pkg2", (10, 10), pins=[Pin("1", "1", (-3.0, 0.0))])
     netlist = Netlist([c1, c2], [Net("N1", [("U1", "1"), ("U2", "1")])])
 
     # U1 at (25, 25) - in zone Z1
@@ -72,7 +72,6 @@ def test_measure_thermal(sample_setup):
     assert metrics.max_junction_temp_c > 40.0
     assert metrics.edge_distance_avg_mm == 25.0
 
-@pytest.mark.skip(reason="synthetic fixture has no comp.position; wirelength needs the state.positions fix in validation.metrics._compute_wirelength_metrics (separate follow-up)")
 def test_measure_routability(sample_setup):
     board, netlist, state = sample_setup
     metrics = measure_routability(state, netlist, board)

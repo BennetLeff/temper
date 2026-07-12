@@ -55,13 +55,15 @@ def pin_world_position_at(
     pin: "Pin",
     comp: "Component",
     pos_override: tuple[float, float] | None = None,
+    rotation_override: int | None = None,
 ) -> tuple[float, float]:
-    """Return the world (x, y) position of a pin, with optional position override.
+    """Return the world (x, y) position of a pin, with optional overrides.
 
     Like :func:`pin_world_position` but accepts an explicit `pos_override`
-    for the component's board position. When `pos_override` is provided, it
-    replaces `comp.initial_position` in the world-position calculation.
-    When None, falls back to `comp.initial_position`.
+    for the component's board position and/or `rotation_override` for the
+    component's rotation index (0-3). When an override is provided, it
+    replaces the corresponding ``comp.initial_*`` attribute.
+    When None, falls back to ``comp.initial_*``.
 
     This is the canonical implementation; `pin_world_position` delegates to it.
 
@@ -70,11 +72,14 @@ def pin_world_position_at(
         comp: The component the pin belongs to.
         pos_override: Optional (x, y) tuple overriding the component position.
             When None, uses ``comp.initial_position``.
+        rotation_override: Optional rotation index (0-3) overriding
+            ``comp.initial_rotation``. When None, uses ``comp.initial_rotation``.
 
     Returns:
         (x, y) tuple in mm, in board coordinates.
     """
-    rotation_rad = _normalize_rotation(comp.initial_rotation)
+    rot_source = rotation_override if rotation_override is not None else comp.initial_rotation
+    rotation_rad = _normalize_rotation(rot_source)
     side = comp.initial_side or 0
 
     cos_r = math.cos(rotation_rad)
