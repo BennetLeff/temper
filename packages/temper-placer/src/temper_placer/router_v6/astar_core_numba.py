@@ -60,6 +60,10 @@ try:
 except ImportError:  # pragma: no cover
     _HAVE_NUMBA = False
 
+    def njit(*args, **kwargs):
+        """No-op decorator when numba is unavailable."""
+        return lambda f: f
+
 
 @dataclass
 class RouteProfileStats:

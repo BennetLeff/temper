@@ -2,7 +2,12 @@ from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
-from numba import njit
+try:
+    from numba import njit
+except ImportError:
+    def njit(*args, **kwargs):
+        """No-op decorator when numba is unavailable."""
+        return lambda f: f
 
 from temper_placer.core.board import (
     LAYER_IDX_TO_NAME,
