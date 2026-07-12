@@ -23,9 +23,17 @@ status: handoff
 | lib_footprint_mismatch/issues | 33 | measuring-instrument (footprint lib table config — the only "R5" noise, and it's small) |
 | diff_pair_gap / hole / edge / sliver | ~12 | minor |
 
-**The dominant ~885 (clearance + shorting + solder_mask_bridge + crossing) are a single root cause: the router produces topologically-complete routing on a centerline/coarse-grid model that ignores real copper width and clearance.** Traces physically overlap and sit sub-clearance. Evidence: widening the plane traces from 0.127→0.2mm (the track_width fix) nudged `shorting`/`crossing` *up* — the centerlines genuinely collide. The USB_D+/USB_D− differential pair alone accounts for ~60 clearance/shorting violations (router lays overlapping segments for the pair).
+**The dominant ~885 (clearance + shorting + solder_mask_bridge + crossing) are NOT one uniform "centerline overlap" cause — decomposed, the frontier is more tractable than that:**
 
-**This is the located next effort — a router-correctness (not completion) problem:** clearance-aware pathfinding / finer grid resolution / real trace-width-and-spacing in the router's cost model / diff-pair handling. This is plausibly the "congestion cathedral" the original arc feared — now correctly identified as a **DRC-geometry** problem, not a completion one. It is a substantial router-architecture effort, not a quick fix. **Do NOT relax DRC rules to buy zero (guard #2).**
+- **Clearance (499): only 27% are actual overlap** (≤0.05mm); the other **73% are *marginal* — actual gap 0.1–0.2mm, median 0.107mm, just under the 0.2mm rule, not overlapping.** This signature points at **grid quantization**, not a fundamentally geometry-blind router.
+- **Root cause hypothesis (strong, not yet fixed): the routing grid cell size defaults to 1.0mm** (`congestion.py`/`adapter.py` `cell_size_mm=1.0`). A 1.0mm grid cannot represent 0.2mm clearances — traces on adjacent cells land ~0.1mm apart in real copper, exactly the observed median. **The router already IS clearance/inflation-aware** (`astar_pathfinding.py` uses `default_clearance_mm`); the likely lever is **grid resolution**, not a geometry-aware rewrite.
+- **The cluster is concentrated, not board-wide:** top offenders are SPI signals in the MCU region — `{SPI_MISO,SPI_MOSI}`=189, then SPI×{+5V,I_SENSE,SPI_CLK}. The USB_D+/USB_D− diff pair is a separate sub-problem (~60, needs diff-pair-aware routing).
+
+**SHED-BEFORE-CATHEDRAL — verify these two cheap levers BEFORE any architecture effort (both unverified, left for the frontier):**
+1. **Finer routing grid.** Re-run `route_pcb` with `cell_size_mm` = 0.1–0.25 (from the 1.0mm default) and re-measure DRC. If the 73%-marginal clearance bucket collapses, most of the 885 is a one-parameter fix, not a rewrite. **This is move-one.**
+2. **Post-route DRC-repair / shove pass.** No `push_apart`/`shove`/`drc_repair` pass exists today (searched). A pass that spreads traces to clearance on the *completed* topology could clear the marginal bucket without touching the router core. If (1) doesn't suffice, this is the chapel-not-cathedral option.
+
+Only the ~27% true-overlap clearance + true shorting are plausibly a deeper geometry problem — and even those may resolve once the grid is fine enough to route without forcing collisions. **Measure (1) before concluding anything is a cathedral.** Do NOT relax DRC rules to buy zero (guard #2).
 
 **Handoff notes for the DRC effort:**
 - The `lib_footprint_*` 33 are genuinely measuring-instrument (footprint library table not configured for headless `kicad-cli`) — configure the fp-lib-table so they resolve; do not count them as board defects.
