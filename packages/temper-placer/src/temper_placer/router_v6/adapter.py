@@ -596,16 +596,38 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     path_points = list(coords)
                     path_layer = getattr(path, "layer_name", "F.Cu")
 
-            # Write path segments (force F.Cu for single-layer routing)
-            for i in range(len(path_points) - 1):
-                x1, y1 = path_points[i]
-                x2, y2 = path_points[i + 1]
+            # Write path segments, collapsing consecutive same-direction steps
+            # to avoid A* grid-stepping staircasing.  Each individual grid
+            # step (0.1mm) emitted as its own (segment ...) creates 8k+
+            # micro-segments that KiCad DRC flags as clearance / shorting /
+            # masking violations because adjacent segments from different
+            # nets interleave with edge-to-edge gaps under the 0.2mm rule.
+            i = 0
+            while i < len(path_points) - 1:
+                x1, y1 = path_points[i][0], path_points[i][1]
+                x2, y2 = path_points[i + 1][0], path_points[i + 1][1]
+                dx_prev = x2 - x1
+                dy_prev = y2 - y1
+                j = i + 2
+                while j < len(path_points):
+                    xm = path_points[j - 1][0]
+                    ym = path_points[j - 1][1]
+                    xn = path_points[j][0]
+                    yn = path_points[j][1]
+                    dx_cur = xn - xm
+                    dy_cur = yn - ym
+                    if abs(dx_cur - dx_prev) < 1e-12 and abs(dy_cur - dy_prev) < 1e-12:
+                        x2, y2 = xn, yn
+                        j += 1
+                    else:
+                        break
                 seg_id = uuid.uuid4()
                 segments.append(
                     f'  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})'
                     f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
+                i = j - 1
 
             # Connect any pads not near the path (stitch missing pins)
             CONNECTION_THRESHOLD_MM = 0.5
