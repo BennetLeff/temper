@@ -1,0 +1,15 @@
+[package]
+name = "temper-ipc"
+version = "0.1.0"
+edition = "2024"
+description = "IPC standard calculations for PCB design (current capacity, trace width)"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"] }
+
+[profile.release]
+panic = "unwind"

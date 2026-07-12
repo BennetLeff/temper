@@ -17,6 +17,7 @@ dev = [
     "python-sat>=1.9.dev5",
     "temper-geometry",
     "temper-dsn",
+    "temper-ipc",
 ]
 
 [tool.uv.workspace]
@@ -33,6 +34,7 @@ temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
 temper-geometry-core = { workspace = true }
 temper-dsn = { workspace = true }
+temper-ipc = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = [
