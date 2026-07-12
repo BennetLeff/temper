@@ -168,6 +168,31 @@ def _parse_board_geometry(config: dict, constraints: PlacementConstraints) -> No
             )
 
 
+def _parse_pcl_constraints(config: dict, constraints: PlacementConstraints) -> None:
+    """Parse a top-level ``constraints:`` list into PCL constraint objects.
+
+    The temper cooker config expresses its placement rules (enclosing,
+    adjacent, separated, on_side, aligned, loop_area, ...) as a top-level
+    ``constraints:`` list. Historically ``load_constraints`` had no parser
+    for this key, so the entire block was silently dropped — only the
+    auto-emitted keepout constraints reached the solver, leaving zone
+    enclosure and connector placement completely unenforced.
+
+    This delegates each entry to :func:`parse_constraint_dict`, the same
+    single-constraint parser the CLI already used inline, so there is one
+    parsing path for both. A malformed entry raises rather than being
+    skipped: a constraint the author wrote but the loader cannot parse is
+    a config bug, not something to swallow silently.
+    """
+    raw = config.get("constraints")
+    if not raw:
+        return
+    from temper_placer.pcl.parser import parse_constraint_dict
+
+    for entry in raw:
+        constraints.pcl_constraints.append(parse_constraint_dict(entry))
+
+
 def _emit_keepout_constraints(constraints: PlacementConstraints) -> None:
     """Auto-emit PCL KeepoutConstraint from zones with type='keepout'."""
     for zone in constraints.zones:
@@ -786,6 +811,7 @@ def load_constraints(config_path: Path) -> PlacementConstraints:
     constraints = PlacementConstraints()
 
     _parse_board_geometry(config, constraints)
+    _parse_pcl_constraints(config, constraints)
     _parse_feedback(config, constraints)
     _parse_clearance_rules(config, constraints)
     _parse_critical_loops(config, constraints)
@@ -864,6 +890,11 @@ _KNOWN_CONFIG_KEYS = frozenset(
         "nets",  # Net list
         "thermal",  # Thermal edge-preference constraints
         "via_array_overrides",  # Per-net via array templates
+        "constraints",  # Top-level PCL constraint list (parsed by _parse_pcl_constraints)
+        "version",  # Config schema/version metadata
+        "metadata",  # Free-form descriptive metadata block
+        "netclasses",  # Netclass definitions (consumed via netclass_rules SSOT)
+        "net_assignments",  # Net -> netclass assignments
     }
 )
 

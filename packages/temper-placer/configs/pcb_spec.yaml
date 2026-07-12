@@ -18,8 +18,11 @@ emi:
     gate_drive_loop: 30.0
   loop_components:
     commutation_loop: [C_BUS1, Q1, Q2, C_BUS2]
-    gate_drive_high: [U_GATE_DRV, R_GATE_H, Q1]
-    gate_drive_low: [U_GATE_DRV, R_GATE_L, Q2]
+    # U_GATE is the gate driver (UCC21550). Was U_GATE_DRV — a stale ref
+    # absent from the netlist, which made the loop-area encoder silently
+    # compute the loop over a partial component set.
+    gate_drive_high: [U_GATE, R_GATE_H, Q1]
+    gate_drive_low: [U_GATE, R_GATE_L, Q2]
   frequency_hz: 100000.0
 
 signal_integrity:

@@ -37,6 +37,16 @@ logger = logging.getLogger(__name__)
 
 UNSUPPORTED_TYPES: set[ConstraintType] = set()
 
+# Policy for constraints that reference unknown component/zone/loop names.
+# Defaults to "raise" (fail-closed): silent constraint drop is the exact
+# "looks applied but isn't" bug this guard exists to catch. Override via
+# TEMPER_UNRESOLVED_REF_POLICY=warn|ignore for exploratory runs.
+import os as _os
+
+_UNRESOLVED_REF_POLICY: str = _os.environ.get(
+    "TEMPER_UNRESOLVED_REF_POLICY", "raise"
+).lower()
+
 
 # ---------------------------------------------------------------------------
 # Encoder context
@@ -223,8 +233,21 @@ def _encode_adjacent(
 ) -> list[AssumptionLiteral]:
     """Constrain two components to be within max_distance_mm of each other.
 
-    Uses chebyshev distance: both |cx_a - cx_b| <= max_distance and same for y.
+    Honors ``constraint.metric``:
+
+    * ``EDGE_TO_EDGE`` (the default, and what the config's ``metric:
+      edge_to_edge`` selects): the *gap between bounding boxes* on each
+      axis must be ≤ max_distance. For a part of width w, edge-to-edge
+      distance d permits centers up to ``w + d`` apart — center-to-center
+      would wrongly demand centers within ``d``, which for a 25 mm part
+      and d=10 mm is unsatisfiable against no-overlap. This mismatch made
+      the temper power stage falsely infeasible.
+    * ``CENTER_TO_CENTER``: centroid Chebyshev distance ≤ max_distance.
+    * ``PIN_TO_PIN``: approximated as edge-to-edge (pin geometry is not
+      modelled in the placement grid).
     """
+    from temper_placer.pcl.constraints import DistanceMetric
+
     labels: list[AssumptionLiteral] = []
     va = components.get(constraint.a)
     vb = components.get(constraint.b)
@@ -236,10 +259,21 @@ def _encode_adjacent(
     label = f"adj_{constraint.id}"
     assumption = model.new_assumption(label)
 
-    model.add_constraint_enforced(va.x_center - vb.x_center <= max_d, assumption)
-    model.add_constraint_enforced(vb.x_center - va.x_center <= max_d, assumption)
-    model.add_constraint_enforced(va.y_center - vb.y_center <= max_d, assumption)
-    model.add_constraint_enforced(vb.y_center - va.y_center <= max_d, assumption)
+    metric = getattr(constraint, "metric", DistanceMetric.EDGE_TO_EDGE)
+    if metric == DistanceMetric.CENTER_TO_CENTER:
+        model.add_constraint_enforced(va.x_center - vb.x_center <= max_d, assumption)
+        model.add_constraint_enforced(vb.x_center - va.x_center <= max_d, assumption)
+        model.add_constraint_enforced(va.y_center - vb.y_center <= max_d, assumption)
+        model.add_constraint_enforced(vb.y_center - va.y_center <= max_d, assumption)
+    else:
+        # EDGE_TO_EDGE / PIN_TO_PIN: per-axis bounding-box gap ≤ max_d.
+        # When boxes overlap on an axis the (start - end) term is negative,
+        # so the bound is trivially satisfied — exactly the "touching counts
+        # as zero gap" semantics of edge-to-edge distance.
+        model.add_constraint_enforced(va.x_start - vb.x_end <= max_d, assumption)
+        model.add_constraint_enforced(vb.x_start - va.x_end <= max_d, assumption)
+        model.add_constraint_enforced(va.y_start - vb.y_end <= max_d, assumption)
+        model.add_constraint_enforced(vb.y_start - va.y_end <= max_d, assumption)
     labels.append(assumption)
     return labels
 
@@ -617,6 +651,97 @@ def _resolve_refs(
     return []
 
 
+class UnresolvedConstraintRefsError(ValueError):
+    """Raised when constraints reference component refs absent from the netlist.
+
+    A constraint whose operand does not resolve to any component is a
+    silent no-op — it is encoded against nothing and simply drops. That
+    is a fail-closed violation: config↔netlist drift (a renamed or
+    missing component) silently degrades the placement with no signal.
+    Making it raise turns "looks applied but isn't" into an error at the
+    resolution boundary, which is the one place it can be caught cheaply.
+    """
+
+
+def validate_constraint_refs(
+    constraints: list,
+    component_refs: set[str],
+    zone_names: set[str],
+    loop_names: set[str],
+    *,
+    on_unresolved: str = "raise",
+) -> dict[str, list[str]]:
+    """Check that every component ref in *constraints* actually resolves.
+
+    A component operand resolves if it is a known component ref or a zone
+    name (zones expand to their members, mirroring ``_resolve_refs``).
+    Zone-only operands (``outer``, ``zone_name``) must be zones;
+    ``loop_name`` operands must be known loops. Anything else is drift.
+
+    Args:
+        constraints: PCL constraint objects (duck-typed by attribute).
+        component_refs: Known component refs from the netlist.
+        zone_names: Known zone names.
+        loop_names: Known loop-definition names.
+        on_unresolved: ``"raise"`` (default) raises
+            :class:`UnresolvedConstraintRefsError`; ``"warn"`` logs a
+            warning; ``"ignore"`` only returns the report.
+
+    Returns:
+        Mapping of ``constraint_id -> [unresolved refs]`` (empty if clean).
+    """
+    comp_or_zone = component_refs | zone_names
+    unresolved: dict[str, list[str]] = {}
+
+    for c in constraints:
+        cid = getattr(c, "id", "") or type(c).__name__
+        missing: list[str] = []
+
+        # Component operands: must be a component or a zone (zones expand).
+        for attr in ("a", "b", "component"):
+            val = getattr(c, attr, None)
+            if isinstance(val, str) and val not in comp_or_zone:
+                missing.append(val)
+        for attr in ("inner", "components"):
+            val = getattr(c, attr, None)
+            if isinstance(val, (list, tuple)):
+                missing.extend(r for r in val if isinstance(r, str) and r not in comp_or_zone)
+
+        # Zone-only operands: must be a known zone.
+        for attr in ("outer", "zone_name"):
+            val = getattr(c, attr, None)
+            if isinstance(val, str) and val not in zone_names:
+                missing.append(val)
+
+        # Loop operands: must be a known loop definition.
+        loop_name = getattr(c, "loop_name", None)
+        if isinstance(loop_name, str) and loop_name not in loop_names:
+            missing.append(loop_name)
+
+        if missing:
+            # De-dup while preserving order.
+            seen: set[str] = set()
+            unresolved[cid] = [m for m in missing if not (m in seen or seen.add(m))]
+
+    if unresolved and on_unresolved != "ignore":
+        lines = [
+            f"  {cid}: {', '.join(refs)}" for cid, refs in sorted(unresolved.items())
+        ]
+        msg = (
+            "Constraint(s) reference names absent from the netlist/zones/loops "
+            "— these would silently drop (fail-closed violation):\n"
+            + "\n".join(lines)
+            + "\nFix the config↔netlist drift (rename or add the components), "
+            "or pass on_unresolved='warn' to downgrade."
+        )
+        if on_unresolved == "raise":
+            raise UnresolvedConstraintRefsError(msg)
+        logger.warning(msg)
+
+    return unresolved
+
+
+
 # ---------------------------------------------------------------------------
 # Extra constraints (feedback-driven)
 # ---------------------------------------------------------------------------
@@ -884,11 +1009,19 @@ def solve_placement(
     model_wrapper.add_no_overlap_2d(comp_refs)
 
     # Build EncoderContext from board and netlist data.
-    resolved_zones: dict[str, tuple[float, float, float, float]] = dict(zones or {})
+    # Coerce every zone rectangle to a validated Rect (x_min,y_min,x_max,y_max)
+    # so an inverted/degenerate zone — the (x,y,w,h) convention mismatch —
+    # fails loudly here instead of silently encoding an empty, infeasible
+    # enclosing region.
+    from temper_placer.core.board import Rect
+
+    resolved_zones: dict[str, Rect] = {
+        name: Rect.coerce(bounds) for name, bounds in (zones or {}).items()
+    }
     resolved_zone_components: dict[str, list[str]] = dict(zone_components or {})
     for z in board.zones:
         if z.name not in resolved_zones:
-            resolved_zones[z.name] = z.bounds
+            resolved_zones[z.name] = Rect.coerce(z.bounds)
         zone_refs = list(z.components)
         for comp in netlist.components:
             if getattr(comp, "zone", None) == z.name and comp.ref not in zone_refs:
@@ -914,6 +1047,17 @@ def solve_placement(
     pcl_coll = getattr(board, "constraints", None)
     if pcl_coll is not None:
         constraint_objects.extend(pcl_coll)
+
+    # Fail loud on config↔netlist drift: a constraint operand that resolves
+    # to nothing is a silent no-op, so validate before encoding. This is the
+    # fail-closed guard for the "looks applied but isn't" failure mode.
+    validate_constraint_refs(
+        constraint_objects,
+        component_refs=set(model_wrapper.component_map.keys()),
+        zone_names=set(resolved_zones.keys()),
+        loop_names=set(ctx.loop_components.keys()),
+        on_unresolved=_UNRESOLVED_REF_POLICY,
+    )
 
     labels = encode_constraints(
         constraint_objects,

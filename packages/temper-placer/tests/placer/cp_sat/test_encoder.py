@@ -119,6 +119,55 @@ class TestAdjacent:
         assert dist_x <= 1000, f"x centre distance {dist_x} > 1000 units"
         assert dist_y <= 1000, f"y centre distance {dist_y} > 1000 units"
 
+    def test_adjacent_edge_to_edge_allows_wide_parts_side_by_side(self) -> None:
+        # Regression: two wide parts that cannot overlap must still satisfy
+        # a small edge_to_edge adjacency. Under the old (buggy) center-to-center
+        # encoding this was infeasible (centers >= width apart >> max_distance).
+        from temper_placer.pcl.constraints import DistanceMetric
+
+        model = CpSatModel(units_per_mm=100)
+        # 25.3mm x 3.5mm parts (like the IGBTs), on a 100x150mm board.
+        model.add_component("Q1", 0, 0, 2530, 350)
+        model.add_component("Q2", 0, 0, 2530, 350)
+        model.add_rotation("Q1", is_polarized=True)
+        model.add_rotation("Q2", is_polarized=True)
+        model.set_bounds(0, 0, 10000, 15000)
+        model.add_no_overlap_2d(["Q1", "Q2"])
+
+        c = AdjacentConstraint(
+            "Q1", "Q2", max_distance_mm=10.0, tier=ConstraintTier.HARD,
+            metric=DistanceMetric.EDGE_TO_EDGE,
+            because="Half-bridge IGBTs within 10mm edge-to-edge for tight loop",
+        )
+        ctx = EncoderContext(board_w_mm=100.0, board_h_mm=150.0,
+                             board_x_max_units=10000, board_y_max_units=15000)
+        encode_constraints([c], model, ctx)
+        sol = model.solve(time_limit_s=2.0)
+        assert sol.feasible, "edge_to_edge adjacency of wide parts must be feasible"
+
+    def test_adjacent_center_to_center_still_supported(self) -> None:
+        from temper_placer.pcl.constraints import DistanceMetric
+
+        model = CpSatModel(units_per_mm=100)
+        model.add_component("A", 0, 0, 200, 200)
+        model.add_component("B", 0, 0, 200, 200)
+        model.add_rotation("A", is_polarized=True)
+        model.add_rotation("B", is_polarized=True)
+        model.set_bounds(0, 0, 2000, 2000)
+        c = AdjacentConstraint(
+            "A", "B", max_distance_mm=5.0, tier=ConstraintTier.HARD,
+            metric=DistanceMetric.CENTER_TO_CENTER,
+            because="Center-to-center metric must remain available and correct",
+        )
+        ctx = EncoderContext(board_w_mm=20.0, board_h_mm=20.0,
+                             board_x_max_units=2000, board_y_max_units=2000)
+        encode_constraints([c], model, ctx)
+        sol = model.solve(time_limit_s=1.0)
+        assert sol.feasible
+        ax, ay = sol.positions["A"]
+        bx, by = sol.positions["B"]
+        assert abs(ax - bx) <= 500 and abs(ay - by) <= 500
+
 
 class TestOnSide:
     """ON_SIDE encoding tests."""
@@ -282,3 +331,64 @@ class TestEncoderDispatch:
         from temper_placer.placer.cp_sat.encoder import UNSUPPORTED_TYPES
         UNSUPPORTED_TYPES.clear()
         assert len(UNSUPPORTED_TYPES) == 0
+
+
+class TestValidateConstraintRefs:
+    """Fail-closed guard against config↔netlist drift (silent constraint drop)."""
+
+    def _c(self, **kw):
+        return SeparatedConstraint(
+            a=kw["a"], b=kw["b"], min_distance_mm=1.0,
+            tier=ConstraintTier.STRONG, because="test rationale ok", id=kw.get("id", "s1"),
+        )
+
+    def test_all_resolvable_is_clean(self) -> None:
+        from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+        c = self._c(a="R1", b="R2")
+        report = validate_constraint_refs(
+            [c], component_refs={"R1", "R2"}, zone_names=set(), loop_names=set(),
+        )
+        assert report == {}
+
+    def test_zone_operand_resolves(self) -> None:
+        from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+        # A zone name is a valid operand (zones expand to members).
+        c = self._c(a="HV_ZONE", b="R1")
+        report = validate_constraint_refs(
+            [c], component_refs={"R1"}, zone_names={"HV_ZONE"}, loop_names=set(),
+        )
+        assert report == {}
+
+    def test_unresolved_ref_raises(self) -> None:
+        from temper_placer.placer.cp_sat.encoder import (
+            UnresolvedConstraintRefsError,
+            validate_constraint_refs,
+        )
+        import pytest
+        c = self._c(a="J_AC", b="R1", id="sep_J_AC_R1")  # J_AC not on board
+        with pytest.raises(UnresolvedConstraintRefsError) as exc:
+            validate_constraint_refs(
+                [c], component_refs={"R1"}, zone_names=set(), loop_names=set(),
+            )
+        assert "J_AC" in str(exc.value)
+
+    def test_warn_policy_does_not_raise(self) -> None:
+        from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+        c = self._c(a="J_AC", b="R1", id="sep_J_AC_R1")
+        report = validate_constraint_refs(
+            [c], component_refs={"R1"}, zone_names=set(), loop_names=set(),
+            on_unresolved="warn",
+        )
+        assert report == {"sep_J_AC_R1": ["J_AC"]}
+
+    def test_enclosing_inner_and_outer(self) -> None:
+        from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+        c = EnclosingConstraint(
+            outer="HV_ZONE", inner=["Q1", "GHOST"], tier=ConstraintTier.HARD,
+            because="containment rationale", id="enc_HV",
+        )
+        report = validate_constraint_refs(
+            [c], component_refs={"Q1"}, zone_names={"HV_ZONE"}, loop_names=set(),
+            on_unresolved="warn",
+        )
+        assert report == {"enc_HV": ["GHOST"]}

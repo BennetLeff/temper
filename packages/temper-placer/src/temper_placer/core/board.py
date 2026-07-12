@@ -355,6 +355,114 @@ class LayerStackup:
         return (grid_size / pitch) * layers
 
 
+@dataclass(frozen=True, eq=False)
+class Rect:
+    """An axis-aligned rectangle in board coordinates (mm).
+
+    The canonical bounds representation across the placer is
+    ``(x_min, y_min, x_max, y_max)``. A bare 4-tuple is dangerously
+    ambiguous — ``[70, 0, 50, 80]`` reads equally well as an
+    ``(x, y, width, height)`` rectangle or as an *inverted*
+    ``(x_min, y_min, x_max, y_max)`` one, and the two conventions were
+    silently mixed across configs, the loader, and the CP-SAT encoder.
+    That mismatch produced empty zones and infeasible placements with no
+    error at the point of the mistake.
+
+    ``Rect`` removes the ambiguity by construction:
+
+    * The two conventions are separate, self-documenting constructors —
+      :meth:`from_xyxy` and :meth:`from_xywh`. You cannot build a ``Rect``
+      without stating which one you mean.
+    * The min/max invariant (``x_max > x_min`` and ``y_max > y_min``) is
+      validated at construction, so an inverted or degenerate rectangle
+      raises :class:`ValueError` at the mistake site instead of silently
+      becoming an empty region downstream.
+
+    ``Rect`` is iterable and indexable and unpacks as
+    ``(x_min, y_min, x_max, y_max)``, so it is a drop-in replacement for
+    the legacy tuple everywhere bounds are consumed positionally.
+    """
+
+    x_min: float
+    y_min: float
+    x_max: float
+    y_max: float
+
+    def __post_init__(self) -> None:
+        if not (self.x_max > self.x_min):
+            raise ValueError(
+                f"Rect requires x_max > x_min, got x_min={self.x_min}, "
+                f"x_max={self.x_max}. If you have (x, y, width, height) "
+                f"bounds, build with Rect.from_xywh(...)."
+            )
+        if not (self.y_max > self.y_min):
+            raise ValueError(
+                f"Rect requires y_max > y_min, got y_min={self.y_min}, "
+                f"y_max={self.y_max}. If you have (x, y, width, height) "
+                f"bounds, build with Rect.from_xywh(...)."
+            )
+
+    @classmethod
+    def from_xyxy(
+        cls, x_min: float, y_min: float, x_max: float, y_max: float
+    ) -> Rect:
+        """Build from ``(x_min, y_min, x_max, y_max)`` — the canonical form."""
+        return cls(float(x_min), float(y_min), float(x_max), float(y_max))
+
+    @classmethod
+    def from_xywh(cls, x: float, y: float, width: float, height: float) -> Rect:
+        """Build from an ``(x, y, width, height)`` origin+size rectangle."""
+        return cls(float(x), float(y), float(x) + float(width), float(y) + float(height))
+
+    @classmethod
+    def coerce(cls, value: Rect | tuple[float, float, float, float]) -> Rect:
+        """Coerce a legacy 4-tuple (assumed ``x_min,y_min,x_max,y_max``) to Rect.
+
+        Accepts an existing ``Rect`` unchanged. This is the migration
+        seam for call sites that still pass raw tuples; it deliberately
+        assumes the canonical ``xyxy`` convention and inherits the
+        invariant check, so a mis-conventioned tuple fails loudly here.
+        """
+        if isinstance(value, cls):
+            return value
+        x_min, y_min, x_max, y_max = value
+        return cls.from_xyxy(x_min, y_min, x_max, y_max)
+
+    @property
+    def width(self) -> float:
+        return self.x_max - self.x_min
+
+    @property
+    def height(self) -> float:
+        return self.y_max - self.y_min
+
+    def __iter__(self):
+        yield self.x_min
+        yield self.y_min
+        yield self.x_max
+        yield self.y_max
+
+    def __getitem__(self, index: int) -> float:
+        return (self.x_min, self.y_min, self.x_max, self.y_max)[index]
+
+    def __len__(self) -> int:
+        return 4
+
+    def __eq__(self, other: object) -> bool:
+        # Compare equal to both another Rect and a legacy 4-tuple/list, so
+        # Rect is a true drop-in for the tuple it replaces (existing code and
+        # tests that assert ``zone.bounds == (x_min, y_min, x_max, y_max)``
+        # keep working).
+        if isinstance(other, Rect):
+            other = (other.x_min, other.y_min, other.x_max, other.y_max)
+        if isinstance(other, (tuple, list)) and len(other) == 4:
+            return (self.x_min, self.y_min, self.x_max, self.y_max) == tuple(other)
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash((self.x_min, self.y_min, self.x_max, self.y_max))
+
+
 @dataclass
 class Zone:
     """
@@ -363,6 +471,9 @@ class Zone:
     Attributes:
         name: Unique zone name.
         bounds: (x_min, y_min, x_max, y_max) relative to board origin.
+            Coerced to a validated :class:`Rect` on construction, so an
+            inverted or degenerate zone raises at build time rather than
+            silently becoming an empty region.
         net_classes: Allowed net classes in this zone.
         components: Mandatory components for this zone.
         weight: Priority weight for zone constraints.
@@ -371,7 +482,7 @@ class Zone:
     """
 
     name: str
-    bounds: tuple[float, float, float, float]
+    bounds: Rect | tuple[float, float, float, float]
     net_classes: list[str] = field(default_factory=lambda: ["Signal"])
     components: list[str] = field(default_factory=list)
     weight: float = 1.0
@@ -382,6 +493,13 @@ class Zone:
     max_size: tuple[float, float] | None = None
     can_expand: list[str] = field(default_factory=lambda: ["up", "down", "left", "right"])
     zone_type: str = "placement"
+
+    def __post_init__(self) -> None:
+        # Coerce legacy 4-tuple bounds to a validated Rect so a zone can
+        # never hold an inverted or degenerate rectangle. This is the
+        # invariant that turns the (x,y,w,h) vs (x_min,y_min,x_max,y_max)
+        # convention mismatch into a construction-time error.
+        self.bounds = Rect.coerce(self.bounds)
 
     @property
     def width(self) -> float:

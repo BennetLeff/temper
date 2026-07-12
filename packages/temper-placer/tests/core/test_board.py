@@ -12,12 +12,53 @@ from temper_placer.core.board import (
     LayerIndex,
     LayerStackup,
     MountingHole,
+    Rect,
     Zone,
     is_plane_layer,
     is_signal_layer,
     layer_name_to_index,
     side_to_layer_name,
 )
+
+
+class TestRect:
+    """Tests for the Rect value type — the anti-ambiguity guard."""
+
+    def test_from_xyxy(self):
+        r = Rect.from_xyxy(0, 80, 100, 150)
+        assert tuple(r) == (0.0, 80.0, 100.0, 150.0)
+        assert r.width == 100.0
+        assert r.height == 70.0
+
+    def test_from_xywh_distinct_from_xyxy(self):
+        # Same four numbers, two conventions, two different rectangles.
+        assert tuple(Rect.from_xywh(70, 0, 50, 80)) == (70.0, 0.0, 120.0, 80.0)
+        assert tuple(Rect.from_xyxy(0, 0, 50, 80)) == (0.0, 0.0, 50.0, 80.0)
+
+    def test_inverted_rect_raises(self):
+        # The exact bug: (x, y, w, h) numbers fed as xyxy invert the rect.
+        with pytest.raises(ValueError):
+            Rect.from_xyxy(70, 0, 50, 80)  # x_max < x_min
+        with pytest.raises(ValueError):
+            Rect.from_xyxy(60, 0, 10, 80)  # x_max < x_min
+
+    def test_degenerate_rect_raises(self):
+        with pytest.raises(ValueError):
+            Rect.from_xyxy(0, 0, 0, 80)  # zero width
+        with pytest.raises(ValueError):
+            Rect.from_xyxy(0, 0, 80, 0)  # zero height
+
+    def test_coerce_passthrough_and_tuple(self):
+        r = Rect.from_xyxy(0, 0, 10, 10)
+        assert Rect.coerce(r) is r
+        assert Rect.coerce((0, 0, 10, 10)) == (0, 0, 10, 10)
+
+    def test_tuple_compat(self):
+        r = Rect.from_xyxy(1, 2, 3, 4)
+        assert r == (1, 2, 3, 4)  # equals a legacy tuple
+        assert list(r) == [1.0, 2.0, 3.0, 4.0]
+        assert r[0] == 1.0 and r[2] == 3.0
+        assert len(r) == 4
 
 
 class TestZone:
@@ -31,6 +72,11 @@ class TestZone:
         assert zone.height == 80.0
         assert zone.area == 4000.0
         assert zone.center == (25.0, 40.0)
+
+    def test_inverted_bounds_raise(self):
+        # A Zone can never silently hold an inverted rectangle.
+        with pytest.raises(ValueError):
+            Zone("BAD", (70, 0, 50, 80))
 
     def test_contains_point(self):
         """Test point containment."""

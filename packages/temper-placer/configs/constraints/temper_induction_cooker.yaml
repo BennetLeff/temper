@@ -9,7 +9,7 @@ metadata:
   description: "Complete constraint set for Temper induction cooker PCB placement"
   project: "temper"
   version: "1.0.0"
-  board_size: "120mm x 80mm"
+  board_size: "100mm x 150mm"
   layer_count: 4
   author: "Temper Project"
   date: "2025-12-19"
@@ -18,24 +18,31 @@ metadata:
 # Note: 'extends' mechanism to be implemented in parser (Epic 2 scope)
 # For now, constraints are inlined below
 
+# Board is 100mm (x) x 150mm (y); origin bottom-left. Zone bounds are the
+# canonical (x_min, y_min, x_max, y_max) form (see core.board.Rect).
+# The HV stage sits at the TOP edge (high y) and the MCU stage at the
+# BOTTOM edge (low y) so the on_side connector constraints below are
+# consistent: J_AC_IN/J_COIL on_side=top land in HV_ZONE, and
+# J_DEBUG on_side=bottom lands in MCU_ZONE. A 10mm isolation barrier
+# separates them.
 zones:
-  # High-voltage power zone
-  - name: HV_ZONE
-    bounds: [0, 0, 60, 80]
-    type: hv
-    description: "High-voltage power stage (IGBTs, gate driver, DC bus)"
-
-  # Low-voltage control zone
+  # Microcontroller / low-voltage control zone (bottom of board)
   - name: MCU_ZONE
-    bounds: [70, 0, 50, 80]
+    bounds: [0, 0, 100, 70]
     type: lv
     description: "Microcontroller and low-voltage control circuits"
 
-  # Isolation barrier
+  # Isolation barrier (10mm strip between LV and HV)
   - name: ISOLATION_BARRIER
-    bounds: [60, 0, 10, 80]
+    bounds: [0, 70, 100, 80]
     type: keepout
     description: "10mm isolation barrier between HV and LV zones"
+
+  # High-voltage power zone (top of board)
+  - name: HV_ZONE
+    bounds: [0, 80, 100, 150]
+    type: hv
+    description: "High-voltage power stage (IGBTs, gate driver, DC bus)"
 
 constraints:
   # ============================================================
@@ -98,30 +105,36 @@ constraints:
   # DECOUPLING AND BOOTSTRAP
   # ============================================================
   
-  - type: adjacent
-    a: U_GATE
-    b: C_VCC1
-    max_distance_mm: 3
-    pin_a: VCC1
-    metric: pin_to_pin
-    tier: 1
-    because: "Gate driver low-side supply decoupling must be immediate (<3mm) for noise immunity and clean switching."
+  # DISABLED (config↔netlist drift): C_VCC1/C_VCC2 are not on the current
+  # netlist (board has a single C_VCC). Whether the gate driver needs one or
+  # two VCC decoupling caps is a board-completeness decision, not a rename —
+  # re-enable with the real ref(s) once resolved.
+  # - type: adjacent
+  #   a: U_GATE
+  #   b: C_VCC1
+  #   max_distance_mm: 3
+  #   pin_a: VCC1
+  #   metric: pin_to_pin
+  #   tier: 1
+  #   because: "Gate driver low-side supply decoupling must be immediate (<3mm) for noise immunity and clean switching."
+  #
+  # - type: adjacent
+  #   a: U_GATE
+  #   b: C_VCC2
+  #   max_distance_mm: 3
+  #   pin_a: VCC2
+  #   metric: pin_to_pin
+  #   tier: 1
+  #   because: "Gate driver high-side supply decoupling critical for bootstrap charging and high-side operation."
 
-  - type: adjacent
-    a: U_GATE
-    b: C_VCC2
-    max_distance_mm: 3
-    pin_a: VCC2
-    metric: pin_to_pin
-    tier: 1
-    because: "Gate driver high-side supply decoupling critical for bootstrap charging and high-side operation."
-
-  - type: adjacent
-    a: D_BOOT
-    b: C_BOOT
-    max_distance_mm: 5
-    tier: 1
-    because: "Bootstrap diode and capacitor form tight loop for fast charging during low-side on-time."
+  # DISABLED (config↔netlist drift): D_BOOT (bootstrap diode) absent from
+  # netlist. Board-completeness question, not a rename.
+  # - type: adjacent
+  #   a: D_BOOT
+  #   b: C_BOOT
+  #   max_distance_mm: 5
+  #   tier: 1
+  #   because: "Bootstrap diode and capacitor form tight loop for fast charging during low-side on-time."
 
   # ============================================================
   # SAFETY ISOLATION (IEC 60335-1)
@@ -135,7 +148,7 @@ constraints:
     because: "IEC 60335-1 requires 10mm creepage/clearance for reinforced isolation at 400V working voltage."
 
   - type: separated
-    a: J_AC
+    a: J_AC_IN
     b: U_MCU
     min_distance_mm: 15.0
     tier: 1
@@ -175,7 +188,7 @@ constraints:
 
   - type: separated
     a: Q1
-    b: U_RTD
+    b: MAX31865
     min_distance_mm: 40
     tier: 2
     because: "RTD accuracy affected by IGBT heat (>30W dissipation). 40mm+ separation needed for <1°C error."
@@ -192,25 +205,26 @@ constraints:
   # ============================================================
   
   - type: on_side
-    components: [J_AC, J_COIL]
+    components: [J_AC_IN, J_COIL]
     side: top
     edge: overhang
     tier: 1
     because: "AC mains input and coil output connectors at top board edge for enclosure access and cable routing."
 
   - type: separated
-    a: J_AC
+    a: J_AC_IN
     b: J_COIL
     min_distance_mm: 20
     tier: 2
     because: "AC input and coil output separated for independent cable routing and reduced magnetic coupling."
 
-  - type: on_side
-    components: [J_FAN]
-    side: right
-    edge: overhang
-    tier: 2
-    because: "Fan connector on right side for internal wiring to cooling fan inside enclosure."
+  # DISABLED (config↔netlist drift): J_FAN (fan connector) absent from netlist.
+  # - type: on_side
+  #   components: [J_FAN]
+  #   side: right
+  #   edge: overhang
+  #   tier: 2
+  #   because: "Fan connector on right side for internal wiring to cooling fan inside enclosure."
 
   - type: on_side
     components: [J_DEBUG]
@@ -222,38 +236,43 @@ constraints:
   # ============================================================
   # RESONANT TANK
   # ============================================================
-  
-  - type: adjacent
-    a: C_TANK
-    b: J_COIL
-    max_distance_mm: 25
-    tier: 2
-    because: "Resonant capacitor close to coil connector to minimize resonant loop inductance at 25kHz."
-
-  - type: on_side
-    components: [C_TANK]
-    side: top
-    edge: near
-    tier: 3
-    because: "Tank capacitor near top edge close to coil connection for short high-current path."
+  # DISABLED (config↔netlist drift): C_TANK (resonant tank cap) absent from
+  # netlist. Board-completeness question — the tank cap is functionally
+  # required for a resonant induction stage, so this likely indicates a
+  # missing part, not a spurious constraint. Re-enable when C_TANK lands.
+  # - type: adjacent
+  #   a: C_TANK
+  #   b: J_COIL
+  #   max_distance_mm: 25
+  #   tier: 2
+  #   because: "Resonant capacitor close to coil connector to minimize resonant loop inductance at 25kHz."
+  #
+  # - type: on_side
+  #   components: [C_TANK]
+  #   side: top
+  #   edge: near
+  #   tier: 3
+  #   because: "Tank capacitor near top edge close to coil connection for short high-current path."
 
   # ============================================================
   # CURRENT SENSING
   # ============================================================
-  
-  - type: adjacent
-    a: CT1
-    b: R_BURDEN
-    max_distance_mm: 5
-    tier: 2
-    because: "Current transformer secondary must have minimal lead inductance to burden resistor for accurate sensing."
-
-  - type: separated
-    a: CT1
-    b: U_MCU
-    min_distance_mm: 10
-    tier: 2
-    because: "CT carries high di/dt current and can induce noise in nearby traces without proper separation."
+  # DISABLED (config↔netlist drift): CT1 absent from netlist. The board has
+  # U_CT (current-transformer IC) and U_OPAMP_CT — whether CT1 maps to one of
+  # these is an intent decision, not an unambiguous rename.
+  # - type: adjacent
+  #   a: CT1
+  #   b: R_BURDEN
+  #   max_distance_mm: 5
+  #   tier: 2
+  #   because: "Current transformer secondary must have minimal lead inductance to burden resistor for accurate sensing."
+  #
+  # - type: separated
+  #   a: CT1
+  #   b: U_MCU
+  #   min_distance_mm: 10
+  #   tier: 2
+  #   because: "CT carries high di/dt current and can induce noise in nearby traces without proper separation."
 
   # ============================================================
   # ZONE ENCLOSURES
@@ -261,13 +280,21 @@ constraints:
   
   - type: enclosing
     outer: HV_ZONE
-    inner: [Q1, Q2, C_BUS1, C_BUS2, J_AC, J_COIL, U_GATE, D_BOOT, C_BOOT, C_TANK]
+    # NOTE: D_BOOT (bootstrap diode) and C_TANK (resonant tank cap) are
+    # referenced by the original design but ABSENT from the current netlist.
+    # They are a board-completeness question (should these parts exist?),
+    # not a rename — see docs handoff. Removed from inner until resolved so
+    # the constraint resolves fail-closed; re-add when the parts land.
+    inner: [Q1, Q2, C_BUS1, C_BUS2, J_AC_IN, J_COIL, U_GATE, C_BOOT]
     tier: 1
     because: "All high-voltage components contained in HV zone for safety isolation and EMI management."
 
   - type: enclosing
     outer: MCU_ZONE
-    inner: [U_MCU, U_RTD, U_SPI_FLASH, J_DEBUG]
+    # NOTE: U_SPI_FLASH is referenced but ABSENT from the current netlist
+    # (board-completeness question, not a rename). U_RTD renamed to its
+    # real ref MAX31865 (the RTD sensor frontend).
+    inner: [U_MCU, MAX31865, J_DEBUG]
     tier: 1
     because: "All low-voltage control components in MCU zone for user safety and signal integrity."
 
