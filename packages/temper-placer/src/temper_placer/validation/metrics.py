@@ -20,7 +20,7 @@ Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retire
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Netlist
-from temper_placer.core.pin_geometry import pin_world_position
+from temper_placer.core.pin_geometry import pin_world_position_at
 from temper_placer.core.state import PlacementState
 from temper_placer.geometry.overlap import (
     compute_pairwise_distances,
@@ -370,9 +370,6 @@ def _compute_wirelength_metrics(
     max_net_length = 0.0
     net_lengths = []
 
-    # Rotation angles for each index (0, 90, 180, 270 degrees)
-    rotation_angles = [0.0, np.pi / 2, np.pi, 3 * np.pi / 2]
-
     for net in netlist.nets:
         if len(net.pins) < 2:
             continue
@@ -389,13 +386,10 @@ def _compute_wirelength_metrics(
                 if pin is None:
                     continue
 
-                # Get component position and rotation
-                positions[comp_idx]
+                # Compute absolute pin position from live placement state
                 rot_idx = int(rotation_indices[comp_idx])
-                rotation_angles[rot_idx]
-
-                # Compute absolute pin position
-                abs_pos = pin_world_position(pin, comp)
+                pos_override = (float(positions[comp_idx, 0]), float(positions[comp_idx, 1]))
+                abs_pos = pin_world_position_at(pin, comp, pos_override=pos_override, rotation_override=rot_idx)
                 pin_positions.append(abs_pos)
             except (KeyError, IndexError):
                 continue
