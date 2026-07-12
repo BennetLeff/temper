@@ -573,6 +573,11 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             continue
         path_length = getattr(path, "path_length", 0.0)
         width = getattr(compiled_route, "width_mm", 0.2)
+        # Defense-in-depth: never emit a zero/negative-width track (KiCad DRC
+        # flags these as track_width violations). getattr's default does not
+        # catch a present-but-zero width, so guard explicitly.
+        if not width or width <= 0.0:
+            width = 0.2
         net_num = net_name_to_number.get(net_name, 0)
         pads = pad_positions.get(net_name, [])
 

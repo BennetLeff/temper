@@ -128,10 +128,21 @@ def compile_routing_results(
         )
         for name in plane_net_names:
             if name not in compiled_routes:
+                # Plane nets still emit real MST trace geometry in the exporter
+                # (adapter._inject_routed_traces), so they MUST carry a real
+                # trace width. width_mm=0.0 produced zero-width tracks that KiCad
+                # DRC flags as track_width violations. Use the net's assigned
+                # width, falling back to the standard default.
+                plane_width = width_assignment.get_width(name)
+                if not plane_width or plane_width <= 0.0:
+                    # Board minimum track width (default_trace_width_mm). Power/
+                    # ground planes physically want wider copper, but the MST
+                    # fallback trace must at least clear the DRC minimum.
+                    plane_width = 0.2
                 compiled_routes[name] = CompiledRoute(
                     net_name=name,
                     path=dummy_path,
-                    width_mm=0.0,
+                    width_mm=plane_width,
                     vias=[],
                     matched_length_mm=None,
                 )
