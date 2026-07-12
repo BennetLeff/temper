@@ -1,28 +1,17 @@
 """
-Polygon operations for temper-placer.
+Polygon operations — Rust-backed via temper_geometry.
 
-This module provides polygon operations essential for:
+This module provides polygon operations for:
 - Loop area loss (gate drive loops, bootstrap loops)
 - Zone containment checking
 - Component grouping and clustering
 
-Implemented with NumPy (post-JAX retirement).
-
-Key algorithms:
+Key algorithms (Rust implementation):
 - Shoelace formula for polygon area
-- Winding number for point-in-polygon (soft version for smooth transitions)
+- Winding number for point-in-polygon
 - Convex hull for component bounding
 """
-from typing import TypeAlias
-
-import numpy as np
-
-Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
-
-
-def _sigmoid(z: Array) -> Array:
-    """Logistic sigmoid, 1 / (1 + exp(-z)) (NumPy replacement for jax.nn.sigmoid)."""
-    return 1.0 / (1.0 + np.exp(-z))
+import temper_geometry as _tg
 
 
 # =============================================================================
@@ -30,61 +19,42 @@ def _sigmoid(z: Array) -> Array:
 # =============================================================================
 
 
-def polygon_area(vertices: Array) -> Array:
-    """
-    Compute area of a polygon using the shoelace formula.
-
-    The shoelace formula is fully differentiable:
-        A = 0.5 * |sum(x_i * y_{i+1} - x_{i+1} * y_i)|
+def polygon_area(vertices):
+    """Compute area of a polygon using the shoelace formula.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array, ordered (CW or CCW)
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
         Polygon area (always positive)
     """
-    # Roll vertices to get (i+1) indices
-    vertices_next = np.roll(vertices, -1, axis=0)
-
-    # Shoelace formula: sum of cross products
-    # cross = x_i * y_{i+1} - x_{i+1} * y_i
-    cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
-
-    # Area is half the absolute value of the sum
-    return np.abs(np.sum(cross)) / 2.0
+    return _tg.polygon_area(vertices)
 
 
-def polygon_signed_area(vertices: Array) -> Array:
-    """
-    Compute signed area of a polygon (positive for CCW, negative for CW).
+def polygon_signed_area(vertices):
+    """Compute signed area of a polygon (positive for CCW, negative for CW).
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
         Signed polygon area
     """
-    vertices_next = np.roll(vertices, -1, axis=0)
-    cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
-    return np.sum(cross) / 2.0
+    return _tg.polygon_signed_area(vertices)
 
 
-def triangle_area(p1: Array, p2: Array, p3: Array) -> Array:
-    """
-    Compute area of a triangle from three points.
+def triangle_area(ax, ay, bx, by, cx, cy):
+    """Compute area of a triangle from three points.
 
     Args:
-        p1, p2, p3: Triangle vertices as (x, y) arrays
+        ax, ay: First vertex coordinates
+        bx, by: Second vertex coordinates
+        cx, cy: Third vertex coordinates
 
     Returns:
         Triangle area (always positive)
     """
-    # Using cross product formula
-    # Area = 0.5 * |((p2-p1) x (p3-p1))|
-    v1 = p2 - p1
-    v2 = p3 - p1
-    cross = v1[0] * v2[1] - v1[1] * v2[0]
-    return np.abs(cross) / 2.0
+    return _tg.triangle_area(ax, ay, bx, by, cx, cy)
 
 
 # =============================================================================
@@ -92,58 +62,16 @@ def triangle_area(p1: Array, p2: Array, p3: Array) -> Array:
 # =============================================================================
 
 
-def polygon_centroid(vertices: Array, eps: float = 1e-10) -> Array:
-    """
-    Compute centroid of a polygon.
-
-    The centroid is the center of mass assuming uniform density.
-
-    For degenerate polygons (collinear points, zero area), falls back to
-    computing the mean of vertices to avoid division by zero.
+def polygon_centroid(vertices):
+    """Compute centroid of a polygon.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
-        eps: Threshold for considering area as zero (default 1e-10)
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
-        Centroid as (x, y) array (always finite)
+        (cx, cy) centroid coordinates
     """
-    vertices_next = np.roll(vertices, -1, axis=0)
-
-    # Cross products for area calculation
-    cross = vertices[:, 0] * vertices_next[:, 1] - vertices_next[:, 0] * vertices[:, 1]
-
-    # Signed area
-    area = np.sum(cross) / 2.0
-
-    # Centroid coordinates (standard formula)
-    cx_standard = np.sum((vertices[:, 0] + vertices_next[:, 0]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
-    cy_standard = np.sum((vertices[:, 1] + vertices_next[:, 1]) * cross) / (6.0 * area)  # allow-safety-constant: centroid formula 1/6A
-
-    # Fallback: mean of vertices (for degenerate polygons)
-    mean_centroid = np.mean(vertices, axis=0)
-
-    # Use standard formula if area is non-zero, otherwise use mean
-    is_degenerate = np.abs(area) < eps
-    cx = np.where(is_degenerate, mean_centroid[0], cx_standard)
-    cy = np.where(is_degenerate, mean_centroid[1], cy_standard)
-
-    return np.array([cx, cy])
-
-
-def points_centroid(points: Array) -> Array:
-    """
-    Compute centroid (mean position) of a set of points.
-
-    Simpler than polygon_centroid - just the mean of coordinates.
-
-    Args:
-        points: Points as (N, 2) array
-
-    Returns:
-        Centroid as (x, y) array
-    """
-    return np.mean(points, axis=0)
+    return _tg.polygon_centroid(vertices)
 
 
 # =============================================================================
@@ -151,156 +79,60 @@ def points_centroid(points: Array) -> Array:
 # =============================================================================
 
 
-def point_in_polygon_winding(point: Array, vertices: Array) -> Array:
-    """
-    Check if a point is inside a polygon using winding number.
-
-    Returns 1.0 if inside, 0.0 if outside. This is a hard boundary
-    test (not differentiable at the boundary).
+def point_in_polygon_winding(px, py, vertices):
+    """Check if a point is inside a polygon using winding number.
 
     Args:
-        point: Query point as (x, y) array
-        vertices: Polygon vertices as (N, 2) array
+        px, py: Query point coordinates
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
         1.0 if inside, 0.0 if outside
     """
-    n = vertices.shape[0]
-
-    def edge_winding(idx):
-        i = idx
-        j = (idx + 1) % n
-
-        vi = vertices[i]
-        vj = vertices[j]
-
-        # Edge vector
-        edge = vj - vi
-        # Vector to point
-        to_point = point - vi
-
-        # Cross product determines side
-        cross = edge[0] * to_point[1] - edge[1] * to_point[0]
-
-        # Check if edge crosses horizontal ray from point
-        y_above_start = point[1] >= vi[1]
-        y_below_end = point[1] < vj[1]
-        y_below_start = point[1] < vi[1]
-        y_above_end = point[1] >= vj[1]
-
-        # Upward crossing
-        upward = y_above_start & y_below_end & (cross > 0)
-        # Downward crossing
-        downward = y_below_start & y_above_end & (cross < 0)
-
-        return np.where(upward, 1.0, 0.0) - np.where(downward, 1.0, 0.0)
-
-    # Sum winding contributions
-    winding = np.sum([edge_winding(i) for i in range(n)])
-
-    # Non-zero winding = inside
-    return np.where(winding != 0, 1.0, 0.0)
+    return _tg.point_in_polygon_winding(px, py, vertices)
 
 
-def point_in_polygon_soft(point: Array, vertices: Array, smoothness: float = 0.1) -> Array:
-    """
-    Soft point-in-polygon test (differentiable).
-
-    Returns a value close to 1.0 for points well inside,
-    close to 0.0 for points well outside, with smooth transition
-    at the boundary.
-
-    Uses signed distance to nearest edge with sigmoid.
+def point_in_polygon_soft(px, py, vertices, smoothness=0.1):
+    """Soft point-in-polygon test (differentiable).
 
     Args:
-        point: Query point as (x, y) array
-        vertices: Polygon vertices as (N, 2) array
+        px, py: Query point coordinates
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
         smoothness: Width of transition region
 
     Returns:
         Soft containment indicator in range [0, 1]
     """
-    # Use SDF approach for soft boundary
-    n = vertices.shape[0]
-
-    def edge_signed_distance(idx):
-        i = idx
-        j = (idx + 1) % n
-
-        vi = vertices[i]
-        vj = vertices[j]
-
-        # Edge vector
-        edge = vj - vi
-        # Perpendicular (inward normal for CCW polygon)
-        normal = np.array([edge[1], -edge[0]])
-        normal = normal / (np.sqrt(np.sum(normal**2)) + 1e-10)
-
-        # Signed distance to edge line
-        to_point = point - vi
-        return np.sum(to_point * normal)
-
-    # Get signed distance to each edge
-    signed_dists = np.array([edge_signed_distance(i) for i in range(n)])
-
-    # For convex polygon, point is inside if all signed distances < 0
-    # The "most positive" distance indicates how far outside
-    min_dist = np.max(signed_dists)
-
-    # Sigmoid for soft transition
-    return _sigmoid(-min_dist / smoothness)
+    return _tg.point_in_polygon_soft(px, py, vertices, smoothness)
 
 
-def point_in_rect(
-    point: Array,
-    min_corner: Array,
-    max_corner: Array,
-) -> Array:
-    """
-    Check if point is inside axis-aligned rectangle.
+def point_in_rect(px, py, rx, ry, rw, rh):
+    """Check if point is inside axis-aligned rectangle.
 
     Args:
-        point: Query point as (x, y) array
-        min_corner: Bottom-left corner
-        max_corner: Top-right corner
+        px, py: Query point coordinates
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
 
     Returns:
         1.0 if inside, 0.0 if outside
     """
-    inside_x = (point[0] >= min_corner[0]) & (point[0] <= max_corner[0])
-    inside_y = (point[1] >= min_corner[1]) & (point[1] <= max_corner[1])
-    return np.where(inside_x & inside_y, 1.0, 0.0)
+    return _tg.point_in_rect(px, py, rx, ry, rw, rh)
 
 
-def point_in_rect_soft(
-    point: Array,
-    min_corner: Array,
-    max_corner: Array,
-    smoothness: float = 0.1,
-) -> Array:
-    """
-    Soft check if point is inside rectangle (differentiable).
+def point_in_rect_soft(px, py, rx, ry, rw, rh, smoothness=0.1):
+    """Soft check if point is inside rectangle (differentiable).
 
     Args:
-        point: Query point as (x, y) array
-        min_corner: Bottom-left corner
-        max_corner: Top-right corner
+        px, py: Query point coordinates
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
         smoothness: Width of transition region
 
     Returns:
         Soft containment indicator in range [0, 1]
     """
-    # Distance to each edge (negative = inside)
-    dist_left = min_corner[0] - point[0]
-    dist_right = point[0] - max_corner[0]
-    dist_bottom = min_corner[1] - point[1]
-    dist_top = point[1] - max_corner[1]
-
-    # Maximum of these is the "most outside" distance
-    max_dist = np.maximum(np.maximum(dist_left, dist_right), np.maximum(dist_bottom, dist_top))
-
-    # Sigmoid for soft transition
-    return _sigmoid(-max_dist / smoothness)
+    return _tg.point_in_rect_soft(px, py, rx, ry, rw, rh, smoothness)
 
 
 # =============================================================================
@@ -308,20 +140,16 @@ def point_in_rect_soft(
 # =============================================================================
 
 
-def polygon_perimeter(vertices: Array) -> Array:
-    """
-    Compute perimeter of a polygon.
+def polygon_perimeter(vertices):
+    """Compute perimeter of a polygon.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
-        Polygon perimeter (sum of edge lengths)
+        Polygon perimeter
     """
-    vertices_next = np.roll(vertices, -1, axis=0)
-    edges = vertices_next - vertices
-    edge_lengths = np.sqrt(np.sum(edges**2, axis=1))
-    return np.sum(edge_lengths)
+    return _tg.polygon_perimeter(vertices)
 
 
 # =============================================================================
@@ -329,56 +157,42 @@ def polygon_perimeter(vertices: Array) -> Array:
 # =============================================================================
 
 
-def compute_loop_area(pin_positions: Array) -> Array:
-    """
-    Compute area of a current loop formed by pins.
-
-    Used for gate drive loop area loss and other EMI-sensitive loops.
-    The pins should be ordered to form the loop path.
+def compute_loop_area(pin_positions):
+    """Compute area of a current loop formed by pins.
 
     Args:
-        pin_positions: Pin positions as (N, 2) array, ordered around loop
+        pin_positions: Flat list of [x1, y1, x2, y2, ...] pin coordinates
 
     Returns:
         Loop area
     """
-    return polygon_area(pin_positions)
+    return _tg.compute_loop_area(pin_positions)
 
 
-def compute_loop_perimeter(pin_positions: Array) -> Array:
-    """
-    Compute perimeter of a current loop.
-
-    Longer perimeters generally indicate more inductance.
+def compute_loop_perimeter(pin_positions):
+    """Compute perimeter of a current loop.
 
     Args:
-        pin_positions: Pin positions as (N, 2) array, ordered around loop
+        pin_positions: Flat list of [x1, y1, x2, y2, ...] pin coordinates
 
     Returns:
         Loop perimeter
     """
-    return polygon_perimeter(pin_positions)
+    return _tg.compute_loop_perimeter(pin_positions)
 
 
-def loop_area_penalty(
-    pin_positions: Array,
-    max_area: float,
-    weight: float = 1.0,
-) -> Array:
-    """
-    Compute penalty for loop area exceeding maximum.
+def loop_area_penalty(pin_positions, max_area_mm2, weight=1.0):
+    """Compute penalty for loop area exceeding maximum.
 
     Args:
-        pin_positions: Pin positions forming the loop
-        max_area: Maximum allowed loop area
+        pin_positions: Flat list of [x1, y1, x2, y2, ...] pin coordinates
+        max_area_mm2: Maximum allowed loop area
         weight: Penalty weight
 
     Returns:
-        Squared penalty for area exceeding max_area
+        Squared penalty for area exceeding max_area_mm2
     """
-    area = compute_loop_area(pin_positions)
-    violation = np.maximum(0.0, area - max_area)
-    return weight * violation**2
+    return _tg.loop_area_penalty(pin_positions, max_area_mm2, weight)
 
 
 # =============================================================================
@@ -386,38 +200,28 @@ def loop_area_penalty(
 # =============================================================================
 
 
-def polygon_bounding_box(vertices: Array) -> tuple[Array, Array]:
-    """
-    Compute axis-aligned bounding box of a polygon.
+def polygon_bounding_box(vertices):
+    """Compute axis-aligned bounding box of a polygon.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
-        Tuple of (min_corner, max_corner) as (x, y) arrays
+        (x1, y1, x2, y2) of bounding box
     """
-    min_corner = np.min(vertices, axis=0)
-    max_corner = np.max(vertices, axis=0)
-    return min_corner, max_corner
+    return _tg.polygon_bounding_box(vertices)
 
 
-def polygon_bounding_circle(vertices: Array) -> tuple[Array, Array]:
-    """
-    Compute approximate bounding circle of a polygon.
-
-    Uses centroid as center and max distance to any vertex as radius.
-    This is not the minimum bounding circle, but is efficient.
+def polygon_bounding_circle(vertices):
+    """Compute approximate bounding circle of a polygon.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
-        Tuple of (center, radius)
+        (cx, cy, radius)
     """
-    center = points_centroid(vertices)
-    distances = np.sqrt(np.sum((vertices - center) ** 2, axis=1))
-    radius = np.max(distances)
-    return center, radius
+    return _tg.polygon_bounding_circle(vertices)
 
 
 # =============================================================================
@@ -425,47 +229,28 @@ def polygon_bounding_circle(vertices: Array) -> tuple[Array, Array]:
 # =============================================================================
 
 
-def is_convex(vertices: Array) -> Array:
-    """
-    Check if a polygon is convex.
-
-    A polygon is convex if all cross products of consecutive edges
-    have the same sign.
+def is_convex(vertices):
+    """Check if a polygon is convex.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
         True if convex, False otherwise
     """
-    vertices.shape[0]
-
-    # Get consecutive edge vectors
-    edges = np.roll(vertices, -1, axis=0) - vertices
-    edges_next = np.roll(edges, -1, axis=0)
-
-    # Cross products of consecutive edges
-    cross = edges[:, 0] * edges_next[:, 1] - edges[:, 1] * edges_next[:, 0]
-
-    # All should have same sign for convex polygon
-    all_positive = np.all(cross >= 0)
-    all_negative = np.all(cross <= 0)
-
-    return all_positive | all_negative
+    return _tg.is_convex(vertices)
 
 
-def polygon_orientation(vertices: Array) -> Array:
-    """
-    Determine orientation of a polygon.
+def polygon_orientation(vertices):
+    """Determine orientation of a polygon.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
         1.0 for CCW, -1.0 for CW
     """
-    signed_area = polygon_signed_area(vertices)
-    return np.sign(signed_area)
+    return _tg.polygon_orientation(vertices)
 
 
 # =============================================================================
@@ -473,65 +258,31 @@ def polygon_orientation(vertices: Array) -> Array:
 # =============================================================================
 
 
-def nearest_point_on_segment(point: Array, a: Array, b: Array) -> Array:
-    """Find the nearest point on line segment ab to the query point.
-
-    Projects the point onto the infinite line through a and b, then clamps
-    the projection parameter t to [0, 1] to stay on the segment. Handles
-    degenerate segments (a == b) by returning a.
+def nearest_point_on_segment(px, py, sx1, sy1, sx2, sy2):
+    """Find the nearest point on line segment to the query point.
 
     Args:
-        point: Query point as (x, y) array.
-        a: Segment start point as (x, y) array.
-        b: Segment end point as (x, y) array.
+        px, py: Query point coordinates
+        sx1, sy1: Segment start coordinates
+        sx2, sy2: Segment end coordinates
 
     Returns:
-        Nearest point on the segment as (x, y) array.
+        (nx, ny) nearest point on the segment
     """
-    # Vector from a to b
-    ab = b - a
-    # Squared length of the segment (with epsilon to avoid division by zero)
-    ab_len_sq = np.sum(ab**2)
-    # Parameter t = dot(ap, ab) / |ab|^2, clamped to [0, 1]
-    ap = point - a
-    t = np.clip(np.dot(ap, ab) / np.maximum(ab_len_sq, 1e-10), 0.0, 1.0)
-    return a + t * ab
+    return _tg.nearest_point_on_segment(px, py, sx1, sy1, sx2, sy2)
 
 
-def nearest_point_on_polygon(point: Array, vertices: Array) -> Array:
+def nearest_point_on_polygon(px, py, vertices):
     """Find the nearest point on a polygon boundary to the query point.
 
-    Sweeps all polygon edges, calling nearest_point_on_segment for each,
-    and returns the point with minimum Euclidean distance.
-
     Args:
-        point: Query point as (x, y) array.
-        vertices: Polygon vertices as (N, 2) array.
+        px, py: Query point coordinates
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
 
     Returns:
-        Nearest point on the polygon boundary as (x, y) array.
+        (nx, ny) nearest point on the polygon boundary
     """
-    n = vertices.shape[0]
-
-    def _edge_body(i, state):
-        best_point, best_dist_sq = state
-        a = vertices[i]
-        b = vertices[(i + 1) % n]
-        candidate = nearest_point_on_segment(point, a, b)
-        dist_sq = np.sum((candidate - point) ** 2)
-        is_closer = dist_sq < best_dist_sq
-        new_best_point = np.where(
-            is_closer, candidate, best_point
-        )
-        new_best_dist_sq = np.where(is_closer, dist_sq, best_dist_sq)
-        return (new_best_point, new_best_dist_sq)
-
-    init_point = vertices[0]
-    init_dist_sq = np.sum((init_point - point) ** 2)
-    result = (init_point, init_dist_sq)
-    for i in range(n):
-        result = _edge_body(i, result)
-    return result[0]
+    return _tg.nearest_point_on_polygon(px, py, vertices)
 
 
 # =============================================================================
@@ -539,71 +290,40 @@ def nearest_point_on_polygon(point: Array, vertices: Array) -> Array:
 # =============================================================================
 
 
-def translate_polygon(vertices: Array, offset: Array) -> Array:
-    """
-    Translate a polygon by an offset.
+def translate_polygon(vertices, dx, dy):
+    """Translate a polygon by an offset.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
-        offset: Translation offset as (x, y) array
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
+        dx, dy: Translation offset
 
     Returns:
-        Translated vertices
+        Flat list of translated vertex coordinates
     """
-    return vertices + offset
+    return _tg.translate_polygon(vertices, dx, dy)
 
 
-def scale_polygon(vertices: Array, scale: float, center: Array | None = None) -> Array:
-    """
-    Scale a polygon around a center point.
+def scale_polygon(vertices, sx, sy):
+    """Scale a polygon.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
-        scale: Scale factor
-        center: Center of scaling (default: centroid)
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
+        sx, sy: Scale factors
 
     Returns:
-        Scaled vertices
+        Flat list of scaled vertex coordinates
     """
-    if center is None:
-        center = points_centroid(vertices)
-
-    return center + scale * (vertices - center)
+    return _tg.scale_polygon(vertices, sx, sy)
 
 
-def rotate_polygon(
-    vertices: Array,
-    angle: float,
-    center: Array | None = None,
-) -> Array:
-    """
-    Rotate a polygon around a center point.
+def rotate_polygon(vertices, angle_rad):
+    """Rotate a polygon around its centroid.
 
     Args:
-        vertices: Polygon vertices as (N, 2) array
-        angle: Rotation angle in radians (CCW positive)
-        center: Center of rotation (default: centroid)
+        vertices: Flat list of [x1, y1, x2, y2, ...] vertex coordinates
+        angle_rad: Rotation angle in radians (CCW positive)
 
     Returns:
-        Rotated vertices
+        Flat list of rotated vertex coordinates
     """
-    if center is None:
-        center = points_centroid(vertices)
-
-    cos_a = np.cos(angle)
-    sin_a = np.sin(angle)
-
-    # Translate to origin
-    centered = vertices - center
-
-    # Rotate
-    rotated = np.stack(
-        [
-            centered[:, 0] * cos_a - centered[:, 1] * sin_a,
-            centered[:, 0] * sin_a + centered[:, 1] * cos_a,
-        ],
-        axis=1,
-    )
-
-    # Translate back
-    return rotated + center
+    return _tg.rotate_polygon(vertices, angle_rad)

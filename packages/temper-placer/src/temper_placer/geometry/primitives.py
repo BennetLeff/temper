@@ -1,119 +1,85 @@
 """
-Basic geometric primitives for temper-placer.
+Geometry primitives — Rust-backed via temper_geometry.
 
-This module provides JAX-compatible geometric functions for:
+This module provides geometric functions for:
 - Point operations (distance, midpoint)
 - Rectangle representation and operations
 - Axis-aligned bounding box (AABB) operations
 - Distance to board edge calculations
 
-All functions are designed to be compatible with jax.jit and jax.grad
-for use in differentiable optimization.
+All functions delegate to the temper_geometry Rust crate.
 """
+import temper_geometry as _tg
 
 
-from typing import TypeAlias
-
-import numpy as np
-
-Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 # =============================================================================
 # Point Operations
 # =============================================================================
 
 
-def point_distance(p1: Array, p2: Array, eps: float = 1e-12) -> Array:
-    """
-    Compute Euclidean distance between two points.
-
-    Uses an epsilon guard to ensure numerical stability when points are
-    identical or very close. Without this, the gradient of sqrt(0) is
-    undefined (inf), which causes NaN in optimization.
+def point_distance(x1, y1, x2, y2):
+    """Compute Euclidean distance between two points.
 
     Args:
-        p1: First point as (x, y) array
-        p2: Second point as (x, y) array
-        eps: Small epsilon for numerical stability (default 1e-12)
+        x1, y1: First point coordinates
+        x2, y2: Second point coordinates
 
     Returns:
-        Scalar distance between points (always >= sqrt(eps))
+        Distance between points
     """
-    diff = p2 - p1
-    return np.sqrt(np.sum(diff**2) + eps)
+    return _tg.point_distance(x1, y1, x2, y2)
 
 
-def point_distance_squared(p1: Array, p2: Array) -> Array:
-    """
-    Compute squared Euclidean distance between two points.
-
-    More efficient than point_distance when only comparing distances,
-    as it avoids the sqrt operation.
+def point_distance_squared(x1, y1, x2, y2):
+    """Compute squared Euclidean distance between two points.
 
     Args:
-        p1: First point as (x, y) array
-        p2: Second point as (x, y) array
+        x1, y1: First point coordinates
+        x2, y2: Second point coordinates
 
     Returns:
-        Scalar squared distance between points
+        Squared distance between points
     """
-    diff = p2 - p1
-    return np.sum(diff**2)
+    return _tg.point_distance_squared(x1, y1, x2, y2)
 
 
-def point_midpoint(p1: Array, p2: Array) -> Array:
-    """
-    Compute midpoint between two points.
+def point_midpoint(x1, y1, x2, y2):
+    """Compute midpoint between two points.
 
     Args:
-        p1: First point as (x, y) array
-        p2: Second point as (x, y) array
+        x1, y1: First point coordinates
+        x2, y2: Second point coordinates
 
     Returns:
-        Midpoint as (x, y) array
+        (mx, my) midpoint coordinates
     """
-    return (p1 + p2) / 2.0
+    return _tg.point_midpoint(x1, y1, x2, y2)
 
 
-def points_centroid(points: Array) -> Array:
-    """
-    Compute centroid (mean position) of a set of points.
+def points_centroid(points):
+    """Compute centroid (mean position) of a set of points.
 
     Args:
-        points: Array of shape (N, 2) containing N points
+        points: Flat list of [x1, y1, x2, y2, ...] coordinates
 
     Returns:
-        Centroid as (x, y) array
+        (cx, cy) centroid coordinates
     """
-    return np.mean(points, axis=0)
+    return _tg.points_centroid(points)
 
 
-def point_to_line_distance(point: Array, line_start: Array, line_end: Array) -> Array:
-    """
-    Compute shortest distance from a point to a line segment.
+def point_to_line_distance(px, py, ax, ay, bx, by):
+    """Compute shortest distance from a point to a line segment.
 
     Args:
-        point: The point as (x, y) array
-        line_start: Start of line segment as (x, y) array
-        line_end: End of line segment as (x, y) array
+        px, py: Query point coordinates
+        ax, ay: Line segment start coordinates
+        bx, by: Line segment end coordinates
 
     Returns:
         Shortest distance from point to line segment
     """
-    # Vector from line_start to line_end
-    line_vec = line_end - line_start
-    line_len_sq = np.sum(line_vec**2)
-
-    # Handle degenerate case (line is a point)
-    line_len_sq = np.maximum(line_len_sq, 1e-10)
-
-    # Project point onto line, clamped to [0, 1]
-    t = np.sum((point - line_start) * line_vec) / line_len_sq
-    t = np.clip(t, 0.0, 1.0)
-
-    # Find closest point on line segment
-    closest = line_start + t * line_vec
-
-    return point_distance(point, closest)
+    return _tg.point_to_line_distance(px, py, ax, ay, bx, by)
 
 
 # =============================================================================
@@ -121,119 +87,84 @@ def point_to_line_distance(point: Array, line_start: Array, line_end: Array) -> 
 # =============================================================================
 
 
-def rect_from_center(center: Array, width: float, height: float) -> tuple[Array, Array]:
-    """
-    Create rectangle corners from center point and dimensions.
+def rect_from_center(cx, cy, half_w, half_h):
+    """Create rectangle from center point and half-dimensions.
 
     Args:
-        center: Center point as (x, y) array
-        width: Rectangle width
-        height: Rectangle height
+        cx, cy: Center point coordinates
+        half_w: Half-width
+        half_h: Half-height
 
     Returns:
-        Tuple of (min_corner, max_corner) as (x, y) arrays
+        (rx, ry, rw, rh) rectangle position and size
     """
-    half_w = width / 2.0
-    half_h = height / 2.0
-    min_corner = center - np.array([half_w, half_h])
-    max_corner = center + np.array([half_w, half_h])
-    return min_corner, max_corner
+    return _tg.rect_from_center(cx, cy, half_w, half_h)
 
 
-def rect_center(min_corner: Array, max_corner: Array) -> Array:
-    """
-    Compute center of rectangle from corners.
+def rect_center(rx, ry, rw, rh):
+    """Compute center of a rectangle.
 
     Args:
-        min_corner: Bottom-left corner as (x, y) array
-        max_corner: Top-right corner as (x, y) array
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
 
     Returns:
-        Center point as (x, y) array
+        (cx, cy) center coordinates
     """
-    return (min_corner + max_corner) / 2.0
+    return _tg.rect_center(rx, ry, rw, rh)
 
 
-def rect_dimensions(min_corner: Array, max_corner: Array) -> tuple[Array, Array]:
-    """
-    Compute dimensions of rectangle from corners.
+def rect_dimensions(rx, ry, rw, rh):
+    """Compute dimensions of a rectangle.
 
     Args:
-        min_corner: Bottom-left corner as (x, y) array
-        max_corner: Top-right corner as (x, y) array
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
 
     Returns:
-        Tuple of (width, height)
+        (width, height)
     """
-    dims = max_corner - min_corner
-    return dims[0], dims[1]
+    return _tg.rect_dimensions(rx, ry, rw, rh)
 
 
-def rect_area(width: float, height: float) -> float:
-    """
-    Compute area of rectangle.
+def rect_area(rx, ry, rw, rh):
+    """Compute area of a rectangle.
 
     Args:
-        width: Rectangle width
-        height: Rectangle height
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
 
     Returns:
-        Area of rectangle
+        Area of the rectangle
     """
-    return width * height
+    return _tg.rect_area(rx, ry, rw, rh)
 
 
-def rect_contains_point(min_corner: Array, max_corner: Array, point: Array) -> Array:
-    """
-    Check if a point is inside a rectangle (soft version for gradients).
-
-    Returns a value close to 1.0 if point is inside, close to 0.0 if outside.
-    Uses a soft sigmoid for differentiability.
+def rect_contains_point(rx, ry, rw, rh, px, py):
+    """Check if a point is inside a rectangle.
 
     Args:
-        min_corner: Bottom-left corner as (x, y) array
-        max_corner: Top-right corner as (x, y) array
-        point: Point to test as (x, y) array
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
+        px, py: Point coordinates
 
     Returns:
         Soft containment indicator (0.0 to 1.0)
     """
-    # Distance inside rectangle (positive if inside)
-    dist_inside_x = np.minimum(point[0] - min_corner[0], max_corner[0] - point[0])
-    dist_inside_y = np.minimum(point[1] - min_corner[1], max_corner[1] - point[1])
-
-    # Minimum distance (negative if outside)
-    min_dist = np.minimum(dist_inside_x, dist_inside_y)
-
-    # Soft sigmoid for differentiability (steep transition)
-    beta = 10.0  # Steepness parameter
-    return 1.0 / (1.0 + np.exp(-beta * min_dist))
+    return _tg.rect_contains_point(rx, ry, rw, rh, px, py)
 
 
-def rect_corners(center: Array, width: float, height: float) -> Array:
-    """
-    Get all four corners of a rectangle.
+def rect_corners(rx, ry, rw, rh):
+    """Get all four corners of a rectangle.
 
     Args:
-        center: Center point as (x, y) array
-        width: Rectangle width
-        height: Rectangle height
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
 
     Returns:
-        Array of shape (4, 2) with corners in order:
-        [bottom-left, bottom-right, top-right, top-left]
+        Flat list [x1, y1, x2, y2, x3, y3, x4, y4] of corner positions
     """
-    half_w = width / 2.0
-    half_h = height / 2.0
-
-    return np.array(
-        [
-            [center[0] - half_w, center[1] - half_h],  # bottom-left
-            [center[0] + half_w, center[1] - half_h],  # bottom-right
-            [center[0] + half_w, center[1] + half_h],  # top-right
-            [center[0] - half_w, center[1] + half_h],  # top-left
-        ]
-    )
+    return _tg.rect_corners(rx, ry, rw, rh)
 
 
 # =============================================================================
@@ -241,91 +172,68 @@ def rect_corners(center: Array, width: float, height: float) -> Array:
 # =============================================================================
 
 
-def aabb_from_points(points: Array) -> tuple[Array, Array]:
-    """
-    Compute axis-aligned bounding box for a set of points.
+def aabb_from_points(points):
+    """Compute axis-aligned bounding box for a set of points.
 
     Args:
-        points: Array of shape (N, 2) containing N points
+        points: Flat list of [x1, y1, x2, y2, ...] coordinates
 
     Returns:
-        Tuple of (min_corner, max_corner) as (x, y) arrays
+        (x1, y1, x2, y2) AABB corners
     """
-    min_corner = np.min(points, axis=0)
-    max_corner = np.max(points, axis=0)
-    return min_corner, max_corner
+    return _tg.aabb_from_points(points)
 
 
-def aabb_intersects(min1: Array, max1: Array, min2: Array, max2: Array) -> Array:
-    """
-    Check if two AABBs intersect (soft version for gradients).
-
-    Returns a value indicating overlap amount. Positive if overlapping,
-    negative if separated.
+def aabb_intersects(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2):
+    """Check if two AABBs intersect.
 
     Args:
-        min1, max1: First AABB corners
-        min2, max2: Second AABB corners
+        ax1, ay1, ax2, ay2: First AABB corners
+        bx1, by1, bx2, by2: Second AABB corners
 
     Returns:
         Overlap indicator (positive = overlap, negative = separation)
     """
-    # Compute overlap in each dimension
-    overlap_x = np.minimum(max1[0], max2[0]) - np.maximum(min1[0], min2[0])
-    overlap_y = np.minimum(max1[1], max2[1]) - np.maximum(min1[1], min2[1])
-
-    # Both dimensions must overlap for intersection
-    return np.minimum(overlap_x, overlap_y)
+    return _tg.aabb_intersects(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2)
 
 
-def aabb_overlap_area(min1: Array, max1: Array, min2: Array, max2: Array) -> Array:
-    """
-    Compute overlap area between two AABBs.
+def aabb_overlap_area(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2):
+    """Compute overlap area between two AABBs.
 
     Args:
-        min1, max1: First AABB corners
-        min2, max2: Second AABB corners
+        ax1, ay1, ax2, ay2: First AABB corners
+        bx1, by1, bx2, by2: Second AABB corners
 
     Returns:
         Overlap area (0 if no overlap)
     """
-    # Compute overlap in each dimension
-    overlap_x = np.maximum(0.0, np.minimum(max1[0], max2[0]) - np.maximum(min1[0], min2[0]))
-    overlap_y = np.maximum(0.0, np.minimum(max1[1], max2[1]) - np.maximum(min1[1], min2[1]))
-
-    return overlap_x * overlap_y
+    return _tg.aabb_overlap_area(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2)
 
 
-def aabb_union(min1: Array, max1: Array, min2: Array, max2: Array) -> tuple[Array, Array]:
-    """
-    Compute union bounding box of two AABBs.
+def aabb_union(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2):
+    """Compute union bounding box of two AABBs.
 
     Args:
-        min1, max1: First AABB corners
-        min2, max2: Second AABB corners
+        ax1, ay1, ax2, ay2: First AABB corners
+        bx1, by1, bx2, by2: Second AABB corners
 
     Returns:
-        Tuple of (min_corner, max_corner) of union AABB
+        (x1, y1, x2, y2) of union AABB
     """
-    min_corner = np.minimum(min1, min2)
-    max_corner = np.maximum(max1, max2)
-    return min_corner, max_corner
+    return _tg.aabb_union(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2)
 
 
-def aabb_expand(min_corner: Array, max_corner: Array, margin: float) -> tuple[Array, Array]:
-    """
-    Expand an AABB by a margin in all directions.
+def aabb_expand(x1, y1, x2, y2, margin):
+    """Expand an AABB by a margin in all directions.
 
     Args:
-        min_corner: Bottom-left corner
-        max_corner: Top-right corner
+        x1, y1, x2, y2: AABB corners
         margin: Amount to expand by
 
     Returns:
-        Tuple of (new_min, new_max) corners
+        (new_x1, new_y1, new_x2, new_y2)
     """
-    margin_vec = np.array([margin, margin])
-    return min_corner - margin_vec, max_corner + margin_vec
+    return _tg.aabb_expand(x1, y1, x2, y2, margin)
 
 
 # =============================================================================
@@ -333,89 +241,50 @@ def aabb_expand(min_corner: Array, max_corner: Array, margin: float) -> tuple[Ar
 # =============================================================================
 
 
-def distance_to_rect_edge(point: Array, min_corner: Array, max_corner: Array) -> Array:
-    """
-    Compute distance from point to nearest edge of a rectangle.
+def distance_to_rect_edge(px, py, rx, ry, rw, rh):
+    """Compute distance from point to nearest edge of a rectangle.
 
     Positive if point is inside, negative if outside.
 
     Args:
-        point: Point as (x, y) array
-        min_corner: Bottom-left corner of rectangle
-        max_corner: Top-right corner of rectangle
+        px, py: Point coordinates
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
 
     Returns:
         Signed distance to nearest edge (positive inside, negative outside)
     """
-    # Distance to each edge (positive if inside)
-    dist_left = point[0] - min_corner[0]
-    dist_right = max_corner[0] - point[0]
-    dist_bottom = point[1] - min_corner[1]
-    dist_top = max_corner[1] - point[1]
-
-    # If all positive, point is inside - return distance to nearest edge
-    # If any negative, point is outside - return most negative
-    return np.minimum(np.minimum(dist_left, dist_right), np.minimum(dist_bottom, dist_top))
+    return _tg.distance_to_rect_edge(px, py, rx, ry, rw, rh)
 
 
-def distance_to_specific_edge(
-    point: Array, edge: str, min_corner: Array, max_corner: Array
-) -> Array:
-    """
-    Compute distance from point to a specific edge of a rectangle.
+def distance_to_specific_edge(px, py, rx, ry, rw, rh, side):
+    """Compute distance from point to a specific edge of a rectangle.
 
     Args:
-        point: Point as (x, y) array
-        edge: Edge identifier - "TOP", "BOTTOM", "LEFT", or "RIGHT"
-        min_corner: Bottom-left corner of board
-        max_corner: Top-right corner of board
+        px, py: Point coordinates
+        rx, ry: Rectangle position
+        rw, rh: Rectangle size
+        side: Edge identifier - "TOP", "BOTTOM", "LEFT", or "RIGHT"
 
     Returns:
         Distance to the specified edge
     """
-    if edge == "TOP":
-        return max_corner[1] - point[1]
-    elif edge == "BOTTOM":
-        return point[1] - min_corner[1]
-    elif edge == "LEFT":
-        return point[0] - min_corner[0]
-    elif edge == "RIGHT":
-        return max_corner[0] - point[0]
-    else:
-        # Default to nearest edge
-        return distance_to_rect_edge(point, min_corner, max_corner)
+    return _tg.distance_to_specific_edge(px, py, rx, ry, rw, rh, side)
 
 
-def distance_to_board_boundary(
-    point: Array,
-    component_width: float,
-    component_height: float,
-    board_min: Array,
-    board_max: Array,
-) -> Array:
-    """
-    Compute how far inside the board boundary a component is.
-
-    Takes into account component dimensions (ensures entire component is inside).
+def distance_to_board_boundary(px, py, board_w, board_h, margin):
+    """Compute how far inside the board boundary a point is.
 
     Args:
-        point: Component center as (x, y) array
-        component_width: Component width
-        component_height: Component height
-        board_min: Bottom-left corner of board
-        board_max: Top-right corner of board
+        px, py: Point coordinates
+        board_w: Board width
+        board_h: Board height
+        margin: Minimum distance from board edge
 
     Returns:
-        Minimum distance to boundary (negative if any part is outside)
+        Minimum distance to boundary (negative if outside)
     """
-    half_w = component_width / 2.0
-    half_h = component_height / 2.0
-
-    # Effective board boundaries accounting for component size
-    effective_min = board_min + np.array([half_w, half_h])
-    effective_max = board_max - np.array([half_w, half_h])
-
-    return distance_to_rect_edge(point, effective_min, effective_max)
+    return _tg.distance_to_board_boundary(px, py, board_w, board_h, margin)
 
 
 # =============================================================================
@@ -423,58 +292,38 @@ def distance_to_board_boundary(
 # =============================================================================
 
 
-def pairwise_distances(points: Array, eps: float = 1e-12) -> Array:
-    """
-    Compute pairwise Euclidean distances between all points.
-
-    Uses an epsilon guard to ensure numerical stability when points are
-    identical or very close. The diagonal (self-distance) will be sqrt(eps)
-    rather than exactly 0, which prevents undefined gradients.
+def pairwise_distances(points):
+    """Compute pairwise Euclidean distances between all points.
 
     Args:
-        points: Array of shape (N, 2) containing N points
-        eps: Small epsilon for numerical stability (default 1e-12)
+        points: Flat list of [x1, y1, x2, y2, ...] coordinates
 
     Returns:
-        Array of shape (N, N) with distance[i, j] = distance between points i and j
+        Distance matrix as flat list (N*N)
     """
-    # Expand dimensions for broadcasting
-    # points[:, None, :] has shape (N, 1, 2)
-    # points[None, :, :] has shape (1, N, 2)
-    diff = points[:, None, :] - points[None, :, :]  # (N, N, 2)
-    return np.sqrt(np.sum(diff**2, axis=-1) + eps)  # (N, N)
+    return _tg.pairwise_distances(points)
 
 
-def pairwise_distances_squared(points: Array) -> Array:
-    """
-    Compute pairwise squared Euclidean distances between all points.
-
-    More efficient than pairwise_distances for comparisons.
+def pairwise_distances_squared(points):
+    """Compute pairwise squared Euclidean distances between all points.
 
     Args:
-        points: Array of shape (N, 2) containing N points
+        points: Flat list of [x1, y1, x2, y2, ...] coordinates
 
     Returns:
-        Array of shape (N, N) with squared distances
+        Squared distance matrix as flat list (N*N)
     """
-    diff = points[:, None, :] - points[None, :, :]
-    return np.sum(diff**2, axis=-1)
+    return _tg.pairwise_distances_squared(points)
 
 
-def batch_point_distance(points1: Array, points2: Array, eps: float = 1e-12) -> Array:
-    """
-    Compute distances between corresponding points in two arrays.
-
-    Uses an epsilon guard to ensure numerical stability when points are
-    identical or very close.
+def batch_point_distance(points_a, points_b):
+    """Compute distances between corresponding points in two arrays.
 
     Args:
-        points1: Array of shape (N, 2)
-        points2: Array of shape (N, 2)
-        eps: Small epsilon for numerical stability (default 1e-12)
+        points_a: Flat list of [x1, y1, x2, y2, ...] coordinates
+        points_b: Flat list of [x1, y1, x2, y2, ...] coordinates
 
     Returns:
-        Array of shape (N,) with distances
+        Flat list of distances
     """
-    diff = points2 - points1
-    return np.sqrt(np.sum(diff**2, axis=-1) + eps)
+    return _tg.batch_point_distance(points_a, points_b)
