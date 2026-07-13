@@ -9,7 +9,7 @@ file matches a forbidden category outside its allowlist.
 from pathlib import Path
 import subprocess
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # Per-category allowlists.  Key is a suffix (e.g. "*.json") or an exact
 # root name (e.g. "/10A").  Value is a frozenset of permitted root files.

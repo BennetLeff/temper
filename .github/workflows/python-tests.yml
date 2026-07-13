@@ -304,6 +304,10 @@ jobs:
         run: uv run python scripts/check_script_sunset.py
         continue-on-error: true  # sunset is informational, not blocking
 
+      - name: Root artifact hygiene check
+        run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
+        continue-on-error: true
+
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
 

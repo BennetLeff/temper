@@ -23,7 +23,6 @@ resolution-markers = [
 members = [
     "temper-constraint-compiler",
     "temper-design-bundle",
-    "temper-drc",
     "temper-drc-rs",
     "temper-dsn",
     "temper-geometry",
@@ -1984,24 +1983,6 @@ source = { editable = "packages/temper-constraint-compiler" }
 name = "temper-design-bundle"
 version = "0.1.0"
 source = { virtual = "packages/temper-design-bundle" }
-
-[[package]]
-name = "temper-drc"
-version = "0.1.0"
-source = { editable = "packages/temper-drc" }
-
-[package.optional-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.6" },
-]
-provides-extras = ["dev"]
 
 [[package]]
 name = "temper-drc-rs"

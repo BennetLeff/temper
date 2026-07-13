@@ -15,7 +15,7 @@ plans:
   N1:
     path: docs/plans/2026-06-22-001-feat-purge-and-protect-plan.md
     scope:
-      - packages/temper-drc/tests/test_root_hygiene.py
+      - scripts/test_root_hygiene.py
       - scripts/add_power_planes.py
       - .gitignore
       - .github/workflows/python-tests.yml

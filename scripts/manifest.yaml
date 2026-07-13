@@ -1362,3 +1362,12 @@ scripts:
       - re
       - sys
       - tomllib
+- path: test_root_hygiene.py
+  purpose: "CI gate: reject root-level artifact files that should live in subdirectories"
+  owner: pipeline
+  last_run: "2026-07-13"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - pathlib
+      - subprocess
