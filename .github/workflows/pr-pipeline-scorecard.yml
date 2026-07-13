@@ -107,14 +107,14 @@ jobs:
         run: uv sync --all-packages
 
       - name: Download baseline metrics
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: baseline-metrics
           path: baseline-metrics
         continue-on-error: true
 
       - name: Download current metrics
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: current-metrics
           path: current-metrics
