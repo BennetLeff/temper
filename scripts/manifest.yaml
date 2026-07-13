@@ -1344,3 +1344,21 @@ scripts:
       - pathlib
       - sys
       - yaml
+- path: gen_architecture_poster.py
+  purpose: "Generate a deterministic SVG architecture poster from monorepo build manifests"
+  owner: pipeline
+  last_run: "2026-07-13"
+  category: keep
+  disposition: utility
+    imports:
+      - __future__
+      - argparse
+      - fnmatch
+      - heapq
+      - json
+      - math
+      - os
+      - pathlib
+      - re
+      - sys
+      - tomllib
