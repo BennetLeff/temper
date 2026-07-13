@@ -575,8 +575,19 @@ def discover_packages() -> list[dict[str, Any]]:
         if info:
             packages.append(info)
 
-    # Sort by name for determinism
-    packages.sort(key=lambda p: p["name"])
+    # Sort by priority tier (foundational → application → tools), then name
+    _PRIORITY = {
+        "firmware": 0,
+        "temper-pcl-ir": 1, "temper-constraint-compiler": 1, "temper-constraints": 1,
+        "temper-geometry-core": 2, "temper-geometry": 2,
+        "temper-rust-router-core": 2, "temper-rust-router": 2,
+        "temper-drc-rs": 3, "temper-dsn": 3, "temper-ipc": 3,
+        "temper-quality-oracle": 3,
+        "temper-placer": 4, "temper-design-bundle": 4,
+        "temper-workflow": 5, "temper-testing": 5, "temper-validation": 5,
+        "temper-autoprof": 6, "temper-tools": 6,
+    }
+    packages.sort(key=lambda p: (_PRIORITY.get(p["name"], 50), p["name"]))
     return packages
 
 
