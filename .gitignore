@@ -53,9 +53,7 @@ fp-info-cache
 *.raw
 /*.log
 /*.txt
-!*.pyc
-!.loc-allowlist.txt
-!*results.txt
+!/.loc-allowlist.txt
 
 # IDEs
 .vscode/
@@ -65,6 +63,7 @@ fp-info-cache
 .DS_Store
 
 # Temper Specific
+.onboard/
 firmware/build/
 firmware/test/build/
 temper-placer/.pytest_cache/
@@ -81,6 +80,10 @@ temper-placer/research/*.svg
 /*-drc.json
 /*.stats
 /10A
+/*.json
+!/opencode.json
+/*.mesh
+/*.gf
 
 .hypothesis/
 .worktrees
