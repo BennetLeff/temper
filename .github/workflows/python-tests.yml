@@ -340,7 +340,7 @@ jobs:
           --output closure-result.json
         continue-on-error: true  # observability merge race; temper-N6-U8
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: closure-result

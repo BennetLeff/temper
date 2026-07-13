@@ -43,14 +43,14 @@ jobs:
 
       - name: Upload quarantine artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: quarantine-${{ github.run_id }}
           path: power_pcb_dataset/quarantine/
 
       - name: Upload manifest artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: corpus-manifest-${{ github.run_id }}
           path: benchmarks/downloads_digital_iot/manifest.yaml

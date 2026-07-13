@@ -43,7 +43,7 @@ jobs:
           fi
       - name: Upload baseline metrics
         if: steps.check.outputs.has_metrics == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: baseline-metrics
           path: baseline-metrics/pipeline_metrics.jsonl
@@ -75,7 +75,7 @@ jobs:
           --metrics-dir ./current-metrics
           || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
       - name: Upload current metrics
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: current-metrics
