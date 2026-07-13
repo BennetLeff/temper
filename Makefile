@@ -7,7 +7,7 @@ BUILD_DIR = $(ELEC_DIR)/build
 BOM_FILE = $(ELEC_DIR)/build/default.csv
 BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 
-.PHONY: all build netlist clean drc route gerbers help diff visualize regression perf-regression
+.PHONY: all build netlist clean drc route gerbers help diff visualize regression perf-regression onboard clean-onboard onboard-status
 
 # Show help for workflow commands
 help:
@@ -20,6 +20,9 @@ help:
 	@echo "  make route    - Run the autorouter"
 	@echo "  make drc      - Run KiCad DRC validation"
 	@echo "  make clean    - Remove build artifacts"
+	@echo "  make onboard  - Guided quick-start achievement run"
+	@echo "  make clean-onboard- Reset onboard checkpoints"
+	@echo "  make onboard-status- Show cached onboard summary"
 	@echo ""
 
 build: netlist footprints route drc
@@ -78,3 +81,17 @@ regression:
 perf-regression:
 	@echo "Running optimization performance regression suite..."
 	uv run python3 scripts/check_perf_regression.py
+
+# Onboarding
+
+.PHONY: onboard clean-onboard onboard-status
+
+onboard:
+	@bash scripts/onboard.sh
+
+clean-onboard:
+	@echo "Cleaning onboard checkpoints..."
+	rm -rf .onboard
+
+onboard-status:
+	@bash scripts/onboard.sh --status

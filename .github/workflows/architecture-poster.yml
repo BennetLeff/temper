@@ -1,0 +1,184 @@
+name: Architecture Poster
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**/Cargo.toml'
+      - 'packages/**/pyproject.toml'
+      - 'firmware/CMakeLists.txt'
+      - 'packages/**/src/**'
+      - 'firmware/**/*.c'
+      - 'firmware/**/*.h'
+      - 'scripts/gen_architecture_poster.py'
+      - '.github/workflows/architecture-poster.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/**/Cargo.toml'
+      - 'packages/**/pyproject.toml'
+      - 'firmware/CMakeLists.txt'
+      - 'packages/**/src/**'
+      - 'firmware/**/*.c'
+      - 'firmware/**/*.h'
+      - 'scripts/gen_architecture_poster.py'
+      - '.github/workflows/architecture-poster.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # ---- U2: Auto-generation on main push ----
+  generate:
+    name: Generate & commit poster
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Skip auto-commits
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if echo "$COMMIT_MSG" | grep -q "^chore: regenerate ARCHITECTURE.svg"; then
+            echo "Skipping: auto-commit of poster."
+            exit 0
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Generate architecture poster
+        run: uv run python scripts/gen_architecture_poster.py
+
+      - name: Commit if changed
+        run: |
+          if git diff --exit-code ARCHITECTURE.svg; then
+            echo "No changes to ARCHITECTURE.svg."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add ARCHITECTURE.svg
+            git commit -m "chore: regenerate ARCHITECTURE.svg [skip ci]"
+            git push
+          fi
+
+  # ---- U3: PR diff + sticky comment ----
+  pr-diff:
+    name: PR architecture diff
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr-tree
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base-tree
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Generate PR graph
+        run: |
+          cp pr-tree/scripts/gen_architecture_poster.py pr-tree/scripts/gen_architecture_poster.py.bak
+          cd pr-tree
+          # Use the PR's script to generate graph from PR's manifests
+          uv run python scripts/gen_architecture_poster.py --graph-only > ../pr-graph.json || echo '{"packages":[],"edges":[]}' > ../pr-graph.json
+
+      - name: Generate base graph
+        run: |
+          # Use the PR's script to generate graph from base branch manifests
+          cp pr-tree/scripts/gen_architecture_poster.py base-tree/scripts/
+          cd base-tree
+          uv run python scripts/gen_architecture_poster.py --graph-only > ../base-graph.json || echo '{"packages":[],"edges":[]}' > ../base-graph.json
+
+      - name: Compute structural diff
+        run: |
+          cat > /tmp/diff_graphs.py << 'PYEOF'
+          import json
+
+          with open('pr-graph.json') as f:
+              pr = json.load(f)
+          with open('base-graph.json') as f:
+              base = json.load(f)
+
+          pr_pkgs = {p['name']: p for p in pr.get('packages', [])}
+          base_pkgs = {p['name']: p for p in base.get('packages', [])}
+          pr_edges = set(tuple(e) for e in pr.get('edges', []))
+          base_edges = set(tuple(e) for e in base.get('edges', []))
+
+          added_edges = pr_edges - base_edges
+          removed_edges = base_edges - pr_edges
+          added_pkgs = set(pr_pkgs) - set(base_pkgs)
+          removed_pkgs = set(base_pkgs) - set(pr_pkgs)
+
+          loc_changes = []
+          for name, pkg in pr_pkgs.items():
+              if name in base_pkgs:
+                  new_loc = pkg['loc']
+                  old_loc = base_pkgs[name]['loc']
+                  if old_loc > 0:
+                      pct = abs(new_loc - old_loc) / old_loc * 100
+                      if pct > 5:
+                          loc_changes.append((name, old_loc, new_loc, pct))
+
+          lines = []
+          lines.append('<!-- architecture-poster-bot -->')
+          lines.append('## Architecture Poster Diff')
+          lines.append('')
+          changed = False
+
+          if not pr_pkgs and not base_pkgs:
+              lines.append(':warning: Could not compute architecture diff.')
+              changed = True
+          elif not added_edges and not removed_edges and not added_pkgs and not removed_pkgs and not loc_changes:
+              lines.append('No architecture changes detected.')
+          else:
+              changed = True
+              lines.append('| Change | Detail |')
+              lines.append('|--------|--------|')
+              for e in sorted(added_edges):
+                  lines.append(f'| + edge | \`{e[0]}\` → \`{e[1]}\` |')
+              for e in sorted(removed_edges):
+                  lines.append(f'| - edge | \`{e[0]}\` → \`{e[1]}\` |')
+              for name in sorted(added_pkgs):
+                  loc = pr_pkgs[name]['loc']
+                  lang = pr_pkgs[name].get('language', '?')
+                  lines.append(f'| + package | \`{name}\` ({lang}, {loc:,} LoC) |')
+              for name in sorted(removed_pkgs):
+                  lines.append(f'| - package | \`{name}\` |')
+              for name, old_loc, new_loc, pct in sorted(loc_changes):
+                  sign = '+' if new_loc > old_loc else ''
+                  lines.append(f'| Δ LoC | \`{name}\`: {old_loc:,} → {new_loc:,} ({sign}{pct:.0f}%) |')
+
+          with open('diff-comment.md', 'w') as f:
+              f.write('\n'.join(lines))
+          print(f"Diff: {changed}")
+          PYEOF
+          uv run python3 /tmp/diff_graphs.py
+
+      - name: Post sticky comment
+        if: always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: architecture-poster
+          path: diff-comment.md
