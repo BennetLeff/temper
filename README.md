@@ -12,9 +12,9 @@
 Temper is a consumer induction cooker built around three pillars: an
 **ESP32-S3 firmware** with an 8-state transition-table machine handling
 real-time power control and hardware-latched protection circuits; a **KiCad
-PCB design** optimized through a custom JAX-based signal-integrity and
+PCB design** optimized through a custom CP-SAT-based signal-integrity and
 thermal-aware placer pipeline; and a **Python/Rust placer toolchain**
-(CP-SAT encoder, geometry/DRC crates, workflow DAG) that automates layout
+(CP-SAT solver, geometry/DRC/DSN/IPC crates, workflow DAG) that automates layout
 and checks placement against IPC standards. All safety gates —
 over-current, over-voltage, thermal shutdown, UVLO — are hardware-latched
 with firmware monitoring. See [docs/STRATEGY.md](docs/STRATEGY.md) for the
@@ -31,10 +31,9 @@ graph TD
     KICAD[Schematics & Layout]
   end
 
-  subgraph Placer ["Placer (Python/JAX + Rust)"]
-    JAX[JAX Solver]
-    CPSAT[CP-SAT Encoder]
-    RUST[Rust Crates<br/>Geometry DRC IPC]
+  subgraph Placer ["Placer (Python + Rust)"]
+    CPSAT[CP-SAT Solver]
+    RUST[Rust Crates<br/>Geometry DRC DSN IPC PCL-IR]
   end
 
   subgraph Pipeline ["Pipeline & CI"]
@@ -45,7 +44,7 @@ graph TD
   end
 
   SM --> PROT
-  JAX --> CPSAT --> RUST
+  CPSAT --> RUST
   KICAD --> DAG
   RUST --> DAG
   DAG --> REGR
@@ -61,6 +60,13 @@ Build and run the firmware test suite:
 cmake -B firmware/test/build firmware/test
 cmake --build firmware/test/build
 ./firmware/test/build/test_state_machine_only
+```
+
+Or build and test the placer toolchain:
+
+```bash
+uv sync
+uv run pytest packages/temper-placer/tests/
 ```
 
 **Prerequisites:** CMake ≥ 3.16 and the ESP-IDF toolchain (see
@@ -100,9 +106,10 @@ For contributors working on architecture, verification, or toolchain internals:
 | Directory | Description |
 |-----------|-------------|
 | `firmware/` | ESP32-S3 induction cooker firmware (C, 8-state machine) |
-| `packages/temper-placer/` | JAX-based PCB placement optimizer |
-| `packages/temper-*` | Supporting Python packages (DRC, workflow, tools, testing) |
-| `pcb/` | KiCad schematics and layout |
+| `packages/temper-placer/` | CP-SAT PCB placement optimizer with Rust geometry/DRC crates |
+| `packages/temper-*-rs`, `packages/temper-*-core` | Rust PyO3 crates (geometry, DRC, DSN, IPC, router, quality oracle, PCL-IR) |
+| `packages/temper-*` | Supporting Python packages (workflow, tools, testing, validation) |
+| `elec/` | Atopile electrical schematics and constraints |
 | `docs/` | Plans, solutions, architecture, specs |
 | `scripts/` | CI gates, profiling, regression tools |
 | `.github/` | Workflows, templates, code owners |

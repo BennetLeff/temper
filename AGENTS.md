@@ -5,12 +5,12 @@
 **This is the Temper induction cooker project:**
 - **Firmware**: ESP32-S3 with 8-state machine
 - **PCB**: KiCad design with temper-placer optimizer
-- **Language**: C (firmware), Python/JAX (placer)
+- **Language**: C (firmware), Python + Rust (placer)
 
 **Key areas:**
 - `firmware/` - ESP32-S3 control code
-- `packages/temper-placer/` - JAX-based PCB placement optimizer
-- `pcb/` - KiCad schematics
+- `packages/temper-placer/` - CP-SAT PCB placement optimizer with Rust geometry/DRC crates
+- `elec/` - Atopile electrical schematics
 - `docs/solutions/` - documented fixes for past problems (bugs, patterns, tooling decisions), organized by category with YAML frontmatter — search before implementing or debugging in a known area
 
 ## Firmware Config Codegen

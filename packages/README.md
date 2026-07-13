@@ -7,6 +7,7 @@ The `packages/` directory contains the temper EDA pipeline — placement, routin
 | `temper-constraint-compiler` | Constraint lowering compiler — compiles PCL designer-level constraints through a type lattice and multi-tier desugaring into SAT constraint ISA | Python + Rust | done |
 | `temper-design-bundle` | Validated, provenance-carrying Atopile and PCL design boundary | Python + Rust | partial |
 | `temper-drc-rs` | Rust DRC engine — PCB design rule checks with geo + rstar spatial indexing | Python + Rust | done |
+| `temper-drc` | DEPRECATED — DRC types migrated to temper-placer; retained for test harness only | Python | N/A |
 | `temper-dsn` | DSN (Specctra) format utilities for temper PCB placement | Python + Rust | done |
 | `temper-geometry` | 2D geometry math functions for temper PCB placement | Python + Rust | done |
 | `temper-geometry-core` | Shared geometry data types for temper | Python + Rust | done |
@@ -22,3 +23,5 @@ The `packages/` directory contains the temper EDA pipeline — placement, routin
 | `temper-workflow` | GPBM workflow orchestration for Temper development | Python | N/A |
 
 Packages with a `-core` suffix (`temper-geometry-core`, `temper-rust-router-core`) are pure-Rust type crates with zero logic — the corresponding non-core package (`temper-geometry`, `temper-rust-router`) wraps them with Python bindings and adds computation.
+
+`temper-constraints` is a nested Rust/PyO3 crate inside `packages/temper-placer/` providing SAT constraint encoding primitives. It appears as a separate node in `ARCHITECTURE.svg` but is not a top-level package.
