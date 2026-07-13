@@ -696,14 +696,17 @@ class ThermalScorer:
             and shared/independent assumption documentation.
         """
         if u5_result.field is None:
-            u5_grid = np.zeros(
-                (fdm_config.height_cells, fdm_config.width_cells), dtype=np.float64
+            from temper_placer.fields.result import FieldNotReadyError
+
+            raise FieldNotReadyError(
+                f"Cannot score UNMEASURED thermal field: "
+                f"{u5_result.error_message or 'unknown'}; "
+                f"UNMEASURED means 'could not measure,' not '0 deg-C everywhere'"
             )
-            u5_peak, u5_mean = 0.0, 0.0
-        else:
-            u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
-            u5_peak = float(np.max(u5_grid))
-            u5_mean = float(np.mean(u5_grid))
+
+        u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
+        u5_peak = float(np.max(u5_grid))
+        u5_mean = float(np.mean(u5_grid))
 
         u7_grid, _iterations, _residual = self.solve_independent(
             fdm_config,

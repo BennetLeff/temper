@@ -847,3 +847,127 @@ class TestDataClasses:
         assert BatteryVerdict.INCONCLUSIVE == "inconclusive"
         assert BatteryVerdict("keep") == BatteryVerdict.KEEP
         assert BatteryVerdict("kill") == BatteryVerdict.KILL
+
+
+# ---------------------------------------------------------------------------
+# R4 — Worst-case per-perturbation guard (#133)
+# ---------------------------------------------------------------------------
+
+
+class TestWorstCasePerturbationGuard:
+    """The pass bar must hold at every sampled perturbation, not just the mean.
+
+    This guards against interior resonances or non-monotone responses that
+    a mean-based check would mask.  An interior violation must produce
+    INCONCLUSIVE, never KEEP.
+    """
+
+    def test_interior_violation_detected(self):
+        """R4 fail-capable: mean passes, worst perturbation fails → INCONCLUSIVE.
+
+        An interior resonance or non-monotone response that makes one
+        perturbation fail while the others pass must not be masked by the
+        mean.  The gate degrades to INCONCLUSIVE (fail-closed).
+        """
+        manifest = _thermal_prereg()
+
+        # Per-perturbation margins encoded in placement positions.
+        # Position = [pert_idx, arm_num] where arm_num: 0=no_field, 1=cheap, 2=physics.
+        pert_margins: dict[int, dict[int, float]] = {
+            0: {0: 0.05, 1: 0.10, 2: 0.30},   # margin_gain=0.20
+            1: {0: 0.05, 1: 0.10, 2: 0.30},   # margin_gain=0.20
+            2: {0: 0.05, 1: 0.10, 2: 0.30},   # margin_gain=0.20
+            3: {0: 0.05, 1: 0.10, 2: 0.30},   # margin_gain=0.20
+            4: {0: 0.05, 1: 0.10, 2: 0.12},   # margin_gain=0.02  ← INTERIOR VIOLATION
+        }
+        # mean_margin_gain = (0.20*4 + 0.02)/5 = 0.164 >= 0.10 → mean KEEP
+        # but worst = 0.02 < 0.10 → INCONCLUSIVE (sampling uncertainty)
+
+        def build_arm(arm_id, pert_idx, board, netlist, seed):
+            arm_num = {"no_field": 0, "cheap_heuristic": 1, "physics_field": 2}[arm_id]
+            return _fake_placement(positions=[[float(pert_idx), float(arm_num)]])
+
+        def score_placement(placement, board, netlist):
+            pert_idx = int(placement.positions[0][0])
+            arm_num = int(placement.positions[0][1])
+            return _fake_scorecard(pert_margins[pert_idx][arm_num])
+
+        result = run_helps_battery(
+            manifest=manifest,
+            field_name="thermal",
+            board=None,
+            netlist=None,
+            build_arm_placement=build_arm,
+            score_placement_fn=score_placement,
+            scorer_id="physics_oracle",
+            base_seed=42,
+            n_perturbations=5,
+        )
+
+        assert result.verdict == BatteryVerdict.INCONCLUSIVE, (
+            f"Expected INCONCLUSIVE (sampling uncertainty), got "
+            f"{result.verdict}: {result.verdict_details}"
+        )
+        assert "sampling uncertainty" in result.verdict_details.lower()
+        assert "worst perturbation" in result.verdict_details.lower()
+
+    def test_all_perturbations_pass(self):
+        """When every perturbation individually passes the bar → KEEP.
+
+        The worst-case guard should be silent when the pass bar holds
+        for the minimum per-perturbation margin_gain.
+        """
+        manifest = _thermal_prereg()
+
+        def build_arm(arm_id, pert_idx, board, netlist, seed):
+            arm_num = {"no_field": 0, "cheap_heuristic": 1, "physics_field": 2}[arm_id]
+            return _fake_placement(positions=[[float(pert_idx), float(arm_num)]])
+
+        def score_placement(placement, board, netlist):
+            arm_num = int(placement.positions[0][1])
+            margins = {0: 0.05, 1: 0.10, 2: 0.30}
+            return _fake_scorecard(margins[arm_num])
+
+        result = run_helps_battery(
+            manifest=manifest,
+            field_name="thermal",
+            board=None,
+            netlist=None,
+            build_arm_placement=build_arm,
+            score_placement_fn=score_placement,
+            scorer_id="physics_oracle",
+            base_seed=42,
+            n_perturbations=5,
+        )
+
+        assert result.verdict == BatteryVerdict.KEEP, (
+            f"Expected KEEP, got {result.verdict}: {result.verdict_details}"
+        )
+
+    def test_single_perturbation_pass(self):
+        """Single perturbation that passes → KEEP (n=1 worst-case = mean)."""
+        manifest = _thermal_prereg()
+        manifest.fields[0].pass_bar.across_perturbations.value = 1.0
+
+        def build_arm(arm_id, pert_idx, board, netlist, seed):
+            arm_num = {"no_field": 0, "cheap_heuristic": 1, "physics_field": 2}[arm_id]
+            return _fake_placement(positions=[[float(pert_idx), float(arm_num)]])
+
+        def score_placement(placement, board, netlist):
+            arm_num = int(placement.positions[0][1])
+            margins = {0: 0.05, 1: 0.10, 2: 0.30}
+            return _fake_scorecard(margins[arm_num])
+
+        result = run_helps_battery(
+            manifest=manifest,
+            field_name="thermal",
+            board=None,
+            netlist=None,
+            build_arm_placement=build_arm,
+            score_placement_fn=score_placement,
+            scorer_id="physics_oracle",
+            base_seed=42,
+            n_perturbations=1,
+        )
+
+        assert result.verdict == BatteryVerdict.KEEP

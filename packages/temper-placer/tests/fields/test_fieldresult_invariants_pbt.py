@@ -31,7 +31,7 @@ from temper_placer.placer.cp_sat.gates import GateResult, GateStatus, Violation,
 _MAX_GRID_DIM = 200
 
 
-def _gate_result(status: GateStatus, *, with_violations: bool = True) -> GateResult:
+def _gate_result(status: GateStatus) -> GateResult:
     """Construct a GateResult with the given status."""
     if status is GateStatus.VIOLATIONS:
         return GateResult(

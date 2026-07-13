@@ -45,3 +45,5 @@ The fix: rebuilt the scorer as a **convective-boundary FDM** — same in-plane s
 ## Related
 - `docs/solutions/best-practices/bfs-oracle-cost-model-mismatch-astar-validation-2026-06-28.md` (same-objective oracle rule)
 - `docs/physics-verification-methodology.md` (independent-oracle rule)
+- `docs/solutions/best-practices/three-target-verification-ladder-correctness-soundness-validity-2026-07-10.md` (the validity-proxy rung this serves — solver-vs-model independence is the criteria for climbing from correctness to validity)
+- `docs/solutions/tooling-decisions/external-fem-evaluation-install-simplicity-dominates-2026-07-10.md` (how to choose the genuinely independent model — install simplicity dominates for CI-subprocess instruments)

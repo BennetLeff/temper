@@ -91,5 +91,8 @@ class FieldResult:
             )
         import numpy as np
 
-        cost_flat = np.ascontiguousarray(self.field.ravel()).astype(np.float32)
+        if hasattr(self.field, "to_flat"):
+            cost_flat = self.field.to_flat()
+        else:
+            cost_flat = np.ascontiguousarray(self.field.ravel()).astype(np.float32)
         return CostFieldInput(cost_flat=cost_flat, weight=self.weight)

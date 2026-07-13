@@ -2,9 +2,10 @@
 
 A documented pattern — **not a framework or abstraction layer** — for verifying
 the mathematical structure of a physics-informed EDA feature. Extracted from the
-thermal solver battery (U4–U9 on plan 2026-07-09-001).
+thermal solver battery (U4–U9 on plan 2026-07-09-001) and extended with the
+MFEM FEM corroboration (U1–U4 on plan 2026-07-09-002).
 
-The methodology has four components:
+The methodology has four components across a **three-target correctness/soundness/validity ladder**:
 
 1. **Four verification layers** (R1) — fuzz / domain-invariant / independent-method
    oracle / property-preservation-under-composition.
@@ -172,7 +173,41 @@ fail-capable metric would have surfaced the bug.
 
 ---
 
-## 5. CI Wiring
+## 5. Three-Target Correctness/Soundness/Validity Ladder
+
+The verification methodology spans three escalating targets, each answering a
+different question about the physical model:
+
+| Rung | Target | Instrument | Question Answered | Limitation |
+|------|--------|------------|-------------------|------------|
+| **Correctness** | The solver converges to the right answer for the given PDE. | **MMS** (manufactured T* -> Q* -> solve -> error norm convergence at expected order). | "Does the code implement the PDE correctly?" | Assumes the PDE is the right model of reality. |
+| **Soundness** | The solver's output maintains physical invariants under all bounded inputs. | **Verified-interval bounds** (BMC-exhaustive over property space + k-induction for unbounded). | "Does the solver preserve conservation, monotonicity, and the maximum principle?" | Bounded to the property class; doesn't cover model error outside the invariants. |
+| **Validity-proxy** | Two genuinely independent physical models agree on the full-field temperature within a pre-registered tolerance. | **External-FEM corroboration** (MFEM FEM vs 2-D structured FDM — different solver family, mesh type, codebase, and element types). | "Does the model capture the dominant physics of the real board?" | Still proxy evidence — shared assumptions remain (k_eff, vias-as-bulk, geometry fidelity). The power-on hardware measurement is the closing instrument. |
+
+**Relationship:** MMS proves the implementation is correct; soundness bounds prove
+it maintains physical invariants; multi-model corroboration provides evidence the
+abstractions (2-D, effective-medium k, adiabatic edges) are adequate. Each rung
+closes one class of uncertainty; together they provide defence-in-depth. The
+power-on hardware measurement remains the deferred closing instrument per the
+model-vs-reality scope boundary.
+
+**Fail-closed discipline:** When the external corroboration instrument is absent
+(MFEM binary not compiled, solver failure, mesh generation error), the gate returns
+`UNMEASURED` — never a silent `CLEAN`. This is the same discipline as the
+`NgspiceValidator.check_ngspice()` preflight pattern.
+
+**Spatial disagreement attribution:** When the two models disagree beyond the
+pre-registered tolerance, the violation carries a spatial attribution map
+(device footprint, near-heatsink edge, far-field, copper-plane region, FR4-only
+region) that localises the physics gap to a specific assumption class — not
+just a binary "disagree" flag.
+
+**Relevant implementation:**
+- MFEMCorroborationGate (`validation/mfem_gate.py`) — fail-closed gate wrapping
+  MFEMRunner → build_temper_mesh → compare_fields.
+- Compound learning: `docs/solutions/best-practices/external-fem-corroboration-validity-proxy-2026-07-09.md`
+
+---
 
 All battery tests run in CI via the `.github/workflows/python-tests.yml`
 `checks` job. The `l3_pbt` marker categorizes heavy PBT tests for PR-only

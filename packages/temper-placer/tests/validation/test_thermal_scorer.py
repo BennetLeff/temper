@@ -595,6 +595,49 @@ def test_scorer_no_heat_sources_flat():
 
 
 # ---------------------------------------------------------------------------
+# Fail-closed: UNMEASURED field raises FieldNotReadyError
+# ---------------------------------------------------------------------------
+
+
+def test_score_unmeasured_field_raises():
+    """Fail-closed: ``ThermalScorer.score()`` must raise ``FieldNotReadyError``
+    when the U5 ``FieldResult`` is ``UNMEASURED`` (field=None).
+
+    UNMEASURED means 'could not measure,' NOT '0 deg-C everywhere.'
+    The scorer must never silently substitute a flat zero grid.
+    """
+    from temper_placer.fields.result import FieldNotReadyError, FieldResult
+    from temper_placer.physics.thermal_fdm import ThermalFDMConfig
+    from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
+    from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
+
+    config = ThermalFDMConfig(
+        cell_size_mm=1.0,
+        origin_mm=(0.0, 0.0),
+        height_cells=10,
+        width_cells=10,
+        ambient_C=40.0,
+        heatsink_edge="TOP",
+    )
+
+    gate_result = GateResult(
+        status=GateStatus.UNMEASURED,
+        error_message="SPICE not installed; cannot compute thermal field",
+    )
+    u5_result = FieldResult(gate_result=gate_result, field=None)
+
+    scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
+
+    with pytest.raises(FieldNotReadyError, match=r"UNMEASURED.*0 deg-C"):
+        scorer.score(
+            u5_result, config,
+            devices={}, power_map={},
+            copper_grid=np.zeros((10, 10), dtype=np.float64),
+            Q_field=np.zeros((10, 10), dtype=np.float64),
+        )
+
+
+# ---------------------------------------------------------------------------
 # Edge: Structural axis is well-documented
 # ---------------------------------------------------------------------------
 

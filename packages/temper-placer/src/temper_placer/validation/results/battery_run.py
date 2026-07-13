@@ -116,7 +116,8 @@ def _ensure_field_diverges(
                 )
             # Check that the field is non-zero on hot zones
             if u5_result.field is not None:
-                field_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
+                raw = u5_result.field
+                field_grid = np.asarray(raw.grid if hasattr(raw, 'grid') else raw, dtype=np.float64)
                 if np.max(field_grid) <= fdm_config.ambient_C + 0.1:
                     raise RuntimeError(
                         "Smoke test: thermal field is flat (no heating detected)"
@@ -291,7 +292,8 @@ def _make_thermal_scorer_adapter(
 
         # --- Sanity floor: peak temperature ceiling (#137 durable gate) ---
         if u5_result.field is not None:
-            u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
+            raw = u5_result.field
+            u5_grid = np.asarray(raw.grid if hasattr(raw, 'grid') else raw, dtype=np.float64)
             plausible, reason = check_thermal_plausibility(
                 u5_grid, ambient_C=T_amb,
             )
@@ -410,7 +412,8 @@ def _make_arm_placement_builder(
                     h_field=h_field,
                 )
                 if u5_result.is_usable and u5_result.field is not None:
-                    np.asarray(u5_result.field.grid, dtype=np.float64)
+                    raw = u5_result.field
+                    field_grid = np.asarray(raw.grid if hasattr(raw, 'grid') else raw, dtype=np.float64)
                     # Nudge toward cooler cells
                     cs = fdm_config.cell_size_mm
                     ox, oy = fdm_config.origin_mm
@@ -761,7 +764,7 @@ def run_thermal_helps_battery(
             h_field=h_field,
         )
         scorer_fn = lambda p, b, n: build_scorecard(  # noqa: E731
-            p, b, n, scorer=scorer_adapter,
+            p, b, n, scorer=scorer_adapter,  # type: ignore[arg-type]  # adapter structurally satisfies ScorerFunction; mypy Protocol limitation
             scorer_id="thermal-gauss-seidel",
             field_id="thermal_field",
         )
@@ -781,7 +784,7 @@ def run_thermal_helps_battery(
     def score_placement_fn(placement: Any, board: Any, netlist: Any) -> MarginScorecard:
         return build_scorecard(
             placement, board, netlist,
-            scorer=scorer_adapter,
+            scorer=scorer_adapter,  # type: ignore[arg-type]  # adapter structurally satisfies ScorerFunction; mypy Protocol limitation
             scorer_id="thermal-gauss-seidel",
             field_id="thermal_field",
         )

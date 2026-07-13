@@ -23,7 +23,7 @@ from unittest import mock
 import numpy as np
 import pytest
 
-from hypothesis import HealthCheck, Phase, given, settings
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from hypothesis.stateful import (
     RuleBasedStateMachine,
@@ -31,7 +31,6 @@ from hypothesis.stateful import (
     invariant,
     precondition,
     rule,
-    run_state_machine_as_test,
 )
 
 from temper_placer.fields.field import CostField
@@ -163,9 +162,7 @@ def _mock_gates_violation(gate_name="DrcGate"):
 
 def _build_mocked_loop_with_sequence(
     placement_sequence: list[CpSatPlacementResult],
-    field_sequence: list[np.ndarray] | None = None,
     routing_results: list[MockRoutingResult] | None = None,
-    gate_patches_fn: Callable[[], list] = _mock_gates_clean,
     field_compute_fn: Callable | None = None,
     thermal_weight: float = 1.0,
     _placement_solver: Callable | None = None,

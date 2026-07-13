@@ -79,8 +79,12 @@ class OperatingPointConfig:
     R_theta_cs: float = 0.25
     """Case-to-sink thermal resistance (K/W)."""
 
-    R_theta_sa: float = 2.0
-    """Sink-to-ambient thermal resistance (K/W)."""
+    R_theta_sa: float = 1.0
+    """Sink-to-ambient thermal resistance (K/W).
+    Wakefield 694-100 extrusion family, ~75mm length, natural convection,
+    de-rated for temper induction-cooker enclosure (50 °C ambient, limited
+    vertical chimney). Conservative: the 694-100 at 100mm is ~0.5 °C/W;
+    75mm is ~0.8 °C/W at 0 LFM; enclosure de-rating 1.25× → 1.0 °C/W."""
 
     # --- Switching waveform ----------------------------------------------
     t_rise: float = 50e-9

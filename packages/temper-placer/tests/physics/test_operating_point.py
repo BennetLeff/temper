@@ -94,7 +94,7 @@ def _benign_config() -> dict[str, Any]:
         "T_j_max": 150.0,
         "R_theta_jc": 0.6,
         "R_theta_cs": 0.25,
-        "R_theta_sa": 2.0,
+        "R_theta_sa": 1.0,
         "t_rise": 50e-9,
         "t_fall": 50e-9,
         "V_ce_sat": 1.7,
