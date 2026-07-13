@@ -369,7 +369,7 @@ class ComponentID:
 | `temper-validation` | `/packages/temper-validation/` | ~5,000 | Ground truth comparison, quality scores | **Pull into Phase 3** |
 | `temper-testing` | `/packages/temper-testing/` | ~2,000 | Testing toolkit with Hypothesis | **Pull into Phase 3** |
 | `temper-workflow` | `/packages/temper-workflow/` | ~10,000 | GPBM workflow orchestration | **Evaluate overlap** |
-| `temper-tools` | `/packages/temper-tools/` | ~2,000 | Utility tools (CLI, ECO, ATO) | **Extract patterns** |
+| `temper-tools` | `/packages/temper-tools/` | ~2,000 | Utility tools (CLI, ATO) | **Extract patterns** |
 | `temper-autoprof` | `/packages/temper-autoprof/` | Minimal | Automated profiling infrastructure | **Pull into Phase 4** |
 
 **Deliverable:** `docs/package_integration_assessment.md`

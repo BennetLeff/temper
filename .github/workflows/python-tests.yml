@@ -279,10 +279,6 @@ jobs:
         run: uv run pytest tests/ -v --tb=short
         continue-on-error: true  # no test files yet (exit 5); temper-N6-U8
       
-      - name: Run temper-tools tests
-        working-directory: packages/temper-tools
-        run: uv run pytest tests/ -v --tb=short
-       
       - name: Verify committed .kicad_pcb has 4 copper layers (semantic)
         run: uv run python tools/check_kicad_layers.py
 
@@ -417,9 +413,6 @@ jobs:
       
       - name: Type check temper-workflow
         run: uv run mypy packages/temper-workflow/src --ignore-missing-imports
-      
-      - name: Type check temper-tools
-        run: uv run mypy packages/temper-tools/src --ignore-missing-imports
 
   astar-nightly:
     name: A* 4x4 Exhaustive Verification (Nightly)

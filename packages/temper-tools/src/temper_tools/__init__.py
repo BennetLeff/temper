@@ -1,3 +1,0 @@
-"""
-Temper development tools package.
-"""

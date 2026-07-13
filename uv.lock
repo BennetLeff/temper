@@ -22,13 +22,19 @@ resolution-markers = [
 [manifest]
 members = [
     "temper-constraint-compiler",
+    "temper-design-bundle",
+    "temper-drc",
     "temper-drc-rs",
+    "temper-dsn",
+    "temper-geometry",
+    "temper-geometry-core",
+    "temper-ipc",
+    "temper-pcl-ir",
     "temper-placer",
     "temper-quality-oracle",
     "temper-rust-router",
     "temper-rust-router-core",
     "temper-testing",
-    "temper-tools",
     "temper-validation",
     "temper-workflow",
     "temper-workspace",
@@ -1975,9 +1981,57 @@ version = "0.1.0"
 source = { editable = "packages/temper-constraint-compiler" }
 
 [[package]]
+name = "temper-design-bundle"
+version = "0.1.0"
+source = { virtual = "packages/temper-design-bundle" }
+
+[[package]]
+name = "temper-drc"
+version = "0.1.0"
+source = { editable = "packages/temper-drc" }
+
+[package.optional-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.6" },
+]
+provides-extras = ["dev"]
+
+[[package]]
 name = "temper-drc-rs"
 version = "0.1.0"
 source = { editable = "packages/temper-drc-rs" }
+
+[[package]]
+name = "temper-dsn"
+version = "0.1.0"
+source = { editable = "packages/temper-dsn" }
+
+[[package]]
+name = "temper-geometry"
+version = "0.1.0"
+source = { editable = "packages/temper-geometry" }
+
+[[package]]
+name = "temper-geometry-core"
+version = "0.1.0"
+source = { editable = "packages/temper-geometry-core" }
+
+[[package]]
+name = "temper-ipc"
+version = "0.1.0"
+source = { editable = "packages/temper-ipc" }
+
+[[package]]
+name = "temper-pcl-ir"
+version = "0.1.0"
+source = { virtual = "packages/temper-pcl-ir" }
 
 [[package]]
 name = "temper-placer"
@@ -2123,38 +2177,6 @@ requires-dist = [
 provides-extras = ["dev", "contracts", "symbolic"]
 
 [[package]]
-name = "temper-tools"
-version = "0.1.0"
-source = { editable = "packages/temper-tools" }
-dependencies = [
-    { name = "kiutils" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "temper-placer" },
-    { name = "temper-workflow" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "kiutils", specifier = ">=1.4.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
-    { name = "pyyaml", specifier = ">=6.0" },
-    { name = "requests", specifier = ">=2.28.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.6" },
-    { name = "temper-placer", editable = "packages/temper-placer" },
-    { name = "temper-workflow", editable = "packages/temper-workflow" },
-]
-provides-extras = ["dev"]
-
-[[package]]
 name = "temper-validation"
 version = "0.1.0"
 source = { editable = "packages/temper-validation" }
@@ -2227,6 +2249,9 @@ dev = [
     { name = "pytest-cov" },
     { name = "python-sat" },
     { name = "ruff" },
+    { name = "temper-dsn" },
+    { name = "temper-geometry" },
+    { name = "temper-ipc" },
     { name = "vulture" },
 ]
 
@@ -2242,6 +2267,9 @@ dev = [
     { name = "pytest-cov", specifier = ">=4.1.0" },
     { name = "python-sat", specifier = ">=1.9.dev5" },
     { name = "ruff", specifier = ">=0.1.6" },
+    { name = "temper-dsn", editable = "packages/temper-dsn" },
+    { name = "temper-geometry", editable = "packages/temper-geometry" },
+    { name = "temper-ipc", editable = "packages/temper-ipc" },
     { name = "vulture", specifier = ">=2.16,<3.0" },
 ]
 
