@@ -281,7 +281,7 @@ def main():
             "# Entries may only be removed when the same PR adds a test",
             "# exercising the function or deletes the function from source.",
             "# Entries may only be added with a # TODO: temper-xxx ticket reference.",
-            "# See CLAUDE.md §Coverage Gate for details.",
+            "# See AGENTS.md §Coverage Gate for details.",
             "",
         ]
         for key in sorted(zero_cov):
@@ -310,7 +310,7 @@ def main():
             line = zero_cov[key]
             console.print(
                 f"[red]FAIL: {key}:{line} — zero coverage "
-                f"(not on allowlist; see CLAUDE.md §Coverage Gate)[/]"
+                f"(not on allowlist; see AGENTS.md §Coverage Gate)[/]"
             )
         exit_code = 1
 
