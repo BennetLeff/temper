@@ -20,7 +20,6 @@ form a nested taxonomy.
 | `brainstorms/` | Structured requirements documents for scoped ideas — 100+ entries. Lightweight counterpart to `plans/`. |
 | `bugs/` | Bug reports, reproduction steps, and diagnostic notes. |
 | `closure-reports/` | Post-mortem and completion summaries for finished features, bug fixes, or experiments. |
-| `eco_browser/` | Documentation for the ECO memory browser tool. |
 | `experiments/` | Experiment writeups with methodology, data, and conclusions. |
 | `guides/` | How-to guides: dev environment setup, walkthroughs, thermal design guidance. |
 | `handoffs/` | Context-passing documents between contributors during multi-session work. |

@@ -27,8 +27,6 @@ Before starting any experiment:
 - [ ] **Define success criteria**: Reference `SUCCESS_CRITERIA.yaml` for targets
 - [ ] **Estimate resources**: Calculate seeds × epochs × time per run
 - [ ] **Create issue**: Track experiment in beads (`bd create`)
-- [ ] **Query Eco**: Search for prior context on the topic
-
 ```bash
 # Check for prior experiments
 grep -i "your_topic" experiments/framework/EXPERIMENT_REGISTRY.yaml
@@ -283,7 +281,6 @@ Every experiment must produce a report. Use this structure:
 - [ ] Limitations acknowledged
 - [ ] Follow-up actions identified
 - [ ] Results added to EXPERIMENT_REGISTRY.yaml
-- [ ] Reflection posted to Eco
 
 ### Common Commands
 

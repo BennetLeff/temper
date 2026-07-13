@@ -17,7 +17,6 @@ The `packages/` directory contains the temper EDA pipeline — placement, routin
 | `temper-rust-router` | Router V6 topology stage — pyo3 Python extension (wraps temper-rust-router-core) | Python + Rust | done |
 | `temper-rust-router-core` | Router V6 topology stage — pure-Rust core (SAT solver, topology extraction, loop extraction) | Python + Rust | done |
 | `temper-testing` | Testing toolkit for numerical optimization and placement verification | Python | N/A |
-| `temper-tools` | Utility tools for Temper development | Python | N/A |
 | `temper-validation` | Ground truth comparison package for PCB placement validation | Python | N/A |
 | `temper-workflow` | GPBM workflow orchestration for Temper development | Python | N/A |
 
