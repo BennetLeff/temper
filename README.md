@@ -9,6 +9,8 @@
 
 ![Architecture](./ARCHITECTURE.svg)
 
+> Package inventory — boxes sized by lines of code, colored by language, with dependency arrows. The Mermaid diagram below shows data-flow relationships.
+
 Temper is a consumer induction cooker built around three pillars: an
 **ESP32-S3 firmware** with an 8-state transition-table machine handling
 real-time power control and hardware-latched protection circuits; a **KiCad
