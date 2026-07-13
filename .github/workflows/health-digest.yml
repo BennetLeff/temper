@@ -28,7 +28,7 @@ jobs:
 
       - name: Collect CI workflow status
         id: ci-status
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const workflows = [
@@ -120,7 +120,7 @@ jobs:
           echo "Import boundaries: $BASELINE baseline violation(s), $ALLOWLIST allowlist exemption(s)"
 
       - name: Publish health digest issue
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require("fs");
