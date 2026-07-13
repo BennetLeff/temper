@@ -268,6 +268,16 @@ jobs:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
           JAX_PLATFORM_NAME: cpu
 
+      - name: Run CP-SAT placer tests
+        working-directory: packages/temper-placer
+        run: |
+          uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py \
+            tests/cli/test_cp_sat_flag.py \
+            -v --tb=short -p no:cacheprovider --maxfail=10
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
+          JAX_PLATFORM_NAME: cpu
+
       - name: Coverage gate (temper-placer invariants)
         if: false  # disabled: 109 Hypothesis tests + coverage OOMs CI runner
         working-directory: packages/temper-placer

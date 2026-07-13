@@ -6,6 +6,14 @@ metadata:
   date: "2025-12-19"
 
 constraints:
+  # Thermal-edge anchoring: IGBTs at top edge for external heatsink access
+  - type: on_side
+    components: [Q1, Q2]
+    side: top
+    edge: flush
+    tier: 1
+    because: "TO-247 packages require board edge mounting for external heatsink access and thermal management"
+
   # Critical adjacency for commutation loop
   - type: adjacent
     a: Q1

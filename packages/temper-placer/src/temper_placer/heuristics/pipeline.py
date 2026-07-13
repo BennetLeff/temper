@@ -364,8 +364,9 @@ def create_default_pipeline(
 
     This factory includes:
     1. Spectral Layout (Initial global placement)
-    2. Force Directed Layout (Refinement)
-    3. (Other heuristics to be added...)
+    2. (Other heuristics to be added...)
+
+    Note: Force-directed heuristics have been removed (JAX retirement, plan 2026-07-03-002).
     """
     from temper_placer.heuristics.spectral import SpectralPlacementHeuristic
 
@@ -393,6 +394,8 @@ def create_priority_pipeline(
 
     Order matters! Power stage is placed first and marked fixed,
     so subsequent heuristics work around it.
+
+    Note: Force-directed heuristics have been removed (JAX retirement, plan 2026-07-03-002).
     """
     from temper_placer.heuristics.power_stage import (
         DriverProximityHeuristic,

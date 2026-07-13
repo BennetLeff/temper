@@ -67,10 +67,9 @@ jobs:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
 
-      - name: Optimizer Invariant Tests
+      - name: CP-SAT Placer Tests
         working-directory: packages/temper-placer
-        run: uv run pytest tests/test_optimizer_invariants.py -v --tb=short -m "slow or property" --timeout=300
-        continue-on-error: true
+        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu

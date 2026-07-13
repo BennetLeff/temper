@@ -27,6 +27,16 @@ tags:
 
 # Pattern: Alternating Projections for Hard-Constraint Feasibility Pre-Processing
 
+> **Superseded.** This doc describes C-CAP (v2), an alternating-projections
+> feasibility pre-processor that was built and tested (93 passing tests) but
+> never activated in production due to a guard-condition nesting error.  The
+> CP-SAT feasibility-first placer (v3) now fills this space — see
+> [cp-sat-feasibility-first-paradigm-2026-07-03.md](cp-sat-feasibility-first-paradigm-2026-07-03.md).
+> The algorithm detail below (Dykstra projections, feasibility pump,
+> oscillation detection) remains useful reference for constraint-projection
+> techniques in JAX.  This doc will be deleted when the JAX optimizer is retired
+> (U9).
+
 ## Context
 
 The temper-placer uses gradient-based optimization (Adam) to minimize a

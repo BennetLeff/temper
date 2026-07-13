@@ -14,9 +14,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 from numpy.typing import NDArray
 
+from temper_placer.core.netlist import Netlist
+
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
-    from temper_placer.core.netlist import Netlist
 
 
 @dataclass
@@ -62,6 +63,76 @@ class PlacementState:
         return cls(
             positions=positions,
             rotation_logits=rotation_logits,
+            net_virtual_nodes=net_virtual_nodes,
+        )
+
+    @classmethod
+    def from_positions_dict(
+        cls,
+        positions_dict: dict[str, tuple[float, float]],
+        netlist: Netlist | None = None,
+        component_order: list[str] | None = None,
+        *,
+        rotation_logits: Array | None = None,
+        net_virtual_nodes: Array | None = None,
+    ) -> PlacementState:
+        """
+        Create a PlacementState from a dict of ``{component_ref: (x_mm, y_mm)}``.
+
+        This factory wraps numpy/Python data into JAX arrays internally so the
+        caller does **not** need to import JAX.  Either *netlist* or
+        *component_order* must be provided to define the component ordering.
+
+        Args:
+            positions_dict: Mapping of component reference designator to
+                ``(x_mm, y_mm)`` position.
+            netlist: Netlist whose component order determines the row index of
+                each position.  Components present in the netlist but absent
+                from *positions_dict* will be placed at ``(0.0, 0.0)``.
+            component_order: Alternative to *netlist* — an explicit list of
+                component refs in order.  Exactly one of *netlist* or
+                *component_order* must be given.
+            rotation_logits: Optional ``(N, 4)`` array.  If ``None``, initialized
+                to zeros (uniform distribution over rotations).
+            net_virtual_nodes: Optional ``(M, 2)`` array of net virtual nodes.
+
+        Returns:
+            New ``PlacementState`` instance.
+
+        Raises:
+            ValueError: If neither *netlist* nor *component_order* is provided.
+        """
+        # @req(2026-07-03-001, R7): score_placement constructs PlacementState
+        # from raw positions without JAX import by the caller
+        if netlist is None and component_order is None:
+            raise ValueError(
+                "Either netlist or component_order must be provided "
+                "to define component ordering"
+            )
+
+        order = (
+            component_order
+            if component_order is not None
+            else [c.ref for c in netlist.components]  # type: ignore[union-attr]
+        )
+
+        positions_list = []
+        for ref in order:
+            if ref in positions_dict:
+                positions_list.append(list(positions_dict[ref]))
+            else:
+                positions_list.append([0.0, 0.0])
+
+        if not positions_list:
+            raise ValueError("No positions provided and no components in netlist/order")
+
+        positions_arr = jnp.array(positions_list, dtype=jnp.float32)
+        n = positions_arr.shape[0]
+        rot = rotation_logits if rotation_logits is not None else jnp.zeros((n, 4), dtype=jnp.float32)
+
+        return cls(
+            positions=positions_arr,
+            rotation_logits=rot,
             net_virtual_nodes=net_virtual_nodes,
         )
 

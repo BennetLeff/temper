@@ -31,7 +31,7 @@ from .watch_commands import watch
 @click.group()
 @click.version_option(version=__version__, prog_name="temper-placer")
 def main() -> None:
-    """temper-placer: JAX-based PCB placement optimizer."""
+    """temper-placer: CP-SAT-based PCB placement optimizer."""
     pass
 
 
@@ -345,12 +345,22 @@ def optimize(
     """
     Optimize component placement for a KiCad PCB.
 
-    Reads INPUT_PCB and constraint CONFIG, runs gradient-based optimization,
+    Reads INPUT_PCB and constraint CONFIG, runs CP-SAT optimization,
     and writes the result to OUTPUT.
 
-    Example:
+    Examples:
         temper-placer optimize temper.kicad_pcb -c constraints.yaml -o optimized.kicad_pcb
     """
+    # Handle deprecated --placer jax-deprecated flag
+    if placer == "jax-deprecated":
+        console.print(
+            "[red]ERROR:[/] --placer jax-deprecated is no longer supported.\n"
+            "  The JAX optimizer stack has been removed (see plan 2026-07-03-002).\n"
+            "  CP-SAT is now the default and only placement engine.\n"
+            "  Remove the --placer flag from your invocation."
+        )
+        sys.exit(1)
+
     console.print(
         Panel.fit(
             f"[bold blue]temper-placer[/] v{__version__}\nCP-SAT PCB placement optimizer",
@@ -367,6 +377,7 @@ def optimize(
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
     console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
+    console.print(f"[bold]Placer:[/] {placer}")
 
     if placer == "jax-deprecated":
         sys.stderr.write(

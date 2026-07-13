@@ -8,8 +8,7 @@ from pathlib import Path
 
 import click
 
-from temper_placer.pipeline.dag_observability import StageEvent
-from temper_placer.pipeline.terminal_dashboard import TerminalDashboardObserver
+# Note: pipeline imports are lazy below (JAX retirement, plan 2026-07-03-002 U5)
 
 
 @click.command()
@@ -40,6 +39,9 @@ def watch(input_pcb: str, loops: str | None, constraints: str | None,
 
 
 def _watch_replay(replay_path: Path) -> None:
+    from temper_placer.pipeline.dag_observability import StageEvent
+    from temper_placer.pipeline.terminal_dashboard import TerminalDashboardObserver
+
     with open(replay_path) as f:
         data = json.load(f)
 
