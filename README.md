@@ -110,7 +110,7 @@ For contributors working on architecture, verification, or toolchain internals:
 | `firmware/` | ESP32-S3 induction cooker firmware (C, 8-state machine) |
 | `packages/temper-placer/` | CP-SAT PCB placement optimizer with Rust geometry/DRC crates |
 | `packages/temper-*-rs`, `packages/temper-*-core` | Rust PyO3 crates (geometry, DRC, DSN, IPC, router, quality oracle, PCL-IR) |
-| `packages/temper-*` | Supporting Python packages (workflow, tools, testing, validation) |
+| `packages/temper-*` | Supporting Python packages (workflow, testing, validation) |
 | `elec/` | Atopile electrical schematics and constraints |
 | `docs/` | Plans, solutions, architecture, specs |
 | `scripts/` | CI gates, profiling, regression tools |
