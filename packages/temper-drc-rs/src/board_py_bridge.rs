@@ -392,6 +392,59 @@ fn extract_copper_zone(dict: &Bound<'_, PyDict>) -> PyResult<CopperZone> {
 }
 
 // ---------------------------------------------------------------------------
+// Composite dict parsers (orchestrated by build_board_state)
+// ---------------------------------------------------------------------------
+
+fn parse_nets_from_dict(
+    board_dict: &Bound<'_, PyDict>,
+) -> PyResult<HashMap<String, Vec<String>>> {
+    let mut result = HashMap::new();
+    if let Some(nets_val) = board_dict.get_item("nets")? {
+        if !nets_val.is_none() && nets_val.is_instance_of::<PyDict>() {
+            let nets_dict: &Bound<'_, PyDict> = nets_val.downcast().unwrap();
+            for (key, val) in nets_dict.iter() {
+                let net_name: String = key.extract().map_err(|e| {
+                    PyValueError::new_err(format!("nets key is not a string: {e}"))
+                })?;
+                let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+                    PyValueError::new_err(format!("nets['{net_name}'] is not a list: {e}"))
+                })?;
+                let comps: Vec<String> = list
+                    .iter()
+                    .map(|item| {
+                        item.extract::<String>().map_err(|e| {
+                            PyValueError::new_err(format!(
+                                "component ref in nets['{net_name}'] is not a string: {e}"
+                            ))
+                        })
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                result.insert(net_name, comps);
+            }
+        }
+    }
+    Ok(result)
+}
+
+fn parse_traces_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<TraceSegment>> {
+    let trace_list = extract_dict_list(board_dict, "traces")?;
+    let mut result = Vec::with_capacity(trace_list.len());
+    for trace_dict in trace_list {
+        result.push(extract_trace_segment(&trace_dict)?);
+    }
+    Ok(result)
+}
+
+fn parse_zones_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<CopperZone>> {
+    let zone_list = extract_dict_list(board_dict, "zones")?;
+    let mut result = Vec::with_capacity(zone_list.len());
+    for zone_dict in zone_list {
+        result.push(extract_copper_zone(&zone_dict)?);
+    }
+    Ok(result)
+}
+
+// ---------------------------------------------------------------------------
 // BoardState builder
 // ---------------------------------------------------------------------------
 
@@ -441,34 +494,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     };
 
     // --- Nets (HashMap: net_name → [component_refs]) ---
-    let nets_dict_raw: HashMap<String, Vec<String>> = {
-        let mut result = HashMap::new();
-        if let Some(nets_val) = board_dict.get_item("nets")? {
-            if !nets_val.is_none() && nets_val.is_instance_of::<PyDict>() {
-                let nets_dict: &Bound<'_, PyDict> = nets_val.downcast().unwrap();
-                for (key, val) in nets_dict.iter() {
-                    let net_name: String = key.extract().map_err(|e| {
-                        PyValueError::new_err(format!("nets key is not a string: {e}"))
-                    })?;
-                    let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
-                        PyValueError::new_err(format!(
-                            "nets['{net_name}'] is not a list: {e}"
-                        ))
-                    })?;
-                    let comps: Vec<String> = list
-                        .iter()
-                        .map(|item| item.extract::<String>().map_err(|e| {
-                            PyValueError::new_err(format!(
-                                "component ref in nets['{net_name}'] is not a string: {e}"
-                            ))
-                        }))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    result.insert(net_name, comps);
-                }
-            }
-        }
-        result
-    };
+    let nets_dict_raw = parse_nets_from_dict(board_dict)?;
 
     // --- Net classes (HashMap: net_name → class_name) ---
     let net_classes_raw: HashMap<String, String> = {
@@ -548,14 +574,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         .collect();
 
     // --- Traces (optional) ---
-    let traces = {
-        let trace_list = extract_dict_list(board_dict, "traces")?;
-        let mut result = Vec::with_capacity(trace_list.len());
-        for trace_dict in trace_list {
-            result.push(extract_trace_segment(&trace_dict)?);
-        }
-        result
-    };
+    let traces = parse_traces_from_dict(board_dict)?;
 
     // --- Vias (optional) ---
     let vias = {
@@ -568,14 +587,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     };
 
     // --- Zones (optional) ---
-    let zones = {
-        let zone_list = extract_dict_list(board_dict, "zones")?;
-        let mut result = Vec::with_capacity(zone_list.len());
-        for zone_dict in zone_list {
-            result.push(extract_copper_zone(&zone_dict)?);
-        }
-        result
-    };
+    let zones = parse_zones_from_dict(board_dict)?;
 
     Ok(BoardState {
         width_mm,

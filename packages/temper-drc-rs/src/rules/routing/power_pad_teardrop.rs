@@ -13,7 +13,7 @@
 
 use geo::{EuclideanDistance, Point};
 
-use crate::board::{BoardSide, BoardState, NetClassName};
+use crate::board::{BoardSide, BoardState, NetClassName, TraceSegment};
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Location, Severity, Violation};
 
@@ -50,6 +50,91 @@ fn pad_dimension_in_entry_direction(comp: &crate::board::Component, ep: &Point<f
     }
 }
 
+/// Map a board side to its copper layer name.
+fn comp_layer(side: BoardSide) -> &'static str {
+    match side {
+        BoardSide::Top => "F.Cu",
+        BoardSide::Bottom => "B.Cu",
+    }
+}
+
+/// Collect the net names belonging to net classes whose
+/// `max_current_rating` is at or above `min_current` (A).
+fn collect_high_current_net_names<'a>(board: &'a BoardState, min_current: f64) -> Vec<&'a str> {
+    let class_names: Vec<NetClassName> = board
+        .net_class_rules
+        .iter()
+        .filter(|(_, rules)| rules.max_current_rating.map_or(false, |r| r >= min_current))
+        .map(|(name, _)| name.clone())
+        .collect();
+    if class_names.is_empty() {
+        return Vec::new();
+    }
+    board
+        .nets
+        .iter()
+        .filter(|n| class_names.contains(&n.class))
+        .map(|n| n.name.0.as_str())
+        .collect()
+}
+
+/// Check whether a trace endpoint at a component pad junction meets the
+/// minimum teardrop width requirement (>= 60 % of the pad dimension in
+/// the entry direction). Returns `None` if no violation is found.
+fn check_endpoint_pad_teardrop(
+    ep_x: f64,
+    ep_y: f64,
+    trace: &TraceSegment,
+    board: &BoardState,
+) -> Option<Violation> {
+    let ep_point = Point::new(ep_x, ep_y);
+    for comp in &board.electrical_components {
+        if trace.layer != comp_layer(comp.side) {
+            continue;
+        }
+        let dist_to_edge = match &comp.footprint_polygon {
+            Some(poly) => poly.euclidean_distance(&ep_point),
+            None => {
+                let bbox = comp.footprint_bbox();
+                distance_to_rect_edge(&bbox, &ep_point)
+            }
+        };
+        if dist_to_edge > PAD_TOUCH_DISTANCE_MM {
+            continue;
+        }
+        let pad_dim = pad_dimension_in_entry_direction(comp, &ep_point);
+        let required_width = pad_dim * MIN_WIDTH_RATIO;
+        if trace.width < required_width {
+            return Some(violation(
+                Severity::Warning,
+                "DFM_TDR_001",
+                &format!(
+                    "Trace {} on {} width {:.3} mm < {:.3} mm (60 % of pad dim {:.3} mm) at pad junction near {}",
+                    trace.net, trace.layer, trace.width, required_width, pad_dim, comp.refdes,
+                ),
+                DrcCategory::Dfm,
+                "routing_power_pad_teardrop",
+                vec![trace.net.0.clone(), comp.refdes.0.clone()],
+                Some(Location {
+                    x: Some(ep_x),
+                    y: Some(ep_y),
+                    layer: Some(trace.layer.clone()),
+                }),
+                serde_json::json!({
+                    "trace_width_mm": trace.width,
+                    "required_width_mm": required_width,
+                    "pad_dimension_mm": pad_dim,
+                    "min_ratio": MIN_WIDTH_RATIO,
+                    "component": comp.refdes,
+                }),
+            ));
+        }
+        // Only report once per endpoint (first touching component wins).
+        break;
+    }
+    None
+}
+
 // ---------------------------------------------------------------------------
 // Check
 // ---------------------------------------------------------------------------
@@ -78,103 +163,19 @@ impl DrcRule for PowerPadTeardropCheck {
     fn check(&self, board: &BoardState, _constraints: &ConstraintSet) -> Vec<Violation> {
         let mut violations = Vec::new();
 
-        // ---- 1. Identify high-current net classes (max_current_rating >= 5.0 A) ---
-        let class_names: Vec<NetClassName> = board
-            .net_class_rules
-            .iter()
-            .filter(|(_, rules)| rules.max_current_rating.map_or(false, |r| r >= MIN_CURRENT_A))
-            .map(|(name, _)| name.clone())
-            .collect();
-
-        if class_names.is_empty() {
-            return violations;
-        }
-
-        // Nets belonging to those high-current classes.
-        let high_cur_nets: Vec<&str> = board
-            .nets
-            .iter()
-            .filter(|n| class_names.contains(&n.class))
-            .map(|n| n.name.0.as_str())
-            .collect();
-
+        let high_cur_nets = collect_high_current_net_names(board, MIN_CURRENT_A);
         if high_cur_nets.is_empty() {
             return violations;
         }
 
-        // ---- 2. Build a spatial lookup: for each component, its layer string ----
-        fn comp_layer(side: BoardSide) -> &'static str {
-            match side {
-                BoardSide::Top => "F.Cu",
-                BoardSide::Bottom => "B.Cu",
-            }
-        }
-
-        // ---- 3. Iterate traces ---------------------------------------------------
         for trace in &board.traces {
             if !high_cur_nets.contains(&trace.net.0.as_str()) {
                 continue;
             }
-
             for seg in &trace.segments {
                 for ep in [seg.start, seg.end] {
-                    let ep_point = Point::new(ep.x, ep.y);
-
-                    // Find which component (if any) this endpoint touches
-                    for comp in &board.electrical_components {
-                        // Layer check: trace layer must match component side
-                        if trace.layer != comp_layer(comp.side) {
-                            continue;
-                        }
-
-                        // Distance from endpoint to component footprint edge
-                        let dist_to_edge = match &comp.footprint_polygon {
-                            Some(poly) => poly.euclidean_distance(&ep_point),
-                            None => {
-                                // Fallback: distance to nearest bbox edge
-                                let bbox = comp.footprint_bbox();
-                                distance_to_rect_edge(&bbox, &ep_point)
-                            }
-                        };
-
-                        if dist_to_edge > PAD_TOUCH_DISTANCE_MM {
-                            continue;
-                        }
-
-                        // Compute the pad dimension in the direction the trace enters
-                        let pad_dim = pad_dimension_in_entry_direction(comp, &ep_point);
-                        let required_width = pad_dim * MIN_WIDTH_RATIO;
-
-                        if trace.width < required_width {
-                            let violation_msg = format!(
-                                "Trace {} on {} width {:.3} mm < {:.3} mm (60 % of pad dim {:.3} mm) at pad junction near {}",
-                                trace.net, trace.layer, trace.width, required_width, pad_dim, comp.refdes,
-                            );
-
-                            violations.push(violation(
-                                Severity::Warning,
-                                "DFM_TDR_001",
-                                &violation_msg,
-                                DrcCategory::Dfm,
-                                "routing_power_pad_teardrop",
-                                vec![trace.net.0.clone(), comp.refdes.0.clone()],
-                                Some(Location {
-                                    x: Some(ep.x),
-                                    y: Some(ep.y),
-                                    layer: Some(trace.layer.clone()),
-                                }),
-                                serde_json::json!({
-                                    "trace_width_mm": trace.width,
-                                    "required_width_mm": required_width,
-                                    "pad_dimension_mm": pad_dim,
-                                    "min_ratio": MIN_WIDTH_RATIO,
-                                    "component": comp.refdes,
-                                }),
-                            ));
-                        }
-
-                        // Only report once per endpoint (first touching component wins)
-                        break;
+                    if let Some(v) = check_endpoint_pad_teardrop(ep.x, ep.y, trace, board) {
+                        violations.push(v);
                     }
                 }
             }

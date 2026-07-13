@@ -12,6 +12,15 @@ use crate::ir_tier1::{
 use crate::provenance::{detect_conflicts, ProvenanceMap};
 use crate::type_lattice::{NetClassMetadata, SafetyCategory, TypeLattice};
 
+macro_rules! extract {
+    ($dict:expr, str: $key:literal) => { extract_str($dict, $key)? };
+    ($dict:expr, opt_str: $key:literal) => { extract_opt_str($dict, $key)? };
+    ($dict:expr, f64: $key:literal, $default:expr) => { extract_f64($dict, $key, $default)? };
+    ($dict:expr, str_list: $key:literal) => { extract_str_list($dict, $key)? };
+    ($dict:expr, opt_rect) => { extract_opt_rect($dict)? };
+    ($dict:expr, opt_point) => { extract_opt_point($dict)? };
+}
+
 #[derive(Clone)]
 pub struct HashMapResolver {
     pub component_map: HashMap<String, usize>,
@@ -122,119 +131,69 @@ fn extract_opt_point(dict: &Bound<'_, PyDict>) -> PyResult<Option<Point>> {
     }
 }
 
-fn pcl_constraint_from_py_dict(dict: &Bound<'_, PyDict>) -> PyResult<PclConstraint> {
-    let ctype: String = extract_str(dict, "type")?;
-    let id: String = extract_str(dict, "id").unwrap_or_else(|_| "unnamed".into());
-    let tier_str: String = extract_str(dict, "tier").unwrap_or_else(|_| "HARD".into());
+fn extract_common_fields(dict: &Bound<'_, PyDict>) -> PyResult<(String, ConstraintTier, String)> {
+    let id = extract_str(dict, "id").unwrap_or_else(|_| "unnamed".into());
+    let tier_str = extract_str(dict, "tier").unwrap_or_else(|_| "HARD".into());
     let tier = ConstraintTier::from_str(&tier_str).ok_or_else(|| {
         PyErr::new::<pyo3::exceptions::PyTypeError, _>(format!("invalid tier: {tier_str}"))
     })?;
-    let because: String =
-        extract_str(dict, "because").unwrap_or_else(|_| "no rationale".into());
+    let because = extract_str(dict, "because").unwrap_or_else(|_| "no rationale".into());
+    Ok((id, tier, because))
+}
+
+fn pcl_constraint_from_py_dict(dict: &Bound<'_, PyDict>) -> PyResult<PclConstraint> {
+    let ctype: String = extract_str(dict, "type")?;
+    let (id, tier, because) = extract_common_fields(dict)?;
 
     match ctype.as_str() {
         "adjacent" | "Adjacent" => {
-            let a: String = extract_str(dict, "a")?;
-            let b: String = extract_str(dict, "b")?;
-            let max_distance_mm: f64 = extract_f64(dict, "max_distance_mm", 0.0)?;
-            let metric: Option<String> = extract_opt_str(dict, "metric")?;
-            let pin_a: Option<String> = extract_opt_str(dict, "pin_a")?;
-            let pin_b: Option<String> = extract_opt_str(dict, "pin_b")?;
-            Ok(PclConstraint::Adjacent {
-                id,
-                a,
-                b,
-                max_distance_mm,
-                tier,
-                because,
-                metric,
-                pin_a,
-                pin_b,
-            })
+            let a = extract!(dict, str: "a");
+            let b = extract!(dict, str: "b");
+            let max_distance_mm = extract!(dict, f64: "max_distance_mm", 0.0);
+            let metric = extract!(dict, opt_str: "metric");
+            let pin_a = extract!(dict, opt_str: "pin_a");
+            let pin_b = extract!(dict, opt_str: "pin_b");
+            Ok(PclConstraint::Adjacent { id, a, b, max_distance_mm, tier, because, metric, pin_a, pin_b })
         }
         "separated" | "Separated" => {
-            let a: String = extract_str(dict, "a")?;
-            let b: String = extract_str(dict, "b")?;
-            let min_distance_mm: f64 = extract_f64(dict, "min_distance_mm", 0.0)?;
-            let metric: Option<String> = extract_opt_str(dict, "metric")?;
-            Ok(PclConstraint::Separated {
-                id,
-                a,
-                b,
-                min_distance_mm,
-                tier,
-                because,
-                metric,
-            })
+            let a = extract!(dict, str: "a");
+            let b = extract!(dict, str: "b");
+            let min_distance_mm = extract!(dict, f64: "min_distance_mm", 0.0);
+            let metric = extract!(dict, opt_str: "metric");
+            Ok(PclConstraint::Separated { id, a, b, min_distance_mm, tier, because, metric })
         }
         "enclosing" | "Enclosing" => {
-            let outer: String = extract_str(dict, "outer")?;
-            let inner: Vec<String> = extract_str_list(dict, "inner")?;
-            let margin_mm: f64 = extract_f64(dict, "margin_mm", 0.0)?;
-            Ok(PclConstraint::Enclosing {
-                id,
-                outer,
-                inner,
-                margin_mm,
-                tier,
-                because,
-            })
+            let outer = extract!(dict, str: "outer");
+            let inner = extract!(dict, str_list: "inner");
+            let margin_mm = extract!(dict, f64: "margin_mm", 0.0);
+            Ok(PclConstraint::Enclosing { id, outer, inner, margin_mm, tier, because })
         }
         "aligned" | "Aligned" => {
-            let components: Vec<String> = extract_str_list(dict, "components")?;
-            let axis_str: Option<String> = extract_opt_str(dict, "axis")?;
+            let components = extract!(dict, str_list: "components");
+            let axis_str = extract!(dict, opt_str: "axis");
             let axis = axis_str.and_then(|s| crate::ir_tier0::Axis::from_str(&s));
-            let tolerance_mm: f64 = extract_f64(dict, "tolerance_mm", 0.0)?;
-            Ok(PclConstraint::Aligned {
-                id,
-                components,
-                axis,
-                tolerance_mm,
-                tier,
-                because,
-            })
+            let tolerance_mm = extract!(dict, f64: "tolerance_mm", 0.0);
+            Ok(PclConstraint::Aligned { id, components, axis, tolerance_mm, tier, because })
         }
         "on_side" | "OnSide" => {
-            let components: Vec<String> = extract_str_list(dict, "components")?;
-            let side_str: Option<String> = extract_opt_str(dict, "side")?;
+            let components = extract!(dict, str_list: "components");
+            let side_str = extract!(dict, opt_str: "side");
             let side = side_str.and_then(|s| crate::ir_tier0::BoardEdge::from_str(&s));
-            let edge: Option<String> = extract_opt_str(dict, "edge")?;
-            let max_distance_mm: f64 = extract_f64(dict, "max_distance_mm", 0.0)?;
-            Ok(PclConstraint::OnSide {
-                id,
-                components,
-                side,
-                edge,
-                max_distance_mm,
-                tier,
-                because,
-            })
+            let edge = extract!(dict, opt_str: "edge");
+            let max_distance_mm = extract!(dict, f64: "max_distance_mm", 0.0);
+            Ok(PclConstraint::OnSide { id, components, side, edge, max_distance_mm, tier, because })
         }
         "anchored" | "Anchored" => {
-            let component: String = extract_str(dict, "component")?;
-            let region = extract_opt_rect(dict)?;
-            let position = extract_opt_point(dict)?;
-            Ok(PclConstraint::Anchored {
-                id,
-                component,
-                region,
-                position,
-                tier,
-                because,
-            })
+            let component = extract!(dict, str: "component");
+            let region = extract!(dict, opt_rect);
+            let position = extract!(dict, opt_point);
+            Ok(PclConstraint::Anchored { id, component, region, position, tier, because })
         }
         "loop_area" | "LoopArea" => {
-            let loop_name: String = extract_str(dict, "loop_name")?;
-            let max_area_mm2: f64 = extract_f64(dict, "max_area_mm2", 0.0)?;
-            let components: Vec<String> = extract_str_list(dict, "components")?;
-            Ok(PclConstraint::LoopArea {
-                id,
-                loop_name,
-                max_area_mm2,
-                tier,
-                because,
-                components,
-            })
+            let loop_name = extract!(dict, str: "loop_name");
+            let max_area_mm2 = extract!(dict, f64: "max_area_mm2", 0.0);
+            let components = extract!(dict, str_list: "components");
+            Ok(PclConstraint::LoopArea { id, loop_name, max_area_mm2, tier, because, components })
         }
         _ => Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(format!(
             "unknown constraint type: {ctype}"
