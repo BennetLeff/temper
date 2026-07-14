@@ -170,9 +170,9 @@ void watchdog_hardware_feed(void);
  */
 #ifdef ESP_PLATFORM
 #include "driver/gpio.h"
-#define WDI_GPIO_NUM            GPIO_NUM_4
+#define WDI_GPIO_NUM            GPIO_NUM_7
 #define WDT_RESET_GPIO_NUM      GPIO_NUM_6
-#define RUNAWAY_CUT_GPIO        GPIO_NUM_5
+#define RUNAWAY_CUT_GPIO        GPIO_NUM_15
 #endif
 
 /* ============================================================================

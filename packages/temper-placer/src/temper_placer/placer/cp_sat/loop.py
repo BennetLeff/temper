@@ -218,6 +218,7 @@ class PlaceRouteLoop:
         loop_components: dict[str, list[str]] | None = None,
         all_gates: bool = False,
         routed_pcb_path: Path | None = None,
+        source_pcb_path: Path | None = None,
     ) -> LoopResult:
         """Run the full place-route loop.
 
@@ -233,6 +234,9 @@ class PlaceRouteLoop:
                 RoutingGate, StackupGate, PhysicsGate, QualityGate).
                 When False, use the default [DrcGate, RoutingGate].
             routed_pcb_path: Path to a routed PCB file for DRC gates.
+            source_pcb_path: Authoritative KiCad source board. When supplied,
+                routing applies CP-SAT coordinates to this board rather than
+                manufacturing a synthetic footprint/pad approximation.
 
         Returns:
             LoopResult with success status, placement, and routing.
@@ -265,6 +269,7 @@ class PlaceRouteLoop:
             gates = list(self.gates) if self.gates else []
 
         self._routed_pcb_path_override = routed_pcb_path
+        self._source_pcb_path = source_pcb_path
 
         injected_deltas: list[ConstraintDelta] = []
         rounds: list[RoundRecord] = []
@@ -377,6 +382,20 @@ class PlaceRouteLoop:
 
             # ---- Legacy convergence check ------------------------------------
             if completion_rate >= 1.0 and drc_errors == 0:
+                if getattr(self, "_source_pcb_path", None) is not None:
+                    # Router V6 is deterministic for a fixed real KiCad board
+                    # and fixed placement. Re-running the native routing stack
+                    # with identical inputs is not an independent stability
+                    # measurement; the authoritative artifact is instead sent
+                    # immediately to the KiCad DRC truth gate by the CLI.
+                    # Keep the two-round rule for synthetic/test-only flows.
+                    return LoopResult(
+                        success=True,
+                        reason=LoopExitReason.SUCCESS.value,
+                        placement=placement,
+                        routing=routing,
+                        rounds=rounds,
+                    )
                 stable = (
                     self._consecutive_stable_rounds(rounds)
                     >= self.STABILITY_ROUNDS
@@ -1171,6 +1190,28 @@ class PlaceRouteLoop:
             return RoutingResult(completion_rate=0.0)
 
         netclass_rules = getattr(self, '_netclass_rules', None)
+        source_pcb_path = getattr(self, "_source_pcb_path", None)
+        if source_pcb_path is not None:
+            # CP-SAT coordinates are origin-relative; KiCad coordinates are
+            # absolute.  Preserve the authoritative board's existing
+            # footprints, pad geometry, layers, zones, and net identities.
+            origin_x, origin_y = getattr(board, "origin", (0.0, 0.0))
+            absolute_placements = {
+                ref: (x + origin_x, y + origin_y)
+                for ref, (x, y) in placements_dict.items()
+            }
+            parsed = type("ParsedPCB", (), {"source_path": source_pcb_path})()
+            return route_pcb(
+                parsed,
+                absolute_placements,
+                _seed=seed,
+                design_rules=netclass_rules.design_rules if netclass_rules is not None else None,
+                thermal_flat=thermal_flat,
+                thermal_weight=thermal_weight,
+            )
+
+        # Compatibility fallback for non-KiCad unit callers. Production board
+        # flows must provide ``source_pcb_path`` above.
         fd, temp_path = tempfile.mkstemp(suffix=".kicad_pcb")
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:

@@ -18,6 +18,20 @@ We do not design PCBs by simply "connecting the dots." High-power induction heat
 
 To ensure safety and performance, the following pipeline must be followed strictly. Do not attempt to manually route the board or use a standard auto-router without these preprocessing steps.
 
+### Step 0: Generated-Safety Import Gate
+
+`scripts/run_clean_flow.sh` first compares `elec/build/default.net` with the
+KiCad source board. It requires the active-high `SHUTDOWN` and
+`RTD_HW_FAULT` nets, RTD connector/sensor nets, and the UCC21550, MAX31865,
+reference, comparator, rail-monitor, logic, and redundant fault-OR device
+families. This is a stable family/net-name contract rather than a generated
+reference-designator comparison.
+
+If it fails, open `pcb/temper.kicad_pcb` in KiCad PCB Editor and use **Tools →
+Update PCB from Schematic** with the freshly built Atopile netlist. Place the
+new RTD safety cluster before rerunning the pipeline. Do not route the legacy
+board and treat its result as evidence for the new safety path.
+
 ### Step 1: Physics-Aware Placement
 **Tool:** `temper-placer`
 **Config:** `packages/temper-placer/configs/temper_constraints.yaml`
@@ -33,35 +47,43 @@ We use a JAX-based optimizer to place components. Crucially, we must use the **s
         --auto-group
     ```
 
-### Step 2: Smart Plane Generation
-**Tool:** `add_power_planes_v2.py`
+### Step 2: Ground Reference Plane Generation
+**Tool:** `scripts/add_power_planes.py`
 
-Standard auto-routers do not understand power planes. They treat a 40A bus as a signal wire. We must procedurally inject geometry (zones) into the PCB file *after* placement but *before* routing.
+The current board flow injects one unified `GND` reference plane on `In2.Cu`
+after the place→route loop. It is a reference-plane step, not a substitute for
+power-stage routing or for an intentional `PGND`/`GND` net-tie topology.
 
 *   **What it does:**
-    *   **Split Ground:** Detects the Y-axis boundary between the Power and Control zones and cuts the Layer 2 ground plane accordingly.
-    *   **Power Islands:** Generates targeted copper floods for +3V3 and +5V rails based on component clustering.
-*   **Why?** Ensures low impedance for power rails and prevents ground loops.
+*   **Unified GND:** Adds a board-edge-inset `GND` zone on `In2.Cu`.
+*   **Why?** Provides a continuous return reference; it does not automatically
+    join distinct `PGND`/`CGND` nets or create +3V3/+5V power islands.
 *   **Command:**
     ```bash
-    python3 add_power_planes_v2.py pcb/temper_placed.kicad_pcb pcb/temper_ready_for_route.kicad_pcb
+    python3 scripts/add_power_planes.py pcb/temper_placed.kicad_pcb pcb/temper_ready_for_route.kicad_pcb
     ```
 
-### Step 3: Routing
-**Tool:** FreeRouting (or internal router)
+### Step 3: Routing and Truth Gate
+**Tool:** CP-SAT place→route loop, then `kicad-cli pcb drc`
 
-Only after planes are generated do we export the DSN for the router. The router's job is reduced to connecting signal traces (`GATE`, `SENSE`, `SPI`), which it can do safely because the heavy lifting (Power) is already done by the planes.
+The loop places with CP-SAT and routes using Router V6. For an authoritative
+KiCad source board, one deterministic fully-routed artifact goes immediately
+to KiCad DRC; repeating the same native-router invocation is not treated as
+an independent stability measurement. Its pin-hull overlap check is diagnostic
+only—the KiCad DRC on the emitted board is the authoritative physical-overlap
+check. The flow fails closed on a non-convergent route or a KiCad DRC error,
+then adds the reference plane and runs a second KiCad DRC on the final board.
+A failed stage does not leave a board that may be treated as ready for routing.
 
 ---
 
 ## Architectural Decisions
 
 ### 1. The "Split Ground" Topology
-*   **Decision:** We use a "Star Ground" architecture where the Power Stage Ground (`PGND`) and Control Ground (`GND`) are physically separate planes on Layer 2.
-*   **Implementation:**
-    *   The netlist must contain two distinct nets: `PGND` and `GND`.
-    *   These nets are connected by a **Net Tie** component (a physical footprint that shorts them).
-    *   The `add_power_planes_v2.py` script algorithmically determines the split line based on component placement.
+*   **Current implementation:** `scripts/add_power_planes.py` emits only a
+    unified `GND` reference plane. If the design requires physically separate
+    `PGND` and `GND`, represent them as distinct nets joined by an intentional
+    net-tie footprint; do not infer that topology from placement.
 
 ### 2. Zoning Strategy
 *   **Power Zone (Top/High Y):** Contains IGBTs (`Q1`, `Q2`), Rectifiers (`D1`, `D2`), and DC Bus Caps (`C_BUS`). High voltage, high noise.
@@ -69,13 +91,17 @@ Only after planes are generated do we export the DSN for the router. The router'
 *   **Interface Zone (Edges):** Connectors must be placed at board edges.
 
 ### 3. Documentation & Sync
-*   **Rule:** If you modify `add_power_planes_v2.py` or `temper_constraints.yaml`, you **MUST** update this document (`AUTOMATED_PCB_DESIGN_INSTRUCTIONS.md`) to reflect the changes.
+*   **Rule:** If you modify `scripts/add_power_planes.py`,
+    `scripts/run_clean_flow.sh`, or `temper_constraints.yaml`, you **MUST**
+    update this document (`AUTOMATED_PCB_DESIGN_INSTRUCTIONS.md`) to reflect
+    the changes.
 *   **Reason:** AI agents relying on outdated context will generate dangerous board designs.
 
 ---
 
 ## Scripts Reference
 
-*   `scripts/run_clean_flow.sh`: The master script that executes Steps 1-3 in order. Use this for a reliable, "End-to-End" run.
-*   `add_power_planes_v2.py`: The procedural geometry engine.
+*   `scripts/run_clean_flow.sh`: The master script that executes the
+    fail-closed placement, routing, plane, and DRC path.
+*   `scripts/add_power_planes.py`: The unified-GND reference-plane generator.
 *   `packages/temper-placer/configs/temper_constraints.yaml`: The single source of truth for placement rules.

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'elec/**'
       - 'tests/**'
       - 'scripts/**'
       - 'pyproject.toml'
@@ -29,6 +30,7 @@ on:
     branches: [main]
     paths:
       - 'packages/**'
+      - 'elec/**'
       - 'tests/**'
       - 'scripts/**'
       - 'pyproject.toml'
@@ -73,11 +75,20 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Install circuit simulator
+        run: sudo apt-get update && sudo apt-get install --yes ngspice
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Run electronics validation tests
+        run: uv run pytest elec/validation/ -v --tb=short
 
       - name: Cache Rust build
         uses: actions/cache@v4

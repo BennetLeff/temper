@@ -59,7 +59,7 @@ typedef struct {
     uint32_t estimation_start_time;    /**< Start time of estimation */
     float initial_temperature;         /**< Initial pan temperature */
     float test_power_level;            /**< Power level during test */
-    uint8_t sample_count;              /**< Number of samples collected */
+    uint32_t sample_count;              /**< Number of samples collected */
     float temperature_sum;             /**< Sum of temperature readings */
     bool classification_valid;         /**< Classification result is valid */
 } thermal_mass_handle_t;

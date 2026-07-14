@@ -4,6 +4,7 @@ Tests for kicad-cli DRC runner.
 TDD Task: temper-1my.5.1
 """
 
+import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -239,6 +240,38 @@ class TestDrcRunner:
         assert len(clearance_errors) == 1
         assert clearance_errors[0].location[0] == pytest.approx(25.0)
 
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_drc_rejects_nonzero_cli_status_even_with_json(
+        self, mock_run: MagicMock, mock_temp_file: MagicMock,
+        mock_clean_drc_output: dict, tmp_path: Path,
+    ) -> None:
+        """A crashed CLI is unmeasured, never a clean DRC result."""
+        import json
+
+        pcb_file = tmp_path / "crashed_board.kicad_pcb"
+        pcb_file.write_text("(kicad_pcb)")
+        json_file = tmp_path / "drc_report.json"
+        json_file.write_text(json.dumps(mock_clean_drc_output))
+
+        mock_run.return_value = MagicMock(
+            returncode=133,
+            stdout="",
+            stderr="Fatal error: Array index out of range",
+        )
+        mock_ctx = MagicMock()
+        mock_ctx.name = str(json_file)
+        mock_ctx.__enter__.return_value = mock_ctx
+        mock_temp_file.return_value = mock_ctx
+
+        with (
+            patch(
+                "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
+            ),
+            pytest.raises(DrcRunnerError, match="exit 133"),
+        ):
+            run_drc(pcb_file)
+
     def test_drc_on_nonexistent_file(self, tmp_path: Path) -> None:
         """Non-existent PCB file should raise FileNotFoundError."""
         pcb_file = tmp_path / "nonexistent.kicad_pcb"
@@ -258,7 +291,10 @@ class TestDrcRunner:
         assert "kicad-cli" in str(exc_info.value).lower()
 
 
-@pytest.mark.skipif(not is_kicad_cli_available(), reason="kicad-cli not installed")
+@pytest.mark.skipif(
+    sys.platform != "linux" or not is_kicad_cli_available(),
+    reason="real KiCad DRC is verified by the Linux truth-gate runner",
+)
 class TestDrcRunnerIntegration:
     """Integration tests requiring actual kicad-cli installation."""
 

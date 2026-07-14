@@ -102,6 +102,44 @@ timeouts:
     legacy_define: false
 
 thresholds:
+  - c_symbol: RTD_SHORT_FAULT_OHM
+    field: rtd_short_fault_ohm
+    value: 10.0
+    c_type: float
+    units: "Ω"
+    env_var: RTD_SHORT_FAULT_OHM
+    doc: "PT100/MAX31865 short-fault boundary; values at or below fault"
+
+  - c_symbol: RTD_OPEN_FAULT_OHM
+    field: rtd_open_fault_ohm
+    value: 300.0
+    c_type: float
+    units: "Ω"
+    env_var: RTD_OPEN_FAULT_OHM
+    doc: "PT100/MAX31865 open/out-of-range guard; values at or above fault"
+
+  - c_symbol: RTD_GROSS_OPEN_DIAGNOSTIC_OHM
+    field: rtd_gross_open_diagnostic_ohm
+    value: 10000.0
+    c_type: float
+    units: "Ω"
+    env_var: RTD_GROSS_OPEN_DIAGNOSTIC_OHM
+    doc: "Legacy gross-open diagnostic retained while SIL fixtures migrate"
+
+  - c_symbol: MAX31865_LOW_THRESHOLD_WORD
+    field: max31865_low_threshold_word
+    value: 1526
+    c_type: uint16_t
+    units: "register word"
+    doc: "10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+
+  - c_symbol: MAX31865_HIGH_THRESHOLD_WORD
+    field: max31865_high_threshold_word
+    value: 45722
+    c_type: uint16_t
+    units: "register word"
+    doc: "300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+
   - c_symbol: PAN_DEBOUNCE_COUNT
     field: pan_debounce_count
     value: 10

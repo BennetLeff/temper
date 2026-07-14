@@ -1,0 +1,68 @@
+* RTD fault/brownout -> FAULT_ANY -> set-dominant latch -> UCC21550 DIS.
+*
+* Rendered by test_rtd_fault_latch_transient_spice.py for each transient
+* stimulus. This is a conservative behavioural timing envelope, not a claim
+* that the vendor parts are represented by transistor macro-models.
+*
+* Delay envelope parameters:
+*   TLV3201 maximum propagation delay: 55 ns (datasheet 5 V PVT table).
+*   SN74HC00 maximum propagation delay: 23 ns (4.5 V table).
+*   TPS3700 brownout permission delay: 450 us conservative model parameter;
+*   it covers the cited worst start-up timing rather than claiming a timing
+*   maximum from the TPS3700 electrical table.
+*
+* RC values place the behavioural threshold crossing at or after each stated
+* delay. LATCH_SET_US=1 us is deliberately much slower than HC00 logic yet
+* negligible against the 100 ms shutdown budget.
+
+.param VLOGIC=3.3 VRTD_LOW=0.175 VRTD_HIGH=0.785 VAVDD_UV=2.85
+.param TLV_TPD_MAX=55n HC00_TPD_MAX=23n TPS3700_TPD_CONSERVATIVE=450u
+.param LATCH_SET_US=1u
+
+V_SAFE safety_3v3 0 {VLOGIC}
+{{RTD_SOURCE}}
+{{AVDD_SOURCE}}
+{{RESET_SOURCE}}
+
+* Invalid RTD window and upstream AVDD brownout inputs to FAULT_ANY.
+B_RTD_RAW rtd_raw 0 V={ternary_fcn((v(rtd)<VRTD_LOW)+(v(rtd)>VRTD_HIGH),VLOGIC,0)}
+B_AVDD_RAW avdd_raw 0 V={ternary_fcn(v(avdd)<VAVDD_UV,VLOGIC,0)}
+
+* The RC time constants cross the 1.65 V logic threshold after 55 ns and
+* 450 us respectively (tau = delay / ln(2)). A separate HC00 envelope follows
+* the OR stage before the latch set current begins.
+R_TLV rtd_raw tlv_delayed 1k
+C_TLV tlv_delayed 0 79.4p
+R_TPS avdd_raw tps_delayed 1k
+C_TPS tps_delayed 0 649.2n
+B_FAULT_COMBINED fault_combined 0 V={ternary_fcn((v(tlv_delayed)>1.65)+(v(tps_delayed)>1.65),VLOGIC,0)}
+R_HC00 fault_combined fault_any 1k
+C_HC00 fault_any 0 33.2p
+
+* Set-dominant analogue state model of the NAND SR latch. A live FAULT_ANY
+* sources latch charge; reset is intentionally qualified by !FAULT_ANY, so a
+* simultaneous reset cannot clear shutdown. With no reset, C_LATCH preserves
+* shutdown after the RTD condition clears.
+* With the 1 mA behavioural set current, this capacitor reaches the 1.65 V
+* DIS threshold exactly after LATCH_SET_US. Keep the value parameter-derived
+* so the declared timing envelope cannot drift from the simulated circuit.
+C_LATCH latch_q 0 {LATCH_SET_US*1m/1.65} IC=0
+R_LATCH_LEAK latch_q 0 1g
+B_LATCH_SET latch_q 0 I={-ternary_fcn(v(fault_any)>1.65,1m,0)}
+B_LATCH_RESET latch_q 0 I={ternary_fcn((v(reset_n)<1.65)*(v(fault_any)<1.65),1m,0)}
+B_LATCH_CLAMP latch_q 0 I={ternary_fcn(v(latch_q)>VLOGIC,(v(latch_q)-VLOGIC),0)}
+
+* Board signal naming: latched SHUTDOWN is the active-high UCC21550 DIS input.
+E_SHUTDOWN shutdown 0 VALUE={v(latch_q)}
+E_UCC21550_DIS ucc_dis 0 VALUE={v(shutdown)}
+
+.control
+set noaskquit
+tran {{TSTEP}} {{TSTOP}}
+meas tran t_shutdown WHEN v(ucc_dis)=1.65 RISE=1
+meas tran v_shutdown_end FIND v(ucc_dis) AT={{TMEASURE}}
+print t_shutdown v_shutdown_end
+quit
+.endc
+
+.end

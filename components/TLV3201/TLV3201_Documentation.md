@@ -22,6 +22,10 @@ Used in the safety interlock system for:
 - Overcurrent Protection (OCP)
 - Overvoltage Protection (OVP)
 - Thermal Shutdown
+- The independent RTD hardware window. The two RTD comparators run from the
+  post-ferrite `RTD_AVDD` rail and observe the local MAX31865
+  `REFIN−`/`ISENSOR` node. An upstream-powered TPS3700 removes their
+  permission before `RTD_AVDD` falls below the 2.7 V minimum supply.
 
 **Reference:**
 - Manufacturer: Texas Instruments

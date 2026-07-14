@@ -30,7 +30,7 @@ build: netlist footprints route drc
 netlist:
 	@echo "Building Atopile project..."
 	@if [ -f $(BOM_FILE) ]; then cp $(BOM_FILE) $(BOM_PREV); fi
-	cd $(ELEC_DIR) && uv tool run --from atopile ato build $(ATO_ENTRY)
+	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive build $(ATO_ENTRY)
 
 footprints:
 	@echo "Generating footprints from code..."
@@ -47,7 +47,7 @@ diff:
 	fi
 
 visualize:
-	cd $(ELEC_DIR) && uv tool run --from atopile ato view $(ATO_ENTRY)
+	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive view $(ATO_ENTRY)
 
 PCB_FILE = pcb/temper.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb

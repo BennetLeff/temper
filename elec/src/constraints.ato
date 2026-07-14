@@ -1,7 +1,27 @@
 # Net Class and Constraint Definitions for Temper
 # Reference: NET_CLASS_SPECIFICATION.md, PCB_SAFETY_DESIGN_RULES.md
 
+# Explicit top-level blocks are declared before the aggregator because Atopile
+# resolves `new` types in source order.
+module HighVoltageConstraints:
+    v_max = 400V
+    i_max = 25A
+
+module ACMainsConstraints:
+    v_max = 135V
+    i_max = 15A
+
+module GateDriveConstraints:
+    i_max = 4A
+
+module ThermalZonesConstraints:
+    igbt_derate_temp = 398.15K
+
 module Constraints:
+    high_voltage = new HighVoltageConstraints
+    ac_mains = new ACMainsConstraints
+    gate_drive = new GateDriveConstraints
+    thermal_zones = new ThermalZonesConstraints
     # ===========================================================================
     # NET CLASS DEFINITIONS
     # ===========================================================================

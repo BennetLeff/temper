@@ -249,6 +249,18 @@ void state_machine_set_timer(bool enabled, uint32_t time_ms);
 void state_machine_set_intensity(uint8_t level);
 
 /**
+ * Deliver a decoded MAX31865 fault to the terminal safety path.
+ *
+ * This signature is intentionally compatible with max31865_fault_sink_t, so
+ * the RTD service can register it directly without coupling the driver to the
+ * state-machine implementation. The context argument is reserved for the
+ * caller and is ignored here. A short takes diagnostic priority if both bits
+ * are asserted; either condition immediately asserts hardware shutdown.
+ */
+void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
+                                           void *context);
+
+/**
  * @brief Get current intensity level
  * 
  * @return Current intensity level (1-10)

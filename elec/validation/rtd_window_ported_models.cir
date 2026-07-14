@@ -1,0 +1,73 @@
+* RTD hardware window using portable, reviewable ngspice component models.
+*
+* The macros below are independently written portable ports based on the
+* public TI PSpice/TINA releases. They preserve the pin order and safety
+* behaviour used by this board; tolerance/PVT coverage remains in Python.
+
+.include ../../simulation/models/REF2025_ngspice.lib
+.include ../../simulation/models/TLV3201_ngspice.lib
+.include ../../simulation/models/TPS3700_ngspice.lib
+.include ../../simulation/models/SN74LVC1G08_ngspice.lib
+.include ../../simulation/models/SN74LVC1G38_ngspice.lib
+
+V_SAFE safety_3v3 0 3.3
+V_MAX_BIAS max_bias 0 2.0
+V_AVDD rtd_avdd 0 3.3
+R_RREF max_bias refin_minus 430
+R_RTD refin_minus 0 100
+
+X_REFERENCE reference_vbias 0 safety_3v3 safety_3v3 reference_vref REF2025_NGSPICE
+R_LOW_TOP reference_vbias low_threshold 61.3k
+R_LOW_BOTTOM low_threshold 0 10k
+R_HIGH_TOP reference_vbias high_threshold 5.93k
+R_HIGH_BOTTOM high_threshold 0 10k
+X_LOW refin_minus low_threshold rtd_avdd 0 low_ok TLV3201_NGSPICE
+X_HIGH high_threshold refin_minus rtd_avdd 0 high_ok TLV3201_NGSPICE
+
+X_WINDOW_AND low_ok high_ok 0 window_ok rtd_avdd SN74LVC1G08_NGSPICE
+R_WINDOW_OK_PULLDOWN window_ok 0 100k
+R_AVDD_TOP rtd_avdd rail_monitor_in 616k
+R_AVDD_BOTTOM rail_monitor_in 0 100k
+X_MONITOR safety_3v3 rail_monitor_in 0 rail_ok unused_monitor_out 0 TPS3700_NGSPICE
+R_RAIL_OK_PULLUP safety_3v3 rail_ok 10k
+X_FAULT rtd_hw_fault window_ok rail_ok rtd_avdd 0 SN74LVC1G38_NGSPICE
+R_FAULT_PULLUP safety_3v3 rtd_hw_fault 10k
+
+.control
+set noaskquit
+
+alter R_RTD resistance = 10
+alter V_AVDD dc = 3.3
+op
+echo CASE_SHORT_10R
+print v(rtd_hw_fault)
+
+alter R_RTD resistance = 100
+op
+echo CASE_VALID_100R
+print v(rtd_hw_fault)
+
+alter R_RTD resistance = 194.1
+op
+echo CASE_VALID_194R1
+print v(rtd_hw_fault)
+
+alter R_RTD resistance = 300
+op
+echo CASE_OPEN_300R
+print v(rtd_hw_fault)
+
+alter R_RTD resistance = 100
+alter V_AVDD dc = 2.75
+op
+echo CASE_AVDD_BROWNOUT
+print v(rtd_hw_fault)
+
+alter V_AVDD dc = 0
+op
+echo CASE_AVDD_LOSS
+print v(rtd_hw_fault)
+quit
+.endc
+
+.end

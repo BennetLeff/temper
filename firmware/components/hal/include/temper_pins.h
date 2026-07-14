@@ -55,39 +55,48 @@ extern "C" {
  * Using SPI2 (HSPI) host on ESP32-S3.
  * ============================================================================ */
 
-/** SPI Clock */
-#define PIN_SPI_CLK             12
+/** SPI Clock (ESP32-S3 IO8; matches elec/src/components.ato) */
+#define PIN_SPI_CLK             8
 
-/** SPI Master Out Slave In */
+/** SPI Master Out Slave In (ESP32-S3 IO11) */
 #define PIN_SPI_MOSI            11
 
-/** SPI Master In Slave Out */
-#define PIN_SPI_MISO            13
+/** SPI Master In Slave Out (ESP32-S3 IO12; IO13 is ZCD) */
+#define PIN_SPI_MISO            12
 
 /** Chip Select for RTD sensor 1 (coil temperature) */
 #define PIN_SPI_CS_RTD1         10
 
-/** Chip Select for RTD sensor 2 (ambient temperature) */
-#define PIN_SPI_CS_RTD2         9
+/** MAX31865 data-ready output (active low). */
+#define PIN_RTD_DRDY            9
+
+/** Reserved chip select for a future RTD sensor 2. */
+#define PIN_SPI_CS_RTD2         16
 
 /* ============================================================================
  * Control and Status Pins
  * ============================================================================ */
 
 /** Zero-crossing detector input (from comparator output) */
-#define PIN_ZCD_INPUT           6
+#define PIN_ZCD_INPUT           13
 
 /** Hardware watchdog kick output (to TPS3823) */
 #define PIN_WDT_KICK            7
 
-/** Fault output to hardware safety latch (active low) */
-#define PIN_FAULT_OUT           8
+/** Hardware watchdog RESET_N input from TPS3823 */
+#define PIN_WDT_RESET           6
 
-/** Inrush limiter bypass relay control */
-#define PIN_RELAY_BYPASS        15
+/** Active-high runaway-cut output to the safety latch */
+#define PIN_RUNAWAY_CUT         15
+
+/** Latched fault status sense (ESP32-S3 IO20; active high SHUTDOWN alias) */
+#define PIN_FAULT_OUT           20
+
+/** Inrush limiter bypass relay control (ESP32-S3 IO19) */
+#define PIN_RELAY_BYPASS        19
 
 /** Master reset input from hardware safety system */
-#define PIN_RESET_INPUT         16
+#define PIN_RESET_INPUT         14
 
 /* ============================================================================
  * User Interface Pins

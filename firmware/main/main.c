@@ -21,6 +21,8 @@
 #include "nvs_flash.h"
 
 #include "state_machine.h"
+#include "hal.h"
+#include "rtd_service.h"
 /* These will be included when components are built */
 /* #include "pan_detect.h" */
 /* #include "pid_control.h" */
@@ -59,6 +61,10 @@ static void control_task(void *arg) {
     const TickType_t xFrequency = pdMS_TO_TICKS(CONTROL_LOOP_PERIOD_MS);
     
     while (1) {
+        /* DRDY ISR only records completion. Keep MAX31865 SPI and resulting
+         * state changes in this task so it is the sole state-machine owner. */
+        rtd_service_control_tick();
+
         /* Update state machine (handles PID, PLL internally) */
         state_machine_update();
         
@@ -131,6 +137,12 @@ static void init_nvs(void) {
  */
 static void init_peripherals(void) {
     ESP_LOGI(TAG, "Initializing peripherals...");
+
+    if (hal_init() != HAL_OK) {
+        /* rtd_service_control_tick() will fail closed before the power stage
+         * can run. Continue initialization only to preserve the boot owner. */
+        ESP_LOGE(TAG, "HAL initialization failed");
+    }
     
     /* Initialize GPIO */
     /* gpio_init(); */
@@ -141,8 +153,11 @@ static void init_peripherals(void) {
     /* Initialize MCPWM for gate driver */
     /* mcpwm_init(); */
     
-    /* Initialize SPI for MAX31865 RTD interface */
-    /* spi_init(); */
+    /* Board-owned SPI2/MAX31865 bootstrap. DRDY on GPIO9 is configured as a
+     * falling-edge handoff; no SPI transfer is performed in its ISR. */
+    if (rtd_service_bootstrap() != HAL_OK) {
+        ESP_LOGE(TAG, "MAX31865 bootstrap failed; control task will fail closed");
+    }
     
     /* Initialize I2C for display */
     /* i2c_init(); */

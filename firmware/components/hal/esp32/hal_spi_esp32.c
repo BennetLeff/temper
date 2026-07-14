@@ -17,6 +17,13 @@ static const char *TAG = "hal_spi";
 #define MAX_SPI_BUSES       2
 #define MAX_SPI_DEVICES     4
 
+/* MAX31865 requires at least 400 ns from CS assertion to the first SCLK
+ * edge, and 100 ns from the last edge to CS deassertion. Two setup cycles and
+ * one hold cycle meet those limits even at the device's 5 MHz maximum; the
+ * board currently operates it at 500 kHz. */
+#define MAX31865_CS_SETUP_CYCLES 2
+#define MAX31865_CS_HOLD_CYCLES  1
+
 /* SPI device handle wrapper */
 typedef struct {
     spi_device_handle_t handle;
@@ -101,6 +108,8 @@ static hal_status_t esp32_spi_device_add(hal_spi_bus_t bus, const hal_spi_config
         .mode = config->mode,
         .spics_io_num = config->pin_cs,
         .queue_size = 4,
+        .cs_ena_pretrans = MAX31865_CS_SETUP_CYCLES,
+        .cs_ena_posttrans = MAX31865_CS_HOLD_CYCLES,
         .flags = config->cs_active_high ? SPI_DEVICE_POSITIVE_CS : 0,
     };
     

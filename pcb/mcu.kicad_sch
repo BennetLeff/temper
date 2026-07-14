@@ -968,7 +968,7 @@
     )
   )
 
-  (text "MCU SUBSYSTEM\n\nESP32-S3-WROOM-1-N4\n- 4MB Flash, PCB antenna\n- WiFi + BLE 5.0\n\nPin Assignments:\n- IO4: PWM_H (MCPWM0A)\n- IO5: PWM_L (MCPWM0B)\n- IO6: MCU_ENABLE\n- IO7: WDT_KICK\n- IO10: SPI_MOSI (FSPI)\n- IO9: SPI_MISO (FSPI)\n- IO11: SPI_SCK (FSPI)\n- IO12: RTD_CS\n- IO8: I2C_SDA\n- IO18: I2C_SCL\n- IO13: FAULT_STATUS\n- IO14: ZCD\n- IO1: ADC_CT (ADC1_CH0)"
+  (text "MCU SUBSYSTEM\n\nESP32-S3-WROOM-1-N4\n- 4MB Flash, PCB antenna\n- WiFi + BLE 5.0\n\nPin Assignments:\n- IO4: PWM_H (MCPWM0A)\n- IO5: PWM_L (MCPWM0B)\n- IO6: MCU_ENABLE\n- IO7: WDT_KICK\n- IO10: SPI_MOSI (FSPI)\n- IO9: SPI_MISO (FSPI)\n- IO11: SPI_SCK (FSPI)\n- IO12: RTD_CS\n- IO8: I2C_SDA\n- IO18: I2C_SCL\n- IO13: FAULT_STATUS\n- IO14: ZCD\n- IO1: ADC_CT (ADC1_CH0)\n- IO19: RELAY_CTRL"
     (exclude_from_sim no)
     (at 25.4 50.8 0)
     (effects (font (size 1.27 1.27)) (justify left))
@@ -1501,6 +1501,16 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid "61000001-0000-0000-0000-00000000000D")
   )
+
+  (hierarchical_label "RELAY_CTRL"
+    (shape output)
+    (at 93.98 121.92 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "61000001-0000-0000-0000-00000000000E")
+  )
+
+  (wire (pts (xy 109.22 121.92) (xy 93.98 121.92)) (stroke (width 0) (type default)) (uuid "61600041-0000-0000-0000-000000000001"))
 
   (wire (pts (xy 50.8 142.24) (xy 55.88 142.24)) (stroke (width 0) (type default)) (uuid "61600001-0000-0000-0000-000000000001"))
   (wire (pts (xy 55.88 142.24) (xy 55.88 146.05)) (stroke (width 0) (type default)) (uuid "61600002-0000-0000-0000-000000000001"))

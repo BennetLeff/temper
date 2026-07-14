@@ -12,7 +12,9 @@ import UJ3D1210TS from "components.ato"
 import Resistor from "components.ato"
 import Capacitor from "components.ato"
 import Diode from "components.ato"
-import Constraints from "constraints.ato"
+import HighVoltageConstraints from "constraints.ato"
+import ACMainsConstraints from "constraints.ato"
+import GateDriveConstraints from "constraints.ato"
 
 # Import standard interfaces
 import ElectricPower from "generics/interfaces.ato"
@@ -48,14 +50,19 @@ import CST1005 from "components.ato"
 # Safety components
 import TLV3201 from "components.ato"
 import TPS3823 from "components.ato"
+import REF2025 from "components.ato"
+import TPS3700 from "components.ato"
 import SN74HC4075 from "components.ato"
 import SN74HC00 from "components.ato"
+import SN74LVC1G08 from "components.ato"
+import SN74LVC1G38 from "components.ato"
 
 # MCU
 import ESP32_S3_WROOM_1 from "components.ato"
 import TestPoint from "components.ato"
 
 module PowerLoop:
+    constraints = new HighVoltageConstraints
     q_high = new IKW40N120H3
     q_low = new IKW40N120H3
     
@@ -65,12 +72,13 @@ module PowerLoop:
     q_low.current_rating = 40A
     
     # Verify ratings against constraints (temper-ofq.6)
-    assert q_high.voltage_rating >= Constraints.HighVoltage.v_max
-    assert q_high.current_rating >= Constraints.HighVoltage.i_max
-    assert q_low.voltage_rating >= Constraints.HighVoltage.v_max
-    assert q_low.current_rating >= Constraints.HighVoltage.i_max
+    assert q_high.voltage_rating >= constraints.v_max
+    assert q_high.current_rating >= constraints.i_max
+    assert q_low.voltage_rating >= constraints.v_max
+    assert q_low.current_rating >= constraints.i_max
 
 module GateDriveHS:
+    constraints = new GateDriveConstraints
     driver = new UCC21550BDWK
     rg_on = new Resistor
     rgs = new Resistor
@@ -150,7 +158,7 @@ module GateDriveHS:
     assert rg_on.power_rating >= p_rg_avg * 1.5
     
     # Verify gate drive current within constraint (temper-ofq.6)
-    assert driver.i_source_peak >= Constraints.GateDrive.i_max
+    assert driver.i_source_peak >= constraints.i_max
     
     # Connections
     driver.OUTA ~ rg_on.p1
@@ -226,7 +234,14 @@ module HalfBridge:
     pwm_h.required = true
     signal pwm_l
     pwm_l.required = true
+    # HalfBridge owns the required declarations for the shared PWM inputs;
+    # MCU exposes these nets without a second required assignment so the
+    # connected endpoints have one authoritative value.
     
+    constraints = new HighVoltageConstraints
+    # UCC21550 VCCI is the 3.0–5.5 V control-side supply. Keep it separate
+    # from the 15 V secondary gate-drive rail (VDDA/VDDB).
+    power_3v3 = new ElectricPower
     power_15v = new ElectricPower
     dc_bus = new HighVoltageBus
     
@@ -238,31 +253,41 @@ module HalfBridge:
     gate_ls = new GateDriveLS
 
     # Dead-time config
-    dt_cap = new Capacitor
-    dt_cap.value = 5.1nF +/- 5%
-    dt_cap.dielectric = "C0G"
-    dt_cap.mpn = "GRM1885C1H512JA01D"
-    dt_cap.footprint = "Capacitor_SMD:C_0603_1608Metric"
-    dt_cap.p1 ~ gate_hs.driver.DT
-    dt_cap.p2 ~ gate_hs.driver.GNDI
+    # TI's nominal relationship is t_DT(ns) ~= 8.6 * R_DT(kohm) + 13;
+    # 34 kohm gives 305.4 ns nominal from TI's equation. The bounded corner
+    # model shows that IC/temperature variation can fall below 300 ns, so this
+    # is a nominal starting value only; scope verification remains required.
+    dt_res = new Resistor
+    dt_res.value = 34kohm +/- 1%
+    dt_res.power_rating = 0.1W
+    dt_res.voltage_rating = 10V
+    dt_res.mpn = "RC0603FR-0734KL"
+    dt_res.footprint = "Resistor_SMD:R_0603_1608Metric"
+    dt_res.p1 ~ gate_hs.driver.DT
+    dt_res.p2 ~ gate_hs.driver.GNDI
 
-    # Dead-time verification
-    t_dead_time: time = 25ns
-    assert t_dead_time within 20ns to 30ns
+    # Dead-time verification: nominal value from TI's RDT equation. The
+    # temperature/device corner envelope is evaluated by the Python model;
+    # this schematic assertion intentionally covers only the nominal target.
+    t_dead_time: time = 305.4ns
+    assert t_dead_time within 300ns to 310ns
     
     # IGBT timing
     t_igbt_turn_off: time = 245ns
     t_dead_time_required: time = 300ns
     
     # Constraint Assignments
-    dc_bus.v_max = Constraints.HighVoltage.v_max
-    switch_node.v_max = Constraints.HighVoltage.v_max
+    dc_bus.v_max = constraints.v_max
+    # Keep the limit on the HighVoltageBus interface. Repeating v_max on the
+    # connected switch-node net makes Atopile merge two separately-defined
+    # values for the same attribute.
     
     # Connections - Primary Side
     pwm_h ~ gate_hs.pwm_in_a
     pwm_l ~ gate_hs.pwm_in_b
-    power_15v.vcc ~ gate_hs.driver.VCCI_1
-    power_15v.vcc ~ gate_hs.driver.VCCI_2
+    power_3v3.vcc ~ gate_hs.driver.VCCI_1
+    power_3v3.vcc ~ gate_hs.driver.VCCI_2
+    power_3v3.gnd ~ gate_hs.driver.GNDI
     power_15v.gnd ~ gate_hs.driver.GNDI
 
     # Power Stage Connections
@@ -327,6 +352,8 @@ module ResonantTank:
 
 module PowerInput:
     """AC input with EMI filter, soft-start, and voltage doubler."""
+
+    constraints = new ACMainsConstraints
     
     dc_bus = new HighVoltageBus
     
@@ -344,8 +371,8 @@ module PowerInput:
     fuse.current_rating = 15A
     fuse.voltage_rating = 250V
     fuse.mpn = "0034.3128"
-    assert fuse.current_rating >= Constraints.ACMains.i_max
-    assert fuse.voltage_rating >= Constraints.ACMains.v_max
+    assert fuse.current_rating >= constraints.i_max
+    assert fuse.voltage_rating >= constraints.v_max
     
     ntc = new NTC_Inrush
     ntc.resistance_cold = 10ohm
@@ -375,12 +402,14 @@ module PowerInput:
     r_bleed1 = new Resistor
     r_bleed1.value = 100kohm +/- 5%
     r_bleed1.power_rating = 1W
+    r_bleed1.voltage_rating = 250V
     r_bleed1.mpn = "CRGP2512J100K"
     r_bleed1.footprint = "Resistor_SMD:R_2512_6332Metric"
     
     r_bleed2 = new Resistor
     r_bleed2.value = 100kohm +/- 5%
     r_bleed2.power_rating = 1W
+    r_bleed2.voltage_rating = 250V
     r_bleed2.mpn = "CRGP2512J100K"
     r_bleed2.footprint = "Resistor_SMD:R_2512_6332Metric"
     
@@ -428,8 +457,9 @@ module BuckConverter15V:
     
     power_in = new ElectricPower
     power_out = new ElectricPower
+    power_out.voltage = 15V
     enable = new ElectricLogic
-    enable.reference ~ power_in
+    enable.reference ~ power_in.gnd
     
     buck = new LMR51430
     
@@ -517,6 +547,7 @@ module LDO3V3:
     
     power_in = new ElectricPower
     power_out = new ElectricPower
+    power_out.voltage = 3.3V
     
     # Verify output voltage
     assert power_out.voltage within 3.3V +/- 5%
@@ -613,9 +644,13 @@ module RTDSensing:
     """MAX31865 RTD interface for PT100."""
     
     power = new ElectricPower
+    power.voltage = 3.3V
     spi = new SPI
     cs = new ElectricLogic
     drdy = new ElectricLogic
+    rtd_hw_fault = new ElectricLogic
+    rtd_hw_fault.reference ~ power.gnd
+    rtd_hw_fault.line.required = true
     
     # Assertions
     assert power.voltage within 3.3V +/- 10%
@@ -682,6 +717,52 @@ module RTDSensing:
     power.gnd ~ adc.GND1
     power.gnd ~ adc.GND2
     power.gnd ~ adc.DGND
+
+    # Each added analogue/logic IC gets a local 100 nF bypass footprint.  They
+    # share the electrical rail in the netlist, but the separate references
+    # force placement review to keep each capacitor at its IC supply pins.
+    c_reference = new Capacitor
+    c_low_window = new Capacitor
+    c_high_window = new Capacitor
+    c_window_and = new Capacitor
+    c_rail_monitor = new Capacitor
+    c_fault_nand = new Capacitor
+    c_reference.value = 100nF
+    c_low_window.value = 100nF
+    c_high_window.value = 100nF
+    c_window_and.value = 100nF
+    c_rail_monitor.value = 100nF
+    c_fault_nand.value = 100nF
+    c_reference.voltage_rating = 10V
+    c_low_window.voltage_rating = 10V
+    c_high_window.voltage_rating = 10V
+    c_window_and.voltage_rating = 10V
+    c_rail_monitor.voltage_rating = 10V
+    c_fault_nand.voltage_rating = 10V
+    c_reference.dielectric = "X7R"
+    c_low_window.dielectric = "X7R"
+    c_high_window.dielectric = "X7R"
+    c_window_and.dielectric = "X7R"
+    c_rail_monitor.dielectric = "X7R"
+    c_fault_nand.dielectric = "X7R"
+    c_reference.mpn = "GRM188R71C104KA01D"
+    c_low_window.mpn = "GRM188R71C104KA01D"
+    c_high_window.mpn = "GRM188R71C104KA01D"
+    c_window_and.mpn = "GRM188R71C104KA01D"
+    c_rail_monitor.mpn = "GRM188R71C104KA01D"
+    c_fault_nand.mpn = "GRM188R71C104KA01D"
+    power.vcc ~ c_reference.p1
+    c_reference.p2 ~ power.gnd
+    fb_power.p2 ~ c_low_window.p1
+    c_low_window.p2 ~ power.gnd
+    fb_power.p2 ~ c_high_window.p1
+    c_high_window.p2 ~ power.gnd
+    fb_power.p2 ~ c_window_and.p1
+    c_window_and.p2 ~ power.gnd
+    power.vcc ~ c_rail_monitor.p1
+    c_rail_monitor.p2 ~ power.gnd
+    fb_power.p2 ~ c_fault_nand.p1
+    c_fault_nand.p2 ~ power.gnd
     
     # SPI connections through Series Resistors
     cs.line ~ r_cs.p1
@@ -698,13 +779,114 @@ module RTDSensing:
     
     adc.DRDY ~ drdy.line
     
-    adc.BIAS ~ r_ref.p1
+    # MAX31865 4-wire reference network (datasheet Figure 4): BIAS drives
+    # REFIN+, the 430 ohm RREF spans REFIN+ to REFIN-, and ISENSOR returns
+    # to REFIN-.  Do not put RREF in series with BIAS: that leaves the
+    # converter reference network and sensor-current monitor disconnected.
+    adc.BIAS ~ adc.REFIN_P
+    adc.REFIN_P ~ r_ref.p1
     r_ref.p2 ~ adc.REFIN_N
+    adc.ISENSOR ~ adc.REFIN_N
+
+    # Independent hardware RTD window.  REF2025 runs from upstream 3.3 V so
+    # its 1.25 V VBIAS threshold reference remains defined while the
+    # post-ferrite RTD_AVDD rail browns out.  The comparators observe the local
+    # REFIN-/ISENSOR RTD-drop node; they do not assume RTDIN- is board ground.
+    reference = new REF2025
+    reference.VIN ~ power.vcc
+    reference.EN ~ power.vcc
+    reference.GND ~ power.gnd
+
+    r_low_top = new Resistor
+    r_low_top.value = 61.3kohm +/- 0.1%
+    r_low_top.mpn = "ERA-3AEB6132V"
+    r_low_bottom = new Resistor
+    r_low_bottom.value = 10kohm +/- 0.1%
+    r_low_bottom.mpn = "ERA-3AEB103V"
+    r_high_top = new Resistor
+    r_high_top.value = 5.93kohm +/- 0.1%
+    r_high_top.mpn = "ERA-3AEB5931V"
+    r_high_bottom = new Resistor
+    r_high_bottom.value = 10kohm +/- 0.1%
+    r_high_bottom.mpn = "ERA-3AEB103V"
+
+    low_window = new TLV3201
+    high_window = new TLV3201
+    low_window.VCC ~ fb_power.p2
+    high_window.VCC ~ fb_power.p2
+    low_window.GND ~ power.gnd
+    high_window.GND ~ power.gnd
+    adc.REFIN_N ~ low_window.INP
+    reference.VBIAS ~ r_low_top.p1
+    r_low_top.p2 ~ low_window.INN
+    low_window.INN ~ r_low_bottom.p1
+    r_low_bottom.p2 ~ power.gnd
+    # Invert the high comparison so both outputs are high only inside the
+    # permitted RTD voltage window.
+    reference.VBIAS ~ r_high_top.p1
+    r_high_top.p2 ~ high_window.INP
+    high_window.INP ~ r_high_bottom.p1
+    r_high_bottom.p2 ~ power.gnd
+    adc.REFIN_N ~ high_window.INN
+
+    window_and = new SN74LVC1G08
+    window_and.VCC ~ fb_power.p2
+    window_and.GND ~ power.gnd
+    low_window.OUT ~ window_and.A
+    high_window.OUT ~ window_and.B
+    # Keep the downstream NAND input deterministically low if the post-rail
+    # AND output is unpowered or high impedance during a fault transition.
+    r_window_ok_pulldown = new Resistor
+    r_window_ok_pulldown.value = 100kohm +/- 1%
+    r_window_ok_pulldown.mpn = "RC0603FR-07100KL"
+    window_and.Y ~ r_window_ok_pulldown.p1
+    r_window_ok_pulldown.p2 ~ power.gnd
+
+    # TPS3700 is powered upstream of the ferrite.  OUTA is pulled high only
+    # while RTD_AVDD is above its approximately 2.82 V nominal UV threshold; it pulls low
+    # through brownout before the post-rail TLV3201 operation is unspecified.
+    rail_monitor = new TPS3700
+    rail_monitor.VDD ~ power.vcc
+    rail_monitor.GND ~ power.gnd
+    rail_monitor.INB_N ~ power.gnd
+    r_avdd_top = new Resistor
+    r_avdd_top.value = 616kohm +/- 0.1%
+    r_avdd_top.mpn = "ERA-3AEB6163V"
+    r_avdd_bottom = new Resistor
+    r_avdd_bottom.value = 100kohm +/- 0.1%
+    r_avdd_bottom.mpn = "ERA-3AEB104V"
+    fb_power.p2 ~ r_avdd_top.p1
+    r_avdd_top.p2 ~ rail_monitor.INA_P
+    rail_monitor.INA_P ~ r_avdd_bottom.p1
+    r_avdd_bottom.p2 ~ power.gnd
+    r_rail_ok_pullup = new Resistor
+    r_rail_ok_pullup.value = 10kohm +/- 1%
+    r_rail_ok_pullup.mpn = "RC0603FR-0710KL"
+    power.vcc ~ r_rail_ok_pullup.p1
+    r_rail_ok_pullup.p2 ~ rail_monitor.OUTA
+
+    # The Ioff-rated open-drain NAND is the only device allowed to hold the
+    # active-high fault net low. A short/open window violation, local-rail
+    # brownout/loss, or logic supply loss releases the upstream pull-up.
+    fault_nand = new SN74LVC1G38
+    fault_nand.VCC ~ fb_power.p2
+    fault_nand.GND ~ power.gnd
+    window_and.Y ~ fault_nand.A
+    rail_monitor.OUTA ~ fault_nand.B
+    r_fault_pullup = new Resistor
+    r_fault_pullup.value = 10kohm +/- 1%
+    r_fault_pullup.mpn = "RC0603FR-0710KL"
+    power.vcc ~ r_fault_pullup.p1
+    r_fault_pullup.p2 ~ rtd_hw_fault.line
+    fault_nand.Y ~ rtd_hw_fault.line
+
+    # This board uses the datasheet's 4-wire topology. FORCE2 is grounded;
+    # FORCE+/RTDIN+ and FORCE-/RTDIN- remain separate connector conductors.
+    adc.FORCE2 ~ power.gnd
     adc.FORCE_P ~ rtd_force_p
     adc.FORCE_N ~ rtd_force_n
     adc.RTDIN_P ~ rtd_sense_p
     adc.RTDIN_N ~ rtd_sense_n
-    adc.REFIN_P ~ adc.FORCE_P
 
 module OCPComparator:
     """Over-current protection comparator, 50A threshold."""
@@ -885,13 +1067,29 @@ module SafetyInterlock:
     wdt_kick = new ElectricLogic
     wdt_kick.reference ~ power_3v3.gnd
     
-    shutdown_n = new ElectricLogic
-    shutdown_n.reference ~ power_3v3.gnd
-    shutdown_n.line.required = true
+    # Active-high shutdown output for UCC21550 DIS. This replaces the legacy
+    # active-low SHUTDOWN_N net; a latched high level disables the driver.
+    shutdown = new ElectricLogic
+    shutdown.reference ~ power_3v3.gnd
+    shutdown.line.required = true
+
+    reset_n_in = new ElectricLogic
+    reset_n_in.reference ~ power_3v3.gnd
+
+    # Firmware runaway-cut output is active-high and is an independent
+    # hardware fault source.
+    runaway_cut = new ElectricLogic
+    runaway_cut.reference ~ power_3v3.gnd
+
+    # Independent RTD hardware window fault. This is deliberately distinct
+    # from the MCU's GPIO15 runaway-cut request.
+    rtd_hw_fault = new ElectricLogic
+    rtd_hw_fault.reference ~ power_3v3.gnd
     
     fault_status = new ElectricLogic
     fault_status.reference ~ power_3v3.gnd
-    fault_status.line.required = true
+    # fault_status is the latch output alias; shutdown_n carries the single
+    # required declaration for this shared net.
     
     wdt_reset_n = new ElectricLogic
     wdt_reset_n.reference ~ power_3v3.gnd
@@ -906,20 +1104,21 @@ module SafetyInterlock:
     thermal = new ThermalComparator
     wdt = new Watchdog
     fault_or = new SN74HC4075
+    fault_any_or = new SN74HC4075
     latch = new SN74HC00
     
     ocp.power ~ power_3v3
-    ocp.i_sense ~ i_sense
+    ocp.i_sense.line ~ i_sense.line
     
     ovp.power ~ power_3v3
-    ovp.v_bus ~ dc_bus
+    ovp.v_bus.line ~ dc_bus.line
     
     thermal.power ~ power_3v3
-    thermal.ntc_sense ~ ntc_sense
+    thermal.ntc_sense.line ~ ntc_sense.line
     
     wdt.power ~ power_3v3
-    wdt.wdi ~ wdt_kick
-    wdt.reset_n ~ wdt_reset_n
+    wdt.wdi.line ~ wdt_kick.line
+    wdt.reset_n.line ~ wdt_reset_n.line
     
     fault_or.VCC ~ power_3v3.vcc
     fault_or.GND ~ power_3v3.gnd
@@ -930,29 +1129,59 @@ module SafetyInterlock:
     latch.VCC ~ power_3v3.vcc
     latch.GND ~ power_3v3.gnd
     
-    # SR Latch simplified
-    fault_or.Y1 ~ latch.A1
-    # reset_n_in connection omitted for brevity
-    latch.Y1 ~ shutdown_n.line
-    latch.Y1 ~ fault_status.line
+    # Base aggregation: Y1 combines OCP/OVP/thermal; Y2 adds the watchdog
+    # fault (RESET_N is active-low and is inverted by NAND gate 4) and the MCU
+    # runaway-cut request. RTD_HW_FAULT is intentionally added only below by
+    # the separate FAULT_ANY stage because all base-OR inputs are occupied.
+    fault_or.Y1 ~ fault_or.A2
+    wdt.reset_n.line ~ latch.A4
+    power_3v3.vcc ~ latch.B4
+    latch.Y4 ~ fault_or.B2
+    runaway_cut.line ~ fault_or.C2
+
+    # Fault-any expansion. Both consumers of the historical fault_or.Y2 move
+    # here: the latch set input and reset qualification. A live RTD hardware
+    # fault can therefore neither be hidden by GPIO15 nor cleared by reset.
+    fault_any_or.VCC ~ power_3v3.vcc
+    fault_any_or.GND ~ power_3v3.gnd
+    fault_or.Y2 ~ fault_any_or.A1
+    rtd_hw_fault.line ~ fault_any_or.B1
+    power_3v3.gnd ~ fault_any_or.C1
+    fault_any_or.Y1 ~ latch.A1
+
+    # Set-dominant NAND SR latch. Gate 1 inverts the active-high fault bus;
+    # gates 2 and 3 cross-couple Q/Q-bar. Reset is explicit and active-low.
+    power_3v3.vcc ~ latch.B1
+    latch.Y1 ~ latch.A2
+    latch.Y3 ~ latch.B2
+    # Fault-qualified reset: R_N = FAULT_OR_RESET_REQUEST. A live fault keeps
+    # the latch set even if firmware requests reset.
+    fault_any_or.Y1 ~ fault_any_or.A2
+    reset_n_in.line ~ fault_any_or.B2
+    power_3v3.gnd ~ fault_any_or.C2
+    fault_any_or.Y2 ~ latch.A3
+
+    # Unused base-OR gate has defined inputs and no safety consumer.
+    power_3v3.gnd ~ fault_or.A3
+    power_3v3.gnd ~ fault_or.B3
+    power_3v3.gnd ~ fault_or.C3
+    latch.Y2 ~ latch.B3
+    latch.Y2 ~ shutdown.line
+    latch.Y2 ~ fault_status.line
 
     tp_shutdown = new TestPoint
-    tp_shutdown.p1 ~ shutdown_n.line
+    tp_shutdown.p1 ~ shutdown.line
     tp_fault = new TestPoint
     tp_fault.p1 ~ fault_status.line
     
-    # Connect LEDs (placeholders for now, logic signals to drive them)
-    # Assuming active high logic outputs to LEDs
-    ocp.fault ~ ocp_led
-    ovp.fault ~ ovp_led
-    thermal.fault ~ thermal_led
-    # wdt reset is active low, led might need inversion or active low drive
-    wdt.reset_n ~ wdt_led
+    # LED indicators remain unassigned until their current-limiting circuits
+    # are specified; they must not be used as safety logic.
 
 module MCU:
     """ESP32-S3 microcontroller with support circuitry."""
     
     power = new ElectricPower
+    power.voltage = 3.3V
     spi = new SPI
     i2c = new I2C
     uart = new UART
@@ -961,8 +1190,11 @@ module MCU:
     rtd_drdy = new ElectricLogic
     wdt_kick = new ElectricLogic
     relay_ctrl = new ElectricLogic
-    shutdown_n_in = new ElectricLogic
+    fault_status_in = new ElectricLogic
     reset_n = new ElectricLogic
+    zcd_in = new ElectricLogic
+    wdt_reset_in = new ElectricLogic
+    runaway_cut = new ElectricLogic
     
     # Assertions
     assert power.voltage within 3.3V +/- 5%
@@ -974,9 +1206,9 @@ module MCU:
     assert t_boot_delay within 13ms to 15ms
     
     signal pwm_h
-    pwm_h.required = true
     signal pwm_l
-    pwm_l.required = true
+    # HalfBridge owns the required declarations for the shared PWM inputs;
+    # repeating them here conflicts when Atopile merges the connected nets.
     signal adc_i_sense
     adc_i_sense.required = true
     signal adc_v_bus
@@ -999,12 +1231,12 @@ module MCU:
     c_vcc2.footprint = "Capacitor_SMD:C_0805_2012Metric"
     
     r_en = new Resistor
-    r_en.value = 10kohm +/- 10%
+    r_en.value = 10kohm +/- 2%
     r_en.mpn = "RC0603FR-0710KL"
     r_en.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     c_en = new Capacitor
-    c_en.value = 1uF +/- 20%
+    c_en.value = 1uF +/- 2%
     c_en.voltage_rating = 10V
     c_en.mpn = "GRM188R71A105KA61D"
     c_en.footprint = "Capacitor_SMD:C_0603_1608Metric"
@@ -1034,11 +1266,23 @@ module MCU:
     
     wdt_kick.line ~ mcu.IO7
     relay_ctrl.line ~ mcu.GPIO19
-    shutdown_n_in.line ~ mcu.GPIO20
-    reset_n.line ~ mcu.IO6
-    
-    # Default I2C/UART pin mappings (can be overridden)
-    i2c.sda ~ mcu.IO8
-    i2c.scl ~ mcu.IO18
+    fault_status_in.line ~ mcu.GPIO20
+    # GPIO6 is an input from the TPS3823 RESET_N output; keep it separate from
+    # the explicit latch-reset request on GPIO14 to avoid output contention.
+    wdt_reset_in.line ~ mcu.IO6
+    reset_n.line ~ mcu.IO14
+    # GPIO15 is the dedicated active-high hardware runaway-cut output.  GPIO4
+    # and GPIO5 are already reserved for PWM_H/PWM_L.
+    runaway_cut.line ~ mcu.IO15
+    # Zero-crossing input is a real MCU interface; IO13 is reserved for this
+    # signal in the local ESP32-S3 component model.
+    zcd_in.line ~ mcu.IO13
+    zcd_in.reference ~ power.gnd
+
+    # Default I2C/UART pin mappings (can be overridden).  Keep I2C off the
+    # SPI clock (IO8) and status LED pins (IO17/18); the firmware manifest
+    # reserves the exposed IO38/39 pair for this optional bus.
+    i2c.sda ~ mcu.IO38
+    i2c.scl ~ mcu.IO39
     uart.tx ~ mcu.TXD0
     uart.rx ~ mcu.RXD0

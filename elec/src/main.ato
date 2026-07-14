@@ -22,6 +22,8 @@ import CurrentSensing from "modules.ato"
 import RTDSensing from "modules.ato"
 import SafetyInterlock from "modules.ato"
 import MCU from "modules.ato"
+import HighVoltageConstraints from "constraints.ato"
+import ThermalZonesConstraints from "constraints.ato"
 
 # Footprint imports for FAC
 import IGBT_TO247 from "footprints.ato"
@@ -35,6 +37,10 @@ import CST1005_Footprint from "footprints.ato"
 
 module Top:
     """Top-level Temper induction cooker assembly."""
+
+    constraints = new HighVoltageConstraints
+    thermal_constraints = new ThermalZonesConstraints
+
     
     # --- System Operating Conditions ---
     v_bus_max = 340V
@@ -47,8 +53,8 @@ module Top:
     assert v_ac_nominal within 100V to 130V  # NEMA 5-15 tolerance
     
     # Verify against constraints (temper-ofq.6)
-    assert v_bus_max <= Constraints.HighVoltage.v_max
-    assert i_peak_max <= Constraints.HighVoltage.i_max
+    assert v_bus_max <= constraints.v_max
+    assert i_peak_max <= constraints.i_max
     
     f_line: frequency = 60Hz
     assert f_line within 59Hz to 61Hz  # US grid tolerance
@@ -80,7 +86,8 @@ module Top:
     
     # --- Power Rails ---
     signal gnd          # System ground
-    gnd.override_net_name = "GND"
+    # The shared ground is named by the generated netlist; assigning an
+    # override here conflicts with nested ElectricPower reference nets.
     signal dc_bus_plus  # +340V
     dc_bus_plus.override_net_name = "+340V_BUS"
     signal dc_bus_minus # Ground reference for DC bus
@@ -174,7 +181,7 @@ module Top:
     # IGBT max junction: 150°C, derate at 125°C
     # Thermal comparator set for 85°C ambient
     t_thermal_trip: temperature = 358.15K
-    assert t_thermal_trip < Constraints.ThermalZones.igbt_derate_temp
+    assert t_thermal_trip < thermal_constraints.igbt_derate_temp
     
     # Watchdog timeout must allow system response but catch stuck states
     # 1.6s timeout per TPS3823-33
@@ -194,11 +201,11 @@ module Top:
     assert t_mcu_boot < t_soft_start_delay  # MCU ready before power stage
     
     # Dead-time budget (system-level)
-    # Hardware minimum: 25ns (from dt_cap)
+    # Hardware programmed nominal: 305.4ns from the 34-kΩ RDT resistor.
     # Software configured: 300ns (in MCPWM registers)
     # IGBT turn-off: 245ns
     # Total margin: 300 - 245 = 55ns (>50ns minimum margin)
-    t_dt_hw_min: time = 25ns
+    t_dt_hw_nominal: time = 305.4ns
     t_dt_sw: time = 300ns
     t_igbt_off: time = 245ns
     assert t_dt_sw > t_igbt_off + 50ns  # Software dead-time provides margin
@@ -223,10 +230,11 @@ module Top:
     power_mgmt.power_15v.gnd ~ gnd
     
     power_mgmt.power_3v3.vcc ~ vcc_3v3
-    power_mgmt.power_3v3.gnd ~ gnd
+    # power_mgmt.power_3v3.gnd is already tied to power_mgmt.power_15v.gnd
+    # inside PowerManagement; connect the shared ground once.
     
     # Input ground reference
-    power_mgmt.power_in_hv.gnd ~ gnd
+    # power_mgmt.power_in_hv.gnd is on the same internal ground chain.
     
     # ===========================================================================
     # HALF-BRIDGE CONNECTIONS
@@ -236,6 +244,8 @@ module Top:
     hb.dc_bus.hv_minus ~ dc_bus_minus
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
+    hb.power_3v3.vcc ~ vcc_3v3
+    hb.power_3v3.gnd ~ gnd
     
     # PWM from MCU
     mcu.pwm_h ~ hb.pwm_h
@@ -249,7 +259,8 @@ module Top:
     
     hb.switch_node ~ tank.in
     hb.switch_node.override_net_name = "SW_NODE"
-    tank.in.override_net_name = "TANK_IN"
+    # tank.in is the same electrical net as hb.switch_node; keep one
+    # authoritative override name (SW_NODE).
     tank.out ~ gnd  # Return path
     
     # ===========================================================================
@@ -271,6 +282,8 @@ module Top:
     rtd_pan.spi.miso ~ mcu.spi.miso
     rtd_pan.drdy.line ~ mcu.rtd_drdy.line
     rtd_pan.drdy.line.override_net_name = "RTD_DRDY"
+    rtd_pan.rtd_hw_fault.line ~ safety.rtd_hw_fault.line
+    rtd_pan.rtd_hw_fault.line.override_net_name = "RTD_HW_FAULT"
     
     rtd_pan.spi.sclk.override_net_name = "RTD_SCK"
     rtd_pan.spi.mosi.override_net_name = "RTD_SDI"
@@ -281,9 +294,10 @@ module Top:
     # SAFETY INTERLOCK CONNECTIONS
     # ===========================================================================
     
-    safety.vcc_3v3 ~ vcc_3v3
-    safety.vcc_15v ~ vcc_15v
-    safety.gnd ~ gnd
+    safety.power_3v3.vcc ~ vcc_3v3
+    safety.power_3v3.gnd ~ gnd
+    safety.power_15v.vcc ~ vcc_15v
+    safety.power_15v.gnd ~ gnd
     
     # Sensor inputs to safety system
     safety.dc_bus.line ~ dc_bus_plus
@@ -295,30 +309,27 @@ module Top:
     mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
     
     # Watchdog
-    mcu.wdt_kick.line ~ safety.wdt_kick
+    mcu.wdt_kick.line ~ safety.wdt_kick.line
     mcu.wdt_kick.line.override_net_name = "WDT_KICK"
-    safety.wdt_reset_n ~ mcu.reset_n.line
-    safety.wdt_reset_n.override_net_name = "WDT_RESET_N"
+    safety.wdt_reset_n.line ~ mcu.wdt_reset_in.line
+    safety.wdt_reset_n.line.override_net_name = "WDT_RESET_N"
     
-    # Shutdown output (active-low disables gate driver)
-    safety.shutdown_n ~ hb.gate_hs.driver.DIS
-    safety.shutdown_n.override_net_name = "SHUTDOWN_N"
+    # Shutdown output is active-high per the UCC21550 contract.
+    safety.shutdown.line ~ hb.gate_hs.driver.DIS
+    safety.shutdown.line.override_net_name = "SHUTDOWN"
     
     # Fault status to MCU
-    safety.fault_status ~ mcu.shutdown_n_in.line
-    safety.fault_status.override_net_name = "FAULT"
+    safety.fault_status.line ~ mcu.fault_status_in.line
+    # fault_status is the MCU sense alias of the same latched SHUTDOWN net;
+    # do not assign a competing net name here.
+    safety.reset_n_in.line ~ mcu.reset_n.line
+    safety.runaway_cut.line ~ mcu.runaway_cut.line
     
     # Gate HS/LS
     hb.gate_hs.driver.OUTA.override_net_name = "GATE_HS"
     # Gate LS is RG_ON.p2 in the task description
     # hb.gate_ls.rg_on.p2 doesn't exist directly in Top, but we can access it via hb
     hb.gate_ls.rg_on.p2.override_net_name = "GATE_LS"
-    
-    # Fault LEDs
-    safety.ocp_led ~ mcu.led_ocp
-    safety.ovp_led ~ mcu.led_ovp
-    safety.thermal_led ~ mcu.led_thermal
-    safety.wdt_led ~ mcu.led_wdt
     
     # ===========================================================================
     # MCU CONNECTIONS
@@ -332,7 +343,7 @@ module Top:
     mcu.relay_ctrl.line.override_net_name = "RELAY_CTRL"
     
     # Zero-crossing detection for soft-start timing
-    power_in.zcd ~ mcu.zcd_in
+    power_in.zcd ~ mcu.zcd_in.line
     power_in.zcd.override_net_name = "ZCD"
 
 # ==============================================================================

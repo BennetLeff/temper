@@ -45,24 +45,28 @@ class PlacementAuditor:
 
             # Let's compute hull of pins.
             points = []
-        if hasattr(comp, "pins"):
-            for pin in comp.pins:
-                abs_pos = pin_world_position(pin, comp)
-                points.append(abs_pos)
+            for pin in getattr(comp, "pins", []):
+                points.append(pin_world_position(pin, comp))
 
             if not points:
-                # Fallback: 5x5mm box
+                # No pins are available for a precise hull.  Retain a
+                # conservative fallback so a component is never omitted from
+                # the overlap audit.
                 s = 2.5
-                points = [(x - s, y - s), (x + s, y - s), (x + s, y + s), (x - s, y + s)]
+                points = [
+                    (x - s, y - s),
+                    (x + s, y - s),
+                    (x + s, y + s),
+                    (x - s, y + s),
+                ]
 
-            # Create Polygon from hull
+            # Create Polygon from hull.
             from shapely.geometry import MultiPoint
 
             hull = MultiPoint(points).convex_hull
 
-            # Buffer by 0.5mm (Courtyard margin)
-            courtyard = hull.buffer(0.5)
-            courtyards[comp.ref] = courtyard
+            # Buffer by 0.5mm (Courtyard margin).
+            courtyards[comp.ref] = hull.buffer(0.5)
 
         return courtyards
 

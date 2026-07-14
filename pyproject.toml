@@ -41,20 +41,23 @@ testpaths = [
     "packages/temper-workflow/tests",
     "packages/temper-autoprof/tests",
     "packages/temper-testing/tests",
-    "packages/temper-validation/tests"
+    "packages/temper-validation/tests",
+    "elec/validation"
 ]
 pythonpath = [
     "packages/temper-placer/src",
     "packages/temper-workflow/src",
     "packages/temper-autoprof/src",
     "packages/temper-testing/src",
-    "packages/temper-validation/src"
+    "packages/temper-validation/src",
+    "elec/validation"
 ]
 addopts = ["-v", "--tb=short"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks integration tests requiring full pipeline",
     "routing: marks routing DRC regression gate tests (golden-board CI gate)",
+    "property: marks Hypothesis/property-based invariant tests",
 ]
 
 [tool.ruff]

@@ -205,8 +205,15 @@ def run_drc(pcb_path: Path) -> DrcResult:
             timeout=60,
         )
 
-        # kicad-cli returns 0 even with DRC errors (errors are in the report)
-        # Non-zero means the command itself failed
+        # kicad-cli returns 0 even with DRC errors (errors are in the report).
+        # Any other status is an unavailable measurement, even if a stale or
+        # partial JSON file happens to exist at the requested output path.
+        if result.returncode != 0:
+            raise DrcRunnerError(
+                "kicad-cli DRC failed "
+                f"(exit {result.returncode}). stdout: {result.stdout}, "
+                f"stderr: {result.stderr}"
+            )
 
         if not json_path.exists():
             raise DrcRunnerError(

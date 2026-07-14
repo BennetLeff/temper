@@ -91,6 +91,7 @@ component Resistor:
     value: ohm
     mpn: str
     power_rating: power
+    voltage_rating: voltage
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
@@ -292,6 +293,55 @@ component TLV3201:
     signal GND ~ pin 2
     signal INP ~ pin 3
     signal INN ~ pin 4
+    signal VCC ~ pin 5
+
+component REF2025:
+    """2.5 V / 1.25 V precision reference for the RTD hardware window."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "REF2025AIDDCR"
+    manufacturer = "Texas Instruments"
+
+    signal VBIAS ~ pin 1
+    signal GND ~ pin 2
+    signal EN ~ pin 3
+    signal VIN ~ pin 4
+    signal VREF ~ pin 5
+
+component TPS3700:
+    """Dual window supervisor; OUTA is low on RTD_AVDD undervoltage."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    mpn = "TPS3700DDCR"
+    manufacturer = "Texas Instruments"
+
+    signal OUTA ~ pin 1
+    signal GND ~ pin 2
+    signal INA_P ~ pin 3
+    signal INB_N ~ pin 4
+    signal VDD ~ pin 5
+    signal OUTB ~ pin 6
+
+component SN74LVC1G08:
+    """Single two-input AND gate with partial-power-down protection."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component SN74LVC1G38:
+    """Single two-input open-drain NAND with Ioff protection."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "SN74LVC1G38DBVR"
+    manufacturer = "Texas Instruments"
+
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
     signal VCC ~ pin 5
 
 component TPS3823:

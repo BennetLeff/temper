@@ -6,11 +6,15 @@ idf_component_register(
         "main.c"
         "state_machine.c"
         "state_handlers.c"
+        "../components/sensors/max31865.c"
+        "../components/sensors/rtd_service.c"
     INCLUDE_DIRS 
         "."
         ".."
+        "../components/sensors/include"
     REQUIRES
         driver
+        hal
         nvs_flash
         esp_timer
 )

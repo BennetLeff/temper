@@ -139,13 +139,14 @@ bool thermal_mass_update(thermal_mass_handle_t *handle, float current_temp, uint
     handle->sample_count++;
     handle->temperature_sum += current_temp;
     
-    /* Calculate average temperature rise */
+    /* Calculate average temperature rise to reduce sample noise during the
+     * pulse. */
     float avg_temp = handle->temperature_sum / handle->sample_count;
     float temp_rise = avg_temp - handle->initial_temperature;
     
     /* Debug logging */
     #ifdef ESP_PLATFORM
-    ESP_LOGI("thermal_mass", "Avg temp: %.1f°C, Initial: %.1f°C, Rise: %.1f°C", 
+    ESP_LOGI("thermal_mass", "Avg temp: %.1f°C, Initial: %.1f°C, Rise: %.1f°C",
             avg_temp, handle->initial_temperature, temp_rise);
     #endif
     

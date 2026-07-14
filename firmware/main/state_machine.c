@@ -106,7 +106,7 @@ static void state_runaway_fault_update(void);
 /* Forward declarations - helpers */
 void transition_to(system_state_t new_state);
 static bool run_self_test(void);
-static void check_safety_interlocks(void);
+static bool check_safety_interlocks(void);
 static void check_runaway_boundary(void);
 static bool fault_cleared(void);
 static void show_message_then_transition(const char *msg, system_state_t next_state);
@@ -161,6 +161,39 @@ extern void watchdog_feed(void);
 extern void watchdog_hardware_feed(void);
 extern void trigger_hardware_shutdown(void);
 
+/* Route software-detected safety faults into the same active-high hardware
+ * runaway-cut input used by the UCC21550 fault latch. This keeps RTD/ADC/fan
+ * faults fail-safe even when the firmware state transition is delayed. */
+static void assert_hardware_fault_cut(void) {
+#ifdef ESP_PLATFORM
+    gpio_set_level(RUNAWAY_CUT_GPIO, 1);
+#endif
+    trigger_hardware_shutdown();
+}
+
+/* Every safety fault detected while the power stage can be active takes the
+ * same immediate hardware path before entering the recoverable FAULT state.
+ * Keep this separate from self-test/configuration faults, which occur before
+ * the power stage is enabled. */
+static void enter_hardware_latched_fault(fault_code_t fault) {
+    sm_ctx.fault_code = fault;
+    assert_hardware_fault_cut();
+    transition_to(STATE_FAULT);
+}
+
+void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
+                                           void *context) {
+    (void)context;
+
+    /* Both decoded MAX31865 threshold bits still represent a terminal RTD
+     * safety failure. Prefer the short diagnosis when both are reported. */
+    if (short_fault) {
+        enter_hardware_latched_fault(FAULT_PROBE_SHORT);
+    } else if (open_fault) {
+        enter_hardware_latched_fault(FAULT_PROBE_OPEN);
+    }
+}
+
 /* Self-test stubs */
 extern bool test_adc_calibration(void);
 extern bool test_pwm_generation(void);
@@ -208,6 +241,11 @@ void state_machine_init(void) {
     
     /* Reset runaway interlock latch */
     sm_ctx.runaway_latched = false;
+    /* Discard the previous sample when restarting the state machine.  The
+     * runaway-rate guard must never compare a new boot/test epoch against a
+     * timestamp and temperature from the prior epoch. */
+    sm_ctx.last_pan_temp_c = 0.0f;
+    sm_ctx.last_pan_temp_time_ms = 0;
 
     /* Reset stuck-sensor counters */
     sm_ctx.pan_temp_stuck_count = 0;
@@ -564,8 +602,7 @@ static void state_preheat_update(void) {
 
     /* Check for preheat timeout - safety limit */
     if (sm_ctx.state_duration > MAX_PREHEAT_TIME_MS) {
-        sm_ctx.fault_code = FAULT_THERMAL_RUNAWAY;
-        transition_to(STATE_FAULT);
+        enter_hardware_latched_fault(FAULT_THERMAL_RUNAWAY);
         return;
     }
     
@@ -586,7 +623,9 @@ static void state_preheat_update(void) {
     power_set_level(clamped_power);
 
     /* Safety checks */
-    check_safety_interlocks();
+    if (check_safety_interlocks()) {
+        return;
+    }
 
     /* Check for pan removal */
     if (detect_pan_presence() == PAN_ABSENT) {
@@ -687,12 +726,13 @@ static void state_heating_update(void) {
     pll_update();
 
     /* Safety checks */
-    check_safety_interlocks();
+    if (check_safety_interlocks()) {
+        return;
+    }
 
     /* Thermal runaway detection */
     if (current_temp > (sm_ctx.target_temperature + 10.0f)) {
-        sm_ctx.fault_code = FAULT_THERMAL_RUNAWAY;
-        transition_to(STATE_FAULT);
+        enter_hardware_latched_fault(FAULT_THERMAL_RUNAWAY);
         return;
     }
 
@@ -852,8 +892,7 @@ static void state_cooldown_update(void) {
 
     /* Safety check: temperature should NOT rise during cooldown */
     if (current_temp > (sm_ctx.cooldown_start_temp + 5.0f)) {
-        sm_ctx.fault_code = FAULT_COOLDOWN_OVERHEAT;
-        transition_to(STATE_FAULT);
+        enter_hardware_latched_fault(FAULT_COOLDOWN_OVERHEAT);
         return;
     }
 
@@ -1015,44 +1054,44 @@ void transition_to(system_state_t new_state) {
     }
 }
 
-static void check_safety_interlocks(void) {
+static bool check_safety_interlocks(void) {
     /* Over-temperature check */
     if (read_heatsink_temperature() > 100.0f) {
-        sm_ctx.fault_code = FAULT_OVER_TEMP;
-        transition_to(STATE_FAULT);
-        return;
+        enter_hardware_latched_fault(FAULT_OVER_TEMP);
+        return true;
     }
 
     /* Over-current check — IGBT short (>50A) takes priority over over-current */
     if (read_dc_bus_current() > 50.0f) {
-        sm_ctx.fault_code = FAULT_IGBT_SHORT;
-        transition_to(STATE_FAULT);
-        return;
+        enter_hardware_latched_fault(FAULT_IGBT_SHORT);
+        return true;
     }
     if (read_dc_bus_current() > 35.0f) {
-        sm_ctx.fault_code = FAULT_OVER_CURRENT;
-        transition_to(STATE_FAULT);
-        return;
+        enter_hardware_latched_fault(FAULT_OVER_CURRENT);
+        return true;
     }
 
     /* Fan failure check */
     if (!is_fan_running()) {
-        sm_ctx.fault_code = FAULT_FAN_FAILURE;
-        transition_to(STATE_FAULT);
-        return;
+        enter_hardware_latched_fault(FAULT_FAN_FAILURE);
+        return true;
     }
 
     /* RTD probe checks */
     float rtd_resistance = read_rtd_resistance();
-    if (rtd_resistance > 10000.0f) {
-        sm_ctx.fault_code = FAULT_PROBE_OPEN;
-        transition_to(STATE_FAULT);
-        return;
+    /* Preserve the legacy gross-open condition for its SIL diagnostic while
+     * the MAX31865 guard threshold below provides the PT100 safety boundary. */
+    if (rtd_resistance > RTD_GROSS_OPEN_DIAGNOSTIC_OHM) {
+        enter_hardware_latched_fault(FAULT_PROBE_OPEN);
+        return true;
     }
-    if (rtd_resistance < 10.0f) {
-        sm_ctx.fault_code = FAULT_PROBE_SHORT;
-        transition_to(STATE_FAULT);
-        return;
+    if (rtd_resistance >= RTD_OPEN_FAULT_OHM) {
+        enter_hardware_latched_fault(FAULT_PROBE_OPEN);
+        return true;
+    }
+    if (rtd_resistance <= RTD_SHORT_FAULT_OHM) {
+        enter_hardware_latched_fault(FAULT_PROBE_SHORT);
+        return true;
     }
 
     /* ADC stuck check — identical pan temperature across consecutive reads
@@ -1062,16 +1101,17 @@ static void check_safety_interlocks(void) {
     if (sm_ctx.prev_stuck_check_temp == pan_temp) {
         sm_ctx.pan_temp_stuck_count++;
         if (sm_ctx.pan_temp_stuck_count >= 49) {
-            sm_ctx.fault_code = FAULT_ADC_STUCK;
-            transition_to(STATE_FAULT);
+            enter_hardware_latched_fault(FAULT_ADC_STUCK);
             sm_ctx.prev_stuck_check_temp = -1.0f;
             sm_ctx.pan_temp_stuck_count = 0;
-            return;
+            return true;
         }
     } else {
         sm_ctx.pan_temp_stuck_count = 0;
         sm_ctx.prev_stuck_check_temp = pan_temp;
     }
+
+    return false;
 }
 
 static void check_runaway_boundary(void) {
@@ -1151,7 +1191,10 @@ static bool fault_cleared(void) {
         case FAULT_PROBE_OPEN:
         case FAULT_PROBE_SHORT:
             rtd_resistance = read_rtd_resistance();
-            return (rtd_resistance > 50.0f && rtd_resistance < 500.0f);
+            /* Do not permit reset while the inclusive MAX31865 guard window
+             * still reports a short or open/out-of-range PT100 condition. */
+            return (rtd_resistance > RTD_SHORT_FAULT_OHM &&
+                    rtd_resistance < RTD_OPEN_FAULT_OHM);
 
         case FAULT_SELF_TEST_FAILED:
             return run_self_test();

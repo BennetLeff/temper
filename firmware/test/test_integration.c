@@ -48,6 +48,18 @@ extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 extern uint32_t mock_sm_get_power_set_count(void);
 extern uint32_t mock_sm_get_pwm_disable_count(void);
 
+/* Temperature setters in this fixture model a settled sensor sample.  Reset
+ * the production runaway-rate baseline after each deliberate test jump so a
+ * 25°C -> 92°C setup transition is not mistaken for a physical 670°C/s rise.
+ * Absolute over-temperature and state-handler runaway checks still execute;
+ * tests that need to exercise the rate guard should call the raw mock setter
+ * from a dedicated fixture instead of using this convenience macro. */
+#define mock_sm_set_pan_temperature(temp_c) \
+    do { \
+        mock_sm_set_pan_temperature(temp_c); \
+        state_machine_reset_temp_baseline(); \
+    } while (0)
+
 /* Pan status constants */
 #define MOCK_PAN_ABSENT  0
 #define MOCK_PAN_PRESENT 1

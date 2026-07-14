@@ -16,6 +16,7 @@
 #include "esp_log.h"
 
 static const char *TAG = "hal_esp32";
+static bool s_hal_initialized = false;
 
 /* External declarations for ESP32 operation structs */
 extern const hal_gpio_ops_t hal_gpio_esp32_ops;
@@ -39,8 +40,12 @@ const hal_timer_ops_t *hal_timer = NULL;
  * 
  * @return HAL_OK on success
  */
-hal_status_t hal_esp32_init(void)
+hal_status_t hal_init(void)
 {
+    if (s_hal_initialized) {
+        return HAL_OK;
+    }
+
     ESP_LOGI(TAG, "Initializing ESP32 HAL");
     
     /* Install GPIO ISR service globally (required before any GPIO interrupts) */
@@ -56,6 +61,7 @@ hal_status_t hal_esp32_init(void)
     hal_pwm = &hal_pwm_esp32_ops;
     hal_spi = &hal_spi_esp32_ops;
     hal_timer = &hal_timer_esp32_ops;
+    s_hal_initialized = true;
     
     ESP_LOGI(TAG, "ESP32 HAL initialized successfully");
     ESP_LOGI(TAG, "  GPIO:  %p", (void*)hal_gpio);
@@ -75,7 +81,7 @@ hal_status_t hal_esp32_init(void)
  * 
  * @return HAL_OK on success
  */
-hal_status_t hal_esp32_deinit(void)
+hal_status_t hal_deinit(void)
 {
     ESP_LOGI(TAG, "Deinitializing ESP32 HAL");
     
@@ -85,12 +91,18 @@ hal_status_t hal_esp32_deinit(void)
     hal_pwm = NULL;
     hal_spi = NULL;
     hal_timer = NULL;
+    s_hal_initialized = false;
     
     /* Uninstall GPIO ISR service */
     gpio_uninstall_isr_service();
     
     ESP_LOGI(TAG, "ESP32 HAL deinitialized");
     return HAL_OK;
+}
+
+bool hal_is_initialized(void)
+{
+    return s_hal_initialized;
 }
 
 /* ============================================================================

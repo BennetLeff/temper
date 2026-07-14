@@ -104,15 +104,19 @@ class FeedbackClassifier:
         deltas: list[ConstraintDelta] = []
         unclassified: list[UnclassifiedFailure] = []
 
-        completion_rate = getattr(routing_result, 'completion_rate', 0.0)
-        if completion_rate >= 1.0:
-            return ClassificationResult(deltas=[], unclassified=[], round_number=round_number)
-
         # Extract routing failures from the result object
         unrouted_nets: list[str] = getattr(routing_result, 'unrouted_nets', [])
         drc_violations: list[object] = getattr(routing_result, 'drc_violations', [])
         congestion_regions: list[object] = getattr(routing_result, 'congestion_regions', [])
-        placed_refs: list[str] = getattr(placement, 'placed_refs', [])
+        completion_rate = getattr(routing_result, 'completion_rate', 0.0)
+        # A fully connected board with DRC violations is not converged.  It
+        # needs the clearance-feedback path below, not an early clean result.
+        if completion_rate >= 1.0 and not drc_violations:
+            return ClassificationResult(deltas=[], unclassified=[], round_number=round_number)
+        placed_refs: list[str] = list(
+            getattr(placement, "placed_refs", [])
+            or getattr(placement, "positions", {}).keys()
+        )
 
         # Class 2: DRC clearance violations (check first — these are corrective)
         for violation in drc_violations:
@@ -301,14 +305,20 @@ class FeedbackClassifier:
     ) -> ConstraintDelta | None:
         """Handle unrouted critical pin by injecting AnchoredConstraint."""
         positions = getattr(placement, 'positions', None)
-        placed_refs = getattr(placement, 'placed_refs', [])
+        placed_refs = list(
+            getattr(placement, "placed_refs", [])
+            or (positions.keys() if isinstance(positions, dict) else [])
+        )
 
         try:
             idx = placed_refs.index(comp_ref)
         except ValueError:
             return None
 
-        if positions is not None and idx < len(positions):
+        if isinstance(positions, dict) and comp_ref in positions:
+            current_pos = tuple(map(float, positions[comp_ref]))
+            heuristic_pos = _compute_heuristic_position(comp_ref, current_pos, net_name)
+        elif positions is not None and idx < len(positions):
             current_pos = (float(positions[idx][0]), float(positions[idx][1]))
             heuristic_pos = _compute_heuristic_position(comp_ref, current_pos, net_name)
         else:
@@ -356,14 +366,19 @@ class FeedbackClassifier:
         # Restrict rotation: force dense side away from routing corridor
         # This is a soft anchoring with rotation bias
         positions = getattr(placement, 'positions', None)
-        placed_refs = getattr(placement, 'placed_refs', [])
+        placed_refs = list(
+            getattr(placement, "placed_refs", [])
+            or (positions.keys() if isinstance(positions, dict) else [])
+        )
 
         try:
             idx = placed_refs.index(ic_ref)
         except ValueError:
             idx = -1
 
-        if positions is not None and idx >= 0 and idx < len(positions):
+        if isinstance(positions, dict) and ic_ref in positions:
+            x, y = map(float, positions[ic_ref])
+        elif positions is not None and idx >= 0 and idx < len(positions):
             x, y = float(positions[idx][0]), float(positions[idx][1])
         else:
             x, y = (50.0, 50.0)

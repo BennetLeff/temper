@@ -90,6 +90,11 @@ typedef struct {
  */
 
 typedef struct {
+    float rtd_short_fault_ohm; /**< PT100/MAX31865 short-fault boundary; values at or below fault (Ω) */
+    float rtd_open_fault_ohm; /**< PT100/MAX31865 open/out-of-range guard; values at or above fault (Ω) */
+    float rtd_gross_open_diagnostic_ohm; /**< Legacy gross-open diagnostic retained while SIL fixtures migrate (Ω) */
+    uint16_t max31865_low_threshold_word; /**< 10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
+    uint16_t max31865_high_threshold_word; /**< 300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
     uint16_t pan_debounce_count; /**< Pan detection debounce samples */
     uint8_t pan_confidence_required; /**< Pan detection confirmations needed */
     uint16_t adc_min_valid_raw; /**< ADC minimum valid raw value */
@@ -102,6 +107,11 @@ typedef struct {
 
 /* Default thresholds */
 #define THRESHOLDS_DEFAULT { \
+    .rtd_short_fault_ohm = 10.0f, \
+    .rtd_open_fault_ohm = 300.0f, \
+    .rtd_gross_open_diagnostic_ohm = 10000.0f, \
+    .max31865_low_threshold_word = 1526, \
+    .max31865_high_threshold_word = 45722, \
     .pan_debounce_count = 10, \
     .pan_confidence_required = 3, \
     .adc_min_valid_raw = 100, \
@@ -175,6 +185,9 @@ void config_init(void);
  * - WDT_INIT_MS
  * - FAN_CHECK_INTERVAL_MS
  * - ADC_CHECK_INTERVAL_MS
+ * - RTD_SHORT_FAULT_OHM
+ * - RTD_OPEN_FAULT_OHM
+ * - RTD_GROSS_OPEN_DIAGNOSTIC_OHM
  * - PAN_DEBOUNCE_COUNT
  * - PAN_CONFIDENCE_REQUIRED
  * - ADC_MIN_VALID_RAW
@@ -256,6 +269,11 @@ void config_print(void);
 #define PAN_DETECT_TIMEOUT_MS 5000
 #define NO_PAN_TIMEOUT_MS 3000
 #define MAX_PREHEAT_TIME_MS 600000
+#define RTD_SHORT_FAULT_OHM 10.0f
+#define RTD_OPEN_FAULT_OHM 300.0f
+#define RTD_GROSS_OPEN_DIAGNOSTIC_OHM 10000.0f
+#define MAX31865_LOW_THRESHOLD_WORD 1526
+#define MAX31865_HIGH_THRESHOLD_WORD 45722
 #define PAN_DEBOUNCE_COUNT 10
 #define PAN_CONFIDENCE_REQUIRED 3
 #define MESSAGE_DISPLAY_TIME_MS 2000

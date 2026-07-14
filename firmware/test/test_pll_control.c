@@ -269,9 +269,12 @@ void test_invalid_phase_too_large(void) {
 void test_invalid_dt_uses_fallback(void) {
     reset_pll();
     
-    /* Zero dt should use fallback (1ms) */
-    pll_update_loop(1.5f, 0.0f);
-    TEST_ASSERT_TRUE(pll_is_locked());  /* Should still work with fallback dt */
+    /* Zero dt should use fallback (1ms).  Lock confirmation intentionally
+     * requires ten consecutive good cycles, so exercise the full contract. */
+    for (int i = 0; i < 10; i++) {
+        pll_update_loop(1.5f, 0.0f);
+    }
+    TEST_ASSERT_TRUE(pll_is_locked());
 }
 
 /**
@@ -280,8 +283,11 @@ void test_invalid_dt_uses_fallback(void) {
 void test_negative_dt_uses_fallback(void) {
     reset_pll();
     
-    /* Negative dt should use fallback */
-    pll_update_loop(1.5f, -0.001f);
+    /* Negative dt should use fallback; lock confirmation still needs ten
+     * consecutive valid cycles. */
+    for (int i = 0; i < 10; i++) {
+        pll_update_loop(1.5f, -0.001f);
+    }
     TEST_ASSERT_TRUE(pll_is_locked());
 }
 

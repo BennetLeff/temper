@@ -475,6 +475,7 @@ def optimize(
                 zone_components=zone_comps if zone_comps else None,
                 loop_components=loop_comps if loop_comps else None,
                 all_gates=all_gates,
+                source_pcb_path=input_pcb,
             )
 
             # Surface UNSAT core from CP-SAT placement result.
@@ -519,35 +520,16 @@ def optimize(
                             f"  [dim]{gname}: {msg[:120]}[/]"
                         )
 
-                # Write the final PCB. Re-route the placement against the real
-                # board file so the output carries real footprints and routes.
+                # The loop routes the authoritative source board directly;
+                # retain that exact artifact rather than issuing a second,
+                # potentially divergent route pass here.
                 if loop_result.placement is not None:
-                    import os as _os
-                    import tempfile as _tempfile
-
-                    from temper_placer.router_v6.adapter import (
-                        RoutingResult,
-                        _apply_placements_to_pcb,
-                        route_pcb,
-                    )
-
-                    placements = loop_result.placement.to_placements_dict()
-                    if placements:
-                        raw = input_pcb.read_text(encoding="utf-8")
-                        placed = _apply_placements_to_pcb(raw, placements)
-                        fd, tp = _tempfile.mkstemp(suffix=".kicad_pcb")
-                        with _os.fdopen(fd, "w", encoding="utf-8") as f:
-                            f.write(placed)
-                        parsed = type("ParsedPCB", (), {"source_path": tp})()
-                        try:
-                            routed = route_pcb(parsed, placements, _seed=seed)
-                            routed_body = getattr(routed, "routed_pcb_content", None)
-                            if routed_body:
-                                output.write_text(routed_body, encoding="utf-8")
-                            else:
-                                output.write_text(placed, encoding="utf-8")
-                        finally:
-                            _os.unlink(tp)
+                    routed_body = getattr(loop_result.routing, "routed_pcb_content", None)
+                    if not routed_body:
+                        raise click.ClickException(
+                            "Place→route loop converged without an authoritative routed PCB artifact"
+                        )
+                    output.write_text(routed_body, encoding="utf-8")
                     console.print(f"    Output: {output}")
 
                     # Run KiCad DRC on the placed output.
@@ -574,13 +556,20 @@ def optimize(
                                 console.print(f"  [red]DRC: {len(errors)} errors, {len(warnings)} warnings[/]")
                                 for e in errors[:5]:
                                     console.print(f"    ERROR: {e.get('type','?')} — {e.get('description','')[:100]}")
+                                raise click.ClickException(
+                                    f"KiCad DRC found {len(errors)} error(s) in {output}"
+                                )
                             else:
                                 console.print(f"  [green]DRC: 0 errors, {len(warnings)} warnings[/]")
                             os.unlink(drc_out)
                         else:
-                            console.print(f"  [yellow]DRC report not produced: {result.stderr[:200]}[/]")
+                            raise click.ClickException(
+                                f"KiCad DRC report was not produced: {result.stderr[:200]}"
+                            )
+                    except click.ClickException:
+                        raise
                     except Exception as drc_e:
-                        console.print(f"  [yellow]DRC run failed: {drc_e}[/]")
+                        raise click.ClickException(f"KiCad DRC could not run: {drc_e}") from drc_e
             else:
                 console.print(
                     f"  [yellow]Loop did not converge: {loop_result.reason}[/]"
@@ -591,8 +580,13 @@ def optimize(
                         f"    Best routing completion: {last.completion_rate*100:.1f}%"
                         f" ({last.drc_errors} DRC errors)"
                     )
+                raise click.ClickException(
+                    f"Place→route loop did not converge: {loop_result.reason}"
+                )
+        except click.ClickException:
+            raise
         except Exception as e:
-            console.print(f"  [yellow]Place→route loop failed: {e}[/]")
+            raise click.ClickException(f"Place→route loop failed: {e}") from e
 
     sys.exit(0)
 

@@ -916,6 +916,13 @@ class CpSatPlacementResult:
 
     positions: dict[str, tuple[float, float]] = field(default_factory=dict)
     rotations: dict[str, int] = field(default_factory=dict)
+    # Retained for feedback-loop compatibility.  New solver results derive
+    # this from ``positions`` when absent; legacy callers may provide it
+    # explicitly.
+    placed_refs: list[str] = field(default_factory=list)
+    # Compatibility metadata used by callers that distinguish a proven UNSAT
+    # result from a partial/unknown placement.
+    unplaced_refs: list[str] = field(default_factory=list)
     status: str = "unknown"  # "optimal" | "feasible" | "infeasible" | "model_invalid"
     solve_time_ms: float = 0.0
     objective_value: float = 0.0
@@ -1118,6 +1125,8 @@ def solve_placement(
     return CpSatPlacementResult(
         positions=positions,
         rotations=rotations,
+        placed_refs=list(positions),
+        unplaced_refs=[ref for ref in comp_refs if ref not in positions],
         status=status_str,
         solve_time_ms=elapsed_ms,
         objective_value=objective,

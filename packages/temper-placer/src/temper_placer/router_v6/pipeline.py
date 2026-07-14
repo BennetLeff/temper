@@ -351,7 +351,8 @@ class RouterV6Pipeline:
             enable_theta_star: Use Theta* any-angle routing (Experiment F)
             enable_lazy_theta_star: Use Lazy Theta* (Experiment O4)
             enable_smoothing: Apply force-directed smoothing (Experiment G)
-            enable_legalization: Auto-fix component overlaps (Phase 6)
+            enable_legalization: Verify that the constraint-aware placement
+                has no component overlaps before routing.
             max_nets: Limit number of nets to route (for profiling)
             target_nets: List of specific net names to route
             fence: Optional DRCFence for per-stage DRC verification
@@ -495,14 +496,25 @@ class RouterV6Pipeline:
 
             if legalizer.legalize():
                 if self.verbose:
-                    print("  Legalization successful (0 overlaps)")
+                    print("  Placement collision check passed (0 overlaps)")
             else:
+                collisions = legalizer.auditor.check_collisions()
+                # Pin-hull collision detection is intentionally advisory. It
+                # is not a substitute for KiCad's footprint-courtyard DRC and
+                # must not move CP-SAT coordinates outside their constraints.
                 if self.verbose:
-                    print("  Warning: Legalization did not fully converge (residual overlap)")
+                    print(
+                        "  Advisory pin-hull overlaps: "
+                        + ", ".join(
+                            f"{collision.ref1}/{collision.ref2}"
+                            for collision in collisions[:8]
+                        )
+                    )
 
         # Validate placement (Post-Legalization)
-        # Note: pcb.validate_placement checks for missing footprints etc, not necessarily geometric overlap.
-        # But we assume Legalizer updated pcb.components in-place.
+        # ``Legalizer`` above is deliberately non-mutating: CP-SAT owns all
+        # constraint-preserving component movement, and KiCad DRC remains the
+        # authoritative physical-overlap gate.
         errors = pcb.validate_placement()
         if errors:
             raise ValueError(f"PCB validation failed: {errors}")
