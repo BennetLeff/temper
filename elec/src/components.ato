@@ -112,6 +112,14 @@ component Diode:
     signal K ~ pin 1
     signal A ~ pin 2
 
+component MOSFET_N:
+    """N-channel logic-level MOSFET, low-side switch"""
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn: str
+    signal D ~ pin 1
+    signal G ~ pin 2
+    signal S ~ pin 3
+
 # ==============================================================================
 # POWER INPUT COMPONENTS
 # ==============================================================================

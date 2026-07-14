@@ -222,6 +222,8 @@ module Top:
     power_in.dc_bus.hv_minus ~ dc_bus_minus
     power_in.dc_bus.gnd_ref ~ gnd
     power_in.gnd ~ gnd
+    power_in.power_15v.vcc ~ vcc_15v
+    power_in.power_15v.gnd ~ gnd
     
     # Power management chain
     # Note: In real design, 15V comes from auxiliary winding, not directly from DC_BUS

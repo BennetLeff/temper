@@ -811,9 +811,24 @@
         (pin passive line (at 0 -3.81 90) (length 1.27) (name "~" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
       )
     )
+    (symbol "temper:DCDC_Isolated" (in_bom yes) (on_board yes)
+      (property "Reference" "U" (at 0 9.53 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "DCDC_Isolated" (at 0 -9.53 0) (effects (font (size 1.27 1.27))))
+      (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))
+      (symbol "DCDC_Isolated_0_1"
+        (rectangle (start -7.62 6.35) (end 7.62 -6.35) (stroke (width 0.254) (type default)) (fill (type background)))
+      )
+      (symbol "DCDC_Isolated_1_1"
+        (pin power_in line (at -12.7 3.81 0) (length 5.08) (name "VIN" (effects (font (size 1.27 1.27)))) (number "1" (effects (font (size 1.27 1.27)))))
+        (pin power_in line (at -12.7 -3.81 0) (length 5.08) (name "GND_IN" (effects (font (size 1.27 1.27)))) (number "2" (effects (font (size 1.27 1.27)))))
+        (pin power_out line (at 12.7 3.81 180) (length 5.08) (name "VOUT" (effects (font (size 1.27 1.27)))) (number "3" (effects (font (size 1.27 1.27)))))
+        (pin power_out line (at 12.7 -3.81 180) (length 5.08) (name "GND_OUT" (effects (font (size 1.27 1.27)))) (number "4" (effects (font (size 1.27 1.27)))))
+      )
+    )
   )
 
-  (text "SENSING SUBSYSTEM\n\nTemperature Sensing:\n- MAX31865 RTD-to-Digital (SPI)\n- PT100 4-wire configuration\n- R_REF = 430 ohm (PT100)\n\nCurrent Sensing:\n- CST-1005 CT (1:1000 ratio)\n- R_BURDEN = 66.5 ohm\n- 50A = 3.325V output\n\nI2C Isolation:\n- ADUM1250 hot-swappable isolator\n- 2.5kV RMS isolation\n- Bidirectional I2C\n\nReference:\n- CT_SENSING_DESIGN.md\n- MAX31865_Documentation.md"
+  (text "SENSING SUBSYSTEM\n\nTemperature Sensing:\n- MAX31865 RTD-to-Digital (SPI)\n- PT100 4-wire configuration\n- R_REF = 430 ohm (PT100)\n\nCurrent Sensing:\n- CT1/R_BURDEN now live in Half_Bridge (adjacent to the CT primary),\n  not on this sheet -- I_SENSE arrives here only as a consumer\n  where wired (see plan U4)\n\nI2C Isolation:\n- ADUM1250 hot-swappable isolator\n- 2.5kV RMS isolation\n- Bidirectional I2C\n\nReference:\n- CT_SENSING_DESIGN.md\n- MAX31865_Documentation.md"
     (exclude_from_sim no)
     (at 25.4 25.4 0)
     (effects (font (size 1.8 1.8)) (justify left))
@@ -828,11 +843,9 @@
     (uuid "51000001-0000-0000-0000-000000000001")
   )
 
-  (hierarchical_label "+5V_ISO"
-    (shape input)
+  (label "+5V_ISO"
     (at 25.4 213.36 180)
-    (fields_autoplaced yes)
-    (effects (font (size 1.27 1.27)) (justify right))
+    (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid "51000001-0000-0000-0000-000000000002")
   )
 
@@ -884,14 +897,6 @@
     (uuid "51000001-0000-0000-0000-000000000009")
   )
 
-  (hierarchical_label "I_SENSE"
-    (shape output)
-    (at 228.6 76.2 0)
-    (fields_autoplaced yes)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid "51000001-0000-0000-0000-00000000000A")
-  )
-
   (hierarchical_label "NTC_SENSE"
     (shape output)
     (at 228.6 165.1 0)
@@ -932,11 +937,9 @@
     (uuid "51000001-0000-0000-0000-00000000000F")
   )
 
-  (hierarchical_label "GND_ISO"
-    (shape input)
+  (label "GND_ISO"
     (at 25.4 220.98 180)
-    (fields_autoplaced yes)
-    (effects (font (size 1.27 1.27)) (justify right))
+    (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid "51000001-0000-0000-0000-000000000010")
   )
 
@@ -982,7 +985,7 @@
     (uuid "53000001-0000-0000-0000-000000000001")
     (property "Reference" "U_RTD1" (at 101.6 96.52 0) (effects (font (size 1.27 1.27))))
     (property "Value" "MAX31865ATP+" (at 101.6 99.06 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Package_DFN_QFN:TQFN-20-1EP_4x4mm_P0.5mm_EP2.6x2.6mm" (at 101.6 139.7 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Footprint" "Package_DFN_QFN:TQFN-20-1EP_5x5mm_P0.65mm_EP3.25x3.25mm_ThermalVias" (at 101.6 139.7 0) (effects (font (size 1.27 1.27)) hide))
     (property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX31865.pdf" (at 101.6 116.84 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "MAX31865ATP+" (at 101.6 116.84 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Analog Devices" (at 101.6 116.84 0) (effects (font (size 1.27 1.27)) hide))
@@ -1085,32 +1088,91 @@
     (uuid "54000002-0000-0000-0000-000000000001")
   )
 
-  (text "CURRENT TRANSFORMER\nCST-1005 (1:1000)\nR_BURDEN = 66.5Ω\n50A → 3.325V"
-    (exclude_from_sim no)
-    (at 177.8 68.58 0)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid "55000000-0000-0000-0000-000000000001")
-  )
-
   (symbol
-    (lib_id "Device:R")
-    (at 195.58 83.82 0)
+    (lib_id "temper:DCDC_Isolated")
+    (at 220.0 100.0 0)
     (unit 1)
     (exclude_from_sim no)
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "55000001-0000-0000-0000-000000000001")
-    (property "Reference" "R_BURDEN" (at 198.12 81.28 0) (effects (font (size 1.27 1.27)) (justify left)))
-    (property "Value" "66.5Ω" (at 198.12 83.82 0) (effects (font (size 1.27 1.27)) (justify left)))
-    (property "Footprint" "Resistor_SMD:R_1206_3216Metric" (at 193.802 83.82 90) (effects (font (size 1.27 1.27)) hide))
-    (property "Datasheet" "~" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
-    (property "MPN" "RC1206FR-0766R5L" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Manufacturer" "Yageo" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
-    (property "Description" "CT burden: 50A/1000 × 66.5Ω = 3.325V" (at 195.58 83.82 0) (effects (font (size 1.27 1.27)) hide))
-    (pin "1" (uuid "rburden-pin1"))
-    (pin "2" (uuid "rburden-pin2"))
+    (uuid "57000001-0000-0000-0000-000000000001")
+    (property "Reference" "U_ISO_PWR" (at 220.0 90.47 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "RP-1505S" (at 220.0 109.53 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "Converter_DCDC:Converter_DCDC_RECOM_RxxxxS-1WR2_THT" (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "RP-1505S" (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Manufacturer" "Recom Power" (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Isolated 1W DC-DC, 13.5-16.5V in / 5V 200mA out, 5.2kVDC isolation -- exceeds ADuM1250's 2.5kVrms barrier. Footprint placeholder pending real SIP-7 land pattern confirmation." (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "uisopwr-pin1-vin"))
+    (pin "2" (uuid "uisopwr-pin2-gndin"))
+    (pin "3" (uuid "uisopwr-pin3-vout"))
+    (pin "4" (uuid "uisopwr-pin4-gndout"))
   )
+
+  (symbol
+    (lib_id "Device:C")
+    (at 195.0 100.0 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "57000002-0000-0000-0000-000000000001")
+    (property "Reference" "C_ISO_IN" (at 198.54 97.46 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 198.54 100.0 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 196.7652 103.81 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Input decoupling for isolated DC-DC" (at 195.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cisoin-pin1-uuid"))
+    (pin "2" (uuid "cisoin-pin2-uuid"))
+  )
+
+  (symbol
+    (lib_id "Device:C")
+    (at 245.0 100.0 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "57000003-0000-0000-0000-000000000001")
+    (property "Reference" "C_ISO_OUT" (at 248.54 97.46 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10uF" (at 248.54 100.0 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0805_2012Metric" (at 246.7652 103.81 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Output decoupling for isolated DC-DC, isolated-side" (at 245.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cisoout-pin1-uuid"))
+    (pin "2" (uuid "cisoout-pin2-uuid"))
+  )
+
+  (symbol
+    (lib_id "power:GND")
+    (at 207.3 96.19 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "57000004-0000-0000-0000-000000000001")
+    (property "Reference" "#PWR03" (at 207.3 102.032 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 207.3 100.508 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (hierarchical_label "+15V"
+    (shape input)
+    (at 207.3 80.0 90)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "51000001-0000-0000-0000-000000000012")
+  )
+
+  (wire (pts (xy 207.3 80.0) (xy 207.3 103.81)) (stroke (width 0) (type default)) (uuid "wire-isopwr-001"))
+  (wire (pts (xy 195.0 103.81) (xy 207.3 103.81)) (stroke (width 0) (type default)) (uuid "wire-isopwr-002"))
+  (wire (pts (xy 195.0 96.19) (xy 207.3 96.19)) (stroke (width 0) (type default)) (uuid "wire-isopwr-003"))
+  (wire (pts (xy 232.7 103.81) (xy 245.0 103.81)) (stroke (width 0) (type default)) (uuid "wire-isopwr-004"))
+  (wire (pts (xy 232.7 96.19) (xy 245.0 96.19)) (stroke (width 0) (type default)) (uuid "wire-isopwr-005"))
+  (wire (pts (xy 245.0 103.81) (xy 250.0 103.81)) (stroke (width 0) (type default)) (uuid "wire-isopwr-006"))
+  (wire (pts (xy 245.0 96.19) (xy 250.0 96.19)) (stroke (width 0) (type default)) (uuid "wire-isopwr-007"))
+
+  (label "+5V_ISO" (at 250.0 103.81 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-5viso-002"))
+  (label "GND_ISO" (at 250.0 96.19 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid "label-gndiso-002"))
 
   (text "I2C ISOLATOR\nADUM1250ARZ\n2.5kV RMS isolation\nHot-swappable"
     (exclude_from_sim no)
@@ -1271,12 +1333,6 @@
     (uuid "label-cs-001")
   )
 
-  (label "I_SENSE"
-    (at 208.28 76.2 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "label-isense-001")
-  )
-
   (label "NTC_NODE"
     (at 195.58 170.18 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
@@ -1342,17 +1398,6 @@
     (pts (xy 25.4 116.84) (xy 78.74 116.84))
     (stroke (width 0) (type default))
     (uuid "wire-cs-001")
-  )
-
-  (wire
-    (pts (xy 195.58 76.2) (xy 228.6 76.2))
-    (stroke (width 0) (type default))
-    (uuid "wire-isense-001")
-  )
-  (wire
-    (pts (xy 195.58 80.01) (xy 195.58 76.2))
-    (stroke (width 0) (type default))
-    (uuid "wire-isense-002")
   )
 
   (wire

@@ -366,7 +366,8 @@ module PowerInput:
     signal gnd
     signal zcd
     signal relay_ctrl
-    
+    power_15v = new ElectricPower
+
     fuse = new Fuse
     fuse.current_rating = 15A
     fuse.voltage_rating = 250V
@@ -383,7 +384,39 @@ module PowerInput:
     bypass_relay.contact_current = 20A
     bypass_relay.mpn = "G4A-1A-E DC12"
     bypass_relay.footprint = "Relay_THT:Relay_SPST_Omron-G4A-E"
-    
+
+    # Coil driver: RELAY_CTRL (3.3V GPIO) cannot drive the 75mA/12V coil directly.
+    q_relay_drv = new MOSFET_N
+    q_relay_drv.mpn = "AO3400A"
+
+    r_relay_drop = new Resistor
+    r_relay_drop.value = 39ohm +/- 5%
+    r_relay_drop.power_rating = 1W
+    r_relay_drop.voltage_rating = 25V
+    r_relay_drop.mpn = "CRCW060339R0FKEA"
+    r_relay_drop.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+
+    r_gate = new Resistor
+    r_gate.value = 1kohm +/- 5%
+    r_gate.power_rating = 0.125W
+    r_gate.voltage_rating = 25V
+    r_gate.mpn = "CRCW08051K00FKEA"
+    r_gate.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    r_gate_pd = new Resistor
+    r_gate_pd.value = 100kohm +/- 5%
+    r_gate_pd.power_rating = 0.125W
+    r_gate_pd.voltage_rating = 25V
+    r_gate_pd.mpn = "CRCW0805100KFKEA"
+    r_gate_pd.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    d_flyback = new Diode
+    d_flyback.mpn = "SS14"
+    d_flyback.voltage_rating = 40V
+    d_flyback.current_rating = 1A
+    d_flyback.footprint = "Diode_SMD:D_SMA"
+
+
     d1 = new MUR1560
     d2 = new MUR1560
     
@@ -435,15 +468,27 @@ module PowerInput:
     
     fuse.p2 ~ bypass_relay.COM
     bypass_relay.NO ~ d1.A
-    relay_ctrl ~ bypass_relay.coil1
-    gnd ~ bypass_relay.coil2
+
+    r_gate.p1 ~ relay_ctrl
+    r_gate.p2 ~ q_relay_drv.G
+    r_gate_pd.p1 ~ q_relay_drv.G
+    r_gate_pd.p2 ~ gnd
+
+    r_relay_drop.p1 ~ power_15v.vcc
+    r_relay_drop.p2 ~ bypass_relay.coil1
+    d_flyback.K ~ bypass_relay.coil1
+    d_flyback.A ~ bypass_relay.coil2
+    q_relay_drv.D ~ bypass_relay.coil2
+    q_relay_drv.S ~ gnd
+    power_15v.gnd ~ gnd
     
     d1.K ~ dc_bus.hv_plus
     c_bus1.plus ~ dc_bus.hv_plus
     c_bus1.minus ~ dc_bus.gnd_ref
     
-    ac_n ~ d2.A
-    d2.K ~ dc_bus.gnd_ref
+    ac_n ~ dc_bus.gnd_ref
+    d2.K ~ d1.A
+    d2.A ~ dc_bus.hv_minus
     c_bus2.plus ~ dc_bus.gnd_ref
     c_bus2.minus ~ dc_bus.hv_minus
     
@@ -619,8 +664,8 @@ module CurrentSensing:
     r_burden = new Resistor
     r_burden.value = 66.5ohm +/- 1%
     r_burden.power_rating = 0.25W
-    r_burden.mpn = "RC0805FR-0766R5L"
-    r_burden.footprint = "Resistor_SMD:R_0805_2012Metric"
+    r_burden.mpn = "RC1206FR-0766R5L"
+    r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
     
     i_ct_max: current = 50mA
     v_burden_max: voltage = i_ct_max * r_burden.value

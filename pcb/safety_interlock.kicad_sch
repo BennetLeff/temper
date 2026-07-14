@@ -588,6 +588,17 @@
     (uuid "41000001-0000-0000-0000-000000000007")
   )
 
+  (hierarchical_label "RUNAWAY_CUT"
+    (shape input)
+    (at 25.4 90.0 180)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify right))
+    (uuid "41000001-0000-0000-0000-000000000008")
+  )
+
+  (wire (pts (xy 25.4 90.0) (xy 205.74 90.0)) (stroke (width 0) (type default)) (uuid "6E000040-0000-0000-0000-000000000001"))
+  (wire (pts (xy 205.74 90.0) (xy 205.74 123.19)) (stroke (width 0) (type default)) (uuid "6E000041-0000-0000-0000-000000000001"))
+
   (hierarchical_label "SHUTDOWN_N"
     (shape output)
     (at 381 127 0)
@@ -1151,28 +1162,36 @@
     (pin "2" (uuid "cinv-pin2"))
   )
 
-  (label "OCP_FAULT"
-    (at 127 111.76 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "label-ocp-001")
+  (hierarchical_label "OCP_FAULT"
+    (shape output)
+    (at 340.0 160.0 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "41000001-0000-0000-0000-000000000009")
   )
 
-  (label "OVP_FAULT"
-    (at 127 165.1 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "label-ovp-001")
+  (hierarchical_label "OVP_FAULT"
+    (shape output)
+    (at 341.5 162.5 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "41000001-0000-0000-0000-00000000000A")
   )
 
-  (label "THERMAL_FAULT"
-    (at 127 228.6 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "label-thermal-001")
+  (hierarchical_label "THERMAL_FAULT"
+    (shape output)
+    (at 343.0 165.0 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "41000001-0000-0000-0000-00000000000B")
   )
 
-  (label "WDT_FAULT"
-    (at 127 279.4 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid "label-wdt-001")
+  (hierarchical_label "WDT_FAULT"
+    (shape output)
+    (at 346.0 170.0 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "41000001-0000-0000-0000-00000000000C")
   )
 
   (label "FAULT_OR"

@@ -1,6 +1,7 @@
 ---
 title: A union-find connectivity tracer catches KiCad schematic shorts and gaps that visual inspection misses
 date: "2026-07-14"
+last_updated: "2026-07-14"
 category: tooling-decisions
 module: pcb-schematic-capture
 problem_type: tooling_decision
@@ -10,6 +11,8 @@ applies_when:
   - "Hand-editing raw .kicad_sch S-expression wire/pin coordinates without KiCad's GUI"
   - "Auditing or repairing schematic wiring that was auto-generated or previously hand-edited"
   - "Adding many new wires to a busy sheet where accidental coordinate collisions are easy to introduce"
+  - "Routing several different signals that all originate from pins on the same sheet-symbol edge"
+  - "Adding a new custom symbol definition to a .kicad_sch file by hand"
 tags:
   - kicad
   - schematic
@@ -17,6 +20,7 @@ tags:
   - union-find
   - self-verification
   - short-circuit-detection
+  - lib-symbols
 ---
 
 # A union-find connectivity tracer catches KiCad schematic shorts and gaps that visual inspection misses
@@ -95,6 +99,49 @@ electrically joined. A shared hub point is fine and intentional for signals that
 be the same net (e.g. all GND connections fanning into one hub); the risk is only when two signals
 that should stay separate are accidentally routed through the same intermediate coordinate.
 
+**Corollary discovered later in the same project: a "unique lane" must diverge *immediately*, not
+just end up at a unique hub.** When several different-net pins sit on the same sheet-symbol edge
+(e.g. five different root sheet pins all placed at `x=76.2`, one per signal), routing each one's
+jog toward a *shared staging area* before turning onto its own hub column reintroduces the exact
+overlap this technique is meant to prevent — every pin's initial vertical stub travels down the
+same `x=76.2` column, and stubs whose y-ranges cross (e.g. one pin's jog from y=168.91 down to
+y≈200, another's from y=163.83 down to the same y≈200) become collinear with each other even
+though their *final* hub columns are distinct. The fix is to jog **immediately** — a short
+(sub-1mm) step off the shared edge before any long travel — so each pin's own vertical stub never
+overlaps a neighboring pin's stub:
+
+```
+# WRONG: all five stubs share the x=76.2 column over a wide, overlapping y-range
+(76.2, 168.91) -> (76.2, 200.10) -> (hub_a, 200.10) -> (hub_a, trunk_a)
+(76.2, 173.99) -> (76.2, 200.32) -> (hub_b, 200.32) -> (hub_b, trunk_b)
+# these two vertical segments both run through x=76.2, y=173.99..200.10 -- collinear overlap
+
+# RIGHT: each stub diverges within its own pin's immediate neighborhood
+(76.2, 168.91) -> (76.2, 168.61) -> (hub_a, 168.61) -> (hub_a, trunk_a)
+(76.2, 173.99) -> (76.2, 173.59) -> (hub_b, 173.59) -> (hub_b, trunk_b)
+# 0.3-0.4mm stubs, five different y-neighborhoods -- no shared range possible
+```
+
+This was caught by the same pre-write union-find self-check as any other short — the fix was
+mechanical once the failure mode was understood, but it's easy to reach for "route to a shared
+staging point, then fan out" as a first instinct when several signals need the same general
+treatment, and that instinct is exactly backwards for coordinates on a shared edge.
+
+**A second, structurally different failure mode from the same project: a new `lib_symbols`
+definition placed in the document body instead of inside the `(lib_symbols ...)` container.**
+Adding a custom symbol (e.g. a generic 4-pin DC-DC converter block with no real KiCad library
+equivalent) requires two things in a `.kicad_sch` file: the symbol's *definition* inside the
+top-of-file `(lib_symbols ...)` block, and its placed *instance* (`(symbol (lib_id "...") (at x y
+r) ...)`) in the document body alongside wires and labels. Pasting the definition into the document
+body instead — parenthesis-balanced, syntactically well-formed, just in the wrong container — does
+not produce a wire-level short the connectivity tracer would catch. Instead `kicad-cli sch export
+netlist` fails outright ("Failed to load schematic") with no line number or detail. This is
+actually the *easier* failure to catch (a hard parse failure is unambiguous, unlike a silent
+short), but only if the post-write parse check is never skipped — a large multi-part edit
+(new lib_symbol + new instance + new wires + new labels, done as one edit) can "look done" well
+before it's actually verified. Root-caused by diffing against where every other `lib_symbols` entry
+in the same file actually lives, not by guessing at the S-expression schema.
+
 ## Why This Matters
 
 `kicad-cli sch erc` on a multi-sheet hierarchical design produces hundreds of violations, many of
@@ -118,6 +165,11 @@ self-check before they reached the file, at zero cost beyond running the same fu
   only proves the file parses, not that the intended nets are right.
 - When auditing a schematic of unknown provenance (auto-generated, inherited from another
   engineer, or recovered from a broken state) for correctness before further edits.
+- When several different-net pins share one sheet-symbol edge and each needs its own routing lane
+  — jog immediately, don't converge on a shared staging point first.
+- Before declaring a multi-part edit (new symbol + instance + wires + labels in one go) done: run
+  the parse check even when nothing about the edit *felt* risky — a misplaced `lib_symbols` block
+  fails the parse outright rather than silently, but only if the check actually runs.
 
 ## Examples
 

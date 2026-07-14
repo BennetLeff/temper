@@ -968,7 +968,7 @@
     )
   )
 
-  (text "MCU SUBSYSTEM\n\nESP32-S3-WROOM-1-N4\n- 4MB Flash, PCB antenna\n- WiFi + BLE 5.0\n\nPin Assignments (must match firmware/components/hal/include/temper_pins.h):\n- IO4: PWM_H (MCPWM0A)\n- IO5: PWM_L (MCPWM0B)\n- IO7: WDT_KICK\n- IO8: SPI_SCK (SPI2/HSPI)\n- IO9: RTD_DRDY\n- IO10: RTD_CS\n- IO11: SPI_MOSI (SPI2/HSPI)\n- IO12: SPI_MISO (SPI2/HSPI)\n- IO13: ZCD\n- IO19: RELAY_CTRL\n- IO20: FAULT_STATUS\n- IO38: I2C_SDA\n- IO39: I2C_SCL\n- IO1: ADC_CT (ADC1_CH0)\n\nMCU_ENABLE (previously drawn on IO6) has no counterpart in\ntemper_pins.h and is left unconnected pending a decision:\neither define a firmware GPIO for it or remove the signal.\ntemper_pins.h also defines ADC_VOLTAGE(IO2), ADC_NTC(IO3),\nWDT_RESET(IO6), RUNAWAY_CUT(IO15), FAULT_OUT was IO20 (now\nused for FAULT_STATUS above), LED_FAULT(IO17), LED_POWER(IO18),\nBUTTON_RESET(IO0), UART_TX(43)/RX(44) - none of these are wired\nto sheet signals yet."
+  (text "MCU SUBSYSTEM\n\nESP32-S3-WROOM-1-N4\n- 4MB Flash, PCB antenna\n- WiFi + BLE 5.0\n\nPin Assignments (must match firmware/components/hal/include/temper_pins.h):\n- IO4: PWM_H (MCPWM0A)\n- IO5: PWM_L (MCPWM0B)\n- IO7: WDT_KICK\n- IO8: SPI_SCK (SPI2/HSPI)\n- IO9: RTD_DRDY\n- IO10: RTD_CS\n- IO11: SPI_MOSI (SPI2/HSPI)\n- IO12: SPI_MISO (SPI2/HSPI)\n- IO13: ZCD\n- IO15: RUNAWAY_CUT (active-high, feeds Safety_Interlock fault-OR)\n- IO19: RELAY_CTRL\n- IO20: FAULT_STATUS\n- IO38: I2C_SDA\n- IO39: I2C_SCL\n- IO1: ADC_CT (ADC1_CH0)\n\nMCU_ENABLE was removed (see docs/plans/2026-07-14-001-fix-schematic-\nopen-items-remediation-plan.md U7): it had no counterpart anywhere in\ntemper_pins.h or elec/src/*.ato and was vestigial.\ntemper_pins.h also defines ADC_VOLTAGE(IO2), ADC_NTC(IO3),\nWDT_RESET(IO6), FAULT_OUT was IO20 (now used for FAULT_STATUS above),\nLED_FAULT(IO17), LED_POWER(IO18), BUTTON_RESET(IO0),\nUART_TX(43)/RX(44) - none of these are wired to sheet signals yet."
     (exclude_from_sim no)
     (at 25.4 50.8 0)
     (effects (font (size 1.27 1.27)) (justify left))
@@ -1422,13 +1422,15 @@
     (uuid "61000001-0000-0000-0000-000000000003")
   )
 
-  (hierarchical_label "MCU_ENABLE"
+  (hierarchical_label "RUNAWAY_CUT"
     (shape output)
-    (at 170.18 114.3 0)
+    (at 93.98 134.62 180)
     (fields_autoplaced yes)
-    (effects (font (size 1.27 1.27)) (justify left))
+    (effects (font (size 1.27 1.27)) (justify right))
     (uuid "61000001-0000-0000-0000-000000000004")
   )
+
+  (wire (pts (xy 109.22 134.62) (xy 93.98 134.62)) (stroke (width 0) (type default)) (uuid "6A00002F-0000-0000-0000-000000000001"))
 
   (hierarchical_label "WDT_KICK"
     (shape output)
@@ -1519,6 +1521,28 @@
     (effects (font (size 1.27 1.27)) (justify right))
     (uuid "61000001-0000-0000-0000-00000000000F")
   )
+
+  (hierarchical_label "I_SENSE"
+    (shape input)
+    (at 228.6 150.0 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "61000001-0000-0000-0000-000000000010")
+  )
+
+  (hierarchical_label "RESET_N"
+    (shape input)
+    (at 228.6 95.0 0)
+    (fields_autoplaced yes)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid "61000001-0000-0000-0000-000000000011")
+  )
+
+  (wire (pts (xy 144.78 101.6) (xy 144.78 95.0)) (stroke (width 0) (type default)) (uuid "6A000033-0000-0000-0000-000000000001"))
+  (wire (pts (xy 144.78 95.0) (xy 228.6 95.0)) (stroke (width 0) (type default)) (uuid "6A000034-0000-0000-0000-000000000001"))
+
+  (wire (pts (xy 144.78 144.78) (xy 144.78 150.0)) (stroke (width 0) (type default)) (uuid "6A00002B-0000-0000-0000-000000000001"))
+  (wire (pts (xy 144.78 150.0) (xy 228.6 150.0)) (stroke (width 0) (type default)) (uuid "6A00002C-0000-0000-0000-000000000001"))
 
   (wire (pts (xy 109.22 106.68) (xy 107.72 106.68)) (stroke (width 0) (type default)) (uuid "6A000001-0000-0000-0000-000000000001"))
   (wire (pts (xy 107.72 106.68) (xy 107.72 139.7)) (stroke (width 0) (type default)) (uuid "6A000002-0000-0000-0000-000000000001"))
