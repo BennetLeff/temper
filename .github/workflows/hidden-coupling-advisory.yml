@@ -1,0 +1,71 @@
+name: Hidden-Coupling Advisory
+
+on:
+  pull_request:
+    paths:
+      - 'packages/temper-placer/src/**'
+      - 'firmware/**'
+
+jobs:
+  advisory:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 500
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/checkout@v4
+        with:
+          repository: BennetLeff/gusano
+          path: .gusano
+
+      - name: Install gusano
+        working-directory: .gusano
+        run: bun install --frozen-lockfile
+
+      - name: Install sem
+        run: |
+          curl -fsSL https://ataraxy-labs.github.io/sem/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Drift detector on changed files
+        id: drift
+        working-directory: .gusano
+        run: |
+          bun packages/enola-sem-drift/src/cli.ts \
+            --repo-path "$GITHUB_WORKSPACE" \
+            --max-pairs 20 \
+            --force-snapshot 2>.drift-stderr.log
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Inject PR description summary
+        if: always() && steps.drift.outputs.exit_code
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '';
+            try {
+              body = fs.readFileSync('.gusano/.drift-output.txt', 'utf8')
+                .split('\n')
+                .filter(l => l.includes('↔'))
+                .slice(0, 8)
+                .map(l => `- ${l.trim()}`)
+                .join('\n');
+            } catch { body = '(drift detector did not produce output)'; }
+
+            if (!body) return;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `**Hidden-coupling advisory (gusano)**\n\nThe following entities changed in this PR and historically co-change with entities NOT touched here — with no static dependency edge:\n\n${body}\n\n_Advisory only — not blocking._`
+            });
