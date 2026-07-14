@@ -107,6 +107,15 @@ Real vs. repo-model comparison found this session for `SN74HC4075` (triple 3-inp
 the repo's model — confirming the discrepancy above is a genuine, isolated bug in one component
 model rather than a systematic misunderstanding of the extraction method.
 
+**Update (2026-07-14, later same day):** the `components.ato` model was corrected to the real
+pinout in the table above. It had been left as a documented-but-unfixed bug through the end of the
+original session (the schematic wiring correctly used real pin numbers directly, bypassing the
+broken model, so nothing was blocked on it) but the source-of-truth model itself stayed wrong
+until this follow-up. All downstream wiring in `modules.ato` referred to the component by signal
+name (`fault_or.A1`, `fault_or.C1`, etc.), never by raw pin number, so fixing the component
+definition required no changes anywhere else in the `.ato` source — the earlier decision to model
+by name rather than number is what made this a safe, isolated fix.
+
 ## Related
 - `docs/solutions/tooling-decisions/kicad-schematic-connectivity-tracer-2026-07-14.md` — how these
   verified absolute pin positions get used to build and self-check new wiring.

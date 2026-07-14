@@ -294,12 +294,14 @@ MCU. `elec/src/modules.ato`'s burden MPN/footprint changed from the 0805
 variant to 1206 (matching the KiCad schematic — 1206 has more thermal
 margin at worst-case dissipation, per the plan's original reasoning).
 
-**Deferred (found, not fixed — out of this unit's stated scope):**
-`elec/src/modules.ato`'s `CurrentSensing` module also specifies a `c_filter`
-(100 nF C0G, HF noise rejection across `i_sense.line`/`i_sense.reference`)
-that exists in neither the old Sensing-sheet copy nor the new Half_Bridge
-placement. Not safety-critical (signal-integrity only), tracked as a gap for
-a future unit rather than silently expanding this one's scope.
+**Follow-up, closed same day:** `elec/src/modules.ato`'s `CurrentSensing`
+module specifies a `c_filter` (100 nF C0G, HF noise rejection across
+`i_sense.line`/`i_sense.reference`) that existed in neither the old
+Sensing-sheet copy nor the new Half_Bridge placement when this unit first
+landed. Added as `C_FILTER` in `half_bridge.kicad_sch`, wired directly
+across the same `I_SENSE`/`GND` nets `R_BURDEN` sits on. Verified via the
+same union-find discipline (signal pin joins `I_SENSE`, reference pin joins
+the existing local `GND`, and the two pins are confirmed on distinct nets).
 
 All three touched sheets (`half_bridge.kicad_sch`, `sensing.kicad_sch`,
 `mcu.kicad_sch`) plus `temper.kicad_sch` parse cleanly via `kicad-cli sch

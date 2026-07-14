@@ -369,11 +369,21 @@ component TPS3823:
     signal VDD ~ pin 5
 
 component SN74HC4075:
-    """Triple 3-Input OR Gate"""
+    """Triple 3-Input OR Gate
+
+    Pin map verified against the real datasheet-sourced pinout (Intersil
+    CD4075, pin-compatible; cross-checked via KiCad's bundled 4xxx.kicad_sym
+    "4075" symbol -- see docs/solutions/tooling-decisions/
+    kicad-embedded-symbols-lose-pin-semantics-2026-07-14.md). The previous
+    version of this model had gate 1 and gate 3 pin numbers wrong (Y1/C1
+    swapped with gate 3's numbering); this was worked around directly in
+    pcb/safety_interlock.kicad_sch's wiring but never corrected here until
+    2026-07-14.
+    """
     footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
     mpn = "SN74HC4075DR"
     manufacturer = "Texas Instruments"
-    
+
     signal A1 ~ pin 1
     signal B1 ~ pin 2
     signal A2 ~ pin 3
@@ -381,12 +391,12 @@ component SN74HC4075:
     signal C2 ~ pin 5
     signal Y2 ~ pin 6
     signal GND ~ pin 7
-    signal Y3 ~ pin 8
-    signal A3 ~ pin 9
-    signal B3 ~ pin 10
-    signal C3 ~ pin 11
-    signal C1 ~ pin 12
-    signal Y1 ~ pin 13
+    signal C1 ~ pin 8
+    signal Y1 ~ pin 9
+    signal Y3 ~ pin 10
+    signal A3 ~ pin 11
+    signal B3 ~ pin 12
+    signal C3 ~ pin 13
     signal VCC ~ pin 14
 
 component SN74HC00:

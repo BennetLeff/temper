@@ -1119,6 +1119,29 @@
   )
 
   (symbol
+    (lib_id "Device:C")
+    (at 232.0 150.0 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "31000004-0000-0000-0000-000000000001")
+    (property "Reference" "C_FILTER" (at 235.54 147.46 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "100nF" (at 235.54 150.0 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric" (at 233.7652 153.81 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "GRM1885C1H104JA01D" (at 232.0 150.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "CT sense HF noise filter, per elec/src/modules.ato CurrentSensing.c_filter" (at 232.0 150.0 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "cfilter-pin1-uuid"))
+    (pin "2" (uuid "cfilter-pin2-uuid"))
+  )
+
+  (wire (pts (xy 215.9 156.21) (xy 232.0 156.21)) (stroke (width 0) (type default)) (uuid "wire-cfilter-001"))
+  (wire (pts (xy 232.0 156.21) (xy 232.0 153.81)) (stroke (width 0) (type default)) (uuid "wire-cfilter-002"))
+  (wire (pts (xy 232.0 146.19) (xy 232.0 148.59)) (stroke (width 0) (type default)) (uuid "wire-cfilter-003"))
+  (wire (pts (xy 232.0 148.59) (xy 215.9 148.59)) (stroke (width 0) (type default)) (uuid "wire-cfilter-004"))
+
+  (symbol
     (lib_id "power:GND")
     (at 215.9 148.59 0)
     (unit 1)
