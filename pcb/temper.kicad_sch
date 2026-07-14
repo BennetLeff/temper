@@ -87,6 +87,16 @@
       )
       (uuid "10000001-0000-0000-0000-000000000003")
     )
+    (pin "RELAY_CTRL" input
+      (at 25.4 123.19 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "10000001-0000-0000-0000-000000000007")
+    )
     (pin "DC_BUS+" output
       (at 76.2 107.95 0)
       (effects
@@ -444,6 +454,16 @@
       )
       (uuid "40000001-0000-0000-0000-000000000009")
     )
+    (pin "DC_BUS+" input
+      (at 25.4 194.31 180)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+      (uuid "40000001-0000-0000-0000-00000000000A")
+    )
     (instances
       (project "temper"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
@@ -573,33 +593,43 @@
       )
       (uuid "50000001-0000-0000-0000-000000000009")
     )
-    (pin "I_SENSE" output
-      (at 76.2 158.75 180)
+    (pin "RTD_DRDY" output
+      (at 152.4 184.15 0)
       (effects
         (font
           (size 1.27 1.27)
         )
-        (justify left)
+        (justify right)
+      )
+      (uuid "50000001-0000-0000-0000-00000000000D")
+    )
+    (pin "I_SENSE" output
+      (at 152.4 189.23 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
       )
       (uuid "50000001-0000-0000-0000-00000000000A")
     )
     (pin "V_SENSE" output
-      (at 76.2 163.83 180)
+      (at 152.4 199.39 0)
       (effects
         (font
           (size 1.27 1.27)
         )
-        (justify left)
+        (justify right)
       )
       (uuid "50000001-0000-0000-0000-00000000000B")
     )
     (pin "TEMP_FAULT" output
-      (at 76.2 168.91 180)
+      (at 152.4 204.47 0)
       (effects
         (font
           (size 1.27 1.27)
         )
-        (justify left)
+        (justify right)
       )
       (uuid "50000001-0000-0000-0000-00000000000C")
     )
@@ -772,6 +802,26 @@
       )
       (uuid "60000001-0000-0000-0000-00000000000D")
     )
+    (pin "RELAY_CTRL" output
+      (at 228.6 189.23 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-00000000000E")
+    )
+    (pin "RTD_DRDY" input
+      (at 228.6 194.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+      (uuid "60000001-0000-0000-0000-00000000000F")
+    )
     (instances
       (project "temper"
         (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
@@ -879,5 +929,74 @@
       )
     )
   )
+
+  (wire (pts (xy 76.2 107.95) (xy 20.0 107.95)) (stroke (width 0) (type default)) (uuid "90000001-0000-0000-0000-000000000001"))
+  (wire (pts (xy 20.0 107.95) (xy 20.0 230.0)) (stroke (width 0) (type default)) (uuid "90000002-0000-0000-0000-000000000001"))
+  (wire (pts (xy 101.6 107.95) (xy 20.0 107.95)) (stroke (width 0) (type default)) (uuid "90000003-0000-0000-0000-000000000001"))
+  (wire (pts (xy 20.0 107.95) (xy 20.0 230.0)) (stroke (width 0) (type default)) (uuid "90000004-0000-0000-0000-000000000001"))
+  (wire (pts (xy 177.8 107.95) (xy 20.0 107.95)) (stroke (width 0) (type default)) (uuid "90000005-0000-0000-0000-000000000001"))
+  (wire (pts (xy 20.0 107.95) (xy 20.0 230.0)) (stroke (width 0) (type default)) (uuid "90000006-0000-0000-0000-000000000001"))
+  (wire (pts (xy 25.4 194.31) (xy 20.0 194.31)) (stroke (width 0) (type default)) (uuid "90000007-0000-0000-0000-000000000001"))
+  (wire (pts (xy 20.0 194.31) (xy 20.0 230.0)) (stroke (width 0) (type default)) (uuid "90000008-0000-0000-0000-000000000001"))
+  (wire (pts (xy 76.2 113.03) (xy 21.3 113.03)) (stroke (width 0) (type default)) (uuid "90000009-0000-0000-0000-000000000001"))
+  (wire (pts (xy 21.3 113.03) (xy 21.3 232.0)) (stroke (width 0) (type default)) (uuid "9000000A-0000-0000-0000-000000000001"))
+  (wire (pts (xy 101.6 113.03) (xy 21.3 113.03)) (stroke (width 0) (type default)) (uuid "9000000B-0000-0000-0000-000000000001"))
+  (wire (pts (xy 21.3 113.03) (xy 21.3 232.0)) (stroke (width 0) (type default)) (uuid "9000000C-0000-0000-0000-000000000001"))
+  (wire (pts (xy 101.6 118.11) (xy 22.6 118.11)) (stroke (width 0) (type default)) (uuid "9000000D-0000-0000-0000-000000000001"))
+  (wire (pts (xy 22.6 118.11) (xy 22.6 234.0)) (stroke (width 0) (type default)) (uuid "9000000E-0000-0000-0000-000000000001"))
+  (wire (pts (xy 228.6 158.75) (xy 22.6 158.75)) (stroke (width 0) (type default)) (uuid "9000000F-0000-0000-0000-000000000001"))
+  (wire (pts (xy 22.6 158.75) (xy 22.6 234.0)) (stroke (width 0) (type default)) (uuid "90000010-0000-0000-0000-000000000001"))
+  (wire (pts (xy 101.6 123.19) (xy 23.9 123.19)) (stroke (width 0) (type default)) (uuid "90000011-0000-0000-0000-000000000001"))
+  (wire (pts (xy 23.9 123.19) (xy 23.9 236.0)) (stroke (width 0) (type default)) (uuid "90000012-0000-0000-0000-000000000001"))
+  (wire (pts (xy 228.6 163.83) (xy 23.9 163.83)) (stroke (width 0) (type default)) (uuid "90000013-0000-0000-0000-000000000001"))
+  (wire (pts (xy 23.9 163.83) (xy 23.9 236.0)) (stroke (width 0) (type default)) (uuid "90000014-0000-0000-0000-000000000001"))
+  (wire (pts (xy 152.4 120.65) (xy 25.2 120.65)) (stroke (width 0) (type default)) (uuid "90000015-0000-0000-0000-000000000001"))
+  (wire (pts (xy 25.2 120.65) (xy 25.2 238.0)) (stroke (width 0) (type default)) (uuid "90000016-0000-0000-0000-000000000001"))
+  (wire (pts (xy 76.2 158.75) (xy 25.2 158.75)) (stroke (width 0) (type default)) (uuid "90000017-0000-0000-0000-000000000001"))
+  (wire (pts (xy 25.2 158.75) (xy 25.2 238.0)) (stroke (width 0) (type default)) (uuid "90000018-0000-0000-0000-000000000001"))
+  (wire (pts (xy 76.2 120.65) (xy 26.5 120.65)) (stroke (width 0) (type default)) (uuid "90000019-0000-0000-0000-000000000001"))
+  (wire (pts (xy 26.5 120.65) (xy 26.5 240.0)) (stroke (width 0) (type default)) (uuid "9000001A-0000-0000-0000-000000000001"))
+  (wire (pts (xy 228.6 184.15) (xy 26.5 184.15)) (stroke (width 0) (type default)) (uuid "9000001B-0000-0000-0000-000000000001"))
+  (wire (pts (xy 26.5 184.15) (xy 26.5 240.0)) (stroke (width 0) (type default)) (uuid "9000001C-0000-0000-0000-000000000001"))
+  (wire (pts (xy 25.4 189.23) (xy 27.8 189.23)) (stroke (width 0) (type default)) (uuid "9000001D-0000-0000-0000-000000000001"))
+  (wire (pts (xy 27.8 189.23) (xy 27.8 242.0)) (stroke (width 0) (type default)) (uuid "9000001E-0000-0000-0000-000000000001"))
+  (wire (pts (xy 228.6 173.99) (xy 27.8 173.99)) (stroke (width 0) (type default)) (uuid "9000001F-0000-0000-0000-000000000001"))
+  (wire (pts (xy 27.8 173.99) (xy 27.8 242.0)) (stroke (width 0) (type default)) (uuid "90000020-0000-0000-0000-000000000001"))
+  (wire (pts (xy 76.2 163.83) (xy 29.1 163.83)) (stroke (width 0) (type default)) (uuid "90000021-0000-0000-0000-000000000001"))
+  (wire (pts (xy 29.1 163.83) (xy 29.1 244.0)) (stroke (width 0) (type default)) (uuid "90000022-0000-0000-0000-000000000001"))
+  (wire (pts (xy 228.6 179.07) (xy 29.1 179.07)) (stroke (width 0) (type default)) (uuid "90000023-0000-0000-0000-000000000001"))
+  (wire (pts (xy 29.1 179.07) (xy 29.1 244.0)) (stroke (width 0) (type default)) (uuid "90000024-0000-0000-0000-000000000001"))
+  (wire (pts (xy 101.6 173.99) (xy 30.4 173.99)) (stroke (width 0) (type default)) (uuid "90000025-0000-0000-0000-000000000001"))
+  (wire (pts (xy 30.4 173.99) (xy 30.4 246.0)) (stroke (width 0) (type default)) (uuid "90000026-0000-0000-0000-000000000001"))
+  (wire (pts (xy 177.8 163.83) (xy 30.4 163.83)) (stroke (width 0) (type default)) (uuid "90000027-0000-0000-0000-000000000001"))
+  (wire (pts (xy 30.4 163.83) (xy 30.4 246.0)) (stroke (width 0) (type default)) (uuid "90000028-0000-0000-0000-000000000001"))
+  (wire (pts (xy 152.4 158.75) (xy 31.7 158.75)) (stroke (width 0) (type default)) (uuid "90000029-0000-0000-0000-000000000001"))
+  (wire (pts (xy 31.7 158.75) (xy 31.7 248.0)) (stroke (width 0) (type default)) (uuid "9000002A-0000-0000-0000-000000000001"))
+  (wire (pts (xy 177.8 168.91) (xy 31.7 168.91)) (stroke (width 0) (type default)) (uuid "9000002B-0000-0000-0000-000000000001"))
+  (wire (pts (xy 31.7 168.91) (xy 31.7 248.0)) (stroke (width 0) (type default)) (uuid "9000002C-0000-0000-0000-000000000001"))
+  (wire (pts (xy 152.4 163.83) (xy 33.0 163.83)) (stroke (width 0) (type default)) (uuid "9000002D-0000-0000-0000-000000000001"))
+  (wire (pts (xy 33.0 163.83) (xy 33.0 250.0)) (stroke (width 0) (type default)) (uuid "9000002E-0000-0000-0000-000000000001"))
+  (wire (pts (xy 177.8 173.99) (xy 33.0 173.99)) (stroke (width 0) (type default)) (uuid "9000002F-0000-0000-0000-000000000001"))
+  (wire (pts (xy 33.0 173.99) (xy 33.0 250.0)) (stroke (width 0) (type default)) (uuid "90000030-0000-0000-0000-000000000001"))
+  (wire (pts (xy 152.4 168.91) (xy 34.3 168.91)) (stroke (width 0) (type default)) (uuid "90000031-0000-0000-0000-000000000001"))
+  (wire (pts (xy 34.3 168.91) (xy 34.3 252.0)) (stroke (width 0) (type default)) (uuid "90000032-0000-0000-0000-000000000001"))
+  (wire (pts (xy 177.8 179.07) (xy 34.3 179.07)) (stroke (width 0) (type default)) (uuid "90000033-0000-0000-0000-000000000001"))
+  (wire (pts (xy 34.3 179.07) (xy 34.3 252.0)) (stroke (width 0) (type default)) (uuid "90000034-0000-0000-0000-000000000001"))
+  (wire (pts (xy 152.4 173.99) (xy 35.6 173.99)) (stroke (width 0) (type default)) (uuid "90000035-0000-0000-0000-000000000001"))
+  (wire (pts (xy 35.6 173.99) (xy 35.6 254.0)) (stroke (width 0) (type default)) (uuid "90000036-0000-0000-0000-000000000001"))
+  (wire (pts (xy 177.8 184.15) (xy 35.6 184.15)) (stroke (width 0) (type default)) (uuid "90000037-0000-0000-0000-000000000001"))
+  (wire (pts (xy 35.6 184.15) (xy 35.6 254.0)) (stroke (width 0) (type default)) (uuid "90000038-0000-0000-0000-000000000001"))
+  (wire (pts (xy 152.4 179.07) (xy 36.9 179.07)) (stroke (width 0) (type default)) (uuid "90000039-0000-0000-0000-000000000001"))
+  (wire (pts (xy 36.9 179.07) (xy 36.9 256.0)) (stroke (width 0) (type default)) (uuid "9000003A-0000-0000-0000-000000000001"))
+  (wire (pts (xy 177.8 189.23) (xy 36.9 189.23)) (stroke (width 0) (type default)) (uuid "9000003B-0000-0000-0000-000000000001"))
+  (wire (pts (xy 36.9 189.23) (xy 36.9 256.0)) (stroke (width 0) (type default)) (uuid "9000003C-0000-0000-0000-000000000001"))
+  (wire (pts (xy 25.4 123.19) (xy 38.2 123.19)) (stroke (width 0) (type default)) (uuid "9000003D-0000-0000-0000-000000000001"))
+  (wire (pts (xy 38.2 123.19) (xy 38.2 258.0)) (stroke (width 0) (type default)) (uuid "9000003E-0000-0000-0000-000000000001"))
+  (wire (pts (xy 228.6 189.23) (xy 38.2 189.23)) (stroke (width 0) (type default)) (uuid "9000003F-0000-0000-0000-000000000001"))
+  (wire (pts (xy 38.2 189.23) (xy 38.2 258.0)) (stroke (width 0) (type default)) (uuid "90000040-0000-0000-0000-000000000001"))
+  (wire (pts (xy 152.4 184.15) (xy 39.5 184.15)) (stroke (width 0) (type default)) (uuid "90000041-0000-0000-0000-000000000001"))
+  (wire (pts (xy 39.5 184.15) (xy 39.5 260.0)) (stroke (width 0) (type default)) (uuid "90000042-0000-0000-0000-000000000001"))
+  (wire (pts (xy 228.6 194.31) (xy 39.5 194.31)) (stroke (width 0) (type default)) (uuid "90000043-0000-0000-0000-000000000001"))
+  (wire (pts (xy 39.5 194.31) (xy 39.5 260.0)) (stroke (width 0) (type default)) (uuid "90000044-0000-0000-0000-000000000001"))
 
 )
