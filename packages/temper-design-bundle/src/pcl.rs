@@ -416,6 +416,14 @@ mod real_pcl_tests {
             include_bytes!("../../../packages/temper-placer/configs/pcl/temper_induction.yaml");
         let document: PclDocument = serde_yaml::from_slice(bytes).unwrap();
         assert!(document.constraints.iter().any(|c| c.r#type == "on_side"));
+        // Derived, not declared: into_constraints maps 1:1 (see its
+        // `.map` over `self.constraints`, no filtering), so the only
+        // thing worth asserting is that conversion doesn't drop, add, or
+        // panic on any constraint in the real production file -- not a
+        // literal count, which would itself be a hand-maintained number
+        // that drifts every time this live-edited YAML legitimately
+        // gains a constraint (as it just did: 8 -> 9).
+        let expected_constraint_count = document.constraints.len();
         let no_distance: PclDocument = serde_yaml::from_str("constraints:\n- type: on_side\n  components: [A, B]\n  side: top\n  edge: flush\n  tier: 1\n  because: edge placement\n").unwrap();
         let no_distance_export = AtopileExport {
             schema_version: 1,
@@ -483,6 +491,6 @@ mod real_pcl_tests {
             safety: vec![],
         };
         let result = document.into_constraints(&a).unwrap();
-        assert_eq!(result.len(), 8);
+        assert_eq!(result.len(), expected_constraint_count);
     }
 }
