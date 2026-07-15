@@ -1981,7 +1981,7 @@ source = { editable = "packages/temper-constraint-compiler" }
 [[package]]
 name = "temper-design-bundle"
 version = "0.1.0"
-source = { virtual = "packages/temper-design-bundle" }
+source = { editable = "packages/temper-design-bundle" }
 
 [[package]]
 name = "temper-drc-rs"
@@ -2225,6 +2225,7 @@ dev = [
     { name = "pytest-cov" },
     { name = "python-sat" },
     { name = "ruff" },
+    { name = "temper-design-bundle" },
     { name = "temper-dsn" },
     { name = "temper-geometry" },
     { name = "temper-ipc" },
@@ -2243,6 +2244,7 @@ dev = [
     { name = "pytest-cov", specifier = ">=4.1.0" },
     { name = "python-sat", specifier = ">=1.9.dev5" },
     { name = "ruff", specifier = ">=0.1.6" },
+    { name = "temper-design-bundle", editable = "packages/temper-design-bundle" },
     { name = "temper-dsn", editable = "packages/temper-dsn" },
     { name = "temper-geometry", editable = "packages/temper-geometry" },
     { name = "temper-ipc", editable = "packages/temper-ipc" },

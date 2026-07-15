@@ -4,8 +4,10 @@ mod error;
 mod identity;
 mod kicad_pcb;
 mod model;
+mod netlist;
 mod pcl;
 mod serialize;
+mod sexpr;
 
 pub use atopile::{
     AtopileComponent, AtopileExport, AtopileNet, MappingEntry, NetMapping, SafetyRule,
@@ -14,6 +16,7 @@ pub use error::{DesignBundleError, Diagnostic};
 pub use identity::{BoardIdentityOptions, validate_board_identity};
 pub use kicad_pcb::extract_footprint_references;
 pub use model::*;
+pub use netlist::extract_component_references;
 pub use pcl::{PclDocument, PclInputConstraint};
 
 /// Constructs the canonical boundary from already-read source documents.
@@ -67,7 +70,9 @@ mod python {
     use pyo3::prelude::*;
 
     use crate::{
-        Provenance, build_bundle, normalized_json, parse_atopile, parse_mapping, parse_pcl, sha256,
+        BoardIdentityOptions, BoardRole, Provenance, build_bundle, extract_component_references,
+        extract_footprint_references, normalized_json, parse_atopile, parse_mapping, parse_pcl,
+        sha256, validate_board_identity,
     };
 
     fn value_error(error: impl std::fmt::Display) -> PyErr {
@@ -100,8 +105,37 @@ mod python {
         normalized_json(&bundle).map_err(value_error)
     }
 
+    /// Fail-closed board/netlist identity preflight. Raises `ValueError` on
+    /// any mismatch or role violation -- never returns a warning or a bool,
+    /// per the identity-provenance plan's hard-fail requirement. Callers
+    /// (`InputStage`, `scripts/internal_route.py`) read files themselves and
+    /// pass bytes across the boundary; `pcb_path` is used only to infer the
+    /// board's role from its path (a `benchmarks` path component means
+    /// `Fixture`), never to re-read the file on the Rust side.
+    #[pyfunction]
+    #[pyo3(signature = (pcb_path, pcb_bytes, netlist_bytes, min_overlap=0.95, bring_up=false))]
+    fn preflight_identity(
+        pcb_path: &str,
+        pcb_bytes: &[u8],
+        netlist_bytes: &[u8],
+        min_overlap: f64,
+        bring_up: bool,
+    ) -> PyResult<()> {
+        let pcb_text = std::str::from_utf8(pcb_bytes).map_err(value_error)?;
+        let netlist_text = std::str::from_utf8(netlist_bytes).map_err(value_error)?;
+        let board_refs = extract_footprint_references(pcb_text).map_err(value_error)?;
+        let netlist_refs = extract_component_references(netlist_text).map_err(value_error)?;
+        let role = BoardRole::from_path(std::path::Path::new(pcb_path));
+        let opts = BoardIdentityOptions {
+            min_overlap,
+            bring_up,
+        };
+        validate_board_identity(&board_refs, &netlist_refs, role, true, &opts).map_err(value_error)
+    }
+
     #[pymodule]
     fn temper_design_bundle_python(module: &Bound<'_, PyModule>) -> PyResult<()> {
-        module.add_function(wrap_pyfunction!(normalized_bundle_json, module)?)
+        module.add_function(wrap_pyfunction!(normalized_bundle_json, module)?)?;
+        module.add_function(wrap_pyfunction!(preflight_identity, module)?)
     }
 }
