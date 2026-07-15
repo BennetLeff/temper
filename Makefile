@@ -13,8 +13,9 @@ BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 help:
 	@echo "Temper PCB Build System"
 	@echo "Targets:"
-	@echo "  make build    - Run the full build pipeline"
+	@echo "  make build    - Run the full build pipeline (netlist + schematics + route + drc)"
 	@echo "  make netlist  - Generate netlist from Atopile source"
+	@echo "  make schematics- Generate KiCad schematics from netlist"
 	@echo "  make diff     - Show logical differences from last build"
 	@echo "  make visualize- Show graphical schematic view"
 	@echo "  make route    - Run the autorouter"
@@ -25,12 +26,16 @@ help:
 	@echo "  make onboard-status- Show cached onboard summary"
 	@echo ""
 
-build: netlist footprints route drc
+build: netlist footprints schematics route drc
 
 netlist:
 	@echo "Building Atopile project..."
 	@if [ -f $(BOM_FILE) ]; then cp $(BOM_FILE) $(BOM_PREV); fi
 	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive build $(ATO_ENTRY)
+
+schematics: netlist
+	@echo "Generating schematics from Atopile netlist..."
+	python3 scripts/gen_schematics.py
 
 footprints:
 	@echo "Generating footprints from code..."
