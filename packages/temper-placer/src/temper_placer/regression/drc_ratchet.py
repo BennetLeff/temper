@@ -220,7 +220,7 @@ class DrcRatchet:
             if self.backend == "rust":
                 current_errors, current_warnings = self._run_rust_drc(pcb_path)
             elif self.backend == "kicad-cli":
-                from temper_placer.validation.drc_runner import run_drc
+                from temper_placer.validation._drc_api import run_drc
 
                 drc_result = run_drc(pcb_path)
                 current_errors = drc_result.error_count

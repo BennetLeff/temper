@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import click
 
-from temper_placer import __version__
+from temper_placer._version import __version__
 
 from ._io import console
 

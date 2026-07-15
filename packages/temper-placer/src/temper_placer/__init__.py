@@ -19,7 +19,8 @@ Usage:
 See TEMPER_PLACER_DESIGN.md for full specification.
 """
 
-__version__ = "0.1.0"
+from temper_placer._version import __version__
+
 __author__ = "Temper Project"
 
 from temper_placer.core.board import Board, Zone

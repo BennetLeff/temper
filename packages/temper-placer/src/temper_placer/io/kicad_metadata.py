@@ -11,7 +11,7 @@ from pathlib import Path
 
 from kiutils.board import Board as KiBoard
 
-from temper_placer.deterministic.geometry.courtyard import Courtyard
+from temper_placer.core.courtyard import Courtyard
 
 logger = logging.getLogger(__name__)
 
