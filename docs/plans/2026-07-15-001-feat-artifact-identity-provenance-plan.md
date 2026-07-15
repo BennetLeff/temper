@@ -7,7 +7,7 @@ status: active
 origin: docs/brainstorms/2026-07-15-artifact-identity-provenance-requirements.md
 prerequisites:
   - docs/plans/2026-07-11-001-feat-atopile-pcl-rust-design-bundle-plan.md
-  - "schematic-generation plan (not yet written; see docs/brainstorms/2026-07-15-generated-kicad-schematics-from-atopile-requirements.md)"
+  - "docs/plans/2026-07-15-002-feat-schematic-generation-from-atopile-plan.md (shipped; schematics now generated, oracle-verified, CI-gated)"
 ---
 
 # feat: Artifact Identity & Provenance Gate
@@ -44,9 +44,10 @@ re-benchmark the placer/router against the real board; CI enforcement.
 - Automating KiCad "Update PCB from Schematic" (no CLI equivalent).
 
 **Outside this plan (separate initiatives):**
-- Schematic generation from atopile — its own plan; **hard prerequisite** for
-  Phase B (there is no correct production board without it). Origin:
-  `docs/brainstorms/2026-07-15-generated-kicad-schematics-from-atopile-requirements.md`.
+- Schematic generation from atopile — **shipped** via `docs/plans/2026-07-15-002-feat-schematic-generation-from-atopile-plan.md`.
+  `scripts/gen_schematics.py` generates all 7 `.kicad_sch` sheets from `elec/build/default.net`,
+  oracle-verified (346 pins, 73 nets isomorphic), CI-gated via `python-tests.yml` regen-and-diff.
+  Still pending: manual "Update PCB from Schematic" in KiCad GUI to produce the real production board.
 - PCL SSOT / phantom-constraint work — tracked in `2026-07-11-001`.
 - Bugs inside `elec/src/*.ato` (source-review discipline).
 
