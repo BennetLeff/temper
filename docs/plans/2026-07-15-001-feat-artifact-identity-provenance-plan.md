@@ -312,6 +312,15 @@ present and hashes match the inputs.
 
 ### U6. Re-benchmark placer/router against the production board
 
+**Status (2026-07-15): in progress, blocked.** Three real bugs blocking
+`create_drc_aware_pipeline()` on any board were found and fixed
+(`feat/rebenchmark-production-board`, commit `2afcc301`; see
+`docs/solutions/logic-errors/deterministic-placer-pipeline-post-jax-retirement-stubs.md`).
+Currently blocked on a deeper gap: zone-free slot generation produces zero
+placements for the real ~100-component board. Full handoff with
+reproduction, what's ruled out, and next-step options:
+`docs/handoffs/2026-07-15-u6-rebenchmark-placer-blocked-on-slot-generation.md`.
+
 **Goal:** Re-baseline placement/routing metrics against the real ~100-component
 board; retire the last fixture.
 
