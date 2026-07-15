@@ -1,11 +1,11 @@
 version: 1
 boards:
-  - id: temper_placed
-    path: pcb/temper_placed.kicad_pcb
+  - id: temper_fixture_33
+    path: pcb/benchmarks/temper_fixture_33.kicad_pcb
     component_count: 0
     net_count: 0
     baseline_git_hash: unknown
-    description: "Temper induction cooker — placed, not routed"
+    description: "Temper 33-component benchmark fixture (quarantined; sunset once placer/router re-benchmarked against the real board — see pcb/benchmarks/README.md)"
   - id: bitaxe_ultra
     path: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
     component_count: 0

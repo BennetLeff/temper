@@ -49,7 +49,11 @@ diff:
 visualize:
 	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive view $(ATO_ENTRY)
 
-PCB_FILE = pcb/temper.kicad_pcb
+# Interim: points at the quarantined 33-component benchmark fixture until the
+# real production board is generated from schematics. The identity gate (plan
+# 2026-07-15-001 U4) will make routing fail-closed against a fixture-path board;
+# re-point PCB_FILE at the production board once it exists.
+PCB_FILE = pcb/benchmarks/temper_fixture_33.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb
 
 route: netlist

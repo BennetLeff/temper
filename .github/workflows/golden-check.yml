@@ -20,23 +20,23 @@ jobs:
         include:
           - boundary: semantic
             board_id: temper
-            board_pcb: pcb/temper.kicad_pcb
+            board_pcb: pcb/benchmarks/temper_fixture_33.kicad_pcb
             board_golden: power_pcb_dataset/goldens/temper
           - boundary: topological
             board_id: temper
-            board_pcb: pcb/temper.kicad_pcb
+            board_pcb: pcb/benchmarks/temper_fixture_33.kicad_pcb
             board_golden: power_pcb_dataset/goldens/temper
           - boundary: placement
             board_id: temper
-            board_pcb: pcb/temper.kicad_pcb
+            board_pcb: pcb/benchmarks/temper_fixture_33.kicad_pcb
             board_golden: power_pcb_dataset/goldens/temper
           - boundary: routing
             board_id: temper
-            board_pcb: pcb/temper.kicad_pcb
+            board_pcb: pcb/benchmarks/temper_fixture_33.kicad_pcb
             board_golden: power_pcb_dataset/goldens/temper
           - boundary: validation
             board_id: temper
-            board_pcb: pcb/temper.kicad_pcb
+            board_pcb: pcb/benchmarks/temper_fixture_33.kicad_pcb
             board_golden: power_pcb_dataset/goldens/temper
           - boundary: semantic
             board_id: bitaxe_ultra

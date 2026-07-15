@@ -33,7 +33,7 @@ jobs:
         continue-on-error: true
         run: >
           uv run python3 scripts/ci_closure_test.py
-          --pcb pcb/temper.kicad_pcb
+          --pcb pcb/benchmarks/temper_fixture_33.kicad_pcb
           --require-all-stages
           --output closure-result.json
           || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"

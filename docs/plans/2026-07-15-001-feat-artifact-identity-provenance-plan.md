@@ -144,9 +144,26 @@ written for the fixture cannot be silently applied to the production board.
 
 **Dependencies:** U1 (board paths settle first).
 
+**Status note (execution):** The *mechanism* ships in Phase A validated with
+synthetic fixtures (`config_board_binding.py`): `extract_config_refs` +
+`verify_config_matches_netlist` (fail-closed subset check, refs derived from
+files — no declared counts). The **four existing config files remain
+fixture-bound and are NOT migrated by this plan** — every checked-in config
+(`configs/temper_deterministic_config.yaml` + three under
+`packages/temper-placer/configs/`) references fixture-only refs (`U_GATE`,
+`C_BUS1`, …) with **zero** overlap with the production netlist
+(`elec/build/default.net`, refs `U1`–`U100`). There is nothing correct to
+migrate them to until the schematic-generation plan delivers the real board;
+authoring a "production" config by hand now would recreate the exact
+declare-what-isn't-derived drift vector the brainstorm rejected. These configs
+will correctly fail the gate once it is wired into the pipeline entry point in
+**U4** (Phase B). The InputStage call site is therefore deferred to U4; U2
+delivers only the reusable, tested mechanism.
+
 **Files:**
-- `configs/temper_deterministic_config.yaml` and `packages/temper-placer/configs/*.yaml` (+ `configs/constraints/*`, `pcl/*`) — add a derived binding.
-- `packages/temper-placer/src/temper_placer/pipeline/stages/input_stage.py` or config loader — verify binding against the board being operated on.
+- `packages/temper-placer/src/temper_placer/io/config_board_binding.py` — the binding mechanism (shipped).
+- `packages/temper-placer/tests/io/test_config_board_binding.py` — synthetic-fixture tests (shipped).
+- (Deferred to U4) `packages/temper-placer/src/temper_placer/pipeline/stages/input_stage.py` — call the mechanism against the board being operated on.
 
 **Approach:** Prefer the lowest-drift binding: the config declares the
 **atopile design entry** it targets (e.g. `src/main.ato:Top`) rather than a
