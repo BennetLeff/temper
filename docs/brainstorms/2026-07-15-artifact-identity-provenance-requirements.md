@@ -57,6 +57,27 @@ verified in typed Rust. No `artifacts.yaml`. No hand-declared counts.**
 | Transitional fixture | **Keep exactly one, quarantined, with a sunset.** The placer/router were benchmarked against the 33-component fixture; keep a single clearly-quarantined copy (e.g. `pcb/benchmarks/`) only until they are re-benchmarked against the new correct board, then delete it too. |
 | Sequencing | **Schematic generation is the enabling prerequisite.** The identity gate is only meaningful once the real production board exists, derived from generated schematics. Generate schematics → produce the one production board → re-benchmark placer/router against it → retire the fixture. |
 
+## Delivery phases
+
+Structured so the low-risk cleanup lands immediately and only the gate's full
+payoff waits on the sibling schematic-generation effort. This is its **own
+dependent plan**, not a fold-in to `2026-07-11-001` (see below).
+
+- **Phase A — now, unblocked.** R2 (delete the 14 duplicate boards, quarantine
+  one fixture with a sunset) and R4 (config–board binding). No dependency on
+  schematic generation; immediate reduction of the drift surface.
+- **Phase B — after the production board exists.** R1 (derived ref-overlap
+  identity check), R3 (fail-closed pipeline gate), R5 (provenance in outputs),
+  R7 (CI), R8 (re-benchmark placer/router, retire last fixture). Gated on the
+  2026-07-15 schematic-generation plan producing a real production board.
+
+**Plan relationship:** land this as a standalone plan that declares
+`2026-07-11-001` (Atopile+PCL+bundle boundary) as a **prerequisite**, not by
+folding these requirements into it. That draft plan is unexecuted and scoped
+tightly to the bundle boundary; this work adds materially different surface
+area (deleting PCB files, CI enforcement, placer/router re-benchmarking) that
+is easier to review and land as a separate unit.
+
 ## Existing state (verified 2026-07-15)
 
 - `packages/temper-design-bundle/src/identity.rs` already validates internal
@@ -185,8 +206,10 @@ the placer/router, CI enforcement — all built on `temper-design-bundle`.
    derived/bring-up mode? Avoid a per-board hand-typed number.
 3. **Config-board binding mechanism.** Co-location vs derived reference vs a
    minimal typed link — pick the lowest-drift option in planning.
-4. **Relationship to the draft design-bundle plan.** Fold these requirements
-   into `2026-07-11-001` (KiCad-identity milestone) or a dependent plan?
+4. **Relationship to the draft design-bundle plan.** *Resolved:* land as a
+   standalone dependent plan declaring `2026-07-11-001` as a prerequisite —
+   not folded in. Planning still needs to confirm the exact prerequisite
+   surface (which bundle types/importers must exist before Phase B).
 5. **Production board provenance.** KiCad "Update PCB from Schematic" is a
    manual GUI step with no CLI; how is that board's derivation from generated
    schematics recorded and re-verified?
