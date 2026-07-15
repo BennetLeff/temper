@@ -495,7 +495,7 @@ def create_drc_aware_pipeline(
             ApplyPlacementsStage(),
             # EXP-12: Validate placement constraints before routing
             PlacementValidationStage(
-                constraints=placement_constraints,  # type: ignore[arg-type]
+                constraints=placement_constraints,
                 fail_on_hard_violations=False,  # Log warnings, don't abort
                 parsed_pads=parsed_pads,
             ),

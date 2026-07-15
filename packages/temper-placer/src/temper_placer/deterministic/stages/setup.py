@@ -71,9 +71,9 @@ class DRCOracleSetupStage(Stage):
                     )
                     matrix.add_net_class_rules(net_class_rules)
 
-                # net_classes is {net_name: class_name}
+                # net_classes is {net_name: class_name} (both plain strings)
                 for net, class_name in self.design_rules.net_classes.items():
-                    matrix.set_net_class(net, class_name.name)
+                    matrix.set_net_class(net, class_name)
             else:
                 # This is a DesignRules object
                 for _name, rules in self.design_rules.net_classes.items():
