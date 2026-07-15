@@ -551,7 +551,8 @@ def _sheet_instance(
 
     for i, (net_name, direction, pin_uuid) in enumerate(pins):
         pin_y = y + 6.35 + i * 5.08
-        pin_rotation = 180 if direction == "input" else 0
+        # Rotation 180 = left side of sheet block (KiCad schematic convention)
+        pin_rotation = 180
         lines.append(
             f'    (pin "{net_name}" {direction}'
             f"\n      (at {x:.2f} {pin_y:.2f} {pin_rotation})"
@@ -568,7 +569,22 @@ def _sheet_instance(
     )
   )""")
 
-    return "".join(lines)
+    # Root-level net labels at each sheet pin endpoint (left edge, x).
+    # Required by KiCad ERC: hierarchical sheet pins without a connecting
+    # label or wire are flagged as pin_not_connected.
+    label_lines: list[str] = []
+    for i, (net_name, _direction, _pin_uuid) in enumerate(pins):
+        pin_y = y + 6.35 + i * 5.08
+        label_uuid = _uuid_from_seed(f"rootlabel:{sheet_name}:{net_name}")
+        label_lines.append(
+            f'  (label "{net_name}"'
+            f"\n    (at {x:.2f} {pin_y:.2f} 0)"
+            f"\n    (effects (font (size 1.27 1.27)) (justify left bottom))"
+            f'\n    (uuid "{label_uuid}")'
+            f"\n  )"
+        )
+
+    return "".join(lines), "\n".join(label_lines)
 
 
 ROOT_UUID = "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
@@ -727,9 +743,10 @@ def generate_root_sheet(
             pins.append((net_name, direction, pin_uuid))
 
         sheet_uuid = _uuid_from_seed(f"rootsheet:{sheet_name}")
-        parts.append(
-            _sheet_instance(sheet_name, x, y, page_num, sheet_uuid, pins)
-        )
+        sheet_block, root_labels = _sheet_instance(sheet_name, x, y, page_num, sheet_uuid, pins)
+        parts.append(sheet_block)
+        if root_labels:
+            parts.append(root_labels)
 
     parts.append("\n  (sheet_instances")
     for i, sheet_name in enumerate(SHEETS):
