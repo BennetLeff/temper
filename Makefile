@@ -16,6 +16,7 @@ help:
 	@echo "  make build    - Run the full build pipeline (netlist + schematics + route + drc)"
 	@echo "  make netlist  - Generate netlist from Atopile source"
 	@echo "  make schematics- Generate KiCad schematics from netlist"
+	@echo "  make pcb      - Generate PCB skeleton from netlist"
 	@echo "  make diff     - Show logical differences from last build"
 	@echo "  make visualize- Show graphical schematic view"
 	@echo "  make route    - Run the autorouter"
@@ -26,7 +27,7 @@ help:
 	@echo "  make onboard-status- Show cached onboard summary"
 	@echo ""
 
-build: netlist footprints schematics route drc
+build: netlist footprints schematics pcb route drc
 
 netlist:
 	@echo "Building Atopile project..."
@@ -36,6 +37,10 @@ netlist:
 schematics: netlist
 	@echo "Generating schematics from Atopile netlist..."
 	python3 scripts/gen_schematics.py
+
+pcb: netlist
+	@echo "Generating PCB skeleton from Atopile netlist..."
+	python3 scripts/gen_pcb_skeleton.py
 
 footprints:
 	@echo "Generating footprints from code..."

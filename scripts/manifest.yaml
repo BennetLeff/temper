@@ -1379,3 +1379,11 @@ scripts:
   category: keep
   disposition: ci-gate
   imports: []
+
+- path: gen_pcb_skeleton.py
+  purpose: "Generate production KiCad PCB skeleton from atopile netlist (default.net)"
+  owner: bennet
+  last_run: "2026-07-15"
+  category: keep
+  disposition: ci-gate
+  imports: []
