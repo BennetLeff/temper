@@ -66,7 +66,7 @@ jobs:
           for boundary in semantic topological placement routing validation; do
             if uv run temper-placer dsn check \
               --boundary "$boundary" \
-              --input pcb/temper.kicad_pcb \
+              --input pcb/benchmarks/temper_fixture_33.kicad_pcb \
               --golden-dir power_pcb_dataset/goldens/temper 2>&1; then
               echo "  $boundary: passed"
             else

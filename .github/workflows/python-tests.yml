@@ -362,7 +362,7 @@ jobs:
       - name: Run closure test (truth-gated)
         run: >
           uv run python3 scripts/ci_closure_test.py
-          --pcb pcb/temper.kicad_pcb
+          --pcb pcb/benchmarks/temper_fixture_33.kicad_pcb
           --output closure-result.json
         continue-on-error: true  # observability merge race; temper-N6-U8
 
