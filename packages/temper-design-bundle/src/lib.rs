@@ -105,6 +105,15 @@ mod python {
         normalized_json(&bundle).map_err(value_error)
     }
 
+    /// Exposes the crate's canonical SHA-256 (used internally for
+    /// `Provenance`) across the boundary so pipeline code hashes inputs the
+    /// same way the bundle itself does, rather than re-implementing hashing
+    /// in Python with `hashlib` directly.
+    #[pyfunction]
+    fn sha256_hex(bytes: &[u8]) -> String {
+        sha256(bytes)
+    }
+
     /// Fail-closed board/netlist identity preflight. Raises `ValueError` on
     /// any mismatch or role violation -- never returns a warning or a bool,
     /// per the identity-provenance plan's hard-fail requirement. Callers
@@ -136,6 +145,7 @@ mod python {
     #[pymodule]
     fn temper_design_bundle_python(module: &Bound<'_, PyModule>) -> PyResult<()> {
         module.add_function(wrap_pyfunction!(normalized_bundle_json, module)?)?;
-        module.add_function(wrap_pyfunction!(preflight_identity, module)?)
+        module.add_function(wrap_pyfunction!(preflight_identity, module)?)?;
+        module.add_function(wrap_pyfunction!(sha256_hex, module)?)
     }
 }
