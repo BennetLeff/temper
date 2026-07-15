@@ -17,6 +17,9 @@ on:
       - 'scripts/check_script_sunset.py'
       - 'scripts/manifest.yaml'
       - 'scripts/invocation_graph.json'
+      - 'pcb/*.kicad_sch'
+      - 'scripts/gen_schematics.py'
+      - 'elec/build/default.net'
       - '.importlinter'
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
@@ -42,6 +45,9 @@ on:
       - 'scripts/check_script_sunset.py'
       - 'scripts/manifest.yaml'
       - 'scripts/invocation_graph.json'
+      - 'pcb/*.kicad_sch'
+      - 'scripts/gen_schematics.py'
+      - 'elec/build/default.net'
       - '.importlinter'
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
@@ -311,6 +317,20 @@ jobs:
         run: |
           python3 firmware/test/gen_transition_table.py --generate
           git diff --exit-code firmware/test/test_transition_table_generated.c
+
+      - name: Install KiCad (for schematic oracle)
+        run: |
+          sudo add-apt-repository --yes ppa:kicad/kicad-10.0-releases
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends kicad-cli
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Regenerate schematics and check drift
+        run: |
+          python3 scripts/gen_schematics.py --check
+          git diff --exit-code pcb/*.kicad_sch
 
       - name: Lint with ruff
         run: uv run ruff check packages/
