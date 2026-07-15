@@ -12,10 +12,6 @@ Format version: 1
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from temper_placer.deterministic.state import BoardState
 
 CURRENT_FORMAT_VERSION = 1
 
@@ -24,7 +20,7 @@ def _format_float(val: float) -> str:
     return f"{val:.6f}"
 
 
-def serialize_boardstate_to_dsn(state: BoardState) -> str:
+def serialize_boardstate_to_dsn(state: BoardState) -> str:  # noqa: F821
     from temper_placer.io.dsn_exporter import DSNExporter
 
     if state.board is None:
@@ -37,7 +33,7 @@ def serialize_boardstate_to_dsn(state: BoardState) -> str:
     return str(dsn_expr)
 
 
-def serialize_boardstate_to_ses(state: BoardState) -> str:
+def serialize_boardstate_to_ses(state: BoardState) -> str:  # noqa: F821
     lines = ["(session", "(resolution um 10)", "(unit mm)", ""]
     routes = state.routes or frozenset()
     vias = state.vias or frozenset()
@@ -98,7 +94,7 @@ def serialize_boardstate_to_ses(state: BoardState) -> str:
     return "\n".join(lines)
 
 
-def serialize_violations_to_json(state: BoardState) -> str:
+def serialize_violations_to_json(state: BoardState) -> str:  # noqa: F821
     violations = state.drc_violations or ()
 
     sorted_violations = sorted(
@@ -138,7 +134,7 @@ def serialize_violations_to_json(state: BoardState) -> str:
     )
 
 
-def serialize_connectivity_to_json(state: BoardState) -> str:
+def serialize_connectivity_to_json(state: BoardState) -> str:  # noqa: F821
     violations = state.connectivity_violations or ()
 
     sorted_violations = sorted(

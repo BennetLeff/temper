@@ -361,7 +361,7 @@ class ClosureTest:
         drc_errors = 0
         drc_warnings = 0
         try:
-            from temper_placer.validation.drc_runner import run_drc
+            from temper_placer.validation._drc_api import run_drc
 
             drc_result = run_drc(self.pcb_path)
             drc_errors = drc_result.error_count

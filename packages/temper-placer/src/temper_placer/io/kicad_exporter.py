@@ -9,14 +9,10 @@ from __future__ import annotations
 import math
 import uuid
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Segment, Via
 from kiutils.items.common import Position
-
-if TYPE_CHECKING:
-    from temper_placer.deterministic.state import BoardState
 
 from temper_placer.io.export_types import ExportResult, TraceSegment, TraceVia
 from temper_placer.io.via_dedup import deduplicate_vias
@@ -565,7 +561,7 @@ def export_routed_pcb(
 
 def export_board_state(
     template_pcb: Path,
-    state: BoardState,
+    state: BoardState,  # noqa: F821
     output_pcb: Path,
     auto_fill_zones: bool = True,
 ) -> ExportResult:

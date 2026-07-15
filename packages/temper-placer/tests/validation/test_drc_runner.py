@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from temper_placer.validation.drc_runner import (
+from temper_placer.validation._drc_api import (
     DrcError,
     DrcResult,
     DrcRunnerError,
@@ -166,7 +166,7 @@ class TestDrcRunner:
         mock_temp_file.return_value = mock_ctx
 
         with patch(
-            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
+            "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
         ):
             result = run_drc(pcb_file)
 
@@ -197,7 +197,7 @@ class TestDrcRunner:
         mock_temp_file.return_value = mock_ctx
 
         with patch(
-            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
+            "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
         ):
             result = run_drc(pcb_file)
 
@@ -231,7 +231,7 @@ class TestDrcRunner:
         mock_temp_file.return_value = mock_ctx
 
         with patch(
-            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
+            "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
         ):
             result = run_drc(pcb_file)
 
@@ -266,7 +266,7 @@ class TestDrcRunner:
 
         with (
             patch(
-                "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
+                "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
             ),
             pytest.raises(DrcRunnerError, match="exit 133"),
         ):
@@ -279,7 +279,7 @@ class TestDrcRunner:
         with pytest.raises(FileNotFoundError):
             run_drc(pcb_file)
 
-    @patch("temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=False)
+    @patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=False)
     def test_drc_without_kicad_cli(self, _mock_available: MagicMock, tmp_path: Path) -> None:
         """Running DRC without kicad-cli should raise DrcRunnerError."""
         pcb_file = tmp_path / "board.kicad_pcb"
