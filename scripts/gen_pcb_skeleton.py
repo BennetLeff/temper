@@ -275,22 +275,26 @@ COLS = 10
 
 def _courtyard_bbox(fp) -> tuple[float, float] | None:
     """Return (width, height) from courtyard graphics, or None."""
-    try:
-        min_x = min_y = float("inf")
-        max_x = max_y = float("-inf")
-        for item in getattr(fp, "graphicItems", []):
-            layer = getattr(item, "layer", "")
-            if "CrtYd" not in str(layer):
-                continue
-            if hasattr(item, "start") and hasattr(item, "end"):
-                min_x = min(min_x, item.start.x, item.end.x)
-                max_x = max(max_x, item.start.x, item.end.x)
-                min_y = min(min_y, item.start.y, item.end.y)
-                max_y = max(max_y, item.start.y, item.end.y)
-        if min_x != float("inf"):
-            return (abs(max_x - min_x), abs(max_y - min_y))
-    except Exception:
-        pass
+    min_x = min_y = float("inf")
+    max_x = max_y = float("-inf")
+    for item in getattr(fp, "graphicItems", []):
+        layer = getattr(item, "layer", "")
+        if "CrtYd" not in str(layer):
+            continue
+        if hasattr(item, "start") and hasattr(item, "end"):
+            # kiutils.items.common.Position exposes uppercase X/Y -- there is
+            # no lowercase .x/.y. (Confirmed: a prior version of this function
+            # read item.start.x/item.start.y, which raised AttributeError on
+            # every call; a bare `except Exception: pass` silently swallowed
+            # it, so this always returned None and the Edge.Cuts polygon below
+            # was built from never-updated inf/-inf sentinels -- a board that
+            # kiutils round-trips fine but crashes kicad-cli's real parser.)
+            min_x = min(min_x, item.start.X, item.end.X)
+            max_x = max(max_x, item.start.X, item.end.X)
+            min_y = min(min_y, item.start.Y, item.end.Y)
+            max_y = max(max_y, item.start.Y, item.end.Y)
+    if min_x != float("inf"):
+        return (abs(max_x - min_x), abs(max_y - min_y))
     return None
 
 
@@ -342,6 +346,13 @@ def generate_board(
         fp.libId = comp.footprint  # type: ignore[attr-defined]
         fp.position = Position(x, y)  # type: ignore[attr-defined]
         fp.tstamp = _uuid_from_seed(f"fp:{comp.tstamp}")  # type: ignore[attr-defined]
+        # kiutils.Footprint.tedit defaults to datetime.now() at construction
+        # time when the source .kicad_mod has no (tedit ...) token of its own
+        # (true for every footprint fetched from the official KiCad libraries,
+        # which use the newer tstamp-only format) -- confirmed this made every
+        # regeneration non-deterministic even though fp.tstamp was already
+        # seeded. Override it the same way, from the same seed material.
+        fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]
         fp.properties = {  # type: ignore[attr-defined]
             "Reference": comp.ref,
             "Value": comp.value or "?",
@@ -390,14 +401,16 @@ def generate_board(
             if net_name and net_name in net_table:
                 pad.net = net_table[net_name]
 
-        # Track bounding box
+        # Track bounding box. Fall back to a nominal envelope around the grid
+        # position when a footprint has no courtyard graphics to measure --
+        # every footprint must contribute *something* finite here, or the
+        # Edge.Cuts polygon degenerates to the inf/-inf sentinels below.
         bbox = _courtyard_bbox(fp)
-        if bbox:
-            w, h = bbox
-            min_x = min(min_x, x - w / 2)
-            max_x = max(max_x, x + w / 2)
-            min_y = min(min_y, y - h / 2)
-            max_y = max(max_y, y + h / 2)
+        w, h = bbox if bbox else (GRID_X * 0.5, GRID_Y * 0.5)
+        min_x = min(min_x, x - w / 2)
+        max_x = max(max_x, x + w / 2)
+        min_y = min(min_y, y - h / 2)
+        max_y = max(max_y, y + h / 2)
 
         footprints.append(fp)
 
