@@ -62,6 +62,28 @@ pub struct Provenance {
     pub board_sha256: String,
     pub mapping_sha256: String,
 }
+/// A board's role is inferred from its file path, never declared in a file
+/// or stored on the board itself -- a hand-typed role would be exactly the
+/// kind of drift vector this crate exists to eliminate.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BoardRole {
+    Production,
+    Fixture,
+}
+
+impl BoardRole {
+    /// A board whose path contains a `benchmarks` component is a quarantined
+    /// `Fixture` and can never construct a production bundle. Any other path
+    /// is `Production`.
+    pub fn from_path(path: &std::path::Path) -> BoardRole {
+        if path.components().any(|c| c.as_os_str() == "benchmarks") {
+            BoardRole::Fixture
+        } else {
+            BoardRole::Production
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DesignBundle {
     pub schema_version: u32,

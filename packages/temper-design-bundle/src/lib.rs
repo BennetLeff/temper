@@ -2,6 +2,7 @@ mod atopile;
 mod constraint_merge;
 mod error;
 mod identity;
+mod kicad_pcb;
 mod model;
 mod pcl;
 mod serialize;
@@ -10,6 +11,8 @@ pub use atopile::{
     AtopileComponent, AtopileExport, AtopileNet, MappingEntry, NetMapping, SafetyRule,
 };
 pub use error::{DesignBundleError, Diagnostic};
+pub use identity::{BoardIdentityOptions, validate_board_identity};
+pub use kicad_pcb::extract_footprint_references;
 pub use model::*;
 pub use pcl::{PclDocument, PclInputConstraint};
 
