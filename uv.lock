@@ -26,7 +26,6 @@ members = [
     "temper-drc-rs",
     "temper-dsn",
     "temper-geometry",
-    "temper-geometry-core",
     "temper-ipc",
     "temper-pcl-ir",
     "temper-placer",
@@ -1998,11 +1997,6 @@ source = { editable = "packages/temper-dsn" }
 name = "temper-geometry"
 version = "0.1.0"
 source = { editable = "packages/temper-geometry" }
-
-[[package]]
-name = "temper-geometry-core"
-version = "0.1.0"
-source = { editable = "packages/temper-geometry-core" }
 
 [[package]]
 name = "temper-ipc"
