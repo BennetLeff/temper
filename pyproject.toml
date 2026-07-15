@@ -22,6 +22,7 @@ dev = [
 
 [tool.uv.workspace]
 members = ["packages/*"]
+exclude = ["packages/temper-geometry-core"]
 
 [tool.uv.sources]
 temper-placer = { workspace = true }
@@ -31,7 +32,6 @@ temper-testing = { workspace = true }
 temper-validation = { workspace = true }
 temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
-temper-geometry-core = { workspace = true }
 temper-dsn = { workspace = true }
 temper-ipc = { workspace = true }
 
