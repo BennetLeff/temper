@@ -1109,7 +1109,7 @@
     (uuid "31000002-0000-0000-0000-000000000001")
     (property "Reference" "CT1" (at 210.0 133.35 0) (effects (font (size 1.27 1.27))))
     (property "Value" "CST-1005" (at 210.0 119.38 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "CST1005_Footprint" (at 210.0 127.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Footprint" "temper:CST-1005" (at 210.0 127.0 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "CST-1005" (at 210.0 127.0 0) (effects (font (size 1.27 1.27)) hide))
     (property "Description" "Current transformer 1:1000, primary threaded in series with SWITCH_NODE/tank current, secondary across R_BURDEN" (at 210.0 127.0 0) (effects (font (size 1.27 1.27)) hide))
     (pin "1" (uuid "ct1-pin1-uuid"))

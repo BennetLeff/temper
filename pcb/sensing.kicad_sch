@@ -1099,7 +1099,7 @@
     (uuid "57000001-0000-0000-0000-000000000001")
     (property "Reference" "U_ISO_PWR" (at 220.0 90.47 0) (effects (font (size 1.27 1.27))))
     (property "Value" "RP-1505S" (at 220.0 109.53 0) (effects (font (size 1.27 1.27))))
-    (property "Footprint" "Converter_DCDC:Converter_DCDC_RECOM_RxxxxS-1WR2_THT" (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Footprint" "temper:Converter_DCDC_RECOM_RP-S" (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
     (property "MPN" "RP-1505S" (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
     (property "Manufacturer" "Recom Power" (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))
     (property "Description" "Isolated 1W DC-DC, 13.5-16.5V in / 5V 200mA out, 5.2kVDC isolation -- exceeds ADuM1250's 2.5kVrms barrier. Footprint placeholder pending real SIP-7 land pattern confirmation." (at 220.0 100.0 0) (effects (font (size 1.27 1.27)) hide))

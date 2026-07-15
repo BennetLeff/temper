@@ -1,0 +1,107 @@
+(footprint "Relay_SPST_Omron-G4A-E"
+	(version 20231120)
+	(generator "temper-hand")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Omron G4A-1A-E PCB power relay, #250 Faston quick-connect contacts + PCB coil terminals. Dimensions from official Omron datasheet (https://omronfs.omron.com/en_US/ecb/products/pdf/en-g4a.pdf, Cat. No. J056-E1-09, page 2 'Dimensions' section): body envelope 30.5 x 16 x 23.5mm max; coil pins (A1,A2) at 6.35mm pitch, standard 0.25in relay coil spacing; 4x mounting/locating holes, 1.8mm dia, in a 22mm(X) x 12mm(Y, asymmetric 6.25/5.75 split) pattern -- both sub-dimensions confirmed internally consistent (6.25+5.75=12.00mm exactly matches the datasheet's labeled 12mm total). Pad numbers match the real EN50005 relay pinout used by the placed KiCad symbol (Relay:Relay_SPST-NO): A1/A2 = coil, 13/14 = contacts (COM/NO). Contact terminals (13=COM, 14=NO) are #250 (6.35mm, SAE/AMP industry-standard width, not vendor-specific) Faston quick-connect tabs -- the datasheet's own Model Number Legend confirms both terminal-shape variants (E vs PE) share identical 'PCB coil terminals' wording and differ only in contact terminal type, so these tabs have zero PCB copper connection on this variant; they mate externally with a push-on spade connector, not a PCB trace. Modeled here as SMD (no-drill) landing pads purely for netlist/footprint pin-count parity and courtyard/placement-clearance purposes -- NOT a claim that solder-in-hole geometry exists at these exact coordinates. Relative layout (tabs on the opposite long edge from the coil row, mirroring the coil's left/right split) is taken directly from the datasheet's own Terminal Arrangement diagram; the tabs' precise Y-offset from the coil row is a reasonable placement within the confirmed courtyard bounds, not a measured value -- verify against the physical part before hand-soldering wires to pads 13/14. Mounting holes are NPTH (mechanical only, no net); their pattern's position relative to the coil pins is datasheet-derived from a linearized reading, not a pixel-exact trace -- cross-check against the datasheet page 2 drawing before fabrication.")
+	(tags "relay SPST G4A Omron power relay")
+	(attr through_hole)
+	(property "Reference" "REF**"
+		(at 0 -14.5 0)
+		(layer "F.SilkS")
+		(uuid "b8a2c001-0000-0000-0000-000000000001")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(property "Value" "G4A-1A-E"
+		(at 0 14.5 0)
+		(layer "F.Fab")
+		(uuid "b8a2c002-0000-0000-0000-000000000001")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(property "Datasheet" "https://omronfs.omron.com/en_US/ecb/products/pdf/en-g4a.pdf"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "b8a2c003-0000-0000-0000-000000000001")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	;; Courtyard: 30.5 x 23.5mm max envelope, centered on the mounting-hole pattern's geometric center
+	(fp_rect
+		(start -15.25 -11.75)
+		(end 15.25 11.75)
+		(layer "F.CrtYd")
+		(width 0.05)
+		(fill none)
+		(uuid "b8a2c010-0000-0000-0000-000000000001")
+	)
+	(fp_rect
+		(start -15.25 -11.75)
+		(end 15.25 11.75)
+		(layer "F.SilkS")
+		(width 0.12)
+		(fill none)
+		(uuid "b8a2c011-0000-0000-0000-000000000001")
+	)
+	;; Coil pins -- A1,A2 at 6.35mm (0.25in) pitch, coil row at Y=0.
+	(pad "A1" thru_hole circle
+		(at -3.175 0)
+		(size 1.8 1.8)
+		(drill 1.0)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b8a2c020-0000-0000-0000-000000000001")
+	)
+	(pad "A2" thru_hole circle
+		(at 3.175 0)
+		(size 1.8 1.8)
+		(drill 1.0)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b8a2c021-0000-0000-0000-000000000001")
+	)
+	;; Contact terminals -- 13 (COM), 14 (NO). #250 Faston tabs, no PCB drill (see descr).
+	;; Standard #250 blade width = 6.35mm (industry standard, not datasheet-specific);
+	;; modeled as an SMD landing pad on F.Cu for netlist/pin-count parity only.
+	;; Placed on the long edge opposite the coil row, mirroring the coil's left/right
+	;; split per the datasheet's Terminal Arrangement diagram -- Y offset is a
+	;; reasonable placement, not a measured value (see CAUTION in descr).
+	(pad "13" smd rect
+		(at -3.175 9.5)
+		(size 6.35 1.2)
+		(layers "F.Cu")
+		(uuid "b8a2c040-0000-0000-0000-000000000001")
+	)
+	(pad "14" smd rect
+		(at 3.175 9.5)
+		(size 6.35 1.2)
+		(layers "F.Cu")
+		(uuid "b8a2c041-0000-0000-0000-000000000001")
+	)
+	;; Mounting/locating holes (NPTH, no net) -- 22mm x 12mm(6.25/5.75 asymmetric) pattern, datasheet-derived
+	(pad "" np_thru_hole circle
+		(at -11.0 5.75)
+		(size 1.8 1.8)
+		(drill 1.8)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b8a2c030-0000-0000-0000-000000000001")
+	)
+	(pad "" np_thru_hole circle
+		(at 11.0 5.75)
+		(size 1.8 1.8)
+		(drill 1.8)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b8a2c031-0000-0000-0000-000000000001")
+	)
+	(pad "" np_thru_hole circle
+		(at -11.0 -6.25)
+		(size 1.8 1.8)
+		(drill 1.8)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b8a2c032-0000-0000-0000-000000000001")
+	)
+	(pad "" np_thru_hole circle
+		(at 11.0 -6.25)
+		(size 1.8 1.8)
+		(drill 1.8)
+		(layers "*.Cu" "*.Mask")
+		(uuid "b8a2c033-0000-0000-0000-000000000001")
+	)
+)

@@ -62,14 +62,24 @@ this plan restates only what's needed to execute and verify each fix.
   methodology in `docs/solutions/tooling-decisions/kicad-schematic-connectivity-tracer-2026-07-14.md`.
 
 ### Deferred
-- Drawing the custom relay footprint (Omron G4A-1A-E) and the CST-1005 CT
-  footprint — needed by U3/U4 but is mechanical CAD work, not schematic
-  wiring; tracked as a follow-up once U3/U4's topology is approved.
 - Full IEC 60335-1 compliance review of the earth-bonding scheme in U2 —
   this plan implements the Y2-capacitive-only bond the design docs already
-  specify, but a compliance sign-off is a separate gate.
+  specify, but a compliance sign-off is a separate gate requiring a human
+  or certified test lab to take accountability for the determination; a
+  datasheet isolation-voltage number is evidence, not proof of compliance.
+
+**Closed after the plan originally landed (2026-07-14, later same day):**
+- Drew both custom footprints (Omron G4A-1A-E relay, CST-1005 CT) from real
+  datasheet dimensions rather than deferring them as "mechanical CAD work" —
+  `.kicad_mod` is the same S-expression text format as `.kicad_sch`, and both
+  parts have public datasheets. See `pcb/libs/temper.pretty/*.kicad_mod` for
+  the footprints and their `descr` fields for exact dimension sourcing and
+  confidence notes (mounting-hole/tab-pad positions flagged for a human
+  visual cross-check before fabrication; secondary/coil pin pitches are
+  high-confidence, sourced from unambiguous datasheet table values).
 - `elec/src/components.ato`'s known `SN74HC4075` pin-mapping bug (from the
-  prior session) — unrelated to these six items, not re-opened here.
+  prior session) — fixed at the source using the same datasheet-confirmed
+  gate mapping used for U7's `RUNAWAY_CUT` wiring.
 
 ### Out of scope
 - PCB layout/routing (`pcb/temper.kicad_pcb`) — this plan is schematic-only.
@@ -256,9 +266,20 @@ coil directly, so a driver stage is required.
 - Confirm dropper resistor value against the actual G4A datasheet
   must-operate spec, not an assumed number.
 
-**Follow-up (deferred, tracked separately):** draw the G4A-1A-E THT footprint
-— none exists in any `Relay_THT.pretty` variant shipped with KiCad or in this
-repo.
+**Follow-up, closed 2026-07-14 (later same day):** drew the G4A-1A-E footprint
+by hand from the real Omron datasheet (`pcb/libs/temper.pretty/
+Relay_SPST_Omron-G4A-E.kicad_mod`) — no vendor/KiCad-shipped footprint
+existed for this part. Coil pins (6.35mm pitch) are high-confidence, taken
+from an unambiguous datasheet table value. The 4 mounting-hole positions and
+the 2 contact-tab pad positions are best-effort placements flagged for a
+human visual cross-check against the datasheet before fabrication — see the
+file's `descr` field for the full reasoning, including why the `#250`
+Faston contacts are correctly modeled with zero PCB copper (confirmed by
+the datasheet's own Model Number Legend text, not an inferred drawing
+detail) and why they still needed placeholder SMD pads for footprint/symbol
+pin-count parity. Fixing this also caught a real bug in the schematic's
+`Footprint` property reference (pointed at a nonexistent `Relay_THT:`
+library entry) and in the `.ato` source's matching string.
 
 ---
 
@@ -376,8 +397,9 @@ KiCad's own template at
 `.../SharedSupport/template/fp-lib-table` uses this exact variable name for
 v10, not `KICAD8_FOOTPRINT_DIR` as the plan's draft assumed). Added a
 project-local `pcb/libs/temper.pretty/` directory and registered it in the
-table as library `temper`, for the still-undrawn custom footprints from
-U3/U4 (G4A-1A-E relay, CST-1005 CT) to land in once drawn.
+table as library `temper` — the custom footprints from U3/U4 (G4A-1A-E
+relay, CST-1005 CT) now live there, drawn from real datasheet dimensions
+as a same-day follow-up (see U3/U4 sections above).
 
 **Deferred (unchanged from the original plan):** the vendored-vs-system
 footprint library tradeoff for CI reproducibility — this table uses
@@ -711,9 +733,18 @@ aggregate `FAULT_STATUS` is tapped).
   assignments already exist in `temper_pins.h` and are only being wired into
   the schematic, not reassigned.
 - **New parts introduced**: G4A-1A-E relay + driver (U3), CST-1005 CT (U4),
-  RP-1505S DC-DC module (U6) — none have footprints in this repo yet; U5's
-  `fp-lib-table` should be created before or alongside these so new custom
-  footprints have somewhere to register.
+  RP-1505S DC-DC module (U6). All three now have hand-built footprints in
+  `pcb/libs/temper.pretty/`, registered via U5's `fp-lib-table` (closed
+  same-day follow-up). The RP-1505S's footprint is the best-sourced of the
+  three — the official RECOM RP-series datasheet gives pin pitch, body
+  dimensions, and the actual populated-pin pattern (2 of 7 SIP7 positions
+  are genuinely absent on the single-output variant) as clean table values,
+  not a technical drawing requiring interpretation, and includes an
+  internal cross-check (two independently-labeled span dimensions,
+  `6×2.54=15.24mm` and `4×2.54=10.16mm`, agree with a plain 2.54mm grid).
+  It replaced a placeholder `Footprint` string
+  (`Converter_DCDC:Converter_DCDC_RECOM_RxxxxS-1WR2_THT`) that pointed at a
+  footprint that didn't exist in any installed KiCad library.
 
 ---
 

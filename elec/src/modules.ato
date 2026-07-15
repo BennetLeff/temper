@@ -383,7 +383,7 @@ module PowerInput:
     bypass_relay.coil_voltage = 12V
     bypass_relay.contact_current = 20A
     bypass_relay.mpn = "G4A-1A-E DC12"
-    bypass_relay.footprint = "Relay_THT:Relay_SPST_Omron-G4A-E"
+    bypass_relay.footprint = "temper:Relay_SPST_Omron-G4A-E"
 
     # Coil driver: RELAY_CTRL (3.3V GPIO) cannot drive the 75mA/12V coil directly.
     q_relay_drv = new MOSFET_N

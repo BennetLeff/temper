@@ -78,7 +78,7 @@ component UJ3D1210TS:
 
 component CST1005:
     """Current Transformer 1:1000"""
-    footprint = "CST1005_Footprint"
+    footprint = "temper:CST-1005"
     mpn = "CST-1005"
     ratio = 1000
     
