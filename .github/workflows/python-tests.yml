@@ -327,10 +327,18 @@ jobs:
       - name: Build electronics netlist
         run: make netlist
 
-      - name: Regenerate schematics and check drift
+       - name: Regenerate schematics and check drift
         run: |
           python3 scripts/gen_schematics.py --check
           git diff --exit-code pcb/*.kicad_sch
+
+      - name: Setup footprint libraries
+        run: python3 tools/setup_kicad_env.py
+
+      - name: Regenerate PCB skeleton and check drift
+        run: |
+          python3 scripts/gen_pcb_skeleton.py --check
+          git diff --exit-code pcb/temper.kicad_pcb
 
       - name: Lint with ruff
         run: uv run ruff check packages/
