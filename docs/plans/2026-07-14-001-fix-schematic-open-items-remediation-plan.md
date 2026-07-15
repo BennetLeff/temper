@@ -776,6 +776,40 @@ aggregate `FAULT_STATUS` is tapped).
 - After all 8 units: full-project sheet-pin reconciliation (root vs. every
   child sheet) and a whole-schematic ERC pass, since stale/missing root pins
   were the recurring defect class this plan closes out.
+
+**Reconciliation pass, actually run 2026-07-14 (later same day):** comparing
+every sheet's root pin list against its own child hierarchical labels
+(scripted, not eyeballed) turned up three more instances of exactly the
+defect class this plan targets, none covered by U1-U8:
+- Safety_Interlock's root symbol had `V_SENSE`/`TEMP_FAULT` input pins with
+  no matching child-side hierarchical label at all (stale, same class as
+  `MCU_ENABLE`).
+- Safety_Interlock's child sheet declares a real `NTC_SENSE` hierarchical
+  input (feeding `ThermalComparator.ntc_sense` directly into the comparator,
+  per `elec/src/modules.ato`) with **no root pin at all** — unreachable from
+  outside the sheet. Traced the intended source to Sensing's own `NTC_SENSE`
+  output, which existed as a hierarchical label but fed an **incomplete
+  divider**: `R_NTC_SENSE` (the pull-up) was real, but the actual NTC
+  thermistor (`NCU18XH103F6SRB`, "IGBT case temperature") was only ever a
+  text annotation, never a placed component — same "referenced in a note,
+  never instantiated" pattern as the CT and relay before this session's
+  fixes. Sensing's own `V_SENSE`/`TEMP_FAULT` *output* root pins turned out
+  to be equally vestigial once traced (no child-side producer, no consumer
+  anywhere, never wired at the root level) and were removed too.
+- Sensing's root symbol had a stale `SWITCH_NODE` *input* pin with no
+  matching child-side label (Half_Bridge has the sheet's one legitimate
+  `SWITCH_NODE`, unaffected).
+
+Fixed: placed the real NTC thermistor and completed its divider (pull-up to
+`+3.3V`, thermistor to `GND`, midpoint to `NTC_SENSE`) in
+`sensing.kicad_sch`; removed all four stale pins; added the two missing
+`NTC_SENSE` root pins and wired them at the root level. Verified via the
+same union-find discipline, including the full divider chain
+(`R_NTC_SENSE.p1` == thermistor pin == `NTC_SENSE` hierarchical label,
+divider midpoint net distinct from both `+3.3V` and `GND`) and the
+root-level Sensing↔Safety_Interlock net. All three touched files
+(`sensing.kicad_sch`, `temper.kicad_sch`, `safety_interlock.kicad_sch`)
+parse cleanly.
 - No firmware or Python test suite changes expected; existing
   `firmware/test/*` and `packages/temper-placer/tests/*` suites are
   unaffected and don't need to be re-run for this plan specifically.

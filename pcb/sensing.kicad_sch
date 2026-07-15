@@ -1081,11 +1081,48 @@
     (pin "2" (uuid "rntc-pin2"))
   )
 
-  (text "NTC_IGBT\nNCU18XH103F6SRB\n10kΩ 0603"
+  (symbol
+    (lib_id "Device:Thermistor_NTC")
+    (at 195.58 172.0 0)
+    (unit 1)
     (exclude_from_sim no)
-    (at 195.58 180.34 0)
-    (effects (font (size 1.27 1.27)) (justify left))
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
     (uuid "54000002-0000-0000-0000-000000000001")
+    (property "Reference" "TH_IGBT" (at 199.12 169.46 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Value" "10kΩ NTC" (at 199.12 172.0 0) (effects (font (size 1.27 1.27)) (justify left)))
+    (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (at 195.58 172.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "MPN" "NCU18XH103F6SRB" (at 195.58 172.0 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "IGBT case temperature sense, pulls NTC_SENSE toward GND as temperature rises. Was only a text annotation, no real component -- see docs/plans/2026-07-14-001-fix-schematic-open-items-remediation-plan.md follow-up." (at 195.58 172.0 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "thigbt-pin1-uuid"))
+    (pin "2" (uuid "thigbt-pin2-uuid"))
+  )
+
+  (wire (pts (xy 195.58 166.92) (xy 195.58 166.37)) (stroke (width 0) (type default)) (uuid "wire-ntcigbt-001"))
+
+  (symbol
+    (lib_id "power:GND")
+    (at 195.58 177.08 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "54000003-0000-0000-0000-000000000001")
+    (property "Reference" "#PWR06" (at 195.58 182.922 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 195.58 181.398 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol
+    (lib_id "power:+3.3V")
+    (at 195.58 158.75 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom no)
+    (on_board no)
+    (uuid "54000004-0000-0000-0000-000000000001")
+    (property "Reference" "#PWR07" (at 195.58 155.194 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "+3.3V" (at 195.58 155.306 0) (effects (font (size 1.27 1.27))))
   )
 
   (symbol
