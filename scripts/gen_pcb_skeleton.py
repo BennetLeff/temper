@@ -268,9 +268,9 @@ LAYER_DEFS: list[tuple[int, str, str, str | None]] = [
     (49, "F.Fab", "user", None),
 ]
 
-GRID_X = 30.0  # mm between footprint origins
-GRID_Y = 30.0  # mm between rows
-COLS = 10
+TARGET_BOARD_WIDTH = 150.0  # mm, approximate
+PAD_BETWEEN = 4.0  # mm between adjacent courtyard edges
+PAD_ROWS = 3.0  # mm between courtyard edges vertically
 
 
 def _courtyard_bbox(fp) -> tuple[float, float] | None:
@@ -327,31 +327,25 @@ def generate_board(
         net_table[net.name] = knet
     board.nets = list(net_table.values())
 
-    # Grid-place footprints
+    # Courtyard-aware flow placement. Components are placed left-to-right
+    # in rows, with per-component spacing derived from actual courtyard
+    # dimensions. Rows break when the next component would exceed the
+    # target board width. This avoids a wasteful fixed 30mm grid for
+    # components that range from 0402 passives to the ESP32-S3 module.
     components = sorted(netlist.components.values(), key=lambda c: c.ref)
     footprints: list[Footprint] = []
     min_x = min_y = float("inf")
     max_x = max_y = float("-inf")
 
-    for idx, comp in enumerate(components):
-        col = idx % COLS
-        row = idx // COLS
-        x = 50.0 + col * GRID_X
-        y = 50.0 + row * GRID_Y
+    row_y = 30.0
+    row_x = 30.0
+    row_height = 0.0
 
+    for comp in components:
         fp_path = resolve_footprint(comp.footprint, fp_lib_table_path)
         fp = Footprint.from_file(str(fp_path))
-
-        # Set identity fields
         fp.libId = comp.footprint  # type: ignore[attr-defined]
-        fp.position = Position(x, y)  # type: ignore[attr-defined]
         fp.tstamp = _uuid_from_seed(f"fp:{comp.tstamp}")  # type: ignore[attr-defined]
-        # kiutils.Footprint.tedit defaults to datetime.now() at construction
-        # time when the source .kicad_mod has no (tedit ...) token of its own
-        # (true for every footprint fetched from the official KiCad libraries,
-        # which use the newer tstamp-only format) -- confirmed this made every
-        # regeneration non-deterministic even though fp.tstamp was already
-        # seeded. Override it the same way, from the same seed material.
         fp.tedit = _uuid_from_seed(f"tedit:{comp.tstamp}")[:8]  # type: ignore[attr-defined]
         fp.properties = {  # type: ignore[attr-defined]
             "Reference": comp.ref,
@@ -359,7 +353,30 @@ def generate_board(
             "Footprint": comp.footprint,
         }
 
-        # Assign pads to nets. First try exact pad.number == pin match,
+        bbox = _courtyard_bbox(fp)
+        w, h = bbox if bbox else (10.0, 10.0)
+
+        # Start a new row if this component would exceed the target width
+        # (and there is already at least one component in the current row).
+        if row_x > 30.0 and row_x + w / 2 + PAD_BETWEEN > TARGET_BOARD_WIDTH:
+            row_y += row_height + PAD_ROWS
+            row_x = 30.0
+            row_height = 0.0
+
+        x = row_x + w / 2
+        y = row_y + h / 2
+
+        fp.position = Position(x, y)  # type: ignore[attr-defined]
+
+        # Advance cursor
+        row_x += w + PAD_BETWEEN
+        row_height = max(row_height, h)
+
+        # Track global extent
+        min_x = min(min_x, x - w / 2)
+        max_x = max(max_x, x + w / 2)
+        min_y = min(min_y, y - h / 2)
+        max_y = max(max_y, y + h / 2)
         # then fall back to positional mapping for footprints where pad
         # numbers differ from netlist pin numbers (e.g., relay with
         # manufacturer pad names "A1", "A2", "13", "14").
@@ -400,17 +417,6 @@ def generate_board(
 
             if net_name and net_name in net_table:
                 pad.net = net_table[net_name]
-
-        # Track bounding box. Fall back to a nominal envelope around the grid
-        # position when a footprint has no courtyard graphics to measure --
-        # every footprint must contribute *something* finite here, or the
-        # Edge.Cuts polygon degenerates to the inf/-inf sentinels below.
-        bbox = _courtyard_bbox(fp)
-        w, h = bbox if bbox else (GRID_X * 0.5, GRID_Y * 0.5)
-        min_x = min(min_x, x - w / 2)
-        max_x = max(max_x, x + w / 2)
-        min_y = min(min_y, y - h / 2)
-        max_y = max(max_y, y + h / 2)
 
         footprints.append(fp)
 
