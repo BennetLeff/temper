@@ -77,10 +77,13 @@ component UJ3D1210TS:
     signal A ~ pin 2
 
 component CST1005:
-    """Current Transformer 1:1000"""
+    """Current Transformer 1:1000 — Triad Magnetics (per footprint datasheet).
+    BOM/doc references list Coilcraft; verify manufacturer before production.
+    Footprint dimensions sourced from Triad CST-1005 datasheet."""
     footprint = "temper:CST-1005"
     mpn = "CST-1005"
-    ratio = 1000
+    manufacturer = "Triad Magnetics"
+    ratio = 1000  # 1:1000 verified against Triad datasheet — re-verify if manufacturer changes
     
     signal S1 ~ pin 1
     signal S2 ~ pin 2

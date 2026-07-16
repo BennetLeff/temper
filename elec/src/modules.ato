@@ -518,13 +518,13 @@ module PowerInput:
     c_bus1 = new CapPolarized
     c_bus1.value = 3300uF
     c_bus1.voltage_rating = 250V
-    c_bus1.mpn = "EKZE251ELL332MM40S"
+    c_bus1.mpn = "EKZE251ELL332MM40S"  # Chemi-Con KZE 250V 3300µF — verify series supports 250V (may be KMQ/LXQ)
     c_bus1.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     c_bus2 = new CapPolarized
     c_bus2.value = 3300uF
     c_bus2.voltage_rating = 250V
-    c_bus2.mpn = "EKZE251ELL332MM40S"
+    c_bus2.mpn = "EKZE251ELL332MM40S"  # Chemi-Con KZE 250V 3300µF — verify series supports 250V (may be KMQ/LXQ)
     c_bus2.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     r_bleed1 = new Resistor
