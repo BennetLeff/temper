@@ -1,0 +1,11 @@
+# Baseline metrics for the Temper production board.
+# Generated from pcb/temper.kicad_pcb (101 components, 138 nets, 100x150mm).
+# U6: placeholder baseline — extract_corpus_baselines.py is stale (imports
+# deleted JAX losses). Replace with real metrics from CP-SAT placer baseline run.
+
+component_count: 101
+net_count: 74
+drc_available: false
+drc_errors: 0
+drc_warnings: 0
+extraction_date: "2026-07-15"

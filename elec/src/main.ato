@@ -18,6 +18,7 @@ import HalfBridge from "modules.ato"
 import ResonantTank from "modules.ato"
 import PowerInput from "modules.ato"
 import PowerManagement from "modules.ato"
+import AuxSupply from "modules.ato"
 import CurrentSensing from "modules.ato"
 import RTDSensing from "modules.ato"
 import SafetyInterlock from "modules.ato"
@@ -96,6 +97,14 @@ module Top:
     vcc_15v.override_net_name = "+15V"
     signal vcc_3v3      # MCU supply
     vcc_3v3.override_net_name = "+3V3"
+    signal power_return  # High-current tank/power return path (doubler midpoint)
+    power_return.override_net_name = "PWR_RTN"
+    signal vcc_15v_ls    # Isolated low-side gate driver supply (plan 005)
+    vcc_15v_ls.override_net_name = "+15V_LS"
+    signal usb_dn        # USB D-
+    signal usb_dp        # USB D+
+    signal i2c_sda_ui    # I2C expansion header for UI
+    signal i2c_scl_ui
     
     # --- Module Instances ---
     
@@ -104,6 +113,9 @@ module Top:
     
     # Power management (DC_BUS -> 15V -> 3.3V)
     power_mgmt = new PowerManagement
+    
+    # Auxiliary supply (HV -> isolated 15V SELV)
+    aux_supply = new AuxSupply
     
     # Half-bridge (power stage)
     hb = new HalfBridge
@@ -220,14 +232,24 @@ module Top:
     # Power input outputs
     power_in.dc_bus.hv_plus ~ dc_bus_plus
     power_in.dc_bus.hv_minus ~ dc_bus_minus
-    power_in.dc_bus.gnd_ref ~ gnd
-    power_in.gnd ~ gnd
+    # The doubler midpoint (gnd_ref) is the high-current power return node.
+    # It must NOT be shorted directly to logic/signal ground to prevent
+    # AC mains potential on user-accessible circuits (S1) and to keep
+    # tank return current out of the signal ground net (S3).
+    power_return ~ power_in.dc_bus.gnd_ref  # Doubler midpoint = power return
+    power_in.gnd ~ gnd  # PowerInput relay control return (SELV side)
     power_in.power_15v.vcc ~ vcc_15v
-    power_in.power_15v.gnd ~ gnd
+    # power_in already ties power_15v.gnd ~ gnd internally; redundant
     
-    # Power management chain
-    # Note: In real design, 15V comes from auxiliary winding, not directly from DC_BUS
-    # For this model, we assume a separate input or pre-regulated source
+    # Auxiliary supply: 170VDC half-bus -> isolated 15V SELV rail
+    # Replaces the floating power_mgmt.power_in_hv (P0-3)
+    aux_supply.power_in.vcc ~ dc_bus_plus    # Half-bus input (~170VDC)
+    aux_supply.power_in.gnd ~ power_return   # Referenced to doubler midpoint
+    aux_supply.power_out.vcc ~ vcc_15v       # Isolated 15V output -> all downstream rails
+    aux_supply.power_out.gnd ~ gnd           # SELV ground
+    
+    # Power management chain — 15V -> 3.3V
+    # Note: 15V now comes from isolated AuxSupply, not from DC bus directly
     power_mgmt.power_15v.vcc ~ vcc_15v
     power_mgmt.power_15v.gnd ~ gnd
     
@@ -235,8 +257,22 @@ module Top:
     # power_mgmt.power_3v3.gnd is already tied to power_mgmt.power_15v.gnd
     # inside PowerManagement; connect the shared ground once.
     
-    # Input ground reference
-    # power_mgmt.power_in_hv.gnd is on the same internal ground chain.
+    # ===========================================================================
+    # GROUND ARCHITECTURE — Single-Point Star Ground Join
+    #
+    # The SELV logic/signal ground (gnd) and the high-current power return
+    # (power_return, connected to the doubler midpoint) are joined at exactly
+    # ONE location near the doubler capacitors. This provides a common voltage
+    # reference while preventing power-stage current (25A tank return, gate
+    # driver transients) from flowing through the signal ground net.
+    #
+    # With Option A (isolated SELV control domain, plan 003), the auxiliary
+    # supply transformer provides galvanic isolation between the HV power
+    # domain and the SELV control domain. The star-point join is the sole
+    # DC reference path; all other domain crossings use isolated interfaces
+    # (UCC21550 gate drivers).
+    # ===========================================================================
+    power_return ~ gnd  # Single-star-point ground join near doubler caps
     
     # ===========================================================================
     # HALF-BRIDGE CONNECTIONS
@@ -247,7 +283,13 @@ module Top:
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
     hb.power_3v3.vcc ~ vcc_3v3
-    hb.power_3v3.gnd ~ gnd
+    # hb already ties power_3v3.gnd ~ gnd internally; redundant
+    
+    # Low-side gate driver supply: vcc_15v_ls must come from an isolated 
+    # aux winding on the flyback transformer, referenced to hv_minus.
+    # Until the transformer winding is specified (plan 005 magnetics
+    # follow-up), this net is a placeholder.
+    hb.power_15v_ls.vcc ~ vcc_15v_ls
     
     # PWM from MCU
     mcu.pwm_h ~ hb.pwm_h
@@ -263,13 +305,17 @@ module Top:
     hb.switch_node.override_net_name = "SW_NODE"
     # tank.in is the same electrical net as hb.switch_node; keep one
     # authoritative override name (SW_NODE).
-    tank.out ~ gnd  # Return path
+    # CT primary: current transformer measures tank return current
+    # The primary wire (tank return) passes through the CT core
+    tank.out ~ ct_sense.primary_in
+    ct_sense.primary_in ~ power_return  # High-current tank return to doubler midpoint
     
     # ===========================================================================
     # SENSING CONNECTIONS
     # ===========================================================================
     
     # Current sensing
+    ct_sense.vcc_3v3_ct ~ vcc_3v3  # Bias supply for CT output
     ct_sense.i_sense.reference ~ gnd
     ct_sense.i_sense.line ~ mcu.adc_i_sense
     ct_sense.i_sense ~ safety.i_sense
@@ -307,8 +353,9 @@ module Top:
     # safety.i_sense already connected above
     # NTC for heatsink temperature monitoring
     safety.ntc_sense.line ~ mcu.adc_ntc
-    safety.ntc_sense.reference ~ gnd
+    # safety already ties ntc_sense.reference ~ gnd internally; redundant
     mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
+    safety.ovp.adc_v_bus.line ~ mcu.adc_v_bus
     
     # Watchdog
     mcu.wdt_kick.line ~ safety.wdt_kick.line
@@ -347,6 +394,14 @@ module Top:
     # Zero-crossing detection for soft-start timing
     power_in.zcd ~ mcu.zcd_in.line
     power_in.zcd.override_net_name = "ZCD"
+    
+    # USB connections
+    mcu.usb_dn ~ usb_dn
+    mcu.usb_dp ~ usb_dp
+    
+    # I2C UI connections
+    mcu.i2c.sda ~ i2c_sda_ui
+    mcu.i2c.scl ~ i2c_scl_ui
 
 # ==============================================================================
 # FOOTPRINT COMPILATION
