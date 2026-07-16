@@ -308,7 +308,7 @@ module Top:
     # CT primary: current transformer measures tank return current
     # The primary wire (tank return) passes through the CT core
     tank.out ~ ct_sense.primary_in
-    ct_sense.primary_in ~ power_return  # High-current tank return to doubler midpoint
+    ct_sense.primary_out ~ power_return  # Tank return passes THROUGH the CT primary
     
     # ===========================================================================
     # SENSING CONNECTIONS

@@ -2,10 +2,10 @@ version: 1
 boards:
   - id: temper_production
     path: pcb/temper.kicad_pcb
-    component_count: 123
-    net_count: 135
+    component_count: 126
+    net_count: 136
     baseline_git_hash: unknown
-    description: "Temper production board — 123 components, 135 nets, generated from atopile netlist by scripts/gen_pcb_skeleton.py. 4-layer stackup (F.Cu/In1.Cu/In2.Cu/B.Cu), 100x150mm Edge.Cuts."
+    description: "Temper production board — 126 components, 136 nets, generated from atopile netlist by scripts/gen_pcb_skeleton.py. 4-layer stackup (F.Cu/In1.Cu/In2.Cu/B.Cu), 100x150mm Edge.Cuts."
   - id: bitaxe_ultra
     path: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
     component_count: 0

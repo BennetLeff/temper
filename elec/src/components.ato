@@ -59,45 +59,41 @@ component UCC21550BDWK:
     signal OUTA ~ pin 15
     signal VDDA ~ pin 16
 
-component UJ3D1210TS:
-    """SiC Schottky Bootstrap Diode 1200V 10A"""
-    footprint = "Package_TO_SOT_THT:TO-220-2_Vertical"
-    mpn = "UJ3D1210TS"
-    
-    # Ratings
-    voltage_rating = 1200V
-    current_rating = 10A
 
-    # Electrical parameters
-    v_rrm = 1200V
-    i_f_max = 10A
-    v_f = 1.5V
 
-    signal K ~ pin 1
-    signal A ~ pin 2
+component IRM_10_15:
+    """Mean Well IRM-10-15 encapsulated AC/DC module, 15V 0.67A 10W.
+    VERIFIED 2026-07-16 (IRM-10-SPEC 2025-08-08): input 85-305VAC / 120-430VDC
+    (170VDC half-bus is in range), Class II, 4.2kVac I/O withstand,
+    IEC/EN 61558-1/-2-16 + 62368-1 approved, EMI Class B built in."""
+    designator_prefix = "PS"
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT"
+    mpn = "IRM-10-15"
+    manufacturer = "Mean Well"
+    voltage_rating = 430V
 
-component CST1005:
-    """Current Transformer 1:1000 — Triad Magnetics.
+    signal ACL ~ pin 1
+    signal ACN ~ pin 2
+    signal VP ~ pin 3
+    signal VN ~ pin 4
 
-    VERIFIED 2026-07-16 against Triad datasheet (publish 2024-07-18,
-    catalog.triadmagnetics.com/Asset/CST-1005.pdf): manufacturer is Triad
-    (Coilcraft references in older BOM docs were wrong); ratio 1000:1
-    +/-3 turns; DCR 40 ohm; UL E205349.
-
-    OPEN APPLICATION MISMATCH (needs part change or relocation):
-    - Rated IP is 5A continuous, accuracy band 2-20A. Design path
-      carries ~15A RMS / 25A peak.
-    - Datasheet scope is 50/60 Hz; primary is wired to the 25-35 kHz
-      resonant tank return (main.ato SENSING). An HF-rated current-sense
-      transformer is required there, or move the CT to the AC input side.
-    - Operating temp -10..+65C — tight next to the power stage."""
+component CST2010_100L:
+    """Coilcraft CST2010-100L SMT current sense transformer, 1:100.
+    VERIFIED 2026-07-16: senses up to 47A, usable to 1MHz+ (35kHz tank
+    frequency is in-band), -40..+125C, 1500Vrms winding-winding isolation.
+    Replaces Triad CST-1005 (5A, 50/60Hz only, 65C max) per BOM audit.
+    Footprint: placeholder THT CT footprint until the CST2010 land pattern
+    is hand-built from the Coilcraft datasheet (repo precedent: e1b8a29e)."""
+    designator_prefix = "T"
     footprint = "temper:CST-1005"
-    mpn = "CST-1005"
-    manufacturer = "Triad Magnetics"
-    ratio = 1000  # 1:1000 verified against Triad datasheet
-    
-    signal S1 ~ pin 1
-    signal S2 ~ pin 2
+    mpn = "CST2010-100L"
+    manufacturer = "Coilcraft"
+    ratio = 100
+
+    signal P1 ~ pin 1
+    signal P2 ~ pin 2
+    signal S1 ~ pin 3
+    signal S2 ~ pin 4
 
 component Resistor:
     designator_prefix = "R"
@@ -243,23 +239,6 @@ component LMR51430:
     signal EN ~ pin 5    # Fixed: was SW
     signal BOOT ~ pin 6  # Correct
 
-component XC6220:
-    """Torex 700mA Ultra Low Noise LDO"""
-    footprint = "Package_TO_SOT_SMD:SOT-23-5"
-    mpn = "XC6220B331MR-G"
-    manufacturer = "Torex Semiconductor"
-    
-    # Ratings
-    v_out = 3.3V
-    i_out_max = 700mA
-    v_dropout = 0.3V
-    noise = 30uV  # Ultra low noise
-    
-    signal VSS ~ pin 1
-    signal VIN ~ pin 2
-    signal CE ~ pin 3
-    signal NC ~ pin 4
-    signal VOUT ~ pin 5
 
 component Inductor:
     """Power inductor"""
@@ -308,24 +287,6 @@ component MAX31865:
     signal GND1 ~ pin 19
     signal NC3 ~ pin 20
 
-component ADUM1250:
-    """Hot-swappable I2C Isolator"""
-    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
-    mpn = "ADUM1250ARZ"
-    manufacturer = "Analog Devices"
-    
-    # Ratings
-    v_iso = 2500V
-    data_rate = 1MHz
-    
-    signal VDD1 ~ pin 1
-    signal SCL1 ~ pin 2  # Fixed: was SDA1 (temper-7gv)
-    signal SDA1 ~ pin 3  # Fixed: was SCL1 (temper-7gv)
-    signal GND1 ~ pin 4
-    signal GND2 ~ pin 5
-    signal SDA2 ~ pin 6  # Fixed: was SCL2 (temper-qwk)
-    signal SCL2 ~ pin 7  # Fixed: was SDA2 (temper-qwk)
-    signal VDD2 ~ pin 8
 
 # ==============================================================================
 # SAFETY INTERLOCK COMPONENTS

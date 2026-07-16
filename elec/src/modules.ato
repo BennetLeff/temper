@@ -8,7 +8,6 @@
 
 import IKW40N120H3 from "components.ato"
 import UCC21550BDWK from "components.ato"
-import UJ3D1210TS from "components.ato"
 import Resistor from "components.ato"
 import Capacitor from "components.ato"
 import MOSFET_N from "components.ato"
@@ -51,7 +50,8 @@ import MAX31865 from "components.ato"
 # barrier is between the HV power domain and the SELV control domain
 # (Option A, plan 003). Component definition retained in components.ato
 # for future isolated I2C expansion if needed.
-import CST1005 from "components.ato"
+import CST2010_100L from "components.ato"
+import IRM_10_15 from "components.ato"
 
 # Safety components
 import TLV3201 from "components.ato"
@@ -434,9 +434,11 @@ module PowerInput:
     power_15v = new ElectricPower
 
     fuse = new Fuse
-    fuse.current_rating = 15A
+    fuse.current_rating = 16A
     fuse.voltage_rating = 250V
-    fuse.mpn = "0034.3128"
+    # VERIFIED 2026-07-16: 0034.3128 is the 12.5A FST variant — under the 15A
+    # branch load. 0034.3129 is the 16A time-lag 5x20 sibling (same footprint).
+    fuse.mpn = "0034.3129"
     assert fuse.current_rating >= constraints.i_max
     assert fuse.voltage_rating >= constraints.v_max
     
@@ -460,7 +462,7 @@ module PowerInput:
     cmc_w1.value = 10mH
     cmc_w1.current_rating = 15A
     cmc_w1.dcr = 0.02ohm
-    cmc_w1.mpn = "B82725J2152N1"
+    cmc_w1.mpn = "B82725J2152N1"  # VERIFY: EPCOS B82725J ring-core double choke — confirm exact variant & 15A/250VAC rating
     cmc_w1.footprint = "Inductor_THT:L_Toroid_Horizontal_D25.4mm_P22.90mm_Vishay_TJ5"
 
     cmc_w2 = new Inductor
@@ -516,23 +518,33 @@ module PowerInput:
     d2 = new MUR1560
     
     c_bus1 = new CapPolarized
-    c_bus1.value = 3300uF
+    c_bus1.value = 1800uF
     c_bus1.voltage_rating = 250V
-    # VERIFIED INVALID MPN 2026-07-16: Chemi-Con KZE series is 6.3-100V only,
-    # so EKZE251... (250V) does not exist. In the 250V snap-in KMQ series
-    # (CAT E1001E) the largest offering is 1800uF 35x50 (EKMQ251VSN182MA50S)
-    # — no 3300uF/250V in a 35x40 can from this family. Decision needed:
-    # 2x 1800uF in parallel per half-bus, or a larger-can part
-    # (screw-terminal / KMH class, to be sourced). Ripple current also needs
-    # checking: KMQ 1800uF/250V is rated 2.7Arms@120Hz.
-    c_bus1.mpn = "EKZE251ELL332MM40S"  # placeholder — see invalid-MPN note above
+    # Chemi-Con KMQ 250V snap-in, largest of the series (CAT E1001E, verified
+    # 2026-07-16). Two in parallel per half-bus replace the fictional
+    # 3300uF/250V EKZE part; 2x 2.7Arms@120Hz ripple rating per half.
+    c_bus1.mpn = "EKMQ251VSN182MA50S"
     c_bus1.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     c_bus2 = new CapPolarized
-    c_bus2.value = 3300uF
+    c_bus2.value = 1800uF
     c_bus2.voltage_rating = 250V
-    c_bus2.mpn = "EKZE251ELL332MM40S"  # placeholder — see invalid-MPN note on c_bus1
+    c_bus2.mpn = "EKMQ251VSN182MA50S"
     c_bus2.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+
+    # Parallel partners: 2x 1800uF per half-bus = 3600uF (>= the original
+    # 3300uF target for ripple), since no single 3300uF/250V snap-in exists
+    # in this family.
+    c_bus1b = new CapPolarized
+    c_bus1b.value = 1800uF
+    c_bus1b.voltage_rating = 250V
+    c_bus1b.mpn = "EKMQ251VSN182MA50S"
+    c_bus1b.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
+    c_bus2b = new CapPolarized
+    c_bus2b.value = 1800uF
+    c_bus2b.voltage_rating = 250V
+    c_bus2b.mpn = "EKMQ251VSN182MA50S"
+    c_bus2b.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     r_bleed1 = new Resistor
     r_bleed1.value = 22kohm +/- 5%
@@ -597,6 +609,8 @@ module PowerInput:
     d1.K ~ dc_bus.hv_plus
     c_bus1.plus ~ dc_bus.hv_plus
     c_bus1.minus ~ dc_bus.gnd_ref
+    c_bus1b.plus ~ dc_bus.hv_plus
+    c_bus1b.minus ~ dc_bus.gnd_ref
     
     ac_n ~ cmc_w2.p1
     cmc_w2.p2 ~ dc_bus.gnd_ref
@@ -604,6 +618,8 @@ module PowerInput:
     d2.A ~ dc_bus.hv_minus
     c_bus2.plus ~ dc_bus.gnd_ref
     c_bus2.minus ~ dc_bus.hv_minus
+    c_bus2b.plus ~ dc_bus.gnd_ref
+    c_bus2b.minus ~ dc_bus.hv_minus
     
     r_bleed1.p1 ~ dc_bus.hv_plus
     r_bleed1.p2 ~ dc_bus.gnd_ref
@@ -847,8 +863,9 @@ module AuxSupply:
     enable = new ElectricLogic
     enable.reference ~ power_in.gnd
     
-    # Component instances (abstract — specific MPNs to be selected)
-    # For now, define the topology with generic components
+    # Mean Well IRM-10-15 encapsulated AC/DC module does the actual
+    # conversion: 170VDC half-bus in (120-430VDC rated), isolated 15V out.
+    psu = new IRM_10_15
     
     # Input bulk capacitor
     c_in_bulk = new Capacitor
@@ -876,6 +893,10 @@ module AuxSupply:
     # Connections
     power_in.vcc ~ c_in_bulk.p1
     c_in_bulk.p2 ~ power_in.gnd
+    power_in.vcc ~ psu.ACL
+    power_in.gnd ~ psu.ACN
+    psu.VP ~ power_out.vcc
+    psu.VN ~ power_out.gnd
     
     power_out.vcc ~ c_out.p1
     c_out.p2 ~ power_out.gnd
@@ -902,17 +923,22 @@ module CurrentSensing:
     
     i_sense = new ElectricSignal
     
-    ct = new CST1005
+    signal primary_out
+    ct = new CST2010_100L
     
     r_burden = new Resistor
-    r_burden.value = 66.5ohm +/- 1%
+    # 1:100 ratio: 6.65R keeps the OCP trip at 2.5V/6.65R*100 = 37.6A,
+    # identical to the old 1:1000 * 66.5R design point. Steady-state 15A RMS
+    # dissipates 0.15W; the 0.94W seen at the trip level is transient (the
+    # latch kills PWM within microseconds).
+    r_burden.value = 6.65ohm +/- 1%
     r_burden.power_rating = 0.25W
-    r_burden.mpn = "RC1206FR-0766R5L"
+    r_burden.mpn = "RC1206FR-076R65L"
     r_burden.footprint = "Resistor_SMD:R_1206_3216Metric"
     
-    i_ct_max: current = 50mA
+    i_ct_max: current = 250mA  # 25A peak / 100
     v_burden_max: voltage = i_ct_max * r_burden.value
-    assert v_burden_max within 3.0V to 3.5V
+    assert v_burden_max within 1.5V to 1.8V
     
     c_filter = new Capacitor
     c_filter.value = 100nF
@@ -921,6 +947,8 @@ module CurrentSensing:
     c_filter.mpn = "GRM1885C1H104JA01D"
     c_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
+    primary_in ~ ct.P1
+    ct.P2 ~ primary_out
     ct.S1 ~ r_burden.p1
     ct.S2 ~ i_sense.reference
     r_burden.p2 ~ i_sense.reference
