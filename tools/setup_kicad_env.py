@@ -21,6 +21,7 @@ REQUIRED_LIBS = [
     "Diode_SMD",
     "Fuse",
     "Inductor_SMD",
+    "Inductor_THT",
     "Package_DFN_QFN",
     "Package_SO",
     "Package_TO_SOT_SMD",
@@ -28,6 +29,7 @@ REQUIRED_LIBS = [
     "Resistor_SMD",
     "Resistor_THT",
     "TestPoint",
+    "Varistor",
 ]
 
 
