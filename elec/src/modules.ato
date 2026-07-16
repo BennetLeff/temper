@@ -518,13 +518,20 @@ module PowerInput:
     c_bus1 = new CapPolarized
     c_bus1.value = 3300uF
     c_bus1.voltage_rating = 250V
-    c_bus1.mpn = "EKZE251ELL332MM40S"  # Chemi-Con KZE 250V 3300µF — verify series supports 250V (may be KMQ/LXQ)
+    # VERIFIED INVALID MPN 2026-07-16: Chemi-Con KZE series is 6.3-100V only,
+    # so EKZE251... (250V) does not exist. In the 250V snap-in KMQ series
+    # (CAT E1001E) the largest offering is 1800uF 35x50 (EKMQ251VSN182MA50S)
+    # — no 3300uF/250V in a 35x40 can from this family. Decision needed:
+    # 2x 1800uF in parallel per half-bus, or a larger-can part
+    # (screw-terminal / KMH class, to be sourced). Ripple current also needs
+    # checking: KMQ 1800uF/250V is rated 2.7Arms@120Hz.
+    c_bus1.mpn = "EKZE251ELL332MM40S"  # placeholder — see invalid-MPN note above
     c_bus1.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     c_bus2 = new CapPolarized
     c_bus2.value = 3300uF
     c_bus2.voltage_rating = 250V
-    c_bus2.mpn = "EKZE251ELL332MM40S"  # Chemi-Con KZE 250V 3300µF — verify series supports 250V (may be KMQ/LXQ)
+    c_bus2.mpn = "EKZE251ELL332MM40S"  # placeholder — see invalid-MPN note on c_bus1
     c_bus2.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     r_bleed1 = new Resistor

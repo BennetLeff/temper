@@ -77,13 +77,24 @@ component UJ3D1210TS:
     signal A ~ pin 2
 
 component CST1005:
-    """Current Transformer 1:1000 — Triad Magnetics (per footprint datasheet).
-    BOM/doc references list Coilcraft; verify manufacturer before production.
-    Footprint dimensions sourced from Triad CST-1005 datasheet."""
+    """Current Transformer 1:1000 — Triad Magnetics.
+
+    VERIFIED 2026-07-16 against Triad datasheet (publish 2024-07-18,
+    catalog.triadmagnetics.com/Asset/CST-1005.pdf): manufacturer is Triad
+    (Coilcraft references in older BOM docs were wrong); ratio 1000:1
+    +/-3 turns; DCR 40 ohm; UL E205349.
+
+    OPEN APPLICATION MISMATCH (needs part change or relocation):
+    - Rated IP is 5A continuous, accuracy band 2-20A. Design path
+      carries ~15A RMS / 25A peak.
+    - Datasheet scope is 50/60 Hz; primary is wired to the 25-35 kHz
+      resonant tank return (main.ato SENSING). An HF-rated current-sense
+      transformer is required there, or move the CT to the AC input side.
+    - Operating temp -10..+65C — tight next to the power stage."""
     footprint = "temper:CST-1005"
     mpn = "CST-1005"
     manufacturer = "Triad Magnetics"
-    ratio = 1000  # 1:1000 verified against Triad datasheet — re-verify if manufacturer changes
+    ratio = 1000  # 1:1000 verified against Triad datasheet
     
     signal S1 ~ pin 1
     signal S2 ~ pin 2
