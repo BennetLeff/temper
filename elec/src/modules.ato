@@ -457,19 +457,30 @@ module PowerInput:
     c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"
 
     # CMC: common-mode choke for conducted EMI suppression
-    # Two windings modeled as two inductors in the signal path
+    # Two windings modeled as two inductors in the signal path.
+    # VERIFIED 2026-07-16: TDK (EPCOS) B82726S2163N030 current-compensated
+    # ring-core double choke — 250VAC, 16A rated (T_R +60C, derate above),
+    # 2.2mH +/-30% per winding at 10kHz, R_typ 7.1mOhm/winding, THT.
+    # Datasheet: tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf.
+    # The previously listed B82725J2152N1 does not exist (B82725J selection
+    # table runs B82725J2102N020..B82725J2103N022) and that family tops out
+    # at 10A — under-rated for the 15A line current here.
+    # NOTE: one physical 4-pin part modeled as 2x 2-pin inductors (BOM shows
+    # qty 2; order 1). Real pin grid: rows 23mm apart, pins 18mm (top) /
+    # 38mm (bottom); the 2-pin toroid footprint (P=22.9mm) approximates one
+    # winding's 23mm row pitch until a proper 4-pad footprint is built.
     cmc_w1 = new Inductor
-    cmc_w1.value = 10mH
-    cmc_w1.current_rating = 15A
-    cmc_w1.dcr = 0.02ohm
-    cmc_w1.mpn = "B82725J2152N1"  # VERIFY: EPCOS B82725J ring-core double choke — confirm exact variant & 15A/250VAC rating
+    cmc_w1.value = 2.2mH
+    cmc_w1.current_rating = 16A
+    cmc_w1.dcr = 0.0071ohm
+    cmc_w1.mpn = "B82726S2163N030"
     cmc_w1.footprint = "Inductor_THT:L_Toroid_Horizontal_D25.4mm_P22.90mm_Vishay_TJ5"
 
     cmc_w2 = new Inductor
-    cmc_w2.value = 10mH
-    cmc_w2.current_rating = 15A
-    cmc_w2.dcr = 0.02ohm
-    cmc_w2.mpn = "B82725J2152N1"
+    cmc_w2.value = 2.2mH
+    cmc_w2.current_rating = 16A
+    cmc_w2.dcr = 0.0071ohm
+    cmc_w2.mpn = "B82726S2163N030"
     cmc_w2.footprint = "Inductor_THT:L_Toroid_Horizontal_D25.4mm_P22.90mm_Vishay_TJ5"
     
     ntc = new NTC_Inrush
