@@ -424,14 +424,16 @@ def generate_board(
 
     # Edge.Cuts outline with margin
     margin = 10.0
+    # Fixed board outline matching the corpus constraint target (100x150 mm).
+    # Flow layout overflows this rectangle; the placer will fix positions.
     outline = GrPoly(
         layer="Edge.Cuts",
         width=0.1,
         coordinates=[
-            Position(min_x - margin, min_y - margin),
-            Position(max_x + margin, min_y - margin),
-            Position(max_x + margin, max_y + margin),
-            Position(min_x - margin, max_y + margin),
+            Position(0, 0),
+            Position(100, 0),
+            Position(100, 150),
+            Position(0, 150),
         ],
     )
     if not hasattr(board, "graphicItems"):
