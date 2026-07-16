@@ -31,7 +31,7 @@ from temper_placer.validation._drc_api import (  # noqa: F401
 # =========================================================================
 
 import time as _time
-from dataclasses import dataclass as _dataclass
+from dataclasses import dataclass as _dataclass, field
 from typing import TYPE_CHECKING as _TYPE_CHECKING
 from typing import Any as _Any
 
