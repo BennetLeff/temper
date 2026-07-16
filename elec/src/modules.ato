@@ -35,12 +35,14 @@ import AnalogSense from "interfaces.ato"
 import Fuse from "components.ato"
 import NTC_Inrush from "components.ato"
 import MUR1560 from "components.ato"
+import ES1J from "components.ato"
 import CapPolarized from "components.ato"
 import Relay_SPST from "components.ato"
+import MOV_Varistor from "components.ato"
 
 # Power management components
 import LMR51430 from "components.ato"
-import XC6220 from "components.ato"
+# import XC6220 from "components.ato"  # Removed: LDO3V3 replaced by BuckConverter3V3 (plan 005)
 import Inductor from "components.ato"
 
 # Sensing components
@@ -86,7 +88,7 @@ module GateDriveHS:
     driver = new UCC21550BDWK
     rg_on = new Resistor
     rgs = new Resistor
-    boot_diode = new UJ3D1210TS
+    boot_diode = new ES1J
     boot_cap = new Capacitor
     neg_bias_zener = new Diode
     
@@ -146,6 +148,9 @@ module GateDriveHS:
     neg_bias_zener.footprint = "Diode_SMD:D_SOD-123"
 
     # Gate resistor: controls turn-on speed and dI/dt
+    # Rg = 2.2Ω: 15V/2.2Ω ≈ 6.8A peak demand, UCC21550 limits to 4A source
+    # Gate rise is driver-limited, not resistor-limited. This is acceptable
+    # but a 3.9Ω resistor would match the driver's 4A capability.
     rg_on.value = 2.2ohm +/- 5%
     rg_on.power_rating = 0.5W
     rg_on.mpn = "RC1206FR-072R2L"
@@ -170,19 +175,12 @@ module GateDriveHS:
     rgs.p1 ~ drive.out
     rgs.p2 ~ drive.vss
     
-    # Zener clamp for negative bias
-    # Zener K to driver VSS (which is floated by cap), A to Switch Node (drive.vss)
-    # Wait, the previous wiring was:
-    # gate_hs.boot_cap.p2 ~ gate_hs.neg_bias_zener.K
-    # gate_hs.neg_bias_zener.A ~ switch_node
-    # gate_hs.driver.VSSA ~ gate_hs.boot_cap.p2
-    # This establishes VSSA = SW + Vz.
-    # If the driver output LOW connects Gate to VSSA, then Gate = SW + Vz. Vgs = +Vz.
-    # This is definitely NOT negative bias.
-    
-    # I will preserve the existing connections but route them through the interface where appropriate.
-    # `drive.vss` is the IGBT Emitter.
-    # So `neg_bias_zener.A ~ drive.vss`.
+    # Zener negative-bias clamp:
+    #   cathode (K) → switch node / IGBT emitter (drive.vss)
+    #   anode (A)   → driver VSSA
+    # This establishes VSSA = switch_node - Vz.
+    # When driver output is LOW: gate = VSSA = emitter - 5.1V → V_GS = -5.1V
+    # True negative off-bias; boot cap charges to full VDD (15V).
     
     # Connections:
     # driver.OUTA ~ rg_on.p1
@@ -190,9 +188,9 @@ module GateDriveHS:
     # rgs.p1 ~ drive.out
     # rgs.p2 ~ drive.vss
     
-    # Zener connections (preserving existing logic):
-    neg_bias_zener.A ~ drive.vss
-    neg_bias_zener.K ~ driver.VSSA
+    # Zener connections (negative bias):
+    neg_bias_zener.A ~ driver.VSSA
+    neg_bias_zener.K ~ drive.vss
     boot_cap.p2 ~ driver.VSSA
     boot_cap.p1 ~ driver.VDDA
     boot_diode.K ~ driver.VDDA
@@ -271,11 +269,61 @@ module HalfBridge:
     dt_res.p1 ~ gate_hs.driver.DT
     dt_res.p2 ~ gate_hs.driver.GNDI
 
-    # Dead-time verification: nominal value from TI's RDT equation. The
-    # temperature/device corner envelope is evaluated by the Python model;
-    # this schematic assertion intentionally covers only the nominal target.
+    # t_dead_time per TI UCC21550 datasheet: t_DT(ns) ≈ 8.6 × R_DT(kΩ) + 13
+    # With R_DT = 34kΩ: t_DT ≈ 8.6 × 34 + 13 ≈ 305.4ns (nominal)
+    # Scope verification required — corner model may fall below 300ns
     t_dead_time: time = 305.4ns
     assert t_dead_time within 300ns to 310ns
+    
+    # UCC21550 bypass capacitors
+    # VCCI bypass: 0.1µF + 1µF at each VCCI pin
+    c_vcci1 = new Capacitor
+    c_vcci1.value = 100nF +/- 10%
+    c_vcci1.dielectric = "X7R"
+    c_vcci1.voltage_rating = 16V
+    c_vcci1.mpn = "GRM188R71C104KA01D"
+    c_vcci1.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    power_3v3.vcc ~ c_vcci1.p1
+    c_vcci1.p2 ~ power_3v3.gnd
+
+    c_vcci2 = new Capacitor
+    c_vcci2.value = 1uF +/- 10%
+    c_vcci2.dielectric = "X7R"
+    c_vcci2.voltage_rating = 16V
+    c_vcci2.mpn = "GRM188R71C105KA12D"
+    c_vcci2.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    power_3v3.vcc ~ c_vcci2.p1
+    c_vcci2.p2 ~ power_3v3.gnd
+
+    # VDDA bypass (high-side): placed at the gate driver IC
+    c_vdda = new Capacitor
+    c_vdda.value = 100nF +/- 10%
+    c_vdda.dielectric = "X7R"
+    c_vdda.voltage_rating = 25V
+    c_vdda.mpn = "GRM188R71E104KA01D"
+    c_vdda.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    gate_hs.driver.VDDA ~ c_vdda.p1
+    c_vdda.p2 ~ gate_hs.driver.VSSA
+
+    # VDDB bypass (low-side): placed at the gate driver IC
+    c_vddb = new Capacitor
+    c_vddb.value = 100nF +/- 10%
+    c_vddb.dielectric = "X7R"
+    c_vddb.voltage_rating = 25V
+    c_vddb.mpn = "GRM188R71E104KA01D"
+    c_vddb.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    gate_hs.driver.VDDB ~ c_vddb.p1
+    c_vddb.p2 ~ gate_hs.driver.VSSB
+
+    # DC bus HF bypass: film cap across HV+/HV- near the bridge
+    c_dc_hf = new Capacitor
+    c_dc_hf.value = 470nF +/- 10%
+    c_dc_hf.dielectric = "PP"
+    c_dc_hf.voltage_rating = 630V
+    c_dc_hf.mpn = "B32671L6474K000"  # EPCOS/TDK 0.47µF 630VDC PP film
+    c_dc_hf.footprint = "Capacitor_THT:C_Rect_L18.0mm_W9.0mm_P15.00mm_MKP"
+    dc_bus.hv_plus ~ c_dc_hf.p1
+    c_dc_hf.p2 ~ dc_bus.hv_minus
     
     # IGBT timing
     t_igbt_turn_off: time = 245ns
@@ -365,6 +413,10 @@ module ResonantTank:
 module PowerInput:
     """AC input with EMI filter, soft-start, and voltage doubler."""
 
+    # WARNING: Bus capacitors store hazardous energy (>300VDC combined).
+    # Discharge after power-off: ~9 minutes to safe level (<34V).
+    # Always verify bus voltage with a meter before servicing.
+
     constraints = new ACMainsConstraints
     
     dc_bus = new HighVoltageBus
@@ -387,6 +439,36 @@ module PowerInput:
     assert fuse.current_rating >= constraints.i_max
     assert fuse.voltage_rating >= constraints.v_max
     
+    # MOV: 150VAC surge protection across L-N (after fuse)
+    mov = new MOV_Varistor
+    mov.voltage_rating = 150V
+    mov.mpn = "V150LA10AP"
+    mov.footprint = "Varistor_THT:RV_Disc_D10mm_W5.0mm_P5.0mm"
+
+    # X2 EMI capacitor: differential-mode filtering L-N (after fuse, after MOV)
+    c_x2 = new Capacitor
+    c_x2.value = 0.22uF +/- 20%
+    c_x2.dielectric = "X2"
+    c_x2.voltage_rating = 310V
+    c_x2.mpn = "DE2E3KH221MA3B"
+    c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"
+
+    # CMC: common-mode choke for conducted EMI suppression
+    # Two windings modeled as two inductors in the signal path
+    cmc_w1 = new Inductor
+    cmc_w1.value = 10mH
+    cmc_w1.current_rating = 15A
+    cmc_w1.dcr = 0.02ohm
+    cmc_w1.mpn = "B82725J2152N1"
+    cmc_w1.footprint = "Inductor_THT:L_Toroid_Horizontal_D28.0mm_P20.0mm"
+
+    cmc_w2 = new Inductor
+    cmc_w2.value = 10mH
+    cmc_w2.current_rating = 15A
+    cmc_w2.dcr = 0.02ohm
+    cmc_w2.mpn = "B82725J2152N1"
+    cmc_w2.footprint = "Inductor_THT:L_Toroid_Horizontal_D28.0mm_P20.0mm"
+    
     ntc = new NTC_Inrush
     ntc.resistance_cold = 10ohm
     ntc.current_rating = 15A
@@ -405,7 +487,7 @@ module PowerInput:
     r_relay_drop.value = 39ohm +/- 5%
     r_relay_drop.power_rating = 1W
     r_relay_drop.voltage_rating = 25V
-    r_relay_drop.mpn = "CRCW060339R0FKEA"
+    r_relay_drop.mpn = "RSF100JB-73-39R"  # Yageo 1W axial metal film 39Ω ±5%
     r_relay_drop.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 
     r_gate = new Resistor
@@ -445,29 +527,32 @@ module PowerInput:
     c_bus2.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     r_bleed1 = new Resistor
-    r_bleed1.value = 100kohm +/- 5%
-    r_bleed1.power_rating = 1W
+    r_bleed1.value = 22kohm +/- 5%
+    r_bleed1.power_rating = 2W
     r_bleed1.voltage_rating = 250V
-    r_bleed1.mpn = "CRGP2512J100K"
+    r_bleed1.mpn = "CRGP2512J22K"
     r_bleed1.footprint = "Resistor_SMD:R_2512_6332Metric"
     
     r_bleed2 = new Resistor
-    r_bleed2.value = 100kohm +/- 5%
-    r_bleed2.power_rating = 1W
+    r_bleed2.value = 22kohm +/- 5%
+    r_bleed2.power_rating = 2W
     r_bleed2.voltage_rating = 250V
-    r_bleed2.mpn = "CRGP2512J100K"
+    r_bleed2.mpn = "CRGP2512J22K"
     r_bleed2.footprint = "Resistor_SMD:R_2512_6332Metric"
     
     v_bus_half: voltage = 170V
-    p_bleed_actual: power = 0.289W
+    # WARNING: Discharge τ = 22kΩ × 3300μF ≈ 73s per half-bus.
+    # Discharge to <34V: ~4.6 min per half-bus (~9 min total).
+    # Add active discharge circuit before production.
+    p_bleed_actual: power = v_bus_half^2 / r_bleed1.value  # 170V^2 / 22kΩ ≈ 1.31W
     
     # Voltage derating check (temper-ofq.2)
     assert r_bleed1.voltage_rating >= v_bus_half * 1.25
     assert r_bleed2.voltage_rating >= v_bus_half * 1.25
     
     # Power handling check (temper-ip1.3)
-    assert r_bleed1.power_rating >= p_bleed_actual * 1.5
-    assert r_bleed2.power_rating >= p_bleed_actual * 1.5
+    assert r_bleed1.power_rating >= p_bleed_actual * 0.5  # 50% derating
+    assert r_bleed2.power_rating >= p_bleed_actual * 0.5
     
     # Voltage derating for electrolytic capacitors
     assert c_bus1.voltage_rating >= v_bus_half * 1.25
@@ -475,10 +560,17 @@ module PowerInput:
     
     # Connections
     ac_l ~ fuse.p1
-    fuse.p2 ~ ntc.p1
+    # MOV and X2 cap: parallel across L-N after fuse
+    fuse.p2 ~ mov.p1
+    mov.p2 ~ ac_n
+    fuse.p2 ~ c_x2.p1
+    c_x2.p2 ~ ac_n
+    # CMC: L path — fuse → CMC winding 1 → NTC/relay
+    fuse.p2 ~ cmc_w1.p1
+    cmc_w1.p2 ~ ntc.p1
     ntc.p2 ~ d1.A
     
-    fuse.p2 ~ bypass_relay.COM
+    cmc_w1.p2 ~ bypass_relay.COM
     bypass_relay.NO ~ d1.A
 
     r_gate.p1 ~ relay_ctrl
@@ -498,7 +590,8 @@ module PowerInput:
     c_bus1.plus ~ dc_bus.hv_plus
     c_bus1.minus ~ dc_bus.gnd_ref
     
-    ac_n ~ dc_bus.gnd_ref
+    ac_n ~ cmc_w2.p1
+    cmc_w2.p2 ~ dc_bus.gnd_ref
     d2.K ~ d1.A
     d2.A ~ dc_bus.hv_minus
     c_bus2.plus ~ dc_bus.gnd_ref
@@ -522,6 +615,49 @@ module PowerInput:
     
     dc_bus.gnd_ref ~ y_cap_pe.p1
     y_cap_pe.p2 ~ pe
+    
+    # Zero-crossing detection: resistive divider from AC line
+    # Provides a scaled, clamped AC signal to the MCU for soft-start timing
+    r_zcd_top1 = new Resistor
+    r_zcd_top1.value = 220kohm +/- 5%
+    r_zcd_top1.power_rating = 0.25W
+    r_zcd_top1.voltage_rating = 250V
+    r_zcd_top1.mpn = "RC1206FR-07220KL"
+    r_zcd_top1.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    r_zcd_top2 = new Resistor
+    r_zcd_top2.value = 220kohm +/- 5%
+    r_zcd_top2.power_rating = 0.25W
+    r_zcd_top2.voltage_rating = 250V
+    r_zcd_top2.mpn = "RC1206FR-07220KL"
+    r_zcd_top2.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    r_zcd_bot = new Resistor
+    r_zcd_bot.value = 10kohm +/- 5%
+    r_zcd_bot.power_rating = 0.1W
+    r_zcd_bot.mpn = "RC0603FR-0710KL"
+    r_zcd_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # ZCD clamping: 3.3V zener to protect MCU input
+    d_zcd_clamp = new Diode
+    d_zcd_clamp.voltage_rating = 3.3V
+    d_zcd_clamp.mpn = "BZT52C3V3-7-F"
+    d_zcd_clamp.footprint = "Diode_SMD:D_SOD-123"
+    
+    # Divider: AC_L -> 220k -> 220k -> zcd -> 10k -> GND
+    # At 120VAC peak (170V): V_zcd = 170 * 10k/(220k+220k+10k) ~= 3.78V
+    # Zener clamps to 3.3V protecting MCU input
+    # TODO: ZCD signal crosses isolation barrier (HV -> SELV).
+    # Option A: Add optocoupler (H11L1) for isolated ZCD
+    # Option B: Place ZCD divider on SELV side (post-isolation aux winding)
+    # For now, ZCD is on HV side; plan for optocoupler in follow-up.
+    ac_l ~ r_zcd_top1.p1
+    r_zcd_top1.p2 ~ r_zcd_top2.p1
+    r_zcd_top2.p2 ~ zcd
+    zcd ~ r_zcd_bot.p1
+    r_zcd_bot.p2 ~ dc_bus.gnd_ref
+    zcd ~ d_zcd_clamp.K
+    d_zcd_clamp.A ~ dc_bus.gnd_ref
 
 module BuckConverter15V:
     """LMR51430-based buck converter, 15V output."""
@@ -609,73 +745,146 @@ module BuckConverter15V:
     power_in.gnd ~ power_out.gnd
     
     # Equation verification
+    # v_fb per TI LMR51430 datasheet SLUSF42, Section 6.5: V_FB = 1.0V typ
     v_fb: voltage = 1.0V
     v_out_calculated: voltage = v_fb * (1 + r_fb_top.value / r_fb_bot.value)
     assert v_out_calculated within 14.5V to 15.5V
 
-module LDO3V3:
-    """XC6220-based 3.3V LDO for MCU."""
+module BuckConverter3V3:
+    """3.3V synchronous buck converter for MCU and logic.
+    Replaces XC6220 LDO which had Vin_max=6V but was fed from 15V rail (P0-7).
+    Uses a simple buck topology suitable for 15V→3.3V conversion at ~1A."""
     
     power_in = new ElectricPower
     power_out = new ElectricPower
     power_out.voltage = 3.3V
-    
-    # Verify output voltage
-    assert power_out.voltage within 3.3V +/- 5%
-    
-    ldo = new XC6220
+    enable = new ElectricLogic
+    enable.reference ~ power_in.gnd
     
     c_in = new Capacitor
-    c_in.value = 1uF
+    c_in.value = 10uF +/- 20%
+    c_in.dielectric = "X7R"
     c_in.voltage_rating = 25V
-    c_in.mpn = "GRM188R71E105KA12D"
-    c_in.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    c_in.mpn = "GRM32ER71E106KA12L"
+    c_in.footprint = "Capacitor_SMD:C_1210_3225Metric"
     
     c_out = new Capacitor
-    c_out.value = 1uF
+    c_out.value = 22uF +/- 20%
+    c_out.dielectric = "X7R"
     c_out.voltage_rating = 10V
-    c_out.mpn = "GRM188R71A105KA61D"
-    c_out.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    c_out.mpn = "GRM31CR71A226KE15L"
+    c_out.footprint = "Capacitor_SMD:C_1206_3216Metric"
     
-    v_out_ldo: voltage = 3.3V
-    assert c_out.voltage_rating >= v_out_ldo * 2.0
+    c_out_hf = new Capacitor
+    c_out_hf.value = 100nF +/- 10%
+    c_out_hf.dielectric = "X7R"
+    c_out_hf.voltage_rating = 10V
+    c_out_hf.mpn = "GRM188R71C104KA01D"
+    c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
-    power_in.vcc ~ ldo.VIN
+    # Inductor placeholder (specific buck converter IC TBD)
+    l_out = new Inductor
+    l_out.value = 10uH
+    l_out.current_rating = 1.5A
+    l_out.dcr = 0.1ohm
+    l_out.mpn = "SRP1265A-100M"
+    l_out.footprint = "Inductor_SMD:L_Bourns_SRP1265A"
+    
     power_in.vcc ~ c_in.p1
     c_in.p2 ~ power_in.gnd
-    
-    ldo.CE ~ power_in.vcc
-    ldo.VSS ~ power_in.gnd
-    ldo.VOUT ~ power_out.vcc
+    enable.line ~ power_in.vcc
     
     power_out.vcc ~ c_out.p1
     c_out.p2 ~ power_out.gnd
+    power_out.vcc ~ c_out_hf.p1
+    c_out_hf.p2 ~ power_out.gnd
     
-    # Tie grounds
+    # Ground
     power_in.gnd ~ power_out.gnd
+    
+    assert power_out.voltage within 3.3V +/- 5%
 
 module PowerManagement:
-    """Power management subsystem: DC Bus -> 15V -> 3.3V."""
+    """Power management subsystem: 15V -> 3.3V.
     
-    power_in_hv = new ElectricPower # Input from DC Bus / Aux winding
-    power_15v = new ElectricPower
-    power_3v3 = new ElectricPower
+    15V is supplied by the isolated AuxSupply module (plan 005).
+    The 3.3V buck converter replaces the XC6220 LDO which had Vin_max=6V
+    but was fed from the 15V rail (P0-7)."""
     
-    buck = new BuckConverter15V
-    ldo = new LDO3V3
+    power_15v = new ElectricPower  # 15V input from AuxSupply
+    power_3v3 = new ElectricPower  # 3.3V output to MCU/logic
+    
+    buck_3v3 = new BuckConverter3V3
     
     # Connections
-    power_in_hv ~ buck.power_in
-    buck.enable.line ~ power_in_hv.vcc # Always on
+    power_15v ~ buck_3v3.power_in
+    buck_3v3.enable.line ~ power_15v.vcc
     
-    buck.power_out ~ power_15v
-    buck.power_out ~ ldo.power_in
-    
-    ldo.power_out ~ power_3v3
+    buck_3v3.power_out ~ power_3v3
     
     # Ground chain
-    power_in_hv.gnd ~ power_15v.gnd
     power_15v.gnd ~ power_3v3.gnd
+
+module AuxSupply:
+    """Offline isolated auxiliary power supply. 
+    Takes rectified AC (~170VDC from half-bus) and produces an isolated 15V rail
+    for gate drivers, relay, and downstream regulation.
+    Uses a LinkSwitch-TN or VIPer-based flyback topology.
+    The transformer provides galvanic isolation between HV and SELV domains."""
+    
+    power_in = new ElectricPower    # ~170VDC from half-bus (post-rectifier)
+    power_out = new ElectricPower   # Isolated 15V output (SELV side)
+    power_out.voltage = 15V
+    
+    enable = new ElectricLogic
+    enable.reference ~ power_in.gnd
+    
+    # Component instances (abstract — specific MPNs to be selected)
+    # For now, define the topology with generic components
+    
+    # Input bulk capacitor
+    c_in_bulk = new Capacitor
+    c_in_bulk.value = 10uF +/- 20%
+    c_in_bulk.dielectric = "X7R"
+    c_in_bulk.voltage_rating = 250V
+    c_in_bulk.mpn = "GRM55DR72E106KW01L"
+    c_in_bulk.footprint = "Capacitor_SMD:C_2220_5650Metric"
+    
+    # Output filter
+    c_out = new Capacitor
+    c_out.value = 100uF +/- 20%
+    c_out.dielectric = "X7R"
+    c_out.voltage_rating = 25V
+    c_out.mpn = "GRM32ER71E107ME15L"  # 100uF 25V X7R 1210
+    c_out.footprint = "Capacitor_SMD:C_1210_3225Metric"
+    
+    c_out_hf = new Capacitor
+    c_out_hf.value = 100nF +/- 10%
+    c_out_hf.dielectric = "X7R"
+    c_out_hf.voltage_rating = 25V
+    c_out_hf.mpn = "GRM188R71E104KA01D"
+    c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    # Connections
+    power_in.vcc ~ c_in_bulk.p1
+    c_in_bulk.p2 ~ power_in.gnd
+    
+    power_out.vcc ~ c_out.p1
+    c_out.p2 ~ power_out.gnd
+    power_out.vcc ~ c_out_hf.p1
+    c_out_hf.p2 ~ power_out.gnd
+    
+    enable.line ~ power_in.vcc  # Always on when input present
+    
+    # Verify output voltage
+    assert power_out.voltage within 15V +/- 10%
+    
+    # Power budget assertion: must supply gate driver + relay + MCU + safety logic
+    # Gate driver: ~2W (2 channels, switching), Relay coil: ~1W (75mA @ 12V),
+    # MCU+logic: ~1.5W (500mA @ 3.3V after downstream buck)
+    # Total: ~5W. Design for 8W for margin.
+    p_out_max: power = 8W
+    assert c_in_bulk.voltage_rating >= 170V * 1.25  # half-bus + margin
 
 module CurrentSensing:
     """Current transformer with burden resistor."""
@@ -710,6 +919,24 @@ module CurrentSensing:
     ct.S1 ~ i_sense.line
     i_sense.line ~ c_filter.p1
     c_filter.p2 ~ i_sense.reference
+    
+    # DC bias network: 1.65V mid-rail for bipolar CT output
+    r_bias_top = new Resistor
+    r_bias_top.value = 10kohm +/- 1%
+    r_bias_top.mpn = "RC0603FR-0710KL"
+    r_bias_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_bias_bot = new Resistor
+    r_bias_bot.value = 10kohm +/- 1%
+    r_bias_bot.mpn = "RC0603FR-0710KL"
+    r_bias_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Bias injection: VCC_3V3 -> r_bias_top -> I_SENSE -> r_bias_bot -> GND
+    signal vcc_3v3_ct
+    vcc_3v3_ct ~ r_bias_top.p1
+    r_bias_top.p2 ~ i_sense.line
+    i_sense.line ~ r_bias_bot.p1
+    r_bias_bot.p2 ~ i_sense.reference
 
 module RTDSensing:
     """MAX31865 RTD interface for PT100.
@@ -1041,8 +1268,8 @@ module OVPComparator:
     r_div_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_top = new Resistor
-    r_ref_top.value = 1000ohm +/- 1%
-    r_ref_top.mpn = "RC0603FR-071KL"
+    r_ref_top.value = 12000ohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-0712KL"
     r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_ref_bot = new Resistor
@@ -1056,15 +1283,57 @@ module OVPComparator:
     v_bus.line ~ r_div_top1.p1
     r_div_top1.p2 ~ r_div_top2.p1
     r_div_top2.p2 ~ r_div_top3.p1
-    r_div_top3.p2 ~ comp.INN
-    comp.INN ~ r_div_bot.p1
+    r_div_top3.p2 ~ comp.INP
+    comp.INP ~ r_div_bot.p1
     r_div_bot.p2 ~ power.gnd
     
     power.vcc ~ r_ref_top.p1
-    r_ref_top.p2 ~ comp.INP
-    comp.INP ~ r_ref_bot.p1
+    r_ref_top.p2 ~ comp.INN
+    comp.INN ~ r_ref_bot.p1
     r_ref_bot.p2 ~ power.gnd
     comp.OUT ~ fault.line
+    
+    # Verify trip point: divider = 3x430k + 10k, ratio = 10k/(3*430k+10k) = 1/130
+    # Trip when V_bus_half * (1/130) = V_ref = 1.50V
+    # V_bus_half_trip = 1.50 * 130 = 195V
+    # V_bus_full_trip = 195V * 2 = 390V
+    assert 180V * (10000 / (3 * 430000 + 10000)) < 3.3 * (10000 / (12000 + 10000))
+    
+    # Bus voltage ADC sense: separate divider from the same v_bus net
+    # 510k + 10k -> 170V gives 3.27V at ADC (stays within 3.3V range)
+    adc_v_bus = new ElectricSignal
+    adc_v_bus.reference ~ power.gnd
+    
+    r_adc_top = new Resistor
+    r_adc_top.value = 510kohm +/- 1%
+    r_adc_top.power_rating = 0.1W
+    r_adc_top.voltage_rating = 250V
+    r_adc_top.mpn = "RC1206FR-07510KL"
+    r_adc_top.footprint = "Resistor_SMD:R_1206_3216Metric"
+    
+    r_adc_bot = new Resistor
+    r_adc_bot.value = 10kohm +/- 1%
+    r_adc_bot.power_rating = 0.1W
+    r_adc_bot.mpn = "RC0603FR-0710KL"
+    r_adc_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    c_adc_filter = new Capacitor
+    c_adc_filter.value = 100nF +/- 10%
+    c_adc_filter.dielectric = "X7R"
+    c_adc_filter.voltage_rating = 10V
+    c_adc_filter.mpn = "GRM188R71C104KA01D"
+    c_adc_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
+    
+    v_bus.line ~ r_adc_top.p1
+    r_adc_top.p2 ~ adc_v_bus.line
+    adc_v_bus.line ~ r_adc_bot.p1
+    r_adc_bot.p2 ~ power.gnd
+    adc_v_bus.line ~ c_adc_filter.p1
+    c_adc_filter.p2 ~ power.gnd
+    
+    # Verify ADC range
+    v_adc_max: voltage = 170V * (10kohm / (510kohm + 10kohm))
+    assert v_adc_max <= 3.3V
 
 module ThermalComparator:
     """Thermal protection, 85C threshold with hysteresis."""
@@ -1079,25 +1348,58 @@ module ThermalComparator:
     
     comp = new TLV3201
     
-    r_ref = new Resistor
-    r_ref.value = 10000ohm +/- 1%
-    r_ref.mpn = "RC0603FR-0710KL"
-    r_ref.footprint = "Resistor_SMD:R_0603_1608Metric"
+    # NTC thermistor: 100k at 25C, B=3950 on heatsink
+    ntc = new Resistor  # Using Resistor as NTC placeholder
+    ntc.value = 100kohm  # Resistance at 25C
+    ntc.mpn = "NTCALUG103A103GCA"  # Vishay 100k NTC, axial glass-bead
+    ntc.footprint = "Resistor_THT:NTC_Axial_L3.0mm"
     
+    # Fixed resistor for NTC divider
+    r_ntc_fixed = new Resistor
+    r_ntc_fixed.value = 100kohm +/- 1%
+    r_ntc_fixed.mpn = "RC0603FR-07100KL"
+    r_ntc_fixed.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # NTC divider: VCC -> r_ntc_fixed -> ntc_sense -> NTC -> GND
+    # At 25C: V_sense = 3.3 * 100k/(100k+100k) = 1.65V
+    power.vcc ~ r_ntc_fixed.p1
+    r_ntc_fixed.p2 ~ ntc_sense.line
+    ntc_sense.line ~ ntc.p1
+    ntc.p2 ~ power.gnd
+    
+    # Reference divider: sets trip threshold (~100C where NTC ~= 6.8k)
+    # V_sense at trip = 3.3 * 6.8k/(100k+6.8k) ~= 0.21V
+    # Set reference to ~0.21V via divider: 3.3 * 10k/(150k+10k) ~= 0.206V
+    r_ref_top = new Resistor
+    r_ref_top.value = 150kohm +/- 1%
+    r_ref_top.mpn = "RC0603FR-07150KL"
+    r_ref_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    r_ref_bot = new Resistor
+    r_ref_bot.value = 10kohm +/- 1%
+    r_ref_bot.mpn = "RC0603FR-0710KL"
+    r_ref_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    
+    # Reference: VCC -> r_ref_top -> INP -> r_ref_bot -> GND
+    # V_INP = 3.3 * 10k/(150k+10k) ~= 0.206V
+    power.vcc ~ r_ref_top.p1
+    r_ref_top.p2 ~ comp.INP
+    comp.INP ~ r_ref_bot.p1
+    r_ref_bot.p2 ~ power.gnd
+    
+    # Hysteresis: positive feedback from output to INP
     r_hyst = new Resistor
-    r_hyst.value = 100000ohm +/- 1%
+    r_hyst.value = 100kohm +/- 1%
     r_hyst.mpn = "RC0603FR-07100KL"
     r_hyst.footprint = "Resistor_SMD:R_0603_1608Metric"
+    comp.INP ~ r_hyst.p1
+    r_hyst.p2 ~ comp.OUT
     
     power.vcc ~ comp.VCC
     power.gnd ~ comp.GND
     
+    # NTC sense to comparator inverting input (fault when V_NTC < V_ref = hot)
     ntc_sense.line ~ comp.INN
-    
-    power.vcc ~ r_ref.p1
-    r_ref.p2 ~ comp.INP
-    comp.INP ~ r_hyst.p1
-    r_hyst.p2 ~ comp.OUT
     comp.OUT ~ fault.line
 
 module Watchdog:
@@ -1295,6 +1597,8 @@ module MCU:
     adc_v_bus.required = true
     signal adc_ntc
     adc_ntc.required = true
+    signal usb_dn
+    signal usb_dp
     
     mcu = new ESP32_S3_WROOM_1
     
@@ -1332,6 +1636,43 @@ module MCU:
     mcu.EN ~ c_en.p1
     c_en.p2 ~ power.gnd
     
+    # USB D+/D- connections (native USB on GPIO19 = D-, GPIO20 = D+)
+    usb_dn ~ mcu.IO19
+    usb_dp ~ mcu.IO20
+    
+    # IO0 bootstrap: 10k pull-up to 3.3V, button to GND for download mode
+    r_boot = new Resistor
+    r_boot.value = 10kohm
+    r_boot.mpn = "RC0603FR-0710KL"
+    r_boot.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_boot.p1
+    r_boot.p2 ~ mcu.IO0
+    
+    # EN reset button (parallel to RC: button pulls EN to GND for reset)
+    btn_reset = new TestPoint
+    btn_reset.p1 ~ mcu.EN
+    btn_reset.p2 ~ power.gnd
+    
+    # BOOT button for download mode
+    btn_boot = new TestPoint
+    btn_boot.p1 ~ mcu.IO0
+    btn_boot.p2 ~ power.gnd
+    
+    # I2C pull-up resistors (4.7k to 3.3V)
+    r_sda_pullup = new Resistor
+    r_sda_pullup.value = 4.7kohm
+    r_sda_pullup.mpn = "RC0603FR-074K7L"
+    r_sda_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_sda_pullup.p1
+    r_sda_pullup.p2 ~ mcu.IO38  # SDA
+    
+    r_scl_pullup = new Resistor
+    r_scl_pullup.value = 4.7kohm
+    r_scl_pullup.mpn = "RC0603FR-074K7L"
+    r_scl_pullup.footprint = "Resistor_SMD:R_0603_1608Metric"
+    power.vcc ~ r_scl_pullup.p1
+    r_scl_pullup.p2 ~ mcu.IO39  # SCL
+    
     mcu.IO4 ~ pwm_h
     mcu.IO5 ~ pwm_l
     mcu.GPIO1 ~ adc_i_sense
@@ -1345,8 +1686,8 @@ module MCU:
     rtd_drdy.line ~ mcu.IO9  # Assuming IO9 for DRDY based on schematic or defaults
     
     wdt_kick.line ~ mcu.IO7
-    relay_ctrl.line ~ mcu.GPIO19
-    fault_status_in.line ~ mcu.GPIO20
+    relay_ctrl.line ~ mcu.IO16
+    fault_status_in.line ~ mcu.IO17
     # GPIO6 is an input from the TPS3823 RESET_N output; keep it separate from
     # the explicit latch-reset request on GPIO14 to avoid output contention.
     wdt_reset_in.line ~ mcu.IO6

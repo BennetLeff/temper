@@ -143,6 +143,14 @@ component NTC_Inrush:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component MOV_Varistor:
+    """Metal Oxide Varistor for surge protection"""
+    footprint: str
+    voltage_rating: voltage  # AC RMS clamping voltage rating
+    mpn: str
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component MUR1560:
     """Ultrafast rectifier 15A 600V"""
     footprint = "Package_TO_SOT_THT:TO-220-2_Vertical"
@@ -152,6 +160,19 @@ component MUR1560:
     # Ratings
     voltage_rating = 600V
     current_rating = 15A
+    t_rr = 35ns
+    
+    signal K ~ pin 1
+    signal A ~ pin 2
+
+component ES1J:
+    """Ultrafast rectifier 600V 1A SMA for bootstrap"""
+    footprint = "Diode_SMD:D_SMA"
+    mpn = "ES1J"
+    manufacturer = "ON Semiconductor"
+    
+    voltage_rating = 600V
+    current_rating = 1A
     t_rr = 35ns
     
     signal K ~ pin 1
@@ -235,7 +256,7 @@ component Inductor:
 component MAX31865:
     """RTD-to-Digital Converter, 15-bit ADC"""
     footprint = "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm"
-    mpn = "MAX31865ATP+"
+    mpn = "MAX31865AAP+"  # SSOP-20 package, matches footprint (TQFN→SSOP fix)
     manufacturer = "Analog Devices"
     
     # Ratings
