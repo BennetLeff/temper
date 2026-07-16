@@ -66,6 +66,7 @@ import SN74LVC1G38 from "components.ato"
 # MCU
 import ESP32_S3_WROOM_1 from "components.ato"
 import TestPoint from "components.ato"
+import Button from "components.ato"
 
 module PowerLoop:
     constraints = new HighVoltageConstraints
@@ -321,7 +322,7 @@ module HalfBridge:
     c_dc_hf.dielectric = "PP"
     c_dc_hf.voltage_rating = 630V
     c_dc_hf.mpn = "B32671L6474K000"  # EPCOS/TDK 0.47µF 630VDC PP film
-    c_dc_hf.footprint = "Capacitor_THT:C_Rect_L18.0mm_W9.0mm_P15.00mm_MKP"
+    c_dc_hf.footprint = "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
     dc_bus.hv_plus ~ c_dc_hf.p1
     c_dc_hf.p2 ~ dc_bus.hv_minus
     
@@ -443,7 +444,7 @@ module PowerInput:
     mov = new MOV_Varistor
     mov.voltage_rating = 150V
     mov.mpn = "V150LA10AP"
-    mov.footprint = "Varistor_THT:RV_Disc_D10mm_W5.0mm_P5.0mm"
+    mov.footprint = "Varistor:RV_Disc_D15.5mm_W5.2mm_P7.5mm"
 
     # X2 EMI capacitor: differential-mode filtering L-N (after fuse, after MOV)
     c_x2 = new Capacitor
@@ -460,14 +461,14 @@ module PowerInput:
     cmc_w1.current_rating = 15A
     cmc_w1.dcr = 0.02ohm
     cmc_w1.mpn = "B82725J2152N1"
-    cmc_w1.footprint = "Inductor_THT:L_Toroid_Horizontal_D28.0mm_P20.0mm"
+    cmc_w1.footprint = "Inductor_THT:L_Toroid_Horizontal_D25.4mm_P22.90mm_Vishay_TJ5"
 
     cmc_w2 = new Inductor
     cmc_w2.value = 10mH
     cmc_w2.current_rating = 15A
     cmc_w2.dcr = 0.02ohm
     cmc_w2.mpn = "B82725J2152N1"
-    cmc_w2.footprint = "Inductor_THT:L_Toroid_Horizontal_D28.0mm_P20.0mm"
+    cmc_w2.footprint = "Inductor_THT:L_Toroid_Horizontal_D25.4mm_P22.90mm_Vishay_TJ5"
     
     ntc = new NTC_Inrush
     ntc.resistance_cold = 10ohm
@@ -544,7 +545,7 @@ module PowerInput:
     # WARNING: Discharge τ = 22kΩ × 3300μF ≈ 73s per half-bus.
     # Discharge to <34V: ~4.6 min per half-bus (~9 min total).
     # Add active discharge circuit before production.
-    p_bleed_actual: power = v_bus_half^2 / r_bleed1.value  # 170V^2 / 22kΩ ≈ 1.31W
+    p_bleed_actual: power = v_bus_half * v_bus_half / r_bleed1.value  # 170V x 170V / 22kΩ ≈ 1.31W
     
     # Voltage derating check (temper-ofq.2)
     assert r_bleed1.voltage_rating >= v_bus_half * 1.25
@@ -848,7 +849,7 @@ module AuxSupply:
     c_in_bulk.dielectric = "X7R"
     c_in_bulk.voltage_rating = 250V
     c_in_bulk.mpn = "GRM55DR72E106KW01L"
-    c_in_bulk.footprint = "Capacitor_SMD:C_2220_5650Metric"
+    c_in_bulk.footprint = "Capacitor_SMD:C_2220_5750Metric"
     
     # Output filter
     c_out = new Capacitor
@@ -1297,7 +1298,7 @@ module OVPComparator:
     # Trip when V_bus_half * (1/130) = V_ref = 1.50V
     # V_bus_half_trip = 1.50 * 130 = 195V
     # V_bus_full_trip = 195V * 2 = 390V
-    assert 180V * (10000 / (3 * 430000 + 10000)) < 3.3 * (10000 / (12000 + 10000))
+    assert 180V * (10000 / (3 * 430000 + 10000)) < 3.3V * (10000 / (12000 + 10000))
     
     # Bus voltage ADC sense: separate divider from the same v_bus net
     # 510k + 10k -> 170V gives 3.27V at ADC (stays within 3.3V range)
@@ -1351,8 +1352,10 @@ module ThermalComparator:
     # NTC thermistor: 100k at 25C, B=3950 on heatsink
     ntc = new Resistor  # Using Resistor as NTC placeholder
     ntc.value = 100kohm  # Resistance at 25C
-    ntc.mpn = "NTCALUG103A103GCA"  # Vishay 100k NTC, axial glass-bead
-    ntc.footprint = "Resistor_THT:NTC_Axial_L3.0mm"
+    ntc.mpn = "NTCALUG103A104GCA"  # Vishay 100k NTC (R25=100k: "104"), axial glass-bead
+    # Stand-in 2-pad axial footprint; no NTC/thermistor lib in the committed
+    # fp-lib-table. The lug-mount part is wired via flying leads anyway.
+    ntc.footprint = "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical"
     
     # Fixed resistor for NTC divider
     r_ntc_fixed = new Resistor
@@ -1649,12 +1652,12 @@ module MCU:
     r_boot.p2 ~ mcu.IO0
     
     # EN reset button (parallel to RC: button pulls EN to GND for reset)
-    btn_reset = new TestPoint
+    btn_reset = new Button
     btn_reset.p1 ~ mcu.EN
     btn_reset.p2 ~ power.gnd
     
     # BOOT button for download mode
-    btn_boot = new TestPoint
+    btn_boot = new Button
     btn_boot.p1 ~ mcu.IO0
     btn_boot.p2 ~ power.gnd
     
