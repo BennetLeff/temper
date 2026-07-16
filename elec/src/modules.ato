@@ -1305,10 +1305,17 @@ module ThermalComparator:
     
     comp = new TLV3201
     
-    # NTC thermistor: 100k at 25C, B=3950 on heatsink
+    # NTC thermistor: 100k at 25C, B25/85=4190K, lug-mount on heatsink
     ntc = new Resistor  # Using Resistor as NTC placeholder
     ntc.value = 100kohm  # Resistance at 25C
-    ntc.mpn = "NTCALUG103A104GCA"  # Vishay 100k NTC (R25=100k: "104"), axial glass-bead
+    # VERIFIED 2026-07-16: Vishay BCcomponents NTCALUG01A104GA — standard
+    # lug sensor, R25=100k +/-2%, B25/85=4190K +/-1.5%, AWG#24 PTFE leads
+    # 38.1mm, M3 ring lug, AEC-Q200, 1500VAC lug-to-terminal isolation
+    # (datasheet 29092, ordering table; "A" suffix = RoHS e4 termination,
+    # preferred for new designs). The previous code "NTCALUG103A104GCA"
+    # was malformed — series is NTCALUG01A, not NTCALUG103A, and "GCA" is
+    # not a valid suffix.
+    ntc.mpn = "NTCALUG01A104GA"
     # Stand-in 2-pad axial footprint; no NTC/thermistor lib in the committed
     # fp-lib-table. The lug-mount part is wired via flying leads anyway.
     ntc.footprint = "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical"
@@ -1326,8 +1333,9 @@ module ThermalComparator:
     ntc_sense.line ~ ntc.p1
     ntc.p2 ~ power.gnd
     
-    # Reference divider: sets trip threshold (~100C where NTC ~= 6.8k)
-    # V_sense at trip = 3.3 * 6.8k/(100k+6.8k) ~= 0.21V
+    # Reference divider: sets trip threshold. With ref at 0.206V the NTC
+    # trips at R_ntc = 0.206*100k/(3.3-0.206) ~= 6.7k, which for the
+    # NTCALUG01A104GA (B25/85=4190K) is ~96C.
     # Set reference to ~0.21V via divider: 3.3 * 10k/(150k+10k) ~= 0.206V
     r_ref_top = new Resistor
     r_ref_top.value = 150kohm +/- 1%
