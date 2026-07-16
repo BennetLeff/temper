@@ -1,14 +1,14 @@
 version: 1
 boards:
-  - id: temper_fixture_33
-    path: pcb/benchmarks/temper_fixture_33.kicad_pcb
-    component_count: 0
-    net_count: 0
+  - id: temper_production
+    path: pcb/temper.kicad_pcb
+    component_count: 101
+    net_count: 138
     baseline_git_hash: unknown
-    description: "Temper 33-component benchmark fixture (quarantined; sunset once placer/router re-benchmarked against the real board — see pcb/benchmarks/README.md)"
+    description: "Temper production board — 101 components, 138 nets, generated from atopile netlist by scripts/gen_pcb_skeleton.py. 4-layer stackup (F.Cu/In1.Cu/In2.Cu/B.Cu), 100x150mm Edge.Cuts."
   - id: bitaxe_ultra
     path: power_pcb_dataset/corpus/bitaxe_ultra/bitaxeUltra.kicad_pcb
     component_count: 0
     net_count: 0
     baseline_git_hash: unknown
-    description: "Bitaxe Ultra — ES P32-S3 + BM1366 ASIC, power electronics. Golden fixtures pending generation."
+    description: "Bitaxe Ultra — ESP32-S3 + BM1366 ASIC, power electronics. Golden fixtures pending generation."
