@@ -547,17 +547,17 @@ module PowerInput:
     c_bus2b.footprint = "Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn"
     
     r_bleed1 = new Resistor
-    r_bleed1.value = 22kohm +/- 5%
+    r_bleed1.value = 22kohm +/- 1%
     r_bleed1.power_rating = 2W
     r_bleed1.voltage_rating = 250V
-    r_bleed1.mpn = "CRGP2512J22K"
+    r_bleed1.mpn = "CRGP2512F22K"  # VERIFIED 2026-07-16: CRGP2512 = 2W@70C pulse-withstanding; orderable variant is F (1%)
     r_bleed1.footprint = "Resistor_SMD:R_2512_6332Metric"
     
     r_bleed2 = new Resistor
-    r_bleed2.value = 22kohm +/- 5%
+    r_bleed2.value = 22kohm +/- 1%
     r_bleed2.power_rating = 2W
     r_bleed2.voltage_rating = 250V
-    r_bleed2.mpn = "CRGP2512J22K"
+    r_bleed2.mpn = "CRGP2512F22K"  # VERIFIED 2026-07-16: CRGP2512 = 2W@70C pulse-withstanding; orderable variant is F (1%)
     r_bleed2.footprint = "Resistor_SMD:R_2512_6332Metric"
     
     v_bus_half: voltage = 170V
