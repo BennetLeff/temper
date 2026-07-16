@@ -82,10 +82,11 @@ component CST2010_100L:
     VERIFIED 2026-07-16: senses up to 47A, usable to 1MHz+ (35kHz tank
     frequency is in-band), -40..+125C, 1500Vrms winding-winding isolation.
     Replaces Triad CST-1005 (5A, 50/60Hz only, 65C max) per BOM audit.
-    Footprint: placeholder THT CT footprint until the CST2010 land pattern
-    is hand-built from the Coilcraft datasheet (repo precedent: e1b8a29e)."""
+    Footprint hand-built from the Coilcraft datasheet land pattern
+    (Document 1100-2); pads 1/2 = primary tabs (Coilcraft 11/12),
+    pads 3/4 = secondary (Coilcraft pins 2/4)."""
     designator_prefix = "T"
-    footprint = "temper:CST-1005"
+    footprint = "temper:CST2010"
     mpn = "CST2010-100L"
     manufacturer = "Coilcraft"
     ratio = 100
