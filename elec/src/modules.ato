@@ -101,24 +101,24 @@ module GateDriveHS:
     c_filt_b = new Capacitor
     
     r_filt_a.value = 51ohm +/- 1%
-    r_filt_a.mpn = "RC0402FR-0751RL"
-    r_filt_a.footprint = "Resistor_SMD:R_0402_1005Metric"
+    r_filt_a.mpn = "RC0603FR-0751RL"
+    r_filt_a.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_filt_b.value = 51ohm +/- 1%
-    r_filt_b.mpn = "RC0402FR-0751RL"
-    r_filt_b.footprint = "Resistor_SMD:R_0402_1005Metric"
+    r_filt_b.mpn = "RC0603FR-0751RL"
+    r_filt_b.footprint = "Resistor_SMD:R_0603_1608Metric"
 
     c_filt_a.value = 220pF +/- 5%
     c_filt_a.dielectric = "C0G"
     c_filt_a.voltage_rating = 50V
-    c_filt_a.mpn = "GRM1555C1H221JA01D"
-    c_filt_a.footprint = "Capacitor_SMD:C_0402_1005Metric"
+    c_filt_a.mpn = "GRM1885C1H221JA01D"
+    c_filt_a.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     c_filt_b.value = 220pF +/- 5%
     c_filt_b.dielectric = "C0G"
     c_filt_b.voltage_rating = 50V
-    c_filt_b.mpn = "GRM1555C1H221JA01D"
-    c_filt_b.footprint = "Capacitor_SMD:C_0402_1005Metric"
+    c_filt_b.mpn = "GRM1885C1H221JA01D"
+    c_filt_b.footprint = "Capacitor_SMD:C_0603_1608Metric"
 
     # Input Signals
     signal pwm_in_a
@@ -282,7 +282,7 @@ module HalfBridge:
     c_vcci1.value = 100nF +/- 10%
     c_vcci1.dielectric = "X7R"
     c_vcci1.voltage_rating = 16V
-    c_vcci1.mpn = "GRM188R71C104KA01D"
+    c_vcci1.mpn = "GRM188R71E104KA01D"
     c_vcci1.footprint = "Capacitor_SMD:C_0603_1608Metric"
     power_3v3.vcc ~ c_vcci1.p1
     c_vcci1.p2 ~ power_3v3.gnd
@@ -683,96 +683,6 @@ module PowerInput:
     zcd ~ d_zcd_clamp.K
     d_zcd_clamp.A ~ dc_bus.gnd_ref
 
-module BuckConverter15V:
-    """LMR51430-based buck converter, 15V output."""
-    
-    power_in = new ElectricPower
-    power_out = new ElectricPower
-    power_out.voltage = 15V
-    enable = new ElectricLogic
-    enable.reference ~ power_in.gnd
-    
-    buck = new LMR51430
-    
-    c_in = new Capacitor
-    c_in.value = 10uF
-    c_in.voltage_rating = 50V
-    c_in.mpn = "GRM32ER71H106KA12L"
-    c_in.footprint = "Capacitor_SMD:C_1210_3225Metric"
-    
-    c_boot = new Capacitor
-    c_boot.value = 100nF
-    c_boot.voltage_rating = 25V
-    c_boot.mpn = "GRM188R71E104KA01D"
-    c_boot.footprint = "Capacitor_SMD:C_0603_1608Metric"
-    
-    l_out = new Inductor
-    l_out.value = 22uH
-    l_out.current_rating = 3.5A
-    l_out.dcr = 0.05ohm
-    l_out.mpn = "SRP1265A-220M"
-    l_out.footprint = "Inductor_SMD:L_Bourns_SRP1265A"
-    
-    c_out1 = new Capacitor
-    c_out1.value = 22uF
-    c_out1.voltage_rating = 25V
-    c_out1.mpn = "GRM32ER71E226KE15L"
-    c_out1.footprint = "Capacitor_SMD:C_1210_3225Metric"
-    
-    c_out2 = new Capacitor
-    c_out2.value = 22uF
-    c_out2.voltage_rating = 25V
-    c_out2.mpn = "GRM32ER71E226KE15L"
-    c_out2.footprint = "Capacitor_SMD:C_1210_3225Metric"
-    
-    v_out_buck: voltage = 15V
-    assert c_out1.voltage_rating >= v_out_buck * 1.65
-    assert c_out2.voltage_rating >= v_out_buck * 1.65
-    
-    # Verify output voltage
-    assert power_out.voltage within 15V +/- 5%
-    
-    r_fb_top = new Resistor
-    r_fb_top.value = 140kohm +/- 1%
-    r_fb_top.mpn = "RC0603FR-07140KL"
-    r_fb_top.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
-    r_fb_bot = new Resistor
-    r_fb_bot.value = 10kohm +/- 1%
-    r_fb_bot.mpn = "RC0603FR-0710KL"
-    r_fb_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
-    
-    power_in.vcc ~ buck.VIN
-    power_in.vcc ~ c_in.p1
-    c_in.p2 ~ power_in.gnd
-    
-    enable.line ~ buck.EN
-    buck.GND ~ power_in.gnd
-    
-    buck.BOOT ~ c_boot.p1
-    c_boot.p2 ~ buck.SW
-    
-    buck.SW ~ l_out.p1
-    l_out.p2 ~ power_out.vcc
-    
-    power_out.vcc ~ c_out1.p1
-    c_out1.p2 ~ power_out.gnd
-    power_out.vcc ~ c_out2.p1
-    c_out2.p2 ~ power_out.gnd
-    
-    power_out.vcc ~ r_fb_top.p1
-    r_fb_top.p2 ~ buck.FB
-    buck.FB ~ r_fb_bot.p1
-    r_fb_bot.p2 ~ power_out.gnd
-    
-    # Tie grounds
-    power_in.gnd ~ power_out.gnd
-    
-    # Equation verification
-    # v_fb per TI LMR51430 datasheet SLUSF42, Section 6.5: V_FB = 1.0V typ
-    v_fb: voltage = 1.0V
-    v_out_calculated: voltage = v_fb * (1 + r_fb_top.value / r_fb_bot.value)
-    assert v_out_calculated within 14.5V to 15.5V
 
 module BuckConverter3V3:
     """3.3V synchronous buck converter for MCU and logic.
@@ -803,7 +713,7 @@ module BuckConverter3V3:
     c_out_hf.value = 100nF +/- 10%
     c_out_hf.dielectric = "X7R"
     c_out_hf.voltage_rating = 10V
-    c_out_hf.mpn = "GRM188R71C104KA01D"
+    c_out_hf.mpn = "GRM188R71E104KA01D"
     c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     # Inductor placeholder (specific buck converter IC TBD)
@@ -1017,7 +927,7 @@ module RTDSensing:
     c_vdd = new Capacitor
     c_vdd.value = 100nF
     c_vdd.voltage_rating = 10V
-    c_vdd.mpn = "GRM188R71C104KA01D"
+    c_vdd.mpn = "GRM188R71E104KA01D"
     c_vdd.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     # EMI Filtering (temper-en5)
@@ -1028,20 +938,20 @@ module RTDSensing:
     r_miso = new Resistor
     
     r_sclk.value = 33ohm +/- 5%
-    r_sclk.mpn = "RC0402FR-0733RL"
-    r_sclk.footprint = "Resistor_SMD:R_0402_1005Metric"
+    r_sclk.mpn = "RC0603FR-0733RL"
+    r_sclk.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_mosi.value = 33ohm +/- 5%
-    r_mosi.mpn = "RC0402FR-0733RL"
-    r_mosi.footprint = "Resistor_SMD:R_0402_1005Metric"
+    r_mosi.mpn = "RC0603FR-0733RL"
+    r_mosi.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_cs.value = 33ohm +/- 5%
-    r_cs.mpn = "RC0402FR-0733RL"
-    r_cs.footprint = "Resistor_SMD:R_0402_1005Metric"
+    r_cs.mpn = "RC0603FR-0733RL"
+    r_cs.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     r_miso.value = 33ohm +/- 5%
-    r_miso.mpn = "RC0402FR-0733RL"
-    r_miso.footprint = "Resistor_SMD:R_0402_1005Metric"
+    r_miso.mpn = "RC0603FR-0733RL"
+    r_miso.footprint = "Resistor_SMD:R_0603_1608Metric"
     
     # Ferrite bead on power input for high frequency noise rejection (temper-en5)
     # Target: ~120ohm @ 100MHz
@@ -1088,12 +998,12 @@ module RTDSensing:
     c_window_and.dielectric = "X7R"
     c_rail_monitor.dielectric = "X7R"
     c_fault_nand.dielectric = "X7R"
-    c_reference.mpn = "GRM188R71C104KA01D"
-    c_low_window.mpn = "GRM188R71C104KA01D"
-    c_high_window.mpn = "GRM188R71C104KA01D"
-    c_window_and.mpn = "GRM188R71C104KA01D"
-    c_rail_monitor.mpn = "GRM188R71C104KA01D"
-    c_fault_nand.mpn = "GRM188R71C104KA01D"
+    c_reference.mpn = "GRM188R71E104KA01D"
+    c_low_window.mpn = "GRM188R71E104KA01D"
+    c_high_window.mpn = "GRM188R71E104KA01D"
+    c_window_and.mpn = "GRM188R71E104KA01D"
+    c_rail_monitor.mpn = "GRM188R71E104KA01D"
+    c_fault_nand.mpn = "GRM188R71E104KA01D"
     power.vcc ~ c_reference.p1
     c_reference.p2 ~ power.gnd
     fb_power.p2 ~ c_low_window.p1
@@ -1357,7 +1267,7 @@ module OVPComparator:
     c_adc_filter.value = 100nF +/- 10%
     c_adc_filter.dielectric = "X7R"
     c_adc_filter.voltage_rating = 10V
-    c_adc_filter.mpn = "GRM188R71C104KA01D"
+    c_adc_filter.mpn = "GRM188R71E104KA01D"
     c_adc_filter.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     v_bus.line ~ r_adc_top.p1
@@ -1457,7 +1367,7 @@ module Watchdog:
     c_bypass = new Capacitor
     c_bypass.value = 100nF
     c_bypass.voltage_rating = 10V
-    c_bypass.mpn = "GRM188R71C104KA01D"
+    c_bypass.mpn = "GRM188R71E104KA01D"
     c_bypass.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     power.vcc ~ wdt.VDD
@@ -1643,7 +1553,7 @@ module MCU:
     c_vcc1 = new Capacitor
     c_vcc1.value = 100nF
     c_vcc1.voltage_rating = 10V
-    c_vcc1.mpn = "GRM188R71C104KA01D"
+    c_vcc1.mpn = "GRM188R71E104KA01D"
     c_vcc1.footprint = "Capacitor_SMD:C_0603_1608Metric"
     
     c_vcc2 = new Capacitor
