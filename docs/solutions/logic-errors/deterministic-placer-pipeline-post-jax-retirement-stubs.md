@@ -100,3 +100,26 @@ All three are the same shape: a value's *actual* runtime type (plain string, dic
 - `docs/plans/2026-07-05-001-feat-jax-retirement-production-rollback-plan.md` — the refactor that intentionally stubbed `corpus_runner.py`; its own stated success criterion ("regression corpus runner works without JAX, or is quarantined if dependent") landed on the quarantine branch, and follow-through to a working port never happened.
 - `docs/solutions/logic-errors/baseline-extractor-four-silent-fail-metrics-2026-07-01.md` — a related, earlier case of the same corpus-baseline machinery silently producing wrong or non-functional results with no gate catching it.
 - `docs/plans/2026-07-15-001-feat-artifact-identity-provenance-plan.md`, unit U6 — the re-benchmarking task that surfaced this; still blocked on a separate, deeper gap (see the handoff note in that plan) where `zone_aware_slot_generation`/`component_assignment` produce zero placements for a ~100-component board with no zone-defining config.
+
+### Fifth bug: polygon board outlines invisible to bbox parser (2026-07-15)
+
+`_extract_board_geometry` in `kicad_parser.py` only consumed Edge.Cuts
+items with `start`/`end` attributes (`gr_rect`, `gr_line`). The generated
+production board's outline is a `gr_poly` with a `coordinates` list. The
+bounding-box loop skipped it entirely, producing `-inf` for width/height.
+
+The `-inf` propagated through every downstream stage: component positions,
+zone geometry fallback bounds, slot grid generation, and KD-tree pad centers.
+Because `edge_cuts` was non-empty (the `gr_poly` exists on the Edge.Cuts
+layer), the "No Edge.Cuts found → use default" guard never fired.
+
+**Fix**: Extend the bbox loop to consume `GrPoly.coordinates` and
+`GrArc.start/mid/end`. Add a non-finite guard that falls back to
+`Board.temper_default()` when no coordinates were consumed.
+
+**Prevention smoke test**: `tests/io/test_production_board_smoke.py` —
+asserts finite bbox, component count >= 80, all positions finite, and
+no unexpected fallback warnings. Run on every push that touches the parser.
+
+This is the **fourth** bug the missing end-to-end smoke test would have
+caught at parse time. The smoke test now exists.

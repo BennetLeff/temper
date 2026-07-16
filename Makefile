@@ -63,7 +63,7 @@ visualize:
 # real production board is generated from schematics. The identity gate (plan
 # 2026-07-15-001 U4) will make routing fail-closed against a fixture-path board;
 # re-point PCB_FILE at the production board once it exists.
-PCB_FILE = pcb/benchmarks/temper_fixture_33.kicad_pcb
+PCB_FILE = pcb/temper.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb
 
 route: netlist

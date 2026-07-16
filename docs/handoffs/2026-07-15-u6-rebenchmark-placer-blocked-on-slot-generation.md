@@ -88,3 +88,34 @@ uv run python3 scripts/extract_corpus_baselines.py --board temper   # this scrip
 ```
 
 Board target size (`power_pcb_dataset/corpus/temper/constraints.yaml`, currently 100×150mm) does **not** need to change — confirmed via courtyard-area density check: even at a conservative 30% packing density, the real ~100-component design needs ~12,000mm², comfortably under the 15,000mm² the existing target already provides.
+
+---
+
+## Resolution (2026-07-15)
+
+**Root cause**: `_extract_board_geometry` in `kicad_parser.py` only handled
+`gr_rect`/`gr_line` Edge.Cuts items (which have `start`/`end`). The
+production board's outline is a `gr_poly` with a `coordinates` list — the
+loop skipped it, `x_min`/`x_max` stayed at `inf`/`-inf`, and the `-inf`
+dimensions propagated through every downstream stage including the
+zone-free fallback (which *was* working correctly but getting fed garbage).
+
+**Fix** (commit `f911581f` on `feat/rebenchmark-production-board`):
+- Extended the bounding-box loop to handle `GrPoly.coordinates` and
+  `GrArc.start/mid/end` points.
+- Added a non-finite guard: if the bbox is still non-finite after the
+  loop, falls back to `Board.temper_default()` with a warning rather
+  than silently feeding `-inf` downstream.
+
+**Verification**: `parse_kicad_pcb('pcb/temper.kicad_pcb')` now returns
+311.7 x 305.0mm with 100 components at finite positions.
+
+**Prevention**: `packages/temper-placer/tests/io/test_production_board_smoke.py`
+(4 tests: finite bbox, component count >= 80, all positions finite, no
+fallback warnings). This is the end-to-end smoke test the compound doc
+identified as missing.
+
+The fork in the original handoff — "fix the zone-free fallback vs. author
+a real config" — was a false choice. Both would have produced the same
+zero-placement result because the parser was feeding `-inf` to both.
+The zone-free fallback works correctly when given real dimensions.
