@@ -1,11 +1,31 @@
 # Baseline metrics for the Temper production board.
-# Generated from pcb/temper.kicad_pcb (101 components, 138 nets, 100x150mm).
-# U6: placeholder baseline — extract_corpus_baselines.py is stale (imports
-# deleted JAX losses). Replace with real metrics from CP-SAT placer baseline run.
+# Source: pcb/temper.kicad_pcb (123 components, 79 nets, 100x150mm).
+#
+# Extraction method changed from JAX gradient-descent (deleted 2026-07) to CP-SAT.
+# The JAX loss-based metrics (overlap_loss, wirelength_loss, boundary_loss,
+# hpwl_final, final_loss) are replaced by CP-SAT metrics below.
+#
+# To run a fresh baseline extraction:
+#   temper-placer optimize pcb/temper.kicad_pcb -c constraints.yaml -o output.kicad_pcb --all-gates
 
-component_count: 101
-net_count: 74
+component_count: 123
+net_count: 135
 drc_available: false
 drc_errors: 0
 drc_warnings: 0
-extraction_date: "2026-07-15"
+extraction_date: "2026-07-16"
+extraction_method: "cp-sat"
+
+# CP-SAT placement metrics (to be populated from a baseline run):
+cp_sat:
+  # From CpSatPlacementResult
+  solve_time_ms: null
+  objective_value: null
+  placed_components: null  # int: count of successfully placed components
+  status: null  # "optimal" | "feasible" | "infeasible" | "model_invalid"
+
+  # From PlaceRouteLoop LoopResult
+  rounds: null  # int: number of loop rounds until convergence
+  routing_completion_pct: null  # float: fraction of nets fully routed
+  loop_drc_errors: null  # int: post-route DRC errors at convergence
+  loop_success: null  # bool: whether the place-route loop converged

@@ -77,16 +77,19 @@ component UJ3D1210TS:
     signal A ~ pin 2
 
 component CST1005:
-    """Current Transformer 1:1000"""
+    """Current Transformer 1:1000 — Triad Magnetics (per footprint datasheet).
+    BOM/doc references list Coilcraft; verify manufacturer before production.
+    Footprint dimensions sourced from Triad CST-1005 datasheet."""
     footprint = "temper:CST-1005"
     mpn = "CST-1005"
-    ratio = 1000
+    manufacturer = "Triad Magnetics"
+    ratio = 1000  # 1:1000 verified against Triad datasheet — re-verify if manufacturer changes
     
     signal S1 ~ pin 1
     signal S2 ~ pin 2
 
 component Resistor:
-
+    designator_prefix = "R"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: ohm
     mpn: str
@@ -96,6 +99,7 @@ component Resistor:
     signal p2 ~ pin 2
 
 component Capacitor:
+    designator_prefix = "C"
     footprint = "Capacitor_SMD:C_0603_1608Metric"
     value: farad
     mpn: str
@@ -105,6 +109,7 @@ component Capacitor:
     signal p2 ~ pin 2
 
 component Diode:
+    designator_prefix = "D"
     footprint = "Diode_SMD:D_SOD-123"
     mpn: str
     voltage_rating: voltage
@@ -114,6 +119,7 @@ component Diode:
 
 component MOSFET_N:
     """N-channel logic-level MOSFET, low-side switch"""
+    designator_prefix = "Q"
     footprint = "Package_TO_SOT_SMD:SOT-23"
     mpn: str
     signal D ~ pin 1
@@ -126,6 +132,7 @@ component MOSFET_N:
 
 component Fuse:
     """Fuse holder with fuse"""
+    designator_prefix = "F"
     footprint = "Fuse:Fuse_Holder_5x20mm"
     current_rating: current
     voltage_rating: voltage
@@ -135,6 +142,7 @@ component Fuse:
 
 component NTC_Inrush:
     """Inrush current limiter NTC"""
+    designator_prefix = "RT"
     footprint = "Resistor_THT:R_Disc_D15.0mm_W7.0mm_P7.5mm"
     resistance_cold: ohm
     current_rating: current
@@ -145,6 +153,7 @@ component NTC_Inrush:
 
 component MOV_Varistor:
     """Metal Oxide Varistor for surge protection"""
+    designator_prefix = "RV"
     footprint: str
     voltage_rating: voltage  # AC RMS clamping voltage rating
     mpn: str
@@ -180,6 +189,7 @@ component ES1J:
 
 component CapPolarized:
     """Electrolytic capacitor"""
+    designator_prefix = "C"
     footprint: str
     value: farad
     voltage_rating: voltage
@@ -189,6 +199,7 @@ component CapPolarized:
 
 component Relay_SPST:
     """SPST relay for bypass"""
+    designator_prefix = "K"
     footprint: str
     coil_voltage: voltage
     contact_current: current
@@ -241,6 +252,7 @@ component XC6220:
 
 component Inductor:
     """Power inductor"""
+    designator_prefix = "L"
     footprint: str
     value: henry
     current_rating: current
@@ -536,8 +548,24 @@ component ESP32_S3_WROOM_1:
 # MISC COMPONENTS
 # ==============================================================================
 
+component Button:
+    """Momentary tactile pushbutton (boot/reset strap access).
+
+    Placeholder 0603 footprint: Button_Switch_SMD is not in the committed
+    fp-lib-table yet. Swap to SW_SPST_B3U-1000P (or similar) once the
+    library is added via tools/setup_kicad_env.py.
+    """
+    designator_prefix = "SW"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    mpn = "EVQ-P7A01P"
+    manufacturer = "Panasonic"
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component TestPoint:
     """Surface mount or through-hole test point"""
+    designator_prefix = "TP"
     footprint = "TestPoint:TestPoint_Pad_D1.0mm"
     mpn = "GENERIC_TEST_POINT"
     
