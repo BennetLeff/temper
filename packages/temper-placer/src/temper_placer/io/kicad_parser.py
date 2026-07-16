@@ -224,14 +224,42 @@ def _extract_board_geometry(ki_board: KiBoard, warnings: list[str]) -> Board:
     x_max, y_max = float("-inf"), float("-inf")
 
     for item in edge_cuts:
-        # Most items have start/end properties in kiutils
-        # (This is a simplified bounding box calculation)
+        # GrLine / GrRect: start + end points
         if hasattr(item, "start") and hasattr(item, "end"):
             for pt in [item.start, item.end]:
+                if pt is not None:
+                    x_min = min(x_min, pt.X)
+                    y_min = min(y_min, pt.Y)
+                    x_max = max(x_max, pt.X)
+                    y_max = max(y_max, pt.Y)
+
+        # GrPoly: list of coordinates
+        if hasattr(item, "coordinates") and item.coordinates:
+            for pt in item.coordinates:
                 x_min = min(x_min, pt.X)
                 y_min = min(y_min, pt.Y)
                 x_max = max(x_max, pt.X)
                 y_max = max(y_max, pt.Y)
+
+        # GrArc: start, mid, end
+        if hasattr(item, "mid") and item.mid is not None:
+            for pt in [item.start, item.mid, item.end]:
+                if pt is not None:
+                    x_min = min(x_min, pt.X)
+                    y_min = min(y_min, pt.Y)
+                    x_max = max(x_max, pt.X)
+                    y_max = max(y_max, pt.Y)
+
+    # Guard: non-finite bbox means no coordinates were consumed.
+    # Fall back to the temper default board size rather than propagating
+    # -inf through every downstream stage.
+    if not (math.isfinite(x_min) and math.isfinite(x_max)
+            and math.isfinite(y_min) and math.isfinite(y_max)):
+        warnings.append(
+            "Edge.Cuts geometry present but has no parseable coordinate data. "
+            "Falling back to Board.temper_default()."
+        )
+        return Board.temper_default()
 
     # 2. Extract Mounting Holes (drilled holes without reference)
     mounting_holes = []
