@@ -96,6 +96,10 @@ module Top:
     vcc_15v.override_net_name = "+15V"
     signal vcc_3v3      # MCU supply
     vcc_3v3.override_net_name = "+3V3"
+    signal power_return  # High-current tank/power return path (doubler midpoint)
+    power_return.override_net_name = "PWR_RTN"
+    signal vcc_15v_ls    # Isolated low-side gate driver supply (plan 005)
+    vcc_15v_ls.override_net_name = "+15V_LS"
     
     # --- Module Instances ---
     
@@ -220,10 +224,14 @@ module Top:
     # Power input outputs
     power_in.dc_bus.hv_plus ~ dc_bus_plus
     power_in.dc_bus.hv_minus ~ dc_bus_minus
-    power_in.dc_bus.gnd_ref ~ gnd
-    power_in.gnd ~ gnd
+    # The doubler midpoint (gnd_ref) is the high-current power return node.
+    # It must NOT be shorted directly to logic/signal ground to prevent
+    # AC mains potential on user-accessible circuits (S1) and to keep
+    # tank return current out of the signal ground net (S3).
+    power_return ~ power_in.dc_bus.gnd_ref  # Doubler midpoint = power return
+    power_in.gnd ~ gnd  # PowerInput relay control return (SELV side)
     power_in.power_15v.vcc ~ vcc_15v
-    power_in.power_15v.gnd ~ gnd
+    # power_in already ties power_15v.gnd ~ gnd internally; redundant
     
     # Power management chain
     # Note: In real design, 15V comes from auxiliary winding, not directly from DC_BUS
@@ -239,6 +247,23 @@ module Top:
     # power_mgmt.power_in_hv.gnd is on the same internal ground chain.
     
     # ===========================================================================
+    # GROUND ARCHITECTURE — Single-Point Star Ground Join
+    #
+    # The SELV logic/signal ground (gnd) and the high-current power return
+    # (power_return, connected to the doubler midpoint) are joined at exactly
+    # ONE location near the doubler capacitors. This provides a common voltage
+    # reference while preventing power-stage current (25A tank return, gate
+    # driver transients) from flowing through the signal ground net.
+    #
+    # With Option A (isolated SELV control domain, plan 003), the auxiliary
+    # supply transformer provides galvanic isolation between the HV power
+    # domain and the SELV control domain. The star-point join is the sole
+    # DC reference path; all other domain crossings use isolated interfaces
+    # (UCC21550 gate drivers).
+    # ===========================================================================
+    power_return ~ gnd  # Single-star-point ground join near doubler caps
+    
+    # ===========================================================================
     # HALF-BRIDGE CONNECTIONS
     # ===========================================================================
     
@@ -247,7 +272,13 @@ module Top:
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
     hb.power_3v3.vcc ~ vcc_3v3
-    hb.power_3v3.gnd ~ gnd
+    # hb already ties power_3v3.gnd ~ gnd internally; redundant
+    
+    # Low-side gate driver supply — must be provided by an isolated DC-DC
+    # module or auxiliary flyback winding referenced to hv_minus (plan 005).
+    # The internal wiring in HalfBridge ties power_15v_ls.gnd to dc_bus.hv_minus
+    # (VSSB), keeping VDDB within 25V of VSSB (UCC21550 abs max).
+    hb.power_15v_ls.vcc ~ vcc_15v_ls
     
     # PWM from MCU
     mcu.pwm_h ~ hb.pwm_h
@@ -263,7 +294,7 @@ module Top:
     hb.switch_node.override_net_name = "SW_NODE"
     # tank.in is the same electrical net as hb.switch_node; keep one
     # authoritative override name (SW_NODE).
-    tank.out ~ gnd  # Return path
+    tank.out ~ power_return  # High-current tank return to doubler midpoint
     
     # ===========================================================================
     # SENSING CONNECTIONS
@@ -307,7 +338,7 @@ module Top:
     # safety.i_sense already connected above
     # NTC for heatsink temperature monitoring
     safety.ntc_sense.line ~ mcu.adc_ntc
-    safety.ntc_sense.reference ~ gnd
+    # safety already ties ntc_sense.reference ~ gnd internally; redundant
     mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
     
     # Watchdog

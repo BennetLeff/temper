@@ -1,0 +1,9 @@
+(footprint "LitzPad_15A"
+  (version 20240108)
+  (generator "hand-built")
+  (descr "High-current litz wire termination pad, 15A rated. 8.0 mm dia pad, 3.0 mm dia hole. Dimension sourcing: generic high-current PTH pad spec; low confidence — no part-specific datasheet exists for this custom coil terminal. Flagged for human visual cross-check before fabrication.")
+  (tags "litz custom coil terminal high_current")
+  (attr through_hole)
+  (pad "1" thru_hole circle (at 0 0) (size 8.0 8.0) (drill 3.0) (layers "*.Cu" "*.Mask"))
+  (pad "2" thru_hole circle (at 5.0 0) (size 8.0 8.0) (drill 3.0) (layers "*.Cu" "*.Mask"))
+)

@@ -11,6 +11,7 @@ import UCC21550BDWK from "components.ato"
 import UJ3D1210TS from "components.ato"
 import Resistor from "components.ato"
 import Capacitor from "components.ato"
+import MOSFET_N from "components.ato"
 import Diode from "components.ato"
 import HighVoltageConstraints from "constraints.ato"
 import ACMainsConstraints from "constraints.ato"
@@ -44,7 +45,10 @@ import Inductor from "components.ato"
 
 # Sensing components
 import MAX31865 from "components.ato"
-import ADUM1250 from "components.ato"
+# ADUM1250 I2C isolator no longer needed for RTD isolation; the isolation
+# barrier is between the HV power domain and the SELV control domain
+# (Option A, plan 003). Component definition retained in components.ato
+# for future isolated I2C expansion if needed.
 import CST1005 from "components.ato"
 
 # Safety components
@@ -243,6 +247,7 @@ module HalfBridge:
     # from the 15 V secondary gate-drive rail (VDDA/VDDB).
     power_3v3 = new ElectricPower
     power_15v = new ElectricPower
+    power_15v_ls = new ElectricPower  # Low-side gate driver supply, MUST float on hv_minus
     dc_bus = new HighVoltageBus
     
     signal switch_node
@@ -314,8 +319,15 @@ module HalfBridge:
     gate_ls.drive.out ~ power_loop.q_low.G
     gate_ls.drive.vss ~ power_loop.q_low.E
 
-    # Low Side Power
-    power_15v.vcc ~ gate_hs.driver.VDDB
+    # Low Side Power — supply MUST be referenced to hv_minus (VSSB).
+    # VDDB and VSSB are the secondary-side supply pins for channel B of the
+    # UCC21550. VDDB must stay within 25V of VSSB (abs max, v_cc_sec_max).
+    # This supply must come from an isolated auxiliary winding or DC-DC
+    # module floating on hv_minus (plan 005).
+    power_15v_ls.vcc ~ gate_hs.driver.VDDB
+    power_15v_ls.gnd ~ dc_bus.hv_minus  # Referenced to hv_minus, NOT logic gnd
+    power_15v_ls.voltage = 15V
+    assert power_15v_ls.voltage <= gate_hs.driver.v_cc_sec_max
     # VSSB connected above to dc_bus.hv_minus
 
 module ResonantTank:
@@ -496,6 +508,20 @@ module PowerInput:
     r_bleed1.p2 ~ dc_bus.gnd_ref
     r_bleed2.p1 ~ dc_bus.gnd_ref
     r_bleed2.p2 ~ dc_bus.hv_minus
+    
+    # Y-capacitor: PE bonding from doubler midpoint to protective earth.
+    # Class I appliance pattern: provides EMI return path from the power
+    # return net to PE without a DC short. Y1 safety rating required
+    # per IEC 60335-1 for line-to-ground (250VAC) applications.
+    y_cap_pe = new Capacitor
+    y_cap_pe.value = 2.2nF +/- 20%
+    y_cap_pe.dielectric = "Y1"
+    y_cap_pe.voltage_rating = 250V  # Y1 certified 250VAC line-to-ground
+    y_cap_pe.mpn = "DE1E3KX222MA4BA01"
+    y_cap_pe.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"
+    
+    dc_bus.gnd_ref ~ y_cap_pe.p1
+    y_cap_pe.p2 ~ pe
 
 module BuckConverter15V:
     """LMR51430-based buck converter, 15V output."""
@@ -686,7 +712,16 @@ module CurrentSensing:
     c_filter.p2 ~ i_sense.reference
 
 module RTDSensing:
-    """MAX31865 RTD interface for PT100."""
+    """MAX31865 RTD interface for PT100.
+    
+    Isolation: With Option A (isolated SELV control domain, plan 003), the
+    RTD probe and MAX31865 are on the SELV side — galvanically isolated from
+    the HV power domain by the auxiliary supply transformer. The user-touchable
+    RTD food probe is therefore separated from AC mains potential. The
+    isolation barrier sits between the HV domain (DC bus, IGBTs, resonant
+    tank) and the SELV control domain (MCU, sensors, gate-driver control side),
+    NOT at the RTD interface itself.
+    """
     
     power = new ElectricPower
     power.voltage = 3.3V

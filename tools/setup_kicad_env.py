@@ -17,18 +17,17 @@ KICAD_GIT_URL = "https://gitlab.com/kicad/libraries/kicad-footprints.git"
 # Libraries identified as missing in DRC logs
 REQUIRED_LIBS = [
     "Capacitor_SMD",
-    "Resistor_SMD",
-    "Package_SO",
-    "Package_TO_SOT_THT",
-    "Package_TO_SOT_SMD",
-    "Diode_THT",
     "Capacitor_THT",
-    "Connector_PinHeader_2.54mm",
-    "MountingHole",
+    "Diode_SMD",
+    "Fuse",
+    "Inductor_SMD",
     "Package_DFN_QFN",
-    "Connector_USB",
-    "Connector_Phoenix_MC",
-    "Connector_IEC",
+    "Package_SO",
+    "Package_TO_SOT_SMD",
+    "Package_TO_SOT_THT",
+    "Resistor_SMD",
+    "Resistor_THT",
+    "TestPoint",
 ]
 
 
@@ -123,7 +122,8 @@ def main():
     libs_dir = pcb_dir / "libs"
 
     fetch_libraries(libs_dir)
-    generate_lib_table(pcb_dir, libs_dir)
+    # fp-lib-table is committed; skip generation
+    # generate_lib_table(pcb_dir, libs_dir)
 
     print("\nSUCCESS: KiCad environment is ready.")
     print("Use 'kicad-cli pcb drc' to verify.")
