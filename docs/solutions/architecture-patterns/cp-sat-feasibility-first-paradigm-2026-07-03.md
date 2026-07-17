@@ -167,15 +167,39 @@ tuning problem. Two candidate explanations, not yet distinguished:
    for this board today, in 2.4s, per
    `power_pcb_dataset/baselines/temper_production_baseline.yaml`.
 
-**Not yet done, needed to distinguish (1) from (2):** author a real PCL
-constraints file for the production board's actual refs and re-run. If a
-handful of real hard constraints (edge anchoring, HV/LV separation,
-adjacency) let the same bare `solve_placement()` call converge quickly,
-(1) was the cause and CP-SAT is still viable for this board with proper
-constraints. If it still doesn't converge with real constraints, (2) holds
-and CP-SAT-only placement should be considered scale-limited for boards
-this size — reserved for smaller boards or sub-circuit-level solves, not
-the full board.
+**Resolved 2026-07-17, same day:** authored a real PCL constraints file
+against the production board's verified current refs
+(`packages/temper-placer/configs/pcl/temper_production.yaml` — 12
+constraints across 4 types: `adjacent` for commutation/gate-drive loop
+tightness, `separated` for HV/LV creepage matching `constraints.ato`'s
+`HV_to_LV` spec exactly, `on_side` for MCU antenna clearance and mains
+entry, `anchored` for MCU zone containment) plus the same HV/Power/Signal/
+MCU zone floorplan `configs/temper_production_config.yaml` uses. Re-ran
+`solve_placement()` with these 12 real constraints loaded:
+
+| Test | Timeout | Status | Wall time | Placed |
+|---|---|---|---|---|
+| With 12 real PCL constraints + zones | 5000ms | `unknown` | 3.7s | 0 |
+| With 12 real PCL constraints + zones | 15000ms | `unknown` | 15.6s | 0 |
+
+**Identical outcome to the unconstrained run.** This decisively rules out
+explanation (1) — missing constraints was not the cause. **(2) holds:**
+bare `solve_placement()` (feasibility-only, no warm-start, no
+decomposition, single monolithic CP-SAT model) does not converge on a
+149-component board within any timeout tested (1s/5s/15s), with or
+without real domain constraints. This is a genuine scale wall for the
+approach as currently implemented, not a constraint-authoring gap.
+
+**Conclusion for future work:** CP-SAT-only placement via
+`temper-placer optimize --no-loop` should be treated as validated only up
+to the scale actually tested (~33 components, per this doc's original
+benchmark) until someone adds warm-starting (e.g., seed the model from the
+deterministic pipeline's already-working 149/149 placement) or
+decomposition (solve zone-by-zone rather than the whole board as one
+model) — both are real, separate engineering efforts, not configuration.
+The deterministic pipeline (zone-aware slot generation + greedy
+assignment) remains the board's actual production placement path; it
+produces 149/149 in 2.4s today with no scale wall observed.
 
 ## Examples
 

@@ -1,0 +1,164 @@
+version: "1.0"
+
+metadata:
+  description: >
+    Real PCL constraints for the Temper induction-cooker production board
+    (pcb/temper.kicad_pcb, 149 components). Authored 2026-07-17 to test
+    whether CP-SAT feasibility-first placement converges on the real board
+    with real constraint guidance -- see docs/solutions/architecture-patterns/
+    cp-sat-feasibility-first-paradigm-2026-07-03.md's 2026-07-17 update for
+    context. Supersedes configs/pcl/temper_induction.yaml for this board,
+    which references Q1/Q2/U_GATE -- refs from the retired 33-component
+    fixture that don't exist on the real board.
+  author: "temper-placer session, verified against elec/build/default.net"
+  date: "2026-07-17"
+
+  # Refs below are verified against the CURRENT compiled netlist as of this
+  # date. Refs are NOT stable identity -- atopile reassigns designators
+  # globally whenever any component is added/removed anywhere in the .ato
+  # source (see docs/solutions/logic-errors/
+  # fixed-positions-ref-fragility-across-renumbering.md, found and fixed
+  # the same day this file was authored). Re-verify every ref below against
+  # a fresh `elec/build/default.net` before reusing this file after any BOM
+  # change. The sheetpath -> ref mapping used to author this file:
+  #   hb.power_loop.q_high   -> U4   (high-side IGBT)
+  #   hb.power_loop.q_low    -> U5   (low-side IGBT)
+  #   hb.gate_hs.driver      -> U6   (UCC21550 gate driver)
+  #   hb.gate_hs.boot_diode  -> U7   (bootstrap diode)
+  #   hb.c_dc_hf             -> C24  (DC bus HF film cap at the bridge)
+  #   tank.c_tank1           -> C25  (resonant tank cap 1, 1600V PP film)
+  #   tank.c_tank2           -> C26  (resonant tank cap 2, 1600V PP film)
+  #   power_in.c_bus1        -> C2   (doubler bus snap-in cap)
+  #   power_in.fuse          -> F1   (AC entry fuse)
+  #   mcu.mcu                -> U22  (ESP32-S3-WROOM-1 module)
+
+# Zone floorplan mirrors configs/temper_production_config.yaml's HV-edge /
+# SELV-interior philosophy (elec/src/constraints.ato). Duplicated here
+# rather than shared because PCL files and deterministic-pipeline configs
+# are loaded independently by different call sites today.
+zones:
+  - name: "HV"
+    bounds_ratio: [0.0, 0.0, 0.45, 1.0]
+    net_classes: ["HighVoltage"]
+  - name: "Power"
+    bounds_ratio: [0.45, 0.0, 0.62, 1.0]
+    net_classes: ["Power"]
+  - name: "Signal"
+    bounds_ratio: [0.62, 0.0, 0.80, 1.0]
+    net_classes: ["Signal"]
+  - name: "MCU"
+    bounds_ratio: [0.80, 0.0, 1.0, 1.0]
+    net_classes: ["Signal"]
+
+constraints:
+  # --- Commutation and gate-drive loop tightness -----------------------
+  # Standard half-bridge practice; also the explicit design intent already
+  # encoded in configs/temper_production_config.yaml's fixed_positions
+  # comments for these exact parts ("IGBT high (HV/Power boundary, near
+  # gate driver)", "UCC21550 gate driver next to IGBTs").
+  - type: adjacent
+    id: "half-bridge-commutation-loop"
+    a: U4
+    b: U5
+    max_distance_mm: 10
+    tier: 1
+    because: "Half-bridge pair must be close to minimize commutation loop area"
+
+  - type: adjacent
+    id: "gate-drive-loop-high-side"
+    a: U6
+    b: U4
+    max_distance_mm: 15
+    tier: 1
+    because: "Minimize high-side gate drive loop inductance for fast switching"
+
+  - type: adjacent
+    id: "gate-drive-loop-low-side"
+    a: U6
+    b: U5
+    max_distance_mm: 15
+    tier: 1
+    because: "Minimize low-side gate drive loop inductance for fast switching"
+
+  - type: adjacent
+    id: "bootstrap-diode-proximity"
+    a: U7
+    b: U6
+    max_distance_mm: 10
+    tier: 2
+    because: "Bootstrap diode charges driver VDDA directly (HalfBridge: boot_diode.K ~ driver.VDDA); short trace limits bootstrap loop inductance"
+
+  - type: adjacent
+    id: "dc-bus-hf-cap-at-bridge"
+    a: C24
+    b: U4
+    max_distance_mm: 15
+    tier: 1
+    because: "HF decoupling cap must sit at the switching bridge point to minimize DC-bus loop inductance (flagged in the original electrical audit as missing before this part was added)"
+
+  # --- HV/LV reinforced-insulation creepage -----------------------------
+  # min_distance_mm matches elec/src/constraints.ato's HV_to_LV block
+  # exactly (min_clearance=6.0mm, min_creepage=8.0mm; using the stricter
+  # creepage figure). Representative HV parts vs. the MCU, not exhaustive
+  # pairwise coverage of every HV component -- the HV/Power/Signal/MCU
+  # zone split above does the bulk of the separation work; these are the
+  # highest-voltage parts (tank at 400V peak, bus at 340V) as a belt-and-
+  # suspenders hard constraint.
+  - type: separated
+    id: "tank-cap1-mcu-creepage"
+    a: C25
+    b: U22
+    min_distance_mm: 8.0
+    tier: 1
+    because: "IEC 60335-1 reinforced-insulation creepage, HV tank cap (400V peak) to MCU (constraints.ato HV_to_LV)"
+
+  - type: separated
+    id: "tank-cap2-mcu-creepage"
+    a: C26
+    b: U22
+    min_distance_mm: 8.0
+    tier: 1
+    because: "IEC 60335-1 reinforced-insulation creepage, HV tank cap (400V peak) to MCU (constraints.ato HV_to_LV)"
+
+  - type: separated
+    id: "igbt-high-mcu-creepage"
+    a: U4
+    b: U22
+    min_distance_mm: 8.0
+    tier: 1
+    because: "IEC 60335-1 reinforced-insulation creepage, HV switch node to MCU (constraints.ato HV_to_LV)"
+
+  - type: separated
+    id: "bus-cap-mcu-creepage"
+    a: C2
+    b: U22
+    min_distance_mm: 8.0
+    tier: 1
+    because: "IEC 60335-1 reinforced-insulation creepage, 340V DC bus cap to MCU (constraints.ato HV_to_LV)"
+
+  # --- MCU antenna clearance --------------------------------------------
+  - type: on_side
+    id: "mcu-antenna-edge"
+    components: [U22]
+    side: right
+    edge: near
+    max_distance_mm: 10
+    tier: 2
+    because: "ESP32-S3-WROOM-1 PCB antenna needs board-edge clearance (constraints.ato MechanicalLimits.antenna_keepout=15mm); matches the MCU zone's placement at the board's high-X edge"
+
+  - type: anchored
+    id: "mcu-in-mcu-zone"
+    component: U22
+    region: [80.0, 0.0, 100.0, 150.0]
+    tier: 2
+    because: "ESP32-S3 must stay within the MCU zone bounds (matches the zone floorplan above and configs/temper_production_config.yaml's net-class steering)"
+
+  # --- Mains entry at the HV edge ----------------------------------------
+  - type: on_side
+    id: "fuse-at-mains-entry"
+    components: [F1]
+    side: left
+    edge: near
+    max_distance_mm: 20
+    tier: 2
+    because: "Fuse is the AC mains entry point; belongs at the HV zone's board edge for the incoming connector, matching the existing fixed_positions floorplan intent"
