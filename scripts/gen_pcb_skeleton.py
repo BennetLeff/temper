@@ -84,6 +84,7 @@ class Component:
     value: str
     footprint: str
     tstamp: str
+    sheetpath: str = "unknown"
 
 
 @dataclass
@@ -116,6 +117,19 @@ def _module_from_sheetpath(sheetpath_node: list[Any]) -> str:
     return "unknown"
 
 
+def _full_sheetpath(sheetpath_node: list[Any]) -> str:
+    """Full module-instance path (e.g. "hb.power_loop.q_high"), stable across
+    designator renumbering. Unlike _module_from_sheetpath, keeps every
+    segment after 'Top::', not just the first."""
+    for child in _children(sheetpath_node, "names"):
+        names = child[1] if len(child) > 1 else ""
+        if "::" in names:
+            parts = names.split("::")
+            if len(parts) >= 2:
+                return parts[1]
+    return "unknown"
+
+
 def parse_netlist(netlist_path: Path) -> Netlist:
     text = netlist_path.read_text(encoding="utf-8")
     parsed = _sexp(text)
@@ -138,7 +152,11 @@ def parse_netlist(netlist_path: Path) -> Netlist:
         value = _field(node, "value", required=False)
         footprint = _field(node, "footprint")
         tstamp = _field(node, "tstamps")
-        components[ref] = Component(ref=ref, value=value, footprint=footprint, tstamp=tstamp)
+        sheetpath_nodes = _children(node, "sheetpath")
+        sheetpath = _full_sheetpath(sheetpath_nodes[0]) if sheetpath_nodes else "unknown"
+        components[ref] = Component(
+            ref=ref, value=value, footprint=footprint, tstamp=tstamp, sheetpath=sheetpath
+        )
 
     # Parse nets
     nets_block = _children(export, "nets")
@@ -351,6 +369,11 @@ def generate_board(
             "Reference": comp.ref,
             "Value": comp.value or "?",
             "Footprint": comp.footprint,
+            # Stable module-instance identity, survives designator
+            # renumbering. Configs should key fixed_positions by this,
+            # not by ref (see docs/solutions/logic-errors/
+            # fixed-positions-ref-fragility-across-renumbering.md).
+            "Sheetpath": comp.sheetpath,
         }
 
         bbox = _courtyard_bbox(fp)

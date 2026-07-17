@@ -484,6 +484,8 @@ def _extract_components_from_pcb(
                 "_center_offset_x": str(center_offset_x),
                 "_center_offset_y": str(center_offset_y),
             },
+            sheetpath=(fp.properties.get("Sheetpath") if hasattr(fp, "properties") else None)
+            or None,
         )
 
         components.append(comp)

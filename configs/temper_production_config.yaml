@@ -1,12 +1,23 @@
 # Temper PRODUCTION board deterministic placement configuration (U6).
-# Authored against the 144-component board generated from elec/build/default.net
-# (atopile refs R*/C*/D*/L*/K*/F*/RT*/RV*/SW*/TP*/U*, PR #217 era).
+# Authored against the board generated from elec/build/default.net
+# (atopile refs R*/C*/D*/L*/K*/F*/RT*/RV*/SW*/TP*/U*).
 #
 # Zone routing works through net classes: ZoneAssignmentStage maps a component
 # to HV/Power/MCU by the net_class of the nets it touches (HighVoltage -> HV,
 # Power -> Power, nets containing SPI/I2C/UART -> MCU, everything else Signal).
 # The old fixture config's zone_assignments block is NOT consumed by the
 # deterministic pipeline, so all zone steering here is via net_classes.
+#
+# fixed_positions below is keyed by SHEETPATH (module-instance path, e.g.
+# "hb.power_loop.q_high"), not by bare ref. Refs are NOT stable identity:
+# atopile renumbers designators across the whole design whenever the
+# component count changes anywhere in the source, so a ref-keyed config
+# silently pins the WRONG physical component after any BOM edit -- this
+# happened here (8 of 30 entries were misdirected after adding 5 buck-
+# converter parts; see docs/solutions/logic-errors/
+# fixed-positions-ref-fragility-across-renumbering.md). Sheetpath survives
+# renumbering and is written onto every footprint by gen_pcb_skeleton.py
+# as a "Sheetpath" property, read back by parse_kicad_pcb.
 
 board:
   width_mm: 100.0
@@ -51,37 +62,37 @@ slot_generation:
 # bank, IRM aux, tank, IGBTs at the HV/Power boundary, ESP32 right edge.
 # CourtyardCheckStage resolves residual courtyard nudges afterwards.
 fixed_positions:
-  F1:  [18.0, 6.0]     # fuse, AC entry
-  RV1: [18.0, 14.0]    # MOV across the line
-  R26: [40.0, 5.0]     # litz coil pads (off-board coil)
-  RT1: [40.0, 14.0]    # inrush NTC
-  L1:  [21.0, 32.0]    # CMC 42x27
-  K1:  [11.0, 55.0]    # bypass relay
-  T1:  [42.0, 56.0]    # CT on tank return
-  PS1: [22.0, 73.0]    # IRM-10-15 aux module 43x15
-  C23: [22.0, 83.5]    # tank film cap
-  C24: [22.0, 87.5]    # tank film cap
-  C2:  [12.0, 93.0]    # bus snap-in
-  C3:  [32.0, 93.0]    # bus snap-in
-  C4:  [12.0, 104.0]   # bus snap-in
-  C5:  [32.0, 104.0]   # bus snap-in
-  R1:  [42.0, 96.0]    # relay coil dropper (axial)
-  K2:  [8.0, 118.0]    # discharge relay 1
-  K3:  [8.0, 136.5]    # discharge relay 2
-  R9:  [32.0, 111.0]   # discharge 5W bank
-  R10: [32.0, 115.5]
-  R11: [32.0, 120.0]
-  R12: [32.0, 124.5]
-  C7:  [32.0, 131.0]   # contact snubber film
-  C8:  [32.0, 140.5]   # contact snubber film
-  U3:  [48.0, 16.0]    # IGBT high (HV/Power boundary, near gate driver)
-  U4:  [48.0, 30.0]    # IGBT low
-  C22: [48.0, 40.0]    # DC bus HF film cap at the bridge
-  U5:  [56.0, 22.0]    # UCC21550 gate driver next to IGBTs
-  L2:  [52.0, 70.0]    # buck inductor
-  U21: [88.0, 25.0]    # ESP32-S3 module, right edge (antenna up)
-  J1:  [52.0, 140.0]   # fan header
-  R64: [52.0, 133.0]   # fan dropper (axial)
+  power_in.fuse:          [18.0, 6.0]     # fuse, AC entry
+  power_in.mov:           [18.0, 14.0]    # MOV across the line
+  tank.inductor_conn:     [40.0, 5.0]     # litz coil pads (off-board coil)
+  power_in.ntc:           [40.0, 14.0]    # inrush NTC
+  power_in.cmc:           [21.0, 32.0]    # CMC 42x27
+  power_in.bypass_relay:  [11.0, 55.0]    # bypass relay
+  ct_sense.ct:            [42.0, 56.0]    # CT on tank return
+  aux_supply.psu:         [22.0, 73.0]    # IRM-10-15 aux module 43x15
+  tank.c_tank1:           [22.0, 83.5]    # tank film cap
+  tank.c_tank2:           [22.0, 87.5]    # tank film cap
+  power_in.c_bus1:        [12.0, 93.0]    # bus snap-in
+  power_in.c_bus2:        [32.0, 93.0]    # bus snap-in
+  power_in.c_bus1b:       [12.0, 104.0]   # bus snap-in
+  power_in.c_bus2b:       [32.0, 104.0]   # bus snap-in
+  power_in.r_relay_drop:  [42.0, 96.0]    # relay coil dropper (axial)
+  discharge.k_dis1:       [8.0, 118.0]    # discharge relay 1
+  discharge.k_dis2:       [8.0, 136.5]    # discharge relay 2
+  discharge.r_dis1a:      [32.0, 111.0]   # discharge 5W bank
+  discharge.r_dis1b:      [32.0, 115.5]
+  discharge.r_dis2a:      [32.0, 120.0]
+  discharge.r_dis2b:      [32.0, 124.5]
+  discharge.c_snub1:      [32.0, 131.0]   # contact snubber film
+  discharge.c_snub2:      [32.0, 140.5]   # contact snubber film
+  hb.power_loop.q_high:   [48.0, 16.0]    # IGBT high (HV/Power boundary, near gate driver)
+  hb.power_loop.q_low:    [48.0, 30.0]    # IGBT low
+  hb.c_dc_hf:             [48.0, 40.0]    # DC bus HF film cap at the bridge
+  hb.gate_hs.driver:      [56.0, 22.0]    # UCC21550 gate driver next to IGBTs
+  power_mgmt.buck_3v3.l_out: [52.0, 70.0] # buck inductor
+  mcu.mcu:                [88.0, 25.0]    # ESP32-S3 module, right edge (antenna up)
+  thermal.j_fan:          [52.0, 140.0]   # fan header
+  thermal.r_fan_drop:     [52.0, 133.0]   # fan dropper (axial)
 
 # --- Net class steering ---------------------------------------------------
 # HighVoltage nets pull the mains/bus/tank/discharge components into HV.

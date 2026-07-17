@@ -155,9 +155,22 @@ class ComponentAssignmentStage(Stage):
             all_slots.extend(slots)
 
         # 1. Process fixed placements first
+        #
+        # Keys in self.fixed_placements are resolved sheetpath-first (e.g.
+        # "hb.power_loop.q_high"), falling back to a literal ref (e.g. "Q4")
+        # for older configs. Ref-keyed entries are fragile: atopile
+        # renumbers designators across the whole design whenever the
+        # component count changes anywhere, so a config authored against
+        # one BOM snapshot can silently pin the WRONG physical component at
+        # a later snapshot (see docs/solutions/logic-errors/
+        # fixed-positions-ref-fragility-across-renumbering.md). Sheetpath
+        # is the component's module-instance path and is stable across
+        # renumbering.
         comp_by_ref = {c.ref: c for c in netlist.components}
-        for ref, info in self.fixed_placements.items():
-            if ref in comp_by_ref:
+        comp_by_sheetpath = {c.sheetpath: c for c in netlist.components if c.sheetpath}
+        for key, info in self.fixed_placements.items():
+            comp = comp_by_sheetpath.get(key) or comp_by_ref.get(key)
+            if comp:
                 # Handle both [x, y] and {'position': [x, y]} formats
                 pos = None
                 if isinstance(info, (list, tuple)) and len(info) == 2:
@@ -167,10 +180,10 @@ class ComponentAssignmentStage(Stage):
 
                 if pos and len(pos) == 2:
                     fixed_pos = (float(pos[0]), float(pos[1]))
-                    placements[ref] = fixed_pos
+                    placements[comp.ref] = fixed_pos
 
                     # Reserve slots near fixed component
-                    footprint_radius = self._get_footprint_radius(comp_by_ref[ref])
+                    footprint_radius = self._get_footprint_radius(comp)
                     self._reserve_slots(fixed_pos, footprint_radius, all_slots, used_slots)
 
         # 2. Sort remaining components by footprint size (largest first)
