@@ -704,11 +704,17 @@ module BusDischarge:
     energized bus (no single-point fire risk).
 
     Contact stress: break at ~18mA / up to 170VDC, purely resistive.
-    NOTE (VERIFY at design-in): G5LE DC contact ratings are cataloged to
-    125VDC; low-current 170VDC resistive break is inside typical
-    clearance capability for this class but is not a cataloged point --
-    confirm against Omron's DC load curve or add an RC snubber across
-    the contact (see plan doc).
+    VERIFIED 2026-07-16 (Omron G5LE datasheet K100-E1-08, ratings table
+    + max switching capacity curve): max switching voltage is 125VDC
+    (30VDC where UL/CSA is applied) and the DC load curve ends at 125V
+    -- a 170VDC break is out-of-catalog at ANY current. 18mA is far
+    below the ~0.4A minimum arc-sustain current of Ag contacts, but to
+    stay in-spec each NC contact gets an RC snubber (100R 2W
+    pulse-withstanding + 470nF/630V PP film, both already-on-BOM
+    families): opening dV/dt is limited to I/C ~= 38V/ms so the gap is
+    fully open long before it sees bus voltage; closure discharges
+    6.8mJ (1.7A pk, tau 47us) into the 100R, trivial for a
+    pulse-withstanding 2512 and well under the 10A contact rating.
 
     Coil budget: 2 x 33mA from the 15V rail, only while running. Each
     coil gets its own 100R dropper (15V -> ~11.7V at the 360R coil,
@@ -827,6 +833,39 @@ module BusDischarge:
     d_fly2.current_rating = 1A
     d_fly2.footprint = "Diode_SMD:D_SMA"
 
+    # Contact snubbers (see docstring): R in series with C across each
+    # NC-COM gap. Cap blocks DC so the open-contact leakage is zero.
+    # CRGP2512F100R: TE pulse-withstanding 2W/500V 2512 (same family as
+    # the F22K bleeders; distributor-verified). Film cap is the same
+    # B32671L6474K000 470nF/630VDC PP already used as the DC-bus HF cap.
+    r_snub1 = new Resistor
+    r_snub1.value = 100ohm +/- 1%
+    r_snub1.power_rating = 2W
+    r_snub1.voltage_rating = 500V
+    r_snub1.mpn = "CRGP2512F100R"
+    r_snub1.footprint = "Resistor_SMD:R_2512_6332Metric"
+
+    r_snub2 = new Resistor
+    r_snub2.value = 100ohm +/- 1%
+    r_snub2.power_rating = 2W
+    r_snub2.voltage_rating = 500V
+    r_snub2.mpn = "CRGP2512F100R"
+    r_snub2.footprint = "Resistor_SMD:R_2512_6332Metric"
+
+    c_snub1 = new Capacitor
+    c_snub1.value = 470nF +/- 10%
+    c_snub1.dielectric = "PP"
+    c_snub1.voltage_rating = 630V
+    c_snub1.mpn = "B32671L6474K000"
+    c_snub1.footprint = "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
+
+    c_snub2 = new Capacitor
+    c_snub2.value = 470nF +/- 10%
+    c_snub2.dielectric = "PP"
+    c_snub2.voltage_rating = 630V
+    c_snub2.mpn = "B32671L6474K000"
+    c_snub2.footprint = "Capacitor_THT:C_Rect_L18.0mm_W11.0mm_P15.00mm_FKS3_FKP3"
+
     # --- Sizing assertions ---
     v_bus_half: voltage = 170V
     # Steady dissipation per resistor with a stuck-closed contact across
@@ -838,6 +877,12 @@ module BusDischarge:
     assert r_dis1b.power_rating >= p_dis_resistor * 2
     assert r_dis2a.power_rating >= p_dis_resistor * 2
     assert r_dis2b.power_rating >= p_dis_resistor * 2
+
+    # Snubber caps must hold the full half-bus with 2x margin
+    assert c_snub1.voltage_rating >= v_bus_half * 2
+    assert c_snub2.voltage_rating >= v_bus_half * 2
+    assert r_snub1.voltage_rating >= v_bus_half * 2
+    assert r_snub2.voltage_rating >= v_bus_half * 2
 
     # Voltage: each resistor sees half of a 170V half-bus; 25% margin
     assert r_dis1a.voltage_rating >= v_bus_half * 0.625
@@ -859,6 +904,14 @@ module BusDischarge:
     k_dis2.COM ~ hv_minus
     # NO contacts intentionally unconnected: energized = pole held on NO
     # = discharge path open.
+
+    # Snubbers across the contact gaps
+    k_dis1.NC ~ r_snub1.p1
+    r_snub1.p2 ~ c_snub1.p1
+    c_snub1.p2 ~ k_dis1.COM
+    k_dis2.NC ~ r_snub2.p1
+    r_snub2.p2 ~ c_snub2.p1
+    c_snub2.p2 ~ k_dis2.COM
 
     # Gate drive
     ctrl ~ r_gate.p1
