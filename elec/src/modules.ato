@@ -938,58 +938,117 @@ module BusDischarge:
 
 
 module BuckConverter3V3:
-    """3.3V synchronous buck converter for MCU and logic.
+    """3.3V synchronous buck converter for MCU and logic, LMR51430-based.
     Replaces XC6220 LDO which had Vin_max=6V but was fed from 15V rail (P0-7).
-    Uses a simple buck topology suitable for 15V→3.3V conversion at ~1A."""
-    
+
+    VERIFIED 2026-07-17 against the TI datasheet (SLUSF4A, June 2022, rev
+    Nov 2022 -- note the doc number is SLUSF4A, not "SLUSF42" as an earlier,
+    unverified comment on the sibling module claimed): Vfb = 0.591V min /
+    0.6V typ / 0.609V max (Section 7.5), NOT 1.0V. L/Cout/Rfbt/Rfbb values
+    below are TI's own Table 9-1 recommendation for Vout=3.3V, fsw=500kHz.
+
+    This module was previously a stub: it declared the inductor and output
+    caps but never instantiated the switching IC or wired a buck topology,
+    so power_out.vcc had zero connection back to power_in.vcc in the
+    generated netlist (caught via a net-count regression: l_out's two pins
+    surfaced as two isolated single-node nets)."""
+
     power_in = new ElectricPower
     power_out = new ElectricPower
     power_out.voltage = 3.3V
     enable = new ElectricLogic
     enable.reference ~ power_in.gnd
-    
+
+    buck = new LMR51430
+
     c_in = new Capacitor
     c_in.value = 10uF +/- 20%
     c_in.dielectric = "X7R"
     c_in.voltage_rating = 25V
     c_in.mpn = "GRM32ER71E106KA12L"
     c_in.footprint = "Capacitor_SMD:C_1210_3225Metric"
-    
-    c_out = new Capacitor
-    c_out.value = 22uF +/- 20%
-    c_out.dielectric = "X7R"
-    c_out.voltage_rating = 10V
-    c_out.mpn = "GRM31CR71A226KE15L"
-    c_out.footprint = "Capacitor_SMD:C_1206_3216Metric"
-    
+
+    c_boot = new Capacitor
+    c_boot.value = 100nF
+    c_boot.voltage_rating = 25V
+    c_boot.dielectric = "X7R"
+    c_boot.mpn = "GRM188R71E104KA01D"
+    c_boot.footprint = "Capacitor_SMD:C_0603_1608Metric"
+
+    # TI Table 9-1 (Vout=3.3V, fsw=500kHz): L=5.6uH, Cout=2x22uF/25V,
+    # Rfbt=100k, Rfbb=22.1k.
+    l_out = new Inductor
+    l_out.value = 5.6uH
+    l_out.current_rating = 12.5A
+    l_out.dcr = 0.01ohm
+    l_out.mpn = "SRP1265A-5R6M"
+    l_out.footprint = "Inductor_SMD:L_Bourns_SRP1265A"
+
+    c_out1 = new Capacitor
+    c_out1.value = 22uF +/- 20%
+    c_out1.dielectric = "X7R"
+    c_out1.voltage_rating = 25V
+    c_out1.mpn = "GRM32ER71E226KE15L"
+    c_out1.footprint = "Capacitor_SMD:C_1210_3225Metric"
+
+    c_out2 = new Capacitor
+    c_out2.value = 22uF +/- 20%
+    c_out2.dielectric = "X7R"
+    c_out2.voltage_rating = 25V
+    c_out2.mpn = "GRM32ER71E226KE15L"
+    c_out2.footprint = "Capacitor_SMD:C_1210_3225Metric"
+
     c_out_hf = new Capacitor
     c_out_hf.value = 100nF +/- 10%
     c_out_hf.dielectric = "X7R"
     c_out_hf.voltage_rating = 10V
     c_out_hf.mpn = "GRM188R71E104KA01D"
     c_out_hf.footprint = "Capacitor_SMD:C_0603_1608Metric"
-    
-    # Inductor placeholder (specific buck converter IC TBD)
-    l_out = new Inductor
-    l_out.value = 10uH
-    l_out.current_rating = 1.5A
-    l_out.dcr = 0.1ohm
-    l_out.mpn = "SRP1265A-100M"
-    l_out.footprint = "Inductor_SMD:L_Bourns_SRP1265A"
-    
+
+    r_fb_top = new Resistor
+    r_fb_top.value = 100kohm +/- 1%
+    r_fb_top.mpn = "RC0603FR-07100KL"
+    r_fb_top.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    r_fb_bot = new Resistor
+    r_fb_bot.value = 22.1kohm +/- 1%
+    r_fb_bot.mpn = "RC0603FR-0722K1L"
+    r_fb_bot.footprint = "Resistor_SMD:R_0603_1608Metric"
+
+    power_in.vcc ~ buck.VIN
     power_in.vcc ~ c_in.p1
     c_in.p2 ~ power_in.gnd
-    enable.line ~ power_in.vcc
-    
-    power_out.vcc ~ c_out.p1
-    c_out.p2 ~ power_out.gnd
+
+    enable.line ~ buck.EN
+    buck.GND ~ power_in.gnd
+
+    buck.BOOT ~ c_boot.p1
+    c_boot.p2 ~ buck.SW
+
+    buck.SW ~ l_out.p1
+    l_out.p2 ~ power_out.vcc
+
+    power_out.vcc ~ c_out1.p1
+    c_out1.p2 ~ power_out.gnd
+    power_out.vcc ~ c_out2.p1
+    c_out2.p2 ~ power_out.gnd
     power_out.vcc ~ c_out_hf.p1
     c_out_hf.p2 ~ power_out.gnd
-    
+
+    power_out.vcc ~ r_fb_top.p1
+    r_fb_top.p2 ~ buck.FB
+    buck.FB ~ r_fb_bot.p1
+    r_fb_bot.p2 ~ power_out.gnd
+
     # Ground
     power_in.gnd ~ power_out.gnd
-    
+
     assert power_out.voltage within 3.3V +/- 5%
+
+    # Equation verification (TI datasheet Section 9.2.2.2, Equation 9)
+    v_fb: voltage = 0.6V
+    v_out_calculated: voltage = v_fb * (1 + r_fb_top.value / r_fb_bot.value)
+    assert v_out_calculated within 3.135V to 3.465V
 
 module PowerManagement:
     """Power management subsystem: 15V -> 3.3V.
