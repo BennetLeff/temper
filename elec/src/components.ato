@@ -248,6 +248,28 @@ component Relay_SPST:
     signal NO ~ pin 3
     signal COM ~ pin 4
 
+component Relay_SPDT:
+    """SPDT relay with an accessible NC contact (5-pin THT layout).
+    VERIFIED 2026-07-16 pin mapping for Omron G5LE-1 against the Omron
+    G5LE catalog (omronfs.omron.com/en_US/ecb/products/pdf/en-g5le.pdf)
+    "Terminal Arrangement/Internal Connections" bottom-view diagram
+    cross-checked against the KiCad community schematic symbol
+    (Relay.kicad_symdir/G5LE-1.kicad_sym) that is tied to the same
+    footprint used here (Relay_THT:Relay_SPDT_Omron-G5LE-1): pin 1 = COM
+    (armature/pole), pins 2 & 5 = coil (non-polarized), pin 3 = NO,
+    pin 4 = NC (the pole rests against pin 4 when de-energized -- this is
+    the fail-safe contact used by BusDischarge in modules.ato)."""
+    designator_prefix = "K"
+    footprint: str
+    coil_voltage: voltage
+    contact_current: current
+    mpn: str
+    signal coil1 ~ pin 2
+    signal coil2 ~ pin 5
+    signal COM ~ pin 1
+    signal NO ~ pin 3
+    signal NC ~ pin 4
+
 # ==============================================================================
 # POWER MANAGEMENT COMPONENTS
 # ==============================================================================

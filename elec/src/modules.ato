@@ -37,6 +37,7 @@ import MUR1560 from "components.ato"
 import ES1J from "components.ato"
 import CapPolarized from "components.ato"
 import Relay_SPST from "components.ato"
+import Relay_SPDT from "components.ato"
 import MOV_Varistor from "components.ato"
 import CommonModeChoke from "components.ato"
 
@@ -416,7 +417,10 @@ module PowerInput:
     """AC input with EMI filter, soft-start, and voltage doubler."""
 
     # WARNING: Bus capacitors store hazardous energy (>300VDC combined).
-    # Discharge after power-off: ~9 minutes to safe level (<34V).
+    # Passive bleeders alone need ~9 minutes to safe level (<34V); the
+    # BusDischarge module (instantiated in Top) adds fail-safe active
+    # discharge to <34V in <60s on any loss of power. The passive 22k
+    # bleeders below remain as the backstop if a relay contact fails open.
     # Always verify bus voltage with a meter before servicing.
 
     constraints = new ACMainsConstraints
@@ -556,9 +560,9 @@ module PowerInput:
     r_bleed2.footprint = "Resistor_SMD:R_2512_6332Metric"
     
     v_bus_half: voltage = 170V
-    # WARNING: Discharge τ = 22kΩ × 3300μF ≈ 73s per half-bus.
-    # Discharge to <34V: ~4.6 min per half-bus (~9 min total).
-    # Add active discharge circuit before production.
+    # Passive discharge τ = 22kΩ × 3600μF ≈ 79s per half-bus (~4.6 min to
+    # <34V). Active discharge to <60s is provided by BusDischarge (see Top);
+    # these passive bleeders are retained as the independent backstop.
     p_bleed_actual: power = v_bus_half * v_bus_half / r_bleed1.value  # 170V x 170V / 22kΩ ≈ 1.31W
     
     # Voltage derating check (temper-ofq.2)
@@ -681,6 +685,202 @@ module PowerInput:
     r_zcd_bot.p2 ~ dc_bus.gnd_ref
     zcd ~ d_zcd_clamp.K
     d_zcd_clamp.A ~ dc_bus.gnd_ref
+
+
+module BusDischarge:
+    """Fail-safe active bus discharge (plan 2026-07-16-001, Option A).
+
+    One relay-switched resistor string across each 170V half-bus:
+    NC contact + 2x 4.7k/5W wirewound in series (9.4k per string).
+    Both relay coils are held energized from the 15V SELV rail whenever
+    the unit runs, holding the NC contacts OPEN. ANY loss of power
+    (unplug, fuse, aux-supply fault, MCU dead) drops the coils and the
+    NC contacts close -> discharge engages with no MCU involvement.
+
+    Sizing (per half-bus): tau = 9.4k x 3600uF = 33.8s; 170V -> <34V in
+    1.61 tau ~= 54s (<60s target). Peak power at contact closure:
+    170^2/9.4k = 3.1W per string, ~1.5W per 5W resistor -- the string
+    survives indefinitely even with a stuck-closed contact across an
+    energized bus (no single-point fire risk).
+
+    Contact stress: break at ~18mA / up to 170VDC, purely resistive.
+    NOTE (VERIFY at design-in): G5LE DC contact ratings are cataloged to
+    125VDC; low-current 170VDC resistive break is inside typical
+    clearance capability for this class but is not a cataloged point --
+    confirm against Omron's DC load curve or add an RC snubber across
+    the contact (see plan doc).
+
+    Coil budget: 2 x 33mA from the 15V rail, only while running. Each
+    coil gets its own 100R dropper (15V -> ~11.7V at the 360R coil,
+    97.5% of rated; G5LE must-operate voltage is 75% of rated)."""
+
+    # HV side: half-bus taps (Top wires these to dc_bus_plus /
+    # power_return / dc_bus_minus)
+    signal hv_plus
+    signal mid
+    signal hv_minus
+
+    # SELV side: coil supply + low-side driver
+    signal gnd
+    signal ctrl
+    power_15v = new ElectricPower
+
+    # Discharge relays: Omron G5LE-1 DC12, SPDT so the NC contact is
+    # available (the existing bypass relay G4A-1A-E is NO-only).
+    # VERIFIED 2026-07-16 (Omron G5LE catalog): contacts 10A / 250VAC,
+    # NC contact rated 10A carry; 12VDC coil 360R / 33.3mA / 400mW;
+    # coil-contact dielectric 2000VAC, impulse 4.5kV.
+    k_dis1 = new Relay_SPDT
+    k_dis1.coil_voltage = 12V
+    k_dis1.contact_current = 10A
+    k_dis1.mpn = "G5LE-1 DC12"
+    k_dis1.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
+
+    k_dis2 = new Relay_SPDT
+    k_dis2.coil_voltage = 12V
+    k_dis2.contact_current = 10A
+    k_dis2.mpn = "G5LE-1 DC12"
+    k_dis2.footprint = "Relay_THT:Relay_SPDT_Omron-G5LE-1"
+
+    # Discharge resistors: Vishay AC05 cemented wirewound, 4.7k 5% 5W,
+    # axial ~18mm body, AEC-Q200, all-welded (plan doc, verified
+    # 2026-07-16 against Vishay AC05 series / distributor listings).
+    # voltage_rating is the series' max continuous element voltage
+    # sqrt(P x R) = sqrt(5W x 4.7k) ~= 153V; each resistor sees at most
+    # half a half-bus (85V) in the stuck-contact steady state.
+    r_dis1a = new Resistor
+    r_dis1a.value = 4.7kohm +/- 5%
+    r_dis1a.power_rating = 5W
+    r_dis1a.voltage_rating = 153V
+    r_dis1a.mpn = "AC05000004701JAC00"
+    r_dis1a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    r_dis1b = new Resistor
+    r_dis1b.value = 4.7kohm +/- 5%
+    r_dis1b.power_rating = 5W
+    r_dis1b.voltage_rating = 153V
+    r_dis1b.mpn = "AC05000004701JAC00"
+    r_dis1b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    r_dis2a = new Resistor
+    r_dis2a.value = 4.7kohm +/- 5%
+    r_dis2a.power_rating = 5W
+    r_dis2a.voltage_rating = 153V
+    r_dis2a.mpn = "AC05000004701JAC00"
+    r_dis2a.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    r_dis2b = new Resistor
+    r_dis2b.value = 4.7kohm +/- 5%
+    r_dis2b.power_rating = 5W
+    r_dis2b.voltage_rating = 153V
+    r_dis2b.mpn = "AC05000004701JAC00"
+    r_dis2b.footprint = "Resistor_THT:R_Axial_DIN0918_L18.0mm_D9.0mm_P22.86mm_Horizontal"
+
+    # Coil droppers: 15V rail -> 12V coil, one per coil so a single relay
+    # removal doesn't overdrive the survivor. 3.3V x 33mA ~= 0.11W on a
+    # 0.25W 1206 (44%). VERIFIED 2026-07-16: Yageo RC1206FR-07100RL,
+    # 100R 1% 0.25W 200V (DigiKey 728491 / TME listing).
+    r_coil1 = new Resistor
+    r_coil1.value = 100ohm +/- 1%
+    r_coil1.power_rating = 0.25W
+    r_coil1.voltage_rating = 200V
+    r_coil1.mpn = "RC1206FR-07100RL"
+    r_coil1.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    r_coil2 = new Resistor
+    r_coil2.value = 100ohm +/- 1%
+    r_coil2.power_rating = 0.25W
+    r_coil2.voltage_rating = 200V
+    r_coil2.mpn = "RC1206FR-07100RL"
+    r_coil2.footprint = "Resistor_SMD:R_1206_3216Metric"
+
+    # Low-side coil driver: same proven pattern as PowerInput's
+    # bypass_relay (AO3400A + 1k gate R + 100k pulldown + SS14 flyback).
+    # DISCHARGE_CTRL high = coils energized = NC contacts open =
+    # discharge disengaged. GPIO low / floating / MCU dead = discharge.
+    q_dis_drv = new MOSFET_N
+    q_dis_drv.mpn = "AO3400A"
+
+    r_gate = new Resistor
+    r_gate.value = 1kohm +/- 5%
+    r_gate.power_rating = 0.125W
+    r_gate.voltage_rating = 25V
+    r_gate.mpn = "CRCW08051K00FKEA"
+    r_gate.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    r_gate_pd = new Resistor
+    r_gate_pd.value = 100kohm +/- 5%
+    r_gate_pd.power_rating = 0.125W
+    r_gate_pd.voltage_rating = 25V
+    r_gate_pd.mpn = "CRCW0805100KFKEA"
+    r_gate_pd.footprint = "Resistor_SMD:R_0805_2012Metric"
+
+    d_fly1 = new Diode
+    d_fly1.mpn = "SS14"
+    d_fly1.voltage_rating = 40V
+    d_fly1.current_rating = 1A
+    d_fly1.footprint = "Diode_SMD:D_SMA"
+
+    d_fly2 = new Diode
+    d_fly2.mpn = "SS14"
+    d_fly2.voltage_rating = 40V
+    d_fly2.current_rating = 1A
+    d_fly2.footprint = "Diode_SMD:D_SMA"
+
+    # --- Sizing assertions ---
+    v_bus_half: voltage = 170V
+    # Steady dissipation per resistor with a stuck-closed contact across
+    # an energized half-bus: (170V)^2 / 9.4k / 2 ~= 1.54W
+    p_dis_resistor: power = v_bus_half * v_bus_half / 9.4kohm / 2
+
+    # Power: 50% derating even in the abnormal continuous case
+    assert r_dis1a.power_rating >= p_dis_resistor * 2
+    assert r_dis1b.power_rating >= p_dis_resistor * 2
+    assert r_dis2a.power_rating >= p_dis_resistor * 2
+    assert r_dis2b.power_rating >= p_dis_resistor * 2
+
+    # Voltage: each resistor sees half of a 170V half-bus; 25% margin
+    assert r_dis1a.voltage_rating >= v_bus_half * 0.625
+    assert r_dis1b.voltage_rating >= v_bus_half * 0.625
+    assert r_dis2a.voltage_rating >= v_bus_half * 0.625
+    assert r_dis2b.voltage_rating >= v_bus_half * 0.625
+
+    # --- Connections ---
+    # Half-bus 1 string: hv_plus -> 4.7k -> 4.7k -> NC contact -> mid
+    hv_plus ~ r_dis1a.p1
+    r_dis1a.p2 ~ r_dis1b.p1
+    r_dis1b.p2 ~ k_dis1.NC
+    k_dis1.COM ~ mid
+
+    # Half-bus 2 string: mid -> 4.7k -> 4.7k -> NC contact -> hv_minus
+    mid ~ r_dis2a.p1
+    r_dis2a.p2 ~ r_dis2b.p1
+    r_dis2b.p2 ~ k_dis2.NC
+    k_dis2.COM ~ hv_minus
+    # NO contacts intentionally unconnected: energized = pole held on NO
+    # = discharge path open.
+
+    # Gate drive
+    ctrl ~ r_gate.p1
+    r_gate.p2 ~ q_dis_drv.G
+    r_gate_pd.p1 ~ q_dis_drv.G
+    r_gate_pd.p2 ~ gnd
+
+    # Coils: 15V -> dropper -> coil -> shared low-side switch
+    power_15v.vcc ~ r_coil1.p1
+    r_coil1.p2 ~ k_dis1.coil1
+    d_fly1.K ~ k_dis1.coil1
+    d_fly1.A ~ k_dis1.coil2
+    k_dis1.coil2 ~ q_dis_drv.D
+
+    power_15v.vcc ~ r_coil2.p1
+    r_coil2.p2 ~ k_dis2.coil1
+    d_fly2.K ~ k_dis2.coil1
+    d_fly2.A ~ k_dis2.coil2
+    k_dis2.coil2 ~ q_dis_drv.D
+
+    q_dis_drv.S ~ gnd
+    power_15v.gnd ~ gnd
 
 
 module BuckConverter3V3:
@@ -1527,6 +1727,7 @@ module MCU:
     rtd_drdy = new ElectricLogic
     wdt_kick = new ElectricLogic
     relay_ctrl = new ElectricLogic
+    discharge_ctrl = new ElectricLogic
     fault_status_in = new ElectricLogic
     reset_n = new ElectricLogic
     zcd_in = new ElectricLogic
@@ -1642,6 +1843,12 @@ module MCU:
     
     wdt_kick.line ~ mcu.IO7
     relay_ctrl.line ~ mcu.IO16
+    # IO47 drives the bus-discharge relay coils (BusDischarge module):
+    # high = coils energized = discharge disengaged; low/floating/reset =
+    # NC contacts close = discharge engages (fail-safe). IO47 is a plain
+    # GPIO on the S3 (not a strapping pin, not JTAG), boots as input
+    # (Hi-Z) so the discharge stays engaged until firmware asserts it.
+    discharge_ctrl.line ~ mcu.IO47
     fault_status_in.line ~ mcu.IO17
     # GPIO6 is an input from the TPS3823 RESET_N output; keep it separate from
     # the explicit latch-reset request on GPIO14 to avoid output contention.
