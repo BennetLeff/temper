@@ -35,10 +35,20 @@ extraction_method: "deterministic-pipeline"
 deterministic_pipeline:
   config: "configs/temper_production_config.yaml"
   placed_components: 149        # of 149 — all finite positions
-  placement_violations: 0  # PlacementValidationStage's own check -- scope not
-                            # independently verified against kicad-cli as of
-                            # this note; do not assume it means "no overlaps"
-                            # without checking, per the drc_violations lesson below
+  placement_violations: 0  # VERIFIED WRONG 2026-07-17, two independent gaps:
+                            # (1) PlacementValidationStage only checks
+                            # PlacementProximityConstraint/SignalToHVClearance,
+                            # both declared via config -- this config has
+                            # neither declared, so nothing was ever checked.
+                            # (2) CourtyardCheckStage (the stage actually
+                            # responsible for courtyard-overlap detection)
+                            # finds 0 collisions on this board's first pass,
+                            # but real kicad-cli DRC on the identical export
+                            # finds 27 courtyards_overlap + 16
+                            # pth_inside_courtyard errors -- a genuine,
+                            # unresolved detection bug, not just narrow scope.
+                            # See docs/solutions/logic-errors/
+                            # courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md.
   drc_violations: 0  # VERIFIED MISLEADING 2026-07-17: this is
                       # router_v6.constraints_drc_oracle.DRCOracle.validate_all(),
                       # which checks ONLY track-to-track and via-to-via
