@@ -1379,3 +1379,14 @@ scripts:
   category: keep
   disposition: ci-gate
   imports: []
+
+- path: ci_identity_check.py
+  purpose: "CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined fixture, verifies the production board once it exists"
+  owner: bennet
+  last_run: "2026-07-15"
+  category: keep
+  disposition: ci-gate
+  imports:
+    - pathlib
+    - sys
+    - temper_placer.io.design_bundle_preflight

@@ -262,6 +262,19 @@ def main():
         type=Path,
         help="Path to save congestion heatmap (.npz) for placer feedback",
     )
+    parser.add_argument(
+        "--netlist",
+        type=Path,
+        default=Path("elec/build/default.net"),
+        help="Atopile netlist export to validate the input board's identity against "
+        "(default: elec/build/default.net)",
+    )
+    parser.add_argument(
+        "--bring-up",
+        action="store_true",
+        help="Explicit opt-in for a partially-populated board under active bring-up "
+        "(otherwise the identity preflight hard-fails below the overlap threshold)",
+    )
 
     args = parser.parse_args()
 
@@ -272,6 +285,27 @@ def main():
     console.print(f"Input: {args.input_pcb}")
     console.print(f"Output: {args.output}")
     console.print(f"Cell size: {args.cell_size}mm")
+
+    # 0. Board identity preflight (plan 2026-07-15-001, unit U4). This script
+    # bypasses the pipeline DAG entirely, so it must run this check itself --
+    # relying on InputStage would miss this path. Missing netlist is a hard,
+    # clear configuration error here, not a silent skip: unlike InputStage
+    # (which also serves boards/tests unrelated to this project's real
+    # netlist), this script is the production/DAG-bypass entry point the
+    # plan explicitly calls out as "must not be missed."
+    if not args.netlist.exists():
+        console.print(
+            f"[red]Error: netlist not found at {args.netlist} "
+            f"(run `make netlist` to build it, or pass --netlist)[/]"
+        )
+        sys.exit(1)
+    from temper_placer.io.design_bundle_preflight import BoardIdentityError, preflight_identity
+
+    try:
+        preflight_identity(args.input_pcb, args.netlist, bring_up=args.bring_up)
+    except BoardIdentityError as e:
+        console.print(f"[red]Board identity preflight failed: {e}[/]")
+        sys.exit(1)
 
     # 1. Parse PCB
     console.print("\n[bold cyan]Step 1:[/] Parsing PCB...")

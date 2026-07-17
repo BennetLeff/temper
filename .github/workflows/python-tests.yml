@@ -267,6 +267,12 @@ jobs:
         working-directory: packages/temper-placer
         run: uv run pytest tests/rust_integration/ -v --tb=short -p no:cacheprovider -m "not benchmark"
 
+      - name: Run temper-design-bundle Rust tests
+        run: cargo test --manifest-path packages/temper-design-bundle/Cargo.toml
+
+      - name: Verify temper-design-bundle-python loads
+        run: uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')"
+
       - name: Per-stage timing regression check
         run: uv run temper timing check --ci --json
         continue-on-error: true  # temper CLI may not be installed; temper-N6-U8
@@ -331,6 +337,9 @@ jobs:
         run: |
           python3 scripts/gen_schematics.py --check
           git diff --exit-code pcb/*.kicad_sch
+
+      - name: Verify board identity gate (plan 2026-07-15-001, U7)
+        run: uv run python3 scripts/ci_identity_check.py
 
       - name: Lint with ruff
         run: uv run ruff check packages/

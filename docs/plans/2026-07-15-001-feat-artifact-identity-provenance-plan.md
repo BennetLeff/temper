@@ -195,23 +195,38 @@ correspond to the netlist component refs, with counts derived from the files.
 
 **Requirements:** R1 (origin). Phase B.
 
-**Dependencies:** `2026-07-11-001` U2 (KiCad inventory DTO + `identity.rs`
-foundation). Extends existing `packages/temper-design-bundle/src/identity.rs`.
+**Dependencies:** none (decision below removes the original dependency on
+`2026-07-11-001` U2's Python-generated KiCad inventory DTO). Extends existing
+`packages/temper-design-bundle/src/identity.rs`.
+
+**Decision (resolves the open design question from scoping):** parse
+`.kicad_pcb` footprint ref designators natively in Rust rather than depending
+on a Python-generated DTO (`real_board_inventory.py`) crossing the PyO3
+boundary. This keeps the identity gate's correctness self-contained inside the
+typed Rust crate — no dependency on a second language's parser being correct
+or even present — consistent with the origin brainstorm's core principle
+("derive, don't declare") applied one layer deeper: the *mechanism* that
+derives board identity shouldn't itself depend on an external, untyped
+extraction step.
 
 **Files:**
+- `packages/temper-design-bundle/src/kicad_pcb.rs` (new) — minimal
+  `.kicad_pcb` S-expression reader, extracting only footprint reference
+  designators (not a general KiCad parser).
 - `packages/temper-design-bundle/src/identity.rs` — add `validate_board_identity` (or extend `validate`).
 - `packages/temper-design-bundle/src/model.rs` — board role enum (`Production | Fixture`) inferred from path, not stored in files.
 - `packages/temper-design-bundle/src/error.rs` — new diagnostic codes (`identity_mismatch`, `role_violation`).
 - `packages/temper-design-bundle/tests/fixtures/` — a 33-ref board inventory + a matching-vs-mismatching netlist fixture pair.
 
-**Approach:** Compute the ref sets from the KiCad inventory DTO and the netlist,
-take the overlap ratio, and hard-fail below a threshold (construction
-parameter, safe default) with a `DesignBundleError` listing the disjoint refs
-on each side (capped sample). Role is derived: a board path under the
-benchmarks directory yields `Fixture` and can never construct a production
-bundle; any other path constructing a production bundle must pass the overlap
-check. Counts are read from the files — nothing is compared against a declared
-number.
+**Approach:** Compute the board's ref set by parsing `.kicad_pcb` directly in
+Rust (new `kicad_pcb.rs`) and the netlist's ref set from the existing
+`AtopileExport`/`Component` model, take the overlap ratio, and hard-fail below
+a threshold (construction parameter, safe default) with a `DesignBundleError`
+listing the disjoint refs on each side (capped sample). Role is derived: a
+board path under the benchmarks directory yields `Fixture` and can never
+construct a production bundle; any other path constructing a production
+bundle must pass the overlap check. Counts are read from the files — nothing
+is compared against a declared number.
 
 **Technical design (directional, not spec):**
 ```

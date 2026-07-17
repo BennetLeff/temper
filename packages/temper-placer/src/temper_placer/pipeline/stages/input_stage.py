@@ -26,6 +26,33 @@ class InputStage:
             from temper_placer.pipeline.state import PipelineError, PipelinePhase
             raise PipelineError(f"Failed to parse PCB: {e}", phase=PipelinePhase.INPUT) from e
 
+        # Fail-closed board/netlist identity preflight (plan 2026-07-15-001,
+        # unit U4). Must run before any constraint/placement logic touches
+        # this board. Compares against the real atopile netlist export, not
+        # `result.netlist` above -- that's derived from this same PCB file,
+        # so checking a board against its own embedded connectivity would be
+        # circular and could never catch a wrong-board mismatch.
+        netlist_path: Path = context.get("netlist_path", Path("elec/build/default.net"))
+        if netlist_path.exists():
+            from temper_placer.io.design_bundle_preflight import (
+                BoardIdentityError,
+                preflight_identity,
+            )
+
+            try:
+                preflight_identity(input_pcb_path, netlist_path)
+            except BoardIdentityError as e:
+                from temper_placer.pipeline.state import PipelineError, PipelinePhase
+                raise PipelineError(
+                    f"Board identity preflight failed for {input_pcb_path}: {e}",
+                    phase=PipelinePhase.INPUT,
+                ) from e
+        else:
+            print(
+                f"  Note: identity preflight skipped, netlist not found at {netlist_path} "
+                "(run `make netlist` to build it)"
+            )
+
         board = result.board
         netlist = result.netlist
         loops: list = []

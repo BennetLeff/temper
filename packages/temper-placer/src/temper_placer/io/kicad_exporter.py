@@ -564,6 +564,8 @@ def export_board_state(
     state: BoardState,  # noqa: F821
     output_pcb: Path,
     auto_fill_zones: bool = True,
+    netlist_path: Path | None = None,
+    config_path: Path | None = None,
 ) -> ExportResult:
     """Export board state directly to KiCad PCB.
 
@@ -575,6 +577,11 @@ def export_board_state(
         state: BoardState containing traces and vias
         output_pcb: Output PCB path
         auto_fill_zones: Whether to trigger zone filling
+        netlist_path: Atopile netlist export to record in the output's
+            provenance header (default: elec/build/default.net if present).
+            Provenance is skipped, not faked, if it can't be found.
+        config_path: Placement config in effect, if any, also recorded in
+            the provenance header.
 
     Returns:
         ExportResult stats
@@ -641,6 +648,17 @@ def export_board_state(
     output_pcb = Path(output_pcb)
     output_pcb.parent.mkdir(parents=True, exist_ok=True)
     _validate_4_layer_output(board)
+
+    # Provenance header (plan 2026-07-15-001, unit U5). Skipped, not faked,
+    # when the netlist isn't available -- this export path also runs against
+    # boards/fixtures unrelated to this project's real netlist.
+    resolved_netlist_path = netlist_path or Path("elec/build/default.net")
+    if resolved_netlist_path.exists():
+        from temper_placer.io.provenance import compute_provenance, embed_provenance
+
+        provenance = compute_provenance(template_pcb, resolved_netlist_path, config_path)
+        embed_provenance(board, provenance)
+
     board.to_file(str(output_pcb))
 
     # Automatically fill zones if requested
