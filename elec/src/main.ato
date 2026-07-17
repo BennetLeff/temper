@@ -23,6 +23,7 @@ import AuxSupply from "modules.ato"
 import CurrentSensing from "modules.ato"
 import RTDSensing from "modules.ato"
 import SafetyInterlock from "modules.ato"
+import ThermalSystem from "modules.ato"
 import MCU from "modules.ato"
 import HighVoltageConstraints from "constraints.ato"
 import ThermalZonesConstraints from "constraints.ato"
@@ -138,6 +139,9 @@ module Top:
     
     # Microcontroller
     mcu = new MCU
+
+    # Forced-air cooling (fan power circuit; heatsink/TIM are chassis BOM)
+    thermal = new ThermalSystem
     
     # ===========================================================================
     # SAFETY ASSERTIONS
@@ -390,6 +394,10 @@ module Top:
     
     mcu.power.vcc ~ vcc_3v3
     mcu.power.gnd ~ gnd
+
+    # Fan supply
+    thermal.power_15v.vcc ~ vcc_15v
+    thermal.power_15v.gnd ~ gnd
     
     # Relay control for soft-start bypass
     mcu.relay_ctrl.line ~ power_in.relay_ctrl

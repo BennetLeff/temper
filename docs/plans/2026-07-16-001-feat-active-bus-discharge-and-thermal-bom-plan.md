@@ -133,8 +133,10 @@ module docstring for the verified numbers). Remaining:
 
 - **Firmware TODO**: IO47 startup/fault sequencing — requirement
   recorded in `firmware/README.md` (gpio_init is still stubbed).
-- Thermal BOM: see `elec/src/modules.ato` `ThermalSystem` (heatsink,
-  TIM pads, fan) — fan supply note below still applies.
+- Thermal: fan power circuit implemented in `ThermalSystem`
+  (`elec/src/modules.ato`) — 39R dropper brings 15V into the fan's
+  verified 4.5-13.8VDC range. Heatsink, Sil-Pads and hardware remain
+  chassis-BOM lines (below); they are not PCB components.
 
 ## Acceptance criteria (when implemented)
 

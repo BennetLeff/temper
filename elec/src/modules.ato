@@ -54,6 +54,7 @@ import MAX31865 from "components.ato"
 # for future isolated I2C expansion if needed.
 import CST2010_100L from "components.ato"
 import IRM_10_15 from "components.ato"
+import PinHeader_1x02 from "components.ato"
 
 # Safety components
 import TLV3201 from "components.ato"
@@ -1076,6 +1077,42 @@ module AuxSupply:
     # Total: ~5W. Design for 8W for margin.
     p_out_max: power = 8W
     assert c_in_bulk.voltage_rating >= 170V * 1.25  # half-bus + margin
+
+module ThermalSystem:
+    """Forced-air cooling: fan power circuit (PCB side).
+
+    Fan: Sunon MF60251V1-1000U-A99, 60x60x25 MagLev/Vapo, 12V 75mA
+    (87mA max), 23.5CFM. VERIFIED 2026-07-16 (Sunon spec D06077210G-02):
+    operating range 4.5-13.8VDC -- a direct 15V feed EXCEEDS it, so the
+    fan runs through a 39R 1W series dropper (same Yageo RSF100JB-73-39R
+    as the bypass-relay coil dropper): 15V - 0.075A x 39R = 12.1V at the
+    fan (11.6V at max current), inside range with margin; dropper
+    dissipates 0.30W worst-case on a 1W part.
+
+    The fan itself is off-board (leadwires to J_FAN); heatsink
+    (Wakefield-Vette 392-120AB), Sil-Pads and mounting hardware are
+    chassis BOM -- see docs/plans/2026-07-16-001 for the verified MPNs.
+    """
+
+    power_15v = new ElectricPower
+
+    j_fan = new PinHeader_1x02
+
+    r_fan_drop = new Resistor
+    r_fan_drop.value = 39ohm +/- 5%
+    r_fan_drop.power_rating = 1W
+    r_fan_drop.voltage_rating = 25V
+    r_fan_drop.mpn = "RSF100JB-73-39R"
+    r_fan_drop.footprint = "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+
+    # Worst case: 87mA max fan current -> 0.30W in the dropper
+    i_fan_max: current = 87mA
+    p_drop_max: power = i_fan_max * i_fan_max * 39ohm
+    assert r_fan_drop.power_rating >= p_drop_max * 2
+
+    power_15v.vcc ~ r_fan_drop.p1
+    r_fan_drop.p2 ~ j_fan.p1
+    j_fan.p2 ~ power_15v.gnd
 
 module CurrentSensing:
     """Current transformer with burden resistor."""

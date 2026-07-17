@@ -589,6 +589,18 @@ component Button:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component PinHeader_1x02:
+    """2-pin 2.54mm THT vertical header (fan power).
+    VERIFIED 2026-07-16: Wurth WR-PHD 61300211121, 1x2 gold-plated,
+    500VAC withstand, -40..+105C (Newark/Farnell listings)."""
+    designator_prefix = "J"
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    mpn = "61300211121"
+    manufacturer = "Wurth Elektronik"
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component TestPoint:
     """Surface mount or through-hole test point"""
     designator_prefix = "TP"
