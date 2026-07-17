@@ -1,6 +1,7 @@
 ---
 title: "CP-SAT feasibility-first placement solves in 0.1s; wirelength optimization drives the 60s budget"
 date: 2026-07-03
+last_updated: 2026-07-17
 category: architecture-patterns
 module: placer/cp_sat
 problem_type: architecture_pattern
@@ -11,6 +12,7 @@ applies_when:
   - "Choosing between a single combined solve (feasibility + objective) and a two-phase approach"
   - "Evaluating whether hard constraints natively expressed in CP-SAT are cheap enough to make feasibility-first the default strategy"
   - "When the wirelength objective dominates solver time and you want to unblock the pipeline with a feasible placement"
+  - "Estimating whether bare CP-SAT (no PCL constraints, no warm-start) will converge on a board with ~150 components"
 tags:
   - or-tools
   - cp-sat
@@ -18,6 +20,7 @@ tags:
   - performance
   - pcb-placement
   - optimization-strategy
+  - scaling-limit
 ---
 
 # CP-SAT feasibility-first placement solves in 0.1s; wirelength optimization drives the 60s budget
@@ -116,6 +119,63 @@ Do NOT apply when:
 - The model is trivially feasible (e.g., a single component).
 - The objective is also expressible as a hard constraint.
 - The optimization quality must be **provably optimal**.
+- **The board has ~150 components and no real PCL constraints to prune the
+  search** — see "Update 2026-07-17" below. The 0.1s figure in this doc's
+  headline was measured at N=33 with 5 real constraint types; it does not
+  extrapolate to N≈150 with an empty constraint set.
+
+## Update 2026-07-17: feasibility-first does not scale unmodified to the real
+## ~150-component board
+
+The 0.1s / 33-component result above was measured against
+`pcb/benchmarks/temper_fixture_33.kicad_pcb` — the fixture retired earlier
+this arc (still tracked in git as of this update, but structurally inert
+per U3's identity gate). Running the same feasibility-first approach
+against the real production board
+(`pcb/temper.kicad_pcb`, 149 components) for the first time, via the newly
+wired `temper-placer optimize --no-loop` CLI path
+(`docs/plans/2026-07-17-001-feat-cp-sat-optimize-cli-wiring-plan.md`):
+
+| Test | Timeout | Status | Wall time | Placed |
+|---|---|---|---|---|
+| Feasibility-only, `extra_constraints=[]` | 1000ms (CLI default) | `unknown` | 1.6s | 0 |
+| Feasibility-only, `extra_constraints=[]` | 5000ms | `unknown` | 3.7s | 0 |
+| Feasibility-only, `extra_constraints=[]` | 15000ms | `unknown` | 15.6s | 0 |
+
+Bumping the timeout 15× did not change the outcome — this is not a timeout
+tuning problem. Two candidate explanations, not yet distinguished:
+
+1. **No PCL constraints were loaded.** `configs/temper_production_config.yaml`
+   (the deterministic-pipeline config authored for U6) has no top-level
+   `constraints:` block, so `load_constraints()` correctly returns an empty
+   `pcl_constraints` list — this isn't a bug, that config was never meant to
+   carry PCL constraints. The only PCL file that exists,
+   `packages/temper-placer/configs/pcl/temper_induction.yaml`, is itself
+   fixture-era (`Q1`, `Q2`, `U_GATE` refs — the same fixture-ref-naming
+   problem documented throughout `docs/solutions/logic-errors/` this arc)
+   and would not match the real board's refs either. **There is currently
+   no real PCL constraints file authored for the production board.**
+2. **Scale itself.** This doc's own "When to Apply" section already implied
+   an upper bound was untested — the benchmark table only ever validated
+   N=33. 149 components is ~4.5× that, well past the "N≥10, ≥3 constraint
+   types" lower-bound guidance this doc gives, but with *zero* upper bound
+   ever measured. It's possible bare CP-SAT (no constraints, no warm-start,
+   no zone/slot decomposition) simply doesn't scale to this board size
+   regardless of constraint richness — which would explain why the
+   deterministic pipeline (zone-aware slot generation + greedy assignment,
+   *not* CP-SAT) is the pipeline that actually produces 149/149 placements
+   for this board today, in 2.4s, per
+   `power_pcb_dataset/baselines/temper_production_baseline.yaml`.
+
+**Not yet done, needed to distinguish (1) from (2):** author a real PCL
+constraints file for the production board's actual refs and re-run. If a
+handful of real hard constraints (edge anchoring, HV/LV separation,
+adjacency) let the same bare `solve_placement()` call converge quickly,
+(1) was the cause and CP-SAT is still viable for this board with proper
+constraints. If it still doesn't converge with real constraints, (2) holds
+and CP-SAT-only placement should be considered scale-limited for boards
+this size — reserved for smaller boards or sub-circuit-level solves, not
+the full board.
 
 ## Examples
 
