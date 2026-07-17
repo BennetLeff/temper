@@ -123,6 +123,19 @@ Notes for layout:
 - Add the fan to the BOM as a spared line item; Vapo bearing at 60C
   ambient is the wear item of the system.
 
+## Implementation status (2026-07-16)
+
+Option A is IMPLEMENTED in `elec/src/modules.ato` (`BusDischarge`,
+commits f6ec8abb + b5674c3e): relay strings, coil drivers on IO47
+(DISCHARGE_CTRL), and RC contact snubbers (the G5LE datasheet caps DC
+switching at 125VDC, so the 170VDC/18mA break required them — see the
+module docstring for the verified numbers). Remaining:
+
+- **Firmware TODO**: IO47 startup/fault sequencing — requirement
+  recorded in `firmware/README.md` (gpio_init is still stubbed).
+- Thermal BOM: see `elec/src/modules.ato` `ThermalSystem` (heatsink,
+  TIM pads, fan) — fan supply note below still applies.
+
 ## Acceptance criteria (when implemented)
 
 1. Bench: bus discharge from 340V total to <34V on both halves in <60s
