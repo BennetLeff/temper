@@ -253,6 +253,16 @@ reference-resolution style already in `identity.rs`.
 **Verification:** `cargo test -p temper-design-bundle` passes; the fixture-vs-
 production pair produces the mismatch diagnostic.
 
+**Status note (2026-07-17):** Shipped. Implemented independently on
+`feat/identity-board-ref-check` (2026-07-15), discovered unmerged and landed
+via merge commit rather than reimplemented. Native Rust `.kicad_pcb` and
+netlist readers (`kicad_pcb.rs`, `netlist.rs`, shared `sexpr.rs`) parse both
+sides directly rather than depending on a Python-generated DTO crossing the
+PyO3 boundary. `cargo test -p temper-design-bundle`: 26/26 passing (one pre-existing stale
+golden fixture found and fixed while merging — the committed golden JSON
+had a field the `Provenance` struct no longer has, unrelated to U3's own
+logic; regenerated in commit `171d36fd`).
+
 ---
 
 ### U4. Fail-closed pipeline gate at board entry points
@@ -293,6 +303,19 @@ identity, run earlier, at input); PyO3 error-mapping style from
 **Verification:** `make route` against a fixture-path board fails closed with a
 role diagnostic; against the production board it proceeds.
 
+**Status note (2026-07-17):** Shipped (same branch/merge as U3).
+`preflight_identity` exposed via PyO3, wrapped by
+`design_bundle_preflight.py` (raises `BoardIdentityError`, never a
+warning), wired into `InputStage` (soft-skip on missing netlist — it also
+serves boards unrelated to this project) and `scripts/internal_route.py`
+(hard error on missing netlist — this is the production/DAG-bypass path).
+A third DAG-bypass path, `scripts/ci_closure_test.py`, was missed by the
+original implementation and found the same day while auditing CI usage of
+the retired fixture (commit `1353a42e` closes it — see U6's status note
+for the full finding). Verified end-to-end: the real production board passes,
+the fixture fails closed with `role_violation`, exit code 1 confirmed
+without pipe-masking.
+
 ---
 
 ### U5. Provenance blocks in pipeline outputs
@@ -323,6 +346,15 @@ pipeline-written PCBs.
 **Verification:** open a pipeline-written `.kicad_pcb`; provenance comments are
 present and hashes match the inputs.
 
+**Status note (2026-07-17):** Shipped, as a bonus alongside U3/U4 (not
+originally scoped as a hard dependency of this pass, but a natural
+extension once the crate's SHA-256 helper existed). New `sha256_hex` PyO3
+export; `provenance.py`'s `compute_provenance()`/`embed_provenance()`;
+`kicad_exporter.py`'s `export_board_state` gained optional
+`netlist_path`/`config_path` params (skips provenance, doesn't fake it,
+when the netlist isn't available for board/test paths unrelated to this
+project).
+
 ---
 
 ### U6. Re-benchmark placer/router against the production board
@@ -349,25 +381,54 @@ board (0 DRC violations, 0 placement violations); metrics recorded in
 `deterministic_pipeline` (`component_count: 149`, `net_count: 95` — the
 latter is `>=2`-pin connectivity, matching `temper-placer regression`'s own
 definition; see `docs/solutions/logic-errors/
-net-count-metric-definition-mismatch-regression-baseline.md`). The
-quarantined fixture was already deleted earlier in this arc.
+net-count-metric-definition-mismatch-regression-baseline.md`).
 
-Two follow-on bugs surfaced and were fixed while re-verifying this baseline
-after an unrelated BOM change (5 new components from a `BuckConverter3V3`
-stub-wiring fix): (1) the baseline's `net_count` had been written from a
-different definition than the regression checker uses (fixed — see the doc
-above); (2) `fixed_positions` was keyed by bare KiCad ref, which silently
-misdirected 8 of 30 fixed placements onto the wrong physical component after
-the designator renumbering that came with those 5 new parts (fixed by
-keying on the atopile sheetpath instead — stable across renumbering; see
-`docs/solutions/logic-errors/
-fixed-positions-ref-fragility-across-renumbering.md`). The second bug is a
-direct, concrete instance of the identity-drift failure class U7 exists to
-close.
+**Correction**: an earlier revision of this note claimed the quarantined
+fixture (`pcb/benchmarks/temper_fixture_33.kicad_pcb`) was "already deleted
+earlier in this arc." That was wrong — the file is still committed and
+tracked as of this note. It's no longer a live danger (U3's role check makes
+it structurally impossible for a `benchmarks`-path board to construct a
+production bundle, regardless of overlap), and while auditing CI usage of it
+today, four workflows (`regression.yml`, `metrics-record.yml`,
+`pr-pipeline-scorecard.yml` ×2 jobs, `python-tests.yml`'s closure job) were
+found genuinely scoring the fixture as their real target rather than a
+negative test case — fixed by repointing them at `pcb/temper.kicad_pcb` and
+closing a third identity-gate bypass (`ci_closure_test.py` called the parser
+directly, missing U4's gate). Deletion of the fixture file itself is still
+open — do it once nothing legitimately needs it as the negative test case
+(`ci_identity_check.py` and two test suites still reference it intentionally
+for that purpose).
 
-Remaining for full U6 closure: a routing-completion baseline (the pipeline's
-routing stages currently emit escape vias only) and the CP-SAT
-`temper-placer optimize` run to fill the `cp_sat` block.
+Three follow-on bugs surfaced and were fixed while re-verifying this
+baseline after an unrelated BOM change (5 new components from a
+`BuckConverter3V3` stub-wiring fix): (1) the baseline's `net_count` had been
+written from a different definition than the regression checker uses (fixed
+— see the doc above); (2) `fixed_positions` was keyed by bare KiCad ref,
+which silently misdirected 8 of 30 fixed placements onto the wrong physical
+component after the designator renumbering that came with those 5 new parts
+(fixed by keying on the atopile sheetpath instead — stable across
+renumbering; see `docs/solutions/logic-errors/
+fixed-positions-ref-fragility-across-renumbering.md`); (3) the four
+CI-workflow fixture references above. All three are direct, concrete
+instances of the identity/config-drift failure class U7 exists to close —
+U7 has since landed (see its own section below), via a pre-existing,
+independently-authored branch (`feat/identity-board-ref-check`) discovered
+and merged rather than reimplemented.
+
+**Remaining for full U6 closure — genuinely blocked, not just undone**: a
+routing-completion baseline and the CP-SAT `cp_sat` block cannot currently
+be populated. `temper-placer optimize`'s CP-SAT branch is a complete
+no-op stub — it prints "Full CP-SAT pipeline integration is in progress"
+and returns without ever invoking the solver, with any config, on any
+board; its own suggested fallback (`temper pipeline`) is not a real
+command. See `docs/solutions/logic-errors/
+cp-sat-optimize-cli-non-functional-stub-2026-07-17.md` for the full
+finding (root-caused to four specific lines in `cli/__init__.py` — the
+underlying CP-SAT solver code appears intact elsewhere; only this CLI
+entry point's wiring to it is missing). `cp_sat` is left `null` in the
+baseline with that finding cited, rather than populated with fabricated
+numbers. Closing this is real, separate integration work: connect
+`optimize()`'s cp-sat branch to `temper_placer.placer.cp_sat`.
 
 **Approach:** Run the corpus/golden regression against the production board,
 review the new numbers (they will differ materially — 100 vs 33 components),
@@ -418,6 +479,17 @@ generated. Respect the repo's `actionlint` workflow-lint gate (per AGENTS.md).
 
 **Verification:** `actionlint` passes; the identity job is green on the
 production board and red on the fixture.
+
+**Status note (2026-07-17):** Shipped (same branch/merge as U3/U4/U5).
+`cargo test` for `temper-design-bundle` now runs in CI for the first time
+ever (no Rust crate in this repo had its test suite run in CI before this).
+`scripts/ci_identity_check.py` rejects the fixture unconditionally and
+enforces the gate against the real production board — "must pass if it
+exists" upgraded from skipped to actually enforced now that the board does
+exist. Plan doc's own units are now complete through U7; the plan's only
+open item is U6's `cp_sat` baseline block, which is blocked on unrelated,
+pre-existing broken CLI tooling (see U6's status note) rather than on
+anything in this unit.
 
 ---
 
