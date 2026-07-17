@@ -942,12 +942,19 @@ def solve_placement(
     zones: dict[str, tuple[float, float, float, float]] | None = None,
     loop_components: dict[str, list[str]] | None = None,
     zone_components: dict[str, list[str]] | None = None,
+    hint_positions: dict[str, tuple[float, float, int]] | None = None,
 ) -> CpSatPlacementResult:
     """Build a CP-SAT model, encode constraints, solve, and return the result.
 
     This is the single entry point consumed by PlaceRouteLoop and ``temper
     optimize``.  It wires the full pipeline: model creation → PCL encoding
     → solve → position extraction.
+
+    Args:
+        hint_positions: Optional warm-start hints.  Dict mapping component
+            ref to ``(x_mm, y_mm, rotation_0_3)``.  Hints are seeded via
+            ``CpModel.AddHint()`` before solving so CP-SAT searches locally
+            from the supplied positions rather than exploring the full space.
     """
     from ortools.sat.python import cp_model as cp
 
@@ -1014,6 +1021,21 @@ def solve_placement(
     # Wire up NoOverlap2D (redundant global for propagation — per-pair
     # SEPARATED-τ is added during constraint encoding in U2).
     model_wrapper.add_no_overlap_2d(comp_refs)
+
+    # Warm-start: seed solver with hint positions so CP-SAT searches
+    # locally from a known-feasible point rather than exploring the full
+    # space.  Hints are validated against constraints by the solver;
+    # AddHint is a soft suggestion, not a binding assignment.
+    if hint_positions:
+        for ref, (x_mm, y_mm, rot) in hint_positions.items():
+            if ref in model_wrapper.component_map:
+                cv = model_wrapper.get_component(ref)
+                hint_x = model_wrapper.mm_to_units(x_mm)
+                hint_y = model_wrapper.mm_to_units(y_mm)
+                model_wrapper.model_ref.AddHint(cv.x_center, hint_x)
+                model_wrapper.model_ref.AddHint(cv.y_center, hint_y)
+                if cv.rot_ref is not None:
+                    model_wrapper.model_ref.AddHint(cv.rot_ref, rot)
 
     # Build EncoderContext from board and netlist data.
     # Coerce every zone rectangle to a validated Rect (x_min,y_min,x_max,y_max)

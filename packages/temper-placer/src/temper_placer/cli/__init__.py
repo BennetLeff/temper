@@ -303,6 +303,12 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
     default=False,
     help="Register all five gates (DRC, Routing, Stackup, Physics, Quality) on the place-route loop.",
 )
+@click.option(
+    "--warm-start",
+    is_flag=True,
+    default=False,
+    help="Seed CP-SAT solver with deterministic pipeline positions via AddHint.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -341,6 +347,7 @@ def optimize(
     loop: bool,
     unsat_report: Path | None,
     all_gates: bool,
+    warm_start: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -602,11 +609,31 @@ def optimize(
             console.print(f"  Parsed {len(netlist.components)} components from input PCB")
             console.print(f"  Loaded {len(pcl_constraints)} PCL constraints")
 
+            # Warm-start: seed solver with deterministic pipeline positions.
+            hint_positions = None
+            if warm_start:
+                console.print("  [cyan]Warm-start: running deterministic pipeline...[/]")
+                from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
+                from temper_placer.io.kicad_metadata import extract_kicad_metadata
+
+                metadata = extract_kicad_metadata(input_pcb)
+                dp = create_drc_aware_pipeline(config=constraints, metadata=metadata)
+                dp_state = BoardState(board=board, netlist=netlist)
+                dp_state = dp.run(dp_state)
+                if dp_state.placements:
+                    hint_positions = {}
+                    for ref, pos in dp_state.placements:
+                        hint_positions[ref] = (pos[0], pos[1], 0)
+                    console.print(
+                        f"  [green]✓[/] Extracted {len(hint_positions)} hint positions"
+                    )
+
             result = solve_placement(
                 netlist=netlist,
                 board=board,
                 extra_constraints=pcl_constraints,
                 seed=seed,
+                hint_positions=hint_positions,
             )
 
             console.print(
