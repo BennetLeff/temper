@@ -392,8 +392,6 @@ def optimize(
     console.print()
     console.print("[bold green]CP-SAT placer selected (default).[/]")
     console.print("[dim]The JAX gradient-descent pipeline has been removed.[/]")
-    console.print("[dim]Full CP-SAT pipeline integration is in progress.[/]")
-    console.print("[dim]Use `temper pipeline` for router-based placement flows.[/]")
 
     # Place→Route feedback loop (U4)
     if loop:
@@ -587,6 +585,77 @@ def optimize(
             raise
         except Exception as e:
             raise click.ClickException(f"Place→route loop failed: {e}") from e
+    else:
+        # --no-loop: direct CP-SAT solve, no routing feedback
+        console.print("\n[bold cyan]Running CP-SAT solver (--no-loop)...[/]")
+        try:
+            from temper_placer.io.config_loader import load_constraints
+            from temper_placer.io.kicad_parser import parse_kicad_pcb
+            from temper_placer.placer.cp_sat.encoder import solve_placement
+
+            parse_result = parse_kicad_pcb(input_pcb)
+            netlist = parse_result.netlist
+            board = parse_result.board
+            constraints = load_constraints(config)
+            pcl_constraints = list(getattr(constraints, "pcl_constraints", []))
+
+            console.print(f"  Parsed {len(netlist.components)} components from input PCB")
+            console.print(f"  Loaded {len(pcl_constraints)} PCL constraints")
+
+            result = solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=pcl_constraints,
+                seed=seed,
+            )
+
+            console.print(
+                f"  Solver status: {result.status}"
+                f" ({result.solve_time_ms:.0f}ms)"
+            )
+
+            if result.status in ("infeasible", "model_invalid"):
+                _maybe_surface_unsat(result, unsat_report)
+                sys.exit(1)
+
+            if result.status in ("optimal", "feasible"):
+                from temper_placer.io.kicad_writer import (
+                    PlacementUpdate,
+                    write_placements_to_pcb,
+                )
+
+                placements: dict[str, PlacementUpdate] = {}
+                for ref, pos in result.positions.items():
+                    placements[ref] = PlacementUpdate(
+                        ref=ref,
+                        x=pos[0],
+                        y=pos[1],
+                        rotation=result.rotations.get(ref, 0) * 90.0,
+                    )
+
+                write_result = write_placements_to_pcb(
+                    template_pcb=input_pcb,
+                    output_pcb=output,
+                    placements=placements,
+                    preserve_unmatched=True,
+                    components=netlist.components,
+                )
+                console.print(
+                    f"  [green]✓[/] {write_result.components_updated} components placed"
+                )
+                if write_result.has_warnings:
+                    for w in write_result.warnings:
+                        console.print(f"  [yellow]⚠[/] {w}")
+                console.print(f"  Output: {output}")
+            else:
+                console.print(
+                    f"  [red]Solver returned unexpected status: {result.status}[/]"
+                )
+                sys.exit(1)
+        except click.ClickException:
+            raise
+        except Exception as e:
+            raise click.ClickException(f"CP-SAT solve failed: {e}") from e
 
     sys.exit(0)
 
