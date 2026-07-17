@@ -27,6 +27,7 @@ REQUIRED_LIBS = [
     "Package_SO",
     "Package_TO_SOT_SMD",
     "Package_TO_SOT_THT",
+    "Relay_THT",
     "Resistor_SMD",
     "Resistor_THT",
     "TestPoint",
