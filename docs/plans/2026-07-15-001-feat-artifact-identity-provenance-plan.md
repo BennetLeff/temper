@@ -328,13 +328,31 @@ exist).
 
 **Status note (2026-07-17):** Placement re-baseline complete. The production
 placement config (`configs/temper_production_config.yaml`) drives the
-deterministic 22-stage pipeline to **144/144 finite placements** on the real
-board (0 DRC violations, 0 placement violations, ~2.3s); metrics recorded in
+deterministic 22-stage pipeline to **149/149 finite placements** on the real
+board (0 DRC violations, 0 placement violations); metrics recorded in
 `power_pcb_dataset/baselines/temper_production_baseline.yaml` under
-`deterministic_pipeline`. The quarantined fixture was already deleted earlier
-in this arc. Remaining for full U6 closure: a routing-completion baseline
-(the pipeline's routing stages currently emit escape vias only) and the
-CP-SAT `temper-placer optimize` run to fill the `cp_sat` block.
+`deterministic_pipeline` (`component_count: 149`, `net_count: 95` — the
+latter is `>=2`-pin connectivity, matching `temper-placer regression`'s own
+definition; see `docs/solutions/logic-errors/
+net-count-metric-definition-mismatch-regression-baseline.md`). The
+quarantined fixture was already deleted earlier in this arc.
+
+Two follow-on bugs surfaced and were fixed while re-verifying this baseline
+after an unrelated BOM change (5 new components from a `BuckConverter3V3`
+stub-wiring fix): (1) the baseline's `net_count` had been written from a
+different definition than the regression checker uses (fixed — see the doc
+above); (2) `fixed_positions` was keyed by bare KiCad ref, which silently
+misdirected 8 of 30 fixed placements onto the wrong physical component after
+the designator renumbering that came with those 5 new parts (fixed by
+keying on the atopile sheetpath instead — stable across renumbering; see
+`docs/solutions/logic-errors/
+fixed-positions-ref-fragility-across-renumbering.md`). The second bug is a
+direct, concrete instance of the identity-drift failure class U7 exists to
+close.
+
+Remaining for full U6 closure: a routing-completion baseline (the pipeline's
+routing stages currently emit escape vias only) and the CP-SAT
+`temper-placer optimize` run to fill the `cp_sat` block.
 
 **Approach:** Run the corpus/golden regression against the production board,
 review the new numbers (they will differ materially — 100 vs 33 components),
