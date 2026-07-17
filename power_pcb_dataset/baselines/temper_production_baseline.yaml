@@ -35,8 +35,27 @@ extraction_method: "deterministic-pipeline"
 deterministic_pipeline:
   config: "configs/temper_production_config.yaml"
   placed_components: 149        # of 149 — all finite positions
-  placement_violations: 0
-  drc_violations: 0
+  placement_violations: 0  # PlacementValidationStage's own check -- scope not
+                            # independently verified against kicad-cli as of
+                            # this note; do not assume it means "no overlaps"
+                            # without checking, per the drc_violations lesson below
+  drc_violations: 0  # VERIFIED MISLEADING 2026-07-17: this is
+                      # router_v6.constraints_drc_oracle.DRCOracle.validate_all(),
+                      # which checks ONLY track-to-track and via-to-via
+                      # clearance -- not courtyard overlap, silk clearance,
+                      # shorts, or unrouted nets. With routed_nets: 0 (below)
+                      # there is almost no routing geometry for it to check,
+                      # so 0 here is close to vacuous, not a clean bill of
+                      # health. See docs/solutions/logic-errors/
+                      # deterministic-pipeline-drc-oracle-only-checks-routing-not-real-drc.md.
+  kicad_cli_drc_errors: 225    # ground truth, verified 2026-07-17 via
+  kicad_cli_drc_warnings: 578  # temper_placer.validation._drc_api.run_drc
+                                # (same kicad-cli backend DrcRatchet uses)
+                                # against this exact deterministic-pipeline
+                                # export. For comparison: the UNPLACED INPUT
+                                # board (pcb/temper.kicad_pcb) already carries
+                                # 170 errors / 459 warnings before any
+                                # placement or routing runs.
   escape_vias: 124
   routed_nets: 0                # routing stages currently emit escape vias only
   connectivity_unconnected_pads: 269  # honest pre-routing figure

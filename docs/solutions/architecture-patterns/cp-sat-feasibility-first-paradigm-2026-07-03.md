@@ -201,6 +201,59 @@ The deterministic pipeline (zone-aware slot generation + greedy
 assignment) remains the board's actual production placement path; it
 produces 149/149 in 2.4s today with no scale wall observed.
 
+## Update 2026-07-17 (later same day): warm-start was tried — a real
+## seeding bug was found and fixed, but the underlying hypothesis is now
+## also settled negative
+
+`--warm-start` landed on `feat/warm-start-cli`, seeding CP-SAT via
+`AddHint()` with positions from a deterministic-pipeline pre-solve. Two
+things needed independent verification before trusting the result, per
+this doc's own established pattern of not trusting a "did it work" claim
+without running it:
+
+**1. The warm-start CLI had a real seeding bug (found, root-caused).** It
+reuses whatever `-c` config was passed for CP-SAT's PCL constraints as the
+config for the deterministic-pipeline warm-start pass too. A CP-SAT-
+oriented PCL file (`configs/pcl/temper_production.yaml` — zones +
+constraints, no `fixed_positions`/`slot_generation`) starves the
+deterministic pipeline down to **13 of 149** placements when reused this
+way — the same "no fixed_positions means the big parts' reservation
+circles consume nearly all slots" failure mode this arc found and fixed
+for the *main* deterministic config days earlier. Confirmed directly: the
+same board + the full, tuned `configs/temper_production_config.yaml`
+places 149/149; the CP-SAT-only PCL file places 13/149. **The CLI's
+`--warm-start` flag has never yet produced a real, complete hint set in
+practice** — every run so far seeded from an accidentally-starved
+13-component partial placement.
+
+**2. Re-ran the actual experiment properly** — a genuine 149/149 seed
+(from the tuned deterministic config) *and* the 12 real PCL constraints,
+passed to `solve_placement(hint_positions=..., extra_constraints=...)`
+directly:
+
+| Test | Timeout | Status | Wall time | Placed |
+|---|---|---|---|---|
+| Full 149/149 seed + 12 real constraints | 5000ms | `unknown` | 3.7s | 0 |
+| Full 149/149 seed + 12 real constraints | 15000ms | `unknown` | 15.6s | 0 |
+
+**Identical to every unseeded run.** Even a complete, genuinely-feasible
+warm-start hint produces no observable improvement in convergence.
+`AddHint()` is documented by OR-Tools as a soft suggestion the solver may
+use to construct an initial incumbent — it does not appear to be enough
+on its own to get this model to CERTIFY feasibility within any timeout
+tested. Two untested follow-on hypotheses, not yet distinguished: (a) the
+hint isn't surviving translation into the solver's exact internal
+constraint encoding (a units/coordinate mismatch would cause CP-SAT to
+treat a "valid" hint as just another guess), or (b) `AddHint()` alone
+genuinely isn't sufficient at this scale and true decomposition (solving
+zone-by-zone, never building one 149-component model) is required. Not
+investigated further this session — a real follow-up if CP-SAT placement
+for boards this size is still wanted.
+
+**Revised conclusion:** warm-starting via `AddHint()`, as currently wired,
+does not solve the scale-wall problem documented above. The deterministic
+pipeline remains the only proven path to a full placement for this board.
+
 ## Examples
 
 ### Comparison from temper board validation
