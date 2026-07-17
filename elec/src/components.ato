@@ -168,6 +168,37 @@ component MOV_Varistor:
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
+component CommonModeChoke:
+    """TDK (EPCOS) B82726S2163N030 current-compensated ring-core double
+    choke -- ONE physical 4-pin part. Replaces the earlier cmc_w1/cmc_w2
+    pair of 2-pin Inductor instances in PowerInput, which modeled the
+    part as two separate inductors and made the generated BOM show
+    qty 2 (order 1).
+    VERIFIED 2026-07-16 (TDK datasheet, "Date: April 2025" revision,
+    tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf):
+    250VAC / 16A rated (referred to 50Hz, T_R +60C), 2.2mH +/-30% per
+    winding at 10kHz/0.1mA/+20C, R_typ 7.1mOhm/winding, ferrite ring
+    core, THT hot-dip-tinned wire leads. Datasheet page 3 "Dimensional
+    drawing and pin configuration" explicitly states "No polarity" --
+    the two windings are symmetric, so there is no dot convention to
+    respect; either winding may carry L or N.
+    Pin mapping (TDK's own numbers, carried straight through to the
+    footprint pads -- see pcb/libs/temper.pretty/CMC_B82726S.kicad_mod):
+    winding 1 = pins 1 (top-left) / 4 (bottom-left);
+    winding 2 = pins 2 (top-right) / 3 (bottom-right)."""
+    designator_prefix = "L"
+    footprint = "temper:CMC_B82726S"
+    mpn = "B82726S2163N030"
+    manufacturer = "TDK (EPCOS)"
+    value = 2.2mH
+    current_rating = 16A
+    dcr = 0.0071ohm
+
+    signal W1_1 ~ pin 1
+    signal W2_1 ~ pin 2
+    signal W2_2 ~ pin 3
+    signal W1_2 ~ pin 4
+
 component MUR1560:
     """Ultrafast rectifier 15A 600V"""
     footprint = "Package_TO_SOT_THT:TO-220-2_Vertical"

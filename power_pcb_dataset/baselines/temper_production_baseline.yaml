@@ -8,7 +8,7 @@
 # To run a fresh baseline extraction:
 #   temper-placer optimize pcb/temper.kicad_pcb -c constraints.yaml -o output.kicad_pcb --all-gates
 
-component_count: 126
+component_count: 125
 net_count: 136
 drc_available: false
 drc_errors: 0

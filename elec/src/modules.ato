@@ -38,6 +38,7 @@ import ES1J from "components.ato"
 import CapPolarized from "components.ato"
 import Relay_SPST from "components.ato"
 import MOV_Varistor from "components.ato"
+import CommonModeChoke from "components.ato"
 
 # Power management components
 import LMR51430 from "components.ato"
@@ -456,32 +457,15 @@ module PowerInput:
     c_x2.mpn = "DE2E3KH221MA3B"
     c_x2.footprint = "Capacitor_THT:C_Disc_D10.0mm_W5.0mm_P5.00mm"
 
-    # CMC: common-mode choke for conducted EMI suppression
-    # Two windings modeled as two inductors in the signal path.
-    # VERIFIED 2026-07-16: TDK (EPCOS) B82726S2163N030 current-compensated
-    # ring-core double choke — 250VAC, 16A rated (T_R +60C, derate above),
-    # 2.2mH +/-30% per winding at 10kHz, R_typ 7.1mOhm/winding, THT.
-    # Datasheet: tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf.
-    # The previously listed B82725J2152N1 does not exist (B82725J selection
-    # table runs B82725J2102N020..B82725J2103N022) and that family tops out
-    # at 10A — under-rated for the 15A line current here.
-    # NOTE: one physical 4-pin part modeled as 2x 2-pin inductors (BOM shows
-    # qty 2; order 1). Real pin grid: rows 23mm apart, pins 18mm (top) /
-    # 38mm (bottom); the 2-pin toroid footprint (P=22.9mm) approximates one
-    # winding's 23mm row pitch until a proper 4-pad footprint is built.
-    cmc_w1 = new Inductor
-    cmc_w1.value = 2.2mH
-    cmc_w1.current_rating = 16A
-    cmc_w1.dcr = 0.0071ohm
-    cmc_w1.mpn = "B82726S2163N030"
-    cmc_w1.footprint = "Inductor_THT:L_Toroid_Horizontal_D25.4mm_P22.90mm_Vishay_TJ5"
-
-    cmc_w2 = new Inductor
-    cmc_w2.value = 2.2mH
-    cmc_w2.current_rating = 16A
-    cmc_w2.dcr = 0.0071ohm
-    cmc_w2.mpn = "B82726S2163N030"
-    cmc_w2.footprint = "Inductor_THT:L_Toroid_Horizontal_D25.4mm_P22.90mm_Vishay_TJ5"
+    # CMC: common-mode choke for conducted EMI suppression.
+    # ONE physical 4-pin part (TDK B82726S2163N030) — previously modeled as
+    # 2x 2-pin Inductor (cmc_w1/cmc_w2), which made the BOM show qty 2 for a
+    # part you order once. Now a single CommonModeChoke instance on a proper
+    # 4-pad footprint (temper:CMC_B82726S) built from the TDK dimensional
+    # drawing. Ratings, MPN verification history and datasheet link live on
+    # the component definition in components.ato.
+    cmc = new CommonModeChoke
+    assert cmc.current_rating >= constraints.i_max
     
     ntc = new NTC_Inrush
     ntc.resistance_cold = 10ohm
@@ -596,12 +580,15 @@ module PowerInput:
     mov.p2 ~ ac_n
     fuse.p2 ~ c_x2.p1
     c_x2.p2 ~ ac_n
-    # CMC: L path — fuse → CMC winding 1 → NTC/relay
-    fuse.p2 ~ cmc_w1.p1
-    cmc_w1.p2 ~ ntc.p1
+    # CMC: L path — fuse → CMC winding 1 (pins 1→4) → NTC/relay.
+    # Both windings pass through in the same physical direction (top row in,
+    # bottom row out) so line and neutral currents are flux-compensated;
+    # the TDK datasheet marks the part "No polarity" (symmetric windings).
+    fuse.p2 ~ cmc.W1_1
+    cmc.W1_2 ~ ntc.p1
     ntc.p2 ~ d1.A
-    
-    cmc_w1.p2 ~ bypass_relay.COM
+
+    cmc.W1_2 ~ bypass_relay.COM
     bypass_relay.NO ~ d1.A
 
     r_gate.p1 ~ relay_ctrl
@@ -623,8 +610,9 @@ module PowerInput:
     c_bus1b.plus ~ dc_bus.hv_plus
     c_bus1b.minus ~ dc_bus.gnd_ref
     
-    ac_n ~ cmc_w2.p1
-    cmc_w2.p2 ~ dc_bus.gnd_ref
+    # CMC: N path — neutral → CMC winding 2 (pins 2→3) → doubler midpoint
+    ac_n ~ cmc.W2_1
+    cmc.W2_2 ~ dc_bus.gnd_ref
     d2.K ~ d1.A
     d2.A ~ dc_bus.hv_minus
     c_bus2.plus ~ dc_bus.gnd_ref

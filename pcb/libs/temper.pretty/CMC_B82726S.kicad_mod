@@ -1,0 +1,98 @@
+(footprint "CMC_B82726S"
+	(version 20231120)
+	(generator "temper-hand")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "TDK (EPCOS) B82726S2163N030 current-compensated ring-core double choke, 250VAC/16A, 2.2mH/winding. Land pattern hand-built from the official TDK dimensional drawing (tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf, page 3 'Dimensional drawing and pin configuration', April 2025 revision): pin 1/2 (top row) on 18+/-0.4mm pitch, pin 4/3 (bottom row) on 38+/-0.3mm pitch, row-to-row (1/2 row to 4/3 row) pitch 23+/-0.2mm, lead diameter 1.6+/-0.1mm. Toroid body 50mm max diameter x 49mm max (side-elevation view in the datasheet; the datasheet does not give a top-down silhouette, so the F.Fab/F.CrtYd circle here is a CONSERVATIVE placement covering the lead footprint's centroid at the datasheet's stated max diameter -- verify true keep-out against the physical part / TDK's 3D model before fabrication). PAD NUMBERING matches TDK's own pin numbers 1-4 (no remapping): footprint pads 1-4 = atopile CommonModeChoke pins 1-4 directly (winding 1 = pads 1+4, winding 2 = pads 2+3). Datasheet states 'No polarity' -- the two windings are symmetric so there is no dot/phasing convention to respect.")
+	(tags "common mode choke CMC B82726S TDK EPCOS EMI toroid")
+	(attr through_hole)
+	(property "Reference" "REF**"
+		(at 0 -16 0)
+		(layer "F.SilkS")
+		(uuid "cbc60100-0000-0000-0000-000000000001")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(property "Value" "CMC_B82726S"
+		(at 0 40 0)
+		(layer "F.Fab")
+		(uuid "cbc60100-0000-0000-0000-000000000002")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(property "Datasheet" "https://www.tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "cbc60100-0000-0000-0000-000000000003")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	;; Courtyard: conservative 54mm circle centered on the lead pattern's
+	;; centroid (0, 11.5), covering the datasheet's 50mm max toroid
+	;; diameter plus a 2mm margin. See descr -- not a measured top-down
+	;; silhouette, TDK's datasheet only gives a side-elevation view.
+	(fp_circle
+		(center 0 11.5)
+		(end 0 -15.5)
+		(layer "F.CrtYd")
+		(width 0.05)
+		(fill none)
+		(uuid "cbc60110-0000-0000-0000-000000000001")
+	)
+	;; Fab body outline: 50mm max diameter toroid, same conservative center.
+	(fp_circle
+		(center 0 11.5)
+		(end 0 -13.5)
+		(layer "F.Fab")
+		(width 0.1)
+		(fill none)
+		(uuid "cbc60111-0000-0000-0000-000000000001")
+	)
+	;; Silkscreen: matches the Fab circle, pulled in slightly so it doesn't
+	;; collide with the courtyard line; pin-1 marker at the top-left lead.
+	(fp_circle
+		(center 0 11.5)
+		(end 0 -13.3)
+		(layer "F.SilkS")
+		(width 0.12)
+		(fill none)
+		(uuid "cbc60112-0000-0000-0000-000000000001")
+	)
+	(fp_line
+		(start -11.5 -3)
+		(end -6.5 -3)
+		(layer "F.SilkS")
+		(width 0.2)
+		(uuid "cbc60112-0000-0000-0000-000000000002")
+	)
+	;; Pins 1/2: top row, 18mm pitch, y=0
+	(pad "1" thru_hole circle
+		(at -9 0)
+		(size 3.4 3.4)
+		(drill 2.0)
+		(layers "*.Cu" "*.Mask")
+		(uuid "cbc60120-0000-0000-0000-000000000001")
+	)
+	(pad "2" thru_hole circle
+		(at 9 0)
+		(size 3.4 3.4)
+		(drill 2.0)
+		(layers "*.Cu" "*.Mask")
+		(uuid "cbc60120-0000-0000-0000-000000000002")
+	)
+	;; Pins 4/3: bottom row, 38mm pitch, y=23 (23mm below the top row per
+	;; the datasheet's row-to-row dimension). Note TDK's own left-to-right
+	;; order is 4,3 (mirrored from 1,2 above), NOT 3,4.
+	(pad "4" thru_hole circle
+		(at -19 23)
+		(size 3.4 3.4)
+		(drill 2.0)
+		(layers "*.Cu" "*.Mask")
+		(uuid "cbc60120-0000-0000-0000-000000000004")
+	)
+	(pad "3" thru_hole circle
+		(at 19 23)
+		(size 3.4 3.4)
+		(drill 2.0)
+		(layers "*.Cu" "*.Mask")
+		(uuid "cbc60120-0000-0000-0000-000000000003")
+	)
+)
