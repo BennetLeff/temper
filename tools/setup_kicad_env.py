@@ -17,6 +17,8 @@ KICAD_GIT_URL = "https://gitlab.com/kicad/libraries/kicad-footprints.git"
 # Libraries identified as missing in DRC logs
 REQUIRED_LIBS = [
     "Capacitor_SMD",
+    "Connector_PinHeader_2.54mm",
+    "Converter_ACDC",
     "Capacitor_THT",
     "Diode_SMD",
     "Fuse",
@@ -26,6 +28,7 @@ REQUIRED_LIBS = [
     "Package_SO",
     "Package_TO_SOT_SMD",
     "Package_TO_SOT_THT",
+    "Relay_THT",
     "Resistor_SMD",
     "Resistor_THT",
     "TestPoint",

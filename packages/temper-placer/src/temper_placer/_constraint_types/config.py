@@ -182,6 +182,10 @@ class PlacementConstraints:
 
     # Zones
     zones: list[Zone] = field(default_factory=list)
+    # Slot generation config (dict with spacing_mm etc.); consumed by
+    # create_drc_aware_pipeline. The YAML key was accepted (in
+    # _KNOWN_CONFIG_KEYS) but silently dropped by the loader until 2026-07.
+    slot_generation: dict | None = None
     ground_domains: list[GroundDomain] = field(default_factory=list)
 
     # Clearance rules

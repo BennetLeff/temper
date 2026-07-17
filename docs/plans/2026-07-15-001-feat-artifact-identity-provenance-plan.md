@@ -326,6 +326,16 @@ exist).
 - `scripts/extract_corpus_baselines.py` — used to regenerate.
 - Delete `pcb/benchmarks/temper_fixture_33.kicad_pcb` and `pcb/benchmarks/README.md` once baselines are green.
 
+**Status note (2026-07-17):** Placement re-baseline complete. The production
+placement config (`configs/temper_production_config.yaml`) drives the
+deterministic 22-stage pipeline to **144/144 finite placements** on the real
+board (0 DRC violations, 0 placement violations, ~2.3s); metrics recorded in
+`power_pcb_dataset/baselines/temper_production_baseline.yaml` under
+`deterministic_pipeline`. The quarantined fixture was already deleted earlier
+in this arc. Remaining for full U6 closure: a routing-completion baseline
+(the pipeline's routing stages currently emit escape vias only) and the
+CP-SAT `temper-placer optimize` run to fill the `cp_sat` block.
+
 **Approach:** Run the corpus/golden regression against the production board,
 review the new numbers (they will differ materially — 100 vs 33 components),
 commit them as the new baseline, then remove the quarantined fixture. After

@@ -17,11 +17,13 @@
 import HalfBridge from "modules.ato"
 import ResonantTank from "modules.ato"
 import PowerInput from "modules.ato"
+import BusDischarge from "modules.ato"
 import PowerManagement from "modules.ato"
 import AuxSupply from "modules.ato"
 import CurrentSensing from "modules.ato"
 import RTDSensing from "modules.ato"
 import SafetyInterlock from "modules.ato"
+import ThermalSystem from "modules.ato"
 import MCU from "modules.ato"
 import HighVoltageConstraints from "constraints.ato"
 import ThermalZonesConstraints from "constraints.ato"
@@ -110,7 +112,10 @@ module Top:
     
     # Power input (AC -> DC)
     power_in = new PowerInput
-    
+
+    # Active bus discharge (fail-safe, relay NC contacts; plan 2026-07-16-001)
+    discharge = new BusDischarge
+
     # Power management (DC_BUS -> 15V -> 3.3V)
     power_mgmt = new PowerManagement
     
@@ -134,6 +139,9 @@ module Top:
     
     # Microcontroller
     mcu = new MCU
+
+    # Forced-air cooling (fan power circuit; heatsink/TIM are chassis BOM)
+    thermal = new ThermalSystem
     
     # ===========================================================================
     # SAFETY ASSERTIONS
@@ -308,7 +316,7 @@ module Top:
     # CT primary: current transformer measures tank return current
     # The primary wire (tank return) passes through the CT core
     tank.out ~ ct_sense.primary_in
-    ct_sense.primary_in ~ power_return  # High-current tank return to doubler midpoint
+    ct_sense.primary_out ~ power_return  # Tank return passes THROUGH the CT primary
     
     # ===========================================================================
     # SENSING CONNECTIONS
@@ -386,10 +394,30 @@ module Top:
     
     mcu.power.vcc ~ vcc_3v3
     mcu.power.gnd ~ gnd
+
+    # Fan supply
+    thermal.power_15v.vcc ~ vcc_15v
+    thermal.power_15v.gnd ~ gnd
     
     # Relay control for soft-start bypass
     mcu.relay_ctrl.line ~ power_in.relay_ctrl
     mcu.relay_ctrl.line.override_net_name = "RELAY_CTRL"
+
+    # ===========================================================================
+    # ACTIVE BUS DISCHARGE CONNECTIONS
+    # One 2x4.7k/5W string + relay NC contact across each half-bus.
+    # Coils held from the 15V rail while running; any power loss (or MCU
+    # dead: IO47 boots Hi-Z) de-energizes the coils and the NC contacts
+    # engage discharge -- <60s to <34V per half-bus, no MCU involvement.
+    # ===========================================================================
+    discharge.hv_plus ~ dc_bus_plus
+    discharge.mid ~ power_return
+    discharge.hv_minus ~ dc_bus_minus
+    discharge.power_15v.vcc ~ vcc_15v
+    # discharge already ties power_15v.gnd ~ gnd internally; connect once
+    discharge.gnd ~ gnd
+    mcu.discharge_ctrl.line ~ discharge.ctrl
+    mcu.discharge_ctrl.line.override_net_name = "DISCHARGE_CTRL"
     
     # Zero-crossing detection for soft-start timing
     power_in.zcd ~ mcu.zcd_in.line
