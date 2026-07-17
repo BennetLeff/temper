@@ -813,6 +813,8 @@ def _parse_u3_extensions(config: dict, constraints: PlacementConstraints) -> Non
 
 
 def _parse_misc(config: dict, constraints: PlacementConstraints) -> None:
+    if "slot_generation" in config and isinstance(config["slot_generation"], dict):
+        constraints.slot_generation = config["slot_generation"]
     if "placement_priority" in config:
         constraints.placement_priority = config["placement_priority"]
     if "routing_priority" in config:
