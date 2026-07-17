@@ -25,11 +25,13 @@ jobs:
         run: uv python install 3.12
       - name: Install dependencies
         run: uv sync --all-packages
+      - name: Build electronics netlist
+        run: make netlist
       - name: Run closure test on baseline
         continue-on-error: true
         run: >
           uv run python3 scripts/ci_closure_test.py
-          --pcb pcb/benchmarks/temper_fixture_33.kicad_pcb
+          --pcb pcb/temper.kicad_pcb
           --require-all-stages
           --metrics-dir ./baseline-metrics
           || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
@@ -66,11 +68,13 @@ jobs:
         run: uv python install 3.12
       - name: Install dependencies
         run: uv sync --all-packages
+      - name: Build electronics netlist
+        run: make netlist
       - name: Run closure test on PR head
         continue-on-error: true
         run: >
           uv run python3 scripts/ci_closure_test.py
-          --pcb pcb/benchmarks/temper_fixture_33.kicad_pcb
+          --pcb pcb/temper.kicad_pcb
           --require-all-stages
           --metrics-dir ./current-metrics
           || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"

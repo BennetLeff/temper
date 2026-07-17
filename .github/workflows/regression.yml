@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
 
+      - name: Build electronics netlist
+        run: make netlist
+
       - name: Install KiCad (for DRC)
         run: |
           sudo add-apt-repository -y ppa:kicad/kicad-8.0-releases
@@ -47,7 +50,7 @@ jobs:
         run: uv run python scripts/ci_check_drc.py --backend kicad-cli
 
       - name: Closure Test
-        run: uv run python3 scripts/ci_closure_test.py --pcb pcb/benchmarks/temper_fixture_33.kicad_pcb
+        run: uv run python3 scripts/ci_closure_test.py --pcb pcb/temper.kicad_pcb
         continue-on-error: true
 
       - name: Round-Trip Integrity Tests
