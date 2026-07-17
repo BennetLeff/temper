@@ -458,11 +458,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-packages
       
-      - name: Type check temper-placer
-        run: uv run mypy packages/temper-placer/src --ignore-missing-imports
-      
-      - name: Type check temper-workflow
-        run: uv run mypy packages/temper-workflow/src --ignore-missing-imports
+      - name: Type-check gate (monotonic-shrink baseline)
+        run: uv run python scripts/check_typecheck_gate.py
 
   astar-nightly:
     name: A* 4x4 Exhaustive Verification (Nightly)

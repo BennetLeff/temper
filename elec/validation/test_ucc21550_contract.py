@@ -51,7 +51,7 @@ def test_firmware_pin_header_matches_schematic_safety_map() -> None:
     }
     for macro, value in expected.items():
         assert re.search(rf"^#define {macro}\s+{value}$", PINS, re.MULTILINE)
-    assert "fault_status_in.line ~ mcu.GPIO20" in MODULES
+    assert "fault_status_in.line ~ mcu.IO17" in MODULES
     assert "shutdown_n_in" not in MODULES
 
 
@@ -175,7 +175,7 @@ def _component_ref_with_sheetpath(netlist: str, sheetpath: str) -> str:
     """Resolve a component reference without crossing into the next comp."""
 
     match = re.search(
-        rf'\(comp \(ref "(?P<ref>U\d+)"\)(?:(?!\n    \(comp ).)*?'
+        rf'\(comp \(ref "(?P<ref>[A-Z]+\d+)"\)(?:(?!\n    \(comp ).)*?'
         rf"{re.escape(sheetpath)}",
         netlist,
         re.DOTALL,
@@ -200,7 +200,7 @@ def test_generated_netlist_keeps_max31865_reference_and_force2_connected() -> No
     assert re.search(rf'\(node \(ref "{re.escape(rref_ref)}"\) \(pin "2"\)', ref_minus)
 
     force2 = _net_block_with_node(netlist, adc_ref, 9)
-    assert 'name "gnd"' in force2.lower()
+    assert 'name "pwr_rtn"' in force2.lower()
 
 
 def test_generated_netlist_carries_default_high_rtd_fault_to_aggregate_or() -> None:

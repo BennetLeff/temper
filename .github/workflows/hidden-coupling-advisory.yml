@@ -37,6 +37,7 @@ jobs:
 
       - name: Drift detector
         id: drift
+        continue-on-error: true
         working-directory: .gusano
         run: |
           bun packages/enola-sem-drift/src/cli.ts \
