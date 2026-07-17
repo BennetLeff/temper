@@ -1,0 +1,202 @@
+# Temper PRODUCTION board deterministic placement configuration (U6).
+# Authored against the 144-component board generated from elec/build/default.net
+# (atopile refs R*/C*/D*/L*/K*/F*/RT*/RV*/SW*/TP*/U*, PR #217 era).
+#
+# Zone routing works through net classes: ZoneAssignmentStage maps a component
+# to HV/Power/MCU by the net_class of the nets it touches (HighVoltage -> HV,
+# Power -> Power, nets containing SPI/I2C/UART -> MCU, everything else Signal).
+# The old fixture config's zone_assignments block is NOT consumed by the
+# deterministic pipeline, so all zone steering here is via net_classes.
+
+board:
+  width_mm: 100.0
+  height_mm: 150.0
+  margin_mm: 5.0
+
+# Left-to-right power flow: mains/HV bulk on the left, gate drive and rails
+# mid-board, sensing/safety next, ESP32 on the right edge (matches the
+# HV-edge / SELV-interior philosophy in elec/src/constraints.ato).
+zones:
+  - name: "HV"
+    bounds_ratio: [0.0, 0.0, 0.45, 1.0]   # 45x150mm - CMC, IRM module, relays,
+    net_classes: ["HighVoltage"]           # snap-in bus caps, discharge bank,
+    description: "Mains + DC bus + tank"   # tank caps, IGBTs, CT
+  - name: "Power"
+    bounds_ratio: [0.45, 0.0, 0.62, 1.0]  # 17x150mm - gate driver, buck, fan
+    net_classes: ["Power"]
+    description: "Gate drive + rails"
+  - name: "Signal"
+    bounds_ratio: [0.62, 0.0, 0.80, 1.0]  # 18x150mm - RTD front-end, safety
+    net_classes: ["Signal"]
+    description: "Sensing + safety interlock"
+  - name: "MCU"
+    bounds_ratio: [0.80, 0.0, 1.0, 1.0]   # 20x150mm - ESP32-S3 module (20x28
+    net_classes: ["Signal"]                # courtyard) + buttons/pullups
+    description: "ESP32-S3 + support"
+
+# 144 components on 15000mm2. Multi-slot reservation is circular
+# (diag/2 + 1mm), so long parts overconsume; 5mm spacing gives 600 gross
+# slots (~4.2x the component count) to absorb that waste.
+slot_generation:
+  spacing_mm: 4.0
+  grid_alignment: true
+
+# --- Engineered floorplan for the large parts -------------------------------
+# The greedy assigner reserves a circle of diag/2+1mm around every placed
+# part; the 25 biggest parts alone would tile the whole board (~20,000mm2 of
+# circles on a 15,000mm2 board), starving the 119 small parts. Fixing them in
+# a compact left-edge power-stage layout makes their reservation circles
+# overlap instead of tile, and encodes the real electrical flow:
+# mains entry (bottom-left) -> EMI/CMC -> relay -> doubler caps -> discharge
+# bank, IRM aux, tank, IGBTs at the HV/Power boundary, ESP32 right edge.
+# CourtyardCheckStage resolves residual courtyard nudges afterwards.
+fixed_positions:
+  F1:  [18.0, 6.0]     # fuse, AC entry
+  RV1: [18.0, 14.0]    # MOV across the line
+  R26: [40.0, 5.0]     # litz coil pads (off-board coil)
+  RT1: [40.0, 14.0]    # inrush NTC
+  L1:  [21.0, 32.0]    # CMC 42x27
+  K1:  [11.0, 55.0]    # bypass relay
+  T1:  [42.0, 56.0]    # CT on tank return
+  PS1: [22.0, 73.0]    # IRM-10-15 aux module 43x15
+  C23: [22.0, 83.5]    # tank film cap
+  C24: [22.0, 87.5]    # tank film cap
+  C2:  [12.0, 93.0]    # bus snap-in
+  C3:  [32.0, 93.0]    # bus snap-in
+  C4:  [12.0, 104.0]   # bus snap-in
+  C5:  [32.0, 104.0]   # bus snap-in
+  R1:  [42.0, 96.0]    # relay coil dropper (axial)
+  K2:  [8.0, 118.0]    # discharge relay 1
+  K3:  [8.0, 136.5]    # discharge relay 2
+  R9:  [32.0, 111.0]   # discharge 5W bank
+  R10: [32.0, 115.5]
+  R11: [32.0, 120.0]
+  R12: [32.0, 124.5]
+  C7:  [32.0, 131.0]   # contact snubber film
+  C8:  [32.0, 140.5]   # contact snubber film
+  U3:  [48.0, 16.0]    # IGBT high (HV/Power boundary, near gate driver)
+  U4:  [48.0, 30.0]    # IGBT low
+  C22: [48.0, 40.0]    # DC bus HF film cap at the bridge
+  U5:  [56.0, 22.0]    # UCC21550 gate driver next to IGBTs
+  L2:  [52.0, 70.0]    # buck inductor
+  U21: [88.0, 25.0]    # ESP32-S3 module, right edge (antenna up)
+  J1:  [52.0, 140.0]   # fan header
+  R64: [52.0, 133.0]   # fan dropper (axial)
+
+# --- Net class steering ---------------------------------------------------
+# HighVoltage nets pull the mains/bus/tank/discharge components into HV.
+# Power nets pull the 15V/3V3 conversion + relay coil drivers into Power.
+# i2c_* nets trigger the MCU rule for the ESP32 and its pullups.
+net_classes:
+  # Mains / rectifier / bus
+  ac_l: "HighVoltage"
+  ac_n: "HighVoltage"
+  w1_1: "HighVoltage"          # CMC winding nodes (L path)
+  w1_2: "HighVoltage"
+  "+340V_BUS": "HighVoltage"
+  DC_BUS_RTN: "HighVoltage"
+  # NOTE: PWR_RTN is the star-point-merged system ground (85 pins) -
+  # classing it HighVoltage would drag every grounded part into HV.
+  SW_NODE: "HighVoltage"
+  "power_in.ntc-no": "HighVoltage"
+  "power_in.r_zcd_top1-p2": "HighVoltage"
+  # Tank
+  tank-out: "HighVoltage"
+  "tank.c_tank1-p2": "HighVoltage"
+  # Discharge bank (HV side)
+  "discharge.k_dis1-nc": "HighVoltage"
+  "discharge.k_dis2-nc": "HighVoltage"
+  "discharge.r_dis1a-p2": "HighVoltage"
+  "discharge.r_dis2a-p2": "HighVoltage"
+  "discharge.r_snub1-p2": "HighVoltage"
+  "discharge.r_snub2-p2": "HighVoltage"
+  # OVP HV divider chain (top resistors live with the HV nets they touch)
+  "safety.ovp.r_div_top1-p2": "HighVoltage"
+  "safety.ovp.r_div_top2-p2": "HighVoltage"
+  # Rails
+  "+15V": "Power"
+  "+15V_LS": "Power"
+  # +3V3 (37 pins) deliberately unclassed: decouplers follow their ICs.
+  "power_in.bypass_relay-coil1": "Power"
+  "power_in.bypass_relay-coil2": "Power"
+  "discharge.k_dis1-coil1": "Power"
+  "discharge.k_dis1-coil2": "Power"
+  "discharge.k_dis2-coil1": "Power"
+  "thermal.j_fan-p1": "Power"
+
+# Same rule set the fixture config used (trace/clearance values are the
+# routing stages' inputs; creepage drives the HV/LV guard machinery).
+net_class_rules:
+  HighVoltage:
+    type: high_voltage
+    connectivity: copper_pour
+    target_layer: "F.Cu"
+    voltage_class: mains_240v
+    trace_width_mm: 2.0
+    clearance_mm: 6.0
+    creepage_mm: 6.0
+    via_size_mm: 1.0
+    via_drill_mm: 0.5
+    via_template: "Via3x3"
+    allow_layer_change: false
+    description: "Mains + 340V bus - IEC 60335-1"
+  Power:
+    type: power
+    connectivity: plane
+    target_layer: "In2.Cu"
+    trace_width_mm: 0.5
+    clearance_mm: 0.3
+    via_size_mm: 0.8
+    via_drill_mm: 0.4
+    via_template: "Via2x2"
+    description: "15V / 15V_LS / 3V3 rails"
+  Signal:
+    type: signal
+    connectivity: trace
+    target_layer: "F.Cu"
+    trace_width_mm: 0.15
+    clearance_mm: 0.2
+    via_size_mm: 0.6
+    via_drill_mm: 0.3
+    via_template: "Via1x1"
+    description: "Standard signals"
+
+# Route the HV power path first (6mm clearance needs the best channels),
+# then gate drive, then rails.
+net_priority:
+  ac_l: 1
+  ac_n: 1
+  "+340V_BUS": 1
+  DC_BUS_RTN: 1
+  SW_NODE: 1
+  GATE_HS: 2
+  GATE_LS: 2
+  PWM_HS: 2
+  PWM_LS: 2
+  "+15V": 4
+  "+15V_LS": 4
+  "+3V3": 4
+  I_SENSE: 7
+  V_BUS_SENSE: 7
+  ZCD: 7
+  SHUTDOWN: 7
+
+# Copper planes for the routing stages (bottom ground, inner power island
+# clear of the HV strip).
+copper_zones:
+  - name: "GND_plane"
+    net_classes: ["GND"]
+    bounds: [0.5, 0.5, 99.5, 149.5]
+    layers: ["B.Cu"]
+    description: "Ground plane on bottom layer"
+  - name: "VCC_plane"
+    net_classes: ["+3V3"]
+    bounds: [46.0, 0.5, 99.5, 149.5]
+    layers: ["In1.Cu"]
+    description: "Power plane outside the HV strip"
+
+# NOTE: there is no working YAML toggle for the HV/LV guard strip: the loader
+# drops the key and HvLvPartitionStage reads state.config with dict-style
+# .get() that a PlacementConstraints dataclass does not have, so the stage
+# always runs with its defaults. On this board it self-skips (empty HV/LV
+# bucket split under the current rule categories), so placement is unaffected.

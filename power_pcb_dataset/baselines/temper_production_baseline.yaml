@@ -13,8 +13,21 @@ net_count: 150
 drc_available: false
 drc_errors: 0
 drc_warnings: 0
-extraction_date: "2026-07-16"
-extraction_method: "cp-sat"
+extraction_date: "2026-07-17"
+extraction_method: "deterministic-pipeline"
+
+# Deterministic 22-stage pipeline baseline (U6), first full-board run.
+# Command: create_drc_aware_pipeline(config=configs/temper_production_config.yaml)
+# against pcb/temper.kicad_pcb (144 components / 150 netlist nets, 100x150mm).
+deterministic_pipeline:
+  config: "configs/temper_production_config.yaml"
+  placed_components: 144        # of 144 — all finite positions
+  placement_violations: 0
+  drc_violations: 0
+  escape_vias: 121
+  routed_nets: 0                # routing stages currently emit escape vias only
+  connectivity_unconnected_pads: 261  # honest pre-routing figure
+  wall_time_s: 2.3
 
 # CP-SAT placement metrics (to be populated from a baseline run):
 cp_sat:
