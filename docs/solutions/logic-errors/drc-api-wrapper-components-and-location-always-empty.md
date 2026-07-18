@@ -188,12 +188,30 @@ tooling itself rather than the pipeline it verifies.
   Not fixed in this pass since it has no runtime impact, but flagged
   here in case it is ever revived.
 
+## Follow-Up (2026-07-18): Added `nets` -- `components` Alone Wasn't Enough
+
+Fixing `.components` didn't cover every consumer's need: `IECCreepageGate`
+(a real, live gate) needs **net names** for bare copper track/via
+clearance violations, which have no owning component at all (so
+`.components` is correctly empty for them) -- their identifying info is
+a net name embedded in brackets (`"Via [GND] on F.Cu - B.Cu"`), a
+different concept `.components` was never designed to carry. Added a
+parallel `nets: list[str]` field (via `_extract_net_from_item_description`)
+and fixed `IECCreepageGate.check()` to read it instead of `.components`.
+See
+[`gate-to-delta-tests-assumed-dict-shaped-constraintdelta-and-wrong-mapped-types.md`](../test-failures/gate-to-delta-tests-assumed-dict-shaped-constraintdelta-and-wrong-mapped-types.md)
+for the full investigation -- this was a real, live bug (the gate always
+silently reported `CLEAN`), not just another stale test.
+
 ## Related Issues
 
 - [`docs/solutions/logic-errors/courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md`](courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md)
   — the investigation this bug was found during; this wrapper's broken
   `.components`/`.location` is why that investigation had to fall back to
   parsing raw `kicad-cli` JSON by hand.
+- [`docs/solutions/test-failures/gate-to-delta-tests-assumed-dict-shaped-constraintdelta-and-wrong-mapped-types.md`](../test-failures/gate-to-delta-tests-assumed-dict-shaped-constraintdelta-and-wrong-mapped-types.md)
+  — the follow-up that added `.nets` and fixed a real live bug in
+  `IECCreepageGate`.
 - `packages/temper-placer/tests/validation/test_drc_api_parsing.py` —
   new regression test file for this fix.
 - `packages/temper-placer/tests/validation/test_drc_runner.py` —

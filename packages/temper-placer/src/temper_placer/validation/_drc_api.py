@@ -40,6 +40,9 @@ class DrcError:
         location: (x, y) position in mm.
         message: Human-readable description.
         components: List of component references involved.
+        nets: List of net names involved (from items with no owning
+            component, e.g. bare copper tracks/vias -- KiCad embeds the
+            net name in square brackets, e.g. "Via [GND] on F.Cu - B.Cu").
     """
 
     rule: str
@@ -47,6 +50,7 @@ class DrcError:
     location: tuple[float, float]
     message: str
     components: list[str] = field(default_factory=list)
+    nets: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -60,6 +64,7 @@ class DrcWarning:
         location: (x, y) position in mm.
         message: Human-readable description.
         components: List of component references involved.
+        nets: List of net names involved (see DrcError.nets).
     """
 
     rule: str
@@ -67,6 +72,7 @@ class DrcWarning:
     location: tuple[float, float]
     message: str
     components: list[str] = field(default_factory=list)
+    nets: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -125,6 +131,7 @@ def _get_drc_json_path(pcb_path: Path) -> Path:
 # drc-api-wrapper-components-and-location-always-empty.md.
 _FOOTPRINT_DESC_RE = re.compile(r"^Footprint (\S+)$")
 _OF_REF_DESC_RE = re.compile(r"\bof (\S+?)(?:\s+on\s+\S.*)?$")
+_NET_IN_BRACKETS_RE = re.compile(r"\[([^\]]+)\]")
 
 
 def _extract_ref_from_item_description(description: str) -> str | None:
@@ -135,6 +142,18 @@ def _extract_ref_from_item_description(description: str) -> str | None:
     if match:
         return match.group(1)
     match = _OF_REF_DESC_RE.search(description)
+    if match:
+        return match.group(1)
+    return None
+
+
+def _extract_net_from_item_description(description: str) -> str | None:
+    """Extract a net name from a DRC item's free-text description, or
+    None if it doesn't carry one. KiCad embeds net names in square
+    brackets for net-owned items -- "Via [GND] on F.Cu - B.Cu",
+    "Pad 2 [hb.gate_hs.driver-p2] of C22 on F.Cu" -- but not for
+    board-level features like "Polygon on Edge.Cuts"."""
+    match = _NET_IN_BRACKETS_RE.search(description)
     if match:
         return match.group(1)
     return None
@@ -174,11 +193,16 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
         # extractable ref (e.g. a via-to-via clearance violation).
         location = (0.0, 0.0)
         components: list[str] = []
+        nets: list[str] = []
         location_set = False
         for item in items:
-            ref = _extract_ref_from_item_description(item.get("description", ""))
+            description = item.get("description", "")
+            ref = _extract_ref_from_item_description(description)
             if ref and ref not in components:
                 components.append(ref)
+            net = _extract_net_from_item_description(description)
+            if net and net not in nets:
+                nets.append(net)
             if ref and not location_set:
                 pos = item.get("pos", {})
                 location = (pos.get("x", 0.0), pos.get("y", 0.0))
@@ -195,6 +219,7 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
                     location=location,
                     message=message,
                     components=components,
+                    nets=nets,
                 )
             )
         else:
@@ -205,6 +230,7 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
                     location=location,
                     message=message,
                     components=components,
+                    nets=nets,
                 )
             )
 

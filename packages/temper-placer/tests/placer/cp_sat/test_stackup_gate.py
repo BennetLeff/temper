@@ -200,8 +200,19 @@ def test_unmeasured_never_clean_when_empty():
 # ------------------------------------------------------------------
 
 
-def test_to_delta_current_density():
-    """CURRENT_DENSITY → width increase delta."""
+def test_to_delta_current_density_returns_none():
+    """CURRENT_DENSITY has no corrective placement delta.
+
+    VERIFIED 2026-07-18: this test previously expected a "width increase"
+    delta dict shape (delta["type"] == "trace_width_increase", etc.) that
+    doesn't correspond to any PCL constraint type -- ConstraintDelta
+    always wraps a placement/position constraint (SeparatedConstraint,
+    LoopAreaConstraint, KeepoutConstraint, AnchoredConstraint), never a
+    routing-parameter change like trace width. test_delta_mapper.py's own
+    test_unmapped_type_returns_none explicitly parametrizes
+    CURRENT_DENSITY as an intentionally unmapped type -- there is no
+    placement-based fix for a current-density violation.
+    """
     gate = StackupGate()
     v = Violation(
         type=ViolationType.CURRENT_DENSITY,
@@ -209,11 +220,7 @@ def test_to_delta_current_density():
         severity=0.3,
         threshold=2.5,
     )
-    delta = gate.to_delta(v)
-    assert delta is not None
-    assert delta["type"] == "trace_width_increase"
-    assert delta["net"] == "DC_BUS+"
-    assert delta["min_width_mm"] == 2.5
+    assert gate.to_delta(v) is None
 
 
 def test_to_delta_reference_plane_split():

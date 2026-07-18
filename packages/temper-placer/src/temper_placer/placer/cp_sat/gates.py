@@ -654,7 +654,16 @@ class IECCreepageGate(Gate):
             if err.rule != "clearance":
                 continue
 
-            entry_names = err.components or []
+            # VERIFIED 2026-07-18: clearance violations are between copper
+            # features (tracks/vias/pads), identified by NET name, not by
+            # component reference -- err.components (which only carries
+            # component refs, e.g. "C22") is the wrong field here. err.nets
+            # carries the net name KiCad embeds in brackets for every
+            # net-owned item ("Via [GND] on F.Cu - B.Cu",
+            # "Pad 2 [hb.gate_hs.driver-p2] of C22 on F.Cu"). See
+            # docs/solutions/logic-errors/
+            # drc-api-wrapper-components-and-location-always-empty.md.
+            entry_names = err.nets or []
 
             hv_nets = [n for n in entry_names if _is_hv_net(n)]
             lv_nets = [
