@@ -152,9 +152,24 @@ class PlaceRouteLoop:
             classifier = FeedbackClassifier()
         self.classifier = classifier
 
-        # Gate registry: when non-empty, gates drive convergence.
-        # When empty (None passed explicitly), preserve backward-compat
-        # direct-classifier path.
+        # Gate registry. The default (gates=None) registers DrcGate +
+        # RoutingGate, but does NOT by itself switch run() onto the
+        # gate-driven convergence path -- self._gates_explicit tracks
+        # whether the CALLER explicitly passed a NON-EMPTY gates= list,
+        # which is the actual signal run() uses (alongside all_gates=True)
+        # to pick the gate-driven path over the legacy classifier path.
+        # gates=None (default) and gates=[] (explicit empty) are both
+        # falsy and both mean "legacy path" -- only a non-empty explicit
+        # list means "drive convergence off this custom gate registry".
+        #
+        # VERIFIED 2026-07-18: run() previously dispatched on `all_gates`
+        # alone, ignoring self.gates entirely -- so constructing
+        # PlaceRouteLoop(gates=[SomeCustomGate()]) and calling .run()
+        # without all_gates=True silently fell through to the legacy
+        # classifier path, which knows nothing about the custom gate.
+        # See docs/solutions/logic-errors/
+        # place-route-loop-run-ignores-constructor-gates-without-all-gates-flag.md.
+        self._gates_explicit = bool(gates)
         if gates is None:
             from temper_placer.placer.cp_sat.gates import DrcGate, RoutingGate  # noqa: F811
             self.gates: list[Gate] = [
@@ -282,7 +297,13 @@ class PlaceRouteLoop:
         routing: RoutingResult | None = None
 
         # ---- Gate-driven path (U4) -------------------------------------------
-        if all_gates:
+        # Dispatch on all_gates (the "register all 5 default gates"
+        # convenience flag) OR self._gates_explicit (the caller passed a
+        # custom gates= list to the constructor) -- either signals intent
+        # to use gate-driven convergence rather than the legacy
+        # classifier path. Checking all_gates alone ignored a caller's
+        # explicit custom gate registry entirely.
+        if all_gates or self._gates_explicit:
             return self._run_with_gates(
                 netlist, board, pcl_constraints,
                 all_constraints, gates, injected_deltas,
