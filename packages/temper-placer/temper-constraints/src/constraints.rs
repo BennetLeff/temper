@@ -199,7 +199,7 @@ pub fn from_shared_ir(ir: &temper_pcl_ir::PclConstraint) -> Result<Constraint, S
         } => Ok(Constraint::Adjacent {
             a: a.clone(),
             b: b.clone(),
-            max_distance_mm: max_distance_mm.unwrap_or(f64::INFINITY),
+            max_distance_mm: *max_distance_mm,
             tier,
             metric: parse_metric(metric)?,
             pin_a: None,
