@@ -11,16 +11,9 @@ to temporary PCB files for DRC validation. It handles:
 Example usage:
     >>> from temper_placer.io.placement_exporter import create_pcb_exporter
     >>>
-    >>> # Create exporter for DRCLoss
     >>> exporter = create_pcb_exporter(
     ...     template_pcb=Path("/path/to/template.kicad_pcb"),
     ...     board_origin=(100.0, 50.0),  # mm
-    ... )
-    >>>
-    >>> # Use with DRCLoss
-    >>> drc_loss = DRCLoss(
-    ...     validator=KiCadDRCValidator(),
-    ...     pcb_exporter=exporter,
     ... )
 """
 
@@ -216,7 +209,6 @@ def export_positions_to_temp_pcb(
         raise RuntimeError(f"Failed to write temp PCB: {e}") from e
 
 
-# Type alias for the exporter function signature expected by DRCLoss
 PCBExporterFn = Callable[[Array, Array, LossContext], Path]
 
 
@@ -226,11 +218,9 @@ def create_pcb_exporter(
     temp_dir: Path | None = None,
 ) -> PCBExporterFn:
     """
-    Factory function to create a PCB exporter for DRCLoss.
+    Factory function to create a PCB exporter for DRC validation.
 
-    This returns a function with the signature expected by DRCLoss:
-        (positions, rotations, context) -> Path
-
+    Returns a function with signature (positions, rotations, context) -> Path.
     The template_pcb and board_origin are captured in the closure.
 
     Args:
@@ -239,14 +229,13 @@ def create_pcb_exporter(
         temp_dir: Directory for temp files (uses system temp if None).
 
     Returns:
-        PCB exporter function suitable for DRCLoss.pcb_exporter parameter.
+        PCB exporter function suitable as a DRC validator callback.
 
     Example:
         >>> exporter = create_pcb_exporter(
         ...     template_pcb=Path("board.kicad_pcb"),
         ...     board_origin=(100.0, 50.0),
         ... )
-        >>> drc_loss = DRCLoss(pcb_exporter=exporter)
     """
 
     def exporter(positions: Array, rotations: Array, context: LossContext) -> Path:
