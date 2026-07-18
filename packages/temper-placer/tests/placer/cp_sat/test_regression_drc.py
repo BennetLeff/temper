@@ -18,6 +18,13 @@ Routing DRC gate (:func:`test_golden_board_routing_drc_regression`) extends
 the placement gate to full placement + routing + KiCad DRC round-trip,
 asserting ``unconnected_items=0`` and zero routing-introduced DRC errors
 on the routed board.
+
+Production board tests (:func:`test_production_board_drc_regression`,
+:func:`test_production_board_routing_drc_regression`) target the actual ship
+target ``pcb/temper.kicad_pcb`` (95 nets, 149 components).  The corpus board
+(~24 nets, CP-SAT placed) provides fast regression coverage; the production
+board tests provide a slow, real-product-validity smoke test with thresholds
+seeded from the first-ever routing run (U3, 2026-07-18).
 """
 from __future__ import annotations
 
@@ -433,6 +440,118 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
         f"(placement baseline: {sum(placement_counts.values())} total, "
         f"routed: {sum(routed_counts.values())} total). "
         f"Routing deltas by type: {routing_delta}. "
-        f"Known routing quality issue: single-layer F.Cu routing with all 24 "
+        f"    Known routing quality issue: single-layer F.Cu routing with all 24 "
         f"nets on one layer may produce track-to-track clearance issues."
+    )
+
+
+# ---- Production board tests (U5, 2026-07-18) ----
+
+PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
+
+# Thresholds seeded from U3's first production-board routing run
+# (2026-07-18, kicad-cli 10.0.4, router_v6.route_pcb with existing positions).
+# The production board (95 nets, 149 components) yields substantially more
+# DRC violations than the corpus board (~24 nets) — this is expected given
+# the 4x net count and coarser manual placement.
+PRODUCTION_PLACEMENT_ONLY_DVIOLATIONS = 800  # measured 747 on 2026-07-18 (kicad-cli 10.0.4)
+PRODUCTION_ROUTING_DVIOLATIONS = 1200  # measured 953 on 2026-07-18 (U3 baseline)
+
+
+@pytest.mark.slow
+def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
+    """Placement-only DRC gate for the production board (``pcb/temper.kicad_pcb``).
+
+    Unlike the corpus-board test, this does NOT run CP-SAT placement
+    (which would be infeasible at 149 components / 30s timeout).  Instead
+    it runs kicad-cli DRC on the board's existing (manual) placement and
+    asserts the violation count is below a generous threshold.
+
+    The corpus board (<30 nets, CP-SAT placed) provides fast, stable
+    regression coverage.  The production board test here provides a
+    slow, real-product-validity smoke test covering the actual ship
+    target.
+    """
+    if not _kicad_cli_available():
+        pytest.skip("kicad-cli not available")
+
+    assert PRODUCTION_BOARD_PATH.exists(), (
+        f"Production board not found: {PRODUCTION_BOARD_PATH}"
+    )
+    drc_data = _run_drc(str(PRODUCTION_BOARD_PATH))
+    violations = drc_data.get("violations", [])
+    total = len(violations)
+
+    # Classify by type for diagnostics
+    by_type: dict[str, int] = {}
+    for v in violations:
+        vtype = v.get("type", "other")
+        by_type[vtype] = by_type.get(vtype, 0) + 1
+
+    assert total <= PRODUCTION_PLACEMENT_ONLY_DVIOLATIONS, (
+        f"Production board placement DRC: {total} violations exceeds "
+        f"threshold {PRODUCTION_PLACEMENT_ONLY_DVIOLATIONS}. "
+        f"By type: {dict(sorted(by_type.items()))}"
+    )
+
+
+@pytest.mark.slow
+@pytest.mark.routing
+def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
+    """Routing DRC gate for the production board.
+
+    Uses U3's route_pcb() baseline: runs routing with existing component
+    positions (no CP-SAT placement — same path as the corpus board test
+    but with the production board's 95-net netlist), then asserts the
+    post-route DRC violation count is within the threshold measured in
+    the first-ever production routing run (U3, 2026-07-18: 953 violations).
+
+    The threshold (1200) absorbs minor variation from A* non-determinism
+    while still catching regressions from the 953-violation U3 baseline.
+    """
+    if not _kicad_cli_available():
+        pytest.skip("kicad-cli not available")
+
+    assert PRODUCTION_BOARD_PATH.exists(), (
+        f"Production board not found: {PRODUCTION_BOARD_PATH}"
+    )
+    assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
+
+    from temper_placer.io.netclass_loader import load_netclass_rules
+    from temper_placer.router_v6.adapter import route_pcb
+
+    rules = load_netclass_rules(RULES_PATH)
+    parsed_stub = type("ParsedStub", (), {"source_path": PRODUCTION_BOARD_PATH})()
+
+    routing_result = route_pcb(
+        parsed_stub, {},
+        _seed=42,
+        design_rules=rules.design_rules,
+    )
+
+    assert routing_result.routed_pcb_content is not None, (
+        "Routing produced no output"
+    )
+
+    routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
+        suffix=".kicad_pcb", mode="w", delete=False,
+    )
+    routed_tmp.write(routing_result.routed_pcb_content)
+    routed_tmp.close()
+
+    try:
+        drc_data = _run_drc(routed_tmp.name)
+    finally:
+        os.unlink(routed_tmp.name)
+
+    violations = drc_data.get("violations", [])
+    total = len(violations)
+    unconnected = len(drc_data.get("unconnected_items", []))
+
+    assert total <= PRODUCTION_ROUTING_DVIOLATIONS, (
+        f"Production board routing DRC: {total} violations exceeds "
+        f"threshold {PRODUCTION_ROUTING_DVIOLATIONS} "
+        f"(unconnected={unconnected}). "
+        f"This is a new, post-U3 routing regression from the "
+        f"2026-07-18 baseline (953 violations)."
     )
