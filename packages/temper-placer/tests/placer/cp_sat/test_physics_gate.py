@@ -98,7 +98,7 @@ def test_creepage_unmeasured_kicad_fails(monkeypatch):
         _fake_run_factory(returncode=3, payload=None, stderr="board parse error"),
     )
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -128,7 +128,7 @@ def test_creepage_clean_no_clearance_violations(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -156,7 +156,7 @@ def test_creepage_clean_lv_to_lv_clearance_only(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -189,7 +189,7 @@ def test_creepage_violation_hv_to_lv(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -221,7 +221,7 @@ def test_creepage_violation_ac_mains_to_lv(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -254,7 +254,7 @@ def test_creepage_multiple_violations(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -282,7 +282,7 @@ def test_creepage_warning_ignored(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
