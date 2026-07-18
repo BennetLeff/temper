@@ -381,3 +381,8 @@ a trustworthy number for real courtyard safety — now for a resolution
 - [`docs/solutions/logic-errors/njit-fallback-shim-discards-function-on-bare-decorator.md`](njit-fallback-shim-discards-function-on-bare-decorator.md)
   — an unrelated bug hit and fixed while re-running the pipeline to verify
   the geometry fix above; blocked end-to-end verification until fixed.
+- [`docs/solutions/logic-errors/drc-api-wrapper-components-and-location-always-empty.md`](drc-api-wrapper-components-and-location-always-empty.md)
+  — found while manually pulling real component refs out of kicad-cli DRC
+  results for this investigation's D3/C4 verification; the wrapper's
+  `.components`/`.location` fields were always empty/zero for every
+  violation type, forcing a raw-JSON workaround at the time.
