@@ -307,6 +307,45 @@ in this pass**. Candidates for follow-up, not yet investigated:
   correctly sized, or whether the loop is genuinely stuck in a limit
   cycle regardless of iteration budget.
 
+(Resolved — see the update above; all three candidates here are
+superseded by the board-size-infeasibility finding.)
+
+## Addendum: Hand-Built Footprint Dimensional Accuracy — Checked, Correct
+
+One candidate hypothesis for the geometry mismatch (see "Second Root
+Cause" above) was that the several hand-built footprints added this arc
+might have dimensionally-incorrect courtyard/pad geometry as originally
+authored, independent of the extraction bug. Checked directly against
+real datasheets:
+
+- **CST2010** (hand-built, Coilcraft inductor): pad dimensions, pitch,
+  body envelope, and lead-tip span all verified exactly against Coilcraft
+  datasheet 1100-2 (the same document cited in the footprint's own
+  `descr` field). Courtyard sits ~0.3mm outside the pad envelope,
+  consistent with its own "pads + 0.25mm margin" comment. **Matches.**
+- **CMC_B82726S** (hand-built, TDK common-mode choke): pin pitches (top
+  row 18mm, bottom row 38mm, row-to-row 23mm) and body envelope (50×49mm
+  max) verified exactly against TDK datasheet b82726s2163.pdf. The
+  footprint also correctly captures a subtle, easy-to-invert detail —
+  TDK's real drawing mirrors the bottom-row pin order relative to the top
+  row. **Matches.**
+- **G5LE-1** and **IRM-10-15** — turned out to **not be hand-built at
+  all**: both are official, community-maintained `kicad-footprints`
+  submodule library footprints (`Relay_SPDT_Omron-G5LE-1.kicad_mod`,
+  `Converter_ACDC_MeanWell_IRM-10-xx_THT.kicad_mod`). Correcting the
+  original hypothesis framing — the earlier assumption that all four
+  were hand-authored was itself wrong. Both are physically plausible on
+  a lighter check; not deep-verified against datasheets since they carry
+  the lower risk profile of externally-vetted library content rather
+  than this investigation's original "hand-built dimensional error"
+  target.
+
+**Conclusion:** footprint authoring accuracy is not a contributing factor
+to any of the findings in this doc. The geometry mismatch was entirely
+explained by the extraction-strategy bug (Second Root Cause); the
+remaining overlap gap is entirely explained by board-size infeasibility
+(Third, Separate Issue).
+
 ## Why This Matters
 
 This is now the third confirmed instance of the deterministic pipeline
