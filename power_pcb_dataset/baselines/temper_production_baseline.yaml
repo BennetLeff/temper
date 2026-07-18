@@ -103,39 +103,46 @@ router_v6_routing:
 # `_run_drc` helper.  The 249→209 delta was real for that specific
 # invocation but overstated the improvement on the golden-test methodology
 # (CP-SAT placements) where the SSOT override produced the 8-unconnected
-# CI regression (PR #220).  The completion-preserving fix in commit
-# <TBD> gates SSOT to heuristic-match only, restoring main's 100%
-# completion at the cost of shorting_items improvement.
-u9_post_fix:
+# CI regression (PR #220).  Final U9 state: layer_constraints threading
+# is landed but completion-gated (SSOT applies only when it equals the
+# heuristic layer), and routed-segment output remains F.Cu — divergent
+# SSOT layers require via-aware layer transitions (A* routes B.Cu but
+# SMD pads exist only on F.Cu).  Router output is byte-identical to
+# main; enabling divergent layers is the W2 via-insertion follow-up.
+u9_final:
   extraction_date: '2026-07-18'
   kicad_cli_version: 10.0.4
-  semantics: completion_preserving (SSOT=heuristic only)
-  demotions: 0
+  semantics: |
+    completion-gated: _assign_layer applies SSOT only when it matches
+    the heuristic; _write_routes_to_content writes routed segments to
+    F.Cu (main behavior).  Net effect vs main: none, by construction.
   corpus:
-    completion_rate: 1.0
-    unconnected_items: 8
-    unconnected_kicad_version_note: |
-      Pre-existing on kicad-cli 10.0.4 (also present on main).
-      CI kicad-cli 8.0 reports 0.
-    drc_total: 353
-    routing_introduced: 310
-    shorting_items: 73
-    diff_pair_gap_out_of_range: 0
-    attribution: |
-      shorting_items (73): unchanged from main.  SSOT override that produced
-      the -8 improvement was reverted for completion safety.
-      diff_pair_gap (0): from layer output fix (adapter.py:630) that writes
-      segments to their actual path_layer instead of hardcoded F.Cu.
-      This improvement survived the completion-preserving fix.
+    golden_test_signature: |
+      Measured post-revert on kicad-cli 10.0.4 (2026-07-18):
+      unconnected_items assert PASSES (0; delta -84 vs placement
+      baseline, matching main's CI signature).  Final
+      routing_introduced assert fails with 406 locally / 443 on CI —
+      the pre-existing corpus red (single-layer routing quality),
+      unchanged by this branch.
+    provenance_note: |
+      Earlier u9_post_fix claims are retracted: the 249->209 (-16%)
+      improvement was measured with a non-golden invocation (existing
+      positions, not CP-SAT placements) while the path_layer output
+      change was active — that change broke completion (8 unconnected)
+      and was reverted.  The "diff_pair_gap survived" and "unconnected
+      8 also present on main" claims were artifacts of the same
+      invocation mismatch and do not hold under the golden test.
     remaining_violations: |
-      shorting_items (73), tracks_crossing (60), solder_mask_bridge (74),
-      clearance (102), lib_footprint_mismatch (32).
-      These require W2 U3 (IPC-2152), U4 (power pours), or improved A*
-      path quality — layer assignment alone cannot resolve them.
+      Pre-existing corpus categories (CI, kicad-cli 8.x): clearance 144,
+      tracks_crossing 108, solder_mask_bridge 99, shorting_items 88,
+      diff_pair_gap_out_of_range 4.  These require via-aware multi-layer
+      output (W2 follow-up), W2 U3 (IPC-2152), U4 (power pours), or
+      improved A* path quality — layer assignment alone cannot resolve
+      them.
   production:
-    drc_total: ~955
-    shorting_items: ~115
-    delta: 0
+    drc_total: 953
+    delta_vs_u3_baseline: 0
     attribution: |
       No change — U2 confirmed no production-board nets have explicit
-      netclass assignments, so the SSOT has no targets.
+      netclass assignments, so the SSOT has no targets; output layers
+      match the U3 baseline measurement.

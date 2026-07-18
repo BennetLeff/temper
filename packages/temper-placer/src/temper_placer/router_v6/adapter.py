@@ -627,7 +627,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 seg_id = uuid.uuid4()
                 segments.append(
                     f'  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})'
-                    f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
+                    f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
                 i = j - 1
@@ -649,14 +649,14 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     seg_id = uuid.uuid4()
                     segments.append(
                         f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
-                        f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
+                        f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
                         f' (tstamp "{seg_id}"))'
                     )
 
         elif len(pads) >= 2:
             # Plane net with dummy path: create minimum spanning-tree
-            # connections.  Use the net's SSOT layer (if available from
-            # the compiled route) or default to F.Cu.
+            # connections.  Dummy plane paths carry F.Cu until via-aware
+            # multi-layer output lands (see W2 follow-up issue).
             mst_layer = getattr(path, "layer_name", None) or "F.Cu"
             remaining = list(pads)
             connected: list[tuple[float, float]] = [remaining.pop(0)]
