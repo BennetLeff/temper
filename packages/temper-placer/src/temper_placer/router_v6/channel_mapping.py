@@ -86,27 +86,36 @@ def _assign_layer(
     1. SSOT ``layer_constraints`` (from
        ``layer_assignments_from_netclass``) when available, the net's
        class is *explicit* (not a catch-all Default), and the resolved
-       layer is routable (F.Cu / B.Cu).  Nets assigned to inner planes
-       (In1.Cu / In2.Cu) or with no explicit class fall through to the
-       heuristic.
+       layer is routable (F.Cu / B.Cu).  **Completion-preserving:** the
+       SSOT layer is only applied when it does not differ from the
+       heuristic layer — nets whose heuristic says F.Cu (signal / SMD
+       pads) are never forced to B.Cu, and vice versa.  This avoids
+       unconnected pads when A* routes on a layer where the pads don't
+       exist.
     2. Heuristic: power / ground / HV → B.Cu; signal → F.Cu.
     3. Single-layer mode overrides everything → F.Cu.
     """
     if get_single_layer_mode():
         return "F.Cu"
 
+    # Compute the heuristic first so we can gate SSOT on it.
+    heuristic = (
+        "B.Cu"
+        if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name)
+        else "F.Cu"
+    )
+
     # W2 U2 / R2: SSOT-driven layer assignment from the netclass YAML.
     # Only override the heuristic for nets that have an *explicit* net
-    # class — nets that fell through to the Default catch-all keep the
-    # heuristic so the W1 100%-completion baseline is preserved.
+    # class AND whose SSOT layer matches the heuristic.  Nets with
+    # Default catch-all class or where SSOT ≠ heuristic keep the W1
+    # behaviour so that SMD pads on F.Cu aren't forcibly routed on
+    # B.Cu (which creates unconnected items — see PR #220 regression).
     ssot = _ssot_layer_for_net(net_name, layer_constraints)
-    if ssot is not None:
+    if ssot is not None and ssot == heuristic:
         return ssot
 
-    # Heuristic fallback (original behaviour — W1 baseline).
-    if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
-        return "B.Cu"
-    return "F.Cu"
+    return heuristic
 
 
 def fallback_channel_path(

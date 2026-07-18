@@ -77,46 +77,65 @@ router_v6_routing:
   kicad_cli_version: 10.0.4
 
 # Post-U9 (W2 U2 layer_constraints wired + layer output fix) measurements.
-# Corpus board: DRC 249 -> 209 (-40), shorting_items 46 -> 38 (-8),
-# diff_pair_gap_out_of_range 6 -> 0 (-6).  Production board: essentially
-# flat (953 -> 957, within A* noise) because no production-board nets
-# have explicit netclass assignments (see U2 finding).
+# COMPLETION-PRESERVING SEMANTICS (PR #220 regression fix):
+# The SSOT layer override is gated: it only applies when SSOT matches the
+# heuristic layer.  Nets whose heuristic says F.Cu (signal/SMD pads) are
+# never forced to B.Cu.  This prevents unconnected pads (A* routes on a
+# single-layer occupancy grid and cannot connect F.Cu-only pads from B.Cu).
+# Demotions to heuristic layer: 0 (by design — SSOT=heuristic only).
+#
+# Corpus board (golden test methodology, CP-SAT placements, seed=42,
+# kicad-cli 10.0.4):
+#   Completion: 100.00% (preserved — matches main)
+#   Unconnected: 8 (pre-existing on kicad-cli 10.0.4; CI kicad-cli 8.0 reports 0)
+#   DRC total: 353 (routing-introduced 310)
+#   shorting_items: 73 (unchanged from main — SSOT override reverted)
+#   diff_pair_gap_out_of_range: 0 (was 6 — from layer output fix only)
+#
+# Production board (existing positions, kicad-cli 10.0.4):
+#   DRC total: ~953-957 (unchanged — no explicit netclasses, U2 finding)
+#   completion: 74.74% (unchanged)
+#
+# EARLIER 249→209 CLAIM PROVENANCE GAP (U10 report, commit 254eb3e4):
+# The earlier measurement claimed corpus DRC 249→209 with -8 shorting and
+# -6 diff_pair.  That measurement used existing positions (not CP-SAT)
+# and a different kicad-cli invocation than the golden test's
+# `_run_drc` helper.  The 249→209 delta was real for that specific
+# invocation but overstated the improvement on the golden-test methodology
+# (CP-SAT placements) where the SSOT override produced the 8-unconnected
+# CI regression (PR #220).  The completion-preserving fix in commit
+# <TBD> gates SSOT to heuristic-match only, restoring main's 100%
+# completion at the cost of shorting_items improvement.
 u9_post_fix:
   extraction_date: '2026-07-18'
+  kicad_cli_version: 10.0.4
+  semantics: completion_preserving (SSOT=heuristic only)
+  demotions: 0
   corpus:
-    drc_total: 209
-    shorting_items: 38
+    completion_rate: 1.0
+    unconnected_items: 8
+    unconnected_kicad_version_note: |
+      Pre-existing on kicad-cli 10.0.4 (also present on main).
+      CI kicad-cli 8.0 reports 0.
+    drc_total: 353
+    routing_introduced: 310
+    shorting_items: 73
     diff_pair_gap_out_of_range: 0
-    tracks_crossing: 32
-    solder_mask_bridge: 61
-    clearance: 40
-    completion_rate: 0.8333
-    unrouted_nets: 4
-    unrouted_nets_list: [PWM_H, PWM_L, SPI_CS_TEMP, SPI_MOSI]
-    delta_from_baseline_249: -40
     attribution: |
-      layer_constraints wired to A* via _assign_layer (channel_mapping.py) +
-      _write_routes_to_content hardcoded "F.Cu" replaced with path_layer
-      (adapter.py:630,652,674).
-      shorting_items -8: tracks now split across F.Cu/B.Cu by netclass.
-      diff_pair_gap 6->0: USB_D+/D- now routed on distinct layers.
-      tracks_crossing -11: fewer tracks sharing same-layer surface area.
+      shorting_items (73): unchanged from main.  SSOT override that produced
+      the -8 improvement was reverted for completion safety.
+      diff_pair_gap (0): from layer output fix (adapter.py:630) that writes
+      segments to their actual path_layer instead of hardcoded F.Cu.
+      This improvement survived the completion-preserving fix.
     remaining_violations: |
-      shorting_items (38): still genuine F.Cu/B.Cu track-to-track shorts.
-      clearance (40): inter-net clearance below netclass rules.
-      solder_mask_bridge (61): mask openings from routing segments.
-      tracks_crossing (32): tracks crossing over each other.
-      lib_footprint_mismatch (32): pre-existing footprint issues.
-      These cannot be eliminated by layer assignment alone; they require
-      W2 U3 (IPC-2152 trace widths), U4 (power pours), or improved A*
-      path quality.
+      shorting_items (73), tracks_crossing (60), solder_mask_bridge (74),
+      clearance (102), lib_footprint_mismatch (32).
+      These require W2 U3 (IPC-2152), U4 (power pours), or improved A*
+      path quality — layer assignment alone cannot resolve them.
   production:
-    drc_total: 957
-    shorting_items: 115
-    delta_from_baseline_953: 4
+    drc_total: ~955
+    shorting_items: ~115
+    delta: 0
     attribution: |
-      Essentially flat (within A* non-determinism noise).  U2 confirmed
-      that production-board nets have no explicit netclass assignments,
-      so the SSOT layer constraints have no effect.  To improve
-      production-board DRC, net_class_assignments must be configured
-      for the production board's hierarchical net names.
+      No change — U2 confirmed no production-board nets have explicit
+      netclass assignments, so the SSOT has no targets.
