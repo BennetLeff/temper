@@ -86,32 +86,60 @@ assertions**:
   tracks_crossing: 72, diff_pair_gap_out_of_range: 1`, offset by
   `unconnected_items: -84`).
 
-**This is a genuinely different class of finding than every other bug in
-this session's batch** -- not a stale test or a hidden wiring gap, but a
-real question about whether current placement/routing quality on this
-specific golden board has regressed relative to these committed
-thresholds, or whether the thresholds were miscalibrated from the start.
-Answering that requires the same kind of rigorous investigation as
-[`production-board-courtyard-area-exceeds-usable-board-area.md`](../architecture-patterns/production-board-courtyard-area-exceeds-usable-board-area.md)
-(is this a solvable quality problem, or a structural
-board/component-density limit?) or a `git bisect`-style history dig to
-find when the numbers first exceeded threshold -- explicitly **not**
-attempted in this pass, since loosening the thresholds without that
-investigation would repeat exactly the mistake this whole session has
-been rooting out elsewhere (making a gate pass without understanding
-why it was failing).
+**Update 2026-07-18, later same session: bisected and resolved.** Ran
+`git show <threshold-commit>:test_regression_drc.py` for the exact
+commits that introduced both thresholds
+(`4ee8401e`, 2026-07-08, set `placement_fixable <= 15`; `ff0c8b09`/
+`b345751c`, also 2026-07-08, added the routing gate with
+`routing_introduced == 0`) -- **`zones=` was already missing from
+`solve_placement()` at both of those commits.** Both thresholds were
+calibrated against a run where `HV_ZONE`/`MCU_ZONE`/`ISOLATION_BARRIER`
+and the named critical loops were *always* silently dropped
+(`UnresolvedConstraintRefsError` didn't even exist as a check at that
+point in some of these commits, or the drop was silent for another
+reason at the time) -- i.e. **neither threshold has ever been a real
+measurement against the fixture's full, intended constraint set.** This
+resolves the "regression vs. miscalibration" question definitively:
+it's the latter, not a quality regression introduced later.
+
+With that context, checked each gate's real status separately:
+
+- **`test_golden_board_drc_regression` (≤15): no longer a problem.**
+  CI's real environment (kicad-cli 8.0, the actual gate that matters for
+  this repo) **passed** this exact assertion on the run immediately
+  after the `zones=` fix landed -- confirmed directly from the CI log.
+  The local 42-violation measurement (kicad-cli 10.0.4) is explained by
+  the same KiCad-version sensitivity documented in
+  [`courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md`](../logic-errors/courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md)
+  and the DRC ratchet gate fix -- not a new problem. **No further action
+  needed**; the `zones=` fix alone was sufficient here.
+- **`test_golden_board_routing_drc_regression` (==0): still genuinely
+  failing in both environments** (261 locally, 443 in CI). This is a
+  real, unresolved routing-quality gap -- but the test's own captured
+  error message already names a specific, plausible root cause:
+  *"Known routing quality issue: single-layer F.Cu routing with all 24
+  nets on one layer may produce track-to-track clearance issues."* This
+  points at the router (single-layer routing forcing more crossings/
+  clearance conflicts than a multi-layer route would), not at placement
+  or the zone/loop wiring -- a router-quality investigation, unrelated
+  to anything else in this batch, genuinely out of scope for this pass.
 
 ## Resolution
 
-**Partially fixed.** The wiring bug (zones never passed, loop-name
-resolution never had an available fix) is fixed/downgraded as described
-above -- both tests now run to completion instead of crashing on setup.
-**Not fixed**: the real violation-count thresholds these tests exist to
-enforce are currently failing (42 vs 15, 261 vs 0). CI will still show
-these two tests red, now for a real, substantive reason rather than a
-test-harness bug. This needs a dedicated investigation (regression
-bisection or requalification of the thresholds against current reality)
-as a follow-up, not folded into this fix.
+**Mostly fixed.** The wiring bug is fully fixed (zones now correctly
+passed; loop-name resolution downgraded via the sanctioned escape hatch,
+as no direct fix path exists in this codebase). `test_golden_board_drc_regression`
+is confirmed passing in the real CI environment as a direct result --
+**no threshold change was needed**, since the ≤15 threshold, once given
+the correct constraint set to solve against, was never actually
+violated in the environment that matters. `test_golden_board_routing_drc_regression`
+remains genuinely open: a real routing-quality gap with a named,
+plausible cause (single-layer routing) that needs router-focused work,
+not a threshold adjustment -- loosening `==0` to some other number
+without first confirming whether multi-layer routing would eliminate
+this gap would repeat exactly the mistake this whole session has been
+rooting out elsewhere (making a gate pass without understanding why it
+was failing).
 
 ## Why This Matters
 
