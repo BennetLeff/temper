@@ -98,10 +98,8 @@ def extract_kicad_metadata(pcb_path: Path) -> KiCadMetadata:
     # Load KiCad board using kiutils
     raw_board = KiBoard.from_file(str(pcb_path))
 
-    # Extract board dimensions
-    # TODO: Parse from edge cuts - for now use defaults
-    board_width = 100.0  # mm
-    board_height = 150.0  # mm
+    # Extract board dimensions from Edge.Cuts geometry
+    board_width, board_height = _extract_board_dimensions(raw_board)
 
     # Extract pad sizes
     pad_sizes = _extract_pad_sizes(raw_board)
@@ -117,6 +115,92 @@ def extract_kicad_metadata(pcb_path: Path) -> KiCadMetadata:
         board_width=board_width,
         board_height=board_height,
     )
+
+
+def _extract_board_dimensions(raw_board: KiBoard) -> tuple[float, float]:
+    """Parse board dimensions from Edge.Cuts graphic items.
+
+    Handles GrPoly, GrRect, GrLine, GrCircle, and GrArc items
+    on the Edge.Cuts layer. Computes the bounding box of all
+    edge geometry and returns (width, height) in mm.
+
+    Raises:
+        ValueError: If no Edge.Cuts geometry is found or it
+            degenerates to zero area — fail-closed, per the
+            anti-false-zero discipline: never silently default
+            to a hardcoded guess.
+    """
+    from kiutils.items.gritems import GrArc, GrCircle, GrLine, GrPoly, GrRect
+
+    min_x, min_y = float("inf"), float("inf")
+    max_x, max_y = float("-inf"), float("-inf")
+    found = False
+
+    for item in raw_board.graphicItems or []:
+        if not (hasattr(item, "layer") and item.layer == "Edge.Cuts"):
+            continue
+
+        if isinstance(item, GrPoly):
+            coords = getattr(item, "coordinates", None) or []
+            for pt in coords:
+                x, y = pt.X, pt.Y
+                min_x, max_x = min(min_x, x), max(max_x, x)
+                min_y, max_y = min(min_y, y), max(max_y, y)
+            if coords:
+                found = True
+
+        elif isinstance(item, GrRect):
+            sx, sy = item.start.X, item.start.Y
+            ex, ey = item.end.X, item.end.Y
+            min_x = min(min_x, sx, ex)
+            max_x = max(max_x, sx, ex)
+            min_y = min(min_y, sy, ey)
+            max_y = max(max_y, sy, ey)
+            found = True
+
+        elif isinstance(item, GrLine):
+            min_x = min(min_x, item.start.X, item.end.X)
+            max_x = max(max_x, item.start.X, item.end.X)
+            min_y = min(min_y, item.start.Y, item.end.Y)
+            max_y = max(max_y, item.start.Y, item.end.Y)
+            found = True
+
+        elif isinstance(item, GrCircle):
+            cx, cy = item.center.X, item.center.Y
+            ex, ey = item.end.X, item.end.Y
+            r = ((ex - cx) ** 2 + (ey - cy) ** 2) ** 0.5
+            min_x = min(min_x, cx - r)
+            max_x = max(max_x, cx + r)
+            min_y = min(min_y, cy - r)
+            max_y = max(max_y, cy + r)
+            found = True
+
+        elif isinstance(item, GrArc):
+            for pt in (item.start, item.mid, item.end):
+                min_x = min(min_x, pt.X)
+                max_x = max(max_x, pt.X)
+                min_y = min(min_y, pt.Y)
+                max_y = max(max_y, pt.Y)
+            found = True
+
+    if not found:
+        raise ValueError(
+            "No Edge.Cuts geometry found in the board. "
+            "Board dimensions cannot be determined — a valid PCB "
+            "must have a board outline on the Edge.Cuts layer."
+        )
+
+    width = max_x - min_x
+    height = max_y - min_y
+
+    if width <= 0 or height <= 0:
+        raise ValueError(
+            f"Edge.Cuts geometry degenerates to zero area "
+            f"(width={width}, height={height}). "
+            f"Board outline must define a non-zero rectangle."
+        )
+
+    return width, height
 
 
 def _extract_pad_sizes(raw_board: KiBoard) -> dict[tuple[str, str], PadSize]:
@@ -209,7 +293,8 @@ def _extract_courtyards(raw_board: KiBoard) -> dict[str, Courtyard]:
         # courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md.
         if fp.graphicItems:
             from kiutils.items.fpitems import FpArc, FpCircle, FpLine, FpPoly, FpRect
-            from shapely.geometry import MultiPoint, Point, Polygon as ShapelyPolygon
+            from shapely.geometry import MultiPoint, Point
+            from shapely.geometry import Polygon as ShapelyPolygon
             from shapely.ops import unary_union
 
             shapes = []
