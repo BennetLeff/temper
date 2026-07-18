@@ -414,6 +414,7 @@ def optimize(
             parse_result = parse_kicad_pcb(input_pcb)
             netlist = parse_result.netlist
             board = parse_result.board
+            assert board is not None, "Board geometry parsing failed"
             constraints = load_constraints(config)
 
             loop_runner = PlaceRouteLoop()
@@ -628,7 +629,7 @@ def optimize(
                         f"  [green]✓[/] Extracted {len(hint_positions)} hint positions"
                     )
 
-            result = solve_placement(
+            cp_result = solve_placement(
                 netlist=netlist,
                 board=board,
                 extra_constraints=pcl_constraints,
@@ -637,27 +638,27 @@ def optimize(
             )
 
             console.print(
-                f"  Solver status: {result.status}"
-                f" ({result.solve_time_ms:.0f}ms)"
+                f"  Solver status: {cp_result.status}"
+                f" ({cp_result.solve_time_ms:.0f}ms)"
             )
 
-            if result.status in ("infeasible", "model_invalid"):
-                _maybe_surface_unsat(result, unsat_report)
+            if cp_result.status in ("infeasible", "model_invalid"):
+                _maybe_surface_unsat(cp_result, unsat_report)
                 sys.exit(1)
 
-            if result.status in ("optimal", "feasible"):
+            if cp_result.status in ("optimal", "feasible"):
                 from temper_placer.io.kicad_writer import (
                     PlacementUpdate,
                     write_placements_to_pcb,
                 )
 
                 placements: dict[str, PlacementUpdate] = {}
-                for ref, pos in result.positions.items():
+                for ref, pos in cp_result.positions.items():
                     placements[ref] = PlacementUpdate(
                         ref=ref,
                         x=pos[0],
                         y=pos[1],
-                        rotation=result.rotations.get(ref, 0) * 90.0,
+                        rotation=cp_result.rotations.get(ref, 0) * 90.0,
                     )
 
                 write_result = write_placements_to_pcb(
@@ -676,7 +677,7 @@ def optimize(
                 console.print(f"  Output: {output}")
             else:
                 console.print(
-                    f"  [red]Solver returned unexpected status: {result.status}[/]"
+                    f"  [red]Solver returned unexpected status: {cp_result.status}[/]"
                 )
                 sys.exit(1)
         except click.ClickException:
