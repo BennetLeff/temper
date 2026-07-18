@@ -14,6 +14,7 @@ from temper_placer.pcl.constraints import (
     AnchoredConstraint,
     BaseConstraint,
     ConstraintType,
+    DistanceMetric,
     EnclosingConstraint,
     KeepoutConstraint,
     LoopAreaConstraint,
@@ -166,12 +167,33 @@ class PlacementAuditor:
         return []
 
     def _check_adjacent(self, c: AdjacentConstraint) -> list[AuditViolation]:
+        # VERIFIED 2026-07-18: this previously always computed
+        # center-to-center Chebyshev distance regardless of c.metric,
+        # silently ignoring EDGE_TO_EDGE (the default) and PIN_TO_PIN
+        # entirely. For a pin_to_pin constraint, the encoder solves
+        # against the real pin-to-pin distance using pin offsets, but
+        # Placement carries no pin geometry at all -- center-to-center
+        # is not even an approximation of that, it's a different metric,
+        # and reported a false-positive violation on a constraint the
+        # encoder had genuinely satisfied. See docs/solutions/
+        # test-failures/integration-temper-hardcoded-components-drifted-from-pcl-fixture.md.
         a, b = c.a, c.b
         if a not in self.placement.positions_mm or b not in self.placement.positions_mm:
             return []
-        ax, ay = self.placement.positions_mm[a]
-        bx, by = self.placement.positions_mm[b]
-        dist = max(abs(ax - bx), abs(ay - by))
+
+        if c.metric == DistanceMetric.PIN_TO_PIN:
+            # Placement has no per-pin geometry -- this auditor cannot
+            # verify pin-to-pin distance. Skip rather than false-positive
+            # against a different, less precise metric.
+            return []
+
+        if c.metric == DistanceMetric.EDGE_TO_EDGE:
+            dist = _chebyshev_gap(_bbox(self.placement, a), _bbox(self.placement, b))
+        else:  # CENTER_TO_CENTER
+            ax, ay = self.placement.positions_mm[a]
+            bx, by = self.placement.positions_mm[b]
+            dist = max(abs(ax - bx), abs(ay - by))
+
         if dist > c.max_distance_mm:
             return [AuditViolation(
                 constraint_id=c.id, constraint_type=c.constraint_type.value,
