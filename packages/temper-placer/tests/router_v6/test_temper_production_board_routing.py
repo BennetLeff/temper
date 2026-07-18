@@ -46,7 +46,9 @@ def _kicad_cli_available() -> bool:
 
 
 def _run_drc(pcb_path: Path) -> dict:
-    drc_out = Path(tempfile.mktemp(suffix=".json"))
+    drc_out_fd, drc_out_str = tempfile.mkstemp(suffix=".json")
+    os.close(drc_out_fd)
+    drc_out = Path(drc_out_str)
     try:
         proc = subprocess.run(
             [
@@ -72,7 +74,7 @@ def _run_drc(pcb_path: Path) -> dict:
             os.unlink(drc_out)
         raise
 
-    if not drc_out.exists():
+    if not drc_out.exists() or drc_out.stat().st_size == 0:
         pytest.skip(
             "kicad-cli DRC produced no output file"
             + (f": {stderr_summary}" if stderr_summary else "")
