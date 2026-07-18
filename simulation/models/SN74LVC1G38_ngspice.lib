@@ -1,0 +1,16 @@
+* SN74LVC1G38 portable ngspice behavioural port
+*
+* Provenance: pin order, supply range, open-drain NAND function, and Ioff
+* intent are derived from TI's SN74LVC1G38 PSpice model (SCEM629) and
+* datasheet. This is an independently written portable behavioural model; it
+* does not include TI model source text.
+*
+* Pin order: Y, A, B, VCC, GND
+* Scope: static default-high safety topology. Below the rated VCC floor the
+* output is high impedance, representing the required Ioff-safe behaviour.
+
+.subckt SN74LVC1G38_NGSPICE Y A B VCC GND
++ params: VCC_MIN=1.65 RON=10
+
+B_OD Y GND I={ternary_fcn(v(VCC,GND)>=VCC_MIN,ternary_fcn((v(A,GND)>0.5*v(VCC,GND))*(v(B,GND)>0.5*v(VCC,GND)),v(Y,GND)/RON,0),0)}
+.ends SN74LVC1G38_NGSPICE
