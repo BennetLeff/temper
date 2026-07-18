@@ -657,7 +657,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             # Plane net with dummy path: create minimum spanning-tree
             # connections.  Use the net's SSOT layer (if available from
             # the compiled route) or default to F.Cu.
-            mst_layer = getattr(compiled_route, "layer_name", "F.Cu") or "F.Cu"
+            mst_layer = getattr(path, "layer_name", None) or "F.Cu"
             remaining = list(pads)
             connected: list[tuple[float, float]] = [remaining.pop(0)]
             while remaining:
