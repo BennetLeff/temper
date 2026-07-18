@@ -37,6 +37,7 @@ venv.bak/
 *.app
 *.a
 *.lib
+!simulation/models/*_ngspice.lib
 *.so
 *.dylib
 *.dll
