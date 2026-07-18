@@ -1124,11 +1124,14 @@ class RouterV6Pipeline:
         fcu_skeleton = stage2.skeletons.get("F.Cu") or next(iter(stage2.skeletons.values()), None)  # type: ignore[union-attr]
         stage2.skeletons.get("B.Cu") or _last_skeleton(stage2.skeletons)  # type: ignore[union-attr]
 
-        # Map all nets with layer assignment (waypoints are layer-agnostic)
+        # Map all nets with layer assignment (waypoints are layer-agnostic).
+        # W2 U2 / R2: thread SSOT layer_constraints so _assign_layer can
+        # override the heuristic with netclass-YAML layer assignments.
         if fcu_skeleton is not None:
             channel_mapping = map_topology_to_channels(
                 stage3.topology_graph,
                 fcu_skeleton,
+                layer_constraints=self.layer_constraints,
             )
         else:
             # No skeleton available — create empty mapping
@@ -1144,12 +1147,17 @@ class RouterV6Pipeline:
             pads = _net_pad_positions(net, comp_by_ref)
             if len(pads) < 2:
                 continue
+            # W2 U2: resolve fallback layer from the SSOT when available.
+            from temper_placer.router_v6.channel_mapping import _assign_layer
+            fallback_layer = _assign_layer(
+                net.name, layer_constraints=self.layer_constraints,
+            )
             fallback_cp = ChannelPath(
                 net_name=net.name,
                 channel_sequence=[],
                 waypoints=[pads[0], pads[-1]],
                 total_length=0.0,
-                preferred_layer="F.Cu",
+                preferred_layer=fallback_layer,
             )
             channel_mapping.channel_paths[net.name] = fallback_cp
 

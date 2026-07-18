@@ -32,15 +32,78 @@ class ChannelPath:
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
 
 
-def _assign_layer(net_name: str) -> str:
-    """
-    Assign net to preferred layer based on net class.
+# Map Layer enum (L1_TOP .. L4_BOT) → KiCad copper layer name (F.Cu .. B.Cu).
+# Inner layers (In1.Cu / In2.Cu) are reference/power planes, not A* routing
+# grids; nets assigned to them fall through to the heuristic.
+_LAYER_ENUM_TO_KICAD: dict[int, str] = {
+    1: "F.Cu",   # L1_TOP
+    4: "B.Cu",   # L4_BOT
+}
+# L2_GND (2) / L3_PWR (3) are intentionally NOT mapped — they are
+# inner plane layers, not routing grids.
 
-    Power, ground, and HV nets go to B.Cu (bottom) to free up F.Cu for signals.
-    In single-layer mode, all nets go to F.Cu.
+def _ssot_layer_for_net(
+    net_name: str,
+    layer_constraints: dict | None,
+) -> str | None:
+    """Return the SSOT layer name if the net has an *explicit* netclass
+    (not the Default catch-all) and the layer is routable.  Returns
+    ``None`` when the heuristic should be used instead.
+    """
+    if layer_constraints is None:
+        return None
+
+    assignment = layer_constraints.get(net_name)
+    if assignment is None:
+        return None
+
+    # The reason field now carries "netclass=<Name> SSOT layer=<layer>"
+    # (layer_assignment.py:332).  If the class is "Default", the net has
+    # no explicit netclass — fall through to the heuristic to preserve
+    # the W1 100%-completion baseline.
+    reason = getattr(assignment, "reason", "")
+    if "netclass=Default" in reason:
+        return None
+
+    # Explicit netclass — use the SSOT layer if routable.
+    primary = getattr(assignment, "primary_layer", None)
+    if primary is not None:
+        val = primary.value if hasattr(primary, "value") else int(primary)
+        return _LAYER_ENUM_TO_KICAD.get(val)
+    # Shim for bare-string callers.
+    if isinstance(assignment, str) and assignment in {"F.Cu", "B.Cu"}:
+        return assignment
+    return None
+
+
+def _assign_layer(
+    net_name: str,
+    layer_constraints: dict | None = None,
+) -> str:
+    """Assign net to preferred routing layer.
+
+    Resolution order:
+    1. SSOT ``layer_constraints`` (from
+       ``layer_assignments_from_netclass``) when available, the net's
+       class is *explicit* (not a catch-all Default), and the resolved
+       layer is routable (F.Cu / B.Cu).  Nets assigned to inner planes
+       (In1.Cu / In2.Cu) or with no explicit class fall through to the
+       heuristic.
+    2. Heuristic: power / ground / HV → B.Cu; signal → F.Cu.
+    3. Single-layer mode overrides everything → F.Cu.
     """
     if get_single_layer_mode():
         return "F.Cu"
+
+    # W2 U2 / R2: SSOT-driven layer assignment from the netclass YAML.
+    # Only override the heuristic for nets that have an *explicit* net
+    # class — nets that fell through to the Default catch-all keep the
+    # heuristic so the W1 100%-completion baseline is preserved.
+    ssot = _ssot_layer_for_net(net_name, layer_constraints)
+    if ssot is not None:
+        return ssot
+
+    # Heuristic fallback (original behaviour — W1 baseline).
     if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
         return "B.Cu"
     return "F.Cu"
@@ -65,9 +128,9 @@ class ChannelMapping:
 def map_topology_to_channels(
     topology: TopologyGraph | None,
     skeleton: ChannelSkeleton,
+    layer_constraints: dict | None = None,
 ) -> ChannelMapping:
-    """
-    Map abstract topology graph to concrete routing channels.
+    """Map abstract topology graph to concrete routing channels.
 
     Uses the SAT solver's output as the primary routing path.  A* on
     the occupancy grid is the fallback for nets the solver didn't assign
@@ -76,7 +139,12 @@ def map_topology_to_channels(
     Args:
         topology: Topological routing graph, or ``None`` when SAT is
             bypassed (Stage 3 skipped).
-        skeleton: Channel skeleton
+        skeleton: Channel skeleton.
+        layer_constraints: Optional per-net ``LayerAssignment`` dict from
+            ``layer_assignments_from_netclass`` (W2 U2 / R2).  When
+            supplied, the SSOT ``layer`` field overrides the heuristic
+            in ``_assign_layer`` for nets whose target layer is a
+            routable outer copper layer (F.Cu / B.Cu).
 
     Returns:
         ChannelMapping
@@ -90,7 +158,10 @@ def map_topology_to_channels(
     for net_name in net_names:
         net_topology = topology.get_topology(net_name) if topology is not None else None
 
-        channel_path = _map_net_to_channels(net_name, net_topology, skeleton)
+        channel_path = _map_net_to_channels(
+            net_name, net_topology, skeleton,
+            layer_constraints=layer_constraints,
+        )
         if channel_path:
             channel_paths[net_name] = channel_path
 
@@ -101,9 +172,9 @@ def _map_net_to_channels(
     net_name: str,
     net_topology: NetTopology | None,
     skeleton: ChannelSkeleton,
+    layer_constraints: dict | None = None,
 ) -> ChannelPath | None:
-    """
-    Map a single net's topology to channel sequence.
+    """Map a single net's topology to channel sequence.
 
     Uses the SAT solver's output as the primary routing path.  The
     Dijkstra-based skeleton pathfinder was removed (2026-06-28) — the
@@ -114,6 +185,7 @@ def _map_net_to_channels(
         net_name: Net name
         net_topology: Net's topological routing (can be None)
         skeleton: Channel skeleton graph
+        layer_constraints: Optional per-net LayerAssignment dict (W2 U2).
 
     Returns:
         ChannelPath or None if mapping fails
@@ -148,7 +220,9 @@ def _map_net_to_channels(
             channel_sequence=channel_sequence,
             waypoints=waypoints,
             total_length=total_length,
-            preferred_layer=_assign_layer(net_name),
+            preferred_layer=_assign_layer(
+                net_name, layer_constraints=layer_constraints,
+            ),
         )
 
     return None

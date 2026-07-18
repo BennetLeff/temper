@@ -321,13 +321,22 @@ def layer_assignments_from_netclass(
     assignments: dict[str, LayerAssignment] = {}
     for net_name in net_names:
         layer_name = get_layer_for_net(net_name, design_rules)
+
+        # Resolve the net class name for downstream layer-selection logic
+        # (W2 U2 — channel_mapping._assign_layer needs to know whether the
+        # assignment came from an explicit class or the Default catch-all).
+        nc_rules = None
+        if design_rules is not None and hasattr(design_rules, "get_rules_for_net"):
+            nc_rules = design_rules.get_rules_for_net(net_name)
+        nc_name = getattr(nc_rules, "name", "Default") if nc_rules is not None else "Default"
+
         primary = layer_name_to_enum(layer_name)
         assignments[net_name] = LayerAssignment(
             net=net_name,
             primary_layer=primary,
             allowed_layers={primary},
             vias_required=False,
-            reason=f"netclass SSOT layer={layer_name}",
+            reason=f"netclass={nc_name} SSOT layer={layer_name}",
         )
     return assignments
 
