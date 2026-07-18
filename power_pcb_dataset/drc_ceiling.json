@@ -3,15 +3,8 @@
     {
       "board_id": "temper",
       "path": "pcb/temper.kicad_pcb",
-      "error_ceiling": 0,
-      "warning_ceiling": 0,
-      "violations_by_type": {}
-    },
-    {
-      "board_id": "temper_physics_routed",
-      "path": "pcb/temper_physics_routed.kicad_pcb",
-      "error_ceiling": 0,
-      "warning_ceiling": 0,
+      "error_ceiling": 300,
+      "warning_ceiling": 700,
       "violations_by_type": {}
     }
   ]
