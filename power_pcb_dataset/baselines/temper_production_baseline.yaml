@@ -35,20 +35,26 @@ extraction_method: "deterministic-pipeline"
 deterministic_pipeline:
   config: "configs/temper_production_config.yaml"
   placed_components: 149        # of 149 — all finite positions
-  placement_violations: 0  # VERIFIED WRONG 2026-07-17, two independent gaps:
+  placement_violations: 0  # VERIFIED WRONG 2026-07-17, three independent gaps:
                             # (1) PlacementValidationStage only checks
                             # PlacementProximityConstraint/SignalToHVClearance,
                             # both declared via config -- this config has
                             # neither declared, so nothing was ever checked.
-                            # (2) CourtyardCheckStage (the stage actually
-                            # responsible for courtyard-overlap detection)
-                            # finds 0 collisions on this board's first pass,
-                            # but real kicad-cli DRC on the identical export
-                            # finds 27 courtyards_overlap + 16
-                            # pth_inside_courtyard errors -- a genuine,
-                            # unresolved detection bug, not just narrow scope.
-                            # See docs/solutions/logic-errors/
-                            # courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md.
+                            # (2) CourtyardCheckStage's own collision detector
+                            # had a Shapely 2.x STRtree indexing bug (fixed
+                            # 2026-07-17) that made it silently find 0
+                            # collisions on ANY board, and separately its
+                            # courtyard-geometry extraction fell through to a
+                            # wrong pad-bounding-box approximation for 142/149
+                            # footprints (also fixed 2026-07-17). Both are
+                            # now fixed and verified, but real kicad-cli DRC
+                            # on the corrected export still finds 29
+                            # courtyards_overlap + 18 pth_inside_courtyard
+                            # errors that the resolution algorithm could not
+                            # fully clear within its iteration budget -- see
+                            # docs/solutions/logic-errors/
+                            # courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md
+                            # for the full fix + residual-issue history.
   drc_violations: 0  # VERIFIED MISLEADING 2026-07-17: this is
                       # router_v6.constraints_drc_oracle.DRCOracle.validate_all(),
                       # which checks ONLY track-to-track and via-to-via
@@ -58,12 +64,24 @@ deterministic_pipeline:
                       # so 0 here is close to vacuous, not a clean bill of
                       # health. See docs/solutions/logic-errors/
                       # deterministic-pipeline-drc-oracle-only-checks-routing-not-real-drc.md.
-  kicad_cli_drc_errors: 225    # ground truth, verified 2026-07-17 via
-  kicad_cli_drc_warnings: 578  # temper_placer.validation._drc_api.run_drc
+  kicad_cli_drc_errors: 142    # ground truth, re-measured 2026-07-17 AFTER
+  kicad_cli_drc_warnings: 454  # fixing the two CourtyardCheckStage bugs above
+                                # (STRtree indexing + courtyard geometry
+                                # extraction), via
+                                # temper_placer.validation._drc_api.run_drc
                                 # (same kicad-cli backend DrcRatchet uses)
                                 # against this exact deterministic-pipeline
-                                # export. For comparison: the UNPLACED INPUT
-                                # board (pcb/temper.kicad_pcb) already carries
+                                # export. Prior measurement (same method,
+                                # pre-fix code) was 225 errors / 578 warnings
+                                # -- the drop reflects real fixes, not just
+                                # re-measurement noise (see the compound doc
+                                # above for the STRtree-only intermediate
+                                # figure of 219/unchanged too). courtyards_overlap
+                                # specifically did NOT improve (27 -> 29) --
+                                # see the compound doc's "Third, Separate,
+                                # Still-Open Issue" section. For comparison:
+                                # the UNPLACED INPUT board
+                                # (pcb/temper.kicad_pcb) already carries
                                 # 170 errors / 459 warnings before any
                                 # placement or routing runs.
   escape_vias: 124

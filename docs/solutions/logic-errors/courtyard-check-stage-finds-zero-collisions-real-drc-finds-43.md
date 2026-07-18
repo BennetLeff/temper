@@ -21,6 +21,8 @@ tags:
   - geometry
   - shapely
   - strtree
+  - kiutils
+last_updated: "2026-07-17"
 ---
 
 # CourtyardCheckStage finds 0 collisions; real DRC finds 43 on the identical board
@@ -144,109 +146,200 @@ each direction — by tracking `checked_pairs`.)
 - Full `temper-placer` deterministic test suite: 306 passed (same 2
   pre-existing, unrelated errors as before the change) — no regressions.
 
-## Second, Separate, Still-Open Bug: Geometry Model Disagrees With kicad-cli
+## Second Root Cause (Confirmed and Fixed, 2026-07-17): Courtyard Geometry Extraction Fell Through to Pad-BBox for 142/149 Footprints
 
 Fixing the STRtree bug made the stage's *internal* detection loop actually
 work — it now converges to 0 self-reported collisions instead of trivially
 starting there. But re-running the full pipeline → export → kicad-cli DRC
-sequence after the fix shows the **real** violation counts barely moved:
+sequence after that fix alone showed the **real** violation counts barely
+moved (225 → 219 total errors; `courtyards_overlap` and
+`pth_inside_courtyard` both unchanged at 27/16). That ruled out the
+STRtree bug as the sole cause and pointed at the courtyard **shapes**
+themselves being wrong, independent of the (now-correct) collision logic
+operating on them.
 
-| | Before fix | After fix |
-|---|---|---|
-| kicad-cli total DRC errors | 225 | 219 |
-| `courtyards_overlap` | 27 | 27 (unchanged) |
-| `pth_inside_courtyard` | 16 | 16 (unchanged) |
+Root-caused by inspecting the actual production board
+(`fresh_deterministic_output.kicad_pcb`) directly with `kiutils` for two
+components in a real, kicad-cli-confirmed `courtyards_overlap` pair (D3, a
+`Diode_SMD:D_SMA`, and C4, a `Capacitor_THT:CP_Radial_D35.0mm_P10.00mm_SnapIn`):
 
-This confirms the STRtree bug was not the (or not the only) source of the
-27/16 discrepancy against kicad-cli. The stage's own geometry model — even
-with correct index resolution — still disagrees with kicad-cli's real
-courtyard interpretation. This is a **distinct, unresolved bug**, not
-covered by the fix above. Candidates not yet checked:
+- **D3's real courtyard** is drawn as 4 separate `fp_line` graphic items
+  forming a rectangle: `(-3.5,-1.75)` to `(3.5,1.75)`.
+- **C4's real courtyard** is a single `fp_circle`: center at local
+  `(5.0, 0.0)` (offset from the footprint origin, not centered on it),
+  radius `17.75mm` (a 35.5mm-diameter circle, reflecting the physical can
+  of a large snap-in electrolytic capacitor).
 
-- **Rotation assumption.** `_find_collisions()` hardcodes rotation=0 in
-  `self.courtyards[ref].get_global_polygon(pos[0], pos[1], 0)` (comment:
-  "Assume rotation = 0 (as per pipeline comment)"). This matches the
-  deterministic pipeline's own behavior (it never modifies rotation — see
-  `docs/solutions/architecture-patterns/cp-sat-feasibility-first-paradigm-2026-07-03.md`'s
-  warm-start section for the same fact established independently), but it
-  was not verified whether every INPUT footprint on `pcb/temper.kicad_pcb`
-  is actually at 0° before the pipeline runs. If any aren't, this
-  assumption is wrong for those parts.
-- **Polygon extraction correctness.** Whether `Courtyard.get_global_polygon`
-  (and wherever `metadata.courtyards` itself is built) produces
-  dimensionally-correct courtyard polygons for every footprint, especially
-  the several hand-built footprints added this arc (CST2010, CMC_B82726S,
-  the G5LE-1 relay, the IRM-10-15 module) — not cross-checked against the
-  real courtyard silkscreen layer kicad-cli reads.
-- **Clearance/tolerance definition mismatch.** Whether `_find_collisions`
-  treats "overlap" as strict polygon intersection while kicad-cli's DRC
-  rule includes a clearance margin (or vice versa), which would make the
-  internal check systematically more permissive.
-- **`pth_inside_courtyard`** (16 errors, unchanged by this fix) is a
-  category `CourtyardCheckStage` likely never checks for at all regardless
-  of the above — it checks courtyard-vs-courtyard collisions, not
-  plated-through-hole-vs-courtyard proximity. That specific error class
-  may need a different stage entirely, not a fix to this one.
+`io/kicad_metadata.py`'s `_extract_courtyards` ("Strategy 1": look for
+`F.CrtYd`/`B.CrtYd` graphic items) only recognized items exposing a
+`.points` or `.coordinates` attribute — the shape kiutils uses for
+`fp_poly` only:
 
-Recommended next step (not yet performed): dump the actual computed
-Shapely polygon for one known-conflicting pair from kicad-cli's raw DRC
-JSON (e.g. a pair implicated in a `courtyards_overlap` violation) and diff
-it directly against `Courtyard.get_global_polygon()`'s output for the same
-pair/position, to determine whether the discrepancy is in size, position,
-or rotation.
+```python
+if hasattr(item, "points"):      # kiutils ~1.0
+    pts = item.points
+elif hasattr(item, "coordinates"):
+    pts = item.coordinates
+```
+
+`fp_line` (kiutils `FpLine`) exposes `.start`/`.end`, not `.points`.
+`fp_circle` (`FpCircle`) exposes `.center`/`.end`, not `.points`.
+`fp_rect` (`FpRect`) exposes `.start`/`.end` (opposite corners), not
+`.points`. **None of the three shapes real KiCad footprints actually use
+to draw courtyards satisfied this check**, so `pts` stayed empty for
+every graphic item on both D3 and C4, and extraction silently fell
+through to "Strategy 2" (a rectangle from the pad bounding box, centered
+on the footprint origin, ignoring courtyard margin entirely).
+
+**Measured blast radius** across all 149 production-board footprints:
+
+| Courtyard graphic type on `F.CrtYd`/`B.CrtYd` | Footprints |
+|---|---|
+| `fp_rect` | 108 |
+| `fp_line` (rectangle drawn as 4 edges) | 28 |
+| `fp_circle` | 6 |
+| No `F.CrtYd` layer at all (legitimate pad-bbox fallback case) | 7 |
+| **Footprints where Strategy 1 actually matched (`fp_poly`)** | **0** |
+
+**142 of 149 footprints (95%)** had real courtyard graphics that
+extraction never read, falling through to the pad-bounding-box
+approximation for all of them — which is not just imprecise but centered
+and sized wrong: C4's pad-bbox fallback was a `15mm × 5mm` box centered at
+the origin, versus its real `35.5mm`-diameter circle offset 5mm off
+origin. `check_overlap(D3, ..., C4, ...)` returned `False` under the old
+(pad-bbox) geometry and `True` under the corrected geometry — directly
+reproducing kicad-cli's real finding for this exact pair.
+
+**Fix applied**: rewrote Strategy 1 to build proper `shapely` geometry per
+item type — `FpRect` expanded to its 4 corners (its `start`/`end` are
+*diagonal* corners, not two points on one edge, so hulling them directly
+would degenerate to a line), `FpLine` endpoints collected into a shared
+point set and convex-hulled, `FpCircle` turned into a `Point(center).buffer(radius)`
+circle polygon, and `FpArc` given a coarse 3-point polyline approximation
+(none present on this board, added for robustness) — then unioned via
+`shapely.ops.unary_union` and converted back into the `points` list
+`Courtyard` expects.
+
+**Verification performed:**
+- Direct extraction test: `meta.courtyards['D3'].points` now exactly
+  matches the real `fp_line` rectangle; `meta.courtyards['C4'].points` is
+  a 32-point polygon approximating the real circle, centroid at
+  `(5.0, 0.0)`, area matching `π·17.75²` to within 1%.
+- `check_overlap(D3, pos_d3, 0, C4, pos_c4, 0)` now returns `True`
+  (previously `False`), matching kicad-cli's real
+  `courtyards_overlap` finding for this exact pair.
+- New regression test file `test_kicad_metadata_courtyards.py` (4 tests:
+  `FpRect`, `FpLine`-rectangle, `FpCircle`, and the legitimate
+  no-courtyard-layer fallback) — confirmed as a genuine guard by
+  temporarily stashing the fix and re-running: 3 of 4 failed against the
+  pre-fix code (each collapsing to the 1mm×1mm ultimate fallback since the
+  synthetic test footprints have no pads either), then passed again after
+  unstashing.
+- Checked the only other courtyard-consuming call site
+  (`placement_audit.py`'s `hull.buffer(0.5)`, a different, independent
+  courtyard approximation) — out of scope for this fix, not touched.
+
+## Third, Separate, Still-Open Issue: Nudge-Resolution Doesn't Fully Converge on the Real Geometry
+
+With both bugs above fixed, a full pipeline → export → kicad-cli DRC
+re-run was finally possible end-to-end (it was blocked by an unrelated
+numba shim bug hit along the way — see
+[`njit-fallback-shim-discards-function-on-bare-decorator.md`](njit-fallback-shim-discards-function-on-bare-decorator.md)).
+Results:
+
+| | Original baseline | After STRtree fix only | After both fixes |
+|---|---|---|---|
+| kicad-cli total DRC errors | 225 | 219 | **142** |
+| `courtyards_overlap` | 27 | 27 | **29** |
+| `pth_inside_courtyard` | 16 | 16 | **18** |
+
+Total DRC errors dropped substantially (225 → 142), consistent with the
+courtyard fix correcting many now-larger, more-accurate exclusion zones
+that upstream stages route/place around better. But `courtyards_overlap`
+and `pth_inside_courtyard` themselves did **not** improve — they are
+roughly flat, even slightly higher. This is not a sign the geometry fix
+is wrong (`check_overlap` on the known D3/C4 pair now correctly agrees
+with kicad-cli — see above); it is the geometry fix **revealing a harder,
+real problem** that the smaller/wrong pad-bbox courtyards had been masking.
+
+`CourtyardCheckStage.run()`'s nudge-resolution loop, given the
+now-accurate (and therefore mostly larger) courtyard sizes, failed to
+converge within its `max_iterations=500` budget on this board — internal
+debug output oscillated between roughly 29 and 48 unresolved pairs across
+the final ~40 iterations rather than settling toward 0
+(`DEBUG: CourtyardCheck Failed to resolve 35 pairs after 500 iterations`).
+This looks like a genuine placement-density problem: the upstream stages
+place 149 components on a 100×150mm board tightly enough that pairwise
+nudging (fixed `nudge_step=0.2mm` per iteration, moving one pair at a
+time) cannot find enough free space to separate every real courtyard
+overlap, and likely enters limit cycles (small random noise is already
+added specifically to break these, per the existing code comment, but
+apparently not always enough).
+
+This is a **distinct class of problem from both bugs above** — it is not
+a detection-correctness bug (the stage now measures the right things) but
+a resolution-algorithm/placement-density limitation, and is **not fixed
+in this pass**. Candidates for follow-up, not yet investigated:
+- Whether upstream placement stages (before `CourtyardCheckStage` runs)
+  are packing components too densely for *any* pairwise nudge algorithm
+  to resolve, meaning the real fix belongs earlier in the pipeline, not
+  in this stage.
+- Whether a stronger resolution strategy (e.g. simulated annealing, a
+  proper 2D bin-packing pass, or iterating groups instead of pairs) is
+  needed instead of independent pairwise nudges.
+- Whether `max_iterations=500` is simply too low once courtyards are
+  correctly sized, or whether the loop is genuinely stuck in a limit
+  cycle regardless of iteration budget.
 
 ## Why This Matters
 
 This is now the third confirmed instance of the deterministic pipeline
 (the board's actual production placement path) reporting a clean result
-that isn't. Unlike the other two (narrow-but-honest scope, just
-mislabeled), this one was a genuine detection bug in the one stage whose
-entire purpose is catching exactly this class of problem — and fixing it
-was necessary but not sufficient. Even with detection logic working
-correctly, the stage's internal geometry model still disagrees with
-kicad-cli's real interpretation on the exact same violations (27
-`courtyards_overlap`, 16 `pth_inside_courtyard`, both unchanged by the
-fix). A placement that reports "courtyards resolved" is still not safe to
-hand off to routing or fab without independent kicad-cli verification.
+that isn't. Unlike the two scope-mismatch findings in the sibling doc,
+this one required two independent, stacked fixes (detection logic, then
+detection accuracy) before the stage's *self-report* could be trusted at
+all — and even now, with both fixed, the stage's honest self-report is
+"I found real overlaps and could not fully resolve them," not "0
+violations." The corrected numbers (142 total kicad-cli errors, down from
+225) prove the fixes are real and load-bearing, not cosmetic — but
+`courtyards_overlap`/`pth_inside_courtyard` specifically remain non-zero,
+so this board is still not safe to hand off to routing or fab without
+independent kicad-cli verification.
 
 ## Resolution
 
-**Partially fixed, 2026-07-17.** The STRtree index-vs-object-identity bug
-(see "Root Cause" above) is fixed and verified: `courtyard_check.py`'s
-`_find_collisions` now correctly resolves `STRtree.query()`'s integer
-indices back to polygons/refs instead of a never-true identity check. A
-new regression test file, `test_courtyard_check.py` (4 tests), guards
-against this specific regression and was confirmed to fail 2/4 against the
-pre-fix code.
+**Both correctness bugs fixed, 2026-07-17; a third, different-class issue
+(nudge convergence) remains open.**
 
-This fix makes the stage's detection loop genuinely functional (it now
-iterates and converges against real internal collision data, rather than
-trivially reporting zero from the first pass). **It does not close the
-gap against kicad-cli** — see "Second, Separate, Still-Open Bug" above.
-That part needs someone to compare `_find_collisions()`'s computed
-polygons against kicad-cli's courtyard interpretation directly (e.g., dump
-both sets of polygons for one known-conflicting pair and diff them) before
-a further fix is possible.
+1. STRtree index-vs-object-identity bug (see "Root Cause" above): fixed,
+   verified via `test_courtyard_check.py` (4 tests, 2/4 fail on old code).
+2. Courtyard geometry extraction only recognizing `fp_poly` (see "Second
+   Root Cause" above): fixed, verified via `test_kicad_metadata_courtyards.py`
+   (4 tests, 3/4 fail on old code) plus the direct D3/C4 `check_overlap`
+   reproduction of kicad-cli's real finding.
+3. Nudge-resolution convergence (see "Third, Separate, Still-Open Issue"
+   above): **not fixed** — needs either an upstream placement-density fix
+   or a stronger resolution algorithm in `CourtyardCheckStage.run()`.
 
 `power_pcb_dataset/baselines/temper_production_baseline.yaml`'s
 `placement_violations: 0` field is annotated to point at this doc and the
 DRC-oracle doc, rather than either being silently trusted or blamed on the
 wrong stage. That annotation remains accurate post-fix: `0` is still not
-a trustworthy number for real courtyard safety, just for a different
-(narrower) reason now.
+a trustworthy number for real courtyard safety — now for a resolution
+(not detection) reason.
 
 ## Prevention
 
 - **A stage whose entire purpose is detecting X should be checked against
   an independent X-detector before being trusted**, not just tested for
-  internal self-consistency (does the nudge loop converge) — self-
+  internal self-consistency (does the nudge loop terminate) — self-
   consistency and correctness are different properties, and this bug
-  family sits exactly in that gap: the loop *does* converge correctly
-  once fed accurate collision data (fixed), but "accurate" here still
-  means accurate relative to this stage's own geometry model, not
-  necessarily to kicad-cli's. Fixing detection logic does not imply
-  fixing detection accuracy — treat them as two separate claims requiring
-  two separate proofs.
+  family sits exactly in that gap: fixing detection logic (bug 1) does not
+  imply fixing detection accuracy (bug 2), and fixing both does not imply
+  the resolution algorithm can actually clear what it now correctly sees
+  (issue 3). Each is a separate claim requiring separate proof — treat
+  "detects correctly," "measures correctly," and "resolves what it finds"
+  as three independent properties to verify, not one.
 - **When two independent implementations of "the same check" disagree,
   investigate before trusting either** — don't assume the internal,
   faster, purpose-built one is right just because it's newer or
@@ -259,6 +352,14 @@ a trustworthy number for real courtyard safety, just for a different
   `ZoneManager.get_zone_at`) as part of this investigation — it already
   correctly indexes `self._polygons[idx]`, so it is not affected. This
   bug was isolated to `courtyard_check.py`.
+- **A geometry-extraction "Strategy 1: look for the real graphic layer"
+  is only as good as the set of shape types it recognizes.** This one
+  silently matched 0 of 149 real footprints on the production board (it
+  only ever handled `fp_poly`) while still "succeeding" via Strategy 2's
+  pad-bbox fallback often enough to look plausible. When a strategy has a
+  fallback, its match rate is invisible unless someone explicitly measures
+  it — log or assert a minimum match rate for "should usually succeed"
+  extraction strategies instead of silently falling through every time.
 
 ## Related Issues
 
@@ -272,5 +373,11 @@ a trustworthy number for real courtyard safety, just for a different
 - `power_pcb_dataset/baselines/temper_production_baseline.yaml` —
   `placement_violations: 0` annotated with this finding.
 - `packages/temper-placer/tests/deterministic/stages/test_courtyard_check.py`
-  — regression test file added alongside the fix; confirmed to fail 2/4
+  — regression test file for the STRtree fix; confirmed to fail 2/4
   tests against the pre-fix code.
+- `packages/temper-placer/tests/io/test_kicad_metadata_courtyards.py` —
+  regression test file for the geometry-extraction fix; confirmed to fail
+  3/4 tests against the pre-fix code.
+- [`docs/solutions/logic-errors/njit-fallback-shim-discards-function-on-bare-decorator.md`](njit-fallback-shim-discards-function-on-bare-decorator.md)
+  — an unrelated bug hit and fixed while re-running the pipeline to verify
+  the geometry fix above; blocked end-to-end verification until fixed.
