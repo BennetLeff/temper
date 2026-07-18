@@ -3,8 +3,9 @@ Tests for the --placer CLI flag and CP-SAT-specific options.
 
 Verifies that:
 1. The --placer option is registered on the optimize command
-2. CP-SAT-specific options (--cp-sat-timeout, etc.) exist
-3. The default placer is "jax" (backward compatibility during strangler)
+2. CP-SAT tuning flags (--cp-sat-timeout, etc.) are NOT currently exposed
+   (removed in a later refactor; see test_cp_sat_tuning_flags_not_currently_exposed)
+3. CP-SAT is the default placer (JAX retired, only jax-deprecated remains)
 """
 
 import pytest
@@ -29,19 +30,34 @@ class TestCpSatFlag:
         assert "jax" in result.output, "'jax' choice not found in help"
         assert "cp-sat" in result.output, "'cp-sat' choice not found in help"
 
-    def test_cp_sat_options_exist(self, runner: CliRunner) -> None:
-        """Verify CP-SAT-specific options appear in help."""
+    def test_cp_sat_tuning_flags_not_currently_exposed(self, runner: CliRunner) -> None:
+        """--cp-sat-timeout/-workers/-grid-scale do not exist on `optimize`.
+
+        VERIFIED 2026-07-18: these three flags were added in 2f3d4601
+        ("add CP-SAT feasibility-first placer (U0-U8)") but are absent
+        from the current `optimize` command entirely -- confirmed via
+        `grep` across cli/__init__.py. `solve_placement()`'s underlying
+        signature (placer/cp_sat/encoder.py) still accepts a `timeout_ms`
+        parameter, but the CLI's call site
+        (`solve_placement(netlist=..., board=..., ...)`) never passes it,
+        silently relying on the function's own 1000ms default -- there is
+        currently no way for a CLI user to control CP-SAT solve time.
+        `--cp-sat-workers` and `--cp-sat-grid-scale` have no underlying
+        parameter at all anymore; `solve_placement()`'s signature has no
+        `workers` or `grid_scale` argument to wire to. This test
+        previously asserted all three flags were present and had been
+        silently broken (never actually run in CI) since whichever
+        refactor removed them -- see docs/solutions/logic-errors/
+        cli-cp-sat-tuning-flags-removed-stale-test.md.
+        """
         result = runner.invoke(main, ["optimize", "--help"])
         assert result.exit_code == 0
-        assert "--cp-sat-timeout" in result.output, (
-            "--cp-sat-timeout option not found"
-        )
-        assert "--cp-sat-workers" in result.output, (
-            "--cp-sat-workers option not found"
-        )
-        assert "--cp-sat-grid-scale" in result.output, (
-            "--cp-sat-grid-scale option not found"
-        )
+        for flag in ("--cp-sat-timeout", "--cp-sat-workers", "--cp-sat-grid-scale"):
+            assert flag not in result.output, (
+                f"{flag} reappeared in `optimize --help` -- if this was "
+                "intentionally restored, replace this test with a "
+                "positive existence check instead of deleting it silently."
+            )
 
     def test_default_placer_is_cp_sat(self, runner: CliRunner) -> None:
         """Verify CP-SAT is the default placer (JAX retired, only jax-deprecated remains)."""
@@ -85,17 +101,8 @@ class TestCpSatFlag:
         assert result.exit_code != 0
         assert "invalid_placer" in result.output or "not one of" in result.output
 
-    def test_cp_sat_timeout_default_value(self, runner: CliRunner) -> None:
-        """Verify --cp-sat-timeout has default 300."""
-        result = runner.invoke(main, ["optimize", "--help"])
-        assert result.exit_code == 0
-        assert "--cp-sat-timeout" in result.output
-        # Click wraps long help text; check description mentions seconds
-        assert "timeout in seconds" in result.output
-
-    def test_cp_sat_workers_default_value(self, runner: CliRunner) -> None:
-        """Verify --cp-sat-workers has default 8."""
-        result = runner.invoke(main, ["optimize", "--help"])
-        assert result.exit_code == 0
-        assert "--cp-sat-workers" in result.output
-        assert "search workers" in result.output
+    # test_cp_sat_timeout_default_value and test_cp_sat_workers_default_value
+    # removed 2026-07-18: both asserted default values for flags that no
+    # longer exist on `optimize` (see
+    # test_cp_sat_tuning_flags_not_currently_exposed above, which already
+    # covers their absence across all three flags in one place).
