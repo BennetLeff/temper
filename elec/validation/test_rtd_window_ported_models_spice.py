@@ -29,7 +29,11 @@ def test_ported_component_models_preserve_rtd_fail_safe_truth_table() -> None:
     """A clear condition alone may sink the fault; every fault releases it."""
 
     result = subprocess.run(
-        ["ngspice", "-b", str(DECK)], check=True, capture_output=True, text=True
+        ["ngspice", "-b", str(DECK)], capture_output=True, text=True
+    )
+    assert result.returncode == 0, (
+        f"ngspice exited {result.returncode}\n"
+        f"--- stderr ---\n{result.stderr}\n--- stdout tail ---\n{result.stdout[-2000:]}"
     )
     cases = _fault_cases(result.stdout)
     for name in ("VALID_100R", "VALID_194R1"):
