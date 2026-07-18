@@ -1,0 +1,15 @@
+* SN74LVC1G08 portable ngspice behavioural model
+*
+* Provenance: pin order, 1.65 V supply floor, AND function, and partial-power
+* down intent are derived from the TI SN74LVC1G08 datasheet. This is an
+* independently written portable behavioural model.
+*
+* Pin order: A, B, GND, Y, VCC
+* Scope: static push-pull permission logic. At an invalid supply the output is
+* high impedance; the board's explicit WINDOW_OK pull-down resolves it low.
+
+.subckt SN74LVC1G08_NGSPICE A B GND Y VCC
++ params: VCC_MIN=1.65 ROUT=10
+
+B_OUT Y GND I={ternary_fcn(v(VCC,GND)>=VCC_MIN,ternary_fcn((v(A,GND)>0.5*v(VCC,GND))*(v(B,GND)>0.5*v(VCC,GND)),(v(Y,GND)-v(VCC,GND))/ROUT,v(Y,GND)/ROUT),0)}
+.ends SN74LVC1G08_NGSPICE

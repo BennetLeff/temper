@@ -1,0 +1,19 @@
+* TPS3700 portable ngspice behavioural port
+*
+* Provenance: pin order and typical 394.5 mV INA threshold are derived from
+* TI's unencrypted TPS3700 PSpice transient model (SBVM552B) and datasheet.
+* This is an independently written portable behavioural implementation; it
+* does not include TI model source text.
+*
+* Pin order: VDD, INA, INB, OUTA, OUTB, GND
+* Scope: open-drain static UV/OV permissions for system simulation. PVT
+* thresholds are carried by the accompanying property model, not this macro.
+
+.subckt TPS3700_NGSPICE VDD INA INB OUTA OUTB GND
++ params: VDD_MIN=1.80 VIT_A=394.5m VIT_B=400m RON=1
+
+* OUTA is asserted low when INA is below the reference; otherwise it is high Z.
+B_OUTA OUTA GND I={ternary_fcn(v(VDD,GND)>=VDD_MIN,ternary_fcn(v(INA,GND)<VIT_A,v(OUTA,GND)/RON,0),0)}
+* OUTB is asserted low when INB is above its reference; otherwise it is high Z.
+B_OUTB OUTB GND I={ternary_fcn(v(VDD,GND)>=VDD_MIN,ternary_fcn(v(INB,GND)>VIT_B,v(OUTB,GND)/RON,0),0)}
+.ends TPS3700_NGSPICE
