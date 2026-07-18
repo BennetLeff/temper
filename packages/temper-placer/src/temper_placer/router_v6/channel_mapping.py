@@ -109,6 +109,23 @@ def _assign_layer(
     return "F.Cu"
 
 
+def fallback_channel_path(
+    net_name: str,
+    pads: list[tuple[float, float]],
+    layer_constraints: dict | None = None,
+) -> ChannelPath:
+    """Direct-A*-attempt fallback for a net without a SAT channel
+    assignment: a degenerate two-waypoint path on the net's SSOT or
+    heuristic layer (W2 U2 / R2)."""
+    return ChannelPath(
+        net_name=net_name,
+        channel_sequence=[],
+        waypoints=[pads[0], pads[-1]],
+        total_length=0.0,
+        preferred_layer=_assign_layer(net_name, layer_constraints=layer_constraints),
+    )
+
+
 @dataclass
 class ChannelMapping:
     """Mapping of nets to channel paths."""
