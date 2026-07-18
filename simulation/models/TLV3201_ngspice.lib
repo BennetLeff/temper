@@ -1,0 +1,21 @@
+* TLV3201 portable ngspice behavioural port
+*
+* Provenance: pin order and nominal values are derived from TI's TLV3201
+* PSpice model (SBOMBT6) and datasheet. This is an independently written,
+* portable behavioural implementation; it does not include TI model source.
+*
+* Pin order: IN+, IN-, VCC, GND, OUT
+* Scope: DC window validation and nominal output loading. The model declares
+* the 2.70 V supply floor and nominal 1 mV input offset used by the TI model.
+* It intentionally does not claim a timing, noise, or temperature model.
+
+.subckt TLV3201_NGSPICE INP INN VCC GND OUT
++ params: VCC_MIN=2.70 VOS=1m ROUT=60
+
+* TI's full model drives a mid-supply output outside the rated supply range.
+* This portable safety model instead exposes that invalid state explicitly as
+* mid-supply; the upstream TPS3700 must remove permission before it matters.
+B_RAW RAW GND V={ternary_fcn(v(VCC,GND)>=VCC_MIN,ternary_fcn(v(INP,INN)>VOS,v(VCC,GND),0),0.5*v(VCC,GND))}
+R_OUT RAW OUT {ROUT}
+C_OUT OUT GND 0.5p
+.ends TLV3201_NGSPICE
