@@ -11,6 +11,7 @@ import from here.
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from kiutils.board import Board as KiBoard
@@ -19,6 +20,8 @@ from temper_placer.io.kicad_metadata import extract_kicad_metadata
 from temper_placer.validation._drc_api import run_drc
 
 _TARGET_RULES = {"courtyards_overlap", "pth_inside_courtyard"}
+
+_logger = logging.getLogger(__name__)
 
 
 def _extract_component_positions(
@@ -68,6 +71,13 @@ def _compute_overlap_area_mm2(
             return 0.0
         return float(intersection.area)
     except Exception:
+        _logger.warning(
+            "overlap-area computation failed for pair (%s, %s); "
+            "reporting 0.0 — magnitude for this row is unreliable",
+            ref_a,
+            ref_b,
+            exc_info=True,
+        )
         return 0.0
 
 
