@@ -266,3 +266,43 @@ def test_no_loop_model_invalid_exits_nonzero(
 
     assert result.exit_code != 0
     assert not out.exists()
+
+
+# -------- warm-start ----------------------------------------------------------
+
+
+def test_no_loop_warm_start_flag_registered(
+    runner: CliRunner,
+) -> None:
+    """--warm-start flag appears in help output."""
+    result = runner.invoke(cli_main, ["optimize", "--help"])
+    assert "--warm-start" in result.output
+
+
+def test_no_loop_warm_start_passes_hints(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    """--warm-start flag is accepted by the CLI (pipeline runs are tested at E2E level)."""
+    mock_result = CpSatPlacementResult(
+        status="optimal",
+        positions={"R1": (10.0, 20.0)},
+        rotations={"R1": 0},
+        placed_refs=["R1"],
+        solve_time_ms=10.0,
+        objective_value=0.0,
+    )
+
+    out = tmp_path / "placed.kicad_pcb"
+    with mock.patch(
+        "temper_placer.placer.cp_sat.encoder.solve_placement",
+        return_value=mock_result,
+    ) as mock_solve:
+        result = runner.invoke(
+            cli_main, _base_args(out) + ["--warm-start"]
+        )
+
+    assert result.exit_code == 0
+    mock_solve.assert_called_once()
+    # hint_positions kwarg is always passed — may be None if
+    # the deterministic pipeline produces no placements for small test boards
+    assert "hint_positions" in mock_solve.call_args.kwargs

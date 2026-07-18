@@ -7,11 +7,11 @@ packages/temper-placer/src/temper_placer/pcl/parser.py 1089 temper-N7-10 # tag d
 packages/temper-placer/src/temper_placer/io/kicad_parser.py 1430 temper-N7-6 # follow-up (grew from 1328); +2 for sheetpath property read (fixed_positions ref-fragility fix)
 packages/temper-placer/src/temper_placer/io/kicad_writer.py 1311 temper-N7-7 # follow-up (grew from 4-layer validation guards)
 packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py 1283 temper-N7-cap1 # new over-cap file
-packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 1232 temper-N7-cap2 # new over-cap file
+packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 1244 temper-N8-drc-sweep # grew from 1232: njit fallback shim fix (bare-decorator handling) + verification comment
 firmware/main/state_machine.c 1224 temper-N6-U8 # firmware, Phase 4 (grew from 1181: added IGBT short + ADC stuck + stuck tracking)
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1059 temper-N7-cap4 # new over-cap file
 packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1008 temper-N7-board # follow-up
 packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1494 temper-phys-U8 # grew from 1462: A* thermal cost-field plumbing (physics-informed routing)
-packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py 1537 temper-phys-U9 # grew from 1435: W5 continuous thermal-field fixed-point feedback (physics-informed placement)
-packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py 1153 temper-phys-U9 # new over-cap: CP-SAT constraint encoder
-packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1035 temper-phys-U9 # new over-cap: CP-SAT DRC gate model builder
+packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py 1558 temper-N8-drc-sweep # grew from 1537: gate-driven dispatch fix (self._gates_explicit) + verification comment
+packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py 1175 temper-N8-drc-sweep # grew from 1153: --warm-start AddHint() seeding (hint_positions param + docstring)
+packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1044 temper-N8-drc-sweep # grew from 1035: IECCreepageGate net-name fix (err.nets instead of err.components) + verification comment

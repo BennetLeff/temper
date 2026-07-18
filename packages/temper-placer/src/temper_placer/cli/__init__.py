@@ -303,6 +303,12 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
     default=False,
     help="Register all five gates (DRC, Routing, Stackup, Physics, Quality) on the place-route loop.",
 )
+@click.option(
+    "--warm-start",
+    is_flag=True,
+    default=False,
+    help="Seed CP-SAT solver with deterministic pipeline positions via AddHint.",
+)
 def optimize(
     input_pcb: Path,
     config: Path,
@@ -341,6 +347,7 @@ def optimize(
     loop: bool,
     unsat_report: Path | None,
     all_gates: bool,
+    warm_start: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
@@ -407,6 +414,7 @@ def optimize(
             parse_result = parse_kicad_pcb(input_pcb)
             netlist = parse_result.netlist
             board = parse_result.board
+            assert board is not None, "Board geometry parsing failed"
             constraints = load_constraints(config)
 
             loop_runner = PlaceRouteLoop()
@@ -602,35 +610,55 @@ def optimize(
             console.print(f"  Parsed {len(netlist.components)} components from input PCB")
             console.print(f"  Loaded {len(pcl_constraints)} PCL constraints")
 
-            result = solve_placement(
+            # Warm-start: seed solver with deterministic pipeline positions.
+            hint_positions = None
+            if warm_start:
+                console.print("  [cyan]Warm-start: running deterministic pipeline...[/]")
+                from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
+                from temper_placer.io.kicad_metadata import extract_kicad_metadata
+
+                metadata = extract_kicad_metadata(input_pcb)
+                dp = create_drc_aware_pipeline(config=constraints, metadata=metadata)
+                dp_state = BoardState(board=board, netlist=netlist)
+                dp_state = dp.run(dp_state)
+                if dp_state.placements:
+                    hint_positions = {}
+                    for ref, pos in dp_state.placements:
+                        hint_positions[ref] = (pos[0], pos[1], 0)
+                    console.print(
+                        f"  [green]✓[/] Extracted {len(hint_positions)} hint positions"
+                    )
+
+            cp_result = solve_placement(
                 netlist=netlist,
                 board=board,
                 extra_constraints=pcl_constraints,
                 seed=seed,
+                hint_positions=hint_positions,
             )
 
             console.print(
-                f"  Solver status: {result.status}"
-                f" ({result.solve_time_ms:.0f}ms)"
+                f"  Solver status: {cp_result.status}"
+                f" ({cp_result.solve_time_ms:.0f}ms)"
             )
 
-            if result.status in ("infeasible", "model_invalid"):
-                _maybe_surface_unsat(result, unsat_report)
+            if cp_result.status in ("infeasible", "model_invalid"):
+                _maybe_surface_unsat(cp_result, unsat_report)
                 sys.exit(1)
 
-            if result.status in ("optimal", "feasible"):
+            if cp_result.status in ("optimal", "feasible"):
                 from temper_placer.io.kicad_writer import (
                     PlacementUpdate,
                     write_placements_to_pcb,
                 )
 
                 placements: dict[str, PlacementUpdate] = {}
-                for ref, pos in result.positions.items():
+                for ref, pos in cp_result.positions.items():
                     placements[ref] = PlacementUpdate(
                         ref=ref,
                         x=pos[0],
                         y=pos[1],
-                        rotation=result.rotations.get(ref, 0) * 90.0,
+                        rotation=cp_result.rotations.get(ref, 0) * 90.0,
                     )
 
                 write_result = write_placements_to_pcb(
@@ -649,7 +677,7 @@ def optimize(
                 console.print(f"  Output: {output}")
             else:
                 console.print(
-                    f"  [red]Solver returned unexpected status: {result.status}[/]"
+                    f"  [red]Solver returned unexpected status: {cp_result.status}[/]"
                 )
                 sys.exit(1)
         except click.ClickException:

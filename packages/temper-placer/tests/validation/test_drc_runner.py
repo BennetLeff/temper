@@ -111,7 +111,21 @@ class TestDrcRunner:
 
     @pytest.fixture
     def mock_error_drc_output(self) -> dict:
-        """Mock kicad-cli DRC JSON output with errors."""
+        """Mock kicad-cli DRC JSON output with errors.
+
+        Shaped to match REAL kicad-cli output (verified 2026-07-17 against
+        actual `kicad-cli pcb drc --format json` output -- see
+        docs/solutions/logic-errors/
+        drc-api-wrapper-components-and-location-always-empty.md): items
+        never carry a "reference" key (the ref is embedded in a free-text
+        "description" string like "Footprint R1" or "Pad 1 [...] of U1"),
+        and violations never carry a top-level "pos" (only per-item
+        "pos" does). A prior version of this fixture invented a
+        "reference"/top-level-"pos" schema that matched neither real
+        kicad-cli output nor was ever exercised against it -- it happened
+        to match the (also wrong) old parser, so both looked correct
+        together while being wrong relative to reality.
+        """
         return {
             "source": "/path/to/board.kicad_pcb",
             "date": "2025-12-16",
@@ -121,20 +135,18 @@ class TestDrcRunner:
                     "type": "clearance",
                     "severity": "error",
                     "description": "Clearance violation (0.15mm < 0.2mm)",
-                    "pos": {"x": 25.0, "y": 30.0},
                     "items": [
-                        {"reference": "U1", "description": "Pad 1"},
-                        {"reference": "U2", "description": "Pad 3"},
+                        {"description": "Pad 1 [+3V3] of U1 on F.Cu", "pos": {"x": 25.0, "y": 30.0}},
+                        {"description": "Pad 3 [GND] of U2 on F.Cu", "pos": {"x": 26.0, "y": 30.0}},
                     ],
                 },
                 {
                     "type": "courtyard_overlap",
                     "severity": "error",
                     "description": "Footprint courtyards overlap",
-                    "pos": {"x": 50.0, "y": 60.0},
                     "items": [
-                        {"reference": "R1", "description": "Footprint"},
-                        {"reference": "C1", "description": "Footprint"},
+                        {"description": "Footprint R1", "pos": {"x": 50.0, "y": 60.0}},
+                        {"description": "Footprint C1", "pos": {"x": 52.0, "y": 60.0}},
                     ],
                 },
             ],

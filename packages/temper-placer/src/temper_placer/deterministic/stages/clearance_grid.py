@@ -6,7 +6,23 @@ try:
     from numba import njit
 except ImportError:
     def njit(*args, **kwargs):
-        """No-op decorator when numba is unavailable."""
+        """No-op decorator when numba is unavailable.
+
+        VERIFIED 2026-07-17: must handle both `@njit` (bare -- called as
+        njit(func), func arrives as the sole positional arg) and
+        `@njit(...)` (called with options -- returns a decorator that
+        receives func next). The previous version always returned
+        `lambda f: f` regardless of call style, so bare `@njit` usage
+        (as on _block_circle_numba below) silently discarded the actual
+        function and replaced it with a useless identity lambda -- any
+        call to it then crashed with a confusing arity TypeError
+        ("takes 1 positional argument but N were given") that gives no
+        hint the real cause is numba failing to import. See
+        docs/solutions/logic-errors/
+        njit-fallback-shim-discards-function-on-bare-decorator.md.
+        """
+        if len(args) == 1 and callable(args[0]) and not kwargs:
+            return args[0]
         return lambda f: f
 
 from temper_placer.core.board import (

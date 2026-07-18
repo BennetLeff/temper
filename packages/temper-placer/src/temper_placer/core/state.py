@@ -79,8 +79,8 @@ class PlacementState:
         """
         Create a PlacementState from a dict of ``{component_ref: (x_mm, y_mm)}``.
 
-        This factory wraps numpy/Python data into JAX arrays internally so the
-        caller does **not** need to import JAX.  Either *netlist* or
+        This factory wraps numpy/Python data into numpy arrays internally so
+        the caller does **not** need to import JAX.  Either *netlist* or
         *component_order* must be provided to define the component ordering.
 
         Args:
@@ -126,9 +126,9 @@ class PlacementState:
         if not positions_list:
             raise ValueError("No positions provided and no components in netlist/order")
 
-        positions_arr = jnp.array(positions_list, dtype=jnp.float32)
+        positions_arr = np.array(positions_list, dtype=np.float32)
         n = positions_arr.shape[0]
-        rot = rotation_logits if rotation_logits is not None else jnp.zeros((n, 4), dtype=jnp.float32)
+        rot = rotation_logits if rotation_logits is not None else np.zeros((n, 4), dtype=np.float32)
 
         return cls(
             positions=positions_arr,

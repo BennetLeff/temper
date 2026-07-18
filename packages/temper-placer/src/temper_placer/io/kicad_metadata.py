@@ -187,20 +187,77 @@ def _extract_courtyards(raw_board: KiBoard) -> dict[str, Courtyard]:
 
         points = []
 
-        # Strategy 1: Look for CrtYd graphic items
+        # Strategy 1: Look for CrtYd graphic items.
+        #
+        # VERIFIED 2026-07-17: the vast majority of real KiCad footprints
+        # draw their courtyard using fp_rect (108/149 on the production
+        # board), fp_line rectangles (28/149), or fp_circle (6/149) -- NOT
+        # fp_poly. The old code only handled `.points`/`.coordinates`
+        # (an fp_poly-only shape), so it matched 0/149 footprints on this
+        # board despite 142/149 having real F.CrtYd graphics, silently
+        # falling through to the pad-bounding-box approximation below for
+        # every one of them. That approximation is not just imprecise --
+        # it is centered on the footprint origin and sized from pads only,
+        # so it misses courtyard margin entirely and is wildly wrong for
+        # components where the mechanical body extends past the pads (a
+        # 35mm-diameter radial capacitor's real courtyard is a ~17.75mm-
+        # radius circle offset 5mm from the footprint origin; its pad-bbox
+        # fallback was a tiny centered 15mm x 5mm box). This was the root
+        # cause of CourtyardCheckStage's internal geometry model
+        # disagreeing with kicad-cli's real DRC even after the STRtree
+        # indexing bug was fixed. See docs/solutions/logic-errors/
+        # courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md.
         if fp.graphicItems:
-            for item in fp.graphicItems:
-                if hasattr(item, "layer") and item.layer in ("F.CrtYd", "B.CrtYd"):
-                    # Handle Polygon/Polyline
-                    pts = []
-                    if hasattr(item, "points"):  # kiutils ~1.0
-                        pts = item.points
-                    elif hasattr(item, "coordinates"):
-                        pts = item.coordinates
+            from kiutils.items.fpitems import FpArc, FpCircle, FpLine, FpPoly, FpRect
+            from shapely.geometry import MultiPoint, Point, Polygon as ShapelyPolygon
+            from shapely.ops import unary_union
 
+            shapes = []
+            hull_points: list[tuple[float, float]] = []
+
+            for item in fp.graphicItems:
+                if not (hasattr(item, "layer") and item.layer in ("F.CrtYd", "B.CrtYd")):
+                    continue
+
+                if isinstance(item, FpPoly):
+                    pts = getattr(item, "coordinates", None) or getattr(item, "points", None)
                     if pts:
-                        points = [(p.X, p.Y) for p in pts]
-                        break  # Found courtyard
+                        shapes.append(ShapelyPolygon([(p.X, p.Y) for p in pts]))
+                elif isinstance(item, FpCircle):
+                    cx, cy = item.center.X, item.center.Y
+                    radius = ((item.end.X - cx) ** 2 + (item.end.Y - cy) ** 2) ** 0.5
+                    shapes.append(Point(cx, cy).buffer(radius, quad_segs=32))
+                elif isinstance(item, FpRect):
+                    # start/end are opposite (diagonal) corners, not two
+                    # points on the same edge -- must expand to all 4
+                    # corners before hulling, or two diagonal points
+                    # degenerate to a line instead of a rectangle.
+                    sx, sy = item.start.X, item.start.Y
+                    ex, ey = item.end.X, item.end.Y
+                    hull_points.extend([(sx, sy), (ex, sy), (ex, ey), (sx, ey)])
+                elif isinstance(item, FpLine):
+                    hull_points.append((item.start.X, item.start.Y))
+                    hull_points.append((item.end.X, item.end.Y))
+                elif isinstance(item, FpArc):
+                    # Coarse polyline approximation via the arc's 3
+                    # defining points -- not geometrically exact, but
+                    # closer than dropping arc-based courtyards entirely
+                    # (none observed on the production board yet).
+                    hull_points.append((item.start.X, item.start.Y))
+                    hull_points.append((item.mid.X, item.mid.Y))
+                    hull_points.append((item.end.X, item.end.Y))
+
+            if hull_points:
+                shapes.append(MultiPoint(hull_points).convex_hull)
+
+            if shapes:
+                merged = unary_union(shapes) if len(shapes) > 1 else shapes[0]
+                if merged.geom_type == "Polygon" and len(merged.exterior.coords) >= 3:
+                    points = list(merged.exterior.coords)
+                elif merged.geom_type != "Polygon":
+                    hull = merged.convex_hull
+                    if hull.geom_type == "Polygon" and len(hull.exterior.coords) >= 3:
+                        points = list(hull.exterior.coords)
 
         # Strategy 2: Fallback to pad bounding box
         if not points and fp.pads:

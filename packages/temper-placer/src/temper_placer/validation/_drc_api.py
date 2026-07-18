@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -39,6 +40,9 @@ class DrcError:
         location: (x, y) position in mm.
         message: Human-readable description.
         components: List of component references involved.
+        nets: List of net names involved (from items with no owning
+            component, e.g. bare copper tracks/vias -- KiCad embeds the
+            net name in square brackets, e.g. "Via [GND] on F.Cu - B.Cu").
     """
 
     rule: str
@@ -46,6 +50,7 @@ class DrcError:
     location: tuple[float, float]
     message: str
     components: list[str] = field(default_factory=list)
+    nets: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -59,6 +64,7 @@ class DrcWarning:
         location: (x, y) position in mm.
         message: Human-readable description.
         components: List of component references involved.
+        nets: List of net names involved (see DrcError.nets).
     """
 
     rule: str
@@ -66,6 +72,7 @@ class DrcWarning:
     location: tuple[float, float]
     message: str
     components: list[str] = field(default_factory=list)
+    nets: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -105,6 +112,53 @@ def _get_drc_json_path(pcb_path: Path) -> Path:
     return pcb_path.parent / f"{pcb_path.stem}_drc_report.json"
 
 
+# VERIFIED 2026-07-17: kicad-cli's DRC JSON violation items never carry a
+# "reference" key -- the old code's `item.get("reference")` matched
+# nothing on any observed violation type, not just courtyard ones, so
+# `components` came back empty and `location` (which read a top-level
+# "pos" that also never exists -- only per-item "pos" does) came back
+# (0.0, 0.0) universally. The component ref is embedded in each item's
+# free-text "description" string instead, in one of two shapes:
+#   "Footprint D3"                              -> D3
+#   "Reference field of C1"                     -> C1
+#   "Segment of C16 on F.Silkscreen"             -> C16
+#   "PTH pad 1 [+15V] of R1"                     -> R1
+#   "Pad 13 [power_in.ntc-no] of K1 on F.Cu"     -> K1
+# Some items are legitimately not owned by any single component (e.g.
+# "Via [bias] on F.Cu - B.Cu", "Polygon on Edge.Cuts") -- these
+# correctly yield no ref rather than a wrong guess. See
+# docs/solutions/logic-errors/
+# drc-api-wrapper-components-and-location-always-empty.md.
+_FOOTPRINT_DESC_RE = re.compile(r"^Footprint (\S+)$")
+_OF_REF_DESC_RE = re.compile(r"\bof (\S+?)(?:\s+on\s+\S.*)?$")
+_NET_IN_BRACKETS_RE = re.compile(r"\[([^\]]+)\]")
+
+
+def _extract_ref_from_item_description(description: str) -> str | None:
+    """Extract a component reference designator from a DRC item's
+    free-text description, or None if the item isn't owned by a single
+    component (e.g. a via or a board-edge polygon)."""
+    match = _FOOTPRINT_DESC_RE.match(description)
+    if match:
+        return match.group(1)
+    match = _OF_REF_DESC_RE.search(description)
+    if match:
+        return match.group(1)
+    return None
+
+
+def _extract_net_from_item_description(description: str) -> str | None:
+    """Extract a net name from a DRC item's free-text description, or
+    None if it doesn't carry one. KiCad embeds net names in square
+    brackets for net-owned items -- "Via [GND] on F.Cu - B.Cu",
+    "Pad 2 [hb.gate_hs.driver-p2] of C22 on F.Cu" -- but not for
+    board-level features like "Polygon on Edge.Cuts"."""
+    match = _NET_IN_BRACKETS_RE.search(description)
+    if match:
+        return match.group(1)
+    return None
+
+
 def _parse_drc_json(json_path: Path) -> DrcResult:
     """
     Parse kicad-cli DRC JSON output.
@@ -126,15 +180,36 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
         severity = violation.get("severity", "error")
         message = violation.get("description", "")
 
-        pos = violation.get("pos", {})
-        location = (pos.get("x", 0.0), pos.get("y", 0.0))
+        items = violation.get("items", [])
 
-        # Extract component refs from items
-        components = []
-        for item in violation.get("items", []):
-            ref = item.get("reference")
-            if ref:
+        # kicad-cli never emits a top-level "pos" on the violation itself
+        # -- only per-item "pos". Prefer the position of the first item
+        # that resolves to a real component ref (e.g. a pad or footprint)
+        # over a board-level feature's item -- for rules like
+        # copper_edge_clearance, item[0] is routinely "Polygon on
+        # Edge.Cuts" with a degenerate (0.0, 0.0) pos, while a later item
+        # (the actual offending pad) carries the real, useful position.
+        # Falls back to the first item's position if no item has an
+        # extractable ref (e.g. a via-to-via clearance violation).
+        location = (0.0, 0.0)
+        components: list[str] = []
+        nets: list[str] = []
+        location_set = False
+        for item in items:
+            description = item.get("description", "")
+            ref = _extract_ref_from_item_description(description)
+            if ref and ref not in components:
                 components.append(ref)
+            net = _extract_net_from_item_description(description)
+            if net and net not in nets:
+                nets.append(net)
+            if ref and not location_set:
+                pos = item.get("pos", {})
+                location = (pos.get("x", 0.0), pos.get("y", 0.0))
+                location_set = True
+        if not location_set and items:
+            pos = items[0].get("pos", {})
+            location = (pos.get("x", 0.0), pos.get("y", 0.0))
 
         if severity == "warning":
             warnings.append(
@@ -144,6 +219,7 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
                     location=location,
                     message=message,
                     components=components,
+                    nets=nets,
                 )
             )
         else:
@@ -154,6 +230,7 @@ def _parse_drc_json(json_path: Path) -> DrcResult:
                     location=location,
                     message=message,
                     components=components,
+                    nets=nets,
                 )
             )
 
