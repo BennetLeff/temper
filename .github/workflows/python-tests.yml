@@ -328,7 +328,7 @@ jobs:
         run: |
           sudo add-apt-repository --yes ppa:kicad/kicad-10.0-releases
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends kicad-cli
+          sudo apt-get install --yes --no-install-recommends kicad
 
       - name: Build electronics netlist
         run: make netlist
