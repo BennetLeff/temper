@@ -13,7 +13,6 @@ from __future__ import annotations
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from unittest import mock
 
 import numpy as np
 import pytest
@@ -95,38 +94,24 @@ class MockBoard:
 # ---------------------------------------------------------------------------
 
 
-def test_cp_sat_placement_result_to_placement_result():
-    """CpSatPlacementResult.to_placement_result() produces valid PlacementResult."""
-    from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
-    from temper_placer.placer.deterministic import PlacementResult
-
-    positions = np.array([[10.0, 20.0], [30.0, 40.0]], dtype=np.float32)
-    rotations = np.array([0, 2], dtype=np.int32)  # 0deg, 180deg
-    result = CpSatPlacementResult(
-        positions=positions,
-        rotations=rotations,
-        placed_refs=["Q1", "Q2"],
-        unplaced_refs=[],
-        solve_time_ms=150.0,
-        status="optimal",
-    )
-
-    pr = result.to_placement_result()
-    assert isinstance(pr, PlacementResult)
-    np.testing.assert_allclose(pr.positions, positions)
-    np.testing.assert_allclose(pr.rotations, [0.0, 180.0])
-    assert pr.placed_refs == ["Q1", "Q2"]
+# test_cp_sat_placement_result_to_placement_result removed 2026-07-18:
+# CpSatPlacementResult never gained a to_placement_result() method (bridging
+# to the older, array-based placer.deterministic.PlacementResult) -- grepped
+# all of src/ for any production caller, found none. It also constructed
+# `positions`/`rotations` as raw (N,2)/(N,) numpy arrays, but
+# CpSatPlacementResult's real fields are `positions: dict[str, tuple[float,
+# float]]` and `rotations: dict[str, int]` (ref-keyed, not index-aligned) --
+# a leftover from an earlier, array-based design. See docs/solutions/
+# test-failures/router-integration-tests-assumed-array-based-cpsatplacementresult.md.
 
 
 def test_cp_sat_placement_result_to_placements_dict():
     """to_placements_dict() produces dict ready for _apply_placements_to_pcb."""
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
-    positions = np.array([[10.5, 20.3], [30.0, 40.8]], dtype=np.float32)
-    rotations = np.array([0, 1], dtype=np.int32)
     result = CpSatPlacementResult(
-        positions=positions,
-        rotations=rotations,
+        positions={"Q1": (10.5, 20.3), "Q2": (30.0, 40.8)},
+        rotations={"Q1": 0, "Q2": 1},
         placed_refs=["Q1", "Q2"],
         unplaced_refs=[],
     )
@@ -136,18 +121,17 @@ def test_cp_sat_placement_result_to_placements_dict():
     assert d["Q2"] == pytest.approx((30.0, 40.8), rel=1e-5)
 
 
-def test_solve_placement_fallback_without_ortools():
-    """When OR-Tools is unavailable, fallback produces a valid result."""
-    netlist = MockNetlist(components=[MockComp("Q1"), MockComp("Q2"), MockComp("C1")])
-    board = MockBoard(zones=[], width=100, height=100)
-
-    with mock.patch.dict("sys.modules", {"ortools": None}):
-        from temper_placer.placer.cp_sat.encoder import solve_placement
-
-        result = solve_placement(netlist, board)
-        assert result.status == "deterministic_fallback"
-        assert len(result.placed_refs) == 3
-        assert result.positions.shape == (3, 2)
+# test_solve_placement_fallback_without_ortools removed 2026-07-18:
+# solve_placement() imports `from ortools.sat.python import cp_model` with
+# no try/except -- ortools is now an unconditional, required dependency
+# with no "deterministic_fallback" status or degraded-mode path anywhere
+# in encoder.py (grepped -- the string never appears outside this test).
+# The test's own mock.patch.dict("sys.modules", {"ortools": None}) also
+# doesn't reliably prevent the real import once ortools.sat.python.cp_model
+# is already cached in sys.modules by an earlier test in the same process,
+# which is why it was silently getting a real "optimal" result instead of
+# hitting any fallback path. See docs/solutions/test-failures/
+# router-integration-tests-assumed-array-based-cpsatplacementresult.md.
 
 
 # ---------------------------------------------------------------------------
@@ -265,11 +249,9 @@ def test_place_to_route_pipeline():
     )
     board = MockBoard(zones=[])
 
-    positions = np.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]], dtype=np.float32)
-    rotations = np.array([0, 0, 0], dtype=np.int32)
     cp_result = CpSatPlacementResult(
-        positions=positions,
-        rotations=rotations,
+        positions={"Q1": (10.0, 20.0), "Q2": (30.0, 40.0), "C1": (50.0, 60.0)},
+        rotations={"Q1": 0, "Q2": 0, "C1": 0},
         placed_refs=["Q1", "Q2", "C1"],
         unplaced_refs=[],
         solve_time_ms=100.0,
@@ -278,10 +260,7 @@ def test_place_to_route_pipeline():
 
     placements = cp_result.to_placements_dict()
     assert placements == {"Q1": (10.0, 20.0), "Q2": (30.0, 40.0), "C1": (50.0, 60.0)}
-
-    pr = cp_result.to_placement_result()
-    assert pr is not None
-    assert len(pr.placed_refs) == 3
+    assert len(cp_result.placed_refs) == 3
 
     # Verify RoutingResult compilation path
     from temper_placer.router_v6.adapter import RoutingResult
