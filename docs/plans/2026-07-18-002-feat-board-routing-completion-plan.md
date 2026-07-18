@@ -1,7 +1,7 @@
 ---
 title: "feat: Board Routing Completion — Resume Stalled Work, Then Escalate to Multi-Layer"
 type: feat
-status: active
+status: completed
 date: 2026-07-18
 origin: docs/brainstorms/2026-07-18-board-routing-completion-requirements.md
 ---

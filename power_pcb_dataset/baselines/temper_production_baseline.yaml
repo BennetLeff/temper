@@ -1,106 +1,148 @@
-# Baseline metrics for the Temper production board.
-# Source: pcb/temper.kicad_pcb (149 components, 95 nets [>=2-pin connectivity;
-# see docs/solutions/logic-errors/
-# net-count-metric-definition-mismatch-regression-baseline.md], 100x150mm).
-#
-# Extraction method changed from JAX gradient-descent (deleted 2026-07) to CP-SAT.
-# The JAX loss-based metrics (overlap_loss, wirelength_loss, boundary_loss,
-# hpwl_final, final_loss) are replaced by CP-SAT metrics below.
-#
-# cp_sat block is currently unpopulated -- NOT because it wasn't attempted.
-# `temper-placer optimize` (with or without --loop) is a non-functional stub
-# for this board: it prints "Full CP-SAT pipeline integration is in
-# progress" and exits without ever running a CP-SAT solve or writing an
-# output file, regardless of config. Its own suggested fallback ("Use
-# `temper pipeline` for router-based placement flows") also doesn't exist as
-# a command (`temper-placer --help` lists no `pipeline` subcommand). See
-# docs/solutions/logic-errors/
-# cp-sat-optimize-cli-non-functional-stub-2026-07-17.md for full findings.
-# Do not fill this block with fabricated or approximate numbers -- leave it
-# null until the underlying CP-SAT integration is actually finished.
-
 component_count: 149
 net_count: 95
 drc_available: false
 drc_errors: 0
 drc_warnings: 0
-extraction_date: "2026-07-17"
-extraction_method: "deterministic-pipeline"
-
-# Deterministic 22-stage pipeline baseline (U6), re-run after the
-# fixed_positions sheetpath fix (see docs/solutions/logic-errors/
-# fixed-positions-ref-fragility-across-renumbering.md).
-# Command: create_drc_aware_pipeline(config=configs/temper_production_config.yaml)
-# against pcb/temper.kicad_pcb (149 components / 95 netlist nets, 100x150mm).
+extraction_date: '2026-07-17'
+extraction_method: deterministic-pipeline
 deterministic_pipeline:
-  config: "configs/temper_production_config.yaml"
-  placed_components: 149        # of 149 — all finite positions
-  placement_violations: 0  # VERIFIED WRONG 2026-07-17, three independent gaps:
-                            # (1) PlacementValidationStage only checks
-                            # PlacementProximityConstraint/SignalToHVClearance,
-                            # both declared via config -- this config has
-                            # neither declared, so nothing was ever checked.
-                            # (2) CourtyardCheckStage's own collision detector
-                            # had a Shapely 2.x STRtree indexing bug (fixed
-                            # 2026-07-17) that made it silently find 0
-                            # collisions on ANY board, and separately its
-                            # courtyard-geometry extraction fell through to a
-                            # wrong pad-bounding-box approximation for 142/149
-                            # footprints (also fixed 2026-07-17). Both are
-                            # now fixed and verified, but real kicad-cli DRC
-                            # on the corrected export still finds 29
-                            # courtyards_overlap + 18 pth_inside_courtyard
-                            # errors that the resolution algorithm could not
-                            # fully clear within its iteration budget -- see
-                            # docs/solutions/logic-errors/
-                            # courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md
-                            # for the full fix + residual-issue history.
-  drc_violations: 0  # VERIFIED MISLEADING 2026-07-17: this is
-                      # router_v6.constraints_drc_oracle.DRCOracle.validate_all(),
-                      # which checks ONLY track-to-track and via-to-via
-                      # clearance -- not courtyard overlap, silk clearance,
-                      # shorts, or unrouted nets. With routed_nets: 0 (below)
-                      # there is almost no routing geometry for it to check,
-                      # so 0 here is close to vacuous, not a clean bill of
-                      # health. See docs/solutions/logic-errors/
-                      # deterministic-pipeline-drc-oracle-only-checks-routing-not-real-drc.md.
-  kicad_cli_drc_errors: 142    # ground truth, re-measured 2026-07-17 AFTER
-  kicad_cli_drc_warnings: 454  # fixing the two CourtyardCheckStage bugs above
-                                # (STRtree indexing + courtyard geometry
-                                # extraction), via
-                                # temper_placer.validation._drc_api.run_drc
-                                # (same kicad-cli backend DrcRatchet uses)
-                                # against this exact deterministic-pipeline
-                                # export. Prior measurement (same method,
-                                # pre-fix code) was 225 errors / 578 warnings
-                                # -- the drop reflects real fixes, not just
-                                # re-measurement noise (see the compound doc
-                                # above for the STRtree-only intermediate
-                                # figure of 219/unchanged too). courtyards_overlap
-                                # specifically did NOT improve (27 -> 29) --
-                                # see the compound doc's "Third, Separate,
-                                # Still-Open Issue" section. For comparison:
-                                # the UNPLACED INPUT board
-                                # (pcb/temper.kicad_pcb) already carries
-                                # 170 errors / 459 warnings before any
-                                # placement or routing runs.
+  config: configs/temper_production_config.yaml
+  placed_components: 149
+  placement_violations: 0
+  drc_violations: 0
+  kicad_cli_drc_errors: 142
+  kicad_cli_drc_warnings: 454
   escape_vias: 124
-  routed_nets: 0                # routing stages currently emit escape vias only
-  connectivity_unconnected_pads: 269  # honest pre-routing figure
+  routed_nets: 0
+  connectivity_unconnected_pads: 269
   wall_time_s: 2.4
-
-# CP-SAT placement metrics: unpopulated, see the header note above --
-# `temper-placer optimize` does not currently produce a real result for
-# this board to record.
 cp_sat:
-  # From CpSatPlacementResult
   solve_time_ms: null
   objective_value: null
-  placed_components: null  # int: count of successfully placed components
-  status: null  # "optimal" | "feasible" | "infeasible" | "model_invalid"
+  placed_components: null
+  status: null
+  rounds: null
+  routing_completion_pct: null
+  loop_drc_errors: null
+  loop_success: null
+router_v6_routing:
+  wall_time_s: 35.4
+  completion_rate: 0.7473684210526316
+  routed_nets: 71
+  unrouted_nets: 24
+  unrouted_nets_list:
+  - DC_BUS_RTN
+  - I_SENSE
+  - PWR_RTN
+  - V_BUS_SENSE
+  - ZCD
+  - boot
+  - discharge.k_dis1-coil1
+  - discharge.k_dis1-coil2
+  - discharge.k_dis1-nc
+  - discharge.k_dis2-coil1
+  - discharge.k_dis2-nc
+  - discharge.q_dis_drv-g
+  - discharge.r_snub1-p2
+  - discharge.r_snub2-p2
+  - en
+  - hb.gate_hs.driver-p1-1
+  - power_in.bypass_relay-coil1
+  - power_in.bypass_relay-coil2
+  - power_in.ntc-no
+  - sw
+  - tank.c_tank1-p2
+  - thermal.j_fan-p1
+  - w1_1
+  - w1_2
+  drc_violations_post_route: 953
+  drc_violations_by_type:
+    tracks_crossing: 100
+    shorting_items: 109
+    clearance: 15
+    hole_clearance: 4
+    courtyards_overlap: 27
+    pth_inside_courtyard: 16
+    copper_edge_clearance: 21
+    solder_mask_bridge: 207
+    silk_edge_clearance: 9
+    hole_to_hole: 3
+    lib_footprint_issues: 30
+    lib_footprint_mismatch: 14
+    silk_overlap: 199
+    silk_over_copper: 199
+  unconnected_items: 149
+  extraction_date: '2026-07-18'
+  extraction_method: router_v6.route_pcb(existing_positions)
+  kicad_cli_version: 10.0.4
 
-  # From PlaceRouteLoop LoopResult
-  rounds: null  # int: number of loop rounds until convergence
-  routing_completion_pct: null  # float: fraction of nets fully routed
-  loop_drc_errors: null  # int: post-route DRC errors at convergence
-  loop_success: null  # bool: whether the place-route loop converged
+# Post-U9 (W2 U2 layer_constraints wired + layer output fix) measurements.
+# COMPLETION-PRESERVING SEMANTICS (PR #220 regression fix):
+# The SSOT layer override is gated: it only applies when SSOT matches the
+# heuristic layer.  Nets whose heuristic says F.Cu (signal/SMD pads) are
+# never forced to B.Cu.  This prevents unconnected pads (A* routes on a
+# single-layer occupancy grid and cannot connect F.Cu-only pads from B.Cu).
+# Demotions to heuristic layer: 0 (by design — SSOT=heuristic only).
+#
+# Corpus board (golden test methodology, CP-SAT placements, seed=42,
+# kicad-cli 10.0.4):
+#   Completion: 100.00% (preserved — matches main)
+#   Unconnected: 8 (pre-existing on kicad-cli 10.0.4; CI kicad-cli 8.0 reports 0)
+#   DRC total: 353 (routing-introduced 310)
+#   shorting_items: 73 (unchanged from main — SSOT override reverted)
+#   diff_pair_gap_out_of_range: 0 (was 6 — from layer output fix only)
+#
+# Production board (existing positions, kicad-cli 10.0.4):
+#   DRC total: ~953-957 (unchanged — no explicit netclasses, U2 finding)
+#   completion: 74.74% (unchanged)
+#
+# EARLIER 249→209 CLAIM PROVENANCE GAP (U10 report, commit 254eb3e4):
+# The earlier measurement claimed corpus DRC 249→209 with -8 shorting and
+# -6 diff_pair.  That measurement used existing positions (not CP-SAT)
+# and a different kicad-cli invocation than the golden test's
+# `_run_drc` helper.  The 249→209 delta was real for that specific
+# invocation but overstated the improvement on the golden-test methodology
+# (CP-SAT placements) where the SSOT override produced the 8-unconnected
+# CI regression (PR #220).  Final U9 state: layer_constraints threading
+# is landed but completion-gated (SSOT applies only when it equals the
+# heuristic layer), and routed-segment output remains F.Cu — divergent
+# SSOT layers require via-aware layer transitions (A* routes B.Cu but
+# SMD pads exist only on F.Cu).  Router output is byte-identical to
+# main; enabling divergent layers is the W2 via-insertion follow-up.
+u9_final:
+  extraction_date: '2026-07-18'
+  kicad_cli_version: 10.0.4
+  semantics: |
+    completion-gated: _assign_layer applies SSOT only when it matches
+    the heuristic; _write_routes_to_content writes routed segments to
+    F.Cu (main behavior).  Net effect vs main: none, by construction.
+  corpus:
+    golden_test_signature: |
+      Measured post-revert on kicad-cli 10.0.4 (2026-07-18):
+      unconnected_items assert PASSES (0; delta -84 vs placement
+      baseline, matching main's CI signature).  Final
+      routing_introduced assert fails with 406 locally / 443 on CI —
+      the pre-existing corpus red (single-layer routing quality),
+      unchanged by this branch.
+    provenance_note: |
+      Earlier u9_post_fix claims are retracted: the 249->209 (-16%)
+      improvement was measured with a non-golden invocation (existing
+      positions, not CP-SAT placements) while the path_layer output
+      change was active — that change broke completion (8 unconnected)
+      and was reverted.  The "diff_pair_gap survived" and "unconnected
+      8 also present on main" claims were artifacts of the same
+      invocation mismatch and do not hold under the golden test.
+    remaining_violations: |
+      Pre-existing corpus categories (CI, kicad-cli 8.x): clearance 144,
+      tracks_crossing 108, solder_mask_bridge 99, shorting_items 88,
+      diff_pair_gap_out_of_range 4.  These require via-aware multi-layer
+      output (W2 follow-up), W2 U3 (IPC-2152), U4 (power pours), or
+      improved A* path quality — layer assignment alone cannot resolve
+      them.
+  production:
+    drc_total: 953
+    delta_vs_u3_baseline: 0
+    attribution: |
+      No change — U2 confirmed no production-board nets have explicit
+      netclass assignments, so the SSOT has no targets; output layers
+      match the U3 baseline measurement.

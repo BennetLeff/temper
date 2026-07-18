@@ -654,7 +654,10 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     )
 
         elif len(pads) >= 2:
-            # Plane net with dummy path: create minimum spanning-tree connections
+            # Plane net with dummy path: create minimum spanning-tree
+            # connections.  Dummy plane paths carry F.Cu until via-aware
+            # multi-layer output lands (see W2 follow-up issue).
+            mst_layer = getattr(path, "layer_name", None) or "F.Cu"
             remaining = list(pads)
             connected: list[tuple[float, float]] = [remaining.pop(0)]
             while remaining:
@@ -672,7 +675,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 seg_id = uuid.uuid4()
                 segments.append(
                     f'  (segment (start {best_conn[0]:.4f} {best_conn[1]:.4f}) (end {pad[0]:.4f} {pad[1]:.4f})'
-                    f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                    f' (width {width:.4f}) (layer "{mst_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
                 connected.append(pad)
