@@ -239,7 +239,23 @@ circle polygon, and `FpArc` given a coarse 3-point polyline approximation
   (`placement_audit.py`'s `hull.buffer(0.5)`, a different, independent
   courtyard approximation) — out of scope for this fix, not touched.
 
-## Third, Separate, Still-Open Issue: Nudge-Resolution Doesn't Fully Converge on the Real Geometry
+## Third, Separate Issue: Nudge-Resolution Doesn't Fully Converge on the Real Geometry — RESOLVED (not a software bug), 2026-07-18
+
+**Update:** root-caused in a follow-up investigation — see
+[`production-board-courtyard-area-exceeds-usable-board-area.md`](../architecture-patterns/production-board-courtyard-area-exceeds-usable-board-area.md).
+Total real courtyard area for all 149 components (13,670.8 mm²) exceeds
+the board's usable area (12,600 mm², 100×150mm minus 5mm margins) —
+**108.5% of usable area, before even accounting for real-world packing
+inefficiency.** Confirmed this is a genuine geometric infeasibility, not
+an algorithm weakness: a 10x iteration budget increase (500 → 5000) only
+marginally improved the result (43 → 31 unresolved pairs) and the
+unresolved-pair count oscillates in a stable ~26–48 range indefinitely
+rather than trending toward zero — the signature of a stable equilibrium
+around an unsatisfiable constraint, not slow convergence. **No placement
+algorithm can produce zero courtyard overlaps for this component set on
+this board size.** The original hypotheses below (rotation assumption,
+clearance mismatch, resolution-algorithm weakness) are superseded by this
+finding; kept for historical record.
 
 With both bugs above fixed, a full pipeline → export → kicad-cli DRC
 re-run was finally possible end-to-end (it was blocked by an unrelated
@@ -308,8 +324,8 @@ independent kicad-cli verification.
 
 ## Resolution
 
-**Both correctness bugs fixed, 2026-07-17; a third, different-class issue
-(nudge convergence) remains open.**
+**Both correctness bugs fixed, 2026-07-17; the third issue root-caused
+(not a software bug) 2026-07-18.**
 
 1. STRtree index-vs-object-identity bug (see "Root Cause" above): fixed,
    verified via `test_courtyard_check.py` (4 tests, 2/4 fail on old code).
@@ -317,9 +333,13 @@ independent kicad-cli verification.
    Root Cause" above): fixed, verified via `test_kicad_metadata_courtyards.py`
    (4 tests, 3/4 fail on old code) plus the direct D3/C4 `check_overlap`
    reproduction of kicad-cli's real finding.
-3. Nudge-resolution convergence (see "Third, Separate, Still-Open Issue"
-   above): **not fixed** — needs either an upstream placement-density fix
-   or a stronger resolution algorithm in `CourtyardCheckStage.run()`.
+3. Nudge-resolution convergence (see "Third, Separate Issue" above):
+   **not a bug — the constraint is geometrically unsatisfiable** at the
+   board's current 100×150mm size for its current 149-component BOM
+   (total courtyard area is 108.5% of usable board area). No further
+   software fix applies; see
+   [`production-board-courtyard-area-exceeds-usable-board-area.md`](../architecture-patterns/production-board-courtyard-area-exceeds-usable-board-area.md)
+   for the board-size/BOM-level options going forward.
 
 `power_pcb_dataset/baselines/temper_production_baseline.yaml`'s
 `placement_violations: 0` field is annotated to point at this doc and the
@@ -363,6 +383,10 @@ a trustworthy number for real courtyard safety — now for a resolution
 
 ## Related Issues
 
+- [`docs/solutions/architecture-patterns/production-board-courtyard-area-exceeds-usable-board-area.md`](../architecture-patterns/production-board-courtyard-area-exceeds-usable-board-area.md)
+  — the follow-up investigation that root-caused the "Third, Separate
+  Issue" above as a genuine geometric infeasibility (total courtyard area
+  exceeds usable board area), not a resolvable software bug.
 - [`docs/solutions/logic-errors/deterministic-pipeline-drc-oracle-only-checks-routing-not-real-drc.md`](deterministic-pipeline-drc-oracle-only-checks-routing-not-real-drc.md)
   — sibling self-grading finding from the same investigation, different
   root cause (narrow scope vs. wrong detection).
