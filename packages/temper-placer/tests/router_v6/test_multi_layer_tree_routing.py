@@ -107,6 +107,9 @@ class TestMultiLayerTreeExecution:
         assert result.disposition == NetDisposition.ROUTED
         assert result.failed_edge is None
         assert len(result.completed_edges) == 2
+        # Source t0 declares ("F.Cu", "B.Cu") — F.Cu first, so edges
+        # route on F.Cu (declaration-order priority, not alphabetical).
+        assert int(grids["F.Cu"].grid.sum()) > 0
 
     def test_mixed_smd_pth_net_routes_on_fcu_when_all_fcu_available(self):
         """Two SMD (F.Cu only) + one PTH (both layers): route on F.Cu.
@@ -183,6 +186,9 @@ class TestMultiLayerTreeExecution:
         )
         assert result.disposition == NetDisposition.INCOMPLETE
         assert result.failed_edge is not None
+        assert (result.disposition == NetDisposition.ROUTED) == (result.failed_edge is None)
+        assert result.failed_edge.source == t0.identity
+        assert result.failed_edge.target == t1.identity
 
     def test_multi_grid_occupancy_reservation_is_layer_scoped(self):
         """Copper reserved on F.Cu must not pollute B.Cu grid."""

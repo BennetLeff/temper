@@ -11,6 +11,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_core import RoutePath
+
+# NOTE(circular): terminal_tree_execution imports _astar_route (private) from
+# astar_pathfinding, and astar_pathfinding imports execute_terminal_tree lazily.
+# The bidirectional coupling can be resolved by promoting _astar_route to public
+# or accepting execute_terminal_tree as a callable parameter (temper-APC1-U2).
 from temper_placer.router_v6.astar_pathfinding import _astar_route
 from temper_placer.router_v6.channel_mapping import ChannelPath
 from temper_placer.router_v6.connectivity import NetDisposition, PadIdentity
@@ -25,6 +30,37 @@ class TerminalTreeExecution:
     disposition: NetDisposition
     completed_edges: tuple[tuple[TerminalTreeEdge, RoutePath], ...]
     failed_edge: TerminalTreeEdge | None
+
+
+def _pick_route_layer(
+    source: TreeTerminal,
+    target: TreeTerminal,
+    single_grid_layer: str,
+) -> str | None:
+    """Return the preferred shared layer name for a tree edge, or ``None``.
+
+    Layer selection prioritises the *source* terminal's declared order:
+    the first declared layer that both terminals share wins.  When neither
+    terminal declares layers (legacy single-grid callers), ``single_grid_layer``
+    is used directly.
+    """
+    src = getattr(source, "layer_names", None)
+    tgt = getattr(target, "layer_names", None)
+    if src is None and tgt is None:
+        shared = {single_grid_layer}
+    else:
+        src_set = set(src or ()) or {single_grid_layer}
+        tgt_set = set(tgt or ()) or {single_grid_layer}
+        shared = src_set & tgt_set
+    if not shared:
+        return None
+    # Prefer the source's first declared layer; fall back to the
+    # alphabetically-first shared layer when neither declares.
+    if src:
+        for candidate in src:
+            if candidate in shared:
+                return candidate
+    return sorted(shared)[0]
 
 
 def execute_terminal_tree(
@@ -55,31 +91,20 @@ def execute_terminal_tree(
     if not grids:
         raise ValueError("at least one occupancy grid is required")
 
-    _single_grid_layer = next(iter(grids.keys()))
-
+    single_grid_layer = next(iter(grids.keys()))
     terminals: dict[PadIdentity, TreeTerminal] = {pad.identity: pad for pad in pads}
     completed: list[tuple[TerminalTreeEdge, RoutePath]] = []
+
     for edge in plan.edges:
         source = terminals[edge.source]
         target = terminals[edge.target]
-
-        # ---- Pick shared layer ------------------------------------------------
-        src_layer_names = getattr(source, "layer_names", None)
-        tgt_layer_names = getattr(target, "layer_names", None)
-        if src_layer_names is None and tgt_layer_names is None:
-            src_layers = {_single_grid_layer}
-            tgt_layers = {_single_grid_layer}
-        else:
-            src_layers = set(src_layer_names or ()) or {_single_grid_layer}
-            tgt_layers = set(tgt_layer_names or ()) or {_single_grid_layer}
-        shared = sorted(src_layers & tgt_layers)
-        if not shared:
+        route_layer = _pick_route_layer(source, target, single_grid_layer)
+        if route_layer is None:
             return TerminalTreeExecution(
                 disposition=NetDisposition.INCOMPLETE,
                 completed_edges=tuple(completed),
                 failed_edge=edge,
             )
-        route_layer = shared[0]
         active_grid = grids[route_layer]
 
         path, _fallback_count = _astar_route(
