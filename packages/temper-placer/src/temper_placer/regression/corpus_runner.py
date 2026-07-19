@@ -379,7 +379,10 @@ class CorpusRegressionRunner:
                     WeightedLoss(SpreadLoss(), w.get("spread", 5.0)),
                 ])
 
-            context = LossContext.from_netlist_and_board(netlist, board)
+            from temper_placer.core.state import PlacementState
+            from temper_placer.core.loss_types import LossContext
+            state = PlacementState.from_netlist_and_board(netlist, board)
+            context = LossContext(netlist=netlist, board=board)
 
             # Build optimizer config
             from temper_placer.heuristics import create_default_pipeline
