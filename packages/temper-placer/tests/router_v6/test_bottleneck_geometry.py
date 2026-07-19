@@ -290,12 +290,6 @@ class TestBottleneckSynthetic:
                 assert getattr(results[0], attr) == getattr(results[1], attr)
                 assert getattr(results[1], attr) == getattr(results[2], attr)
 
-            return x + 1
-
-        jaxpr = jax.make_jaxpr(pure)(1)
-        text = str(jaxpr)
-        assert "analyze_bottleneck" not in text
-        assert "BottleneckGeometry" not in text
 
     def test_graph_build_aborts_on_deadline(self, monkeypatch) -> None:
         """Fix #4: ``_build_capacitated_graph`` must abort mid-loop
