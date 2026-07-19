@@ -129,9 +129,12 @@ MODULE_TO_SHEET: dict[str, str] = {
     "power_in": "Power_Input",
     "hb": "Half_Bridge",
     "tank": "Half_Bridge",  # merged: tank is the half-bridge load
+    "discharge": "Power_Input",  # merged: bus discharge/snubber circuits
     "power_mgmt": "Power_Management",
+    "aux_supply": "Power_Management",  # merged: auxiliary power supply
     "safety": "Safety_Interlock",
     "ct_sense": "Safety_Interlock",  # merged: current sensing is part of safety
+    "thermal": "Safety_Interlock",  # merged: thermal protection / fan control
     "rtd_pan": "Sensing",
     "mcu": "MCU",
 }
@@ -730,11 +733,14 @@ def generate_root_sheet(
                         sheet_pins[s].append(net_name)
                 break
 
-    # Generate sheet instances (6 sheets)
+    # Generate sheet instances (6 sheets) stacked vertically
+    # with spacing based on each sheet's actual pin count to avoid overlaps.
+    x = 25.4
+    y = 101.6
+    y_spacing = 20.0  # vertical gap between sheet blocks, in mm
+
     for i, sheet_name in enumerate(SHEETS):
         page_num = i + 2
-        x = 25.4
-        y = 101.6 + i * 60.96
 
         pins: list[tuple[str, str, str]] = []
         for net_name in sorted(sheet_pins.get(sheet_name, [])):
@@ -747,6 +753,10 @@ def generate_root_sheet(
         parts.append(sheet_block)
         if root_labels:
             parts.append(root_labels)
+
+        # Advance Y for next sheet: block height + margin
+        size_h = max(25.4, len(pins) * 5.08 + 5.08)
+        y = y + size_h + y_spacing
 
     parts.append("\n  (sheet_instances")
     for i, sheet_name in enumerate(SHEETS):
@@ -821,7 +831,7 @@ def _export_netlist(sch_dir: Path, output_path: Path) -> str:
     return output_path.read_text(encoding="utf-8")
 
 
-_HIERARCHY_PREFIX = re.compile(r'^/[\w-]+/')
+_HIERARCHY_PREFIX = re.compile(r'^/(?:[\w-]+/)?')
 
 
 def _strip_sheet_prefix(net_name: str) -> str:
