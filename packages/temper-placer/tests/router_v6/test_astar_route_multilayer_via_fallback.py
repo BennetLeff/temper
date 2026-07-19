@@ -251,21 +251,31 @@ def test_fallback_tier_not_invoked_when_primary_grid_succeeds():
     spy.assert_not_called()
 
 
-def test_fallback_tier_not_invoked_when_alternate_grid_succeeds():
-    """A segment that fails on the primary grid but succeeds on the
-    THT-gated alternate-grid retry (tier 2) must not fall through to the
-    3D fallback tier (tier 3) -- tier 2 success takes priority."""
-    # Primary grid: fully blocked -- forces tier 1 to fail.
-    blocked = np.full((20, 20), -1, dtype=np.int8)
-    primary_grid = OccupancyGrid("F.Cu", blocked, (0.0, 0.0), 1.0, 20, 20)
-    # Alternate grid: fully open -- tier 2 succeeds trivially.
-    alt_grid = OccupancyGrid("B.Cu", np.zeros((20, 20), dtype=np.int8), (0.0, 0.0), 1.0, 20, 20)
+def test_alternate_grid_success_has_explicit_endpoint_vias_not_implicit_transition():
+    """A B.Cu-only alternate detour must record its endpoint vias.
 
+    The former THT-gated alternate-grid retry returned B.Cu points with no
+    layer-transition data. Emitting those points on their real layer then
+    disconnects F.Cu-only pads. Keep the completion-proven tier, but anchor
+    it explicitly as F.Cu -> B.Cu -> F.Cu.
+    """
+    # F.Cu permits only the two endpoints; B.Cu is open. The historical
+    # alternate-grid search therefore succeeds, while a legitimate emitted
+    # route must explicitly transition F.Cu -> B.Cu -> F.Cu.
+    f_grid = np.full((20, 20), -1, dtype=np.int8)
+    f_grid[10, 2] = 0
+    f_grid[10, 15] = 0
+    primary_grid = OccupancyGrid("F.Cu", f_grid, (0.0, 0.0), 1.0, 20, 20)
+    alt_grid = OccupancyGrid(
+        "B.Cu", np.zeros((20, 20), dtype=np.int8), (0.0, 0.0), 1.0, 20, 20
+    )
+    start_world = primary_grid.grid_to_world(2, 10)
+    goal_world = primary_grid.grid_to_world(15, 10)
     channel_path = ChannelPath(
         net_name="NET1", channel_sequence=["CH1"],
-        waypoints=[(2.0, 2.0), (15.0, 15.0)], total_length=18.4,
+        waypoints=[start_world, goal_world], total_length=10.0,
     )
-    tht_locations = {(2.0, 2.0)}  # non-empty -> gates tier 2 open
+    tht_locations = {start_world}  # Old tier-2 precondition is satisfied.
 
     with patch.object(
         astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
@@ -276,7 +286,10 @@ def test_fallback_tier_not_invoked_when_alternate_grid_succeeds():
 
     assert result is not None
     assert result.forced_segment_count == 0
-    assert result.via_positions == [], "Tier-2 (alternate-grid) success needs no via"
+    assert result.via_positions == [start_world, goal_world]
+    assert result.segments[0][2] == "F.Cu"
+    assert result.segments[-1][2] == "F.Cu"
+    assert any(segment[2] == "B.Cu" for segment in result.segments)
     spy.assert_not_called()
 
 

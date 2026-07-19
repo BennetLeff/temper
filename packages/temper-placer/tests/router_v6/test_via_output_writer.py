@@ -46,6 +46,17 @@ def _writer_result(routes: dict[str, CompiledRoute], pcb: object | None = None) 
     )
 
 
+def _writer_pcb_for_route(net_name: str, endpoint: tuple[float, float]) -> SimpleNamespace:
+    """Minimal PCB model whose pads coincide with a generated test path."""
+    return SimpleNamespace(
+        components=[
+            SimpleNamespace(ref="U1", initial_position=(0.0, 0.0)),
+            SimpleNamespace(ref="U2", initial_position=endpoint),
+        ],
+        nets=[SimpleNamespace(name=net_name, pins=[("U1", "1"), ("U2", "1")])],
+    )
+
+
 def _via_prefix(via: Via, net_number: int) -> str:
     x, y = via.position
     return (
@@ -139,7 +150,7 @@ def test_u3_u4_via_data_preserves_layer_span_and_netclass_size_into_kicad() -> N
     assert _via_prefix(placed[0], 7) in output
 
 
-def test_u5_keeps_3d_route_segments_on_f_cu_until_u6() -> None:
+def test_u6_writes_3d_route_segments_on_their_actual_layer() -> None:
     path = RoutePath3D(
         net_name="NET_A",
         segments=[(0.0, 0.0, "B.Cu"), (1.0, 0.0, "B.Cu")],
@@ -160,10 +171,81 @@ def test_u5_keeps_3d_route_segments_on_f_cu_until_u6() -> None:
     )
 
     assert (
-        '(segment (start 0.0000 0.0000) (end 1.0000 0.0000) (width 0.2000) (layer "F.Cu") (net 1)'
+        '(segment (start 0.0000 0.0000) (end 1.0000 0.0000) (width 0.2000) (layer "B.Cu") (net 1)'
         in output
     )
-    assert '(layer "B.Cu") (net 1)' not in output
+    assert '(layer "F.Cu") (net 1)' not in output
+
+
+def test_u6_pad_stitch_remains_on_f_cu_when_nearest_route_node_is_b_cu() -> None:
+    """A pad stitch must join the F.Cu pad-side of an explicit transition."""
+    path = RoutePath3D(
+        net_name="NET_A",
+        segments=[(0.0, 0.0, "B.Cu"), (1.0, 0.0, "B.Cu")],
+        via_positions=[],
+        path_length=1.0,
+    )
+    pcb = _writer_pcb_for_route("NET_A", (2.0, 0.0))
+
+    output = _write_routes_to_content(
+        _PCB_CONTENT,
+        _writer_result({"NET_A": _compiled_route("NET_A", [], path)}, pcb=pcb),
+    )
+
+    assert (
+        '(segment (start 1.0000 0.0000) (end 2.0000 0.0000) '
+        '(width 0.2000) (layer "F.Cu") (net 1)'
+    ) in output
+    assert (
+        '(via (at 1.0000 0.0000) (size 0.6000) (drill 0.3000) '
+        '(layers "F.Cu" "B.Cu") (net 1)'
+    ) in output
+
+
+@pytest.mark.property
+@given(
+    layers=st.lists(
+        st.sampled_from(("F.Cu", "B.Cu", "In1.Cu", "In2.Cu")), min_size=1, max_size=8
+    )
+)
+@settings(max_examples=100, deadline=5000)
+def test_u6_writer_pbt_preserves_each_same_layer_run_without_cross_layer_tracks(
+    layers: list[str],
+) -> None:
+    """U6/R5: each emitted track is an in-layer run of the 3D path."""
+    points: list[tuple[float, float, str]] = [(0.0, 0.0, layers[0])]
+    for index, layer in enumerate(layers):
+        if index and layer != layers[index - 1]:
+            points.append((float(index), 0.0, layer))
+        points.append((float(index + 1), 0.0, layer))
+    path = RoutePath3D(
+        net_name="NET_A",
+        segments=points,
+        via_positions=[],
+        path_length=float(len(layers)),
+    )
+    pcb = _writer_pcb_for_route("NET_A", (float(len(layers)), 0.0))
+    output = _write_routes_to_content(
+        _PCB_CONTENT,
+        _writer_result({"NET_A": _compiled_route("NET_A", [], path)}, pcb=pcb),
+    )
+
+    expected: list[tuple[float, float, str]] = []
+    run_start = 0
+    for index in range(1, len(layers) + 1):
+        if index == len(layers) or layers[index] != layers[index - 1]:
+            expected.append((float(run_start), float(index), layers[index - 1]))
+            run_start = index
+    emitted = [
+        (float(start), float(end), layer)
+        for start, end, layer in re.findall(
+            r'\(segment \(start ([\d.-]+) 0\.0000\) '
+            r'\(end ([\d.-]+) 0\.0000\) \(width [\d.]+\) '
+            r'\(layer "([^"]+)"\)',
+            output,
+        )
+    ]
+    assert emitted == expected
 
 
 @st.composite

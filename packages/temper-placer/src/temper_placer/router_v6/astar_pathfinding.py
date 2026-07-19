@@ -904,13 +904,17 @@ def _astar_route_multilayer(
         )
         fallback_count += fb
 
-        # Allow layer switching when THT pads exist on the board - the router
-        # assumes layer transitions happen at nearby THT pads (implicit vias)
+        # The alternate-grid route is a genuine B.Cu detour, not an implicit
+        # layer change.  Preserve the established route-search tier, while
+        # spelling out F.Cu -> B.Cu at its start and B.Cu -> F.Cu at its end
+        # so ``via_positions`` and the writer have a physically connected
+        # path to emit.  The historical code returned only B.Cu points here,
+        # relying on the presence of any THT pad elsewhere on the board.
         if not segment_path and alternate_grid and tht_locations:
             alt_start = alternate_grid.world_to_grid(*start_world)
             alt_goal = alternate_grid.world_to_grid(*goal_world)
             if _in_bounds(alternate_grid, alt_start) and _in_bounds(alternate_grid, alt_goal):
-                segment_path, grid_to_use, fb2 = _segment_search(
+                alternate_path, _unused_grid, fb2 = _segment_search(
                     alternate_grid, start_world, goal_world, use_theta_star,
                     use_lazy_theta_star, congestion_tensor=congestion_tensor,
                     max_iter=max_iter,
@@ -922,8 +926,23 @@ def _astar_route_multilayer(
                     thermal_weight=thermal_weight,
                 )
                 fallback_count += fb2
-                if segment_path:
-                    grid_to_use = alternate_grid
+                if alternate_path:
+                    primary_layer = primary_grid.layer_name
+                    alternate_layer = alternate_grid.layer_name
+                    if i == 0:
+                        detailed_segments.append((start_world[0], start_world[1], primary_layer))
+                    detailed_segments.append((start_world[0], start_world[1], alternate_layer))
+                    for node in alternate_path:
+                        if hasattr(node, "layer_name"):
+                            wx, wy = alternate_grid.grid_to_world(node.x, node.y)
+                            detailed_segments.append((wx, wy, node.layer_name))
+                        else:
+                            wx, wy = alternate_grid.grid_to_world(node[0], node[1])
+                            detailed_segments.append((wx, wy, alternate_layer))
+                    detailed_segments.append((goal_world[0], goal_world[1], alternate_layer))
+                    detailed_segments.append((goal_world[0], goal_world[1], primary_layer))
+                    via_positions.extend((start_world, goal_world))
+                    continue
 
         if segment_path:
             layer_name = grid_to_use.layer_name
@@ -942,10 +961,11 @@ def _astar_route_multilayer(
                 detailed_segments.append((goal_world[0], goal_world[1], layer_name))
             continue
 
-        # U2 (docs/plans/2026-07-18-003-*): third fallback tier -- both
-        # the primary-grid attempt above, and the THT-gated alternate-grid
-        # retry (if it ran at all), have failed for this segment. Try the
-        # existing, property-tested 3D via-aware A* search
+        # U2 (docs/plans/2026-07-18-003-*): via-aware fallback tier. Both
+        # the primary-grid attempt and the explicitly anchored alternate-grid
+        # retry above have failed, so use the existing property-tested 3D A*
+        # implementation as a last resort.  It records and blocks each
+        # actual via.
         # (``_route_segment_3d``) as a last resort before giving up and
         # forcing a direct (unrouted) segment. This is additive: it only
         # runs when ``segment_path`` is still falsy at this point, so

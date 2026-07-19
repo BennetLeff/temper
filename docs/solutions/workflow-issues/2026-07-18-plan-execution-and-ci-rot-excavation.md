@@ -207,6 +207,27 @@ endpoint-to-pad layer transitions explicit and legality-checked, or otherwise
 prove the emitted via graph connects every layer-divergent route to its pads;
 then repeat the corpus and production R7 comparison.
 
+### Follow-up fix: #226 U6 endpoint and pad-stitch transitions (landed locally)
+
+The rejected U6 result identified a real gap rather than a reason to keep
+writing every route on F.Cu. The alternate-grid tier could return a B.Cu path
+without transitions; additionally, the writer's legacy "missing pad" stitch
+could join an interior B.Cu point to an F.Cu pad with no via. The repair keeps
+the completion-proven alternate search order, but represents each alternate
+segment as explicit F.Cu -> B.Cu and B.Cu -> F.Cu endpoint transitions. When
+an F.Cu pad stitch joins a genuinely B.Cu-only point, the writer emits the
+corresponding F.Cu-to-B.Cu bridge via using that route's resolved via geometry.
+
+The corpus regression again reports **0 routed `unconnected_items`**. Its
+remaining routing-quality assertion reports 321 introduced violations (331
+routed versus 94 placement), a pre-existing gate inconsistency: the recorded
+pre-U6 corpus baseline already had hundreds of routing-introduced violations.
+It is not used to claim a quality improvement here. The production-board DRC
+threshold regression also passes. Focused TDD coverage includes the former
+implicit alternate-layer failure and F.Cu pad-stitch bridge; a 100-example
+Hypothesis layer-walk property verifies that the writer emits only in-layer
+track runs.
+
 ## Patterns worth remembering
 
 1. **Layered CI masking**: a failing early step (build, install) hides every

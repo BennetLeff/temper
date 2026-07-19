@@ -895,26 +895,20 @@ def _route_segment_3d(
         world_x, world_y = grid.grid_to_world(node.x, node.y)
         bulk_path.append((world_x, world_y, node.layer))
 
-    # **KEY FIX**: Replace first and last points with exact pad positions
-    # This ensures routes connect directly to pad centers, not grid-snapped approximations
-    world_path = []
-
-    if len(bulk_path) > 0:
-        # Start with exact pad center
+    # Preserve the complete 3D bulk walk between exact pad anchors.  In
+    # particular, do not discard the first or last bulk node: either can be
+    # one half of a same-coordinate layer transition.  Removing it turns a
+    # recorded via into an impossible cross-layer track at output time.
+    world_path: list[tuple[float, float, str]] = []
+    if bulk_path:
         world_path.append((start_world[0], start_world[1], start_layer))
+        for node in bulk_path:
+            if node != world_path[-1]:
+                world_path.append(node)
 
-        # Add bulk path (excluding first and last if they're the same as pads)
-        # Keep middle segments
-        if len(bulk_path) > 2:
-            world_path.extend(bulk_path[1:-1])
-
-        # End with exact pad center (if different from start)
-        if len(bulk_path) == 1:
-            # Single-cell path: just start and end at pads
-            if (start_world[0], start_world[1]) != (goal_world[0], goal_world[1]):
-                world_path.append((goal_world[0], goal_world[1], goal_layer))
-        else:
-            world_path.append((goal_world[0], goal_world[1], goal_layer))
+        goal_node = (goal_world[0], goal_world[1], goal_layer)
+        if goal_node != world_path[-1]:
+            world_path.append(goal_node)
 
     via_world_positions = []
     for gx, gy in via_grid_positions:

@@ -574,7 +574,8 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     for net_name, compiled_route in compiled.items():
         path = getattr(compiled_route, "path", None)
         net_num = net_name_to_number.get(net_name, 0)
-        for via in getattr(compiled_route, "vias", []):
+        route_vias = list(getattr(compiled_route, "vias", []))
+        for via in route_vias:
             vx, vy = via.position
             via_id = uuid.uuid4()
             output_items.append(
@@ -596,18 +597,26 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
 
         if path_length > 0 and len(pads) >= 2:
             # Real routed net: extract path coordinates
-            path_points: list[tuple[float, float]] = []
-            path_layer = "F.Cu"
+            path_nodes: list[tuple[float, float, str]] = []
             path_segs = getattr(path, "segments", None)
             if path_segs:
                 for s in path_segs:
-                    path_points.append((s[0], s[1]))
-                    path_layer = s[2]
+                    path_nodes.append((s[0], s[1], s[2]))
             else:
                 coords = getattr(path, "coordinates", None)
                 if coords:
-                    path_points = list(coords)
                     path_layer = getattr(path, "layer_name", "F.Cu")
+                    path_nodes = [(x, y, path_layer) for x, y in coords]
+
+            path_points = [(x, y) for x, y, _layer in path_nodes]
+
+            # A layer transition is encoded by co-located path nodes and a
+            # U5 via.  Only same-layer, non-zero edges become KiCad tracks.
+            geometric_edges = [
+                (start, end)
+                for start, end in zip(path_nodes, path_nodes[1:])
+                if start[:2] != end[:2] and start[2] == end[2]
+            ]
 
             # Write path segments, collapsing consecutive same-direction steps
             # to avoid A* grid-stepping staircasing.  Each individual grid
@@ -616,20 +625,26 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             # masking violations because adjacent segments from different
             # nets interleave with edge-to-edge gaps under the 0.2mm rule.
             i = 0
-            while i < len(path_points) - 1:
-                x1, y1 = path_points[i][0], path_points[i][1]
-                x2, y2 = path_points[i + 1][0], path_points[i + 1][1]
+            while i < len(geometric_edges):
+                start, end = geometric_edges[i]
+                x1, y1, path_layer = start
+                x2, y2, _ = end
                 dx_prev = x2 - x1
                 dy_prev = y2 - y1
-                j = i + 2
-                while j < len(path_points):
-                    xm = path_points[j - 1][0]
-                    ym = path_points[j - 1][1]
-                    xn = path_points[j][0]
-                    yn = path_points[j][1]
+                j = i + 1
+                while j < len(geometric_edges):
+                    previous, current = geometric_edges[j]
+                    xm, ym, previous_layer = previous
+                    xn, yn, current_layer = current
                     dx_cur = xn - xm
                     dy_cur = yn - ym
-                    if abs(dx_cur - dx_prev) < 1e-12 and abs(dy_cur - dy_prev) < 1e-12:
+                    if (
+                        previous[:2] == (x2, y2)
+                        and previous_layer == path_layer
+                        and current_layer == path_layer
+                        and abs(dx_cur - dx_prev) < 1e-12
+                        and abs(dy_cur - dy_prev) < 1e-12
+                    ):
                         x2, y2 = xn, yn
                         j += 1
                     else:
@@ -637,25 +652,55 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 seg_id = uuid.uuid4()
                 output_items.append(
                     f'  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})'
-                    f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                    f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
-                i = j - 1
+                i = j
 
             # Connect any pads not near the path (stitch missing pins)
             CONNECTION_THRESHOLD_MM = 0.5
             for px, py in pads:
-                if not path_points:
+                if not path_nodes:
                     continue
                 min_dist = min(
                     math.hypot(px - qx, py - qy) for qx, qy in path_points
                 )
                 if min_dist > CONNECTION_THRESHOLD_MM:
                     nearest_idx = min(
-                        range(len(path_points)),
-                        key=lambda i: math.hypot(px - path_points[i][0], py - path_points[i][1]),
+                        range(len(path_nodes)),
+                        key=lambda i: math.hypot(px - path_nodes[i][0], py - path_nodes[i][1]),
                     )
-                    nx, ny = path_points[nearest_idx]
+                    nx, ny, nearest_layer = path_nodes[nearest_idx]
+                    co_located_layers = {
+                        layer
+                        for x, y, layer in path_nodes
+                        if math.isclose(x, nx, abs_tol=1e-9)
+                        and math.isclose(y, ny, abs_tol=1e-9)
+                    }
+                    if "F.Cu" not in co_located_layers and nearest_layer != "F.Cu":
+                        # The pad stub is deliberately written on F.Cu. When
+                        # its nearest routed point is on another layer, make
+                        # that join explicit instead of leaving two copper
+                        # islands that merely overlap in X/Y.
+                        has_transition_via = any(
+                            math.isclose(via.position[0], nx, abs_tol=1e-9)
+                            and math.isclose(via.position[1], ny, abs_tol=1e-9)
+                            and {via.from_layer, via.to_layer}
+                            == {"F.Cu", nearest_layer}
+                            for via in route_vias
+                        )
+                        if not has_transition_via:
+                            template_via = route_vias[0] if route_vias else None
+                            via_diameter = (
+                                template_via.diameter if template_via is not None else 0.6
+                            )
+                            via_drill = template_via.drill if template_via is not None else 0.3
+                            via_id = uuid.uuid4()
+                            output_items.append(
+                                f'  (via (at {nx:.4f} {ny:.4f}) (size {via_diameter:.4f})'
+                                f' (drill {via_drill:.4f}) (layers "F.Cu" "{nearest_layer}")'
+                                f' (net {net_num}) (tstamp "{via_id}"))'
+                            )
                     seg_id = uuid.uuid4()
                     output_items.append(
                         f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
