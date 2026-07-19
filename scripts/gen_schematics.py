@@ -16,13 +16,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import subprocess
 import sys
 import tempfile
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -613,7 +612,7 @@ def generate_sheet(
 
     # lib_symbols section
     parts.append("\n  (lib_symbols")
-    for part_name, libpart in sorted(seen_parts.items()):
+    for _part_name, libpart in sorted(seen_parts.items()):
         symbol_text = synthesize_symbol(libpart)
         parts.append(symbol_text)
     parts.append("  )")
@@ -725,7 +724,7 @@ def generate_root_sheet(
     # Determine what nets each sheet exports/imports
     sheet_pins: dict[str, list[str]] = defaultdict(list)
     for net_name in sorted(inter_sheet_nets):
-        for net_code, net in netlist.nets.items():
+        for _net_code, net in netlist.nets.items():
             if net.name == net_name:
                 sheets = net.sheets_for_components(netlist.components)
                 for s in sheets:
