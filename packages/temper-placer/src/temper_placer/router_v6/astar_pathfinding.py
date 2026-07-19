@@ -21,6 +21,7 @@ from temper_placer.router_v6.astar_core import (
     RoutePath3D,
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
+    _route_segment_3d,
     log_los_bb_stats,
     reset_los_bb_stats,
 )
@@ -46,6 +47,15 @@ PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"
 _MAX_RIPUP_DEPTH_NORMAL = 15
 _MAX_RIPUP_DEPTH_PROBLEM = 30
 _MAX_REROUTE_ATTEMPTS_PER_NET = 2
+
+# U2 (docs/plans/2026-07-18-003-*): explicit iteration bound for the
+# third-tier ``_route_segment_3d`` fallback call in
+# ``_astar_route_multilayer``. Passed explicitly (rather than relying
+# solely on ``_route_segment_3d``'s own default) so the bound used at
+# this specific call site is visible and independently tunable here.
+# See astar_core.py's ``_ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER`` docstring
+# for the reasoning behind this order of magnitude.
+_SEGMENT_3D_FALLBACK_MAX_ITER = 200_000
 
 _SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
@@ -540,7 +550,7 @@ def _astar_route_with_ripup(
     grid: OccupancyGrid,
     _routed_paths: dict[str, RoutePath | RoutePath3D],
     _design_rules: DesignRules,
-    _net_ids: dict[str, int],
+    net_ids: dict[str, int],
     alternate_grid: OccupancyGrid | None = None,
     tht_locations: set[tuple[float, float]] | None = None,
     _pad_centers: dict[str, list[tuple[float, float, float, str]]] | None = None,
@@ -573,6 +583,12 @@ def _astar_route_with_ripup(
     path: RoutePath | RoutePath3D | None
     fallback_count = 0
     if alternate_grid:
+        # U2: real net_id, threaded through to the ``_route_segment_3d``
+        # fallback tier so any via it places is actually blocked via
+        # ``mark_via_blocked()`` (which requires net_id > 0). Falls back
+        # to 0 (no protection) only if the net isn't in the id map, which
+        # should not happen for any net reaching this call site.
+        net_id = net_ids.get(net_name, 0)
         path, fb = _astar_route_multilayer(
             net_name,
             channel_path,
@@ -588,6 +604,7 @@ def _astar_route_with_ripup(
             corridor_buffer_cells=corridor_buffer_cells,
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
+            net_id=net_id,
         )
         fallback_count += fb
     else:
@@ -832,6 +849,7 @@ def _astar_route_multilayer(
     enable_congestion_derivative: bool = True,
     thermal_flat=None,
     thermal_weight: float = 0.0,
+    net_id: int = 0,
 ) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -839,7 +857,19 @@ def _astar_route_multilayer(
     For each waypoint pair:
     1. Try routing on primary grid
     2. If it fails AND waypoints are at THT pads, try alternate grid
-    3. Stitch segments together
+    3. U2: if that also fails (or is unavailable), try ``_route_segment_3d``
+       (the 3D via-aware A* search) as a last-resort fallback tier --
+       see docs/plans/2026-07-18-003-feat-via-aware-layer-transitions-plan.md
+    4. Stitch segments together
+
+    Args:
+        net_id: Real net id (>0) for the net being routed, used only by
+            the U2 fallback tier below so any via it places is actually
+            blocked against later nets via ``mark_via_blocked()``.
+            Defaults to 0 (no via-blocking protection) for backward
+            compatibility with any caller that doesn't have a net id
+            available yet -- production callers should always pass a
+            real net_id.
 
     Returns:
         (RoutePath3D or None, coarse_to_fine_fallback_count)
@@ -849,6 +879,7 @@ def _astar_route_multilayer(
         return None, 0
 
     detailed_segments: list[tuple[float, float, str]] = []
+    via_positions: list[tuple[float, float]] = []
     forced_segments = 0
     fallback_count = 0
 
@@ -907,6 +938,41 @@ def _astar_route_multilayer(
                 detailed_segments.append((goal_world[0], goal_world[1], layer_name))
             continue
 
+        # U2 (docs/plans/2026-07-18-003-*): third fallback tier -- both
+        # the primary-grid attempt above, and the THT-gated alternate-grid
+        # retry (if it ran at all), have failed for this segment. Try the
+        # existing, property-tested 3D via-aware A* search
+        # (``_route_segment_3d``) as a last resort before giving up and
+        # forcing a direct (unrouted) segment. This is additive: it only
+        # runs when ``segment_path`` is still falsy at this point, so
+        # segments that already succeeded on the primary/alternate grid
+        # never reach this branch (see
+        # test_astar_route_multilayer_via_fallback.py's regression test).
+        grids_3d: dict[str, OccupancyGrid] = {primary_grid.layer_name: primary_grid}
+        if alternate_grid is not None:
+            grids_3d[alternate_grid.layer_name] = alternate_grid
+
+        # Both endpoints are nominally on the primary grid's layer --
+        # matching the "Fallback: add direct segment" branch below and
+        # the primary-grid search attempt above. The 3D search is free
+        # to detour through any other layer in ``grids_3d`` internally
+        # (and back) to escape local congestion; a real via is recorded
+        # (and grid-blocked, given a real net_id) for every such detour.
+        fallback_layer = primary_grid.layer_name
+        result_3d = _route_segment_3d(
+            start_world, goal_world, fallback_layer, fallback_layer,
+            grids_3d, via_cost=10.0, net_id=net_id,
+            max_iter=_SEGMENT_3D_FALLBACK_MAX_ITER,
+        )
+
+        if result_3d is not None:
+            world_path_3d, via_positions_3d = result_3d
+            via_positions.extend(via_positions_3d)
+            if i == 0:
+                detailed_segments.append(world_path_3d[0])
+            detailed_segments.extend(world_path_3d[1:])
+            continue
+
         # Fallback: add direct segment
         forced_segments += 1
         if i == 0:
@@ -921,9 +987,9 @@ def _astar_route_multilayer(
     return RoutePath3D(
         net_name=net_name,
         segments=detailed_segments,
-        via_positions=[],
+        via_positions=via_positions,
         path_length=path_length,
-        via_count=0,
+        via_count=len(via_positions),
         forced_segment_count=forced_segments,
     ), fallback_count
 
