@@ -95,6 +95,11 @@ returns an incomplete result with no forced/direct segment.  The spike does
 not mutate occupancy or production dispatch; its next integration step needs
 stable parsed terminal identities and same-net component-copper reservation.
 
+Stable parser-local terminal extraction is now available for that integration:
+it supplies canonical component/pad/net identities, world positions, and only
+declared conductive-layer context, preserving unknown layers instead of
+guessing them.  It is deliberately not yet on the production dispatch path.
+
 U0's evidence validator is implemented and fail-closed, but no baseline JSON
 is committed: a fresh routed corpus measurement produced 6 unconnected items,
 not the required zero.  Recording a clean corpus artifact would be false;
