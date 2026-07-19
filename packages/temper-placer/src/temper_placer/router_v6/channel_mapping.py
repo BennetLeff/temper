@@ -8,6 +8,7 @@ Part of temper-qic1 (Stage 4 - Geometric Realization)
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import networkx as nx
 
@@ -20,6 +21,10 @@ from temper_placer.router_v6.net_classification import (
 )
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
 
+if TYPE_CHECKING:
+    from temper_placer.router_v6.terminal_extraction import ParsedTerminal
+    from temper_placer.router_v6.terminal_tree import TerminalTreePlan
+
 
 @dataclass
 class ChannelPath:
@@ -30,6 +35,11 @@ class ChannelPath:
     waypoints: list[tuple[float, float]]  # (x, y) coordinates along path
     total_length: float  # Total path length in mm
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
+    # Opt-in all-pad metadata.  Keeping it alongside (rather than replacing)
+    # serial waypoints makes the disabled path byte-for-byte behaviorally
+    # compatible with the established router.
+    terminal_tree: TerminalTreePlan | None = None
+    terminals: tuple[ParsedTerminal, ...] = ()
 
 
 def expand_channel_path_terminals(

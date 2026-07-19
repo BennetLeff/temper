@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
+from temper_placer.router_v6.tree_route_geometry import TreeRouteGeometry
 from temper_placer.router_v6.via_placement import ViaPlacement
 
 if TYPE_CHECKING:
@@ -31,6 +32,16 @@ class CompiledRoute:
 
 
 @dataclass
+class CompiledTreeRoute:
+    """Export-ready branch-aware route; never coerced into a serial path."""
+
+    net_name: str
+    geometry: TreeRouteGeometry
+    width_mm: float
+    vias: list
+
+
+@dataclass
 class RoutingResults:
     """Complete routing results for the design."""
 
@@ -45,11 +56,13 @@ class RoutingResults:
     # Legal prefixes for incomplete experimental route trees. They are kept
     # out of ``compiled_routes`` so success accounting remains truthful.
     partial_routes: dict[str, CompiledRoute] = field(default_factory=dict)
+    tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
+    partial_tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
 
     @property
     def success_count(self) -> int:
         """Number of successfully routed nets (includes plane nets)."""
-        return len(self.compiled_routes) + self.plane_net_count
+        return len(self.compiled_routes) + len(self.tree_routes) + self.plane_net_count
 
     @property
     def failure_count(self) -> int:
@@ -59,7 +72,11 @@ class RoutingResults:
     @property
     def total_route_length(self) -> float:
         """Total length of all routes (mm)."""
-        return sum(route.path.path_length for route in self.compiled_routes.values())
+        return sum(route.path.path_length for route in self.compiled_routes.values()) + sum(
+            branch.path.path_length
+            for route in self.tree_routes.values()
+            for branch in route.geometry.branches
+        )
 
     def get_route(self, net_name: str) -> CompiledRoute | None:
         """Get compiled route for a net."""
@@ -106,6 +123,8 @@ def compile_routing_results(
     """
     compiled_routes = {}
     partial_routes = {}
+    tree_routes = {}
+    partial_tree_routes = {}
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
         # Get width for this net
@@ -133,6 +152,22 @@ def compile_routing_results(
             width_mm=width,
             vias=via_placement.get_vias_for_net(net_name),
             matched_length_mm=None,
+        )
+
+    for net_name, geometry in pathfinding_result.tree_routes.items():
+        tree_routes[net_name] = CompiledTreeRoute(
+            net_name=net_name,
+            geometry=geometry,
+            width_mm=width_assignment.get_width(net_name) or 0.127,
+            vias=via_placement.get_vias_for_net(net_name),
+        )
+
+    for net_name, geometry in pathfinding_result.partial_tree_routes.items():
+        partial_tree_routes[net_name] = CompiledTreeRoute(
+            net_name=net_name,
+            geometry=geometry,
+            width_mm=width_assignment.get_width(net_name) or 0.127,
+            vias=via_placement.get_vias_for_net(net_name),
         )
 
     # Count plane nets as routed-by-plane successes
@@ -167,4 +202,6 @@ def compile_routing_results(
         plane_net_count=getattr(pathfinding_result, 'plane_net_count', 0),
         net_reports=list(net_reports) if net_reports else [],
         partial_routes=partial_routes,
+        tree_routes=tree_routes,
+        partial_tree_routes=partial_tree_routes,
     )

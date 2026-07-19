@@ -1166,6 +1166,26 @@ class RouterV6Pipeline:
                     enable_all_pad_tree=self.enable_all_pad_tree,
                 )
 
+        # The all-pad feature carries a real terminal tree separately from
+        # serial channel waypoints.  Do not infer a layer transition here:
+        # SMD terminals must be declared on the selected routing layer, while
+        # PTH terminals expose all declared signal layers via extraction.
+        if self.enable_all_pad_tree:
+            from temper_placer.router_v6.terminal_extraction import extract_net_terminals
+            from temper_placer.router_v6.terminal_tree import plan_terminal_tree
+
+            for net in pcb.nets:
+                channel_path = channel_mapping.channel_paths.get(net.name)
+                if channel_path is None:
+                    continue
+                terminals = extract_net_terminals(pcb, net.name, net.pins)
+                if len(terminals) < 3:
+                    continue
+                if not all(channel_path.preferred_layer in terminal.layer_names for terminal in terminals):
+                    continue
+                channel_path.terminals = terminals
+                channel_path.terminal_tree = plan_terminal_tree(terminals)
+
         # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
         if self.verbose:
             print("  4.2: Running A* pathfinding (orchestrated)...")

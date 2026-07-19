@@ -729,6 +729,16 @@ start rather than discovered via a second regression.
 boards, committed with provenance (matching the `u9_final` baseline
 pattern); `IECCreepageGate`/clearance gate both report real measurements.
 
+**Implementation finding (2026-07-19):** Production has a pre-U1/U3 baseline
+of 149 `unconnected_items`; U7 re-measured the same 149, so it satisfies the
+plan's never-worse criterion but is not physical connectivity closure. The
+first examples are disconnected `DC_BUS_RTN` PTH pads on a multi-pad net while
+the router reports the net successful after connecting only a pair. U8 must
+record this distinction rather than require an impossible zero baseline. The
+follow-on fix is multi-pad-net connectivity accounting and output, separate
+from via transitions; it must reduce the physical count before any plan claims
+production connectivity closure.
+
 ---
 
 ## System-Wide Impact

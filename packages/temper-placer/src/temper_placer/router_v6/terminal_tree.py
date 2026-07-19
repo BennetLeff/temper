@@ -9,8 +9,17 @@ then add the target to that component.  No direct geometry is created here.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Protocol
 
-from temper_placer.router_v6.connectivity import CopperPad, PadIdentity
+from temper_placer.router_v6.connectivity import PadIdentity
+from temper_placer.router_v6.constraints_geometry import Point
+
+
+class TreeTerminal(Protocol):
+    """The minimal physical terminal data required by the topology planner."""
+
+    identity: PadIdentity
+    center: Point
 
 
 @dataclass(frozen=True)
@@ -29,7 +38,7 @@ class TerminalTreePlan:
     edges: tuple[TerminalTreeEdge, ...]
 
 
-def plan_terminal_tree(pads: list[CopperPad] | tuple[CopperPad, ...]) -> TerminalTreePlan:
+def plan_terminal_tree(pads: list[TreeTerminal] | tuple[TreeTerminal, ...]) -> TerminalTreePlan:
     """Plan a deterministic component-aware spanning tree.
 
     The lexicographically smallest canonical identity is the root.  At every
@@ -67,5 +76,5 @@ def plan_terminal_tree(pads: list[CopperPad] | tuple[CopperPad, ...]) -> Termina
     return TerminalTreePlan(root=root, edges=tuple(edges))
 
 
-def _manhattan(left: CopperPad, right: CopperPad) -> float:
+def _manhattan(left: TreeTerminal, right: TreeTerminal) -> float:
     return abs(left.center.x - right.center.x) + abs(left.center.y - right.center.y)

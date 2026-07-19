@@ -13,6 +13,7 @@ from typing import Any
 
 from temper_placer.core.pin_geometry import pin_world_layer, pin_world_position
 from temper_placer.router_v6.connectivity import PadIdentity
+from temper_placer.router_v6.constraints_geometry import Point
 
 
 @dataclass(frozen=True)
@@ -20,6 +21,7 @@ class ParsedTerminal:
     """A parsed net terminal with canonical identity and declared layer context."""
 
     identity: PadIdentity
+    center: Point
     layer_names: tuple[str, ...]
     is_pth: bool
 
@@ -63,6 +65,7 @@ def extract_net_terminals(
         terminals.append(
             ParsedTerminal(
                 identity=PadIdentity(component_ref, str(pin.number), net_name, x, y, layer_ids),
+                center=Point(x, y),
                 layer_names=layer_names,
                 is_pth=is_pth,
             )

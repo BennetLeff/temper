@@ -28,6 +28,8 @@ from temper_placer.router_v6.connectivity import (
 from temper_placer.router_v6.constraints_geometry import Point
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.routing_results import compile_routing_results
+from temper_placer.router_v6.terminal_extraction import ParsedTerminal
+from temper_placer.router_v6.terminal_tree import plan_terminal_tree
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
 from temper_placer.router_v6.via_placement import ViaPlacement
 
@@ -105,6 +107,39 @@ def test_three_pad_fallback_routes_two_legal_edges_without_forcing():
     assert (10, 0) in route.coordinates
     assert (20, 0) in route.coordinates
     assert _audit([(0, 0), (10, 0), (20, 0)], route.coordinates).disposition is NetDisposition.ROUTED
+
+
+def test_opt_in_terminal_plan_dispatches_branch_geometry_without_serial_bridge():
+    terminals = tuple(
+        ParsedTerminal(
+            identity=PadIdentity("U1", str(index), "SIG", x, y, (0,)),
+            center=Point(x, y),
+            layer_names=("F.Cu",),
+            is_pth=False,
+        )
+        for index, (x, y) in enumerate(((0, 0), (10, 0), (0, 10)))
+    )
+    path = ChannelPath(
+        "SIG",
+        [],
+        [(0, 0), (10, 0), (0, 10)],
+        20.0,
+        terminal_tree=plan_terminal_tree(terminals),
+        terminals=terminals,
+    )
+
+    result = run_astar_pathfinding(ChannelMapping({"SIG": path}), _grid(), enforce_all_pad_tree=True)
+
+    assert result.failed_nets == []
+    assert "SIG" not in result.routed_paths
+    tree = result.tree_routes["SIG"]
+    assert len(tree.branches) == 2
+    assert ((10, 0, "F.Cu"), (0, 10, "F.Cu")) not in tree.iter_segments()
+
+    compiled = compile_routing_results(result, TraceWidthAssignment({}), ViaPlacement([]))
+    assert compiled.success_count == 1
+    assert compiled.compiled_routes == {}
+    assert compiled.tree_routes["SIG"].geometry == tree
 
 
 def test_unreachable_third_terminal_is_failed_without_forced_geometry():

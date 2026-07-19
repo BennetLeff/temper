@@ -549,7 +549,9 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
 
     compiled = getattr(routing_results, "compiled_routes", {})
     partial_compiled = getattr(routing_results, "partial_routes", {})
-    if not compiled and not partial_compiled:
+    tree_compiled = getattr(routing_results, "tree_routes", {})
+    partial_tree_compiled = getattr(routing_results, "partial_tree_routes", {})
+    if not compiled and not partial_compiled and not tree_compiled and not partial_tree_compiled:
         return pcb_content
 
     # Build net name -> net number mapping from the PCB content
@@ -583,6 +585,25 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         *((net_name, compiled_route, False) for net_name, compiled_route in compiled.items()),
         *((net_name, compiled_route, True) for net_name, compiled_route in partial_compiled.items()),
     ]
+    # A tree branch is exported as its own path and always skips the legacy
+    # pad-stitch/MST fallback.  Treating sibling branches as one serial path
+    # would emit a fictitious segment from one branch endpoint to the next.
+    from types import SimpleNamespace
+
+    for tree_collection in (tree_compiled, partial_tree_compiled):
+        for net_name, compiled_tree in tree_collection.items():
+            for branch in compiled_tree.geometry.branches:
+                output_routes.append(
+                    (
+                        net_name,
+                        SimpleNamespace(
+                            path=branch.path,
+                            width_mm=compiled_tree.width_mm,
+                            vias=[],
+                        ),
+                        True,
+                    )
+                )
     for net_name, compiled_route, is_partial in output_routes:
         path = getattr(compiled_route, "path", None)
         net_num = net_name_to_number.get(net_name, 0)

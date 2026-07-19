@@ -19,6 +19,7 @@ import numpy as np
 from temper_placer.router_v6.astar_core import (
     RoutePath,
     RoutePath3D,
+    _astar_search,
     _astar_search_lazy_theta_star,
     _astar_search_theta_star,
     _route_segment_3d,
@@ -42,6 +43,7 @@ from temper_placer.router_v6.net_classification import (
 )
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
+from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
 
 PROBLEM_NETS: frozenset[str] = frozenset({"/k02", "/k04", "/k25", "/k24", "/k15"})
 _MAX_RIPUP_DEPTH_NORMAL = 15
@@ -97,11 +99,15 @@ class PathfindingResult:
     # A legal prefix of an experimental tree. Kept separate from
     # ``routed_paths`` so it cannot inflate completion or reach the writer.
     partial_paths: dict[str, RoutePath | RoutePath3D] = field(default_factory=dict)
+    # Branch-aware terminal-tree output.  It is deliberately not flattened
+    # into ``routed_paths``: that would invent copper between sibling edges.
+    tree_routes: dict[str, TreeRouteGeometry] = field(default_factory=dict)
+    partial_tree_routes: dict[str, TreeRouteGeometry] = field(default_factory=dict)
 
     @property
     def success_count(self) -> int:
         """Number of successfully routed nets."""
-        return len(self.routed_paths)
+        return len(self.routed_paths) + len(self.tree_routes)
 
     @property
     def failure_count(self) -> int:
@@ -325,6 +331,8 @@ def run_astar_pathfinding(
     failure_reports: dict[str, RoutingFailureReport] = {}
     tree_failures: dict[str, TreeRoutingFailure] = {}
     partial_paths: dict[str, RoutePath | RoutePath3D] = {}
+    tree_routes: dict[str, TreeRouteGeometry] = {}
+    partial_tree_routes: dict[str, TreeRouteGeometry] = {}
     ripup_counts: dict[str, int] = {}
     blocker_history: dict[str, set[str]] = {}
 
@@ -378,7 +386,11 @@ def run_astar_pathfinding(
         nonlocal fallback_count
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
+        # Keep legacy opt-in serial trees on their established no-forced-edge
+        # path until a physical terminal plan is available.  The planned tree
+        # branch below is additive, not a semantic change for existing callers.
         tree_route_active = enforce_all_pad_tree and len(channel_path.waypoints) > 2
+        planned_tree_active = tree_route_active and channel_path.terminal_tree is not None
 
         primary_grid = all_grids.get(channel_path.preferred_layer, grid)
 
@@ -406,6 +418,50 @@ def run_astar_pathfinding(
             inflation_mm=base_inflation,
             escape_vias_map=escape_vias_map,
         )
+
+        # A planned tree is executed as independent legal A* branches.  The
+        # current 2D primitive does not accept a same-net id during search, so
+        # branches are reserved together only after every edge succeeds; this
+        # avoids treating a sibling's freshly written copper as an obstacle.
+        if planned_tree_active:
+            # Kept local because the executor intentionally depends on the
+            # private A* primitive in this module.
+            from temper_placer.router_v6.terminal_tree_execution import execute_terminal_tree
+
+            execution = execute_terminal_tree(
+                channel_path.terminal_tree,
+                channel_path.terminals,
+                primary_grid,
+                max_iter=per_net_max_iter,
+                net_id=net_id,
+                trace_width=design_rules.default_trace_width_mm,
+                clearance=design_rules.default_clearance_mm,
+            )
+            completed_geometry = TreeRouteGeometry(
+                net_name=net_name,
+                branches=tuple(
+                    TreeRouteBranch(edge=edge, path=path)
+                    for edge, path in execution.completed_edges
+                ),
+            )
+            if execution.disposition.value == "routed":
+                tree_routes[net_name] = completed_geometry
+                _restore_net_pads(restoration)
+                print(f"      ✓ {net_name} routed successfully", flush=True)
+                return True, "", [], None
+            if completed_geometry.branches:
+                partial_tree_routes[net_name] = completed_geometry
+            failed_edge = execution.failed_edge
+            assert failed_edge is not None
+            terminal = next(item for item in channel_path.terminals if item.identity == failed_edge.target)
+            tree_failures[net_name] = TreeRoutingFailure(
+                unresolved_terminal=(terminal.center.x, terminal.center.y),
+                completed_edge_count=len(execution.completed_edges),
+                reason="no_legal_path",
+            )
+            _restore_net_pads(restoration)
+            print(f"      ✗ {net_name} INCOMPLETE: no legal tree edge", flush=True)
+            return False, "no_path", [], (terminal.center.x, terminal.center.y)
 
         # Pass dummy net_id=-1 since we haven't routed yet (cells should be 0)
         route_path, ripped_ids, fb = _astar_route_with_ripup(
@@ -584,6 +640,8 @@ def run_astar_pathfinding(
         coarse_to_fine_fallbacks=fallback_count,
         tree_failures=tree_failures,
         partial_paths=partial_paths,
+        tree_routes=tree_routes,
+        partial_tree_routes=partial_tree_routes,
     )
 
 
@@ -1118,6 +1176,7 @@ def _astar_route(
     thermal_flat=None,
     thermal_weight: float = 0.0,
     allow_forced_segments: bool = True,
+    net_id: int = -1,
 ) -> tuple[RoutePath | None, int]:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -1146,6 +1205,7 @@ def _astar_route(
             corridor_buffer_cells=corridor_buffer_cells,
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
+            net_id=net_id,
         )
         fallback_count += fb
 
@@ -1231,17 +1291,18 @@ def _dispatch_search(
     enable_congestion_derivative: bool = True,
     thermal_flat=None,
     thermal_weight: float = 0.0,
+    net_id: int = -1,
 ):
     if use_lazy_theta_star:
         return _astar_search_lazy_theta_star(
-            grid, start, goal, net_id=-1,
+            grid, start, goal, net_id=net_id,
             max_iter=max_iter,
             enable_numba_los=enable_numba_los,
             enable_congestion_derivative=enable_congestion_derivative,
         )
     if use_theta_star:
         return _astar_search_theta_star(
-            grid, start, goal, net_id=-1,
+            grid, start, goal, net_id=net_id,
             max_iter=max_iter,
             enable_numba_los=enable_numba_los,
             enable_congestion_derivative=enable_congestion_derivative,
@@ -1250,6 +1311,12 @@ def _dispatch_search(
     # and the grid is small enough that the overhead of building the
     # bit tensor (once per call) is amortized.  Falls through to the
     # pure-Python _astar_search otherwise.
+    if net_id >= 0:
+        # The Numba kernel consumes a binary validity tensor and cannot
+        # distinguish committed copper belonging to this net.  Tree edges use
+        # the reference search so same-net attachment remains legal.
+        return _astar_search(start, goal, grid, net_id=net_id)
+
     from temper_placer.router_v6.astar_core_numba import (
         _astar_search_numba,
     )
@@ -1281,6 +1348,7 @@ def _segment_search(
     enable_congestion_derivative: bool = True,
     thermal_flat=None,
     thermal_weight: float = 0.0,
+    net_id: int = -1,
 ) -> tuple[list | None, OccupancyGrid, int]:
     """Run A* between two world-coordinate waypoints on ``grid``.
 
@@ -1294,7 +1362,7 @@ def _segment_search(
     if not _in_bounds(grid, start) or not _in_bounds(grid, goal):
         return None, grid, 0
 
-    if enable_coarse_to_fine:
+    if enable_coarse_to_fine and net_id < 0:
         return _segment_search_coarse_to_fine(
             grid, start, goal, use_theta_star, use_lazy_theta_star,
             coarse_factor=coarse_factor,
@@ -1313,6 +1381,7 @@ def _segment_search(
         enable_congestion_derivative=enable_congestion_derivative,
         thermal_flat=thermal_flat,
         thermal_weight=thermal_weight,
+        net_id=net_id,
     )
     return path, grid, 0
 

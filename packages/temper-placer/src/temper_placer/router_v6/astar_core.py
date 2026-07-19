@@ -129,6 +129,7 @@ def _astar_search(
     neighbor_tensor: np.ndarray | None = None,
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
+    net_id: int = -1,
 ) -> list[tuple[int, int]] | None:
     """
     A* search algorithm for pathfinding.
@@ -160,7 +161,7 @@ def _astar_search(
     # over the grid) but keeps the inner loop on the tensor path.
     # New callers should build the tensor once at A* pass start
     # (outside the per-net A* loop) and pass it in.
-    if neighbor_tensor is None:
+    if neighbor_tensor is None and net_id < 0:
         from temper_placer.router_v6.neighbor_validity import (
             build_neighbor_validity_tensor_2d,
         )
@@ -209,10 +210,16 @@ def _astar_search(
         cx, cy = current  # current is (x, y) tuple; rename for tensor indexing
 
         for dir_idx in range(8):
-            if not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
-                continue
             dx, dy = _DIRS_8[dir_idx]
             nx, ny = cx + dx, cy + dy
+            if net_id >= 0:
+                if not in_bounds(nx, ny, grid.width_cells, grid.height_cells):
+                    continue
+                cell_value = grid.grid[ny, nx]
+                if cell_value != 0 and cell_value != net_id:
+                    continue
+            elif not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
+                continue
 
             # Diagonal cost uses configurable multiplier
             move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0

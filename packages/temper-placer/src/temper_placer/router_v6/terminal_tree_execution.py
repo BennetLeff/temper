@@ -14,9 +14,9 @@ from dataclasses import dataclass
 from temper_placer.router_v6.astar_core import RoutePath
 from temper_placer.router_v6.astar_pathfinding import _astar_route
 from temper_placer.router_v6.channel_mapping import ChannelPath
-from temper_placer.router_v6.connectivity import CopperPad, NetDisposition, PadIdentity
+from temper_placer.router_v6.connectivity import NetDisposition, PadIdentity
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
-from temper_placer.router_v6.terminal_tree import TerminalTreeEdge, TerminalTreePlan
+from temper_placer.router_v6.terminal_tree import TerminalTreeEdge, TerminalTreePlan, TreeTerminal
 
 
 @dataclass(frozen=True)
@@ -30,18 +30,22 @@ class TerminalTreeExecution:
 
 def execute_terminal_tree(
     plan: TerminalTreePlan,
-    pads: list[CopperPad] | tuple[CopperPad, ...],
+    pads: list[TreeTerminal] | tuple[TreeTerminal, ...],
     grid: OccupancyGrid,
     *,
     max_iter: int = 1_000_000,
+    net_id: int = -1,
+    trace_width: float = 0.0,
+    clearance: float = 0.0,
 ) -> TerminalTreeExecution:
     """Execute plan edges through A* without direct/forced fallback geometry.
 
-    Future pipeline code must reserve accepted edge copper and use it as the
-    next component's legal attachment surface.  This spike does not mutate
-    occupancy or production state; it only proves the edge contract.
+    With a positive ``net_id``, each accepted edge is immediately reserved.
+    The scoped 2D A* ownership predicate then permits that same ID while
+    continuing to reject all other occupied cells.  The default leaves the
+    synthetic seam non-mutating for backwards-compatible unit tests.
     """
-    terminals: dict[PadIdentity, CopperPad] = {pad.identity: pad for pad in pads}
+    terminals: dict[PadIdentity, TreeTerminal] = {pad.identity: pad for pad in pads}
     completed: list[tuple[TerminalTreeEdge, RoutePath]] = []
     for edge in plan.edges:
         source = terminals[edge.source].center
@@ -58,6 +62,7 @@ def execute_terminal_tree(
             grid,
             max_iter=max_iter,
             allow_forced_segments=False,
+            net_id=net_id,
         )
         if path is None or path.forced_segment_count:
             return TerminalTreeExecution(
@@ -66,6 +71,8 @@ def execute_terminal_tree(
                 failed_edge=edge,
             )
         completed.append((edge, path))
+        if net_id >= 0:
+            grid.mark_path_blocked(path.coordinates, trace_width, clearance, net_id)
     return TerminalTreeExecution(
         disposition=NetDisposition.ROUTED,
         completed_edges=tuple(completed),

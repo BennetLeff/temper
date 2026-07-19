@@ -15,8 +15,11 @@ from hypothesis import strategies as st
 from temper_placer.router_v6.adapter import _write_routes_to_content
 from temper_placer.router_v6.astar_core import RoutePath, RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
-from temper_placer.router_v6.routing_results import CompiledRoute
+from temper_placer.router_v6.connectivity import PadIdentity
+from temper_placer.router_v6.routing_results import CompiledRoute, CompiledTreeRoute
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+from temper_placer.router_v6.terminal_tree import TerminalTreeEdge
+from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
 from temper_placer.router_v6.via_placement import Via, place_vias
 
 _PCB_CONTENT = """(kicad_pcb (version 20221018) (generator "test")
@@ -141,6 +144,43 @@ def test_writer_serializes_partial_prefix_without_pad_stitch_or_plane_mst() -> N
     assert output.count("(segment ") == 1
     assert '(start 0.0000 0.0000) (end 10.0000 0.0000)' in output
     assert "40.0000" not in output
+
+
+def test_writer_serializes_tree_branches_without_sibling_bridge() -> None:
+    root = PadIdentity("U1", "1", "NET_A", 0.0, 0.0, (0,))
+    right = PadIdentity("U2", "1", "NET_A", 10.0, 0.0, (0,))
+    top = PadIdentity("U3", "1", "NET_A", 0.0, 10.0, (0,))
+    geometry = TreeRouteGeometry(
+        "NET_A",
+        (
+            TreeRouteBranch(TerminalTreeEdge(root, right), RoutePath("NET_A", [(0, 0), (10, 0)], "F.Cu", 10.0)),
+            TreeRouteBranch(TerminalTreeEdge(root, top), RoutePath("NET_A", [(0, 0), (0, 10)], "F.Cu", 10.0)),
+        ),
+    )
+    result = SimpleNamespace(
+        stage4=SimpleNamespace(
+            routing_results=SimpleNamespace(
+                compiled_routes={}, partial_routes={},
+                tree_routes={"NET_A": CompiledTreeRoute("NET_A", geometry, 0.37, [])},
+                partial_tree_routes={},
+            )
+        ),
+        pcb=SimpleNamespace(
+            components=[
+                SimpleNamespace(ref="U1", initial_position=(0.0, 0.0)),
+                SimpleNamespace(ref="U2", initial_position=(10.0, 0.0)),
+                SimpleNamespace(ref="U3", initial_position=(0.0, 10.0)),
+            ],
+            nets=[SimpleNamespace(name="NET_A", pins=[("U1", "1"), ("U2", "1"), ("U3", "1")])],
+        ),
+    )
+
+    output = _write_routes_to_content(_PCB_CONTENT, result)
+
+    assert '(start 0.0000 0.0000) (end 10.0000 0.0000)' in output
+    assert '(start 0.0000 0.0000) (end 0.0000 10.0000)' in output
+    assert '(start 10.0000 0.0000) (end 0.0000 10.0000)' not in output
+    assert output.count("(width 0.3700)") == 2
 
 
 @given(
