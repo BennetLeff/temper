@@ -201,38 +201,21 @@ class TestClaimsTraceable:
 
 # ---- Phase 2 (U9/U10) guard extensions ----
 
-# Completion-preserving semantics (U9 regression fix, PR #220):
-# the SSOT layer override must not force nets to a layer where their
-# pads don't exist (F.Cu-only SMD pads → never B.Cu).  This guard
-# verifies that no net gets a SSOT-driven layer that differs from the
-# heuristic layer — the completion-preserving constraint that prevents
-# the 8-unconnected-items CI regression.
-
-_NET_NAMES_WHOSE_SSOT_CAN_DIFFER: frozenset[str] = frozenset({
-    # Nets where SSOT intentionally differs from heuristic and pad
-    # layers ARE compatible (e.g., THT pads spanning layers).
-    # Currently empty — all nets use heuristic for completion safety.
-    # When W2 U4 (thermal vias) or U5 (USB diff-pair) are implemented,
-    # nets can be added here with documented justification.
-})
-
-
 class TestU9CompletionPreservation:
-    """Guard: SSOT layer override must preserve W1 100% completion.
+    """U7 guards: explicit SSOT divergence and router completion.
 
-    Nets whose heuristic says F.Cu (signal / SMD pads) must never be
-    forced to B.Cu by the SSOT, because A* routes on a single-layer
-    occupancy grid and cannot connect to F.Cu-only SMD pads from B.Cu.
-    This guard captures the completion-preserving semantics from the
-    PR #220 regression fix.
+    U6 makes outer-layer transitions explicit and connectible at pads, so the
+    historical identity guard is intentionally superseded. A divergent layer
+    must now be an explicit, routable SSOT decision; completion remains the
+    independent end-to-end safety signal.
     """
 
-    def test_no_net_force_moved_from_heuristic_layer(self):
-        """No SSOT-overridden net crosses the heuristic-layer boundary.
+    def test_ssot_divergence_is_explicit_and_routable(self):
+        """Corpus SSOT overrides are explicit outer-layer decisions.
 
-        For every routable net on the corpus board, the SSOT-resolved
-        layer must either match the heuristic or be explicitly
-        documented as safe (in ``_NET_NAMES_WHOSE_SSOT_CAN_DIFFER``).
+        This replaces the PR #220 guard that prohibited all divergence. It
+        catches accidental Default/plane-layer routing without restoring the
+        no-op gate U7 deliberately removes.
         """
         from temper_placer.io.kicad_parser import parse_kicad_pcb
         from temper_placer.io.netclass_loader import load_netclass_rules
@@ -253,10 +236,8 @@ class TestU9CompletionPreservation:
         net_names = [n.name for n in parse_result.netlist.nets]
         lc = layer_assignments_from_netclass(dr, net_names)
 
-        offenders: list[str] = []
+        divergent: list[str] = []
         for net_name in net_names:
-            if net_name in _NET_NAMES_WHOSE_SSOT_CAN_DIFFER:
-                continue
             ssot = _assign_layer(net_name, layer_constraints=lc)
             heuristic = (
                 "B.Cu"
@@ -264,15 +245,12 @@ class TestU9CompletionPreservation:
                 else "F.Cu"
             )
             if ssot != heuristic:
-                offenders.append(f"{net_name} (SSOT={ssot}, heuristic={heuristic})")
+                assignment = lc[net_name]
+                assert "netclass=Default" not in assignment.reason
+                assert ssot in {"F.Cu", "B.Cu"}
+                divergent.append(net_name)
 
-        assert not offenders, (
-            f"{len(offenders)} net(s) moved from heuristic layer by SSOT: "
-            f"{offenders}.  This breaks completion when pads do not exist "
-            f"on the SSOT layer (PR #220 regression).  Either add the net "
-            f"to _NET_NAMES_WHOSE_SSOT_CAN_DIFFER with documented "
-            f"justification, or fix _assign_layer to preserve heuristic."
-        )
+        assert divergent, "U7 must exercise at least one explicit SSOT override"
 
     def test_completion_rate_100pct_routing_signal(self):
         """The golden test's ``completion_rate == 1.0`` assertion holds.
@@ -319,6 +297,6 @@ class TestU9CompletionPreservation:
         assert routing_result.completion_rate == 1.0, (
             f"Router completion_rate dropped to {routing_result.completion_rate:.1%} "
             f"— unrouted nets: {list(routing_result.unrouted_nets)[:10]}. "
-            f"The SSOT layer_constraints wiring (U9) must preserve W1 100% "
-            f"completion.  This guard fails before kicad-cli DRC is even run."
+            f"The U7 SSOT-layer policy must preserve 100% completion. This "
+            f"guard fails before kicad-cli DRC is even run."
         )

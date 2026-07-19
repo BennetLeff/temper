@@ -23,10 +23,9 @@ and the #226 U1 spike findings):
   PR #220's first U9 attempt, catchable without kicad-cli. Writing this
   property immediately found a second real bug (#229, pinned below as a
   strict xfail): pads 0<d<=0.5mm off-path are never stitched.
-- P4 (green): `_assign_layer` is total, closed over routable layers, and
-  currently identical to the heuristic (the completion gate). U2+ must
-  consciously break the identity sub-property when divergent SSOT layers
-  become routable — that is a designed tripwire, not an accident.
+- P4 (green): `_assign_layer` is total and closed over routable layers.
+  Explicit routable SSOT assignments are authoritative; Default, unassigned,
+  and unsupported-plane assignments retain the completion-safe heuristic.
 """
 
 from __future__ import annotations
@@ -418,7 +417,7 @@ def test_pad_exactly_at_stitch_threshold_is_connected():
 
 
 # =========================================================================
-# P4 — _assign_layer totality + the completion-gate identity contract
+# P4 — _assign_layer totality + explicit-SSOT policy contract
 # =========================================================================
 _net_names = st.text(
     alphabet=st.characters(whitelist_categories=("Lu", "Ll", "Nd"), max_codepoint=122),
@@ -462,12 +461,25 @@ def test_assign_layer_is_total_and_layer_closed(name, constraints, include_self,
     layer = _assign_layer(name, layer_constraints=constraints)
     assert layer in {"F.Cu", "B.Cu"}
 
-    # Completion-gate identity contract (PR #220 final state): while the
-    # router lacks via-aware transitions, SSOT input must never change the
-    # outcome. #226 U2+ will consciously relax this — at which point this
-    # assertion should be REPLACED with the reachability-conditional
-    # property, not deleted.
-    assert layer == _assign_layer(name, layer_constraints=None)
+    heuristic = _assign_layer(name, layer_constraints=None)
+    assigned = (constraints or {}).get(name)
+    reason = getattr(assigned, "reason", "")
+    primary = getattr(assigned, "primary_layer", None)
+    if isinstance(assigned, str):
+        expected_ssot = assigned if assigned in {"F.Cu", "B.Cu"} else None
+    elif primary is None:
+        expected_ssot = None
+    else:
+        value = primary.value if hasattr(primary, "value") else int(primary)
+        expected_ssot = {1: "F.Cu", 4: "B.Cu"}.get(value)
+
+    # U7 policy: only an explicit class carrying a supported outer layer can
+    # override the heuristic.  Default/unassigned and plane/invalid layers
+    # retain it, so the router never emits an unsupported routing layer.
+    if expected_ssot is not None and "netclass=Default" not in reason:
+        assert layer == expected_ssot
+    else:
+        assert layer == heuristic
 
 
 @given(name=_net_names)

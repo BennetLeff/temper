@@ -86,33 +86,29 @@ def _assign_layer(
     1. SSOT ``layer_constraints`` (from
        ``layer_assignments_from_netclass``) when available, the net's
        class is *explicit* (not a catch-all Default), and the resolved
-       layer is routable (F.Cu / B.Cu).  **Completion-preserving:** the
-       SSOT layer is only applied when it does not differ from the
-       heuristic layer — nets whose heuristic says F.Cu (signal / SMD
-       pads) are never forced to B.Cu, and vice versa.  This avoids
-       unconnected pads when A* routes on a layer where the pads don't
-       exist.
+       layer is routable (F.Cu / B.Cu).  The via-aware routing path
+       establishes legal outer-layer transitions at pads, so an explicit
+       SSOT assignment may intentionally differ from the name heuristic.
     2. Heuristic: power / ground / HV → B.Cu; signal → F.Cu.
     3. Single-layer mode overrides everything → F.Cu.
     """
     if get_single_layer_mode():
         return "F.Cu"
 
-    # Compute the heuristic first so we can gate SSOT on it.
+    # Compute the heuristic for Default, unassigned, and unsupported-plane
+    # assignments.  Explicit routable SSOT assignments override it.
     heuristic = (
         "B.Cu"
         if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name)
         else "F.Cu"
     )
 
-    # W2 U2 / R2: SSOT-driven layer assignment from the netclass YAML.
-    # Only override the heuristic for nets that have an *explicit* net
-    # class AND whose SSOT layer matches the heuristic.  Nets with
-    # Default catch-all class or where SSOT ≠ heuristic keep the W1
-    # behaviour so that SMD pads on F.Cu aren't forcibly routed on
-    # B.Cu (which creates unconnected items — see PR #220 regression).
+    # W2 U7 / R6: explicit routable SSOT assignments are authoritative.
+    # U6's via-aware endpoint path makes an intentional outer-layer
+    # divergence connectible; Default catch-all and unsupported plane layers
+    # continue to use the completion-safe heuristic.
     ssot = _ssot_layer_for_net(net_name, layer_constraints)
-    if ssot is not None and ssot == heuristic:
+    if ssot is not None:
         return ssot
 
     return heuristic
