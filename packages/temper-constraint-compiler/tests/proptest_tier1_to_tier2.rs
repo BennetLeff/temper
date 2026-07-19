@@ -104,7 +104,7 @@ proptest! {
         } else {
             if let Ok(constraints) = result {
                 for c in &constraints {
-                    if let temper_rust_router::types::InternalConstraint::LayerRestriction { var_name, allowed: false, .. } = c {
+                    if let temper_rust_router_core::types::InternalConstraint::LayerRestriction { var_name, allowed: false, .. } = c {
                         prop_assert!(!var_name.is_empty(), "LayerRestriction must have var_name");
                     }
                 }
@@ -125,11 +125,11 @@ proptest! {
 
         if let Ok(constraints) = result {
             let layer_constraints: Vec<_> = constraints.iter()
-                .filter(|c| matches!(c, temper_rust_router::types::InternalConstraint::LayerRestriction { .. }))
+                .filter(|c| matches!(c, temper_rust_router_core::types::InternalConstraint::LayerRestriction { .. }))
                 .collect();
             if !layer_constraints.is_empty() {
                 for c in &layer_constraints {
-                    if let temper_rust_router::types::InternalConstraint::LayerRestriction { var_name, .. } = c {
+                    if let temper_rust_router_core::types::InternalConstraint::LayerRestriction { var_name, .. } = c {
                         prop_assert!(var_name.contains("uses_N"), "var_name should follow uses_N{{n}}_{{c}} pattern");
                     }
                 }
