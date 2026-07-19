@@ -100,6 +100,11 @@ it supplies canonical component/pad/net identities, world positions, and only
 declared conductive-layer context, preserving unknown layers instead of
 guessing them.  It is deliberately not yet on the production dispatch path.
 
+Branch-aware geometry is now available as a separate immutable result type.
+It preserves every A* edge as its own branch and forbids accidental copper
+between unrelated branch endpoints; production dispatch can now be wired to
+the Prim plan without serializing a fictional path.
+
 U0's evidence validator is implemented and fail-closed, but no baseline JSON
 is committed: a fresh routed corpus measurement produced 6 unconnected items,
 not the required zero.  Recording a clean corpus artifact would be false;
