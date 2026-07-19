@@ -13,7 +13,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.router_v6.adapter import _write_routes_to_content
-from temper_placer.router_v6.astar_core import RoutePath3D
+from temper_placer.router_v6.astar_core import RoutePath, RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.routing_results import CompiledRoute
 from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
@@ -42,6 +42,17 @@ def _compiled_route(net_name: str, vias: list[Via], path: object | None = None) 
 def _writer_result(routes: dict[str, CompiledRoute], pcb: object | None = None) -> SimpleNamespace:
     return SimpleNamespace(
         stage4=SimpleNamespace(routing_results=SimpleNamespace(compiled_routes=routes)),
+        pcb=pcb,
+    )
+
+
+def _writer_result_with_partial(
+    partial_routes: dict[str, CompiledRoute], pcb: object | None = None
+) -> SimpleNamespace:
+    return SimpleNamespace(
+        stage4=SimpleNamespace(
+            routing_results=SimpleNamespace(compiled_routes={}, partial_routes=partial_routes)
+        ),
         pcb=pcb,
     )
 
@@ -110,6 +121,55 @@ def test_writer_with_no_vias_preserves_existing_no_output_behavior() -> None:
 
     assert output == _PCB_CONTENT
     assert "(via " not in output
+
+
+def test_writer_serializes_partial_prefix_without_pad_stitch_or_plane_mst() -> None:
+    partial = _compiled_route(
+        "NET_A", [], RoutePath("NET_A", [(0.0, 0.0), (10.0, 0.0)], "F.Cu", 10.0)
+    )
+    pcb = SimpleNamespace(
+        components=[
+            SimpleNamespace(ref="U1", initial_position=(0.0, 0.0)),
+            SimpleNamespace(ref="U2", initial_position=(10.0, 0.0)),
+            SimpleNamespace(ref="U3", initial_position=(40.0, 0.0)),
+        ],
+        nets=[SimpleNamespace(name="NET_A", pins=[("U1", "1"), ("U2", "1"), ("U3", "1")])],
+    )
+
+    output = _write_routes_to_content(_PCB_CONTENT, _writer_result_with_partial({"NET_A": partial}, pcb))
+
+    assert output.count("(segment ") == 1
+    assert '(start 0.0000 0.0000) (end 10.0000 0.0000)' in output
+    assert "40.0000" not in output
+
+
+@given(
+    start_x=st.integers(min_value=0, max_value=20),
+    length=st.integers(min_value=1, max_value=20),
+    orphan_gap=st.integers(min_value=10, max_value=40),
+)
+@settings(max_examples=30, deadline=30_000)
+def test_partial_prefix_writer_never_fabricates_an_unreached_pad(
+    start_x: int, length: int, orphan_gap: int
+) -> None:
+    end_x = start_x + length
+    orphan_x = end_x + orphan_gap
+    partial = _compiled_route(
+        "NET_A", [], RoutePath("NET_A", [(start_x, 0.0), (end_x, 0.0)], "F.Cu", float(length))
+    )
+    pcb = SimpleNamespace(
+        components=[
+            SimpleNamespace(ref="U1", initial_position=(start_x, 0.0)),
+            SimpleNamespace(ref="U2", initial_position=(end_x, 0.0)),
+            SimpleNamespace(ref="U3", initial_position=(orphan_x, 0.0)),
+        ],
+        nets=[SimpleNamespace(name="NET_A", pins=[("U1", "1"), ("U2", "1"), ("U3", "1")])],
+    )
+
+    output = _write_routes_to_content(_PCB_CONTENT, _writer_result_with_partial({"NET_A": partial}, pcb))
+
+    assert output.count("(segment ") == 1
+    assert f"{orphan_x:.4f}" not in output
 
 
 def test_u3_u4_via_data_preserves_layer_span_and_netclass_size_into_kicad() -> None:

@@ -4,6 +4,8 @@ Tests for Router V6 Stage 4.9: Compile Routing Results
 Part of temper-xnsk
 """
 
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
 from temper_placer.router_v6.routing_results import (
@@ -11,7 +13,11 @@ from temper_placer.router_v6.routing_results import (
     RoutingResults,
     compile_routing_results,
 )
-from temper_placer.router_v6.trace_width_assignment import TraceWidth, TraceWidthAssignment
+from temper_placer.router_v6.trace_width_assignment import (
+    TraceWidth,
+    TraceWidthAssignment,
+    assign_trace_widths,
+)
 from temper_placer.router_v6.via_placement import Via, ViaPlacement
 
 
@@ -125,3 +131,25 @@ def test_compile_multiple_routes():
     assert compiled.success_count == 2
     assert compiled.failure_count == 1
     assert compiled.total_route_length == 15.0
+
+
+def test_partial_routes_receive_the_board_derived_width_assignment():
+    partial = RoutePath("NET1", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
+    pathfinding = PathfindingResult(routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial})
+
+    widths = assign_trace_widths(pathfinding, default_width=0.2)
+    compiled = compile_routing_results(pathfinding, widths, ViaPlacement(vias=[]))
+
+    assert widths.get_width("NET1") == 0.2
+    assert compiled.partial_routes["NET1"].width_mm == 0.2
+
+
+@given(st.floats(min_value=0.15, max_value=1.0, allow_nan=False, allow_infinity=False))
+@settings(max_examples=30, deadline=30_000)
+def test_partial_route_width_preserves_each_declared_board_default(default_width: float):
+    partial = RoutePath("NET1", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
+    result = PathfindingResult(routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial})
+
+    widths = assign_trace_widths(result, default_width=default_width)
+
+    assert widths.get_width("NET1") == default_width

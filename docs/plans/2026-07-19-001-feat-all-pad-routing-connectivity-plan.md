@@ -64,6 +64,23 @@ terminal is absent from this geometry and that it cannot inflate success
 metrics.  Serializing a partial route is deferred until the writer can consume
 only realized tree geometry without its legacy missing-pad direct-stitch path.
 
+That serialization boundary was then implemented experimentally and measured.
+It writes only actual prefix segments/vias and skips both writer stitch and
+plane-MST fallbacks.  KiCad `unconnected_items` improved from 218 to **203**,
+but is still worse than the 149 baseline, so promotion remains blocked.  It
+also revealed two distinct quality failures: 199 `track_width` violations
+(partial prefixes fell back to an invalid width) and large clearance/short
+deltas (54 clearance, 118 shorts).  The next bounded fix is the width source;
+clearance/short remediation is not folded into a connectivity metric change.
+
+The partial-width source was corrected by feeding partial paths through the
+existing board/netclass trace-width assignment stage.  A fresh opt-in KiCad
+run verified `track_width: 199 → 0` and total violations `1146 → 932`.
+`unconnected_items` remained **203**, while clearance and shorts remained
+high (50 and 119 respectively).  This is a valid quality improvement but not
+a connectivity promotion: default-off stays in force until a component-aware
+tree algorithm improves connectivity without those DRC regressions.
+
 U0's evidence validator is implemented and fail-closed, but no baseline JSON
 is committed: a fresh routed corpus measurement produced 6 unconnected items,
 not the required zero.  Recording a clean corpus artifact would be false;

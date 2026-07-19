@@ -72,7 +72,8 @@ def place_vias(
     """
     vias = []
 
-    for net_name, route_path in pathfinding_result.routed_paths.items():
+    paths = {**pathfinding_result.routed_paths, **pathfinding_result.partial_paths}
+    for net_name, route_path in paths.items():
         if design_rules is not None:
             net_rules = design_rules.get_rules_for_net(net_name)
             net_via_diameter = net_rules.via_diameter_mm

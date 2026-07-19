@@ -548,7 +548,8 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         return pcb_content
 
     compiled = getattr(routing_results, "compiled_routes", {})
-    if not compiled:
+    partial_compiled = getattr(routing_results, "partial_routes", {})
+    if not compiled and not partial_compiled:
         return pcb_content
 
     # Build net name -> net number mapping from the PCB content
@@ -578,7 +579,11 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 pad_positions[net.name] = positions
 
     output_items: list[str] = []
-    for net_name, compiled_route in compiled.items():
+    output_routes = [
+        *((net_name, compiled_route, False) for net_name, compiled_route in compiled.items()),
+        *((net_name, compiled_route, True) for net_name, compiled_route in partial_compiled.items()),
+    ]
+    for net_name, compiled_route, is_partial in output_routes:
         path = getattr(compiled_route, "path", None)
         net_num = net_name_to_number.get(net_name, 0)
         route_vias = list(getattr(compiled_route, "vias", []))
@@ -664,15 +669,19 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 )
                 i = j
 
-            # Connect any pads not near the path (stitch missing pins)
-            CONNECTION_THRESHOLD_MM = 0.5
-            for px, py in pads:
-                if not path_nodes:
-                    continue
-                min_dist = min(
-                    math.hypot(px - qx, py - qy) for qx, qy in path_points
-                )
-                if min_dist > CONNECTION_THRESHOLD_MM:
+            # Incomplete tree prefixes are emitted exactly as A* produced
+            # them. They must not invoke the legacy pad-stitch workaround.
+            if not is_partial:
+                # Connect any pads not near the path (stitch missing pins)
+                CONNECTION_THRESHOLD_MM = 0.5
+                for px, py in pads:
+                    if not path_nodes:
+                        continue
+                    min_dist = min(
+                        math.hypot(px - qx, py - qy) for qx, qy in path_points
+                    )
+                    if min_dist <= CONNECTION_THRESHOLD_MM:
+                        continue
                     nearest_idx = min(
                         range(len(path_nodes)),
                         key=lambda i: math.hypot(px - path_nodes[i][0], py - path_nodes[i][1]),
@@ -715,7 +724,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                         f' (tstamp "{seg_id}"))'
                     )
 
-        elif len(pads) >= 2:
+        elif len(pads) >= 2 and not is_partial:
             # Plane net with dummy path: create minimum spanning-tree
             # connections.  Dummy plane paths carry F.Cu until via-aware
             # multi-layer output lands (see W2 follow-up issue).

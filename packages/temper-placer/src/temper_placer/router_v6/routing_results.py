@@ -42,6 +42,9 @@ class RoutingResults:
     # The closure test reads this list to surface the actionable
     # ``routing_failure_messages`` field (SC1/SC2).
     net_reports: list[NetRoutingReport] = field(default_factory=list)
+    # Legal prefixes for incomplete experimental route trees. They are kept
+    # out of ``compiled_routes`` so success accounting remains truthful.
+    partial_routes: dict[str, CompiledRoute] = field(default_factory=dict)
 
     @property
     def success_count(self) -> int:
@@ -102,6 +105,7 @@ def compile_routing_results(
         True
     """
     compiled_routes = {}
+    partial_routes = {}
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
         # Get width for this net
@@ -118,6 +122,16 @@ def compile_routing_results(
             path=route_path,
             width_mm=width,
             vias=net_vias,
+            matched_length_mm=None,
+        )
+
+    for net_name, route_path in pathfinding_result.partial_paths.items():
+        width = width_assignment.get_width(net_name) or 0.127
+        partial_routes[net_name] = CompiledRoute(
+            net_name=net_name,
+            path=route_path,
+            width_mm=width,
+            vias=via_placement.get_vias_for_net(net_name),
             matched_length_mm=None,
         )
 
@@ -152,4 +166,5 @@ def compile_routing_results(
         failed_nets=pathfinding_result.failed_nets,
         plane_net_count=getattr(pathfinding_result, 'plane_net_count', 0),
         net_reports=list(net_reports) if net_reports else [],
+        partial_routes=partial_routes,
     )
