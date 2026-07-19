@@ -7,7 +7,11 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.router_v6.astar_pathfinding import run_astar_pathfinding
+from temper_placer.router_v6.astar_pathfinding import (
+    PathfindingResult,
+    RoutePath,
+    run_astar_pathfinding,
+)
 from temper_placer.router_v6.channel_mapping import (
     ChannelMapping,
     ChannelPath,
@@ -23,6 +27,9 @@ from temper_placer.router_v6.connectivity import (
 )
 from temper_placer.router_v6.constraints_geometry import Point
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.routing_results import compile_routing_results
+from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
+from temper_placer.router_v6.via_placement import ViaPlacement
 
 
 def _grid() -> OccupancyGrid:
@@ -112,6 +119,12 @@ def test_unreachable_third_terminal_is_failed_without_forced_geometry():
     assert "SIG" in result.failed_nets
     assert "SIG" not in result.routed_paths
     assert result.tree_failures["SIG"].unresolved_terminal == (20, 0)
+    partial = result.partial_paths["SIG"]
+    assert partial.forced_segment_count == 1
+    assert (0, 0) in partial.coordinates
+    assert (10, 0) in partial.coordinates
+    assert (20, 0) not in partial.coordinates
+    assert _audit([(0, 0), (10, 0), (20, 0)], partial.coordinates).disposition is NetDisposition.INCOMPLETE
 
 
 def test_experimental_tree_3d_fallback_is_bounded_per_edge_and_fails_honestly(
@@ -170,6 +183,40 @@ def test_tree_3d_failure_budget_is_bounded_for_arbitrary_terminal_counts(
     assert caps == [11]
     assert sum(caps) <= (terminal_count - 1) * 11
     assert result.tree_failures["SIG"].unresolved_terminal == points[1]
+
+
+@given(st.integers(min_value=3, max_value=6))
+@settings(max_examples=20, deadline=30_000)
+def test_partial_tree_geometry_never_claims_the_unreachable_terminal(terminal_count: int):
+    points = [(index * 5, 0) for index in range(terminal_count)]
+    grid = _grid()
+    grid.grid[:, 8] = 1
+    path = fallback_channel_path("SIG", points, enable_all_pad_tree=True)
+
+    result = run_astar_pathfinding(
+        ChannelMapping({"SIG": path}), grid, enforce_all_pad_tree=True, max_iter=1_000
+    )
+
+    partial = result.partial_paths["SIG"]
+    assert "SIG" not in result.routed_paths
+    assert points[1] in partial.coordinates
+    assert points[2] not in partial.coordinates
+    assert _audit(points, partial.coordinates).disposition is NetDisposition.INCOMPLETE
+
+
+def test_partial_tree_geometry_is_excluded_from_routing_results_and_writer_input():
+    partial = RoutePath("SIG", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
+    result = PathfindingResult(
+        routed_paths={},
+        failed_nets=["SIG"],
+        partial_paths={"SIG": partial},
+    )
+
+    compiled = compile_routing_results(result, TraceWidthAssignment({}), ViaPlacement([]))
+
+    assert compiled.get_route("SIG") is None
+    assert compiled.success_count == 0
+    assert compiled.failure_count == 1
 
 
 @given(st.lists(st.integers(min_value=0, max_value=20), min_size=2, max_size=6, unique=True))

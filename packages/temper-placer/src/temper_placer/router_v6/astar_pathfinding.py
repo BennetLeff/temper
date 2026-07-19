@@ -94,6 +94,9 @@ class PathfindingResult:
     per_path_latency_ms: dict[str, float] | None = None  # Per-net routing latency
     coarse_to_fine_fallbacks: int = 0  # Number of times coarse-to-fine fell back to unrestricted A*
     tree_failures: dict[str, TreeRoutingFailure] = field(default_factory=dict)
+    # A legal prefix of an experimental tree. Kept separate from
+    # ``routed_paths`` so it cannot inflate completion or reach the writer.
+    partial_paths: dict[str, RoutePath | RoutePath3D] = field(default_factory=dict)
 
     @property
     def success_count(self) -> int:
@@ -321,6 +324,7 @@ def run_astar_pathfinding(
     failed_nets_set: set[str] = set()
     failure_reports: dict[str, RoutingFailureReport] = {}
     tree_failures: dict[str, TreeRoutingFailure] = {}
+    partial_paths: dict[str, RoutePath | RoutePath3D] = {}
     ripup_counts: dict[str, int] = {}
     blocker_history: dict[str, set[str]] = {}
 
@@ -452,6 +456,8 @@ def run_astar_pathfinding(
                     completed_edge_count=failed_index - 1,
                     reason="no_legal_path",
                 )
+                if _has_safe_partial_geometry(route_path):
+                    partial_paths[net_name] = route_path
                 print(
                     f"      ✗ {net_name} INCOMPLETE: no legal tree edge to "
                     f"{channel_path.waypoints[failed_index]}",
@@ -577,6 +583,7 @@ def run_astar_pathfinding(
         per_path_latency_ms=per_path_latency_ms,
         coarse_to_fine_fallbacks=fallback_count,
         tree_failures=tree_failures,
+        partial_paths=partial_paths,
     )
 
 
@@ -584,6 +591,12 @@ def _should_route(net_name: str) -> bool:
     if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
         return False
     return not any(net_name.startswith(p) for p in _SKIP_NET_PREFIXES)
+
+
+def _has_safe_partial_geometry(path: RoutePath | RoutePath3D) -> bool:
+    """A partial result must contain actual A* geometry, never a forced edge."""
+    points = path.segments if isinstance(path, RoutePath3D) else path.coordinates
+    return len(points) >= 2 and path.path_length > 0.0
 
 def _astar_route_with_ripup(
     net_name: str,

@@ -56,6 +56,14 @@ next U2 design must preserve and verify already-realized partial copper while
 separately reporting unsatisfied terminals, then use a true component-aware
 attachment strategy; it must not reinstate forced/direct edges.
 
+The first half of that follow-up is now complete: experimental failures retain
+only their actual A*-routed prefix in `PathfindingResult.partial_paths`, while
+the net remains failed/incomplete and the prefix is excluded from
+`RoutingResults` and writer input.  Property tests verify that the missing
+terminal is absent from this geometry and that it cannot inflate success
+metrics.  Serializing a partial route is deferred until the writer can consume
+only realized tree geometry without its legacy missing-pad direct-stitch path.
+
 U0's evidence validator is implemented and fail-closed, but no baseline JSON
 is committed: a fresh routed corpus measurement produced 6 unconnected items,
 not the required zero.  Recording a clean corpus artifact would be false;
