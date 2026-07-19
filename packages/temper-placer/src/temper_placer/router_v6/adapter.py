@@ -528,9 +528,10 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
     Extracts successfully routed paths from the pipeline result and writes
-    them as ``(segment ...)`` entries into the PCB content. For plane nets
-    (zero-length dummy paths) and for missing pins on multi-pin signal nets,
-    creates direct connections using pad positions from the parsed PCB.
+    them as ``(segment ...)`` entries and transition ``(via ...)`` entries
+    into the PCB content. For plane nets (zero-length dummy paths) and for
+    missing pins on multi-pin signal nets, creates direct connections using
+    pad positions from the parsed PCB.
     """
     import math
     import uuid
@@ -569,9 +570,19 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             if positions:
                 pad_positions[net.name] = positions
 
-    segments: list[str] = []
+    output_items: list[str] = []
     for net_name, compiled_route in compiled.items():
         path = getattr(compiled_route, "path", None)
+        net_num = net_name_to_number.get(net_name, 0)
+        for via in getattr(compiled_route, "vias", []):
+            vx, vy = via.position
+            via_id = uuid.uuid4()
+            output_items.append(
+                f'  (via (at {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})'
+                f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
+                f' (net {net_num}) (tstamp "{via_id}"))'
+            )
+
         if path is None:
             continue
         path_length = getattr(path, "path_length", 0.0)
@@ -581,7 +592,6 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         # catch a present-but-zero width, so guard explicitly.
         if not width or width <= 0.0:
             width = 0.2
-        net_num = net_name_to_number.get(net_name, 0)
         pads = pad_positions.get(net_name, [])
 
         if path_length > 0 and len(pads) >= 2:
@@ -625,7 +635,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     else:
                         break
                 seg_id = uuid.uuid4()
-                segments.append(
+                output_items.append(
                     f'  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})'
                     f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
@@ -647,7 +657,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     )
                     nx, ny = path_points[nearest_idx]
                     seg_id = uuid.uuid4()
-                    segments.append(
+                    output_items.append(
                         f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
                         f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
                         f' (tstamp "{seg_id}"))'
@@ -673,18 +683,18 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                             best_conn = cp
                 pad = remaining.pop(best_idx)
                 seg_id = uuid.uuid4()
-                segments.append(
+                output_items.append(
                     f'  (segment (start {best_conn[0]:.4f} {best_conn[1]:.4f}) (end {pad[0]:.4f} {pad[1]:.4f})'
                     f' (width {width:.4f}) (layer "{mst_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
                 connected.append(pad)
 
-    if not segments:
+    if not output_items:
         return pcb_content
 
-    # Inject segments before the closing ")" of the kicad_pcb s-expression
-    segment_block = "\n" + "\n".join(segments) + "\n"
+    # Inject routed copper before the closing ")" of the kicad_pcb s-expression.
+    segment_block = "\n" + "\n".join(output_items) + "\n"
     pcb_content = pcb_content.rstrip()
     if pcb_content.endswith(")"):
         pcb_content = pcb_content[:-1] + segment_block + ")\n"
