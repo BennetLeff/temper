@@ -81,6 +81,13 @@ high (50 and 119 respectively).  This is a valid quality improvement but not
 a connectivity promotion: default-off stays in force until a component-aware
 tree algorithm improves connectivity without those DRC regressions.
 
+The topology prerequisite for that next algorithm is now separately tested:
+a deterministic Prim-style planner chooses a canonical root and connects each
+new terminal to the lowest-cost member of the existing component (with stable
+identity tie-breaks).  It is intentionally not wired to A* yet; integration
+must route each chosen edge to real component copper, validate the resulting
+graph, and commit it only on success.
+
 U0's evidence validator is implemented and fail-closed, but no baseline JSON
 is committed: a fresh routed corpus measurement produced 6 unconnected items,
 not the required zero.  Recording a clean corpus artifact would be false;
