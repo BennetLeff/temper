@@ -1,10 +1,9 @@
-"""Synthetic-only execution seam for planned all-pad trees.
+"""Synthetic and production execution seam for planned all-pad trees.
 
-This is intentionally not called by the Router V6 pipeline.  It establishes
-that a :mod:`terminal_tree` plan can be run through the existing legal A*
-primitive while preserving each branch as distinct geometry.  Flattening a
-tree into one serial path would fabricate inter-branch copper, so callers get
-``(edge, RoutePath)`` pairs instead.
+Called from ``run_astar_pathfinding`` when all-pad tree routing is enabled.
+Each Prim-planned edge is routed through the existing A* primitive, producing
+distinct branch geometry rather than one serial path.  Multi-layer grids are
+supported via shared-layer selection.
 """
 
 from __future__ import annotations
@@ -53,6 +52,8 @@ def execute_terminal_tree(
     grids: dict[str, OccupancyGrid] = (
         {grid.layer_name: grid} if isinstance(grid, OccupancyGrid) else grid
     )
+    if not grids:
+        raise ValueError("at least one occupancy grid is required")
 
     _single_grid_layer = next(iter(grids.keys()))
 
@@ -63,8 +64,8 @@ def execute_terminal_tree(
         target = terminals[edge.target]
 
         # ---- Pick shared layer ------------------------------------------------
-        src_layer_names = getattr(source, "_layer_names", None)
-        tgt_layer_names = getattr(target, "_layer_names", None)
+        src_layer_names = getattr(source, "layer_names", None)
+        tgt_layer_names = getattr(target, "layer_names", None)
         if src_layer_names is None and tgt_layer_names is None:
             src_layers = {_single_grid_layer}
             tgt_layers = {_single_grid_layer}

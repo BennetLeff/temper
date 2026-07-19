@@ -16,10 +16,15 @@ from temper_placer.router_v6.constraints_geometry import Point
 
 
 class TreeTerminal(Protocol):
-    """The minimal physical terminal data required by the topology planner."""
+    """The minimal physical terminal data required by the topology planner.
+
+    ``layer_names`` is optional at the planning stage (topology only) but
+    required by the executor for multi-layer shared-layer selection.
+    """
 
     identity: PadIdentity
     center: Point
+    layer_names: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
