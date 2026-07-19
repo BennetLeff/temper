@@ -155,6 +155,29 @@ which hid drift failures. Each fix exposed the next layer.
   behind `continue-on-error` since the JAX removal.
 - **#224** — closed: was "ngspice root cause TBD"; layers 3+4 above solved it.
 
+### Follow-up measurement: #229 stitch-threshold hole (not landed)
+
+The strict-xfail property in
+`tests/router_v6/test_via_layer_properties_pbt.py` has a minimal falsifier:
+three collinear pads at `(0, 0)`, `(0, 0.5)`, and `(0, 1.0)`.  The emitter's
+`CONNECTION_THRESHOLD_MM = 0.5` suppresses the final stub because it is close
+to a path vertex, even though no emitted copper reaches it.
+
+On the U1/U2 branch, a deliberately minimal trial changed only that predicate:
+retain existing exact-vertex behavior and emit the formerly omitted
+`0 < d <= 0.5 mm` stubs using the same nearest raw-path vertex as the legacy
+code.  It made the strict property pass, but the exact corpus measurement
+regressed from **400** introduced routing DRC violations (410 routed versus 94
+placement) to **402** (412 routed versus 94), with `unconnected_items`
+unchanged at `-84`.  The change was reverted; no frozen baseline was updated.
+
+This is not a harmless output-format repair.  The emitter has neither pad
+copper geometry nor a clearance-aware candidate-stub check, so it cannot know
+whether a short connection is safe.  Keep #229 as a ratchet and resolve it in
+the via-aware/clearance-aware routing work (#226), where a prospective stitch
+can be checked before emitting copper.  Any retry must record corpus and
+production DRC deltas before changing a baseline.
+
 ## Patterns worth remembering
 
 1. **Layered CI masking**: a failing early step (build, install) hides every
