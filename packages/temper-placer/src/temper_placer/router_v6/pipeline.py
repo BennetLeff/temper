@@ -26,7 +26,11 @@ from temper_placer.deterministic.state import BoardState
 from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
-from temper_placer.router_v6.channel_mapping import fallback_channel_path, map_topology_to_channels
+from temper_placer.router_v6.channel_mapping import (
+    expand_channel_path_terminals,
+    fallback_channel_path,
+    map_topology_to_channels,
+)
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 from temper_placer.router_v6.channel_widths import ChannelWidths
 from temper_placer.router_v6.constraint_model import ConstraintModel, ModelBuilder
@@ -342,6 +346,7 @@ class RouterV6Pipeline:
         layer_constraints: dict[str, Any] | None = None,
         thermal_flat: Any = None,  # U8: (N,) float32 cost field
         thermal_weight: float = 0.0,  # U8: multiplier
+        enable_all_pad_tree: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -385,6 +390,8 @@ class RouterV6Pipeline:
                 kernel step-cost.
             thermal_weight: U8 multiplier on per-cell thermal cost
                 (from CostFieldInput.weight).  0.0 = field-off.
+            enable_all_pad_tree: Enable experimental all-terminal tree
+                expansion. Disabled pending production KiCad DRC evidence.
         """
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
@@ -415,6 +422,7 @@ class RouterV6Pipeline:
         # U8: thermal cost field (flat float32 + weight) threaded to A* kernel
         self.thermal_flat = thermal_flat
         self.thermal_weight = thermal_weight
+        self.enable_all_pad_tree = enable_all_pad_tree
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
         self.layer_constraints = layer_constraints or {}
@@ -1139,16 +1147,24 @@ class RouterV6Pipeline:
 
         # Fallback: nets without SAT channel assignment get direct A* attempt
         comp_by_ref = {c.ref: c for c in pcb.components}
-        routed_nets = {cp.net_name for cp in channel_mapping.channel_paths.values()}
         for net in pcb.nets:
-            if net.name in routed_nets:
-                continue
             pads = _net_pad_positions(net, comp_by_ref)
             if len(pads) < 2:
                 continue
-            channel_mapping.channel_paths[net.name] = fallback_channel_path(
-                net.name, pads, self.layer_constraints
-            )
+            existing_path = channel_mapping.channel_paths.get(net.name)
+            if existing_path is None:
+                channel_mapping.channel_paths[net.name] = fallback_channel_path(
+                    net.name,
+                    pads,
+                    self.layer_constraints,
+                    enable_all_pad_tree=self.enable_all_pad_tree,
+                )
+            else:
+                channel_mapping.channel_paths[net.name] = expand_channel_path_terminals(
+                    existing_path,
+                    pads,
+                    enable_all_pad_tree=self.enable_all_pad_tree,
+                )
 
         # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
         if self.verbose:

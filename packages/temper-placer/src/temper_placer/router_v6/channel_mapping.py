@@ -32,6 +32,35 @@ class ChannelPath:
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
 
 
+def expand_channel_path_terminals(
+    channel_path: ChannelPath,
+    pads: list[tuple[float, float]],
+    *,
+    enable_all_pad_tree: bool = False,
+) -> ChannelPath:
+    """Append physical terminals missing from a SAT/channel waypoint path.
+
+    SAT waypoints remain in their original order, preserving their channel
+    guidance.  For a multi-pad net, absent pad centres are appended in a
+    stable order so the existing incremental A* chain must reach every
+    conductive terminal.  Two-pad channel paths are intentionally returned
+    unchanged to retain the established route coordinates and ordering.
+    """
+    if not enable_all_pad_tree or len(pads) <= 2:
+        return channel_path
+    existing = set(channel_path.waypoints)
+    missing = [pad for pad in sorted(pads) if pad not in existing]
+    if not missing:
+        return channel_path
+    return ChannelPath(
+        net_name=channel_path.net_name,
+        channel_sequence=list(channel_path.channel_sequence),
+        waypoints=[*channel_path.waypoints, *missing],
+        total_length=_calculate_path_length([*channel_path.waypoints, *missing]),
+        preferred_layer=channel_path.preferred_layer,
+    )
+
+
 # Map Layer enum (L1_TOP .. L4_BOT) → KiCad copper layer name (F.Cu .. B.Cu).
 # Inner layers (In1.Cu / In2.Cu) are reference/power planes, not A* routing
 # grids; nets assigned to them fall through to the heuristic.
@@ -118,14 +147,25 @@ def fallback_channel_path(
     net_name: str,
     pads: list[tuple[float, float]],
     layer_constraints: dict | None = None,
+    *,
+    enable_all_pad_tree: bool = False,
 ) -> ChannelPath:
     """Direct-A*-attempt fallback for a net without a SAT channel
-    assignment: a degenerate two-waypoint path on the net's SSOT or
-    heuristic layer (W2 U2 / R2)."""
+    assignment.  Two-pad nets retain their historical endpoint order; a
+    multi-pad net retains every terminal in deterministic coordinate order so
+    A* can construct a connected incremental path rather than silently
+    dropping middle pads.
+    """
+    if len(pads) == 2:
+        waypoints = pads
+    elif enable_all_pad_tree:
+        waypoints = sorted(pads)
+    else:
+        waypoints = [pads[0], pads[-1]]
     return ChannelPath(
         net_name=net_name,
         channel_sequence=[],
-        waypoints=[pads[0], pads[-1]],
+        waypoints=waypoints,
         total_length=0.0,
         preferred_layer=_assign_layer(net_name, layer_constraints=layer_constraints),
     )

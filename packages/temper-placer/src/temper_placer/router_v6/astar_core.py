@@ -7,7 +7,7 @@ Part of temper-N6-U6 decomposition.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final
 
 import numpy as np
@@ -60,6 +60,9 @@ class RoutePath:
     layer_name: str
     path_length: float  # Total length in mm
     forced_segment_count: int = 0  # Number of segments using force routing (fallback)
+    # Waypoint indices whose incoming edge was not found by A*.  Kept so a
+    # multi-terminal caller can fail closed and name the unresolved terminal.
+    failed_waypoint_indices: list[int] = field(default_factory=list)
 
     @property
     def segment_count(self) -> int:
@@ -99,6 +102,7 @@ class RoutePath3D:
     path_length: float  # Total length in mm
     via_count: int = 0
     forced_segment_count: int = 0
+    failed_waypoint_indices: list[int] = field(default_factory=list)
 
     @property
     def segment_count(self) -> int:
@@ -114,6 +118,7 @@ class RoutePath3D:
             layer_name=default_layer,
             path_length=self.path_length,
             forced_segment_count=self.forced_segment_count,
+            failed_waypoint_indices=self.failed_waypoint_indices,
         )
 
 

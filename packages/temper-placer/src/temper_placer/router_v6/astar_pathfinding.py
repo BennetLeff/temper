@@ -12,7 +12,7 @@ from __future__ import annotations
 import math
 import time
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -70,6 +70,15 @@ class RoutingFailureReport:
     congestion_region: tuple[float, float] | None  # Approximate (x, y) of stuck location
     pin_count: int = 0  # Number of pins in the net
 
+
+@dataclass(frozen=True)
+class TreeRoutingFailure:
+    """Honest terminal-level outcome for a partially attempted route tree."""
+
+    unresolved_terminal: tuple[float, float]
+    completed_edge_count: int
+    reason: str
+
 @dataclass
 class PathfindingResult:
     """Result of A* pathfinding."""
@@ -80,6 +89,7 @@ class PathfindingResult:
     net_ids: dict[str, int] | None = None  # Map of net_name -> net_id used in grid
     per_path_latency_ms: dict[str, float] | None = None  # Per-net routing latency
     coarse_to_fine_fallbacks: int = 0  # Number of times coarse-to-fine fell back to unrestricted A*
+    tree_failures: dict[str, TreeRoutingFailure] = field(default_factory=dict)
 
     @property
     def success_count(self) -> int:
@@ -302,6 +312,7 @@ def run_astar_pathfinding(
     routed_paths: dict[str, RoutePath | RoutePath3D] = {}
     failed_nets_set: set[str] = set()
     failure_reports: dict[str, RoutingFailureReport] = {}
+    tree_failures: dict[str, TreeRoutingFailure] = {}
     ripup_counts: dict[str, int] = {}
     blocker_history: dict[str, set[str]] = {}
 
@@ -404,6 +415,7 @@ def run_astar_pathfinding(
             corridor_buffer_cells=corridor_buffer_cells,
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
+            allow_forced_segments=len(channel_path.waypoints) <= 2,
         )
         fallback_count += fb
 
@@ -418,6 +430,22 @@ def run_astar_pathfinding(
             return channel_path.waypoints[len(channel_path.waypoints) // 2]
 
         if route_path:
+            # A forced direct segment is legacy compatibility behavior for a
+            # two-terminal path.  It is categorically not a legal tree edge:
+            # do not emit, reserve, or count a multi-pad net that needed one.
+            if len(channel_path.waypoints) > 2 and route_path.forced_segment_count:
+                failed_index = route_path.failed_waypoint_indices[0]
+                tree_failures[net_name] = TreeRoutingFailure(
+                    unresolved_terminal=channel_path.waypoints[failed_index],
+                    completed_edge_count=failed_index - 1,
+                    reason="no_legal_path",
+                )
+                print(
+                    f"      ✗ {net_name} INCOMPLETE: no legal tree edge to "
+                    f"{channel_path.waypoints[failed_index]}",
+                    flush=True,
+                )
+                return False, "no_path", [], channel_path.waypoints[failed_index]
             # U7 / R11: bump the congestion tensor along the routed
             # path so the next net naturally detours around it.
             # Increments per cell along the path; the Numba kernel
@@ -536,6 +564,7 @@ def run_astar_pathfinding(
         net_ids=net_ids,
         per_path_latency_ms=per_path_latency_ms,
         coarse_to_fine_fallbacks=fallback_count,
+        tree_failures=tree_failures,
     )
 
 
@@ -565,6 +594,7 @@ def _astar_route_with_ripup(
     corridor_buffer_cells: int = 12,
     thermal_flat=None,
     thermal_weight: float = 0.0,
+    allow_forced_segments: bool = True,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int], int]:
     """
     Route a net, potentially ripping up blocking nets.
@@ -606,6 +636,7 @@ def _astar_route_with_ripup(
             thermal_weight=thermal_weight,
             net_id=net_id,
             design_rules=_design_rules,
+            allow_forced_segments=allow_forced_segments,
         )
         fallback_count += fb
     else:
@@ -615,7 +646,8 @@ def _astar_route_with_ripup(
                                 coarse_factor=coarse_factor,
                                 corridor_buffer_cells=corridor_buffer_cells,
                                 thermal_flat=thermal_flat,
-                                thermal_weight=thermal_weight)
+                                thermal_weight=thermal_weight,
+                                allow_forced_segments=allow_forced_segments)
         fallback_count += fb
 
     if path and path.forced_segment_count == 0:
@@ -852,6 +884,7 @@ def _astar_route_multilayer(
     thermal_weight: float = 0.0,
     net_id: int = 0,
     design_rules: DesignRules | None = None,
+    allow_forced_segments: bool = True,
 ) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -885,6 +918,7 @@ def _astar_route_multilayer(
     detailed_segments: list[tuple[float, float, str]] = []
     via_positions: list[tuple[float, float]] = []
     forced_segments = 0
+    failed_waypoint_indices: list[int] = []
     fallback_count = 0
 
     for i in range(len(waypoints) - 1):
@@ -957,8 +991,10 @@ def _astar_route_multilayer(
                     wx, wy = grid_to_use.grid_to_world(node[0], node[1])
                     detailed_segments.append((wx, wy, layer_name))
 
-            if i == len(waypoints) - 2:
-                detailed_segments.append((goal_world[0], goal_world[1], layer_name))
+            # Preserve every terminal explicitly.  Without this, consecutive
+            # grid paths can stop at adjacent cell centres and silently omit
+            # an intermediate pad from the emitted copper chain.
+            detailed_segments.append((goal_world[0], goal_world[1], layer_name))
             continue
 
         # U2 (docs/plans/2026-07-18-003-*): via-aware fallback tier. Both
@@ -1001,8 +1037,25 @@ def _astar_route_multilayer(
             detailed_segments.extend(world_path_3d[1:])
             continue
 
-        # Fallback: add direct segment
+        if not allow_forced_segments:
+            failed_waypoint_indices.append(i + 1)
+            path_length = sum(
+                ((s2[0] - s1[0]) ** 2 + (s2[1] - s1[1]) ** 2) ** 0.5
+                for s1, s2 in zip(detailed_segments, detailed_segments[1:])
+            )
+            return RoutePath3D(
+                net_name=net_name,
+                segments=detailed_segments,
+                via_positions=via_positions,
+                path_length=path_length,
+                via_count=len(via_positions),
+                forced_segment_count=1,
+                failed_waypoint_indices=failed_waypoint_indices,
+            ), fallback_count
+
+        # Legacy two-pad compatibility fallback: add a direct segment.
         forced_segments += 1
+        failed_waypoint_indices.append(i + 1)
         if i == 0:
             detailed_segments.append((start_world[0], start_world[1], primary_grid.layer_name))
         detailed_segments.append((goal_world[0], goal_world[1], primary_grid.layer_name))
@@ -1019,6 +1072,7 @@ def _astar_route_multilayer(
         path_length=path_length,
         via_count=len(via_positions),
         forced_segment_count=forced_segments,
+        failed_waypoint_indices=failed_waypoint_indices,
     ), fallback_count
 
 
@@ -1035,6 +1089,7 @@ def _astar_route(
     corridor_buffer_cells: int = 12,
     thermal_flat=None,
     thermal_weight: float = 0.0,
+    allow_forced_segments: bool = True,
 ) -> tuple[RoutePath | None, int]:
     """
     Route a single net using A* or Theta* pathfinding.
@@ -1048,6 +1103,7 @@ def _astar_route(
 
     detailed_coords: list[tuple[float, float]] = []
     forced_segments = 0
+    failed_waypoint_indices: list[int] = []
     fallback_count = 0
 
     for i in range(len(waypoints) - 1):
@@ -1072,13 +1128,30 @@ def _astar_route(
                 world_coord = grid.grid_to_world(grid_cell[0], grid_cell[1])
                 if not detailed_coords or detailed_coords[-1] != world_coord:
                     detailed_coords.append(world_coord)
-            if i == len(waypoints) - 2:
-                detailed_coords.append(goal_world)
+            # A multi-terminal fallback is a serial incremental tree; every
+            # target must be an actual path node, not merely the next search
+            # start coordinate.
+            detailed_coords.append(goal_world)
         else:
+            if not allow_forced_segments:
+                failed_waypoint_indices.append(i + 1)
+                path_length = sum(
+                    ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
+                    for p1, p2 in zip(detailed_coords, detailed_coords[1:])
+                )
+                return RoutePath(
+                    net_name=net_name,
+                    coordinates=detailed_coords,
+                    layer_name=grid.layer_name,
+                    path_length=path_length,
+                    forced_segment_count=1,
+                    failed_waypoint_indices=failed_waypoint_indices,
+                ), fallback_count
             if i == 0:
                 detailed_coords.append(start_world)
             detailed_coords.append(goal_world)
             forced_segments += 1
+            failed_waypoint_indices.append(i + 1)
 
     if not detailed_coords:
         detailed_coords = list(waypoints)
@@ -1095,6 +1168,7 @@ def _astar_route(
         layer_name=grid.layer_name,
         path_length=path_length,
         forced_segment_count=forced_segments,
+        failed_waypoint_indices=failed_waypoint_indices,
     ), fallback_count
 
 
