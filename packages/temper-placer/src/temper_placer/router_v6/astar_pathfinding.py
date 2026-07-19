@@ -431,7 +431,7 @@ def run_astar_pathfinding(
             execution = execute_terminal_tree(
                 channel_path.terminal_tree,
                 channel_path.terminals,
-                primary_grid,
+                all_grids,
                 max_iter=per_net_max_iter,
                 net_id=net_id,
                 trace_width=design_rules.default_trace_width_mm,

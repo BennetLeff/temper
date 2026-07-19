@@ -31,7 +31,7 @@ class TerminalTreeExecution:
 def execute_terminal_tree(
     plan: TerminalTreePlan,
     pads: list[TreeTerminal] | tuple[TreeTerminal, ...],
-    grid: OccupancyGrid,
+    grid: OccupancyGrid | dict[str, OccupancyGrid],
     *,
     max_iter: int = 1_000_000,
     net_id: int = -1,
@@ -40,26 +40,60 @@ def execute_terminal_tree(
 ) -> TerminalTreeExecution:
     """Execute plan edges through A* without direct/forced fallback geometry.
 
+    Accepts either a single ``OccupancyGrid`` (backward-compatible, 2D only)
+    or a ``dict[str, OccupancyGrid]`` for multi-layer routing.  With a dict,
+    each edge picks the first shared layer between source and target terminals;
+    edges with no shared layer fail immediately.
+
     With a positive ``net_id``, each accepted edge is immediately reserved.
     The scoped 2D A* ownership predicate then permits that same ID while
     continuing to reject all other occupied cells.  The default leaves the
     synthetic seam non-mutating for backwards-compatible unit tests.
     """
+    grids: dict[str, OccupancyGrid] = (
+        {grid.layer_name: grid} if isinstance(grid, OccupancyGrid) else grid
+    )
+
+    _single_grid_layer = next(iter(grids.keys()))
+
     terminals: dict[PadIdentity, TreeTerminal] = {pad.identity: pad for pad in pads}
     completed: list[tuple[TerminalTreeEdge, RoutePath]] = []
     for edge in plan.edges:
-        source = terminals[edge.source].center
-        target = terminals[edge.target].center
+        source = terminals[edge.source]
+        target = terminals[edge.target]
+
+        # ---- Pick shared layer ------------------------------------------------
+        src_layer_names = getattr(source, "_layer_names", None)
+        tgt_layer_names = getattr(target, "_layer_names", None)
+        if src_layer_names is None and tgt_layer_names is None:
+            src_layers = {_single_grid_layer}
+            tgt_layers = {_single_grid_layer}
+        else:
+            src_layers = set(src_layer_names or ()) or {_single_grid_layer}
+            tgt_layers = set(tgt_layer_names or ()) or {_single_grid_layer}
+        shared = sorted(src_layers & tgt_layers)
+        if not shared:
+            return TerminalTreeExecution(
+                disposition=NetDisposition.INCOMPLETE,
+                completed_edges=tuple(completed),
+                failed_edge=edge,
+            )
+        route_layer = shared[0]
+        active_grid = grids[route_layer]
+
         path, _fallback_count = _astar_route(
             edge.source.net,
             ChannelPath(
                 net_name=edge.source.net,
                 channel_sequence=[],
-                waypoints=[(source.x, source.y), (target.x, target.y)],
+                waypoints=[
+                    (source.center.x, source.center.y),
+                    (target.center.x, target.center.y),
+                ],
                 total_length=0.0,
-                preferred_layer=grid.layer_name,
+                preferred_layer=route_layer,
             ),
-            grid,
+            active_grid,
             max_iter=max_iter,
             allow_forced_segments=False,
             net_id=net_id,
@@ -72,7 +106,9 @@ def execute_terminal_tree(
             )
         completed.append((edge, path))
         if net_id >= 0:
-            grid.mark_path_blocked(path.coordinates, trace_width, clearance, net_id)
+            active_grid.mark_path_blocked(
+                path.coordinates, trace_width, clearance, net_id
+            )
     return TerminalTreeExecution(
         disposition=NetDisposition.ROUTED,
         completed_edges=tuple(completed),

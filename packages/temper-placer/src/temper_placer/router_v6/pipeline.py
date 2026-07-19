@@ -1181,8 +1181,6 @@ class RouterV6Pipeline:
                 terminals = extract_net_terminals(pcb, net.name, net.pins)
                 if len(terminals) < 3:
                     continue
-                if not all(channel_path.preferred_layer in terminal.layer_names for terminal in terminals):
-                    continue
                 channel_path.terminals = terminals
                 channel_path.terminal_tree = plan_terminal_tree(terminals)
 
