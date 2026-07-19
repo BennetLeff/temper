@@ -88,6 +88,13 @@ identity tie-breaks).  It is intentionally not wired to A* yet; integration
 must route each chosen edge to real component copper, validate the resulting
 graph, and commit it only on success.
 
+A synthetic-only execution spike now establishes that contract against the
+existing A* primitive: each Prim edge is routed as separate branch geometry,
+all reachable pads validate as one component, and the first unreachable edge
+returns an incomplete result with no forced/direct segment.  The spike does
+not mutate occupancy or production dispatch; its next integration step needs
+stable parsed terminal identities and same-net component-copper reservation.
+
 U0's evidence validator is implemented and fail-closed, but no baseline JSON
 is committed: a fresh routed corpus measurement produced 6 unconnected items,
 not the required zero.  Recording a clean corpus artifact would be false;
