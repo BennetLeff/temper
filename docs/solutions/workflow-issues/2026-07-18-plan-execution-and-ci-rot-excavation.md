@@ -178,6 +178,35 @@ the via-aware/clearance-aware routing work (#226), where a prospective stitch
 can be checked before emitting copper.  Any retry must record corpus and
 production DRC deltas before changing a baseline.
 
+### Follow-up measurement: #226 U6 per-segment layer output (rejected)
+
+U6/R5 was attempted only after the U1--U5 via-data and writer units. The
+candidate writer emitted each non-zero `RoutePath3D` edge on its actual layer,
+split collapse runs at co-located layer transitions, and left those transitions
+to U5's real `(via ...)` records. Focused TDD and 100-example Hypothesis
+layer-walk properties passed, as did both `903dfaef` completion guards.
+
+The required end-to-end DRC measurement rejected the candidate. The exact
+corpus regression run changed from **0** routed `unconnected_items` (pre-U6;
+the route had 406 introduced violations relative to the 94-violation placement
+baseline) to **8** routed `unconnected_items` post-U6. The post-U6 run failed
+at the first completion assertion, before its later routing-quality delta
+assertion; the routed error categories reported at that point included
+`clearance: 101`, `copper_edge_clearance: 2`, `shorting_items: 63`, and
+`solder_mask_bridge: 74`. The exact production regression test still passed;
+the independently recorded pre-U6 production run was 955 total violations and
+149 unconnected items. Corpus completion regression alone fails R7's
+never-worsen bar, so the source and test changes were reverted with no frozen
+baseline update and no commit.
+
+This is the same underlying mismatch that made `F.Cu` accidentally
+load-bearing: U5 can emit a via only where the fallback search recorded a
+transition, while existing 2D routes may still begin/end on an opposite layer
+from F.Cu-only SMD pads. Do not re-land U6 as an output-only change. First make
+endpoint-to-pad layer transitions explicit and legality-checked, or otherwise
+prove the emitted via graph connects every layer-divergent route to its pads;
+then repeat the corpus and production R7 comparison.
+
 ## Patterns worth remembering
 
 1. **Layered CI masking**: a failing early step (build, install) hides every
