@@ -7,6 +7,7 @@ Part of temper-zh0p (Stage 4 - Geometric Realization)
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
@@ -102,12 +103,16 @@ def _place_vias_for_path(
 
     # If RoutePath3D, use explicit via_positions from pathfinder
     if hasattr(route_path, "via_positions"):
+        consumed_transition_indices: set[int] = set()
         for vx, vy in route_path.via_positions:
+            from_layer, to_layer = _transition_layers_at(
+                route_path.segments, vx, vy, consumed_transition_indices
+            )
             vias.append(
                 Via(
                     position=(vx, vy),
-                    from_layer="F.Cu",  # Assume THT via spans full stack
-                    to_layer="B.Cu",
+                    from_layer=from_layer,
+                    to_layer=to_layer,
                     diameter=via_diameter,
                     drill=via_drill,
                     net_name=net_name,
@@ -137,6 +142,39 @@ def _place_vias_for_path(
             vias.append(via)
 
     return vias
+
+
+def _transition_layers_at(
+    segments: list[tuple[float, float, str]],
+    vx: float,
+    vy: float,
+    consumed_transition_indices: set[int],
+) -> tuple[str, str]:
+    """Return the ordered layers of the explicit transition at ``(vx, vy)``.
+
+    A :class:`RoutePath3D` represents a via as two consecutive points at the
+    same coordinate, one on each copper layer.  ``via_positions`` names that
+    coordinate; it is not enough to assume an outer-layer span because 3D A*
+    can legitimately transition between any adjacent layers in a stackup.
+    """
+    for index, (previous, current) in enumerate(zip(segments, segments[1:])):
+        px, py, previous_layer = previous
+        cx, cy, current_layer = current
+        if (
+            index not in consumed_transition_indices
+            and previous_layer != current_layer
+            and _same_position(px, py, vx, vy)
+            and _same_position(cx, cy, vx, vy)
+        ):
+            consumed_transition_indices.add(index)
+            return previous_layer, current_layer
+
+    raise ValueError(f"RoutePath3D via position does not identify a layer transition: ({vx}, {vy})")
+
+
+def _same_position(x1: float, y1: float, x2: float, y2: float) -> bool:
+    """Compare world coordinates without losing exact grid-transition intent."""
+    return math.isclose(x1, x2, abs_tol=1e-9) and math.isclose(y1, y2, abs_tol=1e-9)
 
 
 def _get_adjacent_layer(layer_name: str) -> str | None:
