@@ -11,6 +11,7 @@ import math
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
+from temper_placer.router_v6.stage0_data import DesignRules
 
 
 @dataclass
@@ -45,6 +46,7 @@ def place_vias(
     pathfinding_result: PathfindingResult,
     via_diameter: float = 0.6,  # Standard via
     via_drill: float = 0.3,
+    design_rules: DesignRules | None = None,
 ) -> ViaPlacement:
     """
     Place vias for layer transitions in routed paths.
@@ -55,6 +57,8 @@ def place_vias(
         pathfinding_result: Routed paths from Stage 4.2
         via_diameter: Default via diameter (mm)
         via_drill: Default drill diameter (mm)
+        design_rules: Per-netclass routing rules. When supplied, each net's
+            resolved via dimensions override the board-wide defaults.
 
     Returns:
         ViaPlacement with all placed vias
@@ -69,12 +73,20 @@ def place_vias(
     vias = []
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
+        if design_rules is not None:
+            net_rules = design_rules.get_rules_for_net(net_name)
+            net_via_diameter = net_rules.via_diameter_mm
+            net_via_drill = net_rules.via_drill_mm
+        else:
+            net_via_diameter = via_diameter
+            net_via_drill = via_drill
+
         # Analyze path for layer transitions
         net_vias = _place_vias_for_path(
             net_name,
             route_path,
-            via_diameter,
-            via_drill,
+            net_via_diameter,
+            net_via_drill,
         )
         vias.extend(net_vias)
 

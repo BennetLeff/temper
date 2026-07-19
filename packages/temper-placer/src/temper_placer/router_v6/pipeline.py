@@ -1227,6 +1227,7 @@ class RouterV6Pipeline:
             pathfinding_result,
             pcb.design_rules.default_via_diameter_mm,
             pcb.design_rules.default_via_drill_mm,
+            design_rules=pcb.design_rules,
         )
 
         # 4.4: Assign trace widths

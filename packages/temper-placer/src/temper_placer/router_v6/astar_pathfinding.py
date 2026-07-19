@@ -605,6 +605,7 @@ def _astar_route_with_ripup(
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
             net_id=net_id,
+            design_rules=_design_rules,
         )
         fallback_count += fb
     else:
@@ -850,6 +851,7 @@ def _astar_route_multilayer(
     thermal_flat=None,
     thermal_weight: float = 0.0,
     net_id: int = 0,
+    design_rules: DesignRules | None = None,
 ) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -870,6 +872,8 @@ def _astar_route_multilayer(
             compatibility with any caller that doesn't have a net id
             available yet -- production callers should always pass a
             real net_id.
+        design_rules: Per-netclass rules used only by the 3D fallback to
+            reserve each candidate via at its resolved diameter and clearance.
 
     Returns:
         (RoutePath3D or None, coarse_to_fine_fallback_count)
@@ -959,9 +963,13 @@ def _astar_route_multilayer(
         # (and back) to escape local congestion; a real via is recorded
         # (and grid-blocked, given a real net_id) for every such detour.
         fallback_layer = primary_grid.layer_name
+        net_rules = design_rules.get_rules_for_net(net_name) if design_rules else None
         result_3d = _route_segment_3d(
             start_world, goal_world, fallback_layer, fallback_layer,
-            grids_3d, via_cost=10.0, net_id=net_id,
+            grids_3d, via_cost=10.0,
+            via_diameter=net_rules.via_diameter_mm if net_rules else 0.6,
+            clearance=net_rules.clearance_mm if net_rules else 0.2,
+            net_id=net_id,
             max_iter=_SEGMENT_3D_FALLBACK_MAX_ITER,
         )
 
@@ -1255,4 +1263,3 @@ def _segment_search_coarse_to_fine(
 
 def _in_bounds(grid: OccupancyGrid, point: tuple[int, int]) -> bool:
     return 0 <= point[0] < grid.width_cells and 0 <= point[1] < grid.height_cells
-

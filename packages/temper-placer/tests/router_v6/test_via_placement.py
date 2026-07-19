@@ -2,13 +2,46 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
+import yaml
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
+from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
 from temper_placer.router_v6.via_placement import Via, ViaPlacement, place_vias
+
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+_NETCLASS_CONFIG = yaml.safe_load(
+    (_REPO_ROOT / "packages/temper-placer/configs/netclass_rules.yaml").read_text()
+)
+_CONFIGURED_NET_CLASSES = tuple(_NETCLASS_CONFIG["classes"])
+
+
+def _configured_design_rules(net_class: str | None) -> DesignRules:
+    """Build the router's runtime rules directly from the netclass SSOT."""
+    net_classes = {
+        name: NetClassRules(
+            name=name,
+            clearance_mm=spec["clearance"],
+            trace_width_mm=spec["trace_width"],
+            via_diameter_mm=spec["via_diameter"],
+            via_drill_mm=spec["via_drill"],
+        )
+        for name, spec in _NETCLASS_CONFIG["classes"].items()
+    }
+    assignments = {"NET_UNDER_TEST": net_class} if net_class is not None else {}
+    return DesignRules(
+        net_classes=net_classes,
+        net_class_assignments=assignments,
+        default_clearance_mm=0.2,
+        default_trace_width_mm=0.2,
+        default_via_diameter_mm=0.6,
+        default_via_drill_mm=0.3,
+    )
 
 
 def test_place_no_vias():
@@ -207,6 +240,48 @@ def test_route_path_3d_via_layer_pairs_preserve_every_transition(
         zip(layers, layers[1:])
     )
     assert all(via.net_name == "NET3D" for via in placement.vias)
+
+
+def test_route_path_3d_via_uses_its_netclass_dimensions():
+    """U4/R3: final vias must not silently use the board-wide default."""
+    path = _path3d_with_transitions(["F.Cu", "B.Cu"], net_name="HV_NET")
+    result = PathfindingResult(routed_paths={"HV_NET": path}, failed_nets=[])
+    design_rules = DesignRules(
+        default_via_diameter_mm=0.6,
+        default_via_drill_mm=0.3,
+        net_class_assignments={"HV_NET": "HighVoltage"},
+        net_classes={
+            "HighVoltage": NetClassRules(
+                name="HighVoltage",
+                clearance_mm=6.0,
+                trace_width_mm=3.0,
+                via_diameter_mm=1.2,
+                via_drill_mm=0.6,
+            )
+        },
+    )
+
+    placement = place_vias(result, design_rules=design_rules)
+
+    assert [(via.diameter, via.drill) for via in placement.vias] == [(1.2, 0.6)]
+
+
+@pytest.mark.property
+@given(net_class=st.sampled_from(_CONFIGURED_NET_CLASSES + (None,)))
+@settings(max_examples=100, deadline=15000)
+def test_route_path_3d_vias_match_every_configured_netclass_or_default(net_class: str | None):
+    """U4/R3: every SSOT class, plus no assignment, controls final via size."""
+    path = _path3d_with_transitions(["F.Cu", "B.Cu"], net_name="NET_UNDER_TEST")
+    result = PathfindingResult(routed_paths={"NET_UNDER_TEST": path}, failed_nets=[])
+    design_rules = _configured_design_rules(net_class)
+
+    via = place_vias(result, design_rules=design_rules).vias[0]
+    expected = design_rules.get_rules_for_net("NET_UNDER_TEST")
+
+    assert (via.diameter, via.drill) == (
+        expected.via_diameter_mm,
+        expected.via_drill_mm,
+    )
 
 
 @pytest.mark.property

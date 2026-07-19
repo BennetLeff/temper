@@ -44,16 +44,25 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+import yaml
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 import temper_placer.router_v6.astar_pathfinding as astar_pathfinding_mod
 from temper_placer.router_v6.astar_core import _route_segment_3d as _real_route_segment_3d
 from temper_placer.router_v6.channel_mapping import ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+from temper_placer.router_v6.via_placement import place_vias
 
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[4]
 _CORPUS_PCB = _REPO_ROOT / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
 _PROD_PCB = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
+_NETCLASS_CONFIG = yaml.safe_load(
+    (_REPO_ROOT / "packages/temper-placer/configs/netclass_rules.yaml").read_text()
+)
+_CONFIGURED_NET_CLASSES = tuple(_NETCLASS_CONFIG["classes"])
 
 _SIZE = 21
 _CELL_SIZE_MM = 0.5
@@ -107,6 +116,29 @@ def _bottleneck_endpoints(f_grid: OccupancyGrid) -> tuple[tuple[float, float], t
     return start_world, goal_world
 
 
+def _configured_design_rules(net_class: str | None) -> DesignRules:
+    """Construct router runtime rules from the netclass sizing authority."""
+    net_classes = {
+        name: NetClassRules(
+            name=name,
+            clearance_mm=spec["clearance"],
+            trace_width_mm=spec["trace_width"],
+            via_diameter_mm=spec["via_diameter"],
+            via_drill_mm=spec["via_drill"],
+        )
+        for name, spec in _NETCLASS_CONFIG["classes"].items()
+    }
+    assignments = {"NET_UNDER_TEST": net_class} if net_class is not None else {}
+    return DesignRules(
+        net_classes=net_classes,
+        net_class_assignments=assignments,
+        default_clearance_mm=0.2,
+        default_trace_width_mm=0.2,
+        default_via_diameter_mm=0.6,
+        default_via_drill_mm=0.3,
+    )
+
+
 # ---------------------------------------------------------------------------
 # 1. Happy path: primary + alternate (skipped/unavailable) fail; the 3D
 #    fallback tier finds a path and reports real via_positions.
@@ -149,6 +181,45 @@ def test_fallback_tier_produces_via_positions_when_primary_and_alternate_fail():
     # Sanity: the fallback tier was actually what produced this path (not
     # some pre-existing primary/alternate success).
     spy.assert_called_once()
+
+
+@pytest.mark.property
+@given(net_class=st.sampled_from(_CONFIGURED_NET_CLASSES + (None,)))
+@settings(max_examples=100, deadline=15000)
+def test_3d_fallback_legality_uses_each_netclass_via_envelope(net_class: str | None):
+    """U4/R3: SSOT diameter and clearance reach the 3D legality call."""
+    grids = _make_bottleneck_via_grids()
+    f_grid, b_grid = grids["F.Cu"], grids["B.Cu"]
+    start_world, goal_world = _bottleneck_endpoints(f_grid)
+    channel_path = ChannelPath(
+        net_name="NET_UNDER_TEST", channel_sequence=["CH1"],
+        waypoints=[start_world, goal_world], total_length=10.0,
+    )
+    design_rules = _configured_design_rules(net_class)
+
+    with patch.object(
+        astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
+    ) as spy:
+        result, _ = astar_pathfinding_mod._astar_route_multilayer(
+            "NET_UNDER_TEST", channel_path, f_grid, b_grid, None,
+            net_id=1, design_rules=design_rules,
+        )
+
+    assert result is not None
+    assert result.via_positions
+    expected = design_rules.get_rules_for_net("NET_UNDER_TEST")
+    assert spy.call_args.kwargs["via_diameter"] == expected.via_diameter_mm
+    assert spy.call_args.kwargs["clearance"] == expected.clearance_mm
+
+    placement = place_vias(
+        astar_pathfinding_mod.PathfindingResult(
+            routed_paths={"NET_UNDER_TEST": result}, failed_nets=[]
+        ),
+        design_rules=design_rules,
+    )
+    assert placement.vias
+    assert placement.vias[0].diameter == spy.call_args.kwargs["via_diameter"]
+    assert placement.vias[0].drill == expected.via_drill_mm
 
 
 # ---------------------------------------------------------------------------

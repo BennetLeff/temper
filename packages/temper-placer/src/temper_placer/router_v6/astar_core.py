@@ -816,6 +816,8 @@ def _route_segment_3d(
     goal_layer: str,
     grids: dict,
     via_cost: float = 10.0,
+    via_diameter: float = 0.6,
+    clearance: float = 0.2,
     net_id: int = 0,
     max_iter: int | None = _ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
 ) -> tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None:
@@ -832,6 +834,10 @@ def _route_segment_3d(
         goal_layer: Goal layer name
         grids: Dictionary of OccupancyGrid per layer
         via_cost: Cost for layer transitions
+        via_diameter: Resolved netclass via diameter in mm used to reserve
+            the candidate via's copper envelope on every spanned layer.
+        clearance: Resolved netclass clearance in mm used with
+            ``via_diameter`` when reserving that envelope.
         net_id: Net ID passed through to ``_astar_search_3d`` so any via
             placed by this call is actually blocked on the occupancy
             grid via ``mark_via_blocked()`` (which requires ``net_id >
@@ -872,7 +878,9 @@ def _route_segment_3d(
     goal_node = RouteNode3D(goal_grid[0], goal_grid[1], goal_layer)
 
     result = _astar_search_3d(
-        start_node, goal_node, grids, via_cost=via_cost, net_id=net_id, max_iter=max_iter,
+        start_node, goal_node, grids, via_cost=via_cost,
+        via_diameter=via_diameter, clearance=clearance,
+        net_id=net_id, max_iter=max_iter,
     )
 
     if result is None:
