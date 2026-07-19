@@ -49,14 +49,16 @@ def expand_channel_path_terminals(
     if not enable_all_pad_tree or len(pads) <= 2:
         return channel_path
     existing = set(channel_path.waypoints)
-    missing = [pad for pad in sorted(pads) if pad not in existing]
+    missing = [pad for pad in pads if pad not in existing]
     if not missing:
         return channel_path
+    attachment_point = channel_path.waypoints[-1] if channel_path.waypoints else min(missing)
+    ordered_missing = _nearest_terminal_order(attachment_point, missing)
     return ChannelPath(
         net_name=channel_path.net_name,
         channel_sequence=list(channel_path.channel_sequence),
-        waypoints=[*channel_path.waypoints, *missing],
-        total_length=_calculate_path_length([*channel_path.waypoints, *missing]),
+        waypoints=[*channel_path.waypoints, *ordered_missing],
+        total_length=_calculate_path_length([*channel_path.waypoints, *ordered_missing]),
         preferred_layer=channel_path.preferred_layer,
     )
 
@@ -159,7 +161,8 @@ def fallback_channel_path(
     if len(pads) == 2:
         waypoints = pads
     elif enable_all_pad_tree:
-        waypoints = sorted(pads)
+        root = min(pads)
+        waypoints = [root, *_nearest_terminal_order(root, [pad for pad in pads if pad != root])]
     else:
         waypoints = [pads[0], pads[-1]]
     return ChannelPath(
@@ -169,6 +172,24 @@ def fallback_channel_path(
         total_length=0.0,
         preferred_layer=_assign_layer(net_name, layer_constraints=layer_constraints),
     )
+
+
+def _nearest_terminal_order(
+    start: tuple[float, float], pads: list[tuple[float, float]]
+) -> list[tuple[float, float]]:
+    """Deterministically extend an existing copper component one pad at a time."""
+    remaining = set(pads)
+    ordered: list[tuple[float, float]] = []
+    current = start
+    while remaining:
+        next_pad = min(
+            remaining,
+            key=lambda pad: (abs(pad[0] - current[0]) + abs(pad[1] - current[1]), pad),
+        )
+        ordered.append(next_pad)
+        remaining.remove(next_pad)
+        current = next_pad
+    return ordered
 
 
 @dataclass

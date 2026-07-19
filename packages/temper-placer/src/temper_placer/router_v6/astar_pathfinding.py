@@ -56,6 +56,10 @@ _MAX_REROUTE_ATTEMPTS_PER_NET = 2
 # See astar_core.py's ``_ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER`` docstring
 # for the reasoning behind this order of magnitude.
 _SEGMENT_3D_FALLBACK_MAX_ITER = 200_000
+# Experimental all-terminal trees may invoke the 3D fallback once per edge.
+# Keep that expensive retry bounded until production evidence justifies a
+# larger search budget; two-pad routing deliberately retains the value above.
+_TREE_SEGMENT_3D_FALLBACK_MAX_ITER = 10_000
 
 _SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
@@ -271,6 +275,8 @@ def run_astar_pathfinding(
     net_budgets: dict[str, int] | None = None,
     thermal_flat=None,  # U8: thermal cost field (rows*cols, float32)
     thermal_weight: float = 0.0,  # U8: multiplier on per-cell thermal cost
+    enforce_all_pad_tree: bool = False,
+    tree_3d_fallback_max_iter: int = _TREE_SEGMENT_3D_FALLBACK_MAX_ITER,
 ) -> PathfindingResult:
     """
     Run A* or Theta* pathfinding to generate routing paths.
@@ -305,6 +311,8 @@ def run_astar_pathfinding(
     """
     if design_rules is None:
         design_rules = DesignRules()
+    if tree_3d_fallback_max_iter <= 0:
+        raise ValueError("tree_3d_fallback_max_iter must be positive")
     all_grids: dict[str, OccupancyGrid] = {grid.layer_name: grid}
     if alternate_grid:
         all_grids[alternate_grid.layer_name] = alternate_grid
@@ -366,6 +374,7 @@ def run_astar_pathfinding(
         nonlocal fallback_count
         channel_path = channel_mapping.channel_paths[net_name]
         net_id = net_ids[net_name]
+        tree_route_active = enforce_all_pad_tree and len(channel_path.waypoints) > 2
 
         primary_grid = all_grids.get(channel_path.preferred_layer, grid)
 
@@ -415,7 +424,10 @@ def run_astar_pathfinding(
             corridor_buffer_cells=corridor_buffer_cells,
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
-            allow_forced_segments=len(channel_path.waypoints) <= 2,
+            allow_forced_segments=not tree_route_active,
+            segment_3d_fallback_max_iter=(
+                tree_3d_fallback_max_iter if tree_route_active else _SEGMENT_3D_FALLBACK_MAX_ITER
+            ),
         )
         fallback_count += fb
 
@@ -433,7 +445,7 @@ def run_astar_pathfinding(
             # A forced direct segment is legacy compatibility behavior for a
             # two-terminal path.  It is categorically not a legal tree edge:
             # do not emit, reserve, or count a multi-pad net that needed one.
-            if len(channel_path.waypoints) > 2 and route_path.forced_segment_count:
+            if tree_route_active and route_path.forced_segment_count:
                 failed_index = route_path.failed_waypoint_indices[0]
                 tree_failures[net_name] = TreeRoutingFailure(
                     unresolved_terminal=channel_path.waypoints[failed_index],
@@ -595,6 +607,7 @@ def _astar_route_with_ripup(
     thermal_flat=None,
     thermal_weight: float = 0.0,
     allow_forced_segments: bool = True,
+    segment_3d_fallback_max_iter: int = _SEGMENT_3D_FALLBACK_MAX_ITER,
 ) -> tuple[RoutePath | RoutePath3D | None, list[int], int]:
     """
     Route a net, potentially ripping up blocking nets.
@@ -637,6 +650,7 @@ def _astar_route_with_ripup(
             net_id=net_id,
             design_rules=_design_rules,
             allow_forced_segments=allow_forced_segments,
+            segment_3d_fallback_max_iter=segment_3d_fallback_max_iter,
         )
         fallback_count += fb
     else:
@@ -885,6 +899,7 @@ def _astar_route_multilayer(
     net_id: int = 0,
     design_rules: DesignRules | None = None,
     allow_forced_segments: bool = True,
+    segment_3d_fallback_max_iter: int = _SEGMENT_3D_FALLBACK_MAX_ITER,
 ) -> tuple[RoutePath3D | None, int]:
     """
     Route a single net with per-segment layer switching at THT pads.
@@ -1026,7 +1041,7 @@ def _astar_route_multilayer(
             via_diameter=net_rules.via_diameter_mm if net_rules else 0.6,
             clearance=net_rules.clearance_mm if net_rules else 0.2,
             net_id=net_id,
-            max_iter=_SEGMENT_3D_FALLBACK_MAX_ITER,
+            max_iter=segment_3d_fallback_max_iter,
         )
 
         if result_3d is not None:

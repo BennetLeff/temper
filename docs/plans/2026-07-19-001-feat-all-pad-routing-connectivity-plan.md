@@ -43,6 +43,19 @@ gate passed in 145.84 s, confirming the non-regression baseline is restored.
 This blocks promotion until the next U2 slice diagnoses tree attachment/order
 and lowers the measured count without worsening other DRC classes.
 
+Follow-up experiments confirmed that this is not resolved by terminal order
+or a larger search window.  Nearest-terminal ordering made the experimental
+sequence deterministic, but its KiCad result remained **218** unconnected
+items.  The first unbounded run also exposed a termination defect: each extra
+terminal could enter the 200,000-iteration 3D fallback and repeat through
+rip-up.  Experimental tree routing now caps that fallback at 10,000
+iterations per edge and stops at the first failed edge with its terminal in
+the diagnostic.  The bounded opt-in run completed and still measured 218,
+which rules out both ordering and runaway search as the primary cause.  The
+next U2 design must preserve and verify already-realized partial copper while
+separately reporting unsatisfied terminals, then use a true component-aware
+attachment strategy; it must not reinstate forced/direct edges.
+
 U0's evidence validator is implemented and fail-closed, but no baseline JSON
 is committed: a fresh routed corpus measurement produced 6 unconnected items,
 not the required zero.  Recording a clean corpus artifact would be false;

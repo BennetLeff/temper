@@ -246,10 +246,9 @@ class V6RouterAdapter:
         # U8: extract thermal cost field from the _cost_maps seam
         thermal_flat = None
         thermal_weight = 0.0
-        if _cost_maps is not None:
-            if hasattr(_cost_maps, "cost_flat") and hasattr(_cost_maps, "weight"):
-                thermal_flat = _cost_maps.cost_flat
-                thermal_weight = _cost_maps.weight
+        if _cost_maps is not None and hasattr(_cost_maps, "cost_flat") and hasattr(_cost_maps, "weight"):
+            thermal_flat = _cost_maps.cost_flat
+            thermal_weight = _cost_maps.weight
 
         # Build a minimal temp PCB from board + positions data
         temp_content = self._build_temp_pcb(netlist, positions)
@@ -406,6 +405,7 @@ def route_pcb(
     net_class_assignments: dict[str, str] | None = None,
     thermal_flat: Any = None,  # U9: (N,) float32 thermal cost field
     thermal_weight: float = 0.0,  # U9: multiplier
+    enable_all_pad_tree: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -425,6 +425,8 @@ def route_pcb(
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
             (from CostFieldInput.weight).  0.0 = field-off.
+        enable_all_pad_tree: Experimental all-terminal routing tree. Disabled
+            until production KiCad DRC evidence clears the rollout gate.
 
     Returns:
         RoutingResult with completion_rate.
@@ -433,6 +435,10 @@ def route_pcb(
         ValueError: If parsed has no source_path.
     """
     from temper_placer.router_v6.pipeline import RouterV6Pipeline
+
+    # Kept for the established public call signature; the current router
+    # resolves layer constraints from ``design_rules`` below.
+    del net_class_assignments
 
     if not placements:
         logger.warning(
@@ -470,6 +476,7 @@ def route_pcb(
         layer_constraints=layer_constraints,
         thermal_flat=thermal_flat,  # U9
         thermal_weight=thermal_weight,  # U9
+        enable_all_pad_tree=enable_all_pad_tree,
     )
 
     if placements:

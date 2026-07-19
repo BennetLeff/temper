@@ -1189,6 +1189,7 @@ class RouterV6Pipeline:
             congestion_weight=self.congestion_weight,
             thermal_field=thermal_field,
             enable_coarse_to_fine=self.enable_coarse_to_fine,
+            enable_all_pad_tree=self.enable_all_pad_tree,
             coarse_factor=self.coarse_factor,
             corridor_buffer_cells=self.corridor_buffer_cells,
             enable_numba_los=  # type: ignore[call-arg]
@@ -1222,6 +1223,7 @@ class RouterV6Pipeline:
                 coarse_factor=self.coarse_factor,
                 corridor_buffer_cells=self.corridor_buffer_cells,
                 enable_numba_los=self.enable_numba_los,
+                enforce_all_pad_tree=self.enable_all_pad_tree,
             )
 
         return self._run_stage5(pcb, stage2, pathfinding_result)
