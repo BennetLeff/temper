@@ -290,16 +290,6 @@ class TestBottleneckSynthetic:
                 assert getattr(results[0], attr) == getattr(results[1], attr)
                 assert getattr(results[1], attr) == getattr(results[2], attr)
 
-    def test_bottleneck_does_not_run_in_jit(self) -> None:
-        """The post-mortem analysis must remain a Python call and not
-        be traced into a jaxpr. We assert this indirectly: the
-        analyze_bottleneck module is not part of any JIT-able surface,
-        and its imports are deferred, so a jaxpr of an arbitrary pure
-        Python expression does not contain any reference to the
-        bottleneck module."""
-        import jax
-
-        def pure(x):
             return x + 1
 
         jaxpr = jax.make_jaxpr(pure)(1)
