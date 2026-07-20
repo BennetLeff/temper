@@ -10,11 +10,8 @@ inspects it.
 from __future__ import annotations
 
 import re
-import uuid
-from typing import Any
 
 from temper_placer.router_v6.connectivity import (
-    ConnectivityComponent,
     CopperPad,
     CopperTrack,
     CopperVia,
@@ -75,12 +72,8 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
             )
         )
 
-    vias_by_net: dict[int, list[CopperVia]] = {}
-    for m in _VIA_RE.finditer(pcb_content):
-        x, y, dia, drill, layer1, layer2 = m.groups()
-        # Vias aren't per-net in the writer yet — skip for now.
-        # When via output lands, parse net from (tstamp) or parent.
-        pass
+    # Via parsing deferred: the writer does not emit (via ...) entries yet.
+    # When via output lands, parse from (tstamp) parent or via-net association.
 
     results: dict[str, NetConnectivity] = {}
     for net_name, positions in pad_positions.items():
