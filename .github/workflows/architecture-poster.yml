@@ -178,7 +178,7 @@ jobs:
 
       - name: Post sticky comment
         if: always()
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: architecture-poster
           path: diff-comment.md
