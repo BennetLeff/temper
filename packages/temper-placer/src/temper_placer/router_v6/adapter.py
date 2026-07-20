@@ -510,7 +510,7 @@ def route_pcb(
             # for the iter-cap sweet-spot table.
             result = pipeline.run(Path(temp_path))
             placed_content = Path(temp_path).read_text(encoding="utf-8")
-            routed_content = _write_routes_to_content(
+            routed_content, _ = _write_routes_to_content(
                 placed_content, result
             )
             return _build_routing_result(result, routed_content)
@@ -520,7 +520,7 @@ def route_pcb(
     else:
         result = pipeline.run(pcb_path)
         placed_content = pcb_path.read_text(encoding="utf-8")
-        routed_content = _write_routes_to_content(placed_content, result)
+        routed_content, _ = _write_routes_to_content(placed_content, result)
         return _build_routing_result(result, routed_content)
 
 
@@ -534,8 +534,8 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     """
     import math
     import uuid
-
     pad_positions: dict[str, list[tuple[float, float]]] = {}
+
 
     routing_results = getattr(result.stage4, "routing_results", None)
     if routing_results is None:
@@ -551,7 +551,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         net_name_to_number[m.group(2)] = int(m.group(1))
 
     # Collect pad world positions from the parsed PCB data
-    pad_positions: dict[str, list[tuple[float, float]]] = {}
+    pcb = getattr(result, "pcb", None)
     if pcb is not None:
         comp_by_ref = {c.ref: c for c in pcb.components}
         for net in pcb.nets:
@@ -638,7 +638,8 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             # overlap is DRC-neutral); everything else gets a connector.
             # This replaces the old CONNECTION_THRESHOLD_MM=0.5 which left
             # pads in (0, 0.5] mm disconnected (issue #229).
-            path_nodes = list(path_points)
+            path_nodes = [(pt[0], pt[1], path_layer) if len(pt) == 2 else pt
+                          for pt in path_points]
             STITCH_EPSILON_MM = 1e-4
             for px, py in pads:
                 if not path_nodes:
