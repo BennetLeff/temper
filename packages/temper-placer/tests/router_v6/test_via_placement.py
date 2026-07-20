@@ -143,3 +143,44 @@ class TestViaLayerSpanFromSegments:
                          layer_name="F.Cu", path_length=10.0)
         vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
         assert len(vias) >= 1
+
+
+class TestPerNetViaSizing:
+    """U4: place_vias must resolve per-netclass via_diameter/via_drill."""
+
+    def test_hv_netclass_gets_hv_sized_via(self):
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.astar_pathfinding import PathfindingResult
+        from temper_placer.router_v6.via_placement import place_vias
+
+        path = RoutePath3D(
+            net_name="+340V_BUS",
+            segments=[(0,0,"F.Cu"),(5,0,"F.Cu"),(5,0,"B.Cu"),(10,0,"B.Cu")],
+            via_positions=[(5,0)], path_length=10.0,
+        )
+        result = PathfindingResult(routed_paths={"+340V_BUS": path}, failed_nets=[])
+        placement = place_vias(
+            result,
+            net_class_assignments={"+340V_BUS": "HighVoltage"},
+            net_class_rules={"HighVoltage": {"via_diameter": 1.2, "via_drill": 0.6}},
+        )
+        assert placement.via_count == 1
+        via = placement.vias[0]
+        assert via.diameter == 1.2
+        assert via.drill == 0.6
+
+    def test_unclassified_net_falls_back_to_default(self):
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.astar_pathfinding import PathfindingResult
+        from temper_placer.router_v6.via_placement import place_vias
+
+        path = RoutePath3D(
+            net_name="SIG1",
+            segments=[(0,0,"F.Cu"),(5,0,"F.Cu"),(5,0,"B.Cu"),(10,0,"B.Cu")],
+            via_positions=[(5,0)], path_length=10.0,
+        )
+        result = PathfindingResult(routed_paths={"SIG1": path}, failed_nets=[])
+        placement = place_vias(result, via_diameter=0.8, via_drill=0.4)
+        assert placement.via_count == 1
+        assert placement.vias[0].diameter == 0.8
+        assert placement.vias[0].drill == 0.4

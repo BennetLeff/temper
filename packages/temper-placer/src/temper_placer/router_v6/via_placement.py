@@ -42,40 +42,49 @@ class ViaPlacement:
 
 def place_vias(
     pathfinding_result: PathfindingResult,
-    via_diameter: float = 0.6,  # Standard via
+    via_diameter: float = 0.6,
     via_drill: float = 0.3,
+    net_class_assignments: dict[str, str] | None = None,
+    net_class_rules: dict | None = None,
 ) -> ViaPlacement:
     """
     Place vias for layer transitions in routed paths.
 
-    Analyzes routed paths and inserts vias where layer changes occur.
+    When *net_class_assignments* and *net_class_rules* are both provided (U4),
+    per-netclass sizing replaces the board-wide defaults.
 
     Args:
         pathfinding_result: Routed paths from Stage 4.2
         via_diameter: Default via diameter (mm)
         via_drill: Default drill diameter (mm)
-
-    Returns:
-        ViaPlacement with all placed vias
-
-    Example:
-        >>> from temper_placer.router_v6.astar_pathfinding import PathfindingResult
-        >>> result = PathfindingResult(routed_paths={}, failed_nets=[])
-        >>> placement = place_vias(result)
-        >>> placement.via_count >= 0
-        True
+        net_class_assignments: Optional per-net class mapping (net_name -> class)
+        net_class_rules: Optional per-class rule dict (class_name -> {via_diameter, via_drill})
     """
     vias = []
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
-        # Analyze path for layer transitions
-        net_vias = _place_vias_for_path(
-            net_name,
-            route_path,
-            via_diameter,
-            via_drill,
+        dia, drill = via_diameter, via_drill
+        if net_class_assignments and net_class_rules:
+            nc_name = net_class_assignments.get(net_name)
+            if nc_name:
+                rules = net_class_rules.get(nc_name, {})
+                dia = rules.get("via_diameter", via_diameter)
+                drill = rules.get("via_drill", via_drill)
+        vias.extend(
+            _place_vias_for_path(net_name, route_path, dia, drill)
         )
-        vias.extend(net_vias)
+    for net_name, geometry in getattr(pathfinding_result, "tree_routes", {}).items():
+        dia, drill = via_diameter, via_drill
+        if net_class_assignments and net_class_rules:
+            nc_name = net_class_assignments.get(net_name)
+            if nc_name:
+                rules = net_class_rules.get(nc_name, {})
+                dia = rules.get("via_diameter", via_diameter)
+                drill = rules.get("via_drill", via_drill)
+        for branch in geometry.branches:
+            vias.extend(
+                _place_vias_for_path(net_name, branch.path, dia, drill)
+            )
 
     return ViaPlacement(vias=vias)
 
