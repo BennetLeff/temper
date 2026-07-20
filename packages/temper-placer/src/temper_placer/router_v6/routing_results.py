@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
+from temper_placer.router_v6.connectivity import NetConnectivity, NetDisposition
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
 from temper_placer.router_v6.tree_route_geometry import TreeRouteGeometry
 from temper_placer.router_v6.via_placement import ViaPlacement
@@ -48,25 +49,40 @@ class RoutingResults:
     compiled_routes: dict[str, CompiledRoute]  # net_name -> CompiledRoute
     failed_nets: list[str]  # Nets that failed to route
     plane_net_count: int = 0  # Nets excluded (planes, unconnected)
-    # U4: per-net routing reports. Each ``NetRoutingReport`` may carry a
-    # ``BottleneckGeometry`` describing the min-cut for a failed net.
-    # The closure test reads this list to surface the actionable
-    # ``routing_failure_messages`` field (SC1/SC2).
     net_reports: list[NetRoutingReport] = field(default_factory=list)
-    # Legal prefixes for incomplete experimental route trees. They are kept
-    # out of ``compiled_routes`` so success accounting remains truthful.
     partial_routes: dict[str, CompiledRoute] = field(default_factory=dict)
     tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
     partial_tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
+    # U3: per-net connectivity verification. When populated, success_count
+    # derives from NetDisposition rather than raw path count.
+    connectivity: dict[str, NetConnectivity] | None = None
 
     @property
     def success_count(self) -> int:
-        """Number of successfully routed nets (includes plane nets)."""
+        """Number of successfully routed nets from connectivity dispositions.
+
+        When ``connectivity`` is populated (U3+), success requires a
+        ``ROUTED`` or ``PLANE_CONNECTED`` disposition.  Falls back to the
+        pre-U3 path-count logic when connectivity is ``None``.
+        """
+        if self.connectivity is not None:
+            return sum(
+                1
+                for nc in self.connectivity.values()
+                if nc.disposition in (NetDisposition.ROUTED, NetDisposition.PLANE_CONNECTED)
+            )
         return len(self.compiled_routes) + len(self.tree_routes) + self.plane_net_count
 
     @property
     def failure_count(self) -> int:
-        """Number of failed nets."""
+        """Number of failed nets from connectivity dispositions."""
+        if self.connectivity is not None:
+            return sum(
+                1
+                for nc in self.connectivity.values()
+                if nc.disposition
+                in (NetDisposition.INCOMPLETE, NetDisposition.FAILED)
+            )
         return len(self.failed_nets)
 
     @property
@@ -89,6 +105,7 @@ def compile_routing_results(
     via_placement: ViaPlacement,
     plane_net_names: list[str] | None = None,
     net_reports: list[NetRoutingReport] | None = None,
+    connectivity: dict[str, NetConnectivity] | None = None,
 ) -> RoutingResults:
     """
     Compile all routing results into final output.
@@ -155,7 +172,10 @@ def compile_routing_results(
         )
 
     for net_name, geometry in pathfinding_result.tree_routes.items():
-        tree_routes[net_name] = CompiledTreeRoute(
+        # U3: connectivity-filtered — incomplete nets go to partial, not success.
+        disp = connectivity.get(net_name).disposition if connectivity and net_name in connectivity else None
+        dest = partial_tree_routes if disp in (NetDisposition.INCOMPLETE, NetDisposition.FAILED) else tree_routes
+        dest[net_name] = CompiledTreeRoute(
             net_name=net_name,
             geometry=geometry,
             width_mm=width_assignment.get_width(net_name) or 0.127,
@@ -204,4 +224,5 @@ def compile_routing_results(
         partial_routes=partial_routes,
         tree_routes=tree_routes,
         partial_tree_routes=partial_tree_routes,
+        connectivity=connectivity,
     )
