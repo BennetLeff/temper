@@ -279,4 +279,4 @@ def test_sat_terminal_expansion_is_permutation_invariant(xs):
 
     assert expanded.waypoints[:2] == [(5, 5), (15, 5)]
     assert set(expanded.waypoints[2:]) == set(pads)
-    assert expanded.waypoints[2] == min(pads, key=lambda pad: (abs(pad[0] - 15) + abs(pad[1] - 5), pad))
+    assert expanded.waypoints[2] == min(pads, key=lambda pad: (abs(pad[0]-15)+abs(pad[1]-5), pad))

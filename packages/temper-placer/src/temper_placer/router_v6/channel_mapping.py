@@ -18,9 +18,12 @@ from temper_placer.router_v6.net_classification import (
     is_hv_net,
     is_power_net,
 )
+from temper_placer.router_v6.terminal_extraction import ParsedTerminal
+from temper_placer.router_v6.terminal_tree import TerminalTreePlan
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
 
 
+@dataclass
 @dataclass
 class ChannelPath:
     """A path through routing channels."""
@@ -30,6 +33,8 @@ class ChannelPath:
     waypoints: list[tuple[float, float]]  # (x, y) coordinates along path
     total_length: float  # Total path length in mm
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
+    terminal_tree: TerminalTreePlan | None = None
+    terminals: tuple[ParsedTerminal, ...] = ()
 
 
 # Map Layer enum (L1_TOP .. L4_BOT) → KiCad copper layer name (F.Cu .. B.Cu).
@@ -58,13 +63,15 @@ def expand_channel_path_terminals(
     if not enable_all_pad_tree or len(pads) <= 2:
         return channel_path
     existing = set(channel_path.waypoints)
-    missing = [pad for pad in sorted(pads) if pad not in existing]
+    missing = [pad for pad in pads if pad not in existing]
     if not missing:
         return channel_path
+    attachment_point = channel_path.waypoints[-1] if channel_path.waypoints else min(missing)
+    ordered_missing = _nearest_terminal_order(attachment_point, missing)
     return ChannelPath(
         net_name=channel_path.net_name,
         channel_sequence=list(channel_path.channel_sequence),
-        waypoints=[*channel_path.waypoints, *missing],
+        waypoints=[*channel_path.waypoints, *ordered_missing],
         total_length=_calculate_path_length([*channel_path.waypoints, *missing]),
         preferred_layer=channel_path.preferred_layer,
     )
@@ -552,7 +559,6 @@ def _assign_layer(
     return heuristic
 
 
-
 @dataclass
 class ChannelMapping:
     """Mapping of nets to channel paths."""
@@ -849,3 +855,19 @@ def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
         total_length += length
 
     return total_length
+def _nearest_terminal_order(
+    start: tuple[float, float], pads: list[tuple[float, float]]
+) -> list[tuple[float, float]]:
+    """Deterministically extend an existing copper component one pad at a time."""
+    remaining = set(pads)
+    ordered: list[tuple[float, float]] = []
+    current = start
+    while remaining:
+        next_pad = min(
+            remaining,
+            key=lambda pad: (abs(pad[0] - current[0]) + abs(pad[1] - current[1]), pad),
+        )
+        ordered.append(next_pad)
+        remaining.remove(next_pad)
+        current = next_pad
+    return ordered
