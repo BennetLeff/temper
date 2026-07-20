@@ -105,14 +105,14 @@ def _assign_layer(
         else "F.Cu"
     )
 
-    # W2 U2 / R2: SSOT-driven layer assignment from the netclass YAML.
-    # Only override the heuristic for nets that have an *explicit* net
-    # class AND whose SSOT layer matches the heuristic.  Nets with
-    # Default catch-all class or where SSOT ≠ heuristic keep the W1
-    # behaviour so that SMD pads on F.Cu aren't forcibly routed on
-    # B.Cu (which creates unconnected items — see PR #220 regression).
+    # W2 U2 / R2 / U7: SSOT-driven layer assignment from the netclass YAML.
+    # When the net has an explicit netclass with a routable SSOT layer,
+    # apply it.  The divergence guard (ssot == heuristic) is removed;
+    # via-aware transitions (U1-U6) provide legal layer changes, and
+    # the fallback tier handles unreachable terminals gracefully.
     ssot = _ssot_layer_for_net(net_name, layer_constraints)
-    if ssot is not None and ssot == heuristic:
+    if ssot is not None:
+        return ssot
         return ssot
 
     return heuristic
