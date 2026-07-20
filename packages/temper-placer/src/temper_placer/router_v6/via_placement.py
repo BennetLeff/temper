@@ -66,8 +66,8 @@ def place_vias(
             nc_name = net_class_assignments.get(net_name)
             if nc_name:
                 rules = net_class_rules.get(nc_name, {})
-                dia = rules.get("via_diameter", via_diameter)
-                drill = rules.get("via_drill", via_drill)
+                dia = getattr(rules, "via_diameter_mm", via_diameter)
+                drill = getattr(rules, "via_drill_mm", via_drill)
         vias.extend(
             _place_vias_for_path(net_name, route_path, dia, drill)
         )
@@ -77,8 +77,8 @@ def place_vias(
             nc_name = net_class_assignments.get(net_name)
             if nc_name:
                 rules = net_class_rules.get(nc_name, {})
-                dia = rules.get("via_diameter", via_diameter)
-                drill = rules.get("via_drill", via_drill)
+                dia = getattr(rules, "via_diameter_mm", via_diameter)
+                drill = getattr(rules, "via_drill_mm", via_drill)
         for branch in geometry.branches:
             vias.extend(
                 _place_vias_for_path(net_name, branch.path, dia, drill)
