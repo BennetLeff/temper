@@ -162,7 +162,7 @@ class TestPerNetViaSizing:
         placement = place_vias(
             result,
             net_class_assignments={"+340V_BUS": "HighVoltage"},
-            net_class_rules={"HighVoltage": {"via_diameter": 1.2, "via_drill": 0.6}},
+            net_class_rules={"HighVoltage": type("NS",(),{"via_diameter_mm":1.2,"via_drill_mm":0.6})},
         )
         assert placement.via_count == 1
         via = placement.vias[0]
