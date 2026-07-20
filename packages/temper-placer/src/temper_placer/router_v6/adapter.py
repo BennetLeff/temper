@@ -572,6 +572,8 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> tuple[str, dict]:
     import math
     import uuid
 
+    pad_positions: dict[str, list[tuple[float, float]]] = {}
+
     routing_results = getattr(result.stage4, "routing_results", None)
     if routing_results is None:
         return pcb_content, pad_positions
@@ -590,7 +592,6 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> tuple[str, dict]:
 
     # Collect pad world positions from the parsed PCB data
     pcb = getattr(result, "pcb", None)
-    pad_positions: dict[str, list[tuple[float, float]]] = {}
     if pcb is not None:
         comp_by_ref = {c.ref: c for c in pcb.components}
         for net in pcb.nets:

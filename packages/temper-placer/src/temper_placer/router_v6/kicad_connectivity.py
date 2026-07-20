@@ -70,7 +70,7 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
                 net=net_name_map.get(net_num, str(net_num)),
                 start=Point(float(x1), float(y1)),
                 end=Point(float(x2), float(y2)),
-                width_mm=float(width),
+                width=float(width),
                 layer=_layer_id(layer),
             )
         )
@@ -89,10 +89,15 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
         tracks = segments_by_net.get(net_num, []) if net_num else []
         via_list: list[CopperVia] = []
 
-        # Best-effort CopperPad: default rect, no rotation
+        # Best-effort CopperPad: default rect, no rotation.
+        # Layer (0, 1) = both F.Cu and B.Cu — the preflight does not
+        # know the SMD/PTH status of each pad, so it conservatively
+        # treats every pad as reachable on either layer.  This avoids
+        # false INCOMPLETE verdicts on legitimate B.Cu connections
+        # (PR #237's netclass assignments will route there).
         pads = [
             CopperPad(
-                identity=PadIdentity(component_ref="", pad=str(i), net=net_name, x=x, y=y, layers=(0,)),
+                identity=PadIdentity(component_ref="", pad=str(i), net=net_name, x=x, y=y, layers=(0, 1)),
                 center=Point(x, y),
                 shape="rect",
                 size=(1.0, 1.0),
