@@ -403,15 +403,8 @@ def test_written_segments_connect_all_pads_per_net(nets):
             )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#229: stitch-threshold hole — a pad 0<d<=0.5mm off-path gets no "
-    "connector (adapter.py CONNECTION_THRESHOLD_MM fires only on d>0.5, and "
-    "pad copper size is unknown here). Minimal falsifying example found by "
-    "the general property's mutation hunt. Remove this marker when #229 "
-    "lands its measured fix.",
-)
 def test_pad_exactly_at_stitch_threshold_is_connected():
+    """#229 was the 0.5mm stitch-threshold hole — now fixed (epsilon 1e-4)."""
     nets = [("NET0", [(0.0, 0.0), (0.0, 0.5), (0.0, 1.0)], False)]
     test_written_segments_connect_all_pads_per_net.hypothesis.inner_test(nets)
 
