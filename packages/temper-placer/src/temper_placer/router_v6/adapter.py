@@ -537,11 +537,11 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
 
     routing_results = getattr(result.stage4, "routing_results", None)
     if routing_results is None:
-        return pcb_content
+        return pcb_content, pad_positions
 
     compiled = getattr(routing_results, "compiled_routes", {})
     if not compiled:
-        return pcb_content
+        return pcb_content, pad_positions
 
     # Build net name -> net number mapping from the PCB content
     net_name_to_number: dict[str, int] = {}
@@ -680,8 +680,17 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 )
                 connected.append(pad)
 
+        # U5: emit real (via ...) s-expressions for each Via in the compiled route.
+        for via in getattr(compiled_route, "vias", []):
+            vx, vy = via.position
+            segments.append(
+                f'  (via (at {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})'
+                f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
+                f' (net {net_num}) (tstamp "{uuid.uuid4()}"))'
+            )
+
     if not segments:
-        return pcb_content
+        return pcb_content, pad_positions
 
     # Inject segments before the closing ")" of the kicad_pcb s-expression
     segment_block = "\n" + "\n".join(segments) + "\n"
@@ -689,7 +698,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     if pcb_content.endswith(")"):
         pcb_content = pcb_content[:-1] + segment_block + ")\n"
 
-    return pcb_content
+    return pcb_content, pad_positions
 
 
 def _build_routing_result(result: Any, routed_content: str | None = None) -> RoutingResult:
