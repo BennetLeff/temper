@@ -435,14 +435,40 @@ TEMPER_NET_ASSIGNMENTS = {
     # ACMains - Mains voltage (240V AC)
     "AC_L": "ACMains",
     "AC_N": "ACMains",
+    "ac_l": "ACMains",
+    "ac_n": "ACMains",
     "PE": "ACMains",
     # HighVoltage - DC bus (300-400V DC)
-    "DC_BUS+": "HighVoltage",
-    "DC_BUS-": "HighVoltage",
+    "+340V_BUS": "HighVoltage",
+    "DC_BUS_RTN": "HighVoltage",
     "SW_NODE": "HighVoltage",
-    # FinePitch - Dense IC connections
-    "PWM_H": "FinePitch",
-    "PWM_L": "FinePitch",
+    # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
+    "sclk": "FinePitch",
+    "sdi": "FinePitch",
+    "sdo": "FinePitch",
+    "cs_n": "FinePitch",
+    "bias": "FinePitch",
+    "refin_n": "FinePitch",
+    "vbias": "FinePitch",
+    "RTD_SCK": "FinePitch",
+    "RTD_SDI": "FinePitch",
+    "RTD_CS_N": "FinePitch",
+    "RTD_SDO": "FinePitch",
+    "RTD_DRDY": "FinePitch",
+    "RTD_HW_FAULT": "FinePitch",
+    # GateDrive - MOSFET gate drive signals
+    "GATE_HS": "GateDrive",
+    "GATE_LS": "GateDrive",
+    "PWM_HS": "GateDrive",
+    "PWM_LS": "GateDrive",
+    # Power - DC supply rails
+    "+15V": "Power",
+    "+15V_LS": "Power",
+    "+3V3": "Power",
+    "vcc": "Power",
+    "V_BUS_SENSE": "Power",
+    # GND - power return
+    "PWR_RTN": "GND",
 }
 
 
