@@ -63,7 +63,6 @@ _SEGMENT_3D_FALLBACK_MAX_ITER = 200_000
 # larger search budget; two-pad routing deliberately retains the value above.
 _TREE_SEGMENT_3D_FALLBACK_MAX_ITER = 10_000
 
-_SKIP_NET_PREFIXES = ("unconnected-", "NC-", "DNP-", "NC_", "TP_")
 
 @dataclass
 class RoutingFailureReport:
@@ -346,7 +345,7 @@ def run_astar_pathfinding(
         pad_centers_per_net = _extract_pad_centers_per_net(pcb)
 
     net_order = _compute_net_order(channel_mapping, bottleneck_widths=bottleneck_widths)
-    routable_nets = [n for n in net_order if _should_route(n)]
+    routable_nets = list(net_order)  # U5: route all nets, no name-based exemptions
 
     if target_nets:
         target_set = set(target_nets)
@@ -644,11 +643,6 @@ def run_astar_pathfinding(
         partial_tree_routes=partial_tree_routes,
     )
 
-
-def _should_route(net_name: str) -> bool:
-    if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name):
-        return False
-    return not any(net_name.startswith(p) for p in _SKIP_NET_PREFIXES)
 
 
 def _has_safe_partial_geometry(path: RoutePath | RoutePath3D) -> bool:

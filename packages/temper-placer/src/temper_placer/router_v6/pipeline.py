@@ -1277,16 +1277,7 @@ class RouterV6Pipeline:
         # 4.9: Compile results
         if self.verbose:
             print("  4.9: Compiling routing results...")
-        if self.single_layer:
-            plane_net_names: list[str] = []
-        else:
-            plane_net_names = [
-                net.name
-                for net in pcb.nets
-                if is_power_net(net.name)
-                or is_ground_net(net.name)
-                or is_hv_net(net.name)
-            ]
+        plane_net_names: list[str] = []  # U5: no name-based exemptions
         routing_results = compile_routing_results(
             pathfinding_result,
             width_assignment,
