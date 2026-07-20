@@ -175,6 +175,12 @@ class TestProductionBoardRouting:
               f"{unconnected} unconnected")
         print(f"  By type: {dict(sorted(by_type.items()))}")
 
+        # U6 ratchet: APC default-on + via-aware transitions → zero unconnected.
+        assert unconnected == 0, (
+            f"APC gate: expected 0 unconnected_items, got {unconnected}. "
+            f"The unconnected 149→0 measurement (U8) must hold."
+        )
+
         # Store results globally for the baseline updater
         _ROUTING_RECORD.update({
             "wall_time_s": round(wall_s, 1),
