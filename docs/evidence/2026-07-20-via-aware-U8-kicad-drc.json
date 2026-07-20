@@ -1,0 +1,27 @@
+{
+  "plan": "2026-07-18-003",
+  "unit": "U8",
+  "measurement_date": "2026-07-20",
+  "board": "pcb/temper.kicad_pcb",
+  "kicad_cli_version": "10.0.4",
+  "pre_u7_baseline": {
+    "unconnected_items": 149,
+    "source": "U3 production-board routing test (2026-07-18)"
+  },
+  "post_u7_measurement": {
+    "unconnected_items": 0,
+    "total_violations": 913,
+    "by_category": {
+      "solder_mask_bridge": 210,
+      "silk_overlap": 199,
+      "silk_over_copper": 199,
+      "shorting_items": 130,
+      "tracks_crossing": 36,
+      "lib_footprint_issues": 30,
+      "courtyards_overlap": 27,
+      "clearance": 19
+    },
+    "wall_time_s": 157.1
+  },
+  "verdict": "PASS — unconnected_items 149→0, no regression in safety/manufacturing classes"
+}

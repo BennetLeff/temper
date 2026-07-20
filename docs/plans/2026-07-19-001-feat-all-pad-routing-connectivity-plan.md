@@ -1,7 +1,7 @@
 ---
 title: "feat: All-Pad Routing Connectivity"
 type: feat
-status: proposed
+status: completed
 date: 2026-07-19
 origin: docs/brainstorms/2026-07-19-all-pad-routing-connectivity-requirements.md
 plan_id: APC1

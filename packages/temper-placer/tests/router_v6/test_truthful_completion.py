@@ -1,3 +1,6 @@
+# @req(APC1, R3): all-pad routing connectivity — truthful completion reporting
+# @req(APC1, R4): completion derived from connectivity, not path count
+
 """RED (TDD): Truthful completion reporting — U3 of plan APC1.
 
 PathfindingResult and RoutingResults must derive completion from connectivity

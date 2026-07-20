@@ -1,3 +1,6 @@
+# @req(APC1, R3): all-pad routing connectivity — truthful completion reporting
+# @req(APC1, R4): completion derived from connectivity, not path count
+
 """RED (TDD): Multi-layer tree execution — cross-layer PTH support.
 
 These tests FAIL until the pipeline relaxes its same-layer filter AND the
