@@ -4,28 +4,28 @@ Each property targets a bug class this codebase has actually shipped (see
 docs/solutions/workflow-issues/2026-07-18-plan-execution-and-ci-rot-excavation.md
 and the #226 U1 spike findings):
 
-- P1a/P1c (green): the 3D search's via bookkeeping works when its caller
-  holds up its end — via footprints get stamped with the owning net_id,
-  and cross-layer routes always report their vias.
-- P1b (strict xfail): `_route_segment_3d` drops `net_id` on the floor
-  (astar_core.py:818 passes positionals only, so the `net_id > 0` guard
-  at :715 never fires) — routed vias get ZERO occupancy-grid protection.
-  Flips to XPASS when #226 U2 plumbs the parameter through, forcing this
-  guard to be enabled.
-- P2 (strict xfail): `_astar_search_3d` has no `max_iter` budget, unlike
-  its 2D Theta*/Lazy-Theta* siblings in the same file — the spike measured
-  a 66 s unbounded exhaustion on a degenerate segment. Flips to XPASS when
-  U2 adds the cap.
+- P1a/P1b/P1c (green): the 3D search's via bookkeeping works when its
+  caller holds up its end — via footprints get stamped with the owning
+  net_id, and cross-layer routes always report their vias. P1b was a
+  strict-xfail ratchet (`_route_segment_3d` dropped `net_id` on the floor,
+  astar_core.py:818, so the `net_id > 0` guard at :715 never fired,
+  leaving routed vias with ZERO occupancy-grid protection) until #226 U2
+  (commit 081e9cf8) plumbed the parameter through — un-xfailed here per
+  the ratchet's own design.
+- P2 (green): `_astar_search_3d` now accepts and honors a `max_iter`
+  budget, matching its 2D Theta*/Lazy-Theta* siblings in the same file —
+  the spike measured a 66 s unbounded exhaustion on a degenerate segment
+  before #226 U2 (commit 081e9cf8) added the cap. Was a strict-xfail
+  ratchet; un-xfailed here per the ratchet's own design.
 - P3 (green): every net's emitted `(segment ...)` entries plus its pads
   must form a single same-layer-connected component — the pure-Python
   version of the "8 unconnected items" DRC regression that shipped in
   PR #220's first U9 attempt, catchable without kicad-cli. Writing this
   property immediately found a second real bug (#229, pinned below as a
   strict xfail): pads 0<d<=0.5mm off-path are never stitched.
-- P4 (green): `_assign_layer` is total, closed over routable layers, and
-  currently identical to the heuristic (the completion gate). U2+ must
-  consciously break the identity sub-property when divergent SSOT layers
-  become routable — that is a designed tripwire, not an accident.
+- P4 (green): `_assign_layer` is total and closed over routable layers.
+  Explicit routable SSOT assignments are authoritative; Default, unassigned,
+  and unsupported-plane assignments retain the completion-safe heuristic.
 """
 
 from __future__ import annotations
@@ -157,12 +157,6 @@ def test_search3d_net_id_zero_stamps_nothing(scenario):
 # =========================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#226 U2: _route_segment_3d never passes net_id to _astar_search_3d "
-    "(astar_core.py:818) so mark_via_blocked never fires — routed vias have "
-    "zero occupancy-grid protection. Remove this marker when U2 plumbs net_id.",
-)
 @given(_grid_dims, _grid_dims, _net_ids)
 @settings(max_examples=15, deadline=15000, suppress_health_check=[HealthCheck.too_slow])
 def test_route_segment_3d_leaves_via_footprint_protected(w, h, net_id):
@@ -207,13 +201,6 @@ def test_cross_layer_route_reports_vias_and_both_layers():
 # =========================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#226 U2: _astar_search_3d has no max_iter budget unlike its 2D "
-    "Theta*/Lazy-Theta* siblings (astar_core.py:324/511) — the U1 spike "
-    "measured 66 s of unbounded exhaustion. Remove this marker when U2 adds "
-    "the cap (param name `max_iter` for consistency with the siblings).",
-)
 def test_search3d_accepts_and_honors_max_iter_budget():
     grids = _make_grids(24, 24)
     # Wall off the goal on every layer so no path exists: without a budget
@@ -430,7 +417,7 @@ def test_pad_exactly_at_stitch_threshold_is_connected():
 
 
 # =========================================================================
-# P4 — _assign_layer totality + the completion-gate identity contract
+# P4 — _assign_layer totality + explicit-SSOT policy contract
 # =========================================================================
 _net_names = st.text(
     alphabet=st.characters(whitelist_categories=("Lu", "Ll", "Nd"), max_codepoint=122),
@@ -474,12 +461,25 @@ def test_assign_layer_is_total_and_layer_closed(name, constraints, include_self,
     layer = _assign_layer(name, layer_constraints=constraints)
     assert layer in {"F.Cu", "B.Cu"}
 
-    # Completion-gate identity contract (PR #220 final state): while the
-    # router lacks via-aware transitions, SSOT input must never change the
-    # outcome. #226 U2+ will consciously relax this — at which point this
-    # assertion should be REPLACED with the reachability-conditional
-    # property, not deleted.
-    assert layer == _assign_layer(name, layer_constraints=None)
+    heuristic = _assign_layer(name, layer_constraints=None)
+    assigned = (constraints or {}).get(name)
+    reason = getattr(assigned, "reason", "")
+    primary = getattr(assigned, "primary_layer", None)
+    if isinstance(assigned, str):
+        expected_ssot = assigned if assigned in {"F.Cu", "B.Cu"} else None
+    elif primary is None:
+        expected_ssot = None
+    else:
+        value = primary.value if hasattr(primary, "value") else int(primary)
+        expected_ssot = {1: "F.Cu", 4: "B.Cu"}.get(value)
+
+    # U7 policy: only an explicit class carrying a supported outer layer can
+    # override the heuristic.  Default/unassigned and plane/invalid layers
+    # retain it, so the router never emits an unsupported routing layer.
+    if expected_ssot is not None and "netclass=Default" not in reason:
+        assert layer == expected_ssot
+    else:
+        assert layer == heuristic
 
 
 @given(name=_net_names)

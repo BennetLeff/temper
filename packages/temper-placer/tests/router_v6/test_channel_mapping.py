@@ -4,11 +4,14 @@ Tests for Router V6 Stage 4.1: Map Topology to Channels
 Part of temper-qic1
 """
 
+from types import SimpleNamespace
+
 import networkx as nx
 
 from temper_placer.router_v6.channel_mapping import (
     ChannelMapping,
     ChannelPath,
+    _assign_layer,
     map_topology_to_channels,
 )
 from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
@@ -99,6 +102,33 @@ def test_channel_mapping_dataclass():
     assert mapping.get_path("NET1") == path1
     assert mapping.get_path("NET2") == path2
     assert mapping.get_path("NET3") is None
+
+
+def test_explicit_routable_ssot_assignment_overrides_heuristic_layer():
+    """U7: an explicit outer-layer netclass is authoritative.
+
+    ``PWM_GATE`` deliberately does not match the power/ground/HV naming
+    heuristic, so its B.Cu SSOT assignment proves that this is a real policy
+    override rather than an accidental heuristic match.
+    """
+    constraints = {
+        "PWM_GATE": SimpleNamespace(
+            reason="netclass=GateDrive SSOT layer=B.Cu",
+            primary_layer=4,
+        ),
+    }
+
+    assert _assign_layer("PWM_GATE", layer_constraints=constraints) == "B.Cu"
+    assert _assign_layer(
+        "DEFAULT_NET",
+        layer_constraints={
+            "DEFAULT_NET": SimpleNamespace(
+                reason="netclass=Default SSOT layer=B.Cu",
+                primary_layer=4,
+            )
+        },
+    ) == "F.Cu"
+    assert _assign_layer("UNASSIGNED_NET", layer_constraints={}) == "F.Cu"
 
 
 def test_waypoint_generation():

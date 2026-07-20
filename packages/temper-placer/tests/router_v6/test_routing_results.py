@@ -4,15 +4,43 @@ Tests for Router V6 Stage 4.9: Compile Routing Results
 Part of temper-xnsk
 """
 
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
+from temper_placer.router_v6.connectivity import PadIdentity
 from temper_placer.router_v6.routing_results import (
     CompiledRoute,
     RoutingResults,
     compile_routing_results,
 )
-from temper_placer.router_v6.trace_width_assignment import TraceWidth, TraceWidthAssignment
+from temper_placer.router_v6.terminal_tree import TerminalTreeEdge
+from temper_placer.router_v6.trace_width_assignment import (
+    TraceWidth,
+    TraceWidthAssignment,
+    assign_trace_widths,
+)
+from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry
 from temper_placer.router_v6.via_placement import Via, ViaPlacement
+
+
+def _tree(net_name: str) -> TreeRouteGeometry:
+    root = PadIdentity("U1", "1", net_name, 0.0, 0.0, (0,))
+    right = PadIdentity("U2", "1", net_name, 10.0, 0.0, (0,))
+    top = PadIdentity("U3", "1", net_name, 0.0, 10.0, (0,))
+    return TreeRouteGeometry(
+        net_name,
+        (
+            TreeRouteBranch(
+                TerminalTreeEdge(root, right),
+                RoutePath(net_name, [(0, 0), (10, 0)], "F.Cu", 10.0),
+            ),
+            TreeRouteBranch(
+                TerminalTreeEdge(root, top),
+                RoutePath(net_name, [(0, 0), (0, 10)], "F.Cu", 10.0),
+            ),
+        ),
+    )
 
 
 def test_compile_empty_results():
@@ -125,3 +153,53 @@ def test_compile_multiple_routes():
     assert compiled.success_count == 2
     assert compiled.failure_count == 1
     assert compiled.total_route_length == 15.0
+
+
+def test_partial_routes_receive_the_board_derived_width_assignment():
+    partial = RoutePath("NET1", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
+    pathfinding = PathfindingResult(routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial})
+
+    widths = assign_trace_widths(pathfinding, default_width=0.2)
+    compiled = compile_routing_results(pathfinding, widths, ViaPlacement(vias=[]))
+
+    assert widths.get_width("NET1") == 0.2
+    assert compiled.partial_routes["NET1"].width_mm == 0.2
+
+
+def test_complete_and_partial_tree_routes_receive_declared_net_class_widths():
+    result = PathfindingResult(
+        routed_paths={},
+        failed_nets=["HV_TREE"],
+        tree_routes={"GND_TREE": _tree("GND_TREE")},
+        partial_tree_routes={"HV_TREE": _tree("HV_TREE")},
+    )
+    widths = assign_trace_widths(result, default_width=0.2, power_width=0.5, hv_width=0.7)
+    compiled = compile_routing_results(result, widths, ViaPlacement(vias=[]))
+
+    assert compiled.tree_routes["GND_TREE"].width_mm == 0.5
+    assert compiled.partial_tree_routes["HV_TREE"].width_mm == 0.7
+
+
+@given(st.floats(min_value=0.15, max_value=1.0, allow_nan=False, allow_infinity=False))
+@settings(max_examples=30, deadline=30_000)
+def test_tree_branches_preserve_each_declared_board_default(default_width: float):
+    result = PathfindingResult(
+        routed_paths={}, failed_nets=[], tree_routes={"TREE_SIG": _tree("TREE_SIG")}
+    )
+
+    widths = assign_trace_widths(result, default_width=default_width)
+    compiled = compile_routing_results(result, widths, ViaPlacement(vias=[]))
+
+    assert widths.get_width("TREE_SIG") == default_width
+    assert compiled.tree_routes["TREE_SIG"].width_mm == default_width
+
+
+@given(st.floats(min_value=0.15, max_value=1.0, allow_nan=False, allow_infinity=False))
+@settings(max_examples=30, deadline=30_000)
+def test_partial_route_width_preserves_each_declared_board_default(default_width: float):
+    partial = RoutePath("NET1", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
+    result = PathfindingResult(routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial})
+
+    widths = assign_trace_widths(result, default_width=default_width)
+
+    assert widths.get_width("NET1") == default_width

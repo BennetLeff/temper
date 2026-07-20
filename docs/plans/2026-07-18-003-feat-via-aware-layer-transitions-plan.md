@@ -593,6 +593,43 @@ a dated record (matching the `u9_final` baseline provenance pattern);
 
 ---
 
+### U6.1. Diagnose the residual routing-quality baseline before widening layer assignment
+
+**Goal:** Turn the post-U6 DRC result into an evidence-backed input to U7,
+rather than treating all remaining violation types as an undifferentiated
+reason to change routing policy.
+
+**Requirements:** R5, R7
+
+**Dependencies:** U6
+
+**Status (2026-07-18):** Complete diagnosis; its implementation consequence is
+U7. The current corpus measurement has 0 routed `unconnected_items`, but 331
+total routed violations versus 94 placement-only violations: 99 `clearance`,
+81 `shorting_items`, 79 `solder_mask_bridge`, 54 `tracks_crossing`, and 8
+`hole_clearance`. The existing U8 diagnosis established that the representative
+shorts are genuine different-net copper crossings, not intra-component false
+positives. The clearance, mask, and crossing classes are the expected companion
+symptoms of the same same-layer congestion; hole clearance is not attributed to
+layer assignment and remains out of scope for U7.
+
+**Fresh code-path finding:** `RouterV6Pipeline._run_stage4()` already threads
+`layer_constraints` into `map_topology_to_channels()` and
+`fallback_channel_path()`. The blocker is deliberately in
+`channel_mapping._assign_layer()`: it returns an explicit SSOT layer only when
+it equals the heuristic. Thus `GateDrive` and other F.Cu-heuristic / B.Cu-SSOT
+nets cannot yet use the newly proven transition path. Earlier reports that the
+pipeline did not wire the constraints are stale.
+
+**Acceptance bar for U7:** Preserve 100% internal completion and never worsen
+`unconnected_items` on either board. Measure every DRC class before and after;
+the first U7 increment must attribute any reduction in genuine crossings to
+specific nets whose SSOT layer now diverges. It must not relax DRC thresholds
+or claim that the non-layer `hole_clearance` category is solved. USB D+/D-
+differential-pair spacing remains a separate W2 U5 follow-up.
+
+---
+
 ### U7. Relax the SSOT completion-preserving gate
 
 **Goal:** Once R5 (U6) is proven safe, relax `_assign_layer()`'s `if ssot is
@@ -616,6 +653,10 @@ is the brainstorm's own explicit sequencing requirement)
 - Remove or relax the `ssot == heuristic` condition so `_assign_layer`
   returns the SSOT layer whenever one is defined, regardless of heuristic
   agreement.
+- Start with a TDD/PBT-protected policy seam: explicit, routable SSOT classes
+  win; Default/unassigned nets retain the heuristic. Generate assignments over
+  the supported outer layers and net-class states to prove the resolution is
+  deterministic and cannot manufacture an unsupported layer.
 - Before merging: run the full `kicad-cli pcb drc` comparison (corpus +
   production boards) with the gate relaxed, and require the same
   never-regress-`unconnected_items` bar as U6.
@@ -638,6 +679,15 @@ is the brainstorm's own explicit sequencing requirement)
 boards, gating the merge — not implementer judgment. This resolves the
 brainstorm's Open Question 4 by making the "proven safe" bar concrete
 rather than left to discretion.
+
+**Implementation measurement (2026-07-18):** The U7 corpus run preserves
+100% completion and 0 routed `unconnected_items`. It records 329 total routed
+violations (102 `clearance`, 73 `shorting_items`, 79 `solder_mask_bridge`, 57
+`tracks_crossing`, 8 `hole_clearance`) versus U6.1's 331. The attributed
+improvement is eight fewer genuine shorts after explicit GateDrive/power layer
+divergence; clearance and crossing move by +3 each, so U7 is connectivity-safe
+and directionally useful, not routing closure. The production DRC threshold
+regression passes. U8 remains required to diagnose the residual categories.
 
 ---
 
@@ -678,6 +728,16 @@ start rather than discovered via a second regression.
 **Verification:** Final, cumulative `kicad-cli pcb drc` measurement on both
 boards, committed with provenance (matching the `u9_final` baseline
 pattern); `IECCreepageGate`/clearance gate both report real measurements.
+
+**Implementation finding (2026-07-19):** Production has a pre-U1/U3 baseline
+of 149 `unconnected_items`; U7 re-measured the same 149, so it satisfies the
+plan's never-worse criterion but is not physical connectivity closure. The
+first examples are disconnected `DC_BUS_RTN` PTH pads on a multi-pad net while
+the router reports the net successful after connecting only a pair. U8 must
+record this distinction rather than require an impossible zero baseline. The
+follow-on fix is multi-pad-net connectivity accounting and output, separate
+from via transitions; it must reduce the physical count before any plan claims
+production connectivity closure.
 
 ---
 

@@ -246,10 +246,9 @@ class V6RouterAdapter:
         # U8: extract thermal cost field from the _cost_maps seam
         thermal_flat = None
         thermal_weight = 0.0
-        if _cost_maps is not None:
-            if hasattr(_cost_maps, "cost_flat") and hasattr(_cost_maps, "weight"):
-                thermal_flat = _cost_maps.cost_flat
-                thermal_weight = _cost_maps.weight
+        if _cost_maps is not None and hasattr(_cost_maps, "cost_flat") and hasattr(_cost_maps, "weight"):
+            thermal_flat = _cost_maps.cost_flat
+            thermal_weight = _cost_maps.weight
 
         # Build a minimal temp PCB from board + positions data
         temp_content = self._build_temp_pcb(netlist, positions)
@@ -406,6 +405,7 @@ def route_pcb(
     net_class_assignments: dict[str, str] | None = None,
     thermal_flat: Any = None,  # U9: (N,) float32 thermal cost field
     thermal_weight: float = 0.0,  # U9: multiplier
+    enable_all_pad_tree: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -425,6 +425,8 @@ def route_pcb(
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
             (from CostFieldInput.weight).  0.0 = field-off.
+        enable_all_pad_tree: Experimental all-terminal routing tree. Disabled
+            until production KiCad DRC evidence clears the rollout gate.
 
     Returns:
         RoutingResult with completion_rate.
@@ -433,6 +435,10 @@ def route_pcb(
         ValueError: If parsed has no source_path.
     """
     from temper_placer.router_v6.pipeline import RouterV6Pipeline
+
+    # Kept for the established public call signature; the current router
+    # resolves layer constraints from ``design_rules`` below.
+    del net_class_assignments
 
     if not placements:
         logger.warning(
@@ -470,6 +476,7 @@ def route_pcb(
         layer_constraints=layer_constraints,
         thermal_flat=thermal_flat,  # U9
         thermal_weight=thermal_weight,  # U9
+        enable_all_pad_tree=enable_all_pad_tree,
     )
 
     if placements:
@@ -528,9 +535,10 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
     Extracts successfully routed paths from the pipeline result and writes
-    them as ``(segment ...)`` entries into the PCB content. For plane nets
-    (zero-length dummy paths) and for missing pins on multi-pin signal nets,
-    creates direct connections using pad positions from the parsed PCB.
+    them as ``(segment ...)`` entries and transition ``(via ...)`` entries
+    into the PCB content. For plane nets (zero-length dummy paths) and for
+    missing pins on multi-pin signal nets, creates direct connections using
+    pad positions from the parsed PCB.
     """
     import math
     import uuid
@@ -540,7 +548,10 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         return pcb_content
 
     compiled = getattr(routing_results, "compiled_routes", {})
-    if not compiled:
+    partial_compiled = getattr(routing_results, "partial_routes", {})
+    tree_compiled = getattr(routing_results, "tree_routes", {})
+    partial_tree_compiled = getattr(routing_results, "partial_tree_routes", {})
+    if not compiled and not partial_compiled and not tree_compiled and not partial_tree_compiled:
         return pcb_content
 
     # Build net name -> net number mapping from the PCB content
@@ -569,9 +580,43 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             if positions:
                 pad_positions[net.name] = positions
 
-    segments: list[str] = []
-    for net_name, compiled_route in compiled.items():
+    output_items: list[str] = []
+    output_routes = [
+        *((net_name, compiled_route, False) for net_name, compiled_route in compiled.items()),
+        *((net_name, compiled_route, True) for net_name, compiled_route in partial_compiled.items()),
+    ]
+    # A tree branch is exported as its own path and always skips the legacy
+    # pad-stitch/MST fallback.  Treating sibling branches as one serial path
+    # would emit a fictitious segment from one branch endpoint to the next.
+    from types import SimpleNamespace
+
+    for tree_collection in (tree_compiled, partial_tree_compiled):
+        for net_name, compiled_tree in tree_collection.items():
+            for branch in compiled_tree.geometry.branches:
+                output_routes.append(
+                    (
+                        net_name,
+                        SimpleNamespace(
+                            path=branch.path,
+                            width_mm=compiled_tree.width_mm,
+                            vias=[],
+                        ),
+                        True,
+                    )
+                )
+    for net_name, compiled_route, is_partial in output_routes:
         path = getattr(compiled_route, "path", None)
+        net_num = net_name_to_number.get(net_name, 0)
+        route_vias = list(getattr(compiled_route, "vias", []))
+        for via in route_vias:
+            vx, vy = via.position
+            via_id = uuid.uuid4()
+            output_items.append(
+                f'  (via (at {vx:.4f} {vy:.4f}) (size {via.diameter:.4f})'
+                f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
+                f' (net {net_num}) (tstamp "{via_id}"))'
+            )
+
         if path is None:
             continue
         path_length = getattr(path, "path_length", 0.0)
@@ -581,23 +626,30 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         # catch a present-but-zero width, so guard explicitly.
         if not width or width <= 0.0:
             width = 0.2
-        net_num = net_name_to_number.get(net_name, 0)
         pads = pad_positions.get(net_name, [])
 
         if path_length > 0 and len(pads) >= 2:
             # Real routed net: extract path coordinates
-            path_points: list[tuple[float, float]] = []
-            path_layer = "F.Cu"
+            path_nodes: list[tuple[float, float, str]] = []
             path_segs = getattr(path, "segments", None)
             if path_segs:
                 for s in path_segs:
-                    path_points.append((s[0], s[1]))
-                    path_layer = s[2]
+                    path_nodes.append((s[0], s[1], s[2]))
             else:
                 coords = getattr(path, "coordinates", None)
                 if coords:
-                    path_points = list(coords)
                     path_layer = getattr(path, "layer_name", "F.Cu")
+                    path_nodes = [(x, y, path_layer) for x, y in coords]
+
+            path_points = [(x, y) for x, y, _layer in path_nodes]
+
+            # A layer transition is encoded by co-located path nodes and a
+            # U5 via.  Only same-layer, non-zero edges become KiCad tracks.
+            geometric_edges = [
+                (start, end)
+                for start, end in zip(path_nodes, path_nodes[1:])
+                if start[:2] != end[:2] and start[2] == end[2]
+            ]
 
             # Write path segments, collapsing consecutive same-direction steps
             # to avoid A* grid-stepping staircasing.  Each individual grid
@@ -606,54 +658,94 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             # masking violations because adjacent segments from different
             # nets interleave with edge-to-edge gaps under the 0.2mm rule.
             i = 0
-            while i < len(path_points) - 1:
-                x1, y1 = path_points[i][0], path_points[i][1]
-                x2, y2 = path_points[i + 1][0], path_points[i + 1][1]
+            while i < len(geometric_edges):
+                start, end = geometric_edges[i]
+                x1, y1, path_layer = start
+                x2, y2, _ = end
                 dx_prev = x2 - x1
                 dy_prev = y2 - y1
-                j = i + 2
-                while j < len(path_points):
-                    xm = path_points[j - 1][0]
-                    ym = path_points[j - 1][1]
-                    xn = path_points[j][0]
-                    yn = path_points[j][1]
+                j = i + 1
+                while j < len(geometric_edges):
+                    previous, current = geometric_edges[j]
+                    xm, ym, previous_layer = previous
+                    xn, yn, current_layer = current
                     dx_cur = xn - xm
                     dy_cur = yn - ym
-                    if abs(dx_cur - dx_prev) < 1e-12 and abs(dy_cur - dy_prev) < 1e-12:
+                    if (
+                        previous[:2] == (x2, y2)
+                        and previous_layer == path_layer
+                        and current_layer == path_layer
+                        and abs(dx_cur - dx_prev) < 1e-12
+                        and abs(dy_cur - dy_prev) < 1e-12
+                    ):
                         x2, y2 = xn, yn
                         j += 1
                     else:
                         break
                 seg_id = uuid.uuid4()
-                segments.append(
+                output_items.append(
                     f'  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})'
-                    f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                    f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
-                i = j - 1
+                i = j
 
-            # Connect any pads not near the path (stitch missing pins)
-            CONNECTION_THRESHOLD_MM = 0.5
-            for px, py in pads:
-                if not path_points:
-                    continue
-                min_dist = min(
-                    math.hypot(px - qx, py - qy) for qx, qy in path_points
-                )
-                if min_dist > CONNECTION_THRESHOLD_MM:
-                    nearest_idx = min(
-                        range(len(path_points)),
-                        key=lambda i: math.hypot(px - path_points[i][0], py - path_points[i][1]),
+            # Incomplete tree prefixes are emitted exactly as A* produced
+            # them. They must not invoke the legacy pad-stitch workaround.
+            if not is_partial:
+                # Connect any pads not near the path (stitch missing pins)
+                CONNECTION_THRESHOLD_MM = 0.5
+                for px, py in pads:
+                    if not path_nodes:
+                        continue
+                    min_dist = min(
+                        math.hypot(px - qx, py - qy) for qx, qy in path_points
                     )
-                    nx, ny = path_points[nearest_idx]
+                    if min_dist <= CONNECTION_THRESHOLD_MM:
+                        continue
+                    nearest_idx = min(
+                        range(len(path_nodes)),
+                        key=lambda i: math.hypot(px - path_nodes[i][0], py - path_nodes[i][1]),
+                    )
+                    nx, ny, nearest_layer = path_nodes[nearest_idx]
+                    co_located_layers = {
+                        layer
+                        for x, y, layer in path_nodes
+                        if math.isclose(x, nx, abs_tol=1e-9)
+                        and math.isclose(y, ny, abs_tol=1e-9)
+                    }
+                    if "F.Cu" not in co_located_layers and nearest_layer != "F.Cu":
+                        # The pad stub is deliberately written on F.Cu. When
+                        # its nearest routed point is on another layer, make
+                        # that join explicit instead of leaving two copper
+                        # islands that merely overlap in X/Y.
+                        has_transition_via = any(
+                            math.isclose(via.position[0], nx, abs_tol=1e-9)
+                            and math.isclose(via.position[1], ny, abs_tol=1e-9)
+                            and {via.from_layer, via.to_layer}
+                            == {"F.Cu", nearest_layer}
+                            for via in route_vias
+                        )
+                        if not has_transition_via:
+                            template_via = route_vias[0] if route_vias else None
+                            via_diameter = (
+                                template_via.diameter if template_via is not None else 0.6
+                            )
+                            via_drill = template_via.drill if template_via is not None else 0.3
+                            via_id = uuid.uuid4()
+                            output_items.append(
+                                f'  (via (at {nx:.4f} {ny:.4f}) (size {via_diameter:.4f})'
+                                f' (drill {via_drill:.4f}) (layers "F.Cu" "{nearest_layer}")'
+                                f' (net {net_num}) (tstamp "{via_id}"))'
+                            )
                     seg_id = uuid.uuid4()
-                    segments.append(
+                    output_items.append(
                         f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
                         f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
                         f' (tstamp "{seg_id}"))'
                     )
 
-        elif len(pads) >= 2:
+        elif len(pads) >= 2 and not is_partial:
             # Plane net with dummy path: create minimum spanning-tree
             # connections.  Dummy plane paths carry F.Cu until via-aware
             # multi-layer output lands (see W2 follow-up issue).
@@ -673,18 +765,18 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                             best_conn = cp
                 pad = remaining.pop(best_idx)
                 seg_id = uuid.uuid4()
-                segments.append(
+                output_items.append(
                     f'  (segment (start {best_conn[0]:.4f} {best_conn[1]:.4f}) (end {pad[0]:.4f} {pad[1]:.4f})'
                     f' (width {width:.4f}) (layer "{mst_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
                 connected.append(pad)
 
-    if not segments:
+    if not output_items:
         return pcb_content
 
-    # Inject segments before the closing ")" of the kicad_pcb s-expression
-    segment_block = "\n" + "\n".join(segments) + "\n"
+    # Inject routed copper before the closing ")" of the kicad_pcb s-expression.
+    segment_block = "\n" + "\n".join(output_items) + "\n"
     pcb_content = pcb_content.rstrip()
     if pcb_content.endswith(")"):
         pcb_content = pcb_content[:-1] + segment_block + ")\n"

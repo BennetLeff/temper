@@ -60,6 +60,14 @@ class Via:
     drill: float
     net: str
     id: str = ""
+    # ``None`` preserves legacy through-via behaviour for callers that have
+    # not yet parsed layer spans. New board adapters must provide the actual
+    # conductive layers so connectivity verification cannot invent a bridge.
+    layers: frozenset[int] | None = None
+
+    def conductive_layers(self, known_layers: set[int]) -> frozenset[int]:
+        """Return this via's explicit span, or legacy through-via span."""
+        return self.layers if self.layers is not None else frozenset(known_layers)
 
 
 @dataclass
@@ -75,6 +83,15 @@ class Pad:
     rotation: float = 0.0  # Degrees counter-clockwise
     mask_expansion: float = 0.1  # Solder mask clearance expansion
     is_pth: bool = False  # Plated Through-Hole flag (all layers)
+    # Parsed copper layers. PTH pads should supply their plated span; callers
+    # handling old geometry can expand a PTH pad against the board's layers.
+    layers: frozenset[int] | None = None
+
+    def conductive_layers(self, known_layers: set[int]) -> frozenset[int]:
+        """Return the pad's declared conductive layers without name heuristics."""
+        if self.layers is not None:
+            return self.layers
+        return frozenset(known_layers) if self.is_pth else frozenset({self.layer})
 
     @property
     def rot_rect(self) -> RotatedRect:

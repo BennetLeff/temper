@@ -65,7 +65,17 @@ def assign_trace_widths(
     """
     assignments = {}
 
-    for net_name, _route_path in pathfinding_result.routed_paths.items():
+    # Tree geometry is branch-aware rather than serial RoutePath data, but
+    # width is a net-class property.  Include complete and partial trees so
+    # experimental output receives the same board-derived assignment as every
+    # conventional route.
+    routed_net_names = (
+        set(pathfinding_result.routed_paths)
+        | set(pathfinding_result.partial_paths)
+        | set(pathfinding_result.tree_routes)
+        | set(pathfinding_result.partial_tree_routes)
+    )
+    for net_name in routed_net_names:
         # Determine appropriate width for this net
         width = _determine_trace_width(
             net_name,

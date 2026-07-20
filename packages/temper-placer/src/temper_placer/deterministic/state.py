@@ -124,6 +124,8 @@ class BoardState:
     enable_lazy_theta_star: bool = False
     enable_numba_los: bool = False
     enable_coarse_to_fine: bool = False
+    enable_all_pad_tree: bool = False
+    tree_3d_fallback_max_iter: int = 10_000
     coarse_factor: int = 4
     corridor_buffer_cells: int = 12
     # U7 / R11: PathFinder-style history cost.  0.0 disables
