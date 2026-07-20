@@ -637,6 +637,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             # overlap is DRC-neutral); everything else gets a connector.
             # This replaces the old CONNECTION_THRESHOLD_MM=0.5 which left
             # pads in (0, 0.5] mm disconnected (issue #229).
+            path_nodes = list(path_points)
             STITCH_EPSILON_MM = 1e-4
             for px, py in pads:
                 if not path_nodes:
