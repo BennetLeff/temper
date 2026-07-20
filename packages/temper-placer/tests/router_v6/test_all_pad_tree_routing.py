@@ -1,3 +1,6 @@
+# @req(APC1, R3): all-pad routing connectivity — truthful completion reporting
+# @req(APC1, R4): completion derived from connectivity, not path count
+
 """All-pad routing tree regressions for Router V6."""
 
 from unittest.mock import patch
