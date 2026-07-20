@@ -630,10 +630,8 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
-                i = j
-                # ---- collapsed-same-direction variant ------------------------
-                if i > 0 and path_points[i] != path_points[i-1]:
-                    continue
+                i = j - 1
+
             # Connect any pads not directly on the path (stitch missing pins).
             # d > 1e-4 rejects only truly co-located pads (same-net copper
             # overlap is DRC-neutral); everything else gets a connector.
@@ -683,33 +681,6 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                             f' (drill {via_drill:.4f}) (layers "F.Cu" "{nearest_layer}")'
                             f' (net {net_num}) (tstamp "{via_id}"))'
                         )
-                seg_id = uuid.uuid4()
-                output_items.append(
-                    f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
-                    f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
-                    f' (tstamp "{seg_id}"))' - 1
-
-            # Connect any pads not near the path (stitch missing pins)
-            CONNECTION_THRESHOLD_MM = 0.5
-            for px, py in pads:
-                if not path_points:
-                    continue
-                min_dist = min(
-                    math.hypot(px - qx, py - qy) for qx, qy in path_points
-                )
-                if min_dist > CONNECTION_THRESHOLD_MM:
-                    nearest_idx = min(
-                        range(len(path_points)),
-                        key=lambda i: math.hypot(px - path_points[i][0], py - path_points[i][1]),
-                    )
-                    nx, ny = path_points[nearest_idx]
-                    seg_id = uuid.uuid4()
-                    segments.append(
-                        f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
-                        f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
-                        f' (tstamp "{seg_id}"))'
-                    )
-
         elif len(pads) >= 2:
             # Plane net with dummy path: create minimum spanning-tree
             # connections.  Dummy plane paths carry F.Cu until via-aware
