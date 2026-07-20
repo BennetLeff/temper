@@ -532,7 +532,6 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     (zero-length dummy paths) and for missing pins on multi-pin signal nets,
     creates direct connections using pad positions from the parsed PCB.
     """
-    import math
     import uuid
     pad_positions: dict[str, list[tuple[float, float]]] = {}
 
@@ -632,85 +631,6 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     f' (tstamp "{seg_id}"))'
                 )
                 i = j - 1
-
-            # Connect any pads not directly on the path (stitch missing pins).
-            # d > 1e-4 rejects only truly co-located pads (same-net copper
-            # overlap is DRC-neutral); everything else gets a connector.
-            # This replaces the old CONNECTION_THRESHOLD_MM=0.5 which left
-            # pads in (0, 0.5] mm disconnected (issue #229).
-            path_nodes = [(pt[0], pt[1], path_layer) if len(pt) == 2 else pt
-                          for pt in path_points]
-            STITCH_EPSILON_MM = 1e-4
-            for px, py in pads:
-                if not path_nodes:
-                    continue
-                min_dist = min(
-                    math.hypot(px - qx, py - qy) for qx, qy in path_points
-                )
-                if min_dist <= STITCH_EPSILON_MM:
-                    continue
-                nearest_idx = min(
-                    range(len(path_nodes)),
-                    key=lambda i: math.hypot(px - path_nodes[i][0], py - path_nodes[i][1]),
-                )
-                nx, ny, nearest_layer = path_nodes[nearest_idx]
-                co_located_layers = {
-                    layer
-                    for x, y, layer in path_nodes
-                    if math.isclose(x, nx, abs_tol=1e-9)
-                    and math.isclose(y, ny, abs_tol=1e-9)
-                }
-                if "F.Cu" not in co_located_layers and nearest_layer != "F.Cu":
-                    # The pad stub is deliberately written on F.Cu. When
-                    # its nearest routed point is on another layer, make
-                    # that join explicit instead of leaving two copper
-                    # islands that merely overlap in X/Y.
-                    has_transition_via = any(
-                        math.isclose(via.position[0], nx, abs_tol=1e-9)
-                        and math.isclose(via.position[1], ny, abs_tol=1e-9)
-                        and {via.from_layer, via.to_layer}
-                        == {"F.Cu", nearest_layer}
-                        for via in route_vias
-                    )
-                    if not has_transition_via:
-                        template_via = route_vias[0] if route_vias else None
-                        via_diameter = (
-                            template_via.diameter if template_via is not None else 0.6
-                        )
-                        via_drill = template_via.drill if template_via is not None else 0.3
-                        via_id = uuid.uuid4()
-                        output_items.append(
-                            f'  (via (at {nx:.4f} {ny:.4f}) (size {via_diameter:.4f})'
-                            f' (drill {via_drill:.4f}) (layers "F.Cu" "{nearest_layer}")'
-                            f' (net {net_num}) (tstamp "{via_id}"))'
-                        )
-        elif len(pads) >= 2:
-            # Plane net with dummy path: create minimum spanning-tree
-            # connections.  Dummy plane paths carry F.Cu until via-aware
-            # multi-layer output lands (see W2 follow-up issue).
-            mst_layer = getattr(path, "layer_name", None) or "F.Cu"
-            remaining = list(pads)
-            connected: list[tuple[float, float]] = [remaining.pop(0)]
-            while remaining:
-                best_dist = float("inf")
-                best_idx = 0
-                best_conn = connected[0]
-                for i, pad in enumerate(remaining):
-                    for cp in connected:
-                        d = math.hypot(pad[0] - cp[0], pad[1] - cp[1])
-                        if d < best_dist:
-                            best_dist = d
-                            best_idx = i
-                            best_conn = cp
-                pad = remaining.pop(best_idx)
-                seg_id = uuid.uuid4()
-                segments.append(
-                    f'  (segment (start {best_conn[0]:.4f} {best_conn[1]:.4f}) (end {pad[0]:.4f} {pad[1]:.4f})'
-                    f' (width {width:.4f}) (layer "{mst_layer}") (net {net_num})'
-                    f' (tstamp "{seg_id}"))'
-                )
-                connected.append(pad)
-
         # U5: emit real (via ...) s-expressions for each Via in the compiled route.
         for via in getattr(compiled_route, "vias", []):
             vx, vy = via.position
