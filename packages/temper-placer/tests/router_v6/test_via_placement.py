@@ -101,3 +101,45 @@ def test_custom_via_size():
         via = placement.vias[0]
         assert via.diameter == 0.8
         assert via.drill == 0.4
+
+
+class TestViaLayerSpanFromSegments:
+    """U3: _place_vias_for_path must derive from/to_layer from segment layers."""
+
+    def test_fcu_to_bcu_via_derives_layers_from_segments(self):
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[(0.0,0.0,"F.Cu"),(5.0,0.0,"F.Cu"),(5.0,0.0,"B.Cu"),(10.0,0.0,"B.Cu")],
+            via_positions=[(5.0, 0.0)], path_length=10.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert len(vias) == 1
+        assert vias[0].from_layer == "F.Cu"
+        assert vias[0].to_layer == "B.Cu"
+
+    def test_multiple_transitions_produce_correctly_paired_vias(self):
+        from temper_placer.router_v6.astar_core import RoutePath3D
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath3D(
+            net_name="TEST",
+            segments=[(0.0,0.0,"F.Cu"),(5.0,0.0,"F.Cu"),(5.0,0.0,"B.Cu"),
+                      (10.0,0.0,"B.Cu"),(10.0,0.0,"F.Cu"),(15.0,0.0,"F.Cu")],
+            via_positions=[(5.0,0.0),(10.0,0.0)], path_length=15.0,
+        )
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert len(vias) == 2
+        assert vias[0].from_layer == "F.Cu" and vias[0].to_layer == "B.Cu"
+        assert vias[1].from_layer == "B.Cu" and vias[1].to_layer == "F.Cu"
+
+    def test_legacy_routepath_fallback_unchanged(self):
+        from temper_placer.router_v6.astar_pathfinding import RoutePath
+        from temper_placer.router_v6.via_placement import _place_vias_for_path
+
+        path = RoutePath(net_name="TEST", coordinates=[(0,0),(5,0),(10,0)],
+                         layer_name="F.Cu", path_length=10.0)
+        vias = _place_vias_for_path("TEST", path, via_diameter=0.6, via_drill=0.3)
+        assert len(vias) >= 1

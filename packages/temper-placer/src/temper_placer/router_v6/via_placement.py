@@ -100,14 +100,28 @@ def _place_vias_for_path(
     """
     vias = []
 
-    # If RoutePath3D, use explicit via_positions from pathfinder
-    if hasattr(route_path, "via_positions"):
+    # If RoutePath3D, use explicit via_positions from pathfinder.
+    # U3: derive from_layer/to_layer from the actual segment layers on
+    # either side of each transition, not the hardcoded F.Cu/B.Cu pair.
+    if hasattr(route_path, "via_positions") and hasattr(route_path, "segments"):
+        segs = route_path.segments
         for vx, vy in route_path.via_positions:
+            vi = None
+            for i, (sx, sy, _) in enumerate(segs):
+                if abs(sx - vx) < 1e-4 and abs(sy - vy) < 1e-4:
+                    vi = i
+                    break
+            if vi is not None and vi + 1 < len(segs):
+                from_layer = segs[vi][2]
+                to_layer = segs[vi + 1][2]
+            else:
+                from_layer = "F.Cu"
+                to_layer = "B.Cu"
             vias.append(
                 Via(
                     position=(vx, vy),
-                    from_layer="F.Cu",  # Assume THT via spans full stack
-                    to_layer="B.Cu",
+                    from_layer=from_layer,
+                    to_layer=to_layer,
                     diameter=via_diameter,
                     drill=via_drill,
                     net_name=net_name,
