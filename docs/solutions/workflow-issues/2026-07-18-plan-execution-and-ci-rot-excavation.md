@@ -155,6 +155,79 @@ which hid drift failures. Each fix exposed the next layer.
   behind `continue-on-error` since the JAX removal.
 - **#224** — closed: was "ngspice root cause TBD"; layers 3+4 above solved it.
 
+### Follow-up measurement: #229 stitch-threshold hole (not landed)
+
+The strict-xfail property in
+`tests/router_v6/test_via_layer_properties_pbt.py` has a minimal falsifier:
+three collinear pads at `(0, 0)`, `(0, 0.5)`, and `(0, 1.0)`.  The emitter's
+`CONNECTION_THRESHOLD_MM = 0.5` suppresses the final stub because it is close
+to a path vertex, even though no emitted copper reaches it.
+
+On the U1/U2 branch, a deliberately minimal trial changed only that predicate:
+retain existing exact-vertex behavior and emit the formerly omitted
+`0 < d <= 0.5 mm` stubs using the same nearest raw-path vertex as the legacy
+code.  It made the strict property pass, but the exact corpus measurement
+regressed from **400** introduced routing DRC violations (410 routed versus 94
+placement) to **402** (412 routed versus 94), with `unconnected_items`
+unchanged at `-84`.  The change was reverted; no frozen baseline was updated.
+
+This is not a harmless output-format repair.  The emitter has neither pad
+copper geometry nor a clearance-aware candidate-stub check, so it cannot know
+whether a short connection is safe.  Keep #229 as a ratchet and resolve it in
+the via-aware/clearance-aware routing work (#226), where a prospective stitch
+can be checked before emitting copper.  Any retry must record corpus and
+production DRC deltas before changing a baseline.
+
+### Follow-up measurement: #226 U6 per-segment layer output (rejected)
+
+U6/R5 was attempted only after the U1--U5 via-data and writer units. The
+candidate writer emitted each non-zero `RoutePath3D` edge on its actual layer,
+split collapse runs at co-located layer transitions, and left those transitions
+to U5's real `(via ...)` records. Focused TDD and 100-example Hypothesis
+layer-walk properties passed, as did both `903dfaef` completion guards.
+
+The required end-to-end DRC measurement rejected the candidate. The exact
+corpus regression run changed from **0** routed `unconnected_items` (pre-U6;
+the route had 406 introduced violations relative to the 94-violation placement
+baseline) to **8** routed `unconnected_items` post-U6. The post-U6 run failed
+at the first completion assertion, before its later routing-quality delta
+assertion; the routed error categories reported at that point included
+`clearance: 101`, `copper_edge_clearance: 2`, `shorting_items: 63`, and
+`solder_mask_bridge: 74`. The exact production regression test still passed;
+the independently recorded pre-U6 production run was 955 total violations and
+149 unconnected items. Corpus completion regression alone fails R7's
+never-worsen bar, so the source and test changes were reverted with no frozen
+baseline update and no commit.
+
+This is the same underlying mismatch that made `F.Cu` accidentally
+load-bearing: U5 can emit a via only where the fallback search recorded a
+transition, while existing 2D routes may still begin/end on an opposite layer
+from F.Cu-only SMD pads. Do not re-land U6 as an output-only change. First make
+endpoint-to-pad layer transitions explicit and legality-checked, or otherwise
+prove the emitted via graph connects every layer-divergent route to its pads;
+then repeat the corpus and production R7 comparison.
+
+### Follow-up fix: #226 U6 endpoint and pad-stitch transitions (landed locally)
+
+The rejected U6 result identified a real gap rather than a reason to keep
+writing every route on F.Cu. The alternate-grid tier could return a B.Cu path
+without transitions; additionally, the writer's legacy "missing pad" stitch
+could join an interior B.Cu point to an F.Cu pad with no via. The repair keeps
+the completion-proven alternate search order, but represents each alternate
+segment as explicit F.Cu -> B.Cu and B.Cu -> F.Cu endpoint transitions. When
+an F.Cu pad stitch joins a genuinely B.Cu-only point, the writer emits the
+corresponding F.Cu-to-B.Cu bridge via using that route's resolved via geometry.
+
+The corpus regression again reports **0 routed `unconnected_items`**. Its
+remaining routing-quality assertion reports 321 introduced violations (331
+routed versus 94 placement), a pre-existing gate inconsistency: the recorded
+pre-U6 corpus baseline already had hundreds of routing-introduced violations.
+It is not used to claim a quality improvement here. The production-board DRC
+threshold regression also passes. Focused TDD coverage includes the former
+implicit alternate-layer failure and F.Cu pad-stitch bridge; a 100-example
+Hypothesis layer-walk property verifies that the writer emits only in-layer
+track runs.
+
 ## Patterns worth remembering
 
 1. **Layered CI masking**: a failing early step (build, install) hides every

@@ -103,6 +103,20 @@ def pin_position(libpart, pin_num, symbol_x, symbol_y):
 
 Without this compensation, the oracle will fail because net labels land on the wrong pins.
 
+### 3a. Root sheet dynamic stacking (2026-07-18 fix)
+
+The root schematic stacks sheet instances vertically. The initial implementation used a fixed 60.96mm spacing, which caused label collisions when sheet pin counts grew (e.g., after adding `discharge`/`thermal`/`aux_supply` module mappings). Safety_Interlock (14 pins, ending at y≈356.87) and Sensing (starting at y≈351.79) had pins and labels at identical coordinates, causing KiCad's `multiple_net_names` ERC to merge nets like `tank-out`/`PWR_RTN` and `safety-line-2`/`+3V3`.
+
+**Fix**: Stack sheets dynamically based on each sheet's actual block height (`max(25.4, pin_count * 5.08 + 5.08)`) plus a 20mm vertical gap:
+
+```python
+y = 101.6
+for sheet_name in SHEETS:
+    size_h = max(25.4, len(pins) * 5.08 + 5.08)
+    # ... generate sheet at (x, y) ...
+    y = y + size_h + 20.0  # advance past block + gap
+```
+
 ### 4. Build a connectivity-partition oracle
 
 After generating, run `kicad-cli sch export netlist` and compare the connectivity partition against the source netlist. Compare `(ref, pin)` groups ignoring net names -- same set of pins per net = same connectivity.
@@ -182,14 +196,24 @@ Every `.ato` change requires a human to replicate it in KiCad. Schematics drift 
 
 `.ato` change -> rebuild -> schematics update automatically. Oracle verifies correctness. No human touches KiCad's schematic editor.
 
-### Project Results (Temper, 2026-07-15)
+```python
+def _strip_sheet_prefix(net_name: str) -> str:
+    # Strip /SheetName/ or bare / prefix from KiCad-generated net names
+    return _HIERARCHY_PREFIX.sub("", net_name)
+
+_HIERARCHY_PREFIX = re.compile(r'^/(?:[\w-]+/)?')
+```
+
+This handles both `/Half_Bridge/tank.c_tank1-p2` (sheet-local nets) and bare `/+3V3`, `/PWR_RTN` (global nets exported with root-level prefix).
+
+### Project Results (Temper, 2026-07-18)
 
 ```
-100 components, 135 nets, 31 unique libparts
+149 components, 151 nets, 39 unique libparts
 6 generated sub-sheets + 1 root sheet
-346 pin assignments across 73 multi-node nets
-21 inter-sheet nets connected via hierarchical labels
-38 pins marked no_connect
+454 pin assignments across 95 multi-node nets
+29 inter-sheet nets connected via hierarchical labels
+61 pins marked no_connect
 Deterministic: same input -> byte-identical output
 ```
 

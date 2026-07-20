@@ -456,6 +456,7 @@ PRODUCTION_BOARD_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 # the 4x net count and coarser manual placement.
 PRODUCTION_PLACEMENT_ONLY_DVIOLATIONS = 800  # measured 747 on 2026-07-18 (kicad-cli 10.0.4)
 PRODUCTION_ROUTING_DVIOLATIONS = 1200  # measured 953 on 2026-07-18 (U3 baseline)
+PRODUCTION_ROUTING_UNCONNECTED_BASELINE = 149
 
 
 @pytest.mark.slow
@@ -547,6 +548,13 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     violations = drc_data.get("violations", [])
     total = len(violations)
     unconnected = len(drc_data.get("unconnected_items", []))
+
+    assert unconnected <= PRODUCTION_ROUTING_UNCONNECTED_BASELINE, (
+        f"Production board routing raised unconnected_items above the U3 "
+        f"baseline ({unconnected} > {PRODUCTION_ROUTING_UNCONNECTED_BASELINE}) "
+        f"despite the router completion signal. KiCad details: "
+        f"{drc_data.get('unconnected_items', [])[:5]}"
+    )
 
     assert total <= PRODUCTION_ROUTING_DVIOLATIONS, (
         f"Production board routing DRC: {total} violations exceeds "

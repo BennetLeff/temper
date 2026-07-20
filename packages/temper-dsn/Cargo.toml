@@ -6,13 +6,11 @@ description = "DSN (Specctra) format utilities for temper PCB placement"
 license = "MIT"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module"] }
-regex = "1"
-sha2 = "0.10"
-serde_json = "1"
+temper-dsn-core = { path = "../temper-dsn-core" }
 
 [profile.release]
 panic = "unwind"

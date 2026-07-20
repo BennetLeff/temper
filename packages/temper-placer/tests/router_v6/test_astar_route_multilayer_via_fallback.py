@@ -44,16 +44,25 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+import yaml
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 import temper_placer.router_v6.astar_pathfinding as astar_pathfinding_mod
 from temper_placer.router_v6.astar_core import _route_segment_3d as _real_route_segment_3d
 from temper_placer.router_v6.channel_mapping import ChannelPath
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
+from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
+from temper_placer.router_v6.via_placement import place_vias
 
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[4]
 _CORPUS_PCB = _REPO_ROOT / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
 _PROD_PCB = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
+_NETCLASS_CONFIG = yaml.safe_load(
+    (_REPO_ROOT / "packages/temper-placer/configs/netclass_rules.yaml").read_text()
+)
+_CONFIGURED_NET_CLASSES = tuple(_NETCLASS_CONFIG["classes"])
 
 _SIZE = 21
 _CELL_SIZE_MM = 0.5
@@ -107,6 +116,29 @@ def _bottleneck_endpoints(f_grid: OccupancyGrid) -> tuple[tuple[float, float], t
     return start_world, goal_world
 
 
+def _configured_design_rules(net_class: str | None) -> DesignRules:
+    """Construct router runtime rules from the netclass sizing authority."""
+    net_classes = {
+        name: NetClassRules(
+            name=name,
+            clearance_mm=spec["clearance"],
+            trace_width_mm=spec["trace_width"],
+            via_diameter_mm=spec["via_diameter"],
+            via_drill_mm=spec["via_drill"],
+        )
+        for name, spec in _NETCLASS_CONFIG["classes"].items()
+    }
+    assignments = {"NET_UNDER_TEST": net_class} if net_class is not None else {}
+    return DesignRules(
+        net_classes=net_classes,
+        net_class_assignments=assignments,
+        default_clearance_mm=0.2,
+        default_trace_width_mm=0.2,
+        default_via_diameter_mm=0.6,
+        default_via_drill_mm=0.3,
+    )
+
+
 # ---------------------------------------------------------------------------
 # 1. Happy path: primary + alternate (skipped/unavailable) fail; the 3D
 #    fallback tier finds a path and reports real via_positions.
@@ -151,6 +183,45 @@ def test_fallback_tier_produces_via_positions_when_primary_and_alternate_fail():
     spy.assert_called_once()
 
 
+@pytest.mark.property
+@given(net_class=st.sampled_from(_CONFIGURED_NET_CLASSES + (None,)))
+@settings(max_examples=100, deadline=15000)
+def test_3d_fallback_legality_uses_each_netclass_via_envelope(net_class: str | None):
+    """U4/R3: SSOT diameter and clearance reach the 3D legality call."""
+    grids = _make_bottleneck_via_grids()
+    f_grid, b_grid = grids["F.Cu"], grids["B.Cu"]
+    start_world, goal_world = _bottleneck_endpoints(f_grid)
+    channel_path = ChannelPath(
+        net_name="NET_UNDER_TEST", channel_sequence=["CH1"],
+        waypoints=[start_world, goal_world], total_length=10.0,
+    )
+    design_rules = _configured_design_rules(net_class)
+
+    with patch.object(
+        astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
+    ) as spy:
+        result, _ = astar_pathfinding_mod._astar_route_multilayer(
+            "NET_UNDER_TEST", channel_path, f_grid, b_grid, None,
+            net_id=1, design_rules=design_rules,
+        )
+
+    assert result is not None
+    assert result.via_positions
+    expected = design_rules.get_rules_for_net("NET_UNDER_TEST")
+    assert spy.call_args.kwargs["via_diameter"] == expected.via_diameter_mm
+    assert spy.call_args.kwargs["clearance"] == expected.clearance_mm
+
+    placement = place_vias(
+        astar_pathfinding_mod.PathfindingResult(
+            routed_paths={"NET_UNDER_TEST": result}, failed_nets=[]
+        ),
+        design_rules=design_rules,
+    )
+    assert placement.vias
+    assert placement.vias[0].diameter == spy.call_args.kwargs["via_diameter"]
+    assert placement.vias[0].drill == expected.via_drill_mm
+
+
 # ---------------------------------------------------------------------------
 # 2. Regression: segments that succeed on the primary grid never invoke
 #    the fallback tier at all -- proves this is additive, not intrusive.
@@ -180,21 +251,31 @@ def test_fallback_tier_not_invoked_when_primary_grid_succeeds():
     spy.assert_not_called()
 
 
-def test_fallback_tier_not_invoked_when_alternate_grid_succeeds():
-    """A segment that fails on the primary grid but succeeds on the
-    THT-gated alternate-grid retry (tier 2) must not fall through to the
-    3D fallback tier (tier 3) -- tier 2 success takes priority."""
-    # Primary grid: fully blocked -- forces tier 1 to fail.
-    blocked = np.full((20, 20), -1, dtype=np.int8)
-    primary_grid = OccupancyGrid("F.Cu", blocked, (0.0, 0.0), 1.0, 20, 20)
-    # Alternate grid: fully open -- tier 2 succeeds trivially.
-    alt_grid = OccupancyGrid("B.Cu", np.zeros((20, 20), dtype=np.int8), (0.0, 0.0), 1.0, 20, 20)
+def test_alternate_grid_success_has_explicit_endpoint_vias_not_implicit_transition():
+    """A B.Cu-only alternate detour must record its endpoint vias.
 
+    The former THT-gated alternate-grid retry returned B.Cu points with no
+    layer-transition data. Emitting those points on their real layer then
+    disconnects F.Cu-only pads. Keep the completion-proven tier, but anchor
+    it explicitly as F.Cu -> B.Cu -> F.Cu.
+    """
+    # F.Cu permits only the two endpoints; B.Cu is open. The historical
+    # alternate-grid search therefore succeeds, while a legitimate emitted
+    # route must explicitly transition F.Cu -> B.Cu -> F.Cu.
+    f_grid = np.full((20, 20), -1, dtype=np.int8)
+    f_grid[10, 2] = 0
+    f_grid[10, 15] = 0
+    primary_grid = OccupancyGrid("F.Cu", f_grid, (0.0, 0.0), 1.0, 20, 20)
+    alt_grid = OccupancyGrid(
+        "B.Cu", np.zeros((20, 20), dtype=np.int8), (0.0, 0.0), 1.0, 20, 20
+    )
+    start_world = primary_grid.grid_to_world(2, 10)
+    goal_world = primary_grid.grid_to_world(15, 10)
     channel_path = ChannelPath(
         net_name="NET1", channel_sequence=["CH1"],
-        waypoints=[(2.0, 2.0), (15.0, 15.0)], total_length=18.4,
+        waypoints=[start_world, goal_world], total_length=10.0,
     )
-    tht_locations = {(2.0, 2.0)}  # non-empty -> gates tier 2 open
+    tht_locations = {start_world}  # Old tier-2 precondition is satisfied.
 
     with patch.object(
         astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
@@ -205,7 +286,10 @@ def test_fallback_tier_not_invoked_when_alternate_grid_succeeds():
 
     assert result is not None
     assert result.forced_segment_count == 0
-    assert result.via_positions == [], "Tier-2 (alternate-grid) success needs no via"
+    assert result.via_positions == [start_world, goal_world]
+    assert result.segments[0][2] == "F.Cu"
+    assert result.segments[-1][2] == "F.Cu"
+    assert any(segment[2] == "B.Cu" for segment in result.segments)
     spy.assert_not_called()
 
 

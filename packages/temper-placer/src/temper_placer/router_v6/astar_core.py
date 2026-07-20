@@ -7,7 +7,7 @@ Part of temper-N6-U6 decomposition.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final
 
 import numpy as np
@@ -60,6 +60,9 @@ class RoutePath:
     layer_name: str
     path_length: float  # Total length in mm
     forced_segment_count: int = 0  # Number of segments using force routing (fallback)
+    # Waypoint indices whose incoming edge was not found by A*.  Kept so a
+    # multi-terminal caller can fail closed and name the unresolved terminal.
+    failed_waypoint_indices: list[int] = field(default_factory=list)
 
     @property
     def segment_count(self) -> int:
@@ -99,6 +102,7 @@ class RoutePath3D:
     path_length: float  # Total length in mm
     via_count: int = 0
     forced_segment_count: int = 0
+    failed_waypoint_indices: list[int] = field(default_factory=list)
 
     @property
     def segment_count(self) -> int:
@@ -114,6 +118,7 @@ class RoutePath3D:
             layer_name=default_layer,
             path_length=self.path_length,
             forced_segment_count=self.forced_segment_count,
+            failed_waypoint_indices=self.failed_waypoint_indices,
         )
 
 
@@ -124,6 +129,7 @@ def _astar_search(
     neighbor_tensor: np.ndarray | None = None,
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
+    net_id: int = -1,
 ) -> list[tuple[int, int]] | None:
     """
     A* search algorithm for pathfinding.
@@ -155,7 +161,7 @@ def _astar_search(
     # over the grid) but keeps the inner loop on the tensor path.
     # New callers should build the tensor once at A* pass start
     # (outside the per-net A* loop) and pass it in.
-    if neighbor_tensor is None:
+    if neighbor_tensor is None and net_id < 0:
         from temper_placer.router_v6.neighbor_validity import (
             build_neighbor_validity_tensor_2d,
         )
@@ -204,10 +210,16 @@ def _astar_search(
         cx, cy = current  # current is (x, y) tuple; rename for tensor indexing
 
         for dir_idx in range(8):
-            if not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
-                continue
             dx, dy = _DIRS_8[dir_idx]
             nx, ny = cx + dx, cy + dy
+            if net_id >= 0:
+                if not in_bounds(nx, ny, grid.width_cells, grid.height_cells):
+                    continue
+                cell_value = grid.grid[ny, nx]
+                if cell_value != 0 and cell_value != net_id:
+                    continue
+            elif not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
+                continue
 
             # Diagonal cost uses configurable multiplier
             move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
@@ -816,6 +828,8 @@ def _route_segment_3d(
     goal_layer: str,
     grids: dict,
     via_cost: float = 10.0,
+    via_diameter: float = 0.6,
+    clearance: float = 0.2,
     net_id: int = 0,
     max_iter: int | None = _ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
 ) -> tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None:
@@ -832,6 +846,10 @@ def _route_segment_3d(
         goal_layer: Goal layer name
         grids: Dictionary of OccupancyGrid per layer
         via_cost: Cost for layer transitions
+        via_diameter: Resolved netclass via diameter in mm used to reserve
+            the candidate via's copper envelope on every spanned layer.
+        clearance: Resolved netclass clearance in mm used with
+            ``via_diameter`` when reserving that envelope.
         net_id: Net ID passed through to ``_astar_search_3d`` so any via
             placed by this call is actually blocked on the occupancy
             grid via ``mark_via_blocked()`` (which requires ``net_id >
@@ -872,7 +890,9 @@ def _route_segment_3d(
     goal_node = RouteNode3D(goal_grid[0], goal_grid[1], goal_layer)
 
     result = _astar_search_3d(
-        start_node, goal_node, grids, via_cost=via_cost, net_id=net_id, max_iter=max_iter,
+        start_node, goal_node, grids, via_cost=via_cost,
+        via_diameter=via_diameter, clearance=clearance,
+        net_id=net_id, max_iter=max_iter,
     )
 
     if result is None:
@@ -887,26 +907,20 @@ def _route_segment_3d(
         world_x, world_y = grid.grid_to_world(node.x, node.y)
         bulk_path.append((world_x, world_y, node.layer))
 
-    # **KEY FIX**: Replace first and last points with exact pad positions
-    # This ensures routes connect directly to pad centers, not grid-snapped approximations
-    world_path = []
-
-    if len(bulk_path) > 0:
-        # Start with exact pad center
+    # Preserve the complete 3D bulk walk between exact pad anchors.  In
+    # particular, do not discard the first or last bulk node: either can be
+    # one half of a same-coordinate layer transition.  Removing it turns a
+    # recorded via into an impossible cross-layer track at output time.
+    world_path: list[tuple[float, float, str]] = []
+    if bulk_path:
         world_path.append((start_world[0], start_world[1], start_layer))
+        for node in bulk_path:
+            if node != world_path[-1]:
+                world_path.append(node)
 
-        # Add bulk path (excluding first and last if they're the same as pads)
-        # Keep middle segments
-        if len(bulk_path) > 2:
-            world_path.extend(bulk_path[1:-1])
-
-        # End with exact pad center (if different from start)
-        if len(bulk_path) == 1:
-            # Single-cell path: just start and end at pads
-            if (start_world[0], start_world[1]) != (goal_world[0], goal_world[1]):
-                world_path.append((goal_world[0], goal_world[1], goal_layer))
-        else:
-            world_path.append((goal_world[0], goal_world[1], goal_layer))
+        goal_node = (goal_world[0], goal_world[1], goal_layer)
+        if goal_node != world_path[-1]:
+            world_path.append(goal_node)
 
     via_world_positions = []
     for gx, gy in via_grid_positions:

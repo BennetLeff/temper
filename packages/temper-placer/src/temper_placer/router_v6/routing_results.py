@@ -12,7 +12,9 @@ from typing import TYPE_CHECKING
 
 from temper_placer.router_v6.astar_core import RoutePath3D
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult, RoutePath
+from temper_placer.router_v6.connectivity import NetConnectivity, NetDisposition
 from temper_placer.router_v6.trace_width_assignment import TraceWidthAssignment
+from temper_placer.router_v6.tree_route_geometry import TreeRouteGeometry
 from temper_placer.router_v6.via_placement import ViaPlacement
 
 if TYPE_CHECKING:
@@ -31,32 +33,66 @@ class CompiledRoute:
 
 
 @dataclass
+class CompiledTreeRoute:
+    """Export-ready branch-aware route; never coerced into a serial path."""
+
+    net_name: str
+    geometry: TreeRouteGeometry
+    width_mm: float
+    vias: list
+
+
+@dataclass
 class RoutingResults:
     """Complete routing results for the design."""
 
     compiled_routes: dict[str, CompiledRoute]  # net_name -> CompiledRoute
     failed_nets: list[str]  # Nets that failed to route
     plane_net_count: int = 0  # Nets excluded (planes, unconnected)
-    # U4: per-net routing reports. Each ``NetRoutingReport`` may carry a
-    # ``BottleneckGeometry`` describing the min-cut for a failed net.
-    # The closure test reads this list to surface the actionable
-    # ``routing_failure_messages`` field (SC1/SC2).
     net_reports: list[NetRoutingReport] = field(default_factory=list)
+    partial_routes: dict[str, CompiledRoute] = field(default_factory=dict)
+    tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
+    partial_tree_routes: dict[str, CompiledTreeRoute] = field(default_factory=dict)
+    # U3: per-net connectivity verification. When populated, success_count
+    # derives from NetDisposition rather than raw path count.
+    connectivity: dict[str, NetConnectivity] | None = None
 
     @property
     def success_count(self) -> int:
-        """Number of successfully routed nets (includes plane nets)."""
-        return len(self.compiled_routes) + self.plane_net_count
+        """Number of successfully routed nets from connectivity dispositions.
+
+        When ``connectivity`` is populated (U3+), success requires a
+        ``ROUTED`` or ``PLANE_CONNECTED`` disposition.  Falls back to the
+        pre-U3 path-count logic when connectivity is ``None``.
+        """
+        if self.connectivity is not None:
+            return sum(
+                1
+                for nc in self.connectivity.values()
+                if nc.disposition in (NetDisposition.ROUTED, NetDisposition.PLANE_CONNECTED)
+            )
+        return len(self.compiled_routes) + len(self.tree_routes) + self.plane_net_count
 
     @property
     def failure_count(self) -> int:
-        """Number of failed nets."""
+        """Number of failed nets from connectivity dispositions."""
+        if self.connectivity is not None:
+            return sum(
+                1
+                for nc in self.connectivity.values()
+                if nc.disposition
+                in (NetDisposition.INCOMPLETE, NetDisposition.FAILED)
+            )
         return len(self.failed_nets)
 
     @property
     def total_route_length(self) -> float:
         """Total length of all routes (mm)."""
-        return sum(route.path.path_length for route in self.compiled_routes.values())
+        return sum(route.path.path_length for route in self.compiled_routes.values()) + sum(
+            branch.path.path_length
+            for route in self.tree_routes.values()
+            for branch in route.geometry.branches
+        )
 
     def get_route(self, net_name: str) -> CompiledRoute | None:
         """Get compiled route for a net."""
@@ -69,6 +105,7 @@ def compile_routing_results(
     via_placement: ViaPlacement,
     plane_net_names: list[str] | None = None,
     net_reports: list[NetRoutingReport] | None = None,
+    connectivity: dict[str, NetConnectivity] | None = None,
 ) -> RoutingResults:
     """
     Compile all routing results into final output.
@@ -102,6 +139,9 @@ def compile_routing_results(
         True
     """
     compiled_routes = {}
+    partial_routes = {}
+    tree_routes = {}
+    partial_tree_routes = {}
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
         # Get width for this net
@@ -119,6 +159,35 @@ def compile_routing_results(
             width_mm=width,
             vias=net_vias,
             matched_length_mm=None,
+        )
+
+    for net_name, route_path in pathfinding_result.partial_paths.items():
+        width = width_assignment.get_width(net_name) or 0.127
+        partial_routes[net_name] = CompiledRoute(
+            net_name=net_name,
+            path=route_path,
+            width_mm=width,
+            vias=via_placement.get_vias_for_net(net_name),
+            matched_length_mm=None,
+        )
+
+    for net_name, geometry in pathfinding_result.tree_routes.items():
+        # U3: connectivity-filtered — incomplete nets go to partial, not success.
+        disp = connectivity.get(net_name).disposition if connectivity and net_name in connectivity else None
+        dest = partial_tree_routes if disp in (NetDisposition.INCOMPLETE, NetDisposition.FAILED) else tree_routes
+        dest[net_name] = CompiledTreeRoute(
+            net_name=net_name,
+            geometry=geometry,
+            width_mm=width_assignment.get_width(net_name) or 0.127,
+            vias=via_placement.get_vias_for_net(net_name),
+        )
+
+    for net_name, geometry in pathfinding_result.partial_tree_routes.items():
+        partial_tree_routes[net_name] = CompiledTreeRoute(
+            net_name=net_name,
+            geometry=geometry,
+            width_mm=width_assignment.get_width(net_name) or 0.127,
+            vias=via_placement.get_vias_for_net(net_name),
         )
 
     # Count plane nets as routed-by-plane successes
@@ -152,4 +221,8 @@ def compile_routing_results(
         failed_nets=pathfinding_result.failed_nets,
         plane_net_count=getattr(pathfinding_result, 'plane_net_count', 0),
         net_reports=list(net_reports) if net_reports else [],
+        partial_routes=partial_routes,
+        tree_routes=tree_routes,
+        partial_tree_routes=partial_tree_routes,
+        connectivity=connectivity,
     )
