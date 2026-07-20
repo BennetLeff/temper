@@ -627,10 +627,67 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 seg_id = uuid.uuid4()
                 segments.append(
                     f'  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})'
-                    f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                    f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
-                i = j - 1
+                i = j
+                # ---- collapsed-same-direction variant ------------------------
+                if i > 0 and path_points[i] != path_points[i-1]:
+                    continue
+            # Connect any pads not directly on the path (stitch missing pins).
+            # d > 1e-4 rejects only truly co-located pads (same-net copper
+            # overlap is DRC-neutral); everything else gets a connector.
+            # This replaces the old CONNECTION_THRESHOLD_MM=0.5 which left
+            # pads in (0, 0.5] mm disconnected (issue #229).
+            STITCH_EPSILON_MM = 1e-4
+            for px, py in pads:
+                if not path_nodes:
+                    continue
+                min_dist = min(
+                    math.hypot(px - qx, py - qy) for qx, qy in path_points
+                )
+                if min_dist <= STITCH_EPSILON_MM:
+                    continue
+                nearest_idx = min(
+                    range(len(path_nodes)),
+                    key=lambda i: math.hypot(px - path_nodes[i][0], py - path_nodes[i][1]),
+                )
+                nx, ny, nearest_layer = path_nodes[nearest_idx]
+                co_located_layers = {
+                    layer
+                    for x, y, layer in path_nodes
+                    if math.isclose(x, nx, abs_tol=1e-9)
+                    and math.isclose(y, ny, abs_tol=1e-9)
+                }
+                if "F.Cu" not in co_located_layers and nearest_layer != "F.Cu":
+                    # The pad stub is deliberately written on F.Cu. When
+                    # its nearest routed point is on another layer, make
+                    # that join explicit instead of leaving two copper
+                    # islands that merely overlap in X/Y.
+                    has_transition_via = any(
+                        math.isclose(via.position[0], nx, abs_tol=1e-9)
+                        and math.isclose(via.position[1], ny, abs_tol=1e-9)
+                        and {via.from_layer, via.to_layer}
+                        == {"F.Cu", nearest_layer}
+                        for via in route_vias
+                    )
+                    if not has_transition_via:
+                        template_via = route_vias[0] if route_vias else None
+                        via_diameter = (
+                            template_via.diameter if template_via is not None else 0.6
+                        )
+                        via_drill = template_via.drill if template_via is not None else 0.3
+                        via_id = uuid.uuid4()
+                        output_items.append(
+                            f'  (via (at {nx:.4f} {ny:.4f}) (size {via_diameter:.4f})'
+                            f' (drill {via_drill:.4f}) (layers "F.Cu" "{nearest_layer}")'
+                            f' (net {net_num}) (tstamp "{via_id}"))'
+                        )
+                seg_id = uuid.uuid4()
+                output_items.append(
+                    f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
+                    f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
+                    f' (tstamp "{seg_id}"))' - 1
 
             # Connect any pads not near the path (stitch missing pins)
             CONNECTION_THRESHOLD_MM = 0.5
@@ -649,7 +706,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     seg_id = uuid.uuid4()
                     segments.append(
                         f'  (segment (start {nx:.4f} {ny:.4f}) (end {px:.4f} {py:.4f})'
-                        f' (width {width:.4f}) (layer "F.Cu") (net {net_num})'
+                        f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
                         f' (tstamp "{seg_id}"))'
                     )
 
