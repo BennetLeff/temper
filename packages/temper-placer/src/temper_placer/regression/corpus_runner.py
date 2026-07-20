@@ -457,9 +457,8 @@ class CorpusRegressionRunner:
             # Passing raw logits to loss functions (which expect soft one-hot
             # rotations from Gumbel-Softmax) causes massively inflated rotated
             # bounds and boundary loss values (observed: 250M vs actual ~0).
-            rotations = __import__("jax").nn.softmax(
-                result.final_state.rotation_logits, axis=-1
-            )
+            rotations = np.exp(result.final_state.rotation_logits)
+            rotations = rotations / rotations.sum(axis=-1, keepdims=True)
             loss_result = composite(
                 result.final_state.positions,
                 rotations,
