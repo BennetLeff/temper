@@ -346,7 +346,7 @@ class RouterV6Pipeline:
         layer_constraints: dict[str, Any] | None = None,
         thermal_flat: Any = None,  # U8: (N,) float32 cost field
         thermal_weight: float = 0.0,  # U8: multiplier
-        enable_all_pad_tree: bool = False,
+        enable_all_pad_tree: bool = True,
     ):
         """
         Initialize Router V6 pipeline.
