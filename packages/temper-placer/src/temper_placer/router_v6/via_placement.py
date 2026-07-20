@@ -7,6 +7,7 @@ Part of temper-zh0p (Stage 4 - Geometric Realization)
 
 from __future__ import annotations
 
+from typing import Any
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
@@ -46,20 +47,17 @@ def place_vias(
     via_drill: float = 0.3,
     net_class_assignments: dict[str, str] | None = None,
     net_class_rules: dict | None = None,
+    design_rules: Any = None,
 ) -> ViaPlacement:
     """
     Place vias for layer transitions in routed paths.
 
-    When *net_class_assignments* and *net_class_rules* are both provided (U4),
-    per-netclass sizing replaces the board-wide defaults.
-
-    Args:
-        pathfinding_result: Routed paths from Stage 4.2
-        via_diameter: Default via diameter (mm)
-        via_drill: Default drill diameter (mm)
-        net_class_assignments: Optional per-net class mapping (net_name -> class)
-        net_class_rules: Optional per-class rule dict (class_name -> {via_diameter, via_drill})
+    When *design_rules* is provided (U4 pipeline wiring), per-netclass
+    sizing is resolved from the board's netclass assignments and rules.
     """
+    if design_rules is not None:
+        net_class_assignments = getattr(design_rules, 'net_class_assignments', None)
+        net_class_rules = getattr(design_rules, 'net_classes', None)
     vias = []
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
