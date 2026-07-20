@@ -347,7 +347,7 @@ def test_written_segments_connect_all_pads_per_net(nets):
     )
     content = "(kicad_pcb\n" + "\n".join(net_decls) + "\n)\n"
 
-    out = _write_routes_to_content(content, result)
+    out = _write_routes_to_content(content, result)[0]
 
     segs_by_net: dict[int, list] = {}
     for m in _SEG_RE.finditer(out):
