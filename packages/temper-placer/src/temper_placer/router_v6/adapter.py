@@ -723,15 +723,19 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> tuple[str, dict]:
             # Incomplete tree prefixes are emitted exactly as A* produced
             # them. They must not invoke the legacy pad-stitch workaround.
             if not is_partial:
-                # Connect any pads not near the path (stitch missing pins)
-                CONNECTION_THRESHOLD_MM = 0.5
+                # Connect any pads not directly on the path (stitch missing pins).
+                # d > 1e-4 rejects only truly co-located pads (same-net copper
+                # overlap is DRC-neutral); everything else gets a connector.
+                # This replaces the old CONNECTION_THRESHOLD_MM=0.5 which left
+                # pads in (0, 0.5] mm disconnected (issue #229).
+                STITCH_EPSILON_MM = 1e-4
                 for px, py in pads:
                     if not path_nodes:
                         continue
                     min_dist = min(
                         math.hypot(px - qx, py - qy) for qx, qy in path_points
                     )
-                    if min_dist <= CONNECTION_THRESHOLD_MM:
+                    if min_dist <= STITCH_EPSILON_MM:
                         continue
                     nearest_idx = min(
                         range(len(path_nodes)),
