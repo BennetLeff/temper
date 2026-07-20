@@ -97,6 +97,10 @@ class RoutingResult:
     drc_violations: list[DrcViolation] = field(default_factory=list)
     congestion_regions: list[CongestionRegion] = field(default_factory=list)
     routed_pcb_content: str | None = None
+    # U4 preflight: per-net connectivity verdicts from the post-write
+    # verifier.  When non-None, consumers use ``NetDisposition`` counts
+    # instead of raw path counts.
+    connectivity: dict | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -517,21 +521,46 @@ def route_pcb(
             # for the iter-cap sweet-spot table.
             result = pipeline.run(Path(temp_path))
             placed_content = Path(temp_path).read_text(encoding="utf-8")
-            routed_content = _write_routes_to_content(
+            routed_content, pad_positions = _write_routes_to_content(
                 placed_content, result
             )
-            return _build_routing_result(result, routed_content)
+            connectivity = _compute_connectivity(routed_content, pad_positions)
+            return _build_routing_result(result, routed_content, connectivity)
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
     else:
         result = pipeline.run(pcb_path)
         placed_content = pcb_path.read_text(encoding="utf-8")
-        routed_content = _write_routes_to_content(placed_content, result)
-        return _build_routing_result(result, routed_content)
+        routed_content, pad_positions = _write_routes_to_content(placed_content, result)
+        connectivity = _compute_connectivity(routed_content, pad_positions)
+        return _build_routing_result(result, routed_content, connectivity)
 
 
-def _write_routes_to_content(pcb_content: str, result: Any) -> str:
+def _compute_connectivity(
+    pcb_content: str,
+    pad_positions: dict[str, list[tuple[float, float]]],
+) -> dict | None:
+    """U4 preflight: parse emitted content and verify all-pad connectivity.
+
+    Returns a dict of ``{net_name: NetConnectivity}`` suitable for
+    ``RoutingResult.connectivity``, or ``None`` when the verdict cannot
+    be produced (missing content, empty pads).  The stitch/plane-MST
+    workarounds are NOT removed — this is a measurement-only preflight.
+    """
+    if not pcb_content or not pad_positions:
+        return None
+    try:
+        from temper_placer.router_v6.kicad_connectivity import connectivity_preflight
+        return connectivity_preflight(pcb_content, pad_positions)
+    except Exception:
+        # Fail-safe: connectivity preflight is advisory; a broken
+        # parser must not abort routing.
+        return None
+
+
+def _write_routes_to_content(pcb_content: str, result: Any) -> tuple[str, dict]:
+
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
     Extracts successfully routed paths from the pipeline result and writes
@@ -545,14 +574,14 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
 
     routing_results = getattr(result.stage4, "routing_results", None)
     if routing_results is None:
-        return pcb_content
+        return pcb_content, pad_positions
 
     compiled = getattr(routing_results, "compiled_routes", {})
     partial_compiled = getattr(routing_results, "partial_routes", {})
     tree_compiled = getattr(routing_results, "tree_routes", {})
     partial_tree_compiled = getattr(routing_results, "partial_tree_routes", {})
     if not compiled and not partial_compiled and not tree_compiled and not partial_tree_compiled:
-        return pcb_content
+        return pcb_content, pad_positions
 
     # Build net name -> net number mapping from the PCB content
     net_name_to_number: dict[str, int] = {}
@@ -773,7 +802,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 connected.append(pad)
 
     if not output_items:
-        return pcb_content
+        return pcb_content, pad_positions
 
     # Inject routed copper before the closing ")" of the kicad_pcb s-expression.
     segment_block = "\n" + "\n".join(output_items) + "\n"
@@ -781,15 +810,19 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     if pcb_content.endswith(")"):
         pcb_content = pcb_content[:-1] + segment_block + ")\n"
 
-    return pcb_content
+    return pcb_content, pad_positions
 
 
-def _build_routing_result(result: Any, routed_content: str | None = None) -> RoutingResult:
+def _build_routing_result(result: Any, routed_content: str | None = None,
+                          connectivity: dict | None = None) -> RoutingResult:
     """Extract failure data from RouterV6Pipeline result into RoutingResult.
 
     Pulls failed net names, DRC violations from per-net reports, and
     congestion regions from bottleneck geometry analysis so that the
     FeedbackClassifier can act on real routing failures.
+
+    When *connectivity* is provided (U4 preflight), the returned
+    ``RoutingResult`` carries a truthful per-net disposition map.
     """
     routing_results = result.stage4.routing_results
     unrouted_nets = list(routing_results.failed_nets)
@@ -840,6 +873,7 @@ def _build_routing_result(result: Any, routed_content: str | None = None) -> Rou
         drc_violations=drc_violations,
         congestion_regions=congestion_regions,
         routed_pcb_content=routed_content,
+        connectivity=connectivity,
     )
 
 

@@ -1,0 +1,117 @@
+"""Parse emitted KiCad PCB content into connectivity-verifier inputs.
+
+Post-write preflight for U4: without deleting the stitch/plane-MST
+workarounds, demote nets whose emitted copper does not constitute a
+legal all-pad component.  The verdict is recorded in
+``RoutingResults.connectivity`` so U3's truthful completion reporting
+inspects it.
+"""
+
+from __future__ import annotations
+
+import re
+import uuid
+from typing import Any
+
+from temper_placer.router_v6.connectivity import (
+    ConnectivityComponent,
+    CopperPad,
+    CopperTrack,
+    CopperVia,
+    NetConnectivity,
+    NetDisposition,
+    PadIdentity,
+    Point,
+    verify_net_connectivity,
+)
+
+_SEGMENT_RE = re.compile(
+    r"\(segment\s+\(start\s+([-\d.]+)\s+([-\d.]+)\)"
+    r"\s+\(end\s+([-\d.]+)\s+([-\d.]+)\)"
+    r"\s+\(width\s+([-\d.]+)\)"
+    r'\s+\(layer\s+"([^"]+)"\)'
+    r"\s+\(net\s+(\d+)\)"
+)
+
+_VIA_RE = re.compile(
+    r"\(via\s+\(at\s+([-\d.]+)\s+([-\d.]+)\)"
+    r"\s+\(size\s+([-\d.]+)\)"
+    r"\s+\(drill\s+([-\d.]+)\)"
+    r'\s+\(layers\s+"([^"]+)"\s+"([^"]+)"\)'
+)
+
+_NET_NAME_RE = re.compile(r'\(net\s+(\d+)\s+"([^"]+)"')
+
+
+def _build_net_name_map(pcb_content: str) -> dict[int, str]:
+    return {int(m.group(1)): m.group(2) for m in _NET_NAME_RE.finditer(pcb_content)}
+
+
+def _layer_id(layer_name: str) -> int:
+    return 0 if layer_name == "F.Cu" else 1  # coarse; full stackup deferred
+
+
+def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[float, float]]]) -> dict[str, NetConnectivity]:
+    """Parse emitted content, extract tracks/vias per net, and verify connectivity.
+
+    Pad shape and rotation are NOT available from the writer's
+    pad-position map, so ``CopperPad`` objects carry best-effort identity
+    and a default 1.0×1.0 mm rectangular shape.  This is sufficient for
+    contact detection (track endpoint within pad bounding box) but does
+    not model partial overlap.
+    """
+    net_name_map = _build_net_name_map(pcb_content)
+    segments_by_net: dict[int, list[CopperTrack]] = {}
+    for m in _SEGMENT_RE.finditer(pcb_content):
+        x1, y1, x2, y2, width, layer, net_num = m.groups()
+        net_num = int(net_num)
+        segments_by_net.setdefault(net_num, []).append(
+            CopperTrack(
+                net=net_name_map.get(net_num, str(net_num)),
+                start=Point(float(x1), float(y1)),
+                end=Point(float(x2), float(y2)),
+                width_mm=float(width),
+                layer=_layer_id(layer),
+            )
+        )
+
+    vias_by_net: dict[int, list[CopperVia]] = {}
+    for m in _VIA_RE.finditer(pcb_content):
+        x, y, dia, drill, layer1, layer2 = m.groups()
+        # Vias aren't per-net in the writer yet — skip for now.
+        # When via output lands, parse net from (tstamp) or parent.
+        pass
+
+    results: dict[str, NetConnectivity] = {}
+    for net_name, positions in pad_positions.items():
+        # Find the net number for this net name
+        net_num = next((n for n, name in net_name_map.items() if name == net_name), None)
+        tracks = segments_by_net.get(net_num, []) if net_num else []
+        via_list: list[CopperVia] = []
+
+        # Best-effort CopperPad: default rect, no rotation
+        pads = [
+            CopperPad(
+                identity=PadIdentity(component_ref="", pad=str(i), net=net_name, x=x, y=y, layers=(0,)),
+                center=Point(x, y),
+                shape="rect",
+                size=(1.0, 1.0),
+            )
+            for i, (x, y) in enumerate(positions)
+        ]
+
+        results[net_name] = verify_net_connectivity(pads=tuple(pads), tracks=tracks, vias=via_list)
+
+    return results
+
+
+def connectivity_preflight(
+    pcb_content: str,
+    pad_positions: dict[str, list[tuple[float, float]]],
+) -> dict[str, NetConnectivity]:
+    """Post-write connectivity check — demotes incomplete nets without removing
+    the stitch/plane-MST workarounds (U4 preflight).
+
+    Returns a dict suitable for ``RoutingResults.connectivity``.
+    """
+    return _segment_connectivity(pcb_content, pad_positions)
