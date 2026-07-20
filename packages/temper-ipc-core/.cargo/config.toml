@@ -1,0 +1,9 @@
+# Allow `cargo test` to link on macOS for pure-Rust rlib crates.
+# (This is only needed for pyo3-based crates; pure rlibs link fine
+# without this, but having it is harmless and keeps the pattern uniform.)
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
