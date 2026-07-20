@@ -16,7 +16,6 @@ from temper_placer.router_v6.connectivity import (
     CopperTrack,
     CopperVia,
     NetConnectivity,
-    NetDisposition,
     PadIdentity,
     Point,
     verify_net_connectivity,
