@@ -6,7 +6,7 @@ description = "DSN (Specctra) format utilities for temper PCB placement"
 license = "MIT"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module"] }
