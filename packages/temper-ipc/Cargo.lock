@@ -165,7 +165,12 @@ name = "temper-ipc"
 version = "0.1.0"
 dependencies = [
  "pyo3",
+ "temper-ipc-core",
 ]
+
+[[package]]
+name = "temper-ipc-core"
+version = "0.1.0"
 
 [[package]]
 name = "unicode-ident"

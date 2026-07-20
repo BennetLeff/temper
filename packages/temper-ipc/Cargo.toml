@@ -6,10 +6,11 @@ description = "IPC standard calculations for PCB design (current capacity, trace
 license = "MIT"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module"] }
+temper-ipc-core = { path = "../temper-ipc-core" }
 
 [profile.release]
 panic = "unwind"
