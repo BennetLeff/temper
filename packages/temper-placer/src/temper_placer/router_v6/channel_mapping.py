@@ -8,7 +8,6 @@ Part of temper-qic1 (Stage 4 - Geometric Realization)
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 import networkx as nx
 
@@ -21,10 +20,6 @@ from temper_placer.router_v6.net_classification import (
 )
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
 
-if TYPE_CHECKING:
-    from temper_placer.router_v6.terminal_extraction import ParsedTerminal
-    from temper_placer.router_v6.terminal_tree import TerminalTreePlan
-
 
 @dataclass
 class ChannelPath:
@@ -35,42 +30,6 @@ class ChannelPath:
     waypoints: list[tuple[float, float]]  # (x, y) coordinates along path
     total_length: float  # Total path length in mm
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
-    # Opt-in all-pad metadata.  Keeping it alongside (rather than replacing)
-    # serial waypoints makes the disabled path byte-for-byte behaviorally
-    # compatible with the established router.
-    terminal_tree: TerminalTreePlan | None = None
-    terminals: tuple[ParsedTerminal, ...] = ()
-
-
-def expand_channel_path_terminals(
-    channel_path: ChannelPath,
-    pads: list[tuple[float, float]],
-    *,
-    enable_all_pad_tree: bool = False,
-) -> ChannelPath:
-    """Append physical terminals missing from a SAT/channel waypoint path.
-
-    SAT waypoints remain in their original order, preserving their channel
-    guidance.  For a multi-pad net, absent pad centres are appended in a
-    stable order so the existing incremental A* chain must reach every
-    conductive terminal.  Two-pad channel paths are intentionally returned
-    unchanged to retain the established route coordinates and ordering.
-    """
-    if not enable_all_pad_tree or len(pads) <= 2:
-        return channel_path
-    existing = set(channel_path.waypoints)
-    missing = [pad for pad in pads if pad not in existing]
-    if not missing:
-        return channel_path
-    attachment_point = channel_path.waypoints[-1] if channel_path.waypoints else min(missing)
-    ordered_missing = _nearest_terminal_order(attachment_point, missing)
-    return ChannelPath(
-        net_name=channel_path.net_name,
-        channel_sequence=list(channel_path.channel_sequence),
-        waypoints=[*channel_path.waypoints, *ordered_missing],
-        total_length=_calculate_path_length([*channel_path.waypoints, *ordered_missing]),
-        preferred_layer=channel_path.preferred_layer,
-    )
 
 
 # Map Layer enum (L1_TOP .. L4_BOT) → KiCad copper layer name (F.Cu .. B.Cu).
@@ -127,29 +86,33 @@ def _assign_layer(
     1. SSOT ``layer_constraints`` (from
        ``layer_assignments_from_netclass``) when available, the net's
        class is *explicit* (not a catch-all Default), and the resolved
-       layer is routable (F.Cu / B.Cu).  The via-aware routing path
-       establishes legal outer-layer transitions at pads, so an explicit
-       SSOT assignment may intentionally differ from the name heuristic.
+       layer is routable (F.Cu / B.Cu).  **Completion-preserving:** the
+       SSOT layer is only applied when it does not differ from the
+       heuristic layer — nets whose heuristic says F.Cu (signal / SMD
+       pads) are never forced to B.Cu, and vice versa.  This avoids
+       unconnected pads when A* routes on a layer where the pads don't
+       exist.
     2. Heuristic: power / ground / HV → B.Cu; signal → F.Cu.
     3. Single-layer mode overrides everything → F.Cu.
     """
     if get_single_layer_mode():
         return "F.Cu"
 
-    # Compute the heuristic for Default, unassigned, and unsupported-plane
-    # assignments.  Explicit routable SSOT assignments override it.
+    # Compute the heuristic first so we can gate SSOT on it.
     heuristic = (
         "B.Cu"
         if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name)
         else "F.Cu"
     )
 
-    # W2 U7 / R6: explicit routable SSOT assignments are authoritative.
-    # U6's via-aware endpoint path makes an intentional outer-layer
-    # divergence connectible; Default catch-all and unsupported plane layers
-    # continue to use the completion-safe heuristic.
+    # W2 U2 / R2 / U7: SSOT-driven layer assignment from the netclass YAML.
+    # When the net has an explicit netclass with a routable SSOT layer,
+    # apply it.  The divergence guard (ssot == heuristic) is removed;
+    # via-aware transitions (U1-U6) provide legal layer changes, and
+    # the fallback tier handles unreachable terminals gracefully.
     ssot = _ssot_layer_for_net(net_name, layer_constraints)
     if ssot is not None:
+        return ssot
         return ssot
 
     return heuristic
@@ -159,47 +122,17 @@ def fallback_channel_path(
     net_name: str,
     pads: list[tuple[float, float]],
     layer_constraints: dict | None = None,
-    *,
-    enable_all_pad_tree: bool = False,
 ) -> ChannelPath:
     """Direct-A*-attempt fallback for a net without a SAT channel
-    assignment.  Two-pad nets retain their historical endpoint order; a
-    multi-pad net retains every terminal in deterministic coordinate order so
-    A* can construct a connected incremental path rather than silently
-    dropping middle pads.
-    """
-    if len(pads) == 2:
-        waypoints = pads
-    elif enable_all_pad_tree:
-        root = min(pads)
-        waypoints = [root, *_nearest_terminal_order(root, [pad for pad in pads if pad != root])]
-    else:
-        waypoints = [pads[0], pads[-1]]
+    assignment: a degenerate two-waypoint path on the net's SSOT or
+    heuristic layer (W2 U2 / R2)."""
     return ChannelPath(
         net_name=net_name,
         channel_sequence=[],
-        waypoints=waypoints,
+        waypoints=[pads[0], pads[-1]],
         total_length=0.0,
         preferred_layer=_assign_layer(net_name, layer_constraints=layer_constraints),
     )
-
-
-def _nearest_terminal_order(
-    start: tuple[float, float], pads: list[tuple[float, float]]
-) -> list[tuple[float, float]]:
-    """Deterministically extend an existing copper component one pad at a time."""
-    remaining = set(pads)
-    ordered: list[tuple[float, float]] = []
-    current = start
-    while remaining:
-        next_pad = min(
-            remaining,
-            key=lambda pad: (abs(pad[0] - current[0]) + abs(pad[1] - current[1]), pad),
-        )
-        ordered.append(next_pad)
-        remaining.remove(next_pad)
-        current = next_pad
-    return ordered
 
 
 @dataclass

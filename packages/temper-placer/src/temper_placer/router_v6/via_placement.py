@@ -7,11 +7,9 @@ Part of temper-zh0p (Stage 4 - Geometric Realization)
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
-from temper_placer.router_v6.stage0_data import DesignRules
 
 
 @dataclass
@@ -44,52 +42,49 @@ class ViaPlacement:
 
 def place_vias(
     pathfinding_result: PathfindingResult,
-    via_diameter: float = 0.6,  # Standard via
+    via_diameter: float = 0.6,
     via_drill: float = 0.3,
-    design_rules: DesignRules | None = None,
+    net_class_assignments: dict[str, str] | None = None,
+    net_class_rules: dict | None = None,
 ) -> ViaPlacement:
     """
     Place vias for layer transitions in routed paths.
 
-    Analyzes routed paths and inserts vias where layer changes occur.
+    When *net_class_assignments* and *net_class_rules* are both provided (U4),
+    per-netclass sizing replaces the board-wide defaults.
 
     Args:
         pathfinding_result: Routed paths from Stage 4.2
         via_diameter: Default via diameter (mm)
         via_drill: Default drill diameter (mm)
-        design_rules: Per-netclass routing rules. When supplied, each net's
-            resolved via dimensions override the board-wide defaults.
-
-    Returns:
-        ViaPlacement with all placed vias
-
-    Example:
-        >>> from temper_placer.router_v6.astar_pathfinding import PathfindingResult
-        >>> result = PathfindingResult(routed_paths={}, failed_nets=[])
-        >>> placement = place_vias(result)
-        >>> placement.via_count >= 0
-        True
+        net_class_assignments: Optional per-net class mapping (net_name -> class)
+        net_class_rules: Optional per-class rule dict (class_name -> {via_diameter, via_drill})
     """
     vias = []
 
-    paths = {**pathfinding_result.routed_paths, **pathfinding_result.partial_paths}
-    for net_name, route_path in paths.items():
-        if design_rules is not None:
-            net_rules = design_rules.get_rules_for_net(net_name)
-            net_via_diameter = net_rules.via_diameter_mm
-            net_via_drill = net_rules.via_drill_mm
-        else:
-            net_via_diameter = via_diameter
-            net_via_drill = via_drill
-
-        # Analyze path for layer transitions
-        net_vias = _place_vias_for_path(
-            net_name,
-            route_path,
-            net_via_diameter,
-            net_via_drill,
+    for net_name, route_path in pathfinding_result.routed_paths.items():
+        dia, drill = via_diameter, via_drill
+        if net_class_assignments and net_class_rules:
+            nc_name = net_class_assignments.get(net_name)
+            if nc_name:
+                rules = net_class_rules.get(nc_name, {})
+                dia = rules.get("via_diameter", via_diameter)
+                drill = rules.get("via_drill", via_drill)
+        vias.extend(
+            _place_vias_for_path(net_name, route_path, dia, drill)
         )
-        vias.extend(net_vias)
+    for net_name, geometry in getattr(pathfinding_result, "tree_routes", {}).items():
+        dia, drill = via_diameter, via_drill
+        if net_class_assignments and net_class_rules:
+            nc_name = net_class_assignments.get(net_name)
+            if nc_name:
+                rules = net_class_rules.get(nc_name, {})
+                dia = rules.get("via_diameter", via_diameter)
+                drill = rules.get("via_drill", via_drill)
+        for branch in geometry.branches:
+            vias.extend(
+                _place_vias_for_path(net_name, branch.path, dia, drill)
+            )
 
     return ViaPlacement(vias=vias)
 
@@ -114,13 +109,23 @@ def _place_vias_for_path(
     """
     vias = []
 
-    # If RoutePath3D, use explicit via_positions from pathfinder
-    if hasattr(route_path, "via_positions"):
-        consumed_transition_indices: set[int] = set()
+    # If RoutePath3D, use explicit via_positions from pathfinder.
+    # U3: derive from_layer/to_layer from the actual segment layers on
+    # either side of each transition, not the hardcoded F.Cu/B.Cu pair.
+    if hasattr(route_path, "via_positions") and hasattr(route_path, "segments"):
+        segs = route_path.segments
         for vx, vy in route_path.via_positions:
-            from_layer, to_layer = _transition_layers_at(
-                route_path.segments, vx, vy, consumed_transition_indices
-            )
+            vi = None
+            for i, (sx, sy, _) in enumerate(segs):
+                if abs(sx - vx) < 1e-4 and abs(sy - vy) < 1e-4:
+                    vi = i
+                    break
+            if vi is not None and vi + 1 < len(segs):
+                from_layer = segs[vi][2]
+                to_layer = segs[vi + 1][2]
+            else:
+                from_layer = "F.Cu"
+                to_layer = "B.Cu"
             vias.append(
                 Via(
                     position=(vx, vy),
@@ -155,39 +160,6 @@ def _place_vias_for_path(
             vias.append(via)
 
     return vias
-
-
-def _transition_layers_at(
-    segments: list[tuple[float, float, str]],
-    vx: float,
-    vy: float,
-    consumed_transition_indices: set[int],
-) -> tuple[str, str]:
-    """Return the ordered layers of the explicit transition at ``(vx, vy)``.
-
-    A :class:`RoutePath3D` represents a via as two consecutive points at the
-    same coordinate, one on each copper layer.  ``via_positions`` names that
-    coordinate; it is not enough to assume an outer-layer span because 3D A*
-    can legitimately transition between any adjacent layers in a stackup.
-    """
-    for index, (previous, current) in enumerate(zip(segments, segments[1:])):
-        px, py, previous_layer = previous
-        cx, cy, current_layer = current
-        if (
-            index not in consumed_transition_indices
-            and previous_layer != current_layer
-            and _same_position(px, py, vx, vy)
-            and _same_position(cx, cy, vx, vy)
-        ):
-            consumed_transition_indices.add(index)
-            return previous_layer, current_layer
-
-    raise ValueError(f"RoutePath3D via position does not identify a layer transition: ({vx}, {vy})")
-
-
-def _same_position(x1: float, y1: float, x2: float, y2: float) -> bool:
-    """Compare world coordinates without losing exact grid-transition intent."""
-    return math.isclose(x1, x2, abs_tol=1e-9) and math.isclose(y1, y2, abs_tol=1e-9)
 
 
 def _get_adjacent_layer(layer_name: str) -> str | None:
