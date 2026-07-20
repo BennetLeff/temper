@@ -113,10 +113,10 @@ class TestRoutingResultsDerivesCompletionFromConnectivity:
     def test_backward_compatible_when_connectivity_is_none(self):
         """When connectivity is None (pre-U3), fall back to path-count logic."""
         rr = RoutingResults(compiled_routes={"NET": None, "NET2": None}, failed_nets=[])  # type: ignore
-        # Without connectivity, the old path-count behaviour must work.
-        # 2 paths != 2 successes necessarily (some may have failed), but
-        # success_count must not crash.
-        assert isinstance(rr.success_count, int)
+        # With connectivity=None, success_count must use path-count fallback.
+        # Two paths = 2 successes in this case (the old behaviour).
+        assert rr.success_count == 2, f"expected 2, got {rr.success_count}"
+        assert rr.failure_count == 0
 
     def test_plane_connected_counts_as_success(self):
         """An explicit plane_connected disposition counts as success."""
@@ -204,6 +204,7 @@ class TestTruthfulCompletionPBT:
         st.integers(min_value=0, max_value=5),  # routed count
         st.integers(min_value=0, max_value=5),  # incomplete count
         st.integers(min_value=0, max_value=3),  # plane count
+        st.integers(min_value=0, max_value=2),  # failed count
     )
     @settings(
         max_examples=50,
@@ -211,7 +212,7 @@ class TestTruthfulCompletionPBT:
         suppress_health_check=[HealthCheck.too_slow],
     )
     def test_success_count_matches_connectivity_dispositions(
-        self, routed: int, incomplete: int, plane: int
+        self, routed: int, incomplete: int, plane: int, failed: int
     ):
         """success_count must equal routed + plane_connected, nothing else."""
         connectivity: dict[str, NetConnectivity] = {}
@@ -242,11 +243,20 @@ class TestTruthfulCompletionPBT:
                 components=(),
                 unresolved_islands=(),
             )
+        for i in range(failed):
+            connectivity[f"FAIL_{i}"] = NetConnectivity(
+                net=f"FAIL_{i}",
+                disposition=NetDisposition.FAILED,
+                connected_pad_count=0,
+                total_required_pad_count=2,
+                components=(),
+                unresolved_islands=(),
+            )
         # Dummy paths — U3 must NOT use their count
         dummy = dict.fromkeys(connectivity)  # type: ignore
         rr = RoutingResults(compiled_routes=dummy, failed_nets=[], connectivity=connectivity)
 
         assert rr.success_count == routed + plane
-        assert rr.failure_count == incomplete, (
-            f"incomplete={incomplete} but failure_count={rr.failure_count}"
+        assert rr.failure_count == incomplete + failed, (
+            f"incomplete={incomplete}, failed={failed}, but failure_count={rr.failure_count}"
         )
