@@ -50,8 +50,12 @@ PRODUCTION_UNCONNECTED_POST_U4_BASELINE = 260
 
 def _kicad_cli_available() -> bool:
     try:
+        # This test runs last (alphabetically) in tests/placer/cp_sat/, after
+        # the multi-minute production/golden board regressions -- a 10s
+        # timeout here can spuriously fire on a runner under sustained load
+        # this late in the job, even though kicad-cli itself is fine.
         result = subprocess.run(
-            ["kicad-cli", "--version"], capture_output=True, text=True, timeout=10
+            ["kicad-cli", "--version"], capture_output=True, text=True, timeout=60
         )
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
