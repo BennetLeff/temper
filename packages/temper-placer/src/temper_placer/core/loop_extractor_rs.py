@@ -11,8 +11,21 @@ import json
 import warnings
 from typing import Any
 
-from temper_placer.core.loop import LoopCollection
+from temper_placer.core.loop import LoopCollection, LoopPriority, LoopType
 from temper_placer.core.netlist import Netlist
+
+# The Rust extractor does not compute loop priority -- it only classifies
+# loop_type. Priority is a deterministic function of loop_type, matching
+# the assignments the pure-Python heuristics (trace_commutation_loop,
+# trace_gate_drive_loop, trace_bootstrap_loop) hardcode. Anything not
+# listed here defaults to LoopPriority.MEDIUM, the same as the Loop
+# dataclass's own field default.
+_LOOP_TYPE_PRIORITY: dict[LoopType, LoopPriority] = {
+    LoopType.COMMUTATION: LoopPriority.CRITICAL,
+    LoopType.GATE_DRIVE_HIGH: LoopPriority.CRITICAL,
+    LoopType.GATE_DRIVE_LOW: LoopPriority.CRITICAL,
+    LoopType.BOOTSTRAP: LoopPriority.HIGH,
+}
 
 
 def _netlist_to_dict(netlist: Netlist) -> dict[str, Any]:
@@ -64,7 +77,7 @@ def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
             components=components,
             pins=[],  # Pins not serialized across boundary
             nets=nets,
-            priority=0,
+            priority=_LOOP_TYPE_PRIORITY.get(lt, LoopPriority.MEDIUM),
             max_area_mm2=max_area,
             events=LoopEvent(),
             return_layer="",
