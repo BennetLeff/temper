@@ -35,7 +35,7 @@ from pathlib import Path
 
 import pytest
 
-_TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent
+_TEMPER_PLACER_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _REPO_ROOT = _TEMPER_PLACER_ROOT.parent.parent
 
 _PCB_PATH = _REPO_ROOT / "pcb" / "temper.kicad_pcb"
