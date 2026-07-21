@@ -532,16 +532,14 @@ def route_pcb(
         return _build_routing_result(result, routed_content)
 
 
-def _zone_layer_for_net(net_name: str) -> str | None:
-    """Resolve the zone/pour layer for a net from the netclass SSOT.
-    Returns None for nets that don't get zone treatment."""
+def _zone_layers_for_net(net_name: str) -> list[str]:
+    """Resolve the zone/pour layer(s) for a net from the netclass SSOT.
+    Returns empty list for nets that don't get zone treatment."""
     from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
     nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-    if nc in ("GND", "Power", "GateDrive"):
-        return "B.Cu"
-    if nc in ("HighVoltage", "ACMains"):
-        return "F.Cu"
-    return None
+    if nc in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+        return ["F.Cu", "B.Cu"]
+    return []
 
 
 def _write_routes_to_content(pcb_content: str, result: Any) -> str:
@@ -705,18 +703,19 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             compute_zone_for_net, emit_zone_s_expr,
         )
         for net_name, positions in pad_positions.items():
-            zone_layer = _zone_layer_for_net(net_name)
-            if not zone_layer:
+            zone_layers = _zone_layers_for_net(net_name)
+            if not zone_layers:
                 continue
             net_num = net_name_to_number.get(net_name, 0)
             if net_num > 0 and positions:
-                try:
-                    zd = compute_zone_for_net(
-                        net_name, net_num, positions, layer=zone_layer,
-                    )
-                    segments.append(emit_zone_s_expr(zd))
-                except ValueError:
-                    pass
+                for layer in zone_layers:
+                    try:
+                        zd = compute_zone_for_net(
+                            net_name, net_num, positions, layer=layer,
+                        )
+                        segments.append(emit_zone_s_expr(zd))
+                    except ValueError:
+                        pass
 
     if not segments:
         return pcb_content, pad_positions
