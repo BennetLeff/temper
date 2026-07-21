@@ -66,5 +66,10 @@ def emit_zone_s_expr(zone: ZoneDefinition) -> str:
         f' (hatch full 0.5)'
         f' (connect_pads yes (clearance {zone.clearance:.4f}))'
         f' (min_thickness {zone.min_thickness:.4f})'
+        # A zone with an outline polygon but no fill directive is just a
+        # boundary -- KiCad's connectivity check sees zero copper there.
+        # This must live in the file format itself (not a CLI flag like
+        # --refill-zones) to fill correctly across KiCad CLI versions.
+        f' (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))'
         f' (polygon (pts {poly})))'
     )
