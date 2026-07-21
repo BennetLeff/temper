@@ -347,6 +347,7 @@ class RouterV6Pipeline:
         thermal_flat: Any = None,  # U8: (N,) float32 cost field
         thermal_weight: float = 0.0,  # U8: multiplier
         enable_all_pad_tree: bool = False,
+        enable_zone_pours: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -423,6 +424,7 @@ class RouterV6Pipeline:
         self.thermal_flat = thermal_flat
         self.thermal_weight = thermal_weight
         self.enable_all_pad_tree = enable_all_pad_tree
+        self.enable_zone_pours = enable_zone_pours
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
         self.layer_constraints = layer_constraints or {}

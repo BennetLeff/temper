@@ -97,6 +97,7 @@ class RoutingResult:
     drc_violations: list[DrcViolation] = field(default_factory=list)
     congestion_regions: list[CongestionRegion] = field(default_factory=list)
     routed_pcb_content: str | None = None
+    enable_zone_pours: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -404,13 +405,17 @@ def route_pcb(
     _seed: int,
     design_rules: Any = None,
     net_class_assignments: dict[str, str] | None = None,
-    thermal_flat: Any = None,  # U9: (N,) float32 thermal cost field
-    thermal_weight: float = 0.0,  # U9: multiplier
+    thermal_flat: Any = None,
+    thermal_weight: float = 0.0,
+    enable_zone_pours: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
-    Applies the given component placements by writing a temporary modified
-    .kicad_pcb file, then invokes the full 4-stage RouterV6Pipeline.
+    Args:
+        ...
+        enable_zone_pours: Emit filled-copper zone geometry for power/
+            ground/HV nets (per netclass SSOT).  Default False — zones
+            are opt-in until measurement validates them.
 
     Args:
         parsed: ParsedPCB from parse_kicad_pcb_v6.
@@ -468,8 +473,9 @@ def route_pcb(
         enable_smoothing=False,
         max_iter=500_000,
         layer_constraints=layer_constraints,
-        thermal_flat=thermal_flat,  # U9
-        thermal_weight=thermal_weight,  # U9
+        thermal_flat=thermal_flat,
+        thermal_weight=thermal_weight,
+        enable_zone_pours=enable_zone_pours,
     )
 
     if placements:
@@ -509,6 +515,7 @@ def route_pcb(
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
             result = pipeline.run(Path(temp_path))
+            result.enable_zone_pours = enable_zone_pours
             placed_content = Path(temp_path).read_text(encoding="utf-8")
             routed_content, _ = _write_routes_to_content(
                 placed_content, result
@@ -519,9 +526,20 @@ def route_pcb(
                 os.unlink(temp_path)
     else:
         result = pipeline.run(pcb_path)
+        result.enable_zone_pours = enable_zone_pours
         placed_content = pcb_path.read_text(encoding="utf-8")
         routed_content, _ = _write_routes_to_content(placed_content, result)
         return _build_routing_result(result, routed_content)
+
+
+def _zone_layers_for_net(net_name: str) -> list[str]:
+    """Resolve the zone/pour layer(s) for a net from the netclass SSOT.
+    Returns empty list for nets that don't get zone treatment."""
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
+    nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+    if nc in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+        return ["F.Cu", "B.Cu"]
+    return []
 
 
 def _write_routes_to_content(pcb_content: str, result: Any) -> str:
@@ -677,6 +695,28 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
                 f' (net {net_num}) (tstamp "{uuid.uuid4()}"))'
             )
+
+    # U1 zone/pour: emit filled-copper zones for ALL zone-eligible nets,
+    # not just the ones that routed.  Must fire before the early return.
+    if getattr(result, "enable_zone_pours", False):
+        from temper_placer.router_v6.zone_emission import (
+            compute_zone_for_net, emit_zone_s_expr,
+        )
+        for net_name, positions in pad_positions.items():
+            zone_layers = _zone_layers_for_net(net_name)
+            if not zone_layers:
+                continue
+            net_num = net_name_to_number.get(net_name, 0)
+            if net_num > 0 and positions:
+                for layer in zone_layers:
+                    try:
+                        zd = compute_zone_for_net(
+                            net_name, net_num, positions, layer=layer,
+                            margin=5.0,
+                        )
+                        segments.append(emit_zone_s_expr(zd))
+                    except ValueError:
+                        pass
 
     if not segments:
         return pcb_content, pad_positions
