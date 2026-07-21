@@ -130,7 +130,7 @@ jobs:
       # variable entirely rather than chasing timeout values further.
       - name: Zone/Pour Production Measurement (U3)
         working-directory: packages/temper-placer
-        run: uv run pytest tests/placer/cp_sat/test_zone_pour_production_measurement.py -v --tb=short
+        run: uv run pytest tests/placer/cp_sat/test_zone_pour_production_measurement.py -v --tb=short -rs -s
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
