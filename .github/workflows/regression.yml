@@ -71,7 +71,7 @@ jobs:
 
       - name: CP-SAT Placer Tests
         working-directory: packages/temper-placer
-        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short
+        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short --ignore=tests/placer/cp_sat/test_zone_pour_production_measurement.py
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
@@ -85,3 +85,52 @@ jobs:
         run: |
           echo "## Regression Suite Results" >> $GITHUB_STEP_SUMMARY
           echo "Regression suite, DRC ratchet, closure test, round-trip integrity, metamorphic oracles, and quarantine report executed." >> $GITHUB_STEP_SUMMARY
+
+  zone-pour-measurement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Install KiCad (for DRC)
+        run: |
+          sudo add-apt-repository -y ppa:kicad/kicad-8.0-releases
+          sudo apt-get update
+          sudo apt-get install -y kicad
+
+      - name: Verify KiCad CLI
+        run: kicad-cli --version
+
+      # Dedicated, isolated job: this test runs a full production-board
+      # route + zone-fill + DRC pass (U3, zone/pour plan 2026-07-20-002).
+      # Runs on its own fresh runner rather than appended to the main
+      # regression job, after three consecutive CI skips traced to the
+      # kicad-cli availability check firing late in that already
+      # 15-20+ minute job -- isolating it removes that resource-contention
+      # variable entirely rather than chasing timeout values further.
+      - name: Zone/Pour Production Measurement (U3)
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/placer/cp_sat/test_zone_pour_production_measurement.py -v --tb=short
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
+          JAX_PLATFORM_NAME: cpu
