@@ -716,7 +716,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     # not just the ones that routed.  Must fire before the early return.
     if getattr(result, "enable_zone_pours", False):
         from temper_placer.router_v6.zone_emission import (
-            compute_zone_for_net, emit_zone_s_expr,
+            ZoneDefinition, compute_zone_for_net, emit_zone_s_expr,
         )
         for net_name, positions in pad_positions.items():
             zone_layers = _zone_layers_for_net(net_name)
