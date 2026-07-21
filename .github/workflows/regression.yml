@@ -88,7 +88,7 @@ jobs:
 
   zone-pour-measurement:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
 

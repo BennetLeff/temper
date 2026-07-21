@@ -78,7 +78,13 @@ def _run_drc(pcb_path: Path) -> dict:
                 "-o", str(drc_out),
                 str(pcb_path),
             ],
-            capture_output=True, text=True, timeout=300,
+            # --refill-zones makes DRC do real geometric zone-fill work
+            # across every zone (30 on the production board) -- much
+            # slower than a plain connectivity-only DRC pass. 300s was
+            # too tight and silently produced a "skipped" result (this
+            # test's total runtime hit exactly ~360s before skipping,
+            # consistent with routing + a 300s DRC timeout).
+            capture_output=True, text=True, timeout=600,
         )
         stderr_summary = (
             proc.stderr.strip()[:200]
