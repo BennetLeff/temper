@@ -515,20 +515,21 @@ def route_pcb(
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
             result = pipeline.run(Path(temp_path))
+            result.enable_zone_pours = enable_zone_pours
             placed_content = Path(temp_path).read_text(encoding="utf-8")
             routed_content, _ = _write_routes_to_content(
                 placed_content, result
             )
-            result.enable_zone_pours = enable_zone_pours
-            result.enable_zone_pours = enable_zone_pours; return _build_routing_result(result, routed_content)
+            return _build_routing_result(result, routed_content)
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
     else:
         result = pipeline.run(pcb_path)
+        result.enable_zone_pours = enable_zone_pours
         placed_content = pcb_path.read_text(encoding="utf-8")
         routed_content, _ = _write_routes_to_content(placed_content, result)
-        result.enable_zone_pours = enable_zone_pours; return _build_routing_result(result, routed_content)
+        return _build_routing_result(result, routed_content)
 
 
 def _zone_layer_for_net(net_name: str) -> str | None:
@@ -697,24 +698,25 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 f' (net {net_num}) (tstamp "{uuid.uuid4()}"))'
             )
 
-        # U1 zone/pour: emit filled-copper zones for nets whose netclass
-        # SSOT marks as power/ground/HV.  Gated behind enable_zone_pours
-        # (default False) — zones must not fire without explicit opt-in.
-        if getattr(result, "enable_zone_pours", False):
+    # U1 zone/pour: emit filled-copper zones for ALL zone-eligible nets,
+    # not just the ones that routed.  Must fire before the early return.
+    if getattr(result, "enable_zone_pours", False):
+        from temper_placer.router_v6.zone_emission import (
+            compute_zone_for_net, emit_zone_s_expr,
+        )
+        for net_name, positions in pad_positions.items():
             zone_layer = _zone_layer_for_net(net_name)
-            if zone_layer:
-                zone_pads = pad_positions.get(net_name, [])
-                if zone_pads and net_num > 0:
-                    from temper_placer.router_v6.zone_emission import (
-                        compute_zone_for_net, emit_zone_s_expr,
+            if not zone_layer:
+                continue
+            net_num = net_name_to_number.get(net_name, 0)
+            if net_num > 0 and positions:
+                try:
+                    zd = compute_zone_for_net(
+                        net_name, net_num, positions, layer=zone_layer,
                     )
-                    try:
-                        zd = compute_zone_for_net(
-                            net_name, net_num, zone_pads, layer=zone_layer,
-                        )
-                        segments.append(emit_zone_s_expr(zd))
-                    except ValueError:
-                        pass
+                    segments.append(emit_zone_s_expr(zd))
+                except ValueError:
+                    pass
 
     if not segments:
         return pcb_content, pad_positions
