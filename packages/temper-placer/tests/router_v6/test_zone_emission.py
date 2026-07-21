@@ -36,3 +36,14 @@ def test_emit_zone_s_expr_contains_zone_keyword():
 def test_pwr_rtn_gets_bcu_layer():
     zd = compute_zone_for_net("PWR_RTN", 1, [(0.0, 0.0), (10.0, 0.0)], layer="B.Cu")
     assert zd.layer == "B.Cu"
+
+
+def test_emit_zone_s_expr_includes_fill_directive():
+    """Regression: without (fill yes ...), a zone is only an outline
+    polygon -- KiCad DRC's connectivity check sees it as no copper at
+    all. CI's kicad-cli 8.0.9 doesn't support --refill-zones, so the
+    fill directive must live in the emitted geometry itself, not a CLI
+    flag, to work across KiCad versions."""
+    zd = compute_zone_for_net("GND", 1, [(0.0, 0.0), (10.0, 0.0)])
+    expr = emit_zone_s_expr(zd)
+    assert "(fill yes" in expr

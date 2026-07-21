@@ -5,6 +5,15 @@ _meta:
     keep: 27
   ticket_scripts_deleted: 40
 scripts:
+- path: kicad_fill_zones.py
+  purpose: "Fill zones via KiCad's pcbnew API before DRC (kicad-cli lacks --refill-zones pre-CI's KiCad 8.0.9)"
+  owner: zone-pour-u3-measurement
+  last_run: "2026-07-21"
+  category: keep
+  disposition: utility
+  imports:
+    - sys
+    - pcbnew
 - path: bench_coarse_to_fine.py
   purpose: "A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb"
   owner: router-v6-closure-rate
