@@ -4,11 +4,18 @@ Called from ``run_astar_pathfinding`` when all-pad tree routing is enabled.
 Each Prim-planned edge is routed through the existing A* primitive, producing
 distinct branch geometry rather than one serial path.  Multi-layer grids are
 supported via shared-layer selection.
+
+U2 (2026-07-20): subtree-aware resilience — a single infeasible edge no
+longer abandons the entire net.  Edges whose source terminal is actually
+connected to the root (via completed edges) are attempted; edges descended
+from a failed edge are skipped to avoid wasting grid budget on disconnected
+branches.  ``verify_net_connectivity`` remains the sole authority for
+``ROUTED`` vs ``INCOMPLETE``.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from temper_placer.router_v6.astar_core import RoutePath
 
@@ -25,11 +32,11 @@ from temper_placer.router_v6.terminal_tree import TerminalTreeEdge, TerminalTree
 
 @dataclass(frozen=True)
 class TerminalTreeExecution:
-    """Complete legal branches or a truthful first failed planned edge."""
+    """Complete legal branches or a truthful report of failed planned edges."""
 
     disposition: NetDisposition
     completed_edges: tuple[tuple[TerminalTreeEdge, RoutePath], ...]
-    failed_edge: TerminalTreeEdge | None
+    failed_edges: tuple[TerminalTreeEdge, ...] = ()
 
 
 def _pick_route_layer(
@@ -37,13 +44,6 @@ def _pick_route_layer(
     target: TreeTerminal,
     single_grid_layer: str,
 ) -> str | None:
-    """Return the preferred shared layer name for a tree edge, or ``None``.
-
-    Layer selection prioritises the *source* terminal's declared order:
-    the first declared layer that both terminals share wins.  When neither
-    terminal declares layers (legacy single-grid callers), ``single_grid_layer``
-    is used directly.
-    """
     src = getattr(source, "layer_names", None)
     tgt = getattr(target, "layer_names", None)
     if src is None and tgt is None:
@@ -54,8 +54,6 @@ def _pick_route_layer(
         shared = src_set & tgt_set
     if not shared:
         return None
-    # Prefer the source's first declared layer; fall back to the
-    # alphabetically-first shared layer when neither declares.
     if src:
         for candidate in src:
             if candidate in shared:
@@ -75,15 +73,12 @@ def execute_terminal_tree(
 ) -> TerminalTreeExecution:
     """Execute plan edges through A* without direct/forced fallback geometry.
 
-    Accepts either a single ``OccupancyGrid`` (backward-compatible, 2D only)
-    or a ``dict[str, OccupancyGrid]`` for multi-layer routing.  With a dict,
-    each edge picks the first shared layer between source and target terminals;
-    edges with no shared layer fail immediately.
-
-    With a positive ``net_id``, each accepted edge is immediately reserved.
-    The scoped 2D A* ownership predicate then permits that same ID while
-    continuing to reject all other occupied cells.  The default leaves the
-    synthetic seam non-mutating for backwards-compatible unit tests.
+    U2: subtree-aware resilience.  Tracks which terminals are *actually*
+    connected to the root (via successfully routed edges), not just
+    planned-connected.  An edge whose source is not in the connected set
+    is skipped (it descended from an earlier failure).  After all edges
+    are attempted, ``verify_net_connectivity`` determines the final
+    disposition — the executor itself never fabricates a verdict.
     """
     grids: dict[str, OccupancyGrid] = (
         {grid.layer_name: grid} if isinstance(grid, OccupancyGrid) else grid
@@ -94,19 +89,23 @@ def execute_terminal_tree(
     single_grid_layer = next(iter(grids.keys()))
     terminals: dict[PadIdentity, TreeTerminal] = {pad.identity: pad for pad in pads}
     completed: list[tuple[TerminalTreeEdge, RoutePath]] = []
+    failed: list[TerminalTreeEdge] = []
+    connected: set[PadIdentity] = {plan.root}
 
     for edge in plan.edges:
         source = terminals[edge.source]
         target = terminals[edge.target]
+
+        # U2: skip edges whose source was never reached.
+        if edge.source not in connected:
+            continue
+
         route_layer = _pick_route_layer(source, target, single_grid_layer)
         if route_layer is None:
-            return TerminalTreeExecution(
-                disposition=NetDisposition.INCOMPLETE,
-                completed_edges=tuple(completed),
-                failed_edge=edge,
-            )
-        active_grid = grids[route_layer]
+            failed.append(edge)
+            continue
 
+        active_grid = grids[route_layer]
         path, _fallback_count = _astar_route(
             edge.source.net,
             ChannelPath(
@@ -125,18 +124,23 @@ def execute_terminal_tree(
             net_id=net_id,
         )
         if path is None or path.forced_segment_count:
-            return TerminalTreeExecution(
-                disposition=NetDisposition.INCOMPLETE,
-                completed_edges=tuple(completed),
-                failed_edge=edge,
-            )
+            failed.append(edge)
+            continue
+
         completed.append((edge, path))
+        connected.add(edge.target)
         if net_id >= 0:
             active_grid.mark_path_blocked(
                 path.coordinates, trace_width, clearance, net_id
             )
+
+    disposition = (
+        NetDisposition.ROUTED
+        if len(connected) == len(terminals)
+        else NetDisposition.INCOMPLETE
+    )
     return TerminalTreeExecution(
-        disposition=NetDisposition.ROUTED,
+        disposition=disposition,
         completed_edges=tuple(completed),
-        failed_edge=None,
+        failed_edges=tuple(failed),
     )
