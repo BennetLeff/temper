@@ -441,6 +441,8 @@ TEMPER_NET_ASSIGNMENTS = {
     # HighVoltage - DC bus (300-400V DC)
     "+340V_BUS": "HighVoltage",
     "DC_BUS_RTN": "HighVoltage",
+    "DC_BUS+": "HighVoltage",
+    "DC_BUS-": "HighVoltage",
     "SW_NODE": "HighVoltage",
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
@@ -459,8 +461,12 @@ TEMPER_NET_ASSIGNMENTS = {
     # GateDrive - MOSFET gate drive signals
     "GATE_HS": "GateDrive",
     "GATE_LS": "GateDrive",
+    "GATE_H": "GateDrive",
+    "GATE_L": "GateDrive",
     "PWM_HS": "GateDrive",
     "PWM_LS": "GateDrive",
+    "PWM_H": "GateDrive",
+    "PWM_L": "GateDrive",
     # Power - DC supply rails
     "+15V": "Power",
     "+15V_LS": "Power",
@@ -469,6 +475,7 @@ TEMPER_NET_ASSIGNMENTS = {
     "V_BUS_SENSE": "Power",
     # GND - power return
     "PWR_RTN": "GND",
+    "CGND": "GND",
 }
 
 
