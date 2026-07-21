@@ -67,6 +67,10 @@ def _run_drc(pcb_path: Path) -> dict:
             [
                 "kicad-cli", "pcb", "drc",
                 "--format", "json",
+                # Emitted zones carry an outline polygon only, no computed
+                # filled copper -- DRC's connectivity check sees empty
+                # zones as no connection at all without this.
+                "--refill-zones",
                 "-o", str(drc_out),
                 str(pcb_path),
             ],
