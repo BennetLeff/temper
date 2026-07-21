@@ -542,6 +542,22 @@ def _zone_layers_for_net(net_name: str) -> list[str]:
     return []
 
 
+def _zone_params_for_net(net_name: str) -> tuple[float, float]:
+    """Resolve per-netclass zone margin and clearance from DesignRules."""
+    from temper_placer.core.design_rules import (
+        TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
+    )
+    nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+    rules = TEMPER_NET_CLASSES.get(nc)
+    if rules is not None:
+        margin = rules.trace_width * 10.0  # pad ~= 10x trace width
+        clearance = rules.clearance
+    else:
+        margin = 5.0
+        clearance = 0.3
+    return margin, clearance
+
+
 def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
@@ -710,9 +726,18 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
             if net_num > 0 and positions:
                 for layer in zone_layers:
                     try:
+                        margin, clearance = _zone_params_for_net(net_name)
                         zd = compute_zone_for_net(
                             net_name, net_num, positions, layer=layer,
-                            margin=5.0,
+                            margin=margin,
+                        )
+                        zd = ZoneDefinition(
+                            net_name=zd.net_name,
+                            net_number=zd.net_number,
+                            layer=zd.layer,
+                            points=zd.points,
+                            clearance=clearance,
+                            min_thickness=zd.min_thickness,
                         )
                         segments.append(emit_zone_s_expr(zd))
                     except ValueError:
