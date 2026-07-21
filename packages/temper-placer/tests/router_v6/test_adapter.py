@@ -6,6 +6,7 @@ import pytest
 from temper_placer.router_v6.adapter import (
     RoutingResult,
     _apply_placements_to_pcb,
+    _zone_layers_for_net,
     route_pcb,
 )
 
@@ -89,3 +90,45 @@ class TestRoutePcbErrorHandling:
         parsed = type("FakeParsed", (), {})()
         with pytest.raises(ValueError, match="source_path"):
             route_pcb(parsed, {}, 42)
+
+
+class TestZoneLayersForNet:
+    """TEMPER_NET_ASSIGNMENTS coverage against the production board's real
+    net names (pcb/temper.kicad_pcb) -- see docs/evidence/2026-07-20-tree-executor-resilience-U5-measurement.json.
+    """
+
+    def test_dc_bus_plus_is_zone_eligible(self):
+        assert _zone_layers_for_net("DC_BUS+") == ["F.Cu", "B.Cu"]
+
+    def test_dc_bus_minus_is_zone_eligible(self):
+        assert _zone_layers_for_net("DC_BUS-") == ["F.Cu", "B.Cu"]
+
+    def test_cgnd_is_zone_eligible(self):
+        assert _zone_layers_for_net("CGND") == ["F.Cu", "B.Cu"]
+
+    def test_gate_l_short_form_is_zone_eligible(self):
+        assert _zone_layers_for_net("GATE_L") == ["F.Cu", "B.Cu"]
+
+    def test_gate_h_short_form_is_zone_eligible(self):
+        assert _zone_layers_for_net("GATE_H") == ["F.Cu", "B.Cu"]
+
+    def test_pwm_l_short_form_is_zone_eligible(self):
+        assert _zone_layers_for_net("PWM_L") == ["F.Cu", "B.Cu"]
+
+    def test_gate_ls_long_form_still_zone_eligible(self):
+        """Existing long-form names must keep working -- additive fix only."""
+        assert _zone_layers_for_net("GATE_LS") == ["F.Cu", "B.Cu"]
+
+    def test_spi_mosi_is_not_zone_eligible(self):
+        """SPI signal lines must never get a copper pour -- signal integrity,
+        not a coverage gap. Confirms the fix doesn't overcorrect."""
+        assert _zone_layers_for_net("SPI_MOSI") == []
+
+    def test_spi_clk_is_not_zone_eligible(self):
+        assert _zone_layers_for_net("SPI_CLK") == []
+
+    def test_spi_miso_is_not_zone_eligible(self):
+        assert _zone_layers_for_net("SPI_MISO") == []
+
+    def test_unknown_net_is_not_zone_eligible(self):
+        assert _zone_layers_for_net("some_random_signal") == []
