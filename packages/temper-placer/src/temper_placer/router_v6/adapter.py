@@ -712,6 +712,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                     try:
                         zd = compute_zone_for_net(
                             net_name, net_num, positions, layer=layer,
+                            margin=5.0,
                         )
                         segments.append(emit_zone_s_expr(zd))
                     except ValueError:
