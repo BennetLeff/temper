@@ -450,8 +450,8 @@ def run_astar_pathfinding(
                 return True, "", [], None
             if completed_geometry.branches:
                 partial_tree_routes[net_name] = completed_geometry
-            failed_edge = execution.failed_edge
-            assert failed_edge is not None
+            failed_edge = execution.failed_edges[0]
+            assert failed_edge is not None  # first failed edge
             terminal = next(item for item in channel_path.terminals if item.identity == failed_edge.target)
             tree_failures[net_name] = TreeRoutingFailure(
                 unresolved_terminal=(terminal.center.x, terminal.center.y),

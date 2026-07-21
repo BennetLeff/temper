@@ -108,7 +108,7 @@ class TestMultiLayerTreeExecution:
             clearance=0.15,
         )
         assert result.disposition == NetDisposition.ROUTED
-        assert result.failed_edge is None
+        assert len(result.failed_edges) == 0
         assert len(result.completed_edges) == 2
         # Source t0 declares ("F.Cu", "B.Cu") — F.Cu first, so edges
         # route on F.Cu (declaration-order priority, not alphabetical).
@@ -188,10 +188,10 @@ class TestMultiLayerTreeExecution:
             clearance=0.15,
         )
         assert result.disposition == NetDisposition.INCOMPLETE
-        assert result.failed_edge is not None
-        assert (result.disposition == NetDisposition.ROUTED) == (result.failed_edge is None)
-        assert result.failed_edge.source == t0.identity
-        assert result.failed_edge.target == t1.identity
+        assert len(result.failed_edges) >= 1
+        assert (result.disposition == NetDisposition.ROUTED) == (len(result.failed_edges) == 0)
+        assert result.failed_edges[0].source == t0.identity
+        assert result.failed_edges[0].target == t1.identity
 
     def test_multi_grid_occupancy_reservation_is_layer_scoped(self):
         """Copper reserved on F.Cu must not pollute B.Cu grid."""
