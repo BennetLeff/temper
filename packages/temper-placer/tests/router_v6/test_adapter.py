@@ -7,6 +7,7 @@ from temper_placer.router_v6.adapter import (
     RoutingResult,
     _apply_placements_to_pcb,
     _zone_layers_for_net,
+    _zone_params_for_net,
     route_pcb,
 )
 
@@ -132,3 +133,43 @@ class TestZoneLayersForNet:
 
     def test_unknown_net_is_not_zone_eligible(self):
         assert _zone_layers_for_net("some_random_signal") == []
+
+
+class TestZoneParamsForNet:
+    """Zone margin should be bounded by clearance (the project's own
+    authoritative safety constant for these classes, see
+    SAFETY_CONSTANT_AUTHORITY_NET_CLASSES in design_rules.py), not an
+    arbitrary multiple of trace width. Previously: margin = trace_width * 10.0
+    produced a 25-30mm zone-boundary expansion for ACMains/HighVoltage on a
+    ~100-150mm board with no principled bound.
+
+    NOTE: investigation on 2026-07-21 found this does NOT explain the
+    shorting_items increase measured on the production board once zones were
+    actually filled (PR #263) -- 0 of 85 shorting violations involved a zone.
+    This coverage is kept because the bound is correct on its own merits, not
+    because it fixes that regression. The actual root cause found that day
+    was PYTHONHASHSEED-dependent net ordering in astar_pathfinding.py's
+    _compute_net_order (see test_net_order_is_deterministic_across_hash_seeds
+    in test_net_ordering.py).
+    """
+
+    def test_acmains_margin_is_not_oversized(self):
+        # Previously 2.5mm trace_width * 10 = 25mm -- would sweep a huge
+        # fraction of a 100-150mm board. Must be bounded by clearance (6.0mm).
+        margin, clearance = _zone_params_for_net("AC_L")
+        assert margin <= clearance
+        assert margin < 10.0
+
+    def test_highvoltage_margin_is_not_oversized(self):
+        # Previously 3.0mm trace_width * 10 = 30mm.
+        margin, clearance = _zone_params_for_net("DC_BUS+")
+        assert margin <= clearance
+        assert margin < 10.0
+
+    def test_gnd_margin_matches_clearance(self):
+        margin, clearance = _zone_params_for_net("CGND")
+        assert margin == clearance
+
+    def test_unknown_net_gets_conservative_default(self):
+        margin, clearance = _zone_params_for_net("some_random_signal")
+        assert margin <= clearance

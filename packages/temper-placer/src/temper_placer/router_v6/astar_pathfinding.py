@@ -918,7 +918,14 @@ def _compute_net_order(
                 continue
             visited.add(n)
             cluster.append(n)
-            for neighbor in conflict[n]:
+            # sorted(): conflict[n] is a set, whose iteration order depends
+            # on PYTHONHASHSEED (randomized per-process by default). Without
+            # this, BFS discovery order -- and therefore the tie-break for
+            # nets with identical cluster_sort_key tuples below -- silently
+            # varies across process runs, making net routing order (and all
+            # downstream track geometry / DRC results) non-reproducible even
+            # with a fixed seed passed to route_pcb.
+            for neighbor in sorted(conflict[n]):
                 if neighbor not in visited:
                     queue.append(neighbor)
         clusters.append(cluster)

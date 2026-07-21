@@ -550,10 +550,21 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
     rules = TEMPER_NET_CLASSES.get(nc)
     if rules is not None:
-        margin = rules.trace_width * 10.0  # pad ~= 10x trace width
+        # Bounded by clearance -- the project's own authoritative safety
+        # constant for ACMains/HighVoltage (SAFETY_CONSTANT_AUTHORITY_NET_CLASSES
+        # in design_rules.py). The previous trace_width * 10.0 heuristic
+        # produced a 25-30mm zone-boundary expansion for those classes on a
+        # ~100-150mm board -- an arbitrary multiple with no principled bound.
+        # NOTE: investigation on 2026-07-21 found the oversized margin does
+        # NOT explain the PR #263 shorting_items increase (0 of 85 shorting
+        # violations on the production board involved a zone at all -- see
+        # docs/plans or session notes for the measurement). This change is
+        # kept on its own merits: bounding margin by clearance is principled,
+        # trace_width * 10.0 was not.
+        margin = rules.clearance
         clearance = rules.clearance
     else:
-        margin = 5.0
+        margin = 0.3
         clearance = 0.3
     return margin, clearance
 
