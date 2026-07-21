@@ -533,6 +533,7 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     creates direct connections using pad positions from the parsed PCB.
     """
     import uuid
+    from types import SimpleNamespace
     pad_positions: dict[str, list[tuple[float, float]]] = {}
 
 
@@ -541,8 +542,28 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         return pcb_content, pad_positions
 
     compiled = getattr(routing_results, "compiled_routes", {})
-    if not compiled:
+    tree_compiled = getattr(routing_results, "tree_routes", {})
+    partial_tree_compiled = getattr(routing_results, "partial_tree_routes", {})
+    if not compiled and not tree_compiled and not partial_tree_compiled:
         return pcb_content, pad_positions
+
+    # U7: fold tree routes into the compiled-routes iteration so the
+    # writer emits tree-routed net geometry alongside legacy paths.
+    _tree_seen: set[str] = set()
+    for net_name, ctr in {**tree_compiled, **partial_tree_compiled}.items():
+        if net_name in compiled or net_name in _tree_seen:
+            continue
+        _tree_seen.add(net_name)
+        fake_path = SimpleNamespace(
+            path_length=1.0,
+            coordinates=[],  # tree routes have no serial coordinates
+        )
+        compiled[net_name] = SimpleNamespace(
+            path=fake_path,
+            width_mm=getattr(ctr, "width_mm", 0.2),
+            vias=getattr(ctr, "vias", []),
+            _tree_route=ctr,
+        )
 
     # Build net name -> net number mapping from the PCB content
     net_name_to_number: dict[str, int] = {}
@@ -574,6 +595,23 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
         path = getattr(compiled_route, "path", None)
         if path is None:
             continue
+
+        # U7: emit tree-route branch geometry directly.  Each branch's
+        # segments are written as independent track segments; sibling
+        # branches are never bridged by synthetic copper.
+        tree_route = getattr(compiled_route, "_tree_route", None)
+        if tree_route is not None:
+            for branch in tree_route.geometry.branches:
+                net_num = net_name_to_number.get(net_name, 0)
+                for sx, sy, ex, ey, layer in branch.path.iter_segments():
+                    seg_id = uuid.uuid4()
+                    segments.append(
+                        f'  (segment (start {sx:.4f} {sy:.4f}) (end {ex:.4f} {ey:.4f})'
+                        f' (width {width:.4f}) (layer "{layer}") (net {net_num})'
+                        f' (tstamp "{seg_id}"))'
+                    )
+            continue
+
         path_length = getattr(path, "path_length", 0.0)
         width = getattr(compiled_route, "width_mm", 0.2)
         # Defense-in-depth: never emit a zero/negative-width track (KiCad DRC
