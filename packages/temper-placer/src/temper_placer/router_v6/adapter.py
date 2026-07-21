@@ -524,6 +524,18 @@ def route_pcb(
         return _build_routing_result(result, routed_content)
 
 
+def _zone_layer_for_net(net_name: str) -> str | None:
+    """Resolve the zone/pour layer for a net from the netclass SSOT.
+    Returns None for nets that don't get zone treatment."""
+    from temper_placer.core.design_rules import TEMPER_NET_ASSIGNMENTS
+    nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+    if nc in ("GND", "Power", "GateDrive"):
+        return "B.Cu"
+    if nc in ("HighVoltage", "ACMains"):
+        return "F.Cu"
+    return None
+
+
 def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
@@ -677,6 +689,23 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 f' (drill {via.drill:.4f}) (layers "{via.from_layer}" "{via.to_layer}")'
                 f' (net {net_num}) (tstamp "{uuid.uuid4()}"))'
             )
+
+        # U1 zone/pour: emit filled-copper zones for nets whose netclass
+        # SSOT marks as power/ground/HV (not signal nets with discrete traces).
+        zone_layer = _zone_layer_for_net(net_name)
+        if zone_layer:
+            zone_pads = pad_positions.get(net_name, [])
+            if zone_pads and net_num > 0:
+                from temper_placer.router_v6.zone_emission import (
+                    compute_zone_for_net, emit_zone_s_expr,
+                )
+                try:
+                    zd = compute_zone_for_net(
+                        net_name, net_num, zone_pads, layer=zone_layer,
+                    )
+                    segments.append(emit_zone_s_expr(zd))
+                except ValueError:
+                    pass
 
     if not segments:
         return pcb_content, pad_positions
