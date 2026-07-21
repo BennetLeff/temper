@@ -63,9 +63,8 @@ def emit_zone_s_expr(zone: ZoneDefinition) -> str:
     return (
         f'  (zone (net {zone.net_number}) (net_name "{zone.net_name}")'
         f' (layer "{zone.layer}")'
-        f' (hatch full) (connect_pads yes (clearance {zone.clearance:.4f}))'
+        f' (hatch full 0.5)'
+        f' (connect_pads yes (clearance {zone.clearance:.4f}))'
         f' (min_thickness {zone.min_thickness:.4f})'
-        f' (fill yes (arc_segments 16) (thermal_gap 0.5080)'
-        f' (thermal_bridge_width 0.5080))'
         f' (polygon (pts {poly})))'
     )
