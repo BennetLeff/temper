@@ -78,18 +78,16 @@ def _run_drc(pcb_path: Path) -> dict:
                 "-o", str(drc_out),
                 str(pcb_path),
             ],
-            # --refill-zones makes DRC do real geometric zone-fill work
-            # across every zone (30 on the production board) -- much
-            # slower than a plain connectivity-only DRC pass. 300s was
-            # too tight and silently produced a "skipped" result (this
-            # test's total runtime hit exactly ~360s before skipping,
-            # consistent with routing + a 300s DRC timeout).
             capture_output=True, text=True, timeout=600,
         )
-        stderr_summary = (
-            proc.stderr.strip()[:200]
-            if proc.returncode != 0 and proc.stderr
-            else ""
+        # Surface stdout/stderr/returncode unconditionally when diagnosing
+        # a missing-output failure -- a prior CI run showed kicad-cli
+        # exiting in under 1s with returncode 0 and no output file, which
+        # a returncode-gated stderr capture would silently hide.
+        proc_summary = (
+            f"returncode={proc.returncode} "
+            f"stdout={proc.stdout.strip()[:300]!r} "
+            f"stderr={proc.stderr.strip()[:300]!r}"
         )
     except subprocess.TimeoutExpired:
         if drc_out.exists():
@@ -102,10 +100,7 @@ def _run_drc(pcb_path: Path) -> dict:
         raise
 
     if not drc_out.exists() or drc_out.stat().st_size == 0:
-        pytest.skip(
-            "kicad-cli DRC produced no output file"
-            + (f": {stderr_summary}" if stderr_summary else "")
-        )
+        pytest.skip(f"kicad-cli DRC produced no output file: {proc_summary}")
         return {}
 
     try:
