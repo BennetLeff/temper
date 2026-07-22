@@ -15,10 +15,16 @@ from temper_placer.router_v6.connectivity import (
     CopperPad,
     CopperTrack,
     CopperVia,
+    CopperZone,
     NetConnectivity,
     PadIdentity,
     Point,
     verify_net_connectivity,
+)
+
+_ZONE_RE = re.compile(
+    r'\(zone\s+\(net\s+(\d+)\)\s+\(net_name\s+"([^"]+)"\)'
+    r'\s+\(layer\s+"([^"]+)"\)',
 )
 
 _SEGMENT_RE = re.compile(
@@ -87,12 +93,48 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
             )
         )
 
+    # U5: parse zone/pour polygons from emitted content
+    # U5: parse zone/pour polygons from emitted content.
+    # Extract xy points from (polygon (pts ...)) blocks, using the
+    # surrounding zone context to determine net/layer.
+    zones_by_net: dict[int, list[CopperZone]] = {}
+    for m in _ZONE_RE.finditer(pcb_content):
+        net_num = int(m.group(1))
+        layer_name = m.group(3)
+        # Find the enclosing polygon block after this zone header
+        start = m.end()
+        poly_start = pcb_content.find("(polygon", start)
+        if poly_start < 0:
+            continue
+        poly_end = pcb_content.find("))", poly_start)
+        if poly_end < 0:
+            continue
+        poly_block = pcb_content[poly_start:poly_end + 2]
+        xy_pts = re.findall(r"\(xy\s+([-\d.]+)\s+([-\d.]+)\)", poly_block)
+        if len(xy_pts) < 3:
+            continue
+        from shapely.geometry import Polygon as ShapelyPolygon
+        try:
+            poly = ShapelyPolygon([(float(x), float(y)) for x, y in xy_pts])
+            if not poly.is_valid:
+                poly = poly.buffer(0)
+        except Exception:
+            continue
+        zones_by_net.setdefault(net_num, []).append(
+            CopperZone(
+                polygon=poly,
+                layer=_layer_id(layer_name),
+                net=net_name_map.get(net_num, str(net_num)),
+            )
+        )
+
     results: dict[str, NetConnectivity] = {}
     for net_name, positions in pad_positions.items():
         # Find the net number for this net name
         net_num = next((n for n, name in net_name_map.items() if name == net_name), None)
         tracks = segments_by_net.get(net_num, []) if net_num else []
         via_list = vias_by_net.get(net_num, []) if net_num else []
+        zone_list = zones_by_net.get(net_num, []) if net_num else []
 
         # Best-effort CopperPad: default rect, no rotation.
         # Layer (0, 1) = both F.Cu and B.Cu — the preflight does not
@@ -110,7 +152,9 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
             for i, (x, y) in enumerate(positions)
         ]
 
-        results[net_name] = verify_net_connectivity(pads=tuple(pads), tracks=tracks, vias=via_list)
+        results[net_name] = verify_net_connectivity(
+            pads=tuple(pads), tracks=tracks, vias=via_list, zones=tuple(zone_list),
+        )
 
     return results
 

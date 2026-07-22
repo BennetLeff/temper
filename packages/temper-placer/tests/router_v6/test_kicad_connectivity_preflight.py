@@ -38,8 +38,52 @@ class TestPreflightParsesEmittedPCB:
         pcb = _make_two_pad_pcb("NET", 0.0, 0.0, 5.0, 0.0)
         pads = {"NET": [(0.0, 0.0), (5.0, 0.0)]}
         result = connectivity_preflight(pcb, pads)
-        assert "NET" in result
         assert result["NET"].disposition == NetDisposition.ROUTED
+
+
+class TestZoneConnectivity:
+    """U5: zone/pour geometry recognized by connectivity verifier."""
+
+    def test_pad_inside_zone_is_connected(self):
+        """A pad whose center lies inside a pour polygon is counted as
+        connected to it in the union-find."""
+        pcb = """(kicad_pcb (version 20240108)
+  (net 1 "NET")
+  (zone (net 1) (net_name "NET") (layer "F.Cu")
+    (hatch full 0.5)
+    (priority 0)
+    (connect_pads yes (clearance 0.25))
+    (min_thickness 0.25)
+    (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))
+    (polygon (pts
+      (xy 0.0 0.0) (xy 10.0 0.0) (xy 10.0 10.0) (xy 0.0 10.0)
+    ))
+  )
+)
+"""
+        pads = {"NET": [(5.0, 5.0), (7.0, 7.0)]}
+        result = connectivity_preflight(pcb, pads)
+        assert result["NET"].disposition == NetDisposition.ROUTED
+
+    def test_pad_outside_zone_is_not_connected(self):
+        """A pad outside the zone polygon is reported INCOMPLETE."""
+        pcb = """(kicad_pcb (version 20240108)
+  (net 1 "NET")
+  (zone (net 1) (net_name "NET") (layer "F.Cu")
+    (hatch full 0.5)
+    (priority 0)
+    (connect_pads yes (clearance 0.25))
+    (min_thickness 0.25)
+    (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))
+    (polygon (pts
+      (xy 0.0 0.0) (xy 10.0 0.0) (xy 10.0 10.0) (xy 0.0 10.0)
+    ))
+  )
+)
+"""
+        pads = {"NET": [(5.0, 5.0), (20.0, 20.0)]}
+        result = connectivity_preflight(pcb, pads)
+        assert result["NET"].disposition == NetDisposition.INCOMPLETE
 
     def test_two_pad_disconnected_returns_incomplete(self):
         """Track between pad A and nowhere near pad B → INCOMPLETE."""
