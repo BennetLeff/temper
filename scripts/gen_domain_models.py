@@ -87,7 +87,7 @@ def rs_default(field: dict[str, Any]) -> str:
     if rust_type == "f64":
         val = float(default)
         if val == int(val) and val != 0.0:
-            return f"{val:.1}_f64"
+            return f"{val:.1f}_f64"
         return f"{val}_f64"
     if rust_type == "i32":
         return f"{int(default)}_i32"
