@@ -24,13 +24,19 @@
     "Makefile",
     "packages/temper-placer/src/temper_placer/profiling/pipeline_metrics.py"
   ],
+  "check_physics_provenance.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/scripts/test_check_physics_provenance.py"
+  ],
   "check_regression.py": [],
   "check_script_sunset.py": [
     ".github/workflows/health-digest.yml",
     ".github/workflows/python-tests.yml"
   ],
   "check_traceability.py": [],
-  "check_typecheck_gate.py": [],
+  "check_typecheck_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "ci_check_drc.py": [
     ".github/workflows/regression.yml"
   ],
@@ -54,6 +60,7 @@
   "gen_architecture_poster.py": [
     ".github/workflows/architecture-poster.yml"
   ],
+  "gen_pcb_skeleton.py": [],
   "gen_schematics.py": [
     ".github/workflows/python-tests.yml",
     "Makefile",
@@ -73,6 +80,9 @@
     "scripts/run_physics_flow.sh",
     "scripts/sprint1_validation.sh",
     "scripts/verify_occupancy_strict.sh"
+  ],
+  "kicad_fill_zones.py": [
+    "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
   ],
   "pipeline_metrics.py": [
     ".github/workflows/firmware-perf-record.yml",

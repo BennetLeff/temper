@@ -24,6 +24,8 @@ on:
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - '.physics-provenance-allowlist'
+      - 'scripts/check_physics_provenance.py'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -52,6 +54,8 @@ on:
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - '.physics-provenance-allowlist'
+      - 'scripts/check_physics_provenance.py'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -375,6 +379,12 @@ jobs:
       - name: Root artifact hygiene check
         run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
         continue-on-error: true
+
+      - name: Physics parameter provenance gate
+        working-directory: packages/temper-placer
+        run: |
+          uv run python ../../scripts/check_physics_provenance.py --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
+          uv run python ../../scripts/check_physics_provenance.py --check-shrink --allowlist ../../.physics-provenance-allowlist --physics-dir src/temper_placer/physics/
 
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
