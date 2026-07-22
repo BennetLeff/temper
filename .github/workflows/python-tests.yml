@@ -188,10 +188,14 @@ jobs:
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
-      - name: Coverage gate (temper-placer/core)
-        if: false  # disabled: JAX + coverage OOMs on CI runners
+      - name: Coverage gate (temper-placer)
         working-directory: packages/temper-placer
-        run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage.json --allowlist ../../.coverage-allowlist
+        run: >
+          uv run python ../../scripts/check_coverage_gate.py
+          --coverage-json coverage.json
+          --allowlist ../../.coverage-allowlist
+          || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
+        continue-on-error: true
 
   checks:
     name: Extended Tests & Gates
