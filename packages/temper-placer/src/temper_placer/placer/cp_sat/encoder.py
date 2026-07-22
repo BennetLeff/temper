@@ -1,10 +1,7 @@
 """PCL-to-CP-SAT constraint encoder.
-
-Maps all 8 PCL constraint types to CP-SAT model constraints via
-Protocol-based handlers with decorator auto-registration and
-``assert_never`` exhaustiveness checking. Handlers live in
-``cp_sat/handlers/`` and register themselves into ``HANDLER_REGISTRY``
-via the ``@register_handler`` decorator.
+ 
+Maps all 8 PCL constraint types to CP-SAT model constraints using a
+TYPE_HANDLERS dispatch pattern mirroring sat_bridge.py.
 
 Each handler returns a list of assumption literals for UNSAT-core extraction.
 """
@@ -12,17 +9,22 @@ Each handler returns a list of assumption literals for UNSAT-core extraction.
 from __future__ import annotations
 
 import logging
-import os as _os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from typing import assert_never as _assert_never
 
 from temper_placer.pcl.constraints import (
+    AdjacentConstraint,
+    AlignedConstraint,
+    AnchoredConstraint,
     BaseConstraint,
-    CompilationTarget,
     ConstraintTier,
     ConstraintType,
+    EnclosingConstraint,
+    KeepoutConstraint,
+    LoopAreaConstraint,
+    OnSideConstraint,
     SeparatedConstraint,
 )
 
@@ -39,6 +41,8 @@ UNSUPPORTED_TYPES: set[ConstraintType] = set()
 # Defaults to "raise" (fail-closed): silent constraint drop is the exact
 # "looks applied but isn't" bug this guard exists to catch. Override via
 # TEMPER_UNRESOLVED_REF_POLICY=warn|ignore for exploratory runs.
+import os as _os
+
 _UNRESOLVED_REF_POLICY: str = _os.environ.get(
     "TEMPER_UNRESOLVED_REF_POLICY", "raise"
 ).lower()
@@ -83,33 +87,444 @@ class EncoderContext:
 
 
 # ---------------------------------------------------------------------------
-# Handler imports (trigger @register_handler side-effects)
+# SEEN: Assumption literal type alias
 # ---------------------------------------------------------------------------
 
-from .handlers import (  # noqa: E402, F401 — trigger @register_handler side-effects
-    HANDLER_REGISTRY,  # noqa: E402
-    AssumptionLiteral,  # noqa: E402
-    adjacent,
-    aligned,
-    anchored,
-    enclosing,
-    keepout,
-    loop_area,
-    onside,
-    separated,
-)
+AssumptionLiteral = int  # index of assumption BoolVar
 
 
-def _check_handler_coverage() -> None:
-    """Verify every ConstraintType has a registered handler."""
-    for ct in ConstraintType:
-        if ct not in HANDLER_REGISTRY:
-            if ct.supported_targets and CompilationTarget.CP_SAT not in ct.supported_targets:
+# ---------------------------------------------------------------------------
+# Separated
+# ---------------------------------------------------------------------------
+
+def _encode_separated(
+    constraint: SeparatedConstraint,
+    components: dict[str, ComponentVars],
+    model: CpSatModel,
+    ctx: EncoderContext,
+) -> list[AssumptionLiteral]:
+    """Enforce Chebyshev clearance between every component in group A and B.
+
+    Each pair (a, b) gets a pairwise Chebyshev disjunction — exactly the
+    margin required on **either** the x-axis **or** the y-axis — using 6
+    Boolean auxiliary variables per pair.  This is strictly stronger than
+    the previous ``AddNoOverlap2D`` with one-sided interval inflation,
+    which allowed components to touch on one axis while being disjoint
+    on the other and consequently under-delivered the stated clearance.
+
+    Encoding for a single pair (bounding boxes in model units):
+
+        margin = mm_to_units(min_distance_mm)
+
+        left   ⇔  a.x_end + margin ≤ b.x_start
+        right  ⇔  b.x_end + margin ≤ a.x_start
+        below  ⇔  a.y_end + margin ≤ b.y_start
+        above  ⇔  b.y_end + margin ≤ a.y_start
+
+        x_ok   ⇔  left ∨ right         (BoolVar, not reified — via BoolOr)
+        y_ok   ⇔  below ∨ above
+
+        AddBoolOr([x_ok, y_ok])         # at least one axis has the gap
+
+    Soundness: SAT ⇒ Chebyshev(L∞) gap ≥ margin (by case analysis over
+    which of left/right/below/above holds).  Induction: base n≤1 vacuously
+    true; step adds constraints for (i, k+1) that are linear on existing
+    variables — previous constraints are unaffected.
+    """
+    labels: list[AssumptionLiteral] = []
+    margin = model.mm_to_units(constraint.min_distance_mm)
+
+    refs_a = _resolve_refs(constraint.a, components, ctx)
+    refs_b = _resolve_refs(constraint.b, components, ctx)
+    if not refs_a or not refs_b:
+        logger.warning("Separated %s: cannot resolve refs", constraint.id)
+        return labels
+
+    for ra in refs_a:
+        for rb in refs_b:
+            if ra == rb:
                 continue
-            _assert_never(ct)  # type: ignore[arg-type]
+            va = components[ra]
+            vb = components[rb]
+            label = f"sep_{constraint.id}_{ra}_{rb}"
+
+            # ---- direction Booleans (each enforced by a linear bound) ----
+            left = model.new_bool_var(f"sep_left_{ra}_{rb}")
+            right = model.new_bool_var(f"sep_right_{ra}_{rb}")
+            below = model.new_bool_var(f"sep_below_{ra}_{rb}")
+            above = model.new_bool_var(f"sep_above_{ra}_{rb}")
+
+            model.model_ref.Add(va.x_end + margin <= vb.x_start).OnlyEnforceIf(left)
+            model.model_ref.Add(vb.x_end + margin <= va.x_start).OnlyEnforceIf(right)
+            model.model_ref.Add(va.y_end + margin <= vb.y_start).OnlyEnforceIf(below)
+            model.model_ref.Add(vb.y_end + margin <= va.y_start).OnlyEnforceIf(above)
+
+            # ---- axis Booleans ----
+            x_ok = model.new_bool_var(f"sep_x_ok_{ra}_{rb}")
+            y_ok = model.new_bool_var(f"sep_y_ok_{ra}_{rb}")
+
+            model.model_ref.AddBoolOr([x_ok.Not(), left, right])
+            model.model_ref.AddBoolOr([y_ok.Not(), below, above])
+
+            # ---- final disjunction — at least one axis separated ----
+            model.model_ref.AddBoolOr([x_ok, y_ok])
+
+            labels.append(model.new_assumption(label))
+    return labels
 
 
-_check_handler_coverage()
+# ---------------------------------------------------------------------------
+# Enclosing
+# ---------------------------------------------------------------------------
+
+def _encode_enclosing(
+    constraint: EnclosingConstraint,
+    components: dict[str, ComponentVars],
+    model: CpSatModel,
+    ctx: EncoderContext,
+) -> list[AssumptionLiteral]:
+    """Constrain inner components to lie within the outer zone rectangle."""
+    labels: list[AssumptionLiteral] = []
+    zone = ctx.zones.get(constraint.outer)
+    if zone is None:
+        logger.warning("Enclosing %s: zone '%s' not found", constraint.id, constraint.outer)
+        return labels
+
+    zx_min, zy_min, zx_max, zy_max = zone
+    zx_min_u = model.mm_to_units(zx_min)
+    zy_min_u = model.mm_to_units(zy_min)
+    zx_max_u = model.mm_to_units(zx_max)
+    zy_max_u = model.mm_to_units(zy_max)
+    margin_u = model.mm_to_units(constraint.margin_mm)
+
+    for ref in constraint.inner:
+        v = components.get(ref)
+        if v is None:
+            logger.warning("Enclosing %s: comp '%s' not found", constraint.id, ref)
+            continue
+        label = f"enc_{constraint.id}_{ref}"
+        assumption = model.new_assumption(label)
+
+        model.add_constraint_enforced(
+            v.x_start >= zx_min_u + margin_u, assumption,
+        )
+        model.add_constraint_enforced(
+            v.y_start >= zy_min_u + margin_u, assumption,
+        )
+        model.add_constraint_enforced(
+            v.x_end <= zx_max_u - margin_u, assumption,
+        )
+        model.add_constraint_enforced(
+            v.y_end <= zy_max_u - margin_u, assumption,
+        )
+        labels.append(assumption)
+    return labels
+
+
+# ---------------------------------------------------------------------------
+# Adjacent
+# ---------------------------------------------------------------------------
+
+def _encode_adjacent(
+    constraint: AdjacentConstraint,
+    components: dict[str, ComponentVars],
+    model: CpSatModel,
+    ctx: EncoderContext,  # noqa: ARG001
+) -> list[AssumptionLiteral]:
+    """Constrain two components to be within max_distance_mm of each other.
+
+    Honors ``constraint.metric``:
+
+    * ``EDGE_TO_EDGE`` (the default, and what the config's ``metric:
+      edge_to_edge`` selects): the *gap between bounding boxes* on each
+      axis must be ≤ max_distance. For a part of width w, edge-to-edge
+      distance d permits centers up to ``w + d`` apart — center-to-center
+      would wrongly demand centers within ``d``, which for a 25 mm part
+      and d=10 mm is unsatisfiable against no-overlap. This mismatch made
+      the temper power stage falsely infeasible.
+    * ``CENTER_TO_CENTER``: centroid Chebyshev distance ≤ max_distance.
+    * ``PIN_TO_PIN``: approximated as edge-to-edge (pin geometry is not
+      modelled in the placement grid).
+    """
+    from temper_placer.pcl.constraints import DistanceMetric
+
+    labels: list[AssumptionLiteral] = []
+    va = components.get(constraint.a)
+    vb = components.get(constraint.b)
+    if va is None or vb is None:
+        logger.warning("Adjacent %s: cannot resolve components", constraint.id)
+        return labels
+
+    max_d = model.mm_to_units(constraint.max_distance_mm)
+    label = f"adj_{constraint.id}"
+    assumption = model.new_assumption(label)
+
+    metric = getattr(constraint, "metric", DistanceMetric.EDGE_TO_EDGE)
+    if metric == DistanceMetric.CENTER_TO_CENTER:
+        model.add_constraint_enforced(va.x_center - vb.x_center <= max_d, assumption)
+        model.add_constraint_enforced(vb.x_center - va.x_center <= max_d, assumption)
+        model.add_constraint_enforced(va.y_center - vb.y_center <= max_d, assumption)
+        model.add_constraint_enforced(vb.y_center - va.y_center <= max_d, assumption)
+    else:
+        # EDGE_TO_EDGE / PIN_TO_PIN: per-axis bounding-box gap ≤ max_d.
+        # When boxes overlap on an axis the (start - end) term is negative,
+        # so the bound is trivially satisfied — exactly the "touching counts
+        # as zero gap" semantics of edge-to-edge distance.
+        model.add_constraint_enforced(va.x_start - vb.x_end <= max_d, assumption)
+        model.add_constraint_enforced(vb.x_start - va.x_end <= max_d, assumption)
+        model.add_constraint_enforced(va.y_start - vb.y_end <= max_d, assumption)
+        model.add_constraint_enforced(vb.y_start - va.y_end <= max_d, assumption)
+    labels.append(assumption)
+    return labels
+
+
+# ---------------------------------------------------------------------------
+# OnSide
+# ---------------------------------------------------------------------------
+
+def _encode_on_side(
+    constraint: OnSideConstraint,
+    components: dict[str, ComponentVars],
+    model: CpSatModel,
+    ctx: EncoderContext,
+) -> list[AssumptionLiteral]:
+    """Pin components to a board edge."""
+    labels: list[AssumptionLiteral] = []
+    max_d_u = model.mm_to_units(constraint.max_distance_mm)
+    side = constraint.side.value  # "left", "right", "top", "bottom"
+
+    for ref in constraint.components:
+        v = components.get(ref)
+        if v is None:
+            logger.warning("OnSide %s: comp '%s' not found", constraint.id, ref)
+            continue
+        label = f"oside_{constraint.id}_{ref}"
+        assumption = model.new_assumption(label)
+
+        if side == "left":
+            model.add_constraint_enforced(v.x_start <= ctx.board_x_min_units + max_d_u, assumption)
+        elif side == "right":
+            model.add_constraint_enforced(v.x_end >= ctx.board_x_max_units - max_d_u, assumption)
+        elif side == "top":
+            model.add_constraint_enforced(v.y_end >= ctx.board_y_max_units - max_d_u, assumption)
+        elif side == "bottom":
+            model.add_constraint_enforced(v.y_start <= ctx.board_y_min_units + max_d_u, assumption)
+        labels.append(assumption)
+    return labels
+
+
+# ---------------------------------------------------------------------------
+# Anchored (U4)
+# ---------------------------------------------------------------------------
+
+def _encode_anchored(
+    constraint: AnchoredConstraint,
+    components: dict[str, ComponentVars],
+    model: CpSatModel,
+    ctx: EncoderContext,  # noqa: ARG001
+) -> list[AssumptionLiteral]:
+    """Fix a component to an exact position or region."""
+    labels: list[AssumptionLiteral] = []
+    v = components.get(constraint.component)
+    if v is None:
+        logger.warning("Anchored %s: comp '%s' not found", constraint.id, constraint.component)
+        return labels
+
+    label = f"anchor_{constraint.id}"
+    assumption = model.new_assumption(label)
+
+    if constraint.position is not None:
+        px_u = model.mm_to_units(constraint.position[0])
+        py_u = model.mm_to_units(constraint.position[1])
+        model.add_constraint_enforced(v.x_center == px_u, assumption)
+        model.add_constraint_enforced(v.y_center == py_u, assumption)
+    elif constraint.region is not None:
+        rx_min, ry_min, rx_max, ry_max = constraint.region
+        rx_min_u = model.mm_to_units(rx_min)
+        ry_min_u = model.mm_to_units(ry_min)
+        rx_max_u = model.mm_to_units(rx_max)
+        ry_max_u = model.mm_to_units(ry_max)
+        model.add_constraint_enforced(v.x_start >= rx_min_u, assumption)
+        model.add_constraint_enforced(v.y_start >= ry_min_u, assumption)
+        model.add_constraint_enforced(v.x_end <= rx_max_u, assumption)
+        model.add_constraint_enforced(v.y_end <= ry_max_u, assumption)
+    labels.append(assumption)
+    return labels
+
+
+# ---------------------------------------------------------------------------
+# KEEPOUT (U4)
+# ---------------------------------------------------------------------------
+
+def _encode_keepout(
+    constraint: KeepoutConstraint,
+    components: dict[str, ComponentVars],  # noqa: ARG001
+    model: CpSatModel,
+    ctx: EncoderContext,
+) -> list[AssumptionLiteral]:
+    """Add a keepout zone interval to the global NoOverlap2D.
+
+    All components must not overlap the keepout rectangle.
+    Uses the model's add_keepout_interval + add_no_overlap_2d with extra intervals.
+    """
+    labels: list[AssumptionLiteral] = []
+    zone = ctx.zones.get(constraint.zone_name)
+    if zone is None:
+        logger.warning("KEEPOUT %s: zone '%s' not found", constraint.id, constraint.zone_name)
+        return labels
+
+    zx_min, zy_min, zx_max, zy_max = zone
+    margin_u = model.mm_to_units(constraint.margin_mm)
+    kx_s = model.mm_to_units(zx_min) - margin_u
+    ky_s = model.mm_to_units(zy_min) - margin_u
+    kx_w = model.mm_to_units(zx_max - zx_min) + 2 * margin_u
+    ky_h = model.mm_to_units(zy_max - zy_min) + 2 * margin_u
+
+    ix, iy = model.add_keepout_interval(
+        f"keepout_{constraint.id}", kx_s, ky_s, kx_w, ky_h,
+    )
+    label = f"keepout_{constraint.id}"
+    assumption = model.new_assumption(label)
+    model.model_ref.AddNoOverlap2D(
+        [*[model.model_ref.NewIntervalVar(
+            v.x_start, v.x_size, v.x_end, f"kx_comp_{v.ref}"
+        ) for v in model.components],
+         ix],
+        [*[model.model_ref.NewIntervalVar(
+            v.y_start, v.y_size, v.y_end, f"ky_comp_{v.ref}"
+        ) for v in model.components],
+         iy],
+    )
+    labels.append(assumption)
+    return labels
+
+
+# ---------------------------------------------------------------------------
+# ALIGNED (U4)
+# ---------------------------------------------------------------------------
+
+def _encode_aligned(
+    constraint: AlignedConstraint,
+    components: dict[str, ComponentVars],
+    model: CpSatModel,
+    ctx: EncoderContext,  # noqa: ARG001
+) -> list[AssumptionLiteral]:
+    """Align components pairwise along an axis within tolerance."""
+    labels: list[AssumptionLiteral] = []
+    tol_u = model.mm_to_units(constraint.tolerance_mm)
+    axis = constraint.axis.value  # "x" or "y"
+
+    comp_refs = constraint.components
+    for i in range(len(comp_refs)):
+        for j in range(i + 1, len(comp_refs)):
+            va = components.get(comp_refs[i])
+            vb = components.get(comp_refs[j])
+            if va is None or vb is None:
+                continue
+            label = f"align_{constraint.id}_{comp_refs[i]}_{comp_refs[j]}"
+            assumption = model.new_assumption(label)
+
+            if axis in ("x", "major"):
+                cva, cvb = va.x_center, vb.x_center
+            else:
+                cva, cvb = va.y_center, vb.y_center
+
+            model.add_constraint_enforced(cva - cvb <= tol_u, assumption)
+            model.add_constraint_enforced(cvb - cva <= tol_u, assumption)
+            labels.append(assumption)
+    return labels
+
+
+# ---------------------------------------------------------------------------
+# LOOP_AREA (U3)
+# ---------------------------------------------------------------------------
+
+def _encode_loop_area(
+    constraint: LoopAreaConstraint,
+    components: dict[str, ComponentVars],
+    model: CpSatModel,
+    ctx: EncoderContext,
+) -> list[AssumptionLiteral]:
+    """Hard ceiling: AABB area of loop components <= max_area_mm2.
+
+    Uses cp_model.AddMultiplicationEquality for width*height <= max_area.
+    """
+    labels: list[AssumptionLiteral] = []
+    loop_comps = ctx.loop_components.get(constraint.loop_name, [])
+    if not loop_comps:
+        logger.warning("LoopArea %s: no components in loop '%s'", constraint.id, constraint.loop_name)
+        return labels
+
+    comp_vars = [components[r] for r in loop_comps if r in components]
+    if not comp_vars:
+        logger.warning("LoopArea %s: no resolved components", constraint.id)
+        return labels
+
+    label = f"loop_area_{constraint.id}"
+    assumption = model.new_assumption(label)
+
+    max_dim = max(ctx.board_x_max_units, ctx.board_y_max_units)
+    loop_x_min = model.new_int_var(0, max_dim, f"loop_xmin_{constraint.id}")
+    loop_x_max = model.new_int_var(0, max_dim, f"loop_xmax_{constraint.id}")
+    loop_y_min = model.new_int_var(0, max_dim, f"loop_ymin_{constraint.id}")
+    loop_y_max = model.new_int_var(0, max_dim, f"loop_ymax_{constraint.id}")
+
+    # AABB: loop_{min} <= comp_start and loop_{max} >= comp_end for all comps
+    for v in comp_vars:
+        model.add(loop_x_min <= v.x_start)
+        model.add(loop_y_min <= v.y_start)
+        model.add(loop_x_max >= v.x_end)
+        model.add(loop_y_max >= v.y_end)
+
+    loop_w = model.new_int_var(0, max_dim, f"loop_w_{constraint.id}")
+    loop_h = model.new_int_var(0, max_dim, f"loop_h_{constraint.id}")
+    model.add(loop_w == loop_x_max - loop_x_min)
+    model.add(loop_h == loop_y_max - loop_y_min)
+
+    area = model.new_int_var(
+        0, max_dim * max_dim, f"loop_area_{constraint.id}",
+    )
+    model.add_multiplication_equality(area, loop_w, loop_h)
+    max_area_units = model.mm_to_units(constraint.max_area_mm2) * model.units_per_mm
+    model.add_constraint_enforced(area <= max_area_units, assumption)
+    labels.append(assumption)
+    return labels
+
+
+# ---------------------------------------------------------------------------
+# Stub handlers (for types not yet implemented in CP-SAT)
+# ---------------------------------------------------------------------------
+
+def _encode_stub(
+    constraint_type_name: str,
+    constraint: BaseConstraint,
+    _components: dict[str, ComponentVars],
+    _model: CpSatModel,
+    _ctx: EncoderContext,
+) -> list[AssumptionLiteral]:
+    """Log a warning and return no assumptions."""
+    logger.warning(
+        "CP-SAT handler for %s (%s) is a stub — no constraints added.",
+        constraint_type_name,
+        constraint.id,
+    )
+    return []
+
+
+# ---------------------------------------------------------------------------
+# Dispatch table
+# ---------------------------------------------------------------------------
+
+TYPE_HANDLERS: dict[ConstraintType, Callable] = {
+    ConstraintType.SEPARATED: _encode_separated,
+    ConstraintType.ENCLOSING: _encode_enclosing,
+    ConstraintType.ADJACENT: _encode_adjacent,
+    ConstraintType.ON_SIDE: _encode_on_side,
+    ConstraintType.ANCHORED: _encode_anchored,
+    ConstraintType.KEEPOUT: _encode_keepout,
+    ConstraintType.ALIGNED: _encode_aligned,
+    ConstraintType.LOOP_AREA: _encode_loop_area,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -163,7 +578,7 @@ def encode_constraints(
 
     all_assumptions: list[AssumptionLiteral] = []
     for c in constraints:
-        handler = HANDLER_REGISTRY.get(c.constraint_type)
+        handler = TYPE_HANDLERS.get(c.constraint_type)
         if handler is None:
             UNSUPPORTED_TYPES.add(c.constraint_type)
             logger.warning(
@@ -331,13 +746,66 @@ def validate_constraint_refs(
 # Extra constraints (feedback-driven)
 # ---------------------------------------------------------------------------
 
+def _encode_extra_separated(
+    model,
+    constraint: SeparatedConstraint,
+    ref_to_idx: dict[str, int],
+    x_vars,
+    y_vars,
+    grid_step: float,
+    max_x: int,
+    max_y: int,
+) -> None:
+    if constraint.a in ref_to_idx and constraint.b in ref_to_idx:
+        a_idx = ref_to_idx[constraint.a]
+        b_idx = ref_to_idx[constraint.b]
+        min_sep = int(constraint.min_distance_mm / grid_step)
+        dx = model.NewIntVar(-max_x, max_x, f"extra_dx_{constraint.id}")
+        dy = model.NewIntVar(-max_y, max_y, f"extra_dy_{constraint.id}")
+        model.Add(dx == x_vars[a_idx] - x_vars[b_idx])
+        model.Add(dy == y_vars[a_idx] - y_vars[b_idx])
+        abs_dx = model.NewIntVar(0, max_x, f"extra_abs_dx_{constraint.id}")
+        abs_dy = model.NewIntVar(0, max_y, f"extra_abs_dy_{constraint.id}")
+        model.AddAbsEquality(abs_dx, dx)
+        model.AddAbsEquality(abs_dy, dy)
+        sep_x = model.NewBoolVar(f"extra_sep_x_{constraint.id}")
+        sep_y = model.NewBoolVar(f"extra_sep_y_{constraint.id}")
+        model.Add(abs_dx >= min_sep).OnlyEnforceIf(sep_x)
+        model.Add(abs_dy >= min_sep).OnlyEnforceIf(sep_y)
+        model.Add(sep_x + sep_y >= 1)
+
+
+def _encode_extra_anchored(
+    model,
+    constraint: AnchoredConstraint,
+    ref_to_idx: dict[str, int],
+    x_vars,
+    y_vars,
+    grid_step: float,
+    _max_x: int,
+    _max_y: int,
+) -> None:
+    if constraint.component in ref_to_idx:
+        idx = ref_to_idx[constraint.component]
+        if constraint.position:
+            px = int(constraint.position[0] / grid_step)
+            py = int(constraint.position[1] / grid_step)
+            model.Add(x_vars[idx] == px)
+            model.Add(y_vars[idx] == py)
+        elif constraint.region:
+            rx_min, ry_min, rx_max, ry_max = constraint.region
+            model.Add(x_vars[idx] >= int(rx_min / grid_step))
+            model.Add(x_vars[idx] <= int(rx_max / grid_step))
+            model.Add(y_vars[idx] >= int(ry_min / grid_step))
+            model.Add(y_vars[idx] <= int(ry_max / grid_step))
+
+
 def _encode_extra_constraints(
     model,
     extra_constraints: list,
     comp_refs: list[str],
     x_vars,
     y_vars,
-    rot_vars,  # noqa: ARG001
     grid_step: float,
     max_x: int,
     max_y: int,
@@ -345,52 +813,22 @@ def _encode_extra_constraints(
 ) -> None:
     """Encode additional PCL constraints into the CP-SAT model."""
     from temper_placer.pcl.constraints import (
-        AnchoredConstraint,
         EnclosingConstraint,
         KeepoutConstraint,
-        SeparatedConstraint,
     )
 
     ref_to_idx = {ref: i for i, ref in enumerate(comp_refs)}
+    _EXTRA_HANDLERS = {
+        SeparatedConstraint: _encode_extra_separated,
+        AnchoredConstraint: _encode_extra_anchored,
+    }
 
     for constraint in extra_constraints:
-        if isinstance(constraint, SeparatedConstraint):
-            if constraint.a in comp_refs and constraint.b in comp_refs:
-                a_idx = ref_to_idx[constraint.a]
-                b_idx = ref_to_idx[constraint.b]
-                min_sep = int(constraint.min_distance_mm / grid_step)
-                dx = model.NewIntVar(-max_x, max_x, f"extra_dx_{constraint.id}")
-                dy = model.NewIntVar(-max_y, max_y, f"extra_dy_{constraint.id}")
-                model.Add(dx == x_vars[a_idx] - x_vars[b_idx])
-                model.Add(dy == y_vars[a_idx] - y_vars[b_idx])
-                abs_dx = model.NewIntVar(0, max_x, f"extra_abs_dx_{constraint.id}")
-                abs_dy = model.NewIntVar(0, max_y, f"extra_abs_dy_{constraint.id}")
-                model.AddAbsEquality(abs_dx, dx)
-                model.AddAbsEquality(abs_dy, dy)
-                sep_x = model.NewBoolVar(f"extra_sep_x_{constraint.id}")
-                sep_y = model.NewBoolVar(f"extra_sep_y_{constraint.id}")
-                model.Add(abs_dx >= min_sep).OnlyEnforceIf(sep_x)
-                model.Add(abs_dy >= min_sep).OnlyEnforceIf(sep_y)
-                model.Add(sep_x + sep_y >= 1)
-
-        elif isinstance(constraint, AnchoredConstraint):
-            if constraint.component in comp_refs:
-                idx = ref_to_idx[constraint.component]
-                if constraint.position:
-                    px = int(constraint.position[0] / grid_step)
-                    py = int(constraint.position[1] / grid_step)
-                    model.Add(x_vars[idx] == px)
-                    model.Add(y_vars[idx] == py)
-                elif constraint.region:
-                    rx_min, ry_min, rx_max, ry_max = constraint.region
-                    model.Add(x_vars[idx] >= int(rx_min / grid_step))
-                    model.Add(x_vars[idx] <= int(rx_max / grid_step))
-                    model.Add(y_vars[idx] >= int(ry_min / grid_step))
-                    model.Add(y_vars[idx] <= int(ry_max / grid_step))
-
+        handler = _EXTRA_HANDLERS.get(type(constraint))
+        if handler is not None:
+            handler(model, constraint, ref_to_idx, x_vars, y_vars, grid_step, max_x, max_y)
         elif isinstance(constraint, EnclosingConstraint):
             pass  # Already handled via zone logic above
-
         elif isinstance(constraint, KeepoutConstraint):
             _encode_keepout_constraint(
                 model, constraint, comp_refs, x_vars, y_vars,
@@ -673,7 +1111,7 @@ def solve_placement(
         on_unresolved=_UNRESOLVED_REF_POLICY,
     )
 
-    labels = encode_constraints(  # noqa: F841 — collected for future UNSAT-core, labels are in model_wrapper
+    labels = encode_constraints(
         constraint_objects,
         model_wrapper,
         ctx,
