@@ -155,7 +155,6 @@ jobs:
           uv sync --all-packages
           --no-build-package temper-rust-router
           --no-build-package temper-drc-rs
-          --no-build-package temper-constraint-compiler
           --no-build-package temper-constraints
 
       - name: Cache netlist
@@ -274,7 +273,6 @@ jobs:
           uv sync --all-packages
           --no-build-package temper-rust-router
           --no-build-package temper-drc-rs
-          --no-build-package temper-constraint-compiler
           --no-build-package temper-constraints
 
       - name: Run temper-constraints integration tests
