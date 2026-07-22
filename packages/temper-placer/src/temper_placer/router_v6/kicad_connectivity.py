@@ -34,6 +34,7 @@ _VIA_RE = re.compile(
     r"\s+\(size\s+([-\d.]+)\)"
     r"\s+\(drill\s+([-\d.]+)\)"
     r'\s+\(layers\s+"([^"]+)"\s+"([^"]+)"\)'
+    r"\s+\(net\s+(\d+)\)"
 )
 
 _NET_NAME_RE = re.compile(r'\(net\s+(\d+)\s+"([^"]+)"')
@@ -71,15 +72,27 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
             )
         )
 
-    # Via parsing deferred: the writer does not emit (via ...) entries yet.
-    # When via output lands, parse from (tstamp) parent or via-net association.
+    # Parse real (via ...) s-expressions emitted by the writer
+    # (adapter.py:_write_routes_to_content emits these for compiled routes).
+    vias_by_net: dict[int, list[CopperVia]] = {}
+    for m in _VIA_RE.finditer(pcb_content):
+        x, y, size, drill, layer_from, layer_to, net_num = m.groups()
+        net_num = int(net_num)
+        vias_by_net.setdefault(net_num, []).append(
+            CopperVia(
+                net=net_name_map.get(net_num, str(net_num)),
+                center=Point(float(x), float(y)),
+                diameter=float(size),
+                layers=frozenset((_layer_id(layer_from), _layer_id(layer_to))),
+            )
+        )
 
     results: dict[str, NetConnectivity] = {}
     for net_name, positions in pad_positions.items():
         # Find the net number for this net name
         net_num = next((n for n, name in net_name_map.items() if name == net_name), None)
         tracks = segments_by_net.get(net_num, []) if net_num else []
-        via_list: list[CopperVia] = []
+        via_list = vias_by_net.get(net_num, []) if net_num else []
 
         # Best-effort CopperPad: default rect, no rotation.
         # Layer (0, 1) = both F.Cu and B.Cu — the preflight does not

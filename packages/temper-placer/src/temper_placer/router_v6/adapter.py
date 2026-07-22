@@ -125,6 +125,7 @@ class RoutingResult:
     congestion_regions: list[CongestionRegion] = field(default_factory=list)
     routed_pcb_content: str | None = None
     enable_zone_pours: bool = False
+    connectivity: dict[str, Any] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -435,6 +436,7 @@ def route_pcb(
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
     enable_zone_pours: bool = False,
+    enable_connectivity_verifier: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
 
@@ -562,10 +564,14 @@ def route_pcb(
             result = pipeline.run(Path(temp_path))
             result.enable_zone_pours = enable_zone_pours
             placed_content = Path(temp_path).read_text(encoding="utf-8")
-            routed_content, _ = _write_routes_to_content(
-                placed_content, result
+            routed_content, pad_positions = _write_routes_to_content(
+                placed_content, result, design_rules=design_rules,
             )
-            return _build_routing_result(result, routed_content)
+            return _build_routing_result(
+                result, routed_content,
+                pad_positions=pad_positions,
+                enable_connectivity_verifier=enable_connectivity_verifier,
+            )
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
@@ -573,8 +579,14 @@ def route_pcb(
         result = pipeline.run(pcb_path)
         result.enable_zone_pours = enable_zone_pours
         placed_content = pcb_path.read_text(encoding="utf-8")
-        routed_content, _ = _write_routes_to_content(placed_content, result)
-        return _build_routing_result(result, routed_content)
+        routed_content, pad_positions = _write_routes_to_content(
+            placed_content, result, design_rules=design_rules,
+        )
+        return _build_routing_result(
+            result, routed_content,
+            pad_positions=pad_positions,
+            enable_connectivity_verifier=enable_connectivity_verifier,
+        )
 
 
 def _zone_layers_for_net(net_name: str) -> list[str]:
@@ -614,7 +626,7 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     return margin, clearance
 
 
-def _write_routes_to_content(pcb_content: str, result: Any) -> str:
+def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any = None) -> str:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
     Extracts successfully routed paths from the pipeline result and writes
@@ -772,30 +784,89 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     # not just the ones that routed.  Must fire before the early return.
     if getattr(result, "enable_zone_pours", False):
         from temper_placer.router_v6.zone_emission import (
-            ZoneDefinition, compute_zone_for_net, emit_zone_s_expr,
+            ZoneDefinition, compute_zones_for_net, emit_zone_s_expr,
         )
+        from temper_placer.core.design_rules import (
+            TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
+        )
+
+        # U1: netclasses where clustering would fragment a continuous
+        # return/ground plane and undermine EMI/loop-area control.
+        _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
+
+        # Gather all zone-eligible netclasses present on the board
+        zone_netclasses: set[str] = set()
+        for net_name in pad_positions:
+            if _zone_layers_for_net(net_name):
+                nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+                if nc:
+                    zone_netclasses.add(nc)
+
+        # U2: pre-compute effective clearance per netclass via cross-class
+        # resolution (mirrors CP-SAT's netclass_constraints.py:106-119).
+        effective_clearance: dict[str, float] = {}
+        class_pairs = getattr(design_rules, 'class_pairs', {})
+        for nc in zone_netclasses:
+            own_rules = TEMPER_NET_CLASSES.get(nc)
+            own_clearance = own_rules.clearance if own_rules else 0.3
+            eff = own_clearance
+            for other_nc in zone_netclasses:
+                if other_nc == nc:
+                    continue
+                pair_key = tuple(sorted((nc, other_nc)))
+                if pair_key in class_pairs:
+                    pair_clearance = class_pairs[pair_key].get("clearance", eff)
+                    eff = max(eff, pair_clearance)
+                else:
+                    other_rules = TEMPER_NET_CLASSES.get(other_nc)
+                    other_clearance = other_rules.clearance if other_rules else 0.3
+                    eff = max(eff, max(own_clearance, other_clearance))
+            effective_clearance[nc] = eff
+
+        # U2: pre-compute KiCad zone priority per netclass.
+        # dru_priority is lower = higher real-world priority (ACMains=10).
+        # KiCad (priority N) is higher = wins/fills first.  Invert.
+        _MAX_DRU_PRIORITY = max(
+            (r.dru_priority for r in TEMPER_NET_CLASSES.values()),
+            default=90,
+        )
+        zone_priority: dict[str, int] = {}
+        for nc in zone_netclasses:
+            rules = TEMPER_NET_CLASSES.get(nc)
+            dru_p = rules.dru_priority if rules else 0
+            zone_priority[nc] = _MAX_DRU_PRIORITY - dru_p
+
         for net_name, positions in pad_positions.items():
             zone_layers = _zone_layers_for_net(net_name)
             if not zone_layers:
                 continue
             net_num = net_name_to_number.get(net_name, 0)
             if net_num > 0 and positions:
+                nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+                eff_clearance = effective_clearance.get(nc, 0.3)
+                prio = zone_priority.get(nc, 0)
+                # U1: exempt continuity-sensitive netclasses from clustering
+                exempt = nc in _CONTINUITY_EXEMPT_CLASSES
+
                 for layer in zone_layers:
                     try:
-                        margin, clearance = _zone_params_for_net(net_name)
-                        zd = compute_zone_for_net(
+                        margin, _clearance = _zone_params_for_net(net_name)
+                        zds = compute_zones_for_net(
                             net_name, net_num, positions, layer=layer,
                             margin=margin,
+                            cluster=not exempt,
                         )
-                        zd = ZoneDefinition(
-                            net_name=zd.net_name,
-                            net_number=zd.net_number,
-                            layer=zd.layer,
-                            points=zd.points,
-                            clearance=clearance,
-                            min_thickness=zd.min_thickness,
-                        )
-                        segments.append(emit_zone_s_expr(zd))
+                        for zd in zds:
+                            zd = ZoneDefinition(
+                                net_name=zd.net_name,
+                                net_number=zd.net_number,
+                                layer=zd.layer,
+                                points=zd.points,
+                                clearance=eff_clearance,
+                                min_thickness=zd.min_thickness,
+                                priority=prio,
+                            )
+                            segments.append(emit_zone_s_expr(zd))
                     except ValueError:
                         pass
 
@@ -811,7 +882,13 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     return pcb_content, pad_positions
 
 
-def _build_routing_result(result: Any, routed_content: str | None = None) -> RoutingResult:
+def _build_routing_result(
+    result: Any,
+    routed_content: str | None = None,
+    *,
+    pad_positions: dict[str, list[tuple[float, float]]] | None = None,
+    enable_connectivity_verifier: bool = False,
+) -> RoutingResult:
     """Extract failure data from RouterV6Pipeline result into RoutingResult.
 
     Pulls failed net names, DRC violations from per-net reports, and
@@ -861,12 +938,21 @@ def _build_routing_result(result: Any, routed_content: str | None = None) -> Rou
                 location=getattr(v, 'location', (0.0, 0.0)),
             ))
 
+    # U4: post-write connectivity preflight
+    connectivity = None
+    if enable_connectivity_verifier and routed_content and pad_positions:
+        from temper_placer.router_v6.kicad_connectivity import (
+            connectivity_preflight,
+        )
+        connectivity = connectivity_preflight(routed_content, pad_positions)
+
     return RoutingResult(
         completion_rate=result.completion_rate,
         unrouted_nets=unrouted_nets,
         drc_violations=drc_violations,
         congestion_regions=congestion_regions,
         routed_pcb_content=routed_content,
+        connectivity=connectivity,
     )
 
 
