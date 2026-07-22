@@ -373,6 +373,10 @@ jobs:
           python3 scripts/gen_schematics.py --check
           git diff --exit-code pcb/*.kicad_sch
 
+      - name: Verify config reference doc is up-to-date (plan 2026-07-22-005, U7)
+        run: |
+          uv run python packages/temper-placer/scripts/gen_config_reference.py --check
+
       - name: Verify board identity gate (plan 2026-07-15-001, U7)
         run: uv run python3 scripts/ci_identity_check.py
 
