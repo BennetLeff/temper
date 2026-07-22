@@ -57,7 +57,7 @@ class TestLossConfig:
 
     def test_frozen_prevents_mutation(self):
         lc = LossConfig(weight=1.0)
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             lc.weight = 2.0
 
 

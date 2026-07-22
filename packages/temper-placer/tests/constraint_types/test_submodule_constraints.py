@@ -5,37 +5,23 @@ from pydantic import ValidationError
 
 from temper_placer._constraint_types.clearance import (
     ClearanceRule,
-    DifferentialPairRule,
     NetClassRule,
-    SignalToHVClearance,
 )
 from temper_placer._constraint_types.groups import (
     ComponentGroup,
     ComponentSpacingRule,
     EscapeClearance,
-    GroupSeparation,
-    ManufacturingConstraint,
     ProximityRule,
 )
-from temper_placer._constraint_types.noise import NoiseDomain, NoiseIsolationRule
 from temper_placer._constraint_types.routing import (
     HVExclusionZone,
-    IsolationSlot,
-    PlacementProximityConstraint,
-    RoutingCorridor,
 )
 from temper_placer._constraint_types.safety import (
     BleedResistor,
-    IsolationBarrier,
-    SkinEffectDerating,
-    SnubberRequirement,
 )
-from temper_placer._constraint_types.thermal import ThermalConstraint, ThermalProperties
 from temper_placer._constraint_types.topology import (
     CriticalLoop,
     CriticalPath,
-    MatchedLengthGroup,
-    StarGroundConfig,
 )
 
 

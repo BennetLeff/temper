@@ -4,7 +4,6 @@ from pathlib import Path
 
 from temper_placer.io.config_loader import load_constraints
 
-
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 CONFIGS_DIR = Path(__file__).parent.parent.parent / "configs"
 
@@ -53,7 +52,6 @@ class TestFixtureRoundtrip:
         assert len(c.fixed_components) >= 4
 
     def test_empty_config_defaults(self, tmp_path):
-        import yaml
         p = tmp_path / "empty.yaml"
         p.write_text("{}")
         c = load_constraints(p)

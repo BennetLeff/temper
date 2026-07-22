@@ -11,7 +11,6 @@ This module loads placement constraints from YAML files, defining:
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -781,6 +780,7 @@ def _emit_keepout_constraints(constraints: PlacementConstraints) -> None:
 def _validate_current_capacity(constraints: PlacementConstraints) -> None:
     """Validate that high-current nets have appropriate routing strategies."""
     import logging
+
     from temper_placer.core.ipc2221 import estimate_current_from_net_class
     logger = logging.getLogger(__name__)
     for net_name, net_class_name in constraints.net_classes.items():
