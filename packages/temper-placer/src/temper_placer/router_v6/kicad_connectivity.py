@@ -101,7 +101,8 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
     for m in _ZONE_RE.finditer(pcb_content):
         net_num = int(m.group(1))
         layer_name = m.group(3)
-        # Find the enclosing polygon block after this zone header
+        # Find the polygon block: search forward from the zone header
+        # for "(polygon", then find the matching "))".
         start = m.end()
         poly_start = pcb_content.find("(polygon", start)
         if poly_start < 0:
@@ -113,12 +114,17 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
         xy_pts = re.findall(r"\(xy\s+([-\d.]+)\s+([-\d.]+)\)", poly_block)
         if len(xy_pts) < 3:
             continue
-        from shapely.geometry import Polygon as ShapelyPolygon
+        from shapely.geometry import MultiPolygon, Polygon as ShapelyPolygon
         try:
             poly = ShapelyPolygon([(float(x), float(y)) for x, y in xy_pts])
             if not poly.is_valid:
-                poly = poly.buffer(0)
-        except Exception:
+                fixed = poly.buffer(0)
+                if isinstance(fixed, MultiPolygon):
+                    fixed = max(fixed.geoms, key=lambda g: g.area)
+                poly = fixed
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(poly, ShapelyPolygon) or poly.is_empty:
             continue
         zones_by_net.setdefault(net_num, []).append(
             CopperZone(

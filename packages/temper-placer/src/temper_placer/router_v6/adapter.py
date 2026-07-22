@@ -442,12 +442,6 @@ def route_pcb(
     """Route a PCB using the Router V6 pipeline.
 
     Args:
-        ...
-        enable_zone_pours: Emit filled-copper zone geometry for power/
-            ground/HV nets (per netclass SSOT).  Default False — zones
-            are opt-in until measurement validates them.
-
-    Args:
         parsed: ParsedPCB from parse_kicad_pcb_v6.
         placements: Dict mapping component ref -> (x, y) position in mm.
             If empty, routing proceeds with the board's existing positions.
@@ -460,9 +454,17 @@ def route_pcb(
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
             (from CostFieldInput.weight).  0.0 = field-off.
+        enable_all_pad_tree: Enable experimental all-terminal tree
+            expansion (default False).
+        enable_zone_pours: Emit filled-copper zone geometry for power/
+            ground/HV nets (per netclass SSOT).  Default False — zones
+            are opt-in until measurement validates them.
+        enable_connectivity_verifier: Run post-write connectivity
+            preflight via verify_net_connectivity (default False).
 
     Returns:
-        RoutingResult with completion_rate.
+        RoutingResult with completion_rate, routed_pcb_content, and
+        optional connectivity dict.
 
     Raises:
         ValueError: If parsed has no source_path.
@@ -628,6 +630,11 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     return margin, clearance
 
 
+# U1: netclasses where clustering would fragment a continuous return/ground
+# plane and undermine EMI/loop-area control for switching-power-supply nets.
+_CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
+
+
 def _stitch_isolated_pads(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
@@ -697,6 +704,98 @@ def _stitch_isolated_pads(
                 f' (net {net_num})'
                 f' (tstamp "{uuid.uuid4()}"))'
             )
+
+
+def _emit_zone_pours(
+    pad_positions: dict[str, list[tuple[float, float]]],
+    segments: list[str],
+    net_name_to_number: dict[str, int],
+    *,
+    design_rules: Any = None,
+) -> None:
+    """Emit filled-copper zone geometry for all zone-eligible nets."""
+    from temper_placer.router_v6.zone_emission import (
+        ZoneDefinition, compute_zones_for_net, emit_zone_s_expr,
+    )
+    from temper_placer.core.design_rules import (
+        TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
+    )
+
+    zone_netclasses: set[str] = set()
+    for net_name in pad_positions:
+        if _zone_layers_for_net(net_name):
+            nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+            if nc:
+                zone_netclasses.add(nc)
+
+    effective_clearance: dict[str, float] = {}
+    class_pairs = getattr(design_rules, 'class_pairs', {}) or {}
+    for nc in zone_netclasses:
+        own_rules = TEMPER_NET_CLASSES.get(nc)
+        own_clearance = own_rules.clearance if own_rules else 0.3
+        eff = own_clearance
+        for other_nc in zone_netclasses:
+            if other_nc == nc:
+                continue
+            pair_key = tuple(sorted((nc, other_nc)))
+            if pair_key in class_pairs:
+                pair_clearance = class_pairs[pair_key].get("clearance", eff)
+                eff = max(eff, pair_clearance)
+            else:
+                other_rules = TEMPER_NET_CLASSES.get(other_nc)
+                other_clearance = other_rules.clearance if other_rules else 0.3
+                eff = max(eff, max(own_clearance, other_clearance))
+        effective_clearance[nc] = eff
+
+    _MAX_DRU_PRIORITY = max(
+        (r.dru_priority for r in TEMPER_NET_CLASSES.values()),
+        default=90,
+    )
+    zone_priority: dict[str, int] = {}
+    for nc in zone_netclasses:
+        rules = TEMPER_NET_CLASSES.get(nc)
+        dru_p = rules.dru_priority if rules else 0
+        zone_priority[nc] = _MAX_DRU_PRIORITY - dru_p
+
+    zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
+    for net_name, positions in pad_positions.items():
+        zone_layers = _zone_layers_for_net(net_name)
+        if not zone_layers:
+            continue
+        net_num = net_name_to_number.get(net_name, 0)
+        if net_num > 0 and positions:
+            nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+            eff_clearance = effective_clearance.get(nc, 0.3)
+            prio = zone_priority.get(nc, 0)
+            exempt = nc in _CONTINUITY_EXEMPT_CLASSES
+
+            for layer in zone_layers:
+                try:
+                    margin, _clearance = _zone_params_for_net(net_name)
+                    zds = compute_zones_for_net(
+                        net_name, net_num, positions, layer=layer,
+                        margin=margin,
+                        cluster=not exempt,
+                    )
+                    for zd in zds:
+                        zd = ZoneDefinition(
+                            net_name=zd.net_name,
+                            net_number=zd.net_number,
+                            layer=zd.layer,
+                            points=zd.points,
+                            clearance=eff_clearance,
+                            min_thickness=zd.min_thickness,
+                            priority=prio,
+                        )
+                        segments.append(emit_zone_s_expr(zd))
+                        zone_points_by_net.setdefault(net_name, []).append(zd.points)
+                except ValueError:
+                    pass
+
+    _stitch_isolated_pads(
+        pad_positions, segments, net_name_to_number,
+        zone_points_by_net,
+    )
 
 
 def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any = None) -> tuple[str, dict[str, list[tuple[float, float]]]]:
@@ -853,107 +952,11 @@ def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any
                 f' (net {net_num}) (tstamp "{uuid.uuid4()}"))'
             )
 
-    # U1 zone/pour: emit filled-copper zones for ALL zone-eligible nets,
-    # not just the ones that routed.  Must fire before the early return.
     if getattr(result, "enable_zone_pours", False):
-        from temper_placer.router_v6.zone_emission import (
-            ZoneDefinition, compute_zones_for_net, emit_zone_s_expr,
+        _emit_zone_pours(
+            pad_positions, segments, net_name_to_number,
+            design_rules=design_rules,
         )
-        from temper_placer.core.design_rules import (
-            TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
-        )
-
-        # U1: netclasses where clustering would fragment a continuous
-        # return/ground plane and undermine EMI/loop-area control.
-        _CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
-
-        # Gather all zone-eligible netclasses present on the board
-        zone_netclasses: set[str] = set()
-        for net_name in pad_positions:
-            if _zone_layers_for_net(net_name):
-                nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-                if nc:
-                    zone_netclasses.add(nc)
-
-        # U2: pre-compute effective clearance per netclass via cross-class
-        # resolution (mirrors CP-SAT's netclass_constraints.py:106-119).
-        effective_clearance: dict[str, float] = {}
-        class_pairs = getattr(design_rules, 'class_pairs', {}) or {}
-        for nc in zone_netclasses:
-            own_rules = TEMPER_NET_CLASSES.get(nc)
-            own_clearance = own_rules.clearance if own_rules else 0.3
-            eff = own_clearance
-            for other_nc in zone_netclasses:
-                if other_nc == nc:
-                    continue
-                pair_key = tuple(sorted((nc, other_nc)))
-                if pair_key in class_pairs:
-                    pair_clearance = class_pairs[pair_key].get("clearance", eff)
-                    eff = max(eff, pair_clearance)
-                else:
-                    other_rules = TEMPER_NET_CLASSES.get(other_nc)
-                    other_clearance = other_rules.clearance if other_rules else 0.3
-                    eff = max(eff, max(own_clearance, other_clearance))
-            effective_clearance[nc] = eff
-
-        # U2: pre-compute KiCad zone priority per netclass.
-        # dru_priority is lower = higher real-world priority (ACMains=10).
-        # KiCad (priority N) is higher = wins/fills first.  Invert.
-        _MAX_DRU_PRIORITY = max(
-            (r.dru_priority for r in TEMPER_NET_CLASSES.values()),
-            default=90,
-        )
-        zone_priority: dict[str, int] = {}
-        for nc in zone_netclasses:
-            rules = TEMPER_NET_CLASSES.get(nc)
-            dru_p = rules.dru_priority if rules else 0
-            zone_priority[nc] = _MAX_DRU_PRIORITY - dru_p
-
-        zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
-
-        for net_name, positions in pad_positions.items():
-            zone_layers = _zone_layers_for_net(net_name)
-            if not zone_layers:
-                continue
-            net_num = net_name_to_number.get(net_name, 0)
-            if net_num > 0 and positions:
-                nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
-                eff_clearance = effective_clearance.get(nc, 0.3)
-                prio = zone_priority.get(nc, 0)
-                # U1: exempt continuity-sensitive netclasses from clustering
-                exempt = nc in _CONTINUITY_EXEMPT_CLASSES
-
-                for layer in zone_layers:
-                    try:
-                        margin, _clearance = _zone_params_for_net(net_name)
-                        zds = compute_zones_for_net(
-                            net_name, net_num, positions, layer=layer,
-                            margin=margin,
-                            cluster=not exempt,
-                        )
-                        for zd in zds:
-                            zd = ZoneDefinition(
-                                net_name=zd.net_name,
-                                net_number=zd.net_number,
-                                layer=zd.layer,
-                                points=zd.points,
-                                clearance=eff_clearance,
-                                min_thickness=zd.min_thickness,
-                                priority=prio,
-                            )
-                            segments.append(emit_zone_s_expr(zd))
-                            zone_points_by_net.setdefault(net_name, []).append(zd.points)
-                    except ValueError:
-                        pass
-
-        # U3: trace-stitch pads that fall outside all dense-cluster pours
-        # back to the nearest pour.  Reuses the zone polygons already
-        # computed above rather than re-clustering independently.
-        if getattr(result, "enable_zone_pours", False):
-            _stitch_isolated_pads(
-                pad_positions, segments, net_name_to_number,
-                zone_points_by_net,
-            )
 
     if not segments:
         return pcb_content, pad_positions

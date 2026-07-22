@@ -6,6 +6,7 @@ import pytest
 from temper_placer.router_v6.adapter import (
     RoutingResult,
     _apply_placements_to_pcb,
+    _stitch_isolated_pads,
     _zone_layers_for_net,
     _zone_params_for_net,
     route_pcb,
@@ -454,3 +455,121 @@ class TestCrossClassZoneClearance:
         finally:
             patcher.stop()
             os.unlink(temp_path)
+
+
+class TestPriorityInversion:
+    """U2: verify dru_priority → KiCad (priority N) inversion in emitted s-expr."""
+
+    def _make_result(self, net_names, component_pairs):
+        from types import SimpleNamespace
+        from temper_placer.core.netlist import Component
+
+        compiled_routes = {}
+        mock_path = SimpleNamespace(path_length=0.0, coordinates=[])
+        for net_name in net_names[:1]:
+            compiled_routes[net_name] = SimpleNamespace(
+                path=mock_path, width_mm=0.1, vias=[],
+            )
+
+        routing_results = SimpleNamespace(
+            compiled_routes=compiled_routes, tree_routes={}, partial_tree_routes={},
+        )
+        stage4 = SimpleNamespace(routing_results=routing_results)
+
+        components = []
+        nets = []
+        for idx, net_name in enumerate(net_names):
+            x = float(idx * 10.0 + 10.0)
+            y = float(idx * 10.0 + 10.0)
+            comp = Component(
+                ref=f"C{idx+1}", footprint="0805", bounds=(2.0, 1.25),
+                initial_position=(x, y),
+            )
+            components.append(comp)
+            nets.append(SimpleNamespace(
+                name=net_name, pins=[(f"C{idx+1}", "1")],
+            ))
+
+        pcb = SimpleNamespace(components=components, nets=nets)
+        return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
+
+    def test_acmains_priority_higher_than_power_in_emitted_zones(self):
+        """ACMains (dru=10→KiCad 80) > Power (dru=40→KiCad 50) in s-expr."""
+        import re
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+        from temper_placer.core.design_rules import DesignRules
+
+        result = self._make_result(
+            ["AC_L", "vcc"],
+            {"AC_L": [("C1", "1")], "vcc": [("C2", "1")]},
+        )
+        dr = DesignRules()
+        content = '(kicad_pcb (version 20240108) (net 1 "AC_L") (net 2 "vcc"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+
+        # Each net gets 2 zones (F.Cu + B.Cu); extract priority per net
+        priorities_by_net: dict[str, set[int]] = {}
+        for m in re.finditer(
+            r'\(net_name "([^"]+)"\).*?\(priority (\d+)\)', output, re.DOTALL,
+        ):
+            priorities_by_net.setdefault(m.group(1), set()).add(int(m.group(2)))
+
+        assert "AC_L" in priorities_by_net
+        assert "vcc" in priorities_by_net
+        ac_max = max(priorities_by_net["AC_L"])
+        pwr_max = max(priorities_by_net["vcc"])
+        assert ac_max > pwr_max, (
+            f"ACMains ({ac_max}) should be > Power ({pwr_max})"
+        )
+        assert ac_max == 80
+        assert pwr_max == 50
+
+
+class TestStitchIsolatedPads:
+    """U3: trace-stitch pads outside pour polygons."""
+
+    def test_pad_inside_zone_is_not_stitched(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        pad_positions = {"vcc": [(5.0, 5.0)]}
+        net_map = {"vcc": 1}
+        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
+        assert len(segments) == 0
+
+    def test_pad_outside_zone_gets_stitch_trace(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        pad_positions = {"vcc": [(5.0, 5.0), (50.0, 50.0)]}
+        net_map = {"vcc": 1}
+        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
+        assert len(segments) == 1
+        assert "(segment " in segments[0]
+        assert "(start 50.0000 50.0000)" in segments[0]
+
+    def test_non_zone_eligible_net_skipped(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        _stitch_isolated_pads(
+            {"SPI_MOSI": [(50.0, 50.0)]}, segments, {"SPI_MOSI": 1}, {},
+        )
+        assert len(segments) == 0
+
+    def test_empty_zone_points_skipped(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        _stitch_isolated_pads({"vcc": [(50.0, 50.0)]}, segments, {"vcc": 1}, {})
+        assert len(segments) == 0
+
+    def test_single_pad_inside_is_noop(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads({"vcc": [(5.0, 5.0)]}, segments, {"vcc": 1}, zone_points)
+        assert len(segments) == 0  # pad inside, no stitch
