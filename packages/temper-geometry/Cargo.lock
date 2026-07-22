@@ -405,11 +405,29 @@ dependencies = [
  "pyo3",
  "rand 0.8.7",
  "temper-geometry-core",
+ "temper-py-bridge",
 ]
 
 [[package]]
 name = "temper-geometry-core"
 version = "0.1.0"
+
+[[package]]
+name = "temper-py-bridge"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+ "temper-py-bridge-derive",
+]
+
+[[package]]
+name = "temper-py-bridge-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "tempfile"
