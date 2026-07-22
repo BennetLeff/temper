@@ -90,9 +90,9 @@ fn get_pin_net(comp: &Component, pin_names: &[&str]) -> Option<String> {
 }
 
 fn get_common_net(a: &Component, b: &Component) -> Option<String> {
-    let nets_a: HashSet<Option<String>> = a.pins.iter().map(|p| p.net.clone()).collect();
+    let nets_a: HashSet<Option<&str>> = a.pins.iter().map(|p| p.net.as_deref()).collect();
     for pin in &b.pins {
-        if nets_a.contains(&pin.net) && pin.net.is_some() {
+        if nets_a.contains(&pin.net.as_deref()) && pin.net.is_some() {
             return pin.net.clone();
         }
     }
