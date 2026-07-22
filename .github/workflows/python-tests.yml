@@ -24,6 +24,8 @@ on:
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - 'scripts/check_physics_provenance.py'
+      - '.physics-provenance-allowlist'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -52,6 +54,8 @@ on:
       - 'import-linter-baseline.yaml'
       - 'import-linter-allowlist.yaml'
       - 'scripts/import_linter_gate.py'
+      - 'scripts/check_physics_provenance.py'
+      - '.physics-provenance-allowlist'
       - 'docs/plans/**'
       - 'docs/traceability-registry.yaml'
       - '**/TRACEABILITY'
@@ -179,6 +183,17 @@ jobs:
         if: false  # disabled: JAX + coverage OOMs on CI runners
         working-directory: packages/temper-placer
         run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage.json --allowlist ../../.coverage-allowlist
+
+      - name: Physics provenance gate
+        working-directory: packages/temper-placer
+        run: |
+          uv run python ../../scripts/check_physics_provenance.py \
+            --allowlist ../../.physics-provenance-allowlist \
+            --physics-dir src/temper_placer/physics/
+          uv run python ../../scripts/check_physics_provenance.py \
+            --check-shrink \
+            --allowlist ../../.physics-provenance-allowlist \
+            --physics-dir src/temper_placer/physics/
 
   checks:
     name: Extended Tests & Gates

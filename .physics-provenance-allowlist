@@ -1,0 +1,10 @@
+# Physics provenance allowlist — monotonically-shrinking baseline
+# Format: path::constant_name  # TODO: temper-xxx
+#
+# An entry represents a module-level float constant in physics/
+# lacking a # source: citation comment.
+# Entries may only be removed when the same PR adds a # source:
+# comment or deletes the constant from source.
+# Entries may only be added with a # TODO: temper-xxx ticket reference.
+# See docs/plans/2026-07-22-007-refactor-physics-parameter-provenance-plan.md
+
