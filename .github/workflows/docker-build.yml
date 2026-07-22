@@ -54,13 +54,13 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists != 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: .github/docker/ci.Dockerfile
-          push: true
-          tags: |
-            ${{ steps.tag.outputs.full }}
-            ${{ steps.tag.outputs.latest }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          set -eux
+          docker buildx build \
+            --file .github/docker/ci.Dockerfile \
+            --tag "${{ steps.tag.outputs.full }}" \
+            --tag "${{ steps.tag.outputs.latest }}" \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            --push \
+            .
