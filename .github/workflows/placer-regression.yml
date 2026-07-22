@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board: [temper, minimal, rp2040_designguide, bitaxe_ultra, piantor_right]
+        board: ${{ github.event_name == 'pull_request' && fromJson('["temper"]') || fromJson('["temper", "minimal", "rp2040_designguide", "bitaxe_ultra", "piantor_right"]') }}
     env:
       JAX_PLATFORM_NAME: cpu
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.5

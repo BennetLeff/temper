@@ -48,6 +48,7 @@ jobs:
           --pcb pcb/temper.kicad_pcb
           --require-all-stages
           --output closure-result.json
+          --metrics-dir ./pipeline-metrics
           || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
       - name: Record pipeline metrics
         run: |
@@ -55,6 +56,11 @@ jobs:
             --board temper --commit "${{ github.sha }}" \
             --closure-json closure-result.json \
             --metrics-file "$NDJSON_FILE"
+      - name: Upload baseline for PR scorecard
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-metrics
+          path: pipeline-metrics/pipeline_metrics.jsonl
       - name: Profile loss functions
         continue-on-error: true
         run: |
