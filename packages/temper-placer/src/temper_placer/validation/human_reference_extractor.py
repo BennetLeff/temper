@@ -26,7 +26,7 @@ from temper_placer.core.loss_types import LossContext
 from temper_placer.core.state import PlacementState
 
 if TYPE_CHECKING:
-    from temper_placer.io.kicad_parser import ParseResult
+    from temper_placer.io._kicad_types import ParseResult
 
 # ---------------------------------------------------------------------------
 # Pydantic-style data models (plain dataclasses for zero-dependency YAML I/O)

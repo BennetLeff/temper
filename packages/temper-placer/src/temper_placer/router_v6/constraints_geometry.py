@@ -15,20 +15,9 @@ from dataclasses import dataclass
 import numpy as np
 
 
-@dataclass(frozen=True)
-class Point:
-    """A 2D point."""
+from temper_placer.core.geometry_types import Point  # noqa: F401  re-exported
 
-    x: float
-    y: float
-
-    def to_array(self) -> np.ndarray:
-        """Convert to numpy array."""
-        return np.array([self.x, self.y])
-
-    def distance_to(self, other: Point) -> float:
-        """Euclidean distance to another point."""
-        return math.hypot(self.x - other.x, self.y - other.y)
+__all__ = ["Point", "LineSegment", "RotatedRect"]
 
 
 @dataclass(frozen=True)

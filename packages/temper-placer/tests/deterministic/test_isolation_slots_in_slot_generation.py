@@ -169,8 +169,7 @@ class TestOracleAcceptsCreditedClearance:
         # the DRC oracle, so we don't need to actually run the stage —
         # we just need a representative reclaim dict, which the stage
         # would produce if Q1/Q2 had initial_position values.
-        from temper_placer.router_v6.constraints_geometry import Point
-        from temper_placer.router_v6.constraints_spatial_index import Pad
+        from temper_placer.core.geometry_types import Pad, Point
 
         # Apply the K4 formula directly with default constants: for
         # width=1.5, the reclaim is 0.8mm and effective requirement
