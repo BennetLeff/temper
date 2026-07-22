@@ -1715,6 +1715,20 @@ scripts:
       - pydantic
       - temper_placer._constraint_types.config
 
+- path: gen_domain_models.py
+  purpose: "Cross-language domain model codegen — NetClassRules SSOT from YAML manifest to Python+Rust (plan 2026-07-22-004)"
+  owner: bennet
+  last_run: "2026-07-22"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - argparse
+      - os
+      - sys
+      - pathlib
+      - yaml
+      - jinja2
+
 - path: ci_identity_check.py
   purpose: "CI enforcement of the board identity gate (plan 2026-07-15-001, U7): rejects the quarantined fixture, verifies the production board once it exists"
   owner: bennet
