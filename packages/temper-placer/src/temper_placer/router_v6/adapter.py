@@ -630,8 +630,6 @@ def _stitch_isolated_pads(
     pad_positions: dict[str, list[tuple[float, float]]],
     segments: list[str],
     net_name_to_number: dict[str, int],
-    *,
-    design_rules: Any = None,
 ) -> None:
     """U3: emit straight-line trace segments from pads outside every
     dense-cluster pour back to the nearest pour for that net.
@@ -958,7 +956,6 @@ def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any
         if getattr(result, "enable_zone_pours", False):
             _stitch_isolated_pads(
                 pad_positions, segments, net_name_to_number,
-                design_rules=design_rules,
             )
 
     if not segments:
