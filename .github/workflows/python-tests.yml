@@ -93,21 +93,6 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-      
-      - name: Install dependencies
-        run: uv sync --all-packages
-
-      - name: Cache netlist
-        uses: actions/cache@v4
-        with:
-          path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
-
-      - name: Build electronics netlist
-        run: make netlist
-
-      - name: Run electronics validation tests
-        run: uv run pytest elec/validation/ -v --tb=short
 
       - name: Cache Rust build
         uses: actions/cache@v4
@@ -118,11 +103,7 @@ jobs:
             ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
-        run: |
-          uv pip install maturin
-          cd packages/temper-rust-router
-          uv run maturin develop --release
-          cd ../..
+        run: cd packages/temper-rust-router && uvx maturin develop --release && cd ../..
 
       - name: Verify Rust module loads
         run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
@@ -138,19 +119,12 @@ jobs:
             ${{ runner.os }}-drc-rs-
 
       - name: Build and install temper-drc-rs
-        run: |
-          uv pip install maturin
-          cd packages/temper-drc-rs
-          uv run maturin develop --release
-          cd ../..
+        run: cd packages/temper-drc-rs && uvx maturin develop --release && cd ../..
 
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
         env:
           RUST_BACKTRACE: full
-
-      - name: Check temper-constraint-compiler compiles
-        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
       - name: Cache Rust build (temper-constraints)
         uses: actions/cache@v4
@@ -172,6 +146,29 @@ jobs:
         run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
         env:
           RUST_BACKTRACE: full
+
+      - name: Check temper-constraint-compiler compiles
+        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages
+          --no-build-package temper-rust-router
+          --no-build-package temper-drc-rs
+          --no-build-package temper-constraint-compiler
+          --no-build-package temper-constraints
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Run electronics validation tests
+        run: uv run pytest elec/validation/ -v --tb=short
 
       - name: Run temper-constraints integration tests
         working-directory: packages/temper-placer
@@ -222,9 +219,6 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-      
-      - name: Install dependencies
-        run: uv sync --all-packages
 
       - name: Cache Rust build
         uses: actions/cache@v4
@@ -235,11 +229,7 @@ jobs:
             ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
-        run: |
-          uv pip install maturin
-          cd packages/temper-rust-router
-          uv run maturin develop --release
-          cd ../..
+        run: cd packages/temper-rust-router && uvx maturin develop --release && cd ../..
 
       - name: Cache Rust build (temper-drc-rs)
         uses: actions/cache@v4
@@ -250,19 +240,12 @@ jobs:
             ${{ runner.os }}-drc-rs-
 
       - name: Build and install temper-drc-rs
-        run: |
-          uv pip install maturin
-          cd packages/temper-drc-rs
-          uv run maturin develop --release
-          cd ../..
+        run: cd packages/temper-drc-rs && uvx maturin develop --release && cd ../..
 
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
         env:
           RUST_BACKTRACE: full
-
-      - name: Check temper-constraint-compiler compiles
-        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
       - name: Cache Rust build (temper-constraints)
         uses: actions/cache@v4
@@ -282,6 +265,17 @@ jobs:
 
       - name: Verify temper-constraints loads
         run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
+
+      - name: Check temper-constraint-compiler compiles
+        run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
+
+      - name: Install dependencies
+        run: >
+          uv sync --all-packages
+          --no-build-package temper-rust-router
+          --no-build-package temper-drc-rs
+          --no-build-package temper-constraint-compiler
+          --no-build-package temper-constraints
 
       - name: Run temper-constraints integration tests
         working-directory: packages/temper-placer
