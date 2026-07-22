@@ -16,9 +16,9 @@ from temper_placer.placer.cp_sat.encoder import (
     encode_constraints,
     solve_placement,
 )
-from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
 from temper_placer.placer.cp_sat.feedback import ConstraintDelta, FeedbackClassifier
 from temper_placer.placer.cp_sat.gate import AcceptanceGate
+from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
 from temper_placer.placer.cp_sat.loop import LoopResult, PlaceRouteLoop
 from temper_placer.placer.cp_sat.model import (
     ComponentVars,

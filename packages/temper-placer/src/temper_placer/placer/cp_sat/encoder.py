@@ -12,18 +12,17 @@ Each handler returns a list of assumption literals for UNSAT-core extraction.
 from __future__ import annotations
 
 import logging
+import os as _os
 import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+from typing import assert_never as _assert_never
 
 from temper_placer.pcl.constraints import (
-    AnchoredConstraint,
     BaseConstraint,
-    ConstraintTier,
     CompilationTarget,
+    ConstraintTier,
     ConstraintType,
-    EnclosingConstraint,
-    KeepoutConstraint,
     SeparatedConstraint,
 )
 
@@ -40,8 +39,6 @@ UNSUPPORTED_TYPES: set[ConstraintType] = set()
 # Defaults to "raise" (fail-closed): silent constraint drop is the exact
 # "looks applied but isn't" bug this guard exists to catch. Override via
 # TEMPER_UNRESOLVED_REF_POLICY=warn|ignore for exploratory runs.
-import os as _os
-
 _UNRESOLVED_REF_POLICY: str = _os.environ.get(
     "TEMPER_UNRESOLVED_REF_POLICY", "raise"
 ).lower()
@@ -89,9 +86,9 @@ class EncoderContext:
 # Handler imports (trigger @register_handler side-effects)
 # ---------------------------------------------------------------------------
 
-from .handlers import HANDLER_REGISTRY  # noqa: E402
-from .handlers import AssumptionLiteral  # noqa: E402
 from .handlers import (  # noqa: E402, F401 — trigger @register_handler side-effects
+    HANDLER_REGISTRY,  # noqa: E402
+    AssumptionLiteral,  # noqa: E402
     adjacent,
     aligned,
     anchored,
@@ -101,8 +98,6 @@ from .handlers import (  # noqa: E402, F401 — trigger @register_handler side-e
     onside,
     separated,
 )
-
-from typing import assert_never as _assert_never
 
 
 def _check_handler_coverage() -> None:
@@ -342,7 +337,7 @@ def _encode_extra_constraints(
     comp_refs: list[str],
     x_vars,
     y_vars,
-    rot_vars,
+    rot_vars,  # noqa: ARG001
     grid_step: float,
     max_x: int,
     max_y: int,
@@ -678,7 +673,7 @@ def solve_placement(
         on_unresolved=_UNRESOLVED_REF_POLICY,
     )
 
-    labels = encode_constraints(
+    labels = encode_constraints(  # noqa: F841 — collected for future UNSAT-core, labels are in model_wrapper
         constraint_objects,
         model_wrapper,
         ctx,

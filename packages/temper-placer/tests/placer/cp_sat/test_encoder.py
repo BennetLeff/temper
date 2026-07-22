@@ -362,11 +362,12 @@ class TestValidateConstraintRefs:
         assert report == {}
 
     def test_unresolved_ref_raises(self) -> None:
+        import pytest
+
         from temper_placer.placer.cp_sat.encoder import (
             UnresolvedConstraintRefsError,
             validate_constraint_refs,
         )
-        import pytest
         c = self._c(a="J_AC", b="R1", id="sep_J_AC_R1")  # J_AC not on board
         with pytest.raises(UnresolvedConstraintRefsError) as exc:
             validate_constraint_refs(
