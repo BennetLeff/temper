@@ -5,10 +5,10 @@
 The gate scans every ``.py`` file under the physics directory, AST-parses each
 module, and identifies assignments of the form ``NAME = float`` at module level
 (not inside a function or class body).  For each such constant the gate checks
-whether a ``# source:`` substring appears on the **same line** or the
-**immediately preceding line**.  Constants that satisfy this check are
-considered documented; the gate fails on any undocumented constant not on the
-monotonic-shrink allowlist.
+whether a ``# source:`` substring appears on the **same line**, the
+**immediately preceding line**, or the **immediately following line**.  Constants
+that satisfy this check are considered documented; the gate fails on any
+undocumented constant not on the monotonic-shrink allowlist.
 
 **Scope boundary** (documented in the docstring per plan §Deferred
 Implementation Notes): the AST gate only matches ``ast.Constant(value,
@@ -138,6 +138,10 @@ def find_all_constants(
                 # preceding line
                 if not has_source and line_idx - 1 >= 0:
                     if SOURCE_PATTERN.search(source_lines[line_idx - 1]):
+                        has_source = True
+                # following line (common Python convention: comment after const)
+                if not has_source and line_idx + 1 < len(source_lines):
+                    if SOURCE_PATTERN.search(source_lines[line_idx + 1]):
                         has_source = True
 
                 rel = py_file.resolve().relative_to(resolved_phys)
