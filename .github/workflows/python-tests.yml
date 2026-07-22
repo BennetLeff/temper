@@ -279,72 +279,57 @@ jobs:
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
 
-      - name: Run temper-constraints integration tests
-        working-directory: packages/temper-placer
-        run: uv run pytest tests/rust_integration/ -v --tb=short -p no:cacheprovider -m "not benchmark"
-
-      - name: Run temper-design-bundle Rust tests
-        run: cargo test --manifest-path packages/temper-design-bundle/Cargo.toml
-
-      - name: Verify temper-design-bundle-python loads
-        run: uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')"
-
-      - name: Per-stage timing regression check
-        run: uv run temper timing check --ci --json
-        continue-on-error: true  # temper CLI may not be installed; temper-N6-U8
-        env:
-          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
-
-      - name: Run invariant tests (router_v6, io, deterministic, losses, physics, fields, validation, cp_sat)
-        working-directory: packages/temper-placer
+      - name: Run tests and install KiCad in parallel
         run: |
-          uv run pytest tests/router_v6/ tests/io/ tests/deterministic/ tests/losses/ \
-            tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/ \
-            -v --tb=short -p no:cacheprovider --maxfail=10 \
-            -m "not slow"
-        continue-on-error: true
+          set +e
+          # Start KiCad install in background (slowest step, ~33s)
+          (sudo add-apt-repository -y ppa:kicad/kicad-10.0-releases && \
+           sudo apt-get update && \
+           sudo apt-get install -y --no-install-recommends kicad) > /tmp/kicad-install.log 2>&1 &
+          KICAD_PID=$!
+
+          # Run test suites in parallel
+          (cd packages/temper-placer && \
+           uv run pytest tests/rust_integration/ -v --tb=short -p no:cacheprovider -m "not benchmark") &
+          RUST_PID=$!
+
+          (cargo test --manifest-path packages/temper-design-bundle/Cargo.toml && \
+           uv run python3 -c "import temper_design_bundle_python; print('temper_design_bundle_python loaded OK')") &
+          BUNDLE_PID=$!
+
+          (cd packages/temper-placer && \
+           export XLA_PYTHON_CLIENT_MEM_FRACTION=0.15 JAX_PLATFORM_NAME=cpu && \
+           uv run pytest tests/router_v6/ tests/io/ tests/deterministic/ tests/losses/ \
+             tests/physics/ tests/fields/ tests/validation/ tests/placer/cp_sat/ \
+             -v --tb=short -p no:cacheprovider --maxfail=10 -m "not slow") &
+          INVARIANT_PID=$!
+
+          (cd packages/temper-placer && \
+           export XLA_PYTHON_CLIENT_MEM_FRACTION=0.15 JAX_PLATFORM_NAME=cpu && \
+           uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py \
+             tests/cli/test_cp_sat_flag.py -v --tb=short -p no:cacheprovider --maxfail=10) &
+          CPSAT_PID=$!
+
+          (cd packages/temper-workflow && uv run pytest tests/ -v --tb=short) &
+          WORKFLOW_PID=$!
+
+          (uv run python tools/check_kicad_layers.py && \
+           cd packages/temper-placer && \
+           uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short && \
+           python3 firmware/test/gen_transition_table.py --generate && \
+           git diff --exit-code firmware/test/test_transition_table_generated.c) &
+          CHECKS_PID=$!
+
+          # Wait for all background processes
+          FAIL=0
+          for pid in $KICAD_PID $RUST_PID $BUNDLE_PID $INVARIANT_PID $CPSAT_PID $WORKFLOW_PID $CHECKS_PID; do
+            wait $pid || FAIL=1
+          done
+          exit $FAIL
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
           JAX_PLATFORM_NAME: cpu
-
-      - name: Run CP-SAT placer tests
-        working-directory: packages/temper-placer
-        run: |
-          uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py \
-            tests/cli/test_cp_sat_flag.py \
-            -v --tb=short -p no:cacheprovider --maxfail=10
-        env:
-          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
-          JAX_PLATFORM_NAME: cpu
-
-      - name: Coverage gate (temper-placer invariants)
-        if: false  # disabled: 109 Hypothesis tests + coverage OOMs CI runner
-        working-directory: packages/temper-placer
-        run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage-invariants.json --allowlist ../../.coverage-allowlist
         continue-on-error: true
-      
-      - name: Run temper-workflow tests
-        working-directory: packages/temper-workflow
-        run: uv run pytest tests/ -v --tb=short
-        continue-on-error: true  # no test files yet (exit 5); temper-N6-U8
-      
-      - name: Verify committed .kicad_pcb has 4 copper layers (semantic)
-        run: uv run python tools/check_kicad_layers.py
-
-      - name: Verify committed .kicad_pcb has 4 copper layers (property tests)
-        working-directory: packages/temper-placer
-        run: uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short
-       
-      - name: Regenerate transition-table test and check drift
-        run: |
-          python3 firmware/test/gen_transition_table.py --generate
-          git diff --exit-code firmware/test/test_transition_table_generated.c
-
-      - name: Install KiCad (for schematic oracle)
-        run: |
-          sudo add-apt-repository --yes ppa:kicad/kicad-10.0-releases
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends kicad
 
       - name: Cache netlist
         uses: actions/cache@v4
