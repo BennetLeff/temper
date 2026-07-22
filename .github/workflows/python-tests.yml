@@ -77,6 +77,7 @@ on:
       - 'packages/temper-placer/configs/netclass_rules_manifest.yaml'
       - 'packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py'
       - 'packages/temper-drc-rs/src/board.rs'
+  workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
 
