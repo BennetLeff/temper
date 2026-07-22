@@ -34,7 +34,7 @@ class NetClassRules(BaseModel):
     clearance: float
 
     # Lower value emits earlier in DRU trace-width section
-    dru_priority: int
+    dru_priority: int = 0
 
     # Via pad diameter in mm (for single vias)
     via_diameter: float = 0.6

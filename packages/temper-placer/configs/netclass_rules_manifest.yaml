@@ -38,7 +38,7 @@ fields:
   - name: dru_priority
     type: int
     default: 0
-    required: true
+    required: false
     doc: "Lower value emits earlier in DRU trace-width section"
 
   - name: via_diameter
