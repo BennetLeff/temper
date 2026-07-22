@@ -1,5 +1,9 @@
 name: Python Tests
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
@@ -31,6 +35,12 @@ on:
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
+      - 'scripts/gen_domain_models.py'
+      - 'scripts/templates/netclass_rules.py.j2'
+      - 'scripts/templates/netclass_rules.rs.j2'
+      - 'packages/temper-placer/configs/netclass_rules_manifest.yaml'
+      - 'packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py'
+      - 'packages/temper-drc-rs/src/board.rs'
   pull_request:
     branches: [main]
     paths:
@@ -61,6 +71,12 @@ on:
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
+      - 'scripts/gen_domain_models.py'
+      - 'scripts/templates/netclass_rules.py.j2'
+      - 'scripts/templates/netclass_rules.rs.j2'
+      - 'packages/temper-placer/configs/netclass_rules_manifest.yaml'
+      - 'packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py'
+      - 'packages/temper-drc-rs/src/board.rs'
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
 
@@ -298,6 +314,9 @@ jobs:
           --no-install-package temper-rust-router
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
+
+      - name: Check domain model codegen drift
+        run: python3 scripts/gen_domain_models.py --check
 
       - name: Cache Rust build (temper-design-bundle)
         uses: actions/cache@v4
