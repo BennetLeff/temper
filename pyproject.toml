@@ -73,6 +73,15 @@ src = ["packages/*/src", "packages/*/tests"]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
 ignore = ["E501"]
 
+[tool.mypy]
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]
+mypy_path = "packages/temper-placer/stubs"
+
+[[tool.mypy.overrides]]
+module = "yaml"
+follow_imports = "skip"
+
 [tool.coverage.run]
 branch = true
 source = ["temper_placer"]

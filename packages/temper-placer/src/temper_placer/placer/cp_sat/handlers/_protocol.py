@@ -4,14 +4,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from ortools.sat.python import cp_model
+
 from temper_placer.placer.cp_sat.model import ComponentVars
 
 if TYPE_CHECKING:
     from temper_placer.placer.cp_sat.encoder import EncoderContext
     from temper_placer.placer.cp_sat.model import CpSatModel
 
-# Assumption literal type alias (index of assumption BoolVar).
-AssumptionLiteral = int
+# Assumption literal type alias (a CP-SAT Boolean variable).
+AssumptionLiteral = cp_model.IntVar
 
 
 @runtime_checkable
