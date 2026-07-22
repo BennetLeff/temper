@@ -1,6 +1,7 @@
 use pyo3::create_exception;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList};
+use pyo3::types::{PyDict, PyList, PyTuple};
+use pyo3::IntoPyObject;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -703,6 +704,338 @@ fn serialize_connectivity_to_json(
 }
 
 // ---------------------------------------------------------------------------
+// dsn_types: DSNExpression
+// ---------------------------------------------------------------------------
+
+#[pyclass]
+struct DSNExpression {
+    #[pyo3(get, set)]
+    name: String,
+    #[pyo3(get, set)]
+    args: Vec<Py<PyAny>>,
+    #[pyo3(get, set)]
+    comment: Option<String>,
+}
+
+fn format_dsn_arg(py: Python<'_>, arg: &Py<PyAny>) -> PyResult<String> {
+    let bound = arg.bind(py);
+    if bound.is_instance_of::<pyo3::types::PyFloat>() {
+        let f: f64 = bound.extract()?;
+        let s = format!("{:.6}", f);
+        let trimmed = s.trim_end_matches('0').trim_end_matches('.');
+        return Ok(if trimmed.is_empty() { "0".to_string() } else { trimmed.to_string() });
+    }
+    if bound.is_instance_of::<pyo3::types::PyInt>() {
+        let s: String = bound.str()?.to_string();
+        return Ok(s);
+    }
+    if bound.is_instance_of::<pyo3::types::PyString>() {
+        let s: String = bound.extract()?;
+        if s.is_empty() {
+            return Ok("\"\"".to_string());
+        }
+        if s.contains(' ') || s.contains('(') || s.contains(')') || s.contains('"') {
+            let escaped = s.replace('"', "\\\"");
+            return Ok(format!("\"{}\"", escaped));
+        }
+        return Ok(s);
+    }
+    let s: String = bound.str()?.to_string();
+    Ok(s)
+}
+
+#[pymethods]
+impl DSNExpression {
+    #[new]
+    #[pyo3(signature = (name, args = vec![], comment = None))]
+    fn new(name: String, args: Vec<Py<PyAny>>, comment: Option<String>) -> Self {
+        DSNExpression { name, args, comment }
+    }
+
+    fn with_comment(&self, py: Python<'_>, line: String) -> Self {
+        DSNExpression {
+            name: self.name.clone(),
+            args: self.args.iter().map(|a| a.clone_ref(py)).collect(),
+            comment: Some(line),
+        }
+    }
+
+    fn __str__(&self, py: Python<'_>) -> PyResult<String> {
+        let mut formatted: Vec<String> = Vec::with_capacity(self.args.len());
+        for arg in &self.args {
+            formatted.push(format_dsn_arg(py, arg)?);
+        }
+        let body = if formatted.is_empty() {
+            format!("({})", self.name)
+        } else {
+            format!("({} {})", self.name, formatted.join(" "))
+        };
+        match &self.comment {
+            Some(c) => Ok(format!(";{}\n{}", c, body)),
+            None => Ok(body),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "DSNExpression(name={:?}, args.len()={}, comment={:?})",
+            self.name,
+            self.args.len(),
+            self.comment
+        )
+    }
+}
+
+#[pyfunction]
+#[pyo3(signature = (name, *args))]
+fn dsn_list(py: Python<'_>, name: String, args: &Bound<'_, PyTuple>) -> PyResult<Py<DSNExpression>> {
+    let mut arg_vec: Vec<Py<PyAny>> = Vec::with_capacity(args.len());
+    for arg in args.iter() {
+        arg_vec.push(arg.unbind());
+    }
+    Py::new(py, DSNExpression { name, args: arg_vec, comment: None })
+}
+
+// ---------------------------------------------------------------------------
+// dsn_shapes: DSNRect, DSNCircle, DSNPath
+// ---------------------------------------------------------------------------
+
+#[pyclass(from_py_object)]
+#[derive(Clone)]
+struct DSNRect {
+    #[pyo3(get, set)]
+    layer: String,
+    #[pyo3(get, set)]
+    x1: f64,
+    #[pyo3(get, set)]
+    y1: f64,
+    #[pyo3(get, set)]
+    x2: f64,
+    #[pyo3(get, set)]
+    y2: f64,
+}
+
+#[pymethods]
+impl DSNRect {
+    #[new]
+    fn new(layer: String, x1: f64, y1: f64, x2: f64, y2: f64) -> Self {
+        DSNRect { layer, x1, y1, x2, y2 }
+    }
+
+    fn to_dsn(&self, py: Python<'_>) -> PyResult<Py<DSNExpression>> {
+        Py::new(py, DSNExpression {
+            name: "rect".into(),
+            args: vec![
+                self.layer.clone().into_pyobject(py)?.unbind().into(),
+                self.x1.into_pyobject(py)?.unbind().into(),
+                self.y1.into_pyobject(py)?.unbind().into(),
+                self.x2.into_pyobject(py)?.unbind().into(),
+                self.y2.into_pyobject(py)?.unbind().into(),
+            ],
+            comment: None,
+        })
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "DSNRect(layer={:?}, x1={}, y1={}, x2={}, y2={})",
+            self.layer, self.x1, self.y1, self.x2, self.y2
+        )
+    }
+}
+
+#[pyclass(from_py_object)]
+#[derive(Clone)]
+struct DSNCircle {
+    #[pyo3(get, set)]
+    layer: String,
+    #[pyo3(get, set)]
+    diameter: f64,
+    #[pyo3(get, set)]
+    x: f64,
+    #[pyo3(get, set)]
+    y: f64,
+}
+
+#[pymethods]
+impl DSNCircle {
+    #[new]
+    #[pyo3(signature = (layer, diameter, x = 0.0, y = 0.0))]
+    fn new(layer: String, diameter: f64, x: f64, y: f64) -> Self {
+        DSNCircle { layer, diameter, x, y }
+    }
+
+    fn to_dsn(&self, py: Python<'_>) -> PyResult<Py<DSNExpression>> {
+        Py::new(py, DSNExpression {
+            name: "circle".into(),
+            args: vec![
+                self.layer.clone().into_pyobject(py)?.unbind().into(),
+                self.diameter.into_pyobject(py)?.unbind().into(),
+                self.x.into_pyobject(py)?.unbind().into(),
+                self.y.into_pyobject(py)?.unbind().into(),
+            ],
+            comment: None,
+        })
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "DSNCircle(layer={:?}, diameter={}, x={}, y={})",
+            self.layer, self.diameter, self.x, self.y
+        )
+    }
+}
+
+#[pyclass(from_py_object)]
+#[derive(Clone)]
+struct DSNPath {
+    #[pyo3(get, set)]
+    layer: String,
+    #[pyo3(get, set)]
+    width: f64,
+    #[pyo3(get, set)]
+    points: Vec<(f64, f64)>,
+}
+
+#[pymethods]
+impl DSNPath {
+    #[new]
+    fn new(layer: String, width: f64, points: Vec<(f64, f64)>) -> Self {
+        DSNPath { layer, width, points }
+    }
+
+    fn to_dsn(&self, py: Python<'_>) -> PyResult<Py<DSNExpression>> {
+        let mut args: Vec<Py<PyAny>> = Vec::with_capacity(2 + self.points.len() * 2);
+        args.push(self.layer.clone().into_pyobject(py)?.unbind().into());
+        args.push(self.width.into_pyobject(py)?.unbind().into());
+        for (x, y) in &self.points {
+            args.push(x.into_pyobject(py)?.unbind().into());
+            args.push(y.into_pyobject(py)?.unbind().into());
+        }
+        Py::new(py, DSNExpression {
+            name: "path".into(),
+            args,
+            comment: None,
+        })
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "DSNPath(layer={:?}, width={}, points={:?})",
+            self.layer, self.width, self.points
+        )
+    }
+}
+
+// ---------------------------------------------------------------------------
+// footprint_spec: FootprintSpec
+// ---------------------------------------------------------------------------
+
+#[pyclass(from_py_object)]
+#[derive(Clone)]
+struct FootprintSpec {
+    #[pyo3(get, set)]
+    name: String,
+    #[pyo3(get, set)]
+    bounds: (f64, f64),
+    #[pyo3(get, set)]
+    courtyard_margin: f64,
+    #[pyo3(get, set)]
+    thermal_pad: bool,
+    #[pyo3(get, set)]
+    pin_1_offset: Option<(f64, f64)>,
+}
+
+#[pymethods]
+impl FootprintSpec {
+    #[new]
+    #[pyo3(signature = (name, bounds, courtyard_margin = 0.0, thermal_pad = false, pin_1_offset = None))]
+    fn new(
+        name: String,
+        bounds: (f64, f64),
+        courtyard_margin: f64,
+        thermal_pad: bool,
+        pin_1_offset: Option<(f64, f64)>,
+    ) -> Self {
+        FootprintSpec { name, bounds, courtyard_margin, thermal_pad, pin_1_offset }
+    }
+
+    #[getter]
+    fn width(&self) -> f64 {
+        self.bounds.0
+    }
+
+    #[getter]
+    fn height(&self) -> f64 {
+        self.bounds.1
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "FootprintSpec({:?}, bounds={:?}, thermal_pad={})",
+            self.name, self.bounds, self.thermal_pad
+        )
+    }
+}
+
+// ---------------------------------------------------------------------------
+// provenance: Provenance, sha256_hex
+// ---------------------------------------------------------------------------
+
+#[pyclass(from_py_object)]
+#[derive(Clone)]
+struct Provenance {
+    #[pyo3(get, set)]
+    board_sha256: String,
+    #[pyo3(get, set)]
+    netlist_sha256: String,
+    #[pyo3(get, set)]
+    config_sha256: Option<String>,
+    #[pyo3(get, set)]
+    generated_at: String,
+}
+
+#[pymethods]
+impl Provenance {
+    #[new]
+    #[pyo3(signature = (board_sha256, netlist_sha256, generated_at, config_sha256 = None))]
+    fn new(
+        board_sha256: String,
+        netlist_sha256: String,
+        generated_at: String,
+        config_sha256: Option<String>,
+    ) -> Self {
+        Provenance { board_sha256, netlist_sha256, generated_at, config_sha256 }
+    }
+
+    fn as_comment(&self) -> String {
+        let config_part = match &self.config_sha256 {
+            Some(c) => format!(" config={}", c),
+            None => String::new(),
+        };
+        format!(
+            "provenance: board={} netlist={}{} at={}",
+            self.board_sha256, self.netlist_sha256, config_part, self.generated_at
+        )
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "Provenance(board_sha256={:?}, netlist_sha256={:?}, generated_at={:?})",
+            self.board_sha256, self.netlist_sha256, self.generated_at
+        )
+    }
+}
+
+#[pyfunction]
+fn sha256_hex(py: Python<'_>, data: Vec<u8>) -> PyResult<String> {
+    let hashlib = py.import("hashlib")?;
+    let hash_obj = hashlib.call_method1("sha256", (data,))?;
+    let hex_str: String = hash_obj.call_method0("hexdigest")?.extract()?;
+    Ok(hex_str)
+}
+
+// ---------------------------------------------------------------------------
 // Module definition
 // ---------------------------------------------------------------------------
 
@@ -718,6 +1051,12 @@ fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TraceVia>()?;
     m.add_class::<ExportResult>()?;
     m.add_class::<FootprintBounds>()?;
+    m.add_class::<DSNExpression>()?;
+    m.add_class::<DSNRect>()?;
+    m.add_class::<DSNCircle>()?;
+    m.add_class::<DSNPath>()?;
+    m.add_class::<FootprintSpec>()?;
+    m.add_class::<Provenance>()?;
 
     // Functions
     m.add_function(wrap_pyfunction!(parse_footprint_courtyard, m)?)?;
@@ -727,6 +1066,8 @@ fn temper_io_types(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(serialize_boardstate_to_ses, m)?)?;
     m.add_function(wrap_pyfunction!(serialize_violations_to_json, m)?)?;
     m.add_function(wrap_pyfunction!(serialize_connectivity_to_json, m)?)?;
+    m.add_function(wrap_pyfunction!(dsn_list, m)?)?;
+    m.add_function(wrap_pyfunction!(sha256_hex, m)?)?;
 
     // SERIALIZER_REGISTRY
     let registry = PyDict::new(m.py());
