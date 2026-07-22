@@ -293,14 +293,22 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
 
 fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> {
     Ok(NetClassRules {
+        name: extract_str(dict, "name").unwrap_or_default(),
         trace_width_mm: extract_f64(dict, "trace_width_mm", 0.2)?,
         clearance_mm: extract_f64(dict, "clearance_mm", 0.2)?,
-        creepage_mm: extract_opt_f64(dict, "creepage_mm")?,
-        voltage_v: extract_opt_f64(dict, "voltage_v")?,
+        dru_priority: extract_f64(dict, "dru_priority", 0.0)?.round() as i32,
+        via_diameter: extract_f64(dict, "via_diameter", 0.6)?,
+        via_drill: extract_f64(dict, "via_drill", 0.3)?,
+        via_template: extract_opt_str(dict, "via_template")?,
+        creepage_mm: extract_f64(dict, "creepage_mm", 0.0)?,
+        voltage_v: extract_f64(dict, "voltage_v", 0.0)?,
+        target_impedance: extract_opt_f64(dict, "target_impedance")?,
         max_current_rating: extract_opt_f64(dict, "max_current_rating")?,
-        safety_category: extract_opt_str(dict, "safety_category")?,
         required_layer: extract_opt_str(dict, "required_layer")?,
+        layer: extract_opt_str(dict, "layer")?,
+        safety_category: extract_opt_str(dict, "safety_category")?,
         routing_strategy: extract_opt_str(dict, "routing_strategy")?,
+        ..NetClassRules::default()
     })
 }
 
@@ -557,12 +565,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
                 .unwrap_or_else(|| NetClassRules {
                     trace_width_mm: 0.2,
                     clearance_mm: 0.2,
-                    creepage_mm: None,
-                    voltage_v: None,
-                    max_current_rating: None,
-                    safety_category: None,
-                    required_layer: None,
-                    routing_strategy: None,
+                    ..NetClassRules::default()
                 });
             Net {
                 name: net_name,

@@ -19,10 +19,23 @@ const ISO_COMPONENT_KEYWORDS: [&str; 8] =
 const ISO_ZONE_KEYWORDS: [&str; 6] =
     ["iso", "opto", "coupler", "transformer", "gutter", "slot"];
 
-/// Determine if a net class indicates an isolation component.
-fn is_iso_component(net_class: &str) -> bool {
-    let lc = net_class.to_lowercase();
-    ISO_COMPONENT_KEYWORDS.iter().any(|k| lc.contains(k))
+/// Determine if a component is an isolation device.
+///
+/// Consults `NetClassRules.safety_category` (declared in the SSOT manifest) first.
+/// Falls back to keyword substring matching for undeclared net classes.
+fn is_iso_component(comp: &crate::board::Component, board: &BoardState) -> bool {
+    // Prefer declared safety_category from the model
+    let nc = crate::board::NetClassName(comp.net_class.0.clone());
+    if let Some(rules) = board.net_class_rules.get(&nc) {
+        if let Some(ref sc) = rules.safety_category {
+            return sc == "iso";
+        }
+    }
+    // Keyword fallback on net_class and footprint
+    let lc = comp.net_class.0.to_lowercase();
+    ISO_COMPONENT_KEYWORDS
+        .iter()
+        .any(|k| lc.contains(k))
 }
 
 /// Determine if a zone name indicates it is an isolation zone.
@@ -69,7 +82,7 @@ impl DrcRule for IsolationCheck {
 
         // Check each component against isolation zones
         for comp in board.all_components() {
-            let is_iso_device = is_iso_component(&comp.net_class);
+            let is_iso_device = is_iso_component(comp, board);
 
             if is_iso_device {
                 continue;

@@ -18,11 +18,25 @@ const HV_KEYWORDS: [&str; 5] = ["hv", "line", "ac", "neutral", "mains"];
 /// Keywords that classify a net class as Low Voltage.
 const LV_KEYWORDS: [&str; 6] = ["lv", "signal", "3v3", "5v", "gnd", "analog"];
 
-/// Determine the safety category of a net class based on keyword matching.
+/// Determine the safety category of a component's net class.
 ///
-/// Mirrors Python's `resolve_safety_category()` in `_safety_keywords.py`.
-fn resolve_safety_category(net_class: &str) -> Option<&'static str> {
-    let lc = net_class.to_lowercase();
+/// Consults `NetClassRules.safety_category` (declared in the SSOT manifest) first.
+/// Falls back to keyword substring matching for undeclared net classes.
+fn resolve_safety_category(comp: &Component, board: &BoardState) -> Option<&'static str> {
+    // Prefer declared safety_category from the model
+    let nc = crate::board::NetClassName(comp.net_class.0.clone());
+    if let Some(rules) = board.net_class_rules.get(&nc) {
+        if let Some(ref sc) = rules.safety_category {
+            return match sc.as_str() {
+                "HV" => Some("HV"),
+                "LV" => Some("LV"),
+                "AC" => Some("HV"), // AC treated as HV-side for separation
+                _ => None,
+            };
+        }
+    }
+    // Keyword fallback
+    let lc = comp.net_class.0.to_lowercase();
     if HV_KEYWORDS.iter().any(|k| lc.contains(k)) {
         Some("HV")
     } else if LV_KEYWORDS.iter().any(|k| lc.contains(k)) {
@@ -64,8 +78,8 @@ impl DrcRule for HVLVSeparationCheck {
                 let a = &comps[i];
                 let b = &comps[j];
 
-                let a_cat = resolve_safety_category(&a.net_class);
-                let b_cat = resolve_safety_category(&b.net_class);
+                let a_cat = resolve_safety_category(a, board);
+                let b_cat = resolve_safety_category(b, board);
 
                 let is_a_hv = a_cat == Some("HV");
                 let is_b_hv = b_cat == Some("HV");
