@@ -74,7 +74,7 @@ def find_undocumented_constants(physics_dir: Path, repo_root: Path) -> dict:
             if not names:
                 continue
 
-            for val, const_name in zip(values, names):
+            for val, const_name in zip(values, names, strict=True):
                 has_source = _has_source_comment(
                     source_lines, node.lineno, node.end_lineno or node.lineno
                 )

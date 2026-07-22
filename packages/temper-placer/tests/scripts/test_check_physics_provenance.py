@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-import os
 import sys
 import tempfile
 from pathlib import Path
@@ -15,7 +14,7 @@ import pytest
 _SCRIPTS = Path(__file__).resolve().parent.parent.parent.parent.parent / "scripts"
 sys.path.insert(0, str(_SCRIPTS))
 
-import check_physics_provenance as gate
+import check_physics_provenance as gate  # noqa: E402
 
 PHYS_PREFIX = "packages/temper-placer/src/temper_placer/physics"
 
@@ -172,7 +171,7 @@ class TestFindUndocumentedConstants:
         (phys / "test_mod.py").write_text("X = 3.14\n")
         result = gate.find_undocumented_constants(phys, root)
         assert len(result) == 1
-        for key, (lineno, val, name) in result.items():
+        for _key, (lineno, val, name) in result.items():
             assert name == "X"
             assert val == 3.14
             assert lineno == 1
@@ -475,7 +474,7 @@ class TestCheckShrinkMode:
         al_path.write_text("# empty\n")
 
         with mock.patch.object(gate, "git_show_main_allowlist",
-                               return_value=f"nonexistent/file.py::DELETED  # TODO: temper-123\n"):
+                               return_value="nonexistent/file.py::DELETED  # TODO: temper-123\n"):
             result = gate.check_shrink_mode(
                 gate.load_allowlist(al_path), phys, root,
                 ".physics-provenance-allowlist",
