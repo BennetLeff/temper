@@ -2,7 +2,7 @@ name: Docker CI Image
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/hybrid-pour-trace-stitch]
     paths:
       - '.github/docker/ci.Dockerfile'
       - '.github/workflows/docker-build.yml'
