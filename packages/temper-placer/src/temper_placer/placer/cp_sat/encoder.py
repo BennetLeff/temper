@@ -93,6 +93,10 @@ class EncoderContext:
 AssumptionLiteral = int  # index of assumption BoolVar
 
 from .handlers.separated import encode_separated as _encode_separated  # noqa: E402
+from .handlers.aligned import encode_aligned as _encode_aligned  # noqa: E402
+from .handlers.anchored import encode_anchored as _encode_anchored  # noqa: E402
+from .handlers.onside import encode_onside as _encode_on_side  # noqa: E402
+from .handlers.keepout import encode_keepout as _encode_keepout  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Enclosing
@@ -199,161 +203,12 @@ def _encode_adjacent(
     return labels
 
 
-# ---------------------------------------------------------------------------
-# OnSide
-# ---------------------------------------------------------------------------
-
-def _encode_on_side(
-    constraint: OnSideConstraint,
-    components: dict[str, ComponentVars],
-    model: CpSatModel,
-    ctx: EncoderContext,
-) -> list[AssumptionLiteral]:
-    """Pin components to a board edge."""
-    labels: list[AssumptionLiteral] = []
-    max_d_u = model.mm_to_units(constraint.max_distance_mm)
-    side = constraint.side.value  # "left", "right", "top", "bottom"
-
-    for ref in constraint.components:
-        v = components.get(ref)
-        if v is None:
-            logger.warning("OnSide %s: comp '%s' not found", constraint.id, ref)
-            continue
-        label = f"oside_{constraint.id}_{ref}"
-        assumption = model.new_assumption(label)
-
-        if side == "left":
-            model.add_constraint_enforced(v.x_start <= ctx.board_x_min_units + max_d_u, assumption)
-        elif side == "right":
-            model.add_constraint_enforced(v.x_end >= ctx.board_x_max_units - max_d_u, assumption)
-        elif side == "top":
-            model.add_constraint_enforced(v.y_end >= ctx.board_y_max_units - max_d_u, assumption)
-        elif side == "bottom":
-            model.add_constraint_enforced(v.y_start <= ctx.board_y_min_units + max_d_u, assumption)
-        labels.append(assumption)
-    return labels
 
 
-# ---------------------------------------------------------------------------
-# Anchored (U4)
-# ---------------------------------------------------------------------------
-
-def _encode_anchored(
-    constraint: AnchoredConstraint,
-    components: dict[str, ComponentVars],
-    model: CpSatModel,
-    ctx: EncoderContext,  # noqa: ARG001
-) -> list[AssumptionLiteral]:
-    """Fix a component to an exact position or region."""
-    labels: list[AssumptionLiteral] = []
-    v = components.get(constraint.component)
-    if v is None:
-        logger.warning("Anchored %s: comp '%s' not found", constraint.id, constraint.component)
-        return labels
-
-    label = f"anchor_{constraint.id}"
-    assumption = model.new_assumption(label)
-
-    if constraint.position is not None:
-        px_u = model.mm_to_units(constraint.position[0])
-        py_u = model.mm_to_units(constraint.position[1])
-        model.add_constraint_enforced(v.x_center == px_u, assumption)
-        model.add_constraint_enforced(v.y_center == py_u, assumption)
-    elif constraint.region is not None:
-        rx_min, ry_min, rx_max, ry_max = constraint.region
-        rx_min_u = model.mm_to_units(rx_min)
-        ry_min_u = model.mm_to_units(ry_min)
-        rx_max_u = model.mm_to_units(rx_max)
-        ry_max_u = model.mm_to_units(ry_max)
-        model.add_constraint_enforced(v.x_start >= rx_min_u, assumption)
-        model.add_constraint_enforced(v.y_start >= ry_min_u, assumption)
-        model.add_constraint_enforced(v.x_end <= rx_max_u, assumption)
-        model.add_constraint_enforced(v.y_end <= ry_max_u, assumption)
-    labels.append(assumption)
-    return labels
 
 
-# ---------------------------------------------------------------------------
-# KEEPOUT (U4)
-# ---------------------------------------------------------------------------
-
-def _encode_keepout(
-    constraint: KeepoutConstraint,
-    components: dict[str, ComponentVars],  # noqa: ARG001
-    model: CpSatModel,
-    ctx: EncoderContext,
-) -> list[AssumptionLiteral]:
-    """Add a keepout zone interval to the global NoOverlap2D.
-
-    All components must not overlap the keepout rectangle.
-    Uses the model's add_keepout_interval + add_no_overlap_2d with extra intervals.
-    """
-    labels: list[AssumptionLiteral] = []
-    zone = ctx.zones.get(constraint.zone_name)
-    if zone is None:
-        logger.warning("KEEPOUT %s: zone '%s' not found", constraint.id, constraint.zone_name)
-        return labels
-
-    zx_min, zy_min, zx_max, zy_max = zone
-    margin_u = model.mm_to_units(constraint.margin_mm)
-    kx_s = model.mm_to_units(zx_min) - margin_u
-    ky_s = model.mm_to_units(zy_min) - margin_u
-    kx_w = model.mm_to_units(zx_max - zx_min) + 2 * margin_u
-    ky_h = model.mm_to_units(zy_max - zy_min) + 2 * margin_u
-
-    ix, iy = model.add_keepout_interval(
-        f"keepout_{constraint.id}", kx_s, ky_s, kx_w, ky_h,
-    )
-    label = f"keepout_{constraint.id}"
-    assumption = model.new_assumption(label)
-    model.model_ref.AddNoOverlap2D(
-        [*[model.model_ref.NewIntervalVar(
-            v.x_start, v.x_size, v.x_end, f"kx_comp_{v.ref}"
-        ) for v in model.components],
-         ix],
-        [*[model.model_ref.NewIntervalVar(
-            v.y_start, v.y_size, v.y_end, f"ky_comp_{v.ref}"
-        ) for v in model.components],
-         iy],
-    )
-    labels.append(assumption)
-    return labels
 
 
-# ---------------------------------------------------------------------------
-# ALIGNED (U4)
-# ---------------------------------------------------------------------------
-
-def _encode_aligned(
-    constraint: AlignedConstraint,
-    components: dict[str, ComponentVars],
-    model: CpSatModel,
-    ctx: EncoderContext,  # noqa: ARG001
-) -> list[AssumptionLiteral]:
-    """Align components pairwise along an axis within tolerance."""
-    labels: list[AssumptionLiteral] = []
-    tol_u = model.mm_to_units(constraint.tolerance_mm)
-    axis = constraint.axis.value  # "x" or "y"
-
-    comp_refs = constraint.components
-    for i in range(len(comp_refs)):
-        for j in range(i + 1, len(comp_refs)):
-            va = components.get(comp_refs[i])
-            vb = components.get(comp_refs[j])
-            if va is None or vb is None:
-                continue
-            label = f"align_{constraint.id}_{comp_refs[i]}_{comp_refs[j]}"
-            assumption = model.new_assumption(label)
-
-            if axis in ("x", "major"):
-                cva, cvb = va.x_center, vb.x_center
-            else:
-                cva, cvb = va.y_center, vb.y_center
-
-            model.add_constraint_enforced(cva - cvb <= tol_u, assumption)
-            model.add_constraint_enforced(cvb - cva <= tol_u, assumption)
-            labels.append(assumption)
-    return labels
 
 
 # ---------------------------------------------------------------------------
