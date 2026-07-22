@@ -8,5 +8,5 @@ description = "Shared PyO3 bridge utilities for temper Rust crates"
 crate-type = ["rlib"]
 
 [dependencies]
-pyo3 = { version = "0.23", features = ["extension-module"] }
+pyo3 = { version = "0.23" }
 temper-py-bridge-derive = { path = "../temper-py-bridge-derive" }
