@@ -643,6 +643,7 @@ fn eliminate_trivial_capacity(constraints: Vec<InternalConstraint>) -> Vec<Inter
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

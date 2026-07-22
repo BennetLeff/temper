@@ -9,6 +9,7 @@ use temper_rust_router_core::loop_extractor::extract::{
 use temper_rust_router_core::loop_extractor::types::ExtractionError;
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod proptest_tests {
     use proptest::prelude::*;
     use super::*;
@@ -113,6 +114,7 @@ mod proptest_tests {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod bmc_tests {
     use super::*;
 
@@ -240,6 +242,7 @@ mod bmc_tests {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod temper_tests {
     use super::*;
 

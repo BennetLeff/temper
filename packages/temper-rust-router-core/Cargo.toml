@@ -18,5 +18,8 @@ thiserror = "1"
 [profile.release]
 panic = "unwind"
 
+[lints.clippy]
+unwrap_used = "deny"
+
 [dev-dependencies]
 proptest = "1"

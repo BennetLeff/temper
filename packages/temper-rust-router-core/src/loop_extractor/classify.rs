@@ -235,6 +235,7 @@ fn parse_capacitance(value: &str) -> Option<f64> {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

@@ -209,6 +209,7 @@ impl PinMapping {
 pub static TO247_PINS: LazyLock<PinMapping> = LazyLock::new(PinMapping::default);
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
