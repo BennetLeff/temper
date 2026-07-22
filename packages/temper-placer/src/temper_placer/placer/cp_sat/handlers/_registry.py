@@ -22,7 +22,6 @@ def register_handler(ct: ConstraintType) -> Callable[[Callable[..., list[int]]],
     appending an entry to ``HANDLER_REGISTRY``.
     """
     def decorator(fn: Callable[..., list[int]]) -> Callable[..., list[int]]:
-        fn.constraint_type = ct  # type: ignore[attr-defined]
         HANDLER_REGISTRY[ct] = fn
         return fn
     return decorator
