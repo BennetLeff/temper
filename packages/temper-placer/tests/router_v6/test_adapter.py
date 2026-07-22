@@ -173,3 +173,122 @@ class TestZoneParamsForNet:
     def test_unknown_net_gets_conservative_default(self):
         margin, clearance = _zone_params_for_net("some_random_signal")
         assert margin <= clearance
+
+
+class TestRoutePcbLayerConstraintsResolution:
+    """Regression coverage for a silent-no-op bug: route_pcb() resolves
+    per-net layer constraints from ``getattr(parsed, "nets", [])`` -- a
+    caller whose ``parsed`` object has no usable ``.nets`` gets an empty
+    ``layer_constraints`` dict with no error, silently disabling netclass-SSOT
+    layer assignment. This bit every production-board measurement test in
+    this suite (they all built ``parsed_stub`` with only ``source_path``) --
+    every net stayed on F.Cu regardless of its netclass's declared ``layer``.
+    See docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md.
+    """
+
+    def _patched_pipeline(self):
+        """Patch RouterV6Pipeline so route_pcb never does real routing;
+        return the mock class so callers can inspect construction kwargs."""
+        from unittest import mock as umock
+        from types import SimpleNamespace
+
+        mock_result_inner = SimpleNamespace(
+            stage4=SimpleNamespace(
+                routing_results=SimpleNamespace(
+                    compiled_routes={}, tree_routes={}, partial_tree_routes={},
+                    failed_nets=[],
+                ),
+            ),
+            pcb=SimpleNamespace(components=[], nets=[]),
+            enable_zone_pours=False,
+            completion_rate=0.0,
+        )
+        patcher = umock.patch("temper_placer.router_v6.pipeline.RouterV6Pipeline")
+        mock_pipe_cls = patcher.start()
+        mock_pipe = umock.MagicMock()
+        mock_pipe.run.return_value = mock_result_inner
+        mock_pipe_cls.return_value = mock_pipe
+        return patcher, mock_pipe_cls
+
+    def _write_minimal_pcb(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile(
+            suffix=".kicad_pcb", mode="w", delete=False,
+        ) as f:
+            f.write('(kicad_pcb (version 20240108) (net 1 "vcc"))\n')
+            return f.name
+
+    def test_resolves_nonempty_layer_constraints_when_nets_present(self):
+        """parsed.nets populated + design_rules given -> layer_constraints
+        is actually resolved (not silently empty)."""
+        import os
+        from types import SimpleNamespace
+
+        from temper_placer.core.design_rules import DesignRules
+
+        patcher, mock_pipe_cls = self._patched_pipeline()
+        temp_path = self._write_minimal_pcb()
+        try:
+            parsed = type(
+                "ParsedPCB", (),
+                {"source_path": temp_path, "nets": [SimpleNamespace(name="vcc")]},
+            )()
+            route_pcb(parsed, {}, _seed=1, design_rules=DesignRules())
+
+            _, kwargs = mock_pipe_cls.call_args
+            layer_constraints = kwargs.get("layer_constraints")
+            assert layer_constraints, (
+                "layer_constraints must not be empty when parsed.nets is "
+                "populated and design_rules is provided"
+            )
+            assert "vcc" in layer_constraints
+        finally:
+            patcher.stop()
+            os.unlink(temp_path)
+
+    def test_layer_constraints_empty_and_warns_when_nets_missing(self, caplog):
+        """parsed has no .nets at all + design_rules given -> layer_constraints
+        stays empty (existing graceful fallback), but this must be LOUD
+        (a warning), not silent -- this is the exact shape of the bug."""
+        import logging
+        import os
+
+        from temper_placer.core.design_rules import DesignRules
+
+        patcher, mock_pipe_cls = self._patched_pipeline()
+        temp_path = self._write_minimal_pcb()
+        try:
+            parsed = type("ParsedPCB", (), {"source_path": temp_path})()  # no .nets
+            with caplog.at_level(logging.WARNING):
+                route_pcb(parsed, {}, _seed=1, design_rules=DesignRules())
+
+            _, kwargs = mock_pipe_cls.call_args
+            assert kwargs.get("layer_constraints") == {}
+            assert any(
+                "no resolvable .nets" in rec.message for rec in caplog.records
+            ), "missing .nets with design_rules provided must log a warning"
+        finally:
+            patcher.stop()
+            os.unlink(temp_path)
+
+    def test_no_warning_when_design_rules_is_none(self, caplog):
+        """Callers that don't pass design_rules at all (layer assignment
+        genuinely not wanted) must NOT get the warning -- it's specific to
+        the misconfiguration case, not a blanket nag on every missing-nets
+        stub used by unrelated tests."""
+        import logging
+        import os
+
+        patcher, mock_pipe_cls = self._patched_pipeline()
+        temp_path = self._write_minimal_pcb()
+        try:
+            parsed = type("ParsedPCB", (), {"source_path": temp_path})()  # no .nets
+            with caplog.at_level(logging.WARNING):
+                route_pcb(parsed, {}, _seed=1, design_rules=None)
+
+            assert not any(
+                "no resolvable .nets" in rec.message for rec in caplog.records
+            )
+        finally:
+            patcher.stop()
+            os.unlink(temp_path)

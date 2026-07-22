@@ -401,11 +401,12 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     placement_counts = _count_errors_by_type(placement_drc)
 
     # 6. Route the placed PCB.
-    # route_pcb expects a duck-typed "parsed" object with source_path.
-    # ParseResult doesn't carry source_path, so we build a compatible stub.
+    # route_pcb expects a duck-typed "parsed" object with source_path and
+    # nets (see tests.conftest.make_parsed_pcb_stub for why nets matters).
     from temper_placer.router_v6.adapter import route_pcb
+    from tests.conftest import make_parsed_pcb_stub
 
-    parsed_stub = type("ParsedStub", (), {"source_path": BOARD_PATH})()
+    parsed_stub = make_parsed_pcb_stub(BOARD_PATH, netlist)
 
     routing_result = route_pcb(
         parsed_stub, placements_dict,
@@ -547,11 +548,14 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     )
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
 
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
     from temper_placer.io.netclass_loader import load_netclass_rules
     from temper_placer.router_v6.adapter import route_pcb
+    from tests.conftest import make_parsed_pcb_stub
 
     rules = load_netclass_rules(RULES_PATH)
-    parsed_stub = type("ParsedStub", (), {"source_path": PRODUCTION_BOARD_PATH})()
+    netlist = parse_kicad_pcb(PRODUCTION_BOARD_PATH).netlist
+    parsed_stub = make_parsed_pcb_stub(PRODUCTION_BOARD_PATH, netlist)
 
     routing_result = route_pcb(
         parsed_stub, {},

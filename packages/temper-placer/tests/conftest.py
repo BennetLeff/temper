@@ -15,6 +15,22 @@ from temper_placer.deterministic.state import BoardState
 from temper_placer.io.footprint_library import load_footprint_library
 
 
+def make_parsed_pcb_stub(source_path: Path, netlist) -> object:
+    """Build the minimal ``route_pcb(parsed=...)`` stub, correctly.
+
+    ``route_pcb`` resolves per-net layer constraints from
+    ``getattr(parsed, "nets", [])`` -- a stub built without ``nets`` silently
+    disables netclass-SSOT layer assignment (every net stays on its default
+    layer) with no error. This bit every production-board measurement test
+    in this suite before ``nets`` was added here; use this helper instead of
+    hand-rolling ``type("ParsedStub", (), {...})()`` so it can't recur. See
+    docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md.
+    """
+    return type(
+        "ParsedStub", (), {"source_path": source_path, "nets": netlist.nets},
+    )()
+
+
 def _make_temper_design_rules() -> DesignRules:
     """Subset of core/design_rules.py:337-444 net classes for fixture use."""
     return DesignRules(
