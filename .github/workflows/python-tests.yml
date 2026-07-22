@@ -84,10 +84,14 @@ jobs:
   test:
     name: Core Tests
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
     timeout-minutes: 15
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
+      UV_PYTHON: /usr/bin/python3.12
     
     steps:
       - uses: actions/checkout@v4
@@ -98,21 +102,12 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Set up Python
-        run: uv python install 3.12
-
       - name: Cache virtualenv
         uses: actions/cache@v4
         id: cache-venv
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Install circuit simulator
-        run: sudo apt-get update && sudo apt-get install --yes ngspice
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Rust build
         uses: actions/cache@v4
@@ -224,10 +219,14 @@ jobs:
   checks:
     name: Extended Tests & Gates
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
     timeout-minutes: 15
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
+      UV_PYTHON: /usr/bin/python3.12
     
     steps:
       - uses: actions/checkout@v4
@@ -238,18 +237,12 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Set up Python
-        run: uv python install 3.12
-
       - name: Cache virtualenv
         uses: actions/cache@v4
         id: cache-venv
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Rust build
         uses: actions/cache@v4
