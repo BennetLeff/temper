@@ -17,6 +17,14 @@ _LAZY_NAMES = {
     # Min-cut bottleneck geometry (U2/U3)
     "BottleneckGeometry",
     "analyze_bottleneck",
+    # Adapter (formerly direct-imported; moved to lazy to fix grimp transitive tracing)
+    "CongestionRegion",
+    "DrcViolation",
+    "RoutingResult",
+    "_AdapterRoutePath",
+    "route_pcb",
+    # Obstacle map
+    "build_obstacle_map",
 }
 _LAZY_MODULES = {
     # Diagnostics (U1)
@@ -29,11 +37,19 @@ _LAZY_MODULES = {
     # Min-cut bottleneck geometry (U2/U3)
     "BottleneckGeometry": "temper_placer.router_v6.bottleneck_geometry",
     "analyze_bottleneck": "temper_placer.router_v6.bottleneck_geometry",
+    # Adapter (U3) — lazy to avoid grimp tracing through to internal submodules
+    "CongestionRegion": "temper_placer.router_v6.adapter",
+    "DrcViolation": "temper_placer.router_v6.adapter",
+    "RoutingResult": "temper_placer.router_v6.adapter",
+    "_AdapterRoutePath": "temper_placer.router_v6.adapter",
+    "route_pcb": "temper_placer.router_v6.adapter",
+    # Obstacle map
+    "build_obstacle_map": "temper_placer.router_v6.obstacle_map",
 }
 
 
 def __getattr__(name: str):  # noqa: D401 — module-level dunder
-    """Lazy attribute lookup for diagnostics + bottleneck symbols.
+    """Lazy attribute lookup for adapter, diagnostics, obstacle_map + bottleneck symbols.
 
     Resolves the names listed in ``_LAZY_NAMES`` on first access,
     breaking the ``router_v6 -> constraint_model -> deterministic ->
@@ -50,13 +66,6 @@ def __getattr__(name: str):  # noqa: D401 — module-level dunder
     raise AttributeError(f"module 'temper_placer.router_v6' has no attribute {name!r}")
 
 
-from temper_placer.router_v6.adapter import (  # noqa: E402
-    CongestionRegion,
-    DrcViolation,
-    RoutingResult,
-    _AdapterRoutePath,
-    route_pcb,
-)
 from temper_placer.router_v6.astar_core_numba import (  # noqa: E402
     _line_of_sight_numba,
 )
@@ -85,7 +94,6 @@ from temper_placer.router_v6.escape_via_generator import (  # noqa: E402
     EscapeVia,
     generate_escape_vias,
 )
-from temper_placer.router_v6.obstacle_map import build_obstacle_map  # noqa: E402
 from temper_placer.router_v6.stage0_data import (  # noqa: E402
     DesignRules,
     LayerInfo,

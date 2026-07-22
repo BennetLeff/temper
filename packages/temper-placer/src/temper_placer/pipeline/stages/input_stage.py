@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class InputStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.io.kicad_parser import parse_kicad_pcb
 
@@ -22,6 +21,8 @@ class InputStage:
 
         try:
             result = parse_kicad_pcb(input_pcb_path)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             from temper_placer.pipeline.state import PipelineError, PipelinePhase
             raise PipelineError(f"Failed to parse PCB: {e}", phase=PipelinePhase.INPUT) from e
@@ -77,6 +78,8 @@ class InputStage:
                 state.board = constrained_board
                 apply_fixed_components_to_netlist(netlist, constraints)
                 apply_zones_to_netlist(netlist, constraints)
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception as e:
                 from temper_placer.pipeline.state import PipelineError, PipelinePhase
                 raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
@@ -103,7 +106,7 @@ class InputStage:
                         f"constraints ({detections.bypass_count} bypass, "
                         f"{detections.bulk_count} bulk)"
                     )
-            except Exception as e:
+            except (ValueError, NotImplementedError, TypeError, AttributeError) as e:
                 print(f"  Note: decoupling auto-detection skipped ({e})")
 
         from temper_placer.core.specification import PcbSpecification

@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import time
-from typing import Any
 
 import numpy as np
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class TopologicalStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
         from temper_placer.placer.deterministic import PlacementResult

@@ -125,7 +125,7 @@ def auto_extract_loops_rs(
             stacklevel=2,
         )
         return None
-    except Exception as e:
+    except (RuntimeError, json.JSONDecodeError, TypeError, AttributeError, KeyError, ValueError) as e:
         warnings.warn(
             f"Rust loop extraction failed: {e} — falling back to Python",
             stacklevel=2,

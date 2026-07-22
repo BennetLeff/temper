@@ -10,9 +10,8 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ class ThermalAnchoringStage:
     ``StageResult.success()``.
     """
 
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
 
         board = context.get("board")

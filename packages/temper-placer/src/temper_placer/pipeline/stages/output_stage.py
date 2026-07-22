@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any
 
 import numpy as np
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class OutputStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.core.state import PlacementState
         from temper_placer.io.kicad_writer import (
@@ -66,7 +65,7 @@ class OutputStage:
         )
 
 
-def _compute_physics_metrics(state: Any) -> None:
+def _compute_physics_metrics(state: PipelineState) -> None:
     from temper_placer.core.state import PlacementState
     from temper_placer.metrics.physics import (
         PhysicsReport,
