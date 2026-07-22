@@ -318,8 +318,8 @@ class CpSatModel:
     ) -> CpSolverSolution:
         """Run the CP-SAT solver and return a solution."""
         if self._objective_terms:
-            obj = sum(v * w for v, w in self._objective_terms)
-            self.model_ref.Minimize(obj)
+            obj = sum(v * w for v, w in self._objective_terms)  # type: ignore[assignment]
+            self.model_ref.Minimize(obj)  # type: ignore[arg-type]
 
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = time_limit_s

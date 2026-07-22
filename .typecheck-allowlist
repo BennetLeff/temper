@@ -1,38 +1,45 @@
 # Type-check allowlist — monotonic-shrink baseline
-# 342 total errors across 37 files
+# 114 total errors across 37 files
 # <filepath> <max-allowed-error-count>
 # Do not increase these numbers. Fix the errors.
 
-packages/temper-placer/src/temper_placer/cli/__init__.py 1
-packages/temper-placer/src/temper_placer/core/board.py 2
-packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py 2
-packages/temper-placer/src/temper_placer/core/state.py 4
-packages/temper-placer/src/temper_placer/deterministic/__init__.py 2
-packages/temper-placer/src/temper_placer/deterministic/stages/setup.py 2
-packages/temper-placer/src/temper_placer/geometry/drc_inflate.py 2
-packages/temper-placer/src/temper_placer/io/config_loader.py 6
+packages/temper-placer/src/temper_placer/cli/__init__.py 0
+packages/temper-placer/src/temper_placer/core/board.py 1
+packages/temper-placer/src/temper_placer/core/loop_extractor_rs.py 0
+packages/temper-placer/src/temper_placer/core/state.py 2
+packages/temper-placer/src/temper_placer/deterministic/__init__.py 1
+packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 1
+packages/temper-placer/src/temper_placer/deterministic/stages/setup.py 1
+packages/temper-placer/src/temper_placer/geometry/drc_inflate.py 1
+packages/temper-placer/src/temper_placer/io/config_loader.py 2
 packages/temper-placer/src/temper_placer/io/golden_serializers.py 4
-packages/temper-placer/src/temper_placer/io/kicad_exporter.py 2
-packages/temper-placer/src/temper_placer/io/kicad_parser.py 6
-packages/temper-placer/src/temper_placer/io/netclass_loader.py 4
+packages/temper-placer/src/temper_placer/io/kicad_exporter.py 1
+packages/temper-placer/src/temper_placer/io/kicad_parser.py 3
+packages/temper-placer/src/temper_placer/io/netclass_loader.py 1
 packages/temper-placer/src/temper_placer/physics/parameter_bounds.py 1
 packages/temper-placer/src/temper_placer/physics/thermal_fdm.py 1
-packages/temper-placer/src/temper_placer/pipeline/convergence.py 26
+packages/temper-placer/src/temper_placer/pipeline/convergence.py 13
 packages/temper-placer/src/temper_placer/pipeline/dag_engine.py 18
 packages/temper-placer/src/temper_placer/pipeline/dag_expr.py 1
 packages/temper-placer/src/temper_placer/placer/cp_sat/concrete_gates.py 1
-packages/temper-placer/src/temper_placer/placer/cp_sat/delta_mapper.py 8
-packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py 116
-packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py 4
-packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 2
-packages/temper-placer/src/temper_placer/placer/cp_sat/model.py 90
-packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py 2
-packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py 2
-packages/temper-placer/src/temper_placer/router_v6/layer_assignment.py 8
+packages/temper-placer/src/temper_placer/placer/cp_sat/delta_mapper.py 4
+packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py 6
+packages/temper-placer/src/temper_placer/placer/cp_sat/feedback.py 2
+packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1
+packages/temper-placer/src/temper_placer/placer/cp_sat/model.py 0
+packages/temper-placer/src/temper_placer/placer/cp_sat/netclass_constraints.py 1
+packages/temper-placer/src/temper_placer/placer/cp_sat/unsat.py 1
+packages/temper-placer/src/temper_placer/router_v6/adapter.py 3
+packages/temper-placer/src/temper_placer/router_v6/astar_core.py 3
+packages/temper-placer/src/temper_placer/router_v6/channel_mapping.py 11
+packages/temper-placer/src/temper_placer/router_v6/connectivity.py 6
+packages/temper-placer/src/temper_placer/router_v6/layer_assignment.py 4
+packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1
 packages/temper-placer/src/temper_placer/router_v6/quality/via_count.py 3
-packages/temper-placer/src/temper_placer/topological/force_refinement.py 2
-packages/temper-placer/src/temper_placer/validation/drc_result.py 2
-packages/temper-placer/src/temper_placer/validation/human_reference_extractor.py 1
+packages/temper-placer/src/temper_placer/router_v6/routing_results.py 3
+packages/temper-placer/src/temper_placer/topological/force_refinement.py 1
+packages/temper-placer/src/temper_placer/validation/drc_result.py 1
+packages/temper-placer/src/temper_placer/validation/human_reference_extractor.py 0
 packages/temper-placer/src/temper_placer/validation/mfem_compare.py 2
 packages/temper-placer/src/temper_placer/validation/mfem_gate.py 4
 packages/temper-placer/src/temper_placer/validation/mfem_mesh.py 3

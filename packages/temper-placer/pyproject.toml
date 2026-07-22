@@ -140,6 +140,7 @@ disallow_incomplete_defs = true
 check_untyped_defs = true
 ignore_missing_imports = true
 disable_error_code = ["import-untyped"]
+mypy_path = "stubs"
 
 [[tool.mypy.overrides]]
 module = "yaml"
