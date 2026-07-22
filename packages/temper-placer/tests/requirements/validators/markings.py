@@ -37,6 +37,13 @@ class MarkingResult:
         return sum(1 for v in self.violations if v.severity == "warning")
 
 
+_HV_KEYWORDS = {"DANGER", "CAUTION", "HIGH VOLTAGE", "HV", "400V", "340V", "VOLTAGE"}
+_PE_KEYWORDS = {"EARTH", "PE ", " GROUND", "PE-", "EARTH_GND", "PROTECTIVE_EARTH"}
+_BARRIER_KEYWORDS = {"ISOLATION", "BARRIER", "ISOLATION BARRIER"}
+_POLARITY_KEYWORDS = {"+", "-", "ANODE", "CATHODE", "POSITIVE", "NEGATIVE"}
+_PIN1_KEYWORDS = {"1", "PIN1", "PIN 1", "DOT"}
+
+
 def check_hv_warning_present(
     silkscreen_text: list[str],
     hv_zone: tuple[float, float, float, float],  # (x, y, width, height)
@@ -56,8 +63,23 @@ def check_hv_warning_present(
     Returns:
         MarkingResult with violations for missing HV warnings
     """
-    # TODO: Implement HV warning detection
-    raise NotImplementedError("HV warning checking not yet implemented")
+    violations = []
+    text_upper = [t.upper() for t in silkscreen_text]
+    found = any(any(kw in t for kw in _HV_KEYWORDS) for t in text_upper)
+
+    if not found:
+        violations.append(
+            MarkingViolation(
+                component_ref="",
+                code="MARK-001",
+                message="High voltage warning marking missing",
+                location=(hv_zone[0], hv_zone[1]),
+                severity="error",
+                required_symbol="HV_WARNING",
+            )
+        )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_pe_symbol_present(
@@ -78,8 +100,23 @@ def check_pe_symbol_present(
     Returns:
         MarkingResult with violations for missing PE symbols
     """
-    # TODO: Implement PE symbol detection
-    raise NotImplementedError("PE symbol checking not yet implemented")
+    violations = []
+    text_upper = [t.upper() for t in silkscreen_text]
+    found = any(any(kw in t for kw in _PE_KEYWORDS) for t in text_upper)
+
+    if not found:
+        violations.append(
+            MarkingViolation(
+                component_ref="",
+                code="MARK-002",
+                message="Protective earth (PE) symbol missing at PE connection",
+                location=pe_connection,
+                severity="error",
+                required_symbol="PE_SYMBOL",
+            )
+        )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_isolation_barrier_marked(
@@ -98,8 +135,26 @@ def check_isolation_barrier_marked(
     Returns:
         MarkingResult with violations for missing barrier markings
     """
-    # TODO: Implement isolation barrier marking detection
-    raise NotImplementedError("Isolation barrier marking checking not yet implemented")
+    violations = []
+    if not barriers:
+        return MarkingResult(passed=True, violations=[])
+
+    text_upper = [t.upper() for t in silkscreen_text]
+    found = any(any(kw in t for kw in _BARRIER_KEYWORDS) for t in text_upper)
+
+    if not found:
+        violations.append(
+            MarkingViolation(
+                component_ref="",
+                code="MARK-003",
+                message="Isolation barrier marking missing on silkscreen",
+                location=(barriers[0][0], barriers[0][1]),
+                severity="error",
+                required_symbol="ISOLATION_BARRIER",
+            )
+        )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_polarity_markings(
@@ -118,8 +173,26 @@ def check_polarity_markings(
     Returns:
         MarkingResult with violations for missing polarity markings
     """
-    # TODO: Implement polarity marking detection
-    raise NotImplementedError("Polarity marking checking not yet implemented")
+    violations = []
+    text_upper = [t.upper() for t in silkscreen_text]
+
+    for comp_ref in polarized_components:
+        ref_upper = comp_ref.upper()
+        found = any(any(kw in t for kw in _POLARITY_KEYWORDS) and ref_upper in t
+                    for t in text_upper)
+        # Check if polarity markings exist near this specific component
+        if not found:
+            violations.append(
+                MarkingViolation(
+                    component_ref=comp_ref,
+                    code="MARK-004",
+                    message=f"Polarity marking missing for polarized component {comp_ref}",
+                    severity="warning",
+                    required_symbol="POLARITY",
+                )
+            )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_pin1_indicators(
@@ -140,8 +213,27 @@ def check_pin1_indicators(
     Returns:
         MarkingResult with violations for missing pin 1 indicators
     """
-    # TODO: Implement pin 1 indicator detection
-    raise NotImplementedError("Pin 1 indicator checking not yet implemented")
+    violations = []
+    text_upper = [t.upper() for t in silkscreen_text]
+
+    for ref in ics + connectors:
+        ref_upper = ref.upper()
+        found = any(
+            ref_upper in t and any(kw in t for kw in _PIN1_KEYWORDS)
+            for t in text_upper
+        )
+        if not found:
+            violations.append(
+                MarkingViolation(
+                    component_ref=ref,
+                    code="MARK-005",
+                    message=f"Pin 1 indicator missing for {ref}",
+                    severity="warning",
+                    required_symbol="PIN1_INDICATOR",
+                )
+            )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_silkscreen_legibility(
@@ -164,8 +256,21 @@ def check_silkscreen_legibility(
     Returns:
         MarkingResult with violations for illegible text
     """
-    # TODO: Implement silkscreen legibility checking
-    raise NotImplementedError("Silkscreen legibility checking not yet implemented")
+    violations = []
+
+    for text, x, y, height in silkscreen_text:
+        if height < min_height_mm:
+            violations.append(
+                MarkingViolation(
+                    component_ref=text,
+                    code="MARK-006",
+                    message=f"Silkscreen text '{text}' height {height:.2f}mm below minimum {min_height_mm}mm",
+                    location=(x, y),
+                    severity="warning",
+                )
+            )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_component_identification(
@@ -184,8 +289,21 @@ def check_component_identification(
     Returns:
         MarkingResult with violations for missing component IDs
     """
-    # TODO: Implement component identification checking
-    raise NotImplementedError("Component identification checking not yet implemented")
+    violations = []
+    text_upper = [t.upper() for t in silkscreen_text]
+
+    for ref in component_refs:
+        if not any(ref.upper() in t for t in text_upper):
+            violations.append(
+                MarkingViolation(
+                    component_ref=ref,
+                    code="MARK-007",
+                    message=f"Component {ref} reference designator missing on silkscreen",
+                    severity="error",
+                )
+            )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_safety_symbol_compliance(
@@ -204,5 +322,21 @@ def check_safety_symbol_compliance(
     Returns:
         MarkingResult with violations for missing or non-compliant symbols
     """
-    # TODO: Implement safety symbol compliance checking
-    raise NotImplementedError("Safety symbol compliance checking not yet implemented")
+    violations = []
+    text_upper = [t.upper() for t in silkscreen_text]
+
+    for symbol_name, iec_ref in required_symbols.items():
+        found = any(symbol_name.upper() in t or iec_ref.upper() in t.replace("-", "").replace(" ", "")
+                    for t in text_upper)
+        if not found:
+            violations.append(
+                MarkingViolation(
+                    component_ref="",
+                    code="MARK-008",
+                    message=f"Required safety symbol '{symbol_name}' ({iec_ref}) not found on silkscreen",
+                    severity="error",
+                    required_symbol=symbol_name,
+                )
+            )
+
+    return MarkingResult(passed=len(violations) == 0, violations=violations)

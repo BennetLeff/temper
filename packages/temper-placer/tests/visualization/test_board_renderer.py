@@ -19,6 +19,7 @@ from temper_placer.visualization.board_renderer import (
     get_rectangle_shape,
     get_zone_shape,
 )
+from temper_placer.visualization.config_types import BoardRenderOptions
 from temper_placer.visualization.model import (
     BoardView,
     ComponentStatus,
@@ -302,7 +303,7 @@ class TestRenderBoard:
         """Test rendering with custom title."""
         from temper_placer.visualization.board_renderer import render_board
 
-        fig = render_board(simple_board, title="Custom Title")
+        fig = render_board(simple_board, options=BoardRenderOptions(title="Custom Title"))
 
         assert fig.layout.title.text == "Custom Title"
 
@@ -310,7 +311,7 @@ class TestRenderBoard:
         """Test rendering board with zones."""
         from temper_placer.visualization.board_renderer import render_board
 
-        fig = render_board(board_with_zones, show_zones=True)
+        fig = render_board(board_with_zones, options=BoardRenderOptions(show_zones=True))
 
         # Should have board outline + 2 zones + 1 component = 4 shapes
         assert len(fig.layout.shapes) >= 4
@@ -319,7 +320,7 @@ class TestRenderBoard:
         """Test rendering without reference designators."""
         from temper_placer.visualization.board_renderer import render_board
 
-        fig = render_board(simple_board, show_refs=False)
+        fig = render_board(simple_board, options=BoardRenderOptions(show_refs=False))
 
         # Should have no annotations
         assert len(fig.layout.annotations) == 0
@@ -328,7 +329,7 @@ class TestRenderBoard:
         """Test custom figure dimensions."""
         from temper_placer.visualization.board_renderer import render_board
 
-        fig = render_board(simple_board, width=1200, height=800)
+        fig = render_board(simple_board, options=BoardRenderOptions(width=1200, height=800))
 
         assert fig.layout.width == 1200
         assert fig.layout.height == 800

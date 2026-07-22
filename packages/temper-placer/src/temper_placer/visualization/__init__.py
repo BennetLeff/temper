@@ -27,6 +27,8 @@ Usage:
 """
 
 # Data models for visualization state
+from temper_placer.visualization.config_types import BoardRenderOptions
+
 # Board rendering (requires Plotly)
 from temper_placer.visualization.board_renderer import (
     PLOTLY_AVAILABLE,
@@ -152,6 +154,7 @@ __all__ = [
     "create_loss_data_point_from_metrics",
     # Board rendering
     "PLOTLY_AVAILABLE",
+    "BoardRenderOptions",
     "render_board",
     "render_board_with_violations",
     "render_board_comparison",

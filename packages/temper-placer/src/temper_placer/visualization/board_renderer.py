@@ -26,6 +26,7 @@ except ImportError:
     go = None  # type: ignore
     make_subplots = None  # type: ignore
 
+from temper_placer.visualization.config_types import BoardRenderOptions
 from temper_placer.visualization.model import (
     BoardView,
     ComponentStatus,
@@ -605,34 +606,17 @@ def _add_legend_traces(
 
 def render_board(
     board: BoardView,
-    title: str | None = None,
-    show_refs: bool = True,
-    show_status_colors: bool = True,
-    show_zones: bool = True,
-    show_grid: bool = True,
-    show_traces: bool = True,
-    show_pads: bool = True,
-    show_legend: bool = True,
+    *,
     loops: LoopCollection | None = None,
-    width: int = 800,
-    height: int = 600,
+    options: BoardRenderOptions | None = None,
 ) -> go.Figure:
     """
     Render a board view as a Plotly figure.
 
     Args:
         board: BoardView to render.
-        title: Optional title for the figure.
-        show_refs: Whether to show reference designators.
-        show_status_colors: Whether to color components by status.
-        show_zones: Whether to show board zones.
-        show_grid: Whether to show background grid.
-        show_traces: Whether to show copper traces.
-        show_pads: Whether to show component pads.
-        show_legend: Whether to show color legend.
         loops: Optional LoopCollection to overlay on the board.
-        width: Figure width in pixels.
-        height: Figure height in pixels.
+        options: Rendering display options (title, show_* toggles, width, height).
 
     Returns:
         Plotly Figure object.
@@ -641,6 +625,18 @@ def render_board(
         ImportError: If Plotly is not installed.
     """
     check_plotly_available()
+
+    opts = options or BoardRenderOptions()
+    title = opts.title
+    show_refs = opts.show_refs
+    show_status_colors = opts.show_status_colors
+    show_zones = opts.show_zones
+    show_grid = opts.show_grid
+    show_traces = opts.show_traces
+    show_pads = opts.show_pads
+    show_legend = opts.show_legend
+    width = opts.width
+    height = opts.height
 
     fig = go.Figure()
 
@@ -804,9 +800,9 @@ def render_board(
 def render_board_with_violations(
     board: BoardView,
     constraints: ConstraintStatus,
-    title: str | None = None,
     highlight_violations: bool = True,
-    **kwargs: Any,
+    *,
+    options: BoardRenderOptions | None = None,
 ) -> go.Figure:
     """
     Render a board view with violation highlights.
@@ -814,9 +810,8 @@ def render_board_with_violations(
     Args:
         board: BoardView to render.
         constraints: ConstraintStatus with violation information.
-        title: Optional title for the figure.
         highlight_violations: Whether to highlight violation locations.
-        **kwargs: Additional arguments passed to render_board.
+        options: Rendering display options passed to render_board.
 
     Returns:
         Plotly Figure object.
@@ -824,7 +819,7 @@ def render_board_with_violations(
     check_plotly_available()
 
     # Render base board
-    fig = render_board(board, title=title, **kwargs)
+    fig = render_board(board, options=options)
 
     if not highlight_violations or not constraints.violations:
         return fig
@@ -869,9 +864,8 @@ def render_board_with_violations(
 def render_board_comparison(
     board_before: BoardView,
     board_after: BoardView,
-    title: str | None = None,
-    width: int = 1200,
-    height: int = 500,
+    *,
+    options: BoardRenderOptions | None = None,
 ) -> go.Figure:
     """
     Render a side-by-side comparison of two board states.
@@ -879,14 +873,18 @@ def render_board_comparison(
     Args:
         board_before: Initial board state.
         board_after: Final board state.
-        title: Optional title for the figure.
-        width: Total figure width in pixels.
-        height: Figure height in pixels.
+        options: Rendering display options (title, width, height). Defaults
+                 to width=1200, height=500, show_refs=True, show_legend=False.
 
     Returns:
         Plotly Figure with two subplots.
     """
     check_plotly_available()
+
+    opts = options or BoardRenderOptions(
+        width=1200,
+        height=500,
+    )
 
     fig = make_subplots(
         rows=1,
@@ -896,8 +894,8 @@ def render_board_comparison(
     )
 
     # Render both boards
-    fig_before = render_board(board_before, show_refs=True)
-    fig_after = render_board(board_after, show_refs=True)
+    fig_before = render_board(board_before, options=BoardRenderOptions(show_refs=True))
+    fig_after = render_board(board_after, options=BoardRenderOptions(show_refs=True))
 
     # Copy traces
     for trace in fig_before.data:
@@ -928,12 +926,12 @@ def render_board_comparison(
     fig.update_layout(
         shapes=all_shapes,
         title={
-            "text": title or "Placement Comparison",
+            "text": opts.title or "Placement Comparison",
             "x": 0.5,
             "xanchor": "center",
         },
-        width=width,
-        height=height,
+        width=opts.width,
+        height=opts.height,
         showlegend=False,
         paper_bgcolor="#f5f5f5",
     )
@@ -963,7 +961,8 @@ def board_to_html(
     board: BoardView,
     output_path: str | None = None,
     include_plotlyjs: bool = True,
-    **kwargs: Any,
+    *,
+    options: BoardRenderOptions | None = None,
 ) -> str:
     """
     Render a board view to HTML.
@@ -972,14 +971,14 @@ def board_to_html(
         board: BoardView to render.
         output_path: Optional path to write HTML file.
         include_plotlyjs: Whether to include Plotly.js in HTML.
-        **kwargs: Additional arguments passed to render_board.
+        options: Rendering display options passed to render_board.
 
     Returns:
         HTML string.
     """
     check_plotly_available()
 
-    fig = render_board(board, **kwargs)
+    fig = render_board(board, options=options)
     html = fig.to_html(include_plotlyjs=include_plotlyjs, full_html=True)
 
     if output_path:
@@ -989,7 +988,11 @@ def board_to_html(
     return html
 
 
-def board_to_json(board: BoardView, **kwargs: Any) -> str:
+def board_to_json(
+    board: BoardView,
+    *,
+    options: BoardRenderOptions | None = None,
+) -> str:
     """
     Render a board view to Plotly JSON.
 
@@ -997,12 +1000,12 @@ def board_to_json(board: BoardView, **kwargs: Any) -> str:
 
     Args:
         board: BoardView to render.
-        **kwargs: Additional arguments passed to render_board.
+        options: Rendering display options passed to render_board.
 
     Returns:
         JSON string of the Plotly figure.
     """
     check_plotly_available()
 
-    fig = render_board(board, **kwargs)
+    fig = render_board(board, options=options)
     return fig.to_json()

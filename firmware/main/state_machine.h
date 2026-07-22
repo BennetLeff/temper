@@ -125,6 +125,17 @@ static const event_name_entry_t event_name_table[] = {
 };
 #undef EXPAND_EVENT_NAME
 
+/* Watchdog timeout durations (ms) */
+#define WDT_TIMEOUT_ACTIVE_MS    1000
+#define WDT_TIMEOUT_MONITOR_MS   2000
+#define WDT_TIMEOUT_EXTENDED_MS  5000
+#define WDT_TIMEOUT_IDLE_MS      10000
+
+/* Buzzer beep durations (ms) */
+#define BEEP_STAGE_CHANGE_MS     200
+#define BEEP_PAN_REMOVED_MS      500
+#define BEEP_FAULT_PERSISTS_MS   1000
+
 /**
  * @brief Button identifiers
  */
