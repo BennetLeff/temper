@@ -30,6 +30,13 @@ jobs:
           version: "latest"
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
       - name: List boards and stages

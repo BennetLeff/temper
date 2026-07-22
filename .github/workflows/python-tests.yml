@@ -81,6 +81,13 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install circuit simulator
         run: sudo apt-get update && sudo apt-get install --yes ngspice
 
@@ -89,6 +96,12 @@ jobs:
       
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
         run: make netlist
@@ -199,6 +212,13 @@ jobs:
       
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -330,6 +350,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends kicad
 
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+
       - name: Build electronics netlist
         run: make netlist
 
@@ -385,8 +411,21 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
         run: make netlist
@@ -421,10 +460,17 @@ jobs:
       
       - name: Set up Python
         run: uv python install 3.12
-      
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
-      
+
       - name: Run regression check (temper board only)
         run: make regression REGRESSION_BOARD=temper
         continue-on-error: true  # JAX placer is nondeterministic on CI runners; temper-N6-U8
@@ -466,10 +512,17 @@ jobs:
       
       - name: Set up Python
         run: uv python install 3.12
-      
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
-      
+
       - name: Type-check gate (monotonic-shrink baseline)
         run: uv run python scripts/check_typecheck_gate.py
 
@@ -493,6 +546,13 @@ jobs:
 
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
 
       - name: Install dependencies
         run: uv sync --all-packages
