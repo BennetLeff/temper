@@ -1,0 +1,125 @@
+# netclass_rules_manifest.yaml — Single Source of Truth for NetClassRules domain model
+#
+# This YAML declares every field of the NetClassRules type once. It is consumed
+# by scripts/gen_domain_models.py to generate:
+#   - packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py  (Pydantic model)
+#   - packages/temper-drc-rs/src/board.rs  (delimited block replacement)
+#
+# Field types from the language-neutral vocabulary:
+#   float, optional_float, int, optional_int, string, optional_string,
+#   string_enum, dict, doc_only
+#
+# Regen command:
+#   python3 scripts/gen_domain_models.py
+
+version: "1.0"
+
+fields:
+  - name: name
+    type: string
+    default: ""
+    required: true
+    doc: "Net class name (e.g., 'Power', 'Signal', 'HighSpeed')"
+
+  - name: trace_width
+    type: float
+    default: 0.0
+    required: true
+    doc: "Trace width in mm"
+    rust_name: trace_width_mm
+
+  - name: clearance
+    type: float
+    default: 0.0
+    required: true
+    doc: "Minimum clearance to other traces in mm"
+    rust_name: clearance_mm
+
+  - name: dru_priority
+    type: int
+    default: 0
+    required: true
+    doc: "Lower value emits earlier in DRU trace-width section"
+
+  - name: via_diameter
+    type: float
+    default: 0.6
+    required: false
+    doc: "Via pad diameter in mm (for single vias)"
+
+  - name: via_drill
+    type: float
+    default: 0.3
+    required: false
+    doc: "Via drill diameter in mm (for single vias)"
+
+  - name: via_template
+    type: optional_string
+    default: null
+    required: false
+    doc: "Via array template name (e.g., 'Via2x2' for high-current)"
+
+  - name: creepage_mm
+    type: float
+    default: 0.0
+    required: false
+    doc: "Creepage distance for high-voltage nets"
+
+  - name: voltage_v
+    type: float
+    default: 0.0
+    required: false
+    doc: "Voltage rating for safety distance calculation"
+
+  - name: target_impedance
+    type: optional_float
+    default: null
+    required: false
+    doc: "Target impedance in ohms (for controlled impedance)"
+
+  - name: max_current_rating
+    type: optional_float
+    default: null
+    required: false
+    doc: "Maximum current rating in amperes for thermal/trace-width calculations"
+
+  - name: required_layer
+    type: optional_string
+    default: null
+    required: false
+    doc: "KiCad layer name constraint or None for no constraint"
+
+  - name: layer
+    type: optional_string
+    default: null
+    required: false
+    doc: "KiCad layer name for this net class"
+
+  - name: safety_category
+    type: string_enum
+    default: null
+    required: false
+    doc: "Safety classification: HV, LV, AC, iso, or null"
+
+  - name: routing_strategy
+    type: optional_string
+    default: null
+    required: false
+    doc: "Routing strategy: plane_required, plane_preferred, wide_trace, or standard"
+
+  - name: via_cost_multiplier
+    type: float
+    default: 1.0
+    required: false
+    doc: "Multiplier for via cost (higher = fewer vias)"
+
+  - name: layer_costs
+    type: dict
+    default: null
+    required: false
+    doc: "Layer-specific cost multipliers e.g. {'F.Cu': 10.0, 'In1.Cu': 0.1}"
+
+  - name: because
+    type: doc_only
+    required: false
+    doc: "Rationale for the chosen parameters (documentation only)"
