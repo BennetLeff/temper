@@ -26,6 +26,7 @@ members = [
     "temper-drc-rs",
     "temper-dsn",
     "temper-geometry",
+    "temper-io-types",
     "temper-ipc",
     "temper-pcl-ir",
     "temper-placer",
@@ -1999,6 +2000,11 @@ version = "0.1.0"
 source = { editable = "packages/temper-geometry" }
 
 [[package]]
+name = "temper-io-types"
+version = "0.1.0"
+source = { editable = "packages/temper-io-types" }
+
+[[package]]
 name = "temper-ipc"
 version = "0.1.0"
 source = { editable = "packages/temper-ipc" }
@@ -2228,6 +2234,7 @@ dev = [
     { name = "temper-design-bundle" },
     { name = "temper-dsn" },
     { name = "temper-geometry" },
+    { name = "temper-io-types" },
     { name = "temper-ipc" },
     { name = "vulture" },
 ]
@@ -2247,6 +2254,7 @@ dev = [
     { name = "temper-design-bundle", editable = "packages/temper-design-bundle" },
     { name = "temper-dsn", editable = "packages/temper-dsn" },
     { name = "temper-geometry", editable = "packages/temper-geometry" },
+    { name = "temper-io-types", editable = "packages/temper-io-types" },
     { name = "temper-ipc", editable = "packages/temper-ipc" },
     { name = "vulture", specifier = ">=2.16,<3.0" },
 ]
