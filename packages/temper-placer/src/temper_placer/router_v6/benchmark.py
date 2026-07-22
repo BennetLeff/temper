@@ -23,7 +23,6 @@ from temper_placer.deterministic.stages.clearance_grid import ClearanceGridStage
 from temper_placer.deterministic.stages.layer_assignment import LayerAssignmentStage
 from temper_placer.deterministic.stages.net_ordering import NetOrderingStage
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.router_v6.diagnostics import (
     BoardRoutingReport,
     FailureReason,
@@ -55,6 +54,8 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
     print(f"{'='*60}")
 
     # Parse board
+    from temper_placer.io.kicad_parser import parse_kicad_pcb
+
     start_time = time.time()
     result = parse_kicad_pcb(pcb_path)
     parse_time = time.time() - start_time

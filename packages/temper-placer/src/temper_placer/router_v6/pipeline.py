@@ -23,7 +23,6 @@ from typing import Any
 
 from temper_placer.core.board import side_to_layer_name
 from temper_placer.deterministic.state import BoardState
-from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 from temper_placer.router_v6.bottleneck_analysis import BottleneckAnalysis
 from temper_placer.router_v6.channel_mapping import (
@@ -464,6 +463,8 @@ class RouterV6Pipeline:
         # Stage 0: Load PCB
         if self.verbose:
             print("Stage 0: Loading PCB...")
+        from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
+
         pcb = parse_kicad_pcb_v6(pcb_path)
         if pcb_override is not None:
             pcb = pcb_override

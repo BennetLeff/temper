@@ -10,7 +10,7 @@ from __future__ import annotations
 import contextlib
 import math
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -21,9 +21,10 @@ from kiutils.schematic import Schematic
 from temper_placer.core.board import STANDARD_LAYER_ORDER, Board, MountingHole, Zone
 from temper_placer.core.design_rules import DesignRules
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
+from temper_placer.io._kicad_types import ParseResult, ViaData
 
 if TYPE_CHECKING:
-    from temper_placer.router_v6.stage0_data import DesignRules, ParsedPCB, StackupInfo
+    from temper_placer.router_v6.stage0_data import DesignRules as V6DesignRules, ParsedPCB, StackupInfo
 
 
 @dataclass
@@ -35,17 +36,6 @@ class TraceData:
     width: float  # trace width in mm
     layer: str  # e.g., 'F.Cu', 'B.Cu'
     net: str | None = None  # net name
-
-
-@dataclass
-class ViaData:
-    """Data for a PCB via."""
-
-    position: tuple[float, float]  # (x, y) in mm, absolute
-    diameter: float  # mm
-    drill: float  # mm
-    net: str | None = None  # net name
-    layers: tuple[str, str] = ("F.Cu", "B.Cu")
 
 
 @dataclass
@@ -61,32 +51,6 @@ class PadData:
     number: str = ""  # pad number
     net: str | None = None  # net name
     component_ref: str | None = None  # parent component ref
-
-
-@dataclass
-class ParseResult:
-    """
-    Result of parsing KiCad files.
-
-    Attributes:
-        netlist: Parsed Netlist with components and nets.
-        board: Extracted Board geometry.
-        warnings: List of parsing warning messages.
-        traces: List of PCB trace segments (for routed boards).
-        pads: List of component pads with positions and nets.
-    """
-
-    netlist: Netlist
-    board: Board | None
-    warnings: list[str]
-    traces: list[TraceData] = field(default_factory=list)
-    vias: list[ViaData] = field(default_factory=list)
-    pads: list[PadData] = field(default_factory=list)
-
-    @property
-    def has_warnings(self) -> bool:
-        """True if any warnings were generated during parsing."""
-        return len(self.warnings) > 0
 
 
 def parse_kicad_pcb(
