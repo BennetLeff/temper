@@ -2,8 +2,6 @@
 
 Provides a builder-style interface for creating CP-SAT placement models
 with component variables, rotation support, and assumption management.
-
-Design follows the SAT bridge dispatch pattern (pcl/sat_bridge.py TYPE_HANDLERS).
 """
 
 from __future__ import annotations

@@ -1,5 +1,9 @@
 name: Python Tests
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
@@ -31,6 +35,12 @@ on:
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
+      - 'scripts/gen_domain_models.py'
+      - 'scripts/templates/netclass_rules.py.j2'
+      - 'scripts/templates/netclass_rules.rs.j2'
+      - 'packages/temper-placer/configs/netclass_rules_manifest.yaml'
+      - 'packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py'
+      - 'packages/temper-drc-rs/src/board.rs'
   pull_request:
     branches: [main]
     paths:
@@ -61,6 +71,12 @@ on:
       - '**/TRACEABILITY'
       - 'power_pcb_dataset/timing_baselines.yaml'
       - 'power_pcb_dataset/golden_manifest.yaml'
+      - 'scripts/gen_domain_models.py'
+      - 'scripts/templates/netclass_rules.py.j2'
+      - 'scripts/templates/netclass_rules.rs.j2'
+      - 'packages/temper-placer/configs/netclass_rules_manifest.yaml'
+      - 'packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py'
+      - 'packages/temper-drc-rs/src/board.rs'
   schedule:
     - cron: '0 3 * * *'  # nightly at 3am UTC
 
@@ -151,6 +167,14 @@ jobs:
         env:
           RUST_BACKTRACE: full
 
+      - name: Cache Rust build (temper-constraint-compiler)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-constraint-compiler/target
+          key: ${{ runner.os }}-constraint-compiler-${{ hashFiles('packages/temper-constraint-compiler/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-constraint-compiler-
+
       - name: Check temper-constraint-compiler compiles
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
@@ -181,17 +205,21 @@ jobs:
 
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
-        run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10
+        run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
           RUST_BACKTRACE: full
           PYTHONFAULTHANDLER: 1
 
-      - name: Coverage gate (temper-placer/core)
-        if: false  # disabled: JAX + coverage OOMs on CI runners
+      - name: Coverage gate (temper-placer)
         working-directory: packages/temper-placer
-        run: uv run python ../../scripts/check_coverage_gate.py --coverage-json coverage.json --allowlist ../../.coverage-allowlist
+        run: >
+          uv run python ../../scripts/check_coverage_gate.py
+          --coverage-json coverage.json
+          --allowlist ../../.coverage-allowlist
+          || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
+        continue-on-error: true
 
   checks:
     name: Extended Tests & Gates
@@ -269,6 +297,14 @@ jobs:
       - name: Verify temper-constraints loads
         run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
 
+      - name: Cache Rust build (temper-constraint-compiler)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-constraint-compiler/target
+          key: ${{ runner.os }}-constraint-compiler-${{ hashFiles('packages/temper-constraint-compiler/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-constraint-compiler-
+
       - name: Check temper-constraint-compiler compiles
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
@@ -278,6 +314,17 @@ jobs:
           --no-install-package temper-rust-router
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
+
+      - name: Check domain model codegen drift
+        run: python3 scripts/gen_domain_models.py --check
+
+      - name: Cache Rust build (temper-design-bundle)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-design-bundle/target
+          key: ${{ runner.os }}-design-bundle-${{ hashFiles('packages/temper-design-bundle/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-design-bundle-
 
       - name: Run tests and install KiCad in parallel
         run: |
@@ -344,6 +391,10 @@ jobs:
         run: |
           python3 scripts/gen_schematics.py --check
           git diff --exit-code pcb/*.kicad_sch
+
+      - name: Verify config reference doc is up-to-date (plan 2026-07-22-005, U7)
+        run: |
+          uv run python packages/temper-placer/scripts/gen_config_reference.py --check
 
       - name: Verify board identity gate (plan 2026-07-15-001, U7)
         run: uv run python3 scripts/ci_identity_check.py

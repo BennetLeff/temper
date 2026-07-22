@@ -1,5 +1,9 @@
 name: PR Pipeline Scorecard
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     paths:
@@ -7,51 +11,32 @@ on:
 
 jobs:
   baseline:
-    name: Baseline (merge-base)
+    name: Baseline (from main)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
     outputs:
       has_metrics: ${{ steps.check.outputs.has_metrics }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          fetch-depth: 0
-      - uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
-          enable-cache: true
-      - name: Set up Python
-        run: uv python install 3.12
-      - name: Cache virtualenv
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-      - name: Install dependencies
-        run: uv sync --all-packages
-      - name: Cache netlist
-        uses: actions/cache@v4
-        with:
-          path: elec/build
-          key: netlist-${{ hashFiles('elec/src/**') }}
-      - name: Build electronics netlist
-        run: make netlist
-      - name: Run closure test on baseline
+      - name: Download stored baseline from main
+        id: download
+        run: |
+          RUN_ID=$(gh run list --workflow "Metrics Record" --branch main \
+            --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -n "$RUN_ID" ]; then
+            gh run download "$RUN_ID" --name baseline-metrics --dir baseline-metrics 2>/dev/null || true
+          fi
         continue-on-error: true
-        run: >
-          uv run python3 scripts/ci_closure_test.py
-          --pcb pcb/temper.kicad_pcb
-          --require-all-stages
-          --metrics-dir ./baseline-metrics
-          || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Check metrics exist
         id: check
         run: |
           if [ -f baseline-metrics/pipeline_metrics.jsonl ]; then
             echo "has_metrics=true" >> "$GITHUB_OUTPUT"
+            echo "Baseline metrics found from main."
           else
             echo "has_metrics=false" >> "$GITHUB_OUTPUT"
+            echo "Baseline metrics not available — scorecard will be limited."
           fi
       - name: Upload baseline metrics
         if: steps.check.outputs.has_metrics == 'true'

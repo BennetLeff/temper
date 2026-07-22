@@ -1,113 +1,62 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class RoutingCorridor:
-    """Preserve routing channel between components.
+class RoutingCorridor(BaseModel):
+    """Preserve routing channel between components."""
 
-    Used to keep paths clear for critical nets like USB, SPI.
-    """
+    model_config = ConfigDict(frozen=True)
 
-    name: str
-    from_component: str  # Source component ref
-    to_component: str  # Target component ref
-    width_mm: float  # Corridor width
-    keep_clear: bool = True  # If True, don't place components in corridor
-    nets: list[str] = field(default_factory=list)  # Associated nets
-    tier: str = "soft"
-    description: str = ""
+    name: str = Field(description="Corridor name")
+    from_component: str = Field(description="Source component reference")
+    to_component: str = Field(description="Target component reference")
+    width_mm: float = Field(gt=0, description="Corridor width in mm")
+    keep_clear: bool = Field(default=True, description="If True, don't place components in corridor")
+    nets: list[str] = Field(default_factory=list, description="Associated net names")
+    tier: str = Field(default="soft", description="Constraint tier: hard or soft")
+    description: str = Field(default="", description="Human-readable description")
 
 
-@dataclass
-class PlacementProximityConstraint:
-    """Constraint ensuring a component output pin is close to a target input pin.
+class PlacementProximityConstraint(BaseModel):
+    """Constraint ensuring a component output pin is close to a target input pin."""
 
-    This is a more specific version of ProximityRule that operates on pins
-    rather than component centers, which is critical for gate drive circuits.
+    model_config = ConfigDict(frozen=True)
 
-    Attributes:
-        name: Unique identifier
-        from_component: Source component ref
-        from_pin: Pin on source component
-        to_component: Target component ref
-        to_pin: Pin on target component
-        max_distance_mm: Maximum pin-to-pin distance
-        tier: "hard" or "soft"
-        description: Human-readable description
-    """
-
-    name: str
-    from_component: str
-    from_pin: str
-    to_component: str
-    to_pin: str
-    max_distance_mm: float = 15.0
-    tier: str = "hard"
-    description: str = ""
+    name: str = Field(description="Unique constraint identifier")
+    from_component: str = Field(description="Source component reference")
+    from_pin: str = Field(description="Source pin number")
+    to_component: str = Field(description="Target component reference")
+    to_pin: str = Field(description="Target pin number")
+    max_distance_mm: float = Field(default=15.0, gt=0, description="Maximum pin-to-pin distance in mm")
+    tier: str = Field(default="hard", description="Constraint tier: hard or soft")
+    description: str = Field(default="", description="Human-readable description")
 
 
-@dataclass
-class HVExclusionZone:
-    """Defines a rectangular zone around HV components that signals must avoid.
+class HVExclusionZone(BaseModel):
+    """Defines a rectangular zone around HV components that signals must avoid."""
 
-    Used by the ClearanceGridStage to block low-voltage signal routing near
-    HV pins. This forces the router to find paths around the HV zone.
+    model_config = ConfigDict(frozen=True)
 
-    EXP-13: HV exclusion zones for gate signal routing safety.
-
-    Attributes:
-        name: Unique identifier
-        center: (x, y) center position in mm
-        size: (width, height) in mm
-        clearance_mm: Required clearance (creepage distance)
-        excluded_nets: List of net names that must avoid this zone
-        component_refdes: Optional parent component refdes. When set, all pads
-            of that component are identified as HV pads and receive the
-            pre-route creepage expansion. When unset, the closest component to
-            the zone center is used.
-        description: Human-readable description
-    """
-
-    name: str
-    center: tuple[float, float]
-    size: tuple[float, float]
-    clearance_mm: float = 6.0  # allow-safety-constant: HV exclusion zone default
-    excluded_nets: list[str] = field(default_factory=list)
-    component_refdes: str | None = None
-    description: str = ""
+    name: str = Field(description="Unique zone identifier")
+    center: tuple[float, float] = Field(description="(x, y) center position in mm")
+    size: tuple[float, float] = Field(description="(width, height) in mm")
+    clearance_mm: float = Field(default=6.0, ge=0, description="Required creepage clearance in mm")  # allow-safety-constant: HV exclusion zone default
+    excluded_nets: list[str] = Field(default_factory=list, description="Net names that must avoid this zone")
+    component_refdes: str | None = Field(default=None, description="Optional parent component reference")
+    description: str = Field(default="", description="Human-readable description")
 
 
-@dataclass
-class IsolationSlot:
-    """Defines a PCB slot for creepage isolation between HV and LV pins.
+class IsolationSlot(BaseModel):
+    """Defines a PCB slot for creepage isolation between HV and LV pins."""
 
-    Slots are routed cutouts in the PCB substrate that force the creepage
-    path around them, effectively multiplying the creepage distance.
+    model_config = ConfigDict(frozen=True)
 
-    EXP-15: Automated slot isolation for IEC 60335-1 compliance.
-
-    For TO-247 packages where gate pin (5.45mm from HV) cannot meet 6mm creepage:
-    - A 1-2mm wide slot between gate and collector pins
-    - Forces creepage path around slot (12-15mm effective distance)
-
-    Attributes:
-        name: Unique identifier for the slot
-        component_ref: Component reference (e.g., "Q1") - slot positioned relative to component
-        start_offset: (dx, dy) offset from component origin to slot start
-        end_offset: (dx, dy) offset from component origin to slot end
-        width_mm: Slot width (typically 1.0-2.0mm for routing)
-        lv_pin: Low-voltage pin number being isolated (e.g., "1" for gate)
-        hv_pin: High-voltage pin number (e.g., "2" for collector)
-        description: Human-readable description
-    """
-
-    name: str
-    component_ref: str
-    start_offset: tuple[float, float]  # Relative to component position
-    end_offset: tuple[float, float]  # Relative to component position
-    width_mm: float = 1.5
-    lv_pin: str = ""
-    hv_pin: str = ""
-    description: str = ""
+    name: str = Field(description="Unique slot identifier")
+    component_ref: str = Field(description="Component reference for positioning")
+    start_offset: tuple[float, float] = Field(description="(dx, dy) offset from component origin to slot start")
+    end_offset: tuple[float, float] = Field(description="(dx, dy) offset from component origin to slot end")
+    width_mm: float = Field(default=1.5, gt=0, description="Slot width in mm")
+    lv_pin: str = Field(default="", description="Low-voltage pin number being isolated")
+    hv_pin: str = Field(default="", description="High-voltage pin number")
+    description: str = Field(default="", description="Human-readable description")

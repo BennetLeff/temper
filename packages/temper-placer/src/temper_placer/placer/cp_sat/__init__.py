@@ -10,7 +10,6 @@ from temper_placer.placer.cp_sat.audit import (
     PlacementAuditor,
 )
 from temper_placer.placer.cp_sat.encoder import (
-    TYPE_HANDLERS,
     UNSUPPORTED_TYPES,
     CpSatPlacementResult,
     EncoderContext,
@@ -19,6 +18,7 @@ from temper_placer.placer.cp_sat.encoder import (
 )
 from temper_placer.placer.cp_sat.feedback import ConstraintDelta, FeedbackClassifier
 from temper_placer.placer.cp_sat.gate import AcceptanceGate
+from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
 from temper_placer.placer.cp_sat.loop import LoopResult, PlaceRouteLoop
 from temper_placer.placer.cp_sat.model import (
     ComponentVars,
@@ -44,7 +44,7 @@ __all__ = [
     "PlacementAuditor",
     "SolveStatus",
     "solve_placement",
-    "TYPE_HANDLERS",
+    "HANDLER_REGISTRY",
     "UNSUPPORTED_TYPES",
     "encode_constraints",
 ]

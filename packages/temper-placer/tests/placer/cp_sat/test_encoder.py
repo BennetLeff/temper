@@ -6,6 +6,7 @@ from temper_placer.pcl.constraints import (
     AdjacentConstraint,
     AlignedConstraint,
     AnchoredConstraint,
+    CompilationTarget,
     ConstraintTier,
     ConstraintType,
     EnclosingConstraint,
@@ -15,20 +16,21 @@ from temper_placer.pcl.constraints import (
     SeparatedConstraint,
 )
 from temper_placer.placer.cp_sat.encoder import (
-    TYPE_HANDLERS,
     EncoderContext,
     encode_constraints,
 )
+from temper_placer.placer.cp_sat.handlers import HANDLER_REGISTRY
 from temper_placer.placer.cp_sat.model import CpSatModel
 
 
-class TestTypeHandlersCoverage:
+class TestHandlerCoverage:
     """All 8 ConstraintType values must have a handler."""
 
     def test_all_constraint_types_covered(self) -> None:
         for ct in ConstraintType:
-            assert ct in TYPE_HANDLERS, f"No handler for {ct}"
-        assert len(TYPE_HANDLERS) == 8
+            if CompilationTarget.CP_SAT in ct.supported_targets:
+                assert ct in HANDLER_REGISTRY, f"No handler for {ct}"
+        assert len(HANDLER_REGISTRY) == 8
 
 
 class TestSeparated:
@@ -360,11 +362,12 @@ class TestValidateConstraintRefs:
         assert report == {}
 
     def test_unresolved_ref_raises(self) -> None:
+        import pytest
+
         from temper_placer.placer.cp_sat.encoder import (
             UnresolvedConstraintRefsError,
             validate_constraint_refs,
         )
-        import pytest
         c = self._c(a="J_AC", b="R1", id="sep_J_AC_R1")  # J_AC not on board
         with pytest.raises(UnresolvedConstraintRefsError) as exc:
             validate_constraint_refs(

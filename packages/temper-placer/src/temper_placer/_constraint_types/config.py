@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass, field
+from pydantic import BaseModel, ConfigDict, Field
 
 from temper_placer.core.board import GroundDomain, LayerStackup, Zone
 from temper_placer.core.net_graph import NetGraph
@@ -27,17 +26,17 @@ from .thermal import ThermalConstraint, ThermalProperties
 from .topology import CriticalLoop, CriticalPath, MatchedLengthGroup, StarGroundConfig
 
 
-@dataclass
-class FeedbackConfig:
+class FeedbackConfig(BaseModel):
     """Configuration for the automated DRC feedback loop."""
 
-    max_iterations: int = 5
-    violation_threshold: int = 5
-    expansion_per_violation: float = 0.5
+    model_config = ConfigDict(frozen=True)
+
+    max_iterations: int = Field(default=5, ge=0, le=1000, description="Maximum number of DRC feedback iterations")
+    violation_threshold: int = Field(default=5, ge=0, description="Minimum violations to trigger expansion")
+    expansion_per_violation: float = Field(default=0.5, ge=0, description="Expansion distance per violation in mm")
 
 
-@dataclass
-class LossConfig:
+class LossConfig(BaseModel):
     """Configuration for a single loss function.
 
     Attributes:
@@ -46,13 +45,14 @@ class LossConfig:
         margin: Optional margin parameter (for overlap/boundary losses)
     """
 
-    weight: float = 1.0
-    enabled: bool = True
-    margin: float | None = None
+    model_config = ConfigDict(frozen=True)
+
+    weight: float = Field(default=1.0, ge=0, le=1e6, description="Weight/importance of this loss in the composite")
+    enabled: bool = Field(default=True, description="Whether this loss is active")
+    margin: float | None = Field(default=None, description="Optional margin parameter")
 
 
-@dataclass
-class LossesConfig:
+class LossesConfig(BaseModel):
     """Configuration for all loss functions.
 
     Only losses explicitly specified here will be used by the optimizer.
@@ -67,6 +67,8 @@ class LossesConfig:
           wirelength:
             weight: 10.0
     """
+
+    model_config = ConfigDict(frozen=True)
 
     overlap: LossConfig | None = None
     boundary: LossConfig | None = None
@@ -106,222 +108,201 @@ class LossesConfig:
         return {name: cfg.weight for name, cfg in self.get_active_losses().items()}
 
 
-@dataclass
-class AestheticConstraints:
+class AestheticConstraints(BaseModel):
     """Aesthetic and professional layout constraints."""
 
-    grid_size_mm: float = 0.5
-    grid_weight: float = 1.0
-    alignment_weight: float = 1.0
-    rotation_consistency_weight: float = 1.0
-    # Alignment groups: components with same prefix should align
-    align_by_prefix: bool = True
-    prefix_exceptions: list[str] = field(default_factory=list)
-    # The maximum allowed wirelength increase for beauty (default 2.5x)
-    max_wirelength_tax: float = 2.5
-    # Enforcement of identical layouts for isomorphic groups
-    consensus_weight: float = 1.0
-    # Professional whitespace distribution
-    whitespace_weight: float = 0.0
-    # Visual grouping and separation
-    grouping_weight: float = 0.0
-    # Symmetry enforcement
-    symmetry_weight: float = 0.0
+    model_config = ConfigDict(frozen=True)
+
+    grid_size_mm: float = Field(default=0.5, gt=0, description="Grid size for alignment snapping")
+    grid_weight: float = Field(default=1.0, ge=0, description="Weight for grid alignment objective")
+    alignment_weight: float = Field(default=1.0, ge=0, description="Weight for component alignment objective")
+    rotation_consistency_weight: float = Field(default=1.0, ge=0, description="Weight for rotation consistency objective")
+    align_by_prefix: bool = Field(default=True, description="Align components with same reference designator prefix")
+    prefix_exceptions: list[str] = Field(default_factory=list, description="Prefixes excluded from alignment")
+    max_wirelength_tax: float = Field(default=2.5, ge=1.0, description="Maximum wirelength increase factor for aesthetics")
+    consensus_weight: float = Field(default=1.0, ge=0, description="Weight for isomorphic group layout consensus")
+    whitespace_weight: float = Field(default=0.0, ge=0, description="Weight for whitespace distribution")
+    grouping_weight: float = Field(default=0.0, ge=0, description="Weight for visual grouping and separation")
+    symmetry_weight: float = Field(default=0.0, ge=0, description="Weight for symmetry enforcement")
 
 
-@dataclass
-class ManufacturingConstraints:
+class ManufacturingConstraints(BaseModel):
     """Manufacturing margin and variability constraints."""
 
-    target_margin_mm: float = 0.1
-    margin_weight: float = 0.0
-    etch_tolerance_mm: float = 0.02
+    model_config = ConfigDict(frozen=True)
+
+    target_margin_mm: float = Field(default=0.1, gt=0, description="Target manufacturing margin in mm")
+    margin_weight: float = Field(default=0.0, ge=0, description="Weight for manufacturing margin objective")
+    etch_tolerance_mm: float = Field(default=0.02, ge=0, description="Etch tolerance in mm")
 
 
-@dataclass
-class SeedFilterConfig:
+class SeedFilterConfig(BaseModel):
     """Configuration for the bottleneck-map seed filter.
 
     @req(2026-06-23-004, R4)
     @req(2026-06-23-004, K3)
     """
 
-    enabled: bool = True
-    threshold: float = 0.7
-    hv_threshold: float = 0.5
+    model_config = ConfigDict(frozen=True)
 
-    def __post_init__(self) -> None:
-        for name, value in (("threshold", self.threshold), ("hv_threshold", self.hv_threshold)):
-            if not math.isfinite(value):
-                raise ValueError(
-                    f"SeedFilterConfig.{name} must be finite (got {value!r})"
-                )
-            if not 0.0 <= value <= 1.0:
-                raise ValueError(
-                    f"SeedFilterConfig.{name} must be in [0, 1] (got {value!r})"
-                )
+    enabled: bool = Field(default=True, description="Whether the seed filter is active")
+    threshold: float = Field(default=0.7, ge=0, le=1, description="Bottleneck probability threshold for seed filtering")
+    hv_threshold: float = Field(default=0.5, ge=0, le=1, description="HV-specific bottleneck probability threshold")
 
 
-@dataclass
-class PlacementInitialization:
+class PlacementInitialization(BaseModel):
     """Initialization-phase configuration for the placer pipeline."""
 
-    thermal_anchoring: bool = False
-    anchoring_grid_resolution: int = 50
+    model_config = ConfigDict(frozen=True)
+
+    thermal_anchoring: bool = Field(default=False, description="Enable thermal anchoring during initialization")
+    anchoring_grid_resolution: int = Field(default=50, ge=1, description="Grid resolution for thermal anchoring")
 
 
-@dataclass
-class PlacementConstraints:
+class PlacementConstraints(BaseModel):
     """Complete set of placement constraints."""
 
+    model_config = ConfigDict(frozen=False, extra="forbid", populate_by_name=True, arbitrary_types_allowed=True)
+
     # Board geometry
-    board_width_mm: float = 100.0
-    board_height_mm: float = 150.0
-    board_margin_mm: float = 3.0
-    keepouts: list[tuple[float, float, float, float]] = field(default_factory=list)
+    board_width_mm: float = Field(default=100.0, gt=0, le=2500, description="Board width in mm")
+    board_height_mm: float = Field(default=150.0, gt=0, le=2500, description="Board height in mm")
+    board_margin_mm: float = Field(default=3.0, ge=0, le=100, description="Board edge margin in mm")
+    keepouts: list[tuple[float, float, float, float]] = Field(default_factory=list, description="Rectangular keepout regions")
 
     # Zones
-    zones: list[Zone] = field(default_factory=list)
-    # Slot generation config (dict with spacing_mm etc.); consumed by
-    # create_drc_aware_pipeline. The YAML key was accepted (in
-    # _KNOWN_CONFIG_KEYS) but silently dropped by the loader until 2026-07.
-    slot_generation: dict | None = None
-    ground_domains: list[GroundDomain] = field(default_factory=list)
+    zones: list[Zone] = Field(default_factory=list, description="Placement zone definitions")
+    slot_generation: dict | None = Field(default=None, description="Slot generation configuration")
+    ground_domains: list[GroundDomain] = Field(default_factory=list, description="Ground domain definitions")
 
     # Clearance rules
-    clearances: list[ClearanceRule] = field(default_factory=list)
-    hv_clearance_mm: float = 10.0  # Default HV-LV clearance
+    clearances: list[ClearanceRule] = Field(default_factory=list, description="Inter-class clearance rules")
+    hv_clearance_mm: float = Field(default=10.0, ge=0, description="Default HV-LV clearance in mm")
 
     # Aesthetics
-    aesthetics: AestheticConstraints = field(default_factory=AestheticConstraints)
+    aesthetics: AestheticConstraints = Field(default_factory=AestheticConstraints, description="Aesthetic layout configuration")
 
     # Manufacturing
-    manufacturing: ManufacturingConstraints = field(default_factory=ManufacturingConstraints)
+    manufacturing: ManufacturingConstraints = Field(default_factory=ManufacturingConstraints, description="Manufacturing constraint configuration")
 
     # Critical loops (EMI-sensitive)
-    critical_loops: list[CriticalLoop] = field(default_factory=list)
+    critical_loops: list[CriticalLoop] = Field(default_factory=list, description="Critical current loop definitions")
 
     # Critical paths (signal integrity)
-    critical_paths: list[CriticalPath] = field(default_factory=list)
+    critical_paths: list[CriticalPath] = Field(default_factory=list, description="Critical signal path definitions")
 
     # Matched length groups
-    matched_length_groups: list[MatchedLengthGroup] = field(default_factory=list)
+    matched_length_groups: list[MatchedLengthGroup] = Field(default_factory=list, description="Matched length group definitions")
 
     # Noise isolation rules
-    noise_isolation: list[NoiseIsolationRule] = field(default_factory=list)
+    noise_isolation: list[NoiseIsolationRule] = Field(default_factory=list, description="Noise isolation rule definitions")
 
     # Star grounds
-    star_grounds: list[StarGroundConfig] = field(default_factory=list)
+    star_grounds: list[StarGroundConfig] = Field(default_factory=list, description="Star ground configuration definitions")
 
     # Thermal constraints (basic)
-    thermal_constraints: list[ThermalConstraint] = field(default_factory=list)
+    thermal_constraints: list[ThermalConstraint] = Field(default_factory=list, description="Basic thermal constraint definitions")
 
     # Extended thermal properties (advanced)
-    thermal_properties: ThermalProperties | None = None
+    thermal_properties: ThermalProperties | None = Field(default=None, description="Extended thermal properties")
 
     # Initialization configuration
-    initialization: PlacementInitialization = field(default_factory=PlacementInitialization)
+    initialization: PlacementInitialization = Field(default_factory=PlacementInitialization, description="Initialization-phase configuration")
 
     # Component groups
-    component_groups: list[ComponentGroup] = field(default_factory=list)
+    component_groups: list[ComponentGroup] = Field(default_factory=list, description="Component group definitions")
 
     # Group separation rules
-    group_separations: list[GroupSeparation] = field(default_factory=list)
+    group_separations: list[GroupSeparation] = Field(default_factory=list, description="Group separation rule definitions")
 
     # Component spacing rules (minimum edge-to-edge distances)
-    component_spacing_rules: list[ComponentSpacingRule] = field(default_factory=list)
+    component_spacing_rules: list[ComponentSpacingRule] = Field(default_factory=list, description="Component spacing rule definitions")
 
     # Manufacturing orientation and side constraints
-    manufacturing_constraints: list[ManufacturingConstraint] = field(default_factory=list)
+    manufacturing_constraints: list[ManufacturingConstraint] = Field(default_factory=list, description="Manufacturing orientation and side constraints")
 
     # Fixed components (won't be optimized)
-    fixed_components: list[str] = field(default_factory=list)
+    fixed_components: list[str] = Field(default_factory=list, description="List of component references that are fixed")
 
     # Fixed positions (component ref -> (x, y) in mm)
-    fixed_positions: dict[str, tuple[float, float]] = field(default_factory=dict)
+    fixed_positions: dict[str, tuple[float, float]] = Field(default_factory=dict, description="Fixed component position map")
 
     # Zone assignments (component -> zone)
-    zone_assignments: dict[str, str] = field(default_factory=dict)
+    zone_assignments: dict[str, str] = Field(default_factory=dict, description="Component-to-zone assignment map")
 
     # Net class assignments (net_name -> class)
-    net_classes: dict[str, str] = field(default_factory=dict)
+    net_classes: dict[str, str] = Field(default_factory=dict, description="Net-to-class assignment map")
 
     # Net class design rules (class_name -> NetClassRule)
-    net_class_rules: dict[str, NetClassRule] = field(default_factory=dict)
+    net_class_rules: dict[str, NetClassRule] = Field(default_factory=dict, description="Per-class design rule definitions")
 
     # Differential pair routing rules
-    differential_pairs: list[DifferentialPairRule] = field(default_factory=list)
+    differential_pairs: list[DifferentialPairRule] = Field(default_factory=list, description="Differential pair definitions")
 
     # Net topology constraints (NetGraph)
-    net_topologies: list[NetGraph] = field(default_factory=list)
+    net_topologies: list[NetGraph] = Field(default_factory=list, description="Net topology constraint definitions")
 
     # PCL constraints (auto-generated + enriched at pipeline time)
-    pcl_constraints: list = field(default_factory=list)
+    pcl_constraints: list = Field(default_factory=list, description="PCL constraint objects")
 
     # Feedback loop configuration
-    feedback: FeedbackConfig = field(default_factory=FeedbackConfig)
+    feedback: FeedbackConfig = Field(default_factory=FeedbackConfig, description="DRC feedback loop configuration")
 
     # Copper zones for zone-aware routing (supplements PCB zones)
-    copper_zones: list = field(default_factory=list)
+    copper_zones: list = Field(default_factory=list, description="Copper zone definitions for routing")
 
     # Layer stackup
-    layer_stackup: LayerStackup | None = None
+    layer_stackup: LayerStackup | None = Field(default=None, description="Layer stackup definition")
 
     # Loss function configuration
-    losses: LossesConfig | None = None
+    losses: LossesConfig | None = Field(default=None, description="Loss function configuration")
 
     # Type-safe net classification (supersedes net_classes + net_class_rules)
-    net_classification: NetClassification | None = None
+    net_classification: NetClassification | None = Field(default=None, description="Type-safe net classification")
 
     # Priority-based placement and routing configuration
-    placement_priority: dict = field(default_factory=dict)
-    routing_priority: dict = field(default_factory=dict)
+    placement_priority: dict = Field(default_factory=dict, description="Placement priority configuration")
+    routing_priority: dict = Field(default_factory=dict, description="Routing priority configuration")
 
     # EXP-6: Explicit net routing priority (net_name -> priority, 1=highest)
-    # Lower priority numbers route first when board is least congested
-    net_priority: dict[str, int] = field(default_factory=dict)
+    net_priority: dict[str, int] = Field(default_factory=dict, description="Per-net routing priority map")
 
-    # NEW: Routing-aware placement constraints
-    escape_clearances: list[EscapeClearance] = field(default_factory=list)
-    routing_corridors: list[RoutingCorridor] = field(default_factory=list)
+    # Routing-aware placement constraints
+    escape_clearances: list[EscapeClearance] = Field(default_factory=list, description="Escape clearance definitions")
+    routing_corridors: list[RoutingCorridor] = Field(default_factory=list, description="Routing corridor definitions")
 
     # Signal-to-HV clearance constraints (EXP-11: gate drive safety)
-    signal_hv_clearances: list[SignalToHVClearance] = field(default_factory=list)
+    signal_hv_clearances: list[SignalToHVClearance] = Field(default_factory=list, description="Signal-to-HV clearance constraints")
 
     # Pin-level placement proximity constraints
-    placement_proximity: list[PlacementProximityConstraint] = field(default_factory=list)
+    placement_proximity: list[PlacementProximityConstraint] = Field(default_factory=list, description="Placement proximity constraint definitions")
 
     # EXP-13: HV exclusion zones for routing
-    hv_exclusion_zones: list[HVExclusionZone] = field(default_factory=list)
+    hv_exclusion_zones: list[HVExclusionZone] = Field(default_factory=list, description="HV exclusion zone definitions")
 
     # EXP-15: Isolation slots for creepage compliance
-    isolation_slots: list[IsolationSlot] = field(default_factory=list)
+    isolation_slots: list[IsolationSlot] = Field(default_factory=list, description="Isolation slot definitions")
 
-    # U2: Placer-level toggles.  Mirrors the top-level `placer` YAML
-    # block (e.g. ``placer: {use_isolation_slots: true}``).  Defaults
-    # are off so legacy configs are bit-identical to pre-U2 behavior.
-    placer: dict = field(default_factory=dict)
+    # U2: Placer-level toggles
+    placer: dict = Field(default_factory=dict, description="Placer-level toggle configuration")
 
-    # Bottleneck-map seed filter (2026-06-23-004). Defaults to enabled
-    # with threshold=0.7 / hv_threshold=0.5 so the filter is active by
-    # default and the stage's ``if config is None or not config.enabled``
-    # branch is exercised in normal use.
-    seed_filter: SeedFilterConfig = field(default_factory=SeedFilterConfig)
+    # Bottleneck-map seed filter (2026-06-23-004)
+    seed_filter: SeedFilterConfig = Field(default_factory=SeedFilterConfig, description="Seed filter configuration")
 
     # U3: Noise coupling domains (emitter/victim net pairs with parallel-run limits)
-    noise_domains: list[NoiseDomain] = field(default_factory=list)
+    noise_domains: list[NoiseDomain] = Field(default_factory=list, description="Noise coupling domain definitions")
 
     # U3: Isolation barrier lines across the board
-    isolation_barriers: list[IsolationBarrier] = field(default_factory=list)
+    isolation_barriers: list[IsolationBarrier] = Field(default_factory=list, description="Isolation barrier definitions")
 
     # U3: Snubber circuit requirements near IGBT pairs
-    snubber_requirements: list[SnubberRequirement] = field(default_factory=list)
+    snubber_requirements: list[SnubberRequirement] = Field(default_factory=list, description="Snubber circuit requirement definitions")
 
     # U3: Bleed resistor specification for bus discharge
-    bleed_resistor: BleedResistor | None = None
+    bleed_resistor: BleedResistor | None = Field(default=None, description="Bleed resistor specification")
 
     # U3: Skin-effect derating for high-frequency traces
-    skin_effect_derating: SkinEffectDerating | None = None
+    skin_effect_derating: SkinEffectDerating | None = Field(default=None, description="Skin-effect derating configuration")
 
     def get_zone_for_component(self, ref: str) -> str | None:
         """Get required zone for a component."""
