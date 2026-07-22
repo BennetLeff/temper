@@ -151,6 +151,14 @@ jobs:
         env:
           RUST_BACKTRACE: full
 
+      - name: Cache Rust build (temper-constraint-compiler)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-constraint-compiler/target
+          key: ${{ runner.os }}-constraint-compiler-${{ hashFiles('packages/temper-constraint-compiler/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-constraint-compiler-
+
       - name: Check temper-constraint-compiler compiles
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
@@ -273,6 +281,14 @@ jobs:
       - name: Verify temper-constraints loads
         run: uv run python3 -c "import temper_constraints; print('temper_constraints loaded OK, version', temper_constraints.version_py())"
 
+      - name: Cache Rust build (temper-constraint-compiler)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-constraint-compiler/target
+          key: ${{ runner.os }}-constraint-compiler-${{ hashFiles('packages/temper-constraint-compiler/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-constraint-compiler-
+
       - name: Check temper-constraint-compiler compiles
         run: cargo check --manifest-path packages/temper-constraint-compiler/Cargo.toml
 
@@ -282,6 +298,14 @@ jobs:
           --no-install-package temper-rust-router
           --no-install-package temper-drc-rs
           --no-install-package temper-constraints
+
+      - name: Cache Rust build (temper-design-bundle)
+        uses: actions/cache@v4
+        with:
+          path: packages/temper-design-bundle/target
+          key: ${{ runner.os }}-design-bundle-${{ hashFiles('packages/temper-design-bundle/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-design-bundle-
 
       - name: Run tests and install KiCad in parallel
         run: |
