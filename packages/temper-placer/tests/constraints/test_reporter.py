@@ -156,7 +156,7 @@ class TestComponentSpacingCheck:
     def test_spacing_satisfied(self):
         constraints = PlacementConstraints(
             component_spacing_rules=[
-                ComponentSpacingRule("A", "B", 10.0, tier="hard"),
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard"),
             ]
         )
         reporter = ConstraintReporter(constraints)
@@ -173,7 +173,7 @@ class TestComponentSpacingCheck:
     def test_spacing_violated(self):
         constraints = PlacementConstraints(
             component_spacing_rules=[
-                ComponentSpacingRule("A", "B", 10.0, tier="hard"),
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard"),
             ]
         )
         reporter = ConstraintReporter(constraints)
@@ -190,7 +190,7 @@ class TestComponentSpacingCheck:
     def test_spacing_skipped_if_not_placed(self):
         constraints = PlacementConstraints(
             component_spacing_rules=[
-                ComponentSpacingRule("A", "B", 10.0, tier="hard"),
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard"),
             ]
         )
         reporter = ConstraintReporter(constraints)
@@ -212,7 +212,7 @@ class TestProximityCheck:
                     name="test",
                     components=["A", "B"],
                     proximity_rules=[
-                        ProximityRule("A", "B", 20.0, tier="soft"),
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=20.0, tier="soft"),
                     ],
                 )
             ]
@@ -236,7 +236,7 @@ class TestProximityCheck:
                     name="test",
                     components=["A", "B"],
                     proximity_rules=[
-                        ProximityRule("A", "B", 10.0, tier="hard"),
+                        ProximityRule(component_a="A", component_b="B", max_distance_mm=10.0, tier="hard"),
                     ],
                 )
             ]
@@ -474,7 +474,7 @@ class TestIntegratedReport:
     def test_full_report_mixed_results(self):
         constraints = PlacementConstraints(
             component_spacing_rules=[
-                ComponentSpacingRule("A", "B", 10.0, tier="hard"),
+                ComponentSpacingRule(component_a="A", component_b="B", min_separation_mm=10.0, tier="hard"),
             ],
             component_groups=[
                 ComponentGroup(
@@ -482,12 +482,12 @@ class TestIntegratedReport:
                     components=["C", "D"],
                     max_spread_mm=20.0,
                     proximity_rules=[
-                        ProximityRule("C", "D", 15.0, tier="soft"),
+                        ProximityRule(component_a="C", component_b="D", max_distance_mm=15.0, tier="soft"),
                     ],
                 )
             ],
             escape_clearances=[
-                EscapeClearance("U1", 8.0, tier="hard"),
+                EscapeClearance(component="U1", clearance_mm=8.0, tier="hard"),
             ],
         )
         reporter = ConstraintReporter(constraints)
