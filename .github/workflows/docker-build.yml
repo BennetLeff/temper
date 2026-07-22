@@ -36,7 +36,7 @@ jobs:
       - name: Compute image tag from lock files
         id: tag
         run: |
-          HASH=$(cat uv.lock packages/*/Cargo.lock packages/temper-placer/temper-constraints/Cargo.lock 2>/dev/null | sha256sum | cut -c1-12)
+          HASH=$(cat .github/docker/ci.Dockerfile uv.lock packages/*/Cargo.lock packages/temper-placer/temper-constraints/Cargo.lock 2>/dev/null | sha256sum | cut -c1-12)
           echo "hash=${HASH}" >> "$GITHUB_OUTPUT"
           echo "full=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${HASH}" >> "$GITHUB_OUTPUT"
           echo "latest=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> "$GITHUB_OUTPUT"
