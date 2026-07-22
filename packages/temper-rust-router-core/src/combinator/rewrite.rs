@@ -460,16 +460,16 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
 
     // Compute max_nets and var-name sets for each capacity constraint.
     let cap_infos: Vec<CapInfo> = caps
-        .iter()
+        .into_iter()
         .map(|(orig_idx, ch_id, cap, sf, terms)| {
-            let max_nets = compute_max_nets(*cap, *sf, terms);
+            let max_nets = compute_max_nets(cap, sf, &terms);
             let var_set: HashSet<String> = terms.iter().map(|(n, _)| n.clone()).collect();
             CapInfo {
-                orig_idx: *orig_idx,
-                channel_id: ch_id.clone(),
-                capacity: *cap,
-                slack_factor: *sf,
-                terms: terms.clone(),
+                orig_idx,
+                channel_id: ch_id,
+                capacity: cap,
+                slack_factor: sf,
+                terms,
                 max_nets,
                 var_set,
             }
@@ -538,9 +538,9 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
 
     // Rebuild capacity constraints with tightened bounds.
     let mut dedup_map: HashMap<BTreeSet<String>, (usize, usize)> = HashMap::new();
-    // var_set → (orig_idx, tight_k)
+    // var_set → (cap_infos_index, tight_k)
 
-    for info in &cap_infos {
+    for (i, info) in cap_infos.iter().enumerate() {
         let k = tight_k[info.orig_idx].unwrap_or(info.max_nets);
         let var_sorted: BTreeSet<String> = info
             .terms
@@ -548,7 +548,7 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
             .map(|(n, _)| n.clone())
             .collect();
 
-        let entry = dedup_map.entry(var_sorted).or_insert((info.orig_idx, k));
+        let entry = dedup_map.entry(var_sorted).or_insert((i, k));
         if k < entry.1 {
             entry.1 = k;
         }
@@ -556,18 +556,8 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
 
     let mut result = others;
 
-    for (var_sorted, (_orig_idx, tight_k)) in dedup_map {
-        // Find the cap_info that matches this var set.
-        let info = cap_infos
-            .iter()
-            .find(|info| {
-                let vs: BTreeSet<String> =
-                    info.terms.iter().map(|(n, _)| n.clone()).collect();
-                vs == var_sorted
-            })
-            .ok_or_else(|| RewriteError::SubsumeDedup {
-                var_set: format!("{:?}", var_sorted),
-            })?;
+    for (_var_sorted, (cap_idx, tight_k)) in dedup_map {
+        let info = &cap_infos[cap_idx];
 
         let new_max_nets = tight_k;
 
