@@ -69,9 +69,9 @@ where
 /// ```
 pub fn catch_panic<F, R>(f: F) -> PyResult<R>
 where
-    F: FnOnce() -> PyResult<R> + panic::UnwindSafe,
+    F: FnOnce() -> PyResult<R>,
 {
-    match panic::catch_unwind(f) {
+    match panic::catch_unwind(panic::AssertUnwindSafe(f)) {
         Ok(result) => result,
         Err(panic_info) => {
             let msg = if let Some(s) = panic_info.downcast_ref::<String>() {
