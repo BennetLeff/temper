@@ -73,14 +73,8 @@ ignore = ["E501"]
 
 [tool.coverage.run]
 branch = true
-source = [
-    "temper_placer.core",
-    "temper_placer.router_v6.grid_prep_stage",
-    "temper_placer.router_v6.net_prep_stage",
-    "temper_placer.router_v6.route_stage",
-    "temper_placer.router_v6.result_aggregate_stage",
-    "temper_placer.router_v6.stage4_orchestrator",
-]
+source = ["temper_placer"]
+omit = ["*/_constraint_types/*", "*/profiling/*"]
 
 [tool.coverage.report]
 show_missing = true
