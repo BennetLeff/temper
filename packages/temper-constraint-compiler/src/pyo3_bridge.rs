@@ -67,28 +67,6 @@ fn extract_f64(dict: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResult<f6
     }
 }
 
-#[allow(dead_code)]
-fn extract_bool(dict: &Bound<'_, PyDict>, key: &str, default: bool) -> PyResult<bool> {
-    match dict.get_item(key)? {
-        Some(val) => {
-            if val.is_none() {
-                Ok(default)
-            } else {
-                val.extract()
-            }
-        }
-        None => Ok(default),
-    }
-}
-
-#[allow(dead_code)]
-fn extract_opt_bool(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<bool>> {
-    match dict.get_item(key)? {
-        Some(val) if !val.is_none() => Ok(Some(val.extract()?)),
-        _ => Ok(None),
-    }
-}
-
 fn extract_str_list(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Vec<String>> {
     match dict.get_item(key)? {
         Some(val) if !val.is_none() => {
