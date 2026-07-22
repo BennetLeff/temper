@@ -234,9 +234,8 @@ git merge "$task" -X theirs --no-ff -m "merge: $task" || {
 
 ## Related
 
-- `docs/guides/GPBM_WORKFLOW.md` — Gather-Plan-Build-Measure loop integrated with bd and worktrees
-- `tools/bd-worktree-helpers.sh` — `bd-work`, `bd-done`, `bd-cleanup-worktrees` implementations
-- `tools/bd-multiagent.sh` — Multi-agent coordination helpers (claims, takeover, heartbeat)
+- `docs/solutions/workflow-issues/skill-driven-parallel-refactoring-2026-07-22.md` — Current canonical pattern for parallel subagent dispatch with review gate, verified in this codebase. Replaces the bd toolchain approach documented here.
+- `docs/solutions/workflow-issues/silent-source-loss-worktree-parallel-merges-2026-07-01.md` — Risk doc: silent file loss during parallel worktree merge batches. Manifest-verification pattern still applies.
 - `AGENTS.md` — Worktree commands and multi-agent coordination reference
-- `/ce-work` — Subagent dispatch for isolated implementation
-- `/ce-doc-review` — Parallel document review with safe_auto fix extraction
+
+> **Note (2026-07-22):** The `bd-*` toolchain (`tools/pack_non_overlapping_batches.py`, `tools/bd-multiagent.sh`, `tools/bd-worktree-helpers.sh`, `tools/apply_safe_auto_fixes.py`) and `docs/guides/GPBM_WORKFLOW.md` referenced in earlier versions of this doc were never committed to this repository. The underlying parallel-dispatch pattern remains valid; see the skill-driven doc above for the current implementation surface.
