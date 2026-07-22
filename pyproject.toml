@@ -18,6 +18,7 @@ dev = [
     "temper-geometry",
     "temper-dsn",
     "temper-ipc",
+    "temper-io-types",
     "temper-design-bundle",
 ]
 
@@ -35,6 +36,7 @@ temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
 temper-dsn = { workspace = true }
 temper-ipc = { workspace = true }
+temper-io-types = { workspace = true }
 temper-design-bundle = { workspace = true }
 
 [tool.pytest.ini_options]

@@ -531,7 +531,7 @@ fn serialize_boardstate_to_ses(
     let mut result = String::from("(session\n(resolution um 10)\n(unit mm)\n\n");
 
     if route_lines.is_empty() {
-        result.push_str("(routes)\n)\n");
+        result.push_str("(routes)\n)");
         return Ok(result);
     }
 
@@ -549,7 +549,7 @@ fn serialize_boardstate_to_ses(
         }
     }
 
-    result.push_str(")\n");
+    result.push_str(")");
     Ok(result)
 }
 
