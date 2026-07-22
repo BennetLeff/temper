@@ -40,10 +40,7 @@ class DRCOracleSetupStage(Stage):
         return (x * cos_a - y * sin_a, x * sin_a + y * cos_a)
 
     def run(self, state: BoardState) -> BoardState:
-        from temper_placer.router_v6.constraints_design_rules import (
-            ClearanceMatrix,
-            DesignRulesParser,
-        )
+        from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser
         from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
         from temper_placer.router_v6.constraints_geometry import Point
         from temper_placer.router_v6.constraints_spatial_index import Pad
