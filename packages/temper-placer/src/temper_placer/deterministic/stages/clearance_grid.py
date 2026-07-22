@@ -32,16 +32,14 @@ from temper_placer.core.board import (
     LayerIndex,
 )
 from temper_placer.core.pin_geometry import pin_world_position
-from temper_placer.router_v6.clearance_engine import INTERNAL_LAYER_CREEPAGE_FACTOR
-
 from ..state import BoardState
 from .base import Stage
 
-# @req(2026-06-23-005, R2): Layer-aware creepage factor.
+# @req(2026-06-23-005, R2): Layer-aware creepage factor for inner layers.
 # Outer copper layers (F.Cu, B.Cu) carry the full creepage distance; inner
-# layers (In1.Cu, In2.Cu, ...) carry the reduced factor because the plane acts
-# as a shield. The reduction mirrors `drc_oracle.INTERNAL_LAYER_CREEPAGE_FACTOR`
-# so the expansion is consistent with the router's clearance arithmetic.
+# layers (In1.Cu, In2.Cu, ...) carry the reduced factor (0.30) because the
+# plane acts as a shield, consistent with router_v6.clearance_engine.
+INTERNAL_LAYER_CREEPAGE_FACTOR: float = 0.30
 OUTER_COPPER_LAYERS = frozenset(
     str(idx) for idx in STANDARD_LAYER_ORDER if idx not in PLANE_LAYER_INDICES
 )

@@ -24,11 +24,10 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
-from temper_placer.router_v6.stage_validators import (
-    StageDRCFailure,
-    register_validator,
-)
+if TYPE_CHECKING:
+    from temper_placer.router_v6.stage_validators import StageDRCFailure
 
 _HV_SAFETY_CATEGORIES = frozenset({"HV", "AC"})
 
@@ -181,7 +180,6 @@ def _slots_within_radius(
     return out
 
 
-@register_validator("PhasedComponentAssignment")
 def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
     """Verify the placer reserved every HV pin's creepage ring AND no slot is over-claimed.
 
@@ -217,6 +215,8 @@ def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
         ring.  Built by walking placements + the bucketed index.
         Lookup is O(1) per slot.
     """
+    from temper_placer.router_v6.stage_validators import StageDRCFailure
+
     failures: list[StageDRCFailure] = []
     netlist = getattr(state, "netlist", None)
     if netlist is None:

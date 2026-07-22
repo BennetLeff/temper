@@ -3,9 +3,6 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from temper_placer.core.pin_geometry import pin_world_position
-from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser
-from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
-from temper_placer.core.geometry_types import Pad, Point
 
 from ..state import BoardState
 from .base import Stage
@@ -43,6 +40,11 @@ class DRCOracleSetupStage(Stage):
         return (x * cos_a - y * sin_a, x * sin_a + y * cos_a)
 
     def run(self, state: BoardState) -> BoardState:
+        from temper_placer.router_v6.constraints_design_rules import ClearanceMatrix, DesignRulesParser
+        from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
+        from temper_placer.router_v6.constraints_geometry import Point
+        from temper_placer.router_v6.constraints_spatial_index import Pad
+
         # Initialize ClearanceMatrix
         if self.design_rules:
             # Use provided design rules if available

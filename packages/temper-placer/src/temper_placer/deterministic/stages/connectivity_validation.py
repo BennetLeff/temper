@@ -3,7 +3,8 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from temper_placer.core.topology import UnionFind
-from temper_placer.core.geometry_types import Pad, Point, Track, Via
+from temper_placer.router_v6.constraints_geometry import Point
+from temper_placer.router_v6.constraints_spatial_index import Pad, Track, Via
 
 from ..state import BoardState
 from .base import Stage
@@ -238,15 +239,16 @@ class ConnectivityValidationStage(Stage):
     def _track_touches_pad(self, t: Track, p: Pad) -> bool:
         if t.layer != p.layer:
             return False
+        # Check if either endpoint is inside the pad
         from temper_placer.router_v6.constraints_geometry import point_to_rotated_rect_distance
-        from temper_placer.router_v6.constraints_spatial_index import pad_rotated_rect
-        return (point_to_rotated_rect_distance(t.start, pad_rotated_rect(p)) <= 1e-4 or
-                point_to_rotated_rect_distance(t.end, pad_rotated_rect(p)) <= 1e-4)
+        return (point_to_rotated_rect_distance(t.start, p.rot_rect) <= 1e-4 or
+                point_to_rotated_rect_distance(t.end, p.rot_rect) <= 1e-4)
 
     def _via_touches_pad(self, v: Via, p: Pad) -> bool:
+        # Pad is on a specific layer, Via connects layers.
+        # Typically vias connect all layers or a range.
         from temper_placer.router_v6.constraints_geometry import point_to_rotated_rect_distance
-        from temper_placer.router_v6.constraints_spatial_index import pad_rotated_rect
-        return point_to_rotated_rect_distance(v.center, pad_rotated_rect(p)) <= 1e-4
+        return point_to_rotated_rect_distance(v.center, p.rot_rect) <= 1e-4
 
     def _point_touches_item(self, pt: Point, item: Any, exclude_track: Track | None = None) -> bool:
         if isinstance(item, Track):
@@ -259,8 +261,7 @@ class ConnectivityValidationStage(Stage):
             if exclude_track and item.layer != exclude_track.layer:
                 return False
             from temper_placer.router_v6.constraints_geometry import point_to_rotated_rect_distance
-            from temper_placer.router_v6.constraints_spatial_index import pad_rotated_rect
-            return point_to_rotated_rect_distance(pt, pad_rotated_rect(item)) <= 1e-4
+            return point_to_rotated_rect_distance(pt, item.rot_rect) <= 1e-4
         return False
 
     def _get_item_location(self, item: Any) -> Point:

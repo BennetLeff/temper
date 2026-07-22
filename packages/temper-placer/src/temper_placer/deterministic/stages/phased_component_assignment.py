@@ -24,7 +24,6 @@ from temper_placer.io.config_loader import IsolationSlot, PlacementConstraints
 from ..channels import Bottleneck, ChannelMap, routability_penalty
 from ..flags import is_drc_fence_fail_enabled
 from ..state import BoardState
-from . import phased_component_assignment_validator  # noqa: F401  (registers U3 validator)
 from .base import Stage
 
 if TYPE_CHECKING:
@@ -222,7 +221,15 @@ class PhasedComponentAssignmentStage(Stage):
         # Failures are logged but do not abort the pipeline — the
         # validator is a fence, not a hard stop (the closure test is).
         try:
-            from temper_placer.router_v6.stage_validators import run_validators
+            from temper_placer.router_v6.stage_validators import register_validator, run_validators
+
+            from .phased_component_assignment_validator import (
+                validate_phased_component_assignment_hv,
+            )
+
+            register_validator("PhasedComponentAssignment")(
+                validate_phased_component_assignment_hv
+            )
 
             failures = run_validators("PhasedComponentAssignment", new_state)
             if failures:
