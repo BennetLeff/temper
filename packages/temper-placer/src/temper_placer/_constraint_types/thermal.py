@@ -1,54 +1,41 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class ThermalConstraint:
+class ThermalConstraint(BaseModel):
     """Thermal placement constraint for heat-generating components."""
 
-    components: list[str]  # Component refs
-    prefer_edge: bool = True  # Place near board edge
-    min_spacing_mm: float = 5.0  # Minimum spacing between thermal components
-    max_distance_from_edge_mm: float = 20.0
-    description: str = ""
+    model_config = ConfigDict(frozen=True)
+
+    components: list[str] = Field(description="List of component references")
+    prefer_edge: bool = Field(default=True, description="Place near board edge")
+    min_spacing_mm: float = Field(default=5.0, ge=0, description="Minimum spacing between thermal components in mm")
+    max_distance_from_edge_mm: float = Field(default=20.0, gt=0, description="Maximum distance from board edge in mm")
+    description: str = Field(default="", description="Human-readable description")
 
 
-@dataclass
-class ThermalProperties:
-    """
-    Extended thermal properties for comprehensive thermal management.
+class ThermalProperties(BaseModel):
+    """Extended thermal properties for comprehensive thermal management."""
 
-    This extends the basic ThermalConstraint with:
-    - Power dissipation values for heat spreading calculations
-    - Heat-sensitive component specifications
-    - Thermal pad component identification
-    """
+    model_config = ConfigDict(frozen=True)
 
-    # High-power heat sources
-    high_power_components: list[str] = field(default_factory=list)
-    power_dissipation_w: dict[str, float] = field(default_factory=dict)
-    min_separation_mm: float = 15.0  # Between high-power components
+    high_power_components: list[str] = Field(default_factory=list, description="High-power heat source component references")
+    power_dissipation_w: dict[str, float] = Field(default_factory=dict, description="Component-to-power-dissipation map in Watts")
+    min_separation_mm: float = Field(default=15.0, ge=0, description="Minimum separation between high-power components in mm")
 
-    # Heat-sensitive components (MCU, sensors)
-    heat_sensitive_components: list[str] = field(default_factory=list)
-    max_temp_rise_c: float = 20.0
-    min_distance_from_heat_sources_mm: float = 20.0
+    heat_sensitive_components: list[str] = Field(default_factory=list, description="Heat-sensitive component references")
+    max_temp_rise_c: float = Field(default=20.0, gt=0, description="Maximum allowed temperature rise in Celsius")
+    min_distance_from_heat_sources_mm: float = Field(default=20.0, ge=0, description="Minimum distance from heat sources in mm")
 
-    # Thermal pad components (for edge preference)
-    thermal_pad_components: list[str] = field(default_factory=list)
-    prefer_edge: bool = True
-    preferred_edge_margin_mm: float = 10.0
+    thermal_pad_components: list[str] = Field(default_factory=list, description="Thermal pad component references")
+    prefer_edge: bool = Field(default=True, description="Prefer edge placement for thermal pad components")
+    preferred_edge_margin_mm: float = Field(default=10.0, ge=0, description="Preferred margin from board edge in mm")
 
-    # Airflow direction (m/s magnitude at 0°, direction in degrees from +x)
-    airflow_vector: tuple[float, float] | None = None
-
-    # Per-component rated maximum junction temperature (°C)
-    rated_tj_max: dict[str, float] = field(default_factory=dict)
+    airflow_vector: tuple[float, float] | None = Field(default=None, description="Airflow direction vector (m/s, degrees)")
+    rated_tj_max: dict[str, float] = Field(default_factory=dict, description="Component-to-max-junction-temp map in Celsius")
 
 
-# Package-type Rjc lookup table for thermal anchoring inference.
-# Values in K/W (junction-to-case).
 _RJC_PACKAGE_LOOKUP: dict[str, float] = {
     "TO-247": 0.6,
     "TO-220": 1.0,
@@ -61,5 +48,4 @@ _RJC_PACKAGE_LOOKUP: dict[str, float] = {
     "QFN-48": 5.0,
 }
 
-
-_DEFAULT_RJC: float = 0.6  # Conservative default (TO-247 class)
+_DEFAULT_RJC: float = 0.6

@@ -1,90 +1,87 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class ProximityRule:
+class ProximityRule(BaseModel):
     """Proximity constraint between two components."""
 
-    component_a: str
-    component_b: str
-    max_distance_mm: float = 10.0
-    description: str = ""
-    tier: str = "soft"  # "hard" or "soft"
+    model_config = ConfigDict(frozen=True)
+
+    component_a: str = Field(description="First component reference")
+    component_b: str = Field(description="Second component reference")
+    max_distance_mm: float = Field(default=10.0, gt=0, description="Maximum allowed distance between components in mm")
+    description: str = Field(default="", description="Human-readable description")
+    tier: str = Field(default="soft", description="Constraint tier: hard or soft")
 
 
-@dataclass
-class GroupSeparation:
+class GroupSeparation(BaseModel):
     """Minimum separation between two groups."""
 
-    group_a: str
-    group_b: str
-    min_distance_mm: float = 20.0
-    description: str = ""
+    model_config = ConfigDict(frozen=True)
+
+    group_a: str = Field(description="First group name")
+    group_b: str = Field(description="Second group name")
+    min_distance_mm: float = Field(default=20.0, ge=0, description="Minimum separation distance in mm")
+    description: str = Field(default="", description="Human-readable description")
 
 
-@dataclass
-class ComponentSpacingRule:
+class ComponentSpacingRule(BaseModel):
     """Minimum edge-to-edge spacing between specific component pairs."""
 
-    component_a: str
-    component_b: str
-    min_separation_mm: float
-    description: str = ""
-    weight: float = 1.0
-    tier: str = "soft"  # "hard" or "soft"
+    model_config = ConfigDict(frozen=True)
+
+    component_a: str = Field(description="First component reference")
+    component_b: str = Field(description="Second component reference")
+    min_separation_mm: float = Field(ge=0, description="Minimum edge-to-edge separation in mm")
+    description: str = Field(default="", description="Human-readable description")
+    weight: float = Field(default=1.0, ge=0, description="Importance weight")
+    tier: str = Field(default="soft", description="Constraint tier: hard or soft")
 
 
-@dataclass
-class ManufacturingConstraint:
+class ManufacturingConstraint(BaseModel):
     """Manufacturing constraint for orientations and assembly side."""
 
-    components: list[str]
-    allowed_orientations: list[float] | None = None
-    side: str | None = None  # "top", "bottom", "both"
-    tier: str = "hard"
-    because: str = ""
-    weight: float = 1.0
+    model_config = ConfigDict(frozen=True)
+
+    components: list[str] = Field(description="List of component references")
+    allowed_orientations: list[float] | None = Field(default=None, description="Allowed rotation angles in degrees")
+    side: str | None = Field(default=None, description="Allowed board side: top, bottom, both")
+    tier: str = Field(default="hard", description="Constraint tier: hard or soft")
+    because: str = Field(default="", description="Justification for the constraint")
+    weight: float = Field(default=1.0, ge=0, description="Importance weight")
 
 
-@dataclass
-class EscapeClearance:
-    """Keep area clear around fine-pitch ICs for escape routing.
+class EscapeClearance(BaseModel):
+    """Keep area clear around fine-pitch ICs for escape routing."""
 
-    The clearance is computed from pin density to ensure routes can escape.
-    """
+    model_config = ConfigDict(frozen=True)
 
-    component: str  # Component ref (e.g., "U_MCU")
-    clearance_mm: float | None = None  # If None, computed from pin density
-    priority_sides: list[str] = field(default_factory=list)  # ["bottom", "right"]
-    tier: str = "soft"  # "hard" or "soft"
-    description: str = ""
+    component: str = Field(description="Component reference (e.g., 'U_MCU')")
+    clearance_mm: float | None = Field(default=None, description="Override clearance in mm; computed from pin density if None")
+    priority_sides: list[str] = Field(default_factory=list, description="Priority routing sides (e.g., ['bottom', 'right'])")
+    tier: str = Field(default="soft", description="Constraint tier: hard or soft")
+    description: str = Field(default="", description="Human-readable description")
 
     def compute_clearance(self, pin_count: int, pitch_mm: float) -> float:
-        """Compute clearance from pin density.
-
-        Heuristic: clearance = sqrt(pin_count) * pitch * 1.5
-        For QFN-56 with 0.5mm pitch: sqrt(56) * 0.5 * 1.5 ≈ 5.6mm
-        """
+        """Compute clearance from pin density."""
         return math.sqrt(pin_count) * pitch_mm * 1.5
 
 
-@dataclass
-class ComponentGroup:
+class ComponentGroup(BaseModel):
     """Group of components that should be placed together."""
 
-    name: str
-    components: list[str]
-    max_spread_mm: float = 30.0  # Maximum diameter of group bounding box
-    zone: str | None = None  # Required zone
-    proximity_rules: list[ProximityRule] = field(default_factory=list)  # Proximity within group
-    weight: float = 1.0  # Importance weight (higher = stronger clustering)
-    description: str = ""
-    # Optional ID to force identical internal layouts with other groups sharing this ID
-    template_group: str | None = None
-    # Optional pin number/name that defines the 'front' of the group for rotation
-    primary_pin: str | None = None
-    # Whether to organize the group in a 2D matrix with dynamic gutters
-    stacked_layout: bool = False
+    model_config = ConfigDict(frozen=True)
+
+    name: str = Field(description="Group name")
+    components: list[str] = Field(description="List of component references in this group")
+    max_spread_mm: float = Field(default=30.0, gt=0, description="Maximum diameter of group bounding box in mm")
+    zone: str | None = Field(default=None, description="Required zone for the group")
+    proximity_rules: list[ProximityRule] = Field(default_factory=list, description="Proximity rules within group")
+    weight: float = Field(default=1.0, ge=0, description="Importance weight (higher = stronger clustering)")
+    description: str = Field(default="", description="Human-readable description")
+    template_group: str | None = Field(default=None, description="Optional ID for identical internal layouts")
+    primary_pin: str | None = Field(default=None, description="Pin number/name defining the front of the group")
+    stacked_layout: bool = Field(default=False, description="Organize group in a 2D matrix with dynamic gutters")

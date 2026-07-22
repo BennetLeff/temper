@@ -1,63 +1,50 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class CriticalLoop:
+class CriticalLoop(BaseModel):
     """Definition of a critical current loop to minimize."""
 
-    name: str
-    nets: list[str] = field(default_factory=list)
-    pins: list[tuple[str, str]] | None = None
-    max_area_mm2: float | None = None
-    weight: float = 1.0
-    description: str = ""
+    model_config = ConfigDict(frozen=True)
+
+    name: str = Field(description="Loop name")
+    nets: list[str] = Field(default_factory=list, description="List of net names in the loop")
+    pins: list[tuple[str, str]] | None = Field(default=None, description="Optional list of (component, pin) tuples")
+    max_area_mm2: float | None = Field(default=None, ge=0, description="Maximum allowed loop area in mm^2")
+    weight: float = Field(default=1.0, ge=0, description="Importance weight for this loop")
+    description: str = Field(default="", description="Human-readable description")
 
 
-@dataclass
-class CriticalPath:
-    """
-    Definition of a critical signal path between two components.
+class CriticalPath(BaseModel):
+    """Definition of a critical signal path between two components."""
 
-    Attributes:
-        name: Unique name for the path.
-        from_comp: Starting component reference.
-        to_comp: Ending component reference.
-        pins: Optional tuple of (from_pin, to_pin) names.
-        max_length_mm: Maximum allowed length in mm.
-        priority: Priority level ('critical', 'high', 'normal').
-        matched_length_group: Optional name of matched length group.
-    """
+    model_config = ConfigDict(frozen=True)
 
-    name: str
-    from_comp: str
-    to_comp: str
-    pins: tuple[str, str] | None = None
-    max_length_mm: float = 50.0
-    priority: str = "normal"
-    matched_length_group: str | None = None
+    name: str = Field(description="Unique path name")
+    from_comp: str = Field(description="Starting component reference")
+    to_comp: str = Field(description="Ending component reference")
+    pins: tuple[str, str] | None = Field(default=None, description="Optional (from_pin, to_pin) tuple")
+    max_length_mm: float = Field(default=50.0, gt=0, description="Maximum allowed path length in mm")
+    priority: str = Field(default="normal", description="Priority level: critical, high, or normal")
+    matched_length_group: str | None = Field(default=None, description="Optional matched length group name")
 
 
-@dataclass
-class MatchedLengthGroup:
-    """
-    Group of signal paths that must have matched lengths.
+class MatchedLengthGroup(BaseModel):
+    """Group of signal paths that must have matched lengths."""
 
-    Attributes:
-        name: Unique name for the group.
-        tolerance_mm: Maximum difference in length between any two paths in group.
-    """
+    model_config = ConfigDict(frozen=True)
 
-    name: str
-    tolerance_mm: float = 5.0
+    name: str = Field(description="Unique group name")
+    tolerance_mm: float = Field(default=5.0, gt=0, description="Maximum length difference in mm")
 
 
-@dataclass
-class StarGroundConfig:
+class StarGroundConfig(BaseModel):
     """Definition of a star ground constraint."""
 
-    net: str
-    weight: float = 1.0
-    anchor: tuple[float, float] | None = None
-    description: str = ""
+    model_config = ConfigDict(frozen=True)
+
+    net: str = Field(description="Net name for star ground")
+    weight: float = Field(default=1.0, ge=0, description="Importance weight")
+    anchor: tuple[float, float] | None = Field(default=None, description="Optional (x, y) anchor position in mm")
+    description: str = Field(default="", description="Human-readable description")

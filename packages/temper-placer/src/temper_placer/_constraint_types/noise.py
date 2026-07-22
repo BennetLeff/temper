@@ -1,32 +1,25 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict, Field
 
 
-@dataclass
-class NoiseIsolationRule:
-    """
-    Rule for physical isolation between sensitive components and noise sources.
+class NoiseIsolationRule(BaseModel):
+    """Rule for physical isolation between sensitive components and noise sources."""
 
-    Attributes:
-        name: Unique name for the rule.
-        sensitive_components: List of component refs (supports globs).
-        noise_sources: List of component refs (supports globs).
-        min_distance_mm: Minimum required separation.
-        weight: Importance of this rule.
-    """
+    model_config = ConfigDict(frozen=True)
 
-    name: str
-    sensitive_components: list[str]
-    noise_sources: list[str]
-    min_distance_mm: float = 10.0
-    weight: float = 1.0
+    name: str = Field(description="Unique name for the isolation rule")
+    sensitive_components: list[str] = Field(description="List of sensitive component references")
+    noise_sources: list[str] = Field(description="List of noise source component references")
+    min_distance_mm: float = Field(default=10.0, ge=0, description="Minimum required separation in mm")
+    weight: float = Field(default=1.0, ge=0, description="Importance weight")
 
 
-@dataclass
-class NoiseDomain:
+class NoiseDomain(BaseModel):
     """Noise coupling domain: emitters and victims that must not run parallel."""
 
-    emitters: list[str]
-    victims: list[str]
-    max_parallel_run_mm: float = 5.0
+    model_config = ConfigDict(frozen=True)
+
+    emitters: list[str] = Field(description="List of emitter net names")
+    victims: list[str] = Field(description="List of victim net names")
+    max_parallel_run_mm: float = Field(default=5.0, ge=0, description="Maximum allowed parallel run length in mm")
