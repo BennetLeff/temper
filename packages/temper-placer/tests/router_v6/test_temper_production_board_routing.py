@@ -121,7 +121,9 @@ class TestProductionBoardRouting:
         net_count = len([n for n in netlist.nets if len(n.pins) >= 2])
         assert net_count > 0, "No multi-pin nets on production board"
 
-        parsed_stub = type("ParsedStub", (), {"source_path": _PCB_PATH})()
+        from tests.conftest import make_parsed_pcb_stub
+
+        parsed_stub = make_parsed_pcb_stub(_PCB_PATH, netlist)
 
         print(f"\nRouting production board ({net_count} nets, "
               f"{len(netlist.components)} components)...")

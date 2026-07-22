@@ -21,7 +21,7 @@ import re
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, Sequence, runtime_checkable
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,33 @@ if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.netlist import Component
+
+
+@runtime_checkable
+class _NetLike(Protocol):
+    """Minimal shape ``route_pcb`` needs from each entry of ``parsed.nets``."""
+
+    name: str
+
+
+@runtime_checkable
+class ParsedPcbLike(Protocol):
+    """The contract ``route_pcb`` actually depends on for its ``parsed`` argument.
+
+    ``nets`` matters even though many callers omit it: without it,
+    per-net layer-constraint resolution (``layer_assignments_from_netclass``,
+    the netclass-SSOT-driven layer assignment) silently no-ops -- every net
+    stays on its default layer and DesignRules' ``layer`` field is never
+    consulted, with no error or warning. A caller that only cares about
+    routing behavior unrelated to layer assignment can still omit ``nets``
+    (route_pcb falls back gracefully via getattr), but production-quality
+    measurement call sites must supply it or their results silently don't
+    reflect real multi-layer routing. See
+    docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md.
+    """
+
+    source_path: Path | str
+    nets: Sequence[_NetLike]
 
 
 @dataclass
@@ -400,7 +427,7 @@ def _extract_conflicts(result: Any) -> list[dict[str, Any]]:
 
 
 def route_pcb(
-    parsed: Any,
+    parsed: ParsedPcbLike | Any,
     placements: dict[str, tuple[float, float]],
     _seed: int,
     design_rules: Any = None,
@@ -464,6 +491,24 @@ def route_pcb(
         if net_names:
             layer_constraints = layer_assignments_from_netclass(
                 design_rules, net_names
+            )
+        else:
+            # design_rules was supplied (caller wants netclass-aware routing)
+            # but `parsed` has no usable `.nets` -- every net silently stays
+            # on its default layer and DesignRules' `layer` field is never
+            # consulted. This is the exact shape of a known prior bug: see
+            # docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md.
+            # Loud on purpose -- this previously failed silently across every
+            # production-board measurement call site in this codebase.
+            logger.warning(
+                "route_pcb: design_rules was provided but `parsed` has no "
+                "resolvable .nets (got %r) -- per-net layer-constraint "
+                "resolution is silently disabled; every net will stay on "
+                "its default layer regardless of netclass SSOT `layer` "
+                "assignments. Pass `parsed.nets` (a sequence with .name "
+                "attributes) if real multi-layer routing behavior matters "
+                "for this call.",
+                getattr(parsed, "nets", None),
             )
 
     pipeline = RouterV6Pipeline(

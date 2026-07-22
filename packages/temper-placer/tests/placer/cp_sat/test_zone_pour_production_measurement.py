@@ -183,7 +183,9 @@ class TestZonePourProductionMeasurement:
         assert netlist is not None
         assert len(netlist.components) > 0
 
-        parsed_stub = type("ParsedStub", (), {"source_path": _PCB_PATH})()
+        from tests.conftest import make_parsed_pcb_stub
+
+        parsed_stub = make_parsed_pcb_stub(_PCB_PATH, netlist)
 
         print(f"\nRouting production board with enable_zone_pours=True "
               f"({len(netlist.components)} components)...")
