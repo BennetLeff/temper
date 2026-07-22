@@ -125,6 +125,7 @@ class RoutingResult:
     congestion_regions: list[CongestionRegion] = field(default_factory=list)
     routed_pcb_content: str | None = None
     enable_zone_pours: bool = False
+    connectivity: dict[str, Any] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -434,15 +435,11 @@ def route_pcb(
     net_class_assignments: dict[str, str] | None = None,
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
+    enable_all_pad_tree: bool = False,
     enable_zone_pours: bool = False,
+    enable_connectivity_verifier: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
-
-    Args:
-        ...
-        enable_zone_pours: Emit filled-copper zone geometry for power/
-            ground/HV nets (per netclass SSOT).  Default False — zones
-            are opt-in until measurement validates them.
 
     Args:
         parsed: ParsedPCB from parse_kicad_pcb_v6.
@@ -457,9 +454,17 @@ def route_pcb(
             the previous round's field.  Threaded to A* kernel.
         thermal_weight: U9 multiplier on per-cell thermal cost
             (from CostFieldInput.weight).  0.0 = field-off.
+        enable_all_pad_tree: Enable experimental all-terminal tree
+            expansion (default False).
+        enable_zone_pours: Emit filled-copper zone geometry for power/
+            ground/HV nets (per netclass SSOT).  Default False — zones
+            are opt-in until measurement validates them.
+        enable_connectivity_verifier: Run post-write connectivity
+            preflight via verify_net_connectivity (default False).
 
     Returns:
-        RoutingResult with completion_rate.
+        RoutingResult with completion_rate, routed_pcb_content, and
+        optional connectivity dict.
 
     Raises:
         ValueError: If parsed has no source_path.
@@ -520,6 +525,7 @@ def route_pcb(
         layer_constraints=layer_constraints,
         thermal_flat=thermal_flat,
         thermal_weight=thermal_weight,
+        enable_all_pad_tree=enable_all_pad_tree,
         enable_zone_pours=enable_zone_pours,
     )
 
@@ -562,10 +568,14 @@ def route_pcb(
             result = pipeline.run(Path(temp_path))
             result.enable_zone_pours = enable_zone_pours
             placed_content = Path(temp_path).read_text(encoding="utf-8")
-            routed_content, _ = _write_routes_to_content(
-                placed_content, result
+            routed_content, pad_positions = _write_routes_to_content(
+                placed_content, result, design_rules=design_rules,
             )
-            return _build_routing_result(result, routed_content)
+            return _build_routing_result(
+                result, routed_content,
+                pad_positions=pad_positions,
+                enable_connectivity_verifier=enable_connectivity_verifier,
+            )
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
@@ -573,8 +583,14 @@ def route_pcb(
         result = pipeline.run(pcb_path)
         result.enable_zone_pours = enable_zone_pours
         placed_content = pcb_path.read_text(encoding="utf-8")
-        routed_content, _ = _write_routes_to_content(placed_content, result)
-        return _build_routing_result(result, routed_content)
+        routed_content, pad_positions = _write_routes_to_content(
+            placed_content, result, design_rules=design_rules,
+        )
+        return _build_routing_result(
+            result, routed_content,
+            pad_positions=pad_positions,
+            enable_connectivity_verifier=enable_connectivity_verifier,
+        )
 
 
 def _zone_layers_for_net(net_name: str) -> list[str]:
@@ -614,7 +630,175 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     return margin, clearance
 
 
-def _write_routes_to_content(pcb_content: str, result: Any) -> str:
+# U1: netclasses where clustering would fragment a continuous return/ground
+# plane and undermine EMI/loop-area control for switching-power-supply nets.
+_CONTINUITY_EXEMPT_CLASSES = frozenset({"GND", "ACMains", "HighVoltage"})
+
+
+def _stitch_isolated_pads(
+    pad_positions: dict[str, list[tuple[float, float]]],
+    segments: list[str],
+    net_name_to_number: dict[str, int],
+    zone_points: dict[str, list[tuple[tuple[float, float], ...]]],
+) -> None:
+    """U3: emit straight-line trace segments from pads outside every
+    dense-cluster pour back to the nearest pour for that net.
+
+    Uses the already-computed zone polygons (from the zone-emission
+    loop above) rather than re-clustering independently.
+    """
+    from shapely.geometry import Point as ShapelyPoint, Polygon
+
+    from temper_placer.core.design_rules import (
+        TEMPER_NET_ASSIGNMENTS,
+    )
+
+    for net_name, positions in pad_positions.items():
+        nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+        if nc not in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+            continue
+        net_num = net_name_to_number.get(net_name, 0)
+        if net_num <= 0 or len(positions) <= 1:
+            continue
+
+        zps = zone_points.get(net_name)
+        if not zps:
+            continue
+
+        pour_polys: list[Polygon] = []
+        for pts in zps:
+            if len(pts) >= 3:
+                pour_polys.append(Polygon(pts))
+
+        if not pour_polys:
+            continue
+
+        outside: list[tuple[float, float]] = []
+        for x, y in positions:
+            pt = ShapelyPoint(x, y)
+            if not any(poly.contains(pt) or poly.touches(pt) for poly in pour_polys):
+                outside.append((x, y))
+
+        if not outside:
+            continue
+
+        from scipy.spatial import cKDTree
+        all_verts: list[tuple[float, float]] = []
+        for poly in pour_polys:
+            for x, y in poly.exterior.coords:
+                all_verts.append((float(x), float(y)))
+        if not all_verts:
+            continue
+
+        tree = cKDTree(all_verts)
+        trace_layer = _zone_layers_for_net(net_name)[0] if _zone_layers_for_net(net_name) else "F.Cu"
+
+        for px, py in outside:
+            _dist, idx = tree.query((px, py))
+            nearest_x, nearest_y = all_verts[idx]
+            import uuid
+            segments.append(
+                f'  (segment (start {px:.4f} {py:.4f})'
+                f' (end {nearest_x:.4f} {nearest_y:.4f})'
+                f' (width {0.2:.4f}) (layer "{trace_layer}")'
+                f' (net {net_num})'
+                f' (tstamp "{uuid.uuid4()}"))'
+            )
+
+
+def _emit_zone_pours(
+    pad_positions: dict[str, list[tuple[float, float]]],
+    segments: list[str],
+    net_name_to_number: dict[str, int],
+    *,
+    design_rules: Any = None,
+) -> None:
+    """Emit filled-copper zone geometry for all zone-eligible nets."""
+    from temper_placer.router_v6.zone_emission import (
+        ZoneDefinition, compute_zones_for_net, emit_zone_s_expr,
+    )
+    from temper_placer.core.design_rules import (
+        TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
+    )
+
+    zone_netclasses: set[str] = set()
+    for net_name in pad_positions:
+        if _zone_layers_for_net(net_name):
+            nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+            if nc:
+                zone_netclasses.add(nc)
+
+    effective_clearance: dict[str, float] = {}
+    class_pairs = getattr(design_rules, 'class_pairs', {}) or {}
+    for nc in zone_netclasses:
+        own_rules = TEMPER_NET_CLASSES.get(nc)
+        own_clearance = own_rules.clearance if own_rules else 0.3
+        eff = own_clearance
+        for other_nc in zone_netclasses:
+            if other_nc == nc:
+                continue
+            pair_key = tuple(sorted((nc, other_nc)))
+            if pair_key in class_pairs:
+                pair_clearance = class_pairs[pair_key].get("clearance", eff)
+                eff = max(eff, pair_clearance)
+            else:
+                other_rules = TEMPER_NET_CLASSES.get(other_nc)
+                other_clearance = other_rules.clearance if other_rules else 0.3
+                eff = max(eff, max(own_clearance, other_clearance))
+        effective_clearance[nc] = eff
+
+    _MAX_DRU_PRIORITY = max(
+        (r.dru_priority for r in TEMPER_NET_CLASSES.values()),
+        default=90,
+    )
+    zone_priority: dict[str, int] = {}
+    for nc in zone_netclasses:
+        rules = TEMPER_NET_CLASSES.get(nc)
+        dru_p = rules.dru_priority if rules else 0
+        zone_priority[nc] = _MAX_DRU_PRIORITY - dru_p
+
+    zone_points_by_net: dict[str, list[tuple[tuple[float, float], ...]]] = {}
+    for net_name, positions in pad_positions.items():
+        zone_layers = _zone_layers_for_net(net_name)
+        if not zone_layers:
+            continue
+        net_num = net_name_to_number.get(net_name, 0)
+        if net_num > 0 and positions:
+            nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+            eff_clearance = effective_clearance.get(nc, 0.3)
+            prio = zone_priority.get(nc, 0)
+            exempt = nc in _CONTINUITY_EXEMPT_CLASSES
+
+            for layer in zone_layers:
+                try:
+                    margin, _clearance = _zone_params_for_net(net_name)
+                    zds = compute_zones_for_net(
+                        net_name, net_num, positions, layer=layer,
+                        margin=margin,
+                        cluster=not exempt,
+                    )
+                    for zd in zds:
+                        zd = ZoneDefinition(
+                            net_name=zd.net_name,
+                            net_number=zd.net_number,
+                            layer=zd.layer,
+                            points=zd.points,
+                            clearance=eff_clearance,
+                            min_thickness=zd.min_thickness,
+                            priority=prio,
+                        )
+                        segments.append(emit_zone_s_expr(zd))
+                        zone_points_by_net.setdefault(net_name, []).append(zd.points)
+                except ValueError:
+                    pass
+
+    _stitch_isolated_pads(
+        pad_positions, segments, net_name_to_number,
+        zone_points_by_net,
+    )
+
+
+def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any = None) -> tuple[str, dict[str, list[tuple[float, float]]]]:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
     Extracts successfully routed paths from the pipeline result and writes
@@ -768,36 +952,11 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
                 f' (net {net_num}) (tstamp "{uuid.uuid4()}"))'
             )
 
-    # U1 zone/pour: emit filled-copper zones for ALL zone-eligible nets,
-    # not just the ones that routed.  Must fire before the early return.
     if getattr(result, "enable_zone_pours", False):
-        from temper_placer.router_v6.zone_emission import (
-            ZoneDefinition, compute_zone_for_net, emit_zone_s_expr,
+        _emit_zone_pours(
+            pad_positions, segments, net_name_to_number,
+            design_rules=design_rules,
         )
-        for net_name, positions in pad_positions.items():
-            zone_layers = _zone_layers_for_net(net_name)
-            if not zone_layers:
-                continue
-            net_num = net_name_to_number.get(net_name, 0)
-            if net_num > 0 and positions:
-                for layer in zone_layers:
-                    try:
-                        margin, clearance = _zone_params_for_net(net_name)
-                        zd = compute_zone_for_net(
-                            net_name, net_num, positions, layer=layer,
-                            margin=margin,
-                        )
-                        zd = ZoneDefinition(
-                            net_name=zd.net_name,
-                            net_number=zd.net_number,
-                            layer=zd.layer,
-                            points=zd.points,
-                            clearance=clearance,
-                            min_thickness=zd.min_thickness,
-                        )
-                        segments.append(emit_zone_s_expr(zd))
-                    except ValueError:
-                        pass
 
     if not segments:
         return pcb_content, pad_positions
@@ -811,7 +970,13 @@ def _write_routes_to_content(pcb_content: str, result: Any) -> str:
     return pcb_content, pad_positions
 
 
-def _build_routing_result(result: Any, routed_content: str | None = None) -> RoutingResult:
+def _build_routing_result(
+    result: Any,
+    routed_content: str | None = None,
+    *,
+    pad_positions: dict[str, list[tuple[float, float]]] | None = None,
+    enable_connectivity_verifier: bool = False,
+) -> RoutingResult:
     """Extract failure data from RouterV6Pipeline result into RoutingResult.
 
     Pulls failed net names, DRC violations from per-net reports, and
@@ -861,12 +1026,21 @@ def _build_routing_result(result: Any, routed_content: str | None = None) -> Rou
                 location=getattr(v, 'location', (0.0, 0.0)),
             ))
 
+    # U4: post-write connectivity preflight
+    connectivity = None
+    if enable_connectivity_verifier and routed_content and pad_positions:
+        from temper_placer.router_v6.kicad_connectivity import (
+            connectivity_preflight,
+        )
+        connectivity = connectivity_preflight(routed_content, pad_positions)
+
     return RoutingResult(
         completion_rate=result.completion_rate,
         unrouted_nets=unrouted_nets,
         drc_violations=drc_violations,
         congestion_regions=congestion_regions,
         routed_pcb_content=routed_content,
+        connectivity=connectivity,
     )
 
 

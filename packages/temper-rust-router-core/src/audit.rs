@@ -138,6 +138,7 @@ pub fn audit_constraints(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable, SolverStatus, TopologyResult};

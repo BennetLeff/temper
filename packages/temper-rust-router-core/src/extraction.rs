@@ -288,6 +288,7 @@ fn build_path_graph(net_name: &str, channels: &[String]) -> Vec<(String, String)
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::types::{

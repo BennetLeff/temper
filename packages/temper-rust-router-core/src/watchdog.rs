@@ -24,11 +24,9 @@ const BUDGET_MULTIPLIER: usize = 10;
 
 /// A detected Performance constraint violation.
 #[derive(Debug)]
-#[allow(dead_code)]
 struct Violation {
     bundle_id: usize,
     kind: ViolationKind,
-    channel_id: String,
 }
 
 #[derive(Debug)]
@@ -294,11 +292,9 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
                 .map(|v| v.len())
                 .unwrap_or(0);
             if chs > 1 {
-                let ch_list = &bundle_true_channels[&bundle.bundle_id];
                 violations.push(Violation {
                     bundle_id: bundle.bundle_id,
                     kind: ViolationKind::DiffPairSplit,
-                    channel_id: ch_list[0].clone(),
                 });
             }
         }

@@ -9,8 +9,6 @@ use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable
 pub struct CnfFormula {
     pub num_vars: usize,
     pub clauses: Vec<Vec<i32>>,
-    #[allow(dead_code)]
-    pub var_names: Vec<String>,
     pub var_to_net: Vec<usize>,
 }
 
@@ -215,7 +213,6 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
         CnfFormula {
             num_vars: var_map.len(),
             clauses,
-            var_names: var_names.clone(),
             var_to_net,
         },
         var_names,
@@ -241,6 +238,7 @@ pub fn encode_to_cnf(model: &InternalConstraintModel) -> (CnfFormula, Vec<String
 // Cardinality Constraints." CP 2005.
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

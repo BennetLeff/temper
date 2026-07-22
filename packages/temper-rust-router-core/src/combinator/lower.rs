@@ -208,6 +208,7 @@ fn filter_constraint_vars(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use super::super::types::{

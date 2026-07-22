@@ -6,6 +6,7 @@ import pytest
 from temper_placer.router_v6.adapter import (
     RoutingResult,
     _apply_placements_to_pcb,
+    _stitch_isolated_pads,
     _zone_layers_for_net,
     _zone_params_for_net,
     route_pcb,
@@ -292,3 +293,283 @@ class TestRoutePcbLayerConstraintsResolution:
         finally:
             patcher.stop()
             os.unlink(temp_path)
+
+
+class TestCrossClassZoneClearance:
+    """U2: cross-class pairwise clearance resolution for zone emission."""
+
+    def _make_result_with_zones(self, net_names, component_pairs, compiled_nets=None):
+        from types import SimpleNamespace
+        from temper_placer.core.netlist import Component
+
+        if compiled_nets is None:
+            compiled_nets = list(net_names)[:1] or []
+
+        compiled_routes = {}
+        for net_name in compiled_nets:
+            mock_path = SimpleNamespace(path_length=0.0, coordinates=[])
+            compiled_routes[net_name] = SimpleNamespace(
+                path=mock_path, width_mm=0.1, vias=[],
+            )
+
+        routing_results = SimpleNamespace(
+            compiled_routes=compiled_routes,
+            tree_routes={},
+            partial_tree_routes={},
+        )
+        stage4 = SimpleNamespace(routing_results=routing_results)
+
+        components = []
+        nets = []
+        for idx, net_name in enumerate(net_names):
+            ref = f"C{idx+1}"
+            x = float(idx * 10.0 + 10.0)
+            y = float(idx * 10.0 + 10.0)
+            comp = Component(
+                ref=ref, footprint="0805", bounds=(2.0, 1.25),
+                initial_position=(x, y),
+            )
+            components.append(comp)
+            pairs = component_pairs.get(net_name, [(ref, "1")])
+            nets.append(SimpleNamespace(name=net_name, pins=pairs))
+
+        pcb = SimpleNamespace(components=components, nets=nets)
+        return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
+
+    def _build_dr(self, class_pairs=None):
+        from temper_placer.core.design_rules import DesignRules
+        dr = DesignRules()
+        if class_pairs is not None:
+            dr.class_pairs = class_pairs
+        return dr
+
+    def test_power_and_hv_resolve_to_stricter_cross_class(self):
+        """vcc (Power, 0.25mm) + +340V_BUS (HV, 6.0mm) -> effective 6.0mm."""
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result_with_zones(
+            ["vcc", "+340V_BUS"],
+            {"vcc": [("C1", "1")], "+340V_BUS": [("C2", "1")]},
+        )
+        dr = self._build_dr({("HighVoltage", "Power"): {"clearance": 6.0}})
+        content = '(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+340V_BUS"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert '(clearance 6.0000)' in output
+
+    def test_same_class_nets_keep_own_clearance(self):
+        """Two GND-class nets resolve to GND's own 0.3mm (never weaken)."""
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result_with_zones(
+            ["PWR_RTN", "CGND"],
+            {"PWR_RTN": [("C1", "1")], "CGND": [("C2", "1")]},
+        )
+        dr = self._build_dr()
+        content = '(kicad_pcb (version 20240108) (net 1 "PWR_RTN") (net 2 "CGND"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert '(clearance 0.3000)' in output
+
+    def test_fallback_to_max_clearance_no_class_pair(self):
+        """No class_pairs entry -> fallback to max(own, other)."""
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result_with_zones(
+            ["vcc", "+15V"],
+            {"vcc": [("C1", "1")], "+15V": [("C2", "1")]},
+        )
+        dr = self._build_dr()
+        content = '(kicad_pcb (version 20240108) (net 1 "vcc") (net 2 "+15V"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert '(clearance 0.2500)' in output
+
+    def test_single_netclass_no_cross_class(self):
+        """Only one zone-eligible netclass: clearance equals own."""
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+
+        result = self._make_result_with_zones(
+            ["vcc"], {"vcc": [("C1", "1")]},
+        )
+        dr = self._build_dr()
+        content = '(kicad_pcb (version 20240108) (net 1 "vcc"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+        assert '(clearance 0.2500)' in output
+
+    def test_route_pcb_e2e_threads_design_rules(self):
+        """End-to-end: route_pcb + enable_zone_pours reflects cross-class clearance."""
+        from unittest import mock as umock
+        from types import SimpleNamespace
+        import os
+        import tempfile
+
+        from temper_placer.core.design_rules import DesignRules
+        from temper_placer.core.netlist import Component
+
+        dr = DesignRules()
+        dr.class_pairs = {("HighVoltage", "Power"): {"clearance": 6.0}}
+
+        components = [
+            Component(ref="C1", footprint="0805", bounds=(2.0, 1.25), initial_position=(10.0, 10.0)),
+            Component(ref="C2", footprint="0805", bounds=(2.0, 1.25), initial_position=(30.0, 30.0)),
+        ]
+        nets = [
+            SimpleNamespace(name="vcc", pins=[("C1", "1")]),
+            SimpleNamespace(name="+340V_BUS", pins=[("C2", "1")]),
+        ]
+        pcb_mock = SimpleNamespace(components=components, nets=nets)
+
+        mock_path = SimpleNamespace(path_length=1.0, segments=[(0, 0, "F.Cu"), (10, 0, "F.Cu")])
+        compiled_routes = {
+            "vcc": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
+            "+340V_BUS": SimpleNamespace(path=mock_path, width_mm=0.5, vias=[]),
+        }
+        rr = SimpleNamespace(
+            compiled_routes=compiled_routes, tree_routes={}, partial_tree_routes={},
+            failed_nets=[],
+        )
+        stage4 = SimpleNamespace(routing_results=rr)
+        mock_result_inner = SimpleNamespace(
+            stage4=stage4, pcb=pcb_mock, enable_zone_pours=True, completion_rate=0.5,
+        )
+
+        patcher = umock.patch("temper_placer.router_v6.pipeline.RouterV6Pipeline")
+        mock_pipe_cls = patcher.start()
+        mock_pipe = umock.MagicMock()
+        mock_pipe.run.return_value = mock_result_inner
+        mock_pipe_cls.return_value = mock_pipe
+
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as f:
+                f.write(
+                    '(kicad_pcb (version 20240108)'
+                    ' (net 1 "vcc") (net 2 "+340V_BUS"))\n'
+                )
+                temp_path = f.name
+
+            parsed = type("ParsedPCB", (), {"source_path": temp_path, "nets": nets})()
+            result = route_pcb(
+                parsed, {}, _seed=42, design_rules=dr, enable_zone_pours=True,
+            )
+            assert result.routed_pcb_content is not None
+            assert "(zone " in result.routed_pcb_content
+            assert "(clearance 6.0000)" in result.routed_pcb_content
+        finally:
+            patcher.stop()
+            os.unlink(temp_path)
+
+
+class TestPriorityInversion:
+    """U2: verify dru_priority → KiCad (priority N) inversion in emitted s-expr."""
+
+    def _make_result(self, net_names, component_pairs):
+        from types import SimpleNamespace
+        from temper_placer.core.netlist import Component
+
+        compiled_routes = {}
+        mock_path = SimpleNamespace(path_length=0.0, coordinates=[])
+        for net_name in net_names[:1]:
+            compiled_routes[net_name] = SimpleNamespace(
+                path=mock_path, width_mm=0.1, vias=[],
+            )
+
+        routing_results = SimpleNamespace(
+            compiled_routes=compiled_routes, tree_routes={}, partial_tree_routes={},
+        )
+        stage4 = SimpleNamespace(routing_results=routing_results)
+
+        components = []
+        nets = []
+        for idx, net_name in enumerate(net_names):
+            x = float(idx * 10.0 + 10.0)
+            y = float(idx * 10.0 + 10.0)
+            comp = Component(
+                ref=f"C{idx+1}", footprint="0805", bounds=(2.0, 1.25),
+                initial_position=(x, y),
+            )
+            components.append(comp)
+            nets.append(SimpleNamespace(
+                name=net_name, pins=[(f"C{idx+1}", "1")],
+            ))
+
+        pcb = SimpleNamespace(components=components, nets=nets)
+        return SimpleNamespace(stage4=stage4, pcb=pcb, enable_zone_pours=True)
+
+    def test_acmains_priority_higher_than_power_in_emitted_zones(self):
+        """ACMains (dru=10→KiCad 80) > Power (dru=40→KiCad 50) in s-expr."""
+        import re
+        from temper_placer.router_v6.adapter import _write_routes_to_content
+        from temper_placer.core.design_rules import DesignRules
+
+        result = self._make_result(
+            ["AC_L", "vcc"],
+            {"AC_L": [("C1", "1")], "vcc": [("C2", "1")]},
+        )
+        dr = DesignRules()
+        content = '(kicad_pcb (version 20240108) (net 1 "AC_L") (net 2 "vcc"))'
+        output, _ = _write_routes_to_content(content, result, design_rules=dr)
+
+        # Each net gets 2 zones (F.Cu + B.Cu); extract priority per net
+        priorities_by_net: dict[str, set[int]] = {}
+        for m in re.finditer(
+            r'\(net_name "([^"]+)"\).*?\(priority (\d+)\)', output, re.DOTALL,
+        ):
+            priorities_by_net.setdefault(m.group(1), set()).add(int(m.group(2)))
+
+        assert "AC_L" in priorities_by_net
+        assert "vcc" in priorities_by_net
+        ac_max = max(priorities_by_net["AC_L"])
+        pwr_max = max(priorities_by_net["vcc"])
+        assert ac_max > pwr_max, (
+            f"ACMains ({ac_max}) should be > Power ({pwr_max})"
+        )
+        assert ac_max == 80
+        assert pwr_max == 50
+
+
+class TestStitchIsolatedPads:
+    """U3: trace-stitch pads outside pour polygons."""
+
+    def test_pad_inside_zone_is_not_stitched(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        pad_positions = {"vcc": [(5.0, 5.0)]}
+        net_map = {"vcc": 1}
+        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
+        assert len(segments) == 0
+
+    def test_pad_outside_zone_gets_stitch_trace(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        pad_positions = {"vcc": [(5.0, 5.0), (50.0, 50.0)]}
+        net_map = {"vcc": 1}
+        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads(pad_positions, segments, net_map, zone_points)
+        assert len(segments) == 1
+        assert "(segment " in segments[0]
+        assert "(start 50.0000 50.0000)" in segments[0]
+
+    def test_non_zone_eligible_net_skipped(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        _stitch_isolated_pads(
+            {"SPI_MOSI": [(50.0, 50.0)]}, segments, {"SPI_MOSI": 1}, {},
+        )
+        assert len(segments) == 0
+
+    def test_empty_zone_points_skipped(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        _stitch_isolated_pads({"vcc": [(50.0, 50.0)]}, segments, {"vcc": 1}, {})
+        assert len(segments) == 0
+
+    def test_single_pad_inside_is_noop(self):
+        from temper_placer.router_v6.adapter import _stitch_isolated_pads
+
+        segments: list[str] = []
+        zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
+        _stitch_isolated_pads({"vcc": [(5.0, 5.0)]}, segments, {"vcc": 1}, zone_points)
+        assert len(segments) == 0  # pad inside, no stitch

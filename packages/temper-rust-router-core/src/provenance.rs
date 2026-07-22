@@ -255,6 +255,7 @@ fn explain_core(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::types::{ClauseOrigin, ClauseRole, InternalConstraint, InternalConstraintModel, InternalVariable, SatVariable};
