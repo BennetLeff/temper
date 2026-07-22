@@ -235,7 +235,7 @@ def _rasterise_polygon_mask(
 # ---------------------------------------------------------------------------
 
 SANITY_CEILING_C = 400.0
-# because: at < 30 W dissipation on a 100x150 mm board with 2x1oz inner
+# source: at < 30 W dissipation on a 100x150 mm board with 2x1oz inner
 # copper planes, peak IGBT T_j should stay well below 200 deg-C (typical
 # TO-247 T_j_max = 150 deg-C, worst-case with bad heatsinking ~250 deg-C).
 # 400 deg-C provides a safety factor > 2x above worst-case physics -- if

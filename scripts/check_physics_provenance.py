@@ -119,14 +119,16 @@ def _assignment_names(node: ast.Assign) -> list[str]:
 def _has_source_comment(
     source_lines: list[str], start_lineno: int, end_lineno: int,
 ) -> bool:
-    """Check if any line in span [start_lineno, end_lineno] or line before
-    has a ``# source:`` substring."""
+    """Check if any line in span [start_lineno, end_lineno], the line before,
+    or the line after has a ``# source:`` substring."""
     check_lines = set()
     # The assignment line itself
     check_lines.add(start_lineno)
-    # Preceding line (lineno - 1) — see plan §Key Technical Decisions #2
+    # Preceding line (lineno - 1)
     if start_lineno > 1:
         check_lines.add(start_lineno - 1)
+    # Following line (end_lineno + 1) — for comment blocks after the assignment
+    check_lines.add(end_lineno + 1)
     # Multi-line assignments: include intermediate lines too
     for ln in range(start_lineno, end_lineno + 1):
         check_lines.add(ln)
