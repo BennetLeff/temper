@@ -477,7 +477,6 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
             CapInfo {
                 orig_idx,
                 channel_id: ch_id,
-                capacity: cap,
                 slack_factor: sf,
                 max_nets,
                 var_set,
@@ -611,8 +610,6 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
 struct CapInfo {
     orig_idx: usize,
     channel_id: String,
-    #[allow(dead_code)]
-    capacity: f64,
     slack_factor: f64,
     terms: Vec<(String, f64)>,
     max_nets: usize,
