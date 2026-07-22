@@ -181,7 +181,7 @@ jobs:
 
       - name: Run temper-placer tests (core only for CI speed)
         working-directory: packages/temper-placer
-        run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term
+        run: uv run pytest tests/core/ -v --tb=short -p no:cacheprovider --maxfail=10 --cov=temper_placer --cov-report=json --cov-report=term --cov-config=../../pyproject.toml
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu

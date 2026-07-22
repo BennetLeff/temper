@@ -75,26 +75,45 @@ def find_zero_coverage(files, source_root):
     zero_cov = {}
 
     for file_path, file_data in files.items():
+        # Normalize: strip leading 'src/' prefix if present so paths match
+        # the allowlist convention (temper_placer/module.py) independent of
+        # whether coverage reports paths relative to a source root or CWD.
+        normalized = file_path
+        if normalized.startswith("src/"):
+            normalized = normalized[4:]
+
         # Resolve the source file on disk
-        src_file = source_root / file_path
+        src_file = source_root / normalized
         if not src_file.exists():
             console.print(f"[yellow]Warning: source file not found: {src_file}[/]")
             continue
 
         public_names = ast_public_functions(src_file)
-        executed = set(file_data.get("executed_lines", []))
-        functions = file_data.get("functions", {})
+        func_dicts = file_data.get("functions", {})
 
-        for func_name, (start_line, end_line) in functions.items():
+        for func_name, func_info in func_dicts.items():
             if func_name not in public_names:
                 continue
 
-            # Lines in the function body (exclude the def line itself)
-            body_lines = set(range(start_line + 1, end_line + 1))
+            # coverage.py 7.x: func_info is a dict with 'executed_lines' and 'summary'
+            if isinstance(func_info, dict):
+                executed_func = set(func_info.get("executed_lines", []))
+                n_statements = func_info.get("summary", {}).get("num_statements", 0)
+                has_no_coverage = not executed_func and n_statements > 0
+                # Use first missing line as line reference, fallback to 0
+                missing = func_info.get("missing_lines", [])
+                line_ref = missing[0] if missing else 0
+            else:
+                # Legacy format: (start_line, end_line) tuple
+                start_line, end_line = func_info
+                executed_func = set(file_data.get("executed_lines", []))
+                body_lines = set(range(start_line + 1, end_line + 1))
+                has_no_coverage = not (body_lines & executed_func)
+                line_ref = start_line
 
-            if not (body_lines & executed):
-                allowlist_key = f"{file_path}::{func_name}"
-                zero_cov[allowlist_key] = start_line
+            if has_no_coverage:
+                allowlist_key = f"{normalized}::{func_name}"
+                zero_cov[allowlist_key] = line_ref
 
     return zero_cov
 
@@ -272,7 +291,12 @@ def main():
     zero_cov = find_zero_coverage(files, args.source_root)
 
     if args.init:
-        # Populate the allowlist
+        # Populate / extend the allowlist, preserving existing entries.
+        existing = load_allowlist(args.allowlist)
+        existing_keys = set(existing.keys())
+        new_keys = set(zero_cov.keys()) - existing_keys
+        stale = existing_keys - set(zero_cov.keys())
+
         lines = [
             "# Coverage gate allowlist — monotonically-shrinking baseline",
             "# Format: path::function  # TODO: temper-xxx",
@@ -284,15 +308,28 @@ def main():
             "# See AGENTS.md §Coverage Gate for details.",
             "",
         ]
-        for key in sorted(zero_cov):
+
+        # Preserve existing entries (including stale ones — human triage).
+        for key in sorted(existing_keys):
+            ticket = existing.get(key, "TODO: temper-xxx")
+            lines.append(f"{key}  # {ticket}")
+
+        # Append new entries with placeholder tickets.
+        for key in sorted(new_keys):
             lines.append(f"{key}  # TODO: temper-xxx")
+
         lines.append("")
 
         args.allowlist.write_text("\n".join(lines))
         console.print(
-            f"[green]Allowlist populated with {len(zero_cov)} entries: "
-            f"{args.allowlist}[/]"
+            f"[green]Allowlist: {len(existing_keys)} existing entries preserved, "
+            f"{len(new_keys)} new entries added.[/]"
         )
+        if stale:
+            console.print(
+                f"[yellow]{len(stale)} stale entries (now have coverage) were preserved — "
+                f"consider removing them manually.[/]"
+            )
         console.print("[bold]Review and replace TODO placeholders with real ticket IDs.[/]")
         sys.exit(0)
 
