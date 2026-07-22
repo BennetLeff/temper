@@ -198,6 +198,9 @@ impl From<&str> for SafetyCategory {
 // BEGIN GENERATED NetClassRules — DO NOT EDIT
 // Generated from packages/temper-placer/configs/netclass_rules_manifest.yaml
 // Run: python3 scripts/gen_domain_models.py
+
+// Note: use std::collections::HashMap is already declared in the outer file.
+
 #[derive(Debug, Clone)]
 pub struct NetClassRules {
     /// Net class name (e.g., 'Power', 'Signal', 'HighSpeed')

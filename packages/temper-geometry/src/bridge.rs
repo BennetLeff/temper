@@ -1091,7 +1091,7 @@ fn compute_valid_bounds(
     region_y_max: f64,
     margin: f64,
 ) -> PyResult<(f64, f64, f64, f64)> {
-    catch_unwind(|| {
+    temper_py_bridge::catch_unwind(|| {
         let vb = crate::constraints::compute_valid_bounds(
             component_half_width,
             component_half_height,
@@ -1103,7 +1103,7 @@ fn compute_valid_bounds(
         );
         Ok((vb.x_min, vb.x_max, vb.y_min, vb.y_max))
     })
-    .map_err(panic_to_err)?
+    .map_err(temper_py_bridge::panic_to_err)?
 }
 
 #[pyfunction]
@@ -1117,7 +1117,7 @@ fn compute_boundary_violation(
     board_x_max: f64,
     board_y_max: f64,
 ) -> PyResult<(f64, f64, f64, f64)> {
-    catch_unwind(|| {
+    temper_py_bridge::catch_unwind(|| {
         let bv = crate::constraints::compute_boundary_violation(
             position_x,
             position_y,
@@ -1130,7 +1130,7 @@ fn compute_boundary_violation(
         );
         Ok((bv.left, bv.right, bv.bottom, bv.top))
     })
-    .map_err(panic_to_err)?
+    .map_err(temper_py_bridge::panic_to_err)?
 }
 
 #[pyfunction]
@@ -1145,7 +1145,7 @@ fn is_within_bounds(
     region_y_max: f64,
     tolerance: f64,
 ) -> PyResult<bool> {
-    catch_unwind(|| {
+    temper_py_bridge::catch_unwind(|| {
         crate::constraints::is_within_bounds(
             position_x,
             position_y,
@@ -1158,7 +1158,7 @@ fn is_within_bounds(
             tolerance,
         )
     })
-    .map_err(panic_to_err)
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
@@ -1170,7 +1170,7 @@ fn compute_zone_distance(
     zone_x_max: f64,
     zone_y_max: f64,
 ) -> PyResult<f64> {
-    catch_unwind(|| {
+    temper_py_bridge::catch_unwind(|| {
         crate::constraints::compute_zone_distance(
             position_x,
             position_y,
@@ -1180,7 +1180,7 @@ fn compute_zone_distance(
             zone_y_max,
         )
     })
-    .map_err(panic_to_err)
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
 #[pyfunction]
@@ -1192,7 +1192,7 @@ fn point_in_zone(
     zone_x_max: f64,
     zone_y_max: f64,
 ) -> PyResult<bool> {
-    catch_unwind(|| {
+    temper_py_bridge::catch_unwind(|| {
         crate::constraints::point_in_zone(
             position_x,
             position_y,
@@ -1202,7 +1202,7 @@ fn point_in_zone(
             zone_y_max,
         )
     })
-    .map_err(panic_to_err)
+    .map_err(temper_py_bridge::panic_to_err)
 }
 
 // =============================================================================

@@ -16,9 +16,20 @@ use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 const ISO_COMPONENT_KEYWORDS: [&str; 8] =
     ["iso", "opto", "coupler", "isolator", "transformer", "adum", "dcdc", "mev1"];
 
-/// Determine if a net class or footprint indicates an isolation component.
-fn is_iso_component(net_class: &str) -> bool {
-    let lc = net_class.to_lowercase();
+/// Determine if a component is an isolation device.
+///
+/// Consults `NetClassRules.safety_category` (declared in the SSOT manifest) first.
+/// Falls back to keyword substring matching on net_class name.
+fn is_iso_component(comp: &crate::board::Component, board: &BoardState) -> bool {
+    // Prefer declared safety_category from the model
+    let nc = crate::board::NetClassName(comp.net_class.0.clone());
+    if let Some(rules) = board.net_class_rules.get(&nc) {
+        if let Some(ref sc) = rules.safety_category {
+            return sc == "iso";
+        }
+    }
+    // Keyword fallback
+    let lc = comp.net_class.0.to_lowercase();
     ISO_COMPONENT_KEYWORDS.iter().any(|k| lc.contains(k))
 }
 
@@ -50,7 +61,7 @@ impl DrcRule for CreepageCheck {
         let mut violations = Vec::new();
 
         for comp in board.all_components() {
-            if !is_iso_component(&comp.net_class) {
+            if !is_iso_component(comp, board) {
                 continue;
             }
 
