@@ -49,16 +49,31 @@
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 
+use thiserror::Error;
+
 use crate::types::{InternalConstraint, InternalConstraintModel};
 
 /// Error returned when the rewrite engine detects a structural contradiction.
-#[derive(Debug, PartialEq)]
+#[derive(Error, Debug, PartialEq)]
 pub enum RewriteError {
     /// Structural contradiction detected pre-solve (RW7).
+    #[error("UNSAT pre-solve: contradictory LayerRestriction for {var_name} ({constraint1} vs {constraint2})")]
     UnsatPreSolve {
         var_name: String,
         constraint1: String,
         constraint2: String,
+    },
+    /// Invariant violation: tight_k entry unexpectedly None in subsume loop.
+    #[error("subsume tight_k invariant violated: entry for channel {channel_id} at indices ({i}, {j}) is None")]
+    SubsumeTightK {
+        channel_id: String,
+        i: usize,
+        j: usize,
+    },
+    /// Invariant violation: no CapInfo matched a var set in the dedup map.
+    #[error("subsume dedup invariant violated: no CapInfo found for var set {var_set:?}")]
+    SubsumeDedup {
+        var_set: String,
     },
 }
 
@@ -109,7 +124,7 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
 
         // RW1. CapSubsume
         let before_len = constraints.len();
-        constraints = subsume_capacity(constraints);
+        constraints = subsume_capacity(constraints)?;
         if constraints.len() != before_len {
             changed = true;
         }
@@ -410,7 +425,7 @@ fn propagate_layer_false(constraints: Vec<InternalConstraint>) -> Vec<InternalCo
 /// - V1 ⊆ V2 and K1 ≤ K2: tighten C2 to min(K2, K1 + |V2\V1|)
 /// - After tightening, if two constraints have identical var sets,
 ///   keep only the one with smaller K.
-fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstraint> {
+fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<InternalConstraint>, RewriteError> {
     // Separate capacity constraints from others.
     let mut caps: Vec<(usize, String, f64, f64, Vec<(String, f64)>)> = Vec::new();
     let mut others: Vec<InternalConstraint> = Vec::new();
@@ -440,7 +455,7 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
                 terms,
             });
         }
-        return result;
+        return Ok(result);
     }
 
     // Compute max_nets and var-name sets for each capacity constraint.
@@ -485,11 +500,16 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
                     }
                     let ki = tight_k[i];
                     let kj = tight_k[j];
-                    if ki.is_none() || kj.is_none() {
-                        continue;
-                    }
-                    let ki = ki.unwrap();
-                    let kj = kj.unwrap();
+                    let ki = ki.ok_or_else(|| RewriteError::SubsumeTightK {
+                        channel_id: cap_infos[i].channel_id.clone(),
+                        i,
+                        j,
+                    })?;
+                    let kj = kj.ok_or_else(|| RewriteError::SubsumeTightK {
+                        channel_id: cap_infos[i].channel_id.clone(),
+                        i,
+                        j,
+                    })?;
 
                     let skip: bool = cap_infos[i].terms.len() > cap_infos[j].terms.len()
                         || ki > kj;
@@ -545,7 +565,9 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
                     info.terms.iter().map(|(n, _)| n.clone()).collect();
                 vs == var_sorted
             })
-            .unwrap();
+            .ok_or_else(|| RewriteError::SubsumeDedup {
+                var_set: format!("{:?}", var_sorted),
+            })?;
 
         let new_max_nets = tight_k;
 
@@ -569,7 +591,7 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
         });
     }
 
-    result
+    Ok(result)
 }
 
 struct CapInfo {
@@ -1033,6 +1055,7 @@ mod tests {
             RewriteError::UnsatPreSolve { var_name, .. } => {
                 assert_eq!(var_name, "X");
             }
+            _ => panic!("expected UnsatPreSolve, got {err}"),
         }
     }
 
@@ -1083,5 +1106,50 @@ mod tests {
                 }
             }
         }
+    }
+
+    // -----------------------------------------------------------------------
+    // New error variant tests (U1)
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn subsume_capacity_single_constraint_returns_ok() {
+        let constraints = vec![capacity("CH1", 2.0, vec![("A", 1.0), ("B", 1.0), ("C", 1.0)])];
+        let result = super::subsume_capacity(constraints);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn rewrite_error_display_unsat() {
+        let err = RewriteError::UnsatPreSolve {
+            var_name: "X".into(),
+            constraint1: "c1".into(),
+            constraint2: "c2".into(),
+        };
+        let msg = format!("{err}");
+        assert!(msg.contains("X"), "error message should contain var name: {msg}");
+        assert!(msg.contains("UNSAT"), "error message should contain UNSAT: {msg}");
+    }
+
+    #[test]
+    fn rewrite_error_display_subsume_tight_k() {
+        let err = RewriteError::SubsumeTightK {
+            channel_id: "CH1".into(),
+            i: 0,
+            j: 1,
+        };
+        let msg = format!("{err}");
+        assert!(msg.contains("CH1"), "error message should contain channel_id: {msg}");
+        assert!(msg.contains("(0, 1)"), "error message should contain indices: {msg}");
+    }
+
+    #[test]
+    fn rewrite_error_display_subsume_dedup() {
+        let err = RewriteError::SubsumeDedup {
+            var_set: "A, B".into(),
+        };
+        let msg = format!("{err}");
+        assert!(msg.contains("A, B"), "error message should contain var_set: {msg}");
+        assert!(msg.contains("dedup"), "error message should mention dedup: {msg}");
     }
 }
