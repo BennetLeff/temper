@@ -59,6 +59,40 @@ pub fn calculate_min_trace_width(
     width_mils / 39.3701
 }
 
+/// Per-net expected currents from W2 R3 requirements.
+///
+/// Peak currents for switching nets, RMS for AC, average for supply rails.
+pub fn net_currents() -> HashMap<String, f64> {
+    let mut map = HashMap::new();
+    map.insert("DC_BUS+".into(), 16.0);
+    map.insert("AC_L".into(), 10.0);
+    map.insert("AC_N".into(), 10.0);
+    map.insert("SW_NODE".into(), 16.0);
+    map.insert("GATE_H".into(), 2.0);
+    map.insert("GATE_L".into(), 2.0);
+    map.insert("+3V3".into(), 0.5);
+    map.insert("+5V".into(), 0.5);
+    map.insert("+15V".into(), 0.2);
+    map
+}
+
+/// Default current for unlisted signal nets (100 mA).
+pub const DEFAULT_SIGNAL_CURRENT: f64 = 0.1;
+
+/// Resolve expected current for a net from the W2 current table.
+///
+/// Performs case-insensitive substring matching against net_currents().
+/// Falls back to DEFAULT_SIGNAL_CURRENT (100 mA) for unlisted nets.
+pub fn get_net_current(net_name: &str) -> f64 {
+    let name_upper = net_name.to_uppercase();
+    for (key, current) in net_currents() {
+        if name_upper.contains(&key) {
+            return current;
+        }
+    }
+    DEFAULT_SIGNAL_CURRENT
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -95,5 +129,55 @@ mod tests {
         let current = estimate_trace_current(width, 1.0, 10.0, true);
         let width2 = calculate_min_trace_width(current, 1.0, 10.0, true);
         assert!((width - width2).abs() < 0.05, "round-trip error: {width} vs {width2}");
+    }
+
+    #[test]
+    fn test_ipc2152_min_width_basic() {
+        // Verify against Python doctest values
+        let w = calculate_min_trace_width(0.5, 1.0, 10.0, false);
+        assert!((w - 0.1160).abs() < 0.0001, "external 0.5A -> {w}, expected 0.1160");
+        let w = calculate_min_trace_width(0.5, 1.0, 10.0, true);
+        assert!((w - 0.3019).abs() < 0.0001, "internal 0.5A -> {w}, expected 0.3019");
+        let w = calculate_min_trace_width(2.0, 1.0, 10.0, false);
+        assert!((w - 0.784).abs() < 0.001, "external 2A -> {w}, expected 0.784");
+    }
+
+    #[test]
+    fn test_ipc2152_current_capacity_roundtrip() {
+        // Forward capacity round-trips with inverse
+        let w = estimate_trace_current(0.1160, 1.0, 10.0, false);
+        assert!((w - 0.5).abs() < 0.01, "current_capacity -> {w}, expected 0.5");
+        let w = estimate_trace_current(0.784, 1.0, 10.0, false);
+        assert!((w - 2.0).abs() < 0.01, "current_capacity -> {w}, expected 2.0");
+    }
+
+    #[test]
+    fn test_get_net_current_exact() {
+        assert!((get_net_current("DC_BUS+") - 16.0).abs() < 1e-9);
+        assert!((get_net_current("AC_L") - 10.0).abs() < 1e-9);
+        assert!((get_net_current("+3V3") - 0.5).abs() < 1e-9);
+    }
+
+    #[test]
+    fn test_get_net_current_case_insensitive() {
+        assert!((get_net_current("dc_bus+") - 16.0).abs() < 1e-9);
+        assert!((get_net_current("ac_l") - 10.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn test_get_net_current_substring() {
+        assert!((get_net_current("+3V3_SENSE") - 0.5).abs() < 1e-9);
+        assert!((get_net_current("NET_SW_NODE_1") - 16.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn test_get_net_current_fallback() {
+        assert!((get_net_current("RANDOM_NET") - 0.1).abs() < 1e-9);
+    }
+
+    #[test]
+    fn test_get_net_current_zero_current() {
+        let w = calculate_min_trace_width(0.0, 1.0, 10.0, false);
+        assert_eq!(w, 0.0);
     }
 }

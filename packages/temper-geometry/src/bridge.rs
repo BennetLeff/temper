@@ -1094,6 +1094,134 @@ fn project_onto_side(px: f64, py: f64, board_w: f64, board_h: f64, side: &str) -
 }
 
 // =============================================================================
+// constraints module
+// =============================================================================
+
+#[pyfunction]
+fn compute_valid_bounds(
+    component_half_width: f64,
+    component_half_height: f64,
+    region_x_min: f64,
+    region_y_min: f64,
+    region_x_max: f64,
+    region_y_max: f64,
+    margin: f64,
+) -> PyResult<(f64, f64, f64, f64)> {
+    catch_unwind(|| {
+        let vb = crate::constraints::compute_valid_bounds(
+            component_half_width,
+            component_half_height,
+            region_x_min,
+            region_y_min,
+            region_x_max,
+            region_y_max,
+            margin,
+        );
+        Ok((vb.x_min, vb.x_max, vb.y_min, vb.y_max))
+    })
+    .map_err(panic_to_err)?
+}
+
+#[pyfunction]
+fn compute_boundary_violation(
+    position_x: f64,
+    position_y: f64,
+    component_half_width: f64,
+    component_half_height: f64,
+    board_x_min: f64,
+    board_y_min: f64,
+    board_x_max: f64,
+    board_y_max: f64,
+) -> PyResult<(f64, f64, f64, f64)> {
+    catch_unwind(|| {
+        let bv = crate::constraints::compute_boundary_violation(
+            position_x,
+            position_y,
+            component_half_width,
+            component_half_height,
+            board_x_min,
+            board_y_min,
+            board_x_max,
+            board_y_max,
+        );
+        Ok((bv.left, bv.right, bv.bottom, bv.top))
+    })
+    .map_err(panic_to_err)?
+}
+
+#[pyfunction]
+fn is_within_bounds(
+    position_x: f64,
+    position_y: f64,
+    component_half_width: f64,
+    component_half_height: f64,
+    region_x_min: f64,
+    region_y_min: f64,
+    region_x_max: f64,
+    region_y_max: f64,
+    tolerance: f64,
+) -> PyResult<bool> {
+    catch_unwind(|| {
+        crate::constraints::is_within_bounds(
+            position_x,
+            position_y,
+            component_half_width,
+            component_half_height,
+            region_x_min,
+            region_y_min,
+            region_x_max,
+            region_y_max,
+            tolerance,
+        )
+    })
+    .map_err(panic_to_err)
+}
+
+#[pyfunction]
+fn compute_zone_distance(
+    position_x: f64,
+    position_y: f64,
+    zone_x_min: f64,
+    zone_y_min: f64,
+    zone_x_max: f64,
+    zone_y_max: f64,
+) -> PyResult<f64> {
+    catch_unwind(|| {
+        crate::constraints::compute_zone_distance(
+            position_x,
+            position_y,
+            zone_x_min,
+            zone_y_min,
+            zone_x_max,
+            zone_y_max,
+        )
+    })
+    .map_err(panic_to_err)
+}
+
+#[pyfunction]
+fn point_in_zone(
+    position_x: f64,
+    position_y: f64,
+    zone_x_min: f64,
+    zone_y_min: f64,
+    zone_x_max: f64,
+    zone_y_max: f64,
+) -> PyResult<bool> {
+    catch_unwind(|| {
+        crate::constraints::point_in_zone(
+            position_x,
+            position_y,
+            zone_x_min,
+            zone_y_min,
+            zone_x_max,
+            zone_y_max,
+        )
+    })
+    .map_err(panic_to_err)
+}
+
+// =============================================================================
 // drc_inflate module
 // =============================================================================
 
@@ -1285,6 +1413,13 @@ pub fn register_functions(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(project_onto_half_plane, m)?)?;
     m.add_function(wrap_pyfunction!(project_onto_edge_strip, m)?)?;
     m.add_function(wrap_pyfunction!(project_onto_side, m)?)?;
+
+    // constraints
+    m.add_function(wrap_pyfunction!(compute_valid_bounds, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_boundary_violation, m)?)?;
+    m.add_function(wrap_pyfunction!(is_within_bounds, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_zone_distance, m)?)?;
+    m.add_function(wrap_pyfunction!(point_in_zone, m)?)?;
 
     // drc_inflate
     m.add_function(wrap_pyfunction!(inflate_pad_polygon, m)?)?;
