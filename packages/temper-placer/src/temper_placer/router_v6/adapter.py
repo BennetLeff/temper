@@ -626,6 +626,88 @@ def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     return margin, clearance
 
 
+def _stitch_isolated_pads(
+    pad_positions: dict[str, list[tuple[float, float]]],
+    segments: list[str],
+    net_name_to_number: dict[str, int],
+    *,
+    design_rules: Any = None,
+) -> None:
+    """U3: emit straight-line trace segments from pads outside every
+    dense-cluster pour back to the nearest pour for that net.
+
+    Uses scipy.spatial.cKDTree for nearest-pour lookup and shapely
+    point-in-polygon tests to identify pads already inside a pour.
+    """
+    from shapely.geometry import Point as ShapelyPoint, Polygon
+
+    from temper_placer.core.design_rules import (
+        TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
+    )
+    from temper_placer.router_v6.zone_emission import _cluster_positions, _convex_hull_from_positions
+
+    for net_name, positions in pad_positions.items():
+        nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
+        if nc not in ("GND", "Power", "GateDrive", "HighVoltage", "ACMains"):
+            continue
+        net_num = net_name_to_number.get(net_name, 0)
+        if net_num <= 0 or len(positions) <= 1:
+            continue
+
+        # Determine margin for this net
+        rules = TEMPER_NET_CLASSES.get(nc)
+        margin = rules.clearance if rules else 0.3
+
+        # Cluster and build pour polygons
+        clusters = _cluster_positions(positions)
+        pour_polys: list[Polygon] = []
+        for cluster in clusters:
+            hull_pts = _convex_hull_from_positions(cluster, margin=margin)
+            if len(hull_pts) >= 3:
+                pour_polys.append(Polygon(hull_pts))
+
+        if not pour_polys:
+            continue
+
+        # Find pads already inside a pour
+        outside: list[tuple[float, float]] = []
+        for x, y in positions:
+            pt = ShapelyPoint(x, y)
+            if not any(poly.contains(pt) or poly.touches(pt) for poly in pour_polys):
+                outside.append((x, y))
+
+        if not outside:
+            continue
+
+        # Nearest-pour lookup via KD-tree over pour vertices
+        from scipy.spatial import cKDTree
+        all_verts: list[tuple[float, float]] = []
+        poly_index: list[int] = []  # which poly each vertex belongs to
+        for i, poly in enumerate(pour_polys):
+            for x, y in poly.exterior.coords:
+                all_verts.append((float(x), float(y)))
+                poly_index.append(i)
+        if not all_verts:
+            continue
+
+        tree = cKDTree(all_verts)
+
+        for px, py in outside:
+            dist, idx = tree.query((px, py))
+            nearest_x, nearest_y = all_verts[idx]
+
+            # Emit a straight-line trace from the isolated pad to the
+            # nearest pour boundary point.
+            import uuid
+            segments.append(
+                f'  (segment (start {px:.4f} {py:.4f})'
+                f' (end {nearest_x:.4f} {nearest_y:.4f})'
+                f' (width {0.2:.4f}) (layer "F.Cu")'
+                f' (net {net_num})'
+                f' (tstamp "{uuid.uuid4()}"))'
+            )
+
+
 def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any = None) -> str:
     """Inject routing tracks from RouterV6Pipeline result into KiCad PCB content.
 
@@ -869,6 +951,15 @@ def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any
                             segments.append(emit_zone_s_expr(zd))
                     except ValueError:
                         pass
+
+        # U3: trace-stitch pads that fall outside all dense-cluster pours
+        # back to the nearest pour.  Uses KD-tree for nearest-pour lookup
+        # and emits straight-line trace segments.
+        if getattr(result, "enable_zone_pours", False):
+            _stitch_isolated_pads(
+                pad_positions, segments, net_name_to_number,
+                design_rules=design_rules,
+            )
 
     if not segments:
         return pcb_content, pad_positions
