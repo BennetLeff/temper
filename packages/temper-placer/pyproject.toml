@@ -127,6 +127,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["ARG001", "ARG002"]
+"**/cli/**/*.py" = ["ARG001"]  # click decorators bind params
 
 [tool.ruff.lint.isort]
 known-first-party = ["temper_placer"]

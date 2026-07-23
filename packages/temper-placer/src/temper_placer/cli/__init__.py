@@ -2,25 +2,17 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
 import click
 from rich.panel import Panel
-from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
 from rich.table import Table
 
 from temper_placer._version import __version__
-from temper_placer.pipeline import (
-    PipelinePhase,
-    PipelineState,
-    RichDashboard,
-)
 from temper_placer.profiling.cli import profile
 
-from ._io import _print_placement_summary, console
-from ._signal import InterruptGuard
+from ._io import console
 from .andon_commands import andon
 from .timing import timing
 from .trace_commands import trace
@@ -404,10 +396,7 @@ def optimize(
     if loop:
         console.print("\n[bold cyan]Running place→route feedback loop...[/]")
         try:
-            from temper_placer.io.config_loader import (
-                create_board_from_constraints,
-                load_constraints,
-            )
+            from temper_placer.io.config_loader import load_constraints
             from temper_placer.io.kicad_parser import parse_kicad_pcb
             from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
 
@@ -430,10 +419,9 @@ def optimize(
                         cfg = _yaml.safe_load(raw)
                         inline = cfg.get("constraints", []) if isinstance(cfg, dict) else []
                         for cdict in inline:
-                            try:
+                            from contextlib import suppress
+                            with suppress(Exception):
                                 pcl_constraints.append(parse_constraint_dict(cdict))
-                            except Exception:
-                                pass
                 except Exception:
                     pass
 
