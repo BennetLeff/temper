@@ -5,10 +5,7 @@
 /// - HV components: power transistors, diodes, bulk caps (>50mm² area)
 /// - LV components: small ICs (SOIC, QFP, BGA, QFN, SOT, area < 100mm²)
 /// - Critical loops: gate drive nets with >=2 components
-
-use crate::types::{
-    ComponentInfo, DerivedConstraints, Netlist, QualityConfig,
-};
+use crate::types::{DerivedConstraints, Netlist, QualityConfig};
 use std::collections::{BTreeSet, HashMap};
 
 pub fn build_config(
@@ -80,7 +77,7 @@ pub fn build_config(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::NetInfo;
+    use crate::types::{ComponentInfo, NetInfo};
 
     fn test_netlist() -> Netlist {
         Netlist {

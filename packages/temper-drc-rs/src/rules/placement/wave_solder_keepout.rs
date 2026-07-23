@@ -12,6 +12,7 @@ use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 /// Minimum keepout distance between bottom-side SMD and THT pads (mm).
 const KEEPOUT_MM: f64 = 5.0;
 
+#[derive(Default)]
 pub struct WaveSolderKeepoutCheck;
 
 impl WaveSolderKeepoutCheck {

@@ -45,7 +45,6 @@
 /// | RW7 | LayerConflict | Detect contradictory layer restrictions (pre-solve UNSAT) |
 ///
 /// The rewrite engine is terminating, confluent, and semantics-preserving.
-
 pub mod lower;
 pub mod proofs;
 pub mod rewrite;

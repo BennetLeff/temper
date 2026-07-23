@@ -22,6 +22,7 @@
 ///
 /// Uses the standard trick of subtracting the maximum value before exponentiating
 /// to avoid overflow. This is the only "scipy dependency" being inlined.
+#[allow(dead_code)]
 fn logsumexp(x: &[f64]) -> f64 {
     let max_val = x.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
     if max_val.is_infinite() {
@@ -723,7 +724,7 @@ mod tests {
     fn test_smooth_step_output_in_01() {
         for x in -10..=10 {
             let s = smooth_step(x as f64, 5.0);
-            assert!(s >= 0.0 && s <= 1.0, "step output outside [0,1] for x={x}: {s}");
+            assert!((0.0..=1.0).contains(&s), "step output outside [0,1] for x={x}: {s}");
         }
     }
 

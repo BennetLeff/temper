@@ -46,7 +46,6 @@
 /// performance optimization. The fixpoint loop ensures all rules exhaust
 /// regardless of order; confluent because the rules are monotonic decreases
 /// on a well-founded measure.
-
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use thiserror::Error;
@@ -315,11 +314,7 @@ fn propagate_layer_true(constraints: Vec<InternalConstraint>) -> Vec<InternalCon
                 }
 
                 // Decrement K by removed_count.
-                let new_max_nets = if old_max_nets > removed_count {
-                    old_max_nets - removed_count
-                } else {
-                    0
-                };
+                let new_max_nets = old_max_nets.saturating_sub(removed_count);
 
                 if new_terms.is_empty() {
                     // All terms were removed; drop the Capacity constraint entirely.

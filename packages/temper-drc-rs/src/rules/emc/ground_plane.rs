@@ -29,6 +29,7 @@ fn is_gnd_zone(zone_name: &str) -> bool {
     GND_KEYWORDS.iter().any(|k| lc.contains(k))
 }
 
+#[derive(Default)]
 pub struct GroundPlaneCheck;
 
 impl GroundPlaneCheck {

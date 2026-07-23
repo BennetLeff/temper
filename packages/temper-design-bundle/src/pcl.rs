@@ -2,6 +2,7 @@ use crate::{atopile::AtopileExport, error::diagnostic, model::Constraint};
 use serde::Deserialize;
 use temper_pcl_ir::{ConstraintOrigin, ConstraintTier, PclConstraintKind};
 
+/// A PCL (Physical Constraint Language) document containing input constraints.
 #[derive(Debug, Clone, Deserialize)]
 pub struct PclDocument {
     #[serde(default)]

@@ -30,12 +30,12 @@ const INNER_LAYERS: &[&str] = &["In1.Cu", "In2.Cu"];
 
 /// Collect all traces belonging to high-voltage net classes on inner
 /// copper layers (In1.Cu, In2.Cu).
-fn collect_hv_inner_traces<'a>(board: &'a BoardState) -> Vec<&'a TraceSegment> {
+fn collect_hv_inner_traces(board: &BoardState) -> Vec<&TraceSegment> {
     let hv_class_names: Vec<NetClassName> = board
         .net_class_rules
         .iter()
-        .filter(|(_, rules)| rules.voltage_v.map_or(false, |v| v >= HV_VOLTAGE_THRESHOLD_V))
-        .map(|(name, _)| name.clone())
+        .filter(|(_, rules)| rules.voltage_v.is_some_and(|v| v >= HV_VOLTAGE_THRESHOLD_V))
+        .map(|(name, _)| name).cloned()
         .collect();
 
     if hv_class_names.is_empty() {
@@ -130,6 +130,7 @@ fn check_hv_trace_clearance(
 // Check
 // ---------------------------------------------------------------------------
 
+#[derive(Default)]
 pub struct PartialDischargeCheck;
 
 impl PartialDischargeCheck {

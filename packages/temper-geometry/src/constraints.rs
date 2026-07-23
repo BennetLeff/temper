@@ -78,6 +78,7 @@ pub fn compute_valid_bounds(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn compute_boundary_violation(
     position_x: f64,
     position_y: f64,
@@ -106,6 +107,7 @@ pub fn compute_boundary_violation(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn is_within_bounds(
     position_x: f64,
     position_y: f64,

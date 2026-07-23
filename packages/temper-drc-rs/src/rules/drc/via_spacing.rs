@@ -16,7 +16,9 @@ use geo::EuclideanDistance;
 /// Default minimum via spacing in mm (used when via pads are very small).
 const DEFAULT_VIA_SPACING_MM: f64 = 0.6;
 
+#[derive(Default)]
 pub struct ViaSpacingCheck;
+
 impl ViaSpacingCheck {
     pub fn new() -> Self {
         Self

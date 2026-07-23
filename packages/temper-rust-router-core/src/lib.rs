@@ -1,3 +1,12 @@
+#![allow(clippy::collapsible_if)]
+#![allow(clippy::empty_line_after_doc_comments)]
+#![allow(clippy::type_complexity)]
+#![allow(clippy::manual_slice_fill)]
+#![allow(clippy::needless_range_loop)]
+//! Router V6 core logic — SAT-based topology solving.
+//!
+//! Many nested if-let chains use || conditions not supported in let-chains.
+
 pub mod audit;
 pub mod bmc;
 pub mod combinator;

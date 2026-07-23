@@ -36,8 +36,7 @@ pub fn extract_topology(
 
         // Parse variable names of the form `uses_{net_name}_{channel_id}`.
         // Net names can contain underscores, so we try suffix splitting.
-        if var_name.starts_with("uses_") {
-            let rest = &var_name[5..]; // strip "uses_"
+        if let Some(rest) = var_name.strip_prefix("uses_") {
             // Try each known net name as a prefix of `rest`.
             let mut best_net: Option<&str> = None;
             let mut best_len: usize = 0;
@@ -119,17 +118,16 @@ pub fn expand_assignments(
     // Build bundle_id → (channel_id → true/false) from class vars.
     let mut bundle_ch_vals: HashMap<usize, HashMap<String, bool>> = HashMap::new();
     for name in var_names {
-        if name.starts_with("uses_B") {
-            let rest = &name[6..]; // strip "uses_B"
+        #[allow(clippy::collapsible_if)]
+        if let Some(rest) = name.strip_prefix("uses_B") {
             if let Some(underscore_pos) = rest.find('_') {
                 let bid_str = &rest[..underscore_pos];
                 let ch = &rest[underscore_pos + 1..];
-                if let Ok(bid) = bid_str.parse::<usize>() {
-                    if let Some(&idx) = name_to_idx.get(name.as_str()) {
-                        if let Some(&val) = assignments.get(&idx) {
-                            bundle_ch_vals.entry(bid).or_default().insert(ch.to_string(), val);
-                        }
-                    }
+                if let Ok(bid) = bid_str.parse::<usize>()
+                    && let Some(&idx) = name_to_idx.get(name.as_str())
+                    && let Some(&val) = assignments.get(&idx)
+                {
+                    bundle_ch_vals.entry(bid).or_default().insert(ch.to_string(), val);
                 }
             }
         }
@@ -138,19 +136,14 @@ pub fn expand_assignments(
     // Add per-net variables for each bundle member.
     for bundle in &manifest.bundles {
         if let Some(ch_vals) = bundle_ch_vals.get(&bundle.bundle_id) {
-            for (ch, _val) in ch_vals {
+            for ch in ch_vals.keys() {
                 for &ni in &bundle.net_indices {
                     let pn_name = format!("uses_N{ni}_{ch}");
-                    // Only add if not already explicitly assigned.
-                    if !name_to_idx.contains_key(pn_name.as_str()) {
-                        // Need to add to the var list — but we can only
-                        // operate on existing indices. Skip for now.
-                        let _ = pn_name;
-                    }
-                    if let Some(&pn_idx) = name_to_idx.get(pn_name.as_str()) {
-                        if !expanded.contains_key(&pn_idx) {
-                            expanded.insert(pn_idx, true);
-                        }
+                    // Only add if not already explicitly assigned; skip for now.
+                    if let Some(&pn_idx) = name_to_idx.get(pn_name.as_str())
+                        && !expanded.contains_key(&pn_idx)
+                    {
+                        expanded.insert(pn_idx, true);
                     }
                 }
             }
@@ -219,21 +212,19 @@ pub fn extract_bundled(
             continue;
         }
         let var_name = &all_var_names[*idx];
-        if var_name.starts_with("uses_N") {
-            // Format: uses_N{net_idx}_{channel_id}
-            let rest = &var_name[6..];
+        #[allow(clippy::collapsible_if)]
+        if let Some(rest) = var_name.strip_prefix("uses_N") {
             if let Some(underscore_pos) = rest.find('_') {
                 let ni_str = &rest[..underscore_pos];
                 let ch = &rest[underscore_pos + 1..];
-                if let Ok(ni) = ni_str.parse::<usize>() {
-                    if let Some(net_name) = net_names.get(ni) {
-                        if !ch.is_empty() {
-                            net_channels
-                                .entry(net_name.clone())
-                                .or_default()
-                                .push(ch.to_string());
-                        }
-                    }
+                if let Ok(ni) = ni_str.parse::<usize>()
+                    && let Some(net_name) = net_names.get(ni)
+                    && !ch.is_empty()
+                {
+                    net_channels
+                        .entry(net_name.clone())
+                        .or_default()
+                        .push(ch.to_string());
                 }
             }
         }

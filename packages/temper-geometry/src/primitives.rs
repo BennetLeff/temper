@@ -210,7 +210,6 @@ pub fn batch_point_distance(points_a: &[Point], points_b: &[Point]) -> Vec<f64> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f64;
 
     // -----------------------------------------------------------------
     // point_distance

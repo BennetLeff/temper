@@ -462,9 +462,9 @@ pub fn compile_lattice_inferred_to_tier0(
                     ipc.net_class_a,
                     ipc.net_class_b,
                     lattice.join(
-                        crate::type_lattice::SafetyCategory::from_str(&ipc.net_class_a)
+                        crate::type_lattice::SafetyCategory::parse(&ipc.net_class_a)
                             .unwrap_or(crate::type_lattice::SafetyCategory::LV),
-                        crate::type_lattice::SafetyCategory::from_str(&ipc.net_class_b)
+                        crate::type_lattice::SafetyCategory::parse(&ipc.net_class_b)
                             .unwrap_or(crate::type_lattice::SafetyCategory::LV),
                     )
                 ),

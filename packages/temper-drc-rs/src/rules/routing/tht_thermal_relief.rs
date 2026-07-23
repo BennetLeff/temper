@@ -17,6 +17,7 @@ use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 /// Maximum current rating below which thermal relief should be verified.
 const MAX_CURRENT_THRESHOLD_A: f64 = 10.0;
 
+#[derive(Default)]
 pub struct ThtThermalReliefCheck;
 
 impl ThtThermalReliefCheck {

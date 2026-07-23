@@ -16,7 +16,6 @@
 
 use temper_geometry_core::types::*;
 use crate::smooth::*;
-use crate::transform::*;
 
 // =============================================================================
 // Core Box-Box Distance Functions
@@ -459,9 +458,9 @@ mod tests {
         let d = compute_pairwise_distances(&rects);
         assert_eq!(d.len(), 9);
         // Symmetry: d[i][j] == d[j][i]
-        assert!((d[0 * 3 + 1] - d[1 * 3 + 0]).abs() < 1e-12);
-        assert!((d[0 * 3 + 2] - d[2 * 3 + 0]).abs() < 1e-12);
-        assert!((d[1 * 3 + 2] - d[2 * 3 + 1]).abs() < 1e-12);
+        assert!((d[1] - d[3]).abs() < 1e-12);
+        assert!((d[2] - d[6]).abs() < 1e-12);
+        assert!((d[5] - d[7]).abs() < 1e-12);
         // Diagonal is zero
         assert!((d[0] - 0.0).abs() < 1e-12);
         assert!((d[4] - 0.0).abs() < 1e-12);
@@ -703,7 +702,7 @@ mod tests {
             Rect::new(0.0, 0.0, 10.0, 10.0),
             Rect::new(20.0, 0.0, 10.0, 10.0),
         ];
-        let (i, j, amount) = get_worst_overlap(&rects);
+        let (_, _, amount) = get_worst_overlap(&rects);
         assert!(
             (amount - 0.0).abs() < 1e-12,
             "no overlap should give amount 0, got {amount}"
