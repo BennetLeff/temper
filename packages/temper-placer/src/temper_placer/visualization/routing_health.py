@@ -334,11 +334,11 @@ def build_dashboard_from_pipeline(
             for i in range(len(nlist)):
                 a = nlist[i]
                 if a not in net_bboxes:
-                continue
+                    continue
                 ax1, ay1, ax2, ay2 = net_bboxes[a]
                 area_a = (ax2-ax1)*(ay2-ay1)
                 if area_a <= 0:
-                continue
+                    continue
                 for j in range(i+1, len(nlist)):
                     b = nlist[j]
                     if b not in net_bboxes:
@@ -356,13 +356,13 @@ def build_dashboard_from_pipeline(
             conflict_clusters = []
             for net in ordered:
                 if net in visited:
-                continue
+                    continue
                 queue = [net]
                 cluster = []
                 while queue:
                     n = queue.pop()
                     if n in visited:
-                    continue
+                        continue
                     visited.add(n)
                     cluster.append(n)
                     for nb in graph.get(n, set()):
