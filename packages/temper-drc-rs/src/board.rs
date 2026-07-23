@@ -163,6 +163,50 @@ pub enum PackageType {
 }
 
 // ---------------------------------------------------------------------------
+// SafetyCategory
+// ---------------------------------------------------------------------------
+
+/// Safety classification for net classes used in HV/LV separation checks.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+pub enum SafetyCategory {
+    /// High voltage
+    #[serde(rename = "HV")]
+    Hv,
+    /// Low voltage
+    #[serde(rename = "LV")]
+    Lv,
+    /// AC mains
+    #[serde(rename = "AC")]
+    Ac,
+    /// Isolated domain
+    #[serde(rename = "iso")]
+    Iso,
+}
+
+impl std::fmt::Display for SafetyCategory {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SafetyCategory::Hv => write!(f, "HV"),
+            SafetyCategory::Lv => write!(f, "LV"),
+            SafetyCategory::Ac => write!(f, "AC"),
+            SafetyCategory::Iso => write!(f, "iso"),
+        }
+    }
+}
+
+impl From<&str> for SafetyCategory {
+    fn from(s: &str) -> Self {
+        match s {
+            "HV" => SafetyCategory::Hv,
+            "LV" => SafetyCategory::Lv,
+            "AC" => SafetyCategory::Ac,
+            "iso" => SafetyCategory::Iso,
+            _ => SafetyCategory::Lv, // conservative fallback
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // NetClassRules
 // ---------------------------------------------------------------------------
 
@@ -177,7 +221,7 @@ pub struct NetClassRules {
     pub creepage_mm: Option<f64>,
     pub voltage_v: Option<f64>,
     pub max_current_rating: Option<f64>,
-    pub safety_category: Option<String>,
+    pub safety_category: Option<SafetyCategory>,
     pub required_layer: Option<String>,
     pub routing_strategy: Option<String>,
 }
@@ -649,3 +693,72 @@ mod board_state_tests {
         }
     }
 }
+
+// BEGIN GENERATED NetClassRules — DO NOT EDIT
+// Generated from packages/temper-placer/configs/netclass_rules_manifest.yaml
+// Run: python3 scripts/gen_domain_models.py
+use std::collections::HashMap;
+
+
+#[derive(Debug, Clone)]
+pub struct NetClassRules {
+    /// Net class name (e.g., 'Power', 'Signal', 'HighSpeed')
+    pub name: String,
+    /// Trace width in mm
+    pub trace_width_mm: f64,
+    /// Minimum clearance to other traces in mm
+    pub clearance_mm: f64,
+    /// Lower value emits earlier in DRU trace-width section
+    pub dru_priority: i32,
+    /// Via pad diameter in mm (for single vias)
+    pub via_diameter: f64,
+    /// Via drill diameter in mm (for single vias)
+    pub via_drill: f64,
+    /// Via array template name (e.g., 'Via2x2' for high-current)
+    pub via_template: Option<String>,
+    /// Creepage distance for high-voltage nets
+    pub creepage_mm: f64,
+    /// Voltage rating for safety distance calculation
+    pub voltage_v: f64,
+    /// Target impedance in ohms (for controlled impedance)
+    pub target_impedance: Option<f64>,
+    /// Maximum current rating in amperes for thermal/trace-width calculations
+    pub max_current_rating: Option<f64>,
+    /// KiCad layer name constraint or None for no constraint
+    pub required_layer: Option<String>,
+    /// KiCad layer name for this net class
+    pub layer: Option<String>,
+    /// Safety classification: HV, LV, AC, iso, or null
+    pub safety_category: Option<String>,
+    /// Routing strategy: plane_required, plane_preferred, wide_trace, or standard
+    pub routing_strategy: Option<String>,
+    /// Multiplier for via cost (higher = fewer vias)
+    pub via_cost_multiplier: f64,
+    /// Layer-specific cost multipliers e.g. {'F.Cu': 10.0, 'In1.Cu': 0.1}
+    pub layer_costs: Option<HashMap<String, f64>>,
+}
+
+impl Default for NetClassRules {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            trace_width_mm: 0.0_f64,
+            clearance_mm: 0.0_f64,
+            dru_priority: 0_i32,
+            via_diameter: 0.6_f64,
+            via_drill: 0.3_f64,
+            via_template: None,
+            creepage_mm: 0.0_f64,
+            voltage_v: 0.0_f64,
+            target_impedance: None,
+            max_current_rating: None,
+            required_layer: None,
+            layer: None,
+            safety_category: None,
+            routing_strategy: None,
+            via_cost_multiplier: 1.0_f64,
+            layer_costs: None,
+        }
+    }
+}
+// END GENERATED NetClassRules
