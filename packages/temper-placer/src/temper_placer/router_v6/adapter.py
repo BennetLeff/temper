@@ -527,6 +527,7 @@ def route_pcb(
         thermal_weight=thermal_weight,
         enable_all_pad_tree=enable_all_pad_tree,
         enable_zone_pours=enable_zone_pours,
+        enable_connectivity_verifier=enable_connectivity_verifier,
     )
 
     if placements:
