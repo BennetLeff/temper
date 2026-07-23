@@ -597,3 +597,108 @@ class TestStitchIsolatedPads:
         zone_points = {"vcc": [((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0))]}
         _stitch_isolated_pads({"vcc": [(5.0, 5.0)]}, segments, {"vcc": 1}, zone_points)
         assert len(segments) == 0  # pad inside, no stitch
+
+
+# ---------------------------------------------------------------------------
+# _chamfer_path_points tests
+# ---------------------------------------------------------------------------
+
+
+class TestChamferPathPoints:
+    """Tests for _chamfer_path_points, the grid-staircasing DRC fix."""
+
+    def test_orthogonal_turn_is_chamfered(self):
+        """A 90-degree orthogonal turn gets chamfered with a diagonal."""
+        from temper_placer.router_v6._adapter_convert import _chamfer_path_points
+
+        points = [
+            (0.0, 0.0, "F.Cu"),
+            (0.0, 10.0, "F.Cu"),
+            (10.0, 10.0, "F.Cu"),
+        ]
+        result = _chamfer_path_points(points, chamfer_offset=0.1)
+
+        assert result[0] == (0.0, 0.0, "F.Cu")
+        assert result[-1] == (10.0, 10.0, "F.Cu")
+        assert len(result) == 4
+        assert result[1] == (0.0, 9.9, "F.Cu")
+        assert result[2] == (0.1, 10.0, "F.Cu")
+
+    def test_straight_line_unchanged(self):
+        """Collinear same-direction points pass through unchanged."""
+        from temper_placer.router_v6._adapter_convert import _chamfer_path_points
+
+        points = [
+            (0.0, 0.0, "F.Cu"),
+            (5.0, 0.0, "F.Cu"),
+            (10.0, 0.0, "F.Cu"),
+        ]
+        result = _chamfer_path_points(points, chamfer_offset=0.1)
+        assert result == points
+
+    def test_layer_change_preserved(self):
+        """Turn point at a layer boundary (via) is never chamfered."""
+        from temper_placer.router_v6._adapter_convert import _chamfer_path_points
+
+        points = [
+            (0.0, 0.0, "F.Cu"),
+            (0.0, 10.0, "F.Cu"),
+            (0.0, 10.0, "B.Cu"),
+        ]
+        result = _chamfer_path_points(points, chamfer_offset=0.1)
+        assert result == points
+
+    def test_segment_too_short_skipped(self):
+        """Turn where one segment is shorter than 2*offset skips chamfer."""
+        from temper_placer.router_v6._adapter_convert import _chamfer_path_points
+
+        points = [
+            (0.0, 0.0, "F.Cu"),
+            (0.0, 0.15, "F.Cu"),
+            (10.0, 0.15, "F.Cu"),
+        ]
+        result = _chamfer_path_points(points, chamfer_offset=0.1)
+        assert result == points
+
+    def test_empty_and_two_point_paths(self):
+        """Edge cases: zero, one, and two point paths are identity."""
+        from temper_placer.router_v6._adapter_convert import _chamfer_path_points
+
+        assert _chamfer_path_points([], chamfer_offset=0.1) == []
+        single = [(1.0, 2.0, "F.Cu")]
+        assert _chamfer_path_points(single, chamfer_offset=0.1) == single
+        pair = [(0.0, 0.0, "F.Cu"), (10.0, 0.0, "F.Cu")]
+        assert _chamfer_path_points(pair, chamfer_offset=0.1) == pair
+
+    def test_multiple_consecutive_turns(self):
+        """A zigzag path gets all orthogonal turns chamfered."""
+        from temper_placer.router_v6._adapter_convert import _chamfer_path_points
+
+        points = [
+            (0.0, 0.0, "F.Cu"),
+            (10.0, 0.0, "F.Cu"),
+            (10.0, 10.0, "F.Cu"),
+            (20.0, 10.0, "F.Cu"),
+            (20.0, 20.0, "F.Cu"),
+        ]
+        result = _chamfer_path_points(points, chamfer_offset=0.1)
+        assert result[0] == (0.0, 0.0, "F.Cu")
+        assert result[-1] == (20.0, 20.0, "F.Cu")
+        assert len(result) == 8
+
+    def test_second_turn_after_chamfered_first(self):
+        """After chamfering first turn, second turn still gets chamfered."""
+        from temper_placer.router_v6._adapter_convert import _chamfer_path_points
+
+        points = [
+            (0.0, 0.0, "F.Cu"),
+            (0.0, 10.0, "F.Cu"),
+            (10.0, 10.0, "F.Cu"),
+            (10.0, 20.0, "F.Cu"),
+        ]
+        result = _chamfer_path_points(points, chamfer_offset=0.1)
+        assert len(result) == 6
+        assert result[1] == (0.0, 9.9, "F.Cu")
+        assert result[2] == (0.1, 10.0, "F.Cu")
+        assert result[3] == (9.9, 10.0, "F.Cu")
+        assert result[4] == (10.0, 10.1, "F.Cu")
