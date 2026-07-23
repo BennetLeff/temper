@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import math
 import os
 import re
 import tempfile
@@ -40,7 +41,7 @@ def route_pcb(
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
     enable_all_pad_tree: bool = False,
-    enable_zone_pours: bool = False,
+    enable_zone_pours: bool = True,
     enable_connectivity_verifier: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
@@ -61,8 +62,8 @@ def route_pcb(
         enable_all_pad_tree: Enable experimental all-terminal tree
             expansion (default False).
         enable_zone_pours: Emit filled-copper zone geometry for power/
-            ground/HV nets (per netclass SSOT).  Default False -- zones
-            are opt-in until measurement validates them.
+            ground/HV nets (per netclass SSOT).  Default True -- zones
+            are enabled by default for multi-layer power/ground routing.
         enable_connectivity_verifier: Run post-write connectivity
             preflight via verify_net_connectivity (default False).
 
@@ -419,6 +420,74 @@ def _emit_zone_pours(
     )
 
 
+def _chamfer_path_points(
+    path_points: list[tuple[float, float, str]],
+    chamfer_offset: float = 0.1,
+) -> list[tuple[float, float, str]]:
+    """Chamfer 90-degree orthogonal turns to reduce grid-staircasing DRC violations.
+
+    The A* router operates on a 0.1 mm grid, producing paths whose turns
+    are sharp 90-degree corners.  When two adjacent traces follow similar
+    grid paths, the clearance between their edges at these corners can
+    dip below the DRC minimum.  This function replaces each orthogonal
+    turn with a 45-degree diagonal chamfer, shortening both the incoming
+    and outgoing segments by *chamfer_offset*.
+
+    Layer transitions (vias) are never chamfered.  Start and end points
+    are preserved unchanged.  Segments shorter than ``2 * chamfer_offset``
+    on either side of a turn skip chamfering.
+    """
+    if len(path_points) <= 2:
+        return list(path_points)
+
+    result: list[tuple[float, float, str]] = [path_points[0]]
+
+    for i in range(1, len(path_points) - 1):
+        prev = path_points[i - 1]
+        curr = path_points[i]
+        nxt = path_points[i + 1]
+
+        if prev[2] != curr[2] or curr[2] != nxt[2]:
+            result.append(curr)
+            continue
+
+        lyr = curr[2]
+        dx1 = curr[0] - prev[0]
+        dy1 = curr[1] - prev[1]
+        dx2 = nxt[0] - curr[0]
+        dy2 = nxt[1] - curr[1]
+
+        h1 = abs(dy1) < 1e-12 and abs(dx1) > 1e-12
+        v1 = abs(dx1) < 1e-12 and abs(dy1) > 1e-12
+        h2 = abs(dy2) < 1e-12 and abs(dx2) > 1e-12
+        v2 = abs(dx2) < 1e-12 and abs(dy2) > 1e-12
+
+        is_orthogonal = (h1 and v2) or (v1 and h2)
+        if not is_orthogonal:
+            result.append(curr)
+            continue
+
+        seg1_len = math.sqrt(dx1 * dx1 + dy1 * dy1)
+        seg2_len = math.sqrt(dx2 * dx2 + dy2 * dy2)
+        if seg1_len < 2.0 * chamfer_offset or seg2_len < 2.0 * chamfer_offset:
+            result.append(curr)
+            continue
+
+        ux1 = dx1 / seg1_len
+        uy1 = dy1 / seg1_len
+        ux2 = dx2 / seg2_len
+        uy2 = dy2 / seg2_len
+
+        before = (curr[0] - ux1 * chamfer_offset, curr[1] - uy1 * chamfer_offset, lyr)
+        after = (curr[0] + ux2 * chamfer_offset, curr[1] + uy2 * chamfer_offset, lyr)
+
+        result.append(before)
+        result.append(after)
+
+    result.append(path_points[-1])
+    return result
+
+
 def _write_routes_to_content(
     pcb_content: str, result: Any, *, design_rules: Any = None
 ) -> tuple[str, dict[str, list[tuple[float, float]]]]:
@@ -523,41 +592,55 @@ def _write_routes_to_content(
         pads = pad_positions.get(net_name, [])
 
         if path_length > 0 and len(pads) >= 2:
-            # Real routed net: extract path coordinates
-            path_points: list[tuple[float, float]] = []
-            path_layer = "F.Cu"
+            # Real routed net: extract path coordinates with per-step layer
+            path_points: list[tuple[float, float, str]] = []
             path_segs = getattr(path, "segments", None)
             if path_segs:
                 for s in path_segs:
-                    path_points.append((s[0], s[1]))
-                    path_layer = s[2]
+                    path_points.append((s[0], s[1], s[2]))
             else:
                 coords = getattr(path, "coordinates", None)
                 if coords:
-                    path_points = list(coords)
-                    path_layer = getattr(path, "layer_name", "F.Cu")
+                    default_layer = getattr(path, "layer_name", "F.Cu")
+                    for c in coords:
+                        path_points.append((c[0], c[1], default_layer))
 
-            # Write path segments, collapsing consecutive same-direction steps
-            # to avoid A* grid-stepping staircasing.  Each individual grid
-            # step (0.1mm) emitted as its own (segment ...) creates 8k+
-            # micro-segments that KiCad DRC flags as clearance / shorting /
-            # masking violations because adjacent segments from different
-            # nets interleave with edge-to-edge gaps under the 0.2mm rule.
+            # Chamfer 90-degree orthogonal turns to reduce grid-staircasing.
+            # After collapse, remaining turns are still sharp 90-degree
+            # corners from the 0.1 mm A* grid.  Two adjacent traces following
+            # similar grid paths have edge-to-edge clearance violations at
+            # these corners because the staircase stagger pushes segments
+            # closer than the minimum clearance.  Chamfering replaces each
+            # orthogonal turn with a 45-degree diagonal, reducing both
+            # shorting_items and tracks_crossing DRC violations.
+            path_points = _chamfer_path_points(path_points, chamfer_offset=0.1)
+
+            # Write path segments, collapsing consecutive same-direction
+            # same-layer steps to avoid A* grid-stepping staircasing.
+            # Each individual grid step (0.1mm) emitted as its own
+            # (segment ...) creates 8k+ micro-segments that KiCad DRC
+            # flags as clearance / shorting / masking violations because
+            # adjacent segments from different nets interleave with
+            # edge-to-edge gaps under the 0.2mm rule. Only merge
+            # consecutive steps that share the same layer -- a layer
+            # change always splits the merged chain.
             i = 0
             while i < len(path_points) - 1:
-                x1, y1 = path_points[i][0], path_points[i][1]
-                x2, y2 = path_points[i + 1][0], path_points[i + 1][1]
+                x1, y1, lyr = path_points[i]
+                x2, y2, _l2 = path_points[i + 1]
                 dx_prev = x2 - x1
                 dy_prev = y2 - y1
                 j = i + 2
                 while j < len(path_points):
-                    xm = path_points[j - 1][0]
-                    ym = path_points[j - 1][1]
-                    xn = path_points[j][0]
-                    yn = path_points[j][1]
+                    xm, ym, _ = path_points[j - 1]
+                    xn, yn, lyr_n = path_points[j]
                     dx_cur = xn - xm
                     dy_cur = yn - ym
-                    if abs(dx_cur - dx_prev) < 1e-12 and abs(dy_cur - dy_prev) < 1e-12:
+                    if (
+                        abs(dx_cur - dx_prev) < 1e-12
+                        and abs(dy_cur - dy_prev) < 1e-12
+                        and lyr_n == lyr
+                    ):
                         x2, y2 = xn, yn
                         j += 1
                     else:
@@ -565,7 +648,7 @@ def _write_routes_to_content(
                 seg_id = uuid.uuid4()
                 segments.append(
                     f"  (segment (start {x1:.4f} {y1:.4f}) (end {x2:.4f} {y2:.4f})"
-                    f' (width {width:.4f}) (layer "{path_layer}") (net {net_num})'
+                    f' (width {width:.4f}) (layer "{lyr}") (net {net_num})'
                     f' (tstamp "{seg_id}"))'
                 )
                 i = j - 1
