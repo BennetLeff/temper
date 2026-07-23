@@ -347,6 +347,7 @@ class RouterV6Pipeline:
         thermal_weight: float = 0.0,  # U8: multiplier
         enable_all_pad_tree: bool = False,
         enable_zone_pours: bool = False,
+        enable_connectivity_verifier: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -424,6 +425,7 @@ class RouterV6Pipeline:
         self.thermal_weight = thermal_weight
         self.enable_all_pad_tree = enable_all_pad_tree
         self.enable_zone_pours = enable_zone_pours
+        self.enable_connectivity_verifier = enable_connectivity_verifier
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
         self.layer_constraints = layer_constraints or {}
@@ -1286,6 +1288,7 @@ class RouterV6Pipeline:
             width_assignment,
             via_placement,
             plane_net_names=plane_net_names,
+            connectivity=None,  # U4: post-write preflight runs in adapter; pipeline has no PCB content yet
         )
 
         return Stage4Output(
