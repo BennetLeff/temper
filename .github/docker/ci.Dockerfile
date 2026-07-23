@@ -26,8 +26,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 # Rust toolchain (stable, minimal profile)
 ENV RUSTUP_HOME=/root/.rustup CARGO_HOME=/root/.cargo
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
-RUN rustup component add clippy
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal \
+    && /root/.cargo/bin/rustup component add clippy
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # uv (fast Python package manager)
