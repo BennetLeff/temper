@@ -7,6 +7,7 @@ name: Firmware Performance Record
 # When active, triggers on push to main with firmware/** path filter.
 
 on:
+  # no-pr-trigger: hardware profiling, only meaningful on main branch
   push:
     branches: [main]
     paths:
