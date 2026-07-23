@@ -140,8 +140,8 @@ def compile_routing_results(
     """
     compiled_routes = {}
     partial_routes = {}
-    tree_routes = {}
-    partial_tree_routes = {}
+    tree_routes: dict[str, CompiledTreeRoute] = {}
+    partial_tree_routes: dict[str, CompiledTreeRoute] = {}
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
         # Get width for this net
@@ -173,7 +173,7 @@ def compile_routing_results(
 
     for net_name, geometry in pathfinding_result.tree_routes.items():
         # U3: connectivity-filtered — incomplete nets go to partial, not success.
-        disp = connectivity.get(net_name).disposition if connectivity and net_name in connectivity else None
+        disp = connectivity[net_name].disposition if connectivity and net_name in connectivity else None
         dest = partial_tree_routes if disp in (NetDisposition.INCOMPLETE, NetDisposition.FAILED) else tree_routes
         dest[net_name] = CompiledTreeRoute(
             net_name=net_name,

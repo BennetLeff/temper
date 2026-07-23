@@ -161,14 +161,14 @@ def verify_net_connectivity(
 
     for left, pad in enumerate(ordered_pads):
         for right in range(left + 1, len(ordered_pads)):
-            other = ordered_pads[right]
-            if pad.layers & other.layers and _pads_touch(pad, other):
+            other_pad = ordered_pads[right]
+            if pad.layers & other_pad.layers and _pads_touch(pad, other_pad):
                 union(left, right)
 
     for left, via in enumerate(ordered_vias):
         for right in range(left + 1, len(ordered_vias)):
-            other = ordered_vias[right]
-            if via.layers & other.layers and _points_touch(via.center, other.center):
+            other_via = ordered_vias[right]
+            if via.layers & other_via.layers and _points_touch(via.center, other_via.center):
                 union(via_start + left, via_start + right)
         for pad_index, pad in enumerate(ordered_pads):
             if via.layers & pad.layers and _via_touches_pad(via, pad):

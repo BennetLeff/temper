@@ -875,13 +875,14 @@ def _write_routes_to_content(pcb_content: str, result: Any, *, design_rules: Any
         # branches are never bridged by synthetic copper.
         tree_route = getattr(compiled_route, "_tree_route", None)
         if tree_route is not None:
+            tree_width = getattr(compiled_route, "width_mm", 0.2)
             for branch in tree_route.geometry.branches:
                 net_num = net_name_to_number.get(net_name, 0)
                 for sx, sy, ex, ey, layer in branch.path.iter_segments():
                     seg_id = uuid.uuid4()
                     segments.append(
                         f'  (segment (start {sx:.4f} {sy:.4f}) (end {ex:.4f} {ey:.4f})'
-                        f' (width {width:.4f}) (layer "{layer}") (net {net_num})'
+                        f' (width {tree_width:.4f}) (layer "{layer}") (net {net_num})'
                         f' (tstamp "{seg_id}"))'
                     )
             continue
