@@ -34,7 +34,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
-# Ensure HOME is consistent for GitHub Actions container jobs
-ENV HOME=/root
+# Verify Rust works (sets default toolchain in settings.toml)
+RUN rustup default stable && rustc --version && cargo --version
 
 WORKDIR /workspace
