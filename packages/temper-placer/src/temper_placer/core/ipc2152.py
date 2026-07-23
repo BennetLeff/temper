@@ -75,19 +75,3 @@ def ipc2152_min_width(net_name, current_amps, layer=None, stackup=None):
         internal = layer in (1, 2)
 
     return ipc2152_min_width_mm(current_amps, copper_oz, 10.0, internal)
-
-
-# ---------------------------------------------------------------------------
-# Unit conversions (kept local for tests)
-# ---------------------------------------------------------------------------
-_OZ_TO_MILS = 1.378
-_MM_TO_MILS = 39.3701
-
-
-def _area_to_width_mm(area_mils2: float, copper_weight_oz: float) -> float:
-    """Convert cross-sectional area (mils²) to trace width (mm)."""
-    thickness_mils = copper_weight_oz * _OZ_TO_MILS
-    if thickness_mils <= 0:
-        return 0.0
-    width_mils = area_mils2 / thickness_mils
-    return width_mils / _MM_TO_MILS
