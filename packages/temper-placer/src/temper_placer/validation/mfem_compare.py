@@ -32,7 +32,7 @@ def compare_fields(
     tolerance_C: float = 5.0,
     *,
     devices: dict[str, tuple[int, int]] | None = None,
-    cell_size_mm: float = 1.0,
+    _cell_size_mm: float = 1.0,
     heatsink_edge: str = "TOP",
 ) -> ComparisonResult:
     """Compare MFEM and FDM temperature fields across the full board.

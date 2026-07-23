@@ -11,8 +11,8 @@ from pathlib import Path
 
 def build_temper_mesh(
     board: Board,
-    fdm_config: ThermalFDMConfig,
-    device_thermal: dict[str, DeviceThermalConfig],
+    _fdm_config: ThermalFDMConfig,
+    _device_thermal: dict[str, DeviceThermalConfig],
     power_map: dict[str, float] | None = None,
     output_dir: str | None = None,
 ) -> str:

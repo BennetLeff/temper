@@ -683,7 +683,7 @@ class OperatingPointGate(Gate):
     # ------------------------------------------------------------------
 
     def _run_spice_cross_check(
-        self, k0: _ExtremePoint, k1: _ExtremePoint
+        self, k0: _ExtremePoint, _k1: _ExtremePoint
     ) -> SpiceCrossCheckInfo:
         """Run the independent SPICE simulation and compare with analytic.
 

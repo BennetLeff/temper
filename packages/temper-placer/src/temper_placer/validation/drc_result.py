@@ -414,9 +414,9 @@ class ClearanceCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -442,9 +442,9 @@ class ComponentOverlapCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -469,9 +469,9 @@ class CourtyardCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -493,9 +493,9 @@ class ZoneContainmentCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -517,9 +517,9 @@ class TraceClearanceCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -541,9 +541,9 @@ class ViaSpacingCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -565,9 +565,9 @@ class NetConnectivityCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -589,9 +589,9 @@ class PowerDomainCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -613,9 +613,9 @@ class FloatingPinsCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -637,9 +637,9 @@ class HVLVSeparationCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -664,9 +664,9 @@ class CreepageCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -688,9 +688,9 @@ class IsolationCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -712,9 +712,9 @@ class LoopAreaCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -736,9 +736,9 @@ class NoiseCouplingCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)
 
@@ -760,8 +760,8 @@ class GroundPlaneCheck(Check):
 
     def run(
         self,
-        placement: Placement,
-        constraints: ConstraintSet,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _placement: Placement,
+        _constraints: ConstraintSet,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> CheckResult:
         return CheckResult(check_name=self.name, passed=True)

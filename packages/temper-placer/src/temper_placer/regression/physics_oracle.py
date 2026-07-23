@@ -198,7 +198,7 @@ def run_physics_oracle(
     placement: PlacementResult | None = None,
     spec_path: Path | None = None,
     verbose: bool = True,
-    weights_override: dict[str, float] | None = None,
+    _weights_override: dict[str, float] | None = None,
 ) -> PhysicsOracleResult:
     """
     Score a CP-SAT placement against the physics oracle.

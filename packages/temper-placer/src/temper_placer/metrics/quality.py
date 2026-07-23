@@ -417,12 +417,12 @@ def loop_area_score(
 
 
 def congestion_score(
-    state: PlacementState,
+    _state: PlacementState,
     _netlist: Netlist,
     board: Board,
-    context: LossContext,
-    grid_shape: tuple[int, int] = (10, 10),
-    capacity_per_cell: float = 10.0,
+    _context: LossContext,
+    _grid_shape: tuple[int, int] = (10, 10),
+    _capacity_per_cell: float = 10.0,
 ) -> float:
     """
     Score routing congestion (0-1, higher is better = less congestion).

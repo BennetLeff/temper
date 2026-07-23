@@ -63,7 +63,7 @@ _DIRS_8: tuple[tuple[int, int], ...] = (
 
 
 def check_routability(
-    net_name: str,
+    _net_name: str,
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
@@ -183,7 +183,7 @@ def check_routability(
 
 
 def check_routability_bidi(
-    net_name: str,
+    _net_name: str,
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
@@ -296,7 +296,7 @@ def build_passability_mask(
 
 
 def check_routability_cc(
-    net_name: str,
+    _net_name: str,
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,

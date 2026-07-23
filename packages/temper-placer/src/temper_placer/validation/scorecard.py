@@ -305,9 +305,9 @@ def score_placement_via_oracle(
 
 def _is_scorable_metric(
     score: float,
-    report: dict[str, Any],
+    _report: dict[str, Any],
     *,
-    key: str,
+    _key: str,
     default_value: float = 1.0,
 ) -> bool:
     """Dynamic-range smoke test for a single metric.

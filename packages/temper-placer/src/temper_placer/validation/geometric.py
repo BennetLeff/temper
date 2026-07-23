@@ -188,7 +188,7 @@ class GeometricValidator(Validator):
     def _check_overlaps(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         widths: Array,
         heights: Array,
         netlist: Netlist,
@@ -334,7 +334,7 @@ class GeometricValidator(Validator):
     def _check_clearances(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         widths: Array,
         heights: Array,
         netlist: Netlist,
