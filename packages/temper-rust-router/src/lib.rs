@@ -26,13 +26,13 @@ fn solve_topology_rust(
     variables: &Bound<'_, PyList>,
     constraints: &Bound<'_, PyList>,
     net_names: Vec<String>,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     // Convert Python objects to internal model.
-    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
-    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
+    let py_vars: Vec<Py<PyAny>> = variables.iter().map(|v| v.into()).collect();
+    let py_cons: Vec<Py<PyAny>> = constraints.iter().map(|c| c.into()).collect();
 
     let model: InternalConstraintModel =
-        types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
+        types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons, py)?;
 
     // Apply combinator rewrite engine (RW1-RW7) to simplify the model
     // before CNF encoding.  Detects structural contradictions (RW7) pre-solve.
@@ -95,7 +95,7 @@ fn solve_topology_rust(
     d.set_item("num_clauses", result.num_clauses)?;
 
     // Unsat core
-    let py_core = PyList::empty(py);
+    let py_core = PyList::new(py, Vec::<Py<PyAny>>::new())?;
     for idx in &result.unsat_core {
         py_core.append(idx)?;
     }
@@ -141,15 +141,16 @@ fn solve_topology_rust(
 /// assignments.  Returns a list of violation dicts (empty = clean).
 #[pyfunction]
 fn audit_result(
+    py: Python<'_>,
     variables: &Bound<'_, PyList>,
     constraints: &Bound<'_, PyList>,
     assignments: &Bound<'_, PyDict>,
     net_names: Vec<String>,
-) -> PyResult<PyObject> {
-    let py_vars: Vec<PyObject> = variables.iter().map(|v| v.into()).collect();
-    let py_cons: Vec<PyObject> = constraints.iter().map(|c| c.into()).collect();
+) -> PyResult<Py<PyAny>> {
+    let py_vars: Vec<Py<PyAny>> = variables.iter().map(|v| v.into()).collect();
+    let py_cons: Vec<Py<PyAny>> = constraints.iter().map(|c| c.into()).collect();
 
-    let model = types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons)?;
+    let model = types_py_bridge::model_from_python(net_names.clone(), py_vars, py_cons, py)?;
 
     // Build var_names from model
     let var_names: Vec<String> = model.variables.iter().map(|v| match v {
@@ -184,44 +185,42 @@ fn audit_result(
 
     let violations = audit::audit_constraints(&model, &result, &var_names);
 
-    Python::with_gil(|py| {
-        let py_list = PyList::empty(py);
-        for v in &violations {
-            let d = PyDict::new(py);
-            match v {
-                audit::AuditViolation::Capacity { channel_id, max_nets, actual_count, violating_vars } => {
-                    d.set_item("type", "capacity")?;
-                    d.set_item("channel_id", channel_id.clone())?;
-                    d.set_item("max_nets", *max_nets)?;
-                    d.set_item("actual_count", *actual_count)?;
-                    d.set_item("violating_vars", violating_vars.clone())?;
-                }
-                audit::AuditViolation::DiffPairMismatch { channel_id, p_var, n_var, p_value, n_value } => {
-                    d.set_item("type", "diff_pair")?;
-                    d.set_item("channel_id", channel_id.clone())?;
-                    d.set_item("p_var", p_var.clone())?;
-                    d.set_item("n_var", n_var.clone())?;
-                    d.set_item("p_value", *p_value)?;
-                    d.set_item("n_value", *n_value)?;
-                }
-                audit::AuditViolation::LayerViolation { var_name, expected, actual } => {
-                    d.set_item("type", "layer")?;
-                    d.set_item("var_name", var_name.clone())?;
-                    d.set_item("expected", *expected)?;
-                    d.set_item("actual", *actual)?;
-                }
-                audit::AuditViolation::UnexplainedUnsat => {
-                    d.set_item("type", "unexplained_unsat")?;
-                }
-                audit::AuditViolation::NoAssignmentForVar(vname) => {
-                    d.set_item("type", "no_assignment")?;
-                    d.set_item("var_name", vname.clone())?;
-                }
+    let py_list = PyList::new(py, Vec::<Py<PyAny>>::new())?;
+    for v in &violations {
+        let d = PyDict::new(py);
+        match v {
+            audit::AuditViolation::Capacity { channel_id, max_nets, actual_count, violating_vars } => {
+                d.set_item("type", "capacity")?;
+                d.set_item("channel_id", channel_id.clone())?;
+                d.set_item("max_nets", *max_nets)?;
+                d.set_item("actual_count", *actual_count)?;
+                d.set_item("violating_vars", violating_vars.clone())?;
             }
-            py_list.append(d)?;
+            audit::AuditViolation::DiffPairMismatch { channel_id, p_var, n_var, p_value, n_value } => {
+                d.set_item("type", "diff_pair")?;
+                d.set_item("channel_id", channel_id.clone())?;
+                d.set_item("p_var", p_var.clone())?;
+                d.set_item("n_var", n_var.clone())?;
+                d.set_item("p_value", *p_value)?;
+                d.set_item("n_value", *n_value)?;
+            }
+            audit::AuditViolation::LayerViolation { var_name, expected, actual } => {
+                d.set_item("type", "layer")?;
+                d.set_item("var_name", var_name.clone())?;
+                d.set_item("expected", *expected)?;
+                d.set_item("actual", *actual)?;
+            }
+            audit::AuditViolation::UnexplainedUnsat => {
+                d.set_item("type", "unexplained_unsat")?;
+            }
+            audit::AuditViolation::NoAssignmentForVar(vname) => {
+                d.set_item("type", "no_assignment")?;
+                d.set_item("var_name", vname.clone())?;
+            }
         }
-        Ok(py_list.into())
-    })
+        py_list.append(d)?;
+    }
+    Ok(py_list.into())
 }
 
 /// Python module entry point.
