@@ -19,5 +19,8 @@ jobs:
       - run: uv sync --all-packages
       - run: uv run python benchmarks/cp_sat_bench.py --scenario ${{ matrix.scenario }} --output benchmarks/results
       - uses: actions/upload-artifact@v4
-        if: always()
-        with: {name: cp-sat-bench-${{ matrix.scenario }}, path: benchmarks/results/cp_sat_metrics.jsonl, retention-days: 30}
+        if: "always()"
+        with:
+          name: cp-sat-bench-${{ matrix.scenario }}
+          path: benchmarks/results/cp_sat_metrics.jsonl
+          retention-days: 30
