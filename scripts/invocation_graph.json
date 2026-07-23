@@ -7,6 +7,7 @@
   ],
   "bench_coarse_to_fine.py": [],
   "bench_rust_constraints.py": [],
+  "bench_rust_geometry.py": [],
   "benchmark_numba_los.py": [],
   "bless_baselines.py": [],
   "bmc_adoption_gate.py": [],
@@ -28,7 +29,9 @@
     ".github/workflows/python-tests.yml",
     "packages/temper-placer/tests/scripts/test_check_physics_provenance.py"
   ],
-  "check_regression.py": [],
+  "check_regression.py": [
+    ".github/workflows/regression.yml"
+  ],
   "check_script_sunset.py": [
     ".github/workflows/health-digest.yml",
     ".github/workflows/python-tests.yml"
@@ -36,6 +39,9 @@
   "check_traceability.py": [],
   "check_typecheck_gate.py": [
     ".github/workflows/python-tests.yml"
+  ],
+  "check_workflow_pr_triggers.py": [
+    ".github/workflows/lint-workflows.yml"
   ],
   "ci_check_drc.py": [
     ".github/workflows/regression.yml"
@@ -59,6 +65,10 @@
   "full_pipeline_profile.py": [],
   "gen_architecture_poster.py": [
     ".github/workflows/architecture-poster.yml"
+  ],
+  "gen_domain_models.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py"
   ],
   "gen_pcb_skeleton.py": [],
   "gen_schematics.py": [

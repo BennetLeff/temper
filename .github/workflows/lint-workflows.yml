@@ -34,3 +34,6 @@ jobs:
           # actions/labels) without churning on pre-existing style nits.
           SHELLCHECK_OPTS: --severity=error
         run: ./actionlint -color -ignore 'constant expression "false" in condition'
+
+      - name: Check pull_request trigger coverage
+        run: python3 scripts/check_workflow_pr_triggers.py

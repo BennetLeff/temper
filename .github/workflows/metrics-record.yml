@@ -1,6 +1,7 @@
 name: Metrics Record
 
 on:
+  # no-pr-trigger: record pipeline metrics post-merge, not meaningful on PRs
   push:
     branches: [main]
     paths:
