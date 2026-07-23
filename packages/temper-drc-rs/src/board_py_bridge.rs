@@ -312,7 +312,7 @@ fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> 
         name: extract_str(dict, "name").unwrap_or_default(),
         trace_width_mm: extract_f64(dict, "trace_width_mm", 0.2)?,
         clearance_mm: extract_f64(dict, "clearance_mm", 0.2)?,
-        dru_priority: extract_i32(dict, "dru_priority", 0)?,
+        dru_priority: extract_f64(dict, "dru_priority", 0.0)?.round() as i32,
         via_diameter: extract_f64(dict, "via_diameter", 0.6)?,
         via_drill: extract_f64(dict, "via_drill", 0.3)?,
         via_template: extract_opt_str(dict, "via_template")?,
@@ -324,8 +324,7 @@ fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> 
         layer: extract_opt_str(dict, "layer")?,
         safety_category: extract_opt_str(dict, "safety_category")?,
         routing_strategy: extract_opt_str(dict, "routing_strategy")?,
-        via_cost_multiplier: extract_f64(dict, "via_cost_multiplier", 1.0)?,
-        layer_costs: None,
+        ..NetClassRules::default()
     })
 }
 
@@ -575,7 +574,11 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
             let rules = net_class_rules
                 .get(&class_name)
                 .cloned()
-                .unwrap_or_default();
+                .unwrap_or_else(|| NetClassRules {
+                    trace_width_mm: 0.2,
+                    clearance_mm: 0.2,
+                    ..NetClassRules::default()
+                });
             Net {
                 name: net_name,
                 components: comps.into_iter().map(ComponentRef).collect(),

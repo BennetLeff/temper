@@ -1,0 +1,12 @@
+[package]
+name = "temper-py-bridge"
+version = "0.1.0"
+edition = "2024"
+description = "Shared PyO3 bridge utilities for temper Rust crates"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+pyo3 = { version = "0.23" }
+temper-py-bridge-derive = { path = "../temper-py-bridge-derive" }

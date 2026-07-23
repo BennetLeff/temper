@@ -18,35 +18,16 @@ pub mod oracle;
 #[path = "tests_common.rs"]
 mod tests_common;
 
-use pyo3::exceptions::{PyRuntimeError, PyValueError};
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 use std::collections::HashMap;
-use std::panic;
+
+use temper_py_bridge;
 
 use crate::types::{
     ComponentInfo, NetInfo, Netlist, PcbSpecification, PlacementState, PrecomputedMetrics,
 };
-
-fn catch_unwind_pyobj(
-    f: impl FnOnce() -> PyResult<PyObject>,
-) -> PyResult<PyObject> {
-    match panic::catch_unwind(panic::AssertUnwindSafe(f)) {
-        Ok(result) => result,
-        Err(panic_info) => {
-            let msg = if let Some(s) = panic_info.downcast_ref::<String>() {
-                s.clone()
-            } else if let Some(s) = panic_info.downcast_ref::<&str>() {
-                s.to_string()
-            } else {
-                "unknown panic in temper_quality_oracle".to_string()
-            };
-            Err(PyRuntimeError::new_err(format!(
-                "temper_quality_oracle panic: {msg}"
-            )))
-        }
-    }
-}
 
 fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist> {
     let nets_list = dict
@@ -245,7 +226,7 @@ fn evaluate_quality_py(
     spec: &Bound<'_, PyDict>,
     metrics: &Bound<'_, PyDict>,
 ) -> PyResult<PyObject> {
-    catch_unwind_pyobj(|| {
+    temper_py_bridge::catch_panic(|| {
         let rust_netlist = extract_netlist(py, netlist)?;
 
         let pos_list = placement
@@ -324,7 +305,7 @@ fn evaluate_quality_py(
 
 #[pyfunction]
 fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<PyObject> {
-    catch_unwind_pyobj(|| {
+    temper_py_bridge::catch_panic(|| {
         let rust_netlist = extract_netlist(py, netlist)?;
         let classifications = classification::classify_nets(&rust_netlist);
         let result = PyDict::new(py);

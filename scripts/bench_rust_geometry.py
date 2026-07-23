@@ -2,7 +2,7 @@
 """Benchmark Rust-backed geometry functions vs pure-Python equivalents."""
 import math
 import time
-
+import statistics
 import temper_geometry as _tg
 
 # Synthetic test data

@@ -35,7 +35,7 @@ fn collect_hv_inner_traces(board: &BoardState) -> Vec<&TraceSegment> {
         .net_class_rules
         .iter()
         .filter(|(_, rules)| rules.voltage_v >= HV_VOLTAGE_THRESHOLD_V)
-        .map(|(name, _)| name).cloned()
+        .map(|(name, _)| name.clone())
         .collect();
 
     if hv_class_names.is_empty() {
