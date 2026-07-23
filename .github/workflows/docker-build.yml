@@ -9,6 +9,11 @@ on:
       - 'uv.lock'
       - 'packages/*/Cargo.lock'
       - 'packages/temper-placer/temper-constraints/Cargo.lock'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/docker/**'
+      - '.github/workflows/docker-build.yml'
   workflow_dispatch:
 
 env:
