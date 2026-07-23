@@ -231,8 +231,14 @@ jobs:
           || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
         continue-on-error: true
 
+  checks-setup:
+    uses: ./.github/workflows/_setup-python.yml
+    with:
+      python-version: "3.12"
+
   checks:
     name: Extended Tests & Gates
+    needs: checks-setup
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -252,16 +258,11 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Cache virtualenv
-        uses: actions/cache@v4
-        id: cache-venv
+      - name: Restore virtualenv
+        uses: actions/cache/restore@v4
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -411,9 +412,8 @@ jobs:
         run: make netlist
 
       - name: Regenerate schematics and check drift
-        continue-on-error: true  # KiCad CLI interaction in container — temper-xxx
         run: |
-          uv run python3 scripts/gen_schematics.py --check
+          uv run python3 scripts/gen_schematics.py --check --no-oracle
           git diff --exit-code pcb/*.kicad_sch
 
       - name: Verify config reference doc is up-to-date (plan 2026-07-22-005, U7)
@@ -421,7 +421,6 @@ jobs:
           uv run python packages/temper-placer/scripts/gen_config_reference.py --check
 
       - name: Verify board identity gate (plan 2026-07-15-001, U7)
-        continue-on-error: true  # ImportError: BoardIdentityError not in temper_io_types — temper-xxx
         run: uv run python3 scripts/ci_identity_check.py
 
       - name: Lint with ruff
@@ -429,11 +428,9 @@ jobs:
         run: uv run ruff check packages/
 
       - name: Vulture dead-code gate
-        continue-on-error: true  # deadcode-baseline.py removed — temper-xxx
         run: uv run python scripts/vulture_gate.py
 
       - name: Script manifest gate
-        continue-on-error: true  # new scripts missing manifest entries — temper-xxx
         run: uv run python scripts/check_manifest_gate.py
 
       - name: Script sunset check (warnings only)
@@ -557,23 +554,50 @@ jobs:
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
 
+  loc-cap-setup:
+    uses: ./.github/workflows/_setup-python.yml
+    with:
+      python-version: "3.12"
+
   loc-cap:
+    name: LOC Cap Gate
+    needs: loc-cap-setup
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
+    
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-        with: { version: "latest", enable-cache: true }
-      - name: Set up Python
-        run: uv python install 3.12
+        with:
+          version: "latest"
+          enable-cache: true
+      
+      - name: Restore virtualenv
+        uses: actions/cache/restore@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+      
       - name: LOC cap gate
         run: uv run python tools/loc_cap_check.py
 
+  type-check-setup:
+    uses: ./.github/workflows/_setup-python.yml
+    with:
+      python-version: "3.12"
+
   type-check:
+    name: Type Check
+    needs: type-check-setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
     
     steps:
       - uses: actions/checkout@v4
@@ -584,23 +608,12 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Cache virtualenv
-        uses: actions/cache@v4
-        id: cache-venv
+      - name: Restore virtualenv
+        uses: actions/cache/restore@v4
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Create virtualenv (cache miss)
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: uv venv
-
-      - name: Install dependencies
-        run: uv sync --all-packages
-
+      
       - name: Type-check gate (monotonic-shrink baseline)
         run: uv run python scripts/check_typecheck_gate.py
 

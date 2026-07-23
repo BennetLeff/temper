@@ -1713,7 +1713,7 @@ scripts:
       - pathlib
       - typing
       - pydantic
-      - temper_placer._constraint_types.config
+      - temper_placer.constraint_types.config
 
 - path: gen_domain_models.py
   purpose: "Cross-language domain model codegen — NetClassRules SSOT from YAML manifest to Python+Rust (plan 2026-07-22-004)"
@@ -1739,6 +1739,66 @@ scripts:
       - __future__
       - pathlib
       - sys
-    - pathlib
-    - sys
-    - temper_placer.io.design_bundle_preflight
+      - temper_placer.io.design_bundle_preflight
+
+- path: batch_pipeline_validate.py
+  purpose: "Batch pipeline validation — feed corpus boards through parse→placement→route and quarantine failures"
+  owner: bennet
+  last_run: "2026-07-23"
+  category: keep
+  disposition: utility
+    imports:
+      - __future__
+      - argparse
+      - sys
+      - time
+      - pathlib
+      - yaml
+      - temper_placer.io.kicad_parser
+
+- path: bench_rust_constraints.py
+  purpose: "Benchmark gate for Rust constraint engine extraction — compares Rust vs Python loss computation wall-clock performance"
+  owner: bennet
+  last_run: "2026-07-23"
+  category: keep
+  disposition: utility
+    imports:
+      - __future__
+      - argparse
+      - json
+      - statistics
+      - sys
+      - time
+      - pathlib
+      - temper_constraints
+
+- path: bench_rust_geometry.py
+  purpose: "Benchmark Rust-backed geometry functions vs pure-Python equivalents"
+  owner: bennet
+  last_run: "2026-07-23"
+  category: keep
+  disposition: utility
+    imports:
+      - math
+      - time
+      - temper_geometry
+
+- path: gen_pcb_skeleton.py
+  purpose: "Generate a production KiCad PCB skeleton from the atopile netlist (CI-gate --check mode)"
+  owner: bennet
+  last_run: "2026-07-23"
+  category: keep
+  disposition: ci-gate
+    imports:
+      - __future__
+      - argparse
+      - hashlib
+      - json
+      - re
+      - subprocess
+      - sys
+      - tempfile
+      - collections
+      - dataclasses
+      - pathlib
+      - typing
