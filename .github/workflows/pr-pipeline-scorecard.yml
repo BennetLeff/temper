@@ -176,7 +176,7 @@ jobs:
           cat scorecard.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Post scorecard comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: pipeline-scorecard
           path: scorecard.md

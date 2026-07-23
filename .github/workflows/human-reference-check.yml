@@ -126,7 +126,7 @@ jobs:
           export OPT_METRICS_FILE=opt_metrics.json
           uv run python3 scripts/human_reference_compare.py --boards piantor_right temper minimal rp2040_designguide bitaxe_ultra > comment.md
       - name: Post sticky comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: corpus-oracle
           path: comment.md
