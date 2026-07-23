@@ -40,12 +40,7 @@ from temper_placer.core.pin_geometry import pin_world_position
 # 2026-07-08-004-feat-4-layer-functional-stackup-plan.md): the netclass YAML
 # `layer` value is the KiCad layer name; this is the single place the KiCad
 # name, the KiCad index, and the L1..L4 Layer enum meet.
-_LAYER_NAME_TO_ENUM: dict[str, "Layer"] = {
-    "F.Cu": None,   # populated after Layer is defined
-    "In1.Cu": None,
-    "In2.Cu": None,
-    "B.Cu": None,
-}
+_LAYER_NAME_TO_ENUM: dict[str, "Layer"] = {}  # populated after Layer is defined
 _LAYER_NAME_TO_INDEX: dict[str, int] = {
     "F.Cu": 0,
     "In1.Cu": 1,
@@ -61,7 +56,6 @@ _POWER_DOMAIN_RAILS: frozenset[str] = frozenset({"+3V3", "+5V", "+15V"})
 # Default layer for nets with no class layer assignment (catch-all → B.Cu,
 # matching DEFAULT_LAYER_CONSTRAINTS' bottom-layer preference).
 _DEFAULT_LAYER_NAME: str = "B.Cu"
-
 
 
 class Layer(Enum):
@@ -321,13 +315,22 @@ def layer_assignments_from_netclass(
     assignments: dict[str, LayerAssignment] = {}
     for net_name in net_names:
         layer_name = get_layer_for_net(net_name, design_rules)
+
+        # Resolve the net class name for downstream layer-selection logic
+        # (W2 U2 — channel_mapping._assign_layer needs to know whether the
+        # assignment came from an explicit class or the Default catch-all).
+        nc_rules = None
+        if design_rules is not None and hasattr(design_rules, "get_rules_for_net"):
+            nc_rules = design_rules.get_rules_for_net(net_name)
+        nc_name = getattr(nc_rules, "name", "Default") if nc_rules is not None else "Default"
+
         primary = layer_name_to_enum(layer_name)
         assignments[net_name] = LayerAssignment(
             net=net_name,
             primary_layer=primary,
             allowed_layers={primary},
             vias_required=False,
-            reason=f"netclass SSOT layer={layer_name}",
+            reason=f"netclass={nc_name} SSOT layer={layer_name}",
         )
     return assignments
 

@@ -36,9 +36,7 @@ def run_correlation_study(pcb_path: Path, config_path: Path):
     context = LossContext.from_netlist_and_board(parse_result.netlist, board)
 
     # Need positions and rotations for loss functions
-    positions = jnp.array(
-        [c.initial_position or (0, 0) for c in parse_result.netlist.components]
-    )
+    positions = jnp.array([c.initial_position or (0, 0) for c in parse_result.netlist.components])
     rotations = jnp.zeros((len(parse_result.netlist.components), 4))
     for i, c in enumerate(parse_result.netlist.components):
         rotations = rotations.at[i, c.initial_rotation or 0].set(1.0)
@@ -67,9 +65,7 @@ def run_correlation_study(pcb_path: Path, config_path: Path):
 def main():
     parser = argparse.ArgumentParser(description="Tune Steiner correction factor.")
     parser.add_argument("pcbs", type=Path, nargs="+", help="Routed .kicad_pcb files")
-    parser.add_argument(
-        "-c", "--config", type=Path, required=True, help="Constraints .yaml"
-    )
+    parser.add_argument("-c", "--config", type=Path, required=True, help="Constraints .yaml")
 
     args = parser.parse_args()
 

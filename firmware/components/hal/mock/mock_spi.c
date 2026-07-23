@@ -35,6 +35,8 @@ typedef struct {
 static mock_spi_bus_t s_buses[MOCK_SPI_MAX_BUSES];
 static mock_spi_device_t s_devices[MOCK_SPI_MAX_DEVICES];
 static uint32_t s_call_count_transfer = 0;
+static hal_status_t s_next_read_status = HAL_OK;
+static hal_status_t s_next_write_status = HAL_OK;
 
 /* ============================================================================
  * Mock Control Functions
@@ -45,6 +47,18 @@ void mock_spi_reset(void)
     memset(s_buses, 0, sizeof(s_buses));
     memset(s_devices, 0, sizeof(s_devices));
     s_call_count_transfer = 0;
+    s_next_read_status = HAL_OK;
+    s_next_write_status = HAL_OK;
+}
+
+void mock_spi_fail_next_read(hal_status_t status)
+{
+    s_next_read_status = status;
+}
+
+void mock_spi_fail_next_write(hal_status_t status)
+{
+    s_next_write_status = status;
 }
 
 void mock_spi_set_register(hal_spi_device_t device, uint8_t reg, uint8_t value)
@@ -144,6 +158,12 @@ static hal_status_t mock_spi_read_reg(hal_spi_device_t device, uint8_t reg,
                                       uint8_t *data, size_t len)
 {
     s_call_count_transfer++;
+
+    if (s_next_read_status != HAL_OK) {
+        hal_status_t status = s_next_read_status;
+        s_next_read_status = HAL_OK;
+        return status;
+    }
     
     intptr_t idx = (intptr_t)device;
     if (idx < 0 || idx >= MOCK_SPI_MAX_DEVICES || !data) {
@@ -166,6 +186,12 @@ static hal_status_t mock_spi_write_reg(hal_spi_device_t device, uint8_t reg,
                                        const uint8_t *data, size_t len)
 {
     s_call_count_transfer++;
+
+    if (s_next_write_status != HAL_OK) {
+        hal_status_t status = s_next_write_status;
+        s_next_write_status = HAL_OK;
+        return status;
+    }
     
     intptr_t idx = (intptr_t)device;
     if (idx < 0 || idx >= MOCK_SPI_MAX_DEVICES || !data) {

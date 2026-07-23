@@ -83,19 +83,18 @@ def detect_acid_traps(
         # Return early with an explicit warning rather than relying on the
         # implicit behaviour of NaN comparisons.
         warnings.warn(
-            "min_angle_threshold is NaN — no angles can be below NaN. "
-            "Returning empty report.",
+            "min_angle_threshold is NaN — no angles can be below NaN. Returning empty report.",
             stacklevel=2,
         )
         return AcidTrapReport(acid_traps=[])
 
     if not math.isfinite(min_angle_threshold) and min_angle_threshold < 0:
-            warnings.warn(
-                f"min_angle_threshold={min_angle_threshold}° is negative — "
-                f"all angles are ≥ 0°, returning empty report.",
-                stacklevel=2,
-            )
-            return AcidTrapReport(acid_traps=[])
+        warnings.warn(
+            f"min_angle_threshold={min_angle_threshold}° is negative — "
+            f"all angles are ≥ 0°, returning empty report.",
+            stacklevel=2,
+        )
+        return AcidTrapReport(acid_traps=[])
 
     if min_angle_threshold > 90.0:
         warnings.warn(
@@ -152,45 +151,50 @@ def detect_acid_traps(
             if angle < min_angle_threshold:
                 severity = _classify_severity(angle, trace_width_mm)
 
-                acid_traps.append(AcidTrap(
-                    net_name=net_name,
-                    position=curr_point,
-                    angle_degrees=angle,
-                    severity=severity,
-                ))
+                acid_traps.append(
+                    AcidTrap(
+                        net_name=net_name,
+                        position=curr_point,
+                        angle_degrees=angle,
+                        severity=severity,
+                    )
+                )
 
         # ---- Endpoint approach angles (if pin locations available) ----------
         # Check the angle where the first/last trace segment meets a pad.
-        if (
-            hasattr(compiled_route, 'start_pin_location')
-            and hasattr(compiled_route, 'end_pin_location')
+        if hasattr(compiled_route, "start_pin_location") and hasattr(
+            compiled_route, "end_pin_location"
         ):
             start_pin = compiled_route.start_pin_location  # type: ignore[attr-defined]
-            end_pin = compiled_route.end_pin_location      # type: ignore[attr-defined]
+            end_pin = compiled_route.end_pin_location  # type: ignore[attr-defined]
 
             # Start approach: angle at path_coords[0] formed by
             #   (start_pin_location, path_coords[0], path_coords[1])
             angle_start = _calculate_angle(start_pin, path_coords[0], path_coords[1])
             if not math.isnan(angle_start) and angle_start < min_angle_threshold:
                 severity = _classify_severity(angle_start, trace_width_mm)
-                acid_traps.append(AcidTrap(
-                    net_name=net_name,
-                    position=path_coords[0],
-                    angle_degrees=angle_start,
-                    severity=severity,
-                ))
+                acid_traps.append(
+                    AcidTrap(
+                        net_name=net_name,
+                        position=path_coords[0],
+                        angle_degrees=angle_start,
+                        severity=severity,
+                    )
+                )
 
             # End approach: angle at path_coords[-1] formed by
             #   (path_coords[-2], path_coords[-1], end_pin_location)
             angle_end = _calculate_angle(path_coords[-2], path_coords[-1], end_pin)
             if not math.isnan(angle_end) and angle_end < min_angle_threshold:
                 severity = _classify_severity(angle_end, trace_width_mm)
-                acid_traps.append(AcidTrap(
-                    net_name=net_name,
-                    position=path_coords[-1],
-                    angle_degrees=angle_end,
-                    severity=severity,
-                ))
+                acid_traps.append(
+                    AcidTrap(
+                        net_name=net_name,
+                        position=path_coords[-1],
+                        angle_degrees=angle_end,
+                        severity=severity,
+                    )
+                )
 
     return AcidTrapReport(acid_traps=acid_traps)
 
@@ -217,8 +221,8 @@ def _calculate_angle(
 
     # Calculate dot product and magnitudes
     dot = v1[0] * v2[0] + v1[1] * v2[1]
-    mag1 = math.sqrt(v1[0]**2 + v1[1]**2)
-    mag2 = math.sqrt(v2[0]**2 + v2[1]**2)
+    mag1 = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
+    mag2 = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
 
     if mag1 == 0 or mag2 == 0:
         return 180.0  # Degenerate case
@@ -258,11 +262,11 @@ def _classify_severity(angle: float, trace_width_mm: float = 0.2) -> str:
         Severity: "low", "medium", or "high"
     """
     if angle < 45:
-        base = "high"      # Very acute - critical
+        base = "high"  # Very acute - critical
     elif angle < 60:
-        base = "medium"    # Moderate concern
+        base = "medium"  # Moderate concern
     else:
-        base = "low"       # Minor issue
+        base = "low"  # Minor issue
 
     # Narrow traces are less susceptible to etchant trapping.
     # Non-finite / negative widths are physically meaningless — treat as

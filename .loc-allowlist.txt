@@ -2,20 +2,18 @@
 # Format: <repo-relative-path> <baseline_lines> <ticket-id> # <description>
 packages/temper-placer/src/temper_placer/cli/__init__.py 3946 temper-N6-U3 # CLI god-object, Phase 2 decomposition
 packages/temper-placer/src/temper_placer/router_v6/astar_pathfinding.py 1797 temper-N6-U6 # router, Phase 3
-packages/temper-placer/src/temper_placer/optimizer/train.py 1923 temper-N7-10 # follow-up (grew from 1707: C-CAP constraint cascade integration)
 packages/temper-placer/src/temper_placer/io/config_loader.py 1748 temper-N7-9 # follow-up (grew from 1731, keepout emission +17)
 packages/temper-placer/src/temper_placer/pcl/parser.py 1089 temper-N7-10 # tag dispatch YAML parser + tagged constraint expansion
-packages/temper-placer/src/temper_placer/optimizer/nsga2.py 1521 temper-N7-8 # follow-up
-packages/temper-placer/src/temper_placer/losses/base.py 1382 temper-N7-2 # follow-up
-packages/temper-placer/src/temper_placer/io/kicad_parser.py 1328 temper-N7-6 # follow-up (grew from 1312)
+packages/temper-placer/src/temper_placer/io/kicad_parser.py 1430 temper-N7-6 # follow-up (grew from 1328); +2 for sheetpath property read (fixed_positions ref-fragility fix)
 packages/temper-placer/src/temper_placer/io/kicad_writer.py 1311 temper-N7-7 # follow-up (grew from 4-layer validation guards)
-packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py 1283 temper-N7-cap1 # new over-cap file
-packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 1232 temper-N7-cap2 # new over-cap file
-packages/temper-placer/src/temper_placer/optimizer/initialization.py 1204 temper-N7-cap5 # new over-cap file (grew from HierarchicalGroupInitializer addition)
-packages/temper-placer/src/temper_placer/losses/aesthetic.py 1153 temper-N7-aesthetic # follow-up
-firmware/main/state_machine.c 1181 temper-N6-U8 # firmware, Phase 4 (grew from 1116: added IGBT short + ADC stuck + stuck tracking)
+packages/temper-placer/src/temper_placer/deterministic/stages/phased_component_assignment.py 1286 temper-N7-cap1 # new over-cap file
+packages/temper-placer/src/temper_placer/deterministic/stages/clearance_grid.py 1244 temper-N8-drc-sweep # grew from 1232: njit fallback shim fix (bare-decorator handling) + verification comment
+firmware/main/state_machine.c 1224 temper-N6-U8 # firmware, Phase 4 (grew from 1181: added IGBT short + ADC stuck + stuck tracking)
 packages/temper-placer/src/temper_placer/router_v6/bottleneck_geometry.py 1059 temper-N7-cap4 # new over-cap file
-packages/temper-placer/src/temper_placer/optimizer/convergence_analytics.py 1023 temper-N7-1 # follow-up
-packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1008 temper-N7-board # follow-up
-packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1462 temper-phys-U8 # grew from 1442: A* thermal cost-field plumbing (physics-informed routing)
-packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py 1435 temper-phys-U9 # new over-cap: W5 continuous thermal-field fixed-point feedback (physics-informed placement)
+packages/temper-placer/src/temper_placer/visualization/board_renderer.py 1012 temper-N7-board # follow-up
+packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1521 temper-phys-U8 # grew from 1494: enable_zone_pours flag plumbing (PR #260-263 U1 zone/pour primitive)
+packages/temper-placer/src/temper_placer/router_v6/adapter.py 1127 temper-hybrid-pour-stitch # new over-cap file: cross-class clearance, zone priority, via parsing, trace-stitching (data-informed clustering, zone-aware connectivity wiring)
+packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py 1558 temper-N8-drc-sweep # grew from 1537: gate-driven dispatch fix (self._gates_explicit) + verification comment
+packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py 1198 temper-N8-drc-sweep # grew from 1153: --warm-start AddHint() seeding (hint_positions param + docstring)
+packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1044 temper-N8-drc-sweep # grew from 1035: IECCreepageGate net-name fix (err.nets instead of err.components) + verification comment
+packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py 1110 temper-N8-split # split from adapter.py

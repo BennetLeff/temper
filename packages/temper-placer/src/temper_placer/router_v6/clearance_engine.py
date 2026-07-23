@@ -33,6 +33,7 @@ Usage
 Only the engine and ONE consumer are built in this commit; full migration
 of all consumers is deferred (see ``feat/unified-clearance-engine``).
 """
+
 from __future__ import annotations
 
 from temper_placer.core.net_types import VoltageClass
@@ -41,6 +42,7 @@ from temper_placer.router_v6.creepage_check import _calculate_required_creepage
 # ---------------------------------------------------------------------------
 # Per-standard imports
 # ---------------------------------------------------------------------------
+
 
 # IEC 60950-1
 def calculate_safety_distances(
@@ -66,12 +68,20 @@ def calculate_safety_distances(
         voltage_v: float
 
     clearance_table = [
-        (50, 0.2), (150, 1.0), (300, 2.0), (600, 2.5),
-        (1000, 4.0), (float("inf"), 5.0),
+        (50, 0.2),
+        (150, 1.0),
+        (300, 2.0),
+        (600, 2.5),
+        (1000, 4.0),
+        (float("inf"), 5.0),
     ]
     creepage_table = [
-        (50, 0.4), (150, 2.0), (300, 2.5), (600, 3.0),
-        (1000, 5.0), (float("inf"), 8.0),
+        (50, 0.4),
+        (150, 2.0),
+        (300, 2.5),
+        (600, 3.0),
+        (1000, 5.0),
+        (float("inf"), 8.0),
     ]
     clearance_mm = 0.2
     for vl, d in clearance_table:
@@ -101,6 +111,7 @@ INTERNAL_LAYER_CREEPAGE_FACTOR: float = 0.30
 # ---------------------------------------------------------------------------
 # Net-class → VoltageClass mapping (IEC 60335-1)
 # ---------------------------------------------------------------------------
+
 
 def _net_class_to_voltage_class(net_class: str) -> VoltageClass:
     """Map a free-form net-class string to an IEC 60335-1 ``VoltageClass``.
@@ -132,6 +143,7 @@ def _net_class_to_voltage_class(net_class: str) -> VoltageClass:
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
+
 
 def get_clearance(
     net_class_a: str,
@@ -221,6 +233,6 @@ def get_clearance(
 
     # ---- IEC 60664-1 internal-layer reduction -------------------------
     if layer_type == "internal" and result > 0.5:
-            result = result * INTERNAL_LAYER_CREEPAGE_FACTOR
+        result = result * INTERNAL_LAYER_CREEPAGE_FACTOR
 
     return result

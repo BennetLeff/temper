@@ -137,10 +137,14 @@ class FenceResult:
     def _format_dual(self) -> str:
         lines = ["STAGE FENCE DUAL-RUN"]
         lines.append(f"  Stage: {self.stage_name}")
-        lines.append(f"  Primary:     {'PASS' if self.passed else 'FAIL'} ({len(self.violations)} violations)")
+        lines.append(
+            f"  Primary:     {'PASS' if self.passed else 'FAIL'} ({len(self.violations)} violations)"
+        )
         if self.alternative_result:
             alt = self.alternative_result
-            lines.append(f"  Alternative: {'PASS' if alt.passed else 'FAIL'} ({len(alt.violations)} violations)")
+            lines.append(
+                f"  Alternative: {'PASS' if alt.passed else 'FAIL'} ({len(alt.violations)} violations)"
+            )
             if self.passed != alt.passed:
                 lines.append("  Divergence: pass/fail disagreement")
                 for v in self.violations:
@@ -155,7 +159,9 @@ class FenceViolationError(Exception):
 
     def __init__(self, result: FenceResult):
         self.result = result
-        super().__init__(f"Stage '{result.stage_name}' introduced {len(result.violations)} DRC violation(s)")
+        super().__init__(
+            f"Stage '{result.stage_name}' introduced {len(result.violations)} DRC violation(s)"
+        )
 
 
 class FenceBudgetError(Exception):
@@ -210,7 +216,8 @@ class DRCFence:
 
         check_names = [inv.check_name for inv in invariants]
         run_result = self._runner.run(
-            placement, constraints,
+            placement,
+            constraints,
             check_names=check_names,
             modified_regions=modified_regions,
         )
@@ -227,14 +234,16 @@ class DRCFence:
         for issue in current_issues:
             fp = _issue_fingerprint(issue)
             is_new = fp in new_fingerprints
-            violations.append(FenceViolation(
-                stage_name=stage_name,
-                invariant_description=self._find_invariant_desc(invariants, issue.check_name),
-                check_name=issue.check_name,
-                issue=issue,
-                is_new=is_new,
-                introduced_count=len(new_fingerprints),
-            ))
+            violations.append(
+                FenceViolation(
+                    stage_name=stage_name,
+                    invariant_description=self._find_invariant_desc(invariants, issue.check_name),
+                    check_name=issue.check_name,
+                    issue=issue,
+                    is_new=is_new,
+                    introduced_count=len(new_fingerprints),
+                )
+            )
 
         new_violations = [v for v in violations if v.is_new]
         elapsed_ms = (time.time() - t0) * 1000
@@ -256,7 +265,7 @@ class DRCFence:
         )
 
         if alternative_result is not None:
-            consistency = (passed == alternative_result.passed)
+            consistency = passed == alternative_result.passed
             if not consistency:
                 level = logging.ERROR if passed != alternative_result.passed else logging.WARNING
                 logger.log(
@@ -273,7 +282,9 @@ class DRCFence:
         if overhead_pct is not None and overhead_pct > self.perf_budget_pct:
             logger.warning(
                 "Fence overhead %.1f%% exceeds budget %.1f%% for stage '%s'",
-                overhead_pct, self.perf_budget_pct, stage_name,
+                overhead_pct,
+                self.perf_budget_pct,
+                stage_name,
             )
             if self.ci_enforce and datetime.now() >= _BUDGET_ENFORCEMENT_START:
                 raise FenceBudgetError(result)
@@ -307,17 +318,11 @@ class CheckMetrics:
 
     @property
     def total_issues(self) -> int:
-        return sum(
-            count for severity, count in self.issue_counts.items()
-            if severity != "INFO"
-        )
+        return sum(count for severity, count in self.issue_counts.items() if severity != "INFO")
 
     @property
     def passed(self) -> bool:
-        return (
-            self.issue_counts.get("ERROR", 0) == 0
-            and self.issue_counts.get("CRITICAL", 0) == 0
-        )
+        return self.issue_counts.get("ERROR", 0) == 0 and self.issue_counts.get("CRITICAL", 0) == 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -469,9 +474,11 @@ class MetricsSummary:
         ]
 
         if self.checks_skipped:
-            lines.extend([
-                "",
-                f"Skipped: {', '.join(self.checks_skipped)}",
-            ])
+            lines.extend(
+                [
+                    "",
+                    f"Skipped: {', '.join(self.checks_skipped)}",
+                ]
+            )
 
         return "\n".join(lines)

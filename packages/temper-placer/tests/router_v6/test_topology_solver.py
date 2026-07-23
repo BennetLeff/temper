@@ -4,7 +4,6 @@ Tests for Router V6 Stage 3.8: Solve Topology
 Part of temper-wd32
 """
 
-
 from temper_placer.router_v6.sat_model import build_sat_model
 from temper_placer.router_v6.topology_solver import (
     SolverStatus,

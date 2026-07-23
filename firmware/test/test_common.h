@@ -257,18 +257,24 @@ static inline float current_to_adc_mv(float current_amps)
 }
 
 /**
- * @brief Convert temperature to expected ADC value (PT1000 RTD)
+ * @brief Convert PT100 temperature to a MAX31865 resistance code
  * @param temp_c Temperature in Celsius
- * @return Expected ADC raw value (12-bit)
+ * @return Expected MAX31865 raw resistance code (15-bit)
  */
 static inline uint16_t temp_to_adc_raw(float temp_c)
 {
-    /* PT1000: R = 1000 * (1 + 0.00385 * T) */
-    /* With MAX31865 and reference resistor */
-    float resistance = 1000.0f * (1.0f + 0.00385f * temp_c);
-    /* Simplified: assume linear mapping to 12-bit ADC */
-    /* 0°C = 1000Ω = ~1365, 100°C = 1385Ω = ~1886 */
-    return (uint16_t)((resistance / 4000.0f) * 4095.0f);
+    /* Board contract: PT100 (R0=100Ω), MAX31865 RREF=430Ω.  This
+     * linearized IEC 60751 approximation is sufficient for fixture values;
+     * production conversion remains in the MAX31865 driver. */
+    float resistance = 100.0f * (1.0f + 0.00385f * temp_c);
+    float code = (resistance / 430.0f) * 32768.0f;
+    if (code <= 0.0f) {
+        return 0;
+    }
+    if (code >= 32767.0f) {
+        return 32767;
+    }
+    return (uint16_t)code;
 }
 
 /**

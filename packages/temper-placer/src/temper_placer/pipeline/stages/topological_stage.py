@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import time
-from typing import Any
 
 import numpy as np
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class TopologicalStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.heuristics.mcu_subsystem import MCUSubsystemHeuristic
         from temper_placer.placer.deterministic import PlacementResult
@@ -49,15 +48,22 @@ class TopologicalStage:
 
         print("Running zone-aware legalization...")
         fixed_mask = np.array([c.fixed for c in netlist.components], dtype=bool)
-        def legalize_zone_aware(*a, **kw): raise NotImplementedError("legalize_zone_aware removed (JAX retirement)")
-        legalized_pos, success = legalize_zone_aware(positions, netlist, board, fixed_mask=fixed_mask)
+
+        def legalize_zone_aware(*a, **kw):
+            raise NotImplementedError("legalize_zone_aware removed (JAX retirement)")
+
+        legalized_pos, success = legalize_zone_aware(
+            positions, netlist, board, fixed_mask=fixed_mask
+        )
 
         if not success:
             print("Warning: Legalization could not fully resolve overlaps.")
 
         deterministic_result = PlacementResult(
-            positions=legalized_pos, rotations=rotations,
-            placed_refs=[c.ref for c in netlist.components], unplaced_refs=[],
+            positions=legalized_pos,
+            rotations=rotations,
+            placed_refs=[c.ref for c in netlist.components],
+            unplaced_refs=[],
         )
         state.deterministic_result = deterministic_result
 

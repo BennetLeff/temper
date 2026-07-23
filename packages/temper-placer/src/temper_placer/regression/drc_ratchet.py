@@ -125,23 +125,25 @@ class DrcRatchet:
             else:
                 package_type = "smd"
 
-            components.append({
-                "ref": c.ref,
-                "x": x,
-                "y": y,
-                "rot": rotation,
-                "side": side,
-                "width": float(c.width),
-                "height": float(c.height),
-                "net_class": c.net_class,
-                "package_type": package_type,
-                "power_dissipation_w": None,
-                "is_magnetic": False,
-                "is_electrolytic": False,
-                "vent_direction": None,
-                "footprint_polygon": None,
-                "is_mechanical": c.ref.startswith("MH"),
-            })
+            components.append(
+                {
+                    "ref": c.ref,
+                    "x": x,
+                    "y": y,
+                    "rot": rotation,
+                    "side": side,
+                    "width": float(c.width),
+                    "height": float(c.height),
+                    "net_class": c.net_class,
+                    "package_type": package_type,
+                    "power_dissipation_w": None,
+                    "is_magnetic": False,
+                    "is_electrolytic": False,
+                    "vent_direction": None,
+                    "footprint_polygon": None,
+                    "is_mechanical": c.ref.startswith("MH"),
+                }
+            )
 
         nets: dict[str, list[str]] = {}
         net_classes: dict[str, str] = {}
@@ -195,13 +197,9 @@ class DrcRatchet:
         violations = temper_drc_rs.run_drc(board_dict, constraints_dict)
 
         errors = sum(
-            1 for v in violations
-            if v.get("severity", "").upper() in ("ERROR", "CRITICAL")
+            1 for v in violations if v.get("severity", "").upper() in ("ERROR", "CRITICAL")
         )
-        warnings = sum(
-            1 for v in violations
-            if v.get("severity", "").upper() == "WARNING"
-        )
+        warnings = sum(1 for v in violations if v.get("severity", "").upper() == "WARNING")
 
         return errors, warnings
 
@@ -220,7 +218,7 @@ class DrcRatchet:
             if self.backend == "rust":
                 current_errors, current_warnings = self._run_rust_drc(pcb_path)
             elif self.backend == "kicad-cli":
-                from temper_placer.validation.drc_runner import run_drc
+                from temper_placer.validation._drc_api import run_drc
 
                 drc_result = run_drc(pcb_path)
                 current_errors = drc_result.error_count

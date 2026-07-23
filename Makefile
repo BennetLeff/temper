@@ -13,8 +13,9 @@ BOM_PREV = $(ELEC_DIR)/build/default.csv.prev
 help:
 	@echo "Temper PCB Build System"
 	@echo "Targets:"
-	@echo "  make build    - Run the full build pipeline"
+	@echo "  make build    - Run the full build pipeline (netlist + schematics + route + drc)"
 	@echo "  make netlist  - Generate netlist from Atopile source"
+	@echo "  make schematics- Generate KiCad schematics from netlist"
 	@echo "  make diff     - Show logical differences from last build"
 	@echo "  make visualize- Show graphical schematic view"
 	@echo "  make route    - Run the autorouter"
@@ -25,12 +26,16 @@ help:
 	@echo "  make onboard-status- Show cached onboard summary"
 	@echo ""
 
-build: netlist footprints route drc
+build: netlist footprints schematics route drc
 
 netlist:
 	@echo "Building Atopile project..."
 	@if [ -f $(BOM_FILE) ]; then cp $(BOM_FILE) $(BOM_PREV); fi
-	cd $(ELEC_DIR) && uv tool run --from atopile ato build $(ATO_ENTRY)
+	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive build $(ATO_ENTRY)
+
+schematics: netlist
+	@echo "Generating schematics from Atopile netlist..."
+	python3 scripts/gen_schematics.py
 
 footprints:
 	@echo "Generating footprints from code..."
@@ -47,9 +52,13 @@ diff:
 	fi
 
 visualize:
-	cd $(ELEC_DIR) && uv tool run --from atopile ato view $(ATO_ENTRY)
+	cd $(ELEC_DIR) && uv tool run --from 'atopile>=0.2,<0.3' ato --non-interactive view $(ATO_ENTRY)
 
-PCB_FILE = pcb/temper.kicad_pcb
+# Interim: points at the quarantined 33-component benchmark fixture until the
+# real production board is generated from schematics. The identity gate (plan
+# 2026-07-15-001 U4) will make routing fail-closed against a fixture-path board;
+# re-point PCB_FILE at the production board once it exists.
+PCB_FILE = pcb/benchmarks/temper_fixture_33.kicad_pcb
 ROUTED_PCB = pcb/temper_routed.kicad_pcb
 
 route: netlist

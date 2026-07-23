@@ -92,6 +92,7 @@ def _make_results(
 # 1. Spoke parameter boundaries
 # ============================================================================
 
+
 class TestSpokeCountBoundaries:
     """spoke_count < 2 must raise ValueError."""
 
@@ -119,10 +120,7 @@ class TestSpokeWidthBoundaries:
 
     @pytest.mark.parametrize(
         "spoke_width",
-        [
-            pytest.param(v, id=f"spoke_width_{v}")
-            for v in THRESHOLD_ZERO + THRESHOLD_NEGATIVE
-        ],
+        [pytest.param(v, id=f"spoke_width_{v}") for v in THRESHOLD_ZERO + THRESHOLD_NEGATIVE],
     )
     def test_spoke_width_zero_or_negative_raises(self, spoke_width: float) -> None:
         results = _make_results()
@@ -131,10 +129,7 @@ class TestSpokeWidthBoundaries:
 
     @pytest.mark.parametrize(
         "spoke_width",
-        [
-            pytest.param(v, id=f"spoke_width_nan_{i}")
-            for i, v in enumerate(THRESHOLD_NAN)
-        ],
+        [pytest.param(v, id=f"spoke_width_nan_{i}") for i, v in enumerate(THRESHOLD_NAN)],
     )
     def test_spoke_width_nan_should_raise(self, spoke_width: float) -> None:
         results = _make_results()
@@ -143,10 +138,7 @@ class TestSpokeWidthBoundaries:
 
     @pytest.mark.parametrize(
         "spoke_width",
-        [
-            pytest.param(v, id=f"spoke_width_inf_{i}")
-            for i, v in enumerate(THRESHOLD_INF)
-        ],
+        [pytest.param(v, id=f"spoke_width_inf_{i}") for i, v in enumerate(THRESHOLD_INF)],
     )
     def test_spoke_width_inf_should_raise(self, spoke_width: float) -> None:
         results = _make_results()
@@ -159,24 +151,16 @@ class TestClearanceGapBoundaries:
 
     @pytest.mark.parametrize(
         "clearance_gap",
-        [
-            pytest.param(v, id=f"clearance_gap_{v}")
-            for v in THRESHOLD_ZERO + THRESHOLD_NEGATIVE
-        ],
+        [pytest.param(v, id=f"clearance_gap_{v}") for v in THRESHOLD_ZERO + THRESHOLD_NEGATIVE],
     )
-    def test_clearance_gap_zero_or_negative_raises(
-        self, clearance_gap: float
-    ) -> None:
+    def test_clearance_gap_zero_or_negative_raises(self, clearance_gap: float) -> None:
         results = _make_results()
         with pytest.raises(ValueError, match="clearance_gap"):
             add_thermal_relief(results, clearance_gap=clearance_gap)
 
     @pytest.mark.parametrize(
         "clearance_gap",
-        [
-            pytest.param(v, id=f"clearance_gap_nan_{i}")
-            for i, v in enumerate(THRESHOLD_NAN)
-        ],
+        [pytest.param(v, id=f"clearance_gap_nan_{i}") for i, v in enumerate(THRESHOLD_NAN)],
     )
     def test_clearance_gap_nan_should_raise(self, clearance_gap: float) -> None:
         results = _make_results()
@@ -187,6 +171,7 @@ class TestClearanceGapBoundaries:
 # ============================================================================
 # 2. Net name boundaries
 # ============================================================================
+
 
 class TestNetNameBoundaries:
     """Boundary tests for net name handling in _is_power_net and routing."""
@@ -205,9 +190,7 @@ class TestNetNameBoundaries:
             pytest.param("GnD", 0, id="mixedcase_power_net_no_default_plane_net"),
         ],
     )
-    def test_net_name_basic(
-        self, net_name: str, expected_relief: int
-    ) -> None:
+    def test_net_name_basic(self, net_name: str, expected_relief: int) -> None:
         """Basic net names: empty, power, non-power, and case interactions."""
         results = _make_results(net_name=net_name)
         report = add_thermal_relief(results)
@@ -242,9 +225,7 @@ class TestNetNameBoundaries:
             pytest.param("😀GND😀", id="emoji_surrounding"),
         ],
     )
-    def test_net_name_special_chars_does_not_crash(
-        self, special_name: str
-    ) -> None:
+    def test_net_name_special_chars_does_not_crash(self, special_name: str) -> None:
         """Net names with special / control characters must not crash."""
         results = _make_results(net_name=special_name)
         report = add_thermal_relief(results)
@@ -283,6 +264,7 @@ class TestIsPowerNetFunction:
 # 3. Plane layer boundaries
 # ============================================================================
 
+
 class TestPlaneLayerBoundaries:
     """Boundary tests for plane_layers parameter."""
 
@@ -306,9 +288,7 @@ class TestPlaneLayerBoundaries:
             pytest.param(["Layer1", "Layer2", "Layer3"], id="multiple_fake"),
         ],
     )
-    def test_plane_layers_nonexistent_no_crash(
-        self, layers: list[str]
-    ) -> None:
+    def test_plane_layers_nonexistent_no_crash(self, layers: list[str]) -> None:
         """Non-existent layer names should not crash — just yield zero reliefs."""
         results = _make_results()
         report = add_thermal_relief(results, plane_layers=layers)
@@ -332,15 +312,13 @@ class TestPlaneLayerBoundaries:
 # 4. Via diameter boundaries
 # ============================================================================
 
+
 class TestViaDiameterBoundaries:
     """Boundary tests for via diameter values used as pad_size."""
 
     @pytest.mark.parametrize(
         "diameter",
-        [
-            pytest.param(d, id=f"via_diameter_zero_{i}")
-            for i, d in enumerate(VIA_DIAMETERS_ZERO)
-        ],
+        [pytest.param(d, id=f"via_diameter_zero_{i}") for i, d in enumerate(VIA_DIAMETERS_ZERO)],
     )
     def test_via_diameter_zero_does_not_crash(self, diameter: float) -> None:
         """Zero-diameter via produces degenerate geometry but must not crash."""
@@ -350,10 +328,7 @@ class TestViaDiameterBoundaries:
 
     @pytest.mark.parametrize(
         "diameter",
-        [
-            pytest.param(d, id=f"via_diameter_neg_{i}")
-            for i, d in enumerate(VIA_DIAMETERS_NEGATIVE)
-        ],
+        [pytest.param(d, id=f"via_diameter_neg_{i}") for i, d in enumerate(VIA_DIAMETERS_NEGATIVE)],
     )
     def test_via_diameter_negative_does_not_crash(self, diameter: float) -> None:
         """Negative-diameter via produces nonsensical pad_size but must not crash."""
@@ -363,10 +338,7 @@ class TestViaDiameterBoundaries:
 
     @pytest.mark.parametrize(
         "diameter",
-        [
-            pytest.param(d, id=f"via_diameter_nan_{i}")
-            for i, d in enumerate(VIA_DIAMETERS_NAN)
-        ],
+        [pytest.param(d, id=f"via_diameter_nan_{i}") for i, d in enumerate(VIA_DIAMETERS_NAN)],
     )
     def test_via_diameter_nan_should_be_handled(self, diameter: float) -> None:
         """NaN via diameter silently produces NaN geometry — should be rejected."""
@@ -387,6 +359,7 @@ class TestViaDiameterBoundaries:
 # 5. Board boundaries
 # ============================================================================
 
+
 class TestBoardBoundaries:
     """Boundary tests for the board parameter."""
 
@@ -399,14 +372,9 @@ class TestBoardBoundaries:
 
     @pytest.mark.parametrize(
         "width,height",
-        [
-            pytest.param(w, h, id=f"board_zero_{w}x{h}")
-            for w, h in BOARD_DIMS_ZERO
-        ],
+        [pytest.param(w, h, id=f"board_zero_{w}x{h}") for w, h in BOARD_DIMS_ZERO],
     )
-    def test_board_zero_area_does_not_crash(
-        self, width: float, height: float
-    ) -> None:
+    def test_board_zero_area_does_not_crash(self, width: float, height: float) -> None:
         """Board with zero area should produce degenerate clamping but not crash."""
         from temper_placer.core.board import Board as BoardCls
 
@@ -417,14 +385,9 @@ class TestBoardBoundaries:
 
     @pytest.mark.parametrize(
         "width,height",
-        [
-            pytest.param(w, h, id=f"board_nan_{i}")
-            for i, (w, h) in enumerate(BOARD_DIMS_NAN)
-        ],
+        [pytest.param(w, h, id=f"board_nan_{i}") for i, (w, h) in enumerate(BOARD_DIMS_NAN)],
     )
-    def test_board_nan_dimensions_should_be_handled(
-        self, width: float, height: float
-    ) -> None:
+    def test_board_nan_dimensions_should_be_handled(self, width: float, height: float) -> None:
         """Board with NaN dimensions should not silently corrupt geometry."""
         from temper_placer.core.board import Board as BoardCls
 
@@ -459,6 +422,7 @@ class TestBoardBoundaries:
 # 6. Empty input
 # ============================================================================
 
+
 class TestEmptyInput:
     """Boundary tests for empty or missing inputs."""
 
@@ -466,9 +430,7 @@ class TestEmptyInput:
         """Power net with zero vias should produce zero thermal reliefs."""
         path = _make_path(net_name=_POWER_NET)
         route = CompiledRoute(_POWER_NET, path, 0.127, [], None)
-        results = RoutingResults(
-            compiled_routes={_POWER_NET: route}, failed_nets=[]
-        )
+        results = RoutingResults(compiled_routes={_POWER_NET: route}, failed_nets=[])
         report = add_thermal_relief(results)
         assert report.relief_count == 0
 
@@ -484,9 +446,7 @@ class TestEmptyInput:
         path = _make_path(net_name=_NON_POWER_NET)
         via = _make_via(net_name=_NON_POWER_NET)
         route = CompiledRoute(_NON_POWER_NET, path, 0.127, [via], None)
-        results = RoutingResults(
-            compiled_routes={_NON_POWER_NET: route}, failed_nets=[]
-        )
+        results = RoutingResults(compiled_routes={_NON_POWER_NET: route}, failed_nets=[])
         report = add_thermal_relief(results)
         assert report.relief_count == 0
 
@@ -520,6 +480,7 @@ class TestEmptyInput:
 # 7. Combined boundary interactions
 # ============================================================================
 
+
 class TestCombinedBoundaries:
     """Tests where multiple boundary values interact."""
 
@@ -541,7 +502,7 @@ class TestCombinedBoundaries:
         with pytest.raises(ValueError, match="spoke_width"):
             add_thermal_relief(
                 results,
-                spoke_width=0.0,       # raises first (checked first)
+                spoke_width=0.0,  # raises first (checked first)
                 clearance_gap=float("nan"),
             )
 

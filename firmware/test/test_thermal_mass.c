@@ -169,12 +169,13 @@ static void test_thermal_mass_update_medium_pan(void) {
     /* Start estimation */
     thermal_mass_start_estimation(&test_thermal_mass, 25.0f);
     
-    /* Simulate medium pan: temperature rises moderately over multiple samples */
+    /* Simulate medium pan: the average rise is 3°C, yielding
+     * 500W*5s/3°C ≈ 833 J/K. */
     uint32_t start_time = 1000;
     
     /* Collect multiple samples with moderate temperature rise */
     for (int i = 0; i < 11; i++) {
-        float temp = 25.0f + (i + 1) * 0.25f;  /* 25.25°C, 25.50°C, ..., 27.75°C */
+        float temp = 25.0f + (i + 1) * 0.5f;
         bool complete = thermal_mass_update(&test_thermal_mass, temp, start_time + (i + 1) * 500);
         
         if (i < 10) {
@@ -187,7 +188,7 @@ static void test_thermal_mass_update_medium_pan(void) {
     TEST_ASSERT_EQUAL(PAN_CLASS_MEDIUM, thermal_mass_get_classification(&test_thermal_mass));
     
     pid_gains_t gains = thermal_mass_get_pid_gains(&test_thermal_mass);
-    TEST_ASSERT_EQUAL_FLOAT(2.0f, gains.kp);
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, gains.kp);
 }
 
 static void test_thermal_mass_update_insufficient_rise(void) {
@@ -335,7 +336,7 @@ static void test_thermal_mass_rapid_temp_changes(void) {
     thermal_mass_update(&test_thermal_mass, 20.0f, 2500);  /* Drop down */
     thermal_mass_update(&test_thermal_mass, 35.0f, 3000);  /* Jump up */
     
-    bool complete = thermal_mass_update(&test_thermal_mass, 25.0f, 6000);
+    bool complete = thermal_mass_update(&test_thermal_mass, 30.0f, 7000);
     TEST_ASSERT_TRUE(complete);
     
     /* Should handle fluctuations gracefully */
@@ -352,7 +353,7 @@ static void test_thermal_mass_temperature_drop_during_test(void) {
     thermal_mass_update(&test_thermal_mass, 24.0f, 2000);  /* Drop! */
     thermal_mass_update(&test_thermal_mass, 23.0f, 3000);  /* Drop more! */
     
-    bool complete = thermal_mass_update(&test_thermal_mass, 22.0f, 6000);
+    bool complete = thermal_mass_update(&test_thermal_mass, 22.0f, 7000);
     TEST_ASSERT_TRUE(complete);
     TEST_ASSERT_EQUAL(PAN_CLASS_INVALID, thermal_mass_get_classification(&test_thermal_mass));
 }
@@ -379,8 +380,8 @@ static void test_thermal_mass_timing_edge_cases(void) {
     
     /* Very rapid updates (simulating high-frequency sampling) */
     for (int i = 0; i < 20; i++) {
-        float temp = 25.0f + (i + 1) * 0.5f;
-        uint32_t time = 1000 + (i + 1) * 100;  /* 100ms intervals */
+        float temp = 25.0f + (i + 1) * 0.835f;
+        uint32_t time = 1000 + (i + 1) * 265;  /* 265ms intervals */
         bool complete = thermal_mass_update(&test_thermal_mass, temp, time);
         
         if (i < 19) {
@@ -402,10 +403,10 @@ static void test_thermal_mass_exact_threshold_light(void) {
     
     thermal_mass_start_estimation(&test_thermal_mass, 25.0f);
     
-    /* Exactly at 500 J/K threshold - should classify as LIGHT */
-    /* M = P * t / ΔT => 500 = 500 * 5 / ΔT => ΔT = 5°C */
+    /* Just inside the 500 J/K boundary.  With the average-rise estimator,
+     * an 0.85°C/sample ramp gives ΔT_avg ≈ 5.1°C and M ≈ 490 J/K. */
     for (int i = 0; i < 11; i++) {
-        float temp = 25.0f + (i + 1) * 0.5f;  /* 25.5°C, 26.0°C, ..., 30.0°C */
+        float temp = 25.0f + (i + 1) * 0.85f;
         thermal_mass_update(&test_thermal_mass, temp, 1000 + (i + 1) * 500);
     }
     
@@ -414,13 +415,18 @@ static void test_thermal_mass_exact_threshold_light(void) {
 
 static void test_thermal_mass_exact_threshold_medium(void) {
     thermal_mass_test_setup();
+    /* A 1500 J/K boundary corresponds to a 1.67°C average rise, below the
+     * default minimum-rise rejection threshold. Lower it for this boundary
+     * classification test rather than weakening the production default. */
+    test_config.min_temp_rise = 1.0f;
+    thermal_mass_init(&test_thermal_mass, &test_config);
     
     thermal_mass_start_estimation(&test_thermal_mass, 25.0f);
     
     /* Exactly at 1500 J/K threshold - should classify as MEDIUM */
     /* M = P * t / ΔT => 1500 = 500 * 5 / ΔT => ΔT = 1.67°C */
     for (int i = 0; i < 11; i++) {
-        float temp = 25.0f + (i + 1) * 0.167f;  /* ~25.17°C, 25.33°C, ..., 26.67°C */
+        float temp = 25.0f + (i + 1) * 0.2785f;
         thermal_mass_update(&test_thermal_mass, temp, 1000 + (i + 1) * 500);
     }
     
@@ -434,7 +440,8 @@ static void test_thermal_mass_minimum_valid_temperature(void) {
     TEST_ASSERT_TRUE(result);
     
     /* Should work with minimum valid temperature */
-    bool complete = thermal_mass_update(&test_thermal_mass, 2.0f, 6000);
+    thermal_mass_update(&test_thermal_mass, 2.0f, 6000);
+    bool complete = thermal_mass_update(&test_thermal_mass, 10.0f, 11000);
     TEST_ASSERT_TRUE(complete);
     TEST_ASSERT_EQUAL(PAN_CLASS_LIGHT, thermal_mass_get_classification(&test_thermal_mass));
 }
@@ -445,10 +452,10 @@ static void test_thermal_mass_maximum_valid_temperature(void) {
     bool result = thermal_mass_start_estimation(&test_thermal_mass, 300.0f);
     TEST_ASSERT_TRUE(result);
     
-    /* Should work with maximum valid temperature */
+    /* A reading above the supported range is rejected as a sensor fault. */
     bool complete = thermal_mass_update(&test_thermal_mass, 302.0f, 6000);
     TEST_ASSERT_TRUE(complete);
-    TEST_ASSERT_EQUAL(PAN_CLASS_LIGHT, thermal_mass_get_classification(&test_thermal_mass));
+    TEST_ASSERT_EQUAL(PAN_CLASS_INVALID, thermal_mass_get_classification(&test_thermal_mass));
 }
 
 static void test_thermal_mass_very_short_test_duration(void) {
@@ -462,7 +469,8 @@ static void test_thermal_mass_very_short_test_duration(void) {
     TEST_ASSERT_TRUE(result);
     
     /* Should complete quickly with short duration */
-    bool complete = thermal_mass_update(&short_handle, 30.0f, 2000);
+    thermal_mass_update(&short_handle, 30.0f, 2000);
+    bool complete = thermal_mass_update(&short_handle, 30.0f, 3000);
     TEST_ASSERT_TRUE(complete);
 }
 
@@ -472,6 +480,8 @@ static void test_thermal_mass_very_short_test_duration(void) {
 
 static void test_thermal_mass_multiple_consecutive_estimations(void) {
     thermal_mass_test_setup();
+    test_config.min_temp_rise = 0.5f;
+    thermal_mass_init(&test_thermal_mass, &test_config);
     
     /* First estimation - light pan */
     thermal_mass_start_estimation(&test_thermal_mass, 25.0f);
@@ -576,7 +586,7 @@ static void test_thermal_mass_ambient_temperature_effects(void) {
     TEST_ASSERT_TRUE(result1);
     
     for (int i = 0; i < 11; i++) {
-        float temp = 35.0f + (i + 1) * 0.5f;
+        float temp = 35.0f + (i + 1) * 1.0f;
         thermal_mass_update(&test_thermal_mass, temp, 1000 + (i + 1) * 500);
     }
     TEST_ASSERT_EQUAL(PAN_CLASS_LIGHT, thermal_mass_get_classification(&test_thermal_mass));
@@ -587,7 +597,7 @@ static void test_thermal_mass_ambient_temperature_effects(void) {
     TEST_ASSERT_TRUE(result2);
     
     for (int i = 0; i < 11; i++) {
-        float temp = 10.0f + (i + 1) * 0.5f;
+        float temp = 10.0f + (i + 1) * 1.0f;
         thermal_mass_update(&test_thermal_mass, temp, 1000 + (i + 1) * 500);
     }
     TEST_ASSERT_EQUAL(PAN_CLASS_LIGHT, thermal_mass_get_classification(&test_thermal_mass));
@@ -632,7 +642,7 @@ static void test_thermal_mass_performance_with_many_samples(void) {
             bool complete = thermal_mass_update(&test_thermal_mass, temp, time);
             TEST_ASSERT_FALSE(complete);
         } else {
-            bool complete = thermal_mass_update(&test_thermal_mass, temp, 6000);
+            bool complete = thermal_mass_update(&test_thermal_mass, temp, 6005);
             TEST_ASSERT_TRUE(complete);
         }
     }
@@ -677,6 +687,40 @@ static void test_thermal_mass_concurrent_operations(void) {
     TEST_ASSERT_FALSE(thermal_mass_is_active(&test_thermal_mass));
     TEST_ASSERT_TRUE(thermal_mass_is_active(&handle2));  /* Others still active */
     TEST_ASSERT_TRUE(thermal_mass_is_active(&handle3));
+}
+
+/* Property-style regression: with fixed power and duration, increasing the
+ * measured temperature rise must never make a pan look heavier.  This sweeps
+ * the estimator across both classification thresholds and catches arithmetic
+ * regressions without coupling the test to one hand-picked ramp. */
+static void test_thermal_mass_classification_monotonic_with_rise(void) {
+    thermal_mass_config_t config = thermal_mass_get_default_config();
+    config.min_temp_rise = 0.5f;
+
+    pan_class_t previous = PAN_CLASS_HEAVY;
+    for (int sample = 0; sample < 24; sample++) {
+        float rise = 0.6f + (float)sample * 0.4f;
+        thermal_mass_handle_t handle;
+        thermal_mass_init(&handle, &config);
+        TEST_ASSERT_TRUE(thermal_mass_start_estimation(&handle, 25.0f));
+
+        for (int i = 0; i < 11; i++) {
+            float temp = 25.0f + rise * (float)(i + 1) / 6.0f;
+            bool complete = thermal_mass_update(&handle, temp,
+                                                1000U + (uint32_t)(i + 1) * 500U);
+            if (i < 10) {
+                TEST_ASSERT_FALSE(complete);
+            } else {
+                TEST_ASSERT_TRUE(complete);
+            }
+        }
+
+        pan_class_t classification = thermal_mass_get_classification(&handle);
+        TEST_ASSERT_TRUE(classification >= PAN_CLASS_LIGHT &&
+                         classification <= PAN_CLASS_HEAVY);
+        TEST_ASSERT_TRUE(classification <= previous);
+        previous = classification;
+    }
 }
 
 /* ============================================================================
@@ -740,4 +784,5 @@ void run_thermal_mass_tests(void) {
     /* Performance & Memory */
     RUN_TEST(test_thermal_mass_performance_with_many_samples);
     RUN_TEST(test_thermal_mass_concurrent_operations);
+    RUN_TEST(test_thermal_mass_classification_monotonic_with_rise);
 }

@@ -30,9 +30,9 @@ def main() -> int:
     parser.add_argument(
         "--backend",
         type=str,
-        default="rust",
+        default="kicad-cli",
         choices=["rust", "kicad-cli"],
-        help="DRC backend: 'rust' (default, temper_drc_rs) or 'kicad-cli' (KiCad CLI)",
+        help="DRC backend: 'kicad-cli' (default, KiCad truth gate) or 'rust' (temper_drc_rs diagnostic)",
     )
     args = parser.parse_args()
 

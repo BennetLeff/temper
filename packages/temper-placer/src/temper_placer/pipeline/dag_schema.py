@@ -22,26 +22,28 @@ from temper_placer.pipeline.dag_types import (
     DAGMissingDependencyError,
 )
 
-BUILTIN_CONFIG_KEYS = frozenset({
-    "input_pcb",
-    "constraints_yaml",
-    "loops_yaml",
-    "output_pcb",
-    "output_report",
-    "output_trace",
-    "skip_topological",
-    "skip_routing",
-    "skip_local_refinement",
-    "dry_run",
-    "epochs",
-    "seed",
-    "max_movement_mm",
-    "max_iterations",
-    "routability_threshold",
-    "convergence_threshold",
-    "fab_preset",
-    "deadline",
-})
+BUILTIN_CONFIG_KEYS = frozenset(
+    {
+        "input_pcb",
+        "constraints_yaml",
+        "loops_yaml",
+        "output_pcb",
+        "output_report",
+        "output_trace",
+        "skip_topological",
+        "skip_routing",
+        "skip_local_refinement",
+        "dry_run",
+        "epochs",
+        "seed",
+        "max_movement_mm",
+        "max_iterations",
+        "routability_threshold",
+        "convergence_threshold",
+        "fab_preset",
+        "deadline",
+    }
+)
 
 
 class PipelineMeta(BaseModel):
@@ -105,9 +107,7 @@ class StageDAGManifest(BaseModel):
                 try:
                     parse_skip_expr(stage.skip_if)
                 except DAGExprSyntaxError as e:
-                    raise DAGExprSyntaxError(
-                        f"Invalid skip_if in stage '{stage.name}': {e}"
-                    ) from e
+                    raise DAGExprSyntaxError(f"Invalid skip_if in stage '{stage.name}': {e}") from e
 
         provides_map: dict[str, set[str]] = {}
         for stage in self.stages:

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+
 import numpy as np
 import pytest
 from hypothesis import given
@@ -21,10 +23,53 @@ from temper_placer.placer.cp_sat.gates import (
     ViolationType,
 )
 
+# ---------------------------------------------------------------------------
+# CostField-stored-in-FieldResult.field path (defensive dispatch)
+# ---------------------------------------------------------------------------
+
+
+class TestFieldResultWithCostField:
+    """FieldResult with a CostField (not raw ndarray) as its .field value."""
+
+    def test_cost_field_via_to_cost_field_input(self):
+        """to_cost_field_input() must work when .field is a CostField."""
+        grid = np.full((8, 12), 2.5, dtype=np.float32)
+        cf = CostField(grid=grid, cell_size_mm=0.5, origin_mm=(0.0, 0.0))
+        fr = FieldResult(gate_result=GateResult(GateStatus.CLEAN), field=cf)
+        cfi = fr.to_cost_field_input()
+        assert isinstance(cfi, CostFieldInput)
+        assert cfi.cost_flat.shape == (8 * 12,)
+        assert cfi.cost_flat.dtype == np.float32
+        assert cfi.cost_flat[0] == pytest.approx(2.5)
+
+    def test_cost_field_with_violations_to_cost_field_input(self):
+        """to_cost_field_input() must work when .field is a CostField and status is VIOLATIONS."""
+        grid = np.ones((5, 5), dtype=np.float32)
+        cf = CostField(grid=grid, cell_size_mm=1.0, origin_mm=(0.0, 0.0))
+        gr = GateResult(
+            GateStatus.VIOLATIONS,
+            violations=(Violation(type=ViolationType.THERMAL, description="hot"),),
+        )
+        fr = FieldResult(gate_result=gr, field=cf, weight=3.0)
+        cfi = fr.to_cost_field_input()
+        assert cfi.cost_flat.shape == (25,)
+        assert cfi.cost_flat.dtype == np.float32
+        assert cfi.weight == 3.0
+
+    def test_cost_field_roundtrip_values_preserved(self):
+        """CostField stored in FieldResult produces correct flat values."""
+        grid = np.arange(20, dtype=np.float32).reshape(4, 5) + 0.5
+        cf = CostField(grid=grid, cell_size_mm=0.25, origin_mm=(10.0, 20.0))
+        fr = FieldResult(gate_result=GateResult(GateStatus.CLEAN), field=cf)
+        cfi = fr.to_cost_field_input()
+        expected_flat = np.arange(20, dtype=np.float32) + 0.5
+        np.testing.assert_array_equal(cfi.cost_flat, expected_flat)
+
 
 # ---------------------------------------------------------------------------
 # Happy path
 # ---------------------------------------------------------------------------
+
 
 class TestFieldResultHappy:
     """CLEAN GateResult-backed field whose grid matches the occupancy-grid shape."""
@@ -91,6 +136,7 @@ class TestFieldResultHappy:
 # Edge: no silent-flat / zero-grid path
 # ---------------------------------------------------------------------------
 
+
 class TestFieldResultNoSilentFlat:
     """A VIOLATIONS/failed result with an implicit zero grid is impossible."""
 
@@ -142,6 +188,7 @@ class TestFieldResultNoSilentFlat:
 # Error / UNMEASURED
 # ---------------------------------------------------------------------------
 
+
 class TestFieldResultUnmeasured:
     """A non-converged solve yields UNMEASURED with reason;  consumers must branch."""
 
@@ -163,21 +210,27 @@ class TestFieldResultUnmeasured:
                 return f"skip: {fr.error_message}"
             return "use_field"
 
-        assert consume(
-            FieldResult(
-                gate_result=GateResult(
-                    GateStatus.UNMEASURED,
-                    error_message="not converged",
-                ),
+        assert (
+            consume(
+                FieldResult(
+                    gate_result=GateResult(
+                        GateStatus.UNMEASURED,
+                        error_message="not converged",
+                    ),
+                )
             )
-        ) == "skip: not converged"
+            == "skip: not converged"
+        )
 
-        assert consume(
-            FieldResult(
-                gate_result=GateResult(GateStatus.CLEAN),
-                field=np.ones((5, 5), dtype=np.float32),
+        assert (
+            consume(
+                FieldResult(
+                    gate_result=GateResult(GateStatus.CLEAN),
+                    field=np.ones((5, 5), dtype=np.float32),
+                )
             )
-        ) == "use_field"
+            == "use_field"
+        )
 
     def test_no_code_path_yields_cost_flat_from_unmeasured(self):
         result = FieldResult(
@@ -193,6 +246,7 @@ class TestFieldResultUnmeasured:
 # ---------------------------------------------------------------------------
 # Property-based: CostField grid alignment (no off-by-one)
 # ---------------------------------------------------------------------------
+
 
 class TestCostFieldAlignment:
     """For any grid shape, a CostField aligns 1:1 with the occupancy grid."""
@@ -237,6 +291,7 @@ class TestCostFieldAlignment:
 # FieldGate extension point
 # ---------------------------------------------------------------------------
 
+
 class TestFieldGateExtensionPoint:
     """FieldGate is an abstract base for U5 — concrete subclasses override compute_field."""
 
@@ -245,8 +300,6 @@ class TestFieldGateExtensionPoint:
             name = "stub"
 
             def compute_field(self, state):
-                from temper_placer.placer.cp_sat.gates import BoardState
-
                 return FieldResult(
                     gate_result=GateResult(GateStatus.CLEAN),
                     field=np.ones((3, 3), dtype=np.float32),
@@ -275,6 +328,7 @@ class TestFieldGateExtensionPoint:
 # CostFieldInput contract
 # ---------------------------------------------------------------------------
 
+
 class TestCostFieldInput:
     """CostFieldInput bundles flat cost + weight for U8/U9 routing."""
 
@@ -291,5 +345,5 @@ class TestCostFieldInput:
 
     def test_frozen(self):
         cfi = CostFieldInput(cost_flat=np.ones(10, dtype=np.float32))
-        with pytest.raises(Exception):
+        with pytest.raises(FrozenInstanceError):
             cfi.weight = 2.0  # type: ignore[misc]

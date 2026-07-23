@@ -86,11 +86,11 @@ def serialize_manifest(entries: list[dict], header_lines: list[str], footer_line
         out += f"    category: {e['category']}\n"
         out += f"    disposition: {e['disposition']}\n"
         if e.get("imports"):
-            out += f"    imports:\n"
+            out += "    imports:\n"
             for imp in e["imports"]:
                 out += f"      - {imp}\n"
         else:
-            out += f"    imports: []\n"
+            out += "    imports: []\n"
     out += "\n" + "\n".join(footer_lines)
     return out
 
@@ -217,11 +217,11 @@ def main():
             new_text += f"    category: {entry['category']}\n"
             new_text += f"    disposition: {entry['disposition']}\n"
             if entry.get("imports"):
-                new_text += f"    imports:\n"
+                new_text += "    imports:\n"
                 for imp in entry["imports"]:
                     new_text += f"      - {imp}\n"
             else:
-                new_text += f"    imports: []\n"
+                new_text += "    imports: []\n"
         MANIFEST.write_text(new_text)
         print(f"Updated {MANIFEST}")
 

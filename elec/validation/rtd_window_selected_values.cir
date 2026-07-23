@@ -1,0 +1,71 @@
+* Selected-value RTD hardware-window operating-point model.
+*
+* This deck deliberately models the captured passive networks: the MAX31865
+* VBIAS/RREF/RTD divider, REF2025 VBIAS threshold dividers, and TPS3700
+* RTD_AVDD divider. Comparator and logic transfer functions remain behavioural
+* because vendor macro-models are not in the repository. Tolerance/offset/PVT
+* coverage belongs to the companion Hypothesis model.
+
+.param VSAFE=3.3 VMAXBIAS=2.0 VREF2025=1.25 VTPS=0.3935
+
+V_SAFE safety_3v3 0 {VSAFE}
+V_MAX_BIAS max_bias 0 {VMAXBIAS}
+V_REFERENCE reference_vbias 0 {VREF2025}
+V_AVDD rtd_avdd 0 3.3
+
+* MAX31865 local RTD-current-drop node: VBIAS -> RREF -> REFIN-/ISENSOR -> RTD.
+R_RREF max_bias refin_minus 430
+R_RTD refin_minus 0 100
+
+* REF2025 1.25 V divider thresholds captured in RTDSensing.
+R_LOW_TOP reference_vbias low_threshold 61.3k
+R_LOW_BOTTOM low_threshold 0 10k
+R_HIGH_TOP reference_vbias high_threshold 5.93k
+R_HIGH_BOTTOM high_threshold 0 10k
+
+* TPS3700 IN_A divider captured in RTDSensing. OUTA is low below VIT-.
+R_AVDD_TOP rtd_avdd rail_monitor_in 616k
+R_AVDD_BOTTOM rail_monitor_in 0 100k
+
+* Behavioural comparator/logic equivalents for their rated operating region.
+B_LOW_OK low_ok 0 V={ternary_fcn(v(refin_minus)>v(low_threshold),v(rtd_avdd),0)}
+B_HIGH_OK high_ok 0 V={ternary_fcn(v(refin_minus)<v(high_threshold),v(rtd_avdd),0)}
+B_RAIL_OK rail_ok 0 V={ternary_fcn(v(rail_monitor_in)>VTPS,v(safety_3v3),0)}
+R_PULLUP safety_3v3 rtd_hw_fault 10k
+B_OPEN_DRAIN rtd_hw_fault 0 I={ternary_fcn((v(low_ok)>1.35)*(v(high_ok)>1.35)*(v(rail_ok)>1.35),v(rtd_hw_fault)/100,0)}
+
+.control
+set noaskquit
+
+* Fault boundaries and valid PT100 range using the actual selected values.
+alter R_RTD resistance = 10
+alter V_AVDD dc = 3.3
+op
+echo CASE_SHORT_10R
+print v(refin_minus) v(low_threshold) v(high_threshold) v(rtd_hw_fault)
+
+alter R_RTD resistance = 100
+op
+echo CASE_VALID_100R
+print v(refin_minus) v(low_threshold) v(high_threshold) v(rtd_hw_fault)
+
+alter R_RTD resistance = 194.1
+op
+echo CASE_VALID_194R1
+print v(refin_minus) v(low_threshold) v(high_threshold) v(rtd_hw_fault)
+
+alter R_RTD resistance = 300
+op
+echo CASE_OPEN_300R
+print v(refin_minus) v(low_threshold) v(high_threshold) v(rtd_hw_fault)
+
+* The upstream TPS3700 path removes permission before TLV3201 supply minimum.
+alter R_RTD resistance = 100
+alter V_AVDD dc = 2.75
+op
+echo CASE_AVDD_BROWNOUT
+print v(rail_monitor_in) v(rtd_hw_fault)
+quit
+.endc
+
+.end

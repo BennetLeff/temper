@@ -1,7 +1,6 @@
 /// Quality oracle entry point — orchestrates the full six-layer pipeline.
 ///
 /// Single pure function: classify → derive → configure → evaluate → verdict.
-
 use crate::classification::classify_nets;
 use crate::config::build_config;
 use crate::derivation::derive;
@@ -52,7 +51,6 @@ mod tests {
     use crate::tests_common::{empty_placement, empty_spec, valid_metrics};
     use crate::types::{ComponentInfo, NetInfo};
     use proptest::prelude::*;
-    use std::collections::HashMap;
 
     fn empty_netlist() -> Netlist {
         Netlist { nets: vec![], components: vec![] }
@@ -106,7 +104,7 @@ mod tests {
         fn pbt_oracle_rejects_invalid_scores(
             bad_score in prop::num::f64::NORMAL,
         ) {
-            prop_assume!(bad_score < 0.0 || bad_score > 1.0 || bad_score.is_nan());
+            prop_assume!(!(0.0..=1.0).contains(&bad_score) || bad_score.is_nan());
             let pre = PrecomputedMetrics {
                 thermal_score: bad_score,
                 ..valid_metrics()

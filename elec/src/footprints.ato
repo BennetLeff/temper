@@ -20,8 +20,11 @@ module CST1005_Footprint:
     sec_pad2.drill_size = 0.8mm
     sec_pad2.annular_ring = 0.4mm
     
-    # Primary 'pin' is just a large hole for the wire
-    primary_hole_dia = 5.0mm
+    # Primary 'pin' is just a large hole for the wire.
+    # 8.50mm per the real Triad Magnetics datasheet (dimension F,
+    # https://catalog.triadmagnetics.com/Asset/CST-1005.pdf) -- was 5.0mm,
+    # an unsourced placeholder that didn't match the real part.
+    primary_hole_dia = 8.5mm
     
     signal S1 ~ sec_pad1
     signal S2 ~ sec_pad2

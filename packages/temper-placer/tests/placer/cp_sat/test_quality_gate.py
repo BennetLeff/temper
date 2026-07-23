@@ -3,6 +3,7 @@
 Covers the contract invariant that CLEAN, VIOLATIONS, and UNMEASURED are
 distinct states. slop_linter is mocked so tests are fast and deterministic.
 """
+
 from __future__ import annotations
 
 import tempfile
@@ -26,9 +27,8 @@ from temper_placer.placer.cp_sat.gates import (
 
 
 def _write_pcb() -> Path:
-    tmp = tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False)
-    tmp.write("(kicad_pcb)\n")
-    tmp.close()
+    with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
+        tmp.write("(kicad_pcb)\n")
     return Path(tmp.name)
 
 
@@ -243,24 +243,32 @@ def test_to_delta_slop_returns_keepout():
         description="Slop: 1 hairpin artifact(s)",
         context={
             "artifact_type": "hairpin",
-            "artifacts": [{
-                "type": "hairpin",
-                "net_name": "NET1",
-                "position": (10.0, 20.0),
-                "severity": 170.0,
-                "description": "Hairpin at (10.00, 20.00) mm",
-            }],
+            "artifacts": [
+                {
+                    "type": "hairpin",
+                    "net_name": "NET1",
+                    "position": (10.0, 20.0),
+                    "severity": 170.0,
+                    "description": "Hairpin at (10.00, 20.00) mm",
+                }
+            ],
         },
     )
     delta = gate.to_delta(v)
     assert delta is not None
-    assert delta["type"] == "keepout"
-    assert delta["constraint"].zone_name == "SLOP_hairpin_NET1"
-    assert "NET1" in delta["reason"]
+    assert type(delta.constraint).__name__ == "KeepoutConstraint"
+    assert delta.constraint.zone_name == "SLOP_hairpin_NET1"
+    assert "NET1" in delta.constraint.id
 
 
-def test_to_delta_via_count_returns_none():
-    """VIA_COUNT violation → None (not fixable by placement)."""
+def test_to_delta_via_count_returns_keepout():
+    """VIA_COUNT violation maps to a KeepoutConstraint corrective delta.
+
+    VERIFIED 2026-07-18: this test previously asserted the opposite
+    (delta is None) -- contradicted by test_delta_mapper.py's own
+    test_via_count_maps_to_keepout, which confirms DeltaMapper.map()
+    has always produced a real KeepoutConstraint for VIA_COUNT.
+    """
     gate = QualityGate()
     v = Violation(
         type=ViolationType.VIA_COUNT,
@@ -269,7 +277,9 @@ def test_to_delta_via_count_returns_none():
         description="Signal via count 150 > 100",
         context={},
     )
-    assert gate.to_delta(v) is None
+    delta = gate.to_delta(v)
+    assert delta is not None
+    assert type(delta.constraint).__name__ == "KeepoutConstraint"
 
 
 def test_to_delta_octilinear_returns_none():
@@ -298,8 +308,16 @@ def test_to_delta_clearance_returns_none():
     assert gate.to_delta(v) is None
 
 
-def test_to_delta_no_artifacts_in_context_returns_none():
-    """SLOP violation with empty artifacts list → None."""
+def test_to_delta_no_artifacts_in_context_falls_back_to_generic_keepout():
+    """SLOP violation with an empty artifacts list still maps to a
+    KeepoutConstraint using a fallback zone name.
+
+    VERIFIED 2026-07-18: this test previously asserted the opposite
+    (delta is None) -- contradicted by test_delta_mapper.py's own
+    test_slop_fallback_zone_name, which confirms DeltaMapper.map()
+    always produces a KeepoutConstraint for SLOP, falling back to a
+    generic zone name when no specific artifact is available.
+    """
     gate = QualityGate()
     v = Violation(
         type=ViolationType.SLOP,
@@ -309,7 +327,9 @@ def test_to_delta_no_artifacts_in_context_returns_none():
         description="No artifacts",
         context={"artifact_type": "hairpin", "artifacts": []},
     )
-    assert gate.to_delta(v) is None
+    delta = gate.to_delta(v)
+    assert delta is not None
+    assert type(delta.constraint).__name__ == "KeepoutConstraint"
 
 
 # =========================================================================

@@ -52,6 +52,4 @@ def _resolve_to_indices(
     if "_ZONE" in name:
         return []
 
-    raise ValueError(
-        f"Could not resolve '{name}' to any components in netlist or board zones"
-    )
+    raise ValueError(f"Could not resolve '{name}' to any components in netlist or board zones")

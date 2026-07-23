@@ -10,7 +10,7 @@ pub enum SafetyCategory {
 }
 
 impl SafetyCategory {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s {
             "HV" => Some(SafetyCategory::HV),
             "LV" => Some(SafetyCategory::LV),
@@ -177,6 +177,7 @@ pub fn propagate_through_topology(
     let mut warnings = Vec::new();
 
     for &(net_a, net_b, ref channel_id) in skeleton_edges {
+        #[allow(clippy::collapsible_if)]
         if let Some(indices) = existing_net_indices {
             if !indices.contains(&net_a) || !indices.contains(&net_b) {
                 continue;
@@ -237,7 +238,7 @@ mod tests {
     ) -> NetClassMetadata {
         NetClassMetadata {
             class_name: name.to_string(),
-            safety_category: SafetyCategory::from_str(safety),
+            safety_category: SafetyCategory::parse(safety),
             clearance,
             creepage_mm: creepage,
             required_layer: required_layer.map(|s| s.to_string()),

@@ -16,6 +16,7 @@ import yaml  # type: ignore[import-untyped]
 @dataclass
 class ThermalSpec:
     """Thermal management targets."""
+
     max_junction_temp_c: float = 110.0
     ambient_temp_c: float = 40.0
     power_dissipation: dict[str, float] = field(default_factory=dict)
@@ -26,6 +27,7 @@ class ThermalSpec:
 @dataclass
 class EMISpec:
     """EMI performance targets (loop areas)."""
+
     max_loop_area_mm2: dict[str, float] = field(default_factory=dict)
     loop_components: dict[str, list[str]] = field(default_factory=dict)
     frequency_hz: float = 100000.0
@@ -34,6 +36,7 @@ class EMISpec:
 @dataclass
 class SignalIntegritySpec:
     """Signal integrity targets."""
+
     max_length_mm: dict[str, float] = field(default_factory=dict)
     length_match_mm: dict[str, float] = field(default_factory=dict)
 
@@ -44,6 +47,7 @@ class SafetySpec:
 
     Follows IEC 60335-1 for clearance and creepage requirements.
     """
+
     mains_voltage_v: float = 230.0
     pollution_degree: int = 2
 
@@ -51,6 +55,7 @@ class SafetySpec:
 @dataclass
 class PcbSpecification:
     """Complete physical specification for a design."""
+
     name: str = "Unnamed Design"
     thermal: ThermalSpec = field(default_factory=ThermalSpec)
     emi: EMISpec = field(default_factory=EMISpec)

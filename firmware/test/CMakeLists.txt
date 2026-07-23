@@ -177,6 +177,29 @@ target_include_directories(test_state_machine_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_state_machine_only m)
 add_dependencies(test_state_machine_only gen_config gen_fault_list gen_transition_table)
 
+# MAX31865 register and terminal-fault-path contract. This target intentionally
+# combines the real driver and state machine through the SPI mock so threshold
+# programming and decoded fault delivery are exercised together.
+add_executable(test_max31865_only
+    ${UNITY_SOURCES}
+    ${MOCK_HAL_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_max31865.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_max31865.c
+)
+target_include_directories(test_max31865_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_max31865_only m)
+add_dependencies(test_max31865_only gen_config gen_fault_list gen_transition_table)
+
 # Fault list codegen verification tests
 add_executable(test_fault_list_only
     ${UNITY_SOURCES}
@@ -261,6 +284,26 @@ add_executable(test_cascade_pid_integration_only
 )
 target_include_directories(test_cascade_pid_integration_only PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(test_cascade_pid_integration_only m)
+
+# Full state-machine integration tests.  Keep this target explicit instead of
+# relying on a stale binary left in the build directory: the test exercises the
+# same production state-machine sources and host stubs as the focused state
+# machine suite.
+add_executable(test_integration_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/low_temp_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pid_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mass.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/profiles.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/state_machine_stubs.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_integration.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_main_integration.c
+)
+target_include_directories(test_integration_only PRIVATE ${INCLUDE_DIRS})
+target_link_libraries(test_integration_only m)
+add_dependencies(test_integration_only gen_config gen_fault_list gen_transition_table)
 
 # Thermal mass estimation tests
 add_executable(test_thermal_mass_only
@@ -352,6 +395,7 @@ target_link_libraries(test_coil_guard_only m)
 enable_testing()
 add_test(NAME all_tests COMMAND test_runner)
 add_test(NAME state_machine_tests COMMAND test_state_machine_only)
+add_test(NAME max31865_tests COMMAND test_max31865_only)
 add_test(NAME pid_tests COMMAND test_pid_only)
 add_test(NAME cascade_pid_tests COMMAND test_cascade_pid_only)
 add_test(NAME cascade_pid_integration_tests COMMAND test_cascade_pid_integration_only)

@@ -187,7 +187,9 @@ def decide_verdict(
     Returns ``(BatteryVerdict, reason_string)``.
     """
     if budget_exceeded:
-        detail = f"Cost budget exceeded: {budget_detail}" if budget_detail else "Cost budget exceeded"
+        detail = (
+            f"Cost budget exceeded: {budget_detail}" if budget_detail else "Cost budget exceeded"
+        )
         return BatteryVerdict.INCONCLUSIVE, detail
 
     if not divergence_detected:
@@ -238,12 +240,8 @@ def run_helps_battery(
     field_name: str,
     board: Any,
     netlist: Any,
-    build_arm_placement: Callable[
-        [str, int, Any, Any, int], Any
-    ],
-    score_placement_fn: Callable[
-        [Any, Any, Any], MarginScorecard
-    ],
+    build_arm_placement: Callable[[str, int, Any, Any, int], Any],
+    score_placement_fn: Callable[[Any, Any, Any], MarginScorecard],
     scorer_id: str,
     base_seed: int = 42,
     n_perturbations: int | None = None,
@@ -333,9 +331,7 @@ def run_helps_battery(
             error: str | None = None
 
             try:
-                placement = build_arm_placement(
-                    arm_id, pert_idx, board, netlist, seed
-                )
+                placement = build_arm_placement(arm_id, pert_idx, board, netlist, seed)
                 scorecard = score_placement_fn(placement, board, netlist)
             except Exception as exc:
                 placement = None
@@ -382,7 +378,8 @@ def run_helps_battery(
 
     # ---- A/B divergence assertion ----
     divergence_ok, divergence_detail = _assert_divergence(
-        physics_placements, no_field_placements,
+        physics_placements,
+        no_field_placements,
     )
 
     # ---- Cost budget check ----
@@ -401,16 +398,12 @@ def run_helps_battery(
         budget_exceeded = True
         if budget_detail:
             budget_detail += "; "
-        budget_detail += (
-            f"perturbations {n} > max_rounds_budget {budget.max_rounds_budget}"
-        )
+        budget_detail += f"perturbations {n} > max_rounds_budget {budget.max_rounds_budget}"
 
     # ---- Verdict: pre-registered pass bar ----
     pass_bar = field.pass_bar
 
-    primary_gate = _resolve_primary_gate(
-        field, no_field_margins, cheap_margins, physics_margins
-    )
+    primary_gate = _resolve_primary_gate(field, no_field_margins, cheap_margins, physics_margins)
 
     n_actual_physics = len(physics_margins.get(primary_gate, []))
     n_actual_cheap = len(cheap_margins.get(primary_gate, []))
@@ -446,6 +439,36 @@ def run_helps_battery(
         divergence_detail=divergence_detail,
     )
 
+    # ---- Worst-case per-perturbation check (#133) ----
+    # The mean-based verdict can mask an interior violation:
+    # a single perturbation that fails the bar while the rest
+    # pass can KEEP on mean alone.  This guard ensures the
+    # pass bar holds at *every* sampled perturbation, not just
+    # on average.  If the worst perturbation fails, the verdict
+    # is downgraded to INCONCLUSIVE (sampling uncertainty).
+    n_paired = min(len(phys_vals), len(cheap_vals))
+    if verdict == BatteryVerdict.KEEP and n_paired > 0:
+        min_mg = float("inf")
+        worst_idx = -1
+        for i in range(n_paired):
+            mg = phys_vals[i] - cheap_vals[i]
+            if mg < min_mg:
+                min_mg = mg
+                worst_idx = i
+        threshold = max(X, Y)
+        if min_mg < threshold:
+            verdict = BatteryVerdict.INCONCLUSIVE
+            verdict_details = (
+                f"INCONCLUSIVE (sampling uncertainty): mean-based verdict is "
+                f"KEEP (mean_margin_gain={margin_gain:.3f} >= {threshold} "
+                f"threshold), but worst perturbation (idx {worst_idx}, "
+                f"margin_gain={min_mg:.3f}) fails the pass bar "
+                f"(X={X}, Y={Y}). The pass bar must hold at every sampled "
+                f"perturbation, not just the mean — this guards against "
+                f"interior resonances or non-monotone responses missed by "
+                f"favourably-sampled means."
+            )
+
     return HelpsBatteryResult(
         field_name=field.field_name,
         baseline_name=field.cheap_baseline.name,
@@ -470,9 +493,7 @@ def run_helps_battery(
 # ---------------------------------------------------------------------------
 
 
-def _find_field(
-    manifest: PreregistrationManifest, field_name: str
-) -> FieldPreregistration | None:
+def _find_field(manifest: PreregistrationManifest, field_name: str) -> FieldPreregistration | None:
     """Find a field by name in the manifest."""
     for f in manifest.fields:
         if f.field_name == field_name:

@@ -69,16 +69,20 @@ class TestBaselineSpec:
 class TestBaselineFile:
     def test_load_valid(self, tmp_path: Path):
         baseline_path = tmp_path / "baseline.json"
-        baseline_path.write_text(json.dumps({
-            "board_id": "test",
-            "extracted_at": "2026-01-01T00:00:00",
-            "git_hash": "abc12345",
-            "config": {"seed": 42, "epochs": 1000},
-            "metrics": {
-                "final_loss": {"mean": 100.0, "margin_rel": 0.05, "margin_abs": 10.0},
-                "wirelength_final": {"mean": 500.0, "margin_rel": 0.10, "margin_abs": 50.0},
-            },
-        }))
+        baseline_path.write_text(
+            json.dumps(
+                {
+                    "board_id": "test",
+                    "extracted_at": "2026-01-01T00:00:00",
+                    "git_hash": "abc12345",
+                    "config": {"seed": 42, "epochs": 1000},
+                    "metrics": {
+                        "final_loss": {"mean": 100.0, "margin_rel": 0.05, "margin_abs": 10.0},
+                        "wirelength_final": {"mean": 500.0, "margin_rel": 0.10, "margin_abs": 50.0},
+                    },
+                }
+            )
+        )
         baseline = BaselineFile.load(baseline_path)
         assert baseline.board_id == "test"
         assert baseline.git_hash == "abc12345"
@@ -126,8 +130,14 @@ boards:
         assert manifest.boards[0].epochs == 8000
 
     def test_get_board(self):
-        entry = CorpusEntry(id="b1", pcb="b1/pcb.kicad_pcb", constraints="b1/c.yaml",
-                            baseline="b1/b.json", seed=1, epochs=100)
+        entry = CorpusEntry(
+            id="b1",
+            pcb="b1/pcb.kicad_pcb",
+            constraints="b1/c.yaml",
+            baseline="b1/b.json",
+            seed=1,
+            epochs=100,
+        )
         manifest = CorpusManifest(version=1, boards=[entry])
         assert manifest.get_board("b1") is not None
         assert manifest.get_board("b2") is None
@@ -151,8 +161,9 @@ class TestCorpusBoardResult:
         assert result.failed
 
     def test_skip(self):
-        result = CorpusBoardResult(board_id="b1", passed=False, skipped=True,
-                                   skip_reason="Missing PCB")
+        result = CorpusBoardResult(
+            board_id="b1", passed=False, skipped=True, skip_reason="Missing PCB"
+        )
         assert result.skipped
         assert not result.failed
 
@@ -225,7 +236,9 @@ boards:
         assert result.skipped
         assert "Failed to load baseline" in result.skip_reason
 
-    @pytest.mark.skip(reason="CorpusRegressionRunner._run_board still targets the removed JAX optimizer (train_multiphase / CompositeLoss / create_default_phases); needs rewiring to the CP-SAT/deterministic placer — tracked follow-up")
+    @pytest.mark.skip(
+        reason="CorpusRegressionRunner._run_board still targets the removed JAX optimizer (train_multiphase / CompositeLoss / create_default_phases); needs rewiring to the CP-SAT/deterministic placer — tracked follow-up"
+    )
     def test_run_success_path(self, tmp_path: Path):
         """Integration test using minimal board fixture."""
         corpus_root = tmp_path
@@ -236,23 +249,28 @@ boards:
         # Copy minimal board and constraints
         fixtures = Path(__file__).resolve().parent.parent.parent / "tests" / "fixtures"
         import shutil
+
         shutil.copy(fixtures / "minimal_board.kicad_pcb", board_dir / "minimal_board.kicad_pcb")
         shutil.copy(fixtures / "constraints_minimal.yaml", board_dir / "constraints_minimal.yaml")
 
         # Create a baseline with very generous margins
-        (board_dir / "baseline.json").write_text(json.dumps({
-            "board_id": "minimal",
-            "extracted_at": "2026-01-01T00:00:00",
-            "git_hash": "test",
-            "config": {"seed": 43, "epochs": 50, "curriculum": True, "heuristics": True},
-            "metrics": {
-                "final_loss": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
-                "wirelength_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
-                "overlap_loss_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
-                "boundary_loss_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
-                "hpwl_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
-            },
-        }))
+        (board_dir / "baseline.json").write_text(
+            json.dumps(
+                {
+                    "board_id": "minimal",
+                    "extracted_at": "2026-01-01T00:00:00",
+                    "git_hash": "test",
+                    "config": {"seed": 43, "epochs": 50, "curriculum": True, "heuristics": True},
+                    "metrics": {
+                        "final_loss": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
+                        "wirelength_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
+                        "overlap_loss_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
+                        "boundary_loss_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
+                        "hpwl_final": {"mean": 0.0, "margin_rel": 1.0, "margin_abs": 1e6},
+                    },
+                }
+            )
+        )
 
         manifest_path.write_text("""
 version: 1

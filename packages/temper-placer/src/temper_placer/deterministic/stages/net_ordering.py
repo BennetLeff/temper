@@ -1,7 +1,5 @@
 from dataclasses import replace
 
-from temper_placer.router_v6.net_ordering import order_nets
-
 from ...core.loop import LoopCollection
 from ..state import BoardState
 from .base import Stage
@@ -34,6 +32,8 @@ class NetOrderingStage(Stage):
         loops = state.loops or LoopCollection()
 
         # EXP-6: Pass net_priority config to order_nets
+        from temper_placer.router_v6.net_ordering import order_nets
+
         ordered_nets = order_nets(state.netlist, loops, self.net_priority)
 
         # Log if using config priorities

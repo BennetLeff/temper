@@ -36,6 +36,7 @@ class TestPipelineMetricsRecord:
         record = PipelineMetricsRecord(board="test", stage="closure", metrics={})
         assert record.timestamp
         from datetime import datetime
+
         datetime.fromisoformat(record.timestamp)
 
     def test_to_jsonl_roundtrip(self):
@@ -80,7 +81,9 @@ class TestRecordMetrics:
     def test_appends_line(self, tmp_path: Path):
         filepath = tmp_path / "test_metrics.jsonl"
         record = PipelineMetricsRecord(
-            board="test", stage="closure", metrics={"drc_errors": 0},
+            board="test",
+            stage="closure",
+            metrics={"drc_errors": 0},
             timestamp="2026-06-22T00:00:00+00:00",
         )
         record_metrics(record, filepath)
@@ -92,7 +95,9 @@ class TestRecordMetrics:
         filepath = tmp_path / "test_multi.jsonl"
         for i in range(3):
             record = PipelineMetricsRecord(
-                board=f"board_{i}", stage="closure", metrics={"drc_errors": i},
+                board=f"board_{i}",
+                stage="closure",
+                metrics={"drc_errors": i},
                 timestamp="2026-06-22T00:00:00+00:00",
             )
             record_metrics(record, filepath)
@@ -102,7 +107,9 @@ class TestRecordMetrics:
     def test_creates_parent_dir(self, tmp_path: Path):
         filepath = tmp_path / "subdir" / "metrics.jsonl"
         record = PipelineMetricsRecord(
-            board="test", stage="closure", metrics={},
+            board="test",
+            stage="closure",
+            metrics={},
             timestamp="2026-06-22T00:00:00+00:00",
         )
         record_metrics(record, filepath)
@@ -117,11 +124,15 @@ class TestLoadMetrics:
     def test_loads_valid_records(self, tmp_path: Path):
         filepath = tmp_path / "valid.jsonl"
         record1 = PipelineMetricsRecord(
-            board="a", stage="closure", metrics={"v": 1.0},
+            board="a",
+            stage="closure",
+            metrics={"v": 1.0},
             timestamp="2026-06-22T00:00:00+00:00",
         )
         record2 = PipelineMetricsRecord(
-            board="b", stage="closure", metrics={"v": 2.0},
+            board="b",
+            stage="closure",
+            metrics={"v": 2.0},
             timestamp="2026-06-22T01:00:00+00:00",
         )
         record_metrics(record1, filepath)
@@ -140,10 +151,26 @@ class TestLoadMetrics:
 
     def test_skips_future_schema(self, tmp_path: Path):
         filepath = tmp_path / "future.jsonl"
-        v1 = json.dumps({"schema_version": CURRENT_SCHEMA_VERSION, "board": "a",
-                          "stage": "c", "metrics": {}, "timestamp": "t", "git_commit": ""})
-        v99 = json.dumps({"schema_version": 99, "board": "future",
-                           "stage": "c", "metrics": {}, "timestamp": "t", "git_commit": ""})
+        v1 = json.dumps(
+            {
+                "schema_version": CURRENT_SCHEMA_VERSION,
+                "board": "a",
+                "stage": "c",
+                "metrics": {},
+                "timestamp": "t",
+                "git_commit": "",
+            }
+        )
+        v99 = json.dumps(
+            {
+                "schema_version": 99,
+                "board": "future",
+                "stage": "c",
+                "metrics": {},
+                "timestamp": "t",
+                "git_commit": "",
+            }
+        )
         filepath.write_text(v1 + "\n" + v99 + "\n")
         with pytest.warns(UserWarning, match="Future schema_version 99"):
             records = load_metrics(filepath)
@@ -153,8 +180,10 @@ class TestLoadMetrics:
     def test_warns_missing_schema(self, tmp_path: Path):
         filepath = tmp_path / "no_version.jsonl"
         filepath.write_text(
-            json.dumps({"board": "legacy", "stage": "c", "metrics": {},
-                         "timestamp": "t", "git_commit": ""}) + "\n"
+            json.dumps(
+                {"board": "legacy", "stage": "c", "metrics": {}, "timestamp": "t", "git_commit": ""}
+            )
+            + "\n"
         )
         with pytest.warns(UserWarning, match="No schema_version"):
             records = load_metrics(filepath)

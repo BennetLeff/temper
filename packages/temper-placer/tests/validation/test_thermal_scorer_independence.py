@@ -14,7 +14,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # K1: Closed-form analytic 1D bar — both U5 and U7 match analytic
 # ---------------------------------------------------------------------------
@@ -77,8 +76,11 @@ def test_independent_model_matches_analytic():
     # U7: convective edges, direct sparse solve (model-independent)
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     u7_grid, iterations, residual = scorer.solve_independent(
-        config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     # Direct solve: no iterations
@@ -93,12 +95,8 @@ def test_independent_model_matches_analytic():
     y_world = y_cells * cell_size + cell_size / 2
     T_analytic = T_top + Q_uniform / (2 * k_eff_target) * (H**2 - y_world**2)
 
-    u5_rel_err = np.max(
-        np.abs(T_u5_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6)
-    )
-    u7_rel_err = np.max(
-        np.abs(T_u7_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6)
-    )
+    u5_rel_err = np.max(np.abs(T_u5_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6))
+    u7_rel_err = np.max(np.abs(T_u7_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6))
 
     assert u5_rel_err < 0.02, f"U5 relative error {u5_rel_err:.4f} exceeds 2%"
     assert u7_rel_err < 0.02, f"U7 relative error {u7_rel_err:.4f} exceeds 2%"
@@ -177,12 +175,17 @@ def test_falsifiability_convective_vs_adiabatic():
     u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
 
     # U7: convective edges (heat can also leave through BOTTOM, LEFT, RIGHT)
-    scorer = ThermalScorer(ThermalScorerConfig(
-        h=CONVECTION_COEFFICIENT_H_W_PER_M2K,
-    ))
+    scorer = ThermalScorer(
+        ThermalScorerConfig(
+            h=CONVECTION_COEFFICIENT_H_W_PER_M2K,
+        )
+    )
     u7_grid, iterations, _residual = scorer.solve_independent(
-        config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     assert iterations == 0, "Direct solve should report 0 iterations"
@@ -203,8 +206,7 @@ def test_falsifiability_convective_vs_adiabatic():
     )
 
     assert max_diff > FALSIFIABILITY_THRESHOLD_C, (
-        f"max|U7-U5| = {max_diff:.3f} deg-C <= "
-        f"{FALSIFIABILITY_THRESHOLD_C} deg-C threshold"
+        f"max|U7-U5| = {max_diff:.3f} deg-C <= {FALSIFIABILITY_THRESHOLD_C} deg-C threshold"
     )
 
 
@@ -299,15 +301,21 @@ def test_biased_field_caught_by_independent_model():
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
 
     result_biased = scorer.score(
-        u5_biased, config_correct,
-        devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        u5_biased,
+        config_correct,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     result_correct = scorer.score(
-        u5_correct, config_correct,
-        devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        u5_correct,
+        config_correct,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     # The biased field should show LARGER deviation than the correct field
@@ -373,8 +381,11 @@ def test_scorer_plugs_into_build_scorecard():
     power_map: dict[str, float] = {}
 
     u5_result = solve_thermal_fdm(
-        config=config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config=config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
@@ -393,12 +404,11 @@ def test_scorer_plugs_into_build_scorecard():
     assert result.scorer_id == "thermal-convective-fdm"
 
     # Structural axis documents model independence (convective boundary)
-    assert "convective" in result.structural_axis.lower() or \
-           "robin" in result.structural_axis.lower(), (
-        "Structural axis must document the convective boundary model"
-    )
+    assert (
+        "convective" in result.structural_axis.lower() or "robin" in result.structural_axis.lower()
+    ), "Structural axis must document the convective boundary model"
     assert len(result.structural_axis) > 100
-    assert STRUCTURAL_INDEPENDENCE_AXIS == result.structural_axis
+    assert result.structural_axis == STRUCTURAL_INDEPENDENCE_AXIS
 
     # Geometry envelope is documented
     assert len(result.geometry_envelope) > 20
@@ -466,8 +476,11 @@ def test_scorer_deterministic():
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
 
     u5_result = solve_thermal_fdm(
-        config=config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config=config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     result1 = scorer.score(u5_result, config, devices, power_map, copper_grid, Q_field)

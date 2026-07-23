@@ -246,6 +246,38 @@ Verify Collector-Emitter-Gate connections using DMM diode test:
 - [ ] UCC14140 isolated -5V output present: **-4.9 to -5.1V**
 - [ ] No load current excessive: **< 50 mA**
 
+### 6.3 MAX31865 RTD Digital Safety Acceptance (No Mains, Gate Drive Disabled)
+
+**Purpose:** Prove the in-box SPI/DRDY path reaches the active-high hardware
+cut before relying on it in a powered cooker. Complete this section using only
+the current-limited low-voltage supply from §6.1; AC mains and gate drive stay
+disconnected.
+
+**Equipment:** ESP-IDF-built firmware image, PT100 resistance fixture or
+precision resistors, and a logic analyzer/oscilloscope. Capture CS, SCLK,
+MOSI, DRDY (GPIO9), and RUNAWAY_CUT/SHUTDOWN (GPIO15 or the latch output).
+
+- [ ] Boot capture proves MAX31865 writes high threshold `0xB29A` at `03h–04h`
+  and low threshold `0x05F6` at `05h–06h` before starting automatic fault
+  detection (`CONFIG=0x84`). Attach capture: ______________________________
+- [ ] DRDY is active-low and a repeated fault-detection cycle completes in
+  **< 100 ms**. Record worst observed interval: _______ ms.
+- [ ] **10 Ω** fixture: `FAULT_PROBE_SHORT` is reported and GPIO15/SHUTDOWN
+  asserts high and remains latched. Capture: _______________________________
+- [ ] **300 Ω** fixture: `FAULT_PROBE_OPEN` is reported and GPIO15/SHUTDOWN
+  asserts high and remains latched. Capture: _______________________________
+- [ ] Open RTD connector: `FAULT_PROBE_OPEN` and latched GPIO15/SHUTDOWN.
+  Capture: _________________________________________________________________
+- [ ] Simulated lost DRDY (hold the line inactive or disconnect the fixture
+  output): GPIO15/SHUTDOWN asserts within **100 ms**. Capture: ____________
+- [ ] SPI transport failure injection or disconnected MAX31865: the service
+  fails closed as `FAULT_PROBE_OPEN`; it must not continue heating. Capture:
+  __________________________________________________________________________
+
+**Stop condition:** Any missing latch, incorrect threshold word, or DRDY
+interval at or above 100 ms fails this section. Disconnect power and follow
+§10 before debugging; do not proceed to AC mains tests.
+
 ---
 
 ## 7. First AC Mains Power-On (With Extreme Caution)
@@ -394,4 +426,3 @@ ___________________________________________________________________________
 **Document Status:** MANDATORY PRE-POWER-ON CHECKLIST
 **Revision:** 1.0
 **Last Updated:** 2025-12-17
-

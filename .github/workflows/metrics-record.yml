@@ -1,6 +1,7 @@
 name: Metrics Record
 
 on:
+  # no-pr-trigger: record pipeline metrics post-merge, not meaningful on PRs
   push:
     branches: [main]
     paths:
@@ -27,15 +28,28 @@ jobs:
           enable-cache: true
       - name: Set up Python
         run: uv python install 3.12
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
       - name: Install dependencies
         run: uv sync --all-packages
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+      - name: Build electronics netlist
+        run: make netlist
       - name: Run closure test
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- closure test best-effort; hard-fail after 2026-09-01
         run: >
           uv run python3 scripts/ci_closure_test.py
           --pcb pcb/temper.kicad_pcb
           --require-all-stages
           --output closure-result.json
+          --metrics-dir ./pipeline-metrics
           || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
       - name: Record pipeline metrics
         run: |
@@ -43,8 +57,13 @@ jobs:
             --board temper --commit "${{ github.sha }}" \
             --closure-json closure-result.json \
             --metrics-file "$NDJSON_FILE"
+      - name: Upload baseline for PR scorecard
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-metrics
+          path: pipeline-metrics/pipeline_metrics.jsonl
       - name: Profile loss functions
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- loss-fn profiling best-effort; hard-fail after 2026-09-01
         run: |
           uv run temper profile run \
             --module loss-fn --board temper \
@@ -53,7 +72,7 @@ jobs:
               --board temper --commit "${{ github.sha }}" \
               --from-stdin --metrics-file "$NDJSON_FILE"
       - name: Profile router benchmarks
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- router benchmarks best-effort; hard-fail after 2026-09-01
         run: |
           uv run temper profile run \
             --module router-bench \
@@ -81,7 +100,7 @@ jobs:
           path: ${{ env.NDJSON_FILE }}
       - name: Auto-tighten timing baselines
         if: env.FEATURE_AUTO_BASELINE_TIGHTEN == 'true'
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- auto-maintenance best-effort; hard-fail after 2026-09-01
         run: |
           echo "Checking for eligible baseline tightening..."
           uv run temper timing tighten --ci \

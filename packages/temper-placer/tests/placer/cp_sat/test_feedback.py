@@ -245,11 +245,11 @@ def test_persistent_ic_failure_produces_rotation_delta(classifier, basic_placeme
         unrouted_nets=["SW_NODE"],
     )
 
-    result = classifier.classify(rr, basic_placement, round_number=4, previous_unclassified=previous)
+    result = classifier.classify(
+        rr, basic_placement, round_number=4, previous_unclassified=previous
+    )
 
-    rotation_deltas = [
-        d for d in result.deltas if "Rotation coordination" in d.reason
-    ]
+    rotation_deltas = [d for d in result.deltas if "Rotation coordination" in d.reason]
     assert len(rotation_deltas) >= 1
     assert rotation_deltas[0].priority == 25
 
@@ -266,11 +266,11 @@ def test_persistent_ic_not_fired_before_threshold(classifier, basic_placement):
         unrouted_nets=["SW_NODE"],
     )
 
-    result = classifier.classify(rr, basic_placement, round_number=2, previous_unclassified=previous)
+    result = classifier.classify(
+        rr, basic_placement, round_number=2, previous_unclassified=previous
+    )
 
-    rotation_deltas = [
-        d for d in result.deltas if "Rotation coordination" in d.reason
-    ]
+    rotation_deltas = [d for d in result.deltas if "Rotation coordination" in d.reason]
     assert len(rotation_deltas) == 0
 
 
@@ -310,8 +310,9 @@ def test_all_deltas_valid_constraint_types(classifier, basic_placement):
 
     result = classifier.classify(rr, basic_placement, round_number=4)
     for delta in result.deltas:
-        assert isinstance(delta.constraint, BaseConstraint), \
+        assert isinstance(delta.constraint, BaseConstraint), (
             f"delta {delta} has non-constraint type: {type(delta.constraint)}"
+        )
 
 
 # ---------------------------------------------------------------------------

@@ -281,6 +281,7 @@ class DecisionTrace:
             Explanation of why the value was rejected, or indication
             that it wasn't found in the decision history
         """
+
         def values_match(v1, v2):
             if isinstance(v1, (list, tuple)) and isinstance(v2, (list, tuple)):
                 return list(v1) == list(v2)

@@ -13,6 +13,7 @@ from temper_placer.io.export_types import TraceVia
 @dataclass(frozen=True)
 class ViaKey:
     """Unique identifier for via position (ignores net)."""
+
     x_mm: float
     y_mm: float
 
@@ -21,7 +22,7 @@ class ViaKey:
         """Round to tolerance to handle floating point errors."""
         return cls(
             x_mm=round(via.position[0] / tolerance_mm) * tolerance_mm,
-            y_mm=round(via.position[1] / tolerance_mm) * tolerance_mm
+            y_mm=round(via.position[1] / tolerance_mm) * tolerance_mm,
         )
 
 

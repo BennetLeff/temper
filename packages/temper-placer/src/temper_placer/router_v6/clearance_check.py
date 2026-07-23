@@ -74,9 +74,7 @@ def verify_clearance(
         voltage_ratings = {}
 
     if math.isnan(min_clearance) or not math.isfinite(min_clearance):
-        raise ValueError(
-            f"min_clearance must be a finite number, got {min_clearance!r}"
-        )
+        raise ValueError(f"min_clearance must be a finite number, got {min_clearance!r}")
 
     # Get all route pairs to check
     routes = list(routing_results.compiled_routes.items())
@@ -103,19 +101,24 @@ def verify_clearance(
             for layer, (min_dist, location) in per_layer.items():
                 # Determine required clearance (unified multi-standard engine)
                 required = _get_required_clearance(
-                    net1, net2, min_clearance, voltage_ratings,
+                    net1,
+                    net2,
+                    min_clearance,
+                    voltage_ratings,
                     layer=layer,
                 )
 
                 if min_dist < required:
-                    violations.append(ClearanceViolation(
-                        net1=net1,
-                        net2=net2,
-                        location=location,
-                        actual_clearance=min_dist,
-                        required_clearance=required,
-                        layer=layer,
-                    ))
+                    violations.append(
+                        ClearanceViolation(
+                            net1=net1,
+                            net2=net2,
+                            location=location,
+                            actual_clearance=min_dist,
+                            required_clearance=required,
+                            layer=layer,
+                        )
+                    )
 
     return ClearanceReport(
         violations=violations,
@@ -139,8 +142,8 @@ def _calculate_minimum_clearance_by_layer(
     # lazy-init: layer -> [min_dist, closest_point]
 
     # Account for trace widths (with hasattr guard)
-    width1 = getattr(route1, 'width_mm', 0.0)
-    width2 = getattr(route2, 'width_mm', 0.0)
+    width1 = getattr(route1, "width_mm", 0.0)
+    width2 = getattr(route2, "width_mm", 0.0)
     # Guard against NaN / infinite widths
     if not math.isfinite(width1):
         width1 = 0.0
@@ -158,15 +161,15 @@ def _calculate_minimum_clearance_by_layer(
     def get_segments(route):
         segs = []
         path = route.path
-        if hasattr(path, 'segments'):  # RoutePath3D
+        if hasattr(path, "segments"):  # RoutePath3D
             for i in range(len(path.segments) - 1):
                 p1, p2 = path.segments[i], path.segments[i + 1]
                 if p1[2] == p2[2]:  # Same layer segment
                     x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
                     if all(math.isfinite(v) for v in (x1, y1, x2, y2)):
                         segs.append((x1, y1, x2, y2, p1[2]))
-        elif hasattr(path, 'coordinates'):  # RoutePath
-            layer = getattr(path, 'layer_name', "F.Cu")
+        elif hasattr(path, "coordinates"):  # RoutePath
+            layer = getattr(path, "layer_name", "F.Cu")
             for i in range(len(path.coordinates) - 1):
                 p1, p2 = path.coordinates[i], path.coordinates[i + 1]
                 x1, y1, x2, y2 = p1[0], p1[1], p2[0], p2[1]
@@ -179,7 +182,7 @@ def _calculate_minimum_clearance_by_layer(
         """Yield (x, y, layer1, layer2) for each layer-changing segment."""
         points = []
         path = route.path
-        if hasattr(path, 'segments'):
+        if hasattr(path, "segments"):
             for i in range(len(path.segments) - 1):
                 p1, p2 = path.segments[i], path.segments[i + 1]
                 if p1[2] != p2[2]:  # Layer change = via
@@ -196,8 +199,10 @@ def _calculate_minimum_clearance_by_layer(
                 continue
 
             seg_dist, cp1, cp2 = _segment_to_segment_dist(
-                (s1[0], s1[1]), (s1[2], s1[3]),
-                (s2[0], s2[1]), (s2[2], s2[3]),
+                (s1[0], s1[1]),
+                (s1[2], s1[3]),
+                (s2[0], s2[1]),
+                (s2[2], s2[3]),
             )
 
             # Edge-to-edge distance (allows negative = overlap)
@@ -219,38 +224,37 @@ def _calculate_minimum_clearance_by_layer(
                 continue
             pt_dist, _cp_on_seg, _ = _point_to_segment_dist(
                 (via_x, via_y),
-                (seg[0], seg[1]), (seg[2], seg[3]),
+                (seg[0], seg[1]),
+                (seg[2], seg[3]),
             )
             edge_dist = pt_dist - via_radius - (other_width / 2)
             _update_layer(seg[4], edge_dist, (via_x, via_y))
 
-    for via in getattr(route1, 'vias', []):
+    for via in getattr(route1, "vias", []):
         _check_via_against_segs(via, segs2, width2)
 
-    for via in getattr(route2, 'vias', []):
+    for via in getattr(route2, "vias", []):
         _check_via_against_segs(via, segs1, width1)
 
     # --- Cross-layer segment via points (RoutePath3D fallback) ---
-    def _check_via_point_against_segs(vx, vy, via_diam,
-                                       layers, other_segs, other_width):
+    def _check_via_point_against_segs(vx, vy, via_diam, layers, other_segs, other_width):
         via_radius = via_diam / 2.0
         for seg in other_segs:
             if seg[4] not in layers:
                 continue
             pt_dist, _cp_on_seg, _ = _point_to_segment_dist(
                 (vx, vy),
-                (seg[0], seg[1]), (seg[2], seg[3]),
+                (seg[0], seg[1]),
+                (seg[2], seg[3]),
             )
             edge_dist = pt_dist - via_radius - (other_width / 2)
             _update_layer(seg[4], edge_dist, (vx, vy))
 
     for vx, vy, l1, l2 in get_via_points_from_path(route1):
-        _check_via_point_against_segs(
-            vx, vy, via_diameter_default, {l1, l2}, segs2, width2)
+        _check_via_point_against_segs(vx, vy, via_diameter_default, {l1, l2}, segs2, width2)
 
     for vx, vy, l1, l2 in get_via_points_from_path(route2):
-        _check_via_point_against_segs(
-            vx, vy, via_diameter_default, {l1, l2}, segs1, width1)
+        _check_via_point_against_segs(vx, vy, via_diameter_default, {l1, l2}, segs1, width1)
 
     return layer_info
 
@@ -267,7 +271,7 @@ def _calculate_minimum_clearance(
     """
     per_layer = _calculate_minimum_clearance_by_layer(route1, route2)
     if not per_layer:
-        return float('inf'), (0.0, 0.0), "unknown"
+        return float("inf"), (0.0, 0.0), "unknown"
     # Pick the layer with the smallest edge distance
     best_layer = min(per_layer, key=lambda k: per_layer[k][0])
     min_dist, location = per_layer[best_layer]
@@ -315,8 +319,8 @@ def _segment_to_segment_dist(a, b, c, d):
     # Vector from A to C
     ac = (c[0] - a[0], c[1] - a[1])
 
-    a_len2 = ab[0] * ab[0] + ab[1] * ab[1]   # |AB|^2
-    c_len2 = cd[0] * cd[0] + cd[1] * cd[1]   # |CD|^2
+    a_len2 = ab[0] * ab[0] + ab[1] * ab[1]  # |AB|^2
+    c_len2 = cd[0] * cd[0] + cd[1] * cd[1]  # |CD|^2
     eps = 1e-12
 
     # --- Degenerate cases: one or both segments are points ---
@@ -366,7 +370,7 @@ def _segment_to_segment_dist(a, b, c, d):
     # Minimum is on the boundary of the parameter square [0,1]×[0,1].
     # Check all four edges (point-to-segment); corner cases are covered
     # because _point_to_segment_dist clamps its parameter.
-    best_dist = float('inf')
+    best_dist = float("inf")
     best_cp1 = a
     best_cp2 = c
 
@@ -425,7 +429,7 @@ def _get_required_clearance(
     if voltage_ratings is None:
         voltage_ratings = {}
 
-    hv_keywords = ['AC_', 'HV_', 'HIGH_VOLTAGE', 'MAINS']
+    hv_keywords = ["AC_", "HV_", "HIGH_VOLTAGE", "MAINS"]
 
     net1_upper = net1.upper()
     net2_upper = net2.upper()
@@ -451,7 +455,8 @@ def _get_required_clearance(
         layer_type = "internal" if _is_internal_layer(layer) else "external"
 
         hv_required = get_clearance(
-            class_a, class_b,
+            class_a,
+            class_b,
             voltage=voltage,
             layer_type=layer_type,
         )
@@ -463,13 +468,27 @@ def _get_required_clearance(
 def _classify_net_class(net_name: str) -> str:
     """Map a net name to a net-class label for the clearance engine."""
     upper = net_name.upper()
-    hv_keywords = ['AC_', 'HV_', 'HIGH_VOLTAGE', 'MAINS', 'LINE', 'NEUTRAL',
-                   'PRIMARY', 'HOT', 'L1', 'L2', 'L3', 'PHASE', 'VBUS', 'B+']
+    hv_keywords = [
+        "AC_",
+        "HV_",
+        "HIGH_VOLTAGE",
+        "MAINS",
+        "LINE",
+        "NEUTRAL",
+        "PRIMARY",
+        "HOT",
+        "L1",
+        "L2",
+        "L3",
+        "PHASE",
+        "VBUS",
+        "B+",
+    ]
     if any(kw in upper for kw in hv_keywords):
         return "HV"
-    if any(kw in upper for kw in ('GND', 'VSS', 'PGND', 'CGND', 'AGND')):
+    if any(kw in upper for kw in ("GND", "VSS", "PGND", "CGND", "AGND")):
         return "GND"
-    if any(kw in upper for kw in ('VCC', 'VDD', '+3V3', '+5V', '+12V', '+15V', 'POWER')):
+    if any(kw in upper for kw in ("VCC", "VDD", "+3V3", "+5V", "+12V", "+15V", "POWER")):
         return "POWER"
     return "SIGNAL"
 

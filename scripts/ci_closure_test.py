@@ -45,6 +45,19 @@ def main() -> int:
         choices=["python", "rust", "both"],
         help="DRC backend: 'python' (KiCad CLI, default), 'rust' (temper_drc_rs), or 'both' (run both and report discrepancies)",
     )
+    parser.add_argument(
+        "--netlist",
+        type=str,
+        default="elec/build/default.net",
+        help="Atopile netlist export to validate the input board's identity against "
+        "(default: elec/build/default.net)",
+    )
+    parser.add_argument(
+        "--bring-up",
+        action="store_true",
+        help="Explicit opt-in for a partially-populated board under active bring-up "
+        "(otherwise the identity preflight hard-fails below the overlap threshold)",
+    )
     args = parser.parse_args()
 
     repo_root = _find_repo_root()
@@ -55,6 +68,33 @@ def main() -> int:
 
     if not pcb_path.exists():
         print(f"PCB file not found: {pcb_path}", file=sys.stderr)
+        return 1
+
+    # Board identity preflight (plan 2026-07-15-001, unit U4). This script
+    # is a third pipeline-DAG-bypass entry point (alongside InputStage and
+    # scripts/internal_route.py) that U4's original wiring missed -- it
+    # calls parse_kicad_pcb_v6 directly rather than going through
+    # InputStage, so nothing gated this path. Three CI workflows
+    # (regression.yml, metrics-record.yml, pr-pipeline-scorecard.yml) had
+    # been silently scoring the quarantined fixture as if it were the
+    # production board as a result. Missing netlist is a hard configuration
+    # error here, matching internal_route.py's DAG-bypass convention.
+    netlist_path = Path(args.netlist)
+    if not netlist_path.is_absolute():
+        netlist_path = repo_root / netlist_path
+    if not netlist_path.exists():
+        print(
+            f"Error: netlist not found at {netlist_path} "
+            f"(run `make netlist` to build it, or pass --netlist)",
+            file=sys.stderr,
+        )
+        return 1
+    from temper_placer.io.design_bundle_preflight import BoardIdentityError, preflight_identity
+
+    try:
+        preflight_identity(pcb_path, netlist_path, bring_up=args.bring_up)
+    except BoardIdentityError as e:
+        print(f"Board identity preflight failed: {e}", file=sys.stderr)
         return 1
 
     if args.seed:

@@ -32,7 +32,7 @@ TEMPER_PLANE_NETS: frozenset[str] = frozenset(
         "+15V",  # 5A, requires plane (PowerDeliveryStrategy.PLANE)
         # EXP-8: Add +3V3 and +5V for via stitching to power planes
         "+3V3",  # Via stitching to In2.Cu power island
-        "+5V",   # Via stitching to In2.Cu power island
+        "+5V",  # Via stitching to In2.Cu power island
         # High current -> F.Cu pours (still plane-connected, not trace-routed)
         "DC_BUS+",
         "DC_BUS-",
@@ -55,7 +55,7 @@ TEMPER_PLANE_LAYERS: dict[str, int] = {
     "+15V": 2,
     # EXP-8: +3V3 and +5V via stitching to power planes
     "+3V3": 2,  # Via stitch to In2.Cu power island
-    "+5V": 2,   # Via stitch to In2.Cu power island
+    "+5V": 2,  # Via stitch to In2.Cu power island
     # HV nets stay on F.Cu (layer 0) for copper pours
     "DC_BUS+": 0,
     "DC_BUS-": 0,

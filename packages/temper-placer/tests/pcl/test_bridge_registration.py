@@ -1,6 +1,5 @@
 """TS4: CI gate — bridge registration completeness."""
 
-
 from temper_placer.pcl.constraints import (
     BaseConstraint,
     CompilationTarget,
@@ -19,9 +18,7 @@ class TestBridgeRegistrationCompleteness:
         for ct in ConstraintType:
             if CompilationTarget.SAT in ct.supported_targets and ct not in SAT_TYPE_HANDLERS:
                 missing.append(ct)
-        assert not missing, (
-            f"ConstraintType(s) with SAT support but no handler: {missing}"
-        )
+        assert not missing, f"ConstraintType(s) with SAT support but no handler: {missing}"
 
     def test_all_drc_targets_have_handler(self):
         """Each type with DRC in supported_targets has a DRC handler."""
@@ -29,9 +26,7 @@ class TestBridgeRegistrationCompleteness:
         for ct in ConstraintType:
             if CompilationTarget.DRC in ct.supported_targets and ct not in DRC_TYPE_HANDLERS:
                 missing.append(ct)
-        assert not missing, (
-            f"ConstraintType(s) with DRC support but no handler: {missing}"
-        )
+        assert not missing, f"ConstraintType(s) with DRC support but no handler: {missing}"
 
     def test_backends_registry_has_all_targets(self):
         """BaseConstraint.backends contains entries for jax, sat, drc."""

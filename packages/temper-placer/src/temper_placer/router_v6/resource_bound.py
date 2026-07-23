@@ -279,17 +279,22 @@ def max_routable_nets(
             k += 1
 
         total_routable += k
-        cluster_details.append({
-            "size": len(cluster),
-            "capacity": capacity,
-            "routable": k,
-            "demands": cluster_demands[:k] if k else [],
-        })
+        cluster_details.append(
+            {
+                "size": len(cluster),
+                "capacity": capacity,
+                "routable": k,
+                "demands": cluster_demands[:k] if k else [],
+            }
+        )
 
     logger.info(
-        "Resource bound: %d/%d nets routable (fill_factor=%.3f, trace_width=%.3f mm, "
-        "%d clusters)",
-        total_routable, len(net_bboxes), fill_factor, trace_width, len(clusters),
+        "Resource bound: %d/%d nets routable (fill_factor=%.3f, trace_width=%.3f mm, %d clusters)",
+        total_routable,
+        len(net_bboxes),
+        fill_factor,
+        trace_width,
+        len(clusters),
     )
     logger.debug("Resource bound cluster details: %s", cluster_details)
 

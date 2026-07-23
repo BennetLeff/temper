@@ -139,9 +139,14 @@ def load_metrics(filepath: Path) -> list[dict[str, Any]]:
 
             schema = record.get("schema_version", 0)
             if schema == 0:
-                warnings.warn(f"No schema_version at line {lineno}, treating as v{CURRENT_SCHEMA_VERSION}", stacklevel=2)
+                warnings.warn(
+                    f"No schema_version at line {lineno}, treating as v{CURRENT_SCHEMA_VERSION}",
+                    stacklevel=2,
+                )
             elif schema > CURRENT_SCHEMA_VERSION:
-                warnings.warn(f"Future schema_version {schema} at line {lineno}, skipping", stacklevel=2)
+                warnings.warn(
+                    f"Future schema_version {schema} at line {lineno}, skipping", stacklevel=2
+                )
                 continue
 
             if "module" not in record:

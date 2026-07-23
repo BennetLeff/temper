@@ -224,33 +224,33 @@ impl Default for RuleRegistry {
 /// Create a RuleRegistry with all 15 migrated checks registered.
 pub fn create_default_registry() -> RuleRegistry {
     let mut reg = RuleRegistry::new();
-    reg.register(Box::new(drc::ClearanceCheck::new()));
-    reg.register(Box::new(drc::ComponentOverlapCheck::new()));
+    reg.register(Box::new(drc::ClearanceCheck));
+    reg.register(Box::new(drc::ComponentOverlapCheck));
     reg.register(Box::new(drc::CourtyardCheck::new(0.05)));
-    reg.register(Box::new(drc::ZoneContainmentCheck::new()));
-    reg.register(Box::new(drc::TraceClearanceCheck::new()));
-    reg.register(Box::new(drc::ViaSpacingCheck::new()));
-    reg.register(Box::new(erc::NetConnectivityCheck::new()));
-    reg.register(Box::new(erc::PowerDomainCheck::new()));
-    reg.register(Box::new(erc::FloatingPinsCheck::new()));
-    reg.register(Box::new(safety::HVLVSeparationCheck::new()));
+    reg.register(Box::new(drc::ZoneContainmentCheck));
+    reg.register(Box::new(drc::TraceClearanceCheck));
+    reg.register(Box::new(drc::ViaSpacingCheck));
+    reg.register(Box::new(erc::NetConnectivityCheck));
+    reg.register(Box::new(erc::PowerDomainCheck));
+    reg.register(Box::new(erc::FloatingPinsCheck));
+    reg.register(Box::new(safety::HVLVSeparationCheck));
     reg.register(Box::new(safety::CreepageCheck::new(6.0)));
-    reg.register(Box::new(safety::IsolationCheck::new()));
-    reg.register(Box::new(emc::LoopAreaCheck::new()));
-    reg.register(Box::new(emc::NoiseCouplingCheck::new()));
-    reg.register(Box::new(emc::GroundPlaneCheck::new()));
-    reg.register(Box::new(placement::ThermalViaCountCheck::new()));
-    reg.register(Box::new(placement::WaveSolderKeepoutCheck::new()));
-    reg.register(Box::new(routing::ParallelRunCheck::new()));
-    reg.register(Box::new(routing::StitchingViaDensityCheck::new()));
-    reg.register(Box::new(routing::CopperPullbackCheck::new()));
-    reg.register(Box::new(routing::IsolationBarrierCheck::new()));
-    reg.register(Box::new(routing::ThtThermalReliefCheck::new()));
-    reg.register(Box::new(routing::PowerPadTeardropCheck::new()));
-    reg.register(Box::new(routing::PartialDischargeCheck::new()));
-    reg.register(Box::new(routing::PadEntryWidthCheck::new()));
-    reg.register(Box::new(routing::SplitPlaneCrossingCheck::new()));
-    reg.register(Box::new(routing::IsolationSlotCheck::new()));
+    reg.register(Box::new(safety::IsolationCheck));
+    reg.register(Box::new(emc::LoopAreaCheck));
+    reg.register(Box::new(emc::NoiseCouplingCheck));
+    reg.register(Box::new(emc::GroundPlaneCheck));
+    reg.register(Box::new(placement::ThermalViaCountCheck));
+    reg.register(Box::new(placement::WaveSolderKeepoutCheck));
+    reg.register(Box::new(routing::ParallelRunCheck));
+    reg.register(Box::new(routing::StitchingViaDensityCheck));
+    reg.register(Box::new(routing::CopperPullbackCheck));
+    reg.register(Box::new(routing::IsolationBarrierCheck));
+    reg.register(Box::new(routing::ThtThermalReliefCheck));
+    reg.register(Box::new(routing::PowerPadTeardropCheck));
+    reg.register(Box::new(routing::PartialDischargeCheck));
+    reg.register(Box::new(routing::PadEntryWidthCheck));
+    reg.register(Box::new(routing::SplitPlaneCrossingCheck));
+    reg.register(Box::new(routing::IsolationSlotCheck));
     reg
 }
 

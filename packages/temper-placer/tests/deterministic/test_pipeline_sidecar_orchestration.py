@@ -78,6 +78,7 @@ class TestPipelineLoadsSidecar:
         from temper_placer.deterministic.stages.phased_component_assignment import (
             PhasedComponentAssignmentStage,
         )
+
         _stages_with_map = [
             s for s in pipeline.stages if isinstance(s, PhasedComponentAssignmentStage)
         ]
@@ -191,14 +192,16 @@ class TestClosureTestChannelAnalysisOrdering:
             _write_sidecar(output_dir / SIDECAR_FILENAME)
             return stages_exercised + 1
 
-        def fake_benders(_input):
+        def fake_placement(_input):
             from dataclasses import dataclass
+
             @dataclass
             class R:
                 iterations: int = 1
                 cuts: int = 0
                 placements: dict = None
-            call_order.append("benders")
+
+            call_order.append("placement")
             r = R()
             r.placements = {}
             return type("Res", (), {"data": r})()
@@ -210,10 +213,12 @@ class TestClosureTestChannelAnalysisOrdering:
         def fake_drc(_pcb_path):
             call_order.append("drc")
             from dataclasses import dataclass
+
             @dataclass
             class D:
                 error_count: int = 0
                 warning_count: int = 0
+
             return D()
 
         # Create a minimal pcb_path file so the closure test can be constructed.
@@ -221,7 +226,9 @@ class TestClosureTestChannelAnalysisOrdering:
         pcb_path.write_text("(kicad_pcb (version 20240101) )")
 
         monkeypatch.setattr("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", fake_parse)
-        monkeypatch.setattr("temper_placer.regression.closure_test.parse_kicad_pcb_v6", fake_parse, raising=False)
+        monkeypatch.setattr(
+            "temper_placer.regression.closure_test.parse_kicad_pcb_v6", fake_parse, raising=False
+        )
         monkeypatch.setattr(
             "temper_placer.regression.closure_test._run_channel_analysis",
             fake_channel_analysis,
@@ -229,7 +236,7 @@ class TestClosureTestChannelAnalysisOrdering:
 
         def fake_resolve_and_run(*, phase, _strategies, _input, _fallback=None):
             if phase == "placement":
-                return fake_benders(_input)
+                return fake_placement(_input)
             if phase == "routing":
                 return fake_router_full(_input)
             raise RuntimeError(f"unexpected phase: {phase}")
@@ -244,14 +251,13 @@ class TestClosureTestChannelAnalysisOrdering:
         ct = closure_test.ClosureTest(pcb_path, repo_root=tmp_path)
         _result = ct.run()
 
-        # The relative order of parse / stage2 / benders is what we assert.
+        # The relative order of parse / stage2 is what we assert.
+        # (benders_loop placement stage deleted in JAX retirement)
         assert "parse" in call_order
         assert "stage2" in call_order
-        assert "benders" in call_order
         parse_idx = call_order.index("parse")
         stage2_idx = call_order.index("stage2")
-        benders_idx = call_order.index("benders")
-        assert parse_idx < stage2_idx < benders_idx
+        assert parse_idx < stage2_idx, f"Expected parse before stage2, got {call_order}"
 
     def test_closure_test_falls_back_when_router_unavailable(self, tmp_path, monkeypatch, caplog):
         """When the channel-analysis helper raises ImportError, the closure
@@ -269,7 +275,9 @@ class TestClosureTestChannelAnalysisOrdering:
             raise ImportError("mocked router unavailable")
 
         monkeypatch.setattr("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", fake_parse)
-        monkeypatch.setattr("temper_placer.regression.closure_test.parse_kicad_pcb_v6", fake_parse, raising=False)
+        monkeypatch.setattr(
+            "temper_placer.regression.closure_test.parse_kicad_pcb_v6", fake_parse, raising=False
+        )
         monkeypatch.setattr(
             "temper_placer.regression.closure_test._run_channel_analysis",
             fake_channel_analysis,
@@ -277,12 +285,15 @@ class TestClosureTestChannelAnalysisOrdering:
 
         def fake_resolve_and_run(*, phase, _strategies, _input, _fallback=None):
             from dataclasses import dataclass
+
             if phase == "placement":
+
                 @dataclass
                 class P:
                     iterations: int = 1
                     cuts: int = 0
                     placements: dict = None
+
                 p = P()
                 p.placements = {}
                 return type("Res", (), {"data": p})()
@@ -330,7 +341,9 @@ class TestClosureTestChannelAnalysisOrdering:
             raise RuntimeError("simulated stage 2 crash")
 
         monkeypatch.setattr("temper_placer.io.kicad_parser.parse_kicad_pcb_v6", fake_parse)
-        monkeypatch.setattr("temper_placer.regression.closure_test.parse_kicad_pcb_v6", fake_parse, raising=False)
+        monkeypatch.setattr(
+            "temper_placer.regression.closure_test.parse_kicad_pcb_v6", fake_parse, raising=False
+        )
         monkeypatch.setattr(
             "temper_placer.regression.closure_test._run_channel_analysis",
             fake_channel_analysis,
@@ -338,12 +351,15 @@ class TestClosureTestChannelAnalysisOrdering:
 
         def fake_resolve_and_run(*, phase, _strategies, _input, _fallback=None):
             from dataclasses import dataclass
+
             if phase == "placement":
+
                 @dataclass
                 class P:
                     iterations: int = 1
                     cuts: int = 0
                     placements: dict = None
+
                 p = P()
                 p.placements = {}
                 return type("Res", (), {"data": p})()

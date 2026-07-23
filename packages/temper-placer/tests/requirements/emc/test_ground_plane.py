@@ -5,7 +5,6 @@ These tests verify that ground plane continuity validation functions work correc
 and that placements meet EMC/EMI requirements.
 """
 
-
 import pytest
 
 # Import validators (will fail until implemented)

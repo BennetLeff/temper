@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Any
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class InputStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.io.kicad_parser import parse_kicad_pcb
 
@@ -18,13 +17,45 @@ class InputStage:
         print(f"Loading PCB from {input_pcb_path}")
         if not input_pcb_path.exists():
             from temper_placer.pipeline.state import PipelineError, PipelinePhase
+
             raise PipelineError(f"Input PCB not found: {input_pcb_path}", phase=PipelinePhase.INPUT)
 
         try:
             result = parse_kicad_pcb(input_pcb_path)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
             from temper_placer.pipeline.state import PipelineError, PipelinePhase
+
             raise PipelineError(f"Failed to parse PCB: {e}", phase=PipelinePhase.INPUT) from e
+
+        # Fail-closed board/netlist identity preflight (plan 2026-07-15-001,
+        # unit U4). Must run before any constraint/placement logic touches
+        # this board. Compares against the real atopile netlist export, not
+        # `result.netlist` above -- that's derived from this same PCB file,
+        # so checking a board against its own embedded connectivity would be
+        # circular and could never catch a wrong-board mismatch.
+        netlist_path: Path = context.get("netlist_path", Path("elec/build/default.net"))
+        if netlist_path.exists():
+            from temper_placer.io.design_bundle_preflight import (
+                BoardIdentityError,
+                preflight_identity,
+            )
+
+            try:
+                preflight_identity(input_pcb_path, netlist_path)
+            except BoardIdentityError as e:
+                from temper_placer.pipeline.state import PipelineError, PipelinePhase
+
+                raise PipelineError(
+                    f"Board identity preflight failed for {input_pcb_path}: {e}",
+                    phase=PipelinePhase.INPUT,
+                ) from e
+        else:
+            print(
+                f"  Note: identity preflight skipped, netlist not found at {netlist_path} "
+                "(run `make netlist` to build it)"
+            )
 
         board = result.board
         netlist = result.netlist
@@ -50,12 +81,19 @@ class InputStage:
                 state.board = constrained_board
                 apply_fixed_components_to_netlist(netlist, constraints)
                 apply_zones_to_netlist(netlist, constraints)
+            except (KeyboardInterrupt, SystemExit):
+                raise
             except Exception as e:
                 from temper_placer.pipeline.state import PipelineError, PipelinePhase
-                raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
+
+                raise PipelineError(
+                    f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT
+                ) from e
         else:
+
             class MockConstraints:
                 constraints: list = []
+
             mock_constraints = MockConstraints()
             constraints = mock_constraints  # type: ignore[assignment]
 
@@ -66,7 +104,9 @@ class InputStage:
         if hasattr(state.constraints, "pcl_constraints"):
             try:
 
-                def auto_detect_decoupling_set(*a, **kw): raise NotImplementedError("auto_detect_decoupling_set removed (JAX retirement)")
+                def auto_detect_decoupling_set(*a, **kw):
+                    raise NotImplementedError("auto_detect_decoupling_set removed (JAX retirement)")
+
                 detections = auto_detect_decoupling_set(netlist)
                 for constraint in detections.to_constraints():
                     state.constraints.pcl_constraints.append(constraint)
@@ -76,7 +116,7 @@ class InputStage:
                         f"constraints ({detections.bypass_count} bypass, "
                         f"{detections.bulk_count} bulk)"
                     )
-            except Exception as e:
+            except (ValueError, NotImplementedError, TypeError, AttributeError) as e:
                 print(f"  Note: decoupling auto-detection skipped ({e})")
 
         from temper_placer.core.specification import PcbSpecification

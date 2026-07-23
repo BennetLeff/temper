@@ -96,9 +96,7 @@ def _compute_transitive_closure(
 
     result: dict[ComponentTag, frozenset[ComponentTag]] = {}
     for tag, i in idx_map.items():
-        result[tag] = frozenset(
-            all_tags[j] for j in range(n) if closure[i][j]
-        )
+        result[tag] = frozenset(all_tags[j] for j in range(n) if closure[i][j])
     return result
 
 

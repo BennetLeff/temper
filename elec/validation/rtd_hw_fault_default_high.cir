@@ -1,0 +1,66 @@
+* Abstract RTD_HW_FAULT default-high topology contract.
+*
+* This is intentionally a behavioural SPICE deck, not a vendor comparator
+* macro-model.  It checks the electrical connectivity/polarity selected for
+* schematic capture: upstream SAFETY_3V3 pulls the active-high fault line up;
+* the post-ferrite logic may sink it only while both window permissions and the
+* upstream-powered RTD_AVDD rail permission are true.  Component/tolerance
+* corners are exercised in the companion property tests.
+
+.param VSAFE=3.3 VLOW=0.175370 VHIGH=0.785081 VUV=2.85
+
+V_SAFE safety_3v3 0 {VSAFE}
+V_AVDD rtd_avdd 0 3.3
+V_RTD refin_minus 0 0.50
+
+* Comparators are represented only while RTD_AVDD is healthy.  A real circuit
+* must not rely on their undefined behaviour below the minimum supply; B_RAIL
+* removes permission before that point.
+B_LOW_OK low_ok 0 V={ternary_fcn(v(refin_minus)>VLOW,v(rtd_avdd),0)}
+B_HIGH_OK high_ok 0 V={ternary_fcn(v(refin_minus)<VHIGH,v(rtd_avdd),0)}
+B_RAIL_OK rail_ok 0 V={ternary_fcn(v(rtd_avdd)>VUV,v(safety_3v3),0)}
+
+* SN74LVC1G38-equivalent open-drain action.  It sinks only on the all-valid
+* condition; otherwise its output is high impedance and R_PULLUP asserts the
+* fault.  100 ohm is a conservative idealised on-resistance for polarity test.
+R_PULLUP safety_3v3 rtd_hw_fault 10k
+B_OPEN_DRAIN rtd_hw_fault 0 I={ternary_fcn((v(low_ok)>1.35)*(v(high_ok)>1.35)*(v(rail_ok)>1.35),v(rtd_hw_fault)/100,0)}
+
+.control
+set noaskquit
+
+* Valid RTD: all permissions true, open drain sinks RTD_HW_FAULT low.
+alter V_RTD dc = 0.50
+alter V_AVDD dc = 3.30
+op
+echo CASE_VALID
+print v(rtd_hw_fault)
+
+* Short and open each remove a distinct window permission.
+alter V_RTD dc = 0.10
+op
+echo CASE_SHORT
+print v(rtd_hw_fault)
+
+alter V_RTD dc = 1.00
+op
+echo CASE_OPEN
+print v(rtd_hw_fault)
+
+* RTD_AVDD brownout removes the upstream-powered rail permission before the
+* post-rail comparators reach their unspecified supply region.
+alter V_RTD dc = 0.50
+alter V_AVDD dc = 2.75
+op
+echo CASE_BROWNOUT
+print v(rtd_hw_fault)
+
+* Complete loss of RTD_AVDD has the same release-to-fault result.
+alter V_AVDD dc = 0
+op
+echo CASE_RTD_AVDD_LOSS
+print v(rtd_hw_fault)
+quit
+.endc
+
+.end

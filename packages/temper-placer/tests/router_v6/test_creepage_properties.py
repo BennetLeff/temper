@@ -75,8 +75,7 @@ def test_no_self_check(results: RoutingResults) -> None:
 
     for i, v in enumerate(report.violations):
         assert v.hv_net != v.lv_net, (
-            f"Self-check violation at index {i}: "
-            f"hv_net={v.hv_net!r}, lv_net={v.lv_net!r}"
+            f"Self-check violation at index {i}: hv_net={v.hv_net!r}, lv_net={v.lv_net!r}"
         )
 
 
@@ -123,6 +122,7 @@ def test_creepage_table_ge_clearance_floor(voltage: float, expected: float) -> N
 # ---------------------------------------------------------------------------
 # TS3: Input validation — 0 or negative raises ValueError
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize("voltage", [0.0, -1.0, -15.0, -1000.0])
 @pytest.mark.xfail(

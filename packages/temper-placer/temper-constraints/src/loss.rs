@@ -45,6 +45,7 @@ fn compute_pairwise_distance(
 }
 
 // AdjacentConstraint -> ProximityLoss (R5)
+#[allow(clippy::too_many_arguments)]
 pub fn compute_adjacent_loss(
     positions: &[f64],
     idx_a: usize,

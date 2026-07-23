@@ -45,10 +45,18 @@ def has_rust_backend() -> bool:
     return _try_import_rust()
 
 
-def tier_to_weight_rust(tier_value: int) -> float:
+def _call_rust(fn_name: str, *args: Any) -> float:
+    """Call a Rust backend function by name, returning a float.
+
+    Raises NotImplementedError if the Rust backend is not available.
+    """
     if _try_import_rust() and _temper_constraints_module is not None:
-        return float(_temper_constraints_module.tier_to_weight_py(tier_value))
+        return float(getattr(_temper_constraints_module, fn_name)(*args))
     raise NotImplementedError("Rust backend not available")
+
+
+def tier_to_weight_rust(tier_value: int) -> float:
+    return _call_rust("tier_to_weight_py", tier_value)
 
 
 def compute_adjacent_loss_rust(
@@ -63,14 +71,19 @@ def compute_adjacent_loss_rust(
     pin_b_x: float | None = None,
     pin_b_y: float | None = None,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_adjacent_loss_py(
-                positions, idx_a, idx_b, max_distance_mm, weight,
-                metric, pin_a_x, pin_a_y, pin_b_x, pin_b_y,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_adjacent_loss_py",
+        positions,
+        idx_a,
+        idx_b,
+        max_distance_mm,
+        weight,
+        metric,
+        pin_a_x,
+        pin_a_y,
+        pin_b_x,
+        pin_b_y,
+    )
 
 
 def compute_separation_loss_rust(
@@ -79,13 +92,13 @@ def compute_separation_loss_rust(
     min_distance_mm: float,
     weight: float,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_separation_loss_py(
-                positions_a, positions_b, min_distance_mm, weight,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_separation_loss_py",
+        positions_a,
+        positions_b,
+        min_distance_mm,
+        weight,
+    )
 
 
 def compute_enclosing_loss_rust(
@@ -97,13 +110,16 @@ def compute_enclosing_loss_rust(
     margin_mm: float,
     weight: float,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_enclosing_loss_py(
-                positions, x_min, y_min, x_max, y_max, margin_mm, weight,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_enclosing_loss_py",
+        positions,
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        margin_mm,
+        weight,
+    )
 
 
 def compute_alignment_loss_rust(
@@ -112,13 +128,13 @@ def compute_alignment_loss_rust(
     tolerance_mm: float,
     weight: float,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_alignment_loss_py(
-                positions, axis, tolerance_mm, weight,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_alignment_loss_py",
+        positions,
+        axis,
+        tolerance_mm,
+        weight,
+    )
 
 
 def compute_edge_loss_rust(
@@ -129,13 +145,15 @@ def compute_edge_loss_rust(
     max_distance_mm: float,
     weight: float,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_edge_loss_py(
-                positions, side, board_width, board_height, max_distance_mm, weight,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_edge_loss_py",
+        positions,
+        side,
+        board_width,
+        board_height,
+        max_distance_mm,
+        weight,
+    )
 
 
 def compute_anchored_loss_position_rust(
@@ -144,13 +162,13 @@ def compute_anchored_loss_position_rust(
     target_y: float,
     weight: float,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_anchored_loss_position_py(
-                positions, target_x, target_y, weight,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_anchored_loss_position_py",
+        positions,
+        target_x,
+        target_y,
+        weight,
+    )
 
 
 def compute_anchored_loss_region_rust(
@@ -161,13 +179,15 @@ def compute_anchored_loss_region_rust(
     y_max: float,
     weight: float,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_anchored_loss_region_py(
-                positions, x_min, y_min, x_max, y_max, weight,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_anchored_loss_region_py",
+        positions,
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        weight,
+    )
 
 
 def compute_loop_area_loss_rust(
@@ -175,13 +195,12 @@ def compute_loop_area_loss_rust(
     max_area_mm2: float,
     weight: float,
 ) -> float:
-    if _try_import_rust() and _temper_constraints_module is not None:
-        return float(
-            _temper_constraints_module.compute_loop_area_loss_py(
-                positions, max_area_mm2, weight,
-            )
-        )
-    raise NotImplementedError("Rust backend not available")
+    return _call_rust(
+        "compute_loop_area_loss_py",
+        positions,
+        max_area_mm2,
+        weight,
+    )
 
 
 def supported_constraint_types_rust() -> list[str]:

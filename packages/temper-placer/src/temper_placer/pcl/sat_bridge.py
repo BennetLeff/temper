@@ -48,6 +48,7 @@ if TYPE_CHECKING:
 # ConstraintOrigin registry (KD5)
 # ---------------------------------------------------------------------------
 
+
 class ConstraintOrigin:
     """Bidirectional registry: PCL constraint ID ↔ SAT constraint names.
 
@@ -96,9 +97,7 @@ class SATBridgeContext:
         self.board = board
         self.skeletons = skeletons
         self.channel_widths = channel_widths
-        self.net_to_idx: dict[str, int] = {
-            comp.ref: i for i, comp in enumerate(netlist.components)
-        }
+        self.net_to_idx: dict[str, int] = {comp.ref: i for i, comp in enumerate(netlist.components)}
 
     def net_index(self, ref: str) -> int:
         """Look up net index by name (uses component ref for now)."""
@@ -107,6 +106,7 @@ class SATBridgeContext:
     def component_indices(self, ref: str) -> list[int]:
         """Resolve a component ref to a list of indices."""
         from temper_placer.pcl.resolver import _resolve_to_indices
+
         return _resolve_to_indices(ref, self.netlist, self.board)
 
     @property
@@ -128,7 +128,7 @@ class SATBridgeContext:
 TIER_TO_HARDNESS: dict[ConstraintTier, str] = {
     ConstraintTier.HARD: "hard",
     ConstraintTier.STRONG: "hard",  # MVP: encode as hard
-    ConstraintTier.SOFT: "hard",    # MVP: encode as hard
+    ConstraintTier.SOFT: "hard",  # MVP: encode as hard
 }
 
 
@@ -138,7 +138,8 @@ TIER_TO_HARDNESS: dict[ConstraintTier, str] = {
 
 
 def _adjacent_to_sat(
-    constraint: AdjacentConstraint, ctx: SATBridgeContext,
+    constraint: AdjacentConstraint,
+    ctx: SATBridgeContext,
 ) -> list[Constraint]:
     """AdjacentConstraint → proximity-preference soft clauses.
 
@@ -150,7 +151,10 @@ def _adjacent_to_sat(
         idx_a = ctx.component_indices(constraint.a)
         idx_b = ctx.component_indices(constraint.b)
     except (ValueError, KeyError):
-        warnings.warn(f"Adjacent constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
+        warnings.warn(
+            f"Adjacent constraint '{constraint.id}': cannot resolve components, skipping",
+            stacklevel=2,
+        )
         return results
 
     if not idx_a or not idx_b:
@@ -174,7 +178,8 @@ def _adjacent_to_sat(
 
 
 def _separated_to_sat(
-    constraint: SeparatedConstraint, ctx: SATBridgeContext,
+    constraint: SeparatedConstraint,
+    ctx: SATBridgeContext,
 ) -> list[Constraint]:
     """SeparatedConstraint → ChannelSeparationConstraint.
 
@@ -186,7 +191,10 @@ def _separated_to_sat(
         indices_a = ctx.component_indices(constraint.a)
         indices_b = ctx.component_indices(constraint.b)
     except (ValueError, KeyError):
-        warnings.warn(f"Separated constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
+        warnings.warn(
+            f"Separated constraint '{constraint.id}': cannot resolve components, skipping",
+            stacklevel=2,
+        )
         return results
 
     if not indices_a or not indices_b:
@@ -196,7 +204,7 @@ def _separated_to_sat(
     min_slots = 1
     if ctx.channel_widths:
         for widths in ctx.channel_widths.values():
-            spacing = getattr(widths, 'spacing_mm', 0.0)
+            spacing = getattr(widths, "spacing_mm", 0.0)
             if spacing > 0:
                 min_slots = max(1, int(constraint.min_distance_mm / spacing))
                 break
@@ -215,7 +223,8 @@ def _separated_to_sat(
 
 
 def _enclosing_to_sat(
-    constraint: EnclosingConstraint, ctx: SATBridgeContext,
+    constraint: EnclosingConstraint,
+    ctx: SATBridgeContext,
 ) -> list[Constraint]:
     """EnclosingConstraint → LayerConstraint restricting inner nets to zone.
 
@@ -228,7 +237,10 @@ def _enclosing_to_sat(
         for ref in constraint.inner:
             inner_indices.extend(ctx.component_indices(ref))
     except (ValueError, KeyError):
-        warnings.warn(f"Enclosing constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
+        warnings.warn(
+            f"Enclosing constraint '{constraint.id}': cannot resolve components, skipping",
+            stacklevel=2,
+        )
         return results
 
     if not inner_indices:
@@ -248,7 +260,8 @@ def _enclosing_to_sat(
 
 
 def _aligned_to_sat(
-    constraint: AlignedConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
+    constraint: AlignedConstraint,  # noqa: ARG001
+    ctx: SATBridgeContext,  # noqa: ARG001
 ) -> list[Constraint]:
     """AlignedConstraint has no SAT grounding (placement-only).
 
@@ -258,7 +271,8 @@ def _aligned_to_sat(
 
 
 def _onside_to_sat(
-    constraint: OnSideConstraint, ctx: SATBridgeContext,
+    constraint: OnSideConstraint,
+    ctx: SATBridgeContext,
 ) -> list[Constraint]:
     """OnSideConstraint → LayerConstraint restricting to board-side channels.
 
@@ -271,7 +285,10 @@ def _onside_to_sat(
         for ref in constraint.components:
             component_indices.extend(ctx.component_indices(ref))
     except (ValueError, KeyError):
-        warnings.warn(f"OnSide constraint '{constraint.id}': cannot resolve components, skipping", stacklevel=2)
+        warnings.warn(
+            f"OnSide constraint '{constraint.id}': cannot resolve components, skipping",
+            stacklevel=2,
+        )
         return results
 
     if not component_indices:
@@ -291,7 +308,8 @@ def _onside_to_sat(
 
 
 def _anchored_to_sat(
-    constraint: AnchoredConstraint, ctx: SATBridgeContext,
+    constraint: AnchoredConstraint,
+    ctx: SATBridgeContext,
 ) -> list[Constraint]:
     """AnchoredConstraint → pin NetChannelVar to channels near anchored position.
 
@@ -301,7 +319,10 @@ def _anchored_to_sat(
     try:
         indices = ctx.component_indices(constraint.component)
     except (ValueError, KeyError):
-        warnings.warn(f"Anchored constraint '{constraint.id}': cannot resolve component, skipping", stacklevel=2)
+        warnings.warn(
+            f"Anchored constraint '{constraint.id}': cannot resolve component, skipping",
+            stacklevel=2,
+        )
         return results
 
     if not indices:
@@ -330,7 +351,8 @@ def _anchored_to_sat(
 
 
 def _loop_area_to_sat(
-    constraint: LoopAreaConstraint, ctx: SATBridgeContext,
+    constraint: LoopAreaConstraint,
+    ctx: SATBridgeContext,
 ) -> list[Constraint]:
     """LoopAreaConstraint → combined OrderConstraint + CapacityConstraint.
 
@@ -338,7 +360,11 @@ def _loop_area_to_sat(
     """
     results: list[Constraint] = []
     # LoopAreaConstraint references a loop_name; resolve to nets via context.
-    loop_nets: list[int] = ctx.netlist.component_indices_for_loop(constraint.loop_name) if hasattr(ctx.netlist, 'component_indices_for_loop') else []
+    loop_nets: list[int] = (
+        ctx.netlist.component_indices_for_loop(constraint.loop_name)
+        if hasattr(ctx.netlist, "component_indices_for_loop")
+        else []
+    )
 
     if not loop_nets:
         # Fallback: all components are in the loop
@@ -352,8 +378,8 @@ def _loop_area_to_sat(
         c = ChannelSeparationConstraint(
             name=f"loop_{constraint.id}_{edge_id}",
             description=f"PCL: {constraint.because}",
-            group_a_indices=loop_nets[:len(loop_nets) // 2],
-            group_b_indices=loop_nets[len(loop_nets) // 2:],
+            group_a_indices=loop_nets[: len(loop_nets) // 2],
+            group_b_indices=loop_nets[len(loop_nets) // 2 :],
             min_slots=max_shared,
             channel_id=edge_id,
         )
@@ -367,35 +393,40 @@ def _loop_area_to_sat(
 
 
 def _separation_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
+    constraint: BaseConstraint,  # noqa: ARG001
+    ctx: SATBridgeContext,  # noqa: ARG001
 ) -> list[Constraint]:
     """Default SEPARATION grounding: ChannelSeparationConstraint."""
     return []
 
 
 def _proximity_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
+    constraint: BaseConstraint,  # noqa: ARG001
+    ctx: SATBridgeContext,  # noqa: ARG001
 ) -> list[Constraint]:
     """Default PROXIMITY grounding: soft OrderVar proximity."""
     return []
 
 
 def _ordering_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
+    constraint: BaseConstraint,  # noqa: ARG001
+    ctx: SATBridgeContext,  # noqa: ARG001
 ) -> list[Constraint]:
     """Default ORDERING grounding: OrderVar constraints."""
     return []
 
 
 def _zoning_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
+    constraint: BaseConstraint,  # noqa: ARG001
+    ctx: SATBridgeContext,  # noqa: ARG001
 ) -> list[Constraint]:
     """Default ZONING grounding: LayerConstraint restrictions."""
     return []
 
 
 def _alignment_default(
-    constraint: BaseConstraint, ctx: SATBridgeContext,  # noqa: ARG001, ARG001
+    constraint: BaseConstraint,  # noqa: ARG001
+    ctx: SATBridgeContext,  # noqa: ARG001
 ) -> list[Constraint]:
     """Default ALIGNMENT grounding: no SAT clauses."""
     return []
@@ -438,7 +469,8 @@ def register_handler(
 
 
 def constraint_to_clauses(
-    constraint: BaseConstraint, ctx: SATBridgeContext,
+    constraint: BaseConstraint,
+    ctx: SATBridgeContext,
 ) -> tuple[list[Constraint], ConstraintOrigin]:
     """Compile a single PCL constraint into SAT constraint entries.
 
@@ -467,7 +499,8 @@ def constraint_to_clauses(
 
 
 def _backend_adapter(
-    constraint: BaseConstraint, context: CompilationContext,
+    constraint: BaseConstraint,
+    context: CompilationContext,
 ) -> list[Constraint]:
     """Adapter for BaseConstraint.backends["sat"] registration.
 

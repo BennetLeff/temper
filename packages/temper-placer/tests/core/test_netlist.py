@@ -1,6 +1,5 @@
 """Tests for core.netlist module."""
 
-
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 
 

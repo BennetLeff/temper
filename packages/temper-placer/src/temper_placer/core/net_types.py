@@ -181,11 +181,14 @@ class NetTypeSpec:
         errors = []
 
         # Ground MUST use plane connectivity
-        if self.net_type == NetType.GROUND and self.connectivity not in (ConnectivityStrategy.PLANE, ConnectivityStrategy.DIRECT):
+        if self.net_type == NetType.GROUND and self.connectivity not in (
+            ConnectivityStrategy.PLANE,
+            ConnectivityStrategy.DIRECT,
+        ):
             errors.append(
-                    f"Ground nets MUST use PLANE or DIRECT connectivity, not {self.connectivity.name}. "
-                    "Ground planes provide low-impedance return paths essential for EMI control."
-                )
+                f"Ground nets MUST use PLANE or DIRECT connectivity, not {self.connectivity.name}. "
+                "Ground planes provide low-impedance return paths essential for EMI control."
+            )
 
         # High voltage MUST have creepage
         if self.net_type == NetType.HIGH_VOLTAGE:
@@ -203,11 +206,13 @@ class NetTypeSpec:
                 )
 
         # High current needs appropriate via arrays
-        if (self.net_type == NetType.HIGH_CURRENT or self.max_current_a > 5.0) and self.via_template == "Via1x1":
+        if (
+            self.net_type == NetType.HIGH_CURRENT or self.max_current_a > 5.0
+        ) and self.via_template == "Via1x1":
             errors.append(
-                    f"High current net ({self.max_current_a}A) should use Via2x2 or larger, "
-                    "not single vias. Single 0.3mm vias rated ~3-5A max."
-                )
+                f"High current net ({self.max_current_a}A) should use Via2x2 or larger, "
+                "not single vias. Single 0.3mm vias rated ~3-5A max."
+            )
 
         # Differential pairs need matched impedance
         if self.net_type == NetType.DIFFERENTIAL and self.impedance_ohm is None:

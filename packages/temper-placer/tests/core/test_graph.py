@@ -1,4 +1,3 @@
-
 import numpy as np
 import pytest
 
@@ -8,8 +7,8 @@ from temper_placer.core.netlist import Component, Net, Netlist
 
 def test_netlist_to_graph():
     """Verify conversion from netlist to graph features."""
-    c1 = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8)) # 2 pins
-    c2 = Component(ref="U1", footprint="SOIC-8", bounds=(5, 4)) # 8 pins
+    c1 = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8))  # 2 pins
+    c2 = Component(ref="U1", footprint="SOIC-8", bounds=(5, 4))  # 8 pins
 
     # Add pins
     for _i in range(2):
@@ -30,26 +29,21 @@ def test_netlist_to_graph():
     assert graph.nodes[1, 1] == 8
 
     # Edges: [1, 2]
-    assert graph.edges.shape[0] == 1 # 1 net connects 2 components
+    assert graph.edges.shape[0] == 1  # 1 net connects 2 components
     assert 0 in graph.edges[0]
     assert 1 in graph.edges[0]
+
 
 def test_graph_batching():
     """Verify that multiple graphs can be batched together."""
     from temper_placer.core.graph import batch_graphs
 
     # Graph 1 (2 nodes, 1 edge)
-    g1 = NetlistGraph(
-        nodes=np.ones((2, 3)),
-        edges=np.array([[0, 1]]),
-        edge_weights=np.ones(1)
-    )
+    g1 = NetlistGraph(nodes=np.ones((2, 3)), edges=np.array([[0, 1]]), edge_weights=np.ones(1))
 
     # Graph 2 (3 nodes, 2 edges)
     g2 = NetlistGraph(
-        nodes=np.zeros((3, 3)),
-        edges=np.array([[0, 1], [1, 2]]),
-        edge_weights=np.ones(2)
+        nodes=np.zeros((3, 3)), edges=np.array([[0, 1], [1, 2]]), edge_weights=np.ones(2)
     )
 
     batched = batch_graphs([g1, g2])
@@ -61,4 +55,3 @@ def test_graph_batching():
     # Check edge index shifting
     # Second graph edges [0,1], [1,2] should become [2,3], [3,4]
     assert np.all(batched.edges[1:] == np.array([[2, 3], [3, 4]]))
-

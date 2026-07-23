@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-
     from temper_placer.core.board import Board
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.loop import LoopCollection
@@ -101,6 +100,7 @@ class BoardState:
                     f"(canonical: {sorted(CANONICAL_4LAYER_LAYER_NAMES)}), "
                     f"got {n} layers: {actual}"
                 )
+
     occupancy_grids: dict[str, OccupancyGrid] | None = None
     layer_capacities: dict[str, LayerCapacity] | None = None
     routing_demand: RoutingDemand | None = None
@@ -124,6 +124,8 @@ class BoardState:
     enable_lazy_theta_star: bool = False
     enable_numba_los: bool = False
     enable_coarse_to_fine: bool = False
+    enable_all_pad_tree: bool = False
+    tree_3d_fallback_max_iter: int = 10_000
     coarse_factor: int = 4
     corridor_buffer_cells: int = 12
     # U7 / R11: PathFinder-style history cost.  0.0 disables

@@ -88,7 +88,12 @@ def test_phased_assignment_with_domain_map_filters_slots():
         ),
         component_zone_map=frozenset({("C1", "Signal"), ("C2", "Signal")}),
         zone_slots=frozenset(
-            {("Signal", tuple((float(x), float(y)) for x in range(0, 30, 10) for y in range(0, 30, 10)))}
+            {
+                (
+                    "Signal",
+                    tuple((float(x), float(y)) for x in range(0, 30, 10) for y in range(0, 30, 10)),
+                )
+            }
         ),
         component_domain_map=domain_map,
         domain_regions=(hv_region, lv_region),

@@ -57,6 +57,18 @@ pub fn extract_f64(dict: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResul
     }
 }
 
+/// Extract a required i32 value from a dict.
+pub fn extract_i32(dict: &Bound<'_, PyDict>, key: &str, default: i32) -> PyResult<i32> {
+    match dict.get_item(key)? {
+        Some(val) if !val.is_none() => {
+            val.extract::<i32>().map_err(|e| {
+                PyValueError::new_err(format!("key '{key}' is not an integer: {e}"))
+            })
+        }
+        _ => Ok(default),
+    }
+}
+
 /// Extract an optional f64 value from a dict.
 pub fn extract_opt_f64(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<f64>> {
     match dict.get_item(key)? {
@@ -149,14 +161,16 @@ pub fn extract_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Point<f64>
 /// Extract an optional geo::Point from a dict.
 pub fn extract_opt_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<Point<f64>>> {
     match dict.get_item(key)? {
-        Some(val) if !val.is_none() && val.is_instance_of::<PyDict>() => {
-            let inner: &Bound<'_, PyDict> = val.downcast().unwrap();
-            let x = extract_f64(inner, "x", 0.0)?;
-            let y = extract_f64(inner, "y", 0.0)?;
-            Ok(Some(Point::new(x, y)))
+        Some(val) if !val.is_none() => {
+            if let Ok(inner) = val.downcast::<PyDict>() {
+                let x = extract_f64(inner, "x", 0.0)?;
+                let y = extract_f64(inner, "y", 0.0)?;
+                return Ok(Some(Point::new(x, y)));
+            }
         }
-        _ => Ok(None),
+        _ => {}
     }
+    Ok(None)
 }
 
 /// Extract a geo::Polygon from a list of coordinate pairs.
@@ -186,10 +200,12 @@ pub fn extract_polygon(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Polygon<
                     "coordinate in '{key}' polygon has fewer than 2 elements"
                 )));
             }
-            let x: f64 = pair.get_item(0).unwrap().extract().map_err(|e| {
+            let elem0 = pair.get_item(0)?;
+            let x: f64 = elem0.extract().map_err(|e| {
                 PyValueError::new_err(format!("x coordinate in '{key}' polygon: {e}"))
             })?;
-            let y: f64 = pair.get_item(1).unwrap().extract().map_err(|e| {
+            let elem1 = pair.get_item(1)?;
+            let y: f64 = elem1.extract().map_err(|e| {
                 PyValueError::new_err(format!("y coordinate in '{key}' polygon: {e}"))
             })?;
             Ok((x, y))
@@ -216,7 +232,7 @@ pub fn extract_opt_polygon(
         Some(val) if !val.is_none() => {
             // Create a temporary dict so we can reuse extract_polygon
             let inner = PyDict::new(dict.py());
-            inner.set_item(key, val.clone()).unwrap();
+            inner.set_item(key, val.clone())?;
             let poly = extract_polygon(&inner, key)?;
             Ok(Some(poly))
         }
@@ -293,14 +309,23 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
 
 fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> {
     Ok(NetClassRules {
+        name: extract_str(dict, "name").unwrap_or_default(),
         trace_width_mm: extract_f64(dict, "trace_width_mm", 0.2)?,
         clearance_mm: extract_f64(dict, "clearance_mm", 0.2)?,
-        creepage_mm: extract_opt_f64(dict, "creepage_mm")?,
-        voltage_v: extract_opt_f64(dict, "voltage_v")?,
+        dru_priority: extract_i32(dict, "dru_priority", 0)?,
+        via_diameter: extract_f64(dict, "via_diameter", 0.6)?,
+        via_drill: extract_f64(dict, "via_drill", 0.3)?,
+        via_template: extract_opt_str(dict, "via_template")?,
+        creepage_mm: extract_f64(dict, "creepage_mm", 0.0)?,
+        voltage_v: extract_f64(dict, "voltage_v", 0.0)?,
+        target_impedance: extract_opt_f64(dict, "target_impedance")?,
         max_current_rating: extract_opt_f64(dict, "max_current_rating")?,
-        safety_category: extract_opt_str(dict, "safety_category")?,
         required_layer: extract_opt_str(dict, "required_layer")?,
+        layer: extract_opt_str(dict, "layer")?,
+        safety_category: extract_opt_str(dict, "safety_category")?,
         routing_strategy: extract_opt_str(dict, "routing_strategy")?,
+        via_cost_multiplier: extract_f64(dict, "via_cost_multiplier", 1.0)?,
+        layer_costs: None,
     })
 }
 
@@ -329,17 +354,16 @@ fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
 
     // Segments from Python: [[x1, y1, x2, y2], [x1, y1, x2, y2], ...]
     let mut segments = Vec::new();
-    if let Some(segments_val) = dict.get_item("segments")? {
-        if !segments_val.is_none() && segments_val.is_instance_of::<PyList>() {
-            let seg_list: &Bound<'_, PyList> = segments_val.downcast().unwrap();
-            for item in seg_list.iter() {
-                let coords = extract_f64_list(&item)?;
-                if coords.len() >= 4 {
-                    segments.push(Line::new(
-                        Point::new(coords[0], coords[1]),
-                        Point::new(coords[2], coords[3]),
-                    ));
-                }
+    if let Some(segments_val) = dict.get_item("segments")?
+        && let Ok(seg_list) = segments_val.downcast::<PyList>()
+    {
+        for item in seg_list.iter() {
+            let coords = extract_f64_list(&item)?;
+            if coords.len() >= 4 {
+                segments.push(Line::new(
+                    Point::new(coords[0], coords[1]),
+                    Point::new(coords[2], coords[3]),
+                ));
             }
         }
     }
@@ -392,6 +416,58 @@ fn extract_copper_zone(dict: &Bound<'_, PyDict>) -> PyResult<CopperZone> {
 }
 
 // ---------------------------------------------------------------------------
+// Composite dict parsers (orchestrated by build_board_state)
+// ---------------------------------------------------------------------------
+
+fn parse_nets_from_dict(
+    board_dict: &Bound<'_, PyDict>,
+) -> PyResult<HashMap<String, Vec<String>>> {
+    let mut result = HashMap::new();
+    if let Some(nets_val) = board_dict.get_item("nets")?
+        && let Ok(nets_dict) = nets_val.downcast::<PyDict>()
+    {
+            for (key, val) in nets_dict.iter() {
+                let net_name: String = key.extract().map_err(|e| {
+                    PyValueError::new_err(format!("nets key is not a string: {e}"))
+                })?;
+                let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+                    PyValueError::new_err(format!("nets['{net_name}'] is not a list: {e}"))
+                })?;
+                let comps: Vec<String> = list
+                    .iter()
+                    .map(|item| {
+                        item.extract::<String>().map_err(|e| {
+                            PyValueError::new_err(format!(
+                                "component ref in nets['{net_name}'] is not a string: {e}"
+                            ))
+                        })
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                result.insert(net_name, comps);
+        }
+    }
+    Ok(result)
+}
+
+fn parse_traces_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<TraceSegment>> {
+    let trace_list = extract_dict_list(board_dict, "traces")?;
+    let mut result = Vec::with_capacity(trace_list.len());
+    for trace_dict in trace_list {
+        result.push(extract_trace_segment(&trace_dict)?);
+    }
+    Ok(result)
+}
+
+fn parse_zones_from_dict(board_dict: &Bound<'_, PyDict>) -> PyResult<Vec<CopperZone>> {
+    let zone_list = extract_dict_list(board_dict, "zones")?;
+    let mut result = Vec::with_capacity(zone_list.len());
+    for zone_dict in zone_list {
+        result.push(extract_copper_zone(&zone_dict)?);
+    }
+    Ok(result)
+}
+
+// ---------------------------------------------------------------------------
 // BoardState builder
 // ---------------------------------------------------------------------------
 
@@ -441,41 +517,14 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     };
 
     // --- Nets (HashMap: net_name → [component_refs]) ---
-    let nets_dict_raw: HashMap<String, Vec<String>> = {
-        let mut result = HashMap::new();
-        if let Some(nets_val) = board_dict.get_item("nets")? {
-            if !nets_val.is_none() && nets_val.is_instance_of::<PyDict>() {
-                let nets_dict: &Bound<'_, PyDict> = nets_val.downcast().unwrap();
-                for (key, val) in nets_dict.iter() {
-                    let net_name: String = key.extract().map_err(|e| {
-                        PyValueError::new_err(format!("nets key is not a string: {e}"))
-                    })?;
-                    let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
-                        PyValueError::new_err(format!(
-                            "nets['{net_name}'] is not a list: {e}"
-                        ))
-                    })?;
-                    let comps: Vec<String> = list
-                        .iter()
-                        .map(|item| item.extract::<String>().map_err(|e| {
-                            PyValueError::new_err(format!(
-                                "component ref in nets['{net_name}'] is not a string: {e}"
-                            ))
-                        }))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    result.insert(net_name, comps);
-                }
-            }
-        }
-        result
-    };
+    let nets_dict_raw = parse_nets_from_dict(board_dict)?;
 
     // --- Net classes (HashMap: net_name → class_name) ---
     let net_classes_raw: HashMap<String, String> = {
         let mut result = HashMap::new();
-        if let Some(nc_val) = board_dict.get_item("net_classes")? {
-            if !nc_val.is_none() && nc_val.is_instance_of::<PyDict>() {
-                let nc_dict: &Bound<'_, PyDict> = nc_val.downcast().unwrap();
+        if let Some(nc_val) = board_dict.get_item("net_classes")?
+            && let Ok(nc_dict) = nc_val.downcast::<PyDict>()
+        {
                 for (key, val) in nc_dict.iter() {
                     let net_name: String = key.extract().map_err(|e| {
                         PyValueError::new_err(format!("net_classes key is not a string: {e}"))
@@ -486,7 +535,6 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
                         ))
                     })?;
                     result.insert(net_name, class_name);
-                }
             }
         }
         result
@@ -495,9 +543,9 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     // --- Net class rules (HashMap: class_name → rules) ---
     let net_class_rules: HashMap<NetClassName, NetClassRules> = {
         let mut result = HashMap::new();
-        if let Some(ncr_val) = board_dict.get_item("net_class_rules")? {
-            if !ncr_val.is_none() && ncr_val.is_instance_of::<PyDict>() {
-                let ncr_dict: &Bound<'_, PyDict> = ncr_val.downcast().unwrap();
+        if let Some(ncr_val) = board_dict.get_item("net_class_rules")?
+            && let Ok(ncr_dict) = ncr_val.downcast::<PyDict>()
+        {
                 for (key, val) in ncr_dict.iter() {
                     let class_name: String = key.extract().map_err(|e| {
                         PyValueError::new_err(format!(
@@ -509,10 +557,9 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
                             "net_class_rules['{class_name}'] is not a dict: {e}"
                         ))
                     })?;
-                    result.insert(NetClassName(class_name), extract_net_class_rules(rules_dict)?);
-                }
-            }
+            result.insert(NetClassName(class_name), extract_net_class_rules(rules_dict)?);
         }
+    }
         result
     };
 
@@ -524,20 +571,11 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
             let class_name = net_classes_raw
                 .get(&name)
                 .map(|c| NetClassName(c.clone()))
-                .unwrap_or_else(|| NetClassName("Unknown".to_string()));
+                .unwrap_or(NetClassName("Unknown".to_string()));
             let rules = net_class_rules
                 .get(&class_name)
                 .cloned()
-                .unwrap_or_else(|| NetClassRules {
-                    trace_width_mm: 0.2,
-                    clearance_mm: 0.2,
-                    creepage_mm: None,
-                    voltage_v: None,
-                    max_current_rating: None,
-                    safety_category: None,
-                    required_layer: None,
-                    routing_strategy: None,
-                });
+                .unwrap_or_default();
             Net {
                 name: net_name,
                 components: comps.into_iter().map(ComponentRef).collect(),
@@ -548,14 +586,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
         .collect();
 
     // --- Traces (optional) ---
-    let traces = {
-        let trace_list = extract_dict_list(board_dict, "traces")?;
-        let mut result = Vec::with_capacity(trace_list.len());
-        for trace_dict in trace_list {
-            result.push(extract_trace_segment(&trace_dict)?);
-        }
-        result
-    };
+    let traces = parse_traces_from_dict(board_dict)?;
 
     // --- Vias (optional) ---
     let vias = {
@@ -568,14 +599,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     };
 
     // --- Zones (optional) ---
-    let zones = {
-        let zone_list = extract_dict_list(board_dict, "zones")?;
-        let mut result = Vec::with_capacity(zone_list.len());
-        for zone_dict in zone_list {
-            result.push(extract_copper_zone(&zone_dict)?);
-        }
-        result
-    };
+    let zones = parse_zones_from_dict(board_dict)?;
 
     Ok(BoardState {
         width_mm,

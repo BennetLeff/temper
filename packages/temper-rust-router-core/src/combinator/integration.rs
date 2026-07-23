@@ -2,8 +2,8 @@
 ///
 /// These tests verify that the rewrite engine integrates correctly with
 /// the full constraint pipeline (model construction → rewrite → CNF encoding).
-
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use crate::types::{InternalConstraint, InternalConstraintModel};
     use crate::encoding::encode_to_cnf;

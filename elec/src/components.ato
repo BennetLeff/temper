@@ -59,42 +59,55 @@ component UCC21550BDWK:
     signal OUTA ~ pin 15
     signal VDDA ~ pin 16
 
-component UJ3D1210TS:
-    """SiC Schottky Bootstrap Diode 1200V 10A"""
-    footprint = "Package_TO_SOT_THT:TO-220-2_Vertical"
-    mpn = "UJ3D1210TS"
-    
-    # Ratings
-    voltage_rating = 1200V
-    current_rating = 10A
 
-    # Electrical parameters
-    v_rrm = 1200V
-    i_f_max = 10A
-    v_f = 1.5V
 
-    signal K ~ pin 1
-    signal A ~ pin 2
+component IRM_10_15:
+    """Mean Well IRM-10-15 encapsulated AC/DC module, 15V 0.67A 10W.
+    VERIFIED 2026-07-16 (IRM-10-SPEC 2025-08-08): input 85-305VAC / 120-430VDC
+    (170VDC half-bus is in range), Class II, 4.2kVac I/O withstand,
+    IEC/EN 61558-1/-2-16 + 62368-1 approved, EMI Class B built in."""
+    designator_prefix = "PS"
+    footprint = "Converter_ACDC:Converter_ACDC_MeanWell_IRM-10-xx_THT"
+    mpn = "IRM-10-15"
+    manufacturer = "Mean Well"
+    voltage_rating = 430V
 
-component CST1005:
-    """Current Transformer 1:1000"""
-    footprint = "CST1005_Footprint"
-    mpn = "CST-1005"
-    ratio = 1000
-    
-    signal S1 ~ pin 1
-    signal S2 ~ pin 2
+    signal ACL ~ pin 1
+    signal ACN ~ pin 2
+    signal VP ~ pin 3
+    signal VN ~ pin 4
+
+component CST2010_100L:
+    """Coilcraft CST2010-100L SMT current sense transformer, 1:100.
+    VERIFIED 2026-07-16: senses up to 47A, usable to 1MHz+ (35kHz tank
+    frequency is in-band), -40..+125C, 1500Vrms winding-winding isolation.
+    Replaces Triad CST-1005 (5A, 50/60Hz only, 65C max) per BOM audit.
+    Footprint hand-built from the Coilcraft datasheet land pattern
+    (Document 1100-2); pads 1/2 = primary tabs (Coilcraft 11/12),
+    pads 3/4 = secondary (Coilcraft pins 2/4)."""
+    designator_prefix = "T"
+    footprint = "temper:CST2010"
+    mpn = "CST2010-100L"
+    manufacturer = "Coilcraft"
+    ratio = 100
+
+    signal P1 ~ pin 1
+    signal P2 ~ pin 2
+    signal S1 ~ pin 3
+    signal S2 ~ pin 4
 
 component Resistor:
-
+    designator_prefix = "R"
     footprint = "Resistor_SMD:R_0603_1608Metric"
     value: ohm
     mpn: str
     power_rating: power
+    voltage_rating: voltage
     signal p1 ~ pin 1
     signal p2 ~ pin 2
 
 component Capacitor:
+    designator_prefix = "C"
     footprint = "Capacitor_SMD:C_0603_1608Metric"
     value: farad
     mpn: str
@@ -104,6 +117,7 @@ component Capacitor:
     signal p2 ~ pin 2
 
 component Diode:
+    designator_prefix = "D"
     footprint = "Diode_SMD:D_SOD-123"
     mpn: str
     voltage_rating: voltage
@@ -111,12 +125,22 @@ component Diode:
     signal K ~ pin 1
     signal A ~ pin 2
 
+component MOSFET_N:
+    """N-channel logic-level MOSFET, low-side switch"""
+    designator_prefix = "Q"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    mpn: str
+    signal D ~ pin 1
+    signal G ~ pin 2
+    signal S ~ pin 3
+
 # ==============================================================================
 # POWER INPUT COMPONENTS
 # ==============================================================================
 
 component Fuse:
     """Fuse holder with fuse"""
+    designator_prefix = "F"
     footprint = "Fuse:Fuse_Holder_5x20mm"
     current_rating: current
     voltage_rating: voltage
@@ -126,6 +150,7 @@ component Fuse:
 
 component NTC_Inrush:
     """Inrush current limiter NTC"""
+    designator_prefix = "RT"
     footprint = "Resistor_THT:R_Disc_D15.0mm_W7.0mm_P7.5mm"
     resistance_cold: ohm
     current_rating: current
@@ -133,6 +158,46 @@ component NTC_Inrush:
     manufacturer = "Ametherm"
     signal p1 ~ pin 1
     signal p2 ~ pin 2
+
+component MOV_Varistor:
+    """Metal Oxide Varistor for surge protection"""
+    designator_prefix = "RV"
+    footprint: str
+    voltage_rating: voltage  # AC RMS clamping voltage rating
+    mpn: str
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component CommonModeChoke:
+    """TDK (EPCOS) B82726S2163N030 current-compensated ring-core double
+    choke -- ONE physical 4-pin part. Replaces the earlier cmc_w1/cmc_w2
+    pair of 2-pin Inductor instances in PowerInput, which modeled the
+    part as two separate inductors and made the generated BOM show
+    qty 2 (order 1).
+    VERIFIED 2026-07-16 (TDK datasheet, "Date: April 2025" revision,
+    tdk-electronics.tdk.com/inf/30/db/ind_2008/b82726s2163.pdf):
+    250VAC / 16A rated (referred to 50Hz, T_R +60C), 2.2mH +/-30% per
+    winding at 10kHz/0.1mA/+20C, R_typ 7.1mOhm/winding, ferrite ring
+    core, THT hot-dip-tinned wire leads. Datasheet page 3 "Dimensional
+    drawing and pin configuration" explicitly states "No polarity" --
+    the two windings are symmetric, so there is no dot convention to
+    respect; either winding may carry L or N.
+    Pin mapping (TDK's own numbers, carried straight through to the
+    footprint pads -- see pcb/libs/temper.pretty/CMC_B82726S.kicad_mod):
+    winding 1 = pins 1 (top-left) / 4 (bottom-left);
+    winding 2 = pins 2 (top-right) / 3 (bottom-right)."""
+    designator_prefix = "L"
+    footprint = "temper:CMC_B82726S"
+    mpn = "B82726S2163N030"
+    manufacturer = "TDK (EPCOS)"
+    value = 2.2mH
+    current_rating = 16A
+    dcr = 0.0071ohm
+
+    signal W1_1 ~ pin 1
+    signal W2_1 ~ pin 2
+    signal W2_2 ~ pin 3
+    signal W1_2 ~ pin 4
 
 component MUR1560:
     """Ultrafast rectifier 15A 600V"""
@@ -148,8 +213,22 @@ component MUR1560:
     signal K ~ pin 1
     signal A ~ pin 2
 
+component ES1J:
+    """Ultrafast rectifier 600V 1A SMA for bootstrap"""
+    footprint = "Diode_SMD:D_SMA"
+    mpn = "ES1J"
+    manufacturer = "ON Semiconductor"
+    
+    voltage_rating = 600V
+    current_rating = 1A
+    t_rr = 35ns
+    
+    signal K ~ pin 1
+    signal A ~ pin 2
+
 component CapPolarized:
     """Electrolytic capacitor"""
+    designator_prefix = "C"
     footprint: str
     value: farad
     voltage_rating: voltage
@@ -159,6 +238,7 @@ component CapPolarized:
 
 component Relay_SPST:
     """SPST relay for bypass"""
+    designator_prefix = "K"
     footprint: str
     coil_voltage: voltage
     contact_current: current
@@ -167,6 +247,28 @@ component Relay_SPST:
     signal coil2 ~ pin 2
     signal NO ~ pin 3
     signal COM ~ pin 4
+
+component Relay_SPDT:
+    """SPDT relay with an accessible NC contact (5-pin THT layout).
+    VERIFIED 2026-07-16 pin mapping for Omron G5LE-1 against the Omron
+    G5LE catalog (omronfs.omron.com/en_US/ecb/products/pdf/en-g5le.pdf)
+    "Terminal Arrangement/Internal Connections" bottom-view diagram
+    cross-checked against the KiCad community schematic symbol
+    (Relay.kicad_symdir/G5LE-1.kicad_sym) that is tied to the same
+    footprint used here (Relay_THT:Relay_SPDT_Omron-G5LE-1): pin 1 = COM
+    (armature/pole), pins 2 & 5 = coil (non-polarized), pin 3 = NO,
+    pin 4 = NC (the pole rests against pin 4 when de-energized -- this is
+    the fail-safe contact used by BusDischarge in modules.ato)."""
+    designator_prefix = "K"
+    footprint: str
+    coil_voltage: voltage
+    contact_current: current
+    mpn: str
+    signal coil1 ~ pin 2
+    signal coil2 ~ pin 5
+    signal COM ~ pin 1
+    signal NO ~ pin 3
+    signal NC ~ pin 4
 
 # ==============================================================================
 # POWER MANAGEMENT COMPONENTS
@@ -191,26 +293,10 @@ component LMR51430:
     signal EN ~ pin 5    # Fixed: was SW
     signal BOOT ~ pin 6  # Correct
 
-component XC6220:
-    """Torex 700mA Ultra Low Noise LDO"""
-    footprint = "Package_TO_SOT_SMD:SOT-23-5"
-    mpn = "XC6220B331MR-G"
-    manufacturer = "Torex Semiconductor"
-    
-    # Ratings
-    v_out = 3.3V
-    i_out_max = 700mA
-    v_dropout = 0.3V
-    noise = 30uV  # Ultra low noise
-    
-    signal VSS ~ pin 1
-    signal VIN ~ pin 2
-    signal CE ~ pin 3
-    signal NC ~ pin 4
-    signal VOUT ~ pin 5
 
 component Inductor:
     """Power inductor"""
+    designator_prefix = "L"
     footprint: str
     value: henry
     current_rating: current
@@ -226,7 +312,7 @@ component Inductor:
 component MAX31865:
     """RTD-to-Digital Converter, 15-bit ADC"""
     footprint = "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm"
-    mpn = "MAX31865ATP+"
+    mpn = "MAX31865AAP+"  # SSOP-20 package, matches footprint (TQFN→SSOP fix)
     manufacturer = "Analog Devices"
     
     # Ratings
@@ -255,24 +341,6 @@ component MAX31865:
     signal GND1 ~ pin 19
     signal NC3 ~ pin 20
 
-component ADUM1250:
-    """Hot-swappable I2C Isolator"""
-    footprint = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
-    mpn = "ADUM1250ARZ"
-    manufacturer = "Analog Devices"
-    
-    # Ratings
-    v_iso = 2500V
-    data_rate = 1MHz
-    
-    signal VDD1 ~ pin 1
-    signal SCL1 ~ pin 2  # Fixed: was SDA1 (temper-7gv)
-    signal SDA1 ~ pin 3  # Fixed: was SCL1 (temper-7gv)
-    signal GND1 ~ pin 4
-    signal GND2 ~ pin 5
-    signal SDA2 ~ pin 6  # Fixed: was SCL2 (temper-qwk)
-    signal SCL2 ~ pin 7  # Fixed: was SDA2 (temper-qwk)
-    signal VDD2 ~ pin 8
 
 # ==============================================================================
 # SAFETY INTERLOCK COMPONENTS
@@ -294,6 +362,55 @@ component TLV3201:
     signal INN ~ pin 4
     signal VCC ~ pin 5
 
+component REF2025:
+    """2.5 V / 1.25 V precision reference for the RTD hardware window."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "REF2025AIDDCR"
+    manufacturer = "Texas Instruments"
+
+    signal VBIAS ~ pin 1
+    signal GND ~ pin 2
+    signal EN ~ pin 3
+    signal VIN ~ pin 4
+    signal VREF ~ pin 5
+
+component TPS3700:
+    """Dual window supervisor; OUTA is low on RTD_AVDD undervoltage."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-6"
+    mpn = "TPS3700DDCR"
+    manufacturer = "Texas Instruments"
+
+    signal OUTA ~ pin 1
+    signal GND ~ pin 2
+    signal INA_P ~ pin 3
+    signal INB_N ~ pin 4
+    signal VDD ~ pin 5
+    signal OUTB ~ pin 6
+
+component SN74LVC1G08:
+    """Single two-input AND gate with partial-power-down protection."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "SN74LVC1G08DBVR"
+    manufacturer = "Texas Instruments"
+
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
+component SN74LVC1G38:
+    """Single two-input open-drain NAND with Ioff protection."""
+    footprint = "Package_TO_SOT_SMD:SOT-23-5"
+    mpn = "SN74LVC1G38DBVR"
+    manufacturer = "Texas Instruments"
+
+    signal A ~ pin 1
+    signal B ~ pin 2
+    signal GND ~ pin 3
+    signal Y ~ pin 4
+    signal VCC ~ pin 5
+
 component TPS3823:
     """Supervisor with Watchdog, 1.6s timeout"""
     footprint = "Package_TO_SOT_SMD:SOT-23-5"
@@ -311,11 +428,21 @@ component TPS3823:
     signal VDD ~ pin 5
 
 component SN74HC4075:
-    """Triple 3-Input OR Gate"""
+    """Triple 3-Input OR Gate
+
+    Pin map verified against the real datasheet-sourced pinout (Intersil
+    CD4075, pin-compatible; cross-checked via KiCad's bundled 4xxx.kicad_sym
+    "4075" symbol -- see docs/solutions/tooling-decisions/
+    kicad-embedded-symbols-lose-pin-semantics-2026-07-14.md). The previous
+    version of this model had gate 1 and gate 3 pin numbers wrong (Y1/C1
+    swapped with gate 3's numbering); this was worked around directly in
+    pcb/safety_interlock.kicad_sch's wiring but never corrected here until
+    2026-07-14.
+    """
     footprint = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
     mpn = "SN74HC4075DR"
     manufacturer = "Texas Instruments"
-    
+
     signal A1 ~ pin 1
     signal B1 ~ pin 2
     signal A2 ~ pin 3
@@ -323,12 +450,12 @@ component SN74HC4075:
     signal C2 ~ pin 5
     signal Y2 ~ pin 6
     signal GND ~ pin 7
-    signal Y3 ~ pin 8
-    signal A3 ~ pin 9
-    signal B3 ~ pin 10
-    signal C3 ~ pin 11
-    signal C1 ~ pin 12
-    signal Y1 ~ pin 13
+    signal C1 ~ pin 8
+    signal Y1 ~ pin 9
+    signal Y3 ~ pin 10
+    signal A3 ~ pin 11
+    signal B3 ~ pin 12
+    signal C3 ~ pin 13
     signal VCC ~ pin 14
 
 component SN74HC00:
@@ -447,8 +574,36 @@ component ESP32_S3_WROOM_1:
 # MISC COMPONENTS
 # ==============================================================================
 
+component Button:
+    """Momentary tactile pushbutton (boot/reset strap access).
+
+    Placeholder 0603 footprint: Button_Switch_SMD is not in the committed
+    fp-lib-table yet. Swap to SW_SPST_B3U-1000P (or similar) once the
+    library is added via tools/setup_kicad_env.py.
+    """
+    designator_prefix = "SW"
+    footprint = "Resistor_SMD:R_0603_1608Metric"
+    mpn = "EVQ-P7A01P"
+    manufacturer = "Panasonic"
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component PinHeader_1x02:
+    """2-pin 2.54mm THT vertical header (fan power).
+    VERIFIED 2026-07-16: Wurth WR-PHD 61300211121, 1x2 gold-plated,
+    500VAC withstand, -40..+105C (Newark/Farnell listings)."""
+    designator_prefix = "J"
+    footprint = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+    mpn = "61300211121"
+    manufacturer = "Wurth Elektronik"
+
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
 component TestPoint:
     """Surface mount or through-hole test point"""
+    designator_prefix = "TP"
     footprint = "TestPoint:TestPoint_Pad_D1.0mm"
     mpn = "GENERIC_TEST_POINT"
     

@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import Any
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class PreflightStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.pipeline.preflight import PreflightChecker
         from temper_placer.pipeline.state import PipelineError, PipelinePhase
@@ -32,7 +31,9 @@ class PreflightStage:
 
         elapsed = time.time() - start
         if not report.passed:
-            raise PipelineError(f"Preflight checks failed: {report.summary()}", phase=PipelinePhase.PREFLIGHT)
+            raise PipelineError(
+                f"Preflight checks failed: {report.summary()}", phase=PipelinePhase.PREFLIGHT
+            )
 
         return StageResult(
             outputs={"preflight_report": report},

@@ -26,13 +26,12 @@ import pytest
 
 from temper_placer.fields.field import CostField
 from temper_placer.fields.result import FieldResult
+from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
 from temper_placer.placer.cp_sat.loop import (
     LoopExitReason,
     PlaceRouteLoop,
 )
-from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
-
 
 # ---------------------------------------------------------------------------
 # Mocks
@@ -91,8 +90,7 @@ class MockRoutingResult:
 # ---------------------------------------------------------------------------
 
 GATE_CLEAN_RESULT = GateResult(GateStatus.CLEAN)
-_ALL_GATE_CLASSES = ("DrcGate", "RoutingGate", "StackupGate",
-                      "PhysicsGate", "QualityGate")
+_ALL_GATE_CLASSES = ("DrcGate", "RoutingGate", "StackupGate", "PhysicsGate", "QualityGate")
 
 
 def _mock_all_gates_clean():
@@ -113,20 +111,17 @@ def _mock_all_gates_clean():
 # to avoid triggering the existing position-oscillation detector.
 # ---------------------------------------------------------------------------
 
+
 def _make_placement(round_num: int, base_positions=None) -> CpSatPlacementResult:
     """Return a CpSatPlacementResult with positions that drift per round."""
     if base_positions is None:
-        base_positions = {"Q1": (10.0, 20.0), "Q2": (30.0, 40.0),
-                          "C_BUS1": (50.0, 60.0)}
+        base_positions = {"Q1": (10.0, 20.0), "Q2": (30.0, 40.0), "C_BUS1": (50.0, 60.0)}
     # Offset each component by 0.5mm per round (well above 0.1mm tolerance)
     offset = round_num * 0.5
-    shifted = {
-        ref: (x + offset, y + offset * 0.7)
-        for ref, (x, y) in base_positions.items()
-    }
+    shifted = {ref: (x + offset, y + offset * 0.7) for ref, (x, y) in base_positions.items()}
     return CpSatPlacementResult(
         positions=shifted,
-        rotations={r: 0 for r in base_positions},
+        rotations=dict.fromkeys(base_positions, 0),
         status="optimal",
         solve_time_ms=50.0,
     )
@@ -137,21 +132,19 @@ def _make_placement(round_num: int, base_positions=None) -> CpSatPlacementResult
 # ---------------------------------------------------------------------------
 
 
-def _make_field_result(grid: np.ndarray, weight: float = 1.0,
-                       status: GateStatus = GateStatus.CLEAN,
-                       error: str = "") -> FieldResult:
+def _make_field_result(
+    grid: np.ndarray, weight: float = 1.0, status: GateStatus = GateStatus.CLEAN, error: str = ""
+) -> FieldResult:
     return FieldResult(
         gate_result=GateResult(status=status, error_message=error),
-        field=CostField(grid=grid.astype(np.float32), cell_size_mm=0.5,
-                        origin_mm=(0.0, 0.0)),
+        field=CostField(grid=grid.astype(np.float32), cell_size_mm=0.5, origin_mm=(0.0, 0.0)),
         weight=weight,
     )
 
 
 def _make_unmeasured_field(message: str = "solve failed") -> FieldResult:
     return FieldResult(
-        gate_result=GateResult(status=GateStatus.UNMEASURED,
-                               error_message=message),
+        gate_result=GateResult(status=GateStatus.UNMEASURED, error_message=message),
         field=None,
     )
 
@@ -196,18 +189,19 @@ def test_field_stable_fixed_point_converges(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -215,7 +209,10 @@ def test_field_stable_fixed_point_converges(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -249,18 +246,19 @@ def test_drifting_field_exits_on_round_budget(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -268,7 +266,10 @@ def test_drifting_field_exits_on_round_budget(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -305,18 +306,19 @@ def test_period4_cycle_detected(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -324,7 +326,10 @@ def test_period4_cycle_detected(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -357,18 +362,19 @@ def test_unmeasured_field_blocks_convergence(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -376,7 +382,10 @@ def test_unmeasured_field_blocks_convergence(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -398,18 +407,19 @@ def test_field_off_same_as_today(basic_netlist, basic_board):
     loop = PlaceRouteLoop()
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -417,7 +427,10 @@ def test_field_off_same_as_today(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -444,18 +457,19 @@ def test_field_off_zero_weight_same_as_today(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -463,7 +477,10 @@ def test_field_off_zero_weight_same_as_today(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -502,18 +519,19 @@ def test_round_record_carries_field_across_rounds(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -521,7 +539,10 @@ def test_round_record_carries_field_across_rounds(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -569,20 +590,20 @@ def test_solve_time_trend_warning(basic_netlist, basic_board, caplog):
         _t += delta_s
         _times.append(_t)
 
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch(
-        "temper_placer.placer.cp_sat.loop.time.monotonic"
-    ) as mock_time:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch("temper_placer.placer.cp_sat.loop.time.monotonic") as mock_time,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
         mock_time.side_effect = _times
 
@@ -591,19 +612,21 @@ def test_solve_time_trend_warning(basic_netlist, basic_board, caplog):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
                 p.stop()
 
     warnings = [
-        rec.message for rec in caplog.records
+        rec.message
+        for rec in caplog.records
         if rec.levelno >= logging.WARNING and "solve-time" in rec.message
     ]
-    assert len(warnings) >= 1, (
-        f"Expected solve-time trend warning, got: {caplog.text}"
-    )
+    assert len(warnings) >= 1, f"Expected solve-time trend warning, got: {caplog.text}"
     assert result.success is True
 
 
@@ -627,8 +650,7 @@ def test_field_epsilon_default_sane():
     """FIELD_EPSILON (0.5°C) is a sensible per-cell threshold."""
     loop = PlaceRouteLoop()
     assert 0.0 < loop.FIELD_EPSILON < 100.0, (
-        f"FIELD_EPSILON={loop.FIELD_EPSILON} should be a small positive "
-        "temperature threshold"
+        f"FIELD_EPSILON={loop.FIELD_EPSILON} should be a small positive temperature threshold"
     )
 
 
@@ -662,18 +684,19 @@ def test_field_unstable_resets_only_field_counter(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -681,7 +704,10 @@ def test_field_unstable_resets_only_field_counter(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -698,6 +724,7 @@ def test_field_unstable_resets_only_field_counter(basic_netlist, basic_board):
 
 def test_field_compute_exception_yields_unmeasured(basic_netlist, basic_board):
     """Field compute exception is caught and treated as UNMEASURED."""
+
     def get_exploding_field(placement, routing, netlist, board):
         raise RuntimeError("FDM solver segfault")
 
@@ -707,18 +734,19 @@ def test_field_compute_exception_yields_unmeasured(basic_netlist, basic_board):
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _make_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_all_gates_clean()
@@ -726,7 +754,10 @@ def test_field_compute_exception_yields_unmeasured(basic_netlist, basic_board):
             p.start()
         try:
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):

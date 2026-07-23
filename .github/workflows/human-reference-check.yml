@@ -28,10 +28,17 @@ jobs:
           enable-cache: true
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
       - name: Run placer and extract metrics
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- advisory comparison; hard-fail after 2026-09-01
         run: |
           uv run python3 -c "
           import json, jax
@@ -98,16 +105,23 @@ jobs:
           enable-cache: true
       - name: Set up Python
         run: uv python install 3.12
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
       - name: Download opt metrics
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: opt-metrics
           path: .
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- artifact download best-effort; hard-fail after 2026-09-01
       - name: Generate human-reference comment
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- PR comment advisory; hard-fail after 2026-09-01
         run: |
           export OPT_METRICS_FILE=opt_metrics.json
           uv run python3 scripts/human_reference_compare.py --boards piantor_right temper minimal rp2040_designguide bitaxe_ultra > comment.md

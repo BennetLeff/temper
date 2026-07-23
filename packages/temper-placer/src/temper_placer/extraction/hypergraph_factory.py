@@ -21,10 +21,7 @@ class HypergraphFactory:
     """
 
     def __init__(
-        self,
-        netlist: Netlist,
-        ignore_global_nets: bool = False,
-        global_net_threshold: int = 50
+        self, netlist: Netlist, ignore_global_nets: bool = False, global_net_threshold: int = 50
     ):
         self.netlist = netlist
         self.ignore_global_nets = ignore_global_nets
@@ -95,38 +92,28 @@ class HypergraphFactory:
 
         # 4. Node Weights (Area based)
         node_weights = np.array(
-            [c.width * c.height for c in self.netlist.components],
-            dtype=np.float32
+            [c.width * c.height for c in self.netlist.components], dtype=np.float32
         )
 
         # 5. Hyperedge Weights (Base importance)
-        hyperedge_weights = np.array(
-            [n.weight for n in valid_nets],
-            dtype=np.float32
-        )
+        hyperedge_weights = np.array([n.weight for n in valid_nets], dtype=np.float32)
 
         return PhysicsHypergraph(
             incidence=HypergraphIncidence(
-                matrix=bcoo_matrix,
-                node_weights=node_weights,
-                hyperedge_weights=hyperedge_weights
+                matrix=bcoo_matrix, node_weights=node_weights, hyperedge_weights=hyperedge_weights
             ),
             node_refs=[c.ref for c in self.netlist.components],
             hyperedge_names=[n.name for n in valid_nets],
             edge_voltages=np.array(edge_voltages, dtype=np.float32),
             edge_currents=np.array(edge_currents, dtype=np.float32),
-            edge_widths=np.array(edge_widths, dtype=np.float32)
+            edge_widths=np.array(edge_widths, dtype=np.float32),
         )
 
 
 def netlist_to_hypergraph(
-    netlist: Netlist,
-    ignore_global_nets: bool = False,
-    global_net_threshold: int = 50
+    netlist: Netlist, ignore_global_nets: bool = False, global_net_threshold: int = 50
 ) -> PhysicsHypergraph:
     """Convenience wrapper for HypergraphFactory."""
     return HypergraphFactory(
-        netlist,
-        ignore_global_nets=ignore_global_nets,
-        global_net_threshold=global_net_threshold
+        netlist, ignore_global_nets=ignore_global_nets, global_net_threshold=global_net_threshold
     ).build()

@@ -54,13 +54,13 @@ class ManufacturingReport:
         teardrop_failure = 1 if self.teardrops.teardrop_count == 0 else 0
         thermal_failure = 1 if self.thermal_reliefs.relief_count == 0 else 0
         return (
-            self.acid_traps.trap_count +
-            self.annular_rings.violation_count +
-            self.creepage.violation_count +
-            self.clearance.violation_count +
-            self.copper_balance.unbalanced_layer_count +
-            teardrop_failure +
-            thermal_failure
+            self.acid_traps.trap_count
+            + self.annular_rings.violation_count
+            + self.creepage.violation_count
+            + self.clearance.violation_count
+            + self.copper_balance.unbalanced_layer_count
+            + teardrop_failure
+            + thermal_failure
         )
 
     @property
@@ -72,11 +72,11 @@ class ManufacturingReport:
     def critical_violations(self) -> int:
         """Number of critical violations (blocking manufacture)."""
         return (
-            self.acid_traps.critical_count +
-            self.annular_rings.violation_count +
-            self.creepage.violation_count +
-            self.clearance.violation_count +
-            self.copper_balance.unbalanced_layer_count
+            self.acid_traps.critical_count
+            + self.annular_rings.violation_count
+            + self.creepage.violation_count
+            + self.clearance.violation_count
+            + self.copper_balance.unbalanced_layer_count
         )
 
 

@@ -65,7 +65,17 @@ def assign_trace_widths(
     """
     assignments = {}
 
-    for net_name, _route_path in pathfinding_result.routed_paths.items():
+    # Tree geometry is branch-aware rather than serial RoutePath data, but
+    # width is a net-class property.  Include complete and partial trees so
+    # experimental output receives the same board-derived assignment as every
+    # conventional route.
+    routed_net_names = (
+        set(pathfinding_result.routed_paths)
+        | set(pathfinding_result.partial_paths)
+        | set(pathfinding_result.tree_routes)
+        | set(pathfinding_result.partial_tree_routes)
+    )
+    for net_name in routed_net_names:
         # Determine appropriate width for this net
         width = _determine_trace_width(
             net_name,
@@ -100,7 +110,7 @@ def _determine_trace_width(
     name_upper = net_name.upper()
 
     # High voltage nets (AC, HV)
-    if any(kw in name_upper for kw in ['AC_', 'HV_', 'HIGH_VOLTAGE']):
+    if any(kw in name_upper for kw in ["AC_", "HV_", "HIGH_VOLTAGE"]):
         return TraceWidth(
             net_name=net_name,
             width_mm=hv_width,
@@ -108,7 +118,7 @@ def _determine_trace_width(
         )
 
     # Power nets (GND, VCC, etc.)
-    if any(kw in name_upper for kw in ['GND', 'VCC', 'VDD', 'VSS', '+', 'POWER']):
+    if any(kw in name_upper for kw in ["GND", "VCC", "VDD", "VSS", "+", "POWER"]):
         return TraceWidth(
             net_name=net_name,
             width_mm=power_width,
@@ -116,7 +126,7 @@ def _determine_trace_width(
         )
 
     # Gate drive signals (medium current)
-    if any(kw in name_upper for kw in ['GATE', 'DRIVE']):
+    if any(kw in name_upper for kw in ["GATE", "DRIVE"]):
         return TraceWidth(
             net_name=net_name,
             width_mm=power_width * 0.6,  # 60% of power width

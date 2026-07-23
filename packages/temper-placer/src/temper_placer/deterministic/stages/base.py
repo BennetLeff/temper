@@ -9,8 +9,9 @@ if TYPE_CHECKING:
     from temper_placer.pipeline.bottleneck_report import DeclaredArtifact
     from temper_placer.validation.drc_fence import InvariantSpec
 
+
 class Stage(ABC):
-    '''Abstract base class for pipeline stages.'''
+    """Abstract base class for pipeline stages."""
 
     @property
     @abstractmethod
@@ -43,5 +44,5 @@ class Stage(ABC):
 
     @abstractmethod
     def run(self, state: BoardState) -> BoardState:
-        '''Execute stage and return new state.'''
+        """Execute stage and return new state."""
         pass

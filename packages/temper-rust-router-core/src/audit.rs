@@ -80,8 +80,9 @@ pub fn audit_constraints(
 
                 let mut true_vars: Vec<String> = Vec::new();
                 for (vname, _w) in terms {
-                    if let Some(val) = get_val(vname, &mut violations) {
-                        if val {
+                    #[allow(clippy::collapsible_if)]
+        if let Some(val) = get_val(vname, &mut violations) {
+            if val {
                             true_vars.push(vname.clone());
                         }
                     }
@@ -112,8 +113,9 @@ pub fn audit_constraints(
                 }
             }
             InternalConstraint::LayerRestriction { var_name, allowed } => {
-                if let Some(val) = get_val(var_name, &mut violations) {
-                    if val != *allowed {
+                #[allow(clippy::collapsible_if)]
+        if let Some(val) = get_val(var_name, &mut violations) {
+            if val != *allowed {
                         violations.push(AuditViolation::LayerViolation {
                             var_name: var_name.clone(),
                             expected: *allowed,
@@ -138,6 +140,7 @@ pub fn audit_constraints(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable, SolverStatus, TopologyResult};

@@ -1,0 +1,20 @@
+* REF2025 portable ngspice behavioural port
+*
+* Provenance: parameters and pin order are derived from TI's REF2025 PSpice
+* model (SBOM894) and datasheet. This is an independently written, portable
+* behavioural implementation; it does not include TI model source text.
+*
+* Pin order: VBIAS, GND, EN, VIN, VREF
+* Scope: nominal DC/transient supply-enable behaviour for system simulation.
+* It does not model noise, PSRR, startup statistics, or production tolerance.
+
+.subckt REF2025_NGSPICE VBIAS GND EN VIN VREF
++ params: VBIAS_NOM=1.25 VREF_NOM=2.5 VIN_MIN=2.52 ROUT=1
+
+B_VBIAS VBIAS_INT GND V={ternary_fcn(v(EN,GND)>0.8,ternary_fcn(v(VIN,GND)>VIN_MIN,VBIAS_NOM,0),0)}
+B_VREF VREF_INT GND V={ternary_fcn(v(EN,GND)>0.8,ternary_fcn(v(VIN,GND)>VIN_MIN,VREF_NOM,0),0)}
+R_VBIAS VBIAS_INT VBIAS {ROUT}
+R_VREF VREF_INT VREF {ROUT}
+C_VBIAS VBIAS GND 28n
+C_VREF VREF GND 28n
+.ends REF2025_NGSPICE

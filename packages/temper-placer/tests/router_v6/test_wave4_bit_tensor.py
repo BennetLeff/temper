@@ -11,6 +11,7 @@ R9: A 4D boolean tensor (rows, cols, 8) is built once at A* pass
     reads this same tensor as a flat numpy array, multiplying
     the speedup of both.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -29,7 +30,7 @@ def _make_grid(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None
     in that ordering to keep tests readable.
     """
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for r, c in (blocked or set()):
+    for r, c in blocked or set():
         if 0 <= r < rows and 0 <= c < cols:
             arr[r, c] = 1
     return arr

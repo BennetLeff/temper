@@ -502,7 +502,7 @@ def build_occupancy_grid(
 
 
 class OccupancyGridStage(Stage):
-    '''Stage 2.5: Build occupancy grids from routing spaces.'''
+    """Stage 2.5: Build occupancy grids from routing spaces."""
 
     @property
     def name(self) -> str:
@@ -511,9 +511,7 @@ class OccupancyGridStage(Stage):
     def run(self, state: BoardState) -> BoardState:
         assert state._parsed_pcb is not None
         pcb: ParsedPCB = state._parsed_pcb
-        base_inflation = (
-            pcb.design_rules.default_trace_width_mm / 2.0
-        )
+        base_inflation = pcb.design_rules.default_trace_width_mm / 2.0
 
         occupancy_grids: dict[str, OccupancyGrid] = {}
         for layer_name, routing_space in state.routing_spaces.items():  # type: ignore[union-attr]
@@ -524,21 +522,29 @@ class OccupancyGridStage(Stage):
 
 @register_validator("OccupancyGrid")
 def validate_occupancy_grid(state: BoardState) -> list[StageDRCFailure]:
-    '''Validate occupancy grid invariants.'''
+    """Validate occupancy grid invariants."""
     failures: list[StageDRCFailure] = []
     if state.occupancy_grids is None:
-        failures.append(StageDRCFailure(
-            field="occupancy_grids", value=None,
-            reason="Occupancy grids not computed", stage="OccupancyGrid",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="occupancy_grids",
+                value=None,
+                reason="Occupancy grids not computed",
+                stage="OccupancyGrid",
+            )
+        )
         return failures
 
     for layer_name, grid in state.occupancy_grids.items():
         if grid.width_cells <= 0 or grid.height_cells <= 0:
-            failures.append(StageDRCFailure(
-                field="occupancy_grids", value=layer_name,
-                reason="Non-positive grid dimensions: " + repr((grid.width_cells, grid.height_cells)),
-                stage="OccupancyGrid",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="occupancy_grids",
+                    value=layer_name,
+                    reason="Non-positive grid dimensions: "
+                    + repr((grid.width_cells, grid.height_cells)),
+                    stage="OccupancyGrid",
+                )
+            )
 
     return failures

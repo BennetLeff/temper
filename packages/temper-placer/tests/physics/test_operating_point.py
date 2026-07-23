@@ -16,7 +16,6 @@ from typing import Any
 import pytest
 
 from temper_placer.physics.operating_point import (
-    OperatingPointConfig,
     OperatingPointGate,
     SpiceCrossCheckInfo,
     _validate_config,
@@ -24,11 +23,9 @@ from temper_placer.physics.operating_point import (
 )
 from temper_placer.placer.cp_sat.gates import (
     BoardState,
-    GateResult,
     GateStatus,
     ViolationType,
 )
-
 
 # ---------------------------------------------------------------------------
 # Stub SPICE validator (deterministic, no ngspice install required)
@@ -59,9 +56,7 @@ class StubNgspiceValidator:
     def check_ngspice(self) -> bool:
         return self._available
 
-    def run_template(
-        self, template: str, parameters: dict[str, str]
-    ) -> _StubSpiceResult:
+    def run_template(self, template: str, parameters: dict[str, str]) -> _StubSpiceResult:
         if not self._sim_success:
             return _StubSpiceResult(
                 success=False,
@@ -69,10 +64,7 @@ class StubNgspiceValidator:
             )
         return _StubSpiceResult(
             success=True,
-            measurements={
-                k: type("_M", (), {"value": v})()
-                for k, v in self._measurements.items()
-            },
+            measurements={k: type("_M", (), {"value": v})() for k, v in self._measurements.items()},
         )
 
 
@@ -94,7 +86,7 @@ def _benign_config() -> dict[str, Any]:
         "T_j_max": 150.0,
         "R_theta_jc": 0.6,
         "R_theta_cs": 0.25,
-        "R_theta_sa": 2.0,
+        "R_theta_sa": 1.0,
         "t_rise": 50e-9,
         "t_fall": 50e-9,
         "V_ce_sat": 1.7,
@@ -259,12 +251,12 @@ class TestOperatingPointGateViolations:
         result = gate.check(BoardState())
 
         assert result.status == GateStatus.VIOLATIONS
-        thermal_violations = [
-            v for v in result.violations if v.type == ViolationType.THERMAL
-        ]
+        thermal_violations = [v for v in result.violations if v.type == ViolationType.THERMAL]
         assert len(thermal_violations) > 0
         thermal_desc = thermal_violations[0].description.lower()
-        assert any(kw in thermal_desc for kw in ("r_θ", "heatsink", "heatsink", "f_sw", "part swap"))
+        assert any(
+            kw in thermal_desc for kw in ("r_θ", "heatsink", "heatsink", "f_sw", "part swap")
+        )
 
 
 # ---------------------------------------------------------------------------

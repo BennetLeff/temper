@@ -30,14 +30,18 @@ class DSNExpression:
             if isinstance(v, str):
                 if not v:
                     return '""'
-                special_chars = set(" ()\"")
+                special_chars = set(' ()"')
                 if any(c in special_chars for c in v):
                     escaped = v.replace('"', '\\"')
                     return f'"{escaped}"'
                 return v
             return str(v)
 
-        body = f"({self.name})" if not self.args else f"({self.name} {' '.join(fmt(a) for a in self.args)})"
+        body = (
+            f"({self.name})"
+            if not self.args
+            else f"({self.name} {' '.join(fmt(a) for a in self.args)})"
+        )
 
         if self.comment:
             return f";{self.comment}\n{body}"
@@ -52,6 +56,7 @@ def dsn_list(name: str, *args) -> DSNExpression:
 @dataclass(frozen=True)
 class DSNPoint:
     """A 2D point in DSN coordinates."""
+
     x: float
     y: float
 
@@ -64,6 +69,7 @@ class DSNPoint:
 @dataclass(frozen=True)
 class DSNShape:
     """Base class for DSN shapes."""
+
     def to_dsn(self) -> DSNExpression:
         raise NotImplementedError
 
@@ -71,6 +77,7 @@ class DSNShape:
 @dataclass(frozen=True)
 class DSNRect(DSNShape):
     """A rectangular shape in DSN: (rect layer x1 y1 x2 y2)."""
+
     layer: str
     x1: float
     y1: float
@@ -84,6 +91,7 @@ class DSNRect(DSNShape):
 @dataclass(frozen=True)
 class DSNCircle(DSNShape):
     """A circular shape in DSN: (circle layer diameter [x y])."""
+
     layer: str
     diameter: float
     x: float = 0.0
@@ -96,6 +104,7 @@ class DSNCircle(DSNShape):
 @dataclass(frozen=True)
 class DSNPolygon(DSNShape):
     """A polygon/path shape in DSN: (polygon layer width x1 y1 x2 y2 ...)."""
+
     layer: str
     width: float
     points: Sequence[tuple[float, float]]
@@ -110,6 +119,7 @@ class DSNPolygon(DSNShape):
 @dataclass(frozen=True)
 class DSNPath(DSNShape):
     """A path shape in DSN: (path layer width x1 y1 x2 y2 ...)."""
+
     layer: str
     width: float
     points: Sequence[tuple[float, float]]

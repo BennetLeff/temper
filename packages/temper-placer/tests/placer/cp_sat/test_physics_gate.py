@@ -83,9 +83,7 @@ def test_creepage_unmeasured_no_path():
 
 
 def test_creepage_unmeasured_missing_file():
-    result = IECCreepageGate().check(
-        BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb"))
-    )
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb")))
     assert result.status is GateStatus.UNMEASURED
     assert result.error_message
 
@@ -98,7 +96,7 @@ def test_creepage_unmeasured_kicad_fails(monkeypatch):
         _fake_run_factory(returncode=3, payload=None, stderr="board parse error"),
     )
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -128,7 +126,7 @@ def test_creepage_clean_no_clearance_violations(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -147,8 +145,8 @@ def test_creepage_clean_lv_to_lv_clearance_only(monkeypatch):
         "violations": [
             _clearance_violation(
                 items=[
-                    {"type": "track", "reference": "GATE_H"},
-                    {"type": "track", "reference": "GND"},
+                    {"description": "Track [GATE_H] on F.Cu"},
+                    {"description": "Track [GND] on F.Cu"},
                 ],
                 description="Clearance violation: GATE_H to GND",
             ),
@@ -156,7 +154,7 @@ def test_creepage_clean_lv_to_lv_clearance_only(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -180,8 +178,8 @@ def test_creepage_violation_hv_to_lv(monkeypatch):
         "violations": [
             _clearance_violation(
                 items=[
-                    {"type": "track", "reference": "DC_BUS+"},
-                    {"type": "track", "reference": "GATE_H"},
+                    {"description": "Track [DC_BUS+] on F.Cu"},
+                    {"description": "Track [GATE_H] on F.Cu"},
                 ],
                 description="Clearance: DC_BUS+ to GATE_H, actual 3.0mm",
             ),
@@ -189,7 +187,7 @@ def test_creepage_violation_hv_to_lv(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -212,8 +210,8 @@ def test_creepage_violation_ac_mains_to_lv(monkeypatch):
         "violations": [
             _clearance_violation(
                 items=[
-                    {"type": "track", "reference": "AC_L"},
-                    {"type": "track", "reference": "GND"},
+                    {"description": "Track [AC_L] on F.Cu"},
+                    {"description": "Track [GND] on F.Cu"},
                 ],
                 description="Clearance: AC_L to GND, actual 4.5mm",
             ),
@@ -221,7 +219,7 @@ def test_creepage_violation_ac_mains_to_lv(monkeypatch):
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -240,21 +238,21 @@ def test_creepage_multiple_violations(monkeypatch):
         "violations": [
             _clearance_violation(
                 items=[
-                    {"type": "track", "reference": "DC_BUS+"},
-                    {"type": "track", "reference": "GATE_H"},
+                    {"description": "Track [DC_BUS+] on F.Cu"},
+                    {"description": "Track [GATE_H] on F.Cu"},
                 ],
             ),
             _clearance_violation(
                 items=[
-                    {"type": "track", "reference": "SW_NODE"},
-                    {"type": "track", "reference": "+5V"},
+                    {"description": "Track [SW_NODE] on F.Cu"},
+                    {"description": "Track [+5V] on F.Cu"},
                 ],
             ),
         ],
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -274,15 +272,15 @@ def test_creepage_warning_ignored(monkeypatch):
             _clearance_violation(
                 severity="warning",
                 items=[
-                    {"type": "track", "reference": "DC_BUS+"},
-                    {"type": "track", "reference": "GND"},
+                    {"description": "Track [DC_BUS+] on F.Cu"},
+                    {"description": "Track [GND] on F.Cu"},
                 ],
             ),
         ],
     }
     monkeypatch.setattr("subprocess.run", _fake_run_factory(0, payload))
     monkeypatch.setattr(
-        "temper_placer.validation.drc_runner.is_kicad_cli_available",
+        "temper_placer.validation._drc_api.is_kicad_cli_available",
         lambda: True,
     )
     try:
@@ -314,7 +312,7 @@ def test_creepage_gate_to_delta():
     )
     delta = gate.to_delta(v)
     assert delta is not None
-    assert "separated" in str(delta.get("type", ""))
+    assert type(delta.constraint).__name__ == "SeparatedConstraint"
 
 
 # =========================================================================
@@ -329,9 +327,7 @@ def test_physics_unmeasured_no_path():
 
 
 def test_physics_unmeasured_missing_file():
-    result = PhysicsGate().check(
-        BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb"))
-    )
+    result = PhysicsGate().check(BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb")))
     assert result.status is GateStatus.UNMEASURED
     assert result.error_message
 
@@ -366,7 +362,7 @@ def test_physics_to_delta_loop_inductance():
     )
     delta = gate.to_delta(v)
     assert delta is not None
-    assert delta["type"] == "loop_area"
+    assert type(delta.constraint).__name__ == "LoopAreaConstraint"
 
 
 def test_physics_to_delta_thermal():
@@ -380,7 +376,7 @@ def test_physics_to_delta_thermal():
     )
     delta = gate.to_delta(v)
     assert delta is not None
-    assert delta["type"] == "separated"
+    assert type(delta.constraint).__name__ == "SeparatedConstraint"
 
 
 def test_physics_to_delta_creepage():
@@ -394,11 +390,18 @@ def test_physics_to_delta_creepage():
     )
     delta = gate.to_delta(v)
     assert delta is not None
-    assert delta["type"] == "separated"
+    assert type(delta.constraint).__name__ == "SeparatedConstraint"
 
 
-def test_physics_to_delta_via_count_returns_none():
-    """VIA_COUNT violations have no corrective placement delta."""
+def test_physics_to_delta_via_count_returns_keepout():
+    """VIA_COUNT violations map to a KeepoutConstraint corrective delta.
+
+    VERIFIED 2026-07-18: this test previously asserted the opposite
+    (delta is None) -- contradicted by test_delta_mapper.py's own
+    test_via_count_maps_to_keepout, which confirms DeltaMapper.map()
+    (the function PhysicsGate.to_delta() delegates to via the Gate base
+    class) has always produced a real KeepoutConstraint for VIA_COUNT.
+    """
     gate = PhysicsGate()
     v = Violation(
         type=ViolationType.VIA_COUNT,
@@ -406,8 +409,11 @@ def test_physics_to_delta_via_count_returns_none():
         severity=3.0,
         threshold=9.0,
         description="Too few thermal vias",
+        context={"device": "Q1"},
     )
-    assert gate.to_delta(v) is None
+    delta = gate.to_delta(v)
+    assert delta is not None
+    assert type(delta.constraint).__name__ == "KeepoutConstraint"
 
 
 def test_physics_to_delta_unrecognized_returns_none():

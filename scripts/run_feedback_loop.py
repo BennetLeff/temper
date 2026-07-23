@@ -20,25 +20,23 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
-from datetime import datetime
 
 # Add package to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages/temper-placer/src"))
 
-from temper_placer.deterministic import create_drc_aware_pipeline, BoardState
+from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
 from temper_placer.deterministic.feedback import (
-    AutomatedZeroDRC,
-    parse_kicad_drc,
     ViolationComponentMapper,
     ZoneAdjuster,
+    parse_kicad_drc,
 )
-from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.io.config_loader import constraints_to_design_rules, load_constraints
 from temper_placer.io.kicad_metadata import extract_kicad_metadata
-from temper_placer.io.config_loader import load_constraints, constraints_to_design_rules
+from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.kicad_writer import (
+    PlacementUpdate,
     write_placements_to_pcb,
     write_routes_to_pcb,
-    PlacementUpdate,
 )
 from temper_placer.io.zone_manager import add_zones_from_classification, add_zones_to_pcb
 
@@ -59,7 +57,6 @@ def fill_zones_with_kicad(pcb_path: Path) -> bool:
         True if successful, False otherwise
     """
     import subprocess
-    import sys
 
     # Use KiCad's Python to fill zones
     kicad_python = "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9"
@@ -312,7 +309,7 @@ def main():
             output_pro = output_pcb.with_suffix(".kicad_pro")
 
             # Load, modify, and save project file
-            with open(source_pro, "r") as f:
+            with open(source_pro) as f:
                 pro_data = json.load(f)
 
             # Update board minimum constraints for FinePitch routing
@@ -346,17 +343,17 @@ def main():
             }
         )
 
-        print(f"\nDRC Results:")
+        print("\nDRC Results:")
         print(f"  Total violations: {counts['total']}")
         print(f"  Actionable: {counts['actionable']}")
-        print(f"  By type:")
+        print("  By type:")
         for vtype, count in sorted(counts["by_type"].items(), key=lambda x: -x[1]):
             marker = " (expected)" if vtype in EXPECTED_TYPES else ""
             print(f"    {vtype}: {count}{marker}")
 
         # 5. Check for success
         if counts["actionable"] == 0:
-            print(f"\n🎉 ZERO ACTIONABLE VIOLATIONS ACHIEVED!")
+            print("\n🎉 ZERO ACTIONABLE VIOLATIONS ACHIEVED!")
             break
 
         # 6. Map violations to zones
@@ -378,7 +375,7 @@ def main():
         from collections import Counter
 
         zone_counts = Counter(m.zone for m in mapped if m.zone)
-        print(f"\nViolations by zone:")
+        print("\nViolations by zone:")
         for zone_name, count in zone_counts.most_common():
             print(f"  {zone_name}: {count}")
 
@@ -397,7 +394,7 @@ def main():
             break
 
         # 8. Apply adjustments
-        print(f"\nApplying zone adjustments:")
+        print("\nApplying zone adjustments:")
         for zone_name, adj in result.adjustments.items():
             changes = []
             if adj.delta_width > 0:

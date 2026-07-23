@@ -1,4 +1,13 @@
+[build-system]
+requires = ["maturin>=1.8"]
+build-backend = "maturin"
+
 [project]
 name = "temper-design-bundle"
 version = "0.1.0"
 requires-python = ">=3.12"
+dependencies = []
+
+[tool.maturin]
+features = ["python", "pyo3/extension-module"]
+module-name = "temper_design_bundle_python"

@@ -16,6 +16,7 @@
 #include "unity/unity.h"
 #include "test_common.h"
 #include "../main/state_machine.h"
+#include "../config.h"
 #include <string.h>
 
 /* Forward declare mock control functions from state_machine_stubs.c */
@@ -641,7 +642,7 @@ void test_sm_fault_on_fan_failure(void) {
 }
 
 /**
- * Test: RTD probe open triggers FAULT
+ * Test: legacy gross-open diagnostic remains a secondary fault path.
  */
 void test_sm_fault_on_probe_open(void) {
     /* Set up to reach HEATING state */
@@ -664,13 +665,54 @@ void test_sm_fault_on_probe_open(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger probe open (>10kΩ) */
+    /* Legacy gross-open diagnostic (>10kOhm), retained behind the 300 Ohm
+     * MAX31865 guard-window path during migration. */
     mock_sm_set_rtd_resistance(15000.0f);
     mock_sm_advance_time(100);
     state_machine_update();
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+}
+
+/**
+ * Test: the MAX31865 digital guard-window upper boundary faults immediately.
+ *
+ * The staged policy keeps the historical >10 kOhm check as a secondary
+ * gross-open diagnostic, but the programmed MAX31865 high threshold is
+ * 300 Ohm.  The firmware-facing resistance API must therefore make 300 Ohm
+ * an open fault rather than waiting for the legacy diagnostic.
+ */
+void test_sm_fault_on_probe_open_at_max31865_guard_boundary(void) {
+    /* Set up to reach HEATING state. */
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+
+    mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+
+    /* MAX31865 programmed high threshold: 300 Ohm is itself a fault. */
+    mock_sm_set_rtd_resistance(300.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
 }
 
 /**
@@ -704,6 +746,43 @@ void test_sm_fault_on_probe_short(void) {
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_SHORT, state_machine_get_fault());
+}
+
+/**
+ * Test: the MAX31865 digital guard-window lower boundary is inclusive.
+ *
+ * A 10 Ohm reading is the configured short boundary, so this must be a
+ * short fault (not merely values below 10 Ohm).
+ */
+void test_sm_fault_on_probe_short_at_max31865_guard_boundary(void) {
+    /* Set up to reach HEATING state. */
+    setup_test();
+    state_machine_update();  /* INIT -> IDLE */
+    state_machine_set_target_temp(100.0f);
+    mock_sm_press_button(BUTTON_START);
+    mock_sm_advance_time(100);
+    state_machine_update();  /* IDLE -> PAN_DET */
+    mock_sm_release_button(BUTTON_START);
+    mock_sm_set_pan_status(MOCK_PAN_PRESENT);
+
+    for (int i = 0; i < 5; i++) {
+        mock_sm_advance_time(100);
+        state_machine_update();
+    }
+
+    mock_sm_set_pan_temperature(92.0f);
+    state_machine_reset_temp_baseline();
+    mock_sm_advance_time(100);
+    state_machine_update();  /* PREHEAT -> HEATING */
+
+    /* MAX31865 programmed low threshold: 10 Ohm is itself a fault. */
+    mock_sm_set_rtd_resistance(10.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_SHORT, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
 }
 
 /**
@@ -775,6 +854,81 @@ void test_sm_fault_on_adc_stuck(void) {
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_ADC_STUCK, state_machine_get_fault());
+}
+
+/**
+ * A safety interlock must be terminal for the current PREHEAT pass.  In
+ * particular, a simultaneous pan-removal or STOP event must not replace the
+ * safety fault with NO_PAN or COOLDOWN after the hardware cut is asserted.
+ */
+void test_sm_preheat_interlock_is_terminal_and_cuts_hardware(void) {
+    setup_test();
+    state_machine_set_target_temp(100.0f);
+    state_machine_force_state(STATE_PREHEAT);
+
+    mock_sm_set_heatsink_temperature(105.0f);
+    mock_sm_set_pan_status(MOCK_PAN_ABSENT);
+    mock_sm_press_button(BUTTON_STOP);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+}
+
+/**
+ * Software thermal runaway faults use the same immediate hardware cut as
+ * sensor interlocks, even when a user requests cooldown in that same pass.
+ */
+void test_sm_heating_runaway_is_terminal_and_cuts_hardware(void) {
+    setup_test();
+    state_machine_set_target_temp(100.0f);
+    state_machine_force_state(STATE_HEATING);
+
+    mock_sm_set_pan_temperature(115.0f);
+    state_machine_reset_temp_baseline();
+    mock_sm_set_pan_status(MOCK_PAN_ABSENT);
+    mock_sm_press_button(BUTTON_STOP);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_THERMAL_RUNAWAY, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+}
+
+/**
+ * A PREHEAT timeout is an active-power safety fault and must assert the cut.
+ */
+void test_sm_preheat_timeout_cuts_hardware(void) {
+    setup_test();
+    state_machine_force_state(STATE_PREHEAT);
+
+    mock_sm_advance_time(MAX_PREHEAT_TIME_MS + 1U);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_THERMAL_RUNAWAY, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+}
+
+/**
+ * Cooldown overheat retains the hardware latch in case residual energy or a
+ * failed switching stage is responsible for the temperature rise.
+ */
+void test_sm_cooldown_overheat_cuts_hardware(void) {
+    setup_test();
+    mock_sm_set_heatsink_temperature(80.0f);
+    state_machine_force_state(STATE_COOLDOWN);
+
+    mock_sm_set_heatsink_temperature(86.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_COOLDOWN_OVERHEAT, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
 }
 
 /* ============================================================================
@@ -884,6 +1038,32 @@ void test_sm_reset_rejected_while_fault_active(void) {
     state_machine_update();
     
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+}
+
+/**
+ * Test: an RTD reading that still violates the MAX31865 window cannot clear
+ * a latched probe-open fault.  This covers the reset path as well as fault
+ * detection: the 300 Ohm guard boundary is inclusive in both places.
+ */
+void test_sm_reset_rejected_while_rtd_open_guard_active(void) {
+    setup_test();
+    state_machine_force_state(STATE_HEATING);
+    state_machine_reset_temp_baseline();
+
+    mock_sm_set_rtd_resistance(300.0f);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+
+    /* The fault input remains active, so RESET must be rejected. */
+    mock_sm_press_button(BUTTON_RESET);
+    mock_sm_advance_time(100);
+    state_machine_update();
+
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
 /**
@@ -1420,16 +1600,23 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_fault_on_over_current);
     RUN_TEST(test_sm_fault_on_fan_failure);
     RUN_TEST(test_sm_fault_on_probe_open);
+    RUN_TEST(test_sm_fault_on_probe_open_at_max31865_guard_boundary);
     RUN_TEST(test_sm_fault_on_probe_short);
+    RUN_TEST(test_sm_fault_on_probe_short_at_max31865_guard_boundary);
     RUN_TEST(test_sm_fault_on_thermal_runaway);
     RUN_TEST(test_sm_fault_on_igbt_short);
     RUN_TEST(test_sm_fault_on_igbt_short_is_distinct);
     RUN_TEST(test_sm_fault_on_adc_stuck);
+    RUN_TEST(test_sm_preheat_interlock_is_terminal_and_cuts_hardware);
+    RUN_TEST(test_sm_heating_runaway_is_terminal_and_cuts_hardware);
+    RUN_TEST(test_sm_preheat_timeout_cuts_hardware);
+    RUN_TEST(test_sm_cooldown_overheat_cuts_hardware);
     
     /* FAULT behavior */
     RUN_TEST(test_sm_fault_entry_logs_to_eeprom);
     RUN_TEST(test_sm_fault_keeps_power_off);
     RUN_TEST(test_sm_reset_rejected_while_fault_active);
+    RUN_TEST(test_sm_reset_rejected_while_rtd_open_guard_active);
     RUN_TEST(test_sm_reset_accepted_when_fault_cleared);
     
     /* Watchdog */

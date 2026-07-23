@@ -8,6 +8,7 @@ Part of temper-zh0p (Stage 4 - Geometric Realization)
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 
@@ -42,40 +43,42 @@ class ViaPlacement:
 
 def place_vias(
     pathfinding_result: PathfindingResult,
-    via_diameter: float = 0.6,  # Standard via
+    via_diameter: float = 0.6,
     via_drill: float = 0.3,
+    net_class_assignments: dict[str, str] | None = None,
+    net_class_rules: dict | None = None,
+    design_rules: Any = None,
 ) -> ViaPlacement:
     """
     Place vias for layer transitions in routed paths.
 
-    Analyzes routed paths and inserts vias where layer changes occur.
-
-    Args:
-        pathfinding_result: Routed paths from Stage 4.2
-        via_diameter: Default via diameter (mm)
-        via_drill: Default drill diameter (mm)
-
-    Returns:
-        ViaPlacement with all placed vias
-
-    Example:
-        >>> from temper_placer.router_v6.astar_pathfinding import PathfindingResult
-        >>> result = PathfindingResult(routed_paths={}, failed_nets=[])
-        >>> placement = place_vias(result)
-        >>> placement.via_count >= 0
-        True
+    When *design_rules* is provided (U4 pipeline wiring), per-netclass
+    sizing is resolved from the board's netclass assignments and rules.
     """
+    if design_rules is not None:
+        net_class_assignments = getattr(design_rules, "net_class_assignments", None)
+        net_class_rules = getattr(design_rules, "net_classes", None)
     vias = []
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
-        # Analyze path for layer transitions
-        net_vias = _place_vias_for_path(
-            net_name,
-            route_path,
-            via_diameter,
-            via_drill,
-        )
-        vias.extend(net_vias)
+        dia, drill = via_diameter, via_drill
+        if net_class_assignments and net_class_rules:
+            nc_name = net_class_assignments.get(net_name)
+            if nc_name:
+                rules = net_class_rules.get(nc_name, {})
+                dia = getattr(rules, "via_diameter_mm", via_diameter)
+                drill = getattr(rules, "via_drill_mm", via_drill)
+        vias.extend(_place_vias_for_path(net_name, route_path, dia, drill))
+    for net_name, geometry in getattr(pathfinding_result, "tree_routes", {}).items():
+        dia, drill = via_diameter, via_drill
+        if net_class_assignments and net_class_rules:
+            nc_name = net_class_assignments.get(net_name)
+            if nc_name:
+                rules = net_class_rules.get(nc_name, {})
+                dia = getattr(rules, "via_diameter_mm", via_diameter)
+                drill = getattr(rules, "via_drill_mm", via_drill)
+        for branch in geometry.branches:
+            vias.extend(_place_vias_for_path(net_name, branch.path, dia, drill))
 
     return ViaPlacement(vias=vias)
 
@@ -100,14 +103,28 @@ def _place_vias_for_path(
     """
     vias = []
 
-    # If RoutePath3D, use explicit via_positions from pathfinder
-    if hasattr(route_path, "via_positions"):
+    # If RoutePath3D, use explicit via_positions from pathfinder.
+    # U3: derive from_layer/to_layer from the actual segment layers on
+    # either side of each transition, not the hardcoded F.Cu/B.Cu pair.
+    if hasattr(route_path, "via_positions") and hasattr(route_path, "segments"):
+        segs = route_path.segments
         for vx, vy in route_path.via_positions:
+            vi = None
+            for i, (sx, sy, _) in enumerate(segs):
+                if abs(sx - vx) < 1e-4 and abs(sy - vy) < 1e-4:
+                    vi = i
+                    break
+            if vi is not None and vi + 1 < len(segs):
+                from_layer = segs[vi][2]
+                to_layer = segs[vi + 1][2]
+            else:
+                from_layer = "F.Cu"
+                to_layer = "B.Cu"
             vias.append(
                 Via(
                     position=(vx, vy),
-                    from_layer="F.Cu",  # Assume THT via spans full stack
-                    to_layer="B.Cu",
+                    from_layer=from_layer,
+                    to_layer=to_layer,
                     diameter=via_diameter,
                     drill=via_drill,
                     net_name=net_name,

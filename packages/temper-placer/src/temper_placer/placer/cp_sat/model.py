@@ -2,8 +2,6 @@
 
 Provides a builder-style interface for creating CP-SAT placement models
 with component variables, rotation support, and assumption management.
-
-Design follows the SAT bridge dispatch pattern (pcl/sat_bridge.py TYPE_HANDLERS).
 """
 
 from __future__ import annotations
@@ -281,7 +279,8 @@ class CpSatModel:
     # ------------------------------------------------------------------
 
     def add_constraint_enforced(
-        self, constraint: cp_model.BoundedLinearExpression | cp_model.Constraint,
+        self,
+        constraint: cp_model.BoundedLinearExpression | cp_model.Constraint,
         assumption: cp_model.IntVar,
     ) -> None:
         """Add a constraint that is only enforced when *assumption* is True."""
@@ -320,8 +319,8 @@ class CpSatModel:
     ) -> CpSolverSolution:
         """Run the CP-SAT solver and return a solution."""
         if self._objective_terms:
-            obj = sum(v * w for v, w in self._objective_terms)
-            self.model_ref.Minimize(obj)
+            obj = sum(v * w for v, w in self._objective_terms)  # type: ignore[assignment]
+            self.model_ref.Minimize(obj)  # type: ignore[arg-type]
 
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = time_limit_s
@@ -339,9 +338,7 @@ class CpSatModel:
                     solver.Value(vars_.x_center),
                     solver.Value(vars_.y_center),
                 )
-                rotations[ref] = (
-                    solver.Value(vars_.rot_ref) if vars_.rot_ref is not None else 0
-                )
+                rotations[ref] = solver.Value(vars_.rot_ref) if vars_.rot_ref is not None else 0
                 sizes[ref] = (
                     solver.Value(vars_.x_size),
                     solver.Value(vars_.y_size),
@@ -350,10 +347,7 @@ class CpSatModel:
         unsat_labels: list[str] = []
         if status == cp_model.INFEASIBLE:
             insufficient = solver.SufficientAssumptionsForInfeasibility()
-            unsat_labels = [
-                self._assumption_labels.get(i, f"assumption_{i}")
-                for i in insufficient
-            ]
+            unsat_labels = [self._assumption_labels.get(i, f"assumption_{i}") for i in insufficient]
 
         return CpSolverSolution(
             status=SolveStatus(status),
@@ -383,7 +377,11 @@ class CpSatModel:
         return self._components[ref]
 
     def set_bounds(
-        self, x_min: int, y_min: int, x_max: int, y_max: int,
+        self,
+        x_min: int,
+        y_min: int,
+        x_max: int,
+        y_max: int,
     ) -> None:
         """Constrain all components to lie within board bounds.
 

@@ -1,0 +1,12 @@
+# Allow `cargo test` to link on macOS despite pyo3's `extension-module`
+# feature (which omits libpython on purpose — Python symbols are provided
+# by the host process for wheel builds). maturin passes exactly these
+# flags when building the wheel; plain `cargo test` does not, which is
+# why the test binaries previously failed to link ("symbol(s) not found
+# for architecture arm64").
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]

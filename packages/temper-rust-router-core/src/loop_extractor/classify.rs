@@ -3,7 +3,6 @@
 /// Three-tier priority chain: MPN heuristics → footprint matching → ref-prefix fallback.
 /// Always produces a classification — never returns None.
 
-
 /// Internal representation of a component for classification.
 #[derive(Debug, Clone)]
 pub struct CompInfo {
@@ -140,7 +139,7 @@ fn classify_by_footprint(ref_upper: &str, fp: &str, val: &str) -> Option<Classif
     // Capacitors
     if ref_upper.starts_with('C') {
         let cap_uf = parse_capacitance(val);
-        let sub = if cap_uf.map_or(false, |v| v > 100.0) {
+        let sub = if cap_uf.is_some_and(|v| v > 100.0) {
             Some("bus".into())
         } else if ref_upper.contains("BOOT") {
             Some("bootstrap".into())
@@ -151,7 +150,7 @@ fn classify_by_footprint(ref_upper: &str, fp: &str, val: &str) -> Option<Classif
             component_ref: String::new(),
             category: "capacitor".into(),
             subcategory: sub,
-            confidence: if cap_uf.map_or(false, |v| v > 100.0) { 0.8 } else { 0.7 },
+            confidence: if cap_uf.is_some_and(|v| v > 100.0) { 0.8 } else { 0.7 },
         });
     }
 
@@ -224,17 +223,14 @@ fn parse_capacitance(value: &str) -> Option<f64> {
         1e-6
     } else if val_upper.contains("NF") {
         1e-3
-    } else if val_upper.contains("UF") || val_upper.contains("ΜF") || val_upper.contains("µF") {
-        1.0
-    } else if val_upper.contains("MF") {
-        1.0 // millifarad? assume microfarad
     } else {
-        1.0 // assume uF
+        1.0 // UF, MF, µF, or assume uF
     };
     Some(numeric * multiplier)
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

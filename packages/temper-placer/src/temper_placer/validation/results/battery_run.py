@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 def _ensure_field_diverges(
     board: Any,
-    netlist: Any,
+    _netlist: Any,
     fdm_config: Any,
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],
@@ -111,36 +111,35 @@ def _ensure_field_diverges(
             )
             if not u5_result.is_usable:
                 raise RuntimeError(
-                    f"Smoke test: FDM solve returned UNMEASURED: "
-                    f"{u5_result.error_message}"
+                    f"Smoke test: FDM solve returned UNMEASURED: {u5_result.error_message}"
                 )
             # Check that the field is non-zero on hot zones
             if u5_result.field is not None:
-                field_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
+                raw = u5_result.field
+                field_grid = np.asarray(raw.grid if hasattr(raw, "grid") else raw, dtype=np.float64)
                 if np.max(field_grid) <= fdm_config.ambient_C + 0.1:
-                    raise RuntimeError(
-                        "Smoke test: thermal field is flat (no heating detected)"
-                    )
+                    raise RuntimeError("Smoke test: thermal field is flat (no heating detected)")
                 # Sanity ceiling (#137 durable gate): catch pure-FR4 garbage
                 plausible, reason = check_thermal_plausibility(
-                    field_grid, ambient_C=fdm_config.ambient_C,
+                    field_grid,
+                    ambient_C=fdm_config.ambient_C,
                 )
                 if not plausible:
-                    raise RuntimeError(
-                        f"Smoke test: thermal field implausible -- {reason}"
-                    )
+                    raise RuntimeError(f"Smoke test: thermal field implausible -- {reason}")
                 logger.info(
                     "  Perturbation %d: peak %.1f C (ambient %.1f C)",
-                    pi, float(np.max(field_grid)), fdm_config.ambient_C,
+                    pi,
+                    float(np.max(field_grid)),
+                    fdm_config.ambient_C,
                 )
 
             # Field-on: nudge positions toward cooler cells (simplified)
-            field_on_positions.append(perturbed.copy() + pert_rng.uniform(-1.0, 1.0, size=(n_devs, 2)))
+            field_on_positions.append(
+                perturbed.copy() + pert_rng.uniform(-1.0, 1.0, size=(n_devs, 2))
+            )
 
         except Exception as exc:
-            raise RuntimeError(
-                f"Smoke test: FDM solve failed on perturbation {pi}: {exc}"
-            ) from exc
+            raise RuntimeError(f"Smoke test: FDM solve failed on perturbation {pi}: {exc}") from exc
 
     # Check divergence: field-on placements must differ from field-off
     for pi in range(n_perturbations):
@@ -200,9 +199,9 @@ def _ensure_operating_point_clean(config: dict[str, Any]) -> None:
 def _compute_human_reference_margin(
     board: Any,
     netlist: Any,
-    fdm_config: Any,
-    devices: dict[str, tuple[float, float]],
-    power_map: dict[str, float],
+    _fdm_config: Any,
+    _devices: dict[str, tuple[float, float]],
+    _power_map: dict[str, float],
     scorer_func: Callable[[Any, Any, Any], MarginScorecard],
 ) -> dict[str, Any]:
     """Compute thermal margin on the human-reference placement.
@@ -260,7 +259,7 @@ def _make_thermal_scorer_adapter(
     T_amb = fdm_config.ambient_C
     T_span = max(T_j_max - T_amb, 1.0)
 
-    def _adapter(placement: Any, board: Any, netlist: Any) -> PhysicsOracleResult:
+    def _adapter(placement: Any, board: Any, _netlist: Any) -> PhysicsOracleResult:
         board_id = getattr(board, "name", "unknown") if board is not None else "unknown"
 
         # Extract device positions from placement if available
@@ -271,59 +270,75 @@ def _make_thermal_scorer_adapter(
 
         try:
             u5_result = solve_thermal_fdm(
-                config=fdm_config, devices=fdm_devices, power_map=power_map,
+                config=fdm_config,
+                devices=fdm_devices,
+                power_map=power_map,
                 copper_grid=copper_grid,
                 h_field=h_field,
             )
         except Exception as exc:
             return PhysicsOracleResult(
-                board_id=board_id, passed=False,
+                board_id=board_id,
+                passed=False,
                 errors=[f"FDM solve failed: {exc}"],
             )
 
         if not u5_result.is_usable:
             return PhysicsOracleResult(
-                board_id=board_id, passed=False,
+                board_id=board_id,
+                passed=False,
                 errors=[f"FDM solve UNMEASURED: {u5_result.error_message}"],
-                quality_report={"thermal_score": 0.0, "hv_lv_clearance_score": 1.0,
-                                "loop_area_score": 1.0, "compactness_score": 0.5},
+                quality_report={
+                    "thermal_score": 0.0,
+                    "hv_lv_clearance_score": 1.0,
+                    "loop_area_score": 1.0,
+                    "compactness_score": 0.5,
+                },
             )
 
         # --- Sanity floor: peak temperature ceiling (#137 durable gate) ---
         if u5_result.field is not None:
-            u5_grid = np.asarray(u5_result.field.grid, dtype=np.float64)
+            raw = u5_result.field
+            u5_grid = np.asarray(raw.grid if hasattr(raw, "grid") else raw, dtype=np.float64)
             plausible, reason = check_thermal_plausibility(
-                u5_grid, ambient_C=T_amb,
+                u5_grid,
+                ambient_C=T_amb,
             )
             if not plausible:
                 return PhysicsOracleResult(
-                    board_id=board_id, passed=False,
+                    board_id=board_id,
+                    passed=False,
                     errors=[
                         f"Thermal field implausible — {reason}. "
                         f"This is the #137 garbage guard: the conductivity "
                         f"field may be pure-FR4 (no copper planes supplied)."
                     ],
-                    quality_report={"thermal_score": 0.0, "hv_lv_clearance_score": 1.0,
-                                    "loop_area_score": 1.0, "compactness_score": 0.5},
+                    quality_report={
+                        "thermal_score": 0.0,
+                        "hv_lv_clearance_score": 1.0,
+                        "loop_area_score": 1.0,
+                        "compactness_score": 0.5,
+                    },
                 )
 
         try:
             score_result = thermal_scorer.score(
-                u5_result=u5_result, fdm_config=fdm_config,
-                devices=fdm_devices, power_map=power_map,
+                u5_result=u5_result,
+                fdm_config=fdm_config,
+                devices=fdm_devices,
+                power_map=power_map,
                 copper_grid=copper_grid,
                 h_field=h_field,
             )
         except Exception as exc:
             return PhysicsOracleResult(
-                board_id=board_id, passed=False,
+                board_id=board_id,
+                passed=False,
                 errors=[f"ThermalScorer failed: {exc}"],
             )
 
         # thermal_score in [0, 1]: headroom fraction
-        thermal_score_val = max(
-            0.0, min(1.0, (T_j_max - score_result.u7_peak_C) / T_span)
-        )
+        thermal_score_val = max(0.0, min(1.0, (T_j_max - score_result.u7_peak_C) / T_span))
 
         quality_report: dict[str, float] = {
             "thermal_score": thermal_score_val,
@@ -370,7 +385,7 @@ def _make_arm_placement_builder(
     base_positions = np.array(list(devices.values()), dtype=np.float64)
     n_devs = len(dev_names)
 
-    def _build(arm_id: str, pert_idx: int, board: Any, netlist: Any, seed: int) -> Any:
+    def _build(arm_id: str, _pert_idx: int, board: Any, _netlist: Any, seed: int) -> Any:
         rng = np.random.default_rng(seed)
         perturb = rng.normal(0, 2.0, size=(n_devs, 2))
 
@@ -405,12 +420,15 @@ def _make_arm_placement_builder(
         elif arm_id == "physics_field":
             try:
                 u5_result = solve_thermal_fdm(
-                    config=fdm_config, devices=devices, power_map=power_map,
+                    config=fdm_config,
+                    devices=devices,
+                    power_map=power_map,
                     copper_grid=copper_grid,
                     h_field=h_field,
                 )
                 if u5_result.is_usable and u5_result.field is not None:
-                    np.asarray(u5_result.field.grid, dtype=np.float64)
+                    raw = u5_result.field
+                    np.asarray(raw.grid if hasattr(raw, "grid") else raw, dtype=np.float64)
                     # Nudge toward cooler cells
                     cs = fdm_config.cell_size_mm
                     ox, oy = fdm_config.origin_mm
@@ -605,11 +623,10 @@ def run_thermal_helps_battery(
 
     # Load prereg
     if not prereg_path:
-        prereg_path = str(
-            Path(__file__).resolve().parent.parent / "prereg" / "thermal_prereg.yaml"
-        )
+        prereg_path = str(Path(__file__).resolve().parent.parent / "prereg" / "thermal_prereg.yaml")
     manifest = PreregistrationManifest.load(
-        Path(prereg_path), battery_run_timestamp=battery_run_timestamp,
+        Path(prereg_path),
+        battery_run_timestamp=battery_run_timestamp,
     )
 
     # Resolve defaults
@@ -627,8 +644,7 @@ def run_thermal_helps_battery(
 
                 power_map = derive_power_map(op_cfg, device_loss_configs)
                 logger.info(
-                    "U10 derived power_map from operating point + device "
-                    "loss configs: %s",
+                    "U10 derived power_map from operating point + device loss configs: %s",
                     {k: f"{v:.1f} W" for k, v in power_map.items()},
                 )
             except ValueError as exc:
@@ -668,14 +684,17 @@ def run_thermal_helps_battery(
     if fdm_config.height_cells * fdm_config.width_cells > fdm_config.max_cells:
         # Don't silently fail — log and bump the budget to match the grid.
         import logging
+
         _log = logging.getLogger(__name__)
         needed = fdm_config.height_cells * fdm_config.width_cells
         _log.warning(
-            'FDM config grid (%dx%d = %d cells) exceeds max_cells=%d — '
-            'bumping max_cells to match. The solver would return UNMEASURED '
-            'otherwise, producing a sentinel thermal_score=0.0.',
-            fdm_config.width_cells, fdm_config.height_cells,
-            needed, fdm_config.max_cells,
+            "FDM config grid (%dx%d = %d cells) exceeds max_cells=%d — "
+            "bumping max_cells to match. The solver would return UNMEASURED "
+            "otherwise, producing a sentinel thermal_score=0.0.",
+            fdm_config.width_cells,
+            fdm_config.height_cells,
+            needed,
+            fdm_config.max_cells,
         )
         fdm_config.max_cells = needed
 
@@ -756,23 +775,39 @@ def run_thermal_helps_battery(
     if not skip_human_reference and board is not None:
         scorer = ThermalScorer(ThermalScorerConfig(max_iterations=2000, tolerance_C=0.05))
         scorer_adapter = _make_thermal_scorer_adapter(
-            scorer, fdm_config, devices, power_map, T_j_max=T_j_max,
+            scorer,
+            fdm_config,
+            devices,
+            power_map,
+            T_j_max=T_j_max,
             copper_grid=copper_grid,
             h_field=h_field,
         )
         scorer_fn = lambda p, b, n: build_scorecard(  # noqa: E731
-            p, b, n, scorer=scorer_adapter,
+            p,
+            b,
+            n,
+            scorer=scorer_adapter,  # type: ignore[arg-type]  # adapter structurally satisfies ScorerFunction; mypy Protocol limitation
             scorer_id="thermal-gauss-seidel",
             field_id="thermal_field",
         )
         human_reference = _compute_human_reference_margin(
-            board, netlist, fdm_config, devices, power_map, scorer_fn,
+            board,
+            netlist,
+            fdm_config,
+            devices,
+            power_map,
+            scorer_fn,
         )
 
     # --- Build scorer adapter ---
     scorer = ThermalScorer(ThermalScorerConfig(max_iterations=2000, tolerance_C=0.05))
     scorer_adapter = _make_thermal_scorer_adapter(
-        scorer, fdm_config, devices, power_map, T_j_max=T_j_max,
+        scorer,
+        fdm_config,
+        devices,
+        power_map,
+        T_j_max=T_j_max,
         copper_grid=copper_grid,
         h_field=h_field,
     )
@@ -780,15 +815,19 @@ def run_thermal_helps_battery(
     # --- Score function ---
     def score_placement_fn(placement: Any, board: Any, netlist: Any) -> MarginScorecard:
         return build_scorecard(
-            placement, board, netlist,
-            scorer=scorer_adapter,
+            placement,
+            board,
+            netlist,
+            scorer=scorer_adapter,  # type: ignore[arg-type]  # adapter structurally satisfies ScorerFunction; mypy Protocol limitation
             scorer_id="thermal-gauss-seidel",
             field_id="thermal_field",
         )
 
     # --- Build arm placement ---
     build_arm_placement = _make_arm_placement_builder(
-        fdm_config=fdm_config, devices=devices, power_map=power_map,
+        fdm_config=fdm_config,
+        devices=devices,
+        power_map=power_map,
         copper_grid=copper_grid,
         h_field=h_field,
     )
@@ -847,13 +886,16 @@ def run_thermal_helps_battery(
     )
 
     # --- Compute artifact hash ---
-    hash_input = json.dumps({
-        "verdict": result.verdict.value,
-        "prereg_created_at": manifest.created_at,
-        "run_ts": battery_run_timestamp.isoformat(),
-        "n_perturbations": result.n_perturbations,
-        "arch": per_arm.arch,
-    }, sort_keys=True)
+    hash_input = json.dumps(
+        {
+            "verdict": result.verdict.value,
+            "prereg_created_at": manifest.created_at,
+            "run_ts": battery_run_timestamp.isoformat(),
+            "n_perturbations": result.n_perturbations,
+            "arch": per_arm.arch,
+        },
+        sort_keys=True,
+    )
     run_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:12]
 
     artifact = BatteryRunArtifact(
@@ -884,7 +926,9 @@ def run_thermal_helps_battery(
 
     logger.info(
         "U10 battery complete: verdict=%s, cost=%.1fs, budget_exceeded=%s",
-        result.verdict.value, cost_seconds, budget_exceeded,
+        result.verdict.value,
+        cost_seconds,
+        budget_exceeded,
     )
     return artifact
 
@@ -895,7 +939,8 @@ def run_thermal_helps_battery(
 
 
 def _positions_to_devices(
-    positions: np.ndarray, names: list[str],
+    positions: np.ndarray,
+    names: list[str],
 ) -> dict[str, tuple[float, float]]:
     """Convert an (N, 2) positions array to {ref: (x, y)} dict."""
     return {
@@ -945,6 +990,10 @@ def _check_between_arm_saturation(
                 "The conductivity field may be degenerate "
                 "(e.g. pure-FR4, no copper planes). "
                 "Scores: no_field=%s, cheap=%s, physics=%s",
-                gate_name, sat_value, len(all_vals),
-                no_field_vals, cheap_vals, physics_vals,
+                gate_name,
+                sat_value,
+                len(all_vals),
+                no_field_vals,
+                cheap_vals,
+                physics_vals,
             )

@@ -5,5 +5,5 @@
 // Tests will be populated in U4.
 #[test]
 fn scaffold() {
-    assert!(true);
+    // placeholder — full test suite in progress
 }

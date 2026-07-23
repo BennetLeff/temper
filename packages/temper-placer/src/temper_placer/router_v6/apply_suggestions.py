@@ -41,7 +41,7 @@ class AdjustmentResult:
         for adj in self.adjustments:
             dx = adj.applied_position[0] - adj.original_position[0]
             dy = adj.applied_position[1] - adj.original_position[1]
-            total += (dx**2 + dy**2)**0.5
+            total += (dx**2 + dy**2) ** 0.5
         return total
 
 
@@ -78,8 +78,7 @@ def apply_suggestions_with_damping(
 
     # Filter for high-priority suggestions
     filtered_suggestions = [
-        s for s in suggestions.suggestions
-        if s.priority >= min_priority_threshold
+        s for s in suggestions.suggestions if s.priority >= min_priority_threshold
     ]
 
     for suggestion in filtered_suggestions:
@@ -97,13 +96,15 @@ def apply_suggestions_with_damping(
             damping_factor,
         )
 
-        adjustments.append(AppliedAdjustment(
-            component_id=comp_id,
-            original_position=current_pos,
-            suggested_position=suggestion.suggested_position,
-            applied_position=applied_pos,
-            damping_factor=damping_factor,
-        ))
+        adjustments.append(
+            AppliedAdjustment(
+                component_id=comp_id,
+                original_position=current_pos,
+                suggested_position=suggestion.suggested_position,
+                applied_position=applied_pos,
+                damping_factor=damping_factor,
+            )
+        )
 
     return AdjustmentResult(adjustments=adjustments)
 

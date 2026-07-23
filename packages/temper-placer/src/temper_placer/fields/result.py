@@ -45,8 +45,7 @@ class FieldResult:
         if self.gate_result.status is GateStatus.UNMEASURED:
             if self.field is not None:
                 raise ValueError(
-                    "UNMEASURED FieldResult must have field=None "
-                    "(no silent zero/fallback grid)"
+                    "UNMEASURED FieldResult must have field=None (no silent zero/fallback grid)"
                 )
         else:
             if self.field is None:
@@ -91,5 +90,8 @@ class FieldResult:
             )
         import numpy as np
 
-        cost_flat = np.ascontiguousarray(self.field.ravel()).astype(np.float32)
+        if hasattr(self.field, "to_flat"):
+            cost_flat = self.field.to_flat()
+        else:
+            cost_flat = np.ascontiguousarray(self.field.ravel()).astype(np.float32)
         return CostFieldInput(cost_flat=cost_flat, weight=self.weight)

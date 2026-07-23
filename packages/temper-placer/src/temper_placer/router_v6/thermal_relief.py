@@ -24,8 +24,8 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 _POWER_NET_PATTERN: re.Pattern = re.compile(
     r"\b(?:"
-    r"GND|PGND|AGND|DGND|CGND|"          # explicit ground variants
-    r"[A-Z]*GND|"                         # catch-all *GND suffix
+    r"GND|PGND|AGND|DGND|CGND|"  # explicit ground variants
+    r"[A-Z]*GND|"  # catch-all *GND suffix
     r"VCC|VDD|VEE|VPP|VBB|VREF|VBAT|"
     r"VDDIO|AVDD|DVDD|VCCINT|VCCO|VDD_CORE|"
     r"POWER|PVCC|PVDD"
@@ -40,11 +40,21 @@ _POWER_NET_PATTERN: re.Pattern = re.compile(
 # ---------------------------------------------------------------------------
 _DEFAULT_PLANE_NETS: frozenset[str] = frozenset(
     {
-        "GND", "PGND", "CGND",
-        "VCC", "VDD", "VEE",
-        "+15V", "+3V3", "+5V",
-        "DC_BUS+", "DC_BUS-", "SW_NODE",
-        "AC_L", "AC_N", "PE",
+        "GND",
+        "PGND",
+        "CGND",
+        "VCC",
+        "VDD",
+        "VEE",
+        "+15V",
+        "+3V3",
+        "+5V",
+        "DC_BUS+",
+        "DC_BUS-",
+        "SW_NODE",
+        "AC_L",
+        "AC_N",
+        "PE",
     }
 )
 
@@ -60,8 +70,8 @@ class ThermalRelief:
     clearance_gap: float  # Gap from pad to plane (mm)
     pad_size: tuple[float, float] = (0.6, 0.6)  # (width, height) of pad in mm
     # 4-spoke geometry: list of ((x1,y1), (x2,y2)) line segments
-    spoke_segments: list[tuple[tuple[float, float], tuple[float, float]]] = (
-        field(default_factory=list)
+    spoke_segments: list[tuple[tuple[float, float], tuple[float, float]]] = field(
+        default_factory=list
     )
 
 
@@ -136,9 +146,7 @@ def add_thermal_relief(
         resolved_plane_layers = list(plane_layers)
     elif board is not None and board.layer_stackup is not None:
         resolved_plane_layers = [
-            layer.name
-            for layer in board.layer_stackup.layers
-            if layer.layer_type == "plane"
+            layer.name for layer in board.layer_stackup.layers if layer.layer_type == "plane"
         ]
     else:
         resolved_plane_layers = ["In1.Cu", "In2.Cu"]

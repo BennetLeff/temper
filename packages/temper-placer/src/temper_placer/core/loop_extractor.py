@@ -463,6 +463,7 @@ def auto_extract_loops(netlist: Netlist, topology_hints: dict | None = None) -> 
     # Try Rust backend first (R23: fallback)
     try:
         from temper_placer.core.loop_extractor_rs import auto_extract_loops_rs
+
         rs_result = auto_extract_loops_rs(netlist, topology_hints)
         if rs_result is not None:
             return rs_result

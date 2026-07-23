@@ -4,5 +4,5 @@
 
 #[test]
 fn scaffold() {
-    assert!(true);
+    // placeholder — full test suite in progress
 }

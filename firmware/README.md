@@ -34,6 +34,22 @@ firmware/
 └── test/                  # Host-based unit and integration tests
 ```
 
+## Hardware GPIO requirements (board rev with BusDischarge, PR #217)
+
+`gpio_init()` in `main.c` is still stubbed; when it is implemented these
+board-imposed contracts MUST be honored:
+
+- **IO47 = DISCHARGE_CTRL (active-high, fail-safe-low).** Drives the
+  bus-discharge relay coils via a low-side FET. The pin boots Hi-Z and the
+  gate has a 100k pulldown, so reset/crash/brownout = coils dropped = NC
+  contacts closed = bus discharge engaged. Startup sequence: configure as
+  output-low at boot, drive HIGH only after bus precharge completes and
+  BEFORE enabling PWM; drive LOW (or simply stop kicking the watchdog) on
+  any fault requiring safe discharge. Never configure as input/floating
+  during operation.
+- **IO9 = MAX31865 DRDY** (input, already noted in `main.c`).
+- **IO7 = WDT_KICK** — TPS3823 watchdog; state_machine_update() toggles it.
+
 ## Building
 
 ### Prerequisites

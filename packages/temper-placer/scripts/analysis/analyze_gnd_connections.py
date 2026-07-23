@@ -14,7 +14,7 @@ def parse_dsn_placements(dsn_path: Path) -> dict:
     placements = {}
 
     # Find (place COMP X Y ...)
-    for match in re.finditer(r'\(place\s+(\S+)\s+([\d.]+)\s+([\d.]+)', content):
+    for match in re.finditer(r"\(place\s+(\S+)\s+([\d.]+)\s+([\d.]+)", content):
         comp, x, y = match.groups()
         placements[comp] = (float(x) / 100, float(y) / 100)  # Convert to mm
 
@@ -26,7 +26,7 @@ def parse_gnd_pins(dsn_path: Path) -> list:
     content = dsn_path.read_text()
 
     # Find GND net definition
-    match = re.search(r'\(net GND \(pins ([^)]+)\)', content)
+    match = re.search(r"\(net GND \(pins ([^)]+)\)", content)
     if not match:
         return []
 
@@ -43,16 +43,18 @@ def parse_ses_gnd_wires(ses_path: Path) -> list:
     wires = []
 
     # Find GND net section
-    gnd_match = re.search(r'\(net GND(.*?)(?=\(net |\)\s*\)\s*\))', content, re.DOTALL)
+    gnd_match = re.search(r"\(net GND(.*?)(?=\(net |\)\s*\)\s*\))", content, re.DOTALL)
     if not gnd_match:
         return []
 
     gnd_section = gnd_match.group(1)
 
     # Find all wire paths
-    for wire_match in re.finditer(r'\(path\s+\S+\s+[\d.]+\s+([\d.-]+)\s+([\d.-]+)\s+([\d.-]+)\s+([\d.-]+)', gnd_section):
+    for wire_match in re.finditer(
+        r"\(path\s+\S+\s+[\d.]+\s+([\d.-]+)\s+([\d.-]+)\s+([\d.-]+)\s+([\d.-]+)", gnd_section
+    ):
         x1, y1, x2, y2 = map(float, wire_match.groups())
-        wires.append(((x1/100, y1/100), (x2/100, y2/100)))  # Convert to mm
+        wires.append(((x1 / 100, y1 / 100), (x2 / 100, y2 / 100)))  # Convert to mm
 
     return wires
 
@@ -92,7 +94,7 @@ def main():
     # Calculate pin positions
     pin_positions = {}
     for pin_ref in gnd_pins:
-        parts = pin_ref.rsplit('-', 1)
+        parts = pin_ref.rsplit("-", 1)
         if len(parts) == 2:
             comp, pin_num = parts
             if comp in placements:

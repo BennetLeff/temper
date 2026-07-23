@@ -11,8 +11,13 @@ Covers:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
+
+if TYPE_CHECKING:
+    import scipy.sparse
 
 from temper_placer.physics.heat_removal import (
     H_CONV_BACKGROUND,
@@ -25,24 +30,23 @@ from temper_placer.physics.thermal_fdm import (
 )
 from temper_placer.physics.tj_cross_check import DeviceThermalConfig
 
-
 # ---------------------------------------------------------------------------
 # Matrix property check helpers (mirror test_thermal_fdm_matrix_class.py)
 # ---------------------------------------------------------------------------
 
 
-def _check_symmetry(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
+def _check_symmetry(A: scipy.sparse.csr_matrix, atol: float = 1e-12) -> bool:
     A_dense = A.toarray()
     return bool(np.allclose(A_dense, A_dense.T, atol=atol))
 
 
-def _check_positive_definite(A: "scipy.sparse.csr_matrix") -> bool:
+def _check_positive_definite(A: scipy.sparse.csr_matrix) -> bool:
     A_dense = A.toarray()
     eigvals = np.linalg.eigvalsh(A_dense)
     return bool(np.all(eigvals > 1e-10))
 
 
-def _check_m_matrix(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
+def _check_m_matrix(A: scipy.sparse.csr_matrix, atol: float = 1e-12) -> bool:
     A_dense = A.toarray()
     n = A_dense.shape[0]
     diag = np.diag(A_dense)
@@ -55,9 +59,7 @@ def _check_m_matrix(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
     off_diag_sum = np.sum(np.abs(A_dense), axis=1) - np.abs(diag)
     if not np.all(diag >= off_diag_sum - atol):
         return False
-    if not np.any(diag > off_diag_sum + atol):
-        return False
-    return True
+    return np.any(diag > off_diag_sum + atol)
 
 
 # ---------------------------------------------------------------------------
@@ -104,11 +106,11 @@ def test_sink_limit_single_device_lumped_agreement():
             name="Q1",
             R_theta_jc=0.0,
             R_theta_cs=0.25,
-            R_theta_sa=2.0,
+            R_theta_sa=1.0,
             T_j_max=150.0,
             R_jc_because="test",
             R_cs_because="test: R_θCS = 0.25 K/W",
-            R_sa_because="test: R_θSA = 2.0 K/W",
+            R_sa_because="test: R_θSA = 1.0 K/W",
         ),
     }
 
@@ -236,12 +238,8 @@ def test_sink_matrix_spd_m_matrix(h, w, heatsink_edge):
     A = get_system_matrix(config, copper_grid=copper, h_field=h_field)
 
     assert _check_symmetry(A), f"Symmetry failed with h_field: {h}x{w} edge={heatsink_edge}"
-    assert _check_positive_definite(A), (
-        f"PD failed with h_field: {h}x{w} edge={heatsink_edge}"
-    )
-    assert _check_m_matrix(A), (
-        f"M-matrix failed with h_field: {h}x{w} edge={heatsink_edge}"
-    )
+    assert _check_positive_definite(A), f"PD failed with h_field: {h}x{w} edge={heatsink_edge}"
+    assert _check_m_matrix(A), f"M-matrix failed with h_field: {h}x{w} edge={heatsink_edge}"
 
 
 def test_sink_matrix_diagonal_dominance_improved():
@@ -265,7 +263,9 @@ def test_sink_matrix_diagonal_dominance_improved():
     # Strong sink in one corner
     h_field = np.zeros((h, w), dtype=np.float64)
     h_field[0, 0] = 100.0  # huge sink on one cell
-    A_with = get_system_matrix(config, copper_grid=np.full((h, w), 0.5, dtype=np.float64), h_field=h_field)
+    A_with = get_system_matrix(
+        config, copper_grid=np.full((h, w), 0.5, dtype=np.float64), h_field=h_field
+    )
 
     A_no_dense = A_no.toarray()
     A_with_dense = A_with.toarray()
@@ -275,8 +275,7 @@ def test_sink_matrix_diagonal_dominance_improved():
     diag_no = A_no_dense[idx, idx]
     diag_with = A_with_dense[idx, idx]
     assert diag_with > diag_no + 50.0, (
-        f"Expected diagonal with sink much larger: "
-        f"diag_no={diag_no:.3f}, diag_with={diag_with:.3f}"
+        f"Expected diagonal with sink much larger: diag_no={diag_no:.3f}, diag_with={diag_with:.3f}"
     )
 
 
@@ -286,8 +285,7 @@ def test_sink_matrix_diagonal_dominance_improved():
 
 
 def test_no_regression_hfield_none():
-    """h_field=None produces identical results to the solver without sink.
-    """
+    """h_field=None produces identical results to the solver without sink."""
     h, w = 10, 15
     config = ThermalFDMConfig(
         cell_size_mm=1.0,
@@ -329,8 +327,7 @@ def test_no_regression_hfield_none():
 
 
 def test_no_regression_hfield_all_zero():
-    """h_field=all-zero produces identical results to h_field=None.
-    """
+    """h_field=all-zero produces identical results to h_field=None."""
     h, w = 10, 15
     config = ThermalFDMConfig(
         cell_size_mm=1.0,
@@ -390,24 +387,30 @@ def test_build_h_field_footprint_coverage():
     )
 
     devices = {
-        "Q1": (5.0, 5.0),    # board-heatsinked (R_vert=0)
-        "Q2": (20.0, 5.0),   # full sink (R_vert > 0)
+        "Q1": (5.0, 5.0),  # board-heatsinked (R_vert=0)
+        "Q2": (20.0, 5.0),  # full sink (R_vert > 0)
     }
 
     device_thermal = {
         "Q1": DeviceThermalConfig(
-            name="Q1", R_theta_jc=0.6, R_theta_cs=0.0, R_theta_sa=0.0,
+            name="Q1",
+            R_theta_jc=0.6,
+            R_theta_cs=0.0,
+            R_theta_sa=0.0,
             T_j_max=150.0,
             R_jc_because="test",
             R_cs_because="test: board-heatsinked, R_vert=0",
             R_sa_because="test: board-heatsinked, R_vert=0",
         ),
         "Q2": DeviceThermalConfig(
-            name="Q2", R_theta_jc=0.6, R_theta_cs=0.25, R_theta_sa=2.0,
+            name="Q2",
+            R_theta_jc=0.6,
+            R_theta_cs=0.25,
+            R_theta_sa=1.0,
             T_j_max=150.0,
             R_jc_because="test",
             R_cs_because="test: R_θCS = 0.25 K/W",
-            R_sa_because="test: R_θSA = 2.0 K/W",
+            R_sa_because="test: R_θSA = 1.0 K/W",
         ),
     }
 
@@ -416,7 +419,7 @@ def test_build_h_field_footprint_coverage():
     assert h_field.shape == (30, 30)
 
     # Q1 footprint (board-heatsinked, R_vert=0): should match background
-    bg = H_CONV_BACKGROUND * (1e-3) ** 2  # W/(m²·K) * m² / mm² = W/(K·mm²)
+    H_CONV_BACKGROUND * (1e-3) ** 2  # W/(m²·K) * m² / mm² = W/(K·mm²)
     cs = config.cell_size_mm
     cell_area_m2 = (cs * 1e-3) ** 2
     h_bg = H_CONV_BACKGROUND * cell_area_m2 / (cs * cs)
@@ -492,9 +495,7 @@ def test_h_bg_units_physical():
 
     # 10 W/(m²·K) * 1e-6 m² / 1 mm² = 1e-5 W/(K·mm²)
     expected = 1e-5
-    assert abs(h_bg - expected) < 1e-16, (
-        f"h_bg={h_bg:.6e}, expected {expected:.6e}"
-    )
+    assert abs(h_bg - expected) < 1e-16, f"h_bg={h_bg:.6e}, expected {expected:.6e}"
 
     # Compare with typical FR4 diagonal coefficient
     # k_eff = 0.3 W/(m·K) * 1.6e-3 m = 4.8e-4 W/K

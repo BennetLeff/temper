@@ -17,11 +17,16 @@
 import HalfBridge from "modules.ato"
 import ResonantTank from "modules.ato"
 import PowerInput from "modules.ato"
+import BusDischarge from "modules.ato"
 import PowerManagement from "modules.ato"
+import AuxSupply from "modules.ato"
 import CurrentSensing from "modules.ato"
 import RTDSensing from "modules.ato"
 import SafetyInterlock from "modules.ato"
+import ThermalSystem from "modules.ato"
 import MCU from "modules.ato"
+import HighVoltageConstraints from "constraints.ato"
+import ThermalZonesConstraints from "constraints.ato"
 
 # Footprint imports for FAC
 import IGBT_TO247 from "footprints.ato"
@@ -35,6 +40,10 @@ import CST1005_Footprint from "footprints.ato"
 
 module Top:
     """Top-level Temper induction cooker assembly."""
+
+    constraints = new HighVoltageConstraints
+    thermal_constraints = new ThermalZonesConstraints
+
     
     # --- System Operating Conditions ---
     v_bus_max = 340V
@@ -47,8 +56,8 @@ module Top:
     assert v_ac_nominal within 100V to 130V  # NEMA 5-15 tolerance
     
     # Verify against constraints (temper-ofq.6)
-    assert v_bus_max <= Constraints.HighVoltage.v_max
-    assert i_peak_max <= Constraints.HighVoltage.i_max
+    assert v_bus_max <= constraints.v_max
+    assert i_peak_max <= constraints.i_max
     
     f_line: frequency = 60Hz
     assert f_line within 59Hz to 61Hz  # US grid tolerance
@@ -80,7 +89,8 @@ module Top:
     
     # --- Power Rails ---
     signal gnd          # System ground
-    gnd.override_net_name = "GND"
+    # The shared ground is named by the generated netlist; assigning an
+    # override here conflicts with nested ElectricPower reference nets.
     signal dc_bus_plus  # +340V
     dc_bus_plus.override_net_name = "+340V_BUS"
     signal dc_bus_minus # Ground reference for DC bus
@@ -89,14 +99,28 @@ module Top:
     vcc_15v.override_net_name = "+15V"
     signal vcc_3v3      # MCU supply
     vcc_3v3.override_net_name = "+3V3"
+    signal power_return  # High-current tank/power return path (doubler midpoint)
+    power_return.override_net_name = "PWR_RTN"
+    signal vcc_15v_ls    # Isolated low-side gate driver supply (plan 005)
+    vcc_15v_ls.override_net_name = "+15V_LS"
+    signal usb_dn        # USB D-
+    signal usb_dp        # USB D+
+    signal i2c_sda_ui    # I2C expansion header for UI
+    signal i2c_scl_ui
     
     # --- Module Instances ---
     
     # Power input (AC -> DC)
     power_in = new PowerInput
-    
+
+    # Active bus discharge (fail-safe, relay NC contacts; plan 2026-07-16-001)
+    discharge = new BusDischarge
+
     # Power management (DC_BUS -> 15V -> 3.3V)
     power_mgmt = new PowerManagement
+    
+    # Auxiliary supply (HV -> isolated 15V SELV)
+    aux_supply = new AuxSupply
     
     # Half-bridge (power stage)
     hb = new HalfBridge
@@ -115,6 +139,9 @@ module Top:
     
     # Microcontroller
     mcu = new MCU
+
+    # Forced-air cooling (fan power circuit; heatsink/TIM are chassis BOM)
+    thermal = new ThermalSystem
     
     # ===========================================================================
     # SAFETY ASSERTIONS
@@ -174,7 +201,7 @@ module Top:
     # IGBT max junction: 150°C, derate at 125°C
     # Thermal comparator set for 85°C ambient
     t_thermal_trip: temperature = 358.15K
-    assert t_thermal_trip < Constraints.ThermalZones.igbt_derate_temp
+    assert t_thermal_trip < thermal_constraints.igbt_derate_temp
     
     # Watchdog timeout must allow system response but catch stuck states
     # 1.6s timeout per TPS3823-33
@@ -194,11 +221,11 @@ module Top:
     assert t_mcu_boot < t_soft_start_delay  # MCU ready before power stage
     
     # Dead-time budget (system-level)
-    # Hardware minimum: 25ns (from dt_cap)
+    # Hardware programmed nominal: 305.4ns from the 34-kΩ RDT resistor.
     # Software configured: 300ns (in MCPWM registers)
     # IGBT turn-off: 245ns
     # Total margin: 300 - 245 = 55ns (>50ns minimum margin)
-    t_dt_hw_min: time = 25ns
+    t_dt_hw_nominal: time = 305.4ns
     t_dt_sw: time = 300ns
     t_igbt_off: time = 245ns
     assert t_dt_sw > t_igbt_off + 50ns  # Software dead-time provides margin
@@ -213,20 +240,47 @@ module Top:
     # Power input outputs
     power_in.dc_bus.hv_plus ~ dc_bus_plus
     power_in.dc_bus.hv_minus ~ dc_bus_minus
-    power_in.dc_bus.gnd_ref ~ gnd
-    power_in.gnd ~ gnd
+    # The doubler midpoint (gnd_ref) is the high-current power return node.
+    # It must NOT be shorted directly to logic/signal ground to prevent
+    # AC mains potential on user-accessible circuits (S1) and to keep
+    # tank return current out of the signal ground net (S3).
+    power_return ~ power_in.dc_bus.gnd_ref  # Doubler midpoint = power return
+    power_in.gnd ~ gnd  # PowerInput relay control return (SELV side)
+    power_in.power_15v.vcc ~ vcc_15v
+    # power_in already ties power_15v.gnd ~ gnd internally; redundant
     
-    # Power management chain
-    # Note: In real design, 15V comes from auxiliary winding, not directly from DC_BUS
-    # For this model, we assume a separate input or pre-regulated source
+    # Auxiliary supply: 170VDC half-bus -> isolated 15V SELV rail
+    # Replaces the floating power_mgmt.power_in_hv (P0-3)
+    aux_supply.power_in.vcc ~ dc_bus_plus    # Half-bus input (~170VDC)
+    aux_supply.power_in.gnd ~ power_return   # Referenced to doubler midpoint
+    aux_supply.power_out.vcc ~ vcc_15v       # Isolated 15V output -> all downstream rails
+    aux_supply.power_out.gnd ~ gnd           # SELV ground
+    
+    # Power management chain — 15V -> 3.3V
+    # Note: 15V now comes from isolated AuxSupply, not from DC bus directly
     power_mgmt.power_15v.vcc ~ vcc_15v
     power_mgmt.power_15v.gnd ~ gnd
     
     power_mgmt.power_3v3.vcc ~ vcc_3v3
-    power_mgmt.power_3v3.gnd ~ gnd
+    # power_mgmt.power_3v3.gnd is already tied to power_mgmt.power_15v.gnd
+    # inside PowerManagement; connect the shared ground once.
     
-    # Input ground reference
-    power_mgmt.power_in_hv.gnd ~ gnd
+    # ===========================================================================
+    # GROUND ARCHITECTURE — Single-Point Star Ground Join
+    #
+    # The SELV logic/signal ground (gnd) and the high-current power return
+    # (power_return, connected to the doubler midpoint) are joined at exactly
+    # ONE location near the doubler capacitors. This provides a common voltage
+    # reference while preventing power-stage current (25A tank return, gate
+    # driver transients) from flowing through the signal ground net.
+    #
+    # With Option A (isolated SELV control domain, plan 003), the auxiliary
+    # supply transformer provides galvanic isolation between the HV power
+    # domain and the SELV control domain. The star-point join is the sole
+    # DC reference path; all other domain crossings use isolated interfaces
+    # (UCC21550 gate drivers).
+    # ===========================================================================
+    power_return ~ gnd  # Single-star-point ground join near doubler caps
     
     # ===========================================================================
     # HALF-BRIDGE CONNECTIONS
@@ -236,6 +290,14 @@ module Top:
     hb.dc_bus.hv_minus ~ dc_bus_minus
     hb.power_15v.vcc ~ vcc_15v
     hb.power_15v.gnd ~ gnd
+    hb.power_3v3.vcc ~ vcc_3v3
+    # hb already ties power_3v3.gnd ~ gnd internally; redundant
+    
+    # Low-side gate driver supply: vcc_15v_ls must come from an isolated 
+    # aux winding on the flyback transformer, referenced to hv_minus.
+    # Until the transformer winding is specified (plan 005 magnetics
+    # follow-up), this net is a placeholder.
+    hb.power_15v_ls.vcc ~ vcc_15v_ls
     
     # PWM from MCU
     mcu.pwm_h ~ hb.pwm_h
@@ -249,14 +311,19 @@ module Top:
     
     hb.switch_node ~ tank.in
     hb.switch_node.override_net_name = "SW_NODE"
-    tank.in.override_net_name = "TANK_IN"
-    tank.out ~ gnd  # Return path
+    # tank.in is the same electrical net as hb.switch_node; keep one
+    # authoritative override name (SW_NODE).
+    # CT primary: current transformer measures tank return current
+    # The primary wire (tank return) passes through the CT core
+    tank.out ~ ct_sense.primary_in
+    ct_sense.primary_out ~ power_return  # Tank return passes THROUGH the CT primary
     
     # ===========================================================================
     # SENSING CONNECTIONS
     # ===========================================================================
     
     # Current sensing
+    ct_sense.vcc_3v3_ct ~ vcc_3v3  # Bias supply for CT output
     ct_sense.i_sense.reference ~ gnd
     ct_sense.i_sense.line ~ mcu.adc_i_sense
     ct_sense.i_sense ~ safety.i_sense
@@ -271,6 +338,8 @@ module Top:
     rtd_pan.spi.miso ~ mcu.spi.miso
     rtd_pan.drdy.line ~ mcu.rtd_drdy.line
     rtd_pan.drdy.line.override_net_name = "RTD_DRDY"
+    rtd_pan.rtd_hw_fault.line ~ safety.rtd_hw_fault.line
+    rtd_pan.rtd_hw_fault.line.override_net_name = "RTD_HW_FAULT"
     
     rtd_pan.spi.sclk.override_net_name = "RTD_SCK"
     rtd_pan.spi.mosi.override_net_name = "RTD_SDI"
@@ -281,9 +350,10 @@ module Top:
     # SAFETY INTERLOCK CONNECTIONS
     # ===========================================================================
     
-    safety.vcc_3v3 ~ vcc_3v3
-    safety.vcc_15v ~ vcc_15v
-    safety.gnd ~ gnd
+    safety.power_3v3.vcc ~ vcc_3v3
+    safety.power_3v3.gnd ~ gnd
+    safety.power_15v.vcc ~ vcc_15v
+    safety.power_15v.gnd ~ gnd
     
     # Sensor inputs to safety system
     safety.dc_bus.line ~ dc_bus_plus
@@ -291,22 +361,26 @@ module Top:
     # safety.i_sense already connected above
     # NTC for heatsink temperature monitoring
     safety.ntc_sense.line ~ mcu.adc_ntc
-    safety.ntc_sense.reference ~ gnd
+    # safety already ties ntc_sense.reference ~ gnd internally; redundant
     mcu.adc_v_bus.override_net_name = "V_BUS_SENSE"
+    safety.ovp.adc_v_bus.line ~ mcu.adc_v_bus
     
     # Watchdog
-    mcu.wdt_kick.line ~ safety.wdt_kick
+    mcu.wdt_kick.line ~ safety.wdt_kick.line
     mcu.wdt_kick.line.override_net_name = "WDT_KICK"
-    safety.wdt_reset_n ~ mcu.reset_n.line
-    safety.wdt_reset_n.override_net_name = "WDT_RESET_N"
+    safety.wdt_reset_n.line ~ mcu.wdt_reset_in.line
+    safety.wdt_reset_n.line.override_net_name = "WDT_RESET_N"
     
-    # Shutdown output (active-low disables gate driver)
-    safety.shutdown_n ~ hb.gate_hs.driver.DIS
-    safety.shutdown_n.override_net_name = "SHUTDOWN_N"
+    # Shutdown output is active-high per the UCC21550 contract.
+    safety.shutdown.line ~ hb.gate_hs.driver.DIS
+    safety.shutdown.line.override_net_name = "SHUTDOWN"
     
     # Fault status to MCU
-    safety.fault_status ~ mcu.shutdown_n_in.line
-    safety.fault_status.override_net_name = "FAULT"
+    safety.fault_status.line ~ mcu.fault_status_in.line
+    # fault_status is the MCU sense alias of the same latched SHUTDOWN net;
+    # do not assign a competing net name here.
+    safety.reset_n_in.line ~ mcu.reset_n.line
+    safety.runaway_cut.line ~ mcu.runaway_cut.line
     
     # Gate HS/LS
     hb.gate_hs.driver.OUTA.override_net_name = "GATE_HS"
@@ -314,26 +388,48 @@ module Top:
     # hb.gate_ls.rg_on.p2 doesn't exist directly in Top, but we can access it via hb
     hb.gate_ls.rg_on.p2.override_net_name = "GATE_LS"
     
-    # Fault LEDs
-    safety.ocp_led ~ mcu.led_ocp
-    safety.ovp_led ~ mcu.led_ovp
-    safety.thermal_led ~ mcu.led_thermal
-    safety.wdt_led ~ mcu.led_wdt
-    
     # ===========================================================================
     # MCU CONNECTIONS
     # ===========================================================================
     
     mcu.power.vcc ~ vcc_3v3
     mcu.power.gnd ~ gnd
+
+    # Fan supply
+    thermal.power_15v.vcc ~ vcc_15v
+    thermal.power_15v.gnd ~ gnd
     
     # Relay control for soft-start bypass
     mcu.relay_ctrl.line ~ power_in.relay_ctrl
     mcu.relay_ctrl.line.override_net_name = "RELAY_CTRL"
+
+    # ===========================================================================
+    # ACTIVE BUS DISCHARGE CONNECTIONS
+    # One 2x4.7k/5W string + relay NC contact across each half-bus.
+    # Coils held from the 15V rail while running; any power loss (or MCU
+    # dead: IO47 boots Hi-Z) de-energizes the coils and the NC contacts
+    # engage discharge -- <60s to <34V per half-bus, no MCU involvement.
+    # ===========================================================================
+    discharge.hv_plus ~ dc_bus_plus
+    discharge.mid ~ power_return
+    discharge.hv_minus ~ dc_bus_minus
+    discharge.power_15v.vcc ~ vcc_15v
+    # discharge already ties power_15v.gnd ~ gnd internally; connect once
+    discharge.gnd ~ gnd
+    mcu.discharge_ctrl.line ~ discharge.ctrl
+    mcu.discharge_ctrl.line.override_net_name = "DISCHARGE_CTRL"
     
     # Zero-crossing detection for soft-start timing
-    power_in.zcd ~ mcu.zcd_in
+    power_in.zcd ~ mcu.zcd_in.line
     power_in.zcd.override_net_name = "ZCD"
+    
+    # USB connections
+    mcu.usb_dn ~ usb_dn
+    mcu.usb_dp ~ usb_dp
+    
+    # I2C UI connections
+    mcu.i2c.sda ~ i2c_sda_ui
+    mcu.i2c.scl ~ i2c_scl_ui
 
 # ==============================================================================
 # FOOTPRINT COMPILATION

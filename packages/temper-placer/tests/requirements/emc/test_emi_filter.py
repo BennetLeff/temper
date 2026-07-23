@@ -5,7 +5,6 @@ These tests verify that EMI filter component placement meets EN 55014-1
 requirements for conducted emissions.
 """
 
-
 import pytest
 
 try:

@@ -56,17 +56,19 @@ class PlacementValidationStage(Stage):
 
     def __init__(
         self,
-        constraints: list | None = None,
+        constraints: dict | None = None,
         fail_on_hard_violations: bool = True,
         parsed_pads: dict | None = None,
     ):
         """
         Args:
-            constraints: Optional list of PlacementConstraints (uses state.config if None)
+            constraints: Optional dict of placement-validation constraints, e.g.
+                {"placement_proximity": [...], "signal_hv_clearances": [...]}
+                (uses state.config if None)
             fail_on_hard_violations: If True, raise error on "hard" tier violations
             parsed_pads: Dict of component_ref -> {pin -> (x, y)} positions from KiCad parser
         """
-        self.constraints = constraints or []
+        self.constraints = constraints or {}
         self.fail_on_hard_violations = fail_on_hard_violations
         self.parsed_pads = parsed_pads or {}
 
@@ -222,9 +224,7 @@ class PlacementValidationStage(Stage):
         # Get HV pin positions
         hv_positions = []
         for hv_pin in constraint.hv_pins:
-            hv_pos = self._get_pin_position(
-                constraint.hv_component, hv_pin, component_positions
-            )
+            hv_pos = self._get_pin_position(constraint.hv_component, hv_pin, component_positions)
             if hv_pos:
                 hv_positions.append((hv_pin, hv_pos))
 

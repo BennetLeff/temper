@@ -37,6 +37,7 @@ venv.bak/
 *.app
 *.a
 *.lib
+!simulation/models/*_ngspice.lib
 *.so
 *.dylib
 *.dll
@@ -91,3 +92,25 @@ worktrees/
 firmware/test/build/
 power_pcb_dataset/quarantine/
 .enola/
+
+# Pruned directories (2026-06-23 purge)
+/kicad-tutorials-a/
+/dummy_dataset/
+/artifacts/
+/analysis_results/
+/reports/
+/snapshots/
+/specctra_spec.md_files/
+
+# Rust build artifacts
+packages/*/target/
+
+# Pruned root files (2026-06-23 purge)
+/*.pkl
+minimal_overlap_config.yaml
+routed_loop_FINAL.metrics.json
+piantor_grid_*.png
+run_clearance_sweep.sh
+
+# Pipeline run artifacts (regenerated per run — do not track)
+pipeline_execution.json

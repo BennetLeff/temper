@@ -45,23 +45,27 @@ def validate_result_aggregate(state: BoardState) -> list[StageDRCFailure]:
     result = getattr(state, "pathfinding_result", None)
 
     if result is None:
-        failures.append(StageDRCFailure(
-            field="pathfinding_result",
-            value=None,
-            reason="PathfindingResult not compiled",
-            stage="ResultAggregate",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="pathfinding_result",
+                value=None,
+                reason="PathfindingResult not compiled",
+                stage="ResultAggregate",
+            )
+        )
         return failures
 
     total = result.success_count + result.failure_count
     if total > 0:
         expected = result.success_count / total
         if abs(result.completion_rate - expected) > 0.001:
-            failures.append(StageDRCFailure(
-                field="completion_rate",
-                value=result.completion_rate,
-                reason=f"Expected {expected:.3f} based on success/failure counts",
-                stage="ResultAggregate",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="completion_rate",
+                    value=result.completion_rate,
+                    reason=f"Expected {expected:.3f} based on success/failure counts",
+                    stage="ResultAggregate",
+                )
+            )
 
     return failures

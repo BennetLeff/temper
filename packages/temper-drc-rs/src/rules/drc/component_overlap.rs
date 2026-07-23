@@ -11,7 +11,9 @@ use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 
+#[derive(Default)]
 pub struct ComponentOverlapCheck;
+
 impl ComponentOverlapCheck {
     pub fn new() -> Self {
         Self

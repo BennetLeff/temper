@@ -55,9 +55,7 @@ def _make_minimal_stage2() -> Stage2Output:
             avg_pins_per_net=0.0,
             max_pins_per_net=0,
         ),
-        bottleneck_analysis=BottleneckAnalysis(
-            bottlenecks=[], total_capacity=0, total_demand=0
-        ),
+        bottleneck_analysis=BottleneckAnalysis(bottlenecks=[], total_capacity=0, total_demand=0),
     )
 
 
@@ -207,7 +205,10 @@ def test_router_v6_result_invariants(
     assert result.success_count >= 0
     assert result.failure_count >= 0
     total_nets = result.success_count + result.failure_count
-    assert total_nets == len(results.compiled_routes) + len(results.failed_nets) + results.plane_net_count
+    assert (
+        total_nets
+        == len(results.compiled_routes) + len(results.failed_nets) + results.plane_net_count
+    )
 
     # completion_rate in [0, 1]
     assert 0.0 <= result.completion_rate <= 1.0

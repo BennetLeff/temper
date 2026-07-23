@@ -1,4 +1,5 @@
 """Smoke tests verifying all entry_points subcommands are registered."""
+
 from importlib.metadata import entry_points
 
 from click.testing import CliRunner
@@ -21,12 +22,13 @@ def test_each_subcommand_help_exits_zero():
     runner = CliRunner()
     for name in sorted(main.commands.keys()):
         result = runner.invoke(main, [name, "--help"])
-        assert result.exit_code == 0, f"{name} --help exited with {result.exit_code}: {result.output[:200]}"
+        assert result.exit_code == 0, (
+            f"{name} --help exited with {result.exit_code}: {result.output[:200]}"
+        )
 
 
 def test_count_matches():
     eps = entry_points(group="temper_placer.cli.subcommands")
     assert len(main.commands) >= len(eps), (
-        f"Registered {len(main.commands)} commands, "
-        f"but {len(eps)} entry_points exist"
+        f"Registered {len(main.commands)} commands, but {len(eps)} entry_points exist"
     )

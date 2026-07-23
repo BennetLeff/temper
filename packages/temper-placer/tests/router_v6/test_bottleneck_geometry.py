@@ -266,10 +266,7 @@ class TestBottleneckSynthetic:
         state = _make_state(netlist, grid)
         report = _make_report(FailureReason.CHANNEL_CAPACITY)
 
-        results = [
-            analyze_bottleneck(grid, netlist.nets[0], state, report)
-            for _ in range(3)
-        ]
+        results = [analyze_bottleneck(grid, netlist.nets[0], state, report) for _ in range(3)]
         # All three return either a BottleneckGeometry or None; assert
         # identity and (if present) deep equality.
         if results[0] is None:
@@ -290,23 +287,6 @@ class TestBottleneckSynthetic:
                 assert getattr(results[0], attr) == getattr(results[1], attr)
                 assert getattr(results[1], attr) == getattr(results[2], attr)
 
-    def test_bottleneck_does_not_run_in_jit(self) -> None:
-        """The post-mortem analysis must remain a Python call and not
-        be traced into a jaxpr. We assert this indirectly: the
-        analyze_bottleneck module is not part of any JIT-able surface,
-        and its imports are deferred, so a jaxpr of an arbitrary pure
-        Python expression does not contain any reference to the
-        bottleneck module."""
-        import jax
-
-        def pure(x):
-            return x + 1
-
-        jaxpr = jax.make_jaxpr(pure)(1)
-        text = str(jaxpr)
-        assert "analyze_bottleneck" not in text
-        assert "BottleneckGeometry" not in text
-
     def test_graph_build_aborts_on_deadline(self, monkeypatch) -> None:
         """Fix #4: ``_build_capacitated_graph`` must abort mid-loop
         when the wall-clock deadline is exceeded (rather than running
@@ -321,9 +301,7 @@ class TestBottleneckSynthetic:
         # 30×30 grid (900 cells) at 1.0 mm — enough that the BFS
         # explores many cells, giving the deadline check a chance to
         # fire at the configured stride.
-        grid = ClearanceGrid(
-            width_mm=30.0, height_mm=30.0, cell_size_mm=1.0, layer_count=1
-        )
+        grid = ClearanceGrid(width_mm=30.0, height_mm=30.0, cell_size_mm=1.0, layer_count=1)
         # Source / sink far apart → BFS walks most of the grid.
         source = (0, 0, 0)
         sink = (0, 29, 29)
@@ -423,9 +401,7 @@ class TestBottleneckSynthetic:
             _resolve_cell_size_mm,
         )
 
-        grid = ClearanceGrid(
-            width_mm=10.0, height_mm=10.0, cell_size_mm=0.25, layer_count=1
-        )
+        grid = ClearanceGrid(width_mm=10.0, height_mm=10.0, cell_size_mm=0.25, layer_count=1)
         board = Board(width=10.0, height=10.0)
         state = BoardState(board=board, netlist=None, grid=grid, net_order=())
 
@@ -445,9 +421,7 @@ class TestBottleneckSynthetic:
             _resolve_pad_cells,
         )
 
-        grid = ClearanceGrid(
-            width_mm=20.0, height_mm=20.0, cell_size_mm=1.0, layer_count=4
-        )
+        grid = ClearanceGrid(width_mm=20.0, height_mm=20.0, cell_size_mm=1.0, layer_count=4)
 
         # PTH pin
         class _FakePthPin:
@@ -484,6 +458,7 @@ class TestBottleneckSynthetic:
         # Verify the net-level result: a 2-pin PTH net produces 8 cells
         # total (2 pins × 4 layers) split 4 source / 4 sink.
         from temper_placer.core.netlist import Component, Pin
+
         components = [
             Component(
                 ref="J1",
@@ -535,9 +510,7 @@ class TestBottleneckSynthetic:
 
         # 5×5 grid at 1.0 mm; cell (0, 2, 2) is the target, with
         # a pad at (0, 2, 3) to the right.
-        grid = ClearanceGrid(
-            width_mm=5.0, height_mm=5.0, cell_size_mm=1.0, layer_count=1
-        )
+        grid = ClearanceGrid(width_mm=5.0, height_mm=5.0, cell_size_mm=1.0, layer_count=1)
         cell = (0, 2, 2)
         # The neighbour (0, 2, 3) is a pad. Mark it as such in
         # ``_pad_net_ids`` so the discount branch fires.
@@ -586,8 +559,7 @@ class TestBottleneckSynthetic:
             current_net_class="LV",
         )
         assert cap_with_lv == _BASE_CAPACITY, (
-            f"LV on LV must not discount capacity; got {cap_with_lv} "
-            f"(expected {_BASE_CAPACITY})"
+            f"LV on LV must not discount capacity; got {cap_with_lv} (expected {_BASE_CAPACITY})"
         )
 
         # HV-HV adjacency (current net is HV) → no discount (the

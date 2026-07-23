@@ -14,6 +14,7 @@ from temper_placer.pcl.constraints import (
     AnchoredConstraint,
     BaseConstraint,
     ConstraintType,
+    DistanceMetric,
     EnclosingConstraint,
     KeepoutConstraint,
     LoopAreaConstraint,
@@ -83,6 +84,17 @@ def _chebyshev_gap(
 class PlacementAuditor:
     """Run geometric audit checks on a Placement."""
 
+    _CHECK_MAP: dict[ConstraintType, str] = {
+        ConstraintType.SEPARATED: "_check_separated",
+        ConstraintType.ENCLOSING: "_check_enclosing",
+        ConstraintType.ADJACENT: "_check_adjacent",
+        ConstraintType.ON_SIDE: "_check_on_side",
+        ConstraintType.ANCHORED: "_check_anchored",
+        ConstraintType.KEEPOUT: "_check_keepout",
+        ConstraintType.ALIGNED: "_check_aligned",
+        ConstraintType.LOOP_AREA: "_check_loop_area",
+    }
+
     def __init__(self, placement: Placement) -> None:
         self.placement = placement
 
@@ -106,24 +118,13 @@ class PlacementAuditor:
     def _check(
         self, c: BaseConstraint, loop_components: dict[str, list[str]] | None = None
     ) -> list[AuditViolation]:
-        ct = c.constraint_type
-        if ct == ConstraintType.SEPARATED:
-            return self._check_separated(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ENCLOSING:
-            return self._check_enclosing(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ADJACENT:
-            return self._check_adjacent(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ON_SIDE:
-            return self._check_on_side(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ANCHORED:
-            return self._check_anchored(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.KEEPOUT:
-            return self._check_keepout(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ALIGNED:
-            return self._check_aligned(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.LOOP_AREA:
-            return self._check_loop_area(c, loop_components)  # type: ignore[arg-type]
-        return []
+        method_name = self._CHECK_MAP.get(c.constraint_type)
+        if method_name is None:
+            return []
+        method = getattr(self, method_name)
+        if c.constraint_type == ConstraintType.LOOP_AREA:
+            return method(c, loop_components)  # type: ignore[arg-type]
+        return method(c)  # type: ignore[arg-type]
 
     # ---- checks ----
 
@@ -137,14 +138,18 @@ class PlacementAuditor:
                 if ra not in self.placement.positions_mm or rb not in self.placement.positions_mm:
                     continue
                 gap = _chebyshev_gap(
-                    _bbox(self.placement, ra), _bbox(self.placement, rb),
+                    _bbox(self.placement, ra),
+                    _bbox(self.placement, rb),
                 )
                 if gap < c.min_distance_mm:
-                    return [AuditViolation(
-                        constraint_id=c.id, constraint_type=c.constraint_type.value,
-                        description=f"SEPARATED {ra}-{rb} gap={gap:.1f}mm < {c.min_distance_mm}mm",
-                        detail=f"gap={gap:.1f}",
-                    )]
+                    return [
+                        AuditViolation(
+                            constraint_id=c.id,
+                            constraint_type=c.constraint_type.value,
+                            description=f"SEPARATED {ra}-{rb} gap={gap:.1f}mm < {c.min_distance_mm}mm",
+                            detail=f"gap={gap:.1f}",
+                        )
+                    ]
         return []
 
     def _check_enclosing(self, c: EnclosingConstraint) -> list[AuditViolation]:
@@ -158,26 +163,53 @@ class PlacementAuditor:
             bx1, by1, bx2, by2 = _bbox(self.placement, ref)
             margin = c.margin_mm
             if bx1 < zx1 + margin or by1 < zy1 + margin or bx2 > zx2 - margin or by2 > zy2 - margin:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"ENCLOSING {ref} outside {c.outer}",
-                    detail=f"bbox=({bx1:.1f},{by1:.1f})-({bx2:.1f},{by2:.1f}) zone=({zx1:.1f},{zy1:.1f})-({zx2:.1f},{zy2:.1f})",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"ENCLOSING {ref} outside {c.outer}",
+                        detail=f"bbox=({bx1:.1f},{by1:.1f})-({bx2:.1f},{by2:.1f}) zone=({zx1:.1f},{zy1:.1f})-({zx2:.1f},{zy2:.1f})",
+                    )
+                ]
         return []
 
     def _check_adjacent(self, c: AdjacentConstraint) -> list[AuditViolation]:
+        # VERIFIED 2026-07-18: this previously always computed
+        # center-to-center Chebyshev distance regardless of c.metric,
+        # silently ignoring EDGE_TO_EDGE (the default) and PIN_TO_PIN
+        # entirely. For a pin_to_pin constraint, the encoder solves
+        # against the real pin-to-pin distance using pin offsets, but
+        # Placement carries no pin geometry at all -- center-to-center
+        # is not even an approximation of that, it's a different metric,
+        # and reported a false-positive violation on a constraint the
+        # encoder had genuinely satisfied. See docs/solutions/
+        # test-failures/integration-temper-hardcoded-components-drifted-from-pcl-fixture.md.
         a, b = c.a, c.b
         if a not in self.placement.positions_mm or b not in self.placement.positions_mm:
             return []
-        ax, ay = self.placement.positions_mm[a]
-        bx, by = self.placement.positions_mm[b]
-        dist = max(abs(ax - bx), abs(ay - by))
+
+        if c.metric == DistanceMetric.PIN_TO_PIN:
+            # Placement has no per-pin geometry -- this auditor cannot
+            # verify pin-to-pin distance. Skip rather than false-positive
+            # against a different, less precise metric.
+            return []
+
+        if c.metric == DistanceMetric.EDGE_TO_EDGE:
+            dist = _chebyshev_gap(_bbox(self.placement, a), _bbox(self.placement, b))
+        else:  # CENTER_TO_CENTER
+            ax, ay = self.placement.positions_mm[a]
+            bx, by = self.placement.positions_mm[b]
+            dist = max(abs(ax - bx), abs(ay - by))
+
         if dist > c.max_distance_mm:
-            return [AuditViolation(
-                constraint_id=c.id, constraint_type=c.constraint_type.value,
-                description=f"ADJACENT {a}-{b} dist={dist:.1f}mm > {c.max_distance_mm}mm",
-                detail=f"dist={dist:.1f}",
-            )]
+            return [
+                AuditViolation(
+                    constraint_id=c.id,
+                    constraint_type=c.constraint_type.value,
+                    description=f"ADJACENT {a}-{b} dist={dist:.1f}mm > {c.max_distance_mm}mm",
+                    detail=f"dist={dist:.1f}",
+                )
+            ]
         return []
 
     def _check_on_side(self, c: OnSideConstraint) -> list[AuditViolation]:
@@ -189,25 +221,37 @@ class PlacementAuditor:
                 continue
             bx1, by1, bx2, by2 = _bbox(self.placement, ref)
             if side == "left" and bx1 > max_d:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"ONSIDE {ref} x_start={bx1:.1f}mm > {max_d}mm from left edge",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"ONSIDE {ref} x_start={bx1:.1f}mm > {max_d}mm from left edge",
+                    )
+                ]
             if side == "right" and bx2 < bw - max_d:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"ONSIDE {ref} x_end={bx2:.1f}mm < {bw - max_d:.1f}mm from right edge",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"ONSIDE {ref} x_end={bx2:.1f}mm < {bw - max_d:.1f}mm from right edge",
+                    )
+                ]
             if side == "top" and by2 < bh - max_d:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"ONSIDE {ref} y_end={by2:.1f}mm < {bh - max_d:.1f}mm from top edge",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"ONSIDE {ref} y_end={by2:.1f}mm < {bh - max_d:.1f}mm from top edge",
+                    )
+                ]
             if side == "bottom" and by1 > max_d:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"ONSIDE {ref} y_start={by1:.1f}mm > {max_d}mm from bottom edge",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"ONSIDE {ref} y_start={by1:.1f}mm > {max_d}mm from bottom edge",
+                    )
+                ]
         return []
 
     def _check_anchored(self, c: AnchoredConstraint) -> list[AuditViolation]:
@@ -219,20 +263,26 @@ class PlacementAuditor:
             px, py = c.position
             tol = 0.5  # mm tolerance for position anchoring
             if abs(cx - px) > tol or abs(cy - py) > tol:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"ANCHORED {ref} at ({cx:.1f},{cy:.1f}) != ({px:.1f},{py:.1f})",
-                    detail=f"pos=({cx:.1f},{cy:.1f}) target=({px:.1f},{py:.1f})",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"ANCHORED {ref} at ({cx:.1f},{cy:.1f}) != ({px:.1f},{py:.1f})",
+                        detail=f"pos=({cx:.1f},{cy:.1f}) target=({px:.1f},{py:.1f})",
+                    )
+                ]
         elif c.region is not None:
             bx1, by1, bx2, by2 = _bbox(self.placement, ref)
             rx1, ry1, rx2, ry2 = c.region
             if bx1 < rx1 or by1 < ry1 or bx2 > rx2 or by2 > ry2:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"ANCHORED {ref} outside region",
-                    detail=f"bbox=({bx1:.1f},{by1:.1f})-({bx2:.1f},{by2:.1f}) region=({rx1},{ry1})-({rx2},{ry2})",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"ANCHORED {ref} outside region",
+                        detail=f"bbox=({bx1:.1f},{by1:.1f})-({bx2:.1f},{by2:.1f}) region=({rx1},{ry1})-({rx2},{ry2})",
+                    )
+                ]
         return []
 
     def _check_keepout(self, c: KeepoutConstraint) -> list[AuditViolation]:
@@ -250,11 +300,14 @@ class PlacementAuditor:
                 continue
             bx1, by1, bx2, by2 = _bbox(self.placement, ref)
             if bx1 < kx2 and bx2 > kx1 and by1 < ky2 and by2 > ky1:
-                return [AuditViolation(
-                    constraint_id=c.id, constraint_type=c.constraint_type.value,
-                    description=f"KEEPOUT {ref} overlaps keepout {c.zone_name}",
-                    detail=f"bbox=({bx1:.1f},{by1:.1f})-({bx2:.1f},{by2:.1f}) keepout=({kx1:.1f},{ky1:.1f})-({kx2:.1f},{ky2:.1f})",
-                )]
+                return [
+                    AuditViolation(
+                        constraint_id=c.id,
+                        constraint_type=c.constraint_type.value,
+                        description=f"KEEPOUT {ref} overlaps keepout {c.zone_name}",
+                        detail=f"bbox=({bx1:.1f},{by1:.1f})-({bx2:.1f},{by2:.1f}) keepout=({kx1:.1f},{ky1:.1f})-({kx2:.1f},{ky2:.1f})",
+                    )
+                ]
         return []
 
     def _check_aligned(self, c: AlignedConstraint) -> list[AuditViolation]:
@@ -267,15 +320,19 @@ class PlacementAuditor:
                 bx, by = self.placement.positions_mm[refs[j]]
                 diff = abs(ax - bx) if axis in ("x", "major") else abs(ay - by)
                 if diff > tol:
-                    return [AuditViolation(
-                        constraint_id=c.id, constraint_type=c.constraint_type.value,
-                        description=f"ALIGNED {refs[i]}-{refs[j]} axis={axis} diff={diff:.1f}mm > {tol}mm",
-                        detail=f"diff={diff:.1f}",
-                    )]
+                    return [
+                        AuditViolation(
+                            constraint_id=c.id,
+                            constraint_type=c.constraint_type.value,
+                            description=f"ALIGNED {refs[i]}-{refs[j]} axis={axis} diff={diff:.1f}mm > {tol}mm",
+                            detail=f"diff={diff:.1f}",
+                        )
+                    ]
         return []
 
     def _check_loop_area(
-        self, c: LoopAreaConstraint,
+        self,
+        c: LoopAreaConstraint,
         loop_components: dict[str, list[str]] | None = None,
     ) -> list[AuditViolation]:
         comps = loop_components or {}
@@ -285,25 +342,20 @@ class PlacementAuditor:
         refs = [r for r in loop_comps if r in self.placement.positions_mm]
         if not refs:
             return []
-        min_x = min(
-            _bbox(self.placement, r)[0] for r in refs
-        )
-        min_y = min(
-            _bbox(self.placement, r)[1] for r in refs
-        )
-        max_x = max(
-            _bbox(self.placement, r)[2] for r in refs
-        )
-        max_y = max(
-            _bbox(self.placement, r)[3] for r in refs
-        )
+        min_x = min(_bbox(self.placement, r)[0] for r in refs)
+        min_y = min(_bbox(self.placement, r)[1] for r in refs)
+        max_x = max(_bbox(self.placement, r)[2] for r in refs)
+        max_y = max(_bbox(self.placement, r)[3] for r in refs)
         aabb_area = (max_x - min_x) * (max_y - min_y)
         if aabb_area > c.max_area_mm2:
-            return [AuditViolation(
-                constraint_id=c.id, constraint_type=c.constraint_type.value,
-                description=f"LOOP_AREA AABB={aabb_area:.1f}mm2 > {c.max_area_mm2}mm2",
-                detail=f"aabb=({min_x:.1f},{min_y:.1f})-({max_x:.1f},{max_y:.1f}) area={aabb_area:.1f}",
-            )]
+            return [
+                AuditViolation(
+                    constraint_id=c.id,
+                    constraint_type=c.constraint_type.value,
+                    description=f"LOOP_AREA AABB={aabb_area:.1f}mm2 > {c.max_area_mm2}mm2",
+                    detail=f"aabb=({min_x:.1f},{min_y:.1f})-({max_x:.1f},{max_y:.1f}) area={aabb_area:.1f}",
+                )
+            ]
         return []
 
     def _resolve(self, name: str) -> list[str]:
@@ -311,5 +363,7 @@ class PlacementAuditor:
         if name in self.placement.positions_mm:
             return [name]
         if name in self.placement.zones and name in self.placement.zone_components:
-            return [r for r in self.placement.zone_components[name] if r in self.placement.positions_mm]
+            return [
+                r for r in self.placement.zone_components[name] if r in self.placement.positions_mm
+            ]
         return []

@@ -1,8 +1,17 @@
 {
-  "add_power_planes.py": [],
+  "add_power_planes.py": [
+    "scripts/run_clean_flow.sh"
+  ],
+  "batch_pipeline_validate.py": [
+    ".github/workflows/corpus-batch.yml"
+  ],
+  "bench_coarse_to_fine.py": [],
+  "bench_rust_constraints.py": [],
+  "bench_rust_geometry.py": [],
   "benchmark_numba_los.py": [],
   "bless_baselines.py": [],
   "bmc_adoption_gate.py": [],
+  "calibrate_drc_ceiling.py": [],
   "check_coverage_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
@@ -16,13 +25,24 @@
     "Makefile",
     "packages/temper-placer/src/temper_placer/profiling/pipeline_metrics.py"
   ],
-  "check_regression.py": [],
+  "check_physics_provenance.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/tests/scripts/test_check_physics_provenance.py"
+  ],
+  "check_regression.py": [
+    ".github/workflows/regression.yml"
+  ],
   "check_script_sunset.py": [
     ".github/workflows/health-digest.yml",
     ".github/workflows/python-tests.yml"
   ],
   "check_traceability.py": [],
-  "check_typecheck_gate.py": [],
+  "check_typecheck_gate.py": [
+    ".github/workflows/python-tests.yml"
+  ],
+  "check_workflow_pr_triggers.py": [
+    ".github/workflows/lint-workflows.yml"
+  ],
   "ci_check_drc.py": [
     ".github/workflows/regression.yml"
   ],
@@ -32,6 +52,9 @@
     ".github/workflows/python-tests.yml",
     ".github/workflows/regression.yml"
   ],
+  "ci_identity_check.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "compare_drc_reports.py": [
     "scripts/sprint1_validation.sh"
   ],
@@ -40,19 +63,36 @@
   ],
   "extract_corpus_baselines.py": [],
   "full_pipeline_profile.py": [],
-  "generate_golden_baselines.py": [],
-  "generate_kicad_dru.py": [
-    "packages/temper-drc/tests/test_safety_constant_reconciliation.py"
+  "gen_architecture_poster.py": [
+    ".github/workflows/architecture-poster.yml"
+  ],
+  "gen_domain_models.py": [
+    ".github/workflows/python-tests.yml",
+    "packages/temper-placer/src/temper_placer/core/netclass_rules_gen.py"
+  ],
+  "gen_pcb_skeleton.py": [],
+  "gen_schematics.py": [
+    ".github/workflows/python-tests.yml",
+    "Makefile",
+    "packages/temper-placer/src/temper_placer/io/provenance.py"
+  ],
+  "generate_kicad_dru.py": [],
+  "human_reference_compare.py": [
+    ".github/workflows/human-reference-check.yml"
   ],
   "import_linter_gate.py": [
     ".github/workflows/python-tests.yml"
   ],
   "internal_route.py": [
     "Makefile",
+    "packages/temper-placer/tests/pipeline/stages/test_input_stage_identity_preflight.py",
     "scripts/route_v3.sh",
     "scripts/run_physics_flow.sh",
     "scripts/sprint1_validation.sh",
     "scripts/verify_occupancy_strict.sh"
+  ],
+  "kicad_fill_zones.py": [
+    "packages/temper-placer/tests/placer/cp_sat/test_zone_pour_production_measurement.py"
   ],
   "pipeline_metrics.py": [
     ".github/workflows/firmware-perf-record.yml",
@@ -73,14 +113,24 @@
   ],
   "profile_router_v6_sampling.py": [],
   "profile_rust_topology.py": [],
+  "quarantine_report.py": [
+    ".github/workflows/corpus-batch.yml",
+    ".github/workflows/regression.yml"
+  ],
   "reconcile_metrics.py": [
     ".github/workflows/metrics-reconcile.yml"
   ],
   "run_feedback_loop.py": [
     "scripts/test_backpath_fix.sh"
   ],
+  "scan_external_corpus.py": [
+    ".github/workflows/corpus-batch.yml"
+  ],
   "slo_evaluator.py": [],
   "spc_rules.py": [],
+  "test_root_hygiene.py": [
+    ".github/workflows/python-tests.yml"
+  ],
   "trace_invocations.py": [
     ".github/workflows/python-tests.yml"
   ],

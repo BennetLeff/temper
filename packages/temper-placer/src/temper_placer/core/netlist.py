@@ -15,6 +15,7 @@ import numpy as np
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
+
 @dataclass
 class Pin:
     """
@@ -64,6 +65,12 @@ class Component:
         initial_position: Optional (x, y) initial/fixed position.
         initial_rotation: Optional initial rotation index (0-3 for 0°/90°/180°/270°).
         attributes: Additional component attributes (value, MPN, etc.).
+        sheetpath: Stable module-instance identity (e.g. "hb.power_loop.q_high"),
+            read from the footprint's "Sheetpath" property when present. Unlike
+            `ref`, this survives designator renumbering when the BOM changes —
+            configs should key fixed_positions/component_groups by sheetpath
+            when available (see docs/solutions/logic-errors/
+            fixed-positions-ref-fragility-across-renumbering.md).
     """
 
     ref: str
@@ -78,6 +85,7 @@ class Component:
     initial_side: int | None = None
     attributes: dict[str, str] = field(default_factory=dict)
     tags: frozenset = field(default_factory=frozenset)
+    sheetpath: str | None = None
 
     @property
     def width(self) -> float:

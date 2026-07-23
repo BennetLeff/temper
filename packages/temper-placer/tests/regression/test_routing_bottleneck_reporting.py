@@ -50,9 +50,7 @@ def _make_routing_result(
     from types import SimpleNamespace
 
     routing_results = SimpleNamespace(net_reports=net_reports)
-    data = SimpleNamespace(
-        completion_rate=completion_rate, routing_results=routing_results
-    )
+    data = SimpleNamespace(completion_rate=completion_rate, routing_results=routing_results)
     return SimpleNamespace(data=data)
 
 
@@ -80,9 +78,7 @@ def _bottleneck_message(
 class TestRoutingBottleneckReporting:
     """SC1/SC2: ``routing_failure_messages`` surfaces ``bottleneck.message``."""
 
-    def test_two_net_creepage_failure_yields_bottleneck(
-        self, tmp_path
-    ) -> None:
+    def test_two_net_creepage_failure_yields_bottleneck(self, tmp_path) -> None:
         """A failed net's ``bottleneck.message`` is non-null and matches
         the R2 template; ``current_gap_mm < required_gap_mm``."""
         from temper_placer.router_v6.bottleneck_geometry import BottleneckGeometry
@@ -128,12 +124,15 @@ class TestRoutingBottleneckReporting:
 
         # Patch the protocol runner so the test does not need a real
         # Benders / Router stack. The parse step is a no-op.
-        with patch(
-            "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
-            return_value={},
-        ), patch(
-            "temper_placer.runner.resolve_and_run",
-            return_value=routing_result,
+        with (
+            patch(
+                "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
+                return_value={},
+            ),
+            patch(
+                "temper_placer.runner.resolve_and_run",
+                return_value=routing_result,
+            ),
         ):
             test = ClosureTest(pcb_path=pcb_path, seed={"benders_seed": 42, "router_seed": 42})
             result = test.run()
@@ -183,18 +182,19 @@ class TestRoutingBottleneckReporting:
                 message=_bottleneck_message(),
             ),
         )
-        routing_result = _make_routing_result(
-            net_reports=[failed_report], completion_rate=50.0
-        )
+        routing_result = _make_routing_result(net_reports=[failed_report], completion_rate=50.0)
 
         runs = []
         for _ in range(3):
-            with patch(
-                "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
-                return_value={},
-            ), patch(
-                "temper_placer.runner.resolve_and_run",
-                return_value=routing_result,
+            with (
+                patch(
+                    "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
+                    return_value={},
+                ),
+                patch(
+                    "temper_placer.runner.resolve_and_run",
+                    return_value=routing_result,
+                ),
             ):
                 test = ClosureTest(
                     pcb_path=pcb_path,
@@ -222,9 +222,7 @@ class TestRoutingBottleneckReporting:
         result = ClosureResult(passed=True, board_id="ok")
         assert result.routing_failure_messages == []
 
-    def test_real_router_v6_full_strategy_surfaces_bottlenecks(
-        self, tmp_path
-    ) -> None:
+    def test_real_router_v6_full_strategy_surfaces_bottlenecks(self, tmp_path) -> None:
         """End-to-end: real ``router_v6_full`` strategy on a small failing
         board → ``routing_failure_messages`` is non-empty.
 
@@ -242,9 +240,7 @@ class TestRoutingBottleneckReporting:
         """
         from pathlib import Path
 
-        fixture = (
-            Path(__file__).parent.parent / "fixtures" / "medium_board.kicad_pcb"
-        )
+        fixture = Path(__file__).parent.parent / "fixtures" / "medium_board.kicad_pcb"
         if not fixture.exists():
             pytest.skip(f"Fixture board not available: {fixture}")
 
@@ -299,16 +295,13 @@ class TestRoutingBottleneckReporting:
                 cut_size=1,
                 cut_cells=((0, 0, 0),),
                 message=(
-                    "R1 at (100.0, 80.0) and U1 at (120.0, 85.0) "
-                    "create 4.0mm gap that needs 6.0mm"
+                    "R1 at (100.0, 80.0) and U1 at (120.0, 85.0) create 4.0mm gap that needs 6.0mm"
                 ),
             ),
         )
         # Real shape: data.routing_results.net_reports
         routing_results = SimpleNamespace(net_reports=[failed_report])
-        data = SimpleNamespace(
-            completion_rate=0.0, routing_results=routing_results
-        )
+        data = SimpleNamespace(completion_rate=0.0, routing_results=routing_results)
         routing_result = SimpleNamespace(data=data)
 
         messages = ClosureTest._extract_routing_failure_messages(routing_result)

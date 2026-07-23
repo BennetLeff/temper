@@ -8,7 +8,6 @@ import argparse
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 
 @dataclass
@@ -21,7 +20,7 @@ class FootprintIssue:
     fix_available: bool = False
 
 
-def validate_footprint_file(fp_path: Path) -> List[FootprintIssue]:
+def validate_footprint_file(fp_path: Path) -> list[FootprintIssue]:
     """Check single footprint for common issues.
 
     Returns list of issues (empty if valid).
@@ -140,7 +139,7 @@ def validate_and_fix_footprints(footprint_dir: Path, auto_fix: bool = False) -> 
 
     for fp_file in fp_files:
         issues = validate_footprint_file(fp_file)
-        
+
         if auto_fix:
             current_fp_fixed = False
             for issue in issues:
@@ -175,7 +174,7 @@ def main():
 
     results = validate_and_fix_footprints(args.footprint_dir, auto_fix=args.fix)
 
-    print(f"\n📊 Footprint Validation Results:")
+    print("\n📊 Footprint Validation Results:")
     print(f"  Total footprints: {results['total']}")
     print(f"  Errors: {results['errors']}")
     print(f"  Warnings: {results['warnings']}")
@@ -186,7 +185,7 @@ def main():
         # Show first 20
         for issue in results['issues'][:20]:
             print(f"  [{issue.severity.upper()}] {issue.footprint}: {issue.message} ({issue.issue_type})")
-        
+
         if len(results['issues']) > 20:
             print(f"  ... and {len(results['issues']) - 20} more.")
 

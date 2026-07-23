@@ -150,20 +150,27 @@ class CourtyardCheckStage(Stage):
         tree = STRtree([poly for poly, _ in polys_with_refs])
 
         # Query for intersections (O(n log n) instead of O(n²))
+        #
+        # VERIFIED 2026-07-17: shapely>=2.0's STRtree.query() returns an
+        # ndarray of integer INDICES into the array the tree was built
+        # from, not geometry objects. The previous `if p is candidate_poly`
+        # identity check compared a Polygon to a numpy.int64 and could
+        # never match, so ref2 was always None and every candidate was
+        # skipped -- this stage detected zero collisions on any board,
+        # regardless of real overlaps (confirmed empirically: 27 real
+        # courtyards_overlap + 16 pth_inside_courtyard kicad-cli errors on
+        # a board this stage reported as fully resolved). See
+        # docs/solutions/logic-errors/
+        # courtyard-check-stage-finds-zero-collisions-real-drc-finds-43.md.
         checked_pairs = set()
         for poly, ref1 in polys_with_refs:
             # Query spatial index for candidates (uses bounding box)
-            candidates = tree.query(poly)
+            candidate_indices = tree.query(poly)
 
-            for candidate_poly in candidates:
-                # Find ref2 for this polygon
-                ref2 = None
-                for p, r in polys_with_refs:
-                    if p is candidate_poly:
-                        ref2 = r
-                        break
+            for idx in candidate_indices:
+                candidate_poly, ref2 = polys_with_refs[idx]
 
-                if ref2 is None or ref1 == ref2:
+                if ref1 == ref2:
                     continue
 
                 # Avoid checking same pair twice

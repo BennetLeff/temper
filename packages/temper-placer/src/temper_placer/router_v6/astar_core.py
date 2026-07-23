@@ -7,7 +7,7 @@ Part of temper-N6-U6 decomposition.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final
 
 import numpy as np
@@ -29,8 +29,14 @@ DIAGONAL_COST_FACTOR: float = 1.0
 _BASE_DIAGONAL_COST: Final[float] = math.sqrt(2.0)
 
 _SAME_LAYER_DELTAS: tuple[tuple[int, int], ...] = (
-    (0, 1), (1, 0), (0, -1), (-1, 0),
-    (1, 1), (1, -1), (-1, 1), (-1, -1),
+    (0, 1),
+    (1, 0),
+    (0, -1),
+    (-1, 0),
+    (1, 1),
+    (1, -1),
+    (-1, 1),
+    (-1, -1),
 )
 
 
@@ -47,7 +53,14 @@ def in_bounds(x: int, y: int, width_cells: int, height_cells: int) -> bool:
 # 8-move direction encoding shared with neighbor_validity.DIRS_8.
 # Order: E, SE, S, SW, W, NW, N, NE.
 _DIRS_8: tuple[tuple[int, int], ...] = (
-    (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1),
+    (1, 0),
+    (1, 1),
+    (0, 1),
+    (-1, 1),
+    (-1, 0),
+    (-1, -1),
+    (0, -1),
+    (1, -1),
 )
 
 
@@ -60,6 +73,9 @@ class RoutePath:
     layer_name: str
     path_length: float  # Total length in mm
     forced_segment_count: int = 0  # Number of segments using force routing (fallback)
+    # Waypoint indices whose incoming edge was not found by A*.  Kept so a
+    # multi-terminal caller can fail closed and name the unresolved terminal.
+    failed_waypoint_indices: list[int] = field(default_factory=list)
 
     @property
     def segment_count(self) -> int:
@@ -99,6 +115,7 @@ class RoutePath3D:
     path_length: float  # Total length in mm
     via_count: int = 0
     forced_segment_count: int = 0
+    failed_waypoint_indices: list[int] = field(default_factory=list)
 
     @property
     def segment_count(self) -> int:
@@ -114,6 +131,7 @@ class RoutePath3D:
             layer_name=default_layer,
             path_length=self.path_length,
             forced_segment_count=self.forced_segment_count,
+            failed_waypoint_indices=self.failed_waypoint_indices,
         )
 
 
@@ -124,6 +142,7 @@ def _astar_search(
     neighbor_tensor: np.ndarray | None = None,
     thermal_flat: np.ndarray | None = None,
     thermal_weight: float = 0.0,
+    net_id: int = -1,
 ) -> list[tuple[int, int]] | None:
     """
     A* search algorithm for pathfinding.
@@ -155,10 +174,11 @@ def _astar_search(
     # over the grid) but keeps the inner loop on the tensor path.
     # New callers should build the tensor once at A* pass start
     # (outside the per-net A* loop) and pass it in.
-    if neighbor_tensor is None:
+    if neighbor_tensor is None and net_id < 0:
         from temper_placer.router_v6.neighbor_validity import (
             build_neighbor_validity_tensor_2d,
         )
+
         neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
 
     cols = grid.width_cells
@@ -201,13 +221,23 @@ def _astar_search(
         from temper_placer.router_v6.neighbor_validity import (
             is_valid_2d as _tensor_is_valid,
         )
+
         cx, cy = current  # current is (x, y) tuple; rename for tensor indexing
 
         for dir_idx in range(8):
-            if not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
-                continue
             dx, dy = _DIRS_8[dir_idx]
             nx, ny = cx + dx, cy + dy
+            if net_id >= 0:
+                if not in_bounds(nx, ny, grid.width_cells, grid.height_cells):
+                    continue
+                cell_value = grid.grid[ny, nx]
+                if cell_value != 0 and cell_value != net_id:
+                    continue
+            else:
+                # net_id < 0 guarantees neighbor_tensor was built at line 168.
+                assert neighbor_tensor is not None
+                if not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
+                    continue
 
             # Diagonal cost uses configurable multiplier
             move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
@@ -256,7 +286,10 @@ def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
 
 
 def _line_of_sight(
-    p1: tuple[int, int], p2: tuple[int, int], grid, net_id: int,
+    p1: tuple[int, int],
+    p2: tuple[int, int],
+    grid,
+    net_id: int,
 ) -> bool:
     """
     Check if there's an unobstructed diagonal line between two grid points.
@@ -276,7 +309,7 @@ def _line_of_sight(
     x1, y1 = p2
 
     # @req(2026-06-29-feat-los-bb, R1): BB empty shortcut
-    bbox = grid.grid[min(y0, y1):max(y0, y1) + 1, min(x0, x1):max(x0, x1) + 1]
+    bbox = grid.grid[min(y0, y1) : max(y0, y1) + 1, min(x0, x1) : max(x0, x1) + 1]
     if not np.any(bbox):
         _LOS_BB_HITS[0] += 1
         return True
@@ -351,6 +384,7 @@ def _astar_search_lazy_theta_star(
 
     if enable_numba_los:
         from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
+
         los_fn = _line_of_sight_numba
     else:
         los_fn = _line_of_sight
@@ -539,6 +573,7 @@ def _astar_search_theta_star(
 
     if enable_numba_los:
         from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
+
         los_fn = _line_of_sight_numba
     else:
         los_fn = _line_of_sight
@@ -634,6 +669,7 @@ def _astar_search_3d(
     via_diameter: float = 0.6,
     clearance: float = 0.2,
     net_id: int = 0,
+    max_iter: int | None = None,
 ) -> tuple[list, list[tuple[int, int]]] | None:
     """
     3D A* search with layer transitions (via insertion).
@@ -650,7 +686,22 @@ def _astar_search_3d(
         via_cost: Cost multiplier for layer transitions (default 10x step)
         via_diameter: Via annular ring diameter in mm
         clearance: Via clearance in mm
-        net_id: Net ID for blocking
+        net_id: Net ID for blocking. Also gates via-blocking: vias are
+            only marked on the occupancy grid via ``mark_via_blocked()``
+            when ``net_id > 0`` (see the loop body below) -- callers that
+            want the search's own via placements to be protected against
+            a later, different net's search MUST pass a real net_id, not
+            the default 0.
+        max_iter: Maximum frontier pops before giving up and returning
+            None (safety net). Default ``None`` = unlimited
+            (backward-compatible), mirroring ``_astar_search_theta_star``/
+            ``_astar_search_lazy_theta_star``'s ``max_iter`` semantics.
+            U1's production-scale spike (see
+            ``test_astar_3d_production_scale_spike.py``) measured up to
+            66s wall time on a degenerate long-distance segment with no
+            cap -- callers that may hit pathological/unreachable
+            segments (e.g. the fallback-tier call site in
+            ``_astar_route_multilayer``) should pass an explicit bound.
 
     Returns:
         (path, via_positions) or None if no path found
@@ -684,7 +735,18 @@ def _astar_search_3d(
 
     goal_key = (goal.x, goal.y, goal.layer)
 
+    # U2 fix (docs/plans/2026-07-18-003-*): iteration safety valve.
+    # Unlike the Theta*/Lazy Theta* variants, this search has no
+    # closed-set-based expansion count -- count frontier pops instead,
+    # which is a reasonable proxy for wall time given the per-pop work
+    # below (neighbor generation over up to len(available_layers) grids).
+    iterations = 0
+
     while frontier:
+        iterations += 1
+        if max_iter is not None and iterations > max_iter:
+            return None
+
         _, current_key = heappop(frontier)
         x, y, layer = current_key
 
@@ -738,7 +800,9 @@ def _astar_search_3d(
         for dx, dy in _SAME_LAYER_DELTAS:
             nx, ny = x + dx, y + dy
             if grid.is_free(nx, ny):
-                move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
+                move_cost = (
+                    DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
+                )
                 moves.append(((nx, ny, layer), move_cost))
 
         # Layer transition moves (via insertion)
@@ -768,6 +832,20 @@ def _astar_search_3d(
     return None  # No path found
 
 
+# U2 fix (docs/plans/2026-07-18-003-*, informed by U1's spike): a sane,
+# non-None default iteration cap for ``_route_segment_3d``. This function
+# had zero production callers before U2, so changing its default from
+# "unbounded" to "bounded" is not a behavior change for any existing
+# caller -- it only affects the new fallback-tier call site (and any
+# direct test call that doesn't override it). U1 measured short
+# (waypoint-scale) fallback-tier calls completing in well under 1ms
+# (tens to low hundreds of iterations); 200_000 leaves 3+ orders of
+# magnitude of headroom for that call pattern while still bounding a
+# pathological/unreachable segment's wall time to a small multiple of a
+# second rather than U1's observed unbounded 66s worst case.
+_ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER: Final[int] = 200_000
+
+
 def _route_segment_3d(
     start_world: tuple[float, float],
     goal_world: tuple[float, float],
@@ -775,6 +853,10 @@ def _route_segment_3d(
     goal_layer: str,
     grids: dict,
     via_cost: float = 10.0,
+    via_diameter: float = 0.6,
+    clearance: float = 0.2,
+    net_id: int = 0,
+    max_iter: int | None = _ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER,
 ) -> tuple[list[tuple[float, float, str]], list[tuple[float, float]]] | None:
     """
     Route a single segment using 3D A* with via insertion.
@@ -789,6 +871,23 @@ def _route_segment_3d(
         goal_layer: Goal layer name
         grids: Dictionary of OccupancyGrid per layer
         via_cost: Cost for layer transitions
+        via_diameter: Resolved netclass via diameter in mm used to reserve
+            the candidate via's copper envelope on every spanned layer.
+        clearance: Resolved netclass clearance in mm used with
+            ``via_diameter`` when reserving that envelope.
+        net_id: Net ID passed through to ``_astar_search_3d`` so any via
+            placed by this call is actually blocked on the occupancy
+            grid via ``mark_via_blocked()`` (which requires ``net_id >
+            0``). U1's spike found this was previously silently dropped
+            -- ``_astar_search_3d`` was always called with its
+            ``net_id=0`` default, so via-blocking never fired through
+            this entry point. Callers that want their via placements
+            protected against a later net's search MUST pass a real
+            (>0) net_id.
+        max_iter: Maximum ``_astar_search_3d`` frontier pops before
+            giving up (safety net against the 66s worst case U1
+            measured). Defaults to ``_ROUTE_SEGMENT_3D_DEFAULT_MAX_ITER``;
+            pass ``None`` explicitly for the old unbounded behavior.
 
     Returns:
         (world_path, via_positions) or None
@@ -815,7 +914,16 @@ def _route_segment_3d(
     start_node = RouteNode3D(start_grid[0], start_grid[1], start_layer)
     goal_node = RouteNode3D(goal_grid[0], goal_grid[1], goal_layer)
 
-    result = _astar_search_3d(start_node, goal_node, grids, via_cost)
+    result = _astar_search_3d(
+        start_node,
+        goal_node,
+        grids,
+        via_cost=via_cost,
+        via_diameter=via_diameter,
+        clearance=clearance,
+        net_id=net_id,
+        max_iter=max_iter,
+    )
 
     if result is None:
         return None
@@ -829,26 +937,20 @@ def _route_segment_3d(
         world_x, world_y = grid.grid_to_world(node.x, node.y)
         bulk_path.append((world_x, world_y, node.layer))
 
-    # **KEY FIX**: Replace first and last points with exact pad positions
-    # This ensures routes connect directly to pad centers, not grid-snapped approximations
-    world_path = []
-
-    if len(bulk_path) > 0:
-        # Start with exact pad center
+    # Preserve the complete 3D bulk walk between exact pad anchors.  In
+    # particular, do not discard the first or last bulk node: either can be
+    # one half of a same-coordinate layer transition.  Removing it turns a
+    # recorded via into an impossible cross-layer track at output time.
+    world_path: list[tuple[float, float, str]] = []
+    if bulk_path:
         world_path.append((start_world[0], start_world[1], start_layer))
+        for point in bulk_path:
+            if point != world_path[-1]:
+                world_path.append(point)
 
-        # Add bulk path (excluding first and last if they're the same as pads)
-        # Keep middle segments
-        if len(bulk_path) > 2:
-            world_path.extend(bulk_path[1:-1])
-
-        # End with exact pad center (if different from start)
-        if len(bulk_path) == 1:
-            # Single-cell path: just start and end at pads
-            if (start_world[0], start_world[1]) != (goal_world[0], goal_world[1]):
-                world_path.append((goal_world[0], goal_world[1], goal_layer))
-        else:
-            world_path.append((goal_world[0], goal_world[1], goal_layer))
+        goal_point = (goal_world[0], goal_world[1], goal_layer)
+        if goal_point != world_path[-1]:
+            world_path.append(goal_point)
 
     via_world_positions = []
     for gx, gy in via_grid_positions:

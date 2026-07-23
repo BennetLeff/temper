@@ -18,43 +18,44 @@ dev = [
     "temper-geometry",
     "temper-dsn",
     "temper-ipc",
+    "temper-io-types",
+    "temper-design-bundle",
 ]
 
 [tool.uv.workspace]
 members = ["packages/*"]
+exclude = ["packages/temper-geometry-core", "packages/temper-dsn-core", "packages/temper-ipc-core"]
 
 [tool.uv.sources]
 temper-placer = { workspace = true }
 temper-workflow = { workspace = true }
 temper-autoprof = { workspace = true }
-temper-testing = { workspace = true }
-temper-validation = { workspace = true }
 temper-drc-rs = { workspace = true }
 temper-geometry = { workspace = true }
-temper-geometry-core = { workspace = true }
 temper-dsn = { workspace = true }
 temper-ipc = { workspace = true }
+temper-io-types = { workspace = true }
+temper-design-bundle = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = [
     "packages/temper-placer/tests",
     "packages/temper-workflow/tests",
     "packages/temper-autoprof/tests",
-    "packages/temper-testing/tests",
-    "packages/temper-validation/tests"
+    "elec/validation"
 ]
 pythonpath = [
     "packages/temper-placer/src",
     "packages/temper-workflow/src",
     "packages/temper-autoprof/src",
-    "packages/temper-testing/src",
-    "packages/temper-validation/src"
+    "elec/validation"
 ]
 addopts = ["-v", "--tb=short"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks integration tests requiring full pipeline",
     "routing: marks routing DRC regression gate tests (golden-board CI gate)",
+    "property: marks Hypothesis/property-based invariant tests",
 ]
 
 [tool.ruff]
@@ -66,16 +67,19 @@ src = ["packages/*/src", "packages/*/tests"]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
 ignore = ["E501"]
 
+[tool.mypy]
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]
+mypy_path = "packages/temper-placer/stubs"
+
+[[tool.mypy.overrides]]
+module = "yaml"
+follow_imports = "skip"
+
 [tool.coverage.run]
 branch = true
-source = [
-    "temper_placer.core",
-    "temper_placer.router_v6.grid_prep_stage",
-    "temper_placer.router_v6.net_prep_stage",
-    "temper_placer.router_v6.route_stage",
-    "temper_placer.router_v6.result_aggregate_stage",
-    "temper_placer.router_v6.stage4_orchestrator",
-]
+source = ["temper_placer"]
+omit = ["*/_constraint_types/*", "*/profiling/*"]
 
 [tool.coverage.report]
 show_missing = true

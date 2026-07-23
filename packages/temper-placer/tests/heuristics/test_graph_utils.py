@@ -1,4 +1,3 @@
-
 import pytest
 
 from temper_placer.core.netlist import Component, Net, Netlist

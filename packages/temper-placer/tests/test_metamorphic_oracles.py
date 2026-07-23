@@ -21,9 +21,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).parent.parent.parent.parent
-_PCB_PATH = (
-    REPO_ROOT / "power_pcb_dataset/corpus/temper/temper.kicad_pcb"
-).resolve()
+_PCB_PATH = (REPO_ROOT / "power_pcb_dataset/corpus/temper/temper.kicad_pcb").resolve()
 
 
 def _load_result():
@@ -57,7 +55,8 @@ def _get_fixed_components(parsed) -> list:
     if netlist is None:
         return []
     return [
-        c for c in getattr(netlist, "components", [])
+        c
+        for c in getattr(netlist, "components", [])
         if getattr(c, "fixed", False) and getattr(c, "initial_position", None) is not None
     ]
 
@@ -79,15 +78,12 @@ def test_parse_idempotency() -> None:
         f"extra={set(nets2) - set(nets1)}, missing={set(nets1) - set(nets2)}"
     )
     for name in nets1:
-        assert nets1[name] == nets2[name], (
-            f"Net '{name}' connections differ between parses"
-        )
+        assert nets1[name] == nets2[name], f"Net '{name}' connections differ between parses"
 
     comps1 = {getattr(c, "ref", "") for c in parsed1.netlist.components if getattr(c, "ref", None)}
     comps2 = {getattr(c, "ref", "") for c in parsed2.netlist.components if getattr(c, "ref", None)}
     assert comps1 == comps2, (
-        f"Component refs differ between parses: "
-        f"extra={comps2 - comps1}, missing={comps1 - comps2}"
+        f"Component refs differ between parses: extra={comps2 - comps1}, missing={comps1 - comps2}"
     )
 
 
@@ -161,11 +157,11 @@ def test_initial_non_overlap() -> None:
     if overlaps:
         overlap_msg = (
             f"{len(overlaps)} tight component placement(s) in initial layout "
-            f"(may be intended in gate-drive / USB regions):\n  "
-            + "\n  ".join(overlaps[:10])
+            f"(may be intended in gate-drive / USB regions):\n  " + "\n  ".join(overlaps[:10])
         )
         import warnings
-        warnings.warn(overlap_msg)
+
+        warnings.warn(overlap_msg, stacklevel=2)
 
 
 # ---------------------------------------------------------------------------

@@ -12,7 +12,7 @@ def estimate_junction_temp(
     ambient_C: float = 40.0,
     Rjc: float = 0.6,
     Rch: float = 0.25,
-    Rha_base: float = 2.0,
+    Rha_base: float = 1.0,
 ) -> float:
     """
     Estimate component junction temperature from placement and environment.
@@ -27,7 +27,10 @@ def estimate_junction_temp(
         ambient_C: Ambient temperature in °C.
         Rjc: Junction-to-case thermal resistance (K/W). Default 0.6 (TO-247).
         Rch: Case-to-heatsink thermal resistance (K/W). Default 0.25 (grease).
-        Rha_base: Base heatsink-to-ambient resistance (K/W). Default 2.0.
+        Rha_base: Base heatsink-to-ambient resistance (K/W). Default 1.0.
+        Wakefield 694-100 extrusion family, ~75mm length, natural convection,
+        de-rated for temper induction-cooker enclosure (50 °C ambient, limited
+        vertical chimney).
 
     Returns:
         Estimated junction temperature in °C.

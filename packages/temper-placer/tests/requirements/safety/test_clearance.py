@@ -5,7 +5,6 @@ These tests verify that clearance and creepage distance validation functions wor
 and that placements meet IEC 60335-2-6 safety requirements.
 """
 
-
 import pytest
 
 # Import validators (will fail until implemented)

@@ -29,9 +29,7 @@ from typing import Any
 # ---------------------------------------------------------------------------
 
 
-_FIXTURE_PATH = (
-    Path(__file__).parent / "fixtures" / "baseline_closure.json"
-)
+_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "baseline_closure.json"
 
 # Default PCB path used when the gate runs without an explicit
 # override.  The closure test now targets ``pcb/temper.kicad_pcb``
@@ -42,9 +40,7 @@ _FIXTURE_PATH = (
 # also be pointed at a different PCB via the TEMPER_CLOSURE_PCB
 # env var (which the test still supports).
 _DEFAULT_PCB = (
-    Path(__file__).resolve().parent.parent.parent.parent.parent
-    / "pcb"
-    / "temper.kicad_pcb"
+    Path(__file__).resolve().parent.parent.parent.parent.parent / "pcb" / "temper.kicad_pcb"
 )
 
 
@@ -129,8 +125,7 @@ def _measure_candidate_closure() -> CandidateClosure:
         payload = json.loads(proc.stdout)
     except json.JSONDecodeError as e:
         raise RuntimeError(
-            f"closure runner emitted non-JSON output: {e}; "
-            f"stdout={proc.stdout!r}"
+            f"closure runner emitted non-JSON output: {e}; stdout={proc.stdout!r}"
         ) from e
     return CandidateClosure(
         router_completion_pct=float(payload.get("router_completion_pct", 0.0)),
@@ -230,8 +225,7 @@ def _measure_candidate_closure() -> CandidateClosure:
         payload = json.loads(proc.stdout)
     except json.JSONDecodeError as e:
         raise RuntimeError(
-            f"closure runner emitted non-JSON output: {e}; "
-            f"stdout={proc.stdout!r}"
+            f"closure runner emitted non-JSON output: {e}; stdout={proc.stdout!r}"
         ) from e
     return CandidateClosure(
         router_completion_pct=float(payload.get("router_completion_pct", 0.0)),
@@ -261,8 +255,7 @@ class TestPostChangePromotionGate:
             "Investigate the runner output before re-running."
         )
         assert candidate.router_completion_pct >= target, (
-            f"SM1 fail: candidate {candidate.router_completion_pct:.1f}% "
-            f"< target {target:.1f}%"
+            f"SM1 fail: candidate {candidate.router_completion_pct:.1f}% < target {target:.1f}%"
         )
         assert candidate.router_completion_pct >= baseline["router_completion_pct"], (
             f"SM1 fail: candidate {candidate.router_completion_pct:.1f}% "
@@ -280,8 +273,7 @@ class TestPostChangePromotionGate:
             "runner output (kicad-cli availability) before re-running."
         )
         assert candidate.drc_clearance_pass_pct >= target, (
-            f"SM2 fail: candidate {candidate.drc_clearance_pass_pct:.1f}% "
-            f"< target {target:.1f}%"
+            f"SM2 fail: candidate {candidate.drc_clearance_pass_pct:.1f}% < target {target:.1f}%"
         )
         assert candidate.drc_clearance_pass_pct >= baseline["drc_clearance_pass_pct"], (
             f"SM2 fail: candidate {candidate.drc_clearance_pass_pct:.1f}% "

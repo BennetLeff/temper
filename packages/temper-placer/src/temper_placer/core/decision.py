@@ -9,6 +9,7 @@ from typing import Any
 @dataclass
 class Alternative:
     """A rejected alternative for a decision."""
+
     value: Any
     rejection_reason: str
     constraint_violated: str | None = None
@@ -19,18 +20,20 @@ class Alternative:
             "value": self.value,
             "rejection_reason": self.rejection_reason,
             "constraint_violated": self.constraint_violated,
-            "loss_if_chosen": self.loss_if_chosen
+            "loss_if_chosen": self.loss_if_chosen,
         }
+
 
 @dataclass
 class Decision:
     """Single auditable decision in the placement/routing process."""
+
     id: str
-    subject: str # Component ref or net name
-    value: Any # Position, rotation, layer, etc.
+    subject: str  # Component ref or net name
+    value: Any  # Position, rotation, layer, etc.
     timestamp: datetime = field(default_factory=datetime.now)
-    phase: str = "geometric" # 'topological', 'geometric', 'routing'
-    decision_type: str = "placement" # 'placement', 'rotation', 'layer', etc.
+    phase: str = "geometric"  # 'topological', 'geometric', 'routing'
+    decision_type: str = "placement"  # 'placement', 'rotation', 'layer', etc.
 
     # Why
     reason: str = ""
@@ -51,12 +54,14 @@ class Decision:
             "reason": self.reason,
             "constraint_refs": self.constraint_refs,
             "loss_contribution": self.loss_contribution,
-            "alternatives_considered": [a.to_dict() for a in self.alternatives_considered]
+            "alternatives_considered": [a.to_dict() for a in self.alternatives_considered],
         }
+
 
 @dataclass
 class DecisionTrace:
     """Complete audit trail for a placement/routing run."""
+
     run_id: str
     start_time: datetime = field(default_factory=datetime.now)
     end_time: datetime | None = None
@@ -91,7 +96,7 @@ class DecisionTrace:
             "start_time": self.start_time.isoformat(),
             "end_time": self.end_time.isoformat() if self.end_time else None,
             "decisions": [d.to_dict() for d in self.decisions],
-            "final_metrics": self.final_metrics
+            "final_metrics": self.final_metrics,
         }
 
     def to_json(self) -> str:

@@ -140,8 +140,7 @@ def _snapshot(state_or_pcb: Any) -> _CardinalitySnapshot:
                 snap.component_count = len(pcb.components)
         if state_or_pcb.channel_skeletons:
             snap.channel_count = sum(
-                len(getattr(s, "channels", []))
-                for s in state_or_pcb.channel_skeletons.values()
+                len(getattr(s, "channels", [])) for s in state_or_pcb.channel_skeletons.values()
             )
         escape_vias = getattr(state_or_pcb, "_escape_vias", None) or ()
         snap.via_count = len(escape_vias)
@@ -180,7 +179,13 @@ def _diff(
 ) -> list[tuple[str, int, int]]:
     """Return list of (field, before, after) for any count that changed."""
     diffs: list[tuple[str, int, int]] = []
-    for field_name in ("net_count", "component_count", "channel_count", "via_count", "segment_count"):
+    for field_name in (
+        "net_count",
+        "component_count",
+        "channel_count",
+        "via_count",
+        "segment_count",
+    ):
         before = getattr(pre, field_name)
         after = getattr(post, field_name)
         if before != after:

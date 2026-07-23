@@ -4,12 +4,13 @@ Tests for kicad-cli DRC runner.
 TDD Task: temper-1my.5.1
 """
 
+import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from temper_placer.validation.drc_runner import (
+from temper_placer.validation._drc_api import (
     DrcError,
     DrcResult,
     DrcRunnerError,
@@ -110,7 +111,21 @@ class TestDrcRunner:
 
     @pytest.fixture
     def mock_error_drc_output(self) -> dict:
-        """Mock kicad-cli DRC JSON output with errors."""
+        """Mock kicad-cli DRC JSON output with errors.
+
+        Shaped to match REAL kicad-cli output (verified 2026-07-17 against
+        actual `kicad-cli pcb drc --format json` output -- see
+        docs/solutions/logic-errors/
+        drc-api-wrapper-components-and-location-always-empty.md): items
+        never carry a "reference" key (the ref is embedded in a free-text
+        "description" string like "Footprint R1" or "Pad 1 [...] of U1"),
+        and violations never carry a top-level "pos" (only per-item
+        "pos" does). A prior version of this fixture invented a
+        "reference"/top-level-"pos" schema that matched neither real
+        kicad-cli output nor was ever exercised against it -- it happened
+        to match the (also wrong) old parser, so both looked correct
+        together while being wrong relative to reality.
+        """
         return {
             "source": "/path/to/board.kicad_pcb",
             "date": "2025-12-16",
@@ -120,20 +135,21 @@ class TestDrcRunner:
                     "type": "clearance",
                     "severity": "error",
                     "description": "Clearance violation (0.15mm < 0.2mm)",
-                    "pos": {"x": 25.0, "y": 30.0},
                     "items": [
-                        {"reference": "U1", "description": "Pad 1"},
-                        {"reference": "U2", "description": "Pad 3"},
+                        {
+                            "description": "Pad 1 [+3V3] of U1 on F.Cu",
+                            "pos": {"x": 25.0, "y": 30.0},
+                        },
+                        {"description": "Pad 3 [GND] of U2 on F.Cu", "pos": {"x": 26.0, "y": 30.0}},
                     ],
                 },
                 {
                     "type": "courtyard_overlap",
                     "severity": "error",
                     "description": "Footprint courtyards overlap",
-                    "pos": {"x": 50.0, "y": 60.0},
                     "items": [
-                        {"reference": "R1", "description": "Footprint"},
-                        {"reference": "C1", "description": "Footprint"},
+                        {"description": "Footprint R1", "pos": {"x": 50.0, "y": 60.0}},
+                        {"description": "Footprint C1", "pos": {"x": 52.0, "y": 60.0}},
                     ],
                 },
             ],
@@ -142,7 +158,11 @@ class TestDrcRunner:
     @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_on_clean_board(
-        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_clean_drc_output: dict, tmp_path: Path
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_clean_drc_output: dict,
+        tmp_path: Path,
     ) -> None:
         """Clean board should return 0 errors."""
         import json
@@ -164,9 +184,7 @@ class TestDrcRunner:
         mock_ctx.__enter__.return_value = mock_ctx
         mock_temp_file.return_value = mock_ctx
 
-        with patch(
-            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
-        ):
+        with patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True):
             result = run_drc(pcb_file)
 
         assert result.error_count == 0
@@ -176,7 +194,11 @@ class TestDrcRunner:
     @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_detects_overlap(
-        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_error_drc_output: dict, tmp_path: Path
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_error_drc_output: dict,
+        tmp_path: Path,
     ) -> None:
         """Board with overlapping footprints should have errors."""
         import json
@@ -195,9 +217,7 @@ class TestDrcRunner:
         mock_ctx.__enter__.return_value = mock_ctx
         mock_temp_file.return_value = mock_ctx
 
-        with patch(
-            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
-        ):
+        with patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True):
             result = run_drc(pcb_file)
 
         assert result.error_count == 2
@@ -210,7 +230,11 @@ class TestDrcRunner:
     @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_detects_clearance(
-        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_error_drc_output: dict, tmp_path: Path
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_error_drc_output: dict,
+        tmp_path: Path,
     ) -> None:
         """Board with clearance violations should have errors."""
         import json
@@ -229,15 +253,46 @@ class TestDrcRunner:
         mock_ctx.__enter__.return_value = mock_ctx
         mock_temp_file.return_value = mock_ctx
 
-        with patch(
-            "temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=True
-        ):
+        with patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True):
             result = run_drc(pcb_file)
 
         # Find clearance error
         clearance_errors = [e for e in result.errors if e.rule == "clearance"]
         assert len(clearance_errors) == 1
         assert clearance_errors[0].location[0] == pytest.approx(25.0)
+
+    @patch("tempfile.NamedTemporaryFile")
+    @patch("subprocess.run")
+    def test_drc_rejects_nonzero_cli_status_even_with_json(
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_clean_drc_output: dict,
+        tmp_path: Path,
+    ) -> None:
+        """A crashed CLI is unmeasured, never a clean DRC result."""
+        import json
+
+        pcb_file = tmp_path / "crashed_board.kicad_pcb"
+        pcb_file.write_text("(kicad_pcb)")
+        json_file = tmp_path / "drc_report.json"
+        json_file.write_text(json.dumps(mock_clean_drc_output))
+
+        mock_run.return_value = MagicMock(
+            returncode=133,
+            stdout="",
+            stderr="Fatal error: Array index out of range",
+        )
+        mock_ctx = MagicMock()
+        mock_ctx.name = str(json_file)
+        mock_ctx.__enter__.return_value = mock_ctx
+        mock_temp_file.return_value = mock_ctx
+
+        with (
+            patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True),
+            pytest.raises(DrcRunnerError, match="exit 133"),
+        ):
+            run_drc(pcb_file)
 
     def test_drc_on_nonexistent_file(self, tmp_path: Path) -> None:
         """Non-existent PCB file should raise FileNotFoundError."""
@@ -246,7 +301,7 @@ class TestDrcRunner:
         with pytest.raises(FileNotFoundError):
             run_drc(pcb_file)
 
-    @patch("temper_placer.validation.drc_runner.is_kicad_cli_available", return_value=False)
+    @patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=False)
     def test_drc_without_kicad_cli(self, _mock_available: MagicMock, tmp_path: Path) -> None:
         """Running DRC without kicad-cli should raise DrcRunnerError."""
         pcb_file = tmp_path / "board.kicad_pcb"
@@ -258,7 +313,10 @@ class TestDrcRunner:
         assert "kicad-cli" in str(exc_info.value).lower()
 
 
-@pytest.mark.skipif(not is_kicad_cli_available(), reason="kicad-cli not installed")
+@pytest.mark.skipif(
+    sys.platform != "linux" or not is_kicad_cli_available(),
+    reason="real KiCad DRC is verified by the Linux truth-gate runner",
+)
 class TestDrcRunnerIntegration:
     """Integration tests requiring actual kicad-cli installation."""
 

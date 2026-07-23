@@ -98,7 +98,9 @@ class CongestionHeatmap:
         """Sum of all congestion values."""
         return float(np.sum(self.grid))
 
-    def get_hotspots(self, threshold: float = 0.5, max_count: int = 10) -> list[tuple[float, float, float]]:
+    def get_hotspots(
+        self, threshold: float = 0.5, max_count: int = 10
+    ) -> list[tuple[float, float, float]]:
         """Find high-congestion locations.
 
         Args:

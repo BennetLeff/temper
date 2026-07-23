@@ -6,7 +6,9 @@ from hypothesis import strategies as st
 
 
 @st.composite
-def component_sizes(draw: st.DrawFn, min_mm: float = 1.0, max_mm: float = 20.0) -> tuple[float, float]:
+def component_sizes(
+    draw: st.DrawFn, min_mm: float = 1.0, max_mm: float = 20.0
+) -> tuple[float, float]:
     """Generate a (width_mm, height_mm) component size."""
     w = draw(st.floats(min_value=min_mm, max_value=max_mm))
     h = draw(st.floats(min_value=min_mm, max_value=max_mm))
@@ -15,7 +17,9 @@ def component_sizes(draw: st.DrawFn, min_mm: float = 1.0, max_mm: float = 20.0) 
 
 @st.composite
 def board_dimensions(
-    draw: st.DrawFn, min_mm: float = 20.0, max_mm: float = 200.0,
+    draw: st.DrawFn,
+    min_mm: float = 20.0,
+    max_mm: float = 200.0,
 ) -> tuple[float, float]:
     """Generate a (board_w_mm, board_h_mm) pair."""
     w = draw(st.floats(min_value=min_mm, max_value=max_mm))
@@ -48,10 +52,7 @@ def small_placement_instance(draw: st.DrawFn, n_comps: int | None = None):
 
     units_per_mm = 100
 
-    if n_comps is None:
-        n = draw(st.integers(min_value=2, max_value=6))
-    else:
-        n = n_comps
+    n = draw(st.integers(min_value=2, max_value=6)) if n_comps is None else n_comps
 
     tau_mm = draw(st.floats(min_value=0.0, max_value=2.0))
     margin_mm = draw(st.floats(min_value=0.0, max_value=2.0))

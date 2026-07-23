@@ -23,6 +23,12 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
 
@@ -62,22 +68,10 @@ jobs:
       - name: Golden fixture parity
         id: golden
         run: |
-          GOLDEN_FAILURES=""
-          for boundary in semantic topological placement routing validation; do
-            if uv run temper-placer dsn check \
-              --boundary "$boundary" \
-              --input pcb/temper.kicad_pcb \
-              --golden-dir power_pcb_dataset/goldens/temper 2>&1; then
-              echo "  $boundary: passed"
-            else
-              echo "  $boundary: FAILED"
-              GOLDEN_FAILURES="$GOLDEN_FAILURES $boundary"
-            fi
-          done
-          if [ -n "$GOLDEN_FAILURES" ]; then
-            echo "golden_failures=$GOLDEN_FAILURES" >> "$GITHUB_OUTPUT"
-          else
+          if uv run temper-placer regression 2>&1; then
             echo "golden_failures=" >> "$GITHUB_OUTPUT"
+          else
+            echo "golden_failures=regression_failed" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Pipeline metrics drift

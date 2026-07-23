@@ -2,15 +2,21 @@ mod atopile;
 mod constraint_merge;
 mod error;
 mod identity;
+mod kicad_pcb;
 mod model;
+mod netlist;
 mod pcl;
 mod serialize;
+mod sexpr;
 
 pub use atopile::{
     AtopileComponent, AtopileExport, AtopileNet, MappingEntry, NetMapping, SafetyRule,
 };
 pub use error::{DesignBundleError, Diagnostic};
+pub use identity::{BoardIdentityOptions, validate_board_identity};
+pub use kicad_pcb::extract_footprint_references;
 pub use model::*;
+pub use netlist::extract_component_references;
 pub use pcl::{PclDocument, PclInputConstraint};
 
 /// Constructs the canonical boundary from already-read source documents.
@@ -38,22 +44,27 @@ pub fn build_bundle(
     })
 }
 
+/// Serialize a [`DesignBundle`] to normalized JSON.
 pub fn normalized_json(bundle: &DesignBundle) -> Result<String, DesignBundleError> {
     serialize::normalized_json(bundle)
 }
 
+/// Compute the SHA-256 hash of arbitrary bytes.
 pub fn sha256(bytes: &[u8]) -> String {
     serialize::sha256(bytes)
 }
 
+/// Parse an atopile export from JSON bytes.
 pub fn parse_atopile(bytes: &[u8]) -> Result<AtopileExport, DesignBundleError> {
     serde_json::from_slice(bytes).map_err(|e| DesignBundleError::Document(e.to_string()))
 }
 
+/// Parse a net-to-footprint mapping from YAML bytes.
 pub fn parse_mapping(bytes: &[u8]) -> Result<NetMapping, DesignBundleError> {
     serde_yaml::from_slice(bytes).map_err(|e| DesignBundleError::Document(e.to_string()))
 }
 
+/// Parse a PCL constraint document from YAML bytes.
 pub fn parse_pcl(bytes: &[u8]) -> Result<PclDocument, DesignBundleError> {
     serde_yaml::from_slice(bytes).map_err(|e| DesignBundleError::Document(e.to_string()))
 }
@@ -64,7 +75,9 @@ mod python {
     use pyo3::prelude::*;
 
     use crate::{
-        Provenance, build_bundle, normalized_json, parse_atopile, parse_mapping, parse_pcl, sha256,
+        BoardIdentityOptions, BoardRole, Provenance, build_bundle, extract_component_references,
+        extract_footprint_references, normalized_json, parse_atopile, parse_mapping, parse_pcl,
+        sha256, validate_board_identity,
     };
 
     fn value_error(error: impl std::fmt::Display) -> PyErr {
@@ -97,8 +110,47 @@ mod python {
         normalized_json(&bundle).map_err(value_error)
     }
 
+    /// Exposes the crate's canonical SHA-256 (used internally for
+    /// `Provenance`) across the boundary so pipeline code hashes inputs the
+    /// same way the bundle itself does, rather than re-implementing hashing
+    /// in Python with `hashlib` directly.
+    #[pyfunction]
+    fn sha256_hex(bytes: &[u8]) -> String {
+        sha256(bytes)
+    }
+
+    /// Fail-closed board/netlist identity preflight. Raises `ValueError` on
+    /// any mismatch or role violation -- never returns a warning or a bool,
+    /// per the identity-provenance plan's hard-fail requirement. Callers
+    /// (`InputStage`, `scripts/internal_route.py`) read files themselves and
+    /// pass bytes across the boundary; `pcb_path` is used only to infer the
+    /// board's role from its path (a `benchmarks` path component means
+    /// `Fixture`), never to re-read the file on the Rust side.
+    #[pyfunction]
+    #[pyo3(signature = (pcb_path, pcb_bytes, netlist_bytes, min_overlap=0.95, bring_up=false))]
+    fn preflight_identity(
+        pcb_path: &str,
+        pcb_bytes: &[u8],
+        netlist_bytes: &[u8],
+        min_overlap: f64,
+        bring_up: bool,
+    ) -> PyResult<()> {
+        let pcb_text = std::str::from_utf8(pcb_bytes).map_err(value_error)?;
+        let netlist_text = std::str::from_utf8(netlist_bytes).map_err(value_error)?;
+        let board_refs = extract_footprint_references(pcb_text).map_err(value_error)?;
+        let netlist_refs = extract_component_references(netlist_text).map_err(value_error)?;
+        let role = BoardRole::from_path(std::path::Path::new(pcb_path));
+        let opts = BoardIdentityOptions {
+            min_overlap,
+            bring_up,
+        };
+        validate_board_identity(&board_refs, &netlist_refs, role, true, &opts).map_err(value_error)
+    }
+
     #[pymodule]
     fn temper_design_bundle_python(module: &Bound<'_, PyModule>) -> PyResult<()> {
-        module.add_function(wrap_pyfunction!(normalized_bundle_json, module)?)
+        module.add_function(wrap_pyfunction!(normalized_bundle_json, module)?)?;
+        module.add_function(wrap_pyfunction!(preflight_identity, module)?)?;
+        module.add_function(wrap_pyfunction!(sha256_hex, module)?)
     }
 }

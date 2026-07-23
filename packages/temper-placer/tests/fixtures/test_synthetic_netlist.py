@@ -34,11 +34,21 @@ class TestGenerate200ComponentNetlist:
 
         # Count by footprint type
         resistors = [c for c in netlist.components if c.footprint in ["0603", "0805", "2512"]]
-        capacitors = [c for c in netlist.components if c.footprint in ["C_0603", "C_0805", "C_1206"]]
+        capacitors = [
+            c for c in netlist.components if c.footprint in ["C_0603", "C_0805", "C_1206"]
+        ]
         ics = [c for c in netlist.components if c.footprint in ["QFN-56", "SOIC-8", "TSSOP-20"]]
-        inductors = [c for c in netlist.components if "Inductor" in c.footprint or c.footprint in ["L_0805", "L_1210"]]
-        connectors = [c for c in netlist.components if "Connector" in c.footprint or "JST" in c.footprint]
-        discretes = [c for c in netlist.components if c.footprint in ["SOT-23", "SOD-123", "TO-220-3"]]
+        inductors = [
+            c
+            for c in netlist.components
+            if "Inductor" in c.footprint or c.footprint in ["L_0805", "L_1210"]
+        ]
+        connectors = [
+            c for c in netlist.components if "Connector" in c.footprint or "JST" in c.footprint
+        ]
+        discretes = [
+            c for c in netlist.components if c.footprint in ["SOT-23", "SOD-123", "TO-220-3"]
+        ]
 
         # Expected distribution: 80 resistors, 50 caps, 25 ICs, 10 inductors, 15 connectors, 20 discretes
         assert 75 <= len(resistors) <= 85, f"Expected ~80 resistors, got {len(resistors)}"
@@ -70,8 +80,9 @@ class TestGenerate200ComponentNetlist:
         netlist = generate_200_component_netlist(seed=42)
 
         for comp in netlist.components:
-            assert comp.footprint in footprint_library, \
+            assert comp.footprint in footprint_library, (
                 f"Component {comp.ref} has unknown footprint: {comp.footprint}"
+            )
 
     def test_all_components_have_bounds(self):
         """Test all components have valid bounds."""
@@ -110,8 +121,7 @@ class TestNetlistConnectivity:
         assert gnd_net is not None
 
         # GND should connect to many components (at least 40 out of 200)
-        assert len(gnd_net.pins) >= 40, \
-            f"GND should have high fanout, got {len(gnd_net.pins)} pins"
+        assert len(gnd_net.pins) >= 40, f"GND should have high fanout, got {len(gnd_net.pins)} pins"
 
     def test_signal_nets_low_fanout(self):
         """Test that signal nets have low fanout (2-4 pins)."""
@@ -122,8 +132,9 @@ class TestNetlistConnectivity:
         # Most signal nets should have 2-4 pins
         low_fanout_count = sum(1 for net in signal_nets if 2 <= len(net.pins) <= 4)
 
-        assert low_fanout_count >= len(signal_nets) * 0.8, \
+        assert low_fanout_count >= len(signal_nets) * 0.8, (
             "At least 80% of signal nets should have 2-4 pins"
+        )
 
     def test_has_bus_nets(self):
         """Test that bus nets exist (I2C, SPI)."""
@@ -139,12 +150,16 @@ class TestNetlistConnectivity:
         """Test that bus nets have medium fanout (5-10 pins)."""
         netlist = generate_200_component_netlist(seed=42)
 
-        i2c_nets = [net for net in netlist.nets
-                    if "I2C" in net.name or "SDA" in net.name or "SCL" in net.name]
+        i2c_nets = [
+            net
+            for net in netlist.nets
+            if "I2C" in net.name or "SDA" in net.name or "SCL" in net.name
+        ]
 
         for net in i2c_nets:
-            assert 5 <= len(net.pins) <= 15, \
+            assert 5 <= len(net.pins) <= 15, (
                 f"Bus net {net.name} should have 5-15 pins, got {len(net.pins)}"
+            )
 
     def test_all_components_connected(self):
         """Test that all components are connected to at least one net."""
@@ -160,8 +175,9 @@ class TestNetlistConnectivity:
 
         # Most components should be connected (allow some unconnected test points)
         connection_rate = len(connected_refs) / len(component_refs)
-        assert connection_rate >= 0.9, \
+        assert connection_rate >= 0.9, (
             f"At least 90% of components should be connected, got {connection_rate:.1%}"
+        )
 
     def test_net_count_reasonable(self):
         """Test that number of nets is reasonable for 200 components."""
@@ -169,8 +185,9 @@ class TestNetlistConnectivity:
 
         # Rule of thumb: nets ~= components / 2 (very rough estimate)
         # For 200 components, expect 80-120 nets
-        assert 80 <= len(netlist.nets) <= 120, \
+        assert 80 <= len(netlist.nets) <= 120, (
             f"Expected 80-120 nets for 200 components, got {len(netlist.nets)}"
+        )
 
 
 # =============================================================================
@@ -223,8 +240,8 @@ class TestBoardDimensions:
         """Test that generator returns board along with netlist."""
         result = generate_200_component_netlist(seed=42, return_board=True)
 
-        assert hasattr(result, 'netlist')
-        assert hasattr(result, 'board')
+        assert hasattr(result, "netlist")
+        assert hasattr(result, "board")
 
     def test_board_dimensions(self):
         """Test that board has correct dimensions (150mm x 100mm)."""
@@ -249,8 +266,9 @@ class TestComponentPins:
         # Most components should have at least 2 pins
         components_with_pins = [c for c in netlist.components if len(c.pins) >= 2]
 
-        assert len(components_with_pins) >= len(netlist.components) * 0.8, \
+        assert len(components_with_pins) >= len(netlist.components) * 0.8, (
             "At least 80% of components should have 2+ pins"
+        )
 
     def test_pin_positions_within_bounds(self):
         """Test that pin positions are within component bounds."""
@@ -259,10 +277,12 @@ class TestComponentPins:
         for comp in netlist.components:
             for pin in comp.pins:
                 # Pin offset should be within component bounds
-                assert abs(pin.position[0]) <= comp.width / 2 + 1.0, \
+                assert abs(pin.position[0]) <= comp.width / 2 + 1.0, (
                     f"{comp.ref} pin {pin.name} x-offset too large"
-                assert abs(pin.position[1]) <= comp.height / 2 + 1.0, \
+                )
+                assert abs(pin.position[1]) <= comp.height / 2 + 1.0, (
                     f"{comp.ref} pin {pin.name} y-offset too large"
+                )
 
     def test_pins_assigned_to_nets(self):
         """Test that pins are assigned to nets."""
@@ -275,5 +295,6 @@ class TestComponentPins:
         # At least 50% of pins should be assigned to nets
         # (ICs have many pins, not all can be connected with limited nets)
         assignment_rate = pins_with_nets / total_pins if total_pins > 0 else 0
-        assert assignment_rate >= 0.5, \
+        assert assignment_rate >= 0.5, (
             f"At least 50% of pins should be assigned to nets, got {assignment_rate:.1%}"
+        )

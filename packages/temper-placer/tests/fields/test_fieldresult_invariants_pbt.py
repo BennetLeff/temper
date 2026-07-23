@@ -20,6 +20,8 @@ guard because the dataclass is ``frozen=True``.
 
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+
 import numpy as np
 import pytest
 from hypothesis import HealthCheck, given, settings
@@ -31,7 +33,7 @@ from temper_placer.placer.cp_sat.gates import GateResult, GateStatus, Violation,
 _MAX_GRID_DIM = 200
 
 
-def _gate_result(status: GateStatus, *, with_violations: bool = True) -> GateResult:
+def _gate_result(status: GateStatus) -> GateResult:
     """Construct a GateResult with the given status."""
     if status is GateStatus.VIOLATIONS:
         return GateResult(
@@ -142,13 +144,15 @@ class TestUnmeasuredCannotBeCoercedToFlat:
 
     @pytest.mark.property
     @given(
-        error_msg=sampled_from([
-            "solver did not converge",
-            "import failed",
-            "no PCB available",
-            "measurement timeout",
-            "",
-        ]),
+        error_msg=sampled_from(
+            [
+                "solver did not converge",
+                "import failed",
+                "no PCB available",
+                "measurement timeout",
+                "",
+            ]
+        ),
     )
     @settings(max_examples=100, deadline=30000)
     def test_to_cost_field_input_raises_for_unmeasured(self, error_msg):
@@ -279,9 +283,9 @@ class TestCostFieldGridFlatRoundTrip:
         np.testing.assert_array_equal(restored_row_major, original)
         # If someone used F-order reshape, it would NOT match
         restored_col_major = flat.reshape(2, 3, order="F")
-        assert not np.array_equal(
-            restored_col_major, original
-        ), "Fortran-order reshape MUST differ (proves col-major is wrong for this data)"
+        assert not np.array_equal(restored_col_major, original), (
+            "Fortran-order reshape MUST differ (proves col-major is wrong for this data)"
+        )
 
     def test_fail_capable_wrong_dimension_reshape_would_fail(self):
         """Off-by-one shape error (e.g. w vs h swap) would break round-trip."""
@@ -316,14 +320,14 @@ class TestFieldResultNoSilentBypass:
         """A valid FieldResult is frozen — normal attribute mutation raises."""
         grid = np.ones((5, 5), dtype=np.float32)
         fr = FieldResult(gate_result=GateResult(GateStatus.CLEAN), field=grid)
-        with pytest.raises(Exception):
+        with pytest.raises(FrozenInstanceError):
             fr.field = None  # type: ignore[misc]
 
     def test_frozen_instance_cannot_have_status_changed_via_normal_setattr(self):
         """A CLEAN FieldResult cannot be flipped via normal setattr."""
         grid = np.ones((5, 5), dtype=np.float32)
         fr = FieldResult(gate_result=GateResult(GateStatus.CLEAN), field=grid)
-        with pytest.raises(Exception):
+        with pytest.raises(FrozenInstanceError):
             fr.gate_result = GateResult(GateStatus.UNMEASURED)  # type: ignore[misc]
 
     def test_object_setattr_can_bypass_frozen_guard_documented(self):

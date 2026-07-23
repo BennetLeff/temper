@@ -2,25 +2,17 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
 import click
 from rich.panel import Panel
-from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
 from rich.table import Table
 
-from temper_placer import __version__
-from temper_placer.pipeline import (
-    PipelinePhase,
-    PipelineState,
-    RichDashboard,
-)
+from temper_placer._version import __version__
 from temper_placer.profiling.cli import profile
 
-from ._io import _print_placement_summary, console
-from ._signal import InterruptGuard
+from ._io import console
 from .andon_commands import andon
 from .timing import timing
 from .trace_commands import trace
@@ -31,7 +23,7 @@ from .watch_commands import watch
 @click.group()
 @click.version_option(version=__version__, prog_name="temper-placer")
 def main() -> None:
-    """temper-placer: JAX-based PCB placement optimizer."""
+    """temper-placer: CP-SAT-based PCB placement optimizer."""
     pass
 
 
@@ -61,7 +53,7 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
             Panel(
                 "\n".join(
                     f"  • {e.get('name', '?')}"
-                    + (f"\n    because: {e['because']}" if e.get('because') else "")
+                    + (f"\n    because: {e['because']}" if e.get("because") else "")
                     for e in unsat
                 ),
                 border_style="red",
@@ -71,6 +63,7 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
         )
         if unsat_report_path is not None:
             import json as _json
+
             unsat_report_path.write_text(_json.dumps(unsat, indent=2), encoding="utf-8")
             console.print(f"[yellow]UNSAT report written to:[/] {unsat_report_path}")
         return
@@ -275,18 +268,6 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
     help="Override channel capacity loss weight.",
 )
 @click.option(
-    "--compact/--no-compact",
-    default=False,
-    help="Use the consolidated Core 8 loss set (default: False).",
-)
-@click.option(
-    "--placer",
-    type=click.Choice(["cp-sat", "jax-deprecated"]),
-    default="cp-sat",
-    show_default=True,
-    help="Placer engine to use.",
-)
-@click.option(
     "--loop/--no-loop",
     default=True,
     help="Enable place→route feedback loop for routing-aware placement (default: enabled).",
@@ -302,6 +283,12 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
     is_flag=True,
     default=False,
     help="Register all five gates (DRC, Routing, Stackup, Physics, Quality) on the place-route loop.",
+)
+@click.option(
+    "--warm-start",
+    is_flag=True,
+    default=False,
+    help="Seed CP-SAT solver with deterministic pipeline positions via AddHint.",
 )
 def optimize(
     input_pcb: Path,
@@ -336,21 +323,21 @@ def optimize(
     spice_validate: bool,
     spice_penalty_weight: float,
     weight_channel_capacity: float | None,
-    compact: bool,
-    placer: str,
     loop: bool,
     unsat_report: Path | None,
     all_gates: bool,
+    warm_start: bool,
 ) -> None:
     """
     Optimize component placement for a KiCad PCB.
 
-    Reads INPUT_PCB and constraint CONFIG, runs gradient-based optimization,
+    Reads INPUT_PCB and constraint CONFIG, runs CP-SAT optimization,
     and writes the result to OUTPUT.
 
-    Example:
+    Examples:
         temper-placer optimize temper.kicad_pcb -c constraints.yaml -o optimized.kicad_pcb
     """
+    # Handle deprecated --placer jax-deprecated flag (removed — CP-SAT is the only engine)
     console.print(
         Panel.fit(
             f"[bold blue]temper-placer[/] v{__version__}\nCP-SAT PCB placement optimizer",
@@ -366,38 +353,24 @@ def optimize(
     console.print(f"[bold]Curriculum:[/] {'enabled' if curriculum else 'disabled'}")
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
-    console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
 
-    if placer == "jax-deprecated":
-        sys.stderr.write(
-            "The JAX placer has been removed; CP-SAT is the sole placer.\n"
-            "If you reached this flag for production-rollback reasons, "
-            "file an issue with the board's PCL config and the routed-PCB file.\n"
-        )
-        console.print("[dim]Exiting with code 0 (informational, not an error).[/]")
-        sys.exit(0)
-
-    # CP-SAT placer (default, sole active path)
+    # CP-SAT placer (sole engine)
     console.print()
     console.print("[bold green]CP-SAT placer selected (default).[/]")
     console.print("[dim]The JAX gradient-descent pipeline has been removed.[/]")
-    console.print("[dim]Full CP-SAT pipeline integration is in progress.[/]")
-    console.print("[dim]Use `temper pipeline` for router-based placement flows.[/]")
 
     # Place→Route feedback loop (U4)
     if loop:
         console.print("\n[bold cyan]Running place→route feedback loop...[/]")
         try:
-            from temper_placer.io.config_loader import (
-                create_board_from_constraints,
-                load_constraints,
-            )
+            from temper_placer.io.config_loader import load_constraints
             from temper_placer.io.kicad_parser import parse_kicad_pcb
             from temper_placer.placer.cp_sat.loop import PlaceRouteLoop
 
             parse_result = parse_kicad_pcb(input_pcb)
             netlist = parse_result.netlist
             board = parse_result.board
+            assert board is not None, "Board geometry parsing failed"
             constraints = load_constraints(config)
 
             loop_runner = PlaceRouteLoop()
@@ -408,31 +381,39 @@ def optimize(
                     import yaml as _yaml
 
                     from temper_placer.pcl.parser import parse_constraint_dict
+
                     raw = config.read_text(encoding="utf-8") if hasattr(config, "read_text") else ""
                     if raw:
                         cfg = _yaml.safe_load(raw)
                         inline = cfg.get("constraints", []) if isinstance(cfg, dict) else []
                         for cdict in inline:
-                            try:
+                            from contextlib import suppress
+
+                            with suppress(Exception):
                                 pcl_constraints.append(parse_constraint_dict(cdict))
-                            except Exception:
-                                pass
                 except Exception:
                     pass
 
             # Load zone definitions from the cooker constraint config.
-            cooker_path = Path("packages/temper-placer/configs/constraints/temper_induction_cooker.yaml")
+            cooker_path = Path(
+                "packages/temper-placer/configs/constraints/temper_induction_cooker.yaml"
+            )
             zone_objs = []
             zone_comps: dict[str, list[str]] = {}
             if cooker_path.exists():
                 import yaml as _yaml2
+
                 cooker = _yaml2.safe_load(cooker_path.read_text())
                 for zd in cooker.get("zones", []):
-                    z = type("Zone", (), {
-                        "name": zd["name"],
-                        "bounds": tuple(zd["bounds"]),
-                        "components": zd.get("components", []),
-                    })()
+                    z = type(
+                        "Zone",
+                        (),
+                        {
+                            "name": zd["name"],
+                            "bounds": tuple(zd["bounds"]),
+                            "components": zd.get("components", []),
+                        },
+                    )()
                     zone_objs.append(z)
                 if zone_objs:
                     board.zones = zone_objs
@@ -442,15 +423,14 @@ def optimize(
                 outer = getattr(c, "outer", None)
                 inner = getattr(c, "inner", None)
                 if outer and inner:
-                    zone_comps[outer] = list(set(
-                        zone_comps.get(outer, []) + list(inner)
-                    ))
+                    zone_comps[outer] = list(set(zone_comps.get(outer, []) + list(inner)))
 
             # Load loop component definitions from pcb_spec.yaml.
             loop_comps: dict[str, list[str]] = {}
             spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
             if spec_path.exists():
                 import yaml as _yaml3
+
                 spec = _yaml3.safe_load(spec_path.read_text())
                 emi = spec.get("emi", {})
                 for name, comps in emi.get("loop_components", {}).items():
@@ -464,30 +444,31 @@ def optimize(
                 zone_components=zone_comps if zone_comps else None,
                 loop_components=loop_comps if loop_comps else None,
                 all_gates=all_gates,
+                source_pcb_path=input_pcb,
             )
 
             # Surface UNSAT core from CP-SAT placement result.
             _maybe_surface_unsat(loop_result.placement, unsat_report)
 
             if loop_result.success:
+                console.print(f"  [green]âœ“[/] Loop converged in {len(loop_result.rounds)} rounds")
                 console.print(
-                    f"  [green]âœ“[/] Loop converged in {len(loop_result.rounds)} rounds"
-                )
-                console.print(
-                    f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0)*100:.1f}%"
+                    f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0) * 100:.1f}%"
                 )
 
                 # Gate results summary when all_gates was used.
-                gate_results = getattr(loop_runner, '_gate_results', {})
+                gate_results = getattr(loop_runner, "_gate_results", {})
                 if gate_results:
                     from ..placer.cp_sat.gates import GateStatus
+
                     table = Table(title="Gate Results", show_header=True)
                     table.add_column("Gate", style="cyan")
                     table.add_column("Status")
                     table.add_column("Violations")
                     for gname, gr in sorted(gate_results.items()):
                         status_str = (
-                            "[green]CLEAN[/]" if gr.status is GateStatus.CLEAN
+                            "[green]CLEAN[/]"
+                            if gr.status is GateStatus.CLEAN
                             else "[yellow]UNMEASURED[/]"
                             if gr.status is GateStatus.UNMEASURED
                             else "[red]VIOLATIONS[/]"
@@ -497,46 +478,22 @@ def optimize(
                     console.print(table)
 
                 # Surface UNMEASURED data.
-                unmeasured = getattr(loop_result, 'unmeasured_gates', {})
+                unmeasured = getattr(loop_result, "unmeasured_gates", {})
                 if unmeasured:
-                    console.print(
-                        "[yellow]UNMEASURED gates:[/] "
-                        + ", ".join(unmeasured.keys())
-                    )
+                    console.print("[yellow]UNMEASURED gates:[/] " + ", ".join(unmeasured.keys()))
                     for gname, msg in unmeasured.items():
-                        console.print(
-                            f"  [dim]{gname}: {msg[:120]}[/]"
-                        )
+                        console.print(f"  [dim]{gname}: {msg[:120]}[/]")
 
-                # Write the final PCB. Re-route the placement against the real
-                # board file so the output carries real footprints and routes.
+                # The loop routes the authoritative source board directly;
+                # retain that exact artifact rather than issuing a second,
+                # potentially divergent route pass here.
                 if loop_result.placement is not None:
-                    import os as _os
-                    import tempfile as _tempfile
-
-                    from temper_placer.router_v6.adapter import (
-                        RoutingResult,
-                        _apply_placements_to_pcb,
-                        route_pcb,
-                    )
-
-                    placements = loop_result.placement.to_placements_dict()
-                    if placements:
-                        raw = input_pcb.read_text(encoding="utf-8")
-                        placed = _apply_placements_to_pcb(raw, placements)
-                        fd, tp = _tempfile.mkstemp(suffix=".kicad_pcb")
-                        with _os.fdopen(fd, "w", encoding="utf-8") as f:
-                            f.write(placed)
-                        parsed = type("ParsedPCB", (), {"source_path": tp})()
-                        try:
-                            routed = route_pcb(parsed, placements, _seed=seed)
-                            routed_body = getattr(routed, "routed_pcb_content", None)
-                            if routed_body:
-                                output.write_text(routed_body, encoding="utf-8")
-                            else:
-                                output.write_text(placed, encoding="utf-8")
-                        finally:
-                            _os.unlink(tp)
+                    routed_body = getattr(loop_result.routing, "routed_pcb_content", None)
+                    if not routed_body:
+                        raise click.ClickException(
+                            "Place→route loop converged without an authoritative routed PCB artifact"
+                        )
+                    output.write_text(routed_body, encoding="utf-8")
                     console.print(f"    Output: {output}")
 
                     # Run KiCad DRC on the placed output.
@@ -549,9 +506,19 @@ def optimize(
 
                         drc_out = Path(tempfile.mktemp(suffix=".json"))
                         result = subprocess.run(
-                            ["kicad-cli", "pcb", "drc", "--format", "json",
-                             "-o", str(drc_out), str(output)],
-                            capture_output=True, text=True, timeout=120,
+                            [
+                                "kicad-cli",
+                                "pcb",
+                                "drc",
+                                "--format",
+                                "json",
+                                "-o",
+                                str(drc_out),
+                                str(output),
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=120,
                         )
                         if drc_out.exists():
                             with open(drc_out) as f:
@@ -560,32 +527,128 @@ def optimize(
                             errors = [v for v in violations if v.get("severity") == "error"]
                             warnings = [v for v in violations if v.get("severity") == "warning"]
                             if errors:
-                                console.print(f"  [red]DRC: {len(errors)} errors, {len(warnings)} warnings[/]")
+                                console.print(
+                                    f"  [red]DRC: {len(errors)} errors, {len(warnings)} warnings[/]"
+                                )
                                 for e in errors[:5]:
-                                    console.print(f"    ERROR: {e.get('type','?')} — {e.get('description','')[:100]}")
+                                    console.print(
+                                        f"    ERROR: {e.get('type', '?')} — {e.get('description', '')[:100]}"
+                                    )
+                                raise click.ClickException(
+                                    f"KiCad DRC found {len(errors)} error(s) in {output}"
+                                )
                             else:
-                                console.print(f"  [green]DRC: 0 errors, {len(warnings)} warnings[/]")
+                                console.print(
+                                    f"  [green]DRC: 0 errors, {len(warnings)} warnings[/]"
+                                )
                             os.unlink(drc_out)
                         else:
-                            console.print(f"  [yellow]DRC report not produced: {result.stderr[:200]}[/]")
+                            raise click.ClickException(
+                                f"KiCad DRC report was not produced: {result.stderr[:200]}"
+                            )
+                    except click.ClickException:
+                        raise
                     except Exception as drc_e:
-                        console.print(f"  [yellow]DRC run failed: {drc_e}[/]")
+                        raise click.ClickException(f"KiCad DRC could not run: {drc_e}") from drc_e
             else:
-                console.print(
-                    f"  [yellow]Loop did not converge: {loop_result.reason}[/]"
-                )
+                console.print(f"  [yellow]Loop did not converge: {loop_result.reason}[/]")
                 if loop_result.rounds:
                     last = loop_result.rounds[-1]
                     console.print(
-                        f"    Best routing completion: {last.completion_rate*100:.1f}%"
+                        f"    Best routing completion: {last.completion_rate * 100:.1f}%"
                         f" ({last.drc_errors} DRC errors)"
                     )
+                raise click.ClickException(
+                    f"Place→route loop did not converge: {loop_result.reason}"
+                )
+        except click.ClickException:
+            raise
         except Exception as e:
-            console.print(f"  [yellow]Place→route loop failed: {e}[/]")
+            raise click.ClickException(f"Place→route loop failed: {e}") from e
+    else:
+        # --no-loop: direct CP-SAT solve, no routing feedback
+        console.print("\n[bold cyan]Running CP-SAT solver (--no-loop)...[/]")
+        try:
+            from temper_placer.io.config_loader import load_constraints
+            from temper_placer.io.kicad_parser import parse_kicad_pcb
+            from temper_placer.placer.cp_sat.encoder import solve_placement
+
+            parse_result = parse_kicad_pcb(input_pcb)
+            netlist = parse_result.netlist
+            board = parse_result.board
+            constraints = load_constraints(config)
+            pcl_constraints = list(getattr(constraints, "pcl_constraints", []))
+
+            console.print(f"  Parsed {len(netlist.components)} components from input PCB")
+            console.print(f"  Loaded {len(pcl_constraints)} PCL constraints")
+
+            # Warm-start: seed solver with deterministic pipeline positions.
+            hint_positions = None
+            if warm_start:
+                console.print("  [cyan]Warm-start: running deterministic pipeline...[/]")
+                from temper_placer.deterministic import BoardState, create_drc_aware_pipeline
+                from temper_placer.io.kicad_metadata import extract_kicad_metadata
+
+                metadata = extract_kicad_metadata(input_pcb)
+                dp = create_drc_aware_pipeline(config=constraints, metadata=metadata)
+                dp_state = BoardState(board=board, netlist=netlist)
+                dp_state = dp.run(dp_state)
+                if dp_state.placements:
+                    hint_positions = {}
+                    for ref, pos in dp_state.placements:
+                        hint_positions[ref] = (pos[0], pos[1], 0)
+                    console.print(f"  [green]✓[/] Extracted {len(hint_positions)} hint positions")
+
+            cp_result = solve_placement(
+                netlist=netlist,
+                board=board,
+                extra_constraints=pcl_constraints,
+                seed=seed,
+                hint_positions=hint_positions,
+            )
+
+            console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")
+
+            if cp_result.status in ("infeasible", "model_invalid"):
+                _maybe_surface_unsat(cp_result, unsat_report)
+                sys.exit(1)
+
+            if cp_result.status in ("optimal", "feasible"):
+                from temper_placer.io.kicad_writer import (
+                    PlacementUpdate,
+                    write_placements_to_pcb,
+                )
+
+                placements: dict[str, PlacementUpdate] = {}
+                for ref, pos in cp_result.positions.items():
+                    placements[ref] = PlacementUpdate(
+                        ref=ref,
+                        x=pos[0],
+                        y=pos[1],
+                        rotation=cp_result.rotations.get(ref, 0) * 90.0,
+                    )
+
+                write_result = write_placements_to_pcb(
+                    template_pcb=input_pcb,
+                    output_pcb=output,
+                    placements=placements,
+                    preserve_unmatched=True,
+                    components=netlist.components,
+                )
+                console.print(f"  [green]✓[/] {write_result.components_updated} components placed")
+                if write_result.has_warnings:
+                    for w in write_result.warnings:
+                        console.print(f"  [yellow]⚠[/] {w}")
+                console.print(f"  Output: {output}")
+            else:
+                console.print(f"  [red]Solver returned unexpected status: {cp_result.status}[/]")
+                sys.exit(1)
+        except click.ClickException:
+            raise
+        except Exception as e:
+            raise click.ClickException(f"CP-SAT solve failed: {e}") from e
 
     sys.exit(0)
-
-
 
 
 main.add_command(version)

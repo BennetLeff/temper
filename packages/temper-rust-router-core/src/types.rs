@@ -254,5 +254,5 @@ pub struct TensionViolation {
 /// Implementations live in the pyo3 wrapper crate.
 pub trait IntoInternal {
     type Output;
-    fn into_internal(&self) -> Self::Output;
+    fn to_internal(&self) -> Self::Output;
 }

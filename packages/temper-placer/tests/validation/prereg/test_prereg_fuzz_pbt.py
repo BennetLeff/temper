@@ -16,7 +16,7 @@ R21 invariants:
 from __future__ import annotations
 
 import copy
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -94,9 +94,8 @@ _MANIFEST_TEMPLATE = {
 
 
 def _write_yaml(data: dict) -> Path:
-    tmp = NamedTemporaryFile(suffix=".yaml", mode="w", delete=False)
-    tmp.write(yaml.dump(data))
-    tmp.close()
+    with NamedTemporaryFile(suffix=".yaml", mode="w", delete=False) as tmp:
+        tmp.write(yaml.dump(data))
     return Path(tmp.name)
 
 
@@ -115,9 +114,11 @@ class TestCreatedAtTemporalGate:
         run_hours_offset=integers(min_value=-720, max_value=720),
     )
     @settings(max_examples=200, deadline=30000)
-    def test_temporal_gate_rejects_post_dating_records(self, created_hours_offset, run_hours_offset):
+    def test_temporal_gate_rejects_post_dating_records(
+        self, created_hours_offset, run_hours_offset
+    ):
         """created_at > battery_run_timestamp → rejection."""
-        base = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+        base = datetime(2026, 7, 9, 12, 0, 0, tzinfo=UTC)
         created_at_dt = base + timedelta(hours=created_hours_offset)
         battery_ts = base + timedelta(hours=run_hours_offset)
 
@@ -141,7 +142,7 @@ class TestCreatedAtTemporalGate:
     @settings(max_examples=100, deadline=30000)
     def test_created_at_after_run_by_seconds_rejected(self, seconds_past):
         """created_at is seconds after run timestamp → rejected."""
-        battery_ts = datetime(2026, 7, 9, 0, 0, 0, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 9, 0, 0, 0, tzinfo=UTC)
         created_at = battery_ts + timedelta(seconds=seconds_past)
         assert created_at > battery_ts
 
@@ -161,7 +162,7 @@ class TestCreatedAtTemporalGate:
     @settings(max_examples=100, deadline=30000)
     def test_created_at_before_run_by_days_accepted(self, days_before):
         """created_at is days before run timestamp → loads successfully."""
-        battery_ts = datetime(2026, 7, 10, 0, 0, 0, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 10, 0, 0, 0, tzinfo=UTC)
         created_at = battery_ts - timedelta(days=days_before)
 
         created_at_str = created_at.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -180,7 +181,7 @@ class TestCreatedAtTemporalGate:
         manifest = copy.deepcopy(_MANIFEST_TEMPLATE)
         manifest["created_at"] = "2026-07-09T00:00:00Z"
         path = _write_yaml(manifest)
-        battery_ts = datetime(2026, 7, 9, 0, 0, 0, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 9, 0, 0, 0, tzinfo=UTC)
         try:
             loaded = PreregistrationManifest.load(path, battery_run_timestamp=battery_ts)
             assert loaded.version == 1
@@ -314,7 +315,7 @@ class TestMandatoryFieldRejection:
         manifest = copy.deepcopy(_MANIFEST_TEMPLATE)
         # Set created_at far enough in the past so temporal gate doesn't interfere
         manifest["created_at"] = "2020-01-01T00:00:00Z"
-        battery_ts = datetime(2026, 7, 9, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 9, tzinfo=UTC)
 
         mutation = _MANDATORY_FIELD_DELETIONS[mutation_name]
 
@@ -349,7 +350,7 @@ class TestMandatoryFieldRejection:
 
         path = _write_yaml(manifest)
         try:
-            with pytest.raises(Exception):
+            with pytest.raises(ValueError):
                 PreregistrationManifest.load(path, battery_run_timestamp=battery_ts)
         finally:
             path.unlink()
@@ -363,7 +364,7 @@ class TestMandatoryFieldRejection:
         try:
             with pytest.raises(ValueError, match="structural_bounding_cases"):
                 PreregistrationManifest.load(
-                    path, battery_run_timestamp=datetime(2026, 7, 9, tzinfo=timezone.utc)
+                    path, battery_run_timestamp=datetime(2026, 7, 9, tzinfo=UTC)
                 )
         finally:
             path.unlink()
@@ -377,7 +378,7 @@ class TestMandatoryFieldRejection:
         try:
             with pytest.raises(ValueError, match="description"):
                 PreregistrationManifest.load(
-                    path, battery_run_timestamp=datetime(2026, 7, 9, tzinfo=timezone.utc)
+                    path, battery_run_timestamp=datetime(2026, 7, 9, tzinfo=UTC)
                 )
         finally:
             path.unlink()
@@ -419,7 +420,7 @@ class TestCompleteValidRecordLoads:
             / "prereg"
             / "thermal_prereg.yaml"
         )
-        future_battery = datetime(2026, 7, 10, tzinfo=timezone.utc)
+        future_battery = datetime(2026, 7, 10, tzinfo=UTC)
         manifest = PreregistrationManifest.load(prereg_path, battery_run_timestamp=future_battery)
         assert manifest.version == 1
 
@@ -428,7 +429,7 @@ class TestCompleteValidRecordLoads:
         manifest = copy.deepcopy(_MANIFEST_TEMPLATE)
         manifest["created_at"] = "2020-01-01T00:00:00Z"
         path = _write_yaml(manifest)
-        battery_ts = datetime(2026, 7, 9, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 9, tzinfo=UTC)
         try:
             loaded = PreregistrationManifest.load(path, battery_run_timestamp=battery_ts)
             assert loaded.version == 1
@@ -457,7 +458,7 @@ class TestCompleteValidRecordLoads:
     @settings(max_examples=100, deadline=30000)
     def test_complete_record_with_past_created_at_always_loads(self, created_days_before):
         """A complete valid record with created_at well before run always loads."""
-        battery_ts = datetime(2026, 7, 9, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 9, tzinfo=UTC)
         created_at = battery_ts - timedelta(days=created_days_before)
 
         manifest = copy.deepcopy(_MANIFEST_TEMPLATE)

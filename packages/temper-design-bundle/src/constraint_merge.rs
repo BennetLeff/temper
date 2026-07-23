@@ -5,6 +5,10 @@ use crate::{
 use std::collections::BTreeMap;
 use temper_pcl_ir::{MergeOrder, PclConstraintKind};
 
+/// Merge authored PCL constraints with safety-derived constraints.
+///
+/// Authored constraints can tighten (but never relax) safety-derived values.
+/// Returns the merged constraint set or a list of validation diagnostics.
 pub fn merge(
     derived: Vec<Constraint>,
     authored: Vec<Constraint>,

@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include "unity/unity.h"
 #include "../main/state_machine.h"
+#include "../config.h"
 
 /* ---------------------------------------------------------------------------
  * Mock control functions (from state_machine_stubs.c)
@@ -517,14 +518,14 @@ static void sm_boilerplate_to_heating(bool self_test_pass) {
  * during the boilerplate-to-perturbation window.
  * --------------------------------------------------------------------------- */
 
-/* Safety thresholds (must stay in sync with state_machine.c and config.h) */
+/* Safety thresholds.  RTD boundaries deliberately use generated config.h
+ * rather than local copies so the trace precondition matches the firmware's
+ * staged MAX31865 guard window. */
 #define INV_MAX_ABSOLUTE_TEMP_C    300.0f
 #define INV_MAX_TEMP_RISE_RATE     15.0f   /* C/s */
 #define INV_MAX_DC_CURRENT_35A     35.0f
 #define INV_MAX_DC_CURRENT_50A     50.0f
 #define INV_MAX_HEATSINK_TEMP      100.0f
-#define INV_MAX_RTD_OPEN           10000.0f
-#define INV_MAX_RTD_SHORT          10.0f
 #define INV_DT_MS                  100     /* DT_MS from SIL test */
 
 static int check_trace_invariants(const csvrow_t *rows, int row_count,
@@ -576,15 +577,21 @@ static int check_trace_invariants(const csvrow_t *rows, int row_count,
             violations++;
         }
 
-        /* Base case 5: RTD probe open/short */
-        if (rtd > INV_MAX_RTD_OPEN) {
-            printf("  [INV] tick %d: rtd %.1f > %.1f (open)\n",
-                   t, rtd, INV_MAX_RTD_OPEN);
+        /* Base case 5: staged RTD policy.  The MAX31865 guard window is the
+         * safety boundary; the larger legacy diagnostic remains represented
+         * explicitly so fixtures cannot silently lose that condition. */
+        if (rtd > RTD_GROSS_OPEN_DIAGNOSTIC_OHM) {
+            printf("  [INV] tick %d: rtd %.1f > %.1f (legacy gross-open)\n",
+                   t, rtd, RTD_GROSS_OPEN_DIAGNOSTIC_OHM);
+            violations++;
+        } else if (rtd >= RTD_OPEN_FAULT_OHM) {
+            printf("  [INV] tick %d: rtd %.1f >= %.1f (MAX31865 open guard)\n",
+                   t, rtd, RTD_OPEN_FAULT_OHM);
             violations++;
         }
-        if (rtd < INV_MAX_RTD_SHORT) {
-            printf("  [INV] tick %d: rtd %.1f < %.1f (short)\n",
-                   t, rtd, INV_MAX_RTD_SHORT);
+        if (rtd <= RTD_SHORT_FAULT_OHM) {
+            printf("  [INV] tick %d: rtd %.1f <= %.1f (MAX31865 short guard)\n",
+                   t, rtd, RTD_SHORT_FAULT_OHM);
             violations++;
         }
 

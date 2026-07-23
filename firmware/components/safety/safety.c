@@ -17,6 +17,7 @@
  */
 
 #include "safety.h"
+#include "config.h"
 #include <stddef.h>
 #include <stdbool.h>
 #include <math.h>
@@ -300,16 +301,23 @@ bool check_sensors_valid(void) {
         return false;
     }
     
-    /* Open circuit check */
-    if (rtd_resistance > 10000.0f) {
+    /* Keep the legacy gross-open branch as a diagnostic, but apply the
+     * MAX31865/PT100 guard window for the actual safety decision. */
+    if (rtd_resistance > RTD_GROSS_OPEN_DIAGNOSTIC_OHM) {
 #ifdef ESP_PLATFORM
-        ESP_LOGW(TAG, "RTD probe open circuit");
+        ESP_LOGW(TAG, "RTD probe gross-open diagnostic");
 #endif
         return false;
     }
-    
-    /* Short circuit check */
-    if (rtd_resistance < 10.0f) {
+
+    if (rtd_resistance >= RTD_OPEN_FAULT_OHM) {
+#ifdef ESP_PLATFORM
+        ESP_LOGW(TAG, "RTD probe open/out-of-range");
+#endif
+        return false;
+    }
+
+    if (rtd_resistance <= RTD_SHORT_FAULT_OHM) {
 #ifdef ESP_PLATFORM
         ESP_LOGW(TAG, "RTD probe short circuit");
 #endif

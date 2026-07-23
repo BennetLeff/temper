@@ -4,7 +4,6 @@ Tests for Router V6 Stage 3.7: Build SAT Model
 Part of temper-5eh3
 """
 
-
 from temper_placer.router_v6.sat_model import (
     SATClause,
     SATModel,
@@ -166,8 +165,7 @@ class TestAtMostKEncoding:
         assert sol is not None
         true_count = sum(sol[vi.name] for vi in v)
         assert true_count <= 2, (
-            f"AtMostK(4 vars, k=2) allowed {true_count} true vars;"
-            f" expected at most 2"
+            f"AtMostK(4 vars, k=2) allowed {true_count} true vars; expected at most 2"
         )
 
         # Verify that an assignment with 3 true variables is UNSAT
@@ -178,9 +176,7 @@ class TestAtMostKEncoding:
         for vi in v2[:3]:
             model2.add_clause([(vi, True)], "force_true")
         sol2 = self._solve(model2)
-        assert sol2 is None, (
-            "AtMostK(4 vars, k=2) was SAT when 3 vars were forced true"
-        )
+        assert sol2 is None, "AtMostK(4 vars, k=2) was SAT when 3 vars were forced true"
 
     def test_6vars_k6_at_capacity(self):
         """6 nets, capacity 6 — all 6 can be true."""
@@ -221,9 +217,7 @@ class TestAtMostKEncoding:
         for vi in v[:4]:
             model.add_clause([(vi, True)], "force")
         sol = solve_topology(model, timeout_ms=10000)
-        assert not sol.is_satisfiable, (
-            f"Forced 4 true on k=3 but solver returned {sol.status}"
-        )
+        assert not sol.is_satisfiable, f"Forced 4 true on k=3 but solver returned {sol.status}"
 
         # Without force clauses, a SAT assignment must exist
         model2 = build_sat_model()

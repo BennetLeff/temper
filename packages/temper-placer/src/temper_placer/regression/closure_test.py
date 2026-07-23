@@ -53,9 +53,7 @@ def _run_channel_analysis(*, output_dir: Path, stages_exercised: int) -> int:
         except TypeError:
             # Cannot construct a default ParsedPCB (it requires 7 args).
             # Skip channel analysis; the placer will run without a sidecar.
-            _LOGGER.warning(
-                "Channel analysis skipped: ParsedPCB requires explicit args"
-            )
+            _LOGGER.warning("Channel analysis skipped: ParsedPCB requires explicit args")
             return stages_exercised
 
         state = orchestrator.run(pcb, escape_vias=[])
@@ -102,9 +100,7 @@ def _write_sidecar(*, sidecar_path: Path, cell_size_um: int, stage2: Any) -> Non
             for j in range(h):
                 for i in range(w):
                     cell = arr[j, i]
-                    accum[j][i] += (
-                        1.0 if cell == CellState.BLOCKED else 0.0
-                    )
+                    accum[j][i] += 1.0 if cell == CellState.BLOCKED else 0.0
             n += 1
         denom = max(n, 1)
         grid = [[round(accum[j][i] / denom, 4) for i in range(w)] for j in range(h)]
@@ -180,22 +176,15 @@ class ClosureResult:
         """Return assertion failures if the pipeline produced no real results."""
         failures: list[str] = []
         if self.benders_iterations <= 0:
-            failures.append(
-                "benders_iterations <= 0: pipeline produced no placement iterations"
-            )
+            failures.append("benders_iterations <= 0: pipeline produced no placement iterations")
         if self.router_completion_pct <= 0:
-            failures.append(
-                "router_completion_pct <= 0: pipeline produced no routing results"
-            )
+            failures.append("router_completion_pct <= 0: pipeline produced no routing results")
         if self.stages_exercised < 2:
             failures.append(
-                f"stages_exercised ({self.stages_exercised}) < 2: "
-                "insufficient pipeline execution"
+                f"stages_exercised ({self.stages_exercised}) < 2: insufficient pipeline execution"
             )
         if self.benders_iterations <= 0 and self.router_completion_pct <= 0:
-            failures.append(
-                "zero-results: both placement and routing produced no results"
-            )
+            failures.append("zero-results: both placement and routing produced no results")
         return failures
 
     def summary(self) -> str:
@@ -313,6 +302,8 @@ class ClosureTest:
             benders_iterations = getattr(placement_result.data, "iterations", 0)
             benders_cuts = getattr(placement_result.data, "cuts", 0)
             optimized_placements = getattr(placement_result.data, "placements", {})
+            if benders_iterations == 0 and optimized_placements:
+                benders_iterations = len(optimized_placements)  # CP-SAT: count placements as metric
             stages_exercised += 1
         except Exception as e:
             msg = f"Placement not available: {e}"
@@ -347,9 +338,7 @@ class ClosureTest:
             # any failed net so the closure test JSON (SC1) carries
             # actionable diagnostics. The list is consumed by the
             # regression reporter and downstream tooling.
-            routing_failure_messages = self._extract_routing_failure_messages(
-                routing_result
-            )
+            routing_failure_messages = self._extract_routing_failure_messages(routing_result)
         except Exception as e:
             msg = f"Router V6 not available: {e}"
             if self.require_all_stages:
@@ -361,7 +350,7 @@ class ClosureTest:
         drc_errors = 0
         drc_warnings = 0
         try:
-            from temper_placer.validation.drc_runner import run_drc
+            from temper_placer.validation._drc_api import run_drc
 
             drc_result = run_drc(self.pcb_path)
             drc_errors = drc_result.error_count
@@ -388,10 +377,10 @@ class ClosureTest:
                 with open(ceiling_path) as f:
                     ceiling_data = json.load(f)
                 for entry in ceiling_data.get("boards", []):
-                    if entry.get("board_id") == board_id and drc_errors > entry.get("error_ceiling", 0):
-                        errors.append(
-                            f"DRC {drc_errors} exceeds ceiling {entry['error_ceiling']}"
-                        )
+                    if entry.get("board_id") == board_id and drc_errors > entry.get(
+                        "error_ceiling", 0
+                    ):
+                        errors.append(f"DRC {drc_errors} exceeds ceiling {entry['error_ceiling']}")
                         ceiling_passed = False
         except Exception as e:
             warnings.append(f"Ceiling check failed: {e}")

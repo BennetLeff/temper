@@ -54,3 +54,4 @@ Strong (scoped):
 - `docs/solutions/best-practices/solver-independence-is-not-model-independence-2026-07-09.md`
 - `docs/physics-verification-methodology.md`
 - `docs/solutions/best-practices/hypothesis-invariant-test-suite-pattern-2026-06-28.md`
+- `docs/solutions/best-practices/three-target-verification-ladder-correctness-soundness-validity-2026-07-10.md` (the formal three-rung ladder — invariants close the *correctness* rung; the *validity* rung needs independent-model corroboration or hardware)

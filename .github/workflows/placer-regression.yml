@@ -1,5 +1,9 @@
 name: Placer Regression
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches: [main]
@@ -23,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board: [temper, minimal, rp2040_designguide, bitaxe_ultra, piantor_right]
+        board: ${{ github.event_name == 'pull_request' && fromJson('["temper"]') || fromJson('["temper", "minimal", "rp2040_designguide", "bitaxe_ultra", "piantor_right"]') }}
     env:
       JAX_PLATFORM_NAME: cpu
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.5
@@ -42,11 +46,17 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
 
       - name: Check for baseline changes without approval
-        continue-on-error: true  # allow legitimate baseline refreshes; temper-N6-U8
+        continue-on-error: true  # allow legitimate baseline refreshes; temper-N6-U8 -- hard-fail after 2026-09-01
         run: |
           if git diff --name-only origin/main...HEAD | grep -q 'power_pcb_dataset/corpus/.*/baseline.json'; then
             echo "Checking for baseline approval in commit messages..."
@@ -59,7 +69,7 @@ jobs:
           fi
 
       - name: Run corpus regression (${{ matrix.board }})
-        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8
+        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8 -- hard-fail after 2026-09-01
         run: uv run python -m temper_placer.regression.cli run-corpus --board ${{ matrix.board }} --json --skip-unchanged
 
       - name: Generate summary table
@@ -124,22 +134,28 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
 
       - name: Download regression reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: regression-report-*
           path: ./reports
           merge-multiple: true
 
       - name: Update regression cache
-        continue-on-error: true  # cache update is best-effort; temper-N6-U8
+        continue-on-error: true  # cache update is best-effort; temper-N6-U8 -- hard-fail after 2026-09-01
         run: uv run python scripts/update_regression_cache.py --reports-dir ./reports
 
       - name: Commit and push cache
-        continue-on-error: true  # push may fail on fork PRs; temper-N6-U8
+        continue-on-error: true  # push may fail on fork PRs; temper-N6-U8 -- hard-fail after 2026-09-01
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

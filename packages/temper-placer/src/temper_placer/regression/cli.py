@@ -82,9 +82,7 @@ def main() -> None:
     corpus_parser.add_argument(
         "--repo-root", type=str, default=None, help="Repository root (default: auto-detect)"
     )
-    corpus_parser.add_argument(
-        "--board", type=str, default=None, help="Run a specific board"
-    )
+    corpus_parser.add_argument("--board", type=str, default=None, help="Run a specific board")
     corpus_parser.add_argument(
         "--json", action="store_true", help="Write JSON report to regression-report.json"
     )

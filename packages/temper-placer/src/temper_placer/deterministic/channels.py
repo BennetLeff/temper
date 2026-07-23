@@ -130,18 +130,14 @@ class ChannelMap:
         try:
             payload = json.loads(raw)
         except json.JSONDecodeError as exc:
-            raise ChannelSidecarError(
-                f"malformed sidecar JSON at {path}: {exc}"
-            ) from exc
+            raise ChannelSidecarError(f"malformed sidecar JSON at {path}: {exc}") from exc
 
         return cls._from_payload(payload, source=str(path))
 
     @classmethod
     def _from_payload(cls, payload: dict, source: str = "<payload>") -> ChannelMap:
         if not isinstance(payload, dict):
-            raise ChannelSidecarError(
-                f"sidecar {source}: top-level must be an object"
-            )
+            raise ChannelSidecarError(f"sidecar {source}: top-level must be an object")
 
         schema_hash = payload.get("temper_schema_hash", "")
         if schema_hash not in ALLOWED_SCHEMA_HASHES:
@@ -160,9 +156,7 @@ class ChannelMap:
 
         grid_raw = payload.get("grid")
         if not isinstance(grid_raw, list) or not grid_raw:
-            raise ChannelSidecarError(
-                f"sidecar {source}: grid must be a non-empty 2D list"
-            )
+            raise ChannelSidecarError(f"sidecar {source}: grid must be a non-empty 2D list")
         grid: list[tuple[float, ...]] = []
         width = None
         for row in grid_raw:
@@ -218,9 +212,7 @@ class ChannelMap:
                     f"sidecar {source}: bottleneck score must be numeric, got {score_raw!r}"
                 )
             bottlenecks.add(
-                Bottleneck(
-                    x=x, y=y, layer=layer, severity=severity, score=float(score_raw)
-                )
+                Bottleneck(x=x, y=y, layer=layer, severity=severity, score=float(score_raw))
             )
 
         # Pre-index bottlenecks by (x, y) for O(1) lookup in
@@ -236,9 +228,7 @@ class ChannelMap:
                 continue
             existing_w = SEVERITY_WEIGHTS.get(existing.severity, 0.0)
             new_w = SEVERITY_WEIGHTS.get(bn.severity, 0.0)
-            if new_w > existing_w or (
-                new_w == existing_w and bn.score > existing.score
-            ):
+            if new_w > existing_w or (new_w == existing_w and bn.score > existing.score):
                 bottleneck_by_cell[key] = bn
 
         return cls(
@@ -253,9 +243,7 @@ class ChannelMap:
         return bool(self.grid) and self.cell_size_um > 0 and self.width > 0
 
 
-def routability_penalty(
-    slot: tuple[float, float], channel_map: ChannelMap
-) -> float:
+def routability_penalty(slot: tuple[float, float], channel_map: ChannelMap) -> float:
     """Return a routability penalty in ``[0.0, 1.0]`` for ``slot``.
 
     The slot position is in millimetres (mm); it is converted to grid

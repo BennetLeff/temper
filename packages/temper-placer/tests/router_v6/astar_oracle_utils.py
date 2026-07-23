@@ -23,7 +23,14 @@ SQRT2: float = math.sqrt(2.0)
 DIJKSTRA_MAX_CELLS: int = 900  # 30x30 gate (R9)
 
 _DIRS_8: tuple[tuple[int, int], ...] = (
-    (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1),
+    (1, 0),
+    (1, 1),
+    (0, 1),
+    (-1, 1),
+    (-1, 0),
+    (-1, -1),
+    (0, -1),
+    (1, -1),
 )
 
 
@@ -139,10 +146,9 @@ def dijkstra_cost_only(
 # ---------------------------------------------------------------------------
 
 
-
 def _make_array(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> np.ndarray:
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for r, c in (blocked or set()):
+    for r, c in blocked or set():
         arr[r, c] = 1
     return arr
 

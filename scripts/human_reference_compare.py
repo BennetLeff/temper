@@ -15,7 +15,6 @@ from pathlib import Path
 
 import yaml
 
-
 # ---------------------------------------------------------------------------
 # Metric groups for the PR comment — ordered and labeled.
 # Each entry is (group_label, [metric_keys...]).

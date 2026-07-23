@@ -91,12 +91,7 @@ class ComponentPlacement:
         x1_min, y1_min, x1_max, y1_max = self.bounds
         x2_min, y2_min, x2_max, y2_max = other.bounds
 
-        return not (
-            x1_max < x2_min
-            or x2_max < x1_min
-            or y1_max < y2_min
-            or y2_max < y1_min
-        )
+        return not (x1_max < x2_min or x2_max < x1_min or y1_max < y2_min or y2_max < y1_min)
 
     def overlap_area(self, other: ComponentPlacement) -> float:
         """Calculate overlap area with another component."""
@@ -196,7 +191,7 @@ class Placement:
         refs = list(self.components.keys())
         pairs = []
         for i, ref_a in enumerate(refs):
-            for ref_b in refs[i + 1:]:
+            for ref_b in refs[i + 1 :]:
                 pairs.append((ref_a, ref_b))
         return pairs
 
@@ -247,8 +242,7 @@ class Placement:
             "components": [c.to_dict() for c in self.components.values()],
             "nets": self.nets,
             "zones": [
-                {"name": name, "bounds": list(bounds)}
-                for name, bounds in self.zones.items()
+                {"name": name, "bounds": list(bounds)} for name, bounds in self.zones.items()
             ],
             "board_width": self.board_width,
             "board_height": self.board_height,
@@ -560,10 +554,7 @@ class TraceSegment:
 
     @property
     def length(self) -> float:
-        return math.sqrt(
-            (self.end[0] - self.start[0]) ** 2
-            + (self.end[1] - self.start[1]) ** 2
-        )
+        return math.sqrt((self.end[0] - self.start[0]) ** 2 + (self.end[1] - self.start[1]) ** 2)
 
     @property
     def bounding_box(self) -> tuple[float, float, float, float]:

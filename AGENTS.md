@@ -225,21 +225,67 @@ will now trigger HV/LV separation checks.
 
 ## Coverage Gate
 
-### Scope (Phase 1)
+### Scope (Phase 2)
 
-The coverage gate currently applies to `temper_placer/core/` (25 modules). It
-catches public functions (module-level `def` not prefixed with `_`, and methods
-of public classes not prefixed with `_`) whose body has **zero executed lines**
-during the test suite.
+The coverage gate currently applies to all public functions in `temper_placer/`
+except `_constraint_types/` (generated type stubs) and `profiling/` (production
+diagnostics). These subpackages are permanently excluded via `[tool.coverage.run]
+omit` in `pyproject.toml` and `--cov-config` in CI. The gate catches public
+functions (module-level `def` not prefixed with `_`, and methods of public classes
+not prefixed with `_`) whose body has **zero executed lines** during the test suite.
 
-### How It Works
+### How It Works (Phase 2 — Inline Coverage)
 
-1. CI runs `uv run pytest tests/core/ --cov=temper_placer.core --cov-report=json`
-   in `packages/temper-placer/`, producing `coverage.json`.
+1. CI runs `uv run pytest tests/core/ -v --tb=short --maxfail=10
+   --cov=temper_placer --cov-report=json --cov-report=term
+   --cov-config=../../pyproject.toml` in `packages/temper-placer/`, producing
+   `coverage.json` as a side effect during normal test execution. No separate
+   pytest invocation.
 2. `scripts/check_coverage_gate.py` reads `coverage.json`, AST-parses each source
    file to identify public functions, and checks coverage for each.
 3. Any zero-coverage public function **not on the allowlist** (`.coverage-allowlist`)
    fails CI.
+4. The CI gate step is currently **warn-only** (`continue-on-error: true`) until
+   the Phase 1 paydown prerequisite is met. Once met, a follow-on PR removes
+   `continue-on-error` and the gate becomes a hard CI block.
+
+### Phase 1 Paydown Prerequisite
+
+Phase 2's hard-fail gate is gated on the Phase 1 allowlist (entries for
+`temper_placer/core/`) having shrunk by >=50% from the initial 193 entries.
+Current count is tracked in the `.coverage-allowlist` header. The gate step
+uses `continue-on-error: true` with a warning annotation providing context
+until the prerequisite is verified and the guard is removed.
+
+### `--init` Workflow (for new phases)
+
+When expanding scope to new modules:
+1. Add the new module paths to `source` in `[tool.coverage.run]` in
+   `pyproject.toml` and add `omit` patterns for excluded subpackages.
+2. Run `uv run pytest tests/core/ --cov=<new.scope> --cov-report=json
+   --cov-config=../../pyproject.toml` from `packages/temper-placer/` to
+   generate `coverage.json`.
+3. Run `python scripts/check_coverage_gate.py --init --coverage-json
+   /path/to/coverage.json --allowlist .coverage-allowlist`. The `--init` mode
+   preserves existing allowlist entries; new entries are appended with
+   `# TODO: temper-xxx` placeholders.
+4. Review the output: remove stale entries (now have coverage), replace
+   `# TODO: temper-xxx` placeholders with real ticket IDs.
+5. Commit the updated allowlist.
+
+### `--init` for Phase 2
+
+`--init` appends new entries for modules outside `temper_placer/core/`.
+Existing entries are preserved. Real ticket IDs replace `# TODO: temper-xxx`
+placeholders before commit. `_constraint_types/` and `profiling/` are
+permanently excluded via `[tool.coverage.run] omit`.
+
+### Excluded Subpackages
+
+- `temper_placer/_constraint_types/` — generated constraint type stubs.
+- `temper_placer/profiling/` — production diagnostics, wall-clock instrumentation.
+These are excluded via `omit = ["**/_constraint_types/**", "**/profiling/**"]`
+in `[tool.coverage.run]` and via `--cov-config=../../pyproject.toml` in CI.
 
 ### Allowlist Format (`.coverage-allowlist`)
 
@@ -277,8 +323,9 @@ When expanding scope to new modules:
 
 ### Paydown Cadence
 
-- Phase advancement (e.g., expanding scope from `core/` to all of
-  `temper_placer/`) is gated on 50% allowlist entry paydown.
+- Phase advancement (e.g., expanding scope from `temper_placer/` to `temper-drc`,
+  `temper-tools`, `temper-workflow` for Phase 3) is gated on 50% allowlist entry
+  paydown.
 - Recommended cadence: quarterly hardening sprint focused on writing tests for
   allowlisted functions and removing entries.
 - An allowlist entry that now has coverage triggers a `WARNING` in CI (stale

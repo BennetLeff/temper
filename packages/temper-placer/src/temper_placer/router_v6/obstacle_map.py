@@ -227,12 +227,14 @@ def validate_obstacle_map(state: BoardState) -> list[StageDRCFailure]:
     """Validate obstacle map invariants."""
     failures: list[StageDRCFailure] = []
     if state.obstacle_maps is None:
-        failures.append(StageDRCFailure(
-            field="obstacle_maps",
-            value=None,
-            reason="Obstacle maps not computed",
-            stage="ObstacleMap",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="obstacle_maps",
+                value=None,
+                reason="Obstacle maps not computed",
+                stage="ObstacleMap",
+            )
+        )
         return failures
 
     assert state._parsed_pcb is not None
@@ -241,20 +243,24 @@ def validate_obstacle_map(state: BoardState) -> list[StageDRCFailure]:
 
     for layer_name, _obstacles in state.obstacle_maps.items():
         if layer_name not in declared_layers:
-            failures.append(StageDRCFailure(
-                field="obstacle_maps",
-                value=layer_name,
-                reason=f"Layer {layer_name} has obstacles but is not a declared signal/mixed layer",
-                stage="ObstacleMap",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="obstacle_maps",
+                    value=layer_name,
+                    reason=f"Layer {layer_name} has obstacles but is not a declared signal/mixed layer",
+                    stage="ObstacleMap",
+                )
+            )
 
     for layer_name in declared_layers:
         if layer_name not in state.obstacle_maps:
-            failures.append(StageDRCFailure(
-                field="obstacle_maps",
-                value=layer_name,
-                reason=f"Declared layer {layer_name} missing from obstacle maps",
-                stage="ObstacleMap",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="obstacle_maps",
+                    value=layer_name,
+                    reason=f"Declared layer {layer_name} missing from obstacle maps",
+                    stage="ObstacleMap",
+                )
+            )
 
     return failures

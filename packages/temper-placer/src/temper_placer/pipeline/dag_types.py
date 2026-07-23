@@ -6,9 +6,32 @@ DataContext, StageResult, error hierarchy, and the StageHandler protocol.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
+
+if TYPE_CHECKING:
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
 
 DataContext = dict[str, Any]
+
+
+class PipelineState(Protocol):
+    """Minimal protocol for pipeline state passed between stages.
+
+    Stages that read additional fields can refine this with a narrower
+    Protocol or use hasattr checks in their ``__call__``.
+    """
+
+    board: Board
+    netlist: Netlist
+    constraints: Any
+    loops: list[Any]
+    deterministic_result: Any | None
+    placement_state: Any | None
+    routing_result: Any | None
+    thermal_anchoring_applied: bool
+    physics_report: Any | None
+    preflight_report: Any | None
 
 
 @dataclass
@@ -27,7 +50,7 @@ class StageHandler(Protocol):
     (state: PipelineState, context: DataContext) -> StageResult
     """
 
-    def __call__(self, state: Any, context: DataContext) -> StageResult: ...
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult: ...
 
 
 class DAGError(Exception):
@@ -44,8 +67,10 @@ class DAGMissingDependencyError(DAGError):
     def __init__(self, key: str, requiring_stage: str) -> None:
         self.key = key
         self.requiring_stage = requiring_stage
-        super().__init__(f"Stage '{requiring_stage}' requires key '{key}' "
-                         f"which no stage provides and is not a built-in config key")
+        super().__init__(
+            f"Stage '{requiring_stage}' requires key '{key}' "
+            f"which no stage provides and is not a built-in config key"
+        )
 
 
 class DAGDuplicateStageError(DAGError):
@@ -66,8 +91,10 @@ class FeedbackExhaustedError(DAGError):
         self.contract_name = contract_name
         self.stage_name = stage_name
         self.attempts = attempts
-        super().__init__(f"Feedback contract '{contract_name}' exhausted after "
-                         f"{attempts} retriggers on stage '{stage_name}'")
+        super().__init__(
+            f"Feedback contract '{contract_name}' exhausted after "
+            f"{attempts} retriggers on stage '{stage_name}'"
+        )
 
 
 class DAGExprError(DAGError):

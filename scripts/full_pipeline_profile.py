@@ -164,7 +164,6 @@ def instrument_router() -> dict[str, Any]:
 
 def run_full_pipeline(profile: bool) -> dict[str, Any]:
     """Run the closure test on temper.kicad_pcb.  Capture everything."""
-    from temper_placer.regression.closure_test import ClosureTest
 
     out: dict[str, Any] = {
         "pstats_path": str(PSTATS_PATH),
