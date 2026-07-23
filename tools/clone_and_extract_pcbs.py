@@ -5,7 +5,7 @@ Clone and Extract KiCad PCBs from Known Repositories
 Clones well-known open hardware repositories and extracts modern KiCad PCB files.
 
 Usage:
-    python3 tools/clone_and_extract_pcbs.py --output packages/temper-validation/data/reference_layouts
+    python3 tools/clone_and_extract_pcbs.py --output reference_layouts
 """
 
 import argparse
@@ -147,7 +147,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("packages/temper-validation/data/reference_layouts"),
+        default=Path("reference_layouts"),
         help="Output directory for downloaded PCBs",
     )
     parser.add_argument(

@@ -584,7 +584,7 @@ def discover_packages() -> list[dict[str, Any]]:
         "temper-drc-rs": 3, "temper-dsn": 3, "temper-ipc": 3,
         "temper-quality-oracle": 3,
         "temper-placer": 4, "temper-design-bundle": 4,
-        "temper-workflow": 5, "temper-testing": 5, "temper-validation": 5,
+        "temper-workflow": 5,
         "temper-autoprof": 6, "temper-tools": 6,
     }
     packages.sort(key=lambda p: (_PRIORITY.get(p["name"], 50), p["name"]))
