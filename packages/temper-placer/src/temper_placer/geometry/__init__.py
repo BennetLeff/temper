@@ -4,7 +4,6 @@ Geometry engine for temper-placer — Rust-backed via pyo3.
 from __future__ import annotations
 
 import math
-import random as _random
 
 import temper_geometry as _tg
 
@@ -150,7 +149,7 @@ project_onto_zone = _tg.project_onto_zone
 project_outside_keepout = _tg.project_outside_keepout
 
 # DRC inflate
-from temper_placer.geometry.drc_inflate import (  # noqa: E402
+from temper_placer.geometry.drc_inflate import (  # noqa: E402, F401
     compute_drc_proxy_score,
     compute_inflated_half_dims_from_bounds,
     inflate_pad_polygon,
