@@ -113,7 +113,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("packages/temper-validation/data/reference_layouts"),
+        default=Path("reference_layouts"),
         help="Output directory for downloaded PCBs",
     )
     parser.add_argument(
