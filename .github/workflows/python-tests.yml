@@ -346,18 +346,21 @@ jobs:
   closure:
     name: Pipeline Closure Test (Truth-Gated)
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
     timeout-minutes: 20
     if: github.event_name == 'push' || github.event_name == 'pull_request'
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
           enable-cache: true
-
-      - name: Set up Python
-        run: uv python install 3.12
 
       - name: Cache virtualenv
         uses: actions/cache@v4
