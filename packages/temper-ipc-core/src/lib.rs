@@ -52,6 +52,9 @@ pub fn calculate_min_trace_width(
     temp_rise_c: f64,
     internal_layer: bool,
 ) -> f64 {
+    if current_amps <= 0.0 {
+        return 0.0;
+    }
     let k = if internal_layer { 0.024 } else { 0.048 };
     let area_mils2 = (current_amps / (k * temp_rise_c.powf(0.44))).powf(1.0 / 0.725);
     let thickness_mils = copper_weight_oz * 1.37;

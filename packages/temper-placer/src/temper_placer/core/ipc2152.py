@@ -74,4 +74,4 @@ def ipc2152_min_width(net_name, current_amps, layer=None, stackup=None):
     elif isinstance(layer, int):
         internal = layer in (1, 2)
 
-    return ipc2152_min_width_mm(current_amps, copper_oz, internal)
+    return ipc2152_min_width_mm(current_amps, copper_oz, 10.0, internal)
