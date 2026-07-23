@@ -40,12 +40,7 @@ from temper_placer.core.pin_geometry import pin_world_position
 # 2026-07-08-004-feat-4-layer-functional-stackup-plan.md): the netclass YAML
 # `layer` value is the KiCad layer name; this is the single place the KiCad
 # name, the KiCad index, and the L1..L4 Layer enum meet.
-_LAYER_NAME_TO_ENUM: dict[str, "Layer"] = {
-    "F.Cu": None,   # populated after Layer is defined
-    "In1.Cu": None,
-    "In2.Cu": None,
-    "B.Cu": None,
-}
+_LAYER_NAME_TO_ENUM: dict[str, "Layer"] = {}   # populated after Layer is defined
 _LAYER_NAME_TO_INDEX: dict[str, int] = {
     "F.Cu": 0,
     "In1.Cu": 1,

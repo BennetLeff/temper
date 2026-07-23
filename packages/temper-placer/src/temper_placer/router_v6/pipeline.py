@@ -18,7 +18,7 @@ import time
 from collections import defaultdict
 from contextlib import nullcontext
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from temper_placer.core.board import side_to_layer_name
 from temper_placer.deterministic.state import BoardState
@@ -1068,7 +1068,7 @@ class RouterV6Pipeline:
         # PTH terminals expose all declared signal layers via extraction.
         if self.enable_all_pad_tree:
             from temper_placer.router_v6.terminal_extraction import extract_net_terminals
-            from temper_placer.router_v6.terminal_tree import plan_terminal_tree
+            from temper_placer.router_v6.terminal_tree import TreeTerminal, plan_terminal_tree
 
             for net in pcb.nets:
                 channel_path = channel_mapping.channel_paths.get(net.name)
@@ -1078,7 +1078,13 @@ class RouterV6Pipeline:
                 if len(terminals) < 3:
                     continue
                 channel_path.terminals = terminals
-                channel_path.terminal_tree = plan_terminal_tree(terminals)
+                # ParsedTerminal satisfies TreeTerminal structurally; mypy can't see
+                # it because Protocol attribute checks are invariant and
+                # ParsedTerminal.layer_names is non-optional where the protocol
+                # allows None.
+                channel_path.terminal_tree = plan_terminal_tree(
+                    cast("tuple[TreeTerminal, ...]", terminals)
+                )
 
         # 4.2: Run A* pathfinding (orchestrated via Stage 4 micro-stages)
         if self.verbose:

@@ -20,6 +20,7 @@ from temper_placer.router_v6.net_classification import is_ground_net, is_signal_
 
 if TYPE_CHECKING:
     from temper_placer.io._kicad_types import ParseResult, ViaData
+    from temper_placer.router_v6.routing_results import CompiledRoute
 
 
 @dataclass(frozen=True)
@@ -207,7 +208,7 @@ def _get_board_bbox(
     board = result.board
     if board is None:
         return None
-    return (0.0, 0.0, float(board.width_mm), float(board.height_mm))
+    return (0.0, 0.0, float(board.width), float(board.height))
 
 
 def _is_via_in_bbox(
@@ -244,7 +245,7 @@ def _is_via_near_board_edge(
 
 
 def count_signal_vias_from_routing(
-    compiled_routes: dict[str, object],
+    compiled_routes: dict[str, CompiledRoute],
 ) -> tuple[int, list, list, list]:
     """Count signal vias from compiled routes (for QualityGate integration).
 

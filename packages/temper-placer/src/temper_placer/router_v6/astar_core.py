@@ -218,8 +218,11 @@ def _astar_search(
                 cell_value = grid.grid[ny, nx]
                 if cell_value != 0 and cell_value != net_id:
                     continue
-            elif not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
-                continue
+            else:
+                # net_id < 0 guarantees neighbor_tensor was built at line 168.
+                assert neighbor_tensor is not None
+                if not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
+                    continue
 
             # Diagonal cost uses configurable multiplier
             move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
@@ -914,13 +917,13 @@ def _route_segment_3d(
     world_path: list[tuple[float, float, str]] = []
     if bulk_path:
         world_path.append((start_world[0], start_world[1], start_layer))
-        for node in bulk_path:
-            if node != world_path[-1]:
-                world_path.append(node)
+        for point in bulk_path:
+            if point != world_path[-1]:
+                world_path.append(point)
 
-        goal_node = (goal_world[0], goal_world[1], goal_layer)
-        if goal_node != world_path[-1]:
-            world_path.append(goal_node)
+        goal_point = (goal_world[0], goal_world[1], goal_layer)
+        if goal_point != world_path[-1]:
+            world_path.append(goal_point)
 
     via_world_positions = []
     for gx, gy in via_grid_positions:
