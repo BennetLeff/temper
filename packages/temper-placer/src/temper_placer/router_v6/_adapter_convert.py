@@ -41,7 +41,7 @@ def route_pcb(
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
     enable_all_pad_tree: bool = False,
-    enable_zone_pours: bool = True,
+    enable_zone_pours: bool = False,
     enable_connectivity_verifier: bool = False,
 ) -> RoutingResult:
     """Route a PCB using the Router V6 pipeline.
@@ -570,15 +570,25 @@ def _write_routes_to_content(
         tree_route = getattr(compiled_route, "_tree_route", None)
         if tree_route is not None:
             tree_width = getattr(compiled_route, "width_mm", 0.2)
-            for branch in tree_route.geometry.branches:
-                net_num = net_name_to_number.get(net_name, 0)
-                for sx, sy, ex, ey, layer in branch.path.iter_segments():
-                    seg_id = uuid.uuid4()
-                    segments.append(
-                        f"  (segment (start {sx:.4f} {sy:.4f}) (end {ex:.4f} {ey:.4f})"
-                        f' (width {tree_width:.4f}) (layer "{layer}") (net {net_num})'
-                        f' (tstamp "{seg_id}"))'
-                    )
+            net_num = net_name_to_number.get(net_name, 0)
+            # iter_segments() lives on TreeRouteGeometry (yields pairs of
+            # (x, y, layer) points across all branches), not on a branch's
+            # individual RoutePath/RoutePath3D -- neither has iter_segments.
+            for (sx, sy, s_layer), (ex, ey, e_layer) in tree_route.geometry.iter_segments():
+                if s_layer != e_layer:
+                    # A layer change between consecutive points is a via
+                    # crossing, not a same-layer copper run -- KiCad segments
+                    # are single-layer. Via emission for tree-routed nets
+                    # isn't wired yet (pre-existing gap; the vias loop below
+                    # is skipped for this branch by the `continue`), so this
+                    # point-pair is dropped rather than drawn incorrectly.
+                    continue
+                seg_id = uuid.uuid4()
+                segments.append(
+                    f"  (segment (start {sx:.4f} {sy:.4f}) (end {ex:.4f} {ey:.4f})"
+                    f' (width {tree_width:.4f}) (layer "{s_layer}") (net {net_num})'
+                    f' (tstamp "{seg_id}"))'
+                )
             continue
 
         path_length = getattr(path, "path_length", 0.0)
