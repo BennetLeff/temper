@@ -146,6 +146,43 @@ class Gate:
         return DeltaMapper.map(violation)
 
 
+# ---------------------------------------------------------------------------
+# Portable KiCad footprint-library directory resolution (plan 2026-07-23-001 U1)
+# ---------------------------------------------------------------------------
+
+
+def _resolve_kicad_footprint_dir() -> Path | None:
+    """Resolve the KiCad footprint library directory for ``KICAD7_FOOTPRINT_DIR``.
+
+    Priority (first match wins):
+    1. ``KICAD7_FOOTPRINT_DIR`` env var — preserves manual override (backwards-compatible).
+    2. Common Linux paths (``/usr/share/kicad/footprints``, versioned variants, ``/usr/local/...``).
+    3. macOS dev-workstation path (``/Applications/KiCad/...``).
+
+    Returns ``None`` when no directory is found, so callers can fail-closed
+    as ``UNMEASURED`` rather than silently producing false-zero passes
+    (``docs/solutions/logic-errors/weak-nooverlap2d-encoding-allows-zero-gap-2026-07-08.md``).
+    """  # noqa: E501
+    # 1. Env var — explicit override (backwards-compatible with prior hardcode).
+    if os.environ.get("KICAD7_FOOTPRINT_DIR"):
+        return Path(os.environ["KICAD7_FOOTPRINT_DIR"])
+
+    # 2. Common paths — search in order; first existing directory wins.
+    candidates = [
+        "/usr/share/kicad/footprints",           # Debian/Ubuntu (kicad)
+        "/usr/share/kicad/6.0/footprints",        # version-specific
+        "/usr/share/kicad/7.0/footprints",        # version-specific
+        "/usr/local/share/kicad/footprints",      # manual / non-packaged
+        "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",  # macOS
+    ]
+    for candidate in candidates:
+        p = Path(candidate)
+        if p.is_dir():
+            return p
+
+    return None
+
+
 class DrcGate(Gate):
     """PLACEMENT-stage gate: runs KiCad DRC on the placement-only PCB.
 
@@ -166,6 +203,17 @@ class DrcGate(Gate):
                 error_message="No PCB available for placement DRC",
             )
 
+        fp_dir = _resolve_kicad_footprint_dir()
+        if fp_dir is None:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=(
+                    "KiCad footprint library directory not found. "
+                    "Set KICAD7_FOOTPRINT_DIR env var or install "
+                    "kicad-footprints."
+                ),
+            )
+
         drc_out = Path(tempfile.mktemp(suffix=".json"))
         try:
             try:
@@ -179,7 +227,7 @@ class DrcGate(Gate):
                     capture_output=True, text=True, timeout=120,
                     env={
                         **os.environ,
-                        "KICAD7_FOOTPRINT_DIR": "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",
+                        "KICAD7_FOOTPRINT_DIR": str(fp_dir),
                     },
                 )
             except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
