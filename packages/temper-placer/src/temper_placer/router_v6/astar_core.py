@@ -27,6 +27,11 @@ OCTILE_DIAG: Final[float] = math.sqrt(2.0) - 1.0
 # :func:`temper_placer.router_v6.metrics.octilinear.add_diagonal_incentive`.
 DIAGONAL_COST_FACTOR: float = 1.0
 _BASE_DIAGONAL_COST: Final[float] = math.sqrt(2.0)
+# Cost multiplier for cells already occupied by the same net.
+# < 1.0 incentivises tree branches to share copper space rather than
+# spreading out, reducing the overall footprint and leaving more free
+# cells available for cross-net routes.
+_SAME_NET_COST_DISCOUNT: Final[float] = 0.25
 
 _SAME_LAYER_DELTAS: tuple[tuple[int, int], ...] = (
     (0, 1),
@@ -227,12 +232,14 @@ def _astar_search(
         for dir_idx in range(8):
             dx, dy = _DIRS_8[dir_idx]
             nx, ny = cx + dx, cy + dy
+            is_same_net = False
             if net_id >= 0:
                 if not in_bounds(nx, ny, grid.width_cells, grid.height_cells):
                     continue
                 cell_value = grid.grid[ny, nx]
                 if cell_value != 0 and cell_value != net_id:
                     continue
+                is_same_net = cell_value == net_id
             else:
                 # net_id < 0 guarantees neighbor_tensor was built at line 168.
                 assert neighbor_tensor is not None
@@ -241,6 +248,11 @@ def _astar_search(
 
             # Diagonal cost uses configurable multiplier
             move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
+            # Same-net occupancy: cells already committed for this net cost a
+            # fraction of free cells so tree branches preferentially share
+            # copper space, reducing overall footprint for cross-net routes.
+            if is_same_net:
+                move_cost *= _SAME_NET_COST_DISCOUNT
             # U8: additive thermal cost
             if use_thermal and thermal_flat is not None:
                 n_idx = ny * cols + nx

@@ -105,20 +105,19 @@ def test_overlapping_same_cluster_order():
     assert result.index("B_small") < result.index("A_large")
 
 
-def test_power_first_within_cluster():
-    """Power nets should route first within their cluster regardless of area."""
+def test_smallest_area_first_within_cluster():
+    """Smallest-footprint nets route first within their cluster; power is a tiebreaker."""
     nets = {
         "HV_DRIVER": [(0, 0), (10, 10)],  # area = 100
-        "signal_small": [(0, 0), (5, 5)],  # area = 25 — but it's signal, not power
-        "GND_plane": [(0, 0), (200, 200)],  # area = 40000
+        "signal_small": [(0, 0), (5, 5)],  # area = 25 — routes first
+        "GND_plane": [(0, 0), (200, 200)],  # area = 40000 — routes last
     }
     result = _compute_net_order(make_mapping(nets))
-    # Power nets should come before signal nets
+    sig_idx = result.index("signal_small")
     hv_idx = result.index("HV_DRIVER")
     gnd_idx = result.index("GND_plane")
-    sig_idx = result.index("signal_small")
-    assert hv_idx < sig_idx
-    assert gnd_idx < sig_idx
+    assert sig_idx == 0, f"Smallest-area net should route first, got order: {result}"
+    assert sig_idx < hv_idx < gnd_idx, f"Expected area-ascending order, got: {result}"
 
 
 # --- AREA ASCENDING: Within signal nets, sort by area ---
@@ -134,7 +133,7 @@ def test_power_first_within_cluster():
 )
 @settings(max_examples=50)
 def test_area_ascending_within_cluster(net_specs):
-    """Within a cluster of signal nets, smaller area should route first."""
+    """Within a cluster, smaller area should route first (area is the primary sort key)."""
     # All nets overlap at (0,0)-(100,100) — same cluster
     nets = {}
     areas = {}
@@ -143,17 +142,13 @@ def test_area_ascending_within_cluster(net_specs):
         areas[name] = float(size * size)
 
     result = _compute_net_order(make_mapping(nets))
-    # Check sorting: for any adjacent pair where both are signal nets,
-    # the earlier one should have smaller area
+    # Check sorting: for any adjacent pair, the earlier one should have smaller area
+    # (power is only a tiebreaker within same-area nets)
     for i in range(len(result) - 1):
         a, b = result[i], result[i + 1]
-        # Only apply to non-power nets
-        a_power = any(x in a.upper() for x in ["GND", "VCC", "HV", "AC_", "+", "VBUS"])
-        b_power = any(x in b.upper() for x in ["GND", "VCC", "HV", "AC_", "+", "VBUS"])
-        if not a_power and not b_power:
-            assert areas[a] <= areas[b], (
-                f"{a}(area={areas[a]:.0f}) should come before {b}(area={areas[b]:.0f})"
-            )
+        assert areas[a] <= areas[b], (
+            f"{a}(area={areas[a]:.0f}) should come before {b}(area={areas[b]:.0f})"
+        )
 
 
 # --- IDEMPOTENCY ---

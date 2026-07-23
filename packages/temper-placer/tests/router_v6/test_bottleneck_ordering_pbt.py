@@ -139,8 +139,8 @@ def test_ordering_same_bottleneck_falls_back_to_area():
     )
 
 
-def test_ordering_power_first_even_with_wide_bottleneck():
-    """Power nets route first regardless of bottleneck width."""
+def test_ordering_narrower_bottleneck_first_regardless_of_power():
+    """Narrower-bottleneck nets route first; power is a tiebreaker only."""
     paths = {
         "GND": FakeChannelPath(net_name="GND", waypoints=[(0, 0), (100, 100)]),
         "signal_tiny": FakeChannelPath(net_name="signal_tiny", waypoints=[(0, 0), (2, 2)]),
@@ -148,8 +148,10 @@ def test_ordering_power_first_even_with_wide_bottleneck():
     cm = FakeChannelMapping(paths)
     bw = {"GND": 20.0, "signal_tiny": 0.2}
     order = _compute_net_order(cm, bottleneck_widths=bw)
-    assert order.index("GND") < order.index("signal_tiny"), (
-        f"Power nets must route first, got {order}"
+    # signal_tiny has narrower bottleneck (0.2) -> routes first
+    # This matches the Bottleneck Lemma: small nets never block large nets
+    assert order.index("signal_tiny") < order.index("GND"), (
+        f"Narrower bottleneck should route first, got {order}"
     )
 
 
@@ -167,7 +169,7 @@ def test_ordering_idempotent():
 
 
 def test_ordering_backward_compat_no_bottleneck():
-    """Without bottleneck widths, ordering is unchanged."""
+    """Without bottleneck widths, smallest-area nets route first within clusters."""
     paths = {
         "HV_BUS": FakeChannelPath(net_name="HV_BUS", waypoints=[(0, 0), (10, 10)]),
         "small_sig": FakeChannelPath(net_name="small_sig", waypoints=[(0, 0), (3, 3)]),
@@ -179,8 +181,10 @@ def test_ordering_backward_compat_no_bottleneck():
     # Call with None explicitly
     order_none_bw = _compute_net_order(cm, bottleneck_widths=None)
     assert order_no_bw == order_none_bw
-    # HV must come first
-    assert order_no_bw[0] == "HV_BUS"
+    # Smallest-area net routes first
+    assert order_no_bw[0] == "small_sig", (
+        f"Smallest-area net should route first, got {order_no_bw}"
+    )
 
 
 # --- Greedy routing simulator for completion comparison ---

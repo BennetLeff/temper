@@ -23,10 +23,13 @@ def _compute_net_order(
       2. Build a conflict graph: two nets conflict if their bounding boxes
          overlap sufficiently (overlap / smaller_area > 0.1).
       3. Find connected components (clusters of mutually-overlapping nets).
-      4. Within each cluster, sort by (power_first, bottleneck_asc, area_asc)
-         when bottleneck_widths is provided; otherwise (power_first, area_asc).
-         Bottleneck-first ordering addresses channel competition (min widths),
-         complementing the area-based ordering that addresses area competition.
+      4. Within each cluster, sort by (bottleneck_asc, area_asc, not_is_power)
+         when bottleneck_widths is provided; otherwise (area_asc, not_is_power).
+         Smallest-footprint nets route first so they claim narrow corridors
+         before larger nets spread through the region.  Power nets are a
+         tiebreaker, not a primary sort key -- per the Bottleneck Lemma,
+         routing a small net before a large net never makes the large net
+         unroutable.
       5. Route isolated clusters first, then largest clusters.
 
     Rationale:
@@ -134,14 +137,18 @@ def _compute_net_order(
                     queue.append(neighbor)
         clusters.append(cluster)
 
-    # 3. Within each cluster, sort by (power_first, bottleneck_asc, area_asc)
+    # 3. Within each cluster, sort by (bottleneck_asc, area_asc, not_is_power).
+    #    Smallest-footprint nets route first to claim narrow corridors before
+    #    larger nets spread through the region.  This matches the Bottleneck
+    #    Lemma: routing a small-area net before a large-area net never makes
+    #    the large net unroutable.  Power nets are a tiebreaker only.
     def cluster_sort_key(net_name: str) -> tuple:
         name_upper = net_name.upper()
         is_power = any(x in name_upper for x in ["GND", "VCC", "HV", "AC_", "+", "VBUS"])
         if bottleneck_widths is not None:
             bw = bottleneck_widths.get(net_name, float("inf"))
-            return (not is_power, bw, bbox_areas.get(net_name, float("inf")))
-        return (not is_power, bbox_areas.get(net_name, float("inf")))
+            return (bw, bbox_areas.get(net_name, float("inf")), not is_power)
+        return (bbox_areas.get(net_name, float("inf")), not is_power)
 
     for cluster in clusters:
         cluster.sort(key=cluster_sort_key)
