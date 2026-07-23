@@ -267,11 +267,6 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
     help="Override channel capacity loss weight.",
 )
 @click.option(
-    "--compact/--no-compact",
-    default=False,
-    help="Use the consolidated Core 8 loss set (default: False).",
-)
-@click.option(
     "--loop/--no-loop",
     default=True,
     help="Enable place→route feedback loop for routing-aware placement (default: enabled).",
@@ -327,7 +322,6 @@ def optimize(
     spice_validate: bool,
     spice_penalty_weight: float,
     weight_channel_capacity: float | None,
-    compact: bool,
     loop: bool,
     unsat_report: Path | None,
     all_gates: bool,
@@ -358,7 +352,6 @@ def optimize(
     console.print(f"[bold]Curriculum:[/] {'enabled' if curriculum else 'disabled'}")
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
-    console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
 
     # CP-SAT placer (sole engine)
     console.print()
