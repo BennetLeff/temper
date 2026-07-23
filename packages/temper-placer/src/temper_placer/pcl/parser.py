@@ -55,10 +55,126 @@ from temper_placer.pcl.constraints import (
     OnSideConstraint,
     SeparatedConstraint,
 )
+from temper_placer.pcl.tag_dispatch import _tag_to_component_refs
+from temper_placer.pcl.tagged_constraints import (
+    TaggedAdjacentConstraint,
+    TaggedAlignedConstraint,
+    TaggedAnchoredConstraint,
+    TaggedEnclosingConstraint,
+    TaggedOnSideConstraint,
+    TaggedSeparatedConstraint,
+)
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
+
+
+def _expand_tagged_adjacent(constraint: TaggedAdjacentConstraint, netlist: Netlist) -> list[BaseConstraint]:
+    comps_a = _tag_to_component_refs(constraint.tag_expr_a, netlist)
+    comps_b = _tag_to_component_refs(constraint.tag_expr_b, netlist)
+    constraint_id = constraint.id
+    results: list[BaseConstraint] = []
+    for a_ref in comps_a:
+        for b_ref in comps_b:
+            if a_ref == b_ref:
+                continue
+            results.append(AdjacentConstraint(
+                a=a_ref, b=b_ref,
+                max_distance_mm=constraint.max_distance_mm,
+                tier=constraint.tier, because=constraint.because,
+                metric=constraint.metric,
+                id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
+            ))
+    return results
+
+
+def _expand_tagged_separated(constraint: TaggedSeparatedConstraint, netlist: Netlist) -> list[BaseConstraint]:
+    comps_a = _tag_to_component_refs(constraint.tag_expr_a, netlist)
+    comps_b = _tag_to_component_refs(constraint.tag_expr_b, netlist)
+    constraint_id = constraint.id
+    results: list[BaseConstraint] = []
+    for a_ref in comps_a:
+        for b_ref in comps_b:
+            if a_ref == b_ref:
+                continue
+            results.append(SeparatedConstraint(
+                a=a_ref, b=b_ref,
+                min_distance_mm=constraint.min_distance_mm,
+                tier=constraint.tier, because=constraint.because,
+                metric=constraint.metric,
+                id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
+            ))
+    return results
+
+
+def _expand_tagged_enclosing(constraint: TaggedEnclosingConstraint, netlist: Netlist) -> list[BaseConstraint]:
+    comps_inner = _tag_to_component_refs(constraint.tag_expr_inner, netlist)
+    if comps_inner:
+        return [EnclosingConstraint(
+            outer=constraint.outer,
+            inner=comps_inner,
+            tier=constraint.tier,
+            because=constraint.because,
+            margin_mm=constraint.margin_mm,
+            id=constraint.id,
+        )]
+    return []
+
+
+def _expand_tagged_aligned(constraint: TaggedAlignedConstraint, netlist: Netlist) -> list[BaseConstraint]:
+    comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+    if len(comps) >= 2:
+        return [AlignedConstraint(
+            components=comps,
+            axis=constraint.axis,
+            tier=constraint.tier,
+            because=constraint.because,
+            tolerance_mm=constraint.tolerance_mm,
+            id=constraint.id,
+        )]
+    return []
+
+
+def _expand_tagged_on_side(constraint: TaggedOnSideConstraint, netlist: Netlist) -> list[BaseConstraint]:
+    comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+    if comps:
+        return [OnSideConstraint(
+            components=comps,
+            side=constraint.side,
+            edge=constraint.edge,
+            tier=constraint.tier,
+            because=constraint.because,
+            max_distance_mm=constraint.max_distance_mm,
+            id=constraint.id,
+        )]
+    return []
+
+
+def _expand_tagged_anchored(constraint: TaggedAnchoredConstraint, netlist: Netlist) -> list[BaseConstraint]:
+    comps = _tag_to_component_refs(constraint.tag_expr, netlist)
+    constraint_id = constraint.id
+    results: list[BaseConstraint] = []
+    for comp_ref in comps:
+        results.append(AnchoredConstraint(
+            component=comp_ref,
+            tier=constraint.tier,
+            because=constraint.because,
+            region=constraint.region,
+            position=constraint.position,
+            id=f"{constraint_id}_{comp_ref}" if constraint_id else "",
+        ))
+    return results
+
+
+_TAGGED_EXPANDERS = {
+    TaggedAdjacentConstraint: _expand_tagged_adjacent,
+    TaggedSeparatedConstraint: _expand_tagged_separated,
+    TaggedEnclosingConstraint: _expand_tagged_enclosing,
+    TaggedAlignedConstraint: _expand_tagged_aligned,
+    TaggedOnSideConstraint: _expand_tagged_on_side,
+    TaggedAnchoredConstraint: _expand_tagged_anchored,
+}
 
 
 class PCLParseError(Exception):
@@ -346,132 +462,18 @@ class ConstraintCollection:
                 )
 
         # 3. Tag expansion
-        from temper_placer.pcl.tag_dispatch import _tag_to_component_refs
-        from temper_placer.pcl.tagged_constraints import (
-            TaggedAdjacentConstraint,
-            TaggedAlignedConstraint,
-            TaggedAnchoredConstraint,
-            TaggedEnclosingConstraint,
-            TaggedOnSideConstraint,
-            TaggedSeparatedConstraint,
-        )
-
-        tagged_types = (
-            TaggedAdjacentConstraint,
-            TaggedAlignedConstraint,
-            TaggedAnchoredConstraint,
-            TaggedEnclosingConstraint,
-            TaggedOnSideConstraint,
-            TaggedSeparatedConstraint,
-        )
-
         expanded_count = 0
         new_constraints: list[BaseConstraint] = []
 
         for constraint in list(self.constraints):
-            if not isinstance(constraint, tagged_types):
+            expander = _TAGGED_EXPANDERS.get(type(constraint))
+            if expander is None:
                 continue
 
-            constraint_id = getattr(constraint, "id", "") or ""
-
-            if isinstance(constraint, (TaggedAdjacentConstraint, TaggedSeparatedConstraint)):
-                comps_a = _tag_to_component_refs(constraint.tag_expr_a, netlist)
-                comps_b = _tag_to_component_refs(constraint.tag_expr_b, netlist)
-                for a_ref in comps_a:
-                    for b_ref in comps_b:
-                        if a_ref == b_ref:
-                            continue
-                        if isinstance(constraint, TaggedAdjacentConstraint):
-                            new_constraints.append(
-                                AdjacentConstraint(
-                                    a=a_ref,
-                                    b=b_ref,
-                                    max_distance_mm=constraint.max_distance_mm,
-                                    tier=constraint.tier,
-                                    because=constraint.because,
-                                    metric=constraint.metric,
-                                    id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
-                                )
-                            )
-                        elif isinstance(constraint, TaggedSeparatedConstraint):
-                            new_constraints.append(
-                                SeparatedConstraint(
-                                    a=a_ref,
-                                    b=b_ref,
-                                    min_distance_mm=constraint.min_distance_mm,
-                                    tier=constraint.tier,
-                                    because=constraint.because,
-                                    metric=constraint.metric,
-                                    id=f"{constraint_id}_{a_ref}_{b_ref}" if constraint_id else "",
-                                )
-                            )
-                self.constraints.remove(constraint)
-                expanded_count += 1
-
-            elif isinstance(constraint, TaggedEnclosingConstraint):
-                comps_inner = _tag_to_component_refs(constraint.tag_expr_inner, netlist)
-                if comps_inner:
-                    new_constraints.append(
-                        EnclosingConstraint(
-                            outer=constraint.outer,
-                            inner=comps_inner,
-                            tier=constraint.tier,
-                            because=constraint.because,
-                            margin_mm=constraint.margin_mm,
-                            id=constraint_id,
-                        )
-                    )
-                self.constraints.remove(constraint)
-                expanded_count += 1
-
-            elif isinstance(constraint, TaggedAlignedConstraint):
-                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
-                if len(comps) >= 2:
-                    new_constraints.append(
-                        AlignedConstraint(
-                            components=comps,
-                            axis=constraint.axis,
-                            tier=constraint.tier,
-                            because=constraint.because,
-                            tolerance_mm=constraint.tolerance_mm,
-                            id=constraint_id,
-                        )
-                    )
-                self.constraints.remove(constraint)
-                expanded_count += 1
-
-            elif isinstance(constraint, TaggedOnSideConstraint):
-                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
-                if comps:
-                    new_constraints.append(
-                        OnSideConstraint(
-                            components=comps,
-                            side=constraint.side,
-                            edge=constraint.edge,
-                            tier=constraint.tier,
-                            because=constraint.because,
-                            max_distance_mm=constraint.max_distance_mm,
-                            id=constraint_id,
-                        )
-                    )
-                self.constraints.remove(constraint)
-                expanded_count += 1
-
-            elif isinstance(constraint, TaggedAnchoredConstraint):
-                comps = _tag_to_component_refs(constraint.tag_expr, netlist)
-                for comp_ref in comps:
-                    new_constraints.append(
-                        AnchoredConstraint(
-                            component=comp_ref,
-                            tier=constraint.tier,
-                            because=constraint.because,
-                            region=constraint.region,
-                            position=constraint.position,
-                            id=f"{constraint_id}_{comp_ref}" if constraint_id else "",
-                        )
-                    )
-                self.constraints.remove(constraint)
-                expanded_count += 1
+            new = expander(constraint, netlist)
+            new_constraints.extend(new)
+            self.constraints.remove(constraint)
+            expanded_count += 1
 
         if new_constraints:
             self.constraints.extend(new_constraints)
@@ -759,8 +761,6 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
     # Dispatch based on type
     if constraint_type == "adjacent":
         if has_tag_expr:
-            from temper_placer.pcl.tagged_constraints import TaggedAdjacentConstraint
-
             tag_expr_a = _parse_constraint_ref(data["a"], default_to_tag=True)
             tag_expr_b = _parse_constraint_ref(data["b"], default_to_tag=True)
             return TaggedAdjacentConstraint(
@@ -786,8 +786,6 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
 
     elif constraint_type == "separated":
         if has_tag_expr:
-            from temper_placer.pcl.tagged_constraints import TaggedSeparatedConstraint
-
             tag_expr_a = _parse_constraint_ref(data["a"], default_to_tag=True)
             tag_expr_b = _parse_constraint_ref(data["b"], default_to_tag=True)
             return TaggedSeparatedConstraint(
@@ -816,8 +814,6 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
             _is_tag_expr_dict(item) for item in inner_data
         )
         if has_inner_tags:
-            from temper_placer.pcl.tagged_constraints import TaggedEnclosingConstraint
-
             if _is_tag_expr_dict(inner_data):
                 tag_expr_inner = _parse_tag_expr(inner_data)
             elif len(inner_data) == 1:
@@ -856,8 +852,6 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
             _is_tag_expr_dict(item) for item in components_data
         )
         if has_tagged or _is_tag_expr_dict(components_data):
-            from temper_placer.pcl.tagged_constraints import TaggedAlignedConstraint
-
             if _is_tag_expr_dict(components_data):
                 tag_expr = _parse_tag_expr(components_data)
             elif len(components_data) == 1:
@@ -887,8 +881,6 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
             _is_tag_expr_dict(item) for item in components_data
         )
         if has_tagged or _is_tag_expr_dict(components_data):
-            from temper_placer.pcl.tagged_constraints import TaggedOnSideConstraint
-
             if _is_tag_expr_dict(components_data):
                 tag_expr = _parse_tag_expr(components_data)
             elif len(components_data) == 1:
@@ -917,8 +909,6 @@ def parse_constraint_dict(data: dict[str, Any]) -> BaseConstraint:
     elif constraint_type == "anchored":
         component_data = data["component"]
         if _is_tag_expr_dict(component_data):
-            from temper_placer.pcl.tagged_constraints import TaggedAnchoredConstraint
-
             tag_expr = _parse_tag_expr(component_data)
             region = data.get("region")
             position = data.get("position")

@@ -84,6 +84,17 @@ def _chebyshev_gap(
 class PlacementAuditor:
     """Run geometric audit checks on a Placement."""
 
+    _CHECK_MAP: dict[ConstraintType, str] = {
+        ConstraintType.SEPARATED: "_check_separated",
+        ConstraintType.ENCLOSING: "_check_enclosing",
+        ConstraintType.ADJACENT: "_check_adjacent",
+        ConstraintType.ON_SIDE: "_check_on_side",
+        ConstraintType.ANCHORED: "_check_anchored",
+        ConstraintType.KEEPOUT: "_check_keepout",
+        ConstraintType.ALIGNED: "_check_aligned",
+        ConstraintType.LOOP_AREA: "_check_loop_area",
+    }
+
     def __init__(self, placement: Placement) -> None:
         self.placement = placement
 
@@ -107,24 +118,13 @@ class PlacementAuditor:
     def _check(
         self, c: BaseConstraint, loop_components: dict[str, list[str]] | None = None
     ) -> list[AuditViolation]:
-        ct = c.constraint_type
-        if ct == ConstraintType.SEPARATED:
-            return self._check_separated(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ENCLOSING:
-            return self._check_enclosing(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ADJACENT:
-            return self._check_adjacent(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ON_SIDE:
-            return self._check_on_side(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ANCHORED:
-            return self._check_anchored(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.KEEPOUT:
-            return self._check_keepout(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.ALIGNED:
-            return self._check_aligned(c)  # type: ignore[arg-type]
-        elif ct == ConstraintType.LOOP_AREA:
-            return self._check_loop_area(c, loop_components)  # type: ignore[arg-type]
-        return []
+        method_name = self._CHECK_MAP.get(c.constraint_type)
+        if method_name is None:
+            return []
+        method = getattr(self, method_name)
+        if c.constraint_type == ConstraintType.LOOP_AREA:
+            return method(c, loop_components)  # type: ignore[arg-type]
+        return method(c)  # type: ignore[arg-type]
 
     # ---- checks ----
 

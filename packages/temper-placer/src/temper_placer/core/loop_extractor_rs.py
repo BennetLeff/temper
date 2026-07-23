@@ -3,6 +3,18 @@
 Delegates to Rust `auto_extract_loops_rust` when the temper-rust-router
 extension is importable, and falls back to the existing Python extractor
 when unavailable. (R23)
+
+Schema contract — fields preserved vs reconstructed vs lost:
+  PRESERVED: name, components, nets, max_area_mm2 (Rust computes these)
+  RECONSTRUCTED: loop_type (string→enum), priority, events, return_layer,
+    return_net (all deterministic from loop_type — same hardcoded values
+    as the Python extractor)
+  LOST: pins, description, source (Rust has no concept of these; pins are
+    always [], description is generic, source is always absent)
+
+Adding a new topology? Update _LOOP_TYPE_PRIORITY, _LOOP_TYPE_EVENTS,
+_LOOP_TYPE_RETURN_LAYER, _LOOP_TYPE_RETURN_NET to match the Python
+extractor's hardcoded values.
 """
 
 from __future__ import annotations
@@ -14,17 +26,46 @@ from typing import Any
 from temper_placer.core.loop import LoopCollection, LoopPriority, LoopType
 from temper_placer.core.netlist import Netlist
 
-# The Rust extractor does not compute loop priority -- it only classifies
-# loop_type. Priority is a deterministic function of loop_type, matching
-# the assignments the pure-Python heuristics (trace_commutation_loop,
-# trace_gate_drive_loop, trace_bootstrap_loop) hardcode. Anything not
-# listed here defaults to LoopPriority.MEDIUM, the same as the Loop
-# dataclass's own field default.
+# Reconstructed fields — deterministic from loop_type, matching the
+# hardcoded values in the pure-Python extractor
+# (trace_commutation_loop, trace_gate_drive_loop, trace_bootstrap_loop).
+# Anything not listed defaults to the dataclass field default (MEDIUM
+# priority, empty LoopEvent, empty return paths).
+
 _LOOP_TYPE_PRIORITY: dict[LoopType, LoopPriority] = {
     LoopType.COMMUTATION: LoopPriority.CRITICAL,
     LoopType.GATE_DRIVE_HIGH: LoopPriority.CRITICAL,
     LoopType.GATE_DRIVE_LOW: LoopPriority.CRITICAL,
     LoopType.BOOTSTRAP: LoopPriority.HIGH,
+}
+
+_LOOP_TYPE_EVENTS: dict[LoopType, dict[str, float | None]] = {
+    LoopType.COMMUTATION: {
+        "di_dt": 1.0e9,       # 1 A/ns typical IGBT turn-off
+        "dv_dt": 5.0e9,       # 5 V/ns switch node
+        "frequency_hz": 25000.0,
+        "peak_current_a": 30.0,
+    },
+    LoopType.GATE_DRIVE_HIGH: {
+        "di_dt": 1.0e8,       # 100 mA/ns gate current
+        "frequency_hz": 25000.0,
+    },
+    LoopType.GATE_DRIVE_LOW: {
+        "di_dt": 1.0e8,
+        "frequency_hz": 25000.0,
+    },
+    LoopType.BOOTSTRAP: {
+        "frequency_hz": 25000.0,
+        "peak_current_a": 0.5,   # Low bootstrap charging current
+    },
+}
+
+_LOOP_TYPE_RETURN_LAYER: dict[LoopType, str] = {
+    LoopType.COMMUTATION: "L2_GND",
+}
+
+_LOOP_TYPE_RETURN_NET: dict[LoopType, str] = {
+    LoopType.COMMUTATION: "PGND",
 }
 
 
@@ -75,13 +116,13 @@ def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
             loop_type=lt,
             description=f"Extracted via Rust: {loop_dict['name']}",
             components=components,
-            pins=[],  # Pins not serialized across boundary
+            pins=[],  # Pins not available from Rust (no pin-tracing concept yet)
             nets=nets,
             priority=_LOOP_TYPE_PRIORITY.get(lt, LoopPriority.MEDIUM),
             max_area_mm2=max_area,
-            events=LoopEvent(),
-            return_layer="",
-            return_net="",
+            events=LoopEvent(**_LOOP_TYPE_EVENTS.get(lt, {})),
+            return_layer=_LOOP_TYPE_RETURN_LAYER.get(lt, ""),
+            return_net=_LOOP_TYPE_RETURN_NET.get(lt, ""),
         )
         loops.append(py_loop)
 
@@ -125,7 +166,7 @@ def auto_extract_loops_rs(
             stacklevel=2,
         )
         return None
-    except Exception as e:
+    except (RuntimeError, json.JSONDecodeError, TypeError, AttributeError, KeyError, ValueError) as e:
         warnings.warn(
             f"Rust loop extraction failed: {e} — falling back to Python",
             stacklevel=2,

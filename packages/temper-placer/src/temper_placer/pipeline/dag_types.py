@@ -6,9 +6,32 @@ DataContext, StageResult, error hierarchy, and the StageHandler protocol.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
+
+if TYPE_CHECKING:
+    from temper_placer.core.board import Board
+    from temper_placer.core.netlist import Netlist
 
 DataContext = dict[str, Any]
+
+
+class PipelineState(Protocol):
+    """Minimal protocol for pipeline state passed between stages.
+
+    Stages that read additional fields can refine this with a narrower
+    Protocol or use hasattr checks in their ``__call__``.
+    """
+
+    board: Board
+    netlist: Netlist
+    constraints: Any
+    loops: list[Any]
+    deterministic_result: Any | None
+    placement_state: Any | None
+    routing_result: Any | None
+    thermal_anchoring_applied: bool
+    physics_report: Any | None
+    preflight_report: Any | None
 
 
 @dataclass
@@ -27,7 +50,7 @@ class StageHandler(Protocol):
     (state: PipelineState, context: DataContext) -> StageResult
     """
 
-    def __call__(self, state: Any, context: DataContext) -> StageResult: ...
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult: ...
 
 
 class DAGError(Exception):
