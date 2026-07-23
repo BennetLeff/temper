@@ -297,7 +297,7 @@ class CheckRunner:
         constraints: _ConstraintSet,
         categories: list[str] | None = None,
         check_names: list[str] | None = None,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> _RunResult:
         """
         Run DRC checks via the Rust engine.

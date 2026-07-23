@@ -466,10 +466,10 @@ class PlaceRouteLoop:
 
     def _run_with_gates(
         self,
-        netlist, board, pcl_constraints,
+        netlist, board, _pcl_constraints,
         all_constraints, gates, injected_deltas,
-        rounds, placement_history, previous_unclassified,
-        seed, zones, zone_components, loop_components,
+        rounds, placement_history, _previous_unclassified,
+        seed, _zones, _zone_components, _loop_components,
         routed_pcb_path, placement, routing,
         sc1a_green_rounds, sc1b_green_rounds,
     ) -> LoopResult:
@@ -909,7 +909,7 @@ class PlaceRouteLoop:
         )
 
     def _get_placement_pcb_path(
-        self, placement, netlist, board, seed: int,
+        self, placement, netlist, board, _seed: int,
     ) -> Path | None:
         """Write a placement-only PCB to a temp file and return its path.
 
@@ -1207,7 +1207,7 @@ class PlaceRouteLoop:
     def _solve_with_delta(
         self, netlist, board, base_constraints: list,
         new_deltas: list[ConstraintDelta], seed: int,
-        warm_start_placement=None,
+        _warm_start_placement=None,
     ):
         """Try solving with an additional delta. Raises UnsatError on failure."""
 

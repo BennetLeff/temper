@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 def _ensure_field_diverges(
     board: Any,
-    netlist: Any,
+    _netlist: Any,
     fdm_config: Any,
     devices: dict[str, tuple[float, float]],
     power_map: dict[str, float],
@@ -201,9 +201,9 @@ def _ensure_operating_point_clean(config: dict[str, Any]) -> None:
 def _compute_human_reference_margin(
     board: Any,
     netlist: Any,
-    fdm_config: Any,
-    devices: dict[str, tuple[float, float]],
-    power_map: dict[str, float],
+    _fdm_config: Any,
+    _devices: dict[str, tuple[float, float]],
+    _power_map: dict[str, float],
     scorer_func: Callable[[Any, Any, Any], MarginScorecard],
 ) -> dict[str, Any]:
     """Compute thermal margin on the human-reference placement.
@@ -261,7 +261,7 @@ def _make_thermal_scorer_adapter(
     T_amb = fdm_config.ambient_C
     T_span = max(T_j_max - T_amb, 1.0)
 
-    def _adapter(placement: Any, board: Any, netlist: Any) -> PhysicsOracleResult:
+    def _adapter(placement: Any, board: Any, _netlist: Any) -> PhysicsOracleResult:
         board_id = getattr(board, "name", "unknown") if board is not None else "unknown"
 
         # Extract device positions from placement if available
@@ -372,7 +372,7 @@ def _make_arm_placement_builder(
     base_positions = np.array(list(devices.values()), dtype=np.float64)
     n_devs = len(dev_names)
 
-    def _build(arm_id: str, pert_idx: int, board: Any, netlist: Any, seed: int) -> Any:
+    def _build(arm_id: str, _pert_idx: int, board: Any, _netlist: Any, seed: int) -> Any:
         rng = np.random.default_rng(seed)
         perturb = rng.normal(0, 2.0, size=(n_devs, 2))
 

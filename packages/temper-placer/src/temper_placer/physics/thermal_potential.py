@@ -68,7 +68,7 @@ class ThermalPotentialConfig:
 # ---------------------------------------------------------------------------
 
 
-def _validate_edge(edge: str, board_bounds: tuple[float, float, float, float]) -> None:
+def _validate_edge(edge: str, _board_bounds: tuple[float, float, float, float]) -> None:
     """Validate that the edge name is known. Logs warning on unknown edge."""
     valid = {"TOP", "BOTTOM", "LEFT", "RIGHT"}
     if edge.upper() not in valid:
@@ -117,7 +117,7 @@ def phi_copper(
     x_grid: Array,
     y_grid: Array,
     board_bounds: tuple[float, float, float, float],
-    layer_stackup: Array | None = None,
+    _layer_stackup: Array | None = None,
     copper_zones: list | None = None,
 ) -> Array:
     """Effective thermal conductivity of the FR4 + Cu stackup.
@@ -598,7 +598,7 @@ def validate_heatsink_edge(
     board_bounds: tuple[float, float, float, float],
     edge_name: str,
     copper_zones: list | None = None,
-    board_side: str = "F.Cu",
+    _board_side: str = "F.Cu",
 ) -> None:
     """Validate that the identified heatsink edge is a real board edge.
 

@@ -433,7 +433,7 @@ def route_pcb(
     placements: dict[str, tuple[float, float]],
     _seed: int,
     design_rules: Any = None,
-    net_class_assignments: dict[str, str] | None = None,
+    _net_class_assignments: dict[str, str] | None = None,
     thermal_flat: Any = None,
     thermal_weight: float = 0.0,
     enable_all_pad_tree: bool = False,

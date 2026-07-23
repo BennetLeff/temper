@@ -25,7 +25,7 @@ _NET_TYPE_TO_CLASS = {
 _SEVERITY_RANK = {"HighVoltage": 4, "Power": 3, "GND": 2, "Signal": 1}
 
 
-def _resolve_component_net_class(comp, netlist) -> str | None:
+def _resolve_component_net_class(comp, _netlist) -> str | None:
     """Determine the net class for a component from its connected nets.
 
     Iterates ALL pins, classifies each connected net, and returns the

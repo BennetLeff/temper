@@ -402,8 +402,8 @@ class FeedbackClassifier:
     # -----------------------------------------------------------------------
 
     def _find_critical_components(
-        self, net_name: str, placement: object, placed_refs: list[str],
-        netlist: object | None = None,
+        self, net_name: str, _placement: object, placed_refs: list[str],
+        _netlist: object | None = None,
     ) -> list[str]:
         """Find critical ICs involved in an unrouted net.
 
@@ -433,7 +433,7 @@ class FeedbackClassifier:
 
     def _detect_persistent_ics(
         self,
-        unrouted_nets: list[str],
+        _unrouted_nets: list[str],
         previous_unclassified: list[UnclassifiedFailure],
         round_number: int,
     ) -> list[str]:
@@ -455,7 +455,7 @@ class FeedbackClassifier:
 
 
 def _compute_heuristic_position(
-    comp_ref: str, current_pos: tuple[float, float], net_name: str
+    comp_ref: str, current_pos: tuple[float, float], _net_name: str
 ) -> tuple[float, float]:
     """Compute a heuristic optimal position for a component based on net.
 

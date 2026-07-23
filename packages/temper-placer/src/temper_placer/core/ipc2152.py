@@ -30,7 +30,7 @@ def ipc2152_internal_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
     return ipc2152_min_width_mm(current_amps, copper_weight_oz, temp_rise_c, True)
 
 
-def ipc2152_min_width(net_name, current_amps, layer=None, stackup=None):
+def ipc2152_min_width(_net_name, current_amps, layer=None, stackup=None):
     """IPC-2152 minimum trace width for a net on its assigned layer.
 
     Resolves copper weight and internal/external layer type from the

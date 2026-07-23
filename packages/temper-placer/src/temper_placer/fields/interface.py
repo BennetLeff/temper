@@ -78,7 +78,7 @@ class FieldGate:
         result = self.compute_field(state)
         return result.gate_result
 
-    def to_delta(self, violation: Violation):
+    def to_delta(self, _violation: Violation):
         """Map a violation to a constraint delta.
 
         Returns ``None`` by default; subclasses may override.
