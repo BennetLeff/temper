@@ -157,10 +157,10 @@ jobs:
             ${{ runner.os }}-temper-constraints-
 
       - name: Build and install temper-constraints
-        run: |
-          cd packages/temper-placer/temper-constraints
-          uv run maturin develop --release
-          cd ../../..
+        run: >
+          uv run
+          --directory packages/temper-placer/temper-constraints
+          maturin develop --release
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
 
@@ -293,10 +293,10 @@ jobs:
             ${{ runner.os }}-temper-constraints-
 
       - name: Build and install temper-constraints
-        run: |
-          cd packages/temper-placer/temper-constraints
-          uv run maturin develop --release
-          cd ../../..
+        run: >
+          uv run
+          --directory packages/temper-placer/temper-constraints
+          maturin develop --release
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
 
