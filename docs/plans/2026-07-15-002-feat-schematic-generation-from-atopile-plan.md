@@ -1,7 +1,7 @@
 ---
 title: "feat: Generated KiCad schematics from Atopile netlist"
 type: feat
-status: active
+status: completed
 date: 2026-07-15
 origin: docs/brainstorms/2026-07-15-generated-kicad-schematics-from-atopile-requirements.md
 ---
@@ -286,3 +286,7 @@ Record the decision: schematics are now derived output, review lives in `.ato`, 
 - `docs/brainstorms/2026-07-15-generated-kicad-schematics-from-atopile-requirements.md`
 - `docs/plans/2026-07-15-001-feat-artifact-identity-provenance-plan.md` (depends on this plan's output)
 - `docs/solutions/workflow-issues/resolving-conflicting-sources-safety-critical-schematic-2026-07-14.md`
+
+## Shipped
+
+**Merged in [PR #209](https://github.com/BennetLeff/temper/pull/209) on 2026-07-15.** The `scripts/gen_schematics.py` script now generates all 7 hierarchical KiCad sheets from the atopile netlist. A built-in oracle verifies connectivity partition isomorphism against the source netlist. The CI workflow runs `gen_schematics.py --check` to gate regressions. All 4 phases shipped: symbol synthesizer, sheet assembly, oracle + CI, pipeline integration.
