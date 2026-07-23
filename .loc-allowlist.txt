@@ -15,5 +15,5 @@ packages/temper-placer/src/temper_placer/router_v6/pipeline.py 1521 temper-phys-
 packages/temper-placer/src/temper_placer/router_v6/adapter.py 1127 temper-hybrid-pour-stitch # new over-cap file: cross-class clearance, zone priority, via parsing, trace-stitching (data-informed clustering, zone-aware connectivity wiring)
 packages/temper-placer/src/temper_placer/placer/cp_sat/loop.py 1558 temper-N8-drc-sweep # grew from 1537: gate-driven dispatch fix (self._gates_explicit) + verification comment
 packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py 1198 temper-N8-drc-sweep # grew from 1153: --warm-start AddHint() seeding (hint_positions param + docstring)
-packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1044 temper-N8-drc-sweep # grew from 1035: IECCreepageGate net-name fix (err.nets instead of err.components) + verification comment
+packages/temper-placer/src/temper_placer/placer/cp_sat/gates.py 1198 temper-N8-drc-sweep # grew from 1035: IECCreepageGate net-name fix (err.nets instead of err.components) + verification comment
 packages/temper-placer/src/temper_placer/router_v6/_astar_reconstruct.py 1110 temper-N8-split # split from adapter.py
