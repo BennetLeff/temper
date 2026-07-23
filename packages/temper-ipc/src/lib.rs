@@ -47,6 +47,7 @@ fn calculate_min_trace_width(
 }
 
 #[pyfunction]
+#[pyo3(signature = (current_amps, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
 fn ipc2152_min_width_mm(
     current_amps: f64,
     copper_weight_oz: f64,
@@ -59,6 +60,7 @@ fn ipc2152_min_width_mm(
 }
 
 #[pyfunction]
+#[pyo3(signature = (width_mm, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
 fn ipc2152_current_capacity(
     width_mm: f64,
     copper_weight_oz: f64,
