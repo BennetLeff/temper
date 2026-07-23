@@ -32,7 +32,7 @@ def test_executor_routes_each_prim_edge_and_preserves_edge_geometry():
 
     assert result.disposition is NetDisposition.ROUTED
     assert len(result.completed_edges) == 2
-    assert result.failed_edge is None
+    assert len(result.failed_edges) == 0
     assert all(path.forced_segment_count == 0 for _edge, path in result.completed_edges)
     tracks = [
         CopperTrack(Point(*start), Point(*end), layer=0)
@@ -51,8 +51,8 @@ def test_executor_stops_at_first_unreachable_planned_target_without_direct_segme
     result = execute_terminal_tree(plan, pads, grid, max_iter=1_000)
 
     assert result.disposition is NetDisposition.INCOMPLETE
-    assert result.failed_edge is not None
-    assert result.failed_edge.target == pads[2].identity
+    assert len(result.failed_edges) >= 1
+    assert result.failed_edges[0].target == pads[2].identity
     assert len(result.completed_edges) == 1
     assert all(path.forced_segment_count == 0 for _edge, path in result.completed_edges)
 
@@ -86,20 +86,18 @@ def test_executor_reserves_each_edge_for_same_net_attachment_but_not_other_nets(
         max_iter=1_000,
     )
     assert result.disposition is NetDisposition.INCOMPLETE
-    assert result.failed_edge is not None
+    assert len(result.failed_edges) >= 1
 
 
 @given(st.integers(min_value=3, max_value=20))
 @settings(max_examples=20, deadline=30_000)
 def test_owned_cells_are_deterministically_traversable_while_foreign_cells_are_not(width: int):
     own_grid = OccupancyGrid("F.Cu", np.full((4, width), 7, dtype=np.int8), (0, 0), 1.0, width, 4)
-    own_first, _, _ = _segment_search(
-        own_grid, (0, 1), (width - 1, 1), False, False, net_id=7
+    own_first, _, _ = _segment_search(own_grid, (0, 1), (width - 1, 1), False, False, net_id=7)
+    own_second, _, _ = _segment_search(own_grid, (0, 1), (width - 1, 1), False, False, net_id=7)
+    foreign_grid = OccupancyGrid(
+        "F.Cu", np.full((4, width), 8, dtype=np.int8), (0, 0), 1.0, width, 4
     )
-    own_second, _, _ = _segment_search(
-        own_grid, (0, 1), (width - 1, 1), False, False, net_id=7
-    )
-    foreign_grid = OccupancyGrid("F.Cu", np.full((4, width), 8, dtype=np.int8), (0, 0), 1.0, width, 4)
     foreign_path, _, _ = _segment_search(
         foreign_grid, (0, 1), (width - 1, 1), False, False, net_id=7
     )

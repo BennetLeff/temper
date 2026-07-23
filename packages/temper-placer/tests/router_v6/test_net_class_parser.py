@@ -1,4 +1,3 @@
-
 from temper_placer.io.kicad_parser import extract_net_classes
 
 
@@ -39,6 +38,7 @@ def test_extract_net_classes_basic():
     assert classes["Power"]["clearance"] == 0.5
     assert classes["Power"]["trace_width"] == 1.0
     assert "+15V" in classes["Power"]["nets"]
+
 
 def test_extract_net_classes_nested_parentheses():
     # Test robustness against other S-expressions

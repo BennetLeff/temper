@@ -20,7 +20,9 @@ class TestDPPABInfrastructure:
         import ast
         from pathlib import Path
 
-        script_path = Path(__file__).resolve().parents[4] / "tools" / "measurements" / "dpp_ab_measurement.py"
+        script_path = (
+            Path(__file__).resolve().parents[4] / "tools" / "measurements" / "dpp_ab_measurement.py"
+        )
         source = script_path.read_text()
         ast.parse(source)
 
@@ -28,15 +30,18 @@ class TestDPPABInfrastructure:
         """Verify run_ab_measurements is importable."""
         import sys
         from pathlib import Path
+
         reporoot = Path(__file__).resolve().parents[4]
         sys.path.insert(0, str(reporoot / "tools" / "measurements"))
         from dpp_ab_measurement import run_ab_measurements
+
         assert callable(run_ab_measurements)
 
     def test_variant_functions_import(self):
         """Verify _run_baseline, _run_random_multiseed, _run_dpp_multiseed exist."""
         import sys
         from pathlib import Path
+
         reporoot = Path(__file__).resolve().parents[4]
         sys.path.insert(0, str(reporoot / "tools" / "measurements"))
         from dpp_ab_measurement import (
@@ -44,6 +49,7 @@ class TestDPPABInfrastructure:
             _run_dpp_multiseed,
             _run_random_multiseed,
         )
+
         for fn in [_run_baseline, _run_random_multiseed, _run_dpp_multiseed]:
             assert callable(fn), f"{fn} is not callable"
 

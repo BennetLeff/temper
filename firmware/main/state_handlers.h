@@ -50,13 +50,15 @@ typedef struct {
     thermal_mass_handle_t thermal_mass;
     bool thermal_mass_estimation_done;
 
-    float last_pan_temp;
+    bool runaway_latched;
+    float last_pan_temp_c;
+    uint32_t last_pan_temp_time_ms;
     uint8_t pan_temp_stuck_count;
-    float last_heatsink_temp;
     uint8_t heatsink_temp_stuck_count;
+    float prev_stuck_check_temp;
 } sm_context_t;
 
-extern sm_context_t sm_ctx;
+sm_context_t *sm_get_context(void);
 
 /* ---- State handler functions (16 total) ---- */
 void state_init_entry(void);
@@ -75,11 +77,14 @@ void state_cooldown_entry(void);
 void state_cooldown_update(void);
 void state_fault_entry(void);
 void state_fault_update(void);
+void state_runaway_fault_entry(void);
+void state_runaway_fault_update(void);
 
 /* ---- Helpers shared with handlers (defined in state_machine.c) ---- */
 void transition_to(system_state_t new_state);
+void enter_hardware_latched_fault(fault_code_t fault);
 bool run_self_test(void);
-void check_safety_interlocks(void);
+bool check_safety_interlocks(void);
 bool fault_cleared(void);
 void show_message_then_transition(const char *msg, system_state_t next_state);
 

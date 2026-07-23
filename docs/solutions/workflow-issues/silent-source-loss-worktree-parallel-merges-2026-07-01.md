@@ -128,4 +128,4 @@ packages/temper-placer/tests/test_constraint_weights_ablation.py
 
 - `docs/solutions/workflow-issues/parallel-worktree-sprint-pipeline.md` — canonical worktree pipeline doc; describes batch merge strategy but doesn't cover verification
 - `docs/solutions/workflow-issues/infrastructure-components-unwired-2026-06-28.md` — similar pattern of code merged but unreachable; different cause (missing wiring vs merge loss)
-- `docs/solutions/workflow-issues/2026-07-01-001-dead-code-from-features-with-no-activation-surface.md` — companion doc covering the config-flag activation surface problem discovered in the same audit
+- `docs/solutions/workflow-issues/dead-code-from-features-with-no-activation-surface-2026-07-01.md` — companion doc covering the config-flag activation surface problem discovered in the same audit

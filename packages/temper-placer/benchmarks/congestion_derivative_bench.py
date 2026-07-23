@@ -27,7 +27,7 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 def _make_grid(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> OccupancyGrid:
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for cx, cy in (blocked or set()):
+    for cx, cy in blocked or set():
         arr[cy, cx] = 1
     return OccupancyGrid("Bench", arr, (0.0, 0.0), 1.0, cols, rows)
 
@@ -85,12 +85,16 @@ def _benchmark_scenario(
 ):
     """Benchmark a single scenario with/without early abort."""
     print(f"\n--- {name} ---")
-    print(f"  Grid: {grid.width_cells}x{grid.height_cells}, "
-          f"{start}->{goal}, free={np.sum(grid.grid == 0)} cells")
+    print(
+        f"  Grid: {grid.width_cells}x{grid.height_cells}, "
+        f"{start}->{goal}, free={np.sum(grid.grid == 0)} cells"
+    )
 
     min_iter = _CONGESTION_CHECK_INTERVAL * _CONGESTION_PLATEAU_STRIKES
-    print(f"  Early abort triggers after >= {min_iter} expansions with "
-          f"<{_CONGESTION_GROWTH_THRESHOLD} new cells/{_CONGESTION_CHECK_INTERVAL} window")
+    print(
+        f"  Early abort triggers after >= {min_iter} expansions with "
+        f"<{_CONGESTION_GROWTH_THRESHOLD} new cells/{_CONGESTION_CHECK_INTERVAL} window"
+    )
 
     for label, fn in [
         ("Theta* ON ", lambda: theta_fn(grid, start, goal, enable_congestion_derivative=True)),
@@ -106,7 +110,13 @@ def _benchmark_scenario(
         path_len = len(path) if path else 0
         # Estimate: closed_set stops growing at abort time
         # Since we can't easily count expansions, report time
-        overhead = "EARLY-ABORT" if path is None and "OFF" not in label else "FULL-SCAN" if path is None else ""
+        overhead = (
+            "EARLY-ABORT"
+            if path is None and "OFF" not in label
+            else "FULL-SCAN"
+            if path is None
+            else ""
+        )
 
         print(f"  {label}: {status} path={path_len:>4}  {elapsed_ms:>8.2f}ms  {overhead}")
 
@@ -124,7 +134,9 @@ def benchmark_synthetic():
     grid = _make_wall_grid(100, 100, 50)
     _benchmark_scenario(
         "Wall Grid (100x100, vertical wall at x=50)",
-        grid, (0, 0), (99, 99),
+        grid,
+        (0, 0),
+        (99, 99),
         theta_fn=lambda g, s, t, **kw: _astar_search_theta_star(g, s, t, net_id=0, **kw),
         lazy_fn=lambda g, s, t, **kw: _astar_search_lazy_theta_star(g, s, t, net_id=0, **kw),
     )
@@ -133,7 +145,9 @@ def benchmark_synthetic():
     grid2 = _make_grid(100, 100)
     _benchmark_scenario(
         "Open Grid (100x100, no obstacles)",
-        grid2, (0, 0), (99, 99),
+        grid2,
+        (0, 0),
+        (99, 99),
         theta_fn=lambda g, s, t, **kw: _astar_search_theta_star(g, s, t, net_id=0, **kw),
         lazy_fn=lambda g, s, t, **kw: _astar_search_lazy_theta_star(g, s, t, net_id=0, **kw),
     )
@@ -142,7 +156,9 @@ def benchmark_synthetic():
     grid3, s3, g3 = _make_congested_grid()
     _benchmark_scenario(
         "Bottleneck Grid (50x50, wall with 2-cell gap)",
-        grid3, s3, g3,
+        grid3,
+        s3,
+        g3,
         theta_fn=lambda g, s, t, **kw: _astar_search_theta_star(g, s, t, net_id=0, **kw),
         lazy_fn=lambda g, s, t, **kw: _astar_search_lazy_theta_star(g, s, t, net_id=0, **kw),
     )
@@ -157,7 +173,9 @@ def benchmark_synthetic():
     grid4 = _make_grid(60, 60, blocked)
     _benchmark_scenario(
         "Boxed-in Grid (60x60, isolated top-left quadrant)",
-        grid4, (5, 5), (55, 55),
+        grid4,
+        (5, 5),
+        (55, 55),
         theta_fn=lambda g, s, t, **kw: _astar_search_theta_star(g, s, t, net_id=0, **kw),
         lazy_fn=lambda g, s, t, **kw: _astar_search_lazy_theta_star(g, s, t, net_id=0, **kw),
     )
@@ -166,7 +184,9 @@ def benchmark_synthetic():
     grid5 = _make_wall_grid(300, 300, 150)
     _benchmark_scenario(
         "Wall Grid (300x300, vertical wall at x=150)",
-        grid5, (0, 0), (299, 299),
+        grid5,
+        (0, 0),
+        (299, 299),
         theta_fn=lambda g, s, t, **kw: _astar_search_theta_star(g, s, t, net_id=0, **kw),
         lazy_fn=lambda g, s, t, **kw: _astar_search_lazy_theta_star(g, s, t, net_id=0, **kw),
     )
@@ -193,7 +213,6 @@ def benchmark_temper_board():
 
         result = parse_kicad_pcb(temper_pcb)
         netlist = result.netlist
-        board = result.board
     except Exception as e:
         print(f"  SKIP: Failed to parse temper PCB: {e}")
         return
@@ -248,7 +267,12 @@ def benchmark_temper_board():
     height_cells = 2000
     grid_array = np.zeros((height_cells, width_cells), dtype=np.int8)
     routable_grid = OccupancyGrid(
-        "F.Cu", grid_array, (0.0, 0.0), grid_res, width_cells, height_cells,
+        "F.Cu",
+        grid_array,
+        (0.0, 0.0),
+        grid_res,
+        width_cells,
+        height_cells,
     )
 
     # Convert to grid coordinates
@@ -265,7 +289,9 @@ def benchmark_temper_board():
 
     _benchmark_scenario(
         f"Temper Board: {target_net.name}",
-        routable_grid, start_grid, goal_grid,
+        routable_grid,
+        start_grid,
+        goal_grid,
         theta_fn=lambda g, s, t, **kw: _astar_search_theta_star(g, s, t, net_id=-1, **kw),
         lazy_fn=lambda g, s, t, **kw: _astar_search_lazy_theta_star(g, s, t, net_id=-1, **kw),
     )

@@ -316,16 +316,24 @@ def infer_quality_config(design: ReferenceDesign) -> dict:
         area = w * h
 
         # Thermal: Large packages (TO-247, D2PAK, modules)
-        if any(pkg in fp_lower for pkg in ["to-247", "to-220", "d2pak", "module", "heatsink"]) or area > 100:
+        if (
+            any(pkg in fp_lower for pkg in ["to-247", "to-220", "d2pak", "module", "heatsink"])
+            or area > 100
+        ):
             thermal.add(comp.ref)
 
         # HV: Power transistors, diodes, bulk caps
-        if ref_upper.startswith(("Q", "D", "TR", "U")) and area > 50 or "igbt" in fp_lower or "mosfet" in fp_lower:
+        if (
+            ref_upper.startswith(("Q", "D", "TR", "U"))
+            and area > 50
+            or "igbt" in fp_lower
+            or "mosfet" in fp_lower
+        ):
             hv.add(comp.ref)
 
         # LV: Small ICs, MCUs, sensors
         if any(pkg in fp_lower for pkg in ["soic", "qfp", "bga", "qfn", "sot"]) and area < 100:
-                lv.add(comp.ref)
+            lv.add(comp.ref)
 
     # Infer loops from gate drive nets
     loops = []

@@ -39,9 +39,11 @@ class AndonObserver:
     _pipeline_start: float = 0.0
 
     def __post_init__(self) -> None:
-        self._state = {"header": "Initializing...", "stages": [
-            {"name": n, "status": "idle"} for n in self.stage_order
-        ], "footer": ""}
+        self._state = {
+            "header": "Initializing...",
+            "stages": [{"name": n, "status": "idle"} for n in self.stage_order],
+            "footer": "",
+        }
         if self.port == 0:
             self.port = _find_free_port()
 
@@ -50,10 +52,14 @@ class AndonObserver:
     def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:  # noqa: ARG002
         if self._pipeline_start == 0.0:
             self._pipeline_start = time.monotonic()
-        self._update_stage(stage_name, "active",
-                            timer=f"Iteration {iteration}")
+        self._update_stage(stage_name, "active", timer=f"Iteration {iteration}")
 
-    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:  # noqa: ARG002
+    def on_stage_complete(
+        self,
+        stage_name: str,
+        duration_s: float,
+        outputs: dict[str, Any],  # noqa: ARG002
+    ) -> None:
         self._update_stage(stage_name, "done", timer=f"{duration_s:.1f}s")
 
     def on_stage_skip(self, stage_name: str, reason: str) -> None:
@@ -63,26 +69,42 @@ class AndonObserver:
         self._update_stage(stage_name, "error", timer=str(error))
         self._update_header(f"FAILED: {stage_name} — {error}")
 
-    def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,  # noqa: ARG002, ARG002
-                               attempt: int) -> None:
+    def on_feedback_triggered(
+        self,
+        contract_name: str,
+        from_stage: str,  # noqa: ARG002
+        to_stage: str,  # noqa: ARG002
+        attempt: int,
+    ) -> None:
         self._update_footer(f"Feedback: {contract_name} (attempt {attempt})")
 
-    def on_pipeline_complete(self, success: bool, total_duration_s: float,
-                              stage_timings: dict[str, float]) -> None:
+    def on_pipeline_complete(
+        self, success: bool, total_duration_s: float, stage_timings: dict[str, float]
+    ) -> None:
         for name, dur in stage_timings.items():
-            self._update_stage(name, status=None, timer=f"{dur:.1f}s",
-                               overwrite_status=False)
+            self._update_stage(name, status=None, timer=f"{dur:.1f}s", overwrite_status=False)
         status = "PASSED" if success else "FAILED"
         self._update_header(f"Pipeline {status} ({total_duration_s:.1f}s)")
 
     def on_epoch(self, stage_name: str, epoch: int, loss: float) -> None:
-        self._update_stage(stage_name, status=None, metric=f"epoch {epoch}, loss {loss:.4f}",
-                            overwrite_status=False)
+        self._update_stage(
+            stage_name,
+            status=None,
+            metric=f"epoch {epoch}, loss {loss:.4f}",
+            overwrite_status=False,
+        )
 
     # -- state updates ------------------------------------------------------
 
-    def _update_stage(self, name: str, status: str | None, *, timer: str = "",
-                      metric: str = "", overwrite_status: bool = True) -> None:
+    def _update_stage(
+        self,
+        name: str,
+        status: str | None,
+        *,
+        timer: str = "",
+        metric: str = "",
+        overwrite_status: bool = True,
+    ) -> None:
         with self._lock:
             for s in self._state["stages"]:
                 if s["name"] == name:

@@ -98,6 +98,7 @@ def _make_routing_results(
 # Helper: build a path that yields a precise angle at the middle vertex
 # ---------------------------------------------------------------------------
 
+
 def _path_with_angle(angle_deg: float, segment_len: float = 10.0) -> list[tuple[float, float]]:
     """Return a 3-point path whose interior angle at p2 equals *angle_deg*.
 
@@ -114,6 +115,7 @@ def _path_with_angle(angle_deg: float, segment_len: float = 10.0) -> list[tuple[
 # ===================================================================
 # 1. Trace width boundaries
 # ===================================================================
+
 
 @pytest.mark.parametrize("width_mm", TRACE_WIDTHS_BOUNDARY)
 def test_trace_width_boundary_returns_valid_report(width_mm: float):
@@ -163,6 +165,7 @@ def test_trace_width_zero_classifies_as_narrow(width_mm: float):
 # ===================================================================
 # 2. Coordinate boundaries
 # ===================================================================
+
 
 @pytest.mark.parametrize("coord", COORD_BOUNDARY)
 def test_coordinate_boundary_in_path_returns_valid_report(coord: tuple[float, float]):
@@ -249,6 +252,7 @@ def test_collinear_three_point_path_no_trap():
 # 3. Threshold boundaries
 # ===================================================================
 
+
 @pytest.mark.parametrize("threshold", THRESHOLD_BOUNDARY)
 def test_threshold_boundary_returns_valid_report(threshold: float):
     """Any boundary ``min_angle_threshold`` must not crash the detector."""
@@ -331,11 +335,12 @@ def test_zero_threshold_detects_no_traps(threshold: float):
 #   angle < 90  → detected
 #   angle ≥ 90  → not detected
 
+
 @pytest.mark.parametrize(
     "angle_deg, expected_severity, detected",
     [
         # Exactly at severity boundaries
-        (45.0, "medium", True),         # 45 < 45 is False → medium
+        (45.0, "medium", True),  # 45 < 45 is False → medium
         (60.0, "low", True),
         # Just below severity boundaries
         (just_below(45.0), "high", True),
@@ -344,13 +349,13 @@ def test_zero_threshold_detects_no_traps(threshold: float):
         (just_above(45.0), "medium", True),
         (just_above(60.0), "low", True),
         # Detection boundary (90°)
-        (90.0, "low", False),            # 90 < 90 is False → NOT detected
+        (90.0, "low", False),  # 90 < 90 is False → NOT detected
         (just_below(90.0), "low", True),
         (just_above(90.0), "low", False),
         # Extreme angles
-        (0.0, "high", True),             # Degenerate: colinear backtrack
-        (180.0, "low", False),           # Straight line
-        (179.999, "low", False),         # Almost straight
+        (0.0, "high", True),  # Degenerate: colinear backtrack
+        (180.0, "low", False),  # Straight line
+        (179.999, "low", False),  # Almost straight
     ],
 )
 def test_severity_at_threshold_boundaries(
@@ -364,27 +369,22 @@ def test_severity_at_threshold_boundaries(
     report = detect_acid_traps(results, min_angle_threshold=90.0)
 
     if detected:
-        assert report.trap_count >= 1, (
-            f"Angle {angle_deg}° should be detected as acid trap"
-        )
+        assert report.trap_count >= 1, f"Angle {angle_deg}° should be detected as acid trap"
         trap = report.acid_traps[0]
         assert trap.severity == expected_severity, (
-            f"Angle {angle_deg}°: expected severity {expected_severity!r}, "
-            f"got {trap.severity!r}"
+            f"Angle {angle_deg}°: expected severity {expected_severity!r}, got {trap.severity!r}"
         )
     else:
-        assert report.trap_count == 0, (
-            f"Angle {angle_deg}° should NOT be detected as acid trap"
-        )
+        assert report.trap_count == 0, f"Angle {angle_deg}° should NOT be detected as acid trap"
 
 
 @pytest.mark.parametrize(
     "angle_deg, expected_base, width_mm, expected_demoted",
     [
         # Narrow trace demotion (width < 0.2 mm)
-        (30.0, "high", 0.15, "medium"),     # high → medium
-        (50.0, "medium", 0.15, "low"),      # medium → low
-        (70.0, "low", 0.15, "low"),         # low stays low
+        (30.0, "high", 0.15, "medium"),  # high → medium
+        (50.0, "medium", 0.15, "low"),  # medium → low
+        (70.0, "low", 0.15, "low"),  # low stays low
         # Wide trace — no demotion (width ≥ 0.2 mm)
         (30.0, "high", 0.2, "high"),
         (50.0, "medium", 0.2, "medium"),
@@ -414,6 +414,7 @@ def test_severity_narrow_trace_demotion(
 # ===================================================================
 # 5. Empty / degenerate input
 # ===================================================================
+
 
 def test_empty_routing_results():
     """Zero routes → valid report with zero traps."""
@@ -455,9 +456,11 @@ def test_acid_trap_report_properties_edge_cases():
     assert empty.low_count == 0
 
     # Report with unknown severity
-    weird = AcidTrapReport(acid_traps=[
-        AcidTrap("N", (0.0, 0.0), 45.0, "unknown_severity"),
-    ])
+    weird = AcidTrapReport(
+        acid_traps=[
+            AcidTrap("N", (0.0, 0.0), 45.0, "unknown_severity"),
+        ]
+    )
     assert weird.trap_count == 1
     # "unknown_severity" is not "high", "medium", or "low" → all zero
     assert weird.critical_count == 0
@@ -468,6 +471,7 @@ def test_acid_trap_report_properties_edge_cases():
 # ===================================================================
 # Endpoint approach angle boundaries (start_pin / end_pin)
 # ===================================================================
+
 
 def test_endpoint_angle_with_nan_pin_location():
     """Endpoint approach angles with NaN pin locations are guarded."""

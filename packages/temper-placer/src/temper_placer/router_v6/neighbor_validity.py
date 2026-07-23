@@ -21,6 +21,7 @@ Direction encoding (matches the 8-move convention used elsewhere in
 the router): 0=E, 1=SE, 2=S, 3=SW, 4=W, 5=NW, 6=N, 7=NE.  The
 ``DIRS_8`` constant is the matching ``(dx, dy)`` table.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -32,14 +33,14 @@ if TYPE_CHECKING:
 
 
 DIRS_8: tuple[tuple[int, int], ...] = (
-    (1, 0),    # 0: E
-    (1, 1),    # 1: SE
-    (0, 1),    # 2: S
-    (-1, 1),   # 3: SW
-    (-1, 0),   # 4: W
+    (1, 0),  # 0: E
+    (1, 1),  # 1: SE
+    (0, 1),  # 2: S
+    (-1, 1),  # 3: SW
+    (-1, 0),  # 4: W
     (-1, -1),  # 5: NW
-    (0, -1),   # 6: N
-    (1, -1),   # 7: NE
+    (0, -1),  # 6: N
+    (1, -1),  # 7: NE
 )
 
 
@@ -99,9 +100,7 @@ def build_neighbor_validity_tensor_2d(
     return tensor
 
 
-def is_valid_2d(
-    tensor: np.ndarray, row: int, col: int, dir_idx: int
-) -> bool:
+def is_valid_2d(tensor: np.ndarray, row: int, col: int, dir_idx: int) -> bool:
     """Read a single bit from a 2D neighbor-validity tensor.
 
     Out-of-bounds reads return False (the move is invalid).  A* code

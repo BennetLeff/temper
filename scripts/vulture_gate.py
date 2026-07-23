@@ -11,14 +11,19 @@ Usage:
   uv run python scripts/vulture_gate.py [--min-confidence N] [--help]
 """
 
-import argparse
-import re
-import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+import argparse
+import re
+import subprocess
+
+from _lib.repo import find_repo_root
+from _lib.github_summary import get_github_summary_path
+
+REPO_ROOT = find_repo_root()
 DEFAULT_MIN_CONFIDENCE = 80
 VULTURE_OK_CODES = {0, 3}  # 0=no dead code, 3=dead code found
 
@@ -193,14 +198,13 @@ def main():
 
     # GitHub step summary
     gh_summary = None
-    import os
-    gh_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    gh_summary_path = get_github_summary_path()
     if gh_summary_path:
         gh_summary = open(gh_summary_path, "a")
 
     if exit_code == 0:
         msg = f"Vulture gate PASSED — {len(matched)} known finding(s) suppressed, "
-        msg += f"0 new, 0 stale"
+        msg += "0 new, 0 stale"
         print(msg)
         if gh_summary:
             gh_summary.write(f"### Vulture Dead-Code Gate\n{msg}\n")
@@ -211,7 +215,7 @@ def main():
             bucket_name = "STALE baseline entries"
         print(f"Vulture gate FAILED ({bucket_name})")
         if gh_summary:
-            gh_summary.write(f"### Vulture Dead-Code Gate :x:\n")
+            gh_summary.write("### Vulture Dead-Code Gate :x:\n")
             gh_summary.write(f"**{bucket_name}**\n")
             for s in summary_lines:
                 gh_summary.write(f"{s}\n")

@@ -44,9 +44,7 @@ def _base_args(
 # -------- happy path ---------------------------------------------------------
 
 
-def test_no_loop_success_writes_output(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_success_writes_output(runner: CliRunner, tmp_path: Path) -> None:
     """Feasible solve writes updated .kicad_pcb to --output."""
     mock_result = CpSatPlacementResult(
         status="optimal",
@@ -69,9 +67,7 @@ def test_no_loop_success_writes_output(
     assert out.exists(), f"Output file not written:\n{result.output}"
 
 
-def test_no_loop_propagates_seed(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_propagates_seed(runner: CliRunner, tmp_path: Path) -> None:
     """--seed flag is forwarded to solve_placement(seed=...)."""
     mock_result = CpSatPlacementResult(
         status="optimal",
@@ -87,18 +83,14 @@ def test_no_loop_propagates_seed(
         "temper_placer.placer.cp_sat.encoder.solve_placement",
         return_value=mock_result,
     ) as mock_solve:
-        result = runner.invoke(
-            cli_main, _base_args(out) + ["--seed", "42"]
-        )
+        result = runner.invoke(cli_main, _base_args(out) + ["--seed", "42"])
 
     assert result.exit_code == 0
     mock_solve.assert_called_once()
     assert mock_solve.call_args.kwargs["seed"] == 42
 
 
-def test_no_loop_stale_banner_removed(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_stale_banner_removed(runner: CliRunner, tmp_path: Path) -> None:
     """Stale "Full CP-SAT pipeline integration is in progress" is gone."""
     mock_result = CpSatPlacementResult(
         status="optimal",
@@ -123,9 +115,7 @@ def test_no_loop_stale_banner_removed(
 # -------- infeasible path ----------------------------------------------------
 
 
-def test_no_loop_infeasible_exits_nonzero(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_infeasible_exits_nonzero(runner: CliRunner, tmp_path: Path) -> None:
     """Infeasible solve exits 1, writes no output file."""
     mock_result = CpSatPlacementResult(
         status="infeasible",
@@ -148,9 +138,7 @@ def test_no_loop_infeasible_exits_nonzero(
     assert not out.exists(), f"Output file should not exist:\n{result.output}"
 
 
-def test_no_loop_infeasible_surfaces_unsat_core(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_infeasible_surfaces_unsat_core(runner: CliRunner, tmp_path: Path) -> None:
     """UNSAT core text appears in stderr/stdout on infeasible solve."""
     mock_result = CpSatPlacementResult(
         status="infeasible",
@@ -172,9 +160,7 @@ def test_no_loop_infeasible_surfaces_unsat_core(
     assert "loop_area_hb" in result.output
 
 
-def test_no_loop_infeasible_writes_unsat_json(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_infeasible_writes_unsat_json(runner: CliRunner, tmp_path: Path) -> None:
     """--unsat-report writes JSON on infeasible solve."""
     mock_result = CpSatPlacementResult(
         status="infeasible",
@@ -207,9 +193,7 @@ def test_no_loop_infeasible_writes_unsat_json(
 # -------- error paths --------------------------------------------------------
 
 
-def test_no_loop_solver_exception(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_solver_exception(runner: CliRunner, tmp_path: Path) -> None:
     """Solver exception -> click.ClickException, non-zero exit."""
     out = tmp_path / "placed.kicad_pcb"
     with mock.patch(
@@ -222,9 +206,7 @@ def test_no_loop_solver_exception(
     assert "CP-SAT solve failed" in result.output
 
 
-def test_no_loop_missing_pcb(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_missing_pcb(runner: CliRunner, tmp_path: Path) -> None:
     """Missing input PCB -> non-zero exit with clear message."""
     out = tmp_path / "placed.kicad_pcb"
     result = runner.invoke(
@@ -243,9 +225,7 @@ def test_no_loop_missing_pcb(
     assert result.exit_code != 0
 
 
-def test_no_loop_model_invalid_exits_nonzero(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_model_invalid_exits_nonzero(runner: CliRunner, tmp_path: Path) -> None:
     """model_invalid status exits non-zero."""
     mock_result = CpSatPlacementResult(
         status="model_invalid",
@@ -279,9 +259,7 @@ def test_no_loop_warm_start_flag_registered(
     assert "--warm-start" in result.output
 
 
-def test_no_loop_warm_start_passes_hints(
-    runner: CliRunner, tmp_path: Path
-) -> None:
+def test_no_loop_warm_start_passes_hints(runner: CliRunner, tmp_path: Path) -> None:
     """--warm-start flag is accepted by the CLI (pipeline runs are tested at E2E level)."""
     mock_result = CpSatPlacementResult(
         status="optimal",
@@ -297,9 +275,7 @@ def test_no_loop_warm_start_passes_hints(
         "temper_placer.placer.cp_sat.encoder.solve_placement",
         return_value=mock_result,
     ) as mock_solve:
-        result = runner.invoke(
-            cli_main, _base_args(out) + ["--warm-start"]
-        )
+        result = runner.invoke(cli_main, _base_args(out) + ["--warm-start"])
 
     assert result.exit_code == 0
     mock_solve.assert_called_once()

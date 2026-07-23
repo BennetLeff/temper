@@ -38,7 +38,7 @@ def _make_placement(**overrides: object) -> Placement:
     return Placement(
         positions_mm=positions,
         sizes_mm=sizes,
-        rotations={ref: 0 for ref in positions},
+        rotations=dict.fromkeys(positions, 0),
         board_w_mm=20.0,
         board_h_mm=20.0,
     )
@@ -91,10 +91,10 @@ class TestGateResult:
         assert result.disagreement_signal is False
 
 
-_SEPARATED_KWARGS = dict(
-    tier=ConstraintTier.HARD,
-    because="Safety isolation requirement for high voltage paths",
-)
+_SEPARATED_KWARGS = {
+    "tier": ConstraintTier.HARD,
+    "because": "Safety isolation requirement for high voltage paths",
+}
 
 
 class TestInnerGate:

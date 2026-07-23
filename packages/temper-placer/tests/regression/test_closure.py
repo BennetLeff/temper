@@ -147,12 +147,15 @@ class TestClosureTestRequireAllStages:
         pcb_path = tmp_path / "test.kicad_pcb"
         pcb_path.write_text("(kicad_pcb)")
 
-        with patch(
-            "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
-            return_value={},
-        ), patch(
-            "temper_placer.regression.closure_test.resolve_and_run",
-            side_effect=ImportError("No module named temper_placer.protocol"),
+        with (
+            patch(
+                "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
+                return_value={},
+            ),
+            patch(
+                "temper_placer.regression.closure_test.resolve_and_run",
+                side_effect=ImportError("No module named temper_placer.protocol"),
+            ),
         ):
             test = ClosureTest(
                 pcb_path=pcb_path,
@@ -167,12 +170,15 @@ class TestClosureTestRequireAllStages:
         pcb_path = tmp_path / "test.kicad_pcb"
         pcb_path.write_text("(kicad_pcb)")
 
-        with patch(
-            "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
-            return_value={},
-        ), patch(
-            "temper_placer.regression.closure_test.resolve_and_run",
-            side_effect=ImportError("No module named temper_placer.protocol"),
+        with (
+            patch(
+                "temper_placer.regression.closure_test.parse_kicad_pcb_v6",
+                return_value={},
+            ),
+            patch(
+                "temper_placer.regression.closure_test.resolve_and_run",
+                side_effect=ImportError("No module named temper_placer.protocol"),
+            ),
         ):
             test = ClosureTest(
                 pcb_path=pcb_path,

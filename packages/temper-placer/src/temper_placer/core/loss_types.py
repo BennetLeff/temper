@@ -16,6 +16,7 @@ import numpy as np
 @dataclass(frozen=True)
 class LossResult:
     """DEPRECATED: Loss result stub."""
+
     value: float = 0.0
     breakdown: dict[str, float] = field(default_factory=dict)
 
@@ -23,6 +24,7 @@ class LossResult:
 @dataclass(frozen=True)
 class LoopConstraint:
     """DEPRECATED: Loop constraint stub."""
+
     name: str = ""
     pins: tuple = ()
     max_area: float = 100.0
@@ -33,6 +35,7 @@ class LoopConstraint:
 @dataclass(frozen=True)
 class ThermalConstraint:
     """DEPRECATED: Thermal constraint stub."""
+
     component_ref: str = ""
     edge: str = ""
     max_distance: float = 5.0
@@ -43,6 +46,7 @@ class ThermalConstraint:
 @dataclass(frozen=True)
 class ClearanceRule:
     """DEPRECATED: Clearance rule stub."""
+
     source: str = ""
     target: str = ""
     min_clearance: float = 0.0
@@ -52,6 +56,7 @@ class ClearanceRule:
 @dataclass(frozen=True)
 class StarGroundConstraint:
     """DEPRECATED: Star ground constraint stub."""
+
     net_name: str = ""
     max_distance: float = 0.0
     weight: float = 1.0
@@ -62,6 +67,7 @@ class StarGroundConstraint:
 @dataclass(frozen=True)
 class CriticalPathConstraint:
     """DEPRECATED: Critical path constraint stub."""
+
     name: str = ""
     from_pin: tuple = ()
     to_pin: tuple = ()
@@ -74,6 +80,7 @@ class CriticalPathConstraint:
 @dataclass(frozen=True)
 class MatchedLengthConstraint:
     """DEPRECATED: Matched length constraint stub."""
+
     name: str = ""
     path_indices: tuple = ()
     tolerance: float = 5.0
@@ -84,6 +91,7 @@ class MatchedLengthConstraint:
 @dataclass(frozen=True)
 class NoiseIsolationConstraint:
     """DEPRECATED: Noise isolation constraint stub."""
+
     name: str = ""
     sensitive_indices: tuple = ()
     noise_source_indices: tuple = ()
@@ -95,6 +103,7 @@ class NoiseIsolationConstraint:
 @dataclass(frozen=True)
 class MountingRule:
     """DEPRECATED: Mounting rule stub."""
+
     component_ref: str = ""
     edge: str = ""
     offset: float = 0.0
@@ -129,6 +138,7 @@ class LossContext:
 @dataclass
 class CompositeLoss:
     """DEPRECATED: Composite loss stub."""
+
     losses: list = field(default_factory=list)
 
     def __call__(self, *args, **kwargs):
@@ -138,6 +148,7 @@ class CompositeLoss:
 @dataclass
 class WeightedLoss:
     """DEPRECATED: Weighted loss stub."""
+
     loss: Any = None
     weight: float = 1.0
 
@@ -147,27 +158,32 @@ class WeightedLoss:
 
 class LossFunction:
     """DEPRECATED: Loss function stub."""
+
     pass
 
 
 class ConstraintContext:
     """DEPRECATED: Constraint context stub."""
+
     pass
 
 
 class GeometryContext:
     """DEPRECATED: Geometry context stub."""
+
     pass
 
 
 class NetlistContext:
     """DEPRECATED: Netlist context stub."""
+
     pass
 
 
 @dataclass
 class RunMetrics:
     """DEPRECATED: RunMetrics stub (JAX retirement)."""
+
     run_id: str = ""
     experiment_name: str = ""
     seed: int = 0

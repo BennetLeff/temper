@@ -4,7 +4,6 @@ Tests for Router V6 Stage 5.1: Detect and Fix Acid Traps
 Part of temper-vm3g
 """
 
-
 from temper_placer.router_v6.acid_trap_detection import (
     AcidTrap,
     AcidTrapReport,
@@ -104,10 +103,18 @@ def test_severity_classification():
 def test_multiple_acid_traps():
     """Test detecting multiple acid traps in same route."""
     # Path with multiple sharp turns
-    path = RoutePath("NET1", [
-        (0, 0), (10, 0), (10.5, 0.5),  # First acute angle
-        (20, 0), (20.5, 0.5)  # Second acute angle
-    ], "F.Cu", 30.0)
+    path = RoutePath(
+        "NET1",
+        [
+            (0, 0),
+            (10, 0),
+            (10.5, 0.5),  # First acute angle
+            (20, 0),
+            (20.5, 0.5),  # Second acute angle
+        ],
+        "F.Cu",
+        30.0,
+    )
     route = CompiledRoute("NET1", path, 0.127, [], None)
     results = RoutingResults(compiled_routes={"NET1": route}, failed_nets=[])
 

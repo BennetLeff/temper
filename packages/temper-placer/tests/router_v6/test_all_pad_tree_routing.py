@@ -1,3 +1,6 @@
+# @req(APC1, R3): all-pad routing connectivity — truthful completion reporting
+# @req(APC1, R4): completion derived from connectivity, not path count
+
 """All-pad routing tree regressions for Router V6."""
 
 from unittest.mock import patch
@@ -92,12 +95,17 @@ def test_sat_terminal_expansion_is_disabled_by_default():
 def test_two_pad_channel_path_is_unchanged():
     channel_path = ChannelPath("SIG", ["CH1"], [(0, 0), (10, 0)], 10.0)
 
-    assert expand_channel_path_terminals(channel_path, [(0, 0), (10, 0)], enable_all_pad_tree=True) is channel_path
+    assert (
+        expand_channel_path_terminals(channel_path, [(0, 0), (10, 0)], enable_all_pad_tree=True)
+        is channel_path
+    )
 
 
 def test_three_pad_fallback_routes_two_legal_edges_without_forcing():
     path = fallback_channel_path("SIG", [(0, 0), (10, 0), (20, 0)], enable_all_pad_tree=True)
-    result = run_astar_pathfinding(ChannelMapping({"SIG": path}), _grid(), enforce_all_pad_tree=True)
+    result = run_astar_pathfinding(
+        ChannelMapping({"SIG": path}), _grid(), enforce_all_pad_tree=True
+    )
 
     route = result.get_path("SIG")
     assert result.failed_nets == []
@@ -106,7 +114,9 @@ def test_three_pad_fallback_routes_two_legal_edges_without_forcing():
     assert (0, 0) in route.coordinates
     assert (10, 0) in route.coordinates
     assert (20, 0) in route.coordinates
-    assert _audit([(0, 0), (10, 0), (20, 0)], route.coordinates).disposition is NetDisposition.ROUTED
+    assert (
+        _audit([(0, 0), (10, 0), (20, 0)], route.coordinates).disposition is NetDisposition.ROUTED
+    )
 
 
 def test_opt_in_terminal_plan_dispatches_branch_geometry_without_serial_bridge():
@@ -128,7 +138,9 @@ def test_opt_in_terminal_plan_dispatches_branch_geometry_without_serial_bridge()
         terminals=terminals,
     )
 
-    result = run_astar_pathfinding(ChannelMapping({"SIG": path}), _grid(), enforce_all_pad_tree=True)
+    result = run_astar_pathfinding(
+        ChannelMapping({"SIG": path}), _grid(), enforce_all_pad_tree=True
+    )
 
     assert result.failed_nets == []
     assert "SIG" not in result.routed_paths
@@ -159,7 +171,10 @@ def test_unreachable_third_terminal_is_failed_without_forced_geometry():
     assert (0, 0) in partial.coordinates
     assert (10, 0) in partial.coordinates
     assert (20, 0) not in partial.coordinates
-    assert _audit([(0, 0), (10, 0), (20, 0)], partial.coordinates).disposition is NetDisposition.INCOMPLETE
+    assert (
+        _audit([(0, 0), (10, 0), (20, 0)], partial.coordinates).disposition
+        is NetDisposition.INCOMPLETE
+    )
 
 
 def test_experimental_tree_3d_fallback_is_bounded_per_edge_and_fails_honestly(
@@ -179,7 +194,9 @@ def test_experimental_tree_3d_fallback_is_bounded_per_edge_and_fails_honestly(
     result = run_astar_pathfinding(
         ChannelMapping({"SIG": path}),
         _grid(),
-        alternate_grid=OccupancyGrid("B.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30),
+        alternate_grid=OccupancyGrid(
+            "B.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30
+        ),
         enforce_all_pad_tree=True,
         tree_3d_fallback_max_iter=7,
     )
@@ -210,7 +227,9 @@ def test_tree_3d_failure_budget_is_bounded_for_arbitrary_terminal_counts(
         result = run_astar_pathfinding(
             ChannelMapping({"SIG": path}),
             _grid(),
-            alternate_grid=OccupancyGrid("B.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30),
+            alternate_grid=OccupancyGrid(
+                "B.Cu", np.zeros((30, 30), dtype=np.int8), (0, 0), 1.0, 30, 30
+            ),
             enforce_all_pad_tree=True,
             tree_3d_fallback_max_iter=11,
         )
@@ -259,7 +278,9 @@ def test_partial_tree_geometry_is_excluded_from_routing_results_and_writer_input
 def test_obstacle_free_multiterminal_fallback_never_forces_and_visits_all_pads(xs):
     points = [(x, 0) for x in xs]
     path = fallback_channel_path("SIG", points, enable_all_pad_tree=True)
-    result = run_astar_pathfinding(ChannelMapping({"SIG": path}), _grid(), enforce_all_pad_tree=True)
+    result = run_astar_pathfinding(
+        ChannelMapping({"SIG": path}), _grid(), enforce_all_pad_tree=True
+    )
 
     route = result.get_path("SIG")
     assert route is not None
@@ -279,4 +300,6 @@ def test_sat_terminal_expansion_is_permutation_invariant(xs):
 
     assert expanded.waypoints[:2] == [(5, 5), (15, 5)]
     assert set(expanded.waypoints[2:]) == set(pads)
-    assert expanded.waypoints[2] == min(pads, key=lambda pad: (abs(pad[0] - 15) + abs(pad[1] - 5), pad))
+    assert expanded.waypoints[2] == min(
+        pads, key=lambda pad: (abs(pad[0] - 15) + abs(pad[1] - 5), pad)
+    )

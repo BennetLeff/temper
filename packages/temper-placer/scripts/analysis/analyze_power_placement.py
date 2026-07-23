@@ -6,7 +6,7 @@ Check for overlaps and clearance violations between high-voltage components.
 
 import sys
 
-sys.path.append('packages/temper-placer/src')
+sys.path.append("packages/temper-placer/src")
 
 import math
 
@@ -27,26 +27,28 @@ def get_component_bbox(comp):
         w, h = h, w
 
     return {
-        'ref': comp.ref,
-        'x_min': x - w/2,
-        'x_max': x + w/2,
-        'y_min': y - h/2,
-        'y_max': y + h/2,
-        'center': (x, y),
-        'size': (w, h)
+        "ref": comp.ref,
+        "x_min": x - w / 2,
+        "x_max": x + w / 2,
+        "y_min": y - h / 2,
+        "y_max": y + h / 2,
+        "center": (x, y),
+        "size": (w, h),
     }
+
 
 def check_overlap(bbox1, bbox2):
     """Check if two bounding boxes overlap."""
-    x_overlap = not (bbox1['x_max'] < bbox2['x_min'] or bbox2['x_max'] < bbox1['x_min'])
-    y_overlap = not (bbox1['y_max'] < bbox2['y_min'] or bbox2['y_max'] < bbox1['y_min'])
+    x_overlap = not (bbox1["x_max"] < bbox2["x_min"] or bbox2["x_max"] < bbox1["x_min"])
+    y_overlap = not (bbox1["y_max"] < bbox2["y_min"] or bbox2["y_max"] < bbox1["y_min"])
     return x_overlap and y_overlap
+
 
 def get_clearance(bbox1, bbox2):
     """Get minimum clearance between two bounding boxes."""
     # Edge-to-edge distance
-    dx = max(0, max(bbox1['x_min'] - bbox2['x_max'], bbox2['x_min'] - bbox1['x_max']))
-    dy = max(0, max(bbox1['y_min'] - bbox2['y_max'], bbox2['y_min'] - bbox1['y_max']))
+    dx = max(0, max(bbox1["x_min"] - bbox2["x_max"], bbox2["x_min"] - bbox1["x_max"]))
+    dy = max(0, max(bbox1["y_min"] - bbox2["y_max"], bbox2["y_min"] - bbox1["y_max"]))
 
     if dx > 0 and dy > 0:
         # Diagonal distance
@@ -55,12 +57,13 @@ def get_clearance(bbox1, bbox2):
         # One dimension overlaps, return the other
         return max(dx, dy)
 
+
 def main():
-    result = parse_kicad_pcb('width_final.kicad_pcb')
+    result = parse_kicad_pcb("width_final.kicad_pcb")
     netlist = result.netlist
 
     # Power section components
-    power_comps = ['D2', 'C_BUS1', 'C_BUS2', 'Q1', 'Q2']
+    power_comps = ["D2", "C_BUS1", "C_BUS2", "Q1", "Q2"]
 
     # Get bounding boxes
     bboxes = {}
@@ -78,8 +81,10 @@ def main():
     print("Component Positions and Sizes:")
     print("-" * 70)
     for ref, bbox in sorted(bboxes.items()):
-        print(f"{ref:8s}: Center ({bbox['center'][0]:6.2f}, {bbox['center'][1]:6.2f}) mm, "
-              f"Size ({bbox['size'][0]:5.2f} x {bbox['size'][1]:4.2f}) mm")
+        print(
+            f"{ref:8s}: Center ({bbox['center'][0]:6.2f}, {bbox['center'][1]:6.2f}) mm, "
+            f"Size ({bbox['size'][0]:5.2f} x {bbox['size'][1]:4.2f}) mm"
+        )
     print()
 
     # Check for overlaps and clearances
@@ -94,7 +99,7 @@ def main():
 
     refs = sorted(bboxes.keys())
     for i, ref1 in enumerate(refs):
-        for ref2 in refs[i+1:]:
+        for ref2 in refs[i + 1 :]:
             bbox1 = bboxes[ref1]
             bbox2 = bboxes[ref2]
 
@@ -156,5 +161,6 @@ def main():
     print()
     print("=" * 70)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

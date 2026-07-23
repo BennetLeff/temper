@@ -3,7 +3,7 @@ date: 2026-06-24
 plan_id: 012
 topic: a-star-primitives-consolidation
 req_doc: docs/brainstorms/2026-06-24-a-star-primitives-consolidation-requirements.md
-status: awaiting-implementation
+status: completed
 ---
 
 # A* Primitives Consolidation Plan (Doc 4 of 4)
@@ -174,3 +174,7 @@ constant. Consolidating move cost precision is a separate concern.
 - Requirements: `docs/brainstorms/2026-06-24-a-star-primitives-consolidation-requirements.md`
 - Scope note: `docs/brainstorms/2026-06-23-a-star-primitives-consolidation-scope-note.md`
 - Affected files: `routing/heuristics.py`, `router_v6/astar_core.py`, `router_v6/astar_core_numba.py`
+
+## Shipped
+
+**Merged on 2026-06-24.** The three duplicated A* search primitives (octile distance, bounds check, 8-direction neighbor deltas) were consolidated into `routing/heuristics.py` as free functions and constants by commit `f9fb9e73` (D4 U1-U4). The two remaining A* implementations were migrated to the canonical surface.

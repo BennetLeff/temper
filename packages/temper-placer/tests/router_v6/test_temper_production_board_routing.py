@@ -52,18 +52,20 @@ def _run_drc(pcb_path: Path) -> dict:
     try:
         proc = subprocess.run(
             [
-                "kicad-cli", "pcb", "drc",
-                "--format", "json",
-                "-o", str(drc_out),
+                "kicad-cli",
+                "pcb",
+                "drc",
+                "--format",
+                "json",
+                "-o",
+                str(drc_out),
                 str(pcb_path),
             ],
-            capture_output=True, text=True, timeout=300,
+            capture_output=True,
+            text=True,
+            timeout=300,
         )
-        stderr_summary = (
-            proc.stderr.strip()[:200]
-            if proc.returncode != 0 and proc.stderr
-            else ""
-        )
+        stderr_summary = proc.stderr.strip()[:200] if proc.returncode != 0 and proc.stderr else ""
     except subprocess.TimeoutExpired:
         if drc_out.exists():
             os.unlink(drc_out)
@@ -121,13 +123,18 @@ class TestProductionBoardRouting:
         net_count = len([n for n in netlist.nets if len(n.pins) >= 2])
         assert net_count > 0, "No multi-pin nets on production board"
 
-        parsed_stub = type("ParsedStub", (), {"source_path": _PCB_PATH})()
+        from tests.conftest import make_parsed_pcb_stub
 
-        print(f"\nRouting production board ({net_count} nets, "
-              f"{len(netlist.components)} components)...")
+        parsed_stub = make_parsed_pcb_stub(_PCB_PATH, netlist)
+
+        print(
+            f"\nRouting production board ({net_count} nets, "
+            f"{len(netlist.components)} components)..."
+        )
         t0 = time.monotonic()
         routing_result = route_pcb(
-            parsed_stub, {},
+            parsed_stub,
+            {},
             _seed=42,
             design_rules=rules.design_rules,
         )
@@ -146,13 +153,14 @@ class TestProductionBoardRouting:
         # Anti-false-zero: confirm this processed the real board
         assert routing_result.routed_pcb_content is not None
         assert len(routing_result.routed_pcb_content) > 1000, (
-            f"Routed content suspiciously small "
-            f"({len(routing_result.routed_pcb_content)} bytes)"
+            f"Routed content suspiciously small ({len(routing_result.routed_pcb_content)} bytes)"
         )
 
         # Write routed PCB and run KiCad DRC
         routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
-            suffix=".kicad_pcb", mode="w", delete=False,
+            suffix=".kicad_pcb",
+            mode="w",
+            delete=False,
         )
         routed_tmp.write(routing_result.routed_pcb_content)
         routed_tmp.close()
@@ -171,35 +179,54 @@ class TestProductionBoardRouting:
 
         unconnected = len(drc_data.get("unconnected_items", []))
         total_drc = sum(by_type.values())
-        print(f"  Post-route DRC: {total_drc} violations, "
-              f"{unconnected} unconnected")
+        print(f"  Post-route DRC: {total_drc} violations, {unconnected} unconnected")
         print(f"  By type: {dict(sorted(by_type.items()))}")
 
+        # U6 ratchet: APC default-on + via-aware transitions → zero unconnected.
+        assert unconnected == 0, (
+            f"APC gate: expected 0 unconnected_items, got {unconnected}. "
+            f"The unconnected 149→0 measurement (U8) must hold."
+        )
+
         # Store results globally for the baseline updater
-        _ROUTING_RECORD.update({
-            "wall_time_s": round(wall_s, 1),
-            "net_count": net_count,
-            "component_count": len(netlist.components),
-            "completion_rate": completion_rate,
-            "routed_nets": int(total_nets * completion_rate),
-            "unrouted_nets": len(unrouted),
-            "unrouted_nets_list": sorted(unrouted),
-            "drc_violations_post_route": total_drc,
-            "drc_violations_by_type": dict(by_type),
-            "unconnected_items": unconnected,
-            "extraction_date": "2026-07-18",
-            "extraction_method": "router_v6.route_pcb(existing_positions)",
-            "kicad_cli_version": subprocess.run(
-                ["kicad-cli", "--version"], capture_output=True, text=True
-            ).stdout.strip()[:80],
-        })
+        _ROUTING_RECORD.update(
+            {
+                "wall_time_s": round(wall_s, 1),
+                "net_count": net_count,
+                "component_count": len(netlist.components),
+                "completion_rate": completion_rate,
+                "routed_nets": int(total_nets * completion_rate),
+                "unrouted_nets": len(unrouted),
+                "unrouted_nets_list": sorted(unrouted),
+                "drc_violations_post_route": total_drc,
+                "drc_violations_by_type": dict(by_type),
+                "unconnected_items": unconnected,
+                "extraction_date": "2026-07-18",
+                "extraction_method": "router_v6.route_pcb(existing_positions)",
+                "kicad_cli_version": subprocess.run(
+                    ["kicad-cli", "--version"], capture_output=True, text=True
+                ).stdout.strip()[:80],
+            }
+        )
 
         # Critical net check
-        critical_remaining = [n for n in [
-            "GATE_HS", "GATE_LS", "PWM_HS", "PWM_LS",
-            "sclk", "sdi", "sdo", "I_SENSE", "+340V_BUS",
-            "DC_BUS_RTN", "SW_NODE",
-        ] if n in unrouted]
+        critical_remaining = [
+            n
+            for n in [
+                "GATE_HS",
+                "GATE_LS",
+                "PWM_HS",
+                "PWM_LS",
+                "sclk",
+                "sdi",
+                "sdo",
+                "I_SENSE",
+                "+340V_BUS",
+                "DC_BUS_RTN",
+                "SW_NODE",
+            ]
+            if n in unrouted
+        ]
         if critical_remaining:
             print(f"  Critical nets still unrouted: {critical_remaining}")
 
@@ -217,10 +244,7 @@ def test_update_baseline_yaml():
     ``deterministic_pipeline`` and ``cp_sat`` blocks are preserved.
     """
     if not _ROUTING_RECORD:
-        pytest.skip(
-            "No routing record available. Run "
-            "test_route_pcb_production_board first."
-        )
+        pytest.skip("No routing record available. Run test_route_pcb_production_board first.")
 
     import yaml
 

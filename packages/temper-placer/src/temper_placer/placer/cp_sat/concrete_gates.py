@@ -99,9 +99,7 @@ class DrcGate(Gate):
             )
 
         if violations:
-            return GateResult(
-                GateStatus.VIOLATIONS, violations=tuple(violations)
-            )
+            return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
         return GateResult(GateStatus.CLEAN)
 
     def to_delta(self, violation: Violation) -> ConstraintDelta | None:
@@ -246,9 +244,7 @@ class RoutingGate(Gate):
             )
 
         if violations:
-            return GateResult(
-                GateStatus.VIOLATIONS, violations=tuple(violations)
-            )
+            return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
         return GateResult(GateStatus.CLEAN)
 
     def to_delta(self, violation: Violation) -> ConstraintDelta | None:

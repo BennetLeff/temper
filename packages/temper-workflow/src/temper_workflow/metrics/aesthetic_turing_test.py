@@ -43,9 +43,7 @@ def score_human_design(pcb_path: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Score human designs for aesthetic benchmarks."
-    )
+    parser = argparse.ArgumentParser(description="Score human designs for aesthetic benchmarks.")
     parser.add_argument("pcbs", type=Path, nargs="+", help="Input .kicad_pcb files")
     parser.add_argument("-o", "--output", type=Path, help="Output JSON report")
 

@@ -124,20 +124,20 @@ class PowerStageTemplateHeuristic(Heuristic):
 
     def _get_phase_config(self, context: PlacementContext) -> PlacementPhaseConfig | None:
         """Extract power phase config from constraints."""
-        if not hasattr(context, 'constraints') or context.constraints is None:
+        if not hasattr(context, "constraints") or context.constraints is None:
             return None
 
         # Fall back to placement_priority dict
-        if hasattr(context.constraints, 'placement_priority'):
-            power_cfg = context.constraints.placement_priority.get('power')
+        if hasattr(context.constraints, "placement_priority"):
+            power_cfg = context.constraints.placement_priority.get("power")
             if power_cfg:
-                anchor = power_cfg.get('anchor')
+                anchor = power_cfg.get("anchor")
                 return PlacementPhaseConfig(
                     name="power",
                     priority=PlacementPriority.POWER,
-                    components=power_cfg.get('components', []),
-                    method=power_cfg.get('method', 'template'),
-                    template=power_cfg.get('template', 'half_bridge_vertical'),
+                    components=power_cfg.get("components", []),
+                    method=power_cfg.get("method", "template"),
+                    template=power_cfg.get("template", "half_bridge_vertical"),
                     anchor=tuple(anchor) if anchor else None,
                 )
 
@@ -244,19 +244,19 @@ class DriverProximityHeuristic(Heuristic):
 
     def _get_phase_config(self, context: PlacementContext) -> PlacementPhaseConfig | None:
         """Extract driver phase config from constraints."""
-        if not hasattr(context, 'constraints') or context.constraints is None:
+        if not hasattr(context, "constraints") or context.constraints is None:
             return None
 
-        if hasattr(context.constraints, 'placement_priority'):
-            driver_cfg = context.constraints.placement_priority.get('driver')
+        if hasattr(context.constraints, "placement_priority"):
+            driver_cfg = context.constraints.placement_priority.get("driver")
             if driver_cfg:
                 return PlacementPhaseConfig(
                     name="driver",
                     priority=PlacementPriority.DRIVER,
-                    components=driver_cfg.get('components', []),
-                    method=driver_cfg.get('method', 'proximity'),
-                    reference=driver_cfg.get('reference'),
-                    max_distance_mm=driver_cfg.get('max_distance_mm', 20.0),
+                    components=driver_cfg.get("components", []),
+                    method=driver_cfg.get("method", "proximity"),
+                    reference=driver_cfg.get("reference"),
+                    max_distance_mm=driver_cfg.get("max_distance_mm", 20.0),
                 )
 
         return None

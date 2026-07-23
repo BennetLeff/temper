@@ -30,9 +30,7 @@ from temper_placer.geometry.projections import (
 
 
 class TestProjectOntoZone:
-    RECT_ZONE = np.array(
-        [[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]], dtype=np.float32
-    )
+    RECT_ZONE = np.array([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]], dtype=np.float32)
 
     def test_inside_rect_identity(self):
         """Point inside rect zone returns unchanged."""
@@ -66,16 +64,17 @@ class TestProjectOntoZone:
 
     def test_with_half_size_inside(self):
         """Point inside shrunken zone returns unchanged."""
-        result = project_onto_zone(
-            np.array([7.0, 7.0]), self.RECT_ZONE, half_w=2.0, half_h=2.0
-        )
+        result = project_onto_zone(np.array([7.0, 7.0]), self.RECT_ZONE, half_w=2.0, half_h=2.0)
         assert np.allclose(result, np.array([7.0, 7.0]))
 
-    @pytest.mark.parametrize("point", [
-        np.array([3.0, 3.0]),
-        np.array([8.0, 8.0]),
-        np.array([5.0, 5.0]),
-    ])
+    @pytest.mark.parametrize(
+        "point",
+        [
+            np.array([3.0, 3.0]),
+            np.array([8.0, 8.0]),
+            np.array([5.0, 5.0]),
+        ],
+    )
     def test_idempotent(self, point):
         """P(P(x)) == P(x) for convex zone."""
         p1 = project_onto_zone(point, self.RECT_ZONE)
@@ -109,18 +108,19 @@ class TestProjectOutsideKeepout:
 
     def test_with_half_size_expands_keepout(self):
         """Half-size expands keepout outward."""
-        result = project_outside_keepout(
-            np.array([8.0, 8.0]), self.KEEPOUT, half_w=3.0, half_h=3.0
-        )
+        result = project_outside_keepout(np.array([8.0, 8.0]), self.KEEPOUT, half_w=3.0, half_h=3.0)
         # Expanded keepout (2, 2, 13, 13); (8, 8) is inside → nearest edges
         # are right (13, 8) and top (8, 13), both at distance 5.
         # argmin with ties picks first, so right edge.
         assert np.allclose(result, np.array([13.0, 8.0]))
 
-    @pytest.mark.parametrize("point", [
-        np.array([1.0, 1.0]),
-        np.array([12.0, 12.0]),
-    ])
+    @pytest.mark.parametrize(
+        "point",
+        [
+            np.array([1.0, 1.0]),
+            np.array([12.0, 12.0]),
+        ],
+    )
     def test_idempotent(self, point):
         """P(P(x)) == P(x)."""
         p1 = project_outside_keepout(point, self.KEEPOUT)
@@ -150,13 +150,18 @@ class TestProjectOntoBoard:
 
     def test_above_right_corner_clamped(self):
         """Point above maximum x and y clamped."""
-        result = project_onto_board(np.array([102.0, 105.0]), self.MARGIN, self.BOARD_W, self.BOARD_H)
+        result = project_onto_board(
+            np.array([102.0, 105.0]), self.MARGIN, self.BOARD_W, self.BOARD_H
+        )
         assert np.allclose(result, np.array([97.0, 97.0]))
 
-    @pytest.mark.parametrize("point", [
-        np.array([10.0, 10.0]),
-        np.array([90.0, 90.0]),
-    ])
+    @pytest.mark.parametrize(
+        "point",
+        [
+            np.array([10.0, 10.0]),
+            np.array([90.0, 90.0]),
+        ],
+    )
     def test_idempotent(self, point):
         """P(P(x)) == P(x)."""
         p1 = project_onto_board(point, self.MARGIN, self.BOARD_W, self.BOARD_H)
@@ -190,10 +195,13 @@ class TestProjectOntoHalfPlane:
         result = project_onto_half_plane(np.array([50.0, 30.0]), 20.0, -1.0)
         assert np.allclose(result, np.array([50.0, 20.0]))
 
-    @pytest.mark.parametrize("point", [
-        np.array([10.0, 5.0]),
-        np.array([80.0, 95.0]),
-    ])
+    @pytest.mark.parametrize(
+        "point",
+        [
+            np.array([10.0, 5.0]),
+            np.array([80.0, 95.0]),
+        ],
+    )
     def test_idempotent(self, point):
         """P(P(x)) == P(x) for convex half-plane."""
         p1 = project_onto_half_plane(point, 50.0, 1.0)
@@ -319,4 +327,6 @@ class TestIdentityProjection:
     def test_idempotent(self):
         """I(I(x)) == I(x)."""
         point = np.array([1.0, 2.0])
-        assert np.allclose(identity_projection(identity_projection(point)), identity_projection(point))
+        assert np.allclose(
+            identity_projection(identity_projection(point)), identity_projection(point)
+        )

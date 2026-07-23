@@ -29,9 +29,7 @@ from temper_placer.router_v6.constraints_drc_oracle import DRCOracle
 _TEMPER_CONFIG = Path(__file__).parents[4] / "configs" / "temper_deterministic_config.yaml"
 
 # Skip everything in this module if the config is missing.
-pytestmark = pytest.mark.skipif(
-    not _TEMPER_CONFIG.exists(), reason="temper config not present"
-)
+pytestmark = pytest.mark.skipif(not _TEMPER_CONFIG.exists(), reason="temper config not present")
 
 
 # ----------------------------------------------------------------------
@@ -45,8 +43,7 @@ def _stage_from_pipeline(pipeline):
         if isinstance(stage, ZoneAwareSlotGenerationStage):
             return stage
     raise AssertionError(
-        f"ZoneAwareSlotGenerationStage not found: "
-        f"{[type(s).__name__ for s in pipeline.stages]}"
+        f"ZoneAwareSlotGenerationStage not found: {[type(s).__name__ for s in pipeline.stages]}"
     )
 
 
@@ -114,12 +111,15 @@ class TestStageFiltersOverlappingCandidates:
         # production TO-247 mounting so the AABBs land at the
         # slot coordinates declared in the config.
         from temper_placer.core.netlist import Component, Netlist
+
         netlist = Netlist(
             components=[
-                Component(ref="Q1", footprint="TO-247", bounds=(15.0, 25.0),
-                          initial_position=(20.0, 15.0)),
-                Component(ref="Q2", footprint="TO-247", bounds=(15.0, 25.0),
-                          initial_position=(45.0, 15.0)),
+                Component(
+                    ref="Q1", footprint="TO-247", bounds=(15.0, 25.0), initial_position=(20.0, 15.0)
+                ),
+                Component(
+                    ref="Q2", footprint="TO-247", bounds=(15.0, 25.0), initial_position=(45.0, 15.0)
+                ),
             ],
             nets=[],
         )
@@ -144,8 +144,7 @@ class TestStageFiltersOverlappingCandidates:
         for slot in emitted:
             for (x_lo, y_lo), (x_hi, y_hi) in iso_aabbs:
                 assert not (x_lo <= slot[0] <= x_hi and y_lo <= slot[1] <= y_hi), (
-                    f"emitted slot {slot} overlaps isolation AABB "
-                    f"({(x_lo, y_lo)}, {(x_hi, y_hi)})"
+                    f"emitted slot {slot} overlaps isolation AABB ({(x_lo, y_lo)}, {(x_hi, y_hi)})"
                 )
 
 
@@ -169,8 +168,7 @@ class TestOracleAcceptsCreditedClearance:
         # the DRC oracle, so we don't need to actually run the stage —
         # we just need a representative reclaim dict, which the stage
         # would produce if Q1/Q2 had initial_position values.
-        from temper_placer.router_v6.constraints_geometry import Point
-        from temper_placer.router_v6.constraints_spatial_index import Pad
+        from temper_placer.core.geometry_types import Pad, Point
 
         # Apply the K4 formula directly with default constants: for
         # width=1.5, the reclaim is 0.8mm and effective requirement
@@ -193,12 +191,20 @@ class TestOracleAcceptsCreditedClearance:
 
         # In-band pads should return the credited effective.
         p1 = Pad(
-            center=Point(2.725, -4.0), shape="circle", size=(1.0, 1.0),
-            net="HV", layer=0, id=f"Q1-{q1_slot.lv_pin}",
+            center=Point(2.725, -4.0),
+            shape="circle",
+            size=(1.0, 1.0),
+            net="HV",
+            layer=0,
+            id=f"Q1-{q1_slot.lv_pin}",
         )
         p2 = Pad(
-            center=Point(2.725, 4.0), shape="circle", size=(1.0, 1.0),
-            net="HV", layer=0, id=f"Q1-{q1_slot.hv_pin}",
+            center=Point(2.725, 4.0),
+            shape="circle",
+            size=(1.0, 1.0),
+            net="HV",
+            layer=0,
+            id=f"Q1-{q1_slot.hv_pin}",
         )
         assert oracle.get_effective_clearance(p1, p2) == pytest.approx(5.2, abs=1e-9)
 
@@ -244,7 +250,8 @@ class TestClosureCompletionReachesThreshold:
         if not seeds_path.exists():
             pytest.skip(f"closure seeds file not found: {seeds_path}")
         seeds = [
-            int(line.strip()) for line in seeds_path.read_text().splitlines()
+            int(line.strip())
+            for line in seeds_path.read_text().splitlines()
             if line.strip().isdigit()
         ]
         if not seeds:

@@ -196,9 +196,7 @@ class Max31865RtdHardwareWindow:
         if abs(divider_error_fraction) > corners.divider_tolerance_fraction:
             raise ValueError("divider error is outside the declared corner")
 
-        sensed_v = max31865_rtd_voltage_v(
-            resistance_ohm, vbias_v=vbias_v, rref_ohm=rref_ohm
-        )
+        sensed_v = max31865_rtd_voltage_v(resistance_ohm, vbias_v=vbias_v, rref_ohm=rref_ohm)
         low_trip_v = self.low_trip_voltage_v * (1.0 + divider_error_fraction)
         high_trip_v = self.high_trip_voltage_v * (1.0 + divider_error_fraction)
         return sensed_v <= low_trip_v + comparator_offset_v or sensed_v >= (
@@ -228,17 +226,13 @@ def validate_rtd_avdd_monitor(corners: RtdAvddMonitorCorners) -> None:
 
     if not (0.0 < corners.comparator_min_supply_v < corners.normal_rail_min_v):
         raise ValueError("RTD_AVDD supply limits must be positive and ordered")
-    if not (
-        corners.comparator_min_supply_v < corners.trip_min_v <= corners.trip_max_v
-    ):
+    if not (corners.comparator_min_supply_v < corners.trip_min_v <= corners.trip_max_v):
         raise ValueError("RTD_AVDD monitor must trip above comparator minimum supply")
     if not corners.trip_max_v < corners.normal_rail_min_v:
         raise ValueError("RTD_AVDD monitor may false-trip at the normal rail corner")
 
 
-def rtd_avdd_rail_ok(
-    *, rtd_avdd_v: float, trip_v: float, corners: RtdAvddMonitorCorners
-) -> bool:
+def rtd_avdd_rail_ok(*, rtd_avdd_v: float, trip_v: float, corners: RtdAvddMonitorCorners) -> bool:
     """Return the upstream-powered rail monitor's valid permission level."""
 
     validate_rtd_avdd_monitor(corners)
@@ -319,8 +313,11 @@ def derive_max31865_hardware_window(
     if not (0.0 <= corners.required_margin_fraction < 1.0):
         raise ValueError("required margin must be in [0, 1)")
     if not (
-        0.0 <= corners.short_max_ohm < corners.valid_min_ohm
-        <= corners.valid_max_ohm < corners.open_min_ohm
+        0.0
+        <= corners.short_max_ohm
+        < corners.valid_min_ohm
+        <= corners.valid_max_ohm
+        < corners.open_min_ohm
     ):
         raise ValueError("RTD resistance ranges must be ordered and non-overlapping")
 
@@ -359,9 +356,7 @@ def derive_max31865_hardware_window(
     )
 
 
-def reference_divider_voltage_v(
-    *, reference_v: float, top_ohm: float, bottom_ohm: float
-) -> float:
+def reference_divider_voltage_v(*, reference_v: float, top_ohm: float, bottom_ohm: float) -> float:
     """Return a grounded two-resistor threshold derived from REF2025 VBIAS."""
 
     if reference_v < 0.0 or top_ohm < 0.0 or bottom_ohm <= 0.0:
@@ -501,9 +496,7 @@ class VirtualRtdBoard:
     model proves system-level logic and timing, not board parasitics or EMI.
     """
 
-    digital_service: SimulatedDigitalRtdService = field(
-        default_factory=SimulatedDigitalRtdService
-    )
+    digital_service: SimulatedDigitalRtdService = field(default_factory=SimulatedDigitalRtdService)
     shutdown: bool = False
     shutdown_bar: bool = True
 
@@ -554,9 +547,7 @@ class VirtualRtdBoard:
         )
 
 
-def resistance_to_code(
-    resistance_ohm: float, rref_ohm: float = PT100_RREF_OHM
-) -> int:
+def resistance_to_code(resistance_ohm: float, rref_ohm: float = PT100_RREF_OHM) -> int:
     """Return the MAX31865 15-bit resistance code for a non-negative input."""
 
     if resistance_ohm <= 0.0:
@@ -667,9 +658,7 @@ def classify_code(code: int, *, low: int, high: int) -> RtdStatus:
     return RtdStatus.VALID
 
 
-def hardware_window_voltage(
-    resistance_ohm: float, excitation_a: float
-) -> float:
+def hardware_window_voltage(resistance_ohm: float, excitation_a: float) -> float:
     """Voltage seen by a high-impedance redundant window comparator.
 
     This is the only analogue assumption in the companion SPICE model.  The
@@ -702,8 +691,11 @@ def derive_hardware_window(corners: RtdWindowCorners) -> RtdHardwareWindow:
     if not corners.supply_loss_fault:
         raise ValueError("supply loss must assert RTD_HW_FAULT")
     if not (
-        0.0 <= corners.short_max_ohm < corners.valid_min_ohm
-        <= corners.valid_max_ohm < corners.open_min_ohm
+        0.0
+        <= corners.short_max_ohm
+        < corners.valid_min_ohm
+        <= corners.valid_max_ohm
+        < corners.open_min_ohm
     ):
         raise ValueError("RTD resistance ranges must be ordered and non-overlapping")
 
@@ -741,9 +733,7 @@ def derive_hardware_window(corners: RtdWindowCorners) -> RtdHardwareWindow:
     )
 
 
-def rtd_hardware_fault_asserted(
-    *, comparator_fault: bool, comparator_supply_present: bool
-) -> bool:
+def rtd_hardware_fault_asserted(*, comparator_fault: bool, comparator_supply_present: bool) -> bool:
     """Model the asynchronous RTD contribution to the hardware fault bus.
 
     This deliberately accepts neither an MCU state nor an SPI status: the

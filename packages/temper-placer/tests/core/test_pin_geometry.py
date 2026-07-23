@@ -1,6 +1,5 @@
 """Tests for core.pin_geometry module."""
 
-
 import pytest
 
 from temper_placer.core.netlist import Component, Pin

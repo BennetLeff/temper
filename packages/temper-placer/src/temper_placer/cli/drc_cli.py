@@ -116,6 +116,7 @@ def check(
     runner.add_checks(all_checks)
 
     if verbose:
+
         def on_start(check: Any) -> None:
             click.echo(f"  Running {check.name}...", err=True)
 

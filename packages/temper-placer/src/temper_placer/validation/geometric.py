@@ -188,7 +188,7 @@ class GeometricValidator(Validator):
     def _check_overlaps(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         widths: Array,
         heights: Array,
         netlist: Netlist,
@@ -269,9 +269,19 @@ class GeometricValidator(Validator):
         for i in range(n):
             # Get rotated component bounds
             rot_one_hot = rotations[i]
-            rot_idx = int(np.argmax(rot_one_hot)) if isinstance(rot_one_hot, np.ndarray) and rot_one_hot.ndim == 1 else 0
+            rot_idx = (
+                int(np.argmax(rot_one_hot))
+                if isinstance(rot_one_hot, np.ndarray) and rot_one_hot.ndim == 1
+                else 0
+            )
             angle_rad = {0: 0.0, 1: np.pi / 2, 2: np.pi, 3: 3 * np.pi / 2}[rot_idx]
-            xmi, ymi, xma, yma = get_rotated_bounds(float(positions[i, 0]), float(positions[i, 1]), float(widths[i]), float(heights[i]), angle_rad)
+            xmi, ymi, xma, yma = get_rotated_bounds(
+                float(positions[i, 0]),
+                float(positions[i, 1]),
+                float(widths[i]),
+                float(heights[i]),
+                angle_rad,
+            )
             rw, rh = xma - xmi, yma - ymi
             half_w, half_h = rw / 2, rh / 2
 
@@ -334,7 +344,7 @@ class GeometricValidator(Validator):
     def _check_clearances(
         self,
         positions: Array,
-        rotations: Array,
+        _rotations: Array,
         widths: Array,
         heights: Array,
         netlist: Netlist,
@@ -493,9 +503,19 @@ class GeometricValidator(Validator):
 
             # Get rotated bounds
             rot_one_hot = rotations[i]
-            rot_idx = int(np.argmax(rot_one_hot)) if isinstance(rot_one_hot, np.ndarray) and rot_one_hot.ndim == 1 else 0
+            rot_idx = (
+                int(np.argmax(rot_one_hot))
+                if isinstance(rot_one_hot, np.ndarray) and rot_one_hot.ndim == 1
+                else 0
+            )
             angle_rad = {0: 0.0, 1: np.pi / 2, 2: np.pi, 3: 3 * np.pi / 2}[rot_idx]
-            xmi, ymi, xma, yma = get_rotated_bounds(float(positions[i, 0]), float(positions[i, 1]), float(widths[i]), float(heights[i]), angle_rad)
+            xmi, ymi, xma, yma = get_rotated_bounds(
+                float(positions[i, 0]),
+                float(positions[i, 1]),
+                float(widths[i]),
+                float(heights[i]),
+                angle_rad,
+            )
             rw, rh = xma - xmi, yma - ymi
             half_w, half_h = rw / 2, rh / 2
 

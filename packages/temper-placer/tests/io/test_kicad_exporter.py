@@ -20,6 +20,7 @@ from temper_placer.router_v6.grid_converter import GridCell
 class RoutePath:
     """Minimal RoutePath stub with the duck-typed interface consumed by
     ``path_to_segments`` and ``path_to_vias`` (kicad_exporter.py)."""
+
     net: str
     cells: list[Any] = field(default_factory=list)
     length: float = 0.0

@@ -136,7 +136,10 @@ class TestDrcRunner:
                     "severity": "error",
                     "description": "Clearance violation (0.15mm < 0.2mm)",
                     "items": [
-                        {"description": "Pad 1 [+3V3] of U1 on F.Cu", "pos": {"x": 25.0, "y": 30.0}},
+                        {
+                            "description": "Pad 1 [+3V3] of U1 on F.Cu",
+                            "pos": {"x": 25.0, "y": 30.0},
+                        },
                         {"description": "Pad 3 [GND] of U2 on F.Cu", "pos": {"x": 26.0, "y": 30.0}},
                     ],
                 },
@@ -155,7 +158,11 @@ class TestDrcRunner:
     @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_on_clean_board(
-        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_clean_drc_output: dict, tmp_path: Path
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_clean_drc_output: dict,
+        tmp_path: Path,
     ) -> None:
         """Clean board should return 0 errors."""
         import json
@@ -177,9 +184,7 @@ class TestDrcRunner:
         mock_ctx.__enter__.return_value = mock_ctx
         mock_temp_file.return_value = mock_ctx
 
-        with patch(
-            "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
-        ):
+        with patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True):
             result = run_drc(pcb_file)
 
         assert result.error_count == 0
@@ -189,7 +194,11 @@ class TestDrcRunner:
     @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_detects_overlap(
-        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_error_drc_output: dict, tmp_path: Path
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_error_drc_output: dict,
+        tmp_path: Path,
     ) -> None:
         """Board with overlapping footprints should have errors."""
         import json
@@ -208,9 +217,7 @@ class TestDrcRunner:
         mock_ctx.__enter__.return_value = mock_ctx
         mock_temp_file.return_value = mock_ctx
 
-        with patch(
-            "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
-        ):
+        with patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True):
             result = run_drc(pcb_file)
 
         assert result.error_count == 2
@@ -223,7 +230,11 @@ class TestDrcRunner:
     @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_detects_clearance(
-        self, mock_run: MagicMock, mock_temp_file: MagicMock, mock_error_drc_output: dict, tmp_path: Path
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_error_drc_output: dict,
+        tmp_path: Path,
     ) -> None:
         """Board with clearance violations should have errors."""
         import json
@@ -242,9 +253,7 @@ class TestDrcRunner:
         mock_ctx.__enter__.return_value = mock_ctx
         mock_temp_file.return_value = mock_ctx
 
-        with patch(
-            "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
-        ):
+        with patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True):
             result = run_drc(pcb_file)
 
         # Find clearance error
@@ -255,8 +264,11 @@ class TestDrcRunner:
     @patch("tempfile.NamedTemporaryFile")
     @patch("subprocess.run")
     def test_drc_rejects_nonzero_cli_status_even_with_json(
-        self, mock_run: MagicMock, mock_temp_file: MagicMock,
-        mock_clean_drc_output: dict, tmp_path: Path,
+        self,
+        mock_run: MagicMock,
+        mock_temp_file: MagicMock,
+        mock_clean_drc_output: dict,
+        tmp_path: Path,
     ) -> None:
         """A crashed CLI is unmeasured, never a clean DRC result."""
         import json
@@ -277,9 +289,7 @@ class TestDrcRunner:
         mock_temp_file.return_value = mock_ctx
 
         with (
-            patch(
-                "temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True
-            ),
+            patch("temper_placer.validation._drc_api.is_kicad_cli_available", return_value=True),
             pytest.raises(DrcRunnerError, match="exit 133"),
         ):
             run_drc(pcb_file)

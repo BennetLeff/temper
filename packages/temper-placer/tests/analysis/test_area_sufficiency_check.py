@@ -11,10 +11,7 @@ from temper_placer.analysis._area_sufficiency import (
 )
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
-_SCRIPT = (
-    _REPO_ROOT
-    / "packages/temper-placer/scripts/analysis/area_sufficiency_check.py"
-)
+_SCRIPT = _REPO_ROOT / "packages/temper-placer/scripts/analysis/area_sufficiency_check.py"
 
 
 def _write_pcb(tmp_path: Path, name: str, content: str) -> Path:
@@ -57,6 +54,7 @@ def _footprint(ref: str, at_x: float, at_y: float, rect_w: float, rect_h: float)
 
 # --- Synthetic pass case ---
 
+
 def test_synthetic_pass_raw_ratio_under_100(tmp_path):
     """Board 100x100mm, one 10x10mm courtyard -> raw ratio ~1.2% (well under 100)."""
     content = _make_board(100.0, 100.0, _footprint("R1", 50.0, 50.0, 10.0, 10.0))
@@ -72,6 +70,7 @@ def test_synthetic_pass_raw_ratio_under_100(tmp_path):
 
 # --- Synthetic fail case ---
 
+
 def test_synthetic_fail_raw_ratio_over_100(tmp_path):
     """Board 20x20mm, one 20x20mm courtyard -> exactly 400%."""
     content = _make_board(20.0, 20.0, _footprint("BIG1", 10.0, 10.0, 20.0, 20.0))
@@ -86,6 +85,7 @@ def test_synthetic_fail_raw_ratio_over_100(tmp_path):
 
 # --- Margin effect ---
 
+
 def test_larger_margin_decreases_usable_area(tmp_path):
     content = _make_board(100.0, 100.0, _footprint("R1", 50.0, 50.0, 10.0, 10.0))
     pcb = _write_pcb(tmp_path, "margin.kicad_pcb", content)
@@ -99,6 +99,7 @@ def test_larger_margin_decreases_usable_area(tmp_path):
 
 # --- Zero margin ---
 
+
 def test_zero_margin_uses_full_board_area(tmp_path):
     content = _make_board(100.0, 100.0)
     pcb = _write_pcb(tmp_path, "zero_margin.kicad_pcb", content)
@@ -109,6 +110,7 @@ def test_zero_margin_uses_full_board_area(tmp_path):
 
 # --- Non-positive usable area raises ---
 
+
 def test_margin_larger_than_half_board_raises(tmp_path):
     content = _make_board(10.0, 10.0)
     pcb = _write_pcb(tmp_path, "tiny.kicad_pcb", content)
@@ -118,6 +120,7 @@ def test_margin_larger_than_half_board_raises(tmp_path):
 
 
 # --- CLI exit codes ---
+
 
 def test_cli_exit_code_zero_on_pass(tmp_path):
     content = _make_board(200.0, 200.0, _footprint("R1", 100.0, 100.0, 10.0, 10.0))
@@ -151,10 +154,15 @@ def test_cli_reports_packing_efficiency_ratios(tmp_path):
 
     result = subprocess.run(
         [
-            "uv", "run", "python",
+            "uv",
+            "run",
+            "python",
             str(_SCRIPT),
-            "--pcb", str(pcb),
-            "--packing-efficiency", "0.5", "0.8",
+            "--pcb",
+            str(pcb),
+            "--packing-efficiency",
+            "0.5",
+            "0.8",
         ],
         capture_output=True,
         text=True,
@@ -166,6 +174,7 @@ def test_cli_reports_packing_efficiency_ratios(tmp_path):
 
 
 # --- Regression: real production board ---
+
 
 def test_real_board_reports_approximately_108_5_pct():
     """Running against pcb/temper.kicad_pcb should report ~108.5% raw ratio,

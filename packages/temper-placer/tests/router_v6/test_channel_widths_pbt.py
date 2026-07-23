@@ -44,7 +44,9 @@ def test_channel_widths_bottleneck_equals_min(min_w, max_w):
 
 
 @given(
-    node_key=st.tuples(st.floats(min_value=-100, max_value=100), st.floats(min_value=-100, max_value=100)),
+    node_key=st.tuples(
+        st.floats(min_value=-100, max_value=100), st.floats(min_value=-100, max_value=100)
+    ),
     width=st.floats(min_value=0.0, max_value=10.0),
 )
 @settings(max_examples=100, deadline=30000)

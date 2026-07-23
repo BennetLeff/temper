@@ -4,7 +4,6 @@ Tests for Router V6 Stage 5.5: Analyze and Balance Copper
 Part of temper-nd5z
 """
 
-
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.copper_balance import (
     CopperBalanceReport,
@@ -105,7 +104,9 @@ def test_custom_balance_thresholds():
 
     # Very strict thresholds
     report = analyze_copper_balance(
-        results, 100, 100,
+        results,
+        100,
+        100,
         min_copper_percentage=40.0,
         max_copper_percentage=60.0,
     )

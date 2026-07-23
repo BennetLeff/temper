@@ -8,14 +8,16 @@ class PadInfo:
     radius: float
     mask_expansion: float
 
+
 def distance(p1: tuple[float, float], p2: tuple[float, float]) -> float:
-    return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
 
 def is_via_position_valid(
     pos: tuple[float, float],
     pads: list[PadInfo],
     via_mask_radius: float,
-    min_clearance: float = 0.1
+    min_clearance: float = 0.1,
 ) -> bool:
     """Check if via at pos has sufficient mask clearance to all pads."""
     for pad in pads:
@@ -25,12 +27,13 @@ def is_via_position_valid(
             return False
     return True
 
+
 def place_via_with_clearance(
     target_pos: tuple[float, float],
     pads: list[PadInfo],
     via_mask_radius: float,
     min_clearance: float = 0.1,
-    max_search_radius: float = 2.0
+    max_search_radius: float = 2.0,
 ) -> tuple[float, float] | None:
     """Find valid via position near target, respecting mask clearances."""
 
@@ -48,7 +51,7 @@ def place_via_with_clearance(
             angle_rad = math.radians(angle_deg)
             candidate = (
                 target_pos[0] + r * math.cos(angle_rad),
-                target_pos[1] + r * math.sin(angle_rad)
+                target_pos[1] + r * math.sin(angle_rad),
             )
             if is_via_position_valid(candidate, pads, via_mask_radius, min_clearance):
                 return candidate

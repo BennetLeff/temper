@@ -106,14 +106,10 @@ def score_placement(
     """
     # @req(2026-07-03-001, R7): CP-SAT output scored on existing oracle
     if not positions:
-        raise ValueError(
-            "positions dict is empty — at least one component is required"
-        )
+        raise ValueError("positions dict is empty — at least one component is required")
 
     if netlist.n_components == 0:
-        raise ValueError(
-            "netlist has no components — cannot build PlacementState"
-        )
+        raise ValueError("netlist has no components — cannot build PlacementState")
 
     # Determine component order — caller may override with a component_order kwarg
     component_order: list[str] | None = kwargs.get("components")
@@ -141,28 +137,47 @@ def score_placement(
 
     # Clearance score at user-specified threshold (default 8.0 mm)
     hv_clearance = hv_lv_clearance_score(
-        state, netlist, hv_components, lv_components, min_clearance,
+        state,
+        netlist,
+        hv_components,
+        lv_components,
+        min_clearance,
     )
     result["hv_lv_clearance_score"] = hv_clearance
 
     # Dual-rail clearance at standard thresholds (3.0 mm and 6.0 mm)
     result["clearance_3mm"] = hv_lv_clearance_score(
-        state, netlist, hv_components, lv_components, min_clearance=3.0,
+        state,
+        netlist,
+        hv_components,
+        lv_components,
+        min_clearance=3.0,
     )
     result["clearance_6mm"] = hv_lv_clearance_score(
-        state, netlist, hv_components, lv_components, min_clearance=6.0,
+        state,
+        netlist,
+        hv_components,
+        lv_components,
+        min_clearance=6.0,
     )
 
     # Thermal score
     therm = thermal_score(
-        state, netlist, board, thermal_comps,
-        target_edge=thermal_edge, max_distance=thermal_max_dist,
+        state,
+        netlist,
+        board,
+        thermal_comps,
+        target_edge=thermal_edge,
+        max_distance=thermal_max_dist,
     )
     result["thermal_score"] = therm
 
     # Zone compliance
     result["zone_compliance_score"] = zone_compliance_score(
-        state, netlist, board, zone_assignments,
+        state,
+        netlist,
+        board,
+        zone_assignments,
     )
 
     # Compactness

@@ -61,7 +61,9 @@ def extract_net_terminals(
         x, y = pin_world_position(pin, component)
         is_pth = bool(getattr(pin, "is_pth", False))
         layer_names = pth_layers if is_pth else (pin_world_layer(pin),)
-        layer_ids = tuple(sorted(layer_indices[name] for name in layer_names if name in layer_indices))
+        layer_ids = tuple(
+            sorted(layer_indices[name] for name in layer_names if name in layer_indices)
+        )
         terminals.append(
             ParsedTerminal(
                 identity=PadIdentity(component_ref, str(pin.number), net_name, x, y, layer_ids),

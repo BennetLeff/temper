@@ -29,6 +29,7 @@ from temper_placer.router_v6.routing_results import RoutingResults
 # Data classes
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class CreepageViolation:
     """A clearance / creepage distance violation."""
@@ -36,8 +37,8 @@ class CreepageViolation:
     hv_net: str
     lv_net: str
     location: tuple[float, float]  # Closest approach point (midpoint)
-    actual_distance: float         # Actual clearance distance (mm)
-    required_distance: float       # Required minimum distance (mm)
+    actual_distance: float  # Actual clearance distance (mm)
+    required_distance: float  # Required minimum distance (mm)
 
     @property
     def deficiency(self) -> float:
@@ -56,6 +57,7 @@ class CreepageReport(BaseCheckReport):
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
+
 
 def verify_creepage(
     routing_results: RoutingResults,
@@ -99,13 +101,10 @@ def verify_creepage(
     if default_creepage is not None and (
         math.isnan(default_creepage) or not math.isfinite(default_creepage)
     ):
-        raise ValueError(
-            f"default_creepage must be a finite number, got {default_creepage!r}"
-        )
+        raise ValueError(f"default_creepage must be a finite number, got {default_creepage!r}")
 
     # Identify every HV net
-    hv_nets = [net for net in routing_results.compiled_routes
-               if _is_high_voltage_net(net)]
+    hv_nets = [net for net in routing_results.compiled_routes if _is_high_voltage_net(net)]
 
     for hv_net in hv_nets:
         hv_route = routing_results.compiled_routes[hv_net]
@@ -125,9 +124,11 @@ def verify_creepage(
 
             # ---- find *all* violating segment pairs ------------------
             pair_violations = _find_clearance_violations(
-                hv_route, other_route,
+                hv_route,
+                other_route,
                 required_distance,
-                hv_net, other_net,
+                hv_net,
+                other_net,
             )
             violations.extend(pair_violations)
 
@@ -137,6 +138,7 @@ def verify_creepage(
 # ---------------------------------------------------------------------------
 # HV net detection
 # ---------------------------------------------------------------------------
+
 
 def _is_high_voltage_net(net_name: str) -> bool:
     """
@@ -157,10 +159,18 @@ def _is_high_voltage_net(net_name: str) -> bool:
 
     # Broad-match keywords (substring match is safe for these)
     broad_keywords = [
-        'HIGH_VOLTAGE', 'MAINS',
-        'LINE', 'NEUTRAL', 'PRIMARY', 'HOT',
-        'L1', 'L2', 'L3', 'PHASE',
-        'VBUS', 'B+',
+        "HIGH_VOLTAGE",
+        "MAINS",
+        "LINE",
+        "NEUTRAL",
+        "PRIMARY",
+        "HOT",
+        "L1",
+        "L2",
+        "L3",
+        "PHASE",
+        "VBUS",
+        "B+",
     ]
     if any(kw in name_upper for kw in broad_keywords):
         return True
@@ -168,14 +178,15 @@ def _is_high_voltage_net(net_name: str) -> bool:
     # AC / HV with optional trailing underscore or digit
     # (?:^|_)  – start-of-string or underscore before
     # (?:$|[\d_]) – end-of-string, digit, or underscore after
-    if re.search(r'(?:^|_)AC(?:$|[\d_])', name_upper):
+    if re.search(r"(?:^|_)AC(?:$|[\d_])", name_upper):
         return True
-    return bool(re.search(r'(?:^|_)HV(?:$|[\d_])', name_upper))
+    return bool(re.search(r"(?:^|_)HV(?:$|[\d_])", name_upper))
 
 
 # ---------------------------------------------------------------------------
 # Clearance-distance helpers
 # ---------------------------------------------------------------------------
+
 
 def _extract_segments(
     route,
@@ -198,7 +209,7 @@ def _extract_segments(
         """True when all values are finite (no NaN, no inf)."""
         return all(math.isfinite(v) for v in values)
 
-    if hasattr(route.path, 'segments'):
+    if hasattr(route.path, "segments"):
         # RoutePath3D  – (x, y, layer) triples
         pts = route.path.segments
         for i in range(len(pts) - 1):
@@ -220,9 +231,12 @@ def _extract_segments(
 
 
 def _point_to_segment_distance(
-    px: float, py: float,
-    x1: float, y1: float,
-    x2: float, y2: float,
+    px: float,
+    py: float,
+    x1: float,
+    y1: float,
+    x2: float,
+    y2: float,
 ) -> float:
     """Minimum distance from point *(px, py)* to segment *(x1,y1)-(x2,y2)*."""
     dx = x2 - x1
@@ -239,9 +253,12 @@ def _point_to_segment_distance(
 
 
 def _closest_point_on_segment(
-    px: float, py: float,
-    x1: float, y1: float,
-    x2: float, y2: float,
+    px: float,
+    py: float,
+    x1: float,
+    y1: float,
+    x2: float,
+    y2: float,
 ) -> tuple[float, float]:
     """Closest point on segment *(x1,y1)-(x2,y2)* to point *(px, py)*."""
     dx = x2 - x1
@@ -255,8 +272,14 @@ def _closest_point_on_segment(
 
 
 def _segments_intersect(
-    x1: float, y1: float, x2: float, y2: float,
-    x3: float, y3: float, x4: float, y4: float,
+    x1: float,
+    y1: float,
+    x2: float,
+    y2: float,
+    x3: float,
+    y3: float,
+    x4: float,
+    y4: float,
 ) -> tuple[bool, float, float]:
     """
     Check whether two line segments intersect (proper intersection).
@@ -265,6 +288,7 @@ def _segments_intersect(
         ``(intersects, ix, iy)`` where *(ix, iy)* is the intersection
         point when ``intersects`` is ``True``.
     """
+
     def _orient(ax, ay, bx, by, cx, cy):
         return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
 
@@ -288,8 +312,14 @@ def _segments_intersect(
 
 
 def _segment_to_segment_info(
-    x1: float, y1: float, x2: float, y2: float,
-    x3: float, y3: float, x4: float, y4: float,
+    x1: float,
+    y1: float,
+    x2: float,
+    y2: float,
+    x3: float,
+    y3: float,
+    x4: float,
+    y4: float,
 ) -> tuple[float, tuple[float, float], tuple[float, float]]:
     """
     Minimum distance between two line segments and the closest points.
@@ -299,17 +329,24 @@ def _segment_to_segment_info(
     """
     # 1. Intersection → distance 0
     intersects, ix, iy = _segments_intersect(
-        x1, y1, x2, y2, x3, y3, x4, y4,
+        x1,
+        y1,
+        x2,
+        y2,
+        x3,
+        y3,
+        x4,
+        y4,
     )
     if intersects:
         return 0.0, (ix, iy), (ix, iy)
 
-    best_dist = float('inf')
+    best_dist = float("inf")
     best_p1 = (0.0, 0.0)
     best_p2 = (0.0, 0.0)
 
     # 2. Endpoints of seg1 against seg2
-    for (px, py) in [(x1, y1), (x2, y2)]:
+    for px, py in [(x1, y1), (x2, y2)]:
         d = _point_to_segment_distance(px, py, x3, y3, x4, y4)
         if d < best_dist:
             best_dist = d
@@ -317,7 +354,7 @@ def _segment_to_segment_info(
             best_p2 = _closest_point_on_segment(px, py, x3, y3, x4, y4)
 
     # 3. Endpoints of seg2 against seg1
-    for (px, py) in [(x3, y3), (x4, y4)]:
+    for px, py in [(x3, y3), (x4, y4)]:
         d = _point_to_segment_distance(px, py, x1, y1, x2, y2)
         if d < best_dist:
             best_dist = d
@@ -357,20 +394,28 @@ def _find_clearance_violations(
                 continue
 
             dist, p1, p2 = _segment_to_segment_info(
-                x1, y1, x2, y2, x3, y3, x4, y4,
+                x1,
+                y1,
+                x2,
+                y2,
+                x3,
+                y3,
+                x4,
+                y4,
             )
 
             if dist < required_distance:
                 # Midpoint of closest approach as violation location
-                loc = ((p1[0] + p2[0]) / 2.0,
-                       (p1[1] + p2[1]) / 2.0)
-                violations.append(CreepageViolation(
-                    hv_net=hv_net,
-                    lv_net=lv_net,
-                    location=loc,
-                    actual_distance=dist,
-                    required_distance=required_distance,
-                ))
+                loc = ((p1[0] + p2[0]) / 2.0, (p1[1] + p2[1]) / 2.0)
+                violations.append(
+                    CreepageViolation(
+                        hv_net=hv_net,
+                        lv_net=lv_net,
+                        location=loc,
+                        actual_distance=dist,
+                        required_distance=required_distance,
+                    )
+                )
 
     return violations
 
@@ -378,6 +423,7 @@ def _find_clearance_violations(
 # ---------------------------------------------------------------------------
 # Voltage → required creepage table
 # ---------------------------------------------------------------------------
+
 
 def _calculate_required_creepage(voltage: float) -> float:
     """
@@ -408,9 +454,7 @@ def _calculate_required_creepage(voltage: float) -> float:
         ValueError: If *voltage* is NaN or not finite.
     """
     if math.isnan(voltage) or not math.isfinite(voltage):
-        raise ValueError(
-            f"Voltage must be a finite number, got {voltage!r}"
-        )
+        raise ValueError(f"Voltage must be a finite number, got {voltage!r}")
     if voltage <= 15:
         return 0.13
     elif voltage <= 30:

@@ -65,9 +65,7 @@ class SyntheticRoutingStub:
         self.origin_xy = origin_xy
         self.capacity_per_cell = capacity_per_cell
 
-    def _cell_counts(
-        self, placement: Mapping[str, tuple[float, float]]
-    ) -> list[int]:
+    def _cell_counts(self, placement: Mapping[str, tuple[float, float]]) -> list[int]:
         counts = [0] * (self.width_cells * self.height_cells)
         origin_x, origin_y = self.origin_xy
         for _ref, (x, y) in placement.items():
@@ -83,9 +81,7 @@ class SyntheticRoutingStub:
             return float(count) / (2 * self.capacity_per_cell)
         return min(1.0, (count - self.capacity_per_cell) / self.capacity_per_cell)
 
-    def route(
-        self, placement: Mapping[str, tuple[float, float]]
-    ) -> tuple[float, BottleneckMap]:
+    def route(self, placement: Mapping[str, tuple[float, float]]) -> tuple[float, BottleneckMap]:
         """Return ``(routing_completion_pct, bottleneck_map)``.
 
         ``routing_completion_pct`` is in [0, 100] and is computed from

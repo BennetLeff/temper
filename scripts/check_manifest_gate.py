@@ -17,7 +17,6 @@ Usage:
   uv run python scripts/check_manifest_gate.py [--help]
 """
 import argparse
-import re
 import sys
 from pathlib import Path
 

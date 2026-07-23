@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from ._geometry import _rects_overlap
+
 
 class PackageType(Enum):
     """SMT package types for spacing requirements."""
@@ -114,10 +116,10 @@ def get_package_type(footprint: str) -> PackageType:
 
     if "ESP32" in footprint_upper or "WROOM" in footprint_upper:
         return PackageType.ESP32_MODULE
-    elif "QFN" in footprint_upper:
-        return PackageType.QFN
     elif "TQFN" in footprint_upper:
         return PackageType.TQFN
+    elif "QFN" in footprint_upper:
+        return PackageType.QFN
     elif "SOIC" in footprint_upper:
         return PackageType.SOIC
     elif "0402" in footprint_upper:
@@ -157,14 +159,40 @@ def check_component_spacing(
     if package_rules is None:
         package_rules = SPACING_REQUIREMENTS
 
+    violations = []
+    components = _placement.get("components", [])
 
-    # TODO: Implement actual spacing validation
-    # - Extract component positions and footprints
-    # - Calculate pad-to-pad distances
-    # - Check against minimum and recommended spacing
-    # - Generate violations for insufficient spacing
+    for i, comp_a in enumerate(components):
+        for comp_b in components[i + 1 :]:
+            pos_a = comp_a.get("position")
+            pos_b = comp_b.get("position")
+            if pos_a is None or pos_b is None:
+                continue
+            dist = ((pos_a[0] - pos_b[0]) ** 2 + (pos_a[1] - pos_b[1]) ** 2) ** 0.5
 
-    raise NotImplementedError("Component spacing validation not yet implemented")
+            fp_a = comp_a.get("footprint", "")
+            fp_b = comp_b.get("footprint", "")
+            pkg_a = get_package_type(fp_a)
+            pkg_b = get_package_type(fp_b)
+
+            min_a = package_rules.get(pkg_a, {}).get("min_pad_to_pad_mm", 0.15)
+            min_b = package_rules.get(pkg_b, {}).get("min_pad_to_pad_mm", 0.15)
+            required = max(min_a, min_b)
+
+            if dist < required:
+                violations.append(
+                    PlacementViolation(
+                        code="DFM001-SPACE-001",
+                        message=f"Components {comp_a.get('ref', '?')} and {comp_b.get('ref', '?')} spacing {dist:.2f}mm < required {required:.2f}mm",
+                        location=((pos_a[0] + pos_b[0]) / 2, (pos_a[1] + pos_b[1]) / 2),
+                        severity="error",
+                        violation_type="spacing",
+                        measured_value=dist,
+                        required_value=required,
+                    )
+                )
+
+    return PlacementResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_component_orientation(
@@ -175,7 +203,7 @@ def check_component_orientation(
 
     Rules:
     - ICs: Pin 1 towards top-left or consistent orientation
-    - Passives: Consistent 0° or 90° orientation per type
+    - Passives: Consistent 0deg or 90deg orientation per type
     - Polarized: Consistent polarity direction
 
     Args:
@@ -184,14 +212,41 @@ def check_component_orientation(
     Returns:
         PlacementResult with orientation violations
     """
+    violations = []
+    components = placement.get("components", [])
 
-    # TODO: Implement orientation validation
-    # - Identify ICs vs passives vs polarized components
-    # - Check IC pin 1 orientation consistency
-    # - Check passive orientation consistency within areas
-    # - Check polarized component polarity consistency
+    for comp in components:
+        fp = comp.get("footprint", "")
+        pkg = get_package_type(fp)
+        rot = comp.get("rotation", 0)
+        norm = ((rot % 360) + 360) % 360
 
-    raise NotImplementedError("Component orientation validation not yet implemented")
+        if pkg in (PackageType.SOIC, PackageType.QFN, PackageType.TQFN, PackageType.ESP32_MODULE):
+            if norm != 0:
+                violations.append(
+                    PlacementViolation(
+                        code="DFM001-ORIENT-001",
+                        message=f"IC {comp.get('ref', '?')} pin 1 orientation {rot}deg (expected 0deg)",
+                        location=comp.get("position"),
+                        severity="error",
+                        component_ref=comp.get("ref"),
+                        violation_type="orientation",
+                    )
+                )
+        else:
+            if norm not in (0, 90):
+                violations.append(
+                    PlacementViolation(
+                        code="DFM001-ORIENT-002",
+                        message=f"Passive {comp.get('ref', '?')} orientation {rot}deg inconsistent (expected 0deg or 90deg)",
+                        location=comp.get("position"),
+                        severity="error",
+                        component_ref=comp.get("ref"),
+                        violation_type="orientation",
+                    )
+                )
+
+    return PlacementResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_fiducial_placement(
@@ -214,15 +269,63 @@ def check_fiducial_placement(
     Returns:
         PlacementResult with fiducial violations
     """
+    violations = []
 
-    # TODO: Implement fiducial validation
-    # - Check minimum quantity (3)
-    # - Check size requirements (1.0mm copper, 2.0mm mask opening)
-    # - Check clearance requirements (3.0mm keep-out)
-    # - Check asymmetric placement (not collinear)
-    # - Check distance from board edges (5.0mm minimum)
+    if len(fiducials) < 3:
+        violations.append(
+            PlacementViolation(
+                code="DFM001-FID-001",
+                message=f"Insufficient fiducials: {len(fiducials)} found, minimum 3 required",
+                severity="error",
+                component_ref="FID_COUNT",
+                violation_type="fiducial",
+            )
+        )
+    elif len(fiducials) == 3:
+        pts = [f.position for f in fiducials]
+        x1, y1 = pts[0]
+        x2, y2 = pts[1]
+        x3, y3 = pts[2]
+        cross = abs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1))
+        if cross < 1e-6:
+            violations.append(
+                PlacementViolation(
+                    code="DFM001-FID-002",
+                    message="Fiducials are collinear — asymmetric placement required",
+                    severity="error",
+                    violation_type="fiducial",
+                )
+            )
 
-    raise NotImplementedError("Fiducial placement validation not yet implemented")
+    for f in fiducials:
+        if f.size_mm < 1.0:
+            violations.append(
+                PlacementViolation(
+                    code="DFM001-FID-003",
+                    message=f"Fiducial {f.ref} pad size {f.size_mm}mm below minimum 1.0mm",
+                    location=f.position,
+                    severity="error",
+                    component_ref=f.ref,
+                    violation_type="fiducial",
+                    measured_value=f.size_mm,
+                    required_value=1.0,
+                )
+            )
+        if f.clearance_mm < 3.0:
+            violations.append(
+                PlacementViolation(
+                    code="DFM001-FID-004",
+                    message=f"Fiducial {f.ref} clearance {f.clearance_mm}mm below minimum 3.0mm",
+                    location=f.position,
+                    severity="warning",
+                    component_ref=f.ref,
+                    violation_type="fiducial",
+                    measured_value=f.clearance_mm,
+                    required_value=3.0,
+                )
+            )
+
+    return PlacementResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_antenna_keepout(
@@ -246,14 +349,68 @@ def check_antenna_keepout(
     Returns:
         PlacementResult with antenna keepout violations
     """
+    violations = []
 
-    # TODO: Implement antenna keepout validation
-    # - Determine antenna direction (towards nearest board edge)
-    # - Check for copper in 15mm keepout zone
-    # - Verify ground pour under module (except antenna area)
-    # - Check module position relative to board edges
+    if esp32_position is None:
+        return PlacementResult(
+            passed=False,
+            violations=[
+                PlacementViolation(
+                    code="DFM001-ANT-003",
+                    message="ESP32 position data missing; antenna keepout cannot be verified",
+                    severity="error",
+                    component_ref="ESP32",
+                    violation_type="antenna",
+                )
+            ],
+        )
 
-    raise NotImplementedError("ESP32 antenna keepout validation not yet implemented")
+    board_w, board_h = board_dimensions
+
+    # Check distance to board edges (antenna needs >=15mm clearance)
+    edge_dist_x = min(esp32_position[0], board_w - esp32_position[0])
+    edge_dist_y = min(esp32_position[1], board_h - esp32_position[1])
+    if edge_dist_x < ESP32_ANTENNA_KEEPOUT_MM or edge_dist_y < ESP32_ANTENNA_KEEPOUT_MM:
+        violations.append(
+            PlacementViolation(
+                code="DFM001-ANT-001",
+                message=f"ESP32 too close to board edge for antenna keepout (dist_x={edge_dist_x:.0f}mm, dist_y={edge_dist_y:.0f}mm, min={ESP32_ANTENNA_KEEPOUT_MM}mm)",
+                location=esp32_position,
+                severity="error",
+                component_ref="ESP32",
+                violation_type="antenna",
+                measured_value=min(edge_dist_x, edge_dist_y),
+                required_value=ESP32_ANTENNA_KEEPOUT_MM,
+            )
+        )
+
+    keepout_zone = (
+        esp32_position[0] - ESP32_ANTENNA_KEEPOUT_MM / 2,
+        esp32_position[1] - ESP32_ANTENNA_KEEPOUT_MM / 2,
+        ESP32_ANTENNA_KEEPOUT_MM,
+        ESP32_ANTENNA_KEEPOUT_MM,
+    )
+
+    for pour in copper_pours:
+        pos = pour.get("position")
+        size = pour.get("size", (0, 0))
+        if pos is None:
+            continue
+        pour_rect = (pos[0], pos[1], size[0], size[1])
+
+        if _rects_overlap(keepout_zone, pour_rect):
+            violations.append(
+                PlacementViolation(
+                    code="DFM001-ANT-002",
+                    message="Copper pour found in ESP32 antenna keepout zone",
+                    location=esp32_position,
+                    severity="error",
+                    component_ref="ESP32",
+                    violation_type="antenna",
+                )
+            )
+
+    return PlacementResult(passed=len(violations) == 0, violations=violations)
 
 
 def check_pick_and_place_compliance(

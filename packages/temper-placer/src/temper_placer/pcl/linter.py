@@ -6,6 +6,7 @@ and other issues before optimization.
 """
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from temper_placer.core.board import Board
@@ -53,6 +54,24 @@ class LintResult:
         return len(self.errors) == 0
 
 
+_SPECIFIC_CHECKS: dict[
+    type,
+    Callable[[BaseConstraint, Board, LintResult], None],
+] = {
+    AlignedConstraint: lambda c, _b, r: _check_aligned_constraint(c, r),  # type: ignore[arg-type,misc]
+    AdjacentConstraint: lambda c, b, r: _check_adjacent_constraint(c, b, r),  # type: ignore[arg-type]
+    KeepoutConstraint: lambda c, b, r: _check_keepout_constraint(c, b, r),  # type: ignore[arg-type]
+}
+
+_REF_EXTRACTORS: dict[type, Callable[[BaseConstraint], list[str]]] = {
+    AdjacentConstraint: lambda c: [c.a, c.b],  # type: ignore[attr-defined]
+    SeparatedConstraint: lambda c: [c.a, c.b],  # type: ignore[attr-defined]
+    AlignedConstraint: lambda c: c.components,  # type: ignore[attr-defined]
+    OnSideConstraint: lambda c: c.components,  # type: ignore[attr-defined]
+    AnchoredConstraint: lambda c: [c.component],  # type: ignore[attr-defined]
+}
+
+
 def lint_constraints(
     constraints: list[BaseConstraint],
     netlist: Netlist,
@@ -71,27 +90,17 @@ def lint_constraints(
     """
     result = LintResult()
 
-    # Build component ref set for validation
     valid_refs = {comp.ref for comp in netlist.components}
     valid_zones = {zone.name for zone in board.zones}
 
-    # Check each constraint
     for constraint in constraints:
-        # Check invalid component references
         _check_invalid_refs(constraint, valid_refs, valid_zones, result)
 
-        # Check constraint-specific issues
-        if isinstance(constraint, AlignedConstraint):
-            _check_aligned_constraint(constraint, result)
-        elif isinstance(constraint, AdjacentConstraint):
-            _check_adjacent_constraint(constraint, board, result)
-        elif isinstance(constraint, KeepoutConstraint):
-            _check_keepout_constraint(constraint, board, result)
+        check = _SPECIFIC_CHECKS.get(type(constraint))
+        if check is not None:
+            check(constraint, board, result)
 
-    # Check for contradictions between constraints
     _check_contradictions(constraints, result)
-
-    # Check for circular adjacencies
     _check_circular_adjacencies(constraints, result)
 
     return result
@@ -106,10 +115,7 @@ def _check_invalid_refs(
     """Check for invalid component or zone references in a constraint."""
     refs_to_check: list[str] = []
 
-    if isinstance(constraint, (AdjacentConstraint, SeparatedConstraint)):
-        refs_to_check = [constraint.a, constraint.b]
-    elif isinstance(constraint, EnclosingConstraint):
-        # outer must be a zone
+    if isinstance(constraint, EnclosingConstraint):
         if constraint.outer not in valid_zones:
             result.errors.append(
                 LintError(
@@ -118,13 +124,12 @@ def _check_invalid_refs(
                 )
             )
         refs_to_check = constraint.inner
-    elif isinstance(constraint, (AlignedConstraint, OnSideConstraint)):
-        refs_to_check = constraint.components
-    elif isinstance(constraint, AnchoredConstraint):
-        refs_to_check = [constraint.component]
+    else:
+        extract = _REF_EXTRACTORS.get(type(constraint))
+        if extract is not None:
+            refs_to_check = extract(constraint)
 
     for ref in refs_to_check:
-        # Check if it's a zone ref (should be in valid_zones if it is one)
         if ref.isupper() and "_ZONE" in ref:
             if ref not in valid_zones:
                 result.errors.append(
@@ -161,7 +166,7 @@ def _check_adjacent_constraint(
     board: Board,
     result: LintResult,
 ) -> None:
-    """Check adjacent constraint for unreasonable distances.    """
+    """Check adjacent constraint for unreasonable distances."""
     # Board diagonal is the maximum possible distance
     board_diagonal = math.sqrt(board.width**2 + board.height**2)
 
@@ -242,8 +247,7 @@ def _check_contradictions(
             # Handle pairwise separation
             key = tuple(sorted([constraint.a, constraint.b]))
             if (
-                key not in separation_map
-                or constraint.min_distance_mm > separation_map[key][0]  # type: ignore[index]
+                key not in separation_map or constraint.min_distance_mm > separation_map[key][0]  # type: ignore[index]
             ):
                 separation_map[key] = (constraint.min_distance_mm, constraint.id)  # type: ignore[index]
 

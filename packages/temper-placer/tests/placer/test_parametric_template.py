@@ -25,6 +25,7 @@ def test_parametric_template_apply():
     assert placements["Q1"] == (50.0, 50.0, 0)
     assert placements["Q2"] == (110.0, 110.0, 0)
 
+
 def test_parametric_half_bridge():
     template = ParametricTemplate.create_half_bridge()
     assert len(template.components) == 6

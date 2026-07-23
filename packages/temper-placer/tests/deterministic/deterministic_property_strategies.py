@@ -25,7 +25,12 @@ COMPONENT_COUNT_RANGE: tuple[int, int] = (2, 10)
 NET_CLASSES: tuple[str, ...] = ("Signal", "Power", "HighVoltage")
 
 FOOTPRINT_VOCAB: tuple[str, ...] = (
-    "SOIC-8", "0603", "0805", "SOT23", "QFN56", "TO-247",
+    "SOIC-8",
+    "0603",
+    "0805",
+    "SOT23",
+    "QFN56",
+    "TO-247",
 )
 
 ZONE_NAMES: tuple[str, ...] = ("HV", "Power", "Signal", "MCU")
@@ -52,21 +57,25 @@ def board_with_zones(draw: st.DrawFn) -> Board:
     n_zones = draw(st.integers(min_value=2, max_value=4))
 
     # Partition board into n_zones horizontal slices
-    zone_names = draw(st.lists(
-        st.sampled_from(ZONE_NAMES),
-        min_size=n_zones,
-        max_size=n_zones,
-        unique=True,
-    ))
+    zone_names = draw(
+        st.lists(
+            st.sampled_from(ZONE_NAMES),
+            min_size=n_zones,
+            max_size=n_zones,
+            unique=True,
+        )
+    )
     zone_width = w / n_zones
     zones = []
     for i in range(n_zones):
         x0 = i * zone_width
         x1 = x0 + zone_width
-        zones.append(Zone(
-            name=zone_names[i],
-            bounds=(x0, 0.0, x1, h),
-        ))
+        zones.append(
+            Zone(
+                name=zone_names[i],
+                bounds=(x0, 0.0, x1, h),
+            )
+        )
 
     return Board(width=w, height=h, origin=(0.0, 0.0), zones=zones)
 
@@ -93,17 +102,19 @@ def component_list(
         y = draw(st.floats(min_value=1.0, max_value=max(1.1, board_height - 1.0)))
         net_class = draw(st.sampled_from(NET_CLASSES))
         net_name = draw(st.sampled_from(net_name_vocab))
-        comps.append(Component(
-            ref=ref,
-            footprint=fp,
-            bounds=(bw, bh),
-            pins=[
-                Pin("1", "1", (0.0, 0.0), net=net_name),
-                Pin("2", "2", (0.0, 0.0), net=f"{net_name}_GND"),
-            ],
-            net_class=net_class,
-            initial_position=(x, y),
-        ))
+        comps.append(
+            Component(
+                ref=ref,
+                footprint=fp,
+                bounds=(bw, bh),
+                pins=[
+                    Pin("1", "1", (0.0, 0.0), net=net_name),
+                    Pin("2", "2", (0.0, 0.0), net=f"{net_name}_GND"),
+                ],
+                net_class=net_class,
+                initial_position=(x, y),
+            )
+        )
     return comps
 
 
@@ -139,12 +150,14 @@ def netlist(
     max_components: int = 10,
 ) -> Netlist:
     """Generate a Netlist with random components."""
-    comps = draw(component_list(
-        board_width=board_width,
-        board_height=board_height,
-        min_components=min_components,
-        max_components=max_components,
-    ))
+    comps = draw(
+        component_list(
+            board_width=board_width,
+            board_height=board_height,
+            min_components=min_components,
+            max_components=max_components,
+        )
+    )
     return netlist_from_components(components=comps)
 
 
@@ -170,10 +183,12 @@ def board_state_with_zones(draw: st.DrawFn) -> BoardState:
     making it suitable for testing zone-dependent stages.
     """
     b = draw(board_with_zones())
-    nl = draw(netlist(
-        board_width=b.width,
-        board_height=b.height,
-        min_components=COMPONENT_COUNT_RANGE[0],
-        max_components=COMPONENT_COUNT_RANGE[1],
-    ))
+    nl = draw(
+        netlist(
+            board_width=b.width,
+            board_height=b.height,
+            min_components=COMPONENT_COUNT_RANGE[0],
+            max_components=COMPONENT_COUNT_RANGE[1],
+        )
+    )
     return BoardState(board=b, netlist=nl)

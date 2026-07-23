@@ -64,21 +64,14 @@ def measure_displacement(pcb_path: Path, config_path: Path, seed: int = 42):
             [[board.origin[0] + board.width / 2, board.origin[1] + board.height / 2]]
         )
     else:
-        fixed_positions = netlist.get_bounds_array()[
-            fixed_indices
-        ]  # Wrong, get positions
+        fixed_positions = netlist.get_bounds_array()[fixed_indices]  # Wrong, get positions
         # Actually get positions from parse_result
         all_initial_pos = jnp.array(
-            [
-                c.initial_position if c.initial_position else (0, 0)
-                for c in netlist.components
-            ]
+            [c.initial_position if c.initial_position else (0, 0) for c in netlist.components]
         )
         fixed_positions = all_initial_pos[fixed_indices]
 
-    analytical_pos = solve_quadratic_placement(
-        netlist, board, fixed_indices, fixed_positions
-    )
+    analytical_pos = solve_quadratic_placement(netlist, board, fixed_indices, fixed_positions)
     analytical_state = PlacementState(analytical_pos, jnp.zeros((n, 4)))
     results["analytical"] = run_legalization_study(analytical_state, context)
 

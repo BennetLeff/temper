@@ -8,7 +8,7 @@ pub enum ConstraintTier {
 }
 
 impl ConstraintTier {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "hard" => Some(ConstraintTier::Hard),
             "strong" => Some(ConstraintTier::Strong),
@@ -37,7 +37,7 @@ pub enum Axis {
 }
 
 impl Axis {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "x" => Some(Axis::X),
             "y" => Some(Axis::Y),
@@ -57,7 +57,7 @@ pub enum BoardEdge {
 }
 
 impl BoardEdge {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "top" => Some(BoardEdge::Top),
             "bottom" => Some(BoardEdge::Bottom),

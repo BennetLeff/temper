@@ -97,7 +97,7 @@ def test_bottleneck_widths_empty_waypoints():
     cm = FakeChannelMapping(paths)
     edt, mask, bounds = _make_edt_for_grid(10, 10)
     bw = _compute_bottleneck_widths(cm, edt, mask, bounds, cell_size=1.0)
-    assert bw["A"] == float('inf')
+    assert bw["A"] == float("inf")
 
 
 def test_bottleneck_widths_single_waypoint():
@@ -108,7 +108,7 @@ def test_bottleneck_widths_single_waypoint():
     cm = FakeChannelMapping(paths)
     edt, mask, bounds = _make_edt_for_grid(10, 10)
     bw = _compute_bottleneck_widths(cm, edt, mask, bounds, cell_size=1.0)
-    assert bw["A"] == float('inf')
+    assert bw["A"] == float("inf")
 
 
 def test_ordering_bottleneck_narrower_first():
@@ -249,11 +249,15 @@ def _make_grid_path(
             st.integers(0, 49),
             st.integers(0, 49),
         ),
-        min_size=2, max_size=30, unique_by=lambda x: x[0],
-    ).filter(lambda specs: all(
-        (x1 != x2 or y1 != y2)  # Exclude degenerate (same start/end) nets
-        for _, x1, y1, x2, y2 in specs
-    )),
+        min_size=2,
+        max_size=30,
+        unique_by=lambda x: x[0],
+    ).filter(
+        lambda specs: all(
+            (x1 != x2 or y1 != y2)  # Exclude degenerate (same start/end) nets
+            for _, x1, y1, x2, y2 in specs
+        )
+    ),
 )
 @settings(max_examples=100, deadline=15000)
 def test_bottleneck_ordering_never_worse(net_specs):
@@ -284,20 +288,19 @@ def test_bottleneck_ordering_never_worse(net_specs):
     max_coord = 50
     grid_pad = 5
     edt, mask, bounds = _make_edt_for_grid(
-        max_coord + grid_pad, max_coord + grid_pad, cell_size=1.0,
+        max_coord + grid_pad,
+        max_coord + grid_pad,
+        cell_size=1.0,
     )
     bw = _compute_bottleneck_widths(cm, edt, mask, bounds, cell_size=1.0)
-    bw_finite = {k: v for k, v in bw.items() if v != float('inf')}
-    bw_finite.update({k: float(max_coord + grid_pad) for k, v in bw.items() if v == float('inf')})
+    bw_finite = {k: v for k, v in bw.items() if v != float("inf")}
+    bw_finite.update({k: float(max_coord + grid_pad) for k, v in bw.items() if v == float("inf")})
 
     area_order = _compute_net_order(cm, bottleneck_widths=None)
     bottleneck_order = _compute_net_order(cm, bottleneck_widths=bw_finite)
 
     # Build grid paths for each net
-    grid_paths = {
-        name: _make_grid_path(path.waypoints)
-        for name, path in paths.items()
-    }
+    grid_paths = {name: _make_grid_path(path.waypoints) for name, path in paths.items()}
 
     area_complete = _simulate_greedy_routing(grid_paths, area_order)
     bottleneck_complete = _simulate_greedy_routing(grid_paths, bottleneck_order)
@@ -329,8 +332,9 @@ def test_bottleneck_ordering_exhaustive_6_nets():
         "F": [(24, 5), (24, 25), (24, 45)],
     }
 
-    paths = {name: FakeChannelPath(net_name=name, waypoints=wpts)
-             for name, wpts in all_waypoints.items()}
+    paths = {
+        name: FakeChannelPath(net_name=name, waypoints=wpts) for name, wpts in all_waypoints.items()
+    }
     cm = FakeChannelMapping(paths)
 
     # Assign bottleneck widths: A-C use width=2mm, D-F use width=4mm

@@ -24,6 +24,7 @@ from typing import Any
 # Path setup — follow existing script convention
 # ---------------------------------------------------------------------------
 _PROJ = Path(__file__).resolve().parent.parent  # packages/temper-placer
+import contextlib
 import sys
 
 sys.path.insert(0, str(_PROJ / "src"))
@@ -98,6 +99,7 @@ def _apply_placements(input_pcb: Path, placements: dict, output_pcb: Path) -> No
 def _inject_netclass_forms(rules: Any, pcb_content: str) -> str:
     """Insert ``(net_class ...)`` s-expression forms into PCB content."""
     from temper_placer.router_v6.adapter import _apply_placements_to_pcb
+
     return _apply_placements_to_pcb(pcb_content, {}, design_rules=rules.design_rules)
 
 
@@ -124,7 +126,8 @@ def _route_and_write(
     if not body:
         # Routing produced no output; fall back to placed-only PCB.
         body = _apply_placements_to_pcb(
-            input_pcb.read_text(encoding="utf-8"), placements,
+            input_pcb.read_text(encoding="utf-8"),
+            placements,
             design_rules=rules.design_rules,
         )
 
@@ -160,10 +163,8 @@ def _load_pcl_constraints(config_path: Path) -> list:
             cfg = _yaml.safe_load(raw) if raw else {}
             inline = cfg.get("constraints", []) if isinstance(cfg, dict) else []
             for cdict in inline:
-                try:
+                with contextlib.suppress(Exception):
                     pcl.append(parse_constraint_dict(cdict))
-                except Exception:
-                    pass
         except Exception:
             pass
 
@@ -175,9 +176,7 @@ def _load_zones(pcl_constraints: list) -> tuple[dict, dict]:
     zones: dict[str, tuple[float, float, float, float]] = {}
     zone_comps: dict[str, list[str]] = {}
 
-    cooker_path = (
-        _PROJ / "configs" / "constraints" / "temper_induction_cooker.yaml"
-    )
+    cooker_path = _PROJ / "configs" / "constraints" / "temper_induction_cooker.yaml"
     if cooker_path.exists():
         import yaml as _yaml
 
@@ -190,9 +189,7 @@ def _load_zones(pcl_constraints: list) -> tuple[dict, dict]:
         outer = getattr(c, "outer", None)
         inner = getattr(c, "inner", None)
         if outer and inner:
-            zone_comps[outer] = list(
-                set(zone_comps.get(outer, []) + list(inner))
-            )
+            zone_comps[outer] = list(set(zone_comps.get(outer, []) + list(inner)))
 
     return zones, zone_comps
 
@@ -206,14 +203,14 @@ def _load_loop_components() -> dict[str, list[str]]:
 
     spec = _yaml.safe_load(spec_path.read_text())
     emi = spec.get("emi", {})
-    return {name: comps for name, comps in emi.get("loop_components", {}).items()}
+    return dict(emi.get("loop_components", {}).items())
 
 
 # ---------------------------------------------------------------------------
 # Experiment rows
 # ---------------------------------------------------------------------------
 def run_row_a(
-    rules: Any,
+    rules: Any,  # noqa: ARG001
     netlist: Any,
     board: Any,
     pcl_constraints: list,
@@ -298,9 +295,7 @@ def run_row_c(
         print(f"  Row C: loop failed — {result.reason}")
         return -1
 
-    placements = (
-        result.placement.to_placements_dict() if result.placement else {}
-    )
+    placements = result.placement.to_placements_dict() if result.placement else {}
     if not placements:
         print("  Row C: no placements after loop")
         return -1
@@ -387,14 +382,20 @@ def main() -> None:
     print("|------------|-----------:|------------------:|------------------:|")
     print(f"| Baseline (human) | {bl_errors} | — | — |")
     print(f"| A) Placement only | {a_errors} | {_delta(a_errors, bl_errors)} | — |")
-    print(f"| B) Placement + Routing | {b_errors} | {_delta(b_errors, bl_errors)} | {_delta(b_errors, a_errors)} |")
-    print(f"| C) Full pipeline (feedback) | {c_errors} | {_delta(c_errors, bl_errors)} | {_delta(c_errors, b_errors)} |")
+    print(
+        f"| B) Placement + Routing | {b_errors} | {_delta(b_errors, bl_errors)} | {_delta(b_errors, a_errors)} |"
+    )
+    print(
+        f"| C) Full pipeline (feedback) | {c_errors} | {_delta(c_errors, bl_errors)} | {_delta(c_errors, b_errors)} |"
+    )
     print()
 
     # --- Load-bearing finding ---
     marginal = []
     if a_errors >= 0:
-        marginal.append(("placement constraints (Row A)", bl_errors - a_errors if bl_errors >= 0 else None))
+        marginal.append(
+            ("placement constraints (Row A)", bl_errors - a_errors if bl_errors >= 0 else None)
+        )
     if a_errors >= 0 and b_errors >= 0:
         marginal.append(("netclass-aware routing (Row B)", a_errors - b_errors))
     if b_errors >= 0 and c_errors >= 0:
@@ -403,8 +404,10 @@ def main() -> None:
     valid = [(name, val) for name, val in marginal if val is not None]
     if valid:
         best = max(valid, key=lambda x: x[1])
-        print(f"**Load-bearing finding:** {best[0]} contributed the largest "
-              f"marginal reduction ({best[1]} errors).")
+        print(
+            f"**Load-bearing finding:** {best[0]} contributed the largest "
+            f"marginal reduction ({best[1]} errors)."
+        )
     else:
         print("**Load-bearing finding:** could not compute — verify kicad-cli is available.")
 

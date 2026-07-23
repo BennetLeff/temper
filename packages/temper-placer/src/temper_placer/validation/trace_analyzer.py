@@ -51,9 +51,10 @@ def calculate_actual_loop_area(board: Board, net_names: list[str]) -> float:
     # Better: use actual points and shoelace if they form a closed loop.
     # For validation, we'll use convex hull area as a conservative upper bound.
     from scipy.spatial import ConvexHull
+
     try:
         hull = ConvexHull(np.array(points))
-        return float(hull.volume) # volume of 2D hull is area
+        return float(hull.volume)  # volume of 2D hull is area
     except Exception:
         return 0.0
 
@@ -66,9 +67,9 @@ def calculate_min_hv_lv_clearance(board: Board, net_classes: dict[str, str]) -> 
     lv_traces = [t for t in board.traces if net_classes.get(t.net) != "HighVoltage"]  # type: ignore[attr-defined]
 
     if not hv_traces or not lv_traces:
-        return float('inf')
+        return float("inf")
 
-    min_dist = float('inf')
+    min_dist = float("inf")
 
     for hv in hv_traces:
         for lv in lv_traces:

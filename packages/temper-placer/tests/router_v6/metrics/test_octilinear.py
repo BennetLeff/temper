@@ -25,7 +25,9 @@ from temper_placer.router_v6.metrics.octilinear import (
 def _write_temp_pcb(content: str) -> Path:
     """Helper to write a temporary KiCad PCB file and return its path."""
     with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".kicad_pcb", delete=False,
+        mode="w",
+        suffix=".kicad_pcb",
+        delete=False,
     ) as f:
         f.write(content)
         return Path(f.name)
@@ -262,33 +264,39 @@ class TestDiagonalIncentive:
 
 
 class TestAngleClassification:
-    @pytest.mark.parametrize("dx,dy,expected_angle", [
-        (1, 1, 45.0),
-        (-1, 1, 135.0),
-        (-1, -1, 225.0),
-        (1, -1, 315.0),
-        (1, 0, 0.0),
-        (0, 1, 90.0),
-        (-1, 0, 180.0),
-        (0, -1, 270.0),
-    ])
+    @pytest.mark.parametrize(
+        "dx,dy,expected_angle",
+        [
+            (1, 1, 45.0),
+            (-1, 1, 135.0),
+            (-1, -1, 225.0),
+            (1, -1, 315.0),
+            (1, 0, 0.0),
+            (0, 1, 90.0),
+            (-1, 0, 180.0),
+            (0, -1, 270.0),
+        ],
+    )
     def test_angle_computation(self, dx, dy, expected_angle):
         assert _angle_deg(float(dx), float(dy)) == pytest.approx(expected_angle)
 
-    @pytest.mark.parametrize("angle,expected", [
-        (45.0, True),
-        (135.0, True),
-        (225.0, True),
-        (315.0, True),
-        (0.0, False),
-        (90.0, False),
-        (180.0, False),
-        (270.0, False),
-        (50.0, True),
-        (40.0, True),
-        (130.0, True),
-        (140.0, True),
-    ])
+    @pytest.mark.parametrize(
+        "angle,expected",
+        [
+            (45.0, True),
+            (135.0, True),
+            (225.0, True),
+            (315.0, True),
+            (0.0, False),
+            (90.0, False),
+            (180.0, False),
+            (270.0, False),
+            (50.0, True),
+            (40.0, True),
+            (130.0, True),
+            (140.0, True),
+        ],
+    )
     def test_is_diagonal_angle(self, angle, expected):
         assert _is_diagonal_angle(angle) == expected
 
@@ -299,16 +307,19 @@ class TestAngleClassification:
 
     def test_tolerance_boundary(self):
         """Exactly at the 5 tolerance boundary."""
-        assert _is_diagonal_angle(40.0)       # 5.0 from 45
-        assert not _is_diagonal_angle(39.9)    # 5.1 from 45
+        assert _is_diagonal_angle(40.0)  # 5.0 from 45
+        assert not _is_diagonal_angle(39.9)  # 5.1 from 45
 
-    @pytest.mark.parametrize("x1,y1,x2,y2,expected_len,expected_diag", [
-        (0.0, 0.0, 1.0, 1.0, math.sqrt(2), True),
-        (0.0, 0.0, 1.0, 0.0, 1.0, False),
-        (0.0, 0.0, 0.0, 1.0, 1.0, False),
-        (0.0, 0.0, -1.0, -1.0, math.sqrt(2), True),
-        (0.0, 0.0, 0.0, 0.0, 0.0, False),
-    ])
+    @pytest.mark.parametrize(
+        "x1,y1,x2,y2,expected_len,expected_diag",
+        [
+            (0.0, 0.0, 1.0, 1.0, math.sqrt(2), True),
+            (0.0, 0.0, 1.0, 0.0, 1.0, False),
+            (0.0, 0.0, 0.0, 1.0, 1.0, False),
+            (0.0, 0.0, -1.0, -1.0, math.sqrt(2), True),
+            (0.0, 0.0, 0.0, 0.0, 0.0, False),
+        ],
+    )
     def test_segment_classification(self, x1, y1, x2, y2, expected_len, expected_diag):
         length, is_diag = _segment_classification(x1, y1, x2, y2)
         assert length == pytest.approx(expected_len)

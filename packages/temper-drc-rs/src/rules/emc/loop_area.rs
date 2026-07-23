@@ -13,6 +13,7 @@ use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 
+#[derive(Default)]
 pub struct LoopAreaCheck;
 
 impl LoopAreaCheck {
@@ -77,8 +78,9 @@ impl DrcRule for LoopAreaCheck {
             let height = (max_y - min_y).max(0.0);
             let area = width * height;
 
-            if let Some(max_area) = loop_constraint.max_area_mm2 {
-                if area > max_area {
+            if let Some(max_area) = loop_constraint.max_area_mm2
+                && area > max_area
+            {
                     violations.push(violation(
                         Severity::Warning,
                         "EMC_LPA_001",
@@ -101,7 +103,6 @@ impl DrcRule for LoopAreaCheck {
                             "nets": loop_constraint.nets,
                         }),
                     ));
-                }
             }
         }
 

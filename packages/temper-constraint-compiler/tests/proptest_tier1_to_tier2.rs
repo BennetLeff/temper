@@ -7,7 +7,6 @@ use temper_constraint_compiler::ir_tier1::{
     Channel, ChannelTopology, ResolvedConstraint, ResolvedConstraintModel,
 };
 use temper_constraint_compiler::provenance::ProvenanceMap;
-use temper_constraint_compiler::type_lattice::NetClassMetadata;
 
 fn arb_channel_topology() -> impl Strategy<Value = ChannelTopology> {
     (1usize..5, 0.5f64..10.0f64, prop::sample::select(vec![
@@ -101,12 +100,10 @@ proptest! {
 
         if topology.is_empty() {
             prop_assert!(result.is_err(), "empty topology should produce error");
-        } else {
-            if let Ok(constraints) = result {
-                for c in &constraints {
-                    if let temper_rust_router_core::types::InternalConstraint::LayerRestriction { var_name, allowed: false, .. } = c {
-                        prop_assert!(!var_name.is_empty(), "LayerRestriction must have var_name");
-                    }
+        } else if let Ok(constraints) = result {
+            for c in &constraints {
+                if let temper_rust_router_core::types::InternalConstraint::LayerRestriction { var_name, allowed: false, .. } = c {
+                    prop_assert!(!var_name.is_empty(), "LayerRestriction must have var_name");
                 }
             }
         }

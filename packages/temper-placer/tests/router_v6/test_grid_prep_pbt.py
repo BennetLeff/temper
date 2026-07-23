@@ -10,7 +10,10 @@ from temper_placer.router_v6.grid_prep_stage import GridPrepStage, validate_grid
 
 
 @settings(max_examples=50, deadline=30000)
-@given(board_width=floats(min_value=10, max_value=500), board_height=floats(min_value=10, max_value=500))
+@given(
+    board_width=floats(min_value=10, max_value=500),
+    board_height=floats(min_value=10, max_value=500),
+)
 def test_grid_prep_dimensions(_board_width: float, _board_height: float):
     """GridPrepStage produces grids with matching dimensions."""
     stage = GridPrepStage()

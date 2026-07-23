@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any
 
 import numpy as np
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class OutputStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.core.state import PlacementState
         from temper_placer.io.kicad_writer import (
@@ -42,8 +41,13 @@ class OutputStage:
             ps = PlacementState.from_positions(np.array(deterministic_result.positions))  # type: ignore[union-attr]
 
         try:
-            write_result = export_placements(input_pcb_path, output_pcb_path, ps,
-                                             [c.ref for c in netlist.components], board.origin)
+            write_result = export_placements(
+                input_pcb_path,
+                output_pcb_path,
+                ps,
+                [c.ref for c in netlist.components],
+                board.origin,
+            )
             print(f"  Updated: {write_result.components_updated} components")
             add_bounding_boxes_to_pcb(output_pcb_path)
             add_silkscreen_labels(output_pcb_path)
@@ -66,7 +70,7 @@ class OutputStage:
         )
 
 
-def _compute_physics_metrics(state: Any) -> None:
+def _compute_physics_metrics(state: PipelineState) -> None:
     from temper_placer.core.state import PlacementState
     from temper_placer.metrics.physics import (
         PhysicsReport,
@@ -87,4 +91,6 @@ def _compute_physics_metrics(state: Any) -> None:
     power = {"Q1": 15.0, "Q2": 15.0, "U_BUCK": 2.0}
     thermal = measure_thermal(ps, state.netlist, state.board, power_dissipation=power)
     routability = measure_routability(ps, state.netlist, state.board)
-    state.physics_report = PhysicsReport(geometric=geo, emi=emi, thermal=thermal, routability=routability)
+    state.physics_report = PhysicsReport(
+        geometric=geo, emi=emi, thermal=thermal, routability=routability
+    )

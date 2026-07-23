@@ -13,7 +13,9 @@ use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
 use crate::rules::{clearance_between, violation, DrcCategory, DrcRule, Severity, Violation};
 
+#[derive(Default)]
 pub struct ClearanceCheck;
+
 impl ClearanceCheck {
     pub fn new() -> Self {
         Self

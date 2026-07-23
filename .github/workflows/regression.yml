@@ -1,10 +1,36 @@
 name: Regression Suite
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main, feat/**]
+    paths:
+      - 'packages/temper-placer/**'
+      - 'packages/temper-drc-rs/**'
+      - 'power_pcb_dataset/**'
+      - 'pcb/**'
+      - 'scripts/ci_closure_test.py'
+      - 'scripts/ci_check_drc.py'
+      - 'scripts/ci_regression.sh'
+      - 'scripts/check_regression.py'
+      - 'scripts/quarantine_report.py'
+      - '.github/workflows/regression.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'packages/temper-placer/**'
+      - 'packages/temper-drc-rs/**'
+      - 'power_pcb_dataset/**'
+      - 'pcb/**'
+      - 'scripts/ci_closure_test.py'
+      - 'scripts/ci_check_drc.py'
+      - 'scripts/ci_regression.sh'
+      - 'scripts/check_regression.py'
+      - 'scripts/quarantine_report.py'
+      - '.github/workflows/regression.yml'
 
 jobs:
   regression:
@@ -27,8 +53,20 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
       - name: Install dependencies
         run: uv sync --all-packages
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
 
       - name: Build electronics netlist
         run: make netlist
@@ -44,19 +82,19 @@ jobs:
 
       - name: Regression Suite
         run: uv run python -m temper_placer.regression.cli run-corpus --json
-        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8
+        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8 -- hard-fail after 2026-09-01
 
       - name: KiCad DRC truth gate
         run: uv run python scripts/ci_check_drc.py --backend kicad-cli
 
       - name: Closure Test
         run: uv run python3 scripts/ci_closure_test.py --pcb pcb/temper.kicad_pcb
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
 
       - name: Round-Trip Integrity Tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/test_round_trip_integrity.py -v --tb=short -m "slow or l4_regression" --timeout=600
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
@@ -64,24 +102,85 @@ jobs:
       - name: Metamorphic Oracle Tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/test_metamorphic_oracles.py -v --tb=short -m "slow or property" --timeout=600
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
 
       - name: CP-SAT Placer Tests
         working-directory: packages/temper-placer
-        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short
+        run: uv run pytest tests/placer/cp_sat/ tests/metrics/test_external_oracle.py tests/cli/test_cp_sat_flag.py -v --tb=short --ignore=tests/placer/cp_sat/test_zone_pour_production_measurement.py
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
 
       - name: Quarantine Report
         run: uv run python scripts/quarantine_report.py
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
 
       - name: Summary
         if: always()
         run: |
           echo "## Regression Suite Results" >> $GITHUB_STEP_SUMMARY
           echo "Regression suite, DRC ratchet, closure test, round-trip integrity, metamorphic oracles, and quarantine report executed." >> $GITHUB_STEP_SUMMARY
+
+  zone-pour-measurement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Install dependencies
+        run: uv sync --all-packages
+
+      - name: Cache netlist
+        uses: actions/cache@v4
+        with:
+          path: elec/build
+          key: netlist-${{ hashFiles('elec/src/**') }}
+
+      - name: Build electronics netlist
+        run: make netlist
+
+      - name: Install KiCad (for DRC)
+        run: |
+          sudo add-apt-repository -y ppa:kicad/kicad-8.0-releases
+          sudo apt-get update
+          sudo apt-get install -y kicad
+
+      - name: Verify KiCad CLI
+        run: kicad-cli --version
+
+      # Dedicated, isolated job: this test runs a full production-board
+      # route + zone-fill + DRC pass (U3, zone/pour plan 2026-07-20-002).
+      # Runs on its own fresh runner rather than appended to the main
+      # regression job, after three consecutive CI skips traced to the
+      # kicad-cli availability check firing late in that already
+      # 15-20+ minute job -- isolating it removes that resource-contention
+      # variable entirely rather than chasing timeout values further.
+      - name: Zone/Pour Production Measurement (U3)
+        working-directory: packages/temper-placer
+        run: uv run pytest tests/placer/cp_sat/test_zone_pour_production_measurement.py -v --tb=short -rs -s
+        env:
+          XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
+          JAX_PLATFORM_NAME: cpu

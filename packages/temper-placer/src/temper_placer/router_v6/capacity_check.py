@@ -155,8 +155,14 @@ def compute_capacity_demand_ratios(
         total_capacity = 0.0
         for _layer_name, (edt, mask, bounds) in edt_cache.items():
             total_capacity += _sum_capacity_in_bbox(
-                edt, mask, bounds, _EDT_CELL_SIZE,
-                min_x, max_x, min_y, max_y,
+                edt,
+                mask,
+                bounds,
+                _EDT_CELL_SIZE,
+                min_x,
+                max_x,
+                min_y,
+                max_y,
             )
 
         ratios[net_name] = total_capacity / demand

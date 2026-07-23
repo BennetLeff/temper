@@ -71,6 +71,7 @@ def traced(
         >>> with TracedLossContext() as ctx:
         ...     val = compute_overlap(pos) # Result is added to ctx automatically
     """
+
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -95,9 +96,9 @@ def traced(
             ctx = _active_traced_ctx.get()
             if ctx is not None:
                 ctx.add(result, trace)
-                return result # Return original result within context
+                return result  # Return original result within context
 
-            return result, trace # Return tuple standalone
+            return result, trace  # Return tuple standalone
 
         return wrapper
 
@@ -121,6 +122,7 @@ def traced_loss(
     Returns:
         Wrapped function returning (loss, trace) tuple
     """
+
     @wraps(loss_fn)
     def wrapper(*args, **kwargs):
         loss_value = loss_fn(*args, **kwargs)
@@ -135,9 +137,7 @@ def traced_loss(
     return wrapper
 
 
-def combine_traced_losses(
-    traced_results: list[tuple[Any, Trace]]
-) -> tuple[Any, Trace]:
+def combine_traced_losses(traced_results: list[tuple[Any, Trace]]) -> tuple[Any, Trace]:
     """Combine multiple (loss, trace) tuples into single result.
 
     Args:
@@ -174,17 +174,17 @@ def constraint_to_traced_loss(
         Traced loss function returning (loss, trace)
     """
     # Get subject from constraint
-    if hasattr(constraint, 'a'):
+    if hasattr(constraint, "a"):
         subject = constraint.a
-    elif hasattr(constraint, 'component'):
+    elif hasattr(constraint, "component"):
         subject = constraint.component
-    elif hasattr(constraint, 'components'):
+    elif hasattr(constraint, "components"):
         subject = constraint.components[0] if constraint.components else "unknown"
     else:
         subject = "unknown"
 
     # Get because from constraint
-    because = constraint.because if hasattr(constraint, 'because') else "constraint"
+    because = constraint.because if hasattr(constraint, "because") else "constraint"
 
     # Wrap loss function
     return traced_loss(
@@ -205,6 +205,7 @@ class TracedLossContext:
         ...
         >>> total_loss, combined_trace = ctx.result()
     """
+
     def __init__(self):
         self.losses = []
         self.traces = []

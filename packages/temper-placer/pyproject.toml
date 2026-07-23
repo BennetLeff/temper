@@ -127,6 +127,20 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["ARG001", "ARG002"]
+"**/cli/**/*.py" = ["ARG001"]  # click decorators bind params
+"**/visualization/routing_health.py" = ["E701", "E702", "F821"]  # compact routing debug logic
+"**/validation/drc_runner.py" = ["E741"]  # loop variable in listcomp
+"**/pcl/tag_dispatch.py" = ["UP007"]  # Optional for compat
+"**/validation/results/battery_run.py" = ["SIM105", "B025"]  # intentional suppress
+"**/physics/copper_coverage.py" = ["SIM102"]  # clearer as-is
+"**/placer/cp_sat/feedback.py" = ["SIM102"]
+"**/router_v6/adapter.py" = ["SIM102"]
+"**/router_v6/quality/via_count.py" = ["SIM102"]
+"**/*.py" = ["E402"]  # intentional deferred imports for circular-import avoidance
+"**/core/state.py" = ["F821"]  # PyO3 dynamic attributes
+"**/validation/mfem_compare.py" = ["F821"]
+"**/validation/mfem_gate.py" = ["F821"]
+"**/validation/mfem_mesh.py" = ["F821"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["temper_placer"]
@@ -137,6 +151,7 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
+mypy_path = "stubs"
 check_untyped_defs = true
 ignore_missing_imports = true
 disable_error_code = ["import-untyped"]

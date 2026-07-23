@@ -74,7 +74,9 @@ class AlwaysViolationsGate(Gate):
         from temper_placer.placer.cp_sat.feedback import ConstraintDelta
 
         return ConstraintDelta(
-            constraint=object(), reason="test delta", priority=1,
+            constraint=object(),
+            reason="test delta",
+            priority=1,
         )
 
 
@@ -185,7 +187,10 @@ class TestBuildBoardState:
         fake_board = object()
 
         state = loop._build_board_state(
-            fake_placement, fake_routing, fake_netlist, fake_board,
+            fake_placement,
+            fake_routing,
+            fake_netlist,
+            fake_board,
         )
         assert state.placement is fake_placement
         assert state.routing is fake_routing
@@ -196,7 +201,10 @@ class TestBuildBoardState:
         """BoardState handles routing=None gracefully."""
         loop = PlaceRouteLoop()
         state = loop._build_board_state(
-            object(), None, object(), object(),
+            object(),
+            None,
+            object(),
+            object(),
         )
         assert state.routing is None
         assert state.routed_pcb_path is None
@@ -335,16 +343,20 @@ class TestGateDrivenConvergence:
         """When all gates are green for STABILITY_ROUNDS, loop returns SUCCESS."""
         loop = PlaceRouteLoop(gates=[AlwaysCleanGate()])
 
-        with mock.patch(
-            "temper_placer.placer.cp_sat.encoder.solve_placement"
-        ) as mock_solve, mock.patch.object(
-            loop, "_route_placement"
-        ) as mock_route, mock.patch.object(
-            loop, "_solve_phase2"
-        ) as mock_phase2, mock.patch.object(
-            loop, "_detect_oscillation", return_value=False,
-        ), mock.patch.object(
-            loop, "_are_named_gates_clean", return_value=True,
+        with (
+            mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+            mock.patch.object(loop, "_route_placement") as mock_route,
+            mock.patch.object(loop, "_solve_phase2") as mock_phase2,
+            mock.patch.object(
+                loop,
+                "_detect_oscillation",
+                return_value=False,
+            ),
+            mock.patch.object(
+                loop,
+                "_are_named_gates_clean",
+                return_value=True,
+            ),
         ):
             cp_result = _make_cp_result()
 
@@ -361,14 +373,15 @@ class TestGateDrivenConvergence:
         """VIOLATIONS gate → deltas injected → loop continues."""
         loop = PlaceRouteLoop(gates=[AlwaysViolationsGate()])
 
-        with mock.patch(
-            "temper_placer.placer.cp_sat.encoder.solve_placement"
-        ) as mock_solve, mock.patch.object(
-            loop, "_route_placement"
-        ) as mock_route, mock.patch.object(
-            loop, "_solve_with_delta"
-        ) as mock_solve_delta, mock.patch.object(
-            loop, "_detect_oscillation", return_value=False,
+        with (
+            mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+            mock.patch.object(loop, "_route_placement") as mock_route,
+            mock.patch.object(loop, "_solve_with_delta") as mock_solve_delta,
+            mock.patch.object(
+                loop,
+                "_detect_oscillation",
+                return_value=False,
+            ),
         ):
             cp_result = _make_cp_result()
 
@@ -386,14 +399,15 @@ class TestGateDrivenConvergence:
         """When all gate deltas are UNSAT, loop exits with ALL_FEEDBACK_UNSAT."""
         loop = PlaceRouteLoop(gates=[AlwaysViolationsGate()])
 
-        with mock.patch(
-            "temper_placer.placer.cp_sat.encoder.solve_placement"
-        ) as mock_solve, mock.patch.object(
-            loop, "_route_placement"
-        ) as mock_route, mock.patch.object(
-            loop, "_solve_with_delta"
-        ) as mock_solve_delta, mock.patch.object(
-            loop, "_detect_oscillation", return_value=False,
+        with (
+            mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+            mock.patch.object(loop, "_route_placement") as mock_route,
+            mock.patch.object(loop, "_solve_with_delta") as mock_solve_delta,
+            mock.patch.object(
+                loop,
+                "_detect_oscillation",
+                return_value=False,
+            ),
         ):
             cp_result = _make_cp_result()
 
@@ -411,12 +425,14 @@ class TestGateDrivenConvergence:
         """UNMEASURED gate blocks convergence; loop exits with GATE_UNMEASURED."""
         loop = PlaceRouteLoop(gates=[AlwaysUnmeasuredGate()])
 
-        with mock.patch(
-            "temper_placer.placer.cp_sat.encoder.solve_placement"
-        ) as mock_solve, mock.patch.object(
-            loop, "_route_placement"
-        ) as mock_route, mock.patch.object(
-            loop, "_detect_oscillation", return_value=False,
+        with (
+            mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+            mock.patch.object(loop, "_route_placement") as mock_route,
+            mock.patch.object(
+                loop,
+                "_detect_oscillation",
+                return_value=False,
+            ),
         ):
             cp_result = _make_cp_result()
 
@@ -438,12 +454,14 @@ class TestBackwardCompat:
         """When gates=[], the old classifier-driven convergence is used."""
         loop = PlaceRouteLoop(gates=[])
 
-        with mock.patch(
-            "temper_placer.placer.cp_sat.encoder.solve_placement"
-        ) as mock_solve, mock.patch.object(
-            loop, "_route_placement"
-        ) as mock_route, mock.patch.object(
-            loop, "_detect_oscillation", return_value=False,
+        with (
+            mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+            mock.patch.object(loop, "_route_placement") as mock_route,
+            mock.patch.object(
+                loop,
+                "_detect_oscillation",
+                return_value=False,
+            ),
         ):
             cp_result = _make_cp_result()
 

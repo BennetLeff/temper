@@ -27,9 +27,7 @@ def _load_record(record_or_path: object) -> object:
         try:
             return json.loads(record_or_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            raise MeasurementRecordError(
-                f"Cannot read routing measurement record: {exc}"
-            ) from exc
+            raise MeasurementRecordError(f"Cannot read routing measurement record: {exc}") from exc
     return record_or_path
 
 
@@ -60,9 +58,7 @@ def validate_via_routing_measurement(record_or_path: object) -> dict[str, Any]:
         board = _require_mapping(boards[board_name], f"boards.{board_name}")
         completion = board.get("completion_rate")
         if not isinstance(completion, (int, float)) or completion != 1.0:
-            raise MeasurementRecordError(
-                f"boards.{board_name}.completion_rate must be exactly 1.0"
-            )
+            raise MeasurementRecordError(f"boards.{board_name}.completion_rate must be exactly 1.0")
         baseline_unconnected = board.get("baseline_unconnected_items")
         if (
             not isinstance(baseline_unconnected, int)
@@ -70,8 +66,7 @@ def validate_via_routing_measurement(record_or_path: object) -> dict[str, Any]:
             or baseline_unconnected < 0
         ):
             raise MeasurementRecordError(
-                f"boards.{board_name}.baseline_unconnected_items must be a "
-                "non-negative integer"
+                f"boards.{board_name}.baseline_unconnected_items must be a non-negative integer"
             )
         unconnected = board.get("unconnected_items")
         if not isinstance(unconnected, int) or isinstance(unconnected, bool) or unconnected < 0:
@@ -84,9 +79,7 @@ def validate_via_routing_measurement(record_or_path: object) -> dict[str, Any]:
                 f"the pre-U1 baseline ({baseline_unconnected})"
             )
         if board.get("contains_vias") is not True:
-            raise MeasurementRecordError(
-                f"boards.{board_name}.contains_vias must be true"
-            )
+            raise MeasurementRecordError(f"boards.{board_name}.contains_vias must be true")
         counts = _require_mapping(board.get("drc_counts"), f"boards.{board_name}.drc_counts")
         if any(
             not isinstance(count, int) or isinstance(count, bool) or count < 0

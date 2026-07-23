@@ -14,7 +14,9 @@ use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 use geo::Contains;
 
+#[derive(Default)]
 pub struct ZoneContainmentCheck;
+
 impl ZoneContainmentCheck {
     pub fn new() -> Self {
         Self

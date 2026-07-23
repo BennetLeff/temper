@@ -78,9 +78,7 @@ class TestScoreAt:
 class TestLoadBottleneckMap:
     """Coverage for the loader's preference order and miss behavior."""
 
-    def test_load_prefers_board_state_attribute(
-        self, tmp_path: Path
-    ) -> None:
+    def test_load_prefers_board_state_attribute(self, tmp_path: Path) -> None:
         map_a = _map(scores=tuple(0.2 for _ in range(16)))
         map_b = _map(scores=tuple(0.8 for _ in range(16)))
         sidecar = tmp_path / "placement.channels.json"

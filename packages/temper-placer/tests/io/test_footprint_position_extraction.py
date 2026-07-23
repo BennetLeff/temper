@@ -27,7 +27,8 @@ class TestFootprintPositionExtraction:
 
         # All components should have initial_position set (not (0,0) or None-like)
         components_with_positions = [
-            c for c in result.netlist.components
+            c
+            for c in result.netlist.components
             if c.initial_position and c.initial_position != (0, 0)
         ]
 
@@ -71,8 +72,9 @@ class TestFootprintPositionExtraction:
 
         # Check that components have rotation data
         components_with_rotation = [
-            c for c in result.netlist.components
-            if hasattr(c, 'initial_rotation') and c.initial_rotation is not None
+            c
+            for c in result.netlist.components
+            if hasattr(c, "initial_rotation") and c.initial_rotation is not None
         ]
 
         # All components should have rotation (even if 0)
@@ -89,13 +91,13 @@ class TestExtractFootprintPositionsHelper:
         from temper_placer.io.kicad_parser import extract_footprint_positions
 
         # Minimal KiCad PCB content with one footprint
-        content = '''(kicad_pcb (version 20211014)
+        content = """(kicad_pcb (version 20211014)
   (footprint "Package_SO:SOIC-8" (layer "F.Cu")
     (at 50.5 75.25 90)
     (property "Reference" "U1" (at 0 0 0) (layer "F.Fab"))
     (pad "1" smd rect (at -1.905 -0.975) (size 0.6 1.78) (layers "F.Cu" "F.Paste" "F.Mask"))
   )
-)'''
+)"""
 
         positions = extract_footprint_positions(content)
 
@@ -108,7 +110,7 @@ class TestExtractFootprintPositionsHelper:
         """Should extract positions for multiple footprints."""
         from temper_placer.io.kicad_parser import extract_footprint_positions
 
-        content = '''(kicad_pcb (version 20211014)
+        content = """(kicad_pcb (version 20211014)
   (footprint "Resistor_SMD:R_0603" (layer "F.Cu")
     (at 10 20)
     (property "Reference" "R1" (at 0 0 0) (layer "F.Fab"))
@@ -117,7 +119,7 @@ class TestExtractFootprintPositionsHelper:
     (at 30 40 180)
     (property "Reference" "R2" (at 0 0 0) (layer "F.Fab"))
   )
-)'''
+)"""
 
         positions = extract_footprint_positions(content)
 
@@ -125,4 +127,3 @@ class TestExtractFootprintPositionsHelper:
         assert positions["R1"]["x"] == pytest.approx(10, rel=0.01)
         assert positions["R1"]["y"] == pytest.approx(20, rel=0.01)
         assert positions["R2"]["rotation"] == pytest.approx(180, rel=0.01)
-

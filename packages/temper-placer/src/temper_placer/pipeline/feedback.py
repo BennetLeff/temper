@@ -42,6 +42,7 @@ class RoutingFeedbackLoss(LossFunction):
 
         # Apply Gaussian blur to create a smooth cost field for gradients
         from scipy.ndimage import gaussian_filter
+
         blurred_grid = gaussian_filter(heatmap.grid, sigma=sigma)
 
         # Pre-process grid for JAX
@@ -80,15 +81,13 @@ class RoutingFeedbackLoss(LossFunction):
 
         # Bi-linear interpolation for smooth gradients
         from scipy.ndimage import map_coordinates
-        congestion_values = map_coordinates(self.grid, coords, order=1, mode='nearest')
+
+        congestion_values = map_coordinates(self.grid, coords, order=1, mode="nearest")
 
         # Total loss is sum of congestion at all component centers
         total_loss = np.sum(congestion_values)
 
-        return LossResult(
-            value=total_loss,
-            breakdown={"routing_congestion": total_loss}
-        )
+        return LossResult(value=total_loss, breakdown={"routing_congestion": total_loss})
 
 
 class MomentumDampedRoutingFeedbackLoss:
@@ -139,7 +138,6 @@ class MomentumDampedRoutingFeedbackLoss:
         """Compute congestion loss from the EWMA-blended grid."""
         from scipy.ndimage import map_coordinates
 
-
         gx = (positions[:, 0] - self.origin[0]) / self.cell_size
         gy = (positions[:, 1] - self.origin[1]) / self.cell_size
         coords = (gx, gy)
@@ -150,9 +148,11 @@ class MomentumDampedRoutingFeedbackLoss:
             breakdown={"routing_congestion": total_loss},
         )
 
+
 @dataclass
 class FeedbackAdjustment:
     """A suggested adjustment to the design."""
+
     adjustment_type: AdjustmentType
     description: str
     target_ref: str | None = None
@@ -161,6 +161,7 @@ class FeedbackAdjustment:
 
 class FeedbackGenerator:
     """Generates adjustments from validation failures."""
+
     def __init__(self, state: PlacementState, netlist: Netlist, board: Board):
         self.state = state
         self.netlist = netlist
@@ -173,16 +174,19 @@ class FeedbackGenerator:
             # Pick the best fix
             if analysis.fixes:
                 best_fix = analysis.fixes[0]
-                adjustments.append(FeedbackAdjustment(
-                    adjustment_type=AdjustmentType(best_fix.target),
-                    description=best_fix.action,
-                    value=best_fix.expected_improvement
-                ))
+                adjustments.append(
+                    FeedbackAdjustment(
+                        adjustment_type=AdjustmentType(best_fix.target),
+                        description=best_fix.action,
+                        value=best_fix.expected_improvement,
+                    )
+                )
         return adjustments
 
 
 class AdjustmentApplier:
     """Applies adjustments to design state."""
+
     def apply(self, state: PipelineState, adjustments: list[FeedbackAdjustment]) -> PipelineState:
         """Apply adjustments to pipeline state."""
         for adj in adjustments:
@@ -218,12 +222,14 @@ def run_feedback_loop(state: PipelineState, config: FeedbackLoopConfig) -> Feedb
         # In a real run, this would be populated by ROUTING/POST-ROUTING phases
         failures = []
         if state.physics_report and state.physics_report.emi.power_loop_area_mm2 > 80.0:
-                failures.append(ValidationFailure(
+            failures.append(
+                ValidationFailure(
                     spec_name="loop_area_power",
                     actual_value=state.physics_report.emi.power_loop_area_mm2,
                     limit_value=80.0,
-                    margin=80.0 - state.physics_report.emi.power_loop_area_mm2
-                ))
+                    margin=80.0 - state.physics_report.emi.power_loop_area_mm2,
+                )
+            )
 
         if not failures:
             success = True
@@ -245,16 +251,18 @@ def run_feedback_loop(state: PipelineState, config: FeedbackLoopConfig) -> Feedb
 @dataclass
 class SuggestedFix:
     """Actionable fix for a validation failure."""
-    target: Literal['placement', 'routing', 'specification']
+
+    target: Literal["placement", "routing", "specification"]
     action: str
     expected_improvement: float
-    feasibility: Literal['easy', 'moderate', 'difficult', 'impossible'] = 'moderate'
+    feasibility: Literal["easy", "moderate", "difficult", "impossible"] = "moderate"
     side_effects: list[str] = field(default_factory=list)
 
 
 @dataclass
 class ValidationFailure:
     """A specific failure identified during validation."""
+
     spec_name: str
     actual_value: float
     limit_value: float
@@ -262,7 +270,7 @@ class ValidationFailure:
 
     # Root cause breakdown
     placement_contribution: float = 0.0  # % due to component positions
-    routing_contribution: float = 0.0    # % due to trace path
+    routing_contribution: float = 0.0  # % due to trace path
 
     # Actionable fixes
     fixes: list[SuggestedFix] = field(default_factory=list)
@@ -271,6 +279,7 @@ class ValidationFailure:
 @dataclass
 class RootCauseAnalysis:
     """Analysis of why a failure occurred and how to fix it."""
+
     failure: ValidationFailure
     placement_contribution: float
     routing_contribution: float
@@ -287,9 +296,9 @@ def analyze_root_cause(
     """
     Analyze a validation failure and suggest fixes.
     """
-    if failure.spec_name.startswith('loop_area'):
+    if failure.spec_name.startswith("loop_area"):
         return analyze_loop_failure(failure, state, netlist, board)
-    elif failure.spec_name.startswith('thermal'):
+    elif failure.spec_name.startswith("thermal"):
         return analyze_thermal_failure(failure, state, netlist, board)
     else:
         # Generic fallback
@@ -297,12 +306,14 @@ def analyze_root_cause(
             failure=failure,
             placement_contribution=50.0,
             routing_contribution=50.0,
-            fixes=[SuggestedFix(
-                target='specification',
-                action=f"Relax {failure.spec_name} limit",
-                expected_improvement=abs(failure.margin),
-                feasibility='moderate'
-            )]
+            fixes=[
+                SuggestedFix(
+                    target="specification",
+                    action=f"Relax {failure.spec_name} limit",
+                    expected_improvement=abs(failure.margin),
+                    feasibility="moderate",
+                )
+            ],
         )
 
 
@@ -353,47 +364,55 @@ def analyze_loop_failure(
     # placement_contribution: what % of actual area is accounted for by the ideal placement?
     # High % means components are just too far apart.
     # Low % means routing detours are the main problem.
-    placement_contrib = min(100.0, (min_placement_area / actual_area * 100.0)) if actual_area > 0 else 0.0
+    placement_contrib = (
+        min(100.0, (min_placement_area / actual_area * 100.0)) if actual_area > 0 else 0.0
+    )
     routing_contrib = 100.0 - placement_contrib
 
     fixes = []
 
     # If placement is major contributor (>= 50%)
     if placement_contrib >= 50:
-        fixes.append(SuggestedFix(
-            target='placement',
-            action="Decrease component spacing in critical loop",
-            expected_improvement=(min_placement_area - failure.limit_value) * 0.8,
-            feasibility='moderate',
-            side_effects=["May increase thermal coupling"]
-        ))
+        fixes.append(
+            SuggestedFix(
+                target="placement",
+                action="Decrease component spacing in critical loop",
+                expected_improvement=(min_placement_area - failure.limit_value) * 0.8,
+                feasibility="moderate",
+                side_effects=["May increase thermal coupling"],
+            )
+        )
 
     # If routing is major contributor (> 30%)
     if routing_contrib > 30:
-        fixes.append(SuggestedFix(
-            target='routing',
-            action="Reroute to reduce detour",
-            expected_improvement=(actual_area - min_placement_area) * 0.7,
-            feasibility='moderate',
-            side_effects=["May require more vias"]
-        ))
+        fixes.append(
+            SuggestedFix(
+                target="routing",
+                action="Reroute to reduce detour",
+                expected_improvement=(actual_area - min_placement_area) * 0.7,
+                feasibility="moderate",
+                side_effects=["May require more vias"],
+            )
+        )
 
     # Specification relaxation if best achievable is still above limit
-    best_achievable = min_placement_area * 1.1 # 10% routing overhead
+    best_achievable = min_placement_area * 1.1  # 10% routing overhead
     if best_achievable > failure.limit_value:
-        fixes.append(SuggestedFix(
-            target='specification',
-            action=f"Relax {failure.spec_name} limit to {best_achievable:.1f}mm²",
-            expected_improvement=failure.actual_value - failure.limit_value,
-            feasibility='difficult',
-            side_effects=["Verify against regulatory limits"]
-        ))
+        fixes.append(
+            SuggestedFix(
+                target="specification",
+                action=f"Relax {failure.spec_name} limit to {best_achievable:.1f}mm²",
+                expected_improvement=failure.actual_value - failure.limit_value,
+                feasibility="difficult",
+                side_effects=["Verify against regulatory limits"],
+            )
+        )
 
     return RootCauseAnalysis(
         failure=failure,
         placement_contribution=placement_contrib,
         routing_contribution=routing_contrib,
-        fixes=sorted(fixes, key=lambda f: f.expected_improvement, reverse=True)
+        fixes=sorted(fixes, key=lambda f: f.expected_improvement, reverse=True),
     )
 
 
@@ -409,25 +428,29 @@ def analyze_thermal_failure(
 
     fixes = []
 
-    fixes.append(SuggestedFix(
-        target='placement',
-        action="Move high-power components closer to board edge",
-        expected_improvement=abs(failure.margin) * 0.7,
-        feasibility='easy',
-        side_effects=["May increase wirelength"]
-    ))
+    fixes.append(
+        SuggestedFix(
+            target="placement",
+            action="Move high-power components closer to board edge",
+            expected_improvement=abs(failure.margin) * 0.7,
+            feasibility="easy",
+            side_effects=["May increase wirelength"],
+        )
+    )
 
-    fixes.append(SuggestedFix(
-        target='routing',
-        action="Increase trace width for high-current paths",
-        expected_improvement=5.0, # Celsius estimate
-        feasibility='moderate',
-        side_effects=["Reduces routing channel capacity"]
-    ))
+    fixes.append(
+        SuggestedFix(
+            target="routing",
+            action="Increase trace width for high-current paths",
+            expected_improvement=5.0,  # Celsius estimate
+            feasibility="moderate",
+            side_effects=["Reduces routing channel capacity"],
+        )
+    )
 
     return RootCauseAnalysis(
         failure=failure,
         placement_contribution=placement_contrib,
         routing_contribution=routing_contrib,
-        fixes=fixes
+        fixes=fixes,
     )

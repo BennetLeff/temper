@@ -15,7 +15,9 @@ from temper_placer.router_v6.layer_capacity import LayerCapacity
     estimated_traces=st.integers(min_value=0, max_value=100000),
 )
 @settings(max_examples=100, deadline=30000)
-def test_layer_capacity_free_leq_total(total_cells, free_cells, blocked_cells, min_width, avg_width, estimated_traces):
+def test_layer_capacity_free_leq_total(
+    total_cells, free_cells, blocked_cells, min_width, avg_width, estimated_traces
+):
     """free_cells <= total_cells always."""
     lc = LayerCapacity(
         layer_name="test",

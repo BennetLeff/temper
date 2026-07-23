@@ -88,8 +88,7 @@ def test_composite_total_matches_sub_report_sum(results: RoutingResults) -> None
     )
 
     assert report.total_violations == expected, (
-        f"Composite total mismatch: "
-        f"computed={expected}, reported={report.total_violations}"
+        f"Composite total mismatch: computed={expected}, reported={report.total_violations}"
     )
 
 
@@ -110,8 +109,7 @@ def test_critical_violations_match_documented_sum(results: RoutingResults) -> No
     )
 
     assert report.critical_violations == expected, (
-        f"Critical violations mismatch: "
-        f"computed={expected}, reported={report.critical_violations}"
+        f"Critical violations mismatch: computed={expected}, reported={report.critical_violations}"
     )
 
 
@@ -134,9 +132,7 @@ def test_empty_input_composite_consistency() -> None:
     assert report.clearance.violation_count == 0
 
     # All layers unbalanced (0 % copper)
-    assert report.copper_balance.unbalanced_layer_count == len(
-        report.copper_balance.layer_balances
-    )
+    assert report.copper_balance.unbalanced_layer_count == len(report.copper_balance.layer_balances)
 
     # Teardrop / thermal sentinels fire (zero features → failure)
     assert report.teardrops.teardrop_count == 0

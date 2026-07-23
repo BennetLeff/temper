@@ -49,8 +49,6 @@ def test_teardrop_count_partition(results: RoutingResults) -> None:
 # ---------------------------------------------------------------------------
 
 
-
-
 @given(results=realistic_routing_results())
 @_SETTINGS
 def test_teardrop_datum_near_via(results: RoutingResults) -> None:

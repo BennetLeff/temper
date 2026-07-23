@@ -46,9 +46,7 @@ class TestTraceContainment:
     @pytest.mark.property
     @given(results=routing_results(board_width=BOARD_W, board_height=BOARD_H))
     @settings(max_examples=100, deadline=30000)
-    def test_all_path_coordinates_within_board_bounds(
-        self, results: RoutingResults
-    ) -> None:
+    def test_all_path_coordinates_within_board_bounds(self, results: RoutingResults) -> None:
         """I.1 + I.2: Every coordinate in every path is within [0, BOARD_W] x [0, BOARD_H]."""
         for net_name, route in results.compiled_routes.items():
             for i, (x, y) in enumerate(route.path.coordinates):
@@ -77,18 +75,14 @@ class TestViaValidity:
     @pytest.mark.property
     @given(results=routing_results(board_width=BOARD_W, board_height=BOARD_H))
     @settings(max_examples=100, deadline=30000)
-    def test_via_dimensions_positive_and_consistent(
-        self, results: RoutingResults
-    ) -> None:
+    def test_via_dimensions_positive_and_consistent(self, results: RoutingResults) -> None:
         """II.1 + II.2: Every via has positive dimensions and diameter >= drill."""
         for net_name, route in results.compiled_routes.items():
             for vi, via in enumerate(route.vias):
                 assert via.diameter > 0.0, (
                     f"{net_name} via[{vi}] diameter={via.diameter} is not positive"
                 )
-                assert via.drill > 0.0, (
-                    f"{net_name} via[{vi}] drill={via.drill} is not positive"
-                )
+                assert via.drill > 0.0, f"{net_name} via[{vi}] drill={via.drill} is not positive"
                 assert via.diameter >= via.drill, (
                     f"{net_name} via[{vi}] diameter={via.diameter} < drill={via.drill}"
                 )
@@ -96,19 +90,13 @@ class TestViaValidity:
     @pytest.mark.property
     @given(results=routing_results(board_width=BOARD_W, board_height=BOARD_H))
     @settings(max_examples=100, deadline=30000)
-    def test_via_positions_within_board_bounds(
-        self, results: RoutingResults
-    ) -> None:
+    def test_via_positions_within_board_bounds(self, results: RoutingResults) -> None:
         """II.3: Every via position is within [0, BOARD_W] x [0, BOARD_H]."""
         for net_name, route in results.compiled_routes.items():
             for vi, via in enumerate(route.vias):
                 x, y = via.position
-                assert 0.0 <= x <= BOARD_W, (
-                    f"{net_name} via[{vi}] x={x} outside [0, {BOARD_W}]"
-                )
-                assert 0.0 <= y <= BOARD_H, (
-                    f"{net_name} via[{vi}] y={y} outside [0, {BOARD_H}]"
-                )
+                assert 0.0 <= x <= BOARD_W, f"{net_name} via[{vi}] x={x} outside [0, {BOARD_W}]"
+                assert 0.0 <= y <= BOARD_H, f"{net_name} via[{vi}] y={y} outside [0, {BOARD_H}]"
 
 
 # =========================================================================
@@ -132,9 +120,7 @@ class TestTraceWidthPositivity:
     def test_trace_widths_are_positive(self, results: RoutingResults) -> None:
         """III.1: Every compiled route has width_mm > 0."""
         for net_name, route in results.compiled_routes.items():
-            assert route.width_mm > 0.0, (
-                f"{net_name} width_mm={route.width_mm} is not positive"
-            )
+            assert route.width_mm > 0.0, f"{net_name} width_mm={route.width_mm} is not positive"
 
     @pytest.mark.property
     @given(results=routing_results(board_width=BOARD_W, board_height=BOARD_H))
@@ -169,9 +155,7 @@ class TestPathLengthConsistency:
     @pytest.mark.property
     @given(results=routing_results(board_width=BOARD_W, board_height=BOARD_H))
     @settings(max_examples=100, deadline=30000)
-    def test_path_length_matches_coordinate_distances(
-        self, results: RoutingResults
-    ) -> None:
+    def test_path_length_matches_coordinate_distances(self, results: RoutingResults) -> None:
         """IV.1 + IV.2: path_length equals sum of Euclidean segment distances."""
         for net_name, route in results.compiled_routes.items():
             coords = route.path.coordinates

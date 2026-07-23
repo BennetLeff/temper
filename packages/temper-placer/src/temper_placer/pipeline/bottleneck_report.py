@@ -128,9 +128,7 @@ class BottleneckReport:
             "schema_version": self.schema_version,
             "failed_nets": [fn.to_dict() for fn in self.failed_nets],
             "routed_nets": self.routed_nets,
-            "congestion_heatmaps": {
-                k: v.to_dict() for k, v in self.congestion_heatmaps.items()
-            },
+            "congestion_heatmaps": {k: v.to_dict() for k, v in self.congestion_heatmaps.items()},
             "bottleneck_regions": [r.to_dict() for r in self.bottleneck_regions],
             "routability_ratio": self.routability_ratio,
             "total_nets": self.total_nets,

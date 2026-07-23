@@ -74,14 +74,18 @@ EMPTY_RESULTS = RoutingResults(compiled_routes={}, failed_nets=[])
 def test_empty_clearance() -> None:
     """Empty routing → zero clearance violations."""
     report = verify_clearance(EMPTY_RESULTS)
-    assert report.violation_count == 0, f"Got {report.violation_count} clearance violations on empty input"
+    assert report.violation_count == 0, (
+        f"Got {report.violation_count} clearance violations on empty input"
+    )
     assert report.total_checks == 0
 
 
 def test_empty_creepage() -> None:
     """Empty routing → zero creepage violations."""
     report = verify_creepage(EMPTY_RESULTS)
-    assert report.violation_count == 0, f"Got {report.violation_count} creepage violations on empty input"
+    assert report.violation_count == 0, (
+        f"Got {report.violation_count} creepage violations on empty input"
+    )
 
 
 def test_empty_acid_traps() -> None:
@@ -93,7 +97,9 @@ def test_empty_acid_traps() -> None:
 def test_empty_annular_rings() -> None:
     """Empty routing → zero annular ring violations."""
     report = check_annular_rings(EMPTY_RESULTS)
-    assert report.violation_count == 0, f"Got {report.violation_count} annular ring violations on empty input"
+    assert report.violation_count == 0, (
+        f"Got {report.violation_count} annular ring violations on empty input"
+    )
     assert report.total_vias_checked == 0
 
 
@@ -133,7 +139,13 @@ def test_empty_manufacturing_report() -> None:
     teardrops = insert_teardrops(EMPTY_RESULTS)
 
     report = generate_manufacturing_report(
-        acid, annular, teardrops, thermal, copper, creepage, clearance,
+        acid,
+        annular,
+        teardrops,
+        thermal,
+        copper,
+        creepage,
+        clearance,
     )
 
     assert report.total_violations >= 0
@@ -145,6 +157,7 @@ def test_empty_manufacturing_report() -> None:
 # ---------------------------------------------------------------------------
 # Cross-validator interaction: all 8 validators on same geometry
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.dependency(depends=["induction-base"])
 def test_all_validators_same_empty_geometry() -> None:
@@ -164,14 +177,20 @@ def test_all_validators_same_empty_geometry() -> None:
     teardrops = insert_teardrops(rr)
 
     report = generate_manufacturing_report(
-        acid, annular, teardrops, thermal, copper, creepage, clearance,
+        acid,
+        annular,
+        teardrops,
+        thermal,
+        copper,
+        creepage,
+        clearance,
     )
 
     assert clearance.violation_count == 0  # Clear: 0 violations
-    assert creepage.violation_count == 0   # Creepage: 0 violations
-    assert acid.trap_count == 0            # Acid trap: 0 traps
-    assert annular.violation_count == 0    # Annular: 0 violations
-    assert teardrops.teardrop_count == 0   # Teardrop: 0 teardrops
-    assert thermal.relief_count == 0       # Thermal: 0 reliefs
+    assert creepage.violation_count == 0  # Creepage: 0 violations
+    assert acid.trap_count == 0  # Acid trap: 0 traps
+    assert annular.violation_count == 0  # Annular: 0 violations
+    assert teardrops.teardrop_count == 0  # Teardrop: 0 teardrops
+    assert thermal.relief_count == 0  # Thermal: 0 reliefs
     assert copper.balanced_layer_count >= 0
     assert isinstance(report.total_violations, int)

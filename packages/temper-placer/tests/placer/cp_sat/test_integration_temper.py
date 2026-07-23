@@ -56,17 +56,17 @@ TEMPER_ZONES: dict[str, tuple[float, float, float, float]] = {
 TEMPER_COMPONENTS: dict[str, tuple[int, int]] = {
     "Q1": (150, 100),  # IGBT high-side
     "Q2": (150, 100),  # IGBT low-side
-    "D1": (50, 80),    # Diode
-    "C_BUS1": (100, 150), # DC-link bus capacitor 1
-    "C_BUS2": (100, 150), # DC-link bus capacitor 2
+    "D1": (50, 80),  # Diode
+    "C_BUS1": (100, 150),  # DC-link bus capacitor 1
+    "C_BUS2": (100, 150),  # DC-link bus capacitor 2
     "C_MCU_1": (60, 30),  # Decoupling cap
     "C_MCU_2": (60, 30),
     "C_MCU_3": (60, 30),
     "C_MCU_4": (60, 30),
     "U_GATE": (150, 100),  # Gate driver
-    "U_MCU": (250, 250),       # MCU
-    "J_AC_IN": (200, 80),         # AC connector
-    "J_COIL": (200, 80),         # Coil connector
+    "U_MCU": (250, 250),  # MCU
+    "J_AC_IN": (200, 80),  # AC connector
+    "J_COIL": (200, 80),  # Coil connector
 }
 
 # Polarized parts on temper board (electrolytic caps, diodes, ICs).
@@ -76,8 +76,9 @@ TEMPER_COMPONENTS: dict[str, tuple[int, int]] = {
 POLARIZED_REFS: set[str] = {"D1", "U_MCU", "U_GATE"}
 
 
-PCL_FIXTURE = Path(__file__).parent.parent.parent.parent / \
-    "configs" / "pcl" / "temper_induction.yaml"
+PCL_FIXTURE = (
+    Path(__file__).parent.parent.parent.parent / "configs" / "pcl" / "temper_induction.yaml"
+)
 
 
 class TestTemperIntegration:
@@ -184,16 +185,31 @@ class TestTemperIntegration:
         )
 
         constraints: list = [
-            SeparatedConstraint("Q1", "Q2", min_distance_mm=3.0, tier=ConstraintTier.HARD,
-                                because="HV isolation requirement for half-bridge pair"),
-            AdjacentConstraint("Q1", "Q2", max_distance_mm=15.0, tier=ConstraintTier.HARD,
-                               because="Minimize commutation loop area in half bridge"),
-            AlignedConstraint(["C1", "C2"], axis=Axis.X, tolerance_mm=1.0,
-                              tier=ConstraintTier.SOFT,
-                              because="Align decoupling capacitors for routing consistency"),
+            SeparatedConstraint(
+                "Q1",
+                "Q2",
+                min_distance_mm=3.0,
+                tier=ConstraintTier.HARD,
+                because="HV isolation requirement for half-bridge pair",
+            ),
+            AdjacentConstraint(
+                "Q1",
+                "Q2",
+                max_distance_mm=15.0,
+                tier=ConstraintTier.HARD,
+                because="Minimize commutation loop area in half bridge",
+            ),
+            AlignedConstraint(
+                ["C1", "C2"],
+                axis=Axis.X,
+                tolerance_mm=1.0,
+                tier=ConstraintTier.SOFT,
+                because="Align decoupling capacitors for routing consistency",
+            ),
         ]
-        ctx = EncoderContext(board_w_mm=20.0, board_h_mm=20.0,
-                             board_x_max_units=2000, board_y_max_units=2000)
+        ctx = EncoderContext(
+            board_w_mm=20.0, board_h_mm=20.0, board_x_max_units=2000, board_y_max_units=2000
+        )
         encode_constraints(constraints, model, ctx)
         sol = model.solve(time_limit_s=2.0)
         assert sol.feasible
@@ -201,8 +217,11 @@ class TestTemperIntegration:
         positions_mm = {r: (x / 100.0, y / 100.0) for r, (x, y) in sol.positions.items()}
         sizes_mm = {r: (sx / 100.0, sy / 100.0) for r, (sx, sy) in sol.sizes.items()}
         placement = Placement(
-            positions_mm=positions_mm, sizes_mm=sizes_mm,
-            rotations=sol.rotations, board_w_mm=20.0, board_h_mm=20.0,
+            positions_mm=positions_mm,
+            sizes_mm=sizes_mm,
+            rotations=sol.rotations,
+            board_w_mm=20.0,
+            board_h_mm=20.0,
         )
         auditor = PlacementAuditor(placement)
         report = auditor.audit(constraints)

@@ -39,7 +39,6 @@ class GridPrepStage(Stage):
 
         import numpy as np
 
-
         grids: dict[str, OccupancyGrid] = {}
         for layer in ("F.Cu", "B.Cu"):
             grid_array = np.zeros((height_cells, width_cells), dtype=np.int8)
@@ -60,21 +59,25 @@ def validate_grid_prep(state: BoardState) -> list[StageDRCFailure]:
     """Validate grid prep invariants."""
     failures: list[StageDRCFailure] = []
     if state.parsed_grids is None:
-        failures.append(StageDRCFailure(
-            field="parsed_grids",
-            value=None,
-            reason="Grids not computed",
-            stage="GridPrep",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="parsed_grids",
+                value=None,
+                reason="Grids not computed",
+                stage="GridPrep",
+            )
+        )
         return failures
 
     for layer in ("F.Cu", "B.Cu"):
         if layer not in state.parsed_grids:
-            failures.append(StageDRCFailure(
-                field="parsed_grids",
-                value=layer,
-                reason=f"Missing grid for layer {layer}",
-                stage="GridPrep",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="parsed_grids",
+                    value=layer,
+                    reason=f"Missing grid for layer {layer}",
+                    stage="GridPrep",
+                )
+            )
 
     return failures

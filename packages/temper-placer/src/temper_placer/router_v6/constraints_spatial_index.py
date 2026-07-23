@@ -34,10 +34,7 @@ class Track:
 
     def is_diff_pair_with(self, other: Track) -> bool:
         """Check if this track and another are companions in a differential pair."""
-        return (
-            self.diff_pair_companion is not None
-            and self.diff_pair_companion == other.net
-        )
+        return self.diff_pair_companion is not None and self.diff_pair_companion == other.net
 
     def to_segment(self) -> LineSegment:
         """Convert to LineSegment for geometric operations."""
@@ -103,7 +100,7 @@ class Pad:
         """Bounding radius for broad-phase checks."""
         # Use circumscribed circle radius for safety
         w, h = self.size
-        return (w**2 + h**2)**0.5 / 2
+        return (w**2 + h**2) ** 0.5 / 2
 
 
 @dataclass
@@ -186,9 +183,7 @@ class PCBGeometry:
         """
         # Track index using midpoints
         if self.tracks:
-            midpoints = np.array(
-                [[t.midpoint().x, t.midpoint().y] for t in self.tracks]
-            )
+            midpoints = np.array([[t.midpoint().x, t.midpoint().y] for t in self.tracks])
             self._track_midpoints = midpoints
             self._track_index = cKDTree(midpoints)
         else:
@@ -257,9 +252,7 @@ class PCBGeometry:
         indices = self._via_index.query_ball_point([point.x, point.y], radius)
         return [self.vias[i] for i in indices]
 
-    def query_pads_near(
-        self, point: Point, radius: float, layer: int | None = None
-    ) -> list[Pad]:
+    def query_pads_near(self, point: Point, radius: float, layer: int | None = None) -> list[Pad]:
         """Find pads within radius of a point."""
         if self._pad_index is None:
             if self.pads:
@@ -286,6 +279,8 @@ class PCBGeometry:
         self._track_index = None
         self._via_index = None
         self._pad_index = None
+
+
 def merge_collinear_tracks(tracks: list[Track]) -> list[Track]:
     """Merge collinear and connected tracks to reduce geometry count.
 
@@ -359,11 +354,20 @@ def merge_collinear_tracks(tracks: list[Track]) -> list[Track]:
             current = horizontal[0]
             for next_t in horizontal[1:]:
                 # Check if same Y line and overlaps/touches
-                if (abs(current.start.y - next_t.start.y) < 1e-9 and
-                    abs(current.end.x - next_t.start.x) < 1e-4 and # connected
-                    abs(current.width - next_t.width) < 1e-9):
+                if (
+                    abs(current.start.y - next_t.start.y) < 1e-9
+                    and abs(current.end.x - next_t.start.x) < 1e-4  # connected
+                    and abs(current.width - next_t.width) < 1e-9
+                ):
                     # Merge
-                    current = Track(current.start, next_t.end, current.width, current.net, current.layer, current.id)
+                    current = Track(
+                        current.start,
+                        next_t.end,
+                        current.width,
+                        current.net,
+                        current.layer,
+                        current.id,
+                    )
                 else:
                     merged_all.append(current)
                     current = next_t
@@ -375,11 +379,20 @@ def merge_collinear_tracks(tracks: list[Track]) -> list[Track]:
             current = vertical[0]
             for next_t in vertical[1:]:
                 # Check if same X line and overlaps/touches
-                if (abs(current.start.x - next_t.start.x) < 1e-9 and
-                    abs(current.end.y - next_t.start.y) < 1e-4 and
-                    abs(current.width - next_t.width) < 1e-9):
+                if (
+                    abs(current.start.x - next_t.start.x) < 1e-9
+                    and abs(current.end.y - next_t.start.y) < 1e-4
+                    and abs(current.width - next_t.width) < 1e-9
+                ):
                     # Merge
-                    current = Track(current.start, next_t.end, current.width, current.net, current.layer, current.id)
+                    current = Track(
+                        current.start,
+                        next_t.end,
+                        current.width,
+                        current.net,
+                        current.layer,
+                        current.id,
+                    )
                 else:
                     merged_all.append(current)
                     current = next_t

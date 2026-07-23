@@ -6,8 +6,8 @@ of legitimately-permitted root-level files. The test shells out to
 file matches a forbidden category outside its allowlist.
 """
 
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 

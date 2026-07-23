@@ -64,7 +64,7 @@ class TestRotationBasics:
             ref = f"R{i:02d}"
             w, h = (60 + i, 30 + i) if i % 2 == 0 else (80, 40)
             model.add_component(ref, 0, 0, w, h)
-            polarized = (i % 3 == 0)
+            polarized = i % 3 == 0
             model.add_rotation(ref, is_polarized=polarized)
             refs.append(ref)
         model.add_no_overlap_2d(refs)

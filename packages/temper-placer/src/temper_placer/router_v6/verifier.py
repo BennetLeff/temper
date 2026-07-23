@@ -185,7 +185,7 @@ class RoutingVerifier:
             return result
 
         # Level 3: Maze routing verification
-        raise NotImplementedError('route_nets removed (old-pipeline retirement)')
+        raise NotImplementedError("route_nets removed (old-pipeline retirement)")
 
     def to_placement_feedback(
         self,

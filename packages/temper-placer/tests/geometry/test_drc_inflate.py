@@ -1,4 +1,5 @@
 """Unit tests for DRC inflation geometry utilities."""
+
 import numpy as np
 import pytest
 
@@ -13,6 +14,7 @@ from temper_placer.geometry.drc_inflate import (
 def _has_shapely():
     try:
         import shapely  # noqa: F401  # side-effect import for availability check
+
         return True
     except ImportError:
         return False
@@ -95,11 +97,14 @@ class TestComputeDRCProxyScore:
         n = 3
         hw = np.ones(n, dtype=np.float32) * 3.0
         hh = np.ones(n, dtype=np.float32) * 3.0
-        positions = np.array([
-            [0.0, 0.0],
-            [100.0, 0.0],
-            [200.0, 0.0],
-        ], dtype=np.float32)
+        positions = np.array(
+            [
+                [0.0, 0.0],
+                [100.0, 0.0],
+                [200.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
         score = compute_drc_proxy_score(positions, hw, hh, clearance_mm=0.2)
         assert float(score) < 1e-3
 
@@ -107,10 +112,13 @@ class TestComputeDRCProxyScore:
         """Overlapping inflated components produce positive score."""
         hw = np.array([5.0, 5.0], dtype=np.float32)
         hh = np.array([5.0, 5.0], dtype=np.float32)
-        positions = np.array([
-            [0.0, 0.0],
-            [2.0, 0.0],
-        ], dtype=np.float32)
+        positions = np.array(
+            [
+                [0.0, 0.0],
+                [2.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
         score = compute_drc_proxy_score(positions, hw, hh, clearance_mm=0.2)
         assert float(score) > 0.0
 

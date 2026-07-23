@@ -45,8 +45,7 @@ class FieldResult:
         if self.gate_result.status is GateStatus.UNMEASURED:
             if self.field is not None:
                 raise ValueError(
-                    "UNMEASURED FieldResult must have field=None "
-                    "(no silent zero/fallback grid)"
+                    "UNMEASURED FieldResult must have field=None (no silent zero/fallback grid)"
                 )
         else:
             if self.field is None:

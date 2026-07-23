@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
 
-from temper_placer.fields.field import CostField
 from temper_placer.placer.cp_sat.gates import GateStatus
 from temper_placer.validation.mfem_gate import MFEMCorroborationGate
 
@@ -48,6 +46,7 @@ class MockBoard:
     class _Stackup:
         thickness = 1.6
         layers = []
+
     layer_stackup = _Stackup()
 
 

@@ -151,7 +151,10 @@ class TestExternalToolChecks:
 
     def test_check_external_tools_combines_results(self):
         """Test combined tool check."""
-        with patch("temper_placer.validation.preflight.find_kicad_cli", return_value=None), patch("shutil.which", return_value="/opt/homebrew/bin/ngspice"):
+        with (
+            patch("temper_placer.validation.preflight.find_kicad_cli", return_value=None),
+            patch("shutil.which", return_value="/opt/homebrew/bin/ngspice"),
+        ):
             result = check_external_tools()
 
         assert result.passed is True
@@ -449,9 +452,13 @@ class TestCombinedPreflightChecks:
 
     def test_run_all_checks(self, simple_netlist, simple_constraints):
         """Test running all preflight checks."""
-        with patch(
-            "temper_placer.validation.preflight.find_kicad_cli", return_value="/usr/bin/kicad-cli"
-        ), patch("shutil.which", return_value="/usr/bin/ngspice"):
+        with (
+            patch(
+                "temper_placer.validation.preflight.find_kicad_cli",
+                return_value="/usr/bin/kicad-cli",
+            ),
+            patch("shutil.which", return_value="/usr/bin/ngspice"),
+        ):
             result = run_all_preflight_checks(
                 netlist=simple_netlist,
                 constraints=simple_constraints,
@@ -487,9 +494,13 @@ class TestCombinedPreflightChecks:
 
     def test_run_without_constraints(self, simple_netlist):
         """Test running without constraints only checks tools."""
-        with patch(
-            "temper_placer.validation.preflight.find_kicad_cli", return_value="/usr/bin/kicad-cli"
-        ), patch("shutil.which", return_value="/usr/bin/ngspice"):
+        with (
+            patch(
+                "temper_placer.validation.preflight.find_kicad_cli",
+                return_value="/usr/bin/kicad-cli",
+            ),
+            patch("shutil.which", return_value="/usr/bin/ngspice"),
+        ):
             result = run_all_preflight_checks(
                 netlist=simple_netlist,
                 constraints=None,

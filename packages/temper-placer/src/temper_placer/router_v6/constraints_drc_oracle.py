@@ -129,9 +129,7 @@ class DRCOracle:
     ] = field(default_factory=dict)
     # @req(2026-06-23-007, R3): Maps each pad's `id` to its owning
     # component reference. May be a dict or a callable.
-    pin_owner: Mapping[str, str] | Callable[[str], str | None] = field(
-        default_factory=dict
-    )
+    pin_owner: Mapping[str, str] | Callable[[str], str | None] = field(default_factory=dict)
 
     # ------------------------------------------------------------------
     # Clearance credits (R3)
@@ -226,7 +224,14 @@ class DRCOracle:
         pin_b = pad_b.id.rsplit("-", 1)[-1]
         if not pin_a or not pin_b:
             return None
-        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy, axis) in self.clearance_credits.items():
+        for (comp_ref, c_lv, c_hv), (
+            effective,
+            hw,
+            hl,
+            smx,
+            smy,
+            axis,
+        ) in self.clearance_credits.items():
             if comp_ref != owner_a:
                 continue
             if {pin_a, pin_b} != {c_lv, c_hv}:
@@ -282,7 +287,14 @@ class DRCOracle:
         pin = pad.id.rsplit("-", 1)[-1]
         if not pin:
             return None
-        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy, axis) in self.clearance_credits.items():
+        for (comp_ref, c_lv, c_hv), (
+            effective,
+            hw,
+            hl,
+            smx,
+            smy,
+            axis,
+        ) in self.clearance_credits.items():
             if comp_ref != owner:
                 continue
             if pin not in (c_lv, c_hv):
@@ -290,12 +302,10 @@ class DRCOracle:
             half_w_band = hw + 0.5
             px, py = pad.center.x, pad.center.y
             inside_x_axis = (
-                smx - half_w_band <= px <= smx + half_w_band
-                and smy - hl <= py <= smy + hl
+                smx - half_w_band <= px <= smx + half_w_band and smy - hl <= py <= smy + hl
             )
             inside_y_axis = (
-                smx - hl <= px <= smx + hl
-                and smy - half_w_band <= py <= smy + half_w_band
+                smx - hl <= px <= smx + hl and smy - half_w_band <= py <= smy + half_w_band
             )
             if axis == "x":
                 if inside_x_axis:

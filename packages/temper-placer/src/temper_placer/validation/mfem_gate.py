@@ -5,12 +5,9 @@ U4 of the external-MFEM corroboration plan.
 
 from __future__ import annotations
 
-import os
 import tempfile
 from typing import TYPE_CHECKING
 
-from temper_placer.fields.field import CostField
-from temper_placer.fields.result import FieldResult
 from temper_placer.placer.cp_sat.gates import (
     Gate,
     GateResult,
@@ -37,10 +34,10 @@ class MFEMCorroborationGate(Gate):
     def __init__(
         self,
         *,
-        fdm_config: "ThermalFDMConfig",
+        fdm_config: ThermalFDMConfig,
         devices: dict[str, tuple[int, int]],
         power_map: dict[str, float] | None = None,
-        device_thermal: dict[str, "DeviceThermalConfig"] | None = None,
+        device_thermal: dict[str, DeviceThermalConfig] | None = None,
         tolerance_C: float = 5.0,
         binary_path: str = "/tmp/mfem_tempsolve",
     ) -> None:
@@ -51,16 +48,13 @@ class MFEMCorroborationGate(Gate):
         self._tolerance_C = tolerance_C
         self._binary = binary_path
 
-    def check(self, state: "BoardState") -> GateResult:
-        import numpy as np
-
+    def check(self, state: BoardState) -> GateResult:
         from temper_placer.validation.mfem_compare import (
             compare_fields,
             project_mfem_to_fdm,
         )
         from temper_placer.validation.mfem_mesh import build_temper_mesh
         from temper_placer.validation.mfem_runner import (
-            MFEMResult,
             MFEMRunner,
             check_mfem,
         )
@@ -74,8 +68,11 @@ class MFEMCorroborationGate(Gate):
         try:
             with tempfile.TemporaryDirectory() as tmp:
                 mesh_path = build_temper_mesh(
-                    state.board, self._fdm_config, self._device_thermal,
-                    self._power_map, output_dir=tmp,
+                    state.board,
+                    self._fdm_config,
+                    self._device_thermal,
+                    self._power_map,
+                    output_dir=tmp,
                 )
                 runner = MFEMRunner(binary_path=self._binary)
                 mfem_result = runner.run(mesh_path, output_dir=tmp)
@@ -124,7 +121,7 @@ class MFEMCorroborationGate(Gate):
             )
 
 
-def _extract_fdm_field(state: "BoardState") -> "np.ndarray":
+def _extract_fdm_field(state: BoardState) -> np.ndarray:
     """Extract the 2-D FDM temperature field from a BoardState.
 
     Runs a quick thermal FDM solve if no pre-computed field is available.
@@ -146,10 +143,11 @@ def _extract_fdm_field(state: "BoardState") -> "np.ndarray":
         heatsink_edge="BOTTOM",
     )
     copper = copper_coverage_grid(state.board, config)
-    devices_dict = {
-        c.ref: (c.initial_position[0], c.initial_position[1])
-        for c in state.netlist.components
-    } if hasattr(state, "netlist") else {}
+    devices_dict = (
+        {c.ref: (c.initial_position[0], c.initial_position[1]) for c in state.netlist.components}
+        if hasattr(state, "netlist")
+        else {}
+    )
 
     result = solve_thermal_fdm(
         config=config,

@@ -1,4 +1,3 @@
-
 import networkx as nx
 import pytest
 
@@ -13,7 +12,7 @@ def mock_skeletons():
     g1 = nx.Graph()
     g1.add_node((0, 0))
     g1.add_node((10, 0))
-    g1.add_edge((0, 0), (10, 0)) # Edge 1
+    g1.add_edge((0, 0), (10, 0))  # Edge 1
 
     sk1 = ChannelSkeleton(graph=g1, layer_name="L1", total_length=10.0)
 
@@ -21,18 +20,17 @@ def mock_skeletons():
     g2 = nx.Graph()
     g2.add_node((0, 0))
     g2.add_node((10, 0))
-    g2.add_edge((0, 0), (10, 0)) # Edge 1
+    g2.add_edge((0, 0), (10, 0))  # Edge 1
 
     sk2 = ChannelSkeleton(graph=g2, layer_name="L2", total_length=10.0)
 
     return {"L1": sk1, "L2": sk2}
 
+
 @pytest.fixture
 def mock_nets():
-    return [
-        Net(name="NET1", pins=[]),
-        Net(name="NET2", pins=[])
-    ]
+    return [Net(name="NET1", pins=[]), Net(name="NET2", pins=[])]
+
 
 def test_model_variable_count(mock_skeletons, mock_nets):
     builder = ModelBuilder(mock_skeletons, mock_nets)
@@ -49,6 +47,7 @@ def test_model_variable_count(mock_skeletons, mock_nets):
 
     # Total = 8
     assert model.variable_count == 8
+
 
 def test_channel_vars(mock_skeletons, mock_nets):
     builder = ModelBuilder(mock_skeletons, mock_nets)
@@ -67,6 +66,7 @@ def test_channel_vars(mock_skeletons, mock_nets):
 
     via_vars = [v for v in model.variables if isinstance(v, ViaVar)]
     assert len(via_vars) == 4
+
 
 def test_via_vars_unique_nodes(mock_skeletons, mock_nets):
     # Add a node only in L2

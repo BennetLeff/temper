@@ -248,6 +248,7 @@ class TestValidateTjSafety:
     def test_far_from_edge_increases_tj(self):
         """Greater distance from edge increases junction temp."""
         from temper_placer.physics.thermal import estimate_junction_temp
+
         Tj_close = estimate_junction_temp(50.0, 5.0, Rjc=0.6)
         Tj_far = estimate_junction_temp(50.0, 50.0, Rjc=0.6)
         assert Tj_far > Tj_close, "Tj should increase with distance from edge"
@@ -295,7 +296,9 @@ class TestPhiEdge:
         min_y = float(y_grid[min_idx])
         _, y_min, _, _ = board_bounds
         dist_from_bottom = min_y - y_min
-        assert dist_from_bottom < 15.0, f"phi_edge minimum is {dist_from_bottom:.1f}mm from BOTTOM edge"
+        assert dist_from_bottom < 15.0, (
+            f"phi_edge minimum is {dist_from_bottom:.1f}mm from BOTTOM edge"
+        )
 
 
 class TestPhiConvection:

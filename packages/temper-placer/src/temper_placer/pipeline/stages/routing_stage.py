@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import time
-from typing import Any
 
 import numpy as np
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 
 class RoutingStage:
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
         from temper_placer.router_v6.congestion import analyze_congestion
 
@@ -28,7 +27,9 @@ class RoutingStage:
             positions = np.array(deterministic_result.positions)  # type: ignore[union-attr]
 
         result = analyze_congestion(netlist, board, positions=positions)
-        print(f"Max congestion: {result.max_utilization:.2f}, Total overflow: {result.total_overflow:.2f}")
+        print(
+            f"Max congestion: {result.max_utilization:.2f}, Total overflow: {result.total_overflow:.2f}"
+        )
 
         state.routing_result = result
 

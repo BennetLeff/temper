@@ -56,8 +56,18 @@ def _is_hv(net_name: str) -> bool:
     """Check whether *net_name* matches known high-voltage patterns."""
     name_upper = net_name.upper()
     broad_keywords = [
-        "HIGH_VOLTAGE", "MAINS", "LINE", "NEUTRAL", "PRIMARY", "HOT",
-        "L1", "L2", "L3", "PHASE", "VBUS", "B+",
+        "HIGH_VOLTAGE",
+        "MAINS",
+        "LINE",
+        "NEUTRAL",
+        "PRIMARY",
+        "HOT",
+        "L1",
+        "L2",
+        "L3",
+        "PHASE",
+        "VBUS",
+        "B+",
     ]
     if any(kw in name_upper for kw in broad_keywords):
         return True
@@ -183,9 +193,7 @@ def test_creepage_violations_hv_vs_non_hv_only(
     report = verify_creepage(rr)
 
     for v in report.violations:
-        assert _is_hv(v.hv_net), (
-            f"Creepage violation hv_net '{v.hv_net}' is not HV-classified"
-        )
+        assert _is_hv(v.hv_net), f"Creepage violation hv_net '{v.hv_net}' is not HV-classified"
 
 
 # ===================================================================
@@ -248,9 +256,7 @@ def test_no_crash_creepage(rr: RoutingResults) -> None:
     try:
         report = verify_creepage(rr)
     except ZeroDivisionError:
-        pytest.xfail(
-            "verify_creepage raises ZeroDivisionError on some inputs — known bug"
-        )
+        pytest.xfail("verify_creepage raises ZeroDivisionError on some inputs — known bug")
     except Exception as exc:
         pytest.fail(f"verify_creepage raised {type(exc).__name__}: {exc}")
     assert isinstance(report, CreepageReport)

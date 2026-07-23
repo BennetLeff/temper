@@ -14,6 +14,7 @@ and REGRESSED closure from 15/24 to 13/24 on ``temper.kicad_pcb``
 routing it first blocks the 2-3 pin nets that were succeeding
 under the shortest-first order.
 """
+
 from __future__ import annotations
 
 from temper_placer.router_v6.astar_pathfinding import _compute_net_order
@@ -36,12 +37,14 @@ def _make_mapping(net_specs: list[tuple[str, int, float, bool]]) -> ChannelMappi
 
 def test_power_nets_route_first():
     """Power nets come before signal nets regardless of pin count."""
-    mapping = _make_mapping([
-        ("GND", 2, 10.0, False),
-        ("VCC", 4, 20.0, False),
-        ("SIG_2PIN", 2, 5.0, False),
-        ("SIG_8PIN", 8, 80.0, False),
-    ])
+    mapping = _make_mapping(
+        [
+            ("GND", 2, 10.0, False),
+            ("VCC", 4, 20.0, False),
+            ("SIG_2PIN", 2, 5.0, False),
+            ("SIG_8PIN", 8, 80.0, False),
+        ]
+    )
     order = _compute_net_order(mapping)
     # GND and VCC must come before any signal net
     power_idx = [order.index("GND"), order.index("VCC")]
@@ -58,13 +61,15 @@ def test_shortest_path_routes_first_within_signal_class():
     pins the current (correct) behavior; if a future attempt
     reintroduces high-pin-first, this test will fail.
     """
-    mapping = _make_mapping([
-        ("SIG_2PIN_A", 2, 5.0, False),
-        ("SIG_2PIN_B", 2, 8.0, False),
-        ("SIG_3PIN", 3, 15.0, False),
-        ("SIG_4PIN", 4, 25.0, False),
-        ("SIG_8PIN", 8, 80.0, False),
-    ])
+    mapping = _make_mapping(
+        [
+            ("SIG_2PIN_A", 2, 5.0, False),
+            ("SIG_2PIN_B", 2, 8.0, False),
+            ("SIG_3PIN", 3, 15.0, False),
+            ("SIG_4PIN", 4, 25.0, False),
+            ("SIG_8PIN", 8, 80.0, False),
+        ]
+    )
     order = _compute_net_order(mapping)
     idx_8 = order.index("SIG_8PIN")
     idx_4 = order.index("SIG_4PIN")
@@ -82,10 +87,12 @@ def test_shortest_path_routes_first_within_signal_class():
 def test_shortest_path_is_tiebreaker_within_pin_count():
     """When two signal nets have the same pin count, the shorter
     one routes first (matches the pre-Wave-5 tie-breaker)."""
-    mapping = _make_mapping([
-        ("SIG_LONG", 3, 50.0, False),
-        ("SIG_SHORT", 3, 10.0, False),
-    ])
+    mapping = _make_mapping(
+        [
+            ("SIG_LONG", 3, 50.0, False),
+            ("SIG_SHORT", 3, 10.0, False),
+        ]
+    )
     order = _compute_net_order(mapping)
     assert order.index("SIG_SHORT") < order.index("SIG_LONG"), (
         f"Within same pin count, shortest should route first, got: {order}"
@@ -98,16 +105,18 @@ def test_problem_nets_still_get_priority():
     The fixture name is from astar_pathfinding.PROBLEM_NETS
     (a hardcoded set of legacy fixture names like ``/k02``)."""
     from temper_placer.router_v6.astar_pathfinding import PROBLEM_NETS
+
     # Pick any name from the actual PROBLEM_NETS set so the
     # ``is_problem`` check is True.
     assert PROBLEM_NETS, "PROBLEM_NETS should be non-empty"
     problem_name = next(iter(PROBLEM_NETS))
-    mapping = _make_mapping([
-        ("NORMAL_2PIN", 2, 5.0, False),
-        (problem_name, 2, 5.0, True),
-    ])
+    mapping = _make_mapping(
+        [
+            ("NORMAL_2PIN", 2, 5.0, False),
+            (problem_name, 2, 5.0, True),
+        ]
+    )
     order = _compute_net_order(mapping)
     assert order.index(problem_name) < order.index("NORMAL_2PIN"), (
-        f"Problem nets should route before non-problem at same "
-        f"pin count, got: {order}"
+        f"Problem nets should route before non-problem at same pin count, got: {order}"
     )

@@ -11,6 +11,7 @@ implemented but never wired up.
 Import side effect:
     import temper_placer.adapters.register_strategies  # noqa: F401
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

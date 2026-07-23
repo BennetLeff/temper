@@ -5,7 +5,6 @@ developers to programmatically construct placement constraints with a
 chainable, fluent interface.
 """
 
-
 import yaml  # type: ignore[import-untyped]
 
 from temper_placer._constraint_types import (

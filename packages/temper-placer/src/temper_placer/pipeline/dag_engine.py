@@ -105,9 +105,7 @@ class StageDAGEngine:
                     if in_degree[consumer_name] == 0:
                         newly_ready.append(consumer_name)
 
-            queue.extend(
-                sorted(newly_ready, key=lambda n: manifest_order.get(n, 999))
-            )
+            queue.extend(sorted(newly_ready, key=lambda n: manifest_order.get(n, 999)))
 
         if len(result) != len(self.manifest.stages):
             raise ValueError(
@@ -133,7 +131,9 @@ class StageDAGEngine:
             stage_name = self.stage_order[stage_index]
             stage_def = self.stage_map[stage_name]
 
-            if stage_def.skip_if and self._evaluate_skip(stage_def.skip_if, state.config, state, context):
+            if stage_def.skip_if and self._evaluate_skip(
+                stage_def.skip_if, state.config, state, context
+            ):
                 self._emit_skip(stage_name, f"skip_if: {stage_def.skip_if}")
                 stage_index += 1
                 continue
@@ -148,7 +148,12 @@ class StageDAGEngine:
                 stage_index += 1
                 continue
 
-            if context.get("dry_run") and stage_name in ("geometric", "routing", "refinement", "output"):
+            if context.get("dry_run") and stage_name in (
+                "geometric",
+                "routing",
+                "refinement",
+                "output",
+            ):
                 self._emit_skip(stage_name, "dry_run is set")
                 stage_index += 1
                 continue
@@ -177,7 +182,9 @@ class StageDAGEngine:
                     state.success = False
                     state.failure_reason = f"Stage '{stage_name}' timed out"
                     state.elapsed_time_s = time.time() - pipeline_start
-                    self._emit_stage_error(stage_name, StageTimeoutError(stage_name, stage_def.timeout_s or 0))
+                    self._emit_stage_error(
+                        stage_name, StageTimeoutError(stage_name, stage_def.timeout_s or 0)
+                    )
                     self._emit_pipeline_complete(False, state.elapsed_time_s, {})
                     return state
                 stage_index += 1
@@ -186,6 +193,7 @@ class StageDAGEngine:
                 if isinstance(e, DAGError):
                     raise
                 from temper_placer.pipeline.state import PipelineError
+
                 if isinstance(e, PipelineError):
                     state.success = False
                     state.failure_reason = str(e)
@@ -248,6 +256,7 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
     """Record phase timing, converting stage name to PipelinePhase if possible."""
     try:
         from temper_placer.pipeline.orchestrator import PipelinePhase
+
         phase = PipelinePhase(stage_name)
         state.phase_timings[phase] = duration
     except (ValueError, ImportError):
@@ -256,13 +265,24 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
     def _init_context(self, config: Any) -> dict[str, Any]:
         context: dict[str, Any] = {}
         field_names = [
-            "input_pcb", "constraints_yaml", "loops_yaml",
-            "output_pcb", "output_report", "output_trace",
-            "skip_topological", "skip_routing", "dry_run",
-            "epochs", "seed", "max_movement_mm",
-            "max_iterations", "routability_threshold",
-            "convergence_threshold", "fab_preset",
-            "routability_gradient_weight", "routability_gradient_max_grad_norm",
+            "input_pcb",
+            "constraints_yaml",
+            "loops_yaml",
+            "output_pcb",
+            "output_report",
+            "output_trace",
+            "skip_topological",
+            "skip_routing",
+            "dry_run",
+            "epochs",
+            "seed",
+            "max_movement_mm",
+            "max_iterations",
+            "routability_threshold",
+            "convergence_threshold",
+            "fab_preset",
+            "routability_gradient_weight",
+            "routability_gradient_max_grad_norm",
             "routability_gradient_unsat_movement_multiplier",
             "routability_gradient_sat_timeout_ms",
             "routability_gradient_unsat_escape_iterations",
@@ -278,13 +298,18 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
 
         if self.observers:
             engine = self
+
             def _on_epoch(stage_name: str, epoch: int, loss: float) -> None:
                 engine._emit_epoch(stage_name, epoch, loss)
+
             context["on_epoch"] = _on_epoch
 
         return context
 
-    def _evaluate_skip(self, expr_src: str, config: Any, state: Any, context: dict[str, Any]) -> bool:
+    # self unused — called via instance but only uses parameters
+    def _evaluate_skip(
+        _self, expr_src: str, config: Any, state: Any, context: dict[str, Any]
+    ) -> bool:
         from temper_placer.pipeline.dag_expr import evaluate_skip_expr, parse_skip_expr
 
         try:
@@ -293,7 +318,9 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
         except Exception:
             return False
 
-    def _execute_stage(self, stage_def: StageDefinition, state: Any, context: dict[str, Any]) -> StageResult:
+    def _execute_stage(
+        self, stage_def: StageDefinition, state: Any, context: dict[str, Any]
+    ) -> StageResult:
         handler = self._load_handler(stage_def.handler)
 
         deadline = None
@@ -311,7 +338,7 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
 
         return result
 
-    def _load_handler(self, handler_path: str) -> StageHandler:
+    def _load_handler(_self, handler_path: str) -> StageHandler:
         parts = handler_path.rsplit(".", 1)
         if len(parts) != 2:
             raise ValueError(f"Invalid handler path: {handler_path}")
@@ -322,7 +349,10 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
         return instance
 
     def _evaluate_feedback_contracts(
-        self, stage_def: StageDefinition, _state: Any, context: dict[str, Any],
+        self,
+        stage_def: StageDefinition,
+        _state: Any,
+        context: dict[str, Any],
         current_stage_name: str,
     ) -> bool:
         counts = context.setdefault("_feedback_retrigger_counts", {})
@@ -344,7 +374,20 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
             triggered = False
             op = fc.trigger.condition
             threshold = fc.trigger.threshold
-            if op == "lt" and metric_val < threshold or op == "gt" and metric_val > threshold or op == "lte" and metric_val <= threshold or op == "gte" and metric_val >= threshold or op == "eq" and metric_val == threshold or op == "neq" and metric_val != threshold:
+            if (
+                op == "lt"
+                and metric_val < threshold
+                or op == "gt"
+                and metric_val > threshold
+                or op == "lte"
+                and metric_val <= threshold
+                or op == "gte"
+                and metric_val >= threshold
+                or op == "eq"
+                and metric_val == threshold
+                or op == "neq"
+                and metric_val != threshold
+            ):
                 triggered = True
 
             if not triggered:
@@ -401,19 +444,23 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
             with contextlib.suppress(Exception):
                 obs.on_stage_error(name, error)
 
-    def _emit_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,
-                                  attempt: int) -> None:
+    def _emit_feedback_triggered(
+        self, contract_name: str, from_stage: str, to_stage: str, attempt: int
+    ) -> None:
         event = StageEvent(
-            name=from_stage, kind="feedback_triggered",
-            feedback_contract=contract_name, feedback_attempt=attempt,
+            name=from_stage,
+            kind="feedback_triggered",
+            feedback_contract=contract_name,
+            feedback_attempt=attempt,
         )
         self.execution_log.events.append(event)
         for obs in self.observers:
             with contextlib.suppress(Exception):
                 obs.on_feedback_triggered(contract_name, from_stage, to_stage, attempt)
 
-    def _emit_pipeline_complete(self, success: bool, total_duration_s: float,
-                                 stage_timings: dict[str, float]) -> None:
+    def _emit_pipeline_complete(
+        self, success: bool, total_duration_s: float, stage_timings: dict[str, float]
+    ) -> None:
         for obs in self.observers:
             with contextlib.suppress(Exception):
                 obs.on_pipeline_complete(success, total_duration_s, stage_timings)

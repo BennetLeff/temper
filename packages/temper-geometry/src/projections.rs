@@ -8,7 +8,6 @@
 // the nearest valid point (or the point itself if already valid).
 
 use temper_geometry_core::types::*;
-use crate::polygon::*;
 
 // =============================================================================
 // Identity Projection
@@ -84,8 +83,8 @@ pub fn project_outside_keepout(p: &Point, keepout: &Rect, half_w: f64, half_h: f
 
     let mut best_idx = 0;
     let mut best_dist_sq = candidates[0].distance_squared(p);
-    for i in 1..4 {
-        let d2 = candidates[i].distance_squared(p);
+    for (i, candidate) in candidates.iter().enumerate().skip(1) {
+        let d2 = candidate.distance_squared(p);
         if d2 < best_dist_sq {
             best_dist_sq = d2;
             best_idx = i;

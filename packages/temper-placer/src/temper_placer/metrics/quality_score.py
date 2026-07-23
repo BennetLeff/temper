@@ -18,6 +18,7 @@ from temper_placer.validation.metrics import PlacementMetrics
 @dataclass
 class QualityInputs:
     """Inputs for quality score computation."""
+
     # Hard constraints (binary)
     drc_violations: int = 0
     overlap_loss: float = 0.0

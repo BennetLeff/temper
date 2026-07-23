@@ -27,6 +27,7 @@ from temper_placer.router_v6.stage_validators import (
 @dataclass(kw_only=True)
 class Variable:
     """Base class for routing variables."""
+
     name: str
     var_type: str  # "bool", "int", "continuous"
 
@@ -37,6 +38,7 @@ class NetChannelVar(Variable):
     Variable representing if a net uses a specific channel segment.
     uses[net_id, channel_id]
     """
+
     net_idx: int
     channel_id: str  # Unique ID for channel edge (e.g. "L1_E5")
     var_type: str = "bool"
@@ -48,6 +50,7 @@ class NetLayerVar(Variable):
     Variable representing the layer assignment of a net segment.
     layer[net_id, segment_id]
     """
+
     net_idx: int
     segment_id: str
     var_type: str = "int"  # Layer index
@@ -59,6 +62,7 @@ class ViaVar(Variable):
     Variable representing if a via exists for a net at a specific location.
     via[net_id, location_id]
     """
+
     net_idx: int
     location_id: str  # Unique ID for potential via location (node)
     var_type: str = "bool"
@@ -71,6 +75,7 @@ class OrderVar(Variable):
     order[net1_idx, net2_idx, channel_id]
     True if net1 is "before" net2 in channel.
     """
+
     net1_idx: int
     net2_idx: int
     channel_id: str
@@ -98,6 +103,7 @@ class Constraint:
 
     # @req(2026-06-28-006, FR-ADOPT1): Contribute exactly one encoding branch
     """
+
     name: str
     description: str = ""
 
@@ -107,6 +113,7 @@ class CapacityConstraint(Constraint):
     """
     Constraint: sum(uses[n,c] * width[n]) <= capacity[c] * slack
     """
+
     channel_id: str
     capacity: float
     slack_factor: float
@@ -135,6 +142,7 @@ class DiffPairConstraint(Constraint):
     Constraint: uses[p_net, channel] == uses[n_net, channel]
     Ensures both nets of a differential pair follow the same path.
     """
+
     channel_id: str
     p_net_idx: int
     n_net_idx: int
@@ -160,6 +168,7 @@ class LayerConstraint(Constraint):
     Constraint: uses[n, c] == value (usually 0 or 1)
     Restricts a net to a specific layer for a given channel.
     """
+
     net_idx: int
     channel_id: str
     allowed: bool
@@ -186,6 +195,7 @@ class ChannelSeparationConstraint(Constraint):
     channel, enforces at least `min_slots` empty slots between nets
     from the two groups via OrderVar-based separation.
     """
+
     group_a_indices: list[int]
     group_b_indices: list[int]
     min_slots: int
@@ -207,6 +217,7 @@ class ConstraintModel:
     The ``eval_esl(model, assignment)`` function in ``esl.py`` evaluates
     all constraint ESL predicates against a primary-variable assignment.
     """
+
     variables: list[Variable] = field(default_factory=list)
     constraints: list[Constraint] = field(default_factory=list)
     net_channel_vars: dict[tuple[int, str], NetChannelVar] = field(default_factory=dict)
@@ -288,9 +299,7 @@ class ModelBuilder:
                     edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
 
                     var = NetChannelVar(
-                        name=f"uses_N{net_idx}_{edge_id}",
-                        net_idx=net_idx,
-                        channel_id=edge_id
+                        name=f"uses_N{net_idx}_{edge_id}", net_idx=net_idx, channel_id=edge_id
                     )
                     self.model.add_variable(var)
 
@@ -307,7 +316,7 @@ class ModelBuilder:
         """
         manifest = self.bundle_manifest
         bundle_id_for_net: dict[int, int] = getattr(manifest, "bundle_id_for_net", {})
-        unbundled_indices: set[int] = set(getattr(manifest, "unbundled_net_indices", []))
+        set(getattr(manifest, "unbundled_net_indices", []))
 
         # Collect unique bundle IDs and the nets in each bundle
         unique_bundle_ids: set[int] = set(bundle_id_for_net.values())
@@ -338,9 +347,7 @@ class ModelBuilder:
                     edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
 
                     var = NetChannelVar(
-                        name=f"uses_N{net_idx}_{edge_id}",
-                        net_idx=net_idx,
-                        channel_id=edge_id
+                        name=f"uses_N{net_idx}_{edge_id}", net_idx=net_idx, channel_id=edge_id
                     )
                     self.model.add_variable(var)
 
@@ -350,7 +357,7 @@ class ModelBuilder:
         all_nodes = set()
         for skeleton in self.skeletons.values():
             for node in skeleton.graph.nodes:
-                all_nodes.add(node) # node is (x, y) tuple
+                all_nodes.add(node)  # node is (x, y) tuple
 
         # Sort for stability
         sorted_nodes = sorted(all_nodes)
@@ -359,11 +366,7 @@ class ModelBuilder:
             for i, node in enumerate(sorted_nodes):
                 node_id = f"VIA_N{i}_{node[0]:.2f}_{node[1]:.2f}"
 
-                var = ViaVar(
-                    name=f"via_N{net_idx}_{node_id}",
-                    net_idx=net_idx,
-                    location_id=node_id
-                )
+                var = ViaVar(name=f"via_N{net_idx}_{node_id}", net_idx=net_idx, location_id=node_id)
                 self.model.add_variable(var)
 
     def _create_capacity_constraints(self):
@@ -398,7 +401,7 @@ class ModelBuilder:
                 for net_idx, net in enumerate(self.nets):
                     # Get net width from design rules
                     rule = self.design_rules.get_rules_for_net(net.name)
-                    net_width = rule.trace_width_mm + rule.clearance_mm # width + spacing
+                    net_width = rule.trace_width_mm + rule.clearance_mm  # width + spacing
 
                     # Find variable
                     if (net_idx, edge_id) in self.model.net_channel_vars:
@@ -411,7 +414,7 @@ class ModelBuilder:
                         channel_id=edge_id,
                         capacity=capacity,
                         slack_factor=slack_factor,
-                        terms=terms
+                        terms=terms,
                     )
                     self.model.add_constraint(constraint)
 
@@ -438,9 +441,10 @@ class ModelBuilder:
                     n1, n2 = sorted([u, v])
                     edge_id = f"{layer_name}_E{i}_{n1}_{n2}"
 
-                    if (p_idx, edge_id) in self.model.net_channel_vars and \
-                       (n_idx, edge_id) in self.model.net_channel_vars:
-
+                    if (p_idx, edge_id) in self.model.net_channel_vars and (
+                        n_idx,
+                        edge_id,
+                    ) in self.model.net_channel_vars:
                         p_var = self.model.net_channel_vars[(p_idx, edge_id)]
                         n_var = self.model.net_channel_vars[(n_idx, edge_id)]
 
@@ -450,7 +454,7 @@ class ModelBuilder:
                             p_net_idx=p_idx,
                             n_net_idx=n_idx,
                             p_var=p_var,
-                            n_var=n_var
+                            n_var=n_var,
                         )
                         self.model.add_constraint(constraint)
 
@@ -481,7 +485,7 @@ class ModelBuilder:
                     # A breakout edge is an edge where one endpoint is the pin position
                     for layer_name, skeleton in self.skeletons.items():
                         if layer_name == target_layer:
-                            continue # Allowed
+                            continue  # Allowed
 
                         # Restricted layer: for all edges connected to this pin position,
                         # set uses[net, edge] == 0
@@ -489,7 +493,10 @@ class ModelBuilder:
                             # Check if either endpoint matches pin position (with tolerance)
                             match = False
                             for node in [u, v]:
-                                if abs(node[0] - pin_pos[0]) < 0.01 and abs(node[1] - pin_pos[1]) < 0.01:
+                                if (
+                                    abs(node[0] - pin_pos[0]) < 0.01
+                                    and abs(node[1] - pin_pos[1]) < 0.01
+                                ):
                                     match = True
                                     break
 
@@ -503,10 +510,9 @@ class ModelBuilder:
                                         name=f"layer_restr_N{net_idx}_{edge_id}",
                                         net_idx=net_idx,
                                         channel_id=edge_id,
-                                        allowed=False
+                                        allowed=False,
                                     )
                                     self.model.add_constraint(constraint)
-
 
     def _apply_pcl_constraints(self):
         """Apply PCL constraints to the SAT constraint model (R22).
@@ -541,10 +547,11 @@ class ModelBuilder:
                 if isinstance(c_list, list):
                     for c in c_list:
                         self.model.add_constraint(c)
-                elif hasattr(c_list, 'name'):
+                elif hasattr(c_list, "name"):
                     self.model.add_constraint(c_list)
         except Exception as e:
             import warnings
+
             warnings.warn(f"PCL→SAT compilation failed: {e}", stacklevel=2)
 
 
@@ -561,7 +568,7 @@ class ConstraintGenerationStage(Stage):
         skeletons = state.channel_skeletons
         channel_widths = state.channel_widths
         diff_pairs = infer_differential_pairs([net.name for net in pcb.nets])
-        pcl_constraints = getattr(state, 'pcl_constraints', None)
+        pcl_constraints = getattr(state, "pcl_constraints", None)
         model_builder = ModelBuilder(
             skeletons=skeletons,
             nets=pcb.nets,
@@ -580,25 +587,35 @@ def validate_constraint_generation(state: BoardState) -> list[StageDRCFailure]:
     failures: list[StageDRCFailure] = []
     cm = state.constraint_model
     if cm is None:
-        failures.append(StageDRCFailure(
-            field="constraint_model", value=None,
-            reason="Constraint model not generated", stage="ConstraintGeneration",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="constraint_model",
+                value=None,
+                reason="Constraint model not generated",
+                stage="ConstraintGeneration",
+            )
+        )
         return failures
     if cm.variable_count == 0 and cm.constraint_count == 0:
-        failures.append(StageDRCFailure(
-            field="constraint_model", value=cm.variable_count,
-            reason="Constraint model has zero variables and zero constraints",
-            stage="ConstraintGeneration",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="constraint_model",
+                value=cm.variable_count,
+                reason="Constraint model has zero variables and zero constraints",
+                stage="ConstraintGeneration",
+            )
+        )
     channel_var_ids = set()
     for var in cm.variables:
-        if hasattr(var, 'channel_id'):
+        if hasattr(var, "channel_id"):
             if var.channel_id in channel_var_ids:
-                failures.append(StageDRCFailure(
-                    field="net_channel_vars", value=var.channel_id,
-                    reason=f"Duplicate channel variable name: {var.channel_id}",
-                    stage="ConstraintGeneration",
-                ))
+                failures.append(
+                    StageDRCFailure(
+                        field="net_channel_vars",
+                        value=var.channel_id,
+                        reason=f"Duplicate channel variable name: {var.channel_id}",
+                        stage="ConstraintGeneration",
+                    )
+                )
             channel_var_ids.add(var.channel_id)
     return failures

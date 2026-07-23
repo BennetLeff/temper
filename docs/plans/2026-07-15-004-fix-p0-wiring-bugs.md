@@ -1,12 +1,16 @@
 ---
 title: "fix: P0 wiring bugs — gate-driver zener and OVP comparator"
 type: fix
-status: pending
+status: completed
 date: 2026-07-15
 origin: docs/audits/2026-07-15-atopile-electrical-design-audit.md
 depends_on: [2026-07-15-003]
 blocks: []
 ---
+
+## Shipped
+
+**Merged in [PR #214](https://github.com/BennetLeff/temper/pull/214) on 2026-07-16.** The fix for this plan shipped as part of the comprehensive atopile audit remediation (`fix(elec): resolve 8 P0/P1 electrical design bugs from atopile audit`). See the PR body's per-plan table for the specific changes attributable to this plan.
 
 # fix: P0 Wiring Bugs — Zener Bias and OVP Comparator
 

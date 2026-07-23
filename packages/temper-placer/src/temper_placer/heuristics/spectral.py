@@ -88,7 +88,7 @@ class SpectralPlacementHeuristic(Heuristic):
             if len(node_set) == 1:
                 # Single node
                 ref = list(node_set)[0]
-                all_raw_pos[ref] = np.array([0.0, 0.0]) # Local center
+                all_raw_pos[ref] = np.array([0.0, 0.0])  # Local center
             else:
                 try:
                     # weight='weight' uses the edge weights we defined in GraphBuilder
@@ -118,7 +118,9 @@ class SpectralPlacementHeuristic(Heuristic):
                 scale = np.array([w_eff, h_eff]) * 0.8 / c_rng
                 for n in nodes_in_set:
                     # (pos - center) * scale + grid_center
-                    all_raw_pos[n] = (all_raw_pos[n] - (c_min + c_max)/2) * scale + np.array([grid_x, grid_y])
+                    all_raw_pos[n] = (all_raw_pos[n] - (c_min + c_max) / 2) * scale + np.array(
+                        [grid_x, grid_y]
+                    )
             else:
                 all_raw_pos[nodes_in_set[0]] = np.array([grid_x, grid_y])
 
@@ -150,12 +152,8 @@ class SpectralPlacementHeuristic(Heuristic):
 
             x, y = pos
             # Ensure within bounds (relative [0, width])
-            x = max(
-                margin + comp.width / 2, min(x, board.width - margin - comp.width / 2)
-            )
-            y = max(
-                margin + comp.height / 2, min(y, board.height - margin - comp.height / 2)
-            )
+            x = max(margin + comp.width / 2, min(x, board.width - margin - comp.width / 2))
+            y = max(margin + comp.height / 2, min(y, board.height - margin - comp.height / 2))
 
             placements[ref] = ComponentPlacement(
                 ref=ref,

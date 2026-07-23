@@ -69,7 +69,9 @@ class MetricsObserver:
     def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:  # noqa: ARG002, ARG002
         self._stage_start_times[stage_name] = time.monotonic()
 
-    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:
+    def on_stage_complete(
+        self, stage_name: str, duration_s: float, outputs: dict[str, Any]
+    ) -> None:
         wall_time_ms = int(duration_s * 1000)
         metrics: dict[str, float] = {
             "wall_time_ms": wall_time_ms,
@@ -89,9 +91,11 @@ class MetricsObserver:
         )
 
         self._validate_schema(record)
-        self._cross_validate_against(start_t = self._stage_start_times.pop(stage_name, None),
-                                     stage_name = stage_name,
-                                     caller_duration_s = duration_s)
+        self._cross_validate_against(
+            start_t=self._stage_start_times.pop(stage_name, None),
+            stage_name=stage_name,
+            caller_duration_s=duration_s,
+        )
         self._check_canary(record)
         self._write(record)
 
@@ -164,9 +168,7 @@ class MetricsObserver:
     def _check_canary(self, record: PipelineMetricsRecord) -> None:
         canary = record.metrics.get(_CANARY_KEY)
         if canary != self._canary_value:
-            raise CanaryCheckError(
-                f"Expected canary value {self._canary_value}, got {canary}"
-            )
+            raise CanaryCheckError(f"Expected canary value {self._canary_value}, got {canary}")
 
     # -- Internal: write --------------------------------------------------
 

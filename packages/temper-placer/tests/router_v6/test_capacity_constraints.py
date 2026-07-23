@@ -1,4 +1,3 @@
-
 import networkx as nx
 import pytest
 
@@ -12,11 +11,7 @@ from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
 @pytest.fixture
 def mock_design_rules():
     default_rules = NetClassRules(
-        name="Default",
-        clearance_mm=0.1,
-        trace_width_mm=0.1,
-        via_diameter_mm=0.3,
-        via_drill_mm=0.15
+        name="Default", clearance_mm=0.1, trace_width_mm=0.1, via_diameter_mm=0.3, via_drill_mm=0.15
     )
     return DesignRules(
         net_classes={"Default": default_rules},
@@ -24,8 +19,9 @@ def mock_design_rules():
         default_clearance_mm=0.1,
         default_trace_width_mm=0.1,
         default_via_diameter_mm=0.3,
-        default_via_drill_mm=0.15
+        default_via_drill_mm=0.15,
     )
+
 
 @pytest.fixture
 def mock_skeletons_and_widths():
@@ -46,26 +42,22 @@ def mock_skeletons_and_widths():
         edge_widths={(u, v): 1.0},
         min_width=1.0,
         max_width=1.0,
-        avg_width=1.0
+        avg_width=1.0,
     )
 
     return {"L1": sk}, {"L1": widths}
 
+
 @pytest.fixture
 def mock_nets():
-    return [
-        Net(name="NET1", pins=[]),
-        Net(name="NET2", pins=[])
-    ]
+    return [Net(name="NET1", pins=[]), Net(name="NET2", pins=[])]
+
 
 def test_capacity_constraints_generated(mock_skeletons_and_widths, mock_nets, mock_design_rules):
     skeletons, widths = mock_skeletons_and_widths
 
     builder = ModelBuilder(
-        skeletons=skeletons,
-        nets=mock_nets,
-        channel_widths=widths,
-        design_rules=mock_design_rules
+        skeletons=skeletons, nets=mock_nets, channel_widths=widths, design_rules=mock_design_rules
     )
     model = builder.build()
 
@@ -85,14 +77,12 @@ def test_capacity_constraints_generated(mock_skeletons_and_widths, mock_nets, mo
         assert abs(width - 0.2) < 1e-6
         assert var.var_type == "bool"
 
+
 def test_no_constraints_if_no_widths(mock_skeletons_and_widths, mock_nets, mock_design_rules):
     skeletons, _ = mock_skeletons_and_widths
 
     builder = ModelBuilder(
-        skeletons=skeletons,
-        nets=mock_nets,
-        channel_widths=None,
-        design_rules=mock_design_rules
+        skeletons=skeletons, nets=mock_nets, channel_widths=None, design_rules=mock_design_rules
     )
     model = builder.build()
 

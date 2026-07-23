@@ -11,17 +11,20 @@ from temper_placer.core.state import PlacementState
 @dataclass
 class MarginReport:
     """Detailed report of manufacturing margins for a single constraint."""
+
     subject: str
     requirement: str
     nominal_value: float
     required_value: float
     margin: float
     margin_pct: float
-    status: str # 'OK', 'WARNING', 'FAIL'
+    status: str  # 'OK', 'WARNING', 'FAIL'
+
 
 @dataclass
 class ManufacturingReport:
     """Aggregate manufacturability report."""
+
     pass_rate: float
     margins: list[MarginReport] = field(default_factory=list)
     score: float = 0.0
@@ -30,11 +33,9 @@ class ManufacturingReport:
     def passed(self) -> bool:
         return self.pass_rate >= 1.0
 
+
 def check_worst_case_drc(
-    _state: PlacementState,
-    _board: Board,
-    _netlist: Netlist,
-    _fab: FabPreset
+    _state: PlacementState, _board: Board, _netlist: Netlist, _fab: FabPreset
 ) -> ManufacturingReport:
     """Run worst-case DRC checks and compute margins."""
     margins: list[MarginReport] = []
@@ -53,5 +54,5 @@ def check_worst_case_drc(
     return ManufacturingReport(
         pass_rate=pass_rate,
         margins=margins,
-        score=pass_rate # Simplified score
+        score=pass_rate,  # Simplified score
     )

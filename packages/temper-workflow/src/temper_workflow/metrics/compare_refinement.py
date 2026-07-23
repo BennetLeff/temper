@@ -78,9 +78,7 @@ def main():
     parser = argparse.ArgumentParser(description="Compare rotation refinement methods.")
     parser.add_argument("pcb", type=Path, help="Input .kicad_pcb file")
     parser.add_argument("config", type=Path, help="Constraints .yaml file")
-    parser.add_argument(
-        "-i", "--iterations", type=int, default=500, help="SA iterations"
-    )
+    parser.add_argument("-i", "--iterations", type=int, default=500, help="SA iterations")
 
     args = parser.parse_args()
 

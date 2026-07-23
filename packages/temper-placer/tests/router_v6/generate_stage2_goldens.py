@@ -79,6 +79,7 @@ class GoldenEncoder(json.JSONEncoder):
     def _encode_grid(grid: np.ndarray) -> dict:
         """Encode a numpy grid array as summary metadata + hash."""
         import hashlib
+
         grid_bytes = grid.tobytes()
         return {
             "_type": "ndarray_summary",
@@ -105,10 +106,10 @@ def generate_goldens(regenerate: bool = False):
         sys.exit(1)
 
     for board in boards:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Board: {board.name} ({board.domain}, {board.layers}L)")
         print(f"Path: {board.path}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         board_golden_dir = GOLDEN_DIR / board.name
         if not regenerate and board_golden_dir.exists():

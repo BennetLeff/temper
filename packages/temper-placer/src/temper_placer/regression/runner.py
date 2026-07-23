@@ -65,6 +65,7 @@ class RegressionRunner:
             from types import SimpleNamespace
 
             import yaml as _yaml  # type: ignore[import-untyped]
+
             with open(baseline_yaml) as f:
                 raw = _yaml.safe_load(f)
             baseline = SimpleNamespace(**raw)

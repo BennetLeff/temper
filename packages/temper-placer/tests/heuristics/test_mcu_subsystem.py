@@ -1,4 +1,3 @@
-
 import numpy as np
 import pytest
 
@@ -26,6 +25,7 @@ def mock_env():
     ]
     netlist = Netlist(components, [])
     return board, netlist
+
 
 def test_mcu_subsystem_heuristic(mock_env):
     board, netlist = mock_env

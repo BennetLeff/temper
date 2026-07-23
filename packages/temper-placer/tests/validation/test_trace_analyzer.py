@@ -19,6 +19,7 @@ def test_trace_length():
     length = calculate_actual_trace_length(board, "N1")
     assert length == pytest.approx(20.0)
 
+
 def test_loop_area_from_traces():
     board = Board(width=100, height=100)
     # 10x10 square loop
@@ -32,6 +33,7 @@ def test_loop_area_from_traces():
     area = calculate_actual_loop_area(board, ["L1"])
     # Convex hull of (0,0), (10,0), (10,10), (0,10) is 100.0
     assert area == pytest.approx(100.0)
+
 
 def test_hv_lv_trace_clearance():
     board = Board(width=100, height=100)

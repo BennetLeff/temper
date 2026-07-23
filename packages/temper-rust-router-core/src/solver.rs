@@ -34,7 +34,7 @@ pub fn solve_with_cadical(
     for clause in &cnf.clauses {
         let mut lits: Vec<Lit> = Vec::with_capacity(clause.len());
         for &lit in clause {
-            let var_idx = (lit.unsigned_abs() - 1) as u32;
+            let var_idx = lit.unsigned_abs() - 1;
             let lit_obj = if lit > 0 {
                 Lit::positive(var_idx)
             } else {
@@ -168,8 +168,8 @@ fn build_decision_level_histogram(_conflicts: u64, _decisions: u64) -> [u64; 10]
     let total = _decisions;
     let bin_size = total / 10;
     let mut hist = [0u64; 10];
-    for i in 0..10 {
-        hist[i] = bin_size;
+    for item in &mut hist {
+        *item = bin_size;
     }
     // Distribute remainder across first bins.
     let remainder = total % 10;

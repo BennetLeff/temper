@@ -224,9 +224,7 @@ class PlacementValidationStage(Stage):
         # Get HV pin positions
         hv_positions = []
         for hv_pin in constraint.hv_pins:
-            hv_pos = self._get_pin_position(
-                constraint.hv_component, hv_pin, component_positions
-            )
+            hv_pos = self._get_pin_position(constraint.hv_component, hv_pin, component_positions)
             if hv_pos:
                 hv_positions.append((hv_pin, hv_pos))
 

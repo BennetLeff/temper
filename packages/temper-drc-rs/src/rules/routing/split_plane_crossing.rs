@@ -43,6 +43,7 @@ fn is_ground_net(net: &str) -> bool {
 // Check
 // ---------------------------------------------------------------------------
 
+#[derive(Default)]
 pub struct SplitPlaneCrossingCheck;
 
 impl SplitPlaneCrossingCheck {

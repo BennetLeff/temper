@@ -2,7 +2,6 @@
 Tests for quality_score module.
 """
 
-
 from temper_placer.metrics.quality_score import QualityScore, compute_quality_score
 from temper_placer.validation.drc_runner import DrcResult
 from temper_placer.validation.metrics import PlacementMetrics
