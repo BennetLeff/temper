@@ -322,7 +322,7 @@ jobs:
           --no-install-package temper-constraints
 
       - name: Check domain model codegen drift
-        run: python3 scripts/gen_domain_models.py --check
+        run: uv run python3 scripts/gen_domain_models.py --check
 
       - name: Cache Rust build (temper-design-bundle)
         uses: actions/cache@v4
@@ -369,7 +369,7 @@ jobs:
           (uv run python tools/check_kicad_layers.py && \
            cd packages/temper-placer && \
            uv run pytest tests/io/test_4layer_output_properties.py -v --tb=short && \
-           python3 firmware/test/gen_transition_table.py --generate && \
+           uv run python3 firmware/test/gen_transition_table.py --generate && \
            git diff --exit-code firmware/test/test_transition_table_generated.c) &
           CHECKS_PID=$!
 
@@ -395,7 +395,7 @@ jobs:
 
       - name: Regenerate schematics and check drift
         run: |
-          python3 scripts/gen_schematics.py --check
+          uv run python3 scripts/gen_schematics.py --check
           git diff --exit-code pcb/*.kicad_sch
 
       - name: Verify config reference doc is up-to-date (plan 2026-07-22-005, U7)
