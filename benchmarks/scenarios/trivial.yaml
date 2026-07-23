@@ -1,0 +1,8 @@
+name: trivial
+description: "10 synthetic components, 2s timeout"
+type: synthetic
+n_components: 10
+board_width_mm: 100.0
+board_height_mm: 100.0
+timeout_ms: 2000
+seeds: [42, 123]
