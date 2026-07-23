@@ -1,12 +1,16 @@
 ---
 title: "fix: Grounding architecture and isolation barrier — P0-1, S1, S3"
 type: fix
-status: pending
+status: completed
 date: 2026-07-15
 origin: docs/audits/2026-07-15-atopile-electrical-design-audit.md
 depends_on: []
 blocks: [2026-07-15-004, 2026-07-15-005, 2026-07-15-006, 2026-07-15-007]
 ---
+
+## Shipped
+
+**Merged in [PR #214](https://github.com/BennetLeff/temper/pull/214) on 2026-07-16.** The fix for this plan shipped as part of the comprehensive atopile audit remediation (`fix(elec): resolve 8 P0/P1 electrical design bugs from atopile audit`). See the PR body's per-plan table for the specific changes attributable to this plan.
 
 # fix: Grounding Architecture and Isolation Barrier
 
