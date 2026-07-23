@@ -6,11 +6,9 @@ U1 of the external-MFEM corroboration plan.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass
-from pathlib import Path
 
 import numpy as np
 
@@ -49,7 +47,7 @@ class MFEMRunner:
 
         out = output_dir or tempfile.mkdtemp(prefix="mfem_")
         os.makedirs(out, exist_ok=True)
-        mesh_name = os.path.splitext(os.path.basename(mesh_path))[0]
+        os.path.splitext(os.path.basename(mesh_path))[0]
         result_path = os.path.join(out, "temperatures.csv")
         cmd = [self._binary, "-m", mesh_path]
         try:

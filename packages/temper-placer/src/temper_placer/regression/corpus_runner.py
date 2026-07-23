@@ -380,8 +380,7 @@ class CorpusRegressionRunner:
                 ])
 
             from temper_placer.core.state import PlacementState
-            from temper_placer.core.loss_types import LossContext
-            state = PlacementState.from_netlist_and_board(netlist, board)
+            PlacementState.from_netlist_and_board(netlist, board)
             context = LossContext(netlist=netlist, board=board)
 
             # Build optimizer config

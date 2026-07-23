@@ -7,6 +7,7 @@ JSONL recording.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import sys
 import time
@@ -152,10 +153,8 @@ def profile_loss_functions(
 
     for run_idx in range(n_warmup + n_measure):
         t0 = time.perf_counter()
-        try:
-            raw = loss_fn.compute_loss(dummy_xy)
-        except Exception:
-            raw = None
+        with contextlib.suppress(Exception):
+            loss_fn.compute_loss(dummy_xy)
         step_ms = (time.perf_counter() - t0) * 1000
 
         if run_idx < n_warmup:

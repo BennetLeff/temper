@@ -11,8 +11,9 @@ Documentation fields (YAML-only, not stored in the model):
     because: Rationale for the chosen parameters (documentation only)
 """
 
-from pydantic import BaseModel, ConfigDict
 from typing import Literal
+
+from pydantic import BaseModel, ConfigDict
 
 
 class NetClassRules(BaseModel):

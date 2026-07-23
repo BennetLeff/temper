@@ -413,7 +413,7 @@ def _make_arm_placement_builder(
                 )
                 if u5_result.is_usable and u5_result.field is not None:
                     raw = u5_result.field
-                    field_grid = np.asarray(raw.grid if hasattr(raw, 'grid') else raw, dtype=np.float64)
+                    np.asarray(raw.grid if hasattr(raw, 'grid') else raw, dtype=np.float64)
                     # Nudge toward cooler cells
                     cs = fdm_config.cell_size_mm
                     ox, oy = fdm_config.origin_mm

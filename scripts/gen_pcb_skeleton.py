@@ -12,7 +12,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import subprocess
 import sys
@@ -324,8 +323,9 @@ def generate_board(
     """Build a .kicad_pcb from the netlist with all footprints instantiated."""
     from kiutils.board import Board
     from kiutils.footprint import Footprint
-    from kiutils.items.common import Net as KiNet, Position
     from kiutils.items.brditems import LayerToken
+    from kiutils.items.common import Net as KiNet
+    from kiutils.items.common import Position
     from kiutils.items.gritems import GrPoly
 
     board = Board.create_new()

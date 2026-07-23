@@ -11,6 +11,7 @@ Layout (3×3 grid, aligned to board coordinates):
 
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 from typing import Any
 
@@ -280,16 +281,12 @@ def build_dashboard_from_pipeline(
     if stage2_output.routing_spaces:
         rs = next(iter(stage2_output.routing_spaces.values()))
         board_bounds = rs.available_area.bounds
-        try:
+        with contextlib.suppress(Exception):
             edt, mask, _ = _build_edt(rs, 0.1, use_cache=True)
-        except Exception:
-            pass
 
     capacities = None
-    try:
+    with contextlib.suppress(Exception):
         capacities = compute_capacity_demand_ratios(stage2_output, parsed_pcb)
-    except Exception:
-        pass
 
     net_bboxes = {}
     comp_by_ref = {c.ref: c for c in parsed_pcb.components}
@@ -306,12 +303,10 @@ def build_dashboard_from_pipeline(
     bottleneck_widths = None
     if edt is not None and mask is not None and net_bboxes and channel_mapping:
         from temper_placer.router_v6.astar_pathfinding import _compute_bottleneck_widths
-        try:
+        with contextlib.suppress(Exception):
             bottleneck_widths = _compute_bottleneck_widths(
                 channel_mapping, edt, mask, board_bounds, 0.1,
             )
-        except Exception:
-            pass
 
     routability = None
     if edt is not None and mask is not None and net_bboxes:

@@ -1,5 +1,5 @@
 """PCL-to-CP-SAT constraint encoder.
- 
+
 Maps all 8 PCL constraint types to CP-SAT model constraints using a
 TYPE_HANDLERS dispatch pattern mirroring sat_bridge.py.
 
@@ -1111,7 +1111,7 @@ def solve_placement(
         on_unresolved=_UNRESOLVED_REF_POLICY,
     )
 
-    labels = encode_constraints(
+    encode_constraints(
         constraint_objects,
         model_wrapper,
         ctx,

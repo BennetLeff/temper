@@ -99,8 +99,8 @@ class ThermalSoundnessResult:
 
 
 def build_thermal_parameter_bounds(
-    prereg: "FieldPreregistration",
-    fdm_config: "ThermalFDMConfig | None" = None,
+    prereg: FieldPreregistration,
+    fdm_config: ThermalFDMConfig | None = None,
 ) -> list[ParameterBound]:
     """Build the uncertainty box: one ``ParameterBound`` per swept parameter.
 
@@ -288,8 +288,8 @@ def monotonicity_proof() -> str:
 
 
 def compute_thermal_soundness(
-    prereg: "FieldPreregistration",
-    fdm_config: "ThermalFDMConfig | None" = None,
+    prereg: FieldPreregistration,
+    fdm_config: ThermalFDMConfig | None = None,
     devices: dict[str, tuple[float, float]] | None = None,
     power_map: dict[str, float] | None = None,
     T_j_max: float = 150.0,

@@ -223,9 +223,9 @@ def _compute_consolidation(
                 if j == i + 1:
                     co_routed_pairs += 1
                 else:
-                    intervening_nets = set(
+                    intervening_nets = {
                         track.net for track in channel_tracks[i + 1 : j]
-                    )
+                    }
                     if len(intervening_nets) <= 1 and (
                         not intervening_nets or intervening_nets == {channel_tracks[i].net}
                     ):

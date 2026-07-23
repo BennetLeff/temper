@@ -67,7 +67,7 @@ def generate_netclass_separated_constraints(
     existing_constraints: list | None = None,
 ) -> list[SeparatedConstraint]:
     """Generate SEPARATED constraints for cross-class component-net pairs.
-    
+
     Only cross-class pairs (different net classes) get explicit constraints.
     Same-class pairs are handled by the existing global NoOverlap2D.
     """

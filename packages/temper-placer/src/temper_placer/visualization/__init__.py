@@ -27,8 +27,6 @@ Usage:
 """
 
 # Data models for visualization state
-from temper_placer.visualization.config_types import BoardRenderOptions
-
 # Board rendering (requires Plotly)
 from temper_placer.visualization.board_renderer import (
     PLOTLY_AVAILABLE,
@@ -40,6 +38,7 @@ from temper_placer.visualization.board_renderer import (
     render_board_comparison,
     render_board_with_violations,
 )
+from temper_placer.visualization.config_types import BoardRenderOptions
 
 # LiveVisualizer integration for training loop
 from temper_placer.visualization.live import (

@@ -4,17 +4,17 @@ IPC-2152 inverse ampacity: minimum trace width from expected current.
 Delegates core computation to the temper_ipc Rust extension.
 """
 from temper_ipc import (  # noqa: F401 — re-export
-    ipc2152_min_width_mm,
-    ipc2152_current_capacity,
-    get_net_current,
-    NET_CURRENTS,
     DEFAULT_SIGNAL_CURRENT,
+    NET_CURRENTS,
+    get_net_current,
+    ipc2152_current_capacity,
+    ipc2152_min_width_mm,
 )
 
 
 def ipc2152_external_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
     """Trace width in mm for external layers (F.Cu / B.Cu).
-    
+
     Convenience wrapper around ipc2152_min_width_mm with internal_layer=False.
     """
     return ipc2152_min_width_mm(current_amps, copper_weight_oz, temp_rise_c, False)

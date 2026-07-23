@@ -352,7 +352,7 @@ def main():
     )
     if phase3_current:
         print(
-            f"\n=== PHASE 3 SCAN: tools/, simulation/ ==="
+            "\n=== PHASE 3 SCAN: tools/, simulation/ ==="
         )
         print(
             f"  Found {len(phase3_current)} temper_placer.* imports across "
@@ -363,8 +363,8 @@ def main():
         if phase3_new:
             new_violations |= phase3_new
             print(
-                f"\n  Add per-file entries to import-linter-allowlist.yaml "
-                f"for these imports:"
+                "\n  Add per-file entries to import-linter-allowlist.yaml "
+                "for these imports:"
             )
             for src, tgt, _ in sorted(phase3_new)[:20]:
                 print(f"    - source: {src}  target: {tgt}")

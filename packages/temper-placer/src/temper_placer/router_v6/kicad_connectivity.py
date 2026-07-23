@@ -114,7 +114,8 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
         xy_pts = re.findall(r"\(xy\s+([-\d.]+)\s+([-\d.]+)\)", poly_block)
         if len(xy_pts) < 3:
             continue
-        from shapely.geometry import MultiPolygon, Polygon as ShapelyPolygon
+        from shapely.geometry import MultiPolygon
+        from shapely.geometry import Polygon as ShapelyPolygon
         try:
             poly = ShapelyPolygon([(float(x), float(y)) for x, y in xy_pts])
             if not poly.is_valid:

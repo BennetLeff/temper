@@ -13,7 +13,6 @@ Key algorithms (Rust implementation):
 """
 import temper_geometry as _tg
 
-
 # =============================================================================
 # Polygon Area (Shoelace Formula)
 # =============================================================================

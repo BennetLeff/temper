@@ -397,10 +397,7 @@ def assign_thermal_anchors(
         return zx0 <= x <= zx1 and zy0 <= y <= zy1
 
     def _in_keepout(x: float, y: float) -> bool:
-        for kx0, ky0, kx1, ky1 in keepouts:
-            if kx0 <= x <= kx1 and ky0 <= y <= ky1:
-                return True
-        return False
+        return any(kx0 <= x <= kx1 and ky0 <= y <= ky1 for kx0, ky0, kx1, ky1 in keepouts)
 
     def _find_min_valid(phi: Array, ref: str, existing_positions: list[tuple[float, float]]) -> tuple[float, float] | None:
         """Find the minimum phi position within all constraints."""
@@ -472,7 +469,7 @@ def assign_thermal_anchors(
 
     for _iteration in range(MAX_ITERATIONS):
         anchor_positions_list = list(pass1_anchors.values())
-        device_powers_list = [p for _, p in power_devices if _ in pass1_anchors]
+        [p for _, p in power_devices if _ in pass1_anchors]
         # Use anchor positions as device_positions for coupling
         coupled_device_positions = [
             pass1_anchors[ref] for ref, _ in power_devices if ref in pass1_anchors

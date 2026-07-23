@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
+
 try:
     from numba import njit
 except ImportError:
@@ -32,6 +33,7 @@ from temper_placer.core.board import (
     LayerIndex,
 )
 from temper_placer.core.pin_geometry import pin_world_position
+
 from ..state import BoardState
 from .base import Stage
 

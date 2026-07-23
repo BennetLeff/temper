@@ -36,11 +36,6 @@ from temper_placer.router_v6.astar_grid import (
     _unmark_route_blocked,
 )
 from temper_placer.router_v6.channel_mapping import ChannelMapping
-from temper_placer.router_v6.net_classification import (
-    is_ground_net,
-    is_hv_net,
-    is_power_net,
-)
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 from temper_placer.router_v6.stage0_data import DesignRules
 from temper_placer.router_v6.tree_route_geometry import TreeRouteBranch, TreeRouteGeometry

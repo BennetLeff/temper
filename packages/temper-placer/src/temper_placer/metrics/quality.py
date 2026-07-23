@@ -331,10 +331,7 @@ def dual_rail_clearance_report(
             dx = abs(float(hv_pos[0]) - float(lv_pos[0])) - hv_hw - lv_hw
             dy = abs(float(hv_pos[1]) - float(lv_pos[1])) - hv_hh - lv_hh
 
-            if dx > 0 and dy > 0:
-                clearance = (dx**2 + dy**2) ** 0.5
-            else:
-                clearance = max(dx, dy)
+            clearance = (dx ** 2 + dy ** 2) ** 0.5 if dx > 0 and dy > 0 else max(dx, dy)
 
             min_found_clearance = min(min_found_clearance, clearance)
 
@@ -445,7 +442,7 @@ def congestion_score(
         0.0 = severe congestion hotspots.
     """
 
-    board_bounds = board.get_relative_bounds_array()
+    board.get_relative_bounds_array()
     return 1.0  # routing demand computation removed (JAX retirement)
 
 

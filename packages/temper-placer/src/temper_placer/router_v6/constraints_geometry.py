@@ -14,7 +14,6 @@ from dataclasses import dataclass
 
 import numpy as np
 
-
 from temper_placer.core.geometry_types import Point  # noqa: F401  re-exported
 
 __all__ = ["Point", "LineSegment", "RotatedRect"]

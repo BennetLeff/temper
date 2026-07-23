@@ -57,16 +57,16 @@ def create_rect_zone(net_id, net_name, layer, x1, y1, x2, y2, priority=0):
 
 def add_unified_gnd_plane(input_pcb: Path, output_pcb: Path):
     content = input_pcb.read_text()
-    
+
     bx1, by1, bx2, by2 = parse_pcb_bounds(content)
     print(f"Board Bounds: {bx1},{by1} -> {bx2},{by2}")
-    
+
     # Apply margin
     zx1, zy1 = bx1 + BOARD_MARGIN, by1 + BOARD_MARGIN
     zx2, zy2 = bx2 - BOARD_MARGIN, by2 - BOARD_MARGIN
-    
+
     zones = []
-    
+
     # Get GND net ID (primary ground net)
     gnd_id = get_net_id(content, "GND")
     if gnd_id:
@@ -75,20 +75,20 @@ def add_unified_gnd_plane(input_pcb: Path, output_pcb: Path):
     else:
         print("ERROR: GND net not found in PCB!")
         sys.exit(1)
-    
+
     # Note: PGND and CGND pads connect to this GND plane via their fanout vias
     # The fanout script places vias that punch through to In2.Cu where GND plane exists
     # This creates a unified ground reference
-    
+
     pgnd_id = get_net_id(content, "PGND")
     cgnd_id = get_net_id(content, "CGND")
     print(f"Ground nets present: GND={gnd_id}, PGND={pgnd_id}, CGND={cgnd_id}")
     print("Note: PGND/CGND connect via fanout vias to the unified GND plane")
-    
+
     # Write output
     insert_pos = content.rfind(')')
     new_content = content[:insert_pos] + '\n' + ''.join(zones) + content[insert_pos:]
-    
+
     output_pcb.write_text(new_content)
     print(f"Wrote 1 unified GND zone to {output_pcb}")
 
@@ -96,8 +96,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python add_power_planes_v5.py <input.kicad_pcb> [output.kicad_pcb]")
         sys.exit(1)
-        
+
     inp = Path(sys.argv[1])
     out = Path(sys.argv[2]) if len(sys.argv) > 2 else inp.with_stem(inp.stem + "_gnd_plane")
-    
+
     add_unified_gnd_plane(inp, out)

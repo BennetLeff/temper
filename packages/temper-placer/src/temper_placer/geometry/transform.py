@@ -7,7 +7,6 @@ radians for rotation representation.
 """
 import temper_geometry as _tg
 
-
 # =============================================================================
 # Rotation Matrices and Core Rotation
 # =============================================================================

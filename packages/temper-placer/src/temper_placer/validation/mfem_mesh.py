@@ -8,13 +8,11 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-import numpy as np
-
 
 def build_temper_mesh(
-    board: "Board",
-    fdm_config: "ThermalFDMConfig",
-    device_thermal: dict[str, "DeviceThermalConfig"],
+    board: Board,
+    fdm_config: ThermalFDMConfig,
+    device_thermal: dict[str, DeviceThermalConfig],
     power_map: dict[str, float] | None = None,
     output_dir: str | None = None,
 ) -> str:

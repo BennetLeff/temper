@@ -12,13 +12,7 @@ from pathlib import Path
 
 import jax.numpy as jnp
 from rich.console import Console
-
-from temper_placer.core.loop import LoopCollection
-
-# Add packages to path if needed (uv handle this usually)
-from temper_placer.io.kicad_parser import parse_kicad_pcb
 from temper_placer.io.trace_writer import write_traces_to_pcb
-from temper_placer.io.zone_manager import add_power_planes
 from temper_placer.routing.constraints.geometry import Point
 from temper_placer.routing.constraints.spatial_index import (
     Pad as GeoPad,
@@ -31,8 +25,14 @@ from temper_placer.routing.constraints.spatial_index import (
 )
 from temper_placer.routing.fanout import fanout_power_nets
 from temper_placer.routing.layer_assignment import assign_layers
-from temper_placer.router_v6.adapter import V6RouterAdapter
 from temper_placer.routing.net_ordering import order_nets
+
+from temper_placer.core.loop import LoopCollection
+
+# Add packages to path if needed (uv handle this usually)
+from temper_placer.io.kicad_parser import parse_kicad_pcb
+from temper_placer.io.zone_manager import add_power_planes
+from temper_placer.router_v6.adapter import V6RouterAdapter
 
 
 def populate_oracle_from_board(oracle, board):
@@ -417,8 +417,9 @@ def main():
     console.print("\n[bold cyan]Step 3:[/] Pre-routing analysis...")
 
     # NEW: Build Hypergraph for Physics-Aware Strategy Inference
-    from temper_placer.extraction.hypergraph_factory import netlist_to_hypergraph
     from temper_placer.routing.bridge.api import get_cost_map_for_net, get_routing_context
+
+    from temper_placer.extraction.hypergraph_factory import netlist_to_hypergraph
 
     hg = netlist_to_hypergraph(netlist)
     routing_ctx = get_routing_context(hg, positions, board, netlist)
@@ -489,7 +490,6 @@ def main():
     if drc_oracle is None:
         # We need Oracle for ballooning anyway
         from kiutils.board import Board as KiBoard
-
         from temper_placer.routing.constraints import DesignRulesParser, DRCOracle
         drc_oracle = DRCOracle(DesignRulesParser.create_default())
         temp_ki_board = KiBoard.from_file(str(working_pcb_path))
@@ -525,7 +525,6 @@ def main():
 
     # Initialize C-Space Engine (temper-v6u3)
     from kiutils.board import Board as KiBoard
-
     from temper_placer.routing.c_space_builder import CSpaceBuilder, CSpaceConfig
     from temper_placer.routing.constraints.design_rules import DesignRulesParser, ZoneManager
 
@@ -766,8 +765,9 @@ def main():
     # 4.5 Geometric Post-Processing
     if args.geometric_nudge:
         console.print("\n[bold cyan]Step 4.5:[/] Running Geometric Nudging...")
-        from temper_placer.io.kicad_exporter import export_from_geometry
         from temper_placer.routing.post_processing.nudger import GeometricNudger
+
+        from temper_placer.io.kicad_exporter import export_from_geometry
 
         nudger = GeometricNudger(router.drc_oracle)
         nudger.optimize()
