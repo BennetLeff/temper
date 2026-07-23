@@ -9,6 +9,7 @@ and are patched onto the class at import time.
 
 from __future__ import annotations
 
+import logging
 import time
 from pathlib import Path
 from typing import Any
@@ -74,6 +75,7 @@ class RouterV6Pipeline:
         enable_all_pad_tree: bool = False,
         enable_zone_pours: bool = False,
         enable_connectivity_verifier: bool = False,
+        enable_erc_check: bool = False,
     ):
         """
         Initialize Router V6 pipeline.
@@ -119,6 +121,11 @@ class RouterV6Pipeline:
                 (from CostFieldInput.weight).  0.0 = field-off.
             enable_all_pad_tree: Enable experimental all-terminal tree
                 expansion. Disabled pending production KiCad DRC evidence.
+            enable_erc_check: Run kicad-cli pcb erc on the routed board
+                after stage-4 geometric realization. Default-off —
+                promotion is a separate decision, matching
+                enable_connectivity_verifier's discipline (plan
+                2026-07-23-001 U2).
         """
         if dfm_fail_on not in ("none", "critical", "all"):
             raise ValueError(
@@ -151,6 +158,7 @@ class RouterV6Pipeline:
         self.enable_all_pad_tree = enable_all_pad_tree
         self.enable_zone_pours = enable_zone_pours
         self.enable_connectivity_verifier = enable_connectivity_verifier
+        self.enable_erc_check = enable_erc_check
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.
         self.layer_constraints = layer_constraints or {}
@@ -359,6 +367,21 @@ class RouterV6Pipeline:
                 pcb=pcb,
                 routing_results=stage4.routing_results,
             )
+
+        # Post-routing ERC check (plan 2026-07-23-001 U2)
+        if self.enable_erc_check:
+            from temper_placer.placer.cp_sat.gates import BoardState, ErcGate, GateStatus
+
+            erc_result = ErcGate().check(BoardState(routed_pcb_path=pcb_path))
+            if erc_result.status is GateStatus.UNMEASURED:
+                _logger = logging.getLogger(__name__)
+                _logger.warning("ERC gate UNMEASURED: %s", erc_result.error_message)
+            elif erc_result.status is GateStatus.VIOLATIONS:
+                _logger = logging.getLogger(__name__)
+                _logger.warning(
+                    "ERC gate found %d violation(s) on routed board",
+                    len(erc_result.violations),
+                )
 
         runtime = time.time() - start_time
 
