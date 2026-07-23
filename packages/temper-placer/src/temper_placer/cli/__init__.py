@@ -272,13 +272,6 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
     help="Use the consolidated Core 8 loss set (default: False).",
 )
 @click.option(
-    "--placer",
-    type=click.Choice(["cp-sat", "jax-deprecated"]),
-    default="cp-sat",
-    show_default=True,
-    help="Placer engine to use.",
-)
-@click.option(
     "--loop/--no-loop",
     default=True,
     help="Enable place→route feedback loop for routing-aware placement (default: enabled).",
@@ -335,7 +328,6 @@ def optimize(
     spice_penalty_weight: float,
     weight_channel_capacity: float | None,
     compact: bool,
-    placer: str,
     loop: bool,
     unsat_report: Path | None,
     all_gates: bool,
@@ -350,16 +342,7 @@ def optimize(
     Examples:
         temper-placer optimize temper.kicad_pcb -c constraints.yaml -o optimized.kicad_pcb
     """
-    # Handle deprecated --placer jax-deprecated flag
-    if placer == "jax-deprecated":
-        console.print(
-            "[red]ERROR:[/] --placer jax-deprecated is no longer supported.\n"
-            "  The JAX optimizer stack has been removed (see plan 2026-07-03-002).\n"
-            "  CP-SAT is now the default and only placement engine.\n"
-            "  Remove the --placer flag from your invocation."
-        )
-        sys.exit(1)
-
+    # Handle deprecated --placer jax-deprecated flag (removed — CP-SAT is the only engine)
     console.print(
         Panel.fit(
             f"[bold blue]temper-placer[/] v{__version__}\nCP-SAT PCB placement optimizer",
@@ -376,18 +359,8 @@ def optimize(
     console.print(f"[bold]Heuristics:[/] {'enabled' if heuristics else 'disabled'}")
     console.print(f"[bold]Centrality:[/] {'enabled' if centrality else 'disabled'}")
     console.print(f"[bold]Loss Set:[/] {'[bold cyan]Compact (Core 8)[/]' if compact else 'Standard (Legacy)'}")
-    console.print(f"[bold]Placer:[/] {placer}")
 
-    if placer == "jax-deprecated":
-        sys.stderr.write(
-            "The JAX placer has been removed; CP-SAT is the sole placer.\n"
-            "If you reached this flag for production-rollback reasons, "
-            "file an issue with the board's PCL config and the routed-PCB file.\n"
-        )
-        console.print("[dim]Exiting with code 0 (informational, not an error).[/]")
-        sys.exit(0)
-
-    # CP-SAT placer (default, sole active path)
+    # CP-SAT placer (sole engine)
     console.print()
     console.print("[bold green]CP-SAT placer selected (default).[/]")
     console.print("[dim]The JAX gradient-descent pipeline has been removed.[/]")
