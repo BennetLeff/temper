@@ -297,7 +297,8 @@ def build_dashboard_from_pipeline(
             if r in comp_by_ref and comp_by_ref[r].initial_position
         ]
         if len(positions) >= 2:
-            xs = [p[0] for p in positions]; ys = [p[1] for p in positions]
+            xs = [p[0] for p in positions]
+            ys = [p[1] for p in positions]
             net_bboxes[net.name] = (min(xs), min(ys), max(xs), max(ys))
 
     bottleneck_widths = None
@@ -332,31 +333,41 @@ def build_dashboard_from_pipeline(
             nlist = list(ordered)
             for i in range(len(nlist)):
                 a = nlist[i]
-                if a not in net_bboxes: continue
+                if a not in net_bboxes:
+                continue
                 ax1, ay1, ax2, ay2 = net_bboxes[a]
                 area_a = (ax2-ax1)*(ay2-ay1)
-                if area_a <= 0: continue
+                if area_a <= 0:
+                continue
                 for j in range(i+1, len(nlist)):
                     b = nlist[j]
-                    if b not in net_bboxes: continue
+                    if b not in net_bboxes:
+                        continue
                     bx1, by1, bx2, by2 = net_bboxes[b]
                     area_b = (bx2-bx1)*(by2-by1)
-                    if area_b <= 0: continue
+                    if area_b <= 0:
+                        continue
                     ox = max(0.0, min(ax2,bx2)-max(ax1,bx1))
                     oy = max(0.0, min(ay2,by2)-max(ay1,by1))
                     if ox*oy / min(area_a,area_b) > threshold:
-                        graph[a].add(b); graph[b].add(a)
+                        graph[a].add(b)
+                        graph[b].add(a)
             visited = set()
             conflict_clusters = []
             for net in ordered:
-                if net in visited: continue
-                queue = [net]; cluster = []
+                if net in visited:
+                continue
+                queue = [net]
+                cluster = []
                 while queue:
                     n = queue.pop()
-                    if n in visited: continue
-                    visited.add(n); cluster.append(n)
+                    if n in visited:
+                    continue
+                    visited.add(n)
+                    cluster.append(n)
                     for nb in graph.get(n, set()):
-                        if nb not in visited: queue.append(nb)
+                        if nb not in visited:
+                            queue.append(nb)
                 conflict_clusters.append(cluster)
 
     return routing_health_dashboard(
