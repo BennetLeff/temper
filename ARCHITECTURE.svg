@@ -10,10 +10,10 @@
 <path d="M207.5,-160.0 Q249.0,-160.0 249.0,96.0 Q249.0,96.0 290.6,96.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
 <path d="M211.5,-96.0 Q251.0,-96.0 251.0,96.0 Q251.0,96.0 290.6,96.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
 <path d="M183.4,-32.0 Q237.7,-32.0 237.7,-160.0 Q237.7,-160.0 292.0,-160.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
-<path d="M222.0,32.0 Q253.4,32.0 253.4,-96.0 Q253.4,-96.0 284.9,-96.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+<path d="M222.1,32.0 Q253.5,32.0 253.5,-96.0 Q253.5,-96.0 284.9,-96.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
 <path d="M186.0,96.0 Q239.5,96.0 239.5,32.0 Q239.5,32.0 293.0,32.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
 <path d="M204.3,160.0 Q232.9,160.0 232.9,288.0 Q232.9,288.0 261.6,288.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
-<path d="M186.1,224.0 Q214.5,224.0 214.5,160.0 Q214.5,160.0 242.8,160.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+<path d="M186.1,224.0 Q214.4,224.0 214.4,160.0 Q214.4,160.0 242.8,160.0" fill="none" stroke="#4a4a4a" stroke-width="1.2" marker-end="url(#arrowhead)"/>
 <rect x="274.1" y="-310.0" width="255.8" height="44.0" rx="6" ry="6" fill="#555555" stroke="#333" stroke-width="1"/>
 <text x="402.0" y="-274.0" text-anchor="middle" font-family="sans-serif" font-size="12px" fill="#ffffff" opacity="0.85">1,288 LoC</text>
 <text x="402.0" y="-283.3" text-anchor="middle" font-family="sans-serif" font-size="14px" font-weight="bold" fill="#ffffff">firmware</text>
@@ -35,8 +35,8 @@
 <rect x="292.0" y="-182.0" width="220.0" height="44.0" rx="6" ry="6" fill="#DEA584" stroke="#333" stroke-width="1"/>
 <text x="402.0" y="-146.0" text-anchor="middle" font-family="sans-serif" font-size="10px" fill="#2d1e0f" opacity="0.85">167 LoC</text>
 <text x="402.0" y="-155.9" text-anchor="middle" font-family="sans-serif" font-size="12px" font-weight="bold" fill="#2d1e0f">temper-dsn-core</text>
-<rect x="-58.0" y="10.0" width="279.9" height="44.0" rx="6" ry="6" fill="#DEA584" stroke="#333" stroke-width="1"/>
-<text x="82.0" y="46.0" text-anchor="middle" font-family="sans-serif" font-size="12px" fill="#2d1e0f" opacity="0.85">5,101 LoC</text>
+<rect x="-58.1" y="10.0" width="280.2" height="44.0" rx="6" ry="6" fill="#DEA584" stroke="#333" stroke-width="1"/>
+<text x="82.0" y="46.0" text-anchor="middle" font-family="sans-serif" font-size="12px" fill="#2d1e0f" opacity="0.85">5,186 LoC</text>
 <text x="82.0" y="36.7" text-anchor="middle" font-family="sans-serif" font-size="14px" font-weight="bold" fill="#2d1e0f">temper-geometry</text>
 <rect x="284.9" y="-118.0" width="234.1" height="44.0" rx="6" ry="6" fill="#DEA584" stroke="#333" stroke-width="1"/>
 <text x="402.0" y="-82.0" text-anchor="middle" font-family="sans-serif" font-size="11px" fill="#2d1e0f" opacity="0.85">375 LoC</text>
@@ -53,8 +53,8 @@
 <rect x="290.6" y="74.0" width="222.9" height="44.0" rx="6" ry="6" fill="#DEA584" stroke="#333" stroke-width="1"/>
 <text x="402.0" y="110.0" text-anchor="middle" font-family="sans-serif" font-size="10px" fill="#2d1e0f" opacity="0.85">197 LoC</text>
 <text x="402.0" y="100.1" text-anchor="middle" font-family="sans-serif" font-size="12px" font-weight="bold" fill="#2d1e0f">temper-pcl-ir</text>
-<rect x="242.8" y="138.0" width="318.4" height="44.0" rx="6" ry="6" fill="#306998" stroke="#333" stroke-width="1"/>
-<text x="402.0" y="174.0" text-anchor="middle" font-family="sans-serif" font-size="12px" fill="#ffffff" opacity="0.85">45,556 LoC</text>
+<rect x="242.8" y="138.0" width="318.5" height="44.0" rx="6" ry="6" fill="#306998" stroke="#333" stroke-width="1"/>
+<text x="402.0" y="174.0" text-anchor="middle" font-family="sans-serif" font-size="12px" fill="#ffffff" opacity="0.85">45,793 LoC</text>
 <text x="402.0" y="164.7" text-anchor="middle" font-family="sans-serif" font-size="14px" font-weight="bold" fill="#ffffff">temper-placer</text>
 <rect x="271.6" y="202.0" width="260.8" height="44.0" rx="6" ry="6" fill="#DEA584" stroke="#333" stroke-width="1"/>
 <text x="402.0" y="238.0" text-anchor="middle" font-family="sans-serif" font-size="12px" fill="#2d1e0f" opacity="0.85">1,714 LoC</text>
