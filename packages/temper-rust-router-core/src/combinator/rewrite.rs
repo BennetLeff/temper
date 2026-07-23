@@ -461,13 +461,12 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
     // Compute max_nets and var-name sets for each capacity constraint.
     let cap_infos: Vec<CapInfo> = caps
         .into_iter()
-        .map(|(orig_idx, ch_id, cap, sf, terms)| {
-            let max_nets = compute_max_nets(cap, sf, &terms);
+        .map(|(orig_idx, ch_id, _capacity, sf, terms)| {
+            let max_nets = compute_max_nets(_capacity, sf, &terms);
             let var_set: HashSet<String> = terms.iter().map(|(n, _)| n.clone()).collect();
             CapInfo {
                 orig_idx,
                 channel_id: ch_id,
-                capacity: cap,
                 slack_factor: sf,
                 terms,
                 max_nets,
@@ -587,8 +586,6 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<Internal
 struct CapInfo {
     orig_idx: usize,
     channel_id: String,
-    #[allow(dead_code)]
-    capacity: f64,
     slack_factor: f64,
     terms: Vec<(String, f64)>,
     max_nets: usize,

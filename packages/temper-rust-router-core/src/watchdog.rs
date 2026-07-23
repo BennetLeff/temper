@@ -24,17 +24,14 @@ const BUDGET_MULTIPLIER: usize = 10;
 
 /// A detected Performance constraint violation.
 #[derive(Debug)]
-#[allow(dead_code)]
 struct Violation {
     bundle_id: usize,
     kind: ViolationKind,
-    channel_id: String,
 }
 
 #[derive(Debug)]
 enum ViolationKind {
     DiffPairSplit,
-    CapacityExceeded,
 }
 
 /// The CEGAR watchdog.
@@ -43,8 +40,6 @@ pub struct Watchdog<'term, 'learn> {
     manifest: InternalBundleManifest,
     /// Per-net variable names → SAT indices
     per_net_var_map: HashMap<String, usize>,
-    /// Fixed number of class-level variables (from safety CNF)
-    eager_var_count: usize,
     /// Total budget for per-net variable instantiation
     budget_total: usize,
     /// Consumed budget
@@ -66,7 +61,7 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
     pub fn new(
         solver: CaDiCaL<'term, 'learn>,
         class_var_names: Vec<String>,
-        class_var_count: usize,
+        _class_var_count: usize,
         manifest: InternalBundleManifest,
         _net_names: &[String],
     ) -> Self {
@@ -82,7 +77,6 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
             solver,
             manifest,
             per_net_var_map: HashMap::new(),
-            eager_var_count: class_var_count,
             budget_total,
             budget_used: 0,
             cegar_iterations: 0,
@@ -294,11 +288,9 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
                 .map(|v| v.len())
                 .unwrap_or(0);
             if chs > 1 {
-                let ch_list = &bundle_true_channels[&bundle.bundle_id];
                 violations.push(Violation {
                     bundle_id: bundle.bundle_id,
                     kind: ViolationKind::DiffPairSplit,
-                    channel_id: ch_list[0].clone(),
                 });
             }
         }
