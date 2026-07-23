@@ -11,6 +11,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ca-certificates curl git \
     python3.12 python3.12-dev python3.12-venv \
     build-essential cmake pkg-config \
+    libclang-dev \
     ngspice \
     && rm -rf /var/lib/apt/lists/*
 
