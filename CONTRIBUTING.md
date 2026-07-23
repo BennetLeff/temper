@@ -65,6 +65,46 @@ pushing, run:
 uv run python scripts/import_linter_gate.py
 ```
 
+### CI Changes — Docker-PR Workflow
+
+Any change to `.github/docker/**`, the CI Dockerfile, or the Rust toolchain
+config must follow this workflow:
+
+1. **Local pre-check**: build the image locally before opening the PR:
+
+   ```bash
+   docker build -f .github/docker/ci.Dockerfile -t temper-ci-check .
+   docker run --rm temper-ci-check rustc --version
+   ```
+
+   If Docker is unavailable locally, document that in the PR body and request
+   explicit review of the Dockerfile diff.
+
+2. **Pre-merge validation**: as of PR #316, `docker-build.yml` triggers on
+   `pull_request` for `.github/docker/**` and
+   `.github/workflows/docker-build.yml` paths. The `Docker CI Image / build`
+   job runs automatically on Dockerfile-only PRs --- wait for it to pass before
+   requesting review or merging.
+
+3. **Commit scope**: keep Dockerfile-only PRs narrow. Do not bundle Dockerfile
+   changes with feature work --- a Docker-image rebuild on every feature PR
+   slows CI for everyone and hides the regression source if a build breaks.
+
+4. **Toolchain pin discipline**: `RUSTUP_HOME` and `CARGO_HOME` are set
+   explicitly in the Dockerfile (landed via PR #292 and #316 --- see issue
+   [#315](https://github.com/BennetLeff/temper/issues/315) for context). Any
+   new env-var or toolchain change must document *why* it's needed and which
+   CI step breaks without it.
+
+5. **Iteration discipline**: if a Dockerfile PR breaks post-merge (something
+   that only surfaces once the image is actually built by a downstream job),
+   file a focused PR that fixes the root cause rather than patching symptoms
+   iteratively. The `fix/docker-rustup-final` arc (December 2026 --- 19 of 25
+   recent merges, see issue
+   [#315](https://github.com/BennetLeff/temper/issues/315)) is the cautionary
+   example: each fix closed a gap the previous one missed because no pre-merge
+   Docker build was running.
+
 ## Commit Convention
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/):
