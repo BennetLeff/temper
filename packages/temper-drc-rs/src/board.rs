@@ -163,6 +163,35 @@ pub enum PackageType {
 }
 
 // ---------------------------------------------------------------------------
+// SafetyCategory
+// ---------------------------------------------------------------------------
+
+/// Safety classification for net classes used in HV/LV separation checks.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+pub enum SafetyCategory {
+    #[serde(rename = "HV")]
+    Hv,
+    #[serde(rename = "LV")]
+    Lv,
+    #[serde(rename = "AC")]
+    Ac,
+    #[serde(rename = "iso")]
+    Iso,
+}
+
+impl From<&str> for SafetyCategory {
+    fn from(s: &str) -> Self {
+        match s {
+            "HV" => SafetyCategory::Hv,
+            "LV" => SafetyCategory::Lv,
+            "AC" => SafetyCategory::Ac,
+            "iso" => SafetyCategory::Iso,
+            _ => SafetyCategory::Lv,
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // NetClassRules
 // ---------------------------------------------------------------------------
 
@@ -177,7 +206,7 @@ pub struct NetClassRules {
     pub creepage_mm: Option<f64>,
     pub voltage_v: Option<f64>,
     pub max_current_rating: Option<f64>,
-    pub safety_category: Option<String>,
+    pub safety_category: Option<SafetyCategory>,
     pub required_layer: Option<String>,
     pub routing_strategy: Option<String>,
 }
@@ -507,8 +536,8 @@ mod tests {
         let a = component("A", 0.0, 0.0, 10.0, 10.0);
         let b = component("B", 12.0, 8.0, 10.0, 10.0);
         let edge = a.edge_distance_to(&b);
-        let a_verts: Vec<geo::Point<f64>> = a.footprint_polygon.as_ref().unwrap().exterior().points().collect();
-        let b_verts: Vec<geo::Point<f64>> = b.footprint_polygon.as_ref().unwrap().exterior().points().collect();
+        let a_verts: Vec<geo::Point<f64>> = a.footprint_polygon.as_ref().expect("footprint_polygon").exterior().points().collect();
+        let b_verts: Vec<geo::Point<f64>> = b.footprint_polygon.as_ref().expect("footprint_polygon").exterior().points().collect();
         let min_vertex_dist = a_verts
             .iter()
             .flat_map(|va| b_verts.iter().map(move |vb| va.euclidean_distance(vb)))

@@ -5,7 +5,6 @@
 /// - Thermal → min clearance (power * 2.0)
 /// - Signal Integrity → max placement distance (max_len / 1.5)
 /// - Safety → HV-LV isolation (6.5mm default)
-
 use crate::types::{DerivedConstraints, NetClassification, PcbSpecification};
 
 pub fn derive(spec: &PcbSpecification, _classifications: &[NetClassification]) -> DerivedConstraints {
@@ -142,10 +141,10 @@ mod tests {
             ambient_temp_c: 40.0,
         };
         let derived = derive(&spec, &[]);
-        for (_, v) in &derived.loop_spacing {
+        for v in derived.loop_spacing.values() {
             assert!(*v >= 0.0, "loop spacing must be non-negative");
         }
-        for (_, v) in &derived.si_max_placement_dist {
+        for v in derived.si_max_placement_dist.values() {
             assert!(*v >= 0.0, "SI placement dist must be non-negative");
         }
     }

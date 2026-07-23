@@ -249,6 +249,7 @@ mod tests {
         dpll_rec(clauses, &mut assign, 0)
     }
 
+    #[allow(unused_variables, clippy::only_used_in_recursion)]
     fn dpll_rec(clauses: &[Vec<i32>], assign: &mut [Option<bool>], depth: usize) -> bool {
         // Unit propagation pass.
         loop {

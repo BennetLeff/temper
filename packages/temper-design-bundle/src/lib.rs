@@ -44,22 +44,27 @@ pub fn build_bundle(
     })
 }
 
+/// Serialize a [`DesignBundle`] to normalized JSON.
 pub fn normalized_json(bundle: &DesignBundle) -> Result<String, DesignBundleError> {
     serialize::normalized_json(bundle)
 }
 
+/// Compute the SHA-256 hash of arbitrary bytes.
 pub fn sha256(bytes: &[u8]) -> String {
     serialize::sha256(bytes)
 }
 
+/// Parse an atopile export from JSON bytes.
 pub fn parse_atopile(bytes: &[u8]) -> Result<AtopileExport, DesignBundleError> {
     serde_json::from_slice(bytes).map_err(|e| DesignBundleError::Document(e.to_string()))
 }
 
+/// Parse a net-to-footprint mapping from YAML bytes.
 pub fn parse_mapping(bytes: &[u8]) -> Result<NetMapping, DesignBundleError> {
     serde_yaml::from_slice(bytes).map_err(|e| DesignBundleError::Document(e.to_string()))
 }
 
+/// Parse a PCL constraint document from YAML bytes.
 pub fn parse_pcl(bytes: &[u8]) -> Result<PclDocument, DesignBundleError> {
     serde_yaml::from_slice(bytes).map_err(|e| DesignBundleError::Document(e.to_string()))
 }

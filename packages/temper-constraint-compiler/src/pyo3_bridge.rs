@@ -112,7 +112,7 @@ fn extract_opt_point(dict: &Bound<'_, PyDict>) -> PyResult<Option<Point>> {
 fn extract_common_fields(dict: &Bound<'_, PyDict>) -> PyResult<(String, ConstraintTier, String)> {
     let id = extract_str(dict, "id").unwrap_or_else(|_| "unnamed".into());
     let tier_str = extract_str(dict, "tier").unwrap_or_else(|_| "HARD".into());
-    let tier = ConstraintTier::from_str(&tier_str).ok_or_else(|| {
+    let tier = ConstraintTier::parse(&tier_str).ok_or_else(|| {
         PyErr::new::<pyo3::exceptions::PyTypeError, _>(format!("invalid tier: {tier_str}"))
     })?;
     let because = extract_str(dict, "because").unwrap_or_else(|_| "no rationale".into());
@@ -149,14 +149,14 @@ fn pcl_constraint_from_py_dict(dict: &Bound<'_, PyDict>) -> PyResult<PclConstrai
         "aligned" | "Aligned" => {
             let components = extract!(dict, str_list: "components");
             let axis_str = extract!(dict, opt_str: "axis");
-            let axis = axis_str.and_then(|s| crate::ir_tier0::Axis::from_str(&s));
+            let axis = axis_str.and_then(|s| crate::ir_tier0::Axis::parse(&s));
             let tolerance_mm = extract!(dict, f64: "tolerance_mm", 0.0);
             Ok(PclConstraint::Aligned { id, components, axis, tolerance_mm, tier, because })
         }
         "on_side" | "OnSide" => {
             let components = extract!(dict, str_list: "components");
             let side_str = extract!(dict, opt_str: "side");
-            let side = side_str.and_then(|s| crate::ir_tier0::BoardEdge::from_str(&s));
+            let side = side_str.and_then(|s| crate::ir_tier0::BoardEdge::parse(&s));
             let edge = extract!(dict, opt_str: "edge");
             let max_distance_mm = extract!(dict, f64: "max_distance_mm", 0.0);
             Ok(PclConstraint::OnSide { id, components, side, edge, max_distance_mm, tier, because })
@@ -195,7 +195,7 @@ fn net_class_metadata_from_py_dict(
 ) -> PyResult<NetClassMetadata> {
     let class_name: String = extract_str(dict, "name")?;
     let safety_str: Option<String> = extract_opt_str(dict, "safety_category")?;
-    let safety_category = safety_str.and_then(|s| SafetyCategory::from_str(&s));
+    let safety_category = safety_str.and_then(|s| SafetyCategory::parse(&s));
     let clearance: f64 = extract_f64(dict, "clearance", 0.0)?;
     let creepage_mm: f64 = extract_f64(dict, "creepage_mm", 0.0)?;
     let required_layer: Option<String> = extract_opt_str(dict, "required_layer")?;
@@ -370,6 +370,7 @@ pub fn diagnostic_to_py_dict(py: Python<'_>, diag: &crate::provenance::Provenanc
     Ok(d.into())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn run_full_pipeline(
     py: Python<'_>,
     pcl_dicts: &Bound<'_, PyList>,

@@ -93,7 +93,7 @@ impl ProvenanceMap {
     pub fn link_clause(&mut self, clause_idx: usize, prov_ref: ProvenanceRef) {
         self.clause_to_provenance
             .entry(clause_idx)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(prov_ref);
     }
 
@@ -206,6 +206,7 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
         } = sep
         {
             for adj in &adjacencies {
+                #[allow(clippy::collapsible_if)]
                 if let ResolvedConstraint::Adjacency {
                     id: adj_id,
                     net_a: adj_a,
@@ -216,13 +217,13 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
                 {
                     if (sep_a == adj_a && sep_b == adj_b) || (sep_a == adj_b && sep_b == adj_a) {
                         if min_d > max_d {
-                            conflicts.push(ConflictReport {
-                                pcl_constraint_ids: vec![sep_id.clone(), adj_id.clone()],
-                                description: format!(
-                                    "Separation requires ≥{min_d}mm but Adjacency requires ≤{max_d}mm"
-                                ),
-                                tier: ConstraintTier::Hard,
-                            });
+                    conflicts.push(ConflictReport {
+                        pcl_constraint_ids: vec![sep_id.clone(), adj_id.clone()],
+                        description: format!(
+                            "Separation requires ≥{min_d}mm but Adjacency requires ≤{max_d}mm"
+                        ),
+                        tier: ConstraintTier::Hard,
+                    });
                         }
                     }
                 }
@@ -236,16 +237,15 @@ pub fn detect_conflicts(model: &[ResolvedConstraint]) -> Vec<ConflictReport> {
                 ResolvedConstraint::LayerPreference { net: net_a, layer: layer_a, .. },
                 ResolvedConstraint::LayerPreference { net: net_b, layer: layer_b, .. },
             ) = (lp_a, lp_b)
+                && net_a == net_b && layer_a != layer_b
             {
-                if net_a == net_b && layer_a != layer_b {
-                    conflicts.push(ConflictReport {
-                        pcl_constraint_ids: vec![lp_a.id().to_string(), lp_b.id().to_string()],
-                        description: format!(
-                            "Net {net_a} has conflicting layer preferences: {layer_a} vs {layer_b}"
-                        ),
-                        tier: ConstraintTier::Hard,
-                    });
-                }
+                conflicts.push(ConflictReport {
+                    pcl_constraint_ids: vec![lp_a.id().to_string(), lp_b.id().to_string()],
+                    description: format!(
+                        "Net {net_a} has conflicting layer preferences: {layer_a} vs {layer_b}"
+                    ),
+                    tier: ConstraintTier::Hard,
+                });
             }
         }
     }

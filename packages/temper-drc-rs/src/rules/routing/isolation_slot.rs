@@ -87,6 +87,7 @@ fn matching_copper_polygon<'a>(
 // Check
 // ---------------------------------------------------------------------------
 
+#[derive(Default)]
 pub struct IsolationSlotCheck;
 
 impl IsolationSlotCheck {

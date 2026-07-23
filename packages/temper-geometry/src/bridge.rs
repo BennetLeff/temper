@@ -2,6 +2,9 @@
 // PyO3 bridge for temper-geometry — exposes all geometry functions to Python
 // =============================================================================
 
+#![allow(clippy::too_many_arguments)]
+// PyO3 bridge functions mirror Python function signatures 1:1.
+
 use pyo3::prelude::*;
 use std::panic::catch_unwind;
 use temper_geometry_core::types::*;

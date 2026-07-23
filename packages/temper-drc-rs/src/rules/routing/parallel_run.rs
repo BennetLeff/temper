@@ -25,6 +25,7 @@ const PARALLEL_ANGLE_TOLERANCE_RAD: f64 = 10.0 * PI / 180.0; // 10°
 /// Default separation clearance (mm) when net class is unknown.
 const DEFAULT_SEPARATION_MM: f64 = 0.2;
 
+#[derive(Default)]
 pub struct ParallelRunCheck;
 
 impl ParallelRunCheck {

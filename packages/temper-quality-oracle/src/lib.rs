@@ -79,8 +79,9 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
     }
 
     let mut components = Vec::new();
-    if let Ok(Some(comps_any)) = dict.get_item("components") {
-        if let Ok(comps_list) = comps_any.downcast::<PyList>() {
+    if let Ok(Some(comps_any)) = dict.get_item("components")
+        && let Ok(comps_list) = comps_any.downcast::<PyList>()
+    {
             for item in comps_list.iter() {
                 let comp_dict: &Bound<'_, PyDict> = item.downcast()?;
                 let ref_des: String = comp_dict
@@ -112,7 +113,6 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
                 });
             }
         }
-    }
     let _ = py;
 
     Ok(Netlist { nets, components })
@@ -125,29 +125,29 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
         .extract()?;
 
     let mut max_loop_area_mm2 = HashMap::new();
-    if let Ok(Some(loops)) = dict.get_item("max_loop_area_mm2") {
-        if let Ok(loops_dict) = loops.downcast::<PyDict>() {
-            for (key, value) in loops_dict.iter() {
-                max_loop_area_mm2.insert(key.extract()?, value.extract()?);
-            }
+    if let Ok(Some(loops)) = dict.get_item("max_loop_area_mm2")
+        && let Ok(loops_dict) = loops.downcast::<PyDict>()
+    {
+        for (key, value) in loops_dict.iter() {
+            max_loop_area_mm2.insert(key.extract()?, value.extract()?);
         }
     }
 
     let mut power_dissipation = HashMap::new();
-    if let Ok(Some(power)) = dict.get_item("power_dissipation") {
-        if let Ok(power_dict) = power.downcast::<PyDict>() {
-            for (key, value) in power_dict.iter() {
-                power_dissipation.insert(key.extract()?, value.extract()?);
-            }
+    if let Ok(Some(power)) = dict.get_item("power_dissipation")
+        && let Ok(power_dict) = power.downcast::<PyDict>()
+    {
+        for (key, value) in power_dict.iter() {
+            power_dissipation.insert(key.extract()?, value.extract()?);
         }
     }
 
     let mut max_length_mm = HashMap::new();
-    if let Ok(Some(ml)) = dict.get_item("max_length_mm") {
-        if let Ok(ml_dict) = ml.downcast::<PyDict>() {
-            for (key, value) in ml_dict.iter() {
-                max_length_mm.insert(key.extract()?, value.extract()?);
-            }
+    if let Ok(Some(ml)) = dict.get_item("max_length_mm")
+        && let Ok(ml_dict) = ml.downcast::<PyDict>()
+    {
+        for (key, value) in ml_dict.iter() {
+            max_length_mm.insert(key.extract()?, value.extract()?);
         }
     }
 

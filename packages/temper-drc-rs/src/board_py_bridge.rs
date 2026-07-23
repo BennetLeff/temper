@@ -17,7 +17,7 @@ use pyo3::types::{PyAny, PyDict, PyList};
 
 use crate::board::{
     BoardSide, BoardState, Component, ComponentRef, CopperZone, Net, NetClassRules, NetClassName,
-    NetName, PackageType, TraceSegment, Via,
+    NetName, PackageType, SafetyCategory, TraceSegment, Via,
 };
 
 // ---------------------------------------------------------------------------
@@ -302,7 +302,8 @@ fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> 
         creepage_mm: extract_opt_f64(dict, "creepage_mm")?,
         voltage_v: extract_opt_f64(dict, "voltage_v")?,
         max_current_rating: extract_opt_f64(dict, "max_current_rating")?,
-        safety_category: extract_opt_str(dict, "safety_category")?,
+        safety_category: extract_opt_str(dict, "safety_category")?
+            .map(|s| SafetyCategory::from(s.as_str())),
         required_layer: extract_opt_str(dict, "required_layer")?,
         routing_strategy: extract_opt_str(dict, "routing_strategy")?,
     })
@@ -333,16 +334,16 @@ fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
 
     // Segments from Python: [[x1, y1, x2, y2], [x1, y1, x2, y2], ...]
     let mut segments = Vec::new();
-    if let Some(segments_val) = dict.get_item("segments")? {
-        if let Ok(seg_list) = segments_val.downcast::<PyList>() {
-            for item in seg_list.iter() {
-                let coords = extract_f64_list(&item)?;
-                if coords.len() >= 4 {
-                    segments.push(Line::new(
-                        Point::new(coords[0], coords[1]),
-                        Point::new(coords[2], coords[3]),
-                    ));
-                }
+    if let Some(segments_val) = dict.get_item("segments")?
+        && let Ok(seg_list) = segments_val.downcast::<PyList>()
+    {
+        for item in seg_list.iter() {
+            let coords = extract_f64_list(&item)?;
+            if coords.len() >= 4 {
+                segments.push(Line::new(
+                    Point::new(coords[0], coords[1]),
+                    Point::new(coords[2], coords[3]),
+                ));
             }
         }
     }
@@ -402,8 +403,9 @@ fn parse_nets_from_dict(
     board_dict: &Bound<'_, PyDict>,
 ) -> PyResult<HashMap<String, Vec<String>>> {
     let mut result = HashMap::new();
-    if let Some(nets_val) = board_dict.get_item("nets")? {
-        if let Ok(nets_dict) = nets_val.downcast::<PyDict>() {
+    if let Some(nets_val) = board_dict.get_item("nets")?
+        && let Ok(nets_dict) = nets_val.downcast::<PyDict>()
+    {
             for (key, val) in nets_dict.iter() {
                 let net_name: String = key.extract().map_err(|e| {
                     PyValueError::new_err(format!("nets key is not a string: {e}"))
@@ -422,7 +424,6 @@ fn parse_nets_from_dict(
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 result.insert(net_name, comps);
-            }
         }
     }
     Ok(result)
@@ -501,8 +502,9 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     // --- Net classes (HashMap: net_name → class_name) ---
     let net_classes_raw: HashMap<String, String> = {
         let mut result = HashMap::new();
-        if let Some(nc_val) = board_dict.get_item("net_classes")? {
-            if let Ok(nc_dict) = nc_val.downcast::<PyDict>() {
+        if let Some(nc_val) = board_dict.get_item("net_classes")?
+            && let Ok(nc_dict) = nc_val.downcast::<PyDict>()
+        {
                 for (key, val) in nc_dict.iter() {
                     let net_name: String = key.extract().map_err(|e| {
                         PyValueError::new_err(format!("net_classes key is not a string: {e}"))
@@ -513,7 +515,6 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
                         ))
                     })?;
                     result.insert(net_name, class_name);
-                }
             }
         }
         result
@@ -522,8 +523,9 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     // --- Net class rules (HashMap: class_name → rules) ---
     let net_class_rules: HashMap<NetClassName, NetClassRules> = {
         let mut result = HashMap::new();
-        if let Some(ncr_val) = board_dict.get_item("net_class_rules")? {
-            if let Ok(ncr_dict) = ncr_val.downcast::<PyDict>() {
+        if let Some(ncr_val) = board_dict.get_item("net_class_rules")?
+            && let Ok(ncr_dict) = ncr_val.downcast::<PyDict>()
+        {
                 for (key, val) in ncr_dict.iter() {
                     let class_name: String = key.extract().map_err(|e| {
                         PyValueError::new_err(format!(
@@ -535,10 +537,9 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
                             "net_class_rules['{class_name}'] is not a dict: {e}"
                         ))
                     })?;
-                    result.insert(NetClassName(class_name), extract_net_class_rules(rules_dict)?);
-                }
-            }
+            result.insert(NetClassName(class_name), extract_net_class_rules(rules_dict)?);
         }
+    }
         result
     };
 
@@ -550,20 +551,20 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
             let class_name = net_classes_raw
                 .get(&name)
                 .map(|c| NetClassName(c.clone()))
-                .unwrap_or_else(|| NetClassName("Unknown".to_string()));
+                .unwrap_or(NetClassName("Unknown".to_string()));
             let rules = net_class_rules
                 .get(&class_name)
                 .cloned()
-                .unwrap_or_else(|| NetClassRules {
-                    trace_width_mm: 0.2,
-                    clearance_mm: 0.2,
-                    creepage_mm: None,
-                    voltage_v: None,
-                    max_current_rating: None,
-                    safety_category: None,
-                    required_layer: None,
-                    routing_strategy: None,
-                });
+                .unwrap_or(NetClassRules {
+            trace_width_mm: 0.2,
+            clearance_mm: 0.2,
+            creepage_mm: None,
+            voltage_v: None,
+            max_current_rating: None,
+            safety_category: None,
+            required_layer: None,
+            routing_strategy: None,
+        });
             Net {
                 name: net_name,
                 components: comps.into_iter().map(ComponentRef).collect(),

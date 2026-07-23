@@ -2,7 +2,6 @@
 ///
 /// Avoids PyO3 dict-manipulation complexity. The Python side serializes the
 /// netlist to JSON; Rust deserializes, extracts, and returns JSON.
-
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -19,6 +18,7 @@ struct NetlistInput {
     #[serde(default)]
     manual_loops: Vec<LoopInput>,
     #[serde(default)]
+    #[allow(dead_code)]
     topology_hints: std::collections::HashMap<String, String>,
 }
 

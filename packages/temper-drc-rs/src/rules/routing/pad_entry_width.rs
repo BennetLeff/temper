@@ -54,12 +54,12 @@ fn comp_layer(side: BoardSide) -> &'static str {
 
 /// Collect the net names belonging to net classes whose
 /// `max_current_rating` is at or above `min_current` (A).
-fn collect_high_current_net_names<'a>(board: &'a BoardState, min_current: f64) -> Vec<&'a str> {
+fn collect_high_current_net_names(board: &BoardState, min_current: f64) -> Vec<&str> {
     let class_names: Vec<NetClassName> = board
         .net_class_rules
         .iter()
-        .filter(|(_, rules)| rules.max_current_rating.map_or(false, |r| r >= min_current))
-        .map(|(name, _)| name.clone())
+        .filter(|(_, rules)| rules.max_current_rating.is_some_and(|r| r >= min_current))
+        .map(|(name, _)| name).cloned()
         .collect();
     if class_names.is_empty() {
         return Vec::new();
@@ -133,6 +133,7 @@ fn check_endpoint_pad_entry_width(
 // Check
 // ---------------------------------------------------------------------------
 
+#[derive(Default)]
 pub struct PadEntryWidthCheck;
 
 impl PadEntryWidthCheck {

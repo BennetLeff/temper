@@ -79,7 +79,7 @@ fn get_net_current(net_name: &str) -> PyResult<f64> {
 
 #[pyfunction]
 fn net_currents() -> PyResult<HashMap<String, f64>> {
-    Ok(temper_ipc_core::net_currents())
+    Ok(temper_ipc_core::net_currents().clone())
 }
 
 #[pymodule]

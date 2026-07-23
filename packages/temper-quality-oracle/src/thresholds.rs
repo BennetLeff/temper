@@ -4,7 +4,6 @@
 /// - IPC-2221 creepage/clearance violations (HV-LV component pairs)
 /// - Loop-area limit violations
 /// - Thermal clearance violations
-
 use crate::types::{
     PlacementState, QualityConfig, QualityMetrics, PcbSpecification,
     Violation, ViolationType,
@@ -148,7 +147,7 @@ fn evaluate_zones(
     _classifications: &[crate::types::NetClassification],
     _violations: &mut Vec<Violation>,
 ) {
-    // TODO: Implement zone compliance checking — validate that components
+    // TODO(temper-xxx): Implement zone compliance checking — validate that components
     // assigned to zones (via QualityConfig::zone_assignments) are placed
     // within their designated zone boundaries. Currently all zone assignments
     // are silently accepted.
@@ -157,8 +156,7 @@ fn evaluate_zones(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tests_common::{dummy_metrics, empty_placement, empty_spec};
-    use crate::types::QualityMetrics;
+    use crate::tests_common::{dummy_metrics, empty_spec};
     use std::collections::{BTreeSet, HashMap};
 
     fn test_placement() -> PlacementState {

@@ -133,7 +133,7 @@ fn check_cnf_sat(
     for clause in &cnf.clauses {
         let mut lits: Vec<Lit> = Vec::with_capacity(clause.len());
         for &lit in clause {
-            let var_idx = (lit.unsigned_abs() - 1) as u32;
+            let var_idx = lit.unsigned_abs() - 1;
             let lit_obj = if lit > 0 {
                 Lit::positive(var_idx)
             } else {
@@ -348,7 +348,7 @@ mod tests {
     fn bmc_capacity_correct() {
         // AtMostK(3 vars, k=2) — correct encoding
         let model = InternalConstraintModel {
-            variables: vec!["a", "b", "c"]
+            variables: ["a", "b", "c"]
                 .iter()
                 .map(|name| InternalVariable::NetChannel {
                     name: name.to_string(),

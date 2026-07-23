@@ -2,11 +2,9 @@
 /// U5: Proptest invariants (R14-R17)
 /// U6: BMC induction ladder (R18-R21)  
 /// U7: Temper board reproduction (SC1)
-
 use temper_rust_router_core::loop_extractor::extract::{
-    auto_extract_loops, Component, Loop, Net, Pin,
+    auto_extract_loops, Component, Pin,
 };
-use temper_rust_router_core::loop_extractor::types::ExtractionError;
 
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]

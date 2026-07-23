@@ -13,6 +13,7 @@ use crate::board::{BoardState, NetName};
 use crate::constraints::ConstraintSet;
 use crate::rules::{violation, DrcCategory, DrcRule, Severity, Violation};
 
+#[derive(Default)]
 pub struct ThermalViaCountCheck;
 
 impl ThermalViaCountCheck {
