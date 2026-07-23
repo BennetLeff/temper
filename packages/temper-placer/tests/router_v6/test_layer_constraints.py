@@ -1,4 +1,3 @@
-
 import networkx as nx
 import pytest
 
@@ -14,25 +13,26 @@ def mock_pcb():
     stackup = StackupInfo(
         layers=[
             LayerInfo(index=0, name="F.Cu", layer_type="signal", thickness_um=35.0),
-            LayerInfo(index=1, name="B.Cu", layer_type="signal", thickness_um=35.0)
+            LayerInfo(index=1, name="B.Cu", layer_type="signal", thickness_um=35.0),
         ],
         total_thickness_mm=1.6,
-        layer_count=2
+        layer_count=2,
     )
 
     # One net, one SMD pin on Top (F.Cu) at (0,0)
     pin = Pin(name="1", number="1", position=(0, 0), net="N1", layer="F.Cu", is_pth=False)
-    comp = Component(ref="U1", footprint="FP", bounds=(1,1), pins=[pin], initial_position=(0,0))
+    comp = Component(ref="U1", footprint="FP", bounds=(1, 1), pins=[pin], initial_position=(0, 0))
 
     return ParsedPCB(
         components=[comp],
-        nets=[], # Not used by builder for this check
+        nets=[],  # Not used by builder for this check
         zones=[],
         board=None,
         design_rules=None,
         stackup=stackup,
-        source_path=None
+        source_path=None,
     )
+
 
 @pytest.fixture
 def mock_skeletons():
@@ -48,14 +48,11 @@ def mock_skeletons():
 
     return {"F.Cu": sk_top, "B.Cu": sk_bot}
 
+
 def test_layer_constraints_smd_top(mock_pcb, mock_skeletons):
     nets = [Net(name="N1", pins=[])]
 
-    builder = ModelBuilder(
-        skeletons=mock_skeletons,
-        nets=nets,
-        pcb=mock_pcb
-    )
+    builder = ModelBuilder(skeletons=mock_skeletons, nets=nets, pcb=mock_pcb)
     model = builder.build()
 
     # Pin is at (0,0) on F.Cu.
@@ -71,16 +68,13 @@ def test_layer_constraints_smd_top(mock_pcb, mock_skeletons):
     assert not restr[0].allowed
     assert restr[0].net_idx == 0
 
+
 def test_layer_constraints_pth(mock_pcb, mock_skeletons):
     # Make pin PTH
     mock_pcb.components[0].pins[0].is_pth = True
     nets = [Net(name="N1", pins=[])]
 
-    builder = ModelBuilder(
-        skeletons=mock_skeletons,
-        nets=nets,
-        pcb=mock_pcb
-    )
+    builder = ModelBuilder(skeletons=mock_skeletons, nets=nets, pcb=mock_pcb)
     model = builder.build()
 
     # PTH pins can connect to any layer, so no layer restrictions

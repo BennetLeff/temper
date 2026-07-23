@@ -32,6 +32,7 @@ class Entry:
         value: The decided value (position, path, layer, etc.)
         because: Natural language reason (from PCL constraint or algorithm)
     """
+
     subject: str
     value: Any
     because: str
@@ -59,6 +60,7 @@ class Trace:
         >>> len(combined.entries)
         2
     """
+
     entries: tuple[Entry, ...] = ()
 
     @staticmethod

@@ -16,7 +16,6 @@ from hypothesis import strategies as st
 from temper_placer.router_v6.astar_core_numba import _astar_search_numba
 from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
-
 # ---------------------------------------------------------------------------
 # Strategies
 # ---------------------------------------------------------------------------
@@ -29,7 +28,7 @@ def grid_with_cost_field_and_pair(draw: st.DrawFn):
     cols = draw(st.integers(5, 30))
     density = draw(st.floats(0.0, 0.4))
 
-    rng = np.random.RandomState(draw(st.integers(0, 2 ** 31 - 1)))
+    rng = np.random.RandomState(draw(st.integers(0, 2**31 - 1)))
     arr = rng.binomial(1, density, size=(rows, cols)).astype(np.int8)
 
     # Ensure at least 2 DISTINCT free cells exist
@@ -47,10 +46,14 @@ def grid_with_cost_field_and_pair(draw: st.DrawFn):
 
     grid = OccupancyGrid("F.Cu", arr, (0.0, 0.0), 1.0, cols, rows)
     # Pick two distinct free cells
-    idxs = draw(st.lists(
-        st.integers(0, len(free_cells) - 1),
-        min_size=2, max_size=2, unique=True,
-    ))
+    idxs = draw(
+        st.lists(
+            st.integers(0, len(free_cells) - 1),
+            min_size=2,
+            max_size=2,
+            unique=True,
+        )
+    )
     start = free_cells[idxs[0]]
     goal = free_cells[idxs[1]]
 
@@ -75,22 +78,27 @@ def test_pbt_no_path_through_masked_cells(gcfp):
     grid, start, goal, thermal_flat, thermal_weight = gcfp
 
     path = _astar_search_numba(
-        start, goal, grid, max_iterations=10000,
-        thermal_flat=thermal_flat, thermal_weight=thermal_weight,
+        start,
+        goal,
+        grid,
+        max_iterations=10000,
+        thermal_flat=thermal_flat,
+        thermal_weight=thermal_weight,
     )
 
     if path is None:
         return  # No path found is acceptable
 
     blocked_set = {
-        (c, r) for r in range(grid.height_cells) for c in range(grid.width_cells)
+        (c, r)
+        for r in range(grid.height_cells)
+        for c in range(grid.width_cells)
         if grid.grid[r, c] != 0
     }
 
     for cell in path:
         assert cell not in blocked_set, (
-            f"Path traversed blocked cell {cell} "
-            f"on grid {grid.width_cells}x{grid.height_cells}"
+            f"Path traversed blocked cell {cell} on grid {grid.width_cells}x{grid.height_cells}"
         )
 
 
@@ -128,11 +136,18 @@ def test_pbt_higher_cost_lower_traversal_frequency(gcfp):
     rows, cols = grid.height_cells, grid.width_cells
 
     path_off = _astar_search_numba(
-        start, goal, grid, max_iterations=10000,
+        start,
+        goal,
+        grid,
+        max_iterations=10000,
     )
     path_on = _astar_search_numba(
-        start, goal, grid, max_iterations=10000,
-        thermal_flat=thermal_flat, thermal_weight=thermal_weight,
+        start,
+        goal,
+        grid,
+        max_iterations=10000,
+        thermal_flat=thermal_flat,
+        thermal_weight=thermal_weight,
     )
 
     if path_off is None or path_on is None:
@@ -142,6 +157,7 @@ def test_pbt_higher_cost_lower_traversal_frequency(gcfp):
 
     def _octile_cost(path):
         from temper_placer.router_v6.astar_core import octile_distance
+
         return octile_distance(path[0], path[-1])
 
     def _thermal_cost(path):
@@ -192,11 +208,18 @@ def test_pbt_ab_toggle_consistent(gcfp):
     grid, start, goal, thermal_flat, thermal_weight = gcfp
 
     path_off = _astar_search_numba(
-        start, goal, grid, max_iterations=10000,
+        start,
+        goal,
+        grid,
+        max_iterations=10000,
     )
     path_on = _astar_search_numba(
-        start, goal, grid, max_iterations=10000,
-        thermal_flat=thermal_flat, thermal_weight=thermal_weight,
+        start,
+        goal,
+        grid,
+        max_iterations=10000,
+        thermal_flat=thermal_flat,
+        thermal_weight=thermal_weight,
     )
 
     if path_off is None or path_on is None:
@@ -211,6 +234,4 @@ def test_pbt_ab_toggle_consistent(gcfp):
 
     # The path should not contain duplicate consecutive cells
     for i in range(len(path_on) - 1):
-        assert path_on[i] != path_on[i + 1], (
-            f"Adjacent duplicate cell {path_on[i]} in path"
-        )
+        assert path_on[i] != path_on[i + 1], f"Adjacent duplicate cell {path_on[i]} in path"

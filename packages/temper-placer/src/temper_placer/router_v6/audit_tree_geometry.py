@@ -58,10 +58,19 @@ def audit_tree_geometry(
     try:
         subprocess.run(
             [
-                "kicad-cli", "pcb", "drc", "--format", "json",
-                "-o", str(tmp_json), str(tmp_pcb),
+                "kicad-cli",
+                "pcb",
+                "drc",
+                "--format",
+                "json",
+                "-o",
+                str(tmp_json),
+                str(tmp_pcb),
             ],
-            capture_output=True, text=True, timeout=300, check=False,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            check=False,
         )
         if not tmp_json.exists() or tmp_json.stat().st_size == 0:
             return AuditResult(
@@ -77,17 +86,14 @@ def audit_tree_geometry(
 
         violations = drc.get("violations", [])
         unconnected_items = [
-            v for v in violations
-            if v.get("type", v.get("rule", "")) == "unconnected_items"
+            v for v in violations if v.get("type", v.get("rule", "")) == "unconnected_items"
         ]
         unconnected = len(unconnected_items)
 
         # Cross-check: every net the router claims is ROUTED must not
         # appear in KiCad's unconnected_items list.
         router_routed = {
-            name
-            for name, nc in (connectivity or {}).items()
-            if nc.disposition == "routed"
+            name for name, nc in (connectivity or {}).items() if nc.disposition == "routed"
         }
         kicad_unconnected_nets = {
             v.get("description", "").split('"')[1]
@@ -103,11 +109,7 @@ def audit_tree_geometry(
             kicad_unconnected=unconnected,
             kicad_total_violations=len(violations),
             mismatched_nets=mismatches,
-            detail=(
-                "audit passed"
-                if passed
-                else f"mismatched nets: {', '.join(mismatches)}"
-            ),
+            detail=("audit passed" if passed else f"mismatched nets: {', '.join(mismatches)}"),
         )
     finally:
         tmp_pcb.unlink(missing_ok=True)

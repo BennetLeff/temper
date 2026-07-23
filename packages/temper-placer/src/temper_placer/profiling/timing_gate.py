@@ -47,23 +47,17 @@ def _resolve_board_path(board_id: str) -> Path:
     root = _repo_root()
     manifest_path = root / "power_pcb_dataset" / "golden_manifest.yaml"
     if not manifest_path.exists():
-        raise FileNotFoundError(
-            f"golden_manifest.yaml not found at {manifest_path}"
-        )
+        raise FileNotFoundError(f"golden_manifest.yaml not found at {manifest_path}")
 
     manifest = GoldenManifest.load(manifest_path)
     board_entry = manifest.get_board(board_id)
     if board_entry is None:
         available = [b.id for b in manifest.boards]
-        raise ValueError(
-            "Unknown board '{}'. Available: {}".format(board_id, ", ".join(available))
-        )
+        raise ValueError("Unknown board '{}'. Available: {}".format(board_id, ", ".join(available)))
 
     pcb_path = board_entry.resolve_path(root)
     if not pcb_path.exists():
-        raise FileNotFoundError(
-            f"Board '{board_id}' PCB not found at {pcb_path}"
-        )
+        raise FileNotFoundError(f"Board '{board_id}' PCB not found at {pcb_path}")
     return pcb_path
 
 
@@ -226,8 +220,7 @@ def measure_all_stages(
         return _measure_router_v6(board_id, n_runs, sub_steps=sub_steps)
     else:
         raise ValueError(
-            f"Unsupported pipeline '{pipeline}'. "
-            "Supported: DeterministicPipeline, RouterV6Pipeline"
+            f"Unsupported pipeline '{pipeline}'. Supported: DeterministicPipeline, RouterV6Pipeline"
         )
 
 
@@ -280,9 +273,7 @@ def _measure_deterministic(board_id: str, n_runs: int) -> list[TimingResult]:
     return results
 
 
-def _measure_router_v6(
-    board_id: str, n_runs: int, sub_steps: bool = False
-) -> list[TimingResult]:
+def _measure_router_v6(board_id: str, n_runs: int, sub_steps: bool = False) -> list[TimingResult]:
     """Measure RouterV6Pipeline stages via PipelineProfiler instrumentation."""
     pcb_path = _resolve_board_path(board_id)
 
@@ -291,9 +282,14 @@ def _measure_router_v6(
 
     _STAGES = ["stage1", "stage2", "stage3", "stage4", "stage5"]
     _SUB_STEPS = [
-        "obstacle_map", "routing_space", "channel_skeleton",
-        "channel_widths", "occupancy_grid", "layer_capacity",
-        "routing_demand", "bottleneck_analysis",
+        "obstacle_map",
+        "routing_space",
+        "channel_skeleton",
+        "channel_widths",
+        "occupancy_grid",
+        "layer_capacity",
+        "routing_demand",
+        "bottleneck_analysis",
     ]
 
     # Warmup run (no profiler)

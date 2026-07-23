@@ -6,6 +6,9 @@ All metrics return normalized scores in [0, 1] where higher is better
 (except wirelength which returns raw mm value).
 """
 
+from temper_placer.metrics.external_oracle import (
+    score_placement,
+)
 from temper_placer.metrics.quality import (
     compactness_score,
     compute_quality_report,
@@ -17,9 +20,6 @@ from temper_placer.metrics.quality import (
     thermal_score,
     total_wirelength,
     zone_compliance_score,
-)
-from temper_placer.metrics.external_oracle import (
-    score_placement,
 )
 from temper_placer.metrics.quality_score import (
     QualityInputs,

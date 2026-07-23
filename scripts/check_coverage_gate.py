@@ -19,20 +19,25 @@ The script follows the scripts/check_regression.py convention: argparse, rich
 Console, sys.path manipulation as needed.
 """
 
-import argparse
-import ast
-import json
-import os
-import re
-import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import ast
+import json
+
+from _lib.gate_allowlist import (
+    TICKET_PATTERN,
+    load_allowlist as _load_allowlist,
+    git_show_main_allowlist as _git_show_main_allowlist,
+    check_shrink_mode as _check_shrink_mode,
+)
+from _lib.repo import find_repo_root
 from rich.console import Console
 
 console = Console()
-
-TICKET_PATTERN = re.compile(r"TODO:\s*temper-(?:\d+|xxx)")
 
 
 def parse_coverage_json(coverage_json_path):
@@ -119,46 +124,27 @@ def find_zero_coverage(files, source_root):
 
 
 def load_allowlist(path):
-    """Parse .coverage-allowlist into a dict {key: ticket_string}.
-
-    Format: ``path::function  # TODO: temper-xxx``
-    Lines starting with ``#`` (no preceding entry) are comments.
-    Empty lines are ignored.
-    """
+    """Parse .coverage-allowlist into a dict {key: ticket_string}."""
     entries = {}
-    if not path.exists():
-        return entries
-
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-
-        # Split on '#' to separate the key from the comment
+    for line in _load_allowlist(path):
         if "#" in line:
             key_part, comment = line.split("#", 1)
             key_part = key_part.strip()
         else:
             key_part = line.strip()
             comment = ""
-
         if key_part:
             entries[key_part] = comment.strip()
-
     return entries
 
 
 def git_show_main_allowlist():
     """Return the allowlist content from origin/main, or None if unavailable."""
     try:
-        result = subprocess.run(
-            ["git", "show", "origin/main:.coverage-allowlist"],
-            capture_output=True, text=True, timeout=10,
-        )
-        if result.returncode != 0:
-            return None
-        return result.stdout
-    except Exception:
+        root = find_repo_root()
+        lines = _git_show_main_allowlist(".coverage-allowlist", root)
+        return "\n".join(lines)
+    except (RuntimeError, FileNotFoundError):
         return None
 
 
@@ -175,48 +161,29 @@ def check_shrink_mode(current_allowlist, coverage_json_path, source_root):
                        "skipping shrink check (zero-coverage check still runs)[/]")
         return 0
 
-    # Parse main allowlist keys (ignore comments/tickets for comparison)
-    main_keys = set()
-    for line in main_content.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if "#" in line:
-            key = line.split("#", 1)[0].strip()
-        else:
-            key = line
-        if key:
-            main_keys.add(key)
-
-    current_keys = set(current_allowlist.keys())
-
-    removed = main_keys - current_keys
-    added = current_keys - main_keys
+    main_entries = main_content.splitlines()
+    current_entries = [f"{k}  # {v}" for k, v in sorted(current_allowlist.items())]
+    removed, added = _check_shrink_mode(main_entries, current_entries)
 
     failures = 0
 
-    # Check removals: must have coverage or be deleted
     if removed:
-        # Load current coverage to check for exercise
         files = parse_coverage_json(coverage_json_path)
         current_zero = find_zero_coverage(files, source_root)
 
         for entry in sorted(removed):
-            # Check if the function now has coverage (not in zero_cov)
             if entry not in current_zero:
-                continue  # has coverage, removal is valid
+                continue
 
-            # Check if the file/function was deleted
             if "::" in entry:
                 file_part, func_part = entry.split("::", 1)
                 src_file = source_root / file_part
                 if not src_file.exists():
-                    continue  # file deleted, removal is valid
+                    continue
 
-                # File still exists but function might be deleted
                 public_names = ast_public_functions(src_file)
                 if func_part not in public_names:
-                    continue  # function deleted, removal is valid
+                    continue
 
             console.print(
                 f"[red]FAIL: allowlist entry removed without test or deletion: "
@@ -224,7 +191,6 @@ def check_shrink_mode(current_allowlist, coverage_json_path, source_root):
             )
             failures += 1
 
-    # Check additions: must have a ticket
     for entry in sorted(added):
         ticket = current_allowlist.get(entry, "")
         if not TICKET_PATTERN.search(ticket):

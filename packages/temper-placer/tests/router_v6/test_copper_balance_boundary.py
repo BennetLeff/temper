@@ -72,6 +72,7 @@ class _BogusPath:
 # 1. Board dimension boundaries
 # ===================================================================
 
+
 @pytest.mark.parametrize(
     "board_width, board_height",
     [
@@ -109,6 +110,7 @@ def test_board_dimension_boundaries(board_width, board_height):
 # 2. Threshold boundaries (min / max copper percentage)
 # ===================================================================
 
+
 @pytest.mark.parametrize("min_pct", [0, -10, 100, float("nan")])
 @pytest.mark.parametrize("max_pct", [0, 50, 100, float("inf")])
 def test_threshold_boundaries(min_pct, max_pct):
@@ -142,6 +144,7 @@ def test_threshold_boundaries(min_pct, max_pct):
 # 3. Trace width boundaries
 # ===================================================================
 
+
 @pytest.mark.parametrize("trace_width", TRACE_WIDTHS_BOUNDARY)
 def test_trace_width_boundaries(trace_width):
     """Trace width edges: zero, negative, NaN, inf, extreme.
@@ -170,16 +173,12 @@ def test_trace_width_boundaries(trace_width):
     if math.isinf(trace_width):
         # Inf width → copper_area is Inf (if trace_length > 0)
         f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
-        assert math.isinf(f_cu.copper_area_mm2), (
-            "Inf width should produce Inf copper area"
-        )
+        assert math.isinf(f_cu.copper_area_mm2), "Inf width should produce Inf copper area"
 
     if trace_width < 0.0 and not math.isnan(trace_width) and not math.isinf(trace_width):
         # Negative width → negative copper area (physically nonsense)
         f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
-        assert f_cu.copper_area_mm2 < 0, (
-            "Negative width produces negative copper area (known gap)"
-        )
+        assert f_cu.copper_area_mm2 < 0, "Negative width produces negative copper area (known gap)"
 
 
 # ===================================================================
@@ -223,6 +222,7 @@ def test_via_diameter_boundaries(diameter, drill):
 # ===================================================================
 # 5. RoutePath3D fallback (path without layer_name)
 # ===================================================================
+
 
 def test_route_path_3d_segments_present():
     """RoutePath3D with valid segments and no layer_name — uses segment path."""
@@ -278,6 +278,7 @@ def test_route_path_3d_empty_segments():
 # ===================================================================
 # 6. Empty input
 # ===================================================================
+
 
 def test_zero_routes_zero_vias():
     """Zero compiled routes and zero vias — baseline empty result."""
@@ -375,6 +376,7 @@ def test_threshold_at_50_pct_midpoint():
 # Compound boundary: plane net with degenerate values
 # ===================================================================
 
+
 def test_plane_net_zero_board_area():
     """Plane net on zero-area board — total_area=0, guard in percentage calc."""
     route = _plane_route("GND")
@@ -405,6 +407,7 @@ def test_plane_net_inf_board_area():
 # ===================================================================
 # Via layer-between edge cases
 # ===================================================================
+
 
 def test_via_on_intermediate_layers():
     """Through-hole via adds copper on intermediate inner layers too."""

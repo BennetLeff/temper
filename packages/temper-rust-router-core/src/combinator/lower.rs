@@ -15,7 +15,6 @@
 /// - **Primitive(P1):** MutualExclusion → DiffPair
 /// - **Primitive(P2):** CardinalityBound → Capacity (capacity = k * min_width)
 /// - **Primitive(P4):** LayerAssignment → LayerRestriction
-
 use std::collections::BTreeSet;
 
 use crate::types::{InternalConstraint, InternalConstraintModel, InternalVariable};

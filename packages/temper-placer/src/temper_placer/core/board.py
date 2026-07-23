@@ -17,6 +17,7 @@ import numpy as np
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
+
 @dataclass
 class MountingHole:
     """
@@ -176,9 +177,7 @@ STANDARD_LAYER_ORDER: tuple[LayerIndex, ...] = (
 )
 
 # Inner plane layers (GND/PWR) on a 4-layer board.
-PLANE_LAYER_INDICES: frozenset[LayerIndex] = frozenset(
-    {LayerIndex.IN1_CU, LayerIndex.IN2_CU}
-)
+PLANE_LAYER_INDICES: frozenset[LayerIndex] = frozenset({LayerIndex.IN1_CU, LayerIndex.IN2_CU})
 
 _LAYER_INDEX_TO_KICAD_NAME: dict[LayerIndex, str] = {
     LayerIndex.F_CU: "F.Cu",
@@ -189,9 +188,7 @@ _LAYER_INDEX_TO_KICAD_NAME: dict[LayerIndex, str] = {
 
 # Canonical layer names for the Temper 4-layer board.
 # Derived from STANDARD_LAYER_ORDER / _LAYER_INDEX_TO_KICAD_NAME.
-CANONICAL_4LAYER_LAYER_NAMES: frozenset[str] = frozenset(
-    str(idx) for idx in STANDARD_LAYER_ORDER
-)
+CANONICAL_4LAYER_LAYER_NAMES: frozenset[str] = frozenset(str(idx) for idx in STANDARD_LAYER_ORDER)
 CANONICAL_LAYER_COUNT: int = len(STANDARD_LAYER_ORDER)
 
 LAYER_IDX_TO_NAME: dict[LayerIndex, str] = _LAYER_INDEX_TO_KICAD_NAME
@@ -403,9 +400,7 @@ class Rect:
             )
 
     @classmethod
-    def from_xyxy(
-        cls, x_min: float, y_min: float, x_max: float, y_max: float
-    ) -> Rect:
+    def from_xyxy(cls, x_min: float, y_min: float, x_max: float, y_max: float) -> Rect:
         """Build from ``(x_min, y_min, x_max, y_max)`` — the canonical form."""
         return cls(float(x_min), float(y_min), float(x_max), float(y_max))
 
@@ -742,7 +737,9 @@ class Board:
         def _rotate_point(x: float, y: float) -> tuple[float, float]:
             return (h - y, x)
 
-        def _rotate_bounds(b: tuple[float, float, float, float]) -> tuple[float, float, float, float]:
+        def _rotate_bounds(
+            b: tuple[float, float, float, float],
+        ) -> tuple[float, float, float, float]:
             return (h - b[3], b[0], h - b[1], b[2])
 
         _EXPAND_ROTATE = {"up": "right", "right": "down", "down": "left", "left": "up"}
@@ -774,23 +771,23 @@ class Board:
             for mh in self.mounting_holes
         ]
 
-        rotated_keepouts = [
-            _rotate_bounds(k) for k in self.keepouts
-        ]
+        rotated_keepouts = [_rotate_bounds(k) for k in self.keepouts]
 
         rotated_grounds = [
             GroundDomain(
                 name=gd.name,
                 bounds=_rotate_bounds(gd.bounds),
                 star_point=_rotate_point(gd.star_point[0], gd.star_point[1])
-                if gd.star_point else None,
+                if gd.star_point
+                else None,
             )
             for gd in self.ground_domains
         ]
 
         rotated_outline = (
             [_rotate_point(px, py) for px, py in self.outline_polygon]
-            if self.outline_polygon else None
+            if self.outline_polygon
+            else None
         )
 
         return Board(

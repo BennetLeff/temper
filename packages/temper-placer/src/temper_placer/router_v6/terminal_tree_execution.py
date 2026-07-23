@@ -15,7 +15,7 @@ branches.  ``verify_net_connectivity`` remains the sole authority for
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_core import RoutePath
 
@@ -130,14 +130,10 @@ def execute_terminal_tree(
         completed.append((edge, path))
         connected.add(edge.target)
         if net_id >= 0:
-            active_grid.mark_path_blocked(
-                path.coordinates, trace_width, clearance, net_id
-            )
+            active_grid.mark_path_blocked(path.coordinates, trace_width, clearance, net_id)
 
     disposition = (
-        NetDisposition.ROUTED
-        if len(connected) == len(terminals)
-        else NetDisposition.INCOMPLETE
+        NetDisposition.ROUTED if len(connected) == len(terminals) else NetDisposition.INCOMPLETE
     )
     return TerminalTreeExecution(
         disposition=disposition,

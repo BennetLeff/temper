@@ -3,18 +3,19 @@ IPC-2152 inverse ampacity: minimum trace width from expected current.
 
 Delegates core computation to the temper_ipc Rust extension.
 """
+
 from temper_ipc import (  # noqa: F401 — re-export
-    ipc2152_min_width_mm,
-    ipc2152_current_capacity,
-    get_net_current,
-    NET_CURRENTS,
     DEFAULT_SIGNAL_CURRENT,
+    NET_CURRENTS,
+    get_net_current,
+    ipc2152_current_capacity,
+    ipc2152_min_width_mm,
 )
 
 
 def ipc2152_external_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
     """Trace width in mm for external layers (F.Cu / B.Cu).
-    
+
     Convenience wrapper around ipc2152_min_width_mm with internal_layer=False.
     """
     return ipc2152_min_width_mm(current_amps, copper_weight_oz, temp_rise_c, False)
@@ -30,7 +31,7 @@ def ipc2152_internal_width(current_amps, copper_weight_oz, temp_rise_c=10.0):
     return ipc2152_min_width_mm(current_amps, copper_weight_oz, temp_rise_c, True)
 
 
-def ipc2152_min_width(net_name, current_amps, layer=None, stackup=None):
+def ipc2152_min_width(_net_name, current_amps, layer=None, stackup=None):
     """IPC-2152 minimum trace width for a net on its assigned layer.
 
     Resolves copper weight and internal/external layer type from the
@@ -58,11 +59,13 @@ def ipc2152_min_width(net_name, current_amps, layer=None, stackup=None):
                     match = True
             if match:
                 copper_oz = getattr(
-                    candidate, "copper_weight",
+                    candidate,
+                    "copper_weight",
                     getattr(candidate, "copper_weight_oz", 1.0),
                 )
                 layer_type = getattr(
-                    candidate, "layer_type",
+                    candidate,
+                    "layer_type",
                     getattr(candidate, "type", "signal"),
                 )
                 internal = layer_type == "plane" or (
@@ -74,4 +77,4 @@ def ipc2152_min_width(net_name, current_amps, layer=None, stackup=None):
     elif isinstance(layer, int):
         internal = layer in (1, 2)
 
-    return ipc2152_min_width_mm(current_amps, copper_oz, internal)
+    return ipc2152_min_width_mm(current_amps, copper_oz, 10.0, internal)

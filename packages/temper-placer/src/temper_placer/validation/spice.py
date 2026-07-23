@@ -189,13 +189,7 @@ class NgspiceValidator(Validator):
         """
         if not self.is_available():
             return False
-        netlist = (
-            "Trivial operating-point probe\n"
-            "V1 1 0 DC 5\n"
-            "R1 1 0 1k\n"
-            ".op\n"
-            ".end\n"
-        )
+        netlist = "Trivial operating-point probe\nV1 1 0 DC 5\nR1 1 0 1k\n.op\n.end\n"
         result = self.run_netlist_string(netlist)
         return result.success
 

@@ -13,7 +13,7 @@ use std::collections::HashSet;
 
 use geo::EuclideanDistance;
 
-use crate::board::{BoardState, Component, NetClassName};
+use crate::board::{BoardState, Component};
 use crate::constraints::ConstraintSet;
 use crate::rules::{
     clearance_between, violation, DrcCategory, Location, Severity, Violation,

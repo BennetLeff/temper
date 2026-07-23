@@ -30,6 +30,7 @@ from temper_placer.router_v6.thermal_relief import (
 # Gate logic
 # ---------------------------------------------------------------------------
 
+
 class TestGateLogic:
     """Test ManufacturingDRCViolationError raising conditions."""
 
@@ -112,6 +113,7 @@ class TestGateLogic:
 # Error isolation
 # ---------------------------------------------------------------------------
 
+
 class TestErrorIsolation:
     """Test that one DFM module failure does not cascade."""
 
@@ -185,6 +187,7 @@ class TestErrorIsolation:
 # Happy path
 # ---------------------------------------------------------------------------
 
+
 class TestHappyPath:
     """Test end-to-end DFM invocation with valid routing results."""
 
@@ -232,6 +235,7 @@ class TestHappyPath:
 # ---------------------------------------------------------------------------
 # Default construction unchanged
 # ---------------------------------------------------------------------------
+
 
 class TestDefaultConstruction:
     """Default pipeline construction does not invoke DFM."""

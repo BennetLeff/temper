@@ -47,6 +47,7 @@ fn calculate_min_trace_width(
 }
 
 #[pyfunction]
+#[pyo3(signature = (current_amps, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
 fn ipc2152_min_width_mm(
     current_amps: f64,
     copper_weight_oz: f64,
@@ -59,6 +60,7 @@ fn ipc2152_min_width_mm(
 }
 
 #[pyfunction]
+#[pyo3(signature = (width_mm, copper_weight_oz, temp_rise_c=10.0, internal_layer=false))]
 fn ipc2152_current_capacity(
     width_mm: f64,
     copper_weight_oz: f64,
@@ -77,7 +79,7 @@ fn get_net_current(net_name: &str) -> PyResult<f64> {
 
 #[pyfunction]
 fn net_currents() -> PyResult<HashMap<String, f64>> {
-    Ok(temper_ipc_core::net_currents())
+    Ok(temper_ipc_core::net_currents().clone())
 }
 
 #[pymodule]

@@ -30,7 +30,9 @@ def encode_loop_area(
     labels: list[AssumptionLiteral] = []
     loop_comps = ctx.loop_components.get(constraint.loop_name, [])
     if not loop_comps:
-        logger.warning("LoopArea %s: no components in loop '%s'", constraint.id, constraint.loop_name)
+        logger.warning(
+            "LoopArea %s: no components in loop '%s'", constraint.id, constraint.loop_name
+        )
         return labels
 
     comp_vars = [components[r] for r in loop_comps if r in components]
@@ -60,7 +62,9 @@ def encode_loop_area(
     model.add(loop_h == loop_y_max - loop_y_min)
 
     area = model.new_int_var(
-        0, max_dim * max_dim, f"loop_area_{constraint.id}",
+        0,
+        max_dim * max_dim,
+        f"loop_area_{constraint.id}",
     )
     model.add_multiplication_equality(area, loop_w, loop_h)
     max_area_units = model.mm_to_units(constraint.max_area_mm2) * model.units_per_mm

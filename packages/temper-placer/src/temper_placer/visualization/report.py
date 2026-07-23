@@ -143,6 +143,7 @@ def generate_report(
     # Loop Analysis section
     if loops:
         from .loop_viz import render_loop_summary_table
+
         sections.append(render_loop_summary_table(loops, board_view))
 
     # Constraint summary
@@ -556,5 +557,6 @@ def _wrap_in_html_document(sections: list[str], config: ReportConfig) -> str:
 def _get_css_styles() -> str:
     """Load CSS styles from the bundled stylesheet."""
     from pathlib import Path
+
     css_path = Path(__file__).parent / "styles.css"
     return css_path.read_text(encoding="utf-8")

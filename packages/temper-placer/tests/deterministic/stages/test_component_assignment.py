@@ -16,10 +16,20 @@ from temper_placer.deterministic.state import BoardState
 def test_all_components_assigned():
     """Every component should get a slot."""
     # Setup
-    c1 = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(50, 50))
-    c2 = Component(ref="R2", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(60, 60))
+    c1 = Component(
+        ref="R1",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="N1")],
+        initial_position=(50, 50),
+    )
+    c2 = Component(
+        ref="R2",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="N1")],
+        initial_position=(60, 60),
+    )
     nets = [Net("N1", [("R1", "1"), ("R2", "1")], net_class="Signal")]
     netlist = Netlist(components=[c1, c2], nets=nets)
 
@@ -43,15 +53,30 @@ def test_all_components_assigned():
 def test_no_overlapping_assignments():
     """Each slot should be used at most once."""
     # Setup: 3 components
-    c1 = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(50, 50))
-    c2 = Component(ref="R2", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(60, 60))
-    c3 = Component(ref="R3", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="N2")], initial_position=(70, 70))
+    c1 = Component(
+        ref="R1",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="N1")],
+        initial_position=(50, 50),
+    )
+    c2 = Component(
+        ref="R2",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="N1")],
+        initial_position=(60, 60),
+    )
+    c3 = Component(
+        ref="R3",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="N2")],
+        initial_position=(70, 70),
+    )
     nets = [
         Net("N1", [("R1", "1"), ("R2", "1")], net_class="Signal"),
-        Net("N2", [("R3", "1")], net_class="Signal")
+        Net("N2", [("R3", "1")], net_class="Signal"),
     ]
     netlist = Netlist(components=[c1, c2, c3], nets=nets)
 
@@ -72,10 +97,20 @@ def test_no_overlapping_assignments():
 
 def test_assignment_is_deterministic():
     """Multiple runs should produce the same placement."""
-    c1 = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(50, 50))
-    c2 = Component(ref="R2", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="N1")], initial_position=(60, 60))
+    c1 = Component(
+        ref="R1",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="N1")],
+        initial_position=(50, 50),
+    )
+    c2 = Component(
+        ref="R2",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="N1")],
+        initial_position=(60, 60),
+    )
     nets = [Net("N1", [("R1", "1"), ("R2", "1")], net_class="Signal")]
     netlist = Netlist(components=[c1, c2], nets=nets)
 

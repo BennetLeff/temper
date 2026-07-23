@@ -5,7 +5,6 @@ These tests verify that schematic validation functions correctly identify
 design rule violations per the Temper PCB design requirements.
 """
 
-
 import pytest
 
 from tests.requirements.validators.schematic import (
@@ -205,8 +204,10 @@ def test_check_power_supply_voltages_wrong_voltage(power_net_15v, ground_net):
     result = check_power_supply_voltages(components, nets)
     assert not result.passed
     assert result.error_count > 0
-    assert any("wrong voltage" in v.message.lower() or "mismatched" in v.message.lower()
-               for v in result.violations)
+    assert any(
+        "wrong voltage" in v.message.lower() or "mismatched" in v.message.lower()
+        for v in result.violations
+    )
 
 
 def test_check_decoupling_present_all_present(

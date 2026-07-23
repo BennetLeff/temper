@@ -162,9 +162,7 @@ class TestExtractUnsatCore:
                 assert c.because == "Reinforced isolation per IEC 60335-1"
 
     def test_constraint_without_because_is_none(self):
-        model, assumption_vars, constraint_map = (
-            _build_infeasible_with_unannotated_constraint()
-        )
+        model, assumption_vars, constraint_map = _build_infeasible_with_unannotated_constraint()
         solver, status = _solve_infeasible(model, assumption_vars)
         assert status == cp_model.INFEASIBLE
 
@@ -174,9 +172,7 @@ class TestExtractUnsatCore:
         assert unannotated[0].because is None
 
     def test_unannotated_produces_data_quality_gap(self):
-        model, assumption_vars, constraint_map = (
-            _build_infeasible_with_unannotated_constraint()
-        )
+        model, assumption_vars, constraint_map = _build_infeasible_with_unannotated_constraint()
         solver, status = _solve_infeasible(model, assumption_vars)
         assert status == cp_model.INFEASIBLE
 

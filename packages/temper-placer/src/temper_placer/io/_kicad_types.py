@@ -1,9 +1,9 @@
 """Pure dataclass types used by KiCad parsing — no temper_placer deps at runtime.
 
-Extracting ``ParseResult`` and ``ViaData`` here breaks the ``router_v6 → io``
-cycle: router_v6 modules can import these types from ``io._kicad_types``
-without pulling in ``io.kicad_parser`` (which has lazy imports from
-``router_v6.stage0_data``).
+Extracting ``ParseResult``, ``ViaData``, ``TraceData``, and ``PadData`` here
+breaks the ``router_v6 → io`` cycle: router_v6 modules can import these types
+from ``io._kicad_types`` without pulling in ``io.kicad_parser`` (which has
+lazy imports from ``router_v6.stage0_data``).
 """
 
 from __future__ import annotations
@@ -14,7 +14,32 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
     from temper_placer.core.netlist import Netlist
-    from temper_placer.io.kicad_parser import PadData, TraceData
+
+
+@dataclass
+class TraceData:
+    """Data for a PCB trace segment."""
+
+    start: tuple[float, float]
+    end: tuple[float, float]
+    width: float
+    layer: str
+    net: str | None = None
+
+
+@dataclass
+class PadData:
+    """Data for a component pad."""
+
+    position: tuple[float, float]
+    size: tuple[float, float]
+    shape: str
+    drill: float = 0.0
+    rotation: float = 0.0
+    layer: str = "F.Cu"
+    number: str = ""
+    net: str | None = None
+    component_ref: str | None = None
 
 
 @dataclass

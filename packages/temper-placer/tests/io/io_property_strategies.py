@@ -88,9 +88,7 @@ def netlist_from_components(
         for pin in comp.pins:
             if pin.net:
                 net_class = draw(st.sampled_from(NET_CLASSES))
-                nets.append(
-                    Net(pin.net, [(comp.ref, pin.name)], net_class=net_class, weight=1.0)
-                )
+                nets.append(Net(pin.net, [(comp.ref, pin.name)], net_class=net_class, weight=1.0))
     # Deduplicate by net name
     seen: set[str] = set()
     unique_nets = []

@@ -163,7 +163,7 @@ def check_component_spacing(
     components = _placement.get("components", [])
 
     for i, comp_a in enumerate(components):
-        for comp_b in components[i + 1:]:
+        for comp_b in components[i + 1 :]:
             pos_a = comp_a.get("position")
             pos_b = comp_b.get("position")
             if pos_a is None or pos_b is None:
@@ -352,15 +352,18 @@ def check_antenna_keepout(
     violations = []
 
     if esp32_position is None:
-        return PlacementResult(passed=False, violations=[
-            PlacementViolation(
-                code="DFM001-ANT-003",
-                message="ESP32 position data missing; antenna keepout cannot be verified",
-                severity="error",
-                component_ref="ESP32",
-                violation_type="antenna",
-            )
-        ])
+        return PlacementResult(
+            passed=False,
+            violations=[
+                PlacementViolation(
+                    code="DFM001-ANT-003",
+                    message="ESP32 position data missing; antenna keepout cannot be verified",
+                    severity="error",
+                    component_ref="ESP32",
+                    violation_type="antenna",
+                )
+            ],
+        )
 
     board_w, board_h = board_dimensions
 

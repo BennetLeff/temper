@@ -18,6 +18,7 @@ class GeometricStage:
         deterministic_result = context.get("deterministic_result")
         if deterministic_result is None:
             from temper_placer.pipeline.topological import run_topological_phase
+
             state = run_topological_phase(state)
             deterministic_result = state.deterministic_result
 

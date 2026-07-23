@@ -72,32 +72,43 @@ class TestCpSatFlag:
 
     def test_jax_deprecated_rejected(self, runner: CliRunner) -> None:
         """Verify --placer jax-deprecated is a valid flag (fails on missing input, not on flag)."""
-        result = runner.invoke(main, [
-            "optimize",
-            "--placer", "jax-deprecated",
-            "nonexistent.kicad_pcb",
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "optimize",
+                "--placer",
+                "jax-deprecated",
+                "nonexistent.kicad_pcb",
+            ],
+        )
         # Flag is valid; failure is on input file, not on --placer parsing
         assert result.exit_code != 0
         assert "nonexistent" in result.output
 
     def test_cp_sat_default_placer(self, runner: CliRunner) -> None:
         """Verify CP-SAT runs by default (no --placer flag needed)."""
-        result = runner.invoke(main, [
-            "optimize",
-            "nonexistent.kicad_pcb",
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "optimize",
+                "nonexistent.kicad_pcb",
+            ],
+        )
         # Should fail on input file existence, not on missing --placer flag
         assert result.exit_code != 0
         assert "nonexistent" in result.output
 
     def test_placer_rejects_invalid_value(self, runner: CliRunner) -> None:
         """Verify --placer rejects invalid choices."""
-        result = runner.invoke(main, [
-            "optimize",
-            "--placer", "invalid_placer",
-            "input.kicad_pcb",
-        ])
+        result = runner.invoke(
+            main,
+            [
+                "optimize",
+                "--placer",
+                "invalid_placer",
+                "input.kicad_pcb",
+            ],
+        )
         assert result.exit_code != 0
         assert "invalid_placer" in result.output or "not one of" in result.output
 

@@ -2,7 +2,6 @@
 ///
 /// Covers origin R1–R6: structured errors with diagnostic context,
 /// exhaustive pin-mapping tables for supported packages, and classification types.
-
 use std::collections::HashMap;
 use std::sync::LazyLock;
 use thiserror::Error;
@@ -113,9 +112,15 @@ pub struct PinMapping {
     table: HashMap<(String, String), String>,
 }
 
+impl Default for PinMapping {
+    fn default() -> Self {
+        Self::default_mapping()
+    }
+}
+
 impl PinMapping {
     /// Build the default mapping covering all supported packages.
-    pub fn default() -> Self {
+    pub fn default_mapping() -> Self {
         let mut table = HashMap::new();
 
         // TO-247-3: IGBT pinout
@@ -215,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_to247_pin2_is_collector() {
-        let mapping = PinMapping::default();
+        let mapping = PinMapping::default_mapping();
         assert_eq!(
             mapping.resolve("TO-247", "2").unwrap(),
             "COLLECTOR"
@@ -224,7 +229,7 @@ mod tests {
 
     #[test]
     fn test_to247_pin1_is_gate() {
-        let mapping = PinMapping::default();
+        let mapping = PinMapping::default_mapping();
         assert_eq!(
             mapping.resolve("TO-247", "1").unwrap(),
             "GATE"
@@ -233,7 +238,7 @@ mod tests {
 
     #[test]
     fn test_unmapped_pin_returns_error_with_known_names() {
-        let mapping = PinMapping::default();
+        let mapping = PinMapping::default_mapping();
         let err = mapping.resolve("TO-247", "99").unwrap_err();
         match err {
             ExtractionError::UnmappedPin { pin_number, known_names, .. } => {
@@ -248,7 +253,7 @@ mod tests {
 
     #[test]
     fn test_to220_pin2_is_drain() {
-        let mapping = PinMapping::default();
+        let mapping = PinMapping::default_mapping();
         assert_eq!(mapping.resolve("TO-220", "2").unwrap(), "DRAIN");
     }
 

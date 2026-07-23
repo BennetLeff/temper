@@ -64,6 +64,6 @@ def estimate_gate_inductance(
         Estimated inductance in nH.
     """
     # Assuming tight coupling (back-to-back or over ground plane)
-    perimeter = source_to_gate_dist_mm + return_dist_mm + 5.0 # +5mm for internal
+    perimeter = source_to_gate_dist_mm + return_dist_mm + 5.0  # +5mm for internal
     # Rough rule of thumb: 0.8 nH/mm for PCB loops over ground plane
     return perimeter * 0.8

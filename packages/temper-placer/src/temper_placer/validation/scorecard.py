@@ -138,9 +138,7 @@ class MarginScorecard:
 
         # --- Thermal headroom (°C proxy via edge-distance mm) ---
         thermal_score = report.get("thermal_score", 1.0)
-        thermal_scorable = _is_scorable_metric(
-            thermal_score, report, key="thermal_score"
-        )
+        thermal_scorable = _is_scorable_metric(thermal_score, report, key="thermal_score")
         gate_margins.append(
             GateMargin(
                 gate_name="thermal",
@@ -168,9 +166,7 @@ class MarginScorecard:
 
         # --- Loop area margin (mm²) ---
         loop_score = report.get("loop_area_score", 1.0)
-        loop_scorable = _is_scorable_metric(
-            loop_score, report, key="loop_area_score"
-        )
+        loop_scorable = _is_scorable_metric(loop_score, report, key="loop_area_score")
         gate_margins.append(
             GateMargin(
                 gate_name="loop_area",
@@ -183,9 +179,7 @@ class MarginScorecard:
 
         # --- Compactness (utilization ratio) ---
         compact_score = report.get("compactness_score", 1.0)
-        compact_scorable = _is_scorable_metric(
-            compact_score, report, key="compactness_score"
-        )
+        compact_scorable = _is_scorable_metric(compact_score, report, key="compactness_score")
         gate_margins.append(
             GateMargin(
                 gate_name="compactness",
@@ -305,9 +299,9 @@ def score_placement_via_oracle(
 
 def _is_scorable_metric(
     score: float,
-    report: dict[str, Any],
+    _report: dict[str, Any],
     *,
-    key: str,
+    _key: str,
     default_value: float = 1.0,
 ) -> bool:
     """Dynamic-range smoke test for a single metric.

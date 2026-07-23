@@ -8,7 +8,7 @@ per REQ-EMC-04 to minimize radiated EMI from high dV/dt nodes.
 import math
 from dataclasses import dataclass
 
-from ._geometry import _distance, _point_in_rect, _rects_overlap
+from ._geometry import _distance, _point_in_rect
 
 
 @dataclass
@@ -113,7 +113,11 @@ def check_ground_plane_shielding_under_switching_nodes(
                 )
             )
         elif via_stitching_positions:
-            nearby_vias = [v for v in via_stitching_positions if _distance(node_pos, v) < max_via_spacing_mm * 2]
+            nearby_vias = [
+                v
+                for v in via_stitching_positions
+                if _distance(node_pos, v) < max_via_spacing_mm * 2
+            ]
             if len(nearby_vias) < 2:
                 violations.append(
                     SwitchingNodeViolation(
@@ -323,14 +327,14 @@ def check_switching_frequency_harmonics(
     for node_ref, node_info in switching_nodes.items():
         freq = node_info.get("frequency_hz", 0)
         if freq > 0:
-            wavelength_mm = (3e11 / freq)
+            wavelength_mm = 3e11 / freq
             if wavelength_mm < board_diag * 2:
                 violations.append(
                     SwitchingNodeViolation(
                         node_type=node_info.get("type", "UNKNOWN"),
                         component_refs=[node_ref],
                         code="SW-FREQ-001",
-                        message=f"Switching node '{node_ref}' wavelength ({wavelength_mm:.0f}mm @ {freq/1e3:.0f}kHz) may cause board resonance",
+                        message=f"Switching node '{node_ref}' wavelength ({wavelength_mm:.0f}mm @ {freq / 1e3:.0f}kHz) may cause board resonance",
                         location=node_info.get("position"),
                         severity="warning",
                     )

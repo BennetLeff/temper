@@ -1,6 +1,5 @@
 """Tests for core.board module."""
 
-
 import pytest
 
 from temper_placer.core.board import (
@@ -184,6 +183,7 @@ class TestBoard:
     def test_contains_point_non_zero_origin(self):
         """Test board boundary checking with non-zero origin."""
         from temper_placer.core.board import Board
+
         board = Board(width=50.0, height=50.0, origin=(100.0, 100.0))
         # (25, 25) is relative position, should be inside
         assert board.contains_point(25.0, 25.0)

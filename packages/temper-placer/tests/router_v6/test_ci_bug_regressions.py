@@ -18,6 +18,7 @@ these bugs were caught by the existing test suite because:
          shadows the first; ``_astar_route_multilayer`` then passes
          ``congestion_tensor=`` and crashes with a TypeError.
 """
+
 from __future__ import annotations
 
 import inspect
@@ -89,7 +90,6 @@ def test_temper_placer_top_level_main_loads():
 
     mod = importlib.import_module("temper_placer.__main__")
     assert hasattr(mod, "main"), (
-        "temper_placer/__main__.py must expose a callable 'main' "
-        "(dispatcher to the click CLI)"
+        "temper_placer/__main__.py must expose a callable 'main' (dispatcher to the click CLI)"
     )
     assert callable(mod.main), "temper_placer.__main__.main must be callable"

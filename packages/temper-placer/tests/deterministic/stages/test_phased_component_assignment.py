@@ -651,8 +651,7 @@ class TestGhostPadInjection:
         placed_pos = placements["C1"]
         for slot in used:
             assert math.hypot(slot[0] - placed_pos[0], slot[1] - placed_pos[1]) <= 2.5, (
-                f"slot {slot} is reserved but safety_category=None must not "
-                f"trigger HV ring"
+                f"slot {slot} is reserved but safety_category=None must not trigger HV ring"
             )
 
     def test_injection_idempotent(self):
@@ -728,9 +727,7 @@ class TestGhostPadInjection:
                 Net(name="VCC", pins=[("C1", "1")], net_class="Power"),
             ],
         )
-        state = _build_state(
-            netlist, slot_grid=(0.0, 0.0, 15.0, 15.0, 5.0)
-        )
+        state = _build_state(netlist, slot_grid=(0.0, 0.0, 15.0, 15.0, 5.0))
 
         result = stage.run(state)
         used = set(result.used_slots)
@@ -798,8 +795,7 @@ class TestGhostPadInjection:
                     within_any = True
                     break
             assert within_any, (
-                f"slot {slot} is reserved but design_rules=None must not "
-                f"add HV rings"
+                f"slot {slot} is reserved but design_rules=None must not add HV rings"
             )
 
     def test_lv_only_placement_is_unchanged_parity_anchor(self):
@@ -830,11 +826,17 @@ class TestGhostPadInjection:
         rules = DesignRules(
             net_classes={
                 "Power": NetClassRules(
-                    name="Power", trace_width=0.25, clearance=0.2, dru_priority=10,
+                    name="Power",
+                    trace_width=0.25,
+                    clearance=0.2,
+                    dru_priority=10,
                     safety_category="LV",
                 ),
                 "Ground": NetClassRules(
-                    name="Ground", trace_width=0.25, clearance=0.2, dru_priority=20,
+                    name="Ground",
+                    trace_width=0.25,
+                    clearance=0.2,
+                    dru_priority=20,
                     safety_category="LV",
                 ),
             },
@@ -915,12 +917,8 @@ class TestIsolationSlotReduction:
         stage = PhasedComponentAssignmentStage(
             constraints, design_rules=rules, use_isolation_slots=True
         )
-        eff_q1 = stage._effective_ghost_pad_radius(
-            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
-        )
-        eff_q2 = stage._effective_ghost_pad_radius(
-            "Q2", "1", 6.0, (0.0, 10.0), (0.0, 0.0)
-        )
+        eff_q1 = stage._effective_ghost_pad_radius("Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0))
+        eff_q2 = stage._effective_ghost_pad_radius("Q2", "1", 6.0, (0.0, 10.0), (0.0, 0.0))
         assert eff_q1 == 0.0
         assert eff_q2 == 6.0
 
@@ -936,9 +934,7 @@ class TestIsolationSlotReduction:
         stage = PhasedComponentAssignmentStage(
             constraints, design_rules=rules, use_isolation_slots=True
         )
-        eff = stage._effective_ghost_pad_radius(
-            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
-        )
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0))
         assert eff == 6.0
 
     def test_isolation_slot_length_can_fully_clamp_to_zero(self):
@@ -971,9 +967,7 @@ class TestIsolationSlotReduction:
         stage = PhasedComponentAssignmentStage(
             constraints, design_rules=rules, use_isolation_slots=True
         )
-        eff = stage._effective_ghost_pad_radius(
-            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 12.0)
-        )
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0, (0.0, 0.0), (0.0, 12.0))
         assert eff == 0.0
 
     def test_isolation_slot_perpendicular_to_direction_reduces_zero(self):
@@ -991,9 +985,7 @@ class TestIsolationSlotReduction:
         # Creepage direction: x-axis (Q1 pin at (0,0), other HV pin at (10, 0)).
         # The default Q1 slot runs along the y-axis, perpendicular to x.
         # Projection = (0, 10) · (1, 0) = 0 → no reduction.
-        eff = stage._effective_ghost_pad_radius(
-            "Q1", "1", 6.0, (0.0, 0.0), (10.0, 0.0)
-        )
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0, (0.0, 0.0), (10.0, 0.0))
         assert eff == 6.0
 
     def test_isolation_slot_anti_parallel_reduces_zero(self):
@@ -1019,9 +1011,7 @@ class TestIsolationSlotReduction:
         )
         # Other HV pin is ABOVE the current pin → direction is +y.
         # Slot vector is -y → projection = -10 → clamped to 0.
-        eff = stage._effective_ghost_pad_radius(
-            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
-        )
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0))
         assert eff == 6.0
 
     def test_isolation_slot_partial_projection(self):
@@ -1049,16 +1039,12 @@ class TestIsolationSlotReduction:
         # Creepage direction is +x.  Slot vector is (10/√2, 10/√2) ≈ (7.07, 7.07).
         # Projection = 7.07 * 1 + 7.07 * 0 = 7.07.
         # Effective radius = max(0, 6 - 7.07) = 0.
-        eff = stage._effective_ghost_pad_radius(
-            "Q1", "1", 6.0, (0.0, 0.0), (10.0, 0.0)
-        )
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0, (0.0, 0.0), (10.0, 0.0))
         assert eff == 0.0
 
         # A larger base radius yields a non-zero effective radius.
         # 10.0 - 7.07 ≈ 2.93
-        eff2 = stage._effective_ghost_pad_radius(
-            "Q1", "1", 10.0, (0.0, 0.0), (10.0, 0.0)
-        )
+        eff2 = stage._effective_ghost_pad_radius("Q1", "1", 10.0, (0.0, 0.0), (10.0, 0.0))
         assert abs(eff2 - (10.0 - 10.0 / math.sqrt(2))) < 1e-9
 
     def test_use_isolation_slots_loaded_from_config(self):
@@ -1070,11 +1056,10 @@ class TestIsolationSlotReduction:
         # Build via the deterministic pipeline helper to exercise the loader.
 
         stage = PhasedComponentAssignmentStage(
-            constraints, design_rules=rules,
+            constraints,
+            design_rules=rules,
             use_isolation_slots=bool(constraints.placer.get("use_isolation_slots", False)),
         )
         assert stage.use_isolation_slots is True
-        eff = stage._effective_ghost_pad_radius(
-            "Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0)
-        )
+        eff = stage._effective_ghost_pad_radius("Q1", "1", 6.0, (0.0, 0.0), (0.0, 10.0))
         assert eff == 0.0

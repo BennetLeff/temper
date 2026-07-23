@@ -42,19 +42,29 @@ def encode_keepout(
     ky_h = model.mm_to_units(zy_max - zy_min) + 2 * margin_u
 
     ix, iy = model.add_keepout_interval(
-        f"keepout_{constraint.id}", kx_s, ky_s, kx_w, ky_h,
+        f"keepout_{constraint.id}",
+        kx_s,
+        ky_s,
+        kx_w,
+        ky_h,
     )
     label = f"keepout_{constraint.id}"
     assumption = model.new_assumption(label)
     model.model_ref.AddNoOverlap2D(
-        [*[model.model_ref.NewIntervalVar(
-            v.x_start, v.x_size, v.x_end, f"kx_comp_{v.ref}"
-        ) for v in model.components],
-         ix],
-        [*[model.model_ref.NewIntervalVar(
-            v.y_start, v.y_size, v.y_end, f"ky_comp_{v.ref}"
-        ) for v in model.components],
-         iy],
+        [
+            *[
+                model.model_ref.NewIntervalVar(v.x_start, v.x_size, v.x_end, f"kx_comp_{v.ref}")
+                for v in model.components
+            ],
+            ix,
+        ],
+        [
+            *[
+                model.model_ref.NewIntervalVar(v.y_start, v.y_size, v.y_end, f"ky_comp_{v.ref}")
+                for v in model.components
+            ],
+            iy,
+        ],
     )
     labels.append(assumption)
     return labels

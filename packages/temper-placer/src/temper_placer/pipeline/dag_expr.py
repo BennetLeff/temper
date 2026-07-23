@@ -30,8 +30,13 @@ _STRING_SINGLE = re.compile(r"'([^'\\]*(?:\\.[^'\\]*)*)'")
 _STRING_DOUBLE = re.compile(r'"([^"\\]*(?:\\.[^"\\]*)*)"')
 
 _TOKEN_SPEC = [
-    ("STRING", re.compile(r"'([^'\\]*(?:\\.[^'\\]*)*)'|"
-                          r'"([^"\\]*(?:\\.[^"\\]*)*)"')),
+    (
+        "STRING",
+        re.compile(
+            r"'([^'\\]*(?:\\.[^'\\]*)*)'|"
+            r'"([^"\\]*(?:\\.[^"\\]*)*)"'
+        ),
+    ),
     ("NUMBER", re.compile(r"(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?")),
     ("NULL", re.compile(r"null\b")),
     ("TRUE", re.compile(r"true\b")),
@@ -65,7 +70,9 @@ def _tokenize(source: str) -> list[tuple[str, str, int]]:
                 if kind == "SKIP":
                     pass
                 elif kind == "MISMATCH":
-                    raise DAGExprSyntaxError(f"Unexpected character '{source[pos]}' at position {pos}")
+                    raise DAGExprSyntaxError(
+                        f"Unexpected character '{source[pos]}' at position {pos}"
+                    )
                 elif kind == "STRING":
                     tokens.append((kind, m.group(1) or m.group(2), pos))
                 else:
@@ -171,16 +178,13 @@ class _Parser:
             if self._peek()[0] == "DOT":
                 self._advance()
                 field_tok = self._expect("IDENT")
-                return _AccessorExpr(ns=ident, field=field_tok[1],
-                                     lineno=1, col_offset=0)
+                return _AccessorExpr(ns=ident, field=field_tok[1], lineno=1, col_offset=0)
             raise DAGExprSyntaxError(
                 f"Bare identifier '{ident}' not allowed; "
                 f"use config.{ident}, state.{ident}, or context.{ident}"
             )
         else:
-            raise DAGExprSyntaxError(
-                f"Unexpected token {tok[0]} ('{tok[1]}') at position {tok[2]}"
-            )
+            raise DAGExprSyntaxError(f"Unexpected token {tok[0]} ('{tok[1]}') at position {tok[2]}")
 
 
 class _AccessorExpr(ast.expr):
@@ -222,19 +226,28 @@ def evaluate_skip_expr(
         return handler(node, config, state, context)
 
     def _eval_constant(
-        node: ast.Constant, _cfg: Any, _st: Any, _ctx: DataContext,
+        node: ast.Constant,
+        _cfg: Any,
+        _st: Any,
+        _ctx: DataContext,
     ) -> Any:
         return node.value
 
     def _eval_unaryop(
-        node: ast.UnaryOp, _cfg: Any, _st: Any, _ctx: DataContext,
+        node: ast.UnaryOp,
+        _cfg: Any,
+        _st: Any,
+        _ctx: DataContext,
     ) -> Any:
         if isinstance(node.op, ast.Not):
             return not _eval(node.operand)
         raise DAGExprError(f"Unsupported unary operator: {type(node.op).__name__}")
 
     def _eval_boolop(
-        node: ast.BoolOp, _cfg: Any, _st: Any, _ctx: DataContext,
+        node: ast.BoolOp,
+        _cfg: Any,
+        _st: Any,
+        _ctx: DataContext,
     ) -> Any:
         if isinstance(node.op, ast.And):
             return all(_eval(v) for v in node.values)
@@ -243,7 +256,10 @@ def evaluate_skip_expr(
         raise DAGExprError(f"Unsupported boolean operator: {type(node.op).__name__}")
 
     def _eval_compare(
-        node: ast.Compare, _cfg: Any, _st: Any, _ctx: DataContext,
+        node: ast.Compare,
+        _cfg: Any,
+        _st: Any,
+        _ctx: DataContext,
     ) -> Any:
         _LEFT_VAL = _eval(node.left)
         for op, comp in zip(node.ops, node.comparators):
@@ -268,25 +284,22 @@ def evaluate_skip_expr(
         return True
 
     def _eval_accessor(
-        node: _AccessorExpr, _cfg: Any, _st: Any, _ctx: DataContext,
+        node: _AccessorExpr,
+        _cfg: Any,
+        _st: Any,
+        _ctx: DataContext,
     ) -> Any:
         if node.ns == "config":
             if not hasattr(config, node.field):
-                raise DAGExprError(
-                    f"Unknown config field '{node.field}' in skip expression"
-                )
+                raise DAGExprError(f"Unknown config field '{node.field}' in skip expression")
             return getattr(config, node.field)
         if node.ns == "state":
             if not hasattr(state, node.field):
-                raise DAGExprError(
-                    f"Unknown state field '{node.field}' in skip expression"
-                )
+                raise DAGExprError(f"Unknown state field '{node.field}' in skip expression")
             return getattr(state, node.field)
         if node.ns == "context":
             if node.field not in context:
-                raise DAGExprError(
-                    f"Unknown context key '{node.field}' in skip expression"
-                )
+                raise DAGExprError(f"Unknown context key '{node.field}' in skip expression")
             return context[node.field]
         raise DAGExprError(f"Unknown namespace '{node.ns}' in skip expression")
 

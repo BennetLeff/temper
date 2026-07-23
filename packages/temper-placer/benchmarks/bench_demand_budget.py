@@ -46,7 +46,9 @@ class RunResult:
         return self.completion_rate * 100.0
 
 
-def _make_random_bench(density: float, seed: int, num_nets: int, size: int) -> tuple[ChannelMapping, OccupancyGrid, dict[str, int]]:
+def _make_random_bench(
+    density: float, seed: int, num_nets: int, size: int
+) -> tuple[ChannelMapping, OccupancyGrid, dict[str, int]]:
     """Build a random benchmark scenario.
 
     Returns ``(mapping, grid, budget)`` where ``budget`` is computed via
@@ -97,7 +99,8 @@ def run_strategy(
     """Run pathfinding and return a ``RunResult``."""
     t0 = time.perf_counter()
     result = run_astar_pathfinding(
-        mapping, grid,
+        mapping,
+        grid,
         max_iter=max_iter,
         net_budgets=budget,
     )
@@ -149,22 +152,38 @@ def main() -> None:
 
             # Uniform budget
             r_uniform = run_strategy(
-                "uniform", mapping, grid, None, max_iter=100_000,
-                seed=seed, num_nets=num_nets, density=density,
+                "uniform",
+                mapping,
+                grid,
+                None,
+                max_iter=100_000,
+                seed=seed,
+                num_nets=num_nets,
+                density=density,
             )
             results.append(r_uniform)
 
             # Proportional budget
             r_prop = run_strategy(
-                "proportional", mapping, grid, budget, max_iter=100_000,
-                seed=seed, num_nets=num_nets, density=density,
+                "proportional",
+                mapping,
+                grid,
+                budget,
+                max_iter=100_000,
+                seed=seed,
+                num_nets=num_nets,
+                density=density,
             )
             results.append(r_prop)
 
-            print(f"  {r_uniform.strategy:<20} {r_uniform.success_count:>2}/{r_uniform.num_nets:<4} "
-                  f"{r_uniform.success_rate_pct:>6.0f}%  {r_uniform.wall_time_ms:>8.0f}ms")
-            print(f"  {r_prop.strategy:<20} {r_prop.success_count:>2}/{r_prop.num_nets:<4} "
-                  f"{r_prop.success_rate_pct:>6.0f}%  {r_prop.wall_time_ms:>8.0f}ms")
+            print(
+                f"  {r_uniform.strategy:<20} {r_uniform.success_count:>2}/{r_uniform.num_nets:<4} "
+                f"{r_uniform.success_rate_pct:>6.0f}%  {r_uniform.wall_time_ms:>8.0f}ms"
+            )
+            print(
+                f"  {r_prop.strategy:<20} {r_prop.success_count:>2}/{r_prop.num_nets:<4} "
+                f"{r_prop.success_rate_pct:>6.0f}%  {r_prop.wall_time_ms:>8.0f}ms"
+            )
 
     # Aggregate
     uniform = [r for r in results if r.strategy == "uniform"]
@@ -179,15 +198,18 @@ def main() -> None:
     u_time = sum(r.wall_time_ms for r in uniform) / max(len(uniform), 1)
     p_time = sum(r.wall_time_ms for r in proportional) / max(len(proportional), 1)
 
-    print(f"  Uniform:      avg completion rate = {u_rate:.3f} ({u_rate*100:.1f}%), "
-          f"avg time = {u_time:.0f}ms")
-    print(f"  Proportional: avg completion rate = {p_rate:.3f} ({p_rate*100:.1f}%), "
-          f"avg time = {p_time:.0f}ms")
+    print(
+        f"  Uniform:      avg completion rate = {u_rate:.3f} ({u_rate * 100:.1f}%), "
+        f"avg time = {u_time:.0f}ms"
+    )
+    print(
+        f"  Proportional: avg completion rate = {p_rate:.3f} ({p_rate * 100:.1f}%), "
+        f"avg time = {p_time:.0f}ms"
+    )
 
     rate_delta = (p_rate - u_rate) * 100.0
     time_delta_pct = ((p_time - u_time) / max(u_time, 1.0)) * 100.0
-    print(f"  Delta:         completion rate +{rate_delta:.1f}pp, "
-          f"time {time_delta_pct:+.1f}%")
+    print(f"  Delta:         completion rate +{rate_delta:.1f}pp, time {time_delta_pct:+.1f}%")
 
     # Save results
     output_path = Path(__file__).parent / "bench_demand_budget.json"

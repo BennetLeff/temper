@@ -17,10 +17,9 @@ if TYPE_CHECKING:
     from temper_placer.core.netlist import Netlist
     from temper_placer.pcl.parser import ConstraintCollection
 
+
 def build_topological_graph(
-    netlist: Netlist,
-    _board: Board,
-    constraints: ConstraintCollection
+    netlist: Netlist, _board: Board, constraints: ConstraintCollection
 ) -> TopologicalGraph:
     """Build a topological graph from netlist, board, and PCL constraints."""
     graph = TopologicalGraph()
@@ -41,10 +40,9 @@ def build_topological_graph(
 
     return graph
 
+
 def run_topological_phase(
-    netlist: Netlist,
-    board: Board,
-    constraints: ConstraintCollection
+    netlist: Netlist, board: Board, constraints: ConstraintCollection
 ) -> TopologicalSolution:
     """Run the topological placement phase.
 
@@ -84,24 +82,21 @@ def run_topological_phase(
             # TODO: Conflict! Components in same adjacency cluster assigned to different zones.
             pass
 
-        clusters.append(ComponentCluster(
-            name=f"cluster_{i}",
-            components=c_set,
-            parent_zone=parent_zone
-        ))
+        clusters.append(
+            ComponentCluster(name=f"cluster_{i}", components=c_set, parent_zone=parent_zone)
+        )
 
     # Check for contradictions (already done by linter, but here we can be more thorough)
     # TODO: Implement more complex cycle detection or planarity checks
 
     return TopologicalSolution(
         clusters=clusters,
-        feasible=True # Default to True for now, linter already catches basics
+        feasible=True,  # Default to True for now, linter already catches basics
     )
 
+
 def generate_initial_placement(
-    solution: TopologicalSolution,
-    board: Board,
-    netlist: Netlist
+    solution: TopologicalSolution, board: Board, netlist: Netlist
 ) -> PlacementState:
     """Generate initial coordinates based on topological clusters."""
     import numpy as np
@@ -135,7 +130,4 @@ def generate_initial_placement(
             jitter = subkey.uniform(-5.0, 5.0, size=(2,))
             positions[idx] = np.array([cx, cy]) + jitter
 
-    return PlacementState(
-        positions=positions,
-        rotation_logits=np.zeros((n, 4))
-    )
+    return PlacementState(positions=positions, rotation_logits=np.zeros((n, 4)))

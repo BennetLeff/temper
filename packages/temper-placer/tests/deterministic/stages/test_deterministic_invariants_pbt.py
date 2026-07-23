@@ -94,12 +94,14 @@ _RUNNABLE_STAGES: list[type] = [
 def _make_config_for_test(_netlist) -> object:
     """Create a minimal config object for ConfigAttachStage."""
     from types import SimpleNamespace
+
     return SimpleNamespace(net_classes={})
 
 
 # ---------------------------------------------------------------------------
 # R1: Structural drift — all registered stages import and instantiate
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.property
 def test_all_registered_stages_importable() -> None:

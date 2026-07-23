@@ -41,16 +41,23 @@ class TerminalDashboardObserver:
     STATUS_ERROR = "error"
 
     _STATUS_STYLES: ClassVar[dict[str, str]] = {
-        "idle": "dim", "active": "bold cyan", "done": "bold green",
-        "skip": "dim yellow", "error": "bold red",
+        "idle": "dim",
+        "active": "bold cyan",
+        "done": "bold green",
+        "skip": "dim yellow",
+        "error": "bold red",
     }
     _STATUS_ICONS: ClassVar[dict[str, str]] = {
-        "idle": " ", "active": "\u25b8", "done": "\u2713",
-        "skip": "\u2212", "error": "\u2717",
+        "idle": " ",
+        "active": "\u25b8",
+        "done": "\u2713",
+        "skip": "\u2212",
+        "error": "\u2717",
     }
 
     def on_stage_start(self, stage_name: str, iteration: int, context: dict[str, Any]) -> None:  # noqa: ARG002
         import time
+
         self._stage_status[stage_name] = self.STATUS_ACTIVE
         self._stage_timers[stage_name] = time.monotonic()
         self._stage_iterations[stage_name] = iteration
@@ -59,7 +66,12 @@ class TerminalDashboardObserver:
         if self._pipeline_start == 0.0:
             self._pipeline_start = time.monotonic()
 
-    def on_stage_complete(self, stage_name: str, duration_s: float, outputs: dict[str, Any]) -> None:  # noqa: ARG002
+    def on_stage_complete(
+        self,
+        stage_name: str,
+        duration_s: float,
+        outputs: dict[str, Any],  # noqa: ARG002
+    ) -> None:
         self._stage_status[stage_name] = self.STATUS_DONE
         self._stage_durations[stage_name] = duration_s
 
@@ -71,18 +83,23 @@ class TerminalDashboardObserver:
         self._stage_status[stage_name] = self.STATUS_ERROR
         self._header_text = f"Temper Pipeline \u2014 {stage_name} FAILED"
 
-    def on_feedback_triggered(self, contract_name: str, from_stage: str, to_stage: str,  # noqa: ARG002, ARG002, ARG002
-                               attempt: int) -> None:  # noqa: ARG002
+    def on_feedback_triggered(
+        self,
+        contract_name: str,  # noqa: ARG002
+        from_stage: str,  # noqa: ARG002
+        to_stage: str,  # noqa: ARG002
+        attempt: int,  # noqa: ARG002
+    ) -> None:
         self._feedback_count += 1
 
-    def on_pipeline_complete(self, success: bool, total_duration_s: float,
-                              stage_timings: dict[str, float]) -> None:
+    def on_pipeline_complete(
+        self, success: bool, total_duration_s: float, stage_timings: dict[str, float]
+    ) -> None:
         self._pipeline_success = success
         self._total_duration = total_duration_s
         self._stage_durations.update(stage_timings)
         self._header_text = (
-            f"Temper Pipeline \u2014 {'PASSED' if success else 'FAILED'} "
-            f"({total_duration_s:.1f}s)"
+            f"Temper Pipeline \u2014 {'PASSED' if success else 'FAILED'} ({total_duration_s:.1f}s)"
         )
 
     def on_epoch(self, stage_name: str, epoch: int, loss: float) -> None:  # noqa: ARG002
@@ -94,8 +111,12 @@ class TerminalDashboardObserver:
 
     def __enter__(self) -> TerminalDashboardObserver:
         self._init_layout()
-        self._live = Live(self._layout, console=self._console,
-                          refresh_per_second=self.refresh_per_second, screen=False)
+        self._live = Live(
+            self._layout,
+            console=self._console,
+            refresh_per_second=self.refresh_per_second,
+            screen=False,
+        )
         self._live.__enter__()
         return self
 
@@ -106,8 +127,9 @@ class TerminalDashboardObserver:
 
     def _init_layout(self) -> None:
         layout = Layout()
-        layout.split(Layout(name="header", size=3), Layout(name="stages"),
-                      Layout(name="footer", size=3))
+        layout.split(
+            Layout(name="header", size=3), Layout(name="stages"), Layout(name="footer", size=3)
+        )
         self._layout = layout
 
     def _make_header(self) -> Panel:
@@ -115,6 +137,7 @@ class TerminalDashboardObserver:
 
     def _make_stage_panels(self) -> list[RenderableType]:
         import time
+
         panels: list[RenderableType] = []
         now = time.monotonic()
         for name in self.stage_order:
@@ -135,7 +158,11 @@ class TerminalDashboardObserver:
                 spark = self._make_sparkline()
                 if spark:
                     lines.append(f"  {spark}")
-            panel_style = {"done": "green", "error": "red", "active": "cyan"}.get(status, "dim") if status != self.STATUS_IDLE else "dim"
+            panel_style = (
+                {"done": "green", "error": "red", "active": "cyan"}.get(status, "dim")
+                if status != self.STATUS_IDLE
+                else "dim"
+            )
             panels.append(Panel("\n".join(lines) if lines else " ", border_style=panel_style))
         return panels
 
@@ -146,10 +173,14 @@ class TerminalDashboardObserver:
         mn, mx = min(recent), max(recent)
         rng = mx - mn if mx > mn else 1.0
         blocks = " \u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588"
-        return "".join(blocks[max(0, min(int((v - mn) / rng * (len(blocks) - 1)), len(blocks) - 1))] for v in recent)
+        return "".join(
+            blocks[max(0, min(int((v - mn) / rng * (len(blocks) - 1)), len(blocks) - 1))]
+            for v in recent
+        )
 
     def _make_footer(self) -> Panel:
         import time
+
         parts: list[str] = []
         if self._pipeline_start > 0 and self._pipeline_success is None:
             parts.append(f"Elapsed: {time.monotonic() - self._pipeline_start:.1f}s")

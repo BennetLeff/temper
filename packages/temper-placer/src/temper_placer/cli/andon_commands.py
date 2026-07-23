@@ -11,8 +11,9 @@ import click
 @click.option("--constraints", type=click.Path(exists=True), help="Constraints YAML")
 @click.option("--dry-run", is_flag=True, help="Skip compute-intensive stages")
 @click.option("--port", type=int, default=0, help="HTTP server port (0=auto)")
-def andon(input_pcb: str, loops: str | None, constraints: str | None,
-          dry_run: bool, port: int) -> None:
+def andon(
+    input_pcb: str, loops: str | None, constraints: str | None, dry_run: bool, port: int
+) -> None:
     """Start a live Andon Board for pipeline execution.
 
     Opens an HTTP server with SSE push.  Navigate to the printed URL
@@ -21,6 +22,5 @@ def andon(input_pcb: str, loops: str | None, constraints: str | None,
     INPUT_PCB: Path to the KiCad PCB file.
     """
     raise NotImplementedError(
-        "Andon board not yet migrated to DAG engine. "
-        "See: temper-placer pipeline (StageDAGEngine)."
+        "Andon board not yet migrated to DAG engine. See: temper-placer pipeline (StageDAGEngine)."
     )

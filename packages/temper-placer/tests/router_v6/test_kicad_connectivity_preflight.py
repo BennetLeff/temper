@@ -6,8 +6,6 @@ without requiring a full KiCad routing run.
 
 from __future__ import annotations
 
-import pytest
-
 from temper_placer.router_v6.connectivity import NetDisposition
 from temper_placer.router_v6.kicad_connectivity import connectivity_preflight
 

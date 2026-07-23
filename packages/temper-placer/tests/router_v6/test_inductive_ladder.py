@@ -133,8 +133,7 @@ class TestInductiveLadderStructure:
         registered = set(get_registered_stages())
         for name in STAGE2_VALIDATOR_NAMES:
             assert name in registered, (
-                f"Validator '{name}' is not registered. "
-                f"Registered: {sorted(registered)}"
+                f"Validator '{name}' is not registered. Registered: {sorted(registered)}"
             )
 
     def test_empty_state_validators_do_not_crash(self):
@@ -149,12 +148,10 @@ class TestInductiveLadderStructure:
                 continue
             # May legitimately return failures on empty state; assert
             # each failure is well-formed (has a string representation).
-            for f in (failures or []):
+            for f in failures or []:
                 assert isinstance(str(f), str), f"Bad str for failure in {name}"
 
-        assert not errors, (
-            f"Validators crashed on empty state: {errors}"
-        )
+        assert not errors, f"Validators crashed on empty state: {errors}"
 
     def test_empty_state_invariants_fail(self):
         """An empty BoardState fails output invariants (expected -- no data)."""
@@ -257,8 +254,7 @@ class TestInductiveLadderRealBoard:
             if check is None:
                 continue
             assert check(state), (
-                f"Validator '{validator_name}' passed but its "
-                f"guarded field invariant failed."
+                f"Validator '{validator_name}' passed but its guarded field invariant failed."
             )
 
     def test_inductive_base_case(self):
@@ -272,7 +268,7 @@ class TestInductiveLadderRealBoard:
                 pytest.fail(f"Validator '{name}' crashed on empty state: {e}")
             # Failures may be returned (expected on missing data); ensure
             # each has a valid string representation.
-            for f in (failures or []):
+            for f in failures or []:
                 assert isinstance(str(f), str)
 
 
@@ -296,8 +292,7 @@ class TestInductiveLadderPBT:
                 run_validators(name, state)
             except Exception as e:
                 pytest.fail(
-                    f"Validator '{name}' crashed on empty state "
-                    f"(num_layers={num_layers}): {e}"
+                    f"Validator '{name}' crashed on empty state (num_layers={num_layers}): {e}"
                 )
 
     @given(

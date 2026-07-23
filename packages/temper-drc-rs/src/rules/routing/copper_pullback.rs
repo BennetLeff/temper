@@ -18,6 +18,7 @@ use geo::{Centroid, Coord, Point, Rect};
 /// unset.
 const DEFAULT_MARGIN_MM: f64 = 0.5;
 
+#[derive(Default)]
 pub struct CopperPullbackCheck;
 
 impl CopperPullbackCheck {

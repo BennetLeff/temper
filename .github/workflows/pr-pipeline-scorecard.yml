@@ -25,7 +25,7 @@ jobs:
           if [ -n "$RUN_ID" ]; then
             gh run download "$RUN_ID" --name baseline-metrics --dir baseline-metrics 2>/dev/null || true
           fi
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- optional baseline download; hard-fail after 2026-09-01
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Check metrics exist
@@ -76,7 +76,7 @@ jobs:
       - name: Build electronics netlist
         run: make netlist
       - name: Run closure test on PR head
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- scorecard best-effort; hard-fail after 2026-09-01
         run: >
           uv run python3 scripts/ci_closure_test.py
           --pcb pcb/temper.kicad_pcb
@@ -126,14 +126,14 @@ jobs:
         with:
           name: baseline-metrics
           path: baseline-metrics
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- optional artifact; hard-fail after 2026-09-01
 
       - name: Download current metrics
         uses: actions/download-artifact@v8
         with:
           name: current-metrics
           path: current-metrics
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- optional artifact; hard-fail after 2026-09-01
 
       - name: Generate scorecard
         id: scorecard

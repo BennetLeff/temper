@@ -9,8 +9,6 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-import tempfile
-import textwrap
 from pathlib import Path
 
 import pytest
@@ -68,12 +66,12 @@ def _run_gate(
 # direct-function tests (import the module for unit-level checks)
 # ---------------------------------------------------------------------------
 
+
 def _import_module():
     """Import the gate script as a module for direct function calls."""
     import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        "check_physics_provenance", str(SCRIPT)
-    )
+
+    spec = importlib.util.spec_from_file_location("check_physics_provenance", str(SCRIPT))
     mod = importlib.util.module_from_spec(spec)
     sys.modules["check_physics_provenance"] = mod
     spec.loader.exec_module(mod)
@@ -103,9 +101,7 @@ def test_no_module_level_floats_passes(tmp_path: Path) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
     (phys / "empty.py").write_text(
-        "def helper(x: float = 3.14) -> float:\n"
-        "    y = 2.72\n"
-        "    return x + y\n"
+        "def helper(x: float = 3.14) -> float:\n    y = 2.72\n    return x + y\n"
     )
     _run_gate(tmp_path, phys)
 
@@ -258,11 +254,7 @@ def test_allowlist_header_comments_ignored(tmp_path: Path) -> None:
     phys.mkdir()
     (phys / "a.py").write_text("X = 1.0\n")
     al = tmp_path / ".physics-provenance-allowlist"
-    al.write_text(
-        "# header comment\n"
-        "a.py::X  # TODO: temper-999\n"
-        "# another comment\n"
-    )
+    al.write_text("# header comment\na.py::X  # TODO: temper-999\n# another comment\n")
     _run_gate(tmp_path, phys)
 
 
@@ -282,14 +274,17 @@ def test_check_shrink_skip_when_no_origin_main(tmp_path: Path) -> None:
     assert "shrink check" in result.stdout.lower()
 
 
-def test_check_shrink_fails_on_removal_without_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_check_shrink_fails_on_removal_without_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
     (phys / "a.py").write_text("X = 1.0\n")
 
     mod = _import_module()
     monkeypatch.setattr(
-        mod, "git_show_main_allowlist",
+        mod,
+        "git_show_main_allowlist",
         lambda: "a.py::X  # TODO: temper-999\n",
     )
     failures = mod.check_shrink_mode({"a.py::X": "TODO: temper-999"}, phys)
@@ -300,44 +295,51 @@ def test_check_shrink_fails_on_removal_without_source(tmp_path: Path, monkeypatc
     assert failures > 0
 
 
-def test_check_shrink_passes_on_removal_with_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_check_shrink_passes_on_removal_with_source(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
     (phys / "a.py").write_text("X = 1.0  # source: added now\n")
 
     mod = _import_module()
     monkeypatch.setattr(
-        mod, "git_show_main_allowlist",
+        mod,
+        "git_show_main_allowlist",
         lambda: "a.py::X  # TODO: temper-999\n",
     )
     failures = mod.check_shrink_mode({}, phys)
     assert failures == 0
 
 
-def test_check_shrink_passes_on_removal_deleted_constant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_check_shrink_passes_on_removal_deleted_constant(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
     (phys / "a.py").write_text("Y = 2.0  # source: something\n")
 
     mod = _import_module()
     monkeypatch.setattr(
-        mod, "git_show_main_allowlist",
+        mod,
+        "git_show_main_allowlist",
         lambda: "a.py::X  # TODO: temper-999\n",
     )
     failures = mod.check_shrink_mode({}, phys)
     assert failures == 0
 
 
-def test_check_shrink_fails_on_add_without_ticket(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_check_shrink_fails_on_add_without_ticket(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     phys = tmp_path / "physics"
     phys.mkdir()
 
     mod = _import_module()
     monkeypatch.setattr(
-        mod, "git_show_main_allowlist",
+        mod,
+        "git_show_main_allowlist",
         lambda: "",
     )
-    failures = mod.check_shrink_mode(
-        {"a.py::X": "no ticket here"}, phys
-    )
+    failures = mod.check_shrink_mode({"a.py::X": "no ticket here"}, phys)
     assert failures > 0

@@ -1,0 +1,36 @@
+name: Build Rust crates
+description: Build and install temper-drc-rs and temper-rust-router via maturin
+
+inputs:
+  rust-toolchain:
+    description: 'Rust toolchain version'
+    required: false
+    default: 'stable'
+
+runs:
+  using: composite
+  steps:
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ inputs.rust-toolchain }}
+
+    - name: Install maturin
+      shell: bash
+      run: uv pip install maturin
+
+    - name: Cache Rust build
+      uses: actions/cache@v4
+      with:
+        path: |
+          packages/temper-rust-router/target
+          packages/temper-drc-rs/target
+        key: ${{ runner.os }}-rust-build-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build and install temper-rust-router
+      shell: bash
+      run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
+
+    - name: Build and install temper-drc-rs
+      shell: bash
+      run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml

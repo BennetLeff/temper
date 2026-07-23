@@ -53,10 +53,7 @@ def predict_radiated_emissions(
     return 20 * math.log10(e_uv_per_m)
 
 
-def check_emi_compliance(
-    field_strength_dbuv: float,
-    standard: str = "CISPR32_CLASS_B"
-) -> bool:
+def check_emi_compliance(field_strength_dbuv: float, standard: str = "CISPR32_CLASS_B") -> bool:
     """
     Check if predicted emissions meet standard limits.
 

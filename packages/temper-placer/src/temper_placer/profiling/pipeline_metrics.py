@@ -7,6 +7,7 @@ JSONL recording.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import sys
 import time
@@ -152,10 +153,8 @@ def profile_loss_functions(
 
     for run_idx in range(n_warmup + n_measure):
         t0 = time.perf_counter()
-        try:
-            raw = loss_fn.compute_loss(dummy_xy)
-        except Exception:
-            raw = None
+        with contextlib.suppress(Exception):
+            loss_fn.compute_loss(dummy_xy)
         step_ms = (time.perf_counter() - t0) * 1000
 
         if run_idx < n_warmup:
@@ -209,9 +208,7 @@ def profile_router_benchmark(
 
     output_path = None
     try:
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as tmp:
             output_path = Path(tmp.name)
 
         reports = run_benchmark_suite(router="v6", output_file=output_path)
@@ -232,19 +229,11 @@ def profile_router_benchmark(
                 module="router-bench",
                 commit=commit,
                 metrics={
-                    "completion_rate": round(
-                        board.get("completion_rate", 0.0), 3
-                    ),
-                    "runtime_seconds": round(
-                        board.get("runtime_seconds", 0.0), 1
-                    ),
+                    "completion_rate": round(board.get("completion_rate", 0.0), 3),
+                    "runtime_seconds": round(board.get("runtime_seconds", 0.0), 1),
                     "p95_latency_ms": round(p95, 2),
-                    "geometric_mean_score": round(
-                        board.get("overall_score", 0.0), 3
-                    ),
-                    "total_route_length_mm": round(
-                        board.get("total_route_length_mm", 0.0), 1
-                    ),
+                    "geometric_mean_score": round(board.get("overall_score", 0.0), 3),
+                    "total_route_length_mm": round(board.get("total_route_length_mm", 0.0), 1),
                 },
             )
             records.append(rec.to_dict())
@@ -257,9 +246,7 @@ def profile_router_benchmark(
                 module="router-bench",
                 commit=commit,
                 metrics={
-                    "geometric_mean_score": round(
-                        summary.get("geometric_mean_score", 0.0), 3
-                    ),
+                    "geometric_mean_score": round(summary.get("geometric_mean_score", 0.0), 3),
                     "board_count": summary.get("board_count", 0),
                 },
             )

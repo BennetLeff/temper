@@ -56,6 +56,7 @@ from tests.router_v6.dfm_boundary_constants import (
 # helpers
 # ============================================================================
 
+
 def _make_route(
     net: str,
     coords: list[tuple[float, float]],
@@ -102,6 +103,7 @@ def _make_results(
 # ============================================================================
 # 1 — Clearance threshold boundaries
 # ============================================================================
+
 
 @pytest.mark.parametrize(
     "min_clearance, desc",
@@ -173,14 +175,14 @@ def test_clearance_threshold_nonpositive_behavior(min_clearance, expect_pass):
         )
     else:
         assert report.violation_count > 0, (
-            f"Expected violation for min_clearance={min_clearance}, "
-            f"got 0 violations"
+            f"Expected violation for min_clearance={min_clearance}, got 0 violations"
         )
 
 
 # ============================================================================
 # 2 — Voltage boundaries
 # ============================================================================
+
 
 @pytest.mark.parametrize(
     "voltage, expected_creepage",
@@ -220,14 +222,14 @@ def test_voltage_bracket_transitions(voltage, expected_creepage):
 
     hv_creepage = _calculate_required_creepage(voltage)
     assert hv_creepage == pytest.approx(expected_creepage), (
-        f"Voltage {voltage}V → expected creepage {expected_creepage}, "
-        f"got {hv_creepage}"
+        f"Voltage {voltage}V → expected creepage {expected_creepage}, got {hv_creepage}"
     )
 
     # Now check that _get_required_clearance picks at least the
     # HV creepage when an HV net is involved.
     req = _get_required_clearance(
-        "HV_BUS", "SIG1",
+        "HV_BUS",
+        "SIG1",
         default_clearance=0.127,
         voltage_ratings={"HV_BUS": voltage},
     )
@@ -252,7 +254,8 @@ def test_voltage_boundary_values(voltage, desc):
     230 V default.
     """
     req = _get_required_clearance(
-        "HV_BUS", "SIG1",
+        "HV_BUS",
+        "SIG1",
         default_clearance=0.127,
         voltage_ratings={"HV_BUS": voltage},
     )
@@ -419,9 +422,9 @@ def test_trace_width_negative_behavior():
     [
         # Edge-to-edge = spacing - width1/2 - width2/2 = spacing - w
         # For w=0.127, to get edge-to-edge = 0.127 we need spacing = 0.254
-        (exactly_at(0.254), "pass"),        # edge-to-edge = 0.127 exactly
-        (just_below(0.254), "violation"),    # edge-to-edge < 0.127
-        (just_above(0.254), "pass"),         # edge-to-edge > 0.127
+        (exactly_at(0.254), "pass"),  # edge-to-edge = 0.127 exactly
+        (just_below(0.254), "violation"),  # edge-to-edge < 0.127
+        (just_above(0.254), "pass"),  # edge-to-edge > 0.127
     ],
 )
 def test_segment_spacing_at_threshold(spacing, expectation):
@@ -440,13 +443,10 @@ def test_segment_spacing_at_threshold(spacing, expectation):
 
     if expectation == "pass":
         assert report.violation_count == 0, (
-            f"spacing={spacing} should pass but got "
-            f"{report.violation_count} violation(s)"
+            f"spacing={spacing} should pass but got {report.violation_count} violation(s)"
         )
     else:
-        assert report.violation_count > 0, (
-            f"spacing={spacing} should violate but passed"
-        )
+        assert report.violation_count > 0, f"spacing={spacing} should violate but passed"
 
 
 def test_segment_overlap_negative_clearance():
@@ -464,8 +464,7 @@ def test_segment_overlap_negative_clearance():
     assert report.violation_count > 0
     violation = report.violations[0]
     assert violation.actual_clearance < 0, (
-        f"Overlap should produce negative actual_clearance, "
-        f"got {violation.actual_clearance}"
+        f"Overlap should produce negative actual_clearance, got {violation.actual_clearance}"
     )
 
 
@@ -653,7 +652,9 @@ class TestPointToSegmentDist:
     def test_degenerate_segment_same_point(self):
         """Segment a==b — degenerate case, distance to point a."""
         dist, cp, p = _point_to_segment_dist(
-            (5.0, 0.0), (3.0, 3.0), (3.0, 3.0),
+            (5.0, 0.0),
+            (3.0, 3.0),
+            (3.0, 3.0),
         )
         assert dist == pytest.approx(math.hypot(5 - 3, 0 - 3))
         assert cp == (3.0, 3.0)
@@ -662,7 +663,9 @@ class TestPointToSegmentDist:
     def test_point_on_segment(self):
         """Point lies exactly on the segment."""
         dist, cp, p = _point_to_segment_dist(
-            (5.0, 5.0), (0.0, 0.0), (10.0, 10.0),
+            (5.0, 5.0),
+            (0.0, 0.0),
+            (10.0, 10.0),
         )
         assert dist == pytest.approx(0.0, abs=1e-10)
         assert cp == pytest.approx((5.0, 5.0))
@@ -670,7 +673,9 @@ class TestPointToSegmentDist:
     def test_point_at_endpoint(self):
         """Point coincides with segment endpoint."""
         dist, cp, p = _point_to_segment_dist(
-            (0.0, 0.0), (0.0, 0.0), (10.0, 0.0),
+            (0.0, 0.0),
+            (0.0, 0.0),
+            (10.0, 0.0),
         )
         assert dist == pytest.approx(0.0, abs=1e-10)
         assert cp == (0.0, 0.0)
@@ -692,7 +697,9 @@ class TestPointToSegmentDist:
         """
         try:
             dist, cp, p = _point_to_segment_dist(
-                (px, py), (0.0, 0.0), (10.0, 0.0),
+                (px, py),
+                (0.0, 0.0),
+                (10.0, 0.0),
             )
         except Exception:
             pytest.xfail(f"NaN/inf point ({desc}) crashes _point_to_segment_dist")
@@ -709,8 +716,10 @@ class TestSegmentToSegmentDist:
     def test_both_degenerate(self):
         """Both segments are points."""
         dist, cp1, cp2 = _segment_to_segment_dist(
-            (1.0, 0.0), (1.0, 0.0),
-            (4.0, 0.0), (4.0, 0.0),
+            (1.0, 0.0),
+            (1.0, 0.0),
+            (4.0, 0.0),
+            (4.0, 0.0),
         )
         assert dist == pytest.approx(3.0)
         assert cp1 == (1.0, 0.0)
@@ -719,8 +728,10 @@ class TestSegmentToSegmentDist:
     def test_one_degenerate_first(self):
         """First segment is a point, second is a real segment."""
         dist, cp1, cp2 = _segment_to_segment_dist(
-            (5.0, 0.0), (5.0, 0.0),
-            (0.0, 3.0), (10.0, 3.0),
+            (5.0, 0.0),
+            (5.0, 0.0),
+            (0.0, 3.0),
+            (10.0, 3.0),
         )
         assert dist == pytest.approx(3.0)
         assert cp1 == (5.0, 0.0)
@@ -729,8 +740,10 @@ class TestSegmentToSegmentDist:
     def test_one_degenerate_second(self):
         """Second segment is a point, first is a real segment."""
         dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 3.0), (10.0, 3.0),
-            (5.0, 0.0), (5.0, 0.0),
+            (0.0, 3.0),
+            (10.0, 3.0),
+            (5.0, 0.0),
+            (5.0, 0.0),
         )
         assert dist == pytest.approx(3.0)
         assert cp1 == (5.0, 3.0)
@@ -739,8 +752,10 @@ class TestSegmentToSegmentDist:
     def test_intersecting(self):
         """Two segments that cross."""
         dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 0.0), (10.0, 10.0),
-            (0.0, 10.0), (10.0, 0.0),
+            (0.0, 0.0),
+            (10.0, 10.0),
+            (0.0, 10.0),
+            (10.0, 0.0),
         )
         assert dist == pytest.approx(0.0, abs=1e-10)
         assert cp1 == pytest.approx((5.0, 5.0))
@@ -749,16 +764,20 @@ class TestSegmentToSegmentDist:
     def test_parallel_offset(self):
         """Parallel segments with an offset."""
         dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 0.0), (10.0, 0.0),
-            (0.0, 3.0), (10.0, 3.0),
+            (0.0, 0.0),
+            (10.0, 0.0),
+            (0.0, 3.0),
+            (10.0, 3.0),
         )
         assert dist == pytest.approx(3.0)
 
     def test_collinear_non_overlapping(self):
         """Collinear, non-overlapping segments."""
         dist, cp1, cp2 = _segment_to_segment_dist(
-            (0.0, 0.0), (5.0, 0.0),
-            (10.0, 0.0), (15.0, 0.0),
+            (0.0, 0.0),
+            (5.0, 0.0),
+            (10.0, 0.0),
+            (15.0, 0.0),
         )
         assert dist == pytest.approx(5.0)
         assert cp1 == (5.0, 0.0)
@@ -797,9 +816,7 @@ class TestSegmentToSegmentDist:
         any_nan_first = any(math.isnan(v) for v in vals[:4])  # x1,y1,x2,y2
         any(math.isinf(v) for v in vals)
         if any_nan_first:
-            assert math.isnan(dist), (
-                f"Expected NaN distance with NaN in first segment, got {dist}"
-            )
+            assert math.isnan(dist), f"Expected NaN distance with NaN in first segment, got {dist}"
 
 
 class TestCalculateMinimumClearance:
@@ -841,6 +858,7 @@ class TestCalculateMinimumClearance:
 
     def test_width_default_zero(self):
         """Routes without ``width_mm`` attribute default to 0.0."""
+
         # Simulate a route without width_mm via a plain object
         class _BareRoute:
             pass
@@ -860,8 +878,11 @@ class TestClearanceViolationProperties:
     def test_deficiency_negative_actual(self):
         """Deficiency with negative actual clearance (overlap)."""
         v = ClearanceViolation(
-            net1="A", net2="B", location=(0.0, 0.0),
-            actual_clearance=-0.5, required_clearance=0.127,
+            net1="A",
+            net2="B",
+            location=(0.0, 0.0),
+            actual_clearance=-0.5,
+            required_clearance=0.127,
             layer="F.Cu",
         )
         assert v.deficiency == pytest.approx(0.627)  # 0.127 - (-0.5)
@@ -869,8 +890,11 @@ class TestClearanceViolationProperties:
     def test_deficiency_exact(self):
         """Deficiency when exactly at threshold."""
         v = ClearanceViolation(
-            net1="A", net2="B", location=(0.0, 0.0),
-            actual_clearance=0.127, required_clearance=0.127,
+            net1="A",
+            net2="B",
+            location=(0.0, 0.0),
+            actual_clearance=0.127,
+            required_clearance=0.127,
             layer="F.Cu",
         )
         assert v.deficiency == pytest.approx(0.0)
@@ -884,8 +908,7 @@ class TestClearanceViolationProperties:
     def test_report_all_fail(self):
         """Report where every check fails."""
         violations = [
-            ClearanceViolation("A", "B", (0.0, 0.0), 0.0, 0.127, "F.Cu")
-            for _ in range(10)
+            ClearanceViolation("A", "B", (0.0, 0.0), 0.0, 0.127, "F.Cu") for _ in range(10)
         ]
         r = ClearanceReport(violations=violations, total_checks=10)
         assert r.pass_rate == 0.0

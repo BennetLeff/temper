@@ -4,70 +4,19 @@ Router V6: Topological-First Architecture
 See docs/architecture/ROUTER_V6_TOPOLOGICAL_ARCHITECTURE.md
 """
 
-# PEP 562 lazy attribute lookup — must be defined BEFORE any submodule
-# imports below to avoid circular import deadlocks.
-_LAZY_NAMES = {
-    # Diagnostics (U1)
-    "BlockingObstacle",
-    "BoardRoutingReport",
-    "FailureReason",
-    "NetRoutingReport",
-    "PlacementSuggestion",
-    "RoutingStatus",
-    # Min-cut bottleneck geometry (U2/U3)
-    "BottleneckGeometry",
-    "analyze_bottleneck",
-    # Adapter (formerly direct-imported; moved to lazy to fix grimp transitive tracing)
-    "CongestionRegion",
-    "DrcViolation",
-    "RoutingResult",
-    "_AdapterRoutePath",
-    "route_pcb",
-    # Obstacle map
-    "build_obstacle_map",
-}
-_LAZY_MODULES = {
-    # Diagnostics (U1)
-    "BlockingObstacle": "temper_placer.router_v6.diagnostics",
-    "BoardRoutingReport": "temper_placer.router_v6.diagnostics",
-    "FailureReason": "temper_placer.router_v6.diagnostics",
-    "NetRoutingReport": "temper_placer.router_v6.diagnostics",
-    "PlacementSuggestion": "temper_placer.router_v6.diagnostics",
-    "RoutingStatus": "temper_placer.router_v6.diagnostics",
-    # Min-cut bottleneck geometry (U2/U3)
-    "BottleneckGeometry": "temper_placer.router_v6.bottleneck_geometry",
-    "analyze_bottleneck": "temper_placer.router_v6.bottleneck_geometry",
-    # Adapter (U3) — lazy to avoid grimp tracing through to internal submodules
-    "CongestionRegion": "temper_placer.router_v6.adapter",
-    "DrcViolation": "temper_placer.router_v6.adapter",
-    "RoutingResult": "temper_placer.router_v6.adapter",
-    "_AdapterRoutePath": "temper_placer.router_v6.adapter",
-    "route_pcb": "temper_placer.router_v6.adapter",
-    # Obstacle map
-    "build_obstacle_map": "temper_placer.router_v6.obstacle_map",
-}
-
-
-def __getattr__(name: str):  # noqa: D401 — module-level dunder
-    """Lazy attribute lookup for adapter, diagnostics, obstacle_map + bottleneck symbols.
-
-    Resolves the names listed in ``_LAZY_NAMES`` on first access,
-    breaking the ``router_v6 -> constraint_model -> deterministic ->
-    router_v6`` circular import chain.
-    """
-    if name in _LAZY_MODULES:
-        import importlib
-
-        module = importlib.import_module(_LAZY_MODULES[name])
-        value = getattr(module, name)
-        # Cache on the module so subsequent lookups are O(1).
-        globals()[name] = value
-        return value
-    raise AttributeError(f"module 'temper_placer.router_v6' has no attribute {name!r}")
-
-
+from temper_placer.router_v6.adapter import (  # noqa: E402
+    CongestionRegion,
+    DrcViolation,
+    RoutingResult,
+    _AdapterRoutePath,
+    route_pcb,
+)
 from temper_placer.router_v6.astar_core_numba import (  # noqa: E402
     _line_of_sight_numba,
+)
+from temper_placer.router_v6.bottleneck_geometry import (  # noqa: E402
+    BottleneckGeometry,
+    analyze_bottleneck,
 )
 from temper_placer.router_v6.constraint_model import (  # noqa: E402
     ESL_REGISTRY,
@@ -86,6 +35,14 @@ from temper_placer.router_v6.dense_package_detection import (  # noqa: E402
     DensePackage,
     identify_dense_packages,
 )
+from temper_placer.router_v6.diagnostics import (  # noqa: E402
+    BlockingObstacle,
+    BoardRoutingReport,
+    FailureReason,
+    NetRoutingReport,
+    PlacementSuggestion,
+    RoutingStatus,
+)
 from temper_placer.router_v6.diff_pair_inference import (  # noqa: E402
     DiffPair,
     infer_differential_pairs,
@@ -93,6 +50,9 @@ from temper_placer.router_v6.diff_pair_inference import (  # noqa: E402
 from temper_placer.router_v6.escape_via_generator import (  # noqa: E402
     EscapeVia,
     generate_escape_vias,
+)
+from temper_placer.router_v6.obstacle_map import (  # noqa: E402
+    build_obstacle_map,
 )
 from temper_placer.router_v6.stage0_data import (  # noqa: E402
     DesignRules,
@@ -117,18 +77,11 @@ __all__ = [
     "LayerInfo",
     "DiffPair",
     "infer_differential_pairs",
-    "SafetyPair",
-    "infer_safety_pairs",
     # Stage 1: Pin Escape
     "DensePackage",
     "identify_dense_packages",
-    "ClassifiedPad",
-    "EscapeClass",
-    "classify_pads_by_escape_need",
     "EscapeVia",
     "generate_escape_vias",
-    "DRCViolation",
-    "validate_escape_plan",
     # Stage 2: Topology
     "build_obstacle_map",
     # Stage 3: Routing Constraints
@@ -144,12 +97,8 @@ __all__ = [
     "LayerConstraint",
     "ESL_REGISTRY",
     # Stage 4: Geometric Realization
-    "FlaggedNet",
     "RoutingFailureReport",
-    "handle_routing_failures",
     # Shared data structures
-    "ParsedPCB",
-    "DesignRules",
     # Diagnostics (U1)
     "NetRoutingReport",
     "BoardRoutingReport",
@@ -157,7 +106,7 @@ __all__ = [
     "FailureReason",
     "BlockingObstacle",
     "PlacementSuggestion",
-    # Min-cut bottleneck geometry (U2/U3) — lazily resolved; see __getattr__.
+    # Min-cut bottleneck geometry (U2/U3)
     "BottleneckGeometry",
     "analyze_bottleneck",
     # Numba LOS kernel

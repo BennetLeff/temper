@@ -24,9 +24,12 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 _MAX_GRID = 80
 
 
-def _make_edt_from_mask(mask: np.ndarray) -> tuple[np.ndarray, tuple[float, float, float, float], float]:
+def _make_edt_from_mask(
+    mask: np.ndarray,
+) -> tuple[np.ndarray, tuple[float, float, float, float], float]:
     """Build EDT from a boolean mask.  True = free, False = blocked."""
     from scipy.ndimage import distance_transform_edt
+
     h, w = mask.shape
     edt = distance_transform_edt(mask.astype(np.uint8))
     bounds = (0.0, 0.0, float(w), float(h))
@@ -129,8 +132,10 @@ def test_budget_monotonic_in_difficulty(width, height, density, n_nets, seed):
     for i in range(n_nets):
         # 2-4 waypoints for this net
         n_wp = rng.integers(2, 5)
-        wps = [(float(rng.integers(2, width - 2)), float(rng.integers(2, height - 2)))
-               for _ in range(n_wp)]
+        wps = [
+            (float(rng.integers(2, width - 2)), float(rng.integers(2, height - 2)))
+            for _ in range(n_wp)
+        ]
         net_name = f"N{i}"
         paths[net_name] = ChannelPath(net_name, [], wps, 0.0)
 
@@ -154,7 +159,7 @@ def test_budget_monotonic_in_difficulty(width, height, density, n_nets, seed):
         if diff_a < diff_b - 1e-6:
             assert budget[name_a] <= budget[name_b], (
                 f"Monotonicity violated: N{i} (diff={diff_a:.2f}, "
-                f"budget={budget[name_a]}) > N{i+1} (diff={diff_b:.2f}, "
+                f"budget={budget[name_a]}) > N{i + 1} (diff={diff_b:.2f}, "
                 f"budget={budget[name_b]})"
             )
 
@@ -183,17 +188,17 @@ def test_budget_bounded(width, height, density, seed):
     paths = {}
     for i in range(n_nets):
         n_wp = rng.integers(2, 6)
-        wps = [(float(rng.integers(1, width - 1)), float(rng.integers(1, height - 1)))
-               for _ in range(n_wp)]
+        wps = [
+            (float(rng.integers(1, width - 1)), float(rng.integers(1, height - 1)))
+            for _ in range(n_wp)
+        ]
         paths[f"N{i}"] = ChannelPath(f"N{i}", [], wps, 0.0)
 
     mapping = ChannelMapping(channel_paths=paths)
     budget = compute_demand_budget(edt, bounds, cell_size, mapping)
 
     for net_name, b in budget.items():
-        assert 1000 <= b <= 100000, (
-            f"Budget out of bounds: {net_name} = {b}"
-        )
+        assert 1000 <= b <= 100000, f"Budget out of bounds: {net_name} = {b}"
 
 
 # ---------------------------------------------------------------------------

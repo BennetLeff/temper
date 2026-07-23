@@ -44,7 +44,8 @@ class TestEscalation:
         netlist = _make_netlist(["Q1", "Q2"])
         origin = ConstraintOrigin()
         c = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=5.0,
             tier=ConstraintTier.SOFT,
             because="Test escalation from soft to strong tier",
@@ -55,7 +56,10 @@ class TestEscalation:
 
         reset_escalation_counts()
         diff = compile_unsat_to_pcl(
-            ["sat_cap_Q1_Q2"], collection, origin, ctx,
+            ["sat_cap_Q1_Q2"],
+            collection,
+            origin,
+            ctx,
         )
         assert len(diff.constraints) == 1
         assert diff.constraints[0].tier == ConstraintTier.STRONG
@@ -64,7 +68,8 @@ class TestEscalation:
         netlist = _make_netlist(["Q1", "Q2"])
         origin = ConstraintOrigin()
         c = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=5.0,
             tier=ConstraintTier.STRONG,
             because="Test escalation from strong to hard tier",
@@ -75,7 +80,10 @@ class TestEscalation:
 
         reset_escalation_counts()
         diff = compile_unsat_to_pcl(
-            ["sat_cap_Q1_Q2"], collection, origin, ctx,
+            ["sat_cap_Q1_Q2"],
+            collection,
+            origin,
+            ctx,
         )
         assert len(diff.constraints) == 1
         assert diff.constraints[0].tier == ConstraintTier.HARD
@@ -85,7 +93,8 @@ class TestEscalation:
         netlist = _make_netlist(["Q1", "Q2"])
         origin = ConstraintOrigin()
         c = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=5.0,
             tier=ConstraintTier.HARD,
             because="Test hard constraint stays hard",
@@ -96,7 +105,10 @@ class TestEscalation:
 
         reset_escalation_counts()
         diff = compile_unsat_to_pcl(
-            ["sat_cap_Q1_Q2"], collection, origin, ctx,
+            ["sat_cap_Q1_Q2"],
+            collection,
+            origin,
+            ctx,
         )
         assert len(diff.constraints) == 0  # HARD stays HARD, no escalation needed
 
@@ -105,7 +117,8 @@ class TestEscalation:
         netlist = _make_netlist(["Q1", "Q2"])
         origin = ConstraintOrigin()
         c = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=5.0,
             tier=ConstraintTier.SOFT,
             because="Test escalation counter limit enforcement",
@@ -118,13 +131,21 @@ class TestEscalation:
         # First 2 escalations work (SOFT->STRONG->HARD, only 2 tier transitions)
         for _ in range(2):
             diff = compile_unsat_to_pcl(
-                ["sat_cap_Q1_Q2"], collection, origin, ctx, max_escalations=2,
+                ["sat_cap_Q1_Q2"],
+                collection,
+                origin,
+                ctx,
+                max_escalations=2,
             )
             assert len(diff.constraints) == 1
 
         # 3rd escalation should be skipped (already at HARD)
         diff = compile_unsat_to_pcl(
-            ["sat_cap_Q1_Q2"], collection, origin, ctx, max_escalations=2,
+            ["sat_cap_Q1_Q2"],
+            collection,
+            origin,
+            ctx,
+            max_escalations=2,
         )
         assert len(diff.constraints) == 0
 
@@ -139,7 +160,10 @@ class TestSynthesis:
         ctx = CompilationContext(netlist=netlist)
 
         diff = compile_unsat_to_pcl(
-            ["unknown_sat_constraint"], collection, origin, ctx,
+            ["unknown_sat_constraint"],
+            collection,
+            origin,
+            ctx,
         )
         assert len(diff.constraints) >= 1
         synthesized = diff.constraints[0]
@@ -158,7 +182,10 @@ class TestSynthesis:
         ctx = CompilationContext(netlist=netlist)
 
         diff = compile_unsat_to_pcl(
-            ["sat_conflict_cap_L1_E42"], collection, origin, ctx,
+            ["sat_conflict_cap_L1_E42"],
+            collection,
+            origin,
+            ctx,
         )
         assert len(diff.constraints) >= 1
         c = diff.constraints[0]
@@ -172,13 +199,15 @@ class TestDeduplication:
     def test_dedup_identical_pairs(self):
         _make_netlist(["Q1", "Q2"])
         c1 = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=5.0,
             tier=ConstraintTier.STRONG,
             because="Test dedup first constraint",
         )
         c2 = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=10.0,
             tier=ConstraintTier.STRONG,
             because="Test dedup second constraint",
@@ -189,13 +218,15 @@ class TestDeduplication:
 
     def test_dedup_different_tiers_kept_separate(self):
         c1 = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=5.0,
             tier=ConstraintTier.STRONG,
             because="Strong tier constraint for dedup test",
         )
         c2 = SeparatedConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             min_distance_mm=10.0,
             tier=ConstraintTier.HARD,
             because="Hard tier constraint for dedup test",

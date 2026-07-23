@@ -1,6 +1,8 @@
 ---
 title: "DFM Domain-Correctness Property Tests"
 date: "2026-06-25"
+type: feat
+status: completed
 origin: "docs/brainstorms/2026-06-25-dfm-property-tests-requirements.md"
 ---
 
@@ -401,3 +403,7 @@ U9 (shared strategies) ──┬── U1 (acid trap)
 - `packages/temper-placer/src/temper_placer/router_v6/`
   — all 8 DFM module source files (acid_trap_detection through
   manufacturing_report)
+
+## Shipped
+
+**Merged on 2026-06-25.** Per-module Hypothesis property tests for all 7 DFM modules were added by commit `884e11b9` (`feat(placer): add domain-correctness property tests for all 7 DFM modules`). The shared targeted-strategy test infrastructure was committed alongside the per-module boundary tests.

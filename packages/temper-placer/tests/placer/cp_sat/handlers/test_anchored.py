@@ -23,12 +23,14 @@ class TestAnchoredHandlerStructural:
         model.add_rotation("U1", is_polarized=True)
 
         constraint = AnchoredConstraint(
-            component="U1", tier=ConstraintTier.HARD,
+            component="U1",
+            tier=ConstraintTier.HARD,
             position=(pos_x, pos_y),
             because="MCU must be in designated location for enclosure",
         )
-        ctx = EncoderContext(board_w_mm=50.0, board_h_mm=50.0,
-                             board_x_max_units=5000, board_y_max_units=5000)
+        ctx = EncoderContext(
+            board_w_mm=50.0, board_h_mm=50.0, board_x_max_units=5000, board_y_max_units=5000
+        )
         labels = encode_anchored(constraint, model.component_map, model, ctx)
         assert isinstance(labels, list)
         assert len(labels) == 1
@@ -43,19 +45,25 @@ class TestAnchoredHandlerStructural:
     )
     @settings(max_examples=100)
     def test_handler_returns_assumptions_with_region(
-        self, rx_min: float, ry_min: float, rw: float, rh: float,
+        self,
+        rx_min: float,
+        ry_min: float,
+        rw: float,
+        rh: float,
     ) -> None:
         model = CpSatModel(units_per_mm=100)
         model.add_component("U1", 0, 0, 200, 200)
         model.add_rotation("U1", is_polarized=True)
 
         constraint = AnchoredConstraint(
-            component="U1", tier=ConstraintTier.HARD,
+            component="U1",
+            tier=ConstraintTier.HARD,
             region=(rx_min, ry_min, rx_min + rw, ry_min + rh),
             because="MCU must be in designated region for enclosure fit",
         )
-        ctx = EncoderContext(board_w_mm=50.0, board_h_mm=50.0,
-                             board_x_max_units=5000, board_y_max_units=5000)
+        ctx = EncoderContext(
+            board_w_mm=50.0, board_h_mm=50.0, board_x_max_units=5000, board_y_max_units=5000
+        )
         labels = encode_anchored(constraint, model.component_map, model, ctx)
         assert isinstance(labels, list)
         assert len(labels) == 1
@@ -63,4 +71,5 @@ class TestAnchoredHandlerStructural:
     def test_handler_is_registered(self) -> None:
         from temper_placer.pcl.constraints import ConstraintType
         from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY
+
         assert ConstraintType.ANCHORED in HANDLER_REGISTRY

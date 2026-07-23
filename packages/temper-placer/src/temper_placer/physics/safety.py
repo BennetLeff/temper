@@ -13,7 +13,7 @@ import math
 def estimate_filter_delay(
     r_ohms: float,
     c_farads: float,
-    threshold_fraction: float = 0.632, # 1-1/e (one time constant)
+    threshold_fraction: float = 0.632,  # 1-1/e (one time constant)
 ) -> float:
     """
     Estimate the time delay of an RC low-pass filter.
@@ -55,9 +55,6 @@ def estimate_fault_response_time(
     return filter_delay_us + digital_delay_us
 
 
-def is_safety_timing_valid(
-    response_time_us: float,
-    max_limit_us: float = 10.0
-) -> bool:
+def is_safety_timing_valid(response_time_us: float, max_limit_us: float = 10.0) -> bool:
     """Check if fault response is within safety limits."""
     return response_time_us <= max_limit_us

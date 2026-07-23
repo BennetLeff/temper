@@ -43,10 +43,7 @@ class Track:
 
     def is_diff_pair_with(self, other: Track) -> bool:
         """Check if this track and another are companions in a differential pair."""
-        return (
-            self.diff_pair_companion is not None
-            and self.diff_pair_companion == other.net
-        )
+        return self.diff_pair_companion is not None and self.diff_pair_companion == other.net
 
     def midpoint(self) -> Point:
         """Get the midpoint of the track."""

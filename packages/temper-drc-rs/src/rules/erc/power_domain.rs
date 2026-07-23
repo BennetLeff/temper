@@ -3,7 +3,9 @@ use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
 use crate::rules::{DrcCategory, DrcRule, Violation};
 
+#[derive(Default)]
 pub struct PowerDomainCheck;
+
 impl PowerDomainCheck {
     pub fn new() -> Self {
         Self

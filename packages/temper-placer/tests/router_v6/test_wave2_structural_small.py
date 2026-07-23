@@ -15,6 +15,7 @@ R6: Direct-attempt A* fallback creates a ``ChannelPath`` with
     pad-to-pad waypoints for any net without a SAT channel
     assignment. Already implemented in ``_run_stage4``.
 """
+
 from __future__ import annotations
 
 import inspect
@@ -97,6 +98,6 @@ def test_r6_stage4_has_sat_skipped_fallback():
         "Fallback ChannelPath must have an empty channel_sequence "
         "(direct pad-to-pad waypoints, no skeleton path)."
     )
-    assert "preferred_layer=\"F.Cu\"" in source, (
+    assert 'preferred_layer="F.Cu"' in source, (
         "Fallback ChannelPath must use F.Cu as the preferred layer."
     )

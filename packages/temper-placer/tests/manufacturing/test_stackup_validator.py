@@ -61,7 +61,9 @@ class TestCopperSymmetry:
 class TestReturnPathAdjacency:
     """R9: Return-path adjacency check for differential nets."""
 
-    def test_l4_adjacent_to_pwr_warns_with_diff_nets(self, canonical_stackup, usb_differential_nets):
+    def test_l4_adjacent_to_pwr_warns_with_diff_nets(
+        self, canonical_stackup, usb_differential_nets
+    ):
         report = validate_stackup(canonical_stackup, differential_nets=usb_differential_nets)
         result = _find_result(report, "Return-Path Adjacency")
         assert not result.passed

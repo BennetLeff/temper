@@ -12,6 +12,7 @@ from temper_placer.placer.cp_sat.handlers._registry import (
 class TestRegistry:
     def test_handlers_registry_initially_empty_after_first_import(self) -> None:
         from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY as hr
+
         assert hr == HANDLER_REGISTRY
 
     def test_register_handler_decorator_stores_entry(self) -> None:
@@ -23,6 +24,7 @@ class TestRegistry:
         else:
             original = None
         try:
+
             @register_handler(ct)
             def _test_adj_handler(constraint, components, model, ctx):
                 return []

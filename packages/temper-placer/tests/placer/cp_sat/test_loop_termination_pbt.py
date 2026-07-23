@@ -16,13 +16,12 @@ CP-SAT solves or router runs.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 from unittest import mock
 
 import numpy as np
 import pytest
-
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from hypothesis.stateful import (
@@ -106,19 +105,16 @@ def _drifting_placement(round_num: int, base_xy=(10.0, 20.0)) -> CpSatPlacementR
     )
 
 
-def _make_field_result(grid: np.ndarray, status=GateStatus.CLEAN,
-                       error: str = "") -> FieldResult:
+def _make_field_result(grid: np.ndarray, status=GateStatus.CLEAN, error: str = "") -> FieldResult:
     return FieldResult(
         gate_result=GateResult(status=status, error_message=error),
-        field=CostField(grid=grid.astype(np.float32), cell_size_mm=0.5,
-                        origin_mm=(0.0, 0.0)),
+        field=CostField(grid=grid.astype(np.float32), cell_size_mm=0.5, origin_mm=(0.0, 0.0)),
     )
 
 
 def _mock_gates_clean():
     """Mock all 5 gate classes to return CLEAN."""
-    gate_classes = ("DrcGate", "RoutingGate", "StackupGate",
-                    "PhysicsGate", "QualityGate")
+    gate_classes = ("DrcGate", "RoutingGate", "StackupGate", "PhysicsGate", "QualityGate")
     return [
         mock.patch(
             f"temper_placer.placer.cp_sat.gates.{name}.check",
@@ -130,19 +126,22 @@ def _mock_gates_clean():
 
 def _mock_gates_violation(gate_name="DrcGate"):
     """Mock a specific gate to return VIOLATIONS; all others CLEAN."""
-    gate_classes = ("DrcGate", "RoutingGate", "StackupGate",
-                    "PhysicsGate", "QualityGate")
+    gate_classes = ("DrcGate", "RoutingGate", "StackupGate", "PhysicsGate", "QualityGate")
     patches = []
     for name in gate_classes:
         if name == gate_name:
             from temper_placer.placer.cp_sat.gates import GateViolation, ViolationType
-            v = GateViolation(type=ViolationType.SPACING, severity="error",
-                              reason="test violation", component="U1")
+
+            v = GateViolation(
+                type=ViolationType.SPACING,
+                severity="error",
+                reason="test violation",
+                component="U1",
+            )
             patches.append(
                 mock.patch(
                     f"temper_placer.placer.cp_sat.gates.{name}.check",
-                    return_value=GateResult(GateStatus.VIOLATIONS,
-                                            violations=[v]),
+                    return_value=GateResult(GateStatus.VIOLATIONS, violations=[v]),
                 )
             )
         else:
@@ -177,14 +176,21 @@ def _build_mocked_loop_with_sequence(
     _seq = list(placement_sequence)
     _rseq = list(routing_results)
 
-    def stub_solver(netlist, board, extra_constraints, timeout_ms, seed,
-                    zones=None, zone_components=None, loop_components=None):
+    def stub_solver(
+        netlist,
+        board,
+        extra_constraints,
+        timeout_ms,
+        seed,
+        zones=None,
+        zone_components=None,
+        loop_components=None,
+    ):
         if _seq:
             return _seq.pop(0)
         return _drifting_placement(0)
 
-    def stub_route(self, placement, netlist, board, seed,
-                   thermal_flat=None, thermal_weight=0.0):
+    def stub_route(self, placement, netlist, board, seed, thermal_flat=None, thermal_weight=0.0):
         if _rseq:
             return _rseq.pop(0)
         return MockRoutingResult(completion_rate=1.0, drc_errors=0)
@@ -208,7 +214,9 @@ def _build_mocked_loop_with_sequence(
     n_rounds=st.integers(min_value=1, max_value=8),
     seed=st.integers(min_value=0, max_value=100),
 )
-@settings(max_examples=30, deadline=15000, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=30, deadline=15000, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_halt_always_terminates(n_rounds, seed):
     """R15a: every generated placement sequence terminates within round budget.
 
@@ -247,7 +255,9 @@ def test_halt_always_terminates(n_rounds, seed):
     n_rounds=st.integers(min_value=1, max_value=12),
     seed=st.integers(min_value=0, max_value=100),
 )
-@settings(max_examples=30, deadline=15000, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=30, deadline=15000, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_halt_always_terminates_with_gates(n_rounds, seed):
     """R15a: termination holds on the gate-driven path (all_gates=True)."""
     placements = [_drifting_placement(i) for i in range(n_rounds)]
@@ -297,18 +307,19 @@ def test_convergence_implies_field_near_fixed_point():
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _drifting_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_gates_clean()
@@ -317,7 +328,9 @@ def test_convergence_implies_field_near_fixed_point():
         try:
             result = loop.run(
                 MockNetlist(components=[MockComp("U1")]),
-                MockBoard(), seed=42, all_gates=True,
+                MockBoard(),
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -329,7 +342,7 @@ def test_convergence_implies_field_near_fixed_point():
     assert loop._field_stability_counter >= PlaceRouteLoop.STABILITY_ROUNDS
     # The last STABILITY_ROUNDS+1 field values must be within epsilon of each other
     assert len(loop._field_history) >= PlaceRouteLoop.STABILITY_ROUNDS + 1
-    recent = loop._field_history[-PlaceRouteLoop.STABILITY_ROUNDS - 1:]
+    recent = loop._field_history[-PlaceRouteLoop.STABILITY_ROUNDS - 1 :]
     for i in range(1, len(recent)):
         delta = float(np.max(np.abs(recent[i] - recent[i - 1])))
         assert delta < PlaceRouteLoop.FIELD_EPSILON, (
@@ -354,18 +367,19 @@ def test_drifting_field_is_budget_not_convergence():
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _drifting_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_gates_clean()
@@ -374,7 +388,9 @@ def test_drifting_field_is_budget_not_convergence():
         try:
             result = loop.run(
                 MockNetlist(components=[MockComp("U1")]),
-                MockBoard(), seed=42, all_gates=True,
+                MockBoard(),
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -384,8 +400,7 @@ def test_drifting_field_is_budget_not_convergence():
         "Monotonically-drifting field must NOT be reported as convergence"
     )
     assert result.reason == LoopExitReason.FIELD_ROUND_LIMIT_EXCEEDED.value, (
-        f"Expected FIELD_ROUND_LIMIT_EXCEEDED (budget-exhaustion), "
-        f"got {result.reason}"
+        f"Expected FIELD_ROUND_LIMIT_EXCEEDED (budget-exhaustion), got {result.reason}"
     )
     # The loop was terminated by the budget, not by convergence
     assert loop._field_round_counter >= PlaceRouteLoop.FIELD_CONVERGENCE_ROUND_LIMIT
@@ -583,9 +598,7 @@ def test_concrete_loop_field_unstable_resets_only_field_counter():
         if call_count[0] <= 2:
             return _make_field_result(stable_grid)
         # Unstable: field drifts each round (avoids false cycle detection)
-        return _make_field_result(np.full((10, 10),
-                                          float(80.0 + call_count[0]),
-                                          dtype=np.float32))
+        return _make_field_result(np.full((10, 10), float(80.0 + call_count[0]), dtype=np.float32))
 
     loop = PlaceRouteLoop(
         field_compute_fn=get_field,
@@ -593,18 +606,19 @@ def test_concrete_loop_field_unstable_resets_only_field_counter():
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _drifting_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         patches = _mock_gates_clean()
@@ -613,7 +627,9 @@ def test_concrete_loop_field_unstable_resets_only_field_counter():
         try:
             result = loop.run(
                 MockNetlist(components=[MockComp("U1")]),
-                MockBoard(), seed=42, all_gates=True,
+                MockBoard(),
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -645,25 +661,27 @@ def test_concrete_loop_gate_violation_does_not_reset_field_counter():
     )
 
     solve_count = [0]
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
+
         def different_placement(*args, **kwargs):
             solve_count[0] += 1
             return _drifting_placement(solve_count[0])
 
         mock_solve.side_effect = different_placement
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         # Gate violation on first round to reset gate counters,
         # clean thereafter — field counter should remain unaffected
         violation_patches = []
-        for i, name in enumerate(("DrcGate", "RoutingGate", "StackupGate",
-                                   "PhysicsGate", "QualityGate")):
+        for _i, name in enumerate(
+            ("DrcGate", "RoutingGate", "StackupGate", "PhysicsGate", "QualityGate")
+        ):
             violation_patches.append(
                 mock.patch(
                     f"temper_placer.placer.cp_sat.gates.{name}.check",
@@ -676,7 +694,9 @@ def test_concrete_loop_gate_violation_does_not_reset_field_counter():
         try:
             result = loop.run(
                 MockNetlist(components=[MockComp("U1")]),
-                MockBoard(), seed=42, all_gates=True,
+                MockBoard(),
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(violation_patches):
@@ -715,28 +735,36 @@ def test_field_off_vs_legacy_loop_behavior():
             return placements[n - 1]
         return _drifting_placement(n)
 
-    def mock_route_return(placement, netlist, board, seed,
-                          thermal_flat=None, thermal_weight=0.0):
+    def mock_route_return(placement, netlist, board, seed, thermal_flat=None, thermal_weight=0.0):
         return MockRoutingResult(completion_rate=1.0, drc_errors=0)
 
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement",
-        side_effect=mock_solver_side_effect,
-    ) as legacy_solve, mock.patch.object(
-        legacy_loop, "_route_placement", mock_route_return,
+    with (
+        mock.patch(
+            "temper_placer.placer.cp_sat.encoder.solve_placement",
+            side_effect=mock_solver_side_effect,
+        ),
+        mock.patch.object(
+            legacy_loop,
+            "_route_placement",
+            mock_route_return,
+        ),
     ):
         netlist = MockNetlist(components=[MockComp("U1")])
         board = MockBoard()
-        legacy_result = legacy_loop.run(netlist, board, seed=42,
-                                         all_gates=False)
+        legacy_result = legacy_loop.run(netlist, board, seed=42, all_gates=False)
 
     solve_counter[0] = 0
 
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement",
-        side_effect=mock_solver_side_effect,
-    ) as field_off_solve, mock.patch.object(
-        field_off_loop, "_route_placement", mock_route_return,
+    with (
+        mock.patch(
+            "temper_placer.placer.cp_sat.encoder.solve_placement",
+            side_effect=mock_solver_side_effect,
+        ),
+        mock.patch.object(
+            field_off_loop,
+            "_route_placement",
+            mock_route_return,
+        ),
     ):
         netlist2 = MockNetlist(components=[MockComp("U1")])
         board2 = MockBoard()
@@ -746,7 +774,10 @@ def test_field_off_vs_legacy_loop_behavior():
             p.start()
         try:
             field_off_result = field_off_loop.run(
-                netlist2, board2, seed=42, all_gates=True,
+                netlist2,
+                board2,
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -758,12 +789,8 @@ def test_field_off_vs_legacy_loop_behavior():
 
     # R17: field-off rounds must carry field_grid=None / field_status=None
     for r in field_off_result.rounds:
-        assert r.field_grid is None, (
-            "field-off round must have field_grid=None"
-        )
-        assert r.field_status is None, (
-            "field-off round must have field_status=None"
-        )
+        assert r.field_grid is None, "field-off round must have field_grid=None"
+        assert r.field_status is None, "field-off round must have field_status=None"
 
 
 def test_field_off_still_routes():
@@ -772,25 +799,39 @@ def test_field_off_still_routes():
 
     call_args = []
 
-    def capture_solve(netlist, board, extra_constraints, timeout_ms, seed,
-                      zones=None, zone_components=None, loop_components=None):
+    def capture_solve(
+        netlist,
+        board,
+        extra_constraints,
+        timeout_ms,
+        seed,
+        zones=None,
+        zone_components=None,
+        loop_components=None,
+    ):
         call_args.append("solve")
         return _drifting_placement(len(call_args))
 
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement",
-        side_effect=capture_solve,
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement",
-        return_value=MockRoutingResult(completion_rate=1.0, drc_errors=0),
-    ) as mock_route:
+    with (
+        mock.patch(
+            "temper_placer.placer.cp_sat.encoder.solve_placement",
+            side_effect=capture_solve,
+        ),
+        mock.patch.object(
+            loop,
+            "_route_placement",
+            return_value=MockRoutingResult(completion_rate=1.0, drc_errors=0),
+        ) as mock_route,
+    ):
         patches = _mock_gates_clean()
         for p in patches:
             p.start()
         try:
             result = loop.run(
                 MockNetlist(components=[MockComp("U1")]),
-                MockBoard(), seed=42, all_gates=True,
+                MockBoard(),
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):
@@ -805,8 +846,16 @@ def test_field_off_injected_solver_used():
     """R17: the injected _placement_solver is called even in field-off mode."""
     called = []
 
-    def injected_solver(netlist, board, extra_constraints, timeout_ms, seed,
-                        zones=None, zone_components=None, loop_components=None):
+    def injected_solver(
+        netlist,
+        board,
+        extra_constraints,
+        timeout_ms,
+        seed,
+        zones=None,
+        zone_components=None,
+        loop_components=None,
+    ):
         called.append(True)
         return _drifting_placement(len(called))
 
@@ -816,7 +865,8 @@ def test_field_off_injected_solver_used():
     )
 
     with mock.patch.object(
-        loop, "_route_placement",
+        loop,
+        "_route_placement",
         return_value=MockRoutingResult(completion_rate=1.0, drc_errors=0),
     ):
         patches = _mock_gates_clean()
@@ -825,7 +875,9 @@ def test_field_off_injected_solver_used():
         try:
             result = loop.run(
                 MockNetlist(components=[MockComp("U1")]),
-                MockBoard(), seed=42, all_gates=True,
+                MockBoard(),
+                seed=42,
+                all_gates=True,
             )
         finally:
             for p in reversed(patches):

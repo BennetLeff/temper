@@ -15,8 +15,8 @@ especially wrong for components (like large radial capacitors) whose
 mechanical body/keepout extends well past their pads.
 """
 
-from kiutils.items.fpitems import FpCircle, FpLine, FpRect
 from kiutils.footprint import Footprint
+from kiutils.items.fpitems import FpCircle, FpLine, FpRect
 
 from temper_placer.io.kicad_metadata import _extract_courtyards
 
@@ -57,6 +57,7 @@ def test_fp_line_rectangle_courtyard_extracted_correctly():
     separate fp_line edges rather than a single fp_poly -- this must
     reconstruct the same rectangle, not fall through to the pad-bbox
     fallback."""
+
     def _line(x1, y1, x2, y2):
         line = FpLine()
         line.start.X, line.start.Y = x1, y1
@@ -97,6 +98,7 @@ def test_fp_circle_courtyard_extracted_with_correct_center_and_radius():
     assert abs(centroid.y - 0.0) < 0.05
     # Circle area = pi * r^2; polygon approximation should be close.
     import math
+
     expected_area = math.pi * 17.75**2
     assert abs(poly.area - expected_area) / expected_area < 0.01
 

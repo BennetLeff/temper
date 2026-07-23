@@ -39,7 +39,15 @@ _SETTINGS = settings(
 
 # Known angle set for severity classification testing (from the plan).
 _KNOWN_ANGLES: tuple[float, ...] = (
-    30.0, 44.0, 45.0, 52.0, 60.0, 75.0, 89.0, 90.0, 120.0,
+    30.0,
+    44.0,
+    45.0,
+    52.0,
+    60.0,
+    75.0,
+    89.0,
+    90.0,
+    120.0,
 )
 _KNOWN_WIDTHS: tuple[float, ...] = (0.1, 0.2, 0.5)
 
@@ -47,6 +55,7 @@ _KNOWN_WIDTHS: tuple[float, ...] = (0.1, 0.2, 0.5)
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _path_with_angle(
     angle_deg: float,
@@ -121,8 +130,7 @@ def test_classify_severity_matches_contract(angle: float, width: float) -> None:
             expected = "low"
 
     assert result == expected, (
-        f"angle={angle}°, width={width} mm: "
-        f"expected {expected!r}, got {result!r}"
+        f"angle={angle}°, width={width} mm: expected {expected!r}, got {result!r}"
     )
 
 
@@ -146,14 +154,10 @@ def test_detect_acid_traps_classifies_correctly(
     report = detect_acid_traps(results)
 
     if angle >= 90.0:
-        assert report.trap_count == 0, (
-            f"angle={angle}° must NOT produce a trap (threshold is 90°)"
-        )
+        assert report.trap_count == 0, f"angle={angle}° must NOT produce a trap (threshold is 90°)"
         return
 
-    assert report.trap_count >= 1, (
-        f"angle={angle}° must produce at least one trap"
-    )
+    assert report.trap_count >= 1, f"angle={angle}° must produce at least one trap"
 
     expected_severity = _classify_severity(angle, width)
     for trap in report.acid_traps:
@@ -229,6 +233,7 @@ def test_wider_trace_produces_fewer_or_equal_traps(
 
 # --- TS1: 30° angle → "high" severity ---------------------------------------
 
+
 @pytest.mark.parametrize("width", [0.2, 0.3, 0.5])
 def test_ts1_30_degree_angle_high_severity(width: float) -> None:
     """TS1: 30° angle is classified as ``"high"`` for normal-width traces."""
@@ -240,6 +245,7 @@ def test_ts1_30_degree_angle_high_severity(width: float) -> None:
 
 
 # --- TS2: 50° angle — width demotion ----------------------------------------
+
 
 def test_ts2_50_degree_angle_width_demotion() -> None:
     """TS2: 50° angle → ``"medium"`` at 0.2 mm, ``"low"`` at 0.1 mm."""
@@ -258,6 +264,7 @@ def test_ts2_50_degree_angle_width_demotion() -> None:
 
 # --- TS3: 65° angle → "low" regardless of width -----------------------------
 
+
 @pytest.mark.parametrize("width", [0.1, 0.2, 0.5])
 def test_ts3_65_degree_angle_low_severity(width: float) -> None:
     """TS3: 65° angle is always ``"low"``, regardless of trace width."""
@@ -268,6 +275,7 @@ def test_ts3_65_degree_angle_low_severity(width: float) -> None:
 
 
 # --- TS4: 90° angle → no trap -----------------------------------------------
+
 
 def test_ts4_90_degree_angle_no_trap() -> None:
     """TS4: 90° angle is not detected as an acid trap."""

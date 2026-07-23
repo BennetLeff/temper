@@ -9,6 +9,7 @@ class Courtyard:
     """
     Represents the physical courtyard (keepout area) of a component.
     """
+
     component_ref: str
     points: list[tuple[float, float]]  # Local coordinates relative to component center
 
@@ -35,8 +36,14 @@ class Courtyard:
         return translate(rotated, xoff=x, yoff=y)
 
 
-def check_overlap(c1: Courtyard, pos1: tuple[float, float], rot1: int,
-                  c2: Courtyard, pos2: tuple[float, float], rot2: int) -> bool:
+def check_overlap(
+    c1: Courtyard,
+    pos1: tuple[float, float],
+    rot1: int,
+    c2: Courtyard,
+    pos2: tuple[float, float],
+    rot2: int,
+) -> bool:
     """Check if two courtyards overlap at given positions/rotations."""
     poly1 = c1.get_global_polygon(pos1[0], pos1[1], rot1)
     poly2 = c2.get_global_polygon(pos2[0], pos2[1], rot2)

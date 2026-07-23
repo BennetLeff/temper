@@ -70,9 +70,7 @@ def _absolute_hv_pins(state) -> list[tuple[float, float, str, str]]:
             if safety not in _HV_SAFETY_CATEGORIES:
                 continue
             px, py = pin.position
-            pins.append(
-                (cx + float(px), cy + float(py), comp.ref, pin.name)
-            )
+            pins.append((cx + float(px), cy + float(py), comp.ref, pin.name))
     return pins
 
 
@@ -85,9 +83,7 @@ def _creepage_mm(state) -> float:
     for rules_entry in getattr(rules, "net_classes", {}).values():
         safety = getattr(rules_entry, "safety_category", None)
         if safety in _HV_SAFETY_CATEGORIES:
-            max_creepage = max(
-                max_creepage, float(getattr(rules_entry, "creepage_mm", 0.0))
-            )
+            max_creepage = max(max_creepage, float(getattr(rules_entry, "creepage_mm", 0.0)))
     return max_creepage
 
 
@@ -254,6 +250,7 @@ def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
     from temper_placer.deterministic.stages.phased_component_assignment import (
         PhasedComponentAssignmentStage,
     )
+
     stage = PhasedComponentAssignmentStage.__new__(PhasedComponentAssignmentStage)
     stage.slot_spacing = spacing
     if getattr(state, "design_rules", None) is not None:
@@ -276,40 +273,37 @@ def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
                 continue
             cx, cy = pos
             radius = stage._get_footprint_radius(comp)
-            used_slots.update(
-                _slots_within_radius((cx, cy), radius, slot_index, spacing)
-            )
+            used_slots.update(_slots_within_radius((cx, cy), radius, slot_index, spacing))
             for pin in comp.pins:
                 if pin.net is None:
                     continue
-                class_name = (
-                    getattr(state.design_rules, "net_class_assignments", {}) or {}
-                ).get(pin.net)
+                class_name = (getattr(state.design_rules, "net_class_assignments", {}) or {}).get(
+                    pin.net
+                )
                 if class_name is None or class_name not in (
                     getattr(state.design_rules, "net_classes", {}) or {}
                 ):
                     continue
                 safety = getattr(
-                    (
-                        getattr(state.design_rules, "net_classes", {}) or {}
-                    ).get(class_name),
+                    (getattr(state.design_rules, "net_classes", {}) or {}).get(class_name),
                     "safety_category",
                     None,
                 )
                 if safety not in _HV_SAFETY_CATEGORIES:
                     continue
                 ring_radius = stage._effective_ghost_pad_radius(
-                    comp.ref, pin.name, creepage,
-                    (cx, cy), (cx, cy),
+                    comp.ref,
+                    pin.name,
+                    creepage,
+                    (cx, cy),
+                    (cx, cy),
                 )
                 if ring_radius <= 0.0:
                     continue
                 px, py = pin.position
                 ax = cx + float(px)
                 ay = cy + float(py)
-                used_slots.update(
-                    _slots_within_radius((ax, ay), ring_radius, slot_index, spacing)
-                )
+                used_slots.update(_slots_within_radius((ax, ay), ring_radius, slot_index, spacing))
 
     # Pre-compute the legitimate-origin set (slots that fall within
     # some footprint ring OR some HV creepage ring).  Used by both
@@ -321,31 +315,30 @@ def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
             continue
         cx, cy = pos
         radius = stage._get_footprint_radius(comp)
-        legitimate_origin.update(
-            _slots_within_radius((cx, cy), radius, slot_index, spacing)
-        )
+        legitimate_origin.update(_slots_within_radius((cx, cy), radius, slot_index, spacing))
         for pin in comp.pins:
             if pin.net is None:
                 continue
-            class_name = (
-                getattr(state.design_rules, "net_class_assignments", {}) or {}
-            ).get(pin.net)
+            class_name = (getattr(state.design_rules, "net_class_assignments", {}) or {}).get(
+                pin.net
+            )
             if class_name is None or class_name not in (
                 getattr(state.design_rules, "net_classes", {}) or {}
             ):
                 continue
             safety = getattr(
-                (
-                    getattr(state.design_rules, "net_classes", {}) or {}
-                ).get(class_name),
+                (getattr(state.design_rules, "net_classes", {}) or {}).get(class_name),
                 "safety_category",
                 None,
             )
             if safety not in _HV_SAFETY_CATEGORIES:
                 continue
             ring_radius = stage._effective_ghost_pad_radius(
-                comp.ref, pin.name, creepage,
-                (cx, cy), (cx, cy),
+                comp.ref,
+                pin.name,
+                creepage,
+                (cx, cy),
+                (cx, cy),
             )
             if ring_radius <= 0.0:
                 continue
@@ -361,9 +354,7 @@ def validate_phased_component_assignment_hv(state) -> list[StageDRCFailure]:
     # by indexing each pin in the bucketed grid and walking its
     # 3x3 cell window.
     for px, py, comp_ref, pin_name in pins:
-        for slot in _slots_within_radius(
-            (px, py), creepage, slot_index, spacing
-        ):
+        for slot in _slots_within_radius((px, py), creepage, slot_index, spacing):
             if slot not in used_slots:
                 failures.append(
                     StageDRCFailure(

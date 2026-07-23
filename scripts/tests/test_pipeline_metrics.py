@@ -2,7 +2,7 @@
 
 import json
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -18,7 +18,6 @@ if str(_tp_src) not in sys.path:
 
 import pipeline_metrics
 
-
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
@@ -30,7 +29,7 @@ def _make_mock_record(board, stage, wall_time_ms, timestamp=None):
         "stage": stage,
         "stage_name": stage,
         "metrics": {"wall_time_ms": float(wall_time_ms)},
-        "timestamp": timestamp or datetime.now(timezone.utc).isoformat(),
+        "timestamp": timestamp or datetime.now(UTC).isoformat(),
     }
 
 
@@ -149,7 +148,7 @@ class TestCmdSpc:
     def _make_spc_records(self, board, stage, values):
         """Records where the last value is a massive spike."""
         records = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for i, v in enumerate(values):
             ts = (now - timedelta(days=len(values) - i)).isoformat()
             records.append(_make_mock_record(board, stage, v, timestamp=ts))
@@ -237,7 +236,7 @@ class TestCmdSpc:
 class TestCmdSlo:
     def _make_slo_records(self, stage, values):
         records = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for i, v in enumerate(values):
             ts = (now - timedelta(days=len(values) - i)).isoformat()
             records.append({

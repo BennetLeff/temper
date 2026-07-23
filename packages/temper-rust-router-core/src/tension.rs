@@ -35,7 +35,7 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
 
     // Build net_idx → HashSet<channel_id> for all channels a net can route on.
     let mut net_channels: HashMap<usize, HashSet<&str>> = HashMap::new();
-    for (_, (net_idx, channel_id)) in &var_info {
+    for (net_idx, channel_id) in var_info.values() {
         if *net_idx != usize::MAX && !channel_id.is_empty() {
             net_channels.entry(*net_idx).or_default().insert(channel_id);
         }
@@ -45,16 +45,14 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
     // LayerRestriction(allowed=false).
     let mut net_bans: HashMap<usize, HashSet<&str>> = HashMap::new();
     for c in &model.constraints {
-        if let InternalConstraint::LayerRestriction { var_name, allowed } = c {
-            if !allowed {
-                if let Some(&(net_idx, _ch)) = var_info.get(var_name.as_str()) {
-                    if net_idx != usize::MAX {
-                        // Determine channel from variable mapping.
-                        if let Some(&(_, ch)) = var_info.get(var_name.as_str()) {
-                            net_bans.entry(net_idx).or_default().insert(ch);
-                        }
-                    }
-                }
+        if let InternalConstraint::LayerRestriction { var_name, allowed } = c
+            && !allowed
+        {
+            if let Some(&(net_idx, _ch)) = var_info.get(var_name.as_str())
+                && net_idx != usize::MAX
+                && let Some(&(_, ch)) = var_info.get(var_name.as_str())
+            {
+                net_bans.entry(net_idx).or_default().insert(ch);
             }
         }
     }
@@ -68,7 +66,7 @@ pub fn detect_tensions(model: &InternalConstraintModel) -> Vec<TensionViolation>
     let mut all_channels: HashSet<&str> = HashSet::new();
 
     // Collect channels from ALL model variables first.
-    for (_, (_, ch)) in &var_info {
+    for (_, ch) in var_info.values() {
         if !ch.is_empty() {
             all_channels.insert(ch);
         }
@@ -271,8 +269,9 @@ fn check_diffpair_vs_capacity(
     violations: &mut Vec<TensionViolation>,
 ) {
     for &(dpi, channel_id, p_var, n_var, _p_net, _n_net) in diffpairs {
-        if let Some(&(cap_ci, max_nets, _)) = capacity_by_channel.get(channel_id) {
-            if max_nets < 2 {
+        if let Some(&(cap_ci, max_nets, _)) = capacity_by_channel.get(channel_id)
+            && max_nets < 2
+        {
                 violations.push(TensionViolation {
                     constraint_pair: (dpi, cap_ci),
                     channel_id: channel_id.to_string(),
@@ -282,7 +281,6 @@ fn check_diffpair_vs_capacity(
                     ),
                     severity: TensionSeverity::HardConflict,
                 });
-            }
         }
     }
 }

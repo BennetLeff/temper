@@ -138,10 +138,15 @@ class TestRepoStateGuard:
 
     def test_no_strip_routing_scripts_tracked(self):
         result = subprocess.run(
-            ["git", "ls-files", "scripts/strip_routing.py",
-             "scripts/strip_routing_v2.py", "scripts/strip_routing_kiutils.py"],
-            capture_output=True, text=True, cwd=REPO_ROOT,
+            [
+                "git",
+                "ls-files",
+                "scripts/strip_routing.py",
+                "scripts/strip_routing_v2.py",
+                "scripts/strip_routing_kiutils.py",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=REPO_ROOT,
         )
-        assert result.stdout.strip() == "", (
-            f"Tracked strip_routing scripts found:\n{result.stdout}"
-        )
+        assert result.stdout.strip() == "", f"Tracked strip_routing scripts found:\n{result.stdout}"

@@ -41,8 +41,15 @@ def test_manufacturing_report_add_compliant_route() -> None:
 
     rr.compiled_routes["SIG1"] = CompiledRoute(
         net_name="SIG1",
-        path=RoutePath(net_name="SIG1", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0),
-        width_mm=0.3, vias=[], matched_length_mm=None,
+        path=RoutePath(
+            net_name="SIG1",
+            coordinates=[(10.0, 10.0), (20.0, 10.0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        ),
+        width_mm=0.3,
+        vias=[],
+        matched_length_mm=None,
     )
 
     report = _run_all(rr)
@@ -52,30 +59,76 @@ def test_manufacturing_report_add_compliant_route() -> None:
 @pytest.mark.dependency(depends=["induction-base"])
 def test_manufacturing_report_modify_preserves_compliance() -> None:
     """FR13b: Modifying a route in composite report does not crash."""
-    rr = RoutingResults(compiled_routes={
-        "SIG1": CompiledRoute(net_name="SIG1", path=RoutePath(net_name="SIG1", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.3, vias=[], matched_length_mm=None),
-    }, failed_nets=[])
+    rr = RoutingResults(
+        compiled_routes={
+            "SIG1": CompiledRoute(
+                net_name="SIG1",
+                path=RoutePath(
+                    net_name="SIG1",
+                    coordinates=[(10.0, 10.0), (20.0, 10.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.3,
+                vias=[],
+                matched_length_mm=None,
+            ),
+        },
+        failed_nets=[],
+    )
     before = _run_all(rr).total_violations
 
-    rr.compiled_routes["SIG1"] = CompiledRoute(net_name="SIG1", path=RoutePath(net_name="SIG1", coordinates=[(15.0, 10.0), (25.0, 10.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.3, vias=[], matched_length_mm=None)
+    rr.compiled_routes["SIG1"] = CompiledRoute(
+        net_name="SIG1",
+        path=RoutePath(
+            net_name="SIG1",
+            coordinates=[(15.0, 10.0), (25.0, 10.0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        ),
+        width_mm=0.3,
+        vias=[],
+        matched_length_mm=None,
+    )
 
     after = _run_all(rr).total_violations
-    assert after == before, (
-        f"Route modification changed total_violations from {before} to {after}"
-    )
+    assert after == before, f"Route modification changed total_violations from {before} to {after}"
 
 
 @pytest.mark.dependency(depends=["induction-base"])
 def test_manufacturing_report_remove_preserves_compliance() -> None:
     """FR13c: Removing a route from composite report does not cause phantoms."""
-    rr = RoutingResults(compiled_routes={
-        "SIG1": CompiledRoute(net_name="SIG1", path=RoutePath(net_name="SIG1", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.3, vias=[], matched_length_mm=None),
-        "SIG2": CompiledRoute(net_name="SIG2", path=RoutePath(net_name="SIG2", coordinates=[(10.0, 50.0), (20.0, 50.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.3, vias=[], matched_length_mm=None),
-    }, failed_nets=[])
+    rr = RoutingResults(
+        compiled_routes={
+            "SIG1": CompiledRoute(
+                net_name="SIG1",
+                path=RoutePath(
+                    net_name="SIG1",
+                    coordinates=[(10.0, 10.0), (20.0, 10.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.3,
+                vias=[],
+                matched_length_mm=None,
+            ),
+            "SIG2": CompiledRoute(
+                net_name="SIG2",
+                path=RoutePath(
+                    net_name="SIG2",
+                    coordinates=[(10.0, 50.0), (20.0, 50.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.3,
+                vias=[],
+                matched_length_mm=None,
+            ),
+        },
+        failed_nets=[],
+    )
     before = _run_all(rr).total_violations
 
     del rr.compiled_routes["SIG2"]
     after = _run_all(rr).total_violations
-    assert after <= before, (
-        f"Route removal increased total_violations from {before} to {after}"
-    )
+    assert after <= before, f"Route removal increased total_violations from {before} to {after}"

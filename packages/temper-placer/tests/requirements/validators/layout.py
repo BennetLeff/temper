@@ -597,15 +597,17 @@ def check_clearance_and_creepage(board, spec: ClearanceSpecification) -> LayoutR
                     )
 
     # Check isolation slots
-    if spec.isolation_slots_required and (not hasattr(board, "isolation_slots") or len(board.isolation_slots) == 0):
-            violations.append(
-                LayoutViolation(
-                    code="CLEAR-003",
-                    message="Isolation slots not found for HV-LV separation",
-                    violation_type=LayoutViolationType.CLEARANCE_CREEPAGE,
-                    severity="error",
-                )
+    if spec.isolation_slots_required and (
+        not hasattr(board, "isolation_slots") or len(board.isolation_slots) == 0
+    ):
+        violations.append(
+            LayoutViolation(
+                code="CLEAR-003",
+                message="Isolation slots not found for HV-LV separation",
+                violation_type=LayoutViolationType.CLEARANCE_CREEPAGE,
+                severity="error",
             )
+        )
 
     # Check UCC21550 barrier respect
     if hasattr(board, "component_barriers"):

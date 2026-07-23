@@ -86,13 +86,13 @@ def _rasterize_boundary_mask(
 
     xs = np.linspace(min_x, min_x + (w - 1) * cell_size, w)
     ys = np.linspace(min_y, min_y + (h - 1) * cell_size, h)
-    xx, yy = np.meshgrid(xs, ys, indexing='xy')
+    xx, yy = np.meshgrid(xs, ys, indexing="xy")
     points = np.column_stack([xx.ravel(), yy.ravel()])
 
     mask = np.zeros(h * w, dtype=bool)
     batch_size = 100000
     for i in range(0, len(points), batch_size):
-        batch = points[i:i + batch_size]
+        batch = points[i : i + batch_size]
         for j, (px, py) in enumerate(batch):
             mask[i + j] = prepared.contains(ShapelyPoint(px, py))
 
@@ -168,6 +168,7 @@ def _build_edt(
 
     mask = _rasterize_boundary_mask(routing_space.available_area, bounds, cell_size)
     from scipy.ndimage import distance_transform_edt
+
     edt = distance_transform_edt(mask.astype(np.uint8))
 
     if use_cache:
@@ -227,6 +228,7 @@ def compute_channel_widths(
     # sampling profile.
     import shapely.prepared
     from shapely.geometry import MultiPolygon
+
     prepared_area = shapely.prepared.prep(available_area)
     if isinstance(available_area, MultiPolygon):
         cached_polygons = list(available_area.geoms)
@@ -244,8 +246,11 @@ def compute_channel_widths(
         if _edt_grid is not None and _edt_mask is not None and _edt_bounds is not None:
             return _edt_width_lookup(p[0], p[1], _edt_grid, _edt_mask, _edt_bounds, _edt_cell)
         return _compute_width_at_point(
-            p, available_area, _prepared=prepared_area,
-            _polygons=cached_polygons, _exteriors=cached_exteriors,
+            p,
+            available_area,
+            _prepared=prepared_area,
+            _polygons=cached_polygons,
+            _exteriors=cached_exteriors,
             _interiors=cached_interiors,
         )
 
@@ -266,7 +271,7 @@ def compute_channel_widths(
         # Sample intermediate points
         dx = v[0] - u[0]
         dy = v[1] - u[1]
-        edge_length = (dx**2 + dy**2)**0.5
+        edge_length = (dx**2 + dy**2) ** 0.5
 
         if edge_length > sample_distance:
             num_samples = int(edge_length / sample_distance)
@@ -343,6 +348,7 @@ def _compute_width_at_point(
     # sampling profile.
     if _prepared is None:
         import shapely.prepared
+
         _prepared = shapely.prepared.prep(available_area)
     if _polygons is None:
         if isinstance(available_area, Polygon):
@@ -363,7 +369,7 @@ def _compute_width_at_point(
     # access goes through Shapely's ``_get_ring`` and is the
     # dominant per-call cost in the original implementation
     # (~700k ``_get_ring`` calls in the sampling profile).
-    min_distance = float('inf')
+    min_distance = float("inf")
     if _exteriors is None:
         _exteriors = [p.exterior for p in _polygons]
     if _interiors is None:
@@ -378,13 +384,13 @@ def _compute_width_at_point(
             if d < min_distance:
                 min_distance = d
 
-    if min_distance == float('inf'):
+    if min_distance == float("inf"):
         return 0.0
     return 2.0 * min_distance
 
 
 class ChannelWidthsStage(Stage):
-    '''Stage 2.4: Compute channel widths along skeletons.'''
+    """Stage 2.4: Compute channel widths along skeletons."""
 
     @property
     def name(self) -> str:
@@ -403,25 +409,37 @@ class ChannelWidthsStage(Stage):
 
 @register_validator("ChannelWidths")
 def validate_channel_widths(state: BoardState) -> list[StageDRCFailure]:
-    '''Validate channel width invariants.'''
+    """Validate channel width invariants."""
     failures: list[StageDRCFailure] = []
     if state.channel_widths is None:
-        failures.append(StageDRCFailure(
-            field="channel_widths", value=None,
-            reason="Channel widths not computed", stage="ChannelWidths",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="channel_widths",
+                value=None,
+                reason="Channel widths not computed",
+                stage="ChannelWidths",
+            )
+        )
         return failures
 
     for layer_name, cw in state.channel_widths.items():
         if cw.min_width < 0:
-            failures.append(StageDRCFailure(
-                field="channel_widths", value=layer_name,
-                reason="Negative minimum width: " + repr(cw.min_width), stage="ChannelWidths",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="channel_widths",
+                    value=layer_name,
+                    reason="Negative minimum width: " + repr(cw.min_width),
+                    stage="ChannelWidths",
+                )
+            )
         if cw.max_width < 0:
-            failures.append(StageDRCFailure(
-                field="channel_widths", value=layer_name,
-                reason="Negative maximum width: " + repr(cw.max_width), stage="ChannelWidths",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="channel_widths",
+                    value=layer_name,
+                    reason="Negative maximum width: " + repr(cw.max_width),
+                    stage="ChannelWidths",
+                )
+            )
 
     return failures

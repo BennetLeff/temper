@@ -14,6 +14,7 @@ from numpy.typing import NDArray
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
+    from temper_placer.core.interfaces import _RouterProtocol
     from temper_placer.core.netlist import Netlist
 
 Array: TypeAlias = NDArray
@@ -22,6 +23,7 @@ Array: TypeAlias = NDArray
 @dataclass
 class IterationResult:
     """Result of a single placement-routing iteration."""
+
     iteration: int
     completion_rate: float
     is_feasible: bool
@@ -32,6 +34,7 @@ class IterationResult:
 @dataclass
 class PlaceRouteResult:
     """Final result of the place-route iteration loop."""
+
     converged: bool
     iterations: int
     final_positions: Array
@@ -53,7 +56,7 @@ class PlaceRouteIterator:
         self,
         netlist: Netlist,
         board: Board,
-        router: Any,
+        router: _RouterProtocol,
         placement_update_fn: Callable[[Array, Any], Array] | None = None,
         max_iterations: int = 10,
         target_completion: float = 1.0,
@@ -106,7 +109,7 @@ class PlaceRouteIterator:
             metrics = {
                 "completion": completion,
                 "is_feasible": is_feasible,
-                "nets_failed": getattr(routing_result, "nets_failed", 0)
+                "nets_failed": getattr(routing_result, "nets_failed", 0),
             }
             # Merge any additional metrics from routing result
             if hasattr(routing_result, "metrics") and isinstance(routing_result.metrics, dict):
@@ -117,7 +120,7 @@ class PlaceRouteIterator:
                 completion_rate=completion,
                 is_feasible=is_feasible,
                 elapsed_time=time.time() - start_time,
-                metrics=metrics
+                metrics=metrics,
             )
             history.append(iter_result)
 
@@ -133,7 +136,7 @@ class PlaceRouteIterator:
                     iterations=iteration_idx,
                     final_positions=current_positions,
                     iteration_history=history,
-                    final_metrics=iter_result.metrics
+                    final_metrics=iter_result.metrics,
                 )
 
             # Check for stagnation
@@ -145,7 +148,7 @@ class PlaceRouteIterator:
                         iterations=iteration_idx,
                         final_positions=best_positions,
                         iteration_history=history,
-                        final_metrics=iter_result.metrics
+                        final_metrics=iter_result.metrics,
                     )
 
             # 2. Update placement if possible
@@ -160,5 +163,5 @@ class PlaceRouteIterator:
             iterations=len(history),
             final_positions=best_positions,
             iteration_history=history,
-            final_metrics=history[-1].metrics if history else {}
+            final_metrics=history[-1].metrics if history else {},
         )

@@ -10,7 +10,6 @@ Returns exit code 0 on success, non-zero on failure.
 
 from __future__ import annotations
 
-import os
 import re
 import sys
 from pathlib import Path

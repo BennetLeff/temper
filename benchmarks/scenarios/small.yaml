@@ -1,0 +1,8 @@
+name: small
+description: "20 synthetic components, 10s timeout"
+type: synthetic
+n_components: 20
+board_width_mm: 120.0
+board_height_mm: 120.0
+timeout_ms: 10000
+seeds: [42, 123]

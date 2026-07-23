@@ -8,6 +8,7 @@ def trace():
     """Query and analyze placement decision traces."""
     pass
 
+
 @trace.command()
 @click.argument("trace_file", type=click.Path(exists=True))
 @click.argument("subject")
@@ -26,8 +27,9 @@ def why(trace_file: str, subject: str):
     for d in decisions:
         click.echo(f"- [{d['phase']}] {d['decision_type']}: {d['value']}")
         click.echo(f"  Reason: {d['reason']}")
-        if d.get('constraint_refs'):
+        if d.get("constraint_refs"):
             click.echo(f"  Constraints: {', '.join(d['constraint_refs'])}")
+
 
 @trace.command()
 @click.argument("trace_file", type=click.Path(exists=True))
@@ -45,11 +47,12 @@ def why_not(trace_file: str, subject: str, value: str):
             if str(alt.get("value")) == value:
                 click.echo(f"Rejected {value} for {subject}:")
                 click.echo(f"Rejection Reason: {alt['rejection_reason']}")
-                if alt.get('constraint_violated'):
+                if alt.get("constraint_violated"):
                     click.echo(f"Constraint Violated: {alt['constraint_violated']}")
                 return
 
     click.echo(f"Value {value} was not explicitly considered as an alternative for {subject}")
+
 
 @trace.command()
 @click.argument("trace_file", type=click.Path(exists=True))
@@ -69,7 +72,7 @@ def report(trace_file: str, output: str):
         run_id=data["run_id"],
         start_time=datetime.fromisoformat(data["start_time"]),
         end_time=datetime.fromisoformat(data["end_time"]) if data.get("end_time") else None,
-        final_metrics=data.get("final_metrics", {})
+        final_metrics=data.get("final_metrics", {}),
     )
 
     for d_data in data.get("decisions", []):
@@ -87,16 +90,17 @@ def report(trace_file: str, output: str):
                     value=a["value"],
                     rejection_reason=a["rejection_reason"],
                     constraint_violated=a.get("constraint_violated"),
-                    loss_if_chosen=a.get("loss_if_chosen")
-                ) for a in d_data.get("alternatives_considered", [])
-            ]
+                    loss_if_chosen=a.get("loss_if_chosen"),
+                )
+                for a in d_data.get("alternatives_considered", [])
+            ],
         )
         trace.add_decision(decision)
 
     report_text = generate_markdown_report(trace)
 
     if output:
-        with open(output, 'w') as f:
+        with open(output, "w") as f:
             f.write(report_text)
         click.echo(f"Report written to {output}")
     else:

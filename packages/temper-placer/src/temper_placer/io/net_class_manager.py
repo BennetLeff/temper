@@ -21,7 +21,23 @@ from temper_placer.router_v6.net_classification import (
     is_power_net as _is_power_net,
 )
 
-POWER_KEYWORDS = ["GND", "VCC", "VDD", "VSS", "VBUS", "+3V3", "+5V", "+12V", "+15V", "VBAT", "AC_L", "AC_N", "DC_BUS", "PGND", "CGND"]
+POWER_KEYWORDS = [
+    "GND",
+    "VCC",
+    "VDD",
+    "VSS",
+    "VBUS",
+    "+3V3",
+    "+5V",
+    "+12V",
+    "+15V",
+    "VBAT",
+    "AC_L",
+    "AC_N",
+    "DC_BUS",
+    "PGND",
+    "CGND",
+]
 HIGH_SPEED_KEYWORDS = ["USB", "SPI", "I2C", "SDA", "SCL", "MISO", "MOSI", "CLK", "RX", "TX"]
 
 # ---------------------------------------------------------------------------
@@ -68,9 +84,7 @@ def _microstrip_z0_wheeler(w_over_h: float, epsilon_r: float, t_over_h: float = 
                 else w_over_h + t_over_h / math.pi * (1.0 + math.log(2.0 / t_over_h))
             )
         else:
-            w_eff = w_over_h + (
-                t_over_h / math.pi * (1.0 + math.log(2.0 / t_over_h))
-            )
+            w_eff = w_over_h + (t_over_h / math.pi * (1.0 + math.log(2.0 / t_over_h)))
     else:
         w_eff = w_over_h
 
@@ -78,21 +92,16 @@ def _microstrip_z0_wheeler(w_over_h: float, epsilon_r: float, t_over_h: float = 
 
     if w <= 1.0:
         # Narrow strip: W/h <= 1
-        eps_eff = (
-            (epsilon_r + 1.0) / 2.0
-            + (epsilon_r - 1.0) / 2.0
-            * (1.0 / math.sqrt(1.0 + 12.0 / w) + 0.04 * (1.0 - w) ** 2)
+        eps_eff = (epsilon_r + 1.0) / 2.0 + (epsilon_r - 1.0) / 2.0 * (
+            1.0 / math.sqrt(1.0 + 12.0 / w) + 0.04 * (1.0 - w) ** 2
         )
         z0 = (60.0 / math.sqrt(eps_eff)) * math.log(8.0 / w + w / 4.0)
     else:
         # Wide strip: W/h >= 1
-        eps_eff = (
-            (epsilon_r + 1.0) / 2.0
-            + (epsilon_r - 1.0) / 2.0 * 1.0 / math.sqrt(1.0 + 12.0 / w)
+        eps_eff = (epsilon_r + 1.0) / 2.0 + (epsilon_r - 1.0) / 2.0 * 1.0 / math.sqrt(
+            1.0 + 12.0 / w
         )
-        z0 = (120.0 * math.pi / math.sqrt(eps_eff)) / (
-            w + 1.393 + 0.667 * math.log(w + 1.444)
-        )
+        z0 = (120.0 * math.pi / math.sqrt(eps_eff)) / (w + 1.393 + 0.667 * math.log(w + 1.444))
 
     return z0
 
@@ -135,17 +144,13 @@ def compute_microstrip_width(
         True
     """
     if target_impedance_ohms <= 0:
-        raise ValueError(
-            f"target_impedance_ohms must be positive, got {target_impedance_ohms}"
-        )
+        raise ValueError(f"target_impedance_ohms must be positive, got {target_impedance_ohms}")
     if epsilon_r <= 1.0:
         raise ValueError(f"epsilon_r must be > 1.0, got {epsilon_r}")
     if height_mm <= 0:
         raise ValueError(f"height_mm must be positive, got {height_mm}")
     if trace_thickness_mm <= 0:
-        raise ValueError(
-            f"trace_thickness_mm must be positive, got {trace_thickness_mm}"
-        )
+        raise ValueError(f"trace_thickness_mm must be positive, got {trace_thickness_mm}")
 
     t_over_h = trace_thickness_mm / height_mm
 
@@ -259,11 +264,7 @@ def is_power_net(net_name: str) -> bool:
         >>> is_power_net("SIG_DATA")
         False
     """
-    return (
-        _is_ground_net(net_name)
-        or _is_power_net(net_name)
-        or _is_hv_net(net_name)
-    )
+    return _is_ground_net(net_name) or _is_power_net(net_name) or _is_hv_net(net_name)
 
 
 def is_high_speed_net(net_name: str) -> bool:
@@ -484,8 +485,11 @@ def create_netclass_config(netlist: Netlist) -> dict[str, dict]:
             netclasses["Power"]["nets"].append(net.name)
         elif is_high_speed_net(net.name):
             netclasses["HighSpeed"]["nets"].append(net.name)
-        elif any(_is_fine_pitch_component(c) for c in netlist.components
-                 if any(pin[0] == c.ref for pin in net.pins)):  # type: ignore[attr-defined]
+        elif any(
+            _is_fine_pitch_component(c)
+            for c in netlist.components
+            if any(pin[0] == c.ref for pin in net.pins)
+        ):  # type: ignore[attr-defined]
             netclasses["FinePitch"]["nets"].append(net.name)
         else:
             netclasses["Default"]["nets"].append(net.name)

@@ -36,9 +36,7 @@ _safety = st.sampled_from([None, None, None, "LV", "LV", "HV", "AC"])
 
 
 @st.composite
-def design_rules_with_hv(
-    draw, *, max_classes: int = 5, max_creepage: float = 10.0
-) -> DesignRules:
+def design_rules_with_hv(draw, *, max_classes: int = 5, max_creepage: float = 10.0) -> DesignRules:
     """Generate a DesignRules with 1..max_classes classes and 0..N nets."""
     n_classes = draw(st.integers(min_value=1, max_value=max_classes))
     classes: dict[str, NetClassRules] = {}
@@ -78,9 +76,7 @@ def design_rules_with_hv(
 
 
 @st.composite
-def arbitrary_netlist(
-    draw, *, max_components: int = 10, max_pins: int = 10
-) -> Netlist:
+def arbitrary_netlist(draw, *, max_components: int = 10, max_pins: int = 10) -> Netlist:
     """Generate a netlist with 0..max_components and 0..max_pins per component."""
     n_components = draw(st.integers(min_value=0, max_value=max_components))
     components: list[Component] = []
@@ -90,39 +86,22 @@ def arbitrary_netlist(
         pins: list[Pin] = []
         for pi in range(n_pins):
             x = draw(
-                st.floats(
-                    min_value=-5.0, max_value=5.0, allow_nan=False, allow_infinity=False
-                )
+                st.floats(min_value=-5.0, max_value=5.0, allow_nan=False, allow_infinity=False)
             )
             y = draw(
-                st.floats(
-                    min_value=-5.0, max_value=5.0, allow_nan=False, allow_infinity=False
-                )
+                st.floats(min_value=-5.0, max_value=5.0, allow_nan=False, allow_infinity=False)
             )
             net = draw(
                 st.one_of(
                     st.none(),
-                    st.sampled_from(
-                        [f"NET_{ni}" for ni in range(20)]
-                        + [f"AUTO_{ci}_{pi}"]
-                    ),
+                    st.sampled_from([f"NET_{ni}" for ni in range(20)] + [f"AUTO_{ci}_{pi}"]),
                 )
             )
             name = f"P{pi}"
-            pins.append(
-                Pin(name=name, number=name, position=(x, y), net=net)
-            )
+            pins.append(Pin(name=name, number=name, position=(x, y), net=net))
         bounds = (
-            draw(
-                st.floats(
-                    min_value=1.0, max_value=20.0, allow_nan=False, allow_infinity=False
-                )
-            ),
-            draw(
-                st.floats(
-                    min_value=1.0, max_value=20.0, allow_nan=False, allow_infinity=False
-                )
-            ),
+            draw(st.floats(min_value=1.0, max_value=20.0, allow_nan=False, allow_infinity=False)),
+            draw(st.floats(min_value=1.0, max_value=20.0, allow_nan=False, allow_infinity=False)),
         )
         components.append(
             Component(
@@ -140,9 +119,7 @@ def arbitrary_netlist(
             if pin.net is not None and not pin.net.startswith("AUTO_"):
                 net_to_pins.setdefault(pin.net, []).append((comp.ref, pin.name))
     for net_name, pin_list in net_to_pins.items():
-        nets.append(
-            Net(name=net_name, pins=pin_list, net_class="CLS_0")
-        )
+        nets.append(Net(name=net_name, pins=pin_list, net_class="CLS_0"))
 
     return Netlist(components=components, nets=nets)
 
@@ -167,17 +144,13 @@ def board_state_with_ghost_pads(
 
     # Build a uniform slot grid.
     slots = [
-        (float(x), float(y))
-        for x in range(0, grid_size * 5, 5)
-        for y in range(0, grid_size * 5, 5)
+        (float(x), float(y)) for x in range(0, grid_size * 5, 5) for y in range(0, grid_size * 5, 5)
     ]
     from temper_placer.deterministic.state import BoardState
 
     state = BoardState(
         netlist=netlist,
-        component_zone_map=frozenset(
-            [(c.ref, "Signal") for c in netlist.components]
-        ),
+        component_zone_map=frozenset([(c.ref, "Signal") for c in netlist.components]),
         zone_slots=frozenset([("Signal", tuple(slots))]),
         design_rules=rules,
     )

@@ -17,6 +17,7 @@ class InputStage:
         print(f"Loading PCB from {input_pcb_path}")
         if not input_pcb_path.exists():
             from temper_placer.pipeline.state import PipelineError, PipelinePhase
+
             raise PipelineError(f"Input PCB not found: {input_pcb_path}", phase=PipelinePhase.INPUT)
 
         try:
@@ -25,6 +26,7 @@ class InputStage:
             raise
         except Exception as e:
             from temper_placer.pipeline.state import PipelineError, PipelinePhase
+
             raise PipelineError(f"Failed to parse PCB: {e}", phase=PipelinePhase.INPUT) from e
 
         # Fail-closed board/netlist identity preflight (plan 2026-07-15-001,
@@ -44,6 +46,7 @@ class InputStage:
                 preflight_identity(input_pcb_path, netlist_path)
             except BoardIdentityError as e:
                 from temper_placer.pipeline.state import PipelineError, PipelinePhase
+
                 raise PipelineError(
                     f"Board identity preflight failed for {input_pcb_path}: {e}",
                     phase=PipelinePhase.INPUT,
@@ -82,10 +85,15 @@ class InputStage:
                 raise
             except Exception as e:
                 from temper_placer.pipeline.state import PipelineError, PipelinePhase
-                raise PipelineError(f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT) from e
+
+                raise PipelineError(
+                    f"Failed to load constraints: {e}", phase=PipelinePhase.INPUT
+                ) from e
         else:
+
             class MockConstraints:
                 constraints: list = []
+
             mock_constraints = MockConstraints()
             constraints = mock_constraints  # type: ignore[assignment]
 
@@ -96,7 +104,9 @@ class InputStage:
         if hasattr(state.constraints, "pcl_constraints"):
             try:
 
-                def auto_detect_decoupling_set(*a, **kw): raise NotImplementedError("auto_detect_decoupling_set removed (JAX retirement)")
+                def auto_detect_decoupling_set(*a, **kw):
+                    raise NotImplementedError("auto_detect_decoupling_set removed (JAX retirement)")
+
                 detections = auto_detect_decoupling_set(netlist)
                 for constraint in detections.to_constraints():
                     state.constraints.pcl_constraints.append(constraint)

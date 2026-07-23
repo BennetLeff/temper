@@ -338,15 +338,17 @@ def validate_drill_file(
             content = f.read()
 
         # Check for common drill file headers
-        if drill_path.suffix.lower() == ".drl" and not re.search(r"(M48|INCH|METRIC)", content.upper()):
+        if drill_path.suffix.lower() == ".drl" and not re.search(
+            r"(M48|INCH|METRIC)", content.upper()
+        ):
             issues.append(
-                    ValidationIssue(
-                        ValidationSeverity.WARNING,
-                        "DRILL_003",
-                        "Drill file may not be in standard Excellon format",
-                        str(drill_path),
-                    )
+                ValidationIssue(
+                    ValidationSeverity.WARNING,
+                    "DRILL_003",
+                    "Drill file may not be in standard Excellon format",
+                    str(drill_path),
                 )
+            )
         if drill_path.suffix.lower() == ".drl" and not content.strip().startswith("<?xml"):
             # KiCad format already checked: drl + non-XML means not KiCad XML
             issues.append(

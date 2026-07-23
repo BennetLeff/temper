@@ -8,7 +8,7 @@
 //
 // Origin: U4 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use crate::board::{BoardState, Component};
+use crate::board::{BoardState, Component, SafetyCategory};
 use crate::constraints::ConstraintSet;
 use crate::rules::{location_midpoint, violation, DrcCategory, DrcRule, Severity, Violation};
 
@@ -21,17 +21,18 @@ const LV_KEYWORDS: [&str; 6] = ["lv", "signal", "3v3", "5v", "gnd", "analog"];
 /// Determine the safety category of a net class based on keyword matching.
 ///
 /// Mirrors Python's `resolve_safety_category()` in `_safety_keywords.py`.
-fn resolve_safety_category(net_class: &str) -> Option<&'static str> {
+fn resolve_safety_category(net_class: &str) -> Option<SafetyCategory> {
     let lc = net_class.to_lowercase();
     if HV_KEYWORDS.iter().any(|k| lc.contains(k)) {
-        Some("HV")
+        Some(SafetyCategory::Hv)
     } else if LV_KEYWORDS.iter().any(|k| lc.contains(k)) {
-        Some("LV")
+        Some(SafetyCategory::Lv)
     } else {
         None
     }
 }
 
+#[derive(Default)]
 pub struct HVLVSeparationCheck;
 
 impl HVLVSeparationCheck {
@@ -67,10 +68,10 @@ impl DrcRule for HVLVSeparationCheck {
                 let a_cat = resolve_safety_category(&a.net_class);
                 let b_cat = resolve_safety_category(&b.net_class);
 
-                let is_a_hv = a_cat == Some("HV");
-                let is_b_hv = b_cat == Some("HV");
-                let is_a_lv = a_cat == Some("LV");
-                let is_b_lv = b_cat == Some("LV");
+                let is_a_hv = a_cat == Some(SafetyCategory::Hv);
+                let is_b_hv = b_cat == Some(SafetyCategory::Hv);
+                let is_a_lv = a_cat == Some(SafetyCategory::Lv);
+                let is_b_lv = b_cat == Some(SafetyCategory::Lv);
 
                 // Check if one is HV and the other is LV
                 if (is_a_hv && is_b_lv) || (is_b_hv && is_a_lv) {

@@ -1,4 +1,5 @@
 """PBT: AssignmentValidation invariants."""
+
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
@@ -8,6 +9,7 @@ from hypothesis import strategies as st
 def test_sat_implies_valid(sat, av):
     if sat:
         assume(av is not False)
+
 
 @given(v=st.booleans())
 @settings(max_examples=100, deadline=30000)

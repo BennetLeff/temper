@@ -1,7 +1,7 @@
 ---
 title: "feat: Wire CP-SAT solver into temper-placer optimize --no-loop"
 type: feat
-status: active
+status: completed
 date: 2026-07-17
 origin: docs/brainstorms/2026-07-17-cp-sat-optimize-cli-wiring-requirements.md
 ---
@@ -259,3 +259,7 @@ Per `docs/solutions/logic-errors/cp-sat-optimize-cli-non-functional-stub-2026-07
 - **Feasibility-first paradigm:** [docs/solutions/architecture-patterns/cp-sat-feasibility-first-paradigm-2026-07-03.md](../solutions/architecture-patterns/cp-sat-feasibility-first-paradigm-2026-07-03.md)
 - Related code: `packages/temper-placer/src/temper_placer/cli/__init__.py:306-591`
 - Related code: `packages/temper-placer/src/temper_placer/placer/cp_sat/encoder.py:936-1134`
+
+## Shipped
+
+**Merged in [PR #218](https://github.com/BennetLeff/temper/pull/218) on 2026-07-18.** The CP-SAT solver was wired into the `--no-loop` path of `temper-placer optimize`, replacing the dead `console.print` stub with a real solver call, PCB position write, fail-closed error handling, and a single integration test proving the CLI actually calls the solver. All 4 implementation units (U1-U4) shipped: U1 wired `solve_placement()`, U2 wrote solver positions to output PCB, U3 added fail-closed error handling, U4 added CLI integration tests in `test_optimize_no_loop.py`.

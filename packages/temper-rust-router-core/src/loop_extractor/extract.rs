@@ -2,7 +2,6 @@
 ///
 /// Detects half-bridge topology and traces commutation, gate-drive, and bootstrap loops.
 /// All extraction functions return Result — no silent None.
-
 use std::collections::{HashMap, HashSet};
 
 use crate::loop_extractor::classify::{Classification, CompInfo, classify_component};
@@ -197,8 +196,9 @@ fn find_capacitor_chain(
     let mut intermediate_nets: Vec<String> = Vec::new();
     for &cap_idx in &dc_plus_caps {
         for pin in &components[cap_idx].pins {
-            if let Some(ref net_name) = pin.net {
-                if net_name != dc_plus && net_name != dc_minus {
+            #[allow(clippy::collapsible_if)]
+        if let Some(ref net_name) = pin.net {
+            if net_name != dc_plus && net_name != dc_minus {
                     intermediate_nets.push(net_name.clone());
                 }
             }
@@ -209,8 +209,9 @@ fn find_capacitor_chain(
     let mut found_caps = Vec::new();
     for &cap_idx in &dc_minus_caps {
         for pin in &components[cap_idx].pins {
-            if let Some(ref net_name) = pin.net {
-                if intermediate_nets.contains(net_name) {
+            #[allow(clippy::collapsible_if)]
+        if let Some(ref net_name) = pin.net {
+            if intermediate_nets.contains(net_name) {
                     // Found! Add caps from DC+ side and DC- side that share this net
                     for &dcp_idx in &dc_plus_caps {
                         let has_net = components[dcp_idx]
@@ -351,7 +352,7 @@ pub fn trace_bootstrap_loop(
     let cap_nets: HashSet<&str> = boot_cap.pins.iter().filter_map(|p| p.net.as_deref()).collect();
     let boot_diode = components.iter().find(|c| {
         c.ref_des.starts_with('D')
-            && c.pins.iter().any(|p| p.net.as_deref().map_or(false, |n| cap_nets.contains(n)))
+            && c.pins.iter().any(|p| p.net.as_deref().is_some_and(|n| cap_nets.contains(n)))
     });
 
     let mut comp_refs = Vec::new();

@@ -34,17 +34,16 @@ def create_clustered_netlist():
         Net("N1_VCC", [("U1", "1"), ("C1", "1"), ("C2", "1")]),
         Net("N1_GND", [("U1", "2"), ("C1", "2"), ("C2", "2"), ("R1", "1")]),
         Net("N1_SIG", [("U1", "3"), ("R1", "2")]),
-
         # Nets within Cluster 2
         Net("N2_VIN", [("U2", "1"), ("C3", "1")]),
-        Net("N2_SW",  [("U2", "2"), ("C4", "1")]),
+        Net("N2_SW", [("U2", "2"), ("C4", "1")]),
         Net("N2_GND", [("U2", "3"), ("C3", "2"), ("C4", "2"), ("R2", "1")]),
-
         # Bridge net (Weak coupling)
-        Net("BRIDGE", [("U1", "10"), ("U2", "10")])
+        Net("BRIDGE", [("U1", "10"), ("U2", "10")]),
     ]
 
     return Netlist(components=comps1 + comps2, nets=nets)
+
 
 def test_detect_communities_finds_subsystems():
     """Verify that Louvain detection partitions the clusters correctly."""
@@ -67,10 +66,12 @@ def test_detect_communities_finds_subsystems():
         assert cluster2_refs in comm_sets
         assert cluster1_refs in comm_sets
 
+
 def test_detect_communities_empty():
     netlist = Netlist([], [])
     communities = detect_communities(netlist)
     assert communities == []
+
 
 def test_detect_communities_single_cluster():
     # Chain of 3 components

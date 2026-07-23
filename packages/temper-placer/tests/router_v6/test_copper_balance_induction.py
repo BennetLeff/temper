@@ -21,8 +21,15 @@ def test_copper_balance_add_compliant_route() -> None:
 
     rr.compiled_routes["SIG1"] = CompiledRoute(
         net_name="SIG1",
-        path=RoutePath(net_name="SIG1", coordinates=[(0.0, 0.0), (10.0, 0.0)], layer_name="F.Cu", path_length=10.0),
-        width_mm=0.2, vias=[], matched_length_mm=None,
+        path=RoutePath(
+            net_name="SIG1",
+            coordinates=[(0.0, 0.0), (10.0, 0.0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        ),
+        width_mm=0.2,
+        vias=[],
+        matched_length_mm=None,
     )
 
     report = analyze_copper_balance(rr, BOARD_W, BOARD_H)
@@ -32,13 +39,38 @@ def test_copper_balance_add_compliant_route() -> None:
 @pytest.mark.dependency(depends=["induction-base"])
 def test_copper_balance_modify_preserves_compliance() -> None:
     """FR13b: Modifying a route updates copper area correctly."""
-    rr = RoutingResults(compiled_routes={
-        "SIG1": CompiledRoute(net_name="SIG1", path=RoutePath(net_name="SIG1", coordinates=[(0.0, 0.0), (10.0, 0.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.2, vias=[], matched_length_mm=None),
-    }, failed_nets=[])
+    rr = RoutingResults(
+        compiled_routes={
+            "SIG1": CompiledRoute(
+                net_name="SIG1",
+                path=RoutePath(
+                    net_name="SIG1",
+                    coordinates=[(0.0, 0.0), (10.0, 0.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.2,
+                vias=[],
+                matched_length_mm=None,
+            ),
+        },
+        failed_nets=[],
+    )
 
     report_before = analyze_copper_balance(rr, BOARD_W, BOARD_H)
 
-    rr.compiled_routes["SIG1"] = CompiledRoute(net_name="SIG1", path=RoutePath(net_name="SIG1", coordinates=[(5.0, 0.0), (15.0, 0.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.2, vias=[], matched_length_mm=None)
+    rr.compiled_routes["SIG1"] = CompiledRoute(
+        net_name="SIG1",
+        path=RoutePath(
+            net_name="SIG1",
+            coordinates=[(5.0, 0.0), (15.0, 0.0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        ),
+        width_mm=0.2,
+        vias=[],
+        matched_length_mm=None,
+    )
 
     report_after = analyze_copper_balance(rr, BOARD_W, BOARD_H)
     assert len(report_after.layer_balances) == len(report_before.layer_balances)
@@ -47,10 +79,35 @@ def test_copper_balance_modify_preserves_compliance() -> None:
 @pytest.mark.dependency(depends=["induction-base"])
 def test_copper_balance_remove_preserves_compliance() -> None:
     """FR13c: Removing a route does not cause phantom violations."""
-    rr = RoutingResults(compiled_routes={
-        "SIG1": CompiledRoute(net_name="SIG1", path=RoutePath(net_name="SIG1", coordinates=[(0.0, 0.0), (10.0, 0.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.2, vias=[], matched_length_mm=None),
-        "SIG2": CompiledRoute(net_name="SIG2", path=RoutePath(net_name="SIG2", coordinates=[(0.0, 50.0), (10.0, 50.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.2, vias=[], matched_length_mm=None),
-    }, failed_nets=[])
+    rr = RoutingResults(
+        compiled_routes={
+            "SIG1": CompiledRoute(
+                net_name="SIG1",
+                path=RoutePath(
+                    net_name="SIG1",
+                    coordinates=[(0.0, 0.0), (10.0, 0.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.2,
+                vias=[],
+                matched_length_mm=None,
+            ),
+            "SIG2": CompiledRoute(
+                net_name="SIG2",
+                path=RoutePath(
+                    net_name="SIG2",
+                    coordinates=[(0.0, 50.0), (10.0, 50.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.2,
+                vias=[],
+                matched_length_mm=None,
+            ),
+        },
+        failed_nets=[],
+    )
 
     del rr.compiled_routes["SIG2"]
     report = analyze_copper_balance(rr, BOARD_W, BOARD_H)

@@ -16,7 +16,6 @@ pub mod types;
 
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::ToPyObject;
 use pyo3::types::{PyDict, PyList};
 
 use crate::board_py_bridge::build_board_state;
@@ -93,7 +92,7 @@ fn run_drc(
             .iter()
             .map(|c| parse_category(c))
             .collect::<Result<Vec<_>, _>>()
-            .map_err(|e| PyValueError::new_err(e))?;
+            .map_err(PyValueError::new_err)?;
         registry.run_categories(&board, &constraints, &parsed)
     } else if let Some(names) = check_names {
         // Check-name-filtered mode
@@ -216,17 +215,27 @@ fn violation_to_py_dict<'py>(py: Python<'py>, v: &Violation) -> PyResult<Bound<'
 fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<PyObject> {
     match value {
         serde_json::Value::Null => Ok(py.None()),
-        serde_json::Value::Bool(b) => Ok(b.to_object(py)),
+        serde_json::Value::Bool(b) => {
+            let obj = (*b).into_pyobject(py)?;
+            Ok(obj.as_any().clone().unbind())
+        }
         serde_json::Value::Number(n) => {
             if let Some(i) = n.as_i64() {
-                Ok(i.to_object(py))
+                let obj = i.into_pyobject(py)?;
+                Ok(obj.as_any().clone().unbind())
             } else if let Some(f) = n.as_f64() {
-                Ok(f.to_object(py))
+                let obj = f.into_pyobject(py)?;
+                Ok(obj.as_any().clone().unbind())
             } else {
-                Ok(n.to_string().to_object(py))
+                let s = n.to_string();
+                let obj = s.into_pyobject(py)?;
+                Ok(obj.as_any().clone().unbind())
             }
         }
-        serde_json::Value::String(s) => Ok(s.to_object(py)),
+        serde_json::Value::String(s) => {
+            let obj = s.clone().into_pyobject(py)?;
+            Ok(obj.as_any().clone().unbind())
+        }
         serde_json::Value::Array(arr) => {
             let list = PyList::empty(py);
             for item in arr {

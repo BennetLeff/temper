@@ -11,7 +11,9 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 
-from shapely.geometry import LineString as ShapelyLineString, Point as ShapelyPoint, Polygon as ShapelyPolygon
+from shapely.geometry import LineString as ShapelyLineString
+from shapely.geometry import Point as ShapelyPoint
+from shapely.geometry import Polygon as ShapelyPolygon
 
 from temper_placer.router_v6.constraints_geometry import (
     LineSegment,
@@ -127,7 +129,10 @@ def verify_net_connectivity(
     net = ordered_pads[0].identity.net if ordered_pads else ""
 
     items: tuple[object, ...] = (
-        *ordered_pads, *ordered_tracks, *ordered_vias, *ordered_zones,
+        *ordered_pads,
+        *ordered_tracks,
+        *ordered_vias,
+        *ordered_zones,
     )
     parent = list(range(len(items)))
 
@@ -161,14 +166,14 @@ def verify_net_connectivity(
 
     for left, pad in enumerate(ordered_pads):
         for right in range(left + 1, len(ordered_pads)):
-            other = ordered_pads[right]
-            if pad.layers & other.layers and _pads_touch(pad, other):
+            other_pad = ordered_pads[right]
+            if pad.layers & other_pad.layers and _pads_touch(pad, other_pad):
                 union(left, right)
 
     for left, via in enumerate(ordered_vias):
         for right in range(left + 1, len(ordered_vias)):
-            other = ordered_vias[right]
-            if via.layers & other.layers and _points_touch(via.center, other.center):
+            other_via = ordered_vias[right]
+            if via.layers & other_via.layers and _points_touch(via.center, other_via.center):
                 union(via_start + left, via_start + right)
         for pad_index, pad in enumerate(ordered_pads):
             if via.layers & pad.layers and _via_touches_pad(via, pad):
@@ -214,7 +219,9 @@ def verify_net_connectivity(
 
 
 def verify_connectivity_by_net(
-    pads: Iterable[CopperPad], tracks: Iterable[CopperTrack], vias: Iterable[CopperVia],
+    pads: Iterable[CopperPad],
+    tracks: Iterable[CopperTrack],
+    vias: Iterable[CopperVia],
     zones: Iterable[CopperZone] = (),
 ) -> dict[str, NetConnectivity]:
     """Verify each net independently; mixed-net copper is never joined."""
@@ -233,8 +240,10 @@ def verify_connectivity_by_net(
     net_names = pad_groups.keys() | track_groups.keys() | via_groups.keys() | zone_groups.keys()
     return {
         net: verify_net_connectivity(
-            pad_groups.get(net, ()), track_groups.get(net, ()),
-            via_groups.get(net, ()), zone_groups.get(net, ()),
+            pad_groups.get(net, ()),
+            track_groups.get(net, ()),
+            via_groups.get(net, ()),
+            zone_groups.get(net, ()),
         )
         for net in sorted(net_names)
     }
@@ -273,7 +282,10 @@ def _pads_touch(left: CopperPad, right: CopperPad) -> bool:
 
 def _segment_touches_pad(segment: LineSegment, pad: CopperPad, radius: float) -> bool:
     if pad.shape == "circle":
-        return point_to_segment_distance(pad.center, segment) <= pad.size[0] / 2 + radius + CONTACT_TOLERANCE_MM
+        return (
+            point_to_segment_distance(pad.center, segment)
+            <= pad.size[0] / 2 + radius + CONTACT_TOLERANCE_MM
+        )
     start = _to_pad_coordinates(segment.start, pad)
     end = _to_pad_coordinates(segment.end, pad)
     half_x, half_y = pad.size[0] / 2 + radius, pad.size[1] / 2 + radius
@@ -288,7 +300,10 @@ def _point_in_pad(point: Point, pad: CopperPad, radius: float = 0.0) -> bool:
     half_x, half_y = pad.size[0] / 2 + radius, pad.size[1] / 2 + radius
     if pad.shape == "circle":
         return local_x * local_x + local_y * local_y <= half_x * half_x + CONTACT_TOLERANCE_MM
-    return abs(local_x) <= half_x + CONTACT_TOLERANCE_MM and abs(local_y) <= half_y + CONTACT_TOLERANCE_MM
+    return (
+        abs(local_x) <= half_x + CONTACT_TOLERANCE_MM
+        and abs(local_y) <= half_y + CONTACT_TOLERANCE_MM
+    )
 
 
 def _to_pad_coordinates(point: Point, pad: CopperPad) -> tuple[float, float]:
@@ -299,7 +314,9 @@ def _to_pad_coordinates(point: Point, pad: CopperPad) -> tuple[float, float]:
     return dx * cos(angle) - dy * sin(angle), dx * sin(angle) + dy * cos(angle)
 
 
-def _segment_intersects_box(start: tuple[float, float], end: tuple[float, float], half_x: float, half_y: float) -> bool:
+def _segment_intersects_box(
+    start: tuple[float, float], end: tuple[float, float], half_x: float, half_y: float
+) -> bool:
     """Liang-Barsky clipping against pad-local rectangular copper."""
     dx, dy = end[0] - start[0], end[1] - start[1]
     lower, upper = 0.0, 1.0
@@ -320,6 +337,7 @@ def _points_touch(left: Point, right: Point) -> bool:
 
 # --- U5: zone/pour touch predicates ---
 
+
 def _zone_touches_pad(zone: CopperZone, pad: CopperPad) -> bool:
     """Pad center or bounding box overlaps zone polygon."""
     if zone.layer not in pad.layers:
@@ -332,10 +350,12 @@ def _zone_touches_track(zone: CopperZone, track: CopperTrack) -> bool:
     """Track segment intersects or is contained by zone polygon."""
     if zone.layer != track.layer:
         return False
-    seg = ShapelyLineString([
-        (track.start.x, track.start.y),
-        (track.end.x, track.end.y),
-    ])
+    seg = ShapelyLineString(
+        [
+            (track.start.x, track.start.y),
+            (track.end.x, track.end.y),
+        ]
+    )
     return zone.polygon.intersects(seg)
 
 

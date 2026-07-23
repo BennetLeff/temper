@@ -31,6 +31,7 @@ fn is_iso_zone(zone_name: &str) -> bool {
     ISO_ZONE_KEYWORDS.iter().any(|k| lc.contains(k))
 }
 
+#[derive(Default)]
 pub struct IsolationCheck;
 
 impl IsolationCheck {

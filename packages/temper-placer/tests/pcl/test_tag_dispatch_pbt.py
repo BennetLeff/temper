@@ -39,9 +39,7 @@ def _make_component(ref: str, tags: frozenset[str] | None = None) -> Component:
 
 
 def _sample_taggable_netlist(num: int = 5) -> Netlist:
-    comps = [
-        _make_component(f"C{i}", frozenset({"power", "decoupling"})) for i in range(num)
-    ]
+    comps = [_make_component(f"C{i}", frozenset({"power", "decoupling"})) for i in range(num)]
     return Netlist(components=comps, nets=[])
 
 
@@ -60,9 +58,7 @@ class TestTransitiveClosure:
         for tag in ComponentTag:
             if tag == ComponentTag.ALL:
                 continue
-            assert ComponentTag.ALL in _TAG_CLOSURE[tag], (
-                f"{tag} should be a descendant of ALL"
-            )
+            assert ComponentTag.ALL in _TAG_CLOSURE[tag], f"{tag} should be a descendant of ALL"
 
     @pytest.mark.property
     def test_closure_is_transitive(self):
@@ -97,8 +93,14 @@ class TestResolutionSoundness:
     """Theorem: resolve() matches only components with matching tags."""
 
     @pytest.mark.property
-    @given(st.lists(st.sampled_from([t.value.upper() for t in ComponentTag]),
-                     min_size=1, max_size=5, unique=True))
+    @given(
+        st.lists(
+            st.sampled_from([t.value.upper() for t in ComponentTag]),
+            min_size=1,
+            max_size=5,
+            unique=True,
+        )
+    )
     @settings(max_examples=100, deadline=30000)
     def test_tagref_resolution_is_exact(self, tag_names):
         """TagRef resolves True only when the component has that tag."""
@@ -110,8 +112,14 @@ class TestResolutionSoundness:
             assert not resolve(TagRef(tag), comp_without), f"Should not match {tag_name}"
 
     @pytest.mark.property
-    @given(st.lists(st.sampled_from([t.value.upper() for t in ComponentTag]),
-                     min_size=1, max_size=3, unique=True))
+    @given(
+        st.lists(
+            st.sampled_from([t.value.upper() for t in ComponentTag]),
+            min_size=1,
+            max_size=3,
+            unique=True,
+        )
+    )
     @settings(max_examples=100, deadline=30000)
     def test_ancestor_resolution_is_subset_safe(self, tag_names):
         """A tag matches any child tag through transitive closure."""

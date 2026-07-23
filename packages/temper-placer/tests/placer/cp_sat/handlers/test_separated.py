@@ -19,7 +19,10 @@ class TestSeparatedHandlerStructural:
     )
     @settings(max_examples=100)
     def test_handler_returns_assumptions_for_resolvable_refs(
-        self, min_distance_mm: float, num_a: int, num_b: int,
+        self,
+        min_distance_mm: float,
+        num_a: int,
+        num_b: int,
     ) -> None:
         model = CpSatModel(units_per_mm=100)
         for i in range(max(num_a, num_b) + 2):
@@ -27,13 +30,15 @@ class TestSeparatedHandlerStructural:
             model.add_rotation(f"C{i}", is_polarized=True)
 
         constraint = SeparatedConstraint(
-            a=f"C{0}", b=f"C{1}",
+            a=f"C{0}",
+            b=f"C{1}",
             min_distance_mm=min_distance_mm,
             tier=ConstraintTier.HARD,
             because="Isolation requirement per safety analysis",
         )
-        ctx = EncoderContext(board_w_mm=100.0, board_h_mm=100.0,
-                             board_x_max_units=10000, board_y_max_units=10000)
+        ctx = EncoderContext(
+            board_w_mm=100.0, board_h_mm=100.0, board_x_max_units=10000, board_y_max_units=10000
+        )
         labels = encode_separated(constraint, model.component_map, model, ctx)
 
         # Structural assertions: must return a list of assumption variables
@@ -49,9 +54,11 @@ class TestSeparatedHandlerStructural:
     def test_handler_is_registered(self) -> None:
         from temper_placer.pcl.constraints import ConstraintType
         from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY
+
         assert ConstraintType.SEPARATED in HANDLER_REGISTRY
         assert HANDLER_REGISTRY[ConstraintType.SEPARATED] is encode_separated
 
     def test_handler_satisfies_protocol(self) -> None:
         from temper_placer.placer.cp_sat.handlers._protocol import ConstraintHandler
+
         assert isinstance(encode_separated, ConstraintHandler)

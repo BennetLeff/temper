@@ -4,6 +4,7 @@ Covers the contract invariant that CLEAN, VIOLATIONS, and UNMEASURED are
 distinct states. kicad-cli is mocked so the test is fast and deterministic;
 an optional real-DRC smoke path runs only when kicad-cli is present.
 """
+
 from __future__ import annotations
 
 import json
@@ -24,9 +25,8 @@ from temper_placer.placer.cp_sat.gates import (
 
 
 def _write_pcb() -> Path:
-    tmp = tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False)
-    tmp.write("(kicad_pcb)\n")
-    tmp.close()
+    with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
+        tmp.write("(kicad_pcb)\n")
     return Path(tmp.name)
 
 
@@ -107,9 +107,7 @@ def test_unmeasured_missing_file():
 
 def test_unmeasured_kicad_exit_nonzero(monkeypatch):
     pcb = _write_pcb()
-    monkeypatch.setattr(
-        subprocess, "run", _fake_run_factory(3, None, stderr="board parse failure")
-    )
+    monkeypatch.setattr(subprocess, "run", _fake_run_factory(3, None, stderr="board parse failure"))
     try:
         result = RoutingGate().check(BoardState(routed_pcb_path=pcb))
     finally:

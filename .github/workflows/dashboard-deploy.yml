@@ -1,6 +1,7 @@
 name: Dashboard Deploy
 
 on:
+  # no-pr-trigger: dashboard deployment, post-merge only
   push:
     branches: [main]
     paths:

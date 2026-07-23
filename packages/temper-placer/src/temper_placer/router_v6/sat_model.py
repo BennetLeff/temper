@@ -167,10 +167,12 @@ def populate_sat_from_constraints(
             if vars_list:
                 # At least one of these variables must be True
                 # This is a clause: (var1 ∨ var2 ∨ ... ∨ varN)
-                net_name_str = net_names[net_idx] if net_names and net_idx < len(net_names) else f"N{net_idx}"
+                net_name_str = (
+                    net_names[net_idx] if net_names and net_idx < len(net_names) else f"N{net_idx}"
+                )
                 sat_model.add_clause(
                     [(var, True) for var in vars_list],
-                    f"Connectivity: {net_name_str} must use at least one channel"
+                    f"Connectivity: {net_name_str} must use at least one channel",
                 )
 
     # 2. Translate constraints to SAT clauses
@@ -178,7 +180,7 @@ def populate_sat_from_constraints(
         if isinstance(constraint, DiffPairConstraint):
             # Diff pair: uses[p, c] == uses[n, c]
             # Encode as: (¬p ∨ n) ∧ (p ∨ ¬n)
-           # Which means: p implies n, and n implies p
+            # Which means: p implies n, and n implies p
             p_sat = var_map.get(constraint.p_var.name)
             n_sat = var_map.get(constraint.n_var.name)
 
@@ -186,12 +188,12 @@ def populate_sat_from_constraints(
                 # If p_net uses channel, then n_net must use channel
                 sat_model.add_clause(
                     [(p_sat, False), (n_sat, True)],
-                    f"DiffPair: {constraint.p_var.name} → {constraint.n_var.name}"
+                    f"DiffPair: {constraint.p_var.name} → {constraint.n_var.name}",
                 )
                 # If n_net uses channel, then p_net must use channel
                 sat_model.add_clause(
                     [(n_sat, False), (p_sat, True)],
-                    f"DiffPair: {constraint.n_var.name} → {constraint.p_var.name}"
+                    f"DiffPair: {constraint.n_var.name} → {constraint.p_var.name}",
                 )
 
         elif isinstance(constraint, LayerConstraint):
@@ -204,7 +206,7 @@ def populate_sat_from_constraints(
             if sat_variable is not None:
                 sat_model.add_clause(
                     [(sat_variable, constraint.allowed)],
-                    f"Layer: {var_name} = {constraint.allowed}"
+                    f"Layer: {var_name} = {constraint.allowed}",
                 )
 
         elif isinstance(constraint, CapacityConstraint):
@@ -220,11 +222,11 @@ def populate_sat_from_constraints(
 
                 if sat_vars and max_nets < len(sat_vars):
                     _encode_at_most_k(
-                        sat_model, sat_vars, max_nets,
+                        sat_model,
+                        sat_vars,
+                        max_nets,
                         description_prefix=f"cap_{constraint.channel_id}",
                     )
-
-
 
 
 def _encode_at_most_k(
@@ -253,9 +255,7 @@ def _encode_at_most_k(
 
     if k == 0:
         for v in variables:
-            sat_model.add_clause(
-                [(v, False)], f"{description_prefix}: all-false (k=0)"
-            )
+            sat_model.add_clause([(v, False)], f"{description_prefix}: all-false (k=0)")
         return
 
     # Register variables r[i][j] for i=0..n-2, j=0..k-1.
@@ -290,7 +290,7 @@ def _encode_at_most_k(
         )
         sat_model.add_clause(
             [(r[i - 1][0], False), (r[i][0], True)],
-            f"{description_prefix}: r{i-1}.0 -> r{i}.0",
+            f"{description_prefix}: r{i - 1}.0 -> r{i}.0",
         )
         for j in range(1, k):
             sat_model.add_clause(
@@ -299,11 +299,11 @@ def _encode_at_most_k(
                     (r[i - 1][j - 1], False),
                     (r[i][j], True),
                 ],
-                f"{description_prefix}: x{i} ∧ r{i-1}.{j-1} -> r{i}.{j}",
+                f"{description_prefix}: x{i} ∧ r{i - 1}.{j - 1} -> r{i}.{j}",
             )
             sat_model.add_clause(
                 [(r[i - 1][j], False), (r[i][j], True)],
-                f"{description_prefix}: r{i-1}.{j} -> r{i}.{j}",
+                f"{description_prefix}: r{i - 1}.{j} -> r{i}.{j}",
             )
 
     # ---- Exclusion: if count already reaches k, no further variable may be true.
@@ -311,7 +311,7 @@ def _encode_at_most_k(
     for i in range(k, n):
         sat_model.add_clause(
             [(variables[i], False), (r[i - 1][k - 1], False)],
-            f"{description_prefix}: exclusion x{i} ∨ ¬r{i-1}.{k-1}",
+            f"{description_prefix}: exclusion x{i} ∨ ¬r{i - 1}.{k - 1}",
         )
 
 
@@ -341,14 +341,11 @@ def add_connectivity_to_sat(
     # Create variable for this routing path
     var = model.add_variable(
         f"route_{net_name}_{source_node}_to_{sink_node}",
-        f"Path exists for {net_name} from {source_node} to {sink_node}"
+        f"Path exists for {net_name} from {source_node} to {sink_node}",
     )
 
     # Add clause: this path must exist (always true)
-    model.add_clause(
-        [(var, True)],
-        f"Connectivity for {net_name}"
-    )
+    model.add_clause([(var, True)], f"Connectivity for {net_name}")
 
 
 def add_capacity_to_sat(
@@ -377,10 +374,7 @@ def add_capacity_to_sat(
     # Create variables for each net using this channel
     channel_vars = []
     for net in nets_using_channel:
-        var = model.add_variable(
-            f"uses_{net}_{channel_id}",
-            f"{net} uses channel {channel_id}"
-        )
+        var = model.add_variable(f"uses_{net}_{channel_id}", f"{net} uses channel {channel_id}")
         channel_vars.append(var)
 
     # Add capacity constraint (simplified - at most max_nets can be true)
@@ -388,6 +382,5 @@ def add_capacity_to_sat(
     if len(channel_vars) > max_nets:
         # At least one net must NOT use this channel
         model.add_clause(
-            [(var, False) for var in channel_vars[max_nets:]],
-            f"Capacity limit for {channel_id}"
+            [(var, False) for var in channel_vars[max_nets:]], f"Capacity limit for {channel_id}"
         )

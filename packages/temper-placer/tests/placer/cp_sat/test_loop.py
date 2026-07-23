@@ -31,6 +31,7 @@ from temper_placer.placer.cp_sat.loop import (
 # Mocks
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class MockComp:
     ref: str
@@ -145,11 +146,10 @@ def test_unsat_error():
 
 def test_clean_placement_exits_with_success(loop, basic_netlist, basic_board):
     """A placement that routes 100% immediately succeeds after 2 stability rounds."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         pos = np.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]], dtype=np.float32)
@@ -178,20 +178,21 @@ def test_clean_placement_exits_with_success(loop, basic_netlist, basic_board):
 
 def test_single_clearance_violation_converges(loop, basic_netlist, basic_board):
     """One clearance violation injects SeparatedConstraint and re-solves."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         pos = np.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]], dtype=np.float32)
         rot = np.array([0, 0, 0], dtype=np.int32)
 
         cp_ok = CpSatPlacementResult(
-            positions=pos, rotations=rot,
+            positions=pos,
+            rotations=rot,
             placed_refs=["Q1", "Q2", "C_BUS1"],
-            status="optimal", solve_time_ms=50.0,
+            status="optimal",
+            solve_time_ms=50.0,
         )
 
         # Round 1: DRC violations found
@@ -199,8 +200,11 @@ def test_single_clearance_violation_converges(loop, basic_netlist, basic_board):
         mock_solve.return_value = cp_ok
         mock_route.side_effect = [
             MockRoutingResult(
-                completion_rate=1.0, drc_errors=1,
-                drc_violations=[type("V", (), {"comp_a": "Q1", "comp_b": "Q2", "required_mm": 6.0})()],
+                completion_rate=1.0,
+                drc_errors=1,
+                drc_violations=[
+                    type("V", (), {"comp_a": "Q1", "comp_b": "Q2", "required_mm": 6.0})()
+                ],
             ),
             MockRoutingResult(completion_rate=1.0, drc_errors=0),
             MockRoutingResult(completion_rate=1.0, drc_errors=0),
@@ -220,22 +224,22 @@ def test_single_clearance_violation_converges(loop, basic_netlist, basic_board):
 
 def test_closed_loop_backtracking(loop, basic_netlist, basic_board):
     """When one delta is UNSAT, loop tries the next-strongest signal."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_solve_with_delta"
-    ) as mock_solve_delta:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_solve_with_delta") as mock_solve_delta,
+    ):
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         pos = np.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]], dtype=np.float32)
         rot = np.array([0, 0, 0], dtype=np.int32)
 
         cp_ok = CpSatPlacementResult(
-            positions=pos, rotations=rot,
+            positions=pos,
+            rotations=rot,
             placed_refs=["Q1", "Q2", "C_BUS1"],
-            status="optimal", solve_time_ms=50.0,
+            status="optimal",
+            solve_time_ms=50.0,
         )
 
         mock_solve.return_value = cp_ok
@@ -245,10 +249,15 @@ def test_closed_loop_backtracking(loop, basic_netlist, basic_board):
         # First delta (clearance) UNSAT, second (congestion) works -> backtracking
         mock_route.side_effect = [
             MockRoutingResult(
-                completion_rate=1.0, drc_errors=1,
-                drc_violations=[type("V", (), {"comp_a": "Q1", "comp_b": "Q2", "required_mm": 6.0})()],
+                completion_rate=1.0,
+                drc_errors=1,
+                drc_violations=[
+                    type("V", (), {"comp_a": "Q1", "comp_b": "Q2", "required_mm": 6.0})()
+                ],
                 congestion_regions=[
-                    type("CR", (), {"comp_a": "Q1", "comp_b": "C_BUS1", "current_distance_mm": 2.0})()
+                    type(
+                        "CR", (), {"comp_a": "Q1", "comp_b": "C_BUS1", "current_distance_mm": 2.0}
+                    )()
                 ],
             ),
             MockRoutingResult(completion_rate=1.0, drc_errors=0),
@@ -260,7 +269,9 @@ def test_closed_loop_backtracking(loop, basic_netlist, basic_board):
         mock_solve_delta.side_effect = [
             UnsatError(deltas=[], message="clearance unsat"),
             cp_ok,  # congestion works
-            cp_ok, cp_ok, cp_ok,
+            cp_ok,
+            cp_ok,
+            cp_ok,
         ]
 
         result = loop.run(basic_netlist, basic_board, seed=42)
@@ -274,21 +285,21 @@ def test_closed_loop_backtracking(loop, basic_netlist, basic_board):
 
 def test_all_feedback_unsat_exits(loop, basic_netlist, basic_board):
     """When all feedback deltas produce UNSAT, loop exits with diagnostic."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_solve_with_delta"
-    ) as mock_solve_delta:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_solve_with_delta") as mock_solve_delta,
+    ):
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         pos = np.array([[10.0, 20.0], [30.0, 40.0], [50.0, 60.0]], dtype=np.float32)
         rot = np.array([0, 0, 0], dtype=np.int32)
         cp_ok = CpSatPlacementResult(
-            positions=pos, rotations=rot,
+            positions=pos,
+            rotations=rot,
             placed_refs=["Q1", "Q2", "C_BUS1"],
-            status="optimal", solve_time_ms=50.0,
+            status="optimal",
+            solve_time_ms=50.0,
         )
 
         mock_solve.return_value = cp_ok
@@ -314,28 +325,27 @@ def test_all_feedback_unsat_exits(loop, basic_netlist, basic_board):
 
 def test_round_limit_exceeded(loop, basic_netlist, basic_board):
     """After 10 rounds without full success, loop exits with ROUND_LIMIT_EXCEEDED."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_solve_with_delta"
-    ) as mock_solve_delta:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_solve_with_delta") as mock_solve_delta,
+    ):
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         # Return slightly different positions each round to avoid oscillation
         call_count = [0]
+
         def make_placement(*args, **kwargs):
             call_count[0] += 1
             x_offset = call_count[0] * 0.5
-            pos = np.array(
-                [[10.0 + x_offset, 20.0], [30.0, 40.0], [50.0, 60.0]], dtype=np.float32
-            )
+            pos = np.array([[10.0 + x_offset, 20.0], [30.0, 40.0], [50.0, 60.0]], dtype=np.float32)
             rot = np.array([0, 0, 0], dtype=np.int32)
             return CpSatPlacementResult(
-                positions=pos, rotations=rot,
+                positions=pos,
+                rotations=rot,
                 placed_refs=["Q1", "Q2", "C_BUS1"],
-                status="optimal", solve_time_ms=50.0,
+                status="optimal",
+                solve_time_ms=50.0,
             )
 
         mock_solve.side_effect = make_placement
@@ -384,7 +394,9 @@ def test_no_oscillation_with_few_rounds(loop):
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
     pos = np.array([[10.0, 20.0]], dtype=np.float32)
-    p = CpSatPlacementResult(positions=pos, rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"])
+    p = CpSatPlacementResult(
+        positions=pos, rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"]
+    )
     history = [p] * 2  # only 2 rounds
     assert loop._detect_oscillation(p, history) is False
 
@@ -394,9 +406,15 @@ def test_oscillation_detected_on_repeat(loop):
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
     pos = np.array([[10.0, 20.0]], dtype=np.float32)
-    p1 = CpSatPlacementResult(positions=pos, rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"])
-    p2 = CpSatPlacementResult(positions=pos.copy(), rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"])
-    p3 = CpSatPlacementResult(positions=pos.copy(), rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"])
+    p1 = CpSatPlacementResult(
+        positions=pos, rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"]
+    )
+    p2 = CpSatPlacementResult(
+        positions=pos.copy(), rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"]
+    )
+    p3 = CpSatPlacementResult(
+        positions=pos.copy(), rotations=np.array([0], dtype=np.int32), placed_refs=["Q1"]
+    )
 
     history = [p1, p2, p3]
     assert loop._detect_oscillation(p3, history) is True
@@ -409,9 +427,7 @@ def test_oscillation_detected_on_repeat(loop):
 
 def test_infeasible_placement_exits_early(loop, basic_netlist, basic_board):
     """If initial placement is infeasible, loop returns with UNSAT core."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve:
+    with mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve:
         from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
         unsat_result = CpSatPlacementResult(

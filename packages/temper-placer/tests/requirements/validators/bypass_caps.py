@@ -5,7 +5,6 @@ These functions check if bypass capacitor placement meets EMC/EMI requirements
 per REQ-EMC-02.
 """
 
-import math
 from dataclasses import dataclass
 
 from ._geometry import _distance

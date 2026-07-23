@@ -8,10 +8,12 @@ Covers:
 - NormalizedScore error handling
 - panic-to-exception safety (R15)
 """
+
 import pytest
 
 try:
     import temper_quality_oracle  # type: ignore[import-untyped]
+
     HAS_RUST_ORACLE = True
 except ImportError:
     HAS_RUST_ORACLE = False
@@ -91,7 +93,13 @@ class TestQualityOraclePipeline:
         netlist = {
             "nets": [{"name": "SIG1", "pins": ["Q1", "U1"]}],
             "components": [
-                {"ref": "Q1", "footprint": "TO-247", "width": 15.0, "height": 20.0, "voltage": 230.0},
+                {
+                    "ref": "Q1",
+                    "footprint": "TO-247",
+                    "width": 15.0,
+                    "height": 20.0,
+                    "voltage": 230.0,
+                },
                 {"ref": "U1", "footprint": "SOIC-8", "width": 5.0, "height": 4.0, "voltage": 3.3},
             ],
         }
@@ -103,10 +111,14 @@ class TestQualityOraclePipeline:
         }
         spec = {"name": "test"}
         metrics = {
-            "thermal_score": 0.5, "zone_compliance_score": 0.5,
-            "hv_lv_clearance_score": 0.5, "loop_area_score": 0.5,
-            "congestion_score": 0.5, "compactness_score": 0.5,
-            "connectivity_clustering_score": 0.5, "total_wirelength_mm": 100.0,
+            "thermal_score": 0.5,
+            "zone_compliance_score": 0.5,
+            "hv_lv_clearance_score": 0.5,
+            "loop_area_score": 0.5,
+            "congestion_score": 0.5,
+            "compactness_score": 0.5,
+            "connectivity_clustering_score": 0.5,
+            "total_wirelength_mm": 100.0,
         }
         result = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
         assert result["verdict"] == "Fail"
@@ -118,13 +130,22 @@ class TestQualityOraclePipeline:
     def test_invalid_score_rejected(self):
         require_oracle()
         netlist = {"nets": [], "components": []}
-        placement = {"positions": [], "component_refs": [], "board_width_mm": 100.0, "board_height_mm": 100.0}
+        placement = {
+            "positions": [],
+            "component_refs": [],
+            "board_width_mm": 100.0,
+            "board_height_mm": 100.0,
+        }
         spec = {"name": "test"}
         metrics = {
-            "thermal_score": 1.5, "zone_compliance_score": 0.5,
-            "hv_lv_clearance_score": 0.5, "loop_area_score": 0.5,
-            "congestion_score": 0.5, "compactness_score": 0.5,
-            "connectivity_clustering_score": 0.5, "total_wirelength_mm": 100.0,
+            "thermal_score": 1.5,
+            "zone_compliance_score": 0.5,
+            "hv_lv_clearance_score": 0.5,
+            "loop_area_score": 0.5,
+            "congestion_score": 0.5,
+            "compactness_score": 0.5,
+            "connectivity_clustering_score": 0.5,
+            "total_wirelength_mm": 100.0,
         }
         result = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
         assert result["verdict"] == "Fail"
@@ -133,13 +154,22 @@ class TestQualityOraclePipeline:
     def test_deterministic(self):
         require_oracle()
         netlist = {"nets": [], "components": []}
-        placement = {"positions": [], "component_refs": [], "board_width_mm": 100.0, "board_height_mm": 100.0}
+        placement = {
+            "positions": [],
+            "component_refs": [],
+            "board_width_mm": 100.0,
+            "board_height_mm": 100.0,
+        }
         spec = {"name": "test"}
         metrics = {
-            "thermal_score": 0.5, "zone_compliance_score": 0.5,
-            "hv_lv_clearance_score": 0.5, "loop_area_score": 0.5,
-            "congestion_score": 0.5, "compactness_score": 0.5,
-            "connectivity_clustering_score": 0.5, "total_wirelength_mm": 100.0,
+            "thermal_score": 0.5,
+            "zone_compliance_score": 0.5,
+            "hv_lv_clearance_score": 0.5,
+            "loop_area_score": 0.5,
+            "congestion_score": 0.5,
+            "compactness_score": 0.5,
+            "connectivity_clustering_score": 0.5,
+            "total_wirelength_mm": 100.0,
         }
         r1 = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
         r2 = temper_quality_oracle.evaluate_quality_py(netlist, placement, spec, metrics)
@@ -150,8 +180,36 @@ class TestIPC2221BracketParity:
     def test_bracket_boundaries_match_python(self):
         require_oracle()
         from temper_placer.router_v6.creepage_check import _calculate_required_creepage
-        voltages = [0, 10, 15, 16, 30, 31, 50, 51, 100, 101, 150, 151, 170, 171, 230, 250, 251, 300, 301, 500, 600, 800, 1000, 1500]
+
+        voltages = [
+            0,
+            10,
+            15,
+            16,
+            30,
+            31,
+            50,
+            51,
+            100,
+            101,
+            150,
+            151,
+            170,
+            171,
+            230,
+            250,
+            251,
+            300,
+            301,
+            500,
+            600,
+            800,
+            1000,
+            1500,
+        ]
         for v in voltages:
             rust_val = temper_quality_oracle.required_clearance_py(v)
             py_val = _calculate_required_creepage(v)
-            assert abs(rust_val - py_val) < 1e-6, f"mismatch at {v}V: rust={rust_val}, python={py_val}"
+            assert abs(rust_val - py_val) < 1e-6, (
+                f"mismatch at {v}V: rust={rust_val}, python={py_val}"
+            )

@@ -39,8 +39,7 @@ def assert_zero_when_no_violation(
     result = loss_fn(positions, rotations, context, **kwargs)
     label = name or loss_fn.__class__.__name__
     assert float(result.value) == pytest.approx(0.0, abs=1e-4), (
-        f"{label}: expected zero loss for non-violating configuration, "
-        f"got {float(result.value)}"
+        f"{label}: expected zero loss for non-violating configuration, got {float(result.value)}"
     )
 
 
@@ -70,8 +69,7 @@ def assert_positive_when_violation(
     result = loss_fn(positions, rotations, context, **kwargs)
     label = name or loss_fn.__class__.__name__
     assert float(result.value) > 0, (
-        f"{label}: expected positive loss for violating configuration, "
-        f"got {float(result.value)}"
+        f"{label}: expected positive loss for violating configuration, got {float(result.value)}"
     )
 
 
@@ -136,8 +134,7 @@ def assert_idempotent(
     r2 = loss_fn(positions, rotations, context, **kwargs)
     label = name or loss_fn.__class__.__name__
     assert float(r1.value) == pytest.approx(float(r2.value), rel=1e-6), (
-        f"{label}: idempotence violated — "
-        f"first={float(r1.value)}, second={float(r2.value)}"
+        f"{label}: idempotence violated — first={float(r1.value)}, second={float(r2.value)}"
     )
 
 
@@ -167,6 +164,5 @@ def assert_empty_is_zero(
     result = loss_fn(empty_positions, empty_rotations, context, **kwargs)
     label = name or loss_fn.__class__.__name__
     assert float(result.value) == pytest.approx(0.0, abs=1e-4), (
-        f"{label}: expected zero loss for empty input, "
-        f"got {float(result.value)}"
+        f"{label}: expected zero loss for empty input, got {float(result.value)}"
     )

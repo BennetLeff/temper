@@ -75,11 +75,15 @@ def _run_parity_for_board(
     board_id: str, *, seed: int, sidecar_present: bool, routing_failure_rate: float = 0.0
 ) -> tuple[SyntheticClosureResult, SyntheticClosureResult]:
     off = _synthetic_closure(
-        board_id=board_id, sidecar_enabled=False, seed=seed,
+        board_id=board_id,
+        sidecar_enabled=False,
+        seed=seed,
         routing_failure_rate=routing_failure_rate,
     )
     on = _synthetic_closure(
-        board_id=board_id, sidecar_enabled=sidecar_present, seed=seed,
+        board_id=board_id,
+        sidecar_enabled=sidecar_present,
+        seed=seed,
         routing_failure_rate=routing_failure_rate,
     )
     return off, on
@@ -120,11 +124,15 @@ class TestParityAlreadyRoutingBoards:
         # Force a regression by passing a high routing failure rate with
         # sidecar-on, while sidecar-off passes cleanly.
         off = _synthetic_closure(
-            board_id=board_id, sidecar_enabled=False, seed=42,
+            board_id=board_id,
+            sidecar_enabled=False,
+            seed=42,
             routing_failure_rate=0.0,
         )
         on = _synthetic_closure(
-            board_id=board_id, sidecar_enabled=True, seed=42,
+            board_id=board_id,
+            sidecar_enabled=True,
+            seed=42,
             routing_failure_rate=0.5,  # 50% failure when sidecar-on
         )
         if on.router_completion_pct < off.router_completion_pct:
@@ -134,17 +142,14 @@ class TestParityAlreadyRoutingBoards:
                 f"{int(on.router_completion_pct * 100)}% with sidecar"
             )
             assert msg == (
-                "regression: board Piantor_Right completion dropped from "
-                "100% to 50% with sidecar"
+                "regression: board Piantor_Right completion dropped from 100% to 50% with sidecar"
             )
 
     def test_parity_monotonicity_across_seeds(self):
         """R7d: mean completion sidecar-on >= mean sidecar-off over seeds 0..4."""
         deltas: list[float] = []
         for seed in range(5):
-            off, on = _run_parity_for_board(
-                "Piantor_Right", seed=seed, sidecar_present=True
-            )
+            off, on = _run_parity_for_board("Piantor_Right", seed=seed, sidecar_present=True)
             deltas.append(on.router_completion_pct - off.router_completion_pct)
         # Mean of the deltas must be non-negative.
         mean_delta = sum(deltas) / len(deltas)
@@ -153,9 +158,7 @@ class TestParityAlreadyRoutingBoards:
     def test_parity_non_decreasing_completion(self):
         """R7b: completion must not decrease when sidecar is enabled."""
         for board_id in CANONICAL_BOARDS:
-            off, on = _run_parity_for_board(
-                board_id, seed=42, sidecar_present=True
-            )
+            off, on = _run_parity_for_board(board_id, seed=42, sidecar_present=True)
             assert on.router_completion_pct >= off.router_completion_pct, (
                 f"{board_id}: sidecar-on completion {on.router_completion_pct} "
                 f"< sidecar-off {off.router_completion_pct}"

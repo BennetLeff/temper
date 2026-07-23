@@ -5,11 +5,10 @@ These functions check if PCB layouts meet requirements per REQ-REV-02:
 Layout Review Checklist.
 """
 
-import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ._geometry import _distance, _point_in_rect, _rects_overlap
+from ._geometry import _distance, _point_in_rect
 
 
 def _segment_intersects_rect(
@@ -40,10 +39,7 @@ def _segment_intersects_rect(
         (x + w, y + h, x, y + h),
         (x, y + h, x, y),
     ]
-    for ex1, ey1, ex2, ey2 in edges:
-        if _line_intersect(x1, y1, x2, y2, ex1, ey1, ex2, ey2):
-            return True
-    return False
+    return any(_line_intersect(x1, y1, x2, y2, ex1, ey1, ex2, ey2) for ex1, ey1, ex2, ey2 in edges)
 
 
 @dataclass
@@ -206,7 +202,7 @@ def check_component_clearances(
     violations = []
 
     for i, comp_a in enumerate(components):
-        for comp_b in components[i + 1:]:
+        for comp_b in components[i + 1 :]:
             d = _distance((comp_a.x, comp_a.y), (comp_b.x, comp_b.y))
             if d < min_clearance:
                 violations.append(
@@ -406,7 +402,7 @@ def check_trace_spacing(
     violations = []
 
     for i, ta in enumerate(traces):
-        for tb in traces[i + 1:]:
+        for tb in traces[i + 1 :]:
             if ta.layer == tb.layer:
                 d_start = _distance((ta.start_x, ta.start_y), (tb.start_x, tb.start_y))
                 d_end = _distance((ta.end_x, ta.end_y), (tb.end_x, tb.end_y))
@@ -523,9 +519,11 @@ def check_differential_pairs(
     Returns:
         LayoutReviewResult with violations for differential pair issues
     """
-    return LayoutReviewResult(passed=True, violations=[], warnings=[
-        "Differential pair checking not yet implemented (temper-xxx)"
-    ])
+    return LayoutReviewResult(
+        passed=True,
+        violations=[],
+        warnings=["Differential pair checking not yet implemented (temper-xxx)"],
+    )
 
 
 # =============================================================================
@@ -674,7 +672,7 @@ def check_creepage_distances(
     violations = []
     hv_set = set(hv_nets)
 
-    hv_comps = [c for c in components if hv_set & set(getattr(c, 'nets', []))]
+    hv_comps = [c for c in components if hv_set & set(getattr(c, "nets", []))]
     lv_comps = [c for c in components if c not in set(hv_comps)]
 
     for hv in hv_comps:
@@ -809,9 +807,9 @@ def check_loop_areas(
     Returns:
         LayoutReviewResult with violations for excessive loop areas
     """
-    return LayoutReviewResult(passed=True, violations=[], warnings=[
-        "Loop area checking not yet implemented (temper-xxx)"
-    ])
+    return LayoutReviewResult(
+        passed=True, violations=[], warnings=["Loop area checking not yet implemented (temper-xxx)"]
+    )
 
 
 def check_shielding_effectiveness(
@@ -836,9 +834,11 @@ def check_shielding_effectiveness(
     Returns:
         LayoutReviewResult with violations for shielding issues
     """
-    return LayoutReviewResult(passed=True, violations=[], warnings=[
-        "Shielding effectiveness checking not yet implemented (temper-xxx)"
-    ])
+    return LayoutReviewResult(
+        passed=True,
+        violations=[],
+        warnings=["Shielding effectiveness checking not yet implemented (temper-xxx)"],
+    )
 
 
 def check_filter_placement(

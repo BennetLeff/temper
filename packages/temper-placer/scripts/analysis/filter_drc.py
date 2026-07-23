@@ -1,13 +1,12 @@
-
 import json
 
 
 def filter_report():
     try:
-        with open('drc_report_v6_fixed.json') as f:
+        with open("drc_report_v6_fixed.json") as f:
             data = json.load(f)
 
-        violations = data.get('violations', [])
+        violations = data.get("violations", [])
 
         routing_violations = []
         mechanical_violations = []
@@ -18,11 +17,11 @@ def filter_report():
             "Drilled hole",
             "footprint library",
             "does not match copy",
-            "Rear solder mask"
+            "Rear solder mask",
         ]
 
         for v in violations:
-            desc = v.get('description', '')
+            desc = v.get("description", "")
             if any(k in desc for k in ignored_keywords):
                 mechanical_violations.append(v)
             else:
@@ -38,6 +37,7 @@ def filter_report():
 
     except Exception as e:
         print(e)
+
 
 if __name__ == "__main__":
     filter_report()

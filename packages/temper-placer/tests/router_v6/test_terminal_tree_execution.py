@@ -93,13 +93,11 @@ def test_executor_reserves_each_edge_for_same_net_attachment_but_not_other_nets(
 @settings(max_examples=20, deadline=30_000)
 def test_owned_cells_are_deterministically_traversable_while_foreign_cells_are_not(width: int):
     own_grid = OccupancyGrid("F.Cu", np.full((4, width), 7, dtype=np.int8), (0, 0), 1.0, width, 4)
-    own_first, _, _ = _segment_search(
-        own_grid, (0, 1), (width - 1, 1), False, False, net_id=7
+    own_first, _, _ = _segment_search(own_grid, (0, 1), (width - 1, 1), False, False, net_id=7)
+    own_second, _, _ = _segment_search(own_grid, (0, 1), (width - 1, 1), False, False, net_id=7)
+    foreign_grid = OccupancyGrid(
+        "F.Cu", np.full((4, width), 8, dtype=np.int8), (0, 0), 1.0, width, 4
     )
-    own_second, _, _ = _segment_search(
-        own_grid, (0, 1), (width - 1, 1), False, False, net_id=7
-    )
-    foreign_grid = OccupancyGrid("F.Cu", np.full((4, width), 8, dtype=np.int8), (0, 0), 1.0, width, 4)
     foreign_path, _, _ = _segment_search(
         foreign_grid, (0, 1), (width - 1, 1), False, False, net_id=7
     )

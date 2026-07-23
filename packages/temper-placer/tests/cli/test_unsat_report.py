@@ -32,8 +32,7 @@ def _make_sample_report() -> UnsatReport:
         name="loop_area 'commutation'",
         constraint_type=ConstraintType.LOOP_AREA,
         because=(
-            "IGBT overvoltage destruction above 635 mm2 "
-            "at 1 A/ns di/dt and 80%-derated V_CE=960 V"
+            "IGBT overvoltage destruction above 635 mm2 at 1 A/ns di/dt and 80%-derated V_CE=960 V"
         ),
         assumption_literal=1,
     )

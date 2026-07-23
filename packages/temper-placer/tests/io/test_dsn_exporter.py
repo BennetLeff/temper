@@ -47,12 +47,9 @@ def test_export_library_and_placement():
         ref="U1",
         footprint="Package:SOIC-8",
         bounds=(5.0, 4.0),
-        pins=[
-            Pin("VCC", "8", (2.0, 1.5)),
-            Pin("GND", "4", (-2.0, -1.5))
-        ],
+        pins=[Pin("VCC", "8", (2.0, 1.5)), Pin("GND", "4", (-2.0, -1.5))],
         initial_position=(50.0, 50.0),
-        initial_rotation=1 # 90 deg
+        initial_rotation=1,  # 90 deg
     )
     netlist = Netlist(components=[comp])
 
@@ -83,9 +80,7 @@ def test_export_network():
             Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[Pin("1", "1", (0, 0))]),
             Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[Pin("1", "1", (0, 0))]),
         ],
-        nets=[
-            Net(name="SIG1", pins=[("U1", "1"), ("R1", "1")])
-        ]
+        nets=[Net(name="SIG1", pins=[("U1", "1"), ("R1", "1")])],
     )
     exporter = DSNExporter(board, netlist)
 
@@ -131,13 +126,12 @@ def test_export_pcb_full():
 
 def test_export_wiring():
     from temper_placer.io.kicad_parser import TraceData
+
     board = Board(width=100, height=100)
     netlist = Netlist()
     exporter = DSNExporter(board, netlist)
 
-    traces = [
-        TraceData(start=(0, 0), end=(10, 10), width=0.2, layer="F.Cu", net="SIG1")
-    ]
+    traces = [TraceData(start=(0, 0), end=(10, 10), width=0.2, layer="F.Cu", net="SIG1")]
 
     wiring = exporter.export_wiring(traces)
     s = str(wiring)
@@ -177,24 +171,39 @@ def test_export_network_exclude_nets():
     board = Board(width=100, height=100)
     netlist = Netlist(
         components=[
-            Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
-                Pin("1", "1", (0, 0)),
-                Pin("GND", "4", (0, 1)),
-            ]),
-            Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[
-                Pin("1", "1", (0, 0)),
-                Pin("2", "2", (1, 0)),
-            ]),
-            Component(ref="C1", footprint="0805", bounds=(2, 1), pins=[
-                Pin("1", "1", (0, 0)),
-                Pin("2", "2", (1, 0)),
-            ]),
+            Component(
+                ref="U1",
+                footprint="SOIC-8",
+                bounds=(5, 4),
+                pins=[
+                    Pin("1", "1", (0, 0)),
+                    Pin("GND", "4", (0, 1)),
+                ],
+            ),
+            Component(
+                ref="R1",
+                footprint="0805",
+                bounds=(2, 1),
+                pins=[
+                    Pin("1", "1", (0, 0)),
+                    Pin("2", "2", (1, 0)),
+                ],
+            ),
+            Component(
+                ref="C1",
+                footprint="0805",
+                bounds=(2, 1),
+                pins=[
+                    Pin("1", "1", (0, 0)),
+                    Pin("2", "2", (1, 0)),
+                ],
+            ),
         ],
         nets=[
             Net(name="SIG1", pins=[("U1", "1"), ("R1", "1")]),
             Net(name="GND", pins=[("U1", "4"), ("R1", "2"), ("C1", "2")]),
             Net(name="VCC", pins=[("C1", "1")]),
-        ]
+        ],
     )
     exporter = DSNExporter(board, netlist)
 
@@ -223,12 +232,18 @@ def test_deterministic_output_identical():
     """Two calls with same inputs produce identical output."""
     board = Board(width=100, height=100)
     comps = [
-        Component(ref="U2", footprint="SOIC-8", bounds=(5, 4), pins=[
-            Pin("1", "1", (2.0, 1.5)), Pin("8", "8", (-2.0, -1.5))
-        ]),
-        Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
-            Pin("1", "1", (2.0, 1.5)), Pin("8", "8", (-2.0, -1.5))
-        ]),
+        Component(
+            ref="U2",
+            footprint="SOIC-8",
+            bounds=(5, 4),
+            pins=[Pin("1", "1", (2.0, 1.5)), Pin("8", "8", (-2.0, -1.5))],
+        ),
+        Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(5, 4),
+            pins=[Pin("1", "1", (2.0, 1.5)), Pin("8", "8", (-2.0, -1.5))],
+        ),
     ]
     nets = [
         Net(name="net_B", pins=[("U1", "1"), ("U2", "8")]),
@@ -249,12 +264,13 @@ def test_deterministic_net_order_alphabetical():
     """Deterministic mode sorts nets alphabetically, not by fanout."""
     board = Board(width=100, height=100)
     comps = [
-        Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
-            Pin("1", "1", (0, 0)), Pin("2", "2", (0, 1))
-        ]),
-        Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[
-            Pin("1", "1", (0, 0))
-        ]),
+        Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(5, 4),
+            pins=[Pin("1", "1", (0, 0)), Pin("2", "2", (0, 1))],
+        ),
+        Component(ref="R1", footprint="0805", bounds=(2, 1), pins=[Pin("1", "1", (0, 0))]),
     ]
     nets = [
         Net(name="zzz_LAST", pins=[("U1", "2"), ("R1", "1")]),
@@ -279,9 +295,9 @@ def test_deterministic_net_order_alphabetical():
 
 def test_dsn_expression_with_comment():
     from temper_placer.io.dsn import dsn_list
+
     expr = dsn_list("pcb", "test", dsn_list("unit", "mm"))
     with_comment = expr.with_comment("schema-version: sha256:abc")
     output = str(with_comment)
     assert output.startswith(";schema-version: sha256:abc\n")
     assert "(pcb test (unit mm))" in output
-

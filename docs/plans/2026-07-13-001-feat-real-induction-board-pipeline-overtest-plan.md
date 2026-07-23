@@ -1,6 +1,9 @@
 ---
 title: Real induction board pipeline overtest
+type: feat
 status: active
+date: 2026-07-13
+origin: docs/brainstorms/2026-07-13-real-induction-board-closure-arc-requirements.md
 ---
 
 # Real induction board pipeline overtest

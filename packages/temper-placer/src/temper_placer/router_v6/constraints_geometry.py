@@ -14,7 +14,6 @@ from dataclasses import dataclass
 
 import numpy as np
 
-
 from temper_placer.core.geometry_types import Point  # noqa: F401  re-exported
 
 __all__ = ["Point", "LineSegment", "RotatedRect"]
@@ -106,9 +105,9 @@ def segment_to_segment_distance(seg1: LineSegment, seg2: LineSegment) -> float:
     d4 = point_to_segment_distance(seg2.end, seg1)
 
     return min(d1, d2, d3, d4)
-def closest_points_segment_segment(
-    seg1: LineSegment, seg2: LineSegment
-) -> tuple[Point, Point]:
+
+
+def closest_points_segment_segment(seg1: LineSegment, seg2: LineSegment) -> tuple[Point, Point]:
     """Find closest points between two line segments.
 
     Args:
@@ -171,6 +170,7 @@ def _segments_intersect(seg1: LineSegment, seg2: LineSegment) -> bool:
 
     Uses cross product orientation test.
     """
+
     def _orientation(p: Point, q: Point, r: Point) -> int:
         """Return orientation: 0=collinear, 1=clockwise, 2=counter-clockwise."""
         val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y)
@@ -180,10 +180,7 @@ def _segments_intersect(seg1: LineSegment, seg2: LineSegment) -> bool:
 
     def _on_segment(p: Point, q: Point, r: Point) -> bool:
         """Check if point q lies on segment pr."""
-        return (
-            min(p.x, r.x) <= q.x <= max(p.x, r.x)
-            and min(p.y, r.y) <= q.y <= max(p.y, r.y)
-        )
+        return min(p.x, r.x) <= q.x <= max(p.x, r.x) and min(p.y, r.y) <= q.y <= max(p.y, r.y)
 
     p1, q1 = seg1.start, seg1.end
     p2, q2 = seg2.start, seg2.end
@@ -243,12 +240,7 @@ class RotatedRect:
 
         # Local corners (unrotated, center at 0,0)
         # TL, TR, BR, BL
-        local_pts = [
-            (-hw, -hh),
-            (hw, -hh),
-            (hw, hh),
-            (-hw, hh)
-        ]
+        local_pts = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
 
         corners = []
         for lx, ly in local_pts:
@@ -264,7 +256,7 @@ class RotatedRect:
     def bounding_radius(self) -> float:
         """Radius of the bounding circle."""
         w, h = self.size
-        return math.hypot(w/2, h/2)
+        return math.hypot(w / 2, h / 2)
 
 
 def point_to_rotated_rect_distance(point: Point, rect: RotatedRect) -> float:
@@ -277,7 +269,7 @@ def point_to_rotated_rect_distance(point: Point, rect: RotatedRect) -> float:
     dx = point.x - rect.center.x
     dy = point.y - rect.center.y
 
-    rad = math.radians(-rect.rotation) # Rotate point opposite to rect rotation
+    rad = math.radians(-rect.rotation)  # Rotate point opposite to rect rotation
     cos_a = math.cos(rad)
     sin_a = math.sin(rad)
 
@@ -329,7 +321,7 @@ def segment_to_rotated_rect_distance(segment: LineSegment, rect: RotatedRect) ->
         LineSegment(corners[0], corners[1]),
         LineSegment(corners[1], corners[2]),
         LineSegment(corners[2], corners[3]),
-        LineSegment(corners[3], corners[0])
+        LineSegment(corners[3], corners[0]),
     ]
 
     # If segment intersects any edge, distance is 0 (or negative to indicate intersection)
@@ -340,7 +332,7 @@ def segment_to_rotated_rect_distance(segment: LineSegment, rect: RotatedRect) ->
     # So we just need point_to_segment distance from rect edges to segment?
     # No, we need to know if the segment PIERCES the rect.
 
-    min_dist = float('inf')
+    min_dist = float("inf")
     intersects = False
 
     for edge in edges:
@@ -350,7 +342,7 @@ def segment_to_rotated_rect_distance(segment: LineSegment, rect: RotatedRect) ->
         min_dist = min(min_dist, d)
 
     if intersects:
-        return -1.0 # Arbitrary negative to indicate collision
+        return -1.0  # Arbitrary negative to indicate collision
 
     # If no intersection and endpoints outside, it's the distance to the closest edge
     # UNLESS the rect is fully inside the segment (impossible given bounding check usually?)

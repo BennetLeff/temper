@@ -91,18 +91,12 @@ class TestRetriggers:
         from unittest.mock import Mock
 
         netlist = Mock()
-        netlist.components = [
-            Mock(ref=f"R{i}", bounds=(2, 2), pins=[]) for i in range(1, 5)
-        ]
+        netlist.components = [Mock(ref=f"R{i}", bounds=(2, 2), pins=[]) for i in range(1, 5)]
         netlist.nets = []
         # Wide grid of zone slots so the filter has lots of candidates
-        slots = tuple(
-            (i * 2.0 + 0.5, j * 2.0 + 0.5) for i in range(8) for j in range(8)
-        )
+        slots = tuple((i * 2.0 + 0.5, j * 2.0 + 0.5) for i in range(8) for j in range(8))
         zone_slots = frozenset([("Signal", slots)])
-        component_zone_map = frozenset(
-            [(f"R{i}", "Signal") for i in range(1, 5)]
-        )
+        component_zone_map = frozenset([(f"R{i}", "Signal") for i in range(1, 5)])
         return BoardState(
             netlist=netlist,
             component_zone_map=component_zone_map,
@@ -119,9 +113,7 @@ class TestRetriggers:
         """
         self._build_state()
         constraints = PlacementConstraints()
-        constraints.seed_filter = SeedFilterConfig(
-            enabled=True, threshold=0.5, hv_threshold=0.3
-        )
+        constraints.seed_filter = SeedFilterConfig(enabled=True, threshold=0.5, hv_threshold=0.3)
         PhasedComponentAssignmentStage(constraints)
         stub = SyntheticRoutingStub(
             cell_size_mm=2.0,
@@ -133,8 +125,7 @@ class TestRetriggers:
 
         # Build a pool of candidate seeds.
         pool = [
-            {f"R{i}": ((i + k) * 2.0, (i + k) * 2.0) for i in range(1, 5)}
-            for k in range(0, 16)
+            {f"R{i}": ((i + k) * 2.0, (i + k) * 2.0) for i in range(1, 5)} for k in range(0, 16)
         ]
         hv_refs: frozenset[str] = frozenset()
 
@@ -143,9 +134,7 @@ class TestRetriggers:
             # Stub returns a placement that progressively clusters
             # components in the same cell, which drives up the map's
             # per-cell scores.
-            clustered_placement = {
-                f"R{i}": (2.0 + i * 0.1, 2.0) for i in range(1, 5)
-            }
+            clustered_placement = {f"R{i}": (2.0 + i * 0.1, 2.0) for i in range(1, 5)}
             completion, bmap = stub.route(clustered_placement)
             # Re-run the filter against the new map
             rejected = 0
@@ -180,9 +169,7 @@ class TestRetriggers:
         local_sc1_threshold = 60.0
 
         # A spread placement to start with
-        spread = _spread_placement(
-            [f"R{i}" for i in range(1, 5)], cell_size=4.0, board=None
-        )
+        spread = _spread_placement([f"R{i}" for i in range(1, 5)], cell_size=4.0, board=None)
         # Final routing of the spread placement
         completion, _bmap = stub.route(spread)
         assert completion >= local_sc1_threshold

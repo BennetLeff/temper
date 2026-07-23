@@ -54,11 +54,15 @@ def get_board_outline(board: KiBoard) -> list[tuple[float, float]]:
     outline_points = []
 
     for item in board.graphicItems:
-        if (hasattr(item, "layer") and item.layer == "Edge.Cuts"
-                and hasattr(item, "start") and hasattr(item, "end")):
-                # Line segment
-                outline_points.append((item.start.X, item.start.Y))
-                outline_points.append((item.end.X, item.end.Y))
+        if (
+            hasattr(item, "layer")
+            and item.layer == "Edge.Cuts"
+            and hasattr(item, "start")
+            and hasattr(item, "end")
+        ):
+            # Line segment
+            outline_points.append((item.start.X, item.start.Y))
+            outline_points.append((item.end.X, item.end.Y))
 
     if not outline_points:
         # Fallback: default board size
@@ -139,9 +143,7 @@ def create_zone(
 
     # Configure thermal reliefs via FillSettings
     zone.fillSettings = FillSettings(
-        yes=True,
-        thermalGap=config.thermal_gap,
-        thermalBridgeWidth=config.thermal_bridge_width
+        yes=True, thermalGap=config.thermal_gap, thermalBridgeWidth=config.thermal_bridge_width
     )
 
     zone.polygons = [zone_polygon]  # Use ZonePolygon wrapper!
@@ -344,7 +346,6 @@ def add_zones_from_classification(
         layers_used=layers_used,
         warnings=warnings,
     )
-
 
 
 if TYPE_CHECKING:

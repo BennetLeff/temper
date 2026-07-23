@@ -6,8 +6,6 @@ from temper_placer.core.board import LayerStackup
 from temper_placer.core.ipc2152 import (
     DEFAULT_SIGNAL_CURRENT,
     NET_CURRENTS,
-    _area_to_width_mm,
-    _width_to_area_mils2,
     get_net_current,
     ipc2152_current_capacity,
     ipc2152_external_width,
@@ -16,31 +14,6 @@ from temper_placer.core.ipc2152 import (
     ipc2152_min_width_mm,
 )
 from temper_placer.core.stackup import jlc04161h_7628
-
-# ---------------------------------------------------------------------------
-# Unit conversion helpers
-# ---------------------------------------------------------------------------
-
-
-class TestAreaWidthConversion:
-    def test_area_to_width_1oz(self):
-        w = _area_to_width_mm(6.259, 1.0)
-        assert w == pytest.approx(0.1160, abs=0.001)
-
-    def test_area_to_width_05oz(self):
-        w = _area_to_width_mm(6.259, 0.5)
-        assert w == pytest.approx(0.1160 * 2.0, abs=0.002)
-
-    def test_width_to_area_1oz(self):
-        a = _width_to_area_mils2(0.1160, 1.0)
-        assert a == pytest.approx(6.259, abs=0.02)
-
-    def test_round_trip_conversion(self):
-        w = 0.5
-        area = _width_to_area_mils2(w, 1.0)
-        w2 = _area_to_width_mm(area, 1.0)
-        assert w2 == pytest.approx(w, abs=1e-9)
-
 
 # ---------------------------------------------------------------------------
 # ipc2152_min_width_mm — core inverse ampacity
@@ -109,10 +82,14 @@ class TestIpc2152MinWidthMm:
 
 class TestConvenienceWrappers:
     def test_external_same_as_core(self):
-        assert ipc2152_external_width(1.0, 1.0) == ipc2152_min_width_mm(1.0, 1.0, internal_layer=False)
+        assert ipc2152_external_width(1.0, 1.0) == ipc2152_min_width_mm(
+            1.0, 1.0, internal_layer=False
+        )
 
     def test_internal_same_as_core(self):
-        assert ipc2152_internal_width(1.0, 1.0) == ipc2152_min_width_mm(1.0, 1.0, internal_layer=True)
+        assert ipc2152_internal_width(1.0, 1.0) == ipc2152_min_width_mm(
+            1.0, 1.0, internal_layer=True
+        )
 
 
 # ---------------------------------------------------------------------------

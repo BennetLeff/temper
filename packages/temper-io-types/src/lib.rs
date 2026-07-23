@@ -432,21 +432,21 @@ fn serialize_boardstate_to_dsn(
 // ---------------------------------------------------------------------------
 
 fn get_routes<'py>(py: Python<'py>, state: &Bound<'py, PyAny>) -> Bound<'py, PyAny> {
-    if let Ok(r) = state.getattr("routes") {
-        if !r.is_none() {
-            return r;
-        }
+    if let Ok(r) = state.getattr("routes")
+        && !r.is_none()
+    {
+        return r;
     }
-    py.eval(c"frozenset()", None, None).unwrap().into()
+    py.eval(c"frozenset()", None, None).unwrap()
 }
 
 fn get_vias<'py>(py: Python<'py>, state: &Bound<'py, PyAny>) -> Bound<'py, PyAny> {
-    if let Ok(v) = state.getattr("vias") {
-        if !v.is_none() {
-            return v;
-        }
+    if let Ok(v) = state.getattr("vias")
+        && !v.is_none()
+    {
+        return v;
     }
-    py.eval(c"frozenset()", None, None).unwrap().into()
+    py.eval(c"frozenset()", None, None).unwrap()
 }
 
 fn get_attr_str(obj: &Bound<'_, PyAny>, name: &str, default: &str) -> String {
@@ -550,7 +550,7 @@ fn serialize_boardstate_to_ses(
         }
     }
 
-    result.push_str(")");
+    result.push(')');
     Ok(result)
 }
 
@@ -563,12 +563,12 @@ fn get_violations_or_empty<'py>(
     state: &Bound<'py, PyAny>,
     attr: &str,
 ) -> Bound<'py, PyAny> {
-    if let Ok(v) = state.getattr(attr) {
-        if !v.is_none() {
-            return v;
-        }
+    if let Ok(v) = state.getattr(attr)
+        && !v.is_none()
+    {
+        return v;
     }
-    py.eval(c"()", None, None).unwrap().into()
+    py.eval(c"()", None, None).unwrap()
 }
 
 fn get_attr_str_or(v: &Bound<'_, PyAny>, name: &str) -> String {

@@ -96,9 +96,7 @@ _REFERENCED_FILES: list[str] = [
 
 def test_methodology_doc_exists() -> None:
     """The methodology document exists on disk."""
-    assert _METHODOLOGY_DOC.is_file(), (
-        f"Methodology doc missing: {_METHODOLOGY_DOC}"
-    )
+    assert _METHODOLOGY_DOC.is_file(), f"Methodology doc missing: {_METHODOLOGY_DOC}"
 
 
 def test_methodology_doc_has_no_drift() -> None:

@@ -99,7 +99,12 @@ def copper_coverage_grid(
     # --- Board area mask ---
     if board.has_polygon_outline and board.outline_polygon:
         inside_board = _rasterise_polygon_mask(
-            board.outline_polygon, h, w, ox, oy, cs,
+            board.outline_polygon,
+            h,
+            w,
+            ox,
+            oy,
+            cs,
         )
     else:
         inside_board = (
@@ -112,14 +117,11 @@ def copper_coverage_grid(
     # --- Keepout mask (rectangular keepouts + mounting-hole circular zones) ---
     in_keepout = np.zeros((h, w), dtype=bool)
     for kx0, ky0, kx1, ky1 in board.keepouts:
-        in_keepout |= (
-            (cx_grid >= kx0) & (cx_grid <= kx1)
-            & (cy_grid >= ky0) & (cy_grid <= ky1)
-        )
+        in_keepout |= (cx_grid >= kx0) & (cx_grid <= kx1) & (cy_grid >= ky0) & (cy_grid <= ky1)
     for mh in board.mounting_holes:
         kr = mh.keepout_radius
         mx, my = mh.position
-        in_keepout |= ((cx_grid - mx) ** 2 + (cy_grid - my) ** 2) < kr ** 2
+        in_keepout |= ((cx_grid - mx) ** 2 + (cy_grid - my) ** 2) < kr**2
 
     active_area = inside_board & (~in_keepout)  # (h, w) bool
 
@@ -142,10 +144,7 @@ def copper_coverage_grid(
         elif layer.layer_type in ("signal", "mixed"):
             if traces is not None and layer.is_routable:
                 # Rasterise only traces assigned to this layer
-                layer_traces = [
-                    t for t in traces
-                    if _trace_layer_match(t, layer.name)
-                ]
+                layer_traces = [t for t in traces if _trace_layer_match(t, layer.name)]
                 if layer_traces:
                     trace_grid = np.zeros((h, w), dtype=np.float64)
                     for t in layer_traces:
@@ -154,14 +153,18 @@ def copper_coverage_grid(
                             ex, ey = float(t.end[0]), float(t.end[1])
                             tw = getattr(t, "width", 0.5)
                         elif isinstance(t, (list, tuple)) and len(t) >= 4:
-                            sx, sy, ex, ey = (
-                                float(t[0]), float(t[1]), float(t[2]), float(t[3])
-                            )
+                            sx, sy, ex, ey = (float(t[0]), float(t[1]), float(t[2]), float(t[3]))
                             tw = float(t[4]) if len(t) >= 5 else 0.5
                         else:
                             continue
                         cell_cov = _trace_to_cell_coverage(
-                            (sx, sy), (ex, ey), tw, (ox, oy), cs, h, w,
+                            (sx, sy),
+                            (ex, ey),
+                            tw,
+                            (ox, oy),
+                            cs,
+                            h,
+                            w,
                         )
                         trace_grid = np.minimum(1.0, trace_grid + cell_cov)
                     # Clip to active area
@@ -252,7 +255,7 @@ SANITY_CEILING_C = 400.0
 
 def check_thermal_plausibility(
     field: np.ndarray | None,
-    ambient_C: float = 40.0,
+    _ambient_C: float = 40.0,
     ceiling_C: float = SANITY_CEILING_C,
 ) -> tuple[bool, str]:
     """Check if a thermal field is physically plausible.

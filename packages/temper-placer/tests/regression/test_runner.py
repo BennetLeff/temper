@@ -51,7 +51,9 @@ boards:
         assert "nonexistent.kicad_pcb" in errors[0]
 
     def test_get_board(self):
-        board = GoldenBoard(id="b1", path="pcb/b1.kicad_pcb", component_count=5, net_count=3, baseline_git_hash="x")
+        board = GoldenBoard(
+            id="b1", path="pcb/b1.kicad_pcb", component_count=5, net_count=3, baseline_git_hash="x"
+        )
         manifest = GoldenManifest(version=1, boards=[board])
         assert manifest.get_board("b1") is not None
         assert manifest.get_board("b2") is None
@@ -100,7 +102,9 @@ class TestRegressionReporter:
         reporter = RegressionReporter()
         reporter.add_result(BoardResult(board_id="b1", passed=True))
         reporter.add_result(BoardResult(board_id="b2", passed=False, errors=["fail"]))
-        reporter.add_result(BoardResult(board_id="b3", passed=False, skipped=True, skip_reason="missing"))
+        reporter.add_result(
+            BoardResult(board_id="b3", passed=False, skipped=True, skip_reason="missing")
+        )
         assert reporter.total == 3
         assert reporter.passed == 1
         assert reporter.failed == 1

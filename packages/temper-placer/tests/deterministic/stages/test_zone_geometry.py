@@ -61,7 +61,7 @@ def test_zones_do_not_overlap():
     zones = list(result_state.zones)
 
     for i, zone1 in enumerate(zones):
-        for zone2 in zones[i+1:]:
+        for zone2 in zones[i + 1 :]:
             # Check if zones overlap
             (x1_min, y1_min), (x1_max, y1_max) = zone1.bounds
             (x2_min, y2_min), (x2_max, y2_max) = zone2.bounds
@@ -93,8 +93,8 @@ def test_zones_cover_entire_board():
     # Check continuity: each zone's right edge should match next zone's left edge
     for i in range(len(zones) - 1):
         current_right = zones[i].bounds[1][0]
-        next_left = zones[i+1].bounds[0][0]
-        assert current_right == next_left, f"Gap between {zones[i].name} and {zones[i+1].name}"
+        next_left = zones[i + 1].bounds[0][0]
+        assert current_right == next_left, f"Gap between {zones[i].name} and {zones[i + 1].name}"
 
     # All zones should span full height
     for zone in zones:

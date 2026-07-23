@@ -111,3 +111,6 @@ minimal_overlap_config.yaml
 routed_loop_FINAL.metrics.json
 piantor_grid_*.png
 run_clearance_sweep.sh
+
+# Pipeline run artifacts (regenerated per run — do not track)
+pipeline_execution.json

@@ -8,13 +8,11 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-import numpy as np
-
 
 def build_temper_mesh(
-    board: "Board",
-    fdm_config: "ThermalFDMConfig",
-    device_thermal: dict[str, "DeviceThermalConfig"],
+    board: Board,
+    _fdm_config: ThermalFDMConfig,
+    _device_thermal: dict[str, DeviceThermalConfig],
     power_map: dict[str, float] | None = None,
     output_dir: str | None = None,
 ) -> str:
@@ -22,9 +20,7 @@ def build_temper_mesh(
 
     Returns the path to the generated ``.msh`` file.
     """
-    out = output_dir or os.path.join(
-        os.getcwd(), "mfem_mesh"
-    )
+    out = output_dir or os.path.join(os.getcwd(), "mfem_mesh")
     os.makedirs(out, exist_ok=True)
     msh_path = os.path.join(out, "temper_board.msh")
 

@@ -112,6 +112,7 @@ class RouterV6Result:
 
     runtime_seconds: float
     manufacturing_report: ManufacturingReport | None = None
+    enable_zone_pours: bool = False
 
     @property
     def success_count(self) -> int:

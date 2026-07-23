@@ -474,7 +474,11 @@ def render_training_dashboard(
         )
 
     # 4. Convergence Confidence (middle-right)
-    conf_data = [p.convergence_confidence for p in history.data_points if p.convergence_confidence is not None]
+    conf_data = [
+        p.convergence_confidence
+        for p in history.data_points
+        if p.convergence_confidence is not None
+    ]
     if conf_data:
         conf_epochs = [p.epoch for p in history.data_points if p.convergence_confidence is not None]
         fig.add_trace(

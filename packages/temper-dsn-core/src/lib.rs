@@ -9,19 +9,23 @@ use std::sync::LazyLock;
 
 static NON_SEMANTIC_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     vec![
-        Regex::new(r"^;exported-at:").unwrap(),
-        Regex::new(r"^;tool-version:").unwrap(),
-        Regex::new(r"^;machine:").unwrap(),
-        Regex::new(r"^;path:").unwrap(),
+        Regex::new(r"^;exported-at:").expect("valid regex"),
+        Regex::new(r"^;tool-version:").expect("valid regex"),
+        Regex::new(r"^;machine:").expect("valid regex"),
+        Regex::new(r"^;path:").expect("valid regex"),
     ]
 });
 
+/// Strip non-semantic metadata lines and normalize whitespace.
+///
+/// Removes lines matching `;exported-at:`, `;tool-version:`, etc.
+/// Ensures exactly one trailing newline and no trailing blank lines.
 pub fn normalize_dsn(dsn_text: &str) -> String {
     let patterns = &*NON_SEMANTIC_PATTERNS;
     let mut filtered: Vec<&str> = dsn_text
         .lines()
         .filter(|line| !patterns.iter().any(|p| p.is_match(line)))
-        .map(|line| line.trim_end())
+        .map(str::trim_end)
         .collect();
     while filtered.last() == Some(&"") {
         filtered.pop();
@@ -30,6 +34,10 @@ pub fn normalize_dsn(dsn_text: &str) -> String {
     filtered.join("\n")
 }
 
+/// Check whether a DSN string is already normalized.
+///
+/// Returns `false` if any non-semantic metadata lines are present,
+/// or if the trailing newline structure doesn't match the normalized form.
 pub fn is_dsn_normalized(dsn_text: &str) -> bool {
     let patterns = &*NON_SEMANTIC_PATTERNS;
     for line in dsn_text.lines() {
@@ -46,6 +54,7 @@ pub fn is_dsn_normalized(dsn_text: &str) -> bool {
     dsn_text.chars().all(|ch| ch as u32 >= 32 || ch == '\n' || ch == '\r' || ch == '\t')
 }
 
+/// Remove ASCII control characters (except newline, tab) from DSN text.
 pub fn strip_control_chars(dsn_text: &str) -> String {
     dsn_text
         .chars()
@@ -53,6 +62,10 @@ pub fn strip_control_chars(dsn_text: &str) -> String {
         .collect()
 }
 
+/// Compute a deterministic SHA-256 hash of the DSN schema.
+///
+/// The hash covers layer count/names/types, footprint counts, net names,
+/// and default trace/clearance rules. Identical schemas produce identical hashes.
 pub fn compute_dsn_schema_hash(
     layer_names: Vec<String>,
     layer_types: HashMap<String, String>,
@@ -97,16 +110,21 @@ pub fn compute_dsn_schema_hash(
     format!("{:x}", hasher.finalize())
 }
 
+/// Embed a schema-version header into DSN text.
+///
+/// Prepends `;schema-version: sha256:<hash>`. If a header already exists,
+/// it is replaced in-place.
 pub fn embed_schema_header(dsn_text: &str, schema_hash: &str) -> String {
     let header = format!(";schema-version: sha256:{}", schema_hash);
-    if let Some(nl_pos) = dsn_text.find('\n') {
-        if dsn_text.starts_with(";schema-version:") {
-            return format!("{}{}", header, &dsn_text[nl_pos..]);
-        }
+    if let Some(nl_pos) = dsn_text.find('\n')
+        && dsn_text.starts_with(";schema-version:")
+    {
+        return format!("{}{}", header, &dsn_text[nl_pos..]);
     }
     format!("{}\n{}", header, dsn_text)
 }
 
+/// Extract the schema-version hash from a DSN header, if present.
 pub fn extract_schema_hash(dsn_text: &str) -> Option<String> {
     let prefix = ";schema-version: sha256:";
     for line in dsn_text.lines() {
@@ -117,11 +135,22 @@ pub fn extract_schema_hash(dsn_text: &str) -> Option<String> {
     None
 }
 
-#[derive(Debug, PartialEq)]
+/// Validation error produced by [`validate_dsn`].
+#[derive(Debug, PartialEq, Eq)]
 pub enum DsnValidationError {
-    HashMismatch { expected: String, received: String },
+    /// The extracted schema hash does not match the expected hash.
+    HashMismatch {
+        /// The hash that was expected.
+        expected: String,
+        /// The hash actually found in the DSN text.
+        received: String,
+    },
 }
 
+/// Validate DSN text against an expected schema hash.
+///
+/// Returns [`DsnValidationError::HashMismatch`] if the embedded hash
+/// doesn't match `expected_hash` or is missing.
 pub fn validate_dsn(dsn_text: &str, expected_hash: &str) -> Result<(), DsnValidationError> {
     let received = extract_schema_hash(dsn_text);
     if received.as_deref() != Some(expected_hash) {
@@ -133,6 +162,7 @@ pub fn validate_dsn(dsn_text: &str, expected_hash: &str) -> Result<(), DsnValida
     Ok(())
 }
 
+/// Validate DSN without panicking — returns `true` on match.
 pub fn validate_or_warn_dsn(dsn_text: &str, expected_hash: &str) -> bool {
     let received = extract_schema_hash(dsn_text);
     received.as_deref() == Some(expected_hash)

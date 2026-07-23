@@ -93,10 +93,14 @@ def sat_clause(
 
     n_lits = min(len(variables), draw(st.integers(min_value=min_literals, max_value=max_literals)))
     # Use indices to avoid hashability issues with SATVariable
-    indices = draw(st.lists(
-        st.integers(min_value=0, max_value=len(variables) - 1),
-        min_size=n_lits, max_size=n_lits, unique=True,
-    ))
+    indices = draw(
+        st.lists(
+            st.integers(min_value=0, max_value=len(variables) - 1),
+            min_size=n_lits,
+            max_size=n_lits,
+            unique=True,
+        )
+    )
     literals = [(variables[idx], draw(st.booleans())) for idx in indices]
     desc = f"Clause: {' OR '.join(('' if pol else 'NOT ') + str(v) for v, pol in literals)}"
     return SATClause(literals=literals, description=desc)
@@ -239,12 +243,14 @@ def constraint_model_with_all_types(
         channel_id = f"{layer_names[0]}_E0"
         if (0, channel_id) in model.net_channel_vars:
             allowed = draw(st.booleans())
-            model.add_constraint(LayerConstraint(
-                name=f"layer_N0_{channel_id}",
-                net_idx=0,
-                channel_id=channel_id,
-                allowed=allowed,
-            ))
+            model.add_constraint(
+                LayerConstraint(
+                    name=f"layer_N0_{channel_id}",
+                    net_idx=0,
+                    channel_id=channel_id,
+                    allowed=allowed,
+                )
+            )
 
     if use_diff_pair and n_nets >= 2:
         n_diff_pairs = draw(st.integers(1, min(3, n_nets // 2)))
@@ -256,14 +262,16 @@ def constraint_model_with_all_types(
                 p_key = (p_idx, channel_id)
                 n_key = (n_idx, channel_id)
                 if p_key in model.net_channel_vars and n_key in model.net_channel_vars:
-                    model.add_constraint(DiffPairConstraint(
-                        name=f"diff_N{p_idx}_N{n_idx}_{channel_id}",
-                        channel_id=channel_id,
-                        p_net_idx=p_idx,
-                        n_net_idx=n_idx,
-                        p_var=model.net_channel_vars[p_key],
-                        n_var=model.net_channel_vars[n_key],
-                    ))
+                    model.add_constraint(
+                        DiffPairConstraint(
+                            name=f"diff_N{p_idx}_N{n_idx}_{channel_id}",
+                            channel_id=channel_id,
+                            p_net_idx=p_idx,
+                            n_net_idx=n_idx,
+                            p_var=model.net_channel_vars[p_key],
+                            n_var=model.net_channel_vars[n_key],
+                        )
+                    )
 
     if use_capacity and n_nets >= 2:
         channel_id = f"{layer_names[0]}_E0"
@@ -274,13 +282,15 @@ def constraint_model_with_all_types(
                 terms.append((model.net_channel_vars[key], 0.127))
         if len(terms) >= 2:
             k = draw(st.integers(0, len(terms) - 1))
-            model.add_constraint(CapacityConstraint(
-                name=f"cap_{channel_id}",
-                channel_id=channel_id,
-                capacity=(k + 0.5) * 0.127,
-                slack_factor=1.0,
-                terms=terms,
-            ))
+            model.add_constraint(
+                CapacityConstraint(
+                    name=f"cap_{channel_id}",
+                    channel_id=channel_id,
+                    capacity=(k + 0.5) * 0.127,
+                    slack_factor=1.0,
+                    terms=terms,
+                )
+            )
 
     return model, net_names
 
@@ -324,9 +334,7 @@ def boundary_biased_routing_results(
     """
     n_routes = draw(st.integers(min_value=min_routes, max_value=max_routes))
 
-    net_names = [
-        f"NET{i}" for i in range(n_routes)
-    ]
+    net_names = [f"NET{i}" for i in range(n_routes)]
 
     # Generate boundary-biased coordinates: snap to multiples of cell size
     # plus/minus a tiny offset.
@@ -454,14 +462,16 @@ def known_compliant_route(
         drill = draw(st.floats(min_value=0.1, max_value=drill_max))
         frm = layer
         to = draw(st.sampled_from([ln for ln in LAYERS if ln != frm]))
-        vias.append(Via(
-            position=(vx, vy),
-            from_layer=frm,
-            to_layer=to,
-            diameter=dia,
-            drill=drill,
-            net_name=net_name,
-        ))
+        vias.append(
+            Via(
+                position=(vx, vy),
+                from_layer=frm,
+                to_layer=to,
+                diameter=dia,
+                drill=drill,
+                net_name=net_name,
+            )
+        )
 
     return CompiledRoute(
         net_name=net_name,
@@ -525,14 +535,16 @@ def known_compliant_routing_results(
             drill_max = dia - 0.15
             drill = draw(st.floats(min_value=0.1, max_value=drill_max))
             lv = draw(st.sampled_from([ln for ln in LAYERS if ln != layer]))
-            vias.append(Via(
-                position=(50.0, y),
-                from_layer=layer,
-                to_layer=lv,
-                diameter=dia,
-                drill=drill,
-                net_name=net_name,
-            ))
+            vias.append(
+                Via(
+                    position=(50.0, y),
+                    from_layer=layer,
+                    to_layer=lv,
+                    diameter=dia,
+                    drill=drill,
+                    net_name=net_name,
+                )
+            )
 
         compiled[net_name] = CompiledRoute(
             net_name=net_name,
@@ -611,12 +623,14 @@ def constraint_models(
         channel_id = f"{layer_names[0]}_E0"
         if (0, channel_id) in model.net_channel_vars:
             allowed = draw(st.booleans())
-            model.add_constraint(LayerConstraint(
-                name=f"layer_N0_{channel_id}",
-                net_idx=0,
-                channel_id=channel_id,
-                allowed=allowed,
-            ))
+            model.add_constraint(
+                LayerConstraint(
+                    name=f"layer_N0_{channel_id}",
+                    net_idx=0,
+                    channel_id=channel_id,
+                    allowed=allowed,
+                )
+            )
 
     if use_diff_pair and n_nets >= 2:
         n_diff_pairs = draw(st.integers(1, min(3, n_nets // 2)))
@@ -628,14 +642,16 @@ def constraint_models(
                 p_key = (p_idx, channel_id)
                 n_key = (n_idx, channel_id)
                 if p_key in model.net_channel_vars and n_key in model.net_channel_vars:
-                    model.add_constraint(DiffPairConstraint(
-                        name=f"diff_N{p_idx}_N{n_idx}_{channel_id}",
-                        channel_id=channel_id,
-                        p_net_idx=p_idx,
-                        n_net_idx=n_idx,
-                        p_var=model.net_channel_vars[p_key],
-                        n_var=model.net_channel_vars[n_key],
-                    ))
+                    model.add_constraint(
+                        DiffPairConstraint(
+                            name=f"diff_N{p_idx}_N{n_idx}_{channel_id}",
+                            channel_id=channel_id,
+                            p_net_idx=p_idx,
+                            n_net_idx=n_idx,
+                            p_var=model.net_channel_vars[p_key],
+                            n_var=model.net_channel_vars[n_key],
+                        )
+                    )
 
     if use_capacity and n_nets >= 2:
         channel_id = f"{layer_names[0]}_E0"
@@ -646,12 +662,14 @@ def constraint_models(
                 terms.append((model.net_channel_vars[key], 0.127))
         if len(terms) >= 2:
             k = draw(st.integers(0, len(terms) - 1))
-            model.add_constraint(CapacityConstraint(
-                name=f"cap_{channel_id}",
-                channel_id=channel_id,
-                capacity=(k + 0.5) * 0.127,
-                slack_factor=1.0,
-                terms=terms,
-            ))
+            model.add_constraint(
+                CapacityConstraint(
+                    name=f"cap_{channel_id}",
+                    channel_id=channel_id,
+                    capacity=(k + 0.5) * 0.127,
+                    slack_factor=1.0,
+                    terms=terms,
+                )
+            )
 
     return model, net_names, primary_var_names

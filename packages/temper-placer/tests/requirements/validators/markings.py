@@ -178,8 +178,9 @@ def check_polarity_markings(
 
     for comp_ref in polarized_components:
         ref_upper = comp_ref.upper()
-        found = any(any(kw in t for kw in _POLARITY_KEYWORDS) and ref_upper in t
-                    for t in text_upper)
+        found = any(
+            any(kw in t for kw in _POLARITY_KEYWORDS) and ref_upper in t for t in text_upper
+        )
         # Check if polarity markings exist near this specific component
         if not found:
             violations.append(
@@ -218,10 +219,7 @@ def check_pin1_indicators(
 
     for ref in ics + connectors:
         ref_upper = ref.upper()
-        found = any(
-            ref_upper in t and any(kw in t for kw in _PIN1_KEYWORDS)
-            for t in text_upper
-        )
+        found = any(ref_upper in t and any(kw in t for kw in _PIN1_KEYWORDS) for t in text_upper)
         if not found:
             violations.append(
                 MarkingViolation(
@@ -326,8 +324,10 @@ def check_safety_symbol_compliance(
     text_upper = [t.upper() for t in silkscreen_text]
 
     for symbol_name, iec_ref in required_symbols.items():
-        found = any(symbol_name.upper() in t or iec_ref.upper() in t.replace("-", "").replace(" ", "")
-                    for t in text_upper)
+        found = any(
+            symbol_name.upper() in t or iec_ref.upper() in t.replace("-", "").replace(" ", "")
+            for t in text_upper
+        )
         if not found:
             violations.append(
                 MarkingViolation(

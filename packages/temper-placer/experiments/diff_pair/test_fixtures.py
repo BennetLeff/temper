@@ -150,7 +150,9 @@ def create_test_fixtures() -> list[TestFixture]:
     # Top wall
     for x in range(int(corridor_start_mm / 0.1), int(corridor_end_mm / 0.1)):
         for dy in range(5):  # 0.5mm thick wall
-            obstacles_corridor.add((x, int(6.0 / 0.1) + dy, 0))  # allow-safety-constant: test fixture geometry
+            obstacles_corridor.add(
+                (x, int(6.0 / 0.1) + dy, 0)
+            )  # allow-safety-constant: test fixture geometry
 
     # Bottom wall
     for x in range(int(corridor_start_mm / 0.1), int(corridor_end_mm / 0.1)):

@@ -63,9 +63,7 @@ def _track(
     )
 
 
-PRODUCTION_RESULT = (
-    '{"unconnected_count":149,"violations":[{"type":"unconnected_items"}]}'
-)
+PRODUCTION_RESULT = '{"unconnected_count":149,"violations":[{"type":"unconnected_items"}]}'
 """Fake KiCad JSON — documents contracts without requiring a KiCad install."""
 
 
@@ -93,9 +91,7 @@ class TestRoutingResultsDerivesCompletionFromConnectivity:
         # must NOT count incomplete nets as successful.
         rr = RoutingResults(compiled_routes={}, failed_nets=[], connectivity=connectivity)
         # With connectivity, success must come from dispositions, not path count.
-        assert rr.success_count == 0, (
-            "Net is INCOMPLETE — must not contribute to success_count"
-        )
+        assert rr.success_count == 0, "Net is INCOMPLETE — must not contribute to success_count"
 
     def test_zero_required_pads_yields_exempt_not_incomplete(self):
         """A net with no required pads gets EXEMPT, not counted as failure."""
@@ -149,9 +145,7 @@ class TestCompiledRouteCarriesOnlyRoutedDisposition:
             TreeRouteGeometry,
         )
 
-        edge = TerminalTreeEdge(
-            _pid("U1", "1", "NET1"), _pid("U1", "2", "NET1")
-        )
+        edge = TerminalTreeEdge(_pid("U1", "1", "NET1"), _pid("U1", "2", "NET1"))
         branch = TreeRouteBranch(
             edge=edge,
             path=RoutePath(

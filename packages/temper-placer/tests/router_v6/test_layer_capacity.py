@@ -108,14 +108,10 @@ def test_capacity_with_constraints():
     widths = compute_channel_widths(routing_space, skeleton)
 
     # Wide traces/clearance
-    capacity_wide = calculate_layer_capacity(
-        grid, widths, min_trace_width=0.5, min_clearance=0.5
-    )
+    capacity_wide = calculate_layer_capacity(grid, widths, min_trace_width=0.5, min_clearance=0.5)
 
     # Narrow traces/clearance
-    capacity_narrow = calculate_layer_capacity(
-        grid, widths, min_trace_width=0.1, min_clearance=0.1
-    )
+    capacity_narrow = calculate_layer_capacity(grid, widths, min_trace_width=0.1, min_clearance=0.1)
 
     # Narrower constraints should allow more traces
     assert capacity_narrow.estimated_traces >= capacity_wide.estimated_traces

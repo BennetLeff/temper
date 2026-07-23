@@ -23,12 +23,16 @@ class TestOnSideHandlerStructural:
         model.add_rotation("J1", is_polarized=True)
 
         constraint = OnSideConstraint(
-            components=["J1"], side=side, edge=EdgeType.FLUSH,
-            max_distance_mm=max_distance_mm, tier=ConstraintTier.HARD,
+            components=["J1"],
+            side=side,
+            edge=EdgeType.FLUSH,
+            max_distance_mm=max_distance_mm,
+            tier=ConstraintTier.HARD,
             because="Connector must be on board edge for external accessibility",
         )
-        ctx = EncoderContext(board_w_mm=50.0, board_h_mm=50.0,
-                             board_x_max_units=5000, board_y_max_units=5000)
+        ctx = EncoderContext(
+            board_w_mm=50.0, board_h_mm=50.0, board_x_max_units=5000, board_y_max_units=5000
+        )
         labels = encode_onside(constraint, model.component_map, model, ctx)
         assert isinstance(labels, list)
         assert len(labels) == 1
@@ -38,4 +42,5 @@ class TestOnSideHandlerStructural:
     def test_handler_is_registered(self) -> None:
         from temper_placer.pcl.constraints import ConstraintType
         from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY
+
         assert ConstraintType.ON_SIDE in HANDLER_REGISTRY

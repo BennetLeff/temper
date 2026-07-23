@@ -1,6 +1,9 @@
 ---
 title: UCC21550 latch, sensor, and supply closure
+type: feat
 status: active
+date: 2026-07-13
+origin: docs/brainstorms/2026-07-13-real-induction-board-closure-arc-requirements.md
 ---
 
 # UCC21550 latch, sensor, and supply closure

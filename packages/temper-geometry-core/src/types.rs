@@ -8,11 +8,11 @@ pub struct Point {
 }
 
 impl Point {
-    pub fn new(x: f64, y: f64) -> Self {
+    pub const fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
 
-    pub fn zero() -> Self {
+    pub const fn zero() -> Self {
         Self { x: 0.0, y: 0.0 }
     }
 
@@ -65,8 +65,8 @@ pub struct Vec2 {
 }
 
 impl Vec2 {
-    pub fn new(x: f64, y: f64) -> Point {
-        Point { x, y }
+    pub const fn new(x: f64, y: f64) -> Self {
+        Self { x, y }
     }
 
     pub fn dot(&self, other: &Vec2) -> f64 {
@@ -114,7 +114,7 @@ pub struct Rect {
 }
 
 impl Rect {
-    pub fn new(x: f64, y: f64, w: f64, h: f64) -> Self {
+    pub const fn new(x: f64, y: f64, w: f64, h: f64) -> Self {
         Self { x, y, w, h }
     }
 
@@ -166,7 +166,7 @@ pub struct AABB {
 }
 
 impl AABB {
-    pub fn new(x_min: f64, y_min: f64, x_max: f64, y_max: f64) -> Self {
+    pub const fn new(x_min: f64, y_min: f64, x_max: f64, y_max: f64) -> Self {
         Self {
             x_min,
             y_min,

@@ -97,6 +97,7 @@ fn check_zone_via_density(
     ))
 }
 
+#[derive(Default)]
 pub struct StitchingViaDensityCheck;
 
 impl StitchingViaDensityCheck {

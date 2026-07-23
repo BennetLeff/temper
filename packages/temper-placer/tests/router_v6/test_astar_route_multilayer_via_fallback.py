@@ -100,12 +100,20 @@ def _make_bottleneck_via_grids() -> dict[str, OccupancyGrid]:
     b_arr[_MID, _WALL_X - 1 : _WALL_X + 2] = 0  # tiny window straddling the wall
 
     f_grid = OccupancyGrid(
-        layer_name="F.Cu", grid=f_arr, origin=(0.0, 0.0),
-        cell_size=_CELL_SIZE_MM, width_cells=_SIZE, height_cells=_SIZE,
+        layer_name="F.Cu",
+        grid=f_arr,
+        origin=(0.0, 0.0),
+        cell_size=_CELL_SIZE_MM,
+        width_cells=_SIZE,
+        height_cells=_SIZE,
     )
     b_grid = OccupancyGrid(
-        layer_name="B.Cu", grid=b_arr, origin=(0.0, 0.0),
-        cell_size=_CELL_SIZE_MM, width_cells=_SIZE, height_cells=_SIZE,
+        layer_name="B.Cu",
+        grid=b_arr,
+        origin=(0.0, 0.0),
+        cell_size=_CELL_SIZE_MM,
+        width_cells=_SIZE,
+        height_cells=_SIZE,
     )
     return {"F.Cu": f_grid, "B.Cu": b_grid}
 
@@ -156,15 +164,24 @@ def test_fallback_tier_produces_via_positions_when_primary_and_alternate_fail():
     start_world, goal_world = _bottleneck_endpoints(f_grid)
 
     channel_path = ChannelPath(
-        net_name="NET1", channel_sequence=["CH1"],
-        waypoints=[start_world, goal_world], total_length=10.0,
+        net_name="NET1",
+        channel_sequence=["CH1"],
+        waypoints=[start_world, goal_world],
+        total_length=10.0,
     )
 
     with patch.object(
-        astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
+        astar_pathfinding_mod,
+        "_route_segment_3d",
+        wraps=_real_route_segment_3d,
     ) as spy:
         result, _fb = astar_pathfinding_mod._astar_route_multilayer(
-            "NET1", channel_path, f_grid, b_grid, None, net_id=1,
+            "NET1",
+            channel_path,
+            f_grid,
+            b_grid,
+            None,
+            net_id=1,
         )
 
     assert result is not None
@@ -192,17 +209,26 @@ def test_3d_fallback_legality_uses_each_netclass_via_envelope(net_class: str | N
     f_grid, b_grid = grids["F.Cu"], grids["B.Cu"]
     start_world, goal_world = _bottleneck_endpoints(f_grid)
     channel_path = ChannelPath(
-        net_name="NET_UNDER_TEST", channel_sequence=["CH1"],
-        waypoints=[start_world, goal_world], total_length=10.0,
+        net_name="NET_UNDER_TEST",
+        channel_sequence=["CH1"],
+        waypoints=[start_world, goal_world],
+        total_length=10.0,
     )
     design_rules = _configured_design_rules(net_class)
 
     with patch.object(
-        astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
+        astar_pathfinding_mod,
+        "_route_segment_3d",
+        wraps=_real_route_segment_3d,
     ) as spy:
         result, _ = astar_pathfinding_mod._astar_route_multilayer(
-            "NET_UNDER_TEST", channel_path, f_grid, b_grid, None,
-            net_id=1, design_rules=design_rules,
+            "NET_UNDER_TEST",
+            channel_path,
+            f_grid,
+            b_grid,
+            None,
+            net_id=1,
+            design_rules=design_rules,
         )
 
     assert result is not None
@@ -234,15 +260,24 @@ def test_fallback_tier_not_invoked_when_primary_grid_succeeds():
     common case is unaffected by U2's change."""
     grid = OccupancyGrid("F.Cu", np.zeros((20, 20), dtype=np.int8), (0.0, 0.0), 1.0, 20, 20)
     channel_path = ChannelPath(
-        net_name="NET1", channel_sequence=["CH1"],
-        waypoints=[(2.0, 2.0), (15.0, 15.0)], total_length=18.4,
+        net_name="NET1",
+        channel_sequence=["CH1"],
+        waypoints=[(2.0, 2.0), (15.0, 15.0)],
+        total_length=18.4,
     )
 
     with patch.object(
-        astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
+        astar_pathfinding_mod,
+        "_route_segment_3d",
+        wraps=_real_route_segment_3d,
     ) as spy:
         result, _fb = astar_pathfinding_mod._astar_route_multilayer(
-            "NET1", channel_path, grid, None, None, net_id=1,
+            "NET1",
+            channel_path,
+            grid,
+            None,
+            None,
+            net_id=1,
         )
 
     assert result is not None
@@ -266,22 +301,29 @@ def test_alternate_grid_success_has_explicit_endpoint_vias_not_implicit_transiti
     f_grid[10, 2] = 0
     f_grid[10, 15] = 0
     primary_grid = OccupancyGrid("F.Cu", f_grid, (0.0, 0.0), 1.0, 20, 20)
-    alt_grid = OccupancyGrid(
-        "B.Cu", np.zeros((20, 20), dtype=np.int8), (0.0, 0.0), 1.0, 20, 20
-    )
+    alt_grid = OccupancyGrid("B.Cu", np.zeros((20, 20), dtype=np.int8), (0.0, 0.0), 1.0, 20, 20)
     start_world = primary_grid.grid_to_world(2, 10)
     goal_world = primary_grid.grid_to_world(15, 10)
     channel_path = ChannelPath(
-        net_name="NET1", channel_sequence=["CH1"],
-        waypoints=[start_world, goal_world], total_length=10.0,
+        net_name="NET1",
+        channel_sequence=["CH1"],
+        waypoints=[start_world, goal_world],
+        total_length=10.0,
     )
     tht_locations = {start_world}  # Old tier-2 precondition is satisfied.
 
     with patch.object(
-        astar_pathfinding_mod, "_route_segment_3d", wraps=_real_route_segment_3d,
+        astar_pathfinding_mod,
+        "_route_segment_3d",
+        wraps=_real_route_segment_3d,
     ) as spy:
         result, _fb = astar_pathfinding_mod._astar_route_multilayer(
-            "NET1", channel_path, primary_grid, alt_grid, tht_locations, net_id=1,
+            "NET1",
+            channel_path,
+            primary_grid,
+            alt_grid,
+            tht_locations,
+            net_id=1,
         )
 
     assert result is not None
@@ -322,14 +364,24 @@ def test_net_id_blocking_prevents_second_net_reusing_same_via_through_multilayer
     cp2 = ChannelPath("NET2", ["CH1"], [start_world, goal_world], 10.0)
 
     result1, _ = astar_pathfinding_mod._astar_route_multilayer(
-        "NET1", cp1, f_grid, b_grid, None, net_id=1,
+        "NET1",
+        cp1,
+        f_grid,
+        b_grid,
+        None,
+        net_id=1,
     )
     assert result1 is not None
     assert result1.via_positions, "First net must need + place a via to cross the wall"
     assert result1.forced_segment_count == 0
 
     result2, _ = astar_pathfinding_mod._astar_route_multilayer(
-        "NET2", cp2, f_grid, b_grid, None, net_id=2,
+        "NET2",
+        cp2,
+        f_grid,
+        b_grid,
+        None,
+        net_id=2,
     )
     # _astar_route_multilayer always returns a RoutePath3D (it degrades to
     # a forced/failed segment rather than returning None) -- the real
@@ -406,7 +458,10 @@ def _nearest_free_cell(
 
 
 def _carve_local_via_bottleneck(
-    fcu: OccupancyGrid, bcu: OccupancyGrid, anchor_world: tuple[float, float], half_span: int = 60,
+    fcu: OccupancyGrid,
+    bcu: OccupancyGrid,
+    anchor_world: tuple[float, float],
+    half_span: int = 60,
 ) -> tuple[OccupancyGrid, OccupancyGrid, tuple[float, float], tuple[float, float]]:
     """Copy the real, production-scale grids and carve a small,
     deterministic via-bottleneck obstruction into a local free region
@@ -505,8 +560,10 @@ def test_integration_corpus_board_forced_transition_produces_real_vias(corpus_gr
     fcu2, bcu2, start_world, goal_world = _carve_local_via_bottleneck(fcu, bcu, anchor_world)
 
     channel_path = ChannelPath(
-        net_name="INTEGRATION_NET", channel_sequence=["CH1"],
-        waypoints=[start_world, goal_world], total_length=12.0,
+        net_name="INTEGRATION_NET",
+        channel_sequence=["CH1"],
+        waypoints=[start_world, goal_world],
+        total_length=12.0,
     )
 
     # tht_locations=None: the alternate-grid retry (tier 2) is
@@ -520,8 +577,13 @@ def test_integration_corpus_board_forced_transition_produces_real_vias(corpus_gr
     # detour (as scenario 1's synthetic-grid test also confirms
     # succeeds in well under 1000 iterations for an equivalent pattern).
     result, _fb = astar_pathfinding_mod._astar_route_multilayer(
-        "INTEGRATION_NET", channel_path, fcu2, bcu2, None,
-        max_iter=5_000, net_id=1,
+        "INTEGRATION_NET",
+        channel_path,
+        fcu2,
+        bcu2,
+        None,
+        max_iter=5_000,
+        net_id=1,
     )
 
     assert result is not None
@@ -553,8 +615,14 @@ def test_max_iter_bound_caps_wall_time_on_degenerate_long_segment(production_gri
 
     t0 = time.monotonic()
     _real_route_segment_3d(
-        start_world, goal_world, "F.Cu", "F.Cu", production_grids,
-        via_cost=10.0, net_id=1, max_iter=small_max_iter,
+        start_world,
+        goal_world,
+        "F.Cu",
+        "F.Cu",
+        production_grids,
+        via_cost=10.0,
+        net_id=1,
+        max_iter=small_max_iter,
     )
     dt = time.monotonic() - t0
 

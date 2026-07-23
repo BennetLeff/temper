@@ -129,9 +129,7 @@ class DRCOracle:
     ] = field(default_factory=dict)
     # @req(2026-06-23-007, R3): Maps each pad's `id` to its owning
     # component reference. May be a dict or a callable.
-    pin_owner: Mapping[str, str] | Callable[[str], str | None] = field(
-        default_factory=dict
-    )
+    pin_owner: Mapping[str, str] | Callable[[str], str | None] = field(default_factory=dict)
 
     # ------------------------------------------------------------------
     # Clearance credits (R3)
@@ -226,7 +224,14 @@ class DRCOracle:
         pin_b = pad_b.id.rsplit("-", 1)[-1]
         if not pin_a or not pin_b:
             return None
-        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy, axis) in self.clearance_credits.items():
+        for (comp_ref, c_lv, c_hv), (
+            effective,
+            hw,
+            hl,
+            smx,
+            smy,
+            axis,
+        ) in self.clearance_credits.items():
             if comp_ref != owner_a:
                 continue
             if {pin_a, pin_b} != {c_lv, c_hv}:
@@ -282,7 +287,14 @@ class DRCOracle:
         pin = pad.id.rsplit("-", 1)[-1]
         if not pin:
             return None
-        for (comp_ref, c_lv, c_hv), (effective, hw, hl, smx, smy, axis) in self.clearance_credits.items():
+        for (comp_ref, c_lv, c_hv), (
+            effective,
+            hw,
+            hl,
+            smx,
+            smy,
+            axis,
+        ) in self.clearance_credits.items():
             if comp_ref != owner:
                 continue
             if pin not in (c_lv, c_hv):
@@ -290,12 +302,10 @@ class DRCOracle:
             half_w_band = hw + 0.5
             px, py = pad.center.x, pad.center.y
             inside_x_axis = (
-                smx - half_w_band <= px <= smx + half_w_band
-                and smy - hl <= py <= smy + hl
+                smx - half_w_band <= px <= smx + half_w_band and smy - hl <= py <= smy + hl
             )
             inside_y_axis = (
-                smx - hl <= px <= smx + hl
-                and smy - half_w_band <= py <= smy + half_w_band
+                smx - hl <= px <= smx + hl and smy - half_w_band <= py <= smy + half_w_band
             )
             if axis == "x":
                 if inside_x_axis:
@@ -381,7 +391,7 @@ class DRCOracle:
                 required = min(required, 0.08)  # Ultra-relaxed for plane stubs
             effective_clearance = required + via_radius + (track.width / 2)
 
-            actual = point_to_segment_distance(p_center, track_to_segment(track))
+            actual = point_to_segment_distance(p_center, track.to_segment())
             if actual < effective_clearance:
                 return (
                     False,
@@ -399,7 +409,7 @@ class DRCOracle:
                 required = min(required, 0.08)  # Ultra-relaxed for plane stubs
 
             effective_clearance = required + via_radius + pad.mask_expansion
-            actual = point_to_rotated_rect_distance(p_center, pad_rotated_rect(pad))
+            actual = point_to_rotated_rect_distance(p_center, pad.rot_rect)
 
             if actual < effective_clearance:
                 return (
@@ -481,7 +491,7 @@ class DRCOracle:
                 required = min(required, 0.08)  # Ultra-relaxed for plane stubs
             effective_clearance = required + (width / 2) + (track.width / 2)
 
-            actual = segment_to_segment_distance(segment, track_to_segment(track))
+            actual = segment_to_segment_distance(segment, track.to_segment())
             # Allow 1µm tolerance for floating point precision
             if actual < effective_clearance - 0.001:
                 return (
@@ -526,7 +536,7 @@ class DRCOracle:
                 required = required * INTERNAL_LAYER_CREEPAGE_FACTOR
 
             effective_clearance = required + (width / 2) + pad.mask_expansion
-            actual = segment_to_rotated_rect_distance(segment, pad_rotated_rect(pad))
+            actual = segment_to_rotated_rect_distance(segment, pad.rot_rect)
             if actual < effective_clearance:
                 return (
                     False,
@@ -619,7 +629,7 @@ class DRCOracle:
 
         # Check all track-to-track clearances
         for track_a in self.geometry.tracks:
-            seg_a = track_to_segment(track_a)
+            seg_a = track_a.to_segment()
             search_radius = (seg_a.length / 2) + self.rules.default_clearance + 0.5
             nearby_tracks = self.geometry.query_tracks_near(
                 seg_a.midpoint(), search_radius, track_a.layer
@@ -638,7 +648,7 @@ class DRCOracle:
                 required = self.rules.get_clearance(track_a.net, track_b.net, mid.x, mid.y)
                 effective = required + (track_a.width / 2) + (track_b.width / 2)
 
-                actual = segment_to_segment_distance(seg_a, track_to_segment(track_b))
+                actual = segment_to_segment_distance(seg_a, track_b.to_segment())
                 # Allow 10µm tolerance for floating point precision and manufacturing variation
                 if actual < effective - 0.010:
                     violations.append(
@@ -687,7 +697,7 @@ class DRCOracle:
 
         # Check Track-to-Pad clearances
         for track in self.geometry.tracks:
-            seg = track_to_segment(track)
+            seg = track.to_segment()
             search_radius = (seg.length / 2) + self.rules.default_clearance + 3.0
             nearby_pads = self.geometry.query_pads_near(seg.midpoint(), search_radius, track.layer)
 
@@ -703,7 +713,7 @@ class DRCOracle:
                 required = self.rules.get_clearance(track.net, pad.net, mid.x, mid.y)
                 effective = required + (track.width / 2) + pad.mask_expansion
 
-                actual = segment_to_rotated_rect_distance(seg, pad_rotated_rect(pad))
+                actual = segment_to_rotated_rect_distance(seg, pad.rot_rect)
                 if actual < effective:
                     violations.append(
                         Violation(
@@ -730,7 +740,7 @@ class DRCOracle:
                 required = self.rules.get_clearance(via.net, pad.net, via.center.x, via.center.y)
                 effective = required + (via.diameter / 2) + pad.mask_expansion
 
-                actual = point_to_rotated_rect_distance(via.center, pad_rotated_rect(pad))
+                actual = point_to_rotated_rect_distance(via.center, pad.rot_rect)
                 if actual < effective:
                     violations.append(
                         Violation(

@@ -22,24 +22,20 @@ from temper_placer.validation.spice import (
 
 logger = logging.getLogger(__name__)
 
+
 class SpiceValidationPipeline:
     """
     High-level pipeline for running electrical validation simulations.
     """
 
     def __init__(
-        self,
-        validator: NgspiceValidator | None = None,
-        config: dict[str, Any] | None = None
+        self, validator: NgspiceValidator | None = None, config: dict[str, Any] | None = None
     ):
         self.validator = validator or NgspiceValidator()
         self.config = config or {}
 
     def validate_placement(
-        self,
-        state: PlacementState,
-        netlist: Netlist,
-        _board: Board
+        self, state: PlacementState, netlist: Netlist, _board: Board
     ) -> dict[str, PlacementSpiceResult]:
         """
         Run all configured SPICE validations for a given placement.
@@ -64,11 +60,7 @@ class SpiceValidationPipeline:
         # 2. Run validations
         # We reuse the existing run_all_placement_validations from spice.py
         # but we could add more logic here for custom loops.
-        results = run_all_placement_validations(
-            self.validator,
-            comp_positions,
-            self.config
-        )
+        results = run_all_placement_validations(self.validator, comp_positions, self.config)
 
         return results
 
@@ -78,9 +70,9 @@ class SpiceValidationPipeline:
             print("No SPICE results to report.")
             return
 
-        print("\n" + "="*40)
+        print("\n" + "=" * 40)
         print(" ELECTRICAL VALIDATION REPORT (SPICE)")
-        print("="*40)
+        print("=" * 40)
 
         all_passed = True
         for _name, res in results.items():
@@ -88,7 +80,7 @@ class SpiceValidationPipeline:
             if not res.passed:
                 all_passed = False
 
-        print("\n" + "="*40)
+        print("\n" + "=" * 40)
         status = "PASSED" if all_passed else "FAILED"
         print(f" OVERALL STATUS: {status}")
-        print("="*40 + "\n")
+        print("=" * 40 + "\n")

@@ -40,11 +40,11 @@ jobs:
         run: uv run python scripts/scan_external_corpus.py
 
       - name: Batch pipeline validation
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- weekly batch best-effort; hard-fail after 2026-09-01
         run: uv run python scripts/batch_pipeline_validate.py --max-boards 80
 
       - name: Quarantine report
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- reporting best-effort; hard-fail after 2026-09-01
         run: uv run python scripts/quarantine_report.py
 
       - name: Upload quarantine artifacts

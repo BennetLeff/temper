@@ -13,6 +13,7 @@ def test_tolerance_table_defaults():
     assert table.etch_tolerance[CopperWeight.ONE_OZ] == 0.05
     assert table.registration[LayerType.OUTER] == 0.1
 
+
 def test_analyze_clearance():
     analyzer = ToleranceAnalyzer()
     # 1oz copper, outer layer
@@ -24,6 +25,7 @@ def test_analyze_clearance():
     assert tol.worst_case_min == pytest.approx(0.3)
     assert tol.tolerance_minus == pytest.approx(0.2)
 
+
 def test_analyze_trace_width():
     analyzer = ToleranceAnalyzer()
     # 2oz copper
@@ -33,6 +35,7 @@ def test_analyze_trace_width():
     assert tol.nominal_value == 1.0
     assert tol.worst_case_min == pytest.approx(0.925)
     assert tol.worst_case_max == pytest.approx(1.075)
+
 
 def test_custom_tolerance_table():
     custom_etch = {CopperWeight.ONE_OZ: 0.01}

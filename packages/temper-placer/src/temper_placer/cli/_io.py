@@ -1,13 +1,16 @@
 """Internal IO utilities for the CLI (console, summaries, rich setup)."""
+
 from __future__ import annotations
 
 from rich.console import Console
 
 console = Console()
 
+
 def _print_placement_summary(console, netlist, state, _constraints, min_separation=2.0):
     import numpy as np
     from rich.table import Table as RT
+
     positions = np.array(state.positions)
     n = len(netlist.components)
     if n == 0:
@@ -24,7 +27,13 @@ def _print_placement_summary(console, netlist, state, _constraints, min_separati
             overlap_x = (hw_i + hw_j + min_separation) - dx
             overlap_y = (hh_i + hh_j + min_separation) - dy
             if overlap_x > 0 and overlap_y > 0:
-                overlap_pairs.append((netlist.components[i].ref, netlist.components[j].ref, min(overlap_x, overlap_y)))
+                overlap_pairs.append(
+                    (
+                        netlist.components[i].ref,
+                        netlist.components[j].ref,
+                        min(overlap_x, overlap_y),
+                    )
+                )
     console.print("\n[bold cyan]--- Placement Summary ---")
     fixed_count = sum(1 for c in netlist.components if c.fixed)
     console.print(f"  Components: {n} total, {fixed_count} fixed, {n - fixed_count} optimized")

@@ -377,7 +377,6 @@ TEMPER_NET_CLASSES = {
 }
 
 
-
 # Net class assignments matching KiCad project (temper.kicad_pro)
 TEMPER_NET_ASSIGNMENTS = {
     # ACMains - Mains voltage (240V AC)
@@ -459,4 +458,3 @@ def create_temper_design_rules() -> DesignRules:
         net_classes=deepcopy(TEMPER_NET_CLASSES),
         net_class_assignments=deepcopy(TEMPER_NET_ASSIGNMENTS),
     )
-

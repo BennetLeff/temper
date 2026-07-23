@@ -35,7 +35,9 @@ def test_downsample_all_free_is_free(w, h):
         complete_cx = w // factor
         complete_cy = h // factor
         if complete_cx > 0 and complete_cy > 0:
-            free_in_complete = np.sum(coarse.grid[:complete_cy, :complete_cx] == CellState.FREE.value)
+            free_in_complete = np.sum(
+                coarse.grid[:complete_cy, :complete_cx] == CellState.FREE.value
+            )
             assert free_in_complete == complete_cx * complete_cy
 
 
@@ -89,6 +91,7 @@ def test_downsample_dimension_consistency(w, h, factor):
     og = _make_grid(w, h, fine)
     coarse = og.downsample(factor=factor)
     import math
+
     assert coarse.width_cells == max(1, math.ceil(w / factor))
     assert coarse.height_cells == max(1, math.ceil(h / factor))
     assert coarse.cell_size == og.cell_size * factor
@@ -120,9 +123,9 @@ def test_downsample_implication_fine_blocked_coarse_blocked(w, h, factor):
                 # was trimmed; but with ceil + padding, coarse covers all
                 # fine cells
                 if cx < coarse.width_cells and cy < coarse.height_cells:
-                    assert (
-                        coarse.grid[cy, cx] != 0
-                    ), f"Fine ({fx},{fy}) blocked -> coarse ({cx},{cy}) FREE"
+                    assert coarse.grid[cy, cx] != 0, (
+                        f"Fine ({fx},{fy}) blocked -> coarse ({cx},{cy}) FREE"
+                    )
 
 
 @given(

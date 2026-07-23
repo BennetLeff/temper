@@ -25,6 +25,7 @@ class TypeSignature:
     Two nets share a bundle class iff their TypeSignature is identical AND
     their geometric footprints overlap sufficiently (Jaccard > 0.5).
     """
+
     net_class: str  # "ground", "power", "hv", "signal"
     trace_width: float  # mm
     clearance: float  # mm
@@ -53,6 +54,7 @@ class BundleManifest:
         bundle_id_for_net: Reverse lookup from net_idx to bundle_id.
         unbundled_net_indices: Nets that could not be bundled (singletons).
     """
+
     bundles: dict[int, BundleClass] = field(default_factory=dict)
     bundle_id_for_net: dict[int, int] = field(default_factory=dict)
     unbundled_net_indices: list[int] = field(default_factory=list)
@@ -134,9 +136,7 @@ class BundleAnalyzer:
                 positions.append((float(comp_pos[0]), float(comp_pos[1])))
                 continue
             px, py = pin.position
-            positions.append(
-                (float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py))
-            )
+            positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
         return positions
 
     def _compute_geometric_footprint(self, net) -> Polygon:
@@ -147,12 +147,14 @@ class BundleAnalyzer:
             if positions:
                 cx, cy = positions[0]
                 m = self._median_edge_length
-                return Polygon([
-                    (cx - m, cy - m),
-                    (cx + m, cy - m),
-                    (cx + m, cy + m),
-                    (cx - m, cy + m),
-                ])
+                return Polygon(
+                    [
+                        (cx - m, cy - m),
+                        (cx + m, cy - m),
+                        (cx + m, cy + m),
+                        (cx - m, cy + m),
+                    ]
+                )
             # No positions: empty polygon
             return Polygon()
 
@@ -165,9 +167,14 @@ class BundleAnalyzer:
             maxx = max(x1, x2) + margin
             miny = min(y1, y2) - margin
             maxy = max(y1, y2) + margin
-            return Polygon([
-                (minx, miny), (maxx, miny), (maxx, maxy), (minx, maxy),
-            ])
+            return Polygon(
+                [
+                    (minx, miny),
+                    (maxx, miny),
+                    (maxx, maxy),
+                    (minx, maxy),
+                ]
+            )
 
         mp = MultiPoint(positions)
         hull = mp.convex_hull
@@ -305,7 +312,12 @@ class BundleAnalyzer:
                     continue
                 p_idx = self._net_to_idx.get(dp.p_net)
                 n_idx = self._net_to_idx.get(dp.n_net)
-                if p_idx is not None and n_idx is not None and p_idx in remaining_diff_nets and n_idx in remaining_diff_nets:
+                if (
+                    p_idx is not None
+                    and n_idx is not None
+                    and p_idx in remaining_diff_nets
+                    and n_idx in remaining_diff_nets
+                ):
                     paired_diff_nets.append((p_idx, n_idx))
                     remaining_diff_nets.discard(p_idx)
                     remaining_diff_nets.discard(n_idx)
@@ -325,7 +337,9 @@ class BundleAnalyzer:
                     bundle_id=next_bundle_id,
                     net_indices=sorted_nets,
                     type_signature=sig,
-                    geometric_footprint=combined if isinstance(combined, Polygon) else net_footprints[p_idx],
+                    geometric_footprint=combined
+                    if isinstance(combined, Polygon)
+                    else net_footprints[p_idx],
                     constraint_types=frozenset({"safety", "performance"}),
                     is_diff_pair=True,
                 )

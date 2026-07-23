@@ -48,9 +48,7 @@ def test_every_pin_has_net_assignment(comps):
     """R6: Every pin on generated components has a net assignment."""
     for comp in comps:
         for pin in comp.pins:
-            assert pin.net is not None, (
-                f"Pin {pin.name} on {comp.ref} has no net assignment"
-            )
+            assert pin.net is not None, f"Pin {pin.name} on {comp.ref} has no net assignment"
 
 
 @pytest.mark.property
@@ -60,12 +58,8 @@ def test_component_bounds_positive_and_finite(comps):
     """R7: Component bounds are positive and finite."""
     for comp in comps:
         w, h = comp.bounds
-        assert w > 0.0 and math.isfinite(w), (
-            f"{comp.ref} width={w} invalid"
-        )
-        assert h > 0.0 and math.isfinite(h), (
-            f"{comp.ref} height={h} invalid"
-        )
+        assert w > 0.0 and math.isfinite(w), f"{comp.ref} width={w} invalid"
+        assert h > 0.0 and math.isfinite(h), f"{comp.ref} height={h} invalid"
 
 
 @pytest.mark.property

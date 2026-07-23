@@ -98,11 +98,7 @@ def calculate_loop_area(points: list[tuple[float, float]]) -> float:
     return abs(area) / 2.0
 
 
-def add_loops_to_plotly(
-    fig: go.Figure,
-    loops: LoopCollection,
-    board_view: BoardView
-) -> None:
+def add_loops_to_plotly(fig: go.Figure, loops: LoopCollection, board_view: BoardView) -> None:
     """
     Add loop paths as traces to an existing Plotly figure.
 
@@ -134,11 +130,7 @@ def add_loops_to_plotly(
                 x=x,
                 y=y,
                 mode="lines+markers",
-                line={
-                    "color": color,
-                    "width": 2 if is_violation else 1.5,
-                    "dash": "dash"
-                },
+                line={"color": color, "width": 2 if is_violation else 1.5, "dash": "dash"},
                 marker={"size": 4, "color": color},
                 name=f"Loop: {loop.name}",
                 hoverinfo="text",
@@ -150,7 +142,7 @@ def add_loops_to_plotly(
                 ),
                 legendgroup="loops",
                 legendgrouptitle_text="Critical Loops",
-                opacity=0.8
+                opacity=0.8,
             )
         )
 

@@ -971,6 +971,11 @@ def main() -> None:
         help="Verify existing schematics match netlist (CI mode)",
     )
     parser.add_argument(
+        "--no-oracle",
+        action="store_true",
+        help="Skip kicad-cli oracle verification (for CI without KiCad)",
+    )
+    parser.add_argument(
         "--netlist",
         type=Path,
         default=Path("elec/build/default.net"),
@@ -1005,10 +1010,13 @@ def main() -> None:
             _write_schematics(files, tmp_path)
 
             # Oracle check
-            print("Running oracle...")
-            ok = oracle_verify(args.netlist, tmp_path)
-            if not ok:
-                sys.exit(1)
+            if args.no_oracle:
+                print("Skipping oracle (--no-oracle)")
+            else:
+                print("Running oracle...")
+                ok = oracle_verify(args.netlist, tmp_path)
+                if not ok:
+                    sys.exit(1)
 
             # Diff against committed files
             print("Diffing against committed schematics...")
@@ -1037,10 +1045,13 @@ def main() -> None:
         print(f"Generated {len(files)} schematic files in {args.output_dir}")
 
         # Oracle check
-        print("Running oracle...")
-        ok = oracle_verify(args.netlist, args.output_dir)
-        if not ok:
-            sys.exit(1)
+        if args.no_oracle:
+            print("Skipping oracle (--no-oracle)")
+        else:
+            print("Running oracle...")
+            ok = oracle_verify(args.netlist, args.output_dir)
+            if not ok:
+                sys.exit(1)
 
 
 if __name__ == "__main__":

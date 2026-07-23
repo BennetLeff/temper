@@ -39,18 +39,17 @@ REPO_ROOT = Path(__file__).parent.parent
 PLACER_PATH = REPO_ROOT / "packages" / "temper-placer" / "src"
 sys.path.insert(0, str(PLACER_PATH))
 
+from temper_placer.losses.base import LossContext
+from temper_placer.routing.analysis import analyze_routability
+
 from temper_placer.core.netlist import Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.io import (
-    load_constraints,
-    parse_kicad_pcb,
-    netlist_to_placement_state,
     infer_quality_config,
+    load_constraints,
     load_reference_pcb,
 )
-from temper_placer.losses.base import LossContext
 from temper_placer.metrics.quality import compute_quality_report
-from temper_placer.routing.analysis import analyze_routability
 
 
 @dataclass
@@ -235,12 +234,12 @@ def analyze_placement(
     # Load constraints if provided, otherwise infer from PCB
     if config_path and config_path.exists():
         constraints = load_constraints(config_path)
-        
+
         # Flatten components from all thermal constraints
         thermal_components = set()
         for tc in constraints.thermal_constraints:
             thermal_components.update(tc.components)
-            
+
         quality_config = {
             "thermal_components": thermal_components,
             "hv_components": set(), # Not explicitly in config, will be inferred or empty
@@ -426,7 +425,7 @@ def generate_report(
 def print_report(report: QualityReport):
     """Print human-readable report."""
     print("=" * 80)
-    print(f"Placement Quality Report")
+    print("Placement Quality Report")
     print("=" * 80)
     print(f"File: {report.input_file}")
     print(f"Generated: {report.timestamp}")

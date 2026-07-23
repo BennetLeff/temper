@@ -100,8 +100,11 @@ class TestScoreSlotWithSidecar:
         free_slot = (3.5, 3.5)
         crit_slot = (2.5, 2.5)
         s = stage._select_best_slot(
-            component_ref="U1", candidate_slots=[free_slot, crit_slot],
-            current_placements=current, phase_placements={}, net_pins=net_pins,
+            component_ref="U1",
+            candidate_slots=[free_slot, crit_slot],
+            current_placements=current,
+            phase_placements={},
+            net_pins=net_pins,
         )
         assert s == crit_slot
 
@@ -121,12 +124,8 @@ class TestBaselineParity:
         # Without sidecar, w_r is irrelevant
         stage_zero = _build_stage(channel_map=_make_two_slot_cmap(), w_r=0.0)
 
-        s_no = stage_no._select_best_slot(
-            "U1", candidate, current, {}, net_pins
-        )
-        s_zero = stage_zero._select_best_slot(
-            "U1", candidate, current, {}, net_pins
-        )
+        s_no = stage_no._select_best_slot("U1", candidate, current, {}, net_pins)
+        s_zero = stage_zero._select_best_slot("U1", candidate, current, {}, net_pins)
         assert s_no == s_zero
 
     def test_score_slot_w_r_zero_matches_baseline(self):
@@ -138,23 +137,23 @@ class TestBaselineParity:
         stage_no = _build_stage(channel_map=None, w_r=0.0)
         stage_zero = _build_stage(channel_map=_make_two_slot_cmap(), w_r=0.0)
 
-        s_no = stage_no._select_best_slot(
-            "U1", candidate, current, {}, net_pins
-        )
-        s_zero = stage_zero._select_best_slot(
-            "U1", candidate, current, {}, net_pins
-        )
+        s_no = stage_no._select_best_slot("U1", candidate, current, {}, net_pins)
+        s_zero = stage_zero._select_best_slot("U1", candidate, current, {}, net_pins)
         assert s_no == s_zero
 
 
 class TestWarningLogging:
     def test_warning_logged_when_no_sidecar(self, caplog):
-        with caplog.at_level(logging.WARNING, logger="temper_placer.deterministic.stages.phased_component_assignment"):
+        with caplog.at_level(
+            logging.WARNING, logger="temper_placer.deterministic.stages.phased_component_assignment"
+        ):
             _build_stage(channel_map=None, w_r=0.05)
         assert any("channel_map" in rec.message for rec in caplog.records)
 
     def test_no_warning_when_sidecar_loaded(self, caplog):
-        with caplog.at_level(logging.WARNING, logger="temper_placer.deterministic.stages.phased_component_assignment"):
+        with caplog.at_level(
+            logging.WARNING, logger="temper_placer.deterministic.stages.phased_component_assignment"
+        ):
             _build_stage(channel_map=_make_two_slot_cmap(), w_r=0.05)
         assert not any("channel_map" in rec.message for rec in caplog.records)
 

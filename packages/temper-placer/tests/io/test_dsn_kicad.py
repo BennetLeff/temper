@@ -18,28 +18,41 @@ from temper_placer.io.dsn_exporter import DSNExporter
 def _export_deterministic_dsn() -> str:
     """Export a deterministic DSN for a simple test board."""
     from temper_placer.core.board import Layer, LayerStackup
-    stackup = LayerStackup(layers=[
-        Layer(name="F.Cu", layer_type="signal"),
-        Layer(name="GND.Cu", layer_type="plane"),
-        Layer(name="VCC.Cu", layer_type="plane"),
-        Layer(name="B.Cu", layer_type="signal"),
-    ])
+
+    stackup = LayerStackup(
+        layers=[
+            Layer(name="F.Cu", layer_type="signal"),
+            Layer(name="GND.Cu", layer_type="plane"),
+            Layer(name="VCC.Cu", layer_type="plane"),
+            Layer(name="B.Cu", layer_type="signal"),
+        ]
+    )
     board = Board(width=50, height=50, layer_stackup=stackup)
     netlist = Netlist(
         components=[
-            Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[
-                Pin("VCC", "8", (2.0, 1.5)),
-                Pin("GND", "4", (-2.0, -1.5)),
-            ]),
-            Component(ref="R1", footprint="R_0805", bounds=(2, 1), pins=[
-                Pin("1", "1", (0, 0)),
-                Pin("2", "2", (1, 0)),
-            ]),
+            Component(
+                ref="U1",
+                footprint="SOIC-8",
+                bounds=(5, 4),
+                pins=[
+                    Pin("VCC", "8", (2.0, 1.5)),
+                    Pin("GND", "4", (-2.0, -1.5)),
+                ],
+            ),
+            Component(
+                ref="R1",
+                footprint="R_0805",
+                bounds=(2, 1),
+                pins=[
+                    Pin("1", "1", (0, 0)),
+                    Pin("2", "2", (1, 0)),
+                ],
+            ),
         ],
         nets=[
             Net(name="VCC", pins=[("U1", "8"), ("R1", "1")]),
             Net(name="GND", pins=[("U1", "4"), ("R1", "2")]),
-        ]
+        ],
     )
     exporter = DSNExporter(board, netlist, deterministic=True)
     return str(exporter.export_pcb("test_board"))
@@ -106,7 +119,9 @@ def test_kicad_cli_can_read_dsn():
     try:
         result = subprocess.run(
             ["kicad-cli", "pcb", "import", "specctra", "--help"],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         # If the command exists, verify the DSN is parseable
         assert result.returncode == 0, f"kicad-cli help failed: {result.stderr}"

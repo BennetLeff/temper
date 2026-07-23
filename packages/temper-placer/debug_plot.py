@@ -1,5 +1,3 @@
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -11,9 +9,9 @@ from temper_placer.router_v6.test_boards import get_available_boards
 def plot_debug():
     boards = get_available_boards()
     piantor = boards[0]
-    print(f'Board: {piantor.name}')
+    print(f"Board: {piantor.name}")
 
-    print('Running Router V6...')
+    print("Running Router V6...")
     pipeline = RouterV6Pipeline(verbose=False)
     result = pipeline.run(piantor.path)
     routes = result.stage4.pathfinding_result.routed_paths
@@ -23,18 +21,19 @@ def plot_debug():
 
     # Get Origin
     origin = (0.0, 0.0)
-    if hasattr(result.pcb.board, 'origin'):
+    if hasattr(result.pcb.board, "origin"):
         origin = result.pcb.board.origin
-    print(f'Origin: {origin}')
+    print(f"Origin: {origin}")
 
     plt.figure(figsize=(12, 12))
 
     # Plot Pads
     sides = []
     for comp in result.pcb.components:
-        sides.append(getattr(comp, 'initial_side', 0))
+        sides.append(getattr(comp, "initial_side", 0))
 
     from collections import Counter
+
     side_counts = Counter(sides)
     print(f"Component Sides: {side_counts}")
 
@@ -43,7 +42,14 @@ def plot_debug():
             continue
         px = [p[0] for p in pads]
         py = [p[1] for p in pads]
-        plt.scatter(px, py, c='blue', s=20, alpha=0.5, label='Pads' if net==list(pad_info.keys())[0] else "")
+        plt.scatter(
+            px,
+            py,
+            c="blue",
+            s=20,
+            alpha=0.5,
+            label="Pads" if net == list(pad_info.keys())[0] else "",
+        )
 
     # Plot Routes (With Origin Fix)
     for net, path in routes.items():
@@ -54,7 +60,14 @@ def plot_debug():
         rx = [p[0] + origin[0] for p in path.coordinates]
         ry = [p[1] + origin[1] for p in path.coordinates]
 
-        plt.plot(rx, ry, 'r-', linewidth=1, alpha=0.7, label='Routes' if net==list(routes.keys())[0] else "")
+        plt.plot(
+            rx,
+            ry,
+            "r-",
+            linewidth=1,
+            alpha=0.7,
+            label="Routes" if net == list(routes.keys())[0] else "",
+        )
 
         # Plot raw routes (without origin) for comparison
         # rx_raw = [p[0] for p in path.coordinates]
@@ -64,7 +77,7 @@ def plot_debug():
     plt.title(f"Route vs Pad Alignment (Origin={origin})")
     plt.grid(True)
     plt.legend()
-    plt.axis('equal')
+    plt.axis("equal")
 
     # Calculate Centroids
     all_px = []
@@ -89,7 +102,7 @@ def plot_debug():
         pads = pad_info[net]
 
         def min_dist(p, pads):
-            return min(np.sqrt((p[0]-pad[0])**2 + (p[1]-pad[1])**2) for pad in pads)
+            return min(np.sqrt((p[0] - pad[0]) ** 2 + (p[1] - pad[1]) ** 2) for pad in pads)
 
         d_start = min_dist(p_start, pads)
         d_end = min_dist(p_end, pads)
@@ -102,9 +115,10 @@ def plot_debug():
         print(f"  Min Gap:    {np.min(gaps):.4f} mm")
         print(f"  Median Gap: {np.median(gaps):.4f} mm")
 
-    output_png = '/tmp/debug_alignment_option_h.png'
+    output_png = "/tmp/debug_alignment_option_h.png"
     plt.savefig(output_png)
-    print(f'Saved debug plot to {output_png}')
+    print(f"Saved debug plot to {output_png}")
+
 
 if __name__ == "__main__":
     plot_debug()

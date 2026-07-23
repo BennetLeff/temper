@@ -64,7 +64,7 @@ def _terminal(
             net=net,
             x=x,
             y=y,
-            layers=tuple(0 if l == "F.Cu" else 1 for l in layers),
+            layers=tuple(0 if layer == "F.Cu" else 1 for layer in layers),
         ),
         center=SimpleNamespace(x=x, y=y),
         layer_names=layers,
@@ -78,7 +78,10 @@ class TestMultiLayerTreeExecution:
         """An empty grids dict must fail with a clear error, not StopIteration."""
         with pytest.raises(ValueError, match="at least one occupancy grid"):
             execute_terminal_tree(
-                plan=None, pads=[], grid={}, net_id=0,
+                plan=None,
+                pads=[],
+                grid={},
+                net_id=0,
             )
 
     def test_multi_grid_pth_spans_both_layers(self):
@@ -232,7 +235,12 @@ class TestPipelineMixedLayerFilter:
         # a real parsed PCB. This guards against the field being renamed.
         terminal = ParsedTerminal(
             identity=PadIdentity(
-                component_ref="U1", pad="1", net="NET", x=0.0, y=0.0, layers=(0, 1),
+                component_ref="U1",
+                pad="1",
+                net="NET",
+                x=0.0,
+                y=0.0,
+                layers=(0, 1),
             ),
             center=SimpleNamespace(x=0.0, y=0.0),
             layer_names=("F.Cu", "B.Cu"),

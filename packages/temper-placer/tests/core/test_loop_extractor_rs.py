@@ -55,9 +55,24 @@ class TestDictToLoopCollectionPriority:
         data = {
             "ok": True,
             "loops": [
-                {"name": "auto_commutation", "loop_type": "commutation", "components": [], "nets": []},
-                {"name": "auto_gate_drive_hi", "loop_type": "gate_drive_high", "components": [], "nets": []},
-                {"name": "auto_gate_drive_lo", "loop_type": "gate_drive_low", "components": [], "nets": []},
+                {
+                    "name": "auto_commutation",
+                    "loop_type": "commutation",
+                    "components": [],
+                    "nets": [],
+                },
+                {
+                    "name": "auto_gate_drive_hi",
+                    "loop_type": "gate_drive_high",
+                    "components": [],
+                    "nets": [],
+                },
+                {
+                    "name": "auto_gate_drive_lo",
+                    "loop_type": "gate_drive_low",
+                    "components": [],
+                    "nets": [],
+                },
                 {"name": "auto_bootstrap", "loop_type": "bootstrap", "components": [], "nets": []},
             ],
         }

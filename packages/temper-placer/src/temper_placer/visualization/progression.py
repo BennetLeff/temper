@@ -106,4 +106,4 @@ def render_progression_html(
     # Alternative: Generate a set of figures and wrap in custom HTML with a slider.
     # For now, let's just render the final state and provide a simple animation.
 
-    return fig.to_html() # Placeholder for full animation
+    return fig.to_html()  # Placeholder for full animation

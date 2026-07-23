@@ -190,7 +190,7 @@ fn explain_core(
                  but capacity '{cap_ch}' limits {channel_id} to {max_nets} nets"
             );
         }
-        return format!(
+        return String::from(
             "Diff pair requires both nets on the same channel, but channel capacity is insufficient"
         );
     }

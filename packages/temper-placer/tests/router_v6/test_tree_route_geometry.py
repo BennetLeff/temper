@@ -29,8 +29,12 @@ def test_branch_segments_do_not_bridge_unrelated_branch_endpoints():
     tree = TreeRouteGeometry(
         "NET",
         (
-            TreeRouteBranch(TerminalTreeEdge(root, east), RoutePath("NET", [(0, 0), (10, 0)], "F.Cu", 10)),
-            TreeRouteBranch(TerminalTreeEdge(root, north), RoutePath("NET", [(0, 0), (0, 10)], "F.Cu", 10)),
+            TreeRouteBranch(
+                TerminalTreeEdge(root, east), RoutePath("NET", [(0, 0), (10, 0)], "F.Cu", 10)
+            ),
+            TreeRouteBranch(
+                TerminalTreeEdge(root, north), RoutePath("NET", [(0, 0), (0, 10)], "F.Cu", 10)
+            ),
         ),
     )
 
@@ -47,10 +51,14 @@ def test_branch_geometry_preserves_layer_and_via_metadata_and_connects_pads():
     tree = TreeRouteGeometry(
         "NET",
         (
-            TreeRouteBranch(TerminalTreeEdge(root, east), RoutePath("NET", [(0, 0), (10, 0)], "F.Cu", 10)),
+            TreeRouteBranch(
+                TerminalTreeEdge(root, east), RoutePath("NET", [(0, 0), (10, 0)], "F.Cu", 10)
+            ),
             TreeRouteBranch(
                 TerminalTreeEdge(root, north),
-                RoutePath3D("NET", [(0, 0, "F.Cu"), (0, 0, "B.Cu"), (0, 10, "B.Cu")], [(0, 0)], 10, 1),
+                RoutePath3D(
+                    "NET", [(0, 0, "F.Cu"), (0, 0, "B.Cu"), (0, 10, "B.Cu")], [(0, 0)], 10, 1
+                ),
             ),
         ),
     )
@@ -59,12 +67,20 @@ def test_branch_geometry_preserves_layer_and_via_metadata_and_connects_pads():
         CopperPad(east, Point(10, 0), "rect", (1, 1)),
         CopperPad(PadIdentity("U1", "3", "NET", 0, 10, (1,)), Point(0, 10), "rect", (1, 1)),
     ]
-    tracks = [CopperTrack(Point(start[0], start[1]), Point(end[0], end[1]), 0 if start[2] == "F.Cu" else 1) for start, end in tree.iter_segments()]
+    tracks = [
+        CopperTrack(
+            Point(start[0], start[1]), Point(end[0], end[1]), 0 if start[2] == "F.Cu" else 1
+        )
+        for start, end in tree.iter_segments()
+    ]
 
     assert tree.via_positions == ((0, 0),)
-    assert verify_net_connectivity(
-        pads, tracks, [CopperVia(Point(0, 0), frozenset({0, 1}))]
-    ).disposition is NetDisposition.ROUTED
+    assert (
+        verify_net_connectivity(
+            pads, tracks, [CopperVia(Point(0, 0), frozenset({0, 1}))]
+        ).disposition
+        is NetDisposition.ROUTED
+    )
 
 
 @given(st.permutations([0, 1, 2]))
@@ -72,9 +88,15 @@ def test_branch_geometry_preserves_layer_and_via_metadata_and_connects_pads():
 def test_branch_order_is_canonical_under_input_permutation(order):
     root, east, north = _identity("1", 0, 0), _identity("2", 10, 0), _identity("3", 0, 10)
     branches = [
-        TreeRouteBranch(TerminalTreeEdge(root, east), RoutePath("NET", [(0, 0), (10, 0)], "F.Cu", 10)),
-        TreeRouteBranch(TerminalTreeEdge(root, north), RoutePath("NET", [(0, 0), (0, 10)], "F.Cu", 10)),
-        TreeRouteBranch(TerminalTreeEdge(east, north), RoutePath("NET", [(10, 0), (0, 10)], "F.Cu", 14)),
+        TreeRouteBranch(
+            TerminalTreeEdge(root, east), RoutePath("NET", [(0, 0), (10, 0)], "F.Cu", 10)
+        ),
+        TreeRouteBranch(
+            TerminalTreeEdge(root, north), RoutePath("NET", [(0, 0), (0, 10)], "F.Cu", 10)
+        ),
+        TreeRouteBranch(
+            TerminalTreeEdge(east, north), RoutePath("NET", [(10, 0), (0, 10)], "F.Cu", 14)
+        ),
     ]
     expected = TreeRouteGeometry("NET", tuple(branches))
 

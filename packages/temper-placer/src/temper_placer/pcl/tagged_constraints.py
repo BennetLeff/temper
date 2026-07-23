@@ -57,7 +57,7 @@ class TaggedAdjacentConstraint(BaseConstraint):
     def _generate_id(self) -> str:
         return f"tag_adj_{id(self)}"
 
-    def involves_component(self, component: str) -> bool:
+    def involves_component(self, _component: str) -> bool:
         return True
 
     def to_dict(self) -> dict:
@@ -107,7 +107,7 @@ class TaggedSeparatedConstraint(BaseConstraint):
     def _generate_id(self) -> str:
         return f"tag_sep_{id(self)}"
 
-    def involves_component(self, component: str) -> bool:
+    def involves_component(self, _component: str) -> bool:
         return True
 
     def to_dict(self) -> dict:
@@ -154,7 +154,7 @@ class TaggedEnclosingConstraint(BaseConstraint):
     def _generate_id(self) -> str:
         return f"tag_enc_{id(self)}"
 
-    def involves_component(self, component: str) -> bool:
+    def involves_component(self, _component: str) -> bool:
         return True
 
     def to_dict(self) -> dict:
@@ -197,7 +197,7 @@ class TaggedAlignedConstraint(BaseConstraint):
     def _generate_id(self) -> str:
         return f"tag_align_{id(self)}"
 
-    def involves_component(self, component: str) -> bool:
+    def involves_component(self, _component: str) -> bool:
         return True
 
     def to_dict(self) -> dict:
@@ -242,7 +242,7 @@ class TaggedOnSideConstraint(BaseConstraint):
     def _generate_id(self) -> str:
         return f"tag_side_{id(self)}"
 
-    def involves_component(self, component: str) -> bool:
+    def involves_component(self, _component: str) -> bool:
         return True
 
     def to_dict(self) -> dict:
@@ -288,7 +288,7 @@ class TaggedAnchoredConstraint(BaseConstraint):
     def _generate_id(self) -> str:
         return f"tag_anchor_{id(self)}"
 
-    def involves_component(self, component: str) -> bool:
+    def involves_component(self, _component: str) -> bool:
         return True
 
     def to_dict(self) -> dict:

@@ -3,7 +3,6 @@
 /// Uses the canonical pattern-matching rules from
 /// `router_v6/net_classification.py` with precedence order:
 /// Ground > Power > HighVoltage > Differential > HighCurrent > GateDrive > Signal.
-
 use crate::types::{NetClass, NetClassification, Netlist};
 
 const GROUND_PATTERNS: &[&str] = &["GND", "PGND", "CGND", "AGND", "DGND", "VSS"];

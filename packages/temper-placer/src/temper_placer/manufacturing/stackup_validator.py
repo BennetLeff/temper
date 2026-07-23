@@ -96,7 +96,10 @@ def validate_stackup(
         StackupValidationReport with per-check results.
     """
     fill_pct = _resolve_fill_percentages(
-        stackup, copper_fill_percentages, routing_results, board_dims,
+        stackup,
+        copper_fill_percentages,
+        routing_results,
+        board_dims,
     )
     results: list[StackupValidationResult] = []
     results.append(_check_copper_symmetry(stackup, fill_pct))
@@ -120,14 +123,13 @@ def _resolve_fill_percentages(
         from temper_placer.router_v6.copper_balance import analyze_copper_balance
 
         report = analyze_copper_balance(
-            routing_results, board_dims[0], board_dims[1],
+            routing_results,
+            board_dims[0],
+            board_dims[1],
             min_copper_percentage=COPPER_BALANCE_MIN_PCT,
             max_copper_percentage=COPPER_BALANCE_MAX_PCT,
         )
-        return {
-            lb.layer_name: lb.copper_percentage
-            for lb in report.layer_balances
-        }
+        return {lb.layer_name: lb.copper_percentage for lb in report.layer_balances}
     # Default Temper 4-layer estimates (pre-routing, from footprint density).
     # F.Cu: 2oz, HV + gate-drive traces  ~35% fill
     # In1.Cu: 1oz, solid GND plane       ~95% fill
@@ -155,7 +157,8 @@ def _check_copper_symmetry(
     """
     if not fill_pct:
         return StackupValidationResult(
-            "Copper Symmetry", True,
+            "Copper Symmetry",
+            True,
             "No fill data available -- symmetry check skipped",
         )
     effective_weights: dict[str, float] = {}
@@ -165,7 +168,8 @@ def _check_copper_symmetry(
     total = sum(effective_weights.values())
     if total == 0:
         return StackupValidationResult(
-            "Copper Symmetry", True,
+            "Copper Symmetry",
+            True,
             "Zero effective copper -- symmetry check skipped",
         )
     max_eff = max(effective_weights.values())
@@ -175,7 +179,8 @@ def _check_copper_symmetry(
         heaviest = max(effective_weights, key=effective_weights.get)  # type: ignore[arg-type]
         lightest = min(effective_weights, key=effective_weights.get)  # type: ignore[arg-type]
         return StackupValidationResult(
-            "Copper Symmetry", False,
+            "Copper Symmetry",
+            False,
             f"Effective copper imbalance detected: {heaviest} at {max_eff:.2f} vs "
             f"{lightest} at {min_eff:.2f} (imbalance={imbalance:.1%}). "
             f"This may cause board warping during reflow.",
@@ -183,7 +188,8 @@ def _check_copper_symmetry(
             details={"max_eff": max_eff, "min_eff": min_eff, "imbalance": imbalance},
         )
     return StackupValidationResult(
-        "Copper Symmetry", True,
+        "Copper Symmetry",
+        True,
         f"Effective copper balanced (imbalance={imbalance:.1%})",
     )
 
@@ -212,26 +218,30 @@ def _check_return_path_adjacency(
     """
     if not differential_nets:
         return StackupValidationResult(
-            "Return-Path Adjacency", True,
+            "Return-Path Adjacency",
+            True,
             "No differential nets configured -- adjacency check skipped",
         )
     layers = stackup.layers
     if len(layers) >= 4 and layers[2].layer_type == "plane":
         if has_stitching_vias:
             return StackupValidationResult(
-                "Return-Path Adjacency", True,
+                "Return-Path Adjacency",
+                True,
                 "L4 references L3 (PWR plane), but stitching GND vias are present "
                 "-- return-path concern mitigated.",
             )
         return StackupValidationResult(
-            "Return-Path Adjacency", False,
+            "Return-Path Adjacency",
+            False,
             "L4 (control signals) references L3 (PWR plane). "
             "Verify return-path quality for differential nets. "
             "Consider adding stitching GND vias near the differential pair.",
             layer="L4 (B.Cu)",
         )
     return StackupValidationResult(
-        "Return-Path Adjacency", True,
+        "Return-Path Adjacency",
+        True,
         "Signal layers have adequate reference plane adjacency",
     )
 
@@ -253,12 +263,14 @@ def _check_impedance_spec(
     """
     if not differential_nets:
         return StackupValidationResult(
-            "Controlled Impedance", True,
+            "Controlled Impedance",
+            True,
             "No differential nets configured -- impedance check skipped",
         )
     if impedance_spec_ohms is None:
         return StackupValidationResult(
-            "Controlled Impedance", False,
+            "Controlled Impedance",
+            False,
             "No target impedance specified for differential nets "
             f"({len(differential_nets)} nets: {sorted(differential_nets)}). "
             f"Expected: {USB_DIFFERENTIAL_IMPEDANCE_OHMS:.0f} Omega differential "
@@ -266,17 +278,20 @@ def _check_impedance_spec(
         )
     if impedance_spec_ohms <= 0:
         return StackupValidationResult(
-            "Controlled Impedance", False,
+            "Controlled Impedance",
+            False,
             f"Invalid impedance value: {impedance_spec_ohms} Omega. Expected positive value.",
         )
     if not (70.0 <= impedance_spec_ohms <= 120.0):
         return StackupValidationResult(
-            "Controlled Impedance", False,
+            "Controlled Impedance",
+            False,
             f"Impedance {impedance_spec_ohms} Omega outside typical USB range (70-120 Omega). "
             "Verify this is intentional.",
         )
     return StackupValidationResult(
-        "Controlled Impedance", True,
+        "Controlled Impedance",
+        True,
         f"Impedance specification: {impedance_spec_ohms} Omega for differential nets",
     )
 
@@ -298,7 +313,8 @@ def _check_copper_balance(
     """
     if not fill_pct:
         return StackupValidationResult(
-            "Copper Balance", True,
+            "Copper Balance",
+            True,
             "No fill data available -- balance check skipped",
         )
     percents = list(fill_pct.values())
@@ -306,13 +322,15 @@ def _check_copper_balance(
     min_fill = min(percents)
     if min_fill < COPPER_BALANCE_MIN_PCT or max_fill > COPPER_BALANCE_MAX_PCT:
         return StackupValidationResult(
-            "Copper Balance", False,
+            "Copper Balance",
+            False,
             f"Copper density imbalance: max={max_fill:.0f}%, min={min_fill:.0f}% "
             f"(target: {COPPER_BALANCE_MIN_PCT:.0f}-{COPPER_BALANCE_MAX_PCT:.0f}%). "
             f"This may cause board warping during reflow.",
             details={"max_fill": max_fill, "min_fill": min_fill},
         )
     return StackupValidationResult(
-        "Copper Balance", True,
+        "Copper Balance",
+        True,
         f"Copper density balanced (range: {min_fill:.0f}%-{max_fill:.0f}%)",
     )

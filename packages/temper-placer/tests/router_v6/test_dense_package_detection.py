@@ -4,7 +4,6 @@ Tests for Router V6 Stage 1.1: Identify Dense Packages
 Part of temper-wpwf
 """
 
-
 from temper_placer.core.netlist import Component, Pin
 from temper_placer.router_v6.dense_package_detection import (
     DensePackage,
@@ -14,7 +13,9 @@ from temper_placer.router_v6.dense_package_detection import (
 )
 
 
-def _create_test_component(ref: str, footprint: str, pin_count: int, bounds: tuple[float, float] = (7.0, 7.0)) -> Component:
+def _create_test_component(
+    ref: str, footprint: str, pin_count: int, bounds: tuple[float, float] = (7.0, 7.0)
+) -> Component:
     """Helper to create test components."""
     pins = [
         Pin(
@@ -127,8 +128,16 @@ def test_estimate_pitch_from_pin_positions():
     """Test pitch calculation from actual pin positions."""
     # Create component with pins at 0.5mm spacing
     pins = [
-        Pin(name=str(i), number=str(i), position=(0.0, i * 0.5), net=f"NET{i}",
-             width=0.2, height=0.2, shape="rect", layer="F.Cu")
+        Pin(
+            name=str(i),
+            number=str(i),
+            position=(0.0, i * 0.5),
+            net=f"NET{i}",
+            width=0.2,
+            height=0.2,
+            shape="rect",
+            layer="F.Cu",
+        )
         for i in range(4)
     ]
     comp = Component(

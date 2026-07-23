@@ -92,10 +92,12 @@ def test_skeleton_disconnected_regions():
     # Create two separate boxes
     routing_space = RoutingSpace(
         layer_name="F.Cu",
-        available_area=MultiPolygon([
-            box(0, 0, 10, 10),
-            box(20, 20, 30, 30),
-        ]),
+        available_area=MultiPolygon(
+            [
+                box(0, 0, 10, 10),
+                box(20, 20, 30, 30),
+            ]
+        ),
         total_area=1000.0,
         obstacle_area=800.0,
         routing_area=200.0,
@@ -145,8 +147,8 @@ def test_skeleton_graph_structure():
     skeleton = extract_channel_skeleton(routing_space)
 
     # Check graph has expected NetworkX properties
-    assert hasattr(skeleton.graph, 'nodes')
-    assert hasattr(skeleton.graph, 'edges')
+    assert hasattr(skeleton.graph, "nodes")
+    assert hasattr(skeleton.graph, "edges")
 
     # All nodes should have 'pos' attribute
     for node in skeleton.graph.nodes():
@@ -155,5 +157,5 @@ def test_skeleton_graph_structure():
 
     # All edges should have 'weight' attribute
     for u, v in skeleton.graph.edges():
-        assert 'weight' in skeleton.graph[u][v]
-        assert skeleton.graph[u][v]['weight'] > 0
+        assert "weight" in skeleton.graph[u][v]
+        assert skeleton.graph[u][v]["weight"] > 0

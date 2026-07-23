@@ -143,8 +143,9 @@ def run_rust_drc(pcb_path: Path) -> tuple[int, int, int, list[dict]]:
     Returns:
         (error_count, warning_count, info_count, all_violations)
     """
-    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     import temper_drc_rs
+
+    from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
 
     parsed = parse_kicad_pcb_v6(str(pcb_path))
     board_dict = build_board_dict(parsed)

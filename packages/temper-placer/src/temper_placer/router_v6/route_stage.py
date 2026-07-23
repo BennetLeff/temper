@@ -68,7 +68,8 @@ class RouteStage(Stage):
         # Override ``state.congestion_weight`` to enable.
         cong_weight = getattr(state, "congestion_weight", 0.0)
         congestion_tensor = CongestionTensor.zeros(
-            fcu_grid.height_cells, fcu_grid.width_cells,
+            fcu_grid.height_cells,
+            fcu_grid.width_cells,
             weight=cong_weight,
         )
 
@@ -95,6 +96,7 @@ class RouteStage(Stage):
         loops = getattr(state, "loops", None)
         if netlist is not None and loops is not None:
             from temper_placer.router_v6.net_ordering import order_nets
+
             _lex_order = order_nets(netlist, loops)
 
         result = run_astar_pathfinding(
@@ -132,22 +134,26 @@ def validate_route(state: BoardState) -> list[StageDRCFailure]:
     failures: list[StageDRCFailure] = []
     result = getattr(state, "pathfinding_result", None)
     if result is None:
-        failures.append(StageDRCFailure(
-            field="pathfinding_result",
-            value=None,
-            reason="Pathfinding not completed",
-            stage="Route",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="pathfinding_result",
+                value=None,
+                reason="Pathfinding not completed",
+                stage="Route",
+            )
+        )
         return failures
 
     per_net = getattr(state, "per_net_results", None) or {}
     failed = getattr(state, "failed_nets", None) or []
     if len(per_net) + len(failed) == 0 and hasattr(state, "_parsed_pcb") and state._parsed_pcb:
-        failures.append(StageDRCFailure(
-            field="per_net_results",
-            value={"routed": len(per_net), "failed": len(failed)},
-            reason="All nets skipped or empty",
-            stage="Route",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="per_net_results",
+                value={"routed": len(per_net), "failed": len(failed)},
+                reason="All nets skipped or empty",
+                stage="Route",
+            )
+        )
 
     return failures

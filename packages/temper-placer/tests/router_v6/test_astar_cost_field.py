@@ -17,7 +17,7 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 def _make_grid(rows, cols, blocked=None):
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for r, c in (blocked or []):
+    for r, c in blocked or []:
         arr[r, c] = 1
     return OccupancyGrid("F.Cu", arr, (0.0, 0.0), 1.0, cols, rows)
 
@@ -58,8 +58,12 @@ def test_thermal_field_detours_around_hot_region():
 
     # Field-on: should detour around the hot wall
     path_on = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        thermal_flat=thermal_flat, thermal_weight=5.0,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        thermal_flat=thermal_flat,
+        thermal_weight=5.0,
     )
 
     assert path_off is not None, "Baseline path must be found"
@@ -100,21 +104,27 @@ def test_thermal_field_off_byte_identical():
 
     path_no_field = _astar_search_numba(start, goal, grid, max_iterations=5000)
     path_weight_zero = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        thermal_flat=thermal_flat, thermal_weight=0.0,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        thermal_flat=thermal_flat,
+        thermal_weight=0.0,
     )
     path_no_thermal = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        thermal_flat=None, thermal_weight=0.0,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        thermal_flat=None,
+        thermal_weight=0.0,
     )
 
     assert path_no_field is not None
     assert path_weight_zero == path_no_field, (
         "Weight-zero thermal field must produce identical path"
     )
-    assert path_no_thermal == path_no_field, (
-        "No thermal field must produce identical path"
-    )
+    assert path_no_thermal == path_no_field, "No thermal field must produce identical path"
 
 
 @pytest.mark.l4_regression
@@ -134,13 +144,22 @@ def test_thermal_field_off_byte_identical_with_congestion():
     goal = (27, 15)
 
     path_congestion_only = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        congestion_flat=congestion_2d.ravel(), congestion_weight=0.1,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        congestion_flat=congestion_2d.ravel(),
+        congestion_weight=0.1,
     )
     path_congestion_plus_thermal_off = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        congestion_flat=congestion_2d.ravel(), congestion_weight=0.1,
-        thermal_flat=thermal_flat, thermal_weight=0.0,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        congestion_flat=congestion_2d.ravel(),
+        congestion_weight=0.1,
+        thermal_flat=thermal_flat,
+        thermal_weight=0.0,
     )
 
     assert path_congestion_only is not None
@@ -174,20 +193,22 @@ def test_thermal_field_never_overrides_hard_obstacles():
     thermal_flat = np.ascontiguousarray(thermal_2d.ravel()).astype(np.float32)
 
     start = (2, 8)  # free cell left of wall
-    goal = (8, 8)   # free cell right of wall
+    goal = (8, 8)  # free cell right of wall
 
     path = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        thermal_flat=thermal_flat, thermal_weight=10.0,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        thermal_flat=thermal_flat,
+        thermal_weight=10.0,
     )
 
     assert path is not None, "Path must be found (through the gap at row 8)"
 
     blocked_set = set(blocked)
     for cell in path:
-        assert cell not in blocked_set, (
-            f"Path traversed blocked cell {cell}"
-        )
+        assert cell not in blocked_set, f"Path traversed blocked cell {cell}"
 
 
 # ---------------------------------------------------------------------------
@@ -213,17 +234,19 @@ def test_thermal_field_ab_toggle_divergent():
 
     path_off = _astar_search_numba(start, goal, grid, max_iterations=5000)
     path_on = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        thermal_flat=thermal_flat, thermal_weight=4.0,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        thermal_flat=thermal_flat,
+        thermal_weight=4.0,
     )
 
     assert path_off is not None
     assert path_on is not None
     # The straight vertical path goes through hot cells (500*4=2000 extra
     # per cell).  The detour left adds ~4 extra columns * ~1.0 each = cheap.
-    assert path_on != path_off, (
-        "Field-on path must diverge from field-off baseline"
-    )
+    assert path_on != path_off, "Field-on path must diverge from field-off baseline"
 
 
 # ---------------------------------------------------------------------------
@@ -249,14 +272,16 @@ def test_cost_field_input_integration():
     goal = (18, 10)
 
     path = _astar_search_numba(
-        start, goal, grid, max_iterations=5000,
-        thermal_flat=cfi.cost_flat, thermal_weight=cfi.weight,
+        start,
+        goal,
+        grid,
+        max_iterations=5000,
+        thermal_flat=cfi.cost_flat,
+        thermal_weight=cfi.weight,
     )
 
     assert path is not None, "Path must be found with CostFieldInput"
     # Path should avoid the hot center
     hot_cells = {(c, r) for r in range(5, 15) for c in range(5, 15)}
     traversals = sum(1 for cell in path if cell in hot_cells)
-    assert traversals < 5, (
-        f"Path traversed {traversals} hot center cells; expected detour"
-    )
+    assert traversals < 5, f"Path traversed {traversals} hot center cells; expected detour"

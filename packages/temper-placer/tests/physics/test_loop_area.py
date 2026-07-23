@@ -41,6 +41,7 @@ class _FakeTrace:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_rectangular_loop_traces(
     net: str = "DC+",
     width: float = 50.0,
@@ -139,6 +140,7 @@ def _non_convex_hull_area() -> float:
 # Shoelace formula
 # ---------------------------------------------------------------------------
 
+
 def test_shoelace_square():
     """10×10 mm² square = 100 mm²."""
     square = np.array([(0, 0), (10, 0), (10, 10), (0, 10)], dtype=np.float64)
@@ -155,29 +157,24 @@ def test_shoelace_rectangle_50x30():
 # _compute_area_from_traces — happy path
 # ---------------------------------------------------------------------------
 
+
 def test_rectangular_loop_1500mm2():
     """Traces forming a clean 50×30 rectangle → shoelace area 1500 mm²."""
-    traces = _make_rectangular_loop_traces(
-        width=50.0, height=30.0
-    )
+    traces = _make_rectangular_loop_traces(width=50.0, height=30.0)
     area = _compute_area_from_traces(traces)
     assert area == pytest.approx(1500.0)
 
 
 def test_rectangular_loop_2500mm2():
     """Traces forming a clean 50×50 rectangle → shoelace area 2500 mm²."""
-    traces = _make_rectangular_loop_traces(
-        width=50.0, height=50.0
-    )
+    traces = _make_rectangular_loop_traces(width=50.0, height=50.0)
     area = _compute_area_from_traces(traces)
     assert area == pytest.approx(2500.0)
 
 
 def test_rectangular_loop_boundary_2000mm2():
     """Boundary: exactly 2000 mm² (50×40 mm)."""
-    traces = _make_rectangular_loop_traces(
-        width=50.0, height=40.0
-    )
+    traces = _make_rectangular_loop_traces(width=50.0, height=40.0)
     area = _compute_area_from_traces(traces)
     assert area == pytest.approx(2000.0)
 
@@ -186,13 +183,13 @@ def test_rectangular_loop_boundary_2000mm2():
 # Non-convex loop (territory check)
 # ---------------------------------------------------------------------------
 
+
 def test_non_convex_loop_shoelace_lt_hull():
     """Non-convex polygon: shoelace area < convex-hull area."""
     true_area = _non_convex_true_area()
     hull_area = _non_convex_hull_area()
     assert hull_area > true_area, (
-        f"convex hull ({hull_area:.1f}) should over-estimate "
-        f"shoelace ({true_area:.1f})"
+        f"convex hull ({hull_area:.1f}) should over-estimate shoelace ({true_area:.1f})"
     )
 
 
@@ -202,9 +199,7 @@ def test_non_convex_loop_uses_shoelace_not_hull():
     area = _compute_area_from_traces(traces)
     true_area = _non_convex_true_area()
     hull_area = _non_convex_hull_area()
-    assert area == pytest.approx(true_area), (
-        f"expected shoelace {true_area:.1f}, got {area:.1f}"
-    )
+    assert area == pytest.approx(true_area), f"expected shoelace {true_area:.1f}, got {area:.1f}"
     # shoelace must be strictly less than the hull proxy
     assert area < hull_area
 
@@ -212,6 +207,7 @@ def test_non_convex_loop_uses_shoelace_not_hull():
 # ---------------------------------------------------------------------------
 # Measurement failures
 # ---------------------------------------------------------------------------
+
 
 def test_empty_traces_returns_none():
     """No traces → None."""
@@ -238,6 +234,7 @@ def test_three_collinear_points_returns_none():
 # Convex-hull fallback
 # ---------------------------------------------------------------------------
 
+
 def test_unclosable_traces_falls_back_to_convex_hull():
     """Traces that don't form a cycle but have ≥3 non-collinear points
     fall back to convex-hull area."""
@@ -254,6 +251,7 @@ def test_unclosable_traces_falls_back_to_convex_hull():
 # ---------------------------------------------------------------------------
 # Net filtering
 # ---------------------------------------------------------------------------
+
 
 def test_filters_by_net():
     """Only traces on the commutation loop nets contribute to area."""
@@ -272,6 +270,7 @@ def test_filters_by_net():
 # commutation_loop_area with real PCB (requires fixture)
 # ---------------------------------------------------------------------------
 
+
 def test_commutation_loop_area_nonexistent_pcb():
     """Non-existent file returns None (graceful failure)."""
     path = Path("/nonexistent/pcb.kicad_pcb")
@@ -282,6 +281,7 @@ def test_commutation_loop_area_nonexistent_pcb():
 # ---------------------------------------------------------------------------
 # MeasurementError
 # ---------------------------------------------------------------------------
+
 
 def test_measurement_error_is_exception():
     """MeasurementError is a regular Exception subclass."""

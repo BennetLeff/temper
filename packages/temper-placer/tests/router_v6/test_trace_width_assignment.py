@@ -81,10 +81,12 @@ def test_trace_width_assignment_dataclass():
     width1 = TraceWidth("NET1", 0.127, "Signal")
     width2 = TraceWidth("NET2", 0.508, "Power")
 
-    assignment = TraceWidthAssignment(assignments={
-        "NET1": width1,
-        "NET2": width2,
-    })
+    assignment = TraceWidthAssignment(
+        assignments={
+            "NET1": width1,
+            "NET2": width2,
+        }
+    )
 
     assert assignment.assignment_count == 2
     assert assignment.get_width("NET1") == 0.127

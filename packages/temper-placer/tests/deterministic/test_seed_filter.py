@@ -200,9 +200,7 @@ def _args_with_boundary(draw) -> tuple:
     seed.update(extras)
     threshold = draw(st.floats(0.0, 1.0, allow_nan=False, allow_infinity=False))
     hv_threshold = draw(st.floats(0.0, 1.0, allow_nan=False, allow_infinity=False))
-    hv_refs = draw(
-        st.frozensets(st.sampled_from(list(seed.keys())), max_size=len(seed))
-    )
+    hv_refs = draw(st.frozensets(st.sampled_from(list(seed.keys())), max_size=len(seed)))
     return seed, m, threshold, hv_threshold, hv_refs
 
 

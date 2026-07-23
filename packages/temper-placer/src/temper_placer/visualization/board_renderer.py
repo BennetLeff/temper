@@ -741,6 +741,7 @@ def render_board(
     # Add loops if provided
     if loops:
         from .loop_viz import add_loops_to_plotly
+
         add_loops_to_plotly(fig, loops, board)
 
     # Add legend traces (dummy markers for legend display)

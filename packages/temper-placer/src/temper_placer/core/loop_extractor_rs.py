@@ -41,13 +41,13 @@ _LOOP_TYPE_PRIORITY: dict[LoopType, LoopPriority] = {
 
 _LOOP_TYPE_EVENTS: dict[LoopType, dict[str, float | None]] = {
     LoopType.COMMUTATION: {
-        "di_dt": 1.0e9,       # 1 A/ns typical IGBT turn-off
-        "dv_dt": 5.0e9,       # 5 V/ns switch node
+        "di_dt": 1.0e9,  # 1 A/ns typical IGBT turn-off
+        "dv_dt": 5.0e9,  # 5 V/ns switch node
         "frequency_hz": 25000.0,
         "peak_current_a": 30.0,
     },
     LoopType.GATE_DRIVE_HIGH: {
-        "di_dt": 1.0e8,       # 100 mA/ns gate current
+        "di_dt": 1.0e8,  # 100 mA/ns gate current
         "frequency_hz": 25000.0,
     },
     LoopType.GATE_DRIVE_LOW: {
@@ -56,7 +56,7 @@ _LOOP_TYPE_EVENTS: dict[LoopType, dict[str, float | None]] = {
     },
     LoopType.BOOTSTRAP: {
         "frequency_hz": 25000.0,
-        "peak_current_a": 0.5,   # Low bootstrap charging current
+        "peak_current_a": 0.5,  # Low bootstrap charging current
     },
 }
 
@@ -79,16 +79,12 @@ def _netlist_to_dict(netlist: Netlist) -> dict[str, Any]:
                 "mpn": c.attributes.get("MPN", ""),
                 "value": c.attributes.get("value", ""),
                 "net_class": c.net_class,
-                "pins": [
-                    {"name": p.name, "net": p.net}
-                    for p in c.pins
-                ],
+                "pins": [{"name": p.name, "net": p.net} for p in c.pins],
             }
             for c in netlist.components
         ],
         "nets": [
-            {"name": n.name, "pins": [[ref, name] for ref, name in n.pins]}
-            for n in netlist.nets
+            {"name": n.name, "pins": [[ref, name] for ref, name in n.pins]} for n in netlist.nets
         ],
     }
 
@@ -106,6 +102,7 @@ def _dict_to_loop_collection(data: dict[str, Any]) -> LoopCollection:
         max_area = loop_dict.get("max_area_mm2", 500.0)
 
         from temper_placer.core.loop import LoopType
+
         try:
             lt = LoopType(loop_type_str)
         except ValueError:
@@ -166,7 +163,14 @@ def auto_extract_loops_rs(
             stacklevel=2,
         )
         return None
-    except (RuntimeError, json.JSONDecodeError, TypeError, AttributeError, KeyError, ValueError) as e:
+    except (
+        RuntimeError,
+        json.JSONDecodeError,
+        TypeError,
+        AttributeError,
+        KeyError,
+        ValueError,
+    ) as e:
         warnings.warn(
             f"Rust loop extraction failed: {e} — falling back to Python",
             stacklevel=2,

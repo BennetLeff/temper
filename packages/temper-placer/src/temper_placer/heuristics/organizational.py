@@ -691,7 +691,9 @@ class DecouplingCapHeuristic(Heuristic):
             ]
 
             for pos_x, pos_y in positions_to_try:
-                if context.is_position_valid(pos_x, pos_y, cap_comp.width, cap_comp.height) and not context.check_overlap(pos_x, pos_y, cap_comp.width, cap_comp.height):
+                if context.is_position_valid(
+                    pos_x, pos_y, cap_comp.width, cap_comp.height
+                ) and not context.check_overlap(pos_x, pos_y, cap_comp.width, cap_comp.height):
                     placements[cap_ref] = ComponentPlacement(
                         ref=cap_ref,
                         position=(pos_x, pos_y),

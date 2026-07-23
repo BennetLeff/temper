@@ -36,9 +36,23 @@ LAYERS: tuple[str, ...] = ("F.Cu", "B.Cu")
 NET_CLASSES: tuple[str, ...] = ("Signal", "Power", "HighVoltage")
 
 NET_NAME_VOCAB: tuple[str, ...] = (
-    "NET1", "NET2", "SIG_A", "SIG_B", "CLK", "RST", "ENABLE",
-    "GND", "VCC", "+15V", "+3V3", "AC_L", "AC_N", "HV_BUS",
-    "VDD_CORE", "VBAT", "SW_NODE",
+    "NET1",
+    "NET2",
+    "SIG_A",
+    "SIG_B",
+    "CLK",
+    "RST",
+    "ENABLE",
+    "GND",
+    "VCC",
+    "+15V",
+    "+3V3",
+    "AC_L",
+    "AC_N",
+    "HV_BUS",
+    "VDD_CORE",
+    "VBAT",
+    "SW_NODE",
 )
 
 VIA_TYPES: tuple[str | None, ...] = (None, "microvia")
@@ -168,9 +182,7 @@ def netlist_from_components(
         for pin in comp.pins:
             if pin.net:
                 net_class = draw(st.sampled_from(NET_CLASSES))
-                nets.append(
-                    Net(pin.net, [(comp.ref, pin.name)], net_class=net_class, weight=1.0)
-                )
+                nets.append(Net(pin.net, [(comp.ref, pin.name)], net_class=net_class, weight=1.0))
     # Deduplicate by net name
     seen: set[str] = set()
     unique_nets = []
@@ -247,14 +259,8 @@ def realistic_paths(
     n_points = draw(st.integers(min_value=min_points, max_value=max_points))
     layer = draw(st.sampled_from(LAYERS))
 
-    x_coords = [
-        draw(st.floats(min_value=0.0, max_value=board_width))
-        for _ in range(n_points)
-    ]
-    y_coords = [
-        draw(st.floats(min_value=0.0, max_value=board_height))
-        for _ in range(n_points)
-    ]
+    x_coords = [draw(st.floats(min_value=0.0, max_value=board_width)) for _ in range(n_points)]
+    y_coords = [draw(st.floats(min_value=0.0, max_value=board_height)) for _ in range(n_points)]
 
     net_name = draw(st.sampled_from(NET_NAME_VOCAB))
     path = RoutePath(net_name=net_name, coordinates=[], layer_name=layer, path_length=0.0)
@@ -339,9 +345,7 @@ def routing_results(
 
     compiled_routes: dict[str, CompiledRoute] = {}
     for i in range(n_routes):
-        route = draw(
-            compiled_route(board_width=board_width, board_height=board_height)
-        )
+        route = draw(compiled_route(board_width=board_width, board_height=board_height))
         compiled_routes[f"NET_{i}"] = route
 
     failed_nets = [f"FAIL_{j}" for j in range(n_failed)]

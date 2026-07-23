@@ -73,8 +73,16 @@ def compute_adjacent_loss_rust(
 ) -> float:
     return _call_rust(
         "compute_adjacent_loss_py",
-        positions, idx_a, idx_b, max_distance_mm, weight,
-        metric, pin_a_x, pin_a_y, pin_b_x, pin_b_y,
+        positions,
+        idx_a,
+        idx_b,
+        max_distance_mm,
+        weight,
+        metric,
+        pin_a_x,
+        pin_a_y,
+        pin_b_x,
+        pin_b_y,
     )
 
 
@@ -86,7 +94,10 @@ def compute_separation_loss_rust(
 ) -> float:
     return _call_rust(
         "compute_separation_loss_py",
-        positions_a, positions_b, min_distance_mm, weight,
+        positions_a,
+        positions_b,
+        min_distance_mm,
+        weight,
     )
 
 
@@ -101,7 +112,13 @@ def compute_enclosing_loss_rust(
 ) -> float:
     return _call_rust(
         "compute_enclosing_loss_py",
-        positions, x_min, y_min, x_max, y_max, margin_mm, weight,
+        positions,
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        margin_mm,
+        weight,
     )
 
 
@@ -113,7 +130,10 @@ def compute_alignment_loss_rust(
 ) -> float:
     return _call_rust(
         "compute_alignment_loss_py",
-        positions, axis, tolerance_mm, weight,
+        positions,
+        axis,
+        tolerance_mm,
+        weight,
     )
 
 
@@ -127,7 +147,12 @@ def compute_edge_loss_rust(
 ) -> float:
     return _call_rust(
         "compute_edge_loss_py",
-        positions, side, board_width, board_height, max_distance_mm, weight,
+        positions,
+        side,
+        board_width,
+        board_height,
+        max_distance_mm,
+        weight,
     )
 
 
@@ -139,7 +164,10 @@ def compute_anchored_loss_position_rust(
 ) -> float:
     return _call_rust(
         "compute_anchored_loss_position_py",
-        positions, target_x, target_y, weight,
+        positions,
+        target_x,
+        target_y,
+        weight,
     )
 
 
@@ -153,7 +181,12 @@ def compute_anchored_loss_region_rust(
 ) -> float:
     return _call_rust(
         "compute_anchored_loss_region_py",
-        positions, x_min, y_min, x_max, y_max, weight,
+        positions,
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        weight,
     )
 
 
@@ -164,7 +197,9 @@ def compute_loop_area_loss_rust(
 ) -> float:
     return _call_rust(
         "compute_loop_area_loss_py",
-        positions, max_area_mm2, weight,
+        positions,
+        max_area_mm2,
+        weight,
     )
 
 

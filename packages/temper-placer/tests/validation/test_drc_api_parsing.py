@@ -34,19 +34,11 @@ def test_reference_field_item_description_extracts_ref():
 
 
 def test_silkscreen_segment_item_description_extracts_ref():
-    assert (
-        _extract_ref_from_item_description("Segment of C16 on F.Silkscreen")
-        == "C16"
-    )
+    assert _extract_ref_from_item_description("Segment of C16 on F.Silkscreen") == "C16"
 
 
 def test_pad_item_description_extracts_ref():
-    assert (
-        _extract_ref_from_item_description(
-            "Pad 13 [power_in.ntc-no] of K1 on F.Cu"
-        )
-        == "K1"
-    )
+    assert _extract_ref_from_item_description("Pad 13 [power_in.ntc-no] of K1 on F.Cu") == "K1"
 
 
 def test_pth_pad_item_description_extracts_ref():
@@ -65,17 +57,20 @@ def test_edge_cuts_polygon_item_description_has_no_ref():
 
 
 def test_courtyards_overlap_violation_extracts_both_components_and_real_location(tmp_path):
-    path = _write_drc_json(tmp_path, [
-        {
-            "description": "Courtyards overlap",
-            "items": [
-                {"description": "Footprint D3", "pos": {"x": 134.8, "y": 74.25}, "uuid": "u1"},
-                {"description": "Footprint C4", "pos": {"x": 139.92, "y": 64.5}, "uuid": "u2"},
-            ],
-            "severity": "error",
-            "type": "courtyards_overlap",
-        }
-    ])
+    path = _write_drc_json(
+        tmp_path,
+        [
+            {
+                "description": "Courtyards overlap",
+                "items": [
+                    {"description": "Footprint D3", "pos": {"x": 134.8, "y": 74.25}, "uuid": "u1"},
+                    {"description": "Footprint C4", "pos": {"x": 139.92, "y": 64.5}, "uuid": "u2"},
+                ],
+                "severity": "error",
+                "type": "courtyards_overlap",
+            }
+        ],
+    )
     result = _parse_drc_json(path)
     assert result.error_count == 1
     e = result.errors[0]
@@ -87,17 +82,28 @@ def test_via_clearance_violation_has_empty_components_not_a_wrong_guess(tmp_path
     """A via-to-via clearance violation has no owning component -- this
     must stay empty rather than silently attributing it to the wrong
     part."""
-    path = _write_drc_json(tmp_path, [
-        {
-            "description": "Clearance violation",
-            "items": [
-                {"description": "Via [cs_n] on F.Cu - B.Cu", "pos": {"x": 10.0, "y": 20.0}, "uuid": "u1"},
-                {"description": "Via [sclk] on F.Cu - B.Cu", "pos": {"x": 12.0, "y": 20.0}, "uuid": "u2"},
-            ],
-            "severity": "error",
-            "type": "clearance",
-        }
-    ])
+    path = _write_drc_json(
+        tmp_path,
+        [
+            {
+                "description": "Clearance violation",
+                "items": [
+                    {
+                        "description": "Via [cs_n] on F.Cu - B.Cu",
+                        "pos": {"x": 10.0, "y": 20.0},
+                        "uuid": "u1",
+                    },
+                    {
+                        "description": "Via [sclk] on F.Cu - B.Cu",
+                        "pos": {"x": 12.0, "y": 20.0},
+                        "uuid": "u2",
+                    },
+                ],
+                "severity": "error",
+                "type": "clearance",
+            }
+        ],
+    )
     result = _parse_drc_json(path)
     e = result.errors[0]
     assert e.components == []
@@ -110,17 +116,28 @@ def test_location_prefers_item_with_extractable_ref_over_degenerate_board_featur
     Edge.Cuts polygon with a degenerate (0, 0) pos; the real, useful
     position belongs to the second item (the actual offending pad). The
     parser must not default to the first item's position blindly."""
-    path = _write_drc_json(tmp_path, [
-        {
-            "description": "Board edge clearance violation",
-            "items": [
-                {"description": "Polygon on Edge.Cuts", "pos": {"x": 0.0, "y": 0.0}, "uuid": "u1"},
-                {"description": "Pad 1 [V_BUS_SENSE] of C35 on F.Cu", "pos": {"x": 100.385, "y": 60.23}, "uuid": "u2"},
-            ],
-            "severity": "error",
-            "type": "copper_edge_clearance",
-        }
-    ])
+    path = _write_drc_json(
+        tmp_path,
+        [
+            {
+                "description": "Board edge clearance violation",
+                "items": [
+                    {
+                        "description": "Polygon on Edge.Cuts",
+                        "pos": {"x": 0.0, "y": 0.0},
+                        "uuid": "u1",
+                    },
+                    {
+                        "description": "Pad 1 [V_BUS_SENSE] of C35 on F.Cu",
+                        "pos": {"x": 100.385, "y": 60.23},
+                        "uuid": "u2",
+                    },
+                ],
+                "severity": "error",
+                "type": "copper_edge_clearance",
+            }
+        ],
+    )
     result = _parse_drc_json(path)
     e = result.errors[0]
     assert e.components == ["C35"]

@@ -52,8 +52,5 @@ class MCUSubsystemHeuristic:
 
         # We reuse the place_power_stage_template logic as it's generic for ComponentTemplate
         return place_power_stage_template(
-            netlist=netlist,
-            board=board,
-            template=self.template,
-            zone_name=zone_name
+            netlist=netlist, board=board, template=self.template, zone_name=zone_name
         )

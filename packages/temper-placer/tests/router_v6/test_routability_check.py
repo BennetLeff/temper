@@ -26,6 +26,7 @@ from temper_placer.router_v6.routability_check import (
 # Unit tests (correctness proof)
 # ---------------------------------------------------------------------------
 
+
 class TestCheckRoutabilityEmptyGrid:
     """Base case: empty grid -> every net is routable."""
 
@@ -33,24 +34,39 @@ class TestCheckRoutabilityEmptyGrid:
         edt = np.ones((50, 50), dtype=np.float64)
         mask = np.ones((50, 50), dtype=bool)
         assert check_routability(
-            "test", (5.0, 5.0), (45.0, 45.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (5.0, 5.0),
+            (45.0, 45.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
     def test_direct_path_exists(self):
         edt = np.ones((100, 100), dtype=np.float64)
         mask = np.ones((100, 100), dtype=bool)
         assert check_routability(
-            "test", (10.0, 10.0), (90.0, 90.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (10.0, 10.0),
+            (90.0, 90.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
     def test_adjacent_cells(self):
         edt = np.ones((10, 10), dtype=np.float64)
         mask = np.ones((10, 10), dtype=bool)
         assert check_routability(
-            "test", (1.0, 1.0), (2.0, 1.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (1.0, 1.0),
+            (2.0, 1.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
 
@@ -61,8 +77,13 @@ class TestCheckRoutabilityBlocked:
         edt = np.zeros((50, 50), dtype=np.float64)
         mask = np.zeros((50, 50), dtype=bool)
         assert not check_routability(
-            "test", (5.0, 5.0), (45.0, 45.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (5.0, 5.0),
+            (45.0, 45.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
     def test_partial_wall(self):
@@ -72,8 +93,13 @@ class TestCheckRoutabilityBlocked:
         mask[:, 25] = False
         edt[:, 25] = 0.0
         assert not check_routability(
-            "test", (10.0, 15.0), (40.0, 15.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (10.0, 15.0),
+            (40.0, 15.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
     def test_wall_with_gap(self):
@@ -84,8 +110,13 @@ class TestCheckRoutabilityBlocked:
         edt[10:15, 25] = 0.0
         edt[17:20, 25] = 0.0
         assert check_routability(
-            "test", (10.0, 16.0), (40.0, 16.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (10.0, 16.0),
+            (40.0, 16.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
 
@@ -98,8 +129,13 @@ class TestCheckRoutabilityNarrow:
         mask[20:30, :] = True
         edt[20:30, :] = 0.4  # width = 2*0.4*0.1 = 0.08mm < 0.2mm
         assert not check_routability(
-            "test", (5.0, 25.0), (45.0, 25.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (5.0, 25.0),
+            (45.0, 25.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
     def test_wide_corridor_accepted(self):
@@ -108,8 +144,13 @@ class TestCheckRoutabilityNarrow:
         mask[20:30, :] = True
         edt[20:30, :] = 2.0  # width = 2*2.0*0.1 = 0.4mm >= 0.2mm
         assert check_routability(
-            "test", (5.0, 25.0), (45.0, 25.0),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "test",
+            (5.0, 25.0),
+            (45.0, 25.0),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
 
     def test_edge_width(self):
@@ -121,8 +162,13 @@ class TestCheckRoutabilityNarrow:
         min_dist = trace_width / (2.0 * cell_size)  # = 1.0
         edt[20:30, :] = min_dist
         assert check_routability(
-            "test", (5.0, 25.0), (45.0, 25.0),
-            edt, mask, trace_width=trace_width, cell_size=cell_size,
+            "test",
+            (5.0, 25.0),
+            (45.0, 25.0),
+            edt,
+            mask,
+            trace_width=trace_width,
+            cell_size=cell_size,
         )
 
 
@@ -165,19 +211,30 @@ class TestCheckRoutabilityDirect:
     def test_open_grid(self):
         mask = np.zeros((50, 50), dtype=bool)
         assert check_routability_direct(
-            "test", (5, 5), (45, 45), mask, trace_width=0.1, cell_size=0.1,
+            "test",
+            (5, 5),
+            (45, 45),
+            mask,
+            trace_width=0.1,
+            cell_size=0.1,
         )
 
     def test_blocked_grid(self):
         mask = np.ones((50, 50), dtype=bool)
         assert not check_routability_direct(
-            "test", (5, 5), (45, 45), mask, trace_width=0.1, cell_size=0.1,
+            "test",
+            (5, 5),
+            (45, 45),
+            mask,
+            trace_width=0.1,
+            cell_size=0.1,
         )
 
 
 # ---------------------------------------------------------------------------
 # A* oracle self-tests
 # ---------------------------------------------------------------------------
+
 
 def test_astar_self_consistent():
     """A* on an empty grid finds a path."""
@@ -200,19 +257,22 @@ def test_astar_blocked():
 # PBT: Property-Based Testing
 # ---------------------------------------------------------------------------
 
-def _random_obstacle_grid(rng: np.random.Generator, w: int, h: int,
-                          density: float) -> np.ndarray:
+
+def _random_obstacle_grid(rng: np.random.Generator, w: int, h: int, density: float) -> np.ndarray:
     return rng.random((h, w)) < density
 
 
-def _random_endpoints(rng: np.random.Generator, w: int, h: int,
-                      obstacle: np.ndarray) -> tuple[tuple[int, int], tuple[int, int]]:
+def _random_endpoints(
+    rng: np.random.Generator, w: int, h: int, obstacle: np.ndarray
+) -> tuple[tuple[int, int], tuple[int, int]]:
     free = np.argwhere(~obstacle)  # (y, x)
     if len(free) < 2:
         return (0, 0), (0, 0)
     idx = rng.choice(len(free), size=2, replace=False)
-    return (int(free[idx[0]][1]), int(free[idx[0]][0])), \
-           (int(free[idx[1]][1]), int(free[idx[1]][0]))
+    return (int(free[idx[0]][1]), int(free[idx[0]][0])), (
+        int(free[idx[1]][1]),
+        int(free[idx[1]][0]),
+    )
 
 
 class TestPBTAgreement:
@@ -237,8 +297,12 @@ class TestPBTAgreement:
         cell_size = 1.0
 
         dijkstra_result = check_routability_direct(
-            "pbt_net", start, goal, obstacle,
-            trace_width=trace_width, cell_size=cell_size,
+            "pbt_net",
+            start,
+            goal,
+            obstacle,
+            trace_width=trace_width,
+            cell_size=cell_size,
         )
         astar_result = astar_passability(start, goal, obstacle)
 
@@ -252,23 +316,65 @@ class TestPBTAgreement:
 # ---------------------------------------------------------------------------
 
 TEMPER_NETS = [
-    "AC_L", "AC_N", "GND", "DC_BUS+", "DC_BUS-", "PGND",
-    "GATE_H", "SW_NODE", "GATE_L", "+15V", "PWM_H", "PWM_L",
-    "CGND", "VCC_BOOT", "+5V", "+3V3", "I_SENSE",
-    "SPI_CLK", "SPI_MOSI", "SPI_MISO", "SPI_CS_TEMP",
-    "USB_D+", "USB_D-", "TEMP_SENSE",
+    "AC_L",
+    "AC_N",
+    "GND",
+    "DC_BUS+",
+    "DC_BUS-",
+    "PGND",
+    "GATE_H",
+    "SW_NODE",
+    "GATE_L",
+    "+15V",
+    "PWM_H",
+    "PWM_L",
+    "CGND",
+    "VCC_BOOT",
+    "+5V",
+    "+3V3",
+    "I_SENSE",
+    "SPI_CLK",
+    "SPI_MOSI",
+    "SPI_MISO",
+    "SPI_CS_TEMP",
+    "USB_D+",
+    "USB_D-",
+    "TEMP_SENSE",
 ]
 
-_SKIPPED_NETS = frozenset({
-    "AC_L", "AC_N", "GND", "DC_BUS+", "DC_BUS-", "PGND",
-    "SW_NODE", "+15V", "CGND", "+5V", "+3V3",
-})
+_SKIPPED_NETS = frozenset(
+    {
+        "AC_L",
+        "AC_N",
+        "GND",
+        "DC_BUS+",
+        "DC_BUS-",
+        "PGND",
+        "SW_NODE",
+        "+15V",
+        "CGND",
+        "+5V",
+        "+3V3",
+    }
+)
 
-_ROUTABLE_SIGNAL_NETS = frozenset({
-    "GATE_H", "GATE_L", "PWM_H", "PWM_L", "VCC_BOOT",
-    "I_SENSE", "SPI_CLK", "SPI_MOSI", "SPI_MISO",
-    "SPI_CS_TEMP", "USB_D+", "USB_D-", "TEMP_SENSE",
-})
+_ROUTABLE_SIGNAL_NETS = frozenset(
+    {
+        "GATE_H",
+        "GATE_L",
+        "PWM_H",
+        "PWM_L",
+        "VCC_BOOT",
+        "I_SENSE",
+        "SPI_CLK",
+        "SPI_MOSI",
+        "SPI_MISO",
+        "SPI_CS_TEMP",
+        "USB_D+",
+        "USB_D-",
+        "TEMP_SENSE",
+    }
+)
 
 
 def _load_temper_edt():
@@ -281,7 +387,9 @@ def _load_temper_edt():
     from temper_placer.router_v6.channel_widths import _build_edt
     from temper_placer.router_v6.routing_space import RoutingSpaceStage
 
-    pcb_path = Path(__file__).resolve().parent.parent.parent.parent.parent / "pcb" / "temper.kicad_pcb"
+    pcb_path = (
+        Path(__file__).resolve().parent.parent.parent.parent.parent / "pcb" / "temper.kicad_pcb"
+    )
     if not pcb_path.exists():
         pytest.skip(f"PCB not found: {pcb_path}")
 
@@ -352,8 +460,7 @@ class TestTemperRegression:
                     positions.append((float(comp_pos[0]), float(comp_pos[1])))
                     continue
                 px, py = pin.position
-                positions.append((float(comp_pos[0]) + float(px),
-                                  float(comp_pos[1]) + float(py)))
+                positions.append((float(comp_pos[0]) + float(px), float(comp_pos[1]) + float(py)))
             if len(positions) >= 2:
                 net_pads[net.name] = positions
 
@@ -369,8 +476,11 @@ class TestTemperRegression:
             goal = pads[-1]
 
             result = check_routability_cc(
-                net_name, start, goal,
-                edt_fcu, mask_fcu,
+                net_name,
+                start,
+                goal,
+                edt_fcu,
+                mask_fcu,
                 trace_width=trace_width,
                 cell_size=cell_size_val,
                 origin=(bounds_fcu[0], bounds_fcu[1]),
@@ -390,6 +500,7 @@ class TestTemperRegression:
 # Benchmark: per-net check latency
 # ---------------------------------------------------------------------------
 
+
 class TestBenchmark:
     """check_routability must finish fast (<100ms per net on realistic grids)."""
 
@@ -400,8 +511,13 @@ class TestBenchmark:
         t0 = time.perf_counter()
         for _ in range(20):
             check_routability_cc(
-                "bench", (5, 5), (95, 95),
-                edt, mask, trace_width=0.2, cell_size=0.1,
+                "bench",
+                (5, 5),
+                (95, 95),
+                edt,
+                mask,
+                trace_width=0.2,
+                cell_size=0.1,
             )
         elapsed = (time.perf_counter() - t0) / 20 * 1000
         assert elapsed < 10.0, f"Too slow: {elapsed:.1f}ms per call"
@@ -417,8 +533,13 @@ class TestBenchmark:
         t0 = time.perf_counter()
         for i in range(13):
             check_routability_cc(
-                f"n{i}", (100 + i * 50, h // 2), (w - 100 - i * 50, h // 2),
-                edt, mask, trace_width=0.3, cell_size=cell_size,
+                f"n{i}",
+                (100 + i * 50, h // 2),
+                (w - 100 - i * 50, h // 2),
+                edt,
+                mask,
+                trace_width=0.3,
+                cell_size=cell_size,
             )
         total = (time.perf_counter() - t0) * 1000
         avg = total / 13
@@ -430,8 +551,13 @@ class TestBenchmark:
         mask = np.zeros((2000, 2000), dtype=bool)
         t0 = time.perf_counter()
         check_routability_cc(
-            "bench", (10, 10), (1990, 1990),
-            edt, mask, trace_width=0.2, cell_size=0.1,
+            "bench",
+            (10, 10),
+            (1990, 1990),
+            edt,
+            mask,
+            trace_width=0.2,
+            cell_size=0.1,
         )
         elapsed = (time.perf_counter() - t0) * 1000
         assert elapsed < 20.0, f"Blocked grid should exit fast: {elapsed:.1f}ms"

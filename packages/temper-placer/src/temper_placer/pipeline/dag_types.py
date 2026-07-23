@@ -67,8 +67,10 @@ class DAGMissingDependencyError(DAGError):
     def __init__(self, key: str, requiring_stage: str) -> None:
         self.key = key
         self.requiring_stage = requiring_stage
-        super().__init__(f"Stage '{requiring_stage}' requires key '{key}' "
-                         f"which no stage provides and is not a built-in config key")
+        super().__init__(
+            f"Stage '{requiring_stage}' requires key '{key}' "
+            f"which no stage provides and is not a built-in config key"
+        )
 
 
 class DAGDuplicateStageError(DAGError):
@@ -89,8 +91,10 @@ class FeedbackExhaustedError(DAGError):
         self.contract_name = contract_name
         self.stage_name = stage_name
         self.attempts = attempts
-        super().__init__(f"Feedback contract '{contract_name}' exhausted after "
-                         f"{attempts} retriggers on stage '{stage_name}'")
+        super().__init__(
+            f"Feedback contract '{contract_name}' exhausted after "
+            f"{attempts} retriggers on stage '{stage_name}'"
+        )
 
 
 class DAGExprError(DAGError):

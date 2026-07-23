@@ -41,16 +41,42 @@ LAYERS: tuple[str, ...] = ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu")
 # spread.
 NET_NAME_VOCAB: tuple[str, ...] = (
     # Signal-style
-    "SIG1", "SIG2", "DATA0", "CLK", "RST", "ENABLE",
-    "TX+", "RX-", "LED1", "NC1",
+    "SIG1",
+    "SIG2",
+    "DATA0",
+    "CLK",
+    "RST",
+    "ENABLE",
+    "TX+",
+    "RX-",
+    "LED1",
+    "NC1",
     # Power / ground (matched by thermal_relief, copper_balance plane nets)
-    "GND", "PGND", "AGND", "DGND", "VCC", "VDD", "VEE",
-    "+15V", "+3V3", "+5V",
+    "GND",
+    "PGND",
+    "AGND",
+    "DGND",
+    "VCC",
+    "VDD",
+    "VEE",
+    "+15V",
+    "+3V3",
+    "+5V",
     # HV patterns (matched by creepage / clearance HV-detection)
-    "AC_L", "AC_N", "HV_BUS", "L1", "LINE", "VBUS",
+    "AC_L",
+    "AC_N",
+    "HV_BUS",
+    "L1",
+    "LINE",
+    "VBUS",
     # Mixed
-    "DC_BUS+", "DC_BUS-", "SW_NODE", "PE",
-    "VDD_CORE", "VREF", "VBAT",
+    "DC_BUS+",
+    "DC_BUS-",
+    "SW_NODE",
+    "PE",
+    "VDD_CORE",
+    "VREF",
+    "VBAT",
 )
 
 VIA_TYPES: tuple[str | None, ...] = (None, "microvia")

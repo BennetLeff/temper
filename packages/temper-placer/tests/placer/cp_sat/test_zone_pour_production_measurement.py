@@ -100,7 +100,9 @@ def _fill_zones_via_pcbnew(pcb_path: Path) -> Path:
     filled_path = pcb_path.with_name(pcb_path.stem + "_filled" + pcb_path.suffix)
     proc = subprocess.run(
         [str(_SYSTEM_PYTHON3), str(_FILL_ZONES_SCRIPT), str(pcb_path), str(filled_path)],
-        capture_output=True, text=True, timeout=120,
+        capture_output=True,
+        text=True,
+        timeout=120,
     )
     if proc.returncode == 2:
         pytest.skip(f"pcbnew not importable from {_SYSTEM_PYTHON3}: {proc.stderr.strip()[:300]}")
@@ -121,12 +123,18 @@ def _run_drc(pcb_path: Path) -> dict:
     try:
         proc = subprocess.run(
             [
-                "kicad-cli", "pcb", "drc",
-                "--format", "json",
-                "-o", str(drc_out),
+                "kicad-cli",
+                "pcb",
+                "drc",
+                "--format",
+                "json",
+                "-o",
+                str(drc_out),
                 str(pcb_path),
             ],
-            capture_output=True, text=True, timeout=600,
+            capture_output=True,
+            text=True,
+            timeout=600,
         )
         # Surface stdout/stderr/returncode unconditionally when diagnosing
         # a missing-output failure -- a prior CI run showed kicad-cli
@@ -187,11 +195,14 @@ class TestZonePourProductionMeasurement:
 
         parsed_stub = make_parsed_pcb_stub(_PCB_PATH, netlist)
 
-        print(f"\nRouting production board with enable_zone_pours=True "
-              f"({len(netlist.components)} components)...")
+        print(
+            f"\nRouting production board with enable_zone_pours=True "
+            f"({len(netlist.components)} components)..."
+        )
         t0 = time.monotonic()
         routing_result = route_pcb(
-            parsed_stub, {},
+            parsed_stub,
+            {},
             _seed=42,
             design_rules=rules.design_rules,
             enable_zone_pours=True,
@@ -203,8 +214,7 @@ class TestZonePourProductionMeasurement:
         # were actually emitted, not silently skipped.
         assert routing_result.routed_pcb_content is not None
         assert len(routing_result.routed_pcb_content) > 1000, (
-            f"Routed content suspiciously small "
-            f"({len(routing_result.routed_pcb_content)} bytes)"
+            f"Routed content suspiciously small ({len(routing_result.routed_pcb_content)} bytes)"
         )
         zone_count = routing_result.routed_pcb_content.count("(zone ")
         print(f"  Zones emitted: {zone_count}")
@@ -214,7 +224,9 @@ class TestZonePourProductionMeasurement:
         )
 
         routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
-            suffix=".kicad_pcb", mode="w", delete=False,
+            suffix=".kicad_pcb",
+            mode="w",
+            delete=False,
         )
         routed_tmp.write(routing_result.routed_pcb_content)
         routed_tmp.close()
@@ -239,13 +251,16 @@ class TestZonePourProductionMeasurement:
 
         unconnected = len(drc_data.get("unconnected_items", []))
         total_drc = sum(by_type.values())
-        print(f"  Post-route DRC (zones on): {total_drc} violations, "
-              f"{unconnected} unconnected")
+        print(f"  Post-route DRC (zones on): {total_drc} violations, {unconnected} unconnected")
         print(f"  By type: {dict(sorted(by_type.items()))}")
-        print(f"  vs. post-U4 no-zones baseline: "
-              f"{unconnected} vs {PRODUCTION_UNCONNECTED_POST_U4_BASELINE}")
-        print(f"  vs. pre-U4 aspirational baseline: {unconnected} vs 149 "
-              f"(not asserted -- that figure relied on deleted fabricated copper)")
+        print(
+            f"  vs. post-U4 no-zones baseline: "
+            f"{unconnected} vs {PRODUCTION_UNCONNECTED_POST_U4_BASELINE}"
+        )
+        print(
+            f"  vs. pre-U4 aspirational baseline: {unconnected} vs 149 "
+            f"(not asserted -- that figure relied on deleted fabricated copper)"
+        )
 
         # U3 gate: zone/pour must measurably help, or this fails loudly
         # rather than reporting a non-improving number as a quiet pass.

@@ -15,6 +15,7 @@ import numpy as np
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
+
 @dataclass
 class Pin:
     """

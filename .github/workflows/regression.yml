@@ -82,19 +82,19 @@ jobs:
 
       - name: Regression Suite
         run: uv run python -m temper_placer.regression.cli run-corpus --json
-        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8
+        continue-on-error: true  # JAX nondeterministic on CI runners; temper-N6-U8 -- hard-fail after 2026-09-01
 
       - name: KiCad DRC truth gate
         run: uv run python scripts/ci_check_drc.py --backend kicad-cli
 
       - name: Closure Test
         run: uv run python3 scripts/ci_closure_test.py --pcb pcb/temper.kicad_pcb
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
 
       - name: Round-Trip Integrity Tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/test_round_trip_integrity.py -v --tb=short -m "slow or l4_regression" --timeout=600
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
@@ -102,7 +102,7 @@ jobs:
       - name: Metamorphic Oracle Tests
         working-directory: packages/temper-placer
         run: uv run pytest tests/test_metamorphic_oracles.py -v --tb=short -m "slow or property" --timeout=600
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.25
           JAX_PLATFORM_NAME: cpu
@@ -116,7 +116,7 @@ jobs:
 
       - name: Quarantine Report
         run: uv run python scripts/quarantine_report.py
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
 
       - name: Summary
         if: always()

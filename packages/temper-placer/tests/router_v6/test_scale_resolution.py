@@ -118,12 +118,8 @@ class TestNanometerScaleCoordinates:
         if offset == 0.0:
             assert dist == pytest.approx(0.0, abs=1e-15)
         else:
-            assert dist > 0.0, (
-                f"Distance collapsed to {dist} for offset={offset}"
-            )
-            assert dist == pytest.approx(offset, rel=1e-9), (
-                f"Expected ~{offset}, got {dist}"
-            )
+            assert dist > 0.0, f"Distance collapsed to {dist} for offset={offset}"
+            assert dist == pytest.approx(offset, rel=1e-9), f"Expected ~{offset}, got {dist}"
 
     @pytest.mark.parametrize(
         "offset",
@@ -156,9 +152,7 @@ class TestNanometerScaleCoordinates:
         report = verify_clearance(results, min_clearance=1e-6)
         # Edge-to-edge distance ≈ 0.001 - (1e-7/2)*2 ≈ 0.0009999 mm
         # which is >> 1e-6 → no violation
-        assert report.violation_count == 0, (
-            f"False violation at nano-scale: {report.violations}"
-        )
+        assert report.violation_count == 0, f"False violation at nano-scale: {report.violations}"
 
 
 # ============================================================================
@@ -194,12 +188,10 @@ class TestMeterScaleBoards:
         # All layer percentages must be finite
         for lb in report.layer_balances:
             assert math.isfinite(lb.copper_percentage), (
-                f"Non-finite copper_percentage on {lb.layer_name}: "
-                f"{lb.copper_percentage}"
+                f"Non-finite copper_percentage on {lb.layer_name}: {lb.copper_percentage}"
             )
             assert math.isfinite(lb.copper_area_mm2), (
-                f"Non-finite copper_area_mm2 on {lb.layer_name}: "
-                f"{lb.copper_area_mm2}"
+                f"Non-finite copper_area_mm2 on {lb.layer_name}: {lb.copper_area_mm2}"
             )
 
     @pytest.mark.parametrize(
@@ -209,18 +201,14 @@ class TestMeterScaleBoards:
             (10_000.0, 10_000.0),
         ],
     )
-    def test_copper_balance_with_routes_large_board(
-        self, board_width, board_height
-    ):
+    def test_copper_balance_with_routes_large_board(self, board_width, board_height):
         """Routes on a meter-scale board produce sane copper percentages."""
         # A 500 mm trace on a 1000×1000 board
         r1 = _make_route("N1", [(0.0, 0.0), (500.0, 0.0)], width=0.5)
         results = _make_results({"N1": r1})
 
         report = analyze_copper_balance(results, board_width, board_height)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         # Area: 500 * 0.5 = 250 mm²
         expected_area = 250.0
         assert f_cu.copper_area_mm2 == pytest.approx(expected_area, rel=1e-9)
@@ -266,18 +254,13 @@ class TestExtremeAspectRatios:
     def test_trace_aligned_with_long_axis(self, board_width, board_height):
         """A thin trace along the long axis must not produce bogus %."""
         long_axis = max(board_width, board_height)
-        r1 = _make_route(
-            "N1", [(0.0, 0.0), (long_axis * 0.5, 0.0)], width=0.2
-        )
+        r1 = _make_route("N1", [(0.0, 0.0), (long_axis * 0.5, 0.0)], width=0.2)
         results = _make_results({"N1": r1})
         report = analyze_copper_balance(results, board_width, board_height)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         # Copper area must be ≤ total area
         assert f_cu.copper_area_mm2 <= report.total_area_mm2 * 1.01, (
-            f"Copper area {f_cu.copper_area_mm2} exceeds "
-            f"board area {report.total_area_mm2}"
+            f"Copper area {f_cu.copper_area_mm2} exceeds board area {report.total_area_mm2}"
         )
 
 
@@ -294,26 +277,19 @@ class TestTracesWiderThanBoard:
         [
             (100.0, 50.0, 50.0),
             (200.0, 100.0, 100.0),
-            (1e6, 100.0, 100.0),    # Extreme width
+            (1e6, 100.0, 100.0),  # Extreme width
         ],
     )
-    def test_copper_balance_trace_wider_than_board(
-        self, trace_width, board_w, board_h
-    ):
+    def test_copper_balance_trace_wider_than_board(self, trace_width, board_w, board_h):
         """analyze_copper_balance must not crash when trace > board."""
-        r1 = _make_route(
-            "N1", [(0.0, 0.0), (10.0, 0.0)], width=trace_width
-        )
+        r1 = _make_route("N1", [(0.0, 0.0), (10.0, 0.0)], width=trace_width)
         results = _make_results({"N1": r1})
 
         try:
             report = analyze_copper_balance(results, board_w, board_h)
         except Exception:
             if math.isinf(trace_width):
-                pytest.xfail(
-                    "Inf trace width causes crash in copper_balance "
-                    "(known gap)"
-                )
+                pytest.xfail("Inf trace width causes crash in copper_balance (known gap)")
             raise
 
         assert len(report.layer_balances) == 4
@@ -335,8 +311,7 @@ class TestTracesWiderThanBoard:
         # The actual clearance should be negative (overlap)
         v = report.violations[0]
         assert v.actual_clearance < 0.0, (
-            f"Expected negative clearance for overlapping traces, "
-            f"got {v.actual_clearance}"
+            f"Expected negative clearance for overlapping traces, got {v.actual_clearance}"
         )
 
 
@@ -351,21 +326,17 @@ class TestTracesLongerThanBoardDiagonal:
     @pytest.mark.parametrize(
         "board_w, board_h, trace_len",
         [
-            (10.0, 10.0, 100.0),      # 10× diagonal
-            (50.0, 50.0, 1_000.0),    # 20× diagonal
+            (10.0, 10.0, 100.0),  # 10× diagonal
+            (50.0, 50.0, 1_000.0),  # 20× diagonal
         ],
     )
-    def test_copper_balance_trace_longer_than_diagonal(
-        self, board_w, board_h, trace_len
-    ):
+    def test_copper_balance_trace_longer_than_diagonal(self, board_w, board_h, trace_len):
         """Copper area may exceed board area when trace is very long."""
         r1 = _make_route("N1", [(0.0, 0.0), (trace_len, 0.0)], width=0.2)
         results = _make_results({"N1": r1})
 
         report = analyze_copper_balance(results, board_w, board_h)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         expected_area = trace_len * 0.2
         assert f_cu.copper_area_mm2 == pytest.approx(expected_area, rel=1e-9)
 
@@ -388,29 +359,22 @@ class TestViaLargerThanBoard:
     @pytest.mark.parametrize(
         "via_diameter, drill, board_w, board_h",
         [
-            (200.0, 100.0, 100.0, 80.0),    # Dia > board width
-            (300.0, 150.0, 100.0, 100.0),   # Dia > both dims
-            (1e6, 0.5, 100.0, 100.0),       # Extreme dia
+            (200.0, 100.0, 100.0, 80.0),  # Dia > board width
+            (300.0, 150.0, 100.0, 100.0),  # Dia > both dims
+            (1e6, 0.5, 100.0, 100.0),  # Extreme dia
         ],
     )
-    def test_copper_balance_via_larger_than_board(
-        self, via_diameter, drill, board_w, board_h
-    ):
+    def test_copper_balance_via_larger_than_board(self, via_diameter, drill, board_w, board_h):
         """analyze_copper_balance must survive a via bigger than the board."""
         via = Via((5, 5), "F.Cu", "B.Cu", via_diameter, drill, "N1")
-        r1 = _make_route(
-            "N1", [(0.0, 0.0), (10.0, 0.0)], vias=[via]
-        )
+        r1 = _make_route("N1", [(0.0, 0.0), (10.0, 0.0)], vias=[via])
         results = _make_results({"N1": r1})
 
         try:
             report = analyze_copper_balance(results, board_w, board_h)
         except Exception:
             if math.isinf(via_diameter):
-                pytest.xfail(
-                    "Inf via diameter causes crash in copper_balance "
-                    "(known gap)"
-                )
+                pytest.xfail("Inf via diameter causes crash in copper_balance (known gap)")
             raise
 
         assert len(report.layer_balances) == 4
@@ -488,12 +452,8 @@ class TestCumulativeFPError:
         results_coarse = _make_results({"COARSE": r_coarse, "TARGET": r_target})
         results_fine = _make_results({"FINE": r_fine, "TARGET": r_target})
 
-        report_coarse = verify_clearance(
-            results_coarse, min_clearance=1e-6
-        )
-        report_fine = verify_clearance(
-            results_fine, min_clearance=1e-6
-        )
+        report_coarse = verify_clearance(results_coarse, min_clearance=1e-6)
+        report_fine = verify_clearance(results_fine, min_clearance=1e-6)
 
         # The minimum clearance should be the same (± a tiny epsilon)
         # Edge-to-edge: OFFSET - width (since width/2 + width/2 = width)
@@ -523,8 +483,14 @@ class TestCumulativeFPError:
     def test_creepage_segment_info_coarse(self):
         """Baseline: two coarse single-segment paths at offset."""
         dist, _, _ = _segment_to_segment_info(
-            0.0, 0.0, self.TOTAL_LEN, 0.0,
-            0.0, self.OFFSET, self.TOTAL_LEN, self.OFFSET,
+            0.0,
+            0.0,
+            self.TOTAL_LEN,
+            0.0,
+            0.0,
+            self.OFFSET,
+            self.TOTAL_LEN,
+            self.OFFSET,
         )
         assert dist == pytest.approx(self.OFFSET, rel=1e-12)
 
@@ -642,10 +608,10 @@ class TestExtremeClearanceThresholds:
     @pytest.mark.parametrize(
         "min_clearance",
         [
-            1e-6,       # Extremely small
-            1e-3,       # 1 µm
-            1_000.0,    # 1 metre
-            1e6,        # 1 km
+            1e-6,  # Extremely small
+            1e-3,  # 1 µm
+            1_000.0,  # 1 metre
+            1e6,  # 1 km
         ],
     )
     def test_clearance_extreme_threshold(self, min_clearance):
@@ -658,9 +624,7 @@ class TestExtremeClearanceThresholds:
             report = verify_clearance(results, min_clearance=min_clearance)
         except Exception:
             if math.isinf(min_clearance):
-                pytest.xfail(
-                    "Inf min_clearance causes crash (expected edge-case)"
-                )
+                pytest.xfail("Inf min_clearance causes crash (expected edge-case)")
             raise
 
         assert hasattr(report, "violations")
@@ -681,14 +645,10 @@ class TestExtremeClearanceThresholds:
         results = _make_results({"HV_BUS": r_hv, "SIG1": r_lv})
 
         try:
-            report = verify_creepage(
-                results, default_creepage=default_creepage
-            )
+            report = verify_creepage(results, default_creepage=default_creepage)
         except Exception:
             if math.isinf(default_creepage):
-                pytest.xfail(
-                    "Inf default_creepage causes crash (expected edge-case)"
-                )
+                pytest.xfail("Inf default_creepage causes crash (expected edge-case)")
             raise
 
         assert hasattr(report, "violations")
@@ -710,9 +670,7 @@ class TestCoordinatePrecision:
         (20.123456789012345, 5.987654321098765),
     ]
 
-    ROUNDED_COORDS = [
-        (round(x, 4), round(y, 4)) for x, y in HIGH_PRECISION_COORDS
-    ]
+    ROUNDED_COORDS = [(round(x, 4), round(y, 4)) for x, y in HIGH_PRECISION_COORDS]
 
     def test_segment_dist_precision_insensitive(self):
         """Segment-to-segment distance should be stable across
@@ -789,16 +747,27 @@ class TestCoordinatePrecision:
     def test_creepage_segment_info_precision_stable(self):
         """_segment_to_segment_info should be stable across rounding."""
         dist_hi, _, _ = _segment_to_segment_info(
-            0.123456789012345, 0.0, 10.123456789012345, 0.0,
-            0.123456789012345, 0.5, 10.123456789012345, 0.5,
+            0.123456789012345,
+            0.0,
+            10.123456789012345,
+            0.0,
+            0.123456789012345,
+            0.5,
+            10.123456789012345,
+            0.5,
         )
         dist_lo, _, _ = _segment_to_segment_info(
-            0.1235, 0.0, 10.1235, 0.0,
-            0.1235, 0.5, 10.1235, 0.5,
+            0.1235,
+            0.0,
+            10.1235,
+            0.0,
+            0.1235,
+            0.5,
+            10.1235,
+            0.5,
         )
         assert dist_hi == pytest.approx(dist_lo, abs=1e-3), (
-            f"Precision sensitivity in segment_info: "
-            f"hi={dist_hi}, lo={dist_lo}"
+            f"Precision sensitivity in segment_info: hi={dist_hi}, lo={dist_lo}"
         )
 
     @pytest.mark.parametrize(
@@ -820,11 +789,8 @@ class TestCoordinatePrecision:
         except Exception:
             if math.isinf(x) or math.isinf(y) or math.isnan(x) or math.isnan(y):
                 pytest.xfail(
-                    "NaN/inf coordinate causes crash in "
-                    "_segment_to_segment_dist (known gap)"
+                    "NaN/inf coordinate causes crash in _segment_to_segment_dist (known gap)"
                 )
             raise
 
-        assert math.isfinite(dist), (
-            f"Non-finite distance for coords ({x}, {y}): {dist}"
-        )
+        assert math.isfinite(dist), f"Non-finite distance for coords ({x}, {y}): {dist}"

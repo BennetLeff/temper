@@ -5,7 +5,6 @@ Only methods/attributes actually consumed by the codebase are declared.
 """
 
 from __future__ import annotations
-from typing import List
 
 # ---------------------------------------------------------------------------
 # Solver status constants
@@ -19,7 +18,6 @@ UNKNOWN: int
 # ---------------------------------------------------------------------------
 # Expression types
 # ---------------------------------------------------------------------------
-
 
 class BoundedLinearExpression:
     """A linear expression that can be used as a constraint argument.
@@ -45,7 +43,6 @@ class BoundedLinearExpression:
     def __rmul__(self, other: int) -> BoundedLinearExpression: ...
     def __neg__(self) -> BoundedLinearExpression: ...
     def __hash__(self) -> int: ...
-
 
 class IntVar:
     """Integer variable in the CP-SAT model (domain [lb, ub]).
@@ -79,33 +76,28 @@ class IntVar:
     # Required for sum()
     def __hash__(self) -> int: ...
 
-
 class Constraint:
     """A CP-SAT constraint returned by ``CpModel.Add()`` etc."""
 
     def OnlyEnforceIf(self, boolvar: IntVar) -> Constraint: ...
 
-
 class IntervalVar:
     """An interval variable (start, size, end)."""
-
 
 # ---------------------------------------------------------------------------
 # Solver types
 # ---------------------------------------------------------------------------
 
-
 class SatParameters:
     """Solver parameter bag."""
+
     max_time_in_seconds: float
     num_search_workers: int
     random_seed: int
     log_search_progress: bool
 
-
 class CpSolverSolutionCallback:
     """Base class for solution callbacks."""
-
 
 class CpSolver:
     """CP-SAT solver."""
@@ -117,13 +109,11 @@ class CpSolver:
     def Value(self, var: IntVar) -> int: ...
     def ObjectiveValue(self) -> float: ...
     def WallTime(self) -> float: ...
-    def SufficientAssumptionsForInfeasibility(self) -> List[int]: ...
-
+    def SufficientAssumptionsForInfeasibility(self) -> list[int]: ...
 
 # ---------------------------------------------------------------------------
 # Model
 # ---------------------------------------------------------------------------
-
 
 class CpModel:
     """CP-SAT constraint programming model."""
@@ -134,18 +124,22 @@ class CpModel:
     def NewIntVar(self, lb: int, ub: int, name: str) -> IntVar: ...
     def NewBoolVar(self, name: str) -> IntVar: ...
     def NewConstant(self, value: int) -> IntVar: ...
-    def NewIntervalVar(self, start: IntVar, size: IntVar, end: IntVar, name: str) -> IntervalVar: ...
+    def NewIntervalVar(
+        self, start: IntVar, size: IntVar, end: IntVar, name: str
+    ) -> IntervalVar: ...
 
     # --- Constraints ---
     def Add(self, ct: BoundedLinearExpression | Constraint) -> Constraint: ...
     def AddHint(self, var: IntVar, value: int) -> None: ...
-    def AddElement(self, index: IntVar, values: List[int], target: IntVar) -> None: ...
-    def AddNoOverlap2D(self, x_intervals: List[IntervalVar], y_intervals: List[IntervalVar]) -> None: ...
-    def AddMultiplicationEquality(self, target: IntVar, exprs: List[IntVar]) -> Constraint: ...
+    def AddElement(self, index: IntVar, values: list[int], target: IntVar) -> None: ...
+    def AddNoOverlap2D(
+        self, x_intervals: list[IntervalVar], y_intervals: list[IntervalVar]
+    ) -> None: ...
+    def AddMultiplicationEquality(self, target: IntVar, exprs: list[IntVar]) -> Constraint: ...
     def AddAssumption(self, lit: IntVar) -> None: ...
-    def AddAssumptions(self, lits: List[IntVar]) -> None: ...
+    def AddAssumptions(self, lits: list[IntVar]) -> None: ...
     def ClearAssumptions(self) -> None: ...
-    def AddBoolOr(self, literals: List[IntVar]) -> Constraint: ...
+    def AddBoolOr(self, literals: list[IntVar]) -> Constraint: ...
     def AddAbsEquality(self, target: IntVar, expr: BoundedLinearExpression) -> Constraint: ...
 
     # --- Objective ---

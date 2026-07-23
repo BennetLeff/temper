@@ -46,10 +46,7 @@ class FootprintSpec:
         return self.bounds[1]
 
     def __repr__(self) -> str:
-        return (
-            f"FootprintSpec({self.name!r}, bounds={self.bounds}, "
-            f"thermal_pad={self.thermal_pad})"
-        )
+        return f"FootprintSpec({self.name!r}, bounds={self.bounds}, thermal_pad={self.thermal_pad})"
 
 
 class FootprintLibrary:

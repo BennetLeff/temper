@@ -191,6 +191,7 @@ class CorpusRegressionRunner:
                 compute_source_fingerprint,
                 load_cache,
             )
+
             self._source_fingerprint = compute_source_fingerprint(self._repo_root)
             self._cache = load_cache(corpus_root)
 
@@ -206,7 +207,9 @@ class CorpusRegressionRunner:
         try:
             result = subprocess.run(
                 ["git", "rev-parse", "HEAD"],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
             return result.stdout.strip()
         except Exception:
@@ -228,12 +231,14 @@ class CorpusRegressionRunner:
                 continue
 
             if self._should_skip_board(entry):
-                results.append(CorpusBoardResult(
-                    board_id=entry.id,
-                    passed=True,
-                    skipped=True,
-                    skip_reason="Inputs unchanged since last green run",
-                ))
+                results.append(
+                    CorpusBoardResult(
+                        board_id=entry.id,
+                        passed=True,
+                        skipped=True,
+                        skip_reason="Inputs unchanged since last green run",
+                    )
+                )
                 continue
 
             result = self._run_board(entry)
@@ -253,6 +258,7 @@ class CorpusRegressionRunner:
             compute_input_fingerprint,
             should_skip,
         )
+
         input_fp = compute_input_fingerprint(
             entry.pcb_path(self.corpus_root),
             entry.constraints_path(self.corpus_root),
@@ -314,6 +320,7 @@ class CorpusRegressionRunner:
         try:
             # Parse PCB
             from temper_placer.io.kicad_parser import parse_kicad_pcb
+
             parse_result = parse_kicad_pcb(pcb_path)
             netlist = parse_result.netlist
         except Exception as e:
@@ -338,6 +345,7 @@ class CorpusRegressionRunner:
                 create_board_from_constraints,
                 load_constraints,
             )
+
             constraints = load_constraints(constraints_path)
             board = create_board_from_constraints(constraints)
         except Exception as e:
@@ -350,14 +358,22 @@ class CorpusRegressionRunner:
         try:
             # Build loss function
             from temper_placer.core.loss_types import CompositeLoss, LossContext, WeightedLoss
+
             class BoundaryLoss:
-                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+                def __call__(self, *a, **kw):
+                    raise NotImplementedError("JAX losses removed.")
+
             class OverlapLoss:
-                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+                def __call__(self, *a, **kw):
+                    raise NotImplementedError("JAX losses removed.")
+
             class SpreadLoss:
-                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+                def __call__(self, *a, **kw):
+                    raise NotImplementedError("JAX losses removed.")
+
             class WirelengthLoss:
-                def __call__(self, *a, **kw): raise NotImplementedError("JAX losses removed.")
+                def __call__(self, *a, **kw):
+                    raise NotImplementedError("JAX losses removed.")
 
             weights = {
                 "overlap": 200.0,
@@ -372,31 +388,39 @@ class CorpusRegressionRunner:
                         weights[k] = config_weights[k]
 
             def make_loss(w):
-                return CompositeLoss([
-                    WeightedLoss(OverlapLoss(margin=1.0, rotation_invariant=True), w["overlap"]),
-                    WeightedLoss(BoundaryLoss(), w["boundary"]),
-                    WeightedLoss(WirelengthLoss(), w["wirelength"]),
-                    WeightedLoss(SpreadLoss(), w.get("spread", 5.0)),
-                ])
+                return CompositeLoss(
+                    [
+                        WeightedLoss(
+                            OverlapLoss(margin=1.0, rotation_invariant=True), w["overlap"]
+                        ),
+                        WeightedLoss(BoundaryLoss(), w["boundary"]),
+                        WeightedLoss(WirelengthLoss(), w["wirelength"]),
+                        WeightedLoss(SpreadLoss(), w.get("spread", 5.0)),
+                    ]
+                )
 
             from temper_placer.core.state import PlacementState
-            from temper_placer.core.loss_types import LossContext
-            state = PlacementState.from_netlist_and_board(netlist, board)
+
+            PlacementState.from_netlist_and_board(netlist, board)
             context = LossContext(netlist=netlist, board=board)
 
             # Build optimizer config
             from temper_placer.heuristics import create_default_pipeline
+
             class OptimizerConfig:
                 def __init__(self, **kw):
                     for k, v in kw.items():
                         setattr(self, k, v)
+
             def create_default_phases(*a, **kw):
                 raise NotImplementedError("JAX optimizer removed.")
+
             def train_multiphase(*a, **kw):
                 raise NotImplementedError("JAX optimizer removed.")
 
             pipeline = create_default_pipeline()
             import numpy as np
+
             rng_key = np.random.default_rng(entry.seed)
             preset = pipeline.run(board, netlist, constraints, rng_key)
             initial_state = preset.state
@@ -420,6 +444,7 @@ class CorpusRegressionRunner:
                     size=(netlist.n_components,),
                 )
                 from dataclasses import replace as dc_replace
+
                 initial_state = dc_replace(
                     initial_state,
                     positions=np.stack([px, py], axis=-1),
@@ -444,7 +469,11 @@ class CorpusRegressionRunner:
         # Run optimizer
         try:
             result = train_multiphase(
-                netlist, board, make_loss, context, cfg,
+                netlist,
+                board,
+                make_loss,
+                context,
+                cfg,
                 initial_state=initial_state,
                 constraints=constraints,
             )
@@ -472,8 +501,10 @@ class CorpusRegressionRunner:
             final_loss_val = float(result.final_loss)
 
             hpwl_val = 0.0
+
             def compute_total_hpwl(*a, **kw):
                 raise NotImplementedError("JAX losses removed.")
+
             hpwl_val = float(compute_total_hpwl(result.final_state.positions, rotations, context))
 
             collected = {
@@ -491,15 +522,16 @@ class CorpusRegressionRunner:
                 from dataclasses import replace as dc_replace
 
                 import numpy as np
+
                 rng_key = np.random.default_rng(entry.seed or 42)
                 margin = min(2.0, board.width * 0.1, board.height * 0.1)
                 ox, oy = board.origin
                 px = rng_key.uniform(
-                    low=ox + margin, high=ox + board.width - margin,
-                    size=(netlist.n_components,))
+                    low=ox + margin, high=ox + board.width - margin, size=(netlist.n_components,)
+                )
                 py = rng_key.uniform(
-                    low=oy + margin, high=oy + board.height - margin,
-                    size=(netlist.n_components,))
+                    low=oy + margin, high=oy + board.height - margin, size=(netlist.n_components,)
+                )
                 initial_state = dc_replace(
                     initial_state,
                     positions=np.stack([px, py], axis=-1),
@@ -507,7 +539,11 @@ class CorpusRegressionRunner:
                 )
                 try:
                     result = train_multiphase(
-                        netlist, board, make_loss, context, cfg,
+                        netlist,
+                        board,
+                        make_loss,
+                        context,
+                        cfg,
                         initial_state=initial_state,
                         constraints=constraints,
                     )
@@ -576,17 +612,19 @@ class CorpusRegressionRunner:
             "boards": [],
         }
         for result in results:
-            report["boards"].append({
-                "board_id": result.board_id,
-                "passed": result.passed,
-                "skipped": result.skipped,
-                "skip_reason": result.skip_reason if result.skipped else None,
-                "elapsed_seconds": result.elapsed_seconds,
-                "metrics": result.metrics,
-                "metric_checks": result.metric_checks,
-                "errors": result.errors,
-                "warnings": result.warnings,
-            })
+            report["boards"].append(
+                {
+                    "board_id": result.board_id,
+                    "passed": result.passed,
+                    "skipped": result.skipped,
+                    "skip_reason": result.skip_reason if result.skipped else None,
+                    "elapsed_seconds": result.elapsed_seconds,
+                    "metrics": result.metrics,
+                    "metric_checks": result.metric_checks,
+                    "errors": result.errors,
+                    "warnings": result.warnings,
+                }
+            )
         with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
         print(f"Regression report written to {report_path}", file=sys.stderr)
