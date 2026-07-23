@@ -92,7 +92,6 @@ jobs:
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
-      UV_PYTHON: /usr/bin/python3.12
     
     steps:
       - uses: actions/checkout@v4
@@ -234,7 +233,6 @@ jobs:
     env:
       XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
       JAX_PLATFORM_NAME: cpu
-      UV_PYTHON: /usr/bin/python3.12
     
     steps:
       - uses: actions/checkout@v4
