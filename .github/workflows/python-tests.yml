@@ -82,6 +82,20 @@ on:
     - cron: '0 3 * * *'  # nightly at 3am UTC
 
 jobs:
+  cargo-smoke:
+    name: Cargo / Rustc Smoke Check
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain smoke
+        run: |
+          rustc --version
+          cargo --version
+
   test:
     name: Core Tests
     runs-on: ubuntu-latest
