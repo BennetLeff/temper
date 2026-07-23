@@ -60,8 +60,8 @@ class MFEMRunner:
                 timeout=self._timeout,
                 cwd=out,
             )
-        except subprocess.TimeoutExpired:
-            raise RuntimeError(f"MFEM solve timed out after {self._timeout}s")
+        except subprocess.TimeoutExpired as e:
+            raise RuntimeError(f"MFEM solve timed out after {self._timeout}s") from e
         if proc.returncode != 0:
             raise RuntimeError(
                 f"MFEM exit code {proc.returncode}: {proc.stderr[:500]}"
