@@ -6,6 +6,7 @@ pub mod sdf;
 pub mod transform;
 pub mod overlap;
 pub mod projections;
+pub mod constraints;
 pub mod drc_inflate;
 pub mod congestion_tensor;
 mod bridge;
