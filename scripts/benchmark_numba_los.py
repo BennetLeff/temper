@@ -12,12 +12,10 @@ import cProfile
 import io
 import json
 import pstats
-import sys
 import time
 from pathlib import Path
 
 import numpy as np
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PCB_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
@@ -102,6 +100,7 @@ def run_micro_benchmark(output_dir: Path | None) -> dict:
 def run_pipeline_profile(num_nets: int, output_dir: Path | None) -> dict:
     """Profile full pipeline with and without Numba LOS."""
     from dataclasses import replace
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.router_v6.pipeline import RouterV6Pipeline
 

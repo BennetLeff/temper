@@ -12,19 +12,11 @@ Covers:
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
 from temper_placer.validation.prereg.schema import (
-    BecauseThreshold,
-    CheapBaseline,
-    CostBudget,
     FieldPreregistration,
-    KillCriterion,
-    ParametricRange,
-    PassBar,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -39,53 +31,55 @@ def _mini_prereg(
     heatspread_min: float = 5.0,
     heatspread_max: float = 40.0,
 ) -> FieldPreregistration:
-    return FieldPreregistration.model_validate({
-        "field_name": "thermal",
-        "independent_instrument": "physics_oracle",
-        "cheap_baseline": {
-            "name": "uniform_heat_spread",
-            "description": "Baseline",
-            "metric": "thermal_score",
-            "target_value": 0.0,
-            "because": "Baseline",
-        },
-        "parametric_ranges": [
-            {
-                "parameter": "power_dissipation_w",
-                "min": power_min,
-                "max": power_max,
-                "because": "Power sweep range",
+    return FieldPreregistration.model_validate(
+        {
+            "field_name": "thermal",
+            "independent_instrument": "physics_oracle",
+            "cheap_baseline": {
+                "name": "uniform_heat_spread",
+                "description": "Baseline",
+                "metric": "thermal_score",
+                "target_value": 0.0,
+                "because": "Baseline",
             },
-            {
-                "parameter": "junction_to_case_c_per_w",
-                "min": rjc_min,
-                "max": rjc_max,
-                "because": "R_theta sweep",
+            "parametric_ranges": [
+                {
+                    "parameter": "power_dissipation_w",
+                    "min": power_min,
+                    "max": power_max,
+                    "because": "Power sweep range",
+                },
+                {
+                    "parameter": "junction_to_case_c_per_w",
+                    "min": rjc_min,
+                    "max": rjc_max,
+                    "because": "R_theta sweep",
+                },
+                {
+                    "parameter": "max_heatspread_mm",
+                    "min": heatspread_min,
+                    "max": heatspread_max,
+                    "because": "Heatspread range",
+                },
+            ],
+            "structural_bounding_cases": [
+                {"case_name": "single_igbt", "description": "Min config", "because": "Required"},
+            ],
+            "pass_bar": {
+                "margin_gain": {"value": 0.1, "because": "b"},
+                "beat_cheap_baseline_by": {"value": 0.05, "because": "b"},
+                "across_perturbations": {"value": 5, "because": "b"},
             },
-            {
-                "parameter": "max_heatspread_mm",
-                "min": heatspread_min,
-                "max": heatspread_max,
-                "because": "Heatspread range",
+            "kill_criterion": {"description": "Any violation kills", "because": "b"},
+            "cost_budget": {
+                "max_total_battery_seconds": 3600,
+                "max_rounds_budget": 20,
+                "field_convergence_round_limit": 5,
+                "thermal_grid_cells_max": 10000,
+                "target_solve_time_ms_per_field": 5000,
             },
-        ],
-        "structural_bounding_cases": [
-            {"case_name": "single_igbt", "description": "Min config", "because": "Required"},
-        ],
-        "pass_bar": {
-            "margin_gain": {"value": 0.1, "because": "b"},
-            "beat_cheap_baseline_by": {"value": 0.05, "because": "b"},
-            "across_perturbations": {"value": 5, "because": "b"},
-        },
-        "kill_criterion": {"description": "Any violation kills", "because": "b"},
-        "cost_budget": {
-            "max_total_battery_seconds": 3600,
-            "max_rounds_budget": 20,
-            "field_convergence_round_limit": 5,
-            "thermal_grid_cells_max": 10000,
-            "target_solve_time_ms_per_field": 5000,
-        },
-    })
+        }
+    )
 
 
 def _mini_fdm_config(
@@ -113,7 +107,6 @@ def _peak_T(
     h_field: np.ndarray | None = None,
 ) -> float:
     """Run FDM solve and return peak T_j."""
-    from temper_placer.physics.thermal_fdm import solve_thermal_fdm
 
     result = solve_thermal_fdm(
         config=fdm_config,
@@ -177,12 +170,15 @@ class TestMonotonicity:
         copper = np.zeros((20, 20), dtype=np.float64)
         h_field = np.zeros((20, 20), dtype=np.float64)
 
-        T_20 = _peak_T(devices, power, _mini_fdm_config(ambient_C=20.0),
-                        copper_grid=copper, h_field=h_field)
-        T_40 = _peak_T(devices, power, _mini_fdm_config(ambient_C=40.0),
-                        copper_grid=copper, h_field=h_field)
-        T_60 = _peak_T(devices, power, _mini_fdm_config(ambient_C=60.0),
-                        copper_grid=copper, h_field=h_field)
+        T_20 = _peak_T(
+            devices, power, _mini_fdm_config(ambient_C=20.0), copper_grid=copper, h_field=h_field
+        )
+        T_40 = _peak_T(
+            devices, power, _mini_fdm_config(ambient_C=40.0), copper_grid=copper, h_field=h_field
+        )
+        T_60 = _peak_T(
+            devices, power, _mini_fdm_config(ambient_C=60.0), copper_grid=copper, h_field=h_field
+        )
 
         assert T_60 > T_40 > T_20, (
             f"Expected T_j to INCREASE with ambient: "
@@ -268,9 +264,12 @@ class TestParameterBounds:
         )
 
         prereg = _mini_prereg(
-            power_min=5.0, power_max=180.0,
-            rjc_min=0.5, rjc_max=3.5,
-            heatspread_min=5.0, heatspread_max=40.0,
+            power_min=5.0,
+            power_max=180.0,
+            rjc_min=0.5,
+            rjc_max=3.5,
+            heatspread_min=5.0,
+            heatspread_max=40.0,
         )
         fdm_config = _mini_fdm_config(ambient_C=40.0)
         bounds = build_thermal_parameter_bounds(prereg, fdm_config)
@@ -303,13 +302,11 @@ class TestWorstCaseCorner:
 
     def test_corner_greater_equal_random_sample(self):
         """T_j at worst-case corner >= T_j at a random interior sample."""
-        from temper_placer.physics.parameter_bounds import (
-            build_thermal_parameter_bounds,
-            worst_case_corner,
-        )
 
-        prereg = _mini_prereg()
-        fdm_config = _mini_fdm_config(ambient_C=40.0, cell_size_mm=2.0, height_cells=15, width_cells=15)
+        _mini_prereg()
+        fdm_config = _mini_fdm_config(
+            ambient_C=40.0, cell_size_mm=2.0, height_cells=15, width_cells=15
+        )
         devices = {"Q1": (15.0, 10.0)}
 
         # --- Corner: max power (180W), pure FR4, max ambient (50C), no sink ---
@@ -328,8 +325,11 @@ class TestWorstCaseCorner:
         corner_copper = np.zeros((15, 15), dtype=np.float64)
         corner_h = np.zeros((15, 15), dtype=np.float64)
         T_corner = _peak_T(
-            devices, {"Q1": 180.0}, corner_config,
-            copper_grid=corner_copper, h_field=corner_h,
+            devices,
+            {"Q1": 180.0},
+            corner_config,
+            copper_grid=corner_copper,
+            h_field=corner_h,
         )
 
         # --- Random interior sample: 30W, 50% copper, 35C ambient, moderate sink ---
@@ -348,8 +348,11 @@ class TestWorstCaseCorner:
         sample_copper = np.full((15, 15), 0.5, dtype=np.float64)
         sample_h = np.full((15, 15), 0.005, dtype=np.float64)  # moderate sink
         T_sample = _peak_T(
-            devices, {"Q1": 30.0}, sample_config,
-            copper_grid=sample_copper, h_field=sample_h,
+            devices,
+            {"Q1": 30.0},
+            sample_config,
+            copper_grid=sample_copper,
+            h_field=sample_h,
         )
 
         assert T_corner >= T_sample, (
@@ -371,7 +374,9 @@ class TestSoundnessGate:
         from temper_placer.physics.parameter_bounds import compute_thermal_soundness
 
         prereg = _mini_prereg(power_max=180.0)
-        fdm_config = _mini_fdm_config(ambient_C=40.0, cell_size_mm=2.0, height_cells=15, width_cells=15)
+        fdm_config = _mini_fdm_config(
+            ambient_C=40.0, cell_size_mm=2.0, height_cells=15, width_cells=15
+        )
         devices = {"Q1": (15.0, 10.0)}
         power_map = {"Q1": 50.0}
 
@@ -386,9 +391,7 @@ class TestSoundnessGate:
             h_field=None,
         )
 
-        assert not sr.is_sound, (
-            f"Expected sampled-only, got sound: {sr.detail}"
-        )
+        assert not sr.is_sound, f"Expected sampled-only, got sound: {sr.detail}"
         assert sr.corner_peak_C > sr.T_j_max_C, (
             f"Corner peak {sr.corner_peak_C:.1f}C should exceed "
             f"T_j_max={sr.T_j_max_C:.1f}C for this test"
@@ -411,7 +414,10 @@ class TestSoundnessGate:
         # Tiny power: 1 mW on a 5x5 grid with 10mm cells = 50mm x 50mm board
         prereg = _mini_prereg(power_max=0.001)
         fdm_config = _mini_fdm_config(
-            ambient_C=25.0, cell_size_mm=10.0, height_cells=5, width_cells=5,
+            ambient_C=25.0,
+            cell_size_mm=10.0,
+            height_cells=5,
+            width_cells=5,
         )
         devices = {"Q1": (25.0, 25.0)}
         power_map = {"Q1": 0.0005}
@@ -426,12 +432,9 @@ class TestSoundnessGate:
             h_field=None,
         )
 
-        assert sr.is_sound, (
-            f"Expected SOUND, got: {sr.detail}"
-        )
+        assert sr.is_sound, f"Expected SOUND, got: {sr.detail}"
         assert sr.corner_peak_C <= sr.T_j_max_C, (
-            f"Corner peak {sr.corner_peak_C:.1f}C should be <= "
-            f"T_j_max={sr.T_j_max_C:.1f}C"
+            f"Corner peak {sr.corner_peak_C:.1f}C should be <= T_j_max={sr.T_j_max_C:.1f}C"
         )
         assert "SOUND" in sr.detail.upper()
 
@@ -474,38 +477,43 @@ class TestSoundnessGate:
         """An unclassifiable parameter gets monotonicity=0."""
         from temper_placer.physics.parameter_bounds import build_thermal_parameter_bounds
 
-        prereg = FieldPreregistration.model_validate({
-            "field_name": "test",
-            "independent_instrument": "o",
-            "cheap_baseline": {
-                "name": "c", "description": "d", "metric": "m",
-                "target_value": 0.0, "because": "b",
-            },
-            "parametric_ranges": [
-                {
-                    "parameter": "mystery_param",
-                    "min": 0.0,
-                    "max": 100.0,
-                    "because": "unknown physics",
+        prereg = FieldPreregistration.model_validate(
+            {
+                "field_name": "test",
+                "independent_instrument": "o",
+                "cheap_baseline": {
+                    "name": "c",
+                    "description": "d",
+                    "metric": "m",
+                    "target_value": 0.0,
+                    "because": "b",
                 },
-            ],
-            "structural_bounding_cases": [
-                {"case_name": "c", "description": "d", "because": "b"},
-            ],
-            "pass_bar": {
-                "margin_gain": {"value": 0.1, "because": "b"},
-                "beat_cheap_baseline_by": {"value": 0.05, "because": "b"},
-                "across_perturbations": {"value": 5, "because": "b"},
-            },
-            "kill_criterion": {"description": "k", "because": "b"},
-            "cost_budget": {
-                "max_total_battery_seconds": 3600,
-                "max_rounds_budget": 20,
-                "field_convergence_round_limit": 5,
-                "thermal_grid_cells_max": 10000,
-                "target_solve_time_ms_per_field": 5000,
-            },
-        })
+                "parametric_ranges": [
+                    {
+                        "parameter": "mystery_param",
+                        "min": 0.0,
+                        "max": 100.0,
+                        "because": "unknown physics",
+                    },
+                ],
+                "structural_bounding_cases": [
+                    {"case_name": "c", "description": "d", "because": "b"},
+                ],
+                "pass_bar": {
+                    "margin_gain": {"value": 0.1, "because": "b"},
+                    "beat_cheap_baseline_by": {"value": 0.05, "because": "b"},
+                    "across_perturbations": {"value": 5, "because": "b"},
+                },
+                "kill_criterion": {"description": "k", "because": "b"},
+                "cost_budget": {
+                    "max_total_battery_seconds": 3600,
+                    "max_rounds_budget": 20,
+                    "field_convergence_round_limit": 5,
+                    "thermal_grid_cells_max": 10000,
+                    "target_solve_time_ms_per_field": 5000,
+                },
+            }
+        )
 
         bounds = build_thermal_parameter_bounds(prereg)
         mystery = [b for b in bounds if b.parameter == "mystery_param"]

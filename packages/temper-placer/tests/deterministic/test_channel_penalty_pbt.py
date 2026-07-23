@@ -34,12 +34,8 @@ cell_size_um_st = st.floats(
 grid_dim_st = st.integers(min_value=1, max_value=64)
 
 # Slot coordinates in mm, signed to allow out-of-grid
-slot_x_st = st.floats(
-    min_value=-50.0, max_value=50.0, allow_nan=False, allow_infinity=False
-)
-slot_y_st = st.floats(
-    min_value=-50.0, max_value=50.0, allow_nan=False, allow_infinity=False
-)
+slot_x_st = st.floats(min_value=-50.0, max_value=50.0, allow_nan=False, allow_infinity=False)
+slot_y_st = st.floats(min_value=-50.0, max_value=50.0, allow_nan=False, allow_infinity=False)
 
 # Severity choices
 severity_st = st.sampled_from(sorted(ALLOWED_SEVERITIES))
@@ -180,12 +176,9 @@ def test_pbt_severity_monotonic(cell_um, occ):
             }
         )
         penalties[sev] = routability_penalty((1.5, 1.5), cmap)
-    assert (
-        penalties["LOW"]
-        <= penalties["MEDIUM"]
-        <= penalties["HIGH"]
-        <= penalties["CRITICAL"]
-    ), penalties
+    assert penalties["LOW"] <= penalties["MEDIUM"] <= penalties["HIGH"] <= penalties["CRITICAL"], (
+        penalties
+    )
 
 
 @settings(max_examples=120, suppress_health_check=[HealthCheck.too_slow])

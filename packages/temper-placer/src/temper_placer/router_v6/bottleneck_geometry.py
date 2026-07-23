@@ -314,7 +314,9 @@ def _should_discount_for_neighbor(
     if rule is None:
         return True
     neighbor_safety_cat: str | None = getattr(rule, "safety_category", None)
-    neighbor_category = _SAFETY_RANK.get(neighbor_safety_cat, 0) if isinstance(neighbor_safety_cat, str) else 0
+    neighbor_category = (
+        _SAFETY_RANK.get(neighbor_safety_cat, 0) if isinstance(neighbor_safety_cat, str) else 0
+    )
     return neighbor_category > current_category
 
 
@@ -450,9 +452,7 @@ def _build_capacitated_graph(
             and bfs_iters % _DEADLINE_CHECK_STRIDE == 0
             and time.monotonic() >= deadline
         ):
-            raise TimeoutError(
-                f"capacitated graph BFS exceeded {BOTTLENECK_TIMEOUT_S}s budget"
-            )
+            raise TimeoutError(f"capacitated graph BFS exceeded {BOTTLENECK_TIMEOUT_S}s budget")
         if cell in nodes:
             continue
         if is_hard_blocked(grid, cell):
@@ -507,8 +507,7 @@ def _build_capacitated_graph(
                         and time.monotonic() >= deadline
                     ):
                         raise TimeoutError(
-                            f"capacitated graph edge build exceeded "
-                            f"{BOTTLENECK_TIMEOUT_S}s budget"
+                            f"capacitated graph edge build exceeded {BOTTLENECK_TIMEOUT_S}s budget"
                         )
                     cap_there = _compute_cell_capacity(
                         cell=neighbor,
@@ -564,17 +563,11 @@ def _resolve_pad_cells(
     pads: list[tuple[tuple[str, str], list[tuple[int, int, int]], tuple[float, float]]] = []
     if board_state.netlist is not None and net is not None:
         for comp_ref, pin_name in getattr(net, "pins", []):
-            comp = next(
-                (c for c in board_state.netlist.components if c.ref == comp_ref), None
-            )
+            comp = next((c for c in board_state.netlist.components if c.ref == comp_ref), None)
             if comp is None:
                 continue
             pin = next(
-                (
-                    p
-                    for p in comp.pins
-                    if p.name == pin_name or p.number == pin_name
-                ),
+                (p for p in comp.pins if p.name == pin_name or p.number == pin_name),
                 None,
             )
             if pin is None:
@@ -716,7 +709,7 @@ def _partition_to_components(
         for cell in non_reachable:
             x_mm = cell[2] * cell_size + cell_size / 2
             y_mm = cell[1] * cell_size + cell_size / 2
-            for (x_min, y_min, x_max, y_max) in keepouts:
+            for x_min, y_min, x_max, y_max in keepouts:
                 if x_min <= x_mm <= x_max and y_min <= y_mm <= y_max:
                     sink_label = sink_label or "keepout"
                     if pair_kind == "component_component":
@@ -728,9 +721,7 @@ def _partition_to_components(
     return (source_label, sink_label), pair_kind, (source_pos, sink_pos)
 
 
-def _resolve_cell_size_mm(
-    board_state: BoardState, grid: ClearanceGrid | None
-) -> float:
+def _resolve_cell_size_mm(board_state: BoardState, grid: ClearanceGrid | None) -> float:
     """Return the cell size in mm for the board's clearance grid.
 
     The ``Board`` dataclass does not carry ``cell_size_mm``; the
@@ -898,11 +889,7 @@ def analyze_bottleneck(
             if comp is None:
                 continue
             pin = next(
-                (
-                    p
-                    for p in comp.pins
-                    if p.name == pin_name or p.number == pin_name
-                ),
+                (p for p in comp.pins if p.name == pin_name or p.number == pin_name),
                 None,
             )
             if pin is None:

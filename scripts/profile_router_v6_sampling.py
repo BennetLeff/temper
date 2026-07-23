@@ -24,7 +24,6 @@ import sys
 import time
 from pathlib import Path
 
-
 REPO_ROOT = Path("/Users/bennet/Desktop/temper/.worktrees/feat/router-v6-closure-rate-90-percent")
 PCB_PATH = REPO_ROOT / "pcb" / "temper.kicad_pcb"
 
@@ -73,6 +72,7 @@ def pick_easy_nets(pcb, n: int) -> list[str]:
 
 def run_sample(max_nets: int, output_path: Path | None) -> None:
     from dataclasses import replace
+
     from temper_placer.io.kicad_parser import parse_kicad_pcb_v6
     from temper_placer.router_v6.pipeline import RouterV6Pipeline
 

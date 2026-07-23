@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import given, settings, strategies as st
-
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 # ---------------------------------------------------------------------------
 # K1: Closed-form analytic 1D bar — both U5 and U7 must match analytic
@@ -75,8 +75,11 @@ def test_independent_scorer_matches_analytic():
     # U7: independent convective-boundary solve (sparse-direct, no iteration)
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     u7_grid, iterations, residual = scorer.solve_independent(
-        config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     # Analytic: T(y) = T_top + Q/(2*k_eff) * (H^2 - y^2)
@@ -88,12 +91,8 @@ def test_independent_scorer_matches_analytic():
     T_analytic = T_top + Q_uniform / (2 * k_eff_target) * (H**2 - y_world**2)
 
     # Both independently match analytic within 2% at each point
-    u5_rel_err = np.max(
-        np.abs(T_u5_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6)
-    )
-    u7_rel_err = np.max(
-        np.abs(T_u7_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6)
-    )
+    u5_rel_err = np.max(np.abs(T_u5_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6))
+    u7_rel_err = np.max(np.abs(T_u7_center - T_analytic) / np.maximum(np.abs(T_analytic), 1e-6))
 
     assert u5_rel_err < 0.02, f"U5 relative error {u5_rel_err:.4f} exceeds 2%"
     assert u7_rel_err < 0.02, f"U7 relative error {u7_rel_err:.4f} exceeds 2%"
@@ -101,8 +100,7 @@ def test_independent_scorer_matches_analytic():
     # U5 and U7 agree with each other (both match analytic)
     u5_u7_max_diff = float(np.max(np.abs(u7_grid - u5_grid)))
     assert u5_u7_max_diff < 0.5, (
-        f"U5-U7 max diff {u5_u7_max_diff:.3f}°C "
-        f"— should agree on well-conditioned problem"
+        f"U5-U7 max diff {u5_u7_max_diff:.3f}°C — should agree on well-conditioned problem"
     )
 
 
@@ -175,8 +173,11 @@ def test_falsifiability_high_contrast_disagreement():
     # U7: convective-boundary (Robin BC) direct solve
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     u7_grid, _iterations, _residual = scorer.solve_independent(
-        config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     # Falsifiability: they must disagree beyond the threshold
@@ -189,8 +190,7 @@ def test_falsifiability_high_contrast_disagreement():
     )
 
     assert max_diff > FALSIFIABILITY_THRESHOLD_C, (
-        f"max|U7-U5| = {max_diff:.3f}°C <= "
-        f"{FALSIFIABILITY_THRESHOLD_C}°C threshold"
+        f"max|U7-U5| = {max_diff:.3f}°C <= {FALSIFIABILITY_THRESHOLD_C}°C threshold"
     )
 
 
@@ -272,16 +272,22 @@ def test_biased_field_caught_by_independent_scorer():
     # Independent scorer evaluates the biased field
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     result_biased = scorer.score(
-        u5_biased, config_correct,
-        devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        u5_biased,
+        config_correct,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     # Score the correct U5 field for baseline
     result_correct = scorer.score(
-        u5_correct, config_correct,
-        devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        u5_correct,
+        config_correct,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     # The biased field should show LARGER deviation than the correct field
@@ -333,9 +339,7 @@ def test_structural_bounding_cases_distinct():
 
     # Each bound is conservative (2D model is optimistic)
     for b in STRUCTURAL_BOUNDS:
-        assert b.is_conservative, (
-            f"{b.name}: should be conservative (2D model underestimates T)"
-        )
+        assert b.is_conservative, f"{b.name}: should be conservative (2D model underestimates T)"
         assert b.peak_deviation_C > 0
         assert len(b.description) > 20
         assert len(b.bounding_input) > 20
@@ -413,8 +417,11 @@ def test_scorer_deterministic():
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
 
     u5_result = solve_thermal_fdm(
-        config=config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config=config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     result1 = scorer.score(u5_result, config, devices, power_map, copper_grid, Q_field)
@@ -469,8 +476,11 @@ def test_scorer_is_callable_for_build_scorecard():
     power_map: dict[str, float] = {}
 
     u5_result = solve_thermal_fdm(
-        config=config, devices=devices, power_map=power_map,
-        copper_grid=copper_grid, Q_field=Q_field,
+        config=config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
 
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
@@ -487,11 +497,8 @@ def test_scorer_is_callable_for_build_scorecard():
 
     # Structural axis documents the convective-boundary (Robin BC) model
     assert len(result.structural_axis) > 50
-    assert (
-        "convective" in result.structural_axis.lower()
-        or "Robin" in result.structural_axis
-    )
-    assert STRUCTURAL_INDEPENDENCE_AXIS == result.structural_axis
+    assert "convective" in result.structural_axis.lower() or "Robin" in result.structural_axis
+    assert result.structural_axis == STRUCTURAL_INDEPENDENCE_AXIS
 
     # Geometry envelope
     assert len(result.geometry_envelope) > 20
@@ -534,7 +541,9 @@ def test_scorer_with_device_power():
     power_map = {"Q1": 15.0, "Q2": 7.5}
 
     u5_result = solve_thermal_fdm(
-        config=config, devices=devices, power_map=power_map,
+        config=config,
+        devices=devices,
+        power_map=power_map,
         copper_grid=copper_grid,
     )
     assert u5_result.is_usable
@@ -574,7 +583,9 @@ def test_scorer_no_heat_sources_flat():
     copper_grid = np.zeros((10, 10), dtype=np.float64)
 
     u5_result = solve_thermal_fdm(
-        config=config, devices=devices, power_map=power_map,
+        config=config,
+        devices=devices,
+        power_map=power_map,
         copper_grid=copper_grid,
     )
     assert u5_result.is_usable
@@ -582,7 +593,10 @@ def test_scorer_no_heat_sources_flat():
 
     scorer = ThermalScorer(ThermalScorerConfig(h=10.0))
     u7_grid, _, _ = scorer.solve_independent(
-        config, devices=devices, power_map=power_map, copper_grid=copper_grid,
+        config,
+        devices=devices,
+        power_map=power_map,
+        copper_grid=copper_grid,
     )
 
     # Both should be at ambient
@@ -630,8 +644,10 @@ def test_score_unmeasured_field_raises():
 
     with pytest.raises(FieldNotReadyError, match=r"UNMEASURED.*0 deg-C"):
         scorer.score(
-            u5_result, config,
-            devices={}, power_map={},
+            u5_result,
+            config,
+            devices={},
+            power_map={},
             copper_grid=np.zeros((10, 10), dtype=np.float64),
             Q_field=np.zeros((10, 10), dtype=np.float64),
         )
@@ -652,9 +668,7 @@ def test_structural_independence_documented():
         "convective" in STRUCTURAL_INDEPENDENCE_AXIS.lower()
         or "Robin" in STRUCTURAL_INDEPENDENCE_AXIS
     )
-    assert contains_convective, (
-        "Must name the independent method (convective-boundary / Robin BC)"
-    )
+    assert contains_convective, "Must name the independent method (convective-boundary / Robin BC)"
 
     contains_direct = (
         "sparse" in STRUCTURAL_INDEPENDENCE_AXIS.lower()
@@ -683,41 +697,58 @@ def test_scorer_no_runaway_temperatures(power, copper_frac, ambient_C):
     """PBT guard: for any physically-plausible power/copper/ambient,
     the scorer must NOT produce a temperature far above the FDM
     (a realistic ceiling — no runaway solves)."""
+    from temper_placer.physics.heat_removal import build_h_field
     from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
     from temper_placer.physics.tj_cross_check import DeviceThermalConfig
-    from temper_placer.physics.heat_removal import build_h_field
     from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
 
     config = ThermalFDMConfig(
-        cell_size_mm=1.0, origin_mm=(0.0, 0.0), height_cells=20, width_cells=20,
-        ambient_C=ambient_C, heatsink_edge='BOTTOM',
+        cell_size_mm=1.0,
+        origin_mm=(0.0, 0.0),
+        height_cells=20,
+        width_cells=20,
+        ambient_C=ambient_C,
+        heatsink_edge="BOTTOM",
     )
     copper = np.full((20, 20), copper_frac, dtype=np.float64)
     dt = DeviceThermalConfig(
-        name='Q1', R_theta_jc=0.6, R_theta_cs=0.25, R_theta_sa=1.0,
+        name="Q1",
+        R_theta_jc=0.6,
+        R_theta_cs=0.25,
+        R_theta_sa=1.0,
         T_j_max=150.0,
-        R_jc_because='test', R_cs_because='test',
-        R_sa_because='test', T_j_max_because='test',
+        R_jc_because="test",
+        R_cs_because="test",
+        R_sa_because="test",
+        T_j_max_because="test",
     )
     h_field = build_h_field(
-        config=config, devices={'Q1': (10.0, 5.0)}, device_thermal={'Q1': dt},
+        config=config,
+        devices={"Q1": (10.0, 5.0)},
+        device_thermal={"Q1": dt},
     )
     u5 = solve_thermal_fdm(
-        config=config, devices={'Q1': (10.0, 5.0)}, power_map={'Q1': power},
-        copper_grid=copper, h_field=h_field,
+        config=config,
+        devices={"Q1": (10.0, 5.0)},
+        power_map={"Q1": power},
+        copper_grid=copper,
+        h_field=h_field,
     )
     scorer = ThermalScorer(ThermalScorerConfig(max_iterations=500))
     score = scorer.score(
-        u5_result=u5, fdm_config=config,
-        devices={'Q1': (10.0, 5.0)}, power_map={'Q1': power},
-        copper_grid=copper, h_field=h_field,
+        u5_result=u5,
+        fdm_config=config,
+        devices={"Q1": (10.0, 5.0)},
+        power_map={"Q1": power},
+        copper_grid=copper,
+        h_field=h_field,
     )
     # Conservative ceiling: 10x the FDM peak (generous — catches the 59k C bug
     # which was ~300x the FDM peak of 223 C). With h_field both models use
     # the same through-plane sink, so they should agree within a factor.
     u5_peak = u5.field.grid.max() if u5.field is not None else 0.0
     assert score.u7_peak_C < max(50.0, u5_peak * 10.0), (
-        f'scorer runaway: u7_peak={score.u7_peak_C:.0f} C '
-        f'vs u5_peak={u5_peak:.0f} C '
-        f'(power={power:.0f}W, copper={copper_frac:.2f}, amb={ambient_C:.0f}C)'
+        f"scorer runaway: u7_peak={score.u7_peak_C:.0f} C "
+        f"vs u5_peak={u5_peak:.0f} C "
+        f"(power={power:.0f}W, copper={copper_frac:.2f}, amb={ambient_C:.0f}C)"
     )

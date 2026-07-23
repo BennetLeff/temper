@@ -23,18 +23,21 @@ class _TestStage(Stage):
         if self._return is not None:
             return self._return
         from dataclasses import replace
+
         return replace(state, net_order=("A", "B"))
 
 
 class TestDeterministicAdapter:
     def test_wrap_satisfies_protocol(self):
         from temper_placer.adapters.deterministic_adapter import wrap_deterministic_stage
+
         stage = _TestStage()
         wrapped = wrap_deterministic_stage(stage)
         assert isinstance(wrapped, PipelineStage)
 
     def test_wrapped_preserves_name(self):
         from temper_placer.adapters.deterministic_adapter import wrap_deterministic_stage
+
         stage = _TestStage()
         stage._name = "my_custom_name"
         wrapped = wrap_deterministic_stage(stage)
@@ -42,6 +45,7 @@ class TestDeterministicAdapter:
 
     def test_wrapped_delegates_run(self):
         from temper_placer.adapters.deterministic_adapter import wrap_deterministic_stage
+
         stage = _TestStage()
         stage._return = BoardState(net_order=("X", "Y"))
         wrapped = wrap_deterministic_stage(stage)
@@ -51,6 +55,7 @@ class TestDeterministicAdapter:
 
     def test_wrapped_preserves_meta(self):
         from temper_placer.adapters.deterministic_adapter import wrap_deterministic_stage
+
         stage = _TestStage()
         wrapped = wrap_deterministic_stage(stage)
         meta = StageMeta(seed=99)
@@ -60,6 +65,7 @@ class TestDeterministicAdapter:
 
     def test_requires_provides_passthrough(self):
         from temper_placer.adapters.deterministic_adapter import wrap_deterministic_stage
+
         stage = _TestStage()
         wrapped = wrap_deterministic_stage(stage, requires=["board"], provides=["placements"])
         assert wrapped.requires == ["board"]
@@ -67,6 +73,7 @@ class TestDeterministicAdapter:
 
     def test_internals_unmodified(self):
         from temper_placer.adapters.deterministic_adapter import wrap_deterministic_stage
+
         stage = _TestStage()
         original_result = stage.run(BoardState())
         wrap_deterministic_stage(stage)
@@ -89,10 +96,12 @@ ORCHESTRATOR_PHASES = {
 class TestOrchestratorAdapter:
     def _fresh_import_orchestrator(self):
         import temper_placer.strategy_registry as sr
+
         sr._registry.clear()
         sr._composites.clear()
         sys.modules.pop("temper_placer.adapters.orchestrator_adapter", None)
         import temper_placer.adapters.orchestrator_adapter as oa
+
         return oa, sr
 
     def test_each_phase_has_name(self):
@@ -130,10 +139,12 @@ class TestOrchestratorAdapter:
 class TestRouterV6Adapter:
     def _fresh_import_router_v6(self):
         import temper_placer.strategy_registry as sr
+
         sr._registry.clear()
         sr._composites.clear()
         sys.modules.pop("temper_placer.adapters.router_v6_stage_adapter", None)
         import temper_placer.adapters.router_v6_stage_adapter as rv6
+
         return rv6, sr
 
     def test_five_stages_registered(self):
@@ -151,6 +162,7 @@ class TestRouterV6Adapter:
 
     def test_stage0_expects_path(self):
         from temper_placer.adapters.router_v6_stage_adapter import RouterV6Stage0_LoadPCB
+
         stage = RouterV6Stage0_LoadPCB()
         inp = StageInput(data=42)
         with pytest.raises(TypeError, match="RouterV6Stage0"):
@@ -172,4 +184,5 @@ class TestRouterV6Adapter:
     def test_internals_unmodified(self):
         _, sr = self._fresh_import_router_v6()
         from temper_placer.adapters.router_v6_stage_adapter import RouterV6Stage0_LoadPCB
+
         assert RouterV6Stage0_LoadPCB.name == "router_v6/load_pcb"

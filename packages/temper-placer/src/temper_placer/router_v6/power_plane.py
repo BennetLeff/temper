@@ -219,9 +219,7 @@ def _thermal_via_positions(
     x0 = cx - span / 2.0
     y0 = cy - span / 2.0
     return [
-        (x0 + col * pitch_mm, y0 + row * pitch_mm)
-        for row in range(side)
-        for col in range(side)
+        (x0 + col * pitch_mm, y0 + row * pitch_mm) for row in range(side) for col in range(side)
     ]
 
 
@@ -260,9 +258,7 @@ def generate_thermal_vias(
         A flat list of ``Via`` objects for every stamped array.
     """
     if diameter_mm <= drill_mm:
-        raise ValueError(
-            f"diameter_mm ({diameter_mm}) must exceed drill_mm ({drill_mm})"
-        )
+        raise ValueError(f"diameter_mm ({diameter_mm}) must exceed drill_mm ({drill_mm})")
 
     vias: list[Via] = []
     layers = (layer_from, layer_to)
@@ -315,9 +311,7 @@ def generate_power_planes(
     """
     ground_pour = generate_ground_pour(board, layer=ground_layer)
     power_pours = generate_power_pours(board, domains, layer=power_layer)
-    thermal_vias = generate_thermal_vias(
-        board, components, count=thermal_via_count
-    )
+    thermal_vias = generate_thermal_vias(board, components, count=thermal_via_count)
     return PowerPlaneGeometry(
         ground_pour=ground_pour,
         power_pours=power_pours,

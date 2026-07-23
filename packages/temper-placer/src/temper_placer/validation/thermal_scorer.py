@@ -166,9 +166,9 @@ class ThermalScorerConfig:
     """
 
     h: float = CONVECTION_COEFFICIENT_H_W_PER_M2K
-    max_iterations: int = 5000   # backward compat; unused in convective model
-    tolerance_C: float = 0.05    # backward compat; unused in convective model
-    relaxation: float = 1.2      # backward compat; unused in convective model
+    max_iterations: int = 5000  # backward compat; unused in convective model
+    tolerance_C: float = 0.05  # backward compat; unused in convective model
+    relaxation: float = 1.2  # backward compat; unused in convective model
 
 
 # ---------------------------------------------------------------------------
@@ -302,9 +302,7 @@ class ThermalScoreResult:
     )
     geometry_envelope: str = GEOMETRY_ENVELOPE
     solver: str = "independent"
-    shared_assumptions: list[str] = field(
-        default_factory=lambda: list(SHARED_ASSUMPTIONS)
-    )
+    shared_assumptions: list[str] = field(default_factory=lambda: list(SHARED_ASSUMPTIONS))
     independent_assumptions: list[str] = field(
         default_factory=lambda: list(INDEPENDENT_ASSUMPTIONS)
     )
@@ -333,8 +331,10 @@ def falsifiability_assertion(u5_field: np.ndarray, u7_field: np.ndarray) -> bool
 
 
 def _is_heatsink_edge_cell(
-    row: int, col: int,
-    height_cells: int, width_cells: int,
+    row: int,
+    col: int,
+    height_cells: int,
+    width_cells: int,
     heatsink_edge: str,
 ) -> bool:
     """Return True if (row, col) lies on the declared heatsink edge."""
@@ -351,8 +351,10 @@ def _is_heatsink_edge_cell(
 
 
 def _is_convective_edge_cell(
-    row: int, col: int,
-    height_cells: int, width_cells: int,
+    row: int,
+    col: int,
+    height_cells: int,
+    width_cells: int,
     heatsink_edge: str,
 ) -> bool:
     """Return True if (row, col) is on one of the three NON-heatsink edges."""
@@ -366,9 +368,11 @@ def _is_convective_edge_cell(
 
 
 def _is_neumann_boundary_u7(
-    row: int, col: int,
+    row: int,
+    col: int,
     direction: str,
-    height_cells: int, width_cells: int,
+    height_cells: int,
+    width_cells: int,
     heatsink_edge: str,
 ) -> bool:
     """Return True if the neighbour in *direction* would cross a board edge
@@ -453,9 +457,11 @@ def _build_heat_source_field_gs(
 
 
 def _is_heatsink_boundary_face_u7(
-    row: int, col: int,
+    row: int,
+    col: int,
     direction: str,
-    height_cells: int, width_cells: int,
+    height_cells: int,
+    width_cells: int,
     heatsink_edge: str,
 ) -> bool:
     """Return True if the face in *direction* is the outer boundary
@@ -594,7 +600,11 @@ def _convective_fdm_solve(
     from scipy.sparse.linalg import spsolve
 
     A, b = _assemble_convective_system(
-        config, k_field, Q_field, h_conv=scorer_config.h, h_field=h_field,
+        config,
+        k_field,
+        Q_field,
+        h_conv=scorer_config.h,
+        h_field=h_field,
     )
     T_flat: np.ndarray = spsolve(A, b)
     T_grid = T_flat.reshape(config.height_cells, config.width_cells)

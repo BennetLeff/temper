@@ -1,0 +1,16 @@
+name: Literal-Removal Advisory
+
+on:
+  pull_request:
+
+jobs:
+  advisory:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run literal-removal check
+        run: python3 scripts/literal_removal_check.py --base ${{ github.event.pull_request.base.sha }}

@@ -19,29 +19,19 @@ from __future__ import annotations
 # `name.upper()`. A net is "ground" if any of these is a substring,
 # "power" if any power pattern matches, "hv" if any HV pattern matches.
 # The precedence is: ground > power > hv > signal.
-GROUND_NET_PATTERNS: frozenset[str] = frozenset(
-    {"GND", "PGND", "CGND", "AGND", "DGND", "VSS"}
-)
+GROUND_NET_PATTERNS: frozenset[str] = frozenset({"GND", "PGND", "CGND", "AGND", "DGND", "VSS"})
 POWER_NET_PATTERNS: frozenset[str] = frozenset(
     {"+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS"}
 )
-HV_NET_PATTERNS: frozenset[str] = frozenset(
-    {"AC_L", "AC_N", "PE", "DC_BUS+", "DC_BUS-", "SW_NODE"}
-)
+HV_NET_PATTERNS: frozenset[str] = frozenset({"AC_L", "AC_N", "PE", "DC_BUS+", "DC_BUS-", "SW_NODE"})
 
 # Pin-name patterns. Pin names are typically shorter and use different
 # conventions (e.g., "VCC" for power pins, "GND" for ground pins) than
 # net names (e.g., "+3V3" for power rails). The two pattern sets are
 # intentionally distinct.
-GROUND_PIN_PATTERNS: frozenset[str] = frozenset(
-    {"GND", "VSS", "AGND", "DGND", "PGND", "CGND"}
-)
-POWER_PIN_PATTERNS: frozenset[str] = frozenset(
-    {"VCC", "VDD", "VIN", "VOUT", "PVCC", "VBUS", "PWR"}
-)
-HV_PIN_PATTERNS: frozenset[str] = frozenset(
-    {"AC_L", "AC_N", "PE", "HV", "MAINS", "RECT"}
-)
+GROUND_PIN_PATTERNS: frozenset[str] = frozenset({"GND", "VSS", "AGND", "DGND", "PGND", "CGND"})
+POWER_PIN_PATTERNS: frozenset[str] = frozenset({"VCC", "VDD", "VIN", "VOUT", "PVCC", "VBUS", "PWR"})
+HV_PIN_PATTERNS: frozenset[str] = frozenset({"AC_L", "AC_N", "PE", "HV", "MAINS", "RECT"})
 CLOCK_PIN_PATTERNS: frozenset[str] = frozenset(
     {"CLK", "CLOCK", "XTAL1", "XTAL2", "OSC_IN", "OSC_OUT"}
 )

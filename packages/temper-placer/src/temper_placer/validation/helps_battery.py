@@ -187,7 +187,9 @@ def decide_verdict(
     Returns ``(BatteryVerdict, reason_string)``.
     """
     if budget_exceeded:
-        detail = f"Cost budget exceeded: {budget_detail}" if budget_detail else "Cost budget exceeded"
+        detail = (
+            f"Cost budget exceeded: {budget_detail}" if budget_detail else "Cost budget exceeded"
+        )
         return BatteryVerdict.INCONCLUSIVE, detail
 
     if not divergence_detected:
@@ -238,12 +240,8 @@ def run_helps_battery(
     field_name: str,
     board: Any,
     netlist: Any,
-    build_arm_placement: Callable[
-        [str, int, Any, Any, int], Any
-    ],
-    score_placement_fn: Callable[
-        [Any, Any, Any], MarginScorecard
-    ],
+    build_arm_placement: Callable[[str, int, Any, Any, int], Any],
+    score_placement_fn: Callable[[Any, Any, Any], MarginScorecard],
     scorer_id: str,
     base_seed: int = 42,
     n_perturbations: int | None = None,
@@ -333,9 +331,7 @@ def run_helps_battery(
             error: str | None = None
 
             try:
-                placement = build_arm_placement(
-                    arm_id, pert_idx, board, netlist, seed
-                )
+                placement = build_arm_placement(arm_id, pert_idx, board, netlist, seed)
                 scorecard = score_placement_fn(placement, board, netlist)
             except Exception as exc:
                 placement = None
@@ -382,7 +378,8 @@ def run_helps_battery(
 
     # ---- A/B divergence assertion ----
     divergence_ok, divergence_detail = _assert_divergence(
-        physics_placements, no_field_placements,
+        physics_placements,
+        no_field_placements,
     )
 
     # ---- Cost budget check ----
@@ -401,16 +398,12 @@ def run_helps_battery(
         budget_exceeded = True
         if budget_detail:
             budget_detail += "; "
-        budget_detail += (
-            f"perturbations {n} > max_rounds_budget {budget.max_rounds_budget}"
-        )
+        budget_detail += f"perturbations {n} > max_rounds_budget {budget.max_rounds_budget}"
 
     # ---- Verdict: pre-registered pass bar ----
     pass_bar = field.pass_bar
 
-    primary_gate = _resolve_primary_gate(
-        field, no_field_margins, cheap_margins, physics_margins
-    )
+    primary_gate = _resolve_primary_gate(field, no_field_margins, cheap_margins, physics_margins)
 
     n_actual_physics = len(physics_margins.get(primary_gate, []))
     n_actual_cheap = len(cheap_margins.get(primary_gate, []))
@@ -500,9 +493,7 @@ def run_helps_battery(
 # ---------------------------------------------------------------------------
 
 
-def _find_field(
-    manifest: PreregistrationManifest, field_name: str
-) -> FieldPreregistration | None:
+def _find_field(manifest: PreregistrationManifest, field_name: str) -> FieldPreregistration | None:
     """Find a field by name in the manifest."""
     for f in manifest.fields:
         if f.field_name == field_name:

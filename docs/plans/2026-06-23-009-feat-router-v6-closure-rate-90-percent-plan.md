@@ -1,7 +1,7 @@
 ---
 type: feat
 origin: docs/brainstorms/2026-06-23-router-v6-closure-rate-90-percent-requirements.md
-status: done
+status: completed
 completed: 2026-06-24
 date: 2026-06-23
 ---
@@ -516,3 +516,7 @@ Plus the diagnostic work that turned the 5+ min run into 23 s:
 - `temper-7fc4` (open) — "Fix Router V6 completion rate reporting (separate zone nets)".  U2 / R1 (count plane nets as routed) is a partial fix.  Cross-link; do not auto-close.
 
 **Plan U8 done.  All ship gates cleared on the canonical closure-test path.**
+
+## Shipped
+
+**Merged in [PR #16](https://github.com/BennetLeff/temper/pull/16) on 2026-06-24.** The 6-PR sequenced rollout lifted the closure test SM1 gate from 33% to 100% on `pcb/temper.kicad_pcb`. Commit `c20d6293` confirmed SM1 = 100% on the production board. Commit `ca532722` marked the plan done with U8 outcome stamp.

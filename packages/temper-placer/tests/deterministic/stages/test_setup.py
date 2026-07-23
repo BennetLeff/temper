@@ -10,14 +10,23 @@ def test_setup_stage():
     board = Board(width=100, height=100)
 
     # Create a component with one pin (pad)
-    pin = Pin(name="1", number="1", position=(2.0, 0.0), net="GND", width=1.0, height=1.0, shape="circle", layer="F.Cu")
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(2.0, 0.0),
+        net="GND",
+        width=1.0,
+        height=1.0,
+        shape="circle",
+        layer="F.Cu",
+    )
     comp = Component(
         ref="U1",
         footprint="TestFP",
         bounds=(5.0, 5.0),
         pins=[pin],
         initial_position=(10.0, 10.0),
-        initial_rotation=1 # 90 degrees
+        initial_rotation=1,  # 90 degrees
     )
 
     netlist = Netlist(components=[comp], nets=[])

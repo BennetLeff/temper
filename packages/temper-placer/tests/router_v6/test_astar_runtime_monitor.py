@@ -21,7 +21,7 @@ from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
 def _make_grid(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> OccupancyGrid:
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for r, c in (blocked or set()):
+    for r, c in blocked or set():
         arr[r, c] = 1
     return OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, cols, rows)
 
@@ -63,6 +63,7 @@ def test_monitor_detects_broken_heuristic():
     grid = _make_grid(10, 10)
 
     import temper_placer.router_v6.astar_core as ac
+
     _original_heuristic = ac._heuristic
 
     # An inconsistent heuristic: alternates between 0 and 50 based on
@@ -118,9 +119,7 @@ def test_monitor_theta_star_no_single_expansion_check():
         path = _astar_search_theta_star(grid, (0, 0), (9, 9), net_id=0)
         assert path is not None
     # No single-expansion violations because check is disabled by default
-    single_exp_violations = [
-        v for v in state.violations if v.invariant == "single_expansion"
-    ]
+    single_exp_violations = [v for v in state.violations if v.invariant == "single_expansion"]
     assert len(single_exp_violations) == 0
 
 
@@ -130,9 +129,7 @@ def test_monitor_path_completeness_ok():
     with astar_monitor() as state:
         path = _astar_search((0, 0), (9, 9), grid)
         assert path is not None
-    path_violations = [
-        v for v in state.violations if v.invariant == "path_completeness"
-    ]
+    path_violations = [v for v in state.violations if v.invariant == "path_completeness"]
     assert len(path_violations) == 0
 
 
@@ -176,9 +173,7 @@ def test_monitor_lazy_theta_star_obstacle_grid():
             assert path is not None, "Should find path on obstacle grid"
     except pytest.fail.Exception as e:
         # Expected: f_cost_monotonicity violations from optimistic parent
-        assert "f_cost_monotonicity" in str(e), (
-            f"Unexpected monitor failure: {e}"
-        )
+        assert "f_cost_monotonicity" in str(e), f"Unexpected monitor failure: {e}"
     # Verify path is actually findable (without monitor interference)
     path = _astar_search_lazy_theta_star(grid, (0, 0), (9, 9), net_id=0)
     assert path is not None, "Should find path on obstacle grid"
@@ -200,9 +195,7 @@ def test_monitor_lazy_theta_star_blocked_grid():
             assert path is None
     except pytest.fail.Exception as e:
         # Expected: f_cost_monotonicity violations from optimistic parent
-        assert "f_cost_monotonicity" in str(e), (
-            f"Unexpected monitor failure: {e}"
-        )
+        assert "f_cost_monotonicity" in str(e), f"Unexpected monitor failure: {e}"
 
 
 def test_monitor_lazy_theta_star_path_completeness_ok():
@@ -213,7 +206,5 @@ def test_monitor_lazy_theta_star_path_completeness_ok():
     with astar_monitor() as state:
         path = _astar_search_lazy_theta_star(grid, (0, 0), (9, 9), net_id=0)
         assert path is not None
-    path_violations = [
-        v for v in state.violations if v.invariant == "path_completeness"
-    ]
+    path_violations = [v for v in state.violations if v.invariant == "path_completeness"]
     assert len(path_violations) == 0

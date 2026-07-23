@@ -13,19 +13,16 @@ Covers:
 from __future__ import annotations
 
 import json
-import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 import pytest
 
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Netlist
-from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
+from temper_placer.physics.thermal_fdm import ThermalFDMConfig
 from temper_placer.validation.helps_battery import BatteryVerdict
-from temper_placer.validation.prereg.schema import PreregistrationManifest
 from temper_placer.validation.results.battery_run import (
     BatteryRunArtifact,
     BatteryRunReport,
@@ -34,7 +31,6 @@ from temper_placer.validation.results.battery_run import (
     _make_thermal_scorer_adapter,
     run_thermal_helps_battery,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -137,12 +133,20 @@ class TestSmokeTestFieldDivergence:
         """Smoke test passes when field-on vs field-off diverge."""
         board = _mini_board(100, 100)
         c1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         c2 = Component(
-            ref="Q2", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(30.0, 20.0), net_class="HighVoltage",
+            ref="Q2",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(30.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([c1, c2])
         fdm_config = _mini_fdm_config()
@@ -151,9 +155,13 @@ class TestSmokeTestFieldDivergence:
 
         # Should not raise — field diverges
         _ensure_field_diverges(
-            board=board, netlist=netlist, fdm_config=fdm_config,
-            devices=devices, power_map=power_map,
-            n_perturbations=2, base_seed=99,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
+            n_perturbations=2,
+            base_seed=99,
         )
 
     def test_unmeasured_field_terminates_smoke(self):
@@ -174,9 +182,13 @@ class TestSmokeTestFieldDivergence:
 
         with pytest.raises(RuntimeError, match="UNMEASURED"):
             _ensure_field_diverges(
-                board=board, netlist=netlist, fdm_config=fdm_config,
-                devices=devices, power_map=power_map,
-                n_perturbations=1, base_seed=99,
+                board=board,
+                netlist=netlist,
+                fdm_config=fdm_config,
+                devices=devices,
+                power_map=power_map,
+                n_perturbations=1,
+                base_seed=99,
             )
 
 
@@ -193,12 +205,20 @@ class TestHappyKeep:
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         q2 = Component(
-            ref="Q2", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(30.0, 20.0), net_class="HighVoltage",
+            ref="Q2",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(30.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1, q2])
         fdm_config = _mini_fdm_config()
@@ -251,8 +271,12 @@ class TestHappyKeep:
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 150)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 10.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 10.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
@@ -260,22 +284,34 @@ class TestHappyKeep:
         power_map = {"Q1": 30.0}
         op_config = _mini_op_config()
 
-        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=UTC)
 
         a1 = run_thermal_helps_battery(
-            prereg_path=prereg_path, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices, power_map=power_map,
+            prereg_path=prereg_path,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
             operating_point_config=op_config,
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
             battery_run_timestamp=run_ts,
         )
         a2 = run_thermal_helps_battery(
-            prereg_path=prereg_path, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices, power_map=power_map,
+            prereg_path=prereg_path,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
             operating_point_config=op_config,
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
             battery_run_timestamp=run_ts,
         )
 
@@ -340,29 +376,40 @@ fields:
 """)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
         devices = {"Q1": (50.0, 20.0)}
         power_map = {"Q1": 30.0}
         op_config = _mini_op_config()
-        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=UTC)
 
         artifact = run_thermal_helps_battery(
-            prereg_path=prereg_yaml, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices, power_map=power_map,
+            prereg_path=prereg_yaml,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
             operating_point_config=op_config,
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
             battery_run_timestamp=run_ts,
         )
 
         # With a high bar, the verdict SHOULD be KILL (or INCONCLUSIVE)
         # The point is the harness CAN conclude kill — it doesn't force keep
         assert artifact.verdict in (
-            BatteryVerdict.KILL, BatteryVerdict.INCONCLUSIVE,
+            BatteryVerdict.KILL,
+            BatteryVerdict.INCONCLUSIVE,
         ), f"Expected KILL or INCONCLUSIVE, got {artifact.verdict}"
 
 
@@ -382,13 +429,18 @@ class TestGateAbort:
     def _gate_has_spice(self) -> bool:
         """Check whether ngspice is available for the gate."""
         from temper_placer.validation.spice import NgspiceValidator
+
         return NgspiceValidator().check_ngspice()
 
     def test_unmeasured_gate_or_clean(self):
         """Gate with viable params: CLEAN if SPICE present, UNMEASURED otherwise."""
         params = {
-            "V_bus": 325.0, "V_BR": 1200.0, "I_load_rms": 16.0,
-            "L_coil": 100e-6, "L_leakage": 1e-6, "f_sw": 25000.0,
+            "V_bus": 325.0,
+            "V_BR": 1200.0,
+            "I_load_rms": 16.0,
+            "L_coil": 100e-6,
+            "L_leakage": 1e-6,
+            "f_sw": 25000.0,
         }
         if self._gate_has_spice():
             # SPICE present → gate returns CLEAN (no raise)
@@ -401,23 +453,29 @@ class TestGateAbort:
     def test_violations_gate_aborts(self):
         """Gate with infeasible parameters → SystemError (VIOLATIONS)."""
         with pytest.raises(SystemError, match="VIOLATIONS"):
-            _ensure_operating_point_clean({
-                "V_bus": 2000.0,   # way too high — V_bus > V_BR*derate
-                "V_BR": 1200.0,
-                "I_load_rms": 100.0,   # extreme current
-                "L_coil": 1e-9,    # tiny inductance → huge di/dt
-                "L_leakage": 1e-9,
-                "f_sw": 25000.0,
-                "T_j_max": 25.0,   # junction max below ambient → violation
-            })
+            _ensure_operating_point_clean(
+                {
+                    "V_bus": 2000.0,  # way too high — V_bus > V_BR*derate
+                    "V_BR": 1200.0,
+                    "I_load_rms": 100.0,  # extreme current
+                    "L_coil": 1e-9,  # tiny inductance → huge di/dt
+                    "L_leakage": 1e-9,
+                    "f_sw": 25000.0,
+                    "T_j_max": 25.0,  # junction max below ambient → violation
+                }
+            )
 
     def test_full_run_skips_gate_when_config_absent(self, tmp_path):
         """When operating_point_config is None, gate is skipped (test-only)."""
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
@@ -425,11 +483,17 @@ class TestGateAbort:
         power_map = {"Q1": 30.0}
 
         artifact = run_thermal_helps_battery(
-            prereg_path=prereg_path, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices, power_map=power_map,
+            prereg_path=prereg_path,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
             operating_point_config=None,  # skipped
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
         )
 
         assert not artifact.gate_clean
@@ -493,22 +557,32 @@ fields:
 
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
         devices = {"Q1": (50.0, 20.0)}
         power_map = {"Q1": 30.0}
 
-        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=UTC)
 
         artifact = run_thermal_helps_battery(
-            prereg_path=prereg_yaml, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices, power_map=power_map,
+            prereg_path=prereg_yaml,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
             operating_point_config=None,  # skip gate
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
             battery_run_timestamp=run_ts,
         )
 
@@ -565,22 +639,32 @@ fields:
 
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
         devices = {"Q1": (50.0, 20.0)}
         power_map = {"Q1": 30.0}
 
-        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=UTC)
 
         artifact = run_thermal_helps_battery(
-            prereg_path=prereg_yaml, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices, power_map=power_map,
+            prereg_path=prereg_yaml,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
             operating_point_config=None,
-            base_seed=42, n_perturbations=5,   # 5 > 1 max_rounds
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=5,  # 5 > 1 max_rounds
+            skip_smoke_test=True,
+            skip_human_reference=True,
             battery_run_timestamp=run_ts,
         )
 
@@ -601,8 +685,12 @@ class TestTimestampRejection:
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
@@ -611,15 +699,21 @@ class TestTimestampRejection:
 
         # Prereg created_at: "2026-07-09T00:00:00Z"
         # Run at 2019 — way before prereg
-        run_ts = datetime(2019, 1, 1, tzinfo=timezone.utc)
+        run_ts = datetime(2019, 1, 1, tzinfo=UTC)
 
         with pytest.raises(ValueError, match="post-dates"):
             run_thermal_helps_battery(
-                prereg_path=prereg_path, board=board, netlist=netlist,
-                fdm_config=fdm_config, devices=devices, power_map=power_map,
+                prereg_path=prereg_path,
+                board=board,
+                netlist=netlist,
+                fdm_config=fdm_config,
+                devices=devices,
+                power_map=power_map,
                 operating_point_config=None,
-                base_seed=42, n_perturbations=2,
-                skip_smoke_test=True, skip_human_reference=True,
+                base_seed=42,
+                n_perturbations=2,
+                skip_smoke_test=True,
+                skip_human_reference=True,
                 battery_run_timestamp=run_ts,
             )
 
@@ -635,15 +729,18 @@ class TestIntegrationRealWiring:
 
     def test_real_fdm_plus_scorer_wiring(self, tmp_path):
         """Integration: solve_thermal_fdm + ThermalScorer through build_scorecard."""
-        from temper_placer.validation.prereg.schema import PreregistrationManifest
-        from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
         from temper_placer.validation.scorecard import build_scorecard
+        from temper_placer.validation.thermal_scorer import ThermalScorer, ThermalScorerConfig
 
-        prereg_path = _mini_prereg_path(tmp_path)
+        _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
@@ -653,11 +750,15 @@ class TestIntegrationRealWiring:
         # Build scorer adapter
         scorer = ThermalScorer(ThermalScorerConfig(max_iterations=1000, tolerance_C=0.1))
         scorer_adapter = _make_thermal_scorer_adapter(
-            scorer, fdm_config, devices, power_map,
+            scorer,
+            fdm_config,
+            devices,
+            power_map,
         )
 
         # Create a minimal placement
         from temper_placer.validation.results.battery_run import _MinimalPlacement
+
         placement = _MinimalPlacement(
             positions=np.array([[50.0, 90.0]], dtype=np.float32),
             refs=["Q1"],
@@ -665,7 +766,9 @@ class TestIntegrationRealWiring:
 
         # Exercise build_scorecard with ThermalScorer
         scorecard = build_scorecard(
-            placement, board, netlist,
+            placement,
+            board,
+            netlist,
             scorer=scorer_adapter,
             scorer_id="thermal-gauss-seidel",
             field_id="thermal_field",
@@ -696,14 +799,16 @@ class TestReporterIntegration:
         )
 
         reporter = RegressionReporter()
-        reporter.add_battery_verdict(BatteryVerdictReport(
-            field_name="thermal",
-            verdict="keep",
-            verdict_details="KEEP: margin_gain=0.35 >= 0.10 (X)",
-            cost_seconds=12.5,
-            budget_exceeded=False,
-            event="keep",
-        ))
+        reporter.add_battery_verdict(
+            BatteryVerdictReport(
+                field_name="thermal",
+                verdict="keep",
+                verdict_details="KEEP: margin_gain=0.35 >= 0.10 (X)",
+                cost_seconds=12.5,
+                budget_exceeded=False,
+                event="keep",
+            )
+        )
 
         assert len(reporter.battery_verdicts) == 1
         assert reporter.battery_verdicts[0].verdict == "keep"
@@ -725,16 +830,26 @@ class TestReporterIntegration:
         )
 
         reporter = RegressionReporter()
-        reporter.add_battery_verdict(BatteryVerdictReport(
-            field_name="thermal", verdict="kill",
-            verdict_details="KILL: margin_gain < 0",
-            cost_seconds=5.0, budget_exceeded=False, event="kill",
-        ))
-        reporter.add_battery_verdict(BatteryVerdictReport(
-            field_name="clearance", verdict="keep",
-            verdict_details="KEEP: pass",
-            cost_seconds=3.0, budget_exceeded=False, event="keep",
-        ))
+        reporter.add_battery_verdict(
+            BatteryVerdictReport(
+                field_name="thermal",
+                verdict="kill",
+                verdict_details="KILL: margin_gain < 0",
+                cost_seconds=5.0,
+                budget_exceeded=False,
+                event="kill",
+            )
+        )
+        reporter.add_battery_verdict(
+            BatteryVerdictReport(
+                field_name="clearance",
+                verdict="keep",
+                verdict_details="KEEP: pass",
+                cost_seconds=3.0,
+                budget_exceeded=False,
+                event="keep",
+            )
+        )
 
         assert len(reporter.battery_verdicts) == 2
         assert reporter.battery_verdicts[0].event == "kill"
@@ -802,13 +917,21 @@ class TestArtifactDataclass:
     def test_artifact_to_dict(self):
         """to_dict serializes enum values correctly."""
         artifact = BatteryRunArtifact(
-            field_name="t", verdict=BatteryVerdict.KILL,
-            verdict_details="k", prereg_version=1,
-            prereg_created_at="x", run_timestamp_utc="y",
-            run_hash="h", gate_clean=True,
-            human_reference_calibrated=False, human_reference={},
-            cost_seconds=0, budget_exceeded=False, budget_detail="",
-            divergence_detected=False, divergence_detail="",
+            field_name="t",
+            verdict=BatteryVerdict.KILL,
+            verdict_details="k",
+            prereg_version=1,
+            prereg_created_at="x",
+            run_timestamp_utc="y",
+            run_hash="h",
+            gate_clean=True,
+            human_reference_calibrated=False,
+            human_reference={},
+            cost_seconds=0,
+            budget_exceeded=False,
+            budget_detail="",
+            divergence_detected=False,
+            divergence_detail="",
             n_perturbations=0,
         )
         d = artifact.to_dict()
@@ -829,8 +952,12 @@ class TestHumanReferenceSkip:
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
@@ -838,11 +965,17 @@ class TestHumanReferenceSkip:
         power_map = {"Q1": 30.0}
 
         artifact = run_thermal_helps_battery(
-            prereg_path=prereg_path, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices, power_map=power_map,
+            prereg_path=prereg_path,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
+            power_map=power_map,
             operating_point_config=None,
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
         )
 
         assert not artifact.human_reference_calibrated
@@ -862,8 +995,12 @@ class TestFailClosedPowerDerivation:
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
@@ -872,13 +1009,18 @@ class TestFailClosedPowerDerivation:
 
         with pytest.raises(SystemError, match="device_loss_configs"):
             run_thermal_helps_battery(
-                prereg_path=prereg_path, board=board, netlist=netlist,
-                fdm_config=fdm_config, devices=devices,
+                prereg_path=prereg_path,
+                board=board,
+                netlist=netlist,
+                fdm_config=fdm_config,
+                devices=devices,
                 power_map=None,  # not provided
                 operating_point_config=op_config,
                 device_loss_configs=None,  # missing
-                base_seed=42, n_perturbations=2,
-                skip_smoke_test=True, skip_human_reference=True,
+                base_seed=42,
+                n_perturbations=2,
+                skip_smoke_test=True,
+                skip_human_reference=True,
             )
 
     def test_explicit_power_map_overrides_derivation(self, tmp_path):
@@ -887,8 +1029,12 @@ class TestFailClosedPowerDerivation:
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1])
         fdm_config = _mini_fdm_config()
@@ -900,30 +1046,40 @@ class TestFailClosedPowerDerivation:
 
         loss_configs = {
             "Q1": DeviceLossConfig(
-                name="Q1", device_type="IGBT", V_ce_sat=1.7,
-                E_on=0.32e-3, E_off=0.21e-3,
+                name="Q1",
+                device_type="IGBT",
+                V_ce_sat=1.7,
+                E_on=0.32e-3,
+                E_off=0.21e-3,
                 V_ce_sat_because="test",
                 E_on_because="test",
                 E_off_because="test",
             ),
         }
 
-        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=UTC)
 
         artifact = run_thermal_helps_battery(
-            prereg_path=prereg_path, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices,
+            prereg_path=prereg_path,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
             power_map=power_map,  # explicit override
             operating_point_config=op_config,
             device_loss_configs=loss_configs,
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
             battery_run_timestamp=run_ts,
         )
 
         # Should run without error — power_map takes priority
         assert artifact.verdict in (
-            BatteryVerdict.KEEP, BatteryVerdict.KILL, BatteryVerdict.INCONCLUSIVE,
+            BatteryVerdict.KEEP,
+            BatteryVerdict.KILL,
+            BatteryVerdict.INCONCLUSIVE,
         )
 
     def test_derived_power_map_produces_sane_results(self, tmp_path):
@@ -932,12 +1088,20 @@ class TestFailClosedPowerDerivation:
         prereg_path = _mini_prereg_path(tmp_path)
         board = _mini_board(100, 100)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 20.0),
+            net_class="HighVoltage",
         )
         q2 = Component(
-            ref="Q2", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(30.0, 20.0), net_class="HighVoltage",
+            ref="Q2",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(30.0, 20.0),
+            net_class="HighVoltage",
         )
         netlist = _mini_netlist([q1, q2])
         fdm_config = _mini_fdm_config()
@@ -945,7 +1109,6 @@ class TestFailClosedPowerDerivation:
         op_config = _mini_op_config()
 
         from temper_placer.physics.device_power import (
-            DeviceLossConfig,
             temper_igbt_loss_config,
         )
 
@@ -954,21 +1117,28 @@ class TestFailClosedPowerDerivation:
             "Q2": temper_igbt_loss_config("Q2"),
         }
 
-        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=timezone.utc)
+        run_ts = datetime(2026, 7, 9, 12, 0, 0, tzinfo=UTC)
 
         artifact = run_thermal_helps_battery(
-            prereg_path=prereg_path, board=board, netlist=netlist,
-            fdm_config=fdm_config, devices=devices,
+            prereg_path=prereg_path,
+            board=board,
+            netlist=netlist,
+            fdm_config=fdm_config,
+            devices=devices,
             power_map=None,  # derive from loss configs
             operating_point_config=op_config,
             device_loss_configs=loss_configs,
-            base_seed=42, n_perturbations=2,
-            skip_smoke_test=True, skip_human_reference=True,
+            base_seed=42,
+            n_perturbations=2,
+            skip_smoke_test=True,
+            skip_human_reference=True,
             battery_run_timestamp=run_ts,
         )
 
         assert artifact.verdict in (
-            BatteryVerdict.KEEP, BatteryVerdict.KILL, BatteryVerdict.INCONCLUSIVE,
+            BatteryVerdict.KEEP,
+            BatteryVerdict.KILL,
+            BatteryVerdict.INCONCLUSIVE,
         )
         assert artifact.gate_clean
 

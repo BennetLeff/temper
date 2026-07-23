@@ -16,15 +16,20 @@ Usage:
   uv run python scripts/import_linter_gate.py [--help]
 """
 
-import argparse
-import datetime
-import os
-import re
-import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import datetime
+import re
+import subprocess
+
+from _lib.repo import find_repo_root
+from _lib.github_summary import get_github_summary_path
+
+REPO_ROOT = find_repo_root()
 
 # R14: 2-week WARNING-only soft-launch
 CUTOVER_DATE = datetime.date(2026, 7, 6)
@@ -352,7 +357,7 @@ def main():
     )
     if phase3_current:
         print(
-            f"\n=== PHASE 3 SCAN: tools/, simulation/ ==="
+            "\n=== PHASE 3 SCAN: tools/, simulation/ ==="
         )
         print(
             f"  Found {len(phase3_current)} temper_placer.* imports across "
@@ -363,8 +368,8 @@ def main():
         if phase3_new:
             new_violations |= phase3_new
             print(
-                f"\n  Add per-file entries to import-linter-allowlist.yaml "
-                f"for these imports:"
+                "\n  Add per-file entries to import-linter-allowlist.yaml "
+                "for these imports:"
             )
             for src, tgt, _ in sorted(phase3_new)[:20]:
                 print(f"    - source: {src}  target: {tgt}")
@@ -372,7 +377,7 @@ def main():
                 print(f"    ... and {len(phase3_new) - 20} more")
 
     # GitHub step summary
-    gh_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    gh_summary_path = get_github_summary_path()
     gh_summary = open(gh_summary_path, "a") if gh_summary_path else None
 
     exit_code_out = 0

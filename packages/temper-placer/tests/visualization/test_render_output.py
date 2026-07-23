@@ -7,7 +7,6 @@ These tests verify that:
 3. Roundtrip parsing maintains coordinate integrity
 """
 
-
 import pytest
 
 from temper_placer.visualization.model import (

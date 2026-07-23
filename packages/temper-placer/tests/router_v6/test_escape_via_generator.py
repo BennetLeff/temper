@@ -1,4 +1,3 @@
-
 import pytest
 
 from temper_placer.core.netlist import Component, Pin
@@ -10,11 +9,7 @@ from temper_placer.router_v6.stage0_data import DesignRules, NetClassRules
 @pytest.fixture
 def mock_design_rules():
     default_rules = NetClassRules(
-        name="Default",
-        clearance_mm=0.1,
-        trace_width_mm=0.1,
-        via_diameter_mm=0.3,
-        via_drill_mm=0.15
+        name="Default", clearance_mm=0.1, trace_width_mm=0.1, via_diameter_mm=0.3, via_drill_mm=0.15
     )
     return DesignRules(
         net_classes={"Default": default_rules},
@@ -22,8 +17,9 @@ def mock_design_rules():
         default_clearance_mm=0.1,
         default_trace_width_mm=0.1,
         default_via_diameter_mm=0.3,
-        default_via_drill_mm=0.15
+        default_via_drill_mm=0.15,
     )
+
 
 @pytest.fixture
 def simple_bga_component():
@@ -43,17 +39,14 @@ def simple_bga_component():
         footprint="BGA-4_1.0mm",
         bounds=(2.0, 2.0),
         pins=pins,
-        initial_position=(10.0, 10.0), # Placed at 10,10
-        initial_rotation=0
+        initial_position=(10.0, 10.0),  # Placed at 10,10
+        initial_rotation=0,
     )
 
     return DensePackage(
-        component=comp,
-        pin_count=4,
-        pitch_mm=1.0,
-        package_type="BGA",
-        requires_escape=True
+        component=comp, pin_count=4, pitch_mm=1.0, package_type="BGA", requires_escape=True
     )
+
 
 def test_via_in_pad(simple_bga_component, mock_design_rules):
     vias = generate_escape_vias(simple_bga_component, mock_design_rules, strategy="via-in-pad")
@@ -65,6 +58,7 @@ def test_via_in_pad(simple_bga_component, mock_design_rules):
         # Pin 1 at (-0.5, -0.5) -> (9.5, 9.5)
         if via.pin_number == "1":
             assert via.position == pytest.approx((9.5, 9.5))
+
 
 def test_dog_bone_bga(simple_bga_component, mock_design_rules):
     # Pitch 1.0mm. Half pitch 0.5mm.
@@ -101,6 +95,7 @@ def test_dog_bone_bga(simple_bga_component, mock_design_rules):
 
     # Use approx for position check
     assert via1.position == pytest.approx((10.0, 10.0))
+
 
 def test_rotation(simple_bga_component, mock_design_rules):
     # Rotate 90 degrees (index 1)

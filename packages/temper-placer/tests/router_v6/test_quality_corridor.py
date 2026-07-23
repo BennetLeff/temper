@@ -132,6 +132,7 @@ def test_compute_courtyards_no_position():
 
 def _make_courtyard(ref, x_min, y_min, x_max, y_max):
     from temper_placer.router_v6.quality.corridor import _Courtyard
+
     return _Courtyard(ref=ref, x_min=x_min, y_min=y_min, x_max=x_max, y_max=y_max)
 
 
@@ -254,9 +255,7 @@ def _build_tracks_for_horizontal_channel(
     return tracks
 
 
-def _manual_consolidation_score(
-    channel: Channel, track_specs: list[tuple[float, str]]
-) -> float:
+def _manual_consolidation_score(channel: Channel, track_specs: list[tuple[float, str]]) -> float:
     """Compute corridor consolidation score for a hand-constructed channel."""
     result = _StubParseResult([], traces=_build_tracks_for_horizontal_channel(channel, track_specs))
     tracks_by_ch = _assign_tracks_to_channels(result, [channel])
@@ -275,7 +274,7 @@ def _manual_consolidation_score(
             if j == i + 1:
                 co_routed += 1
             else:
-                intervening_nets = set(t.net for t in ch_tracks[i + 1 : j])
+                intervening_nets = {t.net for t in ch_tracks[i + 1 : j]}
                 if len(intervening_nets) <= 1 and (
                     not intervening_nets or intervening_nets == {ch_tracks[i].net}
                 ):
@@ -286,21 +285,27 @@ def _manual_consolidation_score(
 
 def test_consolidation_three_tracks_all_same_net():
     ch = Channel(0, 0, 10, 30, 5.0, "horizontal", "U1", "U2")
-    score = _manual_consolidation_score(ch, [
-        (5, "NET1"),
-        (15, "NET1"),
-        (25, "NET1"),
-    ])
+    score = _manual_consolidation_score(
+        ch,
+        [
+            (5, "NET1"),
+            (15, "NET1"),
+            (25, "NET1"),
+        ],
+    )
     assert score == 1.0
 
 
 def test_consolidation_three_tracks_two_adjacent_one_foreign():
     ch = Channel(0, 0, 10, 30, 5.0, "horizontal", "U1", "U2")
-    score = _manual_consolidation_score(ch, [
-        (5, "NET1"),
-        (15, "NET2"),
-        (25, "NET1"),
-    ])
+    score = _manual_consolidation_score(
+        ch,
+        [
+            (5, "NET1"),
+            (15, "NET2"),
+            (25, "NET1"),
+        ],
+    )
     # Pairs: (0,1) adjacent but different nets → considered not co-routed? Actually it's adjacent regardless of net
     # Hmm, "co-routed" means adjacent pairs with no foreign interleave
     # Adjacent pair (0,1): two different nets beside each other. Plan says "no foreign track interleaved".
@@ -313,10 +318,13 @@ def test_consolidation_three_tracks_two_adjacent_one_foreign():
 
 def test_consolidation_two_tracks_adjacent():
     ch = Channel(0, 0, 10, 20, 5.0, "horizontal", "U1", "U2")
-    score = _manual_consolidation_score(ch, [
-        (5, "NET1"),
-        (15, "NET2"),
-    ])
+    score = _manual_consolidation_score(
+        ch,
+        [
+            (5, "NET1"),
+            (15, "NET2"),
+        ],
+    )
     assert score == 1.0
 
 
@@ -376,7 +384,7 @@ def test_track_spread_at_target_spacing():
 
 def test_track_spread_tracks_at_exact_target():
     """Track at exact target spacing gives score 1.0."""
-    ch = Channel(0, 0, 10, 20, 5.0, "horizontal", "U1", "U2")
+    Channel(0, 0, 10, 20, 5.0, "horizontal", "U1", "U2")
     width = 0.254
     target = width + 0.15  # 0.404
     edge_to_edge = target
@@ -394,10 +402,13 @@ def test_track_spread_tracks_at_exact_target():
 def test_track_spread_large_gap():
     """Large gap gives score > 1.5."""
     ch = Channel(0, 0, 10, 30, 5.0, "horizontal", "U1", "U2")
-    score = _manual_track_spread(ch, [
-        (5, "NET1"),
-        (25, "NET2"),
-    ])
+    score = _manual_track_spread(
+        ch,
+        [
+            (5, "NET1"),
+            (25, "NET2"),
+        ],
+    )
     assert score > 1.5
 
 
@@ -458,31 +469,40 @@ def test_track_spread_score_nonnegative():
 def test_co_routed_adjacent_same_net():
     """Two adjacent tracks of the same net are co-routed."""
     ch = Channel(0, 0, 10, 20, 5.0, "horizontal", "U1", "U2")
-    score = _manual_consolidation_score(ch, [
-        (5, "NET1"),
-        (15, "NET1"),
-    ])
+    score = _manual_consolidation_score(
+        ch,
+        [
+            (5, "NET1"),
+            (15, "NET1"),
+        ],
+    )
     assert score == 1.0
 
 
 def test_co_routed_adjacent_different_nets():
     """Two adjacent tracks of different nets are still co-routed (adjacent)."""
     ch = Channel(0, 0, 10, 20, 5.0, "horizontal", "U1", "U2")
-    score = _manual_consolidation_score(ch, [
-        (5, "NET1"),
-        (15, "NET2"),
-    ])
+    score = _manual_consolidation_score(
+        ch,
+        [
+            (5, "NET1"),
+            (15, "NET2"),
+        ],
+    )
     assert score == 1.0
 
 
 def test_not_co_routed_foreign_interleave():
     """Non-adjacent tracks with foreign net between are not co-routed."""
     ch = Channel(0, 0, 10, 30, 5.0, "horizontal", "U1", "U2")
-    score = _manual_consolidation_score(ch, [
-        (5, "NET1"),
-        (15, "NET2"),
-        (25, "NET1"),
-    ])
+    score = _manual_consolidation_score(
+        ch,
+        [
+            (5, "NET1"),
+            (15, "NET2"),
+            (25, "NET1"),
+        ],
+    )
     # (0,1) adjacent co-routed, (1,2) adjacent co-routed, (0,2) NET2 between → not co-routed
     assert score == pytest.approx(2.0 / 3.0)
 
@@ -490,11 +510,14 @@ def test_not_co_routed_foreign_interleave():
 def test_co_routed_with_gap_of_same_net():
     """Non-adjacent tracks of the same net with same-net between are co-routed."""
     ch = Channel(0, 0, 10, 30, 5.0, "horizontal", "U1", "U2")
-    score = _manual_consolidation_score(ch, [
-        (5, "NET1"),
-        (15, "NET1"),
-        (25, "NET1"),
-    ])
+    score = _manual_consolidation_score(
+        ch,
+        [
+            (5, "NET1"),
+            (15, "NET1"),
+            (25, "NET1"),
+        ],
+    )
     assert score == 1.0
 
 

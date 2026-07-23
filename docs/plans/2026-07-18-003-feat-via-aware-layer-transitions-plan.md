@@ -1,7 +1,7 @@
 ---
 title: "feat: Via-Aware Layer Transitions (Issue #226)"
 type: feat
-status: active
+status: completed
 date: 2026-07-18
 origin: docs/brainstorms/2026-07-18-via-aware-layer-transitions-requirements.md
 ---
@@ -817,3 +817,7 @@ production connectivity closure.
   `channel_mapping.py`, `occupancy_grid.py`
 - `packages/temper-placer/configs/netclass_rules.yaml` — per-class via
   sizing SSOT
+
+## Shipped
+
+**Merged in [PR #247](https://github.com/BennetLeff/temper/pull/247) on 2026-07-20.** Units 1 through 7 of the via-aware layer transitions plan shipped: U1 production-scale wall-time spike for `_route_segment_3d`, U2 wired as fallback tier, U3-U5 fixed via layer-span/sizing/output, U6-U7 re-landed segment-layer write and relaxed the SSOT gate. U8 anti-false-zero verification finding was recorded as an implementation note on 2026-07-19 (separate follow-up for multi-pad-net connectivity).

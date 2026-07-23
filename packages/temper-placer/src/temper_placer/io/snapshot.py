@@ -51,8 +51,7 @@ def save_json_snapshot(
             rotations = [0] * len(positions)
 
         data["placements"] = [
-            {"x": x, "y": y, "rotation": r}
-            for (x, y), r in zip(positions, rotations)
+            {"x": x, "y": y, "rotation": r} for (x, y), r in zip(positions, rotations)
         ]
     elif state.deterministic_result:
         # NumPy result
@@ -61,8 +60,7 @@ def save_json_snapshot(
         rotations = dr.rotations.tolist()
 
         data["placements"] = [
-            {"x": x, "y": y, "rotation": r}
-            for (x, y), r in zip(positions, rotations)
+            {"x": x, "y": y, "rotation": r} for (x, y), r in zip(positions, rotations)
         ]
 
     with open(path, "w") as f:
@@ -144,7 +142,8 @@ def save_svg_snapshot(
     bw, bh = board.width * scale, board.height * scale
     lines.append(
         f'<rect x="{bx}" y="{by}" width="{bw}" height="{bh}" '
-        f'fill="#eee" stroke="#333" stroke-width="2"/>')
+        f'fill="#eee" stroke="#333" stroke-width="2"/>'
+    )
 
     # 2. Draw Zones
     colors = ["#ffcccc", "#ccffcc", "#ccccff", "#ffffcc", "#ffccff", "#ccffff"]
@@ -155,11 +154,13 @@ def save_svg_snapshot(
         color = colors[i % len(colors)]
         lines.append(
             f'<rect x="{zx}" y="{zy}" width="{zw}" height="{zh}" '
-            f'fill="{color}" fill-opacity="0.3" stroke="none"/>')
+            f'fill="{color}" fill-opacity="0.3" stroke="none"/>'
+        )
         # Zone label
         lines.append(
             f'<text x="{zx + 5}" y="{zy + 15}" font-family="sans-serif" '
-            f'font-size="12" fill="#666">{zone.name}</text>')
+            f'font-size="12" fill="#666">{zone.name}</text>'
+        )
 
     # 3. Draw Components
     for i, comp in enumerate(netlist.components):
@@ -187,7 +188,7 @@ def save_svg_snapshot(
             f'<text x="{cx}" y="{cy}" font-family="sans-serif" '
             f'font-size="10" text-anchor="middle" dominant-baseline="middle" '
             f'fill="white">{comp.ref}</text>'
-            f'</g>'
+            f"</g>"
         )
 
     lines.append("</svg>")

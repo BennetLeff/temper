@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 
 from temper_placer.validation.mfem_compare import (
-    ComparisonResult,
     compare_fields,
     project_mfem_to_fdm,
 )
@@ -42,7 +41,9 @@ def test_device_hotspot_violation():
     mfem = fdm.copy()
     mfem[5, 3] = 120.0  # hotspot at (row=5, col=3)
     result = compare_fields(
-        fdm, mfem, tolerance_C=5.0,
+        fdm,
+        mfem,
+        tolerance_C=5.0,
         devices={"Q1": (5, 3)},
     )
     assert result.exceeds_tolerance
@@ -56,7 +57,10 @@ def test_far_field_attribution():
     mfem = fdm.copy()
     mfem[4, 5] = 115.0  # far from TOP/BOTTOM edges
     result = compare_fields(
-        fdm, mfem, tolerance_C=5.0, heatsink_edge="TOP",
+        fdm,
+        mfem,
+        tolerance_C=5.0,
+        heatsink_edge="TOP",
     )
     assert result.exceeds_tolerance
     assert "far-field" in result.attribution
@@ -68,7 +72,7 @@ def test_shape_mismatch_raises():
     mfem = np.full((8, 8), 100.0)
     try:
         compare_fields(fdm, mfem)
-        assert False, "expected ValueError"
+        raise AssertionError("expected ValueError")
     except ValueError:
         pass
 

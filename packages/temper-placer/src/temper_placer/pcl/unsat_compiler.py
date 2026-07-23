@@ -75,9 +75,7 @@ def compile_unsat_to_pcl(
         )
 
     # Build PCL constraint lookup by ID.
-    pcl_by_id: dict[str, BaseConstraint] = {
-        c.id: c for c in pcl_constraints.constraints
-    }
+    pcl_by_id: dict[str, BaseConstraint] = {c.id: c for c in pcl_constraints.constraints}
 
     new_constraints: list[BaseConstraint] = []
     escalated_ids: set[str] = set()
@@ -115,7 +113,8 @@ def compile_unsat_to_pcl(
 
 
 def _synthesize_constraint(
-    sat_name: str, context: CompilationContext,
+    sat_name: str,
+    context: CompilationContext,
 ) -> SeparatedConstraint | None:
     """Synthesize a new SeparatedConstraint from an unknown SAT conflict.
 
@@ -139,7 +138,7 @@ def _synthesize_constraint(
     min_distance_mm = 6.0  # allow-safety-constant: SMT default separation; # Default: conservative 6mm separation.
     if context.channel_widths:
         for widths in context.channel_widths.values():
-            spacing = getattr(widths, 'spacing_mm', 0.0)
+            spacing = getattr(widths, "spacing_mm", 0.0)
             if spacing > 0:
                 min_distance_mm = max(min_distance_mm, spacing * 2)
                 break
@@ -177,9 +176,7 @@ def _deduplicate_constraints(
             key = (c.a, c.b, c.tier)
             if key in seen:
                 existing = seen[key]
-                existing.min_distance_mm = max(
-                    existing.min_distance_mm, c.min_distance_mm
-                )
+                existing.min_distance_mm = max(existing.min_distance_mm, c.min_distance_mm)
             else:
                 seen[key] = c
                 result.append(c)

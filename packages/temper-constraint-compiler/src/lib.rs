@@ -10,6 +10,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 
 #[pyfunction]
+#[allow(clippy::too_many_arguments)]
 fn compile_pcl_constraints(
     py: Python<'_>,
     pcl_dicts: &Bound<'_, PyList>,

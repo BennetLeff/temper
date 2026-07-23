@@ -9,7 +9,6 @@
 ///   51-100V → 0.80mm, 101-150V → 1.25mm, 151-170V → 1.60mm,
 ///   171-250V → 3.20mm, 251-300V → 6.40mm, 301-600V → 8.00mm,
 ///   601-1000V → 12.00mm
-
 /// A single voltage bracket: voltages up to `max_voltage` require at least
 /// `clearance_mm` creepage distance.
 #[derive(Debug, Clone, Copy, PartialEq)]

@@ -109,18 +109,14 @@ def _double_back() -> list[tuple[float, float]]:
     return [(0.0, 0.0), (10.0, 0.0), (5.0, 0.0)]
 
 
-def _parallel_segments() -> tuple[
-    list[tuple[float, float]], list[tuple[float, float]]
-]:
+def _parallel_segments() -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
     """Two paths with exactly-parallel segments."""
     p1 = [(0.0, 0.0), (10.0, 0.0)]
     p2 = [(0.0, 2.0), (10.0, 2.0)]
     return p1, p2
 
 
-def _coincident_segments() -> tuple[
-    list[tuple[float, float]], list[tuple[float, float]]
-]:
+def _coincident_segments() -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
     """Two nets on the exact same path (coincident segments)."""
     p = [(0.0, 0.0), (10.0, 0.0)]
     return p, p
@@ -147,9 +143,7 @@ class TestCollinear3Point:
 
     def test_acid_trap_reports_zero_traps(self):
         """Collinear path has 180° angle → no acid trap."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, []))
         report = detect_acid_traps(r)
         assert isinstance(report, AcidTrapReport)
         assert report.trap_count == 0
@@ -159,9 +153,7 @@ class TestCollinear3Point:
     def test_teardrop_handles_collinear_path(self):
         """Teardrop on collinear path with via should not crash."""
         via = _Via(10, 0, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
 
@@ -169,15 +161,11 @@ class TestCollinear3Point:
 
     def test_copper_balance_computes_correct_length(self):
         """Collinear trace length = sum of segment lengths."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
         # 20 mm × 0.5 mm = 10 mm²
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         assert f_cu.copper_area_mm2 == pytest.approx(20.0 * 0.5, rel=0.01)
 
     # -- creepage --------------------------------------------------------
@@ -221,9 +209,7 @@ class TestDuplicateConsecutivePoints:
 
     def test_acid_trap_dedup_and_skips(self):
         """After dedup: 3 collinear points → 0 traps."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, []))
         report = detect_acid_traps(r)
         assert isinstance(report, AcidTrapReport)
         assert report.trap_count == 0
@@ -233,9 +219,7 @@ class TestDuplicateConsecutivePoints:
     def test_teardrop_handles_duplicate_points(self):
         """Should not crash with duplicate consecutive coordinates."""
         via = _Via(10, 0, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
 
@@ -243,9 +227,7 @@ class TestDuplicateConsecutivePoints:
 
     def test_copper_balance_handles_duplicate_points(self):
         """Zero-length segments contribute 0 area."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
 
@@ -288,9 +270,7 @@ class TestZeroLengthSegments:
 
     def test_acid_trap_handles_zero_length(self):
         """Zero-length segment filtered by dedup → collinear → 0 traps."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, []))
         report = detect_acid_traps(r)
         assert isinstance(report, AcidTrapReport)
         assert report.trap_count == 0
@@ -300,9 +280,7 @@ class TestZeroLengthSegments:
     def test_teardrop_handles_zero_length(self):
         """Direction vector from coincident points → guarded."""
         via = _Via(5, 5, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
 
@@ -310,9 +288,7 @@ class TestZeroLengthSegments:
 
     def test_copper_balance_handles_zero_length(self):
         """Zero-length segment contributes no area."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
 
@@ -355,9 +331,7 @@ class TestSinglePointPaths:
 
     def test_acid_trap_skips_single_point(self):
         """< 3 vertices → no traps."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, []))
         report = detect_acid_traps(r)
         assert isinstance(report, AcidTrapReport)
         assert report.trap_count == 0
@@ -367,9 +341,7 @@ class TestSinglePointPaths:
     def test_teardrop_handles_single_point(self):
         """< 2 coords → can't determine direction → no teardrop."""
         via = _Via(5, 5, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
         # No segments → can't determine approach direction → 0 teardrops
@@ -379,14 +351,10 @@ class TestSinglePointPaths:
 
     def test_copper_balance_handles_single_point(self):
         """No segments → zero trace area."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         assert f_cu.copper_area_mm2 == 0.0
 
     # -- creepage --------------------------------------------------------
@@ -416,9 +384,7 @@ class TestSinglePointPaths:
     def test_annular_ring_handles_single_point_path(self):
         """Via check is independent of path length."""
         via = _Via(5, 5, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, [via]))
         with pytest.raises(ValueError):
             # min_annular_ring=0.0 raises ValueError
             check_annular_rings(r, min_annular_ring=0.0)
@@ -430,9 +396,7 @@ class TestSinglePointPaths:
     def test_thermal_relief_handles_single_point(self):
         """Thermal relief via power-net check is independent of path."""
         via = _Via(5, 5, "F.Cu", "In1.Cu", 0.6, 0.3, "GND")
-        r = _make_results(
-            GND=_Route("GND", _Path(self.coords), 0.5, [via])
-        )
+        r = _make_results(GND=_Route("GND", _Path(self.coords), 0.5, [via]))
         report = add_thermal_relief(r)
         assert isinstance(report, ThermalReliefReport)
 
@@ -453,9 +417,7 @@ class TestTwoPointPaths:
 
     def test_acid_trap_skips_two_point(self):
         """< 3 vertices → no interior vertex → 0 traps."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, []))
         report = detect_acid_traps(r)
         assert isinstance(report, AcidTrapReport)
         assert report.trap_count == 0
@@ -465,9 +427,7 @@ class TestTwoPointPaths:
     def test_teardrop_handles_two_point(self):
         """One segment → teardrop can infer approach direction."""
         via = _Via(10, 0, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
 
@@ -475,14 +435,10 @@ class TestTwoPointPaths:
 
     def test_copper_balance_two_point(self):
         """One 10 mm segment × 0.5 mm = 5 mm²."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         assert f_cu.copper_area_mm2 == pytest.approx(10.0 * 0.5, rel=0.01)
 
     # -- creepage --------------------------------------------------------
@@ -514,9 +470,7 @@ class TestTwoPointPaths:
     def test_annular_ring_two_point(self):
         """Annular ring check with two-point path."""
         via = _Via(5, 0, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, [via]))
         report = check_annular_rings(r, min_annular_ring=0.05)
         assert isinstance(report, AnnularRingReport)
 
@@ -525,9 +479,7 @@ class TestTwoPointPaths:
     def test_thermal_relief_two_point(self):
         """Thermal relief with two-point path."""
         via = _Via(5, 0, "F.Cu", "In1.Cu", 0.6, 0.3, "GND")
-        r = _make_results(
-            GND=_Route("GND", _Path(self.coords), 0.5, [via])
-        )
+        r = _make_results(GND=_Route("GND", _Path(self.coords), 0.5, [via]))
         report = add_thermal_relief(r)
         assert isinstance(report, ThermalReliefReport)
 
@@ -549,9 +501,7 @@ class TestSelfIntersectingPaths:
     def test_teardrop_handles_self_intersecting(self):
         """Bow-tie path with via — should not crash."""
         via = _Via(5, 5, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
 
@@ -559,9 +509,7 @@ class TestSelfIntersectingPaths:
 
     def test_copper_balance_handles_self_intersecting(self):
         """Length is still sum of segment lengths regardless of crossings."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
 
@@ -609,9 +557,7 @@ class TestDoubleBackPaths:
 
     def test_acid_trap_double_back(self):
         """Double-back creates a 0° angle (acute) → detected as trap."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, []))
         report = detect_acid_traps(r)
         assert isinstance(report, AcidTrapReport)
         # 0° angle at the middle vertex → severe acid trap
@@ -622,9 +568,7 @@ class TestDoubleBackPaths:
     def test_teardrop_handles_double_back(self):
         """Coincident direction with via → should not crash."""
         via = _Via(5, 0, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
 
@@ -632,14 +576,10 @@ class TestDoubleBackPaths:
 
     def test_copper_balance_double_back(self):
         """Length is sum of segment lengths (15 mm)."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         # Segments: (0,0)→(10,0) = 10, (10,0)→(5,0) = 5 → total 15 mm
         assert f_cu.copper_area_mm2 == pytest.approx(15.0 * 0.5, rel=0.01)
 
@@ -740,9 +680,7 @@ class TestCoincidentSegments:
         )
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         # 10 mm × 0.25 mm × 2 = 5.0 mm²
         assert f_cu.copper_area_mm2 == pytest.approx(10.0 * 0.25 * 2, rel=0.01)
 
@@ -791,9 +729,7 @@ class TestExtremelyShortSegments:
 
     def test_acid_trap_handles_extremely_short(self):
         """Extremely short first segment — angle still computed."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, []))
         report = detect_acid_traps(r)
         assert isinstance(report, AcidTrapReport)
         # Almost-collinear → 180° → no trap (or trap with very shallow angle)
@@ -804,9 +740,7 @@ class TestExtremelyShortSegments:
     def test_teardrop_handles_extremely_short(self):
         """Extremely short segment near via — direction may be fine."""
         via = _Via(10, 0, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords, "F.Cu"), 0.25, [via]))
         report = insert_teardrops(r)
         assert isinstance(report, TeardropReport)
 
@@ -814,14 +748,10 @@ class TestExtremelyShortSegments:
 
     def test_copper_balance_handles_extremely_short(self):
         """Extremely short segment adds negligible area."""
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.5, [])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.5, []))
         report = analyze_copper_balance(r, board_width=100, board_height=100)
         assert isinstance(report, CopperBalanceReport)
-        f_cu = next(
-            lb for lb in report.layer_balances if lb.layer_name == "F.Cu"
-        )
+        f_cu = next(lb for lb in report.layer_balances if lb.layer_name == "F.Cu")
         # Total length ≈ 1e-6 + 10.0 ≈ 10.000001 mm
         assert f_cu.copper_area_mm2 == pytest.approx(10.0 * 0.5, rel=0.01)
 
@@ -853,9 +783,7 @@ class TestExtremelyShortSegments:
     def test_annular_ring_with_extremely_short_path(self):
         """Extremely short path does not affect via ring check."""
         via = _Via(5, 5, "F.Cu", "B.Cu", 0.6, 0.3, "N1")
-        r = _make_results(
-            N1=_Route("N1", _Path(self.coords), 0.25, [via])
-        )
+        r = _make_results(N1=_Route("N1", _Path(self.coords), 0.25, [via]))
         report = check_annular_rings(r, min_annular_ring=0.05)
         assert isinstance(report, AnnularRingReport)
 
@@ -864,9 +792,7 @@ class TestExtremelyShortSegments:
     def test_thermal_relief_with_extremely_short_path(self):
         """Extremely short path does not affect thermal relief."""
         via = _Via(5, 5, "F.Cu", "In1.Cu", 0.6, 0.3, "GND")
-        r = _make_results(
-            GND=_Route("GND", _Path(self.coords), 0.5, [via])
-        )
+        r = _make_results(GND=_Route("GND", _Path(self.coords), 0.5, [via]))
         report = add_thermal_relief(r)
         assert isinstance(report, ThermalReliefReport)
 
@@ -941,9 +867,7 @@ class TestEmptyResultsAllModules:
             try:
                 report = module_fn(empty)
             except Exception as exc:
-                pytest.xfail(
-                    f"{module_name} crashed on empty results: {exc}"
-                )
+                pytest.xfail(f"{module_name} crashed on empty results: {exc}")
             assert isinstance(report, expected_report_type), (
                 f"{module_name} returned {type(report).__name__}, "
                 f"expected {expected_report_type.__name__}"

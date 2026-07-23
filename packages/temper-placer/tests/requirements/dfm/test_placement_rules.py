@@ -5,7 +5,6 @@ These tests verify that pick-and-place placement validation functions work corre
 and that placements meet automated assembly requirements.
 """
 
-
 import pytest
 
 # Import validators (will fail until implemented)

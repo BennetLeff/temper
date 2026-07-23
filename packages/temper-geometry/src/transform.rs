@@ -250,7 +250,7 @@ pub fn gumbel_softmax(logits: &[f64], temperature: f64) -> Vec<f64> {
     let mut shifted: Vec<f64> = Vec::with_capacity(n);
     for &l in logits {
         // Sample Gumbel(0, 1) noise via inverse-CDF transform
-        let u: f64 = rand::random::<f64>().max(1e-15).min(1.0 - 1e-15);
+        let u: f64 = rand::random::<f64>().clamp(1e-15, 1.0 - 1e-15);
         let gumbel = -(-u.ln()).ln();
         shifted.push((l - max_logit + gumbel) / temperature);
     }

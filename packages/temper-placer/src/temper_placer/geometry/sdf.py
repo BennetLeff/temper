@@ -9,10 +9,9 @@ SDFs are a powerful primitive for differentiable geometry. An SDF returns:
 All functions delegate to the temper_geometry Rust crate except sdf_gradient,
 which takes a Python callable and cannot be ported to Rust.
 """
+
 import numpy as np
-
 import temper_geometry as _tg
-
 
 # =============================================================================
 # Basic Shape SDFs

@@ -92,7 +92,9 @@ class RegressionReporter:
 
     def summary(self) -> str:
         lines = ["=== Regression Suite Results ==="]
-        lines.append(f"Total: {self.total}, Passed: {self.passed}, Failed: {self.failed}, Skipped: {self.skipped}")
+        lines.append(
+            f"Total: {self.total}, Passed: {self.passed}, Failed: {self.failed}, Skipped: {self.skipped}"
+        )
         lines.append("")
 
         for result in self.results:
@@ -118,7 +120,9 @@ class RegressionReporter:
             lines.append("=== Battery Verdicts ===")
             for bv in self.battery_verdicts:
                 lines.append(f"  [{bv.verdict.upper()}] {bv.field_name}")
-                lines.append(f"         cost={bv.cost_seconds:.1f}s, budget_exceeded={bv.budget_exceeded}")
+                lines.append(
+                    f"         cost={bv.cost_seconds:.1f}s, budget_exceeded={bv.budget_exceeded}"
+                )
                 lines.append(f"         details: {bv.verdict_details}")
 
         return "\n".join(lines)

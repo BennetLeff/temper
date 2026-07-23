@@ -14,7 +14,6 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 
@@ -164,7 +163,7 @@ def test_apply_placements_to_pcb_empty_placements():
     """Passing empty placements returns raw_content unchanged."""
     from temper_placer.router_v6.adapter import _apply_placements_to_pcb
 
-    raw = "(kicad_pcb) (footprint \"Dummy\" (layer \"F.Cu\") (at 1 2))"
+    raw = '(kicad_pcb) (footprint "Dummy" (layer "F.Cu") (at 1 2))'
     result = _apply_placements_to_pcb(raw, {})
     assert result == raw
 
@@ -180,13 +179,21 @@ class MockPipelineResult:
     manufacturing_report: object = None
 
     def __init__(self):
-        mock_rr = type('RoutingResults', (), {
-            'failed_nets': [],
-            'net_reports': [],
-        })()
-        self.stage4 = type('Stage4Output', (), {
-            'routing_results': mock_rr,
-        })()
+        mock_rr = type(
+            "RoutingResults",
+            (),
+            {
+                "failed_nets": [],
+                "net_reports": [],
+            },
+        )()
+        self.stage4 = type(
+            "Stage4Output",
+            (),
+            {
+                "routing_results": mock_rr,
+            },
+        )()
         self.manufacturing_report = None
 
 
@@ -206,9 +213,7 @@ def test_route_pcb_with_placements():
     try:
         parsed = type("ParsedPCB", (), {"source_path": temp_path})()
 
-        with umock.patch(
-            "temper_placer.router_v6.pipeline.RouterV6Pipeline"
-        ) as mock_pipe_cls:
+        with umock.patch("temper_placer.router_v6.pipeline.RouterV6Pipeline") as mock_pipe_cls:
             mock_pipe = umock.MagicMock()
             mock_pipe.run.return_value = mock_result
             mock_pipe_cls.return_value = mock_pipe
@@ -243,11 +248,11 @@ def test_place_to_route_pipeline():
 
     from temper_placer.placer.cp_sat.encoder import CpSatPlacementResult
 
-    netlist = MockNetlist(
+    MockNetlist(
         components=[MockComp("Q1"), MockComp("Q2"), MockComp("C1")],
         nets=[MockNet("GND"), MockNet("VCC"), MockNet("SW_NODE")],
     )
-    board = MockBoard(zones=[])
+    MockBoard(zones=[])
 
     cp_result = CpSatPlacementResult(
         positions={"Q1": (10.0, 20.0), "Q2": (30.0, 40.0), "C1": (50.0, 60.0)},
@@ -264,6 +269,7 @@ def test_place_to_route_pipeline():
 
     # Verify RoutingResult compilation path
     from temper_placer.router_v6.adapter import RoutingResult
+
     rr = RoutingResult(completion_rate=0.92)
     assert rr.completion_rate == 0.92
 

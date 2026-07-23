@@ -10,9 +10,8 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any
 
-from temper_placer.pipeline.dag_types import DataContext, StageResult
+from temper_placer.pipeline.dag_types import DataContext, PipelineState, StageResult
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ class ThermalAnchoringStage:
     ``StageResult.success()``.
     """
 
-    def __call__(self, state: Any, context: DataContext) -> StageResult:
+    def __call__(self, state: PipelineState, context: DataContext) -> StageResult:
         start = time.time()
 
         board = context.get("board")
@@ -61,9 +60,7 @@ class ThermalAnchoringStage:
             return StageResult.success()
 
         if board is None or netlist is None:
-            logger.warning(
-                "Board or netlist missing from DataContext; thermal anchoring skipped."
-            )
+            logger.warning("Board or netlist missing from DataContext; thermal anchoring skipped.")
             return StageResult.success()
 
         # ------------------------------------------------------------------
@@ -82,8 +79,7 @@ class ThermalAnchoringStage:
         thermal_props = getattr(constraints, "thermal_properties", None)
         if thermal_props is None:
             logger.warning(
-                "thermal_properties not found in constraints; "
-                "thermal anchoring skipped."
+                "thermal_properties not found in constraints; thermal anchoring skipped."
             )
             return StageResult.success()
 
@@ -100,8 +96,7 @@ class ThermalAnchoringStage:
 
         if not power_devices:
             logger.warning(
-                "No high_power_components with power_dissipation_w > 0; "
-                "thermal anchoring skipped."
+                "No high_power_components with power_dissipation_w > 0; thermal anchoring skipped."
             )
             return StageResult.success()
 
@@ -184,12 +179,14 @@ class ThermalAnchoringStage:
         # Safety gate: Tj validation (R4) --- HARD ABORT
         # ------------------------------------------------------------------
         for ref, (ax, ay) in anchors.items():
-
             import numpy as np
 
             pos = np.array([ax, ay])
             bounds_arr = np.array([0.0, 0.0, board.width, board.height])
-            def compute_edge_distance(*a, **kw): raise NotImplementedError("compute_edge_distance removed (JAX retirement)")
+
+            def compute_edge_distance(*a, **kw):
+                raise NotImplementedError("compute_edge_distance removed (JAX retirement)")
+
             edge_dist = float(compute_edge_distance(pos, bounds_arr, edge_name))
 
             power_w = power_dissipation.get(ref, 0.0)
@@ -235,8 +232,7 @@ class ThermalAnchoringStage:
 
         elapsed = time.time() - start
         logger.info(
-            "Thermal anchoring placed %d devices in %.2f ms. "
-            "Anchors: %s",
+            "Thermal anchoring placed %d devices in %.2f ms. Anchors: %s",
             len(anchors),
             elapsed * 1000,
             {ref: f"({x:.1f}, {y:.1f})" for ref, (x, y) in anchors.items()},

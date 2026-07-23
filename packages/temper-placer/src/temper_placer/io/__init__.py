@@ -17,6 +17,7 @@ from temper_placer._constraint_types import (
     PlacementConstraints,
     ThermalConstraint,
 )
+from temper_placer.io._kicad_types import ParseResult
 from temper_placer.io.config_loader import (
     create_board_from_constraints,
     load_constraints,
@@ -36,7 +37,6 @@ from temper_placer.io.dsn_validator import (
     validate_or_warn_dsn,
 )
 from temper_placer.io.kicad_parser import (
-    ParseResult,
     parse_kicad_pcb,
     parse_kicad_schematic,
 )

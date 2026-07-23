@@ -24,12 +24,9 @@ class TestBuildTempPcbIsCallable:
         adapter = V6RouterAdapter.__new__(V6RouterAdapter)
         method = getattr(adapter, "_build_temp_pcb", None)
         assert method is not None, (
-            "_build_temp_pcb missing from V6RouterAdapter -- "
-            "commit a281f865 regression"
+            "_build_temp_pcb missing from V6RouterAdapter -- commit a281f865 regression"
         )
-        assert callable(method), (
-            "_build_temp_pcb exists but is not callable"
-        )
+        assert callable(method), "_build_temp_pcb exists but is not callable"
 
 
 class TestNetPrioOrdering:
@@ -44,8 +41,7 @@ class TestNetPrioOrdering:
     @staticmethod
     def _net_prio(name: str) -> int:
         _SIG = ("SPI_", "I_SENSE", "USB_", "TEMP_")
-        _PWR = ("GATE_", "PWM_", "DC_BUS", "AC_", "SW_NODE",
-                "VCC_BOOT", "CGND", "PGND", "+", "GND")
+        _PWR = ("GATE_", "PWM_", "DC_BUS", "AC_", "SW_NODE", "VCC_BOOT", "CGND", "PGND", "+", "GND")
         if any(name.startswith(p) for p in _PWR):
             return 0
         return 1
@@ -61,15 +57,24 @@ class TestNetPrioOrdering:
         # NOTE: "PWM_L" starts with "PWM_" (a _PWR prefix), so it sorts
         # as a power net under _net_prio.  Separate the inputs by actual
         # priority rather than human label, then verify the sort result.
-        signal_nets = ["SPI_CLK", "SPI_MOSI", "I_SENSE", "USB_D+",
-                        "TEMP_SENSE"]
-        power_nets = ["GATE_H", "GATE_L", "DC_BUS+", "AC_L",
-                       "SW_NODE", "VCC_BOOT", "CGND", "PGND", "+3V3",
-                       "GND", "PWM_L"]
+        signal_nets = ["SPI_CLK", "SPI_MOSI", "I_SENSE", "USB_D+", "TEMP_SENSE"]
+        power_nets = [
+            "GATE_H",
+            "GATE_L",
+            "DC_BUS+",
+            "AC_L",
+            "SW_NODE",
+            "VCC_BOOT",
+            "CGND",
+            "PGND",
+            "+3V3",
+            "GND",
+            "PWM_L",
+        ]
         all_nets = signal_nets + power_nets
         sorted_nets = sorted(all_nets, key=self._net_prio)
-        first = sorted_nets[:len(power_nets)]
-        second = sorted_nets[len(power_nets):]
+        first = sorted_nets[: len(power_nets)]
+        second = sorted_nets[len(power_nets) :]
         for net in first:
             assert self._net_prio(net) == 0, (
                 f"Net {net!r} sorted with signal nets but has _net_prio=0"

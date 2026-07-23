@@ -77,12 +77,20 @@ def test_loop_non_convergence_diagnostics():
     """When loop doesn't converge, diagnostic info is available."""
     rounds = [
         RoundRecord(
-            round_number=1, completion_rate=0.85, drc_errors=3,
-            solve_time_ms=150.0, route_time_ms=500.0, status="optimal",
+            round_number=1,
+            completion_rate=0.85,
+            drc_errors=3,
+            solve_time_ms=150.0,
+            route_time_ms=500.0,
+            status="optimal",
         ),
         RoundRecord(
-            round_number=2, completion_rate=0.90, drc_errors=2,
-            solve_time_ms=145.0, route_time_ms=480.0, status="optimal",
+            round_number=2,
+            completion_rate=0.90,
+            drc_errors=2,
+            solve_time_ms=145.0,
+            route_time_ms=480.0,
+            status="optimal",
         ),
     ]
 
@@ -151,9 +159,7 @@ def test_optimize_non_convergent_loop_fails_closed(tmp_path):
 
 def test_feedback_uses_dict_backed_cp_sat_positions():
     """An unrouted SPI net must generate a usable U_MCU placement delta."""
-    placement = CpSatPlacementResult(
-        positions={"U_MCU": (40.0, 60.0)}, status="optimal"
-    )
+    placement = CpSatPlacementResult(positions={"U_MCU": (40.0, 60.0)}, status="optimal")
     result = RoutingResult(
         completion_rate=0.8,
         unrouted_nets=["SPI_MOSI"],
@@ -167,13 +173,9 @@ def test_feedback_uses_dict_backed_cp_sat_positions():
 
 def test_authoritative_board_uses_one_route_then_truth_gate(tmp_path):
     """A real-board artifact proceeds to KiCad DRC after its first clean route."""
-    placement = CpSatPlacementResult(
-        positions={"U_MCU": (40.0, 60.0)}, status="optimal"
-    )
+    placement = CpSatPlacementResult(positions={"U_MCU": (40.0, 60.0)}, status="optimal")
     loop = PlaceRouteLoop(_placement_solver=lambda **_: placement)
-    loop._route_placement = mock.MagicMock(
-        return_value=RoutingResult(completion_rate=1.0)
-    )
+    loop._route_placement = mock.MagicMock(return_value=RoutingResult(completion_rate=1.0))
 
     result = loop.run(
         netlist=SimpleNamespace(components=[]),
@@ -189,9 +191,7 @@ def test_authoritative_board_uses_one_route_then_truth_gate(tmp_path):
 def test_authoritative_board_route_preserves_source_and_origin(tmp_path):
     """The router receives the real board and absolute KiCad coordinates."""
     source = tmp_path / "authoritative.kicad_pcb"
-    placement = CpSatPlacementResult(
-        positions={"U_MCU": (40.0, 60.0)}, status="optimal"
-    )
+    placement = CpSatPlacementResult(positions={"U_MCU": (40.0, 60.0)}, status="optimal")
     loop = PlaceRouteLoop()
     loop._source_pcb_path = source
     loop._netclass_rules = None

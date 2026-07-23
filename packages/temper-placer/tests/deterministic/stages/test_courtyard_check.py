@@ -11,11 +11,9 @@ of real overlaps. There was no direct test for this stage before this
 file, which is exactly how a 100%-inert detector went unnoticed.
 """
 
-from dataclasses import replace
-
 from temper_placer.core.courtyard import Courtyard
-from temper_placer.deterministic.state import BoardState
 from temper_placer.deterministic.stages.courtyard_check import CourtyardCheckStage
+from temper_placer.deterministic.state import BoardState
 
 
 def _square_courtyard(ref: str, half_size: float = 2.0) -> Courtyard:
@@ -98,11 +96,7 @@ def test_run_resolves_a_real_collision_end_to_end():
         board_height=100.0,
         max_iterations=200,
     )
-    state = BoardState(
-        placements=frozenset({"R1": (10.0, 10.0), "R2": (13.0, 10.0)}.items())
-    )
+    state = BoardState(placements=frozenset({"R1": (10.0, 10.0), "R2": (13.0, 10.0)}.items()))
     result = stage.run(state)
     final_collisions = stage._find_collisions(dict(result.placements))
-    assert final_collisions == [], (
-        f"stage.run() left unresolved collisions: {final_collisions!r}"
-    )
+    assert final_collisions == [], f"stage.run() left unresolved collisions: {final_collisions!r}"

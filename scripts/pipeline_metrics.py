@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
-import json, math, sys
-from datetime import datetime, timedelta, timezone
+import json
+import math
+import sys
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 
@@ -38,7 +40,7 @@ def _compute_trends(records, board, stage, window, sigma_multiple, module=None):
         filtered = [r for r in filtered if r.get("module") == module]
     if not filtered:
         return {"board": board, "stage": stage, "error": "No records match board/stage"}
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cutoff = now - window
     windowed = []
     for r in filtered:
@@ -139,8 +141,11 @@ def cmd_trend(board, stage, window, sigma_multiple, as_json, metrics_file=None, 
 def cmd_record(board, commit, metrics_file=None, closure_json=None, from_stdin=False):
     from temper_placer.regression.closure_test import ClosureResult
     from temper_placer.regression.metrics_recorder import (
-        find_metrics_file, record_closure_result, record_metrics,
-        PipelineMetricsRecord)
+        PipelineMetricsRecord,
+        find_metrics_file,
+        record_closure_result,
+        record_metrics,
+    )
     repo_root = _find_repo_root()
     fp = Path(metrics_file) if metrics_file else find_metrics_file(repo_root)
 
@@ -161,7 +166,7 @@ def cmd_record(board, commit, metrics_file=None, closure_json=None, from_stdin=F
                 module=rec_data.get("module", "pipeline"),
                 metrics=rec_data.get("metrics", {}),
                 git_commit=rec_data.get("git_commit", commit),
-                timestamp=rec_data.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                timestamp=rec_data.get("timestamp", datetime.now(UTC).isoformat()),
             )
             record_metrics(rec, fp)
             count += 1

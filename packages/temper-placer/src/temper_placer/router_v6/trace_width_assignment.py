@@ -110,7 +110,7 @@ def _determine_trace_width(
     name_upper = net_name.upper()
 
     # High voltage nets (AC, HV)
-    if any(kw in name_upper for kw in ['AC_', 'HV_', 'HIGH_VOLTAGE']):
+    if any(kw in name_upper for kw in ["AC_", "HV_", "HIGH_VOLTAGE"]):
         return TraceWidth(
             net_name=net_name,
             width_mm=hv_width,
@@ -118,7 +118,7 @@ def _determine_trace_width(
         )
 
     # Power nets (GND, VCC, etc.)
-    if any(kw in name_upper for kw in ['GND', 'VCC', 'VDD', 'VSS', '+', 'POWER']):
+    if any(kw in name_upper for kw in ["GND", "VCC", "VDD", "VSS", "+", "POWER"]):
         return TraceWidth(
             net_name=net_name,
             width_mm=power_width,
@@ -126,7 +126,7 @@ def _determine_trace_width(
         )
 
     # Gate drive signals (medium current)
-    if any(kw in name_upper for kw in ['GATE', 'DRIVE']):
+    if any(kw in name_upper for kw in ["GATE", "DRIVE"]):
         return TraceWidth(
             net_name=net_name,
             width_mm=power_width * 0.6,  # 60% of power width

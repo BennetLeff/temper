@@ -24,11 +24,16 @@ def _make_minimal_pcb(components=None, stackup_layers=None):
         zones=[],
         board=None,
         design_rules=DesignRules(
-            net_classes={}, net_class_assignments={},
-            default_clearance_mm=0.2, default_trace_width_mm=0.2,
-            default_via_diameter_mm=0.6, default_via_drill_mm=0.3,
+            net_classes={},
+            net_class_assignments={},
+            default_clearance_mm=0.2,
+            default_trace_width_mm=0.2,
+            default_via_diameter_mm=0.6,
+            default_via_drill_mm=0.3,
         ),
-        stackup=StackupInfo(layers=stackup_layers, total_thickness_mm=1.6, layer_count=len(stackup_layers)),
+        stackup=StackupInfo(
+            layers=stackup_layers, total_thickness_mm=1.6, layer_count=len(stackup_layers)
+        ),
         source_path=None,
     )
 
@@ -57,7 +62,15 @@ def test_pad_polygon_contains_center(x, y, w, h, angle):
 @settings(max_examples=100, deadline=30000)
 def test_circular_pad_contains_center(x, y, radius, angle):
     """Circular pad polygon always contains its center."""
-    pin = Pin(name="1", number="1", position=(0, 0), width=radius * 2, height=radius * 2, shape="circle", layer="F.Cu")
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(0, 0),
+        width=radius * 2,
+        height=radius * 2,
+        shape="circle",
+        layer="F.Cu",
+    )
     poly = _create_pad_polygon(pin, x, y, angle)
     assert poly.contains(Point(x, y)) or poly.touches(Point(x, y))
 
@@ -70,6 +83,7 @@ def test_circular_pad_contains_center(x, y, radius, angle):
 def test_obstacle_map_layer_coverage(num_pads, seed):
     """All layers present in obstacle map have valid MultiPolygon data (no None)."""
     import random
+
     rng = random.Random(seed)
 
     layers = [
@@ -81,13 +95,23 @@ def test_obstacle_map_layer_coverage(num_pads, seed):
     pins = []
     for i in range(num_pads):
         layer = rng.choice(list(declared))
-        pins.append(Pin(
-            name=str(i), number=str(i), position=(0, 0),
-            width=1.0, height=1.0, shape="rect", layer=layer,
-        ))
+        pins.append(
+            Pin(
+                name=str(i),
+                number=str(i),
+                position=(0, 0),
+                width=1.0,
+                height=1.0,
+                shape="rect",
+                layer=layer,
+            )
+        )
 
     comp = Component(
-        ref="U1", footprint="FP", bounds=(2, 2), pins=pins,
+        ref="U1",
+        footprint="FP",
+        bounds=(2, 2),
+        pins=pins,
         initial_position=(rng.uniform(0, 50), rng.uniform(0, 50)),
         initial_rotation=0,
     )
@@ -108,7 +132,14 @@ def test_obstacle_map_layer_coverage(num_pads, seed):
 @settings(max_examples=100, deadline=30000)
 def test_escape_via_in_obstacle_map(x, y, diameter):
     """Escape vias appear as obstacles on signal layers."""
-    via = EscapeVia(net_name="test", pin_number="1", position=(x, y), diameter=diameter, drill=0.3, via_type="through")
+    via = EscapeVia(
+        net_name="test",
+        pin_number="1",
+        position=(x, y),
+        diameter=diameter,
+        drill=0.3,
+        via_type="through",
+    )
     pcb = _make_minimal_pcb()
     obstacles = build_obstacle_map(pcb, [via])
 

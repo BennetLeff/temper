@@ -32,7 +32,7 @@ def compare_fields(
     tolerance_C: float = 5.0,
     *,
     devices: dict[str, tuple[int, int]] | None = None,
-    cell_size_mm: float = 1.0,
+    _cell_size_mm: float = 1.0,
     heatsink_edge: str = "TOP",
 ) -> ComparisonResult:
     """Compare MFEM and FDM temperature fields across the full board.
@@ -47,9 +47,7 @@ def compare_fields(
     """
     H, W = fdm_field.shape
     if mfem_field.shape != (H, W):
-        raise ValueError(
-            f"MFEM field shape {mfem_field.shape} != FDM shape {(H, W)}"
-        )
+        raise ValueError(f"MFEM field shape {mfem_field.shape} != FDM shape {(H, W)}")
 
     delta_map = np.abs(mfem_field - fdm_field)
     max_delta = float(np.max(delta_map))
@@ -76,8 +74,8 @@ def compare_fields(
 
 
 def project_mfem_to_fdm(
-    mfem_result: "MFEMResult",
-    fdm_config: "ThermalFDMConfig",
+    mfem_result: MFEMResult,
+    fdm_config: ThermalFDMConfig,
 ) -> np.ndarray:
     """Project an MFEM nodal solution onto the FDM grid.
 
@@ -104,9 +102,7 @@ def project_mfem_to_fdm(
         grid_pts = np.column_stack([grid_x.ravel(), grid_y.ravel()])
 
         src_pts = nc[:, :2]
-        temps = griddata(
-            src_pts, t, grid_pts, method="nearest", rescale=False
-        )
+        temps = griddata(src_pts, t, grid_pts, method="nearest", rescale=False)
         return temps.reshape(H, W)
 
     temp = np.asarray(mfem_result.temperature).ravel()
@@ -114,8 +110,7 @@ def project_mfem_to_fdm(
         return temp.reshape(H, W)
 
     raise ValueError(
-        f"cannot project MFEM field (size {len(temp)}) onto FDM grid "
-        f"({H}x{W}={H*W})"
+        f"cannot project MFEM field (size {len(temp)}) onto FDM grid ({H}x{W}={H * W})"
     )
 
 

@@ -116,6 +116,7 @@ class TestSampleRotation:
         hard_entropy = -np.sum(hard * np.log(hard + 1e-10))
         assert hard_entropy < soft_entropy
 
+
 class TestRotationMatrix:
     """Tests for rotation matrix generation."""
 

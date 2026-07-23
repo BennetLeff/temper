@@ -17,6 +17,7 @@ import pytest
 _HAS_RUST = False
 try:
     import temper_rust_router  # noqa: F401
+
     _HAS_RUST = True
 except ImportError:
     pass
@@ -30,14 +31,15 @@ class TestCapacityAudit:
     def test_audit_api_imports(self):
         """The audit_result function is importable from the Rust crate."""
         from temper_rust_router import audit_result
+
         assert callable(audit_result)
 
     def test_empty_model_clean(self):
         """Audit on an empty model returns zero violations."""
         from temper_rust_router import audit_result
+
         violations = audit_result([], [], {}, [])
         assert len(violations) == 0
-
 
     def test_4_nets_k2_rust_solver_clean(self):
         """4 nets sharing CH1, capacity 2 — Rust solver produces clean output."""
@@ -55,10 +57,15 @@ class TestCapacityAudit:
             v = NetChannelVar(name=f"uses_net{i}_CH1", net_idx=i, channel_id="CH1")
             cm.add_variable(v)
             vars_.append(v)
-        cm.add_constraint(CapacityConstraint(
-            name="cap_CH1", channel_id="CH1", capacity=2.0, slack_factor=1.0,
-            terms=[(v, 1.0) for v in vars_],
-        ))
+        cm.add_constraint(
+            CapacityConstraint(
+                name="cap_CH1",
+                channel_id="CH1",
+                capacity=2.0,
+                slack_factor=1.0,
+                terms=[(v, 1.0) for v in vars_],
+            )
+        )
 
         py_vars = list(cm.variables)
         py_cons = list(cm.constraints)
@@ -73,7 +80,6 @@ class TestCapacityAudit:
 
 class TestDiffPairAudit:
     """Validate diff-pair enforcement — requires CDCL solver."""
-
 
     def test_diff_pair_rust_solver_clean(self):
         """Diff pair must have matching truth values."""
@@ -90,10 +96,16 @@ class TestDiffPairAudit:
         n_var = NetChannelVar(name="uses_net1_CH1", net_idx=1, channel_id="CH1")
         cm.add_variable(p_var)
         cm.add_variable(n_var)
-        cm.add_constraint(DiffPairConstraint(
-            name="diff_CH1", channel_id="CH1",
-            p_net_idx=0, n_net_idx=1, p_var=p_var, n_var=n_var,
-        ))
+        cm.add_constraint(
+            DiffPairConstraint(
+                name="diff_CH1",
+                channel_id="CH1",
+                p_net_idx=0,
+                n_net_idx=1,
+                p_var=p_var,
+                n_var=n_var,
+            )
+        )
 
         py_vars = list(cm.variables)
         py_cons = list(cm.constraints)
@@ -106,7 +118,6 @@ class TestDiffPairAudit:
 
 class TestLayerAudit:
     """Validate layer-restriction enforcement — requires CDCL solver."""
-
 
     def test_layer_restriction_rust_solver(self):
         """Net restricted to false on a channel must be false."""
@@ -121,9 +132,14 @@ class TestLayerAudit:
         cm = ConstraintModel()
         v = NetChannelVar(name="uses_N0_CH1", net_idx=0, channel_id="CH1")
         cm.add_variable(v)
-        cm.add_constraint(LayerConstraint(
-            name="restr", net_idx=0, channel_id="CH1", allowed=False,
-        ))
+        cm.add_constraint(
+            LayerConstraint(
+                name="restr",
+                net_idx=0,
+                channel_id="CH1",
+                allowed=False,
+            )
+        )
 
         py_vars = list(cm.variables)
         py_cons = list(cm.constraints)
@@ -165,10 +181,15 @@ class TestPysatCrossValidation:
             v = NetChannelVar(name=f"v{i}", net_idx=i, channel_id="CH1")
             cm.add_variable(v)
             vars_.append(v)
-        cm.add_constraint(CapacityConstraint(
-            name="cap", channel_id="CH1", capacity=2.0, slack_factor=1.0,
-            terms=[(v, 1.0) for v in vars_],
-        ))
+        cm.add_constraint(
+            CapacityConstraint(
+                name="cap",
+                channel_id="CH1",
+                capacity=2.0,
+                slack_factor=1.0,
+                terms=[(v, 1.0) for v in vars_],
+            )
+        )
 
         py_vars = list(cm.variables)
         py_cons = list(cm.constraints)
@@ -238,10 +259,15 @@ class TestHypothesisCrossValidation:
                 v = NetChannelVar(name=f"v{i}", net_idx=i, channel_id="CH1")
                 cm.add_variable(v)
                 vars_.append(v)
-            cm.add_constraint(CapacityConstraint(
-                name="cap", channel_id="CH1", capacity=float(k),
-                slack_factor=1.0, terms=[(v, 1.0) for v in vars_],
-            ))
+            cm.add_constraint(
+                CapacityConstraint(
+                    name="cap",
+                    channel_id="CH1",
+                    capacity=float(k),
+                    slack_factor=1.0,
+                    terms=[(v, 1.0) for v in vars_],
+                )
+            )
 
             py_vars = list(cm.variables)
             py_cons = list(cm.constraints)
@@ -264,9 +290,7 @@ class TestHypothesisCrossValidation:
                 if rust["status"] == "unknown":
                     # splr panic caught; skip this example.
                     return
-                assert rust["status"] == "sat", (
-                    f"Rust UNSAT but pysat SAT (n={n_vars}, k={k})"
-                )
+                assert rust["status"] == "sat", f"Rust UNSAT but pysat SAT (n={n_vars}, k={k})"
                 violations = audit_result(py_vars, py_cons, dict(rust["assignments"]), nets)
                 assert len(violations) == 0, f"Audit violations: {violations}"
             else:

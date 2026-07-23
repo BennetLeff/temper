@@ -66,10 +66,10 @@ class DSNExporter:
                 continue
 
             # Find bounding box of all pins (including pad sizes)
-            min_x = float('inf')
-            max_x = float('-inf')
-            min_y = float('inf')
-            max_y = float('-inf')
+            min_x = float("inf")
+            max_x = float("-inf")
+            min_y = float("inf")
+            max_y = float("-inf")
 
             for pin in comp.pins:
                 px, py = pin.position
@@ -116,10 +116,20 @@ class DSNExporter:
         else:
             layer_names = ["F.Cu", "B.Cu"]
             layer_exprs.append(
-                dsn_list("layer", "F.Cu", dsn_list("type", "signal"), dsn_list("property", dsn_list("index", 0)))
+                dsn_list(
+                    "layer",
+                    "F.Cu",
+                    dsn_list("type", "signal"),
+                    dsn_list("property", dsn_list("index", 0)),
+                )
             )
             layer_exprs.append(
-                dsn_list("layer", "B.Cu", dsn_list("type", "signal"), dsn_list("property", dsn_list("index", 1)))
+                dsn_list(
+                    "layer",
+                    "B.Cu",
+                    dsn_list("type", "signal"),
+                    dsn_list("property", dsn_list("index", 1)),
+                )
             )
 
         # Scale factor for 'um 10' resolution (1 unit = 10um)
@@ -129,7 +139,9 @@ class DSNExporter:
         # Boundary as a rect is preferred for the 'pcb' layer
         boundary = dsn_list(
             "boundary",
-            dsn_list("rect", "pcb", 0, 0, round(self.board.width * S), round(self.board.height * S))
+            dsn_list(
+                "rect", "pcb", 0, 0, round(self.board.width * S), round(self.board.height * S)
+            ),
         )
 
         # Keepouts
@@ -137,7 +149,18 @@ class DSNExporter:
         keepout_exprs = []
         for i, ko in enumerate(self.board.keepouts):
             keepout_exprs.append(
-                dsn_list("keepout", f"KO_{i}", dsn_list("rect", keepout_layer, round(ko[0] * S), round(ko[1] * S), round(ko[2] * S), round(ko[3] * S)))
+                dsn_list(
+                    "keepout",
+                    f"KO_{i}",
+                    dsn_list(
+                        "rect",
+                        keepout_layer,
+                        round(ko[0] * S),
+                        round(ko[1] * S),
+                        round(ko[2] * S),
+                        round(ko[3] * S),
+                    ),
+                )
             )
         if self.deterministic:
             keepout_exprs.sort(key=lambda k: str(k.args[0]) if k.args else "")
@@ -146,17 +169,14 @@ class DSNExporter:
         via_exprs = [dsn_list("via", "VIA")]
 
         # Rules: slightly smaller width (0.13mm) to clear dense QFN fanouts
-        rules = dsn_list(
-            "rule",
-            dsn_list("width", 13),
-            dsn_list("clearance", 12)
-        )
+        rules = dsn_list("rule", dsn_list("width", 13), dsn_list("clearance", 12))
 
         return dsn_list("structure", *layer_exprs, boundary, *keepout_exprs, *via_exprs, rules)
 
     def _natural_sort_key(self, s: str) -> tuple:
         """Natural sort key: splits into text and number parts for sorting."""
         import re
+
         parts = re.split(r"(\d+)", s)
         result = []
         for p in parts:
@@ -204,9 +224,13 @@ class DSNExporter:
                     layers_to_add = layer_names if pin.layer == "all" else [pin.layer]
                     for layer in layers_to_add:
                         if shape_name == "circle":
-                            shapes.append(dsn_list("shape", dsn_list("circle", layer, pad_width * S)))
+                            shapes.append(
+                                dsn_list("shape", dsn_list("circle", layer, pad_width * S))
+                            )
                         else:
-                            shapes.append(dsn_list("shape", dsn_list("rect", layer, x1, y1, x2, y2)))
+                            shapes.append(
+                                dsn_list("shape", dsn_list("rect", layer, x1, y1, x2, y2))
+                            )
 
                     padstacks[ps_name] = dsn_list("padstack", ps_name, *shapes)
 
@@ -248,11 +272,18 @@ class DSNExporter:
             # to ensure the router doesn't treat them as empty space.
             if not pins:
                 # Add a 1mm x 1mm keepout at origin as an 'outline'
-                pins.append(dsn_list("outline", dsn_list("rect", layer_names[0], -0.5 * S, -0.5 * S, 0.5 * S, 0.5 * S)))
+                pins.append(
+                    dsn_list(
+                        "outline",
+                        dsn_list("rect", layer_names[0], -0.5 * S, -0.5 * S, 0.5 * S, 0.5 * S),
+                    )
+                )
 
             # Sort pins by pin number for deterministic output
             if self.deterministic:
-                pins.sort(key=lambda p: _natural_sort_key(str(p.args[1])) if len(p.args) > 1 else "0")
+                pins.sort(
+                    key=lambda p: _natural_sort_key(str(p.args[1])) if len(p.args) > 1 else "0"
+                )
             images.append(dsn_list("image", fp_id, *pins))
 
         # Sort images by fp_id for deterministic output
@@ -373,6 +404,7 @@ class DSNExporter:
         power_prefixes = ["GND", "PGND", "CGND", "VCC", "VDD", "DC_BUS", "_PLUS"]
         # Voltage rail suffixes (3V3, 5V, etc.) - must be preceded by a voltage indicator
         import re
+
         voltage_pattern = re.compile(r"(_PLUS|VCC|VDD)\d+V?\d*$", re.IGNORECASE)
 
         # Sort nets: deterministic mode sorts alphabetically by sanitized name;
@@ -381,12 +413,11 @@ class DSNExporter:
         if self.deterministic:
             sorted_nets = sorted(
                 self.netlist.nets,
-                key=lambda n: n.name.replace("+", "_PLUS").replace("-", "_MINUS").lower()
+                key=lambda n: n.name.replace("+", "_PLUS").replace("-", "_MINUS").lower(),
             )
         else:
             sorted_nets = sorted(
-                self.netlist.nets,
-                key=lambda n: (len(n.pins), self._compute_net_span(n))
+                self.netlist.nets, key=lambda n: (len(n.pins), self._compute_net_span(n))
             )
 
         for net in sorted_nets:
@@ -402,15 +433,13 @@ class DSNExporter:
             for comp_ref, pin_num in net.pins:
                 pin_refs.append(f"{comp_ref}-{pin_num}")
 
-
             if pin_refs:
                 net_exprs.append(dsn_list("net", clean_name, dsn_list("pins", *pin_refs)))
 
                 # Classify net as power or signal using more precise matching
                 upper_name = clean_name.upper()
-                is_power = (
-                    any(upper_name.startswith(prefix) for prefix in power_prefixes) or
-                    bool(voltage_pattern.search(clean_name))
+                is_power = any(upper_name.startswith(prefix) for prefix in power_prefixes) or bool(
+                    voltage_pattern.search(clean_name)
                 )
                 if is_power:
                     power_nets.append(clean_name)
@@ -478,7 +507,15 @@ class DSNExporter:
             wire_exprs.append(
                 dsn_list(
                     "wire",
-                    dsn_list("path", trace.layer, trace.width, trace.start[0], trace.start[1], trace.end[0], trace.end[1])
+                    dsn_list(
+                        "path",
+                        trace.layer,
+                        trace.width,
+                        trace.start[0],
+                        trace.start[1],
+                        trace.end[0],
+                        trace.end[1],
+                    ),
                 )
             )
         return dsn_list("wiring", *wire_exprs)
@@ -497,7 +534,9 @@ class DSNExporter:
             exclude_nets: Set of net names to exclude from routing (plane-connected nets).
         """
         sections = [
-            dsn_list("parser", dsn_list("string_quote", '"'), dsn_list("space_in_quoted_tokens", "on")),
+            dsn_list(
+                "parser", dsn_list("string_quote", '"'), dsn_list("space_in_quoted_tokens", "on")
+            ),
             dsn_list("resolution", "um", 10),
             dsn_list("unit", "mm"),
             self.export_structure(),
@@ -513,6 +552,7 @@ class DSNExporter:
 
         if self.deterministic:
             from temper_placer.io.dsn_schema import compute_dsn_schema_hash
+
             schema_hash = compute_dsn_schema_hash(self.board, self.netlist)
             pcb_expr = pcb_expr.with_comment(f"schema-version: sha256:{schema_hash}")
 

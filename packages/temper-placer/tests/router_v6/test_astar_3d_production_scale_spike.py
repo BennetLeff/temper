@@ -184,8 +184,14 @@ def _nearest_free_cell(
 # Anchor points spread across the board's routable area (mm), used to build
 # short (waypoint-scale) segments for the happy-path and scale scenarios.
 _ANCHORS_MM = [
-    (20, 20), (50, 50), (80, 80), (100, 120),
-    (30, 150), (90, 60), (40, 100), (60, 90),
+    (20, 20),
+    (50, 50),
+    (80, 80),
+    (100, 120),
+    (30, 150),
+    (90, 60),
+    (40, 100),
+    (60, 90),
 ]
 
 
@@ -227,8 +233,10 @@ def test_happy_path_same_layer_segment_finds_path(board):
     t0 = time.monotonic()
     result = _route_segment_3d((sx, sy), (gx, gy), "F.Cu", "F.Cu", grids, via_cost=10.0)
     dt = time.monotonic() - t0
-    print(f"[{board}] same-layer segment ({sx:.2f},{sy:.2f})->({gx:.2f},{gy:.2f}): "
-          f"{dt*1000:.2f}ms found={result is not None}")
+    print(
+        f"[{board}] same-layer segment ({sx:.2f},{sy:.2f})->({gx:.2f},{gy:.2f}): "
+        f"{dt * 1000:.2f}ms found={result is not None}"
+    )
 
     assert result is not None, "Expected a path for a short, guaranteed-free same-layer hop"
     world_path, via_positions = result
@@ -252,8 +260,10 @@ def test_happy_path_forced_transition_segment_finds_path_with_via(board):
     t0 = time.monotonic()
     result = _route_segment_3d((sx, sy), (gx, gy), "F.Cu", "B.Cu", grids, via_cost=10.0)
     dt = time.monotonic() - t0
-    print(f"[{board}] forced-transition segment ({sx:.2f},{sy:.2f})->({gx:.2f},{gy:.2f}): "
-          f"{dt*1000:.2f}ms found={result is not None}")
+    print(
+        f"[{board}] forced-transition segment ({sx:.2f},{sy:.2f})->({gx:.2f},{gy:.2f}): "
+        f"{dt * 1000:.2f}ms found={result is not None}"
+    )
 
     assert result is not None, "Expected a path for a short, guaranteed-free forced-transition hop"
     world_path, via_positions = result
@@ -309,10 +319,14 @@ def test_scale_wall_time_baseline_production_board():
         if result is not None:
             found_count += 1
 
-    print(f"\n[scale baseline] production board, N={total} short segments: "
-          f"found={found_count}/{total}")
-    print(f"  wall time (ms): min={min(wall_times_ms):.3f} max={max(wall_times_ms):.3f} "
-          f"mean={sum(wall_times_ms)/len(wall_times_ms):.3f}")
+    print(
+        f"\n[scale baseline] production board, N={total} short segments: "
+        f"found={found_count}/{total}"
+    )
+    print(
+        f"  wall time (ms): min={min(wall_times_ms):.3f} max={max(wall_times_ms):.3f} "
+        f"mean={sum(wall_times_ms) / len(wall_times_ms):.3f}"
+    )
 
     # No pass/fail threshold on wall time itself (per the plan) -- but we do
     # assert the search actually ran (non-degenerate) and that every call
@@ -350,12 +364,19 @@ def test_edge_long_distance_unreachable_segment_returns_none_not_hang():
 
     t0 = time.monotonic()
     result = _route_segment_3d(
-        start_world, goal_world, "F.Cu", "F.Cu", grids, via_cost=10.0,
+        start_world,
+        goal_world,
+        "F.Cu",
+        "F.Cu",
+        grids,
+        via_cost=10.0,
     )
     dt = time.monotonic() - t0
 
-    print(f"\n[edge] long-distance same-layer segment {start_world}->{goal_world}: "
-          f"{dt:.2f}s found={result is not None}")
+    print(
+        f"\n[edge] long-distance same-layer segment {start_world}->{goal_world}: "
+        f"{dt:.2f}s found={result is not None}"
+    )
 
     # The actual point of this test: it must TERMINATE within a generous
     # bound, not hang. Whether or not a path is found is secondary --
@@ -399,12 +420,20 @@ def _make_narrow_corridor_grids() -> dict[str, OccupancyGrid]:
     b_arr = np.zeros((size, size), dtype=np.int8)  # B.Cu fully free (for via escape)
 
     f_grid = OccupancyGrid(
-        layer_name="F.Cu", grid=f_arr, origin=(0.0, 0.0),
-        cell_size=cell_size, width_cells=size, height_cells=size,
+        layer_name="F.Cu",
+        grid=f_arr,
+        origin=(0.0, 0.0),
+        cell_size=cell_size,
+        width_cells=size,
+        height_cells=size,
     )
     b_grid = OccupancyGrid(
-        layer_name="B.Cu", grid=b_arr, origin=(0.0, 0.0),
-        cell_size=cell_size, width_cells=size, height_cells=size,
+        layer_name="B.Cu",
+        grid=b_arr,
+        origin=(0.0, 0.0),
+        cell_size=cell_size,
+        width_cells=size,
+        height_cells=size,
     )
     return {"F.Cu": f_grid, "B.Cu": b_grid}
 
@@ -425,7 +454,13 @@ def test_mark_via_blocked_prevents_second_route_through_same_via_position():
     # actually fires (net_id > 0 is required -- see astar_core.py's
     # `if vias and net_id > 0:` guard).
     result1 = _astar_search_3d(
-        start, goal, grids, via_cost=10.0, via_diameter=0.6, clearance=0.2, net_id=1,
+        start,
+        goal,
+        grids,
+        via_cost=10.0,
+        via_diameter=0.6,
+        clearance=0.2,
+        net_id=1,
     )
     assert result1 is not None, "First call should find a path down the open corridor"
     path1, vias1 = result1
@@ -452,7 +487,13 @@ def test_mark_via_blocked_prevents_second_route_through_same_via_position():
     # blocked cell) proves mark_via_blocked() is doing its job; a path that
     # goes straight through the blocked cell would prove it is NOT.
     result2 = _astar_search_3d(
-        start, goal, grids, via_cost=10.0, via_diameter=0.6, clearance=0.2, net_id=2,
+        start,
+        goal,
+        grids,
+        via_cost=10.0,
+        via_diameter=0.6,
+        clearance=0.2,
+        net_id=2,
     )
     if result2 is not None:
         path2, _vias2 = result2
@@ -516,9 +557,11 @@ def test_via_legality_spot_check_against_clearance_radius():
             # the pad center on the ORIGIN layer for this degenerate
             # "transition right at the pad" case -- see module docstring).
             static_violations = int(np.sum(region == -1))
-            print(f"  via ({vx:.3f},{vy:.3f}) on {layer_name}: "
-                  f"{static_violations} static-obstacle cells within "
-                  f"{keepout_radius_mm}mm keep-out (informational spot-check)")
+            print(
+                f"  via ({vx:.3f},{vy:.3f}) on {layer_name}: "
+                f"{static_violations} static-obstacle cells within "
+                f"{keepout_radius_mm}mm keep-out (informational spot-check)"
+            )
             # This is an informational spot-check, not a hard gate: the
             # legacy pad-coincident via case documented above is a KNOWN,
             # separately-flagged finding, not something this test should

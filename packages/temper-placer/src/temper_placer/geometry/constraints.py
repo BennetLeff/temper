@@ -1,14 +1,14 @@
 """
 Shared geometric constraint predicates for validation and legalization.
 
-This module provides pure, reusable predicates for checking and computing
-violations of geometric constraints such as board boundaries and zone membership.
-Used by both validation (checking constraints) and legalization (enforcing constraints).
+This module delegates to the temper-geometry Rust crate for performance.
 """
 
 from __future__ import annotations
 
 from typing import NamedTuple
+
+import temper_geometry
 
 
 class BoundaryViolation(NamedTuple):
@@ -83,20 +83,16 @@ def compute_valid_bounds(
     Returns:
         ValidBounds describing where the component center can be placed.
     """
-    x_min = region_x_min + component_half_width + margin
-    x_max = region_x_max - component_half_width - margin
-    y_min = region_y_min + component_half_height + margin
-    y_max = region_y_max - component_half_height - margin
-
-    # Handle edge case where component is larger than region
-    if x_min > x_max:
-        x_center = (region_x_min + region_x_max) / 2
-        x_min = x_max = x_center
-    if y_min > y_max:
-        y_center = (region_y_min + region_y_max) / 2
-        y_min = y_max = y_center
-
-    return ValidBounds(x_min, x_max, y_min, y_max)
+    result = temper_geometry.compute_valid_bounds(
+        component_half_width,
+        component_half_height,
+        region_x_min,
+        region_y_min,
+        region_x_max,
+        region_y_max,
+        margin,
+    )
+    return ValidBounds(*result)
 
 
 def compute_boundary_violation(
@@ -125,19 +121,17 @@ def compute_boundary_violation(
     Returns:
         BoundaryViolation describing how component extends beyond edges.
     """
-    # Component edges
-    comp_x_min = position_x - component_half_width
-    comp_x_max = position_x + component_half_width
-    comp_y_min = position_y - component_half_height
-    comp_y_max = position_y + component_half_height
-
-    # Compute violations (positive = extending beyond)
-    left = max(0.0, board_x_min - comp_x_min)
-    right = max(0.0, comp_x_max - board_x_max)
-    bottom = max(0.0, board_y_min - comp_y_min)
-    top = max(0.0, comp_y_max - board_y_max)
-
-    return BoundaryViolation(left, right, bottom, top)
+    result = temper_geometry.compute_boundary_violation(
+        position_x,
+        position_y,
+        component_half_width,
+        component_half_height,
+        board_x_min,
+        board_y_min,
+        board_x_max,
+        board_y_max,
+    )
+    return BoundaryViolation(*result)
 
 
 def is_within_bounds(
@@ -168,16 +162,16 @@ def is_within_bounds(
     Returns:
         True if component is entirely within region.
     """
-    comp_x_min = position_x - component_half_width
-    comp_x_max = position_x + component_half_width
-    comp_y_min = position_y - component_half_height
-    comp_y_max = position_y + component_half_height
-
-    return (
-        comp_x_min >= region_x_min - tolerance
-        and comp_x_max <= region_x_max + tolerance
-        and comp_y_min >= region_y_min - tolerance
-        and comp_y_max <= region_y_max + tolerance
+    return temper_geometry.is_within_bounds(
+        position_x,
+        position_y,
+        component_half_width,
+        component_half_height,
+        region_x_min,
+        region_y_min,
+        region_x_max,
+        region_y_max,
+        tolerance,
     )
 
 
@@ -199,25 +193,14 @@ def compute_zone_distance(
         Positive if outside zone (distance to nearest edge).
         Zero if exactly on edge.
     """
-    # Clamp point to zone
-    clamped_x = max(zone_x_min, min(zone_x_max, position_x))
-    clamped_y = max(zone_y_min, min(zone_y_max, position_y))
-
-    # Distance to clamped point
-    dx = position_x - clamped_x
-    dy = position_y - clamped_y
-
-    # If point is inside, compute negative distance to nearest edge
-    if clamped_x == position_x and clamped_y == position_y:
-        # Inside the zone
-        dist_to_left = position_x - zone_x_min
-        dist_to_right = zone_x_max - position_x
-        dist_to_bottom = position_y - zone_y_min
-        dist_to_top = zone_y_max - position_y
-        return -min(dist_to_left, dist_to_right, dist_to_bottom, dist_to_top)
-    else:
-        # Outside the zone
-        return (dx**2 + dy**2) ** 0.5
+    return temper_geometry.compute_zone_distance(
+        position_x,
+        position_y,
+        zone_x_min,
+        zone_y_min,
+        zone_x_max,
+        zone_y_max,
+    )
 
 
 def point_in_zone(
@@ -242,6 +225,11 @@ def point_in_zone(
     Returns:
         True if point is inside zone.
     """
-    return (
-        zone_x_min <= position_x <= zone_x_max and zone_y_min <= position_y <= zone_y_max
+    return temper_geometry.point_in_zone(
+        position_x,
+        position_y,
+        zone_x_min,
+        zone_y_min,
+        zone_x_max,
+        zone_y_max,
     )

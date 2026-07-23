@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import FrozenInstanceError
+
 import numpy as np
 import pytest
 from hypothesis import given
@@ -21,10 +23,10 @@ from temper_placer.placer.cp_sat.gates import (
     ViolationType,
 )
 
-
 # ---------------------------------------------------------------------------
 # CostField-stored-in-FieldResult.field path (defensive dispatch)
 # ---------------------------------------------------------------------------
+
 
 class TestFieldResultWithCostField:
     """FieldResult with a CostField (not raw ndarray) as its .field value."""
@@ -67,6 +69,7 @@ class TestFieldResultWithCostField:
 # ---------------------------------------------------------------------------
 # Happy path
 # ---------------------------------------------------------------------------
+
 
 class TestFieldResultHappy:
     """CLEAN GateResult-backed field whose grid matches the occupancy-grid shape."""
@@ -133,6 +136,7 @@ class TestFieldResultHappy:
 # Edge: no silent-flat / zero-grid path
 # ---------------------------------------------------------------------------
 
+
 class TestFieldResultNoSilentFlat:
     """A VIOLATIONS/failed result with an implicit zero grid is impossible."""
 
@@ -184,6 +188,7 @@ class TestFieldResultNoSilentFlat:
 # Error / UNMEASURED
 # ---------------------------------------------------------------------------
 
+
 class TestFieldResultUnmeasured:
     """A non-converged solve yields UNMEASURED with reason;  consumers must branch."""
 
@@ -205,21 +210,27 @@ class TestFieldResultUnmeasured:
                 return f"skip: {fr.error_message}"
             return "use_field"
 
-        assert consume(
-            FieldResult(
-                gate_result=GateResult(
-                    GateStatus.UNMEASURED,
-                    error_message="not converged",
-                ),
+        assert (
+            consume(
+                FieldResult(
+                    gate_result=GateResult(
+                        GateStatus.UNMEASURED,
+                        error_message="not converged",
+                    ),
+                )
             )
-        ) == "skip: not converged"
+            == "skip: not converged"
+        )
 
-        assert consume(
-            FieldResult(
-                gate_result=GateResult(GateStatus.CLEAN),
-                field=np.ones((5, 5), dtype=np.float32),
+        assert (
+            consume(
+                FieldResult(
+                    gate_result=GateResult(GateStatus.CLEAN),
+                    field=np.ones((5, 5), dtype=np.float32),
+                )
             )
-        ) == "use_field"
+            == "use_field"
+        )
 
     def test_no_code_path_yields_cost_flat_from_unmeasured(self):
         result = FieldResult(
@@ -235,6 +246,7 @@ class TestFieldResultUnmeasured:
 # ---------------------------------------------------------------------------
 # Property-based: CostField grid alignment (no off-by-one)
 # ---------------------------------------------------------------------------
+
 
 class TestCostFieldAlignment:
     """For any grid shape, a CostField aligns 1:1 with the occupancy grid."""
@@ -279,6 +291,7 @@ class TestCostFieldAlignment:
 # FieldGate extension point
 # ---------------------------------------------------------------------------
 
+
 class TestFieldGateExtensionPoint:
     """FieldGate is an abstract base for U5 — concrete subclasses override compute_field."""
 
@@ -287,8 +300,6 @@ class TestFieldGateExtensionPoint:
             name = "stub"
 
             def compute_field(self, state):
-                from temper_placer.placer.cp_sat.gates import BoardState
-
                 return FieldResult(
                     gate_result=GateResult(GateStatus.CLEAN),
                     field=np.ones((3, 3), dtype=np.float32),
@@ -317,6 +328,7 @@ class TestFieldGateExtensionPoint:
 # CostFieldInput contract
 # ---------------------------------------------------------------------------
 
+
 class TestCostFieldInput:
     """CostFieldInput bundles flat cost + weight for U8/U9 routing."""
 
@@ -333,5 +345,5 @@ class TestCostFieldInput:
 
     def test_frozen(self):
         cfi = CostFieldInput(cost_flat=np.ones(10, dtype=np.float32))
-        with pytest.raises(Exception):
+        with pytest.raises(FrozenInstanceError):
             cfi.weight = 2.0  # type: ignore[misc]

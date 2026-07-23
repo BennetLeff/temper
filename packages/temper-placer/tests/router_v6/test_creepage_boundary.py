@@ -255,7 +255,7 @@ class TestNetNameBoundaries:
             ("HV_BUS", True),
             ("HV_GATE", True),
             # AC/HV immediately followed by non-word char
-            ("AC-", False),   # hyphen is not [\d_] nor end
+            ("AC-", False),  # hyphen is not [\d_] nor end
             ("AC.", False),
             ("AC:", False),
         ],
@@ -340,8 +340,14 @@ class TestCoordinateBoundaries:
     def test_segment_to_segment_valid(self, x2: float, y2: float):
         """Valid segment pairs produce a distance."""
         dist, p1, p2 = _segment_to_segment_info(
-            0.0, 0.0, x2, y2,
-            5.0, 5.0, 15.0, 5.0,
+            0.0,
+            0.0,
+            x2,
+            y2,
+            5.0,
+            5.0,
+            15.0,
+            5.0,
         )
         assert isinstance(dist, float)
         assert dist >= 0.0
@@ -350,8 +356,14 @@ class TestCoordinateBoundaries:
     def test_segment_to_segment_nan(self, x2: float, y2: float):
         """Segment with NaN endpoint does not crash segment-to-segment."""
         dist, p1, p2 = _segment_to_segment_info(
-            0.0, 0.0, x2, y2,
-            5.0, 5.0, 15.0, 5.0,
+            0.0,
+            0.0,
+            x2,
+            y2,
+            5.0,
+            5.0,
+            15.0,
+            5.0,
         )
         # The NaN segment contributes NaN distances that are skipped
         assert not math.isnan(dist)  # falls back to finite endpoint
@@ -360,8 +372,14 @@ class TestCoordinateBoundaries:
     def test_segment_to_segment_inf(self, x2: float, y2: float):
         """Segment with inf endpoint does not crash segment-to-segment."""
         dist, p1, p2 = _segment_to_segment_info(
-            0.0, 0.0, x2, y2,
-            5.0, 5.0, 15.0, 5.0,
+            0.0,
+            0.0,
+            x2,
+            y2,
+            5.0,
+            5.0,
+            15.0,
+            5.0,
         )
         # inf endpoint → distance is inf (ignored) → falls back
         assert dist >= 0.0 or math.isinf(dist)
@@ -369,8 +387,14 @@ class TestCoordinateBoundaries:
     def test_segment_intersection(self):
         """Crossing segments report distance 0."""
         dist, p1, p2 = _segment_to_segment_info(
-            0.0, 0.0, 10.0, 10.0,
-            0.0, 10.0, 10.0, 0.0,
+            0.0,
+            0.0,
+            10.0,
+            10.0,
+            0.0,
+            10.0,
+            10.0,
+            0.0,
         )
         assert dist == pytest.approx(0.0)
 

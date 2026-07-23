@@ -125,23 +125,25 @@ class DrcRatchet:
             else:
                 package_type = "smd"
 
-            components.append({
-                "ref": c.ref,
-                "x": x,
-                "y": y,
-                "rot": rotation,
-                "side": side,
-                "width": float(c.width),
-                "height": float(c.height),
-                "net_class": c.net_class,
-                "package_type": package_type,
-                "power_dissipation_w": None,
-                "is_magnetic": False,
-                "is_electrolytic": False,
-                "vent_direction": None,
-                "footprint_polygon": None,
-                "is_mechanical": c.ref.startswith("MH"),
-            })
+            components.append(
+                {
+                    "ref": c.ref,
+                    "x": x,
+                    "y": y,
+                    "rot": rotation,
+                    "side": side,
+                    "width": float(c.width),
+                    "height": float(c.height),
+                    "net_class": c.net_class,
+                    "package_type": package_type,
+                    "power_dissipation_w": None,
+                    "is_magnetic": False,
+                    "is_electrolytic": False,
+                    "vent_direction": None,
+                    "footprint_polygon": None,
+                    "is_mechanical": c.ref.startswith("MH"),
+                }
+            )
 
         nets: dict[str, list[str]] = {}
         net_classes: dict[str, str] = {}
@@ -195,13 +197,9 @@ class DrcRatchet:
         violations = temper_drc_rs.run_drc(board_dict, constraints_dict)
 
         errors = sum(
-            1 for v in violations
-            if v.get("severity", "").upper() in ("ERROR", "CRITICAL")
+            1 for v in violations if v.get("severity", "").upper() in ("ERROR", "CRITICAL")
         )
-        warnings = sum(
-            1 for v in violations
-            if v.get("severity", "").upper() == "WARNING"
-        )
+        warnings = sum(1 for v in violations if v.get("severity", "").upper() == "WARNING")
 
         return errors, warnings
 

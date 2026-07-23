@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 @dataclass
 class GeometricMetrics:
     """Raw geometric violations."""
+
     overlap_count: int = 0
     overlap_area_mm2: float = 0.0
     zone_violation_count: int = 0
@@ -32,6 +33,7 @@ class GeometricMetrics:
 @dataclass
 class EMIMetrics:
     """EMI-related metrics (loop areas)."""
+
     gate_loop_area_mm2: float = 0.0
     power_loop_area_mm2: float = 0.0
     total_loop_area_mm2: float = 0.0
@@ -40,6 +42,7 @@ class EMIMetrics:
 @dataclass
 class ThermalMetrics:
     """Thermal safety metrics."""
+
     max_junction_temp_c: float = 0.0
     thermal_margin_c: float = 0.0
     edge_distance_avg_mm: float = 0.0
@@ -48,6 +51,7 @@ class ThermalMetrics:
 @dataclass
 class RoutabilityMetrics:
     """Routability and congestion metrics."""
+
     completion_pct: float = 0.0
     overflow_cells: int = 0
     max_congestion: float = 0.0
@@ -57,6 +61,7 @@ class RoutabilityMetrics:
 @dataclass
 class PhysicsReport:
     """Comprehensive physical measurement report."""
+
     geometric: GeometricMetrics = field(default_factory=GeometricMetrics)
     emi: EMIMetrics = field(default_factory=EMIMetrics)
     thermal: ThermalMetrics = field(default_factory=ThermalMetrics)
@@ -65,6 +70,7 @@ class PhysicsReport:
     def to_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dictionary."""
         from dataclasses import asdict
+
         data = asdict(self)
         return self._convert_numpy(data)
 
@@ -130,8 +136,7 @@ def measure_geometric(
             if dist_x > 0 or dist_y > 0:
                 metrics.zone_violation_count += 1
                 metrics.zone_violation_max_mm = max(
-                    metrics.zone_violation_max_mm,
-                    np.sqrt(dist_x**2 + dist_y**2)
+                    metrics.zone_violation_max_mm, np.sqrt(dist_x**2 + dist_y**2)
                 )
 
     # 3. Boundary Violations
@@ -139,8 +144,12 @@ def measure_geometric(
         x, y = positions[i]
         hw, hh = widths[i] / 2, heights[i] / 2
 
-        if (x - hw < board.origin[0] or x + hw > board.origin[0] + board.width or
-            y - hh < board.origin[1] or y + hh > board.origin[1] + board.height):
+        if (
+            x - hw < board.origin[0]
+            or x + hw > board.origin[0] + board.width
+            or y - hh < board.origin[1]
+            or y + hh > board.origin[1] + board.height
+        ):
             metrics.boundary_violation_count += 1
 
     # 4. HV-LV Clearance (Creepage proxy)
@@ -201,7 +210,9 @@ def measure_emi(
 
         # 1. Compute Area (Shoelace)
         if len(v) >= 3:
-            area = 0.5 * np.abs(np.dot(v[:, 0], np.roll(v[:, 1], 1)) - np.dot(v[:, 1], np.roll(v[:, 0], 1)))
+            area = 0.5 * np.abs(
+                np.dot(v[:, 0], np.roll(v[:, 1], 1)) - np.dot(v[:, 1], np.roll(v[:, 0], 1))
+            )
         else:
             area = 0.0
 
@@ -212,14 +223,11 @@ def measure_emi(
         perimeter = np.sum(np.sqrt(np.sum(diffs**2, axis=1)))
 
         # 3. Estimate Inductance (nH)
-        inductance = estimate_loop_inductance(
-            loop_area_mm2=area,
-            perimeter_mm=perimeter
-        )
+        inductance = estimate_loop_inductance(loop_area_mm2=area, perimeter_mm=perimeter)
 
-        if i == 0: # Convention: first loop is gate drive
-            metrics.gate_loop_area_mm2 = inductance # Note: field name remains for compatibility
-        elif i == 1: # Convention: second loop is power
+        if i == 0:  # Convention: first loop is gate drive
+            metrics.gate_loop_area_mm2 = inductance  # Note: field name remains for compatibility
+        elif i == 1:  # Convention: second loop is power
             metrics.power_loop_area_mm2 = inductance
 
         metrics.total_loop_area_mm2 += inductance
@@ -296,16 +304,12 @@ def measure_thermal(
 
         # Estimate Tj using the refined model
         # TODO: Pull copper_area from netlist/board info
-        tj = estimate_junction_temp(
-            power_W=power,
-            edge_distance_mm=dist,
-            ambient_C=ambient_temp_c
-        )
+        tj = estimate_junction_temp(power_W=power, edge_distance_mm=dist, ambient_C=ambient_temp_c)
         max_tj = max(max_tj, tj)
 
     metrics = ThermalMetrics()
     metrics.max_junction_temp_c = max_tj
-    metrics.thermal_margin_c = 150.0 - max_tj # 150C is typical shutdown
+    metrics.thermal_margin_c = 150.0 - max_tj  # 150C is typical shutdown
     metrics.edge_distance_avg_mm = float(np.mean(edge_dists)) if edge_dists else 0.0
 
     return metrics

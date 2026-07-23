@@ -37,14 +37,15 @@ from __future__ import annotations
 
 import heapq
 import math
+
 import numpy as np
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 
 from temper_placer.router_v6.astar_core import (
-    DIAGONAL_COST_FACTOR,
     _DIRS_8,
+    DIAGONAL_COST_FACTOR,
     _astar_search,
 )
 from temper_placer.router_v6.astar_core_numba import _astar_search_numba
@@ -133,9 +134,7 @@ def _dijkstra_cost(
             dx, dy = _DIRS_8[dir_idx]
             nx, ny = cx + dx, cy + dy
 
-            move_cost = (
-                diagonal_factor * _sqrt2 if dx != 0 and dy != 0 else 1.0
-            )
+            move_cost = diagonal_factor * _sqrt2 if dx != 0 and dy != 0 else 1.0
             if use_thermal:
                 assert thermal_flat is not None
                 n_idx = ny * cols + nx
@@ -274,10 +273,21 @@ _BMC_GRIDS: list[tuple[str, int, int, list[tuple[int, int]] | None]] = [
     ("single_obstacle_4x4", 4, 4, [(1, 1)]),
     ("wall_5x5", 5, 5, [(r, 2) for r in range(5) if r != 2]),  # wall with gap
     ("corner_blocked_5x5", 5, 5, [(0, 0), (4, 4)]),
-    ("maze_6x6", 6, 6, [
-        (1, 1), (1, 2), (1, 3), (1, 4),
-        (3, 1), (3, 2), (3, 3), (3, 4),
-    ]),
+    (
+        "maze_6x6",
+        6,
+        6,
+        [
+            (1, 1),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (3, 1),
+            (3, 2),
+            (3, 3),
+            (3, 4),
+        ],
+    ),
 ]
 
 # Thermal fields used in BMC (applied per grid).
@@ -360,7 +370,10 @@ def test_bmc_astar_equals_dijkstra_within_epsilon(label, rows, cols, blocked):
                 # Reconstruct cost from A* path using the cost model.
                 # Cost_so_far at goal = _path_total_cost via cost model.
                 a_cost = _path_total_cost(
-                    a_result, cols, thermal_flat, thermal_weight,
+                    a_result,
+                    cols,
+                    thermal_flat,
+                    thermal_weight,
                     DIAGONAL_COST_FACTOR,
                 )
 
@@ -391,18 +404,24 @@ def test_bmc_numba_astar_equals_dijkstra_within_epsilon():
                 continue
 
             path = _astar_search_numba(
-                src, dst, grid, max_iterations=5000,
-                thermal_flat=thermal_flat, thermal_weight=2.0,
+                src,
+                dst,
+                grid,
+                max_iterations=5000,
+                thermal_flat=thermal_flat,
+                thermal_weight=2.0,
             )
             d_cost = _dijkstra_cost_numba_float32_model(
-                src, dst, grid, tensor,
-                thermal_flat=thermal_flat, thermal_weight=2.0,
+                src,
+                dst,
+                grid,
+                tensor,
+                thermal_flat=thermal_flat,
+                thermal_weight=2.0,
             )
 
             if path is None:
-                assert math.isinf(d_cost), (
-                    f"{src}→{dst}: Numba A* no path but Dijkstra found cost"
-                )
+                assert math.isinf(d_cost), f"{src}→{dst}: Numba A* no path but Dijkstra found cost"
                 continue
 
             a_cost = _path_base_cost(path, diagonal_factor=1.0) + (
@@ -431,10 +450,7 @@ def small_grid_with_field_and_pair(draw: st.DrawFn):
     rng = np.random.RandomState(seed)
     arr = rng.binomial(1, density, size=(rows, cols)).astype(np.int8)
 
-    free_cells = [
-        (int(c), int(r))
-        for r in range(rows) for c in range(cols) if arr[r, c] == 0
-    ]
+    free_cells = [(int(c), int(r)) for r in range(rows) for c in range(cols) if arr[r, c] == 0]
     assume(len(free_cells) >= 2)
 
     # Nonnegative thermal field
@@ -445,10 +461,14 @@ def small_grid_with_field_and_pair(draw: st.DrawFn):
 
     grid = OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, cols, rows)
 
-    idxs = draw(st.lists(
-        st.integers(0, len(free_cells) - 1),
-        min_size=2, max_size=2, unique=True,
-    ))
+    idxs = draw(
+        st.lists(
+            st.integers(0, len(free_cells) - 1),
+            min_size=2,
+            max_size=2,
+            unique=True,
+        )
+    )
     start = free_cells[idxs[0]]
     goal = free_cells[idxs[1]]
 
@@ -475,13 +495,18 @@ def test_pbt_astar_cost_never_below_dijkstra(gfp):
     tensor = build_neighbor_validity_tensor_2d(grid)
 
     a_path = _astar_search(
-        start, goal, grid,
+        start,
+        goal,
+        grid,
         neighbor_tensor=tensor,
         thermal_flat=thermal_flat if thermal_weight > 0 else None,
         thermal_weight=thermal_weight,
     )
     d_cost = _dijkstra_cost(
-        start, goal, grid, tensor,
+        start,
+        goal,
+        grid,
+        tensor,
         thermal_flat=thermal_flat if thermal_weight > 0 else None,
         thermal_weight=thermal_weight,
         diagonal_factor=DIAGONAL_COST_FACTOR,
@@ -490,18 +515,18 @@ def test_pbt_astar_cost_never_below_dijkstra(gfp):
     if a_path is None:
         # If A* cannot find a path, Dijkstra should also not find one
         # (A* is complete on finite graphs given the consistent heuristic).
-        assert math.isinf(d_cost), (
-            f"{start}→{goal}: A* no path but Dijkstra cost={d_cost}"
-        )
+        assert math.isinf(d_cost), f"{start}→{goal}: A* no path but Dijkstra cost={d_cost}"
         return
 
     # Reconstruct cost explicitly from the cost model — not from
     # A*'s internal cost_so_far dict.  This avoids trusting A*'s
     # own accounting.
     a_cost = _path_total_cost(
-        a_path, grid.width_cells,
+        a_path,
+        grid.width_cells,
         thermal_flat if thermal_weight > 0 else None,
-        thermal_weight, DIAGONAL_COST_FACTOR,
+        thermal_weight,
+        DIAGONAL_COST_FACTOR,
     )
 
     # Admissibility: A* cost must be ≥ optimal (Dijkstra) − ε.
@@ -553,7 +578,9 @@ def test_pbt_cost_additivity(gfp):
     tensor = build_neighbor_validity_tensor_2d(grid)
 
     path_on = _astar_search(
-        start, goal, grid,
+        start,
+        goal,
+        grid,
         neighbor_tensor=tensor,
         thermal_flat=thermal_flat,
         thermal_weight=thermal_weight,
@@ -562,11 +589,19 @@ def test_pbt_cost_additivity(gfp):
 
     # Total cost of path_on with field (cost model)
     total_on = _path_total_cost(
-        path_on, cols, thermal_flat, thermal_weight, DIAGONAL_COST_FACTOR,
+        path_on,
+        cols,
+        thermal_flat,
+        thermal_weight,
+        DIAGONAL_COST_FACTOR,
     )
     # Total cost of path_on without field (octile only)
     total_on_base = _path_total_cost(
-        path_on, cols, thermal_flat, 0.0, DIAGONAL_COST_FACTOR,
+        path_on,
+        cols,
+        thermal_flat,
+        0.0,
+        DIAGONAL_COST_FACTOR,
     )
     # Summed field cost over path (ex start cell)
     field_sum = _path_field_sum(path_on, thermal_flat, cols)
@@ -625,7 +660,9 @@ def test_r14_fail_capable_double_count():
 
     start, goal = (0, 0), (4, 4)
     path = _astar_search(
-        start, goal, grid,
+        start,
+        goal,
+        grid,
         neighbor_tensor=tensor,
         thermal_flat=thermal_flat,
         thermal_weight=thermal_weight,
@@ -638,7 +675,10 @@ def test_r14_fail_capable_double_count():
 
     # Buggy cost (double count) should NOT equal the correct additivity
     buggy_total = _path_total_cost_double_count(
-        path, thermal_flat, cols, thermal_weight,
+        path,
+        thermal_flat,
+        cols,
+        thermal_weight,
     )
     buggy_delta = buggy_total - _path_base_cost(path, DIAGONAL_COST_FACTOR)
     correct_delta = thermal_weight * field_sum
@@ -675,7 +715,9 @@ def test_pbt_no_path_through_masked_cells(gfp):
     tensor = build_neighbor_validity_tensor_2d(grid)
 
     path = _astar_search(
-        start, goal, grid,
+        start,
+        goal,
+        grid,
         neighbor_tensor=tensor,
         thermal_flat=thermal_flat if thermal_weight > 0 else None,
         thermal_weight=thermal_weight,
@@ -692,9 +734,7 @@ def test_pbt_no_path_through_masked_cells(gfp):
     }
 
     for cell in path:
-        assert cell not in blocked_set, (
-            f"Path entered blocked cell {cell}"
-        )
+        assert cell not in blocked_set, f"Path entered blocked cell {cell}"
 
 
 # ---------------------------------------------------------------------------
@@ -720,9 +760,11 @@ def test_zero_thermal_weight_matches_no_field():
                 continue
             p_no = _astar_search(src, dst, grid, neighbor_tensor=tensor)
             p_w0 = _astar_search(
-                src, dst, grid, neighbor_tensor=tensor,
-                thermal_flat=thermal_flat, thermal_weight=0.0,
+                src,
+                dst,
+                grid,
+                neighbor_tensor=tensor,
+                thermal_flat=thermal_flat,
+                thermal_weight=0.0,
             )
-            assert p_no == p_w0, (
-                f"zero-weight path differs from no-field path at {src}→{dst}"
-            )
+            assert p_no == p_w0, f"zero-weight path differs from no-field path at {src}→{dst}"

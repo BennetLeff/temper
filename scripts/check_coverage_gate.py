@@ -19,20 +19,25 @@ The script follows the scripts/check_regression.py convention: argparse, rich
 Console, sys.path manipulation as needed.
 """
 
-import argparse
-import ast
-import json
-import os
-import re
-import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import ast
+import json
+
+from _lib.gate_allowlist import (
+    TICKET_PATTERN,
+    load_allowlist as _load_allowlist,
+    git_show_main_allowlist as _git_show_main_allowlist,
+    check_shrink_mode as _check_shrink_mode,
+)
+from _lib.repo import find_repo_root
 from rich.console import Console
 
 console = Console()
-
-TICKET_PATTERN = re.compile(r"TODO:\s*temper-(?:\d+|xxx)")
 
 
 def parse_coverage_json(coverage_json_path):
@@ -75,71 +80,71 @@ def find_zero_coverage(files, source_root):
     zero_cov = {}
 
     for file_path, file_data in files.items():
+        # Normalize: strip leading 'src/' prefix if present so paths match
+        # the allowlist convention (temper_placer/module.py) independent of
+        # whether coverage reports paths relative to a source root or CWD.
+        normalized = file_path
+        if normalized.startswith("src/"):
+            normalized = normalized[4:]
+
         # Resolve the source file on disk
-        src_file = source_root / file_path
+        src_file = source_root / normalized
         if not src_file.exists():
             console.print(f"[yellow]Warning: source file not found: {src_file}[/]")
             continue
 
         public_names = ast_public_functions(src_file)
-        executed = set(file_data.get("executed_lines", []))
-        functions = file_data.get("functions", {})
+        func_dicts = file_data.get("functions", {})
 
-        for func_name, (start_line, end_line) in functions.items():
+        for func_name, func_info in func_dicts.items():
             if func_name not in public_names:
                 continue
 
-            # Lines in the function body (exclude the def line itself)
-            body_lines = set(range(start_line + 1, end_line + 1))
+            # coverage.py 7.x: func_info is a dict with 'executed_lines' and 'summary'
+            if isinstance(func_info, dict):
+                executed_func = set(func_info.get("executed_lines", []))
+                n_statements = func_info.get("summary", {}).get("num_statements", 0)
+                has_no_coverage = not executed_func and n_statements > 0
+                # Use first missing line as line reference, fallback to 0
+                missing = func_info.get("missing_lines", [])
+                line_ref = missing[0] if missing else 0
+            else:
+                # Legacy format: (start_line, end_line) tuple
+                start_line, end_line = func_info
+                executed_func = set(file_data.get("executed_lines", []))
+                body_lines = set(range(start_line + 1, end_line + 1))
+                has_no_coverage = not (body_lines & executed_func)
+                line_ref = start_line
 
-            if not (body_lines & executed):
-                allowlist_key = f"{file_path}::{func_name}"
-                zero_cov[allowlist_key] = start_line
+            if has_no_coverage:
+                allowlist_key = f"{normalized}::{func_name}"
+                zero_cov[allowlist_key] = line_ref
 
     return zero_cov
 
 
 def load_allowlist(path):
-    """Parse .coverage-allowlist into a dict {key: ticket_string}.
-
-    Format: ``path::function  # TODO: temper-xxx``
-    Lines starting with ``#`` (no preceding entry) are comments.
-    Empty lines are ignored.
-    """
+    """Parse .coverage-allowlist into a dict {key: ticket_string}."""
     entries = {}
-    if not path.exists():
-        return entries
-
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-
-        # Split on '#' to separate the key from the comment
+    for line in _load_allowlist(path):
         if "#" in line:
             key_part, comment = line.split("#", 1)
             key_part = key_part.strip()
         else:
             key_part = line.strip()
             comment = ""
-
         if key_part:
             entries[key_part] = comment.strip()
-
     return entries
 
 
 def git_show_main_allowlist():
     """Return the allowlist content from origin/main, or None if unavailable."""
     try:
-        result = subprocess.run(
-            ["git", "show", "origin/main:.coverage-allowlist"],
-            capture_output=True, text=True, timeout=10,
-        )
-        if result.returncode != 0:
-            return None
-        return result.stdout
-    except Exception:
+        root = find_repo_root()
+        lines = _git_show_main_allowlist(".coverage-allowlist", root)
+        return "\n".join(lines)
+    except (RuntimeError, FileNotFoundError):
         return None
 
 
@@ -156,48 +161,29 @@ def check_shrink_mode(current_allowlist, coverage_json_path, source_root):
                        "skipping shrink check (zero-coverage check still runs)[/]")
         return 0
 
-    # Parse main allowlist keys (ignore comments/tickets for comparison)
-    main_keys = set()
-    for line in main_content.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if "#" in line:
-            key = line.split("#", 1)[0].strip()
-        else:
-            key = line
-        if key:
-            main_keys.add(key)
-
-    current_keys = set(current_allowlist.keys())
-
-    removed = main_keys - current_keys
-    added = current_keys - main_keys
+    main_entries = main_content.splitlines()
+    current_entries = [f"{k}  # {v}" for k, v in sorted(current_allowlist.items())]
+    removed, added = _check_shrink_mode(main_entries, current_entries)
 
     failures = 0
 
-    # Check removals: must have coverage or be deleted
     if removed:
-        # Load current coverage to check for exercise
         files = parse_coverage_json(coverage_json_path)
         current_zero = find_zero_coverage(files, source_root)
 
         for entry in sorted(removed):
-            # Check if the function now has coverage (not in zero_cov)
             if entry not in current_zero:
-                continue  # has coverage, removal is valid
+                continue
 
-            # Check if the file/function was deleted
             if "::" in entry:
                 file_part, func_part = entry.split("::", 1)
                 src_file = source_root / file_part
                 if not src_file.exists():
-                    continue  # file deleted, removal is valid
+                    continue
 
-                # File still exists but function might be deleted
                 public_names = ast_public_functions(src_file)
                 if func_part not in public_names:
-                    continue  # function deleted, removal is valid
+                    continue
 
             console.print(
                 f"[red]FAIL: allowlist entry removed without test or deletion: "
@@ -205,7 +191,6 @@ def check_shrink_mode(current_allowlist, coverage_json_path, source_root):
             )
             failures += 1
 
-    # Check additions: must have a ticket
     for entry in sorted(added):
         ticket = current_allowlist.get(entry, "")
         if not TICKET_PATTERN.search(ticket):
@@ -272,7 +257,12 @@ def main():
     zero_cov = find_zero_coverage(files, args.source_root)
 
     if args.init:
-        # Populate the allowlist
+        # Populate / extend the allowlist, preserving existing entries.
+        existing = load_allowlist(args.allowlist)
+        existing_keys = set(existing.keys())
+        new_keys = set(zero_cov.keys()) - existing_keys
+        stale = existing_keys - set(zero_cov.keys())
+
         lines = [
             "# Coverage gate allowlist — monotonically-shrinking baseline",
             "# Format: path::function  # TODO: temper-xxx",
@@ -284,15 +274,28 @@ def main():
             "# See AGENTS.md §Coverage Gate for details.",
             "",
         ]
-        for key in sorted(zero_cov):
+
+        # Preserve existing entries (including stale ones — human triage).
+        for key in sorted(existing_keys):
+            ticket = existing.get(key, "TODO: temper-xxx")
+            lines.append(f"{key}  # {ticket}")
+
+        # Append new entries with placeholder tickets.
+        for key in sorted(new_keys):
             lines.append(f"{key}  # TODO: temper-xxx")
+
         lines.append("")
 
         args.allowlist.write_text("\n".join(lines))
         console.print(
-            f"[green]Allowlist populated with {len(zero_cov)} entries: "
-            f"{args.allowlist}[/]"
+            f"[green]Allowlist: {len(existing_keys)} existing entries preserved, "
+            f"{len(new_keys)} new entries added.[/]"
         )
+        if stale:
+            console.print(
+                f"[yellow]{len(stale)} stale entries (now have coverage) were preserved — "
+                f"consider removing them manually.[/]"
+            )
         console.print("[bold]Review and replace TODO placeholders with real ticket IDs.[/]")
         sys.exit(0)
 

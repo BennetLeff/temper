@@ -102,9 +102,15 @@ power_pcb_dataset/quarantine/
 /snapshots/
 /specctra_spec.md_files/
 
+# Rust build artifacts
+packages/*/target/
+
 # Pruned root files (2026-06-23 purge)
 /*.pkl
 minimal_overlap_config.yaml
 routed_loop_FINAL.metrics.json
 piantor_grid_*.png
 run_clearance_sweep.sh
+
+# Pipeline run artifacts (regenerated per run — do not track)
+pipeline_execution.json

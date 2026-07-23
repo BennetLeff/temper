@@ -38,6 +38,7 @@ from temper_placer.visualization.board_renderer import (
     render_board_comparison,
     render_board_with_violations,
 )
+from temper_placer.visualization.config_types import BoardRenderOptions
 
 # LiveVisualizer integration for training loop
 from temper_placer.visualization.live import (
@@ -152,6 +153,7 @@ __all__ = [
     "create_loss_data_point_from_metrics",
     # Board rendering
     "PLOTLY_AVAILABLE",
+    "BoardRenderOptions",
     "render_board",
     "render_board_with_violations",
     "render_board_comparison",

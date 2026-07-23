@@ -1,0 +1,9 @@
+# Physics parameter provenance allowlist — monotonically-shrinking baseline
+# Format: path::CONSTANT_NAME  # TODO: temper-xxx
+#
+# An entry represents a module-level float constant lacking a # source: comment.
+# Entries may only be removed when the same PR adds a # source: comment
+# or deletes the constant from source.
+# Entries may only be added with a # TODO: temper-xxx ticket reference.
+# See AGENTS.md and the plan 2026-07-22-007 for details.
+

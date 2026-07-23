@@ -1,10 +1,10 @@
 """
 Geometry engine for temper-placer — Rust-backed via pyo3.
 """
+
 from __future__ import annotations
 
 import math
-import random as _random
 
 import temper_geometry as _tg
 
@@ -150,7 +150,7 @@ project_onto_zone = _tg.project_onto_zone
 project_outside_keepout = _tg.project_outside_keepout
 
 # DRC inflate
-from temper_placer.geometry.drc_inflate import (  # noqa: E402
+from temper_placer.geometry.drc_inflate import (  # noqa: E402, F401
     compute_drc_proxy_score,
     compute_inflated_half_dims_from_bounds,
     inflate_pad_polygon,
@@ -161,6 +161,7 @@ from temper_placer.geometry.drc_inflate import (  # noqa: E402
 # ---------------------------------------------------------------------------
 # sdf_gradient — kept as Python wrapper since Rust can't take a callable
 # ---------------------------------------------------------------------------
+
 
 def sdf_gradient(p: tuple[float, float], sdf_fn, eps: float = 1e-4) -> tuple[float, float]:
     """Compute the gradient of an SDF at point p using central finite differences."""

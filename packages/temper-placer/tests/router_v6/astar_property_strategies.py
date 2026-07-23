@@ -86,7 +86,9 @@ def start_goal_pairs(
     Returns ``((sx, sy), (gx, gy))`` in grid coordinates.
     """
     arr = grid.grid
-    free_cells = [(int(x), int(y)) for y in range(arr.shape[0]) for x in range(arr.shape[1]) if arr[y, x] == 0]
+    free_cells = [
+        (int(x), int(y)) for y in range(arr.shape[0]) for x in range(arr.shape[1]) if arr[y, x] == 0
+    ]
     assume(len(free_cells) >= 2)
     start_idx = draw(st.integers(0, len(free_cells) - 1))
     goal_indices = [i for i in range(len(free_cells)) if i != start_idx]
@@ -122,7 +124,9 @@ def obstacle_perturbations(
 
     if mode == "add":
         free_not_sg = [
-            (x, y) for y in range(rows) for x in range(cols)
+            (x, y)
+            for y in range(rows)
+            for x in range(cols)
             if new_arr[y, x] == 0 and (x, y) != start and (x, y) != goal
         ]
         assume(len(free_not_sg) >= 1)
@@ -130,7 +134,9 @@ def obstacle_perturbations(
         new_arr[ey, ex] = 1
     else:
         blocked = [
-            (x, y) for y in range(rows) for x in range(cols)
+            (x, y)
+            for y in range(rows)
+            for x in range(cols)
             if new_arr[y, x] != 0 and (x, y) != start and (x, y) != goal
         ]
         assume(len(blocked) >= 1)
@@ -167,7 +173,9 @@ def grid_translations(
     new_arr = np.ones((new_rows, new_cols), dtype=grid.grid.dtype)
     new_arr[dy : dy + rows, dx : dx + cols] = grid.grid
 
-    t_grid = OccupancyGrid(grid.layer_name, new_arr, grid.origin, grid.cell_size, new_cols, new_rows)
+    t_grid = OccupancyGrid(
+        grid.layer_name, new_arr, grid.origin, grid.cell_size, new_cols, new_rows
+    )
     return t_grid, dx, dy
 
 

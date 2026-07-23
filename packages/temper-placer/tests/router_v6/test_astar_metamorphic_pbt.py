@@ -57,7 +57,7 @@ def _path_cost_octile(path: list[tuple[int, int]]) -> float:
 
 def _make_grid(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> OccupancyGrid:
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for r, c in (blocked or set()):
+    for r, c in blocked or set():
         arr[r, c] = 1
     return OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, cols, rows)
 
@@ -107,9 +107,7 @@ def test_mr1_rotation_invariance(gsp, rotation):
     path_orig = _astar_search(start, goal, grid)
     path_rot = _astar_search(r_start, r_goal, r_grid)
 
-    assert (path_orig is None) == (path_rot is None), (
-        f"Rotation {rotation}: completeness mismatch"
-    )
+    assert (path_orig is None) == (path_rot is None), f"Rotation {rotation}: completeness mismatch"
 
     # Oracle pairing for completeness and cost (all grids <=30x30 here)
     n_cells = grid.width_cells * grid.height_cells
@@ -160,8 +158,7 @@ def test_mr1_rotation_3x3_exhaustive():
                         cost_orig = _path_cost_octile(path_orig)
                         cost_rot = _path_cost_octile(r_path)
                         assert abs(cost_orig - cost_rot) < _TOL, (
-                            f"Rotation {rot}: cfg={occ_bits}, {s}->{g}: "
-                            f"{cost_orig} vs {cost_rot}"
+                            f"Rotation {rot}: cfg={occ_bits}, {s}->{g}: {cost_orig} vs {cost_rot}"
                         )
 
 
@@ -269,17 +266,21 @@ def _add_random_obstacle(grid: OccupancyGrid, start, goal) -> OccupancyGrid | No
     """Return a copy of grid with a random free cell blocked (not start/goal)."""
     import copy
     import random
+
     arr = copy.deepcopy(grid.grid)
     free_not_sg = [
-        (x, y) for y in range(arr.shape[0]) for x in range(arr.shape[1])
+        (x, y)
+        for y in range(arr.shape[0])
+        for x in range(arr.shape[1])
         if arr[y, x] == 0 and (x, y) != start and (x, y) != goal
     ]
     if not free_not_sg:
         return None
     ex, ey = random.choice(free_not_sg)
     arr[ey, ex] = 1
-    return OccupancyGrid(grid.layer_name, arr, grid.origin, grid.cell_size,
-                         grid.width_cells, grid.height_cells)
+    return OccupancyGrid(
+        grid.layer_name, arr, grid.origin, grid.cell_size, grid.width_cells, grid.height_cells
+    )
 
 
 @pytest.mark.l2_exhaustive
@@ -318,10 +319,12 @@ def test_mr3_obstacle_addition_3x3_exhaustive():
 
 def _add_obstacle_at(grid: OccupancyGrid, pos: tuple[int, int]) -> OccupancyGrid:
     import copy
+
     arr = copy.deepcopy(grid.grid)
     arr[pos[1], pos[0]] = 1
-    return OccupancyGrid(grid.layer_name, arr, grid.origin, grid.cell_size,
-                         grid.width_cells, grid.height_cells)
+    return OccupancyGrid(
+        grid.layer_name, arr, grid.origin, grid.cell_size, grid.width_cells, grid.height_cells
+    )
 
 
 # =============================================================================
@@ -367,17 +370,21 @@ def test_mr4_obstacle_removal(gsp):
 def _remove_random_obstacle(grid: OccupancyGrid, start, goal) -> OccupancyGrid | None:
     import copy
     import random
+
     arr = copy.deepcopy(grid.grid)
     blocked = [
-        (x, y) for y in range(arr.shape[0]) for x in range(arr.shape[1])
+        (x, y)
+        for y in range(arr.shape[0])
+        for x in range(arr.shape[1])
         if arr[y, x] != 0 and (x, y) != start and (x, y) != goal
     ]
     if not blocked:
         return None
     ex, ey = random.choice(blocked)
     arr[ey, ex] = 0
-    return OccupancyGrid(grid.layer_name, arr, grid.origin, grid.cell_size,
-                         grid.width_cells, grid.height_cells)
+    return OccupancyGrid(
+        grid.layer_name, arr, grid.origin, grid.cell_size, grid.width_cells, grid.height_cells
+    )
 
 
 @pytest.mark.l2_exhaustive
@@ -404,8 +411,9 @@ def test_mr4_obstacle_removal_3x3_exhaustive():
                         continue
                     arr2 = np.copy(grid.grid)
                     arr2[bk[1], bk[0]] = 0
-                    pgrid = OccupancyGrid("Test", arr2, (0.0, 0.0), 1.0,
-                                          grid.width_cells, grid.height_cells)
+                    pgrid = OccupancyGrid(
+                        "Test", arr2, (0.0, 0.0), 1.0, grid.width_cells, grid.height_cells
+                    )
                     path_new = _astar_search(s, g, pgrid)
                     if path_orig is not None and path_new is not None:
                         cost_orig = _path_cost_octile(path_orig)
@@ -463,7 +471,9 @@ def test_mr5_edge_weight_scaling(gsp, k):
     )
 
     expected_physical = cost_physical_orig * k
-    assert abs(cost_physical_scaled - expected_physical) < max(_TOL, abs(expected_physical) * _TOL), (
+    assert abs(cost_physical_scaled - expected_physical) < max(
+        _TOL, abs(expected_physical) * _TOL
+    ), (
         f"Physical cost scaling k={k}: {cost_physical_orig} * {k} = {expected_physical}, "
         f"got {cost_physical_scaled}"
     )
@@ -485,9 +495,7 @@ def test_mr6_empty_grid_optimality(gsp):
 
     cost = _path_cost_octile(path)
     expected = octile_distance(start, goal)
-    assert abs(cost - expected) < _TOL, (
-        f"Empty grid: A*={cost}, octile={expected}, {start}->{goal}"
-    )
+    assert abs(cost - expected) < _TOL, f"Empty grid: A*={cost}, octile={expected}, {start}->{goal}"
 
     # Also verify Dijkstra matches on grids <=30x30
     n_cells = grid.width_cells * grid.height_cells
@@ -530,9 +538,7 @@ def test_mr7_translation_invariance(gsp):
         assert abs(cost_orig - cost_trans) < _TOL, (
             f"Translation ({dx},{dy}): {cost_orig} vs {cost_trans}"
         )
-        assert len(path_orig) == len(path_trans), (
-            "Path length mismatch after translation"
-        )
+        assert len(path_orig) == len(path_trans), "Path length mismatch after translation"
         for (ox, oy), (tx, ty) in zip(path_orig, path_trans):
             assert tx == ox + dx and ty == oy + dy, (
                 f"Path cell not translated: ({ox},{oy}) -> ({tx},{ty}), shift=({dx},{dy})"
@@ -541,6 +547,7 @@ def test_mr7_translation_invariance(gsp):
 
 def _translate_grid_random(grid: OccupancyGrid) -> tuple[OccupancyGrid, int, int]:
     import random
+
     dx = random.randint(0, grid.width_cells)
     dy = random.randint(0, grid.height_cells)
     new_w = grid.width_cells + dx + 1
@@ -595,9 +602,7 @@ def test_mr9_no_redundant_nodes(gsp):
             f"grid {grid.width_cells}x{grid.height_cells}"
         )
     max_cells = grid.width_cells * grid.height_cells
-    assert len(path) <= max_cells, (
-        f"Path length {len(path)} exceeds grid cells {max_cells}"
-    )
+    assert len(path) <= max_cells, f"Path length {len(path)} exceeds grid cells {max_cells}"
 
 
 # =============================================================================
@@ -608,6 +613,7 @@ def test_mr9_no_redundant_nodes(gsp):
 def _line_of_sight_tolerant(p1, p2, grid, net_id=0):
     """Check LOS using the production _line_of_sight function."""
     from temper_placer.router_v6.astar_core import _line_of_sight as los
+
     return los(p1, p2, grid, net_id)
 
 
@@ -643,7 +649,7 @@ def test_thetastar_subpath_optimality(gsp):
         if dx > 1 or dy > 1:
             # This is a Theta* shortcut — verify LOS and cost
             assert _line_of_sight_tolerant(path[i], path[i + 1], grid, 0), (
-                f"Theta* shortcut without LOS: {path[i]} -> {path[i+1]}"
+                f"Theta* shortcut without LOS: {path[i]} -> {path[i + 1]}"
             )
             direct_dist = math.sqrt(dx * dx + dy * dy)
             edge_cost = _path_cost_euclidean([path[i], path[i + 1]])
@@ -653,7 +659,7 @@ def test_thetastar_subpath_optimality(gsp):
         else:
             # Adjacent step — must be a valid 8-connected move
             assert dx <= 1 and dy <= 1 and (dx + dy) >= 1, (
-                f"Theta* path has invalid adjacent step: {path[i]} -> {path[i+1]}"
+                f"Theta* path has invalid adjacent step: {path[i]} -> {path[i + 1]}"
             )
 
 
@@ -825,9 +831,7 @@ def test_lazy_thetastar_max_iter_blocked_grid():
     grid = _make_grid(20, 20, blocked)
     # Run with a generous cap — blocked grid should return None
     path = _astar_search_lazy_theta_star(grid, (0, 0), (19, 19), net_id=0, max_iter=5000)
-    assert path is None, (
-        "Lazy Theta* should return None on blocked grid with max_iter cap"
-    )
+    assert path is None, "Lazy Theta* should return None on blocked grid with max_iter cap"
 
 
 def test_theta_star_max_iter_blocked_grid():
@@ -837,9 +841,7 @@ def test_theta_star_max_iter_blocked_grid():
     blocked = {(5, y) for y in range(20)}
     grid = _make_grid(20, 20, blocked)
     path = _astar_search_theta_star(grid, (0, 0), (19, 19), net_id=0, max_iter=5000)
-    assert path is None, (
-        "Theta* should return None on blocked grid with max_iter cap"
-    )
+    assert path is None, "Theta* should return None on blocked grid with max_iter cap"
 
 
 # =============================================================================
@@ -869,8 +871,9 @@ def test_3d_path_cells_free(gsp):
     layers = ("F.Cu", "B.Cu")
     grids = {}
     for name in layers:
-        grids[name] = OccupancyGrid(name, np.copy(grid_2d.grid), (0.0, 0.0), 1.0,
-                                     grid_2d.width_cells, grid_2d.height_cells)
+        grids[name] = OccupancyGrid(
+            name, np.copy(grid_2d.grid), (0.0, 0.0), 1.0, grid_2d.width_cells, grid_2d.height_cells
+        )
 
     start = RouteNode3D(start_2d[0], start_2d[1], "F.Cu")
     goal = RouteNode3D(goal_2d[0], goal_2d[1], "B.Cu")
@@ -883,9 +886,7 @@ def test_3d_path_cells_free(gsp):
     for node in path_nodes:
         g = grids[node.layer]
         val = g.grid[node.y, node.x]
-        assert val == 0, (
-            f"3D path cell ({node.x},{node.y},{node.layer}) blocked: {val}"
-        )
+        assert val == 0, f"3D path cell ({node.x},{node.y},{node.layer}) blocked: {val}"
 
 
 @pytest.mark.l3_pbt
@@ -899,8 +900,9 @@ def test_3d_no_redundant_same_layer_nodes(gsp):
     layers = ("F.Cu", "B.Cu")
     grids = {}
     for name in layers:
-        grids[name] = OccupancyGrid(name, np.copy(grid_2d.grid), (0.0, 0.0), 1.0,
-                                     grid_2d.width_cells, grid_2d.height_cells)
+        grids[name] = OccupancyGrid(
+            name, np.copy(grid_2d.grid), (0.0, 0.0), 1.0, grid_2d.width_cells, grid_2d.height_cells
+        )
 
     start = RouteNode3D(start_2d[0], start_2d[1], "F.Cu")
     goal = RouteNode3D(goal_2d[0], goal_2d[1], "B.Cu")

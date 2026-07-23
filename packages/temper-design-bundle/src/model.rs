@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Physical board dimensions and thickness.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BoardSpec {
     pub width_mm: f64,
@@ -18,12 +19,14 @@ impl BoardSpec {
     }
 }
 
+/// A single component in the design, referenced by its atopile ID.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Component {
     pub id: String,
     #[serde(default)]
     pub reference: Option<String>,
 }
+/// A logical net connecting component pins.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Net {
     pub id: String,
@@ -33,6 +36,7 @@ pub struct Net {
     #[serde(default)]
     pub safety_domain: Option<String>,
 }
+/// Design rules for a net class (clearance, creepage).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NetClass {
     pub id: String,
@@ -40,10 +44,12 @@ pub struct NetClass {
     #[serde(default)]
     pub creepage_mm: Option<f64>,
 }
+/// A named safety domain (e.g., "HV", "LV").
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SafetyDomain {
     pub id: String,
 }
+/// Layer stackup definition.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Stackup {
     pub layers: Vec<String>,
@@ -51,10 +57,12 @@ pub struct Stackup {
 
 pub use temper_pcl_ir::{ConstraintOrigin, PclConstraint, PclConstraint as Constraint};
 
+/// All constraints applicable to this design.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ConstraintSet {
     pub constraints: Vec<Constraint>,
 }
+/// SHA-256 fingerprints of each input file used to assemble this bundle.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Provenance {
     pub atopile_sha256: String,
@@ -84,6 +92,8 @@ impl BoardRole {
     }
 }
 
+/// The fully assembled design bundle — the canonical boundary representation
+/// consumed by downstream stages (placer, router, DRC).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DesignBundle {
     pub schema_version: u32,

@@ -2,7 +2,6 @@
 ///
 /// Defines the type system that every pipeline stage consumes and produces:
 /// NetClass, NormalizedScore, QualityVerdict, Violation, QualityMetrics.
-
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeSet, HashMap};
 
@@ -51,7 +50,7 @@ impl NormalizedScore {
         if value.is_nan() {
             return Err(ScoreError::NaN);
         }
-        if value < 0.0 || value > 1.0 {
+        if !(0.0..=1.0).contains(&value) {
             return Err(ScoreError::OutOfRange { value });
         }
         Ok(NormalizedScore(value))
@@ -295,7 +294,7 @@ mod tests {
             let result = NormalizedScore::new(v);
             if v.is_nan() {
                 prop_assert!(result.is_err());
-            } else if v < 0.0 || v > 1.0 {
+            } else if !(0.0..=1.0).contains(&v) {
                 prop_assert!(result.is_err());
             } else {
                 prop_assert!(result.is_ok());

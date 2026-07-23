@@ -37,9 +37,7 @@ def _run_placer(state):
     """Run PhasedComponentAssignmentStage and return the new state."""
     constraints = PlacementConstraints()
     constraints.placement_priority = {"auto": {"method": "auto"}}
-    stage = PhasedComponentAssignmentStage(
-        constraints, design_rules=state.design_rules
-    )
+    stage = PhasedComponentAssignmentStage(constraints, design_rules=state.design_rules)
     return stage.run(state)
 
 
@@ -82,11 +80,11 @@ def test_property_every_hv_pin_produces_ghost_pad(state_rules):
     found_overlap = False
     for px, py, _comp_ref, _pin_name in pins:
         # Build the set of slots within creepage of this pin.
-        ring_slots = [
-            (sx, sy)
-            for (sx, sy) in result.zone_slots
-            for _, slots in [(s, s) for s in [None]]
-        ] if False else []
+        ring_slots = (
+            [(sx, sy) for (sx, sy) in result.zone_slots for _, slots in [(s, s) for s in [None]]]
+            if False
+            else []
+        )
         # Simpler: iterate state.zone_slots explicitly
         for _zone, zone_slots in result.zone_slots:
             for sx, sy in zone_slots:
@@ -153,9 +151,7 @@ def test_property_injection_idempotent(state_rules):
     state, _rules = state_rules
     constraints = PlacementConstraints()
     constraints.placement_priority = {"auto": {"method": "auto"}}
-    stage = PhasedComponentAssignmentStage(
-        constraints, design_rules=state.design_rules
-    )
+    stage = PhasedComponentAssignmentStage(constraints, design_rules=state.design_rules)
     # Run placer twice on the same input.
     a = stage.run(state)
     b = stage.run(state)
@@ -185,6 +181,7 @@ def test_property_used_slots_symmetric(state_rules):
     from temper_placer.deterministic.stages.phased_component_assignment import (
         PhasedComponentAssignmentStage,
     )
+
     stage = PhasedComponentAssignmentStage.__new__(PhasedComponentAssignmentStage)
     stage.slot_spacing = 12.0
     stage.design_rules = state.design_rules
@@ -221,15 +218,11 @@ def test_property_used_slots_symmetric(state_rules):
     slot_angle=st.floats(
         min_value=0.0, max_value=2 * math.pi, allow_nan=False, allow_infinity=False
     ),
-    slot_length=st.floats(
-        min_value=0.1, max_value=20.0, allow_nan=False, allow_infinity=False
-    ),
+    slot_length=st.floats(min_value=0.1, max_value=20.0, allow_nan=False, allow_infinity=False),
     pin_to_hv_angle=st.floats(
         min_value=0.0, max_value=2 * math.pi, allow_nan=False, allow_infinity=False
     ),
-    base_radius=st.floats(
-        min_value=1.0, max_value=20.0, allow_nan=False, allow_infinity=False
-    ),
+    base_radius=st.floats(min_value=1.0, max_value=20.0, allow_nan=False, allow_infinity=False),
 )
 @settings(max_examples=100, deadline=None)
 def test_property_perpendicular_slot_reduces_zero(
@@ -279,8 +272,11 @@ def test_property_perpendicular_slot_reduces_zero(
     other_hv_y = 10.0 * math.sin(perp_angle)
 
     eff = stage._effective_ghost_pad_radius(
-        "Q1", "1", base_radius,
-        (0.0, 0.0), (other_hv_x, other_hv_y),
+        "Q1",
+        "1",
+        base_radius,
+        (0.0, 0.0),
+        (other_hv_x, other_hv_y),
     )
     assert abs(eff - base_radius) < 1e-9, (
         f"perpendicular slot (angle={slot_angle:.3f}, length={slot_length:.3f}) "

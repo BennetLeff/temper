@@ -1,4 +1,5 @@
 """Tests for geometric diff engine — U4."""
+
 import json
 
 from temper_placer.testing.golden_diff import (

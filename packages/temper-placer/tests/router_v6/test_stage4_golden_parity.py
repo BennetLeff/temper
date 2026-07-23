@@ -23,8 +23,7 @@ import numpy as np
 import pytest
 
 pytest.skip(
-    "Stage 4 golden parity tests are scaffold-only; "
-    "see plan 2026-06-23-001 U7 for the rewrite.",
+    "Stage 4 golden parity tests are scaffold-only; see plan 2026-06-23-001 U7 for the rewrite.",
     allow_module_level=True,
 )
 

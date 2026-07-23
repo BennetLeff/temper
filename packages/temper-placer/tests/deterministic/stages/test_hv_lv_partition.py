@@ -475,4 +475,3 @@ def test_stage_no_board_or_netlist_returns_state():
     empty = BoardState()
     result = HvLvPartitionStage().run(empty)
     assert result is empty
-

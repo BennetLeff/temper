@@ -72,3 +72,9 @@ def preflight_identity(
         )
     except ValueError as exc:
         raise BoardIdentityError(str(exc)) from exc
+
+
+__all__ = [
+    "BoardIdentityError",
+    "preflight_identity",
+]

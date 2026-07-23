@@ -117,7 +117,6 @@ def solve_topology(
                 solver_time_ms=1.0 + offset * 0.5,
             )
 
-
     # Try all True as fallback
     assignment = {var.name: True for var in model.variables}
     if _check_assignment(model, assignment):

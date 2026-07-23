@@ -83,10 +83,13 @@ def insert_teardrops(
     """
     # Clamp teardrop_length_ratio to sensible range
     if math.isnan(teardrop_length_ratio) or not (0.1 <= teardrop_length_ratio <= 1.0):
-        clamped = 0.1 if math.isnan(teardrop_length_ratio) else max(0.1, min(teardrop_length_ratio, 1.0))
+        clamped = (
+            0.1 if math.isnan(teardrop_length_ratio) else max(0.1, min(teardrop_length_ratio, 1.0))
+        )
         warnings.warn(
             f"teardrop_length_ratio={teardrop_length_ratio} is outside [0.1, 1.0]; "
-            f"clamping to [{clamped}].", stacklevel=2
+            f"clamping to [{clamped}].",
+            stacklevel=2,
         )
         teardrop_length_ratio = clamped
 
@@ -142,7 +145,8 @@ def _generate_via_teardrop(
     if math.isnan(via.diameter) or not math.isfinite(via.diameter) or via.diameter <= 0:
         warnings.warn(
             f"Via at {via.position} for net '{net_name}' has diameter "
-            f"{via.diameter}; skipping teardrop.", stacklevel=2
+            f"{via.diameter}; skipping teardrop.",
+            stacklevel=2,
         )
         return None
 

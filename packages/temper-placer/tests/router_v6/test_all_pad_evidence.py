@@ -65,7 +65,13 @@ def test_baseline_requires_measured_hashed_kicad_output_and_ratchet() -> None:
         validate_all_pad_baseline(invalid)
 
 
-@given(st.recursive(st.none() | st.booleans() | st.integers() | st.text(), lambda x: st.lists(x) | st.dictionaries(st.text(), x), max_leaves=20))
+@given(
+    st.recursive(
+        st.none() | st.booleans() | st.integers() | st.text(),
+        lambda x: st.lists(x) | st.dictionaries(st.text(), x),
+        max_leaves=20,
+    )
+)
 def test_baseline_pbt_rejects_malformed_evidence(payload: object) -> None:
     with pytest.raises(AllPadEvidenceError):
         validate_all_pad_baseline(payload)

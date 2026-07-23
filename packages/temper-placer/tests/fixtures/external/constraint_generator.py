@@ -279,7 +279,6 @@ def generate_constraints_for_project(
 
 
 if __name__ == "__main__":
-
     # Generate constraints for all downloaded projects
     from .download_pcbs import load_manifest
 

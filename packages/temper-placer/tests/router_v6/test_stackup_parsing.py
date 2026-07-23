@@ -1,4 +1,3 @@
-
 from kiutils.board import Board as KiBoard
 from kiutils.items.brditems import Stackup, StackupLayer
 from kiutils.items.zones import Zone
@@ -19,7 +18,14 @@ def test_parse_stackup_from_setup():
     l2 = StackupLayer(name="F.Mask", type="Top Solder Mask", thickness=0.01)
     l3 = StackupLayer(name="F.Cu", type="copper", thickness=0.035)
     # kiutils uses epsilonR and lossTangent
-    l4 = StackupLayer(name="dielectric 1", type="core", thickness=1.51, material="FR4", epsilonR=4.5, lossTangent=0.02)
+    l4 = StackupLayer(
+        name="dielectric 1",
+        type="core",
+        thickness=1.51,
+        material="FR4",
+        epsilonR=4.5,
+        lossTangent=0.02,
+    )
     l5 = StackupLayer(name="B.Cu", type="copper", thickness=0.035)
     l6 = StackupLayer(name="B.Mask", type="Bottom Solder Mask", thickness=0.01)
 
@@ -32,17 +38,17 @@ def test_parse_stackup_from_setup():
     stackup = _extract_stackup(board, [])
 
     assert stackup.layer_count == 2
-    assert abs(stackup.total_thickness_mm - 1.6) < 0.0001 # 0.01*2 + 0.035*2 + 1.51 = 1.6
+    assert abs(stackup.total_thickness_mm - 1.6) < 0.0001  # 0.01*2 + 0.035*2 + 1.51 = 1.6
     assert len(stackup.layers) == 2
 
     # Check Copper Layers
     assert stackup.layers[0].name == "F.Cu"
-    assert stackup.layers[0].layer_type == "plane" # Due to GND zone
+    assert stackup.layers[0].layer_type == "plane"  # Due to GND zone
     assert stackup.layers[0].plane_net == "GND"
     assert stackup.layers[0].thickness_um == 35.0
 
     assert stackup.layers[1].name == "B.Cu"
-    assert stackup.layers[1].layer_type == "signal" # No zone
+    assert stackup.layers[1].layer_type == "signal"  # No zone
     assert stackup.layers[1].plane_net is None
 
     # Check Dielectrics
@@ -52,6 +58,7 @@ def test_parse_stackup_from_setup():
     assert d.thickness_mm == 1.51
     assert d.epsilon_r == 4.5
     assert d.loss_tangent == 0.02
+
 
 def test_parse_stackup_fallback():
     """Test fallback parsing when stackup table is missing (Method 2)."""
@@ -63,7 +70,7 @@ def test_parse_stackup_fallback():
         type("Layer", (), {"name": "F.Cu"})(),
         type("Layer", (), {"name": "In1.Cu"})(),
         type("Layer", (), {"name": "In2.Cu"})(),
-        type("Layer", (), {"name": "B.Cu"})()
+        type("Layer", (), {"name": "B.Cu"})(),
     ]
 
     # Zones
@@ -94,4 +101,4 @@ def test_parse_stackup_fallback():
 
     # Fallback assumes default thickness logic
     assert stackup.total_thickness_mm == 1.6
-    assert len(stackup.dielectrics) == 0 # Fallback doesn't parse dielectrics
+    assert len(stackup.dielectrics) == 0  # Fallback doesn't parse dielectrics

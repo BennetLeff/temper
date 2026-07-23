@@ -32,9 +32,7 @@ def _all_concrete_stages() -> list[type]:
     def _recurse(cls):
         result = []
         for sub in cls.__subclasses__():
-            if not (
-                hasattr(sub, "__abstractmethods__") and sub.__abstractmethods__
-            ):
+            if not (hasattr(sub, "__abstractmethods__") and sub.__abstractmethods__):
                 result.append(sub)
             result.extend(_recurse(sub))
         return result
@@ -235,9 +233,9 @@ def test_stage_field_provenance(stage_cls):
             out_val = getattr(output, field_name)
             if not _fields_equal(in_val, out_val) and declared_outputs:
                 assert field_name in declared_outputs, (
-                        f"{stage_cls.__name__} modified undeclared field "
-                        f"'{field_name}' (declared: {declared_outputs})"
-                    )
+                    f"{stage_cls.__name__} modified undeclared field "
+                    f"'{field_name}' (declared: {declared_outputs})"
+                )
 
     _check()
 
@@ -270,10 +268,7 @@ def test_stage_serialization_roundtrip(stage_cls):
             return
 
         # Serialization round-trip: reconstruct via replace
-        field_kwargs = {
-            f.name: getattr(output, f.name)
-            for f in dataclasses.fields(BoardState)
-        }
+        field_kwargs = {f.name: getattr(output, f.name) for f in dataclasses.fields(BoardState)}
         reconstructed = replace(output, **field_kwargs)
 
         # Verify all fields match
@@ -281,8 +276,7 @@ def test_stage_serialization_roundtrip(stage_cls):
             orig_val = getattr(output, f.name)
             recon_val = getattr(reconstructed, f.name)
             assert _fields_equal(orig_val, recon_val), (
-                f"{stage_cls.__name__} serialization round-trip failed "
-                f"on field '{f.name}'"
+                f"{stage_cls.__name__} serialization round-trip failed on field '{f.name}'"
             )
 
     _check()
@@ -296,9 +290,7 @@ def test_stage_serialization_roundtrip(stage_cls):
 def test_all_stages_discovered():
     """Sanity check — at least 20 concrete stages exist for PBT coverage."""
     stages = _all_concrete_stages()
-    assert len(stages) >= 20, (
-        f"Expected >=20 concrete Stage subclasses, found {len(stages)}"
-    )
+    assert len(stages) >= 20, f"Expected >=20 concrete Stage subclasses, found {len(stages)}"
 
 
 def test_most_stages_default_constructible():

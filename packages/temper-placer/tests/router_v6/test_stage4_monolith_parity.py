@@ -21,8 +21,7 @@ import numpy as np
 import pytest
 
 pytest.skip(
-    "Stage 4 monolith parity tests are scaffold-only; "
-    "see plan 2026-06-23-001 U7 for the rewrite.",
+    "Stage 4 monolith parity tests are scaffold-only; see plan 2026-06-23-001 U7 for the rewrite.",
     allow_module_level=True,
 )
 
@@ -72,7 +71,9 @@ def _get_orchestrated_state(board):
         return _state_cache[board.name]
     pcb, escape_vias = _prepare_pcb_and_vias(board)
     orch = Stage4Orchestrator(verbose=False)
-    state = orch.run()  # U7 will fix: needs BoardState with Stage 2 outputs (channel_skeletons, etc.)
+    state = (
+        orch.run()
+    )  # U7 will fix: needs BoardState with Stage 2 outputs (channel_skeletons, etc.)
     _state_cache[board.name] = state
     return state
 
@@ -86,9 +87,7 @@ def _run_monolith(pcb, escape_vias):
         skeletons[layer_name] = extract_channel_skeleton(routing_space, pcb=pcb)
     channel_widths = {}
     for layer_name, skeleton in skeletons.items():
-        channel_widths[layer_name] = compute_channel_widths(
-            routing_spaces[layer_name], skeleton
-        )
+        channel_widths[layer_name] = compute_channel_widths(routing_spaces[layer_name], skeleton)
     base_inflation = (
         pcb.design_rules.default_trace_width_mm / 2.0
     ) + pcb.design_rules.default_clearance_mm
@@ -102,17 +101,22 @@ def _run_monolith(pcb, escape_vias):
         cw = channel_widths.get(layer_name)
         if cw is not None:
             layer_capacities[layer_name] = calculate_layer_capacity(
-                occupancy_grids[layer_name], cw,
+                occupancy_grids[layer_name],
+                cw,
                 pcb.design_rules.default_trace_width_mm * 1.5,
                 pcb.design_rules.default_clearance_mm,
             )
     routing_demand = estimate_routing_demand(pcb)
     bottleneck_analysis = identify_bottlenecks(layer_capacities, routing_demand)
     return {
-        "obstacle_maps": obstacle_maps, "routing_spaces": routing_spaces,
-        "skeletons": skeletons, "channel_widths": channel_widths,
-        "occupancy_grids": occupancy_grids, "layer_capacities": layer_capacities,
-        "routing_demand": routing_demand, "bottleneck_analysis": bottleneck_analysis,
+        "obstacle_maps": obstacle_maps,
+        "routing_spaces": routing_spaces,
+        "skeletons": skeletons,
+        "channel_widths": channel_widths,
+        "occupancy_grids": occupancy_grids,
+        "layer_capacities": layer_capacities,
+        "routing_demand": routing_demand,
+        "bottleneck_analysis": bottleneck_analysis,
     }
 
 
@@ -132,13 +136,22 @@ class TestMonolithParity:
         monolith_output = _run_monolith(self.pcb, self.escape_vias)
 
         assert monolith_output["routing_demand"].total_nets == self.state.routing_demand.total_nets
-        assert monolith_output["routing_demand"].routable_nets == self.state.routing_demand.routable_nets
+        assert (
+            monolith_output["routing_demand"].routable_nets
+            == self.state.routing_demand.routable_nets
+        )
         assert monolith_output["routing_demand"].total_pins == self.state.routing_demand.total_pins
 
-        assert set(monolith_output["routing_spaces"].keys()) == set(self.state.routing_spaces.keys())
+        assert set(monolith_output["routing_spaces"].keys()) == set(
+            self.state.routing_spaces.keys()
+        )
         assert set(monolith_output["skeletons"].keys()) == set(self.state.channel_skeletons.keys())
-        assert set(monolith_output["channel_widths"].keys()) == set(self.state.channel_widths.keys())
-        assert set(monolith_output["occupancy_grids"].keys()) == set(self.state.occupancy_grids.keys())
+        assert set(monolith_output["channel_widths"].keys()) == set(
+            self.state.channel_widths.keys()
+        )
+        assert set(monolith_output["occupancy_grids"].keys()) == set(
+            self.state.occupancy_grids.keys()
+        )
 
         for layer_name in monolith_output["occupancy_grids"]:
             m_grid = monolith_output["occupancy_grids"][layer_name]
@@ -155,22 +168,38 @@ class TestMonolithParity:
             assert m_cap.free_cells == o_cap.free_cells
             assert m_cap.estimated_traces == o_cap.estimated_traces
 
-        assert monolith_output["bottleneck_analysis"].total_capacity == self.state.bottleneck_analysis.total_capacity
-        assert monolith_output["bottleneck_analysis"].total_demand == self.state.bottleneck_analysis.total_demand
-        assert len(monolith_output["bottleneck_analysis"].bottlenecks) == len(self.state.bottleneck_analysis.bottlenecks)
+        assert (
+            monolith_output["bottleneck_analysis"].total_capacity
+            == self.state.bottleneck_analysis.total_capacity
+        )
+        assert (
+            monolith_output["bottleneck_analysis"].total_demand
+            == self.state.bottleneck_analysis.total_demand
+        )
+        assert len(monolith_output["bottleneck_analysis"].bottlenecks) == len(
+            self.state.bottleneck_analysis.bottlenecks
+        )
 
     def test_obstacle_map_parity(self):
         m_obstacles = build_obstacle_map(self.pcb, self.escape_vias)
         for layer_name in m_obstacles:
             assert layer_name in self.state.obstacle_maps
-            assert abs(m_obstacles[layer_name].area - self.state.obstacle_maps[layer_name].area) < 1e-6
+            assert (
+                abs(m_obstacles[layer_name].area - self.state.obstacle_maps[layer_name].area) < 1e-6
+            )
 
     def test_routing_space_parity(self):
         m_obstacles = build_obstacle_map(self.pcb, self.escape_vias)
         m_routing = compute_routing_space(self.pcb, self.escape_vias, obstacle_maps=m_obstacles)
         for layer_name in m_routing:
             assert layer_name in self.state.routing_spaces
-            assert abs(m_routing[layer_name].routing_area - self.state.routing_spaces[layer_name].routing_area) < 1e-6
+            assert (
+                abs(
+                    m_routing[layer_name].routing_area
+                    - self.state.routing_spaces[layer_name].routing_area
+                )
+                < 1e-6
+            )
 
     @pytest.mark.slow
     def test_performance_regression(self):

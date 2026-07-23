@@ -16,6 +16,7 @@ from temper_placer.router_v6.channel_skeleton import ChannelSkeleton
 def test_channel_skeleton_node_edge_counts(num_nodes, num_edges, seed):
     """node_count and edge_count match graph properties."""
     import random
+
     random.Random(seed)
     G = nx.Graph()
     for i in range(num_nodes):
@@ -39,6 +40,7 @@ def test_channel_skeleton_node_edge_counts(num_nodes, num_edges, seed):
 def test_channel_skeleton_empty_graph(num_nodes, seed):
     """Empty graph gives node_count=0 and is_connected=True."""
     import random
+
     random.Random(seed)
 
     # Create a connected path

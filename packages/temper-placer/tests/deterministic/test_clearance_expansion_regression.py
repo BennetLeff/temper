@@ -28,7 +28,6 @@ U4a status (deferred to follow-up):
             --kicad-pcb pcb/temper_agent_optimized.kicad_pcb
 """
 
-
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic.stages.clearance_grid import (
@@ -60,18 +59,27 @@ def _temper_like_state_with_hv_zones():
     and have an HV exclusion zone declared so the expansion pass runs."""
     board = Board(width=50, height=50)
     components = [
-        Component(ref=f"J{i}", footprint="PinHeader", bounds=(5, 5),
-                  pins=[Pin("1", "1", (0, 0), net=f"NET{i}")],
-                  net_class="Signal", initial_position=(10, 5 + i * 10))
+        Component(
+            ref=f"J{i}",
+            footprint="PinHeader",
+            bounds=(5, 5),
+            pins=[Pin("1", "1", (0, 0), net=f"NET{i}")],
+            net_class="Signal",
+            initial_position=(10, 5 + i * 10),
+        )
         for i in range(5)
     ] + [
-        Component(ref=f"U{i}", footprint="SOIC-8", bounds=(5, 5),
-                  pins=[Pin("1", "1", (0, 0), net=f"NET{i}")],
-                  net_class="Signal", initial_position=(40, 5 + i * 10))
+        Component(
+            ref=f"U{i}",
+            footprint="SOIC-8",
+            bounds=(5, 5),
+            pins=[Pin("1", "1", (0, 0), net=f"NET{i}")],
+            net_class="Signal",
+            initial_position=(40, 5 + i * 10),
+        )
         for i in range(5)
     ]
-    nets = [Net(f"NET{i}", [(f"J{i}", "1"), (f"U{i}", "1")], net_class="Signal")
-            for i in range(5)]
+    nets = [Net(f"NET{i}", [(f"J{i}", "1"), (f"U{i}", "1")], net_class="Signal") for i in range(5)]
     netlist = Netlist(components=components, nets=nets)
     return BoardState(board=board, netlist=netlist)
 
@@ -83,16 +91,21 @@ def test_expansion_increases_blocked_cells():
     state_with_hv = _temper_like_state_with_hv_zones()
 
     stage_no_hv = ClearanceGridStage(
-        cell_size_mm=0.5, max_clearance_mm=0.2,
+        cell_size_mm=0.5,
+        max_clearance_mm=0.2,
         net_class_clearances={"Signal": 0.2},
     )
     stage_with_hv = ClearanceGridStage(
-        cell_size_mm=0.5, max_clearance_mm=0.2,
+        cell_size_mm=0.5,
+        max_clearance_mm=0.2,
         net_class_clearances={"Signal": 0.2},
         hv_exclusion_zones=[
             HVExclusionZone(
-                name="q1_zone", center=(25.0, 15.0), size=(10.0, 10.0),
-                clearance_mm=6.0, component_refdes="U0",
+                name="q1_zone",
+                center=(25.0, 15.0),
+                size=(10.0, 10.0),
+                clearance_mm=6.0,
+                component_refdes="U0",
             ),
         ],
     )
@@ -115,16 +128,21 @@ def test_fence_passes_on_built_grid():
     the verifier; the expansion is the system under test."""
     state = _temper_like_state_with_hv_zones()
     stage = ClearanceGridStage(
-        cell_size_mm=0.5, max_clearance_mm=0.2,
+        cell_size_mm=0.5,
+        max_clearance_mm=0.2,
         net_class_clearances={"Signal": 0.2},
         hv_exclusion_zones=[
             HVExclusionZone(
-                name="q1_zone", center=(25.0, 15.0), size=(10.0, 10.0),
-                clearance_mm=6.0, component_refdes="U0",
+                name="q1_zone",
+                center=(25.0, 15.0),
+                size=(10.0, 10.0),
+                clearance_mm=6.0,
+                component_refdes="U0",
             ),
         ],
     )
     from temper_placer.deterministic import DeterministicPipeline
+
     final = DeterministicPipeline(stages=[stage]).run(state)
     grid = final.grid
     violations = check_clearance_grid_conservatism(grid)
@@ -141,16 +159,21 @@ def test_placement_hpwl_unchanged_by_expansion():
     state_with_hv = _temper_like_state_with_hv_zones()
 
     stage_no_hv = ClearanceGridStage(
-        cell_size_mm=0.5, max_clearance_mm=0.2,
+        cell_size_mm=0.5,
+        max_clearance_mm=0.2,
         net_class_clearances={"Signal": 0.2},
     )
     stage_with_hv = ClearanceGridStage(
-        cell_size_mm=0.5, max_clearance_mm=0.2,
+        cell_size_mm=0.5,
+        max_clearance_mm=0.2,
         net_class_clearances={"Signal": 0.2},
         hv_exclusion_zones=[
             HVExclusionZone(
-                name="q1_zone", center=(25.0, 15.0), size=(10.0, 10.0),
-                clearance_mm=6.0, component_refdes="U0",
+                name="q1_zone",
+                center=(25.0, 15.0),
+                size=(10.0, 10.0),
+                clearance_mm=6.0,
+                component_refdes="U0",
             ),
         ],
     )

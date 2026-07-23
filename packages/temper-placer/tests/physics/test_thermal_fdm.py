@@ -15,9 +15,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from temper_placer.fields.field import CostField
-from temper_placer.fields.result import FieldResult
-from temper_placer.placer.cp_sat.gates import GateResult, GateStatus
+from temper_placer.placer.cp_sat.gates import GateStatus
 
 # ---------------------------------------------------------------------------
 # K1: Closed-form analytic 1D bar with uniform heating
@@ -158,7 +156,6 @@ def test_thermal_fdm_copper_offset():
     )
 
     assert result.is_usable, f"Expected usable field, status={result.status}"
-    field = result.field
 
     # Sample temperatures left and right of the source at the same y
     source_row = 2  # closest row to source

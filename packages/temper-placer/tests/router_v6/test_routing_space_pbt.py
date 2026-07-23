@@ -15,7 +15,7 @@ from temper_placer.router_v6.routing_space import RoutingSpace
 @settings(max_examples=100, deadline=30000)
 def test_routing_space_area_non_negative(routing_area, total_area, obstacle_area):
     """Routing area and obstacle area are non-negative."""
-    poly = box(0, 0, total_area ** 0.5, total_area ** 0.5)
+    poly = box(0, 0, total_area**0.5, total_area**0.5)
     rs = RoutingSpace(
         layer_name="test",
         available_area=MultiPolygon([poly]),

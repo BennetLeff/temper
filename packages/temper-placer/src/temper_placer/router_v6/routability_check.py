@@ -55,15 +55,23 @@ def _clear_region(
     mask = dx * dx + dy * dy <= radius_cells * radius_cells
     passable[y0:y1, x0:x1] |= mask
 
+
 # 8-connected grid deltas: E, SE, S, SW, W, NW, N, NE.
 # Used by both check_routability (BFS) and astar_passability (A*).
 _DIRS_8: tuple[tuple[int, int], ...] = (
-    (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1),
+    (1, 0),
+    (1, 1),
+    (0, 1),
+    (-1, 1),
+    (-1, 0),
+    (-1, -1),
+    (0, -1),
+    (1, -1),
 )
 
 
 def check_routability(
-    net_name: str,
+    _net_name: str,
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
@@ -183,7 +191,7 @@ def check_routability(
 
 
 def check_routability_bidi(
-    net_name: str,
+    _net_name: str,
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
@@ -239,8 +247,7 @@ def check_routability_bidi(
     frontier_a.append((sx, sy))
     frontier_b.append((gx, gy))
 
-    def _expand(frontier: deque[tuple[int, int]], side: int,
-                other: int) -> bool:
+    def _expand(frontier: deque[tuple[int, int]], side: int, other: int) -> bool:
         """Expand one level.  Return True if we hit the other frontier."""
         for _ in range(len(frontier)):
             cx, cy = frontier.popleft()
@@ -296,7 +303,7 @@ def build_passability_mask(
 
 
 def check_routability_cc(
-    net_name: str,
+    _net_name: str,
     start: tuple[float, float],
     goal: tuple[float, float],
     edt_grid: np.ndarray,
@@ -378,6 +385,7 @@ def _edt_from_obstacle_mask(
     """
     interior = ~obstacle_mask
     from scipy.ndimage import distance_transform_edt
+
     edt = distance_transform_edt(interior.astype(np.uint8))
     return edt, interior
 
@@ -425,9 +433,7 @@ def astar_passability(
         dy = abs(a[1] - b[1])
         return max(dx, dy) + (math.sqrt(2) - 1) * min(dx, dy)
 
-    frontier: list[tuple[float, int, tuple[int, int]]] = [
-        (0.0, 0, start)
-    ]
+    frontier: list[tuple[float, int, tuple[int, int]]] = [(0.0, 0, start)]
     came_from: dict[tuple[int, int], tuple[int, int] | None] = {start: None}
     cost_so_far: dict[tuple[int, int], float] = {start: 0.0}
     counter = 1

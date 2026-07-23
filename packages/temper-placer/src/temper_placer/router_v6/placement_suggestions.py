@@ -91,13 +91,15 @@ def generate_placement_suggestions(
             # Calculate priority based on congestion severity
             priority = min(1.0, region.bottleneck_score * 1.2)
 
-            suggestions.append(PlacementSuggestion(
-                component_id=comp_id,
-                current_position=comp_pos,
-                suggested_position=suggested_pos,
-                reason=f"Reduce {region.severity.value} congestion (score: {region.bottleneck_score:.2f})",
-                priority=priority,
-            ))
+            suggestions.append(
+                PlacementSuggestion(
+                    component_id=comp_id,
+                    current_position=comp_pos,
+                    suggested_position=suggested_pos,
+                    reason=f"Reduce {region.severity.value} congestion (score: {region.bottleneck_score:.2f})",
+                    priority=priority,
+                )
+            )
 
     return PlacementSuggestions(suggestions=suggestions)
 
@@ -122,7 +124,7 @@ def _find_affected_components(
         # Check if component is in or near the congested region
         dx = comp_pos[0] - region.center[0]
         dy = comp_pos[1] - region.center[1]
-        distance = (dx**2 + dy**2)**0.5
+        distance = (dx**2 + dy**2) ** 0.5
 
         # Include components within 2x region radius
         if distance < region.radius * 2:
@@ -150,7 +152,7 @@ def _calculate_suggested_position(
     # Move away from congestion center
     dx = current_pos[0] - congestion_center[0]
     dy = current_pos[1] - congestion_center[1]
-    distance = (dx**2 + dy**2)**0.5
+    distance = (dx**2 + dy**2) ** 0.5
 
     if distance < 0.1:
         # Already at center, move arbitrarily

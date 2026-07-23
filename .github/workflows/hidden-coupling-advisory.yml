@@ -9,7 +9,7 @@ on:
 jobs:
   advisory:
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: true  # TODO: temper-NNN -- advisory-only job by design; hard-fail after 2026-09-01
     permissions:
       pull-requests: write
       contents: read
@@ -38,7 +38,7 @@ jobs:
 
       - name: Drift detector
         id: drift
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- advisory-only; hard-fail after 2026-09-01
         working-directory: .gusano
         run: |
           bun packages/enola-sem-drift/src/cli.ts \

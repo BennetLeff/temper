@@ -109,6 +109,7 @@ fn check_zone_barrier_intersections(
 // Check
 // ---------------------------------------------------------------------------
 
+#[derive(Default)]
 pub struct IsolationBarrierCheck;
 
 impl IsolationBarrierCheck {

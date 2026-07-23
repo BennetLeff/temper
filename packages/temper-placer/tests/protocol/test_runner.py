@@ -194,9 +194,7 @@ class TestContractValidation:
             contract = Contract(output_schema={"result": str})
 
             def run(self, inp):
-                return StageOutput(
-                    data=BadOutput(result=42), meta=inp.meta
-                )
+                return StageOutput(data=BadOutput(result=42), meta=inp.meta)
 
         runner = PipelineRunner([BadOutputStage()])
         with pytest.raises(ContractViolation) as exc:
@@ -255,7 +253,8 @@ class TestResolveAndRun:
 
     def test_fallback_on_failure(self):
         result = resolve_and_run(
-            "test_phase", ["bad"],
+            "test_phase",
+            ["bad"],
             StageInput(),
             fallback="good",
         )
@@ -270,7 +269,8 @@ class TestResolveAndRun:
     def test_exhausted_with_fallback(self):
         with pytest.raises(StrategyExhaustedError) as exc:
             resolve_and_run(
-                "test_phase", ["bad"],
+                "test_phase",
+                ["bad"],
                 StageInput(),
                 fallback="bad",
             )
@@ -285,9 +285,12 @@ class TestResolveAndRun:
 
         register("test_phase", "s1", lambda: GoodStage())
         register("test_phase", "s2", lambda: GoodStage())
-        register_composite("test_composite", [
-            ("test_phase", "s1"),
-            ("test_phase", "s2"),
-        ])
+        register_composite(
+            "test_composite",
+            [
+                ("test_phase", "s1"),
+                ("test_phase", "s2"),
+            ],
+        )
         result = resolve_and_run("test_phase", ["test_composite"], StageInput())
         assert result.data == "success"

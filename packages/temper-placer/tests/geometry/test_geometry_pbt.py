@@ -17,10 +17,9 @@ from __future__ import annotations
 
 import math as _math
 
-from hypothesis import given, note, settings, strategies as st
-from hypothesis import Phase
-
 import temper_geometry as tg
+from hypothesis import Phase, given, settings
+from hypothesis import strategies as st
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -55,6 +54,7 @@ _pos = st.floats(
     allow_infinity=False,
 )
 
+
 # A flat list of [x, y, x, y, ...] pairs for polygon vertices.
 def convex_polygon_vertices(n: int):
     """Generate a convex CCW polygon as a flat ``[x1, y1, x2, y2, ...]`` list.
@@ -67,12 +67,17 @@ def convex_polygon_vertices(n: int):
         st.floats(min_value=1.0, max_value=100.0, allow_nan=False, allow_infinity=False),
         min_size=n,
         max_size=n,
-    ).map(lambda radii: [v for a, r in zip(angles, radii) for v in (r * _math.cos(a), r * _math.sin(a))])
+    ).map(
+        lambda radii: [
+            v for a, r in zip(angles, radii) for v in (r * _math.cos(a), r * _math.sin(a))
+        ]
+    )
 
 
 # =============================================================================
 # Point distance invariants
 # =============================================================================
+
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(_coords, _coords, _coords, _coords)
@@ -95,14 +100,13 @@ def test_point_distance_triangle_inequality(x1, y1, x2, y2, x3, y3):
     d12 = tg.point_distance(x1, y1, x2, y2)
     d23 = tg.point_distance(x2, y2, x3, y3)
     d13 = tg.point_distance(x1, y1, x3, y3)
-    assert d13 <= d12 + d23 + 1e-9, (
-        f"triangle inequality: {d13} > {d12} + {d23}"
-    )
+    assert d13 <= d12 + d23 + 1e-9, f"triangle inequality: {d13} > {d12} + {d23}"
 
 
 # =============================================================================
 # Rotate + inverse-rotate = identity
 # =============================================================================
+
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(_coords, _coords, _coords)
@@ -131,14 +135,13 @@ def test_rotate_preserves_distance(x1, y1, x2, y2, angle):
     rx1, ry1 = tg.rotate_point(x1, y1, angle)
     rx2, ry2 = tg.rotate_point(x2, y2, angle)
     d_after = tg.point_distance(rx1, ry1, rx2, ry2)
-    assert abs(d_before - d_after) < _TOL, (
-        f"rotation changed distance: {d_before} -> {d_after}"
-    )
+    assert abs(d_before - d_after) < _TOL, f"rotation changed distance: {d_before} -> {d_after}"
 
 
 # =============================================================================
 # Polygon area invariants
 # =============================================================================
+
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(convex_polygon_vertices(3))
@@ -152,9 +155,7 @@ def test_polygon_area_non_negative(verts):
 def test_polygon_signed_area_matches_area(verts):
     signed = tg.polygon_signed_area(verts)
     area = tg.polygon_area(verts)
-    assert abs(area - abs(signed)) < _TOL, (
-        f"area {area} != |signed| {abs(signed)}"
-    )
+    assert abs(area - abs(signed)) < _TOL, f"area {area} != |signed| {abs(signed)}"
 
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
@@ -183,6 +184,7 @@ def test_polygon_area_rotation_invariant(verts, angle):
 # =============================================================================
 # SDF invariants
 # =============================================================================
+
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(_coords, _coords, _pos)
@@ -222,6 +224,7 @@ def test_sdf_circle_outside_positive(cx, cy, r, dx, dy):
 # Smooth min/max invariants
 # =============================================================================
 
+
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(_coords, _coords, _pos)
 def test_smooth_max_ge_true_max(a, b, alpha):
@@ -247,9 +250,7 @@ def test_smooth_min_le_true_min(a, b, alpha):
 def test_smooth_max_symmetric(a, b, alpha):
     ab = tg.smooth_max(a, b, alpha)
     ba = tg.smooth_max(b, a, alpha)
-    assert abs(ab - ba) < 1e-12, (
-        f"smooth_max not symmetric: {ab} vs {ba}"
-    )
+    assert abs(ab - ba) < 1e-12, f"smooth_max not symmetric: {ab} vs {ba}"
 
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
@@ -258,9 +259,7 @@ def test_smooth_min_minus_identity(a, b, alpha):
     """Verify min(a,b) = -max(-a, -b)."""
     min_val = tg.smooth_min(a, b, alpha)
     neg_max = -tg.smooth_max(-a, -b, alpha)
-    assert abs(min_val - neg_max) < 1e-12, (
-        f"identity failed: min={min_val}, -max(-a,-b)={neg_max}"
-    )
+    assert abs(min_val - neg_max) < 1e-12, f"identity failed: min={min_val}, -max(-a,-b)={neg_max}"
 
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
@@ -277,6 +276,7 @@ def test_smooth_max_converges(a, b):
 # =============================================================================
 # Projection invariants
 # =============================================================================
+
 
 @settings(max_examples=_MAX_EXAMPLES, phases=[Phase.generate, Phase.shrink])
 @given(_coords, _coords, _pos, _pos, _nonneg)

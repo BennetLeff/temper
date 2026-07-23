@@ -44,8 +44,7 @@ def inflate_pad_polygon(
         from shapely.geometry import Polygon as ShapelyPolygon
     except ImportError as e:
         raise ImportError(
-            "Shapely is required for DRC inflation. "
-            "Install with: pip install shapely"
+            "Shapely is required for DRC inflation. Install with: pip install shapely"
         ) from e
 
     poly = ShapelyPolygon(pad_vertices)
@@ -81,9 +80,7 @@ def precompute_inflated_dims(
             dims.append([0.0, 0.0])
             continue
 
-        min_x, min_y, max_x, max_y = inflate_pad_polygon(
-            pad_vertices, trace_width_mm
-        )
+        min_x, min_y, max_x, max_y = inflate_pad_polygon(pad_vertices, trace_width_mm)
         width = max_x - min_x
         height = max_y - min_y
         dims.append([width, height])
@@ -194,7 +191,7 @@ def compute_drc_proxy_score(
     distances = np.where(both_negative, overlap_dist, separated_dist)
 
     violations = smooth_relu(clearance_mm - distances, beta=beta)
-    squared_violations = violations ** 2
+    squared_violations = violations**2
 
     i_upper, j_upper = np.triu_indices(n, k=1)
     return np.sum(squared_violations[i_upper, j_upper])

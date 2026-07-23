@@ -14,12 +14,7 @@ from temper_placer.deterministic.stages.clearance_grid import ClearanceGrid
 
 def test_4layer_grid_creation():
     """Test that 4-layer grid is created correctly."""
-    grid = ClearanceGrid(
-        width_mm=100,
-        height_mm=100,
-        cell_size_mm=0.5,
-        layer_count=4
-    )
+    grid = ClearanceGrid(width_mm=100, height_mm=100, cell_size_mm=0.5, layer_count=4)
 
     assert grid.layer_count == 4
     assert len(grid._trace_net_ids) == 4
@@ -34,12 +29,7 @@ def test_4layer_grid_creation():
 
 def test_layer_specific_blocking():
     """Test that blocking on one layer doesn't affect others."""
-    grid = ClearanceGrid(
-        width_mm=100,
-        height_mm=100,
-        cell_size_mm=0.5,
-        layer_count=4
-    )
+    grid = ClearanceGrid(width_mm=100, height_mm=100, cell_size_mm=0.5, layer_count=4)
 
     # Block a circle on layer 0 only
     grid.block_circle(center=(50, 50), radius_mm=5.0, clearance_mm=1.0, layer=0)
@@ -61,12 +51,7 @@ def test_layer_specific_blocking():
 
 def test_multi_layer_blocking():
     """Test blocking the same area on multiple layers."""
-    grid = ClearanceGrid(
-        width_mm=100,
-        height_mm=100,
-        cell_size_mm=0.5,
-        layer_count=4
-    )
+    grid = ClearanceGrid(width_mm=100, height_mm=100, cell_size_mm=0.5, layer_count=4)
 
     # Block same position on layers 0 and 2
     grid.block_circle(center=(50, 50), radius_mm=3.0, clearance_mm=0.5, layer=0)
@@ -83,12 +68,7 @@ def test_multi_layer_blocking():
 
 def test_trace_blocking_per_layer():
     """Test blocking a trace path on specific layer."""
-    grid = ClearanceGrid(
-        width_mm=100,
-        height_mm=100,
-        cell_size_mm=0.5,
-        layer_count=4
-    )
+    grid = ClearanceGrid(width_mm=100, height_mm=100, cell_size_mm=0.5, layer_count=4)
 
     # Block a straight trace on layer 1
     path = [(20, 20), (20, 80)]
@@ -105,12 +85,7 @@ def test_trace_blocking_per_layer():
 
 def test_unblock_per_layer():
     """Test unblocking on specific layer."""
-    grid = ClearanceGrid(
-        width_mm=100,
-        height_mm=100,
-        cell_size_mm=0.5,
-        layer_count=4
-    )
+    grid = ClearanceGrid(width_mm=100, height_mm=100, cell_size_mm=0.5, layer_count=4)
 
     # Block on all layers
     for layer in range(4):
@@ -134,12 +109,7 @@ def test_unblock_per_layer():
 
 def test_invalid_layer_access():
     """Test that invalid layer indices are handled gracefully."""
-    grid = ClearanceGrid(
-        width_mm=100,
-        height_mm=100,
-        cell_size_mm=0.5,
-        layer_count=4
-    )
+    grid = ClearanceGrid(width_mm=100, height_mm=100, cell_size_mm=0.5, layer_count=4)
 
     # Negative layer
     assert not grid.is_available(50, 50, layer=-1)
@@ -163,7 +133,7 @@ def test_backward_compatibility():
         width_mm=100,
         height_mm=100,
         cell_size_mm=0.5,
-        layer_count=2  # 2-layer board
+        layer_count=2,  # 2-layer board
     )
 
     # Block without specifying layer (should default to 0)
@@ -179,12 +149,7 @@ def test_backward_compatibility():
 
 def test_blocked_cells_per_layer():
     """Test that blocked_cells_on_layer returns correct cells."""
-    grid = ClearanceGrid(
-        width_mm=20,
-        height_mm=20,
-        cell_size_mm=1.0,
-        layer_count=4
-    )
+    grid = ClearanceGrid(width_mm=20, height_mm=20, cell_size_mm=1.0, layer_count=4)
 
     # Block small area on layer 1
     grid.block_circle(center=(10, 10), radius_mm=1.5, clearance_mm=0, layer=1)

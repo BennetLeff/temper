@@ -25,7 +25,9 @@ def test_routing_demand_invariant_classification(total, signal, power, diff, pin
         total_pins=pins,
         signal_nets=min(signal, total),
         power_nets=min(power, total - min(signal, total)),
-        diff_pair_nets=min(diff, total - min(signal, total) - min(power, total - min(signal, total))),
+        diff_pair_nets=min(
+            diff, total - min(signal, total) - min(power, total - min(signal, total))
+        ),
         avg_pins_per_net=pins / max(1, total),
         max_pins_per_net=min(pins, 100),
     )

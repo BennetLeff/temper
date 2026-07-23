@@ -25,7 +25,7 @@ _NET_TYPE_TO_CLASS = {
 _SEVERITY_RANK = {"HighVoltage": 4, "Power": 3, "GND": 2, "Signal": 1}
 
 
-def _resolve_component_net_class(comp, netlist) -> str | None:
+def _resolve_component_net_class(comp, _netlist) -> str | None:
     """Determine the net class for a component from its connected nets.
 
     Iterates ALL pins, classifies each connected net, and returns the
@@ -39,7 +39,7 @@ def _resolve_component_net_class(comp, netlist) -> str | None:
     """
     from temper_placer.core.net_classification import classify_net_type
 
-    pins = getattr(comp, 'pins', [])
+    pins = getattr(comp, "pins", [])
     if not pins:
         return None
 
@@ -47,7 +47,7 @@ def _resolve_component_net_class(comp, netlist) -> str | None:
     best_rank = -1
 
     for pin in pins:
-        net_name = getattr(pin, 'net', '')
+        net_name = getattr(pin, "net", "")
         if not net_name:
             continue
         net_type = classify_net_type(net_name)
@@ -67,7 +67,7 @@ def generate_netclass_separated_constraints(
     existing_constraints: list | None = None,
 ) -> list[SeparatedConstraint]:
     """Generate SEPARATED constraints for cross-class component-net pairs.
-    
+
     Only cross-class pairs (different net classes) get explicit constraints.
     Same-class pairs are handled by the existing global NoOverlap2D.
     """
@@ -78,7 +78,7 @@ def generate_netclass_separated_constraints(
     for comp in components:
         nc = _resolve_component_net_class(comp, netlist)
         if nc:
-            comp_classes[getattr(comp, 'ref', str(comp))] = nc
+            comp_classes[getattr(comp, "ref", str(comp))] = nc
 
     if len(comp_classes) < 2:
         return constraints
@@ -87,7 +87,7 @@ def generate_netclass_separated_constraints(
     existing_pairs: set[tuple[str, str]] = set()
     if existing_constraints:
         for c in existing_constraints:
-            if hasattr(c, 'a') and hasattr(c, 'b'):
+            if hasattr(c, "a") and hasattr(c, "b"):
                 key = tuple(sorted([str(c.a), str(c.b)]))
                 existing_pairs.add(key)
 
@@ -110,7 +110,7 @@ def generate_netclass_separated_constraints(
 
             # Check for class_pair override (from netclass_loader's class_pairs)
             cp_key = tuple(sorted([ca, cb]))
-            class_pairs = getattr(design_rules, 'class_pairs', {})
+            class_pairs = getattr(design_rules, "class_pairs", {})
             if cp_key in class_pairs:
                 clearance = class_pairs[cp_key].get("clearance", max_self)
                 because = class_pairs[cp_key].get("because", "")

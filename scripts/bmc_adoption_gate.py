@@ -18,10 +18,8 @@ Exit codes (following the import_linter_gate.py pattern):
 from __future__ import annotations
 
 import ast
-import os
 import sys
 from pathlib import Path
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 

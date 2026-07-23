@@ -1,6 +1,7 @@
 name: Release Please
 
 on:
+  # no-pr-trigger: release-please bot, push to main only
   push:
     branches: [main]
 

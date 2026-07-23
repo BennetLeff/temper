@@ -19,6 +19,7 @@ from temper_placer.io.footprint_library import load_footprint_library
 @dataclass
 class ComponentDistribution:
     """Specification for component type distribution."""
+
     resistors: int = 80
     capacitors: int = 50
     ics: int = 25
@@ -28,13 +29,20 @@ class ComponentDistribution:
 
     @property
     def total(self) -> int:
-        return (self.resistors + self.capacitors + self.ics +
-                self.inductors + self.connectors + self.discretes)
+        return (
+            self.resistors
+            + self.capacitors
+            + self.ics
+            + self.inductors
+            + self.connectors
+            + self.discretes
+        )
 
 
 @dataclass
 class NetTopology:
     """Specification for netlist topology."""
+
     power_nets: int = 4
     signal_nets: int = 100
     bus_nets: int = 2  # I2C, SPI, etc.
@@ -43,6 +51,7 @@ class NetTopology:
 @dataclass
 class SyntheticNetlistResult:
     """Result of synthetic netlist generation."""
+
     netlist: Netlist
     board: Board | None = None
 
@@ -98,38 +107,42 @@ def generate_200_component_netlist(
     for i, fp in enumerate(resistor_footprints):
         spec = lib[fp]
         pins = [
-            Pin("1", "1", (-spec.width/2, 0.0), net=None),
-            Pin("2", "2", (spec.width/2, 0.0), net=None),
+            Pin("1", "1", (-spec.width / 2, 0.0), net=None),
+            Pin("2", "2", (spec.width / 2, 0.0), net=None),
         ]
-        components.append(Component(
-            ref=f"R{i+1}",
-            footprint=fp,
-            bounds=spec.bounds,
-            pins=pins,
-            net_class="Signal",
-        ))
+        components.append(
+            Component(
+                ref=f"R{i + 1}",
+                footprint=fp,
+                bounds=spec.bounds,
+                pins=pins,
+                net_class="Signal",
+            )
+        )
 
     # Capacitors (50 total)
     cap_footprints = ["C_0603"] * 30 + ["C_0805"] * 15 + ["C_1206"] * 5
     for i, fp in enumerate(cap_footprints):
         spec = lib[fp]
         pins = [
-            Pin("1", "1", (-spec.width/2, 0.0), net=None),
-            Pin("2", "2", (spec.width/2, 0.0), net=None),
+            Pin("1", "1", (-spec.width / 2, 0.0), net=None),
+            Pin("2", "2", (spec.width / 2, 0.0), net=None),
         ]
-        components.append(Component(
-            ref=f"C{i+1}",
-            footprint=fp,
-            bounds=spec.bounds,
-            pins=pins,
-            net_class="Signal",
-        ))
+        components.append(
+            Component(
+                ref=f"C{i + 1}",
+                footprint=fp,
+                bounds=spec.bounds,
+                pins=pins,
+                net_class="Signal",
+            )
+        )
 
     # ICs (25 total)
     ic_configs = [
-        ("QFN-56", 10, 28),      # 10 MCUs with 28 pins each
-        ("SOIC-8", 10, 8),        # 10 op-amps/comparators
-        ("TSSOP-20", 5, 20),      # 5 specialized ICs
+        ("QFN-56", 10, 28),  # 10 MCUs with 28 pins each
+        ("SOIC-8", 10, 8),  # 10 op-amps/comparators
+        ("TSSOP-20", 5, 20),  # 5 specialized ICs
     ]
     ic_num = 1
     for footprint, count, num_pins in ic_configs:
@@ -142,20 +155,24 @@ def generate_200_component_netlist(
                 angle = (pin_num / num_pins) * 2 * 3.14159
                 offset_x = (spec.width / 2.5) * (1 if angle < 3.14159 else -1)
                 offset_y = (spec.height / 2.5) * (1 if 0.785 < angle < 2.356 else -1)
-                pins.append(Pin(
-                    name=str(pin_num + 1),
-                    number=str(pin_num + 1),
-                    position=(offset_x, offset_y),
-                    net=None,
-                ))
+                pins.append(
+                    Pin(
+                        name=str(pin_num + 1),
+                        number=str(pin_num + 1),
+                        position=(offset_x, offset_y),
+                        net=None,
+                    )
+                )
 
-            components.append(Component(
-                ref=f"U{ic_num}",
-                footprint=footprint,
-                bounds=spec.bounds,
-                pins=pins,
-                net_class="Signal",
-            ))
+            components.append(
+                Component(
+                    ref=f"U{ic_num}",
+                    footprint=footprint,
+                    bounds=spec.bounds,
+                    pins=pins,
+                    net_class="Signal",
+                )
+            )
             ic_num += 1
 
     # Inductors (10 total)
@@ -163,37 +180,47 @@ def generate_200_component_netlist(
     for i, fp in enumerate(inductor_footprints):
         spec = lib[fp]
         pins = [
-            Pin("1", "1", (-spec.width/2, 0.0), net=None),
-            Pin("2", "2", (spec.width/2, 0.0), net=None),
+            Pin("1", "1", (-spec.width / 2, 0.0), net=None),
+            Pin("2", "2", (spec.width / 2, 0.0), net=None),
         ]
-        components.append(Component(
-            ref=f"L{i+1}",
-            footprint=fp,
-            bounds=spec.bounds,
-            pins=pins,
-            net_class="Power",
-        ))
+        components.append(
+            Component(
+                ref=f"L{i + 1}",
+                footprint=fp,
+                bounds=spec.bounds,
+                pins=pins,
+                net_class="Power",
+            )
+        )
 
     # Connectors (15 total)
-    connector_footprints = ["Connector_JST_XH_2P"] * 8 + ["Connector_JST_XH_3P"] * 5 + ["Connector_Screw_Terminal_2P"] * 2
+    connector_footprints = (
+        ["Connector_JST_XH_2P"] * 8
+        + ["Connector_JST_XH_3P"] * 5
+        + ["Connector_Screw_Terminal_2P"] * 2
+    )
     for i, fp in enumerate(connector_footprints):
         spec = lib[fp]
         num_pins = 2 if "2P" in fp else 3
         pins = []
         for pin_num in range(num_pins):
-            pins.append(Pin(
-                name=str(pin_num + 1),
-                number=str(pin_num + 1),
-                position=(pin_num * 2.5 - (num_pins - 1) * 1.25, 0.0),
-                net=None,
-            ))
-        components.append(Component(
-            ref=f"J{i+1}",
-            footprint=fp,
-            bounds=spec.bounds,
-            pins=pins,
-            net_class="Signal",
-        ))
+            pins.append(
+                Pin(
+                    name=str(pin_num + 1),
+                    number=str(pin_num + 1),
+                    position=(pin_num * 2.5 - (num_pins - 1) * 1.25, 0.0),
+                    net=None,
+                )
+            )
+        components.append(
+            Component(
+                ref=f"J{i + 1}",
+                footprint=fp,
+                bounds=spec.bounds,
+                pins=pins,
+                net_class="Signal",
+            )
+        )
 
     # Discretes (20 total)
     discrete_footprints = ["SOT-23"] * 15 + ["SOD-123"] * 3 + ["TO-220-3"] * 2
@@ -202,19 +229,23 @@ def generate_200_component_netlist(
         num_pins = 3 if "SOT-23" in fp or "TO-220" in fp else 2
         pins = []
         for pin_num in range(num_pins):
-            pins.append(Pin(
-                name=str(pin_num + 1),
-                number=str(pin_num + 1),
-                position=((pin_num - num_pins/2 + 0.5) * 1.27, 0.0),
-                net=None,
-            ))
-        components.append(Component(
-            ref=f"Q{i+1}" if "TO-220" in fp else f"D{i+1}",
-            footprint=fp,
-            bounds=spec.bounds,
-            pins=pins,
-            net_class="Signal" if "SOD" in fp else "Power",
-        ))
+            pins.append(
+                Pin(
+                    name=str(pin_num + 1),
+                    number=str(pin_num + 1),
+                    position=((pin_num - num_pins / 2 + 0.5) * 1.27, 0.0),
+                    net=None,
+                )
+            )
+        components.append(
+            Component(
+                ref=f"Q{i + 1}" if "TO-220" in fp else f"D{i + 1}",
+                footprint=fp,
+                bounds=spec.bounds,
+                pins=pins,
+                net_class="Signal" if "SOD" in fp else "Power",
+            )
+        )
 
     # Generate nets
     nets = []
@@ -238,12 +269,14 @@ def generate_200_component_netlist(
                 pin.net = net_name
                 net_pins.append((comp.ref, pin.name))
 
-        nets.append(Net(
-            name=net_name,
-            pins=net_pins,
-            net_class="Power",
-            weight=2.0,
-        ))
+        nets.append(
+            Net(
+                name=net_name,
+                pins=net_pins,
+                net_class="Power",
+                weight=2.0,
+            )
+        )
 
     # Signal nets (low fanout, 2-4 pins)
     signal_net_count = 100
@@ -265,12 +298,14 @@ def generate_200_component_netlist(
                 signal_pins.append((comp.ref, pin.name))
 
         if len(signal_pins) >= 2:
-            nets.append(Net(
-                name=f"SIG_{i}",
-                pins=signal_pins,
-                net_class="Signal",
-                weight=1.0,
-            ))
+            nets.append(
+                Net(
+                    name=f"SIG_{i}",
+                    pins=signal_pins,
+                    net_class="Signal",
+                    weight=1.0,
+                )
+            )
 
     # Bus nets (medium fanout, 5-10 pins)
     bus_configs = [
@@ -297,12 +332,14 @@ def generate_200_component_netlist(
                 bus_pins.append((comp.ref, pin.name))
 
         if len(bus_pins) >= 2:
-            nets.append(Net(
-                name=net_name,
-                pins=bus_pins,
-                net_class="Signal",
-                weight=1.5,
-            ))
+            nets.append(
+                Net(
+                    name=net_name,
+                    pins=bus_pins,
+                    net_class="Signal",
+                    weight=1.5,
+                )
+            )
 
     netlist = Netlist(components=components, nets=nets)
 

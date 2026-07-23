@@ -3,6 +3,7 @@
 Covers the contract invariant that CLEAN, VIOLATIONS, and UNMEASURED are
 distinct states. slop_linter is mocked so tests are fast and deterministic.
 """
+
 from __future__ import annotations
 
 import tempfile
@@ -26,9 +27,8 @@ from temper_placer.placer.cp_sat.gates import (
 
 
 def _write_pcb() -> Path:
-    tmp = tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False)
-    tmp.write("(kicad_pcb)\n")
-    tmp.close()
+    with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
+        tmp.write("(kicad_pcb)\n")
     return Path(tmp.name)
 
 
@@ -243,13 +243,15 @@ def test_to_delta_slop_returns_keepout():
         description="Slop: 1 hairpin artifact(s)",
         context={
             "artifact_type": "hairpin",
-            "artifacts": [{
-                "type": "hairpin",
-                "net_name": "NET1",
-                "position": (10.0, 20.0),
-                "severity": 170.0,
-                "description": "Hairpin at (10.00, 20.00) mm",
-            }],
+            "artifacts": [
+                {
+                    "type": "hairpin",
+                    "net_name": "NET1",
+                    "position": (10.0, 20.0),
+                    "severity": 170.0,
+                    "description": "Hairpin at (10.00, 20.00) mm",
+                }
+            ],
         },
     )
     delta = gate.to_delta(v)

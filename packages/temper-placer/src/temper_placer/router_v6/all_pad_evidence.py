@@ -61,8 +61,10 @@ def _validate_board(board_name: str, board_value: object) -> None:
     _sha(board.get("drc_report_sha256"), f"boards.{board_name}.drc_report_sha256")
 
     command = board.get("command")
-    if not isinstance(command, list) or not command or not all(
-        isinstance(argument, str) and argument for argument in command
+    if (
+        not isinstance(command, list)
+        or not command
+        or not all(isinstance(argument, str) and argument for argument in command)
     ):
         raise AllPadEvidenceError(f"boards.{board_name}.command must be a non-empty string list")
     if not isinstance(board.get("kicad_cli_version"), str) or not board["kicad_cli_version"]:
@@ -76,7 +78,9 @@ def _validate_board(board_name: str, board_value: object) -> None:
         raise AllPadEvidenceError(f"boards.{board_name}.drc_counts must include unconnected_items")
     for error_class, count in counts.items():
         if not isinstance(error_class, str) or not error_class:
-            raise AllPadEvidenceError(f"boards.{board_name}.drc_counts keys must be non-empty strings")
+            raise AllPadEvidenceError(
+                f"boards.{board_name}.drc_counts keys must be non-empty strings"
+            )
         _nonnegative_integer(count, f"boards.{board_name}.drc_counts.{error_class}")
     unconnected = _nonnegative_integer(
         board.get("unconnected_items"), f"boards.{board_name}.unconnected_items"
@@ -87,9 +91,11 @@ def _validate_board(board_name: str, board_value: object) -> None:
     attribution = _mapping(
         board.get("unconnected_by_net"), f"boards.{board_name}.unconnected_by_net"
     )
-    if attribution.get("status") != "UNAVAILABLE" or not isinstance(
-        attribution.get("reason"), str
-    ) or not attribution["reason"]:
+    if (
+        attribution.get("status") != "UNAVAILABLE"
+        or not isinstance(attribution.get("reason"), str)
+        or not attribution["reason"]
+    ):
         raise AllPadEvidenceError(
             f"boards.{board_name}.unconnected_by_net must explicitly be UNAVAILABLE with a reason"
         )
@@ -108,7 +114,9 @@ def validate_all_pad_baseline(record_or_path: object) -> dict[str, Any]:
         raise AllPadEvidenceError("schema_version must be 1")
     if record.get("evidence_kind") != "APC1_U0_ALL_PAD_ROUTING_BASELINE":
         raise AllPadEvidenceError("evidence_kind must identify the APC1 U0 baseline")
-    if not isinstance(record.get("generated_at_utc"), str) or not record["generated_at_utc"].endswith("Z"):
+    if not isinstance(record.get("generated_at_utc"), str) or not record[
+        "generated_at_utc"
+    ].endswith("Z"):
         raise AllPadEvidenceError("generated_at_utc must be a UTC timestamp")
     source_commit = record.get("source_commit")
     if not isinstance(source_commit, str) or not _GIT_SHA.fullmatch(source_commit):

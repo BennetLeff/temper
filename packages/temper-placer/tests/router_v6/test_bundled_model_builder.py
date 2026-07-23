@@ -65,13 +65,16 @@ def test_class_vars_created():
     manifest = _make_manifest({0: 0, 1: 0, 2: 0})
 
     builder = ModelBuilder(
-        skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model = builder.build()
 
-    channel_vars = [v for v in model.variables
-                    if isinstance(v, NetChannelVar) and v.var_type == "bundle"]
+    channel_vars = [
+        v for v in model.variables if isinstance(v, NetChannelVar) and v.var_type == "bundle"
+    ]
     assert len(channel_vars) == 2  # 1 bundle × 2 edges
     for var in channel_vars:
         assert var.name.startswith("uses_B")
@@ -94,18 +97,18 @@ def test_safety_constraints_only():
 
     dp = DiffPair(base_name="USB_D", p_net="USB_DP", n_net="USB_DN")
     builder = ModelBuilder(
-        skeletons=skeletons, nets=nets,
+        skeletons=skeletons,
+        nets=nets,
         diff_pairs=[dp],
-        enable_bundling=True, bundle_manifest=manifest,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model = builder.build()
 
     from temper_placer.router_v6.constraint_model import DiffPairConstraint
 
-    dp_constraints = [c for c in model.constraints
-                      if isinstance(c, DiffPairConstraint)]
-    assert len(dp_constraints) == 0, \
-        f"Expected 0 DiffPairConstraint, got {len(dp_constraints)}"
+    dp_constraints = [c for c in model.constraints if isinstance(c, DiffPairConstraint)]
+    assert len(dp_constraints) == 0, f"Expected 0 DiffPairConstraint, got {len(dp_constraints)}"
 
 
 # ---------------------------------------------------------------------------
@@ -142,13 +145,18 @@ def test_empty_manifest():
     manifest = _make_manifest({})
 
     builder = ModelBuilder(
-        skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model = builder.build()
 
-    class_vars = [v for v in model.variables
-                  if isinstance(v, NetChannelVar) and getattr(v, "var_type", "") == "bundle"]
+    class_vars = [
+        v
+        for v in model.variables
+        if isinstance(v, NetChannelVar) and getattr(v, "var_type", "") == "bundle"
+    ]
     assert len(class_vars) == 0
 
 
@@ -165,13 +173,16 @@ def test_variable_count_reduction():
     manifest = _make_manifest(dict.fromkeys(range(10), 0))
 
     builder = ModelBuilder(
-        skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     bundled_model = builder.build()
 
     builder2 = ModelBuilder(
-        skeletons=skeletons, nets=nets,
+        skeletons=skeletons,
+        nets=nets,
         enable_bundling=False,
     )
     unbundled_model = builder2.build()

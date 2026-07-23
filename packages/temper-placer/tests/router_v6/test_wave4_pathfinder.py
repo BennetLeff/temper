@@ -19,6 +19,7 @@ with U7 wired in, the easy nets stay at 13/24, and the
 previously-stuck hard nets (GATE_H, GATE_L, SPI_*, etc.) should
 start routing.
 """
+
 from __future__ import annotations
 
 import math
@@ -94,6 +95,7 @@ def test_tensor_increment_path_world_to_grid():
 
 def test_tensor_increment_path_skips_out_of_bounds():
     """increment_path skips coords that map outside the grid."""
+
     class _Grid:
         width_cells = 3
         height_cells = 3
@@ -141,9 +143,7 @@ def test_tensor_reset_zeroes_everything():
 def test_tensor_max_cost_is_configurable():
     """Constructor accepts a custom ``max_cost``.  Use a small
     cap so the test can hit it without 1e43 increments."""
-    t = CongestionTensor(
-        np.zeros((2, 2), dtype=np.float32), max_cost=5.0
-    )
+    t = CongestionTensor(np.zeros((2, 2), dtype=np.float32), max_cost=5.0)
     for _ in range(500):  # 500 > e^4 ≈ 54, so the cap kicks in
         t.increment(0, 0)
     assert t.cost(0, 0) == 5.0
@@ -167,7 +167,12 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     from temper_placer.router_v6.occupancy_grid import OccupancyGrid
 
     grid = OccupancyGrid(
-        "F.Cu", np.zeros((80, 80), dtype=np.int8), (0, 0), 1.0, 80, 80,
+        "F.Cu",
+        np.zeros((80, 80), dtype=np.int8),
+        (0, 0),
+        1.0,
+        80,
+        80,
     )
     start = (5, 5)
     goal = (75, 75)
@@ -179,8 +184,12 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     # weight-zero signatures.
     _astar_search_numba(start, goal, grid, max_iterations=10_000)
     _astar_search_numba(
-        start, goal, grid, max_iterations=10_000,
-        congestion_flat=flat, congestion_weight=0.0,
+        start,
+        goal,
+        grid,
+        max_iterations=10_000,
+        congestion_flat=flat,
+        congestion_weight=0.0,
         max_congestion_cost=100.0,
     )
 
@@ -195,8 +204,12 @@ def test_kernel_with_weight_zero_matches_no_tensor():
     for _ in range(3):
         t0 = time.perf_counter()
         _astar_search_numba(
-            start, goal, grid, max_iterations=200_000,
-            congestion_flat=flat, congestion_weight=0.0,
+            start,
+            goal,
+            grid,
+            max_iterations=200_000,
+            congestion_flat=flat,
+            congestion_weight=0.0,
             max_congestion_cost=100.0,
         )
         weight_zero_runs.append((time.perf_counter() - t0) * 1000.0)

@@ -8,17 +8,6 @@ DRC engine (``temper_drc_rs``).
 
 from __future__ import annotations
 
-# Re-export the KiCad CLI DRC API from _drc_api (backward-compatible)
-from temper_placer.validation._drc_api import (  # noqa: F401
-    DrcError,
-    DrcResult,
-    DrcRunnerError,
-    DrcWarning,
-    is_kicad_cli_available,
-    run_drc,
-)
-
-
 # =========================================================================
 #  CheckRunner — delegates to the Rust DRC engine (temper_drc_rs)
 #
@@ -29,12 +18,21 @@ from temper_placer.validation._drc_api import (  # noqa: F401
 #  returned violation dicts back to Python ``CheckResult`` / ``Issue``
 #  objects.
 # =========================================================================
-
 import time as _time
-from dataclasses import dataclass as _dataclass, field
+from dataclasses import dataclass as _dataclass
+from dataclasses import field
 from typing import TYPE_CHECKING as _TYPE_CHECKING
 from typing import Any as _Any
 
+# Re-export the KiCad CLI DRC API from _drc_api (backward-compatible)
+from temper_placer.validation._drc_api import (  # noqa: F401
+    DrcError,
+    DrcResult,
+    DrcRunnerError,
+    DrcWarning,
+    is_kicad_cli_available,
+    run_drc,
+)
 from temper_placer.validation.drc_result import (
     Check as _Check,
 )
@@ -70,7 +68,7 @@ _SEVERITY_MAP: dict[str, _Severity] = {
 def _placement_to_board_dict(placement: _Placement) -> dict[str, _Any]:
     """Convert a ``Placement`` to the K1-schema board dict."""
     components: list[dict[str, _Any]] = []
-    for ref, comp in placement.components.items():
+    for _ref, comp in placement.components.items():
         side = "bottom" if comp.layer and "B" in (comp.layer or "") else "top"
         components.append(
             {
@@ -299,7 +297,7 @@ class CheckRunner:
         constraints: _ConstraintSet,
         categories: list[str] | None = None,
         check_names: list[str] | None = None,
-        modified_regions: list[tuple[float, float, float, float]] | None = None,
+        _modified_regions: list[tuple[float, float, float, float]] | None = None,
     ) -> _RunResult:
         """
         Run DRC checks via the Rust engine.
@@ -312,8 +310,7 @@ class CheckRunner:
             import temper_drc_rs  # type: ignore[import-untyped]
         except ImportError as exc:
             raise ImportError(
-                "The temper-drc Rust engine is required. "
-                "Install it with: pip install temper-drc-rs"
+                "The temper-drc Rust engine is required. Install it with: pip install temper-drc-rs"
             ) from exc
 
         board_dict = _placement_to_board_dict(placement)

@@ -35,6 +35,7 @@ def _set_monitor_active(active: bool) -> None:
 @dataclass
 class InvariantViolation:
     """A single invariant violation detected by the monitor."""
+
     invariant: str
     detail: str
     context: dict[str, Any] | None = None
@@ -65,21 +66,25 @@ class MonitorState:
         # to catch genuine PQ ordering bugs while accepting the 1.414
         # approximation.
         if self.last_f is not None and f_cost + 1e-3 < self.last_f:
-            self.violations.append(InvariantViolation(
-                "f_cost_monotonicity",
-                f"f-cost decreased: last={self.last_f:.6f}, current={f_cost:.6f}",
-                {"current": current},
-            ))
+            self.violations.append(
+                InvariantViolation(
+                    "f_cost_monotonicity",
+                    f"f-cost decreased: last={self.last_f:.6f}, current={f_cost:.6f}",
+                    {"current": current},
+                )
+            )
         self.last_f = f_cost
 
         # (b) Single-expansion check (standard A* only)
         if self.check_single_expansion:
             if current in self.monitor_closed:
-                self.violations.append(InvariantViolation(
-                    "single_expansion",
-                    f"Node re-expanded: {current}",
-                    {"current": current},
-                ))
+                self.violations.append(
+                    InvariantViolation(
+                        "single_expansion",
+                        f"Node re-expanded: {current}",
+                        {"current": current},
+                    )
+                )
             self.monitor_closed.add(current)
 
     def validate_cost_lower_bound(
@@ -109,43 +114,53 @@ class MonitorState:
 
         stored = g_score[goal]
         if abs(recomputed - stored) > 1e-9:
-            self.violations.append(InvariantViolation(
-                "cost_lower_bound",
-                f"Recomputed cost {recomputed} != g_score[goal] {stored}",
-                {"goal": goal},
-            ))
+            self.violations.append(
+                InvariantViolation(
+                    "cost_lower_bound",
+                    f"Recomputed cost {recomputed} != g_score[goal] {stored}",
+                    {"goal": goal},
+                )
+            )
 
     def validate_path_completeness(
         self, path: list[tuple[int, int]], start: tuple[int, int], goal: tuple[int, int]
     ) -> None:
         """(d) Verify path starts at start, ends at goal, consecutive adjacency."""
         if not path:
-            self.violations.append(InvariantViolation(
-                "path_completeness",
-                "Empty path returned",
-            ))
+            self.violations.append(
+                InvariantViolation(
+                    "path_completeness",
+                    "Empty path returned",
+                )
+            )
             return
 
         if path[0] != start:
-            self.violations.append(InvariantViolation(
-                "path_completeness",
-                f"Path does not start at start: first={path[0]}, start={start}",
-            ))
+            self.violations.append(
+                InvariantViolation(
+                    "path_completeness",
+                    f"Path does not start at start: first={path[0]}, start={start}",
+                )
+            )
         if path[-1] != goal:
-            self.violations.append(InvariantViolation(
-                "path_completeness",
-                f"Path does not end at goal: last={path[-1]}, goal={goal}",
-            ))
+            self.violations.append(
+                InvariantViolation(
+                    "path_completeness",
+                    f"Path does not end at goal: last={path[-1]}, goal={goal}",
+                )
+            )
 
         for i in range(len(path) - 1):
             dx = abs(path[i + 1][0] - path[i][0])
             dy = abs(path[i + 1][1] - path[i][1])
             if dx > 1 or dy > 1 or (dx == 0 and dy == 0):
-                self.violations.append(InvariantViolation(
-                    "path_completeness",
-                    f"Non-adjacent or duplicate step: {path[i]} -> {path[i + 1]}",
-                    {"i": i},
-                ))
+                self.violations.append(
+                    InvariantViolation(
+                        "path_completeness",
+                        f"Non-adjacent or duplicate step: {path[i]} -> {path[i + 1]}",
+                        {"i": i},
+                    )
+                )
                 break  # One violation is enough for the path
 
 
@@ -192,6 +207,7 @@ class astar_monitor:
             # CI mode: hard-fail via pytest so regressions block PRs
             if os.environ.get("PYTEST_CURRENT_TEST"):
                 import pytest  # noqa: F811
+
                 pytest.fail(msg)
 
             logging.getLogger(__name__).warning(msg)

@@ -177,7 +177,5 @@ class TestSingleSourceOfTruth:
         # The phased stage imports the function, not the constant.
         import inspect
 
-        src = inspect.getsource(
-            PhasedComponentAssignmentStage._check_critical_bottlenecks
-        )
+        src = inspect.getsource(PhasedComponentAssignmentStage._check_critical_bottlenecks)
         assert "is_drc_fence_fail_enabled" in src

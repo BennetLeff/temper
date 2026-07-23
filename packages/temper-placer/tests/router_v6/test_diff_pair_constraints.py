@@ -1,4 +1,3 @@
-
 import networkx as nx
 import pytest
 
@@ -20,23 +19,16 @@ def mock_skeletons():
     sk = ChannelSkeleton(graph=g, layer_name="L1", total_length=10.0)
     return {"L1": sk}
 
+
 @pytest.fixture
 def mock_nets():
-    return [
-        Net(name="USB_D+", pins=[]),
-        Net(name="USB_D-", pins=[])
-    ]
+    return [Net(name="USB_D+", pins=[]), Net(name="USB_D-", pins=[])]
+
 
 def test_diff_pair_constraints_generated(mock_skeletons, mock_nets):
-    diff_pairs = [
-        DiffPair(base_name="USB_D", p_net="USB_D+", n_net="USB_D-")
-    ]
+    diff_pairs = [DiffPair(base_name="USB_D", p_net="USB_D+", n_net="USB_D-")]
 
-    builder = ModelBuilder(
-        skeletons=mock_skeletons,
-        nets=mock_nets,
-        diff_pairs=diff_pairs
-    )
+    builder = ModelBuilder(skeletons=mock_skeletons, nets=mock_nets, diff_pairs=diff_pairs)
     model = builder.build()
 
     # Check constraints
@@ -51,17 +43,12 @@ def test_diff_pair_constraints_generated(mock_skeletons, mock_nets):
     assert c.n_var.net_idx == 1
     assert c.p_var.channel_id == c.n_var.channel_id
 
+
 def test_no_diff_pair_constraints_if_mismatch(mock_skeletons, mock_nets):
     # Diff pair with nets that don't exist in mock_nets
-    diff_pairs = [
-        DiffPair(base_name="CLK", p_net="CLK_P", n_net="CLK_N")
-    ]
+    diff_pairs = [DiffPair(base_name="CLK", p_net="CLK_P", n_net="CLK_N")]
 
-    builder = ModelBuilder(
-        skeletons=mock_skeletons,
-        nets=mock_nets,
-        diff_pairs=diff_pairs
-    )
+    builder = ModelBuilder(skeletons=mock_skeletons, nets=mock_nets, diff_pairs=diff_pairs)
     model = builder.build()
 
     diff_constraints = [c for c in model.constraints if isinstance(c, DiffPairConstraint)]

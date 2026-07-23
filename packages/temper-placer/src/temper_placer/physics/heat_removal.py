@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 H_CONV_BACKGROUND = 10.0  # W/(m²·K)
-# because: natural convection coefficient for a vertical PCB in still
+# source: natural convection coefficient for a vertical PCB in still
 # air, per standard engineering heat transfer handbooks (typical range
 # 5--25 W/(m²·K)).  The midpoint is conservative and dominates only
 # over bare board cells — sink-footprint cells are governed by the
@@ -48,7 +48,7 @@ H_CONV_BACKGROUND = 10.0  # W/(m²·K)
 # ---------------------------------------------------------------------------
 
 _DEVICE_FOOTPRINT_MM = 5.0
-# because: matches the 5×5 mm device footprint used by
+# source: matches the 5×5 mm device footprint used by
 # _build_heat_source_field and _area_average_temperature in
 # thermal_fdm.py and tj_cross_check.py — consistent cell counting
 # across heat source, sink, and area-average routines.

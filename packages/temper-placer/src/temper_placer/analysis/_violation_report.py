@@ -104,7 +104,10 @@ def _generate_report_rows(
         }
         if err.rule == "courtyards_overlap" and len(refs) == 2:
             row["overlap_area_mm2"] = _compute_overlap_area_mm2(
-                refs[0], refs[1], meta, positions,
+                refs[0],
+                refs[1],
+                meta,
+                positions,
             )
         rows.append(row)
     rows.sort(key=lambda r: r["overlap_area_mm2"], reverse=True)
@@ -137,9 +140,7 @@ def _render_report(rows: list[dict]) -> str:
         lines.append(
             "| # | Components | Location (x, y) | Overlap Area (mm^2) | kicad-cli Message |"
         )
-        lines.append(
-            "|---|-----------|----------------|--------------------|------------------|"
-        )
+        lines.append("|---|-----------|----------------|--------------------|------------------|")
         for idx, r in enumerate(rule_rows, 1):
             comps = ", ".join(r["refs_sorted"]) if r["refs_sorted"] else "(none)"
             loc = f"({r['location_x']:.1f}, {r['location_y']:.1f})"

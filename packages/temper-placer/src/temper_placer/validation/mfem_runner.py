@@ -6,11 +6,9 @@ U1 of the external-MFEM corroboration plan.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass
-from pathlib import Path
 
 import numpy as np
 
@@ -49,7 +47,7 @@ class MFEMRunner:
 
         out = output_dir or tempfile.mkdtemp(prefix="mfem_")
         os.makedirs(out, exist_ok=True)
-        mesh_name = os.path.splitext(os.path.basename(mesh_path))[0]
+        os.path.splitext(os.path.basename(mesh_path))[0]
         result_path = os.path.join(out, "temperatures.csv")
         cmd = [self._binary, "-m", mesh_path]
         try:
@@ -60,12 +58,10 @@ class MFEMRunner:
                 timeout=self._timeout,
                 cwd=out,
             )
-        except subprocess.TimeoutExpired:
-            raise RuntimeError(f"MFEM solve timed out after {self._timeout}s")
+        except subprocess.TimeoutExpired as e:
+            raise RuntimeError(f"MFEM solve timed out after {self._timeout}s") from e
         if proc.returncode != 0:
-            raise RuntimeError(
-                f"MFEM exit code {proc.returncode}: {proc.stderr[:500]}"
-            )
+            raise RuntimeError(f"MFEM exit code {proc.returncode}: {proc.stderr[:500]}")
 
         if not os.path.isfile(result_path):
             raise RuntimeError(f"MFEM did not produce CSV output at {result_path}")
@@ -107,15 +103,11 @@ def _parse_vtk(vtk_path: str) -> MFEMResult:
     node_coords = None
     if points_elem is not None and points_elem.text:
         node_coords = (
-            np.fromstring(points_elem.text.strip(), sep=" ")
-            .reshape(n_points, 3)
-            .astype(np.float64)
+            np.fromstring(points_elem.text.strip(), sep=" ").reshape(n_points, 3).astype(np.float64)
         )
 
     temp_array = None
-    for da in piece.findall(".//CellData/DataArray") + piece.findall(
-        ".//PointData/DataArray"
-    ):
+    for da in piece.findall(".//CellData/DataArray") + piece.findall(".//PointData/DataArray"):
         if da.get("Name", "").lower() in ("temperature", "solution", "t"):
             if da.text:
                 temp_array = np.fromstring(da.text.strip(), sep=" ").astype(np.float64)

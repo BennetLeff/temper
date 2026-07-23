@@ -88,6 +88,7 @@ def _call_safely(
 # 1. Via diameter boundaries
 # ============================================================================
 
+
 @pytest.mark.parametrize(
     "diameter,expect_teardrop,expect_warning",
     [
@@ -134,6 +135,7 @@ def test_via_diameter_boundary(diameter, expect_teardrop, expect_warning):
 # 2. Trace width boundaries (combined with normal via)
 # ============================================================================
 
+
 @pytest.mark.parametrize(
     "trace_width,expect_teardrop",
     [
@@ -169,6 +171,7 @@ def test_trace_width_boundary(trace_width, expect_teardrop):
 # ============================================================================
 # 3. Teardrop length ratio boundaries
 # ============================================================================
+
 
 @pytest.mark.parametrize(
     "ratio,expect_clamped,expected_ratio",
@@ -206,9 +209,7 @@ def test_teardrop_length_ratio_boundary(ratio, expect_clamped, expected_ratio):
 
     if expect_clamped:
         # The module should emit a warning when it clamps
-        assert len(captured_warnings) >= 1, (
-            f"Expected a clamping warning for ratio={ratio!r}"
-        )
+        assert len(captured_warnings) >= 1, f"Expected a clamping warning for ratio={ratio!r}"
         # Length should equal clamped ratio * via_diameter
         assert td.length_mm == pytest.approx(expected_ratio * _NORMAL_VIA_DIAMETER)
     else:
@@ -219,6 +220,7 @@ def test_teardrop_length_ratio_boundary(ratio, expect_clamped, expected_ratio):
 # ============================================================================
 # 4. Via-to-trace ratio threshold (via.diameter >= trace_width * 1.2)
 # ============================================================================
+
 
 @pytest.mark.parametrize(
     "via_diameter,expect_teardrop",
@@ -259,6 +261,7 @@ def test_via_to_trace_ratio_threshold(via_diameter, expect_teardrop):
 # ============================================================================
 # 5. Layer matching (via on different layer from path)
 # ============================================================================
+
 
 @pytest.mark.parametrize(
     "path_layer,via_from,via_to,expect_teardrop",
@@ -304,6 +307,7 @@ def test_path_without_layer_name_skips():
 # 6. Empty input
 # ============================================================================
 
+
 def test_zero_vias_yields_no_teardrops():
     """No vias → no teardrops (even with via teardrops enabled)."""
     path = _make_path()
@@ -326,6 +330,7 @@ def test_zero_routes_yields_no_teardrops():
 # ============================================================================
 # 7. Single-coordinate path (no segment to infer direction)
 # ============================================================================
+
 
 def test_single_coordinate_path_skips():
     """A path with fewer than 2 coordinates cannot infer direction."""

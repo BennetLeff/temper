@@ -5,6 +5,7 @@ configuration block from `state.config`. The orchestrator keeps the raw config
 on the pipeline; this stage is a thin pass-through that copies it onto the
 state so the rest of the pipeline can read it as if it were always there.
 """
+
 from __future__ import annotations
 
 from ..state import BoardState

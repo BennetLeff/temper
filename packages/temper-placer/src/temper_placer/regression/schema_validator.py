@@ -40,11 +40,15 @@ class SchemaValidator:
         self._schema_path = Path(schema_path) if schema_path else _SCHEMA_PATH
         raw = yaml.safe_load(self._schema_path.read_text())
         if not isinstance(raw, dict):
-            raise SchemaValidationError("<schema>", f"top-level must be a dict, got {type(raw).__name__}")
+            raise SchemaValidationError(
+                "<schema>", f"top-level must be a dict, got {type(raw).__name__}"
+            )
         self._schema_version = raw.get("schema_version", 0)
         self._fields: dict[str, dict[str, Any]] = raw.get("metrics", {})
         if not isinstance(self._fields, dict):
-            raise SchemaValidationError("<schema>", f"'metrics' must be a dict, got {type(self._fields).__name__}")
+            raise SchemaValidationError(
+                "<schema>", f"'metrics' must be a dict, got {type(self._fields).__name__}"
+            )
 
     def validate(self, metrics: dict[str, float]) -> None:
         """Validate *metrics* against the schema.
@@ -55,7 +59,9 @@ class SchemaValidator:
 
         for field_name, _value in metrics.items():
             if field_name not in self._fields:
-                raise SchemaValidationError(field_name, "unknown field — not declared in metrics_schema.yaml")
+                raise SchemaValidationError(
+                    field_name, "unknown field — not declared in metrics_schema.yaml"
+                )
 
         for field_name, value in metrics.items():
             constraints = self._fields[field_name]

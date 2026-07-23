@@ -110,19 +110,28 @@ def _make_results(
         # ---- NaN diameter ----
         # drill > 0, but NaN diameter => skip (NaN guard catches it)
         pytest.param(
-            float("nan"), 0.3, False, True,
+            float("nan"),
+            0.3,
+            False,
+            True,
             id="diameter_nan",
         ),
         # ---- NaN drill ----
         # NaN drill => skip (NaN guard catches it)
         pytest.param(
-            0.6, float("nan"), False, True,
+            0.6,
+            float("nan"),
+            False,
+            True,
             id="drill_nan",
         ),
         # ---- both NaN ----
         # NaN drill => skip (NaN guard catches it)
         pytest.param(
-            float("nan"), float("nan"), False, True,
+            float("nan"),
+            float("nan"),
+            False,
+            True,
             id="both_nan",
         ),
         # ---- +inf diameter, normal drill ----
@@ -162,9 +171,7 @@ def test_via_geometry_boundaries(
 
     if expect_skip:
         # Guard clause hit: via skipped, result is None
-        assert result is None, (
-            f"Expected skip (None), got {result}"
-        )
+        assert result is None, f"Expected skip (None), got {result}"
         return
 
     if expect_violation:
@@ -178,9 +185,7 @@ def test_via_geometry_boundaries(
         assert result.drill_diameter == drill if not math.isnan(drill) else True
     else:
         # Not skipped, not a violation => passed
-        assert result is None, (
-            f"Expected pass (None), got {result}"
-        )
+        assert result is None, f"Expected pass (None), got {result}"
 
 
 # ============================================================================
@@ -209,7 +214,8 @@ def test_via_geometry_boundaries(
         pytest.param(float("inf"), False, id="threshold_inf"),
         # NaN — now rejected at validation time
         pytest.param(
-            float("nan"), True,
+            float("nan"),
+            True,
             id="threshold_nan",
         ),
     ],
@@ -249,7 +255,8 @@ def test_check_annular_rings_threshold_validation(
         # threshold = NaN: 0.15 <= NaN is always False, but NaN threshold
         # is now guarded in _check_via (logged + skipped, returns None).
         pytest.param(
-            float("nan"), False,
+            float("nan"),
+            False,
             id="check_via_threshold_nan",
         ),
     ],
@@ -269,9 +276,7 @@ def test_check_via_threshold_boundaries(
         assert isinstance(result, AnnularRingViolation)
         assert result.minimum_required == threshold
     else:
-        assert result is None, (
-            f"Expected pass (None), got {result}"
-        )
+        assert result is None, f"Expected pass (None), got {result}"
 
 
 # ---------------------------------------------------------------------------
@@ -302,32 +307,29 @@ def test_tiny_ring_caught_with_normal_threshold() -> None:
         # ---- ring clearly below 0.05 (d=0.5 drill=0.4) ----
         # ring = (0.5 - 0.4)/2 ≈ 0.04999999999999999 < 0.05  => violation
         pytest.param(0.5, 0.4, True, 0.05, id="ring_below_005"),
-
         # ---- nominal ring = 0.05, FP ring slightly above 0.05 ----
         # d=0.4 drill=0.3: computed ring ≈ 0.050000000000000017 > 0.05
         # The <= check with FP epsilon now catches this boundary case.
         pytest.param(
-            0.4, 0.3, True, 0.05,
+            0.4,
+            0.3,
+            True,
+            0.05,
             id="ring_exactly_at_005_nominal",
         ),
-
         # ---- ring clearly above 0.05 ----
         # d=0.41 drill=0.3: ring = (0.41 - 0.3)/2 = 0.055 > 0.05 => passes
         pytest.param(0.41, 0.3, False, 0.05, id="ring_above_005"),
-
         # ---- ring clearly below 0.10 (d=0.6 drill=0.4) ----
         # ring = (0.6 - 0.4)/2 ≈ 0.09999999999999999 < 0.10 => violation
         pytest.param(0.6, 0.4, True, 0.10, id="ring_below_010"),
-
         # ---- nominal ring = 0.10, round-trip is FP-exact for these values ----
         # d=0.5 drill=0.3: FP ring = 0.10000000000000000555 == 0.10 in FP
         # The round-trip is exact because 2*0.1 + 0.3 = 0.5 (errors cancel).
         pytest.param(0.5, 0.3, True, 0.10, id="ring_exactly_at_010"),
-
         # ---- ring clearly above 0.10 ----
         # d=0.6 drill=0.3: ring = 0.15 > 0.10 => passes
         pytest.param(0.6, 0.3, False, 0.10, id="ring_above_010"),
-
         # ---- ring exactly zero (diameter == drill) ----
         # 0.0 <= threshold => violation
         pytest.param(0.3, 0.3, True, 0.05, id="ring_exactly_zero"),
@@ -350,8 +352,7 @@ def test_at_threshold_rings(
         )
     else:
         assert result is None, (
-            f"d={diameter} drill={drill} should pass at threshold=0.05, "
-            f"got {result}"
+            f"d={diameter} drill={drill} should pass at threshold=0.05, got {result}"
         )
 
 
@@ -410,13 +411,11 @@ def test_layer_aware_thresholds(
 
     if expect_violation:
         assert isinstance(result, AnnularRingViolation), (
-            f"via {from_layer}→{to_layer} ring={ring_width} "
-            f"should violate at min_ring={min_ring}"
+            f"via {from_layer}→{to_layer} ring={ring_width} should violate at min_ring={min_ring}"
         )
     else:
         assert result is None, (
-            f"via {from_layer}→{to_layer} ring={ring_width} "
-            f"should pass at min_ring={min_ring}"
+            f"via {from_layer}→{to_layer} ring={ring_width} should pass at min_ring={min_ring}"
         )
 
 
@@ -437,44 +436,46 @@ def test_layer_aware_thresholds(
         # 0.025 <= 0.05 => violation (external)
         # 0.025 <= 0.025 => violation (internal, caught by <=)
         (0.35, 0.3, 0.05, True, True),
-
         # ---- ring ≈ 0.026, min_ring=0.05 ----
         # d=0.352 drill=0.3: ring = 0.026
         # external: 0.026 <= 0.05 => violation
         # internal: 0.026 <= 0.025 => passes
         (0.352, 0.3, 0.05, True, False),
-
         # ---- ring ≈ 0.024, min_ring=0.05 ----
         # d=0.348 drill=0.3: ring = 0.024
         # external: 0.024 <= 0.05 => violation
         # internal: 0.024 <= 0.025 => violation
         (0.348, 0.3, 0.05, True, True),
-
         # ---- ring ≈ 0.05, min_ring=0.05 ----
         # d=0.4 drill=0.3: FP ring ≈ 0.050000000000000017 > 0.05
         # external: now caught by FP epsilon in <= check
         # internal: 0.050... <= 0.025 => passes (correct, ring > 0.025)
         pytest.param(
-            0.4, 0.3, 0.05, True, False,
+            0.4,
+            0.3,
+            0.05,
+            True,
+            False,
             id="ring_005_minring_005",
         ),
-
         # ---- ring clearly above 0.05, min_ring=0.05 ----
         # d=0.6 drill=0.3: ring = 0.15
         # external: 0.15 <= 0.05 => passes
         # internal: 0.15 <= 0.025 => passes
         (0.6, 0.3, 0.05, False, False),
-
         # ---- ring ≈ 0.05, min_ring=0.1 ----
         # external threshold=0.1, internal threshold=0.05
         # d=0.4 drill=0.3: FP ring ≈ 0.050000000000000017
         # external: 0.050... <= 0.1 => violation
         # internal: now caught by FP epsilon (0.050... <= 0.05 + ε)
         pytest.param(
-            0.4, 0.3, 0.1, True, True,
+            0.4,
+            0.3,
+            0.1,
+            True,
+            True,
             id="ring_005_minring_010",
         ),
-
         # ---- ring ≈ 0.051, min_ring=0.1 ----
         # d=0.402 drill=0.3: ring = (0.402-0.3)/2 = 0.051
         # external: 0.051 <= 0.1 => violation
@@ -491,33 +492,27 @@ def test_layer_aware_multiplier_boundaries(
 ) -> None:
     """The 0.5× multiplier for internal layers works at threshold boundaries."""
     # External via
-    via_ext = _make_via(diameter=diameter, drill=drill,
-                        from_layer="F.Cu", to_layer="B.Cu")
+    via_ext = _make_via(diameter=diameter, drill=drill, from_layer="F.Cu", to_layer="B.Cu")
     result_ext = _check_via(via_ext, _NORMAL_NET, min_ring, _NORMAL_MICROVIA_RING)
     if expect_violation_external:
         assert isinstance(result_ext, AnnularRingViolation), (
-            f"external d={diameter} drill={drill} "
-            f"should violate at min_ring={min_ring}"
+            f"external d={diameter} drill={drill} should violate at min_ring={min_ring}"
         )
     else:
         assert result_ext is None, (
-            f"external d={diameter} drill={drill} "
-            f"should pass at min_ring={min_ring}"
+            f"external d={diameter} drill={drill} should pass at min_ring={min_ring}"
         )
 
     # Internal via
-    via_int = _make_via(diameter=diameter, drill=drill,
-                        from_layer="In1.Cu", to_layer="In2.Cu")
+    via_int = _make_via(diameter=diameter, drill=drill, from_layer="In1.Cu", to_layer="In2.Cu")
     result_int = _check_via(via_int, _NORMAL_NET, min_ring, _NORMAL_MICROVIA_RING)
     if expect_violation_internal:
         assert isinstance(result_int, AnnularRingViolation), (
-            f"internal d={diameter} drill={drill} "
-            f"should violate at min_ring={min_ring}"
+            f"internal d={diameter} drill={drill} should violate at min_ring={min_ring}"
         )
     else:
         assert result_int is None, (
-            f"internal d={diameter} drill={drill} "
-            f"should pass at min_ring={min_ring}"
+            f"internal d={diameter} drill={drill} should pass at min_ring={min_ring}"
         )
 
 
@@ -540,7 +535,9 @@ def test_empty_compiled_routes_with_extra_vias_empty() -> None:
     """Empty compiled_routes + empty extra_vias list."""
     results = RoutingResults(compiled_routes={}, failed_nets=[])
     report = check_annular_rings(
-        results, min_annular_ring=0.05, extra_vias=[],
+        results,
+        min_annular_ring=0.05,
+        extra_vias=[],
     )
 
     assert report.total_vias_checked == 0
@@ -564,7 +561,9 @@ def test_extra_vias_only() -> None:
     via = _make_via(diameter=0.6, drill=0.3)  # ring=0.15, should pass
     results = RoutingResults(compiled_routes={}, failed_nets=[])
     report = check_annular_rings(
-        results, min_annular_ring=0.05, extra_vias=[via],
+        results,
+        min_annular_ring=0.05,
+        extra_vias=[via],
     )
 
     assert report.total_vias_checked == 1
@@ -587,8 +586,10 @@ def test_microvia_threshold_overrides_layer() -> None:
     # ring = 0.03 mm.  External threshold = 0.05 => would fail.
     # Microvia threshold = 0.025 => 0.03 > 0.025 => passes.
     via = _make_via(
-        diameter=0.36, drill=0.3,  # ring = 0.03
-        from_layer="F.Cu", to_layer="B.Cu",
+        diameter=0.36,
+        drill=0.3,  # ring = 0.03
+        from_layer="F.Cu",
+        to_layer="B.Cu",
         via_type="microvia",
     )
     result = _check_via(via, _NORMAL_NET, 0.05, _NORMAL_MICROVIA_RING)
@@ -599,8 +600,10 @@ def test_microvia_violation_caught() -> None:
     """Microvia with ring below microvia threshold is flagged."""
     # ring = 0.02 mm.  Microvia threshold = 0.025 => 0.02 <= 0.025 => violation.
     via = _make_via(
-        diameter=0.34, drill=0.3,  # ring = 0.02
-        from_layer="In1.Cu", to_layer="In2.Cu",
+        diameter=0.34,
+        drill=0.3,  # ring = 0.02
+        from_layer="In1.Cu",
+        to_layer="In2.Cu",
         via_type="microvia",
     )
     result = _check_via(via, _NORMAL_NET, 0.05, _NORMAL_MICROVIA_RING)

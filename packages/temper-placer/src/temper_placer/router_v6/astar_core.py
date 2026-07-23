@@ -29,8 +29,14 @@ DIAGONAL_COST_FACTOR: float = 1.0
 _BASE_DIAGONAL_COST: Final[float] = math.sqrt(2.0)
 
 _SAME_LAYER_DELTAS: tuple[tuple[int, int], ...] = (
-    (0, 1), (1, 0), (0, -1), (-1, 0),
-    (1, 1), (1, -1), (-1, 1), (-1, -1),
+    (0, 1),
+    (1, 0),
+    (0, -1),
+    (-1, 0),
+    (1, 1),
+    (1, -1),
+    (-1, 1),
+    (-1, -1),
 )
 
 
@@ -47,7 +53,14 @@ def in_bounds(x: int, y: int, width_cells: int, height_cells: int) -> bool:
 # 8-move direction encoding shared with neighbor_validity.DIRS_8.
 # Order: E, SE, S, SW, W, NW, N, NE.
 _DIRS_8: tuple[tuple[int, int], ...] = (
-    (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1),
+    (1, 0),
+    (1, 1),
+    (0, 1),
+    (-1, 1),
+    (-1, 0),
+    (-1, -1),
+    (0, -1),
+    (1, -1),
 )
 
 
@@ -165,6 +178,7 @@ def _astar_search(
         from temper_placer.router_v6.neighbor_validity import (
             build_neighbor_validity_tensor_2d,
         )
+
         neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
 
     cols = grid.width_cells
@@ -207,6 +221,7 @@ def _astar_search(
         from temper_placer.router_v6.neighbor_validity import (
             is_valid_2d as _tensor_is_valid,
         )
+
         cx, cy = current  # current is (x, y) tuple; rename for tensor indexing
 
         for dir_idx in range(8):
@@ -218,8 +233,11 @@ def _astar_search(
                 cell_value = grid.grid[ny, nx]
                 if cell_value != 0 and cell_value != net_id:
                     continue
-            elif not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
-                continue
+            else:
+                # net_id < 0 guarantees neighbor_tensor was built at line 168.
+                assert neighbor_tensor is not None
+                if not _tensor_is_valid(neighbor_tensor, cy, cx, dir_idx):
+                    continue
 
             # Diagonal cost uses configurable multiplier
             move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
@@ -268,7 +286,10 @@ def _heuristic(a: tuple[int, int], b: tuple[int, int]) -> float:
 
 
 def _line_of_sight(
-    p1: tuple[int, int], p2: tuple[int, int], grid, net_id: int,
+    p1: tuple[int, int],
+    p2: tuple[int, int],
+    grid,
+    net_id: int,
 ) -> bool:
     """
     Check if there's an unobstructed diagonal line between two grid points.
@@ -288,7 +309,7 @@ def _line_of_sight(
     x1, y1 = p2
 
     # @req(2026-06-29-feat-los-bb, R1): BB empty shortcut
-    bbox = grid.grid[min(y0, y1):max(y0, y1) + 1, min(x0, x1):max(x0, x1) + 1]
+    bbox = grid.grid[min(y0, y1) : max(y0, y1) + 1, min(x0, x1) : max(x0, x1) + 1]
     if not np.any(bbox):
         _LOS_BB_HITS[0] += 1
         return True
@@ -363,6 +384,7 @@ def _astar_search_lazy_theta_star(
 
     if enable_numba_los:
         from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
+
         los_fn = _line_of_sight_numba
     else:
         los_fn = _line_of_sight
@@ -551,6 +573,7 @@ def _astar_search_theta_star(
 
     if enable_numba_los:
         from temper_placer.router_v6.astar_core_numba import _line_of_sight_numba
+
         los_fn = _line_of_sight_numba
     else:
         los_fn = _line_of_sight
@@ -777,7 +800,9 @@ def _astar_search_3d(
         for dx, dy in _SAME_LAYER_DELTAS:
             nx, ny = x + dx, y + dy
             if grid.is_free(nx, ny):
-                move_cost = DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
+                move_cost = (
+                    DIAGONAL_COST_FACTOR * _BASE_DIAGONAL_COST if dx != 0 and dy != 0 else 1.0
+                )
                 moves.append(((nx, ny, layer), move_cost))
 
         # Layer transition moves (via insertion)
@@ -890,9 +915,14 @@ def _route_segment_3d(
     goal_node = RouteNode3D(goal_grid[0], goal_grid[1], goal_layer)
 
     result = _astar_search_3d(
-        start_node, goal_node, grids, via_cost=via_cost,
-        via_diameter=via_diameter, clearance=clearance,
-        net_id=net_id, max_iter=max_iter,
+        start_node,
+        goal_node,
+        grids,
+        via_cost=via_cost,
+        via_diameter=via_diameter,
+        clearance=clearance,
+        net_id=net_id,
+        max_iter=max_iter,
     )
 
     if result is None:
@@ -914,13 +944,13 @@ def _route_segment_3d(
     world_path: list[tuple[float, float, str]] = []
     if bulk_path:
         world_path.append((start_world[0], start_world[1], start_layer))
-        for node in bulk_path:
-            if node != world_path[-1]:
-                world_path.append(node)
+        for point in bulk_path:
+            if point != world_path[-1]:
+                world_path.append(point)
 
-        goal_node = (goal_world[0], goal_world[1], goal_layer)
-        if goal_node != world_path[-1]:
-            world_path.append(goal_node)
+        goal_point = (goal_world[0], goal_world[1], goal_layer)
+        if goal_point != world_path[-1]:
+            world_path.append(goal_point)
 
     via_world_positions = []
     for gx, gy in via_grid_positions:

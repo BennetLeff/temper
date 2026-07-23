@@ -9,6 +9,7 @@ class TopologicalGraph:
 
     This structure is used to reason about placement before assigning coordinates.
     """
+
     nodes: list[str] = field(default_factory=list)
     # (a, b, max_distance_mm)
     adjacency_edges: list[tuple[str, str, float]] = field(default_factory=list)
@@ -77,32 +78,40 @@ class TopologicalGraph:
 
         return list(clusters_dict.values())
 
+
 @dataclass
 class ComponentCluster:
     """A cluster of components that stay together."""
+
     name: str
     components: set[str]
     parent_zone: str | None = None
 
+
 @dataclass
 class TopologicalSolution:
     """Output of the topological placement phase."""
+
     clusters: list[ComponentCluster] = field(default_factory=list)
     cluster_adjacencies: list[tuple[str, str]] = field(default_factory=list)
     cluster_separations: list[tuple[str, str, float]] = field(default_factory=list)
     feasible: bool = True
     infeasibility_reasons: list[str] = field(default_factory=list)
 
+
 class UnionFind:
     """Disjoint-set / union-find data structure."""
+
     def __init__(self):
         self._parent = {}
+
     def find(self, x):
         if x not in self._parent:
             self._parent[x] = x
         if self._parent[x] != x:
             self._parent[x] = self.find(self._parent[x])
         return self._parent[x]
+
     def union(self, a, b):
         ra, rb = self.find(a), self.find(b)
         if ra != rb:
@@ -117,4 +126,3 @@ class UnionFind:
                 components[root] = []
             components[root].append(elem)
         return components
-

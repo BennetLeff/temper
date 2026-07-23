@@ -13,7 +13,7 @@ Covers:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -32,8 +32,8 @@ from temper_placer.validation.prereg.schema import (
     StructuralBoundingCase,
 )
 
-
 # ---- helpers ----------------------------------------------------------------
+
 
 def _thermal_record(**overrides):  # type: ignore[no-untyped-def]
     """Minimal well-formed thermal field record dict."""
@@ -104,9 +104,8 @@ def _make_manifest(fields: list[dict]) -> dict:  # type: ignore[type-arg]
 
 def _write_yaml(data: dict) -> Path:  # type: ignore[type-arg]
     """Write a dict to a temp YAML file and return its Path."""
-    tmp = NamedTemporaryFile(suffix=".yaml", mode="w", delete=False)
-    tmp.write(yaml.dump(data))
-    tmp.close()
+    with NamedTemporaryFile(suffix=".yaml", mode="w", delete=False) as tmp:
+        tmp.write(yaml.dump(data))
     return Path(tmp.name)
 
 
@@ -326,7 +325,7 @@ class TestCreatedAtFutureTimestampRejected:
         manifest = _make_manifest([_thermal_record()])
         path = _write_yaml(manifest)
         # Battery run at 2026-07-08; created_at is 2026-07-09 -> future
-        battery_ts = datetime(2026, 7, 8, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 8, tzinfo=UTC)
         try:
             with pytest.raises(ValueError, match="post-dates battery-run"):
                 PreregistrationManifest.load(path, battery_run_timestamp=battery_ts)
@@ -336,7 +335,7 @@ class TestCreatedAtFutureTimestampRejected:
     def test_same_timestamp_accepted(self) -> None:
         manifest = _make_manifest([_thermal_record()])
         path = _write_yaml(manifest)
-        battery_ts = datetime(2026, 7, 9, 0, 0, 0, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 9, 0, 0, 0, tzinfo=UTC)
         try:
             loaded = PreregistrationManifest.load(path, battery_run_timestamp=battery_ts)
             assert loaded.created_at == "2026-07-09T00:00:00Z"
@@ -346,7 +345,7 @@ class TestCreatedAtFutureTimestampRejected:
     def test_past_created_at_accepted(self) -> None:
         manifest = _make_manifest([_thermal_record()])
         path = _write_yaml(manifest)
-        battery_ts = datetime(2026, 7, 10, tzinfo=timezone.utc)
+        battery_ts = datetime(2026, 7, 10, tzinfo=UTC)
         try:
             loaded = PreregistrationManifest.load(path, battery_run_timestamp=battery_ts)
             assert loaded.created_at == "2026-07-09T00:00:00Z"

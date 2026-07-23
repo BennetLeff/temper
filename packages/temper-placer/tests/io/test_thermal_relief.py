@@ -1,4 +1,3 @@
-
 from kiutils.board import Board as KiBoard
 
 from temper_placer.io.zone_manager import PlaneConfig, create_zone
@@ -9,6 +8,7 @@ def test_create_zone_has_thermal_relief():
     board = KiBoard()
     # Add a net to the board
     from kiutils.items.common import Net
+
     net = Net(number=1, name="GND")
     board.nets.append(net)
 
@@ -18,7 +18,7 @@ def test_create_zone_has_thermal_relief():
         priority=1,
         clearance=0.4,
         thermal_gap=0.6,
-        thermal_bridge_width=0.7
+        thermal_bridge_width=0.7,
     )
 
     outline = [(0, 0), (10, 0), (10, 10), (0, 10)]

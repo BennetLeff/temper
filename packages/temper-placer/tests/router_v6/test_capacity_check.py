@@ -79,8 +79,10 @@ def _make_parsed_pcb(
 
         def get_bounds_array(self):
             return [
-                board_origin[0], board_origin[1],
-                board_origin[0] + board_width, board_origin[1] + board_height,
+                board_origin[0],
+                board_origin[1],
+                board_origin[0] + board_width,
+                board_origin[1] + board_height,
             ]
 
     pcb.board_geometry = _MockBoard()
@@ -94,15 +96,20 @@ def _make_stage2_output(pcb: ParsedPCB, board_width=100.0, board_height=100.0):
     available = box(0, 0, board_width, board_height)
     if pcb.components:
         from shapely.ops import unary_union
+
         comp_boxes = []
         for comp in pcb.components:
             if comp.initial_position:
                 cx, cy = comp.initial_position
                 bw, bh = comp.bounds
-                comp_boxes.append(box(
-                    cx - bw / 2, cy - bh / 2,
-                    cx + bw / 2, cy + bh / 2,
-                ))
+                comp_boxes.append(
+                    box(
+                        cx - bw / 2,
+                        cy - bh / 2,
+                        cx + bw / 2,
+                        cy + bh / 2,
+                    )
+                )
         if comp_boxes:
             obstacles = unary_union(comp_boxes)
             fcu_available = available.difference(obstacles)
@@ -118,6 +125,7 @@ def _make_stage2_output(pcb: ParsedPCB, board_width=100.0, board_height=100.0):
 
     if not isinstance(fcu_available, MultiPolygon):
         from shapely.geometry import Polygon
+
         if isinstance(fcu_available, Polygon):
             fcu_available = MultiPolygon([fcu_available])
 
@@ -154,20 +162,32 @@ def _make_component(ref, x, y, net_pins, footprint="SOIC-8", width=10.0, height=
     for i, net_name in enumerate(net_pins):
         px = -width / 2 + 1.0 + (i % 4) * 2.0
         py = -height / 2 + 1.0 + (i // 4) * 6.0
-        pins.append(Pin(
-            name=str(i + 1), number=str(i + 1),
-            position=(px, py), net=net_name,
-            width=1.0, height=1.0, shape="rect", layer="F.Cu",
-        ))
+        pins.append(
+            Pin(
+                name=str(i + 1),
+                number=str(i + 1),
+                position=(px, py),
+                net=net_name,
+                width=1.0,
+                height=1.0,
+                shape="rect",
+                layer="F.Cu",
+            )
+        )
     return Component(
-        ref=ref, footprint=footprint, bounds=(width, height), pins=pins,
-        initial_position=(x, y), initial_rotation=0,
+        ref=ref,
+        footprint=footprint,
+        bounds=(width, height),
+        pins=pins,
+        initial_position=(x, y),
+        initial_rotation=0,
     )
 
 
 # ---------------------------------------------------------------------------
 # Correctness proof: Base case — empty board
 # ---------------------------------------------------------------------------
+
 
 @given(
     width=st.floats(min_value=40, max_value=80),
@@ -196,6 +216,7 @@ def test_empty_board_infinite_capacity(width, height):
 # Correctness proof: Monotonicity
 # ---------------------------------------------------------------------------
 
+
 @given(
     board_size=st.floats(min_value=50, max_value=80),
     offset=st.floats(min_value=2.0, max_value=15.0),
@@ -218,8 +239,12 @@ def test_capacity_monotonicity(board_size, offset):
     # Now add a blocking component between them
     obs_pcb = _make_parsed_pcb(board_width=board_size, board_height=board_size)
     c3 = _make_component(
-        "C3", board_size / 2, board_size / 2, ["N99"],
-        width=offset * 2, height=board_size * 0.6,
+        "C3",
+        board_size / 2,
+        board_size / 2,
+        ["N99"],
+        width=offset * 2,
+        height=board_size * 0.6,
     )
     obs_pcb.components = [c1, c2, c3]
     obs_pcb.nets = [net]
@@ -236,6 +261,7 @@ def test_capacity_monotonicity(board_size, offset):
 # ---------------------------------------------------------------------------
 # Correctness proof: Induction — demand recovery
 # ---------------------------------------------------------------------------
+
 
 @given(
     board_size=st.floats(min_value=50, max_value=80),
@@ -265,6 +291,7 @@ def test_capacity_exceeds_single_trace_demand(board_size):
 # PBT: Ratio scales correctly with demand
 # ---------------------------------------------------------------------------
 
+
 @given(
     board_size=st.floats(min_value=50, max_value=80),
     trace_width=st.floats(min_value=0.1, max_value=0.5),
@@ -273,7 +300,9 @@ def test_capacity_exceeds_single_trace_demand(board_size):
 @settings(max_examples=20, deadline=None)
 def test_ratio_inversely_proportional_to_trace_width(board_size, trace_width, separation):
     """Doubling the trace width halves the capacity-demand ratio."""
-    pcb1 = _make_parsed_pcb(board_width=board_size, board_height=board_size, trace_width=trace_width)
+    pcb1 = _make_parsed_pcb(
+        board_width=board_size, board_height=board_size, trace_width=trace_width
+    )
     c1 = _make_component("C1", board_size / 2 - separation / 2, board_size / 2, ["N1", "N1"])
     c2 = _make_component("C2", board_size / 2 + separation / 2, board_size / 2, ["N1", "N1"])
     net = Net(name="N1", pins=[("C1", "1"), ("C2", "1")])
@@ -282,7 +311,9 @@ def test_ratio_inversely_proportional_to_trace_width(board_size, trace_width, se
     stage2 = _make_stage2_output(pcb1, board_width=board_size, board_height=board_size)
     ratio1 = compute_capacity_demand_ratios(stage2, pcb1)["N1"]
 
-    pcb2 = _make_parsed_pcb(board_width=board_size, board_height=board_size, trace_width=trace_width * 2)
+    pcb2 = _make_parsed_pcb(
+        board_width=board_size, board_height=board_size, trace_width=trace_width * 2
+    )
     pcb2.components = [c1, c2]
     pcb2.nets = [net]
     stage2_2 = _make_stage2_output(pcb2, board_width=board_size, board_height=board_size)
@@ -297,6 +328,7 @@ def test_ratio_inversely_proportional_to_trace_width(board_size, trace_width, se
 # ---------------------------------------------------------------------------
 # PBT: _sum_capacity_in_bbox correct on known test data
 # ---------------------------------------------------------------------------
+
 
 @given(
     side=st.integers(min_value=10, max_value=100),
@@ -337,6 +369,7 @@ def test_bbox_capacity_empty_mask_returns_zero():
 # ---------------------------------------------------------------------------
 # Benchmark: temper.kicad_pcb capacity-demand vs. routing outcomes
 # ---------------------------------------------------------------------------
+
 
 def test_temper_kicad_pcb_capacity_demand_benchmark():
     """Log capacity-demand ratios for all nets on temper.kicad_pcb
@@ -395,11 +428,14 @@ def test_temper_kicad_pcb_capacity_demand_benchmark():
     print(f"Total nets evaluated: {len(ratios)}")
     print(f"At-risk (ratio < 1.0): {len(report.at_risk_nets)} {report.at_risk_nets}")
     print(f"Advised (1.0 <= ratio < 2.0): {len([n for n, r in ratios.items() if 1.0 <= r < 2.0])}")
-    print(f"Safe (ratio >= 2.0): {len([n for n, r in ratios.items() if r >= 2.0 and r != float('inf')])}")
+    print(
+        f"Safe (ratio >= 2.0): {len([n for n, r in ratios.items() if r >= 2.0 and r != float('inf')])}"
+    )
 
     metrics_path = Path(__file__).resolve().parents[4] / "pcb" / "temper_router_v6_metrics.json"
     if metrics_path.exists():
         import json
+
         with open(metrics_path) as f:
             metrics = json.load(f)
         print(f"\nReference routing data (from {metrics_path.name}):")
@@ -411,6 +447,7 @@ def test_temper_kicad_pcb_capacity_demand_benchmark():
 # ---------------------------------------------------------------------------
 # CapacityDemandReport tests
 # ---------------------------------------------------------------------------
+
 
 def test_capacity_demand_report_classification():
     """build_capacity_demand_report correctly partitions nets."""
@@ -442,11 +479,17 @@ def test_compute_capacity_demand_ratios_empty():
 def test_compute_capacity_demand_ratios_no_routing_spaces():
     """When routing_spaces is None, returns empty dict."""
     from temper_placer.router_v6.pipeline import Stage2Output
+
     pcb = _make_parsed_pcb()
     stage2 = Stage2Output(
-        obstacle_maps={}, routing_spaces=None, skeletons={},
-        channel_widths={}, occupancy_grids={}, layer_capacities={},
-        routing_demand=None, bottleneck_analysis=None,
+        obstacle_maps={},
+        routing_spaces=None,
+        skeletons={},
+        channel_widths={},
+        occupancy_grids={},
+        layer_capacities={},
+        routing_demand=None,
+        bottleneck_analysis=None,
     )
     ratios = compute_capacity_demand_ratios(stage2, pcb)
     assert ratios == {}

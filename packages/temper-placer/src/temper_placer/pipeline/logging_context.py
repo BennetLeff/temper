@@ -15,8 +15,8 @@ from typing import Any
 # @req(2026-06-28-011-feat-pipeline-observability, R4): Structured logging
 # context bound via contextvars so that log lines from any stack depth
 # inherit {board, git_commit, stage, run_id} during a run.
-_RUN_METADATA_CTX: contextvars.ContextVar[dict[str, Any] | None] = (
-    contextvars.ContextVar("temper_run_metadata", default=None)
+_RUN_METADATA_CTX: contextvars.ContextVar[dict[str, Any] | None] = contextvars.ContextVar(
+    "temper_run_metadata", default=None
 )
 _METADATA_FIELDS = ("board", "git_commit", "stage", "run_id")
 

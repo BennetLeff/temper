@@ -64,6 +64,7 @@ class TestGateStage:
 # ViolationType
 # ---------------------------------------------------------------------------
 
+
 class TestViolationType:
     def test_has_contract_types(self):
         required = {
@@ -172,9 +173,7 @@ class TestGateResult:
 
     def test_clean_and_unmeasured_not_equal(self):
         clean = GateResult(GateStatus.CLEAN)
-        unmeasured = GateResult(
-            GateStatus.UNMEASURED, error_message="tool crashed"
-        )
+        unmeasured = GateResult(GateStatus.UNMEASURED, error_message="tool crashed")
         assert clean.status is not unmeasured.status
         assert clean != unmeasured
 
@@ -207,9 +206,7 @@ class TestIsGreenPredicate:
         assert is_green(GateResult(GateStatus.VIOLATIONS, violations=(v,))) is False
 
     def test_unmeasured_is_not_green(self):
-        assert is_green(
-            GateResult(GateStatus.UNMEASURED, error_message="tool crash")
-        ) is False
+        assert is_green(GateResult(GateStatus.UNMEASURED, error_message="tool crash")) is False
 
     def test_empty_violations_but_unmeasured_is_not_green(self):
         """Architectural heart: UNMEASURED with no violations is NOT CLEAN."""

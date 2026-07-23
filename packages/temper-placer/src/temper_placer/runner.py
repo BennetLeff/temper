@@ -48,10 +48,7 @@ class StrategyExhaustedError(Exception):
         attempted_strategies: list[str],
         failure_chain: list[tuple[str, Exception]],
     ) -> None:
-        msg = (
-            f"All strategies exhausted for phase='{phase}': "
-            f"{attempted_strategies}"
-        )
+        msg = f"All strategies exhausted for phase='{phase}': {attempted_strategies}"
         super().__init__(msg)
         self.phase = phase
         self.attempted_strategies = attempted_strategies
@@ -137,9 +134,7 @@ class PipelineRunner:
             _check_output_contract(stage, out)
 
             out.contract_satisfied = (
-                True
-                if hasattr(stage, "contract") and stage.contract is not None
-                else None
+                True if hasattr(stage, "contract") and stage.contract is not None else None
             )
             self._trace.append((stage.name, dt, out.contract_satisfied))
             inp = out

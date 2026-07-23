@@ -14,8 +14,10 @@ from temper_placer.placer.cp_sat.model import CpSatModel
 class TestEncoderContextU1:
     def test_stores_courtyard_and_margin_fields(self):
         ctx = EncoderContext(
-            board_w_mm=100.0, board_h_mm=100.0,
-            board_x_max_units=10000, board_y_max_units=10000,
+            board_w_mm=100.0,
+            board_h_mm=100.0,
+            board_x_max_units=10000,
+            board_y_max_units=10000,
             courtyard_clearance_mm=0.2,
             board_edge_margin_units=50,
         )
@@ -24,8 +26,10 @@ class TestEncoderContextU1:
 
     def test_defaults_to_zero(self):
         ctx = EncoderContext(
-            board_w_mm=100.0, board_h_mm=100.0,
-            board_x_max_units=10000, board_y_max_units=10000,
+            board_w_mm=100.0,
+            board_h_mm=100.0,
+            board_x_max_units=10000,
+            board_y_max_units=10000,
         )
         assert ctx.courtyard_clearance_mm == 0.0
         assert ctx.board_edge_margin_units == 0
@@ -71,7 +75,10 @@ class TestGenerateCourtyardConstraintsU2:
         # Existing 6mm SEPARATED dominates tau=0.2
         existing = [
             SeparatedConstraint(
-                "A", "B", min_distance_mm=6.0, tier=ConstraintTier.HARD,
+                "A",
+                "B",
+                min_distance_mm=6.0,
+                tier=ConstraintTier.HARD,
                 because="Cross-class isolation requirement at 6.0mm clearance",
                 id="netclass_foo",
             ),
@@ -87,7 +94,10 @@ class TestGenerateCourtyardConstraintsU2:
         # (A,B) has 6mm SEPARATED, (A,C) and (B,C) still get tau
         existing = [
             SeparatedConstraint(
-                "A", "B", min_distance_mm=6.0, tier=ConstraintTier.HARD,
+                "A",
+                "B",
+                min_distance_mm=6.0,
+                tier=ConstraintTier.HARD,
                 because="Cross-class isolation requirement at 6.0mm clearance",
                 id="netclass_ab",
             ),
@@ -106,11 +116,13 @@ class TestGenerateCourtyardConstraintsU2:
         model.add_rotation("B", is_polarized=True)
         model.set_bounds(0, 0, 2000, 2000)
         ctx = EncoderContext(
-            board_w_mm=20.0, board_h_mm=20.0,
-            board_x_max_units=2000, board_y_max_units=2000,
+            board_w_mm=20.0,
+            board_h_mm=20.0,
+            board_x_max_units=2000,
+            board_y_max_units=2000,
             courtyard_clearance_mm=0.0,
         )
-        assumptions = encode_constraints([], model, ctx)
+        encode_constraints([], model, ctx)
         sol = model.solve(time_limit_s=1.0)
         assert sol.feasible
 
@@ -118,8 +130,9 @@ class TestGenerateCourtyardConstraintsU2:
 class TestCourtyardClearanceIntegrationU1U2:
     """Two-component tests verifying C1 and C2 together."""
 
-    def _build_two_comp_model(self, w_mm=2.0, h_mm=2.0, board_w_mm=20.0, board_h_mm=20.0,
-                               tau_mm=0.2, margin_mm=0.0):
+    def _build_two_comp_model(
+        self, w_mm=2.0, h_mm=2.0, board_w_mm=20.0, board_h_mm=20.0, tau_mm=0.2, margin_mm=0.0
+    ):
         model = CpSatModel(units_per_mm=100)
         model.add_component("A", 0, 0, model.mm_to_units(w_mm), model.mm_to_units(h_mm))
         model.add_component("B", 0, 0, model.mm_to_units(w_mm), model.mm_to_units(h_mm))
@@ -137,13 +150,18 @@ class TestCourtyardClearanceIntegrationU1U2:
         model = self._build_two_comp_model(w_mm=2.0, h_mm=2.0, tau_mm=tau_mm)
 
         c = SeparatedConstraint(
-            "A", "B", min_distance_mm=tau_mm, tier=ConstraintTier.HARD,
+            "A",
+            "B",
+            min_distance_mm=tau_mm,
+            tier=ConstraintTier.HARD,
             because="Courtyard clearance to prevent shorting and mask bridging errors",
             id="courtyard_A_B",
         )
         ctx = EncoderContext(
-            board_w_mm=20.0, board_h_mm=20.0,
-            board_x_max_units=2000, board_y_max_units=2000,
+            board_w_mm=20.0,
+            board_h_mm=20.0,
+            board_x_max_units=2000,
+            board_y_max_units=2000,
             courtyard_clearance_mm=tau_mm,
         )
         encode_constraints([c], model, ctx)
@@ -237,8 +255,10 @@ class TestUnsatSurfacingU4:
         model.add_no_overlap_2d(["A", "B"])
 
         ctx = EncoderContext(
-            board_w_mm=7.0, board_h_mm=7.0,
-            board_x_max_units=700, board_y_max_units=700,
+            board_w_mm=7.0,
+            board_h_mm=7.0,
+            board_x_max_units=700,
+            board_y_max_units=700,
             courtyard_clearance_mm=5.0,
         )
         encode_constraints([], model, ctx)

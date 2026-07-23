@@ -88,9 +88,7 @@ def _make_via(
         pytest.param(0.8, 0.4, 0.2, id="pad0_8_drill0_4"),
     ],
 )
-def test_ring_width_formula_concrete(
-    diameter: float, drill: float, expected_ring: float
-) -> None:
+def test_ring_width_formula_concrete(diameter: float, drill: float, expected_ring: float) -> None:
     """Concrete vias: ``actual_ring_width`` matches ``(D - d) / 2`` exactly.
 
     Verifies the ring-width formula from R6 using specific known
@@ -108,8 +106,7 @@ def test_ring_width_formula_concrete(
         actual = (diameter - drill) / 2.0
 
     assert actual == pytest.approx(expected_ring, abs=1e-9), (
-        f"Ring width: expected {expected_ring}, got {actual} "
-        f"(diameter={diameter}, drill={drill})"
+        f"Ring width: expected {expected_ring}, got {actual} (diameter={diameter}, drill={drill})"
     )
 
 
@@ -149,20 +146,21 @@ def test_microvia_uses_microvia_threshold_concrete() -> None:
     This proves the microvia threshold overrides the layer-based one.
     """
     via = _make_via(
-        diameter=0.36, drill=0.3,  # ring = 0.03
+        diameter=0.36,
+        drill=0.3,  # ring = 0.03
         from_layer="F.Cu",
         to_layer="B.Cu",
         via_type="microvia",
     )
     result = _check_via(via, _NET_NAME, _MIN_RING, _MICROVIA_RING)
-    assert result is None, (
-        "Microvia with ring=0.03 should PASS at microvia threshold 0.025"
-    )
+    assert result is None, "Microvia with ring=0.03 should PASS at microvia threshold 0.025"
 
     # Same via WITHOUT microvia type → should fail (external threshold 0.05)
     via_no_type = _make_via(
-        diameter=0.36, drill=0.3,
-        from_layer="F.Cu", to_layer="B.Cu",
+        diameter=0.36,
+        drill=0.3,
+        from_layer="F.Cu",
+        to_layer="B.Cu",
         via_type=None,
     )
     result_no_type = _check_via(via_no_type, _NET_NAME, _MIN_RING, _MICROVIA_RING)
@@ -176,7 +174,8 @@ def test_microvia_violation_reports_microvia_threshold() -> None:
     microvia threshold, not the layer-based threshold.
     """
     via = _make_via(
-        diameter=0.34, drill=0.3,  # ring = 0.02
+        diameter=0.34,
+        drill=0.3,  # ring = 0.02
         from_layer="F.Cu",
         to_layer="B.Cu",
         via_type="microvia",
@@ -184,8 +183,7 @@ def test_microvia_violation_reports_microvia_threshold() -> None:
     result = _check_via(via, _NET_NAME, _MIN_RING, _MICROVIA_RING)
     assert isinstance(result, AnnularRingViolation)
     assert result.minimum_required == _MICROVIA_RING, (
-        f"Expected microvia threshold {_MICROVIA_RING}, "
-        f"got {result.minimum_required}"
+        f"Expected microvia threshold {_MICROVIA_RING}, got {result.minimum_required}"
     )
 
 
@@ -251,9 +249,9 @@ def test_external_pass_implies_internal_pass(via: Via) -> None:
         result_int = _check_via(via_int, _NET_NAME, _MIN_RING, _MICROVIA_RING)
         assert result_int is None, (
             f"Via passed external ({_MIN_RING} threshold) but failed internal "
-            f"(0.5*{_MIN_RING}={_MIN_RING*0.5} threshold): "
+            f"(0.5*{_MIN_RING}={_MIN_RING * 0.5} threshold): "
             f"diameter={via.diameter}, drill={via.drill}, "
-            f"ring={(via.diameter-via.drill)/2.0}"
+            f"ring={(via.diameter - via.drill) / 2.0}"
         )
 
 
@@ -265,10 +263,8 @@ def test_internal_vs_external_same_ring_width() -> None:
     """
     dia, drill = 0.6, 0.3  # ring = 0.15
 
-    via_ext = _make_via(diameter=dia, drill=drill,
-                        from_layer="F.Cu", to_layer="B.Cu")
-    via_int = _make_via(diameter=dia, drill=drill,
-                        from_layer="In1.Cu", to_layer="In2.Cu")
+    via_ext = _make_via(diameter=dia, drill=drill, from_layer="F.Cu", to_layer="B.Cu")
+    via_int = _make_via(diameter=dia, drill=drill, from_layer="In1.Cu", to_layer="In2.Cu")
 
     result_ext = _check_via(via_ext, _NET_NAME, _MIN_RING, _MICROVIA_RING)
     result_int = _check_via(via_int, _NET_NAME, _MIN_RING, _MICROVIA_RING)
@@ -286,15 +282,19 @@ def test_internal_only_via_fails_external() -> None:
     - External threshold = 0.05  → 0.03 ≤ 0.05 → violation
     """
     via_int = _make_via(
-        diameter=0.36, drill=0.3,  # ring = 0.03
-        from_layer="In1.Cu", to_layer="In2.Cu",
+        diameter=0.36,
+        drill=0.3,  # ring = 0.03
+        from_layer="In1.Cu",
+        to_layer="In2.Cu",
     )
     result_int = _check_via(via_int, _NET_NAME, _MIN_RING, _MICROVIA_RING)
     assert result_int is None, "ring=0.03 should pass internal threshold 0.025"
 
     via_ext = _make_via(
-        diameter=0.36, drill=0.3,
-        from_layer="F.Cu", to_layer="B.Cu",
+        diameter=0.36,
+        drill=0.3,
+        from_layer="F.Cu",
+        to_layer="B.Cu",
     )
     result_ext = _check_via(via_ext, _NET_NAME, _MIN_RING, _MICROVIA_RING)
     assert isinstance(result_ext, AnnularRingViolation), (

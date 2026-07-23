@@ -103,6 +103,7 @@ pub fn model_from_python(
 }
 
 /// Bridge Python BundleManifest dict to Rust InternalBundleManifest.
+#[allow(dead_code)]
 pub fn bridge_bundle_manifest(
     py_dict: &Bound<'_, PyDict>,
 ) -> PyResult<InternalBundleManifest> {

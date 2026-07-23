@@ -175,7 +175,9 @@ def test_edt_matches_shapely_on_temper():
         for x in xs:
             for y in ys:
                 edt_w = _edt_width_lookup(float(x), float(y), edt, mask, bounds, cell_size)
-                shapely_w = _compute_width_at_point((float(x), float(y)), routing_space.available_area)
+                shapely_w = _compute_width_at_point(
+                    (float(x), float(y)), routing_space.available_area
+                )
                 err = abs(edt_w - shapely_w)
                 assert err <= max_err, (
                     f"{layer_name} ({x:.1f},{y:.1f}): EDT={edt_w:.3f} Shapely={shapely_w:.3f} err={err:.3f}"

@@ -50,9 +50,7 @@ def compute_source_fingerprint(repo_root: Path) -> str:
         if not src_dir.is_dir():
             continue
         for py_file in sorted(src_dir.rglob("*.py")):
-            file_hashes.append(
-                f"{py_file.relative_to(repo_root)}:{_hash_file(py_file)}"
-            )
+            file_hashes.append(f"{py_file.relative_to(repo_root)}:{_hash_file(py_file)}")
     return hashlib.sha256("\n".join(file_hashes).encode()).hexdigest()
 
 

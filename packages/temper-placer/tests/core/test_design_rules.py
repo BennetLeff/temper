@@ -1,6 +1,5 @@
 """Tests for design rules module."""
 
-
 from temper_placer.core.design_rules import (
     SAFETY_CONSTANT_AUTHORITY,
     SAFETY_CONSTANT_AUTHORITY_FIELDS,
@@ -132,8 +131,15 @@ class TestTemperNetClasses:
     def test_all_expected_classes_defined(self):
         """Test that all 9 expected net classes are defined."""
         expected = [
-            "ACMains", "HighVoltage", "FinePitch", "Power", "GateDrive",
-            "GND", "HighSpeed", "Signal", "HighCurrent",
+            "ACMains",
+            "HighVoltage",
+            "FinePitch",
+            "Power",
+            "GateDrive",
+            "GND",
+            "HighSpeed",
+            "Signal",
+            "HighCurrent",
         ]
         for name in expected:
             assert name in TEMPER_NET_CLASSES
@@ -188,7 +194,6 @@ class TestCreateTemperDesignRules:
         assert critical.trace_width == 0.5
 
 
-
 class TestSafetyConstantAuthority:
     """Tests for SAFETY_CONSTANT_AUTHORITY (U1 - SSOT authority record)."""
 
@@ -211,6 +216,7 @@ class TestSafetyConstantAuthority:
         from temper_placer.core.design_rules import (
             TEMPER_NET_CLASSES,
         )
+
         old = TEMPER_NET_CLASSES["ACMains"].clearance
         try:
             object.__setattr__(TEMPER_NET_CLASSES["ACMains"], "clearance", 6.5)

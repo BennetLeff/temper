@@ -44,9 +44,7 @@ _BOARD_AREA = BOARD_W * BOARD_H  # 200.0 × 150.0 = 30 000 mm²
 @_SETTINGS
 def test_layer_count_invariant_holds(results: RoutingResults) -> None:
     """``balanced + unbalanced == len(layer_balances)`` for every fuzzed input."""
-    report = analyze_copper_balance(
-        results, board_width=BOARD_W, board_height=BOARD_H
-    )
+    report = analyze_copper_balance(results, board_width=BOARD_W, board_height=BOARD_H)
 
     total = report.balanced_layer_count + report.unbalanced_layer_count
     expected = len(report.layer_balances)
@@ -86,9 +84,7 @@ def test_per_layer_area_does_not_exceed_board_area(results: RoutingResults) -> N
        the same layer are double-counted, which can push the aggregate
        beyond the physical board area.
     """
-    report = analyze_copper_balance(
-        results, board_width=BOARD_W, board_height=BOARD_H
-    )
+    report = analyze_copper_balance(results, board_width=BOARD_W, board_height=BOARD_H)
 
     for lb in report.layer_balances:
         assert lb.copper_area_mm2 <= _BOARD_AREA, (
@@ -106,14 +102,11 @@ def test_per_layer_area_does_not_exceed_board_area(results: RoutingResults) -> N
 @_SETTINGS
 def test_per_layer_area_is_non_negative(results: RoutingResults) -> None:
     """Every per-layer copper area is ≥ 0.0."""
-    report = analyze_copper_balance(
-        results, board_width=BOARD_W, board_height=BOARD_H
-    )
+    report = analyze_copper_balance(results, board_width=BOARD_W, board_height=BOARD_H)
 
     for lb in report.layer_balances:
         assert lb.copper_area_mm2 >= 0.0, (
-            f"Layer {lb.layer_name} copper area {lb.copper_area_mm2} mm² "
-            f"is negative"
+            f"Layer {lb.layer_name} copper area {lb.copper_area_mm2} mm² is negative"
         )
 
 
@@ -127,9 +120,7 @@ def test_empty_input_all_layers_unbalanced_areas_zero() -> None:
     and the layer count invariant still holds.
     """
     empty = RoutingResults(compiled_routes={}, failed_nets=[])
-    report = analyze_copper_balance(
-        empty, board_width=BOARD_W, board_height=BOARD_H
-    )
+    report = analyze_copper_balance(empty, board_width=BOARD_W, board_height=BOARD_H)
 
     # 4 canonical layers
     assert len(report.layer_balances) == 4
@@ -147,7 +138,4 @@ def test_empty_input_all_layers_unbalanced_areas_zero() -> None:
     assert report.unbalanced_layer_count == 4
 
     # R16 invariant
-    assert (
-        report.balanced_layer_count + report.unbalanced_layer_count
-        == len(report.layer_balances)
-    )
+    assert report.balanced_layer_count + report.unbalanced_layer_count == len(report.layer_balances)

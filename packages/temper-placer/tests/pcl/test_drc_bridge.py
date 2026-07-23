@@ -1,6 +1,5 @@
 """TS1: Unit tests for PCL->DRC assertion bridge."""
 
-
 from temper_placer.core.netlist import Component, Net, Netlist
 from temper_placer.pcl.constraints import (
     AdjacentConstraint,
@@ -60,7 +59,8 @@ class TestAdjacentToDRC:
     def test_basic(self):
         netlist = _make_netlist(["Q1", "Q2"])
         c = AdjacentConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             max_distance_mm=10.0,
             tier=ConstraintTier.HARD,
             because="Test adjacent constraint for DRC assertion",
@@ -74,11 +74,13 @@ class TestAdjacentToDRC:
     def test_with_pins(self):
         netlist = _make_netlist(["Q1", "Q2"])
         c = AdjacentConstraint(
-            a="Q1", b="Q2",
+            a="Q1",
+            b="Q2",
             max_distance_mm=5.0,
             tier=ConstraintTier.HARD,
             because="Test pin-specific adjacent for DRC",
-            pin_a="1", pin_b="2",
+            pin_a="1",
+            pin_b="2",
         )
         results = _adjacent_to_drc(c, _make_context(netlist))
         assert len(results) == 1
@@ -89,7 +91,8 @@ class TestSeparatedToDRC:
     def test_basic(self):
         netlist = _make_netlist(["HV", "LV"])
         c = SeparatedConstraint(
-            a="HV_ZONE", b="LV_ZONE",
+            a="HV_ZONE",
+            b="LV_ZONE",
             min_distance_mm=6.0,
             tier=ConstraintTier.HARD,
             because="IEC 60335-1 safety isolation for DRC",
@@ -207,20 +210,51 @@ class TestSourceTraceability:
         netlist = _make_netlist(["Q1", "Q2", "R1", "R2", "D1", "J1", "U1"])
 
         constraints = [
-            AdjacentConstraint(a="Q1", b="Q2", max_distance_mm=10.0,
-                               tier=ConstraintTier.HARD, because="Test source ID for adj"),
-            SeparatedConstraint(a="Q1", b="Q2", min_distance_mm=6.0,
-                                tier=ConstraintTier.HARD, because="Test source ID for sep"),
-            EnclosingConstraint(outer="ZONE", inner=["D1"],
-                                tier=ConstraintTier.HARD, because="Test source ID for enc"),
-            AlignedConstraint(components=["R1", "R2"], axis=Axis.X,
-                              tier=ConstraintTier.SOFT, because="Test source ID for align"),
-            OnSideConstraint(components=["J1"], side=BoardSide.TOP, edge=EdgeType.FLUSH,
-                             tier=ConstraintTier.HARD, because="Test source ID for side"),
-            AnchoredConstraint(component="U1", position=(50, 30),
-                               tier=ConstraintTier.HARD, because="Test source ID for anchor"),
-            LoopAreaConstraint(loop_name="commutation", max_area_mm2=100.0,
-                               tier=ConstraintTier.STRONG, because="Test source ID for loop"),
+            AdjacentConstraint(
+                a="Q1",
+                b="Q2",
+                max_distance_mm=10.0,
+                tier=ConstraintTier.HARD,
+                because="Test source ID for adj",
+            ),
+            SeparatedConstraint(
+                a="Q1",
+                b="Q2",
+                min_distance_mm=6.0,
+                tier=ConstraintTier.HARD,
+                because="Test source ID for sep",
+            ),
+            EnclosingConstraint(
+                outer="ZONE",
+                inner=["D1"],
+                tier=ConstraintTier.HARD,
+                because="Test source ID for enc",
+            ),
+            AlignedConstraint(
+                components=["R1", "R2"],
+                axis=Axis.X,
+                tier=ConstraintTier.SOFT,
+                because="Test source ID for align",
+            ),
+            OnSideConstraint(
+                components=["J1"],
+                side=BoardSide.TOP,
+                edge=EdgeType.FLUSH,
+                tier=ConstraintTier.HARD,
+                because="Test source ID for side",
+            ),
+            AnchoredConstraint(
+                component="U1",
+                position=(50, 30),
+                tier=ConstraintTier.HARD,
+                because="Test source ID for anchor",
+            ),
+            LoopAreaConstraint(
+                loop_name="commutation",
+                max_area_mm2=100.0,
+                tier=ConstraintTier.STRONG,
+                because="Test source ID for loop",
+            ),
         ]
 
         for c in constraints:
@@ -228,4 +262,6 @@ class TestSourceTraceability:
             assert len(results) > 0, f"No assertions for {c.constraint_type}"
             for r in results:
                 assert r.source_id == c.id, f"source_id mismatch for {c.constraint_type}"
-                assert r.source_because == c.because, f"source_because mismatch for {c.constraint_type}"
+                assert r.source_because == c.because, (
+                    f"source_because mismatch for {c.constraint_type}"
+                )

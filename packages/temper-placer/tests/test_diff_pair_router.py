@@ -5,7 +5,6 @@ Tests core functions without requiring full JAX stack.
 """
 
 
-
 # Standalone implementations for testing
 def test_diff_pair_state_hashing():
     """Test that DiffPairState hashes correctly for use in sets/dicts."""
