@@ -10,9 +10,14 @@ jobs:
   perf-check:
     name: PR Performance Comparison
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
     timeout-minutes: 20
     permissions:
       pull-requests: write
+    env:
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
     steps:
       - uses: actions/checkout@v7
         with:
@@ -24,17 +29,19 @@ jobs:
           version: "latest"
           enable-cache: true
 
-      - name: Set up Python
-        run: uv python install 3.12
-
       - name: Cache virtualenv
         uses: actions/cache@v4
+        id: cache-venv
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
 
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
       - name: Install dependencies
-        run: time uv sync --all-packages
+        run: uv sync --all-packages
 
       - name: Profile PR branch
         id: profile

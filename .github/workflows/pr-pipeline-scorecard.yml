@@ -25,7 +25,7 @@ jobs:
           if [ -n "$RUN_ID" ]; then
             gh run download "$RUN_ID" --name baseline-metrics --dir baseline-metrics 2>/dev/null || true
           fi
-        continue-on-error: true  # TODO: temper-NNN -- optional baseline download; hard-fail after 2026-09-01
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Check metrics exist
@@ -46,97 +46,73 @@ jobs:
           path: baseline-metrics/pipeline_metrics.jsonl
           retention-days: 1
 
-  current:
-    name: Current (PR head)
+  scorecard:
+    name: Pipeline Scorecard
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    container:
+      image: ghcr.io/bennetleff/temper-ci:latest
+      options: --user root
+    timeout-minutes: 20
+    needs: baseline
+    if: always() && needs.baseline.result != 'skipped'
+    permissions:
+      pull-requests: write
+    env:
+      XLA_PYTHON_CLIENT_MEM_FRACTION: 0.35
+      JAX_PLATFORM_NAME: cpu
+      VIRTUAL_ENV: ${{ github.workspace }}/.venv
     steps:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
           enable-cache: true
-      - name: Set up Python
-        run: uv python install 3.12
+
       - name: Cache virtualenv
         uses: actions/cache@v4
+        id: cache-venv
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
+
       - name: Install dependencies
         run: uv sync --all-packages
+
       - name: Cache netlist
         uses: actions/cache@v4
         with:
           path: elec/build
           key: netlist-${{ hashFiles('elec/src/**') }}
+
       - name: Build electronics netlist
         run: make netlist
+
       - name: Run closure test on PR head
-        continue-on-error: true  # TODO: temper-NNN -- scorecard best-effort; hard-fail after 2026-09-01
-        run: >
-          uv run python3 scripts/ci_closure_test.py
-          --pcb pcb/temper.kicad_pcb
-          --require-all-stages
-          --metrics-dir ./current-metrics
-          || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
-      - name: Upload current metrics
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: current-metrics
-          path: current-metrics/pipeline_metrics.jsonl
-          retention-days: 1
-
-  scorecard:
-    name: Generate Scorecard
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [baseline, current]
-    if: always() && needs.baseline.result != 'skipped'
-    permissions:
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - uses: astral-sh/setup-uv@v4
-        with:
-          version: "latest"
-          enable-cache: true
-
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Cache virtualenv
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
-
-      - name: Install dependencies
-        run: uv sync --all-packages
+        continue-on-error: true
+        run: |
+          uv run python3 scripts/ci_closure_test.py \
+            --pcb pcb/temper.kicad_pcb \
+            --require-all-stages \
+            --metrics-dir ./current-metrics \
+            || echo "CLOSURE_EXIT=$?" >> "$GITHUB_ENV"
 
       - name: Download baseline metrics
         uses: actions/download-artifact@v8
         with:
           name: baseline-metrics
           path: baseline-metrics
-        continue-on-error: true  # TODO: temper-NNN -- optional artifact; hard-fail after 2026-09-01
+        continue-on-error: true
 
-      - name: Download current metrics
-        uses: actions/download-artifact@v8
-        with:
-          name: current-metrics
-          path: current-metrics
-        continue-on-error: true  # TODO: temper-NNN -- optional artifact; hard-fail after 2026-09-01
-
-      - name: Generate scorecard
-        id: scorecard
+      - name: Generate and post scorecard
         run: |
           MISSING=false
           if [ ! -f baseline-metrics/pipeline_metrics.jsonl ]; then
