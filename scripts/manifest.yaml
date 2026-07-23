@@ -15,6 +15,18 @@ scripts:
       - sys
     - sys
     - pcbnew
+- path: literal_removal_check.py
+  purpose: "Advisory check: flags literals removed by a diff that are still referenced elsewhere in the repo"
+  owner: unassigned
+  last_run: "2026-07-20"
+  category: keep
+  disposition: utility
+  imports:
+    - argparse
+    - re
+    - subprocess
+    - sys
+    - pathlib
 - path: bench_coarse_to_fine.py
   purpose: "A/B benchmark: compare baseline vs coarse-to-fine corridor routing on temper.kicad_pcb"
   owner: router-v6-closure-rate

@@ -14,7 +14,17 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+  - repo: local
+    hooks:
+      - id: literal-removal-check
+        name: literal-removal-check (advisory)
+        description: Flags removed literals still referenced elsewhere in the repo. Never blocks a commit.
+        entry: python3 scripts/literal_removal_check.py
+        language: system
+        pass_filenames: false
+        always_run: true
 
 ci:
   autofix_commit_msg: "chore: pre-commit auto-fixes"
   autoupdate_commit_msg: "chore: pre-commit autoupdate"
+  skip: [literal-removal-check]
