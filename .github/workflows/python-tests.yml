@@ -126,7 +126,7 @@ jobs:
             ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
-        run: cd packages/temper-rust-router && uv run maturin develop --release && cd ../..
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
 
       - name: Verify Rust module loads
         run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
@@ -142,7 +142,7 @@ jobs:
             ${{ runner.os }}-drc-rs-
 
       - name: Build and install temper-drc-rs
-        run: cd packages/temper-drc-rs && uv run maturin develop --release && cd ../..
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
 
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
@@ -159,9 +159,8 @@ jobs:
 
       - name: Build and install temper-constraints
         run: >
-          uv run
-          --directory packages/temper-placer/temper-constraints
-          maturin develop --release
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
 
@@ -268,7 +267,7 @@ jobs:
             ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
-        run: cd packages/temper-rust-router && uv run maturin develop --release && cd ../..
+        run: uv run maturin develop --release --manifest-path packages/temper-rust-router/Cargo.toml
 
       - name: Cache Rust build (temper-drc-rs)
         uses: actions/cache@v4
@@ -279,7 +278,7 @@ jobs:
             ${{ runner.os }}-drc-rs-
 
       - name: Build and install temper-drc-rs
-        run: cd packages/temper-drc-rs && uv run maturin develop --release && cd ../..
+        run: uv run maturin develop --release --manifest-path packages/temper-drc-rs/Cargo.toml
 
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
@@ -296,9 +295,8 @@ jobs:
 
       - name: Build and install temper-constraints
         run: >
-          uv run
-          --directory packages/temper-placer/temper-constraints
-          maturin develop --release
+          uv run maturin develop --release
+          --manifest-path packages/temper-placer/temper-constraints/Cargo.toml
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
 
