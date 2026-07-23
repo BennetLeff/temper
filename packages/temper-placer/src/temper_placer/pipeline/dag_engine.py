@@ -284,7 +284,8 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
 
         return context
 
-    def _evaluate_skip(self, expr_src: str, config: Any, state: Any, context: dict[str, Any]) -> bool:
+    # self unused — called via instance but only uses parameters
+    def _evaluate_skip(_self, expr_src: str, config: Any, state: Any, context: dict[str, Any]) -> bool:
         from temper_placer.pipeline.dag_expr import evaluate_skip_expr, parse_skip_expr
 
         try:
@@ -311,7 +312,7 @@ def _record_phase_timing(state: Any, stage_name: str, duration: float) -> None:
 
         return result
 
-    def _load_handler(self, handler_path: str) -> StageHandler:
+    def _load_handler(_self, handler_path: str) -> StageHandler:
         parts = handler_path.rsplit(".", 1)
         if len(parts) != 2:
             raise ValueError(f"Invalid handler path: {handler_path}")
