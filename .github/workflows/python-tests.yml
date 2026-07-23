@@ -245,14 +245,8 @@ jobs:
           || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
         continue-on-error: true  # TODO: temper-NNN -- coverage gate remains warn-only pending Phase 1 paydown; hard-fail after 2026-09-01
 
-  checks-setup:
-    uses: ./.github/workflows/_setup-python.yml
-    with:
-      python-version: "3.12"
-
   checks:
     name: Extended Tests & Gates
-    needs: checks-setup
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/bennetleff/temper-ci:latest
@@ -272,11 +266,16 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Restore virtualenv
-        uses: actions/cache/restore@v4
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
 
       - name: Install maturin
         run: uv pip install maturin
@@ -568,14 +567,8 @@ jobs:
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
 
-  loc-cap-setup:
-    uses: ./.github/workflows/_setup-python.yml
-    with:
-      python-version: "3.12"
-
   loc-cap:
     name: LOC Cap Gate
-    needs: loc-cap-setup
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
@@ -591,23 +584,22 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Restore virtualenv
-        uses: actions/cache/restore@v4
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
       
       - name: LOC cap gate
         run: uv run python tools/loc_cap_check.py
 
-  type-check-setup:
-    uses: ./.github/workflows/_setup-python.yml
-    with:
-      python-version: "3.12"
-
   type-check:
     name: Type Check
-    needs: type-check-setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -622,11 +614,16 @@ jobs:
           version: "latest"
           enable-cache: true
       
-      - name: Restore virtualenv
-        uses: actions/cache/restore@v4
+      - name: Cache virtualenv
+        uses: actions/cache@v4
+        id: cache-venv
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}
+
+      - name: Create virtualenv (cache miss)
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: uv venv
       
       - name: Type-check gate (monotonic-shrink baseline)
         run: uv run python scripts/check_typecheck_gate.py
