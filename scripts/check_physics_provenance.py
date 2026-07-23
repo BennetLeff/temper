@@ -36,42 +36,27 @@ Modes
 
 from __future__ import annotations
 
-import argparse
-import ast
-import re
-import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import ast
+import re
+
+from _lib.gate_allowlist import (
+    TICKET_PATTERN,
+    load_allowlist as _load_allowlist,
+    git_show_main_allowlist as _git_show_main_allowlist,
+    check_shrink_mode as _check_shrink_mode,
+)
+from _lib.repo import find_repo_root
 from rich.console import Console
 
 console = Console()
 
-TICKET_PATTERN = re.compile(r"TODO:\s*temper-(?:\d+|xxx)")
 SOURCE_PATTERN = re.compile(r"#\s*source:")
-
-
-# ---------------------------------------------------------------------------
-# helpers
-# ---------------------------------------------------------------------------
-
-
-def _find_repo_root() -> Path:
-    """Walk up from this script to find the .git directory."""
-    current = Path(__file__).resolve().parent
-    while current != current.parent:
-        if (current / ".git").exists():
-            return current
-        current = current.parent
-    raise FileNotFoundError("Could not find repo root (.git directory)")
-
-
-def _repo_root() -> Path | None:
-    """Return the repo root, or *None* if we're outside a git repo."""
-    try:
-        return _find_repo_root()
-    except FileNotFoundError:
-        return None
 
 
 # ---------------------------------------------------------------------------
@@ -169,80 +154,33 @@ def find_undocumented_constants(
 
 
 def load_allowlist(path: Path) -> dict[str, str]:
-    """Parse ``.physics-provenance-allowlist`` into ``{key: ticket_string}``.
-
-    Format: ``path::CONSTANT_NAME  # TODO: temper-xxx``
-    Lines starting with ``#`` (no preceding entry) are header comments.
-    Empty lines are ignored.
-    """
+    """Parse ``.physics-provenance-allowlist`` into ``{key: ticket_string}``."""
     entries: dict[str, str] = {}
-    if not path.exists():
-        return entries
-
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-
+    for line in _load_allowlist(path):
         if "#" in line:
             key_part, comment = line.split("#", 1)
             key_part = key_part.strip()
         else:
             key_part = line.strip()
             comment = ""
-
         if key_part:
             entries[key_part] = comment.strip()
-
     return entries
 
 
 def git_show_main_allowlist() -> str | None:
     """Return the allowlist content from ``origin/main``, or *None*."""
-    root = _repo_root()
-    if root is None:
-        return None
     try:
-        result = subprocess.run(
-            ["git", "show", "origin/main:.physics-provenance-allowlist"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            cwd=root,
-        )
-        if result.returncode != 0:
-            return None
-        return result.stdout
-    except Exception:
+        root = find_repo_root()
+        lines = _git_show_main_allowlist(".physics-provenance-allowlist", root)
+        return "\n".join(lines)
+    except (RuntimeError, FileNotFoundError):
         return None
 
 
 # ---------------------------------------------------------------------------
 # --check-shrink
 # ---------------------------------------------------------------------------
-
-
-def _parse_keys_from_content(content: str) -> set[str]:
-    keys: set[str] = set()
-    for line in content.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if "#" in line:
-            key = line.split("#", 1)[0].strip()
-        else:
-            key = line
-        if key:
-            keys.add(key)
-    return keys
-
-
-def _parse_entry(entry: str) -> tuple[str, str] | None:
-    """Split ``path::CONSTANT_NAME`` into ``(path, const_name)``."""
-    if "::" not in entry:
-        return None
-    parts = entry.split("::", 1)
-    return parts[0], parts[1]
 
 
 def check_shrink_mode(
@@ -263,11 +201,9 @@ def check_shrink_mode(
         )
         return 0
 
-    main_keys = _parse_keys_from_content(main_content)
-    current_keys = set(current_allowlist.keys())
-
-    removed = main_keys - current_keys
-    added = current_keys - main_keys
+    main_entries = main_content.splitlines()
+    current_entries = [f"{k}  # {v}" for k, v in sorted(current_allowlist.items())]
+    removed, added = _check_shrink_mode(main_entries, current_entries)
 
     failures = 0
 
@@ -276,15 +212,14 @@ def check_shrink_mode(
         resolved_phys = physics_dir.resolve()
 
         for entry in sorted(removed):
-            parsed = _parse_entry(entry)
-            if parsed is None:
+            if "::" not in entry:
                 console.print(
                     f"[red]FAIL: cannot parse removed entry: {entry}[/]"
                 )
                 failures += 1
                 continue
 
-            file_part, const_name = parsed
+            file_part, const_name = entry.split("::", 1)
             src_file = resolved_phys / file_part
 
             if not src_file.exists():

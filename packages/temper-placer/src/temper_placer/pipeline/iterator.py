@@ -14,6 +14,7 @@ from numpy.typing import NDArray
 
 if TYPE_CHECKING:
     from temper_placer.core.board import Board
+    from temper_placer.core.interfaces import _RouterProtocol
     from temper_placer.core.netlist import Netlist
 
 Array: TypeAlias = NDArray
@@ -55,7 +56,7 @@ class PlaceRouteIterator:
         self,
         netlist: Netlist,
         board: Board,
-        router: Any,
+        router: _RouterProtocol,
         placement_update_fn: Callable[[Array, Any], Array] | None = None,
         max_iterations: int = 10,
         target_completion: float = 1.0,

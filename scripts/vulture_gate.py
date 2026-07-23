@@ -11,13 +11,19 @@ Usage:
   uv run python scripts/vulture_gate.py [--min-confidence N] [--help]
 """
 
-import argparse
-import re
-import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import re
+import subprocess
+
+from _lib.repo import find_repo_root
+from _lib.github_summary import get_github_summary_path
+
+REPO_ROOT = find_repo_root()
 DEFAULT_MIN_CONFIDENCE = 80
 VULTURE_OK_CODES = {0, 3}  # 0=no dead code, 3=dead code found
 
@@ -192,8 +198,7 @@ def main():
 
     # GitHub step summary
     gh_summary = None
-    import os
-    gh_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    gh_summary_path = get_github_summary_path()
     if gh_summary_path:
         gh_summary = open(gh_summary_path, "a")
 

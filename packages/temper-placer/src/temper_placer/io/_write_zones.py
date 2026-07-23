@@ -1,4 +1,4 @@
-"""Internal: zone output functions."""
+"""Internal: zone output functions and net name mapping."""
 
 from __future__ import annotations
 
@@ -6,9 +6,28 @@ from pathlib import Path
 
 from kiutils.board import Board as KiBoard
 
-from temper_placer.io._write_nets import build_net_name_to_index_map
 from temper_placer.io._write_types import WriteResult
 from temper_placer.io.kicad_exporter import _validate_4_layer_output
+
+
+def build_net_name_to_index_map(pcb_path: Path) -> dict[str, int]:
+    """Extract net name → index mapping from a KiCad PCB file.
+
+    KiCad uses integer net indices internally, but our Trace objects
+    use net names. This function builds the mapping for conversion.
+    """
+    try:
+        ki_board = KiBoard.from_file(str(pcb_path))
+    except Exception as e:
+        raise ValueError(f"Failed to load PCB: {e}") from e
+
+    net_map = {}
+    if hasattr(ki_board, "nets") and ki_board.nets:
+        for net in ki_board.nets:
+            if hasattr(net, "name") and hasattr(net, "number"):
+                net_map[net.name] = net.number
+
+    return net_map
 
 
 def write_zones_to_pcb(

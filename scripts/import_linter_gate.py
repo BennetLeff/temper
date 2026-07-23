@@ -16,15 +16,20 @@ Usage:
   uv run python scripts/import_linter_gate.py [--help]
 """
 
-import argparse
-import datetime
-import os
-import re
-import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import argparse
+import datetime
+import re
+import subprocess
+
+from _lib.repo import find_repo_root
+from _lib.github_summary import get_github_summary_path
+
+REPO_ROOT = find_repo_root()
 
 # R14: 2-week WARNING-only soft-launch
 CUTOVER_DATE = datetime.date(2026, 7, 6)
@@ -372,7 +377,7 @@ def main():
                 print(f"    ... and {len(phase3_new) - 20} more")
 
     # GitHub step summary
-    gh_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    gh_summary_path = get_github_summary_path()
     gh_summary = open(gh_summary_path, "a") if gh_summary_path else None
 
     exit_code_out = 0
