@@ -123,7 +123,7 @@ jobs:
             ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
-        run: cd packages/temper-rust-router && uv run maturin develop --release && cd ../..
+        run: cd packages/temper-rust-router && uvx maturin develop --release && cd ../..
 
       - name: Verify Rust module loads
         run: uv run python3 -c "import temper_rust_router; print('temper_rust_router loaded OK')"
@@ -139,7 +139,7 @@ jobs:
             ${{ runner.os }}-drc-rs-
 
       - name: Build and install temper-drc-rs
-        run: cd packages/temper-drc-rs && uv run maturin develop --release && cd ../..
+        run: cd packages/temper-drc-rs && uvx maturin develop --release && cd ../..
 
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
@@ -157,7 +157,7 @@ jobs:
       - name: Build and install temper-constraints
         run: |
           cd packages/temper-placer/temper-constraints
-          uv run maturin develop --release
+          uvx maturin develop --release
           cd ../../..
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
@@ -262,7 +262,7 @@ jobs:
             ${{ runner.os }}-rust-router-
 
       - name: Build and install Rust crate
-        run: cd packages/temper-rust-router && uv run maturin develop --release && cd ../..
+        run: cd packages/temper-rust-router && uvx maturin develop --release && cd ../..
 
       - name: Cache Rust build (temper-drc-rs)
         uses: actions/cache@v4
@@ -273,7 +273,7 @@ jobs:
             ${{ runner.os }}-drc-rs-
 
       - name: Build and install temper-drc-rs
-        run: cd packages/temper-drc-rs && uv run maturin develop --release && cd ../..
+        run: cd packages/temper-drc-rs && uvx maturin develop --release && cd ../..
 
       - name: Verify temper-drc-rs loads
         run: uv run python3 -c "import temper_drc_rs; print('temper_drc_rs loaded OK')"
@@ -291,7 +291,7 @@ jobs:
       - name: Build and install temper-constraints
         run: |
           cd packages/temper-placer/temper-constraints
-          uv run maturin develop --release
+          uvx maturin develop --release
           cd ../../..
         env:
           PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
