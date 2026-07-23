@@ -7,8 +7,8 @@ Part of temper-zh0p (Stage 4 - Geometric Realization)
 
 from __future__ import annotations
 
-from typing import Any
 from dataclasses import dataclass
+from typing import Any
 
 from temper_placer.router_v6.astar_pathfinding import PathfindingResult
 

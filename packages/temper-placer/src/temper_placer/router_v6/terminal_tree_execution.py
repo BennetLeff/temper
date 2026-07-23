@@ -15,7 +15,7 @@ branches.  ``verify_net_connectivity`` remains the sole authority for
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from temper_placer.router_v6.astar_core import RoutePath
 

@@ -42,7 +42,11 @@ def run_placement(board_path: Path) -> dict:
 
         try:
             from temper_placer.losses import (
-                BoundaryLoss, CompositeLoss, OverlapLoss, WeightedLoss, WirelengthLoss,
+                BoundaryLoss,
+                CompositeLoss,
+                OverlapLoss,
+                WeightedLoss,
+                WirelengthLoss,
             )
             from temper_placer.losses.base import LossContext
             from temper_placer.optimizer import OptimizerConfig, train

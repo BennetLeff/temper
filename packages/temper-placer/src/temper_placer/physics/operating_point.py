@@ -283,7 +283,8 @@ def _interior_bounding_soundness_check(
         so the caller can diagnose which physical quantity drifted.
     """
     if coupling_l_eff_fn is None:
-        coupling_l_eff_fn = lambda k: _l_eff(cfg, k)
+        def coupling_l_eff_fn(k):
+            return _l_eff(cfg, k)
 
     v_br_derated = cfg.V_BR * cfg.derate
     num = v_br_derated - cfg.V_bus
@@ -425,10 +426,7 @@ def compute_extremes(cfg: OperatingPointConfig) -> tuple[_ExtremePoint, _Extreme
         # L_loop_max condition: V_bus + L_loop * di/dt ≤ V_BR * derate
         # → L_loop ≤ (V_BR * derate - V_bus) / di/dt
         num = v_br_derated - cfg.V_bus
-        if num <= 0:
-            l_loop_max = 0.0
-        else:
-            l_loop_max = num / di_dt_val
+        l_loop_max = 0.0 if num <= 0 else num / di_dt_val
 
         feasible = (
             T_j <= cfg.T_j_max

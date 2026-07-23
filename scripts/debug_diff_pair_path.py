@@ -82,7 +82,7 @@ def main():
                     f"    Gap {g['i']}: trace ends at {g['t1_end']}, next starts at {g['t2_start']}, dist={g['dist']:.4f}mm"
                 )
         else:
-            print(f"  ✓ No gaps detected")
+            print("  ✓ No gaps detected")
 
 
 if __name__ == "__main__":

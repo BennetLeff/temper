@@ -188,16 +188,15 @@ def _get_component_bboxes(
     """
     bboxes: list[tuple[float, float, float, float]] = []
     for comp in result.netlist.components:
-        if comp.ref in refs:
-            if comp.initial_position is not None:
-                cx, cy = comp.initial_position
-                half_w = comp.width / 2.0
-                half_h = comp.height / 2.0
-                x_min = cx - half_w
-                y_min = cy - half_h
-                x_max = cx + half_w
-                y_max = cy + half_h
-                bboxes.append((x_min, y_min, x_max, y_max))
+        if comp.ref in refs and comp.initial_position is not None:
+            cx, cy = comp.initial_position
+            half_w = comp.width / 2.0
+            half_h = comp.height / 2.0
+            x_min = cx - half_w
+            y_min = cy - half_h
+            x_max = cx + half_w
+            y_max = cy + half_h
+            bboxes.append((x_min, y_min, x_max, y_max))
     return bboxes
 
 
@@ -217,10 +216,7 @@ def _is_via_in_bbox(
 ) -> bool:
     """Check if a via's position is within any of the given bboxes."""
     x, y = via.position
-    for x_min, y_min, x_max, y_max in bboxes:
-        if x_min <= x <= x_max and y_min <= y <= y_max:
-            return True
-    return False
+    return any(x_min <= x <= x_max and y_min <= y <= y_max for x_min, y_min, x_max, y_max in bboxes)
 
 
 def _is_via_near_board_edge(

@@ -11,7 +11,9 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 
-from shapely.geometry import LineString as ShapelyLineString, Point as ShapelyPoint, Polygon as ShapelyPolygon
+from shapely.geometry import LineString as ShapelyLineString
+from shapely.geometry import Point as ShapelyPoint
+from shapely.geometry import Polygon as ShapelyPolygon
 
 from temper_placer.router_v6.constraints_geometry import (
     LineSegment,

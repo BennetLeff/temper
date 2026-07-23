@@ -76,8 +76,8 @@ def compare_fields(
 
 
 def project_mfem_to_fdm(
-    mfem_result: "MFEMResult",
-    fdm_config: "ThermalFDMConfig",
+    mfem_result: MFEMResult,
+    fdm_config: ThermalFDMConfig,
 ) -> np.ndarray:
     """Project an MFEM nodal solution onto the FDM grid.
 

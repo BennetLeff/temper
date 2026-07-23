@@ -183,7 +183,8 @@ def _compute_placement_metrics(
     kept as the legacy ``hpwl`` / ``overlap_loss`` / ``boundary_loss`` for
     backward compatibility with existing human-reference consumers.
     """
-    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    def mk(v):
+        return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
     try:
         from temper_placer.validation.metrics import compute_metrics
 
@@ -217,7 +218,8 @@ def _compute_routing_metrics(
     Corridor consolidation and track-spread scores are computed from
     channels between component courtyards.
     """
-    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    def mk(v):
+        return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
 
     # Routed length from trace segments
     rdl = 0.0
@@ -275,7 +277,8 @@ def _compute_detailed_metrics(
     now: str,
 ) -> dict[str, MetricValue]:
     """Compute comprehensive placement quality metrics via ``validation.metrics``."""
-    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    def mk(v):
+        return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
     try:
         from temper_placer.validation.metrics import compute_metrics
 
@@ -319,7 +322,8 @@ def _compute_aesthetic_metrics(
     now: str,
 ) -> dict[str, MetricValue]:
     """Compute aesthetic quality: grid alignment, rotation consistency, prefix alignment."""
-    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    def mk(v):
+        return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
     try:
         from temper_placer.metrics.aesthetic import compute_aesthetic_score
 
@@ -346,7 +350,8 @@ def _compute_quality_metrics(
     netlist using ``io.reference_loader.infer_quality_config`` — the same
     function used by the existing reference-loader comparison infrastructure.
     """
-    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    def mk(v):
+        return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
     try:
         from temper_placer.io.reference_loader import infer_quality_config
         from temper_placer.metrics.quality import compute_quality_report
@@ -376,7 +381,8 @@ def _compute_drc(
     reference has nonzero DRC errors is excluded from the DRC-delta row
     of the comparison comment (per R15).
     """
-    mk = lambda v: MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+    def mk(v):
+        return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
     try:
         from temper_placer.validation.drc_runner import run_drc
         result = run_drc(Path(pcb_path))

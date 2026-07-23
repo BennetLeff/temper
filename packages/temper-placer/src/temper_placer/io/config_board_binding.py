@@ -3,7 +3,11 @@
 Re-exported from temper_io_types (Rust / pyo3).
 """
 
-from temper_io_types import ConfigBoardMismatchError, extract_config_refs, verify_config_matches_netlist
+from temper_io_types import (
+    ConfigBoardMismatchError,
+    extract_config_refs,
+    verify_config_matches_netlist,
+)
 
 __all__ = [
     "ConfigBoardMismatchError",

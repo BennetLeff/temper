@@ -668,7 +668,7 @@ def _parse_tag_expr(value: Any):
             valid = [t.value for t in ComponentTag]
             warnings.warn(
                 f"Unknown tag '{tag_name}', treating as literal ref. "
-                f"Valid tags: {sorted(valid)}"
+                f"Valid tags: {sorted(valid)}", stacklevel=2
             )
             return ComponentRef(tag_name.upper())
         return TagRef(tag)

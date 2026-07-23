@@ -153,10 +153,7 @@ def compute_zones_for_net(
     if not pads:
         raise ValueError(f"Net {net_name} has no pad positions for zone emission")
 
-    if cluster:
-        groups = _cluster_positions(pads)
-    else:
-        groups = [list(pads)]
+    groups = _cluster_positions(pads) if cluster else [list(pads)]
 
     zones: list[ZoneDefinition] = []
     for group in groups:

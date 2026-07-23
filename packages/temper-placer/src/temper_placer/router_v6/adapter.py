@@ -19,9 +19,10 @@ import math
 import os
 import re
 import tempfile
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, Sequence, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 logger = logging.getLogger(__name__)
 
@@ -607,7 +608,8 @@ def _zone_layers_for_net(net_name: str) -> list[str]:
 def _zone_params_for_net(net_name: str) -> tuple[float, float]:
     """Resolve per-netclass zone margin and clearance from DesignRules."""
     from temper_placer.core.design_rules import (
-        TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
+        TEMPER_NET_ASSIGNMENTS,
+        TEMPER_NET_CLASSES,
     )
     nc = TEMPER_NET_ASSIGNMENTS.get(net_name, "")
     rules = TEMPER_NET_CLASSES.get(nc)
@@ -648,7 +650,8 @@ def _stitch_isolated_pads(
     Uses the already-computed zone polygons (from the zone-emission
     loop above) rather than re-clustering independently.
     """
-    from shapely.geometry import Point as ShapelyPoint, Polygon
+    from shapely.geometry import Point as ShapelyPoint
+    from shapely.geometry import Polygon
 
     from temper_placer.core.design_rules import (
         TEMPER_NET_ASSIGNMENTS,
@@ -715,11 +718,14 @@ def _emit_zone_pours(
     design_rules: Any = None,
 ) -> None:
     """Emit filled-copper zone geometry for all zone-eligible nets."""
-    from temper_placer.router_v6.zone_emission import (
-        ZoneDefinition, compute_zones_for_net, emit_zone_s_expr,
-    )
     from temper_placer.core.design_rules import (
-        TEMPER_NET_ASSIGNMENTS, TEMPER_NET_CLASSES,
+        TEMPER_NET_ASSIGNMENTS,
+        TEMPER_NET_CLASSES,
+    )
+    from temper_placer.router_v6.zone_emission import (
+        ZoneDefinition,
+        compute_zones_for_net,
+        emit_zone_s_expr,
     )
 
     zone_netclasses: set[str] = set()

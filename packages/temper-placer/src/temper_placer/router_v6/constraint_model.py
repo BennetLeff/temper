@@ -307,7 +307,7 @@ class ModelBuilder:
         """
         manifest = self.bundle_manifest
         bundle_id_for_net: dict[int, int] = getattr(manifest, "bundle_id_for_net", {})
-        unbundled_indices: set[int] = set(getattr(manifest, "unbundled_net_indices", []))
+        set(getattr(manifest, "unbundled_net_indices", []))
 
         # Collect unique bundle IDs and the nets in each bundle
         unique_bundle_ids: set[int] = set(bundle_id_for_net.values())

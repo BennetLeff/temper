@@ -396,19 +396,18 @@ class PlaceRouteLoop:
             )
 
             # Check for unclassifiable failures
-            if not classification.deltas and classification.unclassified:
-                if (
-                    round_num >= 3
-                    and len(classification.unclassified)
-                    > len(classification.deltas)
-                ):
-                    return LoopResult(
-                        success=False,
-                        reason=LoopExitReason.NO_CLASSIFIABLE_FEEDBACK.value,
-                        placement=placement,
-                        routing=routing,
-                        rounds=rounds,
-                    )
+            if not classification.deltas and classification.unclassified and (
+                round_num >= 3
+                and len(classification.unclassified)
+                > len(classification.deltas)
+            ):
+                return LoopResult(
+                    success=False,
+                    reason=LoopExitReason.NO_CLASSIFIABLE_FEEDBACK.value,
+                    placement=placement,
+                    routing=routing,
+                    rounds=rounds,
+                )
 
             if not classification.deltas:
                 return LoopResult(

@@ -24,7 +24,7 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.io._kicad_types import ParseResult, ViaData
 
 if TYPE_CHECKING:
-    from temper_placer.router_v6.stage0_data import DesignRules as V6DesignRules, ParsedPCB, StackupInfo
+    from temper_placer.router_v6.stage0_data import ParsedPCB, StackupInfo
 
 
 @dataclass
@@ -788,10 +788,7 @@ def _calculate_footprint_bounds(fp: Footprint) -> tuple[float, float]:
                     y_max = max(y_max, cy + r)
                     has_valid_items = True
 
-            if has_valid_items:
-                gfx_bounds = (x_min, y_min, x_max, y_max)
-            else:
-                gfx_bounds = None
+            gfx_bounds = (x_min, y_min, x_max, y_max) if has_valid_items else None
         else:
             gfx_bounds = None
     else:

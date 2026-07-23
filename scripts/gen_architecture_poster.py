@@ -438,15 +438,15 @@ def render_svg(graph: dict[str, Any]) -> str:
     total_height = max_y - min_y
 
     lines: list[str] = []
-    lines.append(f'<?xml version="1.0" encoding="UTF-8"?>')
+    lines.append('<?xml version="1.0" encoding="UTF-8"?>')
     lines.append(
         f'<svg xmlns="{SVG_NS}" viewBox="{min_x:.1f} {min_y:.1f} {total_width:.1f} {total_height:.1f}" '
         f'width="{total_width:.1f}" height="{total_height:.1f}">'
     )
     lines.append("<defs>")
     lines.append(
-        f'<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" '
-        f'orient="auto" markerUnits="userSpaceOnUse">'
+        '<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" '
+        'orient="auto" markerUnits="userSpaceOnUse">'
     )
     lines.append(f'<polygon points="0 0, 10 3.5, 0 7" fill="{ARROW_COLOR}"/>')
     lines.append("</marker>")

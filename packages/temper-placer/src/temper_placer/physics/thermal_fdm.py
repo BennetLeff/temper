@@ -312,9 +312,7 @@ def _is_heatsink_boundary_face(
         return True
     if direction == "east" and col == w - 1 and hs == "RIGHT":
         return True
-    if direction == "west" and col == 0 and hs == "LEFT":
-        return True
-    return False
+    return bool(direction == "west" and col == 0 and hs == "LEFT")
 
 
 def _assemble_system(
