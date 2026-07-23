@@ -1,7 +1,6 @@
 pub mod primitives;
 pub mod smooth;
 pub mod polygon;
-pub mod constraints;
 pub mod sdf;
 pub mod transform;
 pub mod overlap;
