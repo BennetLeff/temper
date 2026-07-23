@@ -25,6 +25,7 @@ def test_evaluate_routing_quality_acceptable():
     assert quality.is_acceptable is True
     assert quality.score > 0
 
+
 def test_evaluate_routing_quality_unacceptable_completion():
     """Test routing quality with low completion rate (< 0.8)."""
     routing_result = MagicMock()
@@ -41,6 +42,7 @@ def test_evaluate_routing_quality_unacceptable_completion():
 
     assert quality.is_acceptable is False
 
+
 def test_evaluate_routing_quality_unacceptable_drc():
     """Test routing quality with DRC errors."""
     routing_result = MagicMock()
@@ -56,6 +58,7 @@ def test_evaluate_routing_quality_unacceptable_drc():
     quality = evaluate_routing_quality(routing_result, drc_result)
 
     assert quality.is_acceptable is False
+
 
 def test_routing_quality_threshold():
     """Verify the specific threshold: completion >= 0.8 AND drc == 0."""

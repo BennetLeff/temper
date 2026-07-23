@@ -14,6 +14,7 @@ R8: ``map_topology_to_channels`` handles ``topology=None`` gracefully
     (skeleton-path fallback for every net).  This is the consumer
     side of the R7 bypass; without it, R7 would raise AttributeError.
 """
+
 from __future__ import annotations
 
 import inspect
@@ -27,12 +28,10 @@ def test_r7_skip_stage3_param_in_constructor():
     """
     pipeline = RouterV6Pipeline()
     assert hasattr(pipeline, "skip_stage3"), (
-        "RouterV6Pipeline must expose a skip_stage3 attribute after "
-        "Wave 3 (R7)."
+        "RouterV6Pipeline must expose a skip_stage3 attribute after Wave 3 (R7)."
     )
     assert pipeline.skip_stage3 is False, (
-        "skip_stage3 must default to False; existing callers must "
-        "be unaffected."
+        "skip_stage3 must default to False; existing callers must be unaffected."
     )
 
     pipeline_skip = RouterV6Pipeline(skip_stage3=True)

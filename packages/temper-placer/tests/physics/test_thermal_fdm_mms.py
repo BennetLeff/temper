@@ -418,12 +418,10 @@ def test_mms_peak_error_decreases_with_refinement():
         y_c = _cell_centers(cs, hc)
         X, Y = np.meshgrid(x_c, y_c)
         T_analytic = _T_np(X, Y, Lx_val, Ly_val, A_val, _T_amb)
-        Q_analytic = _Q2_np(
-            X, Y, Lx_val, Ly_val, A_val, _T_amb, k_fr4_eff, dk_eff
+        Q_analytic = _Q2_np(X, Y, Lx_val, Ly_val, A_val, _T_amb, k_fr4_eff, dk_eff)
+        k_desired = k_fr4_eff + dk_eff * np.sin(np.pi * X / Lx_val) * np.sin(
+            np.pi * Y / (2 * Ly_val)
         )
-        k_desired = k_fr4_eff + dk_eff * np.sin(
-            np.pi * X / Lx_val
-        ) * np.sin(np.pi * Y / (2 * Ly_val))
         copper_frac = (k_desired - k_fr4_eff) / dk_eff
 
         config = ThermalFDMConfig(

@@ -17,13 +17,24 @@ import click
 @click.option("--constraints", type=click.Path(exists=True), help="Constraints YAML")
 @click.option("--dry-run", is_flag=True, help="Skip compute-intensive stages")
 @click.option("--skip-routing", is_flag=True, help="Skip routing and refinement")
-@click.option("--replay", "replay_path", type=click.Path(exists=True),
-              help="Replay a saved pipeline_execution.json")
-@click.option("--refresh", type=float, default=4.0,
-              help="Dashboard refresh rate in Hz (default: 4)")
-def watch(input_pcb: str, loops: str | None, constraints: str | None,
-          dry_run: bool, skip_routing: bool,
-          replay_path: str | None, refresh: float) -> None:
+@click.option(
+    "--replay",
+    "replay_path",
+    type=click.Path(exists=True),
+    help="Replay a saved pipeline_execution.json",
+)
+@click.option(
+    "--refresh", type=float, default=4.0, help="Dashboard refresh rate in Hz (default: 4)"
+)
+def watch(
+    input_pcb: str,
+    loops: str | None,
+    constraints: str | None,
+    dry_run: bool,
+    skip_routing: bool,
+    replay_path: str | None,
+    refresh: float,
+) -> None:
     """Watch pipeline execution with a live terminal dashboard.
 
     INPUT_PCB: Path to the KiCad PCB file.
@@ -53,15 +64,19 @@ def _watch_replay(replay_path: Path) -> None:
     events_raw = data.get("events", [])
     events: list[StageEvent] = []
     for e in events_raw:
-        events.append(StageEvent(
-            name=e.get("name", ""), kind=e.get("kind", ""),
-            iteration=e.get("iteration", 0),
-            duration_s=e.get("duration_s", 0.0),
-            reason=e.get("reason", ""), error=e.get("error"),
-            feedback_contract=e.get("feedback_contract"),
-            feedback_attempt=e.get("feedback_attempt"),
-            timestamp=e.get("timestamp", time.time()),
-        ))
+        events.append(
+            StageEvent(
+                name=e.get("name", ""),
+                kind=e.get("kind", ""),
+                iteration=e.get("iteration", 0),
+                duration_s=e.get("duration_s", 0.0),
+                reason=e.get("reason", ""),
+                error=e.get("error"),
+                feedback_contract=e.get("feedback_contract"),
+                feedback_attempt=e.get("feedback_attempt"),
+                timestamp=e.get("timestamp", time.time()),
+            )
+        )
 
     if not events:
         click.echo("No events found in replay file.")
@@ -86,8 +101,9 @@ def _watch_replay(replay_path: Path) -> None:
             elif event.kind == "error":
                 dashboard.on_stage_error(event.name, Exception(event.error or ""))
             elif event.kind == "feedback_triggered":
-                dashboard.on_feedback_triggered(event.feedback_contract or "", event.name, "",
-                                                event.feedback_attempt or 0)
+                dashboard.on_feedback_triggered(
+                    event.feedback_contract or "", event.name, "", event.feedback_attempt or 0
+                )
             dashboard.update()
 
         success = data.get("success", True)

@@ -103,7 +103,7 @@ def calculate_layer_capacity(
 
 
 class LayerCapacityStage(Stage):
-    '''Stage 2.6: Calculate per-layer routing capacity.'''
+    """Stage 2.6: Calculate per-layer routing capacity."""
 
     @property
     def name(self) -> str:
@@ -129,27 +129,41 @@ class LayerCapacityStage(Stage):
 
 @register_validator("LayerCapacity")
 def validate_layer_capacity(state: BoardState) -> list[StageDRCFailure]:
-    '''Validate layer capacity invariants.'''
+    """Validate layer capacity invariants."""
     failures: list[StageDRCFailure] = []
     if state.layer_capacities is None:
-        failures.append(StageDRCFailure(
-            field="layer_capacities", value=None,
-            reason="Layer capacities not computed", stage="LayerCapacity",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="layer_capacities",
+                value=None,
+                reason="Layer capacities not computed",
+                stage="LayerCapacity",
+            )
+        )
         return failures
 
     for layer_name, lc in state.layer_capacities.items():
         if lc.estimated_traces < 0:
-            failures.append(StageDRCFailure(
-                field="layer_capacities", value=layer_name,
-                reason="Negative estimated traces: " + repr(lc.estimated_traces),
-                stage="LayerCapacity",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="layer_capacities",
+                    value=layer_name,
+                    reason="Negative estimated traces: " + repr(lc.estimated_traces),
+                    stage="LayerCapacity",
+                )
+            )
         if lc.free_cells > lc.total_cells:
-            failures.append(StageDRCFailure(
-                field="layer_capacities", value=layer_name,
-                reason="Free cells (" + repr(lc.free_cells) + ") > total cells (" + repr(lc.total_cells) + ")",
-                stage="LayerCapacity",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="layer_capacities",
+                    value=layer_name,
+                    reason="Free cells ("
+                    + repr(lc.free_cells)
+                    + ") > total cells ("
+                    + repr(lc.total_cells)
+                    + ")",
+                    stage="LayerCapacity",
+                )
+            )
 
     return failures

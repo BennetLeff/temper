@@ -3,6 +3,7 @@
 Analyze nets in the temper_gnd_plane.dsn to find the likely unrouted net.
 Computes HPWL span for each net based on placement positions.
 """
+
 import re
 
 # Parse DSN content
@@ -12,7 +13,7 @@ with open(dsn_path) as f:
 
 # Extract placements: (place REF X Y side rotation)
 placements = {}
-place_pattern = r'\(place (\w+) ([\d.]+) ([\d.]+) (\w+) ([\d.]+)\)'
+place_pattern = r"\(place (\w+) ([\d.]+) ([\d.]+) (\w+) ([\d.]+)\)"
 for match in re.finditer(place_pattern, content):
     ref, x, y, side, rot = match.groups()
     placements[ref] = (float(x), float(y))
@@ -20,7 +21,7 @@ for match in re.finditer(place_pattern, content):
 print(f"Found {len(placements)} component placements")
 
 # Extract nets: (net NAME (pins PIN1 PIN2 ...))
-net_pattern = r'\(net (\w+) \(pins ([^)]+)\)\)'
+net_pattern = r"\(net (\w+) \(pins ([^)]+)\)\)"
 nets = []
 for match in re.finditer(net_pattern, content):
     name = match.group(1)
@@ -40,7 +41,7 @@ for name, pins in nets:
     components = set()
     for pin in pins:
         # Pin format: COMP-PIN_NUM
-        parts = pin.rsplit('-', 1)
+        parts = pin.rsplit("-", 1)
         if len(parts) == 2:
             comp_ref = parts[0]
             if comp_ref in placements:

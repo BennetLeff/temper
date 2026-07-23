@@ -38,16 +38,18 @@ def lint_hairpin_turns(routed_pcb_path: Path) -> list[dict]:
                 (curr["start"], curr["end"]),  # outgoing
             )
             if angle >= 160.0:
-                findings.append({
-                    "type": "hairpin",
-                    "net_name": net_name,
-                    "position": prev["end"],
-                    "severity": angle,
-                    "description": (
-                        f"Hairpin turn ({angle:.1f} deg) at "
-                        f"({prev['end'][0]:.2f}, {prev['end'][1]:.2f}) mm"
-                    ),
-                })
+                findings.append(
+                    {
+                        "type": "hairpin",
+                        "net_name": net_name,
+                        "position": prev["end"],
+                        "severity": angle,
+                        "description": (
+                            f"Hairpin turn ({angle:.1f} deg) at "
+                            f"({prev['end'][0]:.2f}, {prev['end'][1]:.2f}) mm"
+                        ),
+                    }
+                )
     return findings
 
 
@@ -97,16 +99,18 @@ def lint_zigzag_patterns(routed_pcb_path: Path) -> list[dict]:
             if alternating:
                 mid_turn = turns[start + 1]
                 junction = ordered[mid_turn[0] - 1]
-                findings.append({
-                    "type": "zigzag",
-                    "net_name": net_name,
-                    "position": junction["end"],
-                    "severity": float(len(window)),
-                    "description": (
-                        f"Zigzag pattern ({len(window)} alternating turns) near "
-                        f"({junction['end'][0]:.2f}, {junction['end'][1]:.2f}) mm"
-                    ),
-                })
+                findings.append(
+                    {
+                        "type": "zigzag",
+                        "net_name": net_name,
+                        "position": junction["end"],
+                        "severity": float(len(window)),
+                        "description": (
+                            f"Zigzag pattern ({len(window)} alternating turns) near "
+                            f"({junction['end'][0]:.2f}, {junction['end'][1]:.2f}) mm"
+                        ),
+                    }
+                )
     return findings
 
 
@@ -138,25 +142,28 @@ def lint_isolated_vias(routed_pcb_path: Path) -> list[dict]:
         for trace in traces:
             if trace["net"] != via_net:
                 continue
-            if _distance_mm(trace["start"], via_pos) < 0.2 or _distance_mm(trace["end"], via_pos) < 0.2:
+            if (
+                _distance_mm(trace["start"], via_pos) < 0.2
+                or _distance_mm(trace["end"], via_pos) < 0.2
+            ):
                 segment_count += 1
         if segment_count == 1:
-            findings.append({
-                "type": "isolated_via",
-                "net_name": via_net or "?",
-                "position": via_pos,
-                "severity": 1.0,
-                "description": (
-                    f"Isolated via (stub) on net {via_net or '?'} at "
-                    f"({via_pos[0]:.2f}, {via_pos[1]:.2f}) mm"
-                ),
-            })
+            findings.append(
+                {
+                    "type": "isolated_via",
+                    "net_name": via_net or "?",
+                    "position": via_pos,
+                    "severity": 1.0,
+                    "description": (
+                        f"Isolated via (stub) on net {via_net or '?'} at "
+                        f"({via_pos[0]:.2f}, {via_pos[1]:.2f}) mm"
+                    ),
+                }
+            )
     return findings
 
 
-def lint_single_net_detours(
-    routed_pcb_path: Path, max_ratio: float = 1.5
-) -> list[dict]:
+def lint_single_net_detours(routed_pcb_path: Path, max_ratio: float = 1.5) -> list[dict]:
     """Find nets where path_length / direct_distance > max_ratio."""
     traces_by_net = _load_traces_by_net(routed_pcb_path)
     findings: list[dict] = []
@@ -182,16 +189,18 @@ def lint_single_net_detours(
                 (start_pos[0] + end_pos[0]) / 2,
                 (start_pos[1] + end_pos[1]) / 2,
             )
-            findings.append({
-                "type": "single_net_detour",
-                "net_name": net_name,
-                "position": midpoint,
-                "severity": ratio,
-                "description": (
-                    f"Net {net_name} detour ratio {ratio:.2f} "
-                    f"(path {path_length:.2f} mm / direct {direct_dist:.2f} mm) > {max_ratio}"
-                ),
-            })
+            findings.append(
+                {
+                    "type": "single_net_detour",
+                    "net_name": net_name,
+                    "position": midpoint,
+                    "severity": ratio,
+                    "description": (
+                        f"Net {net_name} detour ratio {ratio:.2f} "
+                        f"(path {path_length:.2f} mm / direct {direct_dist:.2f} mm) > {max_ratio}"
+                    ),
+                }
+            )
     return findings
 
 
@@ -226,12 +235,14 @@ def _load_traces_by_net(pcb_path: Path) -> dict[str, list[dict]]:
     by_net: dict[str, list[dict]] = {}
     for trace in parse_result.traces:
         net_name = trace.net or "_unnamed"
-        by_net.setdefault(net_name, []).append({
-            "start": trace.start,
-            "end": trace.end,
-            "width": trace.width,
-            "layer": trace.layer,
-        })
+        by_net.setdefault(net_name, []).append(
+            {
+                "start": trace.start,
+                "end": trace.end,
+                "width": trace.width,
+                "layer": trace.layer,
+            }
+        )
     return by_net
 
 
@@ -313,8 +324,6 @@ def _angle_between(
     return math.degrees(math.acos(cos_angle))
 
 
-def _distance_mm(
-    a: tuple[float, float], b: tuple[float, float]
-) -> float:
+def _distance_mm(a: tuple[float, float], b: tuple[float, float]) -> float:
     """Euclidean distance between two points in mm."""
     return math.hypot(a[0] - b[0], a[1] - b[1])

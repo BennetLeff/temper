@@ -7,13 +7,13 @@
 //
 // Origin: U4 of docs/plans/2026-06-30-003-feat-temper-drc-rs-engine-plan.md
 
-use std::collections::HashSet;
-
 use crate::board::BoardState;
 use crate::constraints::ConstraintSet;
 use crate::rules::{DrcCategory, DrcRule, Violation};
 
+#[derive(Default)]
 pub struct NetConnectivityCheck;
+
 impl NetConnectivityCheck {
     pub fn new() -> Self {
         Self
@@ -41,7 +41,7 @@ impl DrcRule for NetConnectivityCheck {
             })
             .collect();
 
-        // TODO: Implement full net connectivity check using filtered counts.
+        // TODO(temper-xxx): Implement full net connectivity check using filtered counts.
         // Mechanical components are now excluded from connection tallies,
         // ready for the U4 implementation.
         vec![]

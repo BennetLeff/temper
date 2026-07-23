@@ -4,8 +4,9 @@ Throwaway script — validates that CP-SAT can place ~33 components on the tempe
 board (100mm x 150mm) within 60s with all hard constraints satisfied.
 """
 
-import time
 import sys
+import time
+
 from ortools.sat.python import cp_model
 
 # ---- Board parameters ----
@@ -23,53 +24,57 @@ CLEARANCE = int(CLEARANCE_MM * SCALE)
 
 # ---- Zone definitions (mm, scaled) ----
 HV_ZONE = {
-    "x_min": int(5 * SCALE), "x_max": int(55 * SCALE),
-    "y_min": int(5 * SCALE), "y_max": int(145 * SCALE),
+    "x_min": int(5 * SCALE),
+    "x_max": int(55 * SCALE),
+    "y_min": int(5 * SCALE),
+    "y_max": int(145 * SCALE),
 }
 MCU_ZONE = {
-    "x_min": int(60 * SCALE), "x_max": int(95 * SCALE),
-    "y_min": int(5 * SCALE), "y_max": int(145 * SCALE),
+    "x_min": int(60 * SCALE),
+    "x_max": int(95 * SCALE),
+    "y_min": int(5 * SCALE),
+    "y_max": int(145 * SCALE),
 }
 
 # ---- Realistic component sizes (W x H in mm) ----
 # HV components
 HV_COMPS = {
-    "Q1":   (22, 16),   # IGBT
-    "Q2":   (22, 16),   # IGBT
-    "D1":   (6, 3),     # Diode
-    "C_DC": (18, 32),   # DC-link cap
+    "Q1": (22, 16),  # IGBT
+    "Q2": (22, 16),  # IGBT
+    "D1": (6, 3),  # Diode
+    "C_DC": (18, 32),  # DC-link cap
 }
 # LV / MCU components
 LV_COMPS = {
-    "U_MCU":         (10, 10),
-    "U_GATE_DRV":    (5, 7),
-    "C1":            (4, 3),    # Decoupling cap
-    "C2":            (4, 3),
-    "C3":            (4, 3),
-    "C4":            (4, 3),
-    "C5":            (4, 3),
-    "C6":            (4, 3),
-    "R1":            (6, 2),    # Resistor
-    "R2":            (6, 2),
-    "R3":            (6, 2),
-    "R4":            (6, 2),
-    "R5":            (6, 2),
-    "J_AC":          (12, 8),   # Connector
-    "J_COIL":        (12, 8),   # Connector
-    "U_OPTO":        (5, 7),    # Optocoupler
-    "U_REG":         (6, 5),    # Voltage regulator
-    "L1":            (14, 14),  # Inductor
-    "C_BUS":         (10, 16),  # Bus capacitor
-    "R_SHUNT":       (10, 5),   # Shunt resistor
-    "D_ZENER":       (3, 5),    # Zener
-    "Q_AUX":         (5, 5),    # Aux transistor
-    "U_AMP":         (5, 5),    # Op-amp
-    "R_PULLUP":      (6, 2),
-    "R_PULLDOWN":    (6, 2),
-    "C_BYPASS":      (4, 3),
-    "C_FILTER":      (6, 4),
-    "D_TVS":         (5, 3),    # TVS diode
-    "F1":            (8, 4),    # Fuse
+    "U_MCU": (10, 10),
+    "U_GATE_DRV": (5, 7),
+    "C1": (4, 3),  # Decoupling cap
+    "C2": (4, 3),
+    "C3": (4, 3),
+    "C4": (4, 3),
+    "C5": (4, 3),
+    "C6": (4, 3),
+    "R1": (6, 2),  # Resistor
+    "R2": (6, 2),
+    "R3": (6, 2),
+    "R4": (6, 2),
+    "R5": (6, 2),
+    "J_AC": (12, 8),  # Connector
+    "J_COIL": (12, 8),  # Connector
+    "U_OPTO": (5, 7),  # Optocoupler
+    "U_REG": (6, 5),  # Voltage regulator
+    "L1": (14, 14),  # Inductor
+    "C_BUS": (10, 16),  # Bus capacitor
+    "R_SHUNT": (10, 5),  # Shunt resistor
+    "D_ZENER": (3, 5),  # Zener
+    "Q_AUX": (5, 5),  # Aux transistor
+    "U_AMP": (5, 5),  # Op-amp
+    "R_PULLUP": (6, 2),
+    "R_PULLDOWN": (6, 2),
+    "C_BYPASS": (4, 3),
+    "C_FILTER": (6, 4),
+    "D_TVS": (5, 3),  # TVS diode
+    "F1": (8, 4),  # Fuse
 }
 
 ALL_COMPS = {**HV_COMPS, **LV_COMPS}
@@ -78,12 +83,12 @@ LV_REFS = set(LV_COMPS.keys())
 
 # HV↔LV pairs that need clearance (simplified: all HV vs all LV that could be close)
 # In practice this is selective; for the spike we check all cross-zone pairs.
-HV_LV_PAIRS = [(h, l) for h in HV_REFS for l in LV_REFS]
+HV_LV_PAIRS = [(h, lv) for h in HV_REFS for lv in LV_REFS]
 
 # ---- Adjacency constraints ----
 ADJACENT_PAIRS = [
-    ("Q1", "Q2", 10),             # Commutation loop
-    ("U_GATE_DRV", "Q1", 15),     # Gate driver proximity
+    ("Q1", "Q2", 10),  # Commutation loop
+    ("U_GATE_DRV", "Q1", 15),  # Gate driver proximity
 ]
 
 # ---- Edge constraints ----
@@ -132,27 +137,27 @@ def build_model():
 
     # R2: Chebyshev clearance (HV ↔ LV pairs)
     for hv_ref, lv_ref in HV_LV_PAIRS:
-        b_left   = model.NewBoolVar(f"clr_left_{hv_ref}_{lv_ref}")
-        b_right  = model.NewBoolVar(f"clr_right_{hv_ref}_{lv_ref}")
-        b_below  = model.NewBoolVar(f"clr_below_{hv_ref}_{lv_ref}")
-        b_above  = model.NewBoolVar(f"clr_above_{hv_ref}_{lv_ref}")
+        b_left = model.NewBoolVar(f"clr_left_{hv_ref}_{lv_ref}")
+        b_right = model.NewBoolVar(f"clr_right_{hv_ref}_{lv_ref}")
+        b_below = model.NewBoolVar(f"clr_below_{hv_ref}_{lv_ref}")
+        b_above = model.NewBoolVar(f"clr_above_{hv_ref}_{lv_ref}")
 
         # HV on left: LV starts at least (HV_x + HV_w + clearance) from left
-        model.Add(
-            x_start[lv_ref] >= x_start[hv_ref] + x_size[hv_ref] + CLEARANCE
-        ).OnlyEnforceIf(b_left)
+        model.Add(x_start[lv_ref] >= x_start[hv_ref] + x_size[hv_ref] + CLEARANCE).OnlyEnforceIf(
+            b_left
+        )
         # HV on right: HV starts at least (LV_x + LV_w + clearance) from left
-        model.Add(
-            x_start[hv_ref] >= x_start[lv_ref] + x_size[lv_ref] + CLEARANCE
-        ).OnlyEnforceIf(b_right)
+        model.Add(x_start[hv_ref] >= x_start[lv_ref] + x_size[lv_ref] + CLEARANCE).OnlyEnforceIf(
+            b_right
+        )
         # HV below: LV starts at least (HV_y + HV_h + clearance) from bottom
-        model.Add(
-            y_start[lv_ref] >= y_start[hv_ref] + y_size[hv_ref] + CLEARANCE
-        ).OnlyEnforceIf(b_below)
+        model.Add(y_start[lv_ref] >= y_start[hv_ref] + y_size[hv_ref] + CLEARANCE).OnlyEnforceIf(
+            b_below
+        )
         # HV above: HV starts at least (LV_y + LV_h + clearance) from bottom
-        model.Add(
-            y_start[hv_ref] >= y_start[lv_ref] + y_size[lv_ref] + CLEARANCE
-        ).OnlyEnforceIf(b_above)
+        model.Add(y_start[hv_ref] >= y_start[lv_ref] + y_size[lv_ref] + CLEARANCE).OnlyEnforceIf(
+            b_above
+        )
 
         model.AddBoolOr([b_left, b_right, b_below, b_above])
 
@@ -250,33 +255,35 @@ def audit_placement(x_start, y_start, x_size, y_size):
         cheb_dist = max(cx_dist, cy_dist)
         if cheb_dist < CLEARANCE:
             violations.append(
-                f"CLEARANCE: {hv_ref}↔{lv_ref} Chebyshev distance={cheb_dist/SCALE:.1f}mm < {CLEARANCE/SCALE:.1f}mm"
+                f"CLEARANCE: {hv_ref}↔{lv_ref} Chebyshev distance={cheb_dist / SCALE:.1f}mm < {CLEARANCE / SCALE:.1f}mm"
             )
 
     # Check R3: Left-edge anchoring
     for ref in LEFT_EDGE_COMPS:
         if x_start[ref] > int(LEFT_EDGE_MAX_DIST * SCALE):
             violations.append(
-                f"EDGE: {ref} at x={x_start[ref]/SCALE:.1f}mm > {LEFT_EDGE_MAX_DIST}mm"
+                f"EDGE: {ref} at x={x_start[ref] / SCALE:.1f}mm > {LEFT_EDGE_MAX_DIST}mm"
             )
 
     # Check R4: Adjacency (same 4 linear inequalities as CP-SAT model)
     for a, b, max_dist_mm in ADJACENT_PAIRS:
         max_d = int(max_dist_mm * SCALE)
-        ok_x = (x_start[b] <= x_start[a] + x_size[a] + max_d and
-                x_start[a] <= x_start[b] + x_size[b] + max_d)
-        ok_y = (y_start[b] <= y_start[a] + y_size[a] + max_d and
-                y_start[a] <= y_start[b] + y_size[b] + max_d)
+        ok_x = (
+            x_start[b] <= x_start[a] + x_size[a] + max_d
+            and x_start[a] <= x_start[b] + x_size[b] + max_d
+        )
+        ok_y = (
+            y_start[b] <= y_start[a] + y_size[a] + max_d
+            and y_start[a] <= y_start[b] + y_size[b] + max_d
+        )
         if not (ok_x and ok_y):
-            violations.append(
-                f"ADJACENCY: {a}↔{b} exceeds {max_dist_mm}mm proximity"
-            )
+            violations.append(f"ADJACENCY: {a}↔{b} exceeds {max_dist_mm}mm proximity")
 
     # Check R5: Region membership
     margin = int(2 * SCALE)
     for ref in HV_ENCLOSED:
         if x_start[ref] < HV_ZONE["x_min"] + margin:
-            violations.append(f"REGION: {ref} x_min={x_start[ref]/SCALE:.1f} outside HV_ZONE")
+            violations.append(f"REGION: {ref} x_min={x_start[ref] / SCALE:.1f} outside HV_ZONE")
         if x_start[ref] + x_size[ref] > HV_ZONE["x_max"] - margin:
             violations.append(f"REGION: {ref} x_max violates HV_ZONE")
         if y_start[ref] < HV_ZONE["y_min"] + margin:
@@ -308,7 +315,11 @@ def main():
     status_name = solver.StatusName(status)
     print(f"Status: {status_name}")
     print(f"Wall time: {elapsed:.1f}s")
-    print(f"Objective: {solver.ObjectiveValue():.0f}" if status in (cp_model.OPTIMAL, cp_model.FEASIBLE) else "")
+    print(
+        f"Objective: {solver.ObjectiveValue():.0f}"
+        if status in (cp_model.OPTIMAL, cp_model.FEASIBLE)
+        else ""
+    )
 
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         print("\nFAIL: No feasible solution found.")
@@ -333,7 +344,8 @@ def main():
     violations = audit_placement(
         {r: solver.Value(x_start[r]) for r in ALL_COMPS},
         {r: solver.Value(y_start[r]) for r in ALL_COMPS},
-        x_size, y_size,
+        x_size,
+        y_size,
     )
 
     print(f"\nConstraint Audit: {'PASSED' if not violations else 'FAILED'}")
@@ -342,7 +354,9 @@ def main():
             print(f"  VIOLATION: {v}")
         return 1
 
-    print(f"\nPASS: CP-SAT found feasible placement in {elapsed:.1f}s with all constraints satisfied.")
+    print(
+        f"\nPASS: CP-SAT found feasible placement in {elapsed:.1f}s with all constraints satisfied."
+    )
     return 0
 
 

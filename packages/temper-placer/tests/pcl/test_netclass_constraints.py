@@ -1,4 +1,5 @@
 """Test CP-SAT netclass constraint generation using DesignRules."""
+
 from pathlib import Path
 
 import pytest
@@ -8,15 +9,18 @@ RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.y
 
 def _make_mock_component(ref: str, net_name: str = ""):
     """Create a minimal mock component with ref and a connected pin."""
+
     class MockPin:
         def __init__(self, number, component, net):
             self.number = number
             self.component = component
             self.net = net
+
     class MockComp:
         def __init__(self, ref, pins):
             self.ref = ref
             self.pins = pins
+
     class MockNet:
         def __init__(self, name, pins):
             self.name = name
@@ -31,6 +35,7 @@ def _make_mock_component(ref: str, net_name: str = ""):
 @pytest.fixture
 def rules():
     from temper_placer.io.netclass_loader import load_netclass_rules
+
     return load_netclass_rules(RULES_PATH)
 
 
@@ -56,9 +61,9 @@ class TestResolveComponentNetClass:
         comp = MockComp(
             "Q2",
             [
-                MockPin("1", "GATE_H"),    # Signal
-                MockPin("2", "DC_BUS-"),   # HighVoltage
-                MockPin("3", "SW_NODE"),   # Signal
+                MockPin("1", "GATE_H"),  # Signal
+                MockPin("2", "DC_BUS-"),  # HighVoltage
+                MockPin("3", "SW_NODE"),  # Signal
             ],
         )
         result = _resolve_component_net_class(comp, None)
@@ -98,9 +103,10 @@ class TestCrossClassGeneration:
         from temper_placer.placer.cp_sat.netclass_constraints import (
             generate_netclass_separated_constraints,
         )
+
         c1, n1 = _make_mock_component("U1", "DC_BUS+")  # HighVoltage
         c2, n2 = _make_mock_component("U2", "SPI_CLK")  # Signal
-        c3, n3 = _make_mock_component("U3", "SPI_MOSI") # Signal
+        c3, n3 = _make_mock_component("U3", "SPI_MOSI")  # Signal
 
         class MockNetlist:
             nets = [n1, n2, n3]
@@ -115,10 +121,13 @@ class TestCrossClassGeneration:
         from temper_placer.placer.cp_sat.netclass_constraints import (
             generate_netclass_separated_constraints,
         )
+
         c1, n1 = _make_mock_component("U1", "DC_BUS+")
         c2, n2 = _make_mock_component("U2", "SPI_CLK")
+
         class MockNetlist:
             nets = [n1, n2]
+
         constraints = generate_netclass_separated_constraints(
             MockNetlist(), [c1, c2], rules.design_rules
         )
@@ -129,10 +138,13 @@ class TestCrossClassGeneration:
         from temper_placer.placer.cp_sat.netclass_constraints import (
             generate_netclass_separated_constraints,
         )
+
         c1, n1 = _make_mock_component("U1", "DC_BUS+")
         c2, n2 = _make_mock_component("U2", "SPI_CLK")
+
         class MockNetlist:
             nets = [n1, n2]
+
         constraints = generate_netclass_separated_constraints(
             MockNetlist(), [c1, c2], rules.design_rules
         )
@@ -144,10 +156,13 @@ class TestSameClassNoGeneration:
         from temper_placer.placer.cp_sat.netclass_constraints import (
             generate_netclass_separated_constraints,
         )
+
         c1, n1 = _make_mock_component("U1", "SPI_CLK")
         c2, n2 = _make_mock_component("U2", "SPI_MOSI")
+
         class MockNetlist:
             nets = [n1, n2]
+
         constraints = generate_netclass_separated_constraints(
             MockNetlist(), [c1, c2], rules.design_rules
         )

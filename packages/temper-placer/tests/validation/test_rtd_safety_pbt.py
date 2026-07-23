@@ -48,11 +48,7 @@ def _rref_corners(draw: st.DrawFn) -> float:
     )
 
 
-@given(
-    resistances=st.lists(
-        st.floats(min_value=0, max_value=10_000), min_size=2, max_size=20
-    )
-)
+@given(resistances=st.lists(st.floats(min_value=0, max_value=10_000), min_size=2, max_size=20))
 @settings(max_examples=150, deadline=10_000)
 def test_adc_code_is_monotonic(resistances: list[float]) -> None:
     ordered = sorted(resistances)
@@ -113,8 +109,7 @@ def test_esp32_spi_configuration_meets_max31865_cs_timing_at_five_mhz() -> None:
     """
 
     source = (
-        Path(__file__).resolve().parents[4]
-        / "firmware/components/hal/esp32/hal_spi_esp32.c"
+        Path(__file__).resolve().parents[4] / "firmware/components/hal/esp32/hal_spi_esp32.c"
     ).read_text(encoding="utf-8")
     assert "#define MAX31865_CS_SETUP_CYCLES 2" in source
     assert "#define MAX31865_CS_HOLD_CYCLES  1" in source
@@ -178,12 +173,8 @@ def test_max31865_pt100_excitation_model_respects_vbias_and_rref_corners(
 ) -> None:
     """The VBIAS/RREF divider model is monotonic and physically bounded."""
 
-    current_a = max31865_rtd_current_a(
-        resistance_ohm, vbias_v=vbias_v, rref_ohm=rref_ohm
-    )
-    voltage_v = max31865_rtd_voltage_v(
-        resistance_ohm, vbias_v=vbias_v, rref_ohm=rref_ohm
-    )
+    current_a = max31865_rtd_current_a(resistance_ohm, vbias_v=vbias_v, rref_ohm=rref_ohm)
+    voltage_v = max31865_rtd_voltage_v(resistance_ohm, vbias_v=vbias_v, rref_ohm=rref_ohm)
     assert current_a > 0.0
     assert 0.0 < voltage_v < vbias_v
     assert voltage_v == resistance_ohm * current_a
@@ -265,11 +256,7 @@ def test_virtual_board_faults_reach_latched_shutdown(
     board.bootstrap(transport_ready=True)
     for event in events:
         state = board.control_tick(**event)
-        if (
-            state.mcu_gpio15
-            or state.rtd_hardware_fault
-            or bool(event["other_hardware_fault"])
-        ):
+        if state.mcu_gpio15 or state.rtd_hardware_fault or bool(event["other_hardware_fault"]):
             assert state.shutdown is True
         assert state.shutdown_bar is (not state.shutdown)
 
@@ -286,6 +273,4 @@ def test_redundant_window_voltage_is_monotonic(
     """The analogue monitor cannot turn a larger resistance into a lower V."""
 
     upper = lower + delta
-    assert hardware_window_voltage(upper, excitation) >= hardware_window_voltage(
-        lower, excitation
-    )
+    assert hardware_window_voltage(upper, excitation) >= hardware_window_voltage(lower, excitation)

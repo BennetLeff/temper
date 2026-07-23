@@ -65,9 +65,7 @@ def _make_state(routing=None, pcb_path=True):
 def test_clean_empty_routing():
     """No routes, no violations → CLEAN."""
     gate = StackupGate()
-    result = gate.check(
-        _make_state(routing=_FakeRoutingResult({}, []))
-    )
+    result = gate.check(_make_state(routing=_FakeRoutingResult({}, [])))
     assert result.status is GateStatus.CLEAN
     assert result.violations == ()
 
@@ -187,9 +185,7 @@ def test_unmeasured_no_pcb_path():
 
 def test_unmeasured_never_clean_when_empty():
     """UNMEASURED with empty violations is distinct from CLEAN."""
-    unmeasured = GateResult(
-        GateStatus.UNMEASURED, error_message="tool crashed"
-    )
+    unmeasured = GateResult(GateStatus.UNMEASURED, error_message="tool crashed")
     clean = GateResult(GateStatus.CLEAN)
     assert unmeasured.violations == clean.violations == ()
     assert unmeasured.status is not clean.status
@@ -261,9 +257,7 @@ def test_internal_layer_detection():
         _make_state(
             routing=_FakeRoutingResult(
                 compiled_routes={
-                    "DC_BUS+": _FakeRoute(
-                        "DC_BUS+", width_mm=0.5, layer="In2.Cu"
-                    ),
+                    "DC_BUS+": _FakeRoute("DC_BUS+", width_mm=0.5, layer="In2.Cu"),
                 },
                 unrouted_nets=[],
             )

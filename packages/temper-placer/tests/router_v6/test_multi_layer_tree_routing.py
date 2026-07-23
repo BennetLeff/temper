@@ -1,3 +1,6 @@
+# @req(APC1, R3): all-pad routing connectivity — truthful completion reporting
+# @req(APC1, R4): completion derived from connectivity, not path count
+
 """RED (TDD): Multi-layer tree execution — cross-layer PTH support.
 
 These tests FAIL until the pipeline relaxes its same-layer filter AND the
@@ -61,7 +64,7 @@ def _terminal(
             net=net,
             x=x,
             y=y,
-            layers=tuple(0 if l == "F.Cu" else 1 for l in layers),
+            layers=tuple(0 if layer == "F.Cu" else 1 for layer in layers),
         ),
         center=SimpleNamespace(x=x, y=y),
         layer_names=layers,
@@ -75,7 +78,10 @@ class TestMultiLayerTreeExecution:
         """An empty grids dict must fail with a clear error, not StopIteration."""
         with pytest.raises(ValueError, match="at least one occupancy grid"):
             execute_terminal_tree(
-                plan=None, pads=[], grid={}, net_id=0,
+                plan=None,
+                pads=[],
+                grid={},
+                net_id=0,
             )
 
     def test_multi_grid_pth_spans_both_layers(self):
@@ -105,7 +111,7 @@ class TestMultiLayerTreeExecution:
             clearance=0.15,
         )
         assert result.disposition == NetDisposition.ROUTED
-        assert result.failed_edge is None
+        assert len(result.failed_edges) == 0
         assert len(result.completed_edges) == 2
         # Source t0 declares ("F.Cu", "B.Cu") — F.Cu first, so edges
         # route on F.Cu (declaration-order priority, not alphabetical).
@@ -185,10 +191,10 @@ class TestMultiLayerTreeExecution:
             clearance=0.15,
         )
         assert result.disposition == NetDisposition.INCOMPLETE
-        assert result.failed_edge is not None
-        assert (result.disposition == NetDisposition.ROUTED) == (result.failed_edge is None)
-        assert result.failed_edge.source == t0.identity
-        assert result.failed_edge.target == t1.identity
+        assert len(result.failed_edges) >= 1
+        assert (result.disposition == NetDisposition.ROUTED) == (len(result.failed_edges) == 0)
+        assert result.failed_edges[0].source == t0.identity
+        assert result.failed_edges[0].target == t1.identity
 
     def test_multi_grid_occupancy_reservation_is_layer_scoped(self):
         """Copper reserved on F.Cu must not pollute B.Cu grid."""
@@ -229,7 +235,12 @@ class TestPipelineMixedLayerFilter:
         # a real parsed PCB. This guards against the field being renamed.
         terminal = ParsedTerminal(
             identity=PadIdentity(
-                component_ref="U1", pad="1", net="NET", x=0.0, y=0.0, layers=(0, 1),
+                component_ref="U1",
+                pad="1",
+                net="NET",
+                x=0.0,
+                y=0.0,
+                layers=(0, 1),
             ),
             center=SimpleNamespace(x=0.0, y=0.0),
             layer_names=("F.Cu", "B.Cu"),

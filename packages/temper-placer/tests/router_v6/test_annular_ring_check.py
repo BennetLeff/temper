@@ -79,9 +79,7 @@ def test_annular_ring_violation_dataclass():
 
 def test_annular_ring_report_dataclass():
     """Test AnnularRingReport dataclass."""
-    violation = AnnularRingViolation(
-        "NET1", (0, 0), 0.4, 0.35, 0.025, 0.1
-    )
+    violation = AnnularRingViolation("NET1", (0, 0), 0.4, 0.35, 0.025, 0.1)
 
     report = AnnularRingReport(violations=[violation], total_vias_checked=5)
 
@@ -118,10 +116,7 @@ def test_check_multiple_nets():
     via2 = Via((5, 5), "F.Cu", "B.Cu", 0.4, 0.35, "NET2")  # Fail
     route2 = CompiledRoute("NET2", path2, 0.127, [via2], None)
 
-    results = RoutingResults(
-        compiled_routes={"NET1": route1, "NET2": route2},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"NET1": route1, "NET2": route2}, failed_nets=[])
 
     report = check_annular_rings(results, min_annular_ring=0.1)
 

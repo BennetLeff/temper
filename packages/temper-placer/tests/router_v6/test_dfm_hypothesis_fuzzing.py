@@ -113,9 +113,7 @@ def _run_all_dfm_modules(results: RoutingResults) -> ManufacturingReport:
     annular = check_annular_rings(results, min_annular_ring=0.05)
     teardrop = insert_teardrops(results)
     thermal = add_thermal_relief(results)
-    copper = analyze_copper_balance(
-        results, board_width=_BOARD_W, board_height=_BOARD_H
-    )
+    copper = analyze_copper_balance(results, board_width=_BOARD_W, board_height=_BOARD_H)
     creepage = verify_creepage(results)
     clearance = verify_clearance(results, min_clearance=0.127)
     return generate_manufacturing_report(
@@ -197,9 +195,7 @@ def test_no_crash_thermal_relief(results: RoutingResults) -> None:
 def test_no_crash_copper_balance(results: RoutingResults) -> None:
     """``analyze_copper_balance`` never raises on realistic inputs."""
     try:
-        report = analyze_copper_balance(
-            results, board_width=_BOARD_W, board_height=_BOARD_H
-        )
+        report = analyze_copper_balance(results, board_width=_BOARD_W, board_height=_BOARD_H)
     except Exception as exc:
         pytest.fail(f"analyze_copper_balance raised {type(exc).__name__}: {exc}")
     assert isinstance(report, CopperBalanceReport)
@@ -344,12 +340,8 @@ def test_thermal_relief_idempotent(results: RoutingResults) -> None:
 @_SETTINGS
 def test_copper_balance_idempotent(results: RoutingResults) -> None:
     """Running ``analyze_copper_balance`` twice produces identical reports."""
-    r1 = analyze_copper_balance(
-        results, board_width=_BOARD_W, board_height=_BOARD_H
-    )
-    r2 = analyze_copper_balance(
-        results, board_width=_BOARD_W, board_height=_BOARD_H
-    )
+    r1 = analyze_copper_balance(results, board_width=_BOARD_W, board_height=_BOARD_H)
+    r2 = analyze_copper_balance(results, board_width=_BOARD_W, board_height=_BOARD_H)
     assert r1 == r2, f"CopperBalanceReport mismatch:\n  r1={r1}\n  r2={r2}"
 
 
@@ -374,8 +366,6 @@ def test_clearance_idempotent(results: RoutingResults) -> None:
 # -------------------------------------------------------------------
 # 5. Empty-is-zero
 # -------------------------------------------------------------------
-
-
 
 
 def test_empty_is_zero_acid_trap() -> None:
@@ -602,11 +592,8 @@ def test_clearance_layer_independence_different_net(results: RoutingResults) -> 
 
     # Verify that every violation in the modified report is also present
     # in the all-fcu report (i.e., no spurious new violations).
-    all_fcu_violations = {
-        (v.net1, v.net2, v.layer) for v in report_all_fcu.violations
-    }
+    all_fcu_violations = {(v.net1, v.net2, v.layer) for v in report_all_fcu.violations}
     for v in report_modified.violations:
         assert (v.net1, v.net2, v.layer) in all_fcu_violations, (
-            f"Unexpected clearance violation after layer change: "
-            f"{v.net1} ↔ {v.net2} on {v.layer}"
+            f"Unexpected clearance violation after layer change: {v.net1} ↔ {v.net2} on {v.layer}"
         )

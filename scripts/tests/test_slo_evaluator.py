@@ -1,7 +1,5 @@
 """Tests for SLO evaluation engine in slo_evaluator.py."""
 
-import json
-import math
 import sys
 from pathlib import Path
 

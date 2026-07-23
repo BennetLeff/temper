@@ -11,8 +11,8 @@ Key algorithms (Rust implementation):
 - Winding number for point-in-polygon
 - Convex hull for component bounding
 """
-import temper_geometry as _tg
 
+import temper_geometry as _tg
 
 # =============================================================================
 # Polygon Area (Shoelace Formula)

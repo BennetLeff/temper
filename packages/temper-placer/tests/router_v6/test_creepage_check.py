@@ -37,10 +37,7 @@ def test_verify_hv_net_safe_distance():
     lv_path = RoutePath("SIG1", [(0, 20), (10, 20)], "F.Cu", 10.0)
     lv_route = CompiledRoute("SIG1", lv_path, 0.127, [], None)
 
-    results = RoutingResults(
-        compiled_routes={"AC_L": hv_route, "SIG1": lv_route},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"AC_L": hv_route, "SIG1": lv_route}, failed_nets=[])
 
     report = verify_creepage(results)
 
@@ -58,10 +55,7 @@ def test_verify_hv_net_violation():
     lv_path = RoutePath("SIG1", [(0, 1), (10, 1)], "F.Cu", 10.0)
     lv_route = CompiledRoute("SIG1", lv_path, 0.127, [], None)
 
-    results = RoutingResults(
-        compiled_routes={"AC_L": hv_route, "SIG1": lv_route},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"AC_L": hv_route, "SIG1": lv_route}, failed_nets=[])
 
     report = verify_creepage(results)
 
@@ -103,10 +97,7 @@ def test_custom_voltage_ratings():
     lv_path = RoutePath("SIG1", [(0, 0.5), (10, 0.5)], "F.Cu", 10.0)
     lv_route = CompiledRoute("SIG1", lv_path, 0.127, [], None)
 
-    results = RoutingResults(
-        compiled_routes={"HV_BUS": hv_route, "SIG1": lv_route},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"HV_BUS": hv_route, "SIG1": lv_route}, failed_nets=[])
 
     # 100V requires 0.8mm creepage
     report = verify_creepage(results, voltage_ratings={"HV_BUS": 100.0})
@@ -132,7 +123,7 @@ def test_multiple_lv_nets():
             "SIG1": lv1_route,
             "SIG2": lv2_route,
         },
-        failed_nets=[]
+        failed_nets=[],
     )
 
     report = verify_creepage(results)

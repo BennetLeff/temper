@@ -33,7 +33,7 @@ def _make_simple_grid(
     rows: int, cols: int, blocked: set[tuple[int, int]] | None = None
 ) -> OccupancyGrid:
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for c, r in (blocked or set()):
+    for c, r in blocked or set():
         arr[r, c] = 1
     return OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, cols, rows)
 
@@ -50,8 +50,11 @@ def _make_wall_grid(width: int, height: int, wall_col: int) -> OccupancyGrid:
 
 
 @pytest.mark.l3_pbt
-@given(gsp=grid_and_pair(rows=st.integers(5, 25), cols=st.integers(5, 25),
-                          p_obstacle=st.floats(0.0, 0.4)))
+@given(
+    gsp=grid_and_pair(
+        rows=st.integers(5, 25), cols=st.integers(5, 25), p_obstacle=st.floats(0.0, 0.4)
+    )
+)
 @settings(max_examples=100, deadline=30000)
 def test_congestion_derivative_no_false_positive_theta_star(gsp):
     """Theta*: Dijkstra verifies path exists => early abort must find it too."""
@@ -67,7 +70,11 @@ def test_congestion_derivative_no_false_positive_theta_star(gsp):
 
     # Early abort ON: must still find a path
     path_on = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     assert path_on is not None, (
         f"False positive: Theta* early abort on reachable grid "
@@ -76,16 +83,21 @@ def test_congestion_derivative_no_false_positive_theta_star(gsp):
 
     # Early abort OFF: should also find a path
     path_off = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
-    assert path_off is not None, (
-        "Theta* without derivative failed on reachable grid"
-    )
+    assert path_off is not None, "Theta* without derivative failed on reachable grid"
 
 
 @pytest.mark.l3_pbt
-@given(gsp=grid_and_pair(rows=st.integers(5, 25), cols=st.integers(5, 25),
-                          p_obstacle=st.floats(0.0, 0.4)))
+@given(
+    gsp=grid_and_pair(
+        rows=st.integers(5, 25), cols=st.integers(5, 25), p_obstacle=st.floats(0.0, 0.4)
+    )
+)
 @settings(max_examples=100, deadline=30000)
 def test_congestion_derivative_no_false_positive_lazy_theta_star(gsp):
     """Lazy Theta*: Dijkstra verifies path exists => early abort must find it."""
@@ -100,7 +112,11 @@ def test_congestion_derivative_no_false_positive_lazy_theta_star(gsp):
         return
 
     path_on = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     assert path_on is not None, (
         f"False positive: Lazy Theta* early abort on reachable grid "
@@ -108,11 +124,13 @@ def test_congestion_derivative_no_false_positive_lazy_theta_star(gsp):
     )
 
     path_off = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
-    assert path_off is not None, (
-        "Lazy Theta* without derivative failed on reachable grid"
-    )
+    assert path_off is not None, "Lazy Theta* without derivative failed on reachable grid"
 
 
 # ---------------------------------------------------------------------------
@@ -129,15 +147,21 @@ def test_congestion_derivative_abort_on_wall_theta_star():
 
     # With early abort ON: should return None (and much faster)
     path_on = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
-    assert path_on is None, (
-        "Theta* with early abort should return None on wall-separated grid"
-    )
+    assert path_on is None, "Theta* with early abort should return None on wall-separated grid"
 
     # With early abort OFF: should also return None but after many more iterations
     path_off = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
     assert path_off is None, (
         "Theta* without early abort should also return None on wall-separated grid"
@@ -151,14 +175,20 @@ def test_congestion_derivative_abort_on_wall_lazy_theta_star():
     goal = (99, 99)
 
     path_on = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
-    assert path_on is None, (
-        "Lazy Theta* with early abort should return None on wall-separated grid"
-    )
+    assert path_on is None, "Lazy Theta* with early abort should return None on wall-separated grid"
 
     path_off = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
     assert path_off is None, (
         "Lazy Theta* without early abort should also return None on wall-separated grid"
@@ -182,10 +212,18 @@ def test_congestion_derivative_abort_on_boxed_theta_star():
     goal = (55, 55)
 
     path_on = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     path_off = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
     assert path_on is None, "Theta* early abort should detect unreachable goal"
     assert path_off is None, "Theta* should also fail without derivative"
@@ -204,10 +242,18 @@ def test_congestion_derivative_abort_on_boxed_lazy_theta_star():
     goal = (55, 55)
 
     path_on = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     path_off = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
     assert path_on is None, "Lazy Theta* early abort should detect unreachable goal"
     assert path_off is None, "Lazy Theta* should also fail without derivative"
@@ -226,10 +272,18 @@ def test_congestion_derivative_configurable_off():
 
     # Both should return None on a wall grid
     path_theta_on = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     path_theta_off = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
 
     assert path_theta_on is None
@@ -238,10 +292,18 @@ def test_congestion_derivative_configurable_off():
     # On an unimpeded path, both should succeed
     open_grid = _make_simple_grid(20, 20)
     path_open_on = _astar_search_theta_star(
-        open_grid, (0, 0), (19, 19), net_id=0, enable_congestion_derivative=True,
+        open_grid,
+        (0, 0),
+        (19, 19),
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     path_open_off = _astar_search_theta_star(
-        open_grid, (0, 0), (19, 19), net_id=0, enable_congestion_derivative=False,
+        open_grid,
+        (0, 0),
+        (19, 19),
+        net_id=0,
+        enable_congestion_derivative=False,
     )
     assert path_open_on is not None, "Should find path on open grid with flag ON"
     assert path_open_off is not None, "Should find path on open grid with flag OFF"
@@ -265,19 +327,26 @@ def test_congestion_derivative_exhaustive_5x5_theta_star():
                 if occ_bits & (1 << (r * size + c)):
                     blocked.add((c, r))
         grid = _make_simple_grid(size, size, blocked)
-        free = [(c, r) for r in range(size) for c in range(size)
-                if grid.grid[r, c] == 0]
+        free = [(c, r) for r in range(size) for c in range(size) if grid.grid[r, c] == 0]
 
         for i in range(len(free)):
             for j in range(i + 1, len(free)):
                 s, g = free[i], free[j]
                 # Pristine Theta* (no early abort)
                 path_off = _astar_search_theta_star(
-                    grid, s, g, net_id=0, enable_congestion_derivative=False,
+                    grid,
+                    s,
+                    g,
+                    net_id=0,
+                    enable_congestion_derivative=False,
                 )
                 # Theta* with early abort
                 path_on = _astar_search_theta_star(
-                    grid, s, g, net_id=0, enable_congestion_derivative=True,
+                    grid,
+                    s,
+                    g,
+                    net_id=0,
+                    enable_congestion_derivative=True,
                 )
 
                 if path_off is not None:
@@ -286,9 +355,7 @@ def test_congestion_derivative_exhaustive_5x5_theta_star():
                         f"{s}->{g}: Theta* early abort rejected reachable path"
                     )
                 else:
-                    assert path_on is None, (
-                        f"Early abort found phantom path: occ {occ_bits:0{25}b}"
-                    )
+                    assert path_on is None, f"Early abort found phantom path: occ {occ_bits:0{25}b}"
 
 
 @pytest.mark.l2_exhaustive
@@ -304,17 +371,24 @@ def test_congestion_derivative_exhaustive_5x5_lazy_theta_star():
                 if occ_bits & (1 << (r * size + c)):
                     blocked.add((c, r))
         grid = _make_simple_grid(size, size, blocked)
-        free = [(c, r) for r in range(size) for c in range(size)
-                if grid.grid[r, c] == 0]
+        free = [(c, r) for r in range(size) for c in range(size) if grid.grid[r, c] == 0]
 
         for i in range(len(free)):
             for j in range(i + 1, len(free)):
                 s, g = free[i], free[j]
                 path_off = _astar_search_lazy_theta_star(
-                    grid, s, g, net_id=0, enable_congestion_derivative=False,
+                    grid,
+                    s,
+                    g,
+                    net_id=0,
+                    enable_congestion_derivative=False,
                 )
                 path_on = _astar_search_lazy_theta_star(
-                    grid, s, g, net_id=0, enable_congestion_derivative=True,
+                    grid,
+                    s,
+                    g,
+                    net_id=0,
+                    enable_congestion_derivative=True,
                 )
 
                 if path_off is not None:
@@ -323,9 +397,7 @@ def test_congestion_derivative_exhaustive_5x5_lazy_theta_star():
                         f"{s}->{g}: Lazy Theta* early abort rejected reachable path"
                     )
                 else:
-                    assert path_on is None, (
-                        f"Early abort found phantom path: occ {occ_bits:0{25}b}"
-                    )
+                    assert path_on is None, f"Early abort found phantom path: occ {occ_bits:0{25}b}"
 
 
 # ---------------------------------------------------------------------------
@@ -334,18 +406,29 @@ def test_congestion_derivative_exhaustive_5x5_lazy_theta_star():
 
 
 @pytest.mark.l3_pbt
-@given(gsp=grid_and_pair(rows=st.integers(30, 60), cols=st.integers(30, 60),
-                          p_obstacle=st.floats(0.1, 0.5)))
+@given(
+    gsp=grid_and_pair(
+        rows=st.integers(30, 60), cols=st.integers(30, 60), p_obstacle=st.floats(0.1, 0.5)
+    )
+)
 @settings(max_examples=50, deadline=60000)
 def test_congestion_derivative_large_grid_consistency_theta_star(gsp):
     """Large grids: early abort result must match full search result."""
     grid, start, goal = gsp
 
     path_on = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     path_off = _astar_search_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
 
     # Completeness parity: if full search finds path, early abort must too
@@ -357,24 +440,33 @@ def test_congestion_derivative_large_grid_consistency_theta_star(gsp):
     # If full search returns None, early abort should too
     # (early abort can't "find" a path that doesn't exist)
     else:
-        assert path_on is None, (
-            "Early abort found phantom path on unreachable grid"
-        )
+        assert path_on is None, "Early abort found phantom path on unreachable grid"
 
 
 @pytest.mark.l3_pbt
-@given(gsp=grid_and_pair(rows=st.integers(30, 60), cols=st.integers(30, 60),
-                          p_obstacle=st.floats(0.1, 0.5)))
+@given(
+    gsp=grid_and_pair(
+        rows=st.integers(30, 60), cols=st.integers(30, 60), p_obstacle=st.floats(0.1, 0.5)
+    )
+)
 @settings(max_examples=50, deadline=60000)
 def test_congestion_derivative_large_grid_consistency_lazy_theta_star(gsp):
     """Large grids: Lazy Theta* early abort consistent with full search."""
     grid, start, goal = gsp
 
     path_on = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=True,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=True,
     )
     path_off = _astar_search_lazy_theta_star(
-        grid, start, goal, net_id=0, enable_congestion_derivative=False,
+        grid,
+        start,
+        goal,
+        net_id=0,
+        enable_congestion_derivative=False,
     )
 
     if path_off is not None:
@@ -383,6 +475,4 @@ def test_congestion_derivative_large_grid_consistency_lazy_theta_star(gsp):
             f"{grid.width_cells}x{grid.height_cells}, {start}->{goal}"
         )
     else:
-        assert path_on is None, (
-            "Early abort found phantom path on unreachable grid"
-        )
+        assert path_on is None, "Early abort found phantom path on unreachable grid"

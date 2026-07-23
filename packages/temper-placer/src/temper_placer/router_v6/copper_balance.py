@@ -141,12 +141,8 @@ def analyze_copper_balance(
             total_area,
         )
 
-        copper_percentage = (
-            (copper_area / total_area) * 100.0 if total_area > 0 else 0.0
-        )
-        is_balanced = (
-            min_copper_percentage <= copper_percentage <= max_copper_percentage
-        )
+        copper_percentage = (copper_area / total_area) * 100.0 if total_area > 0 else 0.0
+        is_balanced = min_copper_percentage <= copper_percentage <= max_copper_percentage
 
         layer_balances.append(
             LayerCopperBalance(
@@ -220,9 +216,12 @@ def _calculate_layer_copper_area(
                 copper_area += _via_annular_area(via)
 
             # --- Intermediate layers (through-hole barrel) ---
-            if (layer_name != via.from_layer and layer_name != via.to_layer
-                    and _layer_is_between(via.from_layer, via.to_layer, layer_name)):
-                    copper_area += _via_annular_area(via)
+            if (
+                layer_name != via.from_layer
+                and layer_name != via.to_layer
+                and _layer_is_between(via.from_layer, via.to_layer, layer_name)
+            ):
+                copper_area += _via_annular_area(via)
 
     return copper_area
 
@@ -239,12 +238,7 @@ def _via_annular_area(via: object) -> float:
     drill = getattr(via, "drill", 0.0) or 0.0
 
     # Guard: NaN / inf diameter or drill → 0.0
-    if (
-        math.isnan(diameter)
-        or math.isnan(drill)
-        or math.isinf(diameter)
-        or math.isinf(drill)
-    ):
+    if math.isnan(diameter) or math.isnan(drill) or math.isinf(diameter) or math.isinf(drill):
         return 0.0
 
     # Guard: non-positive diameter or drill >= diameter → 0.0

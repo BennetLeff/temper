@@ -1,0 +1,12 @@
+[package]
+name = "temper-ipc-core"
+version = "0.1.0"
+edition = "2024"
+description = "Pure-Rust IPC standard calculations for PCB design — extracted from temper-ipc"
+license = "MIT"
+
+[lib]
+crate-type = ["rlib"]
+
+[profile.release]
+panic = "unwind"

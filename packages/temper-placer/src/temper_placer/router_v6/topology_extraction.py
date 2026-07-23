@@ -114,7 +114,7 @@ def _extract_net_topology(
                     try:
                         to_idx = parts.index("to")
                         source = "_".join(parts[2:to_idx])
-                        sink = "_".join(parts[to_idx+1:])
+                        sink = "_".join(parts[to_idx + 1 :])
 
                         # Add edge to path graph
                         path_graph.add_edge(source, sink)

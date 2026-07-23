@@ -31,9 +31,7 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
-def pytest_collection_modifyitems(
-    config: pytest.Config, items: list[pytest.Item]
-) -> None:
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     """Skip nightly-marked tests unless explicitly selected or running in
     a nightly CI context (RUN_NIGHTLY env var or -m nightly flag)."""
     import os

@@ -15,6 +15,7 @@ class PinInfo:
     def radius(self) -> float:
         return self.diameter_mm / 2.0
 
+
 @dataclass
 class PlacementViolation:
     item_a: PinInfo
@@ -24,10 +25,9 @@ class PlacementViolation:
     violation_type: str  # "SHORT", "CLEARANCE", "ROUTABILITY"
     message: str
 
+
 def validate_placement_drc(
-    pins: list[PinInfo],
-    min_clearance_mm: float,
-    _trace_width_mm: float = 0.25
+    pins: list[PinInfo], min_clearance_mm: float, _trace_width_mm: float = 0.25
 ) -> list[PlacementViolation]:
     """
     Validate placement for DRC violations before routing.
@@ -61,33 +61,37 @@ def validate_placement_drc(
             # Calculate distance
             dx = pin_a.x - pin_b.x
             dy = pin_a.y - pin_b.y
-            dist = math.sqrt(dx*dx + dy*dy)
+            dist = math.sqrt(dx * dx + dy * dy)
 
             pad_r_sum = pin_a.radius + pin_b.radius
 
             # 1. Check for physical overlap (Short)
             if dist < pad_r_sum:
-                violations.append(PlacementViolation(
-                    item_a=pin_a,
-                    item_b=pin_b,
-                    distance=dist,
-                    required=pad_r_sum,
-                    violation_type="SHORT",
-                    message=f"Pads overlapping! {pin_a.net_name} vs {pin_b.net_name}"
-                ))
+                violations.append(
+                    PlacementViolation(
+                        item_a=pin_a,
+                        item_b=pin_b,
+                        distance=dist,
+                        required=pad_r_sum,
+                        violation_type="SHORT",
+                        message=f"Pads overlapping! {pin_a.net_name} vs {pin_b.net_name}",
+                    )
+                )
                 continue
 
             # 2. Check for electrical clearance
             required_clearance = pad_r_sum + min_clearance_mm
             if dist < required_clearance:
-                 violations.append(PlacementViolation(
-                    item_a=pin_a,
-                    item_b=pin_b,
-                    distance=dist,
-                    required=required_clearance,
-                    violation_type="CLEARANCE",
-                    message=f"Clearance violation! Dist {dist:.3f}mm < {required_clearance:.3f}mm"
-                ))
-                 continue
+                violations.append(
+                    PlacementViolation(
+                        item_a=pin_a,
+                        item_b=pin_b,
+                        distance=dist,
+                        required=required_clearance,
+                        violation_type="CLEARANCE",
+                        message=f"Clearance violation! Dist {dist:.3f}mm < {required_clearance:.3f}mm",
+                    )
+                )
+                continue
 
     return violations

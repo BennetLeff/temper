@@ -24,16 +24,16 @@ const BUDGET_MULTIPLIER: usize = 10;
 
 /// A detected Performance constraint violation.
 #[derive(Debug)]
-#[allow(dead_code)]
 struct Violation {
     bundle_id: usize,
     kind: ViolationKind,
-    channel_id: String,
 }
 
 #[derive(Debug)]
 enum ViolationKind {
+    #[allow(dead_code)]
     DiffPairSplit,
+    #[allow(dead_code)]
     CapacityExceeded,
 }
 
@@ -44,6 +44,7 @@ pub struct Watchdog<'term, 'learn> {
     /// Per-net variable names → SAT indices
     per_net_var_map: HashMap<String, usize>,
     /// Fixed number of class-level variables (from safety CNF)
+    #[allow(dead_code)]
     eager_var_count: usize,
     /// Total budget for per-net variable instantiation
     budget_total: usize,
@@ -268,9 +269,7 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
                 continue;
             }
             let name = &self.var_names[*idx];
-            if name.starts_with("uses_B") {
-                // Parse uses_B{bundle_id}_{channel_id}
-                let rest = &name[6..]; // strip "uses_B"
+            if let Some(rest) = name.strip_prefix("uses_B") {
                 if let Some(underscore_pos) = rest.find('_') {
                     let bid_str = &rest[..underscore_pos];
                     let ch_id = &rest[underscore_pos + 1..];
@@ -294,11 +293,9 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
                 .map(|v| v.len())
                 .unwrap_or(0);
             if chs > 1 {
-                let ch_list = &bundle_true_channels[&bundle.bundle_id];
                 violations.push(Violation {
                     bundle_id: bundle.bundle_id,
                     kind: ViolationKind::DiffPairSplit,
-                    channel_id: ch_list[0].clone(),
                 });
             }
         }
@@ -327,10 +324,10 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
                 // Mark remaining bundle nets as degraded.
                 if let Some(bundle) = self.manifest.bundles.iter().find(|b| b.bundle_id == v.bundle_id) {
                     for &ni in &bundle.net_indices {
-                        if let Some(name) = net_names.get(ni) {
-                            if !self.budget_exhausted_nets.contains(name) {
-                                self.budget_exhausted_nets.push(name.clone());
-                            }
+                        if let Some(name) = net_names.get(ni)
+                            && !self.budget_exhausted_nets.contains(name)
+                        {
+                            self.budget_exhausted_nets.push(name.clone());
                         }
                     }
                 }
@@ -368,12 +365,11 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
         // Collect channel IDs from class variables for this bundle
         let mut channel_ids: Vec<String> = Vec::new();
         for name in &self.var_names {
-            if name.starts_with("uses_B") {
-                let rest = &name[6..];
-                if rest.starts_with(&format!("{bundle_id}_")) {
-                    let ch = rest[format!("{bundle_id}_").len()..].to_string();
-                    channel_ids.push(ch);
-                }
+            if let Some(rest) = name.strip_prefix("uses_B")
+                && let Some(ch_rest) = rest.strip_prefix(&format!("{bundle_id}_"))
+            {
+                let ch = ch_rest.to_string();
+                channel_ids.push(ch);
             }
         }
 
@@ -392,8 +388,8 @@ impl<'term, 'learn> Watchdog<'term, 'learn> {
             }
 
             // Equivalence: (¬p ∨ n) ∧ (p ∨ ¬n)
-            let clause1 = vec![Lit::negative((p_var as u32 + 1) as u32), Lit::positive((n_var as u32 + 1) as u32)];
-            let clause2 = vec![Lit::positive((p_var as u32 + 1) as u32), Lit::negative((n_var as u32 + 1) as u32)];
+            let clause1 = [Lit::negative((p_var + 1) as u32), Lit::positive((n_var + 1) as u32)];
+            let clause2 = [Lit::positive((p_var + 1) as u32), Lit::negative((n_var + 1) as u32)];
 
             if self.solver.add_clause(Clause::from(&clause1[..])).is_ok()
                 && self.solver.add_clause(Clause::from(&clause2[..])).is_ok()

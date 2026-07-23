@@ -16,6 +16,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
 from temper_placer.physics.tj_cross_check import (
     INDEPENDENT_INPUTS,
     SHARED_INPUTS,
@@ -25,9 +26,7 @@ from temper_placer.physics.tj_cross_check import (
     independent_inputs,
     shared_inputs,
 )
-from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
 from temper_placer.placer.cp_sat.gates import GateStatus, ViolationType
-
 
 # ---------------------------------------------------------------------------
 # Representative device thermal configs with `because` datasheet citations
@@ -43,10 +42,7 @@ _DEVICE_WELL_SINKED = DeviceThermalConfig(
     R_theta_cs=0.0,
     R_theta_sa=0.0,
     T_j_max=150.0,
-    R_jc_because=(
-        "STGW30NC60W datasheet, Table 7: Thermal resistance, "
-        "junction-to-case, IGBT"
-    ),
+    R_jc_because=("STGW30NC60W datasheet, Table 7: Thermal resistance, junction-to-case, IGBT"),
     R_cs_because=(
         "board-heatsinked: case soldered directly to copper pour; "
         "no separate thermal interface — the board IS the sink"
@@ -56,10 +52,7 @@ _DEVICE_WELL_SINKED = DeviceThermalConfig(
         "the board conduction path ends at the clamped edge, which the "
         "FDM Dirichlet BC models directly"
     ),
-    T_j_max_because=(
-        "STGW30NC60W datasheet, Table 2: Absolute maximum ratings, "
-        "T_j = 150°C"
-    ),
+    T_j_max_because=("STGW30NC60W datasheet, Table 2: Absolute maximum ratings, T_j = 150°C"),
 )
 
 # Realistic full-chain device: R_θCS + R_θSA model the separate heatsink
@@ -70,14 +63,8 @@ _DEVICE_FULL_SINK = DeviceThermalConfig(
     R_theta_cs=0.25,
     R_theta_sa=1.0,
     T_j_max=150.0,
-    R_jc_because=(
-        "STGW30NC60W datasheet, Table 7: Thermal resistance, "
-        "junction-to-case, IGBT"
-    ),
-    R_cs_because=(
-        "typical TO-247 grease interface, per Wakefield-Vette "
-        "thermal interface guide"
-    ),
+    R_jc_because=("STGW30NC60W datasheet, Table 7: Thermal resistance, junction-to-case, IGBT"),
+    R_cs_because=("typical TO-247 grease interface, per Wakefield-Vette thermal interface guide"),
     R_sa_because=(
         "Wakefield 694-100 extrusion family, ~75mm length, natural "
         "convection, de-rated for temper induction-cooker enclosure "
@@ -85,10 +72,7 @@ _DEVICE_FULL_SINK = DeviceThermalConfig(
         "694-100 at 100mm is ~0.5 °C/W; 75mm is ~0.8 °C/W at 0 LFM; "
         "enclosure de-rating 1.25× → 1.0 °C/W."
     ),
-    T_j_max_because=(
-        "STGW30NC60W datasheet, Table 2: Absolute maximum ratings, "
-        "T_j = 150°C"
-    ),
+    T_j_max_because=("STGW30NC60W datasheet, Table 2: Absolute maximum ratings, T_j = 150°C"),
 )
 
 
@@ -194,8 +178,7 @@ def test_agreeing_but_over_ceiling_is_violation():
     )
     result = gate._check_inner(solver_with_cu)
     assert result.status is GateStatus.VIOLATIONS, (
-        "Conservative T_j above T_j(max) must be a VIOLATION even when the "
-        "two models agree"
+        "Conservative T_j above T_j(max) must be a VIOLATION even when the two models agree"
     )
     assert any("SAFETY CEILING" in v.description for v in result.violations), (
         "Expected a safety-ceiling violation (gated on the conservative T_j), "
@@ -263,9 +246,7 @@ def test_wrong_k_eff_produces_violation():
     assert v.type == ViolationType.THERMAL
     assert "Q1" in v.components
     delta = v.context.get("delta_C", 0.0)
-    assert delta > 5.0, (
-        f"Expected delta > 5°C with wrong k_eff, got {delta:.1f}°C"
-    )
+    assert delta > 5.0, f"Expected delta > 5°C with wrong k_eff, got {delta:.1f}°C"
 
 
 # ---------------------------------------------------------------------------
@@ -337,9 +318,7 @@ def test_far_from_heatsink_produces_violation_with_attribution():
     v = result.violations[0]
     assert v.type == ViolationType.THERMAL
     delta = v.context.get("delta_C", 0.0)
-    assert delta > 5.0, (
-        f"Expected delta > 5°C for far-from-heatsink, got {delta:.1f}°C"
-    )
+    assert delta > 5.0, f"Expected delta > 5°C for far-from-heatsink, got {delta:.1f}°C"
     T_j_fdm = v.context.get("T_j_fdm_C")
     T_j_lumped = v.context.get("T_j_lumped_C")
     assert T_j_fdm is not None
@@ -350,10 +329,7 @@ def test_far_from_heatsink_produces_violation_with_attribution():
         "convection" in v.description.lower()
         or "edge" in v.description.lower()
         or "disagreement" in v.description.lower()
-    ), (
-        f"Expected attribution in: "
-        f"{v.description}"
-    )
+    ), f"Expected attribution in: {v.description}"
 
 
 # ---------------------------------------------------------------------------
@@ -381,10 +357,7 @@ def test_missing_rtheta_is_unmeasured():
         f"Expected UNMEASURED for missing R_θ, got {result.status}"
     )
     assert "Q2" in result.error_message
-    assert (
-        "R_θ" in result.error_message
-        or "thermal" in result.error_message.lower()
-    ), (
+    assert "R_θ" in result.error_message or "thermal" in result.error_message.lower(), (
         f"Expected R_θ mention in error, got: {result.error_message}"
     )
 
@@ -417,7 +390,7 @@ def test_gate_uses_worst_case_power():
         tau_C=50.0,
         T_amb=40.0,
     )
-    result_worst = gate_worst._check_inner(solve_thermal_fdm)
+    gate_worst._check_inner(solve_thermal_fdm)
 
     gate_nominal = TjCrossCheckGate(
         fdm_config=config,
@@ -427,7 +400,7 @@ def test_gate_uses_worst_case_power():
         tau_C=50.0,
         T_amb=40.0,
     )
-    result_nominal = gate_nominal._check_inner(solve_thermal_fdm)
+    gate_nominal._check_inner(solve_thermal_fdm)
 
     # The gate does NOT override the power_map
     assert gate_worst._power_map["Q1"] == worst_case_power
@@ -490,8 +463,8 @@ def test_shared_vs_independent_inputs_exposed():
     assert any("data" in s.lower() for s in independent)
 
     # Module-level functions match
-    assert SHARED_INPUTS == shared
-    assert INDEPENDENT_INPUTS == independent
+    assert shared == SHARED_INPUTS
+    assert independent == INDEPENDENT_INPUTS
     assert shared_inputs() == SHARED_INPUTS
     assert independent_inputs() == INDEPENDENT_INPUTS
 
@@ -647,6 +620,5 @@ def test_real_rtheta_provides_margin():
     margin_expected = dev_th.T_j_max - T_j_lumped_expected
     assert margin_expected == pytest.approx(35.075, rel=1e-6)
     assert margin_expected > 30.0, (
-        f"Expected >30°C margin at 40.5W with R_θSA=1.0, "
-        f"got only {margin_expected:.1f}°C"
+        f"Expected >30°C margin at 40.5W with R_θSA=1.0, got only {margin_expected:.1f}°C"
     )

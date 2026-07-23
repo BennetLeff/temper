@@ -1,13 +1,9 @@
 """Tests for scorecard.py — U2 margin scorecard + independence guard."""
 
-import math
-from pathlib import Path
-
 import numpy as np
 import pytest
 
 from temper_placer.core.board import Board
-from temper_placer.core.loss_types import LossContext
 from temper_placer.core.netlist import Component, Netlist
 from temper_placer.core.state import PlacementState
 from temper_placer.metrics.quality import (
@@ -25,7 +21,6 @@ from temper_placer.validation.scorecard import (
     _assert_independent,
     build_scorecard,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -138,7 +133,9 @@ class TestMarginScorecardFromOracleResult:
             "compactness_score": 0.4,
         }
         result = PhysicsOracleResult(
-            board_id="b", passed=True, quality_report=report,
+            board_id="b",
+            passed=True,
+            quality_report=report,
         )
         sc = MarginScorecard.from_oracle_result(result, scorer_id="o")
         assert all(m.is_scorable for m in sc.margins)
@@ -153,7 +150,9 @@ class TestMarginScorecardFromOracleResult:
             "compactness_score": 0.5,
         }
         result = PhysicsOracleResult(
-            board_id="b", passed=True, quality_report=report,
+            board_id="b",
+            passed=True,
+            quality_report=report,
         )
         sc = MarginScorecard.from_oracle_result(result, scorer_id="o")
 
@@ -221,7 +220,9 @@ class TestIndependenceGuard:
 
         with pytest.raises(IndependenceViolationError):
             build_scorecard(
-                state, board, netlist,
+                state,
+                board,
+                netlist,
                 scorer=dummy_scorer,
                 scorer_id="my_solver",
                 field_id="my_solver",
@@ -233,14 +234,18 @@ class TestIndependenceGuard:
         """build_scorecard runs fine when scorer and field are distinct."""
         board = _minimal_board(200, 200)
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 190.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 190.0),
+            net_class="HighVoltage",
         )
         netlist = _minimal_netlist([q1])
         state = _make_state([[50.0, 190.0]])
         # Score through score_placement() from physics_oracle
-        from temper_placer.regression.physics_oracle import score_placement
         from temper_placer.placer.deterministic import PlacementResult
+        from temper_placer.regression.physics_oracle import score_placement
 
         placement = PlacementResult(
             positions=state.positions,
@@ -252,11 +257,15 @@ class TestIndependenceGuard:
         def scorer(p, b, n):
             report = score_placement(placement, b, n)
             return PhysicsOracleResult(
-                board_id="test", passed=True, quality_report=report,
+                board_id="test",
+                passed=True,
+                quality_report=report,
             )
 
         sc = build_scorecard(
-            placement, board, netlist,
+            placement,
+            board,
+            netlist,
             scorer=scorer,
             scorer_id="physics_oracle",
             field_id="thermal_field",
@@ -280,43 +289,66 @@ class TestThermalMarginMonotonic:
 
         # Near-edge placement
         near_comp = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 198.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 198.0),
+            net_class="HighVoltage",
         )
         near_nl = _minimal_netlist([near_comp])
         near_state = _make_state([[50.0, 198.0]])
 
         near_thermal = thermal_score(
-            near_state, near_nl, board, {"Q1"},
-            target_edge="TOP", max_distance=40.0,
+            near_state,
+            near_nl,
+            board,
+            {"Q1"},
+            target_edge="TOP",
+            max_distance=40.0,
         )
 
         # Far-from-edge placement
         far_comp = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(50.0, 180.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(50.0, 180.0),
+            net_class="HighVoltage",
         )
         far_nl = _minimal_netlist([far_comp])
         far_state = _make_state([[50.0, 180.0]])
 
         far_thermal = thermal_score(
-            far_state, far_nl, board, {"Q1"},
-            target_edge="TOP", max_distance=40.0,
+            far_state,
+            far_nl,
+            board,
+            {"Q1"},
+            target_edge="TOP",
+            max_distance=40.0,
         )
 
         # Raw scores: near > far
         assert near_thermal > far_thermal
 
         # Margin: near_margin > far_margin
-        near_report = {"thermal_score": near_thermal, "hv_lv_clearance_score": 1.0, "loop_area_score": 1.0}
-        far_report = {"thermal_score": far_thermal, "hv_lv_clearance_score": 1.0, "loop_area_score": 1.0}
+        near_report = {
+            "thermal_score": near_thermal,
+            "hv_lv_clearance_score": 1.0,
+            "loop_area_score": 1.0,
+        }
+        far_report = {
+            "thermal_score": far_thermal,
+            "hv_lv_clearance_score": 1.0,
+            "loop_area_score": 1.0,
+        }
 
         near_margins = compute_oracle_margins(near_report, max_heatspread_mm=40.0)
         far_margins = compute_oracle_margins(far_report, max_heatspread_mm=40.0)
 
         assert near_margins["thermal_headroom_mm"] > far_margins["thermal_headroom_mm"], (
-            f"near={near_margins['thermal_headroom_mm']}, "
-            f"far={far_margins['thermal_headroom_mm']}"
+            f"near={near_margins['thermal_headroom_mm']}, far={far_margins['thermal_headroom_mm']}"
         )
 
 
@@ -348,12 +380,16 @@ class TestEdgeDefaultNotScorable:
 
     def test_empty_hv_lv_sets_produce_non_scorable_clearance(self):
         """No HV or LV components → clearance score is default 1.0 → not scorable."""
-        board = _minimal_board()
+        _minimal_board()
 
         # Single component — no HV/LV pairs
         c = Component(
-            ref="U1", footprint="QFP", bounds=(8.0, 8.0),
-            pins=[], initial_position=(50.0, 50.0), net_class="Signal",
+            ref="U1",
+            footprint="QFP",
+            bounds=(8.0, 8.0),
+            pins=[],
+            initial_position=(50.0, 50.0),
+            net_class="Signal",
         )
         netlist = _minimal_netlist([c])
         state = _make_state([[50.0, 50.0]])
@@ -428,38 +464,64 @@ class TestIntegrationOracleToScorecard:
 
     def test_full_integration_via_score_placement(self):
         """Build a scorecard via the score_placement path (no PCB file needed)."""
-        from temper_placer.regression.physics_oracle import score_placement
         from temper_placer.placer.deterministic import PlacementResult
+        from temper_placer.regression.physics_oracle import score_placement
 
         board = Board(width=200.0, height=200.0)
 
         # Create a realistic fixture: 2 HV + 3 LV, well-separated
         q1 = Component(
-            ref="Q1", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(20.0, 20.0), net_class="HighVoltage",
+            ref="Q1",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(20.0, 20.0),
+            net_class="HighVoltage",
         )
         q2 = Component(
-            ref="Q2", footprint="TO-247", bounds=(10.0, 5.0),
-            pins=[], initial_position=(20.0, 70.0), net_class="HighVoltage",
+            ref="Q2",
+            footprint="TO-247",
+            bounds=(10.0, 5.0),
+            pins=[],
+            initial_position=(20.0, 70.0),
+            net_class="HighVoltage",
         )
         u1 = Component(
-            ref="U1", footprint="QFP", bounds=(8.0, 8.0),
-            pins=[], initial_position=(80.0, 20.0), net_class="Signal",
+            ref="U1",
+            footprint="QFP",
+            bounds=(8.0, 8.0),
+            pins=[],
+            initial_position=(80.0, 20.0),
+            net_class="Signal",
         )
         u2 = Component(
-            ref="U2", footprint="QFP", bounds=(8.0, 8.0),
-            pins=[], initial_position=(80.0, 50.0), net_class="Signal",
+            ref="U2",
+            footprint="QFP",
+            bounds=(8.0, 8.0),
+            pins=[],
+            initial_position=(80.0, 50.0),
+            net_class="Signal",
         )
         u3 = Component(
-            ref="U3", footprint="QFP", bounds=(8.0, 8.0),
-            pins=[], initial_position=(80.0, 80.0), net_class="Signal",
+            ref="U3",
+            footprint="QFP",
+            bounds=(8.0, 8.0),
+            pins=[],
+            initial_position=(80.0, 80.0),
+            net_class="Signal",
         )
 
         netlist = _minimal_netlist([q1, q2, u1, u2, u3])
-        positions = np.array([
-            [20.0, 20.0], [20.0, 70.0],
-            [80.0, 20.0], [80.0, 50.0], [80.0, 80.0],
-        ], dtype=np.float32)
+        positions = np.array(
+            [
+                [20.0, 20.0],
+                [20.0, 70.0],
+                [80.0, 20.0],
+                [80.0, 50.0],
+                [80.0, 80.0],
+            ],
+            dtype=np.float32,
+        )
         placement = PlacementResult(
             positions=positions,
             rotations=np.zeros(5, dtype=np.float32),
@@ -470,8 +532,10 @@ class TestIntegrationOracleToScorecard:
         report = score_placement(placement, board, netlist)
         oracle_margins = compute_oracle_margins(report)
         result = PhysicsOracleResult(
-            board_id="fixture", passed=True,
-            quality_report=report, margins=oracle_margins,
+            board_id="fixture",
+            passed=True,
+            quality_report=report,
+            margins=oracle_margins,
         )
         sc = MarginScorecard.from_oracle_result(result, scorer_id="physics_oracle")
 
@@ -516,8 +580,10 @@ class TestGateMarginContract:
         result = PhysicsOracleResult(board_id="b", passed=True, quality_report=report)
         sc = MarginScorecard.from_oracle_result(result, scorer_id="o")
 
-        record = {m.gate_name: {"margin": m.value, "unit": m.unit, "scorable": m.is_scorable}
-                   for m in sc.margins}
+        record = {
+            m.gate_name: {"margin": m.value, "unit": m.unit, "scorable": m.is_scorable}
+            for m in sc.margins
+        }
         assert record["thermal"]["unit"] == "mm"
         assert record["hv_lv_clearance"]["unit"] == "mm"
         assert record["loop_area"]["unit"] == "mm2"

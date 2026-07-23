@@ -189,9 +189,7 @@ class TestPipelineExecution:
 
         # Check all positions are within board
         assert np.all(positions[:, 0] >= 0), "X positions should be >= 0"
-        assert np.all(positions[:, 0] <= simple_board.width), (
-            "X positions should be <= board width"
-        )
+        assert np.all(positions[:, 0] <= simple_board.width), "X positions should be <= board width"
         assert np.all(positions[:, 1] >= 0), "Y positions should be >= 0"
         assert np.all(positions[:, 1] <= simple_board.height), (
             "Y positions should be <= board height"

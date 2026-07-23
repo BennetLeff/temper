@@ -27,6 +27,7 @@ from temper_placer.router_v6.layer_assignment import Layer, LayerAssignment
 @dataclass
 class BenchmarkResult:
     """Result of a single benchmark run."""
+
     name: str
     net_count: int
     grid_width: int
@@ -44,14 +45,18 @@ class BenchmarkResult:
 @dataclass
 class BenchmarkSuite:
     """Collection of benchmark results."""
+
     timestamp: str
     results: list[BenchmarkResult]
 
     def to_json(self) -> str:
-        return json.dumps({
-            "timestamp": self.timestamp,
-            "results": [asdict(r) for r in self.results],
-        }, indent=2)
+        return json.dumps(
+            {
+                "timestamp": self.timestamp,
+                "results": [asdict(r) for r in self.results],
+            },
+            indent=2,
+        )
 
     def print_table(self):
         """Print results as a formatted table."""
@@ -63,7 +68,9 @@ class BenchmarkSuite:
         for r in self.results:
             grid = f"{r.grid_width}x{r.grid_height}"
             time_str = f"{r.total_time_ms:.0f}ms"
-            print(f"{r.name:<25} {r.net_count:>5} {grid:>10} {time_str:>8} {r.nets_per_second:>8.1f} {r.final_conflicts:>9}")
+            print(
+                f"{r.name:<25} {r.net_count:>5} {grid:>10} {time_str:>8} {r.nets_per_second:>8.1f} {r.final_conflicts:>9}"
+            )
         print("=" * 80)
 
 
@@ -79,13 +86,14 @@ def create_test_netlist(
     Components are arranged in a grid pattern with random nets connecting them.
     """
     import random
+
     random.seed(seed)
 
     components = []
     positions = []
 
     # Arrange components in a grid
-    cols = int(component_count ** 0.5)
+    cols = int(component_count**0.5)
     rows = (component_count + cols - 1) // cols
 
     margin = 5.0
@@ -99,7 +107,7 @@ def create_test_netlist(
         y = margin + row * y_spacing if rows > 1 else board_height / 2
 
         comp = Component(
-            ref=f"U{i+1}",
+            ref=f"U{i + 1}",
             footprint="SOIC-8",
             bounds=(3.0, 5.0),
             pins=[
@@ -129,8 +137,8 @@ def create_test_netlist(
         pin2 = random.choice(["1", "2", "3", "4", "5", "6"])
 
         net = Net(
-            name=f"NET_{i+1}",
-            pins=[(f"U{comp1_idx+1}", pin1), (f"U{comp2_idx+1}", pin2)],
+            name=f"NET_{i + 1}",
+            pins=[(f"U{comp1_idx + 1}", pin1), (f"U{comp2_idx + 1}", pin2)],
         )
         nets.append(net)
 
@@ -165,8 +173,7 @@ def run_benchmark(
     # Create assignments
     net_order = [n.name for n in netlist.nets]
     assignments = {
-        n.name: LayerAssignment(n.name, Layer.L1_TOP, {Layer.L1_TOP})
-        for n in netlist.nets
+        n.name: LayerAssignment(n.name, Layer.L1_TOP, {Layer.L1_TOP}) for n in netlist.nets
     }
 
     # Run routing
@@ -190,7 +197,7 @@ def run_benchmark(
     avg_length = total_length / max(1, len(results))
     total_vias = sum(r.via_count for r in results.values())
 
-    iterations = len(router.progress_history) if hasattr(router, 'progress_history') else 0
+    iterations = len(router.progress_history) if hasattr(router, "progress_history") else 0
     final_conflicts = router.progress_history[-1].total_conflicts if router.progress_history else 0
 
     nets_per_second = len(net_order) / (elapsed_ms / 1000) if elapsed_ms > 0 else 0
@@ -221,65 +228,77 @@ def run_all_benchmarks() -> BenchmarkSuite:
     results = []
 
     # Small board, few nets
-    results.append(run_benchmark(
-        name="small_sparse",
-        net_count=10,
-        board_width=20.0,
-        board_height=20.0,
-        component_count=8,
-        cell_size=1.0,
-    ))
+    results.append(
+        run_benchmark(
+            name="small_sparse",
+            net_count=10,
+            board_width=20.0,
+            board_height=20.0,
+            component_count=8,
+            cell_size=1.0,
+        )
+    )
 
     # Small board, dense nets
-    results.append(run_benchmark(
-        name="small_dense",
-        net_count=30,
-        board_width=20.0,
-        board_height=20.0,
-        component_count=8,
-        cell_size=1.0,
-    ))
+    results.append(
+        run_benchmark(
+            name="small_dense",
+            net_count=30,
+            board_width=20.0,
+            board_height=20.0,
+            component_count=8,
+            cell_size=1.0,
+        )
+    )
 
     # Medium board, moderate density
-    results.append(run_benchmark(
-        name="medium_moderate",
-        net_count=50,
-        board_width=50.0,
-        board_height=50.0,
-        component_count=20,
-        cell_size=1.0,
-    ))
+    results.append(
+        run_benchmark(
+            name="medium_moderate",
+            net_count=50,
+            board_width=50.0,
+            board_height=50.0,
+            component_count=20,
+            cell_size=1.0,
+        )
+    )
 
     # Medium board, dense
-    results.append(run_benchmark(
-        name="medium_dense",
-        net_count=100,
-        board_width=50.0,
-        board_height=50.0,
-        component_count=25,
-        cell_size=1.0,
-    ))
+    results.append(
+        run_benchmark(
+            name="medium_dense",
+            net_count=100,
+            board_width=50.0,
+            board_height=50.0,
+            component_count=25,
+            cell_size=1.0,
+        )
+    )
 
     # Large board, sparse
-    results.append(run_benchmark(
-        name="large_sparse",
-        net_count=80,
-        board_width=100.0,
-        board_height=100.0,
-        component_count=40,
-        cell_size=2.0,  # Coarser grid for speed
-    ))
+    results.append(
+        run_benchmark(
+            name="large_sparse",
+            net_count=80,
+            board_width=100.0,
+            board_height=100.0,
+            component_count=40,
+            cell_size=2.0,  # Coarser grid for speed
+        )
+    )
 
     # Large board, dense (stress test)
-    results.append(run_benchmark(
-        name="large_dense",
-        net_count=150,
-        board_width=100.0,
-        board_height=100.0,
-        component_count=50,
-        cell_size=2.0,
-        max_iterations=5,  # Limit iterations
-    ))
+    results.append(
+        run_benchmark(
+            name="large_dense",
+            net_count=150,
+            board_width=100.0,
+            board_height=100.0,
+            component_count=50,
+            cell_size=2.0,
+            max_iterations=5,  # Limit iterations
+        )
+    )
 
     suite = BenchmarkSuite(
         timestamp=datetime.now().isoformat(),
@@ -305,15 +324,17 @@ def benchmark_incremental_vs_full() -> None:
     board = Board(width=50.0, height=50.0)
     net_order = [n.name for n in netlist.nets]
     assignments = {
-        n.name: LayerAssignment(n.name, Layer.L1_TOP, {Layer.L1_TOP})
-        for n in netlist.nets
+        n.name: LayerAssignment(n.name, Layer.L1_TOP, {Layer.L1_TOP}) for n in netlist.nets
     }
 
     # Full rerouting
     router1 = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=1)
     start1 = time.perf_counter()
     router1.rrr_route_all_nets(
-        netlist, positions, net_order, assignments,
+        netlist,
+        positions,
+        net_order,
+        assignments,
         max_iterations=10,
         incremental=False,
     )
@@ -323,7 +344,10 @@ def benchmark_incremental_vs_full() -> None:
     router2 = MazeRouter.from_board(board, cell_size_mm=1.0, num_layers=1)
     start2 = time.perf_counter()
     router2.rrr_route_all_nets(
-        netlist, positions, net_order, assignments,
+        netlist,
+        positions,
+        net_order,
+        assignments,
         max_iterations=10,
         incremental=True,
     )

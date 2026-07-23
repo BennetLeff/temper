@@ -38,16 +38,12 @@ def measure_copper_length(pcb_path: Path) -> dict:
     return {
         "total_wirelength_mm": total_length,
         "net_lengths_mm": net_lengths,
-        "via_count": len(
-            result.pads
-        ),  # Simplified, should count vias specifically if possible
+        "via_count": len(result.pads),  # Simplified, should count vias specifically if possible
     }
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Route and measure actual PCB wirelength."
-    )
+    parser = argparse.ArgumentParser(description="Route and measure actual PCB wirelength.")
     parser.add_argument("input_pcb", type=Path, help="Input placed .kicad_pcb file")
     parser.add_argument("-o", "--output", type=Path, help="Output JSON report file")
     parser.add_argument("--jar", type=Path, help="Path to freerouting.jar")
@@ -64,7 +60,7 @@ def main():
         print("Error: Routed PCB not found. Run internal_route.py first.")
         sys.exit(1)
 
-    elapsed = 0.0 # Placeholder
+    elapsed = 0.0  # Placeholder
 
     # Now measure the real copper
     print("Measuring copper lengths...")

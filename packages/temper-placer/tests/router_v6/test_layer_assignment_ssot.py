@@ -3,11 +3,14 @@
 Verifies the per-net-class ``layer`` field flows from netclass_rules.yaml
 through the loader into a deterministic net->layer resolution.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from temper_placer.io.netclass_loader import load_netclass_rules
 from temper_placer.router_v6.layer_assignment import (
@@ -18,9 +21,7 @@ from temper_placer.router_v6.layer_assignment import (
     layer_name_to_index,
 )
 
-RULES_PATH = (
-    Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
-)
+RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
 
 # R2 table: net class -> KiCad layer name.
 EXPECTED_CLASS_LAYERS = {
@@ -92,14 +93,8 @@ class TestGetLayerForNet:
         assert get_layer_for_net("whatever", None) == "B.Cu"
 
     def test_deterministic(self, design_rules):
-        first = {
-            n: get_layer_for_net(n, design_rules)
-            for n in ("AC_L", "GND", "+3V3", "PWM_H")
-        }
-        second = {
-            n: get_layer_for_net(n, design_rules)
-            for n in ("AC_L", "GND", "+3V3", "PWM_H")
-        }
+        first = {n: get_layer_for_net(n, design_rules) for n in ("AC_L", "GND", "+3V3", "PWM_H")}
+        second = {n: get_layer_for_net(n, design_rules) for n in ("AC_L", "GND", "+3V3", "PWM_H")}
         assert first == second
 
 
@@ -129,3 +124,30 @@ class TestLayerAssignmentsFromNetclass:
         assert {k: v.primary_layer for k, v in a1.items()} == {
             k: v.primary_layer for k, v in a2.items()
         }
+
+    @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
+    @given(
+        st.lists(
+            st.text(
+                alphabet=st.characters(
+                    whitelist_categories=("Lu", "Ll", "Nd"),
+                    whitelist_characters="_+-",
+                ),
+                min_size=1,
+                max_size=12,
+            ),
+            min_size=0,
+            max_size=30,
+            unique=True,
+        ),
+    )
+    def test_no_net_silently_dropped_or_duplicated(self, design_rules, net_names):
+        """Regression coverage for the class of bug in
+        docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md:
+        a caller passing N distinct net names must get back assignments for
+        exactly those N nets -- never fewer (silently dropped) nor more
+        (stale/duplicated), for any net-name set including the empty one.
+        """
+        assignments = layer_assignments_from_netclass(design_rules, net_names)
+        assert set(assignments.keys()) == set(net_names)
+        assert len(assignments) == len(net_names)

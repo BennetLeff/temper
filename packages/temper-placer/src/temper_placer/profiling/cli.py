@@ -28,13 +28,15 @@ def profile():
 
 @profile.command("run")
 @click.option(
-    "--module", "-m",
+    "--module",
+    "-m",
     required=True,
     type=click.Choice(["pipeline", "loss-fn", "router-bench", "all"]),
     help="Profiling module to run",
 )
 @click.option(
-    "--board", "-b",
+    "--board",
+    "-b",
     default="temper",
     help="Board ID for pipeline and loss-fn profiling",
 )
@@ -50,7 +52,8 @@ def profile():
     help="Append records to a JSONL file",
 )
 @click.option(
-    "--json", "json_output",
+    "--json",
+    "json_output",
     is_flag=True,
     default=False,
     help="Output NDJSON records to stdout",
@@ -82,6 +85,7 @@ def profile_run(
         from temper_placer.regression.metrics_recorder import (
             PipelineMetricsRecord,
         )
+
         for rec_dict in all_records:
             rec = PipelineMetricsRecord(**rec_dict)
             record_metrics(rec, output_jsonl)
@@ -93,4 +97,6 @@ def profile_run(
 
     if not json_output and not output_jsonl:
         # No output mode selected — print summary to stderr
-        print(f"Profiled {len(all_records)} records (pass --json or --output-jsonl)", file=sys.stderr)
+        print(
+            f"Profiled {len(all_records)} records (pass --json or --output-jsonl)", file=sys.stderr
+        )

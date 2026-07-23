@@ -47,12 +47,13 @@ fn catch_unwind_f64(f: impl FnOnce() -> PyResult<f64>) -> PyResult<f64> {
 // Tier-to-weight mapping (exposed for Python fallback parity)
 #[pyfunction]
 fn tier_to_weight_py(_py: Python<'_>, tier: u8) -> PyResult<f64> {
-    let t = ConstraintTier::from_int(tier).map_err(|e| PyValueError::new_err(e))?;
+    let t = ConstraintTier::from_int(tier).map_err(PyValueError::new_err)?;
     Ok(tier_to_weight(&t))
 }
 
 // Adjacent loss
 #[pyfunction]
+#[allow(clippy::too_many_arguments)]
 #[pyo3(signature = (positions, idx_a, idx_b, max_distance_mm, weight, metric = "center_to_center", pin_a_x = None, pin_a_y = None, pin_b_x = None, pin_b_y = None))]
 fn compute_adjacent_loss_py(
     _py: Python<'_>,
@@ -116,6 +117,7 @@ fn compute_separation_loss_py(
 
 // Zone membership loss
 #[pyfunction]
+#[allow(clippy::too_many_arguments)]
 fn compute_enclosing_loss_py(
     _py: Python<'_>,
     positions: Vec<f64>,
@@ -236,7 +238,7 @@ fn compute_loop_area_loss_py(
 }
 
 // Constraint type enum (Python-visible)
-#[pyclass(name = "ConstraintType", eq, eq_int)]
+#[pyclass(name = "ConstraintType", eq, eq_int, from_py_object)]
 #[derive(Clone, PartialEq)]
 enum PyConstraintType {
     Adjacent = 1,

@@ -80,31 +80,46 @@ def timing() -> None:
 
 @timing.command("baseline")
 @click.option(
-    "--board", "-b", required=True, default=None,
+    "--board",
+    "-b",
+    required=True,
+    default=None,
     help="Board ID (from golden_manifest.yaml)",
 )
 @click.option(
-    "--pipeline", "-p", default="DeterministicPipeline",
+    "--pipeline",
+    "-p",
+    default="DeterministicPipeline",
     help="Pipeline to measure",
 )
 @click.option(
-    "--stage", "-s", default=None,
+    "--stage",
+    "-s",
+    default=None,
     help="Measure only this stage (default: all stages)",
 )
 @click.option(
-    "--all-boards", is_flag=True, default=False,
+    "--all-boards",
+    is_flag=True,
+    default=False,
     help="Measure all canonical boards",
 )
 @click.option(
-    "--overwrite", is_flag=True, default=False,
+    "--overwrite",
+    is_flag=True,
+    default=False,
     help="Overwrite existing baseline entries",
 )
 @click.option(
-    "--runs", type=int, default=3,
+    "--runs",
+    type=int,
+    default=3,
     help="Number of measurement runs per stage",
 )
 @click.option(
-    "--sub-steps", is_flag=True, default=False,
+    "--sub-steps",
+    is_flag=True,
+    default=False,
     help="Capture sub-step timings for stages that support them (e.g., RouterV6Pipeline stage2)",
 )
 def timing_baseline(
@@ -134,9 +149,7 @@ def timing_baseline(
     unknown = [b for b in boards if b not in _load_golden_boards()]
     if unknown:
         available = _load_golden_boards()
-        console.print(
-            "[red]ERROR: unknown board(s): {}[/]".format(", ".join(unknown))
-        )
+        console.print("[red]ERROR: unknown board(s): {}[/]".format(", ".join(unknown)))
         console.print("Available: {}".format(", ".join(available)))
         sys.exit(1)
 
@@ -151,7 +164,9 @@ def timing_baseline(
         else:
             try:
                 all_results = measure_all_stages(
-                    board_id=board_id, pipeline=pipeline, n_runs=runs,
+                    board_id=board_id,
+                    pipeline=pipeline,
+                    n_runs=runs,
                     sub_steps=sub_steps,
                 )
                 stages_to_measure = [r.stage_name for r in all_results]
@@ -171,9 +186,7 @@ def timing_baseline(
                     break
 
             if existing_idx is not None and not overwrite:
-                console.print(
-                    f"SKIP {board_id}/{pipeline}/{stage_name} (exists, use --overwrite)"
-                )
+                console.print(f"SKIP {board_id}/{pipeline}/{stage_name} (exists, use --overwrite)")
                 skipped += 1
                 continue
 
@@ -186,9 +199,7 @@ def timing_baseline(
                     sub_steps=sub_steps,
                 )
             except Exception as e:
-                console.print(
-                    f"[red]FAIL {board_id}/{pipeline}/{stage_name}: {e}[/]"
-                )
+                console.print(f"[red]FAIL {board_id}/{pipeline}/{stage_name}: {e}[/]")
                 continue
 
             entry = {
@@ -263,26 +274,33 @@ def _check_git_ancestry(baseline_git_hash: str) -> bool:
 
 
 @timing.command("check")
+@click.option("--board", "-b", default=None, help="Check only this board")
+@click.option("--stage", "-s", default=None, help="Check only this stage")
 @click.option(
-    "--board", "-b", default=None, help="Check only this board"
-)
-@click.option(
-    "--stage", "-s", default=None, help="Check only this stage"
-)
-@click.option(
-    "--margin", "-m", type=float, default=0.20,
+    "--margin",
+    "-m",
+    type=float,
+    default=0.20,
     help="Relative margin (default: 0.20 = 20%%)",
 )
 @click.option(
-    "--floor-ms", type=float, default=10.0,
+    "--floor-ms",
+    type=float,
+    default=10.0,
     help="Absolute floor for near-zero timings (default: 10ms)",
 )
 @click.option(
-    "--json", "json_output", is_flag=True, default=False,
+    "--json",
+    "json_output",
+    is_flag=True,
+    default=False,
     help="Output as JSON",
 )
 @click.option(
-    "--ci", "ci_mode", is_flag=True, default=False,
+    "--ci",
+    "ci_mode",
+    is_flag=True,
+    default=False,
     help="CI mode: enforce git ancestry check",
 )
 def timing_check(
@@ -321,9 +339,7 @@ def timing_check(
         if json_output:
             print(json.dumps({"passed": True, "message": "No matching baselines."}))
         else:
-            console.print(
-                "[dim]No matching baselines to check.[/]"
-            )
+            console.print("[dim]No matching baselines to check.[/]")
         sys.exit(0)
 
     # Platform/Python version mismatch check
@@ -339,11 +355,7 @@ def timing_check(
         msg = f"Platform/Python version mismatch: baseline={baseline_python}/{baseline_platform} current={current_python}/{current_platform}"
         if ci_mode:
             if json_output:
-                print(
-                    json.dumps(
-                        {"passed": False, "error": f"Platform/Python mismatch: {msg}"}
-                    )
-                )
+                print(json.dumps({"passed": False, "error": f"Platform/Python mismatch: {msg}"}))
             else:
                 console.print(f"[red]ERROR: {msg}[/]")
             sys.exit(1)
@@ -391,9 +403,7 @@ def timing_check(
 
     for (board_id, pipeline_name), group_entries in measurement_groups.items():
         try:
-            all_current = measure_all_stages(
-                board_id=board_id, pipeline=pipeline_name, n_runs=3
-            )
+            all_current = measure_all_stages(board_id=board_id, pipeline=pipeline_name, n_runs=3)
             current_map = {r.stage_name: r for r in all_current}
         except Exception as e:
             if json_output:
@@ -484,19 +494,24 @@ def timing_check(
 
 
 @timing.command("regenerate")
+@click.option("--board", "-b", required=True, help="Board ID to regenerate baselines for")
 @click.option(
-    "--board", "-b", required=True, help="Board ID to regenerate baselines for"
-)
-@click.option(
-    "--stage", "-s", default=None,
+    "--stage",
+    "-s",
+    default=None,
     help="Regenerate only this stage (default: all stages)",
 )
 @click.option(
-    "--pipeline", "-p", default="DeterministicPipeline",
+    "--pipeline",
+    "-p",
+    default="DeterministicPipeline",
     help="Pipeline to measure",
 )
 @click.option(
-    "--force", "-f", is_flag=True, default=False,
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
     help="Skip confirmation prompt",
 )
 def timing_regenerate(
@@ -527,23 +542,17 @@ def timing_regenerate(
             )
             for e in matching:
                 console.print(
-                    "  {}: {:.1f} ms -> will be replaced".format(
-                        e["stage"], e["wall_ms_mean"]
-                    )
+                    "  {}: {:.1f} ms -> will be replaced".format(e["stage"], e["wall_ms_mean"])
                 )
             if not click.confirm("[y/N]:", default=False):
                 console.print("Aborted.")
                 return
 
     if stage:
-        console.print(
-            f"Regenerating baseline for {board}/{pipeline}/{stage}"
-        )
+        console.print(f"Regenerating baseline for {board}/{pipeline}/{stage}")
         from temper_placer.profiling.timing_gate import measure_stage_timing
 
-        result = measure_stage_timing(
-            stage_name=stage, board_id=board, pipeline=pipeline, n_runs=3
-        )
+        result = measure_stage_timing(stage_name=stage, board_id=board, pipeline=pipeline, n_runs=3)
         current_ms = result.wall_ms
 
         if manifest is None:
@@ -562,9 +571,7 @@ def timing_regenerate(
             "stage": stage,
             "wall_ms_mean": round(result.wall_ms, 3),
             "wall_ms_p95": round(
-                sorted(result.individual_ms)[
-                    int(len(result.individual_ms) * 0.95)
-                ],
+                sorted(result.individual_ms)[int(len(result.individual_ms) * 0.95)],
                 3,
             ),
             "n_runs": result.n_runs,
@@ -588,9 +595,7 @@ def timing_regenerate(
 
         _save_manifest(manifest)
         if current_ms is not None:
-            console.print(
-                f"[green]Regenerated: {current_ms:.1f} ms[/]"
-            )
+            console.print(f"[green]Regenerated: {current_ms:.1f} ms[/]")
     else:
         from temper_placer.profiling.timing_gate import measure_all_stages
 
@@ -614,9 +619,7 @@ def timing_regenerate(
                 "stage": result.stage_name,
                 "wall_ms_mean": round(result.wall_ms, 3),
                 "wall_ms_p95": round(
-                    sorted(result.individual_ms)[
-                        int(len(result.individual_ms) * 0.95)
-                    ],
+                    sorted(result.individual_ms)[int(len(result.individual_ms) * 0.95)],
                     3,
                 ),
                 "n_runs": result.n_runs,
@@ -637,25 +640,17 @@ def timing_regenerate(
                     break
             if not found:
                 manifest["stages"].append(new_entry)
-            console.print(
-                f"  {result.stage_name}:{result.wall_ms:.1f} ms"
-            )
+            console.print(f"  {result.stage_name}:{result.wall_ms:.1f} ms")
 
         _save_manifest(manifest)
-        console.print(
-            f"[green]Regenerated {len(results)} stages for board '{board}'[/]"
-        )
+        console.print(f"[green]Regenerated {len(results)} stages for board '{board}'[/]")
 
 
 @timing.command("tighten")
 @click.option("--board", "-b", default=None, help="Tighten only this board")
 @click.option("--stage", "-s", default=None, help="Tighten only this stage")
-@click.option(
-    "--pipeline", "-p", default="DeterministicPipeline", help="Pipeline to check"
-)
-@click.option(
-    "--n-runs", type=int, default=7, help="Consecutive runs required (default: 7)"
-)
+@click.option("--pipeline", "-p", default="DeterministicPipeline", help="Pipeline to check")
+@click.option("--n-runs", type=int, default=7, help="Consecutive runs required (default: 7)")
 @click.option(
     "--threshold",
     "-t",
@@ -739,9 +734,7 @@ def timing_tighten(
 
     # 4. Pretty-print results --------------------------------------------------
     pct_str = f"{threshold * 100:.0f}%"
-    console.print(
-        f"\nEligible stages for auto-tightening (threshold: {pct_str}, N={n_runs}):"
-    )
+    console.print(f"\nEligible stages for auto-tightening (threshold: {pct_str}, N={n_runs}):")
     table = RT(show_header=True, header_style="bold")
     table.add_column("Board")
     table.add_column("Stage")
@@ -786,12 +779,14 @@ def timing_tighten(
                 and entry["stage"] == result.stage
             ):
                 # Compute p95 of qualifying runs  # R5
-                p95_ms = round(
-                    sorted(result.qualifying_runs)[
-                        int(len(result.qualifying_runs) * 0.95)
-                    ],
-                    3,
-                ) if result.qualifying_runs else 0.0
+                p95_ms = (
+                    round(
+                        sorted(result.qualifying_runs)[int(len(result.qualifying_runs) * 0.95)],
+                        3,
+                    )
+                    if result.qualifying_runs
+                    else 0.0
+                )
 
                 manifest["stages"][i] = {
                     "board": result.board,
@@ -834,6 +829,4 @@ def timing_tighten(
                 streak=result.streak_count,
             )
         )
-    console.print(
-        "Baselines written to power_pcb_dataset/timing_baselines.yaml"
-    )
+    console.print("Baselines written to power_pcb_dataset/timing_baselines.yaml")

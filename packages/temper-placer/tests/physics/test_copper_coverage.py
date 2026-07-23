@@ -13,7 +13,6 @@ Covers:
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from temper_placer.core.board import Board, LayerStackup, MountingHole
 from temper_placer.physics.copper_coverage import (
@@ -22,7 +21,6 @@ from temper_placer.physics.copper_coverage import (
     copper_coverage_grid,
 )
 from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -64,7 +62,9 @@ def _mini_board_with_mounting_hole() -> Board:
 
 
 def _mini_fdm_config(
-    height_cells: int = 20, width_cells: int = 20, cell_size_mm: float = 5.0,
+    height_cells: int = 20,
+    width_cells: int = 20,
+    cell_size_mm: float = 5.0,
 ) -> ThermalFDMConfig:
     return ThermalFDMConfig(
         cell_size_mm=cell_size_mm,
@@ -118,9 +118,7 @@ class TestPlaneCoverage:
 
         # Expected: (In1 1oz + In2 1oz) / (2+1+1+1) = 0.40 at placement time
         center_val = grid[25, 25]
-        assert center_val > 0.35, (
-            f"Expected > 0.35 in board centre, got {center_val:.4f}"
-        )
+        assert center_val > 0.35, f"Expected > 0.35 in board centre, got {center_val:.4f}"
 
     def test_placement_time_fraction_around_04(self):
         """At placement time (no traces), fraction ~ 0.40 for 4-layer stackup."""
@@ -129,9 +127,7 @@ class TestPlaneCoverage:
         grid = copper_coverage_grid(board, fdm_config)
         mean_val = float(np.mean(grid[5:45, 5:45]))  # exclude boundaries
         # With two 1oz planes out of 5oz total, mean ~ 0.40
-        assert 0.30 < mean_val < 0.50, (
-            f"Expected ~0.40 at placement time, got {mean_val:.4f}"
-        )
+        assert 0.30 < mean_val < 0.50, f"Expected ~0.40 at placement time, got {mean_val:.4f}"
 
     def test_outside_board_is_zero(self):
         """Cells outside the board rectangle have zero copper."""
@@ -162,15 +158,11 @@ class TestKeepouts:
 
         # Cell at (2.5, 2.5) -> row 0, col 0 is inside keepout (0,0,20,20)
         val_inside = grid[0, 0]
-        assert val_inside == 0.0, (
-            f"Cell inside keepout should be 0, got {val_inside:.4f}"
-        )
+        assert val_inside == 0.0, f"Cell inside keepout should be 0, got {val_inside:.4f}"
 
         # Cell at (60, 60) -> row 12, col 12 is outside keepout
         val_outside = grid[12, 12]
-        assert val_outside > 0.0, (
-            f"Cell outside keepout should have copper, got {val_outside:.4f}"
-        )
+        assert val_outside > 0.0, f"Cell outside keepout should have copper, got {val_outside:.4f}"
 
     def test_cell_inside_mounting_hole_keepout_is_zero(self):
         """Cells inside mounting-hole keepout zone have zero coverage."""
@@ -180,9 +172,7 @@ class TestKeepouts:
 
         # Hole at (10, 10), keepout radius 5mm. Cell centre at (10, 10) is inside
         val_at_hole = grid[10, 10]
-        assert val_at_hole == 0.0, (
-            f"Cell at mounting hole should be 0, got {val_at_hole:.4f}"
-        )
+        assert val_at_hole == 0.0, f"Cell at mounting hole should be 0, got {val_at_hole:.4f}"
 
         # Cell far from hole should have copper
         val_far = grid[50, 50]
@@ -191,6 +181,7 @@ class TestKeepouts:
     def test_no_plane_layers_has_zero_at_placement_time(self):
         """A 4-layer board with no plane layers has zero at placement time."""
         from temper_placer.core.board import Layer
+
         board = Board(
             width=100.0,
             height=100.0,
@@ -317,6 +308,7 @@ class TestBetweenArmSaturation:
         """Create a HelpsBatteryResult with given per-arm thermal scores."""
         from temper_placer.validation.helps_battery import HelpsBatteryResult
         from temper_placer.validation.prereg.schema import (
+            BecauseThreshold,
             CheapBaseline,
             CostBudget,
             FieldPreregistration,
@@ -325,7 +317,6 @@ class TestBetweenArmSaturation:
             PassBar,
             StructuralBoundingCase,
         )
-        from temper_placer.validation.prereg.schema import BecauseThreshold
 
         prereg = FieldPreregistration(
             field_name="thermal",
@@ -355,10 +346,14 @@ class TestBetweenArmSaturation:
             pass_bar=PassBar(
                 margin_gain=BecauseThreshold(name="X", value=0.1, because="min gain"),
                 beat_cheap_baseline_by=BecauseThreshold(
-                    name="Y", value=0.05, because="min margin",
+                    name="Y",
+                    value=0.05,
+                    because="min margin",
                 ),
                 across_perturbations=BecauseThreshold(
-                    name="N", value=2.0, because="stats",
+                    name="N",
+                    value=2.0,
+                    because="stats",
                 ),
             ),
             kill_criterion=KillCriterion(
@@ -387,6 +382,7 @@ class TestBetweenArmSaturation:
     def test_all_identical_zero_detected(self, caplog):
         """All arms with thermal_score == 0.0 -> saturation warning logged."""
         import logging as _logging
+
         from temper_placer.validation.results.battery_run import (
             _check_between_arm_saturation,
         )
@@ -399,6 +395,7 @@ class TestBetweenArmSaturation:
     def test_all_identical_one_detected(self, caplog):
         """All arms with thermal_score == 1.0 -> saturation warning logged."""
         import logging as _logging
+
         from temper_placer.validation.results.battery_run import (
             _check_between_arm_saturation,
         )
@@ -411,6 +408,7 @@ class TestBetweenArmSaturation:
     def test_diverging_arms_no_warning(self, caplog):
         """Diverging scores -> no saturation warning."""
         import logging as _logging
+
         from temper_placer.validation.results.battery_run import (
             _check_between_arm_saturation,
         )
@@ -423,8 +421,10 @@ class TestBetweenArmSaturation:
     def test_empty_arms_no_warning(self, caplog):
         """Empty margins -> no warning."""
         import logging as _logging
+
         from temper_placer.validation.helps_battery import HelpsBatteryResult
         from temper_placer.validation.prereg.schema import (
+            BecauseThreshold,
             CheapBaseline,
             CostBudget,
             FieldPreregistration,
@@ -433,7 +433,6 @@ class TestBetweenArmSaturation:
             PassBar,
             StructuralBoundingCase,
         )
-        from temper_placer.validation.prereg.schema import BecauseThreshold
         from temper_placer.validation.results.battery_run import (
             _check_between_arm_saturation,
         )
@@ -447,30 +446,43 @@ class TestBetweenArmSaturation:
                 field_name="thermal",
                 independent_instrument="test",
                 cheap_baseline=CheapBaseline(
-                    name="test", description="d", metric="thermal_score",
-                    target_value=0.0, because="test",
+                    name="test",
+                    description="d",
+                    metric="thermal_score",
+                    target_value=0.0,
+                    because="test",
                 ),
                 parametric_ranges=[
                     ParametricRange(
-                        parameter="h", min=5.0, max=40.0, because="Cover",
+                        parameter="h",
+                        min=5.0,
+                        max=40.0,
+                        because="Cover",
                     ),
                 ],
                 structural_bounding_cases=[
                     StructuralBoundingCase(
-                        case_name="s", description="d", because="b",
+                        case_name="s",
+                        description="d",
+                        because="b",
                     ),
                 ],
                 pass_bar=PassBar(
                     margin_gain=BecauseThreshold(name="X", value=0.1, because="min gain"),
                     beat_cheap_baseline_by=BecauseThreshold(
-                        name="Y", value=0.05, because="min margin",
+                        name="Y",
+                        value=0.05,
+                        because="min margin",
                     ),
                     across_perturbations=BecauseThreshold(
-                        name="N", value=2.0, because="sanity guard test",
+                        name="N",
+                        value=2.0,
+                        because="sanity guard test",
                     ),
                 ),
                 kill_criterion=KillCriterion(
-                    description="test", because="test",
+                    description="test",
+                    because="test",
                 ),
                 cost_budget=CostBudget(
                     max_total_battery_seconds=100.0,

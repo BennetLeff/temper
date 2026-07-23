@@ -8,7 +8,6 @@ These tests verify:
 5. Penalty computation aggregates violations properly
 """
 
-
 import pytest
 
 

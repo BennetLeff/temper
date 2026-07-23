@@ -140,7 +140,12 @@ def infer_differential_pairs(net_names: list[str]) -> list[DiffPair]:
                 )
                 matched_nets.add(upper)
                 matched_nets.add(neg_candidate)
-        elif upper.endswith("P") and not upper.endswith("_P") and not upper.endswith("DP") and len(upper) > 1:
+        elif (
+            upper.endswith("P")
+            and not upper.endswith("_P")
+            and not upper.endswith("DP")
+            and len(upper) > 1
+        ):
             # Match P suffix without underscore (but not DP)
             base = upper[:-1]
             neg_candidate = base + "N"

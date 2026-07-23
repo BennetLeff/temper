@@ -34,7 +34,9 @@ class TreeRouteGeometry:
         object.__setattr__(
             self,
             "branches",
-            tuple(sorted(self.branches, key=lambda branch: (branch.edge.source, branch.edge.target))),
+            tuple(
+                sorted(self.branches, key=lambda branch: (branch.edge.source, branch.edge.target))
+            ),
         )
 
     @property

@@ -11,6 +11,7 @@ Layout (3×3 grid, aligned to board coordinates):
 
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,7 @@ import numpy as np
 try:
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
+
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False
@@ -67,7 +69,8 @@ def routing_health_dashboard(
     edt_row_h = max(350, int(450 / max(aspect, 0.5)))
 
     fig = make_subplots(
-        rows=3, cols=3,
+        rows=3,
+        cols=3,
         column_widths=[0.38, 0.32, 0.30],
         row_heights=[edt_row_h, 320, 280],
         subplot_titles=[
@@ -99,15 +102,20 @@ def routing_health_dashboard(
         fig.add_trace(
             go.Heatmap(
                 z=display,
-                x0=min_x, dx=dx,
-                y0=min_y, dy=dy,
+                x0=min_x,
+                dx=dx,
+                y0=min_y,
+                dy=dy,
                 colorscale="RdYlGn_r",
                 colorbar={
                     "title": "Width mm",
                     "orientation": "h",
-                    "x": 0.5, "y": -0.18,
-                    "xanchor": "center", "yanchor": "top",
-                    "len": 0.6, "thickness": 12,
+                    "x": 0.5,
+                    "y": -0.18,
+                    "xanchor": "center",
+                    "yanchor": "top",
+                    "len": 0.6,
+                    "thickness": 12,
                     "tickfont": {"size": 10},
                 },
                 zmin=0,
@@ -115,34 +123,50 @@ def routing_health_dashboard(
                 hoverongaps=False,
                 name="EDT Width",
             ),
-            row=1, col=1,
+            row=1,
+            col=1,
         )
-        fig.update_xaxes(title_text="X (mm)", title_font={"size": 11},
-                         row=1, col=1, range=x_range, constrain="domain")
-        fig.update_yaxes(title_text="Y (mm)", title_font={"size": 11},
-                         row=1, col=1, range=y_range,
-                         scaleanchor="x", scaleratio=1.0, constrain="domain")
+        fig.update_xaxes(
+            title_text="X (mm)",
+            title_font={"size": 11},
+            row=1,
+            col=1,
+            range=x_range,
+            constrain="domain",
+        )
+        fig.update_yaxes(
+            title_text="Y (mm)",
+            title_font={"size": 11},
+            row=1,
+            col=1,
+            range=y_range,
+            scaleanchor="x",
+            scaleratio=1.0,
+            constrain="domain",
+        )
 
     # ── Row 1, Col 3: Bottleneck Widths ──
     if bottleneck_widths:
         items = sorted(bottleneck_widths.items(), key=lambda x: x[1])
         names = [n for n, _ in items]
         widths = [w for _, w in items]
-        colors = [
-            "#F44336" if w < 0.5 else "#FF9800" if w < 2.0 else "#4CAF50"
-            for w in widths
-        ]
+        colors = ["#F44336" if w < 0.5 else "#FF9800" if w < 2.0 else "#4CAF50" for w in widths]
         fig.add_trace(
-            go.Bar(x=names, y=widths, marker_color=colors, name="Bottleneck",
-                   hovertemplate="%{x}: %{y:.2f}mm<extra></extra>"),
-            row=1, col=3,
+            go.Bar(
+                x=names,
+                y=widths,
+                marker_color=colors,
+                name="Bottleneck",
+                hovertemplate="%{x}: %{y:.2f}mm<extra></extra>",
+            ),
+            row=1,
+            col=3,
         )
-        fig.add_hline(y=0.5, line_dash="dash", line_color="red", row=1, col=3,
-                       annotation_text="critical")
-        fig.update_xaxes(title_text="", tickangle=90, tickfont={"size": 8},
-                         row=1, col=3)
-        fig.update_yaxes(title_text="Min Width (mm)", title_font={"size": 10},
-                         row=1, col=3)
+        fig.add_hline(
+            y=0.5, line_dash="dash", line_color="red", row=1, col=3, annotation_text="critical"
+        )
+        fig.update_xaxes(title_text="", tickangle=90, tickfont={"size": 8}, row=1, col=3)
+        fig.update_yaxes(title_text="Min Width (mm)", title_font={"size": 10}, row=1, col=3)
 
     # ── Row 2, Col 1: Routability Map ──
     if routability and net_bboxes:
@@ -157,20 +181,35 @@ def routing_health_dashboard(
         if xs:
             fig.add_trace(
                 go.Scatter(
-                    x=xs, y=ys, mode="markers+text",
-                    text=ts, textposition="top center", textfont={"size": 8, "color": "#333"},
-                    marker={"size": 10, "color": cs, "symbol": "square",
-                                "line": {"width": 1, "color": "white"}},
+                    x=xs,
+                    y=ys,
+                    mode="markers+text",
+                    text=ts,
+                    textposition="top center",
+                    textfont={"size": 8, "color": "#333"},
+                    marker={
+                        "size": 10,
+                        "color": cs,
+                        "symbol": "square",
+                        "line": {"width": 1, "color": "white"},
+                    },
                     name="Routability",
                 ),
-                row=2, col=1,
+                row=2,
+                col=1,
             )
-            fig.add_shape(type="rect", x0=min_x, y0=min_y, x1=max_x, y1=max_y,
-                          line={"color": "gray", "dash": "dot"}, row=2, col=1)
-        fig.update_xaxes(title_text="X (mm)", title_font={"size": 11},
-                         row=2, col=1, range=x_range)
-        fig.update_yaxes(title_text="Y (mm)", title_font={"size": 11},
-                         row=2, col=1, range=y_range)
+            fig.add_shape(
+                type="rect",
+                x0=min_x,
+                y0=min_y,
+                x1=max_x,
+                y1=max_y,
+                line={"color": "gray", "dash": "dot"},
+                row=2,
+                col=1,
+            )
+        fig.update_xaxes(title_text="X (mm)", title_font={"size": 11}, row=2, col=1, range=x_range)
+        fig.update_yaxes(title_text="Y (mm)", title_font={"size": 11}, row=2, col=1, range=y_range)
 
     # ── Row 2, Col 2: Capacity-Demand Scatter ──
     if capacity_ratios and net_bboxes:
@@ -181,17 +220,24 @@ def routing_health_dashboard(
             x_vals = [bottleneck_widths.get(n, 0) for n in names]
             x_label = "Bottleneck Width (mm)"
         else:
-            x_vals = [(net_bboxes[n][2]-net_bboxes[n][0])*(net_bboxes[n][3]-net_bboxes[n][1])
-                      if n in net_bboxes else 0 for n in names]
+            x_vals = [
+                (net_bboxes[n][2] - net_bboxes[n][0]) * (net_bboxes[n][3] - net_bboxes[n][1])
+                if n in net_bboxes
+                else 0
+                for n in names
+            ]
             x_label = "Net Area (mm²)"
         fig.add_trace(
             go.Scatter(
-                x=x_vals, y=ratios, mode="markers",
+                x=x_vals,
+                y=ratios,
+                mode="markers",
                 text=names,
                 marker={"size": 7, "color": cs},
                 hovertemplate="%{text}: %{y:.1f}x (%{x:.2f}mm)<extra></extra>",
             ),
-            row=2, col=2,
+            row=2,
+            col=2,
         )
         fig.add_hline(y=1.0, line_dash="dash", line_color="red", row=2, col=2)
         fig.update_xaxes(title_text=x_label, title_font={"size": 10}, row=2, col=2)
@@ -208,14 +254,18 @@ def routing_health_dashboard(
     if conflict_clusters:
         lines.append(f"Clusters: {len(conflict_clusters)}")
     if edt_grid is not None and edt_mask is not None:
-        lines.append(f"Area: {100*np.sum(edt_mask)/edt_mask.size:.1f}%")
+        lines.append(f"Area: {100 * np.sum(edt_mask) / edt_mask.size:.1f}%")
     text = "<br>".join(lines) if lines else "No data"
     fig.add_annotation(
         text=f"<b>Summary</b><br><br>{text}",
-        xref="x6 domain", yref="y6 domain",
-        x=0.5, y=0.5, showarrow=False,
+        xref="x6 domain",
+        yref="y6 domain",
+        x=0.5,
+        y=0.5,
+        showarrow=False,
         font={"size": 12, "color": "#333"},
-        row=2, col=3,
+        row=2,
+        col=3,
     )
     fig.update_xaxes(visible=False, row=2, col=3)
     fig.update_yaxes(visible=False, row=2, col=3)
@@ -235,19 +285,44 @@ def routing_health_dashboard(
                 hue = ci * 360 // max(1, n_clusters)
                 fig.add_trace(
                     go.Scatter(
-                        x=cxs, y=cys, mode="markers+text",
-                        text=cts, textposition="top center", textfont={"size": 7, "color": "#555"},
+                        x=cxs,
+                        y=cys,
+                        mode="markers+text",
+                        text=cts,
+                        textposition="top center",
+                        textfont={"size": 7, "color": "#555"},
                         marker={"size": 8, "color": f"hsl({hue},70%,50%)"},
-                        name=f"C{ci+1} ({len(cluster)})",
+                        name=f"C{ci + 1} ({len(cluster)})",
                     ),
-                    row=3, col=1,
+                    row=3,
+                    col=1,
                 )
-        fig.add_shape(type="rect", x0=min_x, y0=min_y, x1=max_x, y1=max_y,
-                      line={"color": "gray", "dash": "dot"}, row=3, col=1)
-        fig.update_xaxes(title_text="X (mm)", title_font={"size": 11},
-                         row=3, col=1, range=x_range, constrain="domain")
-        fig.update_yaxes(title_text="Y (mm)", title_font={"size": 11},
-                         row=3, col=1, range=y_range, constrain="domain")
+        fig.add_shape(
+            type="rect",
+            x0=min_x,
+            y0=min_y,
+            x1=max_x,
+            y1=max_y,
+            line={"color": "gray", "dash": "dot"},
+            row=3,
+            col=1,
+        )
+        fig.update_xaxes(
+            title_text="X (mm)",
+            title_font={"size": 11},
+            row=3,
+            col=1,
+            range=x_range,
+            constrain="domain",
+        )
+        fig.update_yaxes(
+            title_text="Y (mm)",
+            title_font={"size": 11},
+            row=3,
+            col=1,
+            range=y_range,
+            constrain="domain",
+        )
 
     # ── Global layout ──
     fig.update_layout(
@@ -280,16 +355,12 @@ def build_dashboard_from_pipeline(
     if stage2_output.routing_spaces:
         rs = next(iter(stage2_output.routing_spaces.values()))
         board_bounds = rs.available_area.bounds
-        try:
+        with contextlib.suppress(Exception):
             edt, mask, _ = _build_edt(rs, 0.1, use_cache=True)
-        except Exception:
-            pass
 
     capacities = None
-    try:
+    with contextlib.suppress(Exception):
         capacities = compute_capacity_demand_ratios(stage2_output, parsed_pcb)
-    except Exception:
-        pass
 
     net_bboxes = {}
     comp_by_ref = {c.ref: c for c in parsed_pcb.components}
@@ -300,28 +371,37 @@ def build_dashboard_from_pipeline(
             if r in comp_by_ref and comp_by_ref[r].initial_position
         ]
         if len(positions) >= 2:
-            xs = [p[0] for p in positions]; ys = [p[1] for p in positions]
+            xs = [p[0] for p in positions]
+            ys = [p[1] for p in positions]
             net_bboxes[net.name] = (min(xs), min(ys), max(xs), max(ys))
 
     bottleneck_widths = None
     if edt is not None and mask is not None and net_bboxes and channel_mapping:
         from temper_placer.router_v6.astar_pathfinding import _compute_bottleneck_widths
-        try:
+
+        with contextlib.suppress(Exception):
             bottleneck_widths = _compute_bottleneck_widths(
-                channel_mapping, edt, mask, board_bounds, 0.1,
+                channel_mapping,
+                edt,
+                mask,
+                board_bounds,
+                0.1,
             )
-        except Exception:
-            pass
 
     routability = None
     if edt is not None and mask is not None and net_bboxes:
         from temper_placer.router_v6.routability_check import check_routability_direct
+
         routability = {}
         for net_name, bbox in net_bboxes.items():
             try:
                 ok = check_routability_direct(
-                    net_name, (bbox[0], bbox[1]), (bbox[2], bbox[3]),
-                    edt, trace_width=0.2, cell_size=0.1,
+                    net_name,
+                    (bbox[0], bbox[1]),
+                    (bbox[2], bbox[3]),
+                    edt,
+                    trace_width=0.2,
+                    cell_size=0.1,
                 )
                 routability[net_name] = ok
             except Exception:
@@ -330,6 +410,7 @@ def build_dashboard_from_pipeline(
     conflict_clusters = None
     if channel_mapping and net_bboxes:
         from temper_placer.router_v6.astar_pathfinding import _compute_net_order
+
         ordered = _compute_net_order(channel_mapping)
         if len(ordered) > 1:
             threshold = 0.1
@@ -337,36 +418,48 @@ def build_dashboard_from_pipeline(
             nlist = list(ordered)
             for i in range(len(nlist)):
                 a = nlist[i]
-                if a not in net_bboxes: continue
+                if a not in net_bboxes:
+                    continue
                 ax1, ay1, ax2, ay2 = net_bboxes[a]
-                area_a = (ax2-ax1)*(ay2-ay1)
-                if area_a <= 0: continue
-                for j in range(i+1, len(nlist)):
+                area_a = (ax2 - ax1) * (ay2 - ay1)
+                if area_a <= 0:
+                    continue
+                for j in range(i + 1, len(nlist)):
                     b = nlist[j]
-                    if b not in net_bboxes: continue
+                    if b not in net_bboxes:
+                        continue
                     bx1, by1, bx2, by2 = net_bboxes[b]
-                    area_b = (bx2-bx1)*(by2-by1)
-                    if area_b <= 0: continue
-                    ox = max(0.0, min(ax2,bx2)-max(ax1,bx1))
-                    oy = max(0.0, min(ay2,by2)-max(ay1,by1))
-                    if ox*oy / min(area_a,area_b) > threshold:
-                        graph[a].add(b); graph[b].add(a)
+                    area_b = (bx2 - bx1) * (by2 - by1)
+                    if area_b <= 0:
+                        continue
+                    ox = max(0.0, min(ax2, bx2) - max(ax1, bx1))
+                    oy = max(0.0, min(ay2, by2) - max(ay1, by1))
+                    if ox * oy / min(area_a, area_b) > threshold:
+                        graph[a].add(b)
+                        graph[b].add(a)
             visited = set()
             conflict_clusters = []
             for net in ordered:
-                if net in visited: continue
-                queue = [net]; cluster = []
+                if net in visited:
+                    continue
+                queue = [net]
+                cluster = []
                 while queue:
                     n = queue.pop()
-                    if n in visited: continue
-                    visited.add(n); cluster.append(n)
+                    if n in visited:
+                        continue
+                    visited.add(n)
+                    cluster.append(n)
                     for nb in graph.get(n, set()):
-                        if nb not in visited: queue.append(nb)
+                        if nb not in visited:
+                            queue.append(nb)
                 conflict_clusters.append(cluster)
 
     return routing_health_dashboard(
         board_bounds=board_bounds,
-        edt_grid=edt, edt_mask=mask, edt_cell_size=0.1,
+        edt_grid=edt,
+        edt_mask=mask,
+        edt_cell_size=0.1,
         capacity_ratios=capacities,
         net_bboxes=net_bboxes,
         bottleneck_widths=bottleneck_widths,

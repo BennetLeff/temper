@@ -268,8 +268,7 @@ class TjCrossCheckGate(Gate):
             return GateResult(
                 GateStatus.UNMEASURED,
                 error_message=(
-                    f"T_j cross-check: FDM solve returned UNMEASURED: "
-                    f"{fdm_result.error_message}"
+                    f"T_j cross-check: FDM solve returned UNMEASURED: {fdm_result.error_message}"
                 ),
             )
 
@@ -289,7 +288,12 @@ class TjCrossCheckGate(Gate):
 
             # 1. Area-average T_case over the device footprint (FDM)
             T_case_fdm = _area_average_temperature(
-                T_grid, dx_mm, dy_mm, cell_size, ox, oy,
+                T_grid,
+                dx_mm,
+                dy_mm,
+                cell_size,
+                ox,
+                oy,
             )
 
             if T_case_fdm is None:
@@ -306,11 +310,7 @@ class TjCrossCheckGate(Gate):
             T_j_fdm = T_case_fdm + power * dev_th.R_theta_jc
 
             # 3. T_j from the lumped R_θ ladder
-            R_total = (
-                dev_th.R_theta_jc
-                + dev_th.R_theta_cs
-                + dev_th.R_theta_sa
-            )
+            R_total = dev_th.R_theta_jc + dev_th.R_theta_cs + dev_th.R_theta_sa
             T_j_lumped = self._T_amb + power * R_total
 
             delta = abs(T_j_fdm - T_j_lumped)
@@ -402,9 +402,7 @@ class TjCrossCheckGate(Gate):
                 )
 
         if violations:
-            return GateResult(
-                GateStatus.VIOLATIONS, violations=tuple(violations)
-            )
+            return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
         return GateResult(GateStatus.CLEAN)
 
     # ------------------------------------------------------------------
@@ -535,5 +533,5 @@ def _classify_disagreement(
         f"disagreement ({delta:.1f}°C) on {dev_name}: FDM={T_j_fdm:.1f}°C "
         f"vs lumped={T_j_lumped:.1f}°C. May indicate global k_eff/ambient "
         f"mismatch or JEDEC test-condition mismatch (datasheet R_θJA "
-        f"measured on standard 1\"×1\" test board, not this layout)."
+        f'measured on standard 1"×1" test board, not this layout).'
     )

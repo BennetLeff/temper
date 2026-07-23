@@ -24,6 +24,7 @@ def _make_net(name: str) -> object:
     class MockNet:
         name: str
         pins: list = field(default_factory=list)
+
     return MockNet(name=name)
 
 
@@ -37,6 +38,7 @@ def _make_design_rules(trace_width_mm=0.2, clearance_mm=0.2) -> object:
     class MockDesignRules:
         def get_rules_for_net(self, _name: str):
             return MockRule()
+
     return MockDesignRules()
 
 
@@ -45,6 +47,7 @@ def _make_skeleton(layer_name: str, edges: list) -> object:
     class MockSkeleton:
         graph: nx.Graph
         layer_name: str
+
     g = nx.Graph()
     for u, v in edges:
         g.add_edge(u, v)
@@ -65,6 +68,7 @@ def _make_pcb(nets, comp_positions=None) -> object:
         reference: str = ""
         initial_position: tuple[float, float] = (0, 0)
         pins: list = field(default_factory=list)
+
         def get_pin(self, name: str):
             for p in self.pins:
                 if p.name == name:
@@ -85,6 +89,7 @@ def _make_pcb(nets, comp_positions=None) -> object:
     class MockPCB:
         components: list
         nets: list
+
     return MockPCB(components=comps, nets=nets)
 
 
@@ -93,6 +98,7 @@ def _make_manifest(bundles: dict) -> object:
     class MockManifest:
         bundle_id_for_net: dict = field(default_factory=dict)
         unbundled_net_indices: list = field(default_factory=list)
+
     return MockManifest(
         bundle_id_for_net=bundles,
         unbundled_net_indices=[],
@@ -117,8 +123,10 @@ def test_trivial_completeness():
     # Bundled — single net in its own bundle
     manifest = _make_manifest({0: 0})
     builder_b = ModelBuilder(
-        skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model_b = builder_b.build()
 
@@ -140,19 +148,24 @@ def test_safety_constraints_preserved():
 
     manifest = _make_manifest({0: 0, 1: 1})  # 2 separate bundles (different types)
     builder = ModelBuilder(
-        skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model = builder.build()
 
     # Should have class-level variables (uses_B prefix)
     from temper_placer.router_v6.constraint_model import NetChannelVar
-    bundle_vars = [v for v in model.variables
-                   if isinstance(v, NetChannelVar) and v.name.startswith("uses_B")]
+
+    bundle_vars = [
+        v for v in model.variables if isinstance(v, NetChannelVar) and v.name.startswith("uses_B")
+    ]
     assert len(bundle_vars) > 0
 
     # No diff-pair constraints (Performance, deferred)
     from temper_placer.router_v6.constraint_model import DiffPairConstraint
+
     dp_constraints = [c for c in model.constraints if isinstance(c, DiffPairConstraint)]
     assert len(dp_constraints) == 0
 
@@ -170,8 +183,10 @@ def test_safety_in_cnf_before_solve():
 
     manifest = _make_manifest({0: 0, 1: 0})  # both in same bundle
     builder = ModelBuilder(
-        skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model = builder.build()
 
@@ -180,6 +195,7 @@ def test_safety_in_cnf_before_solve():
 
     # No diff-pair constraints in bundled model
     from temper_placer.router_v6.constraint_model import DiffPairConstraint
+
     dp_constraints = [c for c in model.constraints if isinstance(c, DiffPairConstraint)]
     assert len(dp_constraints) == 0
 
@@ -198,17 +214,21 @@ def test_variable_naming_class_prefix():
     # Bundled
     manifest = _make_manifest({0: 0, 1: 0})
     builder_b = ModelBuilder(
-        skeletons=skeletons, nets=nets,
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model_b = builder_b.build()
 
-    class_vars = [v for v in model_b.variables
-                  if isinstance(v, NetChannelVar) and v.name.startswith("uses_B")]
+    class_vars = [
+        v for v in model_b.variables if isinstance(v, NetChannelVar) and v.name.startswith("uses_B")
+    ]
     assert len(class_vars) > 0
 
-    per_net_vars = [v for v in model_b.variables
-                    if isinstance(v, NetChannelVar) and v.name.startswith("uses_N")]
+    per_net_vars = [
+        v for v in model_b.variables if isinstance(v, NetChannelVar) and v.name.startswith("uses_N")
+    ]
     # Non-bundled nets get uses_N; bundled nets should NOT
     # (in this test, ALL nets are in bundle 0, so no uses_N)
     assert len(per_net_vars) == 0
@@ -231,12 +251,15 @@ def test_diff_pair_not_in_bundled_model():
     manifest = _make_manifest({0: 0, 1: 0})  # diff pair in same bundle
 
     builder = ModelBuilder(
-        skeletons=skeletons, nets=nets, diff_pairs=[dp],
-        enable_bundling=True, bundle_manifest=manifest,
+        skeletons=skeletons,
+        nets=nets,
+        diff_pairs=[dp],
+        enable_bundling=True,
+        bundle_manifest=manifest,
     )
     model = builder.build()
 
     from temper_placer.router_v6.constraint_model import DiffPairConstraint
-    dp_constraints = [c for c in model.constraints
-                      if isinstance(c, DiffPairConstraint)]
+
+    dp_constraints = [c for c in model.constraints if isinstance(c, DiffPairConstraint)]
     assert len(dp_constraints) == 0

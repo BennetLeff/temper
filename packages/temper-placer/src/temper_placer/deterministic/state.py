@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-
     from temper_placer.core.board import Board
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.loop import LoopCollection
@@ -101,6 +100,7 @@ class BoardState:
                     f"(canonical: {sorted(CANONICAL_4LAYER_LAYER_NAMES)}), "
                     f"got {n} layers: {actual}"
                 )
+
     occupancy_grids: dict[str, OccupancyGrid] | None = None
     layer_capacities: dict[str, LayerCapacity] | None = None
     routing_demand: RoutingDemand | None = None

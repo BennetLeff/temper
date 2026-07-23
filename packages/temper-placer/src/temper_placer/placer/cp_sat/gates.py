@@ -99,14 +99,8 @@ class GateResult:
     error_message: str = ""
 
     def __post_init__(self):
-        if (
-            self.status is GateStatus.VIOLATIONS
-            and len(self.violations) == 0
-        ):
-            raise ValueError(
-                "GateResult with status=VIOLATIONS must have at least "
-                "one Violation"
-            )
+        if self.status is GateStatus.VIOLATIONS and len(self.violations) == 0:
+            raise ValueError("GateResult with status=VIOLATIONS must have at least one Violation")
 
 
 @dataclass(frozen=True)
@@ -143,7 +137,45 @@ class Gate:
         (e.g. an intra-component clearance placement cannot fix).
         """
         from temper_placer.placer.cp_sat.delta_mapper import DeltaMapper
+
         return DeltaMapper.map(violation)
+
+
+# ---------------------------------------------------------------------------
+# Portable KiCad footprint-library directory resolution (plan 2026-07-23-001 U1)
+# ---------------------------------------------------------------------------
+
+
+def _resolve_kicad_footprint_dir() -> Path | None:
+    """Resolve the KiCad footprint library directory for ``KICAD7_FOOTPRINT_DIR``.
+
+    Priority (first match wins):
+    1. ``KICAD7_FOOTPRINT_DIR`` env var — preserves manual override (backwards-compatible).
+    2. Common Linux paths (``/usr/share/kicad/footprints``, versioned variants, ``/usr/local/...``).
+    3. macOS dev-workstation path (``/Applications/KiCad/...``).
+
+    Returns ``None`` when no directory is found, so callers can fail-closed
+    as ``UNMEASURED`` rather than silently producing false-zero passes
+    (``docs/solutions/logic-errors/weak-nooverlap2d-encoding-allows-zero-gap-2026-07-08.md``).
+    """  # noqa: E501
+    # 1. Env var — explicit override (backwards-compatible with prior hardcode).
+    if os.environ.get("KICAD7_FOOTPRINT_DIR"):
+        return Path(os.environ["KICAD7_FOOTPRINT_DIR"])
+
+    # 2. Common paths — search in order; first existing directory wins.
+    candidates = [
+        "/usr/share/kicad/footprints",           # Debian/Ubuntu (kicad)
+        "/usr/share/kicad/6.0/footprints",        # version-specific
+        "/usr/share/kicad/7.0/footprints",        # version-specific
+        "/usr/local/share/kicad/footprints",      # manual / non-packaged
+        "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",  # macOS
+    ]
+    for candidate in candidates:
+        p = Path(candidate)
+        if p.is_dir():
+            return p
+
+    return None
 
 
 class DrcGate(Gate):
@@ -166,20 +198,37 @@ class DrcGate(Gate):
                 error_message="No PCB available for placement DRC",
             )
 
+        fp_dir = _resolve_kicad_footprint_dir()
+        if fp_dir is None:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=(
+                    "KiCad footprint library directory not found. "
+                    "Set KICAD7_FOOTPRINT_DIR env var or install "
+                    "kicad-footprints."
+                ),
+            )
+
         drc_out = Path(tempfile.mktemp(suffix=".json"))
         try:
             try:
                 result = subprocess.run(
                     [
-                        "kicad-cli", "pcb", "drc",
-                        "--format", "json",
-                        "-o", str(drc_out),
+                        "kicad-cli",
+                        "pcb",
+                        "drc",
+                        "--format",
+                        "json",
+                        "-o",
+                        str(drc_out),
                         str(pcb_path),
                     ],
-                    capture_output=True, text=True, timeout=120,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
                     env={
                         **os.environ,
-                        "KICAD7_FOOTPRINT_DIR": "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",
+                        "KICAD7_FOOTPRINT_DIR": str(fp_dir),
                     },
                 )
             except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
@@ -191,10 +240,7 @@ class DrcGate(Gate):
             if result.returncode != 0:
                 return GateResult(
                     GateStatus.UNMEASURED,
-                    error_message=(
-                        f"kicad-cli exit {result.returncode}: "
-                        f"{result.stderr[:200]}"
-                    ),
+                    error_message=(f"kicad-cli exit {result.returncode}: {result.stderr[:200]}"),
                 )
 
             if not drc_out.exists():
@@ -233,9 +279,7 @@ class DrcGate(Gate):
                 )
 
             if violations:
-                return GateResult(
-                    GateStatus.VIOLATIONS, violations=tuple(violations)
-                )
+                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
             return GateResult(GateStatus.CLEAN)
         finally:
             with contextlib.suppress(OSError):
@@ -266,12 +310,18 @@ class RoutingGate(Gate):
             try:
                 result = subprocess.run(
                     [
-                        "kicad-cli", "pcb", "drc",
-                        "--format", "json",
-                        "-o", str(drc_out),
+                        "kicad-cli",
+                        "pcb",
+                        "drc",
+                        "--format",
+                        "json",
+                        "-o",
+                        str(drc_out),
                         str(state.routed_pcb_path),
                     ],
-                    capture_output=True, text=True, timeout=120,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
                 )
             except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
                 return GateResult(
@@ -282,10 +332,7 @@ class RoutingGate(Gate):
             if result.returncode != 0:
                 return GateResult(
                     GateStatus.UNMEASURED,
-                    error_message=(
-                        f"kicad-cli exit {result.returncode}: "
-                        f"{result.stderr[:200]}"
-                    ),
+                    error_message=(f"kicad-cli exit {result.returncode}: {result.stderr[:200]}"),
                 )
 
             if not drc_out.exists():
@@ -322,9 +369,7 @@ class RoutingGate(Gate):
                 )
 
             if violations:
-                return GateResult(
-                    GateStatus.VIOLATIONS, violations=tuple(violations)
-                )
+                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
             return GateResult(GateStatus.CLEAN)
         finally:
             with contextlib.suppress(OSError):
@@ -420,9 +465,7 @@ class StackupGate(Gate):
                     violations.append(density_violation)
 
             if violations:
-                return GateResult(
-                    GateStatus.VIOLATIONS, violations=tuple(violations)
-                )
+                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
             return GateResult(GateStatus.CLEAN)
 
         except Exception as exc:
@@ -435,9 +478,7 @@ class StackupGate(Gate):
     # Reference-plane split (R2)
     # ------------------------------------------------------------------
 
-    def _check_reference_plane(
-        self, _net_name: str, _route: Any
-    ) -> list[Violation]:
+    def _check_reference_plane(self, _net_name: str, _route: Any) -> list[Violation]:
         """Detect signal traces crossing reference-plane splits.
 
         For now this is a structural check: when U4 provides plane-zone
@@ -452,9 +493,7 @@ class StackupGate(Gate):
     # Current density (R3)
     # ------------------------------------------------------------------
 
-    def _check_current_density(
-        self, net_name: str, route: Any
-    ) -> Violation | None:
+    def _check_current_density(self, net_name: str, route: Any) -> Violation | None:
         """Check trace width meets IPC-2152 minimum for the net's current."""
         current_a = self._DEFAULT_NET_CURRENTS.get(net_name, self._DEFAULT_CURRENT)
 
@@ -535,6 +574,7 @@ def _is_internal_net(_net_name: str, route: Any) -> bool:
 # Replaced by core.ipc2152 when W2/U3 lands.  # TODO(U3)
 # ------------------------------------------------------------------
 
+
 def _min_width_ipc2152(
     current_a: float,
     copper_oz: float = 1.0,
@@ -580,7 +620,7 @@ def _ipc2152_forward(
     thickness_mils = copper_oz * 1.37
     area_mils2 = width_mils * thickness_mils
 
-    k_ext = 0.065   # IPC-2152 external-coefficient for 1oz (cf 0.048 IPC-2221)
+    k_ext = 0.065  # IPC-2152 external-coefficient for 1oz (cf 0.048 IPC-2221)
     current_ext = k_ext * (temp_rise_c**0.44) * (area_mils2**0.725)
 
     if internal_layer:
@@ -666,11 +706,7 @@ class IECCreepageGate(Gate):
             entry_names = err.nets or []
 
             hv_nets = [n for n in entry_names if _is_hv_net(n)]
-            lv_nets = [
-                n
-                for n in entry_names
-                if not _is_hv_net(n) and n and not n[0].isdigit()
-            ]
+            lv_nets = [n for n in entry_names if not _is_hv_net(n) and n and not n[0].isdigit()]
 
             if hv_nets and lv_nets:
                 violations.append(
@@ -872,9 +908,7 @@ class PhysicsGate(Gate):
                         comp = c
                         break
 
-                footprint_area_mm2: float = (
-                    comp.bounds[0] * comp.bounds[1] if comp else 0.0
-                )
+                footprint_area_mm2: float = comp.bounds[0] * comp.bounds[1] if comp else 0.0
 
                 via_count = count_thermal_vias(pcb, ref)
                 pour_area = thermal_pour_area(pcb, ref)
@@ -882,9 +916,7 @@ class PhysicsGate(Gate):
                 if pour_area is None:
                     return GateResult(
                         GateStatus.UNMEASURED,
-                        error_message=(
-                            f"thermal-via {ref}: pour-area measurement failed"
-                        ),
+                        error_message=(f"thermal-via {ref}: pour-area measurement failed"),
                     )
 
                 if via_count < self._THERMAL_VIA_MIN_COUNT:
@@ -1023,6 +1055,128 @@ class QualityGate(Gate):
         return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
 
     # to_delta delegates to DeltaMapper via Gate base class.
+
+
+# ------------------------------------------------------------------
+# U2 / plan 2026-07-23-001: ErcGate — runs kicad-cli pcb erc
+# ------------------------------------------------------------------
+# @req(2026-07-23-001, R2): kicad-cli pcb erc code path on the
+# routed temper board, mirroring DrcGate's two-tier
+# CLEAN/VIOLATIONS/UNMEASURED shape. Reuses
+# _resolve_kicad_footprint_dir() for fail-closed behaviour
+# (per PR #330's pattern).
+
+
+class ErcGate(Gate):
+    """ROUTING-stage gate: runs KiCad ERC on the routed board.
+
+    Invokes ``kicad-cli pcb erc``, parses the JSON output, and returns
+    a three-state result: ``CLEAN`` (zero violations), ``VIOLATIONS``
+    (N violations with a plain count), or ``UNMEASURED`` when kicad-cli
+    is unavailable or the PCB is missing (fail-closed — never a false
+    ``CLEAN``).
+
+    ERC checks are electrical (unconnected pins, conflicting outputs,
+    missing power flags, etc.) — they operate on the netlist embedded
+    in the PCB and do not depend on the routed geometry.  The gate
+    therefore targets the routed board directly after stage-4 geometric
+    realization, not the placement-only PCB.
+    """
+
+    stage = GateStage.ROUTING
+    name = "erc"
+
+    def check(self, state: BoardState) -> GateResult:
+        pcb_path = state.routed_pcb_path
+        if not pcb_path or not Path(pcb_path).exists():
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message="No PCB available for ERC",
+            )
+
+        fp_dir = _resolve_kicad_footprint_dir()
+        if fp_dir is None:
+            return GateResult(
+                GateStatus.UNMEASURED,
+                error_message=(
+                    "KiCad footprint library directory not found. "
+                    "Set KICAD7_FOOTPRINT_DIR env var or install "
+                    "kicad-footprints."
+                ),
+            )
+
+        erc_out = Path(tempfile.mktemp(suffix=".json"))
+        try:
+            try:
+                result = subprocess.run(
+                    [
+                        "kicad-cli",
+                        "pcb",
+                        "erc",
+                        "--format",
+                        "json",
+                        "-o",
+                        str(erc_out),
+                        str(pcb_path),
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    env={
+                        **os.environ,
+                        "KICAD7_FOOTPRINT_DIR": str(fp_dir),
+                    },
+                )
+            except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message=f"kicad-cli unavailable: {exc}",
+                )
+
+            if result.returncode != 0:
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message=(f"kicad-cli exit {result.returncode}: {result.stderr[:200]}"),
+                )
+
+            if not erc_out.exists():
+                return GateResult(
+                    GateStatus.UNMEASURED,
+                    error_message="kicad-cli produced no ERC output file",
+                )
+
+            data = json.loads(erc_out.read_text())
+
+            # ERC output uses either ``violations`` or ``items`` (KiCad
+            # version-dependent).  Both are lists of dicts with at least
+            # ``type`` and ``description``.
+            erc_items: list[dict] = []
+            for key in ("violations", "items"):
+                candidates = data.get(key)
+                if isinstance(candidates, list):
+                    erc_items.extend(candidates)
+
+            if not erc_items:
+                return GateResult(GateStatus.CLEAN)
+
+            violations: list[Violation] = []
+            for item in erc_items:
+                vtype = item.get("type", "erc_other")
+                violations.append(
+                    Violation(
+                        type=_map_violation_type(vtype),
+                        description=item.get("description", item.get("message", "")),
+                        severity=1.0,
+                        context={"raw": item, "erc_type": vtype},
+                    )
+                )
+
+            if violations:
+                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
+            return GateResult(GateStatus.CLEAN)
+        finally:
+            with contextlib.suppress(OSError):
+                os.unlink(erc_out)
 
 
 _VIOLATION_TYPE_MAP = {

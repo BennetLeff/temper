@@ -13,19 +13,19 @@ import subprocess
 def check_format_version(fixture_version: int, current_version: int) -> str | None:
     if fixture_version != current_version:
         return (
-            f"MISMATCH: format version {fixture_version} != {current_version} "
-            f"-- regenerate goldens"
+            f"MISMATCH: format version {fixture_version} != {current_version} -- regenerate goldens"
         )
     return None
 
 
 def check_git_ancestry(golden_commit_hash: str, head_commit_hash: str) -> str | None:
-    if not golden_commit_hash or golden_commit_hash == 'unknown':
+    if not golden_commit_hash or golden_commit_hash == "unknown":
         return None
     try:
         result = subprocess.run(
-            ['git', 'merge-base', '--is-ancestor', golden_commit_hash, head_commit_hash],
-            capture_output=True, text=True,
+            ["git", "merge-base", "--is-ancestor", golden_commit_hash, head_commit_hash],
+            capture_output=True,
+            text=True,
         )
         if result.returncode == 0:
             return None
@@ -42,9 +42,11 @@ def check_git_ancestry(golden_commit_hash: str, head_commit_hash: str) -> str | 
 def get_current_git_hash() -> str:
     try:
         result = subprocess.run(
-            ['git', 'rev-parse', 'HEAD'],
-            capture_output=True, text=True, check=True,
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         return result.stdout.strip()
     except (subprocess.SubprocessError, FileNotFoundError):
-        return 'unknown'
+        return "unknown"

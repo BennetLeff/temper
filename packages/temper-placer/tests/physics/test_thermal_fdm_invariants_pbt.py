@@ -20,16 +20,20 @@ Uses Hypothesis PBT over boards ≤ 20×20.  Heavy PBT is marked
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
+if TYPE_CHECKING:
+    import scipy.sparse
+
 from temper_placer.physics.thermal_fdm import (
     ThermalFDMConfig,
     _assemble_system,
     _build_conductivity_field,
-    _is_neumann_boundary,
     get_system_matrix,
     solve_thermal_fdm,
 )
@@ -75,7 +79,7 @@ def _heatsink_indices(config: ThermalFDMConfig):
         return [(r, w - 1) for r in range(h)]
 
 
-def _check_full_spd(A: "scipy.sparse.csr_matrix") -> bool:
+def _check_full_spd(A: scipy.sparse.csr_matrix) -> bool:
     """Return True if the full matrix *A* is symmetric positive-definite."""
     A_dense = A.toarray()
     if not np.allclose(A_dense, A_dense.T, atol=1e-12):
@@ -95,9 +99,7 @@ def _total_injected_power(
     return float(np.sum(Q_field) * cell_size_mm * cell_size_mm)
 
 
-def _dirichlet_boundary_flux(
-    config: ThermalFDMConfig, T: np.ndarray, k_field: np.ndarray
-) -> float:
+def _dirichlet_boundary_flux(config: ThermalFDMConfig, T: np.ndarray, k_field: np.ndarray) -> float:
     """Compute total heat flux (W) leaving through the Dirichlet boundary faces.
 
     With boundary-aligned Dirichlet face terms, the flux per heatsink-edge
@@ -122,7 +124,9 @@ def _safe_solve(config, Q_field, copper_grid=None):
         copper_grid = np.zeros((h, w), dtype=np.float64)
 
     result = solve_thermal_fdm(
-        config, copper_grid=copper_grid, Q_field=Q_field,
+        config,
+        copper_grid=copper_grid,
+        Q_field=Q_field,
     )
     if not result.is_usable:
         pytest.skip("Solver returned UNMEASURED")
@@ -286,8 +290,7 @@ def test_r8_source_monotonicity(data):
 
     h, w = config.height_cells, config.width_cells
     rng = np.random.default_rng(
-        int(abs(hash((config.height_cells, config.width_cells, config.heatsink_edge))))
-        % (2**31)
+        int(abs(hash((config.height_cells, config.width_cells, config.heatsink_edge)))) % (2**31)
     )
     Q1 = rng.uniform(0.0, 3.0, (h, w)).astype(np.float64)
     delta = rng.uniform(0.0, 3.0, (h, w)).astype(np.float64)
@@ -376,8 +379,7 @@ def test_r9_maximum_principle(data):
     # All cells are active solved cells — maximum principle applies everywhere
     min_all = float(np.min(T))
     assert min_all >= ambient - 1e-10, (
-        f"Maximum principle violated: ambient={ambient}°C, "
-        f"min cell={min_all:.6f}°C"
+        f"Maximum principle violated: ambient={ambient}°C, min cell={min_all:.6f}°C"
     )
 
 
@@ -427,7 +429,7 @@ def test_r9_fail_capable_bc_swap():
     n = h * w
     violated = False
     for idx in range(n):
-        diag_val = A_lil[idx, idx]
+        A_lil[idx, idx]
         row_sum_off = sum(abs(A_lil[idx, j]) for j in range(n) if j != idx)
         # Every row is an active (non-identity) row with boundary-aligned BC
         if row_sum_off > 1e-12:
@@ -466,9 +468,7 @@ def test_r10_full_spd(config):
     h, w = config.height_cells, config.width_cells
     copper = np.full((h, w), 0.5, dtype=np.float64)
     A = get_system_matrix(config, copper_grid=copper)
-    assert _check_full_spd(A), (
-        f"Full matrix not SPD: h={h} w={w} edge={config.heatsink_edge}"
-    )
+    assert _check_full_spd(A), f"Full matrix not SPD: h={h} w={w} edge={config.heatsink_edge}"
 
 
 def test_r10_fail_capable():

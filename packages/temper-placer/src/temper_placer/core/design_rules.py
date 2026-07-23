@@ -7,16 +7,16 @@ controlling trace widths, clearances, and via sizes during routing.
 
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Literal, TypeAlias
+from typing import TypeAlias
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict
 
 Array: TypeAlias = np.ndarray  # numpy alias replacing JAX Array post-JAX retirement
 
 from temper_placer.core.bus_cohort import BusCohortConstraint
 from temper_placer.core.differential_pair import DifferentialPairConstraint
 from temper_placer.core.net_graph import NetGraph
+from temper_placer.core.netclass_rules_gen import NetClassRules
 
 
 @dataclass
@@ -91,58 +91,6 @@ class ViaTemplate:
                 positions.append((x, y))
 
         return positions
-
-
-class NetClassRules(BaseModel):
-    """Routing rules for a net class.
-
-    Defines the physical parameters for traces in a given net class,
-    including width, clearance, and via specifications.
-
-    Attributes:
-        name: Net class name (e.g., 'Power', 'Signal', 'HighSpeed')
-        trace_width: Trace width in mm
-        clearance: Minimum clearance to other traces in mm
-        via_diameter: Via pad diameter in mm (for single vias)
-        via_drill: Via drill diameter in mm (for single vias)
-        via_template: Via array template name (e.g., 'Via2x2' for high-current)
-        creepage_mm: Creepage distance for high-voltage nets
-        target_impedance: Target impedance in ohms (for controlled impedance)
-        dru_priority: Lower value emits earlier in DRU trace-width section
-        required_layer: KiCad layer name or None for no constraint
-        safety_category: Safety classification for HV/LV/isolation checks
-    """
-
-    model_config = ConfigDict(frozen=True)
-
-    name: str
-    trace_width: float  # mm
-    clearance: float  # mm
-    via_diameter: float = 0.6  # mm
-    via_drill: float = 0.3  # mm
-    via_template: str | None = None  # Via array template name
-    creepage_mm: float = 0.0  # Creepage distance for high-voltage nets
-    target_impedance: float | None = None  # Target impedance in ohms
-
-    def __init__(self, name: str = "", **data: object) -> None:
-        # Accept a positional name for ergonomics so callers can write
-        # ``NetClassRules("HighVoltage", trace_width=0.5)`` instead of
-        # ``NetClassRules(name="HighVoltage", trace_width=0.5)``.
-        if name and "name" not in data:
-            data["name"] = name
-        super().__init__(**data)
-    voltage_v: float = 0.0  # Voltage rating for safety distance calculation
-    routing_strategy: str | None = (
-        None  # Routing strategy: "plane_required", "plane_preferred", "wide_trace", "standard"
-    )
-    via_cost_multiplier: float = 1.0  # Multiplier for via cost (higher = fewer vias)
-    layer_costs: dict[str, float] | None = (
-        None  # Layer-specific cost multipliers {"F.Cu": 10.0, "In1.Cu": 0.1, ...}
-    )
-    dru_priority: int = 0  # lower emits earlier in DRU trace-width section (required)
-    required_layer: str | None = None  # KiCad layer name or None for no constraint
-    layer: str | None = None  # SSOT KiCad layer name for this class (W2 R2)
-    safety_category: Literal["HV", "LV", "AC", "iso"] | None = None
 
 
 @dataclass
@@ -429,7 +377,6 @@ TEMPER_NET_CLASSES = {
 }
 
 
-
 # Net class assignments matching KiCad project (temper.kicad_pro)
 TEMPER_NET_ASSIGNMENTS = {
     # ACMains - Mains voltage (240V AC)
@@ -441,6 +388,8 @@ TEMPER_NET_ASSIGNMENTS = {
     # HighVoltage - DC bus (300-400V DC)
     "+340V_BUS": "HighVoltage",
     "DC_BUS_RTN": "HighVoltage",
+    "DC_BUS+": "HighVoltage",
+    "DC_BUS-": "HighVoltage",
     "SW_NODE": "HighVoltage",
     # FinePitch - U8 SSOP-20 (0.635mm) + RTD SPI peripherals
     "sclk": "FinePitch",
@@ -459,8 +408,12 @@ TEMPER_NET_ASSIGNMENTS = {
     # GateDrive - MOSFET gate drive signals
     "GATE_HS": "GateDrive",
     "GATE_LS": "GateDrive",
+    "GATE_H": "GateDrive",
+    "GATE_L": "GateDrive",
     "PWM_HS": "GateDrive",
     "PWM_LS": "GateDrive",
+    "PWM_H": "GateDrive",
+    "PWM_L": "GateDrive",
     # Power - DC supply rails
     "+15V": "Power",
     "+15V_LS": "Power",
@@ -469,6 +422,7 @@ TEMPER_NET_ASSIGNMENTS = {
     "V_BUS_SENSE": "Power",
     # GND - power return
     "PWR_RTN": "GND",
+    "CGND": "GND",
 }
 
 
@@ -504,4 +458,3 @@ def create_temper_design_rules() -> DesignRules:
         net_classes=deepcopy(TEMPER_NET_CLASSES),
         net_class_assignments=deepcopy(TEMPER_NET_ASSIGNMENTS),
     )
-

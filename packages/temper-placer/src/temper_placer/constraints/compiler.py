@@ -135,7 +135,11 @@ class ConstraintCompiler:
                     if component not in (prox_rule.component_a, prox_rule.component_b):
                         continue
 
-                    other = prox_rule.component_b if component == prox_rule.component_a else prox_rule.component_a
+                    other = (
+                        prox_rule.component_b
+                        if component == prox_rule.component_a
+                        else prox_rule.component_a
+                    )
                     if other in placements:
                         dist = self._distance(slot, placements[other])
                         if dist > prox_rule.max_distance_mm:
@@ -145,7 +149,9 @@ class ConstraintCompiler:
             for ec in self.constraints.escape_clearances:
                 if ec.tier != "hard":
                     continue
-                if ec.component in placements and self._in_escape_zone(slot, placements[ec.component], ec):
+                if ec.component in placements and self._in_escape_zone(
+                    slot, placements[ec.component], ec
+                ):
                     return False
 
             # 4. Routing corridors (keep_clear + hard tier)
@@ -201,7 +207,11 @@ class ConstraintCompiler:
                     if component not in (prox_rule.component_a, prox_rule.component_b):
                         continue
 
-                    other = prox_rule.component_b if component == prox_rule.component_a else prox_rule.component_a
+                    other = (
+                        prox_rule.component_b
+                        if component == prox_rule.component_a
+                        else prox_rule.component_a
+                    )
                     if other in placements:
                         dist = self._distance(slot, placements[other])
                         if dist > prox_rule.max_distance_mm:
@@ -248,7 +258,9 @@ class ConstraintCompiler:
             for ec in self.constraints.escape_clearances:
                 if ec.tier != "soft":
                     continue
-                if ec.component in placements and self._in_escape_zone(slot, placements[ec.component], ec):
+                if ec.component in placements and self._in_escape_zone(
+                    slot, placements[ec.component], ec
+                ):
                     score += 50.0  # Strong penalty
 
             # 6. Routing corridors (soft mode)

@@ -9,14 +9,12 @@ from temper_placer.core.decision import Alternative, Decision, DecisionTrace
 if TYPE_CHECKING:
     pass
 
+
 class DecisionLogger:
     """Logs decisions during the placement and routing process."""
 
     def __init__(self, run_id: str | None = None):
-        self.trace = DecisionTrace(
-            run_id=run_id or str(uuid.uuid4()),
-            start_time=datetime.now()
-        )
+        self.trace = DecisionTrace(run_id=run_id or str(uuid.uuid4()), start_time=datetime.now())
 
     def log_placement(
         self,
@@ -25,7 +23,7 @@ class DecisionLogger:
         reason: str,
         phase: str = "geometric",
         constraints: list[str] | None = None,
-        alternatives: list[Alternative] | None = None
+        alternatives: list[Alternative] | None = None,
     ) -> None:
         """Log a component placement decision."""
         decision = Decision(
@@ -36,7 +34,7 @@ class DecisionLogger:
             value=value,
             reason=reason,
             constraint_refs=constraints or [],
-            alternatives_considered=alternatives or []
+            alternatives_considered=alternatives or [],
         )
         self.trace.add_decision(decision)
 
@@ -46,7 +44,7 @@ class DecisionLogger:
         value: Any,
         reason: str,
         phase: str = "routing",
-        constraints: list[str] | None = None
+        constraints: list[str] | None = None,
     ) -> None:
         """Log a routing decision."""
         decision = Decision(
@@ -56,7 +54,7 @@ class DecisionLogger:
             subject=net,
             value=value,
             reason=reason,
-            constraint_refs=constraints or []
+            constraint_refs=constraints or [],
         )
         self.trace.add_decision(decision)
 
@@ -65,6 +63,7 @@ class DecisionLogger:
         self.trace.end_time = datetime.now()
         self.trace.final_metrics = metrics
         return self.trace
+
 
 def generate_markdown_report(trace: DecisionTrace) -> str:
     """Generate a human-readable Markdown report from a decision trace."""

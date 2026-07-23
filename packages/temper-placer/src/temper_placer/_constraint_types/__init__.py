@@ -76,4 +76,6 @@ __all__ = [
     "StarGroundConfig",
     "ThermalConstraint",
     "ThermalProperties",
+    "_DEFAULT_RJC",
+    "_RJC_PACKAGE_LOOKUP",
 ]

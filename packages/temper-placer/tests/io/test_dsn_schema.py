@@ -1,6 +1,10 @@
 from temper_placer.core.board import Board
 from temper_placer.core.netlist import Component, Net, Netlist, Pin
-from temper_placer.io.dsn_schema import compute_dsn_schema_hash, embed_schema_header, extract_schema_hash
+from temper_placer.io.dsn_schema import (
+    compute_dsn_schema_hash,
+    embed_schema_header,
+    extract_schema_hash,
+)
 
 
 def test_compute_schema_hash_deterministic():
@@ -19,7 +23,14 @@ def test_compute_schema_hash_deterministic():
 def test_compute_schema_hash_changes_with_net():
     """Adding a net changes the hash."""
     board = Board(width=100, height=100)
-    comps = [Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[Pin("1", "1", (0, 0)), Pin("2", "2", (0, 1))])]
+    comps = [
+        Component(
+            ref="U1",
+            footprint="SOIC-8",
+            bounds=(5, 4),
+            pins=[Pin("1", "1", (0, 0)), Pin("2", "2", (0, 1))],
+        )
+    ]
     nets_a = [Net(name="SIG1", pins=[("U1", "1")])]
     nets_b = [Net(name="SIG1", pins=[("U1", "1")]), Net(name="SIG2", pins=[("U1", "2")])]
 
@@ -32,7 +43,14 @@ def test_compute_schema_hash_changes_with_footprint():
     """Different footprint (different pin count) changes the hash."""
     board = Board(width=100, height=100)
     comps_a = [Component(ref="U1", footprint="SOIC-8", bounds=(5, 4), pins=[Pin("1", "1", (0, 0))])]
-    comps_b = [Component(ref="U1", footprint="SOIC-14", bounds=(5, 4), pins=[Pin("1", "1", (0, 0)), Pin("14", "14", (0, 1))])]
+    comps_b = [
+        Component(
+            ref="U1",
+            footprint="SOIC-14",
+            bounds=(5, 4),
+            pins=[Pin("1", "1", (0, 0)), Pin("14", "14", (0, 1))],
+        )
+    ]
     nets = [Net(name="SIG1", pins=[("U1", "1")])]
 
     h1 = compute_dsn_schema_hash(board, Netlist(components=comps_a, nets=nets))
@@ -97,6 +115,7 @@ def test_schema_hash_in_export_pcb():
     netlist = Netlist(components=comps, nets=nets)
 
     from temper_placer.io.dsn_exporter import DSNExporter
+
     exporter = DSNExporter(board, netlist, deterministic=True)
     dsn_text = str(exporter.export_pcb("test"))
 

@@ -3,7 +3,6 @@
 /// Provides common constructors used across multiple test modules to avoid
 /// byte-identical duplication of `empty_spec()`, `empty_placement()`,
 /// `dummy_metrics()`, and `valid_metrics()`.
-
 use std::collections::HashMap;
 
 use crate::types::{

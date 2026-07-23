@@ -63,11 +63,7 @@ def plan_terminal_tree(pads: list[TreeTerminal] | tuple[TreeTerminal, ...]) -> T
 
     while remaining:
         source, target = min(
-            (
-                (source, target)
-                for source in connected
-                for target in remaining
-            ),
+            ((source, target) for source in connected for target in remaining),
             key=lambda pair: (
                 _manhattan(terminals[pair[0]], terminals[pair[1]]),
                 pair[0],

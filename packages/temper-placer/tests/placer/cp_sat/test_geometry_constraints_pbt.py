@@ -65,8 +65,7 @@ class TestP1CourtyardSoundness:
         for i in range(len(refs)):
             for j in range(i + 1, len(refs)):
                 a, b = refs[i], refs[j]
-                gap = _chebyshev_gap(sol.sizes[a], sol.positions[a],
-                                     sol.sizes[b], sol.positions[b])
+                gap = _chebyshev_gap(sol.sizes[a], sol.positions[a], sol.sizes[b], sol.positions[b])
                 min_gap = min(min_gap, gap)
         if min_gap < tau_u and tau_mm > 0:
             pytest.fail(f"Min gap {min_gap} < tau {tau_u} units (tau_mm={tau_mm})")
@@ -126,8 +125,7 @@ class TestP3RotationInvariance:
         for i in range(len(refs)):
             for j in range(i + 1, len(refs)):
                 a, b = refs[i], refs[j]
-                gap = _chebyshev_gap(sol.sizes[a], sol.positions[a],
-                                     sol.sizes[b], sol.positions[b])
+                gap = _chebyshev_gap(sol.sizes[a], sol.positions[a], sol.sizes[b], sol.positions[b])
                 assert gap >= tau_u, f"Gap {gap} < tau {tau_u} for pair {a}-{b}"
 
         # P2 check
@@ -167,8 +165,10 @@ class TestP4Monotonicity:
         model2.add_no_overlap_2d(refs)
 
         ctx2 = EncoderContext(
-            board_w_mm=ctx.board_w_mm, board_h_mm=ctx.board_h_mm,
-            board_x_max_units=board_w_u, board_y_max_units=board_h_u,
+            board_w_mm=ctx.board_w_mm,
+            board_h_mm=ctx.board_h_mm,
+            board_x_max_units=board_w_u,
+            board_y_max_units=board_h_u,
             courtyard_clearance_mm=tau_prime,
             board_edge_margin_units=margin_u,
         )
@@ -222,7 +222,7 @@ class TestP6BoundedCompleteness:
         board_w_mm = float(n_comps * 20 + 2 * margin_mm)
         board_h_mm = float(n_comps * 20 + 2 * margin_mm)
 
-        tau_u = model.mm_to_units(tau_mm)
+        model.mm_to_units(tau_mm)
         margin_u = model.mm_to_units(margin_mm)
         board_w_u = model.mm_to_units(board_w_mm)
         board_h_u = model.mm_to_units(board_h_mm)
@@ -241,8 +241,10 @@ class TestP6BoundedCompleteness:
         model.add_no_overlap_2d(refs)
 
         ctx = EncoderContext(
-            board_w_mm=board_w_mm, board_h_mm=board_h_mm,
-            board_x_max_units=board_w_u, board_y_max_units=board_h_u,
+            board_w_mm=board_w_mm,
+            board_h_mm=board_h_mm,
+            board_x_max_units=board_w_u,
+            board_y_max_units=board_h_u,
             courtyard_clearance_mm=tau_mm,
             board_edge_margin_units=margin_u,
         )
@@ -293,6 +295,7 @@ class TestP7Determinism:
 # P8: Bounds ⊇ pads invariant (Hypothesis)
 # ---------------------------------------------------------------------------
 
+
 def test_bounds_enclose_pads_hypothesis():
     """Every component's parsed bounds must enclose all its pads.
 
@@ -309,11 +312,13 @@ def test_bounds_enclose_pads_hypothesis():
     @given(
         pad_positions=st.lists(
             st.tuples(st.floats(-10, 10), st.floats(-10, 10)),
-            min_size=1, max_size=10,
+            min_size=1,
+            max_size=10,
         ),
         pad_sizes=st.lists(
             st.tuples(st.floats(0.1, 5.0), st.floats(0.1, 5.0)),
-            min_size=1, max_size=10,
+            min_size=1,
+            max_size=10,
         ),
     )
     @settings(max_examples=100, deadline=5000)
@@ -336,12 +341,12 @@ def test_bounds_enclose_pads_hypothesis():
         # Every pad centre must lie within bounds/2 of the bounds centre
         cx = (min(pad_xs) + max(pad_xs)) / 2
         cy = (min(pad_ys) + max(pad_ys)) / 2
-        for (px, py), (pw, ph) in zip(pad_positions[:n], pad_sizes[:n]):
+        for (px, py), (_pw, _ph) in zip(pad_positions[:n], pad_sizes[:n]):
             assert abs(px - cx) <= bounds_w / 2 + 1e-9, (
-                f"pad at ({px},{py}) outside x-bounds ±{bounds_w/2:.3f}"
+                f"pad at ({px},{py}) outside x-bounds ±{bounds_w / 2:.3f}"
             )
             assert abs(py - cy) <= bounds_h / 2 + 1e-9, (
-                f"pad at ({px},{py}) outside y-bounds ±{bounds_h/2:.3f}"
+                f"pad at ({px},{py}) outside y-bounds ±{bounds_h / 2:.3f}"
             )
 
     _test()
@@ -350,6 +355,7 @@ def test_bounds_enclose_pads_hypothesis():
 # ---------------------------------------------------------------------------
 # P9: Golden temper board — bounds ⊇ pads for all real components
 # ---------------------------------------------------------------------------
+
 
 def test_golden_temper_board_bounds_enclose_pads():
     """Every component on the golden temper board has bounds enclosing its pads.
@@ -362,9 +368,16 @@ def test_golden_temper_board_bounds_enclose_pads():
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
 
-    input_pcb = Path(__file__).parent.parent.parent.parent.parent.parent / "power_pcb_dataset" / "corpus" / "temper" / "temper.kicad_pcb"
+    input_pcb = (
+        Path(__file__).parent.parent.parent.parent.parent.parent
+        / "power_pcb_dataset"
+        / "corpus"
+        / "temper"
+        / "temper.kicad_pcb"
+    )
     if not input_pcb.exists():
         import pytest
+
         pytest.skip("temper board not found")
 
     pr = parse_kicad_pcb(input_pcb)
@@ -379,11 +392,10 @@ def test_golden_temper_board_bounds_enclose_pads():
                 d_y = abs(py) - h / 2
                 violations.append(
                     f"{comp.ref}: pad {pin.number} at ({px:.1f},{py:.1f}) "
-                    f"outside bounds ±({w/2:.1f},{h/2:.1f}) "
+                    f"outside bounds ±({w / 2:.1f},{h / 2:.1f}) "
                     f"by ({d_x:.1f},{d_y:.1f})mm"
                 )
 
-    assert not violations, (
-        f"{len(violations)} components have pads outside bounds:\n"
-        + "\n".join(violations[:10])
+    assert not violations, f"{len(violations)} components have pads outside bounds:\n" + "\n".join(
+        violations[:10]
     )

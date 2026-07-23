@@ -60,7 +60,9 @@ def compute_aesthetic_score(
     orientation_score = np.clip(1.0 - (entropy / 1.386), 0.0, 1.0)
 
     # 3. Alignment Score (Prefix-based)
-    def get_prefix_groups(*a, **kw): raise NotImplementedError("get_prefix_groups removed (JAX retirement)")
+    def get_prefix_groups(*a, **kw):
+        raise NotImplementedError("get_prefix_groups removed (JAX retirement)")
+
     prefix_groups_arr = get_prefix_groups(netlist)
     prefix_groups = []
     if prefix_groups_arr.shape[0] > 0:

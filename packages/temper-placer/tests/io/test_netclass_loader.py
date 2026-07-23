@@ -1,4 +1,5 @@
 """Test netclass loader: YAML -> DesignRules."""
+
 from pathlib import Path
 
 import pytest
@@ -11,13 +12,23 @@ class TestNetclassLoader:
     @pytest.fixture(autouse=True)
     def setup(self):
         from temper_placer.io.netclass_loader import load_netclass_rules
+
         self.ncr = load_netclass_rules(RULES_PATH)
         self.dr = self.ncr.design_rules
 
     def test_loads_all_9_classes(self):
         """All 9 net classes are loaded into DesignRules.net_classes."""
-        expected = {"ACMains", "HighVoltage", "FinePitch", "Power", "GateDrive",
-                    "GND", "HighSpeed", "Signal", "HighCurrent"}
+        expected = {
+            "ACMains",
+            "HighVoltage",
+            "FinePitch",
+            "Power",
+            "GateDrive",
+            "GND",
+            "HighSpeed",
+            "Signal",
+            "HighCurrent",
+        }
         assert set(self.dr.net_classes.keys()) == expected
 
     def test_class_clearance_values(self):
@@ -40,7 +51,7 @@ class TestNetclassLoader:
 
     def test_class_pairs_loaded(self):
         """Safety-critical class_pairs are loaded."""
-        assert hasattr(self.dr, 'class_pairs')
+        assert hasattr(self.dr, "class_pairs")
         cp = self.dr.class_pairs
         assert ("ACMains", "Signal") in cp
         assert cp[("ACMains", "Signal")]["clearance"] == 6.0

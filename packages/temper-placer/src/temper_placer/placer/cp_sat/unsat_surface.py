@@ -60,34 +60,24 @@ def format_unsat_panel(report: UnsatReport) -> str:
 
     # Suggested resolution guidance.
     lines.append("[bold]Suggested resolutions:[/]")
-    lines.append(
-        "  • Relax non-physics-grounded constraints (separation, enclosure, keepout)."
-    )
-    lines.append(
-        "  • Increase board dimensions if zone constraints over-constrain."
-    )
-    lines.append(
-        "  • Reduce component count in the constrained zone."
-    )
+    lines.append("  • Relax non-physics-grounded constraints (separation, enclosure, keepout).")
+    lines.append("  • Increase board dimensions if zone constraints over-constrain.")
+    lines.append("  • Reduce component count in the constrained zone.")
     lines.append("")
 
     # Data quality summary.
     gaps = report.data_quality_gaps
     if gaps:
         lines.append(
-            f"[bold yellow]PCL data-quality gaps:[/] {len(gaps)} constraint(s) "
-            f"without rationale."
+            f"[bold yellow]PCL data-quality gaps:[/] {len(gaps)} constraint(s) without rationale."
         )
         for gap in gaps:
-            lines.append(
-                f"  [dim]• {gap['constraint_name']}: {gap['gap']}[/]"
-            )
+            lines.append(f"  [dim]• {gap['constraint_name']}: {gap['gap']}[/]")
         lines.append("")
 
     if not report.is_minimal:
         lines.append(
-            "[dim]Note: The core may not be fully minimal (MUS refinement "
-            "did not converge).[/]"
+            "[dim]Note: The core may not be fully minimal (MUS refinement did not converge).[/]"
         )
         lines.append("")
 
@@ -103,6 +93,7 @@ def _build_unsat_json(report: UnsatReport) -> dict:
     Returns:
         A JSON-serializable dict.
     """
+
     def _constraint_to_dict(c):
         return {
             "constraint_name": c.name,

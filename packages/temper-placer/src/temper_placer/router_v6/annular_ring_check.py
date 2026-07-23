@@ -176,9 +176,7 @@ def check_annular_rings(
     """
     # ---- validate input ----
     if math.isnan(min_annular_ring) or min_annular_ring <= 0.0:
-        raise ValueError(
-            f"min_annular_ring must be > 0, got {min_annular_ring}"
-        )
+        raise ValueError(f"min_annular_ring must be > 0, got {min_annular_ring}")
 
     violations: list[AnnularRingViolation] = []
     total_vias = 0

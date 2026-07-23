@@ -26,7 +26,7 @@ def test_component_factory_with_pins(component_factory):
         pins=[
             Pin("VCC", "8", (2.0, 1.5)),
             Pin("GND", "4", (-2.0, -1.5)),
-        ]
+        ],
     )
 
     assert comp.bounds == (5.0, 4.0)  # From library
@@ -65,13 +65,13 @@ def test_library_loaded_once(footprint_library):
 def test_footprint_library_has_temper_components(footprint_library):
     """Verify library has key Temper components."""
     required_footprints = [
-        "TO-247-3",     # IGBTs
-        "SOIC-16_W",    # Gate driver
-        "QFN-56",       # ESP32-S3
-        "TSSOP-20",     # MAX31865
-        "0805",         # Standard passives
-        "0603",         # Small passives
-        "2512",         # Current sense resistors
+        "TO-247-3",  # IGBTs
+        "SOIC-16_W",  # Gate driver
+        "QFN-56",  # ESP32-S3
+        "TSSOP-20",  # MAX31865
+        "0805",  # Standard passives
+        "0603",  # Small passives
+        "2512",  # Current sense resistors
     ]
 
     for fp in required_footprints:

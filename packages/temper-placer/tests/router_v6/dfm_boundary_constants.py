@@ -48,9 +48,7 @@ BOARD_DIMS_NAN = [(float("nan"), 100.0), (100.0, float("nan"))]
 BOARD_DIMS_INF = [(float("inf"), 100.0), (100.0, float("inf"))]
 BOARD_DIMS_EXTREME = [(1e-6, 1e-6), (1e6, 1e6)]
 BOARD_DIMS_NORMAL = [(100.0, 80.0), (200.0, 150.0)]
-BOARD_DIMS_BOUNDARY = (
-    BOARD_DIMS_ZERO + BOARD_DIMS_NEGATIVE + BOARD_DIMS_NAN + BOARD_DIMS_INF
-)
+BOARD_DIMS_BOUNDARY = BOARD_DIMS_ZERO + BOARD_DIMS_NEGATIVE + BOARD_DIMS_NAN + BOARD_DIMS_INF
 
 # ---------------------------------------------------------------------------
 # Clearance / creepage thresholds (mm)
@@ -60,9 +58,7 @@ THRESHOLD_NEGATIVE = [-0.001, -1.0]
 THRESHOLD_NAN = [float("nan")]
 THRESHOLD_INF = [float("inf")]
 THRESHOLD_NORMAL = [0.05, 0.127, 0.2, 0.5, 2.0, 6.0]
-THRESHOLD_BOUNDARY = (
-    THRESHOLD_ZERO + THRESHOLD_NEGATIVE + THRESHOLD_NAN + THRESHOLD_INF
-)
+THRESHOLD_BOUNDARY = THRESHOLD_ZERO + THRESHOLD_NEGATIVE + THRESHOLD_NAN + THRESHOLD_INF
 
 # ---------------------------------------------------------------------------
 # Voltage values (V)
@@ -73,9 +69,7 @@ VOLTAGE_NAN = [float("nan")]
 VOLTAGE_INF = [float("inf")]
 VOLTAGE_EXTREME = [1e6]
 VOLTAGE_NORMAL = [50, 100, 230, 400, 1000]
-VOLTAGE_BOUNDARY = (
-    VOLTAGE_ZERO + VOLTAGE_NEGATIVE + VOLTAGE_NAN + VOLTAGE_INF + VOLTAGE_EXTREME
-)
+VOLTAGE_BOUNDARY = VOLTAGE_ZERO + VOLTAGE_NEGATIVE + VOLTAGE_NAN + VOLTAGE_INF + VOLTAGE_EXTREME
 
 # ---------------------------------------------------------------------------
 # Coordinate positions (mm)
@@ -90,6 +84,7 @@ COORD_BOUNDARY = COORD_ZERO + COORD_NEGATIVE + COORD_NAN + COORD_INF + COORD_EXT
 # ---------------------------------------------------------------------------
 # At-threshold helpers
 # ---------------------------------------------------------------------------
+
 
 def just_below(value: float, delta: float = 1e-6) -> float:
     """Value just below the threshold."""
@@ -119,13 +114,17 @@ class Path:
     def __init__(self, coords, layer="F.Cu"):
         self.coordinates = list(coords)
         self.layer_name = layer
-        self.total_length_mm = sum(
-            _math.hypot(
-                coords[i + 1][0] - coords[i][0],
-                coords[i + 1][1] - coords[i][1],
+        self.total_length_mm = (
+            sum(
+                _math.hypot(
+                    coords[i + 1][0] - coords[i][0],
+                    coords[i + 1][1] - coords[i][1],
+                )
+                for i in range(len(coords) - 1)
             )
-            for i in range(len(coords) - 1)
-        ) if len(coords) > 1 else 0.0
+            if len(coords) > 1
+            else 0.0
+        )
         self.path_length = self.total_length_mm
 
 

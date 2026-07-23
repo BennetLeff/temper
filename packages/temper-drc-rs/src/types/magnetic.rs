@@ -125,7 +125,7 @@ mod tests {
 
         // Copper zone is far away.
         let zone = make_rect(50.0, 50.0, 60.0, 60.0);
-        let copper_zones = vec![("GND".into(), &zone)];
+        let copper_zones = vec![("GND", &zone)];
 
         let result = validate_magnetic_void(&magnetic_refs, &copper_zones, &components);
         assert!(result.is_ok());
@@ -140,7 +140,7 @@ mod tests {
 
         // Copper zone overlaps the footprint.
         let zone = make_rect(15.0, 15.0, 25.0, 25.0);
-        let copper_zones = vec![("GND".into(), &zone)];
+        let copper_zones = vec![("GND", &zone)];
 
         let result = validate_magnetic_void(&magnetic_refs, &copper_zones, &components);
         assert!(result.is_err());

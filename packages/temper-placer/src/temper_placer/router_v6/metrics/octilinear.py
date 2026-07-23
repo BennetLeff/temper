@@ -45,7 +45,10 @@ def _is_diagonal_angle(angle: float, tolerance: float = _ANGLE_TOLERANCE_DEG) ->
 
 
 def _segment_classification(
-    x1: float, y1: float, x2: float, y2: float,
+    x1: float,
+    y1: float,
+    x2: float,
+    y2: float,
 ) -> tuple[float, bool]:
     """Return (euclidean_length, is_diagonal) for a segment.
 
@@ -66,7 +69,8 @@ def _segment_classification(
 
 
 def octilinear_fraction(
-    path: list[GridCell], cell_size: float = 1.0,
+    path: list[GridCell],
+    cell_size: float = 1.0,
 ) -> float:
     """Return the fraction (0.0-1.0) of track length made of diagonal steps.
 
@@ -91,8 +95,10 @@ def octilinear_fraction(
             continue
 
         seg_len, is_diag = _segment_classification(
-            float(prev.x) * cell_size, float(prev.y) * cell_size,
-            float(curr.x) * cell_size, float(curr.y) * cell_size,
+            float(prev.x) * cell_size,
+            float(prev.y) * cell_size,
+            float(curr.x) * cell_size,
+            float(curr.y) * cell_size,
         )
         total_length += seg_len
         if is_diag:
@@ -130,7 +136,10 @@ def octilinear_compliance(routed_pcb_path: Path) -> float:
 
     for sx, sy, ex, ey in matches:
         seg_len, is_diag = _segment_classification(
-            float(sx), float(sy), float(ex), float(ey),
+            float(sx),
+            float(sy),
+            float(ex),
+            float(ey),
         )
         if seg_len < 1e-12:
             continue

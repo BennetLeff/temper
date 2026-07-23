@@ -145,9 +145,7 @@ def test_thermal_vias_dimensions_and_layers():
 
 def test_thermal_vias_centered_on_component():
     board = _board()
-    vias = generate_thermal_vias(
-        board, [_igbt("Q1", (30.0, 40.0))], pitch_mm=1.0
-    )
+    vias = generate_thermal_vias(board, [_igbt("Q1", (30.0, 40.0))], pitch_mm=1.0)
     xs = [v.position[0] for v in vias]
     ys = [v.position[1] for v in vias]
     # 3x3 grid, pitch 1.0 -> centroid at component centre.
@@ -161,8 +159,7 @@ def test_thermal_vias_ignores_non_igbt():
     board = _board()
     comps = [
         _igbt("Q1", (30.0, 40.0)),
-        Component(ref="R5", footprint="R_0805", bounds=(2.0, 1.2),
-                  initial_position=(10.0, 10.0)),
+        Component(ref="R5", footprint="R_0805", bounds=(2.0, 1.2), initial_position=(10.0, 10.0)),
     ]
     vias = generate_thermal_vias(board, comps)
     assert len(vias) == 9
@@ -170,8 +167,7 @@ def test_thermal_vias_ignores_non_igbt():
 
 def test_thermal_vias_skips_unplaced_component():
     board = _board()
-    comp = Component(ref="Q1", footprint="TO-247", bounds=(16.0, 20.0),
-                     initial_position=None)
+    comp = Component(ref="Q1", footprint="TO-247", bounds=(16.0, 20.0), initial_position=None)
     assert generate_thermal_vias(board, [comp]) == []
 
 
@@ -184,9 +180,7 @@ def test_thermal_vias_non_square_count_raises():
 def test_thermal_vias_bad_diameter_raises():
     board = _board()
     with pytest.raises(ValueError, match="must exceed"):
-        generate_thermal_vias(
-            board, [_igbt("Q1", (30.0, 40.0))], diameter_mm=0.3, drill_mm=0.3
-        )
+        generate_thermal_vias(board, [_igbt("Q1", (30.0, 40.0))], diameter_mm=0.3, drill_mm=0.3)
 
 
 def test_thermal_vias_custom_count_4():

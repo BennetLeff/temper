@@ -82,6 +82,7 @@ def test_ascending_minimizes_prefix_sums():
 def _test_all_permutations(areas: list[float], total_area: float, cap: float) -> int:
     """Count how many permutations succeed."""
     import itertools
+
     count = 0
     total = 0
     for perm in set(itertools.permutations(areas)):

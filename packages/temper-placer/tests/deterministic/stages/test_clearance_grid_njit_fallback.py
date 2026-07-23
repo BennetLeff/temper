@@ -28,16 +28,12 @@ from temper_placer.deterministic.stages.clearance_grid import (
 
 def test_block_circle_numba_is_callable_with_real_arguments():
     grid = np.zeros((20, 20), dtype=np.int32)
-    _block_circle_numba(
-        grid, 5.0, 5.0, 3.0, 42, 1.0, 0, 20, 0, 20
-    )
+    _block_circle_numba(grid, 5.0, 5.0, 3.0, 42, 1.0, 0, 20, 0, 20)
     assert (grid == 42).any(), "expected at least one cell inside the circle to be blocked"
     assert grid[5, 5] == 42
 
 
 def test_block_segment_numba_is_callable_with_real_arguments():
     grid = np.zeros((20, 20), dtype=np.int32)
-    _block_segment_numba(
-        grid, 0.0, 0.0, 10.0, 10.0, 1.0, 7, 1.0, 0, 20, 0, 20
-    )
+    _block_segment_numba(grid, 0.0, 0.0, 10.0, 10.0, 1.0, 7, 1.0, 0, 20, 0, 20)
     assert (grid == 7).any(), "expected at least one cell along the segment to be blocked"

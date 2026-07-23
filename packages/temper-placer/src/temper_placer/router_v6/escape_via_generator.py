@@ -62,6 +62,7 @@ def generate_escape_vias(
 
     # Resolve layer from component side
     from temper_placer.core.board import side_to_layer_name
+
     side = getattr(component, "side", 0) or 0
     layer = side_to_layer_name(side)
 
@@ -90,15 +91,17 @@ def generate_escape_vias(
             # Via in center of pad
             abs_pos = pin_world_position(pin, component)
 
-            escape_vias.append(EscapeVia(
-                position=abs_pos,
-                net_name=pin.net,
-                pin_number=pin.number,
-                diameter=via_diameter,
-                drill=via_drill,
-                via_type="via-in-pad",
-                layer=layer,
-            ))
+            escape_vias.append(
+                EscapeVia(
+                    position=abs_pos,
+                    net_name=pin.net,
+                    pin_number=pin.number,
+                    diameter=via_diameter,
+                    drill=via_drill,
+                    via_type="via-in-pad",
+                    layer=layer,
+                )
+            )
 
         elif strategy == "dog-bone":
             pin_abs_pos = pin_world_position(pin, component)
@@ -113,7 +116,7 @@ def generate_escape_vias(
                 (half_pitch, half_pitch),
                 (half_pitch, -half_pitch),
                 (-half_pitch, half_pitch),
-                (-half_pitch, -half_pitch)
+                (-half_pitch, -half_pitch),
             ]
 
             chosen_pos = None
@@ -133,27 +136,30 @@ def generate_escape_vias(
 
                 # Check collision with other pins
                 if _is_position_valid(
-                    cand_x, cand_y,
+                    cand_x,
+                    cand_y,
                     via_diameter / 2.0,
                     component,
                     (comp_x, comp_y),
                     angle,
                     clearance,
-                    _ignore_net=pin.net  # Ignore clearance to same net
+                    _ignore_net=pin.net,  # Ignore clearance to same net
                 ):
                     chosen_pos = (cand_x, cand_y)
                     break
 
             if chosen_pos:
-                escape_vias.append(EscapeVia(
-                    position=chosen_pos,
-                    net_name=pin.net,
-                    pin_number=pin.number,
-                    diameter=via_diameter,
-                    drill=via_drill,
-                    via_type="dog-bone",
-                    layer=layer,
-                ))
+                escape_vias.append(
+                    EscapeVia(
+                        position=chosen_pos,
+                        net_name=pin.net,
+                        pin_number=pin.number,
+                        diameter=via_diameter,
+                        drill=via_drill,
+                        via_type="dog-bone",
+                        layer=layer,
+                    )
+                )
             else:
                 # Could not find valid dog-bone position.
                 # This happens if pitch is too tight for the via size.
@@ -170,7 +176,7 @@ def _is_position_valid(
     _comp_pos: tuple[float, float],
     _comp_angle: float,
     clearance: float,
-    _ignore_net: str | None = None
+    _ignore_net: str | None = None,
 ) -> bool:
     """
     Check if via at (x,y) with radius collides with any component pin.
@@ -204,7 +210,7 @@ def _is_position_valid(
         # This is conservative for rectangular pads.
         pin_radius = max(pin.width, pin.height) / 2.0
 
-        dist = math.sqrt((x - p_pos[0])**2 + (y - p_pos[1])**2)
+        dist = math.sqrt((x - p_pos[0]) ** 2 + (y - p_pos[1]) ** 2)
 
         required_dist = radius + pin_radius + clearance
 
@@ -212,7 +218,7 @@ def _is_position_valid(
         # If ignore_net matches, we can relax the check?
         # Let's maintain strict check for now to ensure quality fanout.
 
-        if dist < required_dist - 0.001: # epsilon tolerance
+        if dist < required_dist - 0.001:  # epsilon tolerance
             return False
 
     return True

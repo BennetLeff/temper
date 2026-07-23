@@ -16,9 +16,10 @@ import numpy as np
 @dataclass
 class DistributionParams:
     """Parameters for a tolerance distribution."""
+
     mean: float
     std_dev: float = 0.0
-    distribution: str = 'normal'  # 'normal', 'uniform'
+    distribution: str = "normal"  # 'normal', 'uniform'
     min_val: float | None = None
     max_val: float | None = None
 
@@ -26,6 +27,7 @@ class DistributionParams:
 @dataclass
 class ManufacturingVariables:
     """All manufacturing parameters that vary during production."""
+
     etch_tolerance: DistributionParams | None = None
     drill_tolerance: DistributionParams | None = None
     registration_x: DistributionParams | None = None
@@ -37,6 +39,7 @@ class ManufacturingVariables:
 @dataclass
 class MonteCarloConfig:
     """Configuration for Monte Carlo simulation."""
+
     num_samples: int = 1000
     seed: int = 42
     report_percentiles: tuple[float, ...] = (0.01, 0.1, 0.5, 0.9, 0.99)
@@ -45,6 +48,7 @@ class MonteCarloConfig:
 @dataclass
 class MonteCarloResult:
     """Results of a statistical tolerance simulation."""
+
     num_samples: int
     yield_probability: float
     failure_modes: list[tuple[str, float]] = field(default_factory=list)
@@ -55,9 +59,7 @@ class MonteCarloSimulator:
     """Run Monte Carlo tolerance simulations using JAX-accelerated sampling."""
 
     def __init__(
-        self,
-        variables: ManufacturingVariables,
-        config: MonteCarloConfig = MonteCarloConfig()
+        self, variables: ManufacturingVariables, config: MonteCarloConfig = MonteCarloConfig()
     ):
         self.variables = variables
         self.config = config
@@ -77,16 +79,20 @@ class MonteCarloSimulator:
         rng = self._rng
 
         for name in [
-            'etch_tolerance', 'drill_tolerance', 'registration_x',
-            'registration_y', 'copper_thickness', 'dielectric_thickness'
+            "etch_tolerance",
+            "drill_tolerance",
+            "registration_x",
+            "registration_y",
+            "copper_thickness",
+            "dielectric_thickness",
         ]:
             params = getattr(self.variables, name)
             if params is None:
                 continue
 
-            if params.distribution == 'normal':
+            if params.distribution == "normal":
                 samples[name] = rng.normal(params.mean, params.std_dev, size=n)
-            elif params.distribution == 'uniform':
+            elif params.distribution == "uniform":
                 min_v = params.min_val if params.min_val is not None else params.mean - 1.0
                 max_v = params.max_val if params.max_val is not None else params.mean + 1.0
                 samples[name] = rng.uniform(min_v, max_v, size=n)
@@ -115,9 +121,9 @@ class MonteCarloSimulator:
 
         # 1. Expand dimensions for vectorization
         # [S, N, 2]
-        etch = samples.get('etch_tolerance', np.zeros(n_samples))
-        reg_x = samples.get('registration_x', np.zeros(n_samples))
-        reg_y = samples.get('registration_y', np.zeros(n_samples))
+        etch = samples.get("etch_tolerance", np.zeros(n_samples))
+        reg_x = samples.get("registration_x", np.zeros(n_samples))
+        reg_y = samples.get("registration_y", np.zeros(n_samples))
 
         # Apply registration to positions: [S, N, 2]
         s_pos = positions[None, :, :] + np.stack([reg_x, reg_y], axis=-1)[:, None, :]
@@ -162,5 +168,5 @@ class MonteCarloSimulator:
             stats={
                 "mean_min_clearance": float(np.mean(min_dists)),
                 "std_min_clearance": float(np.std(min_dists)),
-            }
+            },
         )

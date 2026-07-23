@@ -247,8 +247,7 @@ def test_zero_vias_on_route_returns_empty_report(module_name):
     }
     attr = zero_count_attrs[module_name]
     assert getattr(report, attr) == 0, (
-        f"{module_name}.{attr} should be 0 with zero vias, "
-        f"got {getattr(report, attr)}"
+        f"{module_name}.{attr} should be 0 with zero vias, got {getattr(report, attr)}"
     )
 
 
@@ -311,9 +310,7 @@ def test_all_nets_failed_compiled_routes_empty(module_name):
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
-    assert report is not None, (
-        f"{module_name} returned None when all nets failed"
-    )
+    assert report is not None, f"{module_name} returned None when all nets failed"
 
 
 # ---------------------------------------------------------------------------
@@ -436,6 +433,7 @@ def test_thermal_relief_with_board_none_and_no_routes():
 @dataclass
 class _BareRoute:
     """A route-like object with minimal attributes."""
+
     net_name: str
     path: object
     width_mm: float
@@ -444,6 +442,7 @@ class _BareRoute:
 
 class _PathNoLayerName:
     """Path-like object that has coordinates but no layer_name."""
+
     def __init__(self, coords):
         self.coordinates = list(coords)
         total = 0.0
@@ -458,6 +457,7 @@ class _PathNoLayerName:
 
 class _PathNoCoordinates:
     """Path-like object that has layer_name but no coordinates attribute."""
+
     def __init__(self):
         self.layer_name = "F.Cu"
         self.path_length = 0.0
@@ -469,8 +469,14 @@ class _PathNoCoordinates:
 
 @pytest.mark.parametrize(
     "module_name",
-    ["teardrop_generation", "annular_ring_check", "thermal_relief", "acid_trap_detection",
-     "creepage_check", "clearance_check"],
+    [
+        "teardrop_generation",
+        "annular_ring_check",
+        "thermal_relief",
+        "acid_trap_detection",
+        "creepage_check",
+        "clearance_check",
+    ],
 )
 def test_route_without_layer_name_on_path(module_name):
     """Path missing layer_name attribute — modules must not crash."""
@@ -485,9 +491,7 @@ def test_route_without_layer_name_on_path(module_name):
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
-    assert report is not None, (
-        f"{module_name} crashed on path without layer_name"
-    )
+    assert report is not None, f"{module_name} crashed on path without layer_name"
 
 
 # -- route without width_mm --------------------------------------------------
@@ -495,6 +499,7 @@ def test_route_without_layer_name_on_path(module_name):
 
 class _RouteNoWidth:
     """Route-like object missing width_mm attribute."""
+
     def __init__(self, net_name, path, vias):
         self.net_name = net_name
         self.path = path
@@ -503,8 +508,15 @@ class _RouteNoWidth:
 
 @pytest.mark.parametrize(
     "module_name",
-    ["acid_trap_detection", "teardrop_generation", "annular_ring_check",
-     "thermal_relief", "creepage_check", "clearance_check", "copper_balance"],
+    [
+        "acid_trap_detection",
+        "teardrop_generation",
+        "annular_ring_check",
+        "thermal_relief",
+        "creepage_check",
+        "clearance_check",
+        "copper_balance",
+    ],
 )
 def test_route_without_width_mm(module_name):
     """CompiledRoute without width_mm — should crash cleanly or return safe."""
@@ -532,8 +544,14 @@ def test_route_without_width_mm(module_name):
 
 @pytest.mark.parametrize(
     "module_name",
-    ["acid_trap_detection", "teardrop_generation", "annular_ring_check",
-     "thermal_relief", "creepage_check", "clearance_check"],
+    [
+        "acid_trap_detection",
+        "teardrop_generation",
+        "annular_ring_check",
+        "thermal_relief",
+        "creepage_check",
+        "clearance_check",
+    ],
 )
 def test_path_without_coordinates(module_name):
     """Path object without coordinates attribute — must not crash."""
@@ -561,6 +579,7 @@ def test_path_without_coordinates(module_name):
 
 class _RouteNoPath:
     """Route-like object missing path attribute."""
+
     def __init__(self, net_name, width_mm, vias):
         self.net_name = net_name
         self.width_mm = width_mm
@@ -582,9 +601,7 @@ def test_route_without_path(module_name):
             report = _invoke_module(module_name, results)
         assert report is not None
     except AttributeError:
-        pytest.xfail(
-            f"{module_name} raises AttributeError on missing path — expected"
-        )
+        pytest.xfail(f"{module_name} raises AttributeError on missing path — expected")
 
 
 # ---------------------------------------------------------------------------
@@ -603,9 +620,7 @@ def test_empty_string_net_name(module_name):
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
-    assert report is not None, (
-        f"{module_name} crashed on empty-string net name"
-    )
+    assert report is not None, f"{module_name} crashed on empty-string net name"
 
 
 @pytest.mark.parametrize("module_name", _ALL_DFM_MODULE_NAMES)
@@ -619,9 +634,7 @@ def test_whitespace_only_net_name(module_name):
         warnings.simplefilter("always")
         report = _invoke_module(module_name, results)
 
-    assert report is not None, (
-        f"{module_name} crashed on whitespace-only net name"
-    )
+    assert report is not None, f"{module_name} crashed on whitespace-only net name"
 
 
 # ---------------------------------------------------------------------------
@@ -636,20 +649,19 @@ def _make_large_route(index):
     return _make_route(
         net_name=f"NET{index}",
         path=path,
-        vias=[_make_via(
-            net_name=f"NET{index}",
-            position=(float(index), 5.0),
-        )],
+        vias=[
+            _make_via(
+                net_name=f"NET{index}",
+                position=(float(index), 5.0),
+            )
+        ],
     )
 
 
 @pytest.mark.parametrize("module_name", _ALL_DFM_MODULE_NAMES)
 def test_large_input_1000_routes_no_crash(module_name):
     """1000 routes must not crash any DFM module and must finish within 10 s."""
-    compiled_routes = {
-        f"NET{i}": _make_large_route(i)
-        for i in range(1000)
-    }
+    compiled_routes = {f"NET{i}": _make_large_route(i) for i in range(1000)}
     results = RoutingResults(
         compiled_routes=compiled_routes,
         failed_nets=[],
@@ -661,12 +673,9 @@ def test_large_input_1000_routes_no_crash(module_name):
         report = _invoke_module(module_name, results)
     elapsed = time.perf_counter() - start
 
-    assert report is not None, (
-        f"{module_name} returned None for 1000-route input"
-    )
+    assert report is not None, f"{module_name} returned None for 1000-route input"
     assert elapsed <= 10.0, (
-        f"{module_name} took {elapsed:.3f}s for 1000 routes — "
-        f"exceeds 10 s budget"
+        f"{module_name} took {elapsed:.3f}s for 1000 routes — exceeds 10 s budget"
     )
 
 

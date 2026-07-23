@@ -96,7 +96,11 @@ def load_pcb_geometry(pcb: Board, oracle: DRCOracle) -> dict:
                         pad_x = pad_obj.position.X if hasattr(pad_obj.position, "X") else 0
                         pad_y = pad_obj.position.Y if hasattr(pad_obj.position, "Y") else 0
 
-                        net_name = f"net_{pad_obj.net.number}" if hasattr(pad_obj, "net") and pad_obj.net else "nonet"
+                        net_name = (
+                            f"net_{pad_obj.net.number}"
+                            if hasattr(pad_obj, "net") and pad_obj.net
+                            else "nonet"
+                        )
 
                         size = (1.0, 1.0)  # Default
                         if hasattr(pad_obj, "size"):
@@ -170,7 +174,9 @@ def main():
 
         # Add some tracks that violate clearance
         track1 = Track(Point(0, 0), Point(10, 0), width=0.2, net="SIG1", layer=0)
-        track2 = Track(Point(5, 0.15), Point(15, 0.15), width=0.2, net="SIG2", layer=0)  # Too close!
+        track2 = Track(
+            Point(5, 0.15), Point(15, 0.15), width=0.2, net="SIG2", layer=0
+        )  # Too close!
         track3 = Track(Point(0, 5), Point(10, 5), width=0.2, net="SIG3", layer=0)  # OK
         track4 = Track(Point(0, 5.1), Point(10, 5.1), width=0.2, net="SIG4", layer=0)  # Violation!
 
@@ -226,7 +232,9 @@ def main():
         print("Top 5 violations:")
         for i, v in enumerate(violations[:5], 1):
             print(f"  {i}. {v.type}: {v.geometry_a_id} <-> {v.geometry_b_id}")
-            print(f"     Actual: {v.clearance_actual:.3f}mm, Required: {v.clearance_required:.3f}mm")
+            print(
+                f"     Actual: {v.clearance_actual:.3f}mm, Required: {v.clearance_required:.3f}mm"
+            )
             print(f"     Severity: {v.severity:.1%}")
     else:
         print("✓ No DRC violations found!")

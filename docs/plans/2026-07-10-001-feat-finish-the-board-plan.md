@@ -1,9 +1,24 @@
 ---
 title: "feat: Finish the Board — 100% Routed, Literal-Zero DRC/ERC"
 type: feat
-status: active
+status: superseded
 date: 2026-07-10
 origin: docs/brainstorms/2026-07-10-finish-the-board-requirements.md
+---
+
+## Superseded
+
+**Closed 2026-07-23.** This plan's R1 diagnosis (3 unrouted signal nets fixable by a net-ordering heuristic) was produced on the board's original (un-optimized) placement and identified the wrong mechanism — the handoff at `docs/handoffs/2026-07-11-finish-the-board-agent-brief.md` proved ordering is a weak RRR lever (it only shuffles which nets fail, doesn't reduce the count). The actual routing-completion drivers were:
+
+- **CP-SAT placement path fix** (commit `a281f865`, "fix(router): restore `_build_temp_pcb` as `V6RouterAdapter` class method + ordering heuristic", 2026-07-11) — once the router ran on the CP-SAT placement instead of original positions, routing reached 100% (24/24) on the temper board.
+- **Hybrid pour + trace-stitch completion** (plan `2026-07-22-001`, completed) — closed the high-fanout plane-style net gap (`PWR_RTN` 88p, `+3V3` 40p, etc.) that the original plan's signal-net ordering diagnosis never identified.
+
+**Units U1 and U3 are done** (adapter repair + FinePitch netclass, commits `a281f865` and `051152e7`).
+
+**Units U4, U5, and R6 are not done and remain in scope of the successor plan.** Specifically: a portable (non-macOS-hardcoded) `kicad-cli` DRC footprint-library-table configuration; an ERC-to-zero code path (today, zero code paths invoke `kicad-cli pcb erc`); and a CI-integrated, non-skippable anti-false-zero guard covering both DRC and ERC.
+
+The successor plan is `2026-07-23-001-feat-finish-the-board-drc-erc-guard-plan.md`. Routing-completion credit is attributed to `2026-07-18-002` / `2026-07-19-001` / `2026-07-22-001`. The `measure-the-territory-not-the-map` discipline (R7) is carried into the successor unchanged; the implementation is.
+
 ---
 
 # feat: Finish the Board — 100% Routed, Literal-Zero DRC/ERC

@@ -30,21 +30,20 @@ def test_kicad_cli_pcb_erc_does_not_exist():
     """
     result = subprocess.run(
         ["kicad-cli", "pcb", "erc"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     assert result.returncode != 0, (
-        "kicad-cli pcb erc unexpectedly succeeded — "
-        "verify the command and update this finding"
+        "kicad-cli pcb erc unexpectedly succeeded — verify the command and update this finding"
     )
     stdout = result.stdout
-    assert "did you mean" in stdout.lower(), (
-        f"kicad-cli pcb erc response changed: {stdout[:200]}"
-    )
+    assert "did you mean" in stdout.lower(), f"kicad-cli pcb erc response changed: {stdout[:200]}"
 
     # The available PCB subcommands do NOT include "erc"
     result_help = subprocess.run(
         ["kicad-cli", "pcb", "--help"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     assert "erc" not in result_help.stdout.lower().split(), (
         "kicad-cli pcb help now includes 'erc' — re-evaluate this finding"
@@ -59,18 +58,16 @@ def test_kicad_cli_sch_erc_available():
     """
     result = subprocess.run(
         ["kicad-cli", "sch", "erc", "--help"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
-    assert result.returncode == 0, (
-        f"kicad-cli sch erc is not available: {result.stderr[:200]}"
-    )
-    assert "Electrical Rules Check" in result.stdout, (
-        "kicad-cli sch erc help output changed"
-    )
+    assert result.returncode == 0, f"kicad-cli sch erc is not available: {result.stderr[:200]}"
+    assert "Electrical Rules Check" in result.stdout, "kicad-cli sch erc help output changed"
 
     result_help = subprocess.run(
         ["kicad-cli", "sch", "--help"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     assert "erc" in result_help.stdout.lower().split(), (
         "'erc' subcommand not listed in kicad-cli sch --help"

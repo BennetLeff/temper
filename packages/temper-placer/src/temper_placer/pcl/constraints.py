@@ -98,14 +98,74 @@ class ConstraintType(Enum):
     for semantic dispatch.
     """
 
-    ADJACENT = ("adjacent", frozenset({SemanticTag.PROXIMITY}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC, CompilationTarget.CP_SAT}))
-    SEPARATED = ("separated", frozenset({SemanticTag.SEPARATION, SemanticTag.ORDERING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC, CompilationTarget.CP_SAT}))
-    ENCLOSING = ("enclosing", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC, CompilationTarget.CP_SAT}))
-    KEEPOUT = ("keepout", frozenset({SemanticTag.ZONING, SemanticTag.SEPARATION}), frozenset({CompilationTarget.JAX, CompilationTarget.DRC}))
-    ALIGNED = ("aligned", frozenset({SemanticTag.ALIGNMENT}), frozenset({CompilationTarget.JAX, CompilationTarget.DRC}))
-    ON_SIDE = ("on_side", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC, CompilationTarget.CP_SAT}))
-    ANCHORED = ("anchored", frozenset({SemanticTag.ZONING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
-    LOOP_AREA = ("loop_area", frozenset({SemanticTag.PROXIMITY, SemanticTag.ORDERING}), frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}))
+    ADJACENT = (
+        "adjacent",
+        frozenset({SemanticTag.PROXIMITY}),
+        frozenset(
+            {
+                CompilationTarget.JAX,
+                CompilationTarget.SAT,
+                CompilationTarget.DRC,
+                CompilationTarget.CP_SAT,
+            }
+        ),
+    )
+    SEPARATED = (
+        "separated",
+        frozenset({SemanticTag.SEPARATION, SemanticTag.ORDERING}),
+        frozenset(
+            {
+                CompilationTarget.JAX,
+                CompilationTarget.SAT,
+                CompilationTarget.DRC,
+                CompilationTarget.CP_SAT,
+            }
+        ),
+    )
+    ENCLOSING = (
+        "enclosing",
+        frozenset({SemanticTag.ZONING}),
+        frozenset(
+            {
+                CompilationTarget.JAX,
+                CompilationTarget.SAT,
+                CompilationTarget.DRC,
+                CompilationTarget.CP_SAT,
+            }
+        ),
+    )
+    KEEPOUT = (
+        "keepout",
+        frozenset({SemanticTag.ZONING, SemanticTag.SEPARATION}),
+        frozenset({CompilationTarget.JAX, CompilationTarget.DRC}),
+    )
+    ALIGNED = (
+        "aligned",
+        frozenset({SemanticTag.ALIGNMENT}),
+        frozenset({CompilationTarget.JAX, CompilationTarget.DRC}),
+    )
+    ON_SIDE = (
+        "on_side",
+        frozenset({SemanticTag.ZONING}),
+        frozenset(
+            {
+                CompilationTarget.JAX,
+                CompilationTarget.SAT,
+                CompilationTarget.DRC,
+                CompilationTarget.CP_SAT,
+            }
+        ),
+    )
+    ANCHORED = (
+        "anchored",
+        frozenset({SemanticTag.ZONING}),
+        frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}),
+    )
+    LOOP_AREA = (
+        "loop_area",
+        frozenset({SemanticTag.PROXIMITY, SemanticTag.ORDERING}),
+        frozenset({CompilationTarget.JAX, CompilationTarget.SAT, CompilationTarget.DRC}),
+    )
 
     @property
     def label(self) -> str:

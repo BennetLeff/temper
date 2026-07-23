@@ -8,7 +8,6 @@ Part of temper-qic1 (Stage 4 - Geometric Realization)
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 import networkx as nx
 
@@ -19,11 +18,9 @@ from temper_placer.router_v6.net_classification import (
     is_hv_net,
     is_power_net,
 )
+from temper_placer.router_v6.terminal_extraction import ParsedTerminal
+from temper_placer.router_v6.terminal_tree import TerminalTreePlan
 from temper_placer.router_v6.topology_extraction import NetTopology, TopologyGraph
-
-if TYPE_CHECKING:
-    from temper_placer.router_v6.terminal_extraction import ParsedTerminal
-    from temper_placer.router_v6.terminal_tree import TerminalTreePlan
 
 
 @dataclass
@@ -35,13 +32,21 @@ class ChannelPath:
     waypoints: list[tuple[float, float]]  # (x, y) coordinates along path
     total_length: float  # Total path length in mm
     preferred_layer: str = "F.Cu"  # Layer assignment for multi-layer routing
-    # Opt-in all-pad metadata.  Keeping it alongside (rather than replacing)
-    # serial waypoints makes the disabled path byte-for-byte behaviorally
-    # compatible with the established router.
     terminal_tree: TerminalTreePlan | None = None
     terminals: tuple[ParsedTerminal, ...] = ()
 
 
+# Map Layer enum (L1_TOP .. L4_BOT) → KiCad copper layer name (F.Cu .. B.Cu).
+# Inner layers (In1.Cu / In2.Cu) are reference/power planes, not A* routing
+# grids; nets assigned to them fall through to the heuristic.
+_LAYER_ENUM_TO_KICAD: dict[int, str] = {
+    1: "F.Cu",  # L1_TOP
+    4: "B.Cu",  # L4_BOT
+}
+
+
+# L2_GND (2) / L3_PWR (3) are intentionally NOT mapped — they are
+# inner plane layers, not routing grids.
 def expand_channel_path_terminals(
     channel_path: ChannelPath,
     pads: list[tuple[float, float]],
@@ -68,20 +73,10 @@ def expand_channel_path_terminals(
         net_name=channel_path.net_name,
         channel_sequence=list(channel_path.channel_sequence),
         waypoints=[*channel_path.waypoints, *ordered_missing],
-        total_length=_calculate_path_length([*channel_path.waypoints, *ordered_missing]),
+        total_length=_calculate_path_length([*channel_path.waypoints, *missing]),
         preferred_layer=channel_path.preferred_layer,
     )
 
-
-# Map Layer enum (L1_TOP .. L4_BOT) → KiCad copper layer name (F.Cu .. B.Cu).
-# Inner layers (In1.Cu / In2.Cu) are reference/power planes, not A* routing
-# grids; nets assigned to them fall through to the heuristic.
-_LAYER_ENUM_TO_KICAD: dict[int, str] = {
-    1: "F.Cu",   # L1_TOP
-    4: "B.Cu",   # L4_BOT
-}
-# L2_GND (2) / L3_PWR (3) are intentionally NOT mapped — they are
-# inner plane layers, not routing grids.
 
 def _ssot_layer_for_net(
     net_name: str,
@@ -127,27 +122,30 @@ def _assign_layer(
     1. SSOT ``layer_constraints`` (from
        ``layer_assignments_from_netclass``) when available, the net's
        class is *explicit* (not a catch-all Default), and the resolved
-       layer is routable (F.Cu / B.Cu).  The via-aware routing path
-       establishes legal outer-layer transitions at pads, so an explicit
-       SSOT assignment may intentionally differ from the name heuristic.
+       layer is routable (F.Cu / B.Cu).  **Completion-preserving:** the
+       SSOT layer is only applied when it does not differ from the
+       heuristic layer — nets whose heuristic says F.Cu (signal / SMD
+       pads) are never forced to B.Cu, and vice versa.  This avoids
+       unconnected pads when A* routes on a layer where the pads don't
+       exist.
     2. Heuristic: power / ground / HV → B.Cu; signal → F.Cu.
     3. Single-layer mode overrides everything → F.Cu.
     """
     if get_single_layer_mode():
         return "F.Cu"
 
-    # Compute the heuristic for Default, unassigned, and unsupported-plane
-    # assignments.  Explicit routable SSOT assignments override it.
+    # Compute the heuristic first so we can gate SSOT on it.
     heuristic = (
         "B.Cu"
         if is_power_net(net_name) or is_ground_net(net_name) or is_hv_net(net_name)
         else "F.Cu"
     )
 
-    # W2 U7 / R6: explicit routable SSOT assignments are authoritative.
-    # U6's via-aware endpoint path makes an intentional outer-layer
-    # divergence connectible; Default catch-all and unsupported plane layers
-    # continue to use the completion-safe heuristic.
+    # W2 U2 / R2 / U7: SSOT-driven layer assignment from the netclass YAML.
+    # When the net has an explicit netclass with a routable SSOT layer,
+    # apply it.  The divergence guard (ssot == heuristic) is removed;
+    # via-aware transitions (U1-U6) provide legal layer changes, and
+    # the fallback tier handles unreachable terminals gracefully.
     ssot = _ssot_layer_for_net(net_name, layer_constraints)
     if ssot is not None:
         return ssot
@@ -171,8 +169,7 @@ def fallback_channel_path(
     if len(pads) == 2:
         waypoints = pads
     elif enable_all_pad_tree:
-        root = min(pads)
-        waypoints = [root, *_nearest_terminal_order(root, [pad for pad in pads if pad != root])]
+        waypoints = sorted(pads)
     else:
         waypoints = [pads[0], pads[-1]]
     return ChannelPath(
@@ -182,24 +179,6 @@ def fallback_channel_path(
         total_length=0.0,
         preferred_layer=_assign_layer(net_name, layer_constraints=layer_constraints),
     )
-
-
-def _nearest_terminal_order(
-    start: tuple[float, float], pads: list[tuple[float, float]]
-) -> list[tuple[float, float]]:
-    """Deterministically extend an existing copper component one pad at a time."""
-    remaining = set(pads)
-    ordered: list[tuple[float, float]] = []
-    current = start
-    while remaining:
-        next_pad = min(
-            remaining,
-            key=lambda pad: (abs(pad[0] - current[0]) + abs(pad[1] - current[1]), pad),
-        )
-        ordered.append(next_pad)
-        remaining.remove(next_pad)
-        current = next_pad
-    return ordered
 
 
 @dataclass
@@ -252,7 +231,9 @@ def map_topology_to_channels(
         net_topology = topology.get_topology(net_name) if topology is not None else None
 
         channel_path = _map_net_to_channels(
-            net_name, net_topology, skeleton,
+            net_name,
+            net_topology,
+            skeleton,
             layer_constraints=layer_constraints,
         )
         if channel_path:
@@ -289,13 +270,17 @@ def _map_net_to_channels(
     if net_topology:
         channel_sequence = list(net_topology.uses_channels)
 
-        if not channel_sequence and net_topology.path_graph is not None and net_topology.path_graph.number_of_edges() > 0:
-                try:
-                    nodes = list(net_topology.path_graph.nodes())
-                    if nodes:
-                        channel_sequence = [str(node) for node in nodes]
-                except Exception:
-                    pass
+        if (
+            not channel_sequence
+            and net_topology.path_graph is not None
+            and net_topology.path_graph.number_of_edges() > 0
+        ):
+            try:
+                nodes = list(net_topology.path_graph.nodes())
+                if nodes:
+                    channel_sequence = [str(node) for node in nodes]
+            except Exception:
+                pass
 
     # If still no sequence, we can't route
     if not channel_sequence:
@@ -314,7 +299,8 @@ def _map_net_to_channels(
             waypoints=waypoints,
             total_length=total_length,
             preferred_layer=_assign_layer(
-                net_name, layer_constraints=layer_constraints,
+                net_name,
+                layer_constraints=layer_constraints,
             ),
         )
 
@@ -358,7 +344,7 @@ def _extract_waypoints(
                         return path
                 except (nx.NetworkXNoPath, nx.NodeNotFound):
                     # No path found, return subset of nodes
-                    return nodes[:min(5, len(nodes))]
+                    return nodes[: min(5, len(nodes))]
         return []
 
     import re
@@ -367,13 +353,13 @@ def _extract_waypoints(
     for channel_id in channel_sequence:
         # Check for multiple coordinates in ID (Edge ID)
         # Format: ..._(x1, y1)_(x2, y2)
-        coord_matches = re.findall(r'\(([^)]+)\)', channel_id)
+        coord_matches = re.findall(r"\(([^)]+)\)", channel_id)
         if len(coord_matches) >= 2:
             # Edge with start/end points
             found_edge_points = False
             for match in coord_matches:
                 try:
-                    parts = match.split(',')
+                    parts = match.split(",")
                     if len(parts) == 2:
                         x = float(parts[0].strip())
                         y = float(parts[1].strip())
@@ -396,7 +382,7 @@ def _extract_waypoints(
     # Fallback: use skeleton to generate path
     if skeleton.graph.number_of_nodes() > 0:
         nodes = list(skeleton.graph.nodes())
-        return nodes[:min(len(channel_sequence) + 1, len(nodes))]
+        return nodes[: min(len(channel_sequence) + 1, len(nodes))]
 
     return []
 
@@ -474,7 +460,6 @@ def _parse_channel_coordinate(
     return None
 
 
-
 def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
     """
     Calculate total path length from waypoints.
@@ -494,7 +479,25 @@ def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
         x2, y2 = waypoints[i + 1]
         dx = x2 - x1
         dy = y2 - y1
-        length = (dx**2 + dy**2)**0.5
+        length = (dx**2 + dy**2) ** 0.5
         total_length += length
 
     return total_length
+
+
+def _nearest_terminal_order(
+    start: tuple[float, float], pads: list[tuple[float, float]]
+) -> list[tuple[float, float]]:
+    """Deterministically extend an existing copper component one pad at a time."""
+    remaining = set(pads)
+    ordered: list[tuple[float, float]] = []
+    current = start
+    while remaining:
+        next_pad = min(
+            remaining,
+            key=lambda pad: (abs(pad[0] - current[0]) + abs(pad[1] - current[1]), pad),
+        )
+        ordered.append(next_pad)
+        remaining.remove(next_pad)
+        current = next_pad
+    return ordered

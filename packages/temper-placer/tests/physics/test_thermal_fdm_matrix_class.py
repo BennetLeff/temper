@@ -9,13 +9,17 @@ Tests:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from temper_placer.physics.thermal_fdm import ThermalFDMConfig, get_system_matrix
+if TYPE_CHECKING:
+    import scipy.sparse
 
+from temper_placer.physics.thermal_fdm import ThermalFDMConfig, get_system_matrix
 
 # ---------------------------------------------------------------------------
 # Matrix property check helpers
@@ -27,13 +31,13 @@ def _dirichlet_rows(A_dense: np.ndarray) -> np.ndarray:
 
     Dirichlet rows have ``A[i,i] == 1.0`` and all off-diagonals zero.
     """
-    n = A_dense.shape[0]
+    A_dense.shape[0]
     diag = np.abs(np.diag(A_dense))
     off_sum = np.sum(np.abs(A_dense), axis=1) - diag
     return (off_sum < 1e-14) & (np.abs(diag - 1.0) < 1e-14)
 
 
-def _check_symmetry(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
+def _check_symmetry(A: scipy.sparse.csr_matrix, atol: float = 1e-12) -> bool:
     """Return True if A is symmetric within *atol*.
 
     With boundary-aligned Dirichlet face terms there are no identity rows;
@@ -42,12 +46,10 @@ def _check_symmetry(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
     A_dense = A.toarray()
 
     # Check full matrix symmetry
-    if not np.allclose(A_dense, A_dense.T, atol=atol):
-        return False
-    return True
+    return np.allclose(A_dense, A_dense.T, atol=atol)
 
 
-def _check_positive_definite(A: "scipy.sparse.csr_matrix") -> bool:
+def _check_positive_definite(A: scipy.sparse.csr_matrix) -> bool:
     """Return True if A is SPD (all eigenvalues > 0).
 
     Uses ``numpy.linalg.eigvalsh`` on the dense matrix — only safe for
@@ -58,7 +60,7 @@ def _check_positive_definite(A: "scipy.sparse.csr_matrix") -> bool:
     return bool(np.all(eigvals > -1e-10))
 
 
-def _check_m_matrix(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
+def _check_m_matrix(A: scipy.sparse.csr_matrix, atol: float = 1e-12) -> bool:
     """Return True if A has the M-matrix sign pattern.
 
     M-matrix properties checked:
@@ -84,10 +86,7 @@ def _check_m_matrix(A: "scipy.sparse.csr_matrix", atol: float = 1e-12) -> bool:
     if not np.all(diag >= off_diag_sum - atol):
         return False
 
-    if not np.any(diag > off_diag_sum + atol):
-        return False
-
-    return True
+    return np.any(diag > off_diag_sum + atol)
 
 
 # ---------------------------------------------------------------------------
@@ -141,9 +140,7 @@ def test_system_matrix_m_matrix_pattern_isotropic(h, w, heatsink_edge):
         ),
         copper_grid=np.full((h, w), 0.5, dtype=np.float64),
     )
-    assert _check_m_matrix(A), (
-        f"M-matrix pattern should hold (heatsink={heatsink_edge})"
-    )
+    assert _check_m_matrix(A), f"M-matrix pattern should hold (heatsink={heatsink_edge})"
 
 
 # ---------------------------------------------------------------------------
@@ -378,9 +375,7 @@ def test_perturbed_off_diagonal_trips_m_matrix_guard():
     A_lil[0, 1] = abs(A_lil[0, 1])
 
     A_bad = A_lil.tocsr()
-    assert not _guard_passes_m_matrix(A_bad), (
-        "A positive off-diagonal must trip the M-matrix guard"
-    )
+    assert not _guard_passes_m_matrix(A_bad), "A positive off-diagonal must trip the M-matrix guard"
 
 
 def test_negative_diagonal_trips_pd_guard():
@@ -436,6 +431,4 @@ def test_isotropic_stencil_spd_m_matrix_crosscheck(h, w, copper_frac, heatsink_e
     assert _check_positive_definite(A), (
         f"PD failed: {h}x{w} copper={copper_frac} edge={heatsink_edge}"
     )
-    assert _check_m_matrix(A), (
-        f"M-matrix failed: {h}x{w} copper={copper_frac} edge={heatsink_edge}"
-    )
+    assert _check_m_matrix(A), f"M-matrix failed: {h}x{w} copper={copper_frac} edge={heatsink_edge}"

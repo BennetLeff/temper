@@ -4,6 +4,7 @@ import temper_dsn as _td
 
 # Re-exports — backed by temper-dsn Rust crate
 
+
 def normalize_dsn(dsn_text: str) -> str:
     return _td.normalize_dsn(dsn_text)
 

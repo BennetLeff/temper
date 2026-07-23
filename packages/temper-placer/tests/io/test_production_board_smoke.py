@@ -77,6 +77,4 @@ def test_production_board_has_no_malformed_warnings() -> None:
     result = parse_kicad_pcb(str(pcb_path))
 
     for warning in result.warnings:
-        assert "fell back" not in warning.lower(), (
-            f"Unexpected fallback warning: {warning}"
-        )
+        assert "fell back" not in warning.lower(), f"Unexpected fallback warning: {warning}"

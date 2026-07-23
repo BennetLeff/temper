@@ -6,6 +6,7 @@ the full Bresenham traversal would also return True.  Never a false positive.
 
 @req(2026-06-29-feat-los-bb, R4): PBT — random grids + line segments, BB vs Bresenham
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -27,8 +28,12 @@ from tests.router_v6.astar_property_strategies import grids
 # Reference Bresenham (pure, no BB shortcut)
 # ---------------------------------------------------------------------------
 
+
 def _bresenham_reference(
-    p1: tuple[int, int], p2: tuple[int, int], grid: OccupancyGrid, net_id: int = 0,
+    p1: tuple[int, int],
+    p2: tuple[int, int],
+    grid: OccupancyGrid,
+    net_id: int = 0,
 ) -> bool:
     """Pure Bresenham line-of-sight without any shortcut."""
     x0, y0 = p1
@@ -63,11 +68,12 @@ def _bresenham_reference(
 # Direct BB check (extracted from the production code logic)
 # ---------------------------------------------------------------------------
 
+
 def _bb_check(p1: tuple[int, int], p2: tuple[int, int], grid: OccupancyGrid) -> bool:
     """Return True if the bounding box is entirely zero (line is provably clear)."""
     x0, y0 = p1
     x1, y1 = p2
-    bbox = grid.grid[min(y0, y1):max(y0, y1) + 1, min(x0, x1):max(x0, x1) + 1]
+    bbox = grid.grid[min(y0, y1) : max(y0, y1) + 1, min(x0, x1) : max(x0, x1) + 1]
     return not bool(np.any(bbox))
 
 
@@ -84,10 +90,7 @@ def test_bb_shortcut_conservative(grid: OccupancyGrid):
     """If BB shortcut says clear, Bresenham must also say clear (no false positives)."""
     arr = grid.grid
     free_cells = [
-        (int(x), int(y))
-        for y in range(arr.shape[0])
-        for x in range(arr.shape[1])
-        if arr[y, x] == 0
+        (int(x), int(y)) for y in range(arr.shape[0]) for x in range(arr.shape[1]) if arr[y, x] == 0
     ]
     assume(len(free_cells) >= 2)
 
@@ -123,9 +126,9 @@ def test_bb_endpoints_inclusive(row, col, x0, y0):
     arr[y1, x1] = 1  # obstacle at endpoint cell
 
     grid = OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, col, row)
-    assert not _bb_check(
-        (x0, y0), (x1, y1), grid
-    ), "BB should detect obstacle at endpoint (inclusive slice)"
+    assert not _bb_check((x0, y0), (x1, y1), grid), (
+        "BB should detect obstacle at endpoint (inclusive slice)"
+    )
 
 
 def test_bb_fully_empty():
@@ -142,9 +145,7 @@ def test_bb_single_obstacle():
     arr = np.zeros((10, 10), dtype=np.int8)
     arr[3, 5] = 1  # obstacle at (x=5, y=3)
     grid = OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, 10, 10)
-    assert not _bb_check(
-        (0, 0), (9, 9), grid
-    ), "BB with obstacle in bbox should fall through"
+    assert not _bb_check((0, 0), (9, 9), grid), "BB with obstacle in bbox should fall through"
 
 
 def test_bb_obstacle_outside_bbox():
@@ -163,9 +164,7 @@ def test_bb_net_id_conservatism():
     grid = OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, 10, 10)
 
     bb_clear = _bb_check((0, 0), (9, 9), grid)
-    assert not bb_clear, (
-        "BB should fall through for net_id cells (conservative)"
-    )
+    assert not bb_clear, "BB should fall through for net_id cells (conservative)"
 
     # Bresenham with net_id=42 should be clear
     bres_clear = _bresenham_reference((0, 0), (9, 9), grid, net_id=42)

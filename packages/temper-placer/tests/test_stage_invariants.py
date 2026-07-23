@@ -1,6 +1,5 @@
 """Tests for Stage invariants property (U1)."""
 
-
 from temper_placer.deterministic.stages.base import Stage
 from temper_placer.deterministic.state import BoardState
 from temper_placer.validation.drc_fence import InvariantSpec

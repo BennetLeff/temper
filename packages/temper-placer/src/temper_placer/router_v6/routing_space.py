@@ -195,17 +195,25 @@ def validate_routing_space(state: BoardState) -> list[StageDRCFailure]:
     """Validate routing space invariants."""
     failures: list[StageDRCFailure] = []
     if state.routing_spaces is None:
-        failures.append(StageDRCFailure(
-            field="routing_spaces", value=None,
-            reason="Routing spaces not computed", stage="RoutingSpace",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="routing_spaces",
+                value=None,
+                reason="Routing spaces not computed",
+                stage="RoutingSpace",
+            )
+        )
         return failures
 
     for layer_name, rs in state.routing_spaces.items():
         if rs.routing_area < 0:
-            failures.append(StageDRCFailure(
-                field="routing_spaces", value=layer_name,
-                reason=f"Negative routing area: {repr(rs.routing_area)}", stage="RoutingSpace",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="routing_spaces",
+                    value=layer_name,
+                    reason=f"Negative routing area: {repr(rs.routing_area)}",
+                    stage="RoutingSpace",
+                )
+            )
 
     return failures

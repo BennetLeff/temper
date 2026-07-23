@@ -8,6 +8,7 @@ class Pt:
         self.X = x
         self.Y = y
 
+
 def test_zone_parsing_l_shape_warning():
     mock_board = MagicMock()
     mock_board.graphicItems = []
@@ -22,9 +23,9 @@ def test_zone_parsing_l_shape_warning():
 
     mock_poly = MagicMock()
 
-    points = [Pt(0,0), Pt(100,0), Pt(100,20), Pt(20,20), Pt(20,100), Pt(0,100)]
-    mock_poly.points = points # Newer kiutils
-    mock_poly.pts = points # Older kiutils backup
+    points = [Pt(0, 0), Pt(100, 0), Pt(100, 20), Pt(20, 20), Pt(20, 100), Pt(0, 100)]
+    mock_poly.points = points  # Newer kiutils
+    mock_poly.pts = points  # Older kiutils backup
 
     mock_zone = MagicMock()
     mock_zone.polygons = [mock_poly]
@@ -36,8 +37,8 @@ def test_zone_parsing_l_shape_warning():
     # We also need edge cuts for the board bounds to work
     edge_cut = MagicMock()
     edge_cut.layer = "Edge.Cuts"
-    edge_cut.start = Pt(0,0)
-    edge_cut.end = Pt(200,200) # Big board
+    edge_cut.start = Pt(0, 0)
+    edge_cut.end = Pt(200, 200)  # Big board
     mock_board.graphicItems = [edge_cut]
 
     warnings = []
@@ -54,6 +55,7 @@ def test_zone_parsing_l_shape_warning():
     assert zone.polygon is not None
     assert len(zone.polygon) == 6
 
+
 def test_zone_parsing_rectangular_no_warning():
     mock_board = MagicMock()
     mock_board.graphicItems = []
@@ -61,7 +63,7 @@ def test_zone_parsing_rectangular_no_warning():
 
     # Rectangular zone
 
-    points = [Pt(0,0), Pt(100,0), Pt(100,100), Pt(0,100)]
+    points = [Pt(0, 0), Pt(100, 0), Pt(100, 100), Pt(0, 100)]
     mock_poly = MagicMock()
     mock_poly.points = points
     mock_poly.pts = points
@@ -75,8 +77,8 @@ def test_zone_parsing_rectangular_no_warning():
 
     edge_cut = MagicMock()
     edge_cut.layer = "Edge.Cuts"
-    edge_cut.start = Pt(0,0)
-    edge_cut.end = Pt(200,200)
+    edge_cut.start = Pt(0, 0)
+    edge_cut.end = Pt(200, 200)
     mock_board.graphicItems = [edge_cut]
 
     warnings = []

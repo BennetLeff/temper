@@ -90,9 +90,7 @@ def _build_state_for_placement(
             slots.append((float(x), float(y)))
     state = BoardState(
         netlist=netlist,
-        component_zone_map=frozenset(
-            [(c.ref, "Signal") for c in netlist.components]
-        ),
+        component_zone_map=frozenset([(c.ref, "Signal") for c in netlist.components]),
         zone_slots=frozenset([("Signal", tuple(slots))]),
         design_rules=rules,
     )
@@ -168,12 +166,8 @@ class TestPhasedComponentAssignmentValidator:
         # was not added.
         result = replace(result, design_rules=rules)
         failures = validate_phased_component_assignment_hv(result)
-        coverage_failures = [
-            f for f in failures if "hv_creepage_unblocked" in f.field
-        ]
-        assert coverage_failures, (
-            f"expected at least one coverage failure, got {failures}"
-        )
+        coverage_failures = [f for f in failures if "hv_creepage_unblocked" in f.field]
+        assert coverage_failures, f"expected at least one coverage failure, got {failures}"
 
     def test_validator_fails_when_lv_slot_too_close(self):
         """A used slot outside any HV/LV-pin origin is an over-claim.
@@ -235,8 +229,7 @@ class TestPhasedComponentAssignmentValidator:
         # BIG's tiny footprint DOESN'T cover.  Use slot (4, 0)
         # which is outside the 0.001mm footprint radius of BIG.
         tampered_placements = frozenset(
-            (ref, (0.0, 0.0) if ref == "BIG" else pos)
-            for ref, pos in result2.placements
+            (ref, (0.0, 0.0) if ref == "BIG" else pos) for ref, pos in result2.placements
         )
         # Add slot (4, 0) to zone_slots if not already there.
         all_slots = list(new_state.zone_slots)[0][1]
@@ -292,12 +285,18 @@ class TestPhasedComponentAssignmentValidator:
         rules = DesignRules(
             net_classes={
                 "Power": NetClassRules(
-                    name="Power", trace_width=0.25, clearance=0.2,
-                    dru_priority=10, safety_category="LV",
+                    name="Power",
+                    trace_width=0.25,
+                    clearance=0.2,
+                    dru_priority=10,
+                    safety_category="LV",
                 ),
                 "Ground": NetClassRules(
-                    name="Ground", trace_width=0.25, clearance=0.2,
-                    dru_priority=20, safety_category="LV",
+                    name="Ground",
+                    trace_width=0.25,
+                    clearance=0.2,
+                    dru_priority=20,
+                    safety_category="LV",
                 ),
             },
             net_class_assignments={"VCC": "Power", "GND": "Ground"},
@@ -326,8 +325,12 @@ class TestPhasedComponentAssignmentValidator:
         rules = DesignRules(
             net_classes={
                 "HighVoltage": NetClassRules(
-                    name="HighVoltage", trace_width=0.5, clearance=2.0,
-                    dru_priority=10, creepage_mm=2.0, safety_category="HV",
+                    name="HighVoltage",
+                    trace_width=0.5,
+                    clearance=2.0,
+                    dru_priority=10,
+                    creepage_mm=2.0,
+                    safety_category="HV",
                 ),
             },
             net_class_assignments={"HV": "HighVoltage"},
@@ -361,11 +364,7 @@ class TestPhasedComponentAssignmentValidator:
 # ---------------------------------------------------------------------------
 
 
-def replace_zone_slots(
-    state: BoardState, zone: str, new_slots: tuple
-) -> BoardState:
+def replace_zone_slots(state: BoardState, zone: str, new_slots: tuple) -> BoardState:
     """Replace the slot tuple of a single zone in ``state.zone_slots``."""
-    new_zones = frozenset(
-        (z, slots if z != zone else new_slots) for z, slots in state.zone_slots
-    )
+    new_zones = frozenset((z, slots if z != zone else new_slots) for z, slots in state.zone_slots)
     return replace(state, zone_slots=new_zones)

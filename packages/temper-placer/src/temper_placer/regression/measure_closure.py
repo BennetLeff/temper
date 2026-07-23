@@ -105,10 +105,7 @@ def measure_closure(
     # produced no placement AND no routing.  The promotion gate
     # relies on this signal to fail loudly instead of silently
     # passing a zero-results run.
-    if (
-        result.benders_iterations <= 0
-        and result.router_completion_pct <= 0.0
-    ):
+    if result.benders_iterations <= 0 and result.router_completion_pct <= 0.0:
         raise RuntimeError(
             f"closure pipeline produced zero results: "
             f"benders_iterations={result.benders_iterations}, "

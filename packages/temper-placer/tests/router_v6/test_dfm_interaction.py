@@ -58,8 +58,8 @@ from temper_placer.router_v6.thermal_relief import (
 # Shared test helpers
 # ---------------------------------------------------------------------------
 
-def _make_stub_route(net_name="NET1", coords=None, layer="F.Cu",
-                     width=0.25, vias=None):
+
+def _make_stub_route(net_name="NET1", coords=None, layer="F.Cu", width=0.25, vias=None):
     """Build a minimal CompiledRoute for testing the DFM pipeline."""
     if coords is None:
         coords = [(0.0, 0.0), (10.0, 10.0)]
@@ -125,13 +125,18 @@ def _empty_report() -> ManufacturingReport:
     return generate_manufacturing_report(
         AcidTrapReport(acid_traps=[]),
         AnnularRingReport(violations=[], total_vias_checked=0),
-        TeardropReport(teardrops=[
-            Teardrop("NET1", (0.0, 0.0), "via", 0.3, 0.6, "F.Cu"),
-        ]),
-        ThermalReliefReport(thermal_reliefs=[
-            ThermalRelief("GND", (0.0, 0.0), 4, 0.254, 0.254,
-                          pad_size=(0.0, 0.0), spoke_segments=[]),
-        ]),
+        TeardropReport(
+            teardrops=[
+                Teardrop("NET1", (0.0, 0.0), "via", 0.3, 0.6, "F.Cu"),
+            ]
+        ),
+        ThermalReliefReport(
+            thermal_reliefs=[
+                ThermalRelief(
+                    "GND", (0.0, 0.0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                ),
+            ]
+        ),
         CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
         CreepageReport(violations=[], total_checks=0),
         ClearanceReport(violations=[], total_checks=0),
@@ -141,6 +146,7 @@ def _empty_report() -> ManufacturingReport:
 # ===================================================================
 # 1. All 7 modules fail
 # ===================================================================
+
 
 class TestAllModulesFail:
     """When every DFM function raises, _run_manufacturing_drc still
@@ -227,6 +233,7 @@ class TestAllModulesFail:
 # 2. First module fails, rest succeed — error isolation
 # ===================================================================
 
+
 class TestFirstModuleFailsRestSucceed:
     """A single failing module does not cascade to the others."""
 
@@ -308,33 +315,42 @@ class TestFirstModuleFailsRestSucceed:
 # 3. generate_manufacturing_report with None sub-reports
 # ===================================================================
 
+
 class TestNoneReportRaisesTypeError:
     """ManufacturingReport.__post_init__ rejects None fields."""
 
     _valid_reports = {
         "acid_traps": AcidTrapReport(acid_traps=[]),
         "annular_rings": AnnularRingReport(violations=[], total_vias_checked=0),
-        "teardrops": TeardropReport(teardrops=[
-            Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
-        ]),
-        "thermal_reliefs": ThermalReliefReport(thermal_reliefs=[
-            ThermalRelief("GND", (0, 0), 4, 0.254, 0.254,
-                          pad_size=(0.0, 0.0), spoke_segments=[]),
-        ]),
+        "teardrops": TeardropReport(
+            teardrops=[
+                Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
+            ]
+        ),
+        "thermal_reliefs": ThermalReliefReport(
+            thermal_reliefs=[
+                ThermalRelief(
+                    "GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                ),
+            ]
+        ),
         "copper_balance": CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
         "creepage": CreepageReport(violations=[], total_checks=0),
         "clearance": ClearanceReport(violations=[], total_checks=0),
     }
 
-    @pytest.mark.parametrize("none_field", [
-        "acid_traps",
-        "annular_rings",
-        "teardrops",
-        "thermal_reliefs",
-        "copper_balance",
-        "creepage",
-        "clearance",
-    ])
+    @pytest.mark.parametrize(
+        "none_field",
+        [
+            "acid_traps",
+            "annular_rings",
+            "teardrops",
+            "thermal_reliefs",
+            "copper_balance",
+            "creepage",
+            "clearance",
+        ],
+    )
     def test_single_none_raises_typeerror(self, none_field):
         """Passing None for any single field raises TypeError."""
         kwargs = dict(self._valid_reports)
@@ -363,13 +379,18 @@ class TestNoneReportRaisesTypeError:
             generate_manufacturing_report(
                 None,  # acid_traps
                 AnnularRingReport(violations=[], total_vias_checked=0),
-                TeardropReport(teardrops=[
-                    Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
-                ]),
-                ThermalReliefReport(thermal_reliefs=[
-                    ThermalRelief("GND", (0, 0), 4, 0.254, 0.254,
-                                  pad_size=(0.0, 0.0), spoke_segments=[]),
-                ]),
+                TeardropReport(
+                    teardrops=[
+                        Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
+                    ]
+                ),
+                ThermalReliefReport(
+                    thermal_reliefs=[
+                        ThermalRelief(
+                            "GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                        ),
+                    ]
+                ),
                 CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
                 CreepageReport(violations=[], total_checks=0),
                 ClearanceReport(violations=[], total_checks=0),
@@ -379,6 +400,7 @@ class TestNoneReportRaisesTypeError:
 # ===================================================================
 # 4. DFM modules do not mutate input RoutingResults
 # ===================================================================
+
 
 class TestInputImmutability:
     """DFM modules must not mutate the RoutingResults passed to them."""
@@ -476,6 +498,7 @@ class TestInputImmutability:
 # 5. Report field mutation — aggregator stability
 # ===================================================================
 
+
 class TestReportFieldMutation:
     """After generate_manufacturing_report, mutating a sub-report does
     NOT affect the aggregator's cached property values (dataclass
@@ -488,13 +511,18 @@ class TestReportFieldMutation:
         report = generate_manufacturing_report(
             acid,
             AnnularRingReport(violations=[], total_vias_checked=0),
-            TeardropReport(teardrops=[
-                Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
-            ]),
-            ThermalReliefReport(thermal_reliefs=[
-                ThermalRelief("GND", (0, 0), 4, 0.254, 0.254,
-                              pad_size=(0.0, 0.0), spoke_segments=[]),
-            ]),
+            TeardropReport(
+                teardrops=[
+                    Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
+                ]
+            ),
+            ThermalReliefReport(
+                thermal_reliefs=[
+                    ThermalRelief(
+                        "GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                    ),
+                ]
+            ),
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
             CreepageReport(violations=[], total_checks=0),
             ClearanceReport(violations=[], total_checks=0),
@@ -517,13 +545,18 @@ class TestReportFieldMutation:
         report = generate_manufacturing_report(
             original_acid,
             AnnularRingReport(violations=[], total_vias_checked=0),
-            TeardropReport(teardrops=[
-                Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
-            ]),
-            ThermalReliefReport(thermal_reliefs=[
-                ThermalRelief("GND", (0, 0), 4, 0.254, 0.254,
-                              pad_size=(0.0, 0.0), spoke_segments=[]),
-            ]),
+            TeardropReport(
+                teardrops=[
+                    Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
+                ]
+            ),
+            ThermalReliefReport(
+                thermal_reliefs=[
+                    ThermalRelief(
+                        "GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                    ),
+                ]
+            ),
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
             CreepageReport(violations=[], total_checks=0),
             ClearanceReport(violations=[], total_checks=0),
@@ -531,9 +564,11 @@ class TestReportFieldMutation:
 
         # Replace the *local variable*, but the report still references
         # the original object
-        original_acid = AcidTrapReport(acid_traps=[
-            AcidTrap("X", (0, 0), 30.0, "high"),
-        ])
+        original_acid = AcidTrapReport(
+            acid_traps=[
+                AcidTrap("X", (0, 0), 30.0, "high"),
+            ]
+        )
 
         # The report still holds the original (empty) acid_traps
         assert report.acid_traps.trap_count == 0
@@ -558,6 +593,7 @@ class TestReportFieldMutation:
 # 6. Gate logic with partial failures
 # ===================================================================
 
+
 class TestGateLogicPartialFailures:
     """critical_violations and total_violations when some modules
     failed (None fallback → 0 violations)."""
@@ -565,9 +601,9 @@ class TestGateLogicPartialFailures:
     def test_critical_violations_zero_when_all_modules_failed(self):
         """When every module falls back, critical_violations is 0."""
         report = generate_manufacturing_report(
-            AcidTrapReport(acid_traps=[]),           # fallback: 0 traps
+            AcidTrapReport(acid_traps=[]),  # fallback: 0 traps
             AnnularRingReport(violations=[], total_vias_checked=0),  # fallback: 0
-            TeardropReport(teardrops=[]),             # fallback: empty → sentinel=1
+            TeardropReport(teardrops=[]),  # fallback: empty → sentinel=1
             ThermalReliefReport(thermal_reliefs=[]),  # fallback: empty → sentinel=1
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),  # fallback: 0
             CreepageReport(violations=[], total_checks=0),  # fallback: 0
@@ -587,18 +623,23 @@ class TestGateLogicPartialFailures:
     def test_mixed_real_and_fallback(self):
         """One module produces real violations; others are fallback zeros."""
         report = generate_manufacturing_report(
-            AcidTrapReport(acid_traps=[
-                AcidTrap("NET1", (0, 0), 30.0, "high"),  # critical
-            ]),
-            AnnularRingReport(violations=[], total_vias_checked=0),   # fallback
+            AcidTrapReport(
+                acid_traps=[
+                    AcidTrap("NET1", (0, 0), 30.0, "high"),  # critical
+                ]
+            ),
+            AnnularRingReport(violations=[], total_vias_checked=0),  # fallback
             TeardropReport(teardrops=[Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu")]),
-            ThermalReliefReport(thermal_reliefs=[
-                ThermalRelief("GND", (0, 0), 4, 0.254, 0.254,
-                              pad_size=(0.0, 0.0), spoke_segments=[]),
-            ]),
+            ThermalReliefReport(
+                thermal_reliefs=[
+                    ThermalRelief(
+                        "GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                    ),
+                ]
+            ),
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),  # fallback
-            CreepageReport(violations=[], total_checks=0),               # fallback
-            ClearanceReport(violations=[], total_checks=0),              # fallback
+            CreepageReport(violations=[], total_checks=0),  # fallback
+            ClearanceReport(violations=[], total_checks=0),  # fallback
         )
 
         # 1 critical acid trap
@@ -614,10 +655,13 @@ class TestGateLogicPartialFailures:
             AcidTrapReport(acid_traps=[]),
             AnnularRingReport(violations=[], total_vias_checked=0),
             TeardropReport(teardrops=[]),  # NO teardrops → sentinel
-            ThermalReliefReport(thermal_reliefs=[
-                ThermalRelief("GND", (0, 0), 4, 0.254, 0.254,
-                              pad_size=(0.0, 0.0), spoke_segments=[]),
-            ]),
+            ThermalReliefReport(
+                thermal_reliefs=[
+                    ThermalRelief(
+                        "GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                    ),
+                ]
+            ),
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
             CreepageReport(violations=[], total_checks=0),
             ClearanceReport(violations=[], total_checks=0),
@@ -634,9 +678,11 @@ class TestGateLogicPartialFailures:
         report = generate_manufacturing_report(
             AcidTrapReport(acid_traps=[]),
             AnnularRingReport(violations=[], total_vias_checked=0),
-            TeardropReport(teardrops=[
-                Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
-            ]),
+            TeardropReport(
+                teardrops=[
+                    Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
+                ]
+            ),
             ThermalReliefReport(thermal_reliefs=[]),  # NO reliefs → sentinel
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
             CreepageReport(violations=[], total_checks=0),
@@ -651,7 +697,7 @@ class TestGateLogicPartialFailures:
         report = generate_manufacturing_report(
             AcidTrapReport(acid_traps=[]),
             AnnularRingReport(violations=[], total_vias_checked=0),
-            TeardropReport(teardrops=[]),            # sentinel
+            TeardropReport(teardrops=[]),  # sentinel
             ThermalReliefReport(thermal_reliefs=[]),  # sentinel
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
             CreepageReport(violations=[], total_checks=0),
@@ -665,6 +711,7 @@ class TestGateLogicPartialFailures:
 # ===================================================================
 # 7. Pipeline ordering — does the order modules are called matter?
 # ===================================================================
+
 
 class TestPipelineOrdering:
     """The DFM modules are called in a fixed order inside
@@ -693,37 +740,49 @@ class TestPipelineOrdering:
 
         # --- Swapped order: clearance first, acid_trap second ---
         clearance = _safe(verify_clearance, rr) or ClearanceReport(
-            violations=[], total_checks=0,
+            violations=[],
+            total_checks=0,
         )
         acid_traps = _safe(detect_acid_traps, rr) or AcidTrapReport(
             acid_traps=[],
         )
         annular_rings = _safe(check_annular_rings, rr) or AnnularRingReport(
-            violations=[], total_vias_checked=0,
+            violations=[],
+            total_vias_checked=0,
         )
         teardrops = _safe(insert_teardrops, rr) or TeardropReport(
             teardrops=[],
         )
-        thermal_reliefs = _safe(add_thermal_relief, rr,
-                                board=pcb.board) or ThermalReliefReport(
+        thermal_reliefs = _safe(add_thermal_relief, rr, board=pcb.board) or ThermalReliefReport(
             thermal_reliefs=[],
         )
         copper_balance = CopperBalanceReport(
-            layer_balances=[], total_area_mm2=0.0,
+            layer_balances=[],
+            total_area_mm2=0.0,
         )
         if pcb.board is not None:
-            copper_balance = _safe(
-                analyze_copper_balance, rr,
-                board_width=pcb.board.width,
-                board_height=pcb.board.height,
-            ) or copper_balance
+            copper_balance = (
+                _safe(
+                    analyze_copper_balance,
+                    rr,
+                    board_width=pcb.board.width,
+                    board_height=pcb.board.height,
+                )
+                or copper_balance
+            )
         creepage = _safe(verify_creepage, rr) or CreepageReport(
-            violations=[], total_checks=0,
+            violations=[],
+            total_checks=0,
         )
 
         swapped = generate_manufacturing_report(
-            acid_traps, annular_rings, teardrops, thermal_reliefs,
-            copper_balance, creepage, clearance,
+            acid_traps,
+            annular_rings,
+            teardrops,
+            thermal_reliefs,
+            copper_balance,
+            creepage,
+            clearance,
         )
 
         # Results must be identical
@@ -749,6 +808,7 @@ class TestPipelineOrdering:
 # 8. Exception types — ManufacturingDRCViolationError message fidelity
 # ===================================================================
 
+
 class TestExceptionTypes:
     """ManufacturingDRCViolationError carries the correct message for
     each dfm_fail_on mode."""
@@ -762,13 +822,18 @@ class TestExceptionTypes:
         return generate_manufacturing_report(
             AcidTrapReport(acid_traps=traps),
             AnnularRingReport(violations=[], total_vias_checked=0),
-            TeardropReport(teardrops=[
-                Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
-            ]),
-            ThermalReliefReport(thermal_reliefs=[
-                ThermalRelief("GND", (0, 0), 4, 0.254, 0.254,
-                              pad_size=(0.0, 0.0), spoke_segments=[]),
-            ]),
+            TeardropReport(
+                teardrops=[
+                    Teardrop("N", (0, 0), "via", 0.3, 0.6, "F.Cu"),
+                ]
+            ),
+            ThermalReliefReport(
+                thermal_reliefs=[
+                    ThermalRelief(
+                        "GND", (0, 0), 4, 0.254, 0.254, pad_size=(0.0, 0.0), spoke_segments=[]
+                    ),
+                ]
+            ),
             CopperBalanceReport(layer_balances=[], total_area_mm2=0.0),
             CreepageReport(violations=[], total_checks=0),
             ClearanceReport(violations=[], total_checks=0),

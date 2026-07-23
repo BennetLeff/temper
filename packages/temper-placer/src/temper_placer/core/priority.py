@@ -21,22 +21,22 @@ if TYPE_CHECKING:
 class PlacementPriority(IntEnum):
     """Placement priority levels (lower = placed first)."""
 
-    POWER = 1       # IGBTs, bus caps, diodes - template/fixed
-    DRIVER = 2      # Gate drivers, bootstrap - proximity to power
+    POWER = 1  # IGBTs, bus caps, diodes - template/fixed
+    DRIVER = 2  # Gate drivers, bootstrap - proximity to power
     HIGH_SPEED = 3  # MCU, oscillators - zone-constrained
-    ANALOG = 4      # Sensors, opamps - isolated
-    DIGITAL = 5     # Passives, connectors - auto-place
+    ANALOG = 4  # Sensors, opamps - isolated
+    DIGITAL = 5  # Passives, connectors - auto-place
 
 
 class RoutingPriority(IntEnum):
     """Routing priority levels (lower = routed first)."""
 
-    POWER = 1       # Wide traces, short paths, single layer
+    POWER = 1  # Wide traces, short paths, single layer
     GATE_DRIVE = 2  # Controlled impedance, matched length
     HIGH_SPEED = 3  # Length matching, impedance control
-    ANALOG = 4      # Shielded, away from noise
-    DIGITAL = 5     # Standard routing
-    AUTO = 10       # Everything else
+    ANALOG = 4  # Shielded, away from noise
+    DIGITAL = 5  # Standard routing
+    AUTO = 10  # Everything else
 
 
 @dataclass
@@ -94,11 +94,7 @@ class PriorityConfig:
                 return phase
         return None
 
-    def classify_component(
-        self,
-        ref: str,
-        _netlist: Netlist
-    ) -> PlacementPriority:
+    def classify_component(self, ref: str, _netlist: Netlist) -> PlacementPriority:
         """Classify a component into a placement priority."""
         # Check explicit assignments first
         for phase in self.placement_phases:
@@ -149,12 +145,12 @@ class PriorityConfig:
 POWER_STAGE_TEMPLATES = {
     "half_bridge_vertical": {
         # Relative offsets from anchor (x, y) in mm
-        "Q1": (0, 5),      # High-side IGBT
-        "Q2": (0, -5),     # Low-side IGBT
-        "D1": (-4, 5),     # High-side diode - TIGHTER (was -8)
-        "D2": (-4, -5),    # Low-side diode - TIGHTER (was -8)
+        "Q1": (0, 5),  # High-side IGBT
+        "Q2": (0, -5),  # Low-side IGBT
+        "D1": (-4, 5),  # High-side diode - TIGHTER (was -8)
+        "D2": (-4, -5),  # Low-side diode - TIGHTER (was -8)
         "C_BUS1": (4, 5),  # Bus cap near Q1 - TIGHTER (was 8)
-        "C_BUS2": (4, -5), # Bus cap near Q2 - TIGHTER (was 8)
+        "C_BUS2": (4, -5),  # Bus cap near Q2 - TIGHTER (was 8)
     },
     "half_bridge_horizontal": {
         "Q1": (-5, 0),
@@ -165,10 +161,10 @@ POWER_STAGE_TEMPLATES = {
         "C_BUS2": (5, 8),
     },
     "full_bridge": {
-        "Q1": (-10, 5),    # High-side A
-        "Q2": (-10, -5),   # Low-side A
-        "Q3": (10, 5),     # High-side B
-        "Q4": (10, -5),    # Low-side B
+        "Q1": (-10, 5),  # High-side A
+        "Q2": (-10, -5),  # Low-side A
+        "Q3": (10, 5),  # High-side B
+        "Q4": (10, -5),  # Low-side B
         "C_BUS1": (0, 8),
         "C_BUS2": (0, -8),
     },

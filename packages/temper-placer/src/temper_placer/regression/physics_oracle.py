@@ -113,6 +113,7 @@ def compute_oracle_margins(
 @dataclass
 class _BoardSnapshot:
     """Minimal adapter to bridge Netlist + Board into infer_quality_config."""
+
     netlist: Any
     board: Any
 
@@ -160,17 +161,13 @@ def score_placement(
     state = _build_placement_state(positions, n_components)
     context = _make_minimal_context(netlist, board)
 
-    hv_components = {
-        c.ref for c in netlist.components
-        if c.net_class in ("HighVoltage", "ACMains")
-    }
-    lv_components = {
-        c.ref for c in netlist.components
-        if c.net_class == "Signal"
-    }
+    hv_components = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
+    lv_components = {c.ref for c in netlist.components if c.net_class == "Signal"}
 
     dual_rail = dual_rail_clearance_report(state, netlist, hv_components, lv_components)
-    clearance = hv_lv_clearance_score(state, netlist, hv_components, lv_components, min_clearance=8.0)
+    clearance = hv_lv_clearance_score(
+        state, netlist, hv_components, lv_components, min_clearance=8.0
+    )
     thermal = thermal_score(state, netlist, board, set())
     zone = zone_compliance_score(state, netlist, board, {})
     loop = loop_area_score(state, netlist, context, [])
@@ -198,7 +195,7 @@ def run_physics_oracle(
     placement: PlacementResult | None = None,
     spec_path: Path | None = None,
     verbose: bool = True,
-    weights_override: dict[str, float] | None = None,
+    _weights_override: dict[str, float] | None = None,
 ) -> PhysicsOracleResult:
     """
     Score a CP-SAT placement against the physics oracle.
@@ -307,14 +304,8 @@ def run_physics_oracle(
     context = _make_minimal_context(netlist, board)
 
     # Solve HV/LV component sets from net classification
-    hv_components = {
-        c.ref for c in netlist.components
-        if c.net_class in ("HighVoltage", "ACMains")
-    }
-    lv_components = {
-        c.ref for c in netlist.components
-        if c.net_class == "Signal"
-    }
+    hv_components = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
+    lv_components = {c.ref for c in netlist.components if c.net_class == "Signal"}
 
     # Compute quality report from individual metric functions
     try:
@@ -333,22 +324,29 @@ def run_physics_oracle(
         loop_comps = []
         if spec.emi.loop_components:
             loop_comps = [
-                list(comps) for comps in spec.emi.loop_components.values()
-                if len(comps) >= 3
+                list(comps) for comps in spec.emi.loop_components.values() if len(comps) >= 3
             ]
 
         dual_rail = dual_rail_clearance_report(state, netlist, hv_components, lv_components)
         clearance = hv_lv_clearance_score(
-            state, netlist, hv_components, lv_components, min_clearance=threshold_mm,
+            state,
+            netlist,
+            hv_components,
+            lv_components,
+            min_clearance=threshold_mm,
         )
         thermal = thermal_score(
-            state, netlist, board,
+            state,
+            netlist,
+            board,
             quality_config.get("thermal_components", set()),
             target_edge=spec.thermal.target_edge,
             max_distance=spec.thermal.max_heatspread_mm,
         )
         zone = zone_compliance_score(
-            state, netlist, board,
+            state,
+            netlist,
+            board,
             quality_config.get("zone_assignments", {}),
         )
         loop = loop_area_score(state, netlist, context, loop_comps)
@@ -372,7 +370,9 @@ def run_physics_oracle(
         elapsed = time.time() - start_time
 
         # Compute continuous margins from quality report
-        _loop_max = max(spec.emi.max_loop_area_mm2.values()) if spec.emi.max_loop_area_mm2 else 100.0
+        _loop_max = (
+            max(spec.emi.max_loop_area_mm2.values()) if spec.emi.max_loop_area_mm2 else 100.0
+        )
         oracle_margins = compute_oracle_margins(
             report,
             max_heatspread_mm=spec.thermal.max_heatspread_mm,
@@ -453,14 +453,8 @@ def score_human_baseline(
     ref = _BoardSnapshot(netlist=netlist, board=board)
     quality_config = infer_quality_config(ref)  # type: ignore[arg-type]
 
-    hv_from_class = {
-        c.ref for c in netlist.components
-        if c.net_class in ("HighVoltage", "ACMains")
-    }
-    lv_from_class = {
-        c.ref for c in netlist.components
-        if c.net_class == "Signal"
-    }
+    hv_from_class = {c.ref for c in netlist.components if c.net_class in ("HighVoltage", "ACMains")}
+    lv_from_class = {c.ref for c in netlist.components if c.net_class == "Signal"}
     if hv_from_class:
         quality_config["hv_components"] = hv_from_class
     if lv_from_class:
@@ -468,7 +462,8 @@ def score_human_baseline(
 
     # Score with dual-rail metric
     result = dual_rail_clearance_report(
-        state, netlist,
+        state,
+        netlist,
         quality_config.get("hv_components", set()),
         quality_config.get("lv_components", set()),
     )

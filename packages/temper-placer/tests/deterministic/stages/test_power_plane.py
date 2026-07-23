@@ -5,7 +5,6 @@ Tests the stage that identifies power/ground nets and marks them for
 plane connection instead of trace routing.
 """
 
-
 import pytest
 
 from temper_placer.core.netlist import Component, Net, Netlist, Pin

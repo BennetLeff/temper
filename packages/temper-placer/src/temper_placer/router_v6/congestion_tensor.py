@@ -37,6 +37,7 @@ Decay (not used in the default single-pass closure test):
     (e.g., 0.95) for the rare case of a global iteration
     loop where we want history to fade.
 """
+
 from __future__ import annotations
 
 import math
@@ -69,12 +70,16 @@ class CongestionTensor:
 
     @classmethod
     def zeros(
-        cls, rows: int, cols: int,
-        max_cost: float = MAX_COST, weight: float = 1.0,
+        cls,
+        rows: int,
+        cols: int,
+        max_cost: float = MAX_COST,
+        weight: float = 1.0,
     ) -> CongestionTensor:
         return cls(
             array=np.zeros((rows, cols), dtype=np.float32),
-            max_cost=max_cost, weight=weight,
+            max_cost=max_cost,
+            weight=weight,
         )
 
     def increment(self, row: int, col: int, weight: float = 1.0) -> None:

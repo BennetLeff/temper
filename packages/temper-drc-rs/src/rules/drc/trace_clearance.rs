@@ -14,7 +14,9 @@ use crate::constraints::ConstraintSet;
 use crate::rules::{clearance_between, violation, DrcCategory, DrcRule, Severity, Violation};
 use geo::EuclideanDistance;
 
+#[derive(Default)]
 pub struct TraceClearanceCheck;
+
 impl TraceClearanceCheck {
     pub fn new() -> Self {
         Self

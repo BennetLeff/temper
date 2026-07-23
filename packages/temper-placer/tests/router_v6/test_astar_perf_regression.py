@@ -151,6 +151,7 @@ def test_lazy_vs_theta_star_los_reduction():
         return _orig_los(*args, **kwargs)
 
     import temper_placer.router_v6.astar_core as ac
+
     ac._line_of_sight = _counted_los
 
     try:
@@ -158,7 +159,9 @@ def test_lazy_vs_theta_star_los_reduction():
         rng = random.Random(42)
 
         print("\n--- A/B Profiling: Lazy Theta* vs Theta* ---")
-        print(f"{'Grid':>10} | {'Variant':>12} | {'Wall(ms)':>8} | {'LOS':>8} | {'Exps':>6} | {'Path':>5}")
+        print(
+            f"{'Grid':>10} | {'Variant':>12} | {'Wall(ms)':>8} | {'LOS':>8} | {'Exps':>6} | {'Path':>5}"
+        )
         print("-" * 60)
 
         for height, width in sizes:
@@ -179,22 +182,30 @@ def test_lazy_vs_theta_star_los_reduction():
                 # Theta*
                 _los_count = 0
                 t0 = time.perf_counter()
-                theta_path = _astar_search_theta_star(grid, (0, 0), (width - 1, height - 1), net_id=0)
+                theta_path = _astar_search_theta_star(
+                    grid, (0, 0), (width - 1, height - 1), net_id=0
+                )
                 theta_time = (time.perf_counter() - t0) * 1000
                 theta_los = _los_count
 
                 # Lazy Theta*
                 _los_count = 0
                 t0 = time.perf_counter()
-                lazy_path = _astar_search_lazy_theta_star(grid, (0, 0), (width - 1, height - 1), net_id=0)
+                lazy_path = _astar_search_lazy_theta_star(
+                    grid, (0, 0), (width - 1, height - 1), net_id=0
+                )
                 lazy_time = (time.perf_counter() - t0) * 1000
                 lazy_los = _los_count
 
                 theta_len = len(theta_path) if theta_path else 0
                 lazy_len = len(lazy_path) if lazy_path else 0
 
-                print(f"{label:>10} | {'Theta*':>12} | {theta_time:>7.1f} | {theta_los:>5}   | {'  -':>5} | {theta_len:>5}")
-                print(f"{'':>10} | {'Lazy Theta*':>12} | {lazy_time:>7.1f} | {lazy_los:>5}   | {'  -':>5} | {lazy_len:>5}")
+                print(
+                    f"{label:>10} | {'Theta*':>12} | {theta_time:>7.1f} | {theta_los:>5}   | {'  -':>5} | {theta_len:>5}"
+                )
+                print(
+                    f"{'':>10} | {'Lazy Theta*':>12} | {lazy_time:>7.1f} | {lazy_los:>5}   | {'  -':>5} | {lazy_len:>5}"
+                )
 
                 if theta_los > 0 and lazy_los > 0:
                     ratio = theta_los / max(lazy_los, 1)

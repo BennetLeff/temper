@@ -1,0 +1,30 @@
+{
+  "plan": "2026-07-20-001",
+  "measurement_date": "2026-07-20",
+  "board": "pcb/temper.kicad_pcb",
+  "kicad_cli_version": "10.0.4",
+  "states": {
+    "pre_u4_baseline": {
+      "description": "Default-off with writer stitch + plane-MST available",
+      "unconnected_items": 149,
+      "source": "U3 production-board routing test (2026-07-18)"
+    },
+    "post_u7_gate_relax": {
+      "description": "Via-aware transitions only, no tree executor",
+      "unconnected_items": 0,
+      "source": "U8 measurement (2026-07-20)"
+    },
+    "default_off_post_u4_deletions": {
+      "description": "Default-off, writer stitch + plane-MST deleted (U4 full)",
+      "unconnected_items": 260,
+      "note": "U4 deletions removed the legacy copper the 149 baseline relied on"
+    },
+    "tree_mode_u2_u7": {
+      "description": "Tree executor (U2 resilient + U7 writer wired), default-off in code, measured with flag override",
+      "unconnected_items": "~54 nets fail with 'no legal tree edge'",
+      "failing_nets_classification": "power (PWR_RTN, +3V3, +15V, vcc), ground (DC_BUS_RTN), HV (+340V_BUS), and near-net interconnects — all congestion-limited, not single-edge-failure",
+      "u2_resilience_impact": "No measurable improvement — failure mode is grid congestion, not solitary-edge failure"
+    }
+  },
+  "verdict": "U2 resilience fix cannot close the gap alone. 54 nets need the classification called for in R8. Congestion-limited nets need zone/pour or re-planning; power/ground/HV nets need the plane-connected path that U4's stitch deletion removed."
+}

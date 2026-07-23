@@ -56,9 +56,7 @@ def test_audit_requires_a_legal_via_or_pth_bridge_for_layer_transition():
 
 
 def test_same_xy_smd_pads_on_different_layers_do_not_connect():
-    audit = verify_net_connectivity(
-        [_pad("1", 0), _pad("2", 0, layers=frozenset({1}))], [], []
-    )
+    audit = verify_net_connectivity([_pad("1", 0), _pad("2", 0, layers=frozenset({1}))], [], [])
 
     assert audit.disposition == "incomplete"
     assert audit.connected_pad_count == 1

@@ -66,12 +66,12 @@ class ParametricTemplate:
         # Find anchor ratio
         anchor = next((c for c in self.components if c.ref == self.anchor_ref), None)
         if anchor is None:
-             # Default to center
-             anchor_off_x = 0.5 * target_width
-             anchor_off_y = 0.5 * target_height
+            # Default to center
+            anchor_off_x = 0.5 * target_width
+            anchor_off_y = 0.5 * target_height
         else:
-             anchor_off_x = anchor.x_ratio * target_width
-             anchor_off_y = anchor.y_ratio * target_height
+            anchor_off_x = anchor.x_ratio * target_width
+            anchor_off_y = anchor.y_ratio * target_height
 
         placements = {}
         rot_rad = math.radians(rotation)
@@ -124,7 +124,7 @@ class ParametricTemplate:
             name="half_bridge_parametric",
             components=components,
             anchor_ref=q1_ref,
-            description="Parametric half-bridge layout"
+            description="Parametric half-bridge layout",
         )
 
 
@@ -246,8 +246,8 @@ class HalfBridgeTemplate(ComponentTemplate):
         c_bus1_ref: str = "C_BUS1",
         c_bus2_ref: str = "C_BUS2",
         switch_spacing: float = 25.0,  # Q1 to Q2 spacing (TO-247 is ~21mm tall)
-        diode_offset: float = 18.0,    # Horizontal offset for diodes (TO-247 is ~16mm wide)
-        cap_offset: float = 28.0,      # Lateral offset for bus caps
+        diode_offset: float = 18.0,  # Horizontal offset for diodes (TO-247 is ~16mm wide)
+        cap_offset: float = 28.0,  # Lateral offset for bus caps
     ) -> HalfBridgeTemplate:
         """
         Create a vertical half-bridge template.
@@ -284,19 +284,14 @@ class HalfBridgeTemplate(ComponentTemplate):
         components = [
             # Q1 at origin (anchor) - high side switch
             ComponentPosition(q1_ref, x=0.0, y=0.0, rotation=0),
-
             # Q2 below Q1 - low side switch
             ComponentPosition(q2_ref, x=0.0, y=-switch_spacing, rotation=0),
-
             # D1 right of Q1 - high side diode
             ComponentPosition(d1_ref, x=diode_offset, y=0.0, rotation=0),
-
             # D2 right of Q2 - low side diode
             ComponentPosition(d2_ref, x=diode_offset, y=-switch_spacing, rotation=0),
-
             # C_BUS1 right of power stage, between Q1 and Q2
             ComponentPosition(c_bus1_ref, x=cap_offset, y=-switch_spacing * 0.25, rotation=0),
-
             # C_BUS2 right of power stage, between Q1 and Q2
             ComponentPosition(c_bus2_ref, x=cap_offset, y=-switch_spacing * 0.75, rotation=0),
         ]

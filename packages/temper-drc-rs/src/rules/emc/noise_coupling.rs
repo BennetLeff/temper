@@ -31,6 +31,7 @@ fn is_sensitive(net_class: &str) -> bool {
     SENSITIVE_KEYWORDS.iter().any(|k| lc.contains(k))
 }
 
+#[derive(Default)]
 pub struct NoiseCouplingCheck;
 
 impl NoiseCouplingCheck {

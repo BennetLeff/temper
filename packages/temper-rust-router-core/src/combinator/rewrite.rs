@@ -46,19 +46,43 @@
 /// performance optimization. The fixpoint loop ensures all rules exhaust
 /// regardless of order; confluent because the rules are monotonic decreases
 /// on a well-founded measure.
-
 use std::collections::{BTreeSet, HashMap, HashSet};
+
+use thiserror::Error;
 
 use crate::types::{InternalConstraint, InternalConstraintModel};
 
 /// Error returned when the rewrite engine detects a structural contradiction.
-#[derive(Debug, PartialEq)]
+#[derive(Error, Debug, PartialEq)]
 pub enum RewriteError {
     /// Structural contradiction detected pre-solve (RW7).
+    #[error(
+        "Structural contradiction: LayerRestriction({var_name}, true) and \
+         LayerRestriction({var_name}, false) both present."
+    )]
     UnsatPreSolve {
         var_name: String,
         constraint1: String,
         constraint2: String,
+    },
+    /// Subsumption invariant violated: a tight_k entry was unexpectedly None.
+    #[error(
+        "Capacity subsumption invariant violation on channel '{channel_id}': \
+         tight_k[{i}] or tight_k[{j}] was unexpectedly None."
+    )]
+    SubsumeTightK {
+        channel_id: String,
+        i: usize,
+        j: usize,
+    },
+    /// Dedup invariant violated: no CapInfo matched a var-set key in the dedup map.
+    #[error(
+        "Capacity dedup invariant violation: no CapInfo matched var-set key \
+         '{var_set:?}' in the dedup map."
+    )]
+    SubsumeDedup {
+        var_set: String,
+        channel_id: String,
     },
 }
 
@@ -109,7 +133,7 @@ pub fn rewrite(model: &InternalConstraintModel) -> Result<InternalConstraintMode
 
         // RW1. CapSubsume
         let before_len = constraints.len();
-        constraints = subsume_capacity(constraints);
+        constraints = subsume_capacity(constraints)?;
         if constraints.len() != before_len {
             changed = true;
         }
@@ -290,11 +314,7 @@ fn propagate_layer_true(constraints: Vec<InternalConstraint>) -> Vec<InternalCon
                 }
 
                 // Decrement K by removed_count.
-                let new_max_nets = if old_max_nets > removed_count {
-                    old_max_nets - removed_count
-                } else {
-                    0
-                };
+                let new_max_nets = old_max_nets.saturating_sub(removed_count);
 
                 if new_terms.is_empty() {
                     // All terms were removed; drop the Capacity constraint entirely.
@@ -410,7 +430,7 @@ fn propagate_layer_false(constraints: Vec<InternalConstraint>) -> Vec<InternalCo
 /// - V1 ⊆ V2 and K1 ≤ K2: tighten C2 to min(K2, K1 + |V2\V1|)
 /// - After tightening, if two constraints have identical var sets,
 ///   keep only the one with smaller K.
-fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstraint> {
+fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Result<Vec<InternalConstraint>, RewriteError> {
     // Separate capacity constraints from others.
     let mut caps: Vec<(usize, String, f64, f64, Vec<(String, f64)>)> = Vec::new();
     let mut others: Vec<InternalConstraint> = Vec::new();
@@ -440,23 +460,22 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
                 terms,
             });
         }
-        return result;
+        return Ok(result);
     }
 
     // Compute max_nets and var-name sets for each capacity constraint.
     let cap_infos: Vec<CapInfo> = caps
-        .iter()
+        .into_iter()
         .map(|(orig_idx, ch_id, cap, sf, terms)| {
-            let max_nets = compute_max_nets(*cap, *sf, terms);
+            let max_nets = compute_max_nets(cap, sf, &terms);
             let var_set: HashSet<String> = terms.iter().map(|(n, _)| n.clone()).collect();
             CapInfo {
-                orig_idx: *orig_idx,
-                channel_id: ch_id.clone(),
-                capacity: *cap,
-                slack_factor: *sf,
-                terms: terms.clone(),
+                orig_idx,
+                channel_id: ch_id,
+                slack_factor: sf,
                 max_nets,
                 var_set,
+                terms,
             }
         })
         .collect();
@@ -488,8 +507,16 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
                     if ki.is_none() || kj.is_none() {
                         continue;
                     }
-                    let ki = ki.unwrap();
-                    let kj = kj.unwrap();
+                    let ki = ki.ok_or_else(|| RewriteError::SubsumeTightK {
+                        channel_id: cap_infos[i].channel_id.clone(),
+                        i,
+                        j,
+                    })?;
+                    let kj = kj.ok_or_else(|| RewriteError::SubsumeTightK {
+                        channel_id: cap_infos[j].channel_id.clone(),
+                        i,
+                        j,
+                    })?;
 
                     let skip: bool = cap_infos[i].terms.len() > cap_infos[j].terms.len()
                         || ki > kj;
@@ -537,7 +564,7 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
     let mut result = others;
 
     for (var_sorted, (_orig_idx, tight_k)) in dedup_map {
-        // Find the cap_info that matches this var set.
+        let var_set_display: Vec<String> = var_sorted.iter().cloned().collect();
         let info = cap_infos
             .iter()
             .find(|info| {
@@ -545,7 +572,10 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
                     info.terms.iter().map(|(n, _)| n.clone()).collect();
                 vs == var_sorted
             })
-            .unwrap();
+            .ok_or_else(|| RewriteError::SubsumeDedup {
+                var_set: var_set_display.join(", "),
+                channel_id: String::from("<unknown>"),
+            })?;
 
         let new_max_nets = tight_k;
 
@@ -569,14 +599,12 @@ fn subsume_capacity(constraints: Vec<InternalConstraint>) -> Vec<InternalConstra
         });
     }
 
-    result
+    Ok(result)
 }
 
 struct CapInfo {
     orig_idx: usize,
     channel_id: String,
-    #[allow(dead_code)]
-    capacity: f64,
     slack_factor: f64,
     terms: Vec<(String, f64)>,
     max_nets: usize,
@@ -610,6 +638,7 @@ fn eliminate_trivial_capacity(constraints: Vec<InternalConstraint>) -> Vec<Inter
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -1033,6 +1062,7 @@ mod tests {
             RewriteError::UnsatPreSolve { var_name, .. } => {
                 assert_eq!(var_name, "X");
             }
+            _ => panic!("expected UnsatPreSolve, got {err:?}"),
         }
     }
 

@@ -176,8 +176,8 @@ def place_by_proximity(
 
             # Don't exceed max_distance if provided
             if distance > max_distance:
-                 # Stop placing or clamp? For now, we'll just log/continue
-                 pass
+                # Stop placing or clamp? For now, we'll just log/continue
+                pass
 
             x = base_x + distance * math.cos(angle)
             y = base_y + distance * math.sin(angle)
@@ -262,8 +262,8 @@ def place_in_zone_center(
         row = i // grid_size
         col = i % grid_size
 
-        x = center_x + (col - grid_size/2) * spacing
-        y = center_y + (row - grid_size/2) * spacing
+        x = center_x + (col - grid_size / 2) * spacing
+        y = center_y + (row - grid_size / 2) * spacing
 
         # Clamp to zone
         x = max(zone.bounds[0], min(zone.bounds[2], x))

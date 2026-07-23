@@ -4,7 +4,6 @@ Tests for Router V6 Feedback F.2: Identify Congested Regions
 Part of temper-jq8n
 """
 
-
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.congestion_analysis import (
     CongestedRegion,
@@ -31,10 +30,7 @@ def test_identify_with_failed_nets():
     """Test congestion identification with failed nets."""
     path = RoutePath("NET1", [(10, 10), (20, 20)], "F.Cu", 14.14)
     route = CompiledRoute("NET1", path, 0.127, [], None)
-    results = RoutingResults(
-        compiled_routes={"NET1": route},
-        failed_nets=["NET2", "NET3", "NET4"]
-    )
+    results = RoutingResults(compiled_routes={"NET1": route}, failed_nets=["NET2", "NET3", "NET4"])
 
     congestion = identify_congested_regions(results, 100, 100)
 

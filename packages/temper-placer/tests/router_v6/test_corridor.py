@@ -19,10 +19,10 @@ def test_corridor_mask_single_cell():
     assert mask.dtype == np.bool_
     # Check that the expanded region is correct
     # Coarse cell (2,3) maps to fine (8..11, 12..15) + buffer 2
-    assert mask[12, 8]   # inside
+    assert mask[12, 8]  # inside
     assert mask[15, 11]  # inside
-    assert mask[12, 7]   # buffer edge
-    assert mask[10, 8]   # buffer top
+    assert mask[12, 7]  # buffer edge
+    assert mask[10, 8]  # buffer top
     assert mask[17, 13]  # buffer bottom-right
 
 

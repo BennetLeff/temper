@@ -2,6 +2,7 @@ use crate::model::{Component, Constraint, ConstraintOrigin, Net, NetClass, Safet
 use serde::{Deserialize, Serialize};
 use temper_pcl_ir::{ConstraintTier, PclConstraintKind};
 
+/// Parsed atopile export — the primary input format for bundle assembly.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AtopileExport {
     pub schema_version: u32,
@@ -21,15 +22,18 @@ pub struct AtopileExport {
     #[serde(default)]
     pub safety: Vec<SafetyRule>,
 }
+/// A single net in the atopile export.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AtopileNet {
     pub signal: String,
     pub canonical_name: String,
 }
+/// A single component in the atopile export.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AtopileComponent {
     pub id: String,
 }
+/// A safety constraint rule from the atopile export (creepage, clearance).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SafetyRule {
     pub id: String,
@@ -39,6 +43,7 @@ pub struct SafetyRule {
     #[serde(default)]
     pub because: Option<String>,
 }
+/// A single mapping entry: atopile signal name → KiCad net name.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MappingEntry {
     pub atopile_signal: String,
@@ -46,6 +51,7 @@ pub struct MappingEntry {
     #[serde(default)]
     pub aliases: Vec<String>,
 }
+/// The full net mapping: atopile signals → KiCad nets.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NetMapping {
     pub schema_version: u32,

@@ -6,6 +6,8 @@ use crate::{
 };
 use std::collections::HashSet;
 
+/// Validate that the board identity (atopile, netlist, footprint refs)
+/// is consistent and internally coherent.
 pub fn validate(
     atopile: &AtopileExport,
     mapping: &NetMapping,

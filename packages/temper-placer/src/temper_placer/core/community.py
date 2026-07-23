@@ -19,6 +19,7 @@ from temper_placer.core.netlist import Netlist, build_adjacency_matrix
 @dataclass
 class Community:
     """A detected functional cluster of components."""
+
     name: str
     component_refs: list[str]
     modularity_score: float
@@ -36,7 +37,6 @@ class ComponentCommunity:
     component_ref: str
     community_name: str
     confidence: float = 1.0
-
 
 
 def detect_communities(netlist: Netlist) -> list[Community]:
@@ -65,7 +65,7 @@ def detect_communities(netlist: Netlist) -> list[Community]:
 
     # 3. Apply Louvain algorithm for community detection
     # partition is a dict: {node_idx: community_id}
-    partition = community_louvain.best_partition(G, weight='weight', random_state=42)
+    partition = community_louvain.best_partition(G, weight="weight", random_state=42)
 
     # 4. Group by community ID
     community_groups: dict[int, list[str]] = {}
@@ -75,20 +75,23 @@ def detect_communities(netlist: Netlist) -> list[Community]:
         community_groups[comm_id].append(idx_to_ref[node_idx])
 
     # 5. Compute modularity score
-    modularity = community_louvain.modularity(partition, G, weight='weight')
+    modularity = community_louvain.modularity(partition, G, weight="weight")
 
     # 6. Create Community objects
     communities = []
     for comm_id, refs in community_groups.items():
         # Ignore single-component communities (noise)
         if len(refs) > 1:
-            communities.append(Community(
-                name=f"auto_community_{comm_id}",
-                component_refs=refs,
-                modularity_score=modularity
-            ))
+            communities.append(
+                Community(
+                    name=f"auto_community_{comm_id}",
+                    component_refs=refs,
+                    modularity_score=modularity,
+                )
+            )
 
     return communities
+
 
 def get_community_component_indices(netlist: Netlist, community: Community) -> list[int]:
     """Resolve component references in a community to netlist indices."""

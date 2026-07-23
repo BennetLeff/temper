@@ -1,4 +1,3 @@
-
 import argparse
 
 # Add project roots to path
@@ -10,7 +9,7 @@ import pandas as pd
 
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root / "src"))
-sys.path.append(str(project_root)) # For tests.fixtures
+sys.path.append(str(project_root))  # For tests.fixtures
 
 from tests.fixtures.generators.synthetic_netlist import generate_netlist  # noqa: E402
 
@@ -28,20 +27,22 @@ def benchmark_run(n_components: int, epochs: int = 8000):
 
     # 1. Setup
     netlist = generate_netlist(n_components=n_components)
-    board = Board(width=200, height=200) # Large enough for any n
+    board = Board(width=200, height=200)  # Large enough for any n
 
-    composite = CompositeLoss([
-        WeightedLoss(OverlapLoss(rotation_invariant=True), weight=100.0),
-        WeightedLoss(BoundaryLoss(), weight=50.0),
-        WeightedLoss(WirelengthLoss(), weight=10.0),
-    ])
+    composite = CompositeLoss(
+        [
+            WeightedLoss(OverlapLoss(rotation_invariant=True), weight=100.0),
+            WeightedLoss(BoundaryLoss(), weight=50.0),
+            WeightedLoss(WirelengthLoss(), weight=10.0),
+        ]
+    )
 
     context = LossContext.from_netlist_and_board(netlist, board)
     config = OptimizerConfig(
         epochs=epochs,
         checkpoint=replace(OptimizerConfig().checkpoint, enabled=False),
         early_stopping=replace(OptimizerConfig().early_stopping, enabled=False),
-        validate_interval=10000 # Disable validation
+        validate_interval=10000,  # Disable validation
     )
 
     # 2. Warmup (JIT compilation)
@@ -62,17 +63,22 @@ def benchmark_run(n_components: int, epochs: int = 8000):
         "n_components": n_components,
         "epochs": epochs,
         "total_time_s": duration,
-        "ms_per_epoch": ms_per_epoch
+        "ms_per_epoch": ms_per_epoch,
     }
+
 
 def replace(obj, **kwargs):
     from dataclasses import replace as dc_replace
+
     return dc_replace(obj, **kwargs)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Performance Benchmark for Temper Placer")
     parser.add_argument("--epochs", type=int, default=8000, help="Number of epochs")
-    parser.add_argument("--sizes", type=int, nargs="+", default=[50, 100, 200], help="Component counts")
+    parser.add_argument(
+        "--sizes", type=int, nargs="+", default=[50, 100, 200], help="Component counts"
+    )
     args = parser.parse_args()
 
     results = []
@@ -87,6 +93,7 @@ def main():
     output_path = Path("benchmark_results.csv")
     df.to_csv(output_path, index=False)
     print(f"\nSaved results to {output_path}")
+
 
 if __name__ == "__main__":
     main()

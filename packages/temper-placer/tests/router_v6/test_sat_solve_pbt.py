@@ -35,6 +35,7 @@ from tests.router_v6.sat_property_strategies import (
 def _pysat_solver():
     """Yield a fresh pysat Solver class (module-scoped import)."""
     from pysat.solvers import Solver as _Solver
+
     return _Solver
 
 
@@ -80,15 +81,13 @@ def test_fr1_single_clause_sat(_pysat_solver, variables, data):
     # Encode in pysat: variable 1..n (positive literal -> var, negative -> -var)
     solver = _pysat_solver(bootstrap_with=[])
     var_to_idx = {v.name: i + 1 for i, v in enumerate(variables)}
-    pysat_lits = [
-        var_to_idx[v.name] if pol else -var_to_idx[v.name]
-        for v, pol in clause.literals
-    ]
+    pysat_lits = [var_to_idx[v.name] if pol else -var_to_idx[v.name] for v, pol in clause.literals]
     solver.add_clause(pysat_lits)
     result = solver.solve()
 
     # For n_vars <= 8, exhaustive cross-validation
     if n_vars <= 8:
+
         def _eval_clause(assignment: dict[str, bool]) -> bool:
             return any(
                 (assignment[v.name] if pol else not assignment[v.name])
@@ -156,8 +155,7 @@ def test_fr2_multi_clause_conjunction(vars_and_clauses, _pysat_solver):
     solver = _pysat_solver(bootstrap_with=[])
     for clause in clauses:
         pysat_lits = [
-            var_to_idx[v.name] if pol else -var_to_idx[v.name]
-            for v, pol in clause.literals
+            var_to_idx[v.name] if pol else -var_to_idx[v.name] for v, pol in clause.literals
         ]
         solver.add_clause(pysat_lits)
 
@@ -165,11 +163,9 @@ def test_fr2_multi_clause_conjunction(vars_and_clauses, _pysat_solver):
 
     # Exhaustive enumeration for n_vars <= 8
     if n_vars <= 8:
+
         def _eval_clause(assign, cl):
-            return any(
-                (assign[v.name] if pol else not assign[v.name])
-                for v, pol in cl.literals
-            )
+            return any((assign[v.name] if pol else not assign[v.name]) for v, pol in cl.literals)
 
         def _all_satisfied(assign):
             return all(_eval_clause(assign, cl) for cl in clauses)
@@ -182,8 +178,7 @@ def test_fr2_multi_clause_conjunction(vars_and_clauses, _pysat_solver):
                 satisfiable_by_enum = True
                 sat_assignments += 1
         assert pysat_sat == satisfiable_by_enum, (
-            f"pysat={pysat_sat}, exhaustive={satisfiable_by_enum} "
-            f"over {n_clauses} clauses"
+            f"pysat={pysat_sat}, exhaustive={satisfiable_by_enum} over {n_clauses} clauses"
         )
 
     # If satisfiable, verify pysat model satisfies all clauses
@@ -241,10 +236,7 @@ def test_fr3_cdcl_incremental(vars_and_clauses, _pysat_solver):
 
     # Find all solutions for initial clauses by exhaustive enumeration
     def _eval_clause(assign, cl):
-        return any(
-            (assign[v.name] if pol else not assign[v.name])
-            for v, pol in cl.literals
-        )
+        return any((assign[v.name] if pol else not assign[v.name]) for v, pol in cl.literals)
 
     def _all_satisfied(assign, cls):
         return all(_eval_clause(assign, cl) for cl in cls)
@@ -264,8 +256,7 @@ def test_fr3_cdcl_incremental(vars_and_clauses, _pysat_solver):
         for mask in current_solutions:
             assign = {v.name: bool(mask & (1 << i)) for i, v in enumerate(variables)}
             satisfied = any(
-                (assign[v.name] if pol else not assign[v.name])
-                for v, pol in extra_clause.literals
+                (assign[v.name] if pol else not assign[v.name]) for v, pol in extra_clause.literals
             )
             if satisfied:
                 new_solutions.add(mask)
@@ -284,8 +275,7 @@ def test_fr3_cdcl_incremental(vars_and_clauses, _pysat_solver):
     solver = _pysat_solver(bootstrap_with=[])
     for clause in clauses:
         pysat_lits = [
-            var_to_idx[v.name] if pol else -var_to_idx[v.name]
-            for v, pol in clause.literals
+            var_to_idx[v.name] if pol else -var_to_idx[v.name] for v, pol in clause.literals
         ]
         solver.add_clause(pysat_lits)
     pysat_result = solver.solve()
@@ -318,10 +308,7 @@ class TestAtMostKEncoding:
         from temper_placer.router_v6.sat_model import SATModel, SATVariable, _encode_at_most_k
 
         model = SATModel(variables=[], clauses=[])
-        variables = [
-            SATVariable(name=f"x{i}", description=f"Primary x{i}")
-            for i in range(n)
-        ]
+        variables = [SATVariable(name=f"x{i}", description=f"Primary x{i}") for i in range(n)]
         for v in variables:
             model.variables.append(v)
 
@@ -335,6 +322,7 @@ class TestAtMostKEncoding:
 
         # Solve via pysat, enumerate all solutions
         from pysat.solvers import Solver
+
         solver = Solver(bootstrap_with=[])
 
         # Map SAT variable names to pysat variable indices
@@ -363,7 +351,7 @@ class TestAtMostKEncoding:
             for i, v in enumerate(variables):
                 lit_val = next((mv for mv in model_vals if abs(mv) == var_to_idx[v.name]), 0)
                 if lit_val > 0:
-                    mask |= (1 << i)
+                    mask |= 1 << i
             sat_assignment_masks.add(mask)
             solution_count += 1
 
@@ -375,20 +363,19 @@ class TestAtMostKEncoding:
             solver.add_clause(block_clause)
 
             # Safety limit
-            if solution_count > 2 ** n:
+            if solution_count > 2**n:
                 break
 
         solver.delete()
 
         expected = self._count_solutions(n, k)
         assert solution_count == expected, (
-            f"AtMostK({n=}, {k=}): got {solution_count} solutions, "
-            f"expected binom sum = {expected}"
+            f"AtMostK({n=}, {k=}): got {solution_count} solutions, expected binom sum = {expected}"
         )
 
         # Verify every solution has <= k true primary variables
         for mask in sat_assignment_masks:
-            true_count = bin(mask).count('1')
+            true_count = bin(mask).count("1")
             assert true_count <= k, (
                 f"AtMostK({n=}, {k=}) violation: assignment mask={mask:0{n}b} "
                 f"has {true_count} true variables"
@@ -398,23 +385,52 @@ class TestAtMostKEncoding:
         if n <= 8:
             enum_solutions: set[int] = set()
             for mask in range(1 << n):
-                if bin(mask).count('1') <= k:
+                if bin(mask).count("1") <= k:
                     enum_solutions.add(mask)
             assert sat_assignment_masks == enum_solutions, (
                 f"AtMostK({n=}, {k=}): solver solutions {sorted(sat_assignment_masks)} "
                 f"!= exhaustive enumeration {sorted(enum_solutions)}"
             )
 
-    @pytest.mark.parametrize("n,k", [
-        (2, 0), (2, 1), (2, 2),
-        (3, 0), (3, 1), (3, 2), (3, 3),
-        (4, 0), (4, 1), (4, 2), (4, 3), (4, 4),
-        (5, 0), (5, 2), (5, 4), (5, 5),
-        (6, 0), (6, 1), (6, 3), (6, 5),
-        (7, 0), (7, 3), (7, 6),
-        (8, 0), (8, 1), (8, 3), (8, 5), (8, 7), (8, 8),
-        (9, 2), (10, 3), (12, 4), (14, 5), (16, 5),
-    ])
+    @pytest.mark.parametrize(
+        "n,k",
+        [
+            (2, 0),
+            (2, 1),
+            (2, 2),
+            (3, 0),
+            (3, 1),
+            (3, 2),
+            (3, 3),
+            (4, 0),
+            (4, 1),
+            (4, 2),
+            (4, 3),
+            (4, 4),
+            (5, 0),
+            (5, 2),
+            (5, 4),
+            (5, 5),
+            (6, 0),
+            (6, 1),
+            (6, 3),
+            (6, 5),
+            (7, 0),
+            (7, 3),
+            (7, 6),
+            (8, 0),
+            (8, 1),
+            (8, 3),
+            (8, 5),
+            (8, 7),
+            (8, 8),
+            (9, 2),
+            (10, 3),
+            (12, 4),
+            (14, 5),
+            (16, 5),
+        ],
+    )
     def test_at_most_k_pair(self, n, k, _pysat_solver):
         """FR4: Verify AtMostK encoding for a specific (n, k) pair."""
         self._verify_at_most_k(n, k, _pysat_solver)
@@ -428,11 +444,9 @@ class TestAtMostKEncoding:
 def _canonicalize_clause(clause) -> str:
     """Return a canonical string for a SATClause for set comparison."""
     from temper_placer.router_v6.sat_model import SATClause
+
     if isinstance(clause, SATClause):
-        terms = sorted(
-            f"{'+' if pol else '-'}{v.name}"
-            for v, pol in clause.literals
-        )
+        terms = sorted(f"{'+' if pol else '-'}{v.name}" for v, pol in clause.literals)
         return f"({' | '.join(terms)})"
     return str(clause)
 
@@ -475,10 +489,9 @@ class TestCrossConstraintComposition:
         assert sat.clause_count >= 1, (
             f"Expected at least connectivity clause, got {sat.clause_count}"
         )
-        assert any(
-            clause.description.startswith("Connectivity:")
-            for clause in sat.clauses
-        ), f"No connectivity clause found in {[c.description for c in sat.clauses]}"
+        assert any(clause.description.startswith("Connectivity:") for clause in sat.clauses), (
+            f"No connectivity clause found in {[c.description for c in sat.clauses]}"
+        )
 
         # Verify variable count: 1 net-channel var
         assert sat.variable_count >= 1
@@ -530,9 +543,14 @@ class TestCrossConstraintComposition:
 
         expected_clauses = [
             # Connectivity: (uses_NET0_F.Cu_E0_0_1)
-            SATClause(literals=[(sat_var, True)], description="Connectivity: NET0 must use at least one channel"),
+            SATClause(
+                literals=[(sat_var, True)],
+                description="Connectivity: NET0 must use at least one channel",
+            ),
             # Layer: (uses_NET0_F.Cu_E0_0_1)
-            SATClause(literals=[(sat_var, True)], description=f"Layer: uses_N0_{channel_id} = True"),
+            SATClause(
+                literals=[(sat_var, True)], description=f"Layer: uses_N0_{channel_id} = True"
+            ),
         ]
 
         expected_canonical = set(_dump_clause_set(expected_clauses))
@@ -586,9 +604,7 @@ class TestCrossConstraintComposition:
 
         # Expected: 3 connectivity + AtMostK(3, 2) auxiliary clauses
         total = len(sat.clauses)
-        assert total > 3, (
-            f"Expected >3 clauses (3 connectivity + AtMostK auxiliary), got {total}"
-        )
+        assert total > 3, f"Expected >3 clauses (3 connectivity + AtMostK auxiliary), got {total}"
 
     def test_fr5_grid_capacity_atmostk(self, _pysat_solver):
         """3 nets, 2 channels, 1 layer: tight capacity triggers AtMostK on one channel.
@@ -642,6 +658,7 @@ class TestCrossConstraintComposition:
 
         # Verify the assignment satisfies constraints via pysat
         from pysat.solvers import Solver
+
         solver = Solver(bootstrap_with=[])
 
         var_to_idx = {}
@@ -660,8 +677,12 @@ class TestCrossConstraintComposition:
 
         # Enumerate all solutions and verify at most 2 nets on first channel
         sol_count = 0
-        ch0_vars = [v for v in sat.variables if channel_ids[0] in v.name and v.name.startswith("uses_N")]
-        assert len(ch0_vars) == 3, f"Expected 3 vars for channel {channel_ids[0]}, got {len(ch0_vars)}"
+        ch0_vars = [
+            v for v in sat.variables if channel_ids[0] in v.name and v.name.startswith("uses_N")
+        ]
+        assert len(ch0_vars) == 3, (
+            f"Expected 3 vars for channel {channel_ids[0]}, got {len(ch0_vars)}"
+        )
 
         while solver.solve() and sol_count < 20:
             model_vals = solver.get_model()
@@ -681,8 +702,8 @@ class TestCrossConstraintComposition:
 
             # Block this solution
             block = [
-                -var_to_idx[var.name] if
-                next((v for v in model_vals if abs(v) == var_to_idx[var.name]), 0) > 0
+                -var_to_idx[var.name]
+                if next((v for v in model_vals if abs(v) == var_to_idx[var.name]), 0) > 0
                 else var_to_idx[var.name]
                 for var in ch0_vars
             ]
@@ -724,8 +745,8 @@ class TestParsimonyInvariant:
         from temper_placer.router_v6.sat_model import SATModel, populate_sat_from_constraints
 
         C = 10  # cells
-        N = 3   # nets
-        L = 2   # layers
+        N = 3  # nets
+        L = 2  # layers
         layers = ["F.Cu", "In1.Cu"]
 
         cm = ConstraintModel()
@@ -790,12 +811,10 @@ class TestParsimonyInvariant:
         bound_clauses = 200 * C * N * L  # 200 * 20 * 5 * 3 = 60,000
 
         assert sat.variable_count <= bound_vars, (
-            f"variable_count={sat.variable_count} exceeds bound {bound_vars} "
-            f"(C={C}, N={N}, L={L})"
+            f"variable_count={sat.variable_count} exceeds bound {bound_vars} (C={C}, N={N}, L={L})"
         )
         assert sat.clause_count <= bound_clauses, (
-            f"clause_count={sat.clause_count} exceeds bound {bound_clauses} "
-            f"(C={C}, N={N}, L={L})"
+            f"clause_count={sat.clause_count} exceeds bound {bound_clauses} (C={C}, N={N}, L={L})"
         )
 
 

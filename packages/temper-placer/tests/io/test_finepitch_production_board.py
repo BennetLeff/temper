@@ -163,9 +163,7 @@ class TestKicadFootprintLibrary:
     """
 
     # Mirrors the hardcoded path in gates.py:182.
-    _FOOTPRINT_DIR = (
-        "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
-    )
+    _FOOTPRINT_DIR = "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
 
     def test_kicad7_footprint_dir_exists(self):
         """The footprint library path hardcoded in DrcGate exists."""
@@ -181,6 +179,4 @@ class TestKicadFootprintLibrary:
             "Footprint directory does not exist -- skipping content check"
         )
         contents = os.listdir(self._FOOTPRINT_DIR)
-        assert len(contents) > 0, (
-            f"Footprint directory {self._FOOTPRINT_DIR} exists but is empty"
-        )
+        assert len(contents) > 0, f"Footprint directory {self._FOOTPRINT_DIR} exists but is empty"

@@ -6,7 +6,7 @@ Searches GitHub for modern KiCad PCB files, analyzes component counts,
 and downloads the best candidates for reference layouts.
 
 Usage:
-    python3 tools/scrape_github_pcbs.py --output packages/temper-validation/data/reference_layouts
+    python3 tools/scrape_github_pcbs.py --output reference_layouts
 """
 
 import argparse
@@ -113,7 +113,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("packages/temper-validation/data/reference_layouts"),
+        default=Path("reference_layouts"),
         help="Output directory for downloaded PCBs",
     )
     parser.add_argument(

@@ -13,15 +13,17 @@ from enum import Enum
 
 class CopperWeight(Enum):
     """Copper weight in ounces per square foot (oz/ft²)."""
-    HALF_OZ = 0.5    # ~17um
-    ONE_OZ = 1.0     # ~35um
-    TWO_OZ = 2.0     # ~70um
+
+    HALF_OZ = 0.5  # ~17um
+    ONE_OZ = 1.0  # ~35um
+    TWO_OZ = 2.0  # ~70um
 
 
 class LayerType(Enum):
     """Type of PCB layer."""
-    OUTER = 'outer'
-    INNER = 'inner'
+
+    OUTER = "outer"
+    INNER = "inner"
 
 
 @dataclass
@@ -30,18 +32,22 @@ class ToleranceTable:
 
     # Etch tolerance by copper weight (mm)
     # Reflects the lateral etching (undercut) during production
-    etch_tolerance: dict[CopperWeight, float] = field(default_factory=lambda: {
-        CopperWeight.HALF_OZ: 0.025,
-        CopperWeight.ONE_OZ: 0.05,
-        CopperWeight.TWO_OZ: 0.075,
-    })
+    etch_tolerance: dict[CopperWeight, float] = field(
+        default_factory=lambda: {
+            CopperWeight.HALF_OZ: 0.025,
+            CopperWeight.ONE_OZ: 0.05,
+            CopperWeight.TWO_OZ: 0.075,
+        }
+    )
 
     # Registration by layer type (mm)
     # Reflects layer-to-layer alignment accuracy
-    registration: dict[LayerType, float] = field(default_factory=lambda: {
-        LayerType.OUTER: 0.1,
-        LayerType.INNER: 0.15,
-    })
+    registration: dict[LayerType, float] = field(
+        default_factory=lambda: {
+            LayerType.OUTER: 0.1,
+            LayerType.INNER: 0.15,
+        }
+    )
 
     # Solder mask registration (mm)
     solder_mask_registration: float = 0.075
@@ -50,6 +56,7 @@ class ToleranceTable:
 @dataclass
 class FeatureTolerance:
     """Tolerance analysis for a specific feature."""
+
     feature_type: str
     nominal_value: float
     tolerance_plus: float
@@ -65,10 +72,7 @@ class ToleranceAnalyzer:
         self.table = table
 
     def analyze_clearance(
-        self,
-        clearance_mm: float,
-        copper_weight: CopperWeight,
-        layer_type: LayerType
+        self, clearance_mm: float, copper_weight: CopperWeight, layer_type: LayerType
     ) -> FeatureTolerance:
         """
         Calculate tolerance for a clearance (gap) between copper features.
@@ -84,19 +88,15 @@ class ToleranceAnalyzer:
         total_minus = 2 * etch + reg
 
         return FeatureTolerance(
-            feature_type='clearance',
+            feature_type="clearance",
             nominal_value=clearance_mm,
             tolerance_plus=0.0,
             tolerance_minus=total_minus,
             worst_case_min=clearance_mm - total_minus,
-            worst_case_max=clearance_mm
+            worst_case_max=clearance_mm,
         )
 
-    def analyze_trace(
-        self,
-        width_mm: float,
-        copper_weight: CopperWeight
-    ) -> FeatureTolerance:
+    def analyze_trace(self, width_mm: float, copper_weight: CopperWeight) -> FeatureTolerance:
         """
         Calculate tolerance for trace width.
 
@@ -105,10 +105,10 @@ class ToleranceAnalyzer:
         etch = self.table.etch_tolerance.get(copper_weight, 0.05)
 
         return FeatureTolerance(
-            feature_type='trace_width',
+            feature_type="trace_width",
             nominal_value=width_mm,
             tolerance_plus=etch,
             tolerance_minus=etch,
             worst_case_min=width_mm - etch,
-            worst_case_max=width_mm + etch
+            worst_case_max=width_mm + etch,
         )

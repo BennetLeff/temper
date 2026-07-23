@@ -27,7 +27,6 @@ from temper_placer.physics.operating_point import (
     _validate_config,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers — known-answer config
 # ---------------------------------------------------------------------------
@@ -55,7 +54,7 @@ def _igbt_config(**overrides) -> DeviceLossConfig:
         "name": "Q1",
         "device_type": "IGBT",
         "V_ce_sat": 2.0,
-        "E_on": 1.0e-3,   # 1 mJ
+        "E_on": 1.0e-3,  # 1 mJ
         "E_off": 2.0e-3,  # 2 mJ
         "V_ce_sat_because": "test: datasheet Table 6",
         "E_on_because": "test: datasheet Table 8",
@@ -94,7 +93,10 @@ class TestSingleDevicePowerKnownAnswers:
         # P_sw   = (1e-3 + 2e-3) * 10000 = 30.0 W
         # Total  = 50.0 W
         p = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         assert p == pytest.approx(50.0)
 
@@ -112,7 +114,10 @@ class TestSingleDevicePowerKnownAnswers:
         # 0.5 * 100 * 14.142 * 0.001 = 0.5 * 100 * 0.014142 = 0.7071 W
         # Total = 20.707 W
         p = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         expected_sw = 0.5 * 100.0 * (10.0 * 2**0.5) * 10000.0 * 100e-9
         expected = 20.0 + expected_sw
@@ -125,19 +130,28 @@ class TestSingleDevicePowerKnownAnswers:
         # P_sw   = 0.5e-3 * 10000 = 5.0 W
         # Total  = 10.0 W
         p = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         assert p == pytest.approx(10.0)
 
     def test_mosfet_model_rds_on(self):
         """MOSFET: P = I_rms^2 * R_ds_on + switching (waveform fallback)."""
         dev = _igbt_config(
-            V_ce_sat=0.0, R_ds_on=0.1, E_on=0.0, E_off=0.0,
+            V_ce_sat=0.0,
+            R_ds_on=0.1,
+            E_on=0.0,
+            E_off=0.0,
         )
         # P_cond = 10.0^2 * 0.1 = 10.0 W
         # P_sw   = waveform = ~0.707 W (see above)
         p = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         expected_cond = 100.0 * 0.1  # 10.0
         expected_sw = 0.5 * 100.0 * (10.0 * 2**0.5) * 10000.0 * 100e-9
@@ -147,7 +161,10 @@ class TestSingleDevicePowerKnownAnswers:
         """When f_sw=0, switching loss is zero regardless of E_on/E_off."""
         dev = _igbt_config()
         p = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=0.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=0.0,
+            device=dev,
         )
         assert p == pytest.approx(20.0)  # only conduction
 
@@ -155,10 +172,16 @@ class TestSingleDevicePowerKnownAnswers:
         """T_j scales linearly with P → power must scale linearly with I_rms."""
         dev = _igbt_config(E_on=0.0, E_off=0.0)
         p_5A = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=5.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=5.0,
+            f_sw=10000.0,
+            device=dev,
         )
         p_10A = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         # Conduction: linear in I_rms; switching: linear in I_peak = I_rms * sqrt(2)
         # Both scale linearly with I_rms, so total should be ~2x
@@ -169,10 +192,16 @@ class TestSingleDevicePowerKnownAnswers:
         """Switching loss scales linearly with f_sw."""
         dev = _igbt_config()
         p_5k = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=5000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=5000.0,
+            device=dev,
         )
         p_10k = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         diff = p_10k - p_5k
         # conduction is constant (20W), switching difference: 30-15 = 15W
@@ -275,13 +304,20 @@ class TestConsistencyGateAndBattery:
         """The representative temper IGBT config produces a reasonable
         (non-zero) power number at realistic operating point."""
         cfg = _test_op_config(
-            V_bus=325.0, I_load_rms=16.0, f_sw=25000.0,
-            t_rise=50e-9, t_fall=50e-9,
+            V_bus=325.0,
+            I_load_rms=16.0,
+            f_sw=25000.0,
+            t_rise=50e-9,
+            t_fall=50e-9,
         )
         dev = temper_igbt_loss_config("Q1")
         p = _compute_single_device_power(
-            V_bus=cfg.V_bus, I_load_rms=cfg.I_load_rms, f_sw=cfg.f_sw,
-            device=dev, t_rise=cfg.t_rise, t_fall=cfg.t_fall,
+            V_bus=cfg.V_bus,
+            I_load_rms=cfg.I_load_rms,
+            f_sw=cfg.f_sw,
+            device=dev,
+            t_rise=cfg.t_rise,
+            t_fall=cfg.t_fall,
         )
         # P_cond = 16 * 1.7 = 27.2 W
         # P_sw = (0.32e-3 + 0.21e-3) * 25000 = 13.25 W
@@ -295,11 +331,15 @@ class TestConsistencyGateAndBattery:
         """The representative temper diode config produces a reasonable
         (non-zero) power number at realistic operating point."""
         cfg = _test_op_config(
-            V_bus=325.0, I_load_rms=16.0, f_sw=25000.0,
+            V_bus=325.0,
+            I_load_rms=16.0,
+            f_sw=25000.0,
         )
         dev = temper_diode_loss_config("D1")
         p = _compute_single_device_power(
-            V_bus=cfg.V_bus, I_load_rms=cfg.I_load_rms, f_sw=cfg.f_sw,
+            V_bus=cfg.V_bus,
+            I_load_rms=cfg.I_load_rms,
+            f_sw=cfg.f_sw,
             device=dev,
         )
         # P_cond = (16/2) * 1.05 = 8.4 W
@@ -347,7 +387,10 @@ class TestFailClosedMissingLossParam:
         """MOSFET with R_ds_on > 0 and V_ce_sat=0 is fine."""
         op = _test_op_config()
         dev = _igbt_config(
-            V_ce_sat=0.0, R_ds_on=0.1, E_on=0.0, E_off=0.0,
+            V_ce_sat=0.0,
+            R_ds_on=0.1,
+            E_on=0.0,
+            E_off=0.0,
         )
         configs = {"Q1": dev}
         pm = derive_power_map(op, configs)
@@ -383,7 +426,9 @@ class TestProvenanceCitations:
         """A custom config with empty because strings is accepted —
         the contract is enforced by convention, not runtime."""
         dev = _igbt_config(
-            V_ce_sat_because="", E_on_because="", E_off_because="",
+            V_ce_sat_because="",
+            E_on_because="",
+            E_off_because="",
         )
         assert dev.V_ce_sat == 2.0
         assert dev.V_ce_sat_because == ""
@@ -401,10 +446,16 @@ class TestDerivePowerMapTemperatureEffects:
         """Higher V_bus increases the waveform switching loss (P_sw ~ V_bus)."""
         dev = _igbt_config(E_on=0.0, E_off=0.0)
         p_low = _compute_single_device_power(
-            V_bus=100.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=100.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         p_high = _compute_single_device_power(
-            V_bus=200.0, I_load_rms=10.0, f_sw=10000.0, device=dev,
+            V_bus=200.0,
+            I_load_rms=10.0,
+            f_sw=10000.0,
+            device=dev,
         )
         # Conduction is same (20W), switching doubles (from V_bus doubling)
         assert p_high > p_low
@@ -421,6 +472,9 @@ class TestDerivePowerMapTemperatureEffects:
                 for f_sw in [100.0, 10000.0, 100000.0]:
                     dev = _igbt_config()
                     p = _compute_single_device_power(
-                        V_bus=v_bus, I_load_rms=i_rms, f_sw=f_sw, device=dev,
+                        V_bus=v_bus,
+                        I_load_rms=i_rms,
+                        f_sw=f_sw,
+                        device=dev,
                     )
                     assert p > 0, f"P={p} for V={v_bus}, I={i_rms}, f={f_sw}"

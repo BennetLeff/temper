@@ -10,7 +10,9 @@ from temper_placer.core.netlist import Component, Net, Netlist, Pin
 from temper_placer.deterministic import create_legacy_pipeline
 from temper_placer.deterministic.state import BoardState
 
-FIXTURE_DIR = Path(__file__).parent.parent / "src" / "temper_placer" / "profiling" / "validation" / "fixtures"
+FIXTURE_DIR = (
+    Path(__file__).parent.parent / "src" / "temper_placer" / "profiling" / "validation" / "fixtures"
+)
 
 
 def _make_test_board_state() -> BoardState:
@@ -54,7 +56,9 @@ def _make_test_board_state() -> BoardState:
         Net(name="NET1", pins=[("C1", "1")], net_class="Signal", weight=1.0),
         Net(name="NET2", pins=[("C2", "1")], net_class="Signal", weight=1.0),
         Net(name="NET3", pins=[("C3", "1")], net_class="Signal", weight=1.0),
-        Net(name="GND", pins=[("C1", "2"), ("C2", "2"), ("C3", "2")], net_class="Signal", weight=1.0),
+        Net(
+            name="GND", pins=[("C1", "2"), ("C2", "2"), ("C3", "2")], net_class="Signal", weight=1.0
+        ),
     ]
     netlist = Netlist(components=components, nets=nets)
     return BoardState(board=board, netlist=netlist)
@@ -77,6 +81,7 @@ class TestHypothesisInvariants:
             test_net_conservation,
             test_pipeline_runs_without_crash,
         )
+
         assert callable(test_boundary_containment)
         assert callable(test_determinism)
         assert callable(test_net_conservation)
@@ -117,12 +122,11 @@ class TestHypothesisInvariants:
         assert result.board is not None
         board = result.board
         for route in result.routes:
-            if hasattr(route, 'coordinates'):
+            if hasattr(route, "coordinates"):
                 for coord in route.coordinates:
                     assert 0.0 <= coord[0] <= board.width
                     assert 0.0 <= coord[1] <= board.height
         assert result.netlist is not None
-
 
 
 class TestGoldenFixtures:
