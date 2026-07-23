@@ -1,0 +1,23 @@
+name: CP-SAT Benchmarks
+on:
+  pull_request:
+    branches: [main]
+    paths: ['packages/temper-placer/src/**','packages/temper-placer/configs/**','benchmarks/**','.github/workflows/cp-sat-benchmarks.yml']
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [trivial, small]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with: {version: "latest", enable-cache: true}
+      - run: uv python install 3.12
+      - run: uv sync --all-packages
+      - run: uv run python benchmarks/cp_sat_bench.py --scenario ${{ matrix.scenario }} --output benchmarks/results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: cp-sat-bench-${{ matrix.scenario }}, path: benchmarks/results/cp_sat_metrics.jsonl, retention-days: 30}
