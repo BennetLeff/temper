@@ -229,7 +229,7 @@ jobs:
           --coverage-json coverage.json
           --allowlist ../../.coverage-allowlist
           || echo "::warning title=Coverage Gate::Phase 1 paydown prerequisite not yet met; gate is warn-only."
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- coverage gate remains warn-only pending Phase 1 paydown; hard-fail after 2026-09-01
 
   checks-setup:
     uses: ./.github/workflows/_setup-python.yml
@@ -340,7 +340,7 @@ jobs:
 
       - name: Check domain model codegen drift
         run: uv run python3 scripts/gen_domain_models.py --check
-        continue-on-error: true  # codegen drift from NetClassRules SSOT — temper-xxx
+        continue-on-error: true  # TODO: temper-NNN -- codegen drift from NetClassRules SSOT; hard-fail after 2026-09-01
 
       - name: Cache Rust build (temper-design-bundle)
         uses: actions/cache@v4
@@ -400,7 +400,7 @@ jobs:
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
           JAX_PLATFORM_NAME: cpu
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- parallel test suite flakiness; hard-fail after 2026-09-01
 
       - name: Cache netlist
         uses: actions/cache@v4
@@ -412,7 +412,7 @@ jobs:
         run: make netlist
 
       - name: Regenerate schematics and check drift
-        continue-on-error: true  # KiCad CLI crashes in container (SIGHUP) — temper-xxx
+        continue-on-error: true  # TODO: temper-NNN -- make netlist (atopile) invokes kicad-cli in container; hard-fail after 2026-09-01
         run: |
           uv run python3 scripts/gen_schematics.py --check --no-oracle
           git diff --exit-code pcb/*.kicad_sch
@@ -425,7 +425,7 @@ jobs:
         run: uv run python3 scripts/ci_identity_check.py
 
       - name: Lint with ruff
-        continue-on-error: true  # 594 pre-existing errors — temper-xxx
+        continue-on-error: true  # TODO: temper-NNN -- 594 pre-existing ruff errors; hard-fail after 2026-09-01
         run: uv run ruff check packages/
 
       - name: Vulture dead-code gate
@@ -436,11 +436,11 @@ jobs:
 
       - name: Script sunset check (warnings only)
         run: uv run python scripts/check_script_sunset.py
-        continue-on-error: true  # sunset is informational, not blocking
+        continue-on-error: true  # TODO: temper-NNN -- sunset is informational; hard-fail after 2026-09-01
 
       - name: Root artifact hygiene check
         run: uv run pytest scripts/test_root_hygiene.py -v --tb=short
-        continue-on-error: true
+        continue-on-error: true  # TODO: temper-NNN -- hard-fail after 2026-09-01
 
       - name: Physics parameter provenance gate
         working-directory: packages/temper-placer
@@ -451,7 +451,6 @@ jobs:
       - name: Import boundary enforcement
         run: uv run python scripts/import_linter_gate.py
 
-        continue-on-error: true
         env:
           XLA_PYTHON_CLIENT_MEM_FRACTION: 0.15
           JAX_PLATFORM_NAME: cpu
@@ -503,7 +502,7 @@ jobs:
           uv run python3 scripts/ci_closure_test.py
           --pcb pcb/temper.kicad_pcb
           --output closure-result.json
-        continue-on-error: true  # observability merge race; temper-N6-U8
+        continue-on-error: true  # observability merge race; temper-N6-U8 -- hard-fail after 2026-09-01
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -545,13 +544,13 @@ jobs:
 
       - name: Run regression check (temper board only)
         run: make regression REGRESSION_BOARD=temper
-        continue-on-error: true  # JAX placer is nondeterministic on CI runners; temper-N6-U8
+        continue-on-error: true  # JAX placer is nondeterministic on CI runners; temper-N6-U8 -- hard-fail after 2026-09-01
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
        
       - name: Run performance regression check
         run: make perf-regression
-        continue-on-error: true  # CI runner variance vs local baseline calibration; temper-N6-U8
+        continue-on-error: true  # CI runner variance vs local baseline calibration; temper-N6-U8 -- hard-fail after 2026-09-01
         env:
           GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
 

@@ -61,9 +61,7 @@ class MFEMRunner:
         except subprocess.TimeoutExpired as e:
             raise RuntimeError(f"MFEM solve timed out after {self._timeout}s") from e
         if proc.returncode != 0:
-            raise RuntimeError(
-                f"MFEM exit code {proc.returncode}: {proc.stderr[:500]}"
-            )
+            raise RuntimeError(f"MFEM exit code {proc.returncode}: {proc.stderr[:500]}")
 
         if not os.path.isfile(result_path):
             raise RuntimeError(f"MFEM did not produce CSV output at {result_path}")
@@ -105,15 +103,11 @@ def _parse_vtk(vtk_path: str) -> MFEMResult:
     node_coords = None
     if points_elem is not None and points_elem.text:
         node_coords = (
-            np.fromstring(points_elem.text.strip(), sep=" ")
-            .reshape(n_points, 3)
-            .astype(np.float64)
+            np.fromstring(points_elem.text.strip(), sep=" ").reshape(n_points, 3).astype(np.float64)
         )
 
     temp_array = None
-    for da in piece.findall(".//CellData/DataArray") + piece.findall(
-        ".//PointData/DataArray"
-    ):
+    for da in piece.findall(".//CellData/DataArray") + piece.findall(".//PointData/DataArray"):
         if da.get("Name", "").lower() in ("temperature", "solution", "t"):
             if da.text:
                 temp_array = np.fromstring(da.text.strip(), sep=" ").astype(np.float64)

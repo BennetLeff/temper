@@ -96,9 +96,7 @@ class TestComputeCellCapacity:
         )
         assert capacity == 4
 
-    def test_capacity_cell_creepage_excluded(
-        self, high_pad_grid: ClearanceGrid
-    ) -> None:
+    def test_capacity_cell_creepage_excluded(self, high_pad_grid: ClearanceGrid) -> None:
         """Cell 3mm from a category-HIGH pad → capacity 3."""
         # The HIGH pad lives at (0, 0, 0). The test cell (0, 0, 1) is
         # one cell to the right; the 4-neighbour check discounts 1.
@@ -111,9 +109,7 @@ class TestComputeCellCapacity:
         )
         assert capacity == 3
 
-    def test_capacity_cell_saturated(
-        self, trace_only_grid: ClearanceGrid
-    ) -> None:
+    def test_capacity_cell_saturated(self, trace_only_grid: ClearanceGrid) -> None:
         """Cell with 4 existing traces → capacity 0; caller treats as blocked."""
         capacity = _compute_cell_capacity(
             cell=(0, 5, 5),
@@ -340,7 +336,9 @@ class TestBottleneckGeometryFields:
         # The snapshot pre-dates the bottleneck field addition but
         # every pre-existing field's value must match exactly.
         for key, expected in snapshot.items():
-            assert out[key] == expected, f"field {key!r} drifted: got {out[key]!r}, expected {expected!r}"
+            assert out[key] == expected, (
+                f"field {key!r} drifted: got {out[key]!r}, expected {expected!r}"
+            )
         # Round-trip through JSON to assert the dict is fully
         # serialisable (no non-JSON types).
         json.dumps(out)

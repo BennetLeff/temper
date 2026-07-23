@@ -17,7 +17,7 @@ use pyo3::types::{PyAny, PyDict, PyList};
 
 use crate::board::{
     BoardSide, BoardState, Component, ComponentRef, CopperZone, Net, NetClassRules, NetClassName,
-    NetName, PackageType, SafetyCategory, TraceSegment, Via,
+    NetName, PackageType, TraceSegment, Via,
 };
 
 // ---------------------------------------------------------------------------
@@ -51,6 +51,18 @@ pub fn extract_f64(dict: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResul
             // Accept both float and int from Python
             val.extract::<f64>().map_err(|e| {
                 PyValueError::new_err(format!("key '{key}' is not a number: {e}"))
+            })
+        }
+        _ => Ok(default),
+    }
+}
+
+/// Extract a required i32 value from a dict.
+pub fn extract_i32(dict: &Bound<'_, PyDict>, key: &str, default: i32) -> PyResult<i32> {
+    match dict.get_item(key)? {
+        Some(val) if !val.is_none() => {
+            val.extract::<i32>().map_err(|e| {
+                PyValueError::new_err(format!("key '{key}' is not an integer: {e}"))
             })
         }
         _ => Ok(default),
@@ -297,15 +309,23 @@ fn extract_component(dict: &Bound<'_, PyDict>) -> PyResult<Component> {
 
 fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> {
     Ok(NetClassRules {
+        name: extract_str(dict, "name").unwrap_or_default(),
         trace_width_mm: extract_f64(dict, "trace_width_mm", 0.2)?,
         clearance_mm: extract_f64(dict, "clearance_mm", 0.2)?,
-        creepage_mm: extract_opt_f64(dict, "creepage_mm")?,
-        voltage_v: extract_opt_f64(dict, "voltage_v")?,
+        dru_priority: extract_i32(dict, "dru_priority", 0)?,
+        via_diameter: extract_f64(dict, "via_diameter", 0.6)?,
+        via_drill: extract_f64(dict, "via_drill", 0.3)?,
+        via_template: extract_opt_str(dict, "via_template")?,
+        creepage_mm: extract_f64(dict, "creepage_mm", 0.0)?,
+        voltage_v: extract_f64(dict, "voltage_v", 0.0)?,
+        target_impedance: extract_opt_f64(dict, "target_impedance")?,
         max_current_rating: extract_opt_f64(dict, "max_current_rating")?,
-        safety_category: extract_opt_str(dict, "safety_category")?
-            .map(|s| SafetyCategory::from(s.as_str())),
         required_layer: extract_opt_str(dict, "required_layer")?,
+        layer: extract_opt_str(dict, "layer")?,
+        safety_category: extract_opt_str(dict, "safety_category")?,
         routing_strategy: extract_opt_str(dict, "routing_strategy")?,
+        via_cost_multiplier: extract_f64(dict, "via_cost_multiplier", 1.0)?,
+        layer_costs: None,
     })
 }
 
@@ -555,16 +575,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
             let rules = net_class_rules
                 .get(&class_name)
                 .cloned()
-                .unwrap_or(NetClassRules {
-            trace_width_mm: 0.2,
-            clearance_mm: 0.2,
-            creepage_mm: None,
-            voltage_v: None,
-            max_current_rating: None,
-            safety_category: None,
-            required_layer: None,
-            routing_strategy: None,
-        });
+                .unwrap_or_default();
             Net {
                 name: net_name,
                 components: comps.into_iter().map(ComponentRef).collect(),

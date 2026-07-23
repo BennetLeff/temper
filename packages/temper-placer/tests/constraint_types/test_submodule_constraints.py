@@ -49,8 +49,11 @@ class TestNetClassRule:
 
     def test_full_construction(self):
         ncr = NetClassRule(
-            name="HighVoltage", trace_width_mm=0.5, clearance_mm=0.3,
-            max_current_rating=20.0, routing_strategy="plane_required",
+            name="HighVoltage",
+            trace_width_mm=0.5,
+            clearance_mm=0.3,
+            max_current_rating=20.0,
+            routing_strategy="plane_required",
         )
         assert ncr.max_current_rating == 20.0
         assert ncr.routing_strategy == "plane_required"
@@ -69,8 +72,11 @@ class TestComponentGroup:
 
     def test_with_proximity_rules(self):
         cg = ComponentGroup(
-            name="pwr", components=["U1", "Q1"],
-            proximity_rules=[ProximityRule(component_a="U1", component_b="Q1", max_distance_mm=20.0)],
+            name="pwr",
+            components=["U1", "Q1"],
+            proximity_rules=[
+                ProximityRule(component_a="U1", component_b="Q1", max_distance_mm=20.0)
+            ],
         )
         assert len(cg.proximity_rules) == 1
         assert cg.proximity_rules[0].max_distance_mm == 20.0

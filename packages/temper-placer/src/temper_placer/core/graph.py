@@ -26,6 +26,7 @@ class NetlistGraph(NamedTuple):
         edges: (E, 2) edge indices (source, target).
         edge_weights: (E,) importance weights for each connection.
     """
+
     nodes: Array
     edges: Array
     edge_weights: Array

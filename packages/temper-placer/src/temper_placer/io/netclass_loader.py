@@ -20,11 +20,15 @@ _NET_TYPE_TO_CLASS = {
     "signal": "Signal",
 }
 
+
 @dataclass
 class NetClassRulesDict:
     """Convenience wrapper returned by load_netclass_rules()."""
+
     design_rules: DesignRules
-    class_pairs: dict[tuple[str, str], dict] = field(default_factory=dict)  # (A,B) sorted -> {clearance, because}
+    class_pairs: dict[tuple[str, str], dict] = field(
+        default_factory=dict
+    )  # (A,B) sorted -> {clearance, because}
 
 
 def load_netclass_rules(path: Path) -> NetClassRulesDict:

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from temper_placer.router_v6.zone_emission import (
-    ZoneDefinition,
     _bounding_box,
     _cluster_positions,
     compute_zone_for_net,
@@ -22,6 +21,7 @@ def test_compute_zone_for_two_pads():
 
 def test_compute_zone_for_empty_pads_raises():
     import pytest
+
     with pytest.raises(ValueError):
         compute_zone_for_net("EMPTY", 1, [])
 
@@ -71,6 +71,7 @@ class TestZonePriority:
     def test_acmains_higher_priority_than_signal(self):
         """ACMains (dru=10) -> KiCad 80 > Signal (dru=80) -> KiCad 10."""
         from temper_placer.core.design_rules import TEMPER_NET_CLASSES
+
         ac = TEMPER_NET_CLASSES["ACMains"].dru_priority  # 10
         sig = TEMPER_NET_CLASSES["Signal"].dru_priority  # 80
         assert 90 - ac > 90 - sig
@@ -89,8 +90,12 @@ class TestDataInformedClustering:
     def test_two_widely_separated_groups_produce_two_clusters(self):
         """Two dense groups ~50mm apart → two clusters."""
         pads = [
-            (0.0, 0.0), (1.0, 0.0), (0.5, 1.0),   # group A
-            (50.0, 0.0), (51.0, 0.0), (50.5, 1.0),  # group B
+            (0.0, 0.0),
+            (1.0, 0.0),
+            (0.5, 1.0),  # group A
+            (50.0, 0.0),
+            (51.0, 0.0),
+            (50.5, 1.0),  # group B
         ]
         zones = compute_zones_for_net("VCC", 1, pads, margin=1.0, cluster=True)
         assert len(zones) == 2
@@ -109,6 +114,7 @@ class TestDataInformedClustering:
 
     def test_empty_pads_compute_zones_raises(self):
         import pytest
+
         with pytest.raises(ValueError):
             compute_zones_for_net("EMPTY", 1, [])
 

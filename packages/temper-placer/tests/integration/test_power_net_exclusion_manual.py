@@ -17,25 +17,33 @@ def test_power_net_exclusion():
     # Define power net patterns (same as in placement_routing_loop.py)
     POWER_NET_PATTERNS = [
         # Ground nets
-        'GND', 'PGND', 'CGND', 'AGND', 'DGND', 'ISOGND',
+        "GND",
+        "PGND",
+        "CGND",
+        "AGND",
+        "DGND",
+        "ISOGND",
         # High-power AC/DC nets
-        'AC_L', 'AC_N', 'DC_BUS+', 'DC_BUS-',
+        "AC_L",
+        "AC_N",
+        "DC_BUS+",
+        "DC_BUS-",
     ]
 
     # Test nets from Temper PCB
     test_nets = [
-        'AC_L',      # Should be excluded (high-power AC)
-        'AC_N',      # Should be excluded (high-power AC)
-        'GND',       # Should be excluded (ground)
-        'PGND',      # Should be excluded (ground)
-        'DC_BUS+',   # Should be excluded (high-power DC)
-        '+3V3',      # Should NOT be excluded (low-power rail)
-        '+5V',       # Should NOT be excluded (low-power rail)
-        '+15V',      # Should NOT be excluded (low-power rail)
-        'VCC_BOOT',  # Should NOT be excluded (low-power rail)
-        'SPI_CLK',   # Should NOT be excluded (signal)
-        'USB_D+',    # Should NOT be excluded (signal)
-        'GATE_H',    # Should NOT be excluded (signal)
+        "AC_L",  # Should be excluded (high-power AC)
+        "AC_N",  # Should be excluded (high-power AC)
+        "GND",  # Should be excluded (ground)
+        "PGND",  # Should be excluded (ground)
+        "DC_BUS+",  # Should be excluded (high-power DC)
+        "+3V3",  # Should NOT be excluded (low-power rail)
+        "+5V",  # Should NOT be excluded (low-power rail)
+        "+15V",  # Should NOT be excluded (low-power rail)
+        "VCC_BOOT",  # Should NOT be excluded (low-power rail)
+        "SPI_CLK",  # Should NOT be excluded (signal)
+        "USB_D+",  # Should NOT be excluded (signal)
+        "GATE_H",  # Should NOT be excluded (signal)
     ]
 
     print("\n1. Testing net exclusion logic...")
@@ -64,8 +72,8 @@ def test_power_net_exclusion():
         print(f"      ✓ {net}")
 
     # Verify expected results
-    expected_excluded = {'AC_L', 'AC_N', 'GND', 'PGND', 'DC_BUS+'}
-    expected_included = {'+3V3', '+5V', '+15V', 'VCC_BOOT', 'SPI_CLK', 'USB_D+', 'GATE_H'}
+    expected_excluded = {"AC_L", "AC_N", "GND", "PGND", "DC_BUS+"}
+    expected_included = {"+3V3", "+5V", "+15V", "VCC_BOOT", "SPI_CLK", "USB_D+", "GATE_H"}
 
     actual_excluded = set(excluded)
     actual_included = set(included)
@@ -96,6 +104,7 @@ def test_power_net_exclusion():
         print("❌ Test FAILED!")
         print("=" * 70)
         return False
+
 
 if __name__ == "__main__":
     success = test_power_net_exclusion()

@@ -8,7 +8,6 @@ Tests the HeuristicPipeline orchestrator:
 - Conversion to PlacementState
 """
 
-
 import numpy as np
 import pytest
 

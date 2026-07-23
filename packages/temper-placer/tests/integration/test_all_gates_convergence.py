@@ -138,29 +138,33 @@ def loop():
 
 def test_sc1a_drc_routing_converge(loop, basic_netlist, basic_board):
     """Gate-driven path with all gates mocked CLEAN converges."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_get_placement_pcb_path"
-    ) as mock_pcb_path:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_get_placement_pcb_path") as mock_pcb_path,
+    ):
         cp_ok = _make_placement(["Q1", "Q2", "C_BUS1"])
 
         mock_solve.return_value = cp_ok
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
         mock_pcb_path.return_value = None
 
         clean = GateResult(GateStatus.CLEAN)
-        with mock.patch.object(DrcGate, "check", return_value=clean), \
-             mock.patch.object(RoutingGate, "check", return_value=clean), \
-             mock.patch.object(StackupGate, "check", return_value=clean), \
-             mock.patch.object(PhysicsGate, "check", return_value=clean), \
-             mock.patch.object(QualityGate, "check", return_value=clean):
+        with (
+            mock.patch.object(DrcGate, "check", return_value=clean),
+            mock.patch.object(RoutingGate, "check", return_value=clean),
+            mock.patch.object(StackupGate, "check", return_value=clean),
+            mock.patch.object(PhysicsGate, "check", return_value=clean),
+            mock.patch.object(QualityGate, "check", return_value=clean),
+        ):
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
             assert result.success is True
             assert result.reason == LoopExitReason.SUCCESS.value
@@ -173,17 +177,16 @@ def test_sc1a_drc_routing_converge(loop, basic_netlist, basic_board):
 
 def test_all_gates_registers_five_gates(loop, basic_netlist, basic_board):
     """When all_gates=True, 5 gates are registered and checked."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_get_placement_pcb_path"
-    ) as mock_pcb_path:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_get_placement_pcb_path") as mock_pcb_path,
+    ):
         cp_ok = _make_placement(["Q1", "Q2", "C_BUS1"])
         mock_solve.return_value = cp_ok
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
         mock_pcb_path.return_value = None
 
@@ -192,26 +195,27 @@ def test_all_gates_registers_five_gates(loop, basic_netlist, basic_board):
 
         def counting_check(gate_name):
             def _check(self, state):
-                check_counts[gate_name] = (
-                    check_counts.get(gate_name, 0) + 1
-                )
+                check_counts[gate_name] = check_counts.get(gate_name, 0) + 1
                 return clean
+
             return _check
 
-        with mock.patch.object(DrcGate, "check", counting_check("drc")), \
-             mock.patch.object(RoutingGate, "check", counting_check("routing")), \
-             mock.patch.object(StackupGate, "check", counting_check("stackup")), \
-             mock.patch.object(PhysicsGate, "check", counting_check("physics")), \
-             mock.patch.object(QualityGate, "check", counting_check("quality")):
+        with (
+            mock.patch.object(DrcGate, "check", counting_check("drc")),
+            mock.patch.object(RoutingGate, "check", counting_check("routing")),
+            mock.patch.object(StackupGate, "check", counting_check("stackup")),
+            mock.patch.object(PhysicsGate, "check", counting_check("physics")),
+            mock.patch.object(QualityGate, "check", counting_check("quality")),
+        ):
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
             assert result.success is True
-            for name in ("drc", "routing", "stackup", "physics",
-                         "quality"):
-                assert check_counts.get(name, 0) >= 1, (
-                    f"Gate {name} was never checked"
-                )
+            for name in ("drc", "routing", "stackup", "physics", "quality"):
+                assert check_counts.get(name, 0) >= 1, f"Gate {name} was never checked"
 
 
 # ---------------------------------------------------------------------------
@@ -221,17 +225,16 @@ def test_all_gates_registers_five_gates(loop, basic_netlist, basic_board):
 
 def test_unmeasured_persistent_exit(loop, basic_netlist, basic_board):
     """A gate UNMEASURED for 3+ consecutive rounds exits GATE_UNMEASURED."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_get_placement_pcb_path"
-    ) as mock_pcb_path:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_get_placement_pcb_path") as mock_pcb_path,
+    ):
         cp_ok = _make_placement(["Q1", "Q2", "C_BUS1"])
         mock_solve.return_value = cp_ok
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
         mock_pcb_path.return_value = None
 
@@ -240,25 +243,41 @@ def test_unmeasured_persistent_exit(loop, basic_netlist, basic_board):
             error_message="kicad-cli not found",
         )
         clean = GateResult(GateStatus.CLEAN)
-        with mock.patch.object(
-            DrcGate, "check", return_value=unmeasured,
-        ), mock.patch.object(
-            RoutingGate, "check", return_value=clean,
-        ), mock.patch.object(
-            StackupGate, "check", return_value=clean,
-        ), mock.patch.object(
-            PhysicsGate, "check", return_value=clean,
-        ), mock.patch.object(
-            QualityGate, "check", return_value=clean,
+        with (
+            mock.patch.object(
+                DrcGate,
+                "check",
+                return_value=unmeasured,
+            ),
+            mock.patch.object(
+                RoutingGate,
+                "check",
+                return_value=clean,
+            ),
+            mock.patch.object(
+                StackupGate,
+                "check",
+                return_value=clean,
+            ),
+            mock.patch.object(
+                PhysicsGate,
+                "check",
+                return_value=clean,
+            ),
+            mock.patch.object(
+                QualityGate,
+                "check",
+                return_value=clean,
+            ),
         ):
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
             assert result.success is False
-            assert (
-                result.reason
-                == LoopExitReason.GATE_UNMEASURED.value
-            )
+            assert result.reason == LoopExitReason.GATE_UNMEASURED.value
             assert "drc" in result.unmeasured_gates
 
 
@@ -268,20 +287,21 @@ def test_unmeasured_persistent_exit(loop, basic_netlist, basic_board):
 
 
 def test_unmeasured_once_then_clean_converges(
-    loop, basic_netlist, basic_board,
+    loop,
+    basic_netlist,
+    basic_board,
 ):
     """A gate UNMEASURED once then CLEAN thereafter -> still converges."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_get_placement_pcb_path"
-    ) as mock_pcb_path:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_get_placement_pcb_path") as mock_pcb_path,
+    ):
         cp_ok = _make_placement(["Q1", "Q2", "C_BUS1"])
         mock_solve.return_value = cp_ok
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
         mock_pcb_path.return_value = None
 
@@ -297,17 +317,26 @@ def test_unmeasured_once_then_clean_converges(
                 )
             return clean
 
-        with mock.patch.object(DrcGate, "check", flaky_drc_check), \
-             mock.patch.object(RoutingGate, "check", return_value=clean), \
-             mock.patch.object(StackupGate, "check", return_value=clean), \
-             mock.patch.object(
-                 PhysicsGate, "check", return_value=clean,
-             ), \
-             mock.patch.object(
-                 QualityGate, "check", return_value=clean,
-             ):
+        with (
+            mock.patch.object(DrcGate, "check", flaky_drc_check),
+            mock.patch.object(RoutingGate, "check", return_value=clean),
+            mock.patch.object(StackupGate, "check", return_value=clean),
+            mock.patch.object(
+                PhysicsGate,
+                "check",
+                return_value=clean,
+            ),
+            mock.patch.object(
+                QualityGate,
+                "check",
+                return_value=clean,
+            ),
+        ):
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
             assert result.success is True
 
@@ -318,18 +347,17 @@ def test_unmeasured_once_then_clean_converges(
 
 
 def test_placement_violation_skips_routing(
-    loop, basic_netlist, basic_board,
+    loop,
+    basic_netlist,
+    basic_board,
 ):
     """A PLACEMENT-stage gate violation skips routing that round."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route, mock.patch.object(
-        loop, "_get_placement_pcb_path"
-    ) as mock_pcb_path, mock.patch.object(
-        loop, "_solve_with_delta"
-    ) as mock_solve_delta:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+        mock.patch.object(loop, "_get_placement_pcb_path") as mock_pcb_path,
+        mock.patch.object(loop, "_solve_with_delta") as mock_solve_delta,
+    ):
         cp_ok = _make_placement(["Q1", "Q2", "C_BUS1"])
         mock_solve.return_value = cp_ok
         mock_solve_delta.return_value = cp_ok
@@ -354,20 +382,30 @@ def test_placement_violation_skips_routing(
                 )
             return clean
 
-        with mock.patch.object(DrcGate, "check", drc_check), \
-             mock.patch.object(RoutingGate, "check", return_value=clean), \
-             mock.patch.object(StackupGate, "check", return_value=clean), \
-             mock.patch.object(
-                 PhysicsGate, "check", return_value=clean,
-             ), \
-             mock.patch.object(
-                 QualityGate, "check", return_value=clean,
-             ):
+        with (
+            mock.patch.object(DrcGate, "check", drc_check),
+            mock.patch.object(RoutingGate, "check", return_value=clean),
+            mock.patch.object(StackupGate, "check", return_value=clean),
+            mock.patch.object(
+                PhysicsGate,
+                "check",
+                return_value=clean,
+            ),
+            mock.patch.object(
+                QualityGate,
+                "check",
+                return_value=clean,
+            ),
+        ):
             mock_route.return_value = MockRoutingResult(
-                completion_rate=1.0, drc_errors=0,
+                completion_rate=1.0,
+                drc_errors=0,
             )
             result = loop.run(
-                basic_netlist, basic_board, seed=42, all_gates=True,
+                basic_netlist,
+                basic_board,
+                seed=42,
+                all_gates=True,
             )
             assert result.success is True
 
@@ -378,18 +416,20 @@ def test_placement_violation_skips_routing(
 
 
 def test_legacy_classifier_path_still_works(
-    loop, basic_netlist, basic_board,
+    loop,
+    basic_netlist,
+    basic_board,
 ):
     """The legacy classifier-based path works when all_gates=False."""
-    with mock.patch(
-        "temper_placer.placer.cp_sat.encoder.solve_placement"
-    ) as mock_solve, mock.patch.object(
-        loop, "_route_placement"
-    ) as mock_route:
+    with (
+        mock.patch("temper_placer.placer.cp_sat.encoder.solve_placement") as mock_solve,
+        mock.patch.object(loop, "_route_placement") as mock_route,
+    ):
         cp_result = _make_placement(["Q1", "Q2", "C_BUS1"])
         mock_solve.return_value = cp_result
         mock_route.return_value = MockRoutingResult(
-            completion_rate=1.0, drc_errors=0,
+            completion_rate=1.0,
+            drc_errors=0,
         )
 
         result = loop.run(basic_netlist, basic_board, seed=42)
@@ -442,7 +482,8 @@ def test_all_gates_green_with_unmeasured(loop):
     loop._gate_results = {
         "drc": GateResult(GateStatus.CLEAN),
         "routing": GateResult(
-            GateStatus.UNMEASURED, error_message="tool crash",
+            GateStatus.UNMEASURED,
+            error_message="tool crash",
         ),
     }
     assert loop._all_gates_green_results() is False
@@ -452,9 +493,7 @@ def test_all_gates_green_with_violations(loop):
     loop._gate_results = {
         "drc": GateResult(
             GateStatus.VIOLATIONS,
-            violations=(
-                Violation(type=ViolationType.CLEARANCE, description="x"),
-            ),
+            violations=(Violation(type=ViolationType.CLEARANCE, description="x"),),
         ),
         "routing": GateResult(GateStatus.CLEAN),
     }

@@ -32,9 +32,7 @@ class AreaSufficiencyResult:
     component_count: int
 
 
-def compute_area_sufficiency(
-    pcb_path: Path, margin_mm: float = 5.0
-) -> AreaSufficiencyResult:
+def compute_area_sufficiency(pcb_path: Path, margin_mm: float = 5.0) -> AreaSufficiencyResult:
     """Compute courtyard-area vs. usable-area ratio for a board.
 
     Args:
@@ -76,9 +74,7 @@ def compute_area_sufficiency(
     )
 
 
-def compute_top_courtyards(
-    pcb_path: Path, n: int = 8
-) -> list[tuple[str, float]]:
+def compute_top_courtyards(pcb_path: Path, n: int = 8) -> list[tuple[str, float]]:
     """Return the N largest components by courtyard area.
 
     Args:

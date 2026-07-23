@@ -79,9 +79,7 @@ def test_compile_with_vias():
     path = RoutePath("NET1", [(0, 0), (10, 10)], "F.Cu", 14.14)
     pathfinding = PathfindingResult(routed_paths={"NET1": path}, failed_nets=[])
 
-    widths = TraceWidthAssignment(assignments={
-        "NET1": TraceWidth("NET1", 0.127, "Signal")
-    })
+    widths = TraceWidthAssignment(assignments={"NET1": TraceWidth("NET1", 0.127, "Signal")})
 
     via1 = Via((5, 5), "F.Cu", "B.Cu", 0.6, 0.3, "NET1")
     vias = ViaPlacement(vias=[via1])
@@ -141,10 +139,12 @@ def test_compile_multiple_routes():
     }
     pathfinding = PathfindingResult(routed_paths=paths, failed_nets=["NET3"])
 
-    widths = TraceWidthAssignment(assignments={
-        "NET1": TraceWidth("NET1", 0.127, "Signal"),
-        "NET2": TraceWidth("NET2", 0.508, "Power"),
-    })
+    widths = TraceWidthAssignment(
+        assignments={
+            "NET1": TraceWidth("NET1", 0.127, "Signal"),
+            "NET2": TraceWidth("NET2", 0.508, "Power"),
+        }
+    )
 
     vias = ViaPlacement(vias=[])
 
@@ -157,7 +157,9 @@ def test_compile_multiple_routes():
 
 def test_partial_routes_receive_the_board_derived_width_assignment():
     partial = RoutePath("NET1", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
-    pathfinding = PathfindingResult(routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial})
+    pathfinding = PathfindingResult(
+        routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial}
+    )
 
     widths = assign_trace_widths(pathfinding, default_width=0.2)
     compiled = compile_routing_results(pathfinding, widths, ViaPlacement(vias=[]))
@@ -198,7 +200,9 @@ def test_tree_branches_preserve_each_declared_board_default(default_width: float
 @settings(max_examples=30, deadline=30_000)
 def test_partial_route_width_preserves_each_declared_board_default(default_width: float):
     partial = RoutePath("NET1", [(0, 0), (10, 0)], "F.Cu", 10.0, forced_segment_count=1)
-    result = PathfindingResult(routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial})
+    result = PathfindingResult(
+        routed_paths={}, failed_nets=["NET1"], partial_paths={"NET1": partial}
+    )
 
     widths = assign_trace_widths(result, default_width=default_width)
 

@@ -263,9 +263,7 @@ def test_bound_respects_capacity_limit():
     seed=st.integers(min_value=0, max_value=1000),
 )
 @settings(max_examples=200, deadline=15000)
-def test_pbt_bound_never_exceeds_total(
-    width, height, cell_size, net_ct, seed
-):
+def test_pbt_bound_never_exceeds_total(width, height, cell_size, net_ct, seed):
     """PBT: max_routable_nets always in [0, total_nets]."""
     rng = np.random.RandomState(seed)
     grid = np.zeros((height, width), dtype=np.int8)
@@ -328,9 +326,7 @@ def test_pbt_arrangement_inequality_holds(seed):
             d_sum += d
         # Rearrangement inequality: ascending prefix <= descending prefix
         # At position k, ascending sum <= descending sum
-        assert sum(asc[:k]) <= sum(desc[:k]), (
-            f"rearrangement inequality violated at k={k}"
-        )
+        assert sum(asc[:k]) <= sum(desc[:k]), f"rearrangement inequality violated at k={k}"
 
 
 @pytest.mark.property
@@ -400,9 +396,7 @@ def test_pbt_bound_tightness(seed):
     fill_factor = _compute_fill_factor(
         0.2, {n: (b[2] - b[0]) * (b[3] - b[1]) for n, b in bboxes.items()}
     )
-    demands = {
-        n: (b[2] - b[0]) * (b[3] - b[1]) * fill_factor for n, b in bboxes.items()
-    }
+    demands = {n: (b[2] - b[0]) * (b[3] - b[1]) * fill_factor for n, b in bboxes.items()}
     clusters = _compute_conflict_clusters(bboxes)
 
     total_achievable = 0
@@ -437,8 +431,12 @@ def test_bound_tightness_collective():
         cell_size = 0.1
         grid = np.zeros((height, width), dtype=np.int8)
         og = OccupancyGrid(
-            layer_name="F.Cu", grid=grid, origin=(0.0, 0.0),
-            cell_size=cell_size, width_cells=width, height_cells=height,
+            layer_name="F.Cu",
+            grid=grid,
+            origin=(0.0, 0.0),
+            cell_size=cell_size,
+            width_cells=width,
+            height_cells=height,
         )
 
         net_ct = rng.randint(4, 15)
@@ -462,8 +460,7 @@ def test_bound_tightness_collective():
     # At least 50% should be tight
     tight_ratio = tight_count / total_count if total_count > 0 else 0.0
     assert tight_ratio >= 0.5, (
-        f"Tightness ratio {tight_ratio:.2f} below 0.5 threshold "
-        f"({tight_count}/{total_count})"
+        f"Tightness ratio {tight_ratio:.2f} below 0.5 threshold ({tight_count}/{total_count})"
     )
 
 

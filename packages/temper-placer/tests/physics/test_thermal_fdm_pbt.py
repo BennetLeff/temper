@@ -11,11 +11,10 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import assume, given, settings
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from temper_placer.physics.thermal_fdm import ThermalFDMConfig, solve_thermal_fdm
-
 
 # ---------------------------------------------------------------------------
 # Strategies
@@ -134,7 +133,7 @@ def test_thermal_fdm_heatsink_is_coolest(config):
 def test_thermal_fdm_monotonic_conductivity(h, w, k1, k_delta):
     """Higher effective conductivity → lower peak temperature for same heat."""
     cell = 1.0
-    base = ThermalFDMConfig(
+    ThermalFDMConfig(
         cell_size_mm=cell,
         origin_mm=(0.0, 0.0),
         height_cells=h,
@@ -148,17 +147,27 @@ def test_thermal_fdm_monotonic_conductivity(h, w, k1, k_delta):
     k_eff2 = (k1 + abs(k_delta)) / (1.6 * 1e-3)
 
     config_lo = ThermalFDMConfig(
-        cell_size_mm=cell, origin_mm=(0.0, 0.0),
-        height_cells=h, width_cells=w,
-        ambient_C=40.0, heatsink_edge="TOP",
-        k_fr4=k_eff1, k_copper=k_eff1, board_thickness_mm=1.6,
+        cell_size_mm=cell,
+        origin_mm=(0.0, 0.0),
+        height_cells=h,
+        width_cells=w,
+        ambient_C=40.0,
+        heatsink_edge="TOP",
+        k_fr4=k_eff1,
+        k_copper=k_eff1,
+        board_thickness_mm=1.6,
         max_cells=2000,
     )
     config_hi = ThermalFDMConfig(
-        cell_size_mm=cell, origin_mm=(0.0, 0.0),
-        height_cells=h, width_cells=w,
-        ambient_C=40.0, heatsink_edge="TOP",
-        k_fr4=k_eff2, k_copper=k_eff2, board_thickness_mm=1.6,
+        cell_size_mm=cell,
+        origin_mm=(0.0, 0.0),
+        height_cells=h,
+        width_cells=w,
+        ambient_C=40.0,
+        heatsink_edge="TOP",
+        k_fr4=k_eff2,
+        k_copper=k_eff2,
+        board_thickness_mm=1.6,
         max_cells=2000,
     )
 
@@ -177,7 +186,7 @@ def test_thermal_fdm_monotonic_conductivity(h, w, k1, k_delta):
 
     assert T_max_hi <= T_max_lo * 1.0001, (
         f"Higher k should not increase peak T: k1={k1:.1f} → T={T_max_lo:.1f}, "
-        f"k2={k1+abs(k_delta):.1f} → T={T_max_hi:.1f}"
+        f"k2={k1 + abs(k_delta):.1f} → T={T_max_hi:.1f}"
     )
 
 
@@ -197,10 +206,15 @@ def test_thermal_fdm_linearity(h, w, q_factor):
     cell = 1.0
     k_val = 100.0 / (1.6 * 1e-3)
     config = ThermalFDMConfig(
-        cell_size_mm=cell, origin_mm=(0.0, 0.0),
-        height_cells=h, width_cells=w,
-        ambient_C=40.0, heatsink_edge="TOP",
-        k_fr4=k_val, k_copper=k_val, board_thickness_mm=1.6,
+        cell_size_mm=cell,
+        origin_mm=(0.0, 0.0),
+        height_cells=h,
+        width_cells=w,
+        ambient_C=40.0,
+        heatsink_edge="TOP",
+        k_fr4=k_val,
+        k_copper=k_val,
+        board_thickness_mm=1.6,
         max_cells=2000,
     )
 

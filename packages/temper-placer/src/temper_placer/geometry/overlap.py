@@ -7,6 +7,7 @@ and axis-aligned bounding box (AABB) approximations.
 
 All functions delegate to the temper_geometry Rust crate.
 """
+
 import temper_geometry as _tg
 
 # =============================================================================

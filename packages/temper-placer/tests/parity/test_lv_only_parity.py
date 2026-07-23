@@ -46,11 +46,17 @@ _LV_NETLIST = Netlist(
 _LV_DESIGN_RULES = DesignRules(
     net_classes={
         "Power": NetClassRules(
-            name="Power", trace_width=0.25, clearance=0.2, dru_priority=10,
+            name="Power",
+            trace_width=0.25,
+            clearance=0.2,
+            dru_priority=10,
             safety_category="LV",
         ),
         "Ground": NetClassRules(
-            name="Ground", trace_width=0.25, clearance=0.2, dru_priority=20,
+            name="Ground",
+            trace_width=0.25,
+            clearance=0.2,
+            dru_priority=20,
             safety_category="LV",
         ),
     },
@@ -63,9 +69,7 @@ def _make_state() -> BoardState:
     slots = [(float(x), float(y)) for x in range(0, 100, 5) for y in range(0, 100, 5)]
     return BoardState(
         netlist=_LV_NETLIST,
-        component_zone_map=frozenset(
-            [(c.ref, "Signal") for c in _LV_NETLIST.components]
-        ),
+        component_zone_map=frozenset([(c.ref, "Signal") for c in _LV_NETLIST.components]),
         zone_slots=frozenset([("Signal", tuple(slots))]),
         design_rules=_LV_DESIGN_RULES,
     )

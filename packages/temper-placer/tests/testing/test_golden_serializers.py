@@ -1,4 +1,5 @@
 """Tests for golden serializers — U1."""
+
 import json
 
 import pytest

@@ -22,7 +22,9 @@ class PartitionError(Exception):
     def __init__(self, bucket, largest_ref, region_area_mm2, required_area_mm2):
         self.bucket, self.largest_ref = bucket, largest_ref
         self.region_area_mm2, self.required_area_mm2 = region_area_mm2, required_area_mm2
-        super().__init__(f"PartitionError: {bucket} cannot fit {largest_ref} ({region_area_mm2:.2f}mm^2 < {required_area_mm2:.2f}mm^2)")
+        super().__init__(
+            f"PartitionError: {bucket} cannot fit {largest_ref} ({region_area_mm2:.2f}mm^2 < {required_area_mm2:.2f}mm^2)"
+        )
 
 
 class HvLvGuardConfig(BaseModel):
@@ -46,12 +48,18 @@ def load_guard_config(config: Mapping[str, Any] | None) -> HvLvGuardConfig:
 
 def _outline(board):
     p = getattr(board, "outline_polygon", None)
-    return Polygon(p) if p else Polygon([(0, 0), (board.width, 0), (board.width, board.height), (0, board.height)])
+    return (
+        Polygon(p)
+        if p
+        else Polygon([(0, 0), (board.width, 0), (board.width, board.height), (0, board.height)])
+    )
 
 
 def _nets(netlist, ref):
     g = getattr(netlist, "get_component_nets", None)
-    return list(g(ref)) if callable(g) else list(getattr(netlist, "_component_nets", {}).get(ref, []))
+    return (
+        list(g(ref)) if callable(g) else list(getattr(netlist, "_component_nets", {}).get(ref, []))
+    )
 
 
 def _area(c):
@@ -63,7 +71,10 @@ def _rules_by_net(state):
     dr = getattr(getattr(state, "drc_oracle", None), "design_rules", None)
     if dr is None:
         return {}
-    classes, assigns = getattr(dr, "net_classes", {}) or {}, getattr(dr, "net_class_assignments", {}) or {}
+    classes, assigns = (
+        getattr(dr, "net_classes", {}) or {},
+        getattr(dr, "net_class_assignments", {}) or {},
+    )
     gr = getattr(dr, "get_rules_for_net", None)
     out = {}
     for net in getattr(state.netlist, "nets", []):
@@ -112,7 +123,11 @@ class HvLvPartitionStage(Stage):
             return state
         width = cfg.width_mm if cfg.width_mm is not None else creepage
         if cfg.width_mm is not None and cfg.width_mm < creepage:
-            logger.warning("hv_lv_guard_strip.width_mm=%s below creepage %s, using creepage", cfg.width_mm, creepage)
+            logger.warning(
+                "hv_lv_guard_strip.width_mm=%s below creepage %s, using creepage",
+                cfg.width_mm,
+                creepage,
+            )
             width = creepage
         if width <= 0:
             return state
@@ -130,11 +145,22 @@ class HvLvPartitionStage(Stage):
             largest = max(refs, key=lambda r: _area(comp[r]))
             if region.area < _area(comp[largest]):
                 if cfg.fallback_to_unconstrained:
-                    logger.warning("insufficient %s bucket area: %s requires %.2fmm^2, region has %.2fmm^2", bucket, largest, _area(comp[largest]), region.area)
+                    logger.warning(
+                        "insufficient %s bucket area: %s requires %.2fmm^2, region has %.2fmm^2",
+                        bucket,
+                        largest,
+                        _area(comp[largest]),
+                        region.area,
+                    )
                     return state
                 raise PartitionError(bucket, largest, float(region.area), _area(comp[largest]))
         domain = [(r, "HV_edge") for r in hv] + [(r, "LV_interior") for r in lv]
-        return replace(state, component_domain_map=frozenset(domain), routing_corridors=(corridor,), domain_regions=(hv_poly, lv_poly))
+        return replace(
+            state,
+            component_domain_map=frozenset(domain),
+            routing_corridors=(corridor,),
+            domain_regions=(hv_poly, lv_poly),
+        )
 
 
 __all__ = ["PartitionError", "HvLvGuardConfig", "load_guard_config", "HvLvPartitionStage"]

@@ -105,7 +105,6 @@ def _generate_random_nets(
     where bottleneck ordering should improve completion.
     """
     rng = random.Random(seed)
-    grid_max = float(grid_size_cells - 1)
     bottleneck_center = grid_size_cells // 2
     bottleneck_width = 3  # cells wide
 
@@ -132,7 +131,7 @@ def _generate_random_nets(
             channel_sequence=[],
             waypoints=waypoints,
             total_length=abs(waypoints[1][0] - waypoints[0][0])
-                         + abs(waypoints[1][1] - waypoints[0][1]),
+            + abs(waypoints[1][1] - waypoints[0][1]),
             preferred_layer="F.Cu",
         )
 
@@ -142,7 +141,7 @@ def _generate_random_nets(
 def _run_with_ordering(
     channel_mapping: ChannelMapping,
     grid: OccupancyGrid,
-    ordering_name: str,
+    ordering_name: str,  # noqa: ARG001
     bottleneck_widths: dict[str, float] | None = None,
 ) -> tuple[int, float, list[str]]:
     """Run pathfinding with a given ordering and return (complete, time_ms, order)."""
@@ -179,18 +178,27 @@ def run_ordering_comparison(
         # Create a pinched region: block cells around the bottleneck
         for r in range(grid_size_cells + grid_pad):
             for c in range(grid_size_cells + grid_pad - 1):
-                if bottleneck_center - 5 <= c <= bottleneck_center + 5:
-                    if r < bottleneck_center - 4 or r > bottleneck_center + 4:
-                        blocked.add((c, r))
+                if bottleneck_center - 5 <= c <= bottleneck_center + 5 and (
+                    r < bottleneck_center - 4 or r > bottleneck_center + 4
+                ):
+                    blocked.add((c, r))
 
         edt, mask, bounds = _build_edt_for_test(
-            grid_size_cells + grid_pad, grid_size_cells + grid_pad, blocked, cell_size=1.0,
+            grid_size_cells + grid_pad,
+            grid_size_cells + grid_pad,
+            blocked,
+            cell_size=1.0,
         )
         bw = _compute_bottleneck_widths(
-            channel_mapping, edt, mask, bounds, cell_size=1.0, sample_distance=0.5,
+            channel_mapping,
+            edt,
+            mask,
+            bounds,
+            cell_size=1.0,
+            sample_distance=0.5,
         )
-        bw_finite = {k: v for k, v in bw.items() if v != float('inf')}
-        bw_finite.update({k: float(grid_size_cells) for k, v in bw.items() if v == float('inf')})
+        bw_finite = {k: v for k, v in bw.items() if v != float("inf")}
+        bw_finite.update({k: float(grid_size_cells) for k, v in bw.items() if v == float("inf")})
 
         # Build an empty occupancy grid for routing
         grid = OccupancyGrid(
@@ -205,10 +213,16 @@ def run_ordering_comparison(
         print(f"  Seed {seed} ({net_count} nets)...", end=" ", flush=True)
 
         area_complete, area_time, area_order = _run_with_ordering(
-            channel_mapping, grid, "area", bottleneck_widths=None,
+            channel_mapping,
+            grid,
+            "area",
+            bottleneck_widths=None,
         )
         bottleneck_complete, bottleneck_time, bottleneck_order = _run_with_ordering(
-            channel_mapping, grid, "bottleneck", bottleneck_widths=bw_finite,
+            channel_mapping,
+            grid,
+            "bottleneck",
+            bottleneck_widths=bw_finite,
         )
 
         result = OrderingResult(
@@ -223,8 +237,10 @@ def run_ordering_comparison(
             bottleneck_widths={k: round(v, 2) for k, v in bw_finite.items()},
         )
 
-        print(f"area={area_complete}/{net_count} ({area_time:.0f}ms) "
-              f"bottleneck={bottleneck_complete}/{net_count} ({bottleneck_time:.0f}ms)")
+        print(
+            f"area={area_complete}/{net_count} ({area_time:.0f}ms) "
+            f"bottleneck={bottleneck_complete}/{net_count} ({bottleneck_time:.0f}ms)"
+        )
 
         results.append(result)
 
@@ -241,22 +257,30 @@ def print_summary(all_results: list[OrderingResult]) -> None:
     for r in all_results:
         by_count.setdefault(r.net_count, []).append(r)
 
-    print(f"\n{'Nets':>5} {'Seed':>5} {'Area':>7} {'Bottleneck':>11} {'Delta':>6} "
-          f"{'Area ms':>9} {'Bottleneck ms':>14} {'Speedup':>8}")
+    print(
+        f"\n{'Nets':>5} {'Seed':>5} {'Area':>7} {'Bottleneck':>11} {'Delta':>6} "
+        f"{'Area ms':>9} {'Bottleneck ms':>14} {'Speedup':>8}"
+    )
     print("-" * 90)
 
     for net_count in sorted(by_count):
         for r in by_count[net_count]:
-            delta_str = f"+{r.delta_completion}" if r.delta_completion > 0 else str(r.delta_completion)
-            print(f"{r.net_count:>5} {r.seed:>5} {r.area_complete:>5}/{r.net_count:<1} "
-                  f"{r.bottleneck_complete:>5}/{r.net_count:<5} {delta_str:>6} "
-                  f"{r.area_time_ms:>8.0f} {r.bottleneck_time_ms:>13.0f} {r.speedup:>7.2f}x")
+            delta_str = (
+                f"+{r.delta_completion}" if r.delta_completion > 0 else str(r.delta_completion)
+            )
+            print(
+                f"{r.net_count:>5} {r.seed:>5} {r.area_complete:>5}/{r.net_count:<1} "
+                f"{r.bottleneck_complete:>5}/{r.net_count:<5} {delta_str:>6} "
+                f"{r.area_time_ms:>8.0f} {r.bottleneck_time_ms:>13.0f} {r.speedup:>7.2f}x"
+            )
 
     print(f"\n{'=' * 90}")
     print("AGGREGATED BY NET COUNT")
     print(f"{'=' * 90}")
-    print(f"{'Nets':>5} {'Avg Area':>9} {'Avg Bottleneck':>15} {'Avg Delta':>10} "
-          f"{'Avg Speedup':>11} {'Wins':>5} {'Losses':>7} {'Ties':>5}")
+    print(
+        f"{'Nets':>5} {'Avg Area':>9} {'Avg Bottleneck':>15} {'Avg Delta':>10} "
+        f"{'Avg Speedup':>11} {'Wins':>5} {'Losses':>7} {'Ties':>5}"
+    )
     print("-" * 90)
 
     for net_count in sorted(by_count):
@@ -269,8 +293,10 @@ def print_summary(all_results: list[OrderingResult]) -> None:
         losses = sum(1 for r in group if r.delta_completion < 0)
         ties = sum(1 for r in group if r.delta_completion == 0)
 
-        print(f"{net_count:>5} {avg_area:>8.1f}% {avg_bottleneck:>14.1f}% "
-              f"{avg_delta:>+9.1f} {avg_speedup:>10.2f}x {wins:>5} {losses:>7} {ties:>5}")
+        print(
+            f"{net_count:>5} {avg_area:>8.1f}% {avg_bottleneck:>14.1f}% "
+            f"{avg_delta:>+9.1f} {avg_speedup:>10.2f}x {wins:>5} {losses:>7} {ties:>5}"
+        )
 
 
 def main() -> None:

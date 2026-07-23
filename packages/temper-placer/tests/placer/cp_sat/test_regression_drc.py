@@ -26,6 +26,7 @@ target ``pcb/temper.kicad_pcb`` (95 nets, 149 components).  The corpus board
 board tests provide a slow, real-product-validity smoke test with thresholds
 seeded from the first-ever routing run (U3, 2026-07-18).
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -61,17 +62,20 @@ def _run_drc(pcb_path: str) -> dict:
     try:
         proc = subprocess.run(
             [
-                "kicad-cli", "pcb", "drc",
-                "--format", "json",
-                "-o", str(drc_out),
+                "kicad-cli",
+                "pcb",
+                "drc",
+                "--format",
+                "json",
+                "-o",
+                str(drc_out),
                 pcb_path,
             ],
-            capture_output=True, text=True, timeout=120,
+            capture_output=True,
+            text=True,
+            timeout=120,
         )
-        if proc.returncode != 0 and proc.stderr:
-            stderr_summary = proc.stderr.strip()[:200]
-        else:
-            stderr_summary = ""
+        stderr_summary = proc.stderr.strip()[:200] if proc.returncode != 0 and proc.stderr else ""
     except subprocess.TimeoutExpired:
         if drc_out.exists():
             os.unlink(drc_out)
@@ -194,9 +198,7 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
         if n_unsat > 0:
             names = [u.get("name", "?") for u in result.unsat_core[:5]]
             detail = f" unsat_core={n_unsat} ({', '.join(names)})"
-        pytest.skip(
-            f"Placement solver returned status {result.status}{detail}"
-        )
+        pytest.skip(f"Placement solver returned status {result.status}{detail}")
 
     # 5. Write output PCB with netclass forms
     raw = BOARD_PATH.read_text(encoding="utf-8")
@@ -208,15 +210,13 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
         design_rules=rules.design_rules,
     )
 
-    tmp = tempfile.NamedTemporaryFile(
-        suffix=".kicad_pcb", mode="w", delete=False
-    )
-    tmp.write(placed)
-    tmp.close()
+    with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as tmp:
+        tmp.write(placed)
+        placed_path = tmp.name
 
     try:
         # 6. Run kicad-cli DRC and parse
-        drc_data = _run_drc(tmp.name)
+        drc_data = _run_drc(placed_path)
         violations = drc_data.get("violations", [])
 
         # 7. Count violations by type, distinguishing placement-fixable
@@ -252,8 +252,7 @@ def test_golden_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
         edge_clearance = fixable_counts.get("copper_edge_clearance", 0)
 
         assert shorting == 0, (
-            f"Expected 0 fixable shorting_items, got {shorting}. "
-            f"Fixable: {dict(fixable_counts)}"
+            f"Expected 0 fixable shorting_items, got {shorting}. Fixable: {dict(fixable_counts)}"
         )
         assert mask_bridge == 0, (
             f"Expected 0 fixable solder_mask_bridge, got {mask_bridge}. "
@@ -373,9 +372,7 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
         if n_unsat > 0:
             names = [u.get("name", "?") for u in result.unsat_core[:5]]
             detail = f" unsat_core={n_unsat} ({', '.join(names)})"
-        pytest.skip(
-            f"Placement solver returned status {result.status}{detail}"
-        )
+        pytest.skip(f"Placement solver returned status {result.status}{detail}")
 
     placements_dict = result.to_placements_dict()
 
@@ -384,19 +381,23 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
 
     raw = BOARD_PATH.read_text(encoding="utf-8")
     placed_content = _apply_placements_to_pcb(
-        raw, placements_dict, design_rules=rules.design_rules,
+        raw,
+        placements_dict,
+        design_rules=rules.design_rules,
     )
 
-    placed_tmp = tempfile.NamedTemporaryFile(
-        suffix=".kicad_pcb", mode="w", delete=False,
-    )
-    placed_tmp.write(placed_content)
-    placed_tmp.close()
+    with tempfile.NamedTemporaryFile(
+        suffix=".kicad_pcb",
+        mode="w",
+        delete=False,
+    ) as placed_tmp:
+        placed_tmp.write(placed_content)
+        placed_path = placed_tmp.name
 
     try:
-        placement_drc = _run_drc(placed_tmp.name)
+        placement_drc = _run_drc(placed_path)
     finally:
-        os.unlink(placed_tmp.name)
+        os.unlink(placed_path)
 
     placement_counts = _count_errors_by_type(placement_drc)
 
@@ -409,7 +410,8 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     parsed_stub = make_parsed_pcb_stub(BOARD_PATH, netlist)
 
     routing_result = route_pcb(
-        parsed_stub, placements_dict,
+        parsed_stub,
+        placements_dict,
         _seed=42,
         design_rules=rules.design_rules,
     )
@@ -422,20 +424,20 @@ def test_golden_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch):
     )
 
     # 8. Write routed PCB content to temp file
-    assert routing_result.routed_pcb_content is not None, (
-        "RoutingResult.routed_pcb_content is None"
-    )
-    routed_tmp = tempfile.NamedTemporaryFile(
-        suffix=".kicad_pcb", mode="w", delete=False,
-    )
-    routed_tmp.write(routing_result.routed_pcb_content)
-    routed_tmp.close()
+    assert routing_result.routed_pcb_content is not None, "RoutingResult.routed_pcb_content is None"
+    with tempfile.NamedTemporaryFile(
+        suffix=".kicad_pcb",
+        mode="w",
+        delete=False,
+    ) as routed_tmp:
+        routed_tmp.write(routing_result.routed_pcb_content)
+        routed_path = routed_tmp.name
 
     try:
         # 9. Run kicad-cli DRC on the routed PCB
-        routed_drc = _run_drc(routed_tmp.name)
+        routed_drc = _run_drc(routed_path)
     finally:
-        os.unlink(routed_tmp.name)
+        os.unlink(routed_path)
 
     routed_counts = _count_errors_by_type(routed_drc)
 
@@ -506,9 +508,7 @@ def test_production_board_drc_regression(monkeypatch: pytest.MonkeyPatch):
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
 
-    assert PRODUCTION_BOARD_PATH.exists(), (
-        f"Production board not found: {PRODUCTION_BOARD_PATH}"
-    )
+    assert PRODUCTION_BOARD_PATH.exists(), f"Production board not found: {PRODUCTION_BOARD_PATH}"
     drc_data = _run_drc(str(PRODUCTION_BOARD_PATH))
     violations = drc_data.get("violations", [])
     total = len(violations)
@@ -543,9 +543,7 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     if not _kicad_cli_available():
         pytest.skip("kicad-cli not available")
 
-    assert PRODUCTION_BOARD_PATH.exists(), (
-        f"Production board not found: {PRODUCTION_BOARD_PATH}"
-    )
+    assert PRODUCTION_BOARD_PATH.exists(), f"Production board not found: {PRODUCTION_BOARD_PATH}"
     assert RULES_PATH.exists(), f"Rules not found: {RULES_PATH}"
 
     from temper_placer.io.kicad_parser import parse_kicad_pcb
@@ -558,17 +556,18 @@ def test_production_board_routing_drc_regression(monkeypatch: pytest.MonkeyPatch
     parsed_stub = make_parsed_pcb_stub(PRODUCTION_BOARD_PATH, netlist)
 
     routing_result = route_pcb(
-        parsed_stub, {},
+        parsed_stub,
+        {},
         _seed=42,
         design_rules=rules.design_rules,
     )
 
-    assert routing_result.routed_pcb_content is not None, (
-        "Routing produced no output"
-    )
+    assert routing_result.routed_pcb_content is not None, "Routing produced no output"
 
     routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
-        suffix=".kicad_pcb", mode="w", delete=False,
+        suffix=".kicad_pcb",
+        mode="w",
+        delete=False,
     )
     routed_tmp.write(routing_result.routed_pcb_content)
     routed_tmp.close()

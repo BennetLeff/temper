@@ -58,7 +58,8 @@ class TestHybridPourStitchVerification:
         assert netlist is not None and len(netlist.components) > 0
 
         parsed_stub = type(
-            "ParsedStub", (),
+            "ParsedStub",
+            (),
             {"source_path": _PCB_PATH, "nets": netlist.nets},
         )()
 
@@ -76,7 +77,8 @@ class TestHybridPourStitchVerification:
             print(f"\n  Routing seed={seed} (flags ON) ...")
             t0 = time.monotonic()
             routing_result = route_pcb(
-                parsed_stub, {},
+                parsed_stub,
+                {},
                 _seed=seed,
                 design_rules=rules.design_rules,
                 enable_all_pad_tree=True,
@@ -90,7 +92,9 @@ class TestHybridPourStitchVerification:
             assert zone_count > 0, "No zones emitted — measurement meaningless"
 
             routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
-                suffix=".kicad_pcb", mode="w", delete=False,
+                suffix=".kicad_pcb",
+                mode="w",
+                delete=False,
             )
             routed_tmp.write(routing_result.routed_pcb_content)
             routed_tmp.close()
@@ -102,15 +106,14 @@ class TestHybridPourStitchVerification:
                 for sample in range(drc_samples):
                     drc_data = _run_drc(filled_path)
                     violations = drc_data.get("violations", [])
-                    shorting = sum(
-                        1 for v in violations
-                        if v.get("type") == "shorting_items"
-                    )
+                    shorting = sum(1 for v in violations if v.get("type") == "shorting_items")
                     unconnected = len(drc_data.get("unconnected_items", []))
                     flags_on_shorting.append(shorting)
                     flags_on_unconnected.append(unconnected)
-                    print(f"    DRC sample {sample+1}: "
-                          f"shorting={shorting}  unconnected={unconnected}")
+                    print(
+                        f"    DRC sample {sample + 1}: "
+                        f"shorting={shorting}  unconnected={unconnected}"
+                    )
             finally:
                 with contextlib.suppress(OSError):
                     os.unlink(routed_path)
@@ -126,7 +129,8 @@ class TestHybridPourStitchVerification:
             print(f"\n  Routing seed={seed} (flags OFF baseline) ...")
             t0 = time.monotonic()
             routing_result = route_pcb(
-                parsed_stub, {},
+                parsed_stub,
+                {},
                 _seed=seed,
                 design_rules=rules.design_rules,
                 enable_all_pad_tree=False,
@@ -136,7 +140,9 @@ class TestHybridPourStitchVerification:
             print(f"    Wall time: {wall_s:.1f}s")
 
             routed_tmp = tempfile.NamedTemporaryFile(  # noqa: SIM115
-                suffix=".kicad_pcb", mode="w", delete=False,
+                suffix=".kicad_pcb",
+                mode="w",
+                delete=False,
             )
             routed_tmp.write(routing_result.routed_pcb_content)
             routed_tmp.close()
@@ -146,15 +152,14 @@ class TestHybridPourStitchVerification:
                 for sample in range(drc_samples):
                     drc_data = _run_drc(routed_path)
                     violations = drc_data.get("violations", [])
-                    shorting = sum(
-                        1 for v in violations
-                        if v.get("type") == "shorting_items"
-                    )
+                    shorting = sum(1 for v in violations if v.get("type") == "shorting_items")
                     unconnected = len(drc_data.get("unconnected_items", []))
                     flags_off_shorting.append(shorting)
                     flags_off_unconnected.append(unconnected)
-                    print(f"    DRC sample {sample+1}: "
-                          f"shorting={shorting}  unconnected={unconnected}")
+                    print(
+                        f"    DRC sample {sample + 1}: "
+                        f"shorting={shorting}  unconnected={unconnected}"
+                    )
             finally:
                 with contextlib.suppress(OSError):
                     os.unlink(routed_path)
@@ -164,30 +169,42 @@ class TestHybridPourStitchVerification:
         on_s = sum(flags_on_shorting) / len(flags_on_shorting) if flags_on_shorting else 0
         off_s = sum(flags_off_shorting) / len(flags_off_shorting) if flags_off_shorting else 0
         on_u = sum(flags_on_unconnected) / len(flags_on_unconnected) if flags_on_unconnected else 0
-        off_u = sum(flags_off_unconnected) / len(flags_off_unconnected) if flags_off_unconnected else 0
+        off_u = (
+            sum(flags_off_unconnected) / len(flags_off_unconnected) if flags_off_unconnected else 0
+        )
 
-        print(f"shorting_items (flags ON):  "
-              f"min={min(flags_on_shorting) if flags_on_shorting else 0}  "
-              f"max={max(flags_on_shorting) if flags_on_shorting else 0}  "
-              f"mean={on_s:.1f}")
-        print(f"shorting_items (flags OFF): "
-              f"min={min(flags_off_shorting) if flags_off_shorting else 0}  "
-              f"max={max(flags_off_shorting) if flags_off_shorting else 0}  "
-              f"mean={off_s:.1f}")
-        print(f"unconnected_items (flags ON):  "
-              f"min={min(flags_on_unconnected) if flags_on_unconnected else 0}  "
-              f"max={max(flags_on_unconnected) if flags_on_unconnected else 0}  "
-              f"mean={on_u:.1f}")
-        print(f"unconnected_items (flags OFF): "
-              f"min={min(flags_off_unconnected) if flags_off_unconnected else 0}  "
-              f"max={max(flags_off_unconnected) if flags_off_unconnected else 0}  "
-              f"mean={off_u:.1f}")
+        print(
+            f"shorting_items (flags ON):  "
+            f"min={min(flags_on_shorting) if flags_on_shorting else 0}  "
+            f"max={max(flags_on_shorting) if flags_on_shorting else 0}  "
+            f"mean={on_s:.1f}"
+        )
+        print(
+            f"shorting_items (flags OFF): "
+            f"min={min(flags_off_shorting) if flags_off_shorting else 0}  "
+            f"max={max(flags_off_shorting) if flags_off_shorting else 0}  "
+            f"mean={off_s:.1f}"
+        )
+        print(
+            f"unconnected_items (flags ON):  "
+            f"min={min(flags_on_unconnected) if flags_on_unconnected else 0}  "
+            f"max={max(flags_on_unconnected) if flags_on_unconnected else 0}  "
+            f"mean={on_u:.1f}"
+        )
+        print(
+            f"unconnected_items (flags OFF): "
+            f"min={min(flags_off_unconnected) if flags_off_unconnected else 0}  "
+            f"max={max(flags_off_unconnected) if flags_off_unconnected else 0}  "
+            f"mean={off_u:.1f}"
+        )
 
         # Soft evidence: flags-on shorting should not exceed flags-off baseline
         max_short_on = max(flags_on_shorting) if flags_on_shorting else 0
         max_short_off = max(flags_off_shorting) if flags_off_shorting else 0
         if max_short_on > max_short_off:
-            print(f"\n  NOTE: flags-on max shorting ({max_short_on}) > "
-                  f"flags-off max ({max_short_off})")
+            print(
+                f"\n  NOTE: flags-on max shorting ({max_short_on}) > "
+                f"flags-off max ({max_short_off})"
+            )
         else:
             print("\n  OK: flags-on shorting range does not exceed baseline")

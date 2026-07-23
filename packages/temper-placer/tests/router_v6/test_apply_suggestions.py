@@ -110,11 +110,7 @@ def test_priority_filtering():
     suggestions = PlacementSuggestions(suggestions=[suggestion1, suggestion2])
     positions = {"U1": (0.0, 0.0), "U2": (0.0, 0.0)}
 
-    result = apply_suggestions_with_damping(
-        suggestions,
-        positions,
-        min_priority_threshold=0.5
-    )
+    result = apply_suggestions_with_damping(suggestions, positions, min_priority_threshold=0.5)
 
     # Only high-priority suggestion should be applied
     assert result.adjustment_count == 1

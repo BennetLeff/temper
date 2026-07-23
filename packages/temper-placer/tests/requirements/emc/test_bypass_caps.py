@@ -5,7 +5,6 @@ These tests verify that bypass capacitor placement validation functions work cor
 and that placements meet EMC/EMI requirements.
 """
 
-
 import pytest
 
 # Import validators

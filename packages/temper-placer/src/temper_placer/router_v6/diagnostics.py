@@ -18,22 +18,24 @@ if TYPE_CHECKING:
 
 class RoutingStatus(Enum):
     """Status of a routing attempt."""
-    SUCCESS = "success"           # Fully routed, DRC clean
-    PARTIAL = "partial"           # Some progress made, incomplete
-    FAILED = "failed"             # No route found
-    FLAGGED = "flagged"           # Not attempted, flagged for manual routing
-    BLOCKED = "blocked"           # Attempted but blocked by obstacles
+
+    SUCCESS = "success"  # Fully routed, DRC clean
+    PARTIAL = "partial"  # Some progress made, incomplete
+    FAILED = "failed"  # No route found
+    FLAGGED = "flagged"  # Not attempted, flagged for manual routing
+    BLOCKED = "blocked"  # Attempted but blocked by obstacles
 
 
 class FailureReason(Enum):
     """Categorization of why routing failed."""
-    NO_PATH = "no_path"                  # A* couldn't find any path
+
+    NO_PATH = "no_path"  # A* couldn't find any path
     CHANNEL_CAPACITY = "channel_capacity"  # Channel saturated
-    CLEARANCE = "clearance"              # DRC clearance violation
-    PLACEMENT = "placement"              # Components too close/far
-    TOPOLOGY = "topology"                # Unsatisfiable topology constraints
-    LAYER_LIMIT = "layer_limit"          # Not enough layers available
-    UNKNOWN = "unknown"                  # Unclassified failure
+    CLEARANCE = "clearance"  # DRC clearance violation
+    PLACEMENT = "placement"  # Components too close/far
+    TOPOLOGY = "topology"  # Unsatisfiable topology constraints
+    LAYER_LIMIT = "layer_limit"  # Not enough layers available
+    UNKNOWN = "unknown"  # Unclassified failure
 
 
 @dataclass(frozen=True)
@@ -47,6 +49,7 @@ class BlockingObstacle:
         net: Net name if obstacle is a pad or trace
         clearance_needed: Clearance distance required in mm
     """
+
     type: str
     position: tuple[float, float]
     component_ref: str | None = None
@@ -73,6 +76,7 @@ class PlacementSuggestion:
         reason: Why this adjustment helps
         priority: 0-1 priority (1.0 = critical, 0.0 = optional)
     """
+
     component: str
     current_position: tuple[float, float]
     suggested_position: tuple[float, float]
@@ -82,8 +86,10 @@ class PlacementSuggestion:
     def __str__(self) -> str:
         dx = self.suggested_position[0] - self.current_position[0]
         dy = self.suggested_position[1] - self.current_position[1]
-        return (f"Move {self.component} by ({dx:+.1f}, {dy:+.1f})mm: {self.reason} "
-                f"[priority={self.priority:.2f}]")
+        return (
+            f"Move {self.component} by ({dx:+.1f}, {dy:+.1f})mm: {self.reason} "
+            f"[priority={self.priority:.2f}]"
+        )
 
 
 @dataclass(frozen=True)
@@ -113,6 +119,7 @@ class NetRoutingReport:
         iterations_used: Number of A* iterations consumed
         message: Human-readable summary
     """
+
     net_name: str
     status: RoutingStatus
     score: float  # 0.0 = no progress, 1.0 = complete
@@ -123,7 +130,7 @@ class NetRoutingReport:
     # Geometric metrics
     route_length_mm: float = 0.0
     direct_distance_mm: float = 0.0
-    detour_ratio: float = float('inf')
+    detour_ratio: float = float("inf")
 
     # Failure analysis
     failure_reason: FailureReason | None = None
@@ -160,8 +167,10 @@ class NetRoutingReport:
         }
         emoji = status_emoji.get(self.status, "?")
 
-        base = (f"{emoji} {self.net_name}: {self.status.value} "
-                f"(score={self.score:.2f}, {self.routed_segments}/{self.total_segments} segments)")
+        base = (
+            f"{emoji} {self.net_name}: {self.status.value} "
+            f"(score={self.score:.2f}, {self.routed_segments}/{self.total_segments} segments)"
+        )
 
         if self.route_length_mm > 0:
             base += f", {self.route_length_mm:.1f}mm ({self.detour_ratio:.2f}x detour)"
@@ -182,7 +191,7 @@ class NetRoutingReport:
             "total_segments": self.total_segments,
             "route_length_mm": self.route_length_mm,
             "direct_distance_mm": self.direct_distance_mm,
-            "detour_ratio": self.detour_ratio if self.detour_ratio != float('inf') else None,
+            "detour_ratio": self.detour_ratio if self.detour_ratio != float("inf") else None,
             "failure_reason": self.failure_reason.value if self.failure_reason else None,
             "failure_point": self.failure_point,
             "blocking_obstacles": [
@@ -232,6 +241,7 @@ class BoardRoutingReport:
         total_drc_violations: Sum of all DRC violations
         runtime_seconds: Total routing time
     """
+
     board_name: str
     net_reports: list[NetRoutingReport]
     overall_score: float
@@ -247,10 +257,12 @@ class BoardRoutingReport:
     per_path_latency_ms: dict | None = None
 
     def __str__(self) -> str:
-        return (f"{self.board_name}: {self.completion_rate*100:.1f}% complete "
-                f"({self.auto_routed_count}/{self.total_nets} auto-routed, "
-                f"{self.flagged_count} flagged, {self.failed_count} failed) "
-                f"score={self.overall_score:.3f}")
+        return (
+            f"{self.board_name}: {self.completion_rate * 100:.1f}% complete "
+            f"({self.auto_routed_count}/{self.total_nets} auto-routed, "
+            f"{self.flagged_count} flagged, {self.failed_count} failed) "
+            f"score={self.overall_score:.3f}"
+        )
 
     def to_dict(self) -> dict:
         """Export to JSON-serializable dict."""
@@ -272,9 +284,7 @@ class BoardRoutingReport:
 
 
 def calculate_routing_score(
-    routed_segments: int,
-    total_segments: int,
-    drc_violations: int = 0
+    routed_segments: int, total_segments: int, drc_violations: int = 0
 ) -> float:
     """Calculate routing score for a net.
 

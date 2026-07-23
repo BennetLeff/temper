@@ -53,7 +53,7 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
             Panel(
                 "\n".join(
                     f"  • {e.get('name', '?')}"
-                    + (f"\n    because: {e['because']}" if e.get('because') else "")
+                    + (f"\n    because: {e['because']}" if e.get("because") else "")
                     for e in unsat
                 ),
                 border_style="red",
@@ -63,6 +63,7 @@ def _maybe_surface_unsat(result: object, unsat_report_path: Path | None) -> None
         )
         if unsat_report_path is not None:
             import json as _json
+
             unsat_report_path.write_text(_json.dumps(unsat, indent=2), encoding="utf-8")
             console.print(f"[yellow]UNSAT report written to:[/] {unsat_report_path}")
         return
@@ -380,30 +381,39 @@ def optimize(
                     import yaml as _yaml
 
                     from temper_placer.pcl.parser import parse_constraint_dict
+
                     raw = config.read_text(encoding="utf-8") if hasattr(config, "read_text") else ""
                     if raw:
                         cfg = _yaml.safe_load(raw)
                         inline = cfg.get("constraints", []) if isinstance(cfg, dict) else []
                         for cdict in inline:
                             from contextlib import suppress
+
                             with suppress(Exception):
                                 pcl_constraints.append(parse_constraint_dict(cdict))
                 except Exception:
                     pass
 
             # Load zone definitions from the cooker constraint config.
-            cooker_path = Path("packages/temper-placer/configs/constraints/temper_induction_cooker.yaml")
+            cooker_path = Path(
+                "packages/temper-placer/configs/constraints/temper_induction_cooker.yaml"
+            )
             zone_objs = []
             zone_comps: dict[str, list[str]] = {}
             if cooker_path.exists():
                 import yaml as _yaml2
+
                 cooker = _yaml2.safe_load(cooker_path.read_text())
                 for zd in cooker.get("zones", []):
-                    z = type("Zone", (), {
-                        "name": zd["name"],
-                        "bounds": tuple(zd["bounds"]),
-                        "components": zd.get("components", []),
-                    })()
+                    z = type(
+                        "Zone",
+                        (),
+                        {
+                            "name": zd["name"],
+                            "bounds": tuple(zd["bounds"]),
+                            "components": zd.get("components", []),
+                        },
+                    )()
                     zone_objs.append(z)
                 if zone_objs:
                     board.zones = zone_objs
@@ -413,15 +423,14 @@ def optimize(
                 outer = getattr(c, "outer", None)
                 inner = getattr(c, "inner", None)
                 if outer and inner:
-                    zone_comps[outer] = list(set(
-                        zone_comps.get(outer, []) + list(inner)
-                    ))
+                    zone_comps[outer] = list(set(zone_comps.get(outer, []) + list(inner)))
 
             # Load loop component definitions from pcb_spec.yaml.
             loop_comps: dict[str, list[str]] = {}
             spec_path = Path("packages/temper-placer/configs/pcb_spec.yaml")
             if spec_path.exists():
                 import yaml as _yaml3
+
                 spec = _yaml3.safe_load(spec_path.read_text())
                 emi = spec.get("emi", {})
                 for name, comps in emi.get("loop_components", {}).items():
@@ -442,24 +451,24 @@ def optimize(
             _maybe_surface_unsat(loop_result.placement, unsat_report)
 
             if loop_result.success:
+                console.print(f"  [green]âœ“[/] Loop converged in {len(loop_result.rounds)} rounds")
                 console.print(
-                    f"  [green]âœ“[/] Loop converged in {len(loop_result.rounds)} rounds"
-                )
-                console.print(
-                    f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0)*100:.1f}%"
+                    f"    Routing completion: {getattr(loop_result.routing, 'completion_rate', 0.0) * 100:.1f}%"
                 )
 
                 # Gate results summary when all_gates was used.
-                gate_results = getattr(loop_runner, '_gate_results', {})
+                gate_results = getattr(loop_runner, "_gate_results", {})
                 if gate_results:
                     from ..placer.cp_sat.gates import GateStatus
+
                     table = Table(title="Gate Results", show_header=True)
                     table.add_column("Gate", style="cyan")
                     table.add_column("Status")
                     table.add_column("Violations")
                     for gname, gr in sorted(gate_results.items()):
                         status_str = (
-                            "[green]CLEAN[/]" if gr.status is GateStatus.CLEAN
+                            "[green]CLEAN[/]"
+                            if gr.status is GateStatus.CLEAN
                             else "[yellow]UNMEASURED[/]"
                             if gr.status is GateStatus.UNMEASURED
                             else "[red]VIOLATIONS[/]"
@@ -469,16 +478,11 @@ def optimize(
                     console.print(table)
 
                 # Surface UNMEASURED data.
-                unmeasured = getattr(loop_result, 'unmeasured_gates', {})
+                unmeasured = getattr(loop_result, "unmeasured_gates", {})
                 if unmeasured:
-                    console.print(
-                        "[yellow]UNMEASURED gates:[/] "
-                        + ", ".join(unmeasured.keys())
-                    )
+                    console.print("[yellow]UNMEASURED gates:[/] " + ", ".join(unmeasured.keys()))
                     for gname, msg in unmeasured.items():
-                        console.print(
-                            f"  [dim]{gname}: {msg[:120]}[/]"
-                        )
+                        console.print(f"  [dim]{gname}: {msg[:120]}[/]")
 
                 # The loop routes the authoritative source board directly;
                 # retain that exact artifact rather than issuing a second,
@@ -502,9 +506,19 @@ def optimize(
 
                         drc_out = Path(tempfile.mktemp(suffix=".json"))
                         result = subprocess.run(
-                            ["kicad-cli", "pcb", "drc", "--format", "json",
-                             "-o", str(drc_out), str(output)],
-                            capture_output=True, text=True, timeout=120,
+                            [
+                                "kicad-cli",
+                                "pcb",
+                                "drc",
+                                "--format",
+                                "json",
+                                "-o",
+                                str(drc_out),
+                                str(output),
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=120,
                         )
                         if drc_out.exists():
                             with open(drc_out) as f:
@@ -513,14 +527,20 @@ def optimize(
                             errors = [v for v in violations if v.get("severity") == "error"]
                             warnings = [v for v in violations if v.get("severity") == "warning"]
                             if errors:
-                                console.print(f"  [red]DRC: {len(errors)} errors, {len(warnings)} warnings[/]")
+                                console.print(
+                                    f"  [red]DRC: {len(errors)} errors, {len(warnings)} warnings[/]"
+                                )
                                 for e in errors[:5]:
-                                    console.print(f"    ERROR: {e.get('type','?')} — {e.get('description','')[:100]}")
+                                    console.print(
+                                        f"    ERROR: {e.get('type', '?')} — {e.get('description', '')[:100]}"
+                                    )
                                 raise click.ClickException(
                                     f"KiCad DRC found {len(errors)} error(s) in {output}"
                                 )
                             else:
-                                console.print(f"  [green]DRC: 0 errors, {len(warnings)} warnings[/]")
+                                console.print(
+                                    f"  [green]DRC: 0 errors, {len(warnings)} warnings[/]"
+                                )
                             os.unlink(drc_out)
                         else:
                             raise click.ClickException(
@@ -531,13 +551,11 @@ def optimize(
                     except Exception as drc_e:
                         raise click.ClickException(f"KiCad DRC could not run: {drc_e}") from drc_e
             else:
-                console.print(
-                    f"  [yellow]Loop did not converge: {loop_result.reason}[/]"
-                )
+                console.print(f"  [yellow]Loop did not converge: {loop_result.reason}[/]")
                 if loop_result.rounds:
                     last = loop_result.rounds[-1]
                     console.print(
-                        f"    Best routing completion: {last.completion_rate*100:.1f}%"
+                        f"    Best routing completion: {last.completion_rate * 100:.1f}%"
                         f" ({last.drc_errors} DRC errors)"
                     )
                 raise click.ClickException(
@@ -579,9 +597,7 @@ def optimize(
                     hint_positions = {}
                     for ref, pos in dp_state.placements:
                         hint_positions[ref] = (pos[0], pos[1], 0)
-                    console.print(
-                        f"  [green]✓[/] Extracted {len(hint_positions)} hint positions"
-                    )
+                    console.print(f"  [green]✓[/] Extracted {len(hint_positions)} hint positions")
 
             cp_result = solve_placement(
                 netlist=netlist,
@@ -591,10 +607,7 @@ def optimize(
                 hint_positions=hint_positions,
             )
 
-            console.print(
-                f"  Solver status: {cp_result.status}"
-                f" ({cp_result.solve_time_ms:.0f}ms)"
-            )
+            console.print(f"  Solver status: {cp_result.status} ({cp_result.solve_time_ms:.0f}ms)")
 
             if cp_result.status in ("infeasible", "model_invalid"):
                 _maybe_surface_unsat(cp_result, unsat_report)
@@ -622,17 +635,13 @@ def optimize(
                     preserve_unmatched=True,
                     components=netlist.components,
                 )
-                console.print(
-                    f"  [green]✓[/] {write_result.components_updated} components placed"
-                )
+                console.print(f"  [green]✓[/] {write_result.components_updated} components placed")
                 if write_result.has_warnings:
                     for w in write_result.warnings:
                         console.print(f"  [yellow]⚠[/] {w}")
                 console.print(f"  Output: {output}")
             else:
-                console.print(
-                    f"  [red]Solver returned unexpected status: {cp_result.status}[/]"
-                )
+                console.print(f"  [red]Solver returned unexpected status: {cp_result.status}[/]")
                 sys.exit(1)
         except click.ClickException:
             raise
@@ -640,8 +649,6 @@ def optimize(
             raise click.ClickException(f"CP-SAT solve failed: {e}") from e
 
     sys.exit(0)
-
-
 
 
 main.add_command(version)

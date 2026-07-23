@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 # Pydantic-style data models (plain dataclasses for zero-dependency YAML I/O)
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class MetricValue:
     """A single measured metric with provenance metadata."""
@@ -46,7 +47,9 @@ class HumanReference:
     """Complete human-reference metrics for one board."""
 
     board_id: str
-    extraction_source: str  # relative path within corpus/, e.g. "piantor_right/keyboard_pcb.kicad_pcb"
+    extraction_source: (
+        str  # relative path within corpus/, e.g. "piantor_right/keyboard_pcb.kicad_pcb"
+    )
     extractor_version: str  # git describe
     metrics: dict[str, MetricValue]
 
@@ -73,6 +76,7 @@ class HumanReference:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _git_hash(repo_root: Path) -> str:
     """Return the short git hash of HEAD (8 chars)."""
     result = subprocess.run(
@@ -95,6 +99,7 @@ def _repo_root(pcb_path: str | Path) -> Path:
 # ---------------------------------------------------------------------------
 # Step 1 — parse + validate
 # ---------------------------------------------------------------------------
+
 
 def _parse_and_validate(pcb_path: Path | str, validate: bool) -> ParseResult:
     """Parse *pcb_path* and (when *validate*) assert correctness invariants."""
@@ -127,6 +132,7 @@ def _parse_and_validate(pcb_path: Path | str, validate: bool) -> ParseResult:
 # ---------------------------------------------------------------------------
 # Step 2 — build PlacementState + LossContext from parse output
 # ---------------------------------------------------------------------------
+
 
 def _build_state_and_context(
     parse_result: ParseResult,
@@ -169,6 +175,7 @@ def _build_state_and_context(
 # Step 3 — compute placement metrics (HPWL, overlap, boundary)
 # ---------------------------------------------------------------------------
 
+
 def _compute_placement_metrics(
     state: PlacementState,
     context: LossContext,
@@ -183,8 +190,10 @@ def _compute_placement_metrics(
     kept as the legacy ``hpwl`` / ``overlap_loss`` / ``boundary_loss`` for
     backward compatibility with existing human-reference consumers.
     """
+
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+
     try:
         from temper_placer.validation.metrics import compute_metrics
 
@@ -203,6 +212,7 @@ def _compute_placement_metrics(
 # Step 4 — routing metrics (RDL and via count)
 # ---------------------------------------------------------------------------
 
+
 def _compute_routing_metrics(
     parse_result: ParseResult,
     pcb_git_hash: str,
@@ -218,6 +228,7 @@ def _compute_routing_metrics(
     Corridor consolidation and track-spread scores are computed from
     channels between component courtyards.
     """
+
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
 
@@ -234,6 +245,7 @@ def _compute_routing_metrics(
     # Signal / thermal / stitching via classification (U2)
     try:
         from temper_placer.router_v6.quality.via_count import classify_vias_from_parse
+
         via_counts = classify_vias_from_parse(parse_result)
         signal_via_count = via_counts.signal
         thermal_via_count = via_counts.thermal
@@ -249,6 +261,7 @@ def _compute_routing_metrics(
             corridor_consolidation_from_parse,
             track_spread_from_parse,
         )
+
         corridor_score = corridor_consolidation_from_parse(parse_result)
         track_spread = track_spread_from_parse(parse_result)
     except Exception:
@@ -270,6 +283,7 @@ def _compute_routing_metrics(
 # Step 5 — detailed placement metrics (clearance, zone, congestion, etc.)
 # ---------------------------------------------------------------------------
 
+
 def _compute_detailed_metrics(
     state: PlacementState,
     parse_result: ParseResult,
@@ -277,8 +291,10 @@ def _compute_detailed_metrics(
     now: str,
 ) -> dict[str, MetricValue]:
     """Compute comprehensive placement quality metrics via ``validation.metrics``."""
+
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+
     try:
         from temper_placer.validation.metrics import compute_metrics
 
@@ -292,9 +308,7 @@ def _compute_detailed_metrics(
             "total_boundary_violation": mk(float(pm.total_boundary_violation)),
             "clearance_violations": mk(float(pm.clearance_violations)),
             "hv_lv_violations": mk(
-                float(pm.hv_lv_violations)
-                if pm.min_hv_lv_clearance != float("inf")
-                else -1.0
+                float(pm.hv_lv_violations) if pm.min_hv_lv_clearance != float("inf") else -1.0
             ),
             "min_hv_lv_clearance": mk(
                 pm.min_hv_lv_clearance if pm.min_hv_lv_clearance != float("inf") else -1.0
@@ -315,6 +329,7 @@ def _compute_detailed_metrics(
 # Step 6 — aesthetic metrics (grid snap, orientation, alignment)
 # ---------------------------------------------------------------------------
 
+
 def _compute_aesthetic_metrics(
     state: PlacementState,
     parse_result: ParseResult,
@@ -322,8 +337,10 @@ def _compute_aesthetic_metrics(
     now: str,
 ) -> dict[str, MetricValue]:
     """Compute aesthetic quality: grid alignment, rotation consistency, prefix alignment."""
+
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+
     try:
         from temper_placer.metrics.aesthetic import compute_aesthetic_score
 
@@ -336,6 +353,7 @@ def _compute_aesthetic_metrics(
 # ---------------------------------------------------------------------------
 # Step 7 — normalized quality report (thermal, zone, loop, congestion, etc.)
 # ---------------------------------------------------------------------------
+
 
 def _compute_quality_metrics(
     state: PlacementState,
@@ -350,8 +368,10 @@ def _compute_quality_metrics(
     netlist using ``io.reference_loader.infer_quality_config`` — the same
     function used by the existing reference-loader comparison infrastructure.
     """
+
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+
     try:
         from temper_placer.io.reference_loader import infer_quality_config
         from temper_placer.metrics.quality import compute_quality_report
@@ -370,6 +390,7 @@ def _compute_quality_metrics(
 # Step 8 — DRC violations
 # ---------------------------------------------------------------------------
 
+
 def _compute_drc(
     pcb_path: str | Path,
     pcb_git_hash: str,
@@ -381,16 +402,20 @@ def _compute_drc(
     reference has nonzero DRC errors is excluded from the DRC-delta row
     of the comparison comment (per R15).
     """
+
     def mk(v):
         return MetricValue(value=v, extracted_at=now, pcb_git_hash=pcb_git_hash)
+
     try:
         from temper_placer.validation.drc_runner import run_drc
+
         result = run_drc(Path(pcb_path))
         return {"drc_violations": mk(float(result.error_count))}
     except ImportError:
         return {"drc_violations": mk(-1.0)}  # sentinel: KiCad unavailable
     except Exception:
         return {"drc_violations": mk(-1.0)}
+
 
 def extract_human_reference(
     pcb_path: str | Path,

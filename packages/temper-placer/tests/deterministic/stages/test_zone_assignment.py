@@ -18,7 +18,7 @@ def test_hv_component_assigned_to_hv_zone():
         footprint="TO-247",
         bounds=(5, 5),
         pins=[Pin("1", "C", (0, 0), net="AC_L")],
-        initial_position=(10, 10)
+        initial_position=(10, 10),
     )
     nets = [Net("AC_L", [("Q1", "C")], net_class="HighVoltage")]
     netlist = Netlist(components=[c1], nets=nets)
@@ -44,7 +44,7 @@ def test_power_component_assigned_to_power_zone():
         footprint="CAP_1210",
         bounds=(3, 3),
         pins=[Pin("1", "1", (0, 0), net="VBUS")],
-        initial_position=(30, 30)
+        initial_position=(30, 30),
     )
     nets = [Net("VBUS", [("C1", "1")], net_class="Power")]
     netlist = Netlist(components=[c1], nets=nets)
@@ -70,7 +70,7 @@ def test_mcu_component_assigned_to_mcu_zone():
         footprint="QFN56",
         bounds=(9, 9),
         pins=[Pin("1", "VDD", (0, 0), net="3V3")],
-        initial_position=(90, 50)
+        initial_position=(90, 50),
     )
     nets = [Net("3V3", [("U_MCU1", "VDD")], net_class="Signal")]
     netlist = Netlist(components=[c1], nets=nets)
@@ -96,7 +96,7 @@ def test_signal_component_default_zone():
         footprint="0603",
         bounds=(1.6, 0.8),
         pins=[Pin("1", "1", (0, 0), net="SENSE")],
-        initial_position=(60, 60)
+        initial_position=(60, 60),
     )
     nets = [Net("SENSE", [("R1", "1")], net_class="Signal")]
     netlist = Netlist(components=[c1], nets=nets)
@@ -122,7 +122,7 @@ def test_spi_component_assigned_to_mcu_zone():
         footprint="SOIC8",
         bounds=(5, 4),
         pins=[Pin("1", "MOSI", (0, 0), net="SPI_MOSI")],
-        initial_position=(85, 50)
+        initial_position=(85, 50),
     )
     nets = [Net("SPI_MOSI", [("U1", "MOSI")], net_class="Signal")]
     netlist = Netlist(components=[c1], nets=nets)
@@ -143,14 +143,34 @@ def test_spi_component_assigned_to_mcu_zone():
 def test_multiple_components_different_zones():
     """Mix of components should be assigned to appropriate zones."""
     # Setup
-    c_hv = Component(ref="Q1", footprint="TO-247", bounds=(5, 5),
-                     pins=[Pin("1", "C", (0, 0), net="AC_L")], initial_position=(10, 10))
-    c_power = Component(ref="C1", footprint="CAP_1210", bounds=(3, 3),
-                        pins=[Pin("1", "1", (0, 0), net="VBUS")], initial_position=(40, 40))
-    c_mcu = Component(ref="U_MCU1", footprint="QFN56", bounds=(9, 9),
-                      pins=[Pin("1", "VDD", (0, 0), net="3V3")], initial_position=(90, 50))
-    c_signal = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8),
-                         pins=[Pin("1", "1", (0, 0), net="SENSE")], initial_position=(65, 50))
+    c_hv = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(5, 5),
+        pins=[Pin("1", "C", (0, 0), net="AC_L")],
+        initial_position=(10, 10),
+    )
+    c_power = Component(
+        ref="C1",
+        footprint="CAP_1210",
+        bounds=(3, 3),
+        pins=[Pin("1", "1", (0, 0), net="VBUS")],
+        initial_position=(40, 40),
+    )
+    c_mcu = Component(
+        ref="U_MCU1",
+        footprint="QFN56",
+        bounds=(9, 9),
+        pins=[Pin("1", "VDD", (0, 0), net="3V3")],
+        initial_position=(90, 50),
+    )
+    c_signal = Component(
+        ref="R1",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="SENSE")],
+        initial_position=(65, 50),
+    )
 
     nets = [
         Net("AC_L", [("Q1", "C")], net_class="HighVoltage"),

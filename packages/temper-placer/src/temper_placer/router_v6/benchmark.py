@@ -49,9 +49,9 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
         BoardRoutingReport with structured diagnostics
     """
     board_name = pcb_path.stem
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Running V5 router on: {board_name}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     # Parse board
     from temper_placer.io.kicad_parser import parse_kicad_pcb
@@ -73,17 +73,20 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
 
     # Create state and pipeline
     from temper_placer.core.netlist import Netlist
+
     filtered_netlist = Netlist(
         components=result.netlist.components,
         nets=trace_nets,
     )
 
     state = BoardState(board=result.board, netlist=filtered_netlist)
-    pipeline = DeterministicPipeline(stages=[
-        ClearanceGridStage(cell_size_mm=0.25, layer_count=2),
-        LayerAssignmentStage(),
-        NetOrderingStage(),
-    ])
+    pipeline = DeterministicPipeline(
+        stages=[
+            ClearanceGridStage(cell_size_mm=0.25, layer_count=2),
+            LayerAssignmentStage(),
+            NetOrderingStage(),
+        ]
+    )
 
     # Route
     route_start = time.time()
@@ -102,8 +105,9 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
             # Successfully routed
             routed_count = sum(1 for r in final_state.routes if r.net == net.name)
             route_length = sum(
-                ((r.end[0] - r.start[0])**2 + (r.end[1] - r.start[1])**2)**0.5
-                for r in final_state.routes if r.net == net.name
+                ((r.end[0] - r.start[0]) ** 2 + (r.end[1] - r.start[1]) ** 2) ** 0.5
+                for r in final_state.routes
+                if r.net == net.name
             )
 
             # Estimate direct distance (simplified)
@@ -116,8 +120,10 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
                         break
 
             if len(pin_positions) >= 2:
-                direct = ((pin_positions[0][0] - pin_positions[-1][0])**2 +
-                         (pin_positions[0][1] - pin_positions[-1][1])**2)**0.5
+                direct = (
+                    (pin_positions[0][0] - pin_positions[-1][0]) ** 2
+                    + (pin_positions[0][1] - pin_positions[-1][1]) ** 2
+                ) ** 0.5
             else:
                 direct = route_length
 
@@ -134,7 +140,7 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
                 route_length_mm=route_length,
                 direct_distance_mm=direct,
                 detour_ratio=detour,
-                message=f"Routed {routed_count} segments, {route_length:.1f}mm total"
+                message=f"Routed {routed_count} segments, {route_length:.1f}mm total",
             )
         else:
             # Failed to route
@@ -147,7 +153,7 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
                 routed_segments=0,
                 total_segments=len(net.pins) - 1,
                 failure_reason=FailureReason.NO_PATH,
-                message="V5 router failed to find path"
+                message="V5 router failed to find path",
             )
 
         net_reports.append(report)
@@ -160,9 +166,12 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
     completion_rate = auto_routed / total_nets if total_nets > 0 else 0.0
 
     total_route_length = sum(r.route_length_mm for r in net_reports if r.route_length_mm > 0)
-    routed_with_detour = [r for r in net_reports if r.detour_ratio < float('inf')]
-    avg_detour = (sum(r.detour_ratio for r in routed_with_detour) / len(routed_with_detour)
-                  if routed_with_detour else 0.0)
+    routed_with_detour = [r for r in net_reports if r.detour_ratio < float("inf")]
+    avg_detour = (
+        sum(r.detour_ratio for r in routed_with_detour) / len(routed_with_detour)
+        if routed_with_detour
+        else 0.0
+    )
 
     overall_score = aggregate_board_score(net_reports)
 
@@ -178,7 +187,7 @@ def run_v5_router(pcb_path: Path) -> BoardRoutingReport:
         total_route_length_mm=total_route_length,
         avg_detour_ratio=avg_detour,
         total_drc_violations=0,  # V5 doesn't report this
-        runtime_seconds=route_time
+        runtime_seconds=route_time,
     )
 
     # Print summary
@@ -220,9 +229,9 @@ def run_v6_router(pcb_path: Path) -> BoardRoutingReport:
     from temper_placer.router_v6.pipeline import RouterV6Pipeline
 
     board_name = pcb_path.stem
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Running V6 router on: {board_name}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     pipeline = RouterV6Pipeline(verbose=True)
 
@@ -279,9 +288,7 @@ def run_v6_router(pcb_path: Path) -> BoardRoutingReport:
     completion_rate = result.completion_rate
     overall_score = aggregate_board_score(net_reports)
 
-    total_route_length = sum(
-        r.route_length_mm for r in net_reports if r.route_length_mm > 0
-    )
+    total_route_length = sum(r.route_length_mm for r in net_reports if r.route_length_mm > 0)
 
     board_report = BoardRoutingReport(
         board_name=board_name,
@@ -301,7 +308,7 @@ def run_v6_router(pcb_path: Path) -> BoardRoutingReport:
 
     print(f"\n{board_report}")
     print(f"  Route time: {route_time:.1f}s")
-    if latency_stats.get('p95'):
+    if latency_stats.get("p95"):
         print(f"  Per-path p95 latency: {latency_stats['p95']:.2f} ms")
     else:
         print("  Per-path p95 latency: N/A")
@@ -311,9 +318,7 @@ def run_v6_router(pcb_path: Path) -> BoardRoutingReport:
 
 
 def run_benchmark_suite(
-    router: str = "v5",
-    board_filter: str | None = None,
-    output_file: Path | None = None
+    router: str = "v5", board_filter: str | None = None, output_file: Path | None = None
 ) -> list[BoardRoutingReport]:
     """Run benchmark suite on all available boards.
 
@@ -327,7 +332,7 @@ def run_benchmark_suite(
     """
     print("\nRouter V6 Benchmark Suite")
     print(f"Router: {router}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Get boards to test
     if board_filter:
@@ -365,14 +370,16 @@ def run_benchmark_suite(
         reports.append(report)
 
     # Print summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("BENCHMARK SUMMARY")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     for report in reports:
         print(f"{report.board_name}:")
         print(f"  Score: {report.overall_score:.3f}")
-        print(f"  Completion: {report.completion_rate*100:.1f}% ({report.auto_routed_count}/{report.total_nets})")
+        print(
+            f"  Completion: {report.completion_rate * 100:.1f}% ({report.auto_routed_count}/{report.total_nets})"
+        )
         print(f"  Runtime: {report.runtime_seconds:.1f}s")
         if report.per_path_latency_ms and report.per_path_latency_ms.get("p95"):
             print(f"  Per-path p95: {report.per_path_latency_ms['p95']:.2f} ms")
@@ -395,11 +402,11 @@ def run_benchmark_suite(
             "summary": {
                 "board_count": len(reports),
                 "geometric_mean_score": geo_mean if reports else 0.0,
-            }
+            },
         }
 
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(results, f, indent=2)
         print(f"\nResults written to: {output_file}")
 
@@ -429,7 +436,7 @@ def run_resource_bound_benchmark(
     rng = np.random.RandomState(seed)
 
     print("\nResource Exhaustion Bound Benchmark")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Net counts: {net_counts}")
     print()
 
@@ -446,8 +453,12 @@ def run_resource_bound_benchmark(
 
         grid = np.zeros((height, width), dtype=np.int8)
         og = OccupancyGrid(
-            layer_name="F.Cu", grid=grid, origin=(0.0, 0.0),
-            cell_size=cell_size, width_cells=width, height_cells=height,
+            layer_name="F.Cu",
+            grid=grid,
+            origin=(0.0, 0.0),
+            cell_size=cell_size,
+            width_cells=width,
+            height_cells=height,
         )
 
         board_w = width * cell_size
@@ -500,7 +511,7 @@ def run_resource_bound_benchmark(
         "total_count": all_total,
     }
 
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Tightness ratio: {tight_ratio:.2f} ({all_tight}/{all_total})")
     print(f"Target: >= 0.50  {'PASS' if tight_ratio >= 0.50 else 'FAIL'}")
 
@@ -513,22 +524,12 @@ def main():
         "--router",
         choices=["v5", "v6", "resource-bound"],
         default="v5",
-        help="Router version to benchmark"
+        help="Router version to benchmark",
     )
+    parser.add_argument("--board", type=str, help="Run on single board only (by name)")
+    parser.add_argument("--output", type=Path, help="JSON output file path")
     parser.add_argument(
-        "--board",
-        type=str,
-        help="Run on single board only (by name)"
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        help="JSON output file path"
-    )
-    parser.add_argument(
-        "--resource-bound",
-        action="store_true",
-        help="Run resource exhaustion bound benchmark"
+        "--resource-bound", action="store_true", help="Run resource exhaustion bound benchmark"
     )
 
     args = parser.parse_args()
@@ -544,11 +545,7 @@ def main():
             print(f"\nResults written to: {args.output}")
         return
 
-    run_benchmark_suite(
-        router=args.router,
-        board_filter=args.board,
-        output_file=args.output
-    )
+    run_benchmark_suite(router=args.router, board_filter=args.board, output_file=args.output)
 
 
 if __name__ == "__main__":

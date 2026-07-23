@@ -73,8 +73,7 @@ def _validate_edge(edge: str, _board_bounds: tuple[float, float, float, float]) 
     valid = {"TOP", "BOTTOM", "LEFT", "RIGHT"}
     if edge.upper() not in valid:
         logger.warning(
-            "Unknown heatsink edge '%s' --- valid edges: %s. "
-            "phi_edge will default to zero.",
+            "Unknown heatsink edge '%s' --- valid edges: %s. phi_edge will default to zero.",
             edge,
             sorted(valid),
         )
@@ -303,9 +302,7 @@ def superpose_fields(
         )
 
     if config.convection_weight > 0 and airflow_vector is not None:
-        total = total + config.convection_weight * phi_convection(
-            x_grid, y_grid, airflow_vector
-        )
+        total = total + config.convection_weight * phi_convection(x_grid, y_grid, airflow_vector)
 
     return total
 
@@ -399,7 +396,9 @@ def assign_thermal_anchors(
     def _in_keepout(x: float, y: float) -> bool:
         return any(kx0 <= x <= kx1 and ky0 <= y <= ky1 for kx0, ky0, kx1, ky1 in keepouts)
 
-    def _find_min_valid(phi: Array, ref: str, existing_positions: list[tuple[float, float]]) -> tuple[float, float] | None:
+    def _find_min_valid(
+        phi: Array, ref: str, existing_positions: list[tuple[float, float]]
+    ) -> tuple[float, float] | None:
         """Find the minimum phi position within all constraints."""
         best_val = float("inf")
         best_xy: tuple[float, float] | None = None
@@ -453,9 +452,7 @@ def assign_thermal_anchors(
     for ref, _power in power_devices:
         xy = _find_min_valid(phi_base, ref, existing)
         if xy is None:
-            logger.warning(
-                "No valid anchor position found for '%s' --- skipping device", ref
-            )
+            logger.warning("No valid anchor position found for '%s' --- skipping device", ref)
             continue
         pass1_anchors[ref] = xy
         existing.append(xy)
@@ -474,9 +471,7 @@ def assign_thermal_anchors(
         coupled_device_positions = [
             pass1_anchors[ref] for ref, _ in power_devices if ref in pass1_anchors
         ]
-        coupled_powers = [
-            pw for ref, pw in power_devices if ref in pass1_anchors
-        ]
+        coupled_powers = [pw for ref, pw in power_devices if ref in pass1_anchors]
 
         phi_full = superpose_fields(
             x_grid,
@@ -549,7 +544,12 @@ def assign_thermal_anchors(
             logger.warning(
                 "Clamped anchor for '%s': phi_min=(%.2f, %.2f) -> clamped=(%.2f, %.2f) "
                 "(delta=%.2f mm)",
-                ref, ax, ay, cx, cy, float(dist),
+                ref,
+                ax,
+                ay,
+                cx,
+                cy,
+                float(dist),
             )
 
         final[ref] = (cx, cy)
@@ -639,7 +639,16 @@ def validate_heatsink_edge(
         for zone in copper_zones:
             if hasattr(zone, "bounds"):
                 zx0, zy0, zx1, zy1 = zone.bounds
-                if edge_upper == "TOP" and zy1 >= y_max - 5.0 or edge_upper == "BOTTOM" and zy0 <= y_min + 5.0 or edge_upper == "LEFT" and zx0 <= x_min + 5.0 or edge_upper == "RIGHT" and zx1 >= x_max - 5.0:
+                if (
+                    edge_upper == "TOP"
+                    and zy1 >= y_max - 5.0
+                    or edge_upper == "BOTTOM"
+                    and zy0 <= y_min + 5.0
+                    or edge_upper == "LEFT"
+                    and zx0 <= x_min + 5.0
+                    or edge_upper == "RIGHT"
+                    and zx1 >= x_max - 5.0
+                ):
                     found = True
                     break
         if not found:
@@ -669,15 +678,11 @@ def validate_tj_safety(
     Raises ThermalAnchoringSafetyError if Tj > rated_tj_max.
     """
     if rated_tj_max is None:
-        logger.warning(
-            "No rated Tj_max for '%s' --- skipping Tj safety check.", device_ref
-        )
+        logger.warning("No rated Tj_max for '%s' --- skipping Tj safety check.", device_ref)
         return
 
     if Rjc is None:
-        logger.warning(
-            "No Rjc value for '%s' --- using conservative default 0.6 K/W.", device_ref
-        )
+        logger.warning("No Rjc value for '%s' --- using conservative default 0.6 K/W.", device_ref)
         Rjc = 0.6
 
     from temper_placer.physics.thermal import estimate_junction_temp
@@ -714,7 +719,8 @@ def validate_stackup_for_anchoring(
         logger.warning(
             "Copper density thermal field disabled --- requires >=4-layer stackup "
             "for meaningful thermal plane modeling. Proceeding with phi_base + "
-            "phi_coupling only. (Got %d layers)", n_layers
+            "phi_coupling only. (Got %d layers)",
+            n_layers,
         )
         return ThermalPotentialConfig(copper_weight=0.0)
     return ThermalPotentialConfig()

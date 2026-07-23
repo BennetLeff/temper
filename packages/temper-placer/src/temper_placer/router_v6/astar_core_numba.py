@@ -43,6 +43,7 @@ Implementation notes
   the previous cell index).
 - ``closed`` is a flat ``uint8`` array (0 = open, 1 = closed).
 """
+
 from __future__ import annotations
 
 import math
@@ -242,17 +243,11 @@ def _astar_kernel_3d(
     # smoke runner) pass weight=0.  This is the single biggest
     # source of the 1M-iter-cap wall-time blowup that the
     # full-pipeline profile surfaced on 2026-06-23.
-    use_congestion = (
-        congestion_flat is not None
-        and congestion_weight > 0.0
-    )
+    use_congestion = congestion_flat is not None and congestion_weight > 0.0
     # U8: same early-out gate for thermal — when weight is
     # zero (or no field), the branch is Numba-pruned at JIT
     # time and field-off routing is byte-identical.
-    use_thermal = (
-        thermal_flat is not None
-        and thermal_weight > 0.0
-    )
+    use_thermal = thermal_flat is not None and thermal_weight > 0.0
 
     # Work arrays
     g_score = np.full(n_cells, INF, dtype=np.float32)
@@ -277,15 +272,21 @@ def _astar_kernel_3d(
     heuristic_start = np.float32(max(dx0, dy0) + _HEURISTIC_OCTILE_DIAG * min(dx0, dy0))
 
     heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
-        heap_pri, heap_idx, heap_size, heap_cap,
-        heuristic_start, np.int32(start_idx),
+        heap_pri,
+        heap_idx,
+        heap_size,
+        heap_cap,
+        heuristic_start,
+        np.int32(start_idx),
     )
 
     iterations = 0
     while heap_size > 0 and iterations < max_iterations:
         iterations += 1
         heap_pri, heap_idx, heap_size, _, cur = _heap_pop(
-            heap_pri, heap_idx, heap_size,
+            heap_pri,
+            heap_idx,
+            heap_size,
         )
         cur_i = cur
 
@@ -374,8 +375,12 @@ def _astar_kernel_3d(
                 gdy = abs(ndr - gr)
                 h = np.float32(max(gdx, gdy) + _HEURISTIC_OCTILE_DIAG * min(gdx, gdy))
                 heap_pri, heap_idx, heap_size, heap_cap = _heap_push(
-                    heap_pri, heap_idx, heap_size, heap_cap,
-                    tentative + h, np.int32(n_idx),
+                    heap_pri,
+                    heap_idx,
+                    heap_size,
+                    heap_cap,
+                    tentative + h,
+                    np.int32(n_idx),
                 )
 
     return np.empty(0, dtype=np.int32), iterations
@@ -425,6 +430,7 @@ def _astar_search_numba(
     if not _HAVE_NUMBA:
         t0 = time.perf_counter()
         from temper_placer.router_v6.astar_core import _astar_search
+
         result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
         _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
         _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
@@ -434,6 +440,7 @@ def _astar_search_numba(
     if kernel is None:
         t0 = time.perf_counter()
         from temper_placer.router_v6.astar_core import _astar_search
+
         result = _astar_search(start, goal, grid, neighbor_tensor=neighbor_tensor)
         _route_profile_stats.python_time_ms += (time.perf_counter() - t0) * 1000.0
         _route_profile_stats.astar_total_ms += (time.perf_counter() - t0_total) * 1000.0
@@ -445,13 +452,12 @@ def _astar_search_numba(
         from temper_placer.router_v6.neighbor_validity import (
             build_neighbor_validity_tensor_2d,
         )
+
         neighbor_tensor = build_neighbor_validity_tensor_2d(grid)
 
     rows = grid.height_cells
     cols = grid.width_cells
-    validity_flat = np.ascontiguousarray(
-        neighbor_tensor.astype(np.uint8).reshape(-1)
-    )
+    validity_flat = np.ascontiguousarray(neighbor_tensor.astype(np.uint8).reshape(-1))
     _route_profile_stats.dist_map_ms += (time.perf_counter() - t0_dist) * 1000.0
 
     start_idx = int(start[1]) * cols + int(start[0])
@@ -461,24 +467,24 @@ def _astar_search_numba(
     # supply one; the kernel checks for None and skips the
     # per-expansion congestion-cost read.
     if congestion_flat is not None:
-        congestion_arg = np.ascontiguousarray(
-            congestion_flat.astype(np.float32)
-        )
+        congestion_arg = np.ascontiguousarray(congestion_flat.astype(np.float32))
     else:
         congestion_arg = None
 
     # U8: thermal field — same pattern as congestion; kernel
     # skips the per-expansion read when None.
     if thermal_flat is not None:
-        thermal_arg = np.ascontiguousarray(
-            thermal_flat.astype(np.float32)
-        )
+        thermal_arg = np.ascontiguousarray(thermal_flat.astype(np.float32))
     else:
         thermal_arg = None
 
     t0_numba = time.perf_counter()
     path_flat, _iters = kernel(
-        start_idx, goal_idx, rows, cols, validity_flat,
+        start_idx,
+        goal_idx,
+        rows,
+        cols,
+        validity_flat,
         max_iterations,
         congestion_arg,
         np.float32(congestion_weight),
@@ -502,9 +508,13 @@ def _compile_los_kernel():
 
     @njit(cache=True, fastmath=False)
     def _line_of_sight_numba_kernel(
-        x0: int, y0: int, x1: int, y1: int,
+        x0: int,
+        y0: int,
+        x1: int,
+        y1: int,
         grid_arr: np.ndarray,
-        width_cells: int, height_cells: int,
+        width_cells: int,
+        height_cells: int,
         net_id: int,
     ):
         dx = abs(x1 - x0)
@@ -558,11 +568,13 @@ def _line_of_sight_numba(p1, p2, grid, net_id: int) -> bool:
     """
     if not _HAVE_NUMBA:
         from temper_placer.router_v6.astar_core import _line_of_sight
+
         return _line_of_sight(p1, p2, grid, net_id)
 
     kernel = _get_los_kernel()
     if kernel is None:
         from temper_placer.router_v6.astar_core import _line_of_sight
+
         return _line_of_sight(p1, p2, grid, net_id)
 
     x0, y0 = p1
@@ -576,9 +588,15 @@ def _line_of_sight_numba(p1, p2, grid, net_id: int) -> bool:
     else:
         grid_contig = np.ascontiguousarray(grid.grid)
         _LOS_GRID_CACHE[grid_id] = grid_contig
-    return bool(kernel(
-        np.int32(x0), np.int32(y0), np.int32(x1), np.int32(y1),
-        grid_contig,
-        np.int32(grid.width_cells), np.int32(grid.height_cells),
-        np.int32(net_id),
-    ))
+    return bool(
+        kernel(
+            np.int32(x0),
+            np.int32(y0),
+            np.int32(x1),
+            np.int32(y1),
+            grid_contig,
+            np.int32(grid.width_cells),
+            np.int32(grid.height_cells),
+            np.int32(net_id),
+        )
+    )

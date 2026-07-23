@@ -80,8 +80,7 @@ class RoutingResults:
             return sum(
                 1
                 for nc in self.connectivity.values()
-                if nc.disposition
-                in (NetDisposition.INCOMPLETE, NetDisposition.FAILED)
+                if nc.disposition in (NetDisposition.INCOMPLETE, NetDisposition.FAILED)
             )
         return len(self.failed_nets)
 
@@ -173,8 +172,16 @@ def compile_routing_results(
 
     for net_name, geometry in pathfinding_result.tree_routes.items():
         # U3: connectivity-filtered — incomplete nets go to partial, not success.
-        disp = connectivity[net_name].disposition if connectivity and net_name in connectivity else None
-        dest = partial_tree_routes if disp in (NetDisposition.INCOMPLETE, NetDisposition.FAILED) else tree_routes
+        disp = (
+            connectivity[net_name].disposition
+            if connectivity and net_name in connectivity
+            else None
+        )
+        dest = (
+            partial_tree_routes
+            if disp in (NetDisposition.INCOMPLETE, NetDisposition.FAILED)
+            else tree_routes
+        )
         dest[net_name] = CompiledTreeRoute(
             net_name=net_name,
             geometry=geometry,
@@ -192,9 +199,7 @@ def compile_routing_results(
 
     # Count plane nets as routed-by-plane successes
     if plane_net_names:
-        dummy_path = RoutePath(
-            net_name="", coordinates=[], layer_name="F.Cu", path_length=0.0
-        )
+        dummy_path = RoutePath(net_name="", coordinates=[], layer_name="F.Cu", path_length=0.0)
         for name in plane_net_names:
             if name not in compiled_routes:
                 # Plane nets still emit real MST trace geometry in the exporter
@@ -219,7 +224,7 @@ def compile_routing_results(
     return RoutingResults(
         compiled_routes=compiled_routes,
         failed_nets=pathfinding_result.failed_nets,
-        plane_net_count=getattr(pathfinding_result, 'plane_net_count', 0),
+        plane_net_count=getattr(pathfinding_result, "plane_net_count", 0),
         net_reports=list(net_reports) if net_reports else [],
         partial_routes=partial_routes,
         tree_routes=tree_routes,

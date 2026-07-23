@@ -31,7 +31,9 @@ class PreflightStage:
 
         elapsed = time.time() - start
         if not report.passed:
-            raise PipelineError(f"Preflight checks failed: {report.summary()}", phase=PipelinePhase.PREFLIGHT)
+            raise PipelineError(
+                f"Preflight checks failed: {report.summary()}", phase=PipelinePhase.PREFLIGHT
+            )
 
         return StageResult(
             outputs={"preflight_report": report},

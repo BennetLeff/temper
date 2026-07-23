@@ -9,15 +9,19 @@ from .violation_mapper import MappedViolation
 @dataclass
 class ZoneAdjustment:
     """Calculated adjustment for a zone."""
+
     zone_name: str
     delta_width: float = 0.0
     delta_height: float = 0.0
     new_bounds: tuple[tuple[float, float], tuple[float, float]] | None = None
 
+
 @dataclass
 class AdjustmentResult:
     """Collection of zone adjustments."""
+
     adjustments: dict[str, ZoneAdjustment] = field(default_factory=dict)
+
 
 class ZoneAdjuster:
     """Computes zone geometry adjustments based on DRC violations."""
@@ -26,7 +30,7 @@ class ZoneAdjuster:
         self,
         zone_config: dict[str, Any],
         violation_threshold: int = 5,
-        expansion_per_violation: float = 0.5
+        expansion_per_violation: float = 0.5,
     ):
         """
         Initialize adjuster.
@@ -70,7 +74,7 @@ class ZoneAdjuster:
                 expansion = excess * self.expansion_per_violation
 
                 # Get current size and max size
-                bounds = config.get('bounds')
+                bounds = config.get("bounds")
                 if not bounds or len(bounds) != 2:
                     continue
 
@@ -78,29 +82,27 @@ class ZoneAdjuster:
                 width = abs(x2 - x1)
                 height = abs(y2 - y1)
 
-                max_size = config.get('max_size', (float('inf'), float('inf')))
+                max_size = config.get("max_size", (float("inf"), float("inf")))
                 max_width, max_height = max_size
 
-                can_expand = config.get('can_expand', ['right', 'left', 'up', 'down'])
+                can_expand = config.get("can_expand", ["right", "left", "up", "down"])
 
                 delta_w = 0.0
                 delta_h = 0.0
 
                 # Expand width if allowed
-                if any(d in ['right', 'left'] for d in can_expand):
+                if any(d in ["right", "left"] for d in can_expand):
                     target_width = min(width + expansion, max_width)
                     delta_w = target_width - width
 
                 # Expand height if allowed
-                if any(d in ['up', 'down'] for d in can_expand):
+                if any(d in ["up", "down"] for d in can_expand):
                     target_height = min(height + expansion, max_height)
                     delta_h = target_height - height
 
                 if delta_w > 0 or delta_h > 0:
                     adjustments[zone_name] = ZoneAdjustment(
-                        zone_name=zone_name,
-                        delta_width=delta_w,
-                        delta_height=delta_h
+                        zone_name=zone_name, delta_width=delta_w, delta_height=delta_h
                     )
 
         return AdjustmentResult(adjustments=adjustments)

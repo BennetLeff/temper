@@ -226,12 +226,15 @@ class ShortCircuitDetectionStage(Stage):
                 for (key_x, key_y, key_layer), pin_net in pin_net_map.items():
                     if key_layer != trace.layer:
                         continue
-                    if abs(px - key_x) <= tol and abs(py - key_y) <= tol and pin_net != track_net and track_net:
-                            print(
-                                f"  SHORT: {trace.net} track near {net} pin at ({px:.1f}, {py:.1f})"
-                            )
-                            is_short = True
-                            break
+                    if (
+                        abs(px - key_x) <= tol
+                        and abs(py - key_y) <= tol
+                        and pin_net != track_net
+                        and track_net
+                    ):
+                        print(f"  SHORT: {trace.net} track near {net} pin at ({px:.1f}, {py:.1f})")
+                        is_short = True
+                        break
                 if is_short:
                     break
 

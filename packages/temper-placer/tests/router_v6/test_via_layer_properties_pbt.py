@@ -35,7 +35,6 @@ import re
 from types import SimpleNamespace
 
 import numpy as np
-import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
@@ -147,8 +146,7 @@ def test_search3d_net_id_zero_stamps_nothing(scenario):
     assert result is not None
     for grid in grids.values():
         assert int(grid.grid.sum()) == 0, (
-            "net_id=0 must not stamp cells; if this ever changes, "
-            "re-examine P1b's premise"
+            "net_id=0 must not stamp cells; if this ever changes, re-examine P1b's premise"
         )
 
 
@@ -169,9 +167,7 @@ def test_route_segment_3d_leaves_via_footprint_protected(w, h, net_id):
     if "net_id" in inspect.signature(_route_segment_3d).parameters:
         kwargs["net_id"] = net_id
 
-    result = _route_segment_3d(
-        start_world, goal_world, "F.Cu", "B.Cu", grids, **kwargs
-    )
+    result = _route_segment_3d(start_world, goal_world, "F.Cu", "B.Cu", grids, **kwargs)
 
     assert result is not None, "empty-grid cross-layer segment must route"
     _path, vias = result
@@ -240,7 +236,7 @@ class _Comp:
 
 
 _SEG_RE = re.compile(
-    r'\(segment \(start ([\-0-9.]+) ([\-0-9.]+)\) \(end ([\-0-9.]+) ([\-0-9.]+)\)'
+    r"\(segment \(start ([\-0-9.]+) ([\-0-9.]+)\) \(end ([\-0-9.]+) ([\-0-9.]+)\)"
     r' \(width [\-0-9.]+\) \(layer "([^"]+)"\) \(net (\d+)\)'
 )
 
@@ -278,9 +274,7 @@ def _routing_scenario(draw):
     n_nets = draw(st.integers(min_value=1, max_value=2))
     sizes = [draw(st.integers(min_value=2, max_value=3)) for _ in range(n_nets)]
     total = sum(sizes)
-    pts = draw(
-        st.lists(_lattice_pt, min_size=total, max_size=total, unique=True)
-    )
+    pts = draw(st.lists(_lattice_pt, min_size=total, max_size=total, unique=True))
     nets = []
     idx = 0
     for ni, size in enumerate(sizes):
@@ -295,10 +289,7 @@ def _routing_scenario(draw):
             pads = raw_pads[:2] + [
                 (px, py)
                 for px, py in raw_pads[2:]
-                if min(
-                    ((px - vx) ** 2 + (py - vy) ** 2) ** 0.5 for vx, vy in vertices
-                )
-                > 0.5
+                if min(((px - vx) ** 2 + (py - vy) ** 2) ** 0.5 for vx, vy in vertices) > 0.5
             ]
         nets.append((f"NET{ni}", pads, is_plane))
     return nets
@@ -335,14 +326,10 @@ def test_written_segments_connect_all_pads_per_net(nets):
             ]
             length = abs(y1 - y0) + abs(x1 - x0)
             path = SimpleNamespace(path_length=max(length, 0.1), segments=segments)
-        compiled[net_name] = SimpleNamespace(
-            net_name=net_name, width_mm=0.25, path=path
-        )
+        compiled[net_name] = SimpleNamespace(net_name=net_name, width_mm=0.25, path=path)
 
     result = SimpleNamespace(
-        stage4=SimpleNamespace(
-            routing_results=SimpleNamespace(compiled_routes=compiled)
-        ),
+        stage4=SimpleNamespace(routing_results=SimpleNamespace(compiled_routes=compiled)),
         pcb=SimpleNamespace(components=components, nets=pcb_nets),
     )
     content = "(kicad_pcb\n" + "\n".join(net_decls) + "\n)\n"
@@ -377,9 +364,7 @@ def test_written_segments_connect_all_pads_per_net(nets):
         pad_nodes = []
         for px, py in pads:
             key = (round(px, 4), round(py, 4), "F.Cu")
-            assert key in nodes, (
-                f"net {net_name}: pad {key} untouched by any emitted segment"
-            )
+            assert key in nodes, f"net {net_name}: pad {key} untouched by any emitted segment"
             pad_nodes.append(key)
 
         components_found = _connected_components(edges, nodes)
@@ -439,9 +424,7 @@ _constraint_entries = st.one_of(
 
 @given(
     name=_net_names,
-    constraints=st.one_of(
-        st.none(), st.dictionaries(_net_names, _constraint_entries, max_size=5)
-    ),
+    constraints=st.one_of(st.none(), st.dictionaries(_net_names, _constraint_entries, max_size=5)),
     include_self=st.booleans(),
     entry=_constraint_entries,
 )
@@ -481,8 +464,6 @@ def test_assign_layer_single_layer_mode_forces_fcu(name):
     set_single_layer_mode(True)
     try:
         assert _assign_layer(name, layer_constraints=None) == "F.Cu"
-        assert (
-            _assign_layer(name, layer_constraints={name: "B.Cu"}) == "F.Cu"
-        )
+        assert _assign_layer(name, layer_constraints={name: "B.Cu"}) == "F.Cu"
     finally:
         set_single_layer_mode(False)

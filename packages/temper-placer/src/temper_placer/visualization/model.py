@@ -539,10 +539,7 @@ def create_board_view_from_state(
     """
     n = len(component_refs)
     # Build footprint list element-by-element to satisfy invariant list type check
-    fp_list: list[str | None] = [
-        footprints[i] if footprints else None
-        for i in range(n)
-    ]
+    fp_list: list[str | None] = [footprints[i] if footprints else None for i in range(n)]
     status_list = statuses if statuses else [ComponentStatus.OK] * n
 
     components = tuple(

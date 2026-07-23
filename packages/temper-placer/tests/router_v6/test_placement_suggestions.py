@@ -4,7 +4,6 @@ Tests for Router V6 Feedback F.3: Generate Placement Suggestions
 Part of temper-o35p
 """
 
-
 from temper_placer.router_v6.congestion_analysis import (
     CongestedRegion,
     CongestionMap,

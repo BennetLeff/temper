@@ -8,6 +8,7 @@ from typing import Any
 @dataclass
 class DRCViolation:
     """Raw DRC violation data from KiCad."""
+
     type: str
     items: list[str] = field(default_factory=list)
     severity: str = "error"
@@ -16,9 +17,11 @@ class DRCViolation:
     required: float | None = None
     actual: float | None = None
 
+
 @dataclass
 class MappedViolation:
     """DRC violation mapped to PCB components and zones."""
+
     type: str
     components: list[str]
     position: tuple[float, float] | None = None
@@ -28,6 +31,7 @@ class MappedViolation:
     involves_via: bool = False
     involves_pth: bool = False
     description: str = ""
+
 
 class ViolationComponentMapper:
     """Analyzes DRC violations to identify responsible components and zones."""
@@ -61,21 +65,21 @@ class ViolationComponentMapper:
         # 1. Parse component references from items
         for item in violation.items:
             # Look for "of <REF>" (KiCad standard)
-            match = re.search(r'of ([A-Za-z0-9_]+)', item, re.IGNORECASE)
+            match = re.search(r"of ([A-Za-z0-9_]+)", item, re.IGNORECASE)
             if match:
                 ref = match.group(1)
                 if ref in self.component_refs:
                     components.add(ref)
 
             # Look for "Pad <REF>-<PIN>" (Some formats)
-            match = re.search(r'pad ([A-Za-z0-9_]+)-', item, re.IGNORECASE)
+            match = re.search(r"pad ([A-Za-z0-9_]+)-", item, re.IGNORECASE)
             if match:
                 ref = match.group(1)
                 if ref in self.component_refs:
                     components.add(ref)
 
             # Look for "Pad <REF>." (Some formats)
-            match = re.search(r'pad ([A-Za-z0-9_]+)\.', item, re.IGNORECASE)
+            match = re.search(r"pad ([A-Za-z0-9_]+)\.", item, re.IGNORECASE)
             if match:
                 ref = match.group(1)
                 if ref in self.component_refs:
@@ -93,16 +97,16 @@ class ViolationComponentMapper:
         zone = None
         if pos and self.zone_config:
             for zone_name, config in self.zone_config.items():
-                bounds = config.get('bounds')
+                bounds = config.get("bounds")
                 if bounds and len(bounds) == 2:
-                        (x1, y1), (x2, y2) = bounds
-                        # Support both (min, max) and (p1, p2) orders
-                        min_x, max_x = min(x1, x2), max(x1, x2)
-                        min_y, max_y = min(y1, y2), max(y1, y2)
+                    (x1, y1), (x2, y2) = bounds
+                    # Support both (min, max) and (p1, p2) orders
+                    min_x, max_x = min(x1, x2), max(x1, x2)
+                    min_y, max_y = min(y1, y2), max(y1, y2)
 
-                        if min_x <= pos[0] <= max_x and min_y <= pos[1] <= max_y:
-                            zone = zone_name
-                            break
+                    if min_x <= pos[0] <= max_x and min_y <= pos[1] <= max_y:
+                        zone = zone_name
+                        break
 
         # 4. Extract clearance info from description if not already set
         required = violation.required
@@ -110,13 +114,15 @@ class ViolationComponentMapper:
 
         if (required is None or actual is None) and violation.description:
             # Common clearance description: "Clearance violation (0.15mm < 0.20mm required)"
-            match = re.search(r'([\d\.]+)mm < ([\d\.]+)mm required', violation.description)
+            match = re.search(r"([\d\.]+)mm < ([\d\.]+)mm required", violation.description)
             if match:
                 actual = float(match.group(1))
                 required = float(match.group(2))
             else:
                 # KiCad JSON style: "clearance 0.2000 mm; actual 0.1958 mm"
-                match = re.search(r'clearance ([\d\.]+) mm; actual ([\d\.]+) mm', violation.description)
+                match = re.search(
+                    r"clearance ([\d\.]+) mm; actual ([\d\.]+) mm", violation.description
+                )
                 if match:
                     required = float(match.group(1))
                     actual = float(match.group(2))
@@ -130,5 +136,5 @@ class ViolationComponentMapper:
             actual_clearance=actual,
             involves_via=involves_via,
             involves_pth=involves_pth,
-            description=violation.description
+            description=violation.description,
         )

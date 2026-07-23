@@ -31,7 +31,7 @@ class ZoneAssignmentStage(Stage):
         # Build net-to-class mapping
         net_class_map = {}
         for net in netlist.nets:
-            net_class = getattr(net, 'net_class', 'Signal')
+            net_class = getattr(net, "net_class", "Signal")
             net_class_map[net.name] = net_class
 
         # Build component-to-nets mapping
@@ -50,7 +50,9 @@ class ZoneAssignmentStage(Stage):
 
         return zone_map
 
-    def _infer_zone_for_component(self, ref: str, nets: list[str], net_class_map: dict[str, str]) -> str:
+    def _infer_zone_for_component(
+        self, ref: str, nets: list[str], net_class_map: dict[str, str]
+    ) -> str:
         """Infer zone for a single component."""
         # Rule 1: MCU zone by ref prefix
         if ref.startswith("U_MCU"):

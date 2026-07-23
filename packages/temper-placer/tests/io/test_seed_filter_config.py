@@ -41,8 +41,10 @@ class TestConfigDefaults:
     def test_config_override_respected(self, tmp_path) -> None:
         path = _write_config(
             tmp_path,
-            {"board": {"width_mm": 50, "height_mm": 50},
-             "seed_filter": {"enabled": False, "threshold": 0.3, "hv_threshold": 0.1}},
+            {
+                "board": {"width_mm": 50, "height_mm": 50},
+                "seed_filter": {"enabled": False, "threshold": 0.3, "hv_threshold": 0.1},
+            },
         )
         c = load_constraints(path)
         assert c.seed_filter.enabled is False

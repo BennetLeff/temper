@@ -1,4 +1,3 @@
-
 from temper_placer.io.config_loader import load_constraints
 
 

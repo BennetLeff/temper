@@ -421,4 +421,3 @@ class TestPolygon:
         scaled = scale_polygon(square, 2.0)
         # Area should increase by factor of 4
         assert np.isclose(polygon_area(scaled), 4.0 * polygon_area(square), atol=1e-6)
-

@@ -26,14 +26,14 @@ from temper_placer.router_v6.path_simplify import simplify_path
 # The canonical Temper board is 4-layer. 2-layer is not a production
 # path and has been removed.
 LAYER_MAP = {
-    0: "F.Cu",    # Top copper (L1)
+    0: "F.Cu",  # Top copper (L1)
     1: "In1.Cu",  # Inner layer 1 (L2, GND plane)
     2: "In2.Cu",  # Inner layer 2 (L3, PWR plane)
-    3: "B.Cu",    # Bottom copper (L4)
+    3: "B.Cu",  # Bottom copper (L4)
 }
 
 # Endpoint snapping tolerance in mm (increased to handle grid alignment)
-SNAP_TOLERANCE_MM = 0.5   # 0.5mm handles typical grid cell sizes (0.5mm spacing)
+SNAP_TOLERANCE_MM = 0.5  # 0.5mm handles typical grid cell sizes (0.5mm spacing)
 
 
 def _validate_4_layer_output(board: object) -> None:
@@ -51,12 +51,15 @@ def _validate_4_layer_output(board: object) -> None:
 
     if not hasattr(board, "layers"):
         raise RuntimeError("KiCad board has no layers attribute — cannot validate layer count")
-    copper_names = [ly.name for ly in board.layers if hasattr(ly, "name") and ly.name.endswith(".Cu")]
+    copper_names = [
+        ly.name for ly in board.layers if hasattr(ly, "name") and ly.name.endswith(".Cu")
+    ]
     if len(copper_names) != 4:
         logger.warning(
             "Board has %d copper layers (canonical 4-layer stackup: %s). "
             "Proceeding — non-4-layer boards are valid for test fixtures and prototypes.",
-            len(copper_names), sorted(CANONICAL_4LAYER_LAYER_NAMES),
+            len(copper_names),
+            sorted(CANONICAL_4LAYER_LAYER_NAMES),
         )
         return
     name_set = set(copper_names)
@@ -66,6 +69,7 @@ def _validate_4_layer_output(board: object) -> None:
             f"got {sorted(name_set)}"
         )
 
+
 def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
     """Extract pad center coordinates grouped by net name.
 
@@ -73,6 +77,7 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
         Dictionary mapping net_name -> list of (x, y) pad centers
     """
     import math
+
     pad_centers: dict[str, list[tuple[float, float]]] = {}
 
     for fp in board.footprints:
@@ -83,7 +88,13 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
             fp_x, fp_y, fp_angle = 0.0, 0.0, 0.0
 
         for pad in fp.pads:
-            net_name = pad.net.name if pad.net and hasattr(pad.net, "name") else str(pad.net) if pad.net else ""
+            net_name = (
+                pad.net.name
+                if pad.net and hasattr(pad.net, "name")
+                else str(pad.net)
+                if pad.net
+                else ""
+            )
             if not net_name:
                 continue
 
@@ -101,19 +112,21 @@ def extract_pad_centers(board: KiBoard) -> dict[str, list[tuple[float, float]]]:
 
     return pad_centers
 
+
 def snap_to_nearest_pad(
-    x: float, y: float,
+    x: float,
+    y: float,
     pad_centers: list[tuple[float, float]],
-    tolerance: float = 0.15  # Sufficient for 0.25mm grid half-cell
+    tolerance: float = 0.15,  # Sufficient for 0.25mm grid half-cell
 ) -> tuple[float, float]:
-    """Snap coordinate to nearest pad center if within tolerance.
-    """
+    """Snap coordinate to nearest pad center if within tolerance."""
     import math
+
     best_dist = tolerance
     best_pos = (x, y)
 
     for px, py in pad_centers:
-        dist = math.sqrt((x - px)**2 + (y - py)**2)
+        dist = math.sqrt((x - px) ** 2 + (y - py) ** 2)
         if dist < best_dist:
             best_dist = dist
             best_pos = (px, py)
@@ -245,7 +258,7 @@ def path_to_vias(
 def _generate_connector_segments(
     segments: list[TraceSegment],
     pad_centers: dict[str, list[tuple[float, float]]],
-    max_dist: float = 2.0
+    max_dist: float = 2.0,
 ) -> list[TraceSegment]:
     """
     Generate connector segments to bridge gaps between track endpoints and pads.
@@ -297,10 +310,10 @@ def _generate_connector_segments(
 
             # Find nearest endpoint
             nearest_ep = None
-            min_dist = float('inf')
+            min_dist = float("inf")
 
             for ex, ey in endpoints:
-                dist = math.sqrt((ex - px)**2 + (ey - py)**2)
+                dist = math.sqrt((ex - px) ** 2 + (ey - py) ** 2)
                 if dist < min_dist:
                     min_dist = dist
                     nearest_ep = (ex, ey)
@@ -316,18 +329,19 @@ def _generate_connector_segments(
                         break
 
                 if ref_seg:
-                    connectors.append(TraceSegment(
-                        net=net,
-                        start=nearest_ep,
-                        end=(px, py),
-                        width=ref_seg.width,
-                        layer=ref_seg.layer
-                    ))
+                    connectors.append(
+                        TraceSegment(
+                            net=net,
+                            start=nearest_ep,
+                            end=(px, py),
+                            width=ref_seg.width,
+                            layer=ref_seg.layer,
+                        )
+                    )
                     # Add to endpoints so we don't try to connect again
                     endpoints.add((px, py))
 
     return connectors
-
 
 
 def add_segments_to_board(
@@ -477,35 +491,41 @@ def export_routed_pcb(
     # FIX: Clean up corrupt drills from kiutils import of template
     # kiutils < 1.4.9 has a bug parsing (drill (offset...)) which results in garbage data
     # that crashes export. We must strip this from SMD pads.
-    if hasattr(board, 'footprints'):
+    if hasattr(board, "footprints"):
         for fp in board.footprints:
             for pad in fp.pads:
-                if pad.type == 'smd' and pad.drill is not None:
+                if pad.type == "smd" and pad.drill is not None:
                     # If parse failed, it might have garbage in diameter or be a DrillDefinition object
                     # Safe bet: SMD pads shouldn't have drills in this context.
                     pad.drill = None
 
     for net_name, path in routes.items():
         # Check success if attribute exists (legacy), otherwise assume success if in dict
-        if hasattr(path, 'success') and not path.success:
+        if hasattr(path, "success") and not path.success:
             nets_failed += 1
-            warnings.append(f"Net {net_name} routing failed: {getattr(path, 'failure_reason', 'unknown')}")
+            warnings.append(
+                f"Net {net_name} routing failed: {getattr(path, 'failure_reason', 'unknown')}"
+            )
             continue
 
         # Determine trace width for this net
-        trace_width = trace_widths.get(net_name, default_trace_width) if trace_widths else default_trace_width
+        trace_width = (
+            trace_widths.get(net_name, default_trace_width) if trace_widths else default_trace_width
+        )
 
         # Determine cell size (use path's if available, else function arg)
-        current_cell_size = getattr(path, 'cell_size', cell_size)
+        current_cell_size = getattr(path, "cell_size", cell_size)
 
         # Convert path to geometry
         segments = path_to_segments(path, origin, current_cell_size, trace_width, layer_map_to_use)
 
         # Use explicit vias (e.g. via arrays) if present, otherwise infer from layer transitions
-        if hasattr(path, 'explicit_vias') and path.explicit_vias:
+        if hasattr(path, "explicit_vias") and path.explicit_vias:
             vias = path.explicit_vias
         else:
-            vias = path_to_vias(path, origin, current_cell_size, via_size, via_drill, layer_map_to_use)
+            vias = path_to_vias(
+                path, origin, current_cell_size, via_size, via_drill, layer_map_to_use
+            )
 
         all_segments.extend(segments)
         all_vias.extend(vias)
@@ -548,6 +568,7 @@ def export_routed_pcb(
     # Automatically fill zones if requested (temper-x8jz)
     if auto_fill_zones:
         from temper_placer.io.zone_filler import fill_zones_if_present
+
         fill_zones_if_present(output_pcb, verbose=True)
 
     return ExportResult(
@@ -558,6 +579,7 @@ def export_routed_pcb(
         nets_failed=nets_failed,
         warnings=warnings,
     )
+
 
 def export_board_state(
     template_pcb: Path,
@@ -600,7 +622,11 @@ def export_board_state(
 
     # Clean up segments and snap
     # 1. Reject zero-length segments
-    valid_traces = [t for t in all_traces if math.sqrt((t.start[0]-t.end[0])**2 + (t.start[1]-t.end[1])**2) > 0.001]
+    valid_traces = [
+        t
+        for t in all_traces
+        if math.sqrt((t.start[0] - t.end[0]) ** 2 + (t.start[1] - t.end[1]) ** 2) > 0.001
+    ]
 
     # 2. Snap segment endpoints to pad centers
     # For signal nets, we use a larger tolerance (0.15mm) to bridge grid gaps.
@@ -619,13 +645,9 @@ def export_board_state(
             if new_start != t.start or new_end != t.end:
                 snapped_count += 1
 
-        clean_traces.append(TraceSegment(
-            net=t.net,
-            start=new_start,
-            end=new_end,
-            width=t.width,
-            layer=t.layer
-        ))
+        clean_traces.append(
+            TraceSegment(net=t.net, start=new_start, end=new_end, width=t.width, layer=t.layer)
+        )
 
     if snapped_count > 0:
         print(f"  INFO: Snapped {snapped_count} traces to pad centers")
@@ -634,13 +656,10 @@ def export_board_state(
     segments_added = add_segments_to_board(board, clean_traces)
 
     # Deduplicate vias
-    via_list = [TraceVia(
-        net=v.net,
-        position=v.position,
-        size=v.width,
-        drill=v.drill,
-        layers=list(v.layers)
-    ) for v in all_vias]
+    via_list = [
+        TraceVia(net=v.net, position=v.position, size=v.width, drill=v.drill, layers=list(v.layers))
+        for v in all_vias
+    ]
     unique_vias = deduplicate_vias(via_list)
     vias_added = add_vias_to_board(board, unique_vias)
 
@@ -664,6 +683,7 @@ def export_board_state(
     # Automatically fill zones if requested
     if auto_fill_zones:
         from temper_placer.io.zone_filler import fill_zones_if_present
+
         fill_zones_if_present(output_pcb, verbose=True)
 
     return ExportResult(
@@ -672,8 +692,9 @@ def export_board_state(
         vias_added=vias_added,
         nets_exported=len({t.net for t in clean_traces}),
         nets_failed=0,
-        warnings=[]
+        warnings=[],
     )
+
 
 def export_from_geometry(
     template_pcb: Path,
@@ -735,7 +756,7 @@ def export_from_geometry(
             position=Position(X=via.center.x, Y=via.center.y),
             size=via.diameter,
             drill=via.drill,
-            layers=["F.Cu", "B.Cu"], # Default through
+            layers=["F.Cu", "B.Cu"],  # Default through
             net=net_code,
             tstamp=str(uuid.uuid4()),
         )
@@ -752,5 +773,5 @@ def export_from_geometry(
         vias_added=total_vias,
         nets_exported=len({t.net for t in tracks}),
         nets_failed=0,
-        warnings=[]
+        warnings=[],
     )

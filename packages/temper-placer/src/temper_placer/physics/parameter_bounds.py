@@ -123,98 +123,114 @@ def build_thermal_parameter_bounds(
         param_lower = pr.parameter.lower()
 
         if "power" in param_lower or "dissipation" in param_lower or "P_loss" in param_lower:
-            bounds.append(ParameterBound(
-                parameter=pr.parameter,
-                min=pr.min,
-                max=pr.max,
-                monotonicity=+1,
-                unit=pr.because,  # because field carries the reason, not a unit
-                because=(
-                    "b = Q_vec + h*T_amb; A unchanged.  A^{-1} >= 0 "
-                    "(M-matrix property), so T = A^{-1} b increases "
-                    "monotonically in Q component-wise.  -> "
-                    f"T_j INCREASING in {pr.parameter}"
-                ),
-            ))
+            bounds.append(
+                ParameterBound(
+                    parameter=pr.parameter,
+                    min=pr.min,
+                    max=pr.max,
+                    monotonicity=+1,
+                    unit=pr.because,  # because field carries the reason, not a unit
+                    because=(
+                        "b = Q_vec + h*T_amb; A unchanged.  A^{-1} >= 0 "
+                        "(M-matrix property), so T = A^{-1} b increases "
+                        "monotonically in Q component-wise.  -> "
+                        f"T_j INCREASING in {pr.parameter}"
+                    ),
+                )
+            )
 
-        elif "junction_to_case" in param_lower or "r_theta" in param_lower or "thermal_resistance" in param_lower:
-            bounds.append(ParameterBound(
-                parameter=pr.parameter,
-                min=pr.min,
-                max=pr.max,
-                monotonicity=+1,
-                unit=pr.because,
-                because=(
-                    "R_theta = 1/h for through-plane sink.  "
-                    "d T / d h_i = A^{-1} e_i (T_amb - T_i) <= 0 "
-                    "when T_i >= T_amb (M-matrix inverse non-negativity).  "
-                    "Higher R_theta -> lower h -> higher T_j.  "
-                    f"-> T_j INCREASING in {pr.parameter}"
-                ),
-            ))
+        elif (
+            "junction_to_case" in param_lower
+            or "r_theta" in param_lower
+            or "thermal_resistance" in param_lower
+        ):
+            bounds.append(
+                ParameterBound(
+                    parameter=pr.parameter,
+                    min=pr.min,
+                    max=pr.max,
+                    monotonicity=+1,
+                    unit=pr.because,
+                    because=(
+                        "R_theta = 1/h for through-plane sink.  "
+                        "d T / d h_i = A^{-1} e_i (T_amb - T_i) <= 0 "
+                        "when T_i >= T_amb (M-matrix inverse non-negativity).  "
+                        "Higher R_theta -> lower h -> higher T_j.  "
+                        f"-> T_j INCREASING in {pr.parameter}"
+                    ),
+                )
+            )
 
         elif "heatspread" in param_lower or "spread" in param_lower or "copper" in param_lower:
-            bounds.append(ParameterBound(
-                parameter=pr.parameter,
-                min=pr.min,
-                max=pr.max,
-                monotonicity=-1,
-                unit=pr.because,
-                because=(
-                    "Larger heatspread -> more copper coverage -> higher "
-                    "effective k_eff -> lower thermal resistance -> lower "
-                    "T_j.  Scaling k_field by alpha > 1 gives A(alpha) >= "
-                    "A(1) component-wise (M-matrix ordering), so "
-                    "A(alpha)^{-1} <= A(1)^{-1}, b unchanged, hence "
-                    f"T(alpha) <= T.  -> T_j DECREASING in {pr.parameter}"
-                ),
-            ))
+            bounds.append(
+                ParameterBound(
+                    parameter=pr.parameter,
+                    min=pr.min,
+                    max=pr.max,
+                    monotonicity=-1,
+                    unit=pr.because,
+                    because=(
+                        "Larger heatspread -> more copper coverage -> higher "
+                        "effective k_eff -> lower thermal resistance -> lower "
+                        "T_j.  Scaling k_field by alpha > 1 gives A(alpha) >= "
+                        "A(1) component-wise (M-matrix ordering), so "
+                        "A(alpha)^{-1} <= A(1)^{-1}, b unchanged, hence "
+                        f"T(alpha) <= T.  -> T_j DECREASING in {pr.parameter}"
+                    ),
+                )
+            )
 
         else:
-            bounds.append(ParameterBound(
-                parameter=pr.parameter,
-                min=pr.min,
-                max=pr.max,
-                monotonicity=0,
-                unit="unknown",
-                because=(
-                    f"No monotonicity proof for '{pr.parameter}'; "
-                    "corner-bound is NOT a guarantee for this parameter."
-                ),
-            ))
+            bounds.append(
+                ParameterBound(
+                    parameter=pr.parameter,
+                    min=pr.min,
+                    max=pr.max,
+                    monotonicity=0,
+                    unit="unknown",
+                    because=(
+                        f"No monotonicity proof for '{pr.parameter}'; "
+                        "corner-bound is NOT a guarantee for this parameter."
+                    ),
+                )
+            )
 
     # --- ambient_C from config (not in prereg ranges, but physically relevant) ---
     if fdm_config is not None:
         T_amb = fdm_config.ambient_C
-        bounds.append(ParameterBound(
-            parameter="ambient_C",
-            min=max(0.0, T_amb - 20.0),
-            max=T_amb + 10.0,
-            monotonicity=+1,
-            unit="deg C",
-            because=(
-                "Dirichlet BC sets T = T_amb at the heatsink edge; "
-                "sink term adds h_i * T_amb to RHS.  b increases with "
-                "T_amb, A unchanged, A^{-1} >= 0.  "
-                "-> T_j INCREASING in ambient_C.  "
-                "Range derived from config.ambient_C +/- margin."
-            ),
-        ))
+        bounds.append(
+            ParameterBound(
+                parameter="ambient_C",
+                min=max(0.0, T_amb - 20.0),
+                max=T_amb + 10.0,
+                monotonicity=+1,
+                unit="deg C",
+                because=(
+                    "Dirichlet BC sets T = T_amb at the heatsink edge; "
+                    "sink term adds h_i * T_amb to RHS.  b increases with "
+                    "T_amb, A unchanged, A^{-1} >= 0.  "
+                    "-> T_j INCREASING in ambient_C.  "
+                    "Range derived from config.ambient_C +/- margin."
+                ),
+            )
+        )
 
     # --- Effective through-plane sink (not in prereg ranges) ---
-    bounds.append(ParameterBound(
-        parameter="h_sink_min",
-        min=0.0,
-        max=0.0,
-        monotonicity=-1,
-        unit="W/(K·mm²)",
-        because=(
-            "d T / d h_i = A^{-1} e_i (T_amb - T_i) <= 0 when "
-            "T_i >= T_amb (M-matrix analysis).  Minimum h_sink (= 0, "
-            "no vertical sink) gives maximum T_j.  "
-            "-> T_j DECREASING in h_sink."
-        ),
-    ))
+    bounds.append(
+        ParameterBound(
+            parameter="h_sink_min",
+            min=0.0,
+            max=0.0,
+            monotonicity=-1,
+            unit="W/(K·mm²)",
+            because=(
+                "d T / d h_i = A^{-1} e_i (T_amb - T_i) <= 0 when "
+                "T_i >= T_amb (M-matrix analysis).  Minimum h_sink (= 0, "
+                "no vertical sink) gives maximum T_j.  "
+                "-> T_j DECREASING in h_sink."
+            ),
+        )
+    )
 
     return bounds
 
@@ -442,9 +458,7 @@ def compute_thermal_soundness(
             f"NOT a guarantee for these parameters."
         )
 
-    corner_values_str = ", ".join(
-        f"{k}={v:.3g}" for k, v in sorted(corner.items())
-    )
+    corner_values_str = ", ".join(f"{k}={v:.3g}" for k, v in sorted(corner.items()))
     detail += f"  Corner: [{corner_values_str}]."
 
     return ThermalSoundnessResult(

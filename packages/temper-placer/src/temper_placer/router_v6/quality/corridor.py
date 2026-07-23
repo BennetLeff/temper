@@ -223,9 +223,7 @@ def _compute_consolidation(
                 if j == i + 1:
                     co_routed_pairs += 1
                 else:
-                    intervening_nets = {
-                        track.net for track in channel_tracks[i + 1 : j]
-                    }
+                    intervening_nets = {track.net for track in channel_tracks[i + 1 : j]}
                     if len(intervening_nets) <= 1 and (
                         not intervening_nets or intervening_nets == {channel_tracks[i].net}
                     ):
@@ -455,9 +453,7 @@ def _assign_tracks_to_channels(
 # ---------------------------------------------------------------------------
 
 
-def _overlap(
-    a_min: float, a_max: float, b_min: float, b_max: float
-) -> tuple[float, float] | None:
+def _overlap(a_min: float, a_max: float, b_min: float, b_max: float) -> tuple[float, float] | None:
     """Return the overlapping interval of two ranges, or None."""
     o_min = max(a_min, b_min)
     o_max = min(a_max, b_max)

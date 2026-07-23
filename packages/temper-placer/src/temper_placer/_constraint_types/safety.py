@@ -21,7 +21,9 @@ class SnubberRequirement(BaseModel):
 
     igbt_pair: tuple[str, str] = Field(description="IGBT component reference pair")
     type: str = Field(default="RC", description="Snubber type: RC, RCD, etc.")
-    across: str = Field(default="collector_emitter", description="Across which terminals: collector_emitter")
+    across: str = Field(
+        default="collector_emitter", description="Across which terminals: collector_emitter"
+    )
 
 
 class BleedResistor(BaseModel):

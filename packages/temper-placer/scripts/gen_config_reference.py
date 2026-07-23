@@ -26,6 +26,7 @@ OUTPUT_PATH = REPO_ROOT / "docs" / "reference" / "config-reference.md"
 
 def _get_root_model() -> type[BaseModel]:
     from temper_placer._constraint_types.config import PlacementConstraints
+
     return PlacementConstraints
 
 
@@ -161,7 +162,9 @@ def generate_reference() -> str:
             default = _format_default(field_info)
             constraints = _format_constraints(field_info)
             description = (field_info.description or "").replace("|", "\\|")
-            lines.append(f"| `{field_name}` | `{ftype}` | {default} | {constraints} | {description} |")
+            lines.append(
+                f"| `{field_name}` | `{ftype}` | {default} | {constraints} | {description} |"
+            )
 
         lines.append("")
 
@@ -180,18 +183,28 @@ def _idempotent_write(content: str, path: Path) -> bool:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate configuration reference from Pydantic models")
-    parser.add_argument("--check", action="store_true", help="Exit non-zero if generated doc is stale")
+    parser = argparse.ArgumentParser(
+        description="Generate configuration reference from Pydantic models"
+    )
+    parser.add_argument(
+        "--check", action="store_true", help="Exit non-zero if generated doc is stale"
+    )
     args = parser.parse_args()
 
     content = generate_reference()
 
     if args.check:
         if not OUTPUT_PATH.exists():
-            print(f"ERROR: {OUTPUT_PATH} does not exist. Run without --check to generate.", file=sys.stderr)
+            print(
+                f"ERROR: {OUTPUT_PATH} does not exist. Run without --check to generate.",
+                file=sys.stderr,
+            )
             return 1
         if OUTPUT_PATH.read_text() != content:
-            print(f"ERROR: {OUTPUT_PATH} is stale. Run scripts/gen_config_reference.py to regenerate.", file=sys.stderr)
+            print(
+                f"ERROR: {OUTPUT_PATH} is stale. Run scripts/gen_config_reference.py to regenerate.",
+                file=sys.stderr,
+            )
             return 1
         print(f"OK: {OUTPUT_PATH} is up-to-date.")
         return 0

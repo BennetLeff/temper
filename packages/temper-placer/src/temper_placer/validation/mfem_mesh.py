@@ -20,9 +20,7 @@ def build_temper_mesh(
 
     Returns the path to the generated ``.msh`` file.
     """
-    out = output_dir or os.path.join(
-        os.getcwd(), "mfem_mesh"
-    )
+    out = output_dir or os.path.join(os.getcwd(), "mfem_mesh")
     os.makedirs(out, exist_ok=True)
     msh_path = os.path.join(out, "temper_board.msh")
 

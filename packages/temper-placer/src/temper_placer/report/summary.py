@@ -122,7 +122,9 @@ def _extract_key_metrics(result: RunResult) -> list[tuple[str, float | int]]:
             metrics.append(("Max Loop Area (mm²)", check_result.metrics["max_loop_area_mm2"]))
 
         if "ground_discontinuities" in check_result.metrics:
-            metrics.append(("Ground Discontinuities", check_result.metrics["ground_discontinuities"]))
+            metrics.append(
+                ("Ground Discontinuities", check_result.metrics["ground_discontinuities"])
+            )
 
         if "floating_pins" in check_result.metrics:
             metrics.append(("Floating Pins", check_result.metrics["floating_pins"]))

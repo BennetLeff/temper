@@ -135,8 +135,7 @@ class FieldPreregistration(BaseModel):
     def _structural_bounding_cases_non_empty(self) -> FieldPreregistration:
         if not self.structural_bounding_cases:
             raise ValueError(
-                "structural_bounding_cases must not be empty: "
-                "structural uncertainty is mandatory"
+                "structural_bounding_cases must not be empty: structural uncertainty is mandatory"
             )
         return self
 

@@ -40,9 +40,11 @@ class ChannelPath:
 # Inner layers (In1.Cu / In2.Cu) are reference/power planes, not A* routing
 # grids; nets assigned to them fall through to the heuristic.
 _LAYER_ENUM_TO_KICAD: dict[int, str] = {
-    1: "F.Cu",   # L1_TOP
-    4: "B.Cu",   # L4_BOT
+    1: "F.Cu",  # L1_TOP
+    4: "B.Cu",  # L4_BOT
 }
+
+
 # L2_GND (2) / L3_PWR (3) are intentionally NOT mapped — they are
 # inner plane layers, not routing grids.
 def expand_channel_path_terminals(
@@ -229,7 +231,9 @@ def map_topology_to_channels(
         net_topology = topology.get_topology(net_name) if topology is not None else None
 
         channel_path = _map_net_to_channels(
-            net_name, net_topology, skeleton,
+            net_name,
+            net_topology,
+            skeleton,
             layer_constraints=layer_constraints,
         )
         if channel_path:
@@ -266,13 +270,17 @@ def _map_net_to_channels(
     if net_topology:
         channel_sequence = list(net_topology.uses_channels)
 
-        if not channel_sequence and net_topology.path_graph is not None and net_topology.path_graph.number_of_edges() > 0:
-                try:
-                    nodes = list(net_topology.path_graph.nodes())
-                    if nodes:
-                        channel_sequence = [str(node) for node in nodes]
-                except Exception:
-                    pass
+        if (
+            not channel_sequence
+            and net_topology.path_graph is not None
+            and net_topology.path_graph.number_of_edges() > 0
+        ):
+            try:
+                nodes = list(net_topology.path_graph.nodes())
+                if nodes:
+                    channel_sequence = [str(node) for node in nodes]
+            except Exception:
+                pass
 
     # If still no sequence, we can't route
     if not channel_sequence:
@@ -291,7 +299,8 @@ def _map_net_to_channels(
             waypoints=waypoints,
             total_length=total_length,
             preferred_layer=_assign_layer(
-                net_name, layer_constraints=layer_constraints,
+                net_name,
+                layer_constraints=layer_constraints,
             ),
         )
 
@@ -335,7 +344,7 @@ def _extract_waypoints(
                         return path
                 except (nx.NetworkXNoPath, nx.NodeNotFound):
                     # No path found, return subset of nodes
-                    return nodes[:min(5, len(nodes))]
+                    return nodes[: min(5, len(nodes))]
         return []
 
     import re
@@ -344,13 +353,13 @@ def _extract_waypoints(
     for channel_id in channel_sequence:
         # Check for multiple coordinates in ID (Edge ID)
         # Format: ..._(x1, y1)_(x2, y2)
-        coord_matches = re.findall(r'\(([^)]+)\)', channel_id)
+        coord_matches = re.findall(r"\(([^)]+)\)", channel_id)
         if len(coord_matches) >= 2:
             # Edge with start/end points
             found_edge_points = False
             for match in coord_matches:
                 try:
-                    parts = match.split(',')
+                    parts = match.split(",")
                     if len(parts) == 2:
                         x = float(parts[0].strip())
                         y = float(parts[1].strip())
@@ -373,7 +382,7 @@ def _extract_waypoints(
     # Fallback: use skeleton to generate path
     if skeleton.graph.number_of_nodes() > 0:
         nodes = list(skeleton.graph.nodes())
-        return nodes[:min(len(channel_sequence) + 1, len(nodes))]
+        return nodes[: min(len(channel_sequence) + 1, len(nodes))]
 
     return []
 
@@ -451,7 +460,6 @@ def _parse_channel_coordinate(
     return None
 
 
-
 def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
     """
     Calculate total path length from waypoints.
@@ -471,10 +479,12 @@ def _calculate_path_length(waypoints: list[tuple[float, float]]) -> float:
         x2, y2 = waypoints[i + 1]
         dx = x2 - x1
         dy = y2 - y1
-        length = (dx**2 + dy**2)**0.5
+        length = (dx**2 + dy**2) ** 0.5
         total_length += length
 
     return total_length
+
+
 def _nearest_terminal_order(
     start: tuple[float, float], pads: list[tuple[float, float]]
 ) -> list[tuple[float, float]]:

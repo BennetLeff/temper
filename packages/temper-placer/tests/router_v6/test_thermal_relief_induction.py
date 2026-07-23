@@ -20,7 +20,12 @@ def test_thermal_relief_add_compliant_route() -> None:
     # Add a power net (GND) with a via
     rr.compiled_routes["GND"] = CompiledRoute(
         net_name="GND",
-        path=RoutePath(net_name="GND", coordinates=[(0.0, 0.0), (10.0, 0.0)], layer_name="F.Cu", path_length=10.0),
+        path=RoutePath(
+            net_name="GND",
+            coordinates=[(0.0, 0.0), (10.0, 0.0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        ),
         width_mm=0.0,  # plane net
         vias=[],
         matched_length_mm=None,
@@ -33,30 +38,76 @@ def test_thermal_relief_add_compliant_route() -> None:
 @pytest.mark.dependency(depends=["induction-base"])
 def test_thermal_relief_modify_preserves_compliance() -> None:
     """FR13b: Modifying a power-net route does not crash thermal relief."""
-    rr = RoutingResults(compiled_routes={
-        "GND": CompiledRoute(net_name="GND", path=RoutePath(net_name="GND", coordinates=[(0.0, 0.0), (10.0, 0.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.0, vias=[], matched_length_mm=None),
-    }, failed_nets=[])
+    rr = RoutingResults(
+        compiled_routes={
+            "GND": CompiledRoute(
+                net_name="GND",
+                path=RoutePath(
+                    net_name="GND",
+                    coordinates=[(0.0, 0.0), (10.0, 0.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.0,
+                vias=[],
+                matched_length_mm=None,
+            ),
+        },
+        failed_nets=[],
+    )
     before = add_thermal_relief(rr).relief_count
 
-    rr.compiled_routes["GND"] = CompiledRoute(net_name="GND", path=RoutePath(net_name="GND", coordinates=[(5.0, 0.0), (15.0, 0.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.0, vias=[], matched_length_mm=None)
+    rr.compiled_routes["GND"] = CompiledRoute(
+        net_name="GND",
+        path=RoutePath(
+            net_name="GND",
+            coordinates=[(5.0, 0.0), (15.0, 0.0)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        ),
+        width_mm=0.0,
+        vias=[],
+        matched_length_mm=None,
+    )
 
     after = add_thermal_relief(rr).relief_count
-    assert after == before, (
-        f"Route modification changed relief count from {before} to {after}"
-    )
+    assert after == before, f"Route modification changed relief count from {before} to {after}"
 
 
 @pytest.mark.dependency(depends=["induction-base"])
 def test_thermal_relief_remove_preserves_compliance() -> None:
     """FR13c: Removing a power-net route does not cause phantom violations."""
-    rr = RoutingResults(compiled_routes={
-        "GND": CompiledRoute(net_name="GND", path=RoutePath(net_name="GND", coordinates=[(0.0, 0.0), (10.0, 0.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.0, vias=[], matched_length_mm=None),
-        "VCC": CompiledRoute(net_name="VCC", path=RoutePath(net_name="VCC", coordinates=[(0.0, 50.0), (10.0, 50.0)], layer_name="F.Cu", path_length=10.0), width_mm=0.0, vias=[], matched_length_mm=None),
-    }, failed_nets=[])
+    rr = RoutingResults(
+        compiled_routes={
+            "GND": CompiledRoute(
+                net_name="GND",
+                path=RoutePath(
+                    net_name="GND",
+                    coordinates=[(0.0, 0.0), (10.0, 0.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.0,
+                vias=[],
+                matched_length_mm=None,
+            ),
+            "VCC": CompiledRoute(
+                net_name="VCC",
+                path=RoutePath(
+                    net_name="VCC",
+                    coordinates=[(0.0, 50.0), (10.0, 50.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.0,
+                vias=[],
+                matched_length_mm=None,
+            ),
+        },
+        failed_nets=[],
+    )
     before = add_thermal_relief(rr).relief_count
 
     del rr.compiled_routes["VCC"]
     after = add_thermal_relief(rr).relief_count
-    assert after <= before, (
-        f"Route removal increased relief count from {before} to {after}"
-    )
+    assert after <= before, f"Route removal increased relief count from {before} to {after}"

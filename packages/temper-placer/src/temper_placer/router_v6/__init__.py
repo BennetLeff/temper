@@ -117,18 +117,11 @@ __all__ = [
     "LayerInfo",
     "DiffPair",
     "infer_differential_pairs",
-    "SafetyPair",
-    "infer_safety_pairs",
     # Stage 1: Pin Escape
     "DensePackage",
     "identify_dense_packages",
-    "ClassifiedPad",
-    "EscapeClass",
-    "classify_pads_by_escape_need",
     "EscapeVia",
     "generate_escape_vias",
-    "DRCViolation",
-    "validate_escape_plan",
     # Stage 2: Topology
     "build_obstacle_map",
     # Stage 3: Routing Constraints
@@ -144,12 +137,8 @@ __all__ = [
     "LayerConstraint",
     "ESL_REGISTRY",
     # Stage 4: Geometric Realization
-    "FlaggedNet",
     "RoutingFailureReport",
-    "handle_routing_failures",
     # Shared data structures
-    "ParsedPCB",
-    "DesignRules",
     # Diagnostics (U1)
     "NetRoutingReport",
     "BoardRoutingReport",

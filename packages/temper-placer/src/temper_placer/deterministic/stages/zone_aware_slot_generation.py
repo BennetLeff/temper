@@ -139,8 +139,7 @@ def _get_copper_zones(board, yaml_zones: list | None = None) -> list:
                         )
                         break
             # Fallback: check for polygon attribute (copper zones have fill polygons)
-            elif (hasattr(zone, "polygon") and zone.polygon
-                  and zone not in copper_zones):
+            elif hasattr(zone, "polygon") and zone.polygon and zone not in copper_zones:
                 copper_zones.append(zone)
                 logger.debug(
                     f"Found copper zone with polygon: {zone.name if hasattr(zone, 'name') else 'unnamed'}"
@@ -280,9 +279,7 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
                 f"({100 * iso_filtered / max(1, total_slots):.1f}%)"
             )
             total_reclaim = sum(reclaim.values()) if reclaim else 0.0
-            logger.info(
-                f"Isolation slots reclaim {total_reclaim:.2f}mm of routing channel"
-            )
+            logger.info(f"Isolation slots reclaim {total_reclaim:.2f}mm of routing channel")
 
         return replace(
             state,
@@ -292,7 +289,9 @@ class ZoneAwareSlotGenerationStage(SlotGenerationStage):
 
     def _isolation_filter(
         self, state: BoardState
-    ) -> tuple[list[tuple[tuple[float, float], tuple[float, float]]], dict[tuple[str, str, str], float]]:
+    ) -> tuple[
+        list[tuple[tuple[float, float], tuple[float, float]]], dict[tuple[str, str, str], float]
+    ]:
         """Compute isolation-slot AABBs (board coords) and the reclaim dict.
 
         Returns (iso_aabbs, reclaim_by_pin_pair). AABBs are axis-aligned and

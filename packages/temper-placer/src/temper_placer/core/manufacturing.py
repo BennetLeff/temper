@@ -6,13 +6,14 @@ from dataclasses import dataclass
 @dataclass
 class FabPreset:
     """Manufacturing capabilities and tolerances for a specific fab process."""
+
     name: str
-    trace_width_pct: float = 0.15        # ±15%
-    min_trace_mm: float = 0.127          # 5 mil
-    min_clearance_mm: float = 0.127      # 5 mil
-    etch_undercut_mm: float = 0.05       # Always positive
-    layer_registration_mm: float = 0.1   # ±0.1mm
-    drill_tolerance_mm: float = 0.05     # ±0.05mm
+    trace_width_pct: float = 0.15  # ±15%
+    min_trace_mm: float = 0.127  # 5 mil
+    min_clearance_mm: float = 0.127  # 5 mil
+    etch_undercut_mm: float = 0.05  # Always positive
+    layer_registration_mm: float = 0.1  # ±0.1mm
+    drill_tolerance_mm: float = 0.05  # ±0.05mm
 
     @classmethod
     def jlcpcb_standard(cls) -> FabPreset:
@@ -22,7 +23,7 @@ class FabPreset:
             min_trace_mm=0.127,
             min_clearance_mm=0.127,
             etch_undercut_mm=0.05,
-            layer_registration_mm=0.1
+            layer_registration_mm=0.1,
         )
 
     @classmethod
@@ -33,7 +34,7 @@ class FabPreset:
             min_trace_mm=0.075,
             min_clearance_mm=0.075,
             etch_undercut_mm=0.03,
-            layer_registration_mm=0.05
+            layer_registration_mm=0.05,
         )
 
     @classmethod
@@ -43,20 +44,23 @@ class FabPreset:
             trace_width_pct=0.12,
             min_trace_mm=0.152,
             min_clearance_mm=0.152,
-            etch_undercut_mm=0.04
+            etch_undercut_mm=0.04,
         )
+
 
 def get_fab_presets() -> dict[str, FabPreset]:
     """Get all pre-configured fab house presets."""
     return {
         "jlcpcb_standard": FabPreset.jlcpcb_standard(),
         "jlcpcb_hdi": FabPreset.jlcpcb_hdi(),
-        "oshpark": FabPreset.oshpark()
+        "oshpark": FabPreset.oshpark(),
     }
+
 
 def inflated_clearance(nominal: float, tolerance: float = 0.1) -> float:
     """Calculate worst-case (smaller) clearance."""
     return max(0.0, nominal - tolerance)
+
 
 def inflated_width(nominal: float, tolerance: float = 0.1) -> float:
     """Calculate worst-case (larger) trace width."""

@@ -56,7 +56,8 @@ class DRCAssertion:
 
 
 def _adjacent_to_drc(
-    constraint: AdjacentConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: AdjacentConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -67,13 +68,16 @@ def _adjacent_to_drc(
             threshold=constraint.max_distance_mm,
             metric=constraint.metric.value,
             pass_criteria=f"Measured edge-to-edge distance ≤ {constraint.max_distance_mm}mm",
-            metadata={"pin_a": constraint.pin_a, "pin_b": constraint.pin_b} if constraint.pin_a else {},
+            metadata={"pin_a": constraint.pin_a, "pin_b": constraint.pin_b}
+            if constraint.pin_a
+            else {},
         )
     ]
 
 
 def _separated_to_drc(
-    constraint: SeparatedConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: SeparatedConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -89,7 +93,8 @@ def _separated_to_drc(
 
 
 def _enclosing_to_drc(
-    constraint: EnclosingConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: EnclosingConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     assertions = []
     for comp_ref in constraint.inner:
@@ -108,7 +113,8 @@ def _enclosing_to_drc(
 
 
 def _aligned_to_drc(
-    constraint: AlignedConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: AlignedConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -124,7 +130,8 @@ def _aligned_to_drc(
 
 
 def _onside_to_drc(
-    constraint: OnSideConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: OnSideConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     overhang_note = " (overhang permitted)" if constraint.edge.value == "overhang" else ""
     return [
@@ -141,7 +148,8 @@ def _onside_to_drc(
 
 
 def _anchored_to_drc(
-    constraint: AnchoredConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: AnchoredConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     if constraint.position is not None:
         threshold = 0.0
@@ -166,7 +174,8 @@ def _anchored_to_drc(
 
 
 def _loop_area_to_drc(
-    constraint: LoopAreaConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: LoopAreaConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     return [
         DRCAssertion(
@@ -182,7 +191,8 @@ def _loop_area_to_drc(
 
 
 def _keepout_to_drc(
-    constraint: KeepoutConstraint, ctx: CompilationContext,  # noqa: ARG001
+    constraint: KeepoutConstraint,
+    ctx: CompilationContext,  # noqa: ARG001
 ) -> list[DRCAssertion]:
     zone = None
     if ctx.board:
@@ -229,7 +239,8 @@ TYPE_HANDLERS: dict[ConstraintType, Callable] = {
 
 
 def constraint_to_assertions(
-    constraint: BaseConstraint, ctx: CompilationContext,
+    constraint: BaseConstraint,
+    ctx: CompilationContext,
 ) -> list[DRCAssertion]:
     """Convert a PCL constraint to DRC assertions."""
     handler = TYPE_HANDLERS.get(constraint.constraint_type)
@@ -239,7 +250,8 @@ def constraint_to_assertions(
 
 
 def _backend_adapter(
-    constraint: BaseConstraint, context: CompilationContext,
+    constraint: BaseConstraint,
+    context: CompilationContext,
 ) -> list[DRCAssertion]:
     """Adapter for BaseConstraint.backends["drc"] registration."""
     return constraint_to_assertions(constraint, context)

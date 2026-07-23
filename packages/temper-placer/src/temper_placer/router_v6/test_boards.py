@@ -25,6 +25,7 @@ class TestBoard:
         source: Where the design came from
         license: License of the design files
     """
+
     name: str
     path: Path
     domain: str
@@ -40,7 +41,9 @@ class TestBoard:
 
     def __str__(self) -> str:
         status = "✓" if self.exists() else "✗"
-        return f"{status} {self.name}: {self.domain}, {self.layers}L, ~{self.expected_net_count} nets"
+        return (
+            f"{status} {self.name}: {self.domain}, {self.layers}L, ~{self.expected_net_count} nets"
+        )
 
 
 # Standard test suite locations
@@ -63,7 +66,7 @@ TEST_BOARDS: list[TestBoard] = [
         expected_net_count=33,
         description="Split keyboard, regular grid of switches",
         source="https://github.com/beekeeb/piantor",
-        license="CC-BY-SA-4.0"
+        license="CC-BY-SA-4.0",
     ),
     TestBoard(
         name="LibreSolar_BMS",
@@ -73,7 +76,7 @@ TEST_BOARDS: list[TestBoard] = [
         expected_net_count=200,
         description="8S 50A battery management system, multiple voltage domains",
         source="https://github.com/LibreSolar/bms-8s50-ic",
-        license="Apache-2.0"
+        license="Apache-2.0",
     ),
     TestBoard(
         name="RP2040_DesignGuide",
@@ -83,7 +86,7 @@ TEST_BOARDS: list[TestBoard] = [
         expected_net_count=120,
         description="RP2040 reference design, mixed digital/power",
         source="Raspberry Pi Foundation",
-        license="CC-BY-SA-4.0"
+        license="CC-BY-SA-4.0",
     ),
     TestBoard(
         name="BitAxe_Ultra",
@@ -93,7 +96,7 @@ TEST_BOARDS: list[TestBoard] = [
         expected_net_count=80,
         description="Bitcoin ASIC miner, high-speed digital + power",
         source="https://github.com/skot/bitaxe",
-        license="GPL-3.0"
+        license="GPL-3.0",
     ),
 ]
 

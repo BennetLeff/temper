@@ -44,12 +44,7 @@ def compose_traces(*traces: Trace) -> Trace:
     return result
 
 
-def traced_pipeline_example(
-    placement_fn,
-    routing_fn,
-    *args,
-    **kwargs
-) -> tuple[Any, Trace]:
+def traced_pipeline_example(placement_fn, routing_fn, *args, **kwargs) -> tuple[Any, Trace]:
     """Example of composable traced pipeline.
 
     This demonstrates how to structure a pipeline where each phase
@@ -155,7 +150,7 @@ def example_placement_optimizer(components) -> tuple[Any, Trace]:
         trace = trace.add(
             comp,
             (10.0, 20.0),  # Mock position
-            f"Placed {comp} to minimize wirelength"
+            f"Placed {comp} to minimize wirelength",
         )
 
     return {"positions": "mock"}, trace
@@ -169,11 +164,7 @@ def example_router(_placement_result) -> tuple[Any, Trace]:
     trace = Trace.empty()
 
     # Simulate routing decisions
-    trace = trace.add(
-        "VCC",
-        ["L1", "L4"],
-        "Power net can route on signal layers L1, L4"
-    )
+    trace = trace.add("VCC", ["L1", "L4"], "Power net can route on signal layers L1, L4")
 
     return {"routes": "mock"}, trace
 

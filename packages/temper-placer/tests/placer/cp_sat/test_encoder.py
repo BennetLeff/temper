@@ -44,10 +44,16 @@ class TestSeparated:
         model.add_rotation("B", is_polarized=True)
         model.set_bounds(0, 0, 3000, 3000)
 
-        c = SeparatedConstraint("A", "B", min_distance_mm=5.0, tier=ConstraintTier.HARD,
-                                 because="Isolation requirement per safety analysis")
-        ctx = EncoderContext(board_w_mm=30.0, board_h_mm=30.0,
-                             board_x_max_units=3000, board_y_max_units=3000)
+        c = SeparatedConstraint(
+            "A",
+            "B",
+            min_distance_mm=5.0,
+            tier=ConstraintTier.HARD,
+            because="Isolation requirement per safety analysis",
+        )
+        ctx = EncoderContext(
+            board_w_mm=30.0, board_h_mm=30.0, board_x_max_units=3000, board_y_max_units=3000
+        )
         encode_constraints([c], model, ctx)
 
         sol = model.solve(time_limit_s=1.0)
@@ -57,7 +63,9 @@ class TestSeparated:
         bx, by = sol.positions["B"]
         gap_x = abs(ax - bx) - 200
         gap_y = abs(ay - by) - 200
-        assert gap_x >= 480 or gap_y >= 480, f"gap_x={gap_x}, gap_y={gap_y}, expected >=500units clearance"
+        assert gap_x >= 480 or gap_y >= 480, (
+            f"gap_x={gap_x}, gap_y={gap_y}, expected >=500units clearance"
+        )
 
 
 class TestEnclosing:
@@ -72,12 +80,16 @@ class TestEnclosing:
         model.set_bounds(0, 0, 2000, 2000)
 
         c = EnclosingConstraint(
-            outer="HV_ZONE", inner=["Q1", "Q2"], tier=ConstraintTier.HARD,
+            outer="HV_ZONE",
+            inner=["Q1", "Q2"],
+            tier=ConstraintTier.HARD,
             because="All high voltage parts must stay in HV safety zone for isolation",
         )
         ctx = EncoderContext(
-            board_w_mm=20.0, board_h_mm=20.0,
-            board_x_max_units=2000, board_y_max_units=2000,
+            board_w_mm=20.0,
+            board_h_mm=20.0,
+            board_x_max_units=2000,
+            board_y_max_units=2000,
             zones={"HV_ZONE": (5.0, 5.0, 15.0, 15.0)},
         )
         encode_constraints([c], model, ctx)
@@ -105,11 +117,15 @@ class TestAdjacent:
         model.set_bounds(0, 0, 2000, 2000)
 
         c = AdjacentConstraint(
-            "Q1", "Q2", max_distance_mm=10.0, tier=ConstraintTier.HARD,
+            "Q1",
+            "Q2",
+            max_distance_mm=10.0,
+            tier=ConstraintTier.HARD,
             because="Half-bridge pair must be close to minimize loop area ind",
         )
-        ctx = EncoderContext(board_w_mm=20.0, board_h_mm=20.0,
-                             board_x_max_units=2000, board_y_max_units=2000)
+        ctx = EncoderContext(
+            board_w_mm=20.0, board_h_mm=20.0, board_x_max_units=2000, board_y_max_units=2000
+        )
         encode_constraints([c], model, ctx)
         sol = model.solve(time_limit_s=1.0)
         assert sol.feasible
@@ -137,12 +153,16 @@ class TestAdjacent:
         model.add_no_overlap_2d(["Q1", "Q2"])
 
         c = AdjacentConstraint(
-            "Q1", "Q2", max_distance_mm=10.0, tier=ConstraintTier.HARD,
+            "Q1",
+            "Q2",
+            max_distance_mm=10.0,
+            tier=ConstraintTier.HARD,
             metric=DistanceMetric.EDGE_TO_EDGE,
             because="Half-bridge IGBTs within 10mm edge-to-edge for tight loop",
         )
-        ctx = EncoderContext(board_w_mm=100.0, board_h_mm=150.0,
-                             board_x_max_units=10000, board_y_max_units=15000)
+        ctx = EncoderContext(
+            board_w_mm=100.0, board_h_mm=150.0, board_x_max_units=10000, board_y_max_units=15000
+        )
         encode_constraints([c], model, ctx)
         sol = model.solve(time_limit_s=2.0)
         assert sol.feasible, "edge_to_edge adjacency of wide parts must be feasible"
@@ -157,12 +177,16 @@ class TestAdjacent:
         model.add_rotation("B", is_polarized=True)
         model.set_bounds(0, 0, 2000, 2000)
         c = AdjacentConstraint(
-            "A", "B", max_distance_mm=5.0, tier=ConstraintTier.HARD,
+            "A",
+            "B",
+            max_distance_mm=5.0,
+            tier=ConstraintTier.HARD,
             metric=DistanceMetric.CENTER_TO_CENTER,
             because="Center-to-center metric must remain available and correct",
         )
-        ctx = EncoderContext(board_w_mm=20.0, board_h_mm=20.0,
-                             board_x_max_units=2000, board_y_max_units=2000)
+        ctx = EncoderContext(
+            board_w_mm=20.0, board_h_mm=20.0, board_x_max_units=2000, board_y_max_units=2000
+        )
         encode_constraints([c], model, ctx)
         sol = model.solve(time_limit_s=1.0)
         assert sol.feasible
@@ -181,13 +205,18 @@ class TestOnSide:
         model.set_bounds(0, 0, 2000, 2000)
 
         from temper_placer.pcl.constraints import BoardSide, EdgeType
+
         c = OnSideConstraint(
-            components=["J1"], side=BoardSide.LEFT, edge=EdgeType.FLUSH,
-            max_distance_mm=2.0, tier=ConstraintTier.HARD,
+            components=["J1"],
+            side=BoardSide.LEFT,
+            edge=EdgeType.FLUSH,
+            max_distance_mm=2.0,
+            tier=ConstraintTier.HARD,
             because="Connector must be on left edge for external access housing",
         )
-        ctx = EncoderContext(board_w_mm=20.0, board_h_mm=20.0,
-                             board_x_max_units=2000, board_y_max_units=2000)
+        ctx = EncoderContext(
+            board_w_mm=20.0, board_h_mm=20.0, board_x_max_units=2000, board_y_max_units=2000
+        )
         encode_constraints([c], model, ctx)
         sol = model.solve(time_limit_s=1.0)
         assert sol.feasible
@@ -208,12 +237,14 @@ class TestAnchored:
         model.set_bounds(0, 0, 3000, 2000)
 
         c = AnchoredConstraint(
-            component="U_MCU", tier=ConstraintTier.HARD,
+            component="U_MCU",
+            tier=ConstraintTier.HARD,
             position=(15.0, 10.0),
             because="MCU must be centered in MCU zone for antenna clearance",
         )
-        ctx = EncoderContext(board_w_mm=30.0, board_h_mm=20.0,
-                             board_x_max_units=3000, board_y_max_units=2000)
+        ctx = EncoderContext(
+            board_w_mm=30.0, board_h_mm=20.0, board_x_max_units=3000, board_y_max_units=2000
+        )
         encode_constraints([c], model, ctx)
         sol = model.solve(time_limit_s=1.0)
         assert sol.feasible
@@ -233,12 +264,15 @@ class TestKeepout:
         model.set_bounds(0, 0, 2000, 2000)
 
         c = KeepoutConstraint(
-            zone_name="NO_FLY", tier=ConstraintTier.HARD,
+            zone_name="NO_FLY",
+            tier=ConstraintTier.HARD,
             because="No components allowed in keepout for safety isolation zone",
         )
         ctx = EncoderContext(
-            board_w_mm=20.0, board_h_mm=20.0,
-            board_x_max_units=2000, board_y_max_units=2000,
+            board_w_mm=20.0,
+            board_h_mm=20.0,
+            board_x_max_units=2000,
+            board_y_max_units=2000,
             zones={"NO_FLY": (4.0, 4.0, 6.0, 6.0)},
         )
         encode_constraints([c], model, ctx)
@@ -266,13 +300,17 @@ class TestAligned:
         model.set_bounds(0, 0, 2000, 2000)
 
         from temper_placer.pcl.constraints import Axis
+
         c = AlignedConstraint(
-            components=["C1", "C2", "C3"], axis=Axis.X, tolerance_mm=0.5,
+            components=["C1", "C2", "C3"],
+            axis=Axis.X,
+            tolerance_mm=0.5,
             tier=ConstraintTier.HARD,
             because="Align decoupling capacitors for visual consistency and routing",
         )
-        ctx = EncoderContext(board_w_mm=20.0, board_h_mm=20.0,
-                             board_x_max_units=2000, board_y_max_units=2000)
+        ctx = EncoderContext(
+            board_w_mm=20.0, board_h_mm=20.0, board_x_max_units=2000, board_y_max_units=2000
+        )
         encode_constraints([c], model, ctx)
         sol = model.solve(time_limit_s=1.0)
         assert sol.feasible
@@ -281,7 +319,7 @@ class TestAligned:
         for i in range(len(xs)):
             for j in range(i + 1, len(xs)):
                 assert abs(xs[i] - xs[j]) <= 50, (
-                    f"C{i+1}-C{j+1} x diff {abs(xs[i] - xs[j])} > 50 units"
+                    f"C{i + 1}-C{j + 1} x diff {abs(xs[i] - xs[j])} > 50 units"
                 )
 
 
@@ -296,12 +334,16 @@ class TestLoopArea:
         model.set_bounds(0, 0, 5000, 5000)
 
         c = LoopAreaConstraint(
-            loop_name="commutation", max_area_mm2=500.0, tier=ConstraintTier.HARD,
+            loop_name="commutation",
+            max_area_mm2=500.0,
+            tier=ConstraintTier.HARD,
             because="Minimize commutation loop to reduce voltage overshoot and EMI emission",
         )
         ctx = EncoderContext(
-            board_w_mm=50.0, board_h_mm=50.0,
-            board_x_max_units=5000, board_y_max_units=5000,
+            board_w_mm=50.0,
+            board_h_mm=50.0,
+            board_x_max_units=5000,
+            board_y_max_units=5000,
             loop_components={"commutation": ["C_BUS", "Q1", "Q2", "C_OUT"]},
         )
         encode_constraints([c], model, ctx)
@@ -324,13 +366,15 @@ class TestEncoderDispatch:
 
     def test_encode_empty_list(self) -> None:
         model = CpSatModel()
-        ctx = EncoderContext(board_w_mm=10.0, board_h_mm=10.0,
-                             board_x_max_units=1000, board_y_max_units=1000)
+        ctx = EncoderContext(
+            board_w_mm=10.0, board_h_mm=10.0, board_x_max_units=1000, board_y_max_units=1000
+        )
         assumptions = encode_constraints([], model, ctx)
         assert assumptions == []
 
     def test_unsupported_type_tracked(self) -> None:
         from temper_placer.placer.cp_sat.encoder import UNSUPPORTED_TYPES
+
         UNSUPPORTED_TYPES.clear()
         assert len(UNSUPPORTED_TYPES) == 0
 
@@ -340,24 +384,36 @@ class TestValidateConstraintRefs:
 
     def _c(self, **kw):
         return SeparatedConstraint(
-            a=kw["a"], b=kw["b"], min_distance_mm=1.0,
-            tier=ConstraintTier.STRONG, because="test rationale ok", id=kw.get("id", "s1"),
+            a=kw["a"],
+            b=kw["b"],
+            min_distance_mm=1.0,
+            tier=ConstraintTier.STRONG,
+            because="test rationale ok",
+            id=kw.get("id", "s1"),
         )
 
     def test_all_resolvable_is_clean(self) -> None:
         from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+
         c = self._c(a="R1", b="R2")
         report = validate_constraint_refs(
-            [c], component_refs={"R1", "R2"}, zone_names=set(), loop_names=set(),
+            [c],
+            component_refs={"R1", "R2"},
+            zone_names=set(),
+            loop_names=set(),
         )
         assert report == {}
 
     def test_zone_operand_resolves(self) -> None:
         from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+
         # A zone name is a valid operand (zones expand to members).
         c = self._c(a="HV_ZONE", b="R1")
         report = validate_constraint_refs(
-            [c], component_refs={"R1"}, zone_names={"HV_ZONE"}, loop_names=set(),
+            [c],
+            component_refs={"R1"},
+            zone_names={"HV_ZONE"},
+            loop_names=set(),
         )
         assert report == {}
 
@@ -368,30 +424,45 @@ class TestValidateConstraintRefs:
             UnresolvedConstraintRefsError,
             validate_constraint_refs,
         )
+
         c = self._c(a="J_AC", b="R1", id="sep_J_AC_R1")  # J_AC not on board
         with pytest.raises(UnresolvedConstraintRefsError) as exc:
             validate_constraint_refs(
-                [c], component_refs={"R1"}, zone_names=set(), loop_names=set(),
+                [c],
+                component_refs={"R1"},
+                zone_names=set(),
+                loop_names=set(),
             )
         assert "J_AC" in str(exc.value)
 
     def test_warn_policy_does_not_raise(self) -> None:
         from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+
         c = self._c(a="J_AC", b="R1", id="sep_J_AC_R1")
         report = validate_constraint_refs(
-            [c], component_refs={"R1"}, zone_names=set(), loop_names=set(),
+            [c],
+            component_refs={"R1"},
+            zone_names=set(),
+            loop_names=set(),
             on_unresolved="warn",
         )
         assert report == {"sep_J_AC_R1": ["J_AC"]}
 
     def test_enclosing_inner_and_outer(self) -> None:
         from temper_placer.placer.cp_sat.encoder import validate_constraint_refs
+
         c = EnclosingConstraint(
-            outer="HV_ZONE", inner=["Q1", "GHOST"], tier=ConstraintTier.HARD,
-            because="containment rationale", id="enc_HV",
+            outer="HV_ZONE",
+            inner=["Q1", "GHOST"],
+            tier=ConstraintTier.HARD,
+            because="containment rationale",
+            id="enc_HV",
         )
         report = validate_constraint_refs(
-            [c], component_refs={"Q1"}, zone_names={"HV_ZONE"}, loop_names=set(),
+            [c],
+            component_refs={"Q1"},
+            zone_names={"HV_ZONE"},
+            loop_names=set(),
             on_unresolved="warn",
         )
         assert report == {"enc_HV": ["GHOST"]}

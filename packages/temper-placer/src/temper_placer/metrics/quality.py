@@ -331,7 +331,7 @@ def dual_rail_clearance_report(
             dx = abs(float(hv_pos[0]) - float(lv_pos[0])) - hv_hw - lv_hw
             dy = abs(float(hv_pos[1]) - float(lv_pos[1])) - hv_hh - lv_hh
 
-            clearance = (dx ** 2 + dy ** 2) ** 0.5 if dx > 0 and dy > 0 else max(dx, dy)
+            clearance = (dx**2 + dy**2) ** 0.5 if dx > 0 and dy > 0 else max(dx, dy)
 
             min_found_clearance = min(min_found_clearance, clearance)
 
@@ -628,8 +628,14 @@ def compute_quality_report(
 
     # Compute all metrics
     wl = total_wirelength(state, netlist, context)
-    thermal = thermal_score(state, netlist, board, thermal_comps,
-                            target_edge=thermal_edge, max_distance=thermal_max_dist)
+    thermal = thermal_score(
+        state,
+        netlist,
+        board,
+        thermal_comps,
+        target_edge=thermal_edge,
+        max_distance=thermal_max_dist,
+    )
     zone = zone_compliance_score(state, netlist, board, zone_assigns)
     clearance = hv_lv_clearance_score(state, netlist, hv_comps, lv_comps, min_clearance)
     dual_rail = dual_rail_clearance_report(state, netlist, hv_comps, lv_comps)

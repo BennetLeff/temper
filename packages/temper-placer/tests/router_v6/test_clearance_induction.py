@@ -26,6 +26,7 @@ def test_clearance_add_compliant_route() -> None:
     route = known_compliant_route(layer="F.Cu")
     # Simulate the draw
     from hypothesis import find
+
     route = find(
         known_compliant_route(layer="F.Cu"),
         lambda r: r.net_name and len(r.path.coordinates) >= 2,
@@ -48,8 +49,15 @@ def test_clearance_add_non_compliant_detected() -> None:
         compiled_routes={
             "A": CompiledRoute(
                 net_name="A",
-                path=RoutePath(net_name="A", coordinates=[(0.0, 0.0), (10.0, 0.0)], layer_name="F.Cu", path_length=10.0),
-                width_mm=0.127, vias=[], matched_length_mm=None,
+                path=RoutePath(
+                    net_name="A",
+                    coordinates=[(0.0, 0.0), (10.0, 0.0)],
+                    layer_name="F.Cu",
+                    path_length=10.0,
+                ),
+                width_mm=0.127,
+                vias=[],
+                matched_length_mm=None,
             ),
         },
         failed_nets=[],
@@ -59,8 +67,15 @@ def test_clearance_add_non_compliant_detected() -> None:
     # Add a non-compliant route too close to "A"
     non_compliant = CompiledRoute(
         net_name="B",
-        path=RoutePath(net_name="B", coordinates=[(0.0, min_clearance - 0.01), (10.0, min_clearance - 0.01)], layer_name="F.Cu", path_length=10.0),
-        width_mm=0.127, vias=[], matched_length_mm=None,
+        path=RoutePath(
+            net_name="B",
+            coordinates=[(0.0, min_clearance - 0.01), (10.0, min_clearance - 0.01)],
+            layer_name="F.Cu",
+            path_length=10.0,
+        ),
+        width_mm=0.127,
+        vias=[],
+        matched_length_mm=None,
     )
     rr.compiled_routes["B"] = non_compliant
     report = verify_clearance(rr, min_clearance=min_clearance)
@@ -75,20 +90,32 @@ def test_clearance_modify_preserves_compliance() -> None:
     false positives."""
     min_clearance = 0.127
 
-    path_a = RoutePath(net_name="A", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0)
-    path_b = RoutePath(net_name="B", coordinates=[(10.0, 50.0), (20.0, 50.0)], layer_name="F.Cu", path_length=10.0)
+    path_a = RoutePath(
+        net_name="A", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0
+    )
+    path_b = RoutePath(
+        net_name="B", coordinates=[(10.0, 50.0), (20.0, 50.0)], layer_name="F.Cu", path_length=10.0
+    )
     rr = RoutingResults(
         compiled_routes={
-            "A": CompiledRoute(net_name="A", path=path_a, width_mm=0.127, vias=[], matched_length_mm=None),
-            "B": CompiledRoute(net_name="B", path=path_b, width_mm=0.127, vias=[], matched_length_mm=None),
+            "A": CompiledRoute(
+                net_name="A", path=path_a, width_mm=0.127, vias=[], matched_length_mm=None
+            ),
+            "B": CompiledRoute(
+                net_name="B", path=path_b, width_mm=0.127, vias=[], matched_length_mm=None
+            ),
         },
         failed_nets=[],
     )
     assert verify_clearance(rr, min_clearance=min_clearance).violation_count == 0
 
     # Modify route A by shifting it 5mm in x
-    modified_path = RoutePath(net_name="A", coordinates=[(15.0, 10.0), (25.0, 10.0)], layer_name="F.Cu", path_length=10.0)
-    rr.compiled_routes["A"] = CompiledRoute(net_name="A", path=modified_path, width_mm=0.127, vias=[], matched_length_mm=None)
+    modified_path = RoutePath(
+        net_name="A", coordinates=[(15.0, 10.0), (25.0, 10.0)], layer_name="F.Cu", path_length=10.0
+    )
+    rr.compiled_routes["A"] = CompiledRoute(
+        net_name="A", path=modified_path, width_mm=0.127, vias=[], matched_length_mm=None
+    )
 
     report = verify_clearance(rr, min_clearance=min_clearance)
     assert report.violation_count == 0, (
@@ -101,14 +128,29 @@ def test_clearance_remove_preserves_compliance() -> None:
     """FR13c: Removing a compliant route does not cause phantom violations."""
     min_clearance = 0.127
 
-    path_a = RoutePath(net_name="A", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0)
-    path_b = RoutePath(net_name="B", coordinates=[(10.0, 50.0), (20.0, 50.0)], layer_name="F.Cu", path_length=10.0)
-    path_c = RoutePath(net_name="C", coordinates=[(10.0, 100.0), (20.0, 100.0)], layer_name="F.Cu", path_length=10.0)
+    path_a = RoutePath(
+        net_name="A", coordinates=[(10.0, 10.0), (20.0, 10.0)], layer_name="F.Cu", path_length=10.0
+    )
+    path_b = RoutePath(
+        net_name="B", coordinates=[(10.0, 50.0), (20.0, 50.0)], layer_name="F.Cu", path_length=10.0
+    )
+    path_c = RoutePath(
+        net_name="C",
+        coordinates=[(10.0, 100.0), (20.0, 100.0)],
+        layer_name="F.Cu",
+        path_length=10.0,
+    )
     rr = RoutingResults(
         compiled_routes={
-            "A": CompiledRoute(net_name="A", path=path_a, width_mm=0.127, vias=[], matched_length_mm=None),
-            "B": CompiledRoute(net_name="B", path=path_b, width_mm=0.127, vias=[], matched_length_mm=None),
-            "C": CompiledRoute(net_name="C", path=path_c, width_mm=0.127, vias=[], matched_length_mm=None),
+            "A": CompiledRoute(
+                net_name="A", path=path_a, width_mm=0.127, vias=[], matched_length_mm=None
+            ),
+            "B": CompiledRoute(
+                net_name="B", path=path_b, width_mm=0.127, vias=[], matched_length_mm=None
+            ),
+            "C": CompiledRoute(
+                net_name="C", path=path_c, width_mm=0.127, vias=[], matched_length_mm=None
+            ),
         },
         failed_nets=[],
     )

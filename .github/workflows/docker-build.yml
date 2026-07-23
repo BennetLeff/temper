@@ -48,6 +48,7 @@ jobs:
 
       - name: Check if image already exists
         id: check
+        continue-on-error: true  # TODO: temper-NNN -- cache lookup best-effort; hard-fail after 2026-09-01
         run: |
           if docker manifest inspect "${{ steps.tag.outputs.full }}" > /dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
@@ -55,7 +56,6 @@ jobs:
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
-        continue-on-error: true
 
       - name: Build and push
         if: steps.check.outputs.exists != 'true'

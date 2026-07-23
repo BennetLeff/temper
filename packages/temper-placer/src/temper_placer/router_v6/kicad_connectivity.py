@@ -54,7 +54,9 @@ def _layer_id(layer_name: str) -> int:
     return 0 if layer_name == "F.Cu" else 1  # coarse; full stackup deferred
 
 
-def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[float, float]]]) -> dict[str, NetConnectivity]:
+def _segment_connectivity(
+    pcb_content: str, pad_positions: dict[str, list[tuple[float, float]]]
+) -> dict[str, NetConnectivity]:
     """Parse emitted content, extract tracks/vias per net, and verify connectivity.
 
     Pad shape and rotation are NOT available from the writer's
@@ -110,12 +112,13 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
         poly_end = pcb_content.find("))", poly_start)
         if poly_end < 0:
             continue
-        poly_block = pcb_content[poly_start:poly_end + 2]
+        poly_block = pcb_content[poly_start : poly_end + 2]
         xy_pts = re.findall(r"\(xy\s+([-\d.]+)\s+([-\d.]+)\)", poly_block)
         if len(xy_pts) < 3:
             continue
         from shapely.geometry import MultiPolygon
         from shapely.geometry import Polygon as ShapelyPolygon
+
         try:
             poly = ShapelyPolygon([(float(x), float(y)) for x, y in xy_pts])
             if not poly.is_valid:
@@ -151,7 +154,9 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
         # (PR #237's netclass assignments will route there).
         pads = [
             CopperPad(
-                identity=PadIdentity(component_ref="", pad=str(i), net=net_name, x=x, y=y, layers=(0, 1)),
+                identity=PadIdentity(
+                    component_ref="", pad=str(i), net=net_name, x=x, y=y, layers=(0, 1)
+                ),
                 center=Point(x, y),
                 shape="rect",
                 size=(1.0, 1.0),
@@ -160,7 +165,10 @@ def _segment_connectivity(pcb_content: str, pad_positions: dict[str, list[tuple[
         ]
 
         results[net_name] = verify_net_connectivity(
-            pads=tuple(pads), tracks=tracks, vias=via_list, zones=tuple(zone_list),
+            pads=tuple(pads),
+            tracks=tracks,
+            vias=via_list,
+            zones=tuple(zone_list),
         )
 
     return results

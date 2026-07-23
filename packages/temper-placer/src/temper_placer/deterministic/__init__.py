@@ -79,9 +79,7 @@ def load_channel_map_from_sidecar(
     succeeds so the per-instance counter can be asserted at end of run.
     """
     if output_dir is None:
-        _LOGGER.warning(
-            "no output_dir provided for %s; channel_map disabled", source_label
-        )
+        _LOGGER.warning("no output_dir provided for %s; channel_map disabled", source_label)
         return ChannelMap.empty()
     sidecar_path = Path(output_dir) / SIDECAR_FILENAME
     if not sidecar_path.exists():
@@ -112,10 +110,7 @@ def _board_state_to_drc_input(
     board_height = state.board.height if state.board else 100.0
 
     netlist = state.netlist
-    comp_map = {
-        comp.ref: comp
-        for comp in (netlist.components if netlist else ())
-    }
+    comp_map = {comp.ref: comp for comp in (netlist.components if netlist else ())}
 
     components: dict[str, _DRCCompPlacement] = {}
     for item in state.placements:
@@ -131,14 +126,14 @@ def _board_state_to_drc_input(
                 footprint = ""
                 net_class = "Signal"
 
-            pos = getattr(placement, 'position', (0.0, 0.0))
+            pos = getattr(placement, "position", (0.0, 0.0))
             if not isinstance(pos, (tuple, list)):
                 pos = (0.0, 0.0)
-            rot = getattr(placement, 'rotation', 0)
+            rot = getattr(placement, "rotation", 0)
             if not isinstance(rot, (int, float)):
                 rot = 0
 
-            side = getattr(comp, 'initial_side', 0) if comp else 0
+            side = getattr(comp, "initial_side", 0) if comp else 0
             layer = _SIDE_TO_LAYER.get(side, "F.Cu")
 
             components[ref] = _DRCCompPlacement(
@@ -463,7 +458,11 @@ def create_drc_aware_pipeline(
     # R4a/R4c/R4d: Look for placement.channels.json in the run output dir.
     # Load once per pipeline run; record the count on the wrapper.
     channel_map: ChannelMap | None = load_channel_map_from_sidecar(output_dir)
-    if channel_map is not None and channel_map.has_grid() and isinstance(component_stage, PhasedComponentAssignmentStage):
+    if (
+        channel_map is not None
+        and channel_map.has_grid()
+        and isinstance(component_stage, PhasedComponentAssignmentStage)
+    ):
         component_stage.channel_map = channel_map
 
     pipeline = DeterministicPipeline(

@@ -4,7 +4,6 @@ Tests for Router V6 Stage 3.9: Extract Topology Solution
 Part of temper-8qm8
 """
 
-
 from temper_placer.router_v6.topology_extraction import (
     NetTopology,
     TopologyGraph,
@@ -112,10 +111,12 @@ def test_topology_graph_dataclass():
     net2_graph = nx.DiGraph()
     net2_topo = NetTopology("NET2", net2_graph, [], 15.0)
 
-    topology = TopologyGraph(net_topologies={
-        "NET1": net1_topo,
-        "NET2": net2_topo,
-    })
+    topology = TopologyGraph(
+        net_topologies={
+            "NET1": net1_topo,
+            "NET2": net2_topo,
+        }
+    )
 
     assert topology.routed_net_count == 2
     assert topology.get_topology("NET1") == net1_topo

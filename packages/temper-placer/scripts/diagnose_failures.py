@@ -2,6 +2,7 @@
 """
 Diagnostic tool to analyze routing failures and recommend experiments.
 """
+
 import json
 import sys
 from dataclasses import asdict, dataclass
@@ -21,6 +22,7 @@ from temper_placer.router_v6.pipeline import RouterV6Pipeline
 @dataclass
 class DiagnosisReport:
     """Detailed diagnosis of why a net failed to route."""
+
     net_name: str
     failure_type: str  # "START_BLOCKED", "GOAL_BLOCKED", "CHANNEL_CONGESTED", "QUANTIZATION_ERROR"
     start_blocked: bool
@@ -36,7 +38,7 @@ def get_blockers_in_radius(
     grid: OccupancyGrid,
     position: tuple[float, float],
     net_ids: dict[int, str],
-    radius_mm: float = 0.3
+    radius_mm: float = 0.3,
 ) -> list[str]:
     """
     Find which nets are blocking within radius of position.
@@ -69,9 +71,7 @@ def get_blockers_in_radius(
 
 
 def count_obstructions_along_path(
-    grid: OccupancyGrid,
-    waypoints: list[tuple[float, float]],
-    samples_per_segment: int = 10
+    grid: OccupancyGrid, waypoints: list[tuple[float, float]], samples_per_segment: int = 10
 ) -> int:
     """
     Count how many blocked cells exist along waypoint path.
@@ -95,16 +95,18 @@ def count_obstructions_along_path(
             y = p1[1] + t * (p2[1] - p1[1])
 
             gx, gy = grid.world_to_grid(x, y)
-            if 0 <= gx < grid.width_cells and 0 <= gy < grid.height_cells and grid.grid[gy, gx] != 0:
+            if (
+                0 <= gx < grid.width_cells
+                and 0 <= gy < grid.height_cells
+                and grid.grid[gy, gx] != 0
+            ):
                 obstructions += 1
 
     return obstructions
 
 
 def compute_min_gap_along_path(
-    grid: OccupancyGrid,
-    waypoints: list[tuple[float, float]],
-    _net_ids: dict[int, str]
+    grid: OccupancyGrid, waypoints: list[tuple[float, float]], _net_ids: dict[int, str]
 ) -> float:
     """
     Compute minimum clearance gap along path to nearest obstacle.
@@ -112,7 +114,7 @@ def compute_min_gap_along_path(
     Returns:
         Minimum gap in mm (positive = clearance available)
     """
-    min_gap = float('inf')
+    min_gap = float("inf")
     cell_size = grid.cell_size
 
     for wp in waypoints:
@@ -134,7 +136,7 @@ def compute_min_gap_along_path(
                         min_gap = min(min_gap, gap_mm)
                         break
 
-    return min_gap if min_gap != float('inf') else 0.0
+    return min_gap if min_gap != float("inf") else 0.0
 
 
 def diagnose_net_failure(
@@ -143,7 +145,7 @@ def diagnose_net_failure(
     pad_centers: dict[str, list[tuple[float, float, float, str]]],
     channel_mapping,
     net_ids: dict[str, int],
-    id_to_net: dict[int, str]
+    id_to_net: dict[int, str],
 ) -> DiagnosisReport:
     """
     Determine exact failure cause for a net.
@@ -170,7 +172,7 @@ def diagnose_net_failure(
             blockers_at_goal=[],
             total_obstructions=0,
             min_gap_along_path=0.0,
-            recommended_experiment="N/A"
+            recommended_experiment="N/A",
         )
 
     start_pos = (net_pads[0][0], net_pads[0][1])
@@ -220,7 +222,7 @@ def diagnose_net_failure(
         blockers_at_goal=blockers_at_goal,
         total_obstructions=obstructions,
         min_gap_along_path=min_gap,
-        recommended_experiment=recommended
+        recommended_experiment=recommended,
     )
 
 
@@ -279,21 +281,21 @@ def main():
 
     # Write JSON output
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             json.dump(diagnoses, f, indent=2)
         print(f"\nDiagnosis written to: {args.output}")
 
     # Summarize recommendations
     recommendations = {}
     for report in diagnoses.values():
-        exp = report['recommended_experiment']
+        exp = report["recommended_experiment"]
         recommendations[exp] = recommendations.get(exp, 0) + 1
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXPERIMENT RECOMMENDATIONS:")
     for exp, count in sorted(recommendations.items()):
         print(f"  Experiment {exp}: {count} nets")
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":

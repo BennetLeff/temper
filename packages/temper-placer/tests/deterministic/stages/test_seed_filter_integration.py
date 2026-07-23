@@ -68,15 +68,15 @@ class TestFilterBehavior:
     def test_filter_disabled_passes_pool_through(self, caplog: pytest.LogCaptureFixture) -> None:
         """``seed_filter.enabled=False`` -> no filtering, no log line."""
         constraints = PlacementConstraints()
-        constraints.seed_filter = SeedFilterConfig(
-            enabled=False, threshold=0.7, hv_threshold=0.5
-        )
+        constraints.seed_filter = SeedFilterConfig(enabled=False, threshold=0.7, hv_threshold=0.5)
         stage = PhasedComponentAssignmentStage(constraints)
         # Manually wire a high-congestion map (would normally drop slots)
         stage._bottleneck_map = _make_map([0.9, 0.9, 0.9, 0.9])
         slots = [(0.5, 0.5), (1.5, 0.5), (0.5, 1.5), (1.5, 1.5)]
         comp_by_ref = {"C1": Mock(ref="C1", bounds=(2, 2), pins=[])}
-        with caplog.at_level(logging.INFO, logger="temper_placer.deterministic.stages.phased_component_assignment"):
+        with caplog.at_level(
+            logging.INFO, logger="temper_placer.deterministic.stages.phased_component_assignment"
+        ):
             result = stage._apply_bottleneck_filter("C1", list(slots), comp_by_ref)
         assert result == slots
         # No seed_filter log line should be emitted when disabled.
@@ -114,9 +114,7 @@ class TestFilterBehavior:
     def test_empty_pool_falls_back_with_warning(self, caplog: pytest.LogCaptureFixture) -> None:
         """Aggressive threshold rejects all -> fall back with warning."""
         constraints = PlacementConstraints()
-        constraints.seed_filter = SeedFilterConfig(
-            enabled=True, threshold=0.01, hv_threshold=0.01
-        )
+        constraints.seed_filter = SeedFilterConfig(enabled=True, threshold=0.01, hv_threshold=0.01)
         stage = PhasedComponentAssignmentStage(constraints)
         stage._bottleneck_map = _make_map([0.9, 0.8, 0.7, 0.6])
         slots = [(0.5, 0.5), (1.5, 0.5), (0.5, 1.5), (1.5, 1.5)]
@@ -143,9 +141,7 @@ class TestObservability:
         with caplog.at_level(logging.INFO):
             stage._apply_bottleneck_filter("C1", list(slots), comp_by_ref)
 
-        seed_filter_records = [
-            r for r in caplog.records if "event=seed_filter" in r.message
-        ]
+        seed_filter_records = [r for r in caplog.records if "event=seed_filter" in r.message]
         assert len(seed_filter_records) == 1
         msg = seed_filter_records[0].message
         for key in (
@@ -164,18 +160,14 @@ class TestObservability:
     def test_observability_fallback_used_true(self, caplog: pytest.LogCaptureFixture) -> None:
         """Aggressive threshold triggers fallback_used=True on the INFO line."""
         constraints = PlacementConstraints()
-        constraints.seed_filter = SeedFilterConfig(
-            enabled=True, threshold=0.01, hv_threshold=0.01
-        )
+        constraints.seed_filter = SeedFilterConfig(enabled=True, threshold=0.01, hv_threshold=0.01)
         stage = PhasedComponentAssignmentStage(constraints)
         stage._bottleneck_map = _make_map([0.9, 0.8, 0.7, 0.6])
         slots = [(0.5, 0.5), (1.5, 0.5), (0.5, 1.5), (1.5, 1.5)]
         comp_by_ref = {"C1": Mock(ref="C1", bounds=(2, 2), pins=[])}
         with caplog.at_level(logging.INFO):
             stage._apply_bottleneck_filter("C1", list(slots), comp_by_ref)
-        seed_filter_records = [
-            r for r in caplog.records if "event=seed_filter" in r.message
-        ]
+        seed_filter_records = [r for r in caplog.records if "event=seed_filter" in r.message]
         assert len(seed_filter_records) == 1
         assert "fallback_used=True" in seed_filter_records[0].message
 
@@ -184,13 +176,9 @@ class TestIntegration:
     def test_integration_fallback_matches_unfiltered_path(self) -> None:
         """Run twice on a board with no bottleneck data; placements match."""
         constraints_a = PlacementConstraints()
-        constraints_a.seed_filter = SeedFilterConfig(
-            enabled=True, threshold=0.7, hv_threshold=0.5
-        )
+        constraints_a.seed_filter = SeedFilterConfig(enabled=True, threshold=0.7, hv_threshold=0.5)
         constraints_b = PlacementConstraints()
-        constraints_b.seed_filter = SeedFilterConfig(
-            enabled=False, threshold=0.7, hv_threshold=0.5
-        )
+        constraints_b.seed_filter = SeedFilterConfig(enabled=False, threshold=0.7, hv_threshold=0.5)
         # Same state: no bottleneck data on either.
         state = _make_state(bottleneck_map=None)
         stage_a = PhasedComponentAssignmentStage(constraints_a)

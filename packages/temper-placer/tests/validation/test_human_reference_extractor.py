@@ -18,6 +18,7 @@ from temper_placer.validation.human_reference_extractor import (
 # Path helpers
 # ---------------------------------------------------------------------------
 
+
 def _corpus_board_path(board_id: str, filename: str | None = None) -> Path:
     """Return a path inside ``power_pcb_dataset/corpus/{board_id}/``."""
     repo = Path(__file__).resolve().parents[4]  # repo root
@@ -30,6 +31,7 @@ def _corpus_board_path(board_id: str, filename: str | None = None) -> Path:
 # ---------------------------------------------------------------------------
 # Real-board tests (piantor_right)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.l4_regression
 class TestExtractPiantorRight:
@@ -81,14 +83,13 @@ class TestExtractPiantorRight:
         assert len(result.traces) > 0, "Expected traces on a routed board"
         for t in result.traces:
             assert t.net is not None, "Trace has no net assigned"
-            assert t.net in net_names, (
-                f"Trace net '{t.net}' not found in parsed netlist"
-            )
+            assert t.net in net_names, f"Trace net '{t.net}' not found in parsed netlist"
 
 
 # ---------------------------------------------------------------------------
 # Edge cases
 # ---------------------------------------------------------------------------
+
 
 class TestEdgeCases:
     def test_nonexistent_file_raises(self):

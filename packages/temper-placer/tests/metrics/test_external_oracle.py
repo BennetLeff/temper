@@ -7,18 +7,16 @@ positions, produces non-trivial scores, and does not crash.
 
 from __future__ import annotations
 
-import jax.numpy as jnp
 import pytest
 
 from temper_placer.core.board import Board, Zone
 from temper_placer.core.netlist import Component, Net, Netlist
-from temper_placer.core.state import PlacementState
 from temper_placer.metrics.external_oracle import score_placement
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def simple_board() -> Board:
@@ -75,21 +73,25 @@ def thermal_netlist() -> Netlist:
 # Test: importable
 # ---------------------------------------------------------------------------
 
+
 def test_score_placement_importable():
     """score_placement can be imported from the metrics package."""
     from temper_placer.metrics import score_placement as sp
+
     assert callable(sp)
 
 
 def test_score_placement_importable_direct():
     """score_placement can be imported from the external_oracle module."""
     from temper_placer.metrics.external_oracle import score_placement as sp
+
     assert callable(sp)
 
 
 # ---------------------------------------------------------------------------
 # Test: accepts positions without crashing
 # ---------------------------------------------------------------------------
+
 
 def test_score_placement_accepts_positions(simple_board, simple_netlist):
     """
@@ -102,7 +104,9 @@ def test_score_placement_accepts_positions(simple_board, simple_netlist):
         "C1": (70.0, 70.0),
     }
     result = score_placement(
-        positions, simple_netlist, simple_board,
+        positions,
+        simple_netlist,
+        simple_board,
         hv_components={"Q1"},
         lv_components={"R1", "C1"},
         min_clearance=8.0,
@@ -133,6 +137,7 @@ def test_score_placement_empty_positions(simple_board, simple_netlist):
 # Test: produces non-trivial (varying) scores
 # ---------------------------------------------------------------------------
 
+
 def test_score_placement_produces_non_trivial(simple_board, simple_netlist):
     """
     Score two deliberately different placements and verify the scores differ.
@@ -145,7 +150,9 @@ def test_score_placement_produces_non_trivial(simple_board, simple_netlist):
         "C1": (85.0, 85.0),
     }
     result_a = score_placement(
-        positions_a, simple_netlist, simple_board,
+        positions_a,
+        simple_netlist,
+        simple_board,
         hv_components={"Q1"},
         lv_components={"R1", "C1"},
         min_clearance=8.0,
@@ -159,7 +166,9 @@ def test_score_placement_produces_non_trivial(simple_board, simple_netlist):
         "C1": (14.0, 14.0),
     }
     result_b = score_placement(
-        positions_b, simple_netlist, simple_board,
+        positions_b,
+        simple_netlist,
+        simple_board,
         hv_components={"Q1"},
         lv_components={"R1", "C1"},
         min_clearance=8.0,
@@ -179,13 +188,15 @@ def test_score_placement_thermal_edge_sensitivity(simple_board, thermal_netlist)
     """
     # Near-edge placement
     near_positions = {
-        "Q1": (50.0, 95.0),   # top edge, y=95 is 5mm from y=100
-        "Q2": (50.0, 93.0),   # top edge, y=93 is 7mm from y=100
+        "Q1": (50.0, 95.0),  # top edge, y=95 is 5mm from y=100
+        "Q2": (50.0, 93.0),  # top edge, y=93 is 7mm from y=100
         "R1": (10.0, 10.0),
         "C1": (80.0, 80.0),
     }
     near_result = score_placement(
-        near_positions, thermal_netlist, simple_board,
+        near_positions,
+        thermal_netlist,
+        simple_board,
         thermal_components={"Q1", "Q2"},
         thermal_edge="TOP",
         thermal_max_distance=10.0,
@@ -193,13 +204,15 @@ def test_score_placement_thermal_edge_sensitivity(simple_board, thermal_netlist)
 
     # Far-from-edge placement
     far_positions = {
-        "Q1": (50.0, 10.0),   # bottom edge, 10mm from bottom
-        "Q2": (50.0, 5.0),    # bottom edge, 5mm from bottom
+        "Q1": (50.0, 10.0),  # bottom edge, 10mm from bottom
+        "Q2": (50.0, 5.0),  # bottom edge, 5mm from bottom
         "R1": (10.0, 10.0),
         "C1": (80.0, 80.0),
     }
     far_result = score_placement(
-        far_positions, thermal_netlist, simple_board,
+        far_positions,
+        thermal_netlist,
+        simple_board,
         thermal_components={"Q1", "Q2"},
         thermal_edge="TOP",
         thermal_max_distance=10.0,
@@ -212,6 +225,7 @@ def test_score_placement_thermal_edge_sensitivity(simple_board, thermal_netlist)
 # ---------------------------------------------------------------------------
 # Test: dual-rail thresholds (clearance_3mm vs clearance_6mm)
 # ---------------------------------------------------------------------------
+
 
 def test_clearance_3mm_vs_6mm(simple_board, simple_netlist):
     """
@@ -227,7 +241,9 @@ def test_clearance_3mm_vs_6mm(simple_board, simple_netlist):
         "C1": (80.0, 80.0),
     }
     result = score_placement(
-        positions, simple_netlist, simple_board,
+        positions,
+        simple_netlist,
+        simple_board,
         hv_components={"Q1"},
         lv_components={"R1", "C1"},
     )

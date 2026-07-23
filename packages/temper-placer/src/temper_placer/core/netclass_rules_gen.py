@@ -76,7 +76,6 @@ class NetClassRules(BaseModel):
     # Layer-specific cost multipliers e.g. {'F.Cu': 10.0, 'In1.Cu': 0.1}
     layer_costs: dict[str, float] | None = None
 
-
     def __init__(self, name: str = "", **data: object) -> None:
         # Accept a positional name for ergonomics so callers can write
         # ``NetClassRules("HighVoltage", trace_width=0.5)`` instead of

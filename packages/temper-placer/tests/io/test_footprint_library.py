@@ -8,7 +8,6 @@ Tests cover:
 - Integration with Component creation
 """
 
-
 import pytest
 import yaml
 
@@ -309,12 +308,7 @@ class TestFootprintLibraryIntegration:
                 raise ValueError(f"Unknown footprint: {footprint}")
 
             spec = lib[footprint]
-            return Component(
-                ref=ref,
-                footprint=footprint,
-                bounds=spec.bounds,
-                **kwargs
-            )
+            return Component(ref=ref, footprint=footprint, bounds=spec.bounds, **kwargs)
 
         # Use factory
         r1 = make_component("R1", "0805")

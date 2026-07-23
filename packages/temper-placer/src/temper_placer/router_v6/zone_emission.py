@@ -62,7 +62,7 @@ def _cluster_positions(
             d2 = (xj - xi) ** 2 + (yj - yi) ** 2
             if d2 < best:
                 best = d2
-        nn_dists.append(best ** 0.5 if best < float("inf") else 0.0)
+        nn_dists.append(best**0.5 if best < float("inf") else 0.0)
 
     nn_dists.sort()
 
@@ -160,12 +160,14 @@ def compute_zones_for_net(
         hull = _convex_hull_from_positions(group, margin=margin)
         if not hull:
             continue
-        zones.append(ZoneDefinition(
-            net_name=net_name,
-            net_number=net_number,
-            layer=layer,
-            points=hull,
-        ))
+        zones.append(
+            ZoneDefinition(
+                net_name=net_name,
+                net_number=net_number,
+                layer=layer,
+                points=hull,
+            )
+        )
     return zones
 
 
@@ -179,7 +181,11 @@ def compute_zone_for_net(
 ) -> ZoneDefinition:
     """Legacy single-zone wrapper.  Prefer ``compute_zones_for_net``."""
     zones = compute_zones_for_net(
-        net_name, net_number, pads, layer=layer, margin=margin,
+        net_name,
+        net_number,
+        pads,
+        layer=layer,
+        margin=margin,
         cluster=False,
     )
     return zones[0]
@@ -187,16 +193,14 @@ def compute_zone_for_net(
 
 def emit_zone_s_expr(zone: ZoneDefinition) -> str:
     """Render a ZoneDefinition as a KiCad ``(zone ...)`` s-expression."""
-    poly = " ".join(
-        f"(xy {x:.4f} {y:.4f})" for x, y in zone.points
-    )
+    poly = " ".join(f"(xy {x:.4f} {y:.4f})" for x, y in zone.points)
     return (
         f'  (zone (net {zone.net_number}) (net_name "{zone.net_name}")'
         f' (layer "{zone.layer}")'
-        f' (hatch full 0.5)'
-        f' (priority {zone.priority})'
-        f' (connect_pads yes (clearance {zone.clearance:.4f}))'
-        f' (min_thickness {zone.min_thickness:.4f})'
-        f' (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))'
-        f' (polygon (pts {poly})))'
+        f" (hatch full 0.5)"
+        f" (priority {zone.priority})"
+        f" (connect_pads yes (clearance {zone.clearance:.4f}))"
+        f" (min_thickness {zone.min_thickness:.4f})"
+        f" (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))"
+        f" (polygon (pts {poly})))"
     )

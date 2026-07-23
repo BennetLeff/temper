@@ -31,7 +31,16 @@ def test_parsed_pcb_validation():
         footprint="QFN-48",
         bounds=(7.0, 7.0),
         pins=[
-            Pin(name="1", number="1", position=(0, 0), net="GND", width=0.25, height=0.25, shape="rect", layer="F.Cu")
+            Pin(
+                name="1",
+                number="1",
+                position=(0, 0),
+                net="GND",
+                width=0.25,
+                height=0.25,
+                shape="rect",
+                layer="F.Cu",
+            )
         ],
         initial_position=(50.0, 50.0),
     )
@@ -42,13 +51,15 @@ def test_parsed_pcb_validation():
         zones=[],
         board=Board(width=100, height=100, origin=(0, 0)),
         design_rules=DesignRules(
-            net_classes={"Signal": NetClassRules(
-                name="Signal",
-                clearance_mm=0.2,
-                trace_width_mm=0.25,
-                via_diameter_mm=0.8,
-                via_drill_mm=0.4,
-            )},
+            net_classes={
+                "Signal": NetClassRules(
+                    name="Signal",
+                    clearance_mm=0.2,
+                    trace_width_mm=0.25,
+                    via_diameter_mm=0.8,
+                    via_drill_mm=0.4,
+                )
+            },
             net_class_assignments={},
             default_clearance_mm=0.2,
             default_trace_width_mm=0.25,
@@ -112,8 +123,12 @@ def test_stackup_helper_methods():
     stackup = StackupInfo(
         layers=[
             LayerInfo(index=0, name="F.Cu", layer_type="signal", thickness_um=35.0),
-            LayerInfo(index=1, name="In1.Cu", layer_type="plane", thickness_um=35.0, plane_net="GND"),
-            LayerInfo(index=2, name="In2.Cu", layer_type="plane", thickness_um=35.0, plane_net="+15V"),
+            LayerInfo(
+                index=1, name="In1.Cu", layer_type="plane", thickness_um=35.0, plane_net="GND"
+            ),
+            LayerInfo(
+                index=2, name="In2.Cu", layer_type="plane", thickness_um=35.0, plane_net="+15V"
+            ),
             LayerInfo(index=3, name="B.Cu", layer_type="signal", thickness_um=35.0),
         ],
         total_thickness_mm=1.6,

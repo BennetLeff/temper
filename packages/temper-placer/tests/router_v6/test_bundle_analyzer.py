@@ -62,9 +62,13 @@ def _make_pcb_for_nets(*nets: MockNet) -> MockPCB:
         for i, (comp_ref, pin_name) in enumerate(net.pins):
             if i < len(net._pos):
                 x, y = net._pos[i]
-                comp = MockComponent(comp_ref, pos=(x, y), pins={
-                    pin_name: MockPin(0, 0)  # pin at component origin
-                })
+                comp = MockComponent(
+                    comp_ref,
+                    pos=(x, y),
+                    pins={
+                        pin_name: MockPin(0, 0)  # pin at component origin
+                    },
+                )
                 components.append(comp)
     return MockPCB(components)
 
@@ -78,6 +82,7 @@ class MockDesignRules:
 
     def get_rules_for_net(self, _net_name):
         from temper_placer.router_v6.stage0_data import NetClassRules
+
         return NetClassRules(
             name="Default",
             clearance_mm=self._clearance,
@@ -117,7 +122,9 @@ def make_line_skeleton(_layer_name: str, points: list[tuple[float, float]]) -> M
 
 
 def make_grid_skeleton(
-    _layer_name: str, x_range: tuple[float, float], y_range: tuple[float, float],
+    _layer_name: str,
+    x_range: tuple[float, float],
+    y_range: tuple[float, float],
     spacing: float = 10.0,
 ) -> MockSkeleton:
     """Create a grid skeleton graph with regular spacing."""
@@ -181,8 +188,9 @@ def test_dissimilar_types_dont_bundle():
     else:
         # At minimum, they're not in the same bundle
         for b in manifest.bundles.values():
-            assert not (0 in b.net_indices and 1 in b.net_indices), \
+            assert not (0 in b.net_indices and 1 in b.net_indices), (
                 "HV and signal nets should not be in the same bundle"
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +205,8 @@ def test_different_widths_dont_bundle():
     skeletons = {"F.Cu": make_grid_skeleton("F.Cu", (0, 30), (0, 30), spacing=5)}
     pcb = _make_pcb_for_nets(*nets)
     analyzer = BundleAnalyzer(
-        nets, skeletons,
+        nets,
+        skeletons,
         design_rules=FakeDesignRules(widths={"SIG_A": 0.2, "SIG_B": 0.5}),
         pcb=pcb,
     )
@@ -205,8 +214,9 @@ def test_different_widths_dont_bundle():
     manifest = analyzer.analyze()
 
     for b in manifest.bundles.values():
-        assert not (0 in b.net_indices and 1 in b.net_indices), \
+        assert not (0 in b.net_indices and 1 in b.net_indices), (
             "Nets with different widths should not bundle"
+        )
 
 
 class FakeDesignRules:
@@ -218,6 +228,7 @@ class FakeDesignRules:
 
     def get_rules_for_net(self, net_name):
         from temper_placer.router_v6.stage0_data import NetClassRules
+
         return NetClassRules(
             name="Default",
             clearance_mm=self._clearances.get(net_name, 0.2),
@@ -244,8 +255,9 @@ def test_disjoint_regions_dont_bundle():
     manifest = analyzer.analyze()
 
     for b in manifest.bundles.values():
-        assert not (0 in b.net_indices and 1 in b.net_indices), \
+        assert not (0 in b.net_indices and 1 in b.net_indices), (
             "Nets in disjoint regions should not bundle"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -341,8 +353,8 @@ def test_jaccard_boundary_grouping():
     """Nets with controlled Jaccard values using directional placement."""
     nets = [
         MockNet("SIG_A", [(0.0, 0.0), (8.0, 0.0)]),
-        MockNet("SIG_B", [(4.0, 0.0), (12.0, 0.0)]),   # ~50% overlap with A
-        MockNet("SIG_C", [(30.0, 0.0), (40.0, 0.0)]),   # far away
+        MockNet("SIG_B", [(4.0, 0.0), (12.0, 0.0)]),  # ~50% overlap with A
+        MockNet("SIG_C", [(30.0, 0.0), (40.0, 0.0)]),  # far away
     ]
     skeletons = {"F.Cu": make_grid_skeleton("F.Cu", (-5, 45), (-10, 10), spacing=5)}
     dr = MockDesignRules()

@@ -166,7 +166,7 @@ def _check_adjacent_constraint(
     board: Board,
     result: LintResult,
 ) -> None:
-    """Check adjacent constraint for unreasonable distances.    """
+    """Check adjacent constraint for unreasonable distances."""
     # Board diagonal is the maximum possible distance
     board_diagonal = math.sqrt(board.width**2 + board.height**2)
 
@@ -247,8 +247,7 @@ def _check_contradictions(
             # Handle pairwise separation
             key = tuple(sorted([constraint.a, constraint.b]))
             if (
-                key not in separation_map
-                or constraint.min_distance_mm > separation_map[key][0]  # type: ignore[index]
+                key not in separation_map or constraint.min_distance_mm > separation_map[key][0]  # type: ignore[index]
             ):
                 separation_map[key] = (constraint.min_distance_mm, constraint.id)  # type: ignore[index]
 

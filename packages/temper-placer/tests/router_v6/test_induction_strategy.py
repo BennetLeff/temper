@@ -36,7 +36,13 @@ def test_known_compliant_routes_pass_all_validators(results: RoutingResults) -> 
     teardrops = insert_teardrops(results)
 
     generate_manufacturing_report(
-        acid, annular, teardrops, thermal, copper, creepage, clearance,
+        acid,
+        annular,
+        teardrops,
+        thermal,
+        copper,
+        creepage,
+        clearance,
     )
 
     # Every validator should report zero violations
@@ -46,18 +52,12 @@ def test_known_compliant_routes_pass_all_validators(results: RoutingResults) -> 
     assert creepage.violation_count == 0, (
         f"Creepage: expected 0 violations, got {creepage.violation_count}"
     )
-    assert acid.trap_count == 0, (
-        f"Acid trap: expected 0 traps, got {acid.trap_count}"
-    )
+    assert acid.trap_count == 0, f"Acid trap: expected 0 traps, got {acid.trap_count}"
     assert annular.violation_count == 0, (
         f"Annular ring: expected 0 violations, got {annular.violation_count}"
     )
-    assert teardrops.teardrop_count >= 0, (
-        "Teardrops: teardrop_count should be >= 0"
-    )
-    assert thermal.relief_count >= 0, (
-        "Thermal relief: relief_count should be >= 0"
-    )
+    assert teardrops.teardrop_count >= 0, "Teardrops: teardrop_count should be >= 0"
+    assert thermal.relief_count >= 0, "Thermal relief: relief_count should be >= 0"
 
 
 def test_strategy_bootstrap_empty() -> None:
@@ -72,7 +72,13 @@ def test_strategy_bootstrap_empty() -> None:
     copper = analyze_copper_balance(rr, board_width=200.0, board_height=150.0)
     teardrops = insert_teardrops(rr)
     generate_manufacturing_report(
-        acid, annular, teardrops, thermal, copper, creepage, clearance,
+        acid,
+        annular,
+        teardrops,
+        thermal,
+        copper,
+        creepage,
+        clearance,
     )
 
     assert clearance.violation_count == 0

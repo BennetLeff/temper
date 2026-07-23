@@ -72,8 +72,17 @@ class ConfigValidationError(Exception):
 
 
 _LOSS_NAMES = [
-    "overlap", "boundary", "wirelength", "spread", "edge_avoidance",
-    "group_cluster", "thermal", "zone", "clearance", "loop_area", "star_point",
+    "overlap",
+    "boundary",
+    "wirelength",
+    "spread",
+    "edge_avoidance",
+    "group_cluster",
+    "thermal",
+    "zone",
+    "clearance",
+    "loop_area",
+    "star_point",
 ]
 
 
@@ -108,7 +117,9 @@ def _parse_proximity_rules(group_cfg: dict) -> list[ProximityRule]:
             continue
         if isinstance(pair, (list, tuple)) and len(pair) >= 2:
             rules.append(
-                ProximityRule(component_a=pair[0], component_b=pair[1], max_distance_mm=max_dist, tier=tier)
+                ProximityRule(
+                    component_a=pair[0], component_b=pair[1], max_distance_mm=max_dist, tier=tier
+                )
             )
     return rules
 
@@ -124,8 +135,11 @@ def _preprocess_config(raw: dict) -> dict:
         processed["board_height_mm"] = board.get("height_mm", 150.0)
         processed["board_margin_mm"] = board.get("margin_mm", 3.0)
         if "keepouts" in board:
-            processed["keepouts"] = [tuple(ko) for ko in board["keepouts"]
-                                     if isinstance(ko, (list, tuple)) and len(ko) >= 4]
+            processed["keepouts"] = [
+                tuple(ko)
+                for ko in board["keepouts"]
+                if isinstance(ko, (list, tuple)) and len(ko) >= 4
+            ]
     else:
         processed["board_width_mm"] = raw.get("board_width_mm", 100.0)
         processed["board_height_mm"] = raw.get("board_height_mm", 150.0)
@@ -179,7 +193,10 @@ def _preprocess_config(raw: dict) -> dict:
     # --- PCL constraints ---
     if "constraints" in raw:
         from temper_placer.pcl.parser import parse_constraint_dict
-        processed["pcl_constraints"] = [parse_constraint_dict(entry) for entry in raw["constraints"]]
+
+        processed["pcl_constraints"] = [
+            parse_constraint_dict(entry) for entry in raw["constraints"]
+        ]
 
     # --- Net assignments ---
     if "net_assignments" in raw and isinstance(raw["net_assignments"], dict):
@@ -306,7 +323,9 @@ def _preprocess_config(raw: dict) -> dict:
             min_separation_mm=high_power.get("min_separation_mm", 15.0),
             heat_sensitive_components=heat_sensitive.get("components", []),
             max_temp_rise_c=heat_sensitive.get("max_temp_rise_c", 20.0),
-            min_distance_from_heat_sources_mm=heat_sensitive.get("min_distance_from_heat_sources_mm", 20.0),
+            min_distance_from_heat_sources_mm=heat_sensitive.get(
+                "min_distance_from_heat_sources_mm", 20.0
+            ),
             thermal_pad_components=thermal_pads.get("components", []),
             prefer_edge=thermal_pads.get("prefer_edge", True),
             preferred_edge_margin_mm=thermal_pads.get("preferred_edge_margin_mm", 10.0),
@@ -502,15 +521,19 @@ def _preprocess_config(raw: dict) -> dict:
             for fp in kc.get("force_pins", []):
                 graph.edges.append(
                     SubNetEdge(
-                        source_pin=star_pin, sink_pin=fp,
-                        trace_width_mm=kc.get("force_width_mm", 1.0), priority=10,
+                        source_pin=star_pin,
+                        sink_pin=fp,
+                        trace_width_mm=kc.get("force_width_mm", 1.0),
+                        priority=10,
                     )
                 )
             for sp in kc.get("sense_pins", []):
                 graph.edges.append(
                     SubNetEdge(
-                        source_pin=star_pin, sink_pin=sp,
-                        trace_width_mm=kc.get("sense_width_mm", 0.2), priority=5,
+                        source_pin=star_pin,
+                        sink_pin=sp,
+                        trace_width_mm=kc.get("sense_width_mm", 0.2),
+                        priority=5,
                     )
                 )
             processed["net_topologies"].append(graph)
@@ -546,12 +569,18 @@ def _preprocess_config(raw: dict) -> dict:
         processed["losses"] = _build_losses_config(raw["losses"])
     elif "loss_weights" in raw:
         _NAME_MAP = {
-            "zone_membership": "zone", "zone": "zone",
-            "overlap": "overlap", "boundary": "boundary",
-            "wirelength": "wirelength", "spread": "spread",
-            "edge_avoidance": "edge_avoidance", "group_cluster": "group_cluster",
-            "thermal": "thermal", "clearance": "clearance",
-            "loop_area": "loop_area", "star_point": "star_point",
+            "zone_membership": "zone",
+            "zone": "zone",
+            "overlap": "overlap",
+            "boundary": "boundary",
+            "wirelength": "wirelength",
+            "spread": "spread",
+            "edge_avoidance": "edge_avoidance",
+            "group_cluster": "group_cluster",
+            "thermal": "thermal",
+            "clearance": "clearance",
+            "loop_area": "loop_area",
+            "star_point": "star_point",
         }
         mapped_weights = {}
         for wkey, wval in raw["loss_weights"].items():
@@ -623,7 +652,12 @@ def _preprocess_config(raw: dict) -> dict:
         ]
 
     if "hv_exclusion_zones" in raw:
-        _NAME_TO_REFDES = {"q1_hv_zone": "Q1", "q2_hv_zone": "Q2", "q1_hv_exclusion": "Q1", "q2_hv_exclusion": "Q2"}
+        _NAME_TO_REFDES = {
+            "q1_hv_zone": "Q1",
+            "q2_hv_zone": "Q2",
+            "q1_hv_exclusion": "Q1",
+            "q2_hv_exclusion": "Q2",
+        }
         processed["hv_exclusion_zones"] = []
         for hc in raw["hv_exclusion_zones"]:
             center = hc["center"]
@@ -756,6 +790,7 @@ def _build_net_classification(constraints: PlacementConstraints, net_class_rules
     validation_errors = constraints.net_classification.validate_all()
     if validation_errors:
         import logging
+
         logger = logging.getLogger(__name__)
         for net_name, errors in validation_errors.items():
             for error in errors:
@@ -767,6 +802,7 @@ def _emit_keepout_constraints(constraints: PlacementConstraints) -> None:
     for zone in constraints.zones:
         if getattr(zone, "zone_type", "placement") == "keepout":
             from temper_placer.pcl.constraints import ConstraintTier, KeepoutConstraint
+
             constraints.pcl_constraints.append(
                 KeepoutConstraint(
                     zone_name=zone.name,
@@ -782,6 +818,7 @@ def _validate_current_capacity(constraints: PlacementConstraints) -> None:
     import logging
 
     from temper_placer.core.ipc2221 import estimate_current_from_net_class
+
     logger = logging.getLogger(__name__)
     for net_name, net_class_name in constraints.net_classes.items():
         net_class = constraints.net_class_rules.get(net_class_name)
@@ -860,6 +897,7 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
     """Convert placement constraints to routing design rules."""
     from temper_placer.core.design_rules import DesignRules
     from temper_placer.core.design_rules import NetClassRules as CoreNetClassRules
+
     rules = DesignRules()
     rules.net_class_assignments = constraints.net_classes.copy()
     for name, rule in constraints.net_class_rules.items():
@@ -877,11 +915,16 @@ def constraints_to_design_rules(constraints: PlacementConstraints) -> DesignRule
             dru_priority=0,
         )
     for pair_rule in constraints.differential_pairs:
-        rules.differential_pairs.append(DifferentialPairConstraint(
-            net_pos=pair_rule.net_pos, net_neg=pair_rule.net_neg,
-            spacing_mm=pair_rule.spacing_mm, coupling_tolerance_mm=pair_rule.coupling_tolerance_mm,
-            impedance_ohm=pair_rule.impedance_ohm, max_skew_mm=pair_rule.max_skew_mm,
-        ))
+        rules.differential_pairs.append(
+            DifferentialPairConstraint(
+                net_pos=pair_rule.net_pos,
+                net_neg=pair_rule.net_neg,
+                spacing_mm=pair_rule.spacing_mm,
+                coupling_tolerance_mm=pair_rule.coupling_tolerance_mm,
+                impedance_ohm=pair_rule.impedance_ohm,
+                max_skew_mm=pair_rule.max_skew_mm,
+            )
+        )
     for graph in constraints.net_topologies:
         rules.net_topologies[graph.net_name] = graph
     return rules

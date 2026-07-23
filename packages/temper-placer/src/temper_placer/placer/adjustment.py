@@ -47,10 +47,7 @@ def adjust_for_congestion(
         if bottleneck.overflow <= 0:
             continue
 
-        bx, by = bottleneck.to_coordinates(
-            congestion.grid.cell_size_mm,
-            congestion.grid.origin
-        )
+        bx, by = bottleneck.to_coordinates(congestion.grid.cell_size_mm, congestion.grid.origin)
 
         # 2. Push components away from (bx, by)
         for i in range(len(netlist.components)):
@@ -64,9 +61,9 @@ def adjust_for_congestion(
             # Influence radius: say 10mm
             influence_radius = 10.0
             if dist < influence_radius:
-                if dist < 1e-3: # At the exact spot
+                if dist < 1e-3:  # At the exact spot
                     # Random push
-                    angle = np.random.uniform(0, 2*np.pi)
+                    angle = np.random.uniform(0, 2 * np.pi)
                     result[i] += [push_strength * np.cos(angle), push_strength * np.sin(angle)]
                 else:
                     # Normalized push

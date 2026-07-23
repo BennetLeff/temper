@@ -99,14 +99,8 @@ class GateResult:
     error_message: str = ""
 
     def __post_init__(self):
-        if (
-            self.status is GateStatus.VIOLATIONS
-            and len(self.violations) == 0
-        ):
-            raise ValueError(
-                "GateResult with status=VIOLATIONS must have at least "
-                "one Violation"
-            )
+        if self.status is GateStatus.VIOLATIONS and len(self.violations) == 0:
+            raise ValueError("GateResult with status=VIOLATIONS must have at least one Violation")
 
 
 @dataclass(frozen=True)
@@ -143,6 +137,7 @@ class Gate:
         (e.g. an intra-component clearance placement cannot fix).
         """
         from temper_placer.placer.cp_sat.delta_mapper import DeltaMapper
+
         return DeltaMapper.map(violation)
 
 
@@ -171,12 +166,18 @@ class DrcGate(Gate):
             try:
                 result = subprocess.run(
                     [
-                        "kicad-cli", "pcb", "drc",
-                        "--format", "json",
-                        "-o", str(drc_out),
+                        "kicad-cli",
+                        "pcb",
+                        "drc",
+                        "--format",
+                        "json",
+                        "-o",
+                        str(drc_out),
                         str(pcb_path),
                     ],
-                    capture_output=True, text=True, timeout=120,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
                     env={
                         **os.environ,
                         "KICAD7_FOOTPRINT_DIR": "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints",
@@ -191,10 +192,7 @@ class DrcGate(Gate):
             if result.returncode != 0:
                 return GateResult(
                     GateStatus.UNMEASURED,
-                    error_message=(
-                        f"kicad-cli exit {result.returncode}: "
-                        f"{result.stderr[:200]}"
-                    ),
+                    error_message=(f"kicad-cli exit {result.returncode}: {result.stderr[:200]}"),
                 )
 
             if not drc_out.exists():
@@ -233,9 +231,7 @@ class DrcGate(Gate):
                 )
 
             if violations:
-                return GateResult(
-                    GateStatus.VIOLATIONS, violations=tuple(violations)
-                )
+                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
             return GateResult(GateStatus.CLEAN)
         finally:
             with contextlib.suppress(OSError):
@@ -266,12 +262,18 @@ class RoutingGate(Gate):
             try:
                 result = subprocess.run(
                     [
-                        "kicad-cli", "pcb", "drc",
-                        "--format", "json",
-                        "-o", str(drc_out),
+                        "kicad-cli",
+                        "pcb",
+                        "drc",
+                        "--format",
+                        "json",
+                        "-o",
+                        str(drc_out),
                         str(state.routed_pcb_path),
                     ],
-                    capture_output=True, text=True, timeout=120,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
                 )
             except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
                 return GateResult(
@@ -282,10 +284,7 @@ class RoutingGate(Gate):
             if result.returncode != 0:
                 return GateResult(
                     GateStatus.UNMEASURED,
-                    error_message=(
-                        f"kicad-cli exit {result.returncode}: "
-                        f"{result.stderr[:200]}"
-                    ),
+                    error_message=(f"kicad-cli exit {result.returncode}: {result.stderr[:200]}"),
                 )
 
             if not drc_out.exists():
@@ -322,9 +321,7 @@ class RoutingGate(Gate):
                 )
 
             if violations:
-                return GateResult(
-                    GateStatus.VIOLATIONS, violations=tuple(violations)
-                )
+                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
             return GateResult(GateStatus.CLEAN)
         finally:
             with contextlib.suppress(OSError):
@@ -420,9 +417,7 @@ class StackupGate(Gate):
                     violations.append(density_violation)
 
             if violations:
-                return GateResult(
-                    GateStatus.VIOLATIONS, violations=tuple(violations)
-                )
+                return GateResult(GateStatus.VIOLATIONS, violations=tuple(violations))
             return GateResult(GateStatus.CLEAN)
 
         except Exception as exc:
@@ -435,9 +430,7 @@ class StackupGate(Gate):
     # Reference-plane split (R2)
     # ------------------------------------------------------------------
 
-    def _check_reference_plane(
-        self, _net_name: str, _route: Any
-    ) -> list[Violation]:
+    def _check_reference_plane(self, _net_name: str, _route: Any) -> list[Violation]:
         """Detect signal traces crossing reference-plane splits.
 
         For now this is a structural check: when U4 provides plane-zone
@@ -452,9 +445,7 @@ class StackupGate(Gate):
     # Current density (R3)
     # ------------------------------------------------------------------
 
-    def _check_current_density(
-        self, net_name: str, route: Any
-    ) -> Violation | None:
+    def _check_current_density(self, net_name: str, route: Any) -> Violation | None:
         """Check trace width meets IPC-2152 minimum for the net's current."""
         current_a = self._DEFAULT_NET_CURRENTS.get(net_name, self._DEFAULT_CURRENT)
 
@@ -535,6 +526,7 @@ def _is_internal_net(_net_name: str, route: Any) -> bool:
 # Replaced by core.ipc2152 when W2/U3 lands.  # TODO(U3)
 # ------------------------------------------------------------------
 
+
 def _min_width_ipc2152(
     current_a: float,
     copper_oz: float = 1.0,
@@ -580,7 +572,7 @@ def _ipc2152_forward(
     thickness_mils = copper_oz * 1.37
     area_mils2 = width_mils * thickness_mils
 
-    k_ext = 0.065   # IPC-2152 external-coefficient for 1oz (cf 0.048 IPC-2221)
+    k_ext = 0.065  # IPC-2152 external-coefficient for 1oz (cf 0.048 IPC-2221)
     current_ext = k_ext * (temp_rise_c**0.44) * (area_mils2**0.725)
 
     if internal_layer:
@@ -666,11 +658,7 @@ class IECCreepageGate(Gate):
             entry_names = err.nets or []
 
             hv_nets = [n for n in entry_names if _is_hv_net(n)]
-            lv_nets = [
-                n
-                for n in entry_names
-                if not _is_hv_net(n) and n and not n[0].isdigit()
-            ]
+            lv_nets = [n for n in entry_names if not _is_hv_net(n) and n and not n[0].isdigit()]
 
             if hv_nets and lv_nets:
                 violations.append(
@@ -872,9 +860,7 @@ class PhysicsGate(Gate):
                         comp = c
                         break
 
-                footprint_area_mm2: float = (
-                    comp.bounds[0] * comp.bounds[1] if comp else 0.0
-                )
+                footprint_area_mm2: float = comp.bounds[0] * comp.bounds[1] if comp else 0.0
 
                 via_count = count_thermal_vias(pcb, ref)
                 pour_area = thermal_pour_area(pcb, ref)
@@ -882,9 +868,7 @@ class PhysicsGate(Gate):
                 if pour_area is None:
                     return GateResult(
                         GateStatus.UNMEASURED,
-                        error_message=(
-                            f"thermal-via {ref}: pour-area measurement failed"
-                        ),
+                        error_message=(f"thermal-via {ref}: pour-area measurement failed"),
                     )
 
                 if via_count < self._THERMAL_VIA_MIN_COUNT:

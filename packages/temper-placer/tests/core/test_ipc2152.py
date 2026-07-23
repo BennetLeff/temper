@@ -82,10 +82,14 @@ class TestIpc2152MinWidthMm:
 
 class TestConvenienceWrappers:
     def test_external_same_as_core(self):
-        assert ipc2152_external_width(1.0, 1.0) == ipc2152_min_width_mm(1.0, 1.0, internal_layer=False)
+        assert ipc2152_external_width(1.0, 1.0) == ipc2152_min_width_mm(
+            1.0, 1.0, internal_layer=False
+        )
 
     def test_internal_same_as_core(self):
-        assert ipc2152_internal_width(1.0, 1.0) == ipc2152_min_width_mm(1.0, 1.0, internal_layer=True)
+        assert ipc2152_internal_width(1.0, 1.0) == ipc2152_min_width_mm(
+            1.0, 1.0, internal_layer=True
+        )
 
 
 # ---------------------------------------------------------------------------

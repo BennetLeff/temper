@@ -17,18 +17,34 @@ def test_layer_assignment_by_net_class():
     board = Board(width=100, height=100)
 
     # Create components
-    c1 = Component(ref="Q1", footprint="TO-247", bounds=(5, 5),
-                   pins=[Pin("1", "C", (0, 0), net="AC_L")],
-                   initial_position=(10, 10))
-    c2 = Component(ref="C1", footprint="CAP", bounds=(3, 3),
-                   pins=[Pin("1", "1", (0, 0), net="GND")],
-                   initial_position=(20, 20))
-    c3 = Component(ref="U1", footprint="IC", bounds=(4, 4),
-                   pins=[Pin("1", "VDD", (0, 0), net="+3V3")],
-                   initial_position=(30, 30))
-    c4 = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="SPI_CLK")],
-                   initial_position=(40, 40))
+    c1 = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(5, 5),
+        pins=[Pin("1", "C", (0, 0), net="AC_L")],
+        initial_position=(10, 10),
+    )
+    c2 = Component(
+        ref="C1",
+        footprint="CAP",
+        bounds=(3, 3),
+        pins=[Pin("1", "1", (0, 0), net="GND")],
+        initial_position=(20, 20),
+    )
+    c3 = Component(
+        ref="U1",
+        footprint="IC",
+        bounds=(4, 4),
+        pins=[Pin("1", "VDD", (0, 0), net="+3V3")],
+        initial_position=(30, 30),
+    )
+    c4 = Component(
+        ref="R1",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="SPI_CLK")],
+        initial_position=(40, 40),
+    )
 
     # Create nets with net classes
     nets = [
@@ -50,7 +66,7 @@ def test_layer_assignment_by_net_class():
 
     # Verify layer assignments
     assert assignments["AC_L"] == 0  # HighVoltage -> L0 (Top)
-    assert assignments["GND"] == 1   # Ground -> L1 (Inner GND)
+    assert assignments["GND"] == 1  # Ground -> L1 (Inner GND)
     assert assignments["+3V3"] == 2  # Power -> L2 (Inner Power)
     assert assignments["SPI_CLK"] == 0  # Signal -> L0 (Top)
 
@@ -59,9 +75,13 @@ def test_manual_layer_assignment():
     """Test that manual assignments override net class rules."""
     board = Board(width=100, height=100)
 
-    c1 = Component(ref="R1", footprint="0603", bounds=(1.6, 0.8),
-                   pins=[Pin("1", "1", (0, 0), net="TEST_NET")],
-                   initial_position=(10, 10))
+    c1 = Component(
+        ref="R1",
+        footprint="0603",
+        bounds=(1.6, 0.8),
+        pins=[Pin("1", "1", (0, 0), net="TEST_NET")],
+        initial_position=(10, 10),
+    )
 
     nets = [Net("TEST_NET", [("R1", "1")], net_class="Signal")]
     netlist = Netlist(components=[c1], nets=nets)
@@ -83,9 +103,13 @@ def test_all_nets_assigned():
     components = []
     nets = []
     for i in range(10):
-        comp = Component(ref=f"R{i}", footprint="0603", bounds=(1.6, 0.8),
-                        pins=[Pin("1", "1", (0, 0), net=f"NET_{i}")],
-                        initial_position=(10 + i*5, 10))
+        comp = Component(
+            ref=f"R{i}",
+            footprint="0603",
+            bounds=(1.6, 0.8),
+            pins=[Pin("1", "1", (0, 0), net=f"NET_{i}")],
+            initial_position=(10 + i * 5, 10),
+        )
         components.append(comp)
         nets.append(Net(f"NET_{i}", [(f"R{i}", "1")], net_class="Signal"))
 
@@ -121,12 +145,13 @@ def test_differential_pair_layer_assignment():
     """Test that differential pair nets are assigned to same layer."""
     board = Board(width=100, height=100)
 
-    c1 = Component(ref="J1", footprint="USB", bounds=(5, 5),
-                   pins=[
-                       Pin("1", "D+", (0, 0), net="USB_D+"),
-                       Pin("2", "D-", (1, 0), net="USB_D-")
-                   ],
-                   initial_position=(10, 10))
+    c1 = Component(
+        ref="J1",
+        footprint="USB",
+        bounds=(5, 5),
+        pins=[Pin("1", "D+", (0, 0), net="USB_D+"), Pin("2", "D-", (1, 0), net="USB_D-")],
+        initial_position=(10, 10),
+    )
 
     nets = [
         Net("USB_D+", [("J1", "D+")], net_class="Differential"),

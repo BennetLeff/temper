@@ -105,17 +105,16 @@ class FeedbackClassifier:
         unclassified: list[UnclassifiedFailure] = []
 
         # Extract routing failures from the result object
-        unrouted_nets: list[str] = getattr(routing_result, 'unrouted_nets', [])
-        drc_violations: list[object] = getattr(routing_result, 'drc_violations', [])
-        congestion_regions: list[object] = getattr(routing_result, 'congestion_regions', [])
-        completion_rate = getattr(routing_result, 'completion_rate', 0.0)
+        unrouted_nets: list[str] = getattr(routing_result, "unrouted_nets", [])
+        drc_violations: list[object] = getattr(routing_result, "drc_violations", [])
+        congestion_regions: list[object] = getattr(routing_result, "congestion_regions", [])
+        completion_rate = getattr(routing_result, "completion_rate", 0.0)
         # A fully connected board with DRC violations is not converged.  It
         # needs the clearance-feedback path below, not an early clean result.
         if completion_rate >= 1.0 and not drc_violations:
             return ClassificationResult(deltas=[], unclassified=[], round_number=round_number)
         placed_refs: list[str] = list(
-            getattr(placement, "placed_refs", [])
-            or getattr(placement, "positions", {}).keys()
+            getattr(placement, "placed_refs", []) or getattr(placement, "positions", {}).keys()
         )
 
         # Class 2: DRC clearance violations (check first — these are corrective)
@@ -124,14 +123,16 @@ class FeedbackClassifier:
             if delta:
                 deltas.append(delta)
             else:
-                comps = getattr(violation, 'components', [])
-                loc = getattr(violation, 'location', (0.0, 0.0))
-                msg = getattr(violation, 'message', 'unknown drc violation')
-                unclassified.append(UnclassifiedFailure(
-                    description=f"DRC: {msg}",
-                    components=list(comps),
-                    region=(loc[0] - 5, loc[1] - 5, loc[0] + 5, loc[1] + 5),
-                ))
+                comps = getattr(violation, "components", [])
+                loc = getattr(violation, "location", (0.0, 0.0))
+                msg = getattr(violation, "message", "unknown drc violation")
+                unclassified.append(
+                    UnclassifiedFailure(
+                        description=f"DRC: {msg}",
+                        components=list(comps),
+                        region=(loc[0] - 5, loc[1] - 5, loc[0] + 5, loc[1] + 5),
+                    )
+                )
 
         # Class 1: Congestion in corridor between components
         for region in congestion_regions:
@@ -139,9 +140,11 @@ class FeedbackClassifier:
             if delta:
                 deltas.append(delta)
             else:
-                unclassified.append(UnclassifiedFailure(
-                    description="Congestion in region",
-                ))
+                unclassified.append(
+                    UnclassifiedFailure(
+                        description="Congestion in region",
+                    )
+                )
 
         # Class 3: Unrouted critical pins
         for net_name in unrouted_nets:
@@ -168,10 +171,12 @@ class FeedbackClassifier:
         for net_name in unrouted_nets:
             critical_refs = self._find_critical_components(net_name, placement, placed_refs)
             if not critical_refs:
-                unclassified.append(UnclassifiedFailure(
-                    description=f"Unrouted net: {net_name}",
-                    nets=[net_name],
-                ))
+                unclassified.append(
+                    UnclassifiedFailure(
+                        description=f"Unrouted net: {net_name}",
+                        nets=[net_name],
+                    )
+                )
 
         # Sort by priority (lowest first = strongest signal)
         deltas.sort(key=lambda d: d.priority)
@@ -186,13 +191,11 @@ class FeedbackClassifier:
     # Class 1: Congestion
     # -----------------------------------------------------------------------
 
-    def _handle_congestion(
-        self, region: object, placed_refs: list[str]
-    ) -> ConstraintDelta | None:
+    def _handle_congestion(self, region: object, placed_refs: list[str]) -> ConstraintDelta | None:
         """Handle congestion by injecting SeparatedConstraint for adjacent components."""
-        comp_a = getattr(region, 'comp_a', None)
-        comp_b = getattr(region, 'comp_b', None)
-        current_distance = getattr(region, 'current_distance_mm', 2.0)
+        comp_a = getattr(region, "comp_a", None)
+        comp_b = getattr(region, "comp_b", None)
+        current_distance = getattr(region, "current_distance_mm", 2.0)
 
         if comp_a and comp_b and comp_a in placed_refs and comp_b in placed_refs:
             from temper_placer.pcl.constraints import (
@@ -215,7 +218,7 @@ class FeedbackClassifier:
                 priority=10,
             )
 
-        bbox = getattr(region, 'bbox', None)
+        bbox = getattr(region, "bbox", None)
         if bbox is not None:
             from temper_placer.pcl.constraints import (
                 ConstraintTier,
@@ -240,16 +243,14 @@ class FeedbackClassifier:
     # Class 2: DRC Clearance Violation
     # -----------------------------------------------------------------------
 
-    def _handle_clearance_violation(
-        self, violation: object
-    ) -> ConstraintDelta | None:
+    def _handle_clearance_violation(self, violation: object) -> ConstraintDelta | None:
         """Handle DRC clearance violation by injecting stronger SeparatedConstraint."""
-        comp_a = getattr(violation, 'comp_a', None)
-        comp_b = getattr(violation, 'comp_b', None)
-        required_mm = getattr(violation, 'required_mm', 6.0)
+        comp_a = getattr(violation, "comp_a", None)
+        comp_b = getattr(violation, "comp_b", None)
+        required_mm = getattr(violation, "required_mm", 6.0)
 
         if not comp_a or not comp_b:
-            components = getattr(violation, 'components', [])
+            components = getattr(violation, "components", [])
             if len(components) >= 2:
                 comp_a, comp_b = components[0], components[1]
 
@@ -260,10 +261,11 @@ class FeedbackClassifier:
         because_text = f"Post-route DRC clearance violation at {required_mm}mm — enforce separation"
 
         if self.design_rules is not None:
-            net_a = getattr(violation, 'net_a', None)
-            net_b = getattr(violation, 'net_b', None)
+            net_a = getattr(violation, "net_a", None)
+            net_b = getattr(violation, "net_b", None)
             if net_a and net_b:
                 from temper_placer.core.net_classification import classify_net_type
+
                 _map = {"ground": "GND", "power": "Power", "hv": "HighVoltage", "signal": "Signal"}
                 class_a = _map.get(classify_net_type(net_a), "Signal")
                 class_b = _map.get(classify_net_type(net_b), "Signal")
@@ -271,8 +273,13 @@ class FeedbackClassifier:
                 rules_b = self.design_rules.get_rules_for_net("", net_class=class_b)
                 authoriative_mm = max(rules_a.clearance, rules_b.clearance)
                 cp_key = tuple(sorted([class_a, class_b]))
-                if hasattr(self.design_rules, 'class_pairs') and cp_key in self.design_rules.class_pairs:
-                    authoriative_mm = self.design_rules.class_pairs[cp_key].get("clearance", authoriative_mm)
+                if (
+                    hasattr(self.design_rules, "class_pairs")
+                    and cp_key in self.design_rules.class_pairs
+                ):
+                    authoriative_mm = self.design_rules.class_pairs[cp_key].get(
+                        "clearance", authoriative_mm
+                    )
                     because_text = self.design_rules.class_pairs[cp_key].get("because", "")
                 else:
                     because_text = ""
@@ -304,7 +311,7 @@ class FeedbackClassifier:
         self, comp_ref: str, net_name: str, placement: object
     ) -> ConstraintDelta | None:
         """Handle unrouted critical pin by injecting AnchoredConstraint."""
-        positions = getattr(placement, 'positions', None)
+        positions = getattr(placement, "positions", None)
         placed_refs = list(
             getattr(placement, "placed_refs", [])
             or (positions.keys() if isinstance(positions, dict) else [])
@@ -365,7 +372,7 @@ class FeedbackClassifier:
 
         # Restrict rotation: force dense side away from routing corridor
         # This is a soft anchoring with rotation bias
-        positions = getattr(placement, 'positions', None)
+        positions = getattr(placement, "positions", None)
         placed_refs = list(
             getattr(placement, "placed_refs", [])
             or (positions.keys() if isinstance(positions, dict) else [])
@@ -402,7 +409,10 @@ class FeedbackClassifier:
     # -----------------------------------------------------------------------
 
     def _find_critical_components(
-        self, net_name: str, _placement: object, placed_refs: list[str],
+        self,
+        net_name: str,
+        _placement: object,
+        placed_refs: list[str],
         _netlist: object | None = None,
     ) -> list[str]:
         """Find critical ICs involved in an unrouted net.
@@ -448,10 +458,7 @@ class FeedbackClassifier:
                 if comp in self.CRITICAL_ICS:
                     ic_fail_count[comp] = ic_fail_count.get(comp, 0) + 1
 
-        return [
-            ic for ic, count in ic_fail_count.items()
-            if count >= self.PERSISTENCE_THRESHOLD
-        ]
+        return [ic for ic, count in ic_fail_count.items() if count >= self.PERSISTENCE_THRESHOLD]
 
 
 def _compute_heuristic_position(

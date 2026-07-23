@@ -7,6 +7,7 @@ related functions. These are essential for computing differentiable HPWL
 
 All functions delegate to the temper_geometry Rust crate.
 """
+
 import temper_geometry as _tg
 
 # =============================================================================

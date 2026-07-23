@@ -76,7 +76,7 @@ class TestGraphHeuristics:
     def test_disconnected_components(self):
         """Verify that disconnected components still become nodes."""
         u1 = Component(ref="U1", footprint="SOIC-8", bounds=(5, 5))
-        u2 = Component(ref="U2", footprint="SOIC-8", bounds=(5, 5)) # Not connected to anything
+        u2 = Component(ref="U2", footprint="SOIC-8", bounds=(5, 5))  # Not connected to anything
 
         netlist = Netlist()
         netlist.components = [u1, u2]

@@ -290,9 +290,7 @@ def test_captured_ref2025_divider_network_separates_every_rtd_corner(
         high_top_ohm=RTD_HIGH_WINDOW_TOP_OHM * high_top_scale,
         high_bottom_ohm=RTD_HIGH_WINDOW_BOTTOM_OHM * high_bottom_scale,
     )
-    sensed_v = max31865_rtd_voltage_v(
-        resistance_ohm, vbias_v=vbias_v, rref_ohm=430.0 * rref_scale
-    )
+    sensed_v = max31865_rtd_voltage_v(resistance_ohm, vbias_v=vbias_v, rref_ohm=430.0 * rref_scale)
     faulted = sensed_v <= low_threshold_v + comparator_offset_v or sensed_v >= (
         high_threshold_v + comparator_offset_v
     )

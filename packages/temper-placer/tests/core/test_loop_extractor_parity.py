@@ -10,34 +10,37 @@ Python extractor and the bridge reconstruction maps.
 
 from __future__ import annotations
 
-import warnings
-
 import pytest
 
-from temper_placer.core.loop import Loop, LoopCollection, LoopEvent, LoopPriority
-from temper_placer.core.loop_extractor_rs import _LOOP_TYPE_EVENTS, _LOOP_TYPE_PRIORITY
+from temper_placer.core.loop import Loop, LoopEvent, LoopPriority
 from temper_placer.core.loop_extractor_rs import (
+    _LOOP_TYPE_EVENTS,
+    _LOOP_TYPE_PRIORITY,
     _LOOP_TYPE_RETURN_LAYER,
     _LOOP_TYPE_RETURN_NET,
     _dict_to_loop_collection,
 )
 
 # Fields common to all loop types — these must match between Python and Rust
-_STRUCTURAL_FIELDS = frozenset({
-    "components",
-    "nets",
-    "loop_type",
-    "max_area_mm2",
-    "name",
-})
+_STRUCTURAL_FIELDS = frozenset(
+    {
+        "components",
+        "nets",
+        "loop_type",
+        "max_area_mm2",
+        "name",
+    }
+)
 
 # Fields reconstructed from loop_type in the bridge — must match Python values
-_RECONSTRUCTED_FIELDS = frozenset({
-    "priority",
-    "events",
-    "return_layer",
-    "return_net",
-})
+_RECONSTRUCTED_FIELDS = frozenset(
+    {
+        "priority",
+        "events",
+        "return_layer",
+        "return_net",
+    }
+)
 
 # Fields genuinely lost — allowed to differ
 _LOST_FIELDS = frozenset({"pins", "source", "description"})
@@ -153,8 +156,7 @@ class TestParityStructuralEquality:
             bridge_val = getattr(bridge_loop, field)
             py_val = getattr(python_loop, field)
             assert bridge_val == py_val, (
-                f"Field '{field}' differs for {loop_type}: "
-                f"bridge={bridge_val!r}, python={py_val!r}"
+                f"Field '{field}' differs for {loop_type}: bridge={bridge_val!r}, python={py_val!r}"
             )
 
     def test_fields_lost_in_bridge_are_documented(self):
@@ -175,12 +177,27 @@ class TestParityStructuralEquality:
         data = {
             "ok": True,
             "loops": [
-                {"name": "auto_commutation", "loop_type": "commutation",
-                 "components": [], "nets": [], "max_area_mm2": 100.0},
-                {"name": "auto_gate_hi", "loop_type": "gate_drive_high",
-                 "components": [], "nets": [], "max_area_mm2": 100.0},
-                {"name": "auto_bootstrap", "loop_type": "bootstrap",
-                 "components": [], "nets": [], "max_area_mm2": 100.0},
+                {
+                    "name": "auto_commutation",
+                    "loop_type": "commutation",
+                    "components": [],
+                    "nets": [],
+                    "max_area_mm2": 100.0,
+                },
+                {
+                    "name": "auto_gate_hi",
+                    "loop_type": "gate_drive_high",
+                    "components": [],
+                    "nets": [],
+                    "max_area_mm2": 100.0,
+                },
+                {
+                    "name": "auto_bootstrap",
+                    "loop_type": "bootstrap",
+                    "components": [],
+                    "nets": [],
+                    "max_area_mm2": 100.0,
+                },
             ],
         }
         collection = _dict_to_loop_collection(data)

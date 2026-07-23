@@ -46,16 +46,20 @@ def encode_enclosing(
         assumption = model.new_assumption(label)
 
         model.add_constraint_enforced(
-            v.x_start >= zx_min_u + margin_u, assumption,
+            v.x_start >= zx_min_u + margin_u,
+            assumption,
         )
         model.add_constraint_enforced(
-            v.y_start >= zy_min_u + margin_u, assumption,
+            v.y_start >= zy_min_u + margin_u,
+            assumption,
         )
         model.add_constraint_enforced(
-            v.x_end <= zx_max_u - margin_u, assumption,
+            v.x_end <= zx_max_u - margin_u,
+            assumption,
         )
         model.add_constraint_enforced(
-            v.y_end <= zy_max_u - margin_u, assumption,
+            v.y_end <= zy_max_u - margin_u,
+            assumption,
         )
         labels.append(assumption)
     return labels

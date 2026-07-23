@@ -41,8 +41,13 @@ class OutputStage:
             ps = PlacementState.from_positions(np.array(deterministic_result.positions))  # type: ignore[union-attr]
 
         try:
-            write_result = export_placements(input_pcb_path, output_pcb_path, ps,
-                                             [c.ref for c in netlist.components], board.origin)
+            write_result = export_placements(
+                input_pcb_path,
+                output_pcb_path,
+                ps,
+                [c.ref for c in netlist.components],
+                board.origin,
+            )
             print(f"  Updated: {write_result.components_updated} components")
             add_bounding_boxes_to_pcb(output_pcb_path)
             add_silkscreen_labels(output_pcb_path)
@@ -86,4 +91,6 @@ def _compute_physics_metrics(state: PipelineState) -> None:
     power = {"Q1": 15.0, "Q2": 15.0, "U_BUCK": 2.0}
     thermal = measure_thermal(ps, state.netlist, state.board, power_dissipation=power)
     routability = measure_routability(ps, state.netlist, state.board)
-    state.physics_report = PhysicsReport(geometric=geo, emi=emi, thermal=thermal, routability=routability)
+    state.physics_report = PhysicsReport(
+        geometric=geo, emi=emi, thermal=thermal, routability=routability
+    )

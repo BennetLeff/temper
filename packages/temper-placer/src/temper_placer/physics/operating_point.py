@@ -118,9 +118,7 @@ def _validate_config(raw: dict[str, Any]) -> OperatingPointConfig:
     required = {"V_bus", "V_BR", "I_load_rms", "L_coil", "L_leakage", "f_sw"}
     missing = required - raw.keys()
     if missing:
-        raise TypeError(
-            f"OperatingPointConfig missing required keys: {sorted(missing)}"
-        )
+        raise TypeError(f"OperatingPointConfig missing required keys: {sorted(missing)}")
     kwargs: dict[str, Any] = {k: raw[k] for k in required}
     for opt in (
         "T_amb",
@@ -283,6 +281,7 @@ def _interior_bounding_soundness_check(
         so the caller can diagnose which physical quantity drifted.
     """
     if coupling_l_eff_fn is None:
+
         def coupling_l_eff_fn(k):
             return _l_eff(cfg, k)
 
@@ -428,10 +427,7 @@ def compute_extremes(cfg: OperatingPointConfig) -> tuple[_ExtremePoint, _Extreme
         num = v_br_derated - cfg.V_bus
         l_loop_max = 0.0 if num <= 0 else num / di_dt_val
 
-        feasible = (
-            T_j <= cfg.T_j_max
-            and l_loop_max >= cfg.min_feasible_L_loop
-        )
+        feasible = T_j <= cfg.T_j_max and l_loop_max >= cfg.min_feasible_L_loop
         return _ExtremePoint(
             label=label,
             coupling=coupling,
@@ -587,19 +583,14 @@ class OperatingPointGate(Gate):
                             f"lower f_sw / part swap."
                         ),
                         context={
-                            "because": (
-                                "IEC 60335-1 §11; device datasheet "
-                                "absolute-maximum T_j"
-                            ),
+                            "because": ("IEC 60335-1 §11; device datasheet absolute-maximum T_j"),
                             "extreme": point.label,
                             "coupling": point.coupling,
                             "di_dt_A_per_s": point.di_dt,
                             "P_device_W": point.P_device,
                             "T_amb_C": self._cfg.T_amb,
                             "R_th_total_K_per_W": (
-                                self._cfg.R_theta_jc
-                                + self._cfg.R_theta_cs
-                                + self._cfg.R_theta_sa
+                                self._cfg.R_theta_jc + self._cfg.R_theta_cs + self._cfg.R_theta_sa
                             ),
                         },
                     )
@@ -625,17 +616,12 @@ class OperatingPointGate(Gate):
                             f"higher-V_BR part / lower V_bus."
                         ),
                         context={
-                            "because": (
-                                "device datasheet V_BR(DSS) / V_CES, "
-                                "derated per IPC-9592"
-                            ),
+                            "because": ("device datasheet V_BR(DSS) / V_CES, derated per IPC-9592"),
                             "extreme": point.label,
                             "coupling": point.coupling,
                             "di_dt_A_per_s": point.di_dt,
                             "L_loop_max_H": point.L_loop_max,
-                            "V_br_derated_V": (
-                                self._cfg.V_BR * self._cfg.derate
-                            ),
+                            "V_br_derated_V": (self._cfg.V_BR * self._cfg.derate),
                             "V_bus_V": self._cfg.V_bus,
                         },
                     )
@@ -665,10 +651,7 @@ class OperatingPointGate(Gate):
         if not cc.ran:
             return GateResult(
                 GateStatus.UNMEASURED,
-                error_message=(
-                    "SPICE cross-check could not be executed: "
-                    f"{cc.notes}"
-                ),
+                error_message=(f"SPICE cross-check could not be executed: {cc.notes}"),
             )
 
         if violations:
@@ -682,9 +665,7 @@ class OperatingPointGate(Gate):
     # SPICE cross-check helper
     # ------------------------------------------------------------------
 
-    def _run_spice_cross_check(
-        self, k0: _ExtremePoint, _k1: _ExtremePoint
-    ) -> SpiceCrossCheckInfo:
+    def _run_spice_cross_check(self, k0: _ExtremePoint, _k1: _ExtremePoint) -> SpiceCrossCheckInfo:
         """Run the independent SPICE simulation and compare with analytic.
 
         Never mutates self (called inside check()).  Returns a
@@ -736,18 +717,14 @@ class OperatingPointGate(Gate):
                 notes=f"SPICE simulation failed: {result.errors[:3]}",
             )
 
-        measurements = {
-            name: meas.value
-            for name, meas in result.measurements.items()
-        }
+        measurements = {name: meas.value for name, meas in result.measurements.items()}
 
         # Compare SPICE-vs-analytic at zero-coupling (k=0, L_coil).
         # di/dt = V_bus / L_coil, L_loop_max = (V_BR*derate - V_bus)/di_dt
         analytic_di_dt = k0.di_dt
         spice_di_dt = measurements.get("di_dt_k0")
         match = spice_di_dt is not None and (
-            abs(spice_di_dt - analytic_di_dt)
-            <= self._tolerance * max(abs(analytic_di_dt), 1e-3)
+            abs(spice_di_dt - analytic_di_dt) <= self._tolerance * max(abs(analytic_di_dt), 1e-3)
         )
 
         return SpiceCrossCheckInfo(

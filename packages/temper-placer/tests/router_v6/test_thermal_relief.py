@@ -4,7 +4,6 @@ Tests for Router V6 Stage 5.4: Add Thermal Relief
 Part of temper-95xg
 """
 
-
 from temper_placer.router_v6.astar_pathfinding import RoutePath
 from temper_placer.router_v6.routing_results import CompiledRoute, RoutingResults
 from temper_placer.router_v6.thermal_relief import (
@@ -118,10 +117,7 @@ def test_multiple_power_nets():
     vcc_via = Via((5, 5), "F.Cu", "In2.Cu", 0.6, 0.3, "VCC")
     vcc_route = CompiledRoute("VCC", vcc_path, 0.127, [vcc_via], None)
 
-    results = RoutingResults(
-        compiled_routes={"GND": gnd_route, "VCC": vcc_route},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"GND": gnd_route, "VCC": vcc_route}, failed_nets=[])
 
     report = add_thermal_relief(results)
 

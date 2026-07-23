@@ -100,10 +100,17 @@ class TestSpectralHeuristic:
             Net(name="B", pins=[("R3", "1"), ("R4", "1")]),
         ]
         netlist = Netlist(components=components, nets=nets)
-        board = Board(width=100, height=100, origin=(0, 0), zones=[], ground_domains=[],
-                      layer_stackup=LayerStackup.default_4layer())
+        board = Board(
+            width=100,
+            height=100,
+            origin=(0, 0),
+            zones=[],
+            ground_domains=[],
+            layer_stackup=LayerStackup.default_4layer(),
+        )
 
         from temper_placer.io.config_loader import PlacementConstraints
+
         constraints = PlacementConstraints(board_margin_mm=5.0)
         context = PlacementContext(netlist=netlist, board=board, constraints=constraints)
 
@@ -116,7 +123,7 @@ class TestSpectralHeuristic:
         pos1 = result.placements["R1"].position
         pos3 = result.placements["R3"].position
 
-        dist = ((pos1[0] - pos3[0])**2 + (pos1[1] - pos3[1])**2)**0.5
+        dist = ((pos1[0] - pos3[0]) ** 2 + (pos1[1] - pos3[1]) ** 2) ** 0.5
         # If they are stacked at origin or center, dist might be 0.
         assert dist > 1.0, f"Disconnected components stacked at {pos1} and {pos3}"
 
@@ -138,6 +145,7 @@ class TestSpectralHeuristic:
         netlist = Netlist(components=components, nets=nets)
         board = Board(width=100, height=100)
         from temper_placer.io.config_loader import PlacementConstraints
+
         context = PlacementContext(netlist=netlist, board=board, constraints=PlacementConstraints())
 
         heuristic = SpectralPlacementHeuristic()

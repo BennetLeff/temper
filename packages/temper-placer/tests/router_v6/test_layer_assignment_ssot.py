@@ -3,6 +3,7 @@
 Verifies the per-net-class ``layer`` field flows from netclass_rules.yaml
 through the loader into a deterministic net->layer resolution.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -20,9 +21,7 @@ from temper_placer.router_v6.layer_assignment import (
     layer_name_to_index,
 )
 
-RULES_PATH = (
-    Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
-)
+RULES_PATH = Path(__file__).parent.parent.parent / "configs" / "netclass_rules.yaml"
 
 # R2 table: net class -> KiCad layer name.
 EXPECTED_CLASS_LAYERS = {
@@ -94,14 +93,8 @@ class TestGetLayerForNet:
         assert get_layer_for_net("whatever", None) == "B.Cu"
 
     def test_deterministic(self, design_rules):
-        first = {
-            n: get_layer_for_net(n, design_rules)
-            for n in ("AC_L", "GND", "+3V3", "PWM_H")
-        }
-        second = {
-            n: get_layer_for_net(n, design_rules)
-            for n in ("AC_L", "GND", "+3V3", "PWM_H")
-        }
+        first = {n: get_layer_for_net(n, design_rules) for n in ("AC_L", "GND", "+3V3", "PWM_H")}
+        second = {n: get_layer_for_net(n, design_rules) for n in ("AC_L", "GND", "+3V3", "PWM_H")}
         assert first == second
 
 
@@ -137,11 +130,15 @@ class TestLayerAssignmentsFromNetclass:
         st.lists(
             st.text(
                 alphabet=st.characters(
-                    whitelist_categories=("Lu", "Ll", "Nd"), whitelist_characters="_+-",
+                    whitelist_categories=("Lu", "Ll", "Nd"),
+                    whitelist_characters="_+-",
                 ),
-                min_size=1, max_size=12,
+                min_size=1,
+                max_size=12,
             ),
-            min_size=0, max_size=30, unique=True,
+            min_size=0,
+            max_size=30,
+            unique=True,
         ),
     )
     def test_no_net_silently_dropped_or_duplicated(self, design_rules, net_names):

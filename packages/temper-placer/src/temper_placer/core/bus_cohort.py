@@ -140,7 +140,12 @@ class BusRegistry:
             if upper_net.endswith("_DP") or upper_net.endswith("_DN"):
                 base = net[:-3]
                 diff_pairs[base].append(net)
-            elif upper_net.endswith("_P") and not upper_net.endswith("_DP") or upper_net.endswith("_N") and not upper_net.endswith("_DN"):
+            elif (
+                upper_net.endswith("_P")
+                and not upper_net.endswith("_DP")
+                or upper_net.endswith("_N")
+                and not upper_net.endswith("_DN")
+            ):
                 base = net[:-2]
                 diff_pairs[base].append(net)
 

@@ -113,18 +113,20 @@ def identify_bottlenecks(
         if capacity.estimated_traces > 0:
             utilization = demand_per_layer / capacity.estimated_traces
         else:
-            utilization = float('inf')
+            utilization = float("inf")
 
         # Determine severity
         severity = _classify_severity(capacity.estimated_traces, demand_per_layer)
 
-        bottlenecks.append(Bottleneck(
-            layer_name=layer_name,
-            severity=severity,
-            capacity=capacity.estimated_traces,
-            demand=demand_per_layer,
-            utilization=utilization,
-        ))
+        bottlenecks.append(
+            Bottleneck(
+                layer_name=layer_name,
+                severity=severity,
+                capacity=capacity.estimated_traces,
+                demand=demand_per_layer,
+                utilization=utilization,
+            )
+        )
 
     return BottleneckAnalysis(
         bottlenecks=bottlenecks,
@@ -149,7 +151,7 @@ def _classify_severity(capacity: int, demand: int) -> BottleneckSeverity:
             return BottleneckSeverity.CRITICAL
         return BottleneckSeverity.NONE
 
-    ratio = capacity / demand if demand > 0 else float('inf')
+    ratio = capacity / demand if demand > 0 else float("inf")
 
     if ratio < 0.5:
         return BottleneckSeverity.CRITICAL
@@ -164,7 +166,7 @@ def _classify_severity(capacity: int, demand: int) -> BottleneckSeverity:
 
 
 class BottleneckAnalysisStage(Stage):
-    '''Stage 2.8: Identify routing bottlenecks.'''
+    """Stage 2.8: Identify routing bottlenecks."""
 
     @property
     def name(self) -> str:
@@ -180,32 +182,40 @@ class BottleneckAnalysisStage(Stage):
 
 @register_validator("BottleneckAnalysis")
 def validate_bottleneck_analysis(state: BoardState) -> list[StageDRCFailure]:
-    '''Validate bottleneck analysis invariants.'''
+    """Validate bottleneck analysis invariants."""
     failures: list[StageDRCFailure] = []
     if state.bottleneck_analysis is None:
-        failures.append(StageDRCFailure(
-            field="bottleneck_analysis", value=None,
-            reason="Bottleneck analysis not computed", stage="BottleneckAnalysis",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="bottleneck_analysis",
+                value=None,
+                reason="Bottleneck analysis not computed",
+                stage="BottleneckAnalysis",
+            )
+        )
         return failures
 
     ba = state.bottleneck_analysis
     num_layers = len(state.layer_capacities) if state.layer_capacities else 0
     if len(ba.bottlenecks) > num_layers:
-        failures.append(StageDRCFailure(
-            field="bottleneck_analysis",
-            value="bottlenecks=" + repr(len(ba.bottlenecks)) + ", layers=" + repr(num_layers),
-            reason="More bottlenecks than layers",
-            stage="BottleneckAnalysis",
-        ))
+        failures.append(
+            StageDRCFailure(
+                field="bottleneck_analysis",
+                value="bottlenecks=" + repr(len(ba.bottlenecks)) + ", layers=" + repr(num_layers),
+                reason="More bottlenecks than layers",
+                stage="BottleneckAnalysis",
+            )
+        )
 
     for bn in ba.bottlenecks:
         if bn.severity == BottleneckSeverity.CRITICAL and bn.demand == 0:
-            failures.append(StageDRCFailure(
-                field="bottleneck_analysis",
-                value=bn.layer_name,
-                reason="CRITICAL severity with zero demand",
-                stage="BottleneckAnalysis",
-            ))
+            failures.append(
+                StageDRCFailure(
+                    field="bottleneck_analysis",
+                    value=bn.layer_name,
+                    reason="CRITICAL severity with zero demand",
+                    stage="BottleneckAnalysis",
+                )
+            )
 
     return failures

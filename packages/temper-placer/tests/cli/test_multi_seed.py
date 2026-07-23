@@ -34,10 +34,13 @@ class TestMultiSeedCLI:
             [
                 "optimize",
                 str(MINIMAL_PCB),
-                "-c", str(MINIMAL_CONSTRAINTS),
-                "-o", str(output_pcb),
+                "-c",
+                str(MINIMAL_CONSTRAINTS),
+                "-o",
+                str(output_pcb),
                 "--multi-seed",
-                "--epochs", "5",
+                "--epochs",
+                "5",
             ],
         )
         assert result.exit_code == 0, f"CLI failed: {result.output[:500]}"
@@ -51,9 +54,12 @@ class TestMultiSeedCLI:
             [
                 "optimize",
                 str(MINIMAL_PCB),
-                "-c", str(MINIMAL_CONSTRAINTS),
-                "-o", str(output_pcb),
-                "--epochs", "5",
+                "-c",
+                str(MINIMAL_CONSTRAINTS),
+                "-o",
+                str(output_pcb),
+                "--epochs",
+                "5",
             ],
         )
         assert result.exit_code == 0, f"CLI failed: {result.output[:500]}"

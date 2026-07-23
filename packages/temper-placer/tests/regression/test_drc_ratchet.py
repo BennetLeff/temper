@@ -9,16 +9,20 @@ from temper_placer.regression.drc_ratchet import DrcRatchet, DrcRatchetResult
 class TestDrcRatchet:
     def test_load_ceiling(self, tmp_path: Path):
         ceiling_path = tmp_path / "drc_ceiling.json"
-        ceiling_path.write_text(json.dumps({
-            "boards": [
+        ceiling_path.write_text(
+            json.dumps(
                 {
-                    "board_id": "temper_routed",
-                    "path": "pcb/temper_routed.kicad_pcb",
-                    "error_ceiling": 3042,
-                    "warning_ceiling": 0,
+                    "boards": [
+                        {
+                            "board_id": "temper_routed",
+                            "path": "pcb/temper_routed.kicad_pcb",
+                            "error_ceiling": 3042,
+                            "warning_ceiling": 0,
+                        }
+                    ]
                 }
-            ]
-        }))
+            )
+        )
         ratchet = DrcRatchet(ceiling_path)
         ratchet.load()
         assert "temper_routed" in ratchet.entries
@@ -28,16 +32,20 @@ class TestDrcRatchet:
 
     def test_check_missing_pcb(self, tmp_path: Path):
         ceiling_path = tmp_path / "drc_ceiling.json"
-        ceiling_path.write_text(json.dumps({
-            "boards": [
+        ceiling_path.write_text(
+            json.dumps(
                 {
-                    "board_id": "missing",
-                    "path": "pcb/missing.kicad_pcb",
-                    "error_ceiling": 10,
-                    "warning_ceiling": 0,
+                    "boards": [
+                        {
+                            "board_id": "missing",
+                            "path": "pcb/missing.kicad_pcb",
+                            "error_ceiling": 10,
+                            "warning_ceiling": 0,
+                        }
+                    ]
                 }
-            ]
-        }))
+            )
+        )
         ratchet = DrcRatchet(ceiling_path)
         ratchet.load()
         results = ratchet.check(tmp_path)

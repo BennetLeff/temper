@@ -45,6 +45,7 @@ _CONSTRAINT_SNAPSHOT = {
 
 def _load_netclass_rules():
     from temper_placer.io.netclass_loader import load_netclass_rules
+
     return load_netclass_rules(_RULES_PATH)
 
 
@@ -84,8 +85,7 @@ class TestConstraintSetUnchanged:
         rules = _load_netclass_rules()
         nc = rules.design_rules.net_classes
         assert len(nc) >= 9, (
-            f"Net class count dropped from 9 to {len(nc)} — "
-            f"missing classes silently widen DRC gap"
+            f"Net class count dropped from 9 to {len(nc)} — missing classes silently widen DRC gap"
         )
 
 
@@ -99,12 +99,11 @@ class TestGatesProperlyConfigured:
     def test_kicad_cli_available_for_drc(self):
         """kicad-cli is available — U3/U5 DRC runs cannot be UNMEASURED."""
         import subprocess
+
         result = subprocess.run(
             ["kicad-cli", "--version"], capture_output=True, text=True, timeout=10
         )
-        assert result.returncode == 0, (
-            "kicad-cli not available — DRC measurements degenerate"
-        )
+        assert result.returncode == 0, "kicad-cli not available — DRC measurements degenerate"
 
     def test_kicad7_footprint_dir_resolves(self):
         """Footprint library path in DrcGate (gates.py:182) exists.
@@ -114,15 +113,16 @@ class TestGatesProperlyConfigured:
         classic false-zero.
         """
         import os
+
         fp_dir = "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints"
         assert os.path.isdir(fp_dir), (
-            f"KICAD7_FOOTPRINT_DIR={fp_dir} does not exist — "
-            f"kicad-cli DRC would be UNMEASURED"
+            f"KICAD7_FOOTPRINT_DIR={fp_dir} does not exist — kicad-cli DRC would be UNMEASURED"
         )
 
     def test_production_board_routing_baseline_populated(self):
         """U3's baseline YAML is populated with real numbers, not null/0."""
         import yaml
+
         with open(_BASELINE_PATH) as f:
             doc = yaml.safe_load(f) or {}
 
@@ -146,37 +146,34 @@ class TestClaimsTraceable:
     def test_u3_routed_nets_traceable(self):
         """U3's routed_nets (71) comes from the baseline YAML via the test."""
         import yaml
+
         with open(_BASELINE_PATH) as f:
             doc = yaml.safe_load(f) or {}
         routed = doc.get("router_v6_routing", {}).get("routed_nets")
-        assert routed == 71, (
-            f"Expected routed_nets=71 from U3 baseline, got {routed}"
-        )
+        assert routed == 71, f"Expected routed_nets=71 from U3 baseline, got {routed}"
 
     def test_u3_completion_rate_traceable(self):
         """U3's completion_rate (74.74%) is recorded."""
         import yaml
+
         with open(_BASELINE_PATH) as f:
             doc = yaml.safe_load(f) or {}
         cr = doc.get("router_v6_routing", {}).get("completion_rate")
-        assert cr is not None and cr > 0, (
-            f"completion_rate={cr} — degenerate or not recorded"
-        )
+        assert cr is not None and cr > 0, f"completion_rate={cr} — degenerate or not recorded"
 
     def test_u4_erc_finding_traceable(self):
         """U4's ERC finding (pcb erc doesn't exist) is verified."""
         import subprocess
+
         result = subprocess.run(
             ["kicad-cli", "pcb", "erc"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert result.returncode != 0, (
-            "kicad-cli pcb erc unexpectedly works — "
-            "U4 finding invalidated"
+            "kicad-cli pcb erc unexpectedly works — U4 finding invalidated"
         )
-        assert "did you mean" in result.stdout.lower(), (
-            "kicad-cli pcb erc response changed"
-        )
+        assert "did you mean" in result.stdout.lower(), "kicad-cli pcb erc response changed"
 
     def test_u5_production_test_exists(self):
         """U5's test functions exist in test_regression_drc.py."""
@@ -184,10 +181,7 @@ class TestClaimsTraceable:
 
         import tests.placer.cp_sat.test_regression_drc as drc_test
 
-        names = [
-            name for name, _ in
-            inspect.getmembers(drc_test, inspect.isfunction)
-        ]
+        names = [name for name, _ in inspect.getmembers(drc_test, inspect.isfunction)]
         assert "test_production_board_drc_regression" in names, (
             "U5 production board placement DRC test not found"
         )
@@ -200,6 +194,7 @@ class TestClaimsTraceable:
 
 
 # ---- Phase 2 (U9/U10) guard extensions ----
+
 
 class TestU9CompletionPreservation:
     """U7 guards: explicit SSOT divergence and router completion.
@@ -298,6 +293,7 @@ class TestU9CompletionPreservation:
         zones = {z.name: z.bounds for z in constraints.zones}
 
         from temper_placer.placer.cp_sat import encoder
+
         old_policy = encoder._UNRESOLVED_REF_POLICY
         encoder._UNRESOLVED_REF_POLICY = "warn"
         try:
@@ -305,7 +301,9 @@ class TestU9CompletionPreservation:
                 netlist=parse_result.netlist,
                 board=parse_result.board,
                 extra_constraints=list(constraints.pcl_constraints),
-                timeout_ms=30_000, seed=42, zones=zones,
+                timeout_ms=30_000,
+                seed=42,
+                zones=zones,
             )
         finally:
             encoder._UNRESOLVED_REF_POLICY = old_policy
@@ -317,8 +315,10 @@ class TestU9CompletionPreservation:
 
         parsed_stub = make_parsed_pcb_stub(board_path, parse_result.netlist)
         routing_result = route_pcb(
-            parsed_stub, placement.to_placements_dict(),
-            _seed=42, design_rules=rules.design_rules,
+            parsed_stub,
+            placement.to_placements_dict(),
+            _seed=42,
+            design_rules=rules.design_rules,
         )
 
         assert routing_result.completion_rate == 1.0, (

@@ -106,14 +106,11 @@ class PlacementState:
         # from raw positions without JAX import by the caller
         if netlist is None and component_order is None:
             raise ValueError(
-                "Either netlist or component_order must be provided "
-                "to define component ordering"
+                "Either netlist or component_order must be provided to define component ordering"
             )
 
         order = (
-            component_order
-            if component_order is not None
-            else [c.ref for c in netlist.components]  # type: ignore[union-attr]
+            component_order if component_order is not None else [c.ref for c in netlist.components]  # type: ignore[union-attr]
         )
 
         positions_list = []
@@ -182,9 +179,9 @@ class PlacementState:
         net_virtual_nodes = None
         if n_nets > 0:
             # Initialize to board center
-            net_virtual_nodes = np.full((n_nets, 2),
-                                       np.array([board.width / 2.0, board.height / 2.0]),
-                                       dtype=np.float32)
+            net_virtual_nodes = np.full(
+                (n_nets, 2), np.array([board.width / 2.0, board.height / 2.0]), dtype=np.float32
+            )
 
         return cls(
             positions=positions,

@@ -55,10 +55,16 @@ class FinePitchEscapeStage(Stage):
     via_diameter_mm: float = 0.6
     # EXP-6b/EXP-10: Nets to route on Layer 2 (reduces Layer 1 congestion)
     # EXP-10: Added SPI_CLK, SPI_CS_TEMP to balance In1.Cu congestion
-    layer2_nets: set = field(default_factory=lambda: {
-        "PWM_H", "PWM_L", "GATE_H", "GATE_L",
-        "SPI_CLK", "SPI_CS_TEMP"  # EXP-10: Move to In2.Cu
-    })
+    layer2_nets: set = field(
+        default_factory=lambda: {
+            "PWM_H",
+            "PWM_L",
+            "GATE_H",
+            "GATE_L",
+            "SPI_CLK",
+            "SPI_CS_TEMP",  # EXP-10: Move to In2.Cu
+        }
+    )
     # EXP-9: Analog/sensing nets escape to B.Cu (layer 3) to match routing restrictions [0, 3]
     layer3_nets: set = field(default_factory=lambda: {"I_SENSE", "TEMP_SENSE"})
 
@@ -216,15 +222,19 @@ class FinePitchEscapeStage(Stage):
                     # Check if escape via exists within tolerance
                     pos_key = (round(pin_x, 3), round(pin_y, 3))
                     if pos_key not in current_via_positions:
-                        missing_escapes.append({
-                            "ref": component.ref,
-                            "pin": pin.name,
-                            "net": pin.net,
-                            "pos": (pin_x, pin_y),
-                        })
+                        missing_escapes.append(
+                            {
+                                "ref": component.ref,
+                                "pin": pin.name,
+                                "net": pin.net,
+                                "pos": (pin_x, pin_y),
+                            }
+                        )
 
             if missing_escapes:
-                print(f"\n  [EscapeValidation] Found {len(missing_escapes)} fine-pitch pins missing escape vias")
+                print(
+                    f"\n  [EscapeValidation] Found {len(missing_escapes)} fine-pitch pins missing escape vias"
+                )
 
                 # Group by net for clearer output
                 by_net: dict[str, list[dict]] = {}
@@ -241,7 +251,9 @@ class FinePitchEscapeStage(Stage):
                     print(f"    {net}: {pin_list}")
 
                 # Auto-generate missing escapes
-                print(f"\n  [EscapeValidation] Auto-generating {len(missing_escapes)} missing escape vias...")
+                print(
+                    f"\n  [EscapeValidation] Auto-generating {len(missing_escapes)} missing escape vias..."
+                )
 
                 generated_count = 0
                 for m in missing_escapes:

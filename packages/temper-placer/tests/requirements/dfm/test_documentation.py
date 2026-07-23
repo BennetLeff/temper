@@ -5,7 +5,6 @@ Tests validation of BOM, CPL, Gerber files, and DNP consistency
 as required for PCB assembly documentation.
 """
 
-
 import pytest
 
 from tests.requirements.validators.documentation import (
@@ -24,30 +23,52 @@ from tests.requirements.validators.documentation import (
 # Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def sample_bom_entries():
     """Create sample BOM entries for testing."""
     return [
         BOMEntry(
-            item=1, qty=1, reference="U1", value="ESP32-S3",
-            package="QFN-56", description="MCU",
-            manufacturer="Espressif", mpn="ESP32-S3-WROOM-1",
-            supplier="DigiKey", supplier_pn="1234-5678",
-            dnp=False, notes=""
+            item=1,
+            qty=1,
+            reference="U1",
+            value="ESP32-S3",
+            package="QFN-56",
+            description="MCU",
+            manufacturer="Espressif",
+            mpn="ESP32-S3-WROOM-1",
+            supplier="DigiKey",
+            supplier_pn="1234-5678",
+            dnp=False,
+            notes="",
         ),
         BOMEntry(
-            item=2, qty=3, reference="R1,R2,R3", value="10k",
-            package="0603", description="Resistor",
-            manufacturer="Yageo", mpn="RC0603FR-0710KL",
-            supplier="DigiKey", supplier_pn="311-10KHRCT-ND",
-            dnp=False, notes=""
+            item=2,
+            qty=3,
+            reference="R1,R2,R3",
+            value="10k",
+            package="0603",
+            description="Resistor",
+            manufacturer="Yageo",
+            mpn="RC0603FR-0710KL",
+            supplier="DigiKey",
+            supplier_pn="311-10KHRCT-ND",
+            dnp=False,
+            notes="",
         ),
         BOMEntry(
-            item=3, qty=2, reference="C1,C2", value="100nF",
-            package="0603", description="Capacitor",
-            manufacturer="Samsung", mpn="CL10B104KB8NNNC",
-            supplier="DigiKey", supplier_pn="1276-1000-1-ND",
-            dnp=False, notes=""
+            item=3,
+            qty=2,
+            reference="C1,C2",
+            value="100nF",
+            package="0603",
+            description="Capacitor",
+            manufacturer="Samsung",
+            mpn="CL10B104KB8NNNC",
+            supplier="DigiKey",
+            supplier_pn="1276-1000-1-ND",
+            dnp=False,
+            notes="",
         ),
     ]
 
@@ -105,6 +126,7 @@ def complete_gerber_layers():
 # TestValidateBomCompleteness
 # =============================================================================
 
+
 class TestValidateBomCompleteness:
     """Tests for validate_bom_completeness function."""
 
@@ -134,11 +156,18 @@ class TestValidateBomCompleteness:
         # Add extra component to BOM that's not in netlist
         extra_bom = sample_bom_entries + [
             BOMEntry(
-                item=4, qty=1, reference="U2", value="LM7805",
-                package="SOT-223", description="Voltage Regulator",
-                manufacturer="Texas Instruments", mpn="LM7805CT",
-                supplier="DigiKey", supplier_pn="LM7805CT-ND",
-                dnp=False, notes=""
+                item=4,
+                qty=1,
+                reference="U2",
+                value="LM7805",
+                package="SOT-223",
+                description="Voltage Regulator",
+                manufacturer="Texas Instruments",
+                mpn="LM7805CT",
+                supplier="DigiKey",
+                supplier_pn="LM7805CT-ND",
+                dnp=False,
+                notes="",
             )
         ]
         result = validate_bom_completeness(extra_bom, sample_netlist_refs)
@@ -172,18 +201,32 @@ class TestValidateBomCompleteness:
         """BOM entry like "R1,R2,R3" should expand correctly."""
         bom_with_comma_refs = [
             BOMEntry(
-                item=1, qty=1, reference="U1", value="ESP32-S3",
-                package="QFN-56", description="MCU",
-                manufacturer="Espressif", mpn="ESP32-S3-WROOM-1",
-                supplier="DigiKey", supplier_pn="1234-5678",
-                dnp=False, notes=""
+                item=1,
+                qty=1,
+                reference="U1",
+                value="ESP32-S3",
+                package="QFN-56",
+                description="MCU",
+                manufacturer="Espressif",
+                mpn="ESP32-S3-WROOM-1",
+                supplier="DigiKey",
+                supplier_pn="1234-5678",
+                dnp=False,
+                notes="",
             ),
             BOMEntry(
-                item=2, qty=3, reference="R1,R2,R3", value="10k",
-                package="0603", description="Resistor",
-                manufacturer="Yageo", mpn="RC0603FR-0710KL",
-                supplier="DigiKey", supplier_pn="311-10KHRCT-ND",
-                dnp=False, notes=""
+                item=2,
+                qty=3,
+                reference="R1,R2,R3",
+                value="10k",
+                package="0603",
+                description="Resistor",
+                manufacturer="Yageo",
+                mpn="RC0603FR-0710KL",
+                supplier="DigiKey",
+                supplier_pn="311-10KHRCT-ND",
+                dnp=False,
+                notes="",
             ),
         ]
         result = validate_bom_completeness(bom_with_comma_refs, sample_netlist_refs)
@@ -197,18 +240,32 @@ class TestValidateBomCompleteness:
         """BOM entry missing manufacturer/MPN/etc should error."""
         incomplete_bom = [
             BOMEntry(
-                item=1, qty=1, reference="U1", value="ESP32-S3",
-                package="QFN-56", description="MCU",
-                manufacturer="", mpn="ESP32-S3-WROOM-1",  # Missing manufacturer
-                supplier="DigiKey", supplier_pn="1234-5678",
-                dnp=False, notes=""
+                item=1,
+                qty=1,
+                reference="U1",
+                value="ESP32-S3",
+                package="QFN-56",
+                description="MCU",
+                manufacturer="",
+                mpn="ESP32-S3-WROOM-1",  # Missing manufacturer
+                supplier="DigiKey",
+                supplier_pn="1234-5678",
+                dnp=False,
+                notes="",
             ),
             BOMEntry(
-                item=2, qty=3, reference="R1,R2,R3", value="10k",
-                package="0603", description="Resistor",
-                manufacturer="Yageo", mpn="",  # Missing MPN
-                supplier="DigiKey", supplier_pn="311-10KHRCT-ND",
-                dnp=False, notes=""
+                item=2,
+                qty=3,
+                reference="R1,R2,R3",
+                value="10k",
+                package="0603",
+                description="Resistor",
+                manufacturer="Yageo",
+                mpn="",  # Missing MPN
+                supplier="DigiKey",
+                supplier_pn="311-10KHRCT-ND",
+                dnp=False,
+                notes="",
             ),
         ]
         result = validate_bom_completeness(incomplete_bom, sample_netlist_refs)
@@ -222,18 +279,32 @@ class TestValidateBomCompleteness:
         """DNP components should still be validated."""
         bom_with_dnp = [
             BOMEntry(
-                item=1, qty=1, reference="U1", value="ESP32-S3",
-                package="QFN-56", description="MCU",
-                manufacturer="Espressif", mpn="ESP32-S3-WROOM-1",
-                supplier="DigiKey", supplier_pn="1234-5678",
-                dnp=False, notes=""
+                item=1,
+                qty=1,
+                reference="U1",
+                value="ESP32-S3",
+                package="QFN-56",
+                description="MCU",
+                manufacturer="Espressif",
+                mpn="ESP32-S3-WROOM-1",
+                supplier="DigiKey",
+                supplier_pn="1234-5678",
+                dnp=False,
+                notes="",
             ),
             BOMEntry(
-                item=2, qty=1, reference="R4", value="0R",
-                package="0603", description="DNP Resistor",
-                manufacturer="Yageo", mpn="RC0603FR-070RL",
-                supplier="DigiKey", supplier_pn="311-0.0RCT-ND",
-                dnp=True, notes="Not populated"
+                item=2,
+                qty=1,
+                reference="R4",
+                value="0R",
+                package="0603",
+                description="DNP Resistor",
+                manufacturer="Yageo",
+                mpn="RC0603FR-070RL",
+                supplier="DigiKey",
+                supplier_pn="311-0.0RCT-ND",
+                dnp=True,
+                notes="Not populated",
             ),
         ]
         # Add DNP component to netlist
@@ -248,6 +319,7 @@ class TestValidateBomCompleteness:
 # =============================================================================
 # TestValidateCplCoordinates
 # =============================================================================
+
 
 class TestValidateCplCoordinates:
     """Tests for validate_cpl_coordinates function."""
@@ -363,6 +435,7 @@ class TestValidateCplCoordinates:
 # TestValidateGerberLayers
 # =============================================================================
 
+
 class TestValidateGerberLayers:
     """Tests for validate_gerber_layers function."""
 
@@ -378,7 +451,8 @@ class TestValidateGerberLayers:
         """Missing GTL layer should fail."""
         # Remove TOP_COPPER layer
         missing_top_copper = [
-            layer for layer in complete_gerber_layers
+            layer
+            for layer in complete_gerber_layers
             if layer.layer_type != GerberLayerType.TOP_COPPER
         ]
 
@@ -393,7 +467,8 @@ class TestValidateGerberLayers:
         """Missing drill file should fail."""
         # Remove DRILL_FILE layer
         missing_drill = [
-            layer for layer in complete_gerber_layers
+            layer
+            for layer in complete_gerber_layers
             if layer.layer_type != GerberLayerType.DRILL_FILE
         ]
 
@@ -407,7 +482,8 @@ class TestValidateGerberLayers:
         """Missing several layers should list all in error."""
         # Remove multiple layers
         missing_multiple = [
-            layer for layer in complete_gerber_layers
+            layer
+            for layer in complete_gerber_layers
             if layer.layer_type not in [GerberLayerType.TOP_COPPER, GerberLayerType.BOTTOM_COPPER]
         ]
 
@@ -468,6 +544,7 @@ class TestValidateGerberLayers:
 # TestCheckDnpConsistency
 # =============================================================================
 
+
 class TestCheckDnpConsistency:
     """Tests for check_dnp_consistency function."""
 
@@ -484,14 +561,14 @@ class TestCheckDnpConsistency:
                     break
             # Create a modified CPL entry with DNP attribute
             cpl_entry_dict = {
-                'designator': entry.designator,
-                'mid_x': entry.mid_x,
-                'mid_y': entry.mid_y,
-                'layer': entry.layer,
-                'rotation': entry.rotation,
-                'dnp': dnp_value
+                "designator": entry.designator,
+                "mid_x": entry.mid_x,
+                "mid_y": entry.mid_y,
+                "layer": entry.layer,
+                "rotation": entry.rotation,
+                "dnp": dnp_value,
             }
-            cpl_with_dnp.append(type('CPLEntry', (), cpl_entry_dict)())
+            cpl_with_dnp.append(type("CPLEntry", (), cpl_entry_dict)())
 
         result = check_dnp_consistency(sample_bom_entries, cpl_with_dnp)
 
@@ -504,11 +581,18 @@ class TestCheckDnpConsistency:
         # Create BOM with DNP component
         bom_with_dnp = sample_bom_entries + [
             BOMEntry(
-                item=4, qty=1, reference="R4", value="0R",
-                package="0603", description="DNP Resistor",
-                manufacturer="Yageo", mpn="RC0603FR-070RL",
-                supplier="DigiKey", supplier_pn="311-0.0RCT-ND",
-                dnp=True, notes="Not populated"
+                item=4,
+                qty=1,
+                reference="R4",
+                value="0R",
+                package="0603",
+                description="DNP Resistor",
+                manufacturer="Yageo",
+                mpn="RC0603FR-070RL",
+                supplier="DigiKey",
+                supplier_pn="311-0.0RCT-ND",
+                dnp=True,
+                notes="Not populated",
             )
         ]
 
@@ -530,11 +614,18 @@ class TestCheckDnpConsistency:
         # Create BOM with non-DNP component
         bom_normal = sample_bom_entries + [
             BOMEntry(
-                item=4, qty=1, reference="R4", value="10k",
-                package="0603", description="Resistor",
-                manufacturer="Yageo", mpn="RC0603FR-0710KL",
-                supplier="DigiKey", supplier_pn="311-10KHRCT-ND",
-                dnp=False, notes=""
+                item=4,
+                qty=1,
+                reference="R4",
+                value="10k",
+                package="0603",
+                description="Resistor",
+                manufacturer="Yageo",
+                mpn="RC0603FR-0710KL",
+                supplier="DigiKey",
+                supplier_pn="311-10KHRCT-ND",
+                dnp=False,
+                notes="",
             )
         ]
 
@@ -556,25 +647,39 @@ class TestCheckDnpConsistency:
         # Create BOM with multiple DNP components
         bom_multiple_dnp = sample_bom_entries + [
             BOMEntry(
-                item=4, qty=1, reference="R4", value="0R",
-                package="0603", description="DNP Resistor",
-                manufacturer="Yageo", mpn="RC0603FR-070RL",
-                supplier="DigiKey", supplier_pn="311-0.0RCT-ND",
-                dnp=True, notes="Not populated"
+                item=4,
+                qty=1,
+                reference="R4",
+                value="0R",
+                package="0603",
+                description="DNP Resistor",
+                manufacturer="Yageo",
+                mpn="RC0603FR-070RL",
+                supplier="DigiKey",
+                supplier_pn="311-0.0RCT-ND",
+                dnp=True,
+                notes="Not populated",
             ),
             BOMEntry(
-                item=5, qty=1, reference="C3", value="10pF",
-                package="0603", description="DNP Capacitor",
-                manufacturer="Samsung", mpn="CL10B100KAC8NNNC",
-                supplier="DigiKey", supplier_pn="1276-100-1-ND",
-                dnp=True, notes="Not populated"
-            )
+                item=5,
+                qty=1,
+                reference="C3",
+                value="10pF",
+                package="0603",
+                description="DNP Capacitor",
+                manufacturer="Samsung",
+                mpn="CL10B100KAC8NNNC",
+                supplier="DigiKey",
+                supplier_pn="1276-100-1-ND",
+                dnp=True,
+                notes="Not populated",
+            ),
         ]
 
         # Create CPL with mismatched DNP flags
         cpl_multiple = sample_cpl_entries + [
             CPLEntry(designator="R4", mid_x=45.0, mid_y=20.0, layer="Top", rotation=90.0),
-            CPLEntry(designator="C3", mid_x=60.0, mid_y=30.0, layer="Top", rotation=0.0)
+            CPLEntry(designator="C3", mid_x=60.0, mid_y=30.0, layer="Top", rotation=0.0),
         ]
         # Set DNP flags opposite to BOM
         cpl_multiple[-2].dnp = False  # R4 should be DNP in BOM
@@ -592,11 +697,18 @@ class TestCheckDnpConsistency:
         # Create BOM with DNP component
         bom_with_dnp = sample_bom_entries + [
             BOMEntry(
-                item=4, qty=1, reference="R4", value="0R",
-                package="0603", description="DNP Resistor",
-                manufacturer="Yageo", mpn="RC0603FR-070RL",
-                supplier="DigiKey", supplier_pn="311-0.0RCT-ND",
-                dnp=True, notes="Not populated"
+                item=4,
+                qty=1,
+                reference="R4",
+                value="0R",
+                package="0603",
+                description="DNP Resistor",
+                manufacturer="Yageo",
+                mpn="RC0603FR-070RL",
+                supplier="DigiKey",
+                supplier_pn="311-0.0RCT-ND",
+                dnp=True,
+                notes="Not populated",
             )
         ]
 
@@ -617,18 +729,32 @@ class TestCheckDnpConsistency:
         # Create BOM with all DNP components
         bom_all_dnp = [
             BOMEntry(
-                item=1, qty=1, reference="U1", value="ESP32-S3",
-                package="QFN-56", description="MCU",
-                manufacturer="Espressif", mpn="ESP32-S3-WROOM-1",
-                supplier="DigiKey", supplier_pn="1234-5678",
-                dnp=True, notes="Not populated"
+                item=1,
+                qty=1,
+                reference="U1",
+                value="ESP32-S3",
+                package="QFN-56",
+                description="MCU",
+                manufacturer="Espressif",
+                mpn="ESP32-S3-WROOM-1",
+                supplier="DigiKey",
+                supplier_pn="1234-5678",
+                dnp=True,
+                notes="Not populated",
             ),
             BOMEntry(
-                item=2, qty=3, reference="R1,R2,R3", value="10k",
-                package="0603", description="Resistor",
-                manufacturer="Yageo", mpn="RC0603FR-0710KL",
-                supplier="DigiKey", supplier_pn="311-10KHRCT-ND",
-                dnp=True, notes="Not populated"
+                item=2,
+                qty=3,
+                reference="R1,R2,R3",
+                value="10k",
+                package="0603",
+                description="Resistor",
+                manufacturer="Yageo",
+                mpn="RC0603FR-0710KL",
+                supplier="DigiKey",
+                supplier_pn="311-10KHRCT-ND",
+                dnp=True,
+                notes="Not populated",
             ),
         ]
 
@@ -636,14 +762,14 @@ class TestCheckDnpConsistency:
         cpl_all_dnp = []
         for entry in sample_cpl_entries:
             cpl_dict = {
-                'designator': entry.designator,
-                'mid_x': entry.mid_x,
-                'mid_y': entry.mid_y,
-                'layer': entry.layer,
-                'rotation': entry.rotation,
-                'dnp': True
+                "designator": entry.designator,
+                "mid_x": entry.mid_x,
+                "mid_y": entry.mid_y,
+                "layer": entry.layer,
+                "rotation": entry.rotation,
+                "dnp": True,
             }
-            cpl_all_dnp.append(type('CPLEntry', (), cpl_dict)())
+            cpl_all_dnp.append(type("CPLEntry", (), cpl_dict)())
 
         result = check_dnp_consistency(bom_all_dnp, cpl_all_dnp)
 
@@ -665,6 +791,7 @@ class TestCheckDnpConsistency:
 # =============================================================================
 # TestDocumentationValidationResult
 # =============================================================================
+
 
 class TestDocumentationValidationResult:
     """Tests for DocumentationValidationResult dataclass."""

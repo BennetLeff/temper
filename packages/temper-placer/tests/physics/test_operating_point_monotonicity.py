@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
@@ -55,10 +54,7 @@ class StubNgspiceValidator:
             return _StubSpiceResult(success=False, errors=["Stub: simulation failed"])
         return _StubSpiceResult(
             success=True,
-            measurements={
-                k: type("_M", (), {"value": v})()
-                for k, v in self._measurements.items()
-            },
+            measurements={k: type("_M", (), {"value": v})() for k, v in self._measurements.items()},
         )
 
 
@@ -91,14 +87,19 @@ def _benign_config():
 # Unit tests: L_eff monotonicity proof
 # ---------------------------------------------------------------------------
 
+
 class TestLEffMonotonicity:
     """Confirm L_eff(k) is monotone in k, so endpoints bound the interior."""
 
     def test_l_eff_endpoints_correct(self):
         """L_eff(0)=L_coil, L_eff(1)=L_leakage."""
         cfg = OperatingPointConfig(
-            V_bus=325, V_BR=1200, I_load_rms=10,
-            L_coil=100e-6, L_leakage=10e-6, f_sw=20000,
+            V_bus=325,
+            V_BR=1200,
+            I_load_rms=10,
+            L_coil=100e-6,
+            L_leakage=10e-6,
+            f_sw=20000,
         )
         assert _l_eff(cfg, 0.0) == 100e-6
         assert _l_eff(cfg, 1.0) == 10e-6
@@ -106,8 +107,12 @@ class TestLEffMonotonicity:
     def test_l_eff_linear_monotone(self):
         """L_eff is linear and monotone between 0 and 1."""
         cfg = OperatingPointConfig(
-            V_bus=325, V_BR=1200, I_load_rms=10,
-            L_coil=100e-6, L_leakage=10e-6, f_sw=20000,
+            V_bus=325,
+            V_BR=1200,
+            I_load_rms=10,
+            L_coil=100e-6,
+            L_leakage=10e-6,
+            f_sw=20000,
         )
         prev = _l_eff(cfg, 0.0)
         for k in (0.1, 0.25, 0.5, 0.75, 0.9, 1.0):
@@ -120,8 +125,12 @@ class TestLEffMonotonicity:
     def test_l_eff_increasing_monotone(self):
         """L_eff is monotone increasing when L_leakage > L_coil."""
         cfg = OperatingPointConfig(
-            V_bus=325, V_BR=1200, I_load_rms=10,
-            L_coil=5e-6, L_leakage=50e-6, f_sw=20000,
+            V_bus=325,
+            V_BR=1200,
+            I_load_rms=10,
+            L_coil=5e-6,
+            L_leakage=50e-6,
+            f_sw=20000,
         )
         prev = _l_eff(cfg, 0.0)
         for k in (0.1, 0.25, 0.5, 0.75, 0.9, 1.0):
@@ -133,8 +142,12 @@ class TestLEffMonotonicity:
     def test_di_dt_monotone_from_l_eff(self):
         """di/dt(k) = V_bus / L_eff(k) is monotone in k."""
         cfg = OperatingPointConfig(
-            V_bus=325, V_BR=1200, I_load_rms=10,
-            L_coil=100e-6, L_leakage=10e-6, f_sw=20000,
+            V_bus=325,
+            V_BR=1200,
+            I_load_rms=10,
+            L_coil=100e-6,
+            L_leakage=10e-6,
+            f_sw=20000,
         )
         di_dt_0 = cfg.V_bus / _l_eff(cfg, 0.0)
         di_dt_1 = cfg.V_bus / _l_eff(cfg, 1.0)
@@ -148,25 +161,37 @@ class TestLEffMonotonicity:
 # Unit tests: interior bounding soundness check
 # ---------------------------------------------------------------------------
 
+
 class TestInteriorBoundingSoundnessCheck:
     """Test _interior_bounding_soundness_check directly."""
 
     def test_monotone_model_returns_no_violations(self):
         """With the real monotone coupling model, interior never worse."""
         cfg = OperatingPointConfig(
-            V_bus=325, V_BR=1200, I_load_rms=10,
-            L_coil=100e-6, L_leakage=10e-6, f_sw=20000,
+            V_bus=325,
+            V_BR=1200,
+            I_load_rms=10,
+            L_coil=100e-6,
+            L_leakage=10e-6,
+            f_sw=20000,
         )
         violations = _interior_bounding_soundness_check(cfg)
-        assert len(violations) == 0, f"Monotone model should have no interior violations, got: {violations}"
+        assert len(violations) == 0, (
+            f"Monotone model should have no interior violations, got: {violations}"
+        )
 
     def test_non_monotone_model_breach_detected(self):
         """Non-monotone coupling with interior L_loop_max below threshold."""
         cfg = OperatingPointConfig(
-            V_bus=325, V_BR=1200, I_load_rms=10,
-            L_coil=100e-6, L_leakage=100e-6, f_sw=20000,
+            V_bus=325,
+            V_BR=1200,
+            I_load_rms=10,
+            L_coil=100e-6,
+            L_leakage=100e-6,
+            f_sw=20000,
             min_feasible_L_loop=100e-9,  # 100 nH
         )
+
         # A non-monotone coupling model: L_eff dips to 50 nH in the middle,
         # causing di/dt to spike and L_loop_max to drop below 100 nH.
         def _non_monotone(k):
@@ -174,7 +199,8 @@ class TestInteriorBoundingSoundnessCheck:
             return 100e-6 - 50e-6 * math.sin(math.pi * k)
 
         violations = _interior_bounding_soundness_check(
-            cfg, coupling_l_eff_fn=_non_monotone,
+            cfg,
+            coupling_l_eff_fn=_non_monotone,
         )
         assert len(violations) > 0
         desc = " ".join(v.description for v in violations).lower()
@@ -185,10 +211,15 @@ class TestInteriorBoundingSoundnessCheck:
         """Non-monotone coupling where interior values are bounded by
         endpoints (endpoints are still the worst-case)."""
         cfg = OperatingPointConfig(
-            V_bus=325, V_BR=1200, I_load_rms=10,
-            L_coil=100e-6, L_leakage=100e-6, f_sw=20000,
+            V_bus=325,
+            V_BR=1200,
+            I_load_rms=10,
+            L_coil=100e-6,
+            L_leakage=100e-6,
+            f_sw=20000,
             min_feasible_L_loop=0.1e-9,  # 0.1 nH — very forgiving
         )
+
         # Piecewise non-monotone: L_eff peaks in the middle, so di/dt
         # is worst at the endpoints.  Interior is strictly less severe.
         def _non_monotone(k):
@@ -199,7 +230,8 @@ class TestInteriorBoundingSoundnessCheck:
                 return 400e-6 - 300e-6 * k  # 200 -> 100 uH
 
         violations = _interior_bounding_soundness_check(
-            cfg, coupling_l_eff_fn=_non_monotone,
+            cfg,
+            coupling_l_eff_fn=_non_monotone,
         )
         assert len(violations) == 0, (
             f"Endpoints are worst-case; interior should have no violations. "
@@ -210,6 +242,7 @@ class TestInteriorBoundingSoundnessCheck:
 # ---------------------------------------------------------------------------
 # Gate-level error test (AE6/R5): interior breach -> gate NOT CLEAN
 # ---------------------------------------------------------------------------
+
 
 class TestOperatingPointGateInteriorBounding:
     """Gate-level tests for interior coupling breach detection."""
@@ -226,6 +259,7 @@ class TestOperatingPointGateInteriorBounding:
             "f_sw": 20000.0,
             "min_feasible_L_loop": 100e-9,  # 100 nH
         }
+
         # Non-monotone coupling: L_eff dips to 50 nH at k=0.5,
         # causing di/dt spike and L_loop_max << 100 nH.
         def _non_monotone_l_eff(k):
@@ -250,10 +284,7 @@ class TestOperatingPointGateInteriorBounding:
         )
         assert len(result.violations) > 0
         # Should include the interior-specific violation
-        interior_violations = [
-            v for v in result.violations
-            if "interior" in v.description.lower()
-        ]
+        interior_violations = [v for v in result.violations if "interior" in v.description.lower()]
         assert len(interior_violations) > 0, (
             "Should find an interior-specific violation description"
         )
@@ -275,11 +306,13 @@ class TestOperatingPointGateInteriorBounding:
 # PBT: sampled interior worst-case <= reported worst-case
 # ---------------------------------------------------------------------------
 
-_coupling_profile_strategy = st.fixed_dictionaries({
-    "V_bus": st.floats(100, 400),
-    "L_coil": st.floats(10e-6, 500e-6),
-    "L_leakage": st.floats(1e-6, 50e-6),
-})
+_coupling_profile_strategy = st.fixed_dictionaries(
+    {
+        "V_bus": st.floats(100, 400),
+        "L_coil": st.floats(10e-6, 500e-6),
+        "L_leakage": st.floats(1e-6, 50e-6),
+    }
+)
 
 
 def _worst_from_sampling(cfg: OperatingPointConfig, n_samples=101):
@@ -334,14 +367,11 @@ class TestInteriorBoundingPBT:
         di_dt_k0 = cfg.V_bus / cfg.L_coil
         di_dt_k1 = cfg.V_bus / cfg.L_leakage
         endpoint_worst_di_dt = max(di_dt_k0, di_dt_k1)
-        endpoint_worst_l_loop_max = (
-            min(num / di_dt_k0 if num > 0 else 0.0,
-                num / di_dt_k1 if num > 0 else 0.0)
+        endpoint_worst_l_loop_max = min(
+            num / di_dt_k0 if num > 0 else 0.0, num / di_dt_k1 if num > 0 else 0.0
         )
 
-        sampled_worst_di_dt, sampled_worst_l_loop_max = (
-            _worst_from_sampling(cfg)
-        )
+        sampled_worst_di_dt, sampled_worst_l_loop_max = _worst_from_sampling(cfg)
 
         # Monotonicity: interior must not beat endpoints
         assert sampled_worst_di_dt <= endpoint_worst_di_dt * (1.0 + 1e-12), (

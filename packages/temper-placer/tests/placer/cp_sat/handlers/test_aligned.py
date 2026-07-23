@@ -25,12 +25,15 @@ class TestAlignedHandlerStructural:
             model.add_rotation(name, is_polarized=True)
 
         constraint = AlignedConstraint(
-            components=comp_names, axis=Axis.X, tolerance_mm=tolerance_mm,
+            components=comp_names,
+            axis=Axis.X,
+            tolerance_mm=tolerance_mm,
             tier=ConstraintTier.HARD,
             because="Align components for visual consistency assurance",
         )
-        ctx = EncoderContext(board_w_mm=50.0, board_h_mm=50.0,
-                             board_x_max_units=5000, board_y_max_units=5000)
+        ctx = EncoderContext(
+            board_w_mm=50.0, board_h_mm=50.0, board_x_max_units=5000, board_y_max_units=5000
+        )
         labels = encode_aligned(constraint, model.component_map, model, ctx)
         assert isinstance(labels, list)
         # n(n-1)/2 pairs
@@ -42,8 +45,10 @@ class TestAlignedHandlerStructural:
     def test_handler_is_registered(self) -> None:
         from temper_placer.pcl.constraints import ConstraintType
         from temper_placer.placer.cp_sat.handlers._registry import HANDLER_REGISTRY
+
         assert ConstraintType.ALIGNED in HANDLER_REGISTRY
 
     def test_handler_satisfies_protocol(self) -> None:
         from temper_placer.placer.cp_sat.handlers._protocol import ConstraintHandler
+
         assert isinstance(encode_aligned, ConstraintHandler)

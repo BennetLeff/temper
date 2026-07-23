@@ -310,8 +310,7 @@ class CheckRunner:
             import temper_drc_rs  # type: ignore[import-untyped]
         except ImportError as exc:
             raise ImportError(
-                "The temper-drc Rust engine is required. "
-                "Install it with: pip install temper-drc-rs"
+                "The temper-drc Rust engine is required. Install it with: pip install temper-drc-rs"
             ) from exc
 
         board_dict = _placement_to_board_dict(placement)

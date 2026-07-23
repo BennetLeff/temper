@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
-from temper_placer.router_v6.audit_tree_geometry import AuditResult, audit_tree_geometry
+from temper_placer.router_v6.audit_tree_geometry import audit_tree_geometry
 
 
 class TestAuditTreeGeometry:

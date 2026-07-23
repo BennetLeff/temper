@@ -36,9 +36,7 @@ class StageTiming:
             "iterations": self.iterations,
         }
         if self.sub_steps:
-            result["sub_steps"] = {
-                name: ss.to_dict() for name, ss in self.sub_steps.items()
-            }
+            result["sub_steps"] = {name: ss.to_dict() for name, ss in self.sub_steps.items()}
         return result
 
 

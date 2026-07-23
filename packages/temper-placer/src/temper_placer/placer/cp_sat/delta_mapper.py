@@ -56,10 +56,7 @@ class DeltaMapper:
                 b=b,
                 min_distance_mm=min_dist,
                 tier=ConstraintTier.HARD,
-                because=(
-                    violation.description
-                    or f"DRC clearance violation: {a}-{b}"
-                ),
+                because=(violation.description or f"DRC clearance violation: {a}-{b}"),
                 id=cid,
             )
             return ConstraintDelta(
@@ -93,10 +90,7 @@ class DeltaMapper:
                 component=comp_ref,
                 region=region,
                 tier=ConstraintTier.STRONG,
-                because=(
-                    f"Unrouted net {net_name} on {comp_ref} "
-                    f"â€” bias position for routing"
-                ),
+                because=(f"Unrouted net {net_name} on {comp_ref} â€” bias position for routing"),
                 id=cid,
             )
             return ConstraintDelta(
@@ -116,16 +110,14 @@ class DeltaMapper:
                 max_area_mm2=tightened,
                 tier=ConstraintTier.SOFT,
                 because=(
-                    f"Loop inductance: {violation.severity:.1f} > "
-                    f"{violation.threshold:.1f} mmÂ²"
+                    f"Loop inductance: {violation.severity:.1f} > {violation.threshold:.1f} mmÂ²"
                 ),
                 id=cid,
             )
             return ConstraintDelta(
                 constraint=constraint,
                 reason=(
-                    f"Loop area {violation.severity:.1f} mmÂ² > "
-                    f"{violation.threshold:.1f} mmÂ²"
+                    f"Loop area {violation.severity:.1f} mmÂ² > {violation.threshold:.1f} mmÂ²"
                 ),
                 priority=30,
             )
@@ -143,10 +135,7 @@ class DeltaMapper:
                 b=b,
                 min_distance_mm=min_dist,
                 tier=ConstraintTier.HARD,
-                because=(
-                    violation.description
-                    or f"Thermal separation: {a}-{b}"
-                ),
+                because=(violation.description or f"Thermal separation: {a}-{b}"),
                 id=cid,
             )
             return ConstraintDelta(
@@ -168,10 +157,7 @@ class DeltaMapper:
                 b=b,
                 min_distance_mm=min_dist,
                 tier=ConstraintTier.HARD,
-                because=(
-                    violation.description
-                    or f"IEC creepage: {a}-{b}"
-                ),
+                because=(violation.description or f"IEC creepage: {a}-{b}"),
                 id=cid,
             )
             return ConstraintDelta(
@@ -199,9 +185,7 @@ class DeltaMapper:
 
         # ---- SLOP -> KeepoutConstraint (SOFT) ---------------------------
         if vtype is ViolationType.SLOP:
-            artifact_type = str(
-                violation.context.get("artifact_type", "slop")
-            )
+            artifact_type = str(violation.context.get("artifact_type", "slop"))
             artifacts = violation.context.get("artifacts", [])
             if artifacts and isinstance(artifacts, list):
                 first = artifacts[0]
@@ -214,8 +198,7 @@ class DeltaMapper:
                 zone_name=zone_name,
                 tier=ConstraintTier.SOFT,
                 because=(
-                    violation.description
-                    or "Slop artifact detected â€” keep components clear"
+                    violation.description or "Slop artifact detected â€” keep components clear"
                 ),
                 id=cid,
             )

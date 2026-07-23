@@ -56,8 +56,8 @@ def place_vias(
     sizing is resolved from the board's netclass assignments and rules.
     """
     if design_rules is not None:
-        net_class_assignments = getattr(design_rules, 'net_class_assignments', None)
-        net_class_rules = getattr(design_rules, 'net_classes', None)
+        net_class_assignments = getattr(design_rules, "net_class_assignments", None)
+        net_class_rules = getattr(design_rules, "net_classes", None)
     vias = []
 
     for net_name, route_path in pathfinding_result.routed_paths.items():
@@ -68,9 +68,7 @@ def place_vias(
                 rules = net_class_rules.get(nc_name, {})
                 dia = getattr(rules, "via_diameter_mm", via_diameter)
                 drill = getattr(rules, "via_drill_mm", via_drill)
-        vias.extend(
-            _place_vias_for_path(net_name, route_path, dia, drill)
-        )
+        vias.extend(_place_vias_for_path(net_name, route_path, dia, drill))
     for net_name, geometry in getattr(pathfinding_result, "tree_routes", {}).items():
         dia, drill = via_diameter, via_drill
         if net_class_assignments and net_class_rules:
@@ -80,9 +78,7 @@ def place_vias(
                 dia = getattr(rules, "via_diameter_mm", via_diameter)
                 drill = getattr(rules, "via_drill_mm", via_drill)
         for branch in geometry.branches:
-            vias.extend(
-                _place_vias_for_path(net_name, branch.path, dia, drill)
-            )
+            vias.extend(_place_vias_for_path(net_name, branch.path, dia, drill))
 
     return ViaPlacement(vias=vias)
 

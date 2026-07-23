@@ -86,7 +86,7 @@ def _component_power_nets(comp: ComponentSpec) -> list[str]:
 
 def _parse_capacitance_value(value: str) -> float | None:
     """Parse a capacitance value string into uF (float), or None if unparseable."""
-    m = re.search(r'(\d+\.?\d*)\s*[u\u03bc]\s*F', value, re.IGNORECASE)
+    m = re.search(r"(\d+\.?\d*)\s*[u\u03bc]\s*F", value, re.IGNORECASE)
     if m:
         return float(m.group(1))
     return None
@@ -122,7 +122,7 @@ def check_power_supply_voltages(
     for comp in components:
         if comp.supply_voltage is None:
             continue
-        for pin_num, net_name in comp.pins.items():
+        for _pin_num, net_name in comp.pins.items():
             if net_name in net_voltages:
                 net_v = net_voltages[net_name]
                 if net_v != 0.0 and abs(net_v - comp.supply_voltage) > 0.5:
@@ -163,20 +163,25 @@ def check_decoupling_present(
     violations = []
 
     if not ics:
-        return SchematicReviewResult(passed=False, violations=[
-            SchematicViolation(
-                code="DEC-000",
-                message="No ICs specified for decoupling check",
-                severity="error",
-            )
-        ])
+        return SchematicReviewResult(
+            passed=False,
+            violations=[
+                SchematicViolation(
+                    code="DEC-000",
+                    message="No ICs specified for decoupling check",
+                    severity="error",
+                )
+            ],
+        )
 
     ic_comps = {c.ref: c for c in components if c.ref in ics}
-    cap_comps = {c.ref: c for c in components if c.value in ("100nF", "10uF", "0.1uF", "1uF",
-                                                               "1.0uF", "2.2uF", "22uF",
-                                                               "0.047uF")
-               or _parse_capacitance_value(str(c.value)) is not None
-               or "nF" in str(c.value)}
+    {
+        c.ref: c
+        for c in components
+        if c.value in ("100nF", "10uF", "0.1uF", "1uF", "1.0uF", "2.2uF", "22uF", "0.047uF")
+        or _parse_capacitance_value(str(c.value)) is not None
+        or "nF" in str(c.value)
+    }
 
     for ic_ref in ics:
         if ic_ref not in ic_comps:
@@ -330,7 +335,7 @@ def check_component_part_numbers(
         SchematicReviewResult with violations for missing/invalid part numbers
     """
     violations = []
-    placeholders = {"TBD", "???", "N/A", "n/a", "", "TBC", "TBD", "XXX"}
+    placeholders = {"TBD", "???", "N/A", "n/a", "", "TBC", "XXX"}
 
     for comp in components:
         if comp.part_number is None or comp.part_number.strip() == "":
@@ -463,7 +468,9 @@ def check_obsolete_parts(
         obsolete_list = set()
 
     for comp in components:
-        if comp.part_number and comp.part_number.strip().upper() in {p.upper() for p in obsolete_list}:
+        if comp.part_number and comp.part_number.strip().upper() in {
+            p.upper() for p in obsolete_list
+        }:
             violations.append(
                 SchematicViolation(
                     code="OBS-001",
@@ -572,9 +579,11 @@ def check_hierarchical_connections(
     Returns:
         SchematicReviewResult with violations for incorrect hierarchy
     """
-    return SchematicReviewResult(passed=True, violations=[], warnings=[
-        "Hierarchical connection checking not yet implemented (temper-xxx)"
-    ])
+    return SchematicReviewResult(
+        passed=True,
+        violations=[],
+        warnings=["Hierarchical connection checking not yet implemented (temper-xxx)"],
+    )
 
 
 def check_global_labels(
@@ -594,9 +603,11 @@ def check_global_labels(
     Returns:
         SchematicReviewResult with violations for improper global label usage
     """
-    return SchematicReviewResult(passed=True, violations=[], warnings=[
-        "Global label checking not yet implemented (temper-xxx)"
-    ])
+    return SchematicReviewResult(
+        passed=True,
+        violations=[],
+        warnings=["Global label checking not yet implemented (temper-xxx)"],
+    )
 
 
 # =============================================================================
@@ -661,10 +672,15 @@ def check_ocp_circuit(
     """
     violations = []
 
-    has_sense = any("RES" in str(comp.value).upper() or "Ω" in str(comp.value) or "OHM" in str(comp.value).upper()
-                     for comp in components)
-    has_comparator = any("393" in str(comp.value) or "op" in str(comp.value).lower()
-                         for comp in components)
+    has_sense = any(
+        "RES" in str(comp.value).upper()
+        or "Ω" in str(comp.value)
+        or "OHM" in str(comp.value).upper()
+        for comp in components
+    )
+    has_comparator = any(
+        "393" in str(comp.value) or "op" in str(comp.value).lower() for comp in components
+    )
 
     if not has_sense:
         violations.append(
@@ -759,8 +775,9 @@ def check_gate_driver_enable(
         SchematicReviewResult with violations for incorrect enable logic
     """
     violations = []
-    has_gate_driver = any("UCC" in str(c.value).upper() or "gate" in str(c.value).lower()
-                          for c in components)
+    has_gate_driver = any(
+        "UCC" in str(c.value).upper() or "gate" in str(c.value).lower() for c in components
+    )
 
     if not has_gate_driver:
         violations.append(
@@ -796,8 +813,12 @@ def check_watchdog_timer(
     """
     violations = []
 
-    has_watchdog = any("3823" in str(c.value) or "WDT" in str(c.value).upper() or "watchdog" in str(c.value).lower()
-                        for c in components)
+    has_watchdog = any(
+        "3823" in str(c.value)
+        or "WDT" in str(c.value).upper()
+        or "watchdog" in str(c.value).lower()
+        for c in components
+    )
 
     if not has_watchdog:
         violations.append(

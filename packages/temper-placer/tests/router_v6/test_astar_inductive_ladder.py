@@ -48,7 +48,7 @@ _TOL = 1e-12
 
 def _make_grid(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> OccupancyGrid:
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for r, c in (blocked or set()):
+    for r, c in blocked or set():
         arr[r, c] = 1
     return OccupancyGrid("Test", arr, (0.0, 0.0), 1.0, cols, rows)
 
@@ -166,7 +166,11 @@ def test_l0_octile_triangle_inequality():
     MAX_COORD = 100
     for _ in range(1000):
         points = rng.integers(0, MAX_COORD, size=(3, 2))
-        a, b, c = (int(points[0, 0]), int(points[0, 1])), (int(points[1, 0]), int(points[1, 1])), (int(points[2, 0]), int(points[2, 1]))
+        a, b, c = (
+            (int(points[0, 0]), int(points[0, 1])),
+            (int(points[1, 0]), int(points[1, 1])),
+            (int(points[2, 0]), int(points[2, 1])),
+        )
         assert octile_distance(a, c) <= octile_distance(a, b) + octile_distance(b, c) + _TOL
 
 
@@ -174,9 +178,7 @@ def test_l0_octile_triangle_inequality():
 def test_l0_octile_diag_constant():
     """OCTILE_DIAG == sqrt(2) - 1 within 1e-15."""
     expected = math.sqrt(2.0) - 1.0
-    assert abs(OCTILE_DIAG - expected) < 1e-15, (
-        f"OCTILE_DIAG={OCTILE_DIAG}, expected={expected}"
-    )
+    assert abs(OCTILE_DIAG - expected) < 1e-15, f"OCTILE_DIAG={OCTILE_DIAG}, expected={expected}"
 
 
 # =============================================================================
@@ -294,7 +296,9 @@ def test_l2b_4x4_exhaustive():
 @pytest.mark.l3_pbt
 @given(gsp=grid_and_pair(st.integers(2, 100), st.integers(2, 100), st.floats(0.0, 0.0)))
 @settings(max_examples=100, deadline=30000)
-def test_l3_pbt_octile_admissible_empty(gsp: tuple[OccupancyGrid, tuple[int, int], tuple[int, int]]):
+def test_l3_pbt_octile_admissible_empty(
+    gsp: tuple[OccupancyGrid, tuple[int, int], tuple[int, int]],
+):
     """On empty grids (R21): octile_distance(s,g) <= dijkstra_cost_only."""
     grid, s, g = gsp
     h = octile_distance(s, g)
@@ -336,7 +340,9 @@ def test_l3_pbt_path_cells_free(gsp: tuple[OccupancyGrid, tuple[int, int], tuple
     grid, s, g = gsp
     path = _astar_search(s, g, grid)
     if path is not None:
-        assert _path_cells_free(path, grid), f"Obstacle in path on {grid.width_cells}x{grid.height_cells}"
+        assert _path_cells_free(path, grid), (
+            f"Obstacle in path on {grid.width_cells}x{grid.height_cells}"
+        )
 
 
 @pytest.mark.l3_pbt
@@ -362,6 +368,7 @@ def test_l4_regression_boards():
     """Run A* on real test boards; verify MR8 and bounded path length."""
     try:
         from temper_placer.router_v6.test_boards import get_available_boards
+
         boards = get_available_boards()
     except Exception:
         boards = []
@@ -459,9 +466,7 @@ def test_l3_lazy_thetastar_cost_parity(gsp):
 
     lazy_path = _astar_search_lazy_theta_star(grid, s, g, net_id=0)
     d_path, d_cost = dijkstra_shortest_path(s, g, grid)
-    assert (lazy_path is None) == (d_path is None), (
-        "Lazy Theta* / Dijkstra completeness mismatch"
-    )
+    assert (lazy_path is None) == (d_path is None), "Lazy Theta* / Dijkstra completeness mismatch"
     if lazy_path is not None and d_path is not None:
         # Lazy Theta* uses Euclidean, Dijkstra uses octile — cost < oracle
         lazy_cost = 0.0
@@ -469,6 +474,4 @@ def test_l3_lazy_thetastar_cost_parity(gsp):
             dx = lazy_path[i + 1][0] - lazy_path[i][0]
             dy = lazy_path[i + 1][1] - lazy_path[i][1]
             lazy_cost += math.sqrt(dx * dx + dy * dy)
-        assert lazy_cost <= d_cost + _TOL, (
-            f"Lazy Theta* cost {lazy_cost} > Dijkstra {d_cost}"
-        )
+        assert lazy_cost <= d_cost + _TOL, f"Lazy Theta* cost {lazy_cost} > Dijkstra {d_cost}"

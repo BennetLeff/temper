@@ -154,9 +154,12 @@ def _trace_to_cell_coverage(
 
 
 def _point_to_segment_distance(
-    px: float, py: float,
-    ax: float, ay: float,
-    bx: float, by: float,
+    px: float,
+    py: float,
+    ax: float,
+    ay: float,
+    bx: float,
+    by: float,
 ) -> float:
     """Squared Euclidean distance from point to line segment AB."""
     dx = bx - ax
@@ -209,8 +212,13 @@ def _build_conductivity_field(
             else:
                 continue
             cell_cov = _trace_to_cell_coverage(
-                (sx, sy), (ex, ey), tw,
-                config.origin_mm, config.cell_size_mm, h, w,
+                (sx, sy),
+                (ex, ey),
+                tw,
+                config.origin_mm,
+                config.cell_size_mm,
+                h,
+                w,
             )
             frac = np.minimum(1.0, frac + cell_cov)
 
@@ -273,7 +281,8 @@ def _build_heat_source_field(
 
 
 def _is_neumann_boundary(
-    row: int, col: int,
+    row: int,
+    col: int,
     direction: str,  # "north", "south", "east", "west"
     config: ThermalFDMConfig,
 ) -> bool:
@@ -297,7 +306,8 @@ def _is_neumann_boundary(
 
 
 def _is_heatsink_boundary_face(
-    row: int, col: int,
+    row: int,
+    col: int,
     direction: str,
     config: ThermalFDMConfig,
 ) -> bool:
@@ -546,8 +556,7 @@ def solve_thermal_fdm(
             gate_result=GateResult(
                 status=GateStatus.UNMEASURED,
                 error_message=(
-                    f"Solve time {t_elapsed:.2f}s exceeds target "
-                    f"{config.target_solve_time_s}s"
+                    f"Solve time {t_elapsed:.2f}s exceeds target {config.target_solve_time_s}s"
                 ),
             ),
             field=None,

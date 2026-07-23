@@ -104,20 +104,20 @@ def identify_congested_regions(
 
     # Analyze successful routes for density
     for _net_name, compiled_route in routing_results.compiled_routes.items():
-            # Extract coordinates (handle RoutePath and RoutePath3D)
-            coords = []
-            if hasattr(compiled_route.path, 'segments'):
-                 coords = [c[:2] for c in compiled_route.path.segments]
-            elif hasattr(compiled_route.path, 'coordinates'):
-                 coords = compiled_route.path.coordinates
+        # Extract coordinates (handle RoutePath and RoutePath3D)
+        coords = []
+        if hasattr(compiled_route.path, "segments"):
+            coords = [c[:2] for c in compiled_route.path.segments]
+        elif hasattr(compiled_route.path, "coordinates"):
+            coords = compiled_route.path.coordinates
 
-            for coord in coords:
-                x, y = coord
-                cell_x = int(x / grid_size)
-                cell_y = int(y / grid_size)
+        for coord in coords:
+            x, y = coord
+            cell_x = int(x / grid_size)
+            cell_y = int(y / grid_size)
 
-                if 0 <= cell_x < grid_cells_x and 0 <= cell_y < grid_cells_y:
-                    congestion_grid[cell_y][cell_x] += 0.1  # Route density contribution
+            if 0 <= cell_x < grid_cells_x and 0 <= cell_y < grid_cells_y:
+                congestion_grid[cell_y][cell_x] += 0.1  # Route density contribution
 
     # Identify congested regions
     regions = []
@@ -134,13 +134,15 @@ def identify_congested_regions(
                 center_x = (x + 0.5) * grid_size
                 center_y = (y + 0.5) * grid_size
 
-                regions.append(CongestedRegion(
-                    center=(center_x, center_y),
-                    radius=grid_size / 2,
-                    severity=severity,
-                    failed_net_count=failed_nets,
-                    bottleneck_score=min(1.0, congestion / 10.0),
-                ))
+                regions.append(
+                    CongestedRegion(
+                        center=(center_x, center_y),
+                        radius=grid_size / 2,
+                        severity=severity,
+                        failed_net_count=failed_nets,
+                        bottleneck_score=min(1.0, congestion / 10.0),
+                    )
+                )
 
     return CongestionMap(regions=regions)
 

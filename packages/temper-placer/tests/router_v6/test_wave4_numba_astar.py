@@ -14,6 +14,7 @@ R10: ``_astar_search_numba`` in
 Falls through to ``_astar_search`` (pure Python) when numba is
 not installed; this is a soft dependency.
 """
+
 from __future__ import annotations
 
 import time
@@ -28,7 +29,7 @@ from temper_placer.router_v6.neighbor_validity import build_neighbor_validity_te
 
 def _make_grid(rows: int, cols: int, blocked: set[tuple[int, int]] | None = None) -> np.ndarray:
     arr = np.zeros((rows, cols), dtype=np.int8)
-    for r, c in (blocked or set()):
+    for r, c in blocked or set():
         if 0 <= r < rows and 0 <= c < cols:
             arr[r, c] = 1
     return arr
@@ -52,11 +53,10 @@ def test_numba_path_matches_python_path_on_empty_grid():
 
     py_path = _python_astar((0, 0), (19, 19), grid, neighbor_tensor=tensor)
     from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+
     nb_path = _astar_search_numba((0, 0), (19, 19), grid, neighbor_tensor=tensor)
 
-    assert py_path == nb_path, (
-        f"Python {py_path[:3]}... != Numba {nb_path[:3]}..."
-    )
+    assert py_path == nb_path, f"Python {py_path[:3]}... != Numba {nb_path[:3]}..."
     # Diagonal path is 20 cells
     assert len(py_path) == 20
 
@@ -75,6 +75,7 @@ def test_numba_path_matches_python_path_around_blocked_cells():
 
     py_path = _python_astar((0, 0), (19, 19), grid, neighbor_tensor=tensor)
     from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+
     nb_path = _astar_search_numba((0, 0), (19, 19), grid, neighbor_tensor=tensor)
 
     assert py_path is not None
@@ -97,6 +98,7 @@ def test_numba_returns_none_for_unreachable_goal():
     tensor = build_neighbor_validity_tensor_2d(grid)
 
     from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+
     assert _astar_search_numba((0, 0), (9, 9), grid, neighbor_tensor=tensor) is None
 
 
@@ -139,6 +141,7 @@ def test_numba_path_returns_list_of_xy_tuples():
     arr = _make_grid(10, 10)
     grid = _GridAdapter(arr)
     from temper_placer.router_v6.astar_core_numba import _astar_search_numba
+
     path = _astar_search_numba((0, 0), (9, 9), grid)
     assert isinstance(path, list)
     for cell in path:

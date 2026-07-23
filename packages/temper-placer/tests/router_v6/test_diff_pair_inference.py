@@ -80,10 +80,14 @@ def test_infer_diff_pairs_unpaired():
 def test_infer_diff_pairs_multiple_patterns():
     """Test mixing different naming patterns."""
     nets = [
-        "USB_D+", "USB_D-",      # +/- pattern
-        "LVDS_P", "LVDS_N",      # P/N pattern
-        "ETH_DP", "ETH_DN",      # DP/DN pattern
-        "GND", "3V3"
+        "USB_D+",
+        "USB_D-",  # +/- pattern
+        "LVDS_P",
+        "LVDS_N",  # P/N pattern
+        "ETH_DP",
+        "ETH_DN",  # DP/DN pattern
+        "GND",
+        "3V3",
     ]
     pairs = infer_differential_pairs(nets)
 
@@ -108,10 +112,14 @@ def test_diff_pair_validation():
 def test_complex_naming():
     """Test complex real-world naming."""
     nets = [
-        "PCIE_TX0_P", "PCIE_TX0_N",
-        "PCIE_TX1_P", "PCIE_TX1_N",
-        "PCIE_RX0_P", "PCIE_RX0_N",
-        "GND", "12V"
+        "PCIE_TX0_P",
+        "PCIE_TX0_N",
+        "PCIE_TX1_P",
+        "PCIE_TX1_N",
+        "PCIE_RX0_P",
+        "PCIE_RX0_N",
+        "GND",
+        "12V",
     ]
     pairs = infer_differential_pairs(nets)
 

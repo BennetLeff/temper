@@ -11,6 +11,7 @@ R2: ``RouterV6Pipeline`` defaults ``enable_theta_star=True`` (any-angle
 R3: Channel skeleton extraction is restricted to F.Cu and B.Cu
     (the outer signal layers) for the production pipeline path.
 """
+
 from __future__ import annotations
 
 from temper_placer.router_v6.net_classification import (
@@ -33,8 +34,7 @@ def test_r1_plane_nets_set_includes_ground_and_vcc():
         "recognized as a ground net so it counts in completion_rate."
     )
     assert is_power_net("VCC"), (
-        "is_power_net('VCC') must be True. R1 depends on VCC being "
-        "recognized as a power net."
+        "is_power_net('VCC') must be True. R1 depends on VCC being recognized as a power net."
     )
 
 

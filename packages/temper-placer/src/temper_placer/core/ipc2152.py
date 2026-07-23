@@ -3,6 +3,7 @@ IPC-2152 inverse ampacity: minimum trace width from expected current.
 
 Delegates core computation to the temper_ipc Rust extension.
 """
+
 from temper_ipc import (  # noqa: F401 — re-export
     DEFAULT_SIGNAL_CURRENT,
     NET_CURRENTS,
@@ -58,11 +59,13 @@ def ipc2152_min_width(_net_name, current_amps, layer=None, stackup=None):
                     match = True
             if match:
                 copper_oz = getattr(
-                    candidate, "copper_weight",
+                    candidate,
+                    "copper_weight",
                     getattr(candidate, "copper_weight_oz", 1.0),
                 )
                 layer_type = getattr(
-                    candidate, "layer_type",
+                    candidate,
+                    "layer_type",
                     getattr(candidate, "type", "signal"),
                 )
                 internal = layer_type == "plane" or (

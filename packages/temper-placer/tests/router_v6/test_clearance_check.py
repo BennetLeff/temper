@@ -44,10 +44,7 @@ def test_verify_safe_clearance():
     path2 = RoutePath("NET2", [(0, 5), (10, 5)], "F.Cu", 10.0)
     route2 = CompiledRoute("NET2", path2, 0.127, [], None)
 
-    results = RoutingResults(
-        compiled_routes={"NET1": route1, "NET2": route2},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"NET1": route1, "NET2": route2}, failed_nets=[])
 
     report = verify_clearance(results, min_clearance=0.127)
 
@@ -63,10 +60,7 @@ def test_verify_clearance_violation():
     path2 = RoutePath("NET2", [(0, 0.2), (10, 0.2)], "F.Cu", 10.0)
     route2 = CompiledRoute("NET2", path2, 0.2, [], None)  # Wide trace
 
-    results = RoutingResults(
-        compiled_routes={"NET1": route1, "NET2": route2},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"NET1": route1, "NET2": route2}, failed_nets=[])
 
     report = verify_clearance(results, min_clearance=0.127)
 
@@ -112,10 +106,7 @@ def test_hv_clearance_requirement():
     sig_path = RoutePath("SIG1", [(0, 0.4), (10, 0.4)], "F.Cu", 10.0)
     sig_route = CompiledRoute("SIG1", sig_path, 0.127, [], None)
 
-    results = RoutingResults(
-        compiled_routes={"AC_L": hv_route, "SIG1": sig_route},
-        failed_nets=[]
-    )
+    results = RoutingResults(compiled_routes={"AC_L": hv_route, "SIG1": sig_route}, failed_nets=[])
 
     # Standard clearance 0.127mm
     report = verify_clearance(results, min_clearance=0.127)
@@ -142,7 +133,7 @@ def test_multiple_route_pairs():
             "NET2": route2,
             "NET3": route3,
         },
-        failed_nets=[]
+        failed_nets=[],
     )
 
     report = verify_clearance(results)

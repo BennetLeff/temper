@@ -9,9 +9,6 @@ caught at the import level.
 
 from __future__ import annotations
 
-import pytest
-
-
 # =========================================================================
 # BoardState ↔ oracle coupling (#205)
 # =========================================================================
@@ -20,8 +17,8 @@ import pytest
 def test_board_state_imports_are_stable():
     """BoardState is consumed by the CP-SAT gate layer and the deterministic
     oracle DRC engine.  Both are intentional, documented couplings."""
-    from temper_placer.placer.cp_sat.gates import BoardState as GatesBoardState
     from temper_placer.deterministic.state import BoardState as DetBoardState
+    from temper_placer.placer.cp_sat.gates import BoardState as GatesBoardState
 
     # Both exist and carry the expected fields.
     assert hasattr(GatesBoardState, "netlist")
@@ -38,11 +35,11 @@ def test_board_state_imports_are_stable():
 def test_all_components_is_exported_from_a_single_authoritative_source():
     """all_components is a hub entity the oracle layer iterates heavily.
     It must be importable from its canonical location."""
-    from temper_placer.deterministic.state import BoardState
 
     # The canonical way to enumerate components is BoardState.netlist.components.
     # Verify the path is stable.
     import temper_placer.core.netlist as nl
+
     assert hasattr(nl, "Component")
     assert hasattr(nl, "Netlist")
 
@@ -74,6 +71,4 @@ def test_rust_component_python_oracle_interface_is_documented():
         "footprint_polygon": "footprint_polygon",
     }
     # Documented mapping; changing any key requires updating the other side.
-    assert len(rust_to_python) == 15, (
-        "contract mapping changed — update both Rust and Python sides"
-    )
+    assert len(rust_to_python) == 15, "contract mapping changed — update both Rust and Python sides"

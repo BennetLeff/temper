@@ -5,6 +5,7 @@ This module provides rotation operations for PCB component orientations.
 All functions delegate to the temper_geometry Rust crate which uses
 radians for rotation representation.
 """
+
 import temper_geometry as _tg
 
 # =============================================================================

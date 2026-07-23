@@ -135,12 +135,15 @@ def test_large_node_count_falls_back() -> None:
         pcb_path = Path(tmpdir) / "big.kicad_pcb"
         pcb_path.write_text("(kicad_pcb)")
 
-        with patch(
-            "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
-            return_value={},
-        ), patch(
-            "temper_placer.runner.resolve_and_run",
-            return_value=routing_result,
+        with (
+            patch(
+                "temper_placer.io.kicad_parser.parse_kicad_pcb_v6",
+                return_value={},
+            ),
+            patch(
+                "temper_placer.runner.resolve_and_run",
+                return_value=routing_result,
+            ),
         ):
             test = ClosureTest(pcb_path=pcb_path)
             # Must not raise even when the bottleneck analysis aborted.

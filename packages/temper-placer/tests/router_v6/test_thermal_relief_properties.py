@@ -42,12 +42,14 @@ _SETTINGS = settings(
 # ---------------------------------------------------------------------------
 
 
-@given(results=mixed_net_routing_results(
-    power_nets=("GND", "VCC"),
-    signal_nets=("SIG1", "SIG2", "DATA0", "CLK", "RST", "ENABLE", "TX+", "RX-"),
-    min_routes=2,
-    max_routes=10,
-))
+@given(
+    results=mixed_net_routing_results(
+        power_nets=("GND", "VCC"),
+        signal_nets=("SIG1", "SIG2", "DATA0", "CLK", "RST", "ENABLE", "TX+", "RX-"),
+        min_routes=2,
+        max_routes=10,
+    )
+)
 @_SETTINGS
 def test_thermal_relief_power_net_scoping(results: RoutingResults) -> None:
     """TS1: Power nets may receive thermal reliefs; signal nets must get none.
@@ -71,17 +73,12 @@ def test_thermal_relief_power_net_scoping(results: RoutingResults) -> None:
 
     # Every net that received a relief must be a power net.
     assert relief_nets.issubset(power_nets), (
-        f"Non-power nets received thermal reliefs: "
-        f"{relief_nets - power_nets}"
+        f"Non-power nets received thermal reliefs: {relief_nets - power_nets}"
     )
 
     # Signal nets must get exactly zero reliefs.
-    signal_relief_count = sum(
-        1 for tr in report.thermal_reliefs if tr.net_name in signal_nets
-    )
-    assert signal_relief_count == 0, (
-        f"Signal nets received {signal_relief_count} thermal relief(s)"
-    )
+    signal_relief_count = sum(1 for tr in report.thermal_reliefs if tr.net_name in signal_nets)
+    assert signal_relief_count == 0, f"Signal nets received {signal_relief_count} thermal relief(s)"
 
     # Power nets may get zero or more reliefs (zero if no via touches a
     # plane layer in this random draw), but every relief must come from a
@@ -99,9 +96,7 @@ def test_thermal_relief_power_net_scoping(results: RoutingResults) -> None:
 def test_thermal_relief_spoke_count_upper_bound(results: RoutingResults) -> None:
     """TS2: Every ThermalRelief has spoke_count ≤ the configured spoke_count=4."""
     configured_spoke_count = 4
-    report: ThermalReliefReport = add_thermal_relief(
-        results, spoke_count=configured_spoke_count
-    )
+    report: ThermalReliefReport = add_thermal_relief(results, spoke_count=configured_spoke_count)
 
     for tr in report.thermal_reliefs:
         assert tr.spoke_count <= configured_spoke_count, (
@@ -118,6 +113,5 @@ def test_thermal_relief_total_spokes_consistency(results: RoutingResults) -> Non
 
     computed_total = sum(tr.spoke_count for tr in report.thermal_reliefs)
     assert report.total_spokes == computed_total, (
-        f"total_spokes={report.total_spokes} but sum of individual "
-        f"spoke_counts={computed_total}"
+        f"total_spokes={report.total_spokes} but sum of individual spoke_counts={computed_total}"
     )

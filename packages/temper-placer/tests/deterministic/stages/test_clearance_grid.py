@@ -23,6 +23,7 @@ def test_empty_grid_all_available():
     assert grid.is_available(25, 25)
     assert grid.blocked_count == 0
 
+
 def test_block_pad_with_clearance():
     grid = ClearanceGrid(width_mm=50, height_mm=50, cell_size_mm=0.5)
 
@@ -41,8 +42,10 @@ def test_block_pad_with_clearance():
     # 1.0mm away (outside clearance) should be available
     assert grid.is_available(26.0, 25)
 
+
 def test_grid_is_deterministic():
-    '''Same input produces same blocked cells.'''
+    """Same input produces same blocked cells."""
+
     def build_grid():
         grid = ClearanceGrid(width_mm=50, height_mm=50, cell_size_mm=0.5)
         grid.block_circle(center=(25, 25), radius_mm=0.5, clearance_mm=0.3)
@@ -51,6 +54,7 @@ def test_grid_is_deterministic():
     result1 = build_grid()
     result2 = build_grid()
     assert result1 == result2
+
 
 def test_block_trace():
     grid = ClearanceGrid(width_mm=50, height_mm=50, cell_size_mm=0.5)
@@ -237,6 +241,7 @@ def _make_board_state(
 def _make_pad_size(width: float, height: float, shape: str = "circle"):
     """Build a pad_sizes entry compatible with the stage's `real_pad.size.X`
     and `real_pad.shape` access pattern."""
+
     class _Size:
         def __init__(self, w, h):
             self.X = w
@@ -292,10 +297,24 @@ def test_expansion_circular_pad_grows_radius():
     _eff = 6.0
     pad_w = 2.0  # -> pad_radius = 1.0
 
-    pin = Pin(name="1", number="1", position=(0.0, 0.0), net="HV",
-              shape="circle", layer="F.Cu", width=pad_w, height=pad_w)
-    comp = Component(ref="Q1", footprint="TO-247", bounds=(10.0, 10.0),
-                     pins=[pin], net_class="HighVoltage", initial_position=pos)
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="HV",
+        shape="circle",
+        layer="F.Cu",
+        width=pad_w,
+        height=pad_w,
+    )
+    comp = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(10.0, 10.0),
+        pins=[pin],
+        net_class="HighVoltage",
+        initial_position=pos,
+    )
     net = Net(name="HV", pins=[("Q1", "1")], net_class="HighVoltage")
     netlist = Netlist(components=[comp], nets=[net])
 
@@ -307,13 +326,19 @@ def test_expansion_circular_pad_grows_radius():
     pad_sizes = {("Q1", "1"): _make_pad_size(pad_w, pad_w, "circle")}
 
     zone = HVExclusionZone(
-        name="q1_zone", center=pos, size=(10.0, 10.0),
-        clearance_mm=6.0, component_refdes="Q1",
+        name="q1_zone",
+        center=pos,
+        size=(10.0, 10.0),
+        clearance_mm=6.0,
+        component_refdes="Q1",
     )
 
     result = _run_grid_stage(
-        state, hv_exclusion_zones=[zone], layer_count=2,
-        cell_size_mm=cell, pad_sizes=pad_sizes,
+        state,
+        hv_exclusion_zones=[zone],
+        layer_count=2,
+        cell_size_mm=cell,
+        pad_sizes=pad_sizes,
     )
     grid = result.grid
     assert grid is not None
@@ -337,10 +362,24 @@ def test_expansion_rect_pad_grows_each_side():
     pos = (25.0, 25.0)
     pad_w, pad_h = 2.0, 1.0
 
-    pin = Pin(name="1", number="1", position=(0.0, 0.0), net="HV",
-              shape="rect", layer="F.Cu", width=pad_w, height=pad_h)
-    comp = Component(ref="U1", footprint="SOIC-8", bounds=(5.0, 4.0),
-                     pins=[pin], net_class="HighVoltage", initial_position=pos)
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="HV",
+        shape="rect",
+        layer="F.Cu",
+        width=pad_w,
+        height=pad_h,
+    )
+    comp = Component(
+        ref="U1",
+        footprint="SOIC-8",
+        bounds=(5.0, 4.0),
+        pins=[pin],
+        net_class="HighVoltage",
+        initial_position=pos,
+    )
     net = Net(name="HV", pins=[("U1", "1")], net_class="HighVoltage")
     netlist = Netlist(components=[comp], nets=[net])
 
@@ -352,12 +391,17 @@ def test_expansion_rect_pad_grows_each_side():
     pad_sizes = {("U1", "1"): _make_pad_size(pad_w, pad_h, "rect")}
 
     zone = HVExclusionZone(
-        name="u1_zone", center=pos, size=(10.0, 10.0),
-        clearance_mm=6.0, component_refdes="U1",
+        name="u1_zone",
+        center=pos,
+        size=(10.0, 10.0),
+        clearance_mm=6.0,
+        component_refdes="U1",
     )
 
     result = _run_grid_stage(
-        state, hv_exclusion_zones=[zone], pad_sizes=pad_sizes,
+        state,
+        hv_exclusion_zones=[zone],
+        pad_sizes=pad_sizes,
     )
     grid = result.grid
 
@@ -381,10 +425,24 @@ def test_expansion_inner_layer_uses_reduced_factor():
     pos = (25.0, 25.0)
     _eff_inner = 6.0 * 0.30  # 1.8
 
-    pin = Pin(name="1", number="1", position=(0.0, 0.0), net="HV",
-              shape="circle", layer="In1.Cu", width=2.0, height=2.0)
-    comp = Component(ref="Q1", footprint="TO-247", bounds=(10.0, 10.0),
-                     pins=[pin], net_class="HighVoltage", initial_position=pos)
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="HV",
+        shape="circle",
+        layer="In1.Cu",
+        width=2.0,
+        height=2.0,
+    )
+    comp = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(10.0, 10.0),
+        pins=[pin],
+        net_class="HighVoltage",
+        initial_position=pos,
+    )
     net = Net(name="HV", pins=[("Q1", "1")], net_class="HighVoltage")
     netlist = Netlist(components=[comp], nets=[net])
 
@@ -396,13 +454,18 @@ def test_expansion_inner_layer_uses_reduced_factor():
     pad_sizes = {("Q1", "1"): _make_pad_size(2.0, 2.0, "circle")}
 
     zone = HVExclusionZone(
-        name="q1_zone", center=pos, size=(10.0, 10.0),
-        clearance_mm=6.0, component_refdes="Q1",
+        name="q1_zone",
+        center=pos,
+        size=(10.0, 10.0),
+        clearance_mm=6.0,
+        component_refdes="Q1",
     )
 
     # Need 4 layers so layer 1 = In1.Cu
     result = _run_grid_stage(
-        state, hv_exclusion_zones=[zone], layer_count=4,
+        state,
+        hv_exclusion_zones=[zone],
+        layer_count=4,
         pad_sizes=pad_sizes,
     )
     grid = result.grid
@@ -427,14 +490,42 @@ def test_expansion_skips_non_hv_pads():
     pos_hv = (15.0, 25.0)
     pos_lv = (35.0, 25.0)
 
-    hv_pin = Pin(name="1", number="1", position=(0.0, 0.0), net="HV",
-                 shape="circle", layer="F.Cu", width=2.0, height=2.0)
-    lv_pin = Pin(name="1", number="1", position=(0.0, 0.0), net="LV",
-                 shape="circle", layer="F.Cu", width=2.0, height=2.0)
-    comp_hv = Component(ref="Q1", footprint="TO-247", bounds=(5.0, 5.0),
-                        pins=[hv_pin], net_class="HighVoltage", initial_position=pos_hv)
-    comp_lv = Component(ref="R1", footprint="0805", bounds=(2.0, 1.0),
-                        pins=[lv_pin], net_class="Signal", initial_position=pos_lv)
+    hv_pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="HV",
+        shape="circle",
+        layer="F.Cu",
+        width=2.0,
+        height=2.0,
+    )
+    lv_pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="LV",
+        shape="circle",
+        layer="F.Cu",
+        width=2.0,
+        height=2.0,
+    )
+    comp_hv = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(5.0, 5.0),
+        pins=[hv_pin],
+        net_class="HighVoltage",
+        initial_position=pos_hv,
+    )
+    comp_lv = Component(
+        ref="R1",
+        footprint="0805",
+        bounds=(2.0, 1.0),
+        pins=[lv_pin],
+        net_class="Signal",
+        initial_position=pos_lv,
+    )
     net_hv = Net(name="HV", pins=[("Q1", "1")], net_class="HighVoltage")
     net_lv = Net(name="LV", pins=[("R1", "1")], net_class="Signal")
     netlist = Netlist(components=[comp_hv, comp_lv], nets=[net_hv, net_lv])
@@ -450,7 +541,9 @@ def test_expansion_skips_non_hv_pads():
         netlist=netlist,
     )
     pre = _run_grid_stage(
-        state_no_hv, hv_exclusion_zones=[], pad_sizes=pad_sizes,
+        state_no_hv,
+        hv_exclusion_zones=[],
+        pad_sizes=pad_sizes,
     ).grid
 
     state_with_hv = BoardState(
@@ -458,11 +551,16 @@ def test_expansion_skips_non_hv_pads():
         netlist=netlist,
     )
     zone = HVExclusionZone(
-        name="q1_zone", center=pos_hv, size=(10.0, 10.0),
-        clearance_mm=6.0, component_refdes="Q1",
+        name="q1_zone",
+        center=pos_hv,
+        size=(10.0, 10.0),
+        clearance_mm=6.0,
+        component_refdes="Q1",
     )
     post = _run_grid_stage(
-        state_with_hv, hv_exclusion_zones=[zone], pad_sizes=pad_sizes,
+        state_with_hv,
+        hv_exclusion_zones=[zone],
+        pad_sizes=pad_sizes,
     ).grid
 
     # Far from both pads: cell at (2.75, 2.75) is unblocked in both.
@@ -475,8 +573,9 @@ def test_expansion_skips_non_hv_pads():
     # Near the LV pad: blocking is the same (no expansion applies).
     # LV pad at (35, 25), pad_r=0.5. Cell at (35.5, 25) is just outside.
     lv_test_x = 35.5
-    assert pre.is_available(lv_test_x, pos_lv[1], layer=0) == \
-        post.is_available(lv_test_x, pos_lv[1], layer=0)
+    assert pre.is_available(lv_test_x, pos_lv[1], layer=0) == post.is_available(
+        lv_test_x, pos_lv[1], layer=0
+    )
 
     # Near the HV pad: cell at HV + 4mm.
     # HV at (15, 25), pad_r=1.0, eff=6.0: threshold 7.0.
@@ -493,10 +592,24 @@ def test_expansion_runs_once_per_stage():
     """Running the stage twice in a row on the same input does not double
     the expansion log (the log is rebuilt each run, not appended)."""
     pos = (25.0, 25.0)
-    pin = Pin(name="1", number="1", position=(0.0, 0.0), net="HV",
-              shape="circle", layer="F.Cu", width=2.0, height=2.0)
-    comp = Component(ref="Q1", footprint="TO-247", bounds=(10.0, 10.0),
-                     pins=[pin], net_class="HighVoltage", initial_position=pos)
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="HV",
+        shape="circle",
+        layer="F.Cu",
+        width=2.0,
+        height=2.0,
+    )
+    comp = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(10.0, 10.0),
+        pins=[pin],
+        net_class="HighVoltage",
+        initial_position=pos,
+    )
     net = Net(name="HV", pins=[("Q1", "1")], net_class="HighVoltage")
     netlist = Netlist(components=[comp], nets=[net])
     state = BoardState(
@@ -505,8 +618,11 @@ def test_expansion_runs_once_per_stage():
     )
     pad_sizes = {("Q1", "1"): _make_pad_size(2.0, 2.0, "circle")}
     zone = HVExclusionZone(
-        name="q1_zone", center=pos, size=(10.0, 10.0),
-        clearance_mm=6.0, component_refdes="Q1",
+        name="q1_zone",
+        center=pos,
+        size=(10.0, 10.0),
+        clearance_mm=6.0,
+        component_refdes="Q1",
     )
 
     _run_grid_stage(state, hv_exclusion_zones=[zone], pad_sizes=pad_sizes)
@@ -531,29 +647,56 @@ def test_expansion_runs_once_per_stage():
 # =============================================================================
 
 
-def _build_grid_with_hv_pad(pos=(25.0, 25.0), pad_w=2.0, pad_shape="circle",
-                            layer="F.Cu", ref="Q1", pin_name="1",
-                            net_class="HighVoltage", clearance=0.2,
-                            layer_count=2):
+def _build_grid_with_hv_pad(
+    pos=(25.0, 25.0),
+    pad_w=2.0,
+    pad_shape="circle",
+    layer="F.Cu",
+    ref="Q1",
+    pin_name="1",
+    net_class="HighVoltage",
+    clearance=0.2,
+    layer_count=2,
+):
     """Helper: run a stage with a single HV pad and return the resulting grid."""
-    pin = Pin(name=pin_name, number=pin_name, position=(0.0, 0.0),
-              net=ref, shape=pad_shape, layer=layer,
-              width=pad_w, height=pad_w if pad_shape == "circle" else 1.0)
-    comp = Component(ref=ref, footprint="TO-247", bounds=(10.0, 10.0),
-                     pins=[pin], net_class=net_class, initial_position=pos)
+    pin = Pin(
+        name=pin_name,
+        number=pin_name,
+        position=(0.0, 0.0),
+        net=ref,
+        shape=pad_shape,
+        layer=layer,
+        width=pad_w,
+        height=pad_w if pad_shape == "circle" else 1.0,
+    )
+    comp = Component(
+        ref=ref,
+        footprint="TO-247",
+        bounds=(10.0, 10.0),
+        pins=[pin],
+        net_class=net_class,
+        initial_position=pos,
+    )
     net = Net(name=ref, pins=[(ref, pin_name)], net_class=net_class)
     netlist = Netlist(components=[comp], nets=[net])
     state = BoardState(
         board=Board(width=50.0, height=50.0),
         netlist=netlist,
     )
-    pad_sizes = {(ref, pin_name): _make_pad_size(pad_w, pad_w if pad_shape == "circle" else 1.0, pad_shape)}
+    pad_sizes = {
+        (ref, pin_name): _make_pad_size(pad_w, pad_w if pad_shape == "circle" else 1.0, pad_shape)
+    }
     zone = HVExclusionZone(
-        name=f"{ref}_zone", center=pos, size=(10.0, 10.0),
-        clearance_mm=6.0, component_refdes=ref,
+        name=f"{ref}_zone",
+        center=pos,
+        size=(10.0, 10.0),
+        clearance_mm=6.0,
+        component_refdes=ref,
     )
     result = _run_grid_stage(
-        state, hv_exclusion_zones=[zone], layer_count=layer_count,
+        state,
+        hv_exclusion_zones=[zone],
+        layer_count=layer_count,
         pad_sizes=pad_sizes,
         net_class_clearances={"Signal": clearance, net_class: clearance},
     )
@@ -637,8 +780,10 @@ def test_fence_warns_on_budget_overrun():
     """The fence wall-time check should warn (not raise) when the 20%
     budget is exceeded. Below the floor_ms, the fence is exempt."""
     over_budget, msg = check_clearance_grid_perf_budget(
-        fence_elapsed_ms=20.0, stage_elapsed_ms=50.0,  # 40% > 20%
-        budget_pct=20.0, floor_ms=50.0,
+        fence_elapsed_ms=20.0,
+        stage_elapsed_ms=50.0,  # 40% > 20%
+        budget_pct=20.0,
+        floor_ms=50.0,
     )
     assert over_budget is True
     assert msg is not None
@@ -646,16 +791,20 @@ def test_fence_warns_on_budget_overrun():
 
     # Within budget -> no warning.
     over_budget, msg = check_clearance_grid_perf_budget(
-        fence_elapsed_ms=5.0, stage_elapsed_ms=100.0,  # 5% < 20%
-        budget_pct=20.0, floor_ms=50.0,
+        fence_elapsed_ms=5.0,
+        stage_elapsed_ms=100.0,  # 5% < 20%
+        budget_pct=20.0,
+        floor_ms=50.0,
     )
     assert over_budget is False
     assert msg is None
 
     # Below floor -> exempt.
     over_budget, msg = check_clearance_grid_perf_budget(
-        fence_elapsed_ms=10.0, stage_elapsed_ms=20.0,  # 50% but stage<floor
-        budget_pct=20.0, floor_ms=50.0,
+        fence_elapsed_ms=10.0,
+        stage_elapsed_ms=20.0,  # 50% but stage<floor
+        budget_pct=20.0,
+        floor_ms=50.0,
     )
     assert over_budget is False
     assert msg is None
@@ -710,13 +859,28 @@ def test_fence_pipeline_halts_on_violation():
     # the grid from scratch but reusing the module-level _EXPANSION_LOG
     # is fine because we control timing: the new stage clears and
     # repopulates it before the fence runs.
-    pin = Pin(name="1", number="1", position=(0.0, 0.0), net="Q1",
-              shape="circle", layer="F.Cu", width=2.0, height=2.0)
-    comp = Component(ref="Q1", footprint="TO-247", bounds=(10.0, 10.0),
-                     pins=[pin], net_class="HighVoltage", initial_position=(25.0, 25.0))
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="Q1",
+        shape="circle",
+        layer="F.Cu",
+        width=2.0,
+        height=2.0,
+    )
+    comp = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(10.0, 10.0),
+        pins=[pin],
+        net_class="HighVoltage",
+        initial_position=(25.0, 25.0),
+    )
     net = Net(name="Q1", pins=[("Q1", "1")], net_class="HighVoltage")
-    state = BoardState(board=Board(width=50.0, height=50.0),
-                       netlist=Netlist(components=[comp], nets=[net]))
+    state = BoardState(
+        board=Board(width=50.0, height=50.0), netlist=Netlist(components=[comp], nets=[net])
+    )
 
     # Monkey-patch the fence to simulate a non-conservative expansion:
     # we replace `check_clearance_grid_conservatism` with a stub that
@@ -724,18 +888,21 @@ def test_fence_pipeline_halts_on_violation():
     # the actual stage still produces a valid grid. This proves the
     # stage calls the fence and propagates the violation.
     from temper_placer.deterministic import stages as _stages_pkg
-    grid_module = _stages_pkg.clearance_grid
+
+    grid_module = _stages_pkg._grid_fence
 
     def _always_violate(_grid, _log):
-        return [{
-            "ref": "Q1",
-            "pin_name": "1",
-            "layer": 0,
-            "xy": (31.75, 25.0),
-            "reason": "cell at (31.750, 25.000) on layer 0 is unblocked but "
-                      "should be inside the expanded creepage boundary for "
-                      "pad Q1.1",
-        }]
+        return [
+            {
+                "ref": "Q1",
+                "pin_name": "1",
+                "layer": 0,
+                "xy": (31.75, 25.0),
+                "reason": "cell at (31.750, 25.000) on layer 0 is unblocked but "
+                "should be inside the expanded creepage boundary for "
+                "pad Q1.1",
+            }
+        ]
 
     original = grid_module.check_clearance_grid_conservatism
     grid_module.check_clearance_grid_conservatism = _always_violate
@@ -745,8 +912,11 @@ def test_fence_pipeline_halts_on_violation():
                 state,
                 hv_exclusion_zones=[
                     HVExclusionZone(
-                        name="q1_zone", center=(25.0, 25.0), size=(10.0, 10.0),
-                        clearance_mm=6.0, component_refdes="Q1",
+                        name="q1_zone",
+                        center=(25.0, 25.0),
+                        size=(10.0, 10.0),
+                        clearance_mm=6.0,
+                        component_refdes="Q1",
                     ),
                 ],
                 layer_count=2,
@@ -767,19 +937,37 @@ def test_fence_pipeline_passes_on_correct_expansion():
     ``test_fence_pipeline_halts_on_violation``: it proves the wiring
     doesn't introduce a false-positive halt on a healthy build.
     """
-    pin = Pin(name="1", number="1", position=(0.0, 0.0), net="Q1",
-              shape="circle", layer="F.Cu", width=2.0, height=2.0)
-    comp = Component(ref="Q1", footprint="TO-247", bounds=(10.0, 10.0),
-                     pins=[pin], net_class="HighVoltage", initial_position=(25.0, 25.0))
+    pin = Pin(
+        name="1",
+        number="1",
+        position=(0.0, 0.0),
+        net="Q1",
+        shape="circle",
+        layer="F.Cu",
+        width=2.0,
+        height=2.0,
+    )
+    comp = Component(
+        ref="Q1",
+        footprint="TO-247",
+        bounds=(10.0, 10.0),
+        pins=[pin],
+        net_class="HighVoltage",
+        initial_position=(25.0, 25.0),
+    )
     net = Net(name="Q1", pins=[("Q1", "1")], net_class="HighVoltage")
-    state = BoardState(board=Board(width=50.0, height=50.0),
-                       netlist=Netlist(components=[comp], nets=[net]))
+    state = BoardState(
+        board=Board(width=50.0, height=50.0), netlist=Netlist(components=[comp], nets=[net])
+    )
     result = _run_grid_stage(
         state,
         hv_exclusion_zones=[
             HVExclusionZone(
-                name="q1_zone", center=(25.0, 25.0), size=(10.0, 10.0),
-                clearance_mm=6.0, component_refdes="Q1",
+                name="q1_zone",
+                center=(25.0, 25.0),
+                size=(10.0, 10.0),
+                clearance_mm=6.0,
+                component_refdes="Q1",
             ),
         ],
         layer_count=2,
@@ -787,5 +975,3 @@ def test_fence_pipeline_passes_on_correct_expansion():
     # Stage returned a populated grid and didn't raise.
     assert result.grid is not None
     assert result.grid.blocked_count > 0
-
-

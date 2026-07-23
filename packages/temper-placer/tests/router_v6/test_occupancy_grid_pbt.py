@@ -42,8 +42,12 @@ def test_occupancy_grid_coordinate_roundtrip(width, height, cell_size):
     """world_to_grid then grid_to_world returns near-original."""
     grid = np.zeros((height, width), dtype=np.int16)
     og = OccupancyGrid(
-        layer_name="test", grid=grid, origin=(0.0, 0.0),
-        cell_size=cell_size, width_cells=width, height_cells=height,
+        layer_name="test",
+        grid=grid,
+        origin=(0.0, 0.0),
+        cell_size=cell_size,
+        width_cells=width,
+        height_cells=height,
     )
     x, y = 5.0, 5.0
     cx, cy = og.world_to_grid(x, y)
@@ -60,6 +64,7 @@ def test_occupancy_grid_downsample(seed):
     """Downsampled grid has factor× fewer (or equal) cells."""
     import math
     import random
+
     rng = random.Random(seed)
     w = rng.randint(10, 50)
     h = rng.randint(10, 50)
@@ -68,8 +73,12 @@ def test_occupancy_grid_downsample(seed):
         grid[rng.randint(0, h - 1), rng.randint(0, w - 1)] = 1
 
     og = OccupancyGrid(
-        layer_name="test", grid=grid, origin=(0.0, 0.0),
-        cell_size=0.1, width_cells=w, height_cells=h,
+        layer_name="test",
+        grid=grid,
+        origin=(0.0, 0.0),
+        cell_size=0.1,
+        width_cells=w,
+        height_cells=h,
     )
     factor = 2
     coarse = og.downsample(factor)
@@ -87,7 +96,11 @@ def test_occupancy_grid_occupancy_ratio_bounded(width, height):
     """occupancy_ratio is always in [0, 1]."""
     grid = np.zeros((height, width), dtype=np.int16)
     og = OccupancyGrid(
-        layer_name="test", grid=grid, origin=(0.0, 0.0),
-        cell_size=0.1, width_cells=width, height_cells=height,
+        layer_name="test",
+        grid=grid,
+        origin=(0.0, 0.0),
+        cell_size=0.1,
+        width_cells=width,
+        height_cells=height,
     )
     assert 0.0 <= og.occupancy_ratio <= 1.0

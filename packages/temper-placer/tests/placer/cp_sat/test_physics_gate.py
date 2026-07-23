@@ -83,9 +83,7 @@ def test_creepage_unmeasured_no_path():
 
 
 def test_creepage_unmeasured_missing_file():
-    result = IECCreepageGate().check(
-        BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb"))
-    )
+    result = IECCreepageGate().check(BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb")))
     assert result.status is GateStatus.UNMEASURED
     assert result.error_message
 
@@ -329,9 +327,7 @@ def test_physics_unmeasured_no_path():
 
 
 def test_physics_unmeasured_missing_file():
-    result = PhysicsGate().check(
-        BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb"))
-    )
+    result = PhysicsGate().check(BoardState(routed_pcb_path=Path("/nonexistent/x.kicad_pcb")))
     assert result.status is GateStatus.UNMEASURED
     assert result.error_message
 

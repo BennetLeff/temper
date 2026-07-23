@@ -156,7 +156,10 @@ class TestBlindVia:
             # (in IEEE 754, 0.4 - 0.3 = 0.10000000000000003, /2 = 0.05000000000000002)
             # The <= check with FP epsilon now catches this boundary case.
             pytest.param(
-                0.4, 0.3, 0.05, True,
+                0.4,
+                0.3,
+                0.05,
+                True,
                 id="d=0.4-drill=0.3-at-threshold",
             ),
             # ring = (0.32-0.3)/2 = 0.01 < 0.05 => violation
@@ -172,22 +175,22 @@ class TestBlindVia:
     ):
         """Blind via (F.Cu→In1.Cu) uses the full external threshold."""
         via = _make_via(
-            diameter=diameter, drill=drill,
-            from_layer="F.Cu", to_layer="In1.Cu",
+            diameter=diameter,
+            drill=drill,
+            from_layer="F.Cu",
+            to_layer="In1.Cu",
         )
         result = _check_via(via, _NORMAL_NET, min_ring, 0.025)
 
         if expect_violation:
             assert isinstance(result, AnnularRingViolation), (
-                f"Blind via d={diameter} drill={drill} should violate "
-                f"at min_ring={min_ring}"
+                f"Blind via d={diameter} drill={drill} should violate at min_ring={min_ring}"
             )
             # The threshold must be the full external threshold
             assert result.minimum_required == pytest.approx(min_ring)
         else:
             assert result is None, (
-                f"Blind via d={diameter} drill={drill} should pass "
-                f"at min_ring={min_ring}"
+                f"Blind via d={diameter} drill={drill} should pass at min_ring={min_ring}"
             )
 
     # ------------------------------------------------------------------
@@ -207,9 +210,7 @@ class TestBlindVia:
             ("In2.Cu", "F.Cu", "In1.Cu", False),
         ],
     )
-    def test_blind_via_teardrop_layer_matching(
-        self, path_layer, via_from, via_to, expect_teardrop
-    ):
+    def test_blind_via_teardrop_layer_matching(self, path_layer, via_from, via_to, expect_teardrop):
         """Teardrop only generated when path layer matches via layers."""
         path = _make_path(layer=path_layer)
         via = _make_via(from_layer=via_from, to_layer=via_to)
@@ -221,13 +222,11 @@ class TestBlindVia:
 
         if expect_teardrop:
             assert report.teardrop_count == 1, (
-                f"Expected 1 teardrop for path_layer={path_layer} "
-                f"via={via_from}→{via_to}"
+                f"Expected 1 teardrop for path_layer={path_layer} via={via_from}→{via_to}"
             )
         else:
             assert report.teardrop_count == 0, (
-                f"Expected 0 teardrops for path_layer={path_layer} "
-                f"via={via_from}→{via_to}"
+                f"Expected 0 teardrops for path_layer={path_layer} via={via_from}→{via_to}"
             )
 
     # ------------------------------------------------------------------
@@ -292,22 +291,22 @@ class TestBuriedVia:
     ):
         """Buried via (In1.Cu→In2.Cu) uses 0.5× threshold."""
         via = _make_via(
-            diameter=diameter, drill=drill,
-            from_layer="In1.Cu", to_layer="In2.Cu",
+            diameter=diameter,
+            drill=drill,
+            from_layer="In1.Cu",
+            to_layer="In2.Cu",
         )
         result = _check_via(via, _NORMAL_NET, min_ring, 0.025)
 
         if expect_violation:
             assert isinstance(result, AnnularRingViolation), (
-                f"Buried via d={diameter} drill={drill} should violate "
-                f"at min_ring={min_ring}"
+                f"Buried via d={diameter} drill={drill} should violate at min_ring={min_ring}"
             )
             # Threshold must be half the external value
             assert result.minimum_required == pytest.approx(min_ring * 0.5)
         else:
             assert result is None, (
-                f"Buried via d={diameter} drill={drill} should pass "
-                f"at min_ring={min_ring}"
+                f"Buried via d={diameter} drill={drill} should pass at min_ring={min_ring}"
             )
 
     # ------------------------------------------------------------------
@@ -376,9 +375,7 @@ class TestThroughVia:
 
         for layer_name in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
             lb = _get_balance(report, layer_name)
-            assert lb.copper_area_mm2 > 0, (
-                f"{layer_name} should have copper from through-hole via"
-            )
+            assert lb.copper_area_mm2 > 0, f"{layer_name} should have copper from through-hole via"
 
     # ------------------------------------------------------------------
     # 3b. Annular ring uses external threshold
@@ -389,8 +386,10 @@ class TestThroughVia:
         # ring = (0.36-0.3)/2 = 0.03
         # external threshold = 0.05 => violation
         via = _make_via(
-            diameter=0.36, drill=0.3,
-            from_layer="F.Cu", to_layer="B.Cu",
+            diameter=0.36,
+            drill=0.3,
+            from_layer="F.Cu",
+            to_layer="B.Cu",
         )
         result = _check_via(via, _NORMAL_NET, 0.05, 0.025)
         assert isinstance(result, AnnularRingViolation)
@@ -405,8 +404,8 @@ class TestThroughVia:
         [
             ("F.Cu", "B.Cu", "In1.Cu", True),
             ("F.Cu", "B.Cu", "In2.Cu", True),
-            ("F.Cu", "B.Cu", "F.Cu", False),   # not strictly between
-            ("F.Cu", "B.Cu", "B.Cu", False),   # not strictly between
+            ("F.Cu", "B.Cu", "F.Cu", False),  # not strictly between
+            ("F.Cu", "B.Cu", "B.Cu", False),  # not strictly between
             ("F.Cu", "In1.Cu", "In2.Cu", False),  # beyond to_layer
             ("In1.Cu", "B.Cu", "In2.Cu", True),
             ("In1.Cu", "B.Cu", "F.Cu", False),
@@ -558,9 +557,7 @@ class TestInnerLayerPaths:
         assert isinstance(report, ClearanceReport)
         assert report.total_checks == 1
         # Edge-to-edge ≈ 0.5 - 2*(0.127/2) = 0.373 mm > 0.127 => no violation
-        assert report.violation_count == 0, (
-            f"Unexpected violation on inner layer {layer}"
-        )
+        assert report.violation_count == 0, f"Unexpected violation on inner layer {layer}"
 
     @pytest.mark.parametrize("layer", INNER_LAYERS)
     def test_clearance_violation_on_inner_layer(self, layer):
@@ -679,9 +676,7 @@ class TestRoutePath3D:
         path2 = self._make_3d_path(net_name="NET2", segments=segs2)
         r1 = CompiledRoute("NET1", path1, 0.127, [], None)
         r2 = CompiledRoute("NET2", path2, 0.127, [], None)
-        results = RoutingResults(
-            compiled_routes={"NET1": r1, "NET2": r2}, failed_nets=[]
-        )
+        results = RoutingResults(compiled_routes={"NET1": r1, "NET2": r2}, failed_nets=[])
 
         report = verify_clearance(results, min_clearance=0.127)
         assert isinstance(report, ClearanceReport)
@@ -800,9 +795,7 @@ class TestViaOutsideBoard:
     def test_teardrop_outside_board(self, position):
         """Teardrop generation: geometry works regardless of board bounds."""
         via = _make_via(position=position)
-        path = _make_path(
-            coords=[(position[0], position[1]), (position[0] + 10, position[1])]
-        )
+        path = _make_path(coords=[(position[0], position[1]), (position[0] + 10, position[1])])
         results = _make_results(vias=[via], path=path)
 
         with warnings.catch_warnings(record=True):
@@ -849,9 +842,7 @@ class TestMixedLayerNets:
         path_3d = RoutePath3D("NET2", segs, [], 10.0)
         r2 = CompiledRoute("NET2", path_3d, 0.254, [], None)
 
-        results = RoutingResults(
-            compiled_routes={"NET1": r1, "NET2": r2}, failed_nets=[]
-        )
+        results = RoutingResults(compiled_routes={"NET1": r1, "NET2": r2}, failed_nets=[])
 
         # Copper balance should handle both
         report = analyze_copper_balance(results, 100, 100)
@@ -868,16 +859,11 @@ class TestMixedLayerNets:
         buried_via = _make_via(from_layer="In1.Cu", to_layer="In2.Cu", net_name="N2")
         through_via = _make_via(from_layer="F.Cu", to_layer="B.Cu", net_name="N3")
 
-        r1 = _make_route("N1", coords=[(0.0, 0.0), (5.0, 0.0)],
-                          layer="F.Cu", vias=[blind_via])
-        r2 = _make_route("N2", coords=[(0.0, 2.0), (5.0, 2.0)],
-                          layer="In1.Cu", vias=[buried_via])
-        r3 = _make_route("N3", coords=[(0.0, 4.0), (5.0, 4.0)],
-                          layer="F.Cu", vias=[through_via])
+        r1 = _make_route("N1", coords=[(0.0, 0.0), (5.0, 0.0)], layer="F.Cu", vias=[blind_via])
+        r2 = _make_route("N2", coords=[(0.0, 2.0), (5.0, 2.0)], layer="In1.Cu", vias=[buried_via])
+        r3 = _make_route("N3", coords=[(0.0, 4.0), (5.0, 4.0)], layer="F.Cu", vias=[through_via])
 
-        results = RoutingResults(
-            compiled_routes={"N1": r1, "N2": r2, "N3": r3}, failed_nets=[]
-        )
+        results = RoutingResults(compiled_routes={"N1": r1, "N2": r2, "N3": r3}, failed_nets=[])
 
         # --- Annular ring ---
         ar_report = check_annular_rings(results)
@@ -892,9 +878,7 @@ class TestMixedLayerNets:
         # Through via adds copper on all layers
         for layer_name in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
             lb = _get_balance(cb_report, layer_name)
-            assert lb.copper_area_mm2 > 0, (
-                f"{layer_name} should have copper from mixed vias"
-            )
+            assert lb.copper_area_mm2 > 0, f"{layer_name} should have copper from mixed vias"
 
         # --- Teardrop ---
         with warnings.catch_warnings(record=True):
@@ -910,9 +894,7 @@ class TestMixedLayerNets:
         path_3d = RoutePath3D("NET2", segs, [], 10.0)
         r1 = _make_route("NET1", coords=[(0.0, 0.0), (10.0, 0.0)], layer="F.Cu")
         r2 = CompiledRoute("NET2", path_3d, 0.127, [], None)
-        results = RoutingResults(
-            compiled_routes={"NET1": r1, "NET2": r2}, failed_nets=[]
-        )
+        results = RoutingResults(compiled_routes={"NET1": r1, "NET2": r2}, failed_nets=[])
 
         report = verify_clearance(results, min_clearance=0.127)
         assert isinstance(report, ClearanceReport)
@@ -973,9 +955,7 @@ class TestCombinedInteractions:
             ("In2.Cu", "B.Cu", 0),
         ],
     )
-    def test_via_intermediate_layer_count(
-        self, from_layer, to_layer, expect_between
-    ):
+    def test_via_intermediate_layer_count(self, from_layer, to_layer, expect_between):
         """Verify the number of intermediate layers for various via spans."""
         via = _make_via(from_layer=from_layer, to_layer=to_layer)
         path = _make_path(layer=from_layer)
@@ -991,8 +971,7 @@ class TestCombinedInteractions:
         # We use _layer_is_between to test intermediate layers.
         intermediate_layers = ["In1.Cu", "In2.Cu"]
         count_between = sum(
-            1 for il in intermediate_layers
-            if _layer_is_between(from_layer, to_layer, il)
+            1 for il in intermediate_layers if _layer_is_between(from_layer, to_layer, il)
         )
 
         assert count_between == expect_between, (

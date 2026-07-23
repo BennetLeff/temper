@@ -27,7 +27,9 @@ def make_parsed_pcb_stub(source_path: Path, netlist) -> object:
     docs/solutions/logic-errors/parsed-stub-missing-nets-silently-disables-layer-constraints-2026-07-22.md.
     """
     return type(
-        "ParsedStub", (), {"source_path": source_path, "nets": netlist.nets},
+        "ParsedStub",
+        (),
+        {"source_path": source_path, "nets": netlist.nets},
     )()
 
 
@@ -204,12 +206,12 @@ def component_factory(footprint_library):
     The factory looks up bounds from the footprint library, ensuring
     all test components use accurate dimensions.
     """
+
     def make_component(ref: str, footprint: str, **kwargs):
         """Create a component with bounds from library."""
         if footprint not in footprint_library:
             raise ValueError(
-                f"Unknown footprint: {footprint}. "
-                f"Add to configs/footprint_library.yaml"
+                f"Unknown footprint: {footprint}. Add to configs/footprint_library.yaml"
             )
 
         spec = footprint_library[footprint]
@@ -217,10 +219,12 @@ def component_factory(footprint_library):
         # Override bounds with library value
         if "bounds" in kwargs and kwargs["bounds"] != spec.bounds:
             import warnings
+
             warnings.warn(
-                    f"Component {ref} has hardcoded bounds {kwargs['bounds']} "
-                    f"but library specifies {spec.bounds}. Using library value.", stacklevel=2
-                )
+                f"Component {ref} has hardcoded bounds {kwargs['bounds']} "
+                f"but library specifies {spec.bounds}. Using library value.",
+                stacklevel=2,
+            )
 
         kwargs["bounds"] = spec.bounds
         kwargs["footprint"] = footprint
@@ -326,8 +330,5 @@ def fixture_minimal_pcb(fixture_design_rules_temper):
 def fixture_hv_lv_config_yaml():
     """The YAML block from U3, as a raw string."""
     return (
-        "hv_lv_guard_strip:\n"
-        "  enabled: true\n"
-        "  width_mm: null\n"
-        "  fallback_to_unconstrained: true\n"
+        "hv_lv_guard_strip:\n  enabled: true\n  width_mm: null\n  fallback_to_unconstrained: true\n"
     )

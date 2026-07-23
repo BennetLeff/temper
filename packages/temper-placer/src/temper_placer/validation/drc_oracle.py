@@ -349,23 +349,25 @@ class DRCOracle:
             side = "bottom" if c.initial_side is not None and c.initial_side == 1 else "top"
             package_type = _infer_package_type(c.footprint)
             is_mechanical = c.ref.startswith("MH") or package_type == "MECHANICAL"
-            components.append({
-                "ref": c.ref,
-                "x": x,
-                "y": y,
-                "rot": rotation,
-                "side": side,
-                "width": float(c.width),
-                "height": float(c.height),
-                "net_class": c.net_class,
-                "package_type": package_type,
-                "power_dissipation_w": None,
-                "is_magnetic": False,
-                "is_electrolytic": False,
-                "is_mechanical": is_mechanical,
-                "vent_direction": None,
-                "footprint_polygon": None,
-            })
+            components.append(
+                {
+                    "ref": c.ref,
+                    "x": x,
+                    "y": y,
+                    "rot": rotation,
+                    "side": side,
+                    "width": float(c.width),
+                    "height": float(c.height),
+                    "net_class": c.net_class,
+                    "package_type": package_type,
+                    "power_dissipation_w": None,
+                    "is_magnetic": False,
+                    "is_electrolytic": False,
+                    "is_mechanical": is_mechanical,
+                    "vent_direction": None,
+                    "footprint_polygon": None,
+                }
+            )
 
         nets: dict[str, list[str]] = {}
         net_classes: dict[str, str] = {}
@@ -453,12 +455,14 @@ class DRCOracle:
 
         # --- Clearance rules ---
         for rule in context.clearance_rules:
-            constraints_dict["clearances"].append({
-                "from_class": rule.net_class_a,
-                "to_class": rule.net_class_b,
-                "clearance_mm": rule.min_clearance,
-                "description": getattr(rule, "because", ""),
-            })
+            constraints_dict["clearances"].append(
+                {
+                    "from_class": rule.net_class_a,
+                    "to_class": rule.net_class_b,
+                    "clearance_mm": rule.min_clearance,
+                    "description": getattr(rule, "because", ""),
+                }
+            )
 
         # --- Merge constraints_config if present ---
         # This carries the YAML-derived PlacementConstraints which may

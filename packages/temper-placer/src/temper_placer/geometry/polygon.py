@@ -11,6 +11,7 @@ Key algorithms (Rust implementation):
 - Winding number for point-in-polygon
 - Convex hull for component bounding
 """
+
 import temper_geometry as _tg
 
 # =============================================================================

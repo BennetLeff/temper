@@ -1,6 +1,7 @@
 """
 Geometry engine for temper-placer — Rust-backed via pyo3.
 """
+
 from __future__ import annotations
 
 import math
@@ -160,6 +161,7 @@ from temper_placer.geometry.drc_inflate import (  # noqa: E402, F401
 # ---------------------------------------------------------------------------
 # sdf_gradient — kept as Python wrapper since Rust can't take a callable
 # ---------------------------------------------------------------------------
+
 
 def sdf_gradient(p: tuple[float, float], sdf_fn, eps: float = 1e-4) -> tuple[float, float]:
     """Compute the gradient of an SDF at point p using central finite differences."""
