@@ -21,7 +21,8 @@ from __future__ import annotations
 # The precedence is: ground > power > hv > signal.
 GROUND_NET_PATTERNS: frozenset[str] = frozenset({"GND", "PGND", "CGND", "AGND", "DGND", "VSS"})
 POWER_NET_PATTERNS: frozenset[str] = frozenset(
-    {"+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS"}
+    {"+3V3", "+5V", "+12V", "+15V", "VCC", "VDD", "VBUS",
+     "+340V", "DC_BUS", "PWR_RTN", "V_BUS"}
 )
 HV_NET_PATTERNS: frozenset[str] = frozenset({"AC_L", "AC_N", "PE", "DC_BUS+", "DC_BUS-", "SW_NODE"})
 
