@@ -110,6 +110,7 @@ class RoutingResult:
     routed_pcb_content: str | None = None
     enable_zone_pours: bool = False
     connectivity: dict[str, Any] | None = None
+    forced_segment_nets: list[str] = field(default_factory=list)
 
 
 @dataclass

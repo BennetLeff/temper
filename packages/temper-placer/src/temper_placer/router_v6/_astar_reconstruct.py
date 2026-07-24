@@ -12,10 +12,13 @@ Part of temper-N6 decomposition -- split from astar_pathfinding.py.
 
 from __future__ import annotations
 
+import logging
 import math
 import time
 from collections import deque
 from dataclasses import dataclass, field
+
+logger = logging.getLogger(__name__)
 
 from temper_placer.router_v6._astar_ordering import _compute_net_order
 from temper_placer.router_v6.astar_core import (
@@ -157,6 +160,40 @@ class PathfindingResult:
             if report.blocking_nets:
                 print(f"      Blocked by: {', '.join(report.blocking_nets[:5])}")
         print()
+
+
+def _allow_forced_segments(
+    net_name: str,
+    design_rules: DesignRules | None,
+    tree_route_active: bool,
+) -> bool:
+    """Determine whether forced segments are permitted for a net.
+
+    Tree-executed nets already fail-closed (via ``not tree_route_active``).
+    R6 extends the same gate to HV/AC-class nets: nets whose resolved
+    netclass has ``safety_category`` in ``("HV", "AC")`` must not silently
+    draw a straight-line forced segment with zero clearance checking.
+    """
+    if tree_route_active:
+        return False
+    if design_rules is None:
+        return True
+    try:
+        rules = design_rules.get_rules_for_net(net_name)
+    except Exception:
+        logger.warning(
+            "_allow_forced_segments: get_rules_for_net(%r) raised — "
+            "failing closed (disallowing forced segments) per "
+            "UNMEASURED discipline.  If this fires persistently the "
+            "design_rules object may be missing expected netclass data.",
+            net_name,
+            exc_info=True,
+        )
+        return False
+    cat = getattr(rules, "safety_category", None)
+    if cat in ("HV", "AC"):
+        return False
+    return True
 
 
 def run_astar_pathfinding(
@@ -332,7 +369,7 @@ def run_astar_pathfinding(
             corridor_buffer_cells=corridor_buffer_cells,
             thermal_flat=thermal_flat,
             thermal_weight=thermal_weight,
-            allow_forced_segments=not tree_route_active,
+            allow_forced_segments=_allow_forced_segments(net_name, design_rules, tree_route_active),
             segment_3d_fallback_max_iter=(
                 tree_3d_fallback_max_iter if tree_route_active else _SEGMENT_3D_FALLBACK_MAX_ITER
             ),
@@ -365,6 +402,30 @@ def run_astar_pathfinding(
                     flush=True,
                 )
                 return False, "no_path", [], channel_path.waypoints[failed_index]
+
+            # R6: HV/AC-class nets must not silently draw forced segments.
+            # The _allow_forced_segments gate returns False for these nets,
+            # but _astar_route / _astar_route_multilayer still return a
+            # non-None path with forced_segment_count > 0.  Catch that here
+            # and fail the net honestly rather than fabricating copper.
+            if (
+                route_path.forced_segment_count > 0
+                and not tree_route_active
+                and not _allow_forced_segments(net_name, design_rules, False)
+            ):
+                print(
+                    f"      ✗ {net_name} FAILED: safety-critical net blocked "
+                    f"(forced-segment disallowed for HV/AC)",
+                    flush=True,
+                )
+                return (
+                    False,
+                    "no_path",
+                    [],
+                    channel_path.waypoints[len(channel_path.waypoints) // 2]
+                    if channel_path.waypoints
+                    else None,
+                )
             if congestion_tensor is not None:
                 if hasattr(route_path, "coordinates"):
                     congestion_tensor.increment_path(route_path.coordinates, primary_grid)
