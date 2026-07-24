@@ -198,22 +198,43 @@ class MockPipelineResult:
 
 
 def test_route_pcb_with_placements():
-    """route_pcb() applies placements and runs the router pipeline."""
+    """route_pcb() applies placements and runs the router pipeline.
+
+    Verifies that placements reach _apply_placements_to_pcb (the function
+    that rewrites footprint coordinates in the PCB content) and that the
+    pipeline receives the modified temp file, not just that the mock's
+    return value survives pass-through.
+    """
+    from pathlib import Path as PathLib
     from unittest import mock as umock
 
+    from temper_placer.core.design_rules import DesignRules
     from temper_placer.router_v6.adapter import route_pcb
 
     mock_result = MockPipelineResult()
     mock_result.completion_rate = 0.85
 
+    # Minimal PCB fixture with a footprint so _apply_placements_to_pcb
+    # has something to rewrite — a real placement test needs real content.
+    _PCB_FIXTURE = (
+        "(kicad_pcb (version 20221018)\n"
+        '  (footprint "Resistor_SMD:R_0805_2012Metric" (layer "F.Cu")\n'
+        '    (property "Reference" "R1")\n'
+        "    (at 0 0)\n"
+        "  )\n"
+        ")\n"
+    )
+
     with tempfile.NamedTemporaryFile(suffix=".kicad_pcb", mode="w", delete=False) as f:
-        f.write("(kicad_pcb (version 20221018))\n")
+        f.write(_PCB_FIXTURE)
         temp_path = f.name
 
     try:
         parsed = type("ParsedPCB", (), {"source_path": temp_path})()
 
-        with umock.patch("temper_placer.router_v6.pipeline.RouterV6Pipeline") as mock_pipe_cls:
+        with umock.patch(
+            "temper_placer.router_v6.pipeline.RouterV6Pipeline"
+        ) as mock_pipe_cls:
             mock_pipe = umock.MagicMock()
             mock_pipe.run.return_value = mock_result
             mock_pipe_cls.return_value = mock_pipe
@@ -222,9 +243,36 @@ def test_route_pcb_with_placements():
                 parsed,
                 placements={"R1": (10.0, 20.0)},
                 _seed=42,
+                design_rules=DesignRules(),
             )
 
             assert result.completion_rate == 0.85
+
+            # Pipeline constructor: verify it receives expected kwargs.
+            mock_pipe_cls.assert_called_once()
+            _, ctor_kwargs = mock_pipe_cls.call_args
+            assert "layer_constraints" in ctor_kwargs
+            assert ctor_kwargs["layer_constraints"] == {}
+            assert ctor_kwargs.get("enable_zone_pours") is False
+
+            # Pipeline invocation: run() receives the modified PCB file.
+            mock_pipe.run.assert_called_once()
+            run_args, _run_kwargs = mock_pipe.run.call_args
+            assert len(run_args) == 1
+            assert isinstance(run_args[0], PathLib)
+
+            # The temp file must contain the placement-applied coordinates.
+            # The mock doesn't consume the file, so it's still on disk.
+            temp_pcb_path = run_args[0]
+            temp_content = temp_pcb_path.read_text(encoding="utf-8")
+            assert "(at 10.0000 20.0000" in temp_content, (
+                "Placement was not applied: expected R1 at (10.0, 20.0) "
+                "in the temp PCB content passed to pipeline.run()"
+            )
+            assert temp_pcb_path != PathLib(temp_path), (
+                "Pipeline should receive a placement-modified temp file, "
+                "not the original source path"
+            )
     finally:
         Path(temp_path).unlink(missing_ok=True)
 
