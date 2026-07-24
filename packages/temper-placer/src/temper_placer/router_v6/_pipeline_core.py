@@ -157,7 +157,6 @@ class RouterV6Pipeline:
         self.thermal_weight = thermal_weight
         self.enable_all_pad_tree = enable_all_pad_tree
         self.enable_zone_pours = enable_zone_pours
-        self.enable_connectivity_verifier = enable_connectivity_verifier
         self.enable_erc_check = enable_erc_check
         # Per-net layer assignments resolved from the netclass SSOT (W2 R2).
         # Maps net name -> LayerAssignment; consumed to constrain layer choice.

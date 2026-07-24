@@ -183,6 +183,22 @@ class V6RouterAdapter:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(temp_content)
 
+            # Resolve per-net layer assignments from the netclass SSOT,
+            # matching route_pcb()'s corrected call shape so that netclass
+            # rules reach the A* engine (R1 fix).
+            layer_constraints: dict[str, Any] = {}
+            if self._design_rules is not None:
+                from temper_placer.router_v6.layer_assignment import (
+                    layer_assignments_from_netclass,
+                )
+
+                net_names = list(net_order)
+                if net_names:
+                    layer_constraints = layer_assignments_from_netclass(
+                        self._design_rules,
+                        net_names,
+                    )
+
             pipeline = RouterV6Pipeline(
                 verbose=False,
                 enable_theta_star=False,
@@ -191,8 +207,17 @@ class V6RouterAdapter:
                 max_iter=500_000,
                 thermal_flat=thermal_flat,
                 thermal_weight=thermal_weight,
+                layer_constraints=layer_constraints,
+                enable_all_pad_tree=True,
+                enable_zone_pours=True,
+                enable_connectivity_verifier=False,
             )
-            result = pipeline.run(Path(temp_path))
+            net_class_assignments = None
+            if self._design_rules is not None:
+                nc_assign = getattr(self._design_rules, "net_class_assignments", None)
+                if nc_assign and isinstance(nc_assign, dict):
+                    net_class_assignments = dict(nc_assign)
+            result = pipeline.run(Path(temp_path), net_class_assignments=net_class_assignments)
         finally:
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
