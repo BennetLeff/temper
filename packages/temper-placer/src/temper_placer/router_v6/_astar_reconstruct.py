@@ -115,7 +115,14 @@ class PathfindingResult:
 
     @property
     def total_forced_segments(self) -> int:
-        """Total number of forced segments across all routes."""
+        """Total number of forced segments across all routes.
+
+        Always 0 as of docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md:
+        no route with forced_segment_count > 0 reaches routed_paths anymore
+        (every net class fails closed instead). Left in place rather than
+        removed -- deleting it is a larger API-surface change tracked as
+        separate follow-up work, not part of that plan.
+        """
         return sum(path.forced_segment_count for path in self.routed_paths.values())
 
     def get_path(self, net_name: str) -> RoutePath | RoutePath3D | None:
@@ -416,19 +423,20 @@ def run_astar_pathfinding(
                 )
                 return False, "no_path", [], channel_path.waypoints[failed_index]
 
-            # R6: HV/AC-class nets must not silently draw forced segments.
-            # The _allow_forced_segments gate returns False for these nets,
-            # but _astar_route / _astar_route_multilayer still return a
-            # non-None path with forced_segment_count > 0.  Catch that here
-            # and fail the net honestly rather than fabricating copper.
+            # No net class is exempt from the forced-segment gate (see
+            # _allow_forced_segments docstring). _astar_route /
+            # _astar_route_multilayer can still return a non-None path with
+            # forced_segment_count > 0 for a net the gate disallowed; catch
+            # that here and fail the net honestly rather than fabricating
+            # clearance-violating copper.
             if (
                 route_path.forced_segment_count > 0
                 and not tree_route_active
                 and not _allow_forced_segments(net_name, design_rules, False)
             ):
                 print(
-                    f"      ✗ {net_name} FAILED: safety-critical net blocked "
-                    f"(forced-segment disallowed for HV/AC)",
+                    f"      ✗ {net_name} FAILED: no legal path found "
+                    f"(forced segment disallowed)",
                     flush=True,
                 )
                 return (
@@ -474,8 +482,9 @@ def run_astar_pathfinding(
                 net_id=net_id,
             )
 
-            if route_path.forced_segment_count > 0:
-                return True, "congestion_forced", blocker_names, congestion_region()
+            # forced_segment_count > 0 always returns above now (no net
+            # class is exempt from the fail-closed gate) -- a route
+            # reaching this point is genuinely legal, never forced.
             return True, "", [], None
 
         if blocker_names:

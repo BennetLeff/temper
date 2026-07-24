@@ -830,6 +830,8 @@ def _build_routing_result(
     # Each CompiledRoute.path is the original RoutePath/RoutePath3D which
     # carries forced_segment_count.  (The routed_paths dict lives on
     # PathfindingResult, replaced by compile_routing_results() in Stage 4.)
+    # Always empty as of docs/plans/2026-07-24-001-fix-forced-segment-fail-closed-plan.md:
+    # no net class produces forced_segment_count > 0 anymore.
     forced_segment_nets: list[str] = []
     compiled = getattr(routing_results, "compiled_routes", None)
     if compiled:
