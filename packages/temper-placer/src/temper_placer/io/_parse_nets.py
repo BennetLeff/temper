@@ -159,6 +159,19 @@ def _extract_design_rules(
     """
     Extract KiCad design rules from board setup.
 
+    .. note::
+
+        Native netclass extraction from KiCad PCB files is **vestigial**. The
+        authoritative source is ``configs/netclass_rules.yaml``, loaded via
+        ``load_netclass_rules()`` and injected into the pipeline by
+        ``route_pcb()`` as ``net_classes`` (see plan 2026-07-23-008 R7).
+
+        This function exists for **backward compatibility** and for boards
+        that embed netclass data directly in ``.kicad_pcb`` files. It should
+        **NOT** be extended with new fields (e.g., ``safety_category``) --
+        those belong in the YAML SSOT and its one-way adapter
+        ``_to_stage0_netclass_rules()``.
+
     Args:
         ki_board: Parsed KiCad board.
         warnings: List to append warnings.
