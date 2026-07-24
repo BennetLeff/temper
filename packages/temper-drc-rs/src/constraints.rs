@@ -253,11 +253,11 @@ fn py_any_to_json_value(obj: &Bound<'_, PyAny>) -> PyResult<serde_json::Value> {
     if let Ok(v) = obj.extract::<String>() {
         return Ok(serde_json::Value::String(v));
     }
-    if let Ok(dict) = obj.downcast::<PyDict>() {
-        return py_dict_to_json_value(dict);
+    if let Ok(dict) = obj.clone().cast_into::<PyDict>() {
+        return py_dict_to_json_value(&dict);
     }
-    if let Ok(list) = obj.downcast::<PyList>() {
-        return py_list_to_json_value(list);
+    if let Ok(list) = obj.clone().cast_into::<PyList>() {
+        return py_list_to_json_value(&list);
     }
     if obj.is_none() {
         return Ok(serde_json::Value::Null);

@@ -21,6 +21,7 @@ mod tests_common;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use pyo3::Py;
 use std::collections::HashMap;
 
 use temper_py_bridge;
@@ -33,19 +34,19 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
     let nets_list = dict
         .get_item("nets")?
         .ok_or_else(|| PyValueError::new_err("nets key required"))?;
-    let nets_pylist: &Bound<'_, PyList> = nets_list
-        .downcast()
+    let nets_pylist: Bound<'_, PyList> = nets_list
+        .cast_into::<PyList>()
         .map_err(|_| PyValueError::new_err("nets must be a list"))?;
 
     let mut nets = Vec::new();
     for item in nets_pylist.iter() {
-        let net_dict: &Bound<'_, PyDict> = item.downcast()?;
+        let net_dict: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
         let name: String = net_dict
             .get_item("name")?
             .ok_or_else(|| PyValueError::new_err("net.name required"))?
             .extract()?;
         let pins: Vec<String> = if let Ok(Some(pins_any)) = net_dict.get_item("pins") {
-            if let Ok(pins_list) = pins_any.downcast::<PyList>() {
+                if let Ok(pins_list) = pins_any.cast_into::<PyList>() {
                 pins_list
                     .iter()
                     .filter_map(|p: Bound<'_, PyAny>| p.extract::<String>().ok())
@@ -61,10 +62,10 @@ fn extract_netlist(py: Python<'_>, dict: &Bound<'_, PyDict>) -> PyResult<Netlist
 
     let mut components = Vec::new();
     if let Ok(Some(comps_any)) = dict.get_item("components")
-        && let Ok(comps_list) = comps_any.downcast::<PyList>()
+        && let Ok(comps_list) = comps_any.cast_into::<PyList>()
     {
             for item in comps_list.iter() {
-                let comp_dict: &Bound<'_, PyDict> = item.downcast()?;
+                let comp_dict: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
                 let ref_des: String = comp_dict
                     .get_item("ref")?
                     .ok_or_else(|| PyValueError::new_err("component.ref required"))?
@@ -107,7 +108,7 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
 
     let mut max_loop_area_mm2 = HashMap::new();
     if let Ok(Some(loops)) = dict.get_item("max_loop_area_mm2")
-        && let Ok(loops_dict) = loops.downcast::<PyDict>()
+        && let Ok(loops_dict) = loops.cast_into::<PyDict>()
     {
         for (key, value) in loops_dict.iter() {
             max_loop_area_mm2.insert(key.extract()?, value.extract()?);
@@ -116,7 +117,7 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
 
     let mut power_dissipation = HashMap::new();
     if let Ok(Some(power)) = dict.get_item("power_dissipation")
-        && let Ok(power_dict) = power.downcast::<PyDict>()
+        && let Ok(power_dict) = power.cast_into::<PyDict>()
     {
         for (key, value) in power_dict.iter() {
             power_dissipation.insert(key.extract()?, value.extract()?);
@@ -125,7 +126,7 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
 
     let mut max_length_mm = HashMap::new();
     if let Ok(Some(ml)) = dict.get_item("max_length_mm")
-        && let Ok(ml_dict) = ml.downcast::<PyDict>()
+        && let Ok(ml_dict) = ml.cast_into::<PyDict>()
     {
         for (key, value) in ml_dict.iter() {
             max_length_mm.insert(key.extract()?, value.extract()?);
@@ -154,7 +155,7 @@ fn extract_spec(dict: &Bound<'_, PyDict>) -> PyResult<PcbSpecification> {
 fn metrics_to_py_dict(
     py: Python<'_>,
     metrics: &crate::types::QualityMetrics,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     let dict = PyDict::new(py);
     dict.set_item("thermal_score", metrics.thermal_score.value())?;
     dict.set_item("zone_compliance_score", metrics.zone_compliance_score.value())?;
@@ -174,7 +175,7 @@ fn metrics_to_py_dict(
 fn violation_to_py_dict(
     py: Python<'_>,
     v: &crate::types::Violation,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     let dict = PyDict::new(py);
     dict.set_item(
         "type",
@@ -225,15 +226,15 @@ fn evaluate_quality_py(
     placement: &Bound<'_, PyDict>,
     spec: &Bound<'_, PyDict>,
     metrics: &Bound<'_, PyDict>,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     temper_py_bridge::catch_panic(|| {
         let rust_netlist = extract_netlist(py, netlist)?;
 
         let pos_list = placement
             .get_item("positions")?
             .ok_or_else(|| PyValueError::new_err("placement.positions required"))?;
-        let pos_pylist: &Bound<'_, PyList> = pos_list
-            .downcast()
+        let pos_pylist: Bound<'_, PyList> = pos_list
+            .cast_into::<PyList>()
             .map_err(|_| PyValueError::new_err("positions must be a list"))?;
         let positions: Vec<f64> = pos_pylist
             .iter()
@@ -243,8 +244,8 @@ fn evaluate_quality_py(
         let refs_list = placement
             .get_item("component_refs")?
             .ok_or_else(|| PyValueError::new_err("placement.component_refs required"))?;
-        let refs_pylist: &Bound<'_, PyList> = refs_list
-            .downcast()
+        let refs_pylist: Bound<'_, PyList> = refs_list
+            .cast_into::<PyList>()
             .map_err(|_| PyValueError::new_err("component_refs must be a list"))?;
         let component_refs: Vec<String> = refs_pylist
             .iter()
@@ -304,7 +305,7 @@ fn evaluate_quality_py(
 }
 
 #[pyfunction]
-fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<PyObject> {
+fn classify_nets_py(py: Python<'_>, netlist: &Bound<'_, PyDict>) -> PyResult<Py<PyAny>> {
     temper_py_bridge::catch_panic(|| {
         let rust_netlist = extract_netlist(py, netlist)?;
         let classifications = classification::classify_nets(&rust_netlist);

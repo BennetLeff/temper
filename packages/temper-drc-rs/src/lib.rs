@@ -17,6 +17,7 @@ pub mod types;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use pyo3::Py;
 
 use crate::board_py_bridge::build_board_state;
 use crate::constraints::build_constraint_set;
@@ -61,7 +62,7 @@ fn run_drc(
     categories: Option<Vec<String>>,
     check_names: Option<Vec<String>>,
     modified_regions: Option<Vec<(f64, f64, f64, f64)>>,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     // ── 1. Deserialize ──────────────────────────────────────────────────
     let board = build_board_state(board_dict).map_err(|e| {
         PyValueError::new_err(format!("board deserialization error: {e}"))
@@ -212,7 +213,7 @@ fn violation_to_py_dict<'py>(py: Python<'py>, v: &Violation) -> PyResult<Bound<'
 /// - `String`    → `str`
 /// - `Array`     → `list`
 /// - `Object`    → `dict`
-fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<PyObject> {
+fn json_value_to_py(py: Python<'_>, value: &serde_json::Value) -> PyResult<Py<PyAny>> {
     match value {
         serde_json::Value::Null => Ok(py.None()),
         serde_json::Value::Bool(b) => {

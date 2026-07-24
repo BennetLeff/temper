@@ -8,6 +8,7 @@ pub mod type_lattice;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use pyo3::Py;
 
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
@@ -22,7 +23,7 @@ fn compile_pcl_constraints(
     existing_vars: &Bound<'_, PyList>,
     existing_cons: &Bound<'_, PyList>,
     net_names: Vec<String>,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     pyo3_bridge::run_full_pipeline(
         py,
         pcl_dicts,
@@ -85,7 +86,7 @@ impl PyCompiler {
         py: Python<'_>,
         pcl_dicts: &Bound<'_, PyList>,
         _net_names: Vec<String>,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         let pcl_constraints =
             crate::pyo3_bridge::build_pcl_constraints_from_py(pcl_dicts)?;
 
@@ -122,14 +123,14 @@ impl PyCompiler {
 
         self.last_model = Some(tier1_model);
 
-        let constraint_dicts: Vec<PyObject> = tier2_constraints
+        let constraint_dicts: Vec<Py<PyAny>> = tier2_constraints
             .iter()
             .map(|c| {
                 crate::pyo3_bridge::internal_constraint_to_py_dict(py, c)
             })
             .collect::<Result<Vec<_>, _>>()?;
 
-        let conflict_dicts: Vec<PyObject> = conflicts
+        let conflict_dicts: Vec<Py<PyAny>> = conflicts
             .iter()
             .map(|c| {
                 let d = PyDict::new(py);
@@ -152,7 +153,7 @@ impl PyCompiler {
         &mut self,
         _py: Python<'_>,
         _changed_net_indices: Vec<usize>,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         Err(PyErr::new::<pyo3::exceptions::PyNotImplementedError, _>(
             "recompile_delta: incremental recompilation not yet implemented",
         ))
@@ -162,7 +163,7 @@ impl PyCompiler {
         &self,
         py: Python<'_>,
         unsat_core_indices: Vec<usize>,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         let diagnostics =
             crate::provenance::reverse_map_unsat_core(&unsat_core_indices, &self.prov);
         let list = PyList::empty(py);

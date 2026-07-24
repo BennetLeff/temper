@@ -99,7 +99,7 @@ pub fn extract_opt_bool(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<
 pub fn extract_str_list(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Vec<String>> {
     match dict.get_item(key)? {
         Some(val) if !val.is_none() => {
-            let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+            let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
                 PyValueError::new_err(format!("key '{key}' is not a list: {e}"))
             })?;
             let mut result = Vec::with_capacity(list.len());
@@ -123,17 +123,17 @@ pub fn extract_dict_list<'py>(
 ) -> PyResult<Vec<Bound<'py, PyDict>>> {
     match dict.get_item(key)? {
         Some(val) if !val.is_none() => {
-            let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+            let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
                 PyValueError::new_err(format!("key '{key}' is not a list: {e}"))
             })?;
             let mut result = Vec::with_capacity(list.len());
             for item in list.iter() {
-                let d: &Bound<'_, PyDict> = item.downcast().map_err(|e| {
+                let d: Bound<'_, PyDict> = item.cast_into::<PyDict>().map_err(|e| {
                     PyValueError::new_err(format!(
                         "item in '{key}' list is not a dict: {e}"
                     ))
                 })?;
-                result.push(d.clone());
+                result.push(d);
             }
             Ok(result)
         }
@@ -150,11 +150,11 @@ pub fn extract_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Point<f64>
     let item = dict
         .get_item(key)?
         .ok_or_else(|| PyValueError::new_err(format!("missing required key: {key}")))?;
-    let inner: &Bound<'_, PyDict> = item
-        .downcast::<PyDict>()
+    let inner: Bound<'_, PyDict> = item
+        .cast_into::<PyDict>()
         .map_err(|e| PyValueError::new_err(format!("key '{key}' is not a dict: {e}")))?;
-    let x = extract_f64(inner, "x", 0.0)?;
-    let y = extract_f64(inner, "y", 0.0)?;
+    let x = extract_f64(&inner, "x", 0.0)?;
+    let y = extract_f64(&inner, "y", 0.0)?;
     Ok(Point::new(x, y))
 }
 
@@ -162,9 +162,9 @@ pub fn extract_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Point<f64>
 pub fn extract_opt_point(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Option<Point<f64>>> {
     match dict.get_item(key)? {
         Some(val) if !val.is_none() => {
-            if let Ok(inner) = val.downcast::<PyDict>() {
-                let x = extract_f64(inner, "x", 0.0)?;
-                let y = extract_f64(inner, "y", 0.0)?;
+            if let Ok(inner) = val.cast_into::<PyDict>() {
+                let x = extract_f64(&inner, "x", 0.0)?;
+                let y = extract_f64(&inner, "y", 0.0)?;
                 return Ok(Some(Point::new(x, y)));
             }
         }
@@ -183,14 +183,14 @@ pub fn extract_polygon(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Polygon<
         .get_item(key)?
         .ok_or_else(|| PyValueError::new_err(format!("missing required key: {key}")))?;
 
-    let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+    let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
         PyValueError::new_err(format!("key '{key}' is not a list: {e}"))
     })?;
 
     let coords: Vec<(f64, f64)> = list
         .iter()
         .map(|item| -> PyResult<(f64, f64)> {
-            let pair: &Bound<'_, PyList> = item.downcast().map_err(|e| {
+            let pair: Bound<'_, PyList> = item.cast_into::<PyList>().map_err(|e| {
                 PyValueError::new_err(format!(
                     "coordinate in '{key}' polygon is not a list of 2 numbers: {e}"
                 ))
@@ -334,7 +334,7 @@ fn extract_net_class_rules(dict: &Bound<'_, PyDict>) -> PyResult<NetClassRules> 
 
 /// Extract a list of f64 numbers from a list value.
 fn extract_f64_list(val: &Bound<'_, PyAny>) -> PyResult<Vec<f64>> {
-    let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+    let list: Bound<'_, PyList> = val.clone().cast_into::<PyList>().map_err(|e| {
         PyValueError::new_err(format!("value is not a list: {e}"))
     })?;
     list.iter()
@@ -354,7 +354,7 @@ fn extract_trace_segment(dict: &Bound<'_, PyDict>) -> PyResult<TraceSegment> {
     // Segments from Python: [[x1, y1, x2, y2], [x1, y1, x2, y2], ...]
     let mut segments = Vec::new();
     if let Some(segments_val) = dict.get_item("segments")?
-        && let Ok(seg_list) = segments_val.downcast::<PyList>()
+        && let Ok(seg_list) = segments_val.cast_into::<PyList>()
     {
         for item in seg_list.iter() {
             let coords = extract_f64_list(&item)?;
@@ -423,13 +423,13 @@ fn parse_nets_from_dict(
 ) -> PyResult<HashMap<String, Vec<String>>> {
     let mut result = HashMap::new();
     if let Some(nets_val) = board_dict.get_item("nets")?
-        && let Ok(nets_dict) = nets_val.downcast::<PyDict>()
+        && let Ok(nets_dict) = nets_val.cast_into::<PyDict>()
     {
             for (key, val) in nets_dict.iter() {
                 let net_name: String = key.extract().map_err(|e| {
                     PyValueError::new_err(format!("nets key is not a string: {e}"))
                 })?;
-                let list: &Bound<'_, PyList> = val.downcast().map_err(|e| {
+                let list: Bound<'_, PyList> = val.cast_into::<PyList>().map_err(|e| {
                     PyValueError::new_err(format!("nets['{net_name}'] is not a list: {e}"))
                 })?;
                 let comps: Vec<String> = list
@@ -490,13 +490,13 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     let board_item = board_dict
         .get_item("board")?
         .ok_or_else(|| PyValueError::new_err("missing required key: board"))?;
-    let board_info: &Bound<'_, PyDict> = board_item
-        .downcast()
+    let board_info: Bound<'_, PyDict> = board_item
+        .cast_into::<PyDict>()
         .map_err(|e| PyValueError::new_err(format!("key 'board' is not a dict: {e}")))?;
 
-    let width_mm = extract_f64(board_info, "width_mm", 100.0)?;
-    let height_mm = extract_f64(board_info, "height_mm", 150.0)?;
-    let margin_mm = extract_f64(board_info, "margin_mm", 3.0)?;
+    let width_mm = extract_f64(&board_info, "width_mm", 100.0)?;
+    let height_mm = extract_f64(&board_info, "height_mm", 150.0)?;
+    let margin_mm = extract_f64(&board_info, "margin_mm", 3.0)?;
 
     // --- Components ---
     let (electrical_components, mechanical_components) = {
@@ -522,7 +522,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     let net_classes_raw: HashMap<String, String> = {
         let mut result = HashMap::new();
         if let Some(nc_val) = board_dict.get_item("net_classes")?
-            && let Ok(nc_dict) = nc_val.downcast::<PyDict>()
+            && let Ok(nc_dict) = nc_val.cast_into::<PyDict>()
         {
                 for (key, val) in nc_dict.iter() {
                     let net_name: String = key.extract().map_err(|e| {
@@ -543,7 +543,7 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
     let net_class_rules: HashMap<NetClassName, NetClassRules> = {
         let mut result = HashMap::new();
         if let Some(ncr_val) = board_dict.get_item("net_class_rules")?
-            && let Ok(ncr_dict) = ncr_val.downcast::<PyDict>()
+            && let Ok(ncr_dict) = ncr_val.cast_into::<PyDict>()
         {
                 for (key, val) in ncr_dict.iter() {
                     let class_name: String = key.extract().map_err(|e| {
@@ -551,12 +551,12 @@ pub fn build_board_state(board_dict: &Bound<'_, PyDict>) -> PyResult<BoardState>
                             "net_class_rules key is not a string: {e}"
                         ))
                     })?;
-                    let rules_dict: &Bound<'_, PyDict> = val.downcast().map_err(|e| {
+                    let rules_dict: Bound<'_, PyDict> = val.cast_into::<PyDict>().map_err(|e| {
                         PyValueError::new_err(format!(
                             "net_class_rules['{class_name}'] is not a dict: {e}"
                         ))
                     })?;
-            result.insert(NetClassName(class_name), extract_net_class_rules(rules_dict)?);
+            result.insert(NetClassName(class_name), extract_net_class_rules(&rules_dict)?);
         }
     }
         result

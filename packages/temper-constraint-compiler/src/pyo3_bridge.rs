@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
+use pyo3::Py;
 
 use crate::desugar_tier0::compile_tier0_to_tier1;
 use crate::desugar_tier1::compile_tier1_to_tier2;
@@ -70,7 +71,7 @@ fn extract_f64(dict: &Bound<'_, PyDict>, key: &str, default: f64) -> PyResult<f6
 fn extract_str_list(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Vec<String>> {
     match dict.get_item(key)? {
         Some(val) if !val.is_none() => {
-            let list: &Bound<'_, PyList> = val.downcast()?;
+            let list: Bound<'_, PyList> = val.cast_into::<PyList>()?;
             let mut result = Vec::new();
             for item in list {
                 result.push(item.extract::<String>()?);
@@ -84,12 +85,12 @@ fn extract_str_list(dict: &Bound<'_, PyDict>, key: &str) -> PyResult<Vec<String>
 fn extract_opt_rect(dict: &Bound<'_, PyDict>) -> PyResult<Option<Rect>> {
     match dict.get_item("region")? {
         Some(val) if !val.is_none() && val.is_instance_of::<PyDict>() => {
-            let rd: &Bound<'_, PyDict> = val.downcast()?;
+            let rd: Bound<'_, PyDict> = val.cast_into::<PyDict>()?;
             Ok(Some(Rect {
-                x_min: extract_f64(rd, "x_min", 0.0)?,
-                y_min: extract_f64(rd, "y_min", 0.0)?,
-                x_max: extract_f64(rd, "x_max", 0.0)?,
-                y_max: extract_f64(rd, "y_max", 0.0)?,
+                x_min: extract_f64(&rd, "x_min", 0.0)?,
+                y_min: extract_f64(&rd, "y_min", 0.0)?,
+                x_max: extract_f64(&rd, "x_max", 0.0)?,
+                y_max: extract_f64(&rd, "y_max", 0.0)?,
             }))
         }
         _ => Ok(None),
@@ -99,10 +100,10 @@ fn extract_opt_rect(dict: &Bound<'_, PyDict>) -> PyResult<Option<Rect>> {
 fn extract_opt_point(dict: &Bound<'_, PyDict>) -> PyResult<Option<Point>> {
     match dict.get_item("position")? {
         Some(val) if !val.is_none() && val.is_instance_of::<PyDict>() => {
-            let pd: &Bound<'_, PyDict> = val.downcast()?;
+            let pd: Bound<'_, PyDict> = val.cast_into::<PyDict>()?;
             Ok(Some(Point {
-                x: extract_f64(pd, "x", 0.0)?,
-                y: extract_f64(pd, "y", 0.0)?,
+                x: extract_f64(&pd, "x", 0.0)?,
+                y: extract_f64(&pd, "y", 0.0)?,
             }))
         }
         _ => Ok(None),
@@ -184,8 +185,8 @@ pub fn build_pcl_constraints_from_py(
 ) -> PyResult<Vec<PclConstraint>> {
     let mut constraints = Vec::new();
     for item in dicts {
-        let d: &Bound<'_, PyDict> = item.downcast()?;
-        constraints.push(pcl_constraint_from_py_dict(d)?);
+        let d: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
+        constraints.push(pcl_constraint_from_py_dict(&d)?);
     }
     Ok(constraints)
 }
@@ -221,8 +222,8 @@ pub fn build_net_class_metadata_from_py(
 ) -> PyResult<Vec<NetClassMetadata>> {
     let mut metadata = Vec::new();
     for item in dicts {
-        let d: &Bound<'_, PyDict> = item.downcast()?;
-        metadata.push(net_class_metadata_from_py_dict(d)?);
+        let d: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
+        metadata.push(net_class_metadata_from_py_dict(&d)?);
     }
     Ok(metadata)
 }
@@ -245,12 +246,12 @@ pub fn build_zone_map_from_py_dict(
     let mut map = HashMap::new();
     for (key, value) in py_dict {
         let k: String = key.extract()?;
-        let d: &Bound<'_, PyDict> = value.downcast()?;
+        let d: Bound<'_, PyDict> = value.cast_into::<PyDict>()?;
         let rect = Rect {
-            x_min: extract_f64(d, "x_min", 0.0)?,
-            y_min: extract_f64(d, "y_min", 0.0)?,
-            x_max: extract_f64(d, "x_max", 0.0)?,
-            y_max: extract_f64(d, "y_max", 0.0)?,
+            x_min: extract_f64(&d, "x_min", 0.0)?,
+            y_min: extract_f64(&d, "y_min", 0.0)?,
+            x_max: extract_f64(&d, "x_max", 0.0)?,
+            y_max: extract_f64(&d, "y_max", 0.0)?,
         };
         map.insert(k, rect);
     }
@@ -264,22 +265,22 @@ pub fn build_channel_topology_from_py(
     let mut channels_map: HashMap<String, Channel> = HashMap::new();
 
     for item in skeletons {
-        let d: &Bound<'_, PyDict> = item.downcast()?;
-        let ch_id: String = extract_str(d, "channel_id")
-            .or_else(|_| extract_str(d, "channel"))?;
-        let net_a: usize = extract_str(d, "net_a")
-            .or_else(|_| extract_str(d, "net1"))?
+        let d: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
+        let ch_id: String = extract_str(&d, "channel_id")
+            .or_else(|_| extract_str(&d, "channel"))?;
+        let net_a: usize = extract_str(&d, "net_a")
+            .or_else(|_| extract_str(&d, "net1"))?
             .parse()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("{e}")))?;
-        let net_b: usize = extract_str(d, "net_b")
-            .or_else(|_| extract_str(d, "net2"))?
+        let net_b: usize = extract_str(&d, "net_b")
+            .or_else(|_| extract_str(&d, "net2"))?
             .parse()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("{e}")))?;
         let width: f64 = channel_widths
             .get_item(&ch_id)?
             .map(|v| v.extract::<f64>().unwrap_or(2.0))
             .unwrap_or(2.0);
-        let layer: String = extract_str(d, "layer").unwrap_or_else(|_| "F.Cu".into());
+        let layer: String = extract_str(&d, "layer").unwrap_or_else(|_| "F.Cu".into());
 
         let entry = channels_map
             .entry(ch_id.clone())
@@ -304,7 +305,7 @@ pub fn build_channel_topology_from_py(
 pub fn internal_constraint_to_py_dict(
     py: Python<'_>,
     constraint: &temper_rust_router_core::types::InternalConstraint,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     let d = PyDict::new(py);
     match constraint {
         temper_rust_router_core::types::InternalConstraint::Capacity {
@@ -360,7 +361,7 @@ pub fn internal_constraint_to_py_dict(
     Ok(d.into())
 }
 
-pub fn diagnostic_to_py_dict(py: Python<'_>, diag: &crate::provenance::ProvenanceDiagnostic) -> PyResult<PyObject> {
+pub fn diagnostic_to_py_dict(py: Python<'_>, diag: &crate::provenance::ProvenanceDiagnostic) -> PyResult<Py<PyAny>> {
     let d = PyDict::new(py);
     d.set_item("pcl_constraint_id", &diag.pcl_constraint_id)?;
     d.set_item("tier", format!("{}", diag.tier))?;
@@ -382,7 +383,7 @@ pub fn run_full_pipeline(
     _existing_vars: &Bound<'_, PyList>,
     _existing_cons: &Bound<'_, PyList>,
     _net_names: Vec<String>,
-) -> PyResult<PyObject> {
+) -> PyResult<Py<PyAny>> {
     let mut warnings: Vec<String> = Vec::new();
 
     let pcl_constraints = build_pcl_constraints_from_py(pcl_dicts)?;
@@ -401,17 +402,17 @@ pub fn run_full_pipeline(
     let skeleton_edges: Vec<(usize, usize, String)> = {
         let mut edges = Vec::new();
         for item in skeletons {
-            let d: &Bound<'_, PyDict> = item.downcast()?;
-            let na: usize = extract_str(d, "net_a")
-                .or_else(|_| extract_str(d, "net1"))?
+            let d: Bound<'_, PyDict> = item.cast_into::<PyDict>()?;
+            let na: usize = extract_str(&d, "net_a")
+                .or_else(|_| extract_str(&d, "net1"))?
                 .parse()
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("{e}")))?;
-            let nb: usize = extract_str(d, "net_b")
-                .or_else(|_| extract_str(d, "net2"))?
+            let nb: usize = extract_str(&d, "net_b")
+                .or_else(|_| extract_str(&d, "net2"))?
                 .parse()
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("{e}")))?;
-            let ch_id: String = extract_str(d, "channel_id")
-                .or_else(|_| extract_str(d, "channel"))?;
+            let ch_id: String = extract_str(&d, "channel_id")
+                .or_else(|_| extract_str(&d, "channel"))?;
             edges.push((na, nb, ch_id));
         }
         edges
@@ -444,7 +445,7 @@ pub fn run_full_pipeline(
         })?;
 
     let conflicts = detect_conflicts(&tier1_model.constraints);
-    let conflict_dicts: Vec<PyObject> = conflicts
+    let conflict_dicts: Vec<Py<PyAny>> = conflicts
         .iter()
         .map(|c| {
             let d = PyDict::new(py);
@@ -461,7 +462,7 @@ pub fn run_full_pipeline(
             PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Tier 1→2 error: {e}"))
         })?;
 
-    let constraint_dicts: Vec<PyObject> = tier2_constraints
+    let constraint_dicts: Vec<Py<PyAny>> = tier2_constraints
         .iter()
         .map(|c| internal_constraint_to_py_dict(py, c))
         .collect::<Result<Vec<_>, _>>()?;
