@@ -232,11 +232,25 @@ def test_route_pcb_with_placements():
     try:
         parsed = type("ParsedPCB", (), {"source_path": temp_path})()
 
+        # route_pcb()'s own `finally: os.unlink(temp_path)` deletes the temp
+        # PCB unconditionally once it returns, mocked pipeline or not -- the
+        # deletion isn't contingent on a real pipeline "consuming" the file.
+        # So the content must be captured at call time, inside run()'s
+        # side_effect, before route_pcb() reaches its cleanup -- reading
+        # run_args[0] after route_pcb() returns races a file that's
+        # already gone.
+        captured = {}
+
+        def _capture_run(path, *_args, **_kwargs):
+            captured["path"] = path
+            captured["content"] = PathLib(path).read_text(encoding="utf-8")
+            return mock_result
+
         with umock.patch(
             "temper_placer.router_v6.pipeline.RouterV6Pipeline"
         ) as mock_pipe_cls:
             mock_pipe = umock.MagicMock()
-            mock_pipe.run.return_value = mock_result
+            mock_pipe.run.side_effect = _capture_run
             mock_pipe_cls.return_value = mock_pipe
 
             result = route_pcb(
@@ -261,11 +275,10 @@ def test_route_pcb_with_placements():
             assert len(run_args) == 1
             assert isinstance(run_args[0], PathLib)
 
-            # The temp file must contain the placement-applied coordinates.
-            # The mock doesn't consume the file, so it's still on disk.
+            # The temp file must contain the placement-applied coordinates,
+            # captured at call time via the side_effect above.
             temp_pcb_path = run_args[0]
-            temp_content = temp_pcb_path.read_text(encoding="utf-8")
-            assert "(at 10.0000 20.0000" in temp_content, (
+            assert "(at 10.0000 20.0000" in captured["content"], (
                 "Placement was not applied: expected R1 at (10.0, 20.0) "
                 "in the temp PCB content passed to pipeline.run()"
             )
