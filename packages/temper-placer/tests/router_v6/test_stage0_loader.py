@@ -7,12 +7,6 @@ Part of temper-y7j2
 from pathlib import Path
 
 
-def test_parse_kicad_pcb_v6_basic():
-    """Test basic PCB loading and validation."""
-    # This will be run against actual test PCB files
-    pass
-
-
 def test_parsed_pcb_validation():
     """Test ParsedPCB validation checks."""
     from temper_placer.core.board import Board

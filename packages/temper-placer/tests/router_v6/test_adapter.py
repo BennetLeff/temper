@@ -412,10 +412,17 @@ class TestCrossClassZoneClearance:
         output, _ = _write_routes_to_content(content, result, design_rules=dr)
         assert "(clearance 0.2500)" in output
 
-    def test_route_pcb_e2e_threads_design_rules(self):
-        """End-to-end: route_pcb + enable_zone_pours reflects cross-class clearance."""
+    def test_route_pcb_e2e_threads_design_rules_to_zone_pours_and_pipeline(self):
+        """End-to-end: route_pcb + enable_zone_pours reflects cross-class
+        clearance in zone-pour output AND forwards design_rules to the pipeline.
+
+        Verifies both downstream consumers of the design_rules parameter:
+        1. The writer's zone-pour clearance resolution (zone geometry).
+        2. The pipeline's layer-constraint resolution (constructor kwargs).
+        """
         import os
         import tempfile
+        from pathlib import Path
         from types import SimpleNamespace
         from unittest import mock as umock
 
@@ -477,9 +484,32 @@ class TestCrossClassZoneClearance:
                 design_rules=dr,
                 enable_zone_pours=True,
             )
+
+            # Zone-pour output: cross-class clearance emitted in PCB content.
             assert result.routed_pcb_content is not None
             assert "(zone " in result.routed_pcb_content
             assert "(clearance 6.0000)" in result.routed_pcb_content
+
+            # Pipeline wiring: constructor receives layer_constraints from
+            # the design_rules SSOT and enable_zone_pours flag.
+            mock_pipe_cls.assert_called_once()
+            _, ctor_kwargs = mock_pipe_cls.call_args
+            assert ctor_kwargs.get("enable_zone_pours") is True, (
+                "enable_zone_pours must be forwarded to the pipeline constructor"
+            )
+            layer_constraints = ctor_kwargs.get("layer_constraints")
+            assert layer_constraints, (
+                "layer_constraints must not be empty when parsed.nets is "
+                "populated and design_rules is provided"
+            )
+            assert "vcc" in layer_constraints
+            assert "+340V_BUS" in layer_constraints
+
+            # Pipeline invocation: run() receives the PCB path.
+            mock_pipe.run.assert_called_once()
+            run_args, _run_kwargs = mock_pipe.run.call_args
+            assert len(run_args) == 1
+            assert isinstance(run_args[0], Path)
         finally:
             patcher.stop()
             os.unlink(temp_path)
