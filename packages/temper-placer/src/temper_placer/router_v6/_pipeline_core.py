@@ -184,6 +184,7 @@ class RouterV6Pipeline:
         pcb_path: Path,
         pcb_override=None,
         net_class_assignments: dict[str, str] | None = None,
+        net_classes: dict[str, Any] | None = None,
     ) -> RouterV6Result:
         """Run complete Router V6 pipeline on a PCB file.
 
@@ -193,6 +194,11 @@ class RouterV6Pipeline:
             net_class_assignments: Optional ``{net_name: netclass_name}``
                 map to inject into the parsed board's design rules for
                 per-net clearance-aware routing (R4 FinePitch 0.15mm).
+            net_classes: Optional ``{class_name: stage0 NetClassRules}``
+                dict injected into ``pcb.design_rules.net_classes`` after
+                parsing.  This is the primary path for ``safety_category``
+                to reach the A* engine (used by the HV/AC forced-segment
+                fail-closed gate, R6 in 2026-07-23-008).
         """
         start_time = time.time()
 
@@ -209,14 +215,20 @@ class RouterV6Pipeline:
         # to the SSOT Signal netclass (0.15mm). FinePitch nets (SPI, USB,
         # PWM, I_SENSE, TEMP_SENSE) coexist with other low-voltage signals;
         # 0.15mm is the correct inter-net signal clearance from netclass_rules.yaml.
-        if net_class_assignments:
+        if net_class_assignments or net_classes:
             dr = getattr(pcb, "design_rules", None)
             if dr is not None:
-                nc = getattr(dr, "net_class_assignments", {})
-                if isinstance(nc, dict):
-                    nc.update(net_class_assignments)
-                    dr.net_class_assignments = nc
-                dr.default_clearance_mm = 0.15
+                if net_class_assignments:
+                    nc = getattr(dr, "net_class_assignments", {})
+                    if isinstance(nc, dict):
+                        nc.update(net_class_assignments)
+                        dr.net_class_assignments = nc
+                    dr.default_clearance_mm = 0.15
+                if net_classes:
+                    existing = getattr(dr, "net_classes", {})
+                    if isinstance(existing, dict):
+                        existing.update(net_classes)
+                        dr.net_classes = existing
 
         # Reorder nets: power/HV nets first, signal nets last.
         # Prevents final-round displacement of SPI/USB/sense nets.

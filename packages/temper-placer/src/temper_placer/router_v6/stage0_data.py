@@ -85,6 +85,7 @@ class NetClassRules:
     diff_pair_gap_mm: float | None = None
     diff_pair_width_mm: float | None = None
     current_rating_amps: float | None = None
+    safety_category: str | None = None
 
 
 @dataclass

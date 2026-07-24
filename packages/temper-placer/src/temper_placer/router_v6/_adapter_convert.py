@@ -25,11 +25,91 @@ __all__ = [
     "_build_routing_result",
     "_emit_zone_pours",
     "_stitch_isolated_pads",
+    "_to_stage0_netclass_rules",
     "_write_routes_to_content",
     "_zone_layers_for_net",
     "_zone_params_for_net",
     "route_pcb",
 ]
+
+
+def _to_stage0_netclass_rules(rules: Any) -> Any:
+    """Convert a core NetClassRules (or duck-type-compatible shape) into a
+    stage0 NetClassRules dataclass.
+
+    This adapter is the single conversion boundary between the YAML SSOT
+    representation (``core.netclass_rules_gen.NetClassRules``) and the A*
+    engine's internal representation (``stage0_data.NetClassRules``).
+
+    Explicit attribute checking replaces the previous ``getattr(rules, attr,
+    default)`` duck-type approach: unrecognized shapes raise ``TypeError``
+    rather than silently returning defaults.
+    """
+    from temper_placer.router_v6.stage0_data import NetClassRules as Stage0NetClassRules
+
+    # --- Resolve each mapped field with explicit shape checking ---
+
+    def _resolve(name: str, *aliases: str) -> Any:
+        """Return the first attribute of *aliases* that exists on *rules*."""
+        for alias in aliases:
+            if hasattr(rules, alias):
+                return getattr(rules, alias)
+        raise TypeError(
+            f"Cannot convert {type(rules).__name__!r} to stage0 NetClassRules: "
+            f"no attribute matching any of {list(aliases)} found"
+        )
+
+    name = _resolve("name", "name")
+    clearance_mm = _resolve("clearance", "clearance", "clearance_mm")
+    trace_width_mm = _resolve("trace_width", "trace_width", "trace_width_mm")
+    via_diameter_mm = _resolve("via_diameter", "via_diameter", "via_diameter_mm")
+    via_drill_mm = _resolve("via_drill", "via_drill", "via_drill_mm")
+
+    # max_current_rating → current_rating_amps (R1 fix)
+    current_rating_amps: float | None = None
+    if hasattr(rules, "max_current_rating"):
+        current_rating_amps = getattr(rules, "max_current_rating")
+
+    # safety_category survives conversion (needed by R6 HV/AC forced-segment gate)
+    safety_category: str | None = None
+    if hasattr(rules, "safety_category"):
+        val = getattr(rules, "safety_category")
+        if val is not None:
+            safety_category = str(val)
+
+    # --- R1b: Warn on unrepresented fields that are explicitly set ---
+    _UNREPRESENTED_WARN = (
+        ("creepage_mm", "Creepage distance", 0.0),
+        ("voltage_v", "Voltage rating", 0.0),
+        ("routing_strategy", "Routing strategy", None),
+        ("via_cost_multiplier", "Via cost multiplier", 1.0),
+        ("layer_costs", "Layer cost overrides", None),
+        ("via_template", "Via template", None),
+        ("target_impedance", "Target impedance", None),
+        ("required_layer", "Required KiCad layer", None),
+        ("layer", "KiCad layer", None),
+        ("dru_priority", "DRU priority", 0),
+    )
+    for attr_name, human_label, default_val in _UNREPRESENTED_WARN:
+        val = getattr(rules, attr_name, None)
+        if val is not None and val != default_val:
+            logger.warning(
+                "_to_stage0_netclass_rules: dropping %s=%s for netclass %r "
+                "— no stage0 equivalent field exists",
+                human_label,
+                val,
+                name,
+            )
+
+    return Stage0NetClassRules(
+        name=name,
+        clearance_mm=clearance_mm,
+        trace_width_mm=trace_width_mm,
+        via_diameter_mm=via_diameter_mm,
+        via_drill_mm=via_drill_mm,
+        current_rating_amps=current_rating_amps,
+        safety_category=safety_category,
+    )
 
 
 def route_pcb(
@@ -129,6 +209,30 @@ def route_pcb(
         enable_connectivity_verifier=enable_connectivity_verifier,
     )
 
+    # R6 (2026-07-23-008): Convert core netclass rules to stage0 format
+    # so safety_category survives into pcb.design_rules for the HV/AC
+    # forced-segment fail-closed gate.  If _to_stage0_netclass_rules() is
+    # later wired into a different injection point (e.g. _parse_nets.py),
+    # this block becomes redundant — but it is the correct place today.
+    _stage0_net_classes: dict[str, Any] = {}
+    if design_rules is not None:
+        core_net_classes = getattr(design_rules, "net_classes", None)
+        if core_net_classes:
+            for class_name, core_rules in core_net_classes.items():
+                try:
+                    _stage0_net_classes[class_name] = _to_stage0_netclass_rules(
+                        core_rules
+                    )
+                except Exception:
+                    logger.warning(
+                        "route_pcb: failed to convert core netclass %r to "
+                        "stage0 format — safety_category will not survive; "
+                        "HV/AC forced-segment gate will not activate for nets "
+                        "in this class",
+                        class_name,
+                        exc_info=True,
+                    )
+
     if placements:
         raw_content = pcb_path.read_text(encoding="utf-8")
         modified_content = _apply_placements_to_pcb(
@@ -165,7 +269,11 @@ def route_pcb(
             # 500k).  See
             # docs/solutions/architecture-patterns/router-v6-closure-rate-100pct-2026-06-24.md
             # for the iter-cap sweet-spot table.
-            result = pipeline.run(Path(temp_path))
+            result = pipeline.run(
+                Path(temp_path),
+                net_class_assignments=_net_class_assignments,
+                net_classes=_stage0_net_classes if _stage0_net_classes else None,
+            )
             result.enable_zone_pours = enable_zone_pours
             placed_content = Path(temp_path).read_text(encoding="utf-8")
             routed_content, pad_positions = _write_routes_to_content(
@@ -183,7 +291,11 @@ def route_pcb(
             with contextlib.suppress(OSError):
                 os.unlink(temp_path)
     else:
-        result = pipeline.run(pcb_path)
+        result = pipeline.run(
+            pcb_path,
+            net_class_assignments=_net_class_assignments,
+            net_classes=_stage0_net_classes if _stage0_net_classes else None,
+        )
         result.enable_zone_pours = enable_zone_pours
         placed_content = pcb_path.read_text(encoding="utf-8")
         routed_content, pad_positions = _write_routes_to_content(
@@ -707,6 +819,19 @@ def _build_routing_result(
     routing_results = result.stage4.routing_results
     unrouted_nets = list(routing_results.failed_nets)
 
+    # R5: Extract forced-segment net names from compiled routes.
+    # Each CompiledRoute.path is the original RoutePath/RoutePath3D which
+    # carries forced_segment_count.  (The routed_paths dict lives on
+    # PathfindingResult, replaced by compile_routing_results() in Stage 4.)
+    forced_segment_nets: list[str] = []
+    compiled = getattr(routing_results, "compiled_routes", None)
+    if compiled:
+        forced_segment_nets = [
+            net_name
+            for net_name, route in compiled.items()
+            if getattr(getattr(route, "path", None), "forced_segment_count", 0) > 0
+        ]
+
     drc_violations: list[DrcViolation] = []
     congestion_regions: list[CongestionRegion] = []
 
@@ -769,6 +894,7 @@ def _build_routing_result(
         congestion_regions=congestion_regions,
         routed_pcb_content=routed_content,
         connectivity=connectivity,
+        forced_segment_nets=forced_segment_nets,
     )
 
 
